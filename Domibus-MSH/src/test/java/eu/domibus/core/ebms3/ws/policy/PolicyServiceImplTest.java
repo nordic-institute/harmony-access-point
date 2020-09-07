@@ -1,22 +1,23 @@
 package eu.domibus.core.ebms3.ws.policy;
 
 import eu.domibus.api.property.DomibusConfigurationService;
-import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Security;
+import eu.domibus.core.cxf.DomibusBus;
+import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
-import org.apache.cxf.Bus;
 import org.apache.cxf.ws.policy.PolicyBuilder;
 import org.apache.cxf.ws.policy.PolicyBuilderImpl;
 import org.apache.neethi.Policy;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Arun Raj
@@ -32,7 +33,7 @@ public class PolicyServiceImplTest {
     DomibusConfigurationService domibusConfigurationService;
 
     @Injectable
-    Bus bus;
+    DomibusBus busCore;
 
     @Tested
     PolicyServiceImpl policyService;
@@ -41,7 +42,7 @@ public class PolicyServiceImplTest {
     public void testIsNoSecurityPolicy_NullPolicy() {
         //when null policy is specified
         boolean result1 = policyService.isNoSecurityPolicy(null);
-        Assert.assertTrue("Expected NoSecurityPolicy as true when null input provided", result1 == true);
+        assertTrue("Expected NoSecurityPolicy as true when null input provided", result1);
     }
 
     @Test
@@ -53,7 +54,7 @@ public class PolicyServiceImplTest {
         }};
 
         boolean result2 = policyService.isNoSecurityPolicy(doNothingPolicy);
-        Assert.assertTrue(result2 == true);
+        assertTrue(result2);
     }
 
     @Test
@@ -64,7 +65,7 @@ public class PolicyServiceImplTest {
         }};
 
         boolean result3 = policyService.isNoSecurityPolicy(signOnlyPolicy);
-        Assert.assertTrue(result3 == false);
+        assertFalse(result3);
     }
 
     @Test
@@ -72,8 +73,9 @@ public class PolicyServiceImplTest {
 
         try {
             policyService.parsePolicy("NonExistentFileLocation");
+            fail();
         } catch (Exception e) {
-            Assert.assertTrue("Expecting ConfigurationException", e instanceof ConfigurationException);
+            assertTrue("Expecting ConfigurationException", e instanceof ConfigurationException);
         }
     }
 
@@ -81,18 +83,18 @@ public class PolicyServiceImplTest {
     public void testSignOnlyPolicy() {
         PolicyBuilder pb = new PolicyBuilderImpl();
         new Expectations() {{
-            bus.getExtension(PolicyBuilder.class);
+            busCore.getExtension(PolicyBuilder.class);
             result = pb;
             domibusConfigurationService.getConfigLocation();
             result = ".";
         }};
 
         Policy policy = policyService.parsePolicy(TEST_RESOURCES_DIR + "/eDeliveryAS4Policy_test_signOnly.xml");
-        Assert.assertTrue(policyService.isNoEncryptionPolicy(policy));
+        assertTrue(policyService.isNoEncryptionPolicy(policy));
         policy = policyService.parsePolicy(TEST_RESOURCES_DIR + "/eDeliveryAS4Policy_test.xml");
-        Assert.assertFalse(policyService.isNoEncryptionPolicy(policy));
+        assertFalse(policyService.isNoEncryptionPolicy(policy));
         policy = policyService.parsePolicy(TEST_RESOURCES_DIR + "/eDeliveryAS4Policy_test_donothing.xml");
-        Assert.assertTrue(policyService.isNoEncryptionPolicy(policy));
+        assertTrue(policyService.isNoEncryptionPolicy(policy));
     }
 
     @Test
@@ -104,8 +106,9 @@ public class PolicyServiceImplTest {
 
         try {
             policyService.getPolicy(legConfiguration);
+            fail();
         } catch (Exception e) {
-            Assert.assertTrue("Expecting ConfigurationException", e instanceof ConfigurationException);
+            assertTrue("Expecting ConfigurationException", e instanceof ConfigurationException);
         }
     }
 

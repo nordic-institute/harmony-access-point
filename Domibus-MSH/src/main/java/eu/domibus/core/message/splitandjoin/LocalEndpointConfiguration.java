@@ -3,10 +3,10 @@ package eu.domibus.core.message.splitandjoin;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.core.cxf.DomibusBus;
 import eu.domibus.core.ebms3.receiver.interceptor.CheckEBMSHeaderInterceptor;
 import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
 import eu.domibus.core.util.MessageUtil;
-import org.apache.cxf.Bus;
 import org.apache.cxf.jaxws.EndpointImpl;
 import org.apache.cxf.transport.ConduitInitiatorManager;
 import org.apache.cxf.transport.DestinationFactoryManager;
@@ -25,12 +25,6 @@ import javax.xml.ws.Endpoint;
 public class LocalEndpointConfiguration {
 
     @Autowired
-    protected Bus bus;
-
-    @Autowired
-    protected MSHSourceMessageWebservice mshWebserviceSerializer;
-
-    @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
 
     @Autowired
@@ -46,7 +40,7 @@ public class LocalEndpointConfiguration {
     protected DomainService domainService;
 
     @Bean(name = "localMSH")
-    public Endpoint createMSHEndpoint() {
+    public Endpoint createMSHEndpoint(DomibusBus bus, MSHSourceMessageWebservice mshWebserviceSerializer) {
         DestinationFactoryManager dfm = bus.getExtension(DestinationFactoryManager.class);
 
         LocalTransportFactory localTransport = new LocalTransportFactory();
