@@ -4,7 +4,7 @@ import com.sun.jersey.api.client.ClientResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import utils.Generator;
+import utils.Gen;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -54,7 +54,7 @@ public class PmodePartiesClient extends BaseRestClient {
 	
 	public void updatePartyURL(String name) throws Exception {
 		JSONArray parties = getParties();
-		String generatedURL = String.format("http://testhost.com/%s", Generator.randomAlphaNumeric(10));
+		String generatedURL = String.format("http://testhost.com/%s", Gen.randomAlphaNumeric(10));
 		
 		for (int i = 0; i < parties.length(); i++) {
 			JSONObject party = parties.getJSONObject(i);
@@ -73,19 +73,19 @@ public class PmodePartiesClient extends BaseRestClient {
 	
 	public ClientResponse createParty(String domain, String name, String endpoint, String[] initiatorsProc, String[] respondersProc, String partyID, String partyType, String partyIdVal) throws Exception {
 		if (StringUtils.isEmpty(name)) {
-			name = Generator.randomAlphaNumeric(10);
+			name = Gen.randomAlphaNumeric(10);
 		}
 		if (StringUtils.isEmpty(endpoint)) {
-			endpoint = "http://" + Generator.randomAlphaNumeric(10) + ".com";
+			endpoint = "http://" + Gen.randomAlphaNumeric(10) + ".com";
 		}
 		if (StringUtils.isEmpty(partyID)) {
-			partyID = Generator.randomAlphaNumeric(10);
+			partyID = Gen.randomAlphaNumeric(10);
 		}
 		if (StringUtils.isEmpty(partyType)) {
-			partyType = Generator.randomAlphaNumeric(10);
+			partyType = Gen.randomAlphaNumeric(10);
 		}
 		if (StringUtils.isEmpty(partyIdVal)) {
-			partyIdVal = Generator.randomAlphaNumeric(10);
+			partyIdVal = Gen.randomAlphaNumeric(10);
 		}
 //		if(null == initiatorsProc || initiatorsProc.length == 0){ initiatorsProc = {Generator.randomAlphaNumeric(10)};}
 //		if(null == respondersProc || respondersProc.length == 0){ respondersProc = {Generator.randomAlphaNumeric(10)};}

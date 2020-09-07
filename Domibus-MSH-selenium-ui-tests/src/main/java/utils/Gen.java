@@ -7,7 +7,7 @@ package utils;
  */
 
 
-public class Generator {
+public class Gen {
 	
 	private static final String ALPHA_NUMERIC_STRING = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 	

@@ -10,12 +10,11 @@ import java.util.Map;
 public interface CommandExecutorService {
 
     /**
-     * Execute commands by server and domain (find commands, then execute and delete each command)
+     * Execute commands by a given server (find commands, then execute and delete each command)
      *
      * @param serverName
-     * @param domain
      */
-    void executeCommands(String serverName, Domain domain);
+    void executeCommands(String serverName);
 
-    void executeCommand(String command, Domain domain, Map<String, String> commandProperties);
+    void executeCommand(String command, Map<String, String> commandProperties);
 }

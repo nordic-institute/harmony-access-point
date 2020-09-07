@@ -14,9 +14,9 @@ public class NotifyMessageCreator {
 
     private final String messageId;
     private NotificationType notificationType;
-    private Map<String, Object> properties;
+    private Map<String, String> properties;
 
-    public NotifyMessageCreator(final String messageId, final NotificationType notificationType, final Map<String, Object> properties) {
+    public NotifyMessageCreator(final String messageId, final NotificationType notificationType, final Map<String, String> properties) {
         this.messageId = messageId;
         this.notificationType = notificationType;
         this.properties = properties;

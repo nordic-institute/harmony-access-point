@@ -8,14 +8,15 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pmode.PModeService;
 import eu.domibus.api.pmode.PModeServiceHelper;
 import eu.domibus.api.pmode.domain.LegConfiguration;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
+import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.jms.DelayedDispatchMessageCreator;
 import eu.domibus.core.jms.DispatchMessageCreator;
 import eu.domibus.core.message.converter.MessageConverterService;
-import eu.domibus.core.message.pull.PartyExtractor;
 import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
@@ -30,6 +31,7 @@ import eu.domibus.ebms3.common.model.*;
 import eu.domibus.messaging.MessagingProcessingException;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
+import org.apache.commons.lang3.time.DateUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,6 +43,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -141,6 +144,12 @@ public class UserMessageDefaultServiceTest {
 
     @Injectable
     UserMessagePriorityService userMessagePriorityService;
+
+    @Injectable
+    DomibusPropertyProvider domibusPropertyProvider;
+
+    @Injectable
+    DateUtil dateUtil;
 
     @Test
     public void createMessagingForFragment(@Injectable UserMessage sourceMessage,
@@ -373,8 +382,7 @@ public class UserMessageDefaultServiceTest {
             messagingDao.findUserMessageByMessageId(messageId);
             times = 1;
 
-            PartyExtractor partyExtractor = null;
-            pullMessageService.addPullMessageLock(withAny(partyExtractor), userMessage, userMessageLog);
+            pullMessageService.addPullMessageLock(userMessage, userMessageLog);
             times = 1;
         }};
     }
@@ -703,8 +711,8 @@ public class UserMessageDefaultServiceTest {
         }};
     }
 
-    @Test
-    public void test_ResendFailedOrSendEnqueuedMessage_StatusSendEnqueued(final @Mocked UserMessageLog userMessageLog) {
+    @Test(expected = UserMessageException.class)
+    public void test_ResendFailedOrSendEnqueuedMessage_StatusSendEnqueued(final @Mocked UserMessageLog userMessageLog) throws Exception {
         final String messageId = UUID.randomUUID().toString();
 
         new Expectations(userMessageDefaultService) {{
@@ -717,6 +725,7 @@ public class UserMessageDefaultServiceTest {
 
         //tested method
         userMessageDefaultService.resendFailedOrSendEnqueuedMessage(messageId);
+
 
         new FullVerifications(userMessageDefaultService) {{
             String messageIdActual;
@@ -766,6 +775,40 @@ public class UserMessageDefaultServiceTest {
 
         new FullVerifications(userMessageDefaultService) {
         };
+    }
+
+    @Test
+    public void test_sendEnqueued(final @Mocked UserMessageLog userMessageLog, final @Mocked UserMessage userMessage) {
+        final String messageId = UUID.randomUUID().toString();
+
+        new Expectations(userMessageDefaultService) {{
+            userMessageLogDao.findByMessageId(messageId);
+            result = userMessageLog;
+
+            userMessageLog.getMessageStatus();
+            result = MessageStatus.SEND_ENQUEUED;
+
+            domibusPropertyProvider.getIntegerProperty(DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES);
+            result = 2;
+
+            userMessageLog.getReceived();
+            result = DateUtils.addMinutes(new Date(), -3);
+
+            userMessageLog.getNextAttempt();
+            result = null;
+
+            messagingDao.findUserMessageByMessageId(messageId);
+            result = userMessage;
+        }};
+
+        //tested method
+        userMessageDefaultService.sendEnqueuedMessage(messageId);
+
+        new FullVerifications(userMessageDefaultService) {{
+            userMessageLog.setNextAttempt(withAny(new Date()));
+            userMessageLogDao.update(userMessageLog);
+            userMessageDefaultService.scheduleSending(userMessage, userMessageLog);
+        }};
     }
 
     @Test

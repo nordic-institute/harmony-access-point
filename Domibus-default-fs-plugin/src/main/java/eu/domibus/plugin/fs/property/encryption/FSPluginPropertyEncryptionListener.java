@@ -39,7 +39,7 @@ public class FSPluginPropertyEncryptionListener implements PluginPropertyEncrypt
         LOG.debug("Encrypting passwords is active in the FS Plugin? [{}]", passwordEncryptionActive);
 
         if (!passwordEncryptionActive) {
-            LOG.debug("No password encryption will be performed");
+            LOG.info("No password encryption will be performed for FSPlugin");
             return;
         }
 
@@ -47,7 +47,12 @@ public class FSPluginPropertyEncryptionListener implements PluginPropertyEncrypt
 
         //We use the default domain to encrypt all the passwords. This is because there is no clear segregation between FS Plugin properties per domain
         final DomainDTO domainDTO = domainExtService.getDomain(FSSendMessagesService.DEFAULT_DOMAIN);
-        final FSPluginPasswordEncryptionContext passwordEncryptionContext = new FSPluginPasswordEncryptionContext(fsPluginProperties, domibusConfigurationExtService, pluginPasswordEncryptionService, domainDTO);
+        final FSPluginPasswordEncryptionContext passwordEncryptionContext =
+                new FSPluginPasswordEncryptionContext(
+                        fsPluginProperties,
+                        domibusConfigurationExtService,
+                        pluginPasswordEncryptionService,
+                        domainDTO);
         pluginPasswordEncryptionService.encryptPasswordsInFile(passwordEncryptionContext);
 
         LOG.debug("Finished encrypting passwords");

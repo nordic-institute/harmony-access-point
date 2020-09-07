@@ -3,6 +3,7 @@ package ddsl.dobjects;
 import ddsl.dcomponents.DComponent;
 import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -59,12 +60,23 @@ public class Select extends DComponent {
 		log.debug(optionIDs.size() + " option ids identified : " + optionIDs);
 	}
 	
-	protected void expand() throws Exception {
+	public void expand() throws Exception {
 		try {
 			weToDButton(expandBtn).click();
 			wait.forAttributeToContain(selectContainer, "aria-owns", "mat-option");
 			wait.forXMillis(200);
 			if (this.optionIDs.size() == 0) extractOptionIDs();
+		} catch (Exception e) {
+		}
+	}
+	
+	public void contract() throws Exception {
+		try {
+			wait.forXMillis(200);
+			
+			selectContainer.sendKeys(Keys.ESCAPE);
+			wait.forXMillis(200);
+			
 		} catch (Exception e) {
 		}
 	}
@@ -123,6 +135,7 @@ public class Select extends DComponent {
 		for (int i = 0; i < options.size(); i++) {
 			texts.add(options.get(i).getText());
 		}
+		contract();
 		return texts;
 	}
 	

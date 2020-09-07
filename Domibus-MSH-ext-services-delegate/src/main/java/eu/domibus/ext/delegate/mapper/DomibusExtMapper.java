@@ -14,13 +14,16 @@ import eu.domibus.api.property.encryption.PasswordEncryptionResult;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.usermessage.domain.UserMessage;
 import eu.domibus.ext.domain.*;
+import org.mapstruct.DecoratedWith;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 /**
  * @author Ioana Dragusanu (idragusa), azhikso
  * @since 4.1
  */
 @Mapper(uses = MonitoringMapper.class, componentModel = "spring")
+@DecoratedWith(DomibusExtMapperDecorator.class)
 public interface DomibusExtMapper {
 
     DomainDTO domainToDomainDTO(Domain domain);
@@ -35,8 +38,10 @@ public interface DomibusExtMapper {
 
     MessageAcknowledgement messageAcknowledgementDTOToMessageAcknowledgement(MessageAcknowledgementDTO messageAcknowledgementDTO);
 
+    @Mapping(target = "properties", ignore = true)
     JmsMessageDTO jmsMessageToJmsMessageDTO(JmsMessage jmsMessage);
 
+    @Mapping(target = "properties", ignore = true)
     JmsMessage jmsMessageDTOToJmsMessage(JmsMessageDTO jmsMessageDTO);
 
     UserMessage userMessageDTOToUserMessage(UserMessageDTO userMessageDTO);

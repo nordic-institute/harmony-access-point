@@ -73,40 +73,21 @@ public class DFileUtils {
 		
 		for (File file : listOfFiles) {
 			if (file.isFile()) {
-			
+				results.add(file.getName());
 			}
-			results.add(file.getName());
 		}
 		String completePath = path + "\\" + results.get(0);
 		return FilenameUtils.getExtension(completePath);
 	}
 	
 	/* This method will return folder location for downloaded file*/
-	public static String getCompleteFileName(String path) {
+	public static String getCompleteFileName(String path) throws Exception {
 		List<String> results = new ArrayList<String>();
 		File[] listOfFiles = new File(path).listFiles();
-		if (listOfFiles.length == 1) {
-			
-			for (File file : listOfFiles) {
-				if (file.isFile()) {
-				
-				}
-				results.add(file.getName());
-				
-			}
-			return results.get(0);
-			
-		} else {
-			for (File file : listOfFiles) {
-				if (file.isFile()) {
-				
-				}
-				results.add(file.getName());
-			}
-			return results.get(1);
-			
+		if(listOfFiles.length >1){
+			throw new Exception("More than one file in download folder");
 		}
-		
+		return listOfFiles[0].getAbsolutePath();
 	}
 	
 	
@@ -114,7 +95,4 @@ public class DFileUtils {
 		return new File(Thread.currentThread().getContextClassLoader().getResource(relativePath).getFile()).getAbsolutePath();
 	}
 	
-	public static String downloadFolderPath() {
-		return System.getProperty("user.dir") + File.separator + "downloadFiles";
-	}
 }

@@ -18,7 +18,7 @@ public class DelayedDispatchMessageCreator extends DispatchMessageCreator {
 
     public JmsMessage createMessage() {
         JmsMessage m = super.createMessage();
-        m.setProperty(AMQ_SCHEDULED_DELAY, delay);
+        m.setProperty(AMQ_SCHEDULED_DELAY, String.valueOf(delay));
         return m;
     }
 }

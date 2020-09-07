@@ -1168,6 +1168,159 @@ def findNumberOfDomain(String inputSite) {
             }
         }
     }
+//---------------------------------------------------------------------------------------------------------------------------------
+    static def domibusHealthMonitor(String side, context, log, String domainValue = "Default",String pluginUsername="user",String pluginPassword="Domibus-123",String userRole="ROLE_ADMIN",authorizedUser=true,outcomesMap = [], String authUser = null, String authPwd = null){
+        debugLog("  ====  Calling \"domibusHealthMonitor\".", log)
+		def authenticationUser = null;
+        def authenticationPwd = null;
+        log.info "  domibusHealthMonitor  [][]  Checking the health of Domibus $side.";
+        def commandString = null;
+        def commandResult = null;
+		def jsonSlurper = new JsonSlurper();
+		def dataMap = null;
+		def i=0;
+		
+		// Create plugin user for authentication
+		if(pluginUsername.toLowerCase().equals("user")){
+			pluginUsername="userPl"+(new Date().format("dd-HHmmss"));
+			addPluginUser(side, context, log, domainValue, userRole, pluginUsername, pluginPassword,"urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1",true,authUser,authPwd);
+		}
+		
+	
+		try{			
+			log.info "  domibusHealthMonitor  [][]  ==================================";
+			log.info "  domibusHealthMonitor  [][]  Checking the general status ...";
+			
+			commandString = ["curl", urlToDomibus(side, log, context) + "/ext/monitoring/application/status",
+						"--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
+						"-H", "Content-Type: application/json",
+						"-u", pluginUsername+":"+pluginPassword,
+						"-v"]
+			commandResult = runCommandInShell(commandString, log);
+			if(!authorizedUser){
+				assert(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*403.*/),"Error:domibusHealthMonitor: Error in the expected response (http 403). Returned: "+commandResult[1];
+				log.info "  domibusHealthMonitor  [][]  User \"$pluginUsername\" is not authorized to check the status.";
+			}else{
+				assert(commandResult[0]!=null),"Error:domibusHealthMonitor: Error while trying to retrieve domibus health status. Returned: null.";
+				assert(!commandResult[0].trim().equals("")),"Error:domibusHealthMonitor: Error while trying to retrieve domibus health status. Returned an empty response.";
+				assert(commandResult[0].contains("Database") && commandResult[0].contains("JMSBroker") && commandResult[0].contains("Quartz Trigger")),"Error:domibusHealthMonitor: Error while trying to retrieve domibus health status. Returned: "+commandResult[0];
+				dataMap = jsonSlurper.parseText(commandResult[0]);
+				while (i < dataMap.services.size()){
+					assert(dataMap.services[i] != null),"Error:domibusHealthMonitor: Error while parsing the components status.";
+					log.info "  domibusHealthMonitor  [][]  "+dataMap.services[i].name.toUpperCase().padRight(30-dataMap.services[i].name.length())+"          "+dataMap.services[i].status.toUpperCase();
+					if(outcomesMap){
+						outcomesMap.each { entry ->
+							if(entry.key.toUpperCase().equals(dataMap.services[i].name.toUpperCase())){
+								assert(dataMap.services[i].status.toUpperCase().equals(entry.value.toUpperCase())),"Error:domibusHealthMonitor: Error for service \""+dataMap.services[i].name+"\". Expecting status \""+entry.value+"\" but received status \""+dataMap.services[i].status+"\"";
+							}
+						}	
+					}
+					i++;
+				}
+			}
+			log.info "  domibusHealthMonitor  [][]  ==================================";
+			log.info "\n\n";
+
+			log.info "  domibusHealthMonitor  [][]  ==================================";
+			log.info "  domibusHealthMonitor  [][]  Checking the Database ...";
+			
+			commandString = ["curl", urlToDomibus(side, log, context) + "/ext/monitoring/application/status?filter=db",
+						"--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
+						"-H", "Content-Type: application/json",
+						"-u", pluginUsername+":"+pluginPassword,
+						"-v"]
+			commandResult = runCommandInShell(commandString, log);
+			if(!authorizedUser){
+				assert(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*403.*/),"Error:domibusHealthMonitor: Error in the expected response (http 403). Returned: "+commandResult[1];
+				log.info "  domibusHealthMonitor  [][]  User \"$pluginUsername\" is not authorized to check the \"Database\" status.";
+			}else{
+				assert(commandResult[0]!=null),"Error:domibusHealthMonitor: Error while trying to retrieve domibus DB status. Returned: null.";
+				assert(!commandResult[0].trim().equals("")),"Error:domibusHealthMonitor: Error while trying to retrieve domibus DB status. Returned an empty response.";
+				assert(commandResult[0].contains("Database")),"Error:domibusHealthMonitor: Error while trying to retrieve domibus DB status. Returned: "+commandResult[0];
+				dataMap = jsonSlurper.parseText(commandResult[0]);
+				assert(dataMap.services != null),"Error:domibusHealthMonitor: Error while parsing the DB status.";
+				assert(dataMap.services.size() == 1),"Error:domibusHealthMonitor: Error while parsing the DB status: must return only the DB status. Returned: "+commandResult[0];
+				log.info "  domibusHealthMonitor  [][]  STATUS:"+"          "+dataMap.services[0].status.toUpperCase();
+				if(outcomesMap){
+					outcomesMap.each { entry ->
+						if(entry.key.toUpperCase().equals(dataMap.services[0].name.toUpperCase())){
+							assert(dataMap.services[0].status.toUpperCase().equals(entry.value.toUpperCase())),"Error:domibusHealthMonitor: Error for service \""+dataMap.services[0].name+"\". Expecting status \""+entry.value+"\" but received status \""+dataMap.services[0].status+"\"";
+						}
+					}	
+				}
+			}
+			log.info "  domibusHealthMonitor  [][]  ==================================";
+			log.info "\n\n";
+
+			log.info "  domibusHealthMonitor  [][]  ==================================";
+			log.info "  domibusHealthMonitor  [][]  Checking the quartz trigger ...";
+			
+			commandString = ["curl", urlToDomibus(side, log, context) + "/ext/monitoring/application/status?filter=quartzTrigger",
+						"--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
+						"-H", "Content-Type: application/json",
+						"-u", pluginUsername+":"+pluginPassword,
+						"-v"]
+			commandResult = runCommandInShell(commandString, log);
+			if(!authorizedUser){
+				assert(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*403.*/),"Error:domibusHealthMonitor: Error in the expected response (http 403). Returned: "+commandResult[1];
+				log.info "  domibusHealthMonitor  [][]  User \"$pluginUsername\" is not authorized to check the \"quartz trigger\" status.";
+			}else{
+				assert(commandResult[0]!=null),"Error:domibusHealthMonitor: Error while trying to retrieve domibus Quartz Trigger status. Returned: null.";
+				assert(!commandResult[0].trim().equals("")),"Error:domibusHealthMonitor: Error while trying to retrieve domibus Quartz Trigger status. Returned an empty response.";
+				assert(commandResult[0].contains("Quartz Trigger")),"Error:domibusHealthMonitor: Error while trying to retrieve domibus Quartz Trigger status. Returned: "+commandResult[0];
+				dataMap = jsonSlurper.parseText(commandResult[0]);
+				assert(dataMap.services != null),"Error:domibusHealthMonitor: Error while parsing the Quartz Trigger status.";
+				assert(dataMap.services.size() == 1),"Error:domibusHealthMonitor: Error while parsing the Quartz Trigger status: must return only the Quartz Trigger status. Returned: "+commandResult[0];
+				log.info "  domibusHealthMonitor  [][]  STATUS:"+"          "+dataMap.services[0].status.toUpperCase();
+				if(outcomesMap){
+					outcomesMap.each { entry ->
+						if(entry.key.toUpperCase().equals(dataMap.services[0].name.toUpperCase())){
+							assert(dataMap.services[0].status.toUpperCase().equals(entry.value.toUpperCase())),"Error:domibusHealthMonitor: Error for service \""+dataMap.services[0].name+"\". Expecting status \""+entry.value+"\" but received status \""+dataMap.services[0].status+"\"";
+						}
+					}	
+				}
+			}
+			log.info "  domibusHealthMonitor  [][]  ==================================";
+			log.info "\n\n";			
+
+			log.info "  domibusHealthMonitor  [][]  ==================================";
+			log.info "  domibusHealthMonitor  [][]  Checking the jms broker ...";
+			commandString = ["curl", urlToDomibus(side, log, context) + "/ext/monitoring/application/status?filter=jmsBroker",
+						"--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
+						"-H", "Content-Type: application/json",
+						"-u", pluginUsername+":"+pluginPassword,
+						"-v"]
+			commandResult = runCommandInShell(commandString, log);
+			if(!authorizedUser){
+				assert(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*403.*/),"Error:domibusHealthMonitor: Error in the expected response (http 403). Returned: "+commandResult[1];
+				log.info "  domibusHealthMonitor  [][]  User \"$pluginUsername\" is not authorized to check the \"jms broker\" status.";
+			}else{
+				assert(commandResult[0]!=null),"Error:domibusHealthMonitor: Error while trying to retrieve domibus JMSBroker status. Returned: null.";
+				assert(!commandResult[0].trim().equals("")),"Error:domibusHealthMonitor: Error while trying to retrieve domibus JMSBroker status. Returned an empty response.";
+				assert(commandResult[0].contains("JMSBroker")),"Error:domibusHealthMonitor: Error while trying to retrieve domibus JMSBroker status. Returned: "+commandResult[0];
+				dataMap = jsonSlurper.parseText(commandResult[0]);
+				assert(dataMap.services != null),"Error:domibusHealthMonitor: Error while parsing the JMSBroker status.";
+				assert(dataMap.services.size() == 1),"Error:domibusHealthMonitor: Error while parsing the JMSBroker status: must return only the JMSBroker status. Returned: "+commandResult[0];
+				log.info "  domibusHealthMonitor  [][]  STATUS:"+"          "+dataMap.services[0].status.toUpperCase();
+				if(outcomesMap){
+					outcomesMap.each { entry ->
+						if(entry.key.toUpperCase().equals(dataMap.services[0].name.toUpperCase())){
+							assert(dataMap.services[0].status.toUpperCase().equals(entry.value.toUpperCase())),"Error:domibusHealthMonitor: Error for service \""+dataMap.services[0].name+"\". Expecting status \""+entry.value+"\" but received status \""+dataMap.services[0].status+"\"";
+						}
+					}	
+				}
+			}
+			log.info "  domibusHealthMonitor  [][]  ==================================";
+			log.info "\n\n";	
+			
+		} finally {
+            resetAuthTokens(log);
+        }
+		
+		// Remove created plugin user
+		removePluginUser(side, context, log, domainValue, pluginUsername,authUser,authPwd);
+		debugLog("  ====  END \"domibusHealthMonitor\".", log)
+    }
 //IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
 //  Domain Functions
 //IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII

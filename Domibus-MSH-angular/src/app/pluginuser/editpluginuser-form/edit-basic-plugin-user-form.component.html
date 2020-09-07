@@ -19,7 +19,7 @@
       <div style="margin-top:5px;">
         <mat-form-field [style.width]="'100%'">
           <input matInput placeholder="Original User" name="originalUser" id="originalUser_id" [(ngModel)]="user.originalUser" input-debounce
-                 #originalUser="ngModel" [pattern]="originalUserPattern" maxlength="255">
+                 #originalUser="ngModel" [required]="isRoleUserSelected(role)" [pattern]="originalUserPattern" maxlength="255">
           <span class="help-block" *ngIf="shouldShowErrors(originalUser)">
             <div *ngIf="originalUser.errors?.pattern" style="color:red; font-size: 70%">{{originalUserMessage}}</div>
           </span>
