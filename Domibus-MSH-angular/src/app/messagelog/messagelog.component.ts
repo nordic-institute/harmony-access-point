@@ -244,12 +244,6 @@ export class MessageLogComponent extends mix(BaseListComponent)
     this.notifStatus = result.notifStatus;
   }
 
-  onActivate(event) {
-    if ('dblclick' === event.type) {
-      this.showDetails(event.row);
-    }
-  }
-
   resendDialog() {
     this.dialogsService.openResendDialog().then(resend => {
       if (resend) {
