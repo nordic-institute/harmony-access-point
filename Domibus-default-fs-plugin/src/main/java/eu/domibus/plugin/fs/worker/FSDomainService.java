@@ -46,7 +46,9 @@ public class FSDomainService {
     private final Map<String, Pattern> domainPatternCache = new HashMap<>();
 
     /**
-     * Verifies if the provided domain exists. For multitenancy mode it checks if the FS Plugin domain is configured in Domibus core. For non multitenancy mode is always return true.
+     * Verifies if the provided domain exists.
+     * For multitenancy mode it checks if the FS Plugin domain is configured in Domibus core.
+     * For non multitenancy mode it always returns true.
      *
      * @param domain FS Plugin domain
      * @return true if we are in Multi Tenancy configuration and domain is configured. Otherwise it returns true.
