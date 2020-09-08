@@ -1,4 +1,3 @@
-
 package eu.domibus.core.pmode.provider;
 
 import eu.domibus.api.cluster.Command;
@@ -58,13 +57,10 @@ import java.util.*;
  */
 public abstract class PModeProvider {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PModeProvider.class);
-
     public static final String SCHEMAS_DIR = "schemas/";
     public static final String DOMIBUS_PMODE_XSD = "domibus-pmode.xsd";
-
     protected static final String OPTIONAL_AND_EMPTY = "OAE";
-
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PModeProvider.class);
     @Autowired
     protected ConfigurationDAO configurationDAO;
 
@@ -73,28 +69,21 @@ public abstract class PModeProvider {
 
     @PersistenceContext(unitName = "domibusJTA")
     protected EntityManager entityManager;
-
+    @Autowired
+    protected SignalService signalService;
+    @Autowired
+    protected DomainContextProvider domainContextProvider;
+    @Autowired
+    protected DomibusPropertyProvider domibusPropertyProvider;
+    @Autowired
+    XMLUtil xmlUtil;
+    @Autowired
+    PModeValidationService pModeValidationService;
     @Autowired
     @Qualifier("jaxbContextConfig")
     private JAXBContext jaxbContext;
-
     @Autowired
     private MpcService mpcService;
-
-    @Autowired
-    protected SignalService signalService;
-
-    @Autowired
-    protected DomainContextProvider domainContextProvider;
-
-    @Autowired
-    XMLUtil xmlUtil;
-
-    @Autowired
-    PModeValidationService pModeValidationService;
-
-    @Autowired
-    protected DomibusPropertyProvider domibusPropertyProvider;
 
     protected abstract void init();
 
@@ -257,9 +246,9 @@ public abstract class PModeProvider {
         final String leg;
         String mpc;
         String senderParty;
-        String receiverParty = StringUtils.EMPTY;
-        final Set<PartyId> fromPartyId = userMessage.getPartyInfo().getFrom().getPartyId();
-        final Set<PartyId> toPartyId = userMessage.getPartyInfo().getTo().getPartyId();
+        String receiverParty;
+
+
         final String messageId = userMessage.getMessageInfo().getMessageId();
         //add messageId to MDC map
         if (StringUtils.isNotBlank(messageId)) {
@@ -272,34 +261,15 @@ public abstract class PModeProvider {
 
         try {
             agreementName = findAgreement(userMessage.getCollaborationInfo().getAgreementRef());
-            final Role initiatorRole = getBusinessProcessRole(userMessage.getPartyInfo().getFrom().getRole());
-            final Role responderRole = getBusinessProcessRole(userMessage.getPartyInfo().getTo().getRole());
             LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_AGREEMENT_FOUND, agreementName, userMessage.getCollaborationInfo().getAgreementRef());
-            try {
-                senderParty = findPartyName(fromPartyId);
-                LOG.businessInfo(DomibusMessageCode.BUS_SENDER_PARTY_ID_FOUND, senderParty, fromPartyId);
-            } catch (EbMS3Exception exc) {
-                LOG.businessError(DomibusMessageCode.BUS_SENDER_PARTY_ID_NOT_FOUND, fromPartyId);
-                exc.setErrorDetail("Sender party could not found for the value  " + fromPartyId);
-                exc.setMshRole(mshRole);
-                throw exc;
-            }
-            try {
-                receiverParty = findPartyName(toPartyId);
-                LOG.businessInfo(DomibusMessageCode.BUS_RECEIVER_PARTY_ID_FOUND, receiverParty, toPartyId);
-            } catch (EbMS3Exception exc) {
-                if (isPull && mpcService.forcePullOnMpc(userMessage)) {
-                    LOG.info("Receiver party not found in pMode, extract from MPC");
-                    receiverParty = mpcService.extractInitiator(userMessage.getMpc());
-                    exc.setErrorDetail("Receiver Party extracted from MPC is " + receiverParty + ", and SenderParty is " + senderParty);
-                } else {
-                    LOG.businessError(DomibusMessageCode.BUS_RECEIVER_PARTY_ID_NOT_FOUND, toPartyId);
-                    exc.setErrorDetail((receiverParty.isEmpty()) ? "Receiver party could not found for the value " + toPartyId : "Receiver Party in Pmode is " + receiverParty + ", and SenderParty is " + senderParty);
-                    exc.setMshRole(mshRole);
-                    throw exc;
-                }
-            }
+
+            senderParty = findSenderParty(userMessage);
+            receiverParty = findReceiverParty(userMessage, isPull, senderParty);
             LOG.debug("Found SenderParty as [{}] and  Receiver Party as [{}]", senderParty, receiverParty);
+
+            final Role initiatorRole = findInitiatorRole(userMessage);
+            final Role responderRole = findResponderRole(userMessage);
+
             service = findServiceName(userMessage.getCollaborationInfo().getService());
             LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_SERVICE_FOUND, service, userMessage.getCollaborationInfo().getService());
             action = findActionName(userMessage.getCollaborationInfo().getAction());
@@ -322,6 +292,9 @@ public abstract class PModeProvider {
             return messageExchangeConfiguration;
         } catch (EbMS3Exception e) {
             e.setRefToMessageId(messageId);
+            if (!(isPull && mpcService.forcePullOnMpc(userMessage))) {
+                e.setMshRole(mshRole);
+            }
             throw e;
         } catch (IllegalStateException ise) {
             // It can happen if DB is clean and no pmodes are configured yet!
@@ -329,20 +302,73 @@ public abstract class PModeProvider {
         }
     }
 
+    protected String findSenderParty(UserMessage userMessage) throws EbMS3Exception {
+        String senderParty;
+        final Set<PartyId> fromPartyId = userMessage.getPartyInfo().getFrom().getPartyId();
+        if (fromPartyId == null || fromPartyId.isEmpty()) {
+            EbMS3Exception exception = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "Mandatory field From PartyId is not provided.", null, null);
+            LOG.businessError(DomibusMessageCode.BUS_FROM_PARTYID_NOT_SPECIFIED);
+            throw exception;
+        }
+        try {
+            senderParty = findPartyName(fromPartyId);
+            LOG.businessInfo(DomibusMessageCode.BUS_SENDER_PARTY_ID_FOUND, senderParty, fromPartyId);
+        } catch (EbMS3Exception exc) {
+            LOG.businessError(DomibusMessageCode.BUS_SENDER_PARTY_ID_NOT_FOUND, fromPartyId);
+            exc.setErrorDetail("Sender party could not found for the value  " + fromPartyId);
+            throw exc;
+        }
+        return senderParty;
+    }
+
+    protected Role findInitiatorRole(UserMessage userMessage) throws EbMS3Exception {
+        String initiatorRole = userMessage.getPartyInfo().getFrom().getRole();
+        if (StringUtils.isBlank(initiatorRole)) {
+            EbMS3Exception exception = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "Mandatory field Sender Role is not provided.", null, null);
+            LOG.businessError(DomibusMessageCode.BUS_INITIATOR_ROLE_NOT_SPECIFIED);
+            throw exception;
+        }
+        return getBusinessProcessRole(initiatorRole);
+    }
+
+    protected String findReceiverParty(UserMessage userMessage, boolean isPull, String senderParty) throws EbMS3Exception {
+        String receiverParty = StringUtils.EMPTY;
+        final Set<PartyId> toPartyId = userMessage.getPartyInfo().getTo().getPartyId();
+        if (toPartyId == null || toPartyId.isEmpty()) {
+            EbMS3Exception exception = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "Mandatory field To PartyId is not provided.", null, null);
+            LOG.businessError(DomibusMessageCode.BUS_TO_PARTYID_NOT_SPECIFIED);
+            throw exception;
+        }
+        try {
+            receiverParty = findPartyName(toPartyId);
+            LOG.businessInfo(DomibusMessageCode.BUS_RECEIVER_PARTY_ID_FOUND, receiverParty, toPartyId);
+        } catch (EbMS3Exception exc) {
+            if (isPull && mpcService.forcePullOnMpc(userMessage)) {
+                LOG.info("Receiver party not found in pMode, extract from MPC");
+                receiverParty = mpcService.extractInitiator(userMessage.getMpc());
+                exc.setErrorDetail("Receiver Party extracted from MPC is " + receiverParty + ", and SenderParty is " + senderParty);
+            } else {
+                LOG.businessError(DomibusMessageCode.BUS_RECEIVER_PARTY_ID_NOT_FOUND, toPartyId);
+                exc.setErrorDetail((receiverParty.isEmpty()) ? "Receiver party could not found for the value " + toPartyId : "Receiver Party in Pmode is " + receiverParty + ", and SenderParty is " + senderParty);
+                throw exc;
+            }
+        }
+        return receiverParty;
+    }
+
+    protected Role findResponderRole(UserMessage userMessage) throws EbMS3Exception {
+        String responderRole = userMessage.getPartyInfo().getTo().getRole();
+        if (StringUtils.isBlank(responderRole)) {
+            EbMS3Exception exception = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "Mandatory field Receiver Role is not provided.", null, null);
+            LOG.businessError(DomibusMessageCode.BUS_RECEIVER_ROLE_NOT_SPECIFIED);
+            throw exception;
+        }
+        return getBusinessProcessRole(responderRole);
+    }
+
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     public MessageExchangeConfiguration findUserMessageExchangeContext(final UserMessage userMessage, final MSHRole mshRole) throws EbMS3Exception {
         return findUserMessageExchangeContext(userMessage, mshRole, false);
-    }
-
-
-    class ReloadPmodeMessageCreator implements MessageCreator {
-        @Override
-        public Message createMessage(Session session) throws JMSException {
-            Message m = session.createMessage();
-            m.setStringProperty(Command.COMMAND, Command.RELOAD_PMODE);
-            m.setStringProperty(MessageConstants.DOMAIN, domainContextProvider.getCurrentDomain().getCode());
-            return m;
-        }
     }
 
     public abstract List<String> getMpcList();
@@ -464,5 +490,15 @@ public abstract class PModeProvider {
     public abstract String getRole(String roleType, String serviceValue);
 
     public abstract String getAgreementRef(String serviceValue);
+
+    class ReloadPmodeMessageCreator implements MessageCreator {
+        @Override
+        public Message createMessage(Session session) throws JMSException {
+            Message m = session.createMessage();
+            m.setStringProperty(Command.COMMAND, Command.RELOAD_PMODE);
+            m.setStringProperty(MessageConstants.DOMAIN, domainContextProvider.getCurrentDomain().getCode());
+            return m;
+        }
+    }
 
 }
