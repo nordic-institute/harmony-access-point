@@ -11,6 +11,7 @@ import eu.domibus.ext.services.DomibusConfigurationExtService;
 import eu.domibus.ext.services.JMSExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.fs.FSFileNameHelper;
@@ -102,7 +103,11 @@ public class FSSendMessagesService {
         }
     }
 
+    @MDCKey(DomibusLogger.MDC_DOMAIN)
     protected void sendMessagesSafely(String domain) {
+        if (StringUtils.isNotEmpty(domain)) {
+            LOG.putMDC(DomibusLogger.MDC_DOMAIN, domain);
+        }
         try {
             sendMessages(domain);
         } catch (AuthenticationExtException ex) {
@@ -154,6 +159,7 @@ public class FSSendMessagesService {
      * @param domain
      */
     public void authenticateForDomain(String domain) throws AuthenticationExtException {
+
         if (!domibusConfigurationExtService.isSecuredLoginRequired()) {
             LOG.trace("Skip authentication for domain [{}]", domain);
             return;
