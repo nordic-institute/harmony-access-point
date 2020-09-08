@@ -56,18 +56,6 @@ public class MessageRetentionServiceTest {
     @Tested
     MessageRetentionDefaultService messageRetentionService;
 
-
-    @Test
-    public void mytest() {
-        final String mpc1 = "mpc1";
-
-        String t = "DELETE_MESSAGE_ID_SINGLE";
-
-        if(MessageDeleteType.DELETE_MESSAGE_ID_SINGLE.name().equals(t))
-            System.out.println("egale");
-        else
-            System.out.println("nope");
-    }
     @Test
     public void testDeleteExpiredMessages() {
         final String mpc1 = "mpc1";
