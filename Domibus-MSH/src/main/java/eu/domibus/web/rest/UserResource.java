@@ -87,7 +87,7 @@ public class UserResource extends BaseResource {
     public ResponseEntity<ErrorRO> handleConstraintViolationException(ConstraintViolationException ex) {
         String errorMessage = ex.getConstraintViolations().stream()
                 .map(el -> getLast(el.getPropertyPath()) + " " + el.getMessage())
-                .reduce("There are validation errors: ", (acc, element) -> acc + element + "; ");
+                .reduce("There are validation errors: ", (accumulator, element) -> accumulator + element + "; ");
         return errorHandlerService.createResponse(errorMessage, HttpStatus.BAD_REQUEST);
     }
 

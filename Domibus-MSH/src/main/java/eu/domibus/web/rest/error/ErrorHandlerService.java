@@ -7,6 +7,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.ro.ErrorRO;
 import eu.domibus.web.rest.ro.ValidationResponseRO;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -76,7 +77,7 @@ public class ErrorHandlerService {
         if (bindingResult.hasErrors()) {
             List<ObjectError> errors = bindingResult.getAllErrors();
             String res = errors.stream().map(err -> err.getDefaultMessage())
-                    .reduce("", (subtotal, msg) -> subtotal + msg);
+                    .reduce(StringUtils.EMPTY, (accumulator, msg) -> accumulator + msg);
             throw new ValidationException(res);
         }
     }
