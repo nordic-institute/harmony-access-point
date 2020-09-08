@@ -28,10 +28,10 @@ import java.util.Map;
  * @since 4.1
  */
 @Component
-@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class ObjectBlacklistValidator extends BaseBlacklistValidator<ObjectWhiteListed, Object> {
 
     private static final Logger LOG = DomibusLoggerFactory.getLogger(ObjectBlacklistValidator.class);
+
     private String message = ObjectWhiteListed.MESSAGE;
 
     @Override

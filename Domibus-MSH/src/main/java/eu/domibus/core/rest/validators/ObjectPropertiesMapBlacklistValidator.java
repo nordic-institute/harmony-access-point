@@ -4,9 +4,6 @@ import eu.domibus.api.validators.CustomWhiteListed;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.validators.ObjectWhiteListed;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -22,18 +19,16 @@ import java.util.Map;
  * @since 4.2
  */
 @Component
-@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class ObjectPropertiesMapBlacklistValidator extends BaseBlacklistValidator<ObjectWhiteListed, ObjectPropertiesMapBlacklistValidator.Parameter> {
 
     private static final Logger LOG = DomibusLoggerFactory.getLogger(ObjectPropertiesMapBlacklistValidator.class);
 
     private String message = ObjectWhiteListed.MESSAGE;
 
-    @Autowired
-    ItemsBlacklistValidator listValidator;
+    private ItemsBlacklistValidator listValidator;
 
-    @PostConstruct
-    public void onInit() {
+    public ObjectPropertiesMapBlacklistValidator(ItemsBlacklistValidator listValidator) {
+        this.listValidator = listValidator;
         listValidator.init();
     }
 
