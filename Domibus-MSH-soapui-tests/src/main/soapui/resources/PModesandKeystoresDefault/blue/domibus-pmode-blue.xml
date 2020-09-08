@@ -180,7 +180,8 @@
 			<action name="tc27Action" value="TC27Leg1"/>			
 			<action name="tc28Action" value="TC28Leg1"/>
 			<action name="tc31Action" value="TC31Leg1"/>			
-			<action name="tc32Action" value="TC32Leg1"/>				
+			<action name="tc32Action" value="TC32Leg1"/>	
+			<action name="tc33Action" value="TC33Leg1"/>			
 			<action name="testAction" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test"/>
 		</actions>
 		<as4>
@@ -188,6 +189,9 @@
 			<reliability name="AS4Reliability" nonRepudiation="true" replyPattern="response"/>
 			<reliability name="noReliability" nonRepudiation="false" replyPattern="response"/>
 		</as4>
+		<splittingConfigurations>
+			<splitting name="default" fragmentSize="20" compression="true" joinInterval="1440"/>
+		</splittingConfigurations>
 		<legConfigurations>
 			<legConfiguration name="pushTestcase1tc1Action" service="testService1" action="tc1Action" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
 			<legConfiguration name="pushTestcase2tc1Action" service="testService2" action="tc2Action" defaultMpc="defaultMpc" reliability="noReliability" security="noSigNoEnc" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="false"/>
@@ -223,6 +227,7 @@
 			<legConfiguration name="pullTestcase28tc28Action" service="testService28" action="tc28Action" defaultMpc="defaultMpcRetention" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
 			<legConfiguration name="pushTestcase31tc31Action" service="testService31" action="tc31Action" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" 	                         errorHandling="demoErrorHandling" compressPayloads="true"/>			
 			<legConfiguration name="pullTestcase32tc32Action" service="testService32" action="tc32Action" defaultMpc="defaultMpcNine" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet"                                 errorHandling="demoErrorHandling" compressPayloads="true"/>
+			<legConfiguration name="pushTestcase33tc33Action" service="testService32" action="tc33Action" splitting="default" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
 			</legConfigurations>
 
 			
@@ -652,6 +657,19 @@
 			<legs>
 				<leg name="pullTestcase32tc32Action"/>
 			</legs>
-		</process>	
+		</process>
+		<process name="tc33Process" agreement="agreementEmpty" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
+			<initiatorParties>
+				<initiatorParty name="blue_gw"/>
+				<initiatorParty name="red_gw"/>
+			</initiatorParties>
+			<responderParties>
+				<responderParty name="blue_gw"/>
+				<responderParty name="red_gw"/>
+			</responderParties>
+			<legs>
+				<leg name="pushTestcase33tc33Action"/>
+			</legs>
+		</process>		
 	</businessProcesses>
 </db:configuration>
