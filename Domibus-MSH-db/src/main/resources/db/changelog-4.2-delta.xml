@@ -33,1165 +33,958 @@
         <comment>Add audit columns in all configuration and run-time tables</comment>
 
         <addColumn tableName="TB_ACTION">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
         <addColumn tableName="TB_ACTION_AUDIT">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
         <addColumn tableName="TB_AGREEMENT">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
-        <addNotNullConstraint tableName="TB_ALERT" columnName="CREATION_TIME" columnDataType="TIMESTAMP"
-                              defaultNullValue="${now}"/>
+        <addNotNullConstraint tableName="TB_ALERT" columnName="CREATION_TIME" columnDataType="TIMESTAMP" defaultNullValue="${now}" />
         <addColumn tableName="TB_ALERT">
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
         <addColumn tableName="TB_AUTHENTICATION_ENTRY">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
         <addColumn tableName="TB_BACKEND_FILTER">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
         <addColumn tableName="TB_BUSINESS_PROCESS">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
         <addColumn tableName="TB_CERTIFICATE">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
-        <addNotNullConstraint tableName="TB_COMMAND" columnName="CREATION_TIME" columnDataType="TIMESTAMP"
-                              defaultNullValue="${now}"/>
+        <addNotNullConstraint tableName="TB_COMMAND" columnName="CREATION_TIME" columnDataType="TIMESTAMP" defaultNullValue="${now}" />
         <addColumn tableName="TB_COMMAND">
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
         <addColumn tableName="TB_COMMAND_PROPERTY">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
         <addColumn tableName="TB_CONFIGURATION">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
         <addColumn tableName="TB_CONFIGURATION_RAW">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
         <addColumn tableName="TB_ENCRYPTION_KEY">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
         <addColumn tableName="TB_ERROR">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
         <addColumn tableName="TB_ERROR_HANDLING">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
         <addColumn tableName="TB_ERROR_LOG">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
         <addColumn tableName="TB_EVENT">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
         <addColumn tableName="TB_EVENT_ALERT">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
         <addColumn tableName="TB_EVENT_PROPERTY">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
         <addColumn tableName="TB_JOIN_PAYLOAD_PROFILE">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
         <addColumn tableName="TB_JOIN_PROCESS_INIT_PARTY">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
         <addColumn tableName="TB_JOIN_PROCESS_LEG">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
         <addColumn tableName="TB_JOIN_PROCESS_RESP_PARTY">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
         <addColumn tableName="TB_JOIN_PROPERTY_SET">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
         <addColumn tableName="TB_LEG">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
         <addColumn tableName="TB_LEG_TB_MPC">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
         <addColumn tableName="TB_MEP">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
         <addColumn tableName="TB_MEP_BINDING">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
         <addColumn tableName="TB_MESSAGE_ACKNW">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
         <addColumn tableName="TB_MESSAGE_ACKNW_PROP">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
         <addColumn tableName="TB_MESSAGE_FRAGMENT">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
         <addColumn tableName="TB_MESSAGE_GROUP">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
         <addColumn tableName="TB_MESSAGE_HEADER">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
         <addColumn tableName="TB_MESSAGE_INFO">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
-        <addNotNullConstraint tableName="TB_MESSAGE_LOG" columnName="CREATED_BY" columnDataType="VARCHAR(255)"
-                              defaultNullValue="${current_db_user}"/>
+        <addNotNullConstraint tableName="TB_MESSAGE_LOG" columnName="CREATED_BY" columnDataType="VARCHAR(255)" defaultNullValue="${current_db_user}" />
         <addColumn tableName="TB_MESSAGE_LOG">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
         <addColumn tableName="TB_MESSAGE_PROPERTY">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
         <addColumn tableName="TB_MESSAGE_PROPERTY_SET">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
         <addColumn tableName="TB_MESSAGE_UI">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
         <addColumn tableName="TB_MESSAGING">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
         <addColumn tableName="TB_MESSAGING_LOCK">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
         <addColumn tableName="TB_MPC">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
         <addColumn tableName="TB_PARTY">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
         <addColumn tableName="TB_PARTY_ID">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
         <addColumn tableName="TB_PARTY_IDENTIFIER">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
         <addColumn tableName="TB_PARTY_ID_TYPE">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
         <addColumn tableName="TB_PART_INFO">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
         <addColumn tableName="TB_PAYLOAD">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
         <addColumn tableName="TB_PAYLOAD_PROFILE">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
         <addColumn tableName="TB_PLUGIN_USER_PASSWD_HISTORY">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
         <addColumn tableName="TB_PROCESS">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
         <addColumn tableName="TB_PROPERTY">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
         <addColumn tableName="TB_RAWENVELOPE_LOG">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
         <addColumn tableName="TB_RECEIPT">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
         <addColumn tableName="TB_RECEIPT_DATA">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
         <addColumn tableName="TB_RECEPTION_AWARENESS">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
         <addColumn tableName="TB_RELIABILITY">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
         <addColumn tableName="TB_REV_CHANGES">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
         <addColumn tableName="TB_ROLE">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
         <addColumn tableName="TB_ROUTING_CRITERIA">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
         <addColumn tableName="TB_SECURITY">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
         <addColumn tableName="TB_SEND_ATTEMPT">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
         <addColumn tableName="TB_SERVICE">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
         <addColumn tableName="TB_SIGNAL_MESSAGE">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
         <addColumn tableName="TB_SPLITTING">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
         <addColumn tableName="TB_USER">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
         <addColumn tableName="TB_USER_MESSAGE">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
         <addColumn tableName="TB_USER_PASSWORD_HISTORY">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
         <addColumn tableName="TB_USER_ROLE">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
 
         <addColumn tableName="TB_USER_ROLES">
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was created">
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
 
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
-                    remarks="The user who created this record">
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"
-                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
 
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </addColumn>
@@ -1203,13 +996,13 @@
     </changeSet>
 
     <changeSet author="Sebastian-Ion TINCU" id="EDELIVERY-6595-2">
-        <modifyDataType columnName="END_DATE" newDataType="DATETIME" tableName="TB_SEND_ATTEMPT"/>
-        <modifyDataType columnName="START_DATE" newDataType="DATETIME" tableName="TB_SEND_ATTEMPT"/>
-        <addNotNullConstraint columnDataType="DATETIME" columnName="END_DATE" tableName="TB_SEND_ATTEMPT"/>
-        <addNotNullConstraint columnDataType="DATETIME" columnName="START_DATE" tableName="TB_SEND_ATTEMPT"/>
+        <modifyDataType columnName="END_DATE" newDataType="DATETIME" tableName="TB_SEND_ATTEMPT" />
+        <modifyDataType columnName="START_DATE" newDataType="DATETIME" tableName="TB_SEND_ATTEMPT" />
+        <addNotNullConstraint columnDataType="DATETIME" columnName="END_DATE" tableName="TB_SEND_ATTEMPT" />
+        <addNotNullConstraint columnDataType="DATETIME" columnName="START_DATE" tableName="TB_SEND_ATTEMPT" />
 
-        <modifyDataType columnName="NOT_VALID_BEFORE_DATE" newDataType="DATETIME" tableName="TB_CERTIFICATE"/>
-        <modifyDataType columnName="NOT_VALID_AFTER_DATE" newDataType="DATETIME" tableName="TB_CERTIFICATE"/>
+        <modifyDataType columnName="NOT_VALID_BEFORE_DATE" newDataType="DATETIME" tableName="TB_CERTIFICATE" />
+        <modifyDataType columnName="NOT_VALID_AFTER_DATE" newDataType="DATETIME" tableName="TB_CERTIFICATE" />
 
         <addColumn tableName="TB_MESSAGE_LOG">
             <column name="VERSION" remarks="Used for optimistic locking mechanism" type="INT" defaultValueNumeric="0"/>
@@ -1242,7 +1035,7 @@
     </changeSet>
 
     <changeSet author="Catalin Enache" id="EDELIVERY-6601">
-        <modifyDataType columnName="MAX_SIZE" newDataType="BIGINT" tableName="TB_PAYLOAD_PROFILE"/>
+        <modifyDataType columnName="MAX_SIZE" newDataType="BIGINT" tableName="TB_PAYLOAD_PROFILE" />
     </changeSet>
 
     <changeSet author="Catalin Enache" id="EDELIVERY-6921">
@@ -1301,7 +1094,6 @@
                     remarks="Maximum number of DOWNLOADED/UNDOWNLOADED/SENT messages to be deleted in one batch"
                     type="INT" defaultValueNumeric="-1"/>
         </addColumn>
-
         <dropForeignKeyConstraint baseTableName="TB_PROPERTY"
                                   constraintName="FK_2H31P0A2Y6WEG2GRH70C9CYVA"/>
 
