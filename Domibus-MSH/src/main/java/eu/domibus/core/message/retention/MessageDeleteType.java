@@ -5,6 +5,6 @@ package eu.domibus.core.message.retention;
  * @since 4.2
  */
 public enum MessageDeleteType {
-    DELETE_MESSAGE_ID_SINGLE,
-    DELETE_MESSAGE_ID_MULTI,
+    SINGLE,
+    MULTI,
 }

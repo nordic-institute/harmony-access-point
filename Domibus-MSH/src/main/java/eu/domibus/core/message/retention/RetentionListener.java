@@ -57,14 +57,14 @@ public class RetentionListener implements MessageListener {
             domainContextProvider.setCurrentDomain(domainCode);
 
             MessageDeleteType deleteType = MessageDeleteType.valueOf(message.getStringProperty(MessageRetentionDefaultService.DELETE_TYPE));
-            if (MessageDeleteType.DELETE_MESSAGE_ID_SINGLE == deleteType) {
+            if (MessageDeleteType.SINGLE == deleteType) {
                 String messageId = message.getStringProperty(MessageConstants.MESSAGE_ID);
                 LOG.debug("Delete one message [{}]", messageId);
                 userMessageDefaultService.deleteMessage(messageId);
                 return;
             }
 
-            if (MessageDeleteType.DELETE_MESSAGE_ID_MULTI == deleteType) {
+            if (MessageDeleteType.MULTI == deleteType) {
                 final String separator = domibusPropertyProvider.getProperty(DOMIBUS_RETENTION_WORKER_MESSAGE_ID_LIST_SEPARATOR);
                 List<String> messageIds = Arrays.asList(StringUtils.splitByWholeSeparator(message.getStringProperty(MessageRetentionDefaultService.MESSAGE_IDS), separator));
                 LOG.debug("There are [{}] messages to delete [{}] in batch", messageIds.size(), messageIds);

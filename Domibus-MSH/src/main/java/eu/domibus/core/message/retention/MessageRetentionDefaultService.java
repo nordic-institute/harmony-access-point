@@ -162,7 +162,7 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
         LOG.debug("Scheduling delete messages [{}]", messageIds);
         messageIds.forEach(messageId -> {
             JmsMessage message = JMSMessageBuilder.create()
-                    .property(DELETE_TYPE, MessageDeleteType.DELETE_MESSAGE_ID_SINGLE.name())
+                    .property(DELETE_TYPE, MessageDeleteType.SINGLE.name())
                     .property(MessageConstants.MESSAGE_ID, messageId)
                     .build();
             jmsManager.sendMessageToQueue(message, retentionMessageQueue);
@@ -206,7 +206,7 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
         String messageIdsBatchStr = String.join(separator, messageIdsBatch);
         LOG.trace("Separator is [{}], messageIdsString [{}]", messageIdsBatchStr);
         JmsMessage message = JMSMessageBuilder.create()
-                .property(DELETE_TYPE, MessageDeleteType.DELETE_MESSAGE_ID_MULTI.name())
+                .property(DELETE_TYPE, MessageDeleteType.MULTI.name())
                 .property(MESSAGE_IDS, messageIdsBatchStr)
                 .build();
         jmsManager.sendMessageToQueue(message, retentionMessageQueue);
