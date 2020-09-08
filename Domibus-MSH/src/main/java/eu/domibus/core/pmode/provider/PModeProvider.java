@@ -1,6 +1,5 @@
 package eu.domibus.core.pmode.provider;
 
-import eu.domibus.api.cluster.Command;
 import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pmode.PModeArchiveInfo;
@@ -28,20 +27,15 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.logging.MDCKey;
-import eu.domibus.messaging.MessageConstants;
 import eu.domibus.messaging.XmlProcessingException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.jms.core.MessageCreator;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.xml.sax.SAXException;
 
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.Session;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.xml.bind.JAXBContext;
@@ -56,11 +50,11 @@ import java.util.*;
  * @author Christian Koch, Stefan Mueller
  */
 public abstract class PModeProvider {
-
     public static final String SCHEMAS_DIR = "schemas/";
     public static final String DOMIBUS_PMODE_XSD = "domibus-pmode.xsd";
     protected static final String OPTIONAL_AND_EMPTY = "OAE";
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PModeProvider.class);
+
     @Autowired
     protected ConfigurationDAO configurationDAO;
 
@@ -69,19 +63,26 @@ public abstract class PModeProvider {
 
     @PersistenceContext(unitName = "domibusJTA")
     protected EntityManager entityManager;
+
     @Autowired
     protected SignalService signalService;
+
     @Autowired
     protected DomainContextProvider domainContextProvider;
+
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
+
     @Autowired
     XMLUtil xmlUtil;
+
     @Autowired
     PModeValidationService pModeValidationService;
+
     @Autowired
     @Qualifier("jaxbContextConfig")
     private JAXBContext jaxbContext;
+
     @Autowired
     private MpcService mpcService;
 
@@ -490,15 +491,4 @@ public abstract class PModeProvider {
     public abstract String getRole(String roleType, String serviceValue);
 
     public abstract String getAgreementRef(String serviceValue);
-
-    class ReloadPmodeMessageCreator implements MessageCreator {
-        @Override
-        public Message createMessage(Session session) throws JMSException {
-            Message m = session.createMessage();
-            m.setStringProperty(Command.COMMAND, Command.RELOAD_PMODE);
-            m.setStringProperty(MessageConstants.DOMAIN, domainContextProvider.getCurrentDomain().getCode());
-            return m;
-        }
-    }
-
 }
