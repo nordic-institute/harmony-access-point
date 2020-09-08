@@ -63,7 +63,7 @@ public class MessageRetentionServiceTest {
 
         String t = "DELETE_MESSAGE_ID_SINGLE";
 
-        if(DeleteType.DELETE_MESSAGE_ID_SINGLE.name().equals(t))
+        if(MessageDeleteType.DELETE_MESSAGE_ID_SINGLE.name().equals(t))
             System.out.println("egale");
         else
             System.out.println("nope");

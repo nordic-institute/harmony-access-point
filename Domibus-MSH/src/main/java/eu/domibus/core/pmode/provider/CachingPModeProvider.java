@@ -288,13 +288,13 @@ public class CachingPModeProvider extends PModeProvider {
 
     protected boolean matchRole(final Role processRole, final Role role) {
         boolean rolesEnabled = domibusPropertyProvider.getBooleanProperty(DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED);
-        if(!rolesEnabled) {
+        if (!rolesEnabled) {
             LOG.debug("Roles validation disabled");
             return true;
         }
 
         LOG.debug("Role is [{}], process role is [{}] ", role, processRole);
-        if(Objects.equals(role, processRole)) {
+        if (Objects.equals(role, processRole)) {
             LOG.debug("Roles match");
             return true;
         }
@@ -544,6 +544,7 @@ public class CachingPModeProvider extends PModeProvider {
     public boolean isDeleteMessageMetadataByMpcURI(final String mpcURI) {
         for (final Mpc mpc1 : this.getConfiguration().getMpcs()) {
             if (StringUtils.equalsIgnoreCase(mpc1.getQualifiedName(), mpcURI)) {
+                LOG.debug("Found MPC with name [{}] and isDeleteMessageMetadata [{}]", mpc1.getName(), mpc1.isDeleteMessageMetadata());
                 return mpc1.isDeleteMessageMetadata();
             }
         }
@@ -552,16 +553,22 @@ public class CachingPModeProvider extends PModeProvider {
     }
 
     @Override
-    public int getRetentionMaxBatchByMpcURI(final String mpcURI) {
+    public int getRetentionMaxBatchByMpcURI(final String mpcURI, final int defaultValue) {
         for (final Mpc mpc1 : this.getConfiguration().getMpcs()) {
             if (StringUtils.equalsIgnoreCase(mpc1.getQualifiedName(), mpcURI)) {
-                return mpc1.getMaxBatchDelete();
+                int maxBatch = mpc1.getMaxBatchDelete();
+                LOG.debug("Found MPC with name [{}] and maxBatchDelete [{}]", mpc1.getName(), maxBatch);
+                if(maxBatch == -1) {
+                    LOG.debug("Using default maxBatch value [{}]", defaultValue);
+                    return defaultValue;
+                }
+                return maxBatch;
             }
         }
 
-        LOG.error("No MPC with name: [{}] found. Assuming message retention batch of [{}].", mpcURI, MAX_RETENTION_DELETE_BATCH);
+        LOG.error("No MPC with name: [{}] found. Using default value for message retention batch of [{}].", mpcURI, defaultValue);
 
-        return MAX_RETENTION_DELETE_BATCH;
+        return defaultValue;
     }
 
     @Override
@@ -592,7 +599,7 @@ public class CachingPModeProvider extends PModeProvider {
         }
         LOG.businessError(DomibusMessageCode.BUS_PARTY_ROLE_NOT_FOUND, roleValue);
         boolean rolesEnabled = domibusPropertyProvider.getBooleanProperty(DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED);
-        if(rolesEnabled) {
+        if (rolesEnabled) {
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "No matching role found with value: " + roleValue, null, null);
         }
 
@@ -829,7 +836,8 @@ public class CachingPModeProvider extends PModeProvider {
 
     /**
      * Returns the initiator/responder role value of the first process found having the specified service value.
-     * @param roleType the type of the role (either "initiator" or "responder")
+     *
+     * @param roleType     the type of the role (either "initiator" or "responder")
      * @param serviceValue the service value to match
      * @return the role value
      */
@@ -861,6 +869,7 @@ public class CachingPModeProvider extends PModeProvider {
 
     /**
      * Returns the agreement ref of the first process found having the specified service value.
+     *
      * @param serviceValue the service value to match
      * @return the agreement value
      */

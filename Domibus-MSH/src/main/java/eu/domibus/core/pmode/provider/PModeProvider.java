@@ -424,7 +424,7 @@ public abstract class PModeProvider {
 
     public abstract boolean isDeleteMessageMetadataByMpcURI(final String mpcURI);
 
-    public abstract int getRetentionMaxBatchByMpcURI(final String mpcURI);
+    public abstract int getRetentionMaxBatchByMpcURI(final String mpcURI, final int defaultValue);
 
     public abstract Role getBusinessProcessRole(String roleValue) throws EbMS3Exception;
 

@@ -1,6 +1,7 @@
 package eu.domibus.core.message.reliability;
 
 import eu.domibus.api.message.attempt.MessageAttempt;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.UserMessageLogDao;
@@ -23,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SEND_MESSAGE_SUCCESS_DELETE_PAYLOAD;
 
 import javax.xml.soap.SOAPMessage;
 
@@ -66,6 +68,9 @@ public class ReliabilityServiceImpl implements ReliabilityService {
 
     @Autowired
     private UIReplicationSignalService uiReplicationSignalService;
+
+    @Autowired
+    DomibusPropertyProvider domibusPropertyProvider;
 
     /**
      * {@inheritDoc}
@@ -112,7 +117,10 @@ public class ReliabilityServiceImpl implements ReliabilityService {
                 }
                 userMessageLog.setSendAttempts(userMessageLog.getSendAttempts() + 1);
 
-                messagingDao.clearPayloadData(userMessage);
+                if (shouldDeletePayloadOnSendSuccess()) {
+                    LOG.debug("Message payload will be cleared.");
+                    messagingDao.clearPayloadData(userMessage);
+                }
                 LOG.businessInfo(isTestMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_SEND_SUCCESS : DomibusMessageCode.BUS_MESSAGE_SEND_SUCCESS,
                         userMessage.getFromFirstPartyId(), userMessage.getToFirstPartyId());
 
@@ -136,5 +144,9 @@ public class ReliabilityServiceImpl implements ReliabilityService {
         uiReplicationSignalService.messageChange(messageId);
 
         LOG.debug("Finished handling reliability");
+    }
+
+    protected boolean shouldDeletePayloadOnSendSuccess() {
+        return domibusPropertyProvider.getBooleanProperty(DOMIBUS_SEND_MESSAGE_SUCCESS_DELETE_PAYLOAD);
     }
 }

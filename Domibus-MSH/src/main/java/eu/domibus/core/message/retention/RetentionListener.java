@@ -1,14 +1,13 @@
 package eu.domibus.core.message.retention;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.core.message.UserMessageDefaultService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessageConstants;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,6 +19,8 @@ import javax.jms.Message;
 import javax.jms.MessageListener;
 import java.util.Arrays;
 import java.util.List;
+
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RETENTION_WORKER_MESSAGE_ID_LIST_SEPARATOR;
 
 /**
  * Listeners that deletes messages by their identifiers.
@@ -41,6 +42,9 @@ public class RetentionListener implements MessageListener {
     @Autowired
     private DomainContextProvider domainContextProvider;
 
+    @Autowired
+    DomibusPropertyProvider domibusPropertyProvider;
+
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void onMessage(final Message message) {
         if (!authUtils.isUnsecureLoginAllowed()) {
@@ -52,16 +56,18 @@ public class RetentionListener implements MessageListener {
             LOG.debug("Processing JMS message for domain [{}]", domainCode);
             domainContextProvider.setCurrentDomain(domainCode);
 
-            DeleteType deleteType = DeleteType.valueOf(message.getStringProperty(MessageConstants.DELETE_TYPE));
-            if (DeleteType.DELETE_MESSAGE_ID_SINGLE == deleteType) {
+            MessageDeleteType deleteType = MessageDeleteType.valueOf(message.getStringProperty(MessageRetentionService.DELETE_TYPE));
+            if (MessageDeleteType.DELETE_MESSAGE_ID_SINGLE == deleteType) {
                 String messageId = message.getStringProperty(MessageConstants.MESSAGE_ID);
+                LOG.debug("Delete one message [{}]", messageId);
                 userMessageDefaultService.deleteMessage(messageId);
                 return;
             }
 
-            if (DeleteType.DELETE_MESSAGE_ID_MULTI == deleteType) {
-                List<String> messageIds = Arrays.asList(message.getStringProperty(MessageConstants.MESSAGE_IDS).split("\\s*,\\s*"));
-                LOG.debug("There are [{}] messages to delete [{}]", messageIds.size(), messageIds);
+            if (MessageDeleteType.DELETE_MESSAGE_ID_MULTI == deleteType) {
+                final String separator = domibusPropertyProvider.getProperty(DOMIBUS_RETENTION_WORKER_MESSAGE_ID_LIST_SEPARATOR);
+                List<String> messageIds = Arrays.asList(StringUtils.splitByWholeSeparator(message.getStringProperty(MessageRetentionService.MESSAGE_IDS), separator));
+                LOG.debug("There are [{}] messages to delete [{}] in batch", messageIds.size(), messageIds);
                 userMessageDefaultService.deleteMessages(messageIds);
                 return;
             }

@@ -214,8 +214,8 @@ public class MultiDomainPModeProvider extends PModeProvider {
     }
 
     @Override
-    public int getRetentionMaxBatchByMpcURI(final String mpcURI) {
-        return getCurrentPModeProvider().getRetentionMaxBatchByMpcURI(mpcURI);
+    public int getRetentionMaxBatchByMpcURI(final String mpcURI, final int defaultValue) {
+        return getCurrentPModeProvider().getRetentionMaxBatchByMpcURI(mpcURI, defaultValue);
     }
 
     @Override

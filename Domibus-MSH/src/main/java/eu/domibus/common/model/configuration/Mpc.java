@@ -37,15 +37,15 @@ public class Mpc extends AbstractBaseEntity {
 
     @XmlAttribute(name = "retention_sent")
     @Column(name = "RETENTION_SENT")
-    protected int retentionSent;
+    protected int retentionSent = -1;
 
     @XmlAttribute(name = "delete_message_metadata")
     @Column(name = "DELETE_MESSAGE_METADATA")
-    protected boolean deleteMessageMetadata;
+    protected boolean deleteMessageMetadata = false;
 
     @XmlAttribute(name = "max_batch_delete")
     @Column(name = "MAX_BATCH_DELETE")
-    protected int maxBatchDelete;
+    protected int maxBatchDelete = -1;
 
     @XmlAttribute(name = "default", required = true)
     @Column(name = "DEFAULT_MPC")

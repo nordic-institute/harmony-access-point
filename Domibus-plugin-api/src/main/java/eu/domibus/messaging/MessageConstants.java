@@ -9,13 +9,10 @@ public class MessageConstants {
     private MessageConstants() {}
 
     public static final String MESSAGE_ID = "MESSAGE_ID";
-    public static final String MESSAGE_IDS = "MESSAGE_IDS";
-    public static final String DATE = "DATE";
     public static final String DOMAIN = "DOMAIN";
     public static final String ENDPOINT = "ENDPOINT";
     public static final String DELAY = "DELAY";
     public static final String NOTIFICATION_TYPE = "NOTIFICATION_TYPE";
-    public static final String DELETE_TYPE = "DELETE_TYPE";
     public static final String ORIGINAL_SENDER = "originalSender";
     public static final String FINAL_RECIPIENT = "finalRecipient";
     public static final String ERROR_CODE = "errorCode";
