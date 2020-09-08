@@ -35,6 +35,9 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 @Service
 public class MessageRetentionDefaultService implements MessageRetentionService {
 
+    public static final String MESSAGE_IDS = "MESSAGE_IDS";
+    public static final String DELETE_TYPE = "DELETE_TYPE";
+
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageRetentionDefaultService.class);
 
     @Autowired

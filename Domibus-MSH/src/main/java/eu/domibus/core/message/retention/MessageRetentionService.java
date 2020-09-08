@@ -10,9 +10,6 @@ import java.util.List;
  */
 public interface MessageRetentionService {
 
-    public static final String MESSAGE_IDS = "MESSAGE_IDS";
-    public static final String DELETE_TYPE = "DELETE_TYPE";
-
     /**
      * Deletes the expired messages(downloaded or not) using the configured limits
      */
