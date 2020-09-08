@@ -8,6 +8,8 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -17,6 +19,9 @@ import java.util.List;
  */
 public class UserResponseRO {
     // order of the fields is important for CSV generation
+
+    @Size(min = 4, max = 255)
+    @Pattern(regexp = "^[a-zA-Z0-9\\.@_]*$")
     private String userName;
 
     private String roles = StringUtils.EMPTY;
