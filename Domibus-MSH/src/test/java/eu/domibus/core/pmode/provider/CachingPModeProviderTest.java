@@ -48,6 +48,7 @@ import java.lang.reflect.Method;
 import java.util.*;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED;
+import static eu.domibus.core.message.MessageExchangeConfiguration.PMODEKEY_SEPARATOR;
 import static org.junit.Assert.*;
 
 /**
@@ -1043,7 +1044,7 @@ public class CachingPModeProviderTest {
         try {
             cachingPModeProvider.findActionName("action");
         } catch (EbMS3Exception ex) {
-            Assert.assertEquals(ex.getErrorCode(), ErrorCode.EbMS3ErrorCode.EBMS_0001);
+            Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0001, ex.getErrorCode());
         }
     }
 
@@ -1057,7 +1058,7 @@ public class CachingPModeProviderTest {
         try {
             cachingPModeProvider.findMpc("no_mpc");
         } catch (EbMS3Exception ex) {
-            Assert.assertEquals(ex.getErrorCode(), ErrorCode.EbMS3ErrorCode.EBMS_0001);
+            Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0001, ex.getErrorCode());
         }
     }
 
@@ -1071,7 +1072,7 @@ public class CachingPModeProviderTest {
         try {
             cachingPModeProvider.findServiceName(service);
         } catch (EbMS3Exception ex) {
-            Assert.assertEquals(ex.getErrorCode(), ErrorCode.EbMS3ErrorCode.EBMS_0001);
+            Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0001, ex.getErrorCode());
         }
     }
 
@@ -1087,7 +1088,7 @@ public class CachingPModeProviderTest {
         try {
             cachingPModeProvider.findAgreement(agreementRef);
         } catch (EbMS3Exception ex) {
-            Assert.assertEquals(ex.getErrorCode(), ErrorCode.EbMS3ErrorCode.EBMS_0001);
+            Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0001, ex.getErrorCode());
         }
     }
 
@@ -1274,74 +1275,205 @@ public class CachingPModeProviderTest {
     }
 
     @Test
-    public void testFindUserMessageExchangeContextSenderNotFound(@Injectable UserMessage userMessage, @Injectable MSHRole mshRole, @Injectable PartyId partyId) throws EbMS3Exception {
+    public void findUserMessageExchangeContextPush(@Injectable UserMessage userMessage) throws EbMS3Exception {
+        String legName = "NoSecNoEnc";
 
-        final Set<PartyId> fromPartyId = new HashSet<>();
-        MSHRole mshRole1 = MSHRole.SENDING;
         new Expectations(cachingPModeProvider) {{
-            userMessage.getPartyInfo().getFrom().getPartyId();
-            result = fromPartyId;
-            cachingPModeProvider.findPartyName(fromPartyId);
-            result = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "Sender party could not found for the value ", null, null);
+            cachingPModeProvider.findAgreement(userMessage.getCollaborationInfo().getAgreementRef());
+            result = agreement;
 
+            cachingPModeProvider.findSenderParty(userMessage);
+            result = senderParty;
+
+            cachingPModeProvider.findReceiverParty(userMessage, false, senderParty);
+            result = receiverParty;
+
+            cachingPModeProvider.findInitiatorRole(userMessage);
+            result = initiatorRole;
+
+            cachingPModeProvider.findResponderRole(userMessage);
+            result = responderRole;
+
+            cachingPModeProvider.findServiceName(userMessage.getCollaborationInfo().getService());
+            result = service;
+
+            cachingPModeProvider.findActionName(userMessage.getCollaborationInfo().getAction());
+            result = action;
+
+            cachingPModeProvider.findLegName(agreement, senderParty, receiverParty, service, action, initiatorRole, responderRole);
+            result = legName;
         }};
-        try {
-            cachingPModeProvider.findUserMessageExchangeContext(userMessage, mshRole1, true);
-            Assert.fail();
-        } catch (EbMS3Exception ex) {
-            assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0003, ex.getErrorCode());
-            assertEquals(ex.getMshRole(), mshRole1);
-        }
-        new Verifications() {{
-            userMessage.getPartyInfo().getFrom().getPartyId();
-            times = 1;
-            cachingPModeProvider.findPartyName(fromPartyId);
-            times = 1;
+
+        MessageExchangeConfiguration messageExchangeConfiguration = cachingPModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, false);
+        Assert.assertEquals(senderParty + PMODEKEY_SEPARATOR + receiverParty + PMODEKEY_SEPARATOR + service + PMODEKEY_SEPARATOR + action + PMODEKEY_SEPARATOR + agreement + PMODEKEY_SEPARATOR + legName, messageExchangeConfiguration.getPmodeKey());
+
+        new FullVerifications() {{
+            userMessage.getMessageInfo().getMessageId();
+            userMessage.getFromFirstPartyId();
+            userMessage.getToFirstPartyId();
+            userMessage.getCollaborationInfo().getService().getValue();
+            userMessage.getCollaborationInfo().getAction();
+            userMessage.getCollaborationInfo().getAgreementRef().toString();
+            userMessage.getCollaborationInfo().getService().toString();
+            userMessage.getCollaborationInfo().getAction();
+            userMessage.getMpc();
         }};
     }
 
     @Test
-    public void testFindUserMessageExchangeContextReceiverNotFound(@Injectable UserMessage userMessage, @Injectable MSHRole mshRole, @Injectable PartyId partyId) throws EbMS3Exception {
+    public void testFindUserMessageExchangeContextSenderNotProvided(@Injectable UserMessage userMessage) {
 
+        final Set<PartyId> fromPartyId = new HashSet<>();
+        MSHRole mshRole1 = MSHRole.SENDING;
+        new Expectations(cachingPModeProvider) {{
+            userMessage.getPartyInfo().getFrom().getPartyId();
+            result = fromPartyId;
+        }};
+        try {
+            cachingPModeProvider.findUserMessageExchangeContext(userMessage, mshRole1, true);
+            Assert.fail("expected error that sender party is missing");
+        } catch (EbMS3Exception ex) {
+            assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0003, ex.getErrorCode());
+            assertEquals("Mandatory field From PartyId is not provided.", ex.getErrorDetail());
+            assertEquals(mshRole1, ex.getMshRole());
+        }
+    }
+
+    @Test
+    public void findSenderParty_IdNotFound(@Injectable UserMessage userMessage) throws EbMS3Exception {
         final Set<PartyId> fromPartyId = new HashSet<>();
         PartyId partyId1 = new PartyId();
         partyId1.setValue("domibus-blue");
         fromPartyId.add(partyId1);
-        final Set<PartyId> toPartyId = new HashSet<>();
-        MSHRole mshRole1 = MSHRole.SENDING;
 
+        Exception expectedException = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "No matching party found for type [] and value []", null, null);
         new Expectations(cachingPModeProvider) {{
             userMessage.getPartyInfo().getFrom().getPartyId();
             result = fromPartyId;
 
+            cachingPModeProvider.findPartyName(fromPartyId);
+            result = expectedException;
+        }};
+        try {
+            cachingPModeProvider.findSenderParty(userMessage);
+            Assert.fail("expected error:" + expectedException.getMessage());
+        } catch (EbMS3Exception e) {
+            assertEquals(expectedException, e);
+        }
+    }
+
+    @Test
+    public void testFindUserMessageExchangeContextReceiverNotProvided(@Injectable UserMessage userMessage) throws EbMS3Exception {
+
+        final Set<PartyId> toPartyId = new HashSet<>();
+        MSHRole mshRole1 = MSHRole.SENDING;
+
+        new Expectations(cachingPModeProvider) {{
             userMessage.getPartyInfo().getTo().getPartyId();
             result = toPartyId;
 
-            cachingPModeProvider.findPartyName(fromPartyId);
-            result = "domibus-blue";
-
-            cachingPModeProvider.findPartyName(toPartyId);
-            result = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "Receiver party could not found for the value ", null, null);
-
+            cachingPModeProvider.findSenderParty(userMessage);
+            result = senderParty;
         }};
 
         try {
             cachingPModeProvider.findUserMessageExchangeContext(userMessage, mshRole1, true);
-            Assert.fail();
+            Assert.fail("expected error that receiver party is missing");
         } catch (EbMS3Exception ex) {
             assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0003, ex.getErrorCode());
-            assertEquals(ex.getMshRole(), mshRole1);
+            assertEquals("Mandatory field To PartyId is not provided.", ex.getErrorDetail());
+            assertEquals(mshRole1, ex.getMshRole());
         }
+    }
 
-        new Verifications() {{
+    @Test
+    public void findReceiverParty_IdNotFound(@Injectable UserMessage userMessage) throws EbMS3Exception {
+        final Set<PartyId> toPartyId = new HashSet<>();
+        PartyId partyId1 = new PartyId();
+        partyId1.setValue("domibus-red");
+        toPartyId.add(partyId1);
+
+        Exception expectedException = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "No matching party found for type [] and value []", null, null);
+        new Expectations(cachingPModeProvider) {{
             userMessage.getPartyInfo().getTo().getPartyId();
-            times = 1;
-            userMessage.getPartyInfo().getFrom().getPartyId();
-            times = 1;
-            cachingPModeProvider.findPartyName(fromPartyId);
-            times = 1;
+            result = toPartyId;
+
             cachingPModeProvider.findPartyName(toPartyId);
-            times = 1;
+            result = expectedException;
+        }};
+        try {
+            cachingPModeProvider.findReceiverParty(userMessage, false, senderParty);
+            Assert.fail("expected error:" + expectedException.getMessage());
+        } catch (EbMS3Exception e) {
+            assertEquals(expectedException, e);
+        }
+    }
+
+    @Test
+    public void findInitiatorRole_RoleNotProvided(@Injectable UserMessage userMessage) {
+        new Expectations(cachingPModeProvider) {{
+            userMessage.getPartyInfo().getFrom().getRole();
+            result = " ";
+        }};
+        try {
+            cachingPModeProvider.findInitiatorRole(userMessage);
+            Assert.fail("expected error that sender role should be provided");
+        } catch (EbMS3Exception e) {
+            assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0003, e.getErrorCode());
+            assertEquals("Mandatory field Sender Role is not provided.", e.getErrorDetail());
+        }
+    }
+
+    @Test
+    public void findInitiatorRole_OK(@Injectable UserMessage userMessage) throws EbMS3Exception {
+        new Expectations(cachingPModeProvider) {{
+            userMessage.getPartyInfo().getFrom().getRole();
+            result = initiatorRole.getValue();
+
+            cachingPModeProvider.getBusinessProcessRole(initiatorRole.getValue());
+            result = initiatorRole;
+        }};
+        try {
+            cachingPModeProvider.findInitiatorRole(userMessage);
+        } catch (EbMS3Exception e) {
+            fail("Exception was not expected here.");
+            throw e;
+        }
+        new FullVerifications() {{
+        }};
+    }
+
+    @Test
+    public void findResponderRole_RoleNotProvided(@Injectable UserMessage userMessage) {
+        new Expectations(cachingPModeProvider) {{
+            userMessage.getPartyInfo().getTo().getRole();
+            result = " ";
+        }};
+        try {
+            cachingPModeProvider.findResponderRole(userMessage);
+            Assert.fail("expected error that responder role should be provided");
+        } catch (EbMS3Exception e) {
+            assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0003, e.getErrorCode());
+            assertEquals("Mandatory field Receiver Role is not provided.", e.getErrorDetail());
+        }
+    }
+
+    @Test
+    public void findResponderRole_OK(@Injectable UserMessage userMessage) throws EbMS3Exception {
+        new Expectations(cachingPModeProvider) {{
+            userMessage.getPartyInfo().getTo().getRole();
+            result = responderRole.getValue();
+
+            cachingPModeProvider.getBusinessProcessRole(responderRole.getValue());
+            result = responderRole;
+        }};
+        try {
+            cachingPModeProvider.findResponderRole(userMessage);
+        } catch (EbMS3Exception e) {
+            Assert.fail("Exception was not expected here.");
+            throw e;
+        }
+        new FullVerifications() {{
         }};
     }
 
@@ -1354,7 +1486,7 @@ public class CachingPModeProviderTest {
         }};
         cachingPModeProvider.checkAgreementMismatch(process, legFilterCriteria);
 
-        new FullVerifications(){{
+        new FullVerifications() {{
             cachingPModeProvider.matchAgreement(process, agreement);
             final String errorString;
             legFilterCriteria.appendProcessMismatchErrors(process, errorString = withCapture());
@@ -1366,15 +1498,15 @@ public class CachingPModeProviderTest {
     public void checkInitiatorMismatch(@Injectable Process process,
                                        @Injectable ProcessTypePartyExtractor processTypePartyExtractor,
                                        @Injectable LegFilterCriteria legFilterCriteria) {
-        new Expectations(cachingPModeProvider){{
-           cachingPModeProvider.matchInitiator(process, processTypePartyExtractor);
-           result = false;
+        new Expectations(cachingPModeProvider) {{
+            cachingPModeProvider.matchInitiator(process, processTypePartyExtractor);
+            result = false;
 
             processTypePartyExtractor.getSenderParty();
             result = senderParty;
         }};
         cachingPModeProvider.checkInitiatorMismatch(process, processTypePartyExtractor, legFilterCriteria);
-        new FullVerifications(){{
+        new FullVerifications() {{
             final String errorString;
             legFilterCriteria.appendProcessMismatchErrors(process, errorString = withCapture());
             assertTrue(errorString.contains(senderParty));
@@ -1385,7 +1517,7 @@ public class CachingPModeProviderTest {
     public void checkResponderMismatch(@Injectable Process process,
                                        @Injectable ProcessTypePartyExtractor processTypePartyExtractor,
                                        @Injectable LegFilterCriteria legFilterCriteria) {
-        new Expectations(cachingPModeProvider){{
+        new Expectations(cachingPModeProvider) {{
             cachingPModeProvider.matchResponder(process, processTypePartyExtractor);
             result = false;
 
@@ -1393,7 +1525,7 @@ public class CachingPModeProviderTest {
             result = receiverParty;
         }};
         cachingPModeProvider.checkResponderMismatch(process, processTypePartyExtractor, legFilterCriteria);
-        new FullVerifications(){{
+        new FullVerifications() {{
             final String errorString;
             legFilterCriteria.appendProcessMismatchErrors(process, errorString = withCapture());
             assertTrue(errorString.contains(receiverParty));
@@ -1404,18 +1536,18 @@ public class CachingPModeProviderTest {
     public void checkInitiatorRoleMismatch(@Injectable Process process,
                                            @Injectable LegFilterCriteria legFilterCriteria,
                                            @Injectable Role role1) {
-        new Expectations(cachingPModeProvider){{
-           process.getInitiatorRole();
-           result = role1;
+        new Expectations(cachingPModeProvider) {{
+            process.getInitiatorRole();
+            result = role1;
 
-           legFilterCriteria.getInitiatorRole();
-           result = initiatorRole;
+            legFilterCriteria.getInitiatorRole();
+            result = initiatorRole;
 
-           cachingPModeProvider.matchRole(role1, initiatorRole);
-           result = false;
+            cachingPModeProvider.matchRole(role1, initiatorRole);
+            result = false;
         }};
         cachingPModeProvider.checkInitiatorRoleMismatch(process, legFilterCriteria);
-        new FullVerifications(){{
+        new FullVerifications() {{
             final String errorString;
             legFilterCriteria.appendProcessMismatchErrors(process, errorString = withCapture());
             assertTrue(errorString.contains(initiatorRole.toString()));
@@ -1426,18 +1558,18 @@ public class CachingPModeProviderTest {
     public void checkResponderRoleMismatch(@Injectable Process process,
                                            @Injectable LegFilterCriteria legFilterCriteria,
                                            @Injectable Role role1) {
-        new Expectations(cachingPModeProvider){{
-           process.getResponderRole();
-           result = role1;
+        new Expectations(cachingPModeProvider) {{
+            process.getResponderRole();
+            result = role1;
 
-           legFilterCriteria.getResponderRole();
-           result = responderRole;
+            legFilterCriteria.getResponderRole();
+            result = responderRole;
 
-           cachingPModeProvider.matchRole(role1, responderRole);
-           result = false;
+            cachingPModeProvider.matchRole(role1, responderRole);
+            result = false;
         }};
         cachingPModeProvider.checkResponderRoleMismatch(process, legFilterCriteria);
-        new FullVerifications(){{
+        new FullVerifications() {{
             final String errorString;
             legFilterCriteria.appendProcessMismatchErrors(process, errorString = withCapture());
             assertTrue(errorString.contains(responderRole.toString()));
@@ -1447,15 +1579,15 @@ public class CachingPModeProviderTest {
     @Test
     public void checkServiceMismatch(@Injectable LegConfiguration legConfiguration,
                                      @Injectable LegFilterCriteria legFilterCriteria) {
-        new Expectations(){{
-           legConfiguration.getService().getName();
-           result = "anotherServiceName";
+        new Expectations() {{
+            legConfiguration.getService().getName();
+            result = "anotherServiceName";
 
-           legFilterCriteria.getService();
-           result = service;
+            legFilterCriteria.getService();
+            result = service;
         }};
         cachingPModeProvider.checkServiceMismatch(legConfiguration, legFilterCriteria);
-        new FullVerifications(){{
+        new FullVerifications() {{
             final String errorString;
             legFilterCriteria.appendLegMismatchErrors(legConfiguration, errorString = withCapture());
             assertTrue(errorString.contains(service));
@@ -1464,19 +1596,20 @@ public class CachingPModeProviderTest {
 
     @Test
     public void checkActionMismatch(@Injectable LegConfiguration legConfiguration,
-                                     @Injectable LegFilterCriteria legFilterCriteria) {
-        new Expectations(){{
-           legConfiguration.getAction().getName();
-           result = "anotherActionName";
+                                    @Injectable LegFilterCriteria legFilterCriteria) {
+        new Expectations() {{
+            legConfiguration.getAction().getName();
+            result = "anotherActionName";
 
-           legFilterCriteria.getAction();
-           result = action;
+            legFilterCriteria.getAction();
+            result = action;
         }};
         cachingPModeProvider.checkActionMismatch(legConfiguration, legFilterCriteria);
-        new FullVerifications(){{
+        new FullVerifications() {{
             final String errorString;
             legFilterCriteria.appendLegMismatchErrors(legConfiguration, errorString = withCapture());
             assertTrue(errorString.contains(action));
         }};
     }
+
 }
