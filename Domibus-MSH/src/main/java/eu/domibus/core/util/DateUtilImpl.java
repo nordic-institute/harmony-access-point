@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import java.sql.Timestamp;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -55,5 +56,11 @@ public class DateUtilImpl implements DateUtil {
     @Override
     public String getCurrentTime() {
         return getCurrentTime(DEFAULT_FORMATTER);
+    }
+
+    @Override
+    public long getDiffMinutesBetweenDates(Date date1, Date date2) {
+        long diffInMillies = Math.abs(date2.getTime() - date1.getTime());
+        return TimeUnit.MINUTES.convert(diffInMillies, TimeUnit.MILLISECONDS);
     }
 }

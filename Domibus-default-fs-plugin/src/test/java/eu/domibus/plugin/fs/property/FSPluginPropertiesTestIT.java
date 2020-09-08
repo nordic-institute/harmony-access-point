@@ -46,6 +46,9 @@ public class FSPluginPropertiesTestIT {
     @Autowired
     DomibusConfigurationExtService domibusConfigurationExtService;
 
+    @Autowired
+    FSPluginPropertiesMetadataManagerImpl fsPluginPropertiesMetadataManager;
+
     @Configuration
     static class ContextConfiguration {
 
@@ -85,7 +88,7 @@ public class FSPluginPropertiesTestIT {
         public FSPluginPropertiesMetadataManagerImpl fsPluginPropertiesMetadataManager() {
             return new FSPluginPropertiesMetadataManagerImpl();
         }
-        
+
         @Bean
         public DomibusPropertyExtService domibusPropertyExtService() {
             return new DomibusPropertyExtService() {
@@ -180,7 +183,6 @@ public class FSPluginPropertiesTestIT {
                 }
             };
         }
-
     }
 
     @Test
@@ -225,7 +227,7 @@ public class FSPluginPropertiesTestIT {
 
     @Test
     public void testGetFailedPurgeExpired() {
-        Assert.assertNull(fSPluginProperties.getFailedPurgeExpired(null));
+        Assert.assertEquals((Integer) 0, fSPluginProperties.getFailedPurgeExpired(null));
     }
 
     @Test
@@ -304,6 +306,7 @@ public class FSPluginPropertiesTestIT {
         final String oldPropertyValue2 = "/tmp/fs_plugin_data";
         final String newPropertyValue1 = "new-property-value1";
         final String newPropertyValue2 = "new-property-value2";
+        fsPluginPropertiesMetadataManager.createMetadata();
         fSPluginProperties.knownProperties = null;
         Mockito.reset(domibusConfigurationExtService);
         when(domibusConfigurationExtService.isMultiTenantAware()).thenReturn(false);
@@ -339,6 +342,7 @@ public class FSPluginPropertiesTestIT {
         final String oldPropertyValue2 = "/tmp/fs_plugin_data";
         final String newPropertyValue1 = "new-property-value1";
         final String newPropertyValue2 = "new-property-value2";
+        fsPluginPropertiesMetadataManager.createMetadata();
         Mockito.reset(domibusConfigurationExtService);
         when(domibusConfigurationExtService.isMultiTenantAware()).thenReturn(true);
 

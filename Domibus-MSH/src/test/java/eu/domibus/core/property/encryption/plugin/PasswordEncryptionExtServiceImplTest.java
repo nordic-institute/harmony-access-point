@@ -14,8 +14,9 @@ import org.junit.Test;
 
 /**
  * @author Cosmin Baciu
- * @since
+ * @since 4.1.2
  */
+@SuppressWarnings("TestMethodWithIncorrectSignature")
 public class PasswordEncryptionExtServiceImplTest {
 
     @Tested
@@ -48,7 +49,7 @@ public class PasswordEncryptionExtServiceImplTest {
 
         passwordEncryptionExtService.encryptPasswordsInFile(pluginPasswordEncryptionContext);
 
-        new Verifications() {{
+        new FullVerifications() {{
             passwordEncryptionService.encryptPasswords(pluginPasswordEncryptionContextDelegate);
         }};
     }
@@ -59,7 +60,7 @@ public class PasswordEncryptionExtServiceImplTest {
 
         passwordEncryptionExtService.isValueEncrypted(propertyValue);
 
-        new Verifications() {{
+        new FullVerifications() {{
             passwordEncryptionService.isValueEncrypted(propertyValue);
         }};
     }
@@ -76,7 +77,7 @@ public class PasswordEncryptionExtServiceImplTest {
 
         passwordEncryptionExtService.decryptProperty(domainDTO, propertyName, encryptedFormatValue);
 
-        new Verifications() {{
+        new FullVerifications() {{
             passwordEncryptionService.decryptProperty(domain, propertyName, encryptedFormatValue);
         }};
     }
@@ -97,7 +98,7 @@ public class PasswordEncryptionExtServiceImplTest {
 
         passwordEncryptionExtService.encryptProperty(domainDTO, propertyName, encryptedFormatValue);
 
-        new Verifications() {{
+        new FullVerifications() {{
             domainExtConverter.convert(passwordEncryptionResult, PasswordEncryptionResultDTO.class);
         }};
     }

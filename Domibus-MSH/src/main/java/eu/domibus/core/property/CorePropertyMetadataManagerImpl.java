@@ -1,5 +1,6 @@
 package eu.domibus.core.property;
 
+import eu.domibus.api.property.DomibusProperty;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.DomibusPropertyMetadata.Type;
 import eu.domibus.api.property.DomibusPropertyMetadata.Usage;
@@ -82,7 +83,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMIBUS_PULL_REQUEST_SEND_PER_JOB_CYCLE_PER_MPC, Type.NUMERIC, Module.MSH, false, Usage.DOMAIN, true, true, false, true),
 
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_SECURITY_EXT_AUTH_PROVIDER_ENABLED, Type.BOOLEAN),
-
+            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_SCHEMAFACTORY, Type.CLASS),
 
             //writable properties
             new DomibusPropertyMetadata(DOMIBUS_UI_TITLE_NAME, Usage.DOMAIN, true),
@@ -310,6 +311,8 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
 
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_FILE_UPLOAD_MAX_SIZE, Type.NUMERIC),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_CERTIFICATE_CRL_EXCLUDED_PROTOCOLS, Type.COMMA_SEPARATED_LIST),
+
+            DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES, Type.NUMERIC),
     }).collect(Collectors.toMap(x -> x.getName(), x -> x));
 
     /**

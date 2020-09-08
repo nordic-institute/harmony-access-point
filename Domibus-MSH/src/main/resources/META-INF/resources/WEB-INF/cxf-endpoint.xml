@@ -10,14 +10,6 @@
     <bean id="mshWebservice" class="eu.domibus.core.ebms3.receiver.MSHWebservice"/>
     <bean id="mshWebserviceSerializer" class="eu.domibus.core.message.splitandjoin.MSHSourceMessageWebservice"/>
 
-    <cxf:bus>
-        <cxf:outInterceptors>
-            <ref bean="attachmentCleanupInterceptor"/>
-        </cxf:outInterceptors>
-        <cxf:outFaultInterceptors>
-            <ref bean="attachmentCleanupInterceptor"/>
-        </cxf:outFaultInterceptors>
-    </cxf:bus>
 
     <!--Message logger configuration-->
     <bean id="loggingFeature" class="org.apache.cxf.ext.logging.LoggingFeature">
@@ -54,13 +46,6 @@
 
     <bean id="setPolicyOutInterceptorServer" class="eu.domibus.core.ebms3.receiver.policy.SetPolicyOutInterceptorServer"/>
     <bean id="saveRawPulledMessageInterceptor" class="eu.domibus.core.message.pull.SaveRawPulledMessageInterceptor"/>
-
-    <bean id="attachmentCleanupInterceptor" class="eu.domibus.core.ebms3.ws.attachment.AttachmentCleanupInterceptor"/>
-
-    <!-- DomibusAlgorithmSuiteLoader -->
-    <bean id="algorithmSuiteLoader" class="eu.domibus.core.ebms3.ws.algorithm.DomibusAlgorithmSuiteLoader">
-        <constructor-arg ref="cxf"/>
-    </bean>
 
     <bean id="Wss4JMultiDomainCryptoProvider" class="eu.domibus.core.crypto.Wss4JMultiDomainCryptoProvider"/>
 

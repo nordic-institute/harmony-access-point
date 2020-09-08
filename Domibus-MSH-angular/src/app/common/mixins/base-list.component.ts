@@ -151,12 +151,16 @@ export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
   }
 
   public onActivate(event) {
-    if ('dblclick' === event.type) {
-      if (instanceOfModifiableList(this)) {
-        this.edit(event.row);
-      } else {
-        this.showDetails(event.row);
-      }
+    if ('dblclick' !== event.type) {
+      return;
+    }
+
+    this.alertService.clearAlert();
+
+    if (instanceOfModifiableList(this)) {
+      this.edit(event.row);
+    } else {
+      this.showDetails(event.row);
     }
   }
 
