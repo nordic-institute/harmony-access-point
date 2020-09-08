@@ -40,6 +40,10 @@ export class TruststoreComponent extends mix(BaseListComponent)
     this.loadServerData();
   }
 
+  public get name(): string {
+    return 'TrustStore';
+  }
+
   ngAfterViewInit() {
     this.columnPicker.allColumns = [
       {
