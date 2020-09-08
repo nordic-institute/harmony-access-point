@@ -63,6 +63,25 @@ public class ErrorHandlerService {
             ex = rootCause == null ? ex : rootCause;
         }
 
+        return createResponseEntity(ex.getMessage(), status);
+    }
+
+    public ResponseEntity<ErrorRO> createResponse(String message, HttpStatus status) {
+        LOG.error(message);
+
+        return createResponseEntity(message, status);
+    }
+
+    public void processBindingResultErrors(BindingResult bindingResult) throws ValidationException {
+        if (bindingResult.hasErrors()) {
+            List<ObjectError> errors = bindingResult.getAllErrors();
+            String res = errors.stream().map(err -> err.getDefaultMessage())
+                    .reduce("", (subtotal, msg) -> subtotal + msg);
+            throw new ValidationException(res);
+        }
+    }
+
+    private ResponseEntity createResponseEntity(String message, HttpStatus status) {
         HttpHeaders headers = new HttpHeaders();
         //We need to send the connection header for the tomcat/chrome combination to be able to read the error message
         headers.set(HttpHeaders.CONNECTION, "close");
@@ -74,19 +93,10 @@ public class ErrorHandlerService {
             LOG.warn("Error reading domibus.exceptions.rest.enable as boolean: [{}]", e.getMessage());
         }
 
-        String errorMessage = enabled ? ex.getMessage() : "A server error occurred";
+        String errorMessage = enabled ? message : "A server error occurred";
 
         ErrorRO body = new ErrorRO(errorMessage);
 
         return new ResponseEntity(body, headers, status);
-    }
-
-    public void processBindingResultErrors(BindingResult bindingResult) throws ValidationException {
-        if (bindingResult.hasErrors()) {
-            List<ObjectError> errors = bindingResult.getAllErrors();
-            String res = errors.stream().map(err -> err.getDefaultMessage())
-                    .reduce("", (subtotal, msg) -> subtotal + msg);
-            throw new ValidationException(res);
-        }
     }
 }
