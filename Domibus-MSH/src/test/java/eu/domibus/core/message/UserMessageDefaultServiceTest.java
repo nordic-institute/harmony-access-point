@@ -12,8 +12,11 @@ import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.jms.DelayedDispatchMessageCreator;
 import eu.domibus.core.jms.DispatchMessageCreator;
+import eu.domibus.core.message.acknowledge.MessageAcknowledgementDao;
+import eu.domibus.core.message.attempt.MessageAttemptDao;
 import eu.domibus.core.message.converter.MessageConverterService;
 import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.message.signal.SignalMessageDao;
@@ -24,6 +27,7 @@ import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.core.pmode.provider.PModeProvider;
+import eu.domibus.core.replication.UIMessageDao;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.model.*;
 import eu.domibus.messaging.MessagingProcessingException;
@@ -140,6 +144,22 @@ public class UserMessageDefaultServiceTest {
 
     @Injectable
     UserMessagePriorityService userMessagePriorityService;
+
+    @Injectable
+    private MessageInfoDao messageInfoDao;
+
+    @Injectable
+    private MessageAttemptDao messageAttemptDao;
+
+    @Injectable
+    private ErrorLogDao errorLogDao;
+
+    @Injectable
+    private UIMessageDao uiMessageDao;
+
+    @Injectable
+    private MessageAcknowledgementDao messageAcknowledgementDao;
+
 
     @Test
     public void createMessagingForFragment(@Injectable UserMessage sourceMessage,
