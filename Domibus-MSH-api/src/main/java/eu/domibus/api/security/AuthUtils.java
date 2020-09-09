@@ -28,5 +28,5 @@ public interface AuthUtils {
 
     void setAuthenticationToSecurityContext(String user, String password, AuthRole authRole);
 
-    boolean isActualAdminMultiAware();
+    boolean isAdminMultiAware();
 }

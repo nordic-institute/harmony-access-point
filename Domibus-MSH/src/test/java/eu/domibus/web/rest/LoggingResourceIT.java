@@ -82,7 +82,7 @@ public class LoggingResourceIT {
         new Expectations() {{
             new MockUp<SecurityDefaultService>() {
                 @Mock
-                public boolean isActualAdminMultiAware() {
+                public boolean isAdminMultiAware() {
                     return false;
                 }
             };
@@ -126,7 +126,7 @@ public class LoggingResourceIT {
         new Expectations() {{
             new MockUp<SecurityDefaultService>() {
                 @Mock
-                public boolean isActualAdminMultiAware() {
+                public boolean isAdminMultiAware() {
                     return true;
                 }
             };

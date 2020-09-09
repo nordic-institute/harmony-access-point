@@ -72,8 +72,8 @@ public class SecurityDefaultService implements SecurityService {
     }
 
     @Override
-    public boolean isActualAdminMultiAware() {
-        return authUtils.isActualAdminMultiAware();
+    public boolean isAdminMultiAware() {
+        return authUtils.isAdminMultiAware();
     }
 
 }

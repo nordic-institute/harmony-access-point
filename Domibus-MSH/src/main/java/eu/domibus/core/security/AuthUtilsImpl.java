@@ -153,7 +153,7 @@ public class AuthUtilsImpl implements AuthUtils {
     }
 
     @Override
-    public boolean isActualAdminMultiAware() {
+    public boolean isAdminMultiAware() {
         if (domibusConfigurationService.isMultiTenantAware()) {
             return isSuperAdmin();
         }

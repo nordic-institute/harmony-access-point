@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -28,7 +27,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 @Conditional(SecurityInternalAuthProviderCondition.class)
 @Configuration
 @EnableWebSecurity
-@EnableAspectJAutoProxy
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityAdminConsoleConfiguration extends AbstractWebSecurityConfigurerAdapter {
 
