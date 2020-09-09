@@ -1,4 +1,4 @@
-import {Component, ElementRef, Inject, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {Component, ElementRef, Inject, OnInit, ViewChild} from '@angular/core';
 import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material';
 import {UserValidatorService} from '../support/uservalidator.service';
@@ -30,16 +30,16 @@ export class EditUserComponent implements OnInit {
 
   @ViewChild('user_name', {static: false}) user_name: ElementRef;
 
-  constructor (public dialogRef: MatDialogRef<EditUserComponent>, @Inject(MAT_DIALOG_DATA) public data: any,
-               private fb: FormBuilder, private userValidatorService: UserValidatorService,
-               private userService: UserService, private securityService: SecurityService, private domainService: DomainService) {
+  constructor(public dialogRef: MatDialogRef<EditUserComponent>, @Inject(MAT_DIALOG_DATA) public data: any,
+              private fb: FormBuilder, private userValidatorService: UserValidatorService,
+              private userService: UserService, private securityService: SecurityService, private domainService: DomainService) {
     this.existingRoles = data.userroles;
     this.existingDomains = data.userdomains;
     this.user = data.user;
     this.confirmation = data.user.password;
   }
 
-  async ngOnInit () {
+  async ngOnInit() {
     await this.additionalSetUp();
     this.buildFormControls();
 
@@ -50,21 +50,21 @@ export class EditUserComponent implements OnInit {
     setTimeout(() => this.user_name.nativeElement.focus(), 1000);
   }
 
-  private updateModel (changes) {
+  private updateModel(changes) {
     delete changes.confirmation;
     Object.assign(this.user, changes);
   }
 
-  private buildFormControls () {
+  private buildFormControls() {
     this.userForm = this.fb.group({
       'userName': new FormControl({
         value: this.user.userName,
         disabled: !this.isNewUser()
-      }, [Validators.required, Validators.maxLength(255)]),
+      }, [Validators.required, Validators.maxLength(255), Validators.minLength(4), Validators.pattern('[a-zA-Z0-9\.@_]*')]),
       'email': new FormControl(this.user.email, [Validators.pattern(this.emailPattern), Validators.maxLength(255)]),
       'roles': new FormControl(this.user.roles, Validators.required),
       'domain': new FormControl({value: this.user.domain, disabled: this.isDomainDisabled()}, Validators.required),
-      //todo: put pass and confirm into a sub-group to validate separately
+      // todo: put pass and confirm into a sub-group to validate separately
       'password': new FormControl(this.user.password, [Validators.pattern(this.passwordPattern), this.isNewUser() ? Validators.required : Validators.nullValidator]),
       'confirmation': new FormControl(this.confirmation, [Validators.pattern(this.passwordPattern), this.isNewUser() ? Validators.required : Validators.nullValidator]),
       'active': new FormControl({value: this.user.active, disabled: this.isCurrentUser()}, Validators.required)
@@ -73,11 +73,11 @@ export class EditUserComponent implements OnInit {
     });
   }
 
-  private isNewUser () {
+  private isNewUser() {
     return this.user.status === UserState[UserState.NEW];
   }
 
-  private async additionalSetUp () {
+  private async additionalSetUp() {
     this.domainService.getCurrentDomain().subscribe((dom) => {
       this.currentDomain = dom.code;
     });
@@ -94,17 +94,17 @@ export class EditUserComponent implements OnInit {
     this.formTitle = this.isNewUser() ? NEW_MODE : EDIT_MODE;
   }
 
-  isCurrentUser (): boolean {
+  isCurrentUser(): boolean {
     let currentUser = this.securityService.getCurrentUser();
     return currentUser && currentUser.username === this.user.userName;
   }
 
-  isDomainDisabled () {
+  isDomainDisabled() {
     // if the edited user is not super-user
     return this.user.roles !== SecurityService.ROLE_AP_ADMIN;
   }
 
-  onRoleChange ($event) {
+  onRoleChange($event) {
     if ($event.value === SecurityService.ROLE_AP_ADMIN) {
       this.userForm.get('domain').enable();
     } else {
@@ -114,7 +114,7 @@ export class EditUserComponent implements OnInit {
   }
 
   // filters out roles so that the user cannot change from ap admin to the other 2 roles or vice-versa
-  getAllowedRoles (allRoles, userRole) {
+  getAllowedRoles(allRoles, userRole) {
     if (userRole === SecurityService.ROLE_AP_ADMIN) {
       return [SecurityService.ROLE_AP_ADMIN];
     } else {
@@ -122,18 +122,18 @@ export class EditUserComponent implements OnInit {
     }
   }
 
-  submitForm () {
+  submitForm() {
     if (this.userForm.valid) {
       this.dialogRef.close(true);
     }
   }
 
-  shouldShowErrorsForFieldNamed (fieldName: string): boolean {
+  shouldShowErrorsForFieldNamed(fieldName: string): boolean {
     let field = this.userForm.get(fieldName);
     return (field.touched || field.dirty) && !!field.errors;
   }
 
-  isFormDisabled () {
+  isFormDisabled() {
     return this.userForm.invalid || !this.userForm.dirty;
   }
 }

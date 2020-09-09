@@ -33,7 +33,8 @@ const appRoutes: Routes = [
     data: {
       checkRoles: SecurityService.USER_ROLES,
       helpPage: 'Messages'
-    }
+    },
+    runGuardsAndResolvers: 'always'
   },
   {
     path: 'pmode-current',
@@ -43,7 +44,8 @@ const appRoutes: Routes = [
     data: {
       checkRoles: SecurityService.ADMIN_ROLES,
       helpPage: 'PMode-Current'
-    }
+    },
+    runGuardsAndResolvers: 'always'
   },
   {
     path: 'pmode-archive',
@@ -53,7 +55,8 @@ const appRoutes: Routes = [
     data: {
       checkRoles: SecurityService.ADMIN_ROLES,
       helpPage: 'PMode-Archive'
-    }
+    },
+    runGuardsAndResolvers: 'always'
   },
   {
     path: 'pmode-party',
@@ -63,7 +66,8 @@ const appRoutes: Routes = [
     data: {
       checkRoles: SecurityService.USER_ROLES,
       helpPage: 'PMode-Parties'
-    }
+    },
+    runGuardsAndResolvers: 'always'
   },
   {
     path: 'jms',
@@ -73,7 +77,8 @@ const appRoutes: Routes = [
     data: {
       checkRoles: SecurityService.ADMIN_ROLES,
       helpPage: 'JMSMonitoring'
-    }
+    },
+    runGuardsAndResolvers: 'always'
   },
   {
     path: 'messagefilter',
@@ -83,7 +88,8 @@ const appRoutes: Routes = [
     data: {
       checkRoles: SecurityService.ADMIN_ROLES,
       helpPage: 'MessageFilter'
-    }
+    },
+    runGuardsAndResolvers: 'always'
   },
   {
     path: 'truststore',
@@ -92,7 +98,8 @@ const appRoutes: Routes = [
     data: {
       checkRoles: SecurityService.ADMIN_ROLES,
       helpPage: 'Truststore'
-    }
+    },
+    runGuardsAndResolvers: 'always'
   },
   {
     path: 'messagelog',
@@ -101,7 +108,8 @@ const appRoutes: Routes = [
     data: {
       checkRoles: SecurityService.USER_ROLES,
       helpPage: 'Messages'
-    }
+    },
+    runGuardsAndResolvers: 'always'
   },
   {
     path: 'user',
@@ -111,7 +119,8 @@ const appRoutes: Routes = [
     data: {
       checkRoles: SecurityService.ADMIN_ROLES,
       helpPage: 'Users'
-    }
+    },
+    runGuardsAndResolvers: 'always'
   },
   {
     path: 'pluginuser',
@@ -121,7 +130,8 @@ const appRoutes: Routes = [
     data: {
       checkRoles: SecurityService.ADMIN_ROLES,
       helpPage: 'PluginUsers'
-    }
+    },
+    runGuardsAndResolvers: 'always'
   },
   {
     path: 'errorlog',
@@ -130,7 +140,8 @@ const appRoutes: Routes = [
     data: {
       checkRoles: SecurityService.USER_ROLES,
       helpPage: 'ErrorLog'
-    }
+    },
+    runGuardsAndResolvers: 'always'
   },
   {
     path: 'login',
@@ -138,7 +149,8 @@ const appRoutes: Routes = [
     canActivate: [AuthExternalProviderGuard, RedirectHomeGuard],
     data: {
       helpPage: 'Login'
-    }
+    },
+    runGuardsAndResolvers: 'always'
   },
   {
     path: 'audit',
@@ -147,7 +159,8 @@ const appRoutes: Routes = [
     data: {
       checkRoles: SecurityService.ADMIN_ROLES,
       helpPage: 'Audit'
-    }
+    },
+    runGuardsAndResolvers: 'always'
   },
   {
     path: 'alerts',
@@ -157,7 +170,8 @@ const appRoutes: Routes = [
     data: {
       checkRoles: SecurityService.ADMIN_ROLES,
       helpPage: 'Alerts'
-    }
+    },
+    runGuardsAndResolvers: 'always'
   },
   // {
   //   path: 'testservice',
@@ -166,7 +180,8 @@ const appRoutes: Routes = [
   //   data: {
   //     checkRoles: SecurityService.ADMIN_ROLES,
   //     helpPage: 'TestService'
-  //   }
+  //   },
+  //   runGuardsAndResolvers: 'always'
   // },
   {
     path: 'connections',
@@ -175,12 +190,14 @@ const appRoutes: Routes = [
     data: {
       checkRoles: SecurityService.ADMIN_ROLES,
       helpPage: 'ConnectionMonitoring'
-    }
+    },
+    runGuardsAndResolvers: 'always'
   },
   {
     path: 'changePassword',
     component: ChangePasswordComponent,
-    canActivate: [AuthenticatedAuthorizedGuard, AuthExternalProviderGuard]
+    canActivate: [AuthenticatedAuthorizedGuard, AuthExternalProviderGuard],
+    runGuardsAndResolvers: 'always'
   },
   {
     path: 'logging',
@@ -190,7 +207,8 @@ const appRoutes: Routes = [
       isDomainIndependent: true,
       checkRoles: SecurityService.ADMIN_ROLES,
       helpPage: 'Logging'
-    }
+    },
+    runGuardsAndResolvers: 'always'
   },
   {
     path: 'properties',
@@ -199,19 +217,22 @@ const appRoutes: Routes = [
     data: {
       checkRoles: SecurityService.ADMIN_ROLES,
       helpPage: 'Properties'
-    }
+    },
+    runGuardsAndResolvers: 'always'
   },
   {
     path: 'logout',
     component: LogoutAuthExtProviderComponent,
     data: {
       isDomainIndependent: true
-    }
+    },
+    runGuardsAndResolvers: 'always'
   },
   {
     path: 'notAuthorized',
     component: NotAuthorizedComponent,
-    canActivate: [AuthenticatedAuthorizedGuard]
+    canActivate: [AuthenticatedAuthorizedGuard],
+    runGuardsAndResolvers: 'always'
   },
   {
     path: '**',
@@ -219,9 +240,10 @@ const appRoutes: Routes = [
     canActivate: [AuthenticatedAuthorizedGuard, DefaultPasswordGuard],
     data: {
       checkRoles: SecurityService.USER_ROLES
-    }
+    },
+    runGuardsAndResolvers: 'always'
   },
 
 ];
 
-export const routing = RouterModule.forRoot(appRoutes);
+export const routing = RouterModule.forRoot(appRoutes, {onSameUrlNavigation: 'reload'});

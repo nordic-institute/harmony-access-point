@@ -103,6 +103,8 @@ import {FileUploadValidatorService} from './common/file-upload-validator.service
 import {ConnectionsComponent} from './testservice/connections.component';
 import {ConnectionDetailsComponent} from './testservice/connection-details/connection-details.component';
 import {ApplicationContextService} from './common/application-context.service';
+import {SessionExpiredDialogComponent} from './security/session-expired-dialog/session-expired-dialog.component';
+import {SessionService} from './security/session.service';
 
 @NgModule({
   declarations: [
@@ -164,6 +166,7 @@ import {ApplicationContextService} from './common/application-context.service';
     EditPopupBaseComponent,
     ConnectionsComponent,
     ConnectionDetailsComponent,
+    SessionExpiredDialogComponent,
   ],
   entryComponents: [
     AppComponent,
@@ -189,7 +192,8 @@ import {ApplicationContextService} from './common/application-context.service';
     PropertiesComponent,
     EditPopupBaseComponent,
     ConnectionDetailsComponent,
-    AlertComponent
+    AlertComponent,
+    SessionExpiredDialogComponent,
   ],
   imports: [
     BrowserModule,
@@ -218,7 +222,7 @@ import {ApplicationContextService} from './common/application-context.service';
     CommonModule,
     MatSlideToggleModule,
     MatProgressSpinnerModule,
-    MatSnackBarModule
+    MatSnackBarModule,
   ],
   providers: [
     AuthenticatedAuthorizedGuard,
@@ -228,6 +232,7 @@ import {ApplicationContextService} from './common/application-context.service';
     RedirectHomeGuard,
     HttpEventService,
     SecurityService,
+    SessionService,
     SecurityEventService,
     DomainService,
     DomibusInfoService,
@@ -235,14 +240,14 @@ import {ApplicationContextService} from './common/application-context.service';
     {provide: HTTP_INTERCEPTORS, useClass: ExtendedHttpInterceptor, multi: true},
     {
       provide: ErrorHandler,
-      useClass: GlobalErrorHandler
+      useClass: GlobalErrorHandler,
     },
     UserService,
     UserValidatorService,
     DialogsService,
     PropertiesService,
     FileUploadValidatorService,
-    ApplicationContextService
+    ApplicationContextService,
   ],
   bootstrap: [AppComponent]
 })
