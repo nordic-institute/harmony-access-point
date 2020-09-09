@@ -28,6 +28,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.XmlProcessingException;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -249,7 +250,6 @@ public abstract class PModeProvider {
         String senderParty;
         String receiverParty;
 
-
         final String messageId = userMessage.getMessageInfo().getMessageId();
         //add messageId to MDC map
         if (StringUtils.isNotBlank(messageId)) {
@@ -306,7 +306,7 @@ public abstract class PModeProvider {
     protected String findSenderParty(UserMessage userMessage) throws EbMS3Exception {
         String senderParty;
         final Set<PartyId> fromPartyId = userMessage.getPartyInfo().getFrom().getPartyId();
-        if (fromPartyId == null || fromPartyId.isEmpty()) {
+        if (CollectionUtils.isEmpty(fromPartyId)) {
             EbMS3Exception exception = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "Mandatory field From PartyId is not provided.", null, null);
             LOG.businessError(DomibusMessageCode.BUS_FROM_PARTYID_NOT_SPECIFIED);
             throw exception;
@@ -335,7 +335,7 @@ public abstract class PModeProvider {
     protected String findReceiverParty(UserMessage userMessage, boolean isPull, String senderParty) throws EbMS3Exception {
         String receiverParty = StringUtils.EMPTY;
         final Set<PartyId> toPartyId = userMessage.getPartyInfo().getTo().getPartyId();
-        if (toPartyId == null || toPartyId.isEmpty()) {
+        if (CollectionUtils.isEmpty(toPartyId)) {
             EbMS3Exception exception = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "Mandatory field To PartyId is not provided.", null, null);
             LOG.businessError(DomibusMessageCode.BUS_TO_PARTYID_NOT_SPECIFIED);
             throw exception;
