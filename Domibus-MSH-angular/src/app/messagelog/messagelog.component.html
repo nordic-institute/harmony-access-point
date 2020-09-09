@@ -134,7 +134,7 @@
               (click)="downloadAction(row)" id="downloadButtonRow{{rows.indexOf(row)}}_id" tooltip="Download">
         <mat-icon>file_download</mat-icon>
       </button>
-      <button mat-icon-button color="primary" [disabled]="!isResendButtonEnabledAction(row)" (click)="resendDialog()"
+      <button mat-icon-button color="primary" *ngIf="isCurrentUserAdmin()" [disabled]="!isResendButtonEnabledAction(row)" (click)="resendDialog()"
               id="resendButtonRow{{rows.indexOf(row)}}_id" tooltip="Resend" button-click-behaviour>
         <mat-icon>send</mat-icon>
       </button>
@@ -146,7 +146,7 @@
         <mat-icon>file_download</mat-icon>
         <span>Download</span>
       </button>
-      <button mat-raised-button color="primary" [disabled]="!isResendButtonEnabled()" (click)="resendDialog()"
+      <button mat-raised-button color="primary" *ngIf="isCurrentUserAdmin()" [disabled]="!isResendButtonEnabled()" (click)="resendDialog()"
               id="resendbutton_id" button-click-behaviour>
         <mat-icon>send</mat-icon>
         <span>Resend</span>

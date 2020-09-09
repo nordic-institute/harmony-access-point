@@ -1,6 +1,7 @@
 import {ErrorHandler, Injectable, Injector} from '@angular/core';
 import {AlertService} from './alert/alert.service';
 import {HttpResponse} from '@angular/common/http';
+import {Server} from '../security/Server';
 
 @Injectable()
 export class GlobalErrorHandler implements ErrorHandler {
@@ -13,11 +14,11 @@ export class GlobalErrorHandler implements ErrorHandler {
 
     if (error instanceof HttpResponse) {
       const res = <HttpResponse<any>>error;
-      if (res.status === 401 || res.status === 403) {
+      if (res.status === Server.HTTP_UNAUTHORIZED || res.status === Server.HTTP_FORBIDDEN) {
         return;
       }
     } else if (error.rejection) {
-      //unpack the promice rejection
+      // unpack the promise rejection
       error = error.rejection;
     }
     const alertService = this.injector.get(AlertService);

@@ -1,6 +1,6 @@
 package eu.domibus.core.status;
 
-import org.apache.cxf.Bus;
+import eu.domibus.core.cxf.DomibusBus;
 import org.apache.cxf.ws.policy.PolicyBuilder;
 import org.apache.neethi.AssertionBuilderFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +24,7 @@ public class DomibusStatusService {
     private boolean cxfInitiated;
 
     @Autowired
-    private Bus bus;
+    private DomibusBus bus;
 
     public boolean isNotReady() {
         if (cxfInitiated) return false;

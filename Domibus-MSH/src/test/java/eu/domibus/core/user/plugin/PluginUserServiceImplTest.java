@@ -353,7 +353,7 @@ public class PluginUserServiceImplTest {
         }};
 
         thrown.expect(UserManagementException.class);
-        thrown.expectMessage("Cannot add or update the user nonValidUser having the ROLE_USER role without providing the original sender value.");
+        thrown.expectMessage("Cannot add or update the user nonValidUser having the ROLE_USER role without providing the original user value.");
 
         // WHEN
         pluginUserService.checkUsers(Arrays.asList(adminUser, validUser, nonValidUser), new ArrayList<>());
@@ -375,7 +375,7 @@ public class PluginUserServiceImplTest {
         }};
 
         thrown.expect(UserManagementException.class);
-        thrown.expectMessage("Cannot add or update the user nonValidUser having the ROLE_USER role without providing the original sender value.");
+        thrown.expectMessage("Cannot add or update the user nonValidUser having the ROLE_USER role without providing the original user value.");
 
         // WHEN
         pluginUserService.checkUsers(new ArrayList<>(), Arrays.asList(adminUser, validUser, nonValidUser));

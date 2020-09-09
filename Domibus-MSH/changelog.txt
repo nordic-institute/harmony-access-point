@@ -26,6 +26,7 @@ Domibus 4.2
 - Plugins are able now to define Ehcache config files which will be loaded into Domibus Ehcache Manager:
 - *-plugin-default-ehcache.xml (classpath jar file) and external *-plugin-ehcache.xml into /plugins/config folder
 - Domibus internal tables storing PMode information have been renamed to start with prefix TB_PM_*
+- Added new property domibus.ui.resend.action.enabled.received.minutes - how many minutes after message's received date the Resend button will become enabled for messages having SEND_ENQUEUED status
 Domibus 4.1.5
 - AS4 String message properties has been increased from 255 characters to 1024
 - Synchronization of Certificate verification security level of the SMP certificate in dynamic discovery for Peppol and Oasis.
