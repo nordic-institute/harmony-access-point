@@ -22,6 +22,7 @@ import utils.TestRunData;
 import utils.TestUtils;
 import utils.soap_client.MessageConstants;
 
+import java.io.File;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -474,5 +475,31 @@ public class MessagesPgTest extends SeleniumTest {
 		
 		soft.assertAll();
 	}
+	
+	/* MSG-16 - Download list of messages (multitenancy)*/
+	@Test(description = "MSG-16", groups = {"multiTenancy"})
+	public void downloadMsgs() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		
+		MessagesPage page = navigate();
+		String domain = selectRandomDomain();
+		
+		log.info("Click on download csv button");
+		String completeFilePath = page.pressSaveCsvAndSaveFile();
+		
+		log.info("Click on show link");
+		page.grid().getGridCtrl().showCtrls();
+		
+		log.info("Click on All link to show all available column headers");
+		page.grid().getGridCtrl().showAllColumns();
+		
+		page.grid().checkCSVvsGridHeaders(completeFilePath, soft);
+		int maxMess = page.grid().getRowsNo();
+		
+		page.grid().checkCSVvsGridInfo(completeFilePath, soft);
+		soft.assertAll();
+	}
+	
+	
 }
 

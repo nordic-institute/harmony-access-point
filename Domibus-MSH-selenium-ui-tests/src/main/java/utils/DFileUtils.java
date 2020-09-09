@@ -92,7 +92,8 @@ public class DFileUtils {
 	
 	
 	public static String getAbsolutePath(String relativePath) {
-		return new File(Thread.currentThread().getContextClassLoader().getResource(relativePath).getFile()).getAbsolutePath();
+//		String fileStr = Thread.currentThread().getContextClassLoader().getResource(relativePath).getFile();
+		return new File(relativePath).getAbsolutePath();
 	}
 	
 }

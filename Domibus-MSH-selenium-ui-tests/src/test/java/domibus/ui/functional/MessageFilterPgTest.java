@@ -1148,7 +1148,64 @@ public class MessageFilterPgTest extends SeleniumTest {
 
 		soft.assertAll();
 	}
+	
+	/* This method will verify plugin change through edit pop up from Message filter page
+			   in case of availability of multiple plugins  */
+	@Test(description = "MSGF-30", groups = {"multiTenancy", "singleTenancy"})
+	public void changeMsgFilterOnUpdate() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		
+		String domain = selectRandomDomain();
+		
+		String actionName = Gen.randomAlphaNumeric(5);
+		rest.messFilters().createMessageFilter(actionName, domain);
 
+		MessageFilterPage page = navigateToPage();
+		
+		int index = page.grid().scrollTo("Action", actionName);
+		HashMap<String, String> info = page.grid().getRowInfo(index);
+		
+		log.info("Extract row number plugin having action name :" + actionName);
+		page.grid().selectRow(index);
+		
+		soft.assertTrue(page.getEditBtn().isEnabled(), "On row selection, button gets enabled");
+		log.info("Click on Edit button");
+		page.getEditBtn().click();
+		
+		log.info("Check number of plugins available on edit pop in plugin drop down");
+		MessageFilterModal popup = new MessageFilterModal(driver);
+		
+		List<String> plugins = popup.getPluginSelect().getOptionsTexts();
+		if (plugins.size() > 1) {
+			
+			log.info("Select another plugin");
+			for (String plugin : plugins) {
+				if(!plugin.equalsIgnoreCase(info.get("Plugin"))){
+					popup.getPluginSelect().selectOptionByText(plugin);
+					break;
+				}
+			}
+			
+			log.info("Enter action field data");
+			popup.getActionInput().fill(Gen.randomAlphaNumeric(3));
+			
+			log.info("Click on Ok button");
+			popup.clickOK();
+//			page.wait.forXMillis(300);
+			
+			log.info("Click on Save button");
+			page.saveAndConfirmChanges();
+			
+			soft.assertFalse(page.getAlertArea().isError() , "Success message is shown");
+			soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.MESSAGE_FILTER_SUCCESS, "Correct message is displayed");
+			
+			soft.assertTrue(page.grid().scrollTo("Action", info.get("Action"))<0 , "Old action name is not present in the grid anymore");
+			
+		} else {
+			throw new SkipException("Only one plugin found, this test is skipped");
+		}
+		soft.assertAll();
+	}
 
 
 

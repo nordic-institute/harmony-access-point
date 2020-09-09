@@ -1,5 +1,6 @@
 package domibus.ui.functional;
 
+import ddsl.dcomponents.grid.DGrid;
 import ddsl.dcomponents.popups.Dialog;
 import ddsl.enums.DMessages;
 import ddsl.enums.DRoles;
@@ -15,10 +16,14 @@ import pages.Alert.AlertFilters;
 import pages.Alert.AlertPage;
 import rest.RestServicePaths;
 import utils.Gen;
+import utils.TestUtils;
 
+import java.io.File;
 import java.util.*;
 
 public class AlertPgTest extends SeleniumTest {
+	
+	JSONObject descriptorObj = TestUtils.getPageDescriptorObject(PAGES.ALERTS);
 	
 	
 	private void validateDomainAlertInfo(HashMap<String, String> rowInfo, JSONArray userList, JSONArray messageList, JSONArray pluginuserList, SoftAssert soft) throws Exception {
@@ -880,6 +885,68 @@ public class AlertPgTest extends SeleniumTest {
 		soft.assertAll();
 	}
 	
+	/* disabled because EDELIVERY-4186 */
+	@Test(description = "ALRT-20", groups = {"multiTenancy", "singleTenancy"})
+	public void verifyHeaders() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		AlertPage page = new AlertPage(driver);
+		page.getSidebar().goToPage(PAGES.ALERTS);
+		log.info("Customized location for download");
+
+		page.grid().waitForRowsToLoad();
+		String filePath = page.pressSaveCsvAndSaveFile();
+		
+		
+		log.info("Check if file is downloaded at given location");
+		soft.assertTrue(new File(filePath).exists(), "File is downloaded successfully");
+		
+		log.info("Extract complete path for downloaded file");
+		String completeFilePath = filePath;
+		
+		log.info("Click on show link");
+		page.grid().getGridCtrl().showCtrls();
+		
+		log.info("Click on All link to show all available column headers");
+		page.grid().getGridCtrl().showAllColumns();
+		
+		log.info("Compare headers from downloaded csv and grid");
+		page.grid().checkCSVvsGridHeaders(completeFilePath, soft);
+		soft.assertAll();
+	}
 	
+	@Test(description = "ALRT-19", groups = {"multiTenancy", "singleTenancy"})
+	public void checkSorting() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		
+		JSONArray colDescs = descriptorObj.getJSONObject("grid").getJSONArray("columns");
+		
+		AlertPage page = new AlertPage(driver);
+		page.getSidebar().goToPage(PAGES.ALERTS);
+		
+		AlertFilters aFilter= new AlertFilters(driver);
+		aFilter.getProcessedSelect().selectOptionByIndex(1);
+		aFilter.getSearchButton().click();
+		page.grid().waitForRowsToLoad();
+		do {
+			DGrid grid = page.grid();
+			for (int i = 0; i < colDescs.length(); i++) {
+				JSONObject colDesc = colDescs.getJSONObject(i);
+				if (grid.getColumnNames().contains(colDesc.getString("name"))) {
+					TestUtils.testSortingForColumn(soft, grid, colDesc);
+				}
+			}
+			if (page.getDomainFromTitle() == null || page.getDomainFromTitle().equals(rest.getDomainNames().get(1))) {
+				break;
+			}
+			if (data.isMultiDomain()) {
+				log.info("chnage domain");
+				page.getDomainSelector().selectOptionByIndex(1);
+			}
+			page.refreshPage();
+			page.grid().waitForRowsToLoad();
+		} while (page.getDomainFromTitle().equals(rest.getDomainNames().get(1)));
+
+		soft.assertAll();
+	}
 	
 }

@@ -1,5 +1,6 @@
 package domibus.ui.ux;
 
+import ddsl.dcomponents.DomibusPage;
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.enums.PAGES;
 import domibus.ui.SeleniumTest;
@@ -15,6 +16,7 @@ import pages.Audit.AuditPage;
 import rest.RestServicePaths;
 import utils.TestUtils;
 
+import java.io.File;
 import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -324,6 +326,24 @@ public class AuditPgUXTest extends SeleniumTest {
 		soft.assertAll();
 	}
 	
+	
+	/**
+	 * This method will verify data for action column in downloaded csv and grid on admin console
+	 * */
+	@Test(description = "AU-41", groups = {"multiTenancy", "singleTenancy"})
+	public void verifyActionData() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		AuditPage page = new AuditPage(driver);
+		page.getSidebar().goToPage(PAGES.AUDIT);
+		log.info("Customized location for download");
+		String filePath = page.pressSaveCsvAndSaveFile();
+		
+		soft.assertTrue(new File(filePath).exists(), "File is downloaded successfully");
+		String completeFilePath = filePath;
+
+		page.grid().checkCSVvsGridInfo(completeFilePath, soft);
+		soft.assertAll();
+	}
 	
 	private void csvCheck(String filename, DGrid grid, SoftAssert soft) throws Exception {
 		Reader reader = Files.newBufferedReader(Paths.get(filename));
