@@ -17,7 +17,7 @@ import static eu.domibus.core.crypto.spi.dss.DssExtensionPropertyManager.*;
  */
 public class CertificateVerifierListener implements PluginPropertyChangeListener {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(NetworkConfigurationListener.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CertificateVerifierListener.class);
 
     private final Set<String> properties = Sets.newHashSet(
             DSS_PERFORM_CRL_CHECK,
@@ -34,14 +34,14 @@ public class CertificateVerifierListener implements PluginPropertyChangeListener
     public boolean handlesProperty(String propertyName) {
         boolean matchingProperty = properties.contains(propertyName);
         if(matchingProperty){
-            LOG.info("Property:[{}] changed",propertyName);
+            LOG.info("CertificateVerifierListener property:[{}] changed",propertyName);
         }
         return matchingProperty;
     }
 
     @Override
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) throws DomibusPropertyExtException {
-        LOG.info("Reloading proxy configuration");
+        LOG.info("Clearing DSS cache");
         dssCache.clear();
     }
 

@@ -1,6 +1,7 @@
 package eu.domibus.core.crypto.spi.dss;
 
 import eu.domibus.core.crypto.spi.DomainCryptoServiceSpi;
+import eu.domibus.core.crypto.spi.dss.listeners.CertificateVerifierListener;
 import eu.domibus.core.crypto.spi.dss.listeners.NetworkConfigurationListener;
 import eu.domibus.ext.services.*;
 import eu.domibus.logging.DomibusLogger;
@@ -401,12 +402,17 @@ public class DssConfiguration {
     }
 
     @Bean
-    public ProxyHelper proxyHelper(DssExtensionPropertyManager dssExtensionPropertyManager) {
+    public ProxyHelper proxyHelper(final DssExtensionPropertyManager dssExtensionPropertyManager) {
         return new ProxyHelper(dssExtensionPropertyManager);
     }
 
     @Bean
-    public NetworkConfigurationListener networkConfigurationListener(DomibusDataLoader dataLoader,ProxyHelper proxyHelper){
+    public NetworkConfigurationListener networkConfigurationListener(final DomibusDataLoader dataLoader,final ProxyHelper proxyHelper){
         return new NetworkConfigurationListener(dataLoader,proxyHelper);
+    }
+
+    @Bean
+    public CertificateVerifierListener certificateVerifierListener(final DssCache dssCache){
+        return new CertificateVerifierListener(dssCache);
     }
 }
