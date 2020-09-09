@@ -142,7 +142,7 @@ export class AppComponent implements OnInit, OnDestroy {
     return this.securityService.isCurrentUserAdmin();
   }
 
-  isRealAdmin(): boolean {
+  isAdminMultiAware(): boolean {
     return (this.isMultiDomain && this.securityService.isCurrentUserSuperAdmin()) ||
       (!this.isMultiDomain && this.securityService.isCurrentUserAdmin());
   }
