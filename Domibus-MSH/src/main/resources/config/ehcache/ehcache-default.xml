@@ -90,7 +90,7 @@
     </cache>
     <cache name="jmsDestinations"
            maxBytesLocalHeap="5m"
-           timeToLiveSeconds="600"
+           timeToLiveSeconds="300"
            overflowToDisk="false">
     </cache>
 
