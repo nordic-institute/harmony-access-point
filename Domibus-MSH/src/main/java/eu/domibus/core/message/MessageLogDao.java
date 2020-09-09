@@ -41,9 +41,11 @@ public abstract class MessageLogDao<F extends MessageLog> extends ListDao<F> {
 
         switch (messageStatus) {
             case DELETED:
+                messageLog.setDeleted(new Date());
+                messageLog.setNextAttempt(null);
+                break;
             case ACKNOWLEDGED:
             case ACKNOWLEDGED_WITH_WARNING:
-                messageLog.setDeleted(new Date());
                 messageLog.setNextAttempt(null);
                 break;
             case DOWNLOADED:

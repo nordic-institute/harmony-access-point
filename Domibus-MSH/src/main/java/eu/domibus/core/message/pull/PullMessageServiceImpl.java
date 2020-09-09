@@ -3,6 +3,7 @@ package eu.domibus.core.message.pull;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.model.configuration.LegConfiguration;
@@ -74,6 +75,9 @@ public class PullMessageServiceImpl implements PullMessageService {
 
     @Autowired
     protected MpcService mpcService;
+
+    @Autowired
+    UserMessageService userMessageService;
 
     private Integer extraNumberOfAttemptTimeForExpirationDate;
 
@@ -147,7 +151,11 @@ public class PullMessageServiceImpl implements PullMessageService {
                 backendNotificationService.notifyOfSendSuccess(userMessageLog);
                 LOG.businessInfo(userMessageLog.isTestMessage() ? DomibusMessageCode.BUS_TEST_MESSAGE_SEND_SUCCESS : DomibusMessageCode.BUS_MESSAGE_SEND_SUCCESS,
                         userMessage.getFromFirstPartyId(), userMessage.getToFirstPartyId());
-                messagingDao.clearPayloadData(userMessage);
+                if (userMessageService.shouldDeletePayloadOnSendSuccess()) {
+                    LOG.debug("Message payload will be cleared.");
+                    messagingDao.clearPayloadData(userMessage);
+                    userMessageLog.setDeleted(new Date());
+                }
 
                 userMessageLogDao.update(userMessageLog);
 

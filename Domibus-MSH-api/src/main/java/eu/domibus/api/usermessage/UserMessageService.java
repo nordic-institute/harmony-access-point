@@ -161,4 +161,11 @@ public interface UserMessageService {
      * @throws IOException in case a read error
      */
     byte[] getMessageWithAttachmentsAsZip(String messageId) throws MessageNotFoundException, IOException;
+
+    /**
+     * Verifies if message payload has to be deleted on send success
+     *
+     * @return true if payload should be deleted
+     */
+    boolean shouldDeletePayloadOnSendSuccess();
 }

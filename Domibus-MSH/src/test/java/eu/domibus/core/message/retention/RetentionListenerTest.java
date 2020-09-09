@@ -1,6 +1,7 @@
 package eu.domibus.core.message.retention;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.core.message.UserMessageDefaultService;
@@ -15,6 +16,7 @@ import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -38,6 +40,9 @@ public class RetentionListenerTest {
     @Injectable
     private DomainContextProvider domainContextProvider;
 
+    @Injectable
+    DomibusPropertyProvider domibusPropertyProvider;
+
     @Mocked
     private Message message;
 
@@ -47,8 +52,8 @@ public class RetentionListenerTest {
         String messageId = "messageId";
 
         new Expectations() {{
+            message.getStringProperty(MessageRetentionDefaultService.DELETE_TYPE); result = MessageDeleteType.SINGLE.name();
             message.getStringProperty(MessageConstants.MESSAGE_ID); result = messageId;
-            domibusLogger.putMDC(anyString, anyString);
         }};
 
         // When
@@ -62,10 +67,11 @@ public class RetentionListenerTest {
     }
 
     @Test
-    public void onMessage_addsAuthentication(@Mocked DomibusLogger domibusLogger) {
+    public void onMessage_addsAuthentication(@Mocked DomibusLogger domibusLogger)  throws JMSException {
         // Given
         new Expectations() {{
             authUtils.isUnsecureLoginAllowed(); result = false;
+            message.getStringProperty(MessageRetentionDefaultService.DELETE_TYPE); result = MessageDeleteType.SINGLE.name();
         }};
 
         // When

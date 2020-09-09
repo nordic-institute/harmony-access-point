@@ -66,6 +66,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SEND_MESSAGE_SUCCESS_DELETE_PAYLOAD;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 /**
@@ -580,7 +581,10 @@ public class UserMessageDefaultService implements UserMessageService {
         UserMessage userMessage = messaging.getUserMessage();
         messagingDao.clearPayloadData(userMessage);
 
-        userMessageLogService.setMessageAsDeleted(userMessage, userMessageLog);
+        if (MessageStatus.ACKNOWLEDGED != userMessageLog.getMessageStatus() &&
+                MessageStatus.ACKNOWLEDGED_WITH_WARNING != userMessageLog.getMessageStatus()) {
+            userMessageLogService.setMessageAsDeleted(userMessage, userMessageLog);
+        }
 
         userMessageLogService.setSignalMessageAsDeleted(messaging.getSignalMessage());
     }
@@ -660,6 +664,11 @@ public class UserMessageDefaultService implements UserMessageService {
         auditService.addMessageDownloadedAudit(messageId);
 
         return result;
+    }
+
+    @Override
+    public boolean shouldDeletePayloadOnSendSuccess() {
+        return domibusPropertyProvider.getBooleanProperty(DOMIBUS_SEND_MESSAGE_SUCCESS_DELETE_PAYLOAD);
     }
 
     protected UserMessage getUserMessageById(String messageId) throws MessageNotFoundException {

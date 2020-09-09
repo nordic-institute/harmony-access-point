@@ -199,7 +199,9 @@ public class UpdateRetryLoggingService {
         userMessageLogService.setMessageAsSendFailure(userMessage, userMessageLog);
 
         if (shouldDeletePayloadOnSendFailure(userMessage)) {
+            LOG.debug("Message payload will be cleared.");
             messagingDao.clearPayloadData(userMessage);
+            userMessageLog.setDeleted(new Date());
         }
     }
 

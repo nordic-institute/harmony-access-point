@@ -27,7 +27,6 @@ public class MessageConstants {
     public static final String ACTION = "action";
 
 
-
     /**
      * we used this attribute name and not FileName to avoid name collision with Domibus core class SubmissionAS4Transformer
      */

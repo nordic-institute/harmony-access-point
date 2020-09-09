@@ -98,18 +98,6 @@ public class MessagingDao extends BasicDao<Messaging> {
         LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_DATA_CLEARED, messageId);
     }
 
-    @Transactional(propagation = Propagation.MANDATORY)
-    @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
-    public void clearMessage(String messageId) {
-        LOG.debug("Start clearing the message [{}]", messageId);
-
-        final StoredProcedureQuery storedProcedureQuery = em.createStoredProcedureQuery("DeleteOldMessages");
-        storedProcedureQuery.registerStoredProcedureParameter(1, String.class, ParameterMode.IN);
-        storedProcedureQuery.setParameter(1,  messageId);
-        storedProcedureQuery.execute();
-        LOG.debug("End clearing the message [{}]", messageId);
-    }
-
     /**
      * Deletes the payloads saved on the file system
      *

@@ -24,8 +24,8 @@
                                                   use="optional" default="-1"/>
                                     <xs:attribute name="delete_message_metadata" type="xs:boolean"
                                                   use="optional" default="false"/>
-                                    <xs:attribute name="max_batch_delete" type="xs:int"
-                                                  use="optional" default="1000"/>
+                                    <xs:attribute name="max_batch_delete" type="max10k-integer"
+                                                  use="optional" default="-1" />
                                 </xs:complexType>
                             </xs:element>
                         </xs:sequence>
@@ -546,6 +546,12 @@
         <xs:restriction base="xs:string">
             <xs:minLength value="0"/>
             <xs:maxLength value="255"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="max10k-integer">
+        <xs:restriction base="xs:integer">
+            <xs:minInclusive value="-1"/>
+            <xs:maxInclusive value="10000"/>
         </xs:restriction>
     </xs:simpleType>
 </xs:schema>

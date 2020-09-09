@@ -3,6 +3,7 @@ package eu.domibus.core.message.pull;
 import com.google.common.collect.Lists;
 import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
@@ -20,6 +21,7 @@ import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import java.sql.Timestamp;
@@ -69,6 +71,9 @@ public class PullMessageServiceImplTest {
 
     @Injectable
     private UserMessageLogDefaultService userMessageLogDefaultService;
+
+    @Injectable
+    UserMessageService userMessageService;
 
     @Tested
     private PullMessageServiceImpl pullMessageService;
