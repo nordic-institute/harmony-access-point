@@ -166,7 +166,7 @@ public class PluginUserServiceImpl implements PluginUserService {
                 .findFirst()
                 .ifPresent(user -> {
                     throw new UserManagementException("Cannot add or update the user " + user.getUserName()
-                            + " having the " + AuthRole.ROLE_USER.name() + " role without providing the original sender value.");
+                            + " having the " + AuthRole.ROLE_USER.name() + " role without providing the original user value.");
                 });
     }
 
