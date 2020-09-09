@@ -1,6 +1,5 @@
 package eu.domibus.core.pmode.validation.validators;
 
-import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.common.model.configuration.Identifier;
 import eu.domibus.common.model.configuration.Party;
@@ -13,8 +12,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author Soumya Chandran
@@ -155,18 +152,23 @@ public class PartyIdentifierValidatorTest {
 
         new Expectations(partyIdentifierValidator) {{
             party.getName();
-            result = "party3<img src=http://placekitten.com/222/333>";
+            result = "party3<img src=http://localhost/222/333>";
             identifier.getPartyId();
-            result = "domibus-blue<img src=http://placekitten.com/333/333>";
+            result = "domibus-blue<img src=http://localhost/333/333>";
+
+            identifier.getPartyIdType().getName();
+            result="partyTypeUrn2&lt;img src=http://localhost/166/111>";
+
+            identifier.getPartyIdType().getValue();
+            result="urn:oasis:names:tc:ebcore:partyid-type:unregistered2<img src=http://localhost/133/211>";
+
             party.getIdentifiers();
             result = identifiers;
         }};
-        List<ValidationIssue> issues = partyIdentifierValidator.validateForbiddenCharactersInParty(party);
-        assertTrue(issues.size() == 1);
-        assertTrue(issues.get(0).getMessage().contains("Forbidden characters '< >' found in the party identifier's partyId"));
+        partyIdentifierValidator.validateForbiddenCharactersInParty(party);
         new Verifications() {{
             businessProcessValidator.validateForbiddenCharacters(anyString, anyString);
-            times = 1;
+            times = 4;
         }};
     }
 }

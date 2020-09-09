@@ -6,7 +6,6 @@ import eu.domibus.common.model.configuration.Identifier;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
 import eu.domibus.core.pmode.validation.PModeValidator;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -56,9 +55,10 @@ public class PartyIdentifierValidator implements PModeValidator {
         List<ValidationIssue> issues = new ArrayList<>();
         issues.addAll(businessProcessValidator.validateForbiddenCharacters(party.getName(), "party name [" + party.getName() + "]."));
         party.getIdentifiers().forEach(identifier -> {
-            if (StringUtils.containsAny(identifier.getPartyId(), '<', '>') || (identifier.getPartyIdType() != null && ((StringUtils.containsAny(identifier.getPartyIdType().getName(), '<', '>') || StringUtils.containsAny(identifier.getPartyIdType().getValue(), '<', '>'))))) {
-                String message = businessProcessValidator.ERROR_MESSAGE + "party identifier's partyId [" + identifier.getPartyId() + "] or in its  partyId types.";
-                issues.add(new ValidationIssue(message, ValidationIssue.Level.ERROR));
+            issues.addAll(businessProcessValidator.validateForbiddenCharacters(identifier.getPartyId(), "party identifier's partyId [" + identifier.getPartyId() + "]."));
+            if (identifier.getPartyIdType() != null) {
+                issues.addAll(businessProcessValidator.validateForbiddenCharacters(identifier.getPartyIdType().getName(), "party identifier's partyId type name [" + identifier.getPartyIdType().getName() + "]."));
+                issues.addAll(businessProcessValidator.validateForbiddenCharacters(identifier.getPartyIdType().getValue(), "party identifier's partyId type value [" + identifier.getPartyIdType().getValue() + "]."));
             }
         });
         return issues;

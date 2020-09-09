@@ -14,7 +14,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 /**
- * @author Ion Perpegel
+ * @author Ion Perpegel, Soumya Chandran
  * @since 4.2
  * <p>
  */

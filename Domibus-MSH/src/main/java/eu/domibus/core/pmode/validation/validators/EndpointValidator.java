@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author Ion Perpegel
+ * @author Ion Perpegel, Soumya Chandran
  * @since 4.2
  * <p>
  * Validates the endpoint of each party.
@@ -26,7 +26,6 @@ public class EndpointValidator implements PModeValidator {
         this.businessProcessValidator = businessProcessValidator;
     }
 
-
     @Override
     public List<ValidationIssue> validate(Configuration pMode) {
         List<ValidationIssue> issues = new ArrayList<>();
@@ -35,11 +34,10 @@ public class EndpointValidator implements PModeValidator {
             if (StringUtils.isEmpty(party.getEndpoint())) {
                 String message = String.format("Party [%s] should not have an empty endpoint.", party.getName());
                 issues.add(new ValidationIssue(message, ValidationIssue.Level.WARNING));
-            }else {
+            } else {
                 issues.addAll(businessProcessValidator.validateForbiddenCharacters(party.getEndpoint(), "endpoint [" + party.getEndpoint() + "] for the party [" + party.getName() + "]."));
             }
         });
-
         return issues;
     }
 }

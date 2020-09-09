@@ -51,7 +51,7 @@ public class BusinessProcessValidator implements PModeValidator {
     protected List<ValidationIssue> validateForbiddenCharacters(String name, String message) {
         List<ValidationIssue> issues = new ArrayList<>();
         if (StringUtils.containsAny(name, '<', '>')) {
-            issues.add(new ValidationIssue(ERROR_MESSAGE+message, ValidationIssue.Level.ERROR));
+            issues.add(new ValidationIssue(ERROR_MESSAGE + message, ValidationIssue.Level.ERROR));
         }
         return issues;
     }
