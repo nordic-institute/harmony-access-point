@@ -1,7 +1,7 @@
 package eu.domibus.ext.delegate.services.security;
 
-import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.api.security.AuthUtils;
+import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.ext.exceptions.AuthenticationExtException;
 import eu.domibus.ext.exceptions.DomibusErrorCode;
 import eu.domibus.ext.exceptions.DomibusServiceExtException;
@@ -9,7 +9,6 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -21,11 +20,14 @@ public class SecurityDefaultService implements SecurityService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SecurityDefaultService.class);
 
-    @Autowired
-    AuthUtils authUtils;
+    private AuthUtils authUtils;
+    private UserMessageService userMessageService;
 
-    @Autowired
-    UserMessageService userMessageService;
+    public SecurityDefaultService(AuthUtils authUtils,
+                                  UserMessageService userMessageService) {
+        this.authUtils = authUtils;
+        this.userMessageService = userMessageService;
+    }
 
     @Override
     public void checkMessageAuthorization(String messageId) throws DomibusServiceExtException {
@@ -68,4 +70,10 @@ public class SecurityDefaultService implements SecurityService {
     public String getOriginalUserFromSecurityContext() throws AuthenticationExtException {
         return authUtils.getOriginalUserFromSecurityContext();
     }
+
+    @Override
+    public boolean isActualAdminMultiAware() {
+        return authUtils.isActualAdminMultiAware();
+    }
+
 }

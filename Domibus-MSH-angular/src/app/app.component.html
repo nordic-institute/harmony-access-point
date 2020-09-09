@@ -77,7 +77,7 @@
       <mat-icon mat-tooltip="Connection Monitoring">import_export</mat-icon>
       <span *ngIf="fullMenu">Connection Monitoring</span>
     </button>
-    <button mat-raised-button class="sideNavButton" [routerLink]="['/logging']" *ngIf="isAdmin()" id="logging_id">
+    <button mat-raised-button class="sideNavButton" [routerLink]="['/logging']" *ngIf="isRealAdmin()" id="logging_id">
       <mat-icon mat-tooltip="Logging">list_alt</mat-icon>
       <span *ngIf="fullMenu">Logging</span>
     </button>

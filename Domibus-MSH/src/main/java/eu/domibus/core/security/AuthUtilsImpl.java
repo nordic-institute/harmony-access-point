@@ -8,7 +8,6 @@ import eu.domibus.api.security.AuthenticationException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -27,13 +26,16 @@ public class AuthUtilsImpl implements AuthUtils {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AuthUtilsImpl.class);
 
-    private static final String UNSECURE_LOGIN_ALLOWED = DOMIBUS_AUTH_UNSECURE_LOGIN_ALLOWED;
+    protected final DomibusPropertyProvider domibusPropertyProvider;
 
-    @Autowired
-    protected DomibusPropertyProvider domibusPropertyProvider;
+    protected final DomibusConfigurationService domibusConfigurationService;
 
-    @Autowired
-    protected DomibusConfigurationService domibusConfigurationService;
+    public AuthUtilsImpl(
+            DomibusPropertyProvider domibusPropertyProvider,
+            DomibusConfigurationService domibusConfigurationService) {
+        this.domibusPropertyProvider = domibusPropertyProvider;
+        this.domibusConfigurationService = domibusConfigurationService;
+    }
 
     /**
      * Returns the original user passed via the security context OR
@@ -78,12 +80,12 @@ public class AuthUtilsImpl implements AuthUtils {
 
     @Override
     public boolean isUnsecureLoginAllowed() {
-        if(domibusConfigurationService.isMultiTenantAware()) {
+        if (domibusConfigurationService.isMultiTenantAware()) {
             LOG.trace("Unsecured login not allowed: Domibus is running in multi-tenancy mode");
             return false;
         }
         /* unsecured login allowed */
-        return domibusPropertyProvider.getBooleanProperty(UNSECURE_LOGIN_ALLOWED);
+        return domibusPropertyProvider.getBooleanProperty(DOMIBUS_AUTH_UNSECURE_LOGIN_ALLOWED);
     }
 
     @Override
@@ -99,26 +101,27 @@ public class AuthUtilsImpl implements AuthUtils {
     @Override
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN', 'ROLE_AP_ADMIN')")
     public void hasUserOrAdminRole() {
-        if(isAdmin() || isSuperAdmin()) {
+        if (isAdmin() || isSuperAdmin()) {
             return;
         }
         // USER_ROLE - verify the ORIGINAL_USER is configured
         String originalUser = getOriginalUserFromSecurityContext();
-        if(StringUtils.isEmpty(originalUser)) {
+        if (StringUtils.isEmpty(originalUser)) {
             throw new AuthenticationException("User " + getAuthenticatedUser() + " has USER_ROLE but is missing the ORIGINAL_USER in the db");
         }
-        LOG.debug("Logged with USER_ROLE, ORIGINAL_USER is {}", originalUser );
+        LOG.debug("Logged with USER_ROLE, ORIGINAL_USER is {}", originalUser);
     }
 
     @Override
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_AP_ADMIN')")
     public void hasAdminRole() {
+        // PreAuthorize
     }
 
     @Override
     @PreAuthorize("hasAnyRole('ROLE_USER')")
     public void hasUserRole() {
-
+        // PreAuthorize
     }
 
     @Override
@@ -147,6 +150,14 @@ public class AuthUtilsImpl implements AuthUtils {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public boolean isActualAdminMultiAware() {
+        if (domibusConfigurationService.isMultiTenantAware()) {
+            return isSuperAdmin();
+        }
+        return isAdmin();
     }
 
 }

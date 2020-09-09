@@ -27,6 +27,7 @@ export class AppComponent implements OnInit, OnDestroy {
   fullMenu = true;
   menuClass: string = this.fullMenu ? 'menu-expanded' : 'menu-collapsed';
   extAuthProviderEnabled = false;
+  isMultiDomain = false;
   extAuthProvideRedirectTo: string;
 
   @ViewChild(RouterOutlet, {static: false})
@@ -77,6 +78,7 @@ export class AppComponent implements OnInit, OnDestroy {
         }
       }
     }
+    this.isMultiDomain = await this.domainService.isMultiDomain().toPromise();
 
     this.loginSubscription = this.securityEventService.onLoginSuccessEvent().subscribe(() => this.onLoginSuccessEvent());
 
@@ -140,15 +142,20 @@ export class AppComponent implements OnInit, OnDestroy {
     return this.securityService.isCurrentUserAdmin();
   }
 
-  isUser (): boolean {
+  isRealAdmin(): boolean {
+    return (this.isMultiDomain && this.securityService.isCurrentUserSuperAdmin()) ||
+      (!this.isMultiDomain && this.securityService.isCurrentUserAdmin());
+  }
+
+  isUser(): boolean {
     return this.securityService.hasCurrentUserPrivilegeUser();
   }
 
-  isExtAuthProviderEnabled (): boolean {
+  isExtAuthProviderEnabled(): boolean {
     return this.extAuthProviderEnabled;
   }
 
-  get currentUser (): string {
+  get currentUser(): string {
     const user = this.securityService.getCurrentUser();
     return user ? user.username : '';
   }
@@ -160,7 +167,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.securityService.logout();
   }
 
-  toggleMenu () {
+  toggleMenu() {
     this.fullMenu = !this.fullMenu
     this.menuClass = this.fullMenu ? 'menu-expanded' : 'menu-collapsed'
     setTimeout(() => {
