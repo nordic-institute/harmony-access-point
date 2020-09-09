@@ -70,7 +70,7 @@
     </cache>
     <cache name="dss-cache"
            maxBytesLocalHeap="5m"
-           timeToLiveSeconds="300"
+           timeToLiveSeconds="600"
            overflowToDisk="false">
     </cache>
     <cache name="encryptionKey"
@@ -90,7 +90,7 @@
     </cache>
     <cache name="jmsDestinations"
            maxBytesLocalHeap="5m"
-           timeToLiveSeconds="600"
+           timeToLiveSeconds="300"
            overflowToDisk="false">
     </cache>
 
