@@ -669,22 +669,22 @@ public class CachingPModeProvider extends PModeProvider {
     }
 
     @Override
-    public int getRetentionMaxBatchByMpcURI(final String mpcURI, final int defaultValue) {
+    public int getRetentionMaxBatchByMpcURI(final String mpcURI, final int maxValue) {
         for (final Mpc mpc1 : this.getConfiguration().getMpcs()) {
             if (StringUtils.equalsIgnoreCase(mpc1.getQualifiedName(), mpcURI)) {
                 int maxBatch = mpc1.getMaxBatchDelete();
                 LOG.debug("Found MPC with name [{}] and maxBatchDelete [{}]", mpc1.getName(), maxBatch);
-                if(maxBatch == -1) {
-                    LOG.debug("Using default maxBatch value [{}]", defaultValue);
-                    return defaultValue;
+                if(maxBatch == -1 || maxBatch > maxValue) {
+                    LOG.debug("Using default maxBatch value [{}]", maxValue);
+                    return maxValue;
                 }
                 return maxBatch;
             }
         }
 
-        LOG.error("No MPC with name: [{}] found. Using default value for message retention batch of [{}].", mpcURI, defaultValue);
+        LOG.error("No MPC with name: [{}] found. Using default value for message retention batch of [{}].", mpcURI, maxValue);
 
-        return defaultValue;
+        return maxValue;
     }
 
     @Override
