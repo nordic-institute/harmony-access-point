@@ -70,7 +70,7 @@
     </cache>
     <cache name="dss-cache"
            maxBytesLocalHeap="5m"
-           timeToLiveSeconds="300"
+           timeToLiveSeconds="600"
            overflowToDisk="false">
     </cache>
     <cache name="encryptionKey"
