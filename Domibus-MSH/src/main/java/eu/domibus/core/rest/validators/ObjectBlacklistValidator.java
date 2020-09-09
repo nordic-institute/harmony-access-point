@@ -6,8 +6,6 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.validators.ObjectWhiteListed;
 import org.apache.commons.lang3.ClassUtils;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ReflectionUtils;
 
@@ -32,11 +30,11 @@ public class ObjectBlacklistValidator extends BaseBlacklistValidator<ObjectWhite
 
     private static final Logger LOG = DomibusLoggerFactory.getLogger(ObjectBlacklistValidator.class);
 
-    private String message = ObjectWhiteListed.MESSAGE;
+    private static ThreadLocal<String> messageHolder = ThreadLocal.withInitial(() -> ObjectWhiteListed.MESSAGE);
 
     @Override
     public String getErrorMessage() {
-        return message;
+        return messageHolder.get();
     }
 
     @Override
@@ -63,8 +61,8 @@ public class ObjectBlacklistValidator extends BaseBlacklistValidator<ObjectWhite
         if (obj instanceof String) {
             LOG.debug("Validating object String property [{}]:[{}]", path, obj);
             if (!isValidValue((String) obj, customAnnotation)) {
-                message = String.format(ObjectWhiteListed.MESSAGE, path);
-                throw new ValidationException(message);
+                messageHolder.set(ObjectWhiteListed.MESSAGE + path);
+                throw new ValidationException(messageHolder.get());
             }
         } else if (obj instanceof Object[]) {
             LOG.debug("Validating object array property [{}]:[{}]", path, obj);

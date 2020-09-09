@@ -6,7 +6,6 @@ import eu.domibus.web.rest.validators.ObjectWhiteListed;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Map;
@@ -23,7 +22,7 @@ public class ObjectPropertiesMapBlacklistValidator extends BaseBlacklistValidato
 
     private static final Logger LOG = DomibusLoggerFactory.getLogger(ObjectPropertiesMapBlacklistValidator.class);
 
-    private String message = ObjectWhiteListed.MESSAGE;
+    private static ThreadLocal<String> messageHolder = ThreadLocal.withInitial(() -> ObjectWhiteListed.MESSAGE);
 
     private ItemsBlacklistValidator listValidator;
 
@@ -34,7 +33,7 @@ public class ObjectPropertiesMapBlacklistValidator extends BaseBlacklistValidato
 
     @Override
     public String getErrorMessage() {
-        return message;
+        return messageHolder.get();
     }
 
     @Override
@@ -66,10 +65,10 @@ public class ObjectPropertiesMapBlacklistValidator extends BaseBlacklistValidato
 
             String[] val = pair.getValue();
             if (!listValidator.isValid(val, whitelistAnnotation)) {
-                message = "Forbidden character(s) detected in the parameter ["
+                messageHolder.set("Forbidden character(s) detected in the parameter ["
                         + pair.getKey() + "]: ["
-                        + Arrays.stream(val).reduce("", (subtotal, msg) -> subtotal + msg) + "]";
-                LOG.debug(message);
+                        + Arrays.stream(val).reduce("", (subtotal, msg) -> subtotal + msg) + "]");
+                LOG.debug(messageHolder.get());
                 return false;
             }
         }
