@@ -10,6 +10,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class DssExtensionPropertyManager extends DomibusPropertyExtServiceDelegateAbstract implements DomibusPropertyManagerExt {
 
@@ -30,26 +31,27 @@ public class DssExtensionPropertyManager extends DomibusPropertyExtServiceDelega
     public static final String AUTHENTICATION_DSS_CONSTRAINT_STATUS_1="domibus.authentication.dss.constraint.status[1]";
     public static final String AUTHENTICATION_DSS_ENABLE_CUSTOM_TRUSTED_LIST_FOR_MULTITENANT="domibus.authentication.dss.enable.custom.trusted.list.for.multitenant";
     public static final String AUTHENTICATION_DSS_EXCEPTION_ON_MISSING_REVOCATION_DATA="domibus.authentication.dss.exception.on.missing.revocation.data";
-    public static final String AUTHENTICATION_DSS_CHECK_REVOCATION_FOR_UNTRUSTED_CHAINS="domibus.authentication.dss.check.revocation.for.untrusted.chains";
-    public static final String AUTHENTICATION_DSS_CUSTOM_TRUSTED_LIST_URL_0="domibus.authentication.dss.custom.trusted.list.url[0]";
-    public static final String AUTHENTICATION_DSS_CUSTOM_TRUSTED_LIST_KEYSTORE_PATH_0="domibus.authentication.dss.custom.trusted.list.keystore.path[0]";
-    public static final String AUTHENTICATION_DSS_CUSTOM_TRUSTED_LIST_KEYSTORE_TYPE_0="domibus.authentication.dss.custom.trusted.list.keystore.type[0]";
-    public static final String AUTHENTICATION_DSS_CUSTOM_TRUSTED_LIST_KEYSTORE_PASSWORD_0="domibus.authentication.dss.custom.trusted.list.keystore.password[0]";
-    public static final String AUTHENTICATION_DSS_CUSTOM_TRUSTED_LIST_COUNTRY_CODE_0="domibus.authentication.dss.custom.trusted.list.country.code[0]";
-    public static final String AUTHENTICATION_DSS_PROXY_HTTPS_HOST="domibus.authentication.dss.proxy.https.host";
-    public static final String AUTHENTICATION_DSS_PROXY_HTTPS_PORT="domibus.authentication.dss.proxy.https.port";
-    public static final String AUTHENTICATION_DSS_PROXY_HTTPS_USER="domibus.authentication.dss.proxy.https.user";
-    public static final String AUTHENTICATION_DSS_PROXY_HTTPS_PASSWORD="domibus.authentication.dss.proxy.https.password";
-    public static final String AUTHENTICATION_DSS_PROXY_HTTPS_EXCLUDEDHOSTS="domibus.authentication.dss.proxy.https.excludedhosts";
-    public static final String AUTHENTICATION_DSS_PROXY_HTTP_HOST="domibus.authentication.dss.proxy.http.host";
-    public static final String AUTHENTICATION_DSS_PROXY_HTTP_PORT="domibus.authentication.dss.proxy.http.port";
-    public static final String AUTHENTICATION_DSS_PROXY_HTTP_USER="domibus.authentication.dss.proxy.http.user";
-    public static final String AUTHENTICATION_DSS_PROXY_HTTP_PASSWORD="domibus.authentication.dss.proxy.http.password";
-    public static final String AUTHENTICATION_DSS_PROXY_HTTP_EXCLUDEDHOSTS="domibus.authentication.dss.proxy.http.excludedhosts";
-    public static final String EXCLUDE_PIVOT_FILE_REGEX="domibus.exclude.pivot.file.regex";
-    public static final String AUTHENTICATION_DSS_CACHE_NAME="domibus.authentication.dss.cache.name";
-    public static final String DSS_PERFORM_CRL_CHECK="domibus.dss.perform.crl.check";
+    public static final String AUTHENTICATION_DSS_CHECK_REVOCATION_FOR_UNTRUSTED_CHAINS = "domibus.authentication.dss.check.revocation.for.untrusted.chains";
+    public static final String AUTHENTICATION_DSS_CUSTOM_TRUSTED_LIST_URL_0 = "domibus.authentication.dss.custom.trusted.list.url[0]";
+    public static final String AUTHENTICATION_DSS_CUSTOM_TRUSTED_LIST_KEYSTORE_PATH_0 = "domibus.authentication.dss.custom.trusted.list.keystore.path[0]";
+    public static final String AUTHENTICATION_DSS_CUSTOM_TRUSTED_LIST_KEYSTORE_TYPE_0 = "domibus.authentication.dss.custom.trusted.list.keystore.type[0]";
+    public static final String AUTHENTICATION_DSS_CUSTOM_TRUSTED_LIST_KEYSTORE_PASSWORD_0 = "domibus.authentication.dss.custom.trusted.list.keystore.password[0]";
+    public static final String AUTHENTICATION_DSS_CUSTOM_TRUSTED_LIST_COUNTRY_CODE_0 = "domibus.authentication.dss.custom.trusted.list.country.code[0]";
+    public static final String AUTHENTICATION_DSS_PROXY_HTTPS_HOST = "domibus.authentication.dss.proxy.https.host";
+    public static final String AUTHENTICATION_DSS_PROXY_HTTPS_PORT = "domibus.authentication.dss.proxy.https.port";
+    public static final String AUTHENTICATION_DSS_PROXY_HTTPS_USER = "domibus.authentication.dss.proxy.https.user";
+    public static final String AUTHENTICATION_DSS_PROXY_HTTPS_PASSWORD = "domibus.authentication.dss.proxy.https.password";
+    public static final String AUTHENTICATION_DSS_PROXY_HTTPS_EXCLUDEDHOSTS = "domibus.authentication.dss.proxy.https.excludedhosts";
+    public static final String AUTHENTICATION_DSS_PROXY_HTTP_HOST = "domibus.authentication.dss.proxy.http.host";
+    public static final String AUTHENTICATION_DSS_PROXY_HTTP_PORT = "domibus.authentication.dss.proxy.http.port";
+    public static final String AUTHENTICATION_DSS_PROXY_HTTP_USER = "domibus.authentication.dss.proxy.http.user";
+    public static final String AUTHENTICATION_DSS_PROXY_HTTP_PASSWORD = "domibus.authentication.dss.proxy.http.password";
+    public static final String AUTHENTICATION_DSS_PROXY_HTTP_EXCLUDEDHOSTS = "domibus.authentication.dss.proxy.http.excludedhosts";
+    public static final String EXCLUDE_PIVOT_FILE_REGEX = "domibus.exclude.pivot.file.regex";
+    public static final String AUTHENTICATION_DSS_CACHE_NAME = "domibus.authentication.dss.cache.name";
+    public static final String DSS_PERFORM_CRL_CHECK = "domibus.dss.perform.crl.check";
 
+    private Map<String, DomibusPropertyMetadataDTO> knownProperties;
 
     public DssExtensionPropertyManager() {
         List<DomibusPropertyMetadataDTO> allProperties = Arrays.asList(
@@ -74,31 +76,40 @@ public class DssExtensionPropertyManager extends DomibusPropertyExtServiceDelega
                 new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_CUSTOM_TRUSTED_LIST_KEYSTORE_TYPE_0, DomibusPropertyMetadataDTO.Type.NUMERIC, Module.DSS_EXTENSION, DomibusPropertyMetadataDTO.Usage.GLOBAL),
                 new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_CUSTOM_TRUSTED_LIST_KEYSTORE_PASSWORD_0, DomibusPropertyMetadataDTO.Type.NUMERIC, Module.DSS_EXTENSION, DomibusPropertyMetadataDTO.Usage.GLOBAL),
                 new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_CUSTOM_TRUSTED_LIST_COUNTRY_CODE_0, DomibusPropertyMetadataDTO.Type.NUMERIC, Module.DSS_EXTENSION, DomibusPropertyMetadataDTO.Usage.GLOBAL),*/
-                new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_CUSTOM_TRUSTED_LIST_URL_0, DomibusPropertyMetadataDTO.Type.NUMERIC, Module.DSS_EXTENSION, DomibusPropertyMetadataDTO.Usage.GLOBAL),
-                new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_CUSTOM_TRUSTED_LIST_KEYSTORE_PATH_0, DomibusPropertyMetadataDTO.Type.NUMERIC, Module.DSS_EXTENSION, DomibusPropertyMetadataDTO.Usage.GLOBAL),
-                new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_CUSTOM_TRUSTED_LIST_KEYSTORE_TYPE_0, DomibusPropertyMetadataDTO.Type.NUMERIC, Module.DSS_EXTENSION, DomibusPropertyMetadataDTO.Usage.GLOBAL),
-                new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_CUSTOM_TRUSTED_LIST_KEYSTORE_PASSWORD_0, DomibusPropertyMetadataDTO.Type.NUMERIC, Module.DSS_EXTENSION, DomibusPropertyMetadataDTO.Usage.GLOBAL),
-                new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_CUSTOM_TRUSTED_LIST_COUNTRY_CODE_0, DomibusPropertyMetadataDTO.Type.NUMERIC, Module.DSS_EXTENSION, DomibusPropertyMetadataDTO.Usage.GLOBAL),
-                new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_REFRESH_CRON, DomibusPropertyMetadataDTO.Type.STRING, Module.DSS_EXTENSION, DomibusPropertyMetadataDTO.Usage.GLOBAL),
-                new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_PROXY_HTTPS_HOST, DomibusPropertyMetadataDTO.Type.NUMERIC, Module.DSS_EXTENSION, DomibusPropertyMetadataDTO.Usage.GLOBAL),
-                new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_PROXY_HTTPS_PORT, DomibusPropertyMetadataDTO.Type.NUMERIC, Module.DSS_EXTENSION, DomibusPropertyMetadataDTO.Usage.GLOBAL),
-                new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_PROXY_HTTPS_USER, DomibusPropertyMetadataDTO.Type.NUMERIC, Module.DSS_EXTENSION, DomibusPropertyMetadataDTO.Usage.GLOBAL),
-                new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_PROXY_HTTPS_PASSWORD, DomibusPropertyMetadataDTO.Type.NUMERIC, Module.DSS_EXTENSION, DomibusPropertyMetadataDTO.Usage.GLOBAL),
-                new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_PROXY_HTTPS_EXCLUDEDHOSTS, DomibusPropertyMetadataDTO.Type.NUMERIC, Module.DSS_EXTENSION, DomibusPropertyMetadataDTO.Usage.GLOBAL),
-                new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_PROXY_HTTP_HOST, DomibusPropertyMetadataDTO.Type.NUMERIC, Module.DSS_EXTENSION, DomibusPropertyMetadataDTO.Usage.GLOBAL),
-                new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_PROXY_HTTP_PORT, DomibusPropertyMetadataDTO.Type.NUMERIC, Module.DSS_EXTENSION, DomibusPropertyMetadataDTO.Usage.GLOBAL),
-                new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_PROXY_HTTP_USER, DomibusPropertyMetadataDTO.Type.NUMERIC, Module.DSS_EXTENSION, DomibusPropertyMetadataDTO.Usage.GLOBAL),
-                new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_PROXY_HTTP_PASSWORD, DomibusPropertyMetadataDTO.Type.NUMERIC, Module.DSS_EXTENSION, DomibusPropertyMetadataDTO.Usage.GLOBAL),
-                //new DomibusPropertyMetadataDTO(EXCLUDE_PIVOT_FILE_REGEX, DomibusPropertyMetadataDTO.Type.NUMERIC, Module.DSS_EXTENSION, DomibusPropertyMetadataDTO.Usage.GLOBAL),
-                new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_PROXY_HTTP_EXCLUDEDHOSTS, DomibusPropertyMetadataDTO.Type.NUMERIC, Module.DSS_EXTENSION, DomibusPropertyMetadataDTO.Usage.GLOBAL),
-                //new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_CACHE_NAME, DomibusPropertyMetadataDTO.Type.NUMERIC, Module.DSS_EXTENSION, DomibusPropertyMetadataDTO.Usage.GLOBAL),
-                new DomibusPropertyMetadataDTO(DSS_PERFORM_CRL_CHECK, DomibusPropertyMetadataDTO.Type.NUMERIC, Module.DSS_EXTENSION, DomibusPropertyMetadataDTO.Usage.GLOBAL),
-                new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_EXCEPTION_ON_MISSING_REVOCATION_DATA, DomibusPropertyMetadataDTO.Type.NUMERIC, Module.DSS_EXTENSION, DomibusPropertyMetadataDTO.Usage.GLOBAL),
-                new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_CHECK_REVOCATION_FOR_UNTRUSTED_CHAINS, DomibusPropertyMetadataDTO.Type.NUMERIC, Module.DSS_EXTENSION, DomibusPropertyMetadataDTO.Usage.GLOBAL));
+                /**new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_CUSTOM_TRUSTED_LIST_URL_0, DomibusPropertyMetadataDTO.Type.NUMERIC, Module.DSS_EXTENSION, DomibusPropertyMetadataDTO.Usage.GLOBAL),
+                 new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_CUSTOM_TRUSTED_LIST_KEYSTORE_PATH_0, DomibusPropertyMetadataDTO.Type.NUMERIC, Module.DSS_EXTENSION, DomibusPropertyMetadataDTO.Usage.GLOBAL),
+                 new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_CUSTOM_TRUSTED_LIST_KEYSTORE_TYPE_0, DomibusPropertyMetadataDTO.Type.NUMERIC, Module.DSS_EXTENSION, DomibusPropertyMetadataDTO.Usage.GLOBAL),
+                 new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_CUSTOM_TRUSTED_LIST_KEYSTORE_PASSWORD_0, DomibusPropertyMetadataDTO.Type.NUMERIC, Module.DSS_EXTENSION, DomibusPropertyMetadataDTO.Usage.GLOBAL),
+                 new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_CUSTOM_TRUSTED_LIST_COUNTRY_CODE_0, DomibusPropertyMetadataDTO.Type.NUMERIC, Module.DSS_EXTENSION, DomibusPropertyMetadataDTO.Usage.GLOBAL),
+                 new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_REFRESH_CRON, DomibusPropertyMetadataDTO.Type.STRING, Module.DSS_EXTENSION, DomibusPropertyMetadataDTO.Usage.GLOBAL),
+                 new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_PROXY_HTTPS_HOST, DomibusPropertyMetadataDTO.Type.NUMERIC, Module.DSS_EXTENSION, DomibusPropertyMetadataDTO.Usage.GLOBAL),
+                 new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_PROXY_HTTPS_PORT, DomibusPropertyMetadataDTO.Type.NUMERIC, Module.DSS_EXTENSION, DomibusPropertyMetadataDTO.Usage.GLOBAL),
+                 new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_PROXY_HTTPS_USER, DomibusPropertyMetadataDTO.Type.NUMERIC, Module.DSS_EXTENSION, DomibusPropertyMetadataDTO.Usage.GLOBAL),
+                 new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_PROXY_HTTPS_PASSWORD, DomibusPropertyMetadataDTO.Type.NUMERIC, Module.DSS_EXTENSION, DomibusPropertyMetadataDTO.Usage.GLOBAL),
+                 new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_PROXY_HTTPS_EXCLUDEDHOSTS, DomibusPropertyMetadataDTO.Type.NUMERIC, Module.DSS_EXTENSION, DomibusPropertyMetadataDTO.Usage.GLOBAL),
+                 new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_PROXY_HTTP_HOST, DomibusPropertyMetadataDTO.Type.NUMERIC, Module.DSS_EXTENSION, DomibusPropertyMetadataDTO.Usage.GLOBAL),
+                 new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_PROXY_HTTP_PORT, DomibusPropertyMetadataDTO.Type.NUMERIC, Module.DSS_EXTENSION, DomibusPropertyMetadataDTO.Usage.GLOBAL),
+                 new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_PROXY_HTTP_USER, DomibusPropertyMetadataDTO.Type.NUMERIC, Module.DSS_EXTENSION, DomibusPropertyMetadataDTO.Usage.GLOBAL),
+                 new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_PROXY_HTTP_PASSWORD, DomibusPropertyMetadataDTO.Type.NUMERIC, Module.DSS_EXTENSION, DomibusPropertyMetadataDTO.Usage.GLOBAL),**/
+                new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_PROXY_HTTPS_HOST, DomibusPropertyMetadataDTO.Type.STRING, Module.DSS_EXTENSION, DomibusPropertyMetadataDTO.Usage.GLOBAL),
+                new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_PROXY_HTTPS_PORT, DomibusPropertyMetadataDTO.Type.STRING, Module.DSS_EXTENSION, DomibusPropertyMetadataDTO.Usage.GLOBAL),
+                new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_PROXY_HTTPS_USER, DomibusPropertyMetadataDTO.Type.STRING, Module.DSS_EXTENSION, DomibusPropertyMetadataDTO.Usage.GLOBAL),
+                new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_PROXY_HTTPS_PASSWORD, DomibusPropertyMetadataDTO.Type.PASSWORD, Module.DSS_EXTENSION, DomibusPropertyMetadataDTO.Usage.GLOBAL),
+                new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_PROXY_HTTPS_EXCLUDEDHOSTS, DomibusPropertyMetadataDTO.Type.COMMA_SEPARATED_LIST, Module.DSS_EXTENSION, DomibusPropertyMetadataDTO.Usage.GLOBAL),
+                new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_PROXY_HTTP_HOST, DomibusPropertyMetadataDTO.Type.STRING, Module.DSS_EXTENSION, DomibusPropertyMetadataDTO.Usage.GLOBAL),
+                new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_PROXY_HTTP_PORT, DomibusPropertyMetadataDTO.Type.STRING, Module.DSS_EXTENSION, DomibusPropertyMetadataDTO.Usage.GLOBAL),
+                new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_PROXY_HTTP_USER, DomibusPropertyMetadataDTO.Type.STRING, Module.DSS_EXTENSION, DomibusPropertyMetadataDTO.Usage.GLOBAL),
+                new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_PROXY_HTTP_PASSWORD, DomibusPropertyMetadataDTO.Type.PASSWORD, Module.DSS_EXTENSION, DomibusPropertyMetadataDTO.Usage.GLOBAL),
+                new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_PROXY_HTTP_EXCLUDEDHOSTS, DomibusPropertyMetadataDTO.Type.COMMA_SEPARATED_LIST, Module.DSS_EXTENSION, DomibusPropertyMetadataDTO.Usage.GLOBAL),
+                new DomibusPropertyMetadataDTO(DSS_PERFORM_CRL_CHECK, DomibusPropertyMetadataDTO.Type.BOOLEAN, Module.DSS_EXTENSION, DomibusPropertyMetadataDTO.Usage.GLOBAL),
+                new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_EXCEPTION_ON_MISSING_REVOCATION_DATA, DomibusPropertyMetadataDTO.Type.BOOLEAN, Module.DSS_EXTENSION, DomibusPropertyMetadataDTO.Usage.GLOBAL),
+                new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_CHECK_REVOCATION_FOR_UNTRUSTED_CHAINS, DomibusPropertyMetadataDTO.Type.BOOLEAN, Module.DSS_EXTENSION, DomibusPropertyMetadataDTO.Usage.GLOBAL));
+
+        knownProperties = allProperties.stream().collect(Collectors.toMap(x -> x.getName(), x -> x));
     }
 
     @Override
     public Map<String, DomibusPropertyMetadataDTO> getKnownProperties() {
-        return null;
+        return knownProperties;
     }
 }

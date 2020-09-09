@@ -1,12 +1,11 @@
 package eu.domibus.core.crypto.spi.dss;
 
 import eu.domibus.core.crypto.spi.DomainCryptoServiceSpi;
+import eu.domibus.core.crypto.spi.dss.listeners.NetworkConfigurationListener;
 import eu.domibus.ext.services.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.europa.esig.dss.service.crl.OnlineCRLSource;
-import eu.europa.esig.dss.service.http.proxy.ProxyConfig;
-import eu.europa.esig.dss.service.http.proxy.ProxyProperties;
 import eu.europa.esig.dss.spi.client.http.DataLoader;
 import eu.europa.esig.dss.spi.tsl.TrustedListsCertificateSource;
 import eu.europa.esig.dss.spi.x509.KeyStoreCertificateSource;
@@ -63,8 +62,6 @@ public class DssConfiguration {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DssConfiguration.class);
 
-    private static final String NONE = "NONE";
-
     private static final String DOMIBUS_AUTHENTICATION_DSS_ENABLE_CUSTOM_TRUSTED_LIST_FOR_MULTITENANT = "domibus.authentication.dss.enable.custom.trusted.list.for.multitenant";
 
     private final static String CACERT_PATH = "/lib/security/cacerts";
@@ -93,47 +90,11 @@ public class DssConfiguration {
     @Value("${domibus.authentication.dss.cache.path}")
     private String dssCachePath;
 
-    @Value("${domibus.authentication.dss.proxy.https.host:NONE}")
-    private String proxyHttpsHost;
-
-    @Value("${domibus.authentication.dss.proxy.https.port:0}")
-    private String proxyHttpsPort;
-
-    @Value("${domibus.authentication.dss.proxy.https.user:NONE}")
-    private String proxyHttpsUser;
-
-    @Value("${domibus.authentication.dss.proxy.https.password:NONE}")
-    private String proxyHttpsPassword;
-
-    @Value("${domibus.authentication.dss.proxy.https.excludedHosts:NONE}")
-    private String proxyHttpsExcludedHosts;
-
-    @Value("${domibus.authentication.dss.proxy.http.host:NONE}")
-    private String proxyHttpHost;
-
-    @Value("${domibus.authentication.dss.proxy.http.port:0}")
-    private String proxyHttpPort;
-
-    @Value("${domibus.authentication.dss.proxy.http.user:NONE}")
-    private String proxyHttpUser;
-
-    @Value("${domibus.authentication.dss.proxy.http.password:NONE}")
-    private String proxyHttpPassword;
-
-    @Value("${domibus.authentication.dss.proxy.http.excludedHosts:NONE}")
-    private String proxyHttpExcludedHosts;
-
     @Value("${domibus.authentication.dss.refresh.cron}")
     private String dssRefreshCronExpression;
 
     @Value("${" + DOMIBUS_AUTHENTICATION_DSS_ENABLE_CUSTOM_TRUSTED_LIST_FOR_MULTITENANT + "}")
     private boolean enableDssCustomTrustedListForMultiTenant;
-
-    @Value("${domibus.authentication.dss.exception.on.missing.revocation.data}")
-    private boolean enableExceptionOnMissingRevocationData;
-
-    @Value("${domibus.authentication.dss.check.revocation.for.untrusted.chains}")
-    private boolean checkRevocationForUntrustedChain;
 
     @Value("${domibus.authentication.dss.cache.name}")
     private String cacheName;
@@ -203,8 +164,10 @@ public class DssConfiguration {
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public CertificateVerifier certificateVerifier() {
         OnlineCRLSource crlSource = null;
-        DomibusDataLoader dataLoader = dataLoader();
+        DomibusDataLoader dataLoader = dataLoader(proxyHelper(dssExtensionPropertyManager()));
         boolean crlCheck = Boolean.parseBoolean(dssExtensionPropertyManager().getKnownPropertyValue(DssExtensionPropertyManager.DSS_PERFORM_CRL_CHECK));
+        boolean enableExceptionOnMissingRevocationData = Boolean.parseBoolean(dssExtensionPropertyManager().getKnownPropertyValue(DssExtensionPropertyManager.AUTHENTICATION_DSS_EXCEPTION_ON_MISSING_REVOCATION_DATA));
+        boolean checkRevocationForUntrustedChain = Boolean.parseBoolean(dssExtensionPropertyManager().getKnownPropertyValue(DssExtensionPropertyManager.AUTHENTICATION_DSS_CHECK_REVOCATION_FOR_UNTRUSTED_CHAINS));
         LOG.debug("New Certificate verifier instance with crl chek:[{}], exception on missing revocation:[{}], check revocation for untrusted chains:[{}]",
                 crlCheck,
                 enableExceptionOnMissingRevocationData,
@@ -226,30 +189,9 @@ public class DssConfiguration {
     }
 
     @Bean
-    public DomibusDataLoader dataLoader() {
+    public DomibusDataLoader dataLoader(ProxyHelper proxyHelper) {
         DomibusDataLoader dataLoader = new DomibusDataLoader();
-        ProxyConfig proxyConfig = new ProxyConfig();
-        if (!NONE.equals(proxyHttpsHost)) {
-            LOG.debug("Configuring Dss https proxy:");
-            try {
-                int httpsPort = Integer.parseInt(proxyHttpsPort);
-                final ProxyProperties httpsProperties = getProxyProperties(proxyHttpsHost, httpsPort, proxyHttpsUser, proxyHttpsPassword, proxyHttpsExcludedHosts);
-                proxyConfig.setHttpsProperties(httpsProperties);
-            } catch (NumberFormatException n) {
-                LOG.warn("Error parsing https port config:[{}], skipping https configuration", proxyHttpsHost, n);
-            }
-        }
-        if (!NONE.equals(proxyHttpHost)) {
-            LOG.debug("Configuring Dss http proxy:");
-            try {
-                int httpPort = Integer.parseInt(proxyHttpPort);
-                final ProxyProperties httpProperties = getProxyProperties(proxyHttpHost, httpPort, proxyHttpUser, proxyHttpPassword, proxyHttpExcludedHosts);
-                proxyConfig.setHttpProperties(httpProperties);
-            } catch (NumberFormatException n) {
-                LOG.warn("Error parsing http port config:[{}], skipping http configuration", proxyHttpPort, n);
-            }
-        }
-        dataLoader.setProxyConfig(proxyConfig);
+        dataLoader.setProxyConfig(proxyHelper.getProxyConfig());
         dataLoader.setSslTrustStore(mergeCustomTlsTrustStoreWithCacert());
         return dataLoader;
     }
@@ -332,27 +274,10 @@ public class DssConfiguration {
     }
 
 
-    //TODO remove proxy properties and use the one from domibus.
-    private ProxyProperties getProxyProperties(final String host,
-                                               final int port,
-                                               final String user,
-                                               final String password,
-                                               final String excludedHosts) {
-
-        LOG.debug("Using proxy properties host:[{}],port:[{}],user:[{}],excludedHosts:[{}]", host, port, user, excludedHosts);
-        final ProxyProperties httpsProperties = new ProxyProperties();
-        httpsProperties.setHost(host);
-        httpsProperties.setPort(port);
-        httpsProperties.setUser(user);
-        httpsProperties.setPassword(password);
-        httpsProperties.setExcludedHosts(excludedHosts);
-        return httpsProperties;
-    }
-
     @Bean
-    List<OtherTrustedList> otherTrustedLists(DomibusPropertyExtService domibusPropertyExtService,
-                                             DomainContextExtService domainContextExtService,
-                                             DomibusConfigurationExtService domibusConfigurationExtService,
+    List<OtherTrustedList> otherTrustedLists(@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") DomibusPropertyExtService domibusPropertyExtService,
+                                             @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") DomainContextExtService domainContextExtService,
+                                             @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") DomibusConfigurationExtService domibusConfigurationExtService,
                                              Environment environment) {
         final boolean multiTenant = domibusConfigurationExtService.isMultiTenantAware();
         final List<OtherTrustedList> otherTrustedLists = new CustomTrustedListPropertyMapper(domibusPropertyExtService, domainContextExtService, environment).map();
@@ -471,8 +396,17 @@ public class DssConfiguration {
     }
 
     @Bean
-    public DssExtensionPropertyManager dssExtensionPropertyManager(){
+    public DssExtensionPropertyManager dssExtensionPropertyManager() {
         return new DssExtensionPropertyManager();
     }
 
+    @Bean
+    public ProxyHelper proxyHelper(DssExtensionPropertyManager dssExtensionPropertyManager) {
+        return new ProxyHelper(dssExtensionPropertyManager);
+    }
+
+    @Bean
+    public NetworkConfigurationListener networkConfigurationListener(DomibusDataLoader dataLoader,ProxyHelper proxyHelper){
+        return new NetworkConfigurationListener(dataLoader,proxyHelper);
+    }
 }

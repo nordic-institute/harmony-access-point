@@ -1,8 +1,7 @@
 package eu.domibus.core.crypto.spi.dss.listeners;
 
 import com.google.common.collect.Sets;
-import eu.domibus.core.crypto.spi.dss.DomibusDataLoader;
-import eu.domibus.core.crypto.spi.dss.ProxyHelper;
+import eu.domibus.core.crypto.spi.dss.DssCache;
 import eu.domibus.ext.exceptions.DomibusPropertyExtException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -13,34 +12,22 @@ import java.util.Set;
 import static eu.domibus.core.crypto.spi.dss.DssExtensionPropertyManager.*;
 
 /**
- * Handles proxy configuration change.
- *
  * @author Thomas Dussart
  * @since 4.2
  */
-public class NetworkConfigurationListener implements PluginPropertyChangeListener {
+public class CertificateVerifierListener implements PluginPropertyChangeListener {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(NetworkConfigurationListener.class);
 
     private final Set<String> properties = Sets.newHashSet(
-            AUTHENTICATION_DSS_PROXY_HTTP_HOST,
-            AUTHENTICATION_DSS_PROXY_HTTP_PORT,
-            AUTHENTICATION_DSS_PROXY_HTTP_USER,
-            AUTHENTICATION_DSS_PROXY_HTTP_PASSWORD,
-            AUTHENTICATION_DSS_PROXY_HTTP_EXCLUDEDHOSTS,
-            AUTHENTICATION_DSS_PROXY_HTTPS_HOST,
-            AUTHENTICATION_DSS_PROXY_HTTPS_PORT,
-            AUTHENTICATION_DSS_PROXY_HTTPS_USER,
-            AUTHENTICATION_DSS_PROXY_HTTPS_PASSWORD,
-            AUTHENTICATION_DSS_PROXY_HTTPS_EXCLUDEDHOSTS);
+            DSS_PERFORM_CRL_CHECK,
+            AUTHENTICATION_DSS_CHECK_REVOCATION_FOR_UNTRUSTED_CHAINS,
+            AUTHENTICATION_DSS_EXCEPTION_ON_MISSING_REVOCATION_DATA);
 
-    private DomibusDataLoader dataLoader;
+    private final DssCache dssCache;
 
-    private ProxyHelper proxyHelper;
-
-    public NetworkConfigurationListener(DomibusDataLoader dataLoader, ProxyHelper proxyHelper) {
-        this.dataLoader = dataLoader;
-        this.proxyHelper = proxyHelper;
+    public CertificateVerifierListener(DssCache dssCache) {
+        this.dssCache = dssCache;
     }
 
     @Override
@@ -55,6 +42,7 @@ public class NetworkConfigurationListener implements PluginPropertyChangeListene
     @Override
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) throws DomibusPropertyExtException {
         LOG.info("Reloading proxy configuration");
-        dataLoader.setProxyConfig(proxyHelper.getProxyConfig());
+        dssCache.clear();
     }
+
 }
