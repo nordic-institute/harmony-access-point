@@ -7,7 +7,6 @@ import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
 import eu.domibus.core.pmode.validation.PModeValidator;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -24,9 +23,13 @@ import java.util.stream.Collectors;
 @Order(9)
 public class PartyIdentifierValidator implements PModeValidator {
 
-    @Autowired
-    PModeValidationHelper pModeValidationHelper;
+    final PModeValidationHelper pModeValidationHelper;
+    final BusinessProcessValidator businessProcessValidator;
 
+    public PartyIdentifierValidator(PModeValidationHelper pModeValidationHelper, BusinessProcessValidator businessProcessValidator) {
+        this.pModeValidationHelper = pModeValidationHelper;
+        this.businessProcessValidator = businessProcessValidator;
+    }
 
     /**
      * Validate the Identifiers in the pmode
@@ -40,7 +43,7 @@ public class PartyIdentifierValidator implements PModeValidator {
         List<Party> allParties = pMode.getBusinessProcesses().getParties();
         allParties.forEach(party -> {
             issues.addAll(validateDuplicatePartyIdentifiers(party));
-            issues.addAll(validateForbiddenCharacters(party));
+            issues.addAll(validateForbiddenCharactersInParty(party));
         });
 
         allParties.forEach(party -> {
@@ -49,15 +52,12 @@ public class PartyIdentifierValidator implements PModeValidator {
         return issues;
     }
 
-    protected List<ValidationIssue>  validateForbiddenCharacters(Party party) {
+    protected List<ValidationIssue>  validateForbiddenCharactersInParty(Party party) {
         List<ValidationIssue> issues = new ArrayList<>();
-        if (StringUtils.containsAny(party.getName(), '<', '>')) {
-            String message = "Forbidden characters '< >' found in the party name [" + party.getName() + "].";
-            issues.add(new ValidationIssue(message, ValidationIssue.Level.ERROR));
-        }
+        issues.addAll(businessProcessValidator.validateForbiddenCharacters(party.getName(), "party name [" + party.getName() + "]."));
         party.getIdentifiers().forEach(identifier -> {
             if (StringUtils.containsAny(identifier.getPartyId(), '<', '>') || (identifier.getPartyIdType() != null && ((StringUtils.containsAny(identifier.getPartyIdType().getName(), '<', '>') || StringUtils.containsAny(identifier.getPartyIdType().getValue(), '<', '>'))))) {
-                String message = "Forbidden characters '< >' found in the party identifier's partyId [" + identifier.getPartyId() + "] or in its  partyId types.";
+                String message = businessProcessValidator.ERROR_MESSAGE + "party identifier's partyId [" + identifier.getPartyId() + "] or in its  partyId types.";
                 issues.add(new ValidationIssue(message, ValidationIssue.Level.ERROR));
             }
         });

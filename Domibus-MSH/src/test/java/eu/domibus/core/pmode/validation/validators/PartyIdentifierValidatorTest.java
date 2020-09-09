@@ -14,21 +14,22 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 /**
  * @author Soumya Chandran
  * @since 4.2
  */
-public class PartyIdentifierValidatorTest extends AbstractValidatorTest{
+public class PartyIdentifierValidatorTest {
 
     @Tested
     PartyIdentifierValidator partyIdentifierValidator;
 
     @Injectable
     PModeValidationHelper pModeValidationHelper;
+
+    @Injectable
+    BusinessProcessValidator businessProcessValidator;
 
     @Test
     public void testValidate(@Injectable Configuration pMode, @Injectable Party party) {
@@ -44,7 +45,7 @@ public class PartyIdentifierValidatorTest extends AbstractValidatorTest{
 
         new Verifications() {{
             partyIdentifierValidator.validateDuplicatePartyIdentifiers((Party) any);
-            partyIdentifierValidator.validateForbiddenCharacters((Party) any);
+            partyIdentifierValidator.validateForbiddenCharactersInParty((Party) any);
         }};
     }
 
@@ -148,7 +149,7 @@ public class PartyIdentifierValidatorTest extends AbstractValidatorTest{
     }
 
     @Test
-    public void validateForbiddenCharacters(@Injectable Party party, @Injectable Identifier identifier) {
+    public void validateForbiddenCharactersInParty(@Injectable Party party, @Injectable Identifier identifier) {
         List<Identifier> identifiers = new ArrayList<>();
         identifiers.add(identifier);
 
@@ -160,9 +161,12 @@ public class PartyIdentifierValidatorTest extends AbstractValidatorTest{
             party.getIdentifiers();
             result = identifiers;
         }};
-        List<ValidationIssue> issues = partyIdentifierValidator.validateForbiddenCharacters(party);
-        assertTrue(issues.size() == 2);
-        assertThat(issues.get(0).getMessage(), is("Forbidden characters '< >' found in the party name [party3<img src=http://placekitten.com/222/333>]."));
-        assertTrue(issues.get(1).getMessage().contains("Forbidden characters '< >' found in the party identifier's partyId"));
+        List<ValidationIssue> issues = partyIdentifierValidator.validateForbiddenCharactersInParty(party);
+        assertTrue(issues.size() == 1);
+        assertTrue(issues.get(0).getMessage().contains("Forbidden characters '< >' found in the party identifier's partyId"));
+        new Verifications() {{
+            businessProcessValidator.validateForbiddenCharacters(anyString, anyString);
+            times = 1;
+        }};
     }
 }

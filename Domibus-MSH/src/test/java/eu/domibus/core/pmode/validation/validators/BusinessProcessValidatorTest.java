@@ -455,12 +455,9 @@ public class BusinessProcessValidatorTest {
     }
 
     @Test
-    public void validateForbiddenCharacters(@Injectable Process process) {
-        new Expectations() {{
-            process.getName();
-            result = "tcxProcess<img src=http://placekitten.com/155/155>";
-        }};
-        final List<ValidationIssue> results = businessProcessValidator.validateForbiddenCharacters(process);
+    public void validateForbiddenCharacters() {
+        final String processName= "tcxProcess<img src=http://placekitten.com/155/155>";
+        final List<ValidationIssue> results = businessProcessValidator.validateForbiddenCharacters(processName, "process name[" + processName + "]");
         assertTrue(results.get(0).getMessage().contains("Forbidden characters '< >' found in the process name"));
     }
 }

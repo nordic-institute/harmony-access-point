@@ -2,7 +2,6 @@ package eu.domibus.core.pmode.validation.validators;
 
 import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.common.model.configuration.Configuration;
-import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.pmode.validation.PModeValidator;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.Order;
@@ -21,6 +20,13 @@ import java.util.List;
 @Order(2)
 public class EndpointValidator implements PModeValidator {
 
+    final BusinessProcessValidator businessProcessValidator;
+
+    public EndpointValidator(BusinessProcessValidator businessProcessValidator) {
+        this.businessProcessValidator = businessProcessValidator;
+    }
+
+
     @Override
     public List<ValidationIssue> validate(Configuration pMode) {
         List<ValidationIssue> issues = new ArrayList<>();
@@ -29,19 +35,11 @@ public class EndpointValidator implements PModeValidator {
             if (StringUtils.isEmpty(party.getEndpoint())) {
                 String message = String.format("Party [%s] should not have an empty endpoint.", party.getName());
                 issues.add(new ValidationIssue(message, ValidationIssue.Level.WARNING));
+            }else {
+                issues.addAll(businessProcessValidator.validateForbiddenCharacters(party.getEndpoint(), "endpoint [" + party.getEndpoint() + "] for the party [" + party.getName() + "]."));
             }
-            issues.addAll(validateForbiddenCharacters(party));
         });
 
-        return issues;
-    }
-
-    protected List<ValidationIssue>  validateForbiddenCharacters(Party party) {
-        List<ValidationIssue> issues = new ArrayList<>();
-        if (StringUtils.containsAny(party.getEndpoint(), '<', '>')) {
-            String message = "Forbidden characters '< >' found in the endpoint [" + party.getEndpoint() + "] for the party [" + party.getName() + "].";
-            issues.add(new ValidationIssue(message, ValidationIssue.Level.ERROR));
-        }
         return issues;
     }
 }
