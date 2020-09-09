@@ -157,10 +157,10 @@ public class PartyIdentifierValidatorTest {
             result = "domibus-blue<img src=http://localhost/333/333>";
 
             identifier.getPartyIdType().getName();
-            result="partyTypeUrn2&lt;img src=http://localhost/166/111>";
+            result = "partyTypeUrn2&lt;img src=http://localhost/166/111>";
 
             identifier.getPartyIdType().getValue();
-            result="urn:oasis:names:tc:ebcore:partyid-type:unregistered2<img src=http://localhost/133/211>";
+            result = "urn:oasis:names:tc:ebcore:partyid-type:unregistered2<img src=http://localhost/133/211>";
 
             party.getIdentifiers();
             result = identifiers;

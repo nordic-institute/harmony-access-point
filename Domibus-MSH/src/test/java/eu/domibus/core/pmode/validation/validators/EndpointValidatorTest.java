@@ -32,9 +32,9 @@ public class EndpointValidatorTest extends AbstractValidatorTest {
         final List<ValidationIssue> issues = validator.validate(configuration);
         assertTrue(issues.size() == 1);
         assertThat(issues.get(0).getMessage(), is("Party [party2] should not have an empty endpoint."));
-        new Verifications(){{
+        new Verifications() {{
             businessProcessValidator.validateForbiddenCharacters(anyString, anyString);
-            times=2;
+            times = 2;
         }};
     }
 
