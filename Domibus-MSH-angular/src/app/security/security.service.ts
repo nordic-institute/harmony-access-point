@@ -8,6 +8,7 @@ import {PasswordPolicyRO} from './passwordPolicyRO';
 import {AlertService} from '../common/alert/alert.service';
 import {ApplicationContextService} from '../common/application-context.service';
 import {DialogsService} from '../common/dialogs/dialogs.service';
+import {PropertiesService} from '../properties/support/properties.service';
 
 @Injectable()
 export class SecurityService {
@@ -21,15 +22,16 @@ export class SecurityService {
   pluginPasswordPolicy: Promise<PasswordPolicyRO>;
   public password: string;
 
-  constructor (private http: HttpClient,
-               private securityEventService: SecurityEventService,
-               private alertService: AlertService,
-               private domainService: DomainService,
-               private applicationService: ApplicationContextService,
-               private dialogsService: DialogsService) {
+  constructor(private http: HttpClient,
+              private securityEventService: SecurityEventService,
+              private alertService: AlertService,
+              private domainService: DomainService,
+              private applicationService: ApplicationContextService,
+              private dialogsService: DialogsService,
+              private propertiesService: PropertiesService) {
   }
 
-  login (username: string, password: string) {
+  login(username: string, password: string) {
     this.domainService.resetDomain();
 
     return this.http.post<User>('rest/security/authentication',
@@ -52,7 +54,7 @@ export class SecurityService {
   /**
    * get the user from the server and saves it locally
    */
-  async getCurrentUserAndSaveLocally () {
+  async getCurrentUserAndSaveLocally() {
     let userSet = false;
     try {
       const user = await this.getCurrentUserFromServer();
@@ -66,7 +68,7 @@ export class SecurityService {
     return userSet;
   }
 
-  async logout () {
+  async logout() {
     this.alertService.close();
 
     const canLogout = await this.checkCanLogout();
@@ -84,7 +86,7 @@ export class SecurityService {
       });
   }
 
-  async checkCanLogout (): Promise<boolean> {
+  async checkCanLogout(): Promise<boolean> {
     const currentComponent = this.applicationService.getCurrentComponent();
 
     if (!currentComponent) {
@@ -104,7 +106,7 @@ export class SecurityService {
     }
   }
 
-  getPluginPasswordPolicy (): Promise<PasswordPolicyRO> {
+  getPluginPasswordPolicy(): Promise<PasswordPolicyRO> {
     if (!this.pluginPasswordPolicy) {
       this.pluginPasswordPolicy = this.http.get<PasswordPolicyRO>('rest/application/pluginPasswordPolicy')
         .map(this.formatValidationMessage)
@@ -113,36 +115,36 @@ export class SecurityService {
     return this.pluginPasswordPolicy;
   }
 
-  private formatValidationMessage (policy: PasswordPolicyRO) {
+  private formatValidationMessage(policy: PasswordPolicyRO) {
     policy.validationMessage = policy.validationMessage.split(';').map(el => '- ' + el + '<br>').join('');
     return policy;
   }
 
-  clearSession () {
+  clearSession() {
     this.domainService.resetDomain();
     localStorage.removeItem('currentUser');
   }
 
-  getCurrentUser (): User {
+  getCurrentUser(): User {
     const storedUser = localStorage.getItem('currentUser');
     return storedUser ? JSON.parse(storedUser) : null;
   }
 
-  updateCurrentUser (user: User): void {
+  updateCurrentUser(user: User): void {
     localStorage.setItem('currentUser', JSON.stringify(user));
   }
 
 
-  getCurrentUsernameFromServer (): Promise<string> {
+  getCurrentUsernameFromServer(): Promise<string> {
     return this.http.get<string>('rest/security/username').toPromise();
   }
 
-  getCurrentUserFromServer (): Promise<User> {
+  getCurrentUserFromServer(): Promise<User> {
     return this.http.get<User>('rest/security/user').toPromise();
   }
 
 
-  isAuthenticated (): Promise<boolean> {
+  isAuthenticated(): Promise<boolean> {
     return new Promise((resolve, reject) => {
       let isAuthenticated = false;
 
@@ -163,24 +165,24 @@ export class SecurityService {
     });
   }
 
-  isCurrentUserSuperAdmin (): boolean {
+  isCurrentUserSuperAdmin(): boolean {
     return this.isCurrentUserInRole([SecurityService.ROLE_AP_ADMIN]);
   }
 
-  isCurrentUserAdmin (): boolean {
+  isCurrentUserAdmin(): boolean {
     return this.isCurrentUserInRole([SecurityService.ROLE_DOMAIN_ADMIN, SecurityService.ROLE_AP_ADMIN]);
   }
 
-  hasCurrentUserPrivilegeUser (): boolean {
+  hasCurrentUserPrivilegeUser(): boolean {
     return this.isCurrentUserInRole([SecurityService.ROLE_USER, SecurityService.ROLE_DOMAIN_ADMIN, SecurityService.ROLE_AP_ADMIN]);
   }
 
-  isUserFromExternalAuthProvider (): boolean {
+  isUserFromExternalAuthProvider(): boolean {
     const user = this.getCurrentUser();
     return user ? user.externalAuthProvider : false;
   }
 
-  isCurrentUserInRole (roles: Array<string>): boolean {
+  isCurrentUserInRole(roles: Array<string>): boolean {
     let hasRole = false;
     const currentUser = this.getCurrentUser();
     if (currentUser && currentUser.authorities) {
@@ -193,8 +195,7 @@ export class SecurityService {
     return hasRole;
   }
 
-
-  isAuthorized (roles: Array<string>) {
+  isAuthorized(roles: Array<string>) {
     let isAuthorized = false;
     if (roles) {
       isAuthorized = this.isCurrentUserInRole(roles);
@@ -202,7 +203,7 @@ export class SecurityService {
     return isAuthorized;
   }
 
-  getPasswordPolicy (): Promise<PasswordPolicyRO> {
+  getPasswordPolicy(): Promise<PasswordPolicyRO> {
     if (!this.passwordPolicy) {
       this.passwordPolicy = this.http.get<PasswordPolicyRO>('rest/application/passwordPolicy')
         .map(this.formatValidationMessage)
@@ -211,16 +212,16 @@ export class SecurityService {
     return this.passwordPolicy;
   }
 
-  mustChangePassword (): boolean {
+  mustChangePassword(): boolean {
     return this.isDefaultPasswordUsed();
   }
 
-  private isDefaultPasswordUsed (): boolean {
+  private isDefaultPasswordUsed(): boolean {
     const currentUser: User = this.getCurrentUser();
     return currentUser && currentUser.defaultPasswordUsed;
   }
 
-  shouldChangePassword (): any {
+  shouldChangePassword(): any {
     if (this.isDefaultPasswordUsed()) {
       return {
         response: true,
@@ -245,7 +246,7 @@ export class SecurityService {
 
   }
 
-  async changePassword (params): Promise<any> {
+  async changePassword(params): Promise<any> {
     const res = this.http.put('rest/security/user/password', params).toPromise();
     await res;
 
@@ -256,5 +257,11 @@ export class SecurityService {
     return res;
   }
 
+  async getPasswordPolicyForUserRole(role: string): Promise<PasswordPolicyRO> {
+    const forDomain = role !== SecurityService.ROLE_AP_ADMIN;
+    const pattern = await this.propertiesService.getDomainOrGlobalPropertyValue('domibus.passwordPolicy.pattern', forDomain);
+    const message = await this.propertiesService.getDomainOrGlobalPropertyValue('domibus.passwordPolicy.validationMessage', forDomain);
+    return new PasswordPolicyRO(pattern, message);
+  }
 }
 

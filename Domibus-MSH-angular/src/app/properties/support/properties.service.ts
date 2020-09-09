@@ -1,4 +1,4 @@
-import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
 import {AlertService} from 'app/common/alert/alert.service';
 import {Injectable} from '@angular/core';
 
@@ -20,6 +20,21 @@ export class PropertiesService {
   async getProperty(propName: string): Promise<PropertyModel> {
     const result = await this.http.get<PropertyModel>(PropertiesService.PROPERTIES_URL + '/' + propName).toPromise();
     return result;
+  }
+
+  async getDomainOrGlobalPropertyValue(propName: string, isDomain: boolean): Promise<string> {
+    let searchParams = new HttpParams();
+    if (propName && propName.trim()) {
+      searchParams = searchParams.append('name', propName.trim());
+    }
+    if (!isDomain) {
+      searchParams = searchParams.append('showDomain', isDomain.toString());
+    }
+    searchParams = searchParams.append('pageSize', '1');
+    searchParams = searchParams.append('page', '0');
+
+    const res = await this.http.get<PropertyListModel>(PropertiesService.PROPERTIES_URL, {params: searchParams}).toPromise();
+    return res.count == 1 ? res.items[0].value : null;
   }
 
   async updateProperty(prop: any, isDomain: boolean = true): Promise<void> {
