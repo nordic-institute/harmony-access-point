@@ -3,6 +3,7 @@ package eu.domibus.core.crypto.spi.dss;
 import eu.domibus.core.crypto.spi.DomainCryptoServiceSpi;
 import eu.domibus.core.crypto.spi.dss.listeners.CertificateVerifierListener;
 import eu.domibus.core.crypto.spi.dss.listeners.NetworkConfigurationListener;
+import eu.domibus.core.crypto.spi.dss.listeners.TriggerChangeListener;
 import eu.domibus.ext.services.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -76,23 +77,11 @@ public class DssConfiguration {
     @Value("${domibus.authentication.dss.official.journal.content.keystore.password}")
     private String keystorePassword;
 
-    @Value("${domibus.authentication.dss.current.official.journal.url}")
-    private String currentOjUrl;
-
-    @Value("${domibus.authentication.dss.current.lotl.url}")
-    private String currentLotlUrl;
-
-    @Value("${domibus.authentication.dss.lotl.country.code}")
-    private String lotlCountryCode;
-
     @Value("${domibus.authentication.dss.lotl.root.scheme.info.uri}")
     private String lotlSchemeUri;
 
     @Value("${domibus.authentication.dss.cache.path}")
     private String dssCachePath;
-
-    @Value("${domibus.authentication.dss.refresh.cron}")
-    private String dssRefreshCronExpression;
 
     @Value("${" + DOMIBUS_AUTHENTICATION_DSS_ENABLE_CUSTOM_TRUSTED_LIST_FOR_MULTITENANT + "}")
     private boolean enableDssCustomTrustedListForMultiTenant;
@@ -304,7 +293,11 @@ public class DssConfiguration {
             DataLoader dataLoader,
             DomibusTSLRepository tslRepository,
             KeyStoreCertificateSource ojContentKeyStore,
-            List<OtherTrustedList> otherTrustedLists) {
+            List<OtherTrustedList> otherTrustedLists,
+            DssExtensionPropertyManager dssExtensionPropertyManager) {
+        String currentLotlUrl=dssExtensionPropertyManager.getKnownPropertyValue(DssExtensionPropertyManager.AUTHENTICATION_DSS_CURRENT_LOTL_URL);
+        String currentOjUrl=dssExtensionPropertyManager.getKnownPropertyValue(DssExtensionPropertyManager.AUTHENTICATION_DSS_CURRENT_OFFICIAL_JOURNAL_URL);
+        String lotlCountryCode=dssExtensionPropertyManager.getKnownPropertyValue(DssExtensionPropertyManager.AUTHENTICATION_DSS_LOTL_COUNTRY_CODE);
         LOG.info("Configuring DSS lotl with url:[{}],schema uri:[{}],country code:[{}],oj url:[{}]", currentLotlUrl, lotlSchemeUri, lotlCountryCode, currentOjUrl);
         DomibusTSLValidationJob validationJob = new DomibusTSLValidationJob(certificateVerifierFactory());
         validationJob.setDataLoader(dataLoader);
@@ -350,6 +343,7 @@ public class DssConfiguration {
     public CronTriggerFactoryBean dssRefreshTrigger() {
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(dssRefreshJob().getObject());
+        String dssRefreshCronExpression = dssExtensionPropertyManager().getKnownPropertyValue(DssExtensionPropertyManager.AUTHENTICATION_DSS_REFRESH_CRON);
         obj.setCronExpression(dssRefreshCronExpression);
         LOG.debug("dssRefreshTrigger configured with cronExpression [{}]", dssRefreshCronExpression);
         obj.setStartDelay(20000);
@@ -414,5 +408,10 @@ public class DssConfiguration {
     @Bean
     public CertificateVerifierListener certificateVerifierListener(final DssCache dssCache){
         return new CertificateVerifierListener(dssCache);
+    }
+
+    @Bean
+    public TriggerChangeListener triggerChangeListener(@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") DomibusSchedulerExtService domibusSchedulerExtService){
+        return new TriggerChangeListener(domibusSchedulerExtService);
     }
 }

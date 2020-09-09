@@ -47,7 +47,7 @@ public class NetworkConfigurationListener implements PluginPropertyChangeListene
     public boolean handlesProperty(String propertyName) {
         boolean matchingProperty = properties.contains(propertyName);
         if(matchingProperty){
-            LOG.info("Property:[{}] changed",propertyName);
+            LOG.info("Dss Property:[{}] changed",propertyName);
         }
         return matchingProperty;
     }

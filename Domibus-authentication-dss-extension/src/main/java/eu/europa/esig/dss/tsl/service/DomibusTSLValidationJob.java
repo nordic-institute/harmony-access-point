@@ -15,6 +15,7 @@ import eu.europa.esig.dss.validation.CertificateVerifier;
 import org.springframework.cglib.core.internal.Function;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
@@ -70,6 +71,14 @@ public class DomibusTSLValidationJob {
 
     public void setRepository(DomibusTSLRepository repository) {
         this.repository = repository;
+    }
+
+    public void clearRepository(){
+        try {
+            repository.clearRepository();
+        } catch (IOException e) {
+            LOG.error("Error while cleanin TLS repository",e);
+        }
     }
 
     /**
