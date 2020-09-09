@@ -1,5 +1,6 @@
 package eu.domibus.core.pmode.validation.validators;
 
+import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.common.model.configuration.Identifier;
 import eu.domibus.common.model.configuration.Party;
@@ -29,10 +30,11 @@ public class PartyIdentifierValidatorTest {
     BusinessProcessValidator businessProcessValidator;
 
     @Test
-    public void testValidate(@Injectable Configuration pMode, @Injectable Party party) {
+    public void testValidate(@Injectable Configuration pMode, @Injectable Party party, @Injectable ValidationIssue issue) {
         List<Party> parties = new ArrayList<>();
         parties.add(party);
-
+        List<ValidationIssue> issues = new ArrayList<>();
+        issues.add(issue);
         new Expectations(partyIdentifierValidator) {{
             pMode.getBusinessProcesses().getParties();
             result = parties;
@@ -42,7 +44,7 @@ public class PartyIdentifierValidatorTest {
 
         new Verifications() {{
             partyIdentifierValidator.validateDuplicatePartyIdentifiers((Party) any);
-            partyIdentifierValidator.validateForbiddenCharactersInParty((Party) any);
+            partyIdentifierValidator.validateForbiddenCharactersInParty(issues, (Party) any);
         }};
     }
 
@@ -146,10 +148,11 @@ public class PartyIdentifierValidatorTest {
     }
 
     @Test
-    public void validateForbiddenCharactersInParty(@Injectable Party party, @Injectable Identifier identifier) {
+    public void validateForbiddenCharactersInParty(@Injectable Party party, @Injectable Identifier identifier, @Injectable ValidationIssue issue) {
         List<Identifier> identifiers = new ArrayList<>();
         identifiers.add(identifier);
-
+        List<ValidationIssue> issues = new ArrayList<>();
+        issues.add(issue);
         new Expectations(partyIdentifierValidator) {{
             party.getName();
             result = "party3<img src=http://localhost/222/333>";
@@ -165,9 +168,9 @@ public class PartyIdentifierValidatorTest {
             party.getIdentifiers();
             result = identifiers;
         }};
-        partyIdentifierValidator.validateForbiddenCharactersInParty(party);
+        partyIdentifierValidator.validateForbiddenCharactersInParty(issues, party);
         new Verifications() {{
-            businessProcessValidator.validateForbiddenCharacters(anyString, anyString);
+            businessProcessValidator.validateForbiddenCharacters(issues, anyString, anyString);
             times = 4;
         }};
     }

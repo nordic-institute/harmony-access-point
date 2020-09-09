@@ -35,7 +35,7 @@ public class EndpointValidator implements PModeValidator {
                 String message = String.format("Party [%s] should not have an empty endpoint.", party.getName());
                 issues.add(new ValidationIssue(message, ValidationIssue.Level.WARNING));
             } else {
-                issues.addAll(businessProcessValidator.validateForbiddenCharacters(party.getEndpoint(), "endpoint [" + party.getEndpoint() + "] for the party [" + party.getName() + "]."));
+                businessProcessValidator.validateForbiddenCharacters(issues, party.getEndpoint(), "endpoint [" + party.getEndpoint() + "] for the party [" + party.getName() + "].");
             }
         });
         return issues;

@@ -42,7 +42,7 @@ public class PartyIdentifierValidator implements PModeValidator {
         List<Party> allParties = pMode.getBusinessProcesses().getParties();
         allParties.forEach(party -> {
             issues.addAll(validateDuplicatePartyIdentifiers(party));
-            issues.addAll(validateForbiddenCharactersInParty(party));
+            validateForbiddenCharactersInParty(issues, party);
         });
 
         allParties.forEach(party -> {
@@ -51,17 +51,15 @@ public class PartyIdentifierValidator implements PModeValidator {
         return issues;
     }
 
-    protected List<ValidationIssue>  validateForbiddenCharactersInParty(Party party) {
-        List<ValidationIssue> issues = new ArrayList<>();
-        issues.addAll(businessProcessValidator.validateForbiddenCharacters(party.getName(), "party name [" + party.getName() + "]."));
+    protected void  validateForbiddenCharactersInParty(List<ValidationIssue> issues, Party party) {
+        businessProcessValidator.validateForbiddenCharacters(issues, party.getName(), "party name [" + party.getName() + "].");
         party.getIdentifiers().forEach(identifier -> {
-            issues.addAll(businessProcessValidator.validateForbiddenCharacters(identifier.getPartyId(), "party identifier's partyId [" + identifier.getPartyId() + "]."));
+            businessProcessValidator.validateForbiddenCharacters(issues, identifier.getPartyId(), "party identifier's partyId [" + identifier.getPartyId() + "].");
             if (identifier.getPartyIdType() != null) {
-                issues.addAll(businessProcessValidator.validateForbiddenCharacters(identifier.getPartyIdType().getName(), "party identifier's partyId type name [" + identifier.getPartyIdType().getName() + "]."));
-                issues.addAll(businessProcessValidator.validateForbiddenCharacters(identifier.getPartyIdType().getValue(), "party identifier's partyId type value [" + identifier.getPartyIdType().getValue() + "]."));
+                businessProcessValidator.validateForbiddenCharacters(issues, identifier.getPartyIdType().getName(), "party identifier's partyId type name [" + identifier.getPartyIdType().getName() + "].");
+                businessProcessValidator.validateForbiddenCharacters(issues, identifier.getPartyIdType().getValue(), "party identifier's partyId type value [" + identifier.getPartyIdType().getValue() + "].");
             }
         });
-        return issues;
     }
 
     /**

@@ -40,24 +40,14 @@ public class BusinessProcessValidator implements PModeValidator {
         List<ValidationIssue> issues = new ArrayList<>();
 
         pMode.getBusinessProcesses().getProcesses()
-                .forEach(process -> {
-                    issues.addAll(validateForbiddenCharacters(process.getName(), "process name [" + process.getName() + "]"));
-                    performValidations(issues, process, pMode.getBusinessProcesses().getPartyIdTypes());
-                });
+                .forEach(process -> performValidations(issues, process, pMode.getBusinessProcesses().getPartyIdTypes()));
         return issues;
     }
-
-
-    protected List<ValidationIssue> validateForbiddenCharacters(String name, String message) {
-        List<ValidationIssue> issues = new ArrayList<>();
-        if (StringUtils.containsAny(name, '<', '>')) {
-            issues.add(new ValidationIssue(ERROR_MESSAGE + message, ValidationIssue.Level.ERROR));
-        }
-        return issues;
-    }
-
 
     protected void performValidations(List<ValidationIssue> issues, Process process, Set<PartyIdType> partyIdTypes) {
+        //validate forbidden characters in process name
+        validateForbiddenCharacters(issues, process.getName(), "process name [" + process.getName() + "]");
+
         //agreement
         validateAgreement(issues, process);
 
@@ -81,6 +71,12 @@ public class BusinessProcessValidator implements PModeValidator {
 
         //leg configuration
         validateLegConfiguration(issues, process);
+    }
+
+    protected void validateForbiddenCharacters(List<ValidationIssue> issues, String name, String message) {
+        if (StringUtils.containsAny(name, '<', '>')) {
+            issues.add(new ValidationIssue(ERROR_MESSAGE + message, ValidationIssue.Level.ERROR));
+        }
     }
 
     protected void validateAgreement(List<ValidationIssue> issues, Process process) {

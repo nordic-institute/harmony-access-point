@@ -33,7 +33,7 @@ public class EndpointValidatorTest extends AbstractValidatorTest {
         assertTrue(issues.size() == 1);
         assertThat(issues.get(0).getMessage(), is("Party [party2] should not have an empty endpoint."));
         new Verifications() {{
-            businessProcessValidator.validateForbiddenCharacters(anyString, anyString);
+            businessProcessValidator.validateForbiddenCharacters(issues, anyString, anyString);
             times = 2;
         }};
     }
