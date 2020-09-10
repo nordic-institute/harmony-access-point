@@ -21,6 +21,7 @@
           <input matInput placeholder="Original User" name="originalUser" id="originalUser_id" [(ngModel)]="user.originalUser" input-debounce
                  #originalUser="ngModel" [required]="isRoleUserSelected(role)" [pattern]="originalUserPattern" maxlength="255">
           <span class="help-block" *ngIf="shouldShowErrors(originalUser)">
+            <div *ngIf="originalUser.errors?.required" style="color:red; font-size: 70%">Original user field is required!</div>
             <div *ngIf="originalUser.errors?.pattern" style="color:red; font-size: 70%">{{originalUserMessage}}</div>
           </span>
         </mat-form-field>

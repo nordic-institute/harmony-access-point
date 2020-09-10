@@ -26,6 +26,7 @@ import {ServerPageableListMixin} from '../common/mixins/pageable-list.mixin';
 import {ApplicationContextService} from '../common/application-context.service';
 import {PropertiesService} from '../properties/support/properties.service';
 import * as moment from 'moment';
+import {SecurityService} from '../security/security.service';
 
 @Component({
   moduleId: module.id,
@@ -69,7 +70,8 @@ export class MessageLogComponent extends mix(BaseListComponent)
 
   constructor(private applicationService: ApplicationContextService, private http: HttpClient, private alertService: AlertService,
               private domibusInfoService: DomibusInfoService, public dialog: MatDialog, public dialogsService: DialogsService,
-              private elementRef: ElementRef, private changeDetector: ChangeDetectorRef, private propertiesService: PropertiesService) {
+              private elementRef: ElementRef, private changeDetector: ChangeDetectorRef, private propertiesService: PropertiesService,
+              private securityService: SecurityService) {
     super();
   }
 
@@ -89,7 +91,9 @@ export class MessageLogComponent extends mix(BaseListComponent)
 
     this.fourCornerEnabled = await this.domibusInfoService.isFourCornerEnabled();
 
-    this.resendReceivedMinutes = await this.getResendButtonEnabledReceivedMinutes();
+    if (this.isCurrentUserAdmin()) {
+      this.resendReceivedMinutes = await this.getResendButtonEnabledReceivedMinutes();
+    }
 
     this.filterData();
   }
@@ -248,12 +252,6 @@ export class MessageLogComponent extends mix(BaseListComponent)
     this.notifStatus = result.notifStatus;
   }
 
-  onActivate(event) {
-    if ('dblclick' === event.type) {
-      this.showDetails(event.row);
-    }
-  }
-
   resendDialog() {
     this.dialogsService.openResendDialog().then(resend => {
       if (resend && this.selected[0]) {
@@ -396,5 +394,9 @@ export class MessageLogComponent extends mix(BaseListComponent)
       this.conversationIdValue = this.filter.conversationId;
       this.filter.conversationId = null;
     }
+  }
+
+  isCurrentUserAdmin(): boolean {
+    return this.securityService.isCurrentUserAdmin();
   }
 }

@@ -60,6 +60,8 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
    * The method is supposed to be overridden in derived classes to implement actual search
    */
   public filterData(): Promise<any> {
+    setTimeout(() => this.alertService.clearAlert(), 3000);
+
     this.setActiveFilter();
 
     if (instanceOfPageableList(this)) {

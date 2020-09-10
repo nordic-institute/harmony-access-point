@@ -128,52 +128,57 @@
         </dependency>
         <dependency>
             <groupId>eu.europa.ec.joinup.sd-dss</groupId>
+            <artifactId>dss-utils-google-guava</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>eu.europa.ec.joinup.sd-dss</groupId>
             <artifactId>dss-service</artifactId>
         </dependency>
         <dependency>
             <groupId>eu.europa.ec.joinup.sd-dss</groupId>
             <artifactId>dss-utils</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>eu.europa.ec.joinup.sd-dss</groupId>
             <artifactId>dss-policy-jaxb</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>eu.europa.ec.joinup.sd-dss</groupId>
             <artifactId>dss-model</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>eu.europa.ec.joinup.sd-dss</groupId>
             <artifactId>validation-policy</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>eu.europa.ec.joinup.sd-dss</groupId>
             <artifactId>dss-xades</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>eu.europa.ec.joinup.sd-dss</groupId>
             <artifactId>dss-simple-report-jaxb</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>eu.europa.ec.joinup.sd-dss</groupId>
             <artifactId>dss-detailed-report-jaxb</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>eu.europa.ec.joinup.sd-dss</groupId>
             <artifactId>dss-enumerations</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>eu.europa.ec.joinup.sd-dss</groupId>
             <artifactId>dss-spi</artifactId>
-            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>eu.europa.ec.joinup.sd-dss</groupId>
+            <artifactId>dss-crl-parser-x509crl</artifactId>
         </dependency>
         <!--Test dependencies-->
         <dependency>
@@ -216,6 +221,11 @@
                             <filters>
                                 <filter>
                                     <artifact>*.*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                    </excludes>
                                 </filter>
                             </filters>
                         </configuration>
