@@ -74,7 +74,6 @@ public class RoutingService {
     protected Map<String, IRoutingCriteria> criteriaMap;
     protected final Object backendFiltersCacheLock = new Object();
     protected volatile Map<Domain, List<BackendFilter>> backendFiltersCache = new HashMap<>();
-   // private Object BackendFilterEntity;
 
     @PostConstruct
     public void init() {
@@ -150,7 +149,6 @@ public class RoutingService {
             }
         }
         pluginToAdd.removeAll(backendFilterEntitiesInDB.stream().map(BackendFilterEntity::getBackendName).collect(Collectors.toList()));
-
 
         List<BackendFilterEntity> backendFilterEntities = createBackendFilterEntities(pluginToAdd, getMaxIndex(backendFilterEntitiesInDB) + 1);
         backendFilterDao.create(backendFilterEntities);
