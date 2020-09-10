@@ -8,7 +8,6 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.handler.MessageRetriever;
-import eu.domibus.plugin.jms.property.JmsPluginPropertyManager;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -25,8 +24,6 @@ public class BackendJMSQueueService {
     protected DomibusPropertyExtService domibusPropertyExtService;
 
     protected DomainContextExtService domainContextExtService;
-
-    protected JmsPluginPropertyManager jmsPluginPropertyManager;
 
     protected MessageRetriever messageRetriever;
 

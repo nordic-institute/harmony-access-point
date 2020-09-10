@@ -5,6 +5,7 @@ import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
 import eu.domibus.ebms3.common.model.MessageType;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.interceptor.Fault;
+import org.springframework.stereotype.Service;
 
 /**
  * @author Thomas Dussart
@@ -12,6 +13,7 @@ import org.apache.cxf.interceptor.Fault;
  * In case of a pulled message, the outgoing is a user message with attachements which should
  * received the same processing as the outPut of a push message.
  */
+@Service
 public class SetPolicyOutInterceptorServer extends SetPolicyOutInterceptor {
     public SetPolicyOutInterceptorServer() {
         super();

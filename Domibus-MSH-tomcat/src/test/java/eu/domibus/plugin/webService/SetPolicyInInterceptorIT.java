@@ -2,7 +2,7 @@ package eu.domibus.plugin.webService;
 
 import eu.domibus.AbstractBackendWSIT;
 import eu.domibus.core.ebms3.receiver.leg.MessageLegConfigurationFactory;
-import eu.domibus.core.ebms3.receiver.policy.SetPolicyInInterceptor;
+import eu.domibus.core.ebms3.receiver.policy.SetPolicyInServerInterceptor;
 import eu.domibus.messaging.XmlProcessingException;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.transport.http.AbstractHTTPDestination;
@@ -31,7 +31,7 @@ import java.io.UnsupportedEncodingException;
 public class SetPolicyInInterceptorIT extends AbstractBackendWSIT {
 
     @Autowired
-    SetPolicyInInterceptor setPolicyInInterceptorServer;
+    SetPolicyInServerInterceptor setPolicyInInterceptorServer;
 
     @Autowired
     MessageLegConfigurationFactory serverInMessageLegConfigurationFactory;
@@ -39,7 +39,7 @@ public class SetPolicyInInterceptorIT extends AbstractBackendWSIT {
     @Before
     public void before() throws IOException, XmlProcessingException {
         uploadPmode(wireMockRule.port());
-        setPolicyInInterceptorServer.setMessageLegConfigurationFactory(serverInMessageLegConfigurationFactory);
+//        setPolicyInInterceptorServer.setMessageLegConfigurationFactory(serverInMessageLegConfigurationFactory);
     }
 
     @Test

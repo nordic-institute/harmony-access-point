@@ -48,6 +48,7 @@ public class BackendFSImpl extends AbstractBackendConnector<FSMessage, FSMessage
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(BackendFSImpl.class);
 
+    public static final String PLUGIN_NAME = "backendFSPlugin";
 
     protected static final String FILENAME_SANITIZE_REGEX = "[^\\w@.-]";
     protected static final String FILENAME_SANITIZE_REPLACEMENT = "_";
@@ -105,6 +106,10 @@ public class BackendFSImpl extends AbstractBackendConnector<FSMessage, FSMessage
      */
     public BackendFSImpl(String name) {
         super(name);
+    }
+
+    public BackendFSImpl() {
+        super(PLUGIN_NAME);
     }
 
     /**

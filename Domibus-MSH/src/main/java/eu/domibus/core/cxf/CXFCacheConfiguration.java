@@ -1,6 +1,5 @@
-package eu.domibus.core.cache;
+package eu.domibus.core.cxf;
 
-import eu.domibus.core.cxf.DomibusBus;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.resource.ResourceManager;

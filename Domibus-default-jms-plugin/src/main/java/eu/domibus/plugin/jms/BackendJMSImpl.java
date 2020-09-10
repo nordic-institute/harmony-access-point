@@ -43,52 +43,38 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(BackendJMSImpl.class);
 
-    @Autowired
+    public static final String PLUGIN_NAME = "Jms";
+
     protected JMSExtService jmsExtService;
-
-    @Autowired
-    protected DomibusPropertyExtService domibusPropertyExtService;
-
-    @Autowired
     protected DomainContextExtService domainContextExtService;
-
-    @Autowired
     protected BackendJMSQueueService backendJMSQueueService;
-
-    @Autowired
-    @Qualifier(value = "mshToBackendTemplate")
-    private JmsOperations mshToBackendTemplate;
-
-    @Autowired
+    protected JmsOperations mshToBackendTemplate;
     protected JMSMessageTransformer jmsMessageTransformer;
+    protected MetricRegistry metricRegistry;
 
-    @Autowired
-    private MetricRegistry metricRegistry;
-
-    private MessageRetrievalTransformer<MapMessage> messageRetrievalTransformer;
-
-    private MessageSubmissionTransformer<MapMessage> messageSubmissionTransformer;
-
-    public BackendJMSImpl(String name) {
-        super(name);
+    public BackendJMSImpl(MetricRegistry metricRegistry,
+                          JMSExtService jmsExtService,
+                          DomainContextExtService domainContextExtService,
+                          BackendJMSQueueService backendJMSQueueService,
+                          JmsOperations mshToBackendTemplate,
+                          JMSMessageTransformer jmsMessageTransformer) {
+        super(PLUGIN_NAME);
+        this.jmsExtService = jmsExtService;
+        this.domainContextExtService = domainContextExtService;
+        this.backendJMSQueueService = backendJMSQueueService;
+        this.mshToBackendTemplate = mshToBackendTemplate;
+        this.jmsMessageTransformer = jmsMessageTransformer;
+        this.metricRegistry = metricRegistry;
     }
 
     @Override
     public MessageSubmissionTransformer<MapMessage> getMessageSubmissionTransformer() {
-        return this.messageSubmissionTransformer;
-    }
-
-    public void setMessageSubmissionTransformer(MessageSubmissionTransformer<MapMessage> messageSubmissionTransformer) {
-        this.messageSubmissionTransformer = messageSubmissionTransformer;
+        return this.jmsMessageTransformer;
     }
 
     @Override
     public MessageRetrievalTransformer<MapMessage> getMessageRetrievalTransformer() {
-        return this.messageRetrievalTransformer;
-    }
-
-    public void setMessageRetrievalTransformer(MessageRetrievalTransformer<MapMessage> messageRetrievalTransformer) {
-        this.messageRetrievalTransformer = messageRetrievalTransformer;
+        return this.jmsMessageTransformer;
     }
 
     /**

@@ -6,8 +6,7 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import org.apache.wss4j.common.ext.WSPasswordCallback;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.stereotype.Service;
 
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
@@ -16,6 +15,7 @@ import javax.security.auth.callback.CallbackHandler;
  * @author Christian Koch, Stefan Mueller
  * @author Cosmin Baciu
  */
+@Service("keystorePasswordCallback")
 public class SimpleKeystorePasswordCallback implements CallbackHandler {
 
     @Autowired

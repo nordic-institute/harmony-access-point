@@ -45,6 +45,8 @@ import java.util.stream.Collectors;
 @BindingType(SOAPBinding.SOAP12HTTP_BINDING)
 public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, UserMessage> implements BackendInterface {
 
+    public static final String PLUGIN_NAME = "backendWebservice";
+
     public static final String MESSAGE_SUBMISSION_FAILED = "Message submission failed";
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(BackendWebServiceImpl.class);
 
@@ -84,6 +86,10 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
 
     public BackendWebServiceImpl(final String name) {
         super(name);
+    }
+
+    public BackendWebServiceImpl() {
+        super(PLUGIN_NAME);
     }
 
     /**

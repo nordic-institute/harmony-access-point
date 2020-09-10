@@ -59,6 +59,11 @@ public class LocalEndpointConfiguration {
         return endpoint;
     }
 
+    @Bean
+    public MSHSourceMessageWebservice mshSourceMessageWebservice() {
+        return new MSHSourceMessageWebservice();
+    }
+
     protected SaveRequestToFileInInterceptor createSaveRequestToFileInInterceptor() {
         SaveRequestToFileInInterceptor result = new SaveRequestToFileInInterceptor();
         result.setDomainContextProvider(domainContextProvider);

@@ -12,6 +12,7 @@ import org.apache.cxf.configuration.security.ProxyAuthorizationPolicy;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.ClientImpl;
 import org.apache.cxf.jaxws.DispatchImpl;
+import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.transport.MessageObserver;
 import org.apache.cxf.transport.http.HTTPConduit;
@@ -157,6 +158,14 @@ public class DispatchClientDefaultProvider implements DispatchClientProvider {
         service.addPort(PORT_NAME, SOAPBinding.SOAP12HTTP_BINDING, endpoint);
         final Dispatch<SOAPMessage> dispatch = service.createDispatch(PORT_NAME, SOAPMessage.class, javax.xml.ws.Service.Mode.MESSAGE);
         return dispatch;
+    }
+
+    protected JaxWsProxyFactoryBean create() {
+        JaxWsProxyFactoryBean jaxWsProxyFactoryBean = new JaxWsProxyFactoryBean();
+        //TODO
+        jaxWsProxyFactoryBean.getClientFactoryBean().create();
+
+        return jaxWsProxyFactoryBean;
     }
 
     protected void configureProxy(final HTTPClientPolicy httpClientPolicy, HTTPConduit httpConduit) {

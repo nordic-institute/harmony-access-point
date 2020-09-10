@@ -7,6 +7,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
 import eu.domibus.core.certificate.CertificateExchangeType;
+import eu.domibus.core.crypto.Wss4JMultiDomainCryptoProvider;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.receiver.token.BinarySecurityTokenReference;
 import eu.domibus.core.ebms3.receiver.token.TokenReference;
@@ -30,7 +31,6 @@ import org.apache.cxf.message.MessageUtils;
 import org.apache.cxf.ws.security.wss4j.CXFRequestData;
 import org.apache.cxf.ws.security.wss4j.StaxSerializer;
 import org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor;
-import org.apache.wss4j.common.crypto.Crypto;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.dom.WSConstants;
 import org.apache.wss4j.dom.WSDocInfo;
@@ -41,6 +41,7 @@ import org.apache.wss4j.dom.str.STRParserParameters;
 import org.apache.wss4j.dom.str.STRParserResult;
 import org.apache.wss4j.dom.util.WSSecurityUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -70,6 +71,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  * @author Martini Federico
  * @since 3.3
  */
+@Service
 public class TrustSenderInterceptor extends WSS4JInInterceptor {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TrustSenderInterceptor.class);
@@ -85,7 +87,8 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
 
-    protected Crypto crypto;
+    @Autowired
+    protected Wss4JMultiDomainCryptoProvider crypto;
 
     @Autowired
     private CertificateService certificateService;
@@ -377,11 +380,6 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
             return null;
         }
         return Arrays.asList(certs);
-    }
-
-
-    public void setCrypto(Crypto crypto) {
-        this.crypto = crypto;
     }
 
 }

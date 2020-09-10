@@ -43,7 +43,7 @@ public class DownloadMessageJMSIT extends AbstractBackendJMSIT {
     private ConnectionFactory xaJmsConnectionFactory;
 
     @Autowired
-    BackendConnector backendJms;
+    BackendJMSImpl backendJms;
 
     @Autowired
     MessagingService messagingService;

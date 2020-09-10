@@ -6,6 +6,7 @@ import eu.domibus.api.property.DomibusPropertyMetadata.Type;
 import eu.domibus.api.property.DomibusPropertyMetadata.Usage;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.Module;
+import eu.domibus.plugin.environment.DomibusEnvironmentConstants;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -23,6 +24,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
 
     private Map<String, DomibusPropertyMetadata> knownProperties = Arrays.stream(new DomibusPropertyMetadata[]{
             //read-only properties
+            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DomibusEnvironmentConstants.DOMIBUS_ENVIRONMENT_SERVER_NAME, Type.STRING),
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_CONFIG_LOCATION, Type.URI),
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DEPLOYMENT_CLUSTERED, Type.BOOLEAN),
             new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_PASSWORD, Type.PASSWORD, false, Usage.DOMAIN, false, true),
