@@ -1,5 +1,6 @@
 package eu.domibus.core.crypto.spi.dss;
 
+import mockit.Expectations;
 import mockit.Mocked;
 import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
@@ -33,10 +34,23 @@ public class DssCacheTest {
     }
 
     @Test
-    public void isChainValid() {
+    public void isChainValid(@Mocked Cache cache,@Mocked Element element) {
+        DssCache dssCache = new DssCache(cache);
+        String key = "key";
+        new Expectations(){{
+           cache.get(key);
+           returns(element,null);
+        }};
+        assertTrue(dssCache.isChainValid(key));
+        assertFalse(dssCache.isChainValid(key));
     }
 
     @Test
-    public void clear() {
+    public void clear(@Mocked Cache cache) {
+        DssCache dssCache = new DssCache(cache);
+        dssCache.clear();
+        new Verifications(){{
+           cache.removeAll();
+        }};
     }
 }
