@@ -74,6 +74,7 @@ public class RoutingService {
     protected Map<String, IRoutingCriteria> criteriaMap;
     protected final Object backendFiltersCacheLock = new Object();
     protected volatile Map<Domain, List<BackendFilter>> backendFiltersCache = new HashMap<>();
+   // private Object BackendFilterEntity;
 
     @PostConstruct
     public void init() {
@@ -138,7 +139,18 @@ public class RoutingService {
                 .map(BackendConnector::getName)
                 .collect(Collectors.toList());
 
+        //checking if any existing database plugins are already removed from the plugin location
+        List<BackendFilterEntity> dbFiltersNotInBackendConnectors = backendFilterEntitiesInDB.stream().filter(backendFilterEntity -> pluginToAdd.stream().noneMatch(plugin -> StringUtils.equalsIgnoreCase(plugin, backendFilterEntity.getBackendName()))).collect(Collectors.toList());
+        if (!CollectionUtils.isEmpty(dbFiltersNotInBackendConnectors)) {
+            backendFilterDao.delete(dbFiltersNotInBackendConnectors);
+            backendFilterEntitiesInDB = backendFilterDao.findAll();
+            if (!CollectionUtils.isEmpty(backendFilterEntitiesInDB)) {
+                updateFilterIndices(backendFilterEntitiesInDB);
+                backendFilterDao.update(backendFilterEntitiesInDB);
+            }
+        }
         pluginToAdd.removeAll(backendFilterEntitiesInDB.stream().map(BackendFilterEntity::getBackendName).collect(Collectors.toList()));
+
 
         List<BackendFilterEntity> backendFilterEntities = createBackendFilterEntities(pluginToAdd, getMaxIndex(backendFilterEntitiesInDB) + 1);
         backendFilterDao.create(backendFilterEntities);
@@ -237,9 +249,9 @@ public class RoutingService {
         return true;
     }
 
-    private void updateFilterIndices(List<BackendFilterEntity> filters) {
+    protected void updateFilterIndices(List<BackendFilterEntity> filters) {
         LOG.info("Update backend filter indices for {}", filters);
-        IntStream.range(0, filters.size()).forEach(index -> filters.get(index).setIndex(index));
+        IntStream.range(0, filters.size()).forEach(index -> filters.get(index).setIndex(++index));
     }
 
     protected void validateFilters(List<BackendFilter> filters) {
