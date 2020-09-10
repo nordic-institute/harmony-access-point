@@ -30,11 +30,10 @@ public class PartyIdentifierValidatorTest {
     BusinessProcessValidator businessProcessValidator;
 
     @Test
-    public void testValidate(@Injectable Configuration pMode, @Injectable Party party, @Injectable ValidationIssue issue) {
+    public void testValidate(@Injectable Configuration pMode, @Injectable Party party) {
         List<Party> parties = new ArrayList<>();
         parties.add(party);
         List<ValidationIssue> issues = new ArrayList<>();
-        issues.add(issue);
         new Expectations(partyIdentifierValidator) {{
             pMode.getBusinessProcesses().getParties();
             result = parties;
