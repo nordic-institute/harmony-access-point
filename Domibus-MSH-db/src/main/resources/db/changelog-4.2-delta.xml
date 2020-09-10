@@ -1081,6 +1081,9 @@
         <dropColumn columnName="DOMAIN" tableName="TB_COMMAND"/>
     </changeSet>
 
+    <changeSet id="EDELIVERY-1532" author="venugar">
+        <modifyDataType tableName="TB_PROPERTY" columnName="VALUE" newDataType="VARCHAR(1024)"/>
+    </changeSet>
 
     <changeSet id="DELETE_MESSAGE_METADATA" author="idragusa">
         <addColumn tableName="TB_PM_MPC">

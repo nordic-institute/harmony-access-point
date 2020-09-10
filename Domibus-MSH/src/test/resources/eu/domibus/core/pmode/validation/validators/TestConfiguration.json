@@ -11,7 +11,7 @@
       },
       {
         "name": "party3",
-        "endpoint": "http://localhost:8180/domibus/services/msh3"
+        "endpoint": "http://localhost:8180/domibus/services/msh3?domain=aqua&<img src=http://localhost/271/300>"
       }
     ],
     "processes": [

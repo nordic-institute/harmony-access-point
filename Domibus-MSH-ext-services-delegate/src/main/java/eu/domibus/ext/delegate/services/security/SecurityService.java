@@ -41,4 +41,11 @@ public interface SecurityService {
      */
     String getOriginalUserFromSecurityContext() throws AuthenticationExtException;
 
+    /**
+     * In multi-tenancy, ROLE_AP_ADMIN is the only actual Admin of the AP.
+     * In singletenancy, ROLE_AP_ADMIN and ROLE_ADMIN are both actual admin.
+     * @return true if the user is an actual admin depending if the AP is in multitenancy or not.
+     */
+    boolean isAdminMultiAware();
+
 }
