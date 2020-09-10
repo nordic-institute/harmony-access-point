@@ -31,7 +31,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.ConstraintViolationException;
-import javax.validation.Path;
 import javax.validation.Valid;
 import java.util.*;
 
@@ -85,20 +84,7 @@ public class UserResource extends BaseResource {
 
     @ExceptionHandler({ConstraintViolationException.class})
     public ResponseEntity<ErrorRO> handleConstraintViolationException(ConstraintViolationException ex) {
-        String errorMessage = ex.getConstraintViolations().stream()
-                .map(el -> getLast(el.getPropertyPath()) + " " + el.getMessage())
-                .reduce("There are validation errors: ", (accumulator, element) -> accumulator + element + "; ");
-        return errorHandlerService.createResponse(errorMessage, HttpStatus.BAD_REQUEST);
-    }
-
-    private String getLast(Path propertyPath) {
-        Iterator<Path.Node> it = propertyPath.iterator();
-        while (true) {
-            Path.Node node = it.next();
-            if (!it.hasNext()) {
-                return node.toString();
-            }
-        }
+        return errorHandlerService.formatAndcreateConstraintViolationResponse(ex);
     }
 
     /**

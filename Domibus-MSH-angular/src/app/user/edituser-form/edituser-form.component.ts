@@ -16,6 +16,10 @@ const EDIT_MODE = 'User Edit';
 })
 
 export class EditUserComponent implements OnInit {
+  userNamePatternMessage = UserValidatorService.USER_NAME_PATTERN_MESSAGE;
+  userNameMinLengthMessage = UserValidatorService.USER_NAME_MINLENGTH_MESSAGE;
+  userNameRequiredMessage = UserValidatorService.USER_NAME_REQUIRED_MESSAGE;
+  
   user: UserResponseRO;
   existingRoles = [];
   existingDomains = [];
@@ -60,7 +64,7 @@ export class EditUserComponent implements OnInit {
       'userName': new FormControl({
         value: this.user.userName,
         disabled: !this.isNewUser()
-      }, [Validators.required, Validators.maxLength(255), Validators.minLength(4), Validators.pattern('[a-zA-Z0-9\.@_]*')]),
+      }, [Validators.required, Validators.maxLength(255), Validators.minLength(4), Validators.pattern(UserValidatorService.USER_NAME_PATTERN)]),
       'email': new FormControl(this.user.email, [Validators.pattern(this.emailPattern), Validators.maxLength(255)]),
       'roles': new FormControl(this.user.roles, Validators.required),
       'domain': new FormControl({value: this.user.domain, disabled: this.isDomainDisabled()}, Validators.required),

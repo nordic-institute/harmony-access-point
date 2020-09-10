@@ -20,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
 import java.util.Arrays;
 import java.util.List;
@@ -47,10 +48,15 @@ public class PluginUserResource extends BaseResource {
 
     @Autowired
     protected UserDomainService userDomainService;
-    
+
     @ExceptionHandler({UserManagementException.class})
     public ResponseEntity<ErrorRO> handleUserManagementException(UserManagementException ex) {
         return errorHandlerService.createResponse(ex, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler({ConstraintViolationException.class})
+    public ResponseEntity<ErrorRO> handleConstraintViolationException(ConstraintViolationException ex) {
+        return errorHandlerService.formatAndcreateConstraintViolationResponse(ex);
     }
 
     @GetMapping(value = {"/users"})
