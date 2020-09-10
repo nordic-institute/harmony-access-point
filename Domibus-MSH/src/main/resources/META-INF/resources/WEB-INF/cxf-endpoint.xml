@@ -18,7 +18,7 @@
             <ref bean="httpHeaderInInterceptor"/>
         </jaxws:inInterceptors>
         <jaxws:handlers>
-            <bean class="eu.domibus.core.ebms3.sender.FaultOutHandler"/>
+            <ref bean="faultOutHandler"/>
         </jaxws:handlers>
 
         <jaxws:properties>
@@ -34,20 +34,17 @@
         </jaxws:features>
     </jaxws:client>
 
-    <jaxws:client id="{http://domibus.eu}local-msh-dispatch" name="{http://domibus.eu}local-msh-dispatch"
-                  createdFromAPI="true">
+    <jaxws:client id="{http://domibus.eu}local-msh-dispatch" name="{http://domibus.eu}local-msh-dispatch" createdFromAPI="true">
         <jaxws:outInterceptors>
             <ref bean="domibusPrepareAttachmentInterceptor"/>
-            <bean id="domibusAttachmentOutInterceptorRemoval"
-                  class="eu.domibus.core.ebms3.sender.interceptor.DomibusAttachmentOutInterceptorRemoval"/>
-            <bean id="domibusAttachmentOutInterceptor"
-                  class="eu.domibus.core.message.splitandjoin.DomibusAttachmentOutInterceptor"/>
+            <ref bean="domibusAttachmentOutInterceptorRemoval"/>
+            <ref bean="domibusAttachmentOutInterceptor"/>
         </jaxws:outInterceptors>
         <jaxws:inInterceptors>
             <ref bean="domibusPrepareAttachmentInInterceptor"/>
         </jaxws:inInterceptors>
         <jaxws:handlers>
-            <bean class="eu.domibus.core.ebms3.sender.FaultOutHandler"/>
+            <ref bean="faultOutHandler"/>
         </jaxws:handlers>
 
         <jaxws:properties>
