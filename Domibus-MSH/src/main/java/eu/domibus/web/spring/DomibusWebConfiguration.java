@@ -27,6 +27,7 @@ import java.util.List;
 @Import(DomibusExtWebConfiguration.class)
 @ComponentScan(basePackages = "eu.domibus.web")
 @ImportResource("classpath*:config/*-domibusServlet.xml")
+@EnableAspectJAutoProxy(proxyTargetClass = true)
 public class DomibusWebConfiguration implements WebMvcConfigurer {
 
     @Override
