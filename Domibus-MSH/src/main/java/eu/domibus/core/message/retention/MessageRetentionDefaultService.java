@@ -5,8 +5,11 @@ import eu.domibus.api.jms.JMSMessageBuilder;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.core.message.MessagingDao;
+import eu.domibus.core.message.UserMessageLog;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.pmode.provider.PModeProvider;
+import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
@@ -27,9 +30,8 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 /**
  * This service class is responsible for the retention and clean up of Domibus messages, including signal messages.
- * Notice that only payloads data are really deleted.
  *
- * @author Christian Koch, Stefan Mueller, Federico Martini, Cosmin Baciu
+ * @author Cosmin Baciu, Ioana Dragusanu
  * @since 3.0
  */
 @Service
@@ -59,6 +61,8 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
     @Qualifier("retentionMessageQueue")
     private Queue retentionMessageQueue;
 
+    @Autowired
+    private MessagingDao messagingDao;
 
     /**
      * {@inheritDoc}
@@ -145,7 +149,7 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
             final int maxBatch = pModeProvider.getRetentionMaxBatchByMpcURI(mpc, domibusPropertyProvider.getIntegerProperty(DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_BATCH_DELETE));
             LOG.debug("Schedule bulk delete messages, maxBatch [{}]", maxBatch);
             scheduleDeleteMessages(messageIds, maxBatch);
-            return ;
+            return;
         }
         // schedule delete one by one
         LOG.debug("Schedule delete messages one by one");
@@ -167,6 +171,42 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
                     .build();
             jmsManager.sendMessageToQueue(message, retentionMessageQueue);
         });
+    }
+
+    @Override
+    public void deletePayloadOnSendSuccess(UserMessage userMessage, UserMessageLog userMessageLog) {
+        if (shouldDeletePayloadOnSendSuccess()) {
+            LOG.debug("Message payload cleared on send success.");
+            deletePayload(userMessage, userMessageLog);
+            return;
+        }
+        LOG.debug("Message payload not cleared on send success");
+    }
+
+    @Override
+    public void deletePayloadOnSendFailure(UserMessage userMessage, UserMessageLog userMessageLog) {
+        if (shouldDeletePayloadOnSendFailure(userMessage)) {
+            LOG.debug("Message payload cleared on send failure.");
+            deletePayload(userMessage, userMessageLog);
+            return;
+        }
+        LOG.debug("Message payload not cleared on send failure");
+    }
+
+    protected void deletePayload(UserMessage userMessage, UserMessageLog userMessageLog) {
+        messagingDao.clearPayloadData(userMessage);
+        userMessageLog.setDeleted(new Date());
+    }
+
+    protected boolean shouldDeletePayloadOnSendSuccess() {
+        return domibusPropertyProvider.getBooleanProperty(DOMIBUS_SEND_MESSAGE_SUCCESS_DELETE_PAYLOAD);
+    }
+
+    protected boolean shouldDeletePayloadOnSendFailure(UserMessage userMessage) {
+        if (userMessage.isUserMessageFragment()) {
+            return true;
+        }
+        return domibusPropertyProvider.getBooleanProperty(DOMIBUS_SEND_MESSAGE_FAILURE_DELETE_PAYLOAD);
     }
 
     @Override
@@ -200,7 +240,7 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
         if (invalidMessageIds.size() > 0) {
             LOG.warn("Separator [{}] found in the messageId. Deletion for following messages cannot be performed in batch.");
             messageIdsBatch.removeAll(invalidMessageIds);
-            invalidMessageIds.stream().forEach(messageId-> scheduleDeleteMessages(Arrays.asList(messageId)));
+            invalidMessageIds.stream().forEach(messageId -> scheduleDeleteMessages(Arrays.asList(messageId)));
         }
 
         String messageIdsBatchStr = String.join(separator, messageIdsBatch);

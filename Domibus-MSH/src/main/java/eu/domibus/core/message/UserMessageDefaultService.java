@@ -666,11 +666,6 @@ public class UserMessageDefaultService implements UserMessageService {
         return result;
     }
 
-    @Override
-    public boolean shouldDeletePayloadOnSendSuccess() {
-        return domibusPropertyProvider.getBooleanProperty(DOMIBUS_SEND_MESSAGE_SUCCESS_DELETE_PAYLOAD);
-    }
-
     protected UserMessage getUserMessageById(String messageId) throws MessageNotFoundException {
         UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
         if (userMessage == null) {

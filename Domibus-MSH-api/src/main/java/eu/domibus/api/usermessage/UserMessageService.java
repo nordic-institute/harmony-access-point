@@ -162,10 +162,4 @@ public interface UserMessageService {
      */
     byte[] getMessageWithAttachmentsAsZip(String messageId) throws MessageNotFoundException, IOException;
 
-    /**
-     * Verifies if message payload has to be deleted on send success
-     *
-     * @return true if payload should be deleted
-     */
-    boolean shouldDeletePayloadOnSendSuccess();
 }

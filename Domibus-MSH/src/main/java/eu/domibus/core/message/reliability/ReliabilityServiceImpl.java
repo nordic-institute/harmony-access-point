@@ -8,6 +8,7 @@ import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.message.UserMessageLog;
 import eu.domibus.core.message.UserMessageLogDefaultService;
+import eu.domibus.core.message.retention.MessageRetentionService;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
 import eu.domibus.core.message.UserMessageHandlerService;
 import eu.domibus.ebms3.common.model.Messaging;
@@ -24,10 +25,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SEND_MESSAGE_SUCCESS_DELETE_PAYLOAD;
 
 import javax.xml.soap.SOAPMessage;
-import java.util.Date;
 
 /**
  * @author Thomas Dussart
@@ -73,6 +72,9 @@ public class ReliabilityServiceImpl implements ReliabilityService {
     @Autowired
     DomibusPropertyProvider domibusPropertyProvider;
 
+    @Autowired
+    MessageRetentionService messageRetentionService;
+
     /**
      * {@inheritDoc}
      */
@@ -117,12 +119,7 @@ public class ReliabilityServiceImpl implements ReliabilityService {
                     backendNotificationService.notifyOfSendSuccess(userMessageLog);
                 }
                 userMessageLog.setSendAttempts(userMessageLog.getSendAttempts() + 1);
-
-                if (userMessageService.shouldDeletePayloadOnSendSuccess()) {
-                    LOG.debug("Message payload will be cleared.");
-                    messagingDao.clearPayloadData(userMessage);
-                    userMessageLog.setDeleted(new Date());
-                }
+                messageRetentionService.deletePayloadOnSendSuccess(userMessage, userMessageLog);
                 LOG.businessInfo(isTestMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_SEND_SUCCESS : DomibusMessageCode.BUS_MESSAGE_SEND_SUCCESS,
                         userMessage.getFromFirstPartyId(), userMessage.getToFirstPartyId());
 

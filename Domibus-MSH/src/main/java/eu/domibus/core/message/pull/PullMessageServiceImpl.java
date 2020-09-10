@@ -13,6 +13,7 @@ import eu.domibus.core.ebms3.sender.retry.UpdateRetryLoggingService;
 import eu.domibus.core.message.*;
 import eu.domibus.core.message.nonrepudiation.RawEnvelopeLogDao;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
+import eu.domibus.core.message.retention.MessageRetentionService;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.replication.UIReplicationSignalService;
@@ -79,7 +80,8 @@ public class PullMessageServiceImpl implements PullMessageService {
     @Autowired
     UserMessageService userMessageService;
 
-    private Integer extraNumberOfAttemptTimeForExpirationDate;
+    @Autowired
+    private MessageRetentionService messageRetentionService;
 
     /**
      * {@inheritDoc}
@@ -151,11 +153,7 @@ public class PullMessageServiceImpl implements PullMessageService {
                 backendNotificationService.notifyOfSendSuccess(userMessageLog);
                 LOG.businessInfo(userMessageLog.isTestMessage() ? DomibusMessageCode.BUS_TEST_MESSAGE_SEND_SUCCESS : DomibusMessageCode.BUS_MESSAGE_SEND_SUCCESS,
                         userMessage.getFromFirstPartyId(), userMessage.getToFirstPartyId());
-                if (userMessageService.shouldDeletePayloadOnSendSuccess()) {
-                    LOG.debug("Message payload will be cleared.");
-                    messagingDao.clearPayloadData(userMessage);
-                    userMessageLog.setDeleted(new Date());
-                }
+                messageRetentionService.deletePayloadOnSendSuccess(userMessage, userMessageLog);
 
                 userMessageLogDao.update(userMessageLog);
 

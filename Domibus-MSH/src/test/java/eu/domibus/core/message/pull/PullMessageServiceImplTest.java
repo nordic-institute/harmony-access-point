@@ -12,6 +12,7 @@ import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.sender.retry.UpdateRetryLoggingService;
 import eu.domibus.core.message.*;
 import eu.domibus.core.message.nonrepudiation.RawEnvelopeLogDao;
+import eu.domibus.core.message.retention.MessageRetentionService;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.replication.UIReplicationSignalService;
@@ -74,6 +75,9 @@ public class PullMessageServiceImplTest {
 
     @Injectable
     UserMessageService userMessageService;
+
+    @Injectable
+    MessageRetentionService messageRetentionService;
 
     @Tested
     private PullMessageServiceImpl pullMessageService;

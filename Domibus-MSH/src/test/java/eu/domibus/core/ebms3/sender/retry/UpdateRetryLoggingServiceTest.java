@@ -11,6 +11,7 @@ import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.ReceptionAwareness;
 import eu.domibus.core.message.*;
 import eu.domibus.core.message.nonrepudiation.RawEnvelopeLogDao;
+import eu.domibus.core.message.retention.MessageRetentionService;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.plugin.notification.NotificationStatus;
 import eu.domibus.core.pmode.provider.PModeProvider;
@@ -25,7 +26,6 @@ import org.junit.runner.RunWith;
 import java.util.Date;
 import java.util.UUID;
 
-import static eu.domibus.core.ebms3.sender.retry.UpdateRetryLoggingService.DELETE_PAYLOAD_ON_SEND_FAILURE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -74,6 +74,9 @@ public class UpdateRetryLoggingServiceTest {
 
     @Injectable
     PModeProvider pModeProvider;
+
+    @Injectable
+    MessageRetentionService messageRetentionService;
 
 
     /**
@@ -247,9 +250,6 @@ public class UpdateRetryLoggingServiceTest {
         final long received = ONE_HOUR_BEFORE_FIRST_OF_JANUARY_2016; // received one hour ago
 
         new Expectations() {{
-            domibusPropertyProvider.getBooleanProperty(DELETE_PAYLOAD_ON_SEND_FAILURE);
-            result = true;
-
             userMessageLog.getSendAttempts();
             result = 0;
 
@@ -272,7 +272,7 @@ public class UpdateRetryLoggingServiceTest {
 
         new Verifications() {{
             messageLogService.setMessageAsSendFailure(userMessage, userMessageLog);
-            messagingDao.clearPayloadData(userMessage);
+            messageRetentionService.deletePayloadOnSendFailure(userMessage, userMessageLog);
         }};
 
     }

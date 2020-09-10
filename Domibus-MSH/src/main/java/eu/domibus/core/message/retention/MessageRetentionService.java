@@ -1,5 +1,8 @@
 package eu.domibus.core.message.retention;
 
+import eu.domibus.core.message.UserMessageLog;
+import eu.domibus.ebms3.common.model.UserMessage;
+
 import java.util.List;
 
 /**
@@ -20,4 +23,8 @@ public interface MessageRetentionService {
     void scheduleDeleteMessages(List<String> messageIds);
 
     void scheduleDeleteMessages(List<String> messageIds, int maxBatch);
+
+    void deletePayloadOnSendSuccess(UserMessage userMessage, UserMessageLog userMessageLog);
+
+    void deletePayloadOnSendFailure(UserMessage userMessage, UserMessageLog userMessageLog);
 }
