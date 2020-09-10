@@ -34,7 +34,6 @@ public class PartyIdentifierValidatorTest {
         List<Party> parties = new ArrayList<>();
         parties.add(party);
         List<ValidationIssue> issues = new ArrayList<>();
-        issues.add(issue);
         new Expectations(partyIdentifierValidator) {{
             pMode.getBusinessProcesses().getParties();
             result = parties;
