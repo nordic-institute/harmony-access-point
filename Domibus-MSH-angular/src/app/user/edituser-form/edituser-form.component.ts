@@ -101,11 +101,11 @@ export class EditUserComponent implements OnInit {
 
   async onRoleChange($event) {
     const role: string = $event.value;
-    const dimainCtrl = this.userForm.get('domain');
+    const domainCtrl = this.userForm.get('domain');
     if (role === SecurityService.ROLE_AP_ADMIN) {
-      dimainCtrl.enable();
+      domainCtrl.enable();
     } else {
-      dimainCtrl.disable();
+      domainCtrl.disable();
       this.userForm.patchValue({domain: this.currentDomain});
     }
 
