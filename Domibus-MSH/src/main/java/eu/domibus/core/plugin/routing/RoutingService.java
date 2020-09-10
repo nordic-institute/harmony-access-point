@@ -245,15 +245,12 @@ public class RoutingService {
     protected void validateFilters(List<BackendFilter> filters) {
         LOG.trace("Validating backend filters");
 
-        List<String> pluginNames = backendConnectorProvider.getBackendConnectors().stream()
-                .map(BackendConnector::getName)
-                .collect(Collectors.toList());
-        List<String> missingFilterNames = pluginNames.stream().filter(pluginName -> filters.stream().noneMatch(filter -> filter.getBackendName().equals(pluginName))).collect(Collectors.toList());
-        if (missingFilterNames.size() > 0) {
-            throw new ConfigurationException("Each installed plugin must have at last one filter and the following do not: "
-                    + missingFilterNames.stream().reduce(StringUtils.EMPTY, (accumulator, name) -> accumulator + name + ","));
-        }
+        ensureAtLeastOneFilterForPlugin(filters);
 
+        ensureUnicity(filters);
+    }
+
+    protected void ensureUnicity(List<BackendFilter> filters) {
         filters.forEach(filter -> {
             if (filters.stream().anyMatch(f -> f != filter
                     && f.getBackendName().equals(filter.getBackendName())
@@ -262,6 +259,17 @@ public class RoutingService {
                 throw new ConfigurationException("Two message filters cannot have the same criteria.");
             }
         });
+    }
+
+    protected void ensureAtLeastOneFilterForPlugin(List<BackendFilter> filters) {
+        List<String> pluginNames = backendConnectorProvider.getBackendConnectors().stream()
+                .map(BackendConnector::getName)
+                .collect(Collectors.toList());
+        List<String> missingFilterNames = pluginNames.stream().filter(pluginName -> filters.stream().noneMatch(filter -> filter.getBackendName().equals(pluginName))).collect(Collectors.toList());
+        if (missingFilterNames.size() > 0) {
+            throw new ConfigurationException("Each installed plugin must have at last one filter and the following do not: "
+                    + missingFilterNames.stream().reduce(StringUtils.EMPTY, (accumulator, name) -> accumulator + name + ","));
+        }
     }
 
     private boolean areEqual(List<RoutingCriteria> c1, List<RoutingCriteria> c2) {

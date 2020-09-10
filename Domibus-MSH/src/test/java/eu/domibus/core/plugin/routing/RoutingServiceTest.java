@@ -121,7 +121,7 @@ public class RoutingServiceTest {
         bf3.setRoutingCriterias(rcd);
 
         RoutingService routingService = new RoutingService();
-        routingService.validateFilters(Arrays.asList(bf1, bf2, bf3));
+        routingService.ensureUnicity(Arrays.asList(bf1, bf2, bf3));
     }
 
     @Test()
@@ -153,7 +153,7 @@ public class RoutingServiceTest {
         bf2.setRoutingCriterias(rcc);
 
         RoutingService routingService = new RoutingService();
-        routingService.validateFilters(Arrays.asList(bf1, bf2));
+        routingService.ensureUnicity(Arrays.asList(bf1, bf2));
     }
 
     @Test
