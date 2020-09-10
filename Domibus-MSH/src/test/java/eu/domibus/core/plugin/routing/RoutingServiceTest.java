@@ -564,7 +564,7 @@ public class RoutingServiceTest {
             criteriaFactory.getInstance();
             result = iRoutingCriteria;
 
-            routingService.createBackendFilters();
+            routingService.createMissingBackendFilters();
             times = 1;
         }};
 
@@ -726,7 +726,7 @@ public class RoutingServiceTest {
             routingCriteriaFactory.getInstance();
             result = null;
 
-            routingService.createBackendFilters();
+            routingService.createMissingBackendFilters();
         }};
 
         routingService.init();
@@ -851,7 +851,7 @@ public class RoutingServiceTest {
             result = backendFilterEntities;
         }};
 
-        routingService.createBackendFilters();
+        routingService.createMissingBackendFilters();
 
         new FullVerifications() {{
             authUtils.setAuthenticationToSecurityContext("domibus", "domibus", AuthRole.ROLE_AP_ADMIN);

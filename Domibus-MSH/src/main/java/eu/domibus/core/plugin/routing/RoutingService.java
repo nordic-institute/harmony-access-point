@@ -83,13 +83,13 @@ public class RoutingService {
 
         if (domibusConfigurationService.isSingleTenantAware()) {
             LOG.debug("Creating plugin backend filters in Non MultiTenancy environment");
-            createBackendFilters();
+            createMissingBackendFilters();
         } else {
             // Get All Domains
             final List<Domain> domains = domainService.getDomains();
             LOG.debug("Creating plugin backend filters for all the domains in MultiTenancy environment");
             for (Domain domain : domains) {
-                domainTaskExecutor.submit(this::createBackendFilters, domain);
+                domainTaskExecutor.submit(this::createMissingBackendFilters, domain);
             }
         }
 
@@ -127,7 +127,7 @@ public class RoutingService {
     /**
      * Find the existing backend Filters from the db and create backend Filters of the plugins based on the available backend filters in the db.
      */
-    protected void createBackendFilters() {
+    protected void createMissingBackendFilters() {
         List<BackendFilterEntity> backendFilterEntitiesInDB = backendFilterDao.findAll();
 
         //Setting security context authentication to have user details in audit logs when create message filters
@@ -244,6 +244,15 @@ public class RoutingService {
 
     protected void validateFilters(List<BackendFilter> filters) {
         LOG.trace("Validating backend filters");
+
+        List<String> pluginNames = backendConnectorProvider.getBackendConnectors().stream()
+                .map(BackendConnector::getName)
+                .collect(Collectors.toList());
+        List<String> missingFilterNames = pluginNames.stream().filter(pluginName -> filters.stream().noneMatch(filter -> filter.getBackendName().equals(pluginName))).collect(Collectors.toList());
+        if (missingFilterNames.size() > 0) {
+            throw new ConfigurationException("Each installed plugin must have at last one filter and the following do not: "
+                    + missingFilterNames.stream().reduce(StringUtils.EMPTY, (accumulator, name) -> accumulator + name + ","));
+        }
 
         filters.forEach(filter -> {
             if (filters.stream().anyMatch(f -> f != filter
