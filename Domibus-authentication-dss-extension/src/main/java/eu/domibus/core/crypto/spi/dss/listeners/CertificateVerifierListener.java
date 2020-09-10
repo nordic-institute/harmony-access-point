@@ -14,6 +14,8 @@ import static eu.domibus.core.crypto.spi.dss.DssExtensionPropertyManager.*;
 /**
  * @author Thomas Dussart
  * @since 4.2
+ *
+ * Listener for certificate verifier property change.
  */
 public class CertificateVerifierListener implements PluginPropertyChangeListener {
 

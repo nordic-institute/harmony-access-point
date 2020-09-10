@@ -5,16 +5,13 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.property.PluginPropertyChangeListener;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import static eu.domibus.core.crypto.spi.dss.DssExtensionPropertyManager.AUTHENTICATION_DSS_REFRESH_CRON;
 
 /**
- * @author Ion Perpegel
- * @since 4.1.1
- * <p>
- * Handles the rescheduling of fs-plugin quartz jobs.
+ * @author Thomas Dussart
+ * @since 4.2
+ *
+ * Listener for TL job scheduling property change.
  */
 
 public class TriggerChangeListener implements PluginPropertyChangeListener {

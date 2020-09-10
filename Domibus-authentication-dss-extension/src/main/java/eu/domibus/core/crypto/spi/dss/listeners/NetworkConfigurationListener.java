@@ -13,10 +13,10 @@ import java.util.Set;
 import static eu.domibus.core.crypto.spi.dss.DssExtensionPropertyManager.*;
 
 /**
- * Handles proxy configuration change.
- *
  * @author Thomas Dussart
  * @since 4.2
+ *
+ * Listener for proxy configuration property change.
  */
 public class NetworkConfigurationListener implements PluginPropertyChangeListener {
 
