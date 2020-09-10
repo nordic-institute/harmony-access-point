@@ -84,7 +84,7 @@ public class UserResource extends BaseResource {
 
     @ExceptionHandler({ConstraintViolationException.class})
     public ResponseEntity<ErrorRO> handleConstraintViolationException(ConstraintViolationException ex) {
-        return errorHandlerService.formatAndcreateConstraintViolationResponse(ex);
+        return errorHandlerService.createConstraintViolationResponse(ex);
     }
 
     /**

@@ -104,7 +104,7 @@ public class ErrorHandlerService {
         return new ResponseEntity(body, headers, status);
     }
 
-    public ResponseEntity<ErrorRO> formatAndcreateConstraintViolationResponse(ConstraintViolationException ex) {
+    public ResponseEntity<ErrorRO> createConstraintViolationResponse(ConstraintViolationException ex) {
         String errorMessage = ex.getConstraintViolations().stream()
                 .map(el -> getLast(el.getPropertyPath()) + " " + el.getMessage())
                 .reduce("There are validation errors: ", (accumulator, element) -> accumulator + element + "; ");
