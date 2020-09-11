@@ -1085,6 +1085,15 @@
         <modifyDataType tableName="TB_PROPERTY" columnName="VALUE" newDataType="VARCHAR(1024)"/>
     </changeSet>
 
+    <changeSet id="EDELIVERY-7001" author="Francois Gautier">
+        <comment>Add missing FK</comment>
+
+        <addForeignKeyConstraint baseColumnNames="FK_COMMAND" baseTableName="TB_COMMAND_PROPERTY"
+                                 constraintName="FK_COMMAND_PROPERTY_ID" deferrable="false"
+                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_COMMAND"/>
+    </changeSet>
+
     <changeSet id="DELETE_MESSAGE_METADATA" author="idragusa">
         <addColumn tableName="TB_PM_MPC">
             <column name="RETENTION_SENT"

@@ -2971,7 +2971,6 @@ static def String pathToLogFiles(side, log, context) {
         def multitenancyOn=false;
         def authenticationUser=authUser;
         def authenticationPwd=authPwd;
-		def json = null;
 
 		(authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd);
 
@@ -2982,13 +2981,11 @@ static def String pathToLogFiles(side, log, context) {
 			detailedQueueName=retrieveQueueNameFromDomibus(commandResult[0].substring(5),queueName,context,log);
 			debugLog("  browseJmsQueue  [][]  Queue name set to \"" + detailedQueueName+"\".", log);
 
-			json = ifWindowsEscapeJsonString('{\"source\":\"' + "${detailedQueueName}" + '\"}');
 			commandString = null;
 			commandResult = null;
-			commandString = ["curl", urlToDomibus(side, log, context) + "/rest/jms/messages",
+			commandString = ["curl", urlToDomibus(side, log, context) + "/rest/jms/messages?source=$detailedQueueName",
 						"-H",  "Content-Type: application/json",
 						"-H", "X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
-						"--data-binary", json,
 						"-X", "GET",
 						"-b", context.expand('${projectDir}') + File.separator + "cookie.txt"]
 
