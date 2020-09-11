@@ -86,6 +86,15 @@ public class SignalMessageLogDao extends MessageLogDao<SignalMessageLog> {
         return queryParameterized.getResultList();
     }
 
+    public int deleteMessageLogs(List<String> messageIds) {
+        final Query deleteQuery = em.createNamedQuery("SignalMessageLog.deleteMessageLogs");
+        deleteQuery.setParameter("MESSAGEIDS", messageIds);
+        int result  = deleteQuery.executeUpdate();
+        LOG.trace("deleteSignalMessageLogs result [{}]", result);
+        return result;
+    }
+
+
     public Integer countAll() {
         final Query nativeQuery = em.createNativeQuery("SELECT count(sm.ID_PK) FROM  TB_SIGNAL_MESSAGE sm");
         final Number singleResult = (Number) nativeQuery.getSingleResult();

@@ -1081,4 +1081,165 @@
         <dropColumn columnName="DOMAIN" tableName="TB_COMMAND"/>
     </changeSet>
 
+    <changeSet id="EDELIVERY-1532" author="venugar">
+        <modifyDataType tableName="TB_PROPERTY" columnName="VALUE" newDataType="VARCHAR(1024)"/>
+    </changeSet>
+
+    <changeSet id="EDELIVERY-7001" author="Francois Gautier">
+        <comment>Add missing FK</comment>
+
+        <addForeignKeyConstraint baseColumnNames="FK_COMMAND" baseTableName="TB_COMMAND_PROPERTY"
+                                 constraintName="FK_COMMAND_PROPERTY_ID" deferrable="false"
+                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_COMMAND"/>
+    </changeSet>
+
+    <changeSet id="DELETE_MESSAGE_METADATA" author="idragusa">
+        <addColumn tableName="TB_PM_MPC">
+            <column name="RETENTION_SENT"
+                    remarks="Retention time for sent messages (both send success and send failure)" type="INT"
+                    defaultValueNumeric="-1"/>
+            <column name="DELETE_MESSAGE_METADATA"
+                    remarks="Specifies whether the message metadata should be deleted or not." type="BOOLEAN"
+                    defaultValueBoolean="false"/>
+            <column name="MAX_BATCH_DELETE"
+                    remarks="Maximum number of DOWNLOADED/UNDOWNLOADED/SENT messages to be deleted in one batch"
+                    type="INT" defaultValueNumeric="-1"/>
+        </addColumn>
+        <dropForeignKeyConstraint baseTableName="TB_PROPERTY"
+                                  constraintName="FK_2H31P0A2Y6WEG2GRH70C9CYVA"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_MESSAGING"
+                                  constraintName="FK_433RGM5A446T59Q6JKB885L3X"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_MESSAGING"
+                                  constraintName="FK_53GP9SMTEMQCUIO8O9T10NARM"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_RECEIPT_DATA"
+                                  constraintName="FK_8NCCAE214MVS1KH5SGCJ3Y5OY"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_USER_MESSAGE"
+                                  constraintName="FK_BE4XC1069QYW2KLHVM3XMG26S"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_SIGNAL_MESSAGE"
+                                  constraintName="FK_C08LJJWI4P9DX1RJTCDBE1SFU"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_PROPERTY"
+                                  constraintName="FK_CWYLVG6ERNWBA61MO3YAGMKG8"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_PARTY_ID"
+                                  constraintName="FK_FKFTD5ORW2ETIU4GHMN3MHX9I"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_SIGNAL_MESSAGE"
+                                  constraintName="FK_M6UU2Y6G9BUET3O3K1N4QXWEC"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_MESSAGE_ACKNW_PROP"
+                                  constraintName="FK_MSG_ACK_PROP_MSG_ACK"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_ERROR"
+                                  constraintName="FK_PRRCMI4GRM4TXHFSFNFHGQ1K1"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_RAWENVELOPE_LOG"
+                                  constraintName="FK_SIGNALMSG_ID_FK_RAWENV_ID"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_PART_INFO"
+                                  constraintName="FK_TQ6LBN3MP0VSFC6QQU7WXY54G"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_RAWENVELOPE_LOG"
+                                  constraintName="FK_USERMSG_ID_FK_RAWENV_ID"/>
+
+        <dropForeignKeyConstraint baseTableName="TB_PARTY_ID"
+                                  constraintName="FK_YLUB8LPTGVSCH02MJ71EUUIL"/>
+
+        <addForeignKeyConstraint baseColumnNames="MESSAGEPROPERTIES_ID" baseTableName="TB_PROPERTY"
+                                 constraintName="FK_2H31P0A2Y6WEG2GRH70C9CYVA" deferrable="false"
+                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_USER_MESSAGE"/>
+
+        <addForeignKeyConstraint baseColumnNames="USER_MESSAGE_ID" baseTableName="TB_MESSAGING"
+                                 constraintName="FK_433RGM5A446T59Q6JKB885L3X" deferrable="false"
+                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_USER_MESSAGE"/>
+
+        <addForeignKeyConstraint baseColumnNames="SIGNAL_MESSAGE_ID" baseTableName="TB_MESSAGING"
+                                 constraintName="FK_53GP9SMTEMQCUIO8O9T10NARM" deferrable="false"
+                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_SIGNAL_MESSAGE"/>
+
+        <addForeignKeyConstraint baseColumnNames="RECEIPT_ID" baseTableName="TB_RECEIPT_DATA"
+                                 constraintName="FK_8NCCAE214MVS1KH5SGCJ3Y5OY" deferrable="false"
+                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_RECEIPT"/>
+
+        <addForeignKeyConstraint baseColumnNames="MESSAGEINFO_ID_PK" baseTableName="TB_USER_MESSAGE"
+                                 constraintName="FK_BE4XC1069QYW2KLHVM3XMG26S" deferrable="false"
+                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_MESSAGE_INFO"/>
+
+        <addForeignKeyConstraint baseColumnNames="MESSAGEINFO_ID_PK" baseTableName="TB_SIGNAL_MESSAGE"
+                                 constraintName="FK_C08LJJWI4P9DX1RJTCDBE1SFU" deferrable="false"
+                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_MESSAGE_INFO"/>
+
+        <addForeignKeyConstraint baseColumnNames="PARTPROPERTIES_ID" baseTableName="TB_PROPERTY"
+                                 constraintName="FK_CWYLVG6ERNWBA61MO3YAGMKG8" deferrable="false"
+                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PART_INFO"/>
+
+        <addForeignKeyConstraint baseColumnNames="FROM_ID" baseTableName="TB_PARTY_ID"
+                                 constraintName="FK_FKFTD5ORW2ETIU4GHMN3MHX9I" deferrable="false"
+                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_USER_MESSAGE"/>
+
+        <addForeignKeyConstraint baseColumnNames="RECEIPT_ID_PK" baseTableName="TB_SIGNAL_MESSAGE"
+                                 constraintName="FK_M6UU2Y6G9BUET3O3K1N4QXWEC" deferrable="false"
+                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_RECEIPT"/>
+
+        <addForeignKeyConstraint baseColumnNames="FK_MSG_ACKNOWLEDGE" baseTableName="TB_MESSAGE_ACKNW_PROP"
+                                 constraintName="FK_MSG_ACK_PROP_MSG_ACK" deferrable="false"
+                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_MESSAGE_ACKNW"/>
+
+        <addForeignKeyConstraint baseColumnNames="SIGNALMESSAGE_ID" baseTableName="TB_ERROR"
+                                 constraintName="FK_PRRCMI4GRM4TXHFSFNFHGQ1K1" deferrable="false"
+                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_SIGNAL_MESSAGE"/>
+
+        <addForeignKeyConstraint baseColumnNames="SIGNALMESSAGE_ID_FK" baseTableName="TB_RAWENVELOPE_LOG"
+                                 constraintName="FK_SIGNALMSG_ID_FK_RAWENV_ID" deferrable="false"
+                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_SIGNAL_MESSAGE"/>
+
+        <addForeignKeyConstraint baseColumnNames="PAYLOADINFO_ID" baseTableName="TB_PART_INFO"
+                                 constraintName="FK_TQ6LBN3MP0VSFC6QQU7WXY54G" deferrable="false"
+                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_USER_MESSAGE"/>
+
+        <addForeignKeyConstraint baseColumnNames="USERMESSAGE_ID_FK" baseTableName="TB_RAWENVELOPE_LOG"
+                                 constraintName="FK_USERMSG_ID_FK_RAWENV_ID" deferrable="false"
+                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_USER_MESSAGE"/>
+
+        <addForeignKeyConstraint baseColumnNames="TO_ID" baseTableName="TB_PARTY_ID"
+                                 constraintName="FK_YLUB8LPTGVSCH02MJ71EUUIL" deferrable="false"
+                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_USER_MESSAGE"/>
+
+        <createIndex indexName="IDX_SEND_ATTEMPT_MESSAGE_ID" tableName="TB_SEND_ATTEMPT">
+            <column name="MESSAGE_ID"/>
+        </createIndex>
+
+        <createIndex indexName="IDX_MESSAGE_IN_ERROR_ID" tableName="TB_ERROR_LOG">
+            <column name="MESSAGE_IN_ERROR_ID"/>
+        </createIndex>
+
+        <createIndex indexName="IDX_MSG_UI_MESSAGE_ID" tableName="TB_MESSAGE_UI">
+            <column name="MESSAGE_ID"/>
+        </createIndex>
+
+        <createIndex indexName="IDX_MSG_ACKNW_MESSAGE_ID" tableName="TB_MESSAGE_ACKNW">
+            <column name="MESSAGE_ID"/>
+        </createIndex>
+    </changeSet>
 </databaseChangeLog>

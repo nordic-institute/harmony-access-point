@@ -122,18 +122,6 @@ public class TestServiceTest {
     }
 
     @Test
-    public void failsToCreateTheMessageDataToSubmitWhenTheInitiatorRoleIsNull() {
-        givenSenderCorrectlySet();
-        givenInitiatorRole(null);
-
-        // Expected exception
-        thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage("from role must not be empty");
-
-        whenCreatingTheSubmissionMessageData();
-    }
-
-    @Test
     public void createsTheMessageDataToSubmitHavingTheCorrectPayload() {
         givenSenderAndInitiatorCorrectlySet();
 

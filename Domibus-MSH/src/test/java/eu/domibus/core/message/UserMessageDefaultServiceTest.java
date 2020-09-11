@@ -23,6 +23,10 @@ import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.message.splitandjoin.MessageGroupDao;
 import eu.domibus.core.message.splitandjoin.MessageGroupEntity;
 import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
+import eu.domibus.core.error.ErrorLogDao;
+import eu.domibus.core.message.acknowledge.MessageAcknowledgementDao;
+import eu.domibus.core.message.attempt.MessageAttemptDao;
+import eu.domibus.core.replication.UIMessageDao;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.core.pmode.provider.PModeProvider;
@@ -150,6 +154,21 @@ public class UserMessageDefaultServiceTest {
 
     @Injectable
     DateUtil dateUtil;
+
+    @Injectable
+    private MessageInfoDao messageInfoDao;
+
+    @Injectable
+    private MessageAttemptDao messageAttemptDao;
+
+    @Injectable
+    private ErrorLogDao errorLogDao;
+
+    @Injectable
+    private UIMessageDao uiMessageDao;
+
+    @Injectable
+    private MessageAcknowledgementDao messageAcknowledgementDao;
 
     @Test
     public void createMessagingForFragment(@Injectable UserMessage sourceMessage,
@@ -675,6 +694,7 @@ public class UserMessageDefaultServiceTest {
             messagingDao.clearPayloadData(userMessage);
             userMessageLogService.setMessageAsDeleted(userMessage, userMessageLog);
             userMessageLogService.setSignalMessageAsDeleted(signalMessage);
+            userMessageLog.getMessageStatus();
             backendNotificationService.notifyMessageDeleted(messageId, userMessageLog);
             times = 1;
         }};
@@ -706,6 +726,7 @@ public class UserMessageDefaultServiceTest {
             messagingDao.clearPayloadData(userMessage);
             userMessageLogService.setMessageAsDeleted(userMessage, userMessageLog);
             userMessageLogService.setSignalMessageAsDeleted((SignalMessage) null);
+            userMessageLog.getMessageStatus();
             backendNotificationService.notifyMessageDeleted(messageId, userMessageLog);
             times = 1;
         }};

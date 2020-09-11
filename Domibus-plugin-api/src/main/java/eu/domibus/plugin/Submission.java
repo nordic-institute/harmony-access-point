@@ -224,9 +224,6 @@ public class Submission {
      * @param fromRole a string identifying the authorized role of the Party sending
      */
     public void setFromRole(final String fromRole) {
-        if (!StringUtils.hasLength(fromRole)) {
-            throw new IllegalArgumentException("from role must not be empty");
-        }
         this.fromRole = fromRole;
     }
 

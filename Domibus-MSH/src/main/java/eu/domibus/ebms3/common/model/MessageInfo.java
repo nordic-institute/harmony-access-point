@@ -33,6 +33,10 @@ import java.util.Date;
 @XmlType(name = "MessageInfo", propOrder = {"timestamp", "messageId", "refToMessageId"})
 @Entity
 @Table(name = "TB_MESSAGE_INFO")
+@NamedQueries({
+        @NamedQuery(name = "MessageInfo.findSignalMessageIds", query = "select messageId from MessageInfo mi where mi.refToMessageId in :MESSAGEIDS"),
+        @NamedQuery(name = "MessageInfo.deleteMessages", query = "delete from MessageInfo mi where mi.messageId in :MESSAGEIDS"),
+})
 public class MessageInfo extends AbstractBaseEntity {
 
     public static final String MESSAGE_ID_CONTEXT_PROPERTY = "ebms.messageid";

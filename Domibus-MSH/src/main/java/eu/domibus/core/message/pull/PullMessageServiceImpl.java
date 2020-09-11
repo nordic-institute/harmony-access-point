@@ -3,6 +3,7 @@ package eu.domibus.core.message.pull;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.model.configuration.LegConfiguration;
@@ -12,6 +13,7 @@ import eu.domibus.core.ebms3.sender.retry.UpdateRetryLoggingService;
 import eu.domibus.core.message.*;
 import eu.domibus.core.message.nonrepudiation.RawEnvelopeLogDao;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
+import eu.domibus.core.message.retention.MessageRetentionService;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.replication.UIReplicationSignalService;
@@ -75,7 +77,11 @@ public class PullMessageServiceImpl implements PullMessageService {
     @Autowired
     protected MpcService mpcService;
 
-    private Integer extraNumberOfAttemptTimeForExpirationDate;
+    @Autowired
+    UserMessageService userMessageService;
+
+    @Autowired
+    private MessageRetentionService messageRetentionService;
 
     /**
      * {@inheritDoc}
@@ -147,7 +153,7 @@ public class PullMessageServiceImpl implements PullMessageService {
                 backendNotificationService.notifyOfSendSuccess(userMessageLog);
                 LOG.businessInfo(userMessageLog.isTestMessage() ? DomibusMessageCode.BUS_TEST_MESSAGE_SEND_SUCCESS : DomibusMessageCode.BUS_MESSAGE_SEND_SUCCESS,
                         userMessage.getFromFirstPartyId(), userMessage.getToFirstPartyId());
-                messagingDao.clearPayloadData(userMessage);
+                messageRetentionService.deletePayloadOnSendSuccess(userMessage, userMessageLog);
 
                 userMessageLogDao.update(userMessageLog);
 
