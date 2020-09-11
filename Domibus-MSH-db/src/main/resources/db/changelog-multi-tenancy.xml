@@ -342,13 +342,15 @@
     <!-- foreign keys -->
     <changeSet author="Catalin Enache" id="1564496480476-56">
         <comment>create foreign keys</comment>
-        <addForeignKeyConstraint baseColumnNames="FK_ALERT" baseTableName="TB_EVENT_ALERT" constraintName="FK_ALERT_ID"
-                                 deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_ALERT"/>
+        <addForeignKeyConstraint baseColumnNames="FK_ALERT" baseTableName="TB_EVENT_ALERT"
+                                 constraintName="FK_ALERT_ID" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_ALERT"/>
 
-        <addForeignKeyConstraint baseColumnNames="FK_EVENT" baseTableName="TB_EVENT_ALERT" constraintName="FK_EVENT_ID"
-                                 deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_EVENT"/>
+        <addForeignKeyConstraint baseColumnNames="FK_EVENT" baseTableName="TB_EVENT_ALERT"
+                                 constraintName="FK_EVENT_ID" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_EVENT"/>
 
         <addForeignKeyConstraint baseColumnNames="FK_EVENT" baseTableName="TB_EVENT_PROPERTY"
                                  constraintName="FK_EVENT_PROPERTY_ID" deferrable="false" initiallyDeferred="false"
@@ -414,6 +416,10 @@
         <addUniqueConstraint columnNames="FK_COMMAND, PROPERTY_NAME" constraintName="UNI_COMMAND_PROP_NAME"
                              tableName="TB_COMMAND_PROPERTY"/>
 
+        <addForeignKeyConstraint baseColumnNames="FK_COMMAND" baseTableName="TB_COMMAND_PROPERTY"
+                                 constraintName="FK_COMMAND_PROPERTY_ID" deferrable="false"
+                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_COMMAND"/>
     </changeSet>
 
     <!-- inserts -->

@@ -57,6 +57,8 @@ public interface UserMessageService {
 
     void deleteMessage(String messageId);
 
+    void deleteMessages(List<String> messageIds);
+
     /**
      * Schedules the handling of the SplitAndJoin send failed event
      *
@@ -159,4 +161,5 @@ public interface UserMessageService {
      * @throws IOException in case a read error
      */
     byte[] getMessageWithAttachmentsAsZip(String messageId) throws MessageNotFoundException, IOException;
+
 }

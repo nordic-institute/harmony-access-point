@@ -17,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 @DisallowConcurrentExecution
 public class RetentionWorker extends DomibusQuartzJobBean {
 
-
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(RetentionWorker.class);
 
     @Autowired

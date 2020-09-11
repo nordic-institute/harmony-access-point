@@ -5,8 +5,11 @@ import eu.domibus.api.jms.JMSMessageBuilder;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.core.message.MessagingDao;
+import eu.domibus.core.message.UserMessageLog;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.pmode.provider.PModeProvider;
+import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
@@ -16,23 +19,27 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.jms.Queue;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 /**
  * This service class is responsible for the retention and clean up of Domibus messages, including signal messages.
- * Notice that only payloads data are really deleted.
  *
- * @author Christian Koch, Stefan Mueller, Federico Martini, Cosmin Baciu
+ * @author Cosmin Baciu, Ioana Dragusanu
  * @since 3.0
  */
 @Service
 public class MessageRetentionDefaultService implements MessageRetentionService {
+
+    public static final String MESSAGE_IDS = "MESSAGE_IDS";
+    public static final String DELETE_TYPE = "DELETE_TYPE";
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageRetentionDefaultService.class);
 
@@ -55,6 +62,8 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
     @Qualifier("retentionMessageQueue")
     private Queue retentionMessageQueue;
 
+    @Autowired
+    private MessagingDao messagingDao;
 
     /**
      * {@inheritDoc}
@@ -64,17 +73,19 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
         final List<String> mpcs = pModeProvider.getMpcURIList();
         final Integer expiredDownloadedMessagesLimit = getRetentionValue(DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_DOWNLOADED_MAX_DELETE);
         final Integer expiredNotDownloadedMessagesLimit = getRetentionValue(DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_NOT_DOWNLOADED_MAX_DELETE);
+        final Integer expiredSentMessagesLimit = getRetentionValue(DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_SENT_MAX_DELETE);
         for (final String mpc : mpcs) {
-            deleteExpiredMessages(mpc, expiredDownloadedMessagesLimit, expiredNotDownloadedMessagesLimit);
+            deleteExpiredMessages(mpc, expiredDownloadedMessagesLimit, expiredNotDownloadedMessagesLimit, expiredSentMessagesLimit);
         }
     }
 
     @Override
-    public void deleteExpiredMessages(String mpc, Integer expiredDownloadedMessagesLimit, Integer expiredNotDownloadedMessagesLimit) {
+    public void deleteExpiredMessages(String mpc, Integer expiredDownloadedMessagesLimit, Integer expiredNotDownloadedMessagesLimit, Integer expiredSentMessagesLimit) {
         LOG.debug("Deleting expired messages for MPC [{}] using expiredDownloadedMessagesLimit [{}]" +
                 " and expiredNotDownloadedMessagesLimit [{}]", mpc, expiredDownloadedMessagesLimit, expiredNotDownloadedMessagesLimit);
         deleteExpiredDownloadedMessages(mpc, expiredDownloadedMessagesLimit);
         deleteExpiredNotDownloadedMessages(mpc, expiredNotDownloadedMessagesLimit);
+        deleteExpiredSentMessages(mpc, expiredSentMessagesLimit);
     }
 
     protected void deleteExpiredDownloadedMessages(String mpc, Integer expiredDownloadedMessagesLimit) {
@@ -85,12 +96,14 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
         if (messageRetentionDownloaded > 0 || (StringUtils.isNotEmpty(fileLocation) && messageRetentionDownloaded >= 0)) {
             List<String> downloadedMessageIds = userMessageLogDao.getDownloadedUserMessagesOlderThan(DateUtils.addMinutes(new Date(), messageRetentionDownloaded * -1),
                     mpc, expiredDownloadedMessagesLimit);
-            if (CollectionUtils.isNotEmpty(downloadedMessageIds)) {
-                final int deleted = downloadedMessageIds.size();
-                LOG.debug("Found [{}] downloaded messages to delete", deleted);
-                scheduleDeleteMessages(downloadedMessageIds);
-                LOG.debug("Deleted [{}] downloaded messages", deleted);
+            if (CollectionUtils.isEmpty(downloadedMessageIds)) {
+                LOG.debug("There are no expired downloaded messages.");
+                return;
             }
+            final int deleted = downloadedMessageIds.size();
+            LOG.debug("Found [{}] downloaded messages to delete", deleted);
+            scheduleDeleteMessages(downloadedMessageIds, mpc);
+            LOG.debug("Deleted [{}] downloaded messages", deleted);
         }
     }
 
@@ -100,17 +113,51 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
         if (messageRetentionNotDownloaded > -1) { // if -1 the messages will be kept indefinitely and if 0, although it makes no sense, is legal
             final List<String> notDownloadedMessageIds = userMessageLogDao.getUndownloadedUserMessagesOlderThan(DateUtils.addMinutes(new Date(), messageRetentionNotDownloaded * -1),
                     mpc, expiredNotDownloadedMessagesLimit);
-            if (CollectionUtils.isNotEmpty(notDownloadedMessageIds)) {
-                final int deleted = notDownloadedMessageIds.size();
-                LOG.debug("Found [{}] not-downloaded messages to delete", deleted);
-                scheduleDeleteMessages(notDownloadedMessageIds);
-                LOG.debug("Deleted [{}] not-downloaded messages", deleted);
+            if (CollectionUtils.isEmpty(notDownloadedMessageIds)) {
+                LOG.debug("There are no expired not-downloaded messages.");
+                return;
             }
+            final int deleted = notDownloadedMessageIds.size();
+            LOG.debug("Found [{}] not-downloaded messages to delete", deleted);
+            scheduleDeleteMessages(notDownloadedMessageIds, mpc);
+            LOG.debug("Deleted [{}] not-downloaded messages", deleted);
         }
     }
 
+    protected void deleteExpiredSentMessages(String mpc, Integer expiredSentMessagesLimit) {
+        LOG.debug("Deleting expired sent messages for MPC [{}] using expiredSentMessagesLimit [{}]", mpc, expiredSentMessagesLimit);
+        final int messageRetentionSent = pModeProvider.getRetentionSentByMpcURI(mpc);
+
+        if (messageRetentionSent > -1) { // if -1 the messages will be kept indefinitely
+            LOG.trace("messageRetentionSent [{}]", messageRetentionSent);
+            final List<String> sentMessageIds = userMessageLogDao.getSentUserMessagesOlderThan(DateUtils.addMinutes(new Date(), messageRetentionSent * -1),
+                    mpc, expiredSentMessagesLimit);
+            if (CollectionUtils.isEmpty(sentMessageIds)) {
+                LOG.debug("There are no expired sent messages.");
+                return;
+            }
+            final int deleted = sentMessageIds.size();
+            LOG.debug("Found [{}] sent messages to delete", deleted);
+            scheduleDeleteMessages(sentMessageIds, mpc);
+            LOG.debug("Deleted [{}] sent messages", deleted);
+        }
+    }
+
+    public void scheduleDeleteMessages(List<String> messageIds, String mpc) {
+        final boolean isDeleteMessageMetadata = pModeProvider.isDeleteMessageMetadataByMpcURI(mpc);
+        LOG.trace("isDeleteMessageMetadata [{}]", isDeleteMessageMetadata);
+        if (isDeleteMessageMetadata) { // schedule delete in batch
+            final int maxBatch = pModeProvider.getRetentionMaxBatchByMpcURI(mpc, domibusPropertyProvider.getIntegerProperty(DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_BATCH_DELETE));
+            LOG.debug("Schedule bulk delete messages, maxBatch [{}]", maxBatch);
+            scheduleDeleteMessages(messageIds, maxBatch);
+            return;
+        }
+        // schedule delete one by one
+        LOG.debug("Schedule delete messages one by one");
+        scheduleDeleteMessages(messageIds);
+    }
+
     @Override
-    @Transactional
     public void scheduleDeleteMessages(List<String> messageIds) {
         if (CollectionUtils.isEmpty(messageIds)) {
             LOG.debug("No message to be scheduled for deletion");
@@ -120,11 +167,93 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
         LOG.debug("Scheduling delete messages [{}]", messageIds);
         messageIds.forEach(messageId -> {
             JmsMessage message = JMSMessageBuilder.create()
+                    .property(DELETE_TYPE, MessageDeleteType.SINGLE.name())
                     .property(MessageConstants.MESSAGE_ID, messageId)
                     .build();
             jmsManager.sendMessageToQueue(message, retentionMessageQueue);
         });
     }
+
+    @Override
+    public void deletePayloadOnSendSuccess(UserMessage userMessage, UserMessageLog userMessageLog) {
+        if (shouldDeletePayloadOnSendSuccess()) {
+            LOG.debug("Message payload cleared on send success.");
+            deletePayload(userMessage, userMessageLog);
+            return;
+        }
+        LOG.debug("Message payload not cleared on send success");
+    }
+
+    @Override
+    public void deletePayloadOnSendFailure(UserMessage userMessage, UserMessageLog userMessageLog) {
+        if (shouldDeletePayloadOnSendFailure(userMessage)) {
+            LOG.debug("Message payload cleared on send failure.");
+            deletePayload(userMessage, userMessageLog);
+            return;
+        }
+        LOG.debug("Message payload not cleared on send failure");
+    }
+
+    protected void deletePayload(UserMessage userMessage, UserMessageLog userMessageLog) {
+        messagingDao.clearPayloadData(userMessage);
+        userMessageLog.setDeleted(new Date());
+    }
+
+    protected boolean shouldDeletePayloadOnSendSuccess() {
+        return domibusPropertyProvider.getBooleanProperty(DOMIBUS_SEND_MESSAGE_SUCCESS_DELETE_PAYLOAD);
+    }
+
+    protected boolean shouldDeletePayloadOnSendFailure(UserMessage userMessage) {
+        if (userMessage.isUserMessageFragment()) {
+            return true;
+        }
+        return domibusPropertyProvider.getBooleanProperty(DOMIBUS_SEND_MESSAGE_FAILURE_DELETE_PAYLOAD);
+    }
+
+    @Override
+    public void scheduleDeleteMessages(List<String> messageIds, int maxBatch) {
+        if (CollectionUtils.isEmpty(messageIds)) {
+            LOG.debug("No message to be scheduled for deletion");
+            return;
+        }
+        List<String> messagesIdsToDelete = new ArrayList<>(messageIds);
+
+        while (messagesIdsToDelete.size() > 0) {
+            LOG.debug("messageIds size is [{}]", messagesIdsToDelete.size());
+            LOG.trace("messageIds: [{}]", messagesIdsToDelete);
+            int currentBatch = messagesIdsToDelete.size();
+            if (currentBatch > maxBatch) {
+                LOG.debug("currentBatch [{}] is higher than maxBatch [{}]", currentBatch, maxBatch);
+                currentBatch = maxBatch;
+            }
+            List<String> messageIdsBatch = messagesIdsToDelete.stream().limit(currentBatch).collect(Collectors.toList());
+            messagesIdsToDelete.removeAll(messageIdsBatch);
+            LOG.debug("After removal messageIds size is [{}]", messagesIdsToDelete.size());
+            LOG.trace("messageIds: [{}]", messagesIdsToDelete);
+            final String separator = domibusPropertyProvider.getProperty(DOMIBUS_RETENTION_WORKER_MESSAGE_ID_LIST_SEPARATOR);
+            scheduleDeleteBatchMessages(messageIdsBatch, separator);
+        }
+    }
+
+    protected void scheduleDeleteBatchMessages(List<String> messageIdsBatch, final String separator) {
+        LOG.debug("Scheduling to delete [{}] messages", messageIdsBatch.size());
+        LOG.trace("MessageIdsBatch: [{}]", messageIdsBatch);
+        List<String> invalidMessageIds = messageIdsBatch.stream().filter(id -> id.contains(separator)).collect(Collectors.toList());
+        if (invalidMessageIds.size() > 0) {
+            LOG.warn("Separator [{}] found in the messageId. Deletion for following messages cannot be performed in batch.");
+            messageIdsBatch.removeAll(invalidMessageIds);
+            invalidMessageIds.stream().forEach(messageId -> scheduleDeleteMessages(Arrays.asList(messageId)));
+        }
+
+        String messageIdsBatchStr = String.join(separator, messageIdsBatch);
+        LOG.trace("Separator is [{}], messageIdsString [{}]", messageIdsBatchStr);
+        JmsMessage message = JMSMessageBuilder.create()
+                .property(DELETE_TYPE, MessageDeleteType.MULTI.name())
+                .property(MESSAGE_IDS, messageIdsBatchStr)
+                .build();
+        jmsManager.sendMessageToQueue(message, retentionMessageQueue);
+    }
+
 
     protected Integer getRetentionValue(String propertyName) {
         return domibusPropertyProvider.getIntegerProperty(propertyName);
