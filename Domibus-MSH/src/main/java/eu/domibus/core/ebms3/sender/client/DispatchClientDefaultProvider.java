@@ -160,14 +160,6 @@ public class DispatchClientDefaultProvider implements DispatchClientProvider {
         return dispatch;
     }
 
-    protected JaxWsProxyFactoryBean create() {
-        JaxWsProxyFactoryBean jaxWsProxyFactoryBean = new JaxWsProxyFactoryBean();
-        //TODO
-        jaxWsProxyFactoryBean.getClientFactoryBean().create();
-
-        return jaxWsProxyFactoryBean;
-    }
-
     protected void configureProxy(final HTTPClientPolicy httpClientPolicy, HTTPConduit httpConduit) {
         if (!domibusProxyService.useProxy()) {
             LOG.debug("Usage of proxy not required");
