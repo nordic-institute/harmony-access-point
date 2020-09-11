@@ -7,18 +7,19 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.UserMessageLog;
 import eu.domibus.core.message.UserMessageLogDao;
-import eu.domibus.core.message.splitandjoin.MessageFragmentEntity;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.messaging.MessageConstants;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
+import org.apache.commons.collections.CollectionUtils;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import javax.jms.MapMessage;
 import javax.jms.Queue;
-import javax.validation.constraints.AssertTrue;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -59,98 +60,126 @@ public class MessageRetentionServiceTest {
     @Tested
     MessageRetentionDefaultService messageRetentionService;
 
+    final String mpc1 = "mpc1";
+    final String mpc2 = "mpc2";
+    final int retentionTime = 60;
+    final int maxBatch = 1000;
+    final Integer expiredDownloadedMessagesLimit = 10;
+    final Integer expiredNotDownloadedMessagesLimit = 20;
+    final Integer expiredSentMessagesLimit = 30;
+    final List<String> expiredMessages = Arrays.asList(new String[]{"abc", "def", "inva,lid"});
+    final List<String> mpcs = Arrays.asList(new String[]{mpc1, mpc2});
+    final String separator = ",";
+
     @Test
     public void testDeleteExpiredMessages() {
-        final String mpc1 = "mpc1";
-        final String mpc2 = "mpc2";
-        final List<String> mpcs = Arrays.asList(new String[]{mpc1, mpc2});
-
         new Expectations(messageRetentionService) {{
             pModeProvider.getMpcURIList();
             result = mpcs;
 
             messageRetentionService.getRetentionValue(DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_DOWNLOADED_MAX_DELETE);
-            result = 10;
+            result = expiredDownloadedMessagesLimit;
 
             messageRetentionService.getRetentionValue(DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_NOT_DOWNLOADED_MAX_DELETE);
-            result = 20;
+            result = expiredNotDownloadedMessagesLimit;
 
             messageRetentionService.getRetentionValue(DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_SENT_MAX_DELETE);
-            result = 30;
+            result = expiredSentMessagesLimit;
 
         }};
 
         messageRetentionService.deleteExpiredMessages();
 
         new Verifications() {{
-            messageRetentionService.deleteExpiredMessages(mpc1, 10, 20, 30);
+            messageRetentionService.deleteExpiredMessages(mpc1, expiredDownloadedMessagesLimit, expiredNotDownloadedMessagesLimit, expiredSentMessagesLimit);
         }};
     }
-
 
     @Test
     public void testBatchDeleteExpiredMessages() {
-        final String mpc1 = "mpc1";
-        final String mpc2 = "mpc2";
-        final int maxBatch = 1000;
-        final int retentionTime = 60;
-        final List<String> mpcs = Arrays.asList(new String[]{mpc1, mpc2});
+        new Expectations(messageRetentionService) {{
+            domibusPropertyProvider.getProperty(DOMIBUS_RETENTION_WORKER_MESSAGE_ID_LIST_SEPARATOR);
+            result = separator;
 
-        List<String> expired = Arrays.asList(new String[]{"abc", "def", "inva,lid"});
+        }};
+
+        messageRetentionService.scheduleDeleteMessages(expiredMessages, 2);
+
+        new Verifications() {{
+            messageRetentionService.scheduleDeleteBatchMessages((List<String>)any, separator); times = 2;
+        }};
+    }
+
+    @Test
+    public void testBatchDeleteExpiredMessagesSeparator() {
+        List<String> batchMessages = new ArrayList<>();
+        batchMessages.add("abc");
+        batchMessages.add("invalid,separator");
+
+        messageRetentionService.scheduleDeleteBatchMessages(batchMessages, separator);
+
+        new Verifications() {{
+            jmsManager.sendMessageToQueue((JmsMessage) any, retentionMessageQueue);
+        }};
+    }
+
+    @Test
+    public void testBatchDeleteExpiredDownloadedMessages() {
 
         new Expectations(messageRetentionService) {{
-            pModeProvider.getMpcURIList();
-            result = mpcs;
-
-            pModeProvider.isDeleteMessageMetadataByMpcURI(anyString);
-            result = true;
-
-            messageRetentionService.getRetentionValue(DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_DOWNLOADED_MAX_DELETE);
-            result = 10;
-
-            messageRetentionService.getRetentionValue(DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_NOT_DOWNLOADED_MAX_DELETE);
-            result = 20;
-
-            messageRetentionService.getRetentionValue(DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_SENT_MAX_DELETE);
-            result = 30;
-
-            domibusPropertyProvider.getIntegerProperty(DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_BATCH_DELETE);
-            result = maxBatch;
-
-            pModeProvider.getRetentionMaxBatchByMpcURI(mpc1, maxBatch);
-            result = maxBatch;
-
             pModeProvider.getRetentionDownloadedByMpcURI(mpc1);
             result = retentionTime;
 
+            userMessageLogDao.getDownloadedUserMessagesOlderThan((Date)any, mpc1, expiredDownloadedMessagesLimit);
+            result = expiredMessages;
+
+        }};
+
+        messageRetentionService.deleteExpiredDownloadedMessages(mpc1, expiredDownloadedMessagesLimit);
+
+        new Verifications() {{
+            messageRetentionService.scheduleDeleteMessages((List<String>)any, mpc1); times = 1;
+        }};
+    }
+
+    @Test
+    public void testBatchDeleteExpiredNotDonwloadedMessages() {
+
+        new Expectations(messageRetentionService) {{
             pModeProvider.getRetentionUndownloadedByMpcURI(mpc1);
             result = retentionTime;
 
+            userMessageLogDao.getUndownloadedUserMessagesOlderThan((Date)any, mpc1, expiredNotDownloadedMessagesLimit);
+            result = expiredMessages;
+
+        }};
+
+        messageRetentionService.deleteExpiredNotDownloadedMessages(mpc1, expiredNotDownloadedMessagesLimit);
+
+        new Verifications() {{
+            messageRetentionService.scheduleDeleteMessages((List<String>)any, mpc1); times = 1;
+        }};
+    }
+
+    @Test
+    public void testBatchDeleteExpiredSentMessages() {
+
+        new Expectations(messageRetentionService) {{
             pModeProvider.getRetentionSentByMpcURI(mpc1);
             result = retentionTime;
 
-            userMessageLogDao.getDownloadedUserMessagesOlderThan((Date)any, mpc1, 10);
-            result = expired;
-
-            userMessageLogDao.getUndownloadedUserMessagesOlderThan((Date)any, mpc1, 20);
-            result = expired;
-
-            userMessageLogDao.getSentUserMessagesOlderThan((Date)any, mpc1, 30);
-            result = expired;
-
-            domibusPropertyProvider.getProperty(DOMIBUS_RETENTION_WORKER_MESSAGE_ID_LIST_SEPARATOR);
-            result = ",";
+            userMessageLogDao.getSentUserMessagesOlderThan((Date)any, mpc1, expiredSentMessagesLimit);
+            result = expiredMessages;
 
         }};
 
-        messageRetentionService.deleteExpiredMessages();
+        messageRetentionService.deleteExpiredSentMessages(mpc1, expiredSentMessagesLimit);
 
         new Verifications() {{
-            messageRetentionService.deleteExpiredMessages(mpc1, 10, 20, 30);
-            messageRetentionService.scheduleDeleteMessages((List<String>)any, maxBatch); times = 3;
-            messageRetentionService.scheduleDeleteMessages((List<String>)any); times = 3;
+            messageRetentionService.scheduleDeleteMessages((List<String>)any, mpc1); times = 1;
         }};
     }
+
 
     @Test
     public void testShouldDeletePayloadOnSendSuccess() {
@@ -243,9 +272,6 @@ public class MessageRetentionServiceTest {
 
     @Test
     public void testDeleteExpiredMessagesForMpc() {
-        final String mpc1 = "mpc1";
-        final Integer expiredDownloadedMessagesLimit = 10;
-        final Integer expiredNotDownloadedMessagesLimit = 20;
 
         new Expectations(messageRetentionService) {{
             //partial mocking of the following methods
@@ -253,7 +279,7 @@ public class MessageRetentionServiceTest {
             messageRetentionService.deleteExpiredNotDownloadedMessages(mpc1, expiredNotDownloadedMessagesLimit);
         }};
 
-        messageRetentionService.deleteExpiredMessages(mpc1, 10, 20, 30);
+        messageRetentionService.deleteExpiredMessages(mpc1, expiredDownloadedMessagesLimit, expiredNotDownloadedMessagesLimit, expiredSentMessagesLimit);
 
         //the verifications are done in the Expectations block
 
@@ -261,14 +287,13 @@ public class MessageRetentionServiceTest {
 
     @Test
     public void testDeleteExpiredDownloadedMessagesWithNegativeRetentionValue() {
-        final String mpc1 = "mpc1";
 
         new Expectations(messageRetentionService) {{
             pModeProvider.getRetentionDownloadedByMpcURI(mpc1);
             result = -1;
         }};
 
-        messageRetentionService.deleteExpiredDownloadedMessages(mpc1, 10);
+        messageRetentionService.deleteExpiredDownloadedMessages(mpc1, expiredDownloadedMessagesLimit);
 
         new Verifications() {{
             userMessageLogDao.getDownloadedUserMessagesOlderThan(withAny(new Date()), anyString, null);
@@ -278,14 +303,13 @@ public class MessageRetentionServiceTest {
 
     @Test
     public void testDeleteExpiredNotDownloadedMessagesWithNegativeRetentionValue() {
-        final String mpc1 = "mpc1";
 
         new Expectations(messageRetentionService) {{
             pModeProvider.getRetentionUndownloadedByMpcURI(mpc1);
             result = -1;
         }};
 
-        messageRetentionService.deleteExpiredNotDownloadedMessages(mpc1, 10);
+        messageRetentionService.deleteExpiredNotDownloadedMessages(mpc1, expiredDownloadedMessagesLimit);
 
         new Verifications() {{
             userMessageLogDao.getUndownloadedUserMessagesOlderThan(withAny(new Date()), anyString, null);
@@ -295,52 +319,44 @@ public class MessageRetentionServiceTest {
 
     @Test
     public void testDeleteExpiredDownloadedMessages() {
-        String id1 = "1";
-        String id2 = "2";
-        final List<String> downloadedMessageIds = Arrays.asList(new String[]{id1, id2});
-        final String mpc1 = "mpc1";
         final Integer messagesDeleteLimit = 5;
 
         new Expectations(messageRetentionService) {{
             pModeProvider.getRetentionDownloadedByMpcURI(mpc1);
-            result = 10;
+            result = expiredDownloadedMessagesLimit;
 
             userMessageLogDao.getDownloadedUserMessagesOlderThan(withAny(new Date()), mpc1, null);
-            result = downloadedMessageIds;
+            result = expiredMessages;
         }};
 
         messageRetentionService.deleteExpiredDownloadedMessages(mpc1, messagesDeleteLimit);
 
         new Verifications() {{
             List<JmsMessage> jmsMessages = new ArrayList<>();
-            jmsManager.sendMessageToQueue(withCapture(jmsMessages), retentionMessageQueue); times = 2;
-            assertEquals("Should have scheduled expired downloaded messages for deletion", downloadedMessageIds,
+            jmsManager.sendMessageToQueue(withCapture(jmsMessages), retentionMessageQueue); times = 3;
+            assertEquals("Should have scheduled expiredMessages downloaded messages for deletion", expiredMessages,
                     jmsMessages.stream().map(jmsMessage -> jmsMessage.getStringProperty(MessageConstants.MESSAGE_ID)).collect(Collectors.toList()));
         }};
     }
 
     @Test
     public void testDeleteExpiredNotDownloadedMessages() {
-        String id1 = "1";
-        String id2 = "2";
-        final List<String> downloadedMessageIds = Arrays.asList(new String[]{id1, id2});
-        final String mpc1 = "mpc1";
         final Integer messagesDeleteLimit = 5;
 
         new Expectations(messageRetentionService) {{
             pModeProvider.getRetentionUndownloadedByMpcURI(mpc1);
-            result = 10;
+            result = expiredDownloadedMessagesLimit;
 
             userMessageLogDao.getUndownloadedUserMessagesOlderThan(withAny(new Date()), mpc1, null);
-            result = downloadedMessageIds;
+            result = expiredMessages;
         }};
 
         messageRetentionService.deleteExpiredNotDownloadedMessages(mpc1, messagesDeleteLimit);
 
         new Verifications() {{
             List<JmsMessage> jmsMessages = new ArrayList<>();
-            jmsManager.sendMessageToQueue(withCapture(jmsMessages), retentionMessageQueue); times = 2;
-            assertEquals("Should have scheduled expired not downloaded messages for deletion", downloadedMessageIds,
+            jmsManager.sendMessageToQueue(withCapture(jmsMessages), retentionMessageQueue); times = 3;
+            assertEquals("Should have scheduled expiredMessages not downloaded messages for deletion", expiredMessages,
                     jmsMessages.stream().map(jmsMessage -> jmsMessage.getStringProperty(MessageConstants.MESSAGE_ID)).collect(Collectors.toList()));
         }};
     }
