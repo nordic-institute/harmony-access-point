@@ -8,6 +8,8 @@ import eu.domibus.core.ebms3.receiver.interceptor.CheckEBMSHeaderInterceptor;
 import eu.domibus.core.ebms3.receiver.interceptor.SOAPMessageBuilderInterceptor;
 import eu.domibus.core.ebms3.receiver.leg.LegConfigurationExtractor;
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
+import eu.domibus.core.message.UserMessageHandlerService;
+import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -19,6 +21,7 @@ import org.apache.cxf.transport.http.AbstractHTTPDestination;
 import org.apache.cxf.ws.policy.PolicyConstants;
 import org.apache.cxf.ws.security.SecurityConstants;
 import org.apache.neethi.Policy;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.HttpMethod;
@@ -34,6 +37,12 @@ import java.io.IOException;
 public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SetPolicyInServerInterceptor.class);
+
+    @Autowired
+    protected BackendNotificationService backendNotificationService;
+
+    @Autowired
+    protected UserMessageHandlerService userMessageHandlerService;
 
     @Override
     public void handleMessage(SoapMessage message) throws Fault {
@@ -56,6 +65,7 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
         Messaging messaging = null;
         String policyName = null;
         String messageId = null;
+        LegConfiguration legConfiguration = null;
 
         try {
 
@@ -65,7 +75,7 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
             LegConfigurationExtractor legConfigurationExtractor = messageLegConfigurationFactory.extractMessageConfiguration(message, messaging);
             if (legConfigurationExtractor == null) return;
 
-            final LegConfiguration legConfiguration = legConfigurationExtractor.extractMessageConfiguration();
+            legConfiguration = legConfigurationExtractor.extractMessageConfiguration();
             policyName = legConfiguration.getSecurity().getPolicy();
             Policy policy = policyService.parsePolicy("policies" + File.separator + policyName);
 
@@ -83,6 +93,7 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
         } catch (EbMS3Exception e) {
             setBindingOperation(message);
             LOG.debug("", e); // Those errors are expected (no PMode found, therefore DEBUG)
+            processPluginNotification(e, false, legConfiguration, messaging);
             throw new Fault(e);
         } catch (IOException | JAXBException e) {
             setBindingOperation(message);
@@ -90,6 +101,21 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
             EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, "no valid security policy found", messaging != null ? messageId : "unknown", e);
             ex.setMshRole(MSHRole.RECEIVING);
             throw new Fault(ex);
+        }
+    }
+
+    protected void processPluginNotification(EbMS3Exception e, boolean testMessage, LegConfiguration legConfiguration, Messaging messaging) {
+        final String messageId = messaging.getUserMessage().getMessageInfo().getMessageId();
+        if (legConfiguration == null) {
+            LOG.debug("LegConfiguration is null for messageId=[{}] we will not notify backend plugins", messageId);
+            return;
+        }
+        try {
+            if (!testMessage && legConfiguration.getErrorHandling().isBusinessErrorNotifyConsumer()) {
+                backendNotificationService.notifyMessageReceivedFailure(messaging.getUserMessage(), userMessageHandlerService.createErrorResult(e));
+            }
+        } catch (Exception ex) {
+            LOG.businessError(DomibusMessageCode.BUS_BACKEND_NOTIFICATION_FAILED, ex, messageId);
         }
     }
 
