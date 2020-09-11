@@ -34,7 +34,7 @@ export class PropertiesService {
     searchParams = searchParams.append('page', '0');
 
     const res = await this.http.get<PropertyListModel>(PropertiesService.PROPERTIES_URL, {params: searchParams}).toPromise();
-    return res.count == 1 ? res.items[0].value : null;
+    return res.count > 0 ? res.items[0].value : null;
   }
 
   async updateProperty(prop: any, isDomain: boolean = true): Promise<void> {
