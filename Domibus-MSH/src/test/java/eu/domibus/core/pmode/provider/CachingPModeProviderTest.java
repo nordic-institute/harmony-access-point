@@ -1233,6 +1233,43 @@ public class CachingPModeProviderTest {
     }
 
     @Test
+    public void testGetRetentionSentByMpcURI() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException {
+        configuration = loadSamplePModeConfiguration(VALID_PMODE_CONFIG_URI);
+        new Expectations() {{
+            cachingPModeProvider.getConfiguration().getMpcs();
+            result = configuration.getMpcs();
+        }};
+
+        Assert.assertEquals(-1, cachingPModeProvider.getRetentionSentByMpcURI(NONEXISTANTMPC));
+        Assert.assertEquals(-1, cachingPModeProvider.getRetentionSentByMpcURI(DEFAULT_MPC_URI));
+    }
+
+
+    @Test
+    public void getRetentionMaxBatchByMpcURI() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException {
+        configuration = loadSamplePModeConfiguration(VALID_PMODE_CONFIG_URI);
+        new Expectations() {{
+            cachingPModeProvider.getConfiguration().getMpcs();
+            result = configuration.getMpcs();
+        }};
+
+        Assert.assertEquals(10, cachingPModeProvider.getRetentionMaxBatchByMpcURI(NONEXISTANTMPC, 10));
+        Assert.assertEquals(10, cachingPModeProvider.getRetentionMaxBatchByMpcURI(DEFAULT_MPC_URI, 10));
+    }
+
+    @Test
+    public void isDeleteMessageMetadataByMpcURI() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException {
+        configuration = loadSamplePModeConfiguration(VALID_PMODE_CONFIG_URI);
+        new Expectations() {{
+            cachingPModeProvider.getConfiguration().getMpcs();
+            result = configuration.getMpcs();
+        }};
+
+        Assert.assertFalse(cachingPModeProvider.isDeleteMessageMetadataByMpcURI(NONEXISTANTMPC));
+        Assert.assertFalse(cachingPModeProvider.isDeleteMessageMetadataByMpcURI(DEFAULT_MPC_URI));
+    }
+
+    @Test
     public void handleProcessParties(@Mocked Process process, @Mocked Party party1, @Mocked Party party2) {
         Set<Party> parties = new HashSet<>();
         parties.add(party1);

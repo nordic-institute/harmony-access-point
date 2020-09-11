@@ -204,6 +204,21 @@ public class MultiDomainPModeProvider extends PModeProvider {
     }
 
     @Override
+    public int getRetentionSentByMpcURI(final String mpcURI) {
+        return getCurrentPModeProvider().getRetentionSentByMpcURI(mpcURI);
+    }
+
+    @Override
+    public boolean isDeleteMessageMetadataByMpcURI(final String mpcURI) {
+        return getCurrentPModeProvider().isDeleteMessageMetadataByMpcURI(mpcURI);
+    }
+
+    @Override
+    public int getRetentionMaxBatchByMpcURI(final String mpcURI, final int defaultValue) {
+        return getCurrentPModeProvider().getRetentionMaxBatchByMpcURI(mpcURI, defaultValue);
+    }
+
+    @Override
     public Role getBusinessProcessRole(String roleValue) throws EbMS3Exception {
         return getCurrentPModeProvider().getBusinessProcessRole(roleValue);
     }

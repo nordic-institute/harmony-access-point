@@ -11,6 +11,7 @@ import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.logging.MDCKey;
 import org.apache.commons.lang3.StringUtils;
 
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
@@ -40,9 +41,11 @@ public abstract class MessageLogDao<F extends MessageLog> extends ListDao<F> {
 
         switch (messageStatus) {
             case DELETED:
+                messageLog.setDeleted(new Date());
+                messageLog.setNextAttempt(null);
+                break;
             case ACKNOWLEDGED:
             case ACKNOWLEDGED_WITH_WARNING:
-                messageLog.setDeleted(new Date());
                 messageLog.setNextAttempt(null);
                 break;
             case DOWNLOADED:

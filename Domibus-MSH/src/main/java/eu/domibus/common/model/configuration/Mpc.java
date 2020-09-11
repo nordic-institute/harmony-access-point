@@ -24,8 +24,6 @@ import javax.xml.bind.annotation.XmlType;
 
 public class Mpc extends AbstractBaseEntity {
 
-
-
     @XmlAttribute(name = "name", required = true)
     @Column(name = "name")
     protected String name;
@@ -36,6 +34,18 @@ public class Mpc extends AbstractBaseEntity {
     @XmlAttribute(name = "retention_undownloaded", required = true)
     @Column(name = "RETENTION_UNDOWNLOADED")
     protected int retentionUndownloaded;
+
+    @XmlAttribute(name = "retention_sent")
+    @Column(name = "RETENTION_SENT")
+    protected int retentionSent = -1;
+
+    @XmlAttribute(name = "delete_message_metadata")
+    @Column(name = "DELETE_MESSAGE_METADATA")
+    protected boolean deleteMessageMetadata = false;
+
+    @XmlAttribute(name = "max_batch_delete")
+    @Column(name = "MAX_BATCH_DELETE")
+    protected int maxBatchDelete = -1;
 
     @XmlAttribute(name = "default", required = true)
     @Column(name = "DEFAULT_MPC")
@@ -177,6 +187,30 @@ public class Mpc extends AbstractBaseEntity {
      */
     public void setQualifiedName(final String value) {
         this.qualifiedName = value;
+    }
+
+    public int getRetentionSent() {
+        return retentionSent;
+    }
+
+    public void setRetentionSent(int retentionSent) {
+        this.retentionSent = retentionSent;
+    }
+
+    public boolean isDeleteMessageMetadata() {
+        return deleteMessageMetadata;
+    }
+
+    public void setDeleteMessageMetadata(boolean deleteMessageMetadata) {
+        this.deleteMessageMetadata = deleteMessageMetadata;
+    }
+
+    public int getMaxBatchDelete() {
+        return maxBatchDelete;
+    }
+
+    public void setMaxBatchDelete(int maxBatchDelete) {
+        this.maxBatchDelete = maxBatchDelete;
     }
 
 }

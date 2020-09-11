@@ -21,4 +21,5 @@ public interface UIMessageDao {
 
     boolean updateMessage(UserMessageLog userMessageLog, long lastModified);
 
+    int deleteUIMessagesByMessageIds(List<String> messageIds);
 }

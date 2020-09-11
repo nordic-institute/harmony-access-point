@@ -25,7 +25,8 @@ import java.util.Date;
         @NamedQuery(name = "ErrorLogEntry.findUnnotifiedErrorsByMessageId", query = "select e from ErrorLogEntry e where e.messageInErrorId = :MESSAGE_ID and e.notified is null"),
         @NamedQuery(name = "ErrorLogEntry.findErrorsByMessageId", query = "select e from ErrorLogEntry e where e.messageInErrorId = :MESSAGE_ID order by e.timestamp desc"),
         @NamedQuery(name = "ErrorLogEntry.findEntries", query = "select e from ErrorLogEntry e"),
-        @NamedQuery(name = "ErrorLogEntry.countEntries", query = "select count(e.entityId)  from ErrorLogEntry e")
+        @NamedQuery(name = "ErrorLogEntry.countEntries", query = "select count(e.entityId)  from ErrorLogEntry e"),
+        @NamedQuery(name = "ErrorLogEntry.deleteByMessageIdsInError", query = "delete from ErrorLogEntry e where messageInErrorId IN :MESSAGEIDS")
 })
 public class ErrorLogEntry extends AbstractBaseEntity implements ErrorResult {
     @Column(name = "ERROR_SIGNAL_MESSAGE_ID")

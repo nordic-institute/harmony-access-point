@@ -644,6 +644,50 @@ public class CachingPModeProvider extends PModeProvider {
     }
 
     @Override
+    public int getRetentionSentByMpcURI(final String mpcURI) {
+        for (final Mpc mpc1 : this.getConfiguration().getMpcs()) {
+            if (StringUtils.equalsIgnoreCase(mpc1.getQualifiedName(), mpcURI)) {
+                return mpc1.getRetentionSent();
+            }
+        }
+
+        LOG.error("No MPC with name: [{}] found. Assuming message retention of -1 for sent messages.", mpcURI);
+
+        return -1;
+    }
+
+    @Override
+    public boolean isDeleteMessageMetadataByMpcURI(final String mpcURI) {
+        for (final Mpc mpc1 : this.getConfiguration().getMpcs()) {
+            if (StringUtils.equalsIgnoreCase(mpc1.getQualifiedName(), mpcURI)) {
+                LOG.debug("Found MPC with name [{}] and isDeleteMessageMetadata [{}]", mpc1.getName(), mpc1.isDeleteMessageMetadata());
+                return mpc1.isDeleteMessageMetadata();
+            }
+        }
+        LOG.error("No MPC with name: [{}] found. Assuming delete message metadata is false.", mpcURI);
+        return false;
+    }
+
+    @Override
+    public int getRetentionMaxBatchByMpcURI(final String mpcURI, final int maxValue) {
+        for (final Mpc mpc1 : this.getConfiguration().getMpcs()) {
+            if (StringUtils.equalsIgnoreCase(mpc1.getQualifiedName(), mpcURI)) {
+                int maxBatch = mpc1.getMaxBatchDelete();
+                LOG.debug("Found MPC with name [{}] and maxBatchDelete [{}]", mpc1.getName(), maxBatch);
+                if(maxBatch == -1 || maxBatch > maxValue) {
+                    LOG.debug("Using default maxBatch value [{}]", maxValue);
+                    return maxValue;
+                }
+                return maxBatch;
+            }
+        }
+
+        LOG.error("No MPC with name: [{}] found. Using default value for message retention batch of [{}].", mpcURI, maxValue);
+
+        return maxValue;
+    }
+
+    @Override
     public List<String> getMpcList() {
         final List<String> result = new ArrayList<>();
         for (final Mpc mpc : this.getConfiguration().getMpcs()) {
