@@ -21,16 +21,22 @@ import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
+import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.jms.DelayedDispatchMessageCreator;
 import eu.domibus.core.jms.DispatchMessageCreator;
+import eu.domibus.core.message.acknowledge.MessageAcknowledgementDao;
+import eu.domibus.core.message.attempt.MessageAttemptDao;
 import eu.domibus.core.message.converter.MessageConverterService;
 import eu.domibus.core.message.pull.PullMessageService;
+import eu.domibus.core.message.signal.SignalMessageDao;
+import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.message.splitandjoin.MessageGroupDao;
 import eu.domibus.core.message.splitandjoin.MessageGroupEntity;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinException;
 import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
+import eu.domibus.core.replication.UIMessageDao;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.PartInfo;
@@ -60,6 +66,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SEND_MESSAGE_SUCCESS_DELETE_PAYLOAD;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 /**
@@ -94,6 +101,27 @@ public class UserMessageDefaultService implements UserMessageService {
 
     @Autowired
     private MessagingDao messagingDao;
+
+    @Autowired
+    private SignalMessageLogDao signalMessageLogDao;
+
+    @Autowired
+    private MessageInfoDao messageInfoDao;
+
+    @Autowired
+    private SignalMessageDao signalMessageDao;
+
+    @Autowired
+    private MessageAttemptDao messageAttemptDao;
+
+    @Autowired
+    private ErrorLogDao errorLogDao;
+
+    @Autowired
+    private UIMessageDao uiMessageDao;
+
+    @Autowired
+    private MessageAcknowledgementDao messageAcknowledgementDao;
 
     @Autowired
     private UserMessageLogDefaultService userMessageLogService;
@@ -553,9 +581,41 @@ public class UserMessageDefaultService implements UserMessageService {
         UserMessage userMessage = messaging.getUserMessage();
         messagingDao.clearPayloadData(userMessage);
 
-        userMessageLogService.setMessageAsDeleted(userMessage, userMessageLog);
+        if (MessageStatus.ACKNOWLEDGED != userMessageLog.getMessageStatus() &&
+                MessageStatus.ACKNOWLEDGED_WITH_WARNING != userMessageLog.getMessageStatus()) {
+            userMessageLogService.setMessageAsDeleted(userMessage, userMessageLog);
+        }
 
         userMessageLogService.setSignalMessageAsDeleted(messaging.getSignalMessage());
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void deleteMessages(List<String> userMessageIds) {
+        LOG.debug("Deleting messages [{}]", userMessageIds);
+        List<String> signalMessageIds = messageInfoDao.findSignalMessageIds(userMessageIds);
+        List<Long> receiptIds = signalMessageDao.findReceiptIdsByMessageIds(signalMessageIds);
+
+        int deleteResult = messageInfoDao.deleteMessages(userMessageIds);
+        LOG.debug("Deleted [{}] messageInfo for userMessage.", deleteResult);
+        deleteResult = messageInfoDao.deleteMessages(signalMessageIds);
+        LOG.debug("Deleted [{}] messageInfo for signalMessage.", deleteResult);
+        deleteResult = signalMessageDao.deleteReceipts(receiptIds);
+        LOG.debug("Deleted [{}] receipts.", deleteResult);
+        deleteResult = userMessageLogDao.deleteMessageLogs(userMessageIds);
+        LOG.debug("Deleted [{}] userMessageLogs.", deleteResult);
+        deleteResult = signalMessageLogDao.deleteMessageLogs(signalMessageIds);
+        LOG.debug("Deleted [{}] signalMessageLogs.", deleteResult);
+        deleteResult = messageAttemptDao.deleteAttemptsByMessageIds(userMessageIds);
+        LOG.debug("Deleted [{}] messageSendAttempts.", deleteResult);
+        deleteResult = errorLogDao.deleteErrorLogsByMessageIdInError(userMessageIds);
+        LOG.debug("Deleted [{}] deleteErrorLogsByMessageIdInError.", deleteResult);
+        deleteResult = uiMessageDao.deleteUIMessagesByMessageIds(userMessageIds);
+        LOG.debug("Deleted [{}] deleteUIMessagesByMessageIds for userMessages.", deleteResult);
+        deleteResult = uiMessageDao.deleteUIMessagesByMessageIds(signalMessageIds);
+        LOG.debug("Deleted [{}] deleteUIMessagesByMessageIds for signalMessages.", deleteResult);
+        deleteResult = messageAcknowledgementDao.deleteMessageAcknowledgementsByMessageIds(userMessageIds);
+        LOG.debug("Deleted [{}] deleteMessageAcknowledgementsByMessageIds.", deleteResult);
     }
 
     @Override

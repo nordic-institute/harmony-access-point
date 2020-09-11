@@ -1,10 +1,13 @@
 package eu.domibus.core.error;
 
 import eu.domibus.core.dao.ListDao;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
@@ -18,6 +21,8 @@ import java.util.*;
  * @author Christian Koch, Stefan Mueller
  */
 public class ErrorLogDao extends ListDao<ErrorLogEntry> {
+
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ErrorLogDao.class);
 
     @Autowired
     private ErrorLogEntryTruncateUtil errorLogEntryTruncateUtil;
@@ -93,4 +98,11 @@ public class ErrorLogDao extends ListDao<ErrorLogEntry> {
         super.create(errorLogEntry);
     }
 
+    public int deleteErrorLogsByMessageIdInError(List<String> messageIds) {
+        final Query deleteQuery = em.createNamedQuery("ErrorLogEntry.deleteByMessageIdsInError");
+        deleteQuery.setParameter("MESSAGEIDS", messageIds);
+        int result  = deleteQuery.executeUpdate();
+        LOG.trace("deleteErrorLogsByMessageIdInError result [{}]", result);
+        return result;
+    }
 }

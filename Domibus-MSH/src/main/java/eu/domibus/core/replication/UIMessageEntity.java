@@ -23,7 +23,10 @@ import java.util.Date;
 @Table(name = "TB_MESSAGE_UI")
 @NamedQueries({
         @NamedQuery(name = "UIMessageEntity.findUIMessageByMessageId",
-                query = "select uiMessageEntity from UIMessageEntity uiMessageEntity where uiMessageEntity.messageId=:MESSAGE_ID")})
+                query = "select uiMessageEntity from UIMessageEntity uiMessageEntity where uiMessageEntity.messageId=:MESSAGE_ID"),
+        @NamedQuery(name = "UIMessageEntity.deleteUIMessagesByMessageIds",
+                query = "delete from UIMessageEntity uiMessageEntity where uiMessageEntity.messageId IN :MESSAGEIDS"),
+})
 @SqlResultSetMapping(name="updateResult", columns = { @ColumnResult(name = "count")})
 @NamedNativeQueries({
         @NamedNativeQuery(

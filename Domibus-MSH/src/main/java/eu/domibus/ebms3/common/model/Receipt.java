@@ -25,6 +25,9 @@ import java.util.List;
 @XmlType(name = "Receipt", propOrder = "any")
 @Entity
 @Table(name = "TB_RECEIPT")
+@NamedQueries({
+        @NamedQuery(name = "Receipt.deleteReceipts", query = "delete from  Receipt where entityId in :RECEIPTIDS"),
+})
 public class Receipt extends AbstractBaseEntity {
     @SuppressWarnings("JpaAttributeTypeInspection")
     @XmlAnyElement(lax = false)
