@@ -6,7 +6,6 @@ import eu.domibus.common.model.configuration.Identifier;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
 import eu.domibus.core.pmode.validation.PModeValidator;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -17,15 +16,19 @@ import java.util.stream.Collectors;
 /**
  * @author Soumya Chandran
  * @since 4.2
- * Validates duplicate Identifiers in the party.
+ * Validates Identifiers in the party.
  */
 @Component
 @Order(9)
 public class PartyIdentifierValidator implements PModeValidator {
 
-    @Autowired
-    PModeValidationHelper pModeValidationHelper;
+    final PModeValidationHelper pModeValidationHelper;
+    final BusinessProcessValidator businessProcessValidator;
 
+    public PartyIdentifierValidator(PModeValidationHelper pModeValidationHelper, BusinessProcessValidator businessProcessValidator) {
+        this.pModeValidationHelper = pModeValidationHelper;
+        this.businessProcessValidator = businessProcessValidator;
+    }
 
     /**
      * Validate the Identifiers in the pmode
@@ -39,12 +42,24 @@ public class PartyIdentifierValidator implements PModeValidator {
         List<Party> allParties = pMode.getBusinessProcesses().getParties();
         allParties.forEach(party -> {
             issues.addAll(validateDuplicatePartyIdentifiers(party));
+            validateForbiddenCharactersInParty(issues, party);
         });
 
         allParties.forEach(party -> {
             issues.addAll(validateDuplicateIdentifiersInAllParties(party, allParties));
         });
         return issues;
+    }
+
+    protected void  validateForbiddenCharactersInParty(List<ValidationIssue> issues, Party party) {
+        businessProcessValidator.validateForbiddenCharacters(issues, party.getName(), "party name [" + party.getName() + "].");
+        party.getIdentifiers().forEach(identifier -> {
+            businessProcessValidator.validateForbiddenCharacters(issues, identifier.getPartyId(), "party identifier's partyId [" + identifier.getPartyId() + "].");
+            if (identifier.getPartyIdType() != null) {
+                businessProcessValidator.validateForbiddenCharacters(issues, identifier.getPartyIdType().getName(), "party identifier's partyId type name [" + identifier.getPartyIdType().getName() + "].");
+                businessProcessValidator.validateForbiddenCharacters(issues, identifier.getPartyIdType().getValue(), "party identifier's partyId type value [" + identifier.getPartyIdType().getValue() + "].");
+            }
+        });
     }
 
     /**
