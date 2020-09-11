@@ -54,7 +54,7 @@ public class DssExtensionPropertyManager extends DomibusPropertyExtServiceDelega
                 new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_EXCEPTION_ON_MISSING_REVOCATION_DATA, DomibusPropertyMetadataDTO.Type.BOOLEAN, Module.DSS_EXTENSION, DomibusPropertyMetadataDTO.Usage.GLOBAL),
                 new DomibusPropertyMetadataDTO(AUTHENTICATION_DSS_CHECK_REVOCATION_FOR_UNTRUSTED_CHAINS, DomibusPropertyMetadataDTO.Type.BOOLEAN, Module.DSS_EXTENSION, DomibusPropertyMetadataDTO.Usage.GLOBAL));
 
-        knownProperties = allProperties.stream().collect(Collectors.toMap(x -> x.getName(), x -> x));
+        knownProperties = allProperties.stream().collect(Collectors.toMap(DomibusPropertyMetadataDTO::getName, domibusPropertyMetadataDTO -> domibusPropertyMetadataDTO));
     }
 
     @Override

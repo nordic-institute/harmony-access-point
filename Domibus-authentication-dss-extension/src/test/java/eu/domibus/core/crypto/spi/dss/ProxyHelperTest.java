@@ -18,13 +18,13 @@ import static org.junit.Assert.*;
 public class ProxyHelperTest {
 
     @Test
-    public void getProxyConfig(@Mocked final DssExtensionPropertyManager dssExtensionPropertyManager) {
+    public void getProxyConfigConfigured(@Mocked final DssExtensionPropertyManager dssExtensionPropertyManager) {
         ProxyHelper proxyHelper = new ProxyHelper(dssExtensionPropertyManager);
         new Expectations(){{
             dssExtensionPropertyManager.getKnownPropertyValue(DssExtensionPropertyManager.AUTHENTICATION_DSS_PROXY_HTTP_HOST);
-            returns("httplocalhost","");
+            result="httplocalhost";
             dssExtensionPropertyManager.getKnownPropertyValue(DssExtensionPropertyManager.AUTHENTICATION_DSS_PROXY_HTTPS_HOST);
-            returns("httpslocalhost","");
+            result="httpslocalhost";
             dssExtensionPropertyManager.getKnownPropertyValue(DssExtensionPropertyManager.AUTHENTICATION_DSS_PROXY_HTTP_PORT);
             result="8080";
             dssExtensionPropertyManager.getKnownPropertyValue(DssExtensionPropertyManager.AUTHENTICATION_DSS_PROXY_HTTPS_PORT);
@@ -33,7 +33,22 @@ public class ProxyHelperTest {
         ProxyConfig proxyConfig = proxyHelper.getProxyConfig();
         assertNotNull(proxyConfig.getHttpProperties());
         assertNotNull(proxyConfig.getHttpsProperties());
-        proxyConfig = proxyHelper.getProxyConfig();
+    }
+
+    @Test
+    public void getProxyConfigNotConfigured(@Mocked final DssExtensionPropertyManager dssExtensionPropertyManager) {
+        ProxyHelper proxyHelper = new ProxyHelper(dssExtensionPropertyManager);
+        new Expectations(){{
+            dssExtensionPropertyManager.getKnownPropertyValue(DssExtensionPropertyManager.AUTHENTICATION_DSS_PROXY_HTTP_HOST);
+            result="";
+            dssExtensionPropertyManager.getKnownPropertyValue(DssExtensionPropertyManager.AUTHENTICATION_DSS_PROXY_HTTPS_HOST);
+            result="";
+            dssExtensionPropertyManager.getKnownPropertyValue(DssExtensionPropertyManager.AUTHENTICATION_DSS_PROXY_HTTP_PORT);
+            result="8080";
+            dssExtensionPropertyManager.getKnownPropertyValue(DssExtensionPropertyManager.AUTHENTICATION_DSS_PROXY_HTTPS_PORT);
+            result="8443";
+        }};
+        ProxyConfig proxyConfig = proxyHelper.getProxyConfig();
         assertNull(proxyConfig.getHttpProperties());
         assertNull(proxyConfig.getHttpsProperties());
     }

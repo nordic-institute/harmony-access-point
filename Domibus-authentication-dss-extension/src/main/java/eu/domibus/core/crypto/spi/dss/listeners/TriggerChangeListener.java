@@ -28,11 +28,7 @@ public class TriggerChangeListener implements PluginPropertyChangeListener {
 
     @Override
     public boolean handlesProperty(String propertyName) {
-        boolean matchingProperty = AUTHENTICATION_DSS_REFRESH_CRON.equals(propertyName);
-        if (matchingProperty) {
-            LOG.info("Dss Property:[{}] changed", propertyName);
-        }
-        return matchingProperty;
+        return AUTHENTICATION_DSS_REFRESH_CRON.equals(propertyName);
     }
 
     @Override

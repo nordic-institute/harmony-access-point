@@ -33,7 +33,7 @@ public class DssCache {
     }
 
     public void clear(){
-        LOG.debug("Clearing DSS cache");
+        LOG.info("Clearing DSS cache");
         cache.removeAll();
     }
 }

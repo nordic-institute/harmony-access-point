@@ -54,7 +54,7 @@ public class NetworkConfigurationListener implements PluginPropertyChangeListene
 
     @Override
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) throws DomibusPropertyExtException {
-        LOG.info("Reloading proxy configuration");
+        LOG.debug("Reloading proxy configuration due to property change: domain code:[{}], property name:[{}], property value:[{}]",domainCode,propertyName,propertyValue);
         dataLoader.setProxyConfig(proxyHelper.getProxyConfig());
     }
 }

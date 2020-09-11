@@ -34,16 +34,12 @@ public class CertificateVerifierListener implements PluginPropertyChangeListener
 
     @Override
     public boolean handlesProperty(String propertyName) {
-        boolean matchingProperty = properties.contains(propertyName);
-        if(matchingProperty){
-            LOG.info("CertificateVerifierListener property:[{}] changed",propertyName);
-        }
-        return matchingProperty;
+        return properties.contains(propertyName);
     }
 
     @Override
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) throws DomibusPropertyExtException {
-        LOG.info("Clearing DSS cache");
+        LOG.debug("Clearing cache due to property change: domain code:[{}], property name:[{}], property value:[{}]",domainCode,propertyName,propertyValue);
         dssCache.clear();
     }
 

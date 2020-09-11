@@ -28,8 +28,7 @@ public class DssRefreshWorker extends DomibusQuartzJobExtBean {
     @Override
     protected void executeJob(JobExecutionContext context, DomainDTO domain) throws JobExecutionException {
         LOG.info("Start DSS trusted lists refresh job");
-        if (Boolean.parseBoolean(dssExtensionPropertyManager.getKnownPropertyValue(DssExtensionPropertyManager.DSS_FULL_TLS_REFRESH)))
-        {
+        if (Boolean.parseBoolean(dssExtensionPropertyManager.getKnownPropertyValue(DssExtensionPropertyManager.DSS_FULL_TLS_REFRESH))) {
             tslValidationJob.clearRepository();
             LOG.info("DSS trusted lists cleared");
         }
