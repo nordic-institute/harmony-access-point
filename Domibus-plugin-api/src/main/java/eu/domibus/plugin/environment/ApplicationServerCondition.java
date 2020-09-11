@@ -8,6 +8,8 @@ import org.springframework.core.type.AnnotatedTypeMetadata;
 
 /**
  * Condition for an application server: WebLogic or WildFly
+ * @author Cosmin Baciu
+ * @since 4.2
  */
 public class ApplicationServerCondition implements Condition {
 

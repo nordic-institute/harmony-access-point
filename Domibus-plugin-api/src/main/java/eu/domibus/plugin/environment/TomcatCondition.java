@@ -8,6 +8,9 @@ import org.springframework.core.type.AnnotatedTypeMetadata;
 
 /**
  * Condition for the Tomcat server
+ *
+ * @author Cosmin Baciu
+ * @since 4.2
  */
 public class TomcatCondition implements Condition {
 

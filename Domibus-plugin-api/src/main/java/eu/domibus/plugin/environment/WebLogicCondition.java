@@ -8,6 +8,8 @@ import org.springframework.core.type.AnnotatedTypeMetadata;
 
 /**
  * Condition for the WebLogic server
+ * @author Cosmin Baciu
+ * @since 4.2
  */
 public class WebLogicCondition implements Condition {
 
