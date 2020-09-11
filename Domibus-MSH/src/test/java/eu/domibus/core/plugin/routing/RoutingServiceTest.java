@@ -17,10 +17,7 @@ import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.plugin.BackendConnector;
 import eu.domibus.plugin.NotificationListener;
 import eu.domibus.plugin.notification.AsyncNotificationConfiguration;
-import mockit.Expectations;
-import mockit.FullVerifications;
-import mockit.Injectable;
-import mockit.Verifications;
+import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
@@ -37,7 +34,6 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
 
 /**
- *
  * @author Ion Perpegel
  * @author Cosmin Baciu
  * @since 4.1
@@ -47,6 +43,12 @@ public class RoutingServiceTest {
 
     public static final int MAX_INDEX = 10;
     public static final String MESSAGE_ID = "MessageId";
+
+//    @Tested
+//    RoutingService routingService;
+
+    @Injectable
+    protected BackendConnectorProvider backendConnectorProvider;
 
     @Injectable
     private BackendFilterDao backendFilterDao;
@@ -76,7 +78,7 @@ public class RoutingServiceTest {
     public ExpectedException thrown = ExpectedException.none();
 
     @Test(expected = ConfigurationException.class)
-    public void validateFiltersThrowsError() {
+    public void ensureUnicityThrowsError() {
         BackendFilter bf1 = new BackendFilter();
         bf1.setBackendName("wsPlugin");
         List<RoutingCriteria> rc = Arrays.asList(
@@ -121,11 +123,11 @@ public class RoutingServiceTest {
         bf3.setRoutingCriterias(rcd);
 
         RoutingService routingService = new RoutingService();
-        routingService.validateFilters(Arrays.asList(bf1, bf2, bf3));
+        routingService.ensureUnicity(Arrays.asList(bf1, bf2, bf3));
     }
 
     @Test()
-    public void validateFilters() {
+    public void ensureUnicity() {
         BackendFilter bf1 = new BackendFilter();
         bf1.setBackendName("wsPlugin");
         List<RoutingCriteria> rc = Arrays.asList(
@@ -153,7 +155,7 @@ public class RoutingServiceTest {
         bf2.setRoutingCriterias(rcc);
 
         RoutingService routingService = new RoutingService();
-        routingService.validateFilters(Arrays.asList(bf1, bf2));
+        routingService.ensureUnicity(Arrays.asList(bf1, bf2));
     }
 
     @Test
@@ -227,7 +229,6 @@ public class RoutingServiceTest {
             coreConverter.convert(backendFilterEntityList, BackendFilter.class);
         }};
     }
-
 
 
     @Test
@@ -836,7 +837,7 @@ public class RoutingServiceTest {
             result = entitiesInDb;
 
             backendConnectorProvider.getBackendConnectors();
-            result  = backendConnector;
+            result = backendConnector;
 
             backendConnector.getName();
             result = JMS_PLUGIN.getPluginName();
@@ -939,7 +940,6 @@ public class RoutingServiceTest {
         };
     }
 
-
     @Test
     public void getMaxIndex_empty() {
         RoutingService routingService = new RoutingService();
@@ -978,6 +978,62 @@ public class RoutingServiceTest {
 
         new FullVerifications() {
         };
+    }
+
+    @Test(expected = ConfigurationException.class)
+    public void ensureAtLeastOneFilterForEachPluginInvalid(@Mocked BackendConnector<?, ?> bc1,
+                                                           @Mocked BackendConnector<?, ?> bc2,
+                                                           @Mocked BackendFilter bf1) {
+        RoutingService routingService = new RoutingService();
+        routingService.backendConnectorProvider = backendConnectorProvider;
+
+        new Expectations() {{
+            backendConnectorProvider.getBackendConnectors();
+            result = Arrays.asList(bc1, bc2);
+
+            bf1.getBackendName();
+            result = "wsPlugin";
+            bc1.getName();
+            result = "wsPlugin";
+            bc2.getName();
+            result = "jmsPlugin";
+        }};
+
+        routingService.ensureAtLeastOneFilterForEachPlugin(Arrays.asList(bf1));
+    }
+
+    @Test
+    public void ensureAtLeastOneFilterForEachPluginValid(@Mocked BackendConnector<?, ?> bc1,
+                                                         @Mocked BackendConnector<?, ?> bc2,
+                                                         @Mocked BackendFilter bf1,
+                                                         @Mocked BackendFilter bf2,
+                                                         @Mocked BackendFilter bf3) {
+
+        RoutingService routingService = new RoutingService();
+        routingService.backendConnectorProvider = backendConnectorProvider;
+
+        new Expectations() {{
+            backendConnectorProvider.getBackendConnectors();
+            result = Arrays.asList(bc1, bc2);
+
+            bc1.getName();
+            result = "wsPlugin";
+            bc2.getName();
+            result = "jmsPlugin";
+
+            bf1.getBackendName();
+            result = "wsPlugin";
+            bf2.getBackendName();
+            result = "jmsPlugin";
+        }};
+
+        try {
+            routingService.ensureAtLeastOneFilterForEachPlugin(Arrays.asList(bf1, bf2, bf3));
+            new FullVerifications() {
+            };
+        } catch (ConfigurationException ex) {
+            Assert.fail();
+        }
     }
 
     @Test
