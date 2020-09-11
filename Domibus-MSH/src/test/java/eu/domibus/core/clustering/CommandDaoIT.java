@@ -34,9 +34,6 @@ public class CommandDaoIT {
     @Autowired
     private CommandDao commandDao;
 
-//    @PersistenceContext
-//    private javax.persistence.EntityManager em;
-
     @Autowired
     protected DataSource dataSource;
 
