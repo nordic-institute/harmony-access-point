@@ -27,6 +27,7 @@ import java.util.Set;
 @Order(1)
 public class BusinessProcessValidator implements PModeValidator {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(BusinessProcessValidator.class);
+    protected static final String ERROR_MESSAGE = "Forbidden characters '< >' found in the ";
 
     final PModeValidationHelper pModeValidationHelper;
 
@@ -44,6 +45,9 @@ public class BusinessProcessValidator implements PModeValidator {
     }
 
     protected void performValidations(List<ValidationIssue> issues, Process process, Set<PartyIdType> partyIdTypes) {
+        //validate forbidden characters in process name
+        validateForbiddenCharacters(issues, process.getName(), "process name [" + process.getName() + "]");
+
         //agreement
         validateAgreement(issues, process);
 
@@ -67,6 +71,12 @@ public class BusinessProcessValidator implements PModeValidator {
 
         //leg configuration
         validateLegConfiguration(issues, process);
+    }
+
+    protected void validateForbiddenCharacters(List<ValidationIssue> issues, String name, String message) {
+        if (StringUtils.containsAny(name, '<', '>')) {
+            issues.add(new ValidationIssue(ERROR_MESSAGE + message, ValidationIssue.Level.ERROR));
+        }
     }
 
     protected void validateAgreement(List<ValidationIssue> issues, Process process) {
