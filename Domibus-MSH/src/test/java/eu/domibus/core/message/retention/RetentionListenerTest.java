@@ -20,6 +20,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
+import java.util.Arrays;
+import java.util.List;
+
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RETENTION_WORKER_MESSAGE_ID_LIST_SEPARATOR;
 
 /**
  * @author Sebastian-Ion TINCU
@@ -65,6 +69,41 @@ public class RetentionListenerTest {
             userMessageDefaultService.deleteMessage(messageId);
         }};
     }
+
+    @Test
+    public void onMessage_deletesMessageMulti(@Mocked DomibusLogger domibusLogger) throws JMSException {
+        // Given
+        List<String> messageIds = Arrays.asList("messageId1", "messageId2");
+
+        new Expectations() {{
+            message.getStringProperty(MessageRetentionDefaultService.DELETE_TYPE); result = MessageDeleteType.MULTI.name();
+            message.getStringProperty(MessageRetentionDefaultService.MESSAGE_IDS); result = "messageId1,messageId2";
+            domibusPropertyProvider.getProperty(DOMIBUS_RETENTION_WORKER_MESSAGE_ID_LIST_SEPARATOR);
+            result = ",";
+        }};
+
+        // When
+        retentionListener.onMessage(message);
+
+        // Then
+        new Verifications() {{
+            domainContextProvider.setCurrentDomain(anyString);
+            userMessageDefaultService.deleteMessages(messageIds);
+        }};
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void onMessage_invalidDeleteType(@Mocked DomibusLogger domibusLogger) throws JMSException {
+
+        new Expectations() {{
+            message.getStringProperty(MessageRetentionDefaultService.DELETE_TYPE); result = "lulu";
+        }};
+
+        // When
+        retentionListener.onMessage(message);
+
+    }
+
 
     @Test
     public void onMessage_addsAuthentication(@Mocked DomibusLogger domibusLogger)  throws JMSException {

@@ -9,6 +9,7 @@ import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.UserMessageLog;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.pmode.provider.PModeProvider;
+import eu.domibus.ebms3.common.model.CollaborationInfo;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -21,6 +22,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import javax.jms.Queue;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -215,19 +217,20 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
             LOG.debug("No message to be scheduled for deletion");
             return;
         }
+        List<String> messagesIdsToDelete = new ArrayList<>(messageIds);
 
-        while (messageIds.size() > 0) {
-            LOG.debug("messageIds size is [{}]", messageIds.size());
-            LOG.trace("messageIds: [{}]", messageIds);
-            int currentBatch = messageIds.size();
+        while (messagesIdsToDelete.size() > 0) {
+            LOG.debug("messageIds size is [{}]", messagesIdsToDelete.size());
+            LOG.trace("messageIds: [{}]", messagesIdsToDelete);
+            int currentBatch = messagesIdsToDelete.size();
             if (currentBatch > maxBatch) {
                 LOG.debug("currentBatch [{}] is higher than maxBatch [{}]", currentBatch, maxBatch);
                 currentBatch = maxBatch;
             }
-            List<String> messageIdsBatch = messageIds.stream().limit(currentBatch).collect(Collectors.toList());
-            messageIds.removeAll(messageIdsBatch);
-            LOG.debug("After removal messageIds size is [{}]", messageIds.size());
-            LOG.trace("messageIds: [{}]", messageIds);
+            List<String> messageIdsBatch = messagesIdsToDelete.stream().limit(currentBatch).collect(Collectors.toList());
+            messagesIdsToDelete.removeAll(messageIdsBatch);
+            LOG.debug("After removal messageIds size is [{}]", messagesIdsToDelete.size());
+            LOG.trace("messageIds: [{}]", messagesIdsToDelete);
             final String separator = domibusPropertyProvider.getProperty(DOMIBUS_RETENTION_WORKER_MESSAGE_ID_LIST_SEPARATOR);
             scheduleDeleteBatchMessages(messageIdsBatch, separator);
         }

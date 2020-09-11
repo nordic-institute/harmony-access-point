@@ -5,13 +5,12 @@ import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.message.MessagingDao;
+import eu.domibus.core.message.UserMessageLog;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.pmode.provider.PModeProvider;
+import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.messaging.MessageConstants;
-import mockit.Expectations;
-import mockit.Injectable;
-import mockit.Tested;
-import mockit.Verifications;
+import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
@@ -24,9 +23,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_DOWNLOADED_MAX_DELETE;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_NOT_DOWNLOADED_MAX_DELETE;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_SENT_MAX_DELETE;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -86,6 +83,113 @@ public class MessageRetentionServiceTest {
         new Verifications() {{
             messageRetentionService.deleteExpiredMessages(mpc1, 10, 20, 30);
         }};
+    }
+
+
+    @Test
+    public void testBatchDeleteExpiredMessages() {
+        final String mpc1 = "mpc1";
+        final String mpc2 = "mpc2";
+        final int maxBatch = 1000;
+        final int retentionTime = 60;
+        final List<String> mpcs = Arrays.asList(new String[]{mpc1, mpc2});
+
+        List<String> expired = Arrays.asList(new String[]{"abc", "def", "inva,lid"});
+
+        new Expectations(messageRetentionService) {{
+            pModeProvider.getMpcURIList();
+            result = mpcs;
+
+            pModeProvider.isDeleteMessageMetadataByMpcURI(anyString);
+            result = true;
+
+            messageRetentionService.getRetentionValue(DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_DOWNLOADED_MAX_DELETE);
+            result = 10;
+
+            messageRetentionService.getRetentionValue(DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_NOT_DOWNLOADED_MAX_DELETE);
+            result = 20;
+
+            messageRetentionService.getRetentionValue(DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_SENT_MAX_DELETE);
+            result = 30;
+
+            domibusPropertyProvider.getIntegerProperty(DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_BATCH_DELETE);
+            result = maxBatch;
+
+            pModeProvider.getRetentionMaxBatchByMpcURI(mpc1, maxBatch);
+            result = maxBatch;
+
+            pModeProvider.getRetentionDownloadedByMpcURI(mpc1);
+            result = retentionTime;
+
+            pModeProvider.getRetentionUndownloadedByMpcURI(mpc1);
+            result = retentionTime;
+
+            pModeProvider.getRetentionSentByMpcURI(mpc1);
+            result = retentionTime;
+
+            userMessageLogDao.getDownloadedUserMessagesOlderThan((Date)any, mpc1, 10);
+            result = expired;
+
+            userMessageLogDao.getUndownloadedUserMessagesOlderThan((Date)any, mpc1, 20);
+            result = expired;
+
+            userMessageLogDao.getSentUserMessagesOlderThan((Date)any, mpc1, 30);
+            result = expired;
+
+            domibusPropertyProvider.getProperty(DOMIBUS_RETENTION_WORKER_MESSAGE_ID_LIST_SEPARATOR);
+            result = ",";
+
+        }};
+
+        messageRetentionService.deleteExpiredMessages();
+
+        new Verifications() {{
+            messageRetentionService.deleteExpiredMessages(mpc1, 10, 20, 30);
+            messageRetentionService.scheduleDeleteMessages((List<String>)any, maxBatch); times = 3;
+            messageRetentionService.scheduleDeleteMessages((List<String>)any); times = 3;
+        }};
+    }
+
+    @Test
+    public void testDeletePayload(@Mocked UserMessage userMessage, @Mocked UserMessageLog userMessageLog) {
+
+        new Expectations() {{
+            //partial mocking of the following methods
+            messagingDao.clearPayloadData(userMessage); times = 2;
+            messageRetentionService.deletePayload(userMessage, userMessageLog);
+
+            domibusPropertyProvider.getBooleanProperty(DOMIBUS_SEND_MESSAGE_FAILURE_DELETE_PAYLOAD);
+            result = true;
+
+            domibusPropertyProvider.getBooleanProperty(DOMIBUS_SEND_MESSAGE_SUCCESS_DELETE_PAYLOAD);
+            result = true;
+        }};
+
+        messageRetentionService.deletePayloadOnSendFailure(userMessage, userMessageLog);
+        messageRetentionService.deletePayloadOnSendSuccess(userMessage, userMessageLog);
+
+        //the verifications are done in the Expectations block
+    }
+
+    @Test
+    public void testNotDeletePayload(@Mocked UserMessage userMessage, @Mocked UserMessageLog userMessageLog) {
+
+        new Expectations() {{
+            //partial mocking of the following methods
+            messagingDao.clearPayloadData(userMessage); times = 0;
+            messageRetentionService.deletePayload(userMessage, userMessageLog);
+
+            domibusPropertyProvider.getBooleanProperty(DOMIBUS_SEND_MESSAGE_FAILURE_DELETE_PAYLOAD);
+            result = false;
+
+            domibusPropertyProvider.getBooleanProperty(DOMIBUS_SEND_MESSAGE_SUCCESS_DELETE_PAYLOAD);
+            result = false;
+        }};
+
+        messageRetentionService.deletePayloadOnSendFailure(userMessage, userMessageLog);
+        messageRetentionService.deletePayloadOnSendSuccess(userMessage, userMessageLog);
+
+        //the verifications are done in the Expectations block
     }
 
     @Test
