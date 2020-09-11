@@ -1081,4 +1081,7 @@
         <dropColumn columnName="DOMAIN" tableName="TB_COMMAND"/>
     </changeSet>
 
+    <changeSet id="EDELIVERY-1532" author="venugar">
+        <modifyDataType tableName="TB_PROPERTY" columnName="VALUE" newDataType="VARCHAR(1024)"/>
+    </changeSet>
 </databaseChangeLog>
