@@ -1,4 +1,4 @@
-import {UserResponseRO, UserState} from './user';
+import {UserResponseRO} from './user';
 import {AlertService} from '../../common/alert/alert.service';
 import {Injectable} from '@angular/core';
 import {AbstractControl, ValidatorFn} from '@angular/forms';
@@ -10,6 +10,12 @@ import {DomainService} from '../../security/domain.service';
  */
 @Injectable()
 export class UserValidatorService {
+
+  public static readonly USER_NAME_PATTERN = '[a-zA-Z0-9\.@_]*';
+  public static readonly USER_NAME_MINLENGTH_MESSAGE = 'You should type at least 4 characters';
+  public static readonly USER_NAME_PATTERN_MESSAGE = 'You should not use special characters';
+  public static readonly USER_NAME_REQUIRED_MESSAGE = 'You should type an username';
+
   constructor(private alertService: AlertService,
               private securityService: SecurityService,
               private domainService: DomainService) {

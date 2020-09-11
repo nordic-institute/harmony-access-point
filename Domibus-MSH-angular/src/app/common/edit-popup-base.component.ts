@@ -1,6 +1,7 @@
 import {Component, Inject, ViewChild} from '@angular/core';
 import {AbstractControl, FormGroup, NgControl, NgForm} from '@angular/forms';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material';
+import {UserValidatorService} from '../user/support/uservalidator.service';
 
 /**
  * @author Ion Perpegel
@@ -18,6 +19,11 @@ export class EditPopupBaseComponent {
 
   @ViewChild('editForm', {static: false})
   public editForm: NgForm | FormGroup;
+
+  userNamePattern = UserValidatorService.USER_NAME_PATTERN;
+  userNamePatternMessage = UserValidatorService.USER_NAME_PATTERN_MESSAGE;
+  userNameMinLengthMessage = UserValidatorService.USER_NAME_MINLENGTH_MESSAGE;
+  userNameRequiredMessage = UserValidatorService.USER_NAME_REQUIRED_MESSAGE;
 
   public constructor(public dialogRef: MatDialogRef<any>, @Inject(MAT_DIALOG_DATA) public data: any) {
   }
