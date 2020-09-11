@@ -7,6 +7,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.UserMessageLog;
 import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.message.splitandjoin.MessageFragmentEntity;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.messaging.MessageConstants;
@@ -17,6 +18,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.jms.Queue;
+import javax.validation.constraints.AssertTrue;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -151,22 +153,69 @@ public class MessageRetentionServiceTest {
     }
 
     @Test
-    public void testDeletePayload(@Mocked UserMessage userMessage, @Mocked UserMessageLog userMessageLog) {
+    public void testShouldDeletePayloadOnSendSuccess() {
+
+        new Expectations() {{
+            domibusPropertyProvider.getBooleanProperty(DOMIBUS_SEND_MESSAGE_SUCCESS_DELETE_PAYLOAD);
+        }};
+
+        messageRetentionService.shouldDeletePayloadOnSendSuccess();
+    }
+
+    @Test
+    public void testShouldDeletePayloadOnSendFailure(@Mocked UserMessage userMessage) {
+
+        new Expectations() {{
+            domibusPropertyProvider.getBooleanProperty(DOMIBUS_SEND_MESSAGE_FAILURE_DELETE_PAYLOAD);
+        }};
+
+        messageRetentionService.shouldDeletePayloadOnSendFailure(userMessage);
+    }
+
+
+    @Test
+    public void testShouldDeletePayloadOnSendFailureUMFragment(@Mocked UserMessage userMessage) {
+
+        new Expectations() {{
+            userMessage.isUserMessageFragment();
+            result = true;
+            domibusPropertyProvider.getBooleanProperty(DOMIBUS_SEND_MESSAGE_FAILURE_DELETE_PAYLOAD); times = 0;
+        }};
+
+        Assert.assertTrue(messageRetentionService.shouldDeletePayloadOnSendFailure(userMessage));
+    }
+
+    @Test
+    public void testDeletePayloadSendSuccess(@Mocked UserMessage userMessage, @Mocked UserMessageLog userMessageLog) {
 
         new Expectations() {{
             //partial mocking of the following methods
-            messagingDao.clearPayloadData(userMessage); times = 2;
+            messagingDao.clearPayloadData(userMessage); times = 1;
             messageRetentionService.deletePayload(userMessage, userMessageLog);
-
-            domibusPropertyProvider.getBooleanProperty(DOMIBUS_SEND_MESSAGE_FAILURE_DELETE_PAYLOAD);
-            result = true;
 
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_SEND_MESSAGE_SUCCESS_DELETE_PAYLOAD);
             result = true;
         }};
 
-        messageRetentionService.deletePayloadOnSendFailure(userMessage, userMessageLog);
         messageRetentionService.deletePayloadOnSendSuccess(userMessage, userMessageLog);
+
+        //the verifications are done in the Expectations block
+    }
+
+    @Test
+    public void testDeletePayloadSendFailure(@Mocked UserMessage userMessage, @Mocked UserMessageLog userMessageLog) {
+
+        new Expectations() {{
+            //partial mocking of the following methods
+            messagingDao.clearPayloadData(userMessage); times = 1;
+            messageRetentionService.deletePayload(userMessage, userMessageLog);
+
+            domibusPropertyProvider.getBooleanProperty(DOMIBUS_SEND_MESSAGE_FAILURE_DELETE_PAYLOAD);
+            result = true;
+
+        }};
+
+        messageRetentionService.deletePayloadOnSendFailure(userMessage, userMessageLog);
 
         //the verifications are done in the Expectations block
     }
