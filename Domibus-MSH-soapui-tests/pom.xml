@@ -18,7 +18,7 @@
         <!-- the soap ui specific dependencies -->
         <com.smartbear.soapui.version>5.1.2</com.smartbear.soapui.version>
         <org.codehaus.groovy.version>2.9.2-01</org.codehaus.groovy.version>
-        <org.codehaus.groovy.eclipse-batch.version>2.4.3-01</org.codehaus.groovy.eclipse-batch.version>
+        <org.codehaus.groovy.eclipse-batch.version>2.5.13-01</org.codehaus.groovy.eclipse-batch.version>
         <org.apache.activemq.client-all.version>5.15.13</org.apache.activemq.client-all.version>
 
 
@@ -32,7 +32,7 @@
         <sonar.jacoco.remoteAddress.blue>${jacocoRemoteAddressBlue}</sonar.jacoco.remoteAddress.blue>
         <sonar.jacoco.remotePort.red>${jacocoRemotePortRed}</sonar.jacoco.remotePort.red>
         <sonar.jacoco.remoteAddress.red>${jacocoRemoteAddressRed}</sonar.jacoco.remoteAddress.red>
-		
+
 		<!-- Added default dummy value for allJMSDomainsProperties -->
 		<allJMSDomainsProperties>allJMSDomainsProperties={}</allJMSDomainsProperties>
     </properties>
