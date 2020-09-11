@@ -830,7 +830,6 @@ public class RoutingServiceTest {
         List<List<String>> pluginsToAdd = new ArrayList<>();
 
         List<BackendFilterEntity> backendFilterEntities = new ArrayList<>();
-        //backendFilterEntities.add(dbBackendFilterEntity);
 
         new Expectations(routingService) {{
             backendFilterDao.findAll();
@@ -983,10 +982,13 @@ public class RoutingServiceTest {
 
     @Test
     public void createBackendFiltersWithDbEntities(@Injectable BackendConnectorProvider backendConnectorProvider,
-                                                     @Injectable BackendConnector backendConnector,
-                                                     @Injectable BackendFilterEntity dbBackendFilterEntity) {
+                                                   @Injectable BackendConnector backendConnector,
+                                                   @Injectable BackendFilterEntity dbBackendFilterEntity,
+                                                   @Injectable BackendFilterEntity dbBackendFilterEntity1) {
         List<BackendFilterEntity> backendFilterEntities = new ArrayList<>();
         backendFilterEntities.add(dbBackendFilterEntity);
+        backendFilterEntities.add(dbBackendFilterEntity1);
+
         RoutingService routingService = new RoutingService();
         routingService.backendFilterDao = backendFilterDao;
         routingService.backendConnectorProvider = backendConnectorProvider;
@@ -995,13 +997,19 @@ public class RoutingServiceTest {
         List<BackendFilterEntity> entitiesInDb = new ArrayList<>();
         entitiesInDb.add(dbBackendFilterEntity);
 
+        List<BackendFilterEntity> dbFiltersNotInBackendConnectors = new ArrayList<>();
+        dbFiltersNotInBackendConnectors.add(dbBackendFilterEntity1);
+
         List<List<String>> pluginsToAdd = new ArrayList<>();
 
         new Expectations(routingService) {{
             backendFilterDao.findAll();
-            result = entitiesInDb;
+            result = backendFilterEntities;
 
             dbBackendFilterEntity.getBackendName();
+            result = JMS_PLUGIN.getPluginName();
+
+            dbBackendFilterEntity1.getBackendName();
             result = FS_PLUGIN.getPluginName();
 
             backendConnectorProvider.getBackendConnectors();
@@ -1010,29 +1018,25 @@ public class RoutingServiceTest {
             backendConnector.getName();
             result = JMS_PLUGIN.getPluginName();
 
-            routingService.getMaxIndex(entitiesInDb);
+            routingService.getMaxIndex(backendFilterEntities);
             result = 1;
 
             routingService.createBackendFilterEntities(withCapture(pluginsToAdd), 2);
-            result = backendFilterEntities;
+            result = entitiesInDb;
         }};
 
         routingService.createBackendFilters();
 
         new Verifications() {{
             authUtils.setAuthenticationToSecurityContext("domibus", "domibus", AuthRole.ROLE_AP_ADMIN);
-            backendFilterDao.delete(entitiesInDb);
+            backendFilterDao.delete(dbFiltersNotInBackendConnectors);
             times = 1;
             backendFilterDao.findAll();
-            times = 2;
-            routingService.updateFilterIndices(entitiesInDb);
             times = 1;
-            backendFilterDao.update(entitiesInDb);
+            routingService.updateFilterIndices(backendFilterEntities);
+            times = 1;
+            backendFilterDao.update(backendFilterEntities);
             times = 1;
         }};
-
-        assertThat(pluginsToAdd.size(), is(1));
-        assertThat(pluginsToAdd.get(0), CoreMatchers.hasItems(
-                JMS_PLUGIN.getPluginName()));
     }
 }
