@@ -8,9 +8,9 @@ package eu.domibus.core.plugin.notification;
  */
 public enum BackendPluginEnum {
 
-    WS_PLUGIN("backendWebservice", 0),
-    JMS_PLUGIN("Jms", 1),
-    FS_PLUGIN("backendFSPlugin", 2);
+    WS_PLUGIN("backendWebservice", 1),
+    JMS_PLUGIN("Jms", 2),
+    FS_PLUGIN("backendFSPlugin", 3);
 
     private final int priority;
     private final String pluginName;
