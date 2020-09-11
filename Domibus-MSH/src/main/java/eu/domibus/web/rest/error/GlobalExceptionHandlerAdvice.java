@@ -21,6 +21,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import javax.persistence.RollbackException;
+import javax.validation.ConstraintViolationException;
 import javax.validation.ValidationException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -88,6 +89,11 @@ public class GlobalExceptionHandlerAdvice extends ResponseEntityExceptionHandler
     @ExceptionHandler({CsvException.class})
     public ResponseEntity<ErrorRO> handleCsvException(CsvException ex) {
         return errorHandlerService.createResponse(ex, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler({ConstraintViolationException.class})
+    public ResponseEntity<ErrorRO> handleConstraintViolationException(ConstraintViolationException ex) {
+        return errorHandlerService.createConstraintViolationResponse(ex);
     }
 
     private ResponseEntity<ErrorRO> handleWrappedException(Exception ex) {

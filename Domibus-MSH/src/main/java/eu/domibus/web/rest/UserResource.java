@@ -30,9 +30,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Thomas Dussart
@@ -80,11 +82,6 @@ public class UserResource extends BaseResource {
             return handleUserManagementException((UserManagementException) rootException);
         }
         return errorHandlerService.createResponse(ex);
-    }
-
-    @ExceptionHandler({ConstraintViolationException.class})
-    public ResponseEntity<ErrorRO> handleConstraintViolationException(ConstraintViolationException ex) {
-        return errorHandlerService.createConstraintViolationResponse(ex);
     }
 
     /**
