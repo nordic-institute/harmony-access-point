@@ -34,14 +34,24 @@ public class DssCacheTest {
     }
 
     @Test
-    public void isChainValid(@Mocked Cache cache,@Mocked Element element) {
+    public void isChainValidTrue(@Mocked Cache cache,@Mocked Element element) {
         DssCache dssCache = new DssCache(cache);
         String key = "key";
         new Expectations(){{
            cache.get(key);
-           returns(element,null);
+           result=element;
         }};
         assertTrue(dssCache.isChainValid(key));
+    }
+
+    @Test
+    public void isChainValidFalse(@Mocked Cache cache,@Mocked Element element) {
+        DssCache dssCache = new DssCache(cache);
+        String key = "key";
+        new Expectations(){{
+            cache.get(key);
+            result=null;
+        }};
         assertFalse(dssCache.isChainValid(key));
     }
 

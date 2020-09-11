@@ -40,13 +40,24 @@ public class DssRefreshWorkerTest {
     public void executeJobRefresh(final @Mocked JobExecutionContext context,final @Mocked  DomainDTO domain) throws JobExecutionException {
         new Expectations(){{
             dssExtensionPropertyManager.getKnownPropertyValue(DssExtensionPropertyManager.DSS_FULL_TLS_REFRESH);
-            returns("true","false");
+            result="false";
         }};
         dssRefreshWorker.executeJob(context,domain);
+        new Verifications(){{
+            tslValidationJob.clearRepository();times=0;
+            tslValidationJob.refresh();times=1;
+        }};
+    }
+    @Test
+    public void executeJobFullRefresh(final @Mocked JobExecutionContext context,final @Mocked  DomainDTO domain) throws JobExecutionException {
+        new Expectations(){{
+            dssExtensionPropertyManager.getKnownPropertyValue(DssExtensionPropertyManager.DSS_FULL_TLS_REFRESH);
+            result="true";
+        }};
         dssRefreshWorker.executeJob(context,domain);
         new Verifications(){{
             tslValidationJob.clearRepository();times=1;
-            tslValidationJob.refresh();times=2;
+            tslValidationJob.refresh();times=1;
         }};
     }
 }
