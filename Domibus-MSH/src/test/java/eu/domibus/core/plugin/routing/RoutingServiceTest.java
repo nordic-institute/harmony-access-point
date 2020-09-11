@@ -565,7 +565,7 @@ public class RoutingServiceTest {
             criteriaFactory.getInstance();
             result = iRoutingCriteria;
 
-            routingService.createMissingBackendFilters();
+            routingService.createBackendFilters();
             times = 1;
         }};
 
@@ -727,7 +727,7 @@ public class RoutingServiceTest {
             routingCriteriaFactory.getInstance();
             result = null;
 
-            routingService.createMissingBackendFilters();
+            routingService.createBackendFilters();
         }};
 
         routingService.init();
@@ -849,7 +849,7 @@ public class RoutingServiceTest {
             result = backendFilterEntities;
         }};
 
-        routingService.createMissingBackendFilters();
+        routingService.createBackendFilters();
 
         new FullVerifications() {{
             authUtils.setAuthenticationToSecurityContext("domibus", "domibus", AuthRole.ROLE_AP_ADMIN);
@@ -980,7 +980,6 @@ public class RoutingServiceTest {
         };
     }
 
-
     @Test(expected = ConfigurationException.class)
     public void ensureAtLeastOneFilterForEachPluginInvalid(@Mocked BackendConnector<?, ?> bc1,
                                                            @Mocked BackendConnector<?, ?> bc2,
@@ -1082,7 +1081,7 @@ public class RoutingServiceTest {
             result = entitiesInDb;
         }};
 
-        routingService.createMissingBackendFilters();
+        routingService.createBackendFilters();
 
         new Verifications() {{
             authUtils.setAuthenticationToSecurityContext("domibus", "domibus", AuthRole.ROLE_AP_ADMIN);

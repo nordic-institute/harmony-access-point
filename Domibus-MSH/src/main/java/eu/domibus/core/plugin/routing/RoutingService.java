@@ -83,13 +83,13 @@ public class RoutingService {
 
         if (domibusConfigurationService.isSingleTenantAware()) {
             LOG.debug("Creating plugin backend filters in Non MultiTenancy environment");
-            createMissingBackendFilters();
+            createBackendFilters();
         } else {
             // Get All Domains
             final List<Domain> domains = domainService.getDomains();
             LOG.debug("Creating plugin backend filters for all the domains in MultiTenancy environment");
             for (Domain domain : domains) {
-                domainTaskExecutor.submit(this::createMissingBackendFilters, domain);
+                domainTaskExecutor.submit(this::createBackendFilters, domain);
             }
         }
 
@@ -127,7 +127,7 @@ public class RoutingService {
     /**
      * Create backend filters for the installed plugins that do not have one already created
      */
-    protected void createMissingBackendFilters() {
+    protected void createBackendFilters() {
         List<BackendFilterEntity> backendFilterEntitiesInDB = backendFilterDao.findAll();
 
         //Setting security context authentication to have user details in audit logs when create message filters
