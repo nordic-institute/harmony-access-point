@@ -139,9 +139,11 @@ public class RoutingService {
                 .collect(Collectors.toList());
 
         //checking if any existing database plugins are already removed from the plugin location
-        List<BackendFilterEntity> dbFiltersNotInBackendConnectors = backendFilterEntitiesInDB.stream().filter(backendFilterEntity -> pluginToAdd.stream().noneMatch(plugin -> StringUtils.equalsIgnoreCase(plugin, backendFilterEntity.getBackendName()))).collect(Collectors.toList());
+        List<BackendFilterEntity> dbFiltersNotInBackendConnectors = backendFilterEntitiesInDB.stream().filter(
+                backendFilterEntity -> pluginToAdd.stream().noneMatch(plugin -> StringUtils.equalsIgnoreCase(plugin, backendFilterEntity.getBackendName()))).collect(Collectors.toList());
         if (!CollectionUtils.isEmpty(dbFiltersNotInBackendConnectors)) {
             backendFilterDao.delete(dbFiltersNotInBackendConnectors);
+            LOG.debug("Deleting backend filters from database if its already removed from the plugin location.");
             backendFilterEntitiesInDB.removeAll(dbFiltersNotInBackendConnectors);
             if (!CollectionUtils.isEmpty(backendFilterEntitiesInDB)) {
                 updateFilterIndices(backendFilterEntitiesInDB);
