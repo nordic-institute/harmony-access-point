@@ -6,6 +6,7 @@ import {SecurityService} from '../../security/security.service';
 import {UserService} from '../support/user.service';
 import {DomainService} from '../../security/domain.service';
 import {UserResponseRO, UserState} from '../support/user';
+import {PasswordPolicyRO} from '../../security/passwordPolicyRO';
 
 const NEW_MODE = 'New User';
 const EDIT_MODE = 'User Edit';
@@ -64,9 +65,8 @@ export class EditUserComponent implements OnInit {
       'email': new FormControl(this.user.email, [Validators.pattern(this.emailPattern), Validators.maxLength(255)]),
       'roles': new FormControl(this.user.roles, Validators.required),
       'domain': new FormControl({value: this.user.domain, disabled: this.isDomainDisabled()}, Validators.required),
-      // todo: put pass and confirm into a sub-group to validate separately
-      'password': new FormControl(this.user.password, [Validators.pattern(this.passwordPattern), this.isNewUser() ? Validators.required : Validators.nullValidator]),
-      'confirmation': new FormControl(this.confirmation, [Validators.pattern(this.passwordPattern), this.isNewUser() ? Validators.required : Validators.nullValidator]),
+      'password': new FormControl(this.user.password),
+      'confirmation': new FormControl(this.confirmation),
       'active': new FormControl({value: this.user.active, disabled: this.isCurrentUser()}, Validators.required)
     }, {
       validator: [this.userValidatorService.passwordShouldMatch(), this.userValidatorService.defaultDomain()]
@@ -82,11 +82,6 @@ export class EditUserComponent implements OnInit {
       this.currentDomain = dom.code;
     });
     this.isDomainVisible = await this.userService.isDomainVisible();
-
-    const passwordPolicy = await this.securityService.getPasswordPolicy();
-    this.passwordPattern = passwordPolicy.pattern;
-    this.passwordValidationMessage = passwordPolicy.validationMessage;
-
     if (!this.isNewUser()) {
       this.existingRoles = this.getAllowedRoles(this.existingRoles, this.user.roles);
     }
@@ -104,13 +99,18 @@ export class EditUserComponent implements OnInit {
     return this.user.roles !== SecurityService.ROLE_AP_ADMIN;
   }
 
-  onRoleChange($event) {
-    if ($event.value === SecurityService.ROLE_AP_ADMIN) {
-      this.userForm.get('domain').enable();
+  async onRoleChange($event) {
+    const role: string = $event.value;
+    const domainCtrl = this.userForm.get('domain');
+    if (role === SecurityService.ROLE_AP_ADMIN) {
+      domainCtrl.enable();
     } else {
-      this.userForm.get('domain').disable();
+      domainCtrl.disable();
       this.userForm.patchValue({domain: this.currentDomain});
     }
+
+    await this.getPasswordPolicy(role);
+    this.setPasswordValidators();
   }
 
   // filters out roles so that the user cannot change from ap admin to the other 2 roles or vice-versa
@@ -135,5 +135,22 @@ export class EditUserComponent implements OnInit {
 
   isFormDisabled() {
     return this.userForm.invalid || !this.userForm.dirty;
+  }
+
+  private async getPasswordPolicy(role: string): Promise<PasswordPolicyRO> {
+    const passwordPolicy = await this.securityService.getPasswordPolicyForUserRole(role);
+    this.passwordPattern = passwordPolicy.pattern;
+    this.passwordValidationMessage = passwordPolicy.validationMessage;
+    return passwordPolicy;
+  }
+
+  private setPasswordValidators() {
+    const passCtrl = this.userForm.get('password');
+    passCtrl.setValidators([Validators.pattern(this.passwordPattern), this.isNewUser() ? Validators.required : Validators.nullValidator]);
+    passCtrl.updateValueAndValidity();
+
+    const confPassCtrl = this.userForm.get('confirmation');
+    confPassCtrl.setValidators([Validators.pattern(this.passwordPattern), this.isNewUser() ? Validators.required : Validators.nullValidator]);
+    confPassCtrl.updateValueAndValidity();
   }
 }
