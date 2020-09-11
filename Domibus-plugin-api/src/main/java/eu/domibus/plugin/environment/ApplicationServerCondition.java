@@ -16,7 +16,7 @@ public class ApplicationServerCondition implements Condition {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ApplicationServerCondition.class);
 
     /**
-     * Returns true if the current server is WildFly
+     * Returns true if the current server is WildFly or WebLogic
      *
      * @param context  Context information {@link ConditionContext}
      * @param metadata Defines access to the annotations of a specific type {@link AnnotatedTypeMetadata}
