@@ -111,7 +111,7 @@ public class ErrorHandlerService {
         return createResponse(errorMessage, HttpStatus.BAD_REQUEST);
     }
 
-    private String getLast(Path propertyPath) {
+    protected String getLast(Path propertyPath) {
         Iterator<Path.Node> it = propertyPath.iterator();
         while (true) {
             Path.Node node = it.next();
