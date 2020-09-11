@@ -71,6 +71,34 @@ public class MessageRetentionServiceTest {
     final List<String> mpcs = Arrays.asList(new String[]{mpc1, mpc2});
     final String separator = ",";
 
+
+    @Test
+    public void testscheduleDeleteMessagesDeleteMetadata() {
+        new Expectations(messageRetentionService) {{
+            pModeProvider.isDeleteMessageMetadataByMpcURI(mpc1);
+            result = true;
+
+            pModeProvider.getRetentionMaxBatchByMpcURI(mpc1, domibusPropertyProvider.getIntegerProperty(DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_BATCH_DELETE));
+            result = maxBatch;
+
+            messageRetentionService.scheduleDeleteMessages(expiredMessages, maxBatch);
+        }};
+
+        messageRetentionService.scheduleDeleteMessages(expiredMessages, mpc1);
+    }
+
+    @Test
+    public void testscheduleDeleteMessages() {
+        new Expectations(messageRetentionService) {{
+            pModeProvider.isDeleteMessageMetadataByMpcURI(mpc1);
+            result = false;
+
+            messageRetentionService.scheduleDeleteMessages(expiredMessages);
+        }};
+
+        messageRetentionService.scheduleDeleteMessages(expiredMessages, mpc1);
+    }
+
     @Test
     public void testDeleteExpiredMessages() {
         new Expectations(messageRetentionService) {{
@@ -133,13 +161,12 @@ public class MessageRetentionServiceTest {
             userMessageLogDao.getDownloadedUserMessagesOlderThan((Date)any, mpc1, expiredDownloadedMessagesLimit);
             result = expiredMessages;
 
+            messageRetentionService.scheduleDeleteMessages((List<String>)any, mpc1); times = 1;
+
         }};
 
         messageRetentionService.deleteExpiredDownloadedMessages(mpc1, expiredDownloadedMessagesLimit);
 
-        new Verifications() {{
-            messageRetentionService.scheduleDeleteMessages((List<String>)any, mpc1); times = 1;
-        }};
     }
 
     @Test
@@ -152,13 +179,10 @@ public class MessageRetentionServiceTest {
             userMessageLogDao.getUndownloadedUserMessagesOlderThan((Date)any, mpc1, expiredNotDownloadedMessagesLimit);
             result = expiredMessages;
 
+            messageRetentionService.scheduleDeleteMessages((List<String>)any, mpc1); times = 1;
         }};
 
         messageRetentionService.deleteExpiredNotDownloadedMessages(mpc1, expiredNotDownloadedMessagesLimit);
-
-        new Verifications() {{
-            messageRetentionService.scheduleDeleteMessages((List<String>)any, mpc1); times = 1;
-        }};
     }
 
     @Test
@@ -171,13 +195,11 @@ public class MessageRetentionServiceTest {
             userMessageLogDao.getSentUserMessagesOlderThan((Date)any, mpc1, expiredSentMessagesLimit);
             result = expiredMessages;
 
+            messageRetentionService.scheduleDeleteMessages((List<String>)any, mpc1); times = 1;
         }};
 
         messageRetentionService.deleteExpiredSentMessages(mpc1, expiredSentMessagesLimit);
 
-        new Verifications() {{
-            messageRetentionService.scheduleDeleteMessages((List<String>)any, mpc1); times = 1;
-        }};
     }
 
 
@@ -250,7 +272,7 @@ public class MessageRetentionServiceTest {
     }
 
     @Test
-    public void testNotDeletePayload(@Mocked UserMessage userMessage, @Mocked UserMessageLog userMessageLog) {
+    public void testNotDeletePayloadSendFailure(@Mocked UserMessage userMessage, @Mocked UserMessageLog userMessageLog) {
 
         new Expectations() {{
             //partial mocking of the following methods
@@ -259,12 +281,25 @@ public class MessageRetentionServiceTest {
 
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_SEND_MESSAGE_FAILURE_DELETE_PAYLOAD);
             result = false;
+        }};
+
+        messageRetentionService.deletePayloadOnSendFailure(userMessage, userMessageLog);
+
+        //the verifications are done in the Expectations block
+    }
+
+    @Test
+    public void testNotDeletePayloadSendSuccess(@Mocked UserMessage userMessage, @Mocked UserMessageLog userMessageLog) {
+
+        new Expectations() {{
+            //partial mocking of the following methods
+            messagingDao.clearPayloadData(userMessage); times = 0;
+            messageRetentionService.deletePayload(userMessage, userMessageLog);
 
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_SEND_MESSAGE_SUCCESS_DELETE_PAYLOAD);
             result = false;
         }};
 
-        messageRetentionService.deletePayloadOnSendFailure(userMessage, userMessageLog);
         messageRetentionService.deletePayloadOnSendSuccess(userMessage, userMessageLog);
 
         //the verifications are done in the Expectations block
