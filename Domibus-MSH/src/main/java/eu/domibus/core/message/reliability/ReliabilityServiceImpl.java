@@ -1,12 +1,14 @@
 package eu.domibus.core.message.reliability;
 
 import eu.domibus.api.message.attempt.MessageAttempt;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.message.UserMessageLog;
 import eu.domibus.core.message.UserMessageLogDefaultService;
+import eu.domibus.core.message.retention.MessageRetentionService;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
 import eu.domibus.core.message.UserMessageHandlerService;
 import eu.domibus.ebms3.common.model.Messaging;
@@ -67,6 +69,12 @@ public class ReliabilityServiceImpl implements ReliabilityService {
     @Autowired
     private UIReplicationSignalService uiReplicationSignalService;
 
+    @Autowired
+    DomibusPropertyProvider domibusPropertyProvider;
+
+    @Autowired
+    MessageRetentionService messageRetentionService;
+
     /**
      * {@inheritDoc}
      */
@@ -111,8 +119,7 @@ public class ReliabilityServiceImpl implements ReliabilityService {
                     backendNotificationService.notifyOfSendSuccess(userMessageLog);
                 }
                 userMessageLog.setSendAttempts(userMessageLog.getSendAttempts() + 1);
-
-                messagingDao.clearPayloadData(userMessage);
+                messageRetentionService.deletePayloadOnSendSuccess(userMessage, userMessageLog);
                 LOG.businessInfo(isTestMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_SEND_SUCCESS : DomibusMessageCode.BUS_MESSAGE_SEND_SUCCESS,
                         userMessage.getFromFirstPartyId(), userMessage.getToFirstPartyId());
 
@@ -137,4 +144,6 @@ public class ReliabilityServiceImpl implements ReliabilityService {
 
         LOG.debug("Finished handling reliability");
     }
+
+
 }

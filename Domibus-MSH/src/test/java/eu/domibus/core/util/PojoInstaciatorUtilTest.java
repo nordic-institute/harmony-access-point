@@ -4,6 +4,7 @@ import eu.domibus.common.model.configuration.Mpc;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.ebms3.common.model.Messaging;
+import eu.domibus.ebms3.common.model.PartyInfo;
 import eu.domibus.test.util.PojoInstaciatorUtil;
 import org.junit.Assert;
 import org.junit.Test;
@@ -82,10 +83,10 @@ public class PojoInstaciatorUtilTest {
 
     @Test
     public void testMultipleSubClasesWithCollection(){
-        Messaging instanciate = PojoInstaciatorUtil.instanciate(Messaging.class, "userMessage[partyInfo[to[role:test,partyId{[value:testParty]}]]]");
-        assertEquals("test",instanciate.getUserMessage().getPartyInfo().getTo().getRole());
-        assertEquals(1,instanciate.getUserMessage().getPartyInfo().getTo().getPartyId().size());
-        assertEquals("testParty",instanciate.getUserMessage().getPartyInfo().getTo().getPartyId().iterator().next().getValue());
+        PartyInfo instanciate = PojoInstaciatorUtil.instanciate(PartyInfo.class, "to[role:test,partyId{[value:testParty]}]");
+        assertEquals("test",instanciate.getTo().getRole());
+        assertEquals(1,instanciate.getTo().getPartyId().size());
+        assertEquals("testParty",instanciate.getTo().getPartyId().iterator().next().getValue());
     }
 
 }

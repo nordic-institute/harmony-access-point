@@ -7,6 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.NoResultException;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import java.util.List;
 
@@ -39,4 +40,13 @@ public class MessageAttemptDao extends BasicDao<MessageAttemptEntity> {
         entity.setError(StringUtils.abbreviate(entity.getError(), 255));
         super.create(entity);
     }
+
+    public int deleteAttemptsByMessageIds(List<String> messageIds) {
+        final Query deleteQuery = em.createNamedQuery("MessageAttemptEntity.deleteAttemptsByMessageIds");
+        deleteQuery.setParameter("MESSAGEIDS", messageIds);
+        int result  = deleteQuery.executeUpdate();
+        LOG.trace("deleteAttemptsByMessageIds result [{}]", result);
+        return result;
+    }
+
 }

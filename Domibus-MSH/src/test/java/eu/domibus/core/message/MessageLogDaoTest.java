@@ -69,7 +69,6 @@ public class MessageLogDaoTest {
         // THEN
         new Verifications() {{
             messageLog.setMessageStatus(MessageStatus.ACKNOWLEDGED);
-            messageLog.setDeleted((java.util.Date) any);
             messageLog.setNextAttempt(null);
         }};
     }
@@ -82,7 +81,6 @@ public class MessageLogDaoTest {
         // THEN
         new Verifications() {{
             messageLog.setMessageStatus(MessageStatus.ACKNOWLEDGED_WITH_WARNING);
-            messageLog.setDeleted((java.util.Date) any);
             messageLog.setNextAttempt(null);
         }};
     }
