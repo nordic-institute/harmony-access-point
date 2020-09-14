@@ -72,6 +72,8 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
             messaging = soapService.getMessage(message);
             message.put(DispatchClientDefaultProvider.MESSAGING_KEY_CONTEXT_PROPERTY, messaging);
 
+
+
             LegConfigurationExtractor legConfigurationExtractor = messageLegConfigurationFactory.extractMessageConfiguration(message, messaging);
             if (legConfigurationExtractor == null) return;
 
@@ -93,7 +95,8 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
         } catch (EbMS3Exception e) {
             setBindingOperation(message);
             LOG.debug("", e); // Those errors are expected (no PMode found, therefore DEBUG)
-            processPluginNotification(e, false, legConfiguration, messaging);
+
+            processPluginNotification(e, legConfiguration, messaging);
             throw new Fault(e);
         } catch (IOException | JAXBException e) {
             setBindingOperation(message);
@@ -104,8 +107,9 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
         }
     }
 
-    protected void processPluginNotification(EbMS3Exception e, boolean testMessage, LegConfiguration legConfiguration, Messaging messaging) {
+    protected void processPluginNotification(EbMS3Exception e, LegConfiguration legConfiguration, Messaging messaging) {
         final String messageId = messaging.getUserMessage().getMessageInfo().getMessageId();
+        boolean testMessage = userMessageHandlerService.checkTestMessage(messaging.getUserMessage());
         if (legConfiguration == null) {
             LOG.debug("LegConfiguration is null for messageId=[{}] we will not notify backend plugins", messageId);
             return;
