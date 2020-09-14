@@ -10,7 +10,7 @@ import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * Annotation for custom validator that checks that the value does not contain any char from the blacklist
+ * Annotation for custom Size validator: checks the size only if the value is not empty. ( it accepts empty values)
  *
  * @author Ion Perpegel
  * since 4.2
@@ -29,5 +29,5 @@ public @interface SizeIfPresent {
 
     int min() default 0;
 
-    int max() default 2147483647;
+    int max() default Integer.MAX_VALUE;
 }

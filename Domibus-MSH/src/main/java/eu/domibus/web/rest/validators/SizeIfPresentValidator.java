@@ -5,6 +5,13 @@ import org.apache.commons.lang3.StringUtils;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
+/**
+ * The class that enforces the @SizeIfPresent constraint
+ * The difference between this and the @Size is that it checks the size only if the value is not empty.(it accepts empty values)
+ *
+ * @author Ion Perpegel
+ * since 4.1
+ */
 public class SizeIfPresentValidator implements ConstraintValidator<SizeIfPresent, String> {
 
     private SizeIfPresent constraintAnnotation;
@@ -16,6 +23,7 @@ public class SizeIfPresentValidator implements ConstraintValidator<SizeIfPresent
 
     @Override
     public boolean isValid(String value, ConstraintValidatorContext constraintValidatorContext) {
+        // empty value accepted
         if (StringUtils.isEmpty(value)) {
             return true;
         }
