@@ -5,6 +5,7 @@ import ddsl.enums.DMessages;
 import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
 import domibus.ui.SeleniumTest;
+import org.json.JSONArray;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.users.UserModal;
@@ -42,10 +43,11 @@ public class UsersPgTest extends SeleniumTest {
 	
 	
 	private UsersPage loginAndGoToUsersPage(HashMap<String, String> user) throws Exception {
-		
 		log.info("Login with user" + user);
 		login(user).getSidebar().goToPage(PAGES.USERS);
-		return new UsersPage(driver);
+		UsersPage page = new UsersPage(driver);
+		page.grid().waitForRowsToLoad();
+		return page;
 	}
 	
 	private UsersPage loginAndGoToUsersPage(String user, String pass) throws Exception {
@@ -371,6 +373,7 @@ public class UsersPgTest extends SeleniumTest {
 	public void adminChangesUserPassword() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		String username = rest.getUser(null, DRoles.USER, true, false, true).getString("userName");
+		
 		UsersPage page = new UsersPage(driver);
 		page.getSidebar().goToPage(PAGES.USERS);
 		
@@ -401,7 +404,7 @@ public class UsersPgTest extends SeleniumTest {
 		soft.assertAll();
 	}
 	
-//	username validations bug reported and not fixed
+	//	username validations bug reported and not fixed
 	/*USR-16 - Admin tries to create new user with username less than 3 letters long*/
 	@Test(description = "USR-16", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void userNameValidations() throws Exception {
@@ -466,7 +469,7 @@ public class UsersPgTest extends SeleniumTest {
 		
 		log.info("login with username " + username);
 		login(username, data.defaultPass());
-		
+
 //		soft.assertEquals(new DomibusPage(driver).getSidebar().availableOptions().size(), 2, "User has only 2 options available in sidebar");
 		soft.assertTrue(new DomibusPage(driver).getSidebar().isUserState(), "User has only 2 options available in sidebar");
 		
@@ -629,6 +632,128 @@ public class UsersPgTest extends SeleniumTest {
 		
 		soft.assertAll();
 	}
+	
+	/*USR-39 - Change password of Super user by Another super user*/
+	@Test(description = "USR-39", groups = {"multiTenancy"})
+	public void changePassOtherSuperUsr() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		
+		log.info("Getting super user");
+		String userName = rest.getUser(null, DRoles.SUPER, true, false, true).
+				getString("userName");
+		log.info("got " + userName);
+		
+		HashMap<String, String> params = new HashMap<>();
+		params.put("password", data.getNewTestPass());
+		
+		log.info("Change password of new super user  with username :" + userName);
+		rest.users().updateUser(userName, params, null);
+		
+		log.info("logout and login with new password for super user " + userName);
+		logout();
+		
+		DomibusPage page = login(userName, data.getNewTestPass());
+		soft.assertTrue(page.getSandwichMenu().isLoggedIn(), "User is able to login with new password successfully");
+		
+		soft.assertAll();
+	}
+	
+	
+	/*USR-40 - Update/Delete super user when only 1 super user exist*/
+	@Test(description = "USR-40", groups = {"multiTenancy"})
+	public void superDelUpdateSelf() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		
+		log.info("Delete all super user except Default one");
+		JSONArray userArray =rest.users().getUsers(null);
+		int userCount = userArray.length();
+		
+		for (int i = 0; i < userCount; i++) {
+			String userName = userArray.getJSONObject(i).get("userName").toString();
+			String role = userArray.getJSONObject(i).get("roles").toString();
+			if (role.equals("ROLE_AP_ADMIN") && !userName.equals("super")) {
+				rest.users().deleteUser(userName, null);
+			}
+		}
+		
+		UsersPage page = new UsersPage(driver);
+		page.getSidebar().goToPage(PAGES.USERS);
+		
+		page.grid().scrollToAndSelect("Username", "super");
+		page.getDeleteBtn().click();
+		soft.assertTrue(page.getAlertArea().getAlertMessage().equals("You cannot delete the logged in user: super"));
+		log.info("Super user can't be deleted as no other super user exists");
+		
+		page.grid().scrollToAndSelect("Username", "super");
+		page.getEditBtn().click();
+		UserModal modal = new UserModal(driver);
+		
+		soft.assertTrue(modal.getRoleSelect().getOptionsTexts().size() == 1, "only one role is present ");
+		page.clickVoidSpace();
+		log.info("Role change is not possible for super user ");
+		soft.assertAll();
+	}
+	
+	
+	/*USR-41 - Update/Delete super user when other super user exist*/
+	@Test(description = "USR-41", groups = {"multiTenancy"})
+	public void superDelUpdateOtherSuper() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		log.info("Add new Super user");
+		String userName = rest.getUser(null, DRoles.SUPER, true, false, true).
+				getString("userName");
+		
+		log.info("Login with default Super user");
+		
+		UsersPage page = new UsersPage(driver);
+		page.getSidebar().goToPage(PAGES.USERS);
+		
+		log.info("Update Email for new Super user  " + userName);
+		page.grid().scrollToAndSelect("Username", userName);
+		page.getEditBtn().click();
+		UserModal modal = new UserModal(driver);
+		
+		modal.fillData(null, "abc@gmail.com", "", "", "");
+		modal.getOkBtn().click();
+		page.saveAndConfirm();
+		soft.assertEquals(page.getAlertArea().getAlertMessage(), "The operation 'update users' completed successfully.");
+		
+		page.grid().waitForRowsToLoad();
+		
+		log.info("Delete new Super user {}", userName);
+		
+		page.grid().scrollToAndSelect("Username", userName);
+		page.getDeleteBtn().click();
+		page.saveAndConfirm();
+		
+		soft.assertEquals(page.getAlertArea().getAlertMessage(), "The operation 'update users' completed successfully.");
+		
+		soft.assertAll();
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	
 }

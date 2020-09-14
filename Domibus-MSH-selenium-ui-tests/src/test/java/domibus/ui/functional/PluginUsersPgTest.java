@@ -561,9 +561,11 @@ public class PluginUsersPgTest extends SeleniumTest {
 		
 		SoftAssert soft = new SoftAssert();
 		
-		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PLUGIN_USERS);
 		
 		PluginUsersPage page = new PluginUsersPage(driver);
+		page.getSidebar().goToPage(PAGES.PLUGIN_USERS);
+		page.grid().waitForRowsToLoad();
+		
 		log.info("checking buttons state");
 		soft.assertTrue(page.getCancelBtn().isDisabled(), "Cancel button is disabled on page load");
 		soft.assertTrue(page.getSaveBtn().isDisabled(), "Save button is disabled on page load");
