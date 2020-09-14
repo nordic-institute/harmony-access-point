@@ -24,6 +24,7 @@ import {NotAuthorizedComponent} from "./security/not-authorized/not-authorized.c
 import {SecurityService} from "./security/security.service";
 import {PropertiesComponent} from './properties/properties.component';
 import {ConnectionsComponent} from './testservice/connections.component';
+import {AuthInternalProviderGuard} from './common/guards/auth-internal-provider.guard';
 
 const appRoutes: Routes = [
   {
@@ -173,16 +174,6 @@ const appRoutes: Routes = [
     },
     runGuardsAndResolvers: 'always'
   },
-  // {
-  //   path: 'testservice',
-  //   component: TestServiceComponent,
-  //   canActivate: [AuthenticatedAuthorizedGuard, DefaultPasswordGuard],
-  //   data: {
-  //     checkRoles: SecurityService.ADMIN_ROLES,
-  //     helpPage: 'TestService'
-  //   },
-  //   runGuardsAndResolvers: 'always'
-  // },
   {
     path: 'connections',
     component: ConnectionsComponent,
@@ -223,6 +214,7 @@ const appRoutes: Routes = [
   {
     path: 'logout',
     component: LogoutAuthExtProviderComponent,
+    canActivate: [AuthInternalProviderGuard],
     data: {
       isDomainIndependent: true
     },
