@@ -40,7 +40,7 @@ public class EditModal extends DComponent {
 		wait.forElementToBeGone(okBtn);
 
 //		hardcoded wait to match the time needed for the dialog to disappear
-		wait.forXMillis(200);
+		wait.forXMillis(300);
 	}
 
 	public void clickCancel() throws Exception {

@@ -63,4 +63,15 @@ public class AlertArea extends DComponent {
 		throw new Exception("Alert message not present");
 	}
 
+	public boolean isShown() throws Exception {
+		try {
+			wait.forElementToBeVisible(alertContainer, true);
+		} catch (Exception e) {
+			return false;
+		}
+		return true;
+	}
+
+	
+	
 }

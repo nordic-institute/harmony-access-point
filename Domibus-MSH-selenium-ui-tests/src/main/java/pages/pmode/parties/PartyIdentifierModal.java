@@ -51,6 +51,6 @@ public class PartyIdentifierModal extends DomibusPage {
 	public void fillFields(String partyId) throws Exception {
 		getPartyIdInput().fill(partyId);
 		getPartyIdTypeInput().fill(Gen.randomAlphaNumeric(5));
-		getPartyIdValueInput().fill("urn:oasis:names:tc:ebcore:partyid-type:unregistered");
+		getPartyIdValueInput().fill("urn:oasis:names:tc:ebcore:partyid-type:" + Gen.randomAlphaNumeric(15));
 	}
 }

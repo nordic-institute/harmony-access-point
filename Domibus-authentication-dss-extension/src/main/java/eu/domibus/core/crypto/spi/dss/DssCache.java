@@ -31,4 +31,9 @@ public class DssCache {
         LOG.debug("Is certificate chain key in cache:[{}]", certificateKeyInCache);
         return certificateKeyInCache;
     }
+
+    public void clear(){
+        LOG.info("Clearing DSS cache");
+        cache.removeAll();
+    }
 }
