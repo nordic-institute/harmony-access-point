@@ -24,7 +24,7 @@ public class FSPluginApplicationServerConfiguration {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FSPluginApplicationServerConfiguration.class);
 
-    @Bean("notifyBackendFSQueue")
+    @Bean(FSPluginConfiguration.NOTIFY_BACKEND_FS_QUEUE_NAME)
     public JndiObjectFactoryBean notifyBackendFSQueue() {
         JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
 

@@ -37,6 +37,7 @@ public class FSPluginConfiguration {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FSPluginConfiguration.class);
 
     public static final String NOTIFY_BACKEND_QUEUE_JNDI = "jms/domibus.notification.filesystem";
+    public static final String NOTIFY_BACKEND_FS_QUEUE_NAME = "notifyBackendFSQueue";
 
     @Value("file:///${domibus.config.location}/plugins/config/fs-plugin.properties")
     protected String fsPluginExternalPropertiesFile;
@@ -47,7 +48,7 @@ public class FSPluginConfiguration {
     }
 
     @Bean("fsPluginAsyncPluginConfiguration")
-    public PluginAsyncNotificationConfiguration pluginAsyncNotificationConfiguration(@Qualifier("notifyBackendFSQueue") Queue notifyBackendFSQueue,
+    public PluginAsyncNotificationConfiguration pluginAsyncNotificationConfiguration(@Qualifier(NOTIFY_BACKEND_FS_QUEUE_NAME) Queue notifyBackendFSQueue,
                                                                                      FSPluginImpl backendFS,
                                                                                      Environment environment) {
         PluginAsyncNotificationConfiguration pluginAsyncNotificationConfiguration = new PluginAsyncNotificationConfiguration(backendFS, notifyBackendFSQueue);

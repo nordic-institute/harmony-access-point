@@ -22,7 +22,7 @@ public class FSPluginTomcatConfiguration {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FSPluginTomcatConfiguration.class);
 
-    @Bean("notifyBackendFSQueue")
+    @Bean(FSPluginConfiguration.NOTIFY_BACKEND_FS_QUEUE_NAME)
     public ActiveMQQueue notifyBackendFSQueue() {
         return new ActiveMQQueue("domibus.notification.filesystem");
     }
