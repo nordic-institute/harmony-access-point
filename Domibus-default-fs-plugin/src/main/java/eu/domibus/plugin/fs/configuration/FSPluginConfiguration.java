@@ -52,7 +52,7 @@ public class FSPluginConfiguration {
                                                                                      FSPluginImpl backendFS,
                                                                                      Environment environment) {
         PluginAsyncNotificationConfiguration pluginAsyncNotificationConfiguration = new PluginAsyncNotificationConfiguration(backendFS, notifyBackendFSQueue);
-        if (DomibusEnvironmentUtil.isApplicationServer(environment)) {
+        if (DomibusEnvironmentUtil.INSTANCE.isApplicationServer(environment)) {
             String queueNotificationJndi = NOTIFY_BACKEND_QUEUE_JNDI;
             LOG.debug("Domibus is running inside an application server. Setting the queue name to [{}]", queueNotificationJndi);
             pluginAsyncNotificationConfiguration.setQueueName(queueNotificationJndi);
