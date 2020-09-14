@@ -557,7 +557,7 @@ public class JMSMessPgTest extends SeleniumTest {
 		log.info("Expecting count = " + expectCount);
 		
 		for (String queue : queues) {
-			soft.assertTrue(expectCount = queue.matches(".+\\(\\d+\\)$") ,
+			soft.assertTrue(expectCount == queue.matches(".+\\(\\d+\\)$") ,
 					String.format("Expecting count = %s not as expected for queue %s name: ", expectCount, queue));
 		}
 	}
