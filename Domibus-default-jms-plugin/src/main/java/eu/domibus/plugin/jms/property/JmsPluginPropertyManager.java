@@ -29,6 +29,7 @@ public class JmsPluginPropertyManager extends DomibusPropertyExtServiceDelegateA
 
     private List<DomibusPropertyMetadataDTO> readOnlyGlobalProperties = Arrays.asList(
             new DomibusPropertyMetadataDTO(CONNECTION_FACTORY, Type.JNDI, Module.JMS_PLUGIN, false, Usage.GLOBAL, true, false, false, false),
+            new DomibusPropertyMetadataDTO(CACHING_CONNECTION_FACTORY_SESSION_CACHE_SIZE, Type.NUMERIC, Module.JMS_PLUGIN, false, Usage.GLOBAL, true, false, false, false),
             new DomibusPropertyMetadataDTO(QUEUE_NOTIFICATION, Type.JNDI, Module.JMS_PLUGIN, false, Usage.GLOBAL, false, false, false, false),
             new DomibusPropertyMetadataDTO(QUEUE_IN, Type.JNDI, Module.JMS_PLUGIN, false, Usage.GLOBAL, false, false, false, false),
             new DomibusPropertyMetadataDTO(QUEUE_IN_CONCURRENCY, Type.CONCURRENCY, Module.JMS_PLUGIN, false, Usage.GLOBAL, false, false, false, false)

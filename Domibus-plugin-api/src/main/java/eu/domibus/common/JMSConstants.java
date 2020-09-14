@@ -1,4 +1,4 @@
-package eu.domibus.api.jms;
+package eu.domibus.common;
 
 /**
  * @author Cosmin Baciu

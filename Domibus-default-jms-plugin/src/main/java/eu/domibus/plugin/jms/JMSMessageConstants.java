@@ -69,6 +69,8 @@ public class JMSMessageConstants {
 
     public static final String CONNECTION_FACTORY = JMS_PLUGIN_PROPERTY_PREFIX + "." + "connection.factory";
     public static final String CONNECTION_FACTORY_NAME= "domibusJMSPlugin-ConnectionFactory";
+    public static final String CACHING_CONNECTION_FACTORY_NAME= "domibusJMSPlugin-Caching-ConnectionFactory";
+    public static final String CACHING_CONNECTION_FACTORY_SESSION_CACHE_SIZE= JMS_PLUGIN_PROPERTY_PREFIX + "." + "jms.connectionFactory.session.cache.size";
 
     public static final String QUEUE_NOTIFICATION = JMS_PLUGIN_PROPERTY_PREFIX + "." + "queue.notification";
     public static final String QUEUE_IN = JMS_PLUGIN_PROPERTY_PREFIX + "." + "queue.in";

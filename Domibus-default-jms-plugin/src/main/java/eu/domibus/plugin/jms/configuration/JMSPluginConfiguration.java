@@ -1,6 +1,7 @@
 package eu.domibus.plugin.jms.configuration;
 
 import com.codahale.metrics.MetricRegistry;
+import eu.domibus.common.JMSConstants;
 import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomibusPropertyExtService;
 import eu.domibus.ext.services.JMSExtService;
@@ -74,7 +75,7 @@ public class JMSPluginConfiguration {
     }
 
     @Bean("backendJmsListenerContainerFactory")
-    public DefaultJmsListenerContainerFactory defaultJmsListenerContainerFactory(@Qualifier("domibusJMS-XAConnectionFactory") ConnectionFactory connectionFactory,
+    public DefaultJmsListenerContainerFactory defaultJmsListenerContainerFactory(@Qualifier(JMSConstants.DOMIBUS_JMS_XACONNECTION_FACTORY) ConnectionFactory connectionFactory,
                                                                                  PlatformTransactionManager transactionManager,
                                                                                  JmsPluginPropertyManager jmsPluginPropertyManager,
                                                                                  Optional<JndiDestinationResolver> jndiDestinationResolver) {
@@ -96,7 +97,7 @@ public class JMSPluginConfiguration {
     }
 
     @Bean("mshToBackendTemplate")
-    public JmsTemplate mshToBackendTemplate(@Qualifier("domibusJMS-CachingXAConnectionFactory") ConnectionFactory connectionFactory,
+    public JmsTemplate mshToBackendTemplate(@Qualifier(JMSConstants.DOMIBUS_JMS_CACHING_XACONNECTION_FACTORY) ConnectionFactory connectionFactory,
                                             Optional<JndiDestinationResolver> jndiDestinationResolver) {
         JmsTemplate jmsTemplate = new JmsTemplate(connectionFactory);
         jmsTemplate.setSessionTransacted(true);

@@ -19,9 +19,7 @@ import javax.jms.Queue;
  * @author Cosmin Baciu
  * @since 4.2
  */
-@Conditional(ApplicationServerCondition.class)
-@Configuration
-public class JMSPluginApplicationServerConfiguration {
+public abstract class JMSPluginApplicationServerConfiguration {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(JMSPluginApplicationServerConfiguration.class);
 
@@ -34,7 +32,7 @@ public class JMSPluginApplicationServerConfiguration {
     }
 
     @Bean("notifyBackendJmsQueue")
-    public JndiObjectFactoryBean sendMessageQueue(JmsPluginPropertyManager jmsPluginPropertyManager) {
+    public JndiObjectFactoryBean notifyBackendQueue(JmsPluginPropertyManager jmsPluginPropertyManager) {
         JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
 
         String queueNotificationJndi = jmsPluginPropertyManager.getKnownPropertyValue(JMSMessageConstants.QUEUE_NOTIFICATION);
