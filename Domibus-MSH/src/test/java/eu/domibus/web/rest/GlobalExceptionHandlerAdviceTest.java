@@ -1,9 +1,11 @@
 package eu.domibus.web.rest;
 
+import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import eu.domibus.api.multitenancy.DomainTaskException;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.error.GlobalExceptionHandlerAdvice;
+import eu.domibus.web.rest.ro.ErrorRO;
 import org.hibernate.HibernateException;
 import org.junit.Assert;
 import org.junit.Before;
@@ -29,7 +31,11 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import javax.persistence.RollbackException;
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+import javax.validation.Path;
 import java.util.Arrays;
+import java.util.Iterator;
 
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Mockito.*;
@@ -39,7 +45,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @RunWith(MockitoJUnitRunner.class)
 public class GlobalExceptionHandlerAdviceTest {
-
+    private final String exceptionMessage = "Lorem ipsum dolor sit amet";
     private MockMvc mockMvc;
 
     @InjectMocks
@@ -61,20 +67,6 @@ public class GlobalExceptionHandlerAdviceTest {
         this.mockMvc = MockMvcBuilders.standaloneSetup(pluginUserResource)
                 .setControllerAdvice(unitUnderTest)
                 .build();
-    }
-
-    private final String exceptionMessage = "Lorem ipsum dolor sit amet";
-    private String mockMvcResultContent(ResultMatcher expectedStatus) throws Exception {
-        String dummyPayload = "[]";
-        MvcResult result = mockMvc.perform(put("/rest/plugin/users")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(dummyPayload)
-        )
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(expectedStatus)
-                .andReturn();
-
-        return result.getResponse().getContentAsString();
     }
 
     @Test
@@ -122,4 +114,46 @@ public class GlobalExceptionHandlerAdviceTest {
         // then
         Assert.assertThat(message, new Contains(exceptionMessage));
     }
+
+    @Test
+    public void testConstraintValidationException() throws Exception {
+        String fieldName1 = "User name is required";
+        String exceptionMessage1 = "User name is required";
+        String generalMessage = "There are validation errors:";
+
+        Path propertyPath = mock(Path.class);
+        ConstraintViolation<?> constraintViolation = mock(ConstraintViolation.class);
+        Iterator<Path.Node> iterator = mock(Iterator.class);
+        Path.Node node = mock(Path.Node.class);
+
+        when(constraintViolation.getMessage()).thenReturn(fieldName1);
+        when(constraintViolation.getPropertyPath()).thenReturn(propertyPath);
+        when(propertyPath.iterator()).thenReturn(iterator);
+        when(iterator.hasNext()).thenReturn(false);
+        when(iterator.next()).thenReturn(node);
+        when(node.toString()).thenReturn(exceptionMessage1);
+
+        ConstraintViolationException thrown = new ConstraintViolationException(generalMessage, Sets.newHashSet(constraintViolation));
+
+        doThrow(thrown).when(pluginUserResource).updateUsers(anyList());
+        String message = mockMvcResultContent(status().is4xxClientError());
+        Assert.assertThat(message, new Contains(generalMessage));
+        Assert.assertThat(message, new Contains(fieldName1));
+        Assert.assertThat(message, new Contains(exceptionMessage1));
+    }
+
+    private String mockMvcResultContent(ResultMatcher expectedStatus) throws Exception {
+        String dummyPayload = "[]";
+        MvcResult result = mockMvc.perform(put("/rest/plugin/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(dummyPayload)
+        )
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(expectedStatus)
+                .andReturn();
+
+        return result.getResponse().getContentAsString();
+    }
+
+
 }

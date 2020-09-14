@@ -9,9 +9,11 @@
       <div style="margin-top:15px;">
         <mat-form-field [style.width]="'100%'">
           <input #user_name matInput placeholder="User Name" name="userName" id="username_id" [(ngModel)]="user.userName" [disabled]="editMode"
-                 input-debounce #userName="ngModel" maxlength="255" required>
+                 input-debounce #userName="ngModel" minlength="4" maxlength="255" required [pattern]="userNamePattern">
           <span class="help-block" *ngIf="shouldShowErrors(userName)">
-            <div *ngIf="userName.errors?.required" style="color:red; font-size: 70%">You should type an username</div>
+            <div *ngIf="userName.errors?.required" style="color:red; font-size: 70%">{{userNameRequiredMessage}}</div>
+            <div *ngIf="userName.errors?.minlength" style="color:red; font-size: 70%">{{userNameMinLengthMessage}}</div>
+            <div *ngIf="userName.errors?.pattern" style="color:red; font-size: 70%">{{userNamePatternMessage}}</div>
           </span>
         </mat-form-field>
       </div>

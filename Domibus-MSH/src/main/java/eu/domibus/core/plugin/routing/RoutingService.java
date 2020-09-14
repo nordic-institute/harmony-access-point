@@ -125,7 +125,7 @@ public class RoutingService {
     }
 
     /**
-     * Find the existing backend Filters from the db and create backend Filters of the plugins based on the available backend filters in the db.
+     * Create backend filters for the installed plugins that do not have one already created
      */
     protected void createBackendFilters() {
         List<BackendFilterEntity> backendFilterEntitiesInDB = backendFilterDao.findAll();
@@ -138,6 +138,18 @@ public class RoutingService {
                 .map(BackendConnector::getName)
                 .collect(Collectors.toList());
 
+//checking if any existing database plugins are already removed from the plugin location
+        List<BackendFilterEntity> dbFiltersNotInBackendConnectors = backendFilterEntitiesInDB.stream().filter(
+                backendFilterEntity -> pluginToAdd.stream().noneMatch(plugin -> StringUtils.equalsIgnoreCase(plugin, backendFilterEntity.getBackendName()))).collect(Collectors.toList());
+        if (!CollectionUtils.isEmpty(dbFiltersNotInBackendConnectors)) {
+            backendFilterDao.delete(dbFiltersNotInBackendConnectors);
+            LOG.debug("Deleting backend filters from database as its already removed from the plugin location.");
+            backendFilterEntitiesInDB.removeAll(dbFiltersNotInBackendConnectors);
+            if (!CollectionUtils.isEmpty(backendFilterEntitiesInDB)) {
+                updateFilterIndices(backendFilterEntitiesInDB);
+                backendFilterDao.update(backendFilterEntitiesInDB);
+            }
+        }
         pluginToAdd.removeAll(backendFilterEntitiesInDB.stream().map(BackendFilterEntity::getBackendName).collect(Collectors.toList()));
 
         List<BackendFilterEntity> backendFilterEntities = createBackendFilterEntities(pluginToAdd, getMaxIndex(backendFilterEntitiesInDB) + 1);
@@ -237,25 +249,41 @@ public class RoutingService {
         return true;
     }
 
-    private void updateFilterIndices(List<BackendFilterEntity> filters) {
+    protected void updateFilterIndices(List<BackendFilterEntity> filters) {
         LOG.info("Update backend filter indices for {}", filters);
-        IntStream.range(0, filters.size()).forEach(index -> filters.get(index).setIndex(index));
+        IntStream.range(0, filters.size()).forEach(index -> filters.get(index).setIndex(index + 1));
     }
 
     protected void validateFilters(List<BackendFilter> filters) {
         LOG.trace("Validating backend filters");
 
-        filters.forEach(filter -> {
-            if (filters.stream().anyMatch(f -> f != filter
-                    && f.getBackendName().equals(filter.getBackendName())
-                    && areEqual(f.getRoutingCriterias(), filter.getRoutingCriterias()))) {
-                LOG.debug("Two message filters have the same type and criteria: [{}]", filter.getBackendName());
-                throw new ConfigurationException("Two message filters cannot have the same criteria.");
+        ensureAtLeastOneFilterForEachPlugin(filters);
+
+        ensureUnicity(filters);
+    }
+
+    protected void ensureUnicity(List<BackendFilter> filters) {
+        filters.forEach(filter1 -> {
+            if (filters.stream().anyMatch(filter2 -> filter2 != filter1
+                    && filter2.getBackendName().equals(filter1.getBackendName())
+                    && areEqual(filter2.getRoutingCriterias(), filter1.getRoutingCriterias()))) {
+                throw new ConfigurationException("Two message filters cannot have the same criteria." + filter1.getBackendName());
             }
         });
     }
 
-    private boolean areEqual(List<RoutingCriteria> c1, List<RoutingCriteria> c2) {
+    protected void ensureAtLeastOneFilterForEachPlugin(List<BackendFilter> filters) {
+        List<String> pluginNames = backendConnectorProvider.getBackendConnectors().stream()
+                .map(BackendConnector::getName)
+                .collect(Collectors.toList());
+        List<String> missingFilterNames = pluginNames.stream().filter(pluginName -> filters.stream().noneMatch(filter -> filter.getBackendName().equals(pluginName))).collect(Collectors.toList());
+        if (missingFilterNames.size() > 0) {
+            throw new ConfigurationException("Each installed plugin must have at least one filter and the following do not: "
+                    + StringUtils.join(missingFilterNames, ","));
+        }
+    }
+
+    protected boolean areEqual(List<RoutingCriteria> c1, List<RoutingCriteria> c2) {
         LOG.trace("Comparing 2 filter criteria");
 
         if (c1.size() != c2.size()) {
@@ -271,7 +299,6 @@ public class RoutingService {
         LOG.trace("Filter criteria have the same properties and values, hence true for comparing [{}] and [{}]", c1, c2);
         return true;
     }
-
 
 }
 

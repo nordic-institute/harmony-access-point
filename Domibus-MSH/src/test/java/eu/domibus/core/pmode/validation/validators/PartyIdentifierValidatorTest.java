@@ -1,5 +1,6 @@
 package eu.domibus.core.pmode.validation.validators;
 
+import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.common.model.configuration.Identifier;
 import eu.domibus.common.model.configuration.Party;
@@ -25,11 +26,14 @@ public class PartyIdentifierValidatorTest {
     @Injectable
     PModeValidationHelper pModeValidationHelper;
 
+    @Injectable
+    BusinessProcessValidator businessProcessValidator;
+
     @Test
     public void testValidate(@Injectable Configuration pMode, @Injectable Party party) {
         List<Party> parties = new ArrayList<>();
         parties.add(party);
-
+        List<ValidationIssue> issues = new ArrayList<>();
         new Expectations(partyIdentifierValidator) {{
             pMode.getBusinessProcesses().getParties();
             result = parties;
@@ -39,6 +43,7 @@ public class PartyIdentifierValidatorTest {
 
         new Verifications() {{
             partyIdentifierValidator.validateDuplicatePartyIdentifiers((Party) any);
+            partyIdentifierValidator.validateForbiddenCharactersInParty(issues, (Party) any);
         }};
     }
 
@@ -141,4 +146,31 @@ public class PartyIdentifierValidatorTest {
         }};
     }
 
+    @Test
+    public void validateForbiddenCharactersInParty(@Injectable Party party, @Injectable Identifier identifier, @Injectable ValidationIssue issue) {
+        List<Identifier> identifiers = new ArrayList<>();
+        identifiers.add(identifier);
+        List<ValidationIssue> issues = new ArrayList<>();
+        issues.add(issue);
+        new Expectations(partyIdentifierValidator) {{
+            party.getName();
+            result = "party3<img src=http://localhost/222/333>";
+            identifier.getPartyId();
+            result = "domibus-blue<img src=http://localhost/333/333>";
+
+            identifier.getPartyIdType().getName();
+            result = "partyTypeUrn2&lt;img src=http://localhost/166/111>";
+
+            identifier.getPartyIdType().getValue();
+            result = "urn:oasis:names:tc:ebcore:partyid-type:unregistered2<img src=http://localhost/133/211>";
+
+            party.getIdentifiers();
+            result = identifiers;
+        }};
+        partyIdentifierValidator.validateForbiddenCharactersInParty(issues, party);
+        new Verifications() {{
+            businessProcessValidator.validateForbiddenCharacters(issues, anyString, anyString);
+            times = 4;
+        }};
+    }
 }

@@ -17,7 +17,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 
+import javax.validation.ConstraintViolationException;
+import javax.validation.Path;
 import javax.validation.ValidationException;
+import java.util.Iterator;
 import java.util.List;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EXCEPTIONS_REST_ENABLE;
@@ -99,5 +102,22 @@ public class ErrorHandlerService {
         ErrorRO body = new ErrorRO(errorMessage);
 
         return new ResponseEntity(body, headers, status);
+    }
+
+    public ResponseEntity<ErrorRO> createConstraintViolationResponse(ConstraintViolationException ex) {
+        String errorMessage = ex.getConstraintViolations().stream()
+                .map(el -> getLast(el.getPropertyPath()) + " " + el.getMessage())
+                .reduce("There are validation errors: ", (accumulator, element) -> accumulator + element + "; ");
+        return createResponse(errorMessage, HttpStatus.BAD_REQUEST);
+    }
+
+    protected String getLast(Path propertyPath) {
+        Iterator<Path.Node> it = propertyPath.iterator();
+        while (true) {
+            Path.Node node = it.next();
+            if (!it.hasNext()) {
+                return node.toString();
+            }
+        }
     }
 }

@@ -5,16 +5,20 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import eu.domibus.api.validators.CustomWhiteListed;
 import eu.domibus.api.validators.SkipWhiteListed;
 
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 
 /**
- * @author Pion
+ * @author Ion Perpegel
  * @since 4.0
  */
 public class PluginUserRO {
 
     private Integer entityId;
 
+    @Size(min = 4, max = 255)
+    @Pattern(regexp = "^[a-zA-Z0-9\\.@_]*$")
     private String userName;
 
     @SkipWhiteListed
