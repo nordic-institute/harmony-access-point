@@ -261,7 +261,7 @@ public class FSPluginImplTest {
     public void testDeliverMessage_MultiplePayloads(@Injectable final FSMessage fsMessage)
             throws MessageNotFoundException, JAXBException, IOException, FSSetUpException {
 
-        final UserMessage userMessage = FSTestHelper.getUserMessage(this.getClass(), "testDeliverMessageNormalFlow_metadata.xml");
+        final UserMessage userMessage = FSTestHelper.getUserMessage(FSPluginImplTest.class, "testDeliverMessageNormalFlow_metadata.xml");
         final String messageContent = "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGludm9pY2U+aGVsbG88L2ludm9pY2U+";
         final String invoiceContent = "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGhlbGxvPndvcmxkPC9oZWxsbz4=";
 
