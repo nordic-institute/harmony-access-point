@@ -60,7 +60,7 @@ public class PmodePartiesPgTest extends SeleniumTest {
 		soft.assertAll();
 	}
 	
-	@Test(description = "PMP-3", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "PMP-4", groups = {"multiTenancy", "singleTenancy"})
 	public void doubleClickRow() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -92,7 +92,7 @@ public class PmodePartiesPgTest extends SeleniumTest {
 		soft.assertAll();
 	}
 	
-	@Test(description = "PMP-4", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "PMP-5", groups = {"multiTenancy", "singleTenancy"})
 	public void deleteParty() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -151,7 +151,7 @@ public class PmodePartiesPgTest extends SeleniumTest {
 		soft.assertAll();
 	}
 	
-	@Test(description = "PMP-5", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "PMP-6", groups = {"multiTenancy", "singleTenancy"})
 	public void createParty() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -188,7 +188,7 @@ public class PmodePartiesPgTest extends SeleniumTest {
 		soft.assertAll();
 	}
 	
-	@Test(description = "PMP-6", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "PMP-7", groups = {"multiTenancy", "singleTenancy"})
 	public void editParty() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -239,7 +239,7 @@ public class PmodePartiesPgTest extends SeleniumTest {
 		soft.assertAll();
 	}
 	
-	@Test(description = "PMP-7", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "PMP-9", groups = {"multiTenancy", "singleTenancy"})
 	public void editPartyAndCancel() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -274,7 +274,7 @@ public class PmodePartiesPgTest extends SeleniumTest {
 		soft.assertAll();
 	}
 	
-	@Test(description = "PMP-8", groups = {"multiTenancy"})
+	@Test(description = "PMP-10", groups = {"multiTenancy"})
 	public void domainSegregation() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -696,6 +696,81 @@ public class PmodePartiesPgTest extends SeleniumTest {
 		soft.assertTrue(monitoredParties.contains(myPartId), myPartId + " is  present");
 		soft.assertAll();
 	}
+	
+	/* This method will verify search with forbidden characters  */
+	@Test(description = "PMP-31", groups = {"multiTenancy", "singleTenancy"})
+	public void searchWithForbiddenChar() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		log.info("Login and Navigate to Pmode Parties page");
+		PModePartiesPage page= new PModePartiesPage(driver);
+		page.getSidebar().goToPage(PAGES.PMODE_PARTIES);
+		
+		String searchData="'\\u0022(){}[];,+=%&*#<>/\\\\";
+		log.info("search string is: " + searchData);
+		
+		String domain = selectRandomDomain();
+		
+		page.filters().getNameInput().fill(searchData);
+		page.filters().getEndpointInput().fill(searchData);
+		page.filters().getPartyIDInput().fill(searchData);
+		page.filters().getProcessInput().fill(searchData);
+		
+		log.info("Click on search button");
+		page.filters().getSearchButton().click();
+		
+		int noOfRes = page.grid().getPagination().getTotalItems();
+		
+		
+		soft.assertTrue(noOfRes==0,"Blank grid is shown");
+		soft.assertFalse(page.getAlertArea().isShown(), "No alert message is shown for forbidden char");
+		
+		soft.assertAll();
+		
+	}
+	
+	/* This method will check successful deletion of all parties except the one which defines system */
+	@Test(description = "PMP-32", groups = {"multiTenancy", "singleTenancy"})
+	public void deleteAllParties() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		log.info("Login and Navigate to Pmode Current page");
+		
+		String domain = selectRandomDomain();
+		
+		log.info("Extract system party name from current pmode");
+		String pmodePath = "./src/main/resources/pmodes/Edelivery-blue.xml";
+		String systemParty = new PModeXMLUtils(new File(pmodePath)).getCurrentPartyName();
+		
+		String path = "pmodes/Edelivery-blue.xml";
+		log.info("upload Pmode");
+		rest.pmode().uploadPMode(path, domain);
+		
+		PModePartiesPage page = navigateToPage();
+		
+		log.info("Total number of available pmode parties");
+		int count = page.grid().getPagination().getTotalItems();
+		
+		for (int i = 0; i < count; i++) {
+			page.grid().selectRow(0);
+			int index = page.grid().scrollTo("Party Name", systemParty);
+			
+			page.getDeleteButton().click();
+			page.getSaveButton().click();
+			new Dialog(driver).confirm();
+			
+			if(index == 0){
+				soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.PMODE_PARTIES_DELETE_OWN_PARTY_ERROR, "Proper alert message is displayed alerting user he cannot delete party describing own sistem");
+				soft.assertTrue(page.getAlertArea().isError(), "Message is error message");
+			}else {
+				soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.PMODE_PARTIES_UPDATE_SUCCESS, "Proper successs message is displayed");
+				soft.assertFalse(page.getAlertArea().isError(), "When not deleting own party success message is shown");
+			}
+			page.refreshPage();
+		}
+		
+		soft.assertAll();
+		
+	}
+	
 	
 	private PModePartiesPage navigateToPage() throws Exception {
 		log.info("Navigate to Pmode Parties page");

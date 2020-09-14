@@ -1,6 +1,7 @@
 package domibus.ui.functional;
 
 import ddsl.dcomponents.grid.DGrid;
+import ddsl.dcomponents.grid.Pagination;
 import ddsl.enums.DMessages;
 import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
@@ -21,6 +22,7 @@ import utils.TestRunData;
 import utils.TestUtils;
 import utils.soap_client.MessageConstants;
 
+import java.io.File;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -435,6 +437,66 @@ public class MessagesPgTest extends SeleniumTest {
 		soft.assertTrue(!page.getResendButton().isEnabled(), "Resend button is disabled after domain switch (2)");
 		soft.assertTrue(!page.getDownloadButton().isEnabled(), "Download message button is disabled after domain switch (2)");
 		
+		soft.assertAll();
+	}
+	
+	 /* MSG-15 - Super admin logs in and views messages for a selected domain, navigates to second page of messages and changes domain */
+	@Test(description = "MSG-15", groups = {"multiTenancy"} )
+	public void verifyDomainSpecificMsgs() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		
+		MessagesPage page = navigate();
+		
+		log.info("trying to go to page 2 if ti exists");
+		Pagination pag = page.grid().getPagination();
+		if(pag.hasNextPage()){
+			log.info("going to page 2");
+			pag.goToNextPage();
+		}
+		
+		log.info("gathering listed ids on page 2");
+		page.grid().waitForRowsToLoad();
+		List<String> info_dom1 = page.grid().getListedValuesOnColumn("Message Id");
+		
+		
+		log.info("changing domain");
+		page.getDomainSelector().selectAnotherDomain();
+		page.grid().waitForRowsToLoad();
+		
+		soft.assertEquals(page.grid().getPagination().getActivePage(), Integer.valueOf(1), "Pagination is set to first page");
+		
+		log.info("gathering listed info");
+		List<String> info_dom2 = page.grid().getListedValuesOnColumn("Message Id");
+		
+		log.info("checking listed message id are different");
+		for (String id : info_dom1) {
+			soft.assertFalse(info_dom2.contains(id), "Message is found also in domain 2: " + id);
+		}
+		
+		soft.assertAll();
+	}
+	
+	/* MSG-16 - Download list of messages (multitenancy)*/
+	@Test(description = "MSG-16", groups = {"multiTenancy"})
+	public void downloadMsgs() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		
+		MessagesPage page = navigate();
+		String domain = selectRandomDomain();
+		
+		log.info("Click on download csv button");
+		String completeFilePath = page.pressSaveCsvAndSaveFile();
+		
+		log.info("Click on show link");
+		page.grid().getGridCtrl().showCtrls();
+		
+		log.info("Click on All link to show all available column headers");
+		page.grid().getGridCtrl().showAllColumns();
+		
+		page.grid().checkCSVvsGridHeaders(completeFilePath, soft);
+		int maxMess = page.grid().getRowsNo();
+		
+		page.grid().checkCSVvsGridInfo(completeFilePath, soft);
 		soft.assertAll();
 	}
 	

@@ -68,6 +68,17 @@ public class PluginUserModal extends EditModal {
 		
 		getRolesSelect().selectOptionByText(role);
 	}
+	
+	public void fillCertUserData(String user, String role) throws Exception {
+		getUserNameInput().fill(user);
+
+//		if(role.equalsIgnoreCase(DRoles.USER)){
+//			String corner = Gen.randomAlphaNumeric(5);
+//			getOriginalUserInput().fill("urn:oasis:names:tc:ebcore:partyid-type:unregistered:" + corner);
+//		}
+		
+		getRolesSelect().selectOptionByText(role);
+	}
 
 	public DInput getUserNameInput() {
 		return new DInput(driver, userNameInput);
