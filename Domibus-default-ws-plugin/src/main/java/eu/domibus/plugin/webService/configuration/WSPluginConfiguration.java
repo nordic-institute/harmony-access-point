@@ -5,7 +5,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.environment.DomibusEnvironmentUtil;
 import eu.domibus.plugin.notification.PluginAsyncNotificationConfiguration;
-import eu.domibus.plugin.webService.impl.WebServiceIPluginmpl;
+import eu.domibus.plugin.webService.impl.WebServicePluginImpl;
 import eu.domibus.plugin.webService.impl.ClearAuthenticationMDCInterceptor;
 import eu.domibus.plugin.webService.impl.CustomAuthenticationInterceptor;
 import eu.domibus.plugin.webService.impl.WSPluginFaultOutInterceptor;
@@ -44,13 +44,13 @@ public class WSPluginConfiguration {
 
 
     @Bean("backendWebservice")
-    public WebServiceIPluginmpl createWSPlugin() {
-        return new WebServiceIPluginmpl();
+    public WebServicePluginImpl createWSPlugin() {
+        return new WebServicePluginImpl();
     }
 
     @Bean("webserviceAsyncPluginConfiguration")
     public PluginAsyncNotificationConfiguration pluginAsyncNotificationConfiguration(@Qualifier("notifyBackendWebServiceQueue") Queue notifyBackendWebServiceQueue,
-                                                                                     WebServiceIPluginmpl backendWebService,
+                                                                                     WebServicePluginImpl backendWebService,
                                                                                      Environment environment) {
         PluginAsyncNotificationConfiguration pluginAsyncNotificationConfiguration = new PluginAsyncNotificationConfiguration(backendWebService, notifyBackendWebServiceQueue);
         if (DomibusEnvironmentUtil.INSTANCE.isApplicationServer(environment)) {
@@ -73,7 +73,7 @@ public class WSPluginConfiguration {
 
     @Bean("backendInterfaceEndpoint")
     public Endpoint backendInterfaceEndpoint(@Qualifier(Bus.DEFAULT_BUS_ID) Bus bus,
-                                             WebServiceIPluginmpl backendWebService,
+                                             WebServicePluginImpl backendWebService,
                                              WSPluginPropertyManager wsPluginPropertyManager,
                                              CustomAuthenticationInterceptor customAuthenticationInterceptor,
                                              ClearAuthenticationMDCInterceptor clearAuthenticationMDCInterceptor,

@@ -43,12 +43,12 @@ import java.util.stream.Collectors;
         targetNamespace = "http://org.ecodex.backend/1_1/",
         endpointInterface = "eu.domibus.plugin.webService.generated.BackendInterface")
 @BindingType(SOAPBinding.SOAP12HTTP_BINDING)
-public class WebServiceIPluginmpl extends AbstractBackendConnector<Messaging, UserMessage> implements BackendInterface {
+public class WebServicePluginImpl extends AbstractBackendConnector<Messaging, UserMessage> implements BackendInterface {
 
     public static final String PLUGIN_NAME = "backendWebservice";
 
     public static final String MESSAGE_SUBMISSION_FAILED = "Message submission failed";
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WebServiceIPluginmpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WebServicePluginImpl.class);
 
     public static final eu.domibus.plugin.webService.generated.ObjectFactory WEBSERVICE_OF = new eu.domibus.plugin.webService.generated.ObjectFactory();
 
@@ -84,7 +84,7 @@ public class WebServiceIPluginmpl extends AbstractBackendConnector<Messaging, Us
     @Autowired
     AuthenticationExtService authenticationExtService;
 
-    public WebServiceIPluginmpl() {
+    public WebServicePluginImpl() {
         super(PLUGIN_NAME);
     }
 

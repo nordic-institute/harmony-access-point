@@ -29,10 +29,10 @@ import static org.junit.Assert.assertEquals;
  * @since 4.0.2
  */
 @RunWith(JMockit.class)
-public class WebServiceIPluginmplTest {
+public class WebServicePluginImplTest {
 
     @Tested
-    private WebServiceIPluginmpl backendWebService;
+    private WebServicePluginImpl backendWebService;
 
     @Injectable
     private StubDtoTransformer defaultTransformer;

@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 public class WebServicePluginExceptionFactory {
 
     public FaultDetail createDownloadMessageFault(Exception ex) {
-        FaultDetail detail = WebServiceIPluginmpl.WEBSERVICE_OF.createFaultDetail();
+        FaultDetail detail = WebServicePluginImpl.WEBSERVICE_OF.createFaultDetail();
         detail.setCode(eu.domibus.common.ErrorCode.EBMS_0004.getErrorCodeName());
         if (ex instanceof MessagingProcessingException) {
             MessagingProcessingException mpEx = (MessagingProcessingException) ex;
@@ -25,7 +25,7 @@ public class WebServicePluginExceptionFactory {
     }
 
     public FaultDetail createFault(String message) {
-        FaultDetail detail = WebServiceIPluginmpl.WEBSERVICE_OF.createFaultDetail();
+        FaultDetail detail = WebServicePluginImpl.WEBSERVICE_OF.createFaultDetail();
         detail.setCode(eu.domibus.common.ErrorCode.EBMS_0004.getErrorCodeName());
         detail.setMessage(message);
         return detail;

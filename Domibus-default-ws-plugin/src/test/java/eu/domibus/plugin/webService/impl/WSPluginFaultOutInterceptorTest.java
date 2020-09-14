@@ -193,7 +193,7 @@ public class WSPluginFaultOutInterceptorTest {
             result = null;
 
             webServicePluginExceptionFactory.createFault("Error retrieving message");
-            result = WebServiceIPluginmpl.WEBSERVICE_OF.createFaultDetail();
+            result = WebServicePluginImpl.WEBSERVICE_OF.createFaultDetail();
         }};
 
         wsPluginFaultOutInterceptor.handleRetrieveMessageUnexpectedRollbackException(message, exception, cause);
