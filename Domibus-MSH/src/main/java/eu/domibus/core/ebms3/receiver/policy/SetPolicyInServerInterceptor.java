@@ -68,11 +68,8 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
         LegConfiguration legConfiguration = null;
 
         try {
-
             messaging = soapService.getMessage(message);
             message.put(DispatchClientDefaultProvider.MESSAGING_KEY_CONTEXT_PROPERTY, messaging);
-
-
 
             LegConfigurationExtractor legConfigurationExtractor = messageLegConfigurationFactory.extractMessageConfiguration(message, messaging);
             if (legConfigurationExtractor == null) return;
@@ -95,7 +92,6 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
         } catch (EbMS3Exception e) {
             setBindingOperation(message);
             LOG.debug("", e); // Those errors are expected (no PMode found, therefore DEBUG)
-
             processPluginNotification(e, legConfiguration, messaging);
             throw new Fault(e);
         } catch (IOException | JAXBException e) {
