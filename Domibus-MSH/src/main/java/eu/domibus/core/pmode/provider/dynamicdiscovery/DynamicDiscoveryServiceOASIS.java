@@ -178,13 +178,13 @@ public class DynamicDiscoveryServiceOASIS implements DynamicDiscoveryService {
     @Override
     public String getPartyIdType() {
         String propVal = domibusPropertyProvider.getProperty(DYNAMIC_DISCOVERY_PARTYID_TYPE);
-        // if is null - this means property is commented and default value must be set
-        // if is empty - property is set in domibus.properties as empty string and the right value for the
-        // ebms partyid type is null value!
+        // if is null - this means property is commented-out and default value must be set.
+        // else if is empty - property is set in domibus.properties as empty string and the right value for the
+        // ebMS 3.0  PartyId/@type is null value!
         if (propVal==null) {
             propVal = URN_TYPE_VALUE;
         } else if (propVal.isEmpty()) {
-            propVal =null;
+            propVal = null;
         }
         return propVal;
     }
