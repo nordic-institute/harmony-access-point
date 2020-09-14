@@ -356,8 +356,10 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
         }
         //set toPartyId in UserMessage
         final PartyId receiverParty = new PartyId();
+        String type = dynamicDiscoveryService.getPartyIdType();
+        LOG.debug("Set DDC value to TO PartyId: Value: [{}], type: [{}].", cn, type);
         receiverParty.setValue(cn);
-        receiverParty.setType(dynamicDiscoveryService.getPartyIdType());
+        receiverParty.setType(type);
 
         userMessage.getPartyInfo().getTo().getPartyId().clear();
         userMessage.getPartyInfo().getTo().getPartyId().add(receiverParty);
