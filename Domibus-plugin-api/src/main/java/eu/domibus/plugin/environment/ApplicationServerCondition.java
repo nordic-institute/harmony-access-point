@@ -24,6 +24,6 @@ public class ApplicationServerCondition implements Condition {
      */
     @Override
     public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
-        return DomibusEnvironmentUtil.isApplicationServer(context.getEnvironment());
+        return DomibusEnvironmentUtil.INSTANCE.isApplicationServer(context.getEnvironment());
     }
 }

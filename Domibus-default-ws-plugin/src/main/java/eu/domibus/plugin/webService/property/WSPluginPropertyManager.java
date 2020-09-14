@@ -26,8 +26,7 @@ public class WSPluginPropertyManager extends DomibusPropertyExtServiceDelegateAb
     public static final String SCHEMA_VALIDATION_ENABLED_PROPERTY = "wsplugin.schema.validation.enabled";
     public static final String MTOM_ENABLED_PROPERTY = "wsplugin.mtom.enabled";
     public static final String PROP_LIST_PENDING_MESSAGES_MAXCOUNT = "wsplugin.messages.pending.list.max";
-    public static final String DOMIBUS_LOGGING_PAYLOAD_PRINT = "domibus.logging.payload.print";
-    public static final String DOMIBUS_LOGGING_CXF_LIMIT = "domibus.logging.cxf.limit";
+
 
     private Map<String, DomibusPropertyMetadataDTO> knownProperties;
 
@@ -35,9 +34,7 @@ public class WSPluginPropertyManager extends DomibusPropertyExtServiceDelegateAb
         List<DomibusPropertyMetadataDTO> allProperties = Arrays.asList(
                 new DomibusPropertyMetadataDTO(SCHEMA_VALIDATION_ENABLED_PROPERTY, Type.BOOLEAN, Module.WS_PLUGIN, Usage.GLOBAL),
                 new DomibusPropertyMetadataDTO(MTOM_ENABLED_PROPERTY, Type.BOOLEAN, Module.WS_PLUGIN, Usage.GLOBAL),
-                new DomibusPropertyMetadataDTO(PROP_LIST_PENDING_MESSAGES_MAXCOUNT, Type.NUMERIC, Module.WS_PLUGIN, Usage.GLOBAL),
-                new DomibusPropertyMetadataDTO(DOMIBUS_LOGGING_PAYLOAD_PRINT, Type.BOOLEAN, Module.WS_PLUGIN, Usage.GLOBAL),
-                new DomibusPropertyMetadataDTO(DOMIBUS_LOGGING_CXF_LIMIT, Type.NUMERIC, Module.WS_PLUGIN, Usage.GLOBAL)
+                new DomibusPropertyMetadataDTO(PROP_LIST_PENDING_MESSAGES_MAXCOUNT, Type.NUMERIC, Module.WS_PLUGIN, Usage.GLOBAL)
         );
         knownProperties = allProperties.stream().collect(Collectors.toMap(x -> x.getName(), x -> x));
     }

@@ -36,7 +36,7 @@ import static org.junit.Assert.assertNull;
  * @since 3.3
  */
 @RunWith(JMockit.class)
-public class BackendJMSImplTest {
+public class JMSPluginImplTest {
 
     @Injectable
     protected MessageRetriever messageRetriever;
@@ -72,7 +72,7 @@ public class BackendJMSImplTest {
     private MessageExtService messageExtService;
 
     @Injectable
-    protected BackendJMSQueueService backendJMSQueueService;
+    protected JMSPluginQueueService JMSPluginQueueService;
 
     @Injectable
     protected JMSMessageTransformer jmsMessageTransformer;
@@ -84,7 +84,7 @@ public class BackendJMSImplTest {
     String name = "myjmsplugin";
 
     @Tested
-    BackendJMSImpl backendJMS;
+    JMSPluginImpl backendJMS;
 
     @Test
     public void testReceiveMessage(@Injectable final MapMessage map,

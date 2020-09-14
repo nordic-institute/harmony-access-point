@@ -15,9 +15,6 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class SetPolicyOutInterceptorServer extends SetPolicyOutInterceptor {
-    public SetPolicyOutInterceptorServer() {
-        super();
-    }
 
     @Override
     public void handleMessage(final SoapMessage message) throws Fault {

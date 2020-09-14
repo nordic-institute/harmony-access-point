@@ -18,12 +18,12 @@ import javax.jms.MapMessage;
  * @author Cosmin Baciu
  */
 @Service
-public class BackendJMSReceivingListener {
+public class JMSPluginReceivingListener {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(BackendJMSReceivingListener.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(JMSPluginReceivingListener.class);
 
     @Autowired
-    protected BackendJMSImpl backendJMS;
+    protected JMSPluginImpl backendJMS;
 
     @Autowired
     protected DomibusPropertyExtService domibusPropertyExtService;

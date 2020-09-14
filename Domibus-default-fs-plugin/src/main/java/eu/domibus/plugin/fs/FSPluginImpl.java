@@ -44,9 +44,9 @@ import static eu.domibus.common.MessageStatus.*;
  *
  * @author FERNANDES Henrique, GONCALVES Bruno
  */
-public class BackendFSImpl extends AbstractBackendConnector<FSMessage, FSMessage> {
+public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage> {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(BackendFSImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FSPluginImpl.class);
 
     public static final String PLUGIN_NAME = "backendFSPlugin";
 
@@ -99,16 +99,7 @@ public class BackendFSImpl extends AbstractBackendConnector<FSMessage, FSMessage
     @Autowired
     protected FSFileNameHelper fsFileNameHelper;
 
-    /**
-     * Creates a new <code>BackendFSImpl</code>.
-     *
-     * @param name Connector name
-     */
-    public BackendFSImpl(String name) {
-        super(name);
-    }
-
-    public BackendFSImpl() {
+    public FSPluginImpl() {
         super(PLUGIN_NAME);
     }
 
@@ -297,7 +288,7 @@ public class BackendFSImpl extends AbstractBackendConnector<FSMessage, FSMessage
     }
 
     protected String getFileNameContentIdBase(String contentId) {
-        if(StringUtils.isBlank(contentId)){
+        if (StringUtils.isBlank(contentId)) {
             String randomUUID = UUID.randomUUID().toString();
             LOG.debug("received contentId is blank, generating alternate FileNameContentIdBase: [{}]", randomUUID);
             return randomUUID;

@@ -25,6 +25,6 @@ public class TomcatCondition implements Condition {
      */
     @Override
     public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
-        return DomibusEnvironmentUtil.isTomcat(context.getEnvironment());
+        return DomibusEnvironmentUtil.INSTANCE.isTomcat(context.getEnvironment());
     }
 }

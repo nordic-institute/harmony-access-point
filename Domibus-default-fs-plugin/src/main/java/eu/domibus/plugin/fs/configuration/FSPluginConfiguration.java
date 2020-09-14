@@ -42,13 +42,13 @@ public class FSPluginConfiguration {
     protected String fsPluginExternalPropertiesFile;
 
     @Bean("backendFSPlugin")
-    public BackendFSImpl createFSPlugin() {
-        return new BackendFSImpl();
+    public FSPluginImpl createFSPlugin() {
+        return new FSPluginImpl();
     }
 
     @Bean("fsPluginAsyncPluginConfiguration")
     public PluginAsyncNotificationConfiguration pluginAsyncNotificationConfiguration(@Qualifier("notifyBackendFSQueue") Queue notifyBackendFSQueue,
-                                                                                     BackendFSImpl backendFS,
+                                                                                     FSPluginImpl backendFS,
                                                                                      Environment environment) {
         PluginAsyncNotificationConfiguration pluginAsyncNotificationConfiguration = new PluginAsyncNotificationConfiguration(backendFS, notifyBackendFSQueue);
         if (DomibusEnvironmentUtil.isApplicationServer(environment)) {

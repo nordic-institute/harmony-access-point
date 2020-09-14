@@ -12,6 +12,8 @@ import org.springframework.core.env.Environment;
  */
 public class DomibusEnvironmentUtil {
 
+    public static DomibusEnvironmentUtil INSTANCE = new DomibusEnvironmentUtil();
+
     /**
      * Return true in case the current server is matching the provided one
      *
@@ -19,7 +21,7 @@ public class DomibusEnvironmentUtil {
      * @param serverName  the provided server value
      * @return true in case the current server is matching the provided one
      */
-    public static boolean isServer(Environment environment, String serverName) {
+    public boolean isServer(Environment environment, String serverName) {
         String currentServer = environment.getProperty(DomibusEnvironmentConstants.DOMIBUS_ENVIRONMENT_SERVER_NAME);
         return StringUtils.equalsIgnoreCase(serverName, currentServer);
     }
@@ -30,7 +32,7 @@ public class DomibusEnvironmentUtil {
      * @param environment environment see {@link Environment}
      * @return true if the current server is WebLogic of WildFly
      */
-    public static boolean isApplicationServer(Environment environment) {
+    public boolean isApplicationServer(Environment environment) {
         return isWebLogic(environment) || isWildFly(environment);
     }
 
@@ -40,8 +42,8 @@ public class DomibusEnvironmentUtil {
      * @param environment environment see {@link Environment}
      * @return true if the current server is WebLogic
      */
-    public static boolean isWebLogic(Environment environment) {
-        return DomibusEnvironmentUtil.isServer(environment, DomibusEnvironmentConstants.DOMIBUS_ENVIRONMENT_SERVER_WEBLOGIC);
+    public boolean isWebLogic(Environment environment) {
+        return isServer(environment, DomibusEnvironmentConstants.DOMIBUS_ENVIRONMENT_SERVER_WEBLOGIC);
     }
 
     /**
@@ -50,8 +52,8 @@ public class DomibusEnvironmentUtil {
      * @param environment environment see {@link Environment}
      * @return true if the current server is WildFly
      */
-    public static boolean isWildFly(Environment environment) {
-        return DomibusEnvironmentUtil.isServer(environment, DomibusEnvironmentConstants.DOMIBUS_ENVIRONMENT_SERVER_WILDFLY);
+    public boolean isWildFly(Environment environment) {
+        return isServer(environment, DomibusEnvironmentConstants.DOMIBUS_ENVIRONMENT_SERVER_WILDFLY);
     }
 
     /**
@@ -60,7 +62,7 @@ public class DomibusEnvironmentUtil {
      * @param environment environment see {@link Environment}
      * @return true if the current server is Tomcat
      */
-    public static boolean isTomcat(Environment environment) {
-        return DomibusEnvironmentUtil.isServer(environment, DomibusEnvironmentConstants.DOMIBUS_ENVIRONMENT_SERVER_TOMCAT);
+    public boolean isTomcat(Environment environment) {
+        return isServer(environment, DomibusEnvironmentConstants.DOMIBUS_ENVIRONMENT_SERVER_TOMCAT);
     }
 }

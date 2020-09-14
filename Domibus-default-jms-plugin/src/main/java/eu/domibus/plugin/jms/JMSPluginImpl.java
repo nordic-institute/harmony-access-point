@@ -5,7 +5,6 @@ import eu.domibus.common.*;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.domain.JmsMessageDTO;
 import eu.domibus.ext.services.DomainContextExtService;
-import eu.domibus.ext.services.DomibusPropertyExtService;
 import eu.domibus.ext.services.JMSExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -19,8 +18,6 @@ import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
 import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jms.core.JmsOperations;
 import org.springframework.jms.core.MessageCreator;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,29 +36,29 @@ import static eu.domibus.plugin.jms.JMSMessageConstants.*;
  * @author Christian Koch, Stefan Mueller
  * @author Cosmin Baciu
  */
-public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMessage> {
+public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessage> {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(BackendJMSImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(JMSPluginImpl.class);
 
     public static final String PLUGIN_NAME = "Jms";
 
     protected JMSExtService jmsExtService;
     protected DomainContextExtService domainContextExtService;
-    protected BackendJMSQueueService backendJMSQueueService;
+    protected JMSPluginQueueService JMSPluginQueueService;
     protected JmsOperations mshToBackendTemplate;
     protected JMSMessageTransformer jmsMessageTransformer;
     protected MetricRegistry metricRegistry;
 
-    public BackendJMSImpl(MetricRegistry metricRegistry,
-                          JMSExtService jmsExtService,
-                          DomainContextExtService domainContextExtService,
-                          BackendJMSQueueService backendJMSQueueService,
-                          JmsOperations mshToBackendTemplate,
-                          JMSMessageTransformer jmsMessageTransformer) {
+    public JMSPluginImpl(MetricRegistry metricRegistry,
+                         JMSExtService jmsExtService,
+                         DomainContextExtService domainContextExtService,
+                         JMSPluginQueueService JMSPluginQueueService,
+                         JmsOperations mshToBackendTemplate,
+                         JMSMessageTransformer jmsMessageTransformer) {
         super(PLUGIN_NAME);
         this.jmsExtService = jmsExtService;
         this.domainContextExtService = domainContextExtService;
-        this.backendJMSQueueService = backendJMSQueueService;
+        this.JMSPluginQueueService = JMSPluginQueueService;
         this.mshToBackendTemplate = mshToBackendTemplate;
         this.jmsMessageTransformer = jmsMessageTransformer;
         this.metricRegistry = metricRegistry;
@@ -86,8 +83,8 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
     @Transactional
     public void receiveMessage(final MapMessage map) {
         //TODO please remove the following metrics and replace by annotations when jira EDELIVERY-7008 is solved.
-        com.codahale.metrics.Timer.Context methodTimer = metricRegistry.timer(name(BackendJMSImpl.class, "receiveMessage", "_timer")).time();
-        com.codahale.metrics.Counter methodCounter = metricRegistry.counter(name(BackendJMSImpl.class, "receiveMessage", "_counter"));
+        com.codahale.metrics.Timer.Context methodTimer = metricRegistry.timer(name(JMSPluginImpl.class, "receiveMessage", "_timer")).time();
+        com.codahale.metrics.Counter methodCounter = metricRegistry.counter(name(JMSPluginImpl.class, "receiveMessage", "_counter"));
         methodCounter.inc();
         try {
             String messageID = map.getStringProperty(MESSAGE_ID);
@@ -147,14 +144,14 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
 
     @Override
     public void deliverMessage(final DeliverMessageEvent event) {
-        com.codahale.metrics.Timer.Context methodTimer = metricRegistry.timer(name(BackendJMSImpl.class, "deliverMessage", "_timer")).time();
-        com.codahale.metrics.Counter methodCounter = metricRegistry.counter(name(BackendJMSImpl.class, "deliverMessage", "_counter"));
+        com.codahale.metrics.Timer.Context methodTimer = metricRegistry.timer(name(JMSPluginImpl.class, "deliverMessage", "_timer")).time();
+        com.codahale.metrics.Counter methodCounter = metricRegistry.counter(name(JMSPluginImpl.class, "deliverMessage", "_counter"));
         methodCounter.inc();
         try {
             String messageId = event.getMessageId();
             LOG.debug("Delivering message [{}] for final recipient [{}]", messageId, event.getFinalRecipient());
 
-            final String queueValue = backendJMSQueueService.getJMSQueue(messageId, JMSPLUGIN_QUEUE_OUT, JMSPLUGIN_QUEUE_OUT_ROUTING);
+            final String queueValue = JMSPluginQueueService.getJMSQueue(messageId, JMSPLUGIN_QUEUE_OUT, JMSPLUGIN_QUEUE_OUT_ROUTING);
             LOG.info("Sending message to queue [{}]", queueValue);
             mshToBackendTemplate.send(queueValue, new DownloadMessageCreator(messageId));
         } finally {
@@ -188,14 +185,14 @@ public class BackendJMSImpl extends AbstractBackendConnector<MapMessage, MapMess
     }
 
     protected void sendJmsMessage(JmsMessageDTO message, String messageId, String defaultQueueProperty, String routingQueuePrefixProperty) {
-        String queueValue = backendJMSQueueService.getJMSQueue(messageId, defaultQueueProperty, routingQueuePrefixProperty);
+        String queueValue = JMSPluginQueueService.getJMSQueue(messageId, defaultQueueProperty, routingQueuePrefixProperty);
 
         LOG.info("Sending message [{}] to queue [{}]", message, queueValue);
         jmsExtService.sendMapMessageToQueue(message, queueValue, mshToBackendTemplate);
     }
 
     protected void sendJmsMessage(JmsMessageDTO message, QueueContext queueContext, String defaultQueueProperty, String routingQueuePrefixProperty) {
-        final String queueValue = backendJMSQueueService.getJMSQueue(queueContext, defaultQueueProperty, routingQueuePrefixProperty);
+        final String queueValue = JMSPluginQueueService.getJMSQueue(queueContext, defaultQueueProperty, routingQueuePrefixProperty);
 
         LOG.info("Sending message with message id [{}] to queue [{}]", queueContext.getMessageId(), queueValue);
         jmsExtService.sendMapMessageToQueue(message, queueValue, mshToBackendTemplate);

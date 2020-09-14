@@ -24,6 +24,6 @@ public class WildFlyCondition implements Condition {
      */
     @Override
     public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
-        return DomibusEnvironmentUtil.isWildFly(context.getEnvironment());
+        return DomibusEnvironmentUtil.INSTANCE.isWildFly(context.getEnvironment());
     }
 }

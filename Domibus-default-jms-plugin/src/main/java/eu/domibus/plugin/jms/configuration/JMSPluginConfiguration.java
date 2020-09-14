@@ -8,8 +8,8 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.environment.DomibusEnvironmentUtil;
 import eu.domibus.plugin.handler.MessageRetriever;
-import eu.domibus.plugin.jms.BackendJMSImpl;
-import eu.domibus.plugin.jms.BackendJMSQueueService;
+import eu.domibus.plugin.jms.JMSPluginImpl;
+import eu.domibus.plugin.jms.JMSPluginQueueService;
 import eu.domibus.plugin.jms.JMSMessageConstants;
 import eu.domibus.plugin.jms.JMSMessageTransformer;
 import eu.domibus.plugin.jms.property.JmsPluginPropertyManager;
@@ -36,36 +36,36 @@ import java.util.Optional;
  * @since 4.2
  */
 @Configuration
-public class BackendJMSConfiguration {
+public class JMSPluginConfiguration {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(BackendJMSConfiguration.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(JMSPluginConfiguration.class);
 
     public static final String JMSPLUGIN_QUEUE_IN_CONCURRENCY = "jmsplugin.queue.in.concurrency";
 
     @Bean
-    public BackendJMSQueueService backendJMSQueueService(DomibusPropertyExtService domibusPropertyExtService,
-                                                         DomainContextExtService domainContextExtService,
-                                                         MessageRetriever messageRetriever) {
-        return new BackendJMSQueueService(domibusPropertyExtService, domainContextExtService, messageRetriever);
+    public JMSPluginQueueService backendJMSQueueService(DomibusPropertyExtService domibusPropertyExtService,
+                                                        DomainContextExtService domainContextExtService,
+                                                        MessageRetriever messageRetriever) {
+        return new JMSPluginQueueService(domibusPropertyExtService, domainContextExtService, messageRetriever);
     }
 
     @Bean("backendJms")
-    public BackendJMSImpl createBackendJMSImpl(MetricRegistry metricRegistry,
-                                               JMSExtService jmsExtService,
-                                               DomainContextExtService domainContextExtService,
-                                               BackendJMSQueueService backendJMSQueueService,
-                                               @Qualifier(value = "mshToBackendTemplate") JmsOperations mshToBackendTemplate,
-                                               JMSMessageTransformer jmsMessageTransformer) {
-        return new BackendJMSImpl(metricRegistry, jmsExtService, domainContextExtService, backendJMSQueueService, mshToBackendTemplate, jmsMessageTransformer);
+    public JMSPluginImpl createBackendJMSImpl(MetricRegistry metricRegistry,
+                                              JMSExtService jmsExtService,
+                                              DomainContextExtService domainContextExtService,
+                                              JMSPluginQueueService JMSPluginQueueService,
+                                              @Qualifier(value = "mshToBackendTemplate") JmsOperations mshToBackendTemplate,
+                                              JMSMessageTransformer jmsMessageTransformer) {
+        return new JMSPluginImpl(metricRegistry, jmsExtService, domainContextExtService, JMSPluginQueueService, mshToBackendTemplate, jmsMessageTransformer);
     }
 
     @Bean("jmsAsyncPluginConfiguration")
     public PluginAsyncNotificationConfiguration pluginAsyncNotificationConfiguration(@Qualifier("notifyBackendJmsQueue") Queue notifyBackendJmsQueue,
-                                                                                     BackendJMSImpl backendJMS,
+                                                                                     JMSPluginImpl backendJMS,
                                                                                      Environment environment,
                                                                                      JmsPluginPropertyManager jmsPluginPropertyManager) {
         PluginAsyncNotificationConfiguration pluginAsyncNotificationConfiguration = new PluginAsyncNotificationConfiguration(backendJMS, notifyBackendJmsQueue);
-        if (DomibusEnvironmentUtil.isApplicationServer(environment)) {
+        if (DomibusEnvironmentUtil.INSTANCE.isApplicationServer(environment)) {
             String queueNotificationJndi = jmsPluginPropertyManager.getKnownPropertyValue(JMSMessageConstants.QUEUE_NOTIFICATION);
             LOG.debug("Domibus is running inside an application server. Setting the queue name to [{}]", queueNotificationJndi);
             pluginAsyncNotificationConfiguration.setQueueName(queueNotificationJndi);
@@ -96,7 +96,7 @@ public class BackendJMSConfiguration {
     }
 
     @Bean("mshToBackendTemplate")
-    public JmsTemplate mshToBackendTemplate(@Qualifier("domibusJMS-XAConnectionFactory") ConnectionFactory connectionFactory,
+    public JmsTemplate mshToBackendTemplate(@Qualifier("domibusJMS-CachingXAConnectionFactory") ConnectionFactory connectionFactory,
                                             Optional<JndiDestinationResolver> jndiDestinationResolver) {
         JmsTemplate jmsTemplate = new JmsTemplate(connectionFactory);
         jmsTemplate.setSessionTransacted(true);

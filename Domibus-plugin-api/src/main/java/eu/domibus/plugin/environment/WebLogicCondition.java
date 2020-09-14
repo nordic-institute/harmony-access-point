@@ -24,6 +24,6 @@ public class WebLogicCondition implements Condition {
      */
     @Override
     public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
-        return DomibusEnvironmentUtil.isWebLogic(context.getEnvironment());
+        return DomibusEnvironmentUtil.INSTANCE.isWebLogic(context.getEnvironment());
     }
 }

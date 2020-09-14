@@ -18,9 +18,9 @@ import org.springframework.context.annotation.Configuration;
  */
 @Conditional(TomcatCondition.class)
 @Configuration
-public class BackendJMSTomcatConfiguration {
+public class JMSPluginTomcatConfiguration {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(BackendJMSTomcatConfiguration.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(JMSPluginTomcatConfiguration.class);
 
     @Bean("notifyBackendJmsQueue")
     public ActiveMQQueue notifyBackendQueue(JmsPluginPropertyManager jmsPluginPropertyManager) {

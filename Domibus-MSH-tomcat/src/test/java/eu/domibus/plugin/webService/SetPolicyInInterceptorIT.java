@@ -39,7 +39,6 @@ public class SetPolicyInInterceptorIT extends AbstractBackendWSIT {
     @Before
     public void before() throws IOException, XmlProcessingException {
         uploadPmode(wireMockRule.port());
-//        setPolicyInInterceptorServer.setMessageLegConfigurationFactory(serverInMessageLegConfigurationFactory);
     }
 
     @Test

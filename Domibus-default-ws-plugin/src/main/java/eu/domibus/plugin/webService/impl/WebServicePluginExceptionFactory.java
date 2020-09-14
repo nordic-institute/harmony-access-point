@@ -3,18 +3,16 @@ package eu.domibus.plugin.webService.impl;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.webService.generated.FaultDetail;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author Cosmin Baciu
  * @since 4.1.4
  */
 @Service
-public class BackendWebServiceExceptionFactory {
+public class WebServicePluginExceptionFactory {
 
     public FaultDetail createDownloadMessageFault(Exception ex) {
-        FaultDetail detail = BackendWebServiceImpl.WEBSERVICE_OF.createFaultDetail();
+        FaultDetail detail = WebServiceIPluginmpl.WEBSERVICE_OF.createFaultDetail();
         detail.setCode(eu.domibus.common.ErrorCode.EBMS_0004.getErrorCodeName());
         if (ex instanceof MessagingProcessingException) {
             MessagingProcessingException mpEx = (MessagingProcessingException) ex;
@@ -27,7 +25,7 @@ public class BackendWebServiceExceptionFactory {
     }
 
     public FaultDetail createFault(String message) {
-        FaultDetail detail = BackendWebServiceImpl.WEBSERVICE_OF.createFaultDetail();
+        FaultDetail detail = WebServiceIPluginmpl.WEBSERVICE_OF.createFaultDetail();
         detail.setCode(eu.domibus.common.ErrorCode.EBMS_0004.getErrorCodeName());
         detail.setMessage(message);
         return detail;

@@ -43,12 +43,12 @@ import java.util.stream.Collectors;
         targetNamespace = "http://org.ecodex.backend/1_1/",
         endpointInterface = "eu.domibus.plugin.webService.generated.BackendInterface")
 @BindingType(SOAPBinding.SOAP12HTTP_BINDING)
-public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, UserMessage> implements BackendInterface {
+public class WebServiceIPluginmpl extends AbstractBackendConnector<Messaging, UserMessage> implements BackendInterface {
 
     public static final String PLUGIN_NAME = "backendWebservice";
 
     public static final String MESSAGE_SUBMISSION_FAILED = "Message submission failed";
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(BackendWebServiceImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WebServiceIPluginmpl.class);
 
     public static final eu.domibus.plugin.webService.generated.ObjectFactory WEBSERVICE_OF = new eu.domibus.plugin.webService.generated.ObjectFactory();
 
@@ -67,7 +67,7 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
     private MessageAcknowledgeExtService messageAcknowledgeExtService;
 
     @Autowired
-    protected BackendWebServiceExceptionFactory backendWebServiceExceptionFactory;
+    protected WebServicePluginExceptionFactory webServicePluginExceptionFactory;
 
     @Autowired
     protected WSMessageLogDao wsMessageLogDao;
@@ -84,11 +84,7 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
     @Autowired
     AuthenticationExtService authenticationExtService;
 
-    public BackendWebServiceImpl(final String name) {
-        super(name);
-    }
-
-    public BackendWebServiceImpl() {
+    public WebServiceIPluginmpl() {
         super(PLUGIN_NAME);
     }
 
@@ -317,14 +313,14 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
 
         if (!isMessageIdNotEmpty) {
             LOG.error(MESSAGE_ID_EMPTY);
-            throw new RetrieveMessageFault(MESSAGE_ID_EMPTY, backendWebServiceExceptionFactory.createFault("MessageId is empty"));
+            throw new RetrieveMessageFault(MESSAGE_ID_EMPTY, webServicePluginExceptionFactory.createFault("MessageId is empty"));
         }
 
         String trimmedMessageId = messageExtService.cleanMessageIdentifier(retrieveMessageRequest.getMessageID());
         WSMessageLogEntity wsMessageLogEntity = wsMessageLogDao.findByMessageId(trimmedMessageId);
         if (wsMessageLogEntity == null) {
             LOG.businessError(DomibusMessageCode.BUS_MSG_NOT_FOUND, trimmedMessageId);
-            throw new RetrieveMessageFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", backendWebServiceExceptionFactory.createFault("No message with id [" + trimmedMessageId + "] pending for download"));
+            throw new RetrieveMessageFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", webServicePluginExceptionFactory.createFault("No message with id [" + trimmedMessageId + "] pending for download"));
         }
 
         try {
@@ -334,12 +330,12 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
                 LOG.debug(MESSAGE_NOT_FOUND_ID + retrieveMessageRequest.getMessageID() + "]", mnfEx);
             }
             LOG.error(MESSAGE_NOT_FOUND_ID + retrieveMessageRequest.getMessageID() + "]");
-            throw new RetrieveMessageFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", backendWebServiceExceptionFactory.createDownloadMessageFault(mnfEx));
+            throw new RetrieveMessageFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", webServicePluginExceptionFactory.createDownloadMessageFault(mnfEx));
         }
 
         if (userMessage == null) {
             LOG.error(MESSAGE_NOT_FOUND_ID + retrieveMessageRequest.getMessageID() + "]");
-            throw new RetrieveMessageFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", backendWebServiceExceptionFactory.createFault("UserMessage not found"));
+            throw new RetrieveMessageFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", webServicePluginExceptionFactory.createFault("UserMessage not found"));
         }
 
         // To avoid blocking errors during the Header's response validation
@@ -408,7 +404,7 @@ public class BackendWebServiceImpl extends AbstractBackendConnector<Messaging, U
 
         if (!isMessageIdNotEmpty) {
             LOG.error(MESSAGE_ID_EMPTY);
-            throw new StatusFault(MESSAGE_ID_EMPTY, backendWebServiceExceptionFactory.createFault("MessageId is empty"));
+            throw new StatusFault(MESSAGE_ID_EMPTY, webServicePluginExceptionFactory.createFault("MessageId is empty"));
         }
         String trimmedMessageId = messageExtService.cleanMessageIdentifier(statusRequest.getMessageID());
         return defaultTransformer.transformFromMessageStatus(messageRetriever.getStatus(trimmedMessageId));

@@ -21,9 +21,9 @@ import javax.jms.Queue;
  */
 @Conditional(ApplicationServerCondition.class)
 @Configuration
-public class BackendJMSApplicationServerConfiguration {
+public class JMSPluginApplicationServerConfiguration {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(BackendJMSApplicationServerConfiguration.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(JMSPluginApplicationServerConfiguration.class);
 
     @Bean(name = "jndiDestinationResolver")
     public JndiDestinationResolver jndiDestinationResolver() {

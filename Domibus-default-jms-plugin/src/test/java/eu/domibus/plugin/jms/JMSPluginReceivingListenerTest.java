@@ -2,7 +2,6 @@ package eu.domibus.plugin.jms;
 
 import eu.domibus.ext.services.AuthenticationExtService;
 import eu.domibus.ext.services.DomainContextExtService;
-import eu.domibus.ext.services.DomibusConfigurationExtService;
 import eu.domibus.ext.services.DomibusPropertyExtService;
 import eu.domibus.logging.DomibusLogger;
 import mockit.*;
@@ -18,10 +17,10 @@ import javax.jms.MapMessage;
  * @since 4.1
  */
 @RunWith(JMockit.class)
-public class BackendJMSReceivingListenerTest {
+public class JMSPluginReceivingListenerTest {
 
     @Injectable
-    protected BackendJMSImpl backendJMS;
+    protected JMSPluginImpl backendJMS;
 
     @Injectable
     protected DomibusPropertyExtService domibusPropertyExtService;
@@ -33,22 +32,22 @@ public class BackendJMSReceivingListenerTest {
     protected AuthenticationExtService authenticationExtService;
 
     @Tested
-    BackendJMSReceivingListener backendJMSReceivingListener;
+    JMSPluginReceivingListener JMSPluginReceivingListener;
 
     @Test
     public void receiveMessage(@Injectable MapMessage map, @Mocked DomibusLogger LOG) {
-        new Expectations(backendJMSReceivingListener) {{
+        new Expectations(JMSPluginReceivingListener) {{
             authenticationExtService.isUnsecureLoginAllowed();
             result = false;
 
-            backendJMSReceivingListener.authenticate(map);
+            JMSPluginReceivingListener.authenticate(map);
         }};
-        backendJMSReceivingListener.receiveMessage(map);
+        JMSPluginReceivingListener.receiveMessage(map);
 
         new FullVerificationsInOrder() {{
             LOG.debug("Performing authentication");
             LOG.clearCustomKeys();
-            backendJMSReceivingListener.authenticate(map);
+            JMSPluginReceivingListener.authenticate(map);
             backendJMS.receiveMessage(map);
         }};
     }
@@ -65,7 +64,7 @@ public class BackendJMSReceivingListenerTest {
             result = password;
         }};
 
-        backendJMSReceivingListener.authenticate(map);
+        JMSPluginReceivingListener.authenticate(map);
 
         new FullVerifications() {{
             authenticationExtService.basicAuthenticate(username, password);
@@ -79,7 +78,7 @@ public class BackendJMSReceivingListenerTest {
             result = null;
         }};
 
-        backendJMSReceivingListener.authenticate(map);
+        JMSPluginReceivingListener.authenticate(map);
 
         new FullVerifications() {{
             authenticationExtService.basicAuthenticate(anyString, anyString);
@@ -99,7 +98,7 @@ public class BackendJMSReceivingListenerTest {
             result = password;
         }};
 
-        backendJMSReceivingListener.authenticate(map);
+        JMSPluginReceivingListener.authenticate(map);
 
         new FullVerifications() {{
             authenticationExtService.basicAuthenticate(anyString, anyString);

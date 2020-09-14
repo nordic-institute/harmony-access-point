@@ -13,9 +13,6 @@ import org.junit.runner.RunWith;
 import org.springframework.transaction.UnexpectedRollbackException;
 
 import javax.persistence.OptimisticLockException;
-import javax.xml.namespace.QName;
-import java.sql.PreparedStatement;
-import java.util.logging.Logger;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -32,7 +29,7 @@ public class WSPluginFaultOutInterceptorTest {
     private WSPluginFaultOutInterceptor wsPluginFaultOutInterceptor;
 
     @Injectable
-    private BackendWebServiceExceptionFactory backendWebServiceExceptionFactory;
+    private WebServicePluginExceptionFactory webServicePluginExceptionFactory;
 
     @Test
     public void handleMessageWithNoException(@Injectable SoapMessage message,
@@ -113,7 +110,7 @@ public class WSPluginFaultOutInterceptorTest {
             times = 1;
 
             wsPluginFaultOutInterceptor.getMethodName(message);
-            result = BackendWebServiceOperation.RETRIEVE_MESSAGE;
+            result = WebServicePluginOperation.RETRIEVE_MESSAGE;
             times = 1;
 
             wsPluginFaultOutInterceptor.handleRetrieveMessage(message, soapFault);
@@ -195,8 +192,8 @@ public class WSPluginFaultOutInterceptorTest {
             exception.getSuppressed();
             result = null;
 
-            backendWebServiceExceptionFactory.createFault("Error retrieving message");
-            result = BackendWebServiceImpl.WEBSERVICE_OF.createFaultDetail();
+            webServicePluginExceptionFactory.createFault("Error retrieving message");
+            result = WebServiceIPluginmpl.WEBSERVICE_OF.createFaultDetail();
         }};
 
         wsPluginFaultOutInterceptor.handleRetrieveMessageUnexpectedRollbackException(message, exception, cause);

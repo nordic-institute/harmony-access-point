@@ -1,10 +1,11 @@
 package eu.domibus.plugin.webService.configuration;
 
+import eu.domibus.ext.services.DomibusPropertyExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.environment.DomibusEnvironmentUtil;
 import eu.domibus.plugin.notification.PluginAsyncNotificationConfiguration;
-import eu.domibus.plugin.webService.impl.BackendWebServiceImpl;
+import eu.domibus.plugin.webService.impl.WebServiceIPluginmpl;
 import eu.domibus.plugin.webService.impl.ClearAuthenticationMDCInterceptor;
 import eu.domibus.plugin.webService.impl.CustomAuthenticationInterceptor;
 import eu.domibus.plugin.webService.impl.WSPluginFaultOutInterceptor;
@@ -38,19 +39,21 @@ public class WSPluginConfiguration {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginConfiguration.class);
 
     public static final String NOTIFY_BACKEND_QUEUE_JNDI = "jms/domibus.notification.webservice";
+    public static final String DOMIBUS_LOGGING_PAYLOAD_PRINT = "domibus.logging.payload.print";
+    public static final String DOMIBUS_LOGGING_CXF_LIMIT = "domibus.logging.cxf.limit";
 
 
     @Bean("backendWebservice")
-    public BackendWebServiceImpl createWSPlugin() {
-        return new BackendWebServiceImpl();
+    public WebServiceIPluginmpl createWSPlugin() {
+        return new WebServiceIPluginmpl();
     }
 
     @Bean("webserviceAsyncPluginConfiguration")
     public PluginAsyncNotificationConfiguration pluginAsyncNotificationConfiguration(@Qualifier("notifyBackendWebServiceQueue") Queue notifyBackendWebServiceQueue,
-                                                                                     BackendWebServiceImpl backendWebService,
+                                                                                     WebServiceIPluginmpl backendWebService,
                                                                                      Environment environment) {
         PluginAsyncNotificationConfiguration pluginAsyncNotificationConfiguration = new PluginAsyncNotificationConfiguration(backendWebService, notifyBackendWebServiceQueue);
-        if (DomibusEnvironmentUtil.isApplicationServer(environment)) {
+        if (DomibusEnvironmentUtil.INSTANCE.isApplicationServer(environment)) {
             String queueNotificationJndi = NOTIFY_BACKEND_QUEUE_JNDI;
             LOG.debug("Domibus is running inside an application server. Setting the queue name to [{}]", queueNotificationJndi);
             pluginAsyncNotificationConfiguration.setQueueName(queueNotificationJndi);
@@ -59,9 +62,9 @@ public class WSPluginConfiguration {
     }
 
     @Bean("wsPluginLoggingEventSender")
-    public WSPluginLoggingEventSender wsPluginLoggingEventSender(WSPluginPropertyManager wsPluginPropertyManager) {
-        String payloadPrintString = wsPluginPropertyManager.getKnownPropertyValue(WSPluginPropertyManager.DOMIBUS_LOGGING_PAYLOAD_PRINT);
-        LOG.debug("Property [{}] value is [{}]", WSPluginPropertyManager.DOMIBUS_LOGGING_PAYLOAD_PRINT, payloadPrintString);
+    public WSPluginLoggingEventSender wsPluginLoggingEventSender(DomibusPropertyExtService domibusPropertyExtService) {
+        String payloadPrintString = domibusPropertyExtService.getProperty(DOMIBUS_LOGGING_PAYLOAD_PRINT);
+        LOG.debug("Property [{}] value is [{}]", DOMIBUS_LOGGING_PAYLOAD_PRINT, payloadPrintString);
 
         WSPluginLoggingEventSender wsPluginLoggingEventSender = new WSPluginLoggingEventSender();
         wsPluginLoggingEventSender.setPrintPayload(BooleanUtils.toBoolean(payloadPrintString));
@@ -70,7 +73,7 @@ public class WSPluginConfiguration {
 
     @Bean("backendInterfaceEndpoint")
     public Endpoint backendInterfaceEndpoint(@Qualifier(Bus.DEFAULT_BUS_ID) Bus bus,
-                                             BackendWebServiceImpl backendWebService,
+                                             WebServiceIPluginmpl backendWebService,
                                              WSPluginPropertyManager wsPluginPropertyManager,
                                              CustomAuthenticationInterceptor customAuthenticationInterceptor,
                                              ClearAuthenticationMDCInterceptor clearAuthenticationMDCInterceptor,
@@ -91,11 +94,11 @@ public class WSPluginConfiguration {
 
     @Bean("wsLoggingFeature")
     public LoggingFeature wsLoggingFeature(WSPluginLoggingEventSender wsPluginLoggingEventSender,
-                                           WSPluginPropertyManager wsPluginPropertyManager) {
+                                           DomibusPropertyExtService domibusPropertyExtService) {
         LoggingFeature loggingFeature = new LoggingFeature();
         loggingFeature.setSender(wsPluginLoggingEventSender);
 
-        Integer loggingLimit = wsPluginPropertyManager.getKnownIntegerPropertyValue("domibus.logging.cxf.limit");
+        Integer loggingLimit = domibusPropertyExtService.getIntegerProperty(DOMIBUS_LOGGING_CXF_LIMIT);
         LOG.debug("Using logging limit [{}]", loggingLimit);
         loggingFeature.setLimit(loggingLimit);
 

@@ -27,7 +27,6 @@ import javax.xml.ws.WebServiceException;
  * informations in order to do his job.
  * It is only saving userMessage found in the ServerOutInterceptor=&gt; PullMessage.
  */
-//@thom test this class
 @Service
 public class SaveRawPulledMessageInterceptor extends AbstractSoapInterceptor {
 

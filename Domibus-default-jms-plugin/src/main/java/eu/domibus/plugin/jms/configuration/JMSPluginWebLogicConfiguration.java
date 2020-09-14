@@ -20,9 +20,9 @@ import javax.jms.ConnectionFactory;
  */
 @Conditional(WebLogicCondition.class)
 @Configuration
-public class BackendJMSWebLogicConfiguration {
+public class JMSPluginWebLogicConfiguration {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(BackendJMSWebLogicConfiguration.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(JMSPluginWebLogicConfiguration.class);
 
     @Bean(JMSMessageConstants.CONNECTION_FACTORY_NAME)
     public JndiObjectFactoryBean connectionFactory(JmsPluginPropertyManager jmsPluginPropertyManager) {

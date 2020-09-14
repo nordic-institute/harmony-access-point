@@ -43,7 +43,7 @@ import java.util.*;
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(JMockit.class)
-public class BackendFSImplTest {
+public class FSPluginImplTest {
 
     private static final String TEXT_XML = "text/xml";
 
@@ -105,7 +105,7 @@ public class BackendFSImplTest {
     protected FSFileNameHelper fsFileNameHelper;
 
     @Tested
-    BackendFSImpl backendFS;
+    FSPluginImpl backendFS;
 
     private FileObject rootDir;
 

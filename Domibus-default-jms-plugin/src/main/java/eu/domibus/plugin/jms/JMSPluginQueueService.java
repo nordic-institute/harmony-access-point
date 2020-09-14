@@ -17,9 +17,9 @@ import java.util.List;
  * @author Cosmin Baciu
  * @since 4.2
  */
-public class BackendJMSQueueService {
+public class JMSPluginQueueService {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(BackendJMSQueueService.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(JMSPluginQueueService.class);
 
     protected DomibusPropertyExtService domibusPropertyExtService;
 
@@ -27,9 +27,9 @@ public class BackendJMSQueueService {
 
     protected MessageRetriever messageRetriever;
 
-    public BackendJMSQueueService(DomibusPropertyExtService domibusPropertyExtService,
-                                  DomainContextExtService domainContextExtService,
-                                  MessageRetriever messageRetriever) {
+    public JMSPluginQueueService(DomibusPropertyExtService domibusPropertyExtService,
+                                 DomainContextExtService domainContextExtService,
+                                 MessageRetriever messageRetriever) {
         this.domibusPropertyExtService = domibusPropertyExtService;
         this.domainContextExtService = domainContextExtService;
         this.messageRetriever = messageRetriever;
