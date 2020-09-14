@@ -43,10 +43,11 @@ public class UsersPgTest extends SeleniumTest {
 	
 	
 	private UsersPage loginAndGoToUsersPage(HashMap<String, String> user) throws Exception {
-		
 		log.info("Login with user" + user);
 		login(user).getSidebar().goToPage(PAGES.USERS);
-		return new UsersPage(driver);
+		UsersPage page = new UsersPage(driver);
+		page.grid().waitForRowsToLoad();
+		return page;
 	}
 	
 	private UsersPage loginAndGoToUsersPage(String user, String pass) throws Exception {
@@ -372,6 +373,7 @@ public class UsersPgTest extends SeleniumTest {
 	public void adminChangesUserPassword() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		String username = rest.getUser(null, DRoles.USER, true, false, true).getString("userName");
+		
 		UsersPage page = new UsersPage(driver);
 		page.getSidebar().goToPage(PAGES.USERS);
 		

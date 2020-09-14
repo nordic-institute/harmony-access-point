@@ -251,27 +251,28 @@ public class AlertPgTest extends SeleniumTest {
 		}
 		String messID = ids.get(0);
 		
-		AlertPage apage = new AlertPage(driver);
-		apage.getSidebar().goToPage(PAGES.ALERTS);
+		AlertPage page = new AlertPage(driver);
+		page.getSidebar().goToPage(PAGES.ALERTS);
 		log.info("Navigate to Alerts page");
+		page.grid().waitForRowsToLoad();
 		
 		log.info("Search data using Msg_status_changed alert type");
-		apage.filters().basicFilterBy(null, "MSG_STATUS_CHANGED", null, null, null, null);
+		page.filters().basicFilterBy(null, "MSG_STATUS_CHANGED", null, null, null, null);
 		
-		apage.filters().getMsgIdInput().fill(messID);
+		page.filters().getMsgIdInput().fill(messID);
 		
 		log.info("Check if Multidomain exists");
 		if (data.isMultiDomain()) {
 			log.info("Click on Show domain checkbox");
-			apage.filters().getShowDomainCheckbox().click();
+			page.filters().getShowDomainCheckbox().click();
 		}
 		
 		log.info("Click on search button");
-		apage.filters().getSearchButton().click();
-		apage.grid().waitForRowsToLoad();
+		page.filters().getSearchButton().click();
+		page.grid().waitForRowsToLoad();
 		
 		log.info("Validate data for given message id,status ,alert type ,alert status and level");
-		List<String> allInfo = apage.grid().getValuesOnColumn("Parameters");
+		List<String> allInfo = page.grid().getValuesOnColumn("Parameters");
 		
 		boolean found = false;
 		for (String info : allInfo) {
@@ -728,7 +729,7 @@ public class AlertPgTest extends SeleniumTest {
 		AlertPage page = new AlertPage(driver);
 		AlertFilters aFilter = new AlertFilters(driver);
 		
-		String user = Gen.randomAlphaNumeric(3);
+		String user = Gen.randomAlphaNumeric(10);
 		rest.users().createUser(user, DRoles.ADMIN, data.defaultPass(), domain);
 		log.info("created user " + user);
 		
@@ -831,17 +832,23 @@ public class AlertPgTest extends SeleniumTest {
 	public void checkProcessed() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
-		selectRandomDomain();
+		String domain = selectRandomDomain();
 		
 		log.info("Login into application and navigate to Alert page");
 		AlertPage page = new AlertPage(driver);
 		page.getSidebar().goToPage(PAGES.ALERTS);
 		page.grid().waitForRowsToLoad();
 		
+		if(data.isMultiDomain()){
+			log.info("Showing domain alerts");
+			page.filters().showDomainAlert();
+			page.grid().waitForRowsToLoad();
+		}
+		
 		AlertFilters aFilter = new AlertFilters(driver);
 		
 		log.info("Check alert count when showDomain alert is false");
-		int totalCount = rest.alerts().getAlerts(page.getDomainFromTitle(), false, false).length();
+		int totalCount = rest.alerts().getAlerts(domain, false, true).length();
 		
 		if (totalCount <= 0) {
 			throw new SkipException("No alerts present");
@@ -868,6 +875,10 @@ public class AlertPgTest extends SeleniumTest {
 		log.info("Click on save button and then ok from confirmation pop up");
 		page.getSaveButton().click();
 		new Dialog(driver).confirm();
+		
+		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.ALERT_UPDATE_SUCCESS_MESSAGE, "Correct update message is shown");
+		page.grid().waitForRowsToLoad();
+		
 		
 		log.info("Check total count as 1 less than before");
 		soft.assertTrue(page.grid().getPagination().getTotalItems() == totalCount - 1, "Check all alert size 1 less than before");

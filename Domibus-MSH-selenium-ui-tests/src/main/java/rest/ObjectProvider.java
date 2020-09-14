@@ -52,6 +52,10 @@ public class ObjectProvider {
 		template.put("certificateId", username);
 		template.put("authRoles", role);
 		
+		if(role.equalsIgnoreCase(DRoles.USER)){
+			template.put("originalUser", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:corn");
+		}
+		
 		return new JSONArray().put(template).toString();
 	}
 	

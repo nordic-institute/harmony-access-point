@@ -42,7 +42,7 @@ public class DMessages {
 
 	public static final String MESSAGES_RESEND_MESSAGE_SUCCESS = "The operation resend message completed successfully";
 
-	public static final String PMODE_UPDATE_SUCCESS = "PMode file has been successfully uploaded";
+	public static final String PMODE_UPDATE_SUCCESS = "PMode file has been successfully uploaded.";
 	public static final String PMODE_PARTIES_UPDATE_SUCCESS = "PMode parties have been successfully updated.";
 	public static final String PMODE_PARTIES_DELETE_OWN_PARTY_ERROR = "The operation 'update parties' did not complete successfully. [DOM_003]:Cannot delete the party describing the current system.";
 	public static final String PMODE_ARCHIVE_UPDATE_SUCCESS = "The operation 'update pmodes' completed successfully.";
@@ -66,6 +66,7 @@ public class DMessages {
 	
 	
 	public static final String ALERT_ID_INPUT_VALIDATION_MESSAGE = "Alert Id must be 19 digits long and must not start with a 0";
+	public static final String ALERT_UPDATE_SUCCESS_MESSAGE = "The operation 'update alerts' completed successfully.";
 
 	
 	

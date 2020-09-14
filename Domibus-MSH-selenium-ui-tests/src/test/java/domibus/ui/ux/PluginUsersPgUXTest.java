@@ -160,6 +160,7 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 		SoftAssert soft = new SoftAssert();
 		PluginUsersPage page = new PluginUsersPage(driver);
 		page.getSidebar().goToPage(PAGES.PLUGIN_USERS);
+		page.grid().waitForRowsToLoad();
 		
 		log.info("changing to auth type CERTIFICATE");
 		page.filters().getAuthTypeSelect().selectOptionByText("CERTIFICATE");
@@ -178,7 +179,7 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 	}
 	
 	
-	@Test(description = "PU-11", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "PU-11-1", groups = {"multiTenancy", "singleTenancy"})
 	public void createPluginUserFieldValidations() throws Exception {
 		String username = Gen.randomAlphaNumeric(10);
 		SoftAssert soft = new SoftAssert();

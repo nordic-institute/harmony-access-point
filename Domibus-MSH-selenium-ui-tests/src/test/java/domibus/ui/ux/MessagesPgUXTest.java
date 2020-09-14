@@ -62,22 +62,16 @@ public class MessagesPgUXTest extends SeleniumTest {
 	public void messageRowSelect() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
-		String messID = rest.getMessageIDs(null, 1, false).get(0);
-		
 		MessagesPage page = new MessagesPage(driver);
 		page.getSidebar().goToPage(PAGES.MESSAGES);
 		
-		log.info("selecting message with id " + messID);
-		page.refreshPage();
-		page.grid().scrollToAndSelect("Message Id", messID);
+		log.info("selecting message with status SEND_FAILURE ");
+		page.grid().scrollToAndSelect("Message Status", "SEND_FAILURE");
 		
 		log.info("checking download button is enabled");
 		soft.assertTrue(page.getDownloadButton().isEnabled(), "After a row is selected the Download button");
 		
 		soft.assertAll();
-		
-		//TODO: this test fails if the found message happen to be ACKNOWLEDGED or another non-downloadable state;
-		//      we should locate by status=SEND_FAILURE the message (and generate one if not found)
 	}
 	
 	/*User clicks another grid row*/
