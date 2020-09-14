@@ -93,7 +93,7 @@ public class MSHWebserviceConfiguration {
         LoggingFeature result = new LoggingFeature();
         result.setSender(domibusLoggingEventSender);
         Integer cxfLimit = domibusPropertyProvider.getIntegerProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_LOGGING_CXF_LIMIT);
-        LOG.debug("CXF logging limit set to [{}] ?", cxfLimit);
+        LOG.debug("CXF logging limit set to [{}]", cxfLimit);
         result.setLimit(cxfLimit);
         return result;
     }
