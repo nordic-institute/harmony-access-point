@@ -1,7 +1,7 @@
 package eu.domibus.jms.activemq;
 
 import com.atomikos.jms.AtomikosConnectionFactoryBean;
-import eu.domibus.api.jms.JMSConstants;
+import eu.domibus.common.JMSConstants;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.jms.spi.helper.PriorityJmsTemplate;

@@ -6,10 +6,11 @@ import org.apache.cxf.interceptor.AttachmentOutInterceptor;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
+import org.springframework.stereotype.Service;
 
 import java.util.Iterator;
 
-
+@Service("domibusAttachmentOutInterceptorRemoval")
 public class DomibusAttachmentOutInterceptorRemoval extends AbstractSoapInterceptor {
     public DomibusAttachmentOutInterceptorRemoval() {
         super(Phase.PRE_STREAM);

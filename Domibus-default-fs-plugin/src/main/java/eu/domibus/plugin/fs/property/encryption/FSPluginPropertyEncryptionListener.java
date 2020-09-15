@@ -3,13 +3,12 @@ package eu.domibus.plugin.fs.property.encryption;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.DomainExtService;
 import eu.domibus.ext.services.DomibusConfigurationExtService;
+import eu.domibus.ext.services.PasswordEncryptionExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.ext.services.PasswordEncryptionExtService;
 import eu.domibus.plugin.encryption.PluginPropertyEncryptionListener;
 import eu.domibus.plugin.fs.property.FSPluginProperties;
 import eu.domibus.plugin.fs.worker.FSSendMessagesService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -21,17 +20,20 @@ public class FSPluginPropertyEncryptionListener implements PluginPropertyEncrypt
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FSPluginPropertyEncryptionListener.class);
 
-    @Autowired
     protected PasswordEncryptionExtService pluginPasswordEncryptionService;
-
-    @Autowired
     protected FSPluginProperties fsPluginProperties;
-
-    @Autowired
     protected DomibusConfigurationExtService domibusConfigurationExtService;
-
-    @Autowired
     protected DomainExtService domainExtService;
+
+    public FSPluginPropertyEncryptionListener(PasswordEncryptionExtService pluginPasswordEncryptionService,
+                                              FSPluginProperties fsPluginProperties,
+                                              DomibusConfigurationExtService domibusConfigurationExtService,
+                                              DomainExtService domainExtService) {
+        this.pluginPasswordEncryptionService = pluginPasswordEncryptionService;
+        this.fsPluginProperties = fsPluginProperties;
+        this.domibusConfigurationExtService = domibusConfigurationExtService;
+        this.domainExtService = domainExtService;
+    }
 
     @Override
     public void encryptPasswords() {

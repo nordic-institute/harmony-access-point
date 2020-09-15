@@ -36,7 +36,7 @@ public class WSPluginFaultOutInterceptor extends AbstractSoapInterceptor {
     };
 
     @Autowired
-    protected BackendWebServiceExceptionFactory backendWebServiceExceptionFactory;
+    protected WebServicePluginExceptionFactory webServicePluginExceptionFactory;
 
     public WSPluginFaultOutInterceptor() {
         super(Phase.PRE_STREAM);
@@ -56,7 +56,7 @@ public class WSPluginFaultOutInterceptor extends AbstractSoapInterceptor {
         }
 
         String methodName = getMethodName(message);
-        if (BackendWebServiceOperation.RETRIEVE_MESSAGE.equals(methodName)) {
+        if (WebServicePluginOperation.RETRIEVE_MESSAGE.equals(methodName)) {
             handleRetrieveMessage(message, exception);
         }
     }
@@ -71,7 +71,7 @@ public class WSPluginFaultOutInterceptor extends AbstractSoapInterceptor {
     }
 
     protected void handleRetrieveMessage(SoapMessage message, Exception exception) {
-        LOG.trace("Handling error in [{}] operation", BackendWebServiceOperation.RETRIEVE_MESSAGE);
+        LOG.trace("Handling error in [{}] operation", WebServicePluginOperation.RETRIEVE_MESSAGE);
 
         Throwable cause = exception.getCause();
         if (cause instanceof UnexpectedRollbackException) {
@@ -84,7 +84,7 @@ public class WSPluginFaultOutInterceptor extends AbstractSoapInterceptor {
 
         String messageId = LOG.getMDC(DomibusLogger.MDC_MESSAGE_ID);
         String retrieveMessageErrorMessage = getRetrieveMessageErrorMessage(cause, messageId);
-        RetrieveMessageFault retrieveMessageFault = new RetrieveMessageFault(retrieveMessageErrorMessage, backendWebServiceExceptionFactory.createFault("Error retrieving message"));
+        RetrieveMessageFault retrieveMessageFault = new RetrieveMessageFault(retrieveMessageErrorMessage, webServicePluginExceptionFactory.createFault("Error retrieving message"));
         message.setContent(Exception.class, new Fault(retrieveMessageFault));
     }
 

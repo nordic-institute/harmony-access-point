@@ -35,7 +35,7 @@ public class FSProcessFileServiceTest {
     private FSFilesManager fsFilesManager;
 
     @Injectable
-    private BackendFSImpl backendFSPlugin;
+    private FSPluginImpl backendFSPlugin;
 
     @Injectable
     private FSPluginProperties fsPluginProperties;

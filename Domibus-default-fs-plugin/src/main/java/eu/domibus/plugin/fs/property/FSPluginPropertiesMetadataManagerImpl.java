@@ -76,7 +76,7 @@ public class FSPluginPropertiesMetadataManagerImpl implements DomibusPropertyMet
 
     public static final String FSPLUGIN_PASSWORD_ENCRYPTION_PROPERTIES = "password.encryption.properties"; //NOSONAR
 
-    protected static final String OUT_QUEUE = "send.queue";
+    public static final String OUT_QUEUE = "send.queue";
 
     Map<String, DomibusPropertyMetadataDTO> knownProperties;
 

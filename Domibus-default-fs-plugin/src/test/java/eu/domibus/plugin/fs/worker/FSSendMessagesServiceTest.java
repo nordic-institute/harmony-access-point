@@ -44,7 +44,7 @@ public class FSSendMessagesServiceTest {
     private FSPluginProperties fsPluginProperties;
 
     @Injectable
-    private BackendFSImpl backendFSPlugin;
+    private FSPluginImpl backendFSPlugin;
 
     @Injectable
     private FSFilesManager fsFilesManager;

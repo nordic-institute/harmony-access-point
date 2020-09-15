@@ -13,6 +13,7 @@ import org.apache.cxf.binding.soap.interceptor.SoapOutInterceptor;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.phase.Phase;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.TransformerException;
@@ -26,7 +27,7 @@ import javax.xml.ws.WebServiceException;
  * informations in order to do his job.
  * It is only saving userMessage found in the ServerOutInterceptor=&gt; PullMessage.
  */
-//@thom test this class
+@Service
 public class SaveRawPulledMessageInterceptor extends AbstractSoapInterceptor {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SaveRawPulledMessageInterceptor.class);
