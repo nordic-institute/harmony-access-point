@@ -10,7 +10,8 @@ import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.model.configuration.*;
 import eu.domibus.core.payload.PayloadProfileValidator;
-import eu.domibus.core.pmode.validation.PropertyProfileValidator;
+import eu.domibus.core.pmode.validation.validators.MessagePropertyValidator;
+import eu.domibus.core.pmode.validation.validators.PropertyProfileValidator;
 import eu.domibus.core.ebms3.Ebms3Constants;
 import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.error.ErrorLogEntry;
@@ -164,6 +165,9 @@ public class DatabaseMessageHandlerTest {
     @Injectable
     protected UserMessageServiceHelper userMessageServiceHelper;
 
+    @Injectable
+    MessagePropertyValidator messagePropertyValidator;
+
 
     protected Property createProperty(String name, String value, String type) {
         Property aProperty = new Property();
@@ -276,6 +280,7 @@ public class DatabaseMessageHandlerTest {
             userMessageLogDao.getMessageStatus(MESS_ID);
             pModeProvider.findUserMessageExchangeContext(withAny(new UserMessage()), MSHRole.SENDING);
             pModeProvider.getLegConfiguration(pModeKey);
+            messagePropertyValidator.validate(withAny(new Messaging()), MSHRole.SENDING);
             messagingService.storeMessage(withAny(new Messaging()), MSHRole.SENDING, withAny(new LegConfiguration()), anyString);
             userMessageLogService.save(messageId, anyString, anyString, MSHRole.SENDING.toString(), anyInt, anyString, anyString, anyString, anyString, anyString, null, null);
             userMessageService.scheduleSending(userMessage, (UserMessageLog) any);
@@ -350,6 +355,7 @@ public class DatabaseMessageHandlerTest {
             UserMessage message;
 //            assertEquals("TC2Leg1", message.getCollaborationInfo().getAction());
 //            assertEquals("bdx:noprocess", message.getCollaborationInfo().getService().getValue());
+            messagePropertyValidator.validate(withAny(new Messaging()), MSHRole.SENDING);
             messagingService.storeMessage(withAny(new Messaging()), MSHRole.SENDING, withAny(new LegConfiguration()), anyString);
             userMessageLogService.save(messageId, MessageStatus.READY_TO_PULL.toString(), anyString, MSHRole.SENDING.toString(), anyInt, anyString, anyString, anyString, anyString, anyString, null, null);
             userMessageService.scheduleSending((UserMessage) any, (UserMessageLog) any);
@@ -404,6 +410,7 @@ public class DatabaseMessageHandlerTest {
             userMessageLogDao.getMessageStatus(MESS_ID);
             pModeProvider.findUserMessageExchangeContext(withAny(new UserMessage()), MSHRole.SENDING);
             pModeProvider.getLegConfiguration(anyString);
+            messagePropertyValidator.validate(withAny(new Messaging()), MSHRole.SENDING);
             messagingService.storeMessage(withAny(new Messaging()), MSHRole.SENDING, legConfiguration, anyString);
             userMessageLogService.save(messageId, anyString, anyString, MSHRole.SENDING.toString(), anyInt, anyString, anyString, anyString, anyString, anyString, null, null);
         }};
@@ -543,6 +550,8 @@ public class DatabaseMessageHandlerTest {
             backendMessageValidator.validateResponderParty(withAny(new Party()), withAny(new Party()));
             times = 0;
             pModeProvider.getLegConfiguration(anyString);
+            times = 0;
+            messagePropertyValidator.validate(withAny(new Messaging()), MSHRole.SENDING);
             times = 0;
             messagingService.storeMessage(withAny(new Messaging()), MSHRole.SENDING, legConfiguration, anyString);
             times = 0;

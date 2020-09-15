@@ -24,7 +24,6 @@ public class Command {
     private int entityId;
     protected String commandName;
     protected String serverName;
-    protected String domain;
     protected Date creationTime;
 
     private Map<String, String> commandProperties = new HashMap<>();
@@ -43,14 +42,6 @@ public class Command {
 
     public void setServerName(String serverName) {
         this.serverName = serverName;
-    }
-
-    public String getDomain() {
-        return domain;
-    }
-
-    public void setDomain(String domain) {
-        this.domain = domain;
     }
 
     public Date getCreationTime() {
@@ -88,7 +79,6 @@ public class Command {
         return new EqualsBuilder()
                 .append(commandName, command.commandName)
                 .append(serverName, command.serverName)
-                .append(domain, command.domain)
                 .append(commandProperties, command.commandProperties)
                 .isEquals();
     }
@@ -98,7 +88,6 @@ public class Command {
         return new HashCodeBuilder(17, 37)
                 .append(commandName)
                 .append(serverName)
-                .append(domain)
                 .append(commandProperties)
                 .toHashCode();
     }

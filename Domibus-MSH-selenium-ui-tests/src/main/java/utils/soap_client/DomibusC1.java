@@ -125,7 +125,7 @@ public class DomibusC1 {
 		if (null != result.getMessageID()) {
 			return result.getMessageID().get(0);
 		}
-		System.out.println(result);
+		LOG.debug(result);
 		throw new Exception("Could not send message");
 	}
 	

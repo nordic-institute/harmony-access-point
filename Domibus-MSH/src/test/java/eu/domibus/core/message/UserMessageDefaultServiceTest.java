@@ -8,33 +8,38 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pmode.PModeService;
 import eu.domibus.api.pmode.PModeServiceHelper;
 import eu.domibus.api.pmode.domain.LegConfiguration;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
+import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.jms.DelayedDispatchMessageCreator;
 import eu.domibus.core.jms.DispatchMessageCreator;
 import eu.domibus.core.message.converter.MessageConverterService;
-import eu.domibus.core.message.pull.PartyExtractor;
 import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.message.splitandjoin.MessageGroupDao;
 import eu.domibus.core.message.splitandjoin.MessageGroupEntity;
 import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
+import eu.domibus.core.error.ErrorLogDao;
+import eu.domibus.core.message.acknowledge.MessageAcknowledgementDao;
+import eu.domibus.core.message.attempt.MessageAttemptDao;
+import eu.domibus.core.replication.UIMessageDao;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
+import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.model.*;
 import eu.domibus.messaging.MessagingProcessingException;
-import eu.domibus.plugin.NotificationListener;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
+import org.apache.commons.lang3.time.DateUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import javax.jms.JMSException;
 import javax.jms.Queue;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -42,6 +47,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -96,6 +102,9 @@ public class UserMessageDefaultServiceTest {
     private BackendNotificationService backendNotificationService;
 
     @Injectable
+    protected RoutingService routingService;
+
+    @Injectable
     private JMSManager jmsManager;
 
     @Injectable
@@ -139,6 +148,27 @@ public class UserMessageDefaultServiceTest {
 
     @Injectable
     UserMessagePriorityService userMessagePriorityService;
+
+    @Injectable
+    DomibusPropertyProvider domibusPropertyProvider;
+
+    @Injectable
+    DateUtil dateUtil;
+
+    @Injectable
+    private MessageInfoDao messageInfoDao;
+
+    @Injectable
+    private MessageAttemptDao messageAttemptDao;
+
+    @Injectable
+    private ErrorLogDao errorLogDao;
+
+    @Injectable
+    private UIMessageDao uiMessageDao;
+
+    @Injectable
+    private MessageAcknowledgementDao messageAcknowledgementDao;
 
     @Test
     public void createMessagingForFragment(@Injectable UserMessage sourceMessage,
@@ -371,8 +401,7 @@ public class UserMessageDefaultServiceTest {
             messagingDao.findUserMessageByMessageId(messageId);
             times = 1;
 
-            PartyExtractor partyExtractor = null;
-            pullMessageService.addPullMessageLock(withAny(partyExtractor), userMessage, userMessageLog);
+            pullMessageService.addPullMessageLock(userMessage, userMessageLog);
             times = 1;
         }};
     }
@@ -569,17 +598,17 @@ public class UserMessageDefaultServiceTest {
         final String messageId = "1";
 
         new Expectations(userMessageDefaultService) {{
-            userMessageDefaultService.deleteMessagePluginCallback((String) any, userMessageLog);
+            backendNotificationService.notifyMessageDeleted((String) any, userMessageLog);
         }};
 
         userMessageDefaultService.deleteMessage(messageId);
 
         new Verifications() {{
-            userMessageDefaultService.deleteMessagePluginCallback(messageId, userMessageLog);
+            backendNotificationService.notifyMessageDeleted(messageId, userMessageLog);
         }};
     }
 
-    @Test
+    /*@Test
     public void testDeleteMessagePluginCallback(@Injectable final NotificationListener notificationListener1,
                                                 @Injectable UserMessageLog userMessageLog) {
         final String messageId = "1";
@@ -588,25 +617,24 @@ public class UserMessageDefaultServiceTest {
         notificationListeners.add(notificationListener1);
 
         new Expectations(userMessageDefaultService) {{
-            backendNotificationService.getNotificationListenerServices();
+            routingService.getNotificationListeners();
             result = notificationListeners;
 
             userMessageLog.getBackend();
             result = backend;
 
-            backendNotificationService.getNotificationListener(backend);
+            routingService.getNotificationListener(backend);
             result = notificationListener1;
 
-            userMessageDefaultService.deleteMessagePluginCallback((String) any, (NotificationListener) any);
         }};
 
-        userMessageDefaultService.deleteMessagePluginCallback(messageId, userMessageLog);
+        userMessageDefaultService.notifyMessageDeleted(messageId, userMessageLog);
 
         new Verifications() {{
-            userMessageDefaultService.deleteMessagePluginCallback(messageId, notificationListener1);
+            notificationListener1.deleteMessageCallback(messageId);
         }};
-    }
-
+    }*/
+/*
     @Test
     public void deleteMessagePluginCallbackForTestMessage(@Injectable final NotificationListener notificationListener1,
                                                           @Injectable UserMessageLog userMessageLog) {
@@ -615,7 +643,7 @@ public class UserMessageDefaultServiceTest {
         notificationListeners.add(notificationListener1);
 
         new Expectations(userMessageDefaultService) {{
-            backendNotificationService.getNotificationListenerServices();
+            routingService.getNotificationListeners();
             result = notificationListeners;
 
             userMessageLog.isTestMessage();
@@ -629,39 +657,14 @@ public class UserMessageDefaultServiceTest {
             userMessageLog.getBackend();
             times = 0;
 
-            backendNotificationService.getNotificationListener(anyString);
+            routingService.getNotificationListener(anyString);
             times = 0;
 
-            userMessageDefaultService.deleteMessagePluginCallback((String) any, (NotificationListener) any);
+            notificationListener1.deleteMessageCallback(messageId);
             times = 0;
 
         }};
-    }
-
-    @Test
-    public void testDeleteMessagePluginCallbackForNotificationListener(@Injectable final NotificationListener notificationListener,
-                                                                       @Injectable UserMessageLog userMessageLog,
-                                                                       @Injectable Queue backendNotificationQueue) throws JMSException {
-        final String messageId = "1";
-        final String backendQueue = "myPluginQueue";
-
-        new Expectations(userMessageDefaultService) {{
-            notificationListener.getBackendNotificationQueue();
-            result = backendNotificationQueue;
-
-            backendNotificationQueue.getQueueName();
-            result = backendQueue;
-
-
-        }};
-
-        userMessageDefaultService.deleteMessagePluginCallback(messageId, notificationListener);
-
-        new Verifications() {{
-            jmsManager.consumeMessage(backendQueue, messageId);
-            notificationListener.deleteMessageCallback(messageId);
-        }};
-    }
+    }*/
 
     @Test
     public void marksTheUserMessageAsDeleted(@Injectable Messaging messaging,
@@ -678,9 +681,6 @@ public class UserMessageDefaultServiceTest {
             messaging.getUserMessage();
             result = userMessage;
 
-            backendNotificationService.getNotificationListenerServices();
-            result = null;
-
             userMessageLogDao.findByMessageIdSafely(messageId);
             result = userMessageLog;
 
@@ -694,6 +694,9 @@ public class UserMessageDefaultServiceTest {
             messagingDao.clearPayloadData(userMessage);
             userMessageLogService.setMessageAsDeleted(userMessage, userMessageLog);
             userMessageLogService.setSignalMessageAsDeleted(signalMessage);
+            userMessageLog.getMessageStatus();
+            backendNotificationService.notifyMessageDeleted(messageId, userMessageLog);
+            times = 1;
         }};
     }
 
@@ -710,9 +713,6 @@ public class UserMessageDefaultServiceTest {
             messaging.getUserMessage();
             result = userMessage;
 
-            backendNotificationService.getNotificationListenerServices();
-            result = null;
-
             userMessageLogDao.findByMessageIdSafely(messageId);
             result = userMessageLog;
 
@@ -726,11 +726,14 @@ public class UserMessageDefaultServiceTest {
             messagingDao.clearPayloadData(userMessage);
             userMessageLogService.setMessageAsDeleted(userMessage, userMessageLog);
             userMessageLogService.setSignalMessageAsDeleted((SignalMessage) null);
+            userMessageLog.getMessageStatus();
+            backendNotificationService.notifyMessageDeleted(messageId, userMessageLog);
+            times = 1;
         }};
     }
 
-    @Test
-    public void test_ResendFailedOrSendEnqueuedMessage_StatusSendEnqueued(final @Mocked UserMessageLog userMessageLog) {
+    @Test(expected = UserMessageException.class)
+    public void test_ResendFailedOrSendEnqueuedMessage_StatusSendEnqueued(final @Mocked UserMessageLog userMessageLog) throws Exception {
         final String messageId = UUID.randomUUID().toString();
 
         new Expectations(userMessageDefaultService) {{
@@ -743,6 +746,7 @@ public class UserMessageDefaultServiceTest {
 
         //tested method
         userMessageDefaultService.resendFailedOrSendEnqueuedMessage(messageId);
+
 
         new FullVerifications(userMessageDefaultService) {{
             String messageIdActual;
@@ -792,6 +796,40 @@ public class UserMessageDefaultServiceTest {
 
         new FullVerifications(userMessageDefaultService) {
         };
+    }
+
+    @Test
+    public void test_sendEnqueued(final @Mocked UserMessageLog userMessageLog, final @Mocked UserMessage userMessage) {
+        final String messageId = UUID.randomUUID().toString();
+
+        new Expectations(userMessageDefaultService) {{
+            userMessageLogDao.findByMessageId(messageId);
+            result = userMessageLog;
+
+            userMessageLog.getMessageStatus();
+            result = MessageStatus.SEND_ENQUEUED;
+
+            domibusPropertyProvider.getIntegerProperty(DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES);
+            result = 2;
+
+            userMessageLog.getReceived();
+            result = DateUtils.addMinutes(new Date(), -3);
+
+            userMessageLog.getNextAttempt();
+            result = null;
+
+            messagingDao.findUserMessageByMessageId(messageId);
+            result = userMessage;
+        }};
+
+        //tested method
+        userMessageDefaultService.sendEnqueuedMessage(messageId);
+
+        new FullVerifications(userMessageDefaultService) {{
+            userMessageLog.setNextAttempt(withAny(new Date()));
+            userMessageLogDao.update(userMessageLog);
+            userMessageDefaultService.scheduleSending(userMessage, userMessageLog);
+        }};
     }
 
     @Test

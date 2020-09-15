@@ -122,6 +122,8 @@ public class BackendFSImplTest {
     private final String location = "ram:///BackendFSImplTest";
     private final String messageId = "3c5558e4-7b6d-11e7-bb31-be2e44b06b34@domibus.eu";
     private final String finalRecipientFolder = "urn_oasis_names_tc_ebcore_partyid-type_unregistered_C4";
+    private final DeliverMessageEvent messageEvent = new DeliverMessageEvent(messageId, finalRecipientFolder);
+    private final String messageIdFolder = messageId;
 
     @Before
     public void setUp() throws org.apache.commons.vfs2.FileSystemException {
@@ -175,7 +177,7 @@ public class BackendFSImplTest {
 
         expectationsDeliverMessage(FSSendMessagesService.DEFAULT_DOMAIN, userMessage, fsPayloads);
 
-        backendFS.deliverMessage(messageId);
+        backendFS.deliverMessage(messageEvent);
 
         // Assert results
         FileObject[] files = incomingFolderByMessageId.findFiles(new FileTypeSelector(FileType.FILE));
@@ -228,7 +230,7 @@ public class BackendFSImplTest {
             fsFilesManager.getEnsureChildFolder(incomingFolder, finalRecipientFolder);
             result = incomingFolderByRecipient;
 
-            fsFilesManager.getEnsureChildFolder(incomingFolderByRecipient, messageId);
+            fsFilesManager.getEnsureChildFolder(incomingFolderByRecipient, messageIdFolder);
             result = incomingFolderByMessageId;
 
             backendFS.getFileNameExtension(TEXT_XML);
@@ -273,7 +275,7 @@ public class BackendFSImplTest {
         expectationsDeliverMessage(FSSendMessagesService.DEFAULT_DOMAIN, userMessage, fsPayloads);
 
         //tested method
-        backendFS.deliverMessage(messageId);
+        backendFS.deliverMessage(messageEvent);
 
         // Assert results
         FileObject[] files = incomingFolderByMessageId.findFiles(new FileTypeSelector(FileType.FILE));
@@ -327,7 +329,7 @@ public class BackendFSImplTest {
         expectationsDeliverMessage(FSSendMessagesService.DEFAULT_DOMAIN, userMessage, fsPayloads);
 
         //tested method
-        backendFS.deliverMessage(messageId);
+        backendFS.deliverMessage(messageEvent);
 
         // Assert results
         FileObject[] files = incomingFolderByMessageId.findFiles(new FileTypeSelector(FileType.FILE));
@@ -371,7 +373,7 @@ public class BackendFSImplTest {
             result = new MessageNotFoundException("message not found");
         }};
 
-        backendFS.deliverMessage(messageId);
+        backendFS.deliverMessage(messageEvent);
     }
 
     @Test(expected = FSPluginException.class)
@@ -395,7 +397,7 @@ public class BackendFSImplTest {
             result = new FSSetUpException("Test-forced exception");
         }};
 
-        backendFS.deliverMessage(messageId);
+        backendFS.deliverMessage(messageEvent);
     }
 
     @Test(expected = FSPluginException.class)
@@ -424,7 +426,7 @@ public class BackendFSImplTest {
 
         }};
 
-        backendFS.deliverMessage(messageId);
+        backendFS.deliverMessage(messageEvent);
     }
 
     @Test
@@ -716,7 +718,7 @@ public class BackendFSImplTest {
     @Test
     public void test_getFileName(final @Mocked FSPayload fsPayload,
                                  final @Mocked FileObject incomingFolderByMessageId,
-                                 final @Mocked FileObject fileNameObject) throws  Exception{
+                                 final @Mocked FileObject fileNameObject) throws Exception {
         final String contentId = "cid:message";
         final String fileName = "message.xml";
 
@@ -748,7 +750,7 @@ public class BackendFSImplTest {
 
     @Test
     public void test_getFileName_Exception(final @Mocked FSPayload fsPayload,
-                                 final @Mocked FileObject incomingFolderByMessageId) throws  Exception{
+                                           final @Mocked FileObject incomingFolderByMessageId) throws Exception {
         final String contentId = "cid:message";
         final String fileName = "%%";
         final String fileExtension = ".xml";
@@ -836,7 +838,7 @@ public class BackendFSImplTest {
 
     @Test
     public void test_getFileName_Empty_cidEmpty(final @Mocked FSPayload fsPayload,
-                                       final @Mocked FileObject incomingFolderByMessageId) throws Exception {
+                                                final @Mocked FileObject incomingFolderByMessageId) throws Exception {
         final String contentId = null;
         final String fileExtension = ".xml";
 

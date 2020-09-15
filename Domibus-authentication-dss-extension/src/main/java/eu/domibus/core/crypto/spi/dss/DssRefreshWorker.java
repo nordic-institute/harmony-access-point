@@ -2,11 +2,11 @@ package eu.domibus.core.crypto.spi.dss;
 
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.quartz.DomibusQuartzJobExtBean;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import eu.europa.esig.dss.tsl.service.DomibusTSLValidationJob;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -17,14 +17,21 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class DssRefreshWorker extends DomibusQuartzJobExtBean {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DssRefreshWorker.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DssRefreshWorker.class);
 
     @Autowired
     private DomibusTSLValidationJob tslValidationJob;
 
+    @Autowired
+    private DssExtensionPropertyManager dssExtensionPropertyManager;
+
     @Override
     protected void executeJob(JobExecutionContext context, DomainDTO domain) throws JobExecutionException {
         LOG.info("Start DSS trusted lists refresh job");
+        if (Boolean.parseBoolean(dssExtensionPropertyManager.getKnownPropertyValue(DssExtensionPropertyManager.DSS_FULL_TLS_REFRESH))) {
+            tslValidationJob.clearRepository();
+            LOG.info("DSS trusted lists cleared");
+        }
         tslValidationJob.refresh();
         LOG.info("DSS trusted lists refreshed");
     }

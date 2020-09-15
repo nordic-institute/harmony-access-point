@@ -11,11 +11,9 @@ import java.util.Map;
  */
 public interface CommandService {
 
-    void createClusterCommand(String command, String domain, String server, Map<String, Object> commandProperties);
+    void createClusterCommand(String command, String server, Map<String, String> commandProperties);
 
     List<Command> findCommandsByServerName(String serverName);
-
-    List<Command> findCommandsByServerAndDomainName(String serverName, String domain);
 
     void deleteCommand(Integer commandId);
 

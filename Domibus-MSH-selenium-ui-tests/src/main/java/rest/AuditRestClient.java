@@ -37,17 +37,11 @@ public class AuditRestClient extends BaseRestClient {
 		}
 		ClientResponse response = getAuditLog(params, domain);
 		
-		int status = response.getStatus();
-		String entity = sanitizeResponse(response.getEntity(String.class));
-		
-		log.debug("status = " + status);
-		log.debug("content = " + entity);
-		
-		if(status != 200){
-			throw new Exception("Could not get audit log");
+		if(response.getStatus() != 200){
+			throw new DomibusRestException("Could not get audit log", response);
 		}
 		
-		JSONArray events = new JSONArray(entity);
+		JSONArray events = new JSONArray(response.getEntity(String.class));
 		
 		return events;
 	}

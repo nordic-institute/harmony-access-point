@@ -18,7 +18,6 @@ import eu.domibus.core.exception.MessagingExceptionFactory;
 import eu.domibus.core.generator.id.MessageIdGenerator;
 import eu.domibus.core.message.*;
 import eu.domibus.core.message.compression.CompressionException;
-import eu.domibus.core.message.pull.PartyExtractor;
 import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
@@ -28,12 +27,15 @@ import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider
 import eu.domibus.core.plugin.transformer.SubmissionAS4Transformer;
 import eu.domibus.core.pmode.PModeDefaultService;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.core.pmode.validation.PropertyProfileValidator;
+import eu.domibus.core.pmode.validation.validators.MessagePropertyValidator;
+import eu.domibus.core.pmode.validation.validators.PropertyProfileValidator;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.model.MessageInfo;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.ObjectFactory;
 import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -138,6 +140,9 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
     @Autowired
     protected UserMessageServiceHelper userMessageServiceHelper;
+
+    @Autowired
+    protected MessagePropertyValidator messagePropertyValidator;
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
@@ -313,7 +318,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             final UserMessageLog userMessageLog = userMessageLogService.save(messageId, messageStatus.toString(), pModeDefaultService.getNotificationStatus(legConfiguration).toString(),
                     MSHRole.SENDING.toString(), getMaxAttempts(legConfiguration), message.getUserMessage().getMpc(),
                     backendName, to.getEndpoint(), userMessage.getCollaborationInfo().getService().getValue(), userMessage.getCollaborationInfo().getAction(), null, true);
-            prepareForPushOrPull(userMessage, userMessageLog, pModeKey, to, messageStatus);
+            prepareForPushOrPull(userMessage, userMessageLog, pModeKey, messageStatus);
 
 
             uiReplicationSignalService.userMessageSubmitted(userMessage.getMessageInfo().getMessageId());
@@ -332,19 +337,21 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
         }
     }
 
-    private void prepareForPushOrPull(UserMessage userMessage, UserMessageLog userMessageLog, String pModeKey, Party to, MessageStatus messageStatus) {
+    private void prepareForPushOrPull(UserMessage userMessage, UserMessageLog userMessageLog, String pModeKey, MessageStatus messageStatus) {
         if (MessageStatus.READY_TO_PULL != messageStatus) {
             // Sends message to the proper queue if not a message to be pulled.
             userMessageService.scheduleSending(userMessage, userMessageLog);
         } else {
             LOG.debug("[submit]:Message:[{}] add lock", userMessageLog.getMessageId());
-            pullMessageService.addPullMessageLock(new PartyExtractor(to), pModeKey, userMessageLog);
+            pullMessageService.addPullMessageLock(userMessage.getToFirstPartyId(), pModeKey, userMessageLog);
         }
     }
 
     @Override
     @Transactional
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
+    @Timer(clazz = DatabaseMessageHandler.class,value = "submit")
+    @Counter(clazz = DatabaseMessageHandler.class,value = "submit")
     public String submit(final Submission messageData, final String backendName) throws MessagingProcessingException {
         if (StringUtils.isNotEmpty(messageData.getMessageId())) {
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageData.getMessageId());
@@ -418,6 +425,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
             payloadProfileValidator.validate(message, pModeKey);
             propertyProfileValidator.validate(message, pModeKey);
+            messagePropertyValidator.validate(message, MSHRole.SENDING);
 
             final boolean splitAndJoin = splitAndJoinService.mayUseSplitAndJoin(legConfiguration);
             userMessage.setSplitAndJoin(splitAndJoin);
@@ -457,7 +465,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                     backendName, to.getEndpoint(), messageData.getService(), messageData.getAction(), sourceMessage, null);
 
             if (!sourceMessage) {
-                prepareForPushOrPull(userMessage, userMessageLog, pModeKey, to, messageStatus);
+                prepareForPushOrPull(userMessage, userMessageLog, pModeKey, messageStatus);
             }
 
             uiReplicationSignalService.userMessageSubmitted(userMessage.getMessageInfo().getMessageId());

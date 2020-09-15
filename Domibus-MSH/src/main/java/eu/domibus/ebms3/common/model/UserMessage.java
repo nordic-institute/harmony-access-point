@@ -1,6 +1,7 @@
 package eu.domibus.ebms3.common.model;
 
 import eu.domibus.core.ebms3.Ebms3Constants;
+import eu.domibus.core.message.nonrepudiation.RawEnvelopeLog;
 import eu.domibus.core.message.splitandjoin.MessageFragmentEntity;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -80,6 +81,10 @@ public class UserMessage extends AbstractBaseEntity {
     @JoinColumn(name = "FK_MESSAGE_FRAGMENT_ID")
     @OneToOne(cascade = CascadeType.ALL)
     protected MessageFragmentEntity messageFragment;
+
+    @OneToOne(mappedBy = "userMessage", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @XmlTransient
+    private RawEnvelopeLog rawEnvelopeLog;
 
     public MessageFragmentEntity getMessageFragment() {
         return messageFragment;

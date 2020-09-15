@@ -83,6 +83,7 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_DYNAMICDISCOVERY_CLIENT_SPECIFICATION = "domibus.dynamicdiscovery.client.specification";
     String DOMIBUS_DYNAMICDISCOVERY_PEPPOLCLIENT_MODE = "domibus.dynamicdiscovery.peppolclient.mode";
     String DOMIBUS_DYNAMICDISCOVERY_OASISCLIENT_REGEX_CERTIFICATE_SUBJECT_VALIDATION = "domibus.dynamicdiscovery.oasisclient.regexCertificateSubjectValidation";
+    String DOMIBUS_DYNAMICDISCOVERY_PEPPOLCLIENT_REGEX_CERTIFICATE_SUBJECT_VALIDATION = "domibus.dynamicdiscovery.peppolclient.regexCertificateSubjectValidation";
     String DOMIBUS_DYNAMICDISCOVERY_PARTYID_RESPONDER_ROLE = "domibus.dynamicdiscovery.partyid.responder.role";
     String DOMIBUS_DYNAMICDISCOVERY_PARTYID_TYPE = "domibus.dynamicdiscovery.partyid.type";
     String DOMIBUS_DYNAMICDISCOVERY_TRANSPORTPROFILEAS_4 = "domibus.dynamicdiscovery.transportprofileas4";
@@ -112,6 +113,9 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_DISPATCHER_PRIORITY = "domibus.dispatcher.priority";
     String DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_DOWNLOADED_MAX_DELETE = "domibus.retentionWorker.message.retention.downloaded.max.delete";
     String DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_NOT_DOWNLOADED_MAX_DELETE = "domibus.retentionWorker.message.retention.not_downloaded.max.delete";
+    String DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_SENT_MAX_DELETE = "domibus.retentionWorker.message.retention.sent.max.delete";
+    String DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_BATCH_DELETE = "domibus.retentionWorker.message.retention.batch.delete";
+    String DOMIBUS_RETENTION_WORKER_MESSAGE_ID_LIST_SEPARATOR = "domibus.retentionWorker.message.id.list.separator";
     String DOMIBUS_RETENTION_JMS_CONCURRENCY = "domibus.retention.jms.concurrency";
     String DOMIBUS_DISPATCH_EBMS_ERROR_UNRECOVERABLE_RETRY = "domibus.dispatch.ebms.error.unrecoverable.retry";
     String DOMIBUS_PROXY_ENABLED = DOMIBUS_PROXY_PREFIX + "enabled";
@@ -124,6 +128,7 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_PLUGIN_NOTIFICATION_ACTIVE = "domibus.plugin.notification.active";
     String DOMIBUS_NONREPUDIATION_AUDIT_ACTIVE = "domibus.nonrepudiation.audit.active";
     String DOMIBUS_SEND_MESSAGE_FAILURE_DELETE_PAYLOAD = "domibus.sendMessage.failure.delete.payload";
+    String DOMIBUS_SEND_MESSAGE_SUCCESS_DELETE_PAYLOAD = "domibus.sendMessage.success.delete.payload";
     String DOMIBUS_SEND_MESSAGE_ATTEMPT_AUDIT_ACTIVE = "domibus.sendMessage.attempt.audit.active";
     String DOMIBUS_FOURCORNERMODEL_ENABLED = "domibus.fourcornermodel.enabled";
     String DOMIBUS_LOGGING_PAYLOAD_PRINT = "domibus.logging.payload.print";
@@ -135,6 +140,7 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMAIN_TITLE = "domain.title";
     String DOMIBUS_USER_INPUT_BLACK_LIST = "domibus.userInput.blackList";
     String DOMIBUS_USER_INPUT_WHITE_LIST = "domibus.userInput.whiteList";
+    String DOMIBUS_PROPERTY_LENGTH_MAX = "domibus.property.length.max";
     String DOMIBUS_PROPERTY_VALIDATION_ENABLED = "domibus.property.validation.enabled";
     String DOMIBUS_ACCOUNT_UNLOCK_CRON = "domibus.account.unlock.cron";
     String DOMIBUS_CERTIFICATE_CHECK_CRON = "domibus.certificate.check.cron";
@@ -318,6 +324,7 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_JDBC_DATASOURCE_QUARTZ_JNDI_NAME = "domibus.jdbc.datasource.quartz.jndi.name";
     String DOMIBUS_METRICS_MONITOR_JMS_QUEUES_REFRESH_PERIOD = "domibus.metrics.monitor.jms.queues.refresh.period";
     String DOMIBUS_METRICS_MONITOR_JMS_QUEUES_SHOW_DLQ_ONLY = "domibus.metrics.monitor.jms.queues.show.dlq.only";
-
+    String DOMIBUS_SCHEMAFACTORY = "domibus.javax.xml.validation.SchemaFactory";
+    String DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES = "domibus.ui.resend.action.enabled.received.minutes";
 
 }

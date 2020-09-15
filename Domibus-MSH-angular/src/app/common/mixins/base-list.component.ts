@@ -7,6 +7,7 @@ import {instanceOfFilterableList, instanceOfModifiableList} from './type.utils';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {PropertiesService} from '../../properties/support/properties.service';
 import {ApplicationContextService} from '../application-context.service';
+import {CustomURLEncoder} from '../custom-url-encoder';
 
 /**
  * @author Ion Perpegel
@@ -50,7 +51,7 @@ export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
   }
 
   protected createAndSetParameters(): HttpParams {
-    return new HttpParams();
+    return new HttpParams({encoder: new CustomURLEncoder()})
   }
 
   public async getServerData(): Promise<any> {
@@ -150,12 +151,16 @@ export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
   }
 
   public onActivate(event) {
-    if ('dblclick' === event.type) {
-      if (instanceOfModifiableList(this)) {
-        this.edit(event.row);
-      } else {
-        this.showDetails(event.row);
-      }
+    if ('dblclick' !== event.type) {
+      return;
+    }
+
+    this.alertService.clearAlert();
+
+    if (instanceOfModifiableList(this)) {
+      this.edit(event.row);
+    } else {
+      this.showDetails(event.row);
     }
   }
 

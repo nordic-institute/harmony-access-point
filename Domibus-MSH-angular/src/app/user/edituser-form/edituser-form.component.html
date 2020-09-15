@@ -12,7 +12,9 @@
         <mat-form-field [style.width]="'100%'">
           <input #user_name matInput id="username_id" placeholder="User Name *" name="userName" formControlName="userName">
           <span class="help-block" *ngIf="shouldShowErrorsForFieldNamed('userName')">
-            <div *ngIf="userForm.get('userName').errors?.required" style="color:red; font-size: 70%">You should type an username</div>
+            <div *ngIf="userForm.get('userName').errors?.required" style="color:red; font-size: 70%">{{userNameRequiredMessage}}</div>
+            <div *ngIf="userForm.get('userName').errors?.minlength" style="color:red; font-size: 70%">{{userNameMinLengthMessage}}</div>
+            <div *ngIf="userForm.get('userName').errors?.pattern" style="color:red; font-size: 70%">{{userNamePatternMessage}}</div>
           </span>
         </mat-form-field>
       </div>

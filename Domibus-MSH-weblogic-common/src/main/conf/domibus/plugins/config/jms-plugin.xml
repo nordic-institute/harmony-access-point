@@ -8,7 +8,7 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
                             http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee.xsd">
 
-    <jee:jndi-lookup id="notifyBackendJmsQueue"
+    <jee:jndi-lookup id="notifyBackendJmsQueue" expected-type="javax.jms.Queue"
                      jndi-name="${jmsplugin.queue.notification}">
     </jee:jndi-lookup>
 
@@ -18,11 +18,11 @@
         <property name="messageRetrievalTransformer" ref="jmsMessageTransformer"/>
     </bean>
 
-    <bean id="jmsNotificationListenerService"
-          class="eu.domibus.submission.WeblogicNotificationListenerService"
-          c:queue-ref="notifyBackendJmsQueue" c:mode="PUSH"
-          p:backendConnector-ref="backendJms">
-        <property name="queueJndi" value="${jmsplugin.queue.notification}"/>
+    <bean id="jmsAsyncPluginConfiguration"
+          class="eu.domibus.plugin.notification.PluginAsyncNotificationConfiguration"
+          c:queue-ref="notifyBackendJmsQueue"
+          c:backendConnector-ref="backendJms">
+        <property name="queueName" value="${jmsplugin.queue.notification}"/>
     </bean>
 
     <bean id="jndiDestinationResolver" class="org.springframework.jms.support.destination.JndiDestinationResolver">
@@ -38,11 +38,12 @@
         <property name="concurrency" value="${jmsplugin.queue.in.concurrency}"/>
         <property name="sessionTransacted" value="true"/>
         <property name="sessionAcknowledgeMode" value="0"/>
+        <property name="taskExecutor" ref="taskExecutor"/>
     </bean>
 
     <bean id="mshToBackendTemplate"
           class="org.springframework.jms.core.JmsTemplate"
-          c:connectionFactory-ref="domibusJMSPlugin-ConnectionFactory"
+          c:connectionFactory-ref="domibusJMSPlugin-Caching-ConnectionFactory"
           p:destinationResolver-ref="jndiDestinationResolver"
           p:sessionTransacted="true"
           p:sessionAcknowledgeMode="0"/>
@@ -51,6 +52,11 @@
         <property name="lookupOnStartup" value="false"/>
         <property name="jndiName" value="${jmsplugin.connection.factory}"/>
         <property name="proxyInterface" value="javax.jms.ConnectionFactory"/>
+    </bean>
+
+    <bean id="domibusJMSPlugin-Caching-ConnectionFactory" class="org.springframework.jms.connection.CachingConnectionFactory">
+        <property name="sessionCacheSize" value="${jmsplugin.jms.connectionFactory.session.cache.size}"/>
+        <property name="targetConnectionFactory" ref="domibusJMSPlugin-ConnectionFactory"/>
     </bean>
 
 </beans>

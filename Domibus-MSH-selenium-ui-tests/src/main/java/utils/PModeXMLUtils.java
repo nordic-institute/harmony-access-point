@@ -78,7 +78,7 @@ public class PModeXMLUtils {
 		NodeList nList = doc.getElementsByTagName("identifier");
 		for (int i = 0; i < nList.getLength(); i++) {
 			Node nNode = nList.item(i);
-			System.out.println("found ID = " + nNode.getAttributes().getNamedItem("partyId").getTextContent());
+			log.debug("found ID = " + nNode.getAttributes().getNamedItem("partyId").getTextContent());
 			
 			String id = nNode.getAttributes().getNamedItem("partyId").getTextContent();
 			
@@ -96,7 +96,7 @@ public class PModeXMLUtils {
 	}
 	
 	public String addPartyToPmode() throws IOException {
-		String name = Generator.randomAlphaNumeric(5);
+		String name = Gen.randomAlphaNumeric(5);
 		String url = "http://" + name + ".com";
 		String partyId = name + "_gw";
 		String partyIdType =

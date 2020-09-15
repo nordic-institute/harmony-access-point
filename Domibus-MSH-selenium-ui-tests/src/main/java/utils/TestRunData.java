@@ -39,7 +39,8 @@ public class TestRunData {
 	
 	private void loadTestData() {
 		try {
-			String filename = System.getenv("propertiesFile");
+//			String filename = System.getenv("propertiesFile");
+			String filename = System.getProperty("propertiesFile");
 			FileInputStream stream = new FileInputStream(new File(filename));
 			prop.load(stream);
 		} catch (Exception e) {
@@ -98,7 +99,7 @@ public class TestRunData {
 		try {
 			return Boolean.valueOf(prop.getProperty("headless"));
 		} catch (Exception e) {
-			System.out.println("e = " + e);
+			log.debug("e = " + e);
 			return false;
 		}
 	}
@@ -107,7 +108,7 @@ public class TestRunData {
 		try {
 			return Boolean.valueOf(prop.getProperty("useProxy"));
 		} catch (Exception e) {
-			System.out.println("e = " + e);
+			log.debug("e = " + e);
 			return false;
 		}
 	}
@@ -129,7 +130,8 @@ public class TestRunData {
 	}
 	
 	public String getRunBrowser() {
-		return System.getenv("runBrowser");
+//		return System.getenv("runBrowser");
+		return System.getProperty("runBrowser");
 	}
 	
 	public Integer getUiReplicationcronTime() {
@@ -141,5 +143,7 @@ public class TestRunData {
 		return DATEWIDGET_DATE_FORMAT.format(date);
 	}
 	
-	
+	public String downloadFolderPath() {
+		return System.getProperty("user.dir") + File.separator + "downloadFiles";
+	}
 }

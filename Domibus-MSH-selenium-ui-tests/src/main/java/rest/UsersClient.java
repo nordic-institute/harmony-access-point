@@ -7,7 +7,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class UsersClient extends BaseRestClient {
@@ -23,7 +25,7 @@ public class UsersClient extends BaseRestClient {
 		
 		ClientResponse response = requestGET(resource.path(RestServicePaths.USERS), null);
 		if (response.getStatus() != 200) {
-			throw new Exception("Could not get users ");
+			throw new DomibusRestException("Could not get users ", response);
 		}
 		
 		try {
@@ -33,6 +35,17 @@ public class UsersClient extends BaseRestClient {
 			log.error("EXCEPTION: ", e);
 		}
 		return null;
+	}
+	
+	public List<String> getUsernameList(String domain) throws Exception {
+		List<String> usernameList = new ArrayList<>();
+		
+		JSONArray users = getUsers(domain);
+		for (int i = 0; i < users.length(); i++) {
+			JSONObject  user= users.getJSONObject(i);
+			usernameList.add(user.getString("userName"));
+		}
+		return usernameList;
 	}
 	
 	public int getNoOfAdmins(String domain) throws Exception {
@@ -46,6 +59,19 @@ public class UsersClient extends BaseRestClient {
 		return adminNo;
 	}
 	
+	public ArrayList<String> getSuperUsernames() throws Exception {
+		JSONArray users = getUsers("default");
+		ArrayList<String> supers = new ArrayList<>();
+		
+		for (int i = 0; i < users.length(); i++) {
+			JSONObject user = users.getJSONObject(i);
+			if (DRoles.SUPER.equalsIgnoreCase(user.getJSONArray("authorities").getString(0))) {
+				supers.add(user.getString("userName"));
+			}
+		}
+		return supers;
+	}
+	
 	public void createUser(String username, String role, String pass, String domain) throws Exception {
 		switchDomain(domain);
 		if (null == domain || domain.isEmpty()) {
@@ -56,7 +82,7 @@ public class UsersClient extends BaseRestClient {
 		
 		ClientResponse response = jsonPUT(resource.path(RestServicePaths.USERS), payload);
 		if (response.getStatus() != 200) {
-			throw new Exception("Could not create user");
+			throw new DomibusRestException("Could not create user", response);
 		}
 	}
 	
@@ -79,7 +105,7 @@ public class UsersClient extends BaseRestClient {
 		
 		ClientResponse response = jsonPUT(resource.path(RestServicePaths.USERS), toDelete.toString());
 		if (response.getStatus() != 200) {
-			throw new Exception("Could not delete user");
+			throw new DomibusRestException("Could not delete user", response);
 		}
 	}
 	
@@ -107,7 +133,7 @@ public class UsersClient extends BaseRestClient {
 			
 			ClientResponse response = jsonPUT(resource.path(RestServicePaths.USERS), "[" + user.toString() + "]");
 			if (response.getStatus() != 200) {
-				throw new Exception("Could not UPDATE user");
+				throw new DomibusRestException("Could not UPDATE user", response);
 			}
 		} catch (Exception e) {
 			log.error("EXCEPTION: ", e);

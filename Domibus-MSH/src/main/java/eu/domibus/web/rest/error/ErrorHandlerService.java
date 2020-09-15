@@ -7,6 +7,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.ro.ErrorRO;
 import eu.domibus.web.rest.ro.ValidationResponseRO;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -16,7 +17,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 
+import javax.validation.ConstraintViolationException;
+import javax.validation.Path;
 import javax.validation.ValidationException;
+import java.util.Iterator;
 import java.util.List;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EXCEPTIONS_REST_ENABLE;
@@ -63,6 +67,25 @@ public class ErrorHandlerService {
             ex = rootCause == null ? ex : rootCause;
         }
 
+        return createResponseEntity(ex.getMessage(), status);
+    }
+
+    public ResponseEntity<ErrorRO> createResponse(String message, HttpStatus status) {
+        LOG.error(message);
+
+        return createResponseEntity(message, status);
+    }
+
+    public void processBindingResultErrors(BindingResult bindingResult) throws ValidationException {
+        if (bindingResult.hasErrors()) {
+            List<ObjectError> errors = bindingResult.getAllErrors();
+            String res = errors.stream().map(err -> err.getDefaultMessage())
+                    .reduce(StringUtils.EMPTY, (accumulator, msg) -> accumulator + msg);
+            throw new ValidationException(res);
+        }
+    }
+
+    private ResponseEntity createResponseEntity(String message, HttpStatus status) {
         HttpHeaders headers = new HttpHeaders();
         //We need to send the connection header for the tomcat/chrome combination to be able to read the error message
         headers.set(HttpHeaders.CONNECTION, "close");
@@ -74,19 +97,27 @@ public class ErrorHandlerService {
             LOG.warn("Error reading domibus.exceptions.rest.enable as boolean: [{}]", e.getMessage());
         }
 
-        String errorMessage = enabled ? ex.getMessage() : "A server error occurred";
+        String errorMessage = enabled ? message : "A server error occurred";
 
         ErrorRO body = new ErrorRO(errorMessage);
 
         return new ResponseEntity(body, headers, status);
     }
 
-    public void processBindingResultErrors(BindingResult bindingResult) throws ValidationException {
-        if (bindingResult.hasErrors()) {
-            List<ObjectError> errors = bindingResult.getAllErrors();
-            String res = errors.stream().map(err -> err.getDefaultMessage())
-                    .reduce("", (subtotal, msg) -> subtotal + msg);
-            throw new ValidationException(res);
+    public ResponseEntity<ErrorRO> createConstraintViolationResponse(ConstraintViolationException ex) {
+        String errorMessage = ex.getConstraintViolations().stream()
+                .map(el -> getLast(el.getPropertyPath()) + " " + el.getMessage())
+                .reduce("There are validation errors: ", (accumulator, element) -> accumulator + element + "; ");
+        return createResponse(errorMessage, HttpStatus.BAD_REQUEST);
+    }
+
+    protected String getLast(Path propertyPath) {
+        Iterator<Path.Node> it = propertyPath.iterator();
+        while (true) {
+            Path.Node node = it.next();
+            if (!it.hasNext()) {
+                return node.toString();
+            }
         }
     }
 }

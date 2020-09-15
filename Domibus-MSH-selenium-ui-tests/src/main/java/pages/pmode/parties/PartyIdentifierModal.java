@@ -8,7 +8,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
-import utils.Generator;
+import utils.Gen;
 
 /**
  * @author Catalin Comanici
@@ -50,7 +50,7 @@ public class PartyIdentifierModal extends DomibusPage {
 
 	public void fillFields(String partyId) throws Exception {
 		getPartyIdInput().fill(partyId);
-		getPartyIdTypeInput().fill(Generator.randomAlphaNumeric(5));
-		getPartyIdValueInput().fill("urn:oasis:names:tc:ebcore:partyid-type:unregistered");
+		getPartyIdTypeInput().fill(Gen.randomAlphaNumeric(5));
+		getPartyIdValueInput().fill("urn:oasis:names:tc:ebcore:partyid-type:" + Gen.randomAlphaNumeric(15));
 	}
 }

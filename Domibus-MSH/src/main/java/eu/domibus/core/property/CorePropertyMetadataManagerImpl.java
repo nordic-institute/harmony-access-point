@@ -1,5 +1,6 @@
 package eu.domibus.core.property;
 
+import eu.domibus.api.property.DomibusProperty;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.DomibusPropertyMetadata.Type;
 import eu.domibus.api.property.DomibusPropertyMetadata.Usage;
@@ -82,7 +83,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMIBUS_PULL_REQUEST_SEND_PER_JOB_CYCLE_PER_MPC, Type.NUMERIC, Module.MSH, false, Usage.DOMAIN, true, true, false, true),
 
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_SECURITY_EXT_AUTH_PROVIDER_ENABLED, Type.BOOLEAN),
-
+            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_SCHEMAFACTORY, Type.CLASS),
 
             //writable properties
             new DomibusPropertyMetadata(DOMIBUS_UI_TITLE_NAME, Usage.DOMAIN, true),
@@ -134,6 +135,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMIBUS_DYNAMICDISCOVERY_CLIENT_SPECIFICATION, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_DYNAMICDISCOVERY_PEPPOLCLIENT_MODE, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_DYNAMICDISCOVERY_OASISCLIENT_REGEX_CERTIFICATE_SUBJECT_VALIDATION, Type.REGEXP, Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_DYNAMICDISCOVERY_PEPPOLCLIENT_REGEX_CERTIFICATE_SUBJECT_VALIDATION, Type.REGEXP, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_DYNAMICDISCOVERY_PARTYID_RESPONDER_ROLE, Type.URI, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_DYNAMICDISCOVERY_PARTYID_TYPE, Type.URI, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_DYNAMICDISCOVERY_TRANSPORTPROFILEAS_4, Type.HYPHENED_NAME, Usage.DOMAIN, true),
@@ -165,6 +167,9 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMIBUS_DISPATCHER_PRIORITY, Module.MSH, false, Usage.DOMAIN, false, false, false, true),
             new DomibusPropertyMetadata(DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_DOWNLOADED_MAX_DELETE, Type.NUMERIC, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_NOT_DOWNLOADED_MAX_DELETE, Type.NUMERIC, Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_SENT_MAX_DELETE, Type.NUMERIC, Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_BATCH_DELETE, Type.NUMERIC, Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_RETENTION_WORKER_MESSAGE_ID_LIST_SEPARATOR, Type.FREE_TEXT, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_RETENTION_JMS_CONCURRENCY, Type.CONCURRENCY, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_DISPATCH_EBMS_ERROR_UNRECOVERABLE_RETRY, Type.BOOLEAN, Usage.DOMAIN, true),
 
@@ -182,6 +187,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PLUGIN_NOTIFICATION_ACTIVE, Type.BOOLEAN),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_NONREPUDIATION_AUDIT_ACTIVE, Type.BOOLEAN),
             new DomibusPropertyMetadata(DOMIBUS_SEND_MESSAGE_FAILURE_DELETE_PAYLOAD, Type.BOOLEAN, Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_SEND_MESSAGE_SUCCESS_DELETE_PAYLOAD, Type.BOOLEAN, Usage.DOMAIN, true),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_SEND_MESSAGE_ATTEMPT_AUDIT_ACTIVE, Type.BOOLEAN),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_FOURCORNERMODEL_ENABLED, Type.BOOLEAN),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_LOGGING_PAYLOAD_PRINT, Type.BOOLEAN),     //there are still usages in xml!!!! move them?
@@ -198,6 +204,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMAIN_TITLE, Usage.DOMAIN, false),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_USER_INPUT_BLACK_LIST, Type.REGEXP),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_USER_INPUT_WHITE_LIST, Type.REGEXP),
+            DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PROPERTY_LENGTH_MAX, Type.NUMERIC),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PROPERTY_VALIDATION_ENABLED, Type.BOOLEAN),
 
             new DomibusPropertyMetadata(DOMIBUS_ACCOUNT_UNLOCK_CRON, Type.CRON, Usage.DOMAIN_AND_SUPER, true),
@@ -304,6 +311,8 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
 
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_FILE_UPLOAD_MAX_SIZE, Type.NUMERIC),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_CERTIFICATE_CRL_EXCLUDED_PROTOCOLS, Type.COMMA_SEPARATED_LIST),
+
+            DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES, Type.NUMERIC),
     }).collect(Collectors.toMap(x -> x.getName(), x -> x));
 
     /**

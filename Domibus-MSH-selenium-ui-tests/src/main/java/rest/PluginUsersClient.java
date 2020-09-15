@@ -6,6 +6,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class PluginUsersClient extends BaseRestClient {
@@ -20,7 +21,7 @@ public class PluginUsersClient extends BaseRestClient {
 		switchDomain(domain);
 		ClientResponse response = jsonPUT(resource.path(RestServicePaths.PLUGIN_USERS), payload);
 		if (response.getStatus() != 204) {
-			throw new Exception("Could not create plugin user");
+			throw new DomibusRestException("Could not create plugin user", response);
 		}
 	}
 	
@@ -30,7 +31,7 @@ public class PluginUsersClient extends BaseRestClient {
 		switchDomain(domain);
 		ClientResponse response = jsonPUT(resource.path(RestServicePaths.PLUGIN_USERS), payload);
 		if (response.getStatus() != 204) {
-			throw new Exception("Could not create plugin user");
+			throw new DomibusRestException("Could not create plugin user", response);
 		}
 	}
 	
@@ -57,7 +58,7 @@ public class PluginUsersClient extends BaseRestClient {
 		
 		ClientResponse response = jsonPUT(resource.path(RestServicePaths.PLUGIN_USERS), toDelete.toString());
 		if (response.getStatus() != 204) {
-			throw new Exception("Could not delete plugin user");
+			throw new DomibusRestException("Could not delete plugin user", response);
 		}
 	}
 	
@@ -73,7 +74,7 @@ public class PluginUsersClient extends BaseRestClient {
 		
 		ClientResponse response = requestGET(resource.path(RestServicePaths.PLUGIN_USERS), params);
 		if (response.getStatus() != 200) {
-			throw new Exception("Could not get users ");
+			throw new DomibusRestException("Could not get users ", response);
 		}
 		
 		try {
@@ -83,6 +84,18 @@ public class PluginUsersClient extends BaseRestClient {
 			log.error("EXCEPTION: ", e);
 		}
 		return null;
+	}
+	
+	public ArrayList<String> getPluginUsernameList(String domain) throws Exception {
+		JSONArray users = getPluginUsers(domain, "BASIC");
+		ArrayList<String> usernames = new ArrayList<>();
+		
+		for (int i = 0; i < users.length(); i++) {
+			JSONObject user = users.getJSONObject(i);
+			usernames.add(user.getString("userName"));
+		}
+		
+		return usernames;
 	}
 	
 	public ClientResponse searchPluginUsers(String domain, String authType, String role, String username, String originalUser, String page, String pageSize) throws Exception {

@@ -6,7 +6,7 @@ import ddsl.enums.DRoles;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import utils.Generator;
+import utils.Gen;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,9 +32,9 @@ public class DomibusRestClient extends BaseRestClient {
 	public void syncRecord() throws Exception {
 		ClientResponse response = requestGET(resource.path(RestServicePaths.UI_REPLICATION_SYNC), null);
 		if (response.getStatus() != 200) {
-			throw new Exception("Data is not sync now ");
+			throw new DomibusRestException("Data is not sync now ", response);
 		} else {
-			System.out.println("Data is synchronized now with response code:" + response.getStatus());
+			log.info("Data is synchronized now with response code:" + response.getStatus());
 		}
 	}
 	
@@ -137,7 +137,7 @@ public class DomibusRestClient extends BaseRestClient {
 	}
 	
 	public JSONObject getUser(String domainCode, String role, boolean active, boolean deleted, boolean forceNew) throws Exception {
-		String username = Generator.randomAlphaNumeric(10);
+		String username = Gen.randomAlphaNumeric(10);
 		
 		if (StringUtils.isEmpty(domainCode)) {
 			domainCode = "default";
@@ -192,7 +192,7 @@ public class DomibusRestClient extends BaseRestClient {
 	}
 	
 	public JSONObject getPluginUser(String domainCode, String role, boolean active, boolean forceNew) throws Exception {
-		String username = Generator.randomAlphaNumeric(10);
+		String username = Gen.randomAlphaNumeric(10);
 		
 		if (StringUtils.isEmpty(domainCode)) {
 			domainCode = "default";
@@ -242,7 +242,7 @@ public class DomibusRestClient extends BaseRestClient {
 	}
 	
 	public JSONObject getPluginUser(String domainCode, String type, String role, boolean active, boolean forceNew) throws Exception {
-		String username = Generator.randomAlphaNumeric(10);
+		String username = Gen.randomAlphaNumeric(10);
 		
 		String identiKey = "userName";
 		String authType = "BASIC";
@@ -250,8 +250,8 @@ public class DomibusRestClient extends BaseRestClient {
 		if (type.equalsIgnoreCase("CERTIFICATE")) {
 			identiKey = "certificateId";
 			authType = "CERTIFICATE";
-			String partyName = Generator.randomAlphaNumeric(5);
-			String id = Generator.randomAlphaNumeric(15);
+			String partyName = Gen.randomAlphaNumeric(5);
+			String id = Gen.randomAlphaNumeric(15);
 			username = String.format("CN=%s,O=eDelivery,C=BE:%s", partyName, id);
 		}
 		
@@ -310,9 +310,9 @@ public class DomibusRestClient extends BaseRestClient {
 	public List<String> sendMessages(int noOf, String domainCode) throws Exception {
 		List<String> messIDs = new ArrayList<>();
 		
-		String user = Generator.randomAlphaNumeric(10);
-		String messageRefID = Generator.randomAlphaNumeric(10);
-		String conversationID = Generator.randomAlphaNumeric(10);
+		String user = Gen.randomAlphaNumeric(10);
+		String messageRefID = Gen.randomAlphaNumeric(10);
+		String conversationID = Gen.randomAlphaNumeric(10);
 		
 		pluginUsers().createPluginUser(user, DRoles.ADMIN, data.defaultPass(), domainCode);
 		log.info("Created plugin user " + user + " on domain " + domainCode);

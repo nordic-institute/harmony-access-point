@@ -23,6 +23,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 
 
 /**
@@ -56,7 +57,7 @@ public class SeleniumTest extends BaseTest {
 //		makeLoggerLog();
 		log.info("Log file name is " + logFilename);
 		log.info("-------- Starting -------");
-		cleanMessFilters();
+//		cleanMessFilters();
 		generateTestData();
 	}
 	
@@ -144,6 +145,26 @@ public class SeleniumTest extends BaseTest {
 		return new DomibusPage(driver);
 	}
 	
+	protected String selectRandomDomain() throws Exception {
+		if(!data.isMultiDomain()){
+			log.info("running in singletenancy mode, no domain to select");
+			return null;
+		}
+		
+		List<String> domains = rest.getDomainCodes();
+		log.debug("got domains: " + domains);
+		
+		int index = new Random().nextInt(domains.size());
+		
+		String domain = domains.get(index);
+		log.info("will select domain " +domain);
+		
+		DomibusPage page = new DomibusPage(driver);
+		page.getDomainSelector().selectOptionByText(domain);
+		page.wait.forXMillis(500);
+		
+		return domain;
+	}
 	
 	protected <T extends FilterArea> void basicFilterPresence(SoftAssert soft, T filtersArea, JSONArray filtersDescription) throws Exception {
 		

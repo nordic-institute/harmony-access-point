@@ -80,14 +80,14 @@ public class BaseResourceTest {
 
         JmsMessage jmsMessage = new JmsMessage();
         jmsMessage.setId("ID:localhost-10762-1561728161168-6:48:4:1:1");
-        Map<String, Object> customProperties = new HashMap<>();
+        Map<String, String> customProperties = new HashMap<>();
         customProperties.put("DOMAIN", "default");
         customProperties.put("dlqDeliveryFailureCause", "java.lang.Throwable: Delivery[1] exceeds redelivery policy limit:RedeliveryPolicy {destination = null, collisionAvoidanceFactor = 0.15, maximumRedeliveries = 0, maximumRedeliveryDelay = -1, initialRedeliveryDelay = 1000, useCollisionAvoidance = false, useExponentialBackOff = false, backOffMultiplier = 5.0, redeliveryDelay = 1000, preDispatchCheck = true}, cause:null");
-        customProperties.put("originalExpiration", new Long(0));
+        customProperties.put("originalExpiration","0");
         customProperties.put("originalQueue", "domibus.fsplugin.send.queue");
         customProperties.put("FILE_NAME", "/home/edelivery/domibus/fs_plugin_data/MAIN/OUT/test.txt");
 
-        Map<String, Object> jmsProperties = new HashMap<>();
+        Map<String, String> jmsProperties = new HashMap<>();
         jmsProperties.put("JMSMessageID", " -> ID:localhost-10762-1561728161168-6:48:4:1:1");
         jmsProperties.put("JMSDestination", "queue://domibus.DLQ");
         jmsProperties.put("JMSDeliveryMode", "PERSISTENT");

@@ -8,7 +8,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
-import utils.Generator;
+import utils.Gen;
 
 import java.util.HashMap;
 
@@ -20,7 +20,7 @@ public class MessFilterRestTest extends RestTest {
 	public void createNewFilter() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
-		String rndStr = Generator.randomAlphaNumeric(5);
+		String rndStr = Gen.randomAlphaNumeric(5);
 		
 		HashMap<String, String> newFilterInfo = new HashMap<>();
 		newFilterInfo.put("plugin", messageFilterPlugins.get(0));
@@ -33,7 +33,7 @@ public class MessFilterRestTest extends RestTest {
 		JSONObject newFilter = createMsgFilterEntity(newFilterInfo);
 		JSONArray toSendMSGFS = msgfs;
 		toSendMSGFS.put(newFilter);
-		System.out.println("msgfs = " + toSendMSGFS);
+		log.debug("msgfs = " + toSendMSGFS);
 		rest.messFilters().updateFilterList(toSendMSGFS, null);
 		
 		JSONArray newMsgfs = rest.messFilters().getMessageFilters(null);
@@ -64,7 +64,7 @@ public class MessFilterRestTest extends RestTest {
 	public void createNewFilterNoPlugin() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
-		String rndStr = Generator.randomAlphaNumeric(5);
+		String rndStr = Gen.randomAlphaNumeric(5);
 		
 		HashMap<String, String> newFilterInfo = new HashMap<>();
 		
@@ -77,7 +77,7 @@ public class MessFilterRestTest extends RestTest {
 		JSONObject newFilter = createMsgFilterEntity(newFilterInfo);
 		JSONArray toSendMSGFS = msgfs;
 		toSendMSGFS.put(newFilter);
-		System.out.println("msgfs = " + toSendMSGFS);
+		log.debug("msgfs = " + toSendMSGFS);
 		ClientResponse response = rest.messFilters().updateFilterList(toSendMSGFS, null);
 		
 		Integer status = response.getStatus();
@@ -99,7 +99,7 @@ public class MessFilterRestTest extends RestTest {
 	public void createNewFilterMalformedJSON() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
-		String rndStr = Generator.randomAlphaNumeric(5);
+		String rndStr = Gen.randomAlphaNumeric(5);
 		
 		HashMap<String, String> newFilterInfo = new HashMap<>();
 		newFilterInfo.put("plugin", messageFilterPlugins.get(0));
@@ -112,7 +112,7 @@ public class MessFilterRestTest extends RestTest {
 		JSONObject newFilter = createMsgFilterEntity(newFilterInfo);
 		JSONArray toSendMSGFS = msgfs;
 		toSendMSGFS.put(newFilter);
-		System.out.println("msgfs = " + toSendMSGFS);
+		log.debug("msgfs = " + toSendMSGFS);
 		String toSend = StringUtils.substring(toSendMSGFS.toString(), 0, -5);
 		ClientResponse response = rest.messFilters().updateFilterList(toSend, null); //jsonPUT(rest.resource.path(RestServicePaths.MESSAGE_FILTERS), toSend);
 		
@@ -136,7 +136,7 @@ public class MessFilterRestTest extends RestTest {
 	public void createNewFilterDuplicate() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
-		String rndStr = Generator.randomAlphaNumeric(5);
+		String rndStr = Gen.randomAlphaNumeric(5);
 		
 		JSONArray msgfs = rest.messFilters().getMessageFilters(null);
 		JSONObject duplicato = msgfs.getJSONObject(msgfs.length() - 1);
@@ -169,7 +169,7 @@ public class MessFilterRestTest extends RestTest {
 	public void createNewFilterRoutingCriteriasOrder() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
-		String rndStr = Generator.randomAlphaNumeric(5);
+		String rndStr = Gen.randomAlphaNumeric(5);
 		
 		HashMap<String, String> newFilterInfo = new HashMap<>();
 		newFilterInfo.put("plugin", messageFilterPlugins.get(0));
@@ -186,7 +186,7 @@ public class MessFilterRestTest extends RestTest {
 		
 		JSONArray toSendMSGFS = msgfs;
 		toSendMSGFS.put(newFilter);
-		System.out.println("msgfs = " + toSendMSGFS);
+		log.debug("msgfs = " + toSendMSGFS);
 		rest.messFilters().updateFilterList(toSendMSGFS, null); //jsonPUT(rest.resource.path(RestServicePaths.MESSAGE_FILTERS), toSendMSGFS.toString());
 		
 		JSONArray newMsgfs = rest.messFilters().getMessageFilters(null);
@@ -213,7 +213,7 @@ public class MessFilterRestTest extends RestTest {
 				for (int j = 0; j < rcrits.length(); j++) {
 					JSONObject rcrit = rcrits.getJSONObject(j);
 					if (rcrit.getString("name").equalsIgnoreCase("action")) {
-						newMsgfs.getJSONObject(i).getJSONArray("routingCriterias").getJSONObject(j).put("expression", Generator.randomAlphaNumeric(11));
+						newMsgfs.getJSONObject(i).getJSONArray("routingCriterias").getJSONObject(j).put("expression", Gen.randomAlphaNumeric(11));
 						Object action = newMsgfs.getJSONObject(i).getJSONArray("routingCriterias").remove(j);
 						newMsgfs.getJSONObject(i).getJSONArray("routingCriterias").put(action);
 					}
@@ -243,7 +243,7 @@ public class MessFilterRestTest extends RestTest {
 		JSONObject newFilter = createMsgFilterEntity(newFilterInfo);
 		JSONArray toSendMSGFS = msgfs;
 		toSendMSGFS.put(newFilter);
-		System.out.println("msgfs = " + toSendMSGFS);
+		log.debug("msgfs = " + toSendMSGFS);
 		ClientResponse response = rest.messFilters().updateFilterList(toSendMSGFS, null); //jsonPUT(rest.resource.path(RestServicePaths.MESSAGE_FILTERS), toSendMSGFS.toString());
 		
 		Integer status = response.getStatus();
@@ -283,7 +283,7 @@ public class MessFilterRestTest extends RestTest {
 	@Test(description = "MSGF-17")
 	public void deleteFilterTest() throws Exception {
 		SoftAssert soft = new SoftAssert();
-		String rndActionName = Generator.randomAlphaNumeric(20);
+		String rndActionName = Gen.randomAlphaNumeric(20);
 		rest.messFilters().createMessageFilter(rndActionName, null);
 		
 		JSONArray arr = rest.messFilters().getMessageFilters(null);

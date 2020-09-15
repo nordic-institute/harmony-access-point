@@ -47,7 +47,7 @@ public class PluginUserResource extends BaseResource {
 
     @Autowired
     protected UserDomainService userDomainService;
-    
+
     @ExceptionHandler({UserManagementException.class})
     public ResponseEntity<ErrorRO> handleUserManagementException(UserManagementException ex) {
         return errorHandlerService.createResponse(ex, HttpStatus.CONFLICT);

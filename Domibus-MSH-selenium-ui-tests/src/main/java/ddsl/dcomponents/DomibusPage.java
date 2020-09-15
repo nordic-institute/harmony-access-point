@@ -1,12 +1,17 @@
 package ddsl.dcomponents;
 
+import ddsl.dobjects.DButton;
 import ddsl.dobjects.DObject;
+import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
+import utils.DFileUtils;
+
+import java.io.File;
 
 
 /**
@@ -23,6 +28,10 @@ public class DomibusPage extends DComponent {
 	protected WebElement helpLnk;
 	@FindBy(tagName = "mat-dialog-container")
 	protected WebElement dialogContainer;
+	
+	@FindBy(id = "saveascsvbutton_id")
+	protected WebElement saveCSV;
+	
 	By domainSelectSelector = By.cssSelector("#sandwichMenuHolder > domain-selector > mat-select");
 	
 	public DomibusPage(WebDriver driver) {
@@ -100,5 +109,35 @@ public class DomibusPage extends DComponent {
 		}
 		return false;
 	}
+	
+	public DButton getSaveCSVButton() {
+		return weToDButton(saveCSV);
+	}
+	
+	public String pressSaveCsvAndSaveFile() throws Exception {
+		
+		log.info("Customized location for download");
+		String filePath = data.downloadFolderPath();
+		
+		log.info("Clean given directory");
+		FileUtils.cleanDirectory(new File(filePath));
+		
+		log.info("Click on download csv button");
+		getSaveCSVButton().click();
+		
+		log.info("Wait for download to complete");
+		
+		wait.forXMillis(3000);
+		
+		log.info("Check if file is downloaded at given location");
+		if(!DFileUtils.isFileDownloaded(filePath)){
+			throw new Exception("Could not find file");
+		}
+		
+		return DFileUtils.getCompleteFileName(data.downloadFolderPath());
+	}
+	
+	
+	
 	
 }

@@ -6,11 +6,14 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusConfigurationService;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
+import eu.domibus.common.NotificationType;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.jms.spi.InternalJMSDestination;
 import eu.domibus.jms.spi.InternalJMSManager;
 import eu.domibus.jms.spi.InternalJmsMessage;
+import eu.domibus.messaging.MessageConstants;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
@@ -23,7 +26,7 @@ import javax.jms.JMSException;
 import javax.jms.Queue;
 import java.util.*;
 
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Cosmin Baciu
@@ -34,6 +37,9 @@ public class JMSManagerImplTest {
 
     @Tested
     JMSManagerImpl jmsManager;
+
+    @Injectable
+    DomibusPropertyProvider domibusPropertyProvider;
 
     @Injectable
     InternalJMSManager internalJmsManager;
@@ -172,66 +178,33 @@ public class JMSManagerImplTest {
     }
 
     @Test
-    public void testDeleteMessages_ok() {
+    public void testDeleteMessages() throws Exception {
         final String source = "myqueue";
         final String[] messageIds = new String[]{"1", "2"};
 
-        new Expectations(){{
+        List<JMSMessageDomainDTO> jmsMessageIDDomains = new ArrayList<>();
+        jmsMessageIDDomains.add(new JMSMessageDomainDTO("1", "domain1"));
+        jmsMessageIDDomains.add(new JMSMessageDomainDTO("2", "domain2"));
+
+        new Expectations(jmsManager) {{
+            jmsManager.getJMSMessageDomain(source, messageIds);
+            result = jmsMessageIDDomains;
+
             internalJmsManager.deleteMessages(source, messageIds);
             result = 2;
-            times = 1;
+
         }};
 
         jmsManager.deleteMessages(source, messageIds);
 
-        new FullVerifications() {{
-            auditService.addJmsMessageDeletedAudit("1", source);
-            times = 1;
-            auditService.addJmsMessageDeletedAudit("2", source);
-            times = 1;
-        }};
-    }
-    @Test
-    public void testDeleteMessages_warning() {
-        final String source = "myqueue";
-        final String[] messageIds = new String[]{"1", "2"};
-
-        new Expectations(){{
+        new FullVerifications(jmsManager) {{
             internalJmsManager.deleteMessages(source, messageIds);
-            result = 1;
-            times = 1;
+            String actualDomain;
+            auditService.addJmsMessageDeletedAudit("1", source, actualDomain = withCapture());
+            Assert.assertEquals("domain1", actualDomain);
+            auditService.addJmsMessageDeletedAudit("2", source, actualDomain = withCapture());
+            Assert.assertEquals("domain2", actualDomain);
         }};
-
-        jmsManager.deleteMessages(source, messageIds);
-
-        new FullVerifications() {{
-            auditService.addJmsMessageDeletedAudit("1", source);
-            times = 1;
-            auditService.addJmsMessageDeletedAudit("2", source);
-            times = 1;
-        }};
-    }
-
-    @Test
-    public void testDeleteMessages_error() {
-        final String source = "myqueue";
-        final String[] messageIds = new String[]{"1", "2"};
-
-        new Expectations(){{
-            internalJmsManager.deleteMessages(source, messageIds);
-            result = 0;
-            times = 1;
-        }};
-
-        try {
-            jmsManager.deleteMessages(source, messageIds);
-            fail();
-        } catch (IllegalStateException e) {
-            //do nothing
-        }
-
-        new FullVerifications() {
-        };
     }
 
     @Test
@@ -239,62 +212,51 @@ public class JMSManagerImplTest {
         final String source = "myqueue";
         final String destination = "destinationQueue";
         final String[] messageIds = new String[]{"1", "2"};
+        List<JMSMessageDomainDTO> jmsMessageIDDomains = new ArrayList<>();
+        jmsMessageIDDomains.add(new JMSMessageDomainDTO("1", "domain1"));
+        jmsMessageIDDomains.add(new JMSMessageDomainDTO("2", "domain2"));
 
-        new Expectations() {{
+        new Expectations(jmsManager) {{
+            jmsManager.getJMSMessageDomain(source, messageIds);
+            result = jmsMessageIDDomains;
+
             internalJmsManager.moveMessages(source, destination, messageIds);
             result = 2;
+
         }};
 
         jmsManager.moveMessages(source, destination, messageIds);
 
-        new FullVerifications() {{
-            auditService.addJmsMessageMovedAudit("1", source, destination);
-            times = 1;
-            auditService.addJmsMessageMovedAudit("2", source, destination);
-            times = 1;
+        new FullVerifications(jmsManager) {{
+            internalJmsManager.moveMessages(source, destination, messageIds);
+            String actualDomain;
+            auditService.addJmsMessageMovedAudit("1", source, destination, actualDomain = withCapture());
+            Assert.assertEquals("domain1", actualDomain);
+            auditService.addJmsMessageMovedAudit("2", source, destination, actualDomain = withCapture());
+            Assert.assertEquals("domain2", actualDomain);
         }};
     }
 
     @Test
-    public void testMoveMessages_warning(@Injectable final Queue queue) {
-        final String source = "myqueue";
-        final String destination = "destinationQueue";
-        final String[] messageIds = new String[]{"1", "2"};
+    public void test_retrieveDomainFromJMSMessage(final @Mocked JmsMessage jmsMessage) {
+        final String sourceQueue = "fromQueue";
+        final String jmsMessageID = "jmsMessageID";
 
-        new Expectations() {{
-            internalJmsManager.moveMessages(source, destination, messageIds);
-            result = 1;
+        new Expectations(jmsManager) {{
+            domibusConfigurationService.isSingleTenantAware();
+            result = false;
+
+            jmsManager.getMessage(sourceQueue, jmsMessageID);
+            result = jmsMessage;
+
+            jmsMessage.getProperty(MessageConstants.DOMAIN);
+            result = "domain1";
         }};
 
-        jmsManager.moveMessages(source, destination, messageIds);
+        jmsManager.retrieveDomainFromJMSMessage(sourceQueue, jmsMessageID);
 
-        new FullVerifications() {{
-            auditService.addJmsMessageMovedAudit("1", source, destination);
-            times = 1;
-            auditService.addJmsMessageMovedAudit("2", source, destination);
-            times = 1;
+        new FullVerifications(jmsManager) {{
         }};
-    }
-
-    @Test
-    public void testMoveMessages_error(@Injectable final Queue queue) {
-        final String source = "myqueue";
-        final String destination = "destinationQueue";
-        final String[] messageIds = new String[]{"1", "2"};
-
-        new Expectations() {{
-            internalJmsManager.moveMessages(source, destination, messageIds);
-            result = 0;
-        }};
-
-        try {
-            jmsManager.moveMessages(source, destination, messageIds);
-            fail();
-        } catch (IllegalStateException e) {
-            //Do nothing
-        }
-        new FullVerifications() {
-        };
     }
 
     @Test
@@ -465,5 +427,77 @@ public class JMSManagerImplTest {
         Assert.assertEquals("cluster2@queueX", sortedValues[1].getName());
         Assert.assertEquals("cluster1@queueY", sortedValues[3].getName());
         Assert.assertEquals("cluster2@queueY", sortedValues[4].getName());
+    }
+
+    @Test
+    public void listPendingMessages() {
+        String queueName = "mysqueue";
+        String originalUser = "C1";
+        new Expectations(jmsManager) {{
+            authUtils.getOriginalUserFromSecurityContext();
+            result = originalUser;
+
+            authUtils.isUnsecureLoginAllowed();
+            result = true;
+
+            jmsManager.getQueueElements(queueName, NotificationType.MESSAGE_RECEIVED, originalUser);
+        }};
+
+        jmsManager.listPendingMessages(queueName);
+
+        new FullVerifications() {{
+
+        }};
+    }
+
+    @Test
+    public void browseQueue(@Injectable JmsMessage jmsMessage1,
+                            @Injectable JmsMessage jmsMessage2) {
+        String queueName = "myqueue";
+        String originalUser = "C1";
+        String selector = "name = value";
+        List<JmsMessage> jmsMessages = new ArrayList<>();
+        jmsMessages.add(jmsMessage1);
+        jmsMessages.add(jmsMessage2);
+
+        String messageId1 = "msg1";
+        String messageId2 = "msg2";
+
+        new Expectations(jmsManager) {{
+            jmsManager.getDomainSelector(anyString);
+            result = selector;
+
+            jmsMessage1.getCustomStringProperty(MessageConstants.MESSAGE_ID);
+            result = messageId1;
+
+            jmsMessage2.getCustomStringProperty(MessageConstants.MESSAGE_ID);
+            result = messageId2;
+
+            jmsManager.browseClusterMessages(queueName, selector);
+            result = jmsMessages;
+        }};
+
+        Collection<String> messageList = jmsManager.browseQueue(queueName, NotificationType.MESSAGE_RECEIVED, originalUser);
+        assertEquals(2, messageList.size());
+    }
+
+    @Test
+    public void removeFromPending(@Injectable JmsMessage message) {
+        String queueName = "myqueue";
+        String messageId = "123";
+
+        new Expectations(jmsManager) {{
+            authUtils.isUnsecureLoginAllowed();
+            result = true;
+
+            jmsManager.consumeMessage(queueName, messageId);
+            result = message;
+        }};
+
+        jmsManager.removeFromPending(queueName, messageId);
+
+        new FullVerifications() {{
+
+        }};
     }
 }

@@ -188,9 +188,6 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
     @Override
     public void setProperty(Domain domain, String propertyName, String propertyValue, boolean broadcast) throws DomibusPropertyException {
-        if (domain == null) {
-            throw new DomibusPropertyException("Property " + propertyName + " cannot be set without a domain");
-        }
         domibusPropertyProviderDispatcher.setInternalOrExternalProperty(domain, propertyName, propertyValue, broadcast);
     }
 
@@ -220,7 +217,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         }
 
         //multi-tenancy mode
-        //domain or super property or a combination of 2 ( but not 3)
+        //domain or super property or a combination of 2 
         Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
         //we have a domain in context so try a domain property
         if (currentDomain != null) {
@@ -284,10 +281,14 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         MutablePropertySources propertySources = environment.getPropertySources();
         DomibusPropertiesPropertySource domibusPropertiesPropertySource = (DomibusPropertiesPropertySource) propertySources.get(DomibusPropertiesPropertySource.NAME);
         domibusPropertiesPropertySource.setProperty(propertyKey, propertyValue);
+
+        DomibusPropertiesPropertySource updatedDomibusPropertiesSource = (DomibusPropertiesPropertySource) propertySources.get(DomibusPropertiesPropertySource.UPDATED_PROPERTIES_NAME);
+        updatedDomibusPropertiesSource.setProperty(propertyKey, propertyValue);
     }
 
     /**
-     * Get the value from the system environment properties;
+     * First try to get the value from the collection of property values updated at runtime;
+     * if not found, get the value from the system environment properties;
      * if not found, get the value from the system properties;
      * if not found, get the value from Domibus properties;
      * if still not found, look inside the Domibus default properties.

@@ -5,7 +5,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <properties>
-        <cargo-maven2-plugin.version>1.7.8</cargo-maven2-plugin.version>
+        <cargo-maven2-plugin.version>1.7.14</cargo-maven2-plugin.version>
     </properties>
 
     <parent>
@@ -227,7 +227,7 @@
         <profile>
             <id>wildfly</id>
             <properties>
-                <wildfly.version>18.0.1.Final</wildfly.version>
+                <wildfly.version>20.0.1.Final</wildfly.version>
             </properties>
             <build>
                 <plugins>
@@ -244,7 +244,7 @@
                                 <phase>pre-integration-test</phase>
                                 <configuration>
                                     <container>
-                                        <containerId>wildfly18x</containerId>
+                                        <containerId>wildfly20x</containerId>
                                         <zipUrlInstaller>
                                             <url>
                                                 https://ec.europa.eu/cefdigital/artifact/content/repositories/public/org/wildfly/as/wildfly-as-dist/${wildfly.version}/wildfly-as-dist-${wildfly.version}.zip
@@ -298,7 +298,7 @@
                         <artifactId>maven-assembly-plugin</artifactId>
                         <executions>
                             <execution>
-                                <id>make-assembly-wildfly12</id>
+                                <id>make-assembly-wildfly</id>
                                 <configuration>
                                     <descriptors>
                                         <descriptor>src/main/assembly/wildfly/wildfly-configuration-only.xml</descriptor>

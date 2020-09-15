@@ -11,6 +11,7 @@ import eu.domibus.api.property.encryption.PasswordEncryptionSecret;
 import eu.domibus.api.property.encryption.PasswordEncryptionService;
 import eu.domibus.api.util.EncryptionUtil;
 import eu.domibus.core.util.DomibusEncryptionException;
+import eu.domibus.core.util.WarningUtil;
 import eu.domibus.core.util.backup.BackupService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -31,6 +32,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.apache.commons.lang3.BooleanUtils.isNotTrue;
 import static org.apache.commons.lang3.StringUtils.*;
 
 /**
@@ -87,8 +89,10 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
         if (domibusConfigurationService.isMultiTenantAware()) {
             final List<Domain> domains = domainService.getDomains();
             for (Domain domain : domains) {
+                domainContextProvider.setCurrentDomain(domain);
                 final PasswordEncryptionContextDomain passwordEncryptionContextDomain = new PasswordEncryptionContextDomain(this, domibusPropertyProvider, domibusConfigurationService, domain);
                 encryptPasswords(passwordEncryptionContextDomain);
+                domainContextProvider.clearCurrentDomain();
             }
         }
 
@@ -102,20 +106,20 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
         LOG.debug("Encrypting password if configured");
 
         final Boolean encryptionActive = passwordEncryptionContext.isPasswordEncryptionActive();
-        if (!encryptionActive) {
-            LOG.debug("Password encryption is not active");
+        if (isNotTrue(encryptionActive)) {
+            LOG.info("Password encryption is not active");
             return;
         }
 
         final List<String> propertiesToEncrypt = passwordEncryptionContext.getPropertiesToEncrypt();
         if (CollectionUtils.isEmpty(propertiesToEncrypt)) {
-            LOG.debug("No properties are needed to be encrypted");
+            LOG.warn(WarningUtil.warnOutput("No properties are needed to be encrypted"));
             return;
         }
 
         final File encryptedKeyFile = passwordEncryptionContext.getEncryptedKeyFile();
 
-        PasswordEncryptionSecret secret = null;
+        PasswordEncryptionSecret secret;
         if (encryptedKeyFile.exists()) {
             secret = passwordEncryptionDao.getSecret(encryptedKeyFile);
         } else {
@@ -192,7 +196,7 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
         final PasswordEncryptionContextDomain passwordEncryptionContext = new PasswordEncryptionContextDomain(this, domibusPropertyProvider, domibusConfigurationService, domain);
 
         final Boolean encryptionActive = passwordEncryptionContext.isPasswordEncryptionActive();
-        if (!encryptionActive) {
+        if (isNotTrue(encryptionActive)) {
             throw new DomibusEncryptionException(String.format("Password encryption is not active for domain [%s]", domain));
         }
 
@@ -244,7 +248,12 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
         final File configurationFile = passwordEncryptionContext.getConfigurationFile();
 
         LOG.debug("Replacing configured properties in file [{}] with encrypted values", configurationFile);
-        final List<String> fileLines = getReplacedLines(encryptedProperties, configurationFile);
+        final List<String> replacedLines = getReplacedLines(encryptedProperties, configurationFile);
+
+        if (!arePropertiesNewlyEncrypted(configurationFile, replacedLines)) {
+            LOG.debug("No new properties encrypted in file [{}]", configurationFile);
+            return;
+        }
 
         try {
             backupService.backupFile(configurationFile);
@@ -252,13 +261,32 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
             throw new DomibusEncryptionException(String.format("Could not back up [%s]", configurationFile), e);
         }
 
-        LOG.debug("Writing encrypted values");
+        LOG.info("Writing encrypted values in file [{}]", configurationFile);
 
         try {
-            Files.write(configurationFile.toPath(), fileLines);
+            Files.write(configurationFile.toPath(), replacedLines);
         } catch (IOException e) {
             throw new DomibusEncryptionException(String.format("Could not write encrypted values to file [%s] ", configurationFile), e);
         }
+
+    }
+
+    protected boolean arePropertiesNewlyEncrypted(File configurationFile, List<String> replacedLines) {
+        boolean arePropertiesNewlyEncrypted;
+
+        if (configurationFile == null) {
+            LOG.debug("Configuration file should not be null!");
+            return false;
+        }
+
+        try {
+            List<String> originalLines = Files.readAllLines(configurationFile.toPath());
+            arePropertiesNewlyEncrypted = !CollectionUtils.containsAll(originalLines, replacedLines);
+            LOG.debug("Are properties newly encrypted?: [{}]", arePropertiesNewlyEncrypted);
+        } catch (IOException e) {
+            throw new DomibusEncryptionException("Could not read configuration file " + configurationFile, e);
+        }
+        return arePropertiesNewlyEncrypted;
     }
 
     protected List<String> getReplacedLines(List<PasswordEncryptionResult> encryptedProperties, File configurationFile) {

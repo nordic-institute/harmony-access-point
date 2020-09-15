@@ -11,6 +11,7 @@ import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
 import org.springframework.jms.support.converter.MappingJackson2MessageConverter;
 import org.springframework.jms.support.converter.MessageConverter;
 import org.springframework.jms.support.destination.JndiDestinationResolver;
+import org.springframework.scheduling.SchedulingTaskExecutor;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.jms.ConnectionFactory;
@@ -31,11 +32,14 @@ public class InternalJmsListenerContainerFactoryConfigurationTest {
     DefaultJmsListenerContainerFactory defaultJmsListenerContainerFactory;
 
     @Test
-    public void alertJmsListenerContainerFactory(@Injectable ConnectionFactory connectionFactory,
-                                                 @Injectable PlatformTransactionManager transactionManager,
-                                                 @Injectable DomibusPropertyProvider domibusPropertyProvider,
-                                                 @Injectable MappingJackson2MessageConverter jackson2MessageConverter,
-                                                 @Injectable Optional<JndiDestinationResolver> internalDestinationResolver) {
+    public void internalJmsListenerContainerFactory(@Injectable ConnectionFactory connectionFactory,
+                                                    @Injectable PlatformTransactionManager transactionManager,
+                                                    @Injectable DomibusPropertyProvider domibusPropertyProvider,
+                                                    @Injectable MappingJackson2MessageConverter jackson2MessageConverter,
+                                                    @Injectable Optional<JndiDestinationResolver> internalDestinationResolver,
+                                                    @Injectable SchedulingTaskExecutor schedulingTaskExecutor  )
+
+    {
 
         String concurrency = "2-3";
 
@@ -45,7 +49,7 @@ public class InternalJmsListenerContainerFactoryConfigurationTest {
         }};
 
 
-        internalJmsListenerContainerFactoryConfiguration.alertJmsListenerContainerFactory(connectionFactory, transactionManager, domibusPropertyProvider, jackson2MessageConverter, internalDestinationResolver);
+        internalJmsListenerContainerFactoryConfiguration.internalJmsListenerContainerFactory(connectionFactory, transactionManager, domibusPropertyProvider, jackson2MessageConverter, internalDestinationResolver, schedulingTaskExecutor);
 
         new Verifications() {{
             MessageConverter messageConverter = null;
@@ -69,6 +73,8 @@ public class InternalJmsListenerContainerFactoryConfigurationTest {
             Integer sessionAckMode = null;
             defaultJmsListenerContainerFactory.setSessionAcknowledgeMode(sessionAckMode = withCapture());
             Assert.assertEquals(Session.SESSION_TRANSACTED, sessionAckMode.intValue());
+
+            defaultJmsListenerContainerFactory.setTaskExecutor(schedulingTaskExecutor);
         }};
     }
 }

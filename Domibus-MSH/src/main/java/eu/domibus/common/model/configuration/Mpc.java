@@ -7,7 +7,6 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
-import java.math.BigInteger;
 
 /**
  * @author Christian Koch, Stefan Mueller
@@ -25,8 +24,6 @@ import java.math.BigInteger;
 
 public class Mpc extends AbstractBaseEntity {
 
-
-
     @XmlAttribute(name = "name", required = true)
     @Column(name = "name")
     protected String name;
@@ -37,6 +34,18 @@ public class Mpc extends AbstractBaseEntity {
     @XmlAttribute(name = "retention_undownloaded", required = true)
     @Column(name = "RETENTION_UNDOWNLOADED")
     protected int retentionUndownloaded;
+
+    @XmlAttribute(name = "retention_sent")
+    @Column(name = "RETENTION_SENT")
+    protected int retentionSent = -1;
+
+    @XmlAttribute(name = "delete_message_metadata")
+    @Column(name = "DELETE_MESSAGE_METADATA")
+    protected boolean deleteMessageMetadata = false;
+
+    @XmlAttribute(name = "max_batch_delete")
+    @Column(name = "MAX_BATCH_DELETE")
+    protected int maxBatchDelete = -1;
 
     @XmlAttribute(name = "default", required = true)
     @Column(name = "DEFAULT_MPC")
@@ -92,7 +101,7 @@ public class Mpc extends AbstractBaseEntity {
      * Gets the value of the retentionDownloaded property.
      *
      * @return possible object is
-     * {@link BigInteger }
+     * {@link Integer }
      */
     public int getRetentionDownloaded() {
         return this.retentionDownloaded;
@@ -102,7 +111,7 @@ public class Mpc extends AbstractBaseEntity {
      * Sets the value of the retentionDownloaded property.
      *
      * @param value allowed object is
-     *              {@link BigInteger }
+     *              {@link Integer }
      */
     public void setRetentionDownloaded(final int value) {
         this.retentionDownloaded = value;
@@ -112,7 +121,7 @@ public class Mpc extends AbstractBaseEntity {
      * Gets the value of the retentionUndownloaded property.
      *
      * @return possible object is
-     * {@link BigInteger }
+     * {@link Integer }
      */
     public int getRetentionUndownloaded() {
         return this.retentionUndownloaded;
@@ -122,7 +131,7 @@ public class Mpc extends AbstractBaseEntity {
      * Sets the value of the retentionUndownloaded property.
      *
      * @param value allowed object is
-     *              {@link BigInteger }
+     *              {@link Integer }
      */
     public void setRetentionUndownloaded(final int value) {
         this.retentionUndownloaded = value;
@@ -178,6 +187,30 @@ public class Mpc extends AbstractBaseEntity {
      */
     public void setQualifiedName(final String value) {
         this.qualifiedName = value;
+    }
+
+    public int getRetentionSent() {
+        return retentionSent;
+    }
+
+    public void setRetentionSent(int retentionSent) {
+        this.retentionSent = retentionSent;
+    }
+
+    public boolean isDeleteMessageMetadata() {
+        return deleteMessageMetadata;
+    }
+
+    public void setDeleteMessageMetadata(boolean deleteMessageMetadata) {
+        this.deleteMessageMetadata = deleteMessageMetadata;
+    }
+
+    public int getMaxBatchDelete() {
+        return maxBatchDelete;
+    }
+
+    public void setMaxBatchDelete(int maxBatchDelete) {
+        this.maxBatchDelete = maxBatchDelete;
     }
 
 }

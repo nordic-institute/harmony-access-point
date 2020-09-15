@@ -33,6 +33,7 @@ public class MetricsConfiguration {
     protected static final Logger LOG = LoggerFactory.getLogger(MetricsConfiguration.class);
 
     protected static final Marker STATISTIC_MARKER = MarkerFactory.getMarker("STATISTIC");
+    public static final String JMS_QUEUES = "jmsQueues";
 
     @Bean
     public HealthCheckRegistry healthCheckRegistry() {
@@ -40,14 +41,23 @@ public class MetricsConfiguration {
     }
 
     @Bean
-    public MetricRegistry metricRegistry(DomibusPropertyProvider domibusPropertyProvider, HealthCheckRegistry healthCheckRegistry,
+    public MetricRegistry metricRegistry(DomibusPropertyProvider domibusPropertyProvider,
                                          JMSManager jmsManager, AuthUtils authUtils, DomainTaskExecutor domainTaskExecutor) {
+
+        MetricRegistry metricRegistry = createMetricRegistry(domibusPropertyProvider, jmsManager, authUtils, domainTaskExecutor);
+        addMetricsToLogs(domibusPropertyProvider, metricRegistry);
+        return metricRegistry;
+    }
+
+
+    protected MetricRegistry createMetricRegistry(DomibusPropertyProvider domibusPropertyProvider, JMSManager jmsManager,
+                                                  AuthUtils authUtils, DomainTaskExecutor domainTaskExecutor) {
         MetricRegistry metricRegistry = new MetricRegistry();
-        Boolean monitorMemory = domibusPropertyProvider.getBooleanProperty(DOMIBUS_METRICS_MONITOR_MEMORY);
+        boolean monitorMemory = domibusPropertyProvider.getBooleanProperty(DOMIBUS_METRICS_MONITOR_MEMORY);
 
-        Boolean monitorGc = domibusPropertyProvider.getBooleanProperty(DOMIBUS_METRICS_MONITOR_GC);
+        boolean monitorGc = domibusPropertyProvider.getBooleanProperty(DOMIBUS_METRICS_MONITOR_GC);
 
-        Boolean monitorCachedThread = domibusPropertyProvider.getBooleanProperty(DOMIBUS_METRICS_MONITOR_CACHED_THREADS);
+        boolean monitorCachedThread = domibusPropertyProvider.getBooleanProperty(DOMIBUS_METRICS_MONITOR_CACHED_THREADS);
 
         if (monitorMemory) {
             metricRegistry.register("memory", new MemoryUsageGaugeSet());
@@ -71,10 +81,14 @@ public class MetricsConfiguration {
         if (monitorJMSQueues) {
             long refreshPeriod = NumberUtils.toLong(domibusPropertyProvider.getProperty(DOMIBUS_METRICS_MONITOR_JMS_QUEUES_REFRESH_PERIOD), 10);
             boolean showDLQOnly = domibusPropertyProvider.getBooleanProperty(DOMIBUS_METRICS_MONITOR_JMS_QUEUES_SHOW_DLQ_ONLY);
-            metricRegistry.register("jmsQueues", new JMSQueuesCountSet(jmsManager, authUtils, domainTaskExecutor,
+            metricRegistry.register(JMS_QUEUES, new JMSQueuesCountSet(jmsManager, authUtils, domainTaskExecutor,
                     refreshPeriod, showDLQOnly));
         }
 
+        return metricRegistry;
+    }
+
+    protected void addMetricsToLogs(DomibusPropertyProvider domibusPropertyProvider, MetricRegistry metricRegistry) {
         Boolean sl4jReporterEnabled = domibusPropertyProvider.getBooleanProperty(DOMIBUS_METRICS_SL_4_J_REPORTER_ENABLE);
         if (sl4jReporterEnabled) {
             Integer periodProperty = domibusPropertyProvider.getIntegerProperty(DOMIBUS_METRICS_SL_4_J_REPORTER_PERIOD_NUMBER);
@@ -104,9 +118,6 @@ public class MetricsConfiguration {
                     .build();
             reporter.start(periodProperty, timeUnit);
         }
-        MetricsHelper.setHealthCheckRegistry(healthCheckRegistry);
-        MetricsHelper.setMetricRegistry(metricRegistry);
-        return metricRegistry;
     }
 
 }

@@ -24,7 +24,9 @@ import mix from '../common/mixins/mixin.utils';
 import {DialogsService} from '../common/dialogs/dialogs.service';
 import {ServerPageableListMixin} from '../common/mixins/pageable-list.mixin';
 import {ApplicationContextService} from '../common/application-context.service';
-import {DirtyOperations} from '../common/dirty-operations';
+import {PropertiesService} from '../properties/support/properties.service';
+import * as moment from 'moment';
+import {SecurityService} from '../security/security.service';
 
 @Component({
   moduleId: module.id,
@@ -45,6 +47,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
   @ViewChild('rowWithDateFormatTpl', {static: false}) public rowWithDateFormatTpl: TemplateRef<any>;
   @ViewChild('nextAttemptInfoTpl', {static: false}) public nextAttemptInfoTpl: TemplateRef<any>;
   @ViewChild('nextAttemptInfoWithDateFormatTpl', {static: false}) public nextAttemptInfoWithDateFormatTpl: TemplateRef<any>;
+  @ViewChild('rawTextTpl', {static: false}) public rawTextTpl: TemplateRef<any>;
   @ViewChild('rowActions', {static: false}) rowActions: TemplateRef<any>;
   @ViewChild('list', {static: false}) list: DatatableComponent;
 
@@ -63,10 +66,12 @@ export class MessageLogComponent extends mix(BaseListComponent)
 
   canSearchByConversationId: boolean;
   conversationIdValue: String;
+  resendReceivedMinutes: number;
 
   constructor(private applicationService: ApplicationContextService, private http: HttpClient, private alertService: AlertService,
               private domibusInfoService: DomibusInfoService, public dialog: MatDialog, public dialogsService: DialogsService,
-              private elementRef: ElementRef, private changeDetector: ChangeDetectorRef) {
+              private elementRef: ElementRef, private changeDetector: ChangeDetectorRef, private propertiesService: PropertiesService,
+              private securityService: SecurityService) {
     super();
   }
 
@@ -85,6 +90,10 @@ export class MessageLogComponent extends mix(BaseListComponent)
     this.canSearchByConversationId = true;
 
     this.fourCornerEnabled = await this.domibusInfoService.isFourCornerEnabled();
+
+    if (this.isCurrentUserAdmin()) {
+      this.resendReceivedMinutes = await this.getResendButtonEnabledReceivedMinutes();
+    }
 
     this.filterData();
   }
@@ -106,6 +115,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
     this.columnPicker.allColumns = [
       {
         name: 'Message Id',
+        cellTemplate: this.rawTextTpl,
         width: 275
       },
       {
@@ -145,7 +155,8 @@ export class MessageLogComponent extends mix(BaseListComponent)
         width: 155
       },
       {
-        name: 'Conversation Id'
+        name: 'Conversation Id',
+        cellTemplate: this.rawTextTpl,
       },
       {
         name: 'Message Type',
@@ -165,16 +176,19 @@ export class MessageLogComponent extends mix(BaseListComponent)
     if (this.fourCornerEnabled) {
       this.columnPicker.allColumns.push(
         {
-          name: 'Original Sender'
+          name: 'Original Sender',
+          cellTemplate: this.rawTextTpl
         },
         {
-          name: 'Final Recipient'
+          name: 'Final Recipient',
+          cellTemplate: this.rawTextTpl
         });
     }
 
     this.columnPicker.allColumns.push(
       {
-        name: 'Ref To Message Id'
+        name: 'Ref To Message Id',
+        cellTemplate: this.rawTextTpl,
       },
       {
         cellTemplate: this.rowWithDateFormatTpl,
@@ -238,15 +252,9 @@ export class MessageLogComponent extends mix(BaseListComponent)
     this.notifStatus = result.notifStatus;
   }
 
-  onActivate(event) {
-    if ('dblclick' === event.type) {
-      this.showDetails(event.row);
-    }
-  }
-
   resendDialog() {
     this.dialogsService.openResendDialog().then(resend => {
-      if (resend) {
+      if (resend && this.selected[0]) {
         this.resend(this.selected[0].messageId);
         super.selected = [];
         this.messageResent.subscribe(() => {
@@ -267,7 +275,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
         this.messageResent.emit();
       }, 500);
     }, err => {
-      this.alertService.exception('The message ' + messageId + ' could not be resent.', err);
+      this.alertService.exception('The message ' + this.alertService.escapeHtml(messageId) + ' could not be resent.', err);
     });
   }
 
@@ -282,8 +290,19 @@ export class MessageLogComponent extends mix(BaseListComponent)
 
   private isRowResendButtonEnabled(row): boolean {
     return !row.deleted
-      && (row.messageStatus === 'SEND_FAILURE' || row.messageStatus === 'SEND_ENQUEUED')
+      && (row.messageStatus === 'SEND_FAILURE' || this.isResendButtonEnabledForSendEnqueued(row))
       && !this.isSplitAndJoinMessage(row);
+  }
+
+  private isResendButtonEnabledForSendEnqueued(row): boolean {
+    let receivedDateDelta = moment(row.received).add(this.resendReceivedMinutes, 'minutes');
+
+    return (row.messageStatus === 'SEND_ENQUEUED' && receivedDateDelta.isBefore(new Date()) && !row.nextAttempt)
+  }
+
+  private async getResendButtonEnabledReceivedMinutes(): Promise<number> {
+    const res = await this.propertiesService.getResendButtonEnabledReceivedMinutesProperty();
+    return +res.value;
   }
 
   private isSplitAndJoinMessage(row) {
@@ -375,5 +394,9 @@ export class MessageLogComponent extends mix(BaseListComponent)
       this.conversationIdValue = this.filter.conversationId;
       this.filter.conversationId = null;
     }
+  }
+
+  isCurrentUserAdmin(): boolean {
+    return this.securityService.isCurrentUserAdmin();
   }
 }

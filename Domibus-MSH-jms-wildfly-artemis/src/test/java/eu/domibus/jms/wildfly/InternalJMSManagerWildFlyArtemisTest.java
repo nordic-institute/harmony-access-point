@@ -102,11 +102,11 @@ public class InternalJMSManagerWildFlyArtemisTest {
                 mapMessage.getPropertyNames();
                 result = new Vector(allPropertyNames).elements();
 
-                mapMessage.getObjectProperty("JMSProp1");
+                mapMessage.getStringProperty("JMSProp1");
                 result = "JMSValue1";
 
-                mapMessage.getObjectProperty("totalNumberOfPayloads");
-                result = 5;
+                mapMessage.getStringProperty("totalNumberOfPayloads");
+                result = "5";
 
                 mapMessage.getMapNames();
                 result = new Vector(mapNames).elements();
@@ -122,10 +122,10 @@ public class InternalJMSManagerWildFlyArtemisTest {
         assertEquals(internalJmsMessage.getTimestamp(), jmsTimestamp);
         assertEquals(internalJmsMessage.getId(), jmsId1);
 
-        Map<String, Object> properties = internalJmsMessage.getProperties();
+        Map<String, String> properties = internalJmsMessage.getProperties();
         assertEquals(properties.size(), 2);
         assertEquals(properties.get("JMSProp1"), "JMSValue1");
-        assertEquals(properties.get("totalNumberOfPayloads"), 5);
+        assertEquals(properties.get("totalNumberOfPayloads"), "5");
         assertEquals(properties.get("payload_1"), null);
     }
 

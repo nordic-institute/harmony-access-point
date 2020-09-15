@@ -390,6 +390,21 @@ public class UserMessageLogDaoTest {
     }
 
     @Test
+    public void testGetSentUserMessagesOlderThan(@Injectable TypedQuery<String> query, @Injectable List<String> list) {
+        // GIVEN
+        new Expectations() {{
+            em.createNamedQuery("UserMessageLog.findSentUserMessagesOlderThan", String.class); result = query;
+            query.getResultList(); result = list;
+        }};
+
+        // WHEN
+        List<String> result = userMessageLogDao.getSentUserMessagesOlderThan(null, null, 1);
+
+        // THEN
+        Assert.assertSame("Should have returned the user messages found being sent and older than the provided date", list, result);
+    }
+
+    @Test
     public void testGetUndownloadedUserMessagesOlderThan_returnsEmptyListWhenNoMessagesFound(@Injectable TypedQuery<String> query) {
         // GIVEN
         new Expectations() {{

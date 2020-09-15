@@ -10,9 +10,9 @@
 		<parties>
 			<partyIdTypes>
 				<partyIdType name="partyTypeUrn" value="urn:oasis:names:tc:ebcore:partyid-type:unregistered"/>
-				<partyIdType name="ds" value="urn:oasis:names:tc:ebcore:partyid-type:unregistered"/>
-				<partyIdType name="type" value="urn:oasis:names:tc:ebcore:partyid-type:unregistered"/>
-				<partyIdType name="indigo_gw" value="urn:oasis:names:tc:ebcore:partyid-type:unregistered"/>
+				<partyIdType name="ds" value="urn:oasis:names:tc:ebcore:partyid-type:u1"/>
+				<partyIdType name="type" value="urn:oasis:names:tc:ebcore:partyid-type:u2"/>
+				<partyIdType name="indigo_gw" value="urn:oasis:names:tc:ebcore:partyid-type:u3"/>
 			</partyIdTypes>
 			<party name="red_gw" endpoint="http://localhost:8080/">
 				<identifier partyId="domibus-red" partyIdType="partyTypeUrn"/>
@@ -36,7 +36,7 @@
 				<identifier partyId="domibus-reed" partyIdType="partyTypeUrn"/>
 			</party>
 			<party name="blue_gw1" endpoint="http://localhost:8080/domibus/services/msh">
-				<identifier partyId="domibus-bloo" partyIdType="partyTypeUrn"/>
+				<identifier partyId="domibus-sdf" partyIdType="partyTypeUrn"/>
 			</party>
 			<party name="green_gw1" endpoint="http://green:9898/domibus">
 				<identifier partyId="green_gw1" partyIdType="ds"/>

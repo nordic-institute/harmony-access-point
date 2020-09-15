@@ -2,7 +2,9 @@ package eu.domibus.core.alerts.configuration.common;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.property.validators.DomibusPropertyValidator;
 import eu.domibus.core.alerts.model.service.ConfigurationLoader;
 import eu.domibus.core.alerts.service.AlertConfigurationService;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -11,8 +13,6 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -64,37 +64,23 @@ public class CommonConfigurationManager {
         final String alertEmailSender = domibusPropertyProvider.getProperty(DOMIBUS_ALERT_SENDER_EMAIL);
         final String alertEmailReceiver = domibusPropertyProvider.getProperty(DOMIBUS_ALERT_RECEIVER_EMAIL);
 
-        boolean misConfigured = false;
+        Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
         if (StringUtils.isEmpty(alertEmailReceiver) || StringUtils.isEmpty(alertEmailSender)) {
-            misConfigured = true;
-        } else {
-            List<String> emailsToValidate = new ArrayList<>(Arrays.asList(alertEmailSender));
-            emailsToValidate.addAll(Arrays.asList(alertEmailReceiver.split(";")));
-            for (String email : emailsToValidate) {
-                misConfigured = !isValidEmail(email);
-                if (misConfigured) {
-                    break;
-                }
-            }
-        }
-        if (misConfigured) {
-            Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
             LOG.error("Alert module can not send email, mail sender property name:[{}]/value[{}] and receiver property name:[{}]/value[{}] are mandatory in the domain [{}].",
                     DOMIBUS_ALERT_SENDER_EMAIL, alertEmailSender, DOMIBUS_ALERT_RECEIVER_EMAIL, alertEmailReceiver, currentDomain);
-            throw new IllegalArgumentException("Invalid email address configured for the alert module.");
+            throw new IllegalArgumentException("Empty sender/receiver email address configured for the alert module.");
         }
+
+        List<String> emailsToValidate = new ArrayList<>(Arrays.asList(alertEmailSender));
+        emailsToValidate.addAll(Arrays.asList(alertEmailReceiver.split(";")));
+        DomibusPropertyValidator validator = DomibusPropertyMetadata.Type.EMAIL.getValidator();
+        for (String email : emailsToValidate) {
+            if (!validator.isValid(email)) {
+                LOG.error("Alert module can not send email, Invalid sender/receiver email address: [{}] configured in the domain: [{}].", email, currentDomain);
+                throw new IllegalArgumentException("Invalid sender/receiver email address configured for the alert module: " + email);
+            }
+        }
+
         return new CommonConfiguration(alertLifeTimeInDays, alertEmailSender, alertEmailReceiver);
     }
-
-    protected boolean isValidEmail(String email) {
-        try {
-            InternetAddress address = new InternetAddress(email);
-            address.validate();
-            return true;
-        } catch (AddressException ae) {
-            LOG.trace("Email address [{}] is not valid:", email, ae);
-            return false;
-        }
-    }
-
 }

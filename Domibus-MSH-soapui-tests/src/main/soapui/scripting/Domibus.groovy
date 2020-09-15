@@ -281,7 +281,7 @@ def findNumberOfDomain(String inputSite) {
                 assert 0,"SQLException occured: " + ex;
             }
         }
-
+		
         // Maybe this part is not needed as connection would be always close in class destructor
         if (connectionOpenedInsideMethod) {
             debugLog("  executeListOfSqlQueries  [][]  Connection to DB opened during method execution - close opened connection", log)
@@ -403,18 +403,13 @@ def findNumberOfDomain(String inputSite) {
         def messageIDCheck = "= '${messageID}'" //default comparison method use equal operator
         if (messgaeIDStartWithProvidedValue) messageIDCheck = "like '${messageID}%'" //if cleanDBMessageIDStartsWith method was called change method for comparison
 
-        def select_ID_PK = "select ID_PK from TB_MESSAGE_INFO where MESSAGE_ID ${messageIDCheck}" //extracted as common part of queries bellow
+        def select_ID_PK = "select ID_PK from TB_MESSAGE_INFO where MESSAGE_ID ${messageIDCheck}" //extracted as common part of queries below
         def sqlQueriesList = [
-            "delete from TB_RAWENVELOPE_LOG where USERMESSAGE_ID_FK IN (select ID_PK from TB_USER_MESSAGE where messageInfo_ID_PK IN (" + select_ID_PK + "))",
-            "delete from TB_RAWENVELOPE_LOG where SIGNALMESSAGE_ID_FK IN (select ID_PK from TB_SIGNAL_MESSAGE where messageInfo_ID_PK IN (" + select_ID_PK + " OR REF_TO_MESSAGE_ID " + messageIDCheck + "))",
-			"delete from TB_RAWENVELOPE_LOG where MESSAGE_ID ${messageIDCheck}",
-            "delete from TB_RECEIPT_DATA where RECEIPT_ID IN (select ID_PK from TB_RECEIPT where ID_PK IN(select receipt_ID_PK from TB_SIGNAL_MESSAGE where messageInfo_ID_PK IN (" + select_ID_PK + ")))",
-			"delete from TB_RECEIPT_DATA where RECEIPT_ID IN (select ID_PK from TB_RECEIPT where ID_PK IN(select receipt_ID_PK from TB_SIGNAL_MESSAGE where messageInfo_ID_PK IN (select ID_PK from TB_MESSAGE_INFO where REF_TO_MESSAGE_ID ${messageIDCheck})))",
-            "delete from TB_PROPERTY where MESSAGEPROPERTIES_ID IN (select ID_PK from TB_USER_MESSAGE where messageInfo_ID_PK IN (" + select_ID_PK + "))",
-            "delete from TB_PROPERTY where PARTPROPERTIES_ID IN (select ID_PK from TB_PART_INFO where PAYLOADINFO_ID IN (select ID_PK from TB_USER_MESSAGE where messageInfo_ID_PK IN (" + select_ID_PK + ")))",
+            "delete from TB_RAWENVELOPE_LOG where USERMESSAGE_ID_FK IN (select ID_PK from TB_USER_MESSAGE where messageInfo_ID_PK IN (" + select_ID_PK + ")) or SIGNALMESSAGE_ID_FK IN (select ID_PK from TB_SIGNAL_MESSAGE where messageInfo_ID_PK IN (" + select_ID_PK + " OR REF_TO_MESSAGE_ID " + messageIDCheck + ")) or MESSAGE_ID ${messageIDCheck}",
+            "delete from TB_RECEIPT_DATA where RECEIPT_ID IN (select ID_PK from TB_RECEIPT where ID_PK IN(select receipt_ID_PK from TB_SIGNAL_MESSAGE where messageInfo_ID_PK IN (" + select_ID_PK + ") or messageInfo_ID_PK IN (select ID_PK from TB_MESSAGE_INFO where REF_TO_MESSAGE_ID ${messageIDCheck})))",
+            "delete from TB_PROPERTY where MESSAGEPROPERTIES_ID IN (select ID_PK from TB_USER_MESSAGE where messageInfo_ID_PK IN (" + select_ID_PK + ")) or PARTPROPERTIES_ID IN (select ID_PK from TB_PART_INFO where PAYLOADINFO_ID IN (select ID_PK from TB_USER_MESSAGE where messageInfo_ID_PK IN (" + select_ID_PK + ")))",
             "delete from TB_PART_INFO where PAYLOADINFO_ID IN (select ID_PK from TB_USER_MESSAGE where messageInfo_ID_PK IN (" + select_ID_PK + "))",
-            "delete from TB_PARTY_ID where FROM_ID IN (select ID_PK from TB_USER_MESSAGE where messageInfo_ID_PK IN (" + select_ID_PK + "))",
-            "delete from TB_PARTY_ID where TO_ID IN (select ID_PK from TB_USER_MESSAGE where messageInfo_ID_PK IN (" + select_ID_PK + "))",
+            "delete from TB_PARTY_ID where FROM_ID IN (select ID_PK from TB_USER_MESSAGE where messageInfo_ID_PK IN (" + select_ID_PK + ")) or TO_ID IN (select ID_PK from TB_USER_MESSAGE where messageInfo_ID_PK IN (" + select_ID_PK + "))",
             "delete from TB_MESSAGING where (SIGNAL_MESSAGE_ID IN (select ID_PK from TB_SIGNAL_MESSAGE where messageInfo_ID_PK IN (" + select_ID_PK + "))) OR (USER_MESSAGE_ID IN (select ID_PK from TB_USER_MESSAGE where messageInfo_ID_PK IN (" + select_ID_PK + ")))",
             "delete from TB_ERROR where SIGNALMESSAGE_ID IN (select ID_PK from TB_SIGNAL_MESSAGE where messageInfo_ID_PK IN (" + select_ID_PK + "))",
             "delete from TB_USER_MESSAGE where messageInfo_ID_PK IN (" + select_ID_PK + ")",
@@ -555,6 +550,8 @@ def findNumberOfDomain(String inputSite) {
         def waitForStatus(String SMSH=null, String RMSH=null, String IDMes=null, String bonusTimeForSender=null, String bonusTimeForReceiver=null, String senderDomainId = blueDomainID, String receiverDomanId =  redDomainID) {
         debugLog("  ====  Calling \"waitForStatus\".", log)
         def MAX_WAIT_TIME=100_000; // Maximum time to wait to check the message status.
+		def RECEIVER_MAX_WAIT_TIME=60_000;
+		def RECEIVER_MAX_WAIT_TIME_EXTENDED=120_000;
         def STEP_WAIT_TIME=2_000; // Time to wait before re-checking the message status.
         def messageID = null;
         def numberAttempts = 0;
@@ -619,12 +616,12 @@ def findNumberOfDomain(String inputSite) {
         }
         if (bonusTimeForReceiver) {
             if (bonusTimeForReceiver.isInteger()) MAX_WAIT_TIME = (bonusTimeForReceiver as Integer) * 1000
-            else MAX_WAIT_TIME = 120_000
+            else MAX_WAIT_TIME = RECEIVER_MAX_WAIT_TIME_EXTENDED;
 
             log.info "  waitForStatus  [][]  Waiting time for Receiver extended to ${MAX_WAIT_TIME/1000} seconds"
 
         } else {
-            MAX_WAIT_TIME = 50_000
+            MAX_WAIT_TIME = RECEIVER_MAX_WAIT_TIME;
         }
         messageStatus = "INIT"
         if (RMSH) {
@@ -1170,6 +1167,159 @@ def findNumberOfDomain(String inputSite) {
                 return
             }
         }
+    }
+//---------------------------------------------------------------------------------------------------------------------------------
+    static def domibusHealthMonitor(String side, context, log, String domainValue = "Default",String pluginUsername="user",String pluginPassword="Domibus-123",String userRole="ROLE_ADMIN",authorizedUser=true,outcomesMap = [], String authUser = null, String authPwd = null){
+        debugLog("  ====  Calling \"domibusHealthMonitor\".", log)
+		def authenticationUser = null;
+        def authenticationPwd = null;
+        log.info "  domibusHealthMonitor  [][]  Checking the health of Domibus $side.";
+        def commandString = null;
+        def commandResult = null;
+		def jsonSlurper = new JsonSlurper();
+		def dataMap = null;
+		def i=0;
+		
+		// Create plugin user for authentication
+		if(pluginUsername.toLowerCase().equals("user")){
+			pluginUsername="userPl"+(new Date().format("dd-HHmmss"));
+			addPluginUser(side, context, log, domainValue, userRole, pluginUsername, pluginPassword,"urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1",true,authUser,authPwd);
+		}
+		
+	
+		try{			
+			log.info "  domibusHealthMonitor  [][]  ==================================";
+			log.info "  domibusHealthMonitor  [][]  Checking the general status ...";
+			
+			commandString = ["curl", urlToDomibus(side, log, context) + "/ext/monitoring/application/status",
+						"--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
+						"-H", "Content-Type: application/json",
+						"-u", pluginUsername+":"+pluginPassword,
+						"-v"]
+			commandResult = runCommandInShell(commandString, log);
+			if(!authorizedUser){
+				assert(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*403.*/),"Error:domibusHealthMonitor: Error in the expected response (http 403). Returned: "+commandResult[1];
+				log.info "  domibusHealthMonitor  [][]  User \"$pluginUsername\" is not authorized to check the status.";
+			}else{
+				assert(commandResult[0]!=null),"Error:domibusHealthMonitor: Error while trying to retrieve domibus health status. Returned: null.";
+				assert(!commandResult[0].trim().equals("")),"Error:domibusHealthMonitor: Error while trying to retrieve domibus health status. Returned an empty response.";
+				assert(commandResult[0].contains("Database") && commandResult[0].contains("JMSBroker") && commandResult[0].contains("Quartz Trigger")),"Error:domibusHealthMonitor: Error while trying to retrieve domibus health status. Returned: "+commandResult[0];
+				dataMap = jsonSlurper.parseText(commandResult[0]);
+				while (i < dataMap.services.size()){
+					assert(dataMap.services[i] != null),"Error:domibusHealthMonitor: Error while parsing the components status.";
+					log.info "  domibusHealthMonitor  [][]  "+dataMap.services[i].name.toUpperCase().padRight(30-dataMap.services[i].name.length())+"          "+dataMap.services[i].status.toUpperCase();
+					if(outcomesMap){
+						outcomesMap.each { entry ->
+							if(entry.key.toUpperCase().equals(dataMap.services[i].name.toUpperCase())){
+								assert(dataMap.services[i].status.toUpperCase().equals(entry.value.toUpperCase())),"Error:domibusHealthMonitor: Error for service \""+dataMap.services[i].name+"\". Expecting status \""+entry.value+"\" but received status \""+dataMap.services[i].status+"\"";
+							}
+						}	
+					}
+					i++;
+				}
+			}
+			log.info "  domibusHealthMonitor  [][]  ==================================";
+			log.info "\n\n";
+
+			log.info "  domibusHealthMonitor  [][]  ==================================";
+			log.info "  domibusHealthMonitor  [][]  Checking the Database ...";
+			
+			commandString = ["curl", urlToDomibus(side, log, context) + "/ext/monitoring/application/status?filter=db",
+						"--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
+						"-H", "Content-Type: application/json",
+						"-u", pluginUsername+":"+pluginPassword,
+						"-v"]
+			commandResult = runCommandInShell(commandString, log);
+			if(!authorizedUser){
+				assert(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*403.*/),"Error:domibusHealthMonitor: Error in the expected response (http 403). Returned: "+commandResult[1];
+				log.info "  domibusHealthMonitor  [][]  User \"$pluginUsername\" is not authorized to check the \"Database\" status.";
+			}else{
+				assert(commandResult[0]!=null),"Error:domibusHealthMonitor: Error while trying to retrieve domibus DB status. Returned: null.";
+				assert(!commandResult[0].trim().equals("")),"Error:domibusHealthMonitor: Error while trying to retrieve domibus DB status. Returned an empty response.";
+				assert(commandResult[0].contains("Database")),"Error:domibusHealthMonitor: Error while trying to retrieve domibus DB status. Returned: "+commandResult[0];
+				dataMap = jsonSlurper.parseText(commandResult[0]);
+				assert(dataMap.services != null),"Error:domibusHealthMonitor: Error while parsing the DB status.";
+				assert(dataMap.services.size() == 1),"Error:domibusHealthMonitor: Error while parsing the DB status: must return only the DB status. Returned: "+commandResult[0];
+				log.info "  domibusHealthMonitor  [][]  STATUS:"+"          "+dataMap.services[0].status.toUpperCase();
+				if(outcomesMap){
+					outcomesMap.each { entry ->
+						if(entry.key.toUpperCase().equals(dataMap.services[0].name.toUpperCase())){
+							assert(dataMap.services[0].status.toUpperCase().equals(entry.value.toUpperCase())),"Error:domibusHealthMonitor: Error for service \""+dataMap.services[0].name+"\". Expecting status \""+entry.value+"\" but received status \""+dataMap.services[0].status+"\"";
+						}
+					}	
+				}
+			}
+			log.info "  domibusHealthMonitor  [][]  ==================================";
+			log.info "\n\n";
+
+			log.info "  domibusHealthMonitor  [][]  ==================================";
+			log.info "  domibusHealthMonitor  [][]  Checking the quartz trigger ...";
+			
+			commandString = ["curl", urlToDomibus(side, log, context) + "/ext/monitoring/application/status?filter=quartzTrigger",
+						"--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
+						"-H", "Content-Type: application/json",
+						"-u", pluginUsername+":"+pluginPassword,
+						"-v"]
+			commandResult = runCommandInShell(commandString, log);
+			if(!authorizedUser){
+				assert(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*403.*/),"Error:domibusHealthMonitor: Error in the expected response (http 403). Returned: "+commandResult[1];
+				log.info "  domibusHealthMonitor  [][]  User \"$pluginUsername\" is not authorized to check the \"quartz trigger\" status.";
+			}else{
+				assert(commandResult[0]!=null),"Error:domibusHealthMonitor: Error while trying to retrieve domibus Quartz Trigger status. Returned: null.";
+				assert(!commandResult[0].trim().equals("")),"Error:domibusHealthMonitor: Error while trying to retrieve domibus Quartz Trigger status. Returned an empty response.";
+				assert(commandResult[0].contains("Quartz Trigger")),"Error:domibusHealthMonitor: Error while trying to retrieve domibus Quartz Trigger status. Returned: "+commandResult[0];
+				dataMap = jsonSlurper.parseText(commandResult[0]);
+				assert(dataMap.services != null),"Error:domibusHealthMonitor: Error while parsing the Quartz Trigger status.";
+				assert(dataMap.services.size() == 1),"Error:domibusHealthMonitor: Error while parsing the Quartz Trigger status: must return only the Quartz Trigger status. Returned: "+commandResult[0];
+				log.info "  domibusHealthMonitor  [][]  STATUS:"+"          "+dataMap.services[0].status.toUpperCase();
+				if(outcomesMap){
+					outcomesMap.each { entry ->
+						if(entry.key.toUpperCase().equals(dataMap.services[0].name.toUpperCase())){
+							assert(dataMap.services[0].status.toUpperCase().equals(entry.value.toUpperCase())),"Error:domibusHealthMonitor: Error for service \""+dataMap.services[0].name+"\". Expecting status \""+entry.value+"\" but received status \""+dataMap.services[0].status+"\"";
+						}
+					}	
+				}
+			}
+			log.info "  domibusHealthMonitor  [][]  ==================================";
+			log.info "\n\n";			
+
+			log.info "  domibusHealthMonitor  [][]  ==================================";
+			log.info "  domibusHealthMonitor  [][]  Checking the jms broker ...";
+			commandString = ["curl", urlToDomibus(side, log, context) + "/ext/monitoring/application/status?filter=jmsBroker",
+						"--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
+						"-H", "Content-Type: application/json",
+						"-u", pluginUsername+":"+pluginPassword,
+						"-v"]
+			commandResult = runCommandInShell(commandString, log);
+			if(!authorizedUser){
+				assert(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*403.*/),"Error:domibusHealthMonitor: Error in the expected response (http 403). Returned: "+commandResult[1];
+				log.info "  domibusHealthMonitor  [][]  User \"$pluginUsername\" is not authorized to check the \"jms broker\" status.";
+			}else{
+				assert(commandResult[0]!=null),"Error:domibusHealthMonitor: Error while trying to retrieve domibus JMSBroker status. Returned: null.";
+				assert(!commandResult[0].trim().equals("")),"Error:domibusHealthMonitor: Error while trying to retrieve domibus JMSBroker status. Returned an empty response.";
+				assert(commandResult[0].contains("JMSBroker")),"Error:domibusHealthMonitor: Error while trying to retrieve domibus JMSBroker status. Returned: "+commandResult[0];
+				dataMap = jsonSlurper.parseText(commandResult[0]);
+				assert(dataMap.services != null),"Error:domibusHealthMonitor: Error while parsing the JMSBroker status.";
+				assert(dataMap.services.size() == 1),"Error:domibusHealthMonitor: Error while parsing the JMSBroker status: must return only the JMSBroker status. Returned: "+commandResult[0];
+				log.info "  domibusHealthMonitor  [][]  STATUS:"+"          "+dataMap.services[0].status.toUpperCase();
+				if(outcomesMap){
+					outcomesMap.each { entry ->
+						if(entry.key.toUpperCase().equals(dataMap.services[0].name.toUpperCase())){
+							assert(dataMap.services[0].status.toUpperCase().equals(entry.value.toUpperCase())),"Error:domibusHealthMonitor: Error for service \""+dataMap.services[0].name+"\". Expecting status \""+entry.value+"\" but received status \""+dataMap.services[0].status+"\"";
+						}
+					}	
+				}
+			}
+			log.info "  domibusHealthMonitor  [][]  ==================================";
+			log.info "\n\n";	
+			
+		} finally {
+            resetAuthTokens(log);
+        }
+		
+		// Remove created plugin user
+		removePluginUser(side, context, log, domainValue, pluginUsername,authUser,authPwd);
+		debugLog("  ====  END \"domibusHealthMonitor\".", log)
     }
 //IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
 //  Domain Functions
@@ -2438,7 +2588,7 @@ static def uploadPmodeIfStepFailedOrNotRun(log, context, testRunner, testStepToC
 //IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
 // Handling domibus properties at runtime
 //IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
-    static def changePropertyAtRuntime(String side, String propName, String propNewValue, context, log, String domainValue = "Default", String authUser = null, authPwd = null){
+    static def changePropertyAtRuntime(String side, String propName, String propNewValue, context, log, String domainValue = "Default", String authUser = null, authPwd = null,message="successfully"){
 		def authenticationUser = authUser
         def authenticationPwd = authPwd
 
@@ -2458,8 +2608,12 @@ static def uploadPmodeIfStepFailedOrNotRun(log, context, testRunner, testStepToC
 							"--data-binary", "$propNewValue"]
             def commandResult = runCommandInShell(commandString, log)
 
-            assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/) || commandResult[1].contains("successfully")), "Error: changePropertyAtRuntime: Error while trying to change proeprty at runtime: response doesn't contain the expected outcome HTTP code 200.\nCommand output error: " + commandResult[1]
-			log.info "  changePropertyAtRuntime  [][]  Property value was changed"
+			if(message.equals("successfully")){
+				assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/) || commandResult[1].contains(message)), "Error: changePropertyAtRuntime: Error while trying to change proeprty at runtime: response doesn't contain the expected outcome HTTP code 200.\nCommand output error: " + commandResult[1]
+				log.info "  changePropertyAtRuntime  [][]  Property value was changed"
+			}else{
+				assert(commandResult[0].contains(message)), "Error: changePropertyAtRuntime: Error while trying to change proeprty at runtime: string $message not found in returned value.";
+			}
 
         } finally {
             resetAuthTokens(log)
@@ -2715,11 +2869,11 @@ static def String pathToLogFiles(side, log, context) {
 								"--data-binary", formatJsonForCurl(curlParams, log),
 								"-v"]
                 commandResult = runCommandInShell(commandString, log)
-                assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*400.*/)&&(commandResult[0]==~ /(?s).*Forbidden character detected.*/)),"Error:curlBlackList_PUT: Forbidden character not detected.";
-                log.info "  curlBlackList_PUT  [][]  Forbidden character detected in property value \"$userAC\".";
+                assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*400.*/)&&(commandResult[0]==~ /(?s).*Forbidden character.*detected.*/)),"Error:curlBlackList_PUT: Forbidden character not detected.";
+                log.info "  curlBlackList_PUT  [][]  Forbidden character detected in value \"$userAC\".";
             }
         } finally {
-            resetAuthTokens(log)
+            resetAuthTokens(log);
         }
     }
 
@@ -2740,8 +2894,8 @@ static def String pathToLogFiles(side, log, context) {
 			(authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
 			commandString="curl "+urlToDomibus(side, log, context)+"/rest/messagelog?orderBy=received&asc=false&messageId="+data+"&messageType=USER_MESSAGE&page=0&pageSize=10 -b "+context.expand( '${projectDir}')+ File.separator + "cookie.txt -v -H \"Content-Type: application/json\" -H \"X-XSRF-TOKEN: "+ returnXsfrToken(side,context,log,authenticationUser,authenticationPwd)+"\" -X GET ";
 			commandResult = runCommandInShell(commandString, log)
-			assert(commandResult[0]==~ /(?s).*Forbidden character detected.*/),"Error:curlBlackList_GET: Forbidden character not detected.";
-			log.info "  curlBlackList_GET  [][]  Forbidden character detected in property value \"$data\".";
+			assert(commandResult[0]==~ /(?s).*Forbidden character.*detected.*/),"Error:curlBlackList_GET: Forbidden character not detected.";
+			log.info "  curlBlackList_GET  [][]  Forbidden character detected in value \"$data\".";
 		} finally {
             resetAuthTokens(log)
         }
@@ -2765,8 +2919,8 @@ static def String pathToLogFiles(side, log, context) {
 		} finally {
             resetAuthTokens(log)
         }
-        assert(commandResult[0]==~ /(?s).*Forbidden character detected.*/),"Error:curlBlackList_POST: Forbidden character not detected."
-        log.info "  curlBlackList_POST  [][]  Forbidden character detected in property value \"$userLogin\".";
+        assert(commandResult[0]==~ /(?s).*Forbidden character.*detected.*/),"Error:curlBlackList_POST: Forbidden character not detected."
+        log.info "  curlBlackList_POST  [][]  Forbidden character detected in value \"$userLogin\".";
     }
 
 //---------------------------------------------------------------------------------------------------------------------------------
@@ -2817,7 +2971,6 @@ static def String pathToLogFiles(side, log, context) {
         def multitenancyOn=false;
         def authenticationUser=authUser;
         def authenticationPwd=authPwd;
-		def json = null;
 
 		(authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd);
 
@@ -2828,13 +2981,11 @@ static def String pathToLogFiles(side, log, context) {
 			detailedQueueName=retrieveQueueNameFromDomibus(commandResult[0].substring(5),queueName,context,log);
 			debugLog("  browseJmsQueue  [][]  Queue name set to \"" + detailedQueueName+"\".", log);
 
-			json = ifWindowsEscapeJsonString('{\"source\":\"' + "${detailedQueueName}" + '\"}');
 			commandString = null;
 			commandResult = null;
-			commandString = ["curl", urlToDomibus(side, log, context) + "/rest/jms/messages",
+			commandString = ["curl", urlToDomibus(side, log, context) + "/rest/jms/messages?source=$detailedQueueName",
 						"-H",  "Content-Type: application/json",
 						"-H", "X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
-						"--data-binary", json,
 						"-X", "GET",
 						"-b", context.expand('${projectDir}') + File.separator + "cookie.txt"]
 
@@ -4054,9 +4205,15 @@ static def updateTrustStore(context, log, workingDirectory, keystoreAlias, keyst
 			log.error "Error: report file is directory on path:" + outputReportFilePath
 			return
 		}
-		if ( !file.exists() ) {
+        File parentDir = file.getParentFile()
+        if ( parentDir == null) {
+            log.error "Error: parent path to report file doesn't exist. Provided path was:"  + outputReportFilePath
+            return
+        }
+        parentDir.mkdirs()
+
+		if ( file.createNewFile() ) { //if file does not exist it will do nothing
 			log.warn "Warning: text report file doesn't exist, would create file with header:" + outputReportFilePath
-			file.createNewFile()
 			def header = COLUMN_LIST.join(CSV_DELIMETER)
 			file.write(header)
 		}

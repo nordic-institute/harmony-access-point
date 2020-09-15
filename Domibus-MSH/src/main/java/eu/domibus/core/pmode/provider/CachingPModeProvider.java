@@ -1,4 +1,3 @@
-
 package eu.domibus.core.pmode.provider;
 
 import com.google.common.collect.Lists;
@@ -41,6 +40,13 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 public class CachingPModeProvider extends PModeProvider {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CachingPModeProvider.class);
+    private static final String DOES_NOT_MATCH_END_STRING = "] does not match";
+    private static final String CURRENTLY_UNAVAILABLE = "currently unavailable";
+
+    protected Domain domain;
+
+    @Autowired
+    PullMessageService pullMessageService;
 
     //Don't access directly, use getter instead
     private volatile Configuration configuration;
@@ -48,15 +54,10 @@ public class CachingPModeProvider extends PModeProvider {
     @Autowired
     private ProcessPartyExtractorProvider processPartyExtractorProvider;
 
-    @Autowired
-    PullMessageService pullMessageService;
-
     //pull processes cache.
     private Map<Party, List<Process>> pullProcessesByInitiatorCache = new HashMap<>();
 
     private Map<String, List<Process>> pullProcessByMpcCache = new HashMap<>();
-
-    protected Domain domain;
 
     private Object configurationLock = new Object();
 
@@ -168,6 +169,14 @@ public class CachingPModeProvider extends PModeProvider {
         );
     }
 
+    protected void checkAgreementMismatch(Process process, LegFilterCriteria legFilterCriteria) {
+        if (matchAgreement(process, legFilterCriteria.getAgreementName())) {
+            LOG.debug("Agreement:[{}] matched for Process:[{}]", legFilterCriteria.getAgreementName(), process.getName());
+            return;
+        }
+        legFilterCriteria.appendProcessMismatchErrors(process, "Agreement:[" + legFilterCriteria.getAgreementName() + DOES_NOT_MATCH_END_STRING);
+    }
+
     /**
      * The match means that either there is no initiator and it is allowed
      * by configuration OR the initiator name matches
@@ -191,6 +200,14 @@ public class CachingPModeProvider extends PModeProvider {
         return false;
     }
 
+    protected void checkInitiatorMismatch(Process process, ProcessTypePartyExtractor processTypePartyExtractor, LegFilterCriteria legFilterCriteria) {
+        if (matchInitiator(process, processTypePartyExtractor)) {
+            LOG.debug("Initiator:[{}] matched for Process:[{}]", processTypePartyExtractor.getSenderParty(), process.getName());
+            return;
+        }
+        legFilterCriteria.appendProcessMismatchErrors(process, "Initiator:[" + processTypePartyExtractor.getSenderParty() + DOES_NOT_MATCH_END_STRING);
+    }
+
     /**
      * The match requires that the responder exists in the process
      *
@@ -211,6 +228,14 @@ public class CachingPModeProvider extends PModeProvider {
         return false;
     }
 
+    protected void checkResponderMismatch(Process process, ProcessTypePartyExtractor processTypePartyExtractor, LegFilterCriteria legFilterCriteria) {
+        if (matchResponder(process, processTypePartyExtractor)) {
+            LOG.debug("Responder:[{}] matched for Process:[{}]", processTypePartyExtractor.getReceiverParty(), process.getName());
+            return;
+        }
+        legFilterCriteria.appendProcessMismatchErrors(process, "Responder:[" + processTypePartyExtractor.getReceiverParty() + DOES_NOT_MATCH_END_STRING);
+    }
+
     @Override
     public String findPullLegName(final String agreementName, final String senderParty,
                                   final String receiverParty, final String service, final String action, final String mpc, final Role initiatorRole, final Role responderRole) throws EbMS3Exception {
@@ -227,7 +252,7 @@ public class CachingPModeProvider extends PModeProvider {
 
         processes.stream().forEach(process -> candidates.addAll(process.getLegs()));
         if (candidates.isEmpty()) {
-            LOG.businessError(DomibusMessageCode.BUS_LEG_NAME_NOT_FOUND, agreementName, senderParty, receiverParty, service, action);
+            LOG.businessError(DomibusMessageCode.BUS_LEG_NAME_NOT_FOUND, agreementName, senderParty, receiverParty, service, action, CURRENTLY_UNAVAILABLE, CURRENTLY_UNAVAILABLE);
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "No Candidates for Legs found", null, null);
         }
         Optional<LegConfiguration> optional = candidates.stream()
@@ -237,7 +262,7 @@ public class CachingPModeProvider extends PModeProvider {
         if (pullLegName != null) {
             return pullLegName;
         }
-        LOG.businessError(DomibusMessageCode.BUS_LEG_NAME_NOT_FOUND, agreementName, senderParty, receiverParty, service, action);
+        LOG.businessError(DomibusMessageCode.BUS_LEG_NAME_NOT_FOUND, agreementName, senderParty, receiverParty, service, action, CURRENTLY_UNAVAILABLE, CURRENTLY_UNAVAILABLE);
         throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "No matching leg found", null, null);
     }
 
@@ -250,57 +275,148 @@ public class CachingPModeProvider extends PModeProvider {
         return false;
     }
 
+    /**
+     * From the list of processes in the pmode {@link Configuration}, filters the list of {@link Process} matching the input parameters
+     * and then filters the list of {@link LegConfiguration} matching the input parameters.<br/>
+     * If several candidate leg configurations match, returns only the first leg configuration that matches.<br/>
+     * Meant for use with PUSH message exchange patterns as filtering with MEP and MPC are not considered.<br/>
+     * If no processes or legs match, throws {@link EbMS3Exception} with details of all mismatches across processes and legs<br/>
+     */
     @Override
-    //FIXME: only works for the first leg, as sender=initiator
     public String findLegName(final String agreementName, final String senderParty, final String receiverParty,
                               final String service, final String action, final Role initiatorRole, final Role responderRole) throws EbMS3Exception {
-        final List<LegConfiguration> candidates = new ArrayList<>();
-        //TODO Refactor the nested for loop and conditions
-        for (final Process process : this.getConfiguration().getBusinessProcesses().getProcesses()) {
-            final ProcessTypePartyExtractor processTypePartyExtractor = processPartyExtractorProvider.getProcessTypePartyExtractor(process.getMepBinding().getValue(), senderParty, receiverParty);
-            for (final Party party : process.getInitiatorParties()) {
-                if (StringUtils.equalsIgnoreCase(party.getName(), processTypePartyExtractor.getSenderParty())) {
-                    for (final Party responder : process.getResponderParties()) {
-                        if (StringUtils.equalsIgnoreCase(responder.getName(), processTypePartyExtractor.getReceiverParty())) {
-                            if (matchAgreement(process, agreementName) &&
-                                    matchRole(process.getInitiatorRole(), initiatorRole) &&
-                                    matchRole(process.getResponderRole(), responderRole)) {
-                                LOG.debug("Add candidate legs [{}] for process [{}]", process.getLegs(), process);
-                                candidates.addAll(process.getLegs());
-                            }
-                        }
-                    }
-                }
+
+        LegFilterCriteria legFilterCriteria = new LegFilterCriteria(agreementName, senderParty, receiverParty, initiatorRole, responderRole, service, action);
+
+        final List<Process> matchingProcesses = filterMatchingProcesses(legFilterCriteria);
+        if (matchingProcesses.isEmpty()) {
+            String errorDetail = "None of the Processes matched with message metadata. Process mismatch details:\n" + legFilterCriteria.getProcessMismatchErrorDetails();
+            LOG.businessError(DomibusMessageCode.BUS_LEG_NAME_NOT_FOUND, agreementName, senderParty, receiverParty, service, action, legFilterCriteria.getProcessMismatchErrorDetails(), legFilterCriteria.getLegConfigurationMismatchErrorDetails());
+            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, errorDetail, null, null);
+        }
+
+        final Set<LegConfiguration> matchingLegs = filterMatchingLegConfigurations(matchingProcesses, legFilterCriteria);
+        if (matchingLegs.isEmpty()) {
+            StringBuilder buildErrorDetail = new StringBuilder("No matching Legs found among matched Processes:[").append(listProcessNames(matchingProcesses)).append("]. Leg mismatch details:")
+                    .append("\n").append(legFilterCriteria.getLegConfigurationMismatchErrorDetails());
+            if (!legFilterCriteria.getProcessMismatchErrors().isEmpty()) {
+                buildErrorDetail.append("\n").append("Other Process mismatch details:")
+                        .append("\n").append(legFilterCriteria.getProcessMismatchErrorDetails());
             }
+            String errorDetail = buildErrorDetail.toString();
+            LOG.businessError(DomibusMessageCode.BUS_LEG_NAME_NOT_FOUND, agreementName, senderParty, receiverParty, service, action, legFilterCriteria.getProcessMismatchErrorDetails(), legFilterCriteria.getLegConfigurationMismatchErrorDetails());
+            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, errorDetail, null, null);
         }
-        if (candidates.isEmpty()) {
-            LOG.businessError(DomibusMessageCode.BUS_LEG_NAME_NOT_FOUND, agreementName, senderParty, receiverParty, service, action);
-            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "No Candidates for Legs found", null, null);
+
+        Optional<LegConfiguration> selectedLeg = matchingLegs.stream().findFirst();
+        return selectedLeg.map(LegConfiguration::getName).orElse(null);
+    }
+
+    /**
+     * From the list of {@link Process} retrieved from the pmode configuration, finds the mismatches with the message metadata
+     * provided through a {@link LegFilterCriteria} and filters the processes that match - i.e; having no mismatch errors.
+     * Incorrect reuse is guarded by returning empty list in case null is provided as input.
+     *
+     * @param legFilterCriteria
+     * @return List of {@link Process} having no mimatches.
+     */
+    private List<Process> filterMatchingProcesses(LegFilterCriteria legFilterCriteria) {
+        if (legFilterCriteria == null) {
+            return new ArrayList<>();
         }
-        for (final LegConfiguration candidate : candidates) {
-            if (StringUtils.equalsIgnoreCase(candidate.getService().getName(), service) && StringUtils.equalsIgnoreCase(candidate.getAction().getName(), action)) {
-                return candidate.getName();
-            }
+        List<Process> candidateProcesses = new ArrayList<>(this.getConfiguration().getBusinessProcesses().getProcesses());
+        for (Process process : candidateProcesses) {
+            ProcessTypePartyExtractor processTypePartyExtractor = processPartyExtractorProvider.getProcessTypePartyExtractor(process.getMepBinding().getValue(), legFilterCriteria.getSenderParty(), legFilterCriteria.getReceiverParty());
+            checkAgreementMismatch(process, legFilterCriteria);
+            checkInitiatorMismatch(process, processTypePartyExtractor, legFilterCriteria);
+            checkResponderMismatch(process, processTypePartyExtractor, legFilterCriteria);
+            checkInitiatorRoleMismatch(process, legFilterCriteria);
+            checkResponderRoleMismatch(process, legFilterCriteria);
         }
-        LOG.businessError(DomibusMessageCode.BUS_LEG_NAME_NOT_FOUND, agreementName, senderParty, receiverParty, service, action);
-        throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "No matching leg found for service [" + service + "] and action [" + action + "]", null, null);
+        candidateProcesses.removeAll(legFilterCriteria.listProcessesWitMismatchErrors());
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Names of matched processes:[{}]", listProcessNames(candidateProcesses));
+        }
+        return candidateProcesses;
+    }
+
+    private String listProcessNames(List<Process> candidateProcesses) {
+        return (candidateProcesses == null) ? null : candidateProcesses.stream().map(Process::getName).collect(Collectors.joining(","));
+    }
+
+    /**
+     * From a list of {@link Process} filter the set of matching {@link LegConfiguration} - i.e; Legs which do not have any mismatch errors.
+     * The list of {@link Process} should have been prefiltered to ensure match with input message metadata.
+     *
+     * @param matchingProcessesList
+     * @param legFilterCriteria
+     * @return Set of {@link LegConfiguration} having no mismatch errors.
+     */
+    private Set<LegConfiguration> filterMatchingLegConfigurations(List<Process> matchingProcessesList, LegFilterCriteria legFilterCriteria) {
+        Set<LegConfiguration> candidateLegs = new LinkedHashSet<>();
+        matchingProcessesList.forEach(process -> candidateLegs.addAll(process.getLegs()));
+        for (LegConfiguration candidateLeg : candidateLegs) {
+            checkServiceMismatch(candidateLeg, legFilterCriteria);
+            checkActionMismatch(candidateLeg, legFilterCriteria);
+        }
+        candidateLegs.removeAll(legFilterCriteria.listLegConfigurationsWitMismatchErrors());
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Names of matched legs: [{}]", listLegNames(candidateLegs));
+        }
+        return candidateLegs;
+    }
+
+    private String listLegNames(Set<LegConfiguration> candidateLegs) {
+        return (candidateLegs == null) ? null : candidateLegs.stream().map(LegConfiguration::getName).collect(Collectors.joining(","));
+    }
+
+    protected void checkServiceMismatch(LegConfiguration candidateLeg, LegFilterCriteria legFilterCriteria) {
+        if (StringUtils.equalsIgnoreCase(candidateLeg.getService().getName(), legFilterCriteria.getService())) {
+            LOG.debug("Service:[{}] matched for Leg:[{}]", legFilterCriteria.getService(), candidateLeg.getName());
+            return;
+        }
+        legFilterCriteria.appendLegMismatchErrors(candidateLeg, "Service:[" + legFilterCriteria.getService() + DOES_NOT_MATCH_END_STRING);
+    }
+
+    protected void checkActionMismatch(LegConfiguration candidateLeg, LegFilterCriteria legFilterCriteria) {
+        if (StringUtils.equalsIgnoreCase(candidateLeg.getAction().getName(), legFilterCriteria.getAction())) {
+            LOG.debug("Action:[{}] matched for Leg:[{}]", legFilterCriteria.getAction(), candidateLeg.getName());
+            return;
+        }
+        legFilterCriteria.appendLegMismatchErrors(candidateLeg, "Action:[" + legFilterCriteria.getAction() + DOES_NOT_MATCH_END_STRING);
     }
 
     protected boolean matchRole(final Role processRole, final Role role) {
         boolean rolesEnabled = domibusPropertyProvider.getBooleanProperty(DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED);
-        if(!rolesEnabled) {
+        if (!rolesEnabled) {
             LOG.debug("Roles validation disabled");
             return true;
         }
 
         LOG.debug("Role is [{}], process role is [{}] ", role, processRole);
-        if(Objects.equals(role, processRole)) {
+        if (Objects.equals(role, processRole)) {
             LOG.debug("Roles match");
             return true;
         }
 
         LOG.debug("Roles do not match");
         return false;
+    }
+
+    protected void checkInitiatorRoleMismatch(Process process, LegFilterCriteria legFilterCriteria) {
+        if (matchRole(process.getInitiatorRole(), legFilterCriteria.getInitiatorRole())) {
+            LOG.debug("InitiatorRole:[{}] matched for Process:[{}]", legFilterCriteria.getInitiatorRole(), process.getName());
+            return;
+        }
+        legFilterCriteria.appendProcessMismatchErrors(process, "InitiatorRole:[" + legFilterCriteria.getInitiatorRole() + DOES_NOT_MATCH_END_STRING);
+    }
+
+    protected void checkResponderRoleMismatch(Process process, LegFilterCriteria legFilterCriteria) {
+        if (matchRole(process.getResponderRole(), legFilterCriteria.getResponderRole())) {
+            LOG.debug("ResponderRole:[{}] matched for Process:[{}]", legFilterCriteria.getResponderRole(), process.getName());
+            return;
+        }
+        legFilterCriteria.appendProcessMismatchErrors(process, "ResponderRole:[" + legFilterCriteria.getResponderRole() + DOES_NOT_MATCH_END_STRING);
     }
 
     @Override
@@ -528,6 +644,50 @@ public class CachingPModeProvider extends PModeProvider {
     }
 
     @Override
+    public int getRetentionSentByMpcURI(final String mpcURI) {
+        for (final Mpc mpc1 : this.getConfiguration().getMpcs()) {
+            if (StringUtils.equalsIgnoreCase(mpc1.getQualifiedName(), mpcURI)) {
+                return mpc1.getRetentionSent();
+            }
+        }
+
+        LOG.error("No MPC with name: [{}] found. Assuming message retention of -1 for sent messages.", mpcURI);
+
+        return -1;
+    }
+
+    @Override
+    public boolean isDeleteMessageMetadataByMpcURI(final String mpcURI) {
+        for (final Mpc mpc1 : this.getConfiguration().getMpcs()) {
+            if (StringUtils.equalsIgnoreCase(mpc1.getQualifiedName(), mpcURI)) {
+                LOG.debug("Found MPC with name [{}] and isDeleteMessageMetadata [{}]", mpc1.getName(), mpc1.isDeleteMessageMetadata());
+                return mpc1.isDeleteMessageMetadata();
+            }
+        }
+        LOG.error("No MPC with name: [{}] found. Assuming delete message metadata is false.", mpcURI);
+        return false;
+    }
+
+    @Override
+    public int getRetentionMaxBatchByMpcURI(final String mpcURI, final int maxValue) {
+        for (final Mpc mpc1 : this.getConfiguration().getMpcs()) {
+            if (StringUtils.equalsIgnoreCase(mpc1.getQualifiedName(), mpcURI)) {
+                int maxBatch = mpc1.getMaxBatchDelete();
+                LOG.debug("Found MPC with name [{}] and maxBatchDelete [{}]", mpc1.getName(), maxBatch);
+                if(maxBatch == -1 || maxBatch > maxValue) {
+                    LOG.debug("Using default maxBatch value [{}]", maxValue);
+                    return maxValue;
+                }
+                return maxBatch;
+            }
+        }
+
+        LOG.error("No MPC with name: [{}] found. Using default value for message retention batch of [{}].", mpcURI, maxValue);
+
+        return maxValue;
+    }
+
+    @Override
     public List<String> getMpcList() {
         final List<String> result = new ArrayList<>();
         for (final Mpc mpc : this.getConfiguration().getMpcs()) {
@@ -555,7 +715,7 @@ public class CachingPModeProvider extends PModeProvider {
         }
         LOG.businessError(DomibusMessageCode.BUS_PARTY_ROLE_NOT_FOUND, roleValue);
         boolean rolesEnabled = domibusPropertyProvider.getBooleanProperty(DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED);
-        if(rolesEnabled) {
+        if (rolesEnabled) {
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "No matching role found with value: " + roleValue, null, null);
         }
 
@@ -792,7 +952,8 @@ public class CachingPModeProvider extends PModeProvider {
 
     /**
      * Returns the initiator/responder role value of the first process found having the specified service value.
-     * @param roleType the type of the role (either "initiator" or "responder")
+     *
+     * @param roleType     the type of the role (either "initiator" or "responder")
      * @param serviceValue the service value to match
      * @return the role value
      */
@@ -824,6 +985,7 @@ public class CachingPModeProvider extends PModeProvider {
 
     /**
      * Returns the agreement ref of the first process found having the specified service value.
+     *
      * @param serviceValue the service value to match
      * @return the agreement value
      */

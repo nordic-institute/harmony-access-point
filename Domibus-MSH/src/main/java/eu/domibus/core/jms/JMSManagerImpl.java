@@ -3,17 +3,23 @@ package eu.domibus.core.jms;
 import eu.domibus.api.jms.JMSDestination;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
+import eu.domibus.api.messaging.MessageNotFoundException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusConfigurationService;
+import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
+import eu.domibus.common.NotificationType;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.jms.spi.InternalJMSDestination;
 import eu.domibus.jms.spi.InternalJMSManager;
 import eu.domibus.jms.spi.InternalJmsMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.logging.DomibusMessageCode;
+import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -85,6 +91,9 @@ public class JMSManagerImpl implements JMSManager {
 
     @Autowired
     private DomainService domainService;
+
+    @Autowired
+    protected DomibusPropertyProvider domibusPropertyProvider;
 
     @Override
     public SortedMap<String, JMSDestination> getDestinations() {
@@ -267,8 +276,11 @@ public class JMSManagerImpl implements JMSManager {
     }
 
     protected InternalJmsMessage getInternalJmsMessage(JmsMessage message, InternalJmsMessage.MessageType messageType) {
-        final Domain currentDomain = domainContextProvider.getCurrentDomain();
-        message.getProperties().put(MessageConstants.DOMAIN, currentDomain.getCode());
+        final Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
+        if (currentDomain != null) {
+            LOG.debug("Adding jms message property DOMAIN: [{}]", currentDomain.getCode());
+            message.getProperties().put(MessageConstants.DOMAIN, currentDomain.getCode());
+        }
         InternalJmsMessage internalJmsMessage = jmsMessageMapper.convert(message);
         internalJmsMessage.setMessageType(messageType);
         return internalJmsMessage;
@@ -292,6 +304,8 @@ public class JMSManagerImpl implements JMSManager {
 
     @Override
     public void deleteMessages(String source, String[] messageIds) {
+        List<JMSMessageDomainDTO> jmsMessageDomains = getJMSMessageDomain(source, messageIds);
+
         int deleteMessages = internalJmsManager.deleteMessages(source, messageIds);
         if (deleteMessages == 0) {
             throw new IllegalStateException("Failed to delete messages from source [" + source + "]: " + Arrays.toString(messageIds));
@@ -300,12 +314,14 @@ public class JMSManagerImpl implements JMSManager {
             LOG.warn("Not all the JMS messages Ids [{}] were deleted from the source queue [{}]. " +
                     "Actual: [{}], Expected [{}]", messageIds, source, deleteMessages, messageIds.length);
         }
-        LOG.debug("{} Jms Message Ids [{}] deleted from the source queue [{}] ", deleteMessages, messageIds, source);
-        Arrays.asList(messageIds).forEach(m -> auditService.addJmsMessageDeletedAudit(m, source));
+        LOG.debug("Jms Message Ids [{}] deleted from the source queue [{}] ", messageIds, source);
+        jmsMessageDomains.forEach(jmsMessageDomainDTO -> auditService.addJmsMessageDeletedAudit(jmsMessageDomainDTO.getJmsMessageId(),
+                source, jmsMessageDomainDTO.getDomainCode()));
     }
 
     @Override
     public void moveMessages(String source, String destination, String[] messageIds) {
+        List<JMSMessageDomainDTO> jmsMessageDomains = getJMSMessageDomain(source, messageIds);
         int moveMessages = internalJmsManager.moveMessages(source, destination, messageIds);
         if (moveMessages == 0) {
             throw new IllegalStateException("Failed to move messages from source [" + source + "] to destination [" + destination + "]: " + Arrays.toString(messageIds));
@@ -315,7 +331,24 @@ public class JMSManagerImpl implements JMSManager {
                     "Actual: [{}], Expected [{}]", messageIds, source, destination, moveMessages, messageIds.length);
         }
         LOG.debug("{} Jms Message Ids [{}] Moved from the source queue [{}] to the destination queue [{}]", moveMessages, messageIds, source, destination);
-        Arrays.asList(messageIds).forEach(m -> auditService.addJmsMessageMovedAudit(m, source, destination));
+        LOG.debug("Jms Message Ids [{}] Moved from the source queue [{}] to the destination queue [{}]", messageIds, source, destination);
+        jmsMessageDomains.forEach(jmsMessageDomainDTO -> auditService.addJmsMessageMovedAudit(jmsMessageDomainDTO.getJmsMessageId(),
+                source, destination, jmsMessageDomainDTO.getDomainCode()));
+    }
+
+    protected List<JMSMessageDomainDTO> getJMSMessageDomain(String source, String[] messageIds) {
+        return Arrays.stream(messageIds).map(jmsMessageId -> new JMSMessageDomainDTO(jmsMessageId,
+                retrieveDomainFromJMSMessage(source, jmsMessageId))).collect(Collectors.toList());
+    }
+
+    protected String retrieveDomainFromJMSMessage(String source, String jmsMessageId) {
+        if (domibusConfigurationService.isSingleTenantAware()) {
+            LOG.trace("JMS message [{}] doesn't have a domain property", jmsMessageId);
+            return null;
+        }
+        //retrieve the domain
+        JmsMessage jmsMessage = getMessage(source, jmsMessageId);
+        return jmsMessage.getProperty(MessageConstants.DOMAIN);
     }
 
     @Override
@@ -365,5 +398,77 @@ public class JMSManagerImpl implements JMSManager {
             return StringUtils.indexOfAny(jmsQueueInternalName, queuesToCheck.stream().toArray(String[]::new)) >= 0;
         }
         return false;
+    }
+
+    @Override
+    public Collection<String> listPendingMessages(String queueName) {
+        LOG.debug("Listing pending messages for queue [{}]", queueName);
+
+        if (!authUtils.isUnsecureLoginAllowed()) {
+            authUtils.hasUserOrAdminRole();
+        }
+
+        String originalUser = authUtils.getOriginalUserFromSecurityContext();
+        LOG.info("Authorized as [{}]", originalUser == null ? "super user" : originalUser);
+
+
+        /* if originalUser is null, all messages are returned */
+        return getQueueElements(queueName, NotificationType.MESSAGE_RECEIVED, originalUser);
+    }
+
+    protected Collection<String> getQueueElements(String queueName, final NotificationType notificationType, final String finalRecipient) {
+        final Collection<String> result = browseQueue(queueName, notificationType, finalRecipient);
+        return result;
+    }
+
+    protected Collection<String> browseQueue(String queueName, final NotificationType notificationType, final String finalRecipient) {
+        final Collection<String> result = new ArrayList<>();
+        final int intMaxPendingMessagesRetrieveCount = domibusPropertyProvider.getIntegerProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_LIST_PENDING_MESSAGES_MAX_COUNT);
+        LOG.debug("Using maxPendingMessagesRetrieveCount [{}] limit", intMaxPendingMessagesRetrieveCount);
+
+        String selector = MessageConstants.NOTIFICATION_TYPE + "='" + notificationType.name() + "'";
+
+        if (finalRecipient != null) {
+            selector += " and " + MessageConstants.FINAL_RECIPIENT + "='" + finalRecipient + "'";
+        }
+        selector = getDomainSelector(selector);
+
+        List<JmsMessage> messages = browseClusterMessages(queueName, selector);
+        LOG.info("[{}] messages selected from queue [{}] with selector [{}]", (messages != null ? messages.size() : 0), queueName, selector);
+
+        int countOfMessagesIncluded = 0;
+        for (JmsMessage message : messages) {
+            String messageId = message.getCustomStringProperty(MessageConstants.MESSAGE_ID);
+            result.add(messageId);
+            countOfMessagesIncluded++;
+            LOG.debug("Added MessageId [" + messageId + "]");
+            if ((intMaxPendingMessagesRetrieveCount != 0) && (countOfMessagesIncluded >= intMaxPendingMessagesRetrieveCount)) {
+                LOG.info("Limit of pending messages to return has been reached [" + countOfMessagesIncluded + "]");
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    @Override
+    @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
+    public void removeFromPending(String queueName, String messageId) throws MessageNotFoundException {
+        if (!authUtils.isUnsecureLoginAllowed()) {
+            authUtils.hasUserOrAdminRole();
+        }
+
+        //add messageId to MDC map
+        if (StringUtils.isNotBlank(messageId)) {
+            LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
+        }
+
+        JmsMessage message = consumeMessage(queueName, messageId);
+        if (message == null) {
+            LOG.businessError(DomibusMessageCode.BUS_MSG_NOT_FOUND, messageId);
+            throw new MessageNotFoundException("No message with id [" + messageId + "] pending for download");
+        }
+        LOG.businessInfo(DomibusMessageCode.BUS_MSG_CONSUMED, messageId, queueName);
+
     }
 }

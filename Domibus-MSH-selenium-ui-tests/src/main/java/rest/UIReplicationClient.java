@@ -20,17 +20,11 @@ public class UIReplicationClient extends BaseRestClient {
 		
 		ClientResponse response = requestGET(resource.path(RestServicePaths.UI_REPLICATION_COUNT), null);
 		
-		int status = response.getStatus();
-		String content = response.getEntity(String.class);
-		
-		log.debug("status = " + status);
-		log.debug("content = " + content);
-		
-		if(status != 200){
-			throw new Exception("Could not get ui replication count");
+		if(response.getStatus() != 200){
+			throw new DomibusRestException("Could not get ui replication count", response);
 		}
 		
-		return sanitizeResponse(content);
+		return sanitizeResponse(response.getEntity(String.class));
 	}
 	
 	public String sync(String domain) throws Exception {
@@ -38,17 +32,11 @@ public class UIReplicationClient extends BaseRestClient {
 		
 		ClientResponse response = requestGET(resource.path(RestServicePaths.UI_REPLICATION_SYNC), null);
 		
-		int status = response.getStatus();
-		String content = response.getEntity(String.class);
-		
-		log.debug("status = " + status);
-		log.debug("content = " + content);
-		
-		if(status != 200){
-			throw new Exception("Could not get ui replication count");
+		if(response.getStatus() != 200){
+			throw new DomibusRestException("Could not get ui replication count", response);
 		}
 		
-		return sanitizeResponse(content);
+		return sanitizeResponse(response.getEntity(String.class));
 	}
 	
 	public int extractNoOfRecords(String mess){

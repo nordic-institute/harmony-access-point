@@ -22,13 +22,12 @@ import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.utils.SelectorTranslator;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jms.core.BrowserCallback;
 import org.springframework.jms.core.JmsOperations;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.Resource;
 import javax.jms.Queue;
 import javax.jms.*;
 import javax.management.MBeanServer;
@@ -431,10 +430,10 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
         result.setPriority(jmsPriority);
         Enumeration propertyNames = textMessage.getPropertyNames();
 
-        Map<String, Object> properties = new HashMap<>();
+        Map<String, String> properties = new HashMap<>();
         while (propertyNames.hasMoreElements()) {
             String name = (String) propertyNames.nextElement();
-            Object objectProperty = textMessage.getObjectProperty(name);
+            String objectProperty = textMessage.getStringProperty(name);
             properties.put(name, objectProperty);
         }
         properties.put(JMS_PRIORITY, String.valueOf(jmsPriority));
@@ -453,11 +452,11 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
         result.setPriority(mapMessage.getJMSPriority());
         result.setId(mapMessage.getJMSMessageID());
 
-        Map<String, Object> properties = new HashMap<>();
+        Map<String, String> properties = new HashMap<>();
         Enumeration<String> propertyNames = mapMessage.getPropertyNames();
         while (propertyNames.hasMoreElements()) {
             String mapKey = propertyNames.nextElement();
-            properties.put(mapKey, mapMessage.getObjectProperty(mapKey));
+            properties.put(mapKey, mapMessage.getStringProperty(mapKey));
         }
         result.setProperties(properties);
         return result;
@@ -473,6 +472,7 @@ public class InternalJMSManagerWildFlyArtemis implements InternalJMSManager {
         }
     }
 
+    @Transactional
     @Override
     public InternalJmsMessage consumeMessage(String source, String customMessageId) {
 

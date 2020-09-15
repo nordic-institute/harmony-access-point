@@ -11,6 +11,7 @@ import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.message.*;
 import eu.domibus.core.message.nonrepudiation.RawEnvelopeLogDao;
+import eu.domibus.core.message.retention.MessageRetentionService;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.plugin.notification.NotificationStatus;
 import eu.domibus.core.pmode.provider.PModeProvider;
@@ -38,7 +39,6 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 @Service
 public class UpdateRetryLoggingService {
 
-    public static final String DELETE_PAYLOAD_ON_SEND_FAILURE = DOMIBUS_SEND_MESSAGE_FAILURE_DELETE_PAYLOAD;
     public static final String MESSAGE_EXPIRATION_DELAY = DOMIBUS_MSH_RETRY_MESSAGE_EXPIRATION_DELAY;
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UpdateRetryLoggingService.class);
@@ -72,6 +72,9 @@ public class UpdateRetryLoggingService {
 
     @Autowired
     protected PModeProvider pModeProvider;
+
+    @Autowired
+    MessageRetentionService messageRetentionService;
 
 
     /**
@@ -197,19 +200,8 @@ public class UpdateRetryLoggingService {
         }
 
         userMessageLogService.setMessageAsSendFailure(userMessage, userMessageLog);
-
-        if (shouldDeletePayloadOnSendFailure(userMessage)) {
-            messagingDao.clearPayloadData(userMessage);
-        }
+        messageRetentionService.deletePayloadOnSendFailure(userMessage, userMessageLog);
     }
-
-    protected boolean shouldDeletePayloadOnSendFailure(UserMessage userMessage) {
-        if (userMessage.isUserMessageFragment()) {
-            return true;
-        }
-        return domibusPropertyProvider.getBooleanProperty(DELETE_PAYLOAD_ON_SEND_FAILURE);
-    }
-
 
     @Transactional
     public void updateWaitingReceiptMessageRetryLogging(final String messageId, final LegConfiguration legConfiguration) {

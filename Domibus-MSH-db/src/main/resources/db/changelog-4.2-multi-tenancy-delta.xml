@@ -125,4 +125,52 @@
         </addColumn>
     </changeSet>
 
+    <changeSet id="EDELIVERY-6924" author="Ion Perpegel">
+
+        <createTable tableName="TB_COMMAND" remarks="Stores commands to be executed by different nodes in clustered environments">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_TB_COMMAND"/>
+            </column>
+            <column name="SERVER_NAME" type="VARCHAR(255)" remarks="The target server name">
+                <constraints nullable="false"/>
+            </column>
+            <column name="COMMAND_NAME" type="VARCHAR(255)" remarks="The command name">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+        </createTable>
+
+        <createTable tableName="TB_COMMAND_PROPERTY" remarks="Stores properties/parameters of the commands to be executed by different nodes in clustered environments">
+            <column name="PROPERTY_NAME" type="VARCHAR(50)" remarks="The property name">
+                <constraints nullable="false"/>
+            </column>
+            <column name="PROPERTY_VALUE" type="VARCHAR(255)" remarks="The property value"/>
+            <column name="FK_COMMAND" type="BIGINT" remarks="Reference to the parent command">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+        </createTable>
+
+        <addUniqueConstraint columnNames="FK_COMMAND, PROPERTY_NAME" constraintName="UNI_COMMAND_PROP_NAME"
+                             tableName="TB_COMMAND_PROPERTY"/>
+
+        <addForeignKeyConstraint baseColumnNames="FK_COMMAND" baseTableName="TB_COMMAND_PROPERTY"
+                                 constraintName="FK_COMMAND_PROPERTY_ID" deferrable="false"
+                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_COMMAND"/>
+    </changeSet>
 </databaseChangeLog>

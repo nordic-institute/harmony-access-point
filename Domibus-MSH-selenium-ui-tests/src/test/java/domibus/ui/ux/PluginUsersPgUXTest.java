@@ -1,21 +1,25 @@
 package domibus.ui.ux;
 
 import ddsl.dcomponents.grid.DGrid;
+import ddsl.dcomponents.popups.Dialog;
+import ddsl.dobjects.DButton;
 import ddsl.enums.DMessages;
 import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
 import domibus.ui.SeleniumTest;
 import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.lang.RandomStringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.plugin_users.PluginUserModal;
 import pages.plugin_users.PluginUsersPage;
-import utils.Generator;
+import utils.Gen;
 import utils.TestUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -90,6 +94,7 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 		
 		PluginUsersPage page = new PluginUsersPage(driver);
 		page.getSidebar().goToPage(PAGES.PLUGIN_USERS);
+		page.refreshPage();
 		page.grid().waitForRowsToLoad();
 		
 		log.info("editing user");
@@ -146,8 +151,8 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 	/*	PU-11 - Admin wants to edit certificate ID	*/
 	@Test(description = "PU-11", groups = {"multiTenancy", "singleTenancy"})
 	public void editCertificateID() throws Exception {
-		String certName = Generator.randomAlphaNumeric(5);
-		String id = Generator.randomAlphaNumeric(5);
+		String certName = Gen.randomAlphaNumeric(5);
+		String id = Gen.randomAlphaNumeric(5);
 		String username = String.format("CN=%s,O=eDelivery,C=BE:%s", certName, id);
 		rest.pluginUsers().createCertPluginUser(username, DRoles.USER, null);
 		log.info("testing for user " + username);
@@ -155,6 +160,7 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 		SoftAssert soft = new SoftAssert();
 		PluginUsersPage page = new PluginUsersPage(driver);
 		page.getSidebar().goToPage(PAGES.PLUGIN_USERS);
+		page.grid().waitForRowsToLoad();
 		
 		log.info("changing to auth type CERTIFICATE");
 		page.filters().getAuthTypeSelect().selectOptionByText("CERTIFICATE");
@@ -173,9 +179,9 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 	}
 	
 	
-	@Test(description = "PU-11", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "PU-11-1", groups = {"multiTenancy", "singleTenancy"})
 	public void createPluginUserFieldValidations() throws Exception {
-		String username = Generator.randomAlphaNumeric(10);
+		String username = Gen.randomAlphaNumeric(10);
 		SoftAssert soft = new SoftAssert();
 		
 		PluginUsersPage page = new PluginUsersPage(driver);
@@ -195,15 +201,15 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 		soft.assertEquals(pum.getOriginalUserErrMess().getText(), DMessages.PLUGIN_USER_ORIGINAL_USER_INVALID, "Original user is not valid");
 		pum.getOriginalUserInput().clear();
 
-//		pum.getPasswordInput().click();
-//		pum.getPasswordInput().pressTABKey();
-//		errMess = pum.getPassErrMess().getText();
-//		soft.assertEquals(errMess, DMessages.PASS_EMPTY_MESSAGE, "Password should NOT empty");
-//
-//		pum.getConfirmationInput().click();
-//		pum.getConfirmationInput().pressTABKey();
-//		errMess = pum.getConfirmationErrMess().getText();
-//		soft.assertEquals(errMess, DMessages.PASS_EMPTY_MESSAGE, "Password should NOT empty");
+		pum.getPasswordInput().click();
+		pum.changeFocus();
+		errMess = pum.getPassErrMess().getText();
+		soft.assertEquals(errMess, DMessages.PASS_EMPTY_MESSAGE, "Password should NOT empty");
+
+		pum.getConfirmationInput().click();
+		pum.changeFocus();
+		errMess = pum.getConfirmationErrMess().getText();
+		soft.assertEquals(errMess, DMessages.PASS_EMPTY_MESSAGE, "Password should NOT empty");
 		
 		pum.getPasswordInput().click();
 		pum.getPasswordInput().fill("test");
@@ -213,11 +219,14 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 		
 		pum.getPasswordInput().click();
 		pum.getPasswordInput().fill(data.defaultPass());
-		pum.getPasswordInput().pressTABKey();
+		pum.changeFocus();
 		pum.getConfirmationInput().fill("lksjdlkfdskj");
 		pum.getPasswordInput().click();
 		errMess = pum.getConfirmationErrMess().getText();
 		soft.assertEquals(errMess, DMessages.PASS_NO_MATCH_MESSAGE, "Password and confirmation should match.");
+		
+		pum.getRolesSelect().expand();
+		pum.getRolesSelect().contract();
 		
 		soft.assertEquals(pum.getRoleErrMess().getText(), DMessages.ROLE_EMPTY, "Role cannot be empty.");
 		pum.getRolesSelect().selectOptionByIndex(0);
@@ -231,7 +240,7 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 	public void filterPluginUserList() throws Exception {
 		List<String> usernames = new ArrayList<>();
 		for (int i = 0; i < 5; i++) {
-			String username = Generator.randomAlphaNumeric(10);
+			String username = Gen.randomAlphaNumeric(10);
 			rest.pluginUsers().createPluginUser(username, DRoles.USER, data.defaultPass(), null);
 			usernames.add(username);
 		}
@@ -488,6 +497,90 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 		
 		soft.assertAll();
 	}
+	
+	
+	
+	
+	
+	/**
+	 * This method will verify presence of confirmation pop up on clicking save button for Basic and Certificate
+	 * authentication type plugin user
+	 */
+	@Test(description = "PU-35", groups = {"multiTenancy", "singleTenancy"})
+	public void verifyConfPopUp() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		String username = Gen.randomAlphaNumeric(5);
+		
+		PluginUsersPage page = new PluginUsersPage(driver);
+		page.getSidebar().goToPage(PAGES.PLUGIN_USERS);
+		
+		List<String> authType = page.filters.getAuthTypeSelect().getOptionsTexts();
+		for (String auth : authType) {
+			// check scenario for both types of plugin users
+			page.filters.getAuthTypeSelect().selectOptionByText(auth);
+			log.info("checking Cancel button state");
+			soft.assertFalse(page.getCancelBtn().isEnabled(), "Cancel button is disabled on page load");
+			
+			if (page.filters.getAuthTypeSelect().getSelectedValue().equals("BASIC")) {
+				
+				log.info("filling form for new user  for BASIC auth type" + username);
+				page.newUser(username, DRoles.ADMIN, data.defaultPass(), data.defaultPass());
+			} else {
+				String certUserName = "CN=" + Gen.randomAlphaNumeric(1) + "," + "O=" + Gen.randomAlphaNumeric(2) +
+						"," + "C=" + RandomStringUtils.random(2, true, false) + ":" + Gen.randomNumber(2);
+				
+				log.info("filling form for new cert user for CERTIFICATION auth type :" + certUserName);
+				page.newCertUser(certUserName, DRoles.ADMIN);
+			}
+			page.grid().waitForRowsToLoad();
+			log.info("checking Cancel button state");
+			soft.assertTrue(page.getCancelBtn().isEnabled(), "Cancel button is enabled after new user creation");
+			page.getSaveBtn().click();
+			new Dialog(driver).confirm();
+			
+			page.grid().waitForRowsToLoad();
+		}
+		soft.assertAll();
+	}
+	
+	/**
+	 * PU-34 - This method will verify addition of Plugin user with username "SUPER" and error for user with "super"
+	 * as username
+	 */
+	@Test(description = "PU-34", groups = {"multiTenancy"})
+	public void addSUPERPluginUsr() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		List<String> usernames = Arrays.asList(new String[]{"super", "SUPER"});
+
+		PluginUsersPage page = new PluginUsersPage(driver);
+		page.getSidebar().goToPage(PAGES.PLUGIN_USERS);
+
+		for (String userToAdd : usernames) {
+			log.info("Username to be added" + userToAdd);
+			page.newUser(userToAdd, DRoles.ADMIN, data.defaultPass(), data.defaultPass());
+			page.getSaveBtn().click();
+			new DButton(driver, new Dialog(driver).yesBtn).click();
+
+			if (userToAdd.equals("super")) {
+				soft.assertTrue(page.getAlertArea().getAlertMessage().contains("name already exists"), "Error message is shown");
+				page.getCancelBtn().click();
+				new DButton(driver, new Dialog(driver).yesBtn).click();
+			} else {
+				soft.assertTrue(page.getAlertArea().getAlertMessage().contains("success"), "Success message is shown");
+
+				log.info("Logout and login again to confirm super user details remain same after addition of SUPER plugin user");
+				logout();
+				login(data.getAdminUser());
+			}
+			page.refreshPage();
+			page.grid().waitForRowsToLoad();
+			soft.assertAll();
+		}
+	}
+	
+	
+	
+	
 	
 	
 }

@@ -85,6 +85,8 @@
 			<action name="dynAction4" value="ehealth-resid-qns::urn::epsos##services:extended:epsos::109"/>
 			<action name="dynAction5" value="ehealth-resid-qns::urn::epsos##services:extended:epsos::110"/>
 			<action name="dynAction6" value="ehealth-resid-qns::urn::epsos##services:extended:epsos::111"/>
+			<action name="dynAction7" value="ehealth-resid-qns::urn::epsos##services:extended:epsos::112"/>
+			<action name="dynAction8" value="ehealth-resid-qns::urn::epsos##services:extended:epsos::113"/>
         </actions>
         <as4>
             <receptionAwareness name="receptionAwareness" retry="12;4;CONSTANT" duplicateDetection="true"/>
@@ -106,6 +108,8 @@
 			<legConfiguration name="dynamicLeg4" service="dynService" action="dynAction4" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy_BST" receptionAwareness="receptionAwareness" propertySet="eDeliveryPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
 			<legConfiguration name="dynamicLeg5" service="dynService" action="dynAction5" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy_BST" receptionAwareness="receptionAwareness" propertySet="eDeliveryPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
 			<legConfiguration name="dynamicLeg6" service="dynService" action="dynAction6" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy_BST" receptionAwareness="receptionAwareness" propertySet="eDeliveryPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
+			<legConfiguration name="dynamicLeg7" service="dynService" action="dynAction7" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy_BST" receptionAwareness="receptionAwareness" propertySet="eDeliveryPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
+			<legConfiguration name="dynamicLeg8" service="dynService" action="dynAction8" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy_BST" receptionAwareness="receptionAwareness" propertySet="eDeliveryPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
 
         </legConfigurations>
         <process name="tc1Process"
@@ -167,6 +171,30 @@
             <legs>
                 <leg name="dynamicLeg6"/>
             </legs>
-        </process>		
+        </process>
+        <process name="tc7Process"
+                 mep="oneway"
+                 binding="push"
+                 initiatorRole="defaultInitiatorRole"
+                 responderRole="defaultResponderRole">
+            <initiatorParties>
+                <initiatorParty name="blue_gw"/>
+            </initiatorParties>
+            <legs>
+                <leg name="dynamicLeg7"/>
+            </legs>
+        </process>			
+        <process name="tc8Process"
+                 mep="oneway"
+                 binding="push"
+                 initiatorRole="defaultInitiatorRole"
+                 responderRole="defaultResponderRole">
+            <initiatorParties>
+                <initiatorParty name="blue_gw"/>
+            </initiatorParties>
+            <legs>
+                <leg name="dynamicLeg8"/>
+            </legs>
+        </process>	
     </businessProcesses>
 </db:configuration>

@@ -1,8 +1,8 @@
 package eu.domibus.jms.activemq;
 
 import eu.domibus.api.cluster.CommandProperty;
-import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.jms.JMSDestinationHelper;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.server.ServerInfoService;
 import eu.domibus.jms.spi.InternalJMSDestination;
@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jms.core.JmsOperations;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import javax.jms.Queue;
@@ -272,17 +273,16 @@ public class InternalJMSManagerActiveMQ implements InternalJMSManager {
         String jmsMessageId = getCompositeValue(data, "JMSMessageID");
         result.setId(jmsMessageId);
 
-        Map<String, Object> properties = new HashMap<>();
+        Map<String, String> properties = new HashMap<>();
 
         Integer priority = getCompositeValue(data, JMS_PRIORITY);
         result.setPriority(priority);
-        if(priority != null) {
+        if (priority != null) {
             properties.put(JMS_PRIORITY, String.valueOf(priority));
         }
 
         String textValue = getCompositeValue(data, "Text");
         result.setContent(textValue);
-
 
 
         Set<String> allPropertyNames = data.getCompositeType().keySet();
@@ -295,11 +295,11 @@ public class InternalJMSManagerActiveMQ implements InternalJMSManager {
                 }
             }
             if (propertyValue instanceof Map) {
-                Collection<CompositeDataSupport> values = ((Map)propertyValue).values();
+                Collection<CompositeDataSupport> values = ((Map) propertyValue).values();
                 for (CompositeDataSupport compositeDataSupport : values) {
                     String key = (String) compositeDataSupport.get("key");
                     Object value = compositeDataSupport.get("value");
-                    properties.put(key, value);
+                    properties.put(key, String.valueOf(value));
                 }
             }
         }
@@ -318,6 +318,7 @@ public class InternalJMSManagerActiveMQ implements InternalJMSManager {
         }
     }
 
+    @Transactional
     @Override
     public InternalJmsMessage consumeMessage(String source, String customMessageId) {
 
@@ -385,11 +386,11 @@ public class InternalJMSManagerActiveMQ implements InternalJMSManager {
         result.setPriority(textMessage.getJMSPriority());
         Enumeration propertyNames = textMessage.getPropertyNames();
 
-        Map<String, Object> properties = new HashMap<>();
+        Map<String, String> properties = new HashMap<>();
         while (propertyNames.hasMoreElements()) {
             String name = (String) propertyNames.nextElement();
-            Object objectProperty = textMessage.getObjectProperty(name);
-            properties.put(name, objectProperty);
+            String value = textMessage.getStringProperty(name);
+            properties.put(name, value);
         }
         result.setProperties(properties);
         return result;
