@@ -129,7 +129,7 @@ public class PayloadProfilesValidatorTest {
             result = "BusinessContentAttachment";
 
             payloadProfile.getMaxSize();
-            result = -20;
+            result = 20;
         }};
 
         payloadProfilesValidator.validatePayloadProfile(payloadProfile, validPayloads);
