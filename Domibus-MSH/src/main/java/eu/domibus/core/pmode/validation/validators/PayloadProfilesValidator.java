@@ -49,7 +49,7 @@ public class PayloadProfilesValidator implements PModeValidator {
         // attachments should correspond to existing payloads
         if (!CollectionUtils.isEmpty(attachmentList)) {
             attachmentList.stream()
-                    .filter(attachment -> validPayloads.stream().noneMatch(payload -> payload.getName().equals(attachment.getName())))
+                    .filter(attachment -> validPayloads.stream().noneMatch(payload -> payload.getName().equalsIgnoreCase(attachment.getName())))
                     .forEach(attachment -> issues.add(createIssue(payloadProfile, attachment.getName(),
                             "Attachment [%s] of payload profile [%s] not found among the defined payloads")));
         }
