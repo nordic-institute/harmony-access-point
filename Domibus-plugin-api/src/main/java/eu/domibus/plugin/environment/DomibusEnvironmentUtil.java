@@ -14,6 +14,9 @@ public class DomibusEnvironmentUtil {
 
     public static DomibusEnvironmentUtil INSTANCE = new DomibusEnvironmentUtil();
 
+    private DomibusEnvironmentUtil() {
+    }
+
     /**
      * Return true in case the current server is matching the provided one
      *
