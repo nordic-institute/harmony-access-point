@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Abstract class extended by alert configuration managers
- * Implements most methods from the AlertConfigurationManager interface by the help of the Loader class and read0configuration method
+ * Implements most methods from the AlertConfigurationManager interface by the help of the Loader class and readConfiguration method
  * Used to avoid duplicating the same code across those managers
  *
  * @author Ion Perpegel
