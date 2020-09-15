@@ -257,14 +257,15 @@ export class JmsComponent extends mix(BaseListComponent)
       return;
     }
 
-    const dialogRef: MatDialogRef<MoveDialogComponent> = this.dialog.open(MoveDialogComponent);
-    if (this.isDLQQueue()) {
-      this.handleDLQQueueMoving(elements, dialogRef);
-    } else {
-      dialogRef.componentInstance.queues.push(...this.queues);
-    }
+    // if (this.isDLQQueue()) {
+    //   queues = this.getAllPossibleQueues(elements);
+    // } else {
+    //   dialogRef.componentInstance.queues.push(...this.queues);
+    // }
 
-    dialogRef.afterClosed().subscribe(result => {
+    const queues = this.getAllPossibleQueues(elements);
+    this.dialog.open(MoveDialogComponent, {data: {queues: queues}})
+      .afterClosed().subscribe(result => {
       if (result && result.destination) {
         const messageIds = elements.map((message) => message.id);
         this.serverMove(this.currentSearchSelectedSource.name, result.destination, messageIds);
@@ -272,27 +273,27 @@ export class JmsComponent extends mix(BaseListComponent)
     });
   }
 
-  private handleDLQQueueMoving(elements: any[], dialogRef: MatDialogRef<MoveDialogComponent>) {
-    if (elements.length > 1) {
-      dialogRef.componentInstance.queues.push(...this.queues);
-    } else { // just one element
-      try {
-        const message = elements[0];
-        const originalQueue = message.customProperties.originalQueue;
-        if (originalQueue) {
-          // EDELIVERY-2814
-          const originalQueueName = originalQueue.substr(originalQueue.indexOf('!') + 1);
-          const queues = this.queues.filter((queue) => queue.name.indexOf(originalQueueName) !== -1);
-          dialogRef.componentInstance.setQueues(queues);
-        }
-      } catch (e) {
-        console.error(e);
-      }
-      if (dialogRef.componentInstance.queues.length === 0) {
-        console.warn('Unable to determine the original queue for the selected messages');
-        dialogRef.componentInstance.queues.push(...this.queues);
-      }
+  private getAllPossibleQueues(messages: any[]) {
+    if (!this.isDLQQueue()) {
+      return this.queues;
     }
+
+    if (messages.length > 1) {
+      return this.queues;
+    }
+
+    // just one element
+    const message = messages[0];
+    const originalQueue = message.customProperties.originalQueue;
+    if (originalQueue) {
+      // EDELIVERY-2814
+      const originalQueueName = originalQueue.substr(originalQueue.indexOf('!') + 1);
+      const queues = this.queues.filter((queue) => queue.name.indexOf(originalQueueName) !== -1);
+      return queues;
+    }
+
+    console.warn('Unable to determine the original queue for the selected messages');
+    return this.queues;
   }
 
   private isDLQQueue() {
