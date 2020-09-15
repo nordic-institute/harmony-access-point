@@ -183,7 +183,7 @@ public class DynamicDiscoveryServiceOASIS implements DynamicDiscoveryService {
         // ebMS 3.0  PartyId/@type is null value!
         if (propVal==null) {
             propVal = URN_TYPE_VALUE;
-        } else if (propVal.isEmpty()) {
+        } else if (StringUtils.isEmpty(propVal)) {
             propVal = null;
         }
         return propVal;

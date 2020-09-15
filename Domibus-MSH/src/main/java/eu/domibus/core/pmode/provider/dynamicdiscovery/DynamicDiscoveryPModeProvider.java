@@ -359,7 +359,11 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
         String type = dynamicDiscoveryService.getPartyIdType();
         LOG.debug("Set DDC value to TO PartyId: Value: [{}], type: [{}].", cn, type);
         receiverParty.setValue(cn);
-        receiverParty.setType(type);
+        // double check not to add empty value as a type
+        // because it is invalid by the oasis messaging  xsd
+        if (!StringUtils.isEmpty(type)) {
+            receiverParty.setType(type);
+        }
 
         userMessage.getPartyInfo().getTo().getPartyId().clear();
         userMessage.getPartyInfo().getTo().getPartyId().add(receiverParty);
