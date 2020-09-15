@@ -412,15 +412,26 @@ public class DynamicDiscoveryServiceOASISTest {
     }
 
     @Test
-    public void getPartyIdTypeTest() {
+    public void getPartyIdTypeTestForNull() {
         final String URN_TYPE_VALUE = "urn:oasis:names:tc:ebcore:partyid-type:unregistered";
+        new Expectations() {{
+            domibusPropertyProvider.getProperty(DYNAMICDISCOVERY_PARTYID_TYPE);
+            result = null;
+            times = 1;
+        }};
+        String partyIdType = dynamicDiscoveryServiceOASIS.getPartyIdType();
+        Assert.assertEquals(partyIdType, URN_TYPE_VALUE);
+    }
+
+    @Test
+    public void getPartyIdTypeTestForEmpty() {
         new Expectations() {{
             domibusPropertyProvider.getProperty(DYNAMICDISCOVERY_PARTYID_TYPE);
             result = "";
             times = 1;
         }};
         String partyIdType = dynamicDiscoveryServiceOASIS.getPartyIdType();
-        Assert.assertEquals(partyIdType, URN_TYPE_VALUE);
+        Assert.assertNull(partyIdType);
     }
 
     @Test
