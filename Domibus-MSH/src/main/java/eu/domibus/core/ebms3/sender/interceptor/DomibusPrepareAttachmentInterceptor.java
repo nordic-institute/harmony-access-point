@@ -8,12 +8,14 @@ import org.apache.cxf.endpoint.ClientImpl;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.ws.policy.PolicyInInterceptor;
+import org.springframework.stereotype.Service;
 
 /**
  * 
  * @author Cosmin Baciu
  * @since 4.1
  */
+@Service("domibusPrepareAttachmentInterceptor")
 public class DomibusPrepareAttachmentInterceptor extends AbstractSoapInterceptor {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusPrepareAttachmentInterceptor.class);
 

@@ -4,6 +4,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.ext.logging.LoggingOutInterceptor;
 import org.apache.cxf.phase.Phase;
+import org.springframework.stereotype.Service;
 
 /**
  * Out Interceptor for Apache CXF Http headers
@@ -11,6 +12,7 @@ import org.apache.cxf.phase.Phase;
  * @author Catalin Enache
  * @since 4.2
  */
+@Service("httpHeaderOutInterceptor")
 public class HttpHeaderOutInterceptor extends HttpHeaderAbstractInterceptor {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(HttpHeaderOutInterceptor.class);
 

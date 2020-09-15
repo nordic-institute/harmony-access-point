@@ -17,11 +17,9 @@ import eu.domibus.logging.DomibusMessageCode;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.ws.policy.PolicyException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import javax.xml.namespace.QName;
-import javax.xml.soap.SOAPEnvelope;
-import javax.xml.soap.SOAPException;
-import javax.xml.soap.SOAPHeader;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.MessageContext;
@@ -35,6 +33,7 @@ import java.util.Set;
  *
  * @author Christian Koch, Stefan Mueller
  */
+@Service
 public class FaultInHandler extends AbstractFaultHandler {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FaultInHandler.class);
 

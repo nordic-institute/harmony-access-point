@@ -13,10 +13,11 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
  */
 @Configuration("domibusConfiguration")
 @ImportResource({
-        "classpath:META-INF/cxf/cxf.xml",
         "classpath:META-INF/cxf/cxf-extension-jaxws.xml",
         "classpath:META-INF/cxf/cxf-servlet.xml",
-        "classpath*:META-INF/resources/WEB-INF/spring-context.xml"
+        "classpath*:config/*-plugin.xml",
+        "file:///${domibus.config.location}/plugins/config/*-plugin.xml",
+        "classpath*:META-INF/resources/WEB-INF/cxf-endpoint.xml"
 })
 @ComponentScan(
         basePackages = "eu.domibus",

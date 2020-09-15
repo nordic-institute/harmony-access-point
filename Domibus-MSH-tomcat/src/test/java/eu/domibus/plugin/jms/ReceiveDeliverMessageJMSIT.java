@@ -43,7 +43,7 @@ public class ReceiveDeliverMessageJMSIT extends AbstractBackendJMSIT {
 
 
     @Autowired
-    private BackendJMSImpl backendJMSImpl;
+    private JMSPluginImpl JMSPluginImpl;
 
     @Autowired
     private ConnectionFactory xaJmsConnectionFactory;
@@ -83,7 +83,7 @@ public class ReceiveDeliverMessageJMSIT extends AbstractBackendJMSIT {
         mapMessage.setStringProperty(MESSAGE_ID, messageId); // Cleaning the message ID since it is supposed to submit a new message.
         mapMessage.setStringProperty(JMSMessageConstants.JMS_BACKEND_MESSAGE_TYPE_PROPERTY_KEY, JMSMessageConstants.MESSAGE_TYPE_SUBMIT);
         // The downloaded MapMessage is used as input parameter for the real Test case here!
-        backendJMSImpl.receiveMessage(mapMessage);
+        JMSPluginImpl.receiveMessage(mapMessage);
         // Verifies that the message is really in the queue
         javax.jms.Connection connection = xaJmsConnectionFactory.createConnection("domibus", "changeit");
         connection.start();
@@ -142,7 +142,7 @@ public class ReceiveDeliverMessageJMSIT extends AbstractBackendJMSIT {
 
         final MapMessage mapMessage = new ActiveMQMapMessage();
 
-        backendJMSImpl.downloadMessage(messageId, mapMessage);
+        JMSPluginImpl.downloadMessage(messageId, mapMessage);
         return mapMessage;
     }
 
@@ -164,7 +164,7 @@ public class ReceiveDeliverMessageJMSIT extends AbstractBackendJMSIT {
         System.out.println("MapMessage: " + mapMessage);
         mapMessage.setStringProperty(JMSMessageConstants.JMS_BACKEND_MESSAGE_TYPE_PROPERTY_KEY, JMSMessageConstants.MESSAGE_TYPE_SUBMIT);
         // The downloaded MapMessage is used as input parameter for the real Test case here!
-        backendJMSImpl.receiveMessage(mapMessage);
+        JMSPluginImpl.receiveMessage(mapMessage);
         // Verifies that the message is really in the queue
         javax.jms.Connection connection = xaJmsConnectionFactory.createConnection("domibus", "changeit");
         connection.start();

@@ -1,6 +1,6 @@
 package eu.domibus.jms.weblogic;
 
-import eu.domibus.api.jms.JMSConstants;
+import eu.domibus.common.JMSConstants;
 import eu.domibus.jms.spi.helper.PriorityJmsTemplate;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;

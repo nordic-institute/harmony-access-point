@@ -53,6 +53,11 @@
             <artifactId>domibus-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>eu.domibus</groupId>
+            <artifactId>domibus-plugin-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!-- Start Artemis provided dependencies -->
         <dependency>
             <groupId>org.apache.activemq</groupId>

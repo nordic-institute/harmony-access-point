@@ -1,5 +1,6 @@
 package eu.domibus.plugin.fs.queue;
 
+import eu.domibus.common.JMSConstants;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -39,7 +40,7 @@ public class FSMessageListenerContainerConfiguration {
     private FSSendMessageListener fsSendMessageListener;
 
     @Autowired
-    @Qualifier("domibusJMS-XAConnectionFactory")
+    @Qualifier(JMSConstants.DOMIBUS_JMS_XACONNECTION_FACTORY)
     private ConnectionFactory connectionFactory;
 
     @Autowired

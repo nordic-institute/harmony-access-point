@@ -12,7 +12,6 @@ import eu.domibus.core.plugin.notification.NotificationStatus;
 import eu.domibus.ebms3.common.model.MessageType;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.messaging.XmlProcessingException;
-import eu.domibus.plugin.BackendConnector;
 import eu.domibus.plugin.webService.generated.MshRole;
 import org.junit.Assert;
 import org.junit.Before;
@@ -43,7 +42,7 @@ public class DownloadMessageJMSIT extends AbstractBackendJMSIT {
     private ConnectionFactory xaJmsConnectionFactory;
 
     @Autowired
-    BackendConnector backendJms;
+    JMSPluginImpl backendJms;
 
     @Autowired
     MessagingService messagingService;

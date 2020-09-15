@@ -10,10 +10,12 @@ import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.ws.policy.PolicyInInterceptor;
 import org.apache.cxf.ws.security.SecurityConstants;
+import org.springframework.stereotype.Service;
 
 /**
  * @author Christian Koch, Stefan Mueller
  */
+@Service("setSignatureAlgorithmInInterceptor")
 public class SetSignatureAlgorithmInInterceptor extends AbstractSoapInterceptor {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SetSignatureAlgorithmInInterceptor.class);

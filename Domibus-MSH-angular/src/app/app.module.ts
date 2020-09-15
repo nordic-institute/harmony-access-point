@@ -105,6 +105,7 @@ import {ConnectionDetailsComponent} from './testservice/connection-details/conne
 import {ApplicationContextService} from './common/application-context.service';
 import {SessionExpiredDialogComponent} from './security/session-expired-dialog/session-expired-dialog.component';
 import {SessionService} from './security/session.service';
+import {AuthInternalProviderGuard} from './common/guards/auth-internal-provider.guard';
 
 @NgModule({
   declarations: [
@@ -229,6 +230,7 @@ import {SessionService} from './security/session.service';
     DirtyGuard,
     DefaultPasswordGuard,
     AuthExternalProviderGuard,
+    AuthInternalProviderGuard,
     RedirectHomeGuard,
     HttpEventService,
     SecurityService,

@@ -40,8 +40,6 @@ public abstract class SetPolicyInInterceptor extends AbstractSoapInterceptor {
     @Autowired
     protected DomibusVersionService domibusVersionService;
 
-    protected MessageLegConfigurationFactory messageLegConfigurationFactory;
-
     public SetPolicyInInterceptor() {
         this(Phase.RECEIVE);
     }
@@ -50,10 +48,6 @@ public abstract class SetPolicyInInterceptor extends AbstractSoapInterceptor {
         super(phase);
         this.addBefore(PolicyInInterceptor.class.getName());
         this.addAfter(AttachmentInInterceptor.class.getName());
-    }
-
-    public void setMessageLegConfigurationFactory(MessageLegConfigurationFactory messageLegConfigurationFactory) {
-        this.messageLegConfigurationFactory = messageLegConfigurationFactory;
     }
 
     //this is a hack to avoid a nullpointer in @see WebFaultOutInterceptor.

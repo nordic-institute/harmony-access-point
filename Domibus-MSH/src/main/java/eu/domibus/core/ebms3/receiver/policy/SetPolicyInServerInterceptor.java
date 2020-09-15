@@ -7,7 +7,10 @@ import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.receiver.interceptor.CheckEBMSHeaderInterceptor;
 import eu.domibus.core.ebms3.receiver.interceptor.SOAPMessageBuilderInterceptor;
 import eu.domibus.core.ebms3.receiver.leg.LegConfigurationExtractor;
+import eu.domibus.core.ebms3.receiver.leg.ServerInMessageLegConfigurationFactory;
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
+import eu.domibus.core.message.UserMessageHandlerService;
+import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.message.UserMessageHandlerService;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.ebms3.common.model.Messaging;
@@ -22,6 +25,7 @@ import org.apache.cxf.ws.policy.PolicyConstants;
 import org.apache.cxf.ws.security.SecurityConstants;
 import org.apache.neethi.Policy;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.HttpMethod;
@@ -34,15 +38,25 @@ import java.io.IOException;
  * @author Cosmin Baciu
  * @since 4.1
  */
+@Service
 public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SetPolicyInServerInterceptor.class);
 
-    @Autowired
+    protected ServerInMessageLegConfigurationFactory serverInMessageLegConfigurationFactory;
+
     protected BackendNotificationService backendNotificationService;
 
-    @Autowired
     protected UserMessageHandlerService userMessageHandlerService;
+
+    public SetPolicyInServerInterceptor(ServerInMessageLegConfigurationFactory serverInMessageLegConfigurationFactory,
+                                        BackendNotificationService backendNotificationService,
+                                        UserMessageHandlerService userMessageHandlerService
+                                        ) {
+        this.serverInMessageLegConfigurationFactory = serverInMessageLegConfigurationFactory;
+        this.backendNotificationService = backendNotificationService;
+        this.userMessageHandlerService = userMessageHandlerService;
+    }
 
     @Override
     public void handleMessage(SoapMessage message) throws Fault {
@@ -71,7 +85,7 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
             messaging = soapService.getMessage(message);
             message.put(DispatchClientDefaultProvider.MESSAGING_KEY_CONTEXT_PROPERTY, messaging);
 
-            LegConfigurationExtractor legConfigurationExtractor = messageLegConfigurationFactory.extractMessageConfiguration(message, messaging);
+            LegConfigurationExtractor legConfigurationExtractor = serverInMessageLegConfigurationFactory.extractMessageConfiguration(message, messaging);
             if (legConfigurationExtractor == null) return;
 
             legConfiguration = legConfigurationExtractor.extractMessageConfiguration();

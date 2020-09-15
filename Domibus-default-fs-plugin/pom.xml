@@ -28,6 +28,11 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>activemq-client</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>eu.domibus</groupId>
             <artifactId>domibus-logging</artifactId>
         </dependency>
