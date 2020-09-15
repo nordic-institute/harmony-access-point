@@ -4,9 +4,9 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import eu.domibus.api.validators.CustomWhiteListed;
 import eu.domibus.api.validators.SkipWhiteListed;
+import eu.domibus.web.rest.validators.SizeIfPresent;
 
 import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 
 /**
@@ -17,7 +17,7 @@ public class PluginUserRO {
 
     private Integer entityId;
 
-    @Size(min = 4, max = 255)
+    @SizeIfPresent(min = 4, max = 255)
     @Pattern(regexp = "^[a-zA-Z0-9\\.@_]*$")
     private String userName;
 
@@ -50,7 +50,7 @@ public class PluginUserRO {
     public void setEntityId(Integer entityId) {
         this.entityId = entityId;
     }
- 
+
     public String getUserName() {
         return userName;
     }
@@ -58,7 +58,7 @@ public class PluginUserRO {
     public void setUserName(String username) {
         this.userName = username;
     }
-  
+
     public String getPassword() {
         return password;
     }
@@ -66,7 +66,7 @@ public class PluginUserRO {
     public void setPassword(String password) {
         this.password = password;
     }
-    
+
     public String getCertificateId() {
         return certificateId;
     }
