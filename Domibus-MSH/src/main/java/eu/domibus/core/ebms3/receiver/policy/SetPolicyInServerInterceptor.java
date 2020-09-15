@@ -104,6 +104,10 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
     }
 
     protected void processPluginNotification(EbMS3Exception e, LegConfiguration legConfiguration, Messaging messaging) {
+        if (messaging == null) {
+            LOG.debug("Messaging header is empty");
+            return;
+        }
         final String messageId = messaging.getUserMessage().getMessageInfo().getMessageId();
         boolean testMessage = userMessageHandlerService.checkTestMessage(messaging.getUserMessage());
         if (legConfiguration == null) {
