@@ -12,8 +12,6 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.activation.DataHandler;
 import javax.annotation.Resource;
@@ -31,7 +29,7 @@ public class FSProcessFileService {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FSProcessFileService.class);
 
     @Resource(name = "backendFSPlugin")
-    protected BackendFSImpl backendFSPlugin;
+    protected FSPluginImpl backendFSPlugin;
 
     @Autowired
     protected FSFilesManager fsFilesManager;

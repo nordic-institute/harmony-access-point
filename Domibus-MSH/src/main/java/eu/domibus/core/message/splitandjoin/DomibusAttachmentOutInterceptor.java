@@ -1,6 +1,7 @@
 package eu.domibus.core.message.splitandjoin;
 
 import org.apache.cxf.interceptor.AttachmentOutInterceptor;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,6 +14,7 @@ import java.util.Map;
  * @author Cosmin Baciu
  * @since 4.1
  */
+@Service("domibusAttachmentOutInterceptor")
 public class DomibusAttachmentOutInterceptor extends AttachmentOutInterceptor {
 
     protected static final Map<String, List<String>> headers = new HashMap<>();

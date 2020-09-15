@@ -8,6 +8,7 @@ import org.apache.cxf.endpoint.ClientImpl;
 import org.apache.cxf.interceptor.AttachmentInInterceptor;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.phase.Phase;
+import org.springframework.stereotype.Service;
 
 /**
  * Interceptor used to configure other Domibus custom interceptors while the AS4 messages are handled
@@ -15,6 +16,7 @@ import org.apache.cxf.phase.Phase;
  * @author Cosmin Baciu
  * @since 4.1
  */
+@Service("domibusPrepareAttachmentInInterceptor")
 public class DomibusPrepareAttachmentInInterceptor extends AbstractSoapInterceptor {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusPrepareAttachmentInInterceptor.class);

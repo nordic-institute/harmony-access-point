@@ -28,10 +28,11 @@ public class JmsPluginPropertyManager extends DomibusPropertyExtServiceDelegateA
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(JmsPluginPropertyManager.class);
 
     private List<DomibusPropertyMetadataDTO> readOnlyGlobalProperties = Arrays.asList(
-            new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + CONNECTION_FACTORY, Type.JNDI, Module.JMS_PLUGIN, false, Usage.GLOBAL, true, false, false, false),
-            new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + QUEUE_NOTIFICATION, Type.JNDI, Module.JMS_PLUGIN, false, Usage.GLOBAL, false, false, false, false),
-            new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + QUEUE_IN, Type.JNDI, Module.JMS_PLUGIN, false, Usage.GLOBAL, false, false, false, false),
-            new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + QUEUE_IN_CONCURRENCY, Type.CONCURRENCY, Module.JMS_PLUGIN, false, Usage.GLOBAL, false, false, false, false)
+            new DomibusPropertyMetadataDTO(CONNECTION_FACTORY, Type.JNDI, Module.JMS_PLUGIN, false, Usage.GLOBAL, true, false, false, false),
+            new DomibusPropertyMetadataDTO(CACHING_CONNECTION_FACTORY_SESSION_CACHE_SIZE, Type.NUMERIC, Module.JMS_PLUGIN, false, Usage.GLOBAL, true, false, false, false),
+            new DomibusPropertyMetadataDTO(QUEUE_NOTIFICATION, Type.JNDI, Module.JMS_PLUGIN, false, Usage.GLOBAL, false, false, false, false),
+            new DomibusPropertyMetadataDTO(QUEUE_IN, Type.JNDI, Module.JMS_PLUGIN, false, Usage.GLOBAL, false, false, false, false),
+            new DomibusPropertyMetadataDTO(QUEUE_IN_CONCURRENCY, Type.CONCURRENCY, Module.JMS_PLUGIN, false, Usage.GLOBAL, false, false, false, false)
     );
 
     private List<DomibusPropertyMetadataDTO> readOnlyDomainProperties = Arrays.stream(new String[]{

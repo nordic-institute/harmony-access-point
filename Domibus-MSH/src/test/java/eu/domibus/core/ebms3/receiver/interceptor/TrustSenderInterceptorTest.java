@@ -2,6 +2,7 @@ package eu.domibus.core.ebms3.receiver.interceptor;
 
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.core.crypto.Wss4JMultiDomainCryptoProvider;
 import eu.domibus.core.ebms3.receiver.token.BinarySecurityTokenReference;
 import eu.domibus.core.ebms3.receiver.token.TokenReferenceExtractor;
 import eu.domibus.core.ebms3.sender.interceptor.SoapInterceptorTest;
@@ -67,6 +68,9 @@ public class TrustSenderInterceptorTest extends SoapInterceptorTest {
 
     @Injectable
     TokenReferenceExtractor tokenReferenceExtractor;
+
+    @Injectable
+    Wss4JMultiDomainCryptoProvider wss4JMultiDomainCryptoProvider;
 
     @Tested
     TrustSenderInterceptor trustSenderInterceptor;

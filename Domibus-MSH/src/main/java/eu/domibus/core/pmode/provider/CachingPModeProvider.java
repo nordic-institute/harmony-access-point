@@ -456,7 +456,7 @@ public class CachingPModeProvider extends PModeProvider {
 
     @Override
     public String findPartyName(final Collection<PartyId> partyId) throws EbMS3Exception {
-        String partyIdType = StringUtils.EMPTY;
+        String partyIdType = null;
         String partyIdValue = StringUtils.EMPTY;
         for (final Party party : this.getConfiguration().getBusinessProcesses().getParties()) {
             for (final PartyId id : partyId) {
@@ -471,12 +471,13 @@ public class CachingPModeProvider extends PModeProvider {
                             throw ex;
                         }
                     }
-                    String identifierPartyIdType = "";
+                    // identifierPartyIdType can be also null!
+                    String identifierPartyIdType = null;
                     partyIdValue = id.getValue();
                     if (identifier.getPartyIdType() != null) {
                         identifierPartyIdType = identifier.getPartyIdType().getValue();
                     }
-                    LOG.trace("Find party with type:[{}] and identifier:[{}] by comparing with pmode id type:[{}] and pmode identifier:[{}]", partyIdType, id.getValue(), identifierPartyIdType, identifier.getPartyId());
+                    LOG.debug("Find party with type:[{}] and identifier:[{}] by comparing with pmode id type:[{}] and pmode identifier:[{}]", partyIdType, id.getValue(), identifierPartyIdType, identifier.getPartyId());
                     if (StringUtils.equalsIgnoreCase(partyIdType, identifierPartyIdType) && StringUtils.equalsIgnoreCase(id.getValue(), identifier.getPartyId())) {
                         LOG.trace("Party with type:[{}] and identifier:[{}] matched", partyIdType, id.getValue());
                         return party.getName();

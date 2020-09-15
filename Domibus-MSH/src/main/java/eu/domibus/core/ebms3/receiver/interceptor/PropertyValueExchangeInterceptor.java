@@ -9,6 +9,7 @@ import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.interceptor.AbstractSoapInterceptor;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.phase.Phase;
+import org.springframework.stereotype.Service;
 
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
@@ -18,6 +19,7 @@ import javax.xml.soap.SOAPMessage;
  *
  * @author Christian Koch, Stefan Mueller
  */
+@Service
 public class PropertyValueExchangeInterceptor extends AbstractSoapInterceptor {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PropertyValueExchangeInterceptor.class);

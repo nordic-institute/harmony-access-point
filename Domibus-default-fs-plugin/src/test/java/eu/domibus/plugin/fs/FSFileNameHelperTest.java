@@ -1,10 +1,10 @@
 package eu.domibus.plugin.fs;
 
 import eu.domibus.common.MessageStatus;
+import eu.domibus.plugin.fs.configuration.FSPluginConfiguration;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
-import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;

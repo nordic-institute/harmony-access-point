@@ -1,7 +1,7 @@
 package eu.domibus.core.jms.multitenancy;
 
 import eu.domibus.api.exceptions.DomibusCoreException;
-import eu.domibus.api.jms.JMSConstants;
+import eu.domibus.common.JMSConstants;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.ebms3.sender.MessageSenderListener;

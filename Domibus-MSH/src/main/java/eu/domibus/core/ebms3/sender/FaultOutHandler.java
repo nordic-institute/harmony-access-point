@@ -9,6 +9,7 @@ import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPMessage;
@@ -22,6 +23,7 @@ import java.util.Set;
  *
  * @author Christian Koch, Stefan Mueller
  */
+@Service("faultOutHandler")
 public class FaultOutHandler extends AbstractFaultHandler {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FaultOutHandler.class);

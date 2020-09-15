@@ -5,6 +5,7 @@ import eu.domibus.common.MSHRole;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.receiver.interceptor.CheckEBMSHeaderInterceptor;
 import eu.domibus.core.ebms3.receiver.interceptor.SOAPMessageBuilderInterceptor;
+import eu.domibus.core.ebms3.receiver.leg.ClientInMessageLegConfigurationFactory;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -14,19 +15,25 @@ import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.ws.policy.PolicyConstants;
 import org.apache.cxf.ws.security.SecurityConstants;
 import org.apache.neethi.Policy;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 /**
  * @author Thomas Dussart
  * @author Cosmin Baciu
  * @since 4.1
  */
+@Service("setPolicyInInterceptorClient")
 public class SetPolicyInClientInterceptor extends SetPolicyInInterceptor {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SetPolicyInClientInterceptor.class);
 
-    @Autowired
     protected PModeProvider pModeProvider;
+    protected ClientInMessageLegConfigurationFactory clientInMessageLegConfigurationFactory;
+
+    public SetPolicyInClientInterceptor(PModeProvider pModeProvider, ClientInMessageLegConfigurationFactory clientInMessageLegConfigurationFactory) {
+        this.pModeProvider = pModeProvider;
+        this.clientInMessageLegConfigurationFactory = clientInMessageLegConfigurationFactory;
+    }
 
     @Override
     public void handleMessage(SoapMessage message) throws Fault {
