@@ -2,6 +2,7 @@ package eu.domibus.core.ebms3.receiver.policy;
 
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.receiver.leg.ServerInMessageLegConfigurationFactory;
 import eu.domibus.core.ebms3.ws.policy.PolicyService;
 import eu.domibus.core.message.SoapService;
 import eu.domibus.core.message.UserMessageHandlerService;
@@ -37,6 +38,9 @@ public class SetPolicyInServerInterceptorTest {
 
     @Injectable
     protected DomibusVersionService domibusVersionService;
+
+    @Injectable
+    ServerInMessageLegConfigurationFactory serverInMessageLegConfigurationFactory;
 
     @Test
     public void processPluginNotification(final @Mocked EbMS3Exception ebMS3Exception,
