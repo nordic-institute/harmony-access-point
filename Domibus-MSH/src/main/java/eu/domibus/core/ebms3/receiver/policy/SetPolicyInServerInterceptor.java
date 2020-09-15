@@ -9,6 +9,8 @@ import eu.domibus.core.ebms3.receiver.interceptor.SOAPMessageBuilderInterceptor;
 import eu.domibus.core.ebms3.receiver.leg.LegConfigurationExtractor;
 import eu.domibus.core.ebms3.receiver.leg.ServerInMessageLegConfigurationFactory;
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
+import eu.domibus.core.message.UserMessageHandlerService;
+import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -40,8 +42,17 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
 
     protected ServerInMessageLegConfigurationFactory serverInMessageLegConfigurationFactory;
 
-    public SetPolicyInServerInterceptor(ServerInMessageLegConfigurationFactory serverInMessageLegConfigurationFactory) {
+    protected BackendNotificationService backendNotificationService;
+
+    protected UserMessageHandlerService userMessageHandlerService;
+
+    public SetPolicyInServerInterceptor(ServerInMessageLegConfigurationFactory serverInMessageLegConfigurationFactory,
+                                        BackendNotificationService backendNotificationService,
+                                        UserMessageHandlerService userMessageHandlerService
+                                        ) {
         this.serverInMessageLegConfigurationFactory = serverInMessageLegConfigurationFactory;
+        this.backendNotificationService = backendNotificationService;
+        this.userMessageHandlerService = userMessageHandlerService;
     }
 
     @Override
@@ -65,16 +76,16 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
         Messaging messaging = null;
         String policyName = null;
         String messageId = null;
+        LegConfiguration legConfiguration = null;
 
         try {
-
             messaging = soapService.getMessage(message);
             message.put(DispatchClientDefaultProvider.MESSAGING_KEY_CONTEXT_PROPERTY, messaging);
 
             LegConfigurationExtractor legConfigurationExtractor = serverInMessageLegConfigurationFactory.extractMessageConfiguration(message, messaging);
             if (legConfigurationExtractor == null) return;
 
-            final LegConfiguration legConfiguration = legConfigurationExtractor.extractMessageConfiguration();
+            legConfiguration = legConfigurationExtractor.extractMessageConfiguration();
             policyName = legConfiguration.getSecurity().getPolicy();
             Policy policy = policyService.parsePolicy("policies" + File.separator + policyName);
 
@@ -92,6 +103,7 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
         } catch (EbMS3Exception e) {
             setBindingOperation(message);
             LOG.debug("", e); // Those errors are expected (no PMode found, therefore DEBUG)
+            processPluginNotification(e, legConfiguration, messaging);
             throw new Fault(e);
         } catch (IOException | JAXBException e) {
             setBindingOperation(message);
@@ -99,6 +111,26 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
             EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, "no valid security policy found", messaging != null ? messageId : "unknown", e);
             ex.setMshRole(MSHRole.RECEIVING);
             throw new Fault(ex);
+        }
+    }
+
+    protected void processPluginNotification(EbMS3Exception e, LegConfiguration legConfiguration, Messaging messaging) {
+        if (messaging == null) {
+            LOG.debug("Messaging header is empty");
+            return;
+        }
+        final String messageId = messaging.getUserMessage().getMessageInfo().getMessageId();
+        if (legConfiguration == null) {
+            LOG.debug("LegConfiguration is null for messageId=[{}] we will not notify backend plugins", messageId);
+            return;
+        }
+        boolean testMessage = userMessageHandlerService.checkTestMessage(messaging.getUserMessage());
+        try {
+            if (!testMessage && legConfiguration.getErrorHandling().isBusinessErrorNotifyConsumer()) {
+                backendNotificationService.notifyMessageReceivedFailure(messaging.getUserMessage(), userMessageHandlerService.createErrorResult(e));
+            }
+        } catch (Exception ex) {
+            LOG.businessError(DomibusMessageCode.BUS_BACKEND_NOTIFICATION_FAILED, ex, messageId);
         }
     }
 
