@@ -4,6 +4,7 @@ import {PluginUserRO} from '../support/pluginuser';
 import {PluginUserService} from '../support/pluginuser.service';
 import {UserState} from '../../user/support/user';
 import {EditPopupBaseComponent} from '../../common/edit-popup-base.component';
+import {SecurityService} from '../../security/security.service';
 
 const NEW_MODE = 'New Plugin User';
 const EDIT_MODE = 'Plugin User Edit';
@@ -27,7 +28,8 @@ export class EditPluginUserFormBaseComponent extends EditPopupBaseComponent {
   user: PluginUserRO;
 
   public originalUserPattern = PluginUserService.originalUserPattern;
-  public originalUserMessage = PluginUserService.originalUserMessage;
+  public originalUserPatternMessage = PluginUserService.originalUserPatternMessage;
+  public originalUserRequiredMessage = PluginUserService.originalUserRequiredMessage;
 
   constructor(public dialogRef: MatDialogRef<EditPluginUserFormBaseComponent>, @Inject(MAT_DIALOG_DATA) public data: any) {
 
@@ -40,4 +42,7 @@ export class EditPluginUserFormBaseComponent extends EditPopupBaseComponent {
 
   }
 
+  isRoleUserSelected(role): boolean {
+    return SecurityService.ROLE_USER === role.value;
+  }
 }
