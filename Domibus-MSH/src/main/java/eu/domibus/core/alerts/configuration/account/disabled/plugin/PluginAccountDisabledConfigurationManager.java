@@ -1,6 +1,6 @@
 package eu.domibus.core.alerts.configuration.account.disabled.plugin;
 
-import eu.domibus.core.alerts.configuration.AbstractAlertConfigurationManagerWithReader;
+import eu.domibus.core.alerts.configuration.ReaderAlertConfigurationManager;
 import eu.domibus.core.alerts.configuration.AlertConfigurationManager;
 import eu.domibus.core.alerts.configuration.account.disabled.AccountDisabledModuleConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class PluginAccountDisabledConfigurationManager
-        extends AbstractAlertConfigurationManagerWithReader<AccountDisabledModuleConfiguration, PluginAccountDisabledConfigurationReader>
+        extends ReaderAlertConfigurationManager<AccountDisabledModuleConfiguration, PluginAccountDisabledConfigurationReader>
         implements AlertConfigurationManager {
 
     @Autowired

@@ -3,7 +3,7 @@ package eu.domibus.core.alerts.configuration.certificate.imminent;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.alerts.configuration.AbstractAlertConfigurationManagerWithReaderMethod;
+import eu.domibus.core.alerts.configuration.ReaderMethodAlertConfigurationManager;
 import eu.domibus.core.alerts.configuration.AlertConfigurationManager;
 import eu.domibus.core.alerts.model.common.AlertLevel;
 import eu.domibus.core.alerts.model.common.AlertType;
@@ -24,7 +24,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
  */
 @Service
 public class ImminentExpirationCertificateConfigurationManager
-        extends AbstractAlertConfigurationManagerWithReaderMethod<ImminentExpirationCertificateModuleConfiguration>
+        extends ReaderMethodAlertConfigurationManager<ImminentExpirationCertificateModuleConfiguration>
         implements AlertConfigurationManager {
 
     private static final Logger LOG = DomibusLoggerFactory.getLogger(ImminentExpirationCertificateConfigurationManager.class);

@@ -1,6 +1,6 @@
 package eu.domibus.core.alerts.configuration.account.enabled.console;
 
-import eu.domibus.core.alerts.configuration.AbstractAlertConfigurationManagerWithReader;
+import eu.domibus.core.alerts.configuration.ReaderAlertConfigurationManager;
 import eu.domibus.core.alerts.configuration.AlertConfigurationManager;
 import eu.domibus.core.alerts.configuration.AlertModuleConfigurationBase;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class ConsoleAccountEnabledConfigurationManager
-        extends AbstractAlertConfigurationManagerWithReader<AlertModuleConfigurationBase, ConsoleAccountEnabledConfigurationReader>
+        extends ReaderAlertConfigurationManager<AlertModuleConfigurationBase, ConsoleAccountEnabledConfigurationReader>
         implements AlertConfigurationManager {
 
     @Autowired

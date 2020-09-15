@@ -1,33 +1,28 @@
 package eu.domibus.core.alerts.configuration;
 
-import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.service.ConfigurationLoader;
+import eu.domibus.core.alerts.service.ConfigurationReader;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Abstract class extended by alert configuration managers
- * Implements all methods from the AlertConfigurationManager interface by the help of the coresponding Reader and Loader classes
+ * Implements most methods from the AlertConfigurationManager interface by the help of the Loader class and read0configuration method
  * Used to avoid duplicating the same code across those managers
  *
  * @author Ion Perpegel
  * @since 4.2
  */
-public abstract class AbstractAlertConfigurationManagerWithReader<AMC extends AlertModuleConfiguration, ACR extends AlertConfigurationReader<AMC>>
+public abstract class ReaderMethodAlertConfigurationManager<AMC extends AlertModuleConfiguration>
         implements AlertConfigurationManager {
 
     @Autowired
     private ConfigurationLoader<AMC> loader;
 
-    protected abstract ACR getReader();
-
-    @Override
-    public AlertType getAlertType() {
-        return getReader().getAlertType();
-    }
+    protected abstract ConfigurationReader<AMC> getReaderMethod();
 
     @Override
     public AMC getConfiguration() {
-        return loader.getConfiguration(getReader()::readConfiguration);
+        return loader.getConfiguration(getReaderMethod());
     }
 
     @Override
