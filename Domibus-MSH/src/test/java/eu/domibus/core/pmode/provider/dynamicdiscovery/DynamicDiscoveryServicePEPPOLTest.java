@@ -14,6 +14,7 @@ import no.difi.vefa.peppol.common.lang.PeppolParsingException;
 import no.difi.vefa.peppol.common.model.*;
 import no.difi.vefa.peppol.lookup.LookupClient;
 import no.difi.vefa.peppol.mode.Mode;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -31,7 +32,7 @@ import static org.junit.Assert.assertNotNull;
 public class DynamicDiscoveryServicePEPPOLTest {
 
     private static final String RESOURCE_PATH = "src/test/resources/eu/domibus/ebms3/common/dao/DynamicDiscoveryPModeProviderTest/";
-
+    private static final String DYNAMICDISCOVERY_PARTYID_TYPE = "domibus.dynamicdiscovery.partyid.type";
     private static final String TEST_KEYSTORE = "testkeystore.jks";
 
     //The (sub)domain of the SML, e.g. acc.edelivery.tech.ec.europa.eu
@@ -126,6 +127,29 @@ public class DynamicDiscoveryServicePEPPOLTest {
         new Verifications() {{
             smpClient.getServiceMetadata((ParticipantIdentifier) any, (DocumentTypeIdentifier) any);
         }};
+    }
+
+    @Test
+    public void getPartyIdTypeTestForNull() {
+        final String URN_TYPE_VALUE = "urn:fdc:peppol.eu:2017:identifiers:ap";
+        new Expectations() {{
+            domibusPropertyProvider.getProperty(DYNAMICDISCOVERY_PARTYID_TYPE);
+            result = null;
+            times = 1;
+        }};
+        String partyIdType = dynamicDiscoveryServicePEPPOL.getPartyIdType();
+        Assert.assertEquals(partyIdType, URN_TYPE_VALUE);
+    }
+
+    @Test
+    public void getPartyIdTypeTestForEmpty() {
+        new Expectations() {{
+            domibusPropertyProvider.getProperty(DYNAMICDISCOVERY_PARTYID_TYPE);
+            result = "";
+            times = 1;
+        }};
+        String partyIdType = dynamicDiscoveryServicePEPPOL.getPartyIdType();
+        Assert.assertNull(partyIdType);
     }
 
 
