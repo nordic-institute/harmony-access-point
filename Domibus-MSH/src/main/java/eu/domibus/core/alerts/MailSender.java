@@ -104,8 +104,8 @@ public class MailSender {
     protected String getMandatoryUrl() {
         String url = domibusPropertyProvider.getProperty(DOMIBUS_ALERT_SENDER_SMTP_URL);
         if (StringUtils.isBlank(url)) {
-            throw new IllegalStateException("Could not initialize mail sender because the properties " +
-                    DOMIBUS_ALERT_SENDER_SMTP_URL + " are incorrect: [" + url + "]");
+            throw new IllegalStateException("Could not initialize mail sender because the property " +
+                    DOMIBUS_ALERT_SENDER_SMTP_URL + " is empty: [" + url + "]");
         }
         return url;
     }
