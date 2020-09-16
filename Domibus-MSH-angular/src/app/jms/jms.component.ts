@@ -257,13 +257,12 @@ export class JmsComponent extends mix(BaseListComponent)
       return;
     }
 
-    // if (this.isDLQQueue()) {
-    //   queues = this.getAllPossibleQueues(elements);
-    // } else {
-    //   dialogRef.componentInstance.queues.push(...this.queues);
-    // }
-
-    const queues = this.getAllPossibleQueues(elements);
+    let queues = this.getAllowedDestinationQueues(elements);
+    // exclude source queue
+    queues = queues.filter(el => el.name != this.selectedSource.name);
+    if (queues.length == 0) {
+      throw new Error('Cannot move the messages because the original/destination queue is the same as current queue');
+    }
     this.dialog.open(MoveDialogComponent, {data: {queues: queues}})
       .afterClosed().subscribe(result => {
       if (result && result.destination) {
@@ -273,32 +272,48 @@ export class JmsComponent extends mix(BaseListComponent)
     });
   }
 
-  private getAllPossibleQueues(messages: any[]) {
-    if (!this.isDLQQueue()) {
-      return this.queues;
-    }
-
+  private getAllowedDestinationQueues(messages: any[]) {
+    let originalQueueName: any;
     if (messages.length > 1) {
-      return this.queues;
+      originalQueueName = this.getCommonOriginalQueueName(messages);
+    } else {
+      const message = messages[0];
+      originalQueueName = this.getOriginalQueueName(message);
     }
 
-    // just one element
-    const message = messages[0];
-    const originalQueue = message.customProperties.originalQueue;
-    if (originalQueue) {
-      // EDELIVERY-2814
-      const originalQueueName = originalQueue.substr(originalQueue.indexOf('!') + 1);
-      const queues = this.queues.filter((queue) => queue.name.indexOf(originalQueueName) !== -1);
-      return queues;
+    if (originalQueueName) {
+      return this.queues.filter(queue => queue.name.includes(originalQueueName));
     }
-
-    console.warn('Unable to determine the original queue for the selected messages');
+    console.warn('Unable to determine the original/destination queue for the selected message');
     return this.queues;
   }
 
-  private isDLQQueue() {
-    return /DLQ/.test(this.currentSearchSelectedSource.name);
+  getCommonOriginalQueueName(messages: any[]): any {
+    let originaleQueueNames = messages.map(msg => this.getOriginalQueueName(msg))
+      .filter((msg, index, list) => list.indexOf(msg) === index);
+
+    if (originaleQueueNames.length > 1) {
+      throw new Error('Cannot move the messages because they have different original/destination queues.');
+    }
+    if (originaleQueueNames.length == 1) {
+      return originaleQueueNames[0];
+    }
+    return null;
   }
+
+  getOriginalQueueName(message): any {
+    let originalQueueName = message.customProperties.originalQueue;
+    if (!originalQueueName) {
+      return null;
+    }
+    // EDELIVERY-2814
+    originalQueueName = originalQueueName.substr(originalQueueName.indexOf('!') + 1);
+    return originalQueueName;
+  }
+
+  // private isDLQQueue() {
+  //   return /DLQ/.test(this.currentSearchSelectedSource.name);
+  // }
 
   moveSelected() {
     this.moveElements(this.selected);
