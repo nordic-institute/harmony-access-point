@@ -316,10 +316,6 @@ export class JmsComponent extends mix(BaseListComponent)
     return originalQueueName;
   }
 
-  // private isDLQQueue() {
-  //   return /DLQ/.test(this.currentSearchSelectedSource.name);
-  // }
-
   moveSelected() {
     this.moveElements(this.selected);
   }

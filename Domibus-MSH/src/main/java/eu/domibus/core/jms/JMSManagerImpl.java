@@ -306,7 +306,7 @@ public class JMSManagerImpl implements JMSManager {
     @Override
     public void deleteMessages(String source, String[] messageIds) {
 
-        if (messageIds.length == 0 || Arrays.stream(messageIds).allMatch(StringUtils::isBlank)) {
+        if (messageIds.length == 0 || Arrays.stream(messageIds).anyMatch(StringUtils::isBlank)) {
             throw new IllegalArgumentException("No IDs provided for messages/action");
         }
 
@@ -327,7 +327,7 @@ public class JMSManagerImpl implements JMSManager {
 
     @Override
     public void moveMessages(String source, String destination, String[] messageIds) {
-        validateMesaageMove(source, destination, messageIds);
+        validateMessagesMove(source, destination, messageIds);
 
         List<JMSMessageDomainDTO> jmsMessageDomains = getJMSMessageDomain(source, messageIds);
         int moveMessages = internalJmsManager.moveMessages(source, destination, messageIds);
@@ -344,8 +344,8 @@ public class JMSManagerImpl implements JMSManager {
                 source, destination, jmsMessageDomainDTO.getDomainCode()));
     }
 
-    protected void validateMesaageMove(String source, String destination, String[] messageIds) {
-        if (messageIds.length == 0 || Arrays.stream(messageIds).allMatch(StringUtils::isBlank)) {
+    protected void validateMessagesMove(String source, String destination, String[] messageIds) {
+        if (messageIds.length == 0 || Arrays.stream(messageIds).anyMatch(StringUtils::isBlank)) {
             throw new RequestValidationException("No IDs provided for messages/action");
         }
 
@@ -364,7 +364,7 @@ public class JMSManagerImpl implements JMSManager {
                 throw new RequestValidationException("Cannot find the message with id [" + msgId + "].");
             }
             String originalQueue = msg.getCustomProperties().get("originalQueue");
-            if (!StringUtils.isEmpty(originalQueue) && !StringUtils.equals(destination, originalQueue)) {
+            if (StringUtils.isNotEmpty(originalQueue) && !StringUtils.equals(destination, originalQueue)) {
                 throw new RequestValidationException("Cannot move the message [" + msgId + "] to other than the original queue [" + originalQueue + "].");
             }
         });

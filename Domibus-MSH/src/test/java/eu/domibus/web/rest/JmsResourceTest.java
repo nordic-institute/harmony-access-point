@@ -153,42 +153,6 @@ public class JmsResourceTest {
         }};
     }
 
-//    @Test
-//    public void testActionMove_wrongQueue(final @Mocked SortedMap<String, JMSDestination> dests,
-//                                          final @Mocked JMSDestination queue2) {
-//        // Given
-//        new Expectations() {{
-//            messagesActionRequestRO.getSelectedMessages();
-//            result = MESSAGES_IDS;
-//
-//            messagesActionRequestRO.getAction();
-//            result = MessagesActionRequestRO.Action.MOVE;
-//
-//            messagesActionRequestRO.getDestination();
-//            result = DOMIBUS_QUEUE_1;
-//
-//            dests.values();
-//            result = Collections.singletonList(queue2);
-//
-//            queue2.getName();
-//            result = "domibus.queue2.not.found";
-//
-//            jmsManager.getDestinations();
-//            result = dests;
-//        }};
-//
-//        //When
-//        try {
-//            jmsResource.action(messagesActionRequestRO);
-//            Assert.fail();
-//        } catch (IllegalArgumentException e) {
-//            //do nothing
-//        }
-//        //Then
-//        new FullVerifications() {
-//        };
-//    }
-
     @Test
     public void testActionRemove() {
         // Given
