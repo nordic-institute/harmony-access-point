@@ -1,5 +1,6 @@
 package eu.domibus.web.rest;
 
+import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.jms.JMSDestination;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
@@ -98,68 +99,28 @@ public class JmsResourceTest {
         };
     }
 
-//    @Test
-//    public void testAction_BlankIds() {
-//        // Given
-//        new Expectations() {{
-//            messagesActionRequestRO.getSelectedMessages();
-//            result = Arrays.asList("", "");
-//            times = 1;
-//        }};
-//
-//        // When
-//        try {
-//            jmsResource.action(messagesActionRequestRO);
-//            Assert.fail();
-//        } catch (IllegalArgumentException e) {
-//            //do nothing
-//        }
-//
-//        new FullVerifications() {
-//        };
-//    }
+    @Test
+    public void testAction_wrongAction() {
+        // Given
+        new Expectations() {{
+            messagesActionRequestRO.getSelectedMessages();
+            result = new ArrayList<>();
+            times = 1;
+            messagesActionRequestRO.getAction();
+            result = null;
+        }};
 
-//    @Test
-//    public void testAction_nullIds() {
-//        // Given
-//        new Expectations() {{
-//            messagesActionRequestRO.getSelectedMessages();
-//            result = Arrays.asList(null, null);
-//            times = 1;
-//        }};
-//
-//        // When
-//        try {
-//            jmsResource.action(messagesActionRequestRO);
-//            Assert.fail();
-//        } catch (IllegalArgumentException e) {
-//            //do nothing
-//        }
-//
-//        new FullVerifications() {
-//        };
-//    }
+        // When
+        try {
+            jmsResource.action(messagesActionRequestRO);
+            Assert.fail();
+        } catch (RequestValidationException e) {
+            //do nothing
+        }
 
-//    @Test
-//    public void testAction_noId() {
-//        // Given
-//        new Expectations() {{
-//            messagesActionRequestRO.getSelectedMessages();
-//            result = new ArrayList<>();
-//            times = 1;
-//        }};
-//
-//        // When
-//        try {
-//            jmsResource.action(messagesActionRequestRO);
-//            Assert.fail();
-//        } catch (IllegalArgumentException e) {
-//            //do nothing
-//        }
-//
-//        new FullVerifications() {
-//        };
-//    }
+        new FullVerifications() {
+        };
+    }
 
     @Test
     public void testActionMove_ok(final @Mocked SortedMap<String, JMSDestination> dests,
@@ -178,18 +139,6 @@ public class JmsResourceTest {
 
             messagesActionRequestRO.getSource();
             result = SOURCE_1;
-
-//            jmsManager.getDestinations();
-//            result = dests;
-
-//            dests.values();
-//            result = Arrays.asList(queue2, queue1);
-
-//            queue1.getName();
-//            result = DOMIBUS_QUEUE_1;
-
-//            queue2.getName();
-//            result = "domibus.queue2";
         }};
         // When
         MessagesActionResponseRO responseEntity = jmsResource.action(messagesActionRequestRO);

@@ -1,6 +1,7 @@
 package eu.domibus.web.rest;
 
 import com.google.common.collect.ImmutableMap;
+import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.jms.JMSDestination;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
@@ -25,10 +26,8 @@ import java.util.stream.Collectors;
 @Validated
 public class JmsResource extends BaseResource {
 
-//    @Autowired
-    protected JMSManager jmsManager;
+    private JMSManager jmsManager;
 
-//    @Autowired
     private ErrorHandlerService errorHandlerService;
 
     public JmsResource(JMSManager jmsManager, ErrorHandlerService errorHandlerService) {
@@ -71,7 +70,7 @@ public class JmsResource extends BaseResource {
         } else if (request.getAction() == MessagesActionRequestRO.Action.REMOVE) {
             jmsManager.deleteMessages(request.getSource(), ids);
         } else {
-            throw new IllegalArgumentException("Invalid action specified. Valid actions are 'move' and 'remove'");
+            throw new RequestValidationException("Invalid action specified. Valid actions are 'move' and 'remove'");
         }
 
         response.setOutcome("Success");
