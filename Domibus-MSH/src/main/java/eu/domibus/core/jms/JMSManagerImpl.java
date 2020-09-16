@@ -1,5 +1,6 @@
 package eu.domibus.core.jms;
 
+import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.jms.JMSDestination;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
@@ -304,6 +305,11 @@ public class JMSManagerImpl implements JMSManager {
 
     @Override
     public void deleteMessages(String source, String[] messageIds) {
+
+        if (messageIds.length == 0 || Arrays.stream(messageIds).allMatch(StringUtils::isBlank)) {
+            throw new IllegalArgumentException("No IDs provided for messages/action");
+        }
+
         List<JMSMessageDomainDTO> jmsMessageDomains = getJMSMessageDomain(source, messageIds);
 
         int deleteMessages = internalJmsManager.deleteMessages(source, messageIds);
@@ -321,6 +327,8 @@ public class JMSManagerImpl implements JMSManager {
 
     @Override
     public void moveMessages(String source, String destination, String[] messageIds) {
+        validateMesaageMove(source, destination, messageIds);
+
         List<JMSMessageDomainDTO> jmsMessageDomains = getJMSMessageDomain(source, messageIds);
         int moveMessages = internalJmsManager.moveMessages(source, destination, messageIds);
         if (moveMessages == 0) {
@@ -334,6 +342,32 @@ public class JMSManagerImpl implements JMSManager {
         LOG.debug("Jms Message Ids [{}] Moved from the source queue [{}] to the destination queue [{}]", messageIds, source, destination);
         jmsMessageDomains.forEach(jmsMessageDomainDTO -> auditService.addJmsMessageMovedAudit(jmsMessageDomainDTO.getJmsMessageId(),
                 source, destination, jmsMessageDomainDTO.getDomainCode()));
+    }
+
+    protected void validateMesaageMove(String source, String destination, String[] messageIds) {
+        if (messageIds.length == 0 || Arrays.stream(messageIds).allMatch(StringUtils::isBlank)) {
+            throw new RequestValidationException("No IDs provided for messages/action");
+        }
+
+        if (StringUtils.equals(destination, source)) {
+            throw new RequestValidationException("Source and destination queues names cannot be the same: [" + destination + "].");
+        }
+
+        Map<String, JMSDestination> destinations = getDestinations();
+        if (destinations.values().stream().noneMatch(dest -> StringUtils.equals(destination, dest.getName()))) {
+            throw new RequestValidationException("Cannot find destination with the name [" + destination + "].");
+        }
+
+        Arrays.stream(messageIds).forEach(msgId -> {
+            InternalJmsMessage msg = internalJmsManager.getMessage(source, msgId);
+            if (msg == null) {
+                throw new RequestValidationException("Cannot find the message with id [" + msgId + "].");
+            }
+            String originalQueue = msg.getCustomProperties().get("originalQueue");
+            if (!StringUtils.isEmpty(originalQueue) && !StringUtils.equals(destination, originalQueue)) {
+                throw new RequestValidationException("Cannot move the message [" + msgId + "] to other than the original queue [" + originalQueue + "].");
+            }
+        });
     }
 
     protected List<JMSMessageDomainDTO> getJMSMessageDomain(String source, String[] messageIds) {

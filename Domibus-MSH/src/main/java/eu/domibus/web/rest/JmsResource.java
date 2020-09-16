@@ -5,11 +5,8 @@ import eu.domibus.api.jms.JMSDestination;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.jms.spi.InternalJMSException;
-import eu.domibus.logging.DomibusLogger;
-import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.*;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +14,10 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.SortedMap;
 import java.util.stream.Collectors;
 
 @RestController
@@ -25,13 +25,16 @@ import java.util.stream.Collectors;
 @Validated
 public class JmsResource extends BaseResource {
 
-    private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(JmsResource.class);
-
-    @Autowired
+//    @Autowired
     protected JMSManager jmsManager;
 
-    @Autowired
+//    @Autowired
     private ErrorHandlerService errorHandlerService;
+
+    public JmsResource(JMSManager jmsManager, ErrorHandlerService errorHandlerService) {
+        this.jmsManager = jmsManager;
+        this.errorHandlerService = errorHandlerService;
+    }
 
     @ExceptionHandler({InternalJMSException.class})
     public ResponseEntity<ErrorRO> handleInternalJMSException(InternalJMSException ex) {
@@ -63,19 +66,12 @@ public class JmsResource extends BaseResource {
         List<String> messageIds = request.getSelectedMessages();
         String[] ids = messageIds.toArray(new String[0]);
 
-        if (ids.length == 0 || Arrays.stream(ids).allMatch(StringUtils::isBlank)) {
-            throw new IllegalArgumentException("No IDs provided for messages/action");
-        }
-
         if (request.getAction() == MessagesActionRequestRO.Action.MOVE) {
-            Map<String, JMSDestination> destinations = jmsManager.getDestinations();
-            String destName = request.getDestination();
-            if (destinations.values().stream().noneMatch(dest -> StringUtils.equals(destName, dest.getName()))) {
-                throw new IllegalArgumentException("Cannot find destination with the name [" + destName + "].");
-            }
             jmsManager.moveMessages(request.getSource(), request.getDestination(), ids);
         } else if (request.getAction() == MessagesActionRequestRO.Action.REMOVE) {
             jmsManager.deleteMessages(request.getSource(), ids);
+        } else {
+            throw new IllegalArgumentException("Invalid action specified. Valid actions are 'move' and 'remove'");
         }
 
         response.setOutcome("Success");

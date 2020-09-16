@@ -258,11 +258,7 @@ export class JmsComponent extends mix(BaseListComponent)
     }
 
     let queues = this.getAllowedDestinationQueues(elements);
-    // exclude source queue
-    queues = queues.filter(el => el.name != this.selectedSource.name);
-    if (queues.length == 0) {
-      throw new Error('Cannot move the messages because the original/destination queue is the same as current queue');
-    }
+
     this.dialog.open(MoveDialogComponent, {data: {queues: queues}})
       .afterClosed().subscribe(result => {
       if (result && result.destination) {
@@ -281,11 +277,20 @@ export class JmsComponent extends mix(BaseListComponent)
       originalQueueName = this.getOriginalQueueName(message);
     }
 
+    let result: any[];
     if (originalQueueName) {
-      return this.queues.filter(queue => queue.name.includes(originalQueueName));
+      result = this.queues.filter(queue => queue.name.includes(originalQueueName));
+    } else {
+      console.warn('Unable to determine the original/destination queue for the selected message');
+      result = this.queues;
     }
-    console.warn('Unable to determine the original/destination queue for the selected message');
-    return this.queues;
+
+    // exclude source queue
+    result = result.filter(el => el.name != this.selectedSource.name);
+    if (result.length == 0) {
+      throw new Error('Cannot move the messages because the original/destination queue is the same as current queue');
+    }
+    return result;
   }
 
   getCommonOriginalQueueName(messages: any[]): any {
