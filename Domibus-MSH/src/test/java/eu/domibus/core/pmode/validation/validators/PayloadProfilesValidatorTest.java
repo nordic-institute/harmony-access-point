@@ -13,10 +13,7 @@ import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Catalin Enache
@@ -109,6 +106,36 @@ public class PayloadProfilesValidatorTest {
 
         new FullVerifications() {{
             pModeValidationHelper.createValidationIssue(message, name, payloadProfile.getName());
+        }};
+    }
+
+    @Test
+    public void test_validatePayloadProfileCaseInsensitive(final @Injectable PayloadProfile payloadProfile,
+                                                           final @Injectable Payload payload,
+                                                           final @Injectable Attachment attachment) {
+
+        List<Attachment> attachmentList = new ArrayList<>();
+        attachmentList.add(attachment);
+        Set<Payload> validPayloads = new HashSet<>();
+        validPayloads.add(payload);
+        new Expectations(payloadProfilesValidator) {{
+            pModeValidationHelper.getAttributeValue(payloadProfile, "attachment", List.class);
+            result = attachmentList;
+
+            attachment.getName();
+            result = "businessContentAttachment";
+
+            payload.getName();
+            result = "BusinessContentAttachment";
+
+            payloadProfile.getMaxSize();
+            result = 20;
+        }};
+
+        payloadProfilesValidator.validatePayloadProfile(payloadProfile, validPayloads);
+
+        new FullVerifications() {{
+
         }};
     }
 }
