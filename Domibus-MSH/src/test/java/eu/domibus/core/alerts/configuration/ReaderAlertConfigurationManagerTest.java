@@ -59,7 +59,7 @@ public class ReaderAlertConfigurationManagerTest extends TestCase {
 
         readerAlertConfigurationManager.reset();
 
-        new Verifications() {{
+        new FullVerifications() {{
             loader.resetConfiguration();
         }};
     }
