@@ -17,7 +17,6 @@ import eu.domibus.core.user.ui.security.password.ConsoleUserPasswordHistoryDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -171,9 +170,14 @@ public class UserManagementServiceImpl implements UserService {
      */
     protected List<eu.domibus.api.user.User> findUsers(Function<eu.domibus.api.user.User, String> getDomainForUserFn) {
         LOG.debug("Retrieving console users");
-        List<User> userEntities = userDao.listUsers();
+        long startTime = System.currentTimeMillis();
 
+        List<User> userEntities = userDao.listUsers();
+        LOG.debug("userDao.listUsers() took: {} millis", System.currentTimeMillis() - startTime);
+
+        startTime = System.currentTimeMillis();
         List<eu.domibus.api.user.User> users = prepareUsers(getDomainForUserFn, userEntities);
+        LOG.debug("prepareUsers took: {} millis", System.currentTimeMillis() - startTime);
 
         return users;
     }
