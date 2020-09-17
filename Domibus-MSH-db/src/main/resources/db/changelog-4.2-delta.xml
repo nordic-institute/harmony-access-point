@@ -1004,10 +1004,6 @@
         <modifyDataType columnName="NOT_VALID_BEFORE_DATE" newDataType="DATETIME" tableName="TB_CERTIFICATE" />
         <modifyDataType columnName="NOT_VALID_AFTER_DATE" newDataType="DATETIME" tableName="TB_CERTIFICATE" />
 
-        <addColumn tableName="TB_MESSAGE_LOG">
-            <column name="VERSION" remarks="Used for optimistic locking mechanism" type="INT" defaultValueNumeric="0"/>
-        </addColumn>
-
         <createView
                 replaceIfExists="true"
                 viewName="V_AUDIT_DETAIL">
