@@ -18,7 +18,7 @@ export class SecurityService {
   public static USER_ROLES = [SecurityService.ROLE_USER, SecurityService.ROLE_DOMAIN_ADMIN, SecurityService.ROLE_AP_ADMIN];
   public static ADMIN_ROLES = [SecurityService.ROLE_DOMAIN_ADMIN, SecurityService.ROLE_AP_ADMIN];
 
-  passwordPolicy: Promise<PasswordPolicyRO>;
+  // passwordPolicy: Promise<PasswordPolicyRO>;
   pluginPasswordPolicy: Promise<PasswordPolicyRO>;
   public password: string;
 
@@ -203,13 +203,10 @@ export class SecurityService {
     return isAuthorized;
   }
 
-  getPasswordPolicy(): Promise<PasswordPolicyRO> {
-    if (!this.passwordPolicy) {
-      this.passwordPolicy = this.http.get<PasswordPolicyRO>('rest/application/passwordPolicy')
-        .map(this.formatValidationMessage)
-        .toPromise();
-    }
-    return this.passwordPolicy;
+  getPasswordPolicy(forDomain: boolean = true): Promise<PasswordPolicyRO> {
+    return this.http.get<PasswordPolicyRO>('rest/application/passwordPolicy?forDomain=' + forDomain)
+      .map(this.formatValidationMessage)
+      .toPromise();
   }
 
   mustChangePassword(): boolean {
