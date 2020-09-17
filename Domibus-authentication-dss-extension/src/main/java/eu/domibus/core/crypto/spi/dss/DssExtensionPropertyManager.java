@@ -22,12 +22,12 @@ public class DssExtensionPropertyManager extends DomibusPropertyExtServiceDelega
     public static final String AUTHENTICATION_DSS_PROXY_HTTPS_PORT = "domibus.authentication.dss.proxy.https.port";
     public static final String AUTHENTICATION_DSS_PROXY_HTTPS_USER = "domibus.authentication.dss.proxy.https.user";
     public static final String AUTHENTICATION_DSS_PROXY_HTTPS_PASSWORD = "domibus.authentication.dss.proxy.https.password";
-    public static final String AUTHENTICATION_DSS_PROXY_HTTPS_EXCLUDEDHOSTS = "domibus.authentication.dss.proxy.https.excludedhosts";
+    public static final String AUTHENTICATION_DSS_PROXY_HTTPS_EXCLUDEDHOSTS = "domibus.authentication.dss.proxy.https.excludedHosts";
     public static final String AUTHENTICATION_DSS_PROXY_HTTP_HOST = "domibus.authentication.dss.proxy.http.host";
     public static final String AUTHENTICATION_DSS_PROXY_HTTP_PORT = "domibus.authentication.dss.proxy.http.port";
     public static final String AUTHENTICATION_DSS_PROXY_HTTP_USER = "domibus.authentication.dss.proxy.http.user";
     public static final String AUTHENTICATION_DSS_PROXY_HTTP_PASSWORD = "domibus.authentication.dss.proxy.http.password";
-    public static final String AUTHENTICATION_DSS_PROXY_HTTP_EXCLUDEDHOSTS = "domibus.authentication.dss.proxy.http.excludedhosts";
+    public static final String AUTHENTICATION_DSS_PROXY_HTTP_EXCLUDEDHOSTS = "domibus.authentication.dss.proxy.http.excludedHosts";
     public static final String DSS_PERFORM_CRL_CHECK = "domibus.dss.perform.crl.check";
     public static final String DSS_FULL_TLS_REFRESH = "domibus.authentication.dss.full.tls.refresh";
 
