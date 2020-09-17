@@ -7,6 +7,7 @@ import eu.domibus.common.model.configuration.Payload;
 import eu.domibus.common.model.configuration.PayloadProfile;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
 import eu.domibus.core.pmode.validation.PModeValidator;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -49,7 +50,7 @@ public class PayloadProfilesValidator implements PModeValidator {
         // attachments should correspond to existing payloads
         if (!CollectionUtils.isEmpty(attachmentList)) {
             attachmentList.stream()
-                    .filter(attachment -> validPayloads.stream().noneMatch(payload -> payload.getName().equals(attachment.getName())))
+                    .filter(attachment -> validPayloads.stream().noneMatch(payload -> StringUtils.equalsIgnoreCase(payload.getName(), attachment.getName())))
                     .forEach(attachment -> issues.add(createIssue(payloadProfile, attachment.getName(),
                             "Attachment [%s] of payload profile [%s] not found among the defined payloads")));
         }
