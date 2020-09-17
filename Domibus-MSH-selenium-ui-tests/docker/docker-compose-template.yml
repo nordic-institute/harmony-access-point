@@ -36,7 +36,7 @@ services:
     # depend of the startup of the db
     depends_on:
       - wls12clst-oradb
-    command: [bash, -c, "for i in `seq 360`; do timeout 1  bash -c 'echo \" $$(ls /opt/oracle/status/)\"'; if [ -f '/opt/oracle/status/oracle.started' ]  ; then break;fi; echo \"$$i. Wait for database!\"; sleep 10;  done; /u01/oracle/startAdminServer.sh"]
+    command: [bash, -c, "for i in `seq 300`; do timeout 1  bash -c 'echo \" $$(ls /opt/oracle/status/)\"'; if [ -f '/opt/oracle/status/oracle.started' ]  ; then break;fi; echo \"$$i. Wait for database!\"; sleep 10;  done; /u01/oracle/startAdminServer.sh"]
     environment:
       - WL_ADMIN_HOST=localhost
       - DOMIBUS_VERSION=${DOMIBUS_VERSION:-4.2-SNAPSHOT}
@@ -68,7 +68,7 @@ services:
     # depend of the startup of the db
     depends_on:
       - wls-admin
-    command: [bash, -c, "for i in `seq 360`; do timeout 1  bash -c 'echo \" $$(ls /opt/oracle/status/)\"'; if [ -f '/opt/oracle/status/wls-admin.started' ]  ; then break;fi; echo \"$$i. Wait for admin server!\"; sleep 10;  done; /u01/oracle/startManagedServer.sh"]
+    command: [bash, -c, "for i in `seq 300`; do timeout 1  bash -c 'echo \" $$(ls /opt/oracle/status/)\"'; if [ -f '/opt/oracle/status/wls-admin.started' ]  ; then break;fi; echo \"$$i. Wait for admin server!\"; sleep 10;  done; /u01/oracle/startManagedServer.sh"]
     environment:
       - WL_ADMIN_HOST=${DOMIBUS_CORNER:-c2}-wls12clst-admin
       - MANAGED_SERV_NAME=managed-server-1
@@ -87,7 +87,7 @@ services:
     # depend of the startup of the db
     depends_on:
       - wls-admin
-    command: [bash, -c, "for i in `seq 360`; do timeout 1  bash -c 'echo \" $$(ls /opt/oracle/status/)\"'; if [ -f '/opt/oracle/status/wls-admin.started' ]  ; then break;fi; echo \"$$i. Wait for admin server!\"; sleep 10;  done; /u01/oracle/startManagedServer.sh"]
+    command: [bash, -c, "for i in `seq 300`; do timeout 1  bash -c 'echo \" $$(ls /opt/oracle/status/)\"'; if [ -f '/opt/oracle/status/wls-admin.started' ]  ; then break;fi; echo \"$$i. Wait for admin server!\"; sleep 10;  done; /u01/oracle/startManagedServer.sh"]
     environment:
       - WL_ADMIN_HOST=${DOMIBUS_CORNER:-c2}-wls12clst-admin
       - MANAGED_SERV_NAME=managed-server-2
