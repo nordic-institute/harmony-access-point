@@ -62,6 +62,9 @@ public class ApplicationResource {
     @Autowired
     protected AuthUtils authUtils;
 
+    @Autowired
+    private DomainTaskExecutor domainTaskExecutor;
+
     /**
      * Rest method for the Domibus Info (Version, Build Time, ...)
      *
@@ -134,17 +137,15 @@ public class ApplicationResource {
         return domibusConfigurationService.isExtAuthProviderEnabled();
     }
 
-    @Autowired
-    private DomainTaskExecutor domainTaskExecutor;
-
     /**
-     * Retrieves the password policy info
+     * Retrieves the password policy info for the current domain or for super users
      *
+     * @param forDomain specifies if it is for the current domain, or super when false
      * @return password policy info
      */
     @RequestMapping(value = "passwordPolicy", method = RequestMethod.GET)
     public PasswordPolicyRO getPasswordPolicy(@RequestParam(defaultValue = "true") Boolean forDomain) {
-        LOG.debug("Getting password policy ");
+        LOG.debug("Getting password policy fo domain: ", forDomain);
 
         if (forDomain) {
             return getPasswordPolicy();
