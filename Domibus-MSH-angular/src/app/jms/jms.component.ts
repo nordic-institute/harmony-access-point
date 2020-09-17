@@ -257,15 +257,18 @@ export class JmsComponent extends mix(BaseListComponent)
       return;
     }
 
-    let queues = this.getAllowedDestinationQueues(elements);
-
-    this.dialog.open(MoveDialogComponent, {data: {queues: queues}})
-      .afterClosed().subscribe(result => {
-      if (result && result.destination) {
-        const messageIds = elements.map((message) => message.id);
-        this.serverMove(this.currentSearchSelectedSource.name, result.destination, messageIds);
-      }
-    });
+    try {
+      let queues = this.getAllowedDestinationQueues(elements);
+      this.dialog.open(MoveDialogComponent, {data: {queues: queues}})
+        .afterClosed().subscribe(result => {
+        if (result && result.destination) {
+          const messageIds = elements.map((message) => message.id);
+          this.serverMove(this.currentSearchSelectedSource.name, result.destination, messageIds);
+        }
+      });
+    } catch (ex) {
+      this.alertService.exception('Exception trying to move messages:', ex);
+    }
   }
 
   private getAllowedDestinationQueues(messages: any[]) {
