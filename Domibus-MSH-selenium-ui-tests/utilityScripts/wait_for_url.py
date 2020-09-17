@@ -2,7 +2,7 @@ import time
 import requests
 import sys
 
-max_time = 1500
+max_time = 3000
 sleep_time = 30
 
 status_code = 0
