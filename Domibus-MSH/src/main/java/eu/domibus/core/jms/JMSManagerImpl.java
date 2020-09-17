@@ -307,7 +307,7 @@ public class JMSManagerImpl implements JMSManager {
     public void deleteMessages(String source, String[] messageIds) {
 
         if (messageIds.length == 0 || Arrays.stream(messageIds).anyMatch(StringUtils::isBlank)) {
-            throw new IllegalArgumentException("No IDs provided for messages/action");
+            throw new RequestValidationException("No IDs provided for messages/action");
         }
 
         List<JMSMessageDomainDTO> jmsMessageDomains = getJMSMessageDomain(source, messageIds);
@@ -344,8 +344,8 @@ public class JMSManagerImpl implements JMSManager {
                 source, destination, jmsMessageDomainDTO.getDomainCode()));
     }
 
-    protected void validateMessagesMove(String source, String destination, String[] messageIds) {
-        if (messageIds.length == 0 || Arrays.stream(messageIds).anyMatch(StringUtils::isBlank)) {
+    protected void validateMessagesMove(String source, String destination, String[] jmsMessageIds) {
+        if (jmsMessageIds.length == 0 || Arrays.stream(jmsMessageIds).anyMatch(StringUtils::isBlank)) {
             throw new RequestValidationException("No IDs provided for messages/action");
         }
 
@@ -358,7 +358,7 @@ public class JMSManagerImpl implements JMSManager {
             throw new RequestValidationException("Cannot find destination with the name [" + destination + "].");
         }
 
-        Arrays.stream(messageIds).forEach(msgId -> {
+        Arrays.stream(jmsMessageIds).forEach(msgId -> {
             InternalJmsMessage msg = internalJmsManager.getMessage(source, msgId);
             if (msg == null) {
                 throw new RequestValidationException("Cannot find the message with id [" + msgId + "].");
