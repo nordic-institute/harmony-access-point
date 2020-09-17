@@ -1,9 +1,8 @@
-package eu.domibus.ext.delegate.services.security;
+package eu.domibus.core.message;
 
-import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.api.security.AuthUtils;
-import eu.domibus.ext.exceptions.AuthenticationExtException;
-import eu.domibus.ext.exceptions.DomibusServiceExtException;
+import eu.domibus.api.security.AuthenticationException;
+import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.logging.DomibusLogger;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -15,10 +14,10 @@ import org.junit.runner.RunWith;
  * @since 3.3
  */
 @RunWith(JMockit.class)
-public class SecurityDefaultServiceTest {
+public class UserMessageSecurityDefaultServiceTest {
 
     @Tested
-    SecurityDefaultService securityDefaultService;
+    UserMessageSecurityDefaultService userMessageSecurityDefaultService;
 
     @Injectable
     UserMessageService userMessageService;
@@ -27,7 +26,7 @@ public class SecurityDefaultServiceTest {
     AuthUtils authUtils;
 
 
-    @Test(expected = DomibusServiceExtException.class)
+    @Test(expected = AuthenticationException.class)
     public void testCheckMessageAuthorizationWithNonExistingMessage() throws Exception {
         final String messageId = "1";
         new Expectations() {{
@@ -35,21 +34,21 @@ public class SecurityDefaultServiceTest {
             result = null;
         }};
 
-        securityDefaultService.checkMessageAuthorization(messageId);
+        userMessageSecurityDefaultService.checkMessageAuthorization(messageId);
     }
 
     @Test
     public void testCheckMessageAuthorizationWithExistingMessage() throws Exception {
         final String messageId = "1";
         final String finalRecipient = "C4";
-        new Expectations(securityDefaultService) {{
+        new Expectations(userMessageSecurityDefaultService) {{
             userMessageService.getFinalRecipient(messageId);
             result = finalRecipient;
 
-            securityDefaultService.checkAuthorization(finalRecipient);
+            userMessageSecurityDefaultService.checkAuthorization(finalRecipient);
         }};
 
-        securityDefaultService.checkMessageAuthorization(messageId);
+        userMessageSecurityDefaultService.checkMessageAuthorization(messageId);
     }
 
     @Test
@@ -60,7 +59,7 @@ public class SecurityDefaultServiceTest {
             result = null;
         }};
 
-        securityDefaultService.checkAuthorization(finalRecipient);
+        userMessageSecurityDefaultService.checkAuthorization(finalRecipient);
 
         new Verifications() {{
             log.debug("finalRecipient from the security context is empty, user has permission to access finalRecipient [{}]", finalRecipient);
@@ -68,7 +67,7 @@ public class SecurityDefaultServiceTest {
         }};
     }
 
-    @Test(expected = AuthenticationExtException.class)
+    @Test(expected = AuthenticationException.class)
     public void testCheckSecurityWhenOriginalUserFromSecurityContextIsDifferent() throws Exception {
         final String finalRecipient = "C4";
         final String originalUserFromSecurityContext = "differentRecipient";
@@ -78,7 +77,7 @@ public class SecurityDefaultServiceTest {
             result = originalUserFromSecurityContext;
         }};
 
-        securityDefaultService.checkAuthorization(finalRecipient);
+        userMessageSecurityDefaultService.checkAuthorization(finalRecipient);
     }
 
     @Test
@@ -91,6 +90,6 @@ public class SecurityDefaultServiceTest {
             result = originalUserFromSecurityContext;
         }};
 
-        securityDefaultService.checkAuthorization(finalRecipient);
+        userMessageSecurityDefaultService.checkAuthorization(finalRecipient);
     }
 }

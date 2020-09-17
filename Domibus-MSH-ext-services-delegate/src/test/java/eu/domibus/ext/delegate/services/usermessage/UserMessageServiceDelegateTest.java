@@ -3,7 +3,7 @@ package eu.domibus.ext.delegate.services.usermessage;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.api.usermessage.domain.*;
 import eu.domibus.ext.delegate.converter.DomainExtConverter;
-import eu.domibus.ext.delegate.services.security.SecurityService;
+import eu.domibus.api.message.UserMessageSecurityService;
 import eu.domibus.ext.domain.UserMessageDTO;
 import eu.domibus.ext.exceptions.DomibusErrorCode;
 import eu.domibus.ext.exceptions.UserMessageExtException;
@@ -31,7 +31,7 @@ public class UserMessageServiceDelegateTest {
     DomainExtConverter domainConverter;
 
     @Injectable
-    SecurityService securityService;
+    UserMessageSecurityService userMessageSecurityService;
 
     @Test
     public void testGetMessageSuccess() {

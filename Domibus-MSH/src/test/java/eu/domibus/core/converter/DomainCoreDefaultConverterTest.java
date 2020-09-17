@@ -42,10 +42,7 @@ import eu.domibus.ebms3.common.model.PartProperties;
 import eu.domibus.ebms3.common.model.Property;
 import eu.domibus.ebms3.common.model.PullRequest;
 import eu.domibus.ebms3.common.model.UserMessage;
-import eu.domibus.ext.domain.PartPropertiesDTO;
-import eu.domibus.ext.domain.PropertyDTO;
-import eu.domibus.ext.domain.PullRequestDTO;
-import eu.domibus.ext.domain.UserMessageDTO;
+import eu.domibus.ext.domain.*;
 import eu.domibus.web.rest.ro.*;
 import eu.europa.ec.digit.commons.test.api.ObjectService;
 import org.junit.Test;
@@ -257,6 +254,22 @@ public class DomainCoreDefaultConverterTest {
         DomainRO toConvert = (DomainRO) objectService.createInstance(DomainRO.class);
         final Domain converted = domainCoreConverter.convert(toConvert, Domain.class);
         final DomainRO convertedBack = domainCoreConverter.convert(converted, DomainRO.class);
+        objectService.assertObjects(convertedBack, toConvert);
+    }
+
+    @Test
+    public void testConvertDomainToDomainDTO() throws Exception {
+        Domain toConvert = (Domain) objectService.createInstance(Domain.class);
+        final DomainDTO converted = domainCoreConverter.convert(toConvert, DomainDTO.class);
+        final Domain convertedBack = domainCoreConverter.convert(converted, Domain.class);
+        objectService.assertObjects(convertedBack, toConvert);
+    }
+
+    @Test
+    public void testConvertDomainDTOToDomain() throws Exception {
+        DomainDTO toConvert = (DomainDTO) objectService.createInstance(DomainDTO.class);
+        final Domain converted = domainCoreConverter.convert(toConvert, Domain.class);
+        final DomainDTO convertedBack = domainCoreConverter.convert(converted, DomainDTO.class);
         objectService.assertObjects(convertedBack, toConvert);
     }
 
