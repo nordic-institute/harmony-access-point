@@ -12,9 +12,7 @@ import java.util.function.Supplier;
  */
 public interface CsvService {
 
-    String APPLICATION_EXCEL_STR = "application/ms-excel";
-
-    String exportToCSV(List<?> list, Class tClass, final Map<String, String> customColumnNames, List<String> excludedColumns);
+    String exportToCSV(List<?> list, Class<?> tClass, final Map<String, String> customColumnNames, List<String> excludedColumns);
 
     int getMaxNumberRowsToExport();
 

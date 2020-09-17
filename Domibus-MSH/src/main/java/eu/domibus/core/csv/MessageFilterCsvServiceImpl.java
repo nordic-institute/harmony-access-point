@@ -1,6 +1,7 @@
 package eu.domibus.core.csv;
 
 import com.opencsv.CSVWriter;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.routing.RoutingCriteria;
 import eu.domibus.web.rest.ro.MessageFilterRO;
 import org.springframework.stereotype.Service;
@@ -17,8 +18,12 @@ import java.util.stream.Collectors;
 @Service
 public class MessageFilterCsvServiceImpl extends CsvServiceImpl {
 
+    public MessageFilterCsvServiceImpl(DomibusPropertyProvider domibusPropertyProvider) {
+        super(domibusPropertyProvider);
+    }
+
     @Override
-    public String exportToCSV(List<?> list, Class theClass,
+    public String exportToCSV(List<?> list, Class<?> theClass,
                               final Map<String, String> customColumnNames, final List<String> excludedColumns) {
         StringWriter result = new StringWriter();
         CSVWriter csvBuilder = new CSVWriter(result);

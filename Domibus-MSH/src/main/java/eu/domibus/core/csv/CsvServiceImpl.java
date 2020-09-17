@@ -12,12 +12,12 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.StringWriter;
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -36,12 +36,17 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 @Service
 public class CsvServiceImpl implements CsvService {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CsvServiceImpl.class);
+    public static final String CSV_DATE_PATTERN = "yyyy-MM-dd HH:mm:ss'GMT'Z";
 
-    @Autowired
-    private DomibusPropertyProvider domibusPropertyProvider;
+    public static String APPLICATION_EXCEL_STR = "application/ms-excel";
+    private final DomibusPropertyProvider domibusPropertyProvider;
+
+    public CsvServiceImpl(DomibusPropertyProvider domibusPropertyProvider) {
+        this.domibusPropertyProvider = domibusPropertyProvider;
+    }
 
     @Override
-    public String exportToCSV(List<?> list, Class theClass,
+    public String exportToCSV(List<?> list, Class<?> theClass,
                               Map<String, String> customColumnNames, List<String> excludedColumns) {
         StringWriter result = new StringWriter();
         CSVWriter csvBuilder = new CSVWriter(result);
@@ -86,7 +91,7 @@ public class CsvServiceImpl implements CsvService {
         }
     }
 
-    protected List<Field> getExportedFields(List<?> list, Class theClass, List<String> excludedColumns) {
+    protected List<Field> getExportedFields(List<?> list, Class<?> theClass, List<String> excludedColumns) {
         Class<?> clazz;
         if (CollectionUtils.isNotEmpty(list)) {
             clazz = list.get(0).getClass();
@@ -98,11 +103,10 @@ public class CsvServiceImpl implements CsvService {
 
         final List<String> excludedCols = excludedColumns == null ? new ArrayList<>() : excludedColumns;
         List<Field> fields = getAllFields(clazz);
-        List<Field> activeFields = fields.stream()
+
+        return fields.stream()
                 .filter(field -> !excludedCols.contains(field.getName()))
                 .collect(Collectors.toList());
-
-        return activeFields;
     }
 
     public List<Field> getAllFields(List<Field> fields, Class<?> type) {
@@ -127,7 +131,7 @@ public class CsvServiceImpl implements CsvService {
     protected void createCSVColumnHeader(CSVWriter csvBuilder, List<Field> fields,
                                          Map<String, String> customColumnNames) {
         if (customColumnNames == null) {
-            customColumnNames = new HashMap<String, String>();
+            customColumnNames = new HashMap<>();
         }
         List<String> fieldValues = new ArrayList<>();
         for (Field field : fields) {
@@ -163,6 +167,7 @@ public class CsvServiceImpl implements CsvService {
 
     protected String serializeFieldValue(Field field, Object elem) throws IllegalAccessException {
         Object fieldValue = field.get(elem);
+
         if (fieldValue == null) {
             return StringUtils.EMPTY;
         }
@@ -171,8 +176,13 @@ public class CsvServiceImpl implements CsvService {
             return gson.toJson(fieldValue);
         }
         if (fieldValue instanceof Date) {
-            DateTimeFormatter f = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss'GMT'Z");
+            DateTimeFormatter f = DateTimeFormatter.ofPattern(CSV_DATE_PATTERN);
             ZonedDateTime d = ZonedDateTime.ofInstant(((Date) fieldValue).toInstant(), ZoneId.systemDefault());
+            return d.format(f);
+        }
+        if (fieldValue instanceof LocalDateTime) {
+            DateTimeFormatter f = DateTimeFormatter.ofPattern(CSV_DATE_PATTERN);
+            ZonedDateTime d = ((LocalDateTime) fieldValue).atZone(ZoneId.systemDefault());
             return d.format(f);
         }
         return Objects.toString(fieldValue, StringUtils.EMPTY);

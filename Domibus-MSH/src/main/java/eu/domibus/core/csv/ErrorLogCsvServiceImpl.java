@@ -1,5 +1,6 @@
 package eu.domibus.core.csv;
 
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.ErrorCode;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +13,10 @@ import java.lang.reflect.Field;
 
 @Service
 public class ErrorLogCsvServiceImpl extends CsvServiceImpl {
+
+    public ErrorLogCsvServiceImpl(DomibusPropertyProvider domibusPropertyProvider) {
+        super(domibusPropertyProvider);
+    }
 
     @Override
     protected String serializeFieldValue(Field field, Object elem) throws IllegalAccessException {
