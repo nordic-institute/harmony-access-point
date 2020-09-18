@@ -17,8 +17,7 @@ export class SecurityService {
   public static ROLE_USER = 'ROLE_USER';
   public static USER_ROLES = [SecurityService.ROLE_USER, SecurityService.ROLE_DOMAIN_ADMIN, SecurityService.ROLE_AP_ADMIN];
   public static ADMIN_ROLES = [SecurityService.ROLE_DOMAIN_ADMIN, SecurityService.ROLE_AP_ADMIN];
-
-  // passwordPolicy: Promise<PasswordPolicyRO>;
+  
   pluginPasswordPolicy: Promise<PasswordPolicyRO>;
   public password: string;
 
