@@ -142,10 +142,15 @@ public class AuthenticationResource {
         LOG.debug("Logged out");
     }
 
-    @RequestMapping(value = "username", method = RequestMethod.GET)
-    public String getUsername() {
-        return Optional.ofNullable(getLoggedUser()).map(UserDetail::getUsername).orElse(StringUtils.EMPTY);
+    @RequestMapping(value = "user/connected", method = RequestMethod.GET)
+    public boolean isUserConnected() {
+        return true;
     }
+
+//    @RequestMapping(value = "username", method = RequestMethod.GET)
+//    public String getUsername() {
+//        return Optional.ofNullable(getLoggedUser()).map(UserDetail::getUsername).orElse(StringUtils.EMPTY);
+//    }
 
     @RequestMapping(value = "user", method = RequestMethod.GET)
     public UserRO getUser() {

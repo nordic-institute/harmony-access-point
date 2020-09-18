@@ -9,11 +9,7 @@ import {ApplicationContextService} from './common/application-context.service';
 import {SessionExpiredDialogComponent} from './security/session-expired-dialog/session-expired-dialog.component';
 import {DialogsService} from './common/dialogs/dialogs.service';
 import {Server} from './security/Server';
-import {
-  SessionState,
-  SESSION_STORAGE_KEY_LOGGED_OUT,
-  SESSION_STORAGE_KEY_EXPIRATION_SHOWN
-} from './security/SessionState';
+import {SESSION_STORAGE_KEY_EXPIRATION_SHOWN, SESSION_STORAGE_KEY_LOGGED_OUT, SessionState} from './security/SessionState';
 import {Subscription, timer} from 'rxjs';
 import {SessionService} from './security/session.service';
 
@@ -36,15 +32,15 @@ export class AppComponent implements OnInit, OnDestroy {
   private loginSubscription: Subscription;
   private timerSubscription: Subscription;
 
-  constructor (private securityService: SecurityService,
-               private router: Router,
-               private securityEventService: SecurityEventService,
-               private httpEventService: HttpEventService,
-               private domainService: DomainService,
-               private domibusInfoService: DomibusInfoService,
-               private applicationService: ApplicationContextService,
-               private dialogsService: DialogsService,
-               private sessionService: SessionService) {
+  constructor(private securityService: SecurityService,
+              private router: Router,
+              private securityEventService: SecurityEventService,
+              private httpEventService: HttpEventService,
+              private domainService: DomainService,
+              private domibusInfoService: DomibusInfoService,
+              private applicationService: ApplicationContextService,
+              private dialogsService: DialogsService,
+              private sessionService: SessionService) {
 
     this.domainService.setAppTitle();
 
@@ -64,6 +60,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit() {
+    this.sessionService.clearCurrentSession();
     this.extAuthProviderEnabled = await this.domibusInfoService.isExtAuthProviderEnabled();
     if (this.extAuthProviderEnabled) {
       const user = await this.securityService.getCurrentUserFromServer();
@@ -117,8 +114,10 @@ export class AppComponent implements OnInit, OnDestroy {
 
   private onHttpEventService(error) {
     if (error && (error.status === Server.HTTP_FORBIDDEN || error.status === Server.HTTP_UNAUTHORIZED)) {
-      this.sessionService.setExpiredSession(SessionState.EXPIRED_INACTIVITY_OR_ERROR);
-      this.securityService.logout();
+      if (this.securityService.getCurrentUser()) {
+        this.sessionService.setExpiredSession(SessionState.EXPIRED_INACTIVITY_OR_ERROR);
+        this.securityService.logout();
+      }
     }
   }
 
@@ -138,7 +137,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.sessionService.updateCurrentSession(SessionState.ACTIVE);
   }
 
-  isAdmin (): boolean {
+  isAdmin(): boolean {
     return this.securityService.isCurrentUserAdmin();
   }
 
