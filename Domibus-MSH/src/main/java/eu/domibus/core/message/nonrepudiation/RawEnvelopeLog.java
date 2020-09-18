@@ -22,7 +22,7 @@ import javax.persistence.*;
                 query = "DELETE FROM RawEnvelopeLog r where r.messageId=:MESSAGE_ID")
 })
 public class RawEnvelopeLog extends AbstractBaseEntity {
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "USERMESSAGE_ID_FK")
     protected UserMessage userMessage;
 
