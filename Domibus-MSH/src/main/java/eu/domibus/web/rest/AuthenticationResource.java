@@ -148,7 +148,7 @@ public class AuthenticationResource {
      * otherwise the method is not called because the infrastructure throws 401 or 403
      * @return always true
      */
-    @RequestMapping(value = "user/connected", method = RequestMethod.GET)
+    @GetMapping(value = "user/connected")
     public boolean isUserConnected() {
         return true;
     }
