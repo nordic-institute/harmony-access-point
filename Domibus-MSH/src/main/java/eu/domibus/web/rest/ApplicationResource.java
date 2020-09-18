@@ -3,6 +3,7 @@ package eu.domibus.web.rest;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
@@ -17,6 +18,7 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -59,6 +61,9 @@ public class ApplicationResource {
 
     @Autowired
     protected AuthUtils authUtils;
+
+    @Autowired
+    private DomainTaskExecutor domainTaskExecutor;
 
     /**
      * Rest method for the Domibus Info (Version, Build Time, ...)
@@ -133,17 +138,27 @@ public class ApplicationResource {
     }
 
     /**
-     * Retrieves the password policy info
+     * Retrieves the password policy info for the current domain or for super users
      *
+     * @param forDomain specifies if it is for the current domain, or super when false
      * @return password policy info
      */
     @RequestMapping(value = "passwordPolicy", method = RequestMethod.GET)
-    public PasswordPolicyRO getPasswordPolicy() {
-        LOG.debug("Getting password policy");
+    public PasswordPolicyRO getPasswordPolicy(@RequestParam(defaultValue = "true") Boolean forDomain) {
+        LOG.debug("Getting password policy fo domain: {}", forDomain);
 
-        String pattern = this.getPasswordPattern();
-        String validationMessage = this.getPasswordValidationMessage();
+        if (forDomain) {
+            return getPasswordPolicy();
+        }
 
+        return domainTaskExecutor.submit(() -> {
+            return getPasswordPolicy();
+        });
+    }
+
+    private PasswordPolicyRO getPasswordPolicy() {
+        String pattern = domibusPropertyProvider.getProperty(DOMIBUS_PASSWORD_POLICY_PATTERN);
+        String validationMessage = domibusPropertyProvider.getProperty(DOMIBUS_PASSWORD_POLICY_VALIDATION_MESSAGE);
         return new PasswordPolicyRO(pattern, validationMessage);
     }
 
@@ -176,14 +191,6 @@ public class ApplicationResource {
         supportTeamInfoRO.setName(getSupportTeamName());
 
         return supportTeamInfoRO;
-    }
-
-    private String getPasswordPattern() {
-        return domibusPropertyProvider.getProperty(DOMIBUS_PASSWORD_POLICY_PATTERN);
-    }
-
-    private String getPasswordValidationMessage() {
-        return domibusPropertyProvider.getProperty(DOMIBUS_PASSWORD_POLICY_VALIDATION_MESSAGE);
     }
 
     private String getPluginPasswordPattern() {
