@@ -67,8 +67,7 @@ public class CustomTrustedListPropertyMapper extends PropertyGroupMapper<OtherTr
         String customListUrl = keyValues.get(URL);
         String customListCountryCode = keyValues.get(CODE);
         try {
-            otherTrustedList.setTrustStore(
-                    new KeyStoreCertificateSource(new File(customListKeystorePath), customListKeystoreType, customListKeystorePassword));
+            otherTrustedList.setTrustStore(initKeyStoreCertificateSource(customListKeystorePath,customListKeystoreType,customListKeystorePassword));
             otherTrustedList.setUrl(customListUrl);
             otherTrustedList.setCountryCode(customListCountryCode);
             LOG.debug("Custom trusted list with keystore path:[{}] and type:[{}], URL:[{}], customListCountryCode:[{}] will be added to DSS", customListKeystorePath, customListKeystoreType, customListUrl, customListCountryCode);
@@ -77,5 +76,10 @@ public class CustomTrustedListPropertyMapper extends PropertyGroupMapper<OtherTr
             LOG.error("Error while configuring custom trusted list with keystore path:[{}],type:[{}] ", customListKeystorePath, customListKeystoreType, e);
             return null;
         }
+    }
+
+
+    protected KeyStoreCertificateSource initKeyStoreCertificateSource(String customListKeystorePath,String customListKeystoreType,String customListKeystorePassword) throws IOException {
+        return new KeyStoreCertificateSource(new File(customListKeystorePath), customListKeystoreType, customListKeystorePassword);
     }
 }
