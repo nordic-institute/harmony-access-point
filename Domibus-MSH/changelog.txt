@@ -1,4 +1,5 @@
 Domibus 4.2
+- Possibility to change some DSS extension properties at runtime.
 - Possibility to define a higher priority for specific messages to be sent
 - New isAlive RestService in DomibusCore to add to E2E Monitoring
 - Possibility to monitor the connection state between C2 and C3
