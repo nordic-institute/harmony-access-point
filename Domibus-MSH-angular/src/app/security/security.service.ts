@@ -17,7 +17,7 @@ export class SecurityService {
   public static ROLE_USER = 'ROLE_USER';
   public static USER_ROLES = [SecurityService.ROLE_USER, SecurityService.ROLE_DOMAIN_ADMIN, SecurityService.ROLE_AP_ADMIN];
   public static ADMIN_ROLES = [SecurityService.ROLE_DOMAIN_ADMIN, SecurityService.ROLE_AP_ADMIN];
-  
+
   pluginPasswordPolicy: Promise<PasswordPolicyRO>;
   public password: string;
 
@@ -28,6 +28,8 @@ export class SecurityService {
               private applicationService: ApplicationContextService,
               private dialogsService: DialogsService,
               private propertiesService: PropertiesService) {
+    this.constructor.domainService = domainService;
+    // SecurityService.domainService = domainService;
   }
 
   login(username: string, password: string) {
@@ -258,6 +260,12 @@ export class SecurityService {
     const pattern = await this.propertiesService.getDomainOrGlobalPropertyValue('domibus.passwordPolicy.pattern', forDomain);
     const message = await this.propertiesService.getDomainOrGlobalPropertyValue('domibus.passwordPolicy.validationMessage', forDomain);
     return new PasswordPolicyRO(pattern, message);
+  }
+
+  public static async getAllowedRolesForSTandMT(stRoles, mtRoles) {
+    let domainService: DomainService = SecurityService.domainService;
+    let isMulti = await domainService.isMultiDomain().toPromise();
+    return isMulti ? mtRoles : stRoles;
   }
 }
 
