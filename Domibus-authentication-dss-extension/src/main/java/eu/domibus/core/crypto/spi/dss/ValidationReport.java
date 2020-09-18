@@ -64,7 +64,7 @@ public class ValidationReport {
                     stream().
                     flatMap(xmlValidationCertificateQualification ->
                             xmlValidationCertificateQualification.getConstraint().stream()).
-                    peek(xmlConstraint -> LOG.debug("CertificateQualification section:Constraint name:[{}] status:[{}]",xmlConstraint.getName().getNameId(),xmlConstraint.getStatus())).
+                    peek(xmlConstraint -> LOG.debug("Certificate validation qualification section:Constraint name:[{}] status:[{}]",xmlConstraint.getName().getNameId(),xmlConstraint.getStatus())).
                     collect(Collectors.toList()));
         }
         if (detailedReport.

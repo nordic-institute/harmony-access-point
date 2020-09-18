@@ -39,9 +39,6 @@ public class ValidationConstraintPropertyMapper extends PropertyGroupMapper<Cons
 
     @Override
     protected ConstraintInternal transform(Map<String,String> keyValues) {
-        if (keyValues.isEmpty()) {
-            throw new IllegalStateException("Constraints are mandatory.");
-        }
         final String constraintName = keyValues.get(NAME);
         if (constraintName == null) {
             throw new IllegalStateException("Constraint name can not be empty");
