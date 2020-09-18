@@ -1,18 +1,19 @@
-Domibus 4.2 (from 4.1.4):
-                - Change oracle database configuration property domibus.datasource.xa.property.URL to domibus.datasource.xa.property.url in domibus.properties.
+Domibus 4.2 (from 4.1.5):
                 - Run the appropriate DB migration script(mysql5innoDb-4.1.5-to-4.2-migration.ddl for MySQL or oracle10g-4.1.5-to-4.2-migration.ddl for Oracle)
                 - Replace the Domibus war
                 - Delete the default plugin(s) config file(s) eg ws-plugin.xml, jms-plugin.xml and fs-plugin.xml from "\domibus\conf\domibus\plugins\config"
                 - Replace the default plugin(s) property file(s) and jar(s) into "\domibus\conf\domibus\plugins\config" respectively into "\domibus\conf\domibus\plugins\lib"
-                - Change the name of domibus.ui.csv.max.rows property to domibus.ui.csv.rows.max
-                - [multitenancy only]
-                    o add a configuration file named default-domibus.properties for domain specific properties for 'default' domain
-                    o add a configuration file named super-domibus.properties for properties specific to super users
-                    o in the domain_name-domibus.properties files, replace the names of the domain_name.payload.temp.* properties
-                with domain_name.domibus.payload.temp.*
                 - PMode payload profile maxSize re-enabled: remove the comment about maxSize <payloadProfile name="MessageProfile" maxSize="40894464"> <!-- maxSize is currently ignored -->
-                and replace the value with maxSize="2147483647"
-                - Wildfly standalone-full.xml - search for
+                  and replace the value with maxSize="2147483647" in the PMode file
+                - Change the name of domibus.ui.csv.max.rows property to domibus.ui.csv.rows.max in domibus.properties file
+                - [Oracle database only]
+                   - Change oracle database configuration property domibus.datasource.xa.property.URL to domibus.datasource.xa.property.url in domibus.properties.
+                - [Multitenancy only]
+                   - add the configuration file default-domibus.properties for the 'default' domain from the distribution
+                   - add the configuration file super-domibus.properties from the distribution
+                   - in the domain specific configuration files(eg domain_name-domibus.properties), replace the names of the domain_name.payload.temp.* properties with domain_name.domibus.payload.temp.*
+                - [Wildfly only]
+                   - in standalone-full.xml - search for
                     <managed-executor-service name="quartzExecutorService" jndi-name="java:jboss/ee/concurrency/executor/QuartzExecutorService" context-service="default" hung-task-threshold="0" long-running-tasks="true" core-threads="5" max-threads="25" keepalive-time="5000"/>
                     and replace 'core-threads="5" max-threads="25"' with 'core-threads="50" max-threads="200"'
 Domibus 4.1.5 (from 4.1.3)
