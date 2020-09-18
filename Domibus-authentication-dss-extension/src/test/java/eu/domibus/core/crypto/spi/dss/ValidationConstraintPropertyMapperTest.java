@@ -1,6 +1,5 @@
 package eu.domibus.core.crypto.spi.dss;
 
-import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomibusPropertyExtService;
 import mockit.Expectations;
@@ -11,6 +10,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.core.env.Environment;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static eu.europa.esig.dss.validation.process.MessageTag.ADEST_IRTPTBST;
@@ -28,32 +29,30 @@ public class ValidationConstraintPropertyMapperTest {
             @Mocked DomibusPropertyExtService domibusPropertyExtService,
             @Mocked DomainContextExtService domainContextExtService,
             @Mocked Environment environment) {
+        List<String> nestedProperties=new ArrayList<>(Arrays.asList("name","status"));
         new Expectations() {{
-            final DomainDTO result = new DomainDTO("DE", "DEFAULT");
-            domainContextExtService.getCurrentDomainSafely();
-            this.result = result;
-            domibusPropertyExtService.getDomainProperty(result, "domibus.authentication.dss.constraint.name[0]");
-            this.result = ADEST_IRTPTBST.name();
-            domibusPropertyExtService.containsDomainPropertyKey(result, "domibus.authentication.dss.constraint.name[0]");
+            domibusPropertyExtService.containsPropertyKey( "domibus.authentication.dss.constraint1");
             this.result = true;
-            domibusPropertyExtService.getDomainProperty(result, "domibus.authentication.dss.constraint.status[0]");
+            domibusPropertyExtService.containsPropertyKey( "domibus.authentication.dss.constraint2");
+            this.result = true;
+            domibusPropertyExtService.containsPropertyKey( "domibus.authentication.dss.constraint3");
+            this.result = false;
+            domibusPropertyExtService.getNestedProperties("domibus.authentication.dss.constraint1");
+            this.result = nestedProperties;
+            domibusPropertyExtService.getNestedProperties("domibus.authentication.dss.constraint2");
+            this.result = nestedProperties;
+            domibusPropertyExtService.getProperty("domibus.authentication.dss.constraint1.name");
+            this.result = ADEST_IRTPTBST.name();;
+            domibusPropertyExtService.getProperty( "domibus.authentication.dss.constraint1.status");
             this.result = "OK";
-            domibusPropertyExtService.containsDomainPropertyKey(result, "domibus.authentication.dss.constraint.status[0]");
-            this.result = true;
-            domibusPropertyExtService.getDomainProperty(result, "domibus.authentication.dss.constraint.name[1]");
+            domibusPropertyExtService.getProperty( "domibus.authentication.dss.constraint2.name");
             this.result = QUAL_FOR_SIGN_AT_CC.name();
-            domibusPropertyExtService.containsDomainPropertyKey(result, "domibus.authentication.dss.constraint.name[1]");
-            this.result = true;
-            domibusPropertyExtService.getDomainProperty(result, "domibus.authentication.dss.constraint.status[1]");
+            domibusPropertyExtService.getProperty("domibus.authentication.dss.constraint2.status");
             this.result = "WARNING";
-            domibusPropertyExtService.containsDomainPropertyKey(result, "domibus.authentication.dss.constraint.status[1]");
-            this.result = true;
         }};
         ValidationConstraintPropertyMapper constraintPropertyMapper =
                 new ValidationConstraintPropertyMapper(
-                        domibusPropertyExtService,
-                        domainContextExtService,
-                        environment);
+                        domibusPropertyExtService);
 
         final List<ConstraintInternal> constraints = constraintPropertyMapper.map();
         Assert.assertEquals(2, constraints.size());

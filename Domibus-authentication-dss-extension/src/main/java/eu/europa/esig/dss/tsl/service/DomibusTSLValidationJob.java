@@ -54,8 +54,14 @@ public class DomibusTSLValidationJob {
     private Function<Void
             , CertificateVerifier> certificateVerifierFactory;
 
-    public DomibusTSLValidationJob(Function<Void, CertificateVerifier> certificateVerifierFactory) {
+    Function<Void
+            , List<OtherTrustedList>> otherTrustedListsFactory;
+
+    public DomibusTSLValidationJob(Function<Void, CertificateVerifier> certificateVerifierFactory,
+                                   Function<Void
+                                           , List<OtherTrustedList>> otherTrustedListsFactory) {
         this.certificateVerifierFactory = certificateVerifierFactory;
+        this.otherTrustedListsFactory = otherTrustedListsFactory;
     }
 
     public void setExecutorService(ExecutorService executorService) {
@@ -145,16 +151,8 @@ public class DomibusTSLValidationJob {
         this.filterTerritories = filterTerritories;
     }
 
-    /**
-     * This parameter allows to add non EU trusted lists.
-     *
-     * @param otherTrustedLists a list of additional trusted lists to be supported
-     */
-    public void setOtherTrustedLists(List<OtherTrustedList> otherTrustedLists) {
-        this.otherTrustedLists = otherTrustedLists;
-    }
-
     public void initRepository() {
+        refreshCustomTrustedList();
         LOG.info("Initialization of the TSL repository ...");
         int loadedTSL = 0;
         List<File> cachedFiles = repository.getStoredFiles();
@@ -229,8 +227,13 @@ public class DomibusTSLValidationJob {
         return null;
     }
 
+    public void refreshCustomTrustedList() {
+        this.otherTrustedLists = otherTrustedListsFactory.apply(null);
+    }
+
     public void refresh() {
         LOG.debug("TSL Validation Job is starting ...");
+        refreshCustomTrustedList();
 
         analyzeLOTLBasedModel();
 

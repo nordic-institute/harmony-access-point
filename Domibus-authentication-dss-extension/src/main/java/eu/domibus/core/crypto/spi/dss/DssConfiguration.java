@@ -263,14 +263,21 @@ public class DssConfiguration {
         }
     }
 
-
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     @Bean
-    List<OtherTrustedList> otherTrustedLists(@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") DomibusPropertyExtService domibusPropertyExtService,
-                                             @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") DomainContextExtService domainContextExtService,
-                                             @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") DomibusConfigurationExtService domibusConfigurationExtService,
-                                             Environment environment) {
+    public Function<Void
+            , List<OtherTrustedList>> otherTrustedListsFactory(DomibusPropertyExtService domibusPropertyExtService,
+                                                               DomibusConfigurationExtService domibusConfigurationExtService) {
+        return aVoid -> otherTrustedLists(domibusPropertyExtService,domibusConfigurationExtService);
+    }
+
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
+    @Bean
+    @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+    List<OtherTrustedList> otherTrustedLists(DomibusPropertyExtService domibusPropertyExtService,
+                                             DomibusConfigurationExtService domibusConfigurationExtService) {
         final boolean multiTenant = domibusConfigurationExtService.isMultiTenantAware();
-        final List<OtherTrustedList> otherTrustedLists = new CustomTrustedListPropertyMapper(domibusPropertyExtService, domainContextExtService, environment).map();
+        final List<OtherTrustedList> otherTrustedLists = new CustomTrustedListPropertyMapper(domibusPropertyExtService).map();
         if (multiTenant && !otherTrustedLists.isEmpty()) {
             if (enableDssCustomTrustedListForMultiTenant) {
                 LOG.warn("Configured custom trusted lists are shared by all tenants.");
@@ -293,13 +300,14 @@ public class DssConfiguration {
             DataLoader dataLoader,
             DomibusTSLRepository tslRepository,
             KeyStoreCertificateSource ojContentKeyStore,
-            List<OtherTrustedList> otherTrustedLists,
+            Function<Void
+                    , List<OtherTrustedList>> otherTrustedListsFactory,
             DssExtensionPropertyManager dssExtensionPropertyManager) {
         String currentLotlUrl=dssExtensionPropertyManager.getKnownPropertyValue(DssExtensionPropertyManager.AUTHENTICATION_DSS_CURRENT_LOTL_URL);
         String currentOjUrl=dssExtensionPropertyManager.getKnownPropertyValue(DssExtensionPropertyManager.AUTHENTICATION_DSS_CURRENT_OFFICIAL_JOURNAL_URL);
         String lotlCountryCode=dssExtensionPropertyManager.getKnownPropertyValue(DssExtensionPropertyManager.AUTHENTICATION_DSS_LOTL_COUNTRY_CODE);
         LOG.info("Configuring DSS lotl with url:[{}],schema uri:[{}],country code:[{}],oj url:[{}]", currentLotlUrl, lotlSchemeUri, lotlCountryCode, currentOjUrl);
-        DomibusTSLValidationJob validationJob = new DomibusTSLValidationJob(certificateVerifierFactory());
+        DomibusTSLValidationJob validationJob = new DomibusTSLValidationJob(certificateVerifierFactory(),otherTrustedListsFactory);
         validationJob.setDataLoader(dataLoader);
         validationJob.setRepository(tslRepository);
         validationJob.setLotlUrl(currentLotlUrl);
@@ -308,7 +316,6 @@ public class DssConfiguration {
         validationJob.setOjContentKeyStore(ojContentKeyStore);
         validationJob.setCheckLOTLSignature(true);
         validationJob.setCheckTSLSignatures(true);
-        validationJob.setOtherTrustedLists(otherTrustedLists);
         String serverCacheDirectoryPath = tslRepository.getCacheDirectoryPath();
         Path cachePath = Paths.get(serverCacheDirectoryPath);
         if (!cachePath.toFile().exists()) {
@@ -353,7 +360,7 @@ public class DssConfiguration {
     @Bean
     public ValidationConstraintPropertyMapper contraints(@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") DomibusPropertyExtService domibusPropertyExtService,
                                                          @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") DomainContextExtService domainContextExtService, Environment environment) {
-        return new ValidationConstraintPropertyMapper(domibusPropertyExtService, domainContextExtService, environment);
+        return new ValidationConstraintPropertyMapper(domibusPropertyExtService);
     }
 
     @Bean

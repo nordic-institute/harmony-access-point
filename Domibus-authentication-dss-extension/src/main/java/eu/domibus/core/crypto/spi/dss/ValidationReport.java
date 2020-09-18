@@ -53,7 +53,10 @@ public class ValidationReport {
                 getCertificate() != null) {
             allConstraints.addAll(detailedReport.
                     getCertificate().
-                    getConstraint());
+                    getConstraint().
+                    stream().
+                    peek(xmlConstraint -> LOG.debug("CertificateQualification section:Constraint name:[{}] status:[{}]",xmlConstraint.getName().getNameId(),xmlConstraint.getStatus())).
+                    collect(Collectors.toList()));
             //Add constraint from xmlValidationCertificateQualification
             allConstraints.addAll(detailedReport.
                     getCertificate().
@@ -61,6 +64,7 @@ public class ValidationReport {
                     stream().
                     flatMap(xmlValidationCertificateQualification ->
                             xmlValidationCertificateQualification.getConstraint().stream()).
+                    peek(xmlConstraint -> LOG.debug("CertificateQualification section:Constraint name:[{}] status:[{}]",xmlConstraint.getName().getNameId(),xmlConstraint.getStatus())).
                     collect(Collectors.toList()));
         }
         if (detailedReport.
@@ -71,6 +75,7 @@ public class ValidationReport {
                     stream().
                     filter(xmlBasicBuildingBlocks -> xmlBasicBuildingBlocks.getXCV() != null).
                     flatMap(xmlBasicBuildingBlocks -> xmlBasicBuildingBlocks.getXCV().getConstraint().stream()).
+                    peek(xmlConstraint -> LOG.debug("XCV section:Constraint name:[{}] status:[{}]",xmlConstraint.getName().getNameId(),xmlConstraint.getStatus())).
                     collect(Collectors.toList()));
             //Add constraint from Sub XCV
             allConstraints.addAll(detailedReport.
@@ -79,15 +84,13 @@ public class ValidationReport {
                     filter(xmlBasicBuildingBlocks -> xmlBasicBuildingBlocks.getXCV() != null).
                     flatMap(xmlBasicBuildingBlocks -> xmlBasicBuildingBlocks.getXCV().getSubXCV().stream()).
                     flatMap(xmlSubXCV -> xmlSubXCV.getConstraint().stream()).
+                    peek(xmlConstraint -> LOG.debug("Sub XCV section:Constraint name:[{}] status:[{}]",xmlConstraint.getName().getNameId(),xmlConstraint.getStatus())).
                     collect(Collectors.toList()));
         }
 
         if (LOG.isDebugEnabled()) {
             constraints.forEach(
                     constraint -> LOG.debug("Configured constraint:[{}], status:[{}]", constraint.getName(), constraint.getStatus()));
-            LOG.debug("Report constraints list:");
-            allConstraints.
-                    forEach(xmlConstraint -> LOG.debug("    Constraint:[{}], status:[{}]", xmlConstraint.getName().getNameId(), xmlConstraint.getStatus()));
         }
         for (ConstraintInternal constraintInternal : constraints) {
             final long count = allConstraints.stream().
@@ -134,8 +137,6 @@ public class ValidationReport {
             default:
                 throw new AuthenticationException(AuthenticationError.EBMS_0101, "Certificate validation failed in DSS module");
         }
-
-
     }
 
 }
