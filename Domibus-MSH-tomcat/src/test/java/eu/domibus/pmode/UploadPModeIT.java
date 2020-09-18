@@ -317,6 +317,7 @@ public class UploadPModeIT extends AbstractIT {
             ValidationResponseRO response = adminGui.uploadPMode(pModeContent, "description");
             fail("exception expected");
         } catch (PModeValidationException ex) {
+            assertEquals(4, ex.getIssues().size());
             assertTrue(ex.getIssues().get(0).getMessage().contains("'true123' is not a valid value for 'boolean'."));
             assertTrue(ex.getIssues().get(1).getMessage().contains("The value 'true123' of attribute 'duplicateDetection' on element 'receptionAwareness' is not valid with respect to its type, 'boolean'."));
             assertTrue(ex.getIssues().get(2).getMessage().contains(" 'true11' is not a valid value for 'boolean'."));
