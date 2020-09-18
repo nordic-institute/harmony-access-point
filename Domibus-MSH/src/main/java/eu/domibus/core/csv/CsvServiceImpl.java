@@ -1,7 +1,5 @@
 package eu.domibus.core.csv;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.opencsv.CSVWriter;
 import eu.domibus.api.csv.CsvException;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
@@ -11,21 +9,18 @@ import eu.domibus.api.util.DomibusStringUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.io.StringWriter;
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.function.Supplier;
+import java.util.function.LongSupplier;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_UI_CSV_MAX_ROWS;
+import static eu.domibus.core.csv.CvsSerializer.*;
+import static java.util.Arrays.asList;
 
 /**
  * @author Tiago Miguel
@@ -38,7 +33,7 @@ public class CsvServiceImpl implements CsvService {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CsvServiceImpl.class);
     public static final String CSV_DATE_PATTERN = "yyyy-MM-dd HH:mm:ss'GMT'Z";
 
-    public static String APPLICATION_EXCEL_STR = "application/ms-excel";
+    public static final String APPLICATION_EXCEL_STR = "application/ms-excel";
     private final DomibusPropertyProvider domibusPropertyProvider;
 
     public CsvServiceImpl(DomibusPropertyProvider domibusPropertyProvider) {
@@ -82,9 +77,9 @@ public class CsvServiceImpl implements CsvService {
     }
 
     @Override
-    public void validateMaxRows(long count, Supplier<Long> countMethod) throws RequestValidationException {
+    public void validateMaxRows(long count, LongSupplier countMethod) throws RequestValidationException {
         if (count > getMaxNumberRowsToExport()) {
-            Long all = countMethod == null ? count : countMethod.get();
+            Long all = countMethod == null ? count : countMethod.getAsLong();
             String message = String.format("The number of elements to export [%s] exceeds the maximum allowed [%s]."
                     , all, getMaxNumberRowsToExport());
             throw new RequestValidationException(message);
@@ -110,7 +105,7 @@ public class CsvServiceImpl implements CsvService {
     }
 
     public List<Field> getAllFields(List<Field> fields, Class<?> type) {
-        fields.addAll(Arrays.asList(type.getDeclaredFields()));
+        fields.addAll(asList(type.getDeclaredFields()));
 
         if (type.getSuperclass() != null) {
             getAllFields(fields, type.getSuperclass());
@@ -166,26 +161,20 @@ public class CsvServiceImpl implements CsvService {
     }
 
     protected String serializeFieldValue(Field field, Object elem) throws IllegalAccessException {
+        LOG.trace("Serialization for field [{}]", field);
         Object fieldValue = field.get(elem);
-
-        if (fieldValue == null) {
-            return StringUtils.EMPTY;
+        for (CvsSerializer serializer : asList(
+                NULL,
+                MAP,
+                DATE,
+                LOCAL_DATE_TIME,
+                ROUTING_CRITERIA,
+                ERROR_CODE)) {
+            if (serializer.check(fieldValue)) {
+                return serializer.serialize(fieldValue);
+            }
         }
-        if (fieldValue instanceof Map) {
-            Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-            return gson.toJson(fieldValue);
-        }
-        if (fieldValue instanceof Date) {
-            DateTimeFormatter f = DateTimeFormatter.ofPattern(CSV_DATE_PATTERN);
-            ZonedDateTime d = ZonedDateTime.ofInstant(((Date) fieldValue).toInstant(), ZoneId.systemDefault());
-            return d.format(f);
-        }
-        if (fieldValue instanceof LocalDateTime) {
-            DateTimeFormatter f = DateTimeFormatter.ofPattern(CSV_DATE_PATTERN);
-            ZonedDateTime d = ((LocalDateTime) fieldValue).atZone(ZoneId.systemDefault());
-            return d.format(f);
-        }
-        return Objects.toString(fieldValue, StringUtils.EMPTY);
+        return DEFAULT.serialize(fieldValue);
     }
 
 }

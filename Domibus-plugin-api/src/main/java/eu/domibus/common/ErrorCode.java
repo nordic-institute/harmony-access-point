@@ -36,7 +36,7 @@ public enum ErrorCode {
                 return errorCode;
             }
         }
-        LOG.error("No ErrorCode found for ErrorCodeName: " + errorCodeName);
+        LOG.error("No ErrorCode found for ErrorCodeName: {}", errorCodeName);
         throw new IllegalArgumentException("No ErrorCode found for ErrorCodeName: " + errorCodeName);
     }
 

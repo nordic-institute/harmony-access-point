@@ -4,17 +4,21 @@ import eu.domibus.api.csv.CsvException;
 import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.routing.RoutingCriteria;
+import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.core.message.MessageLogInfo;
 import eu.domibus.core.plugin.notification.NotificationStatus;
 import eu.domibus.ebms3.common.model.MessageType;
+import eu.domibus.web.rest.ro.ErrorLogRO;
 import mockit.Expectations;
 import mockit.FullVerifications;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 import org.hamcrest.CoreMatchers;
+import org.hamcrest.core.Is;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,7 +29,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.function.Supplier;
+import java.util.function.LongSupplier;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_UI_CSV_MAX_ROWS;
 
@@ -38,6 +42,9 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 public class CsvServiceImplTest {
 
     public static final LocalDateTime LOCAL_DATE_TIME = LocalDateTime.of(2020, 1, 1, 12, 59);
+    private static final String MESSAGE_FILTER_HEADER = "Plugin,From,To,Action,Service,Persisted";
+
+    private static final String LINE_SEPARATOR = "\n";
     @Injectable
     private DomibusPropertyProvider domibusPropertyProvider;
 
@@ -45,6 +52,20 @@ public class CsvServiceImplTest {
     CsvServiceImpl csvServiceImpl;
 
     public Object objectNull = null;
+
+    @Test
+    public void getPageSizeForExport() {
+        new Expectations(csvServiceImpl){{
+            csvServiceImpl.getMaxNumberRowsToExport();
+            result = 1;
+        }};
+
+        int pageSizeForExport = csvServiceImpl.getPageSizeForExport();
+
+        Assert.assertThat(pageSizeForExport, Is.is(2));
+
+        new FullVerifications(){};
+    }
 
     @Test
     public void testExportToCsv_EmptyList() throws CsvException {
@@ -119,9 +140,21 @@ public class CsvServiceImplTest {
     }
 
     @Test
+    public void validateMaxRows_ok() {
+        new Expectations(csvServiceImpl) {{
+            csvServiceImpl.validateMaxRows(5000, null);
+        }};
+
+        csvServiceImpl.validateMaxRows(5000);
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
     public void testValidateMaxRowsWithCount() {
         long actualCount = 8000L;
-        Supplier<Long> actualCountSupplier = () -> actualCount;
+        LongSupplier actualCountSupplier = () -> actualCount;
         new Expectations() {{
             domibusPropertyProvider.getIntegerProperty(DOMIBUS_UI_CSV_MAX_ROWS);
             result = 1000;
@@ -231,6 +264,60 @@ public class CsvServiceImplTest {
         String test = csvServiceImpl.getCsvFilename("test");
         Assert.assertThat(test, CoreMatchers.containsString("test_datatable_"));
         Assert.assertThat(test, CoreMatchers.containsString(".csv"));
+    }
+
+    @Test
+    public void testExportToCsv_ErrorLog() throws CsvException {
+        // Given
+        Date date = new Date();
+        List<ErrorLogRO> errorLogROList = getErrorLogList(date);
+
+        DateTimeFormatter f = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss'GMT'Z");
+        ZonedDateTime d = ZonedDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
+        String csvDate = d.format(f);
+
+        // When
+        final String exportToCSV = csvServiceImpl.exportToCSV(errorLogROList, ErrorLogRO.class, null, null);
+
+        // Then
+        Assert.assertTrue(exportToCSV.contains("Error Signal Message Id,Msh Role,Message In Error Id,Error Code,Error Detail,Timestamp,Notified"));
+        Assert.assertTrue(exportToCSV.contains("signalMessageId,RECEIVING,messageInErrorId,EBMS_0001,errorDetail,"+csvDate+","+csvDate));
+    }
+
+    @Test
+    public void testExportToCsv_messageFilterROL() throws CsvException {
+        // Given
+        List<MessageFilterCSV> messageFilterROList = new ArrayList<>();
+        MessageFilterCSV messageFilterRO = new MessageFilterCSV();
+        messageFilterRO.setPlugin("backendName");
+        RoutingCriteria fromRoutingCriteria = new RoutingCriteria();
+        fromRoutingCriteria.setName("from");
+        fromRoutingCriteria.setExpression("from:from");
+        fromRoutingCriteria.setEntityId(1);
+        messageFilterRO.setPersisted(true);
+        messageFilterRO.setFrom(fromRoutingCriteria);
+        messageFilterROList.add(messageFilterRO);
+
+        // When
+        final String exportToCSV = csvServiceImpl.exportToCSV(messageFilterROList, MessageFilterCSV.class, null, null);
+
+        // Then
+        Assert.assertEquals(MESSAGE_FILTER_HEADER + LINE_SEPARATOR +
+                "backendName,from:from,,,,true" + LINE_SEPARATOR, exportToCSV);
+    }
+
+    private List<ErrorLogRO> getErrorLogList(Date date) {
+        List<ErrorLogRO> result = new ArrayList<>();
+        ErrorLogRO errorLogRO = new ErrorLogRO();
+        errorLogRO.setErrorCode(ErrorCode.EBMS_0001);
+        errorLogRO.setErrorDetail("errorDetail");
+        errorLogRO.setErrorSignalMessageId("signalMessageId");
+        errorLogRO.setMessageInErrorId("messageInErrorId");
+        errorLogRO.setMshRole(MSHRole.RECEIVING);
+        errorLogRO.setNotified(date);
+        errorLogRO.setTimestamp(date);
+        result.add(errorLogRO);
+        return result;
     }
 
     static class TestCsvFields {
