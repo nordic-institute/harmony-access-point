@@ -475,7 +475,7 @@ public class CachingPModeProvider extends PModeProvider {
                     String identifierPartyIdType = null;
                     partyIdValue = id.getValue();
                     if (identifier.getPartyIdType() != null &&
-                        !StringUtils.isEmpty(identifier.getPartyIdType().getValue())) {
+                        StringUtils.isNotEmpty(identifier.getPartyIdType().getValue())) {
                         identifierPartyIdType = identifier.getPartyIdType().getValue();
                     }
                     LOG.debug("Find party with type:[{}] and identifier:[{}] by comparing with pmode id type:[{}] and pmode identifier:[{}]", partyIdType, id.getValue(), identifierPartyIdType, identifier.getPartyId());
