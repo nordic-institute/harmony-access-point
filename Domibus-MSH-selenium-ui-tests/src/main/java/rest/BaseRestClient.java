@@ -247,7 +247,7 @@ public class BaseRestClient {
 		return builder;
 	}
 	
-	protected List<NewCookie> login() {
+	protected List<NewCookie> login() throws DomibusRestException {
 		log.debug("Rest client using to login: " + this.username);
 		HashMap<String, String> params = new HashMap<>();
 		params.put("username", this.username);
@@ -260,7 +260,9 @@ public class BaseRestClient {
 		if (response.getStatus() == 200) {
 			return response.getCookies();
 		}
-		return null;
+		
+		throw new DomibusRestException("Login failed", response);
+
 	}
 	
 	public boolean login(String username, String pass) {
