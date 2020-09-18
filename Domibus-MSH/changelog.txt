@@ -1,4 +1,13 @@
 Domibus 4.2
+- Possibility to define a higher priority for specific messages to be sent
+- New isAlive RestService in DomibusCore to add to E2E Monitoring
+- Possibility to monitor the connection state between C2 and C3
+- API for adding/updating participants
+- Extend the retention policy mechanism
+- Domibus Support of Open JDK 11
+- Default JMS Plugin – different queues depending on service/action
+- Upgrade Wildfly to version 20 and dropped support for Wildfly 12 (incompatibilities in the new Artemis 2.x client API)
+- UI page for changing the Domibus properties at runtime
 - Naming convention of the metrics has changed from upper case metric name to class name.lower case metric name. (EG: OUTGOING_PULL_REQUEST_timer is now named eu.domibus.core.message.pull.PullMessageSender.outgoing_pull_request.timer)
 - Added DomibusWorkManager within weblogic.xml to avoid using default work manager.
 - Added duplicate entities validations in PMode upload.
@@ -11,12 +20,10 @@ Domibus 4.2
 - Filtered out bean scanning of web and ext sub-packages to avoid multiple bean creation.
 - Deleted msh-config.xml and moved one bean to spring-context.xml
 - Upgrade Tomcat to version 9 and dropped support for Tomcat 8
-- Upgrade Wildfly to version 20 and dropped support for Wildfly 12 (incompatibilities in the new Artemis 2.x client API)
 - Upgrade MySQL to version 8.0 and dropped support for MySQL version 5
 - Upgrade the default MySQL Connector/J bundled inside the full distributions to version 8.0.19
 - When caching is active for MSH DispatchClient - Ehcache will ignore size calculations therefore no WARNs will be generated in logs
 - Possibility to route JMS messages in the JMS Plugin to specific queues depending on service and action
-- Added JDK 11 support
 - Added Foreign Servers support in Weblogic
 - Add alert for account enabled.
 - maxSize attribute defined in payload profile in PMode is taken in account message exchange - maxSize="2147483647" (normal operations) or maxSize="9223372036854775807" for Split&Join operations
@@ -27,6 +34,310 @@ Domibus 4.2
 - *-plugin-default-ehcache.xml (classpath jar file) and external *-plugin-ehcache.xml into /plugins/config folder
 - Domibus internal tables storing PMode information have been renamed to start with prefix TB_PM_*
 - Added new property domibus.ui.resend.action.enabled.received.minutes - how many minutes after message's received date the Resend button will become enabled for messages having SEND_ENQUEUED status
+- Add property managers for specific servers
+- Implement new exceptions handling
+- UI: Improve AlertService implementation
+- Download truststore from Domibus admin console.
+- Pull mechanism: perform the sending of the receipt via a jms queue.
+- Domibus Logging in case of ebMS3 error
+- UI: Test Services: Move Update button
+- In the party definition modal the OK and Cancel buttons should be always visible
+- UI admin console: moving messages in the JMS Monitoring page
+- Perform business validation when the Pmode is uploaded via the Admin Console
+- Delete Alerts
+- Default PModes configuration - bad error is shown if user forgets to edit the blue or red pMode
+- Harmonize the use of the Factory beans defined in spring-context.xml file
+- UI admin console: Error and confirmation messages are incorrectly hidden when doing other operations
+- FS Plugin: Make sure to clean the lock files in case the deletion fails for some reason
+- LisPendingMessages should use the database instead of the JMS broker
+- Add audit columns in all configuration and run-time tables
+- Refactor and simplify the domibus property management
+- Alerts - A better mechanism to reset a configuration loader.
+- Migrate from Spring XML config to Spring annotations config - part1
+- Allow plugins to re-download message & payload until message is deleted
+- Upgrade to the latest Angular + Angular Material
+- Refactor domibus property loading at bootstrap time.
+- JMS Plugin exceptions in logs
+- Include date of password expiration in admin console
+- Warning before password expiration for plugin users.
+- UI: refactor angular forms to avoid deprecated constructs
+- Perform business validation when the Pmode is uploaded via the Admin Console - part 2
+- Make the Latest SQL Scripts Not Dependent of the Domibus Version
+- Simplify CsvExport functionality for the admin console resources.
+- Support for Foreign Server in WebLogic
+- UI: show a popup to the user in case the current session is expired
+- Simplify the MultiDomainAlertConfigurationServiceImpl class
+- Add blacklist-like validation for domibus property values
+- Evaluate the setting of artemis-amqp-protocol dependency as provided
+- Small improvements for backend-client-example project
+- Locate and eliminate \n characters where they're explicitly added to log messages
+- Plugin user with Role User must complete Original User field
+- Internal Xerces class used
+- Pmode size limitation not functional anymore
+- Duplicate "originalSender" property is accepted.
+- PMode[1].Role is not respected for pmode resolution
+- Some differences in message parameters between JMS and WS plugins.
+- Message error improvement for MSH role.
+- When "PartyId" element not present, generic error message is returned.
+- Improve error message when role element is not present.
+- Improve error message for mandatory message parameters.
+- Every thrown EbMS3Exception should contain the messageId
+- UI: Harmonize all dialogs in Admin Console
+- UI: New user/User Edit "Password do not match" warning small issue
+- Expired certificate is not highlighted in the UI
+- Datasources JNDI properties should be externalized
+- FSPlugin: payload not created when wrong PayloadName is specified
+- Both DB and UI accept usernames with non-alphanumeric characters and/or with length less than 4
+- Message can be retrieved twice in case of clustered environment.
+- [internal] prefix not added on JMS queue names in Wildfly
+- NotificationListenerService should log all exceptions faced on plugin notifications
+- Schema name is case sensitive in the context of multi-tenancy.
+- Users defined in default SQLs can't submit a message
+- AP Role field is missing in some errorLog entries
+- Load truststore with invalid keystore password
+- Replace validation on GUI for CSV export max rows
+- Wrong error message when duplicate originalSender or finalRecipient properties present
+- Relative path are forbidden for payload filesystem storage location
+- UI admin console: pagination-related issue on the JMS Monitoring page
+- retentionWorkerJob - clearPayloadData throw exception on Domibus having 5M messages in DB
+- UI: The name of the default domain is always "Default", no matter what is written in domibus.properties
+- Download message that is not there anymore
+- Error when in PMode Parties page after deleting all parties
+- Sorting in Audit table is not working
+- Null Pointer when service is not configured but present in the leg
+- WS-plugin wildfly submit file with MTOM
+- Forbidden characters in domain name are allowed.
+- Keystore without password protected private key is not accepted
+- Domibus not returning signal error messages
+- Original Sender and Final Recipient columns present in CSV file downloaded even if domibus.fourcornermodel.enabled=false
+- Sorting on the basis of "Custom Prop" & "JMS Prop" is not working properly on JMS Monitoring Page
+- empty endpoint not support in PULL mode
+- Message stuck in SEND_ENQUEUED status in case keystore/Truststore properties are missing.
+- UI: Plugin Users: Can't change username when not unique name used
+- Alert emails validation should result with different result for empty and incorrect email
+- Rest Resources and Quartzjob are NOT loading PluginClassLoader
+- Test service page doesn't show error when certificate is invalid
+- Test service page doesn't show error when party is unavailable
+- Changing domain will not reset filters in Audit page
+- Envelope not parsed by Domibus
+- Instead of Confirmation pop up, Delete action is directly cancelled on clicking search button on JMS Monitoring page
+- Deleted/Deactivated user/admin still perform actions if admin deleted/deactivated user when he is logged in
+- User deletion action is tracked as 'Modified' on Audit page
+- Add back-end validation for message filters
+- Data validation on Email field on New/Edit user pop up is not proper
+- Improve exception messages
+- Original user field should be mandatory on add/edit plugin user pop up
+- Grid data is not properly refreshed if user changes page size selector value on last page of Users screen
+- Login button is shown on Admin console along with left navigation panel and sandwich menu if user add logout in application url
+- No alerts created when account is enabled.
+- UI: PMode - Archive - banner pop up message after restoring of Pmode
+- WeblogicCluster.properties file comment is incorrect
+- Issue when re-sending a message in SEND_ENQUEUED state
+- Delete Message operation in JMS Monitoring page doesn't require confirmation
+- Duplicate entries in the Message filter page are possible for the default entries.
+- Editing a user fails without error when admin enters something in the password field and then deletes it
+- Special characters in the URL cause stacktrace to be shown in frontend
+- When uploading/editing a PMode there should be a verification that it contains a party that describes itself
+- Warnings observed at runtime.
+- Enhance pull request with multiple party identifier.
+- Date formatting on warning certificate is not coherent
+- Double-clicking on Upload Pmode may cause problems
+- No proper handling of exceptions in domibus property listeners
+- Issues with the MSG_STATUS_CHANGED alerts mail template
+- Change property at runtime doesn't work for property "domibus.userInput.blackList".
+- Change property at runtime doesn't work for property "domibus.certificate.crl.excludedProtocols".
+- Prevent Users From Logging Out From a Domibus Page Containing Pending Changes
+- Fix the mechanism to update the certificates
+- Fix transaction issues when using super user in multitenancy mode
+- Error when consuming message using WS plugin - ROLE missing
+- Resend message fails
+- User left in wrong state after user is disabled or deleted while being logged in
+- Improve JMSManager getDestinationSize for Metrics page
+- Cannot filter JMS messages by property JMSMessageID using selector filter
+- Resend message causes transaction exception
+- Adapt the selenium tests after the angular/material upgrade to the latest versions
+- On multitenant configuration admin user can access metrics as super user
+- Transaction error when resending test message
+- Domibus using EU Login but receiving alerts for unused local users.
+- Saving parties fails if the grid is filtered
+- Property domibus.plugin.passwordPolicy.pattern not asserted for external rest calls.
+- Non admin user is able to change properties at runtime.
+- Values displayed for integer or boolean domibus properties.
+- Error when user filter JMS messages by valid selector
+- Issue when adding new plugins
+- Downloaded CSV file doesn't match info in grid in PMode Parties page
+- Duplicate plugin users created by pressing save multiple times
+- Alerts still sent after password policy expiration is disabled.
+- Downloading list of JMS messages fails when list is filtered by selector
+- JmsManager password not encoded by default
+- Remove the CXF version from the User-Agent[EDELIVERY-6929] - Support for WildFly 20
+- Disabled save & cancel button after addition of empty message filter type
+- Message Log list : the grid columns get duplicated on each domain change
+- Parties business logic should be case insensitive
+- Name inconsistency for Connection Monitoring page
+- Max Send Attempts for test messages
+- Record error in Error Log when the receiver's party certificate is not configured
+- Password column is blank in Domibus4.2 Version Plugin User GUI
+- Error in log when pmode is not properly configured
+- Unexpected 404 error when refreshing page
+- Help link disappears from page header after page refresh
+- Search button is not disabled in Alerts page when user wants to search by invalid data
+- Request verification whether config corrections are needed for warnings in PULL mode operation.
+- BackendNotifying queue consumers number decrease under load.
+- Fix spring context initialisation to avoid for the beans in the web package to be created twice
+- FS Plugin does not correctly treat bodyload
+- SplitAndJoin not working : Column 'CREATED_BY' cannot be null
+- In weblogic cluster updating a truststore in one node isn't reflected in the other.
+- ConstraintViolationException while addition of user with username same as deleted user
+- Proper data should be present in User field on Audit page if fs plugin and jms plugin filters are added
+- Sometimes date widget don't open in JMS Monitoring page
+- Some domibus property reads called from the UI fail when logged-in with super or admin
+- Setting domibus.file.upload.maxSize property at runtime has no effect on the back-end;
+- Message retention issue for failed messages
+- Different behaviour of generateReceipt() method between Tomcat and Wildfly
+- Setting fsplugin.messages.send.worker.repeatInterval property at runtime causes error and has no effect
+- JMS Monitoring issues on wildfly
+- Error loading data for 'Domibus Properties' in case of 4.1 version plugins
+- Party id shown in Connection monitoring page varies if the party has more than one identifier
+- domain.title property change at runtime is not working
+- Password encryption does not work when using allow characters
+- Sometimes filtering alerts results don't load
+- Domibus installation with Tomcat - server shutdown - ERRORs and WARNs observed
+- Error in logs for pull message exchange with multiple legs configuration.
+- User is able to add all forbidden characters on Domibus Properties page
+- Update proxy credentials at runtime.
+- Expired failed messages are retried forever
+- PMode: payloadProfile validation incomplete
+- Pmode size limitation for SplitAndJoin
+- Remove qualifiers in the class MessageListenerContainerConfiguration
+- DomibusDateFormatter doesn't accept dates without Z at the end or without fractional seconds
+- User is able to add duplicate identifier for a particular party from Pmode -current page and Pmode -parties page
+- Check JAXB validation and mapping for numerical types
+- User is able to add an identifier for red party with partyId and partyIdType same as blue party
+- WARN log level not appropriate for test messages
+- Weird behavior when starting to send messages too soon
+- SplitAndJoin property cannot be read in multi-tenancy
+- Default Smtp URL is pointing to localhost
+- Message receive failure event is not working
+- Property domibus.monitoring.connection.party.enabled can be updated with malicious strings using REST API
+- UI: the value of 'super' properties is not correctly displayed on the Properties page
+- Wrong response status for the call that gets/sets the value of a non-existent property at runtime
+- FS Plugin property management with multiple domains
+- Property value for multiple properties are blank on admin console
+- Issue with Domibus Quartz jobs in wildfly multitenancy deployment
+- Tomcat fails to start with a retry message
+- [WILDFLY] Javax.faces SEVERE warning on shutdown
+- Property encoding should be fixed
+- domibus.attachment.temp.storage.location property is missing in default-domibus properties file for MT
+- Error for authentication user for fs plugin is not segregated on the basis of domain
+- domibus.alert.plugin.user.login_failure.mail.subject change at runtime is not working
+- Pmode validation issue - legs of <process> are not properly validated
+- PMode validations should be case insensitive
+- Misspelled word in the error message in Users and Plugin Users page
+- Submitting the message is failing for dynamic discovery.
+- Exception on GlobalPropertyMetadataManagerImpl when domibus is under stress
+- Backend filters caching issue in multi-tenancy
+- Error in RetryDefaultService leads to infinite warning
+- Authorization header is accepting one additional char with Basic while sending message with unsecureLoginAllowed as false
+- NullPointerException when disabling a plugin user from Admin console.
+- Error for empty party role in case of dynamic discovery configuration.
+- Plus sign '+' present in message id is replaced by space while performing a search on Admin console
+- We shouldn't have 2 domibus.datasource.xa.property.url properties
+- Empty AgreementRef element when sending a message with JMS plugin
+- Default value for domain_name.domibus.password.encryption.properties is taken in domibus.properties
+- getConfigurationFileName return full path
+- Certificate properties to be moved from domain to global. Reset the cache when the property is updated
+- Error message exposing class name in an error response
+- Whole value is stripped not only the special characters from message property
+- Backup property files are created even if all passwords are encrypted
+- Transaction-related warning in log when message sending is retried
+- Circular dependency in the command execution
+- Test messages are not populated correctly when the agreement property is set on the process
+- Policy-related exception when sending messages on a specific environment
+- All CSV files downloaded from frontend should have the same date-time format
+- Dynamical update of Domibus properties when given evironment property
+- Extra column "Priority" present in CSV file downloaded from JMS Monitoring page
+- Tomcat/Mysql/Multitenancy cannot upload new trustore
+- Tomcat/Mysql/Multitenancy cannot delete party
+- Domibus JMS Monitoring page and logs - JMS Counts are always zero (0)
+- Error message needs to be updated in Connection monitoring page when service not properly configured
+- Plugin should be removed from Message filtering page, when the plugin files remove from the plugin config location.
+- JMS Message delete/move event is logged in the audit of the currently selected domain not in the domain the message belongs to
+- Download PMode from PMode Archive page is logged under PMode table in Audit page
+- PMode validation: we should not accept < > characters in party identifiers
+- Domibus UI - Audit page count seems wrong
+- Wrong Id logged in audit page when only one routing criteria is edited
+- Nullpointer exception when self sending message with fsplugin filter selected.
+- FsPlugin: .lock files are impacting the sending of files from other sub-folders
+- Filtering USER_LOGIN_FAILURE alerts by ACCOUNT_DISABLED = true yields no results
+- Too many pull requests sent when domibus configured with multiple legs
+- Missing FK on the TB_COMMAND_PROPERTY table
+- Few differences in domibus.properties files accross servers.
+- UI: In some places, some domibus properties are used with values for domain instead of super
+- User is able to delete all message filters from admin console
+- Metrics annotation for plugins not working
+- Change logging level role restriction
+- Wrong error message when creating a plugin user with role USER and without original user
+- duplicateDetection is accepting any random values while updating/uploading pmode
+- TransactionRequiredException found while deleting message from JMS Monitoring page on Multitenant environment
+- Domibus user with role role_user is unable to login into application
+- User is unable to send message using split and join feature
+- Default partyid@type is adding up in the message
+- Properly inform about truststores and keystores loading issues
+- Mysql DB script failing 4.2RC release.
+- Session expired message right after server restart
+- Test Service response not correct
+- Domibus not allowing to reset the password from default one and login to application.
+- Password policy doesn't appear when editing a user and setting a wrong password
+- Error when uploading PMode
+- In WildFly the IN/OUT queues should be accessible remotely
+- Refactor Domibus packages in order to improve the decoupling of Domibus core from the plugins
+- Harmonize exceptions thrown on TypedProperty creation during Submission Creation
+- Remaining task to be pull specification compliant.
+- Logging in Dynamic Discovery
+- Default MPC must not be used for Pull exchanges
+- Alert configuration property reading in multi domain scenarious
+- Plugin integration improvement in Domibus
+- UI components need to be refactored and provide the same experience across all Domibus pages
+- Improving Weblogic Cluster Throughput using XA Transaction Cluster Affinity
+- Multiple saved user
+- Access to the domain scheduler (pause and resume)
+- Improve generate receipt method as it takes a lot of the processing.
+- DomibusPropertyProvider should take into account multitenancy/non multitenancy mode when getting properties
+- Provide sources jar in nexus
+- Improve performance on sending
+- Improve performance on receiving
+- Allow plugin to include default values for ehcache
+- Improve the configuration of the Domibus <cxf:bus>
+- The Spring beans should not be automatically marked as transactional
+- Update all libraries to the latest version
+- Remove PModeDao class
+- Decouple from JMS/JMX in the plugin notification mechanism
+- Display a warning for the user at login if his password will soon expire.
+- Unit tests: increase code coverage
+- GlobalExceptionHandlerAdvice should be split into 2 parts: core and ext delegate
+- Migrate from Spring XML config to Spring annotations config - part2h.
+- Improve the property management
+- partyIdType is not validated by the PMode business validation
+- Improve transaction boundaries and fix transaction timeouts
+- FSPlugin issues when PayloadName is missing
+- OpenJDK 11 support in backend-client-example
+- Domibus default plugins behaviour on submitting message with non existing party
+- Fix the issues in the SQL scratch/upgrade scripts
+- PMode validators refactoring
+- Refactor alert feature
+- Enhance plugin cookbook to include how to set domain mdc
+- Modify the handling of the WSPlugin properties
+- Fix expiration queue warnings in WildFly
+- Atomikos-related errors in Tomcat When JMS Properties Changed at Runtime
+- Possibility for plugins to execute commands in a cluster
+- Prefix all database tables where PMode is stored with tb_pm_
+- Fix sending properties when commands are executed
+- Delete unused tables in Domibus
+- Remove the usage of deprecated methods in the default plugins
+- Duplicate properties validations in Pmode
+- Wrong dependency between msh and ext module
+- Add remarks to TB_COMMAND/TB_COMMAND_PROPERTY tables
 Domibus 4.1.5
 - AS4 String message properties has been increased from 255 characters to 1024
 - Synchronization of Certificate verification security level of the SMP certificate in dynamic discovery for Peppol and Oasis.
