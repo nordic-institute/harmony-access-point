@@ -45,7 +45,7 @@ export class LoggingComponent extends mix(BaseListComponent)
   }
 
   public get name(): string {
-    return 'Logging Levels';
+    return 'Logging';
   }
 
   ngAfterViewInit() {
