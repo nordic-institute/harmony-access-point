@@ -145,7 +145,7 @@ public class ApplicationResource {
      */
     @RequestMapping(value = "passwordPolicy", method = RequestMethod.GET)
     public PasswordPolicyRO getPasswordPolicy(@RequestParam(defaultValue = "true") Boolean forDomain) {
-        LOG.debug("Getting password policy fo domain: ", forDomain);
+        LOG.debug("Getting password policy fo domain: {}", forDomain);
 
         if (forDomain) {
             return getPasswordPolicy();
