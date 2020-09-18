@@ -143,7 +143,7 @@ public class AuthenticationResource {
     }
 
     /**
-     * Method used by admin console to cjeck if the current session is still active
+     * Method used by admin console to check if the current session is still active
      * if the user has proper authentication rights and valid session it succeeds
      * otherwise the method is not called because the infrastructure throws 401 or 403
      * @return always true
