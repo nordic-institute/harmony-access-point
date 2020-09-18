@@ -29,7 +29,6 @@ export class SecurityService {
               private dialogsService: DialogsService,
               private propertiesService: PropertiesService) {
     this.constructor.domainService = domainService;
-    // SecurityService.domainService = domainService;
   }
 
   login(username: string, password: string) {
