@@ -142,15 +142,16 @@ public class AuthenticationResource {
         LOG.debug("Logged out");
     }
 
+    /**
+     * Method used by admin console to cjeck if the current session is still active
+     * if the user has proper authentication rights and valid session it succeeds
+     * otherwise the method is not called because the infrastructure throws 401 or 403
+     * @return always true
+     */
     @RequestMapping(value = "user/connected", method = RequestMethod.GET)
     public boolean isUserConnected() {
         return true;
     }
-
-//    @RequestMapping(value = "username", method = RequestMethod.GET)
-//    public String getUsername() {
-//        return Optional.ofNullable(getLoggedUser()).map(UserDetail::getUsername).orElse(StringUtils.EMPTY);
-//    }
 
     @RequestMapping(value = "user", method = RequestMethod.GET)
     public UserRO getUser() {

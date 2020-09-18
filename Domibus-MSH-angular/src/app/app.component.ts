@@ -60,7 +60,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit() {
-    this.sessionService.clearCurrentSession();
+    this.sessionService.resetCurrentSession();
     this.extAuthProviderEnabled = await this.domibusInfoService.isExtAuthProviderEnabled();
     if (this.extAuthProviderEnabled) {
       const user = await this.securityService.getCurrentUserFromServer();
@@ -113,7 +113,9 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   private onHttpEventService(error) {
+    // TODO: review the possible status values and their meaning
     if (error && (error.status === Server.HTTP_FORBIDDEN || error.status === Server.HTTP_UNAUTHORIZED)) {
+      // did we have previously a valid session?
       if (this.securityService.getCurrentUser()) {
         this.sessionService.setExpiredSession(SessionState.EXPIRED_INACTIVITY_OR_ERROR);
         this.securityService.logout();

@@ -18,7 +18,7 @@ export class SecurityService {
   public static ROLE_USER = 'ROLE_USER';
   public static USER_ROLES = [SecurityService.ROLE_USER, SecurityService.ROLE_DOMAIN_ADMIN, SecurityService.ROLE_AP_ADMIN];
   public static ADMIN_ROLES = [SecurityService.ROLE_DOMAIN_ADMIN, SecurityService.ROLE_AP_ADMIN];
-  
+
   pluginPasswordPolicy: Promise<PasswordPolicyRO>;
   public password: string;
 
@@ -34,7 +34,7 @@ export class SecurityService {
 
   login(username: string, password: string) {
     this.domainService.resetDomain();
-    this.sessionService.clearCurrentSession();
+    this.sessionService.resetCurrentSession();
 
     return this.http.post<User>('rest/security/authentication',
       {
@@ -48,7 +48,6 @@ export class SecurityService {
       this.securityEventService.notifyLoginSuccessEvent(response);
     }, (error: any) => {
       console.log('Login error');
-      // this.sessionService.clearCurrentSession();
       this.securityEventService.notifyLoginErrorEvent(error);
     });
   }
@@ -136,10 +135,6 @@ export class SecurityService {
     localStorage.setItem('currentUser', JSON.stringify(user));
   }
 
-  // getCurrentUserNameFromServer(): Promise<string> {
-  //   return this.http.get<string>('rest/security/username').toPromise();
-  // }
-
   isUserConnected(): Promise<string> {
     return this.http.get<string>('rest/security/user/connected').toPromise();
   }
@@ -150,8 +145,8 @@ export class SecurityService {
 
   isAuthenticated(): Promise<boolean> {
     return new Promise((resolve, reject) => {
-      // we ping the server to check whether we are connected
-      // if not, to trigger the redirection to the login screen
+      // we 'ping' the server to check whether we are connected
+      // if not, trigger the redirection to the login screen
       try {
         this.isUserConnected()
           .then(isConnected => {
@@ -166,56 +161,6 @@ export class SecurityService {
       }
     });
   }
-
-  // isAuthenticated(): Promise<boolean> {
-  //   return new Promise((resolve, reject) => {
-  //     let isAuthenticated = false;
-  //
-  //     // we get the username from the server to trigger the redirection
-  //     // to the login screen in case the user is not authenticated
-  //     try {
-  //       this.getCurrentUserFromServer()
-  //         .then(user => {
-  //           isAuthenticated = user ? user.username != '' : false;
-  //           let shouldUpdateUserLocally = isAuthenticated && !this.getCurrentUser();
-  //           if (shouldUpdateUserLocally) {
-  //             this.updateCurrentUser(user);
-  //           }
-  //           resolve(isAuthenticated);
-  //         }, err => {
-  //           console.log('Error while calling getCurrentUserFromServer: ' + err);
-  //           resolve(false);
-  //         });
-  //     } catch (ex) {
-  //       console.log('Error while calling getCurrentUserFromServer: ' + ex);
-  //       reject(ex);
-  //     }
-  //   });
-  // }
-
-  // getSessionState(): Promise<SessionState> {
-  //   return new Promise((resolve, reject) => {
-  //     // we get the user from the server to trigger the redirection
-  //     try {
-  //       this.getCurrentUserFromServer()
-  //         .then(user => {
-  //           const isAuthenticated = user ? user.username != '' : false;
-  //           let shouldUpdateUserLocally = isAuthenticated && !this.getCurrentUser();
-  //           if (shouldUpdateUserLocally) {
-  //             this.updateCurrentUser(user);
-  //           }
-  //           const state = isAuthenticated ? SessionState.ACTIVE : SessionState.NOT_INITIALISED;
-  //           resolve(state);
-  //         }, err => {
-  //           console.log('Error while calling getCurrentUserFromServer: ' + err);
-  //           resolve(SessionState.INACTIVE);
-  //         });
-  //     } catch (ex) {
-  //       console.log('Error while calling getCurrentUserFromServer: ' + ex);
-  //       reject(ex);
-  //     }
-  //   });
-  // }
 
   isCurrentUserSuperAdmin(): boolean {
     return this.isCurrentUserInRole([SecurityService.ROLE_AP_ADMIN]);

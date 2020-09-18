@@ -25,11 +25,8 @@ export class AuthenticatedAuthorizedGuard implements CanActivate {
 
     try {
       let isUserFromExternalAuthProvider = await this.domibusInfoService.isExtAuthProviderEnabled();
+
       let isAuthenticated = await this.securityService.isAuthenticated();
-
-      // let sessionState = await this.securityService.getSessionState();
-
-      // if (sessionState == SessionState.ACTIVE) {
       if (isAuthenticated) {
         canActivate = true;
         // check also authorization
@@ -42,16 +39,11 @@ export class AuthenticatedAuthorizedGuard implements CanActivate {
           }
         }
       } else {
+        // if previously connected then the session went expired
         if (this.securityService.getCurrentUser()) {
-          // mark the session as expired
           this.sessionService.setExpiredSession(SessionState.EXPIRED_INACTIVITY_OR_ERROR);
           this.securityService.clearSession();
         }
-
-        // if (sessionState == SessionState.INACTIVE) {
-        //   // mark the session as expired
-        //   this.sessionService.setExpiredSession(SessionState.EXPIRED_INACTIVITY_OR_ERROR);
-        // }
         // not logged in so redirect to login page with the return url
         if (!isUserFromExternalAuthProvider) {
           this.router.navigate(['/login'], {queryParams: {returnUrl: state.url}});

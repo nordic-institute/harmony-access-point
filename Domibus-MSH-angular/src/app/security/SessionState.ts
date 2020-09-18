@@ -5,6 +5,7 @@
  * @author Sebastian-Ion TINCU
  */
 export const enum SessionState {
+  // TODO: split the eunum in 2: state and reason
   NOT_INITIALISED,
   INACTIVE,
   ACTIVE,

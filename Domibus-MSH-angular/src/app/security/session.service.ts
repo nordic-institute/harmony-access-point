@@ -10,7 +10,7 @@ import {LOCAL_STORAGE_KEY_CURRENT_SESSION, SessionState} from './SessionState';
 @Injectable()
 export class SessionService {
 
-  clearCurrentSession() {
+  resetCurrentSession() {
     localStorage.setItem(LOCAL_STORAGE_KEY_CURRENT_SESSION, JSON.stringify(SessionState.NOT_INITIALISED));
   }
 

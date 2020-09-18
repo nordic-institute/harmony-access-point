@@ -249,7 +249,6 @@ public class AuthenticationResourceTest {
 
         }};
 
-
         //tested method
         authenticationResource.logout(request, response);
 
@@ -258,23 +257,6 @@ public class AuthenticationResourceTest {
             securityContextLogoutHandler.logout(request, response, authentication);
         }};
     }
-
-//    @Test
-//    public void testGetUsername(final @Mocked UserDetail userDetail) {
-//        final String userName = "toto";
-//
-//        new Expectations(authenticationResource) {{
-//            authenticationResource.getLoggedUser();
-//            result = userDetail;
-//
-//            userDetail.getUsername();
-//            result = userName;
-//        }};
-//
-//        //tested method
-//        final String userNameActual = authenticationResource.getUsername();
-//        Assert.assertEquals(userName, userNameActual);
-//    }
 
     @Test
     public void testGetUser(final @Mocked UserDetail userDetail) {
