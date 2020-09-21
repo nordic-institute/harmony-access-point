@@ -1,6 +1,7 @@
 package eu.domibus.core.alerts;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.alerts.model.service.MailModel;
 import eu.domibus.core.alerts.service.AlertConfigurationService;
@@ -8,6 +9,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,7 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -61,11 +64,11 @@ public class MailSender {
         final Boolean alertModuleEnabled = configurationService.isAlertModuleEnabled();
         LOG.debug("Alert module enabled:[{}]", alertModuleEnabled);
         final boolean mailActive = configurationService.isSendEmailActive();
-        if (alertModuleEnabled && mailActive) {
+        if (BooleanUtils.isTrue(alertModuleEnabled) && mailActive) {
             //static properties.
             final Integer timeout = domibusPropertyProvider.getIntegerProperty(DOMIBUS_ALERT_MAIL_SMTP_TIMEOUT);
-            final String url = domibusPropertyProvider.getProperty(DOMIBUS_ALERT_SENDER_SMTP_URL);
-            final Integer port = Integer.valueOf(domibusPropertyProvider.getProperty(DOMIBUS_ALERT_SENDER_SMTP_PORT));
+            final String url = getMandatoryUrl();
+            final Integer port = domibusPropertyProvider.getIntegerProperty(DOMIBUS_ALERT_SENDER_SMTP_PORT);
             final String user = domibusPropertyProvider.getProperty(DOMIBUS_ALERT_SENDER_SMTP_USER);
             final String password = domibusPropertyProvider.getProperty(DOMIBUS_ALERT_SENDER_SMTP_PASSWORD);
 
@@ -93,11 +96,25 @@ public class MailSender {
         }
     }
 
+    /**
+     *
+     * @return domibus.alert.sender.smtp.url value
+     * @throws IllegalStateException if url is blank
+     */
+    protected String getMandatoryUrl() {
+        String url = domibusPropertyProvider.getProperty(DOMIBUS_ALERT_SENDER_SMTP_URL);
+        if (StringUtils.isBlank(url)) {
+            throw new IllegalStateException("Could not initialize mail sender because the property " +
+                    DOMIBUS_ALERT_SENDER_SMTP_URL + " is empty: [" + url + "]");
+        }
+        return url;
+    }
+
     public void reset() {
         mailSenderInitiated = false;
     }
 
-    public <T extends MailModel> void sendMail(final T model, final String from, final String to) {
+    public <T extends MailModel<Map<String, String>>> void sendMail(final T model, final String from, final String to) {
         if (StringUtils.isBlank(to)) {
             throw new IllegalArgumentException("The 'to' property cannot be null");
         }
@@ -110,7 +127,8 @@ public class MailSender {
             try {
                 initMailSender();
             } catch (Exception ex) {
-                LOG.error("Could not initiate mail sender", ex);
+                this.mailSenderInitiated = false;
+                throw new DomibusPropertyException("Could not initiate mail sender", ex);
             }
         }
         MimeMessage message = javaMailSender.createMimeMessage();
