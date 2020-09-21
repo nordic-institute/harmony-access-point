@@ -97,9 +97,6 @@ public class AlertResource extends BaseResource {
 
     @PutMapping
     public void processAlerts(@RequestBody List<AlertRo> alertRos) {
-        if(true)
-            throw new RequestValidationException("something went wrong");
-        
         final List<Alert> domainAlerts = filterDomainAlerts(alertRos);
         final List<Alert> superAlerts = filterSuperAlerts(alertRos);
         final List<Alert> deletedDomainAlerts = filterDeletedDomainAlerts(alertRos);
