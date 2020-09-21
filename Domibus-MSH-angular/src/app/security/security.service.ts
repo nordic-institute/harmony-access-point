@@ -1,4 +1,4 @@
-﻿import {Injectable} from '@angular/core';
+﻿import {Injectable, Injector} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import 'rxjs/add/operator/map';
 import {User} from './user';
@@ -18,9 +18,16 @@ export class SecurityService {
   public static ROLE_USER = 'ROLE_USER';
   public static USER_ROLES = [SecurityService.ROLE_USER, SecurityService.ROLE_DOMAIN_ADMIN, SecurityService.ROLE_AP_ADMIN];
   public static ADMIN_ROLES = [SecurityService.ROLE_DOMAIN_ADMIN, SecurityService.ROLE_AP_ADMIN];
+  private static injector: Injector;
 
   pluginPasswordPolicy: Promise<PasswordPolicyRO>;
   public password: string;
+
+  public static async getAllowedRolesForSTandMT(stRoles, mtRoles) {
+    let domainService = SecurityService.injector.get<DomainService>(DomainService);
+    let isMulti = await domainService.isMultiDomain().toPromise();
+    return isMulti ? mtRoles : stRoles;
+  }
 
   constructor(private http: HttpClient,
               private securityEventService: SecurityEventService,
@@ -29,7 +36,9 @@ export class SecurityService {
               private applicationService: ApplicationContextService,
               private dialogsService: DialogsService,
               private propertiesService: PropertiesService,
-              private sessionService: SessionService) {
+              private sessionService: SessionService,
+              private injector: Injector) {
+    SecurityService.injector = this.injector;
   }
 
   login(username: string, password: string) {

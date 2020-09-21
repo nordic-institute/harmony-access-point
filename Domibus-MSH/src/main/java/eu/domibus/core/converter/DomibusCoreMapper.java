@@ -64,6 +64,10 @@ public interface DomibusCoreMapper {
 
     Domain domainSpiToDomain(DomainSpi domainSpi);
 
+    DomainDTO domainToDomainDTO(Domain domain);
+
+    Domain domainDTOToDomain(DomainDTO domain);
+
     @Mapping(target = "persisted", ignore = true)
     MessageFilterRO backendFilterToMessageFilterRO(BackendFilter backendFilter);
 
