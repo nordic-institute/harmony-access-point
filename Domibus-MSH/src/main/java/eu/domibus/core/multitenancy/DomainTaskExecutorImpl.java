@@ -34,20 +34,12 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
 
     @Override
     public <T extends Object> T submit(Callable<T> task) {
-        long startTime = System.currentTimeMillis();
         DomainCallable domainCallable = new DomainCallable(domainContextProvider, task);
-        LOG.debug("new DomainCallable() took: {} millis", System.currentTimeMillis() - startTime);
-
-        startTime = System.currentTimeMillis();
         final Future<T> utrFuture = schedulingTaskExecutor.submit(domainCallable);
-        LOG.debug("schedulingTaskExecutor.submit took: {} millis", System.currentTimeMillis() - startTime);
         try {
-            startTime = System.currentTimeMillis();
             return utrFuture.get(DEFAULT_WAIT_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             throw new DomainTaskException("Could not execute task", e);
-        } finally {
-            LOG.debug("utrFuture.get took: {} millis", System.currentTimeMillis() - startTime);
         }
     }
 

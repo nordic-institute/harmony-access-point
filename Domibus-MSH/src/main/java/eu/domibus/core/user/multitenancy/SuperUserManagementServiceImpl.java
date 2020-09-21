@@ -41,16 +41,11 @@ public class SuperUserManagementServiceImpl extends UserManagementServiceImpl {
      */
     @Override
     public List<eu.domibus.api.user.User> findUsers() {
-        long startTime = System.currentTimeMillis();
-
         // retrieve domain users
         List<eu.domibus.api.user.User> allUsers = super.findUsers();
-        LOG.debug("super.findUsers() took: {} millis", System.currentTimeMillis() - startTime);
 
         // retrieve super users
-        startTime = System.currentTimeMillis();
         List<eu.domibus.api.user.User> superUsers = getSuperUsers();
-        LOG.debug("getSuperUsers() took: {} millis", System.currentTimeMillis() - startTime);
         allUsers.addAll(superUsers);
 
         return allUsers;
@@ -68,14 +63,12 @@ public class SuperUserManagementServiceImpl extends UserManagementServiceImpl {
     }
 
     protected String getPreferredDomainForUser(eu.domibus.api.user.User user) {
-        long startTime = System.currentTimeMillis();
         List<UserDomainEntity> domains = userDomainDao.listPreferredDomains();
         String domainCode = domains.stream()
                 .filter(domainEntity -> domainEntity.getUserName().equals(user.getUserName()))
                 .map(domainEntity -> domainEntity.getPreferredDomain())
                 .findFirst()
                 .orElse(null);
-        LOG.debug("getPreferredDomainForUser() took: {} millis", System.currentTimeMillis() - startTime);
         return domainCode;
     }
 

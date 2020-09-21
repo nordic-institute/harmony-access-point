@@ -8,8 +8,6 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DataBaseEngine;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.metrics.Counter;
-import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.util.DatabaseUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -60,7 +58,6 @@ public class DomibusMultiTenantConnectionProvider implements MultiTenantConnecti
 
     @Override
     public Connection getAnyConnection() throws SQLException {
-        long startTime = System.currentTimeMillis();
         LOG.trace("Getting any connection");
 
         String mdcUser = LOG.getMDC(DomibusLogger.MDC_USER);
@@ -68,7 +65,7 @@ public class DomibusMultiTenantConnectionProvider implements MultiTenantConnecti
             String userName = databaseUtil.getDatabaseUserName();
             LOG.putMDC(DomibusLogger.MDC_USER, userName);
         }
-        LOG.debug("getAnyConnection() took: {} millis", System.currentTimeMillis() - startTime);
+
         return dataSource.getConnection();
     }
 
@@ -78,10 +75,7 @@ public class DomibusMultiTenantConnectionProvider implements MultiTenantConnecti
     }
 
     @Override
-//    @Timer(clazz = DomibusMultiTenantConnectionProvider.class,value = "getConnection")
-//    @Counter(clazz = DomibusMultiTenantConnectionProvider.class,value = "getConnection")
     public Connection getConnection(String identifier) throws SQLException {
-        long startTime = System.currentTimeMillis();
         final Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
         String databaseSchema;
         if (currentDomain != null) {
@@ -100,7 +94,6 @@ public class DomibusMultiTenantConnectionProvider implements MultiTenantConnecti
         verifyDatabaseSchema(currentDomain, databaseSchema);
 
         setSchema(connection, databaseSchema);
-        LOG.debug("getConnection() took: {} millis", System.currentTimeMillis() - startTime);
         return connection;
     }
 
@@ -112,7 +105,6 @@ public class DomibusMultiTenantConnectionProvider implements MultiTenantConnecti
             throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Database schema name not found for general schema and for the property:" + DOMIBUS_DATABASE_GENERAL_SCHEMA);
         }
     }
-
 
     protected void setSchema(final Connection connection, String databaseSchema) throws SQLException {
         try {
@@ -126,7 +118,6 @@ public class DomibusMultiTenantConnectionProvider implements MultiTenantConnecti
         }
     }
 
-
     protected String getSchemaChangeSQL(String databaseSchema) {
         final DataBaseEngine dataBaseEngine = domibusConfigurationService.getDataBaseEngine();
         String result = "USE " + databaseSchema;
@@ -137,19 +128,14 @@ public class DomibusMultiTenantConnectionProvider implements MultiTenantConnecti
     }
 
     @Override
-//    @Timer(clazz = DomibusMultiTenantConnectionProvider.class,value = "releaseConnection")
-//    @Counter(clazz = DomibusMultiTenantConnectionProvider.class,value = "releaseConnection")
     public void releaseConnection(String tenantIdentifier, Connection connection) throws SQLException {
-        long startTime = System.currentTimeMillis();
         final String generalSchema = domainService.getGeneralSchema();
         LOG.trace("Releasing connection, setting database schema to [{}] ", generalSchema);
         setSchema(connection, generalSchema);
         connection.close();
-        LOG.debug("releaseConnection() took: {} millis", System.currentTimeMillis() - startTime);
     }
 
     @Override
-    //TODO set false
     public boolean supportsAggressiveRelease() {
         return true;
     }

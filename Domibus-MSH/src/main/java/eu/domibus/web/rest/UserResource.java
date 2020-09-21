@@ -90,9 +90,8 @@ public class UserResource extends BaseResource {
     @GetMapping(value = {"/users"})
     public List<UserResponseRO> getUsers() {
         LOG.debug("Retrieving users");
-        long startTime = System.currentTimeMillis();
+
         List<User> users = getUserService().findUsers();
-        LOG.debug("getUsers() took: {} millis", System.currentTimeMillis() - startTime);
 
         return prepareResponse(users);
     }
@@ -109,9 +108,7 @@ public class UserResource extends BaseResource {
     @GetMapping(value = {"/userroles"})
     public List<String> userRoles() {
         List<String> result = new ArrayList<>();
-        long startTime = System.currentTimeMillis();
         List<UserRole> userRoles = getUserService().findUserRoles();
-        LOG.debug("getUserService().findUserRoles() took: {} millis", System.currentTimeMillis() - startTime);
         for (UserRole userRole : userRoles) {
             result.add(userRole.getRole());
         }
