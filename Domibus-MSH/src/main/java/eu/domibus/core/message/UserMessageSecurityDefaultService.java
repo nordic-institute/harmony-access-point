@@ -70,9 +70,4 @@ public class UserMessageSecurityDefaultService implements UserMessageSecuritySer
         return authUtils.getOriginalUserFromSecurityContext();
     }
 
-    @Override
-    public boolean isAdminMultiAware() {
-        return authUtils.isAdminMultiAware();
-    }
-
 }
