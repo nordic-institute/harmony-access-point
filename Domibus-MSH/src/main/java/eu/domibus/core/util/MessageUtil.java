@@ -12,7 +12,6 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.wss4j.dom.WSConstants;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.NamedNodeMap;
@@ -33,6 +32,9 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.StringWriter;
 import java.util.*;
+
+import static org.apache.wss4j.common.WSS4JConstants.WSU_NS;
+import static org.apache.wss4j.common.WSS4JConstants.WSU_PREFIX;
 
 /**
  * @author Thomas Dussart
@@ -72,6 +74,7 @@ public class MessageUtil {
     public static final String COLLABORATION_INFO = "CollaborationInfo";
     public static final String CONVERSATION_ID = "ConversationId";
     public static final String ACTION = "Action";
+    public static final String SERVICE = "Service";
     public static final String MESSAGE_PROPERTIES = "MessageProperties";
     public static final String PAYLOAD_INFO = "PayloadInfo";
     public static final String PART_INFO = "PartInfo";
@@ -303,7 +306,7 @@ public class MessageUtil {
     }
 
     protected eu.domibus.ebms3.common.model.Service createService(Node collaborationInfoNode) {
-        final Node serviceNode = getFirstChild(collaborationInfoNode, "Service");
+        final Node serviceNode = getFirstChild(collaborationInfoNode, SERVICE);
         if (serviceNode == null) {
             LOG.debug("Service is null");
             return null;
@@ -427,16 +430,16 @@ public class MessageUtil {
             return null;
         }
 
-        final Node namedItemNS = attributes.getNamedItemNS(WSConstants.WSU_NS, LOCAL_NAME);
+        final Node namedItemNS = attributes.getNamedItemNS(WSU_NS, LOCAL_NAME);
         if (namedItemNS == null) {
-            LOG.debug("No named item found with namespace [{}] and local name [{}]", WSConstants.WSU_NS, LOCAL_NAME);
+            LOG.debug("No named item found with namespace [{}] and local name [{}]", WSU_NS, LOCAL_NAME);
             return null;
         }
 
         final String nodeValue = namedItemNS.getNodeValue();
-        LOG.debug("Value for named item [{}] with namespace [{}] is [{}]", LOCAL_NAME, WSConstants.WSU_NS, nodeValue);
+        LOG.debug("Value for named item [{}] with namespace [{}] is [{}]", LOCAL_NAME, WSU_NS, nodeValue);
 
-        final QName name = new QName(WSConstants.WSU_NS, LOCAL_NAME, WSConstants.WSU_PREFIX);
+        final QName name = new QName(WSU_NS, LOCAL_NAME, WSU_PREFIX);
         result.put(name, nodeValue);
         return result;
     }

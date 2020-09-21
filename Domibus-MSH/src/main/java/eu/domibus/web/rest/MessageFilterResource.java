@@ -5,6 +5,7 @@ import eu.domibus.api.routing.RoutingCriteria;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.csv.MessageFilterCSV;
 import eu.domibus.core.plugin.routing.RoutingService;
+import eu.domibus.core.util.MessageUtil;
 import eu.domibus.web.rest.ro.MessageFilterRO;
 import eu.domibus.web.rest.ro.MessageFilterResultRO;
 import org.apache.commons.lang3.StringUtils;
@@ -79,10 +80,10 @@ public class MessageFilterResource extends BaseResource {
         messageFilterCSV.setPersisted(messageFilterRO.isPersisted());
 
         List<RoutingCriteria> routingCriteria = messageFilterRO.getRoutingCriterias();
-        messageFilterCSV.setFrom(getValue(routingCriteria, "From"));
-        messageFilterCSV.setTo(getValue(routingCriteria, "To"));
-        messageFilterCSV.setAction(getValue(routingCriteria, "Action"));
-        messageFilterCSV.setService(getValue(routingCriteria, "Service"));
+        messageFilterCSV.setFrom(getValue(routingCriteria, MessageUtil.FROM));
+        messageFilterCSV.setTo(getValue(routingCriteria, MessageUtil.TO));
+        messageFilterCSV.setAction(getValue(routingCriteria, MessageUtil.ACTION));
+        messageFilterCSV.setService(getValue(routingCriteria, MessageUtil.SERVICE));
         return messageFilterCSV;
     }
 

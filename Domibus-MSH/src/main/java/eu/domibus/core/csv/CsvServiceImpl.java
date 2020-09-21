@@ -6,9 +6,11 @@ import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DomibusStringUtil;
+import eu.domibus.core.csv.serializer.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.io.StringWriter;
@@ -19,7 +21,6 @@ import java.util.function.LongSupplier;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_UI_CSV_MAX_ROWS;
-import static eu.domibus.core.csv.CvsSerializer.*;
 import static java.util.Arrays.asList;
 
 /**
@@ -34,6 +35,13 @@ public class CsvServiceImpl implements CsvService {
     public static final String CSV_DATE_PATTERN = "yyyy-MM-dd HH:mm:ss'GMT'Z";
 
     public static final String APPLICATION_EXCEL_STR = "application/ms-excel";
+    private static final List<CvsSerializer<?>> CVS_SERIALIZERS = asList(
+            new CvsSerializerNull(),
+            new CvsSerializerMap(),
+            new CvsSerializerDate(),
+            new CvsSerializerLocalDateTime(),
+            new CvsSerializerRoutingCriteria(),
+            new CvsSerializerErrorCode());
     private final DomibusPropertyProvider domibusPropertyProvider;
 
     public CsvServiceImpl(DomibusPropertyProvider domibusPropertyProvider) {
@@ -163,18 +171,15 @@ public class CsvServiceImpl implements CsvService {
     protected String serializeFieldValue(Field field, Object elem) throws IllegalAccessException {
         LOG.trace("Serialization for field [{}]", field);
         Object fieldValue = field.get(elem);
-        for (CvsSerializer serializer : asList(
-                NULL,
-                MAP,
-                DATE,
-                LOCAL_DATE_TIME,
-                ROUTING_CRITERIA,
-                ERROR_CODE)) {
-            if (serializer.check(fieldValue)) {
-                return serializer.serialize(fieldValue);
+        for (CvsSerializer<?> serializer : CVS_SERIALIZERS) {
+            if (serializer.isValid(fieldValue)) {
+                LOG.trace("Serializer: [{}]", this);
+                String result = serializer.serialize(fieldValue);
+                LOG.trace("Serializer: [{}] -> [{}]", this, result);
+                return result;
             }
         }
-        return DEFAULT.serialize(fieldValue);
+        return Objects.toString(fieldValue, StringUtils.EMPTY);
     }
 
 }
