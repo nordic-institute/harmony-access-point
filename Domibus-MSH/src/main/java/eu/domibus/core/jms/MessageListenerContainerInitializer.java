@@ -2,12 +2,12 @@ package eu.domibus.core.jms;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.jms.multitenancy.DomainMessageListenerContainer;
 import eu.domibus.core.jms.multitenancy.DomainMessageListenerContainerFactory;
 import eu.domibus.core.jms.multitenancy.MessageListenerContainerConfiguration;
 import eu.domibus.core.message.UserMessagePriorityConfiguration;
 import eu.domibus.core.message.UserMessagePriorityService;
-import eu.domibus.ext.delegate.converter.DomainExtConverter;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -52,7 +52,7 @@ public class MessageListenerContainerInitializer {
     protected DomainService domainService;
 
     @Autowired
-    protected DomainExtConverter domainConverter;
+    protected DomainCoreConverter domainConverter;
 
     @Autowired
     protected UserMessagePriorityService userMessagePriorityService;
