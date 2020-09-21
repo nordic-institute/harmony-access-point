@@ -20,7 +20,7 @@ export class EditUserComponent implements OnInit {
   userNamePatternMessage = UserValidatorService.USER_NAME_PATTERN_MESSAGE;
   userNameMinLengthMessage = UserValidatorService.USER_NAME_MINLENGTH_MESSAGE;
   userNameRequiredMessage = UserValidatorService.USER_NAME_REQUIRED_MESSAGE;
-  
+
   user: UserResponseRO;
   existingRoles = [];
   existingDomains = [];
@@ -51,6 +51,8 @@ export class EditUserComponent implements OnInit {
     this.userForm.valueChanges.subscribe((changes) => {
       this.updateModel(changes);
     });
+
+    this.handleSetRole(this.user.roles);
 
     setTimeout(() => this.user_name.nativeElement.focus(), 1000);
   }
@@ -105,6 +107,10 @@ export class EditUserComponent implements OnInit {
 
   async onRoleChange($event) {
     const role: string = $event.value;
+    await this.handleSetRole(role);
+  }
+
+  private async handleSetRole(role: string) {
     const domainCtrl = this.userForm.get('domain');
     if (role === SecurityService.ROLE_AP_ADMIN) {
       domainCtrl.enable();
@@ -117,7 +123,7 @@ export class EditUserComponent implements OnInit {
     this.setPasswordValidators();
   }
 
-  // filters out roles so that the user cannot change from ap admin to the other 2 roles or vice-versa
+// filters out roles so that the user cannot change from ap admin to the other 2 roles or vice-versa
   getAllowedRoles(allRoles, userRole) {
     if (userRole === SecurityService.ROLE_AP_ADMIN) {
       return [SecurityService.ROLE_AP_ADMIN];

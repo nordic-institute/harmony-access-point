@@ -1,10 +1,9 @@
-package eu.domibus.ext.delegate.services.security;
+package eu.domibus.core.message;
 
+import eu.domibus.api.message.UserMessageSecurityService;
 import eu.domibus.api.security.AuthUtils;
+import eu.domibus.api.security.AuthenticationException;
 import eu.domibus.api.usermessage.UserMessageService;
-import eu.domibus.ext.exceptions.AuthenticationExtException;
-import eu.domibus.ext.exceptions.DomibusErrorCode;
-import eu.domibus.ext.exceptions.DomibusServiceExtException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -16,21 +15,21 @@ import org.springframework.stereotype.Service;
  * @since 3.3
  */
 @Service
-public class SecurityDefaultService implements SecurityService {
+public class UserMessageSecurityDefaultService implements UserMessageSecurityService {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SecurityDefaultService.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageSecurityDefaultService.class);
 
-    private AuthUtils authUtils;
-    private UserMessageService userMessageService;
+    protected AuthUtils authUtils;
+    protected UserMessageService userMessageService;
 
-    public SecurityDefaultService(AuthUtils authUtils,
-                                  UserMessageService userMessageService) {
+    public UserMessageSecurityDefaultService(AuthUtils authUtils,
+                                             UserMessageService userMessageService) {
         this.authUtils = authUtils;
         this.userMessageService = userMessageService;
     }
 
     @Override
-    public void checkMessageAuthorization(String messageId) throws DomibusServiceExtException {
+    public void checkMessageAuthorization(String messageId) throws AuthenticationException {
         /* unsecured login allowed */
         if (authUtils.isUnsecureLoginAllowed()) {
             LOG.debug("Unsecured login is allowed");
@@ -39,13 +38,13 @@ public class SecurityDefaultService implements SecurityService {
 
         final String finalRecipient = userMessageService.getFinalRecipient(messageId);
         if (StringUtils.isEmpty(finalRecipient)) {
-            throw new DomibusServiceExtException(DomibusErrorCode.DOM_001, "Couldn't get the finalRecipient for message with ID [" + messageId + "]");
+            throw new AuthenticationException("Couldn't get the finalRecipient for message with ID [" + messageId + "]");
         }
         checkAuthorization(finalRecipient);
     }
 
     @Override
-    public void checkAuthorization(String finalRecipient) throws DomibusServiceExtException {
+    public void checkAuthorization(String finalRecipient) throws AuthenticationException {
         /* unsecured login allowed */
         if (authUtils.isUnsecureLoginAllowed()) {
             LOG.debug("Unsecured login is allowed");
@@ -62,18 +61,13 @@ public class SecurityDefaultService implements SecurityService {
             LOG.debug("The provided finalRecipient [{}] is the same as the user's finalRecipient", finalRecipient);
         } else {
             LOG.securityInfo(DomibusMessageCode.SEC_UNAUTHORIZED_MESSAGE_ACCESS, originalUserFromSecurityContext, finalRecipient);
-            throw new AuthenticationExtException(DomibusErrorCode.DOM_002, "You are not allowed to access messages for finalRecipient [" + finalRecipient + "]. You are authorized as [" + originalUserFromSecurityContext + "]");
+            throw new AuthenticationException("You are not allowed to access messages for finalRecipient [" + finalRecipient + "]. You are authorized as [" + originalUserFromSecurityContext + "]");
         }
     }
 
     @Override
-    public String getOriginalUserFromSecurityContext() throws AuthenticationExtException {
+    public String getOriginalUserFromSecurityContext() throws AuthenticationException {
         return authUtils.getOriginalUserFromSecurityContext();
-    }
-
-    @Override
-    public boolean isAdminMultiAware() {
-        return authUtils.isAdminMultiAware();
     }
 
 }
