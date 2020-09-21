@@ -1,24 +1,24 @@
 package eu.domibus.core.csv.serializer;
 
 import com.google.gson.GsonBuilder;
+import org.springframework.stereotype.Service;
 
 import java.util.Map;
-import java.util.function.Function;
-import java.util.function.Predicate;
 
 /**
  * @author François Gautier
  * @since 4.2
  */
-public class CvsSerializerMap implements CvsSerializer<Map<?, ?>> {
+@Service
+public class CvsSerializerMap implements CvsSerializer {
 
     @Override
-    public Predicate<Object> getCheck() {
-        return fieldValue -> fieldValue instanceof Map;
+    public boolean canHandle(Object fieldValue) {
+        return fieldValue instanceof Map;
     }
 
     @Override
-    public Function<Map<?, ?>, String> getSerialize() {
-        return fieldValue -> new GsonBuilder().disableHtmlEscaping().create().toJson(fieldValue);
+    public String serialize(Object fieldValue) {
+        return new GsonBuilder().disableHtmlEscaping().create().toJson(fieldValue);
     }
 }

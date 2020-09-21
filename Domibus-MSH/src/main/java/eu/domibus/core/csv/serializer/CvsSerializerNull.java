@@ -1,24 +1,24 @@
 package eu.domibus.core.csv.serializer;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Service;
 
 import java.util.Objects;
-import java.util.function.Function;
-import java.util.function.Predicate;
 
 /**
  * @author François Gautier
  * @since 4.2
  */
-public class CvsSerializerNull implements CvsSerializer<Object> {
+@Service
+public class CvsSerializerNull implements CvsSerializer {
 
     @Override
-    public Predicate<Object> getCheck() {
-        return Objects::isNull;
+    public boolean canHandle(Object fieldValue) {
+        return fieldValue == null;
     }
 
     @Override
-    public Function<Object, String> getSerialize() {
-        return fieldValue -> Objects.toString(fieldValue, StringUtils.EMPTY);
+    public String serialize(Object fieldValue) {
+        return Objects.toString(fieldValue, StringUtils.EMPTY);
     }
 }

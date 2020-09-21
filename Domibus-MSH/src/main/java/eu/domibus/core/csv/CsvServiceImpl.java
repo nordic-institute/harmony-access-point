@@ -35,17 +35,12 @@ public class CsvServiceImpl implements CsvService {
     public static final String CSV_DATE_PATTERN = "yyyy-MM-dd HH:mm:ss'GMT'Z";
 
     public static final String APPLICATION_EXCEL_STR = "application/ms-excel";
-    private static final List<CvsSerializer<?>> CVS_SERIALIZERS = asList(
-            new CvsSerializerNull(),
-            new CvsSerializerMap(),
-            new CvsSerializerDate(),
-            new CvsSerializerLocalDateTime(),
-            new CvsSerializerRoutingCriteria(),
-            new CvsSerializerErrorCode());
     private final DomibusPropertyProvider domibusPropertyProvider;
+    private final List<CvsSerializer> cvsSerializers;
 
-    public CsvServiceImpl(DomibusPropertyProvider domibusPropertyProvider) {
+    public CsvServiceImpl(DomibusPropertyProvider domibusPropertyProvider, List<CvsSerializer> cvsSerializers) {
         this.domibusPropertyProvider = domibusPropertyProvider;
+        this.cvsSerializers = cvsSerializers;
     }
 
     @Override
@@ -171,8 +166,8 @@ public class CsvServiceImpl implements CsvService {
     protected String serializeFieldValue(Field field, Object elem) throws IllegalAccessException {
         LOG.trace("Serialization for field [{}]", field);
         Object fieldValue = field.get(elem);
-        for (CvsSerializer<?> serializer : CVS_SERIALIZERS) {
-            if (serializer.isValid(fieldValue)) {
+        for (CvsSerializer serializer : cvsSerializers) {
+            if (serializer.canHandle(fieldValue)) {
                 LOG.trace("Serializer: [{}]", this);
                 String result = serializer.serialize(fieldValue);
                 LOG.trace("Serializer: [{}] -> [{}]", this, result);

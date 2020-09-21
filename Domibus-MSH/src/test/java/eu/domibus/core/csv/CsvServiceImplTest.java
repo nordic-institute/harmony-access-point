@@ -8,6 +8,7 @@ import eu.domibus.api.routing.RoutingCriteria;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
+import eu.domibus.core.csv.serializer.*;
 import eu.domibus.core.message.MessageLogInfo;
 import eu.domibus.core.plugin.notification.NotificationStatus;
 import eu.domibus.ebms3.common.model.MessageType;
@@ -22,6 +23,7 @@ import org.hamcrest.core.Is;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
@@ -47,15 +49,25 @@ public class CsvServiceImplTest {
     private static final String LINE_SEPARATOR = "\n";
     @Injectable
     private DomibusPropertyProvider domibusPropertyProvider;
+    @Injectable
+    private List<CvsSerializer> cvsSerializers;
 
     @Tested
     CsvServiceImpl csvServiceImpl;
 
-    public Object objectNull = null;
+    private void setCsvSerializer() {
+        ReflectionTestUtils.setField(csvServiceImpl, "cvsSerializers", Arrays.asList(
+                new CvsSerializerDate(),
+                new CvsSerializerErrorCode(),
+                new CvsSerializerRoutingCriteria(),
+                new CvsSerializerLocalDateTime(),
+                new CvsSerializerMap(),
+                new CvsSerializerNull()));
+    }
 
     @Test
     public void getPageSizeForExport() {
-        new Expectations(csvServiceImpl){{
+        new Expectations(csvServiceImpl) {{
             csvServiceImpl.getMaxNumberRowsToExport();
             result = 1;
         }};
@@ -64,7 +76,8 @@ public class CsvServiceImplTest {
 
         Assert.assertThat(pageSizeForExport, Is.is(2));
 
-        new FullVerifications(){};
+        new FullVerifications() {
+        };
     }
 
     @Test
@@ -105,6 +118,8 @@ public class CsvServiceImplTest {
         DateTimeFormatter f = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss'GMT'Z");
         ZonedDateTime d = ZonedDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
         String csvDate = d.format(f);
+
+        setCsvSerializer();
 
         // When
         final String exportToCSV = csvServiceImpl.exportToCSV(messageLogInfoList, MessageLogInfo.class, null, null);
@@ -194,6 +209,8 @@ public class CsvServiceImplTest {
 
         Field declaredField = TestCsvFields.class.getDeclaredField("mapField");
 
+        setCsvSerializer();
+
         String s = csvServiceImpl.serializeFieldValue(declaredField, o);
 
         Assert.assertEquals("{\"key1\":\"value1\",\"key2\":\"value2\"}", s);
@@ -209,11 +226,14 @@ public class CsvServiceImplTest {
 
         Field declaredField = TestCsvFields.class.getDeclaredField("dateField");
 
+        setCsvSerializer();
+
         String s = csvServiceImpl.serializeFieldValue(declaredField, o);
 
         Assert.assertEquals("2020-01-01 12:59:00GMT+0100", s);
 
-        new FullVerifications(){};
+        new FullVerifications() {
+        };
     }
 
     @Test
@@ -223,11 +243,14 @@ public class CsvServiceImplTest {
 
         Field declaredField = TestCsvFields.class.getDeclaredField("localDateTimeField");
 
+        setCsvSerializer();
+
         String s = csvServiceImpl.serializeFieldValue(declaredField, o);
 
         Assert.assertEquals("2020-01-01 12:59:00GMT+0100", s);
 
-        new FullVerifications(){};
+        new FullVerifications() {
+        };
     }
 
     @Test
@@ -237,11 +260,14 @@ public class CsvServiceImplTest {
 
         Field declaredField = TestCsvFields.class.getDeclaredField("stringField");
 
+        setCsvSerializer();
+
         String s = csvServiceImpl.serializeFieldValue(declaredField, o);
 
         Assert.assertEquals("TEST", s);
 
-        new FullVerifications(){};
+        new FullVerifications() {
+        };
     }
 
     @Test(expected = CsvException.class)
@@ -249,14 +275,15 @@ public class CsvServiceImplTest {
         Object o = new Object();
         Field declaredField = TestCsvFields.class.getDeclaredField("stringField");
 
-        new Expectations(csvServiceImpl){{
-           csvServiceImpl.serializeFieldValue(declaredField, o);
-           result = new IllegalAccessException("TEST");
+        new Expectations(csvServiceImpl) {{
+            csvServiceImpl.serializeFieldValue(declaredField, o);
+            result = new IllegalAccessException("TEST");
         }};
 
-        csvServiceImpl.createCSVContents(Collections.singletonList(o),    null, Collections.singletonList(declaredField));
+        csvServiceImpl.createCSVContents(Collections.singletonList(o), null, Collections.singletonList(declaredField));
 
-        new FullVerifications(){};
+        new FullVerifications() {
+        };
     }
 
     @Test
@@ -276,12 +303,14 @@ public class CsvServiceImplTest {
         ZonedDateTime d = ZonedDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
         String csvDate = d.format(f);
 
+        setCsvSerializer();
+
         // When
         final String exportToCSV = csvServiceImpl.exportToCSV(errorLogROList, ErrorLogRO.class, null, null);
 
         // Then
         Assert.assertTrue(exportToCSV.contains("Error Signal Message Id,Msh Role,Message In Error Id,Error Code,Error Detail,Timestamp,Notified"));
-        Assert.assertTrue(exportToCSV.contains("signalMessageId,RECEIVING,messageInErrorId,EBMS_0001,errorDetail,"+csvDate+","+csvDate));
+        Assert.assertTrue(exportToCSV.contains("signalMessageId,RECEIVING,messageInErrorId,EBMS_0001,errorDetail," + csvDate + "," + csvDate));
     }
 
     @Test
@@ -297,6 +326,8 @@ public class CsvServiceImplTest {
         messageFilterRO.setPersisted(true);
         messageFilterRO.setFrom(fromRoutingCriteria);
         messageFilterROList.add(messageFilterRO);
+
+        setCsvSerializer();
 
         // When
         final String exportToCSV = csvServiceImpl.exportToCSV(messageFilterROList, MessageFilterCSV.class, null, null);

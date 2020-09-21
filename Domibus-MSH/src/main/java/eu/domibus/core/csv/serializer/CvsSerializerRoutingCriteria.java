@@ -1,23 +1,22 @@
 package eu.domibus.core.csv.serializer;
 
 import eu.domibus.api.routing.RoutingCriteria;
-
-import java.util.function.Function;
-import java.util.function.Predicate;
+import org.springframework.stereotype.Service;
 
 /**
  * @author François Gautier
  * @since 4.2
  */
-public class CvsSerializerRoutingCriteria implements CvsSerializer<RoutingCriteria> {
+@Service
+public class CvsSerializerRoutingCriteria implements CvsSerializer {
 
     @Override
-    public Predicate<Object> getCheck() {
-        return fieldValue -> fieldValue instanceof RoutingCriteria;
+    public boolean canHandle(Object fieldValue) {
+        return fieldValue instanceof RoutingCriteria;
     }
 
     @Override
-    public Function<RoutingCriteria, String> getSerialize() {
-        return RoutingCriteria::getExpression;
+    public String serialize(Object fieldValue) {
+        return ((RoutingCriteria) fieldValue).getExpression();
     }
 }
