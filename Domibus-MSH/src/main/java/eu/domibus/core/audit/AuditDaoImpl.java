@@ -24,6 +24,8 @@ import java.util.Set;
 public class AuditDaoImpl implements AuditDao {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AuditDaoImpl.class);
+    public static final String CHANGED = "changed";
+    public static final String ID = "id";
 
     @PersistenceContext(unitName = "domibusJTA")
     private EntityManager entityManager;
@@ -39,12 +41,7 @@ public class AuditDaoImpl implements AuditDao {
 
         logCriteria(auditTargets, actions, users, from, to, start, max);
         TypedQuery<Audit> query = entityManager.createQuery(
-                buildAuditListCriteria(
-                        auditTargets,
-                        actions,
-                        users,
-                        from,
-                        to));
+                buildAuditListCriteria(auditTargets, actions, users, from, to));
         query.setFirstResult(start);
         query.setMaxResults(max);
         return query.getResultList();
@@ -60,6 +57,9 @@ public class AuditDaoImpl implements AuditDao {
         Root<Audit> root = criteriaQuery.from(Audit.class);
         criteriaQuery.select(root);
         where(auditTargets, actions, users, from, to, criteriaBuilder, criteriaQuery, root);
+        criteriaQuery.orderBy(
+                criteriaBuilder.desc(root.get(ID).get(CHANGED)),
+                criteriaBuilder.desc(root.get(ID).get(ID)));
         return criteriaQuery;
     }
 
@@ -125,16 +125,16 @@ public class AuditDaoImpl implements AuditDao {
                          final Date from,
                          final Date to,
                          final CriteriaBuilder criteriaBuilder,
-                         final CriteriaQuery criteriaQuery,
+                         final CriteriaQuery<?> criteriaQuery,
                          final Root<Audit> root) {
 
         List<Predicate> predicates = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(auditTargets)) {
-            Path<Object> auditTargetField = root.get("id").get("auditTargetName");
+            Path<Object> auditTargetField = root.get(ID).get("auditTargetName");
             predicates.add(auditTargetField.in(auditTargets));
         }
         if (CollectionUtils.isNotEmpty(actions)) {
-            Path<Object> actionField = root.get("id").get("action");
+            Path<Object> actionField = root.get(ID).get("action");
             predicates.add(actionField.in(actions));
         }
         if (CollectionUtils.isNotEmpty(users)) {
@@ -142,11 +142,11 @@ public class AuditDaoImpl implements AuditDao {
             predicates.add(userField.in(users));
         }
         if (from != null) {
-            Path<Date> changedDate = root.get("id").get("changed");
+            Path<Date> changedDate = root.get(ID).get(CHANGED);
             predicates.add(criteriaBuilder.greaterThanOrEqualTo(changedDate, from));
         }
         if (to != null) {
-            Path<Date> changedDate = root.get("id").get("changed");
+            Path<Date> changedDate = root.get(ID).get(CHANGED);
             predicates.add(criteriaBuilder.lessThanOrEqualTo(changedDate, to));
         }
         if (!predicates.isEmpty()) {
