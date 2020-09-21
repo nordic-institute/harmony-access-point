@@ -6,7 +6,8 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.logging.LoggingEntry;
 import eu.domibus.core.logging.LoggingService;
-import eu.domibus.ext.delegate.services.security.SecurityDefaultService;
+import eu.domibus.core.message.UserMessageSecurityDefaultService;
+import eu.domibus.core.security.AuthUtilsImpl;
 import eu.domibus.web.rest.ro.LoggingFilterRequestRO;
 import eu.domibus.web.rest.ro.LoggingLevelRO;
 import mockit.*;
@@ -63,8 +64,8 @@ public class LoggingResourceIT {
         }
 
         @Bean
-        public SecurityDefaultService securityDefaultService() {
-            return new SecurityDefaultService(null, null);
+        public AuthUtilsImpl authUtils() {
+            return new AuthUtilsImpl(null, null);
         }
     }
 
@@ -80,7 +81,7 @@ public class LoggingResourceIT {
     public void getLogLevel_accessDenied() throws Exception {
 
         new Expectations() {{
-            new MockUp<SecurityDefaultService>() {
+            new MockUp<AuthUtilsImpl>() {
                 @Mock
                 public boolean isAdminMultiAware() {
                     return false;
@@ -124,7 +125,7 @@ public class LoggingResourceIT {
         loggingFilterRequestRO.setShowClasses(true);
 
         new Expectations() {{
-            new MockUp<SecurityDefaultService>() {
+            new MockUp<AuthUtilsImpl>() {
                 @Mock
                 public boolean isAdminMultiAware() {
                     return true;

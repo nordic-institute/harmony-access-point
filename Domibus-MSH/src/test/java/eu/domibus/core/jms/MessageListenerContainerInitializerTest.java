@@ -2,10 +2,10 @@ package eu.domibus.core.jms;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.jms.multitenancy.DomainMessageListenerContainerFactory;
 import eu.domibus.core.message.UserMessagePriorityConfiguration;
 import eu.domibus.core.message.UserMessagePriorityService;
-import eu.domibus.ext.delegate.converter.DomainExtConverter;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -38,7 +38,7 @@ public class MessageListenerContainerInitializerTest {
     protected DomainService domainService;
 
     @Injectable
-    protected DomainExtConverter domainConverter;
+    protected DomainCoreConverter domainConverter;
 
     @Injectable
     protected UserMessagePriorityService userMessagePriorityService;
