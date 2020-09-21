@@ -2,7 +2,7 @@ package eu.domibus.ext.delegate.services.usermessage;
 
 import eu.domibus.api.usermessage.domain.UserMessage;
 import eu.domibus.ext.delegate.converter.DomainExtConverter;
-import eu.domibus.ext.delegate.services.security.SecurityService;
+import eu.domibus.api.message.UserMessageSecurityService;
 import eu.domibus.ext.domain.UserMessageDTO;
 import eu.domibus.ext.exceptions.UserMessageExtException;
 import eu.domibus.ext.services.UserMessageExtService;
@@ -27,12 +27,12 @@ public class UserMessageServiceDelegate implements UserMessageExtService{
     DomainExtConverter domainConverter;
 
     @Autowired
-    SecurityService securityService;
+    UserMessageSecurityService userMessageSecurityService;
 
     @Override
     public UserMessageDTO getMessage(String messageId) throws UserMessageExtException {
         LOG.debug("Getting message with messageId='" + messageId + "'");
-        securityService.checkMessageAuthorization(messageId);
+        userMessageSecurityService.checkMessageAuthorization(messageId);
 
         final UserMessage userMessage = userMessageCoreService.getMessage(messageId);
         if(userMessage == null) {

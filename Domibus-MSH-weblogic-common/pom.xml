@@ -30,6 +30,16 @@
         </dependency>
         <dependency>
             <groupId>eu.domibus</groupId>
+            <artifactId>domibus-angular</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>eu.domibus</groupId>
+            <artifactId>domibus-ext-services-delegate</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>eu.domibus</groupId>
             <artifactId>domibus-logging</artifactId>
             <scope>compile</scope>
         </dependency>
