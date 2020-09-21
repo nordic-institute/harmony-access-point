@@ -31,7 +31,12 @@ export class AuthenticatedAuthorizedGuard implements CanActivate {
         canActivate = true;
 
         // check also authorization
-        const allowedRoles = route.data.checkRoles;
+        let allowedRoles;
+        if (!!route.data.checkRolesFn) {
+          allowedRoles = await route.data.checkRolesFn.call();
+        } else {
+          allowedRoles = route.data.checkRoles
+        }
         if (!!allowedRoles) { // only if there are roles to check
           const isAuthorized = this.securityService.isAuthorized(allowedRoles);
           if (!isAuthorized) {

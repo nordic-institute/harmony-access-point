@@ -40,10 +40,7 @@ import eu.domibus.core.user.plugin.AuthenticationEntity;
 import eu.domibus.ebms3.common.model.PartProperties;
 import eu.domibus.ebms3.common.model.PullRequest;
 import eu.domibus.ebms3.common.model.UserMessage;
-import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
-import eu.domibus.ext.domain.PartPropertiesDTO;
-import eu.domibus.ext.domain.PullRequestDTO;
-import eu.domibus.ext.domain.UserMessageDTO;
+import eu.domibus.ext.domain.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.ro.*;
@@ -90,6 +87,15 @@ public class DomainCoreDefaultConverter implements DomainCoreConverter {
         if (typeOfT == DomainSpi.class) {
             LOG.trace("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
             return (T) domibusCoreMapper.domainToDomainSpi((Domain) source);
+        }
+        if (typeOfT == DomainDTO.class && source.getClass() == Domain.class) {
+            LOG.trace("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.domainToDomainDTO((Domain) source);
+        }
+
+        if (typeOfT == Domain.class && source.getClass() == DomainDTO.class) {
+            LOG.trace("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.domainDTOToDomain((DomainDTO) source);
         }
 
         if (typeOfT == BackendFilter.class && source.getClass() == BackendFilterEntity.class) {
@@ -191,7 +197,7 @@ public class DomainCoreDefaultConverter implements DomainCoreConverter {
             return (T) domibusCoreMapper.auditResponseRoToAuditLog((AuditResponseRo) source);
         }
 
-        if (typeOfT == DomainRO.class) {
+        if (typeOfT == DomainRO.class && source.getClass() == Domain.class) {
             LOG.trace("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
             return (T) domibusCoreMapper.domainToDomainRO((Domain) source);
         }

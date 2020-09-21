@@ -4,7 +4,7 @@ import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.message.attempt.MessageAttemptService;
 import eu.domibus.ext.delegate.converter.DomainExtConverter;
-import eu.domibus.ext.delegate.services.security.SecurityService;
+import eu.domibus.api.message.UserMessageSecurityService;
 import eu.domibus.ext.domain.MessageAttemptDTO;
 import mockit.Expectations;
 import mockit.Injectable;
@@ -37,14 +37,14 @@ public class MessageMonitoringServiceDelegateTest {
     MessageAttemptService messageAttemptService;
 
     @Injectable
-    SecurityService securityService;
+    UserMessageSecurityService userMessageSecurityService;
 
     @Test
     public void testGetFailedMessages() throws Exception {
         final String originalUserFromSecurityContext = "C4";
 
         new Expectations(messageMonitoringServiceDelegate) {{
-            securityService.getOriginalUserFromSecurityContext();
+            userMessageSecurityService.getOriginalUserFromSecurityContext();
             result = originalUserFromSecurityContext;
         }};
 
@@ -62,7 +62,7 @@ public class MessageMonitoringServiceDelegateTest {
         messageMonitoringServiceDelegate.getFailedMessages(finalRecipient);
 
         new Verifications() {{
-            securityService.checkAuthorization(finalRecipient);
+            userMessageSecurityService.checkAuthorization(finalRecipient);
             userMessageService.getFailedMessages(finalRecipient);
         }};
     }
@@ -74,7 +74,7 @@ public class MessageMonitoringServiceDelegateTest {
         messageMonitoringServiceDelegate.getFailedMessageInterval(messageId);
 
         new Verifications() {{
-            securityService.checkMessageAuthorization(messageId);
+            userMessageSecurityService.checkMessageAuthorization(messageId);
             userMessageService.getFailedMessageElapsedTime(messageId);
         }};
     }
@@ -88,7 +88,7 @@ public class MessageMonitoringServiceDelegateTest {
         final String originalUserFromSecurityContext = "C4";
 
         new Expectations(messageMonitoringServiceDelegate) {{
-            securityService.getOriginalUserFromSecurityContext();
+            userMessageSecurityService.getOriginalUserFromSecurityContext();
             result = originalUserFromSecurityContext;
         }};
 
@@ -106,7 +106,7 @@ public class MessageMonitoringServiceDelegateTest {
         messageMonitoringServiceDelegate.restoreFailedMessage(messageId);
 
         new Verifications() {{
-            securityService.checkMessageAuthorization(messageId);
+            userMessageSecurityService.checkMessageAuthorization(messageId);
             userMessageService.restoreFailedMessage(messageId);
         }};
     }
@@ -118,7 +118,7 @@ public class MessageMonitoringServiceDelegateTest {
         messageMonitoringServiceDelegate.deleteFailedMessage(messageId);
 
         new Verifications() {{
-            securityService.checkMessageAuthorization(messageId);
+            userMessageSecurityService.checkMessageAuthorization(messageId);
             userMessageService.deleteFailedMessage(messageId);
         }};
     }
@@ -135,7 +135,7 @@ public class MessageMonitoringServiceDelegateTest {
         messageMonitoringServiceDelegate.getAttemptsHistory(messageId);
 
         new Verifications() {{
-            securityService.checkMessageAuthorization(messageId);
+            userMessageSecurityService.checkMessageAuthorization(messageId);
             domibusDomainConverter.convert(attemptsHistory, MessageAttemptDTO.class);
         }};
     }

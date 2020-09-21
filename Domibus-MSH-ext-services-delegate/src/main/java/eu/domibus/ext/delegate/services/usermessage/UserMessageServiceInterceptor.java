@@ -1,6 +1,8 @@
 package eu.domibus.ext.delegate.services.usermessage;
 
+import eu.domibus.api.security.AuthenticationException;
 import eu.domibus.ext.delegate.services.interceptor.ServiceInterceptor;
+import eu.domibus.ext.exceptions.AuthenticationExtException;
 import eu.domibus.ext.exceptions.UserMessageExtException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -27,6 +29,9 @@ public class UserMessageServiceInterceptor extends ServiceInterceptor {
 
     @Override
     public Exception convertCoreException(Exception e) {
+        if(e instanceof AuthenticationException) {
+            return new AuthenticationExtException(e);
+        }
         return new UserMessageExtException(e);
     }
 

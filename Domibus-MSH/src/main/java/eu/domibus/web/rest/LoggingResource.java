@@ -79,7 +79,7 @@ public class LoggingResource {
     }
 
     @GetMapping(value = "/loglevel")
-    @PreAuthorize("@securityDefaultService.isAdminMultiAware()")
+    @PreAuthorize("@authUtils.isAdminMultiAware()")
     public ResponseEntity<LoggingLevelResultRO> getLogLevel(@Valid LoggingFilterRequestRO request) {
         final LoggingLevelResultRO resultRO = new LoggingLevelResultRO();
         List<LoggingEntry> loggingLevel = loggingService.getLoggingLevel(request.getLoggerName(), request.isShowClasses());
