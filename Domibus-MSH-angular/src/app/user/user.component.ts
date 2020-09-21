@@ -16,6 +16,7 @@ import FilterableListMixin from '../common/mixins/filterable-list.mixin';
 import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
 import {ClientPageableListMixin} from '../common/mixins/pageable-list.mixin';
 import {ApplicationContextService} from '../common/application-context.service';
+import {ComponentName} from '../common/component-name-decorator';
 
 @Component({
   moduleId: module.id,
@@ -25,7 +26,7 @@ import {ApplicationContextService} from '../common/application-context.service';
     {provide: MAT_CHECKBOX_CLICK_ACTION, useValue: 'check'}
   ]
 })
-
+@ComponentName('Users')
 export class UserComponent extends mix(BaseListComponent)
   .with(FilterableListMixin, ModifiableListMixin, ClientPageableListMixin)
   implements OnInit, AfterViewInit, AfterViewChecked {
@@ -69,10 +70,6 @@ export class UserComponent extends mix(BaseListComponent)
     this.getUserRoles();
     this.areRowsDeleted = false;
     this.filterData();
-  }
-
-  public get name(): string {
-    return 'Users';
   }
 
   async ngAfterViewInit() {

@@ -2,6 +2,7 @@ package eu.domibus.web.rest;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.util.DateUtil;
@@ -96,6 +97,9 @@ public class AlertResource extends BaseResource {
 
     @PutMapping
     public void processAlerts(@RequestBody List<AlertRo> alertRos) {
+        if(true)
+            throw new RequestValidationException("something went wrong");
+        
         final List<Alert> domainAlerts = filterDomainAlerts(alertRos);
         final List<Alert> superAlerts = filterSuperAlerts(alertRos);
         final List<Alert> deletedDomainAlerts = filterDeletedDomainAlerts(alertRos);

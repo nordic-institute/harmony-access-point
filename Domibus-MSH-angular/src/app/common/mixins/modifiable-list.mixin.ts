@@ -46,7 +46,7 @@ const ModifiableListMixin = (superclass: Constructable) => class extends supercl
     if (save) {
       this.isSaving = true;
       let saved: boolean;
-      const operationName: string = 'update ' + (this.name || '').toLowerCase();
+      const operationName: string = 'update ' + this.name;
       try {
         const result = await this.doSave();
         if (result === false) {

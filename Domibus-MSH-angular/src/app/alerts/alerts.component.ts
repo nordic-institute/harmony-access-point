@@ -14,11 +14,13 @@ import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
 import {ServerPageableListMixin} from '../common/mixins/pageable-list.mixin';
 import {ApplicationContextService} from '../common/application-context.service';
 import {AlertsEntry} from './support/alertsentry';
+import {ComponentName} from '../common/component-name-decorator';
 
 @Component({
   moduleId: module.id,
   templateUrl: 'alerts.component.html',
 })
+@ComponentName('Alerts')
 export class AlertsComponent extends mix(BaseListComponent)
   .with(FilterableListMixin, ServerSortableListMixin, ModifiableListMixin, ServerPageableListMixin)
   implements OnInit, AfterViewInit, AfterViewChecked {
@@ -97,10 +99,6 @@ export class AlertsComponent extends mix(BaseListComponent)
     this.areRowsDeleted = false;
     this.areRowsEdited = false;
     this.filterData();
-  }
-
-  public get name(): string {
-    return 'Alerts';
   }
 
   ngAfterViewInit() {
