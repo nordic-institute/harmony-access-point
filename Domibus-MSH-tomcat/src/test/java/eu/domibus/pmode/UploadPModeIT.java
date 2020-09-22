@@ -304,4 +304,24 @@ public class UploadPModeIT extends AbstractIT {
             assertTrue(ex.getIssues().get(6).getMessage().contains("Duplicate unique value [oneway] declared for identity constraint of element \"meps\"."));
         }
     }
+
+    /**
+     * Tests that the PMode is not saved in the DB because there is a validation error for URI attributes exceeds-maxlength.
+     */
+    @Test
+    public void testUploadPmode_URI_attributes_Exceeds_MaxLength() throws IOException {
+        String pmodeName = "domibus-pmode-URI-attributes-exceeds-maxlength.xml";
+        InputStream is = getClass().getClassLoader().getResourceAsStream("samplePModes/" + pmodeName);
+        MultipartFile pModeContent = new MockMultipartFile("domibus-pmode-URI-attributes-exceeds-maxlength", pmodeName, "text/xml", IOUtils.toByteArray(is));
+        try {
+            ValidationResponseRO response = adminGui.uploadPMode(pModeContent, "description");
+            fail("exception expected");
+        } catch (PModeValidationException ex) {
+            assertEquals(4, ex.getIssues().size());
+            assertTrue(ex.getIssues().get(0).getMessage().contains("is not facet-valid with respect to maxLength '1024' for type 'max1024-anyURI"));
+            assertTrue(ex.getIssues().get(1).getMessage().contains("attribute 'value' on element 'partyIdType' is not valid with respect to its type, 'max1024-anyURI"));
+            assertTrue(ex.getIssues().get(2).getMessage().contains("is not facet-valid with respect to maxLength '1024' for type 'max1024-anyURI"));
+            assertTrue(ex.getIssues().get(3).getMessage().contains("attribute 'endpoint' on element 'party' is not valid with respect to its type, 'max1024-anyURI"));
+        }
+    }
 }
