@@ -1086,6 +1086,16 @@
                                  referencedColumnNames="ID_PK" referencedTableName="TB_COMMAND"/>
     </changeSet>
 
+    <changeSet author="Soumya Chandran" id="EDELIVERY-7026">
+        <modifyDataType columnName="VALUE" newDataType="VARCHAR(1024)" tableName="TB_PM_PARTY_ID_TYPE"/>
+        <modifyDataType columnName="VALUE" newDataType="VARCHAR(1024)" tableName="TB_PM_PARTY_ID_TYPE_AUD"/>
+        <modifyDataType columnName="ENDPOINT" newDataType="VARCHAR(1024)" tableName="TB_PM_PARTY"/>
+        <modifyDataType columnName="ENDPOINT" newDataType="VARCHAR(1024)" tableName="TB_PM_PARTY_AUD"/>
+        <modifyDataType columnName="VALUE" newDataType="VARCHAR(1024)" tableName="TB_PM_MEP"/>
+        <modifyDataType columnName="VALUE" newDataType="VARCHAR(1024)" tableName="TB_PM_MEP_BINDING"/>
+        <modifyDataType columnName="SCHEMA_FILE" newDataType="VARCHAR(1024)" tableName="TB_PM_PAYLOAD"/>
+    </changeSet>
+
     <changeSet id="DELETE_MESSAGE_METADATA" author="idragusa">
         <addColumn tableName="TB_PM_MPC">
             <column name="RETENTION_SENT"

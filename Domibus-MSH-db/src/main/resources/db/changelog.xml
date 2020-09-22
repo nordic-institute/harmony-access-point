@@ -660,7 +660,7 @@
             </column>
             <column name="LEG_COUNT" type="INT"/>
             <column name="NAME" type="VARCHAR(255)"/>
-            <column name="VALUE" type="VARCHAR(255)"/>
+            <column name="VALUE" type="VARCHAR(1024)"/>
             <column name="FK_BUSINESSPROCESS" type="BIGINT"/>
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
@@ -677,7 +677,7 @@
                 <constraints primaryKey="true" primaryKeyName="PK_TB_MEP_BINDING"/>
             </column>
             <column name="NAME" type="VARCHAR(255)"/>
-            <column name="VALUE" type="VARCHAR(255)"/>
+            <column name="VALUE" type="VARCHAR(1024)"/>
             <column name="FK_BUSINESSPROCESS" type="BIGINT"/>
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
@@ -998,7 +998,7 @@
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_PARTY"/>
             </column>
-            <column name="ENDPOINT" type="VARCHAR(255)"/>
+            <column name="ENDPOINT" type="VARCHAR(1024)"/>
             <column name="NAME" type="VARCHAR(255)"/>
             <column name="PASSWORD" type="VARCHAR(255)"/>
             <column name="USERNAME" type="VARCHAR(255)"/>
@@ -1021,7 +1021,7 @@
                 <constraints primaryKey="true" primaryKeyName="PK_PARTY_AUD"/>
             </column>
             <column name="REVTYPE" type="TINYINT"/>
-            <column name="ENDPOINT" type="VARCHAR(255)"/>
+            <column name="ENDPOINT" type="VARCHAR(1024)"/>
             <column name="ENDPOINT_MOD" type="BOOLEAN"/>
             <column name="NAME" type="VARCHAR(255)"/>
             <column name="NAME_MOD" type="BOOLEAN"/>
@@ -1082,7 +1082,7 @@
                 <constraints primaryKey="true" primaryKeyName="PK_TB_PARTY_ID_TYPE"/>
             </column>
             <column name="NAME" type="VARCHAR(255)"/>
-            <column name="VALUE" type="VARCHAR(255)"/>
+            <column name="VALUE" type="VARCHAR(1024)"/>
             <column name="FK_BUSINESSPROCESS" type="BIGINT"/>
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
@@ -1104,7 +1104,7 @@
             <column name="REVTYPE" type="TINYINT"/>
             <column name="NAME" type="VARCHAR(255)"/>
             <column name="NAME_MOD" type="BOOLEAN"/>
-            <column name="VALUE" type="VARCHAR(255)"/>
+            <column name="VALUE" type="VARCHAR(1024)"/>
             <column name="VALUE_MOD" type="BOOLEAN"/>
         </createTable>
 
@@ -1149,7 +1149,7 @@
             <column name="MIME_TYPE" type="VARCHAR(255)"/>
             <column name="NAME" type="VARCHAR(255)"/>
             <column name="REQUIRED_" type="BOOLEAN"/>
-            <column name="SCHEMA_FILE" type="VARCHAR(255)"/>
+            <column name="SCHEMA_FILE" type="VARCHAR(1024)"/>
             <column name="FK_BUSINESSPROCESS" type="BIGINT"/>
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
