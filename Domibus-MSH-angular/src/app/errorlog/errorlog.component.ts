@@ -10,6 +10,7 @@ import FilterableListMixin from '../common/mixins/filterable-list.mixin';
 import {ServerSortableListMixin} from '../common/mixins/sortable-list.mixin';
 import {ServerPageableListMixin} from '../common/mixins/pageable-list.mixin';
 import {ApplicationContextService} from '../common/application-context.service';
+import {ComponentName} from '../common/component-name-decorator';
 
 @Component({
   moduleId: module.id,
@@ -17,7 +18,7 @@ import {ApplicationContextService} from '../common/application-context.service';
   providers: [],
   styleUrls: ['./errorlog.component.css']
 })
-
+@ComponentName('Error Logs')
 export class ErrorLogComponent extends mix(BaseListComponent)
   .with(FilterableListMixin, ServerSortableListMixin, ServerPageableListMixin)
   implements OnInit, AfterViewInit, AfterViewChecked {
@@ -98,10 +99,6 @@ export class ErrorLogComponent extends mix(BaseListComponent)
 
   ngAfterViewChecked() {
     this.changeDetector.detectChanges();
-  }
-
-  protected get name(): string {
-    return 'Error Logs';
   }
 
   protected get GETUrl(): string {

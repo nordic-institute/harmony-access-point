@@ -17,12 +17,14 @@ import {ClientPageableListMixin} from '../common/mixins/pageable-list.mixin';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {ClientSortableListMixin} from '../common/mixins/sortable-list.mixin';
 import {ApplicationContextService} from '../common/application-context.service';
+import {ComponentName} from '../common/component-name-decorator';
 
 @Component({
   templateUrl: './pluginuser.component.html',
   styleUrls: ['./pluginuser.component.css'],
   providers: [PluginUserService, UserService]
 })
+@ComponentName('Plugin Users')
 export class PluginUserComponent extends mix(BaseListComponent)
   .with(FilterableListMixin, ClientPageableListMixin, ModifiableListMixin, ClientSortableListMixin)
   implements OnInit, AfterViewInit, AfterViewChecked {
@@ -54,10 +56,6 @@ export class PluginUserComponent extends mix(BaseListComponent)
     this.userRoles = [];
     this.getUserRoles();
     this.filterData();
-  }
-
-  public get name(): string {
-    return 'Plugin Users';
   }
 
   ngAfterViewInit() {
