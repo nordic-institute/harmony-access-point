@@ -2,7 +2,6 @@ package eu.domibus.web.rest;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.util.DateUtil;
