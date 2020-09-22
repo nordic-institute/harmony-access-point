@@ -304,4 +304,24 @@ public class UploadPModeIT extends AbstractIT {
             assertTrue(ex.getIssues().get(6).getMessage().contains("Duplicate unique value [oneway] declared for identity constraint of element \"meps\"."));
         }
     }
+
+    /**
+     * Tests that the PMode is not saved in the DB because there is a type validation error for AS entities.
+     */
+    @Test
+    public void testUploadPmodeAs4BooleanEntities() throws IOException {
+        String pmodeName = "domibus-pmode-AS4-entities-validation-blue.xml";
+        InputStream is = getClass().getClassLoader().getResourceAsStream("samplePModes/" + pmodeName);
+        MultipartFile pModeContent = new MockMultipartFile("domibus-pmode-AS4-entities-validation-blue", pmodeName, "text/xml", IOUtils.toByteArray(is));
+        try {
+            ValidationResponseRO response = adminGui.uploadPMode(pModeContent, "description");
+            fail("exception expected");
+        } catch (PModeValidationException ex) {
+            assertEquals(4, ex.getIssues().size());
+            assertTrue(ex.getIssues().get(0).getMessage().contains("'true123' is not a valid value for 'boolean'."));
+            assertTrue(ex.getIssues().get(1).getMessage().contains("The value 'true123' of attribute 'duplicateDetection' on element 'receptionAwareness' is not valid with respect to its type, 'boolean'."));
+            assertTrue(ex.getIssues().get(2).getMessage().contains(" 'true11' is not a valid value for 'boolean'."));
+            assertTrue(ex.getIssues().get(3).getMessage().contains("The value 'true11' of attribute 'nonRepudiation' on element 'reliability' is not valid with respect to its type, 'boolean'."));
+        }
+    }
 }

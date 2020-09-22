@@ -20,7 +20,7 @@ import javax.xml.bind.annotation.*;
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
  *       &lt;attribute name="name" use="required" type="{http://www.w3.org/2001/XMLSchema}string" /&gt;
  *       &lt;attribute name="retry" type="{http://www.w3.org/2001/XMLSchema}string" /&gt;
- *       &lt;attribute name="duplicateDetection" type="{http://www.w3.org/2001/XMLSchema}string" /&gt;
+ *       &lt;attribute name="duplicateDetection" type="{http://www.w3.org/2001/XMLSchema}boolean" /&gt;
  *     &lt;/restriction&gt;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
