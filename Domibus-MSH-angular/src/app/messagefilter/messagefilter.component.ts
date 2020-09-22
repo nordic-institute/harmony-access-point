@@ -12,6 +12,7 @@ import mix from '../common/mixins/mixin.utils';
 import BaseListComponent from '../common/mixins/base-list.component';
 import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
 import {ApplicationContextService} from '../common/application-context.service';
+import {ComponentName} from '../common/component-name-decorator';
 
 @Component({
   moduleId: module.id,
@@ -19,7 +20,7 @@ import {ApplicationContextService} from '../common/application-context.service';
   providers: [],
   styleUrls: ['./messagefilter.component.css']
 })
-
+@ComponentName('Message Filters')
 export class MessageFilterComponent extends mix(BaseListComponent).with(ModifiableListMixin)
   implements OnInit {
 
@@ -42,10 +43,6 @@ export class MessageFilterComponent extends mix(BaseListComponent).with(Modifiab
     this.backendFilterNames = [];
     this.rowNumber = -1;
     this.loadServerData();
-  }
-
-  public get name(): string {
-    return 'Message Filters';
   }
 
   async getDataAndSetResults(): Promise<any> {

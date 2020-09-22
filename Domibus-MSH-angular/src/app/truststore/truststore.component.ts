@@ -12,6 +12,7 @@ import BaseListComponent from '../common/mixins/base-list.component';
 import {ClientPageableListMixin} from '../common/mixins/pageable-list.mixin';
 import {ApplicationContextService} from '../common/application-context.service';
 import {TrustStoreEntry} from './support/trustore.model';
+import {ComponentName} from '../common/component-name-decorator';
 
 @Component({
   selector: 'app-truststore',
@@ -19,6 +20,7 @@ import {TrustStoreEntry} from './support/trustore.model';
   styleUrls: ['./truststore.component.css'],
   providers: [TrustStoreService]
 })
+@ComponentName('TrustStore')
 export class TruststoreComponent extends mix(BaseListComponent)
   .with(ClientPageableListMixin)
   implements OnInit, AfterViewInit, AfterViewChecked {
@@ -38,10 +40,6 @@ export class TruststoreComponent extends mix(BaseListComponent)
     super.ngOnInit();
 
     this.loadServerData();
-  }
-
-  public get name(): string {
-    return 'TrustStore';
   }
 
   ngAfterViewInit() {
