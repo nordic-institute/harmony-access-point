@@ -9,9 +9,9 @@ import {MAT_DIALOG_DATA} from '@angular/material/dialog';
 })
 export class MoveDialogComponent {
 
-  private selectedSource: any;
-  private destinationsChoiceDisabled = false;
-  private queues: any[] = [];
+  selectedSource: any;
+  destinationsChoiceDisabled = false;
+  queues: any[] = [];
 
   constructor(public dialogRef: MatDialogRef<MoveDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: any) {
     this.setQueues(data.queues);
