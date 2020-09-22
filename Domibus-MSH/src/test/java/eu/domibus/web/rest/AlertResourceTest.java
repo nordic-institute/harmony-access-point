@@ -21,7 +21,7 @@ import org.junit.Test;
 
 import javax.xml.bind.ValidationException;
 import java.util.*;
-import java.util.function.Supplier;
+import java.util.function.LongSupplier;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -366,7 +366,7 @@ public class AlertResourceTest {
         new Verifications(1) {{
             assertEquals(1, alertsRO.size());
             assertEquals(isSuperAdmin, alertsRO.get(0).isSuperAdmin());
-            csvServiceImpl.validateMaxRows(1, (Supplier<Long>) any);
+            csvServiceImpl.validateMaxRows(1, (LongSupplier) any);
             times = 1;
             alertService.countAlerts((AlertCriteria) any);
             times = 0;

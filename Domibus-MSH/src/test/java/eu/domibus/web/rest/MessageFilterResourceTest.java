@@ -1,16 +1,16 @@
 package eu.domibus.web.rest;
 
 import eu.domibus.api.csv.CsvException;
-import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.routing.RoutingCriteria;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.csv.CsvServiceImpl;
-import eu.domibus.core.csv.MessageFilterCsvServiceImpl;
+import eu.domibus.core.csv.MessageFilterCSV;
 import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.web.rest.ro.MessageFilterRO;
 import eu.domibus.web.rest.ro.MessageFilterResultRO;
 import mockit.Expectations;
+import mockit.FullVerifications;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
@@ -21,9 +21,12 @@ import org.junit.runner.RunWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
+
+import static java.util.Collections.singletonList;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsNull.nullValue;
 
 /**
  * @author Tiago Miguel
@@ -43,10 +46,26 @@ public class MessageFilterResourceTest {
     DomainCoreConverter coreConverter;
 
     @Injectable
-    MessageFilterCsvServiceImpl messageFilterCsvServiceImpl;
-
-    @Injectable
     private CsvServiceImpl csvServiceImpl;
+
+    @Test
+    public void updateMessageFilters() {
+        List<BackendFilter> backendFilters = singletonList(new BackendFilter());
+        List<MessageFilterRO> messageFilterROS = singletonList(new MessageFilterRO());
+
+        new Expectations(){{
+            coreConverter.convert(messageFilterROS, BackendFilter.class);
+            this.result = backendFilters;
+            times = 1;
+        }};
+
+        messageFilterResource.updateMessageFilters(messageFilterROS);
+
+        new FullVerifications(){{
+            routingService.updateBackendFilters(backendFilters);
+            times = 1;
+        }};
+    }
 
     @Test
     public void testGetMessageFilterPersisted() {
@@ -95,8 +114,13 @@ public class MessageFilterResourceTest {
         new Expectations(messageFilterResource){{
             messageFilterResource.getBackendFiltersInformation();
             result = new ImmutablePair<>(messageFilterResultROS, true);
-            messageFilterCsvServiceImpl.exportToCSV(messageFilterResultROS, MessageFilterRO.class,new HashMap<>(), new ArrayList<>());
+            messageFilterResource.fromMessageFilterRO(messageFilterRO);
+            result = new MessageFilterCSV();
+            csvServiceImpl.exportToCSV((List<?>) any, MessageFilterCSV.class,new HashMap<>(), new ArrayList<>());
             result = CSV_TITLE + backendName + "," + fromExpression + ", , , ," + true + System.lineSeparator();
+
+            csvServiceImpl.getCsvFilename("message-filter");
+            result = "TEST";
         }};
 
         // When
@@ -107,6 +131,9 @@ public class MessageFilterResourceTest {
         Assert.assertEquals(CSV_TITLE +
                         backendName + "," + fromExpression + ", , , ," + true + System.lineSeparator(),
                 csv.getBody());
+        new FullVerifications(){{
+            csvServiceImpl.validateMaxRows(1);
+        }};
     }
 
     private MessageFilterResultRO getMessageFilterResultRO(int messageFilterEntityId) {
@@ -135,10 +162,65 @@ public class MessageFilterResourceTest {
 
     private List<MessageFilterRO> getMessageFilterROS(int messageFilterEntityId) {
         final List<MessageFilterRO> messageFilterROS = new ArrayList<>();
+        MessageFilterRO messageFilterRO = getMessageFilterRO(messageFilterEntityId);
+        messageFilterROS.add(messageFilterRO);
+        return messageFilterROS;
+    }
+
+    private MessageFilterRO getMessageFilterRO(int messageFilterEntityId) {
         MessageFilterRO messageFilterRO = new MessageFilterRO();
         messageFilterRO.setEntityId(messageFilterEntityId);
         messageFilterRO.setPersisted(messageFilterEntityId != 0);
-        messageFilterROS.add(messageFilterRO);
-        return messageFilterROS;
+        return messageFilterRO;
+    }
+
+    @Test
+    public void fromMessageFilterRO() {
+        MessageFilterRO messageFilterRO1 = new MessageFilterRO();
+        messageFilterRO1.setEntityId(1);
+        messageFilterRO1.setPersisted(true);
+        messageFilterRO1.setBackendName("Plugin");
+
+        RoutingCriteria from = getRoutingCriteria("from", "from:expression");
+        messageFilterRO1.setRoutingCriterias(singletonList(from));
+
+        MessageFilterCSV result = messageFilterResource.fromMessageFilterRO(messageFilterRO1);
+
+        assertThat(result.getPlugin(), is("Plugin"));
+        assertThat(result.isPersisted(), is(true));
+        assertThat(result.getFrom(), is(from));
+        assertThat(result.getTo(), nullValue());
+        assertThat(result.getAction(), nullValue());
+        assertThat(result.getService(), nullValue());
+    }
+
+    private RoutingCriteria getRoutingCriteria(String name, String expression) {
+        RoutingCriteria routingCriteria = new RoutingCriteria();
+        routingCriteria.setName(name);
+        routingCriteria.setExpression(expression);
+        return routingCriteria;
+    }
+
+    @Test
+    public void getValue() {
+        RoutingCriteria from = getRoutingCriteria("from", "from:expression");
+        List<RoutingCriteria> routingCriteria = Arrays.asList(from,
+                getRoutingCriteria("to", "to:expression"),
+                getRoutingCriteria("action", "action:expression"));
+
+        RoutingCriteria result = messageFilterResource.getValue(routingCriteria, "from");
+
+        assertThat(result, is(from));
+    }
+
+    @Test
+    public void getValue_null() {
+        List<RoutingCriteria> routingCriteria = Arrays.asList(
+                getRoutingCriteria("to", "to:expression"),
+                getRoutingCriteria("action", "action:expression"));
+
+        RoutingCriteria result = messageFilterResource.getValue(routingCriteria, "from");
+
+        assertThat(result, nullValue());
     }
 }

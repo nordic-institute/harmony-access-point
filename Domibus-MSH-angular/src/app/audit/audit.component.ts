@@ -9,6 +9,7 @@ import FilterableListMixin from '../common/mixins/filterable-list.mixin';
 import {ServerPageableListMixin} from '../common/mixins/pageable-list.mixin';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {ApplicationContextService} from '../common/application-context.service';
+import {ComponentName} from '../common/component-name-decorator';
 
 /**
  * @author Thomas Dussart
@@ -23,6 +24,7 @@ import {ApplicationContextService} from '../common/application-context.service';
   templateUrl: './audit.component.html',
   styleUrls: ['./audit.component.css']
 })
+@ComponentName('Audit')
 export class AuditComponent extends mix(BaseListComponent)
   .with(FilterableListMixin, ServerPageableListMixin)
   implements OnInit, AfterViewInit, AfterViewChecked {

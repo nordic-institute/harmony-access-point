@@ -376,7 +376,7 @@
                                                               use="required"/>
                                                 <xs:attribute name="retry" type="max255-non-empty-string"/>
                                                 <xs:attribute name="duplicateDetection"
-                                                              type="xs:string"/>
+                                                              type="xs:boolean"/>
                                             </xs:complexType>
                                         </xs:element>
                                         <xs:element maxOccurs="unbounded" name="reliability">
@@ -385,7 +385,7 @@
                                                               use="required"/>
                                                 <xs:attribute name="replyPattern" type="max255-non-empty-string"
                                                               use="required"/>
-                                                <xs:attribute name="nonRepudiation" type="max255-non-empty-string"
+                                                <xs:attribute name="nonRepudiation" type="xs:boolean"
                                                               use="required"/>
                                             </xs:complexType>
                                         </xs:element>

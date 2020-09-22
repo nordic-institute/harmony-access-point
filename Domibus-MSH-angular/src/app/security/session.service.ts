@@ -10,23 +10,28 @@ import {LOCAL_STORAGE_KEY_CURRENT_SESSION, SessionState} from './SessionState';
 @Injectable()
 export class SessionService {
 
-  getCurrentSession (): SessionState {
+  resetCurrentSession() {
+    localStorage.setItem(LOCAL_STORAGE_KEY_CURRENT_SESSION, JSON.stringify(SessionState.NOT_INITIALISED));
+  }
+
+  getCurrentSession(): SessionState {
     const storedSession = localStorage.getItem(LOCAL_STORAGE_KEY_CURRENT_SESSION);
     return storedSession ? JSON.parse(storedSession) : SessionState.INACTIVE;
   }
 
-  updateCurrentSession (session: SessionState): void {
+  updateCurrentSession(session: SessionState): void {
     localStorage.setItem(LOCAL_STORAGE_KEY_CURRENT_SESSION, JSON.stringify(session));
   }
 
-  setExpiredSession (session: SessionState) {
+  setExpiredSession(session: SessionState) {
     if (session === SessionState.EXPIRED_LOGGED_OUT || session === SessionState.EXPIRED_INACTIVITY_OR_ERROR) {
       const currentSession = this.getCurrentSession();
-
       // Only mark the current session as expired when the user is logged in
-      if (currentSession === SessionState.ACTIVE) {
+      if (currentSession === SessionState.NOT_INITIALISED || currentSession === SessionState.ACTIVE) {
         this.updateCurrentSession(session);
       }
     }
   }
+
+
 }
