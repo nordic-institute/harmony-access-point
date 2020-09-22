@@ -14,6 +14,7 @@ import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
 import {DialogsService} from '../common/dialogs/dialogs.service';
 import {ClientPageableListMixin} from '../common/mixins/pageable-list.mixin';
 import {ApplicationContextService} from '../common/application-context.service';
+import {ComponentName} from '../common/component-name-decorator';
 
 /**
  * @author Thomas Dussart, Ion Perpegel
@@ -26,7 +27,7 @@ import {ApplicationContextService} from '../common/application-context.service';
   templateUrl: './party.component.html',
   styleUrls: ['./party.component.css']
 })
-
+@ComponentName('Parties')
 export class PartyComponent extends mix(BaseListComponent)
   .with(ClientFilterableListMixin, ModifiableListMixin, ClientPageableListMixin)
   implements OnInit, DirtyOperations, AfterViewInit, AfterViewChecked {
@@ -65,10 +66,6 @@ export class PartyComponent extends mix(BaseListComponent)
     } else {
       this.pModeExists = false;
     }
-  }
-
-  public get name(): string {
-    return 'Parties';
   }
 
   ngAfterViewInit() {

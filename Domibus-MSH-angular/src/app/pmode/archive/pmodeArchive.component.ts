@@ -17,6 +17,7 @@ import BaseListComponent from '../../common/mixins/base-list.component';
 import ModifiableListMixin from '../../common/mixins/modifiable-list.mixin';
 import {ClientPageableListMixin} from '../../common/mixins/pageable-list.mixin';
 import {ApplicationContextService} from '../../common/application-context.service';
+import {ComponentName} from '../../common/component-name-decorator';
 
 @Component({
   moduleId: module.id,
@@ -24,10 +25,7 @@ import {ApplicationContextService} from '../../common/application-context.servic
   providers: [],
   styleUrls: ['./pmodeArchive.component.css']
 })
-
-/**
- * PMode Archive Component Typescript
- */
+@ComponentName('PMode Archive')
 export class PModeArchiveComponent extends mix(BaseListComponent)
   .with(ModifiableListMixin, ClientPageableListMixin)
   implements OnInit, AfterViewInit, AfterViewChecked {
@@ -61,10 +59,6 @@ export class PModeArchiveComponent extends mix(BaseListComponent)
 
     this.domainService.getCurrentDomain()
       .subscribe((domain: Domain) => this.currentDomain = domain);
-  }
-
-  public get name(): string {
-    return 'pModes';
   }
 
   ngAfterViewInit() {

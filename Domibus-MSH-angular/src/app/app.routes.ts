@@ -26,7 +26,7 @@ import {PropertiesComponent} from './properties/properties.component';
 import {ConnectionsComponent} from './testservice/connections.component';
 import {AuthInternalProviderGuard} from './common/guards/auth-internal-provider.guard';
 
-const appRoutes: Routes = [
+export const appRoutes: Routes = [
   {
     path: '',
     component: MessageLogComponent,
@@ -196,7 +196,7 @@ const appRoutes: Routes = [
     canActivate: [AuthenticatedAuthorizedGuard, DefaultPasswordGuard],
     data: {
       isDomainIndependent: true,
-      checkRolesFn: () => SecurityService.getAllowedRolesForSTandMT([SecurityService.ROLE_DOMAIN_ADMIN], [SecurityService.ROLE_AP_ADMIN]),
+      checkRolesFn: checkRoles([SecurityService.ROLE_DOMAIN_ADMIN], [SecurityService.ROLE_AP_ADMIN]),
       helpPage: 'Logging'
     },
     runGuardsAndResolvers: 'always'
@@ -239,3 +239,7 @@ const appRoutes: Routes = [
 ];
 
 export const routing = RouterModule.forRoot(appRoutes, {onSameUrlNavigation: 'reload'});
+
+export function checkRoles(stRoles, mtRoles) {
+  return () => SecurityService.getAllowedRolesForSTandMT(stRoles, mtRoles);
+}

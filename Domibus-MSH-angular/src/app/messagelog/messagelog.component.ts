@@ -27,6 +27,7 @@ import {ApplicationContextService} from '../common/application-context.service';
 import {PropertiesService} from '../properties/support/properties.service';
 import * as moment from 'moment';
 import {SecurityService} from '../security/security.service';
+import {ComponentName} from '../common/component-name-decorator';
 
 @Component({
   moduleId: module.id,
@@ -34,7 +35,7 @@ import {SecurityService} from '../security/security.service';
   providers: [],
   styleUrls: ['./messagelog.component.css']
 })
-
+@ComponentName('Message Logs')
 export class MessageLogComponent extends mix(BaseListComponent)
   .with(FilterableListMixin, ServerPageableListMixin, ServerSortableListMixin)
   implements OnInit, AfterViewInit, AfterViewChecked {
@@ -96,10 +97,6 @@ export class MessageLogComponent extends mix(BaseListComponent)
     }
 
     this.filterData();
-  }
-
-  public get name(): string {
-    return 'Message Log';
   }
 
   async ngAfterViewInit() {

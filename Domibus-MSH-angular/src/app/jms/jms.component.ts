@@ -15,12 +15,14 @@ import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
 import {ClientPageableListMixin} from '../common/mixins/pageable-list.mixin';
 import {ClientSortableListMixin} from '../common/mixins/sortable-list.mixin';
 import {ApplicationContextService} from '../common/application-context.service';
+import {ComponentName} from '../common/component-name-decorator';
 
 @Component({
   selector: 'app-jms',
   templateUrl: './jms.component.html',
   styleUrls: ['./jms.component.css']
 })
+@ComponentName('JMS Messages')
 export class JmsComponent extends mix(BaseListComponent)
   .with(FilterableListMixin, ClientPageableListMixin, ModifiableListMixin, ClientSortableListMixin)
   implements OnInit, DirtyOperations, AfterViewInit, AfterViewChecked {
@@ -98,10 +100,6 @@ export class JmsComponent extends mix(BaseListComponent)
         }
       });
     });
-  }
-
-  public get name(): string {
-    return 'JMS Messages';
   }
 
   ngAfterViewInit() {
