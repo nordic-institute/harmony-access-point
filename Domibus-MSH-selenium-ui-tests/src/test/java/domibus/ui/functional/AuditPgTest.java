@@ -405,11 +405,14 @@ public class AuditPgTest extends SeleniumTest {
 		log.info("upload pmode");
 		rest.pmode().uploadPMode("pmodes/multipleParties.xml", null);
 		
+		String username = rest.getUser(null, DRoles.ADMIN, true, false, true).getString("userName");
+		login(username, data.defaultPass());
+		
 		log.info("Login and navigate to pmode parties page");
 		PModePartiesPage pPage = new PModePartiesPage(driver);
 		pPage.getSidebar().goToPage(PAGES.PMODE_PARTIES);
 		
-		pPage.grid().scrollToAndSelect("Party Name", "orange_gw1");
+		pPage.grid().scrollToAndSelect("Party Name", "orange_gw");
 		pPage.getDeleteButton().click();
 		pPage.getSaveButton().click();
 		new Dialog(driver).confirm();

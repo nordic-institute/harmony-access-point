@@ -35,6 +35,7 @@ import static org.junit.Assert.assertNull;
  * @author Cosmin Baciu
  * @since 3.3
  */
+@SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(JMockit.class)
 public class JMSPluginImplTest {
 
@@ -120,8 +121,7 @@ public class JMSPluginImplTest {
         new Verifications() {{
             backendJMS.submit(map);
 
-            String capturedMessageId = null;
-            String capturedJmsCorrelationId = null;
+            String capturedJmsCorrelationId;
             backendJMS.sendReplyMessage(queueContext, null, capturedJmsCorrelationId = withCapture());
 
             assertEquals(capturedJmsCorrelationId, jmsCorrelationId);
@@ -192,16 +192,14 @@ public class JMSPluginImplTest {
             jmsMessageTransformer.getQueueContext(messageId, map);
             result = queueContext;
 
-            backendJMS.sendReplyMessage((QueueContext) any, anyString, jmsCorrelationId);
+            backendJMS.sendReplyMessage(queueContext, anyString, jmsCorrelationId);
         }};
 
         backendJMS.receiveMessage(map);
 
         new Verifications() {{
-            QueueContext queueContext = null;
-            String capturedJmsCorrelationId = null;
-            String capturedErrorMessage = null;
-            backendJMS.sendReplyMessage(queueContext, capturedErrorMessage = withCapture(), capturedJmsCorrelationId = withCapture());
+            String capturedJmsCorrelationId ;
+            backendJMS.sendReplyMessage(queueContext, anyString, capturedJmsCorrelationId = withCapture());
 
             assertEquals(jmsCorrelationId, capturedJmsCorrelationId);
         }};
@@ -209,7 +207,7 @@ public class JMSPluginImplTest {
 
     @Test
     public void testMessageReceiveFailed(@Injectable MessageReceiveFailureEvent messageReceiveFailureEvent,
-                                         @Injectable ErrorResult errorResult) throws Exception {
+                                         @Injectable ErrorResult errorResult) {
         final String myEndpoint = "myEndpoint";
         final String messageId = "1";
         final ErrorCode errorCode = ErrorCode.EBMS_0010;

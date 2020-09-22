@@ -30,13 +30,9 @@ export class ChangePasswordComponent implements OnInit {
   }
 
   async ngOnInit() {
-    let passwordPolicy;
-    if (!this.securityService.isCurrentUserAdmin()) {
-      passwordPolicy = await this.securityService.getPasswordPolicy();
-    } else {
-      const role = this.securityService.getCurrentUser().authorities[0];
-      passwordPolicy = await this.securityService.getPasswordPolicyForUserRole(role);
-    }
+    const role = this.securityService.getCurrentUser().authorities[0];
+    const forDomain = role !== SecurityService.ROLE_AP_ADMIN;
+    const passwordPolicy = await this.securityService.getPasswordPolicy(forDomain);
     this.passwordPattern = passwordPolicy.pattern;
     this.passwordValidationMessage = passwordPolicy.validationMessage;
   }

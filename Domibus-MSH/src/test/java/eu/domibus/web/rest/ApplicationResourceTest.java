@@ -1,5 +1,6 @@
 package eu.domibus.web.rest;
 
+import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
@@ -55,6 +56,9 @@ public class ApplicationResourceTest {
 
     @Injectable
     AuthUtils authUtils;
+
+    @Injectable
+    DomainTaskExecutor domainTaskExecutor;
 
     @Test
     public void testGetDomibusInfo() throws Exception {
