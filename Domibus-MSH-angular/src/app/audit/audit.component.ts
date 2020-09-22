@@ -1,4 +1,12 @@
-import {AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {
+  AfterViewChecked,
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  OnInit,
+  TemplateRef,
+  ViewChild
+} from '@angular/core';
 import {AuditService} from './support/audit.service';
 import {UserService} from '../user/support/user.service';
 import {AlertService} from '../common/alert/alert.service';
@@ -10,6 +18,7 @@ import {ServerPageableListMixin} from '../common/mixins/pageable-list.mixin';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {ApplicationContextService} from '../common/application-context.service';
 import {ComponentName} from '../common/component-name-decorator';
+import {DomibusInfoService} from "../common/appinfo/domibusinfo.service";
 
 /**
  * @author Thomas Dussart
@@ -40,19 +49,25 @@ export class AuditComponent extends mix(BaseListComponent)
   timestampFromMaxDate: Date;
   timestampToMinDate: Date;
   timestampToMaxDate: Date;
+  extAuthProviderEnabled = true;
 
   constructor(private applicationService: ApplicationContextService, private auditService: AuditService, private userService: UserService,
-              private alertService: AlertService, private changeDetector: ChangeDetectorRef, private http: HttpClient) {
+              private alertService: AlertService, private changeDetector: ChangeDetectorRef, private http: HttpClient,
+              private domibusInfoService: DomibusInfoService) {
     super();
   }
 
-  ngOnInit() {
+  async ngOnInit() {
     super.ngOnInit();
+
+    //this.extAuthProviderEnabled = await this.domibusInfoService.isExtAuthProviderEnabled();
 
 // --- lets init the component's data ---
     this.existingUsers = [];
-    const userObservable = this.userService.getUserNames();
-    userObservable.subscribe((userNames: string[]) => this.existingUsers.push(...userNames));
+    if (!this.extAuthProviderEnabled) {
+      const userObservable = this.userService.getUserNames();
+      userObservable.subscribe((userNames: string[]) => this.existingUsers.push(...userNames));
+    }
 
     this.existingActions = [];
     const actionObservable = this.auditService.listActions();
