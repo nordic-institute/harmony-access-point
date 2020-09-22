@@ -4,6 +4,7 @@ import com.google.common.collect.Sets;
 import eu.domibus.core.audit.model.*;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
+import org.hamcrest.CoreMatchers;
 import org.hibernate.internal.SessionFactoryImpl;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -11,11 +12,13 @@ import org.junit.runner.RunWith;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 
 /**
  * @author Thomas Dussart
@@ -33,46 +36,94 @@ public class AuditDaoImplTest {
     @Test
     public void whereWithNoArgument(
             @Mocked CriteriaBuilder criteriaBuilder,
-            @Mocked CriteriaQuery criteriaQuery,
+            @Mocked CriteriaQuery<?> criteriaQuery,
             @Mocked Root<Audit> root,
-            @Mocked Predicate predicate) throws Exception {
-        AuditDaoImpl auditDao = new AuditDaoImpl();
+            @Mocked Predicate predicate) {
         auditDao.where(new HashSet<>(), new HashSet<>(), new HashSet<>(), null, null, criteriaBuilder, criteriaQuery, root);
-        new Verifications() {{
-            criteriaQuery.where(withAny(predicate));
-            times = 0;
-        }};
+        new FullVerifications() {
+        };
     }
 
     @Test
     public void whereWithAllParametersTarget(
             @Mocked CriteriaBuilder criteriaBuilder,
             @Mocked SessionFactoryImpl sessionFactory,
-            @Mocked CriteriaQuery criteriaQuery,
-            @Mocked Root<Audit> root) throws Exception {
-        auditDao.where(Sets.newHashSet("User", "Pmode"), Sets.newHashSet("ADD"), Sets.newHashSet("Admin"), new Date(), new Date(), criteriaBuilder, criteriaQuery, root);
-        new Verifications() {{
+            @Mocked CriteriaQuery<?> criteriaQuery,
+            @Mocked Root<Audit> root,
+            @Mocked Path<Object> auditTargetField,
+            @Mocked Path<Object> actionField,
+            @Mocked Path<Object> userField,
+            @Mocked Path<Date> changedDate,
+            @Mocked Path<Date> changedDate2,
+            @Mocked Predicate predicate1,
+            @Mocked Predicate predicate2,
+            @Mocked Predicate predicate3,
+            @Mocked Predicate predicate4,
+            @Mocked Predicate predicate5) {
+        HashSet<String> auditTargets = Sets.newHashSet("User", "Pmode");
+        HashSet<String> action = Sets.newHashSet("ADD");
+        HashSet<String> user = Sets.newHashSet("Admin");
+        Date from = new Date();
+        Date to = new Date();
+        new Expectations() {{
+            root.get("id").get("auditTargetName");
+            times = 1;
+            result = auditTargetField;
+
+            auditTargetField.in(auditTargets);
+            result = predicate1;
+
+            root.get("id").get("action");
+            times = 1;
+            result = actionField;
+
+            actionField.in(action);
+            result = predicate2;
+
+            root.get("id").get("changed");
+            times = 2;
+            result = changedDate;
+            result = changedDate2;
+
+            criteriaBuilder.greaterThanOrEqualTo(changedDate, from);
+            result = predicate3;
+
+            criteriaBuilder.lessThanOrEqualTo(changedDate2, to);
+            result = predicate4;
+
+            root.get("user");
+            times = 1;
+            result = userField;
+
+            userField.in(user);
+            result = predicate5;
+        }};
+
+        auditDao.where(
+                auditTargets,
+                action,
+                user,
+                from,
+                to,
+                criteriaBuilder,
+                criteriaQuery,
+                root);
+        new FullVerifications() {{
             Predicate[] predicateList;
             criteriaQuery.where(predicateList = withCapture());
             times = 1;
-            root.get("id");
-            times = 4;
-            root.get("id").get("auditTargetName");
-            times = 1;
-            root.get("id").get("action");
-            times = 1;
-            root.get("id").get("changed");
-            times = 2;
-            root.get("user");
-            times = 1;
             assertEquals(5, predicateList.length);
-
+            assertThat(Arrays.asList(predicateList), CoreMatchers.hasItems(
+                    predicate1,
+                    predicate2,
+                    predicate3,
+                    predicate4));
         }};
     }
 
     @Test
     public void buildAuditListCriteria(@Mocked CriteriaBuilder criteriaBuilder,
-                                       @Mocked CriteriaQuery criteriaQuery,
+                                       @Mocked CriteriaQuery<Audit> criteriaQuery,
                                        @Mocked Root<Audit> root) {
         Set<String> auditTarget = Sets.newHashSet("User", "Pmode");
         Set<String> action = Sets.newHashSet("ADD");
@@ -97,9 +148,9 @@ public class AuditDaoImplTest {
 
     @Test
     public void buildAuditCountCriteria(@Mocked CriteriaBuilder criteriaBuilder,
-                                        @Mocked CriteriaQuery criteriaQuery,
+                                        @Mocked CriteriaQuery<Audit> criteriaQuery,
                                         @Mocked Root<Audit> root,
-                                        @Mocked Expression expression) {
+                                        @Mocked Expression<Audit> expression) {
         Set<String> auditTarget = Sets.newHashSet("User", "Pmode");
         Set<String> action = Sets.newHashSet("ADD");
         Set<String> user = Sets.newHashSet("Admin");
@@ -125,7 +176,7 @@ public class AuditDaoImplTest {
     }
 
     @Test
-    public void listAudit(@Mocked CriteriaQuery criteriaQuery, @Mocked TypedQuery<Audit> query) {
+    public void listAudit(@Mocked CriteriaQuery<?> criteriaQuery, @Mocked TypedQuery<Audit> query) {
         new Expectations() {{
             entityManager.createQuery(withAny(criteriaQuery));
         }};
@@ -141,7 +192,7 @@ public class AuditDaoImplTest {
     }
 
     @Test
-    public void countAudit(@Mocked CriteriaQuery criteriaQuery, @Mocked TypedQuery<Long> query) {
+    public void countAudit(@Mocked CriteriaQuery<?> criteriaQuery, @Mocked TypedQuery<Long> query) {
         new Expectations() {{
             entityManager.createQuery(withAny(criteriaQuery));
         }};
