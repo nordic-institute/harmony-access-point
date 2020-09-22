@@ -333,8 +333,8 @@ public class CsvServiceImplTest {
         final String exportToCSV = csvServiceImpl.exportToCSV(messageFilterROList, MessageFilterCSV.class, null, null);
 
         // Then
-        Assert.assertEquals(MESSAGE_FILTER_HEADER + LINE_SEPARATOR +
-                "backendName,from:from,,,,true" + LINE_SEPARATOR, exportToCSV);
+        Assert.assertThat(exportToCSV, CoreMatchers.containsString(MESSAGE_FILTER_HEADER));
+        Assert.assertThat(exportToCSV, CoreMatchers.containsString("backendName,from:from,,,,true"));
     }
 
     private List<ErrorLogRO> getErrorLogList(Date date) {
