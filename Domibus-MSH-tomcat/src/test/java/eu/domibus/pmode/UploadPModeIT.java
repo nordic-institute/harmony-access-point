@@ -95,7 +95,7 @@ public class UploadPModeIT extends AbstractIT {
         MultipartFile pModeContent = new MockMultipartFile("wrong-domibus-configuration", pmodeName, "text/xml", IOUtils.toByteArray(is));
         try {
             ValidationResponseRO response = adminGui.uploadPMode(pModeContent, "description");
-        } catch (PModeValidationException ex) {
+        }catch (PModeValidationException ex) {
             assertTrue(ex.getMessage().contains("Failed to upload the PMode file due to"));
         }
     }
@@ -230,9 +230,7 @@ public class UploadPModeIT extends AbstractIT {
             assertEquals(0, ex.getIssues().size());
             assertTrue(ex.getMessage().contains("[DOM_003]:Failed to upload the PMode file due to: NumberFormatException: For input string: \"40894464534632746754875696\""));
         }
-    }
-
-    /**
+    }    /**
      * Tests that the PMode is not saved in the DB because there is a validation error (maxSize overflow value).
      */
     @Test
@@ -248,6 +246,7 @@ public class UploadPModeIT extends AbstractIT {
             assertTrue(ex.getIssues().get(0).getMessage().contains("the maxSize value [-4089446453400] of payload profile [MessageProfile] should be neither negative neither a positive value greater than 9223372036854775807"));
         }
     }
+
 
 
     /**
