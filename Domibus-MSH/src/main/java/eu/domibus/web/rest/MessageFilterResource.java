@@ -1,21 +1,22 @@
 package eu.domibus.web.rest;
 
 import eu.domibus.api.routing.BackendFilter;
+import eu.domibus.api.routing.RoutingCriteria;
 import eu.domibus.core.converter.DomainCoreConverter;
-import eu.domibus.core.csv.CsvService;
-import eu.domibus.core.csv.MessageFilterCsvServiceImpl;
+import eu.domibus.core.csv.MessageFilterCSV;
 import eu.domibus.core.plugin.routing.RoutingService;
-import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.core.util.MessageUtil;
 import eu.domibus.web.rest.ro.MessageFilterRO;
 import eu.domibus.web.rest.ro.MessageFilterResultRO;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Tiago Miguel
@@ -25,16 +26,11 @@ import java.util.List;
 @RequestMapping(value = "/rest/messagefilters")
 public class MessageFilterResource extends BaseResource {
 
-    private static final Logger LOGGER = DomibusLoggerFactory.getLogger(MessageFilterResource.class);
+    @Autowired
+    private RoutingService routingService;
 
     @Autowired
-    RoutingService routingService;
-
-    @Autowired
-    DomainCoreConverter coreConverter;
-
-    @Autowired
-    private MessageFilterCsvServiceImpl messageFilterCsvServiceImpl;
+    private DomainCoreConverter coreConverter;
 
     @GetMapping
     public MessageFilterResultRO getMessageFilter() {
@@ -61,12 +57,7 @@ public class MessageFilterResource extends BaseResource {
     public ResponseEntity<String> getCsv() {
         List<MessageFilterRO> list = getBackendFiltersInformation().getKey();
         getCsvService().validateMaxRows(list.size());
-        return exportToCSV(list, MessageFilterRO.class, "message-filter");
-    }
-
-    @Override
-    public CsvService getCsvService() {
-        return messageFilterCsvServiceImpl;
+        return exportToCSV(list.stream().map(this::fromMessageFilterRO).collect(Collectors.toList()), MessageFilterCSV.class, "message-filter");
     }
 
     protected Pair<List<MessageFilterRO>, Boolean> getBackendFiltersInformation() {
@@ -82,5 +73,25 @@ public class MessageFilterResource extends BaseResource {
             }
         }
         return new ImmutablePair<>(messageFilterResultROS, areFiltersPersisted);
+    }
+    protected MessageFilterCSV fromMessageFilterRO(MessageFilterRO messageFilterRO) {
+        MessageFilterCSV messageFilterCSV = new MessageFilterCSV();
+        messageFilterCSV.setPlugin(messageFilterRO.getBackendName());
+        messageFilterCSV.setPersisted(messageFilterRO.isPersisted());
+
+        List<RoutingCriteria> routingCriteria = messageFilterRO.getRoutingCriterias();
+        messageFilterCSV.setFrom(getValue(routingCriteria, MessageUtil.FROM));
+        messageFilterCSV.setTo(getValue(routingCriteria, MessageUtil.TO));
+        messageFilterCSV.setAction(getValue(routingCriteria, MessageUtil.ACTION));
+        messageFilterCSV.setService(getValue(routingCriteria, MessageUtil.SERVICE));
+        return messageFilterCSV;
+    }
+
+    protected RoutingCriteria getValue(List<RoutingCriteria> routingCriteria, String key) {
+        return routingCriteria
+                .stream()
+                .filter(routingCriteriaElem -> StringUtils.equalsAnyIgnoreCase(routingCriteriaElem.getName(), key))
+                .findAny()
+                .orElse(null);
     }
 }
