@@ -6,8 +6,6 @@ import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
 import eu.domibus.core.converter.DomainCoreConverter;
-import eu.domibus.core.csv.CsvService;
-import eu.domibus.core.csv.ErrorLogCsvServiceImpl;
 import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.logging.DomibusLogger;
@@ -46,9 +44,6 @@ public class ErrorLogResource extends BaseResource {
 
     @Autowired
     private DomainCoreConverter domainConverter;
-
-    @Autowired
-    ErrorLogCsvServiceImpl errorLogCsvServiceImpl;
 
     @GetMapping
     public ErrorLogResultRO getErrorLog(@Valid ErrorLogFilterRequestRO request) {
@@ -95,11 +90,6 @@ public class ErrorLogResource extends BaseResource {
                         "MshRole".toUpperCase(), "AP Role",
                         "MessageInErrorId".toUpperCase(), "Message Id"),
                 "errorlog");
-    }
-
-    @Override
-    public CsvService getCsvService() {
-        return errorLogCsvServiceImpl;
     }
 
     private HashMap<String, Object> createFilterMap(ErrorLogFilterRequestRO request) {

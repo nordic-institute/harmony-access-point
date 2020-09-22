@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static eu.domibus.core.csv.CsvServiceImpl.APPLICATION_EXCEL_STR;
+
 /**
  * Groups all common REST Resource code
  *
@@ -47,7 +49,7 @@ public abstract class BaseResource {
         String result = getCsvService().exportToCSV(list, itemClass, customColumnNames, excludedColumns);
 
         return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(CsvService.APPLICATION_EXCEL_STR))
+                .contentType(MediaType.parseMediaType(APPLICATION_EXCEL_STR))
                 .header("Content-Disposition", "attachment; filename=\"" + getCsvService().getCsvFilename(moduleName) + "\"")
                 .body(result);
     }
