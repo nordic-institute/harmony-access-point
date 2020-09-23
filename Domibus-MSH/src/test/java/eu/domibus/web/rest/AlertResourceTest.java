@@ -2,6 +2,7 @@ package eu.domibus.web.rest;
 
 import com.google.common.collect.Lists;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.core.alerts.model.common.AlertCriteria;
@@ -44,6 +45,9 @@ public class AlertResourceTest {
 
     @Injectable
     DomainTaskExecutor domainTaskExecutor;
+
+    @Injectable
+    DomibusConfigurationService domibusConfigurationService;
 
     AlertCriteria alertCriteria;
     List<Alert> alerts;
