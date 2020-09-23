@@ -44,7 +44,7 @@
   </div>
 
   <div style="height: calc(100% - 190px); overflow-y: auto; overflow-x: hidden;">
-    <page-grid [parent]="this" [sortedColumns]="[{prop: 'changed', dir: 'desc'}]"></page-grid>
+    <page-grid [parent]="this"></page-grid>
   </div>
 
   <ng-template #rowWithDateFormatTpl let-row="row" let-value="value" ngx-datatable-cell-template>

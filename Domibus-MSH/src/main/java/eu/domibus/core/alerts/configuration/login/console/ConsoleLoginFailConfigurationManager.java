@@ -1,9 +1,8 @@
 package eu.domibus.core.alerts.configuration.login.console;
 
+import eu.domibus.core.alerts.configuration.ReaderAlertConfigurationManager;
 import eu.domibus.core.alerts.configuration.AlertConfigurationManager;
 import eu.domibus.core.alerts.configuration.login.LoginFailureModuleConfiguration;
-import eu.domibus.core.alerts.model.common.AlertType;
-import eu.domibus.core.alerts.model.service.ConfigurationLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,26 +13,16 @@ import org.springframework.stereotype.Service;
  * @since 4.2
  */
 @Service
-public class ConsoleLoginFailConfigurationManager implements AlertConfigurationManager {
+public class ConsoleLoginFailConfigurationManager
+        extends ReaderAlertConfigurationManager<LoginFailureModuleConfiguration, ConsoleLoginFailConfigurationReader>
+        implements AlertConfigurationManager {
 
     @Autowired
     private ConsoleLoginFailConfigurationReader reader;
 
-    @Autowired
-    private ConfigurationLoader<LoginFailureModuleConfiguration> loader;
-
     @Override
-    public AlertType getAlertType() {
-        return reader.getAlertType();
+    protected ConsoleLoginFailConfigurationReader getReader() {
+        return reader;
     }
 
-    @Override
-    public LoginFailureModuleConfiguration getConfiguration() {
-        return loader.getConfiguration(reader::readConfiguration);
-    }
-
-    @Override
-    public void reset() {
-        loader.resetConfiguration();
-    }
 }

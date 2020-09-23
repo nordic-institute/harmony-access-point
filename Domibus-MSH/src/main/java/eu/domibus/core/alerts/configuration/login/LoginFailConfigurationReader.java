@@ -3,6 +3,7 @@ package eu.domibus.core.alerts.configuration.login;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.core.alerts.configuration.AlertConfigurationReader;
 import eu.domibus.core.alerts.configuration.UserAuthenticationConfiguration;
 import eu.domibus.core.alerts.model.common.AlertLevel;
 import eu.domibus.core.alerts.model.common.AlertType;
@@ -11,15 +12,15 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ALERT_ACTIVE;
-
 /**
  * Base code for reading of console and plugin user login fail alert configuration
  *
  * @author Ion Perpegel
  * @since 4.2
  */
-public abstract class LoginFailConfigurationReader implements UserAuthenticationConfiguration {
+public abstract class LoginFailConfigurationReader
+        implements AlertConfigurationReader<LoginFailureModuleConfiguration>, UserAuthenticationConfiguration {
+
     private static final Logger LOG = DomibusLoggerFactory.getLogger(LoginFailConfigurationReader.class);
 
     @Autowired
@@ -31,7 +32,8 @@ public abstract class LoginFailConfigurationReader implements UserAuthentication
     @Autowired
     AlertConfigurationService alertConfigurationService;
 
-    protected abstract AlertType getAlertType();
+    @Override
+    public abstract AlertType getAlertType();
 
     protected abstract String getModuleName();
 

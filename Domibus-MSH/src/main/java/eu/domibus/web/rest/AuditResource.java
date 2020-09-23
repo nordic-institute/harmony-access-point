@@ -118,16 +118,13 @@ public class AuditResource extends BaseResource {
      * Action type send from the admin console are different from the one used in the database.
      * Eg: In the admin console the filter for a modified entity is Modified where in the database a modified record
      * has the MOD flag. This method does the translation.
-     *
-     * @param actions
-     * @return
      */
     private Set<String> changeActionType(Set<String> actions) {
         if (actions == null || actions.isEmpty()) {
             return new HashSet<>();
         }
         return actions.stream()
-                .map(action -> getActionTypesFromLabel(action))
+                .map(this::getActionTypesFromLabel)
                 .flatMap(Set::stream).collect(Collectors.toSet());
     }
 

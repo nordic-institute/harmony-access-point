@@ -8,7 +8,6 @@ import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.converter.DomainCoreConverter;
-import eu.domibus.core.csv.ErrorLogCsvServiceImpl;
 import eu.domibus.web.rest.ro.ErrorLogFilterRequestRO;
 import eu.domibus.web.rest.ro.ErrorLogRO;
 import eu.domibus.web.rest.ro.ErrorLogResultRO;
@@ -44,9 +43,6 @@ public class ErrorLogResourceTest {
 
     @Injectable
     DomainCoreConverter domainConverter;
-
-    @Injectable
-    ErrorLogCsvServiceImpl errorLogCsvServiceImpl;
 
     @Injectable
     CsvServiceImpl csvServiceImpl;
@@ -129,7 +125,7 @@ public class ErrorLogResourceTest {
             domainConverter.convert(errorLogEntries, ErrorLogRO.class);
             result = errorLogROEntries;
 
-            errorLogCsvServiceImpl.exportToCSV(errorLogROEntries, ErrorLogRO.class, (Map<String, String>) any, (List<String>) any);
+            csvServiceImpl.exportToCSV(errorLogROEntries, ErrorLogRO.class, (Map<String, String>) any, (List<String>) any);
             result = CSV_TITLE +
                     signalMessageIdStr + "," + MSHRole.RECEIVING + "," + refToMessageIdStr + "," + ErrorCode.EBMS_0001.getErrorCodeName() + "," +
                     errorDetailStr + "," + date + "," + date + System.lineSeparator();

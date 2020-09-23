@@ -1,5 +1,6 @@
-import {Component} from '@angular/core';
+import {Component, Inject} from '@angular/core';
 import {MatDialogRef} from '@angular/material';
+import {MAT_DIALOG_DATA} from '@angular/material/dialog';
 
 @Component({
   selector: 'app-move-dialog',
@@ -12,10 +13,11 @@ export class MoveDialogComponent {
   destinationsChoiceDisabled = false;
   queues: any[] = [];
 
-  constructor(public dialogRef: MatDialogRef<MoveDialogComponent>) {
+  constructor(public dialogRef: MatDialogRef<MoveDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: any) {
+    this.setQueues(data.queues);
   }
 
-  setQueues(queues: any[]) {
+  private setQueues(queues: any[]) {
     if (queues && queues.length > 0) {
       this.queues = queues;
       this.selectedSource = queues[0];

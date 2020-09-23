@@ -14,6 +14,7 @@ import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
 import {DialogsService} from '../common/dialogs/dialogs.service';
 import {ClientPageableListMixin} from '../common/mixins/pageable-list.mixin';
 import {ApplicationContextService} from '../common/application-context.service';
+import {ComponentName} from '../common/component-name-decorator';
 
 /**
  * @author Thomas Dussart, Ion Perpegel
@@ -26,7 +27,7 @@ import {ApplicationContextService} from '../common/application-context.service';
   templateUrl: './party.component.html',
   styleUrls: ['./party.component.css']
 })
-
+@ComponentName('Parties')
 export class PartyComponent extends mix(BaseListComponent)
   .with(ClientFilterableListMixin, ModifiableListMixin, ClientPageableListMixin)
   implements OnInit, DirtyOperations, AfterViewInit, AfterViewChecked {
@@ -65,10 +66,6 @@ export class PartyComponent extends mix(BaseListComponent)
     } else {
       this.pModeExists = false;
     }
-  }
-
-  public get name(): string {
-    return 'Parties';
   }
 
   ngAfterViewInit() {
@@ -227,24 +224,30 @@ export class PartyComponent extends mix(BaseListComponent)
 
     await this.manageCertificate(row);
 
-    const rowCopy = JSON.parse(JSON.stringify(row)); // clone
+    const edited = JSON.parse(JSON.stringify(row)); // clone
     const allProcessesCopy = JSON.parse(JSON.stringify(this.allProcesses));
 
     const dialogRef = this.dialog.open(PartyDetailsComponent, {
       data: {
-        edit: rowCopy,
+        edit: edited,
         allProcesses: allProcessesCopy
       }
     });
 
     const ok = await dialogRef.afterClosed().toPromise();
     if (ok) {
-      if (JSON.stringify(row) === JSON.stringify(rowCopy)) {
-        return;
-      } // nothing changed
+      const rowCopy: PartyResponseRo = JSON.parse(JSON.stringify(row));
+      // just for the sake of comparison
+      rowCopy.processesWithPartyAsInitiator.forEach(el => el.entityId = 0);
+      rowCopy.processesWithPartyAsResponder.forEach(el => el.entityId = 0);
 
-      Object.assign(row, rowCopy);
-      row.name = rowCopy.name;// TODO temp
+      if (JSON.stringify(rowCopy) === JSON.stringify(edited)) {
+        // nothing changed
+        return;
+      }
+
+      Object.assign(row, edited);
+      row.name = edited.name;
       super.rows = [...this.rows];
 
       if (this.updatedParties.indexOf(row) < 0) {

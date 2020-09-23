@@ -1,4 +1,4 @@
-﻿import {Injectable} from '@angular/core';
+﻿import {Injectable, Injector} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import 'rxjs/add/operator/map';
 import {User} from './user';
@@ -9,6 +9,7 @@ import {AlertService} from '../common/alert/alert.service';
 import {ApplicationContextService} from '../common/application-context.service';
 import {DialogsService} from '../common/dialogs/dialogs.service';
 import {PropertiesService} from '../properties/support/properties.service';
+import {SessionService} from './session.service';
 
 @Injectable()
 export class SecurityService {
@@ -17,9 +18,16 @@ export class SecurityService {
   public static ROLE_USER = 'ROLE_USER';
   public static USER_ROLES = [SecurityService.ROLE_USER, SecurityService.ROLE_DOMAIN_ADMIN, SecurityService.ROLE_AP_ADMIN];
   public static ADMIN_ROLES = [SecurityService.ROLE_DOMAIN_ADMIN, SecurityService.ROLE_AP_ADMIN];
-  
+  private static injector: Injector;
+
   pluginPasswordPolicy: Promise<PasswordPolicyRO>;
   public password: string;
+
+  public static async getAllowedRolesForSTandMT(stRoles, mtRoles) {
+    let domainService = SecurityService.injector.get<DomainService>(DomainService);
+    let isMulti = await domainService.isMultiDomain().toPromise();
+    return isMulti ? mtRoles : stRoles;
+  }
 
   constructor(private http: HttpClient,
               private securityEventService: SecurityEventService,
@@ -27,27 +35,30 @@ export class SecurityService {
               private domainService: DomainService,
               private applicationService: ApplicationContextService,
               private dialogsService: DialogsService,
-              private propertiesService: PropertiesService) {
+              private propertiesService: PropertiesService,
+              private sessionService: SessionService,
+              private injector: Injector) {
+    SecurityService.injector = this.injector;
   }
 
   login(username: string, password: string) {
     this.domainService.resetDomain();
+    this.sessionService.resetCurrentSession();
 
     return this.http.post<User>('rest/security/authentication',
       {
         username: username,
         password: password
       }).subscribe((response: User) => {
-        this.updateCurrentUser(response);
+      this.updateCurrentUser(response);
 
-        this.domainService.setAppTitle();
+      this.domainService.setAppTitle();
 
-        this.securityEventService.notifyLoginSuccessEvent(response);
-      },
-      (error: any) => {
-        console.log('Login error');
-        this.securityEventService.notifyLoginErrorEvent(error);
-      });
+      this.securityEventService.notifyLoginSuccessEvent(response);
+    }, (error: any) => {
+      console.log('Login error');
+      this.securityEventService.notifyLoginErrorEvent(error);
+    });
   }
 
   /**
@@ -133,34 +144,30 @@ export class SecurityService {
     localStorage.setItem('currentUser', JSON.stringify(user));
   }
 
-
-  getCurrentUsernameFromServer(): Promise<string> {
-    return this.http.get<string>('rest/security/username').toPromise();
+  isUserConnected(): Promise<string> {
+    return this.http.get<string>('rest/security/user/connected').toPromise();
   }
 
   getCurrentUserFromServer(): Promise<User> {
     return this.http.get<User>('rest/security/user').toPromise();
   }
 
-
   isAuthenticated(): Promise<boolean> {
     return new Promise((resolve, reject) => {
-      let isAuthenticated = false;
-
-      // we get the username from the server to trigger the redirection
-      // to the login screen in case the user is not authenticated
-      this.getCurrentUserFromServer().then(user => {
-
-        isAuthenticated = user ? user.username != '' : false;
-        let shouldUpdateUserLocally = isAuthenticated && !this.getCurrentUser();
-        if (shouldUpdateUserLocally) {
-          this.updateCurrentUser(user);
-        }
-        resolve(isAuthenticated);
-      }).catch(reason => {
-        console.log('Error while calling getCurrentUsernameFromServer: ' + reason);
-        reject(reason);
-      });
+      // we 'ping' the server to check whether we are connected
+      // if not, trigger the redirection to the login screen
+      try {
+        this.isUserConnected()
+          .then(isConnected => {
+            resolve(true);
+          }, err => {
+            console.log('Error while calling isUserConnected: ' + err);
+            resolve(false);
+          });
+      } catch (ex) {
+        console.log('Error while calling isUserConnected: ' + ex);
+        reject(ex);
+      }
     });
   }
 
