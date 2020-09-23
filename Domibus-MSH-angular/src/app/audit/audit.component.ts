@@ -49,7 +49,7 @@ export class AuditComponent extends mix(BaseListComponent)
   timestampFromMaxDate: Date;
   timestampToMinDate: Date;
   timestampToMaxDate: Date;
-  extAuthProviderEnabled = true;
+  extAuthProviderEnabled = false;
 
   constructor(private applicationService: ApplicationContextService, private auditService: AuditService, private userService: UserService,
               private alertService: AlertService, private changeDetector: ChangeDetectorRef, private http: HttpClient,
@@ -60,7 +60,7 @@ export class AuditComponent extends mix(BaseListComponent)
   async ngOnInit() {
     super.ngOnInit();
 
-    //this.extAuthProviderEnabled = await this.domibusInfoService.isExtAuthProviderEnabled();
+    this.extAuthProviderEnabled = await this.domibusInfoService.isExtAuthProviderEnabled();
 
 // --- lets init the component's data ---
     this.existingUsers = [];

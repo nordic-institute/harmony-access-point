@@ -21,7 +21,6 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.reflections.Reflections;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -106,14 +105,14 @@ public class AuditServiceImpl implements AuditService {
      * {@inheritDoc}
      */
     @Override
-    @Cacheable("auditTarget")
+    //@Cacheable("auditTarget")
     @Transactional(readOnly = true)
     public List<String> listAuditTarget() {
         Set<Class<?>> typesAnnotatedWith = new Reflections("eu.domibus").
                 getTypesAnnotatedWith(RevisionLogicalName.class);
         return typesAnnotatedWith.stream().
-                filter(aClass -> aClass != Party.class && aClass != PartyIdType.class &&
-                        (aClass != User.class && domibusConfigurationService.isExtAuthProviderEnabled())
+                filter(aClass -> (aClass != Party.class && aClass != PartyIdType.class &&
+                        (aClass != User.class && domibusConfigurationService.isExtAuthProviderEnabled()))
                 ).
                 map(aClass -> annotationsUtil.getValue(aClass, RevisionLogicalName.class)).
                 //check if present is needed because the set contains subclasses that do not contain the annotation.
