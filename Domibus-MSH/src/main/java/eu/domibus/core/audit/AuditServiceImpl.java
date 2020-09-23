@@ -107,7 +107,7 @@ public class AuditServiceImpl implements AuditService {
      * {@inheritDoc}
      */
     @Override
-    //@Cacheable("auditTarget")
+    @Cacheable("auditTarget")
     @Transactional(readOnly = true)
     public List<String> listAuditTarget() {
         Set<Class<?>> typesAnnotatedWith = getFiltereAuditTargets();
