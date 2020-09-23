@@ -345,6 +345,7 @@ Domibus 4.2
 - Duplicate properties validations in Pmode
 - Wrong dependency between msh and ext module
 - Add remarks to TB_COMMAND/TB_COMMAND_PROPERTY tables
+- Maximum length of Pmode's URI attributes(endpoint, partyIdType's value, Mep's value, binding's value and 'schemaFile' attribute of payload) extended from 255 to 1024.
 Domibus 4.1.5
 - AS4 String message properties has been increased from 255 characters to 1024
 - Synchronization of Certificate verification security level of the SMP certificate in dynamic discovery for Peppol and Oasis.

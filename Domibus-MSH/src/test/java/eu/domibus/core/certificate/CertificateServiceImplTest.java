@@ -50,6 +50,7 @@ import static org.junit.Assert.*;
 /**
  * Created by Cosmin Baciu on 07-Jul-16.
  */
+@SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(JMockit.class)
 public class CertificateServiceImplTest {
 
@@ -141,9 +142,8 @@ public class CertificateServiceImplTest {
 
     @Test
     public void testCertificateChain() throws CertificateException {
-        String certStr = TEST_CERTIFICATE_CONTENT_PEM;
 
-        InputStream in = new ByteArrayInputStream(certStr.getBytes());
+        InputStream in = new ByteArrayInputStream(TEST_CERTIFICATE_CONTENT_PEM.getBytes());
         CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
         final java.security.cert.Certificate certificate = certFactory.generateCertificate(in);
         System.out.println(certificate);
@@ -160,8 +160,7 @@ public class CertificateServiceImplTest {
 
         new Expectations(certificateService) {{
             trustStore.getCertificateChain(receiverAlias);
-            X509Certificate[] certificateChain = new X509Certificate[]{receiverCertificate, rootCertificate};
-            result = certificateChain;
+            result = new X509Certificate[]{receiverCertificate, rootCertificate};
 
             certificateService.isCertificateValid(rootCertificate);
             result = true;
@@ -191,8 +190,7 @@ public class CertificateServiceImplTest {
 
         new Expectations(certificateService) {{
             trustStore.getCertificateChain(receiverAlias);
-            X509Certificate[] certificateChain = new X509Certificate[]{receiverCertificate, rootCertificate};
-            result = certificateChain;
+            result = new X509Certificate[]{receiverCertificate, rootCertificate};
 
             certificateService.isCertificateValid(receiverCertificate);
             result = false;
@@ -211,7 +209,7 @@ public class CertificateServiceImplTest {
     }
 
     @Test
-    public void testIsCertificateValid(@Mocked final X509Certificate certificate) throws Exception {
+    public void testIsCertificateValid(@Mocked final X509Certificate certificate)  {
         new Expectations(certificateService) {{
             certificateService.checkValidity(certificate);
             result = true;
@@ -225,7 +223,7 @@ public class CertificateServiceImplTest {
     }
 
     @Test
-    public void testIsCertificateValidWithExpiredCertificate(@Mocked final X509Certificate certificate) throws Exception {
+    public void testIsCertificateValidWithExpiredCertificate(@Mocked final X509Certificate certificate)  {
         new Expectations(certificateService) {{
             certificateService.checkValidity(certificate);
             result = false;
@@ -296,15 +294,15 @@ public class CertificateServiceImplTest {
         assertEquals("blue_gw", trustStoreEntry.getName());
         assertEquals("C=BE,O=eDelivery,CN=blue_gw", trustStoreEntry.getSubject());
         assertEquals("C=BE,O=eDelivery,CN=blue_gw", trustStoreEntry.getIssuer());
-        assertTrue(validFrom.compareTo(trustStoreEntry.getValidFrom()) == 0);
-        assertTrue(validUntil.compareTo(trustStoreEntry.getValidUntil()) == 0);
+        assertEquals(0, validFrom.compareTo(trustStoreEntry.getValidFrom()));
+        assertEquals(0, validUntil.compareTo(trustStoreEntry.getValidUntil()));
 
         trustStoreEntry = trustStoreEntries.get(1);
         assertEquals("red_gw", trustStoreEntry.getName());
         assertEquals("C=BE,O=eDelivery,CN=red_gw", trustStoreEntry.getSubject());
         assertEquals("C=BE,O=eDelivery,CN=red_gw", trustStoreEntry.getIssuer());
-        assertTrue(validFrom.compareTo(trustStoreEntry.getValidFrom()) == 0);
-        assertTrue(validUntil.compareTo(trustStoreEntry.getValidUntil()) == 0);
+        assertEquals(0, validFrom.compareTo(trustStoreEntry.getValidFrom()));
+        assertEquals(0, validUntil.compareTo(trustStoreEntry.getValidUntil()));
     }
 
 
@@ -362,12 +360,14 @@ public class CertificateServiceImplTest {
         final String soonRevokedAlias = "Cert1";
         soonRevokedCertificate.setNotAfter(now);
         soonRevokedCertificate.setAlias(soonRevokedAlias);
+        soonRevokedCertificate.setCertificateType(CertificateType.PRIVATE);
         final List<Certificate> unNotifiedSoonRevokedCertificates = Lists.newArrayList(soonRevokedCertificate);
 
         final String revokedAlias = "Cert2";
         final Certificate revokedCertificate = new Certificate();
         revokedCertificate.setNotAfter(now);
         revokedCertificate.setAlias(revokedAlias);
+        revokedCertificate.setCertificateType(CertificateType.PUBLIC);
         final List<Certificate> unNotifiedRevokedCertificates = Lists.newArrayList(revokedCertificate);
 
         new Expectations() {{
@@ -379,9 +379,9 @@ public class CertificateServiceImplTest {
         certificateService.logCertificateRevocationWarning();
 
         new Verifications() {{
-            LOG.securityWarn(SEC_CERTIFICATE_SOON_REVOKED, soonRevokedAlias, now);
+            LOG.securityWarn(SEC_CERTIFICATE_SOON_REVOKED, CertificateType.PRIVATE, soonRevokedAlias, now);
             times = 1;
-            LOG.securityError(SEC_CERTIFICATE_REVOKED, revokedAlias, now);
+            LOG.securityError(SEC_CERTIFICATE_REVOKED, CertificateType.PUBLIC, revokedAlias, now);
             times = 1;
             certificateDao.updateRevocation(soonRevokedCertificate);
             times = 1;
@@ -485,11 +485,12 @@ public class CertificateServiceImplTest {
         assertEquals(certificates.get(0).getNotAfter(), notAfter);
     }
 
+    @SuppressWarnings("AccessStaticViaInstance")
     @Test
     public void sendCertificateImminentExpirationAlerts(final @Mocked ImminentExpirationCertificateModuleConfiguration imminentExpirationCertificateConfiguration,
                                                         @Mocked LocalDateTime dateTime, @Mocked final Certificate certificate) throws ParseException {
 
-        SimpleDateFormat parser = new SimpleDateFormat("dd/mm/yyy HH:mm:ss");
+        SimpleDateFormat parser = new SimpleDateFormat("dd/MM/yyy HH:mm:ss");
         Date offset = parser.parse("25/10/1977 00:00:00");
         Date notificationDate = parser.parse("25/10/1977 00:00:00");
         Date notAfter = parser.parse("23/10/1977 00:00:00");
@@ -547,11 +548,12 @@ public class CertificateServiceImplTest {
         }};
     }
 
+    @SuppressWarnings("AccessStaticViaInstance")
     @Test
     public void sendCertificateExpiredAlerts(final @Mocked ExpiredCertificateModuleConfiguration expiredCertificateConfiguration,
                                              @Mocked LocalDateTime dateTime, @Mocked final Certificate certificate) throws ParseException {
 
-        SimpleDateFormat parser = new SimpleDateFormat("dd/mm/yyy HH:mm:ss");
+        SimpleDateFormat parser = new SimpleDateFormat("dd/MM/yyy HH:mm:ss");
         Date endNotification = parser.parse("25/10/1977 00:00:00");
         Date notificationDate = parser.parse("25/10/1977 00:00:00");
         Date notAfter = parser.parse("23/10/1977 00:00:00");
@@ -611,7 +613,7 @@ public class CertificateServiceImplTest {
 
     @Test
     public void sendCertificateExpiredAlertsModuleInactive(final @Mocked ExpiredCertificateModuleConfiguration expiredCertificateConfiguration,
-                                                           @Mocked LocalDateTime dateTime, @Mocked final Certificate certificate) throws ParseException {
+                                                           @Mocked LocalDateTime dateTime, @Mocked final Certificate certificate)  {
         new Expectations() {{
             expiredCertificateConfigurationManager.getConfiguration().isActive();
             result = false;
@@ -625,7 +627,7 @@ public class CertificateServiceImplTest {
 
     @Test
     public void sendCertificateImminentExpirationAlertsModuleInactive(final @Mocked ExpiredCertificateModuleConfiguration expiredCertificateConfiguration,
-                                                                      @Mocked LocalDateTime dateTime, @Mocked final Certificate certificate) throws ParseException {
+                                                                      @Mocked LocalDateTime dateTime, @Mocked final Certificate certificate) {
         new Expectations() {{
             imminentExpirationCertificateConfigurationManager.getConfiguration().isActive();
             result = false;
@@ -638,7 +640,8 @@ public class CertificateServiceImplTest {
     }
 
     @Test
-    public void validateLoadOperation(final @Mocked KeyStore keyStore, final @Mocked ByteArrayInputStream newTrustStoreBytes) throws KeyStoreException, CertificateException, NoSuchAlgorithmException, IOException, UnrecoverableKeyException {
+    public void validateLoadOperation(final @Mocked KeyStore keyStore, final @Mocked ByteArrayInputStream newTrustStoreBytes)
+            throws KeyStoreException, CertificateException, NoSuchAlgorithmException, IOException {
         final String password = "test123";
         final String type = "jks";
 
@@ -656,15 +659,15 @@ public class CertificateServiceImplTest {
     @Test
     public void testPemFormatCertificateContent() {
         boolean result = this.certificateService.isPemFormat(TEST_CERTIFICATE_CONTENT_PEM);
-        Assert.assertEquals(true, result);
+        assertTrue(result);
 
         byte[] binaryCert = TEST_CERTIFICATE_CONTENT.getBytes();
-        boolean nonPemResult = this.certificateService.isPemFormat(binaryCert.toString());
-        Assert.assertEquals(false, nonPemResult);
+        boolean nonPemResult = this.certificateService.isPemFormat(Arrays.toString(binaryCert));
+        assertFalse(nonPemResult);
     }
 
     @Test
-    public void testLoadCertificateFromString() throws CertificateException {
+    public void testLoadCertificateFromString()  {
         String certStr = TEST_CERTIFICATE_CONTENT_PEM;
 
         X509Certificate cert = this.certificateService.loadCertificateFromString(certStr);
@@ -674,8 +677,7 @@ public class CertificateServiceImplTest {
         X509Certificate cert2 = this.certificateService.loadCertificateFromString(certStr2);
         Assert.assertNotNull(cert2);
 
-        String certStr3 = TEST_CERTIFICATE_CONTENT;
-        X509Certificate cert3 = this.certificateService.loadCertificateFromString(certStr3);
+        X509Certificate cert3 = this.certificateService.loadCertificateFromString(TEST_CERTIFICATE_CONTENT);
         Assert.assertNotNull(cert3);
 
         Assert.assertEquals(cert.toString(), cert2.toString());
@@ -683,12 +685,11 @@ public class CertificateServiceImplTest {
     }
 
     @Test
-    public void testConvertCertificateContent() throws CertificateException {
-        String certStr = TEST_CERTIFICATE_CONTENT_PEM;
+    public void testConvertCertificateContent()  {
         String subject = "OU=DEV, O=DIGIT, EMAILADDRESS=uumds@uumds.eu, C=BE, ST=Belgium, CN=UUMDS tests client certificate VALID";
         String fingerprint = "ac5493f0e0032f060d37596b28b3e0533bd92a7a";
 
-        TrustStoreEntry entry = this.certificateService.convertCertificateContent(certStr);
+        TrustStoreEntry entry = this.certificateService.convertCertificateContent(TEST_CERTIFICATE_CONTENT_PEM);
         Assert.assertEquals(subject, entry.getSubject());
         Assert.assertEquals(fingerprint, entry.getFingerprints());
     }
