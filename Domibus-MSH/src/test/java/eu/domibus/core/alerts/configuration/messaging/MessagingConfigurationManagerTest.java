@@ -124,14 +124,14 @@ public class MessagingConfigurationManagerTest  {
 
     @Test
     public void readMessageConfigurationActiveFalse() {
-        final String mailSubject = "domibus";
+        final String mailSubject = "Messsage status changed";
         new Expectations() {{
             alertConfigurationService.isAlertModuleEnabled();
             this.result = true;
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_ACTIVE);
             result = false;
             domibusPropertyProvider.getProperty(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_MAIL_SUBJECT);
-            result =mailSubject;
+            result = mailSubject;
         }};
         final MessagingModuleConfiguration messagingConfiguration = configurationManager.readConfiguration();
         assertEquals(messagingConfiguration.getMailSubject(), mailSubject);
