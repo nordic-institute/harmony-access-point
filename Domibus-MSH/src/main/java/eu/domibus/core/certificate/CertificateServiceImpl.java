@@ -18,6 +18,7 @@ import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.core.certificate.crl.CRLService;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.openssl.jcajce.JcaMiscPEMGenerator;
 import org.bouncycastle.util.io.pem.PemObject;
@@ -234,7 +235,7 @@ public class CertificateServiceImpl implements CertificateService {
         final ImminentExpirationCertificateModuleConfiguration configuration = imminentExpirationCertificateConfigurationManager.getConfiguration();
         final Boolean activeModule = configuration.isActive();
         LOG.debug("Certificate Imminent expiration alert module activated:[{}]", activeModule);
-        if (!activeModule) {
+        if (BooleanUtils.isNotTrue(activeModule)) {
             return;
         }
         final String accessPoint = getAccessPointName();
@@ -311,13 +312,13 @@ public class CertificateServiceImpl implements CertificateService {
     protected void logCertificateRevocationWarning() {
         List<eu.domibus.core.certificate.Certificate> unNotifiedSoonRevoked = certificateDao.getUnNotifiedSoonRevoked();
         for (eu.domibus.core.certificate.Certificate certificate : unNotifiedSoonRevoked) {
-            LOG.securityWarn(SEC_CERTIFICATE_SOON_REVOKED, certificate.getAlias(), certificate.getNotAfter());
+            LOG.securityWarn(SEC_CERTIFICATE_SOON_REVOKED, certificate.getCertificateType(), certificate.getAlias(), certificate.getNotAfter());
             certificateDao.updateRevocation(certificate);
         }
 
         List<eu.domibus.core.certificate.Certificate> unNotifiedRevoked = certificateDao.getUnNotifiedRevoked();
         for (eu.domibus.core.certificate.Certificate certificate : unNotifiedRevoked) {
-            LOG.securityError(SEC_CERTIFICATE_REVOKED, certificate.getAlias(), certificate.getNotAfter());
+            LOG.securityError(SEC_CERTIFICATE_REVOKED, certificate.getCertificateType(), certificate.getAlias(), certificate.getNotAfter());
             certificateDao.updateRevocation(certificate);
         }
     }
