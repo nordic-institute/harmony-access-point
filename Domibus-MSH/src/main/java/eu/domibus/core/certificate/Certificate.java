@@ -1,6 +1,8 @@
 package eu.domibus.core.certificate;
 
+import eu.domibus.core.audit.envers.RevisionLogicalName;
 import eu.domibus.ebms3.common.model.AbstractBaseEntity;
+import org.hibernate.envers.Audited;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -12,6 +14,8 @@ import java.util.Objects;
  * @since 4.0
  */
 @Entity
+@Audited(withModifiedFlag = false)
+@RevisionLogicalName("Certificate")
 @Table(name = "TB_CERTIFICATE")
 @NamedQueries({
         @NamedQuery(name = "Certificate.findExpiredToNotifyCertificate", query = "FROM Certificate c where (c.alertExpiredNotificationDate is null OR c.alertExpiredNotificationDate<=:NEXT_NOTIFICATION) AND c.certificateStatus='REVOKED' AND c.notAfter>=:END_NOTIFICATION"),

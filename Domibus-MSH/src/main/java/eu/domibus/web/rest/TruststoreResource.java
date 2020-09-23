@@ -77,6 +77,8 @@ public class TruststoreResource extends BaseResource {
         }
 
         multiDomainCertificateProvider.replaceTrustStore(domainProvider.getCurrentDomain(), truststoreFile.getOriginalFilename(), truststoreFileContent, password);
+        // triger update certificate table
+        certificateService.saveCertificateAndLogRevocation(domainProvider.getCurrentDomain());
         return "Truststore file has been successfully replaced.";
     }
 
