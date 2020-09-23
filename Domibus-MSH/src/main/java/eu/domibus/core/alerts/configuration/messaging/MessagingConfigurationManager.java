@@ -4,11 +4,12 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.MessageStatus;
+import eu.domibus.core.alerts.configuration.ReaderMethodAlertConfigurationManager;
 import eu.domibus.core.alerts.configuration.AlertConfigurationManager;
 import eu.domibus.core.alerts.model.common.AlertLevel;
 import eu.domibus.core.alerts.model.common.AlertType;
-import eu.domibus.core.alerts.model.service.ConfigurationLoader;
 import eu.domibus.core.alerts.service.AlertConfigurationService;
+import eu.domibus.core.alerts.service.ConfigurationReader;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -27,7 +28,10 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
  * @since 4.2
  */
 @Service
-public class MessagingConfigurationManager implements AlertConfigurationManager {
+public class MessagingConfigurationManager
+        extends ReaderMethodAlertConfigurationManager<MessagingModuleConfiguration>
+        implements AlertConfigurationManager {
+
     private static final Logger LOG = DomibusLoggerFactory.getLogger(MessagingConfigurationManager.class);
 
     @Autowired
@@ -35,9 +39,6 @@ public class MessagingConfigurationManager implements AlertConfigurationManager 
 
     @Autowired
     private DomainContextProvider domainContextProvider;
-
-    @Autowired
-    private ConfigurationLoader<MessagingModuleConfiguration> loader;
 
     @Autowired
     AlertConfigurationService alertConfigurationService;
@@ -48,13 +49,8 @@ public class MessagingConfigurationManager implements AlertConfigurationManager 
     }
 
     @Override
-    public MessagingModuleConfiguration getConfiguration() {
-        return loader.getConfiguration(this::readConfiguration);
-    }
-
-    @Override
-    public void reset() {
-        loader.resetConfiguration();
+    protected ConfigurationReader<MessagingModuleConfiguration> getReaderMethod() {
+        return this::readConfiguration;
     }
 
     protected MessagingModuleConfiguration readConfiguration() {
