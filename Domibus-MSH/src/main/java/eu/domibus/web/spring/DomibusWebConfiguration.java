@@ -35,7 +35,7 @@ public class DomibusWebConfiguration implements WebMvcConfigurer {
         registry.addInterceptor(defaultPasswordInterceptor())
                 .addPathPatterns("/rest/**")
                 .excludePathPatterns("/rest/security/user")
-                .excludePathPatterns("/rest/security/username")
+                .excludePathPatterns("/rest/security/user/connected")
                 .excludePathPatterns("/rest/security/authentication")
                 .excludePathPatterns("/rest/security/user/domain")
                 .excludePathPatterns("/rest/security/user/password")

@@ -3,11 +3,12 @@ package eu.domibus.core.alerts.configuration.certificate.imminent;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.core.alerts.configuration.ReaderMethodAlertConfigurationManager;
 import eu.domibus.core.alerts.configuration.AlertConfigurationManager;
 import eu.domibus.core.alerts.model.common.AlertLevel;
 import eu.domibus.core.alerts.model.common.AlertType;
-import eu.domibus.core.alerts.model.service.ConfigurationLoader;
 import eu.domibus.core.alerts.service.AlertConfigurationService;
+import eu.domibus.core.alerts.service.ConfigurationReader;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +23,10 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
  * @since 4.2
  */
 @Service
-public class ImminentExpirationCertificateConfigurationManager implements AlertConfigurationManager {
+public class ImminentExpirationCertificateConfigurationManager
+        extends ReaderMethodAlertConfigurationManager<ImminentExpirationCertificateModuleConfiguration>
+        implements AlertConfigurationManager {
+
     private static final Logger LOG = DomibusLoggerFactory.getLogger(ImminentExpirationCertificateConfigurationManager.class);
 
     @Autowired
@@ -30,9 +34,6 @@ public class ImminentExpirationCertificateConfigurationManager implements AlertC
 
     @Autowired
     private DomainContextProvider domainContextProvider;
-
-    @Autowired
-    private ConfigurationLoader<ImminentExpirationCertificateModuleConfiguration> loader;
 
     @Autowired
     AlertConfigurationService alertConfigurationService;
@@ -43,13 +44,8 @@ public class ImminentExpirationCertificateConfigurationManager implements AlertC
     }
 
     @Override
-    public ImminentExpirationCertificateModuleConfiguration getConfiguration() {
-        return loader.getConfiguration(this::readConfiguration);
-    }
-
-    @Override
-    public void reset() {
-        loader.resetConfiguration();
+    protected ConfigurationReader<ImminentExpirationCertificateModuleConfiguration> getReaderMethod() {
+        return this::readConfiguration;
     }
 
     protected ImminentExpirationCertificateModuleConfiguration readConfiguration() {

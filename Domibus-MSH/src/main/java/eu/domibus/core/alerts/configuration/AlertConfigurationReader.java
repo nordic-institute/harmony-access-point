@@ -3,17 +3,13 @@ package eu.domibus.core.alerts.configuration;
 import eu.domibus.core.alerts.model.common.AlertType;
 
 /**
- * Interface implemented by alert configuration manager classes
+ * Interface extended by alert configuration readers
  *
  * @author Ion Perpegel
  * @since 4.2
  */
-public interface AlertConfigurationManager {
-
+public interface AlertConfigurationReader<AMC extends AlertModuleConfiguration> {
     AlertType getAlertType();
 
-    AlertModuleConfiguration getConfiguration();
-
-    void reset();
-
+    AMC readConfiguration();
 }

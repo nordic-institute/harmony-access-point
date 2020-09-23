@@ -8,6 +8,7 @@ import {ConnectionMonitorEntry, ConnectionsMonitorService} from './support/conne
 import {MatDialog} from '@angular/material';
 import {ConnectionDetailsComponent} from './connection-details/connection-details.component';
 import {ApplicationContextService} from '../common/application-context.service';
+import {ComponentName} from '../common/component-name-decorator';
 
 /**
  * @author Ion Perpegel
@@ -21,7 +22,7 @@ import {ApplicationContextService} from '../common/application-context.service';
   styleUrls: ['connections.component.css'],
   providers: [ConnectionsMonitorService]
 })
-
+@ComponentName('Connection Monitoring')
 export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPageableListMixin)
   implements OnInit, AfterViewInit, AfterViewChecked {
 
@@ -38,10 +39,6 @@ export class ConnectionsComponent extends mix(BaseListComponent).with(ClientPage
     super.ngOnInit();
 
     this.loadServerData();
-  }
-
-  public get name(): string {
-    return 'Connection Monitoring';
   }
 
   ngAfterViewInit() {

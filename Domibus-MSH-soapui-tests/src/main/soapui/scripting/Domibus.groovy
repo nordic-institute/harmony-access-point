@@ -2155,7 +2155,7 @@ static def ifWindowsEscapeJsonString(json) {
         if (inputCommand) {
             proc = inputCommand.execute()
             if (proc != null) {
-                proc.consumeProcessOutput(outputCatcher, errorCatcher);
+                //proc.consumeProcessOutput(outputCatcher, errorCatcher);
                 proc.waitForProcessOutput(outputCatcher, errorCatcher);
             }
         }
