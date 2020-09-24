@@ -1,5 +1,6 @@
 package eu.domibus.core.security.configuration;
 
+import eu.domibus.web.filter.CoockieFilter;
 import eu.domibus.web.filter.SetDomainFilter;
 import eu.domibus.web.matcher.URLCsrfMatcher;
 import org.springframework.context.annotation.Bean;
@@ -45,6 +46,11 @@ public class SecurityBaseConfiguration {
     @Bean
     public SetDomainFilter setDomainFilter() {
         return new SetDomainFilter();
+    }
+
+    @Bean
+    public CoockieFilter coockieFilter() {
+        return new CoockieFilter();
     }
 
     @Bean
