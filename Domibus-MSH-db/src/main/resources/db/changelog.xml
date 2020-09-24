@@ -276,6 +276,24 @@
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
 
+        <createTable tableName="TB_CERTIFICATE_AUD">
+            <column name="ID_PK" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_CERTIFICATE_AUD"/>
+            </column>
+            <column name="REV" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_CERTIFICATE_AUD"/>
+            </column>
+            <column name="REVTYPE" type="TINYINT"/>
+            <column name="CERTIFICATE_ALIAS" type="VARCHAR(255)" />
+            <column name="NOT_VALID_BEFORE_DATE" type="DATETIME" />
+            <column name="NOT_VALID_AFTER_DATE" type="DATETIME" />
+            <column name="REVOKE_NOTIFICATION_DATE" type="TIMESTAMP"/>
+            <column name="ALERT_IMM_NOTIFICATION_DATE" type="TIMESTAMP"/>
+            <column name="ALERT_EXP_NOTIFICATION_DATE" type="TIMESTAMP"/>
+            <column name="CERTIFICATE_STATUS" type="VARCHAR(255)" />
+            <column name="CERTIFICATE_TYPE" type="VARCHAR(255)" />
+        </createTable>
+
         <createTable tableName="TB_COMMAND" remarks="Stores commands to be executed by different nodes in clustered environments">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_COMMAND"/>
@@ -1790,6 +1808,10 @@
             <column name="REV"/>
         </createIndex>
 
+        <createIndex indexName="FK_CERTIFICATE_AUD" tableName="TB_CERTIFICATE_AUD">
+            <column name="REV"/>
+        </createIndex>
+
         <createIndex indexName="FK_BE4XC1069QYW2KLHVM3XMG26S" tableName="TB_USER_MESSAGE">
             <column name="MESSAGEINFO_ID_PK"/>
         </createIndex>
@@ -2331,6 +2353,11 @@
                                  constraintName="FK_CONFIGURATION_RAW_AUD" deferrable="false" initiallyDeferred="false"
                                  onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID"
                                  referencedTableName="TB_REV_INFO"/>
+
+        <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_CERTIFICATE_AUD"
+                                 constraintName="FK_TB_CERTIFICATE_AUD_REV" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID" referencedTableName="TB_REV_INFO"/>
 
         <addForeignKeyConstraint baseColumnNames="PARTPROPERTIES_ID" baseTableName="TB_PROPERTY"
                                  constraintName="FK_CWYLVG6ERNWBA61MO3YAGMKG8" deferrable="false"
