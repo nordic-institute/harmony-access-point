@@ -219,7 +219,7 @@ public class BaseRestClient {
 	}
 	
 	public boolean isLoggedIn() {
-		WebResource.Builder builder = decorateBuilder(resource.path(RestServicePaths.USERNAME));
+		WebResource.Builder builder = decorateBuilder(resource.path(RestServicePaths.CONNECTED));
 		int response = builder.get(ClientResponse.class).getStatus();
 		return (response == 200);
 	}
@@ -285,7 +285,7 @@ public class BaseRestClient {
 		return response.replaceFirst("\\)]}',\n", "");
 	}
 	
-	public void switchDomain(String domainCode) {
+	public void switchDomain(String domainCode) throws DomibusRestException {
 		if (StringUtils.isEmpty(domainCode)) {
 			domainCode = "default";
 		}
@@ -293,8 +293,12 @@ public class BaseRestClient {
 		if (getDomainCodes().contains(domainCode)) {
 			WebResource.Builder builder = decorateBuilder(resource.path(RestServicePaths.SESSION_DOMAIN));
 			
-			builder.accept(MediaType.TEXT_PLAIN_TYPE).type(MediaType.TEXT_PLAIN_TYPE)
+			ClientResponse response = builder.accept(MediaType.TEXT_PLAIN_TYPE).type(MediaType.TEXT_PLAIN_TYPE)
 					.put(ClientResponse.class, domainCode);
+			
+			if (response.getStatus() != 204){
+				throw new DomibusRestException("Switching domains failed for domain code " + domainCode, response);
+			}
 		}
 		
 	}

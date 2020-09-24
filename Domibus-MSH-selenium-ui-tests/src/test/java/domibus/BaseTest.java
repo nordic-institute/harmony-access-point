@@ -3,6 +3,7 @@ package domibus;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import ddsl.enums.DRoles;
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.openqa.selenium.WebDriver;
@@ -35,30 +36,59 @@ public class BaseTest {
 		
 		List<String> domains = rest.getDomainCodes();
 		for (int i = 0; i < domains.size(); i++) {
-			rest.users().createUser(Gen.randomAlphaNumeric(10), DRoles.ADMIN, data.defaultPass(), domains.get(i));
-		}
-		
-		int noOfMess = rest.messages().getListOfMessages(null).length();
-		if (noOfMess < 15) {
-			rest.pmode().uploadPMode("pmodes/pmode-dataSetupBlue.xml", null);
-			String pluginUsername = rest.getPluginUser(null, DRoles.ADMIN, true, false).getString("userName");
-			for (int i = noOfMess; i < 15; i++) {
-				messageSender.sendMessage(pluginUsername, pass, Gen.randomAlphaNumeric(20), Gen.randomAlphaNumeric(20));
+			
+			String domain = domains.get(i);
+			
+			rearrangeMessageFilters(domain);
+			
+			rest.users().createUser(Gen.randomAlphaNumeric(10), DRoles.ADMIN, pass, domain);
+			rest.users().createUser(Gen.randomAlphaNumeric(10), DRoles.USER, pass, domain);
+			
+			rest.pmode().uploadPMode("pmodes/pmode-dataSetupBlue.xml", domain);
+			
+			String pluser = Gen.randomAlphaNumeric(10);
+			rest.pluginUsers().createPluginUser(pluser, DRoles.ADMIN, pass, domain);
+			
+			int noOfMess = rest.messages().getListOfMessages(domain).length();
+			if (noOfMess < 15) {
+				for (int j = noOfMess; j < 15; j++) {
+					messageSender.sendMessage(pluser, pass, Gen.randomAlphaNumeric(20), Gen.randomAlphaNumeric(20));
+				}
 			}
-		}
-		
-		JSONArray messageFilters = rest.messFilters().getMessageFilters(null);
-		for (int i = 0; i < messageFilters.length(); i++) {
-			JSONObject obj = messageFilters.getJSONObject(i);
-			if (!obj.getBoolean("persisted")) {
-				rest.messFilters().saveMessageFilters(messageFilters, null);
-				break;
-			}
+			
+			
+//			JSONArray messageFilters = rest.messFilters().getMessageFilters(domain);
+//			for (int k = 0; k < messageFilters.length(); k++) {
+//				JSONObject obj = messageFilters.getJSONObject(k);
+//				if (!obj.getBoolean("persisted")) {
+//					rest.messFilters().saveMessageFilters(messageFilters, domain);
+//					break;
+//				}
+//			}
 		}
 		
 		waitForErrors();
 		
 		log.info("DONE GENERATING TEST DATA");
+	}
+	
+	private void rearrangeMessageFilters(String domain) throws Exception {
+		JSONArray msf = rest.messFilters().getMessageFilters(domain);
+		JSONArray msfTS = new JSONArray();
+		
+		for (int i = 0; i < msf.length(); i++) {
+			if(StringUtils.equalsIgnoreCase(msf.getJSONObject(i).getString("backendName"), "Jms")){
+				msfTS.put(msf.get(i));
+				msf.remove(i);
+				break;
+			}
+		}
+		for (int i = 0; i < msf.length(); i++) {
+			msfTS.put(msf.getJSONObject(i));
+		}
+		System.out.println("msfTS = " + msfTS);
+		
+		rest.messFilters().updateFilterList(msfTS, domain);
 	}
 	
 	private void waitForErrors() {
