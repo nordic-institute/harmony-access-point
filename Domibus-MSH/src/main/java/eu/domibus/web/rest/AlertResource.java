@@ -47,6 +47,9 @@ public class AlertResource extends BaseResource {
 
     private DomibusConfigurationService domibusConfigurationService;
 
+    static List<AlertType> forbiddenAlertTypesExtAuthProvider = Lists.newArrayList(AlertType.PASSWORD_EXPIRED, AlertType.PASSWORD_IMMINENT_EXPIRATION,
+    AlertType.USER_ACCOUNT_DISABLED, AlertType.USER_ACCOUNT_ENABLED, AlertType.USER_LOGIN_FAILURE);
+
     public AlertResource(AlertService alertService, DateUtil dateUtil, AuthUtils authUtils, DomainTaskExecutor domainTaskExecutor, DomibusConfigurationService domibusConfigurationService) {
         this.alertService = alertService;
         this.dateUtil = dateUtil;
@@ -76,8 +79,7 @@ public class AlertResource extends BaseResource {
         final List<AlertType> alertTypes = Lists.newArrayList(AlertType.values());
         if (domibusConfigurationService.isExtAuthProviderEnabled()) {
             return alertTypes.stream().filter(alertType ->
-                    alertType != AlertType.PASSWORD_EXPIRED && alertType != AlertType.PASSWORD_IMMINENT_EXPIRATION &&
-                    alertType != AlertType.USER_ACCOUNT_DISABLED && alertType != AlertType.USER_ACCOUNT_ENABLED && alertType != AlertType.USER_LOGIN_FAILURE).
+                    forbiddenAlertTypesExtAuthProvider.stream().noneMatch(forbiddenAlertType -> forbiddenAlertType.equals(alertType))).
                     map(Enum::name).collect(Collectors.toList());
         }
         return alertTypes.stream().map(Enum::name).collect(Collectors.toList());
