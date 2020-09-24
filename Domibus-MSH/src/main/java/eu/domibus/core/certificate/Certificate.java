@@ -16,7 +16,6 @@ import java.util.Objects;
  */
 @Entity
 @Audited(withModifiedFlag = false)
-@AuditOverride(forClass = AbstractBaseEntity.class, isAudited = true)
 @RevisionLogicalName("Certificate")
 @Table(name = "TB_CERTIFICATE")
 @NamedQueries({

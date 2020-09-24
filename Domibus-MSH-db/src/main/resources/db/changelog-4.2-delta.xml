@@ -1248,10 +1248,10 @@
     <changeSet author="Joze Rihtarsic" id="EDELIVERY-4335">
         <createTable tableName="TB_CERTIFICATE_AUD">
             <column name="ID_PK" type="BIGINT">
-                <constraints primaryKey="true" primaryKeyName="PK_USER_ROLE_AUD"/>
+                <constraints primaryKey="true" primaryKeyName="PK_CERTIFICATE_AUD"/>
             </column>
             <column name="REV" type="BIGINT">
-                <constraints primaryKey="true" primaryKeyName="PK_USER_ROLE_AUD"/>
+                <constraints primaryKey="true" primaryKeyName="PK_CERTIFICATE_AUD"/>
             </column>
             <column name="REVTYPE" type="TINYINT"/>
             <column name="CERTIFICATE_ALIAS" type="VARCHAR(255)" />
@@ -1262,10 +1262,6 @@
             <column name="ALERT_EXP_NOTIFICATION_DATE" type="TIMESTAMP"/>
             <column name="CERTIFICATE_STATUS" type="VARCHAR(255)" />
             <column name="CERTIFICATE_TYPE" type="VARCHAR(255)" />
-            <column name="CREATION_TIME" type="TIMESTAMP" />
-            <column name="CREATED_BY" type="VARCHAR(255)"  />
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" />
-            <column name="MODIFIED_BY" type="VARCHAR(255)" />
         </createTable>
 
         <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_CERTIFICATE_AUD"
