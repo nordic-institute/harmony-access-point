@@ -59,10 +59,26 @@ public class AuditServiceImplTest {
 
     @Test
     public void listAuditTarget() throws Exception {
+        when(domibusConfigurationService.isExtAuthProviderEnabled()).thenReturn(false);
         List<String> targets = auditService.listAuditTarget();
         targets.stream().forEach(System.out::println);
         assertEquals(7, targets.size());
         assertTrue(targets.contains("User"));
+        assertTrue(targets.contains("Pmode"));
+        assertTrue(targets.contains("Pmode Archive"));
+        assertTrue(targets.contains("Message"));
+        assertTrue(targets.contains("Message filter"));
+        assertTrue(targets.contains("Jms message"));
+        assertTrue(targets.contains("PluginUser"));
+    }
+
+    @Test
+    public void listAuditTarget_ExtAuthProvider() throws Exception {
+        when(domibusConfigurationService.isExtAuthProviderEnabled()).thenReturn(true);
+        List<String> targets = auditService.listAuditTarget();
+        targets.stream().forEach(System.out::println);
+        assertEquals(6, targets.size());
+        assertFalse(targets.contains("User"));
         assertTrue(targets.contains("Pmode"));
         assertTrue(targets.contains("Pmode Archive"));
         assertTrue(targets.contains("Message"));
