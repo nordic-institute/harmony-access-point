@@ -2,6 +2,7 @@ package eu.domibus.core.certificate;
 
 import eu.domibus.core.audit.envers.RevisionLogicalName;
 import eu.domibus.ebms3.common.model.AbstractBaseEntity;
+import org.hibernate.envers.AuditOverride;
 import org.hibernate.envers.Audited;
 
 import javax.persistence.*;
@@ -15,6 +16,7 @@ import java.util.Objects;
  */
 @Entity
 @Audited(withModifiedFlag = false)
+@AuditOverride(forClass = AbstractBaseEntity.class, isAudited = true)
 @RevisionLogicalName("Certificate")
 @Table(name = "TB_CERTIFICATE")
 @NamedQueries({
