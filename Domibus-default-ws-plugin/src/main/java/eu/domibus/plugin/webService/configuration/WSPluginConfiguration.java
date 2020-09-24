@@ -1,14 +1,15 @@
 package eu.domibus.plugin.webService.configuration;
 
+import eu.domibus.common.NotificationType;
 import eu.domibus.ext.services.DomibusPropertyExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.environment.DomibusEnvironmentUtil;
 import eu.domibus.plugin.notification.PluginAsyncNotificationConfiguration;
-import eu.domibus.plugin.webService.impl.WebServicePluginImpl;
 import eu.domibus.plugin.webService.impl.ClearAuthenticationMDCInterceptor;
 import eu.domibus.plugin.webService.impl.CustomAuthenticationInterceptor;
 import eu.domibus.plugin.webService.impl.WSPluginFaultOutInterceptor;
+import eu.domibus.plugin.webService.impl.WebServicePluginImpl;
 import eu.domibus.plugin.webService.logging.WSPluginLoggingEventSender;
 import eu.domibus.plugin.webService.property.WSPluginPropertyManager;
 import org.apache.commons.lang3.BooleanUtils;
@@ -44,8 +45,12 @@ public class WSPluginConfiguration {
 
 
     @Bean("backendWebservice")
-    public WebServicePluginImpl createWSPlugin() {
-        return new WebServicePluginImpl();
+    public WebServicePluginImpl createWSPlugin(DomibusPropertyExtService domibusPropertyExtService) {
+        List<NotificationType> messageNotifications = domibusPropertyExtService.getConfiguredNotifications(WSPluginPropertyManager.MESSAGE_NOTIFICATIONS);
+        LOG.debug("Using the following message notifications [{}]", messageNotifications);
+        WebServicePluginImpl webServicePlugin = new WebServicePluginImpl();
+        webServicePlugin.setRequiredNotifications(messageNotifications);
+        return webServicePlugin;
     }
 
     @Bean("webserviceAsyncPluginConfiguration")

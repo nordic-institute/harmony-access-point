@@ -73,8 +73,8 @@ public class DomibusPropertyExtServiceDelegateAbstractTest extends TestCase {
 
     @Test
     public void getKnownIntegerPropertyValue_global(@Mocked String propertyName,
-                                             @Mocked Map<String, DomibusPropertyMetadataDTO> props,
-                                             @Mocked DomibusPropertyMetadataDTO propMeta) {
+                                                    @Mocked Map<String, DomibusPropertyMetadataDTO> props,
+                                                    @Mocked DomibusPropertyMetadataDTO propMeta) {
         Integer propValue = 1;
 
         new Expectations(domibusPropertyExtServiceDelegateAbstract) {{
@@ -97,8 +97,8 @@ public class DomibusPropertyExtServiceDelegateAbstractTest extends TestCase {
 
     @Test
     public void getKnownIntegerPropertyValue_local(@Mocked String propertyName,
-                                            @Mocked Map<String, DomibusPropertyMetadataDTO> props,
-                                            @Mocked DomibusPropertyMetadataDTO propMeta) {
+                                                   @Mocked Map<String, DomibusPropertyMetadataDTO> props,
+                                                   @Mocked DomibusPropertyMetadataDTO propMeta) {
         Integer propValue = 1;
 
         new Expectations(domibusPropertyExtServiceDelegateAbstract) {{
@@ -205,7 +205,7 @@ public class DomibusPropertyExtServiceDelegateAbstractTest extends TestCase {
 
     @Test
     public void setKnownPropertyValue2_local(@Mocked Map<String, DomibusPropertyMetadataDTO> props,
-                                              @Mocked DomibusPropertyMetadataDTO propMeta) {
+                                             @Mocked DomibusPropertyMetadataDTO propMeta) {
         String propertyValue = "propValue";
         String propertyName = "propertyName";
 
@@ -225,7 +225,8 @@ public class DomibusPropertyExtServiceDelegateAbstractTest extends TestCase {
         new Verifications() {{
             domibusPropertyExtServiceDelegateAbstract.onSetLocalPropertyValue(propertyName, propertyValue);
             domibusPropertyExtService.setProperty(propertyName, propertyValue);
-            times=0;
+            times = 0;
         }};
     }
+
 }
