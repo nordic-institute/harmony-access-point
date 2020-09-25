@@ -1,5 +1,6 @@
 package eu.domibus.ext.services;
 
+import eu.domibus.common.NotificationType;
 import eu.domibus.ext.domain.DomainDTO;
 
 import java.util.List;
@@ -56,6 +57,13 @@ public interface DomibusPropertyExtService {
      * @return the list of nested properties
      */
     List<String> getNestedProperties(String prefix);
+
+    /**
+     * Get the list of configured message notifications, separated by comma, configured in the plugin property file
+     * @param notificationPropertyName The property name
+     * @return the list of message notifications
+     */
+    List<NotificationType> getConfiguredNotifications(String notificationPropertyName);
 
     /**
      * Gets the property value with the provided name for a specific domain

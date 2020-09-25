@@ -1,7 +1,7 @@
 package eu.domibus.plugin.fs.property.listeners;
 
-import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.*;
+import eu.domibus.plugin.fs.property.FSPluginDomibusPropertyExtServiceMock;
 import eu.domibus.plugin.fs.property.FSPluginProperties;
 import eu.domibus.plugin.fs.property.FSPluginPropertiesMetadataManagerImpl;
 import eu.domibus.plugin.fs.queue.FSSendMessageListenerContainer;
@@ -21,8 +21,6 @@ import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
-import java.util.Set;
-import java.util.function.Predicate;
 
 import static eu.domibus.plugin.fs.property.FSPluginPropertiesMetadataManagerImpl.*;
 
@@ -107,74 +105,10 @@ public class FSPluginPropertiesChangeListenerIT {
         public FSPluginPropertiesMetadataManagerImpl fsPluginPropertiesMetadataManager() {
             return new FSPluginPropertiesMetadataManagerImpl();
         }
+
         @Bean
         public DomibusPropertyExtService domibusPropertyExtService() {
-            return new DomibusPropertyExtService() {
-                @Override
-                public String getProperty(String propertyName) {
-                    return null;
-                }
-
-                @Override
-                public String getProperty(DomainDTO domain, String propertyName) {
-                    return null;
-                }
-
-                @Override
-                public Integer getIntegerProperty(String propertyName) {
-                    return null;
-                }
-
-                @Override
-                public Set<String> filterPropertiesName(Predicate<String> predicate) {
-                    return null;
-                }
-
-                @Override
-                public List<String> getNestedProperties(String prefix) {
-                    return null;
-                }
-
-                @Override
-                public String getDomainProperty(DomainDTO domain, String propertyName) {
-                    return null;
-                }
-
-                @Override
-                public void setDomainProperty(DomainDTO domain, String propertyName, String propertyValue) {
-
-                }
-
-                @Override
-                public void setProperty(String propertyName, String propertyValue) {
-
-                }
-
-                @Override
-                public boolean containsDomainPropertyKey(DomainDTO domain, String propertyName) {
-                    return false;
-                }
-
-                @Override
-                public boolean containsPropertyKey(String propertyName) {
-                    return false;
-                }
-
-                @Override
-                public String getDomainProperty(DomainDTO domain, String propertyName, String defaultValue) {
-                    return null;
-                }
-
-                @Override
-                public String getDomainResolvedProperty(DomainDTO domain, String propertyName) {
-                    return null;
-                }
-
-                @Override
-                public String getResolvedProperty(String propertyName) {
-                    return null;
-                }
-            };
+            return new FSPluginDomibusPropertyExtServiceMock();
         }
     }
 
