@@ -22,6 +22,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SEND_MESSAGE_MESSAGE_ID_PATTERN;
+import static eu.domibus.api.util.DomibusStringUtil.isStringLengthGreaterThan;
 
 /**
  * @author Arun Raj
@@ -30,19 +31,18 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  * <br>
  * This class validates the content of the UserMessage which represents the message's header.
  * These validations are based on the AS4 specifications and the gateway PMode configuration.
- *
+ * <p>
  * Since any RuntimeException rollbacks the transaction and we don't want that now (because the client would receive a JTA Transaction error as response),
  * the class uses the "noRollbackFor" attribute inside the @Transactional annotation.
- *
+ * <p>
  * TODO EbMS3Exception will be soon replaced with a custom Domibus exception in order to report this validation errors.
  */
 
 @Service
 public class BackendMessageValidator {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(BackendMessageValidator.class);
-
     protected static final String KEY_MESSAGEID_PATTERN = DOMIBUS_SEND_MESSAGE_MESSAGE_ID_PATTERN;
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(BackendMessageValidator.class);
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
@@ -131,7 +131,7 @@ public class BackendMessageValidator {
      * Verifies that the initiator and the responder parties are different.
      *
      * @param from the initiator party.
-     * @param to the responder party.
+     * @param to   the responder party.
      * @throws NullPointerException if either initiator party or responder party is null
      */
     public void validateParties(Party from, Party to) {
@@ -145,9 +145,9 @@ public class BackendMessageValidator {
      * Verifies that the message is being sent by the same party as the one configured for the sending access point
      *
      * @param gatewayParty the access point party.
-     * @param from the initiator party.
+     * @param from         the initiator party.
      * @throws NullPointerException if either gatewayParty or initiator party is null
-     * @throws EbMS3Exception if the initiator party name does not correspond to the access point's name
+     * @throws EbMS3Exception       if the initiator party name does not correspond to the access point's name
      */
     public void validateInitiatorParty(Party gatewayParty, Party from) throws EbMS3Exception {
 
@@ -165,7 +165,7 @@ public class BackendMessageValidator {
      * Verifies that the message is not for the current gateway.
      *
      * @param gatewayParty the access point party.
-     * @param to the responder party.
+     * @param to           the responder party.
      * @throws NullPointerException if either access point party or responder party is null
      */
     public void validateResponderParty(Party gatewayParty, Party to) {
@@ -178,9 +178,9 @@ public class BackendMessageValidator {
      * Verifies that the parties' roles are different
      *
      * @param fromRole the role of the initiator party.
-     * @param toRole the role of the responder party.
+     * @param toRole   the role of the responder party.
      * @throws NullPointerException if either initiator party's role or responder party's role is null
-     * @throws EbMS3Exception if the initiator party's role is the same as the responder party's role
+     * @throws EbMS3Exception       if the initiator party's role is the same as the responder party's role
      */
     public void validatePartiesRoles(Role fromRole, Role toRole) throws EbMS3Exception {
 
@@ -222,16 +222,18 @@ public class BackendMessageValidator {
      */
     public void validateAgreementRef(AgreementRef agreementRef) throws EbMS3Exception {
         //agreementRef is an optional element and can be null
-        if (agreementRef != null) {
-            if (agreementRef.getValue() != null && agreementRef.getValue().length() > 255) {
-                throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0008, "AgreementRef Value is too long (over 255 characters)", agreementRef.getValue(), null);
-            }
-            if (agreementRef.getType() != null && agreementRef.getType().length() > 255) {
-                throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0008, "AgreementRef Type is too long (over 255 characters)", agreementRef.getType(), null);
-            }
-            if (agreementRef.getPmode() != null && agreementRef.getPmode().length() > 255) {
-                throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0008, "AgreementRef Pmode is too long (over 255 characters)", agreementRef.getPmode(), null);
-            }
+        if (agreementRef == null) {
+            LOG.debug("Optional field AgreementRef is null");
+            return;
+        }
+        if (isStringLengthGreaterThan(agreementRef.getValue(), 255)) {
+            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "AgreementRef Value is too long (over 255 characters)", agreementRef.getValue(), null);
+        }
+        if (isStringLengthGreaterThan(agreementRef.getType(), 255)) {
+            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "AgreementRef Type is too long (over 255 characters)", agreementRef.getType(), null);
+        }
+        if (isStringLengthGreaterThan(agreementRef.getPmode(), 255)) {
+            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "AgreementRef Pmode is too long (over 255 characters)", agreementRef.getPmode(), null);
         }
     }
 }

@@ -32,7 +32,10 @@ import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.pmode.validation.validators.MessagePropertyValidator;
 import eu.domibus.core.pmode.validation.validators.PropertyProfileValidator;
 import eu.domibus.core.replication.UIReplicationSignalService;
-import eu.domibus.ebms3.common.model.*;
+import eu.domibus.ebms3.common.model.MessageInfo;
+import eu.domibus.ebms3.common.model.Messaging;
+import eu.domibus.ebms3.common.model.ObjectFactory;
+import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -66,14 +69,34 @@ import java.util.Map;
 public class DatabaseMessageHandler implements MessageSubmitter, MessageRetriever, MessagePuller {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DatabaseMessageHandler.class);
+    private static final String USER_MESSAGE_IS_NULL = "UserMessage is null";
     private static final String MESSAGE_WITH_ID_STR = "Message with id [";
     private static final String WAS_NOT_FOUND_STR = "] was not found";
     private static final String ERROR_SUBMITTING_THE_MESSAGE_STR = "Error submitting the message [";
     private static final String TO_STR = "] to [";
-    static final String USER_MESSAGE_IS_NULL = "UserMessage is null";
 
     private final ObjectFactory ebMS3Of = new ObjectFactory();
 
+    @Autowired
+    protected AuthUtils authUtils;
+
+    @Autowired
+    protected UserMessageDefaultService userMessageService;
+
+    @Autowired
+    protected UIReplicationSignalService uiReplicationSignalService;
+
+    @Autowired
+    protected SplitAndJoinService splitAndJoinService;
+
+    @Autowired
+    protected PModeDefaultService pModeDefaultService;
+
+    @Autowired
+    protected UserMessageServiceHelper userMessageServiceHelper;
+
+    @Autowired
+    protected MessagePropertyValidator messagePropertyValidator;
 
     @Autowired
     private SubmissionAS4Transformer transformer;
@@ -119,27 +142,6 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
     @Autowired
     private PullMessageService pullMessageService;
-
-    @Autowired
-    protected AuthUtils authUtils;
-
-    @Autowired
-    protected UserMessageDefaultService userMessageService;
-
-    @Autowired
-    protected UIReplicationSignalService uiReplicationSignalService;
-
-    @Autowired
-    protected SplitAndJoinService splitAndJoinService;
-
-    @Autowired
-    protected PModeDefaultService pModeDefaultService;
-
-    @Autowired
-    protected UserMessageServiceHelper userMessageServiceHelper;
-
-    @Autowired
-    protected MessagePropertyValidator messagePropertyValidator;
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
@@ -347,8 +349,8 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     @Override
     @Transactional
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
-    @Timer(clazz = DatabaseMessageHandler.class,value = "submit")
-    @Counter(clazz = DatabaseMessageHandler.class,value = "submit")
+    @Timer(clazz = DatabaseMessageHandler.class, value = "submit")
+    @Counter(clazz = DatabaseMessageHandler.class, value = "submit")
     public String submit(final Submission messageData, final String backendName) throws MessagingProcessingException {
         if (StringUtils.isNotEmpty(messageData.getMessageId())) {
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageData.getMessageId());
@@ -389,10 +391,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                 backendMessageValidator.validateRefToMessageId(refToMessageId);
             }
 
-            AgreementRef agreementRef = userMessage.getCollaborationInfo().getAgreementRef();
-            if (agreementRef != null) {
-                backendMessageValidator.validateAgreementRef(agreementRef);
-            }
+            backendMessageValidator.validateAgreementRef(userMessage.getCollaborationInfo().getAgreementRef());
 
             // handle if the messageId is unique. This should only fail if the ID is set from the outside
             if (!MessageStatus.NOT_FOUND.equals(userMessageLogDao.getMessageStatus(messageId))) {

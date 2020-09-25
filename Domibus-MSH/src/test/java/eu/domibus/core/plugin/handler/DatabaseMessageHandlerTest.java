@@ -9,13 +9,10 @@ import eu.domibus.common.ErrorResult;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.model.configuration.*;
-import eu.domibus.core.payload.PayloadProfileValidator;
-import eu.domibus.core.pmode.validation.validators.MessagePropertyValidator;
-import eu.domibus.core.pmode.validation.validators.PropertyProfileValidator;
+import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.Ebms3Constants;
 import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.error.ErrorLogEntry;
-import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.generator.id.MessageIdGenerator;
 import eu.domibus.core.message.*;
 import eu.domibus.core.message.compression.CompressionException;
@@ -24,10 +21,13 @@ import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
+import eu.domibus.core.payload.PayloadProfileValidator;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.plugin.transformer.SubmissionAS4Transformer;
 import eu.domibus.core.pmode.PModeDefaultService;
 import eu.domibus.core.pmode.provider.PModeProvider;
+import eu.domibus.core.pmode.validation.validators.MessagePropertyValidator;
+import eu.domibus.core.pmode.validation.validators.PropertyProfileValidator;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.model.ObjectFactory;
 import eu.domibus.ebms3.common.model.Property;
@@ -699,10 +699,8 @@ public class DatabaseMessageHandlerTest {
     }
 
     @Test
-    public void testSubmitDuplicateMessage(@Injectable final Submission messageData) throws Exception {
+    public void testSubmitDuplicateMessage(@Injectable final Submission messageData, @Injectable UserMessage userMessage) throws Exception {
         new Expectations() {{
-
-            UserMessage userMessage = new UserMessage();
             transformer.transformFromSubmission(messageData);
             result = userMessage;
 
