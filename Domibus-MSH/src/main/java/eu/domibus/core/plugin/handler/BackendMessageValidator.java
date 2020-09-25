@@ -8,10 +8,7 @@ import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.Role;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.compression.CompressionService;
-import eu.domibus.ebms3.common.model.PartInfo;
-import eu.domibus.ebms3.common.model.PartProperties;
-import eu.domibus.ebms3.common.model.PayloadInfo;
-import eu.domibus.ebms3.common.model.Property;
+import eu.domibus.ebms3.common.model.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.validation.SubmissionValidationException;
@@ -213,6 +210,27 @@ public class BackendMessageValidator {
         for (Property property : properties.getProperties()) {
             if (CompressionService.COMPRESSION_PROPERTY_KEY.equalsIgnoreCase(property.getName())) {
                 throw new SubmissionValidationException("The occurrence of the property " + CompressionService.COMPRESSION_PROPERTY_KEY + " and its value are fully controlled by the AS4 compression feature");
+            }
+        }
+    }
+
+    /**
+     * The field - UserMessage/CollaborationInfo/AgreementRef is expected to satisfy all the validations of the - Messaging/UserMessage/CollaborationInfo/AgreementRef  field defined in http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/core/os/ebms_core-3.0-spec-os.pdf
+     *
+     * @param agreementRef the AgreementRef to be validated.
+     * @throws EbMS3Exception if the AgreementRef value is invalid
+     */
+    public void validateAgreementRef(AgreementRef agreementRef) throws EbMS3Exception {
+        //agreementRef is an optional element and can be null
+        if (agreementRef != null) {
+            if (agreementRef.getValue() != null && agreementRef.getValue().length() > 255) {
+                throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0008, "AgreementRef Value is too long (over 255 characters)", agreementRef.getValue(), null);
+            }
+            if (agreementRef.getType() != null && agreementRef.getType().length() > 255) {
+                throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0008, "AgreementRef Type is too long (over 255 characters)", agreementRef.getType(), null);
+            }
+            if (agreementRef.getPmode() != null && agreementRef.getPmode().length() > 255) {
+                throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0008, "AgreementRef Pmode is too long (over 255 characters)", agreementRef.getPmode(), null);
             }
         }
     }
