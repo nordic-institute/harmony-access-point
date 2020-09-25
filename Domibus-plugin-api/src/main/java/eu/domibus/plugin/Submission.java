@@ -9,6 +9,9 @@ import org.springframework.util.StringUtils;
 import javax.activation.DataHandler;
 import java.util.*;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.trim;
+
 /**
  * This class represents the datamodel of the domibus backend transport layer.
  * <p>
@@ -94,10 +97,10 @@ public class Submission {
      * @param action a string identifying an operation or an activity within a Service that may support several of these.
      */
     public void setAction(final String action) {
-        if (!StringUtils.hasLength(action)) {
-            throw new IllegalArgumentException("action must not be empty");
+        if (isBlank(action)) {
+            throw new IllegalArgumentException("Mandatory field Action is not provided");
         }
-        this.action = action;
+        this.action = trim(action);
     }
 
     /**
@@ -131,7 +134,7 @@ public class Submission {
      * @param agreementRef a string that identifies the entity or artifact governing the exchange of messages between the parties.
      */
     public void setAgreementRef(final String agreementRef) {
-        this.agreementRef = agreementRef;
+        this.agreementRef = trim(agreementRef);
     }
 
     /**
@@ -161,7 +164,7 @@ public class Submission {
      * @param agreementRefType a string indicating how the parties sending and receiving the message will interpret the value of the reference {@link #agreementRef}
      */
     public void setAgreementRefType(final String agreementRefType) {
-        this.agreementRefType = agreementRefType;
+        this.agreementRefType = trim(agreementRefType);
     }
 
     /**
@@ -224,7 +227,7 @@ public class Submission {
      * @param fromRole a string identifying the authorized role of the Party sending
      */
     public void setFromRole(final String fromRole) {
-        this.fromRole = fromRole;
+        this.fromRole = trim(fromRole);
     }
 
     /**
@@ -309,10 +312,10 @@ public class Submission {
      * @param service a string identifying the service that acts on the message
      */
     public void setService(final String service) {
-        if (!StringUtils.hasLength(service)) {
-            throw new IllegalArgumentException("service must not be empty");
+        if (isBlank(service)) {
+            throw new IllegalArgumentException("Mandatory field Service is not provided");
         }
-        this.service = service;
+        this.service = trim(service);
     }
 
     /**
@@ -340,7 +343,7 @@ public class Submission {
      * @param serviceType a string that indicates how the parties sending and receiving the message will interpret the {@link #service} value
      */
     public void setServiceType(final String serviceType) {
-        this.serviceType = serviceType;
+        this.serviceType = trim(serviceType);
     }
 
     /**
@@ -372,7 +375,7 @@ public class Submission {
      * @param toRole a string identifying the authorized role of the receiving Party
      */
     public void setToRole(final String toRole) {
-        this.toRole = toRole;
+        this.toRole = trim(toRole);
     }
 
     /**
@@ -597,8 +600,8 @@ public class Submission {
         private final String partyIdType;
 
         public Party(final String partyId, final String partyIdType) {
-            if (!StringUtils.hasLength(partyId)) {
-                throw new IllegalArgumentException("partyId must not be empty");
+            if (isBlank(partyId)) {
+                throw new IllegalArgumentException("Mandatory field PartyId must not be empty");
             }
             this.partyId = partyId;
             this.partyIdType = partyIdType;
