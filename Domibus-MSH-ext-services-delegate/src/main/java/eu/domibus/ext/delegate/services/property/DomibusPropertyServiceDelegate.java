@@ -76,12 +76,26 @@ public class DomibusPropertyServiceDelegate implements DomibusPropertyExtService
         }
         LOG.debug("Property [{}] value is [{}]", notificationPropertyName, messageNotificationPropertyValue);
         String[] messageNotifications = StringUtils.split(messageNotificationPropertyValue, ",");
-        return Arrays.asList(messageNotifications).stream().map(notificationValue -> getNotificationType(notificationValue)).collect(Collectors.toList());
+        return Arrays.asList(messageNotifications).stream()
+                .map(notificationValue -> getNotificationType(notificationValue))
+                .filter(notificationType -> notificationType != null)
+                .distinct()
+                .collect(Collectors.toList());
     }
 
     protected NotificationType getNotificationType(String notificationValue) {
         String trimmedValue = StringUtils.trim(notificationValue);
-        return NotificationType.valueOf(trimmedValue);
+        if (StringUtils.isBlank(trimmedValue)) {
+            LOG.warn("Empty notification type ignored");
+            return null;
+        }
+
+        try {
+            return NotificationType.valueOf(trimmedValue);
+        } catch (IllegalArgumentException e) {
+            LOG.warn("Unrecognized notification type [{}]", trimmedValue, e);
+            return null;
+        }
     }
 
     @Override

@@ -9,15 +9,18 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 /**
  * @author Cosmin Baciu
@@ -57,8 +60,48 @@ public class DomibusPropertyServiceDelegateTest {
     }
 
     @Test
+    public void getConfiguredNotificationsWithDuplicateValues() {
+        String propertyName = "messages.notifications";
+        List<NotificationType> expectedTypes = Arrays.asList(new NotificationType[]{NotificationType.MESSAGE_RECEIVED, NotificationType.MESSAGE_SEND_SUCCESS});
+        List<NotificationType> configuredValues = new ArrayList<>();
+        configuredValues.addAll(expectedTypes);
+        //duplicate values
+        configuredValues.addAll(expectedTypes);
+
+        String propertyValue = StringUtils.join(expectedTypes.stream().map(notificationType -> notificationType.toString()).collect(Collectors.toList()), ",");
+
+        new Expectations(domibusPropertyServiceDelegate) {{
+            domibusPropertyServiceDelegate.getProperty(propertyName);
+            result = propertyValue;
+        }};
+
+        List<NotificationType> configuredNotifications = domibusPropertyServiceDelegate.getConfiguredNotifications(propertyName);
+        assertEquals(expectedTypes, configuredNotifications);
+    }
+
+    @Test
+    public void getConfiguredNotificationsWithInvalidValues() {
+        String propertyName = "messages.notifications";
+        String propertyValue = "invalid notif type,,";
+
+        new Expectations(domibusPropertyServiceDelegate) {{
+            domibusPropertyServiceDelegate.getProperty(propertyName);
+            result = propertyValue;
+        }};
+
+        List<NotificationType> configuredNotifications = domibusPropertyServiceDelegate.getConfiguredNotifications(propertyName);
+        assertTrue(CollectionUtils.isEmpty(configuredNotifications));
+    }
+
+    @Test
     public void getNotificationType() {
         NotificationType notificationType = domibusPropertyServiceDelegate.getNotificationType(NotificationType.MESSAGE_RECEIVED.toString());
         assertEquals(notificationType, NotificationType.MESSAGE_RECEIVED);
     }
+
+    @Test
+    public void getNotificationTypeWithInvalidValue() {
+        assertNull(domibusPropertyServiceDelegate.getNotificationType("invalid value"));
+    }
+
 }
