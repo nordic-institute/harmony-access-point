@@ -10,7 +10,7 @@ import java.util.function.Predicate;
 
 /**
  * @author Cosmin Baciu
- * @since
+ * @since 4.2
  */
 public class FSPluginDomibusPropertyExtServiceMock implements DomibusPropertyExtService {
 
