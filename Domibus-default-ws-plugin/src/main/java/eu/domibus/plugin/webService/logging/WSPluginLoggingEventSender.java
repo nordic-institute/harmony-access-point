@@ -3,7 +3,6 @@ package eu.domibus.plugin.webService.logging;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.ext.logging.event.LogEvent;
-import org.apache.cxf.ext.logging.event.LogMessageFormatter;
 import org.apache.cxf.ext.logging.slf4j.Slf4jEventSender;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +41,7 @@ public class WSPluginLoggingEventSender extends Slf4jEventSender {
         } catch (RuntimeException e) {
             LOG.error("Exception while stripping the payload: ", e);
         }
-        return LogMessageFormatter.format(event);
+        return event.getPayload();
     }
 
     protected boolean checkIfStripPayloadPossible() {
