@@ -1270,7 +1270,7 @@
 
         <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_CERTIFICATE_AUD"
                                  constraintName="FK_CERTIFICATE_AUD" deferrable="false"
-                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID" referencedTableName="TB_REV_INFO"/>
 
     </changeSet>
