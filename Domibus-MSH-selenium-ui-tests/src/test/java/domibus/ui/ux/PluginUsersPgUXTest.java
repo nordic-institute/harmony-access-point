@@ -236,7 +236,7 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 		soft.assertAll();
 	}
 	
-	@Test(description = "PU-18", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "PU-36", groups = {"multiTenancy", "singleTenancy"})
 	public void filterPluginUserList() throws Exception {
 		List<String> usernames = new ArrayList<>();
 		for (int i = 0; i < 5; i++) {
@@ -269,7 +269,7 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 	
 	/* PU-15 - Admin tries to create new user with username less than 3 letters long */
 //	known failure, was decided it will not be fixed
-	@Test(description = "PU-15", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "PU-15", groups = {"multiTenancy", "singleTenancy"})
 	public void pluginUsernameTooShort() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		log.info("testing username with only 2 letters");
@@ -437,7 +437,7 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 	}
 	
 	/* PU-26 - Click All/None link */
-	@Test(description = "PU-25", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "PU-26", groups = {"multiTenancy", "singleTenancy"})
 	public void checkAllNoneLnk() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		PluginUsersPage page = new PluginUsersPage(driver);

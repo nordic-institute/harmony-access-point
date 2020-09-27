@@ -292,6 +292,7 @@ public class JMSMessPgTest extends SeleniumTest {
 		JMSMonitoringPage page = new JMSMonitoringPage(driver);
 		log.info("Login into application and navigate to JMS Monitoring page");
 		page.getSidebar().goToPage(PAGES.JMS_MONITORING);
+		page.grid().waitForRowsToLoad();
 		
 		String domain = page.getDomainFromTitle();
 		

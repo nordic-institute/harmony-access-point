@@ -56,15 +56,11 @@ public class BaseTest {
 				}
 			}
 			
+			rest.pmode().uploadPMode("pmodes/Edelivery-blue.xml", domain);
+			for (int j = noOfMess; j < 5; j++) {
+				messageSender.sendMessage(pluser, pass, Gen.randomAlphaNumeric(20), Gen.randomAlphaNumeric(20));
+			}
 			
-//			JSONArray messageFilters = rest.messFilters().getMessageFilters(domain);
-//			for (int k = 0; k < messageFilters.length(); k++) {
-//				JSONObject obj = messageFilters.getJSONObject(k);
-//				if (!obj.getBoolean("persisted")) {
-//					rest.messFilters().saveMessageFilters(messageFilters, domain);
-//					break;
-//				}
-//			}
 		}
 		
 		waitForErrors();

@@ -37,6 +37,12 @@ if os.path.exists(folder_path):
 
 os.makedirs(folder_path)
 
+download_path = "../downloadFiles"
+if os.path.exists(download_path):
+    shutil.rmtree(download_path)
+
+os.makedirs(download_path)
+
 with open(yml_path, 'w') as f:
     print(output, file=f)
 
