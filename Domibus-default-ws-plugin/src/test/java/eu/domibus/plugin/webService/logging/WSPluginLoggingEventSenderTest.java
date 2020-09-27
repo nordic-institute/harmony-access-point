@@ -2,7 +2,6 @@ package eu.domibus.plugin.webService.logging;
 
 import mockit.*;
 import mockit.integration.junit4.JMockit;
-import org.apache.cxf.ext.logging.event.EventType;
 import org.apache.cxf.ext.logging.event.LogEvent;
 import org.junit.Assert;
 import org.junit.Test;
@@ -31,9 +30,6 @@ public class WSPluginLoggingEventSenderTest {
 
             wsPluginLoggingEventSender.checkIfStripPayloadPossible();
             result = true;
-
-            logEvent.getType();
-            result = EventType.REQ_IN;
         }};
 
         //tested method

@@ -8,7 +8,6 @@ import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.service.ConfigurationLoader;
 import eu.domibus.core.alerts.service.AlertConfigurationService;
 import eu.domibus.core.alerts.service.ConfigurationReader;
-
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
@@ -125,14 +124,17 @@ public class MessagingConfigurationManagerTest  {
 
     @Test
     public void readMessageConfigurationActiveFalse() {
+        final String mailSubject = "Messsage status changed";
         new Expectations() {{
             alertConfigurationService.isAlertModuleEnabled();
             this.result = true;
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_ACTIVE);
             result = false;
+            domibusPropertyProvider.getProperty(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_MAIL_SUBJECT);
+            result = mailSubject;
         }};
         final MessagingModuleConfiguration messagingConfiguration = configurationManager.readConfiguration();
-        assertFalse(messagingConfiguration.isActive());
+        assertEquals(messagingConfiguration.getMailSubject(), mailSubject);
     }
 
     @Test

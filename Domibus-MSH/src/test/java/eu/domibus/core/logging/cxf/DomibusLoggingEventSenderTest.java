@@ -2,7 +2,6 @@ package eu.domibus.core.logging.cxf;
 
 import mockit.*;
 import mockit.integration.junit4.JMockit;
-import org.apache.cxf.ext.logging.event.EventType;
 import org.apache.cxf.ext.logging.event.LogEvent;
 import org.junit.Assert;
 import org.junit.Test;
@@ -28,9 +27,6 @@ public class DomibusLoggingEventSenderTest {
         new Expectations(domibusLoggingEventSender) {{
             domibusLoggingEventSender.checkIfStripPayloadPossible();
             result = true;
-
-            logEvent.getType();
-            result = EventType.RESP_OUT;
         }};
 
         //tested method

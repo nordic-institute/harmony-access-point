@@ -3,6 +3,7 @@ package eu.domibus.web.rest;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.core.alerts.model.common.*;
@@ -14,12 +15,12 @@ import eu.domibus.web.rest.ro.AlertFilterRequestRO;
 import eu.domibus.web.rest.ro.AlertResult;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.List;
 import java.util.Map;
@@ -35,17 +36,27 @@ public class AlertResource extends BaseResource {
 
     private static final Logger LOG = DomibusLoggerFactory.getLogger(AlertResource.class);
 
-    @Autowired
+
     private AlertService alertService;
 
-    @Autowired
     private DateUtil dateUtil;
 
-    @Autowired
     private AuthUtils authUtils;
 
-    @Autowired
-    protected DomainTaskExecutor domainTaskExecutor;
+    private DomainTaskExecutor domainTaskExecutor;
+
+    private DomibusConfigurationService domibusConfigurationService;
+
+    static List<AlertType> forbiddenAlertTypesExtAuthProvider = Lists.newArrayList(AlertType.PASSWORD_EXPIRED, AlertType.PASSWORD_IMMINENT_EXPIRATION,
+    AlertType.USER_ACCOUNT_DISABLED, AlertType.USER_ACCOUNT_ENABLED, AlertType.USER_LOGIN_FAILURE);
+
+    public AlertResource(AlertService alertService, DateUtil dateUtil, AuthUtils authUtils, DomainTaskExecutor domainTaskExecutor, DomibusConfigurationService domibusConfigurationService) {
+        this.alertService = alertService;
+        this.dateUtil = dateUtil;
+        this.authUtils = authUtils;
+        this.domainTaskExecutor = domainTaskExecutor;
+        this.domibusConfigurationService = domibusConfigurationService;
+    }
 
     @GetMapping
     public AlertResult findAlerts(@Valid AlertFilterRequestRO request) {
@@ -60,7 +71,17 @@ public class AlertResource extends BaseResource {
 
     @GetMapping(path = "/types")
     public List<String> getAlertTypes() {
+        return getAlertTypesAsStrings();
+    }
+
+    @NotNull
+    protected List<String> getAlertTypesAsStrings() {
         final List<AlertType> alertTypes = Lists.newArrayList(AlertType.values());
+        if (domibusConfigurationService.isExtAuthProviderEnabled()) {
+            return alertTypes.stream().filter(alertType ->
+                    forbiddenAlertTypesExtAuthProvider.stream().noneMatch(forbiddenAlertType -> forbiddenAlertType.equals(alertType))).
+                    map(Enum::name).collect(Collectors.toList());
+        }
         return alertTypes.stream().map(Enum::name).collect(Collectors.toList());
     }
 

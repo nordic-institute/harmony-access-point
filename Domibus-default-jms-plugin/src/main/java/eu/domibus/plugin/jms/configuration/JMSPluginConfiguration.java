@@ -2,6 +2,7 @@ package eu.domibus.plugin.jms.configuration;
 
 import com.codahale.metrics.MetricRegistry;
 import eu.domibus.common.JMSConstants;
+import eu.domibus.common.NotificationType;
 import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomibusPropertyExtService;
 import eu.domibus.ext.services.JMSExtService;
@@ -28,6 +29,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import javax.jms.ConnectionFactory;
 import javax.jms.Queue;
 import javax.jms.Session;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -56,8 +58,13 @@ public class JMSPluginConfiguration {
                                               DomainContextExtService domainContextExtService,
                                               JMSPluginQueueService JMSPluginQueueService,
                                               @Qualifier(value = "mshToBackendTemplate") JmsOperations mshToBackendTemplate,
-                                              JMSMessageTransformer jmsMessageTransformer) {
-        return new JMSPluginImpl(metricRegistry, jmsExtService, domainContextExtService, JMSPluginQueueService, mshToBackendTemplate, jmsMessageTransformer);
+                                              JMSMessageTransformer jmsMessageTransformer,
+                                              DomibusPropertyExtService domibusPropertyExtService) {
+        List<NotificationType> messageNotifications = domibusPropertyExtService.getConfiguredNotifications(JMSMessageConstants.MESSAGE_NOTIFICATIONS);
+        LOG.debug("Using the following message notifications [{}]", messageNotifications);
+        JMSPluginImpl jmsPlugin = new JMSPluginImpl(metricRegistry, jmsExtService, domainContextExtService, JMSPluginQueueService, mshToBackendTemplate, jmsMessageTransformer);
+        jmsPlugin.setRequiredNotifications(messageNotifications);
+        return jmsPlugin;
     }
 
     @Bean("jmsAsyncPluginConfiguration")

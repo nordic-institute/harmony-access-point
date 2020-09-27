@@ -14,7 +14,6 @@ import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.ErrorRO;
 import eu.domibus.web.rest.ro.TrustStoreRO;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpStatus;
@@ -62,9 +61,7 @@ public class TruststoreResource extends BaseResource {
 
     @ExceptionHandler({CryptoException.class})
     public ResponseEntity<ErrorRO> handleCryptoException(CryptoException ex) {
-        Throwable rootCause = ExceptionUtils.getRootCause(ex);
-        rootCause = rootCause == null ? ex : rootCause;
-        return errorHandlerService.createResponse(rootCause, HttpStatus.BAD_REQUEST);
+        return errorHandlerService.createResponse(ex, HttpStatus.BAD_REQUEST);
     }
 
     @PostMapping(value = "/save")
@@ -77,6 +74,8 @@ public class TruststoreResource extends BaseResource {
         }
 
         multiDomainCertificateProvider.replaceTrustStore(domainProvider.getCurrentDomain(), truststoreFile.getOriginalFilename(), truststoreFileContent, password);
+        // triger update certificate table
+        certificateService.saveCertificateAndLogRevocation(domainProvider.getCurrentDomain());
         return "Truststore file has been successfully replaced.";
     }
 

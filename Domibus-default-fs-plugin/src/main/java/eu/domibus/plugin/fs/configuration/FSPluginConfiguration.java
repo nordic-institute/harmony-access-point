@@ -1,11 +1,14 @@
 package eu.domibus.plugin.fs.configuration;
 
 import eu.domibus.common.MessageStatus;
+import eu.domibus.common.NotificationType;
+import eu.domibus.ext.services.DomibusPropertyExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.environment.DomibusEnvironmentUtil;
 import eu.domibus.plugin.fs.*;
 import eu.domibus.plugin.fs.ebms3.ObjectFactory;
+import eu.domibus.plugin.fs.property.FSPluginPropertiesMetadataManagerImpl;
 import eu.domibus.plugin.notification.PluginAsyncNotificationConfiguration;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -43,8 +46,12 @@ public class FSPluginConfiguration {
     protected String fsPluginExternalPropertiesFile;
 
     @Bean("backendFSPlugin")
-    public FSPluginImpl createFSPlugin() {
-        return new FSPluginImpl();
+    public FSPluginImpl createFSPlugin(DomibusPropertyExtService domibusPropertyExtService) {
+        List<NotificationType> messageNotifications = domibusPropertyExtService.getConfiguredNotifications(FSPluginPropertiesMetadataManagerImpl.PROPERTY_PREFIX + FSPluginPropertiesMetadataManagerImpl.MESSAGE_NOTIFICATIONS);
+        LOG.debug("Using the following message notifications [{}]", messageNotifications);
+        FSPluginImpl fsPlugin = new FSPluginImpl();
+        fsPlugin.setRequiredNotifications(messageNotifications);
+        return fsPlugin;
     }
 
     @Bean("fsPluginAsyncPluginConfiguration")

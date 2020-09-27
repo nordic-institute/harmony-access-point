@@ -15,6 +15,8 @@ import eu.domibus.core.audit.model.MessageAudit;
 import eu.domibus.core.audit.model.PModeArchiveAudit;
 import eu.domibus.core.audit.model.PModeAudit;
 import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.user.ui.User;
+import eu.domibus.core.user.ui.UserRole;
 import eu.domibus.core.util.AnnotationsUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -108,10 +110,8 @@ public class AuditServiceImpl implements AuditService {
     @Cacheable("auditTarget")
     @Transactional(readOnly = true)
     public List<String> listAuditTarget() {
-        Set<Class<?>> typesAnnotatedWith = new Reflections("eu.domibus").
-                getTypesAnnotatedWith(RevisionLogicalName.class);
+        Set<Class<?>> typesAnnotatedWith = getFiltereAuditTargets();
         return typesAnnotatedWith.stream().
-                filter(aClass -> aClass != Party.class && aClass != PartyIdType.class).
                 map(aClass -> annotationsUtil.getValue(aClass, RevisionLogicalName.class)).
                 //check if present is needed because the set contains subclasses that do not contain the annotation.
                         filter(Optional::isPresent).
@@ -119,6 +119,16 @@ public class AuditServiceImpl implements AuditService {
                         distinct().
                         sorted().
                         collect(Collectors.toList());
+    }
+
+    protected Set<Class<?>> getFiltereAuditTargets() {
+        Set<Class<?>> typesAnnotatedWith = new Reflections("eu.domibus").
+                getTypesAnnotatedWith(RevisionLogicalName.class).stream().
+                filter(aClass -> aClass != Party.class && aClass != PartyIdType.class).collect(Collectors.toSet());
+        if (domibusConfigurationService.isExtAuthProviderEnabled()) {
+            return typesAnnotatedWith.stream().filter(aClass -> aClass != User.class && aClass != UserRole.class).collect(Collectors.toSet());
+        }
+        return typesAnnotatedWith;
     }
 
     /**

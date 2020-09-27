@@ -1,7 +1,6 @@
 package eu.domibus.core.logging.cxf;
 
 import org.apache.cxf.ext.logging.event.LogEvent;
-import org.apache.cxf.ext.logging.event.LogMessageFormatter;
 import org.apache.cxf.ext.logging.slf4j.Slf4jEventSender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +37,7 @@ public class DomibusLoggingEventSender extends Slf4jEventSender  {
                 LOG.error("Exception while stripping the payload: ", e);
             }
         }
-        return LogMessageFormatter.format(event);
+        return event.getPayload();
     }
 
     protected boolean checkIfStripPayloadPossible() {
