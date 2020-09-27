@@ -20,11 +20,12 @@ import eu.europa.esig.dss.validation.CommonCertificateVerifier;
 import net.sf.ehcache.Cache;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wss4j.dom.engine.WSSConfig;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.cache.CacheManager;
-import org.springframework.cglib.core.internal.Function;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -107,6 +108,17 @@ public class DssConfiguration {
     @Value("${domibus.dss.ssl.cacert.password}")
     private String cacertPassword;
 
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
+    @Autowired
+    private DomibusPropertyExtService domibusPropertyExtService;
+
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
+    @Autowired
+    private DomibusConfigurationExtService domibusConfigurationExtService;
+
+    @Autowired
+    private ObjectProvider<CustomTrustedLists> otherTrustedListObjectProvider;
+
     @Bean
     public TrustedListsCertificateSource trustedListSource() {
         return new TrustedListsCertificateSource();
@@ -145,12 +157,6 @@ public class DssConfiguration {
     }
 
     @Bean
-    public Function<Void
-            , CertificateVerifier> certificateVerifierFactory() {
-        return aVoid -> certificateVerifier();
-    }
-
-    @Bean
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public CertificateVerifier certificateVerifier() {
         OnlineCRLSource crlSource = null;
@@ -170,6 +176,11 @@ public class DssConfiguration {
         certificateVerifier.setCheckRevocationForUntrustedChains(checkRevocationForUntrustedChain);
         LOG.debug("Instanciating new certificate verifier:[{}], enableExceptionOnMissingRevocationData:[{}], checkRevocationForUntrustedChain:[{}]", certificateVerifier, enableExceptionOnMissingRevocationData, checkRevocationForUntrustedChain);
         return certificateVerifier;
+    }
+
+    @Bean
+    public CertificateVerifierService certificateVerifierService(DssCache dssCache) {
+        return new CertificateVerifierService(dssCache);
     }
 
     @Bean
@@ -263,51 +274,18 @@ public class DssConfiguration {
         }
     }
 
-    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
-    @Bean
-    public Function<Void
-            , List<OtherTrustedList>> otherTrustedListsFactory(DomibusPropertyExtService domibusPropertyExtService,
-                                                               DomibusConfigurationExtService domibusConfigurationExtService) {
-        return aVoid -> otherTrustedLists(domibusPropertyExtService,domibusConfigurationExtService);
-    }
-
-    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
-    @Bean
-    @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-    List<OtherTrustedList> otherTrustedLists(DomibusPropertyExtService domibusPropertyExtService,
-                                             DomibusConfigurationExtService domibusConfigurationExtService) {
-        final boolean multiTenant = domibusConfigurationExtService.isMultiTenantAware();
-        final List<OtherTrustedList> otherTrustedLists = new CustomTrustedListPropertyMapper(domibusPropertyExtService).map();
-        if (multiTenant && !otherTrustedLists.isEmpty()) {
-            if (enableDssCustomTrustedListForMultiTenant) {
-                LOG.warn("Configured custom trusted lists are shared by all tenants.");
-            } else {
-                LOG.info("In multi-tenant configuration custom DSS trusted list are shared. Therefore they are deactivated by default. Please adapt property:[{}] to change that behavior", DOMIBUS_AUTHENTICATION_DSS_ENABLE_CUSTOM_TRUSTED_LIST_FOR_MULTITENANT);
-                return Collections.emptyList();
-            }
-        }
-        for (OtherTrustedList otherTrustedList : otherTrustedLists) {
-            LOG.info("Custom trusted list configured with url:[{}], code:[{}]", otherTrustedList.getUrl(), otherTrustedList.getCountryCode());
-        }
-        if (otherTrustedLists.isEmpty()) {
-            LOG.info("No custom trusted list configured.");
-        }
-        return otherTrustedLists;
-    }
-
     @Bean
     public DomibusTSLValidationJob tslValidationJob(
             DataLoader dataLoader,
             DomibusTSLRepository tslRepository,
             KeyStoreCertificateSource ojContentKeyStore,
-            Function<Void
-                    , List<OtherTrustedList>> otherTrustedListsFactory,
-            DssExtensionPropertyManager dssExtensionPropertyManager) {
-        String currentLotlUrl=dssExtensionPropertyManager.getKnownPropertyValue(DssExtensionPropertyManager.AUTHENTICATION_DSS_CURRENT_LOTL_URL);
-        String currentOjUrl=dssExtensionPropertyManager.getKnownPropertyValue(DssExtensionPropertyManager.AUTHENTICATION_DSS_CURRENT_OFFICIAL_JOURNAL_URL);
-        String lotlCountryCode=dssExtensionPropertyManager.getKnownPropertyValue(DssExtensionPropertyManager.AUTHENTICATION_DSS_LOTL_COUNTRY_CODE);
+            DssExtensionPropertyManager dssExtensionPropertyManager,
+            CertificateVerifierService certificateVerifierService) {
+        String currentLotlUrl = dssExtensionPropertyManager.getKnownPropertyValue(DssExtensionPropertyManager.AUTHENTICATION_DSS_CURRENT_LOTL_URL);
+        String currentOjUrl = dssExtensionPropertyManager.getKnownPropertyValue(DssExtensionPropertyManager.AUTHENTICATION_DSS_CURRENT_OFFICIAL_JOURNAL_URL);
+        String lotlCountryCode = dssExtensionPropertyManager.getKnownPropertyValue(DssExtensionPropertyManager.AUTHENTICATION_DSS_LOTL_COUNTRY_CODE);
         LOG.info("Configuring DSS lotl with url:[{}],schema uri:[{}],country code:[{}],oj url:[{}]", currentLotlUrl, lotlSchemeUri, lotlCountryCode, currentOjUrl);
-        DomibusTSLValidationJob validationJob = new DomibusTSLValidationJob(certificateVerifierFactory(),otherTrustedListsFactory);
+        DomibusTSLValidationJob validationJob = new DomibusTSLValidationJob(certificateVerifierService, otherTrustedListObjectProvider);
         validationJob.setDataLoader(dataLoader);
         validationJob.setRepository(tslRepository);
         validationJob.setLotlUrl(currentLotlUrl);
@@ -335,6 +313,28 @@ public class DssConfiguration {
             LOG.error("Error while checking if cache directory:[{}] is empty", serverCacheDirectoryPath, e);
         }
         return validationJob;
+    }
+
+    @Bean
+    @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+    public CustomTrustedLists otherTrustedLists() {
+        final boolean multiTenant = domibusConfigurationExtService.isMultiTenantAware();
+        final List<OtherTrustedList> otherTrustedLists = new CustomTrustedListPropertyMapper(domibusPropertyExtService).map();
+        if (multiTenant && !otherTrustedLists.isEmpty()) {
+            if (enableDssCustomTrustedListForMultiTenant) {
+                LOG.warn("Configured custom trusted lists are shared by all tenants.");
+            } else {
+                LOG.info("In multi-tenant configuration custom DSS trusted list are shared. Therefore they are deactivated by default. Please adapt property:[{}] to change that behavior", DOMIBUS_AUTHENTICATION_DSS_ENABLE_CUSTOM_TRUSTED_LIST_FOR_MULTITENANT);
+                return new CustomTrustedLists(Collections.emptyList());
+            }
+        }
+        for (OtherTrustedList otherTrustedList : otherTrustedLists) {
+            LOG.info("Custom trusted list configured with url:[{}], code:[{}]", otherTrustedList.getUrl(), otherTrustedList.getCountryCode());
+        }
+        if (otherTrustedLists.isEmpty()) {
+            LOG.info("No custom trusted list configured.");
+        }
+        return new CustomTrustedLists(otherTrustedLists);
     }
 
     @Bean
@@ -374,18 +374,19 @@ public class DssConfiguration {
                                                         final TSLRepository tslRepository,
                                                         final ValidationReport validationReport,
                                                         final ValidationConstraintPropertyMapper constraintMapper,
+                                                        final CertificateVerifierService certificateVerifierService,
                                                         @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") final PkiExtService pkiExtService,
                                                         final DssCache dssCache) {
         //needed to initialize WSS4J property bundles to have correct message in the WSSException.
         WSSConfig.init();
         return new DomibusDssCryptoSpi(
                 defaultDomainCryptoService,
-                certificateVerifierFactory(),
                 tslRepository,
                 validationReport,
                 constraintMapper,
                 pkiExtService,
-                dssCache);
+                dssCache,
+                certificateVerifierService);
     }
 
     @Bean
@@ -413,8 +414,8 @@ public class DssConfiguration {
     }
 
     @Bean
-    public CertificateVerifierListener certificateVerifierListener(final DssCache dssCache){
-        return new CertificateVerifierListener(dssCache);
+    public CertificateVerifierListener certificateVerifierListener(final CertificateVerifierService certificateVerifierService) {
+        return new CertificateVerifierListener(certificateVerifierService);
     }
 
     @Bean

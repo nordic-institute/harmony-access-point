@@ -1,10 +1,13 @@
 package eu.domibus.core.crypto.spi.dss;
 
+import eu.domibus.ext.services.DomibusConfigurationExtService;
+import eu.domibus.ext.services.DomibusPropertyExtService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.io.FileInputStream;
@@ -22,6 +25,14 @@ public class DssConfigurationTest {
     @Injectable
     String dssTlsTrustStorePassword = "pwd";
 
+    @Injectable
+    private DomibusPropertyExtService domibusPropertyExtService;
+
+    @Injectable
+    private DomibusConfigurationExtService domibusConfigurationExtService;
+
+    @Injectable
+    private ObjectProvider<CustomTrustedLists> otherTrustedListObjectProvider;
 
     @Tested
     private DssConfiguration dssConfiguration;
