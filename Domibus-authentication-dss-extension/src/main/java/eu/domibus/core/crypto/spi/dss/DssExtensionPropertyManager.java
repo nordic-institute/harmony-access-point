@@ -10,7 +10,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-
+/**
+ * Property manager for the DSS extension.
+ * Gives the opportunity to edit dss properties at runtime through the Domibus admin console.
+ *
+ * @author Thomas Dussart
+ * @since 4.2
+ */
 public class DssExtensionPropertyManager extends DomibusPropertyExtServiceDelegateAbstract implements DomibusPropertyManagerExt {
 
     public static final String CUSTOM_TRUSTED_LISTS_PREFIX = "domibus.authentication.dss.custom.trusted.lists";
@@ -37,13 +43,14 @@ public class DssExtensionPropertyManager extends DomibusPropertyExtServiceDelega
     public static final String DSS_CUSTOM_TRUSTED_LIST_KEYSTORE_PATH = "domibus.authentication.dss.custom.trusted.list.keystore.path";
     public static final String DSS_CUSTOM_TRUSTED_LIST_KEYSTORE_TYPE = "domibus.authentication.dss.custom.trusted.list.keystore.type";
     public static final String DSS_CUSTOM_TRUSTED_LIST_KEYSTORE_PASSWORD = "domibus.authentication.dss.custom.trusted.list.keystore.password";
+    //Dynamic custom trusted list properties
     public static final String DSS_CUSTOM_TRUSTED_LIST_1_URL = CUSTOM_TRUSTED_LISTS_PREFIX +".list1.url";
     public static final String DSS_CUSTOM_TRUSTED_LIST_1_CODE = CUSTOM_TRUSTED_LISTS_PREFIX +".list1.code";
     public static final String DSS_CUSTOM_TRUSTED_LIST_2_URL = CUSTOM_TRUSTED_LISTS_PREFIX +".list2.url";
     public static final String DSS_CUSTOM_TRUSTED_LIST_2_CODE = CUSTOM_TRUSTED_LISTS_PREFIX +".list2.code";
     public static final String DSS_CUSTOM_TRUSTED_LIST_3_URL = CUSTOM_TRUSTED_LISTS_PREFIX +".list3.url";
     public static final String DSS_CUSTOM_TRUSTED_LIST_3_CODE = CUSTOM_TRUSTED_LISTS_PREFIX +".list3.code";
-
+    //Dynamic constraints properties
     public static final String DSS_CONSTRAINTS_CONSTRAINT1_NAME= CONSTRAINTS_PREFIX +".constraint1.name";
     public static final String DSS_CONSTRAINTS_CONSTRAINT2_NAME= CONSTRAINTS_PREFIX +".constraint2.name";
     public static final String DSS_CONSTRAINTS_CONSTRAINT1_STATUS= CONSTRAINTS_PREFIX +".constraint1.status";
@@ -82,7 +89,7 @@ public class DssExtensionPropertyManager extends DomibusPropertyExtServiceDelega
                 new DomibusPropertyMetadataDTO(DSS_CUSTOM_TRUSTED_LIST_3_CODE, DomibusPropertyMetadataDTO.Type.STRING, Module.DSS, DomibusPropertyMetadataDTO.Usage.GLOBAL),
                 new DomibusPropertyMetadataDTO(DSS_CONSTRAINTS_CONSTRAINT1_NAME, DomibusPropertyMetadataDTO.Type.STRING, Module.DSS, DomibusPropertyMetadataDTO.Usage.GLOBAL),
                 new DomibusPropertyMetadataDTO(DSS_CONSTRAINTS_CONSTRAINT2_NAME, DomibusPropertyMetadataDTO.Type.STRING, Module.DSS, DomibusPropertyMetadataDTO.Usage.GLOBAL),
-        new DomibusPropertyMetadataDTO(DSS_CONSTRAINTS_CONSTRAINT1_STATUS, DomibusPropertyMetadataDTO.Type.STRING, Module.DSS, DomibusPropertyMetadataDTO.Usage.GLOBAL),
+                new DomibusPropertyMetadataDTO(DSS_CONSTRAINTS_CONSTRAINT1_STATUS, DomibusPropertyMetadataDTO.Type.STRING, Module.DSS, DomibusPropertyMetadataDTO.Usage.GLOBAL),
                 new DomibusPropertyMetadataDTO(DSS_CONSTRAINTS_CONSTRAINT2_STATUS, DomibusPropertyMetadataDTO.Type.STRING, Module.DSS, DomibusPropertyMetadataDTO.Usage.GLOBAL)
         );
         knownProperties = allProperties.stream().collect(Collectors.toMap(DomibusPropertyMetadataDTO::getName, domibusPropertyMetadataDTO -> domibusPropertyMetadataDTO));

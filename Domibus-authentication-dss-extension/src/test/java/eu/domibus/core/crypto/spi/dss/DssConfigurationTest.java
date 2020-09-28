@@ -87,21 +87,24 @@ public class DssConfigurationTest {
         }};
     }
 
-    @Ignore
+
     @Test
     public void loadCacertTrustStoreFromDefaultLocation(@Mocked KeyStore keyStore){
-
-        ReflectionTestUtils.setField(dssConfiguration,"cacertPath","");
+        final String cacertPath = "";
+        Deencapsulation.setField(dssConfiguration,"cacertPath",cacertPath);
         final String cacertType = "cacertType";
-        ReflectionTestUtils.setField(dssConfiguration, cacertType, cacertType);
+        Deencapsulation.setField(dssConfiguration, cacertType, cacertType);
         final String cacertPassword = "cacertPassword";
-        ReflectionTestUtils.setField(dssConfiguration, cacertPassword, cacertPassword);
+        Deencapsulation.setField(dssConfiguration, cacertPassword, cacertPassword);
+
         new Expectations(dssConfiguration){{
-            dssConfiguration.getJavaHome();result="/home";
-            dssConfiguration.loadKeystore("/home/lib/security/cacerts", cacertType, cacertPassword);times=1;
+            dssConfiguration.getJavaHome();
+            result="\\home";
+            dssConfiguration.loadKeystore("\\home\\lib\\security\\cacerts", cacertType, cacertPassword);times=1;
             result=keyStore;
         }};
         dssConfiguration.loadCacertTrustStore();
+
     }
 
     @Test

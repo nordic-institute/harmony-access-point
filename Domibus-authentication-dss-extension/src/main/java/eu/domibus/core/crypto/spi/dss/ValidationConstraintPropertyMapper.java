@@ -11,16 +11,10 @@ import static eu.domibus.core.crypto.spi.dss.DssExtensionPropertyManager.CONSTRA
 
 /**
  * @author Thomas Dussart
- * @see ConstraintInternal
- * <p>
- * domibus.dss.constraint.name[0]=
- * domibus.dss.constraint.status[0]=
- * <p>
- * domibus.dss.constraint.name[1]=
- * domibus.dss.constraint.status[1]=
  * @since 4.1
- * <p>
- * Load multiple ConstraintInternal objects based on properties with the following format:
+ *
+ * Load multiple ConstraintInternal objects based on Domibus nested property mechanism.
+ * @see ConstraintInternal
  */
 public class ValidationConstraintPropertyMapper extends PropertyGroupMapper<ConstraintInternal> {
 
