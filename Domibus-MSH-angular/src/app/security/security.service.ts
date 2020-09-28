@@ -48,6 +48,7 @@ export class SecurityService {
     try {
       const user = await this.http.post<User>('rest/security/authentication', {username: username, password: password}).toPromise();
       if (!user) {
+        console.log('Login returned a null user!');
         throw new Error('Login returned a null user!');
       }
       this.updateCurrentUser(user);
@@ -159,7 +160,6 @@ export class SecurityService {
       // if not, trigger the redirection to the login screen
       try {
         this.isUserConnected().then(isConnected => {
-          // call getUser here???
           resolve(true);
         }, err => {
           console.log('Error while calling isUserConnected: ' + err);
