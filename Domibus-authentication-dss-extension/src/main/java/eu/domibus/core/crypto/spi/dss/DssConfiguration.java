@@ -119,6 +119,9 @@ public class DssConfiguration {
     @Autowired
     private ObjectProvider<CustomTrustedLists> otherTrustedListObjectProvider;
 
+    @Autowired
+    protected ObjectProvider<CertificateVerifier> certificateVerifierObjectProvider;
+
     @Bean
     public TrustedListsCertificateSource trustedListSource() {
         return new TrustedListsCertificateSource();
@@ -180,7 +183,7 @@ public class DssConfiguration {
 
     @Bean
     public CertificateVerifierService certificateVerifierService(DssCache dssCache) {
-        return new CertificateVerifierService(dssCache);
+        return new CertificateVerifierService(dssCache,certificateVerifierObjectProvider);
     }
 
     @Bean

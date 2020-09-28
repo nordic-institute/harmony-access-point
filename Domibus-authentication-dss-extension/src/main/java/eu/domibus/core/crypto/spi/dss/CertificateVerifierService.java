@@ -14,12 +14,14 @@ public class CertificateVerifierService {
 
     private final DssCache dssCache;
 
-    public CertificateVerifierService(DssCache dssCache) {
+    protected ObjectProvider<CertificateVerifier> certificateVerifierObjectProvider;
+
+    public CertificateVerifierService(DssCache dssCache,ObjectProvider<CertificateVerifier> certificateVerifierObjectProvider) {
         this.dssCache = dssCache;
+        this.certificateVerifierObjectProvider=certificateVerifierObjectProvider;
     }
 
-    @Autowired
-    protected ObjectProvider<CertificateVerifier> certificateVerifierObjectProvider;
+
 
     public CertificateVerifier getCertificateVerifier() {
         return certificateVerifierObjectProvider.getObject();
