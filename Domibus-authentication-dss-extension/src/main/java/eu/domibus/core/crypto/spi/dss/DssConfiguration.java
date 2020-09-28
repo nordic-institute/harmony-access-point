@@ -323,6 +323,19 @@ public class DssConfiguration {
     public CustomTrustedLists otherTrustedLists() {
         final boolean multiTenant = domibusConfigurationExtService.isMultiTenantAware();
         final List<OtherTrustedList> otherTrustedLists = new CustomTrustedListPropertyMapper(domibusPropertyExtService).map();
+        CustomTrustedLists customTrustedLists = checkMultiTenancy(multiTenant, otherTrustedLists);
+        if (customTrustedLists != null) return customTrustedLists;
+        for (OtherTrustedList otherTrustedList : otherTrustedLists) {
+            LOG.info("Custom trusted list configured with url:[{}], code:[{}]", otherTrustedList.getUrl(), otherTrustedList.getCountryCode());
+        }
+        if (otherTrustedLists.isEmpty()) {
+            LOG.info("No custom trusted list configured.");
+        }
+        return new CustomTrustedLists(otherTrustedLists);
+    }
+
+
+    private CustomTrustedLists checkMultiTenancy(boolean multiTenant, List<OtherTrustedList> otherTrustedLists) {
         if (multiTenant && !otherTrustedLists.isEmpty()) {
             if (enableDssCustomTrustedListForMultiTenant) {
                 LOG.warn("Configured custom trusted lists are shared by all tenants.");
@@ -331,13 +344,7 @@ public class DssConfiguration {
                 return new CustomTrustedLists(Collections.emptyList());
             }
         }
-        for (OtherTrustedList otherTrustedList : otherTrustedLists) {
-            LOG.info("Custom trusted list configured with url:[{}], code:[{}]", otherTrustedList.getUrl(), otherTrustedList.getCountryCode());
-        }
-        if (otherTrustedLists.isEmpty()) {
-            LOG.info("No custom trusted list configured.");
-        }
-        return new CustomTrustedLists(otherTrustedLists);
+        return null;
     }
 
     @Bean
