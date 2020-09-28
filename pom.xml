@@ -30,7 +30,7 @@
         <spring.security.version>5.3.2.RELEASE</spring.security.version>
         <hibernate.version>5.4.18.Final</hibernate.version>
         <hibernate.validator.version>5.1.2.Final</hibernate.validator.version>
-        <activemq.version>5.15.12</activemq.version>
+        <activemq.version>5.15.13</activemq.version>
         <aspectj.version>1.9.4</aspectj.version>
         <slf4j.version>1.7.28</slf4j.version>
         <logback.version>1.2.3</logback.version>
@@ -49,7 +49,7 @@
         <org.mapstruct.version>1.3.1.Final</org.mapstruct.version>
         <jackson.version>2.9.10</jackson.version>
         <!-- see project-check-exclude.xml file -->
-        <jackson-databind.version>2.9.10.5</jackson-databind.version>
+        <jackson-databind.version>2.9.10.6</jackson-databind.version>
         <commons-test.version>4.2</commons-test.version>
         <xstream.version>1.4.11</xstream.version>
         <freemarker.version>2.3.29</freemarker.version>
