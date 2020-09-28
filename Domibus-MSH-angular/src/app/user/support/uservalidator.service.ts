@@ -21,32 +21,19 @@ export class UserValidatorService {
               private domainService: DomainService) {
   }
 
-  validateUsers(users: UserResponseRO[]): boolean {
-    let errorMessage = '';
-    errorMessage = errorMessage.concat(this.checkUserNameDuplication(users));
-    return this.triggerValidation(errorMessage);
+  validateUsers(users: UserResponseRO[]) {
+    this.checkUserNameDuplication(users);
   }
 
   private checkUserNameDuplication(allUsers: UserResponseRO[]) {
-    let errorMessage = '';
-    let seen = new Set();
-    allUsers.every(function (user) {
-      if (seen.size === seen.add(user.userName).size) {
-        errorMessage = errorMessage.concat('Duplicate user name for user: ' + user.userName + '.');
-        return false;
-      }
-      return true;
+    let seen = new Object();
+    allUsers.forEach(user => {
+      seen[user.userName] = seen[user.userName] == null ? 1 : seen[user.userName] + 1;
     });
-    return errorMessage;
-  }
-
-  private triggerValidation(errorMessage: string): boolean {
-    if (errorMessage.trim()) {
-      this.alertService.clearAlert();
-      this.alertService.error(errorMessage);
-      return false;
+    const list = Object.keys(seen).filter(key => seen[key] > 1);
+    if (list.length > 0) {
+      throw new Error('Duplicate user name for users: ' + list.join(', '));
     }
-    return true;
   }
 
   passwordShouldMatch(): ValidatorFn {
