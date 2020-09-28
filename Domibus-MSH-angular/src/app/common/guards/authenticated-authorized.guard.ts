@@ -2,7 +2,6 @@
 import {ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot, UrlTree} from '@angular/router';
 import {SecurityService} from '../../security/security.service';
 import {DomibusInfoService} from '../appinfo/domibusinfo.service';
-import {AlertService} from '../alert/alert.service';
 import {SessionService} from '../../security/session.service';
 import {SessionState} from '../../security/SessionState';
 
@@ -16,17 +15,14 @@ export class AuthenticatedAuthorizedGuard implements CanActivate {
 
   constructor(private router: Router, private securityService: SecurityService,
               private domibusInfoService: DomibusInfoService,
-              private alertService: AlertService,
               private sessionService: SessionService) {
   }
 
   async canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
-    let isExtAuthProvider = await this.domibusInfoService.isExtAuthProviderEnabled();
     const isAuthenticated = await this.securityService.isAuthenticated();
-
     if (!isAuthenticated) {
       this.handleNotAuthenticated();
-      return this.getNotAuthenticatedRoute(isExtAuthProvider, state);
+      return this.getNotAuthenticatedRoute(state);
     }
 
     // check also authorization
@@ -61,7 +57,8 @@ export class AuthenticatedAuthorizedGuard implements CanActivate {
     }
   }
 
-  private getNotAuthenticatedRoute(isExtAuthProvider: boolean, state: RouterStateSnapshot): UrlTree {
+  private async getNotAuthenticatedRoute(state: RouterStateSnapshot): Promise<UrlTree> {
+    let isExtAuthProvider = await this.domibusInfoService.isExtAuthProviderEnabled();
     // not logged in so redirect to login page with the return url
     if (!isExtAuthProvider) {
       return this.router.createUrlTree(['/login'], {queryParams: {returnUrl: state.url}});
