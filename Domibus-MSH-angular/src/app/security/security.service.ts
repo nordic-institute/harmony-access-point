@@ -41,24 +41,24 @@ export class SecurityService {
     SecurityService.injector = this.injector;
   }
 
-  login(username: string, password: string) {
+  async login(username: string, password: string): Promise<User> {
     this.domainService.resetDomain();
     this.sessionService.resetCurrentSession();
 
-    return this.http.post<User>('rest/security/authentication',
-      {
-        username: username,
-        password: password
-      }).subscribe((response: User) => {
-      this.updateCurrentUser(response);
-
+    try {
+      const user = await this.http.post<User>('rest/security/authentication', {username: username, password: password}).toPromise();
+      if (!user) {
+        throw new Error('Login returned a null user!');
+      }
+      this.updateCurrentUser(user);
       this.domainService.setAppTitle();
-
-      this.securityEventService.notifyLoginSuccessEvent(response);
-    }, (error: any) => {
-      console.log('Login error');
+      this.securityEventService.notifyLoginSuccessEvent(user);
+      return user;
+    } catch (error) {
+      console.log('Login error:', error);
       this.securityEventService.notifyLoginErrorEvent(error);
-    });
+      throw error;
+    }
   }
 
   /**
@@ -142,6 +142,7 @@ export class SecurityService {
 
   updateCurrentUser(user: User): void {
     localStorage.setItem('currentUser', JSON.stringify(user));
+    localStorage.setItem('currentUserUpdateTime', new Date().toISOString());
   }
 
   isUserConnected(): Promise<string> {
@@ -157,16 +158,16 @@ export class SecurityService {
       // we 'ping' the server to check whether we are connected
       // if not, trigger the redirection to the login screen
       try {
-        this.isUserConnected()
-          .then(isConnected => {
-            resolve(true);
-          }, err => {
-            console.log('Error while calling isUserConnected: ' + err);
-            resolve(false);
-          });
+        this.isUserConnected().then(isConnected => {
+          // call getUser here???
+          resolve(true);
+        }, err => {
+          console.log('Error while calling isUserConnected: ' + err);
+          resolve(false);
+        });
       } catch (ex) {
-        console.log('Error while calling isUserConnected: ' + ex);
-        reject(ex);
+        this.alertService.exception('Error while checking authentication:', ex);
+        resolve(false);
       }
     });
   }
@@ -189,24 +190,14 @@ export class SecurityService {
   }
 
   isCurrentUserInRole(roles: Array<string>): boolean {
-    let hasRole = false;
+    if (!roles) {
+      return true;
+    }
     const currentUser = this.getCurrentUser();
     if (currentUser && currentUser.authorities) {
-      roles.forEach((role: string) => {
-        if (currentUser.authorities.indexOf(role) !== -1) {
-          hasRole = true;
-        }
-      });
+      return roles.some(role => currentUser.authorities.includes(role));
     }
-    return hasRole;
-  }
-
-  isAuthorized(roles: Array<string>) {
-    let isAuthorized = false;
-    if (roles) {
-      isAuthorized = this.isCurrentUserInRole(roles);
-    }
-    return isAuthorized;
+    return false;
   }
 
   getPasswordPolicy(forDomain: boolean = true): Promise<PasswordPolicyRO> {
