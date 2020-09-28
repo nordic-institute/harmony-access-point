@@ -153,10 +153,10 @@ export class UserComponent extends mix(BaseListComponent)
   }
 
   async getUsers(): Promise<any> {
-    return this.userService.getAllUsers()
+    return this.userService.getUsers()
       .then(async allUsers => {
         this.allUsers = allUsers;
-        let users = allUsers.filter(this.userService.filterData(this.activeFilter));
+        let users = allUsers.filter(this.applyFilter(this.activeFilter));
 
         await this.userService.checkConfiguredCorrectlyForMultitenancy(users);
 
@@ -168,6 +168,22 @@ export class UserComponent extends mix(BaseListComponent)
         this.areRowsDeleted = false;
         this.disableSelection();
       });
+  }
+
+  private applyFilter(filter: UserSearchCriteria) {
+    return (user) => {
+      let crit1 = true, crit2 = true, crit3 = true;
+      if (filter.userName) {
+        crit1 = user.userName === filter.userName;
+      }
+      if (!filter.deleted_notSet) {
+        crit2 = user.deleted === filter.deleted;
+      }
+      if (filter.authRole) {
+        crit3 = user.roles === filter.authRole;
+      }
+      return crit1 && crit2 && crit3;
+    }
   }
 
   private async setDomain(users: UserResponseRO[]) {

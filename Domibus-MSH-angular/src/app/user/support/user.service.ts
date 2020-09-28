@@ -15,7 +15,7 @@ export class UserService {
               private domainService: DomainService) {
   }
 
-  getAllUsers(): Promise<UserResponseRO[]> {
+  getUsers(): Promise<UserResponseRO[]> {
     return this.http.get<UserResponseRO[]>('rest/user/users').toPromise();
   }
 
@@ -49,22 +49,6 @@ export class UserService {
         const userNames = usersWithoutDomain.map(u => u.userName).join(', ');
         this.alertService.error(`The following users are not configured correctly for multitenancy: ${userNames}`);
       }
-    }
-  }
-
-  filterData(filter: UserSearchCriteria) {
-    return function (user) {
-      let crit1 = true, crit2 = true, crit3 = true;
-      if (filter.userName) {
-        crit1 = user.userName === filter.userName;
-      }
-      if (!filter.deleted_notSet) {
-        crit2 = user.deleted === filter.deleted;
-      }
-      if (filter.authRole) {
-        crit3 = user.roles === filter.authRole;
-      }
-      return crit1 && crit2 && crit3;
     }
   }
 
