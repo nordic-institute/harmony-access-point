@@ -6,7 +6,7 @@ import eu.europa.esig.dss.validation.process.MessageTag;
 import java.util.List;
 import java.util.Map;
 
-import static eu.domibus.core.crypto.spi.dss.DssExtensionPropertyManager.DOMIBUS_DSS_DEFAULT_CONSTRAINT_NAME;
+import static eu.domibus.core.crypto.spi.dss.DssExtensionPropertyManager.CONSTRAINTS_PREFIX;
 
 
 /**
@@ -34,7 +34,7 @@ public class ValidationConstraintPropertyMapper extends PropertyGroupMapper<Cons
 
     public List<ConstraintInternal> map() {
         return super.map(
-                DOMIBUS_DSS_DEFAULT_CONSTRAINT_NAME
+                CONSTRAINTS_PREFIX
         );
     }
 

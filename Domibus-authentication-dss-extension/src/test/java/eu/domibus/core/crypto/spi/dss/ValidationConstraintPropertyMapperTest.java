@@ -31,11 +31,11 @@ public class ValidationConstraintPropertyMapperTest {
         List<String> constraintSuffixes=new ArrayList<>(Arrays.asList(constraint1, constraint2,"constraint3"));
         List<String> nestedProperties=new ArrayList<>(Arrays.asList("name","status"));
         new Expectations() {{
-            domibusPropertyExtService.getNestedProperties(DOMIBUS_DSS_DEFAULT_CONSTRAINT_NAME);
+            domibusPropertyExtService.getNestedProperties(CONSTRAINTS_PREFIX);
             result=constraintSuffixes;
-            domibusPropertyExtService.getNestedProperties(DOMIBUS_DSS_DEFAULT_CONSTRAINT_NAME+"."+constraint1);
+            domibusPropertyExtService.getNestedProperties(CONSTRAINTS_PREFIX +"."+constraint1);
             this.result = nestedProperties;
-            domibusPropertyExtService.getNestedProperties(DOMIBUS_DSS_DEFAULT_CONSTRAINT_NAME+"."+constraint2);
+            domibusPropertyExtService.getNestedProperties(CONSTRAINTS_PREFIX +"."+constraint2);
             this.result = nestedProperties;
             domibusPropertyExtService.getProperty(DSS_CONSTRAINTS_CONSTRAINT1_NAME);
             this.result = ADEST_IRTPTBST.name();;

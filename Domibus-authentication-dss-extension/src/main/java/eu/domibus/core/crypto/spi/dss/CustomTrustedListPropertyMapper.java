@@ -48,7 +48,7 @@ public class CustomTrustedListPropertyMapper extends PropertyGroupMapper<OtherTr
 
     public List<OtherTrustedList> map() {
         return super.map(
-                CUSTOM_TRUSTED_LIST_URL_PROPERTY
+                CUSTOM_TRUSTED_LISTS_PREFIX
         );
     }
 

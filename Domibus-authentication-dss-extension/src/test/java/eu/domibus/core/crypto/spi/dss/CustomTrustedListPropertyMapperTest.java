@@ -41,13 +41,13 @@ public class CustomTrustedListPropertyMapperTest {
         CustomTrustedListPropertyMapper customTrustedListPropertyMapper = new CustomTrustedListPropertyMapper(domibusPropertyExtService);
         new Expectations(customTrustedListPropertyMapper) {{
 
-            domibusPropertyExtService.getNestedProperties(CUSTOM_TRUSTED_LIST_URL_PROPERTY);
+            domibusPropertyExtService.getNestedProperties(CUSTOM_TRUSTED_LISTS_PREFIX);
             result = customListSuffixes;
 
-            domibusPropertyExtService.getNestedProperties(CUSTOM_TRUSTED_LIST_URL_PROPERTY + "."+list1);
+            domibusPropertyExtService.getNestedProperties(CUSTOM_TRUSTED_LISTS_PREFIX + "."+list1);
             result = customTrustedListProperties;
 
-            domibusPropertyExtService.getNestedProperties(CUSTOM_TRUSTED_LIST_URL_PROPERTY + "."+list2);
+            domibusPropertyExtService.getNestedProperties(CUSTOM_TRUSTED_LISTS_PREFIX + "."+list2);
             result = customTrustedListProperties;
 
             domibusPropertyExtService.getProperty(DSS_CUSTOM_TRUSTED_LIST_KEYSTORE_TYPE);
