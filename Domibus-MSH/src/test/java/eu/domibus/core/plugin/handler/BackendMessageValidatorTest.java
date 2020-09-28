@@ -26,7 +26,6 @@ import org.xml.sax.helpers.DefaultHandler;
  * @author Arun Raj
  * @since 3.3
  */
-
 @RunWith(JMockit.class)
 public class BackendMessageValidatorTest {
     private static final String MESSAGE_ID_PATTERN = "^[\\x20-\\x7E]*$";
