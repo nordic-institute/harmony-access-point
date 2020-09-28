@@ -321,9 +321,8 @@ public class DssConfiguration {
     @Bean
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public CustomTrustedLists otherTrustedLists() {
-        final boolean multiTenant = domibusConfigurationExtService.isMultiTenantAware();
         final List<OtherTrustedList> otherTrustedLists = new CustomTrustedListPropertyMapper(domibusPropertyExtService).map();
-        CustomTrustedLists customTrustedLists = checkMultiTenancy(multiTenant, otherTrustedLists);
+        CustomTrustedLists customTrustedLists = checkMultiTenancy(otherTrustedLists);
         if (customTrustedLists != null) return customTrustedLists;
         for (OtherTrustedList otherTrustedList : otherTrustedLists) {
             LOG.info("Custom trusted list configured with url:[{}], code:[{}]", otherTrustedList.getUrl(), otherTrustedList.getCountryCode());
@@ -335,7 +334,8 @@ public class DssConfiguration {
     }
 
 
-    private CustomTrustedLists checkMultiTenancy(boolean multiTenant, List<OtherTrustedList> otherTrustedLists) {
+    private CustomTrustedLists checkMultiTenancy(List<OtherTrustedList> otherTrustedLists) {
+        final boolean multiTenant = domibusConfigurationExtService.isMultiTenantAware();
         if (multiTenant && !otherTrustedLists.isEmpty()) {
             if (enableDssCustomTrustedListForMultiTenant) {
                 LOG.warn("Configured custom trusted lists are shared by all tenants.");
