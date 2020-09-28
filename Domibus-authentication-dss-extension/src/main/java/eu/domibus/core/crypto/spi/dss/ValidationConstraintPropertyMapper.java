@@ -6,6 +6,9 @@ import eu.europa.esig.dss.validation.process.MessageTag;
 import java.util.List;
 import java.util.Map;
 
+import static eu.domibus.core.crypto.spi.dss.DssExtensionPropertyManager.DOMIBUS_DSS_DEFAULT_CONSTRAINT_NAME;
+
+
 /**
  * @author Thomas Dussart
  * @see ConstraintInternal
@@ -20,8 +23,6 @@ import java.util.Map;
  * Load multiple ConstraintInternal objects based on properties with the following format:
  */
 public class ValidationConstraintPropertyMapper extends PropertyGroupMapper<ConstraintInternal> {
-
-    private static final String DOMIBUS_DSS_DEFAULT_CONSTRAINT_NAME = "domibus.authentication.dss.constraint";
 
     private static final String NAME = "name";
 

@@ -2,6 +2,7 @@ package eu.domibus.core.crypto.spi.dss;
 
 import eu.domibus.ext.services.DomibusConfigurationExtService;
 import eu.domibus.ext.services.DomibusPropertyExtService;
+import eu.europa.esig.dss.validation.CertificateVerifier;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Ignore;
@@ -33,6 +34,9 @@ public class DssConfigurationTest {
 
     @Injectable
     private ObjectProvider<CustomTrustedLists> otherTrustedListObjectProvider;
+
+    @Injectable
+    protected ObjectProvider<CertificateVerifier> certificateVerifierObjectProvider;
 
     @Tested
     private DssConfiguration dssConfiguration;

@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * @author Thomas Dussart
@@ -34,30 +35,25 @@ public abstract class PropertyGroupMapper<E> {
         this.domibusPropertyExtService = domibusPropertyExtService;
     }
 
-    protected List<E> map(String... propertyNames) {
+    protected List<E> map(String propertyName) {
         List<E> elements = new ArrayList<>();
-        for (int count = 1; count < 100; count++) {
+        List<String> mainPropertiesSuffixes
+                = domibusPropertyExtService.getNestedProperties(propertyName);
+        List<String> mainProperties = mainPropertiesSuffixes.stream().map(nestedMainProperty -> propertyName + "." + nestedMainProperty).collect(Collectors.toList());
+        for (String mainProperty : mainProperties) {
             Map<String, String> keyValues = new HashMap<>();
-            for (String propertyName : propertyNames) {
-                final String format = propertyName + "%s";
-                final String propertyKey = String.format(format, count);
-                boolean keyExist = domibusPropertyExtService.containsPropertyKey(propertyKey);
-                if (!keyExist) {
-                    break;
+            List<String> nestedPropertiesSuffixes
+                    = domibusPropertyExtService.getNestedProperties(mainProperty);
+            for (String nestedPropertySuffix : nestedPropertiesSuffixes) {
+                String nestedPropertyName = mainProperty + "." + nestedPropertySuffix;
+                String propertyValue = domibusPropertyExtService.getProperty(nestedPropertyName);
+                if (!passwordPattern.matcher(nestedPropertyName).matches()) {
+                    LOG.debug("Property:[{}] has following value:[{}]", nestedPropertyName, propertyValue);
                 }
-                List<String> nestedPropertiesSuffixes
-                        = domibusPropertyExtService.getNestedProperties(propertyKey);
-                for (String nestedPropertySuffix : nestedPropertiesSuffixes) {
-                    String nestedPropertyName = propertyKey + "." + nestedPropertySuffix;
-                    String propertyValue = domibusPropertyExtService.getProperty(nestedPropertyName);
-                    if (!passwordPattern.matcher(nestedPropertyName).matches()) {
-                        LOG.debug("Property:[{}] has following value:[{}]", propertyKey, propertyValue);
-                    }
-                    keyValues.put(nestedPropertySuffix, propertyValue);
-                }
+                keyValues.put(nestedPropertySuffix, propertyValue);
             }
             boolean emptyValue = keyValues.entrySet().stream().anyMatch(entry -> StringUtils.isEmpty(entry.getValue()));
-            if (emptyValue || keyValues.size()==0) {
+            if (emptyValue || keyValues.size() == 0) {
                 continue;
             }
             final E transform = transform(keyValues);

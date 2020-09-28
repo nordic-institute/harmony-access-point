@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static eu.domibus.core.crypto.spi.dss.DssExtensionPropertyManager.*;
+
 /**
  * @author Thomas Dussart
  * @since 4.1
@@ -25,49 +27,49 @@ public class CustomTrustedListPropertyMapperTest {
     @Test
     public void map(
             @Mocked DomibusPropertyExtService domibusPropertyExtService, @Mocked KeyStoreCertificateSource keyStoreCertificateSource) throws IOException {
+        String list1 = "list1";
+        String list2 = "list2";
+        List<String> customListSuffixes = new ArrayList<>(Arrays.asList(list1, list2));
         List<String> customTrustedListProperties = new ArrayList<>(Arrays.asList("url", "code"));
         String keystorePath = "C:\\pki\\test.jks";
         String keystoreType = "JKS";
         String keystorePasswd = "localdemo";
-        String customList1Url = "https://s3.eu-central-1.amazonaws.com/custom-trustlist/trusted-list.xml";
+        String customList1Url = "firstUrl";
         String customList1Code = "CX";
-        String customList2Url = "https://s5.eu-central-1.amazonaws.com/custom-trustlist/trusted-list.xml";
+        String customList2Url = "secondUrl";
         String customList2Code = "CUST";
         CustomTrustedListPropertyMapper customTrustedListPropertyMapper = new CustomTrustedListPropertyMapper(domibusPropertyExtService);
         new Expectations(customTrustedListPropertyMapper) {{
 
-            domibusPropertyExtService.containsPropertyKey("domibus.authentication.dss.custom.trusted.list1");
-            result = true;
+            domibusPropertyExtService.getNestedProperties(CUSTOM_TRUSTED_LIST_URL_PROPERTY);
+            result = customListSuffixes;
 
-            domibusPropertyExtService.containsPropertyKey("domibus.authentication.dss.custom.trusted.list2");
-            result = true;
-
-            domibusPropertyExtService.getNestedProperties("domibus.authentication.dss.custom.trusted.list1");
+            domibusPropertyExtService.getNestedProperties(CUSTOM_TRUSTED_LIST_URL_PROPERTY + "."+list1);
             result = customTrustedListProperties;
 
-            domibusPropertyExtService.getNestedProperties("domibus.authentication.dss.custom.trusted.list2");
+            domibusPropertyExtService.getNestedProperties(CUSTOM_TRUSTED_LIST_URL_PROPERTY + "."+list2);
             result = customTrustedListProperties;
 
-            domibusPropertyExtService.getProperty("domibus.authentication.dss.custom.trusted.list.keystore.type");
+            domibusPropertyExtService.getProperty(DSS_CUSTOM_TRUSTED_LIST_KEYSTORE_TYPE);
             result = keystoreType;
 
-            domibusPropertyExtService.getProperty("domibus.authentication.dss.custom.trusted.list.keystore.path");
+            domibusPropertyExtService.getProperty(DSS_CUSTOM_TRUSTED_LIST_KEYSTORE_PATH);
 
             this.result = keystorePath;
 
-            domibusPropertyExtService.getProperty("domibus.authentication.dss.custom.trusted.list.keystore.password");
+            domibusPropertyExtService.getProperty(DSS_CUSTOM_TRUSTED_LIST_KEYSTORE_PASSWORD);
             this.result = keystorePasswd;
 
-            domibusPropertyExtService.getProperty("domibus.authentication.dss.custom.trusted.list1.url");
+            domibusPropertyExtService.getProperty(DSS_CUSTOM_TRUSTED_LIST_1_URL);
             this.result = customList1Url;
 
-            domibusPropertyExtService.getProperty("domibus.authentication.dss.custom.trusted.list1.code");
+            domibusPropertyExtService.getProperty(DSS_CUSTOM_TRUSTED_LIST_1_CODE);
             this.result = customList1Code;
 
-            domibusPropertyExtService.getProperty("domibus.authentication.dss.custom.trusted.list2.url");
+            domibusPropertyExtService.getProperty(DSS_CUSTOM_TRUSTED_LIST_2_URL);
             this.result = customList2Url;
 
-            domibusPropertyExtService.getProperty("domibus.authentication.dss.custom.trusted.list2.code");
+            domibusPropertyExtService.getProperty(DSS_CUSTOM_TRUSTED_LIST_2_CODE);
             this.result = customList2Code;
 
             customTrustedListPropertyMapper.initKeyStoreCertificateSource(keystorePath, keystoreType, keystorePasswd);

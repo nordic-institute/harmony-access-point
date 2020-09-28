@@ -10,7 +10,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+
 public class DssExtensionPropertyManager extends DomibusPropertyExtServiceDelegateAbstract implements DomibusPropertyManagerExt {
+
+    public static final String CUSTOM_TRUSTED_LIST_URL_PROPERTY = "domibus.authentication.dss.custom.trusted.lists";
+    public static final String DOMIBUS_DSS_DEFAULT_CONSTRAINT_NAME = "domibus.authentication.dss.constraints";
 
     public static final String AUTHENTICATION_DSS_CURRENT_OFFICIAL_JOURNAL_URL="domibus.authentication.dss.current.official.journal.url";
     public static final String AUTHENTICATION_DSS_CURRENT_LOTL_URL="domibus.authentication.dss.current.lotl.url";
@@ -33,12 +37,17 @@ public class DssExtensionPropertyManager extends DomibusPropertyExtServiceDelega
     public static final String DSS_CUSTOM_TRUSTED_LIST_KEYSTORE_PATH = "domibus.authentication.dss.custom.trusted.list.keystore.path";
     public static final String DSS_CUSTOM_TRUSTED_LIST_KEYSTORE_TYPE = "domibus.authentication.dss.custom.trusted.list.keystore.type";
     public static final String DSS_CUSTOM_TRUSTED_LIST_KEYSTORE_PASSWORD = "domibus.authentication.dss.custom.trusted.list.keystore.password";
-    public static final String DSS_CUSTOM_TRUSTED_LIST_1_URL = "domibus.authentication.dss.custom.trusted.list1.url";
-    public static final String DSS_CUSTOM_TRUSTED_LIST_1_CODE = "domibus.authentication.dss.custom.trusted.list1.code";
-    public static final String DSS_CUSTOM_TRUSTED_LIST_2_URL = "domibus.authentication.dss.custom.trusted.list2.url";
-    public static final String DSS_CUSTOM_TRUSTED_LIST_2_CODE = "domibus.authentication.dss.custom.trusted.list2.code";
-    public static final String DSS_CUSTOM_TRUSTED_LIST_3_URL = "domibus.authentication.dss.custom.trusted.list3.url";
-    public static final String DSS_CUSTOM_TRUSTED_LIST_3_CODE = "domibus.authentication.dss.custom.trusted.list3.code";
+    public static final String DSS_CUSTOM_TRUSTED_LIST_1_URL = CUSTOM_TRUSTED_LIST_URL_PROPERTY+".list1.url";
+    public static final String DSS_CUSTOM_TRUSTED_LIST_1_CODE = CUSTOM_TRUSTED_LIST_URL_PROPERTY+".list1.code";
+    public static final String DSS_CUSTOM_TRUSTED_LIST_2_URL = CUSTOM_TRUSTED_LIST_URL_PROPERTY+".list2.url";
+    public static final String DSS_CUSTOM_TRUSTED_LIST_2_CODE = CUSTOM_TRUSTED_LIST_URL_PROPERTY+".list2.code";
+    public static final String DSS_CUSTOM_TRUSTED_LIST_3_URL = CUSTOM_TRUSTED_LIST_URL_PROPERTY+".list3.url";
+    public static final String DSS_CUSTOM_TRUSTED_LIST_3_CODE = CUSTOM_TRUSTED_LIST_URL_PROPERTY+".list3.code";
+
+    public static final String DSS_CONSTRAINTS_CONSTRAINT1_NAME=DOMIBUS_DSS_DEFAULT_CONSTRAINT_NAME+".constraint1.name";
+    public static final String DSS_CONSTRAINTS_CONSTRAINT2_NAME=DOMIBUS_DSS_DEFAULT_CONSTRAINT_NAME+".constraint2.name";
+    public static final String DSS_CONSTRAINTS_CONSTRAINT1_STATUS=DOMIBUS_DSS_DEFAULT_CONSTRAINT_NAME+".constraint1.status";
+    public static final String DSS_CONSTRAINTS_CONSTRAINT2_STATUS=DOMIBUS_DSS_DEFAULT_CONSTRAINT_NAME+".constraint2.status";
 
     private Map<String, DomibusPropertyMetadataDTO> knownProperties;
 
@@ -70,7 +79,11 @@ public class DssExtensionPropertyManager extends DomibusPropertyExtServiceDelega
                 new DomibusPropertyMetadataDTO(DSS_CUSTOM_TRUSTED_LIST_2_URL, DomibusPropertyMetadataDTO.Type.URI, Module.DSS, DomibusPropertyMetadataDTO.Usage.GLOBAL),
                 new DomibusPropertyMetadataDTO(DSS_CUSTOM_TRUSTED_LIST_2_CODE, DomibusPropertyMetadataDTO.Type.STRING, Module.DSS, DomibusPropertyMetadataDTO.Usage.GLOBAL),
                 new DomibusPropertyMetadataDTO(DSS_CUSTOM_TRUSTED_LIST_3_URL, DomibusPropertyMetadataDTO.Type.URI, Module.DSS, DomibusPropertyMetadataDTO.Usage.GLOBAL),
-                new DomibusPropertyMetadataDTO(DSS_CUSTOM_TRUSTED_LIST_3_CODE, DomibusPropertyMetadataDTO.Type.STRING, Module.DSS, DomibusPropertyMetadataDTO.Usage.GLOBAL)
+                new DomibusPropertyMetadataDTO(DSS_CUSTOM_TRUSTED_LIST_3_CODE, DomibusPropertyMetadataDTO.Type.STRING, Module.DSS, DomibusPropertyMetadataDTO.Usage.GLOBAL),
+                new DomibusPropertyMetadataDTO(DSS_CONSTRAINTS_CONSTRAINT1_NAME, DomibusPropertyMetadataDTO.Type.STRING, Module.DSS, DomibusPropertyMetadataDTO.Usage.GLOBAL),
+                new DomibusPropertyMetadataDTO(DSS_CONSTRAINTS_CONSTRAINT2_NAME, DomibusPropertyMetadataDTO.Type.STRING, Module.DSS, DomibusPropertyMetadataDTO.Usage.GLOBAL),
+        new DomibusPropertyMetadataDTO(DSS_CONSTRAINTS_CONSTRAINT1_STATUS, DomibusPropertyMetadataDTO.Type.STRING, Module.DSS, DomibusPropertyMetadataDTO.Usage.GLOBAL),
+                new DomibusPropertyMetadataDTO(DSS_CONSTRAINTS_CONSTRAINT2_STATUS, DomibusPropertyMetadataDTO.Type.STRING, Module.DSS, DomibusPropertyMetadataDTO.Usage.GLOBAL)
         );
         knownProperties = allProperties.stream().collect(Collectors.toMap(DomibusPropertyMetadataDTO::getName, domibusPropertyMetadataDTO -> domibusPropertyMetadataDTO));
     }

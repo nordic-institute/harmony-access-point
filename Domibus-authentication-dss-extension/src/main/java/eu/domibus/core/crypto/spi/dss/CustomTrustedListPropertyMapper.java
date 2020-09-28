@@ -12,6 +12,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import static eu.domibus.core.crypto.spi.dss.DssExtensionPropertyManager.*;
+
 /**
  * @author Thomas Dussart
  * @see eu.europa.esig.dss.tsl.OtherTrustedList
@@ -36,17 +38,9 @@ public class CustomTrustedListPropertyMapper extends PropertyGroupMapper<OtherTr
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CustomTrustedListPropertyMapper.class);
 
-    private static final String CUSTOM_TRUSTED_LIST_URL_PROPERTY = "domibus.authentication.dss.custom.trusted.list";
-
     private static final String URL = "url";
 
     private static final String CODE = "code";
-
-    private static final String CUSTOM_TRUSTED_LIST_KEYSTORE_TYPE_PROPERTY = "domibus.authentication.dss.custom.trusted.list.keystore.type";
-
-    private static final String CUSTOM_TRUSTED_LIST_KEYSTORE_PATH_PROPERTY = "domibus.authentication.dss.custom.trusted.list.keystore.path";
-
-    private static final String CUSTOM_TRUSTED_LIST_KEYSTORE_PASSWORD_PROPERTY = "domibus.authentication.dss.custom.trusted.list.keystore.password";
 
     public CustomTrustedListPropertyMapper(final DomibusPropertyExtService domibusPropertyExtService) {
         super(domibusPropertyExtService);
@@ -61,9 +55,9 @@ public class CustomTrustedListPropertyMapper extends PropertyGroupMapper<OtherTr
     @Override
     OtherTrustedList transform(Map<String, String> keyValues) {
         OtherTrustedList otherTrustedList = new OtherTrustedList();
-        String customListKeystorePath = domibusPropertyExtService.getProperty(CUSTOM_TRUSTED_LIST_KEYSTORE_PATH_PROPERTY);
-        String customListKeystoreType = domibusPropertyExtService.getProperty(CUSTOM_TRUSTED_LIST_KEYSTORE_TYPE_PROPERTY);
-        String customListKeystorePassword = domibusPropertyExtService.getProperty(CUSTOM_TRUSTED_LIST_KEYSTORE_PASSWORD_PROPERTY);
+        String customListKeystorePath = domibusPropertyExtService.getProperty(DSS_CUSTOM_TRUSTED_LIST_KEYSTORE_PATH);
+        String customListKeystoreType = domibusPropertyExtService.getProperty(DSS_CUSTOM_TRUSTED_LIST_KEYSTORE_TYPE);
+        String customListKeystorePassword = domibusPropertyExtService.getProperty(DSS_CUSTOM_TRUSTED_LIST_KEYSTORE_PASSWORD);
         String customListUrl = keyValues.get(URL);
         String customListCountryCode = keyValues.get(CODE);
         try {
@@ -77,7 +71,6 @@ public class CustomTrustedListPropertyMapper extends PropertyGroupMapper<OtherTr
             return null;
         }
     }
-
 
     protected KeyStoreCertificateSource initKeyStoreCertificateSource(String customListKeystorePath,String customListKeystoreType,String customListKeystorePassword) throws IOException {
         return new KeyStoreCertificateSource(new File(customListKeystorePath), customListKeystoreType, customListKeystorePassword);
