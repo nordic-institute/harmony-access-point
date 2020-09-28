@@ -46,6 +46,7 @@ export class AuthenticatedAuthorizedGuard implements CanActivate {
   }
 
   private getNotAuthorizedRoute(): UrlTree {
+    // needs to be a route without authorization guard, otherwise it will loop forever
     return this.router.parseUrl('/notAuthorized');
   }
 
