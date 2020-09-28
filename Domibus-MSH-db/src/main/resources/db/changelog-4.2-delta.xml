@@ -1264,12 +1264,12 @@
             <column name="CERTIFICATE_TYPE" type="VARCHAR(255)" />
         </createTable>
 
-        <createIndex indexName="FK_CERTIFICATE_AUD" tableName="TB_CERTIFICATE_AUD">
+        <createIndex indexName="IDX_FK_CERTIFICATE_AUD_REV" tableName="TB_CERTIFICATE_AUD">
             <column name="REV"/>
         </createIndex>
 
         <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_CERTIFICATE_AUD"
-                                 constraintName="FK_CERTIFICATE_AUD" deferrable="false"
+                                 constraintName="FK_CERTIFICATE_AUD_REV" deferrable="false"
                                  initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID" referencedTableName="TB_REV_INFO"/>
 
