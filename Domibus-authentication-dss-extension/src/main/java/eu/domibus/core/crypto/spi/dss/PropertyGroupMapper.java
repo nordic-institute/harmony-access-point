@@ -16,8 +16,7 @@ import java.util.stream.Collectors;
  * @author Thomas Dussart
  * @since 4.1
  * <p>
- * This class has a similar behavior than @ConfigurationProperties annotation and allows
- * to parse list of properties in the format domibus.example.name[0],domibus.example.name[1].
+ * This class use the nested properties mechanism of Domibus to extract dynamic properties.
  * <p>
  * Subclasses implement a transform method to create the model needed <E> and the map method will then return a List<E>.
  */
