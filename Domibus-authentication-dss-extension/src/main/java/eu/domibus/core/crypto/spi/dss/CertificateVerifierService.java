@@ -21,8 +21,6 @@ public class CertificateVerifierService {
         this.certificateVerifierObjectProvider=certificateVerifierObjectProvider;
     }
 
-
-
     public CertificateVerifier getCertificateVerifier() {
         return certificateVerifierObjectProvider.getObject();
     }
