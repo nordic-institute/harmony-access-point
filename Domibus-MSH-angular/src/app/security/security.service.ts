@@ -49,7 +49,7 @@ export class SecurityService {
       const user = await this.http.post<User>('rest/security/authentication', {username: username, password: password}).toPromise();
       if (!user) {
         console.log('Login returned a null user!');
-        throw new Error('Login returned a null user!');
+        throw new Error('An error occurred while logging in.');
       }
       this.updateCurrentUser(user);
       this.domainService.setAppTitle();
@@ -166,7 +166,8 @@ export class SecurityService {
           resolve(false);
         });
       } catch (ex) {
-        this.alertService.exception('Error while checking authentication:', ex);
+        console.log('Error while calling isUserConnected: ' + ex);
+        this.alertService.error('An error occurred while checking authentication:');
         resolve(false);
       }
     });
