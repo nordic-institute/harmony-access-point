@@ -7,7 +7,7 @@
         <div class="panel">
           <form name="filterForm" #filterForm="ngForm" (submit)="tryFilter()">
             <mat-select placeholder="User role" [(ngModel)]="filter.authRole" id="role_id" name="roleId">
-              <mat-option [value]="''"></mat-option>
+              <mat-option [value]=""></mat-option>
               <mat-option *ngFor="let t of userRoles" [value]="t">
                 {{t}}
               </mat-option>
