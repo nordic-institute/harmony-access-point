@@ -48,7 +48,7 @@ public class AlertResource extends BaseResource {
     private DomibusConfigurationService domibusConfigurationService;
 
     static List<AlertType> forbiddenAlertTypesExtAuthProvider = Lists.newArrayList(AlertType.PASSWORD_EXPIRED, AlertType.PASSWORD_IMMINENT_EXPIRATION,
-    AlertType.USER_ACCOUNT_DISABLED, AlertType.USER_ACCOUNT_ENABLED, AlertType.USER_LOGIN_FAILURE);
+            AlertType.USER_ACCOUNT_DISABLED, AlertType.USER_ACCOUNT_ENABLED, AlertType.USER_LOGIN_FAILURE);
 
     public AlertResource(AlertService alertService, DateUtil dateUtil, AuthUtils authUtils, DomainTaskExecutor domainTaskExecutor, DomibusConfigurationService domibusConfigurationService) {
         this.alertService = alertService;
@@ -139,11 +139,11 @@ public class AlertResource extends BaseResource {
 
     protected List<Alert> filterSuperAlerts(@RequestBody List<AlertRo> alertRos) {
         return alertRos.stream()
-                    .filter(Objects::nonNull)
-                    .filter(AlertRo::isSuperAdmin)
-                    .filter(alertRo -> !alertRo.isDeleted())
-                    .map(this::toAlert)
-                    .collect(Collectors.toList());
+                .filter(Objects::nonNull)
+                .filter(AlertRo::isSuperAdmin)
+                .filter(alertRo -> !alertRo.isDeleted())
+                .map(this::toAlert)
+                .collect(Collectors.toList());
     }
 
     protected List<Alert> filterDeletedDomainAlerts(@RequestBody List<AlertRo> alertRos) {
@@ -298,9 +298,14 @@ public class AlertResource extends BaseResource {
                 map(paramName -> alert.getEvents().iterator().next().findOptionalProperty(paramName)).
                 filter(Optional::isPresent).
                 map(Optional::get).
+                map(this::manageMaxLength).
                 collect(Collectors.toList());
         alertRo.setParameters(alertParameterValues);
         return alertRo;
+    }
+
+    private String manageMaxLength(String param) {
+        return StringUtils.abbreviate(param, 254);
     }
 
 }
