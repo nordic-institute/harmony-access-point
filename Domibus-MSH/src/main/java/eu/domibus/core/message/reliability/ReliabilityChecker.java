@@ -167,7 +167,7 @@ public class ReliabilityChecker {
                     }
 
                     final List<String> referencesFromSecurityHeader = nonRepudiationChecker.getNonRepudiationDetailsFromSecurityInfoNode(request.getSOAPHeader().getElementsByTagNameNS(WSConstants.SIG_NS, WSConstants.SIG_INFO_LN).item(0));
-                    final Node nonRepudiationDetailsNode = getNonRepudiationDetailsNodeFromReceipt(request, messageId);
+                    final Node nonRepudiationDetailsNode = getNonRepudiationDetailsNodeFromReceipt(response, messageId);
                     final List<String> referencesFromNonRepudiationInformation = nonRepudiationChecker.getNonRepudiationDetailsFromReceipt(nonRepudiationDetailsNode);
 
                     if (!nonRepudiationChecker.compareUnorderedReferenceNodeLists(referencesFromSecurityHeader, referencesFromNonRepudiationInformation)) {
