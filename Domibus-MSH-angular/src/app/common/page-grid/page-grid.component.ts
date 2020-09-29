@@ -31,6 +31,7 @@ export class PageGridComponent implements AfterViewChecked {
   @Input()
   rowClassFn: Function;
 
+  // ugly hack but otherwise the ng-datatable doesn't resize when collapsing the menu
   ngAfterViewChecked() {
     // Check if the table size has changed,
     if (this.table && this.table.recalculate && (this.tableWrapper.nativeElement.clientWidth !== this.currentComponentWidth)) {
@@ -39,8 +40,8 @@ export class PageGridComponent implements AfterViewChecked {
       this.changeDetector.detectChanges();
 
       setTimeout(() => {
-        let evt = document.createEvent('HTMLEvents')
-        evt.initEvent('resize', true, false)
+        let evt = document.createEvent('HTMLEvents');
+        evt.initEvent('resize', true, false);
         window.dispatchEvent(evt)
       }, 100);
     }
