@@ -23,10 +23,7 @@ import org.springframework.core.env.Environment;
 
 import javax.jms.Queue;
 import javax.xml.ws.Endpoint;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Class responsible for the configuration of the plugin, independent of any server
@@ -84,17 +81,20 @@ public class WSPluginConfiguration {
                                              ClearAuthenticationMDCInterceptor clearAuthenticationMDCInterceptor,
                                              WSPluginFaultOutInterceptor wsPluginFaultOutInterceptor,
                                              @Qualifier("wsLoggingFeature") LoggingFeature wsLoggingFeature) {
-        EndpointImpl endpoint = new EndpointImpl(bus, backendWebService);
-        Map<String, Object> endpointProperties = getEndpointProperties(wsPluginPropertyManager);
-        endpoint.setProperties(endpointProperties);
-        endpoint.setSchemaLocations(getSchemaLocations());
-        endpoint.setInInterceptors(Arrays.asList(customAuthenticationInterceptor));
-        endpoint.setOutInterceptors(Arrays.asList(clearAuthenticationMDCInterceptor));
-        endpoint.setOutFaultInterceptors(Arrays.asList(wsPluginFaultOutInterceptor, clearAuthenticationMDCInterceptor));
-        endpoint.setFeatures(Arrays.asList(wsLoggingFeature));
+        try (EndpointImpl endpoint = new EndpointImpl(bus, backendWebService)) {
+            Map<String, Object> endpointProperties = getEndpointProperties(wsPluginPropertyManager);
+            endpoint.setProperties(endpointProperties);
+            endpoint.setSchemaLocations(getSchemaLocations());
+            endpoint.setInInterceptors(Collections.singletonList(customAuthenticationInterceptor));
+            endpoint.setOutInterceptors(Collections.singletonList(clearAuthenticationMDCInterceptor));
+            endpoint.setOutFaultInterceptors(Arrays.asList(wsPluginFaultOutInterceptor, clearAuthenticationMDCInterceptor));
+            endpoint.setFeatures(Collections.singletonList(wsLoggingFeature));
 
-        endpoint.publish("/backend");
-        return endpoint;
+            endpoint.publish("/backend");
+            return endpoint;
+        } catch (Exception e) {
+            throw new IllegalArgumentException("EndpointImpl could not be created with Bus [" + Bus.DEFAULT_BUS_ID + "]", e);
+        }
     }
 
     @Bean("wsLoggingFeature")

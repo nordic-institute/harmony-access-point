@@ -2,8 +2,11 @@ package eu.domibus.core.metrics;
 
 import com.codahale.metrics.Metric;
 import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.servlets.AdminServlet;
 import com.codahale.metrics.servlets.MetricsServlet;
 import com.fasterxml.jackson.databind.util.JSONPObject;
+import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +21,11 @@ import java.io.OutputStream;
 import java.util.Map;
 
 /**
+ * SuppressWarnings:
+ * Following the pattern of {@link AdminServlet}, the sonar issue S2226 should be ignore here.
+ *
  * @author Catalin Enache
+ * @see <a href="https://jira.sonarsource.com/browse/RSPEC-2226">RSPEC-2226 Servlets should not have mutable instance fields</a>
  * @since 4.2
  */
 public class DomibusMetricsServlet extends MetricsServlet {
@@ -26,7 +33,8 @@ public class DomibusMetricsServlet extends MetricsServlet {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusMetricsServlet.class);
 
     @Autowired
-    MetricsHelper metricsHelper;
+    @SuppressWarnings("squid:S2226")
+    private transient MetricsHelper metricsHelper;
 
     @Override
     public void init(ServletConfig config) throws ServletException {
@@ -35,8 +43,7 @@ public class DomibusMetricsServlet extends MetricsServlet {
     }
 
     @Override
-    protected void doGet(HttpServletRequest req,
-                         HttpServletResponse resp) throws IOException {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
         boolean showJMSCount = metricsHelper.showJMSCounts();
 
         //create a copy of existing metric registry - for output
@@ -45,8 +52,7 @@ public class DomibusMetricsServlet extends MetricsServlet {
             if (!showJMSCount && entry.getKey().startsWith(MetricsConfiguration.JMS_QUEUES)) {
                 continue;
             }
-            metricRegistry.register(entry.getKey(), entry.getValue());
-            LOG.debug("printing metric name=[{}] value=[{}]", entry.getKey(), entry.getValue());
+            register(metricRegistry, entry);
         }
 
         resp.setContentType("application/json");
@@ -62,6 +68,17 @@ public class DomibusMetricsServlet extends MetricsServlet {
             } else {
                 getWriter(req).writeValue(output, metricRegistry);
             }
+        } catch (IOException e) {
+            LOG.error("Error in write to HttpServletResponse output", e);
+        }
+    }
+
+    protected void register(MetricRegistry metricRegistry, Map.Entry<String, Metric> entry) {
+        try {
+            metricRegistry.register(entry.getKey(), entry.getValue());
+            LOG.debug("printing metric name=[{}] value=[{}]", entry.getKey(), entry.getValue());
+        } catch (IllegalArgumentException e) {
+            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Error in printing metric name=[" + entry.getKey() + "] value=[" + entry.getValue() + "]", e);
         }
     }
 }
