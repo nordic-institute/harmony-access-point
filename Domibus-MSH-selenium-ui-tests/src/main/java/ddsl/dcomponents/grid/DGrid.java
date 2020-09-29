@@ -174,6 +174,7 @@ public class DGrid extends DComponent {
 	}
 	
 	public int scrollToAndSelect(String columnName, String value) throws Exception {
+		waitForRowsToLoad();
 		int index = scrollTo(columnName, value);
 		if (index < 0) {
 			throw new Exception("Cannot select row because it doesn't seem to be in grid");

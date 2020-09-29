@@ -27,7 +27,7 @@ public class TrustoreTest extends SeleniumTest {
 		page.getSidebar().goToPage(PAGES.TRUSTSTORE);
 		
 		log.info("Try to upload random file ");
-		String path = DFileUtils.getAbsolutePath("./src/main/resources/truststore/TestCase_Domibus-4.1.xlsx");
+		String path = DFileUtils.getAbsolutePath("./src/main/resources/truststore/rnd.xlsx");
 		
 		
 		page.uploadFile(path, "test123", soft);

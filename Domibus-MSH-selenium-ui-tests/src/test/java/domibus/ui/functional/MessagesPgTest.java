@@ -496,7 +496,7 @@ public class MessagesPgTest extends SeleniumTest {
 		page.grid().checkCSVvsGridHeaders(completeFilePath, soft);
 		int maxMess = page.grid().getRowsNo();
 		
-		page.grid().checkCSVvsGridInfo(completeFilePath, soft);
+		page.grid().relaxCheckCSVvsGridInfo(completeFilePath, soft, "datetime"); //checkCSVvsGridInfo(completeFilePath, soft);
 		soft.assertAll();
 	}
 	

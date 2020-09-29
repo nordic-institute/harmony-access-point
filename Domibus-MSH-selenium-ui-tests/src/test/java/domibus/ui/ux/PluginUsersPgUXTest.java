@@ -513,11 +513,14 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 		
 		PluginUsersPage page = new PluginUsersPage(driver);
 		page.getSidebar().goToPage(PAGES.PLUGIN_USERS);
+		page.grid().waitForRowsToLoad();
 		
 		List<String> authType = page.filters.getAuthTypeSelect().getOptionsTexts();
 		for (String auth : authType) {
 			// check scenario for both types of plugin users
 			page.filters.getAuthTypeSelect().selectOptionByText(auth);
+			page.grid().waitForRowsToLoad();
+			
 			log.info("checking Cancel button state");
 			soft.assertFalse(page.getCancelBtn().isEnabled(), "Cancel button is disabled on page load");
 			
@@ -532,9 +535,11 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 				log.info("filling form for new cert user for CERTIFICATION auth type :" + certUserName);
 				page.newCertUser(certUserName, DRoles.ADMIN);
 			}
+			
 			page.grid().waitForRowsToLoad();
 			log.info("checking Cancel button state");
 			soft.assertTrue(page.getCancelBtn().isEnabled(), "Cancel button is enabled after new user creation");
+			
 			page.getSaveBtn().click();
 			new Dialog(driver).confirm();
 			
