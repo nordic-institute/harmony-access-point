@@ -1,7 +1,7 @@
 package eu.domibus.core.crypto.spi.dss.listeners;
 
 import com.google.common.collect.Sets;
-import eu.domibus.core.crypto.spi.dss.DssCache;
+import eu.domibus.core.crypto.spi.dss.CertificateVerifierService;
 import eu.domibus.ext.exceptions.DomibusPropertyExtException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -26,10 +26,10 @@ public class CertificateVerifierListener implements PluginPropertyChangeListener
             AUTHENTICATION_DSS_CHECK_REVOCATION_FOR_UNTRUSTED_CHAINS,
             AUTHENTICATION_DSS_EXCEPTION_ON_MISSING_REVOCATION_DATA);
 
-    private final DssCache dssCache;
+    private final CertificateVerifierService certificateVerifierService;
 
-    public CertificateVerifierListener(DssCache dssCache) {
-        this.dssCache = dssCache;
+    public CertificateVerifierListener(CertificateVerifierService certificateVerifierService) {
+        this.certificateVerifierService = certificateVerifierService;
     }
 
     @Override
@@ -39,8 +39,8 @@ public class CertificateVerifierListener implements PluginPropertyChangeListener
 
     @Override
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) throws DomibusPropertyExtException {
-        LOG.debug("Clearing cache due to property change: domain code:[{}], property name:[{}], property value:[{}]",domainCode,propertyName,propertyValue);
-        dssCache.clear();
+        LOG.debug("Clearing cache due to property change: domain code:[{}], property name:[{}], property value:[{}]", domainCode, propertyName, propertyValue);
+        certificateVerifierService.clearCertificateVerifier();
     }
 
 }
