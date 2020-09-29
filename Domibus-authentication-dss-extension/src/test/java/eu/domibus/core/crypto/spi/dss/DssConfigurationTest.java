@@ -100,7 +100,7 @@ public class DssConfigurationTest {
         new Expectations(dssConfiguration){{
             dssConfiguration.getJavaHome();
             result="\\home";
-            dssConfiguration.loadKeystore("\\home\\lib\\security\\cacerts", cacertType, cacertPassword);times=1;
+            dssConfiguration.loadKeystore(anyString, cacertType, cacertPassword);times=1;
             result=keyStore;
         }};
         dssConfiguration.loadCacertTrustStore();
