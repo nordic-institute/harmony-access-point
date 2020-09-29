@@ -1,5 +1,6 @@
 package eu.domibus.core.logging.cxf;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.ext.logging.event.LogEvent;
 import org.apache.cxf.ext.logging.slf4j.Slf4jEventSender;
 import org.slf4j.Logger;
@@ -30,6 +31,10 @@ public class DomibusLoggingEventSender extends Slf4jEventSender  {
 
     @Override
     protected String getLogMessage(LogEvent event) {
+        if (!isCxfLoggingInfoEnabled()) {
+            //TODO check this
+            return StringUtils.EMPTY;
+        }
         if (checkIfStripPayloadPossible()) {
             try {
                 domibusLoggingEventHelper.stripPayload(event);
@@ -45,11 +50,12 @@ public class DomibusLoggingEventSender extends Slf4jEventSender  {
         if (printPayload) {
             return false;
         }
-        boolean isCxfLoggingInfoEnabled = LoggerFactory.getLogger(ORG_APACHE_CXF_CATEGORY).isInfoEnabled();
-        if (isCxfLoggingInfoEnabled) {
-            LOG.debug("[{}] is set to at least INFO level", ORG_APACHE_CXF_CATEGORY);
-        }
+        return isCxfLoggingInfoEnabled();
+    }
 
+    protected boolean isCxfLoggingInfoEnabled() {
+        boolean isCxfLoggingInfoEnabled = LoggerFactory.getLogger(ORG_APACHE_CXF_CATEGORY).isInfoEnabled();
+        LOG.debug("[{}] is {}set to INFO level", ORG_APACHE_CXF_CATEGORY, isCxfLoggingInfoEnabled ? StringUtils.EMPTY : "not ");
         return isCxfLoggingInfoEnabled;
     }
 
