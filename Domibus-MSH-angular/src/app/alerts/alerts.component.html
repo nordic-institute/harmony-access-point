@@ -8,7 +8,7 @@
           <form name="filterForm" #filterForm="ngForm" (submit)="tryFilter()">
             <!-- Processed -->
             <mat-select placeholder="Processed" [(ngModel)]="filter.processed" name="processed" id="processed_id">
-              <mat-option [value]="''"></mat-option>
+              <mat-option [value]=""></mat-option>
               <mat-option *ngFor="let aprocessed of aProcessedValues" [value]="aprocessed">
                 {{aprocessed}}
               </mat-option>
@@ -16,7 +16,7 @@
             <!-- Alert Type (Basic) -->
             <mat-select placeholder="Alert Type" [(ngModel)]="filter.alertType" name="alertType"
                         id="alerttype_id" (selectionChange)="onAlertTypeChanged(filter.alertType)">
-              <mat-option [value]="''"></mat-option>
+              <mat-option [value]=""></mat-option>
               <mat-option *ngFor="let atype of aTypes" [value]="atype">
                 {{atype}}
               </mat-option>
@@ -24,7 +24,7 @@
 
             <mat-select placeholder="Alert Status" [(ngModel)]="filter.alertStatus" name="alertStatus"
                         id="alertstatus_id">
-              <mat-option [value]="''"></mat-option>
+              <mat-option [value]=""></mat-option>
               <mat-option *ngFor="let aStatus of aStatuses" [value]="aStatus">
                 {{aStatus}}
               </mat-option>
@@ -41,7 +41,7 @@
             <!-- Alert Level (Basic) -->
             <mat-select placeholder="Alert Level" [(ngModel)]="filter.alertLevel" name="alertLevel"
                         id="alertlevel_id">
-              <mat-option [value]="''">
+              <mat-option [value]="">
               </mat-option>
               <mat-option *ngFor="let alevel of aLevels" [value]="alevel">
                 {{alevel}}
