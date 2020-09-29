@@ -305,7 +305,8 @@ public class AlertResource extends BaseResource {
     }
 
     private String manageMaxLength(String param) {
-        return param.length() < 255 ? param : param + "...";
+        return StringUtils.abbreviate(param, 254);
+//        return param.length() == 255 ? param + "..." : param;
     }
 
 }
