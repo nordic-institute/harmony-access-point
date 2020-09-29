@@ -39,7 +39,6 @@ public class DomibusLoggingEventSender extends Slf4jEventSender  {
     @Override
     protected String getLogMessage(LogEvent event) {
         if (!isCxfLoggingInfoEnabled()) {
-            //TODO check this
             return StringUtils.EMPTY;
         }
         if (checkIfStripPayloadPossible()) {
@@ -50,6 +49,7 @@ public class DomibusLoggingEventSender extends Slf4jEventSender  {
             }
         }
         if (printMetadata) {
+            LOG.debug("Apache CXF logging metadata will be printed");
             return LogMessageFormatter.format(event);
         }
         return event.getPayload();
@@ -58,10 +58,6 @@ public class DomibusLoggingEventSender extends Slf4jEventSender  {
     protected boolean checkIfStripPayloadPossible() {
         LOG.debug("Printing payload is{}active", printPayload ? " " : " not ");
         return !printPayload;
-//        if (printPayload) {
-//            return false;
-//        }
-//        return isCxfLoggingInfoEnabled();
     }
 
     protected boolean isCxfLoggingInfoEnabled() {

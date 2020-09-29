@@ -7,7 +7,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author Catalin Enache
@@ -41,21 +40,10 @@ public class DomibusLoggingEventSenderTest {
     public void test_checkIfStripPayloadPossible(final @Mocked Logger logger) {
         new Expectations() {{
             Deencapsulation.setField(domibusLoggingEventSender, "printPayload", true);
-            Deencapsulation.setField(domibusLoggingEventSender, "printPayload", false);
 
-            new MockUp<LoggerFactory>() {
-                @Mock
-                public Logger getLogger(String value) {
-                    return logger;
-                }
-            };
-            logger.isInfoEnabled();
-            result = true;
-            result = false;
         }};
 
         //tested method
-        Assert.assertTrue(domibusLoggingEventSender.checkIfStripPayloadPossible());
         Assert.assertFalse(domibusLoggingEventSender.checkIfStripPayloadPossible());
     }
 }
