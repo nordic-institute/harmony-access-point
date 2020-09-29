@@ -108,11 +108,9 @@ public class DssConfiguration {
     @Value("${domibus.dss.ssl.cacert.password}")
     private String cacertPassword;
 
-    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     @Autowired
     private DomibusPropertyExtService domibusPropertyExtService;
 
-    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     @Autowired
     private DomibusConfigurationExtService domibusConfigurationExtService;
 
