@@ -157,6 +157,7 @@ public class PluginUsersPgTest extends SeleniumTest {
 		page.getSidebar().goToPage(PAGES.PLUGIN_USERS);
 		
 		DGrid grid = page.grid();
+		grid.waitForRowsToLoad();
 		log.info("selecting user " + username);
 		grid.scrollToAndSelect("User Name", username);
 		page.getEditBtn().click();

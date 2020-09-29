@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<db:configuration xmlns:db="http://domibus.eu/configuration" party="blue_gw">
+<db:configuration xmlns:db="http://domibus.eu/configuration" party="red_gw">
 
 	<mpcs>
 		<mpc name="defaultMpc"
@@ -21,11 +21,11 @@
 				<partyIdType name="partyTypeUrn" value="urn:oasis:names:tc:ebcore:partyid-type:unregistered"/>
 			</partyIdTypes>
 			<party name="red_gw"
-				   endpoint="http://docker_local_wildfly:8080/domibus/services/msh">
+				   endpoint="http://<red_hostname>:8080/domibus/services/msh">
 				<identifier partyId="domibus-red" partyIdType="partyTypeUrn"/>
 			</party>
 			<party name="blue_gw"
-				   endpoint="http://docker_local_wildfly:8080/domibus/services/msh">
+				   endpoint="http://<blue_hostname>:8080/domibus/services/msh">
 				<identifier partyId="domibus-blue" partyIdType="partyTypeUrn"/>
 			</party>
 		</parties>
@@ -33,8 +33,7 @@
 			<mep name="oneway" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/oneWay"/>
 			<mep name="twoway" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/twoWay"/>
 			<binding name="push" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/push"/>
-			<binding name="pushAndPush"
-					 value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/push-and-push"/>
+			<binding name="pushAndPush" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/push-and-push"/>
 		</meps>
 		<properties>
 			<property name="originalSenderProperty"
@@ -59,7 +58,7 @@
 					 cid="cid:attachment"
 					 required="false"
 					 mimeType="application/octet-stream"/>
-			<payloadProfile name="MessageProfile" maxSize="2147483647">
+			<payloadProfile name="MessageProfile" maxSize="40894464"> <!-- maxSize is currently ignored -->
 				<attachment name="businessContentPayload"/>
 				<attachment name="businessContentAttachment"/>
 			</payloadProfile>
@@ -67,7 +66,7 @@
 		<securities>
 			<security name="eDeliveryAS4Policy"
 					  policy="eDeliveryAS4Policy.xml"
-					  signatureMethod="RSA_SHA256"/>
+					  signatureMethod="RSA_SHA256" />
 		</securities>
 		<errorHandlings>
 			<errorHandling name="demoErrorHandling"
@@ -88,10 +87,20 @@
 			<action name="testAction" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test"/>
 		</actions>
 		<as4>
-			<receptionAwareness name="receptionAwareness" retry="0;0;CONSTANT" duplicateDetection="true"/>
+			<receptionAwareness name="receptionAwareness" retry="12;4;CONSTANT" duplicateDetection="true"/>
 			<reliability name="AS4Reliability" nonRepudiation="true" replyPattern="response"/>
 		</as4>
+		<splittingConfigurations>
+			<splitting name="default"
+					   fragmentSize="500"
+					   compression="true"
+					   joinInterval="1440"/>
+		</splittingConfigurations>
 		<legConfigurations>
+			<!--
+			Please add the attribute "splitting"(pointing to a splitting configuration)
+			to a specific leg in case you want to activate splitAndJoin feature
+			-->
 			<legConfiguration name="pushTestcase1tc1Action"
 							  service="testService1"
 							  action="tc1Action"

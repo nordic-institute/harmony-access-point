@@ -191,7 +191,7 @@ public class AuditPgUXTest extends SeleniumTest {
 			
 			String sortCol = grid.getSortedColumnName();
 			log.info("checking sorting");
-			soft.assertEquals(sortCol, "Changed", "After sorting page is sorted by " + sortCol);
+			soft.assertEquals(sortCol, null, "After sorting, grid still has no sorted column");
 		}
 		
 		soft.assertAll();

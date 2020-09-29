@@ -322,7 +322,7 @@ public class MessagesPgUXTest extends SeleniumTest {
 	}
 	
 	/* verify the two headers, Message Fragments and Source Message are NOT present in csv if not available as grid column */
-	@Test(description = "MSG-25", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "MSG-26", groups = {"multiTenancy", "singleTenancy"})
 	public void verifySplitAndJoinSpecificHeaders() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
