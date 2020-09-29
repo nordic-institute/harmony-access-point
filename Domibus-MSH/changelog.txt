@@ -6,6 +6,8 @@ Domibus 4.2
     - eu.domibus.ext.services.DomibusPropertyManagerExt.getKnownPropertyValue(java.lang.String, java.lang.String)
     - eu.domibus.ext.services.DomibusPropertyManagerExt.setKnownPropertyValue(java.lang.String, java.lang.String, java.lang.String)
     - eu.domibus.ext.services.PModeExtService.updatePModeFile(byte[], java.lang.String)
+- Use Domibus nested property mechanism for DSS dynamic properties for constraints and custom trusted list
+- Possibility to change some DSS extension properties at runtime
 - Possibility to define a higher priority for specific messages to be sent
 - New isAlive RestService in DomibusCore to add to E2E Monitoring
 - Possibility to monitor the connection state between C2 and C3
