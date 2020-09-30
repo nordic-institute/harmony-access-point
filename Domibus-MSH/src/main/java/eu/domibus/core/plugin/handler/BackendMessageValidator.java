@@ -236,4 +236,21 @@ public class BackendMessageValidator {
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "AgreementRef Pmode is too long (over 255 characters)", agreementRef.getPmode(), null);
         }
     }
+
+    /**
+     * The field - UserMessage/CollaborationInfo/ConversationId is expected to satisfy all the validations of the - eb:UserMessage/eb:CollaborationInfo/eb:ConversationId field defined in eDelivery AS4 profile
+     *
+     * @param conversationId
+     * @throws EbMS3Exception
+     */
+    public void validateConversationId(String conversationId) throws EbMS3Exception {
+        //conversationId is an optional element
+        if (StringUtils.isBlank(conversationId)) {
+            LOG.debug("Optional field ConversationId is null or empty");
+            return;
+        }
+        if (isStringLengthGreaterThan(conversationId, 255)) {
+            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "ConversationId is too long (over 255 characters)", conversationId, null);
+        }
+    }
 }
