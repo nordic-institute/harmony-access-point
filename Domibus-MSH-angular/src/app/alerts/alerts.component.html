@@ -54,7 +54,7 @@
                             [max]="creationFromMaxDate"
                             (change)='onTimestampCreationFromChange($event)'
                             [type]="'datetime'"
-                            #timestampControl="ngModel" id="creationfrom_id">
+                            id="creationfrom_id">
             </md2-datepicker>
             <!-- Creation To (Basic) -->
             <md2-datepicker placeholder="Creation To:" appClearInvalid
@@ -64,7 +64,7 @@
                             [max]="creationToMaxDate"
                             (change)='onTimestampCreationToChange($event)'
                             [type]="'datetime'"
-                            #timestampControl="ngModel" id="creationto_id">
+                            id="creationto_id">
             </md2-datepicker>
             <ng-container *ngIf="displayDomainCheckBox">
               <mat-checkbox name="showDomainAlerts" [(ngModel)]="filter.domainAlerts" id="showDomainAlerts_id">
@@ -78,7 +78,7 @@
                             [max]="reportingFromMaxDate"
                             (change)='onTimestampReportingFromChange($event)'
                             [type]="'datetime'"
-                            #timestampControl="ngModel" id="reportingfrom_id" *ngIf="advancedSearch"
+                            id="reportingfrom_id" *ngIf="advancedSearch"
                             advanced-filter-behaviour [parent]="this">
             </md2-datepicker>
             <!-- Reporting To -->
@@ -89,7 +89,7 @@
                             [max]="reportingToMaxDate"
                             (change)='onTimestampReportingToChange($event)'
                             [type]="'datetime'"
-                            #timestampControl="ngModel" id="reportingto_id" *ngIf="advancedSearch"
+                            id="reportingto_id" *ngIf="advancedSearch"
                             advanced-filter-behaviour [parent]="this">
             </md2-datepicker>
 
@@ -114,7 +114,7 @@
                                   [max]="dynamicDataFromMaxDate"
                                   (change)='onDynamicDataFromChange($event)'
                                   [type]="'datetime'"
-                                  #timestampControl="ngModel" id={{dateFromName}}_id>
+                                  id={{dateFromName}}_id>
                   </md2-datepicker>
                   <md2-datepicker matInput
                                   placeholder={{dateToName}}
@@ -124,7 +124,7 @@
                                   [max]="dynamicDataToMaxDate"
                                   (change)='onDynamicDataToChange($event)'
                                   [type]="'datetime'"
-                                  #timestampControl="ngModel" id={{dateToName}}_id>
+                                  id={{dateToName}}_id>
                   </md2-datepicker>
                 </span>
                 </mat-card-content>
@@ -147,7 +147,7 @@
         <page-grid [parent]="this" [selectionType]="'multi'"></page-grid>
       </div>
 
-      <ng-template #rowProcessed let-row="row" let-value="value" ngx-datatable-cell-template >
+      <ng-template #rowProcessed let-row="row" let-value="value" ngx-datatable-cell-template>
         <mat-checkbox autofocus id="processed{{rows.indexOf(row)}}_id" [(ngModel)]="row.processed"
                       (click)="setProcessedValue(row)" [disabled]="row.deleted || isLoading">
         </mat-checkbox>

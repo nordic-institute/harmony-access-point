@@ -33,6 +33,10 @@ export class AlertsComponent extends mix(BaseListComponent)
   static readonly ALERTS_LEVELS_URL: string = AlertsComponent.ALERTS_URL + '/levels';
   static readonly ALERTS_PARAMS_URL: string = AlertsComponent.ALERTS_URL + '/params';
 
+  TIME_SUFFIX = '_TIME';
+  DATE_SUFFIX = '_DATE';
+  IMMINENT_SUFFIX = '_IMMINENT';
+
   @ViewChild('rowProcessed', {static: false}) rowProcessed: TemplateRef<any>;
   @ViewChild('rowWithDateFormatTpl', {static: false}) rowWithDateFormatTpl: TemplateRef<any>;
   @ViewChild('rowWithSpaceAfterCommaTpl', {static: false}) rowWithSpaceAfterCommaTpl: TemplateRef<any>;
@@ -211,21 +215,25 @@ export class AlertsComponent extends mix(BaseListComponent)
     this.dynamicFilters = [];
     this.dynamicDatesFilter = [];
     const alertParameters = await this.getAlertParameters(alertType);
-    const TIME_SUFFIX = '_TIME';
-    const DATE_SUFFIX = '_DATE';
+
     let nonDateParameters = alertParameters.filter((value) => {
       console.log('Value:' + value);
-      return (value.search(TIME_SUFFIX) === -1 && value.search(DATE_SUFFIX) === -1)
+      return (value.search(this.TIME_SUFFIX) === -1 && value.search(this.DATE_SUFFIX) === -1)
     });
     this.nonDateParameters.push(...nonDateParameters);
     let dateParameters = alertParameters.filter((value) => {
-      return value.search(TIME_SUFFIX) > 0 || value.search(DATE_SUFFIX) > 1
+      return value.search(this.TIME_SUFFIX) > 0 || value.search(this.DATE_SUFFIX) > 1
     });
     dateParameters.forEach(item => {
       this.dateFromName = item + ' FROM';
       this.dateToName = item + ' TO';
       this.alertTypeWithDate = true;
     });
+    this.dynamicDataToMaxDate = this.isFutureAlert(alertType) ? null : new Date();
+  }
+
+  isFutureAlert(alertType: string): boolean {
+    return alertType.includes(this.IMMINENT_SUFFIX);
   }
 
   onTimestampCreationFromChange(event) {
