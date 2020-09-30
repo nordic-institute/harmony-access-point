@@ -15,6 +15,7 @@ import {ServerPageableListMixin} from '../common/mixins/pageable-list.mixin';
 import {ApplicationContextService} from '../common/application-context.service';
 import {AlertsEntry} from './support/alertsentry';
 import {ComponentName} from '../common/component-name-decorator';
+import {Md2DateChange} from 'angular-md2';
 
 @Component({
   moduleId: module.id,
@@ -54,6 +55,9 @@ export class AlertsComponent extends mix(BaseListComponent)
   timestampReportingFromMaxDate: Date;
   timestampReportingToMinDate: Date;
   timestampReportingToMaxDate: Date;
+  timestampDynamicDataFromMaxDate: any;
+  timestampDynamicDataToMinDate: any;
+  timestampDynamicDataToMaxDate: any;
 
   dateFromName: string;
   dateToName: string;
@@ -87,6 +91,8 @@ export class AlertsComponent extends mix(BaseListComponent)
     this.timestampReportingFromMaxDate = new Date();
     this.timestampReportingToMinDate = null;
     this.timestampReportingToMaxDate = new Date();
+    this.timestampDynamicDataToMinDate = null;
+    this.timestampDynamicDataToMaxDate = new Date();
 
     this.dateFromName = '';
     this.dateToName = '';
@@ -231,6 +237,14 @@ export class AlertsComponent extends mix(BaseListComponent)
 
   onTimestampReportingToChange(event) {
     this.timestampReportingFromMaxDate = event.value;
+  }
+
+  onDynamicDataFromChange($event: Md2DateChange) {
+    this.timestampDynamicDataToMinDate = $event.value;
+  }
+
+  onDynamicDataToChange($event: Md2DateChange) {
+    this.timestampDynamicDataFromMaxDate = $event.value;
   }
 
   setIsDirty() {

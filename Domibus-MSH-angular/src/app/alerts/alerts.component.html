@@ -111,6 +111,8 @@
                                   placeholder={{dateFromName}}
                                   [(ngModel)]="dynamicDatesFilter.from"
                                   name="from"
+                                  [max]="timestampDynamicDataFromMaxDate"
+                                  (change)='onDynamicDataFromChange($event)'
                                   [type]="'datetime'"
                                   #timestampControl="ngModel" id={{dateFromName}}_id>
                   </md2-datepicker>
@@ -118,6 +120,9 @@
                                   placeholder={{dateToName}}
                                   [(ngModel)]="dynamicDatesFilter.to"
                                   name="To"
+                                  [min]="timestampDynamicDataToMinDate"
+                                  [max]="timestampDynamicDataToMaxDate"
+                                  (change)='onDynamicDataToChange($event)'
                                   [type]="'datetime'"
                                   #timestampControl="ngModel" id={{dateToName}}_id>
                   </md2-datepicker>
