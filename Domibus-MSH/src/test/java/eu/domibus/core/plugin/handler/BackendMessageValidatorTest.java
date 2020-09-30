@@ -13,6 +13,7 @@ import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -414,6 +415,29 @@ public class BackendMessageValidatorTest {
         thrown.expectMessage("AgreementRef Value is too long (over 255 characters)");
 
         backendMessageValidatorObj.validateAgreementRef(agreementRef);
+    }
+
+
+    @Test
+    public void validateConversationId_ValueTooLong() throws EbMS3Exception {
+        String conversationId = StringUtils.repeat("01234", 51) + "1";
+
+        thrown.expect(EbMS3Exception.class);
+        thrown.expectMessage("ConversationId is too long (over 255 characters)");
+
+        backendMessageValidatorObj.validateConversationId(conversationId);
+    }
+
+    @Test
+    public void validateConversationId_Value255Long() throws EbMS3Exception {
+        String conversationId = StringUtils.repeat("01234", 51);
+        backendMessageValidatorObj.validateConversationId(conversationId);
+    }
+
+    @Test
+    public void validateConversationId_ValueNull() throws EbMS3Exception {
+        ExpectedException.none();
+        backendMessageValidatorObj.validateConversationId(null);
     }
 }
 
