@@ -103,7 +103,11 @@ public class MSHWebserviceConfiguration {
         DomibusLoggingEventSender result = new DomibusLoggingEventSender();
         Boolean printPayload = domibusPropertyProvider.getBooleanProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_LOGGING_PAYLOAD_PRINT);
         LOG.debug("Print payload activated [{}] ?", printPayload);
+        Boolean printMetadata = domibusPropertyProvider.getBooleanProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_LOGGING_METADATA_PRINT);
+        LOG.debug("Print metadata activated [{}] ?", printMetadata);
+
         result.setPrintPayload(printPayload);
+        result.setPrintMetadata(printMetadata);
         return result;
     }
 

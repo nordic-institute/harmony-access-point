@@ -39,6 +39,13 @@ public interface DomibusPropertyExtService {
      */
     Integer getIntegerProperty(String propertyName);
 
+    /**
+     * Gets the boolean property value with the provided name
+     *
+     * @param propertyName The property name for which the integer value is retrieved
+     * @return The property value as Boolean
+     */
+    Boolean getBooleanProperty(String propertyName);
 
     /**
      * Returns all property names for which the given predicate is true

@@ -12,7 +12,6 @@ import eu.domibus.plugin.webService.impl.WSPluginFaultOutInterceptor;
 import eu.domibus.plugin.webService.impl.WebServicePluginImpl;
 import eu.domibus.plugin.webService.logging.WSPluginLoggingEventSender;
 import eu.domibus.plugin.webService.property.WSPluginPropertyManager;
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.cxf.Bus;
 import org.apache.cxf.ext.logging.LoggingFeature;
 import org.apache.cxf.jaxws.EndpointImpl;
@@ -41,6 +40,7 @@ public class WSPluginConfiguration {
 
     public static final String NOTIFY_BACKEND_QUEUE_JNDI = "jms/domibus.notification.webservice";
     public static final String DOMIBUS_LOGGING_PAYLOAD_PRINT = "domibus.logging.payload.print";
+    public static final String DOMIBUS_LOGGING_METADATA_PRINT = "domibus.logging.metadata.print";
     public static final String DOMIBUS_LOGGING_CXF_LIMIT = "domibus.logging.cxf.limit";
 
 
@@ -68,11 +68,14 @@ public class WSPluginConfiguration {
 
     @Bean("wsPluginLoggingEventSender")
     public WSPluginLoggingEventSender wsPluginLoggingEventSender(DomibusPropertyExtService domibusPropertyExtService) {
-        String payloadPrintString = domibusPropertyExtService.getProperty(DOMIBUS_LOGGING_PAYLOAD_PRINT);
-        LOG.debug("Property [{}] value is [{}]", DOMIBUS_LOGGING_PAYLOAD_PRINT, payloadPrintString);
+        Boolean payloadPrint = domibusPropertyExtService.getBooleanProperty(DOMIBUS_LOGGING_PAYLOAD_PRINT);
+        LOG.debug("Property [{}] value is [{}]", DOMIBUS_LOGGING_PAYLOAD_PRINT, payloadPrint);
+        Boolean metadataPrint = domibusPropertyExtService.getBooleanProperty(DOMIBUS_LOGGING_METADATA_PRINT);
+        LOG.debug("Property [{}] value is [{}]", DOMIBUS_LOGGING_METADATA_PRINT, metadataPrint);
 
         WSPluginLoggingEventSender wsPluginLoggingEventSender = new WSPluginLoggingEventSender();
-        wsPluginLoggingEventSender.setPrintPayload(BooleanUtils.toBoolean(payloadPrintString));
+        wsPluginLoggingEventSender.setPrintPayload(payloadPrint);
+        wsPluginLoggingEventSender.setPrintMetadata(metadataPrint);
         return wsPluginLoggingEventSender;
     }
 

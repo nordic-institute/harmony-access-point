@@ -58,6 +58,11 @@ public class DomibusPropertyServiceDelegate implements DomibusPropertyExtService
     }
 
     @Override
+    public Boolean getBooleanProperty(String propertyName) {
+        return domibusPropertyProvider.getBooleanProperty(propertyName);
+    }
+
+    @Override
     public Set<String> filterPropertiesName(Predicate<String> predicate) {
         return domibusPropertyProvider.filterPropertiesName(predicate);
     }
