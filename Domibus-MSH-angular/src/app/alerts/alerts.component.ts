@@ -49,15 +49,17 @@ export class AlertsComponent extends mix(BaseListComponent)
   nonDateParameters: Array<any>;
   alertTypeWithDate: boolean;
 
-  timestampCreationFromMaxDate: Date;
-  timestampCreationToMinDate: Date;
-  timestampCreationToMaxDate: Date;
-  timestampReportingFromMaxDate: Date;
-  timestampReportingToMinDate: Date;
-  timestampReportingToMaxDate: Date;
-  timestampDynamicDataFromMaxDate: any;
-  timestampDynamicDataToMinDate: any;
-  timestampDynamicDataToMaxDate: any;
+  creationFromMaxDate: Date;
+  creationToMinDate: Date;
+  creationToMaxDate: Date;
+
+  reportingFromMaxDate: Date;
+  reportingToMinDate: Date;
+  reportingToMaxDate: Date;
+
+  dynamicDataFromMaxDate: Date;
+  dynamicDataToMinDate: Date;
+  dynamicDataToMaxDate: Date;
 
   dateFromName: string;
   dateToName: string;
@@ -85,14 +87,17 @@ export class AlertsComponent extends mix(BaseListComponent)
     this.nonDateParameters = [];
     this.alertTypeWithDate = false;
 
-    this.timestampCreationFromMaxDate = new Date();
-    this.timestampCreationToMinDate = null;
-    this.timestampCreationToMaxDate = new Date();
-    this.timestampReportingFromMaxDate = new Date();
-    this.timestampReportingToMinDate = null;
-    this.timestampReportingToMaxDate = new Date();
-    this.timestampDynamicDataToMinDate = null;
-    this.timestampDynamicDataToMaxDate = new Date();
+    this.creationFromMaxDate = new Date();
+    this.creationToMinDate = null;
+    this.creationToMaxDate = new Date();
+
+    this.reportingFromMaxDate = new Date();
+    this.reportingToMinDate = null;
+    this.reportingToMaxDate = new Date();
+
+    this.dynamicDataFromMaxDate = new Date();
+    this.dynamicDataToMinDate = null;
+    this.dynamicDataToMaxDate = new Date();
 
     this.dateFromName = '';
     this.dateToName = '';
@@ -224,27 +229,27 @@ export class AlertsComponent extends mix(BaseListComponent)
   }
 
   onTimestampCreationFromChange(event) {
-    this.timestampCreationToMinDate = event.value;
+    this.creationToMinDate = event.value;
   }
 
   onTimestampCreationToChange(event) {
-    this.timestampCreationFromMaxDate = event.value;
+    this.creationFromMaxDate = event.value;
   }
 
   onTimestampReportingFromChange(event) {
-    this.timestampReportingToMinDate = event.value;
+    this.reportingToMinDate = event.value;
   }
 
   onTimestampReportingToChange(event) {
-    this.timestampReportingFromMaxDate = event.value;
+    this.reportingFromMaxDate = event.value;
   }
 
   onDynamicDataFromChange($event: Md2DateChange) {
-    this.timestampDynamicDataToMinDate = $event.value;
+    this.dynamicDataToMinDate = $event.value;
   }
 
   onDynamicDataToChange($event: Md2DateChange) {
-    this.timestampDynamicDataFromMaxDate = $event.value;
+    this.dynamicDataFromMaxDate = $event.value;
   }
 
   setIsDirty() {

@@ -51,7 +51,7 @@
             <md2-datepicker placeholder="Creation From:" appClearInvalid
                             [(ngModel)]="filter.creationFrom"
                             name="creationFrom"
-                            [max]="timestampCreationFromMaxDate"
+                            [max]="creationFromMaxDate"
                             (change)='onTimestampCreationFromChange($event)'
                             [type]="'datetime'"
                             #timestampControl="ngModel" id="creationfrom_id">
@@ -60,8 +60,8 @@
             <md2-datepicker placeholder="Creation To:" appClearInvalid
                             [(ngModel)]="filter.creationTo"
                             name="creationTo"
-                            [min]="timestampCreationToMinDate"
-                            [max]="timestampCreationToMaxDate"
+                            [min]="creationToMinDate"
+                            [max]="creationToMaxDate"
                             (change)='onTimestampCreationToChange($event)'
                             [type]="'datetime'"
                             #timestampControl="ngModel" id="creationto_id">
@@ -75,7 +75,7 @@
             <md2-datepicker placeholder="Reporting From:" appClearInvalid
                             [(ngModel)]="filter.reportingFrom"
                             name="reportingFrom"
-                            [max]="timestampReportingFromMaxDate"
+                            [max]="reportingFromMaxDate"
                             (change)='onTimestampReportingFromChange($event)'
                             [type]="'datetime'"
                             #timestampControl="ngModel" id="reportingfrom_id" *ngIf="advancedSearch"
@@ -85,8 +85,8 @@
             <md2-datepicker placeholder="Reporting To:" appClearInvalid
                             [(ngModel)]="filter.reportingTo"
                             name="reportingTo"
-                            [min]="timestampReportingToMinDate"
-                            [max]="timestampReportingToMaxDate"
+                            [min]="reportingToMinDate"
+                            [max]="reportingToMaxDate"
                             (change)='onTimestampReportingToChange($event)'
                             [type]="'datetime'"
                             #timestampControl="ngModel" id="reportingto_id" *ngIf="advancedSearch"
@@ -111,7 +111,7 @@
                                   placeholder={{dateFromName}}
                                   [(ngModel)]="dynamicDatesFilter.from"
                                   name="from"
-                                  [max]="timestampDynamicDataFromMaxDate"
+                                  [max]="dynamicDataFromMaxDate"
                                   (change)='onDynamicDataFromChange($event)'
                                   [type]="'datetime'"
                                   #timestampControl="ngModel" id={{dateFromName}}_id>
@@ -120,8 +120,8 @@
                                   placeholder={{dateToName}}
                                   [(ngModel)]="dynamicDatesFilter.to"
                                   name="To"
-                                  [min]="timestampDynamicDataToMinDate"
-                                  [max]="timestampDynamicDataToMaxDate"
+                                  [min]="dynamicDataToMinDate"
+                                  [max]="dynamicDataToMaxDate"
                                   (change)='onDynamicDataToChange($event)'
                                   [type]="'datetime'"
                                   #timestampControl="ngModel" id={{dateToName}}_id>
