@@ -7,6 +7,7 @@ import eu.domibus.core.proxy.DomibusProxyService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.cxf.Bus;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.configuration.security.ProxyAuthorizationPolicy;
 import org.apache.cxf.endpoint.Client;
@@ -24,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.context.annotation.DependsOn;
 
 import javax.annotation.PostConstruct;
 import javax.xml.namespace.QName;
@@ -39,6 +41,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
  * @since 3.3
  */
 @Service
+@DependsOn(Bus.DEFAULT_BUS_ID)
 public class DispatchClientDefaultProvider implements DispatchClientProvider {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DispatchClientDefaultProvider.class);
