@@ -17,7 +17,7 @@ import org.apache.cxf.binding.soap.interceptor.AbstractSoapInterceptor;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.ws.policy.PolicyConstants;
-import org.apache.cxf.ws.policy.PolicyInInterceptor;
+import org.apache.cxf.ws.policy.PolicyOutInterceptor;
 import org.apache.cxf.ws.policy.PolicyVerificationOutInterceptor;
 import org.apache.cxf.ws.security.SecurityConstants;
 import org.apache.neethi.Policy;
@@ -48,7 +48,7 @@ public class SetPolicyOutInterceptor extends AbstractSoapInterceptor {
 
     public SetPolicyOutInterceptor() {
         super(Phase.SETUP);
-        this.addBefore(PolicyInInterceptor.class.getName());
+        this.addBefore(PolicyOutInterceptor.class.getName());
     }
 
     /**
