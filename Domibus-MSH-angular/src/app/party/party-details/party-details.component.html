@@ -9,7 +9,7 @@
             <mat-card-content>
               <div class="panel">
                 <mat-form-field style="width:100%">
-                  <input matInput placeholder="Name" name="name" id="name_id_detail" [(ngModel)]="party.name" input-debounce
+                  <input matInput placeholder="Name" name="name" id="name_id_detail" [(ngModel)]="party.name" input-debounce22
                          #party_name="ngModel" required [maxlength]="255">
                   <span class="help-block" *ngIf="shouldShowErrors(party_name)">
                     <div *ngIf="party_name.errors?.required" style="color:red; font-size: 70%">You should type a party name</div>
@@ -136,7 +136,7 @@
                       Initiator
                     </ng-template>
                     <ng-template ngx-datatable-cell-template let-row="row" let-value="row.isInitiator">
-                      <mat-checkbox [checked]="row.isInitiator" (change)="row.isInitiator = !row.isInitiator"></mat-checkbox>
+                      <mat-checkbox [checked]="row.isInitiator" (change)="checkInitiator(row)"></mat-checkbox>
                     </ng-template>
                   </ngx-datatable-column>
 
@@ -145,7 +145,7 @@
                       Responder
                     </ng-template>
                     <ng-template ngx-datatable-cell-template let-row="row" let-value="value">
-                      <mat-checkbox [checked]="row.isResponder" (change)="row.isResponder = !row.isResponder"></mat-checkbox>
+                      <mat-checkbox [checked]="row.isResponder" (change)="checkResponder(row)"></mat-checkbox>
                     </ng-template>
                   </ngx-datatable-column>
                 </ngx-datatable>

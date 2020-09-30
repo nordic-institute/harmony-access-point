@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, Inject, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, ChangeDetectorRef, Component, Inject, OnInit, ViewChild} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material';
 import {ColumnPickerBase} from 'app/common/column-picker/column-picker-base';
 import {IdentifierRo, PartyResponseRo, ProcessInfoRo} from '../support/party';
@@ -13,7 +13,7 @@ import {EditPopupBaseComponent} from '../../common/edit-popup-base.component';
   templateUrl: './party-details.component.html',
   styleUrls: ['./party-details.component.css']
 })
-export class PartyDetailsComponent extends EditPopupBaseComponent implements OnInit {
+export class PartyDetailsComponent extends EditPopupBaseComponent implements OnInit, AfterViewInit {
 
   processesRows: ProcessInfoRo[] = [];
   allProcesses: string[];
@@ -43,6 +43,14 @@ export class PartyDetailsComponent extends EditPopupBaseComponent implements OnI
     this.formatProcesses();
   }
 
+  ngOnInit() {
+    this.initColumns();
+  }
+
+  ngAfterViewInit() {
+    this.cdr.detectChanges();
+  }
+
   // transform processes to view-model
   private formatProcesses() {
     const processesWithPartyAsInitiator = this.party.processesWithPartyAsInitiator.map(el => el.name);
@@ -50,28 +58,38 @@ export class PartyDetailsComponent extends EditPopupBaseComponent implements OnI
     for (const proc of this.allProcesses) {
       const row = new ProcessInfoRo();
       row.name = proc;
-      if (processesWithPartyAsInitiator.indexOf(proc) >= 0)
+      if (processesWithPartyAsInitiator.indexOf(proc) >= 0) {
         row.isInitiator = true;
-      if (processesWithPartyAsResponder.indexOf(proc) >= 0)
+      }
+      if (processesWithPartyAsResponder.indexOf(proc) >= 0) {
         row.isResponder = true;
+      }
 
       this.processesRows.push(row);
     }
 
     this.processesRows.sort((a, b) => {
-        if (!!a.isInitiator > !!b.isInitiator) return -1;
-        if (!!a.isInitiator < !!b.isInitiator) return 1;
-        if (!!a.isResponder > !!b.isResponder) return -1;
-        if (!!a.isResponder < !!b.isResponder) return 1;
-        if (a.name < b.name) return -1;
-        if (a.name > b.name) return 1;
+        if (!!a.isInitiator > !!b.isInitiator) {
+          return -1;
+        }
+        if (!!a.isInitiator < !!b.isInitiator) {
+          return 1;
+        }
+        if (!!a.isResponder > !!b.isResponder) {
+          return -1;
+        }
+        if (!!a.isResponder < !!b.isResponder) {
+          return 1;
+        }
+        if (a.name < b.name) {
+          return -1;
+        }
+        if (a.name > b.name) {
+          return 1;
+        }
         return 0;
       }
     );
-  }
-
-  ngOnInit() {
-    this.initColumns();
   }
 
   uploadCertificate() {
@@ -80,13 +98,14 @@ export class PartyDetailsComponent extends EditPopupBaseComponent implements OnI
 
     const reader = new FileReader();
     reader.onload = (e) => {
-      var binaryData = <string>reader.result;
+      let binaryData = <string>reader.result;
 
       this.party.certificateContent = btoa(binaryData); // base64
 
       this.partyService.uploadCertificate({content: this.party.certificateContent}, this.party.name)
         .subscribe(res => {
             this.party.certificate = res;
+            this.markDirty();
           },
           err => {
             this.alertService.exception('Error uploading certificate file ' + file.name, err);
@@ -125,7 +144,9 @@ export class PartyDetailsComponent extends EditPopupBaseComponent implements OnI
 
   async editIdentifier(): Promise<boolean> {
     const identifierRow = this.selectedIdentifiers[0];
-    if (!identifierRow) return;
+    if (!identifierRow) {
+      return;
+    }
 
     const rowClone = JSON.parse(JSON.stringify(identifierRow));
 
@@ -137,18 +158,28 @@ export class PartyDetailsComponent extends EditPopupBaseComponent implements OnI
 
     const ok = await dialogRef.afterClosed().toPromise();
     if (ok) {
-      Object.assign(identifierRow, rowClone);
+      if (JSON.stringify(identifierRow) !== JSON.stringify(rowClone)) {
+        Object.assign(identifierRow, rowClone);
+        this.markDirty();
+      }
     }
 
     return ok;
   }
 
+  private markDirty() {
+    this.editForm.form.markAsDirty();
+  }
+
   removeIdentifier() {
     const identifierRow = this.selectedIdentifiers[0];
-    if (!identifierRow) return;
+    if (!identifierRow) {
+      return;
+    }
 
     this.party.identifiers.splice(this.party.identifiers.indexOf(identifierRow), 1);
     this.selectedIdentifiers.length = 0;
+    this.markDirty();
   }
 
   async addIdentifier() {
@@ -162,12 +193,9 @@ export class PartyDetailsComponent extends EditPopupBaseComponent implements OnI
     const ok = await this.editIdentifier();
     if (!ok) {
       this.removeIdentifier();
+      this.markDirty();
     }
     this.party.identifiers = [...this.party.identifiers];
-  }
-
-  ngAfterViewInit() {
-    this.cdr.detectChanges();
   }
 
   onSubmitForm() {
@@ -198,8 +226,9 @@ export class PartyDetailsComponent extends EditPopupBaseComponent implements OnI
       + ((responderElements.length > 0) ? responderElements.join('(R), ') + '(R), ' : '')
       + ((bothElements.length > 0) ? bothElements.join('(IR), ') + '(IR)' : '');
 
-    if (this.party.joinedProcesses.endsWith(', '))
+    if (this.party.joinedProcesses.endsWith(', ')) {
       this.party.joinedProcesses = this.party.joinedProcesses.substr(0, this.party.joinedProcesses.length - 2);
+    }
   }
 
   onActivate(event) {
@@ -209,6 +238,16 @@ export class PartyDetailsComponent extends EditPopupBaseComponent implements OnI
   }
 
   isFormDisabled() {
-    return !this.editForm || this.editForm.invalid || this.party.identifiers.length == 0;
+    return super.isFormDisabled() || this.party.identifiers.length == 0;
+  }
+
+  checkInitiator(row: any) {
+    row.isInitiator = !row.isInitiator;
+    this.markDirty();
+  }
+
+  checkResponder(row: any) {
+    row.isResponder = !row.isResponder;
+    this.markDirty();
   }
 }
