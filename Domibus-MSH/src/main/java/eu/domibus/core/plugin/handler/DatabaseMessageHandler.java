@@ -393,6 +393,8 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
             backendMessageValidator.validateAgreementRef(userMessage.getCollaborationInfo().getAgreementRef());
 
+            backendMessageValidator.validateConversationId(userMessage.getCollaborationInfo().getConversationId());
+
             // handle if the messageId is unique. This should only fail if the ID is set from the outside
             if (!MessageStatus.NOT_FOUND.equals(userMessageLogDao.getMessageStatus(messageId))) {
                 throw new DuplicateMessageException(MESSAGE_WITH_ID_STR + messageId + "] already exists. Message identifiers must be unique");
