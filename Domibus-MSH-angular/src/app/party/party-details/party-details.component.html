@@ -9,7 +9,7 @@
             <mat-card-content>
               <div class="panel">
                 <mat-form-field style="width:100%">
-                  <input matInput placeholder="Name" name="name" id="name_id_detail" [(ngModel)]="party.name" input-debounce22
+                  <input matInput placeholder="Name" name="name" id="name_id_detail" [(ngModel)]="party.name" input-debounce
                          #party_name="ngModel" required [maxlength]="255">
                   <span class="help-block" *ngIf="shouldShowErrors(party_name)">
                     <div *ngIf="party_name.errors?.required" style="color:red; font-size: 70%">You should type a party name</div>
@@ -19,10 +19,9 @@
                   <input matInput placeholder="End Point" name="endPoint" id="endPoint_id_detail" [(ngModel)]="party.endpoint" input-debounce
                          #party_endPoint="ngModel" required [maxlength]="255" [pattern]="endpointPattern">
                   <span class="help-block" *ngIf="shouldShowErrors(party_endPoint)">
-                  <div *ngIf="party_endPoint.errors?.pattern" style="color:red; font-size: 70%">
-                    Endpoint should follow the URL pattern<br>
-                  </div>
-                </span>
+                    <div *ngIf="party_endPoint.errors?.required" style="color:red; font-size: 70%">You should type an endpoint</div>
+                    <div *ngIf="party_endPoint.errors?.pattern" style="color:red; font-size: 70%">Endpoint should follow the URL pattern<br></div>
+                  </span>
                 </mat-form-field>
               </div>
             </mat-card-content>

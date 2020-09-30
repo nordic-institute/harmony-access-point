@@ -6,6 +6,7 @@ import {PartyIdentifierDetailsComponent} from '../party-identifier-details/party
 import {PartyService} from '../support/party.service';
 import {AlertService} from '../../common/alert/alert.service';
 import {EditPopupBaseComponent} from '../../common/edit-popup-base.component';
+import {FormGroup} from '@angular/forms';
 
 @Component({
   selector: 'app-party-details',
@@ -168,7 +169,9 @@ export class PartyDetailsComponent extends EditPopupBaseComponent implements OnI
   }
 
   private markDirty() {
-    this.editForm.form.markAsDirty();
+    if (!(this.editForm instanceof FormGroup)) {
+      this.editForm.form.markAsDirty();
+    }
   }
 
   removeIdentifier() {
