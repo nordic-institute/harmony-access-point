@@ -245,7 +245,7 @@ public class BackendMessageValidator {
      */
     public void validateConversationId(String conversationId) throws EbMS3Exception {
         //conversationId is an optional element
-        if (conversationId == null) {
+        if (StringUtils.isBlank(conversationId)) {
             LOG.debug("Optional field ConversationId is null or empty");
             return;
         }
