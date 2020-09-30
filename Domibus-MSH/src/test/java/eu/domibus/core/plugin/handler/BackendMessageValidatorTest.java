@@ -429,6 +429,16 @@ public class BackendMessageValidatorTest {
     }
 
     @Test
+    public void validateConversationId_BlankValueTooLong() throws EbMS3Exception {
+        String conversationId = StringUtils.repeat(" ", 256);
+
+        thrown.expect(EbMS3Exception.class);
+        thrown.expectMessage("ConversationId is too long (over 255 characters)");
+
+        backendMessageValidatorObj.validateConversationId(conversationId);
+    }
+
+    @Test
     public void validateConversationId_Value255Long() throws EbMS3Exception {
         String conversationId = StringUtils.repeat("01234", 51);
         backendMessageValidatorObj.validateConversationId(conversationId);
