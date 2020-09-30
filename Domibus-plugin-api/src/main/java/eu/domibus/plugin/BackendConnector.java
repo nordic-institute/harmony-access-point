@@ -7,7 +7,6 @@ import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
 import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -138,12 +137,7 @@ public interface BackendConnector<U, T> {
      * @return the plugin notifications
      */
     default List<NotificationType> getRequiredNotifications() {
-        return Arrays.asList(
-                NotificationType.MESSAGE_RECEIVED,
-                NotificationType.MESSAGE_SEND_FAILURE,
-                NotificationType.MESSAGE_RECEIVED_FAILURE,
-                NotificationType.MESSAGE_SEND_SUCCESS,
-                NotificationType.MESSAGE_STATUS_CHANGE);
+        return NotificationType.DEFAULT_PUSH_NOTIFICATIONS;
     }
 
     /**

@@ -6,6 +6,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.environment.DomibusEnvironmentUtil;
 import eu.domibus.plugin.notification.PluginAsyncNotificationConfiguration;
+import eu.domibus.plugin.webService.exception.WSPluginException;
 import eu.domibus.plugin.webService.impl.ClearAuthenticationMDCInterceptor;
 import eu.domibus.plugin.webService.impl.CustomAuthenticationInterceptor;
 import eu.domibus.plugin.webService.impl.WSPluginFaultOutInterceptor;
@@ -93,7 +94,7 @@ public class WSPluginConfiguration {
             endpoint.publish("/backend");
             return endpoint;
         } catch (Exception e) {
-            throw new IllegalArgumentException("EndpointImpl could not be created with Bus [" + Bus.DEFAULT_BUS_ID + "]", e);
+            throw new WSPluginException("EndpointImpl could not be created with Bus [" + Bus.DEFAULT_BUS_ID + "]", e);
         }
     }
 
