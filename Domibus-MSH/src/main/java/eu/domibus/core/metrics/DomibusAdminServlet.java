@@ -12,11 +12,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- *
- * SuppressWarnings:
- * Following the pattern of {@link AdminServlet}, the sonar issue S2226 should be ignore here.
- * @see <a href="https://jira.sonarsource.com/browse/RSPEC-2226">RSPEC-2226 Servlets should not have mutable instance fields</a>
- *
  * @author Catalin Enache
  * @since 4.2
  */
@@ -24,9 +19,9 @@ public class DomibusAdminServlet extends AdminServlet {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusAdminServlet.class);
 
-    @SuppressWarnings("squid:S2226")
+    @SuppressWarnings("squid:S2226") // Following the pattern of AdminServlet
     private transient MetricsServlet domibusMetricsServlet;
-    @SuppressWarnings("squid:S2226")
+    @SuppressWarnings("squid:S2226") // Following the pattern of AdminServlet
     private transient String metricsUri;
 
     @Override

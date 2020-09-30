@@ -2,7 +2,6 @@ package eu.domibus.core.metrics;
 
 import com.codahale.metrics.Metric;
 import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.servlets.AdminServlet;
 import com.codahale.metrics.servlets.MetricsServlet;
 import com.fasterxml.jackson.databind.util.JSONPObject;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
@@ -21,11 +20,7 @@ import java.io.OutputStream;
 import java.util.Map;
 
 /**
- * SuppressWarnings:
- * Following the pattern of {@link AdminServlet}, the sonar issue S2226 should be ignore here.
- *
  * @author Catalin Enache
- * @see <a href="https://jira.sonarsource.com/browse/RSPEC-2226">RSPEC-2226 Servlets should not have mutable instance fields</a>
  * @since 4.2
  */
 public class DomibusMetricsServlet extends MetricsServlet {
@@ -33,7 +28,7 @@ public class DomibusMetricsServlet extends MetricsServlet {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusMetricsServlet.class);
 
     @Autowired
-    @SuppressWarnings("squid:S2226")
+    @SuppressWarnings("squid:S2226") // Following the pattern of MetricsServlet
     private transient MetricsHelper metricsHelper;
 
     @Override
