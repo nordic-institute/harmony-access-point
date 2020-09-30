@@ -1,4 +1,5 @@
 Domibus 4.2
+- Added a new property domibus.logging.metadata.print - prints the AS4 metadata in the logs when org.apache.cxf is set to at least INFO in logback.xml. Defaults to true.
 - Deprecated the following classes/methods:
     - eu.domibus.plugin.NotificationListener
     - eu.domibus.plugin.NotificationListenerService
