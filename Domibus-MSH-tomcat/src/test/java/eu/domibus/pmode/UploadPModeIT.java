@@ -2,6 +2,7 @@ package eu.domibus.pmode;
 
 import eu.domibus.AbstractIT;
 import eu.domibus.api.pmode.PModeValidationException;
+import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.util.xml.UnmarshallerResult;
 import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.model.configuration.*;
@@ -13,12 +14,19 @@ import eu.domibus.web.rest.PModeResource;
 import eu.domibus.web.rest.ro.ValidationResponseRO;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.Validate;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.orm.hibernate5.SpringSessionContext;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.Rollback;
+import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -82,6 +90,15 @@ public class UploadPModeIT extends AbstractIT {
     public void testSavePModeOk() throws Exception {
         InputStream is = getClass().getClassLoader().getResourceAsStream("samplePModes/domibus-configuration-valid.xml");
         pModeProvider.updatePModes(IOUtils.toByteArray(is), "description");
+    }
+
+    @Before
+    public void setUp() {
+        SecurityContextHolder.getContext()
+                .setAuthentication(new UsernamePasswordAuthenticationToken(
+                        "domibus",
+                        "domibus",
+                        Collections.singleton(new SimpleGrantedAuthority(AuthRole.ROLE_ADMIN.name()))));
     }
 
     /**
