@@ -8,14 +8,13 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.List;
 
@@ -37,18 +36,15 @@ public class PartyDaoIT {
     @PersistenceContext
     private javax.persistence.EntityManager em;
 
-    @Autowired
-    protected ApplicationContext applicationContext;
     //@Autowired
     private PartyDao partyDao;
-    private Party party;
 
     @Before
     public void init() {
         partyDao = new PartyDao();
-        ReflectionTestUtils.setField(partyDao, "em", em);
+        ReflectionTestUtils.setField(partyDao, null, em, EntityManager.class);
 
-        party = new Party();
+        Party party = new Party();
         party.setName("P1");
         Identifier id = new Identifier();
         id.setPartyId("P1 party id");
@@ -113,6 +109,8 @@ public class PartyDaoIT {
         assertNotNull(findById.getModificationTime());
         assertNotNull(findById.getCreatedBy());
         assertNotNull(findById.getModifiedBy());
+
+        assertEquals(findById.getCreationTime(),findById.getModificationTime());
     }
 
 }
