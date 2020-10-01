@@ -138,6 +138,11 @@ public class AuthUtilsImpl implements AuthUtils {
                         Collections.singleton(new SimpleGrantedAuthority(authRole.name()))));
     }
 
+    @Override
+    public void clearSecurityContext() {
+        SecurityContextHolder.clearContext();
+    }
+
     protected boolean checkAdminRights(AuthRole authRole) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || authentication.getAuthorities() == null) {

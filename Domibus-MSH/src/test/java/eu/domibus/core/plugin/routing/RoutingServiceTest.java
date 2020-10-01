@@ -854,6 +854,7 @@ public class RoutingServiceTest {
         new FullVerifications() {{
             authUtils.setAuthenticationToSecurityContext("domibus", "domibus", AuthRole.ROLE_AP_ADMIN);
             backendFilterDao.create(backendFilterEntities);
+            authUtils.clearSecurityContext();
             times = 1;
         }};
 

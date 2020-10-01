@@ -1,7 +1,9 @@
 package eu.domibus.core.security;
 
 import eu.domibus.api.security.AuthUtils;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -26,6 +28,9 @@ public class AuthUtilsImplIT {
 
     @Autowired
     private AuthUtils authUtils;
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
     @Configuration
     @EnableGlobalMethodSecurity(prePostEnabled = true)
@@ -81,6 +86,21 @@ public class AuthUtilsImplIT {
     @Test(expected = AccessDeniedException.class)
     @WithMockUser(username = "admin", roles={"ADMIN"})
     public void hasUserRole_admin() {
+        authUtils.hasUserRole();
+    }
+
+    @Test
+    @WithMockUser
+    public void clearContext() {
+        // given
+        //default WithMockUser is with ROLE USER
+        authUtils.hasUserRole();
+        // when
+        authUtils.clearSecurityContext();
+        // then
+        thrown.expect(AuthenticationCredentialsNotFoundException.class);
+        thrown.expectMessage("Authentication object was not found in the SecurityContext");
+
         authUtils.hasUserRole();
     }
 }

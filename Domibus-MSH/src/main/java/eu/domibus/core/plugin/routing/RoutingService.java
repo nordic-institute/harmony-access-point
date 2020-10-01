@@ -154,6 +154,8 @@ public class RoutingService {
 
         List<BackendFilterEntity> backendFilterEntities = createBackendFilterEntities(pluginToAdd, getMaxIndex(backendFilterEntitiesInDB) + 1);
         backendFilterDao.create(backendFilterEntities);
+        // clear the mocked security context
+        authUtils.clearSecurityContext();
     }
 
     protected int getMaxIndex(List<BackendFilterEntity> backendFilterEntitiesInDB) {

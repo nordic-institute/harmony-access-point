@@ -327,6 +327,16 @@ public class AuthUtilsImplTest {
     }
 
     @Test
+    public void clearSecurityContext(@Mocked SecurityContextHolder securityContextHolder) {
+
+        authUtilsImpl.clearSecurityContext();
+        // then
+        new FullVerifications() {{
+            securityContextHolder.clearContext();
+        }};
+    }
+
+    @Test
     public void checkAdminRights_authIsNull(
             @Mocked SecurityContextHolder securityContextHolder) {
 
