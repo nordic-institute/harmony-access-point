@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.AbstractMap;
+import java.util.Arrays;
 import java.util.stream.IntStream;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
@@ -65,27 +66,26 @@ public class MessagingConfigurationManager
                         currentDomain, alertActive, messageAlertActive);
                 return new MessagingModuleConfiguration(mailSubject);
             }
-            String messageCommunicationStates = domibusPropertyProvider.getProperty(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_STATES);
-            messageCommunicationStates = messageCommunicationStates.replaceAll("\\s", "");
-            LOG.debug("Message status change that should be notified by the messaging alert module: [{}]", messageCommunicationStates);
-
-            String messageCommunicationLevels = domibusPropertyProvider.getProperty(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_LEVEL);
-            messageCommunicationLevels = messageCommunicationLevels.replaceAll("\\s", "");
-            LOG.debug("Alert levels corresponding to message status: [{}]", messageCommunicationStates);
+            final String messageCommunicationStates = domibusPropertyProvider.getProperty(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_STATES);
+            final String messageCommunicationLevels = domibusPropertyProvider.getProperty(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_LEVEL);
 
             if (StringUtils.isEmpty(messageCommunicationStates) || StringUtils.isEmpty(messageCommunicationLevels)) {
                 LOG.warn("Message status change alert module misconfiguration -> states[{}], levels[{}]", messageCommunicationStates, messageCommunicationLevels);
                 return new MessagingModuleConfiguration();
             }
             final String[] states = messageCommunicationStates.split(",");
+            final String[] trimmedStates = Arrays.stream(states).map(StringUtils::trim).toArray(String[]::new);
+
             final String[] levels = messageCommunicationLevels.split(",");
+            final String[] trimmedLevels = Arrays.stream(levels).map(StringUtils::trim).toArray(String[]::new);
+
             final boolean eachStatusHasALevel = (states.length == levels.length);
             LOG.debug("Each message status has his own level[{}]", eachStatusHasALevel);
 
             MessagingModuleConfiguration messagingConfiguration = new MessagingModuleConfiguration(mailSubject);
             IntStream.
-                    range(0, states.length).
-                    mapToObj(i -> new AbstractMap.SimpleImmutableEntry<>(MessageStatus.valueOf(states[i]), AlertLevel.valueOf(levels[eachStatusHasALevel ? i : 0]))).
+                    range(0, trimmedStates.length).
+                    mapToObj(i -> new AbstractMap.SimpleImmutableEntry<>(MessageStatus.valueOf(trimmedStates[i]), AlertLevel.valueOf(trimmedLevels[eachStatusHasALevel ? i : 0]))).
                     forEach(entry -> messagingConfiguration.addStatusLevelAssociation(entry.getKey(), entry.getValue())); //NOSONAR
             LOG.info("Alert message status change module activated for domain:[{}]", currentDomain);
             return messagingConfiguration;

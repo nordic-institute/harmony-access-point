@@ -10,8 +10,11 @@ import eu.domibus.core.alerts.service.AlertConfigurationService;
 import eu.domibus.core.alerts.service.ConfigurationReader;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.Arrays;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 import static org.junit.Assert.*;
@@ -63,6 +66,7 @@ public class MessagingConfigurationManagerTest  {
         final String mailSubject = "Messsage status changed";
         final String messageCommunicationStates = "SEND_FAILURE, ACKNOWLEDGED  ";
         final String messageCommunicationLevels = "HIGH, LOW";
+        final String[] states = new String[2];
         new Expectations() {{
             alertConfigurationService.isAlertModuleEnabled();
             result = true;
@@ -74,6 +78,8 @@ public class MessagingConfigurationManagerTest  {
             result = messageCommunicationLevels;
             domibusPropertyProvider.getProperty(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_MAIL_SUBJECT);
             this.result = mailSubject;
+            messageCommunicationStates.split(",");
+            result = states;
         }};
 
         final MessagingModuleConfiguration messagingConfiguration = configurationManager.readConfiguration();
@@ -82,8 +88,7 @@ public class MessagingConfigurationManagerTest  {
         assertEquals(AlertLevel.LOW, messagingConfiguration.getAlertLevel(MessageStatus.ACKNOWLEDGED));
         assertTrue(messagingConfiguration.isActive());
         new Verifications() {{
-            messageCommunicationStates.replaceAll("\\s", "");
-            messageCommunicationLevels.replaceAll("\\s", "");
+            Arrays.stream(states).map(StringUtils::trim).toArray(String[]::new);
         }};
     }
 
