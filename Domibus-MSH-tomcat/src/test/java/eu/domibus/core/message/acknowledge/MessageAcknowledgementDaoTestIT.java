@@ -29,8 +29,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Cosmin Baciu
@@ -81,7 +81,7 @@ public class MessageAcknowledgementDaoTestIT extends AbstractIT {
         final List<MessageAcknowledgementEntity> retrievedEntityList = messageAcknowledgementDao.findByMessageId(messageId);
 
         assertNotNull(retrievedEntityList);
-        assertNotNull(retrievedEntityList.size() == 1);
+        assertEquals(1, retrievedEntityList.size());
 
         final MessageAcknowledgementEntity retrievedEntity = retrievedEntityList.get(0);
         assertEquals(entity.getEntityId(), retrievedEntity.getEntityId());
@@ -91,6 +91,11 @@ public class MessageAcknowledgementDaoTestIT extends AbstractIT {
         assertEquals(entity.getFrom(), retrievedEntity.getFrom());
         assertEquals(entity.getTo(), retrievedEntity.getTo());
         assertEquals(entity.getProperties().iterator().next(), retrievedEntity.getProperties().iterator().next());
+
+        assertNotNull(entity.getCreationTime());
+        assertNotNull(entity.getCreatedBy());
+        assertNotNull(entity.getModificationTime());
+        assertNotNull(entity.getModifiedBy());
     }
 
     //@Test

@@ -21,6 +21,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertNotNull;
+
 /**
  * @author Cosmin Baciu
  * @since 4.0.1
@@ -54,11 +57,18 @@ public class CommandDaoIT {
         entity.setCommandName("command1");
 
         commandDao.create(entity);
+
+        List<CommandEntity> ms1 = commandDao.findCommandsByServerName("ms1");
+        assertEquals(1, ms1.size());
+        assertNotNull(ms1.get(0).getCreationTime());
+        assertNotNull(ms1.get(0).getModificationTime());
+        assertNotNull(ms1.get(0).getCreatedBy());
+        assertNotNull(ms1.get(0).getModifiedBy());
     }
 
     @Test
     @Transactional
-    @Ignore // TODO: François Gautier 11-09-20 Fix the test
+    @Ignore("François Gautier 11-09-20 Fix the test")
     public void deleteCommandAndProperties() {
         CommandEntity entity = new CommandEntity();
         entity.setCreationTime(new Date());
