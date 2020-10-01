@@ -30,6 +30,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static eu.domibus.core.alerts.model.common.AccountEventKey.*;
 import static eu.domibus.core.alerts.model.common.AccountEventKey.LOGIN_TIME;
@@ -197,12 +198,14 @@ public class EventServiceImpl implements EventService {
         final UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
         final MessageExchangeConfiguration userMessageExchangeContext;
         try {
-            StringBuilder errors = new StringBuilder();
-            errorLogDao.
-                    getErrorsForMessage(messageId).
-                    stream().
-                    map(ErrorLogEntry::getErrorDetail).forEach(errors::append);
-            if (!errors.toString().isEmpty()) {
+            String errors = errorLogDao
+                    .getErrorsForMessage(messageId)
+                    .stream()
+                    .map(ErrorLogEntry::getErrorDetail)
+                    .distinct()
+                    .collect(Collectors.joining(" "));
+            
+            if (StringUtils.isNotBlank(errors)) {
                 event.addStringKeyValue(DESCRIPTION.name(), StringUtils.truncate(errors.toString(), MAX_DESCRIPTION_LENGTH));
             }
 
