@@ -27,7 +27,7 @@ public enum DomibusCoreErrorCode {
      */
     DOM_004("004"),
     /**
-     * Cetificate related exception.
+     * Certificate related exception.
      */
     DOM_005("005"),
     /**

@@ -1,5 +1,6 @@
 package eu.domibus.ext.services;
 
+import eu.domibus.common.NotificationType;
 import eu.domibus.ext.domain.DomainDTO;
 
 import java.util.List;
@@ -38,6 +39,13 @@ public interface DomibusPropertyExtService {
      */
     Integer getIntegerProperty(String propertyName);
 
+    /**
+     * Gets the boolean property value with the provided name
+     *
+     * @param propertyName The property name for which the integer value is retrieved
+     * @return The property value as Boolean
+     */
+    Boolean getBooleanProperty(String propertyName);
 
     /**
      * Returns all property names for which the given predicate is true
@@ -56,6 +64,13 @@ public interface DomibusPropertyExtService {
      * @return the list of nested properties
      */
     List<String> getNestedProperties(String prefix);
+
+    /**
+     * Get the list of configured message notifications, separated by comma, configured in the plugin property file
+     * @param notificationPropertyName The property name
+     * @return the list of message notifications
+     */
+    List<NotificationType> getConfiguredNotifications(String notificationPropertyName);
 
     /**
      * Gets the property value with the provided name for a specific domain

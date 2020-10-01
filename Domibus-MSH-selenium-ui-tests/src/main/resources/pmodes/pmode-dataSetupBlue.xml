@@ -21,11 +21,11 @@
 				<partyIdType name="partyTypeUrn" value="urn:oasis:names:tc:ebcore:partyid-type:unregistered"/>
 			</partyIdTypes>
 			<party name="red_gw"
-				   endpoint="http://edeltest2.westeurope.cloudapp.azure.com:9080/domibus/services/msh">
+				   endpoint="http://docker_local_wildfly:8080/domibus/services/msh">
 				<identifier partyId="domibus-red" partyIdType="partyTypeUrn"/>
 			</party>
 			<party name="blue_gw"
-				   endpoint="http://edeltest2.westeurope.cloudapp.azure.com:8085/domibus-wildfly/services/msh">
+				   endpoint="http://docker_local_wildfly:8080/domibus/services/msh">
 				<identifier partyId="domibus-blue" partyIdType="partyTypeUrn"/>
 			</party>
 		</parties>

@@ -7,23 +7,26 @@ import eu.domibus.common.MSHRole;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.Role;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.ebms3.common.model.AgreementRef;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 /**
- @author Arun Raj
- @since 3.3
+ * @author Arun Raj
+ * @since 3.3
  */
-
 @RunWith(JMockit.class)
 public class BackendMessageValidatorTest {
     private static final String MESSAGE_ID_PATTERN = "^[\\x20-\\x7E]*$";
@@ -34,6 +37,9 @@ public class BackendMessageValidatorTest {
     private static final String INITIATOR_ROLE_VALUE = "defaultInitiator";
     private static final String RESPONDER_ROLE_VALUE = "defaultResponder";
 
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
+
     @Injectable
     DomibusPropertyProvider domibusPropertyProvider;
 
@@ -42,7 +48,6 @@ public class BackendMessageValidatorTest {
 
     @Tested
     BackendMessageValidator backendMessageValidatorObj;
-
 
     @Test
     public void validateMessageId() throws Exception {
@@ -72,7 +77,7 @@ public class BackendMessageValidatorTest {
         } catch (EbMS3Exception e1) {
             Assert.fail("Exception was not expected in happy scenarios");
         }
-         /*Happy Flow No error should occur*/
+        /*Happy Flow No error should occur*/
 
         /*Message Id with leading and/or trailing whitespaces should throw error*/
         try {
@@ -132,7 +137,7 @@ public class BackendMessageValidatorTest {
     public void validateRefToMessageId() throws Exception {
 
         new Expectations() {{
-            domibusPropertyProvider.getProperty( BackendMessageValidator.KEY_MESSAGEID_PATTERN);
+            domibusPropertyProvider.getProperty(BackendMessageValidator.KEY_MESSAGEID_PATTERN);
             result = MESSAGE_ID_PATTERN;
 
         }};
@@ -157,7 +162,7 @@ public class BackendMessageValidatorTest {
         } catch (EbMS3Exception e1) {
             Assert.fail("Exception was not expected in happy scenarios");
         }
-         /*Happy Flow No error should occur*/
+        /*Happy Flow No error should occur*/
 
         /*Message Id with leading and/or trailing whitespaces should throw error*/
         try {
@@ -284,7 +289,7 @@ public class BackendMessageValidatorTest {
         } catch (EbMS3Exception ex) {
             assert (ex.getErrorCode().equals(ErrorCode.EbMS3ErrorCode.EBMS_0010));
             assert (ex.getErrorDetail().contains("does not correspond to the access point's name"));
-            assert(ex.getMshRole().equals(MSHRole.SENDING));
+            assert (ex.getMshRole().equals(MSHRole.SENDING));
         }
 
     }
@@ -349,13 +354,105 @@ public class BackendMessageValidatorTest {
         }
 
     }
+
+    @Test
+    public void validateAgreementRef_OK() {
+        AgreementRef agreementRef = new AgreementRef();
+        agreementRef.setPmode("AgreementRefPMode");
+        agreementRef.setType("AgreementRefType");
+        agreementRef.setValue("AgreementRefValue");
+
+        try {
+            backendMessageValidatorObj.validateAgreementRef(agreementRef);
+        } catch (EbMS3Exception e) {
+            Assert.fail("Exception was not expected here!");
+        }
+    }
+
+    @Test
+    public void validateAgreementRef_NullCheck(@Injectable AgreementRef agreementRef) {
+        try {
+            backendMessageValidatorObj.validateAgreementRef(agreementRef);
+        } catch (EbMS3Exception e) {
+            Assert.fail("Exception was not expected here as agreementRef is optional and can be null!");
+        }
+    }
+
+    @Test
+    public void validateAgreementRef_PmodeTooLong() throws EbMS3Exception {
+        AgreementRef agreementRef = new AgreementRef();
+        agreementRef.setPmode("12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890");
+        agreementRef.setType("AgreementRefType");
+        agreementRef.setValue("AgreementRefValue");
+
+        thrown.expect(EbMS3Exception.class);
+        thrown.expectMessage("AgreementRef Pmode is too long (over 255 characters)");
+
+        backendMessageValidatorObj.validateAgreementRef(agreementRef);
+    }
+
+    @Test
+    public void validateAgreementRef_TypeTooLong() throws EbMS3Exception {
+        AgreementRef agreementRef = new AgreementRef();
+        agreementRef.setPmode("AgreementRefPMode");
+        agreementRef.setType("12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890");
+        agreementRef.setValue("AgreementRefValue");
+
+        thrown.expect(EbMS3Exception.class);
+        thrown.expectMessage("AgreementRef Type is too long (over 255 characters)");
+
+        backendMessageValidatorObj.validateAgreementRef(agreementRef);
+    }
+
+    @Test
+    public void validateAgreementRef_ValueTooLong() throws EbMS3Exception {
+        AgreementRef agreementRef = new AgreementRef();
+        agreementRef.setPmode("AgreementRefPMode");
+        agreementRef.setType("AgreementRefType");
+        agreementRef.setValue("12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890");
+
+        thrown.expect(EbMS3Exception.class);
+        thrown.expectMessage("AgreementRef Value is too long (over 255 characters)");
+
+        backendMessageValidatorObj.validateAgreementRef(agreementRef);
+    }
+
+
+    @Test
+    public void validateConversationId_ValueTooLong() throws EbMS3Exception {
+        String conversationId = StringUtils.repeat("01234", 51) + "1";
+
+        thrown.expect(EbMS3Exception.class);
+        thrown.expectMessage("ConversationId is too long (over 255 characters)");
+
+        backendMessageValidatorObj.validateConversationId(conversationId);
+    }
+
+    @Test
+    public void validateConversationId_BlankValueTooLong() throws EbMS3Exception {
+        String conversationId = StringUtils.repeat(" ", 256);
+
+        backendMessageValidatorObj.validateConversationId(conversationId);
+    }
+
+    @Test
+    public void validateConversationId_Value255Long() throws EbMS3Exception {
+        String conversationId = StringUtils.repeat("01234", 51);
+        backendMessageValidatorObj.validateConversationId(conversationId);
+    }
+
+    @Test
+    public void validateConversationId_ValueNull() throws EbMS3Exception {
+        ExpectedException.none();
+        backendMessageValidatorObj.validateConversationId(null);
+    }
 }
 
 class MessageIdPatternRetriever extends DefaultHandler {
 
     private static final String PROP_KEY = "prop";
-    private boolean bHasMessageIdPattern;
     private static String MessageIdPattern;
+    private boolean bHasMessageIdPattern;
 
     public void startElement(String namespaceURI, String localName, String qName, Attributes atts) throws SAXException {
         if (PROP_KEY.equalsIgnoreCase(qName) && BackendMessageValidator.KEY_MESSAGEID_PATTERN.equalsIgnoreCase(atts.getValue("key"))) {

@@ -60,6 +60,8 @@ public class FSPluginPropertiesMetadataManagerImpl implements DomibusPropertyMet
     @SuppressWarnings("squid:S2068")
     protected static final String PASSWORD = "messages.password";
 
+    public static final String MESSAGE_NOTIFICATIONS = "messages.notifications";
+
     protected static final String AUTHENTICATION_USER = "authentication.user";
 
     // Sonar confuses this constant with an actual password
@@ -100,6 +102,7 @@ public class FSPluginPropertiesMetadataManagerImpl implements DomibusPropertyMet
     protected void createMetadata() {
         knownProperties = Arrays.stream(new DomibusPropertyMetadataDTO[]{
                 //non-writable properties:
+                new DomibusPropertyMetadataDTO(MESSAGE_NOTIFICATIONS, Type.COMMA_SEPARATED_LIST, Module.FS_PLUGIN, false, Usage.GLOBAL, false, true, false, false),
                 new DomibusPropertyMetadataDTO(PASSWORD_ENCRYPTION_ACTIVE, Type.BOOLEAN, Module.FS_PLUGIN, false, Usage.DOMAIN, false, true, false, false),
                 new DomibusPropertyMetadataDTO(FSPLUGIN_PASSWORD_ENCRYPTION_PROPERTIES, Type.COMMA_SEPARATED_LIST, Module.FS_PLUGIN, false, Usage.DOMAIN, false, true, false, false),
                 new DomibusPropertyMetadataDTO(OUT_QUEUE, Type.JNDI, Module.FS_PLUGIN, false, Usage.GLOBAL, false, true, false, false),

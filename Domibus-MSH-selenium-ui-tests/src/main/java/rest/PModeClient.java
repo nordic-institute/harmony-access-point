@@ -88,7 +88,7 @@ public class PModeClient extends BaseRestClient {
 		return clientResponse;
 	}
 	
-	public ClientResponse deletePmode(String domain, List<String> pmodeIDs) {
+	public ClientResponse deletePmode(String domain, List<String> pmodeIDs) throws DomibusRestException {
 		switchDomain(domain);
 		
 		WebResource myRes = resource.path(RestServicePaths.PMODE);

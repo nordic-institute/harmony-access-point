@@ -1,17 +1,18 @@
 package eu.domibus.plugin.webService.configuration;
 
+import eu.domibus.common.NotificationType;
 import eu.domibus.ext.services.DomibusPropertyExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.environment.DomibusEnvironmentUtil;
 import eu.domibus.plugin.notification.PluginAsyncNotificationConfiguration;
-import eu.domibus.plugin.webService.impl.WebServicePluginImpl;
+import eu.domibus.plugin.webService.exception.WSPluginException;
 import eu.domibus.plugin.webService.impl.ClearAuthenticationMDCInterceptor;
 import eu.domibus.plugin.webService.impl.CustomAuthenticationInterceptor;
 import eu.domibus.plugin.webService.impl.WSPluginFaultOutInterceptor;
+import eu.domibus.plugin.webService.impl.WebServicePluginImpl;
 import eu.domibus.plugin.webService.logging.WSPluginLoggingEventSender;
 import eu.domibus.plugin.webService.property.WSPluginPropertyManager;
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.cxf.Bus;
 import org.apache.cxf.ext.logging.LoggingFeature;
 import org.apache.cxf.jaxws.EndpointImpl;
@@ -22,10 +23,7 @@ import org.springframework.core.env.Environment;
 
 import javax.jms.Queue;
 import javax.xml.ws.Endpoint;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Class responsible for the configuration of the plugin, independent of any server
@@ -40,12 +38,17 @@ public class WSPluginConfiguration {
 
     public static final String NOTIFY_BACKEND_QUEUE_JNDI = "jms/domibus.notification.webservice";
     public static final String DOMIBUS_LOGGING_PAYLOAD_PRINT = "domibus.logging.payload.print";
+    public static final String DOMIBUS_LOGGING_METADATA_PRINT = "domibus.logging.metadata.print";
     public static final String DOMIBUS_LOGGING_CXF_LIMIT = "domibus.logging.cxf.limit";
 
 
     @Bean("backendWebservice")
-    public WebServicePluginImpl createWSPlugin() {
-        return new WebServicePluginImpl();
+    public WebServicePluginImpl createWSPlugin(DomibusPropertyExtService domibusPropertyExtService) {
+        List<NotificationType> messageNotifications = domibusPropertyExtService.getConfiguredNotifications(WSPluginPropertyManager.MESSAGE_NOTIFICATIONS);
+        LOG.debug("Using the following message notifications [{}]", messageNotifications);
+        WebServicePluginImpl webServicePlugin = new WebServicePluginImpl();
+        webServicePlugin.setRequiredNotifications(messageNotifications);
+        return webServicePlugin;
     }
 
     @Bean("webserviceAsyncPluginConfiguration")
@@ -63,11 +66,14 @@ public class WSPluginConfiguration {
 
     @Bean("wsPluginLoggingEventSender")
     public WSPluginLoggingEventSender wsPluginLoggingEventSender(DomibusPropertyExtService domibusPropertyExtService) {
-        String payloadPrintString = domibusPropertyExtService.getProperty(DOMIBUS_LOGGING_PAYLOAD_PRINT);
-        LOG.debug("Property [{}] value is [{}]", DOMIBUS_LOGGING_PAYLOAD_PRINT, payloadPrintString);
+        Boolean payloadPrint = domibusPropertyExtService.getBooleanProperty(DOMIBUS_LOGGING_PAYLOAD_PRINT);
+        LOG.debug("Property [{}] value is [{}]", DOMIBUS_LOGGING_PAYLOAD_PRINT, payloadPrint);
+        Boolean metadataPrint = domibusPropertyExtService.getBooleanProperty(DOMIBUS_LOGGING_METADATA_PRINT);
+        LOG.debug("Property [{}] value is [{}]", DOMIBUS_LOGGING_METADATA_PRINT, metadataPrint);
 
         WSPluginLoggingEventSender wsPluginLoggingEventSender = new WSPluginLoggingEventSender();
-        wsPluginLoggingEventSender.setPrintPayload(BooleanUtils.toBoolean(payloadPrintString));
+        wsPluginLoggingEventSender.setPrintPayload(payloadPrint);
+        wsPluginLoggingEventSender.setPrintMetadata(metadataPrint);
         return wsPluginLoggingEventSender;
     }
 
@@ -79,17 +85,20 @@ public class WSPluginConfiguration {
                                              ClearAuthenticationMDCInterceptor clearAuthenticationMDCInterceptor,
                                              WSPluginFaultOutInterceptor wsPluginFaultOutInterceptor,
                                              @Qualifier("wsLoggingFeature") LoggingFeature wsLoggingFeature) {
-        EndpointImpl endpoint = new EndpointImpl(bus, backendWebService);
-        Map<String, Object> endpointProperties = getEndpointProperties(wsPluginPropertyManager);
-        endpoint.setProperties(endpointProperties);
-        endpoint.setSchemaLocations(getSchemaLocations());
-        endpoint.setInInterceptors(Arrays.asList(customAuthenticationInterceptor));
-        endpoint.setOutInterceptors(Arrays.asList(clearAuthenticationMDCInterceptor));
-        endpoint.setOutFaultInterceptors(Arrays.asList(wsPluginFaultOutInterceptor, clearAuthenticationMDCInterceptor));
-        endpoint.setFeatures(Arrays.asList(wsLoggingFeature));
+        try (EndpointImpl endpoint = new EndpointImpl(bus, backendWebService)) {
+            Map<String, Object> endpointProperties = getEndpointProperties(wsPluginPropertyManager);
+            endpoint.setProperties(endpointProperties);
+            endpoint.setSchemaLocations(getSchemaLocations());
+            endpoint.setInInterceptors(Collections.singletonList(customAuthenticationInterceptor));
+            endpoint.setOutInterceptors(Collections.singletonList(clearAuthenticationMDCInterceptor));
+            endpoint.setOutFaultInterceptors(Arrays.asList(wsPluginFaultOutInterceptor, clearAuthenticationMDCInterceptor));
+            endpoint.setFeatures(Collections.singletonList(wsLoggingFeature));
 
-        endpoint.publish("/backend");
-        return endpoint;
+            endpoint.publish("/backend");
+            return endpoint;
+        } catch (Exception e) {
+            throw new WSPluginException("EndpointImpl could not be created with Bus [" + Bus.DEFAULT_BUS_ID + "]", e);
+        }
     }
 
     @Bean("wsLoggingFeature")

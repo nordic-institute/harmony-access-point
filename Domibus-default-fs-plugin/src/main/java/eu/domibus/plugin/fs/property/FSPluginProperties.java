@@ -47,9 +47,6 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
     protected PasswordEncryptionExtService pluginPasswordEncryptionService;
 
     @Autowired
-    protected DomainExtService domainExtService;
-
-    @Autowired
     protected DomibusConfigurationExtService domibusConfigurationExtService;
 
     @Autowired
@@ -478,10 +475,8 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
         }
 
         // propertyName may or may not already include the domaincode (in single-tenancy vs multi-tenancy)
-        if (propertyName.startsWith(DOMAIN_PREFIX)) {
-            if (this.properties.containsKey(propertyName)) {
-                return this.properties.getProperty(propertyName);
-            }
+        if (propertyName.startsWith(DOMAIN_PREFIX) && this.properties.containsKey(propertyName)) {
+            return this.properties.getProperty(propertyName);
         }
         String baseName = getBasePropertyName(propertyName);
         String key1 = DOMAIN_PREFIX + domainCode + DOT + baseName;
@@ -541,6 +536,6 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
     }
 
     private boolean isQuartzRelated(DomibusPropertyMetadataDTO propMeta) {
-        return TriggerChangeListener.CronPropertyNamesToJobMap.keySet().stream().anyMatch(key -> key.contains(propMeta.getName()));
+        return TriggerChangeListener.CRON_PROPERTY_NAMES_TO_JOB_MAP.keySet().stream().anyMatch(key -> key.contains(propMeta.getName()));
     }
 }

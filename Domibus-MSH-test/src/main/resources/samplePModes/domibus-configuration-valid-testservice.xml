@@ -121,6 +121,7 @@
         <agreements>
             <agreement name="agreement1110" value="EDELIVERY-1110" type=""/>
             <agreement name="agreement1111" value="TestServiceAgreement" type=""/>
+            <agreement name="agreementempty"  type=""/>
             <agreement name="agreementEmpty" value="" type=""/>
         </agreements>
         <services>
@@ -291,6 +292,24 @@
             <legs>
                 <leg name="pushTestcase3Leg1tc3ActionLeg1"/>
                 <leg name="pushTestcase3Leg2tc3ActionLeg2"/>
+            </legs>
+        </process>
+        <process name="testServiceWrong"
+                 agreement="agreementempty"
+                 mep="oneway"
+                 binding="push"
+                 initiatorRole="defaultInitiatorRole"
+                 responderRole="defaultResponderRole">
+            <initiatorParties>
+                <initiatorParty name="blue_gw"/>
+                <initiatorParty name="red_gw"/>
+            </initiatorParties>
+            <responderParties>
+                <responderParty name="blue_gw"/>
+                <responderParty name="red_gw"/>
+            </responderParties>
+            <legs>
+                <leg name="legTestService"/>
             </legs>
         </process>
         <process name="testService"

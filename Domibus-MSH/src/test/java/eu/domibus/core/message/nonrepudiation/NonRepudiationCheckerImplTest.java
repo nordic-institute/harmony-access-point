@@ -1,14 +1,15 @@
 package eu.domibus.core.message.nonrepudiation;
 
-import eu.domibus.core.message.nonrepudiation.NonRepudiationCheckerImpl;
+import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.util.SoapUtil;
-import eu.domibus.core.message.nonrepudiation.NonRepudiationConstants;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.io.IOUtils;
 import org.apache.wss4j.dom.WSConstants;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.springframework.core.io.ClassPathResource;
 
@@ -31,6 +32,9 @@ public class NonRepudiationCheckerImplTest {
     NonRepudiationCheckerImpl nonRepudiationChecker = new NonRepudiationCheckerImpl();
 
     static MessageFactory messageFactory = null;
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
     @BeforeClass
     public static void init() throws SOAPException {
@@ -67,6 +71,13 @@ public class NonRepudiationCheckerImplTest {
         final List<String> referencesFromNonRepudiationInformation = getNonRepudiationListFromResponse("dataset/as4/MSHAS4Response.xml");
         final boolean compareUnorderedReferenceNodeListsResult = nonRepudiationChecker.compareUnorderedReferenceNodeLists(referencesFromSecurityHeader, referencesFromNonRepudiationInformation);
         Assert.assertTrue(compareUnorderedReferenceNodeListsResult);
+    }
+
+    @Test
+    public void getNonRepudiationDetailsFromReceiptWithNullArgument() throws Exception {
+        thrown.expect(EbMS3Exception.class);
+        thrown.expectMessage("Not found NonRepudiationDetails element.");
+        nonRepudiationChecker.getNonRepudiationDetailsFromReceipt(null);
     }
 
     @Test

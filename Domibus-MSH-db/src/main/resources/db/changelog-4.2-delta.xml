@@ -1236,10 +1236,6 @@
             <column name="MESSAGE_IN_ERROR_ID"/>
         </createIndex>
 
-        <createIndex indexName="IDX_MSG_UI_MESSAGE_ID" tableName="TB_MESSAGE_UI">
-            <column name="MESSAGE_ID"/>
-        </createIndex>
-
         <createIndex indexName="IDX_MSG_ACKNW_MESSAGE_ID" tableName="TB_MESSAGE_ACKNW">
             <column name="MESSAGE_ID"/>
         </createIndex>
@@ -1264,9 +1260,13 @@
             <column name="CERTIFICATE_TYPE" type="VARCHAR(255)" />
         </createTable>
 
+        <createIndex indexName="IDX_FK_CERTIFICATE_AUD_REV" tableName="TB_CERTIFICATE_AUD">
+            <column name="REV"/>
+        </createIndex>
+
         <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_CERTIFICATE_AUD"
-                                 constraintName="FK_TB_CERTIFICATE_AUD_REV" deferrable="false"
-                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 constraintName="FK_CERTIFICATE_AUD_REV" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID" referencedTableName="TB_REV_INFO"/>
 
     </changeSet>
