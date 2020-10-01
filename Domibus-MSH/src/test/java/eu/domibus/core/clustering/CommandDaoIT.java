@@ -60,10 +60,13 @@ public class CommandDaoIT {
 
         List<CommandEntity> ms1 = commandDao.findCommandsByServerName("ms1");
         assertEquals(1, ms1.size());
-        assertNotNull(ms1.get(0).getCreationTime());
-        assertNotNull(ms1.get(0).getModificationTime());
-        assertNotNull(ms1.get(0).getCreatedBy());
-        assertNotNull(ms1.get(0).getModifiedBy());
+        CommandEntity commandEntity = ms1.get(0);
+        assertNotNull(commandEntity.getCreationTime());
+        assertNotNull(commandEntity.getModificationTime());
+        assertNotNull(commandEntity.getCreatedBy());
+        assertNotNull(commandEntity.getModifiedBy());
+
+        assertEquals(commandEntity.getCreationTime(), commandEntity.getModificationTime());
     }
 
     @Test

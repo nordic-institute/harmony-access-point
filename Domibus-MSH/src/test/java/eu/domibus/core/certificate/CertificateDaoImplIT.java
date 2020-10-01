@@ -89,12 +89,15 @@ public class CertificateDaoImplIT {
         em.persist(certificate);
         List<Certificate> unNotifiedRevoked = certificateDao.getUnNotifiedSoonRevoked();
         assertEquals(1, unNotifiedRevoked.size());
-        assertNotNull(unNotifiedRevoked.get(0).getCreationTime());
-        assertNotNull(unNotifiedRevoked.get(0).getCreatedBy());
-        assertNotNull(unNotifiedRevoked.get(0).getModificationTime());
-        assertNotNull(unNotifiedRevoked.get(0).getModifiedBy());
+        Certificate certificate1 = unNotifiedRevoked.get(0);
+        assertNotNull(certificate1.getCreationTime());
+        assertNotNull(certificate1.getCreatedBy());
+        assertNotNull(certificate1.getModificationTime());
+        assertNotNull(certificate1.getModifiedBy());
+
+        assertEquals(certificate1.getCreationTime(), certificate1.getModificationTime());
     }
-    
+
     @Test(expected = javax.validation.ConstraintViolationException.class)
     @Transactional
     public void saveWithNullDates() {
@@ -110,7 +113,7 @@ public class CertificateDaoImplIT {
 
     @Test
     @Transactional
-    public void saveOrUpdate()  {
+    public void saveOrUpdate() {
 
         Date notBefore = new Date();
         Date notAfter = new Date(notBefore.getTime() + 10000);
@@ -166,7 +169,7 @@ public class CertificateDaoImplIT {
 
     @Test
     @Transactional
-    public void findByAlias()  {
+    public void findByAlias() {
 
         Certificate firstCertificate = new Certificate();
         String firstCertificateName = "firstCertificateName";
@@ -363,7 +366,7 @@ public class CertificateDaoImplIT {
 
     @Test
     @Transactional
-    public void removeUnusedCertificates()  {
+    public void removeUnusedCertificates() {
         Certificate firstCertificate = new Certificate();
         firstCertificate.setAlias("firstCertificateName");
         firstCertificate.setNotBefore(new Date());

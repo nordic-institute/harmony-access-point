@@ -46,7 +46,7 @@ public class MessagingDaoTestIT extends AbstractIT {
     public void findMessagingOnStatusReceiverAndMpc() {
 
         List<Identifier> identifiers = new ArrayList<>();
-        Identifier identifier= new Identifier();
+        Identifier identifier = new Identifier();
         identifier.setPartyId("domibus-blue");
         PartyIdType partyIdType1 = new PartyIdType();
         partyIdType1.setName("partyIdTypeUrn1");
@@ -101,6 +101,7 @@ public class MessagingDaoTestIT extends AbstractIT {
         assertNotNull(messageByMessageId.getCreationTime());
         assertNotNull(messageByMessageId.getModifiedBy());
         assertNotNull(messageByMessageId.getModificationTime());
+        assertEquals(messageByMessageId.getCreationTime(), messageByMessageId.getModificationTime());
     }
 
 }

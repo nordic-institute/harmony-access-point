@@ -58,7 +58,7 @@ public class UIMessageDaoImplIT {
 
 
     @Before
-    public void setUp()  {
+    public void setUp() {
         uiMessageEntity1 = createUIMessageEntity(messageId1, "domibus-blue", "domibus-red", MSHRole.SENDING);
         uiMessageEntity2 = createUIMessageEntity(messageId2, "domibus-blue", "domibus-red", MSHRole.SENDING);
         uiMessageEntity3 = createUIMessageEntity(messageId3, "domibus-red", "domibus-blue", MSHRole.RECEIVING);
@@ -162,6 +162,8 @@ public class UIMessageDaoImplIT {
         Assert.assertNotNull(uiMessageByMessageId.getCreationTime());
         Assert.assertNotNull(uiMessageByMessageId.getModifiedBy());
         Assert.assertNotNull(uiMessageByMessageId.getModificationTime());
+
+        Assert.assertNotEquals(uiMessageByMessageId.getCreationTime(), uiMessageByMessageId.getModificationTime());
     }
 
 }

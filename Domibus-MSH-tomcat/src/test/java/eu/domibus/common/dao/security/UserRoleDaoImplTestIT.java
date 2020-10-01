@@ -36,11 +36,13 @@ public class UserRoleDaoImplTestIT extends AbstractIT {
 
         assertEquals(1, roles.size());
         assertEquals(1, roles.size());
-        assertEquals("USER_ROLE_1", roles.get(0).getName());
-        assertNotNull(roles.get(0).getCreationTime());
-        assertNotNull(roles.get(0).getModificationTime());
-        assertNotNull(roles.get(0).getCreatedBy());
-        assertNotNull(roles.get(0).getModifiedBy());
+        UserRole userRole = roles.get(0);
+        assertEquals("USER_ROLE_1", userRole.getName());
+        assertNotNull(userRole.getCreationTime());
+        assertNotNull(userRole.getModificationTime());
+        assertEquals(userRole.getCreationTime(), userRole.getModificationTime());
+        assertNotNull(userRole.getCreatedBy());
+        assertNotNull(userRole.getModifiedBy());
     }
 
     @Test

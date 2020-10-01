@@ -55,6 +55,8 @@ public class MessageAttemptDaoTestIT extends AbstractIT {
         assertNotNull(next.getCreatedBy());
         assertNotNull(next.getModifiedBy());
 
+        assertEquals(next.getCreationTime(), next.getModificationTime());
+
     }
 }
 

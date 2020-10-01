@@ -22,7 +22,6 @@ import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNotNull;
 
 /**
- *
  * PartyDaoConfig is commented out because it was causing issues when running the tests locally.
  * To reproduce the issue, uncomment the configuration and the autowire of PartyDao and run tests on the package {@link eu.domibus.core}
  *
@@ -79,7 +78,7 @@ public class PartyDaoIT {
 
     @Transactional
     @Test
-    public void listParties()  {
+    public void listParties() {
 
         List<Party> parties = partyDao.getParties();
         assertEquals(3, parties.size());
@@ -110,7 +109,7 @@ public class PartyDaoIT {
         assertNotNull(findById.getCreatedBy());
         assertNotNull(findById.getModifiedBy());
 
-        assertEquals(findById.getCreationTime(),findById.getModificationTime());
+        assertEquals(findById.getCreationTime(), findById.getModificationTime());
     }
 
 }

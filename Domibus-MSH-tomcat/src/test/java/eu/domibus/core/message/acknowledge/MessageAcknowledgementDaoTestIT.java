@@ -96,6 +96,8 @@ public class MessageAcknowledgementDaoTestIT extends AbstractIT {
         assertNotNull(entity.getCreatedBy());
         assertNotNull(entity.getModificationTime());
         assertNotNull(entity.getModifiedBy());
+
+        assertEquals(entity.getCreationTime().getTime(), entity.getModificationTime().getTime());
     }
 
     //@Test

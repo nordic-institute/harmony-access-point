@@ -130,8 +130,11 @@ public class AlertDaoIT {
         alertCriteria.setPageSize(10);
         final List<Alert> alerts = alertDao.filterAlerts(alertCriteria);
         assertEquals(1,alerts.size());
-        assertNotNull(alerts.get(0).getCreationTime());
-        assertNotNull(alerts.get(0).getModificationTime());
+        Alert alert = alerts.get(0);
+        assertNotNull(alert.getCreationTime());
+        assertNotNull(alert.getModificationTime());
+
+        assertEquals(alert.getCreationTime(), alert.getModificationTime());
     }
 
     @Test
