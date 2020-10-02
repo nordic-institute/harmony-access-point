@@ -73,16 +73,6 @@ public class MSHWebserviceConfiguration {
         return endpoint;
     }
 
-    @Bean
-    public LoggingOutInterceptor loggingOutInterceptor() {
-        return new LoggingOutInterceptor();
-    }
-
-    @Bean
-    public LoggingInInterceptor loggingInInterceptor() {
-        return new LoggingInInterceptor();
-    }
-
     protected Map<String, Object> getEndpointProperties(EHCacheTokenStore ehCacheTokenStore,
                                                         SimpleKeystorePasswordCallback simpleKeystorePasswordCallback,
                                                         Wss4JMultiDomainCryptoProvider wss4JMultiDomainCryptoProvider) {
@@ -102,6 +92,16 @@ public class MSHWebserviceConfiguration {
     @Bean("mshWebservice")
     public MSHWebservice mshWebservice() {
         return new MSHWebservice();
+    }
+
+    @Bean
+    public LoggingOutInterceptor loggingOutInterceptor() {
+        return new LoggingOutInterceptor();
+    }
+
+    @Bean
+    public LoggingInInterceptor loggingInInterceptor() {
+        return new LoggingInInterceptor();
     }
 
     @Bean("loggingFeature")
