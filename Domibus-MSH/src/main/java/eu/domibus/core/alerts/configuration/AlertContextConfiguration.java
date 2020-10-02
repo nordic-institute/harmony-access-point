@@ -81,7 +81,6 @@ public class AlertContextConfiguration {
         DefaultJmsListenerContainerFactory result = new DefaultJmsListenerContainerFactory();
         result.setConnectionFactory(connectionFactory);
         result.setTransactionManager(transactionManager);
-        result.setCacheLevel(DefaultMessageListenerContainer.CACHE_CONNECTION);
         result.setTaskExecutor(schedulingTaskExecutor);
 
         String concurrency = domibusPropertyProvider.getProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_ALERT_QUEUE_CONCURRENCY);

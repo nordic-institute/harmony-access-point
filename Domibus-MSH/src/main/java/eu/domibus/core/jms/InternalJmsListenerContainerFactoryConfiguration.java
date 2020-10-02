@@ -42,7 +42,6 @@ public class InternalJmsListenerContainerFactoryConfiguration {
         result.setConnectionFactory(connectionFactory);
         result.setTransactionManager(transactionManager);
         result.setTaskExecutor(schedulingTaskExecutor);
-        result.setCacheLevel(DefaultMessageListenerContainer.CACHE_CONSUMER);
 
         String concurrency = domibusPropertyProvider.getProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_INTERNAL_QUEUE_CONCURENCY);
         LOGGER.debug("Configured property [{}] with [{}]", DomibusPropertyMetadataManagerSPI.DOMIBUS_INTERNAL_QUEUE_CONCURENCY, concurrency);
