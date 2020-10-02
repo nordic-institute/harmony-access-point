@@ -88,7 +88,7 @@ public class MessagingConfigurationManagerTest  {
         assertEquals(AlertLevel.LOW, messagingConfiguration.getAlertLevel(MessageStatus.ACKNOWLEDGED));
         assertTrue(messagingConfiguration.isActive());
         new Verifications() {{
-            Arrays.stream(states).map(StringUtils::trim).toArray(String[]::new);
+            Arrays.stream(states).filter(state -> !StringUtils.isBlank(state)).map(state -> StringUtils.trim(state)).distinct().toArray(String[]::new);
         }};
     }
 
