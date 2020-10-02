@@ -7,7 +7,6 @@ import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
 import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -19,18 +18,6 @@ import java.util.List;
  * @author Cosmin Baciu
  */
 public interface BackendConnector<U, T> {
-
-    List<NotificationType> DEFAULT_PULL_NOTIFICATIONS = Arrays.asList(
-            NotificationType.MESSAGE_RECEIVED,
-            NotificationType.MESSAGE_SEND_FAILURE,
-            NotificationType.MESSAGE_RECEIVED_FAILURE);
-    List<NotificationType> DEFAULT_PUSH_NOTIFICATIONS = Arrays.asList(
-            NotificationType.MESSAGE_RECEIVED,
-            NotificationType.MESSAGE_SEND_FAILURE,
-            NotificationType.MESSAGE_RECEIVED_FAILURE,
-            NotificationType.MESSAGE_SEND_SUCCESS,
-            NotificationType.MESSAGE_STATUS_CHANGE);
-
 
     /**
      * @return the MessageSubmissionTransformer matching the intended backend submission DTO
@@ -114,6 +101,8 @@ public interface BackendConnector<U, T> {
      * MUST OVERRIDE this method. For plugins working in Mode.PULL this method never gets called. The message can be
      * retrieved by a subclass by calling super.downloadMessage(messageId, target)
      *
+     * @deprecated use {@link BackendConnector#deliverMessage(DeliverMessageEvent)}
+     *
      * @param messageId containing details about the deliver message event
      */
     @Deprecated
@@ -148,7 +137,7 @@ public interface BackendConnector<U, T> {
      * @return the plugin notifications
      */
     default List<NotificationType> getRequiredNotifications() {
-        return DEFAULT_PUSH_NOTIFICATIONS;
+        return NotificationType.DEFAULT_PUSH_NOTIFICATIONS;
     }
 
     /**
@@ -193,6 +182,8 @@ public interface BackendConnector<U, T> {
      * PMode[1].errorHandling.Report.ProcessErrorNotifyProducer=true has finally failed to be delivered. The error details
      * are provided by #getErrorsForMessage. This is only called for messages that have no rerty attempts left.
      *
+     * @deprecated use {@link BackendConnector#messageSendFailed(MessageSendFailedEvent)} )}
+     *
      * @param messageId the Id of the failed message
      */
     @Deprecated
@@ -210,6 +201,8 @@ public interface BackendConnector<U, T> {
     /**
      * This method gets called when an outgoing message associated with a Mode.PUSH plugin has been successfully sent
      * to the intended receiving MSH
+     *
+     * @deprecated use {@link BackendConnector#messageSendSuccess(MessageSendSuccessEvent)}
      *
      * @param messageId the Id of the successful message
      */

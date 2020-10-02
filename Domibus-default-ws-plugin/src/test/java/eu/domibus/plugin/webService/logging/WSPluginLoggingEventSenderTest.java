@@ -25,7 +25,7 @@ public class WSPluginLoggingEventSenderTest {
     @Test
     public void test_getLogMessage_StripHeadersPayload(final @Mocked LogEvent logEvent) {
         new Expectations(wsPluginLoggingEventSender) {{
-            wsPluginLoggingEventSender.checkIfApacheCxfLoggingInfoEnabled();
+            wsPluginLoggingEventSender.isCxfLoggingInfoEnabled();
             result = true;
 
             wsPluginLoggingEventSender.checkIfStripPayloadPossible();
@@ -55,7 +55,7 @@ public class WSPluginLoggingEventSenderTest {
         }};
 
         //tested method
-        Assert.assertTrue(wsPluginLoggingEventSender.checkIfApacheCxfLoggingInfoEnabled());
+        Assert.assertTrue(wsPluginLoggingEventSender.isCxfLoggingInfoEnabled());
     }
 
     @Test

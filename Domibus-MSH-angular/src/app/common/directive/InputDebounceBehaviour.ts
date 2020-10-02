@@ -1,5 +1,5 @@
-import {Directive, ElementRef, Renderer2, HostListener, Input, OnInit} from '@angular/core';
-import {NG_VALUE_ACCESSOR, ControlValueAccessor, NgModel} from '@angular/forms';
+import {Directive, ElementRef, HostListener, Input, OnInit, Renderer2} from '@angular/core';
+import {ControlValueAccessor, NG_VALUE_ACCESSOR} from '@angular/forms';
 
 /**
  * @author Ion Perpegel
@@ -51,7 +51,10 @@ export class InputDebounceBehaviourDirective implements ControlValueAccessor, On
   @HostListener('blur')
   onBlur() {
     if (this.setValueFn) {
+      const element = this._elementRef.nativeElement;
+      if (element && element.value != this.lastValue) {
         this.setValueFn(this.lastValue);
+      }
     }
   }
 

@@ -1,6 +1,7 @@
 package eu.domibus.core.user;
 
 import eu.domibus.ebms3.common.model.AbstractBaseEntity;
+import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 
 import javax.persistence.Column;
@@ -15,6 +16,7 @@ import java.util.Date;
 public class UserEntityBaseImpl extends AbstractBaseEntity {
 
     @NotNull
+    @Audited(withModifiedFlag = true)
     @Column(name = "USER_ENABLED")
     private Boolean active = true;
 

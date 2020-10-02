@@ -30,6 +30,11 @@ public class FSPluginDomibusPropertyExtServiceMock implements DomibusPropertyExt
     }
 
     @Override
+    public Boolean getBooleanProperty(String propertyName) {
+        return null;
+    }
+
+    @Override
     public Set<String> filterPropertiesName(Predicate<String> predicate) {
         return null;
     }

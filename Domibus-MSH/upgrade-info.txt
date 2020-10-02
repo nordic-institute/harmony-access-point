@@ -15,6 +15,8 @@ Domibus 4.2 (from 4.1.5):
                    - add the configuration file default-domibus.properties for the 'default' domain from the distribution
                    - add the configuration file super-domibus.properties from the distribution
                    - in the domain specific configuration files(eg domain_name-domibus.properties), replace the names of the domain_name.payload.temp.* properties with domain_name.domibus.payload.temp.*
+                   - for the domain specific configuration files, the domain name should start with a letter and it should contain only lower case letters, numbers and underscore.
+                   - as the property names in these files need to be prefixed with the domain name, this prefix needs to follow the same rules as the domain name above
                 - [Wildfly only]
                    - in standalone-full.xml - search for
                     <managed-executor-service name="quartzExecutorService" jndi-name="java:jboss/ee/concurrency/executor/QuartzExecutorService" context-service="default" hung-task-threshold="0" long-running-tasks="true" core-threads="5" max-threads="25" keepalive-time="5000"/>
