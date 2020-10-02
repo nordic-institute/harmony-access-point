@@ -6,7 +6,6 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.environment.DomibusEnvironmentUtil;
 import eu.domibus.plugin.notification.PluginAsyncNotificationConfiguration;
-import eu.domibus.plugin.webService.exception.WSPluginException;
 import eu.domibus.plugin.webService.impl.ClearAuthenticationMDCInterceptor;
 import eu.domibus.plugin.webService.impl.CustomAuthenticationInterceptor;
 import eu.domibus.plugin.webService.impl.WSPluginFaultOutInterceptor;
@@ -85,20 +84,17 @@ public class WSPluginConfiguration {
                                              ClearAuthenticationMDCInterceptor clearAuthenticationMDCInterceptor,
                                              WSPluginFaultOutInterceptor wsPluginFaultOutInterceptor,
                                              @Qualifier("wsLoggingFeature") LoggingFeature wsLoggingFeature) {
-        try (EndpointImpl endpoint = new EndpointImpl(bus, backendWebService)) {
-            Map<String, Object> endpointProperties = getEndpointProperties(wsPluginPropertyManager);
-            endpoint.setProperties(endpointProperties);
-            endpoint.setSchemaLocations(getSchemaLocations());
-            endpoint.setInInterceptors(Collections.singletonList(customAuthenticationInterceptor));
-            endpoint.setOutInterceptors(Collections.singletonList(clearAuthenticationMDCInterceptor));
-            endpoint.setOutFaultInterceptors(Arrays.asList(wsPluginFaultOutInterceptor, clearAuthenticationMDCInterceptor));
-            endpoint.setFeatures(Collections.singletonList(wsLoggingFeature));
+        EndpointImpl endpoint = new EndpointImpl(bus, backendWebService);
+        Map<String, Object> endpointProperties = getEndpointProperties(wsPluginPropertyManager);
+        endpoint.setProperties(endpointProperties);
+        endpoint.setSchemaLocations(getSchemaLocations());
+        endpoint.setInInterceptors(Collections.singletonList(customAuthenticationInterceptor));
+        endpoint.setOutInterceptors(Collections.singletonList(clearAuthenticationMDCInterceptor));
+        endpoint.setOutFaultInterceptors(Arrays.asList(wsPluginFaultOutInterceptor, clearAuthenticationMDCInterceptor));
+        endpoint.setFeatures(Collections.singletonList(wsLoggingFeature));
 
-            endpoint.publish("/backend");
-            return endpoint;
-        } catch (Exception e) {
-            throw new WSPluginException("EndpointImpl could not be created with Bus [" + Bus.DEFAULT_BUS_ID + "]", e);
-        }
+        endpoint.publish("/backend");
+        return endpoint;
     }
 
     @Bean("wsLoggingFeature")
