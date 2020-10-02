@@ -15,6 +15,8 @@ import eu.domibus.core.message.pull.SaveRawPulledMessageInterceptor;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.ext.logging.LoggingFeature;
+import org.apache.cxf.ext.logging.LoggingInInterceptor;
+import org.apache.cxf.ext.logging.LoggingOutInterceptor;
 import org.apache.cxf.jaxws.EndpointImpl;
 import org.apache.cxf.jaxws.handler.SetCodeValueFaultOutInterceptor;
 import org.apache.cxf.ws.security.tokenstore.EHCacheTokenStore;
@@ -52,18 +54,33 @@ public class MSHWebserviceConfiguration {
                         SaveRawPulledMessageInterceptor saveRawPulledMessageInterceptor,
                         HttpHeaderOutInterceptor httpHeaderOutInterceptor,
                         @Qualifier("domibusSetCodeValueFaultOutInterceptor") SetCodeValueFaultOutInterceptor setCodeValueFaultOutInterceptor,
-                        FaultInHandler faultInHandler) {
+                        FaultInHandler faultInHandler,
+                        LoggingInInterceptor loggingInInterceptor,
+                        LoggingOutInterceptor loggingOutInterceptor
+                        ) {
         EndpointImpl endpoint = new EndpointImpl(domibusBus, mshWebservice);
         Map<String, Object> endpointProperties = getEndpointProperties(ehCacheTokenStore, simpleKeystorePasswordCallback, wss4JMultiDomainCryptoProvider);
         endpoint.setProperties(endpointProperties);
-        endpoint.setInInterceptors(Arrays.asList(domibusReadyInterceptor, setDomainInInterceptor, trustSenderInterceptor, setPolicyInServerInterceptor, propertyValueExchangeInterceptor, httpHeaderInInterceptor));
-        endpoint.setOutInterceptors(Arrays.asList(clearMDCInterceptor, setPolicyOutInterceptorServer, saveRawPulledMessageInterceptor, httpHeaderOutInterceptor));
+        endpoint.setInInterceptors(Arrays.asList(domibusReadyInterceptor, setDomainInInterceptor, trustSenderInterceptor, setPolicyInServerInterceptor, propertyValueExchangeInterceptor, httpHeaderInInterceptor,
+                loggingInInterceptor));
+        endpoint.setOutInterceptors(Arrays.asList(clearMDCInterceptor, setPolicyOutInterceptorServer, saveRawPulledMessageInterceptor, httpHeaderOutInterceptor, loggingOutInterceptor));
         endpoint.setOutFaultInterceptors(Arrays.asList(setCodeValueFaultOutInterceptor, clearMDCInterceptor));
-        endpoint.setFeatures(Arrays.asList(loggingFeature));
-        endpoint.setHandlers(Arrays.asList(faultInHandler));
+        endpoint.setInFaultInterceptors(Collections.singletonList(loggingInInterceptor));
+        endpoint.setFeatures(Collections.singletonList(loggingFeature));
+        endpoint.setHandlers(Collections.singletonList(faultInHandler));
 
         endpoint.publish("/msh");
         return endpoint;
+    }
+
+    @Bean
+    public LoggingOutInterceptor loggingOutInterceptor() {
+        return new LoggingOutInterceptor();
+    }
+
+    @Bean
+    public LoggingInInterceptor loggingInInterceptor() {
+        return new LoggingInInterceptor();
     }
 
     protected Map<String, Object> getEndpointProperties(EHCacheTokenStore ehCacheTokenStore,
