@@ -74,10 +74,10 @@ public class MessagingConfigurationManager
                 return new MessagingModuleConfiguration();
             }
             final String[] states = messageCommunicationStates.split(",");
-            final String[] trimmedStates = Arrays.stream(states).filter(state -> !StringUtils.isBlank(state)).map(state -> StringUtils.trim(state)).distinct().toArray(String[]::new);
+            final String[] trimmedStates = Arrays.stream(states).filter(state -> StringUtils.isNotBlank(state)).map(state -> StringUtils.trim(state)).distinct().toArray(String[]::new);
 
             final String[] levels = messageCommunicationLevels.split(",");
-            final String[] trimmedLevels = Arrays.stream(levels).filter(level -> !StringUtils.isBlank(level)).map(level -> StringUtils.trim(level)).distinct().toArray(String[]::new);
+            final String[] trimmedLevels = Arrays.stream(levels).filter(level -> StringUtils.isNotBlank(level)).map(level -> StringUtils.trim(level)).distinct().toArray(String[]::new);
 
             final boolean eachStatusHasALevel = (states.length == levels.length);
             LOG.debug("Each message status has his own level[{}]", eachStatusHasALevel);

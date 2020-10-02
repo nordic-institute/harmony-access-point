@@ -10,11 +10,8 @@ import eu.domibus.core.alerts.service.AlertConfigurationService;
 import eu.domibus.core.alerts.service.ConfigurationReader;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import java.util.Arrays;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 import static org.junit.Assert.*;
@@ -64,8 +61,8 @@ public class MessagingConfigurationManagerTest  {
     @Test
     public void readConfigurationEachMessagetStatusItsOwnAlertLevel() {
         final String mailSubject = "Messsage status changed";
-        final String messageCommunicationStates = "SEND_FAILURE, ACKNOWLEDGED  ";
-        final String messageCommunicationLevels = "HIGH, LOW";
+        final String messageCommunicationStates = "SEND_FAILURE,,,SEND_FAILURE,	SEND_ENQUEUED	,	ACKNOWLEDGED";
+        final String messageCommunicationLevels = "HIGH, MEDIUM, HIGH,,,LOW";
         final String[] states = new String[2];
         new Expectations() {{
             alertConfigurationService.isAlertModuleEnabled();
@@ -86,9 +83,12 @@ public class MessagingConfigurationManagerTest  {
         assertEquals(mailSubject, messagingConfiguration.getMailSubject());
         assertEquals(AlertLevel.HIGH, messagingConfiguration.getAlertLevel(MessageStatus.SEND_FAILURE));
         assertEquals(AlertLevel.LOW, messagingConfiguration.getAlertLevel(MessageStatus.ACKNOWLEDGED));
+        assertEquals(3, messagingConfiguration.messageStatusLevels.size());
         assertTrue(messagingConfiguration.isActive());
         new Verifications() {{
-            Arrays.stream(states).filter(state -> !StringUtils.isBlank(state)).map(state -> StringUtils.trim(state)).distinct().toArray(String[]::new);
+            messagingConfiguration.addStatusLevelAssociation(MessageStatus.SEND_FAILURE, AlertLevel.HIGH);
+            messagingConfiguration.addStatusLevelAssociation(MessageStatus.SEND_ENQUEUED, AlertLevel.MEDIUM);
+            messagingConfiguration.addStatusLevelAssociation(MessageStatus.ACKNOWLEDGED, AlertLevel.LOW);
         }};
     }
 
