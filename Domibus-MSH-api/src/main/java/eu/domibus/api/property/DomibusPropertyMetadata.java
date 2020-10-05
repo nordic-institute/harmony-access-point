@@ -326,7 +326,7 @@ public class DomibusPropertyMetadata {
         SUPER(4, "Super"),
         GLOBAL_AND_DOMAIN(GLOBAL.getValue() | DOMAIN.getValue(), GLOBAL.getText() + " and " + DOMAIN.getText()),
         DOMAIN_AND_SUPER(DOMAIN.getValue() | SUPER.getValue(), DOMAIN.getText() + " and " + SUPER.getText()),
-        ANY(GLOBAL.getValue() | DOMAIN.getValue() | SUPER.getValue(), GLOBAL.getText() + " and " + DOMAIN.getText() + SUPER.getText());
+        ANY(GLOBAL.getValue() | DOMAIN.getValue() | SUPER.getValue(), GLOBAL.getText() + " and " + DOMAIN.getText() + " and " + SUPER.getText());
 
         private int value;
         private String text;
@@ -351,13 +351,6 @@ public class DomibusPropertyMetadata {
         public void setText(String text) {
             this.text = text;
         }
-//        public static final int GLOBAL = 1;
-//        public static final int DOMAIN = 2;
-//        public static final int SUPER = 4;
-//        public static final int GLOBAL_AND_DOMAIN = GLOBAL | DOMAIN;
-//        public static final int DOMAIN_AND_SUPER = DOMAIN | SUPER;
-//        public static final int ANY = GLOBAL | DOMAIN | SUPER;
-//
     }
 
     /**
