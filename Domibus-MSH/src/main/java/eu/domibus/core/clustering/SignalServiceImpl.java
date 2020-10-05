@@ -107,4 +107,16 @@ public class SignalServiceImpl implements SignalService {
         jmsManager.sendMessageToTopic(jmsMessage, clusterCommandTopic, true);
     }
 
+    @Override
+    public void signalMessageFiltersUpdated() {
+        String domainCode = domainContextProvider.getCurrentDomain().getCode();
+
+        LOG.debug("Signaling message filters change [{}] domain", domainCode);
+
+        Map<String, String> commandProperties = new HashMap<>();
+        commandProperties.put(Command.COMMAND, Command.DOMIBUS_PROPERTY_CHANGE);
+        commandProperties.put(MessageConstants.DOMAIN, domainCode);
+
+        sendMessage(commandProperties);
+    }
 }
