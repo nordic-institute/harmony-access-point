@@ -11,12 +11,13 @@ import eu.domibus.core.ebms3.receiver.policy.SetPolicyOutInterceptorServer;
 import eu.domibus.core.ebms3.sender.interceptor.HttpHeaderInInterceptor;
 import eu.domibus.core.ebms3.sender.interceptor.HttpHeaderOutInterceptor;
 import eu.domibus.core.logging.cxf.DomibusLoggingEventSender;
+import eu.domibus.core.logging.cxf.DomibusLoggingInInterceptor;
 import eu.domibus.core.message.pull.SaveRawPulledMessageInterceptor;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.ext.logging.LoggingFeature;
-import org.apache.cxf.ext.logging.LoggingInInterceptor;
 import org.apache.cxf.ext.logging.LoggingOutInterceptor;
+import org.apache.cxf.ext.logging.slf4j.Slf4jVerboseEventSender;
 import org.apache.cxf.jaxws.EndpointImpl;
 import org.apache.cxf.jaxws.handler.SetCodeValueFaultOutInterceptor;
 import org.apache.cxf.ws.security.tokenstore.EHCacheTokenStore;
@@ -55,19 +56,19 @@ public class MSHWebserviceConfiguration {
                         HttpHeaderOutInterceptor httpHeaderOutInterceptor,
                         @Qualifier("domibusSetCodeValueFaultOutInterceptor") SetCodeValueFaultOutInterceptor setCodeValueFaultOutInterceptor,
                         FaultInHandler faultInHandler,
-                        LoggingInInterceptor loggingInInterceptor,
+                        DomibusLoggingInInterceptor domibusLoggingInInterceptor,
                         LoggingOutInterceptor loggingOutInterceptor
                         ) {
         EndpointImpl endpoint = new EndpointImpl(domibusBus, mshWebservice);
         Map<String, Object> endpointProperties = getEndpointProperties(ehCacheTokenStore, simpleKeystorePasswordCallback, wss4JMultiDomainCryptoProvider);
         endpoint.setProperties(endpointProperties);
         endpoint.setInInterceptors(Arrays.asList(domibusReadyInterceptor, setDomainInInterceptor, trustSenderInterceptor, setPolicyInServerInterceptor, propertyValueExchangeInterceptor, httpHeaderInInterceptor,
-                loggingInInterceptor));
+                domibusLoggingInInterceptor));
         endpoint.setOutInterceptors(Arrays.asList(clearMDCInterceptor, setPolicyOutInterceptorServer, saveRawPulledMessageInterceptor, httpHeaderOutInterceptor, loggingOutInterceptor));
-        endpoint.setOutFaultInterceptors(Arrays.asList(setCodeValueFaultOutInterceptor, clearMDCInterceptor));
-        endpoint.setInFaultInterceptors(Collections.singletonList(loggingInInterceptor));
-        endpoint.setFeatures(Collections.singletonList(loggingFeature));
-        endpoint.setHandlers(Collections.singletonList(faultInHandler));
+        endpoint.setOutFaultInterceptors(Arrays.asList(setCodeValueFaultOutInterceptor, clearMDCInterceptor, loggingOutInterceptor));
+        endpoint.setInFaultInterceptors(Arrays.asList(domibusLoggingInInterceptor));
+        endpoint.setFeatures(Arrays.asList(loggingFeature));
+        endpoint.setHandlers(Arrays.asList(faultInHandler));
 
         endpoint.publish("/msh");
         return endpoint;
@@ -100,13 +101,14 @@ public class MSHWebserviceConfiguration {
     }
 
     @Bean
-    public LoggingInInterceptor loggingInInterceptor() {
-        return new LoggingInInterceptor();
+    public DomibusLoggingInInterceptor domibusLoggingInInterceptor(DomibusLoggingEventSender domibusLoggingEventSender) {
+        return new DomibusLoggingInInterceptor(domibusLoggingEventSender);
     }
 
     @Bean("loggingFeature")
     public LoggingFeature loggingFeature(DomibusLoggingEventSender domibusLoggingEventSender,
-                                         DomibusPropertyProvider domibusPropertyProvider) {
+                                         DomibusPropertyProvider domibusPropertyProvider,
+                                         Slf4jVerboseEventSender slf4jVerboseEventSender) {
         LoggingFeature result = new LoggingFeature();
         result.setSender(domibusLoggingEventSender);
         Integer cxfLimit = domibusPropertyProvider.getIntegerProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_LOGGING_CXF_LIMIT);
@@ -126,6 +128,11 @@ public class MSHWebserviceConfiguration {
         result.setPrintPayload(printPayload);
         result.setPrintMetadata(printMetadata);
         return result;
+    }
+
+    @Bean("slf4jVerboseEventSender")
+    public Slf4jVerboseEventSender slf4jVerboseEventSender(){
+        return new Slf4jVerboseEventSender();
     }
 
     @Bean("domibusReadyInterceptor")

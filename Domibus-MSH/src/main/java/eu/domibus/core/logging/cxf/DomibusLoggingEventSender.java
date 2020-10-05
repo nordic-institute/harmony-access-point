@@ -38,9 +38,9 @@ public class DomibusLoggingEventSender extends Slf4jEventSender  {
 
     @Override
     protected String getLogMessage(LogEvent event) {
-        if (!isCxfLoggingInfoEnabled()) {
-            return StringUtils.EMPTY;
-        }
+//        if (!isCxfLoggingInfoEnabled()) {
+//            return StringUtils.EMPTY;
+//        }
         if (checkIfStripPayloadPossible()) {
             try {
                 domibusLoggingEventHelper.stripPayload(event);

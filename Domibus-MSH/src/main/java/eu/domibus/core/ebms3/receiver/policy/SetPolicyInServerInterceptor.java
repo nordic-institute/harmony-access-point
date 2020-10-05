@@ -11,6 +11,7 @@ import eu.domibus.core.ebms3.receiver.leg.ServerInMessageLegConfigurationFactory
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
 import eu.domibus.core.message.UserMessageHandlerService;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
+import eu.domibus.core.util.SoapUtil;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -46,13 +47,17 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
 
     protected UserMessageHandlerService userMessageHandlerService;
 
+    protected SoapUtil soapUtil;
+
     public SetPolicyInServerInterceptor(ServerInMessageLegConfigurationFactory serverInMessageLegConfigurationFactory,
                                         BackendNotificationService backendNotificationService,
-                                        UserMessageHandlerService userMessageHandlerService
+                                        UserMessageHandlerService userMessageHandlerService,
+                                        SoapUtil soapUtil
                                         ) {
         this.serverInMessageLegConfigurationFactory = serverInMessageLegConfigurationFactory;
         this.backendNotificationService = backendNotificationService;
         this.userMessageHandlerService = userMessageHandlerService;
+        this.soapUtil = soapUtil;
     }
 
     @Override
@@ -132,6 +137,21 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
         } catch (Exception ex) {
             LOG.businessError(DomibusMessageCode.BUS_BACKEND_NOTIFICATION_FAILED, ex, messageId);
         }
+    }
+
+    @Override
+    public void handleFault(final SoapMessage message) throws Fault {
+        LOG.debug("handleFault");
+
+        Messaging messaging = null;
+        try {
+
+        messaging = soapService.getMessage(message);
+        } catch (EbMS3Exception | IOException | JAXBException e) {
+            LOG.error("while extracting message ", e);
+        }
+        LOG.debug("messaging=[{}]", messaging);
+
     }
 
 }

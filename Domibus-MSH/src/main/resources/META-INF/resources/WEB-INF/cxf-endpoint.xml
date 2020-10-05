@@ -39,9 +39,11 @@
             <ref bean="domibusPrepareAttachmentInterceptor"/>
             <ref bean="domibusAttachmentOutInterceptorRemoval"/>
             <ref bean="domibusAttachmentOutInterceptor"/>
+            <ref bean="loggingOutInterceptor"/>
         </jaxws:outInterceptors>
         <jaxws:inInterceptors>
             <ref bean="domibusPrepareAttachmentInInterceptor"/>
+            <ref bean="domibusLoggingInInterceptor"/>
         </jaxws:inInterceptors>
         <jaxws:handlers>
             <ref bean="faultOutHandler"/>

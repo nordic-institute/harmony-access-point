@@ -1,12 +1,14 @@
 package eu.domibus.core.ebms3.receiver.interceptor;
 
-import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.receiver.policy.SetPolicyInInterceptor;
+import eu.domibus.core.message.SoapService;
+import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -20,6 +22,8 @@ import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.xml.bind.JAXBException;
+import java.io.IOException;
 
 /**
  * @author Cosmin Baciu
@@ -39,6 +43,9 @@ public class SetDomainInInterceptor extends AbstractSoapInterceptor {
 
     @Autowired
     protected DomibusConfigurationService domibusConfigurationService;
+
+    @Autowired
+    protected SoapService soapService;
 
     protected SetDomainInInterceptor(String phase) {
         super(phase);
@@ -80,6 +87,21 @@ public class SetDomainInInterceptor extends AbstractSoapInterceptor {
         return domainCode;
     }
 
+
+    @Override
+    public void handleFault(final SoapMessage message) throws Fault {
+        LOG.debug("handleFault");
+
+        Messaging messaging = null;
+        try {
+
+            messaging = soapService.getMessage(message);
+        } catch (EbMS3Exception | IOException | JAXBException e) {
+            LOG.error("while extracting message ", e);
+        }
+        LOG.debug("messaging=[{}]", messaging);
+
+    }
 
 }
 
