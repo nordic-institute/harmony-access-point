@@ -4,25 +4,33 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
+import eu.domibus.common.MessageStatus;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.Role;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.compression.CompressionService;
 import eu.domibus.ebms3.common.model.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.logging.DomibusMessageCode;
+import eu.domibus.messaging.DuplicateMessageException;
+import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.plugin.validation.SubmissionValidationException;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SEND_MESSAGE_MESSAGE_ID_PATTERN;
-import static eu.domibus.api.util.DomibusStringUtil.isStringLengthGreaterThan;
+import static eu.domibus.api.util.DomibusStringUtil.TRIM_DECISION.DO_NOT_TRIM;
+import static eu.domibus.api.util.DomibusStringUtil.TRIM_DECISION.TRIM;
+import static eu.domibus.api.util.DomibusStringUtil.isStringLengthGreaterThanDefaultMaxLength;
+import static org.apache.commons.collections.CollectionUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
  * @author Arun Raj
@@ -43,6 +51,8 @@ public class BackendMessageValidator {
 
     protected static final String KEY_MESSAGEID_PATTERN = DOMIBUS_SEND_MESSAGE_MESSAGE_ID_PATTERN;
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(BackendMessageValidator.class);
+    private static final String USER_MESSAGE_IS_NULL = "UserMessage is null";
+    private static final String MESSAGE_WITH_ID_STR = "Message with id [";
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
@@ -50,82 +60,8 @@ public class BackendMessageValidator {
     @Autowired
     DomainContextProvider domainContextProvider;
 
-    /**
-     * Validations pertaining to the field - UserMessage/MessageInfo/MessageId<br><br>
-     * <b><u>As per ebms_core-3.0-spec-cs-02.pdf:</u></b><br>
-     * &ldquo;b:Messaging/eb:UserMessage/eb:MessageInfo/eb:MessageId:
-     * This REQUIRED element has a value representing – for each message - a globally unique identifier <b>conforming to MessageId [RFC2822].</b>
-     * Note: In the Message-Id and Content-Id MIME headers, values are always surrounded by angle brackets. However references in mid: or cid: scheme URI's and
-     * the MessageId and RefToMessageId elements MUST NOT include these delimiters.&rdquo;<br><br>
-     * <p>
-     * <b><u>As per RFC2822 :</u></b><br>
-     * &ldquo;2.1. General Description - At the most basic level, a message is a series of characters.  A message that is conformant with this standard is comprised of
-     * characters with values in the range 1 through 127 and interpreted as US-ASCII characters [ASCII].&rdquo;<br><br>
-     * <p>
-     * &ldquo;3.6.4. Identification fields: The "Message-ID:" field provides a unique message identifier that refers to a particular version of a particular message.
-     * The uniqueness of the message identifier is guaranteed by the host that generates it (see below).
-     * This message identifier is <u>intended to be machine readable and not necessarily meaningful to humans.</u>
-     * A message identifier pertains to exactly one instantiation of a particular message; subsequent revisions to the message each receive new message identifiers.&rdquo;<br><br>
-     * <p>
-     * Though the above specifications state the message id can be any ASCII character, practically the message ids might need to be referenced by persons and documents.
-     * Hence all non printable characters (ASCII 0 to 31 and 127) should be avoided.<br><br>
-     * <p>
-     * RFC2822 also states the better algo for generating a unique id is - put a combination of the current absolute date and time along with
-     * some other currently unique (perhaps sequential) identifier available on the system + &ldquo;@&rdquo; + domain name (or a domain literal IP address) of the host on which the
-     * message identifier. As seen from acceptance and production setup, existing clients of Domibus sending message id is not following this format. Hence, although it is good, it is not enforced.
-     * Only control character restriction is enforced.
-     *
-     * @param messageId the message id.
-     * @throws EbMS3Exception if the message id value is invalid
-     */
-    public void validateMessageId(final String messageId) throws EbMS3Exception {
-
-        if (messageId == null) {
-            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "required element eb:Messaging/eb:UserMessage/eb:MessageId missing", messageId, null);
-        }
-
-        if (messageId.length() > 255) {
-            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0008, "MessageId value is too long (over 255 characters)", messageId, null);
-        }
-
-        validateMessageIdPattern(messageId, "eb:Messaging/eb:UserMessage/eb:MessageInfo/eb:MessageId");
-    }
-
-
-    /**
-     * The field - UserMessage/MessageInfo/RefToMessageId is expected to satisfy all the validations of the - UserMessage/MessageInfo/MessageId field
-     *
-     * @param refToMessageId the message id to be validated.
-     * @throws EbMS3Exception if the RefToMessageId value is invalid
-     */
-    public void validateRefToMessageId(final String refToMessageId) throws EbMS3Exception {
-
-        //refToMessageId is an optional element and can be null
-        if (refToMessageId != null) {
-            if (refToMessageId.length() > 255) {
-                throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0008, "RefToMessageId value is too long (over 255 characters)", refToMessageId, null);
-            }
-            validateMessageIdPattern(refToMessageId, "eb:Messaging/eb:UserMessage/eb:MessageInfo/eb:RefToMessageId");
-        }
-    }
-
-    /* Validating for presence of non printable control characters.
-     * This validation will be skipped if the pattern is not present in the configuration file.
-     */
-    protected void validateMessageIdPattern(String messageId, String elementType) throws EbMS3Exception {
-        String messageIdPattern = domibusPropertyProvider.getProperty(KEY_MESSAGEID_PATTERN);
-        LOG.debug("MessageIdPattern read from file is [{}]", messageIdPattern);
-
-        if (StringUtils.isBlank(messageIdPattern)) {
-            return;
-        }
-        Pattern patternNoControlChar = Pattern.compile(messageIdPattern);
-        Matcher m = patternNoControlChar.matcher(messageId);
-        if (!m.matches()) {
-            String errorMessage = "Element " + elementType + " does not conform to the required MessageIdPattern: " + messageIdPattern;
-            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, errorMessage, messageId, null);
-        }
-    }
+    @Autowired
+    private UserMessageLogDao userMessageLogDao;
 
     /**
      * Verifies that the initiator and the responder parties are different.
@@ -139,7 +75,6 @@ public class BackendMessageValidator {
         Validate.notNull(from, "Initiator party was not found");
         Validate.notNull(to, "Responder party was not found");
     }
-
 
     /**
      * Verifies that the message is being sent by the same party as the one configured for the sending access point
@@ -193,7 +128,7 @@ public class BackendMessageValidator {
     }
 
     public void validatePayloads(PayloadInfo payloadInfo) throws EbMS3Exception {
-        if (payloadInfo == null || CollectionUtils.isEmpty(payloadInfo.getPartInfo())) {
+        if (payloadInfo == null || isEmpty(payloadInfo.getPartInfo())) {
             return;
         }
 
@@ -203,7 +138,7 @@ public class BackendMessageValidator {
     }
 
     protected void validateCompressionProperty(PartProperties properties) throws SubmissionValidationException {
-        if (properties == null || CollectionUtils.isEmpty(properties.getProperties())) {
+        if (properties == null || isEmpty(properties.getProperties())) {
             return;
         }
 
@@ -212,6 +147,213 @@ public class BackendMessageValidator {
                 throw new SubmissionValidationException("The occurrence of the property " + CompressionService.COMPRESSION_PROPERTY_KEY + " and its value are fully controlled by the AS4 compression feature");
             }
         }
+    }
+
+    public void validateUserMessage(UserMessage userMessage) throws MessageNotFoundException, EbMS3Exception, DuplicateMessageException {
+        if (userMessage == null) {
+            LOG.warn(USER_MESSAGE_IS_NULL);
+            throw new MessageNotFoundException(USER_MESSAGE_IS_NULL);
+        }
+        validateMessageInfo(userMessage.getMessageInfo());  // MessageInfo is always initialized in the get method
+        validatePartyInfo(userMessage.getPartyInfo());
+        validateCollaborationInfo(userMessage.getCollaborationInfo());
+    }
+
+    private void validateMessageInfo(MessageInfo messageInfo) throws EbMS3Exception, DuplicateMessageException {
+        if (messageInfo == null) {
+            return;
+        }
+        validateMessageId(messageInfo.getMessageId());
+        //check duplicate message id
+        validateRefToMessageId(messageInfo.getRefToMessageId());
+    }
+
+    /**
+     * Validations pertaining to the field - UserMessage/MessageInfo/MessageId<br><br>
+     * <b><u>As per ebms_core-3.0-spec-cs-02.pdf:</u></b><br>
+     * &ldquo;b:Messaging/eb:UserMessage/eb:MessageInfo/eb:MessageId:
+     * This REQUIRED element has a value representing – for each message - a globally unique identifier <b>conforming to MessageId [RFC2822].</b>
+     * Note: In the Message-Id and Content-Id MIME headers, values are always surrounded by angle brackets. However references in mid: or cid: scheme URI's and
+     * the MessageId and RefToMessageId elements MUST NOT include these delimiters.&rdquo;<br><br>
+     * <p>
+     * <b><u>As per RFC2822 :</u></b><br>
+     * &ldquo;2.1. General Description - At the most basic level, a message is a series of characters.  A message that is conformant with this standard is comprised of
+     * characters with values in the range 1 through 127 and interpreted as US-ASCII characters [ASCII].&rdquo;<br><br>
+     * <p>
+     * &ldquo;3.6.4. Identification fields: The "Message-ID:" field provides a unique message identifier that refers to a particular version of a particular message.
+     * The uniqueness of the message identifier is guaranteed by the host that generates it (see below).
+     * This message identifier is <u>intended to be machine readable and not necessarily meaningful to humans.</u>
+     * A message identifier pertains to exactly one instantiation of a particular message; subsequent revisions to the message each receive new message identifiers.&rdquo;<br><br>
+     * <p>
+     * Though the above specifications state the message id can be any ASCII character, practically the message ids might need to be referenced by persons and documents.
+     * Hence all non printable characters (ASCII 0 to 31 and 127) should be avoided.<br><br>
+     * <p>
+     * RFC2822 also states the better algo for generating a unique id is - put a combination of the current absolute date and time along with
+     * some other currently unique (perhaps sequential) identifier available on the system + &ldquo;@&rdquo; + domain name (or a domain literal IP address) of the host on which the
+     * message identifier. As seen from acceptance and production setup, existing clients of Domibus sending message id is not following this format. Hence, although it is good, it is not enforced.
+     * Only control character restriction is enforced.
+     *
+     * @param messageId the message id.
+     * @throws EbMS3Exception if the message id value is invalid
+     */
+    public void validateMessageId(final String messageId) throws EbMS3Exception, DuplicateMessageException {
+        if (messageId == null) {
+            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "required element eb:Messaging/eb:UserMessage/eb:MessageId missing", messageId, null);
+        }
+        if (isStringLengthGreaterThanDefaultMaxLength(messageId, DO_NOT_TRIM)) {
+            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "MessageId value is too long (over 255 characters)", messageId, null);
+        }
+        validateMessageIdPattern(messageId, "eb:Messaging/eb:UserMessage/eb:MessageInfo/eb:MessageId");
+
+        // handle if the messageId is unique. This should only fail if the ID is set from the outside
+        if (!MessageStatus.NOT_FOUND.equals(userMessageLogDao.getMessageStatus(messageId))) {
+            throw new DuplicateMessageException(MESSAGE_WITH_ID_STR + messageId + "] already exists. Message identifiers must be unique");
+        }
+    }
+
+    /**
+     * The field - UserMessage/MessageInfo/RefToMessageId is expected to satisfy all the validations of the - UserMessage/MessageInfo/MessageId field
+     *
+     * @param refToMessageId the message id to be validated.
+     * @throws EbMS3Exception if the RefToMessageId value is invalid
+     */
+    public void validateRefToMessageId(final String refToMessageId) throws EbMS3Exception {
+        //refToMessageId is an optional element and can be null
+        if (refToMessageId == null) {
+            return;
+        }
+        if (isStringLengthGreaterThanDefaultMaxLength(refToMessageId, DO_NOT_TRIM)) {
+            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "RefToMessageId value is too long (over 255 characters).", refToMessageId, null);
+        }
+        validateMessageIdPattern(refToMessageId, "eb:Messaging/eb:UserMessage/eb:MessageInfo/eb:RefToMessageId");
+    }
+
+    /* Validating for presence of non printable control characters.
+     * This validation will be skipped if the pattern is not present in the configuration file.
+     */
+    protected void validateMessageIdPattern(String messageId, String elementType) throws EbMS3Exception {
+        String messageIdPattern = domibusPropertyProvider.getProperty(KEY_MESSAGEID_PATTERN);
+        LOG.debug("MessageIdPattern read from file is [{}]", messageIdPattern);
+
+        if (isBlank(messageIdPattern)) {
+            return;
+        }
+        Pattern patternNoControlChar = Pattern.compile(messageIdPattern);
+        Matcher m = patternNoControlChar.matcher(messageId);
+        if (!m.matches()) {
+            String errorMessage = "Element " + elementType + " does not conform to the required MessageIdPattern: " + messageIdPattern;
+            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, errorMessage, messageId, null);
+        }
+    }
+
+    private void validatePartyInfo(PartyInfo partyInfo) throws EbMS3Exception {
+        if (partyInfo == null) {
+            return;
+        }
+        validateFromPartyId(partyInfo.getFrom());
+        validateFromRole(partyInfo.getFrom());
+        validateToPartyId(partyInfo.getTo());
+        validateToRole(partyInfo.getTo());
+    }
+
+    private void validateFromPartyId(From from) throws EbMS3Exception {
+        if (from == null) {
+            return;
+        }
+        final Set<PartyId> fromParties = from.getPartyId();
+        if (isEmpty(fromParties)) {
+            LOG.businessError(DomibusMessageCode.BUS_FROM_PARTYID_NOT_SPECIFIED);
+            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Mandatory field From PartyId is not provided.", null, null);
+        }
+        for (PartyId fromParty : fromParties) {
+            if (isBlank(fromParty.getValue())) {
+                LOG.businessError(DomibusMessageCode.BUS_FROM_PARTYID_NOT_SPECIFIED);
+                throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Mandatory field From PartyId is not provided.", null, null);
+            }
+            if (isStringLengthGreaterThanDefaultMaxLength(fromParty.getValue(), TRIM)) {
+                LOG.businessError(DomibusMessageCode.BUS_FROM_PARTYID_TOO_LONG);
+                throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "From PartyId is too long (over 255 characters).", null, null);
+            }
+            if (isBlank(fromParty.getType())) {
+                //Although for AS4 the PartyIdType is optional, the ICD for default plugins states the PartyIdType is mandatory
+                LOG.businessError(DomibusMessageCode.BUS_FROM_PARTYIDTYPE_NOT_SPECIFIED);
+                throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Mandatory field From PartyIdType is not provided.", null, null);
+            }
+            if (isStringLengthGreaterThanDefaultMaxLength(fromParty.getType(), TRIM)) {
+                LOG.businessError(DomibusMessageCode.BUS_FROM_PARTYIDTYPE_TOO_LONG);
+                throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "From PartyIdType is too long (over 255 characters).", null, null);
+            }
+        }
+    }
+
+    private void validateFromRole(From from) throws EbMS3Exception {
+        if (from == null) {
+            return;
+        }
+        final String fromRole = from.getRole();
+        if (isBlank(fromRole)) {
+            LOG.businessError(DomibusMessageCode.BUS_FROM_ROLE_NOT_SPECIFIED);
+            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Mandatory field From Role is not provided.", null, null);
+        }
+        if (isStringLengthGreaterThanDefaultMaxLength(fromRole, TRIM)) {
+            LOG.businessError(DomibusMessageCode.BUS_FROM_ROLE_TOO_LONG);
+            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "From Role is too long (over 255 characters).", null, null);
+        }
+    }
+
+    private void validateToPartyId(To to) throws EbMS3Exception {
+        if (to == null) {
+            return;
+        }
+        final Set<PartyId> toParties = to.getPartyId();
+        if (isEmpty(toParties)) {
+            LOG.businessError(DomibusMessageCode.BUS_TO_PARTYID_NOT_SPECIFIED);
+            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Mandatory field To PartyId is not provided.", null, null);
+        }
+        for (PartyId toParty : toParties) {
+            if (isBlank(toParty.getValue())) {
+                LOG.businessError(DomibusMessageCode.BUS_TO_PARTYID_NOT_SPECIFIED);
+                throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Mandatory field To PartyId is not provided.", null, null);
+            }
+            if (isStringLengthGreaterThanDefaultMaxLength(toParty.getValue(), TRIM)) {
+                LOG.businessError(DomibusMessageCode.BUS_TO_PARTYID_TOO_LONG);
+                throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "To PartyId is too long (over 255 characters).", null, null);
+            }
+            if (isBlank(toParty.getType())) {
+                //Although for AS4 the PartyIdType is optional, the ICD for default plugins states the PartyIdType is mandatory
+                LOG.businessError(DomibusMessageCode.BUS_TO_PARTYIDTYPE_NOT_SPECIFIED);
+                throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Mandatory field To PartyIdType is not provided.", null, null);
+            }
+            if (isStringLengthGreaterThanDefaultMaxLength(toParty.getType(), TRIM)) {
+                LOG.businessError(DomibusMessageCode.BUS_TO_PARTYIDTYPE_TOO_LONG);
+                throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "To PartyIdType is too long (over 255 characters).", null, null);
+            }
+        }
+    }
+
+    private void validateToRole(To to) throws EbMS3Exception {
+        if (to == null) {
+            return;
+        }
+        final String toRole = to.getRole();
+        if (isBlank(toRole)) {
+            LOG.businessError(DomibusMessageCode.BUS_TO_ROLE_NOT_SPECIFIED);
+            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Mandatory field To Role is not provided.", null, null);
+        }
+        if (isStringLengthGreaterThanDefaultMaxLength(toRole, TRIM)) {
+            LOG.businessError(DomibusMessageCode.BUS_TO_ROLE_TOO_LONG);
+            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "To Role is too long (over 255 characters).", null, null);
+        }
+    }
+
+    private void validateCollaborationInfo(CollaborationInfo collaborationInfo) throws EbMS3Exception {
+        if (collaborationInfo == null) {
+            return;
+        }
+        validateAgreementRef(collaborationInfo.getAgreementRef());
+        validateService(collaborationInfo.getService());
+        validateAction(collaborationInfo.getAction());
+        validateConversationId(collaborationInfo.getConversationId());
     }
 
     /**
@@ -226,14 +368,53 @@ public class BackendMessageValidator {
             LOG.debug("Optional field AgreementRef is null");
             return;
         }
-        if (isStringLengthGreaterThan(agreementRef.getValue(), 255)) {
-            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "AgreementRef Value is too long (over 255 characters)", agreementRef.getValue(), null);
+        if (isStringLengthGreaterThanDefaultMaxLength(agreementRef.getValue(), TRIM)) {
+            LOG.businessError(DomibusMessageCode.BUS_AGREEMENT_REF_VALUE_TOO_LONG);
+            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "AgreementRef Value is too long (over 255 characters).", null, null);
         }
-        if (isStringLengthGreaterThan(agreementRef.getType(), 255)) {
-            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "AgreementRef Type is too long (over 255 characters)", agreementRef.getType(), null);
+        if (isStringLengthGreaterThanDefaultMaxLength(agreementRef.getType(), TRIM)) {
+            LOG.businessError(DomibusMessageCode.BUS_AGREEMENT_REF_TYPE_TOO_LONG);
+            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "AgreementRef Type is too long (over 255 characters).", null, null);
         }
-        if (isStringLengthGreaterThan(agreementRef.getPmode(), 255)) {
+
+        if (isStringLengthGreaterThanDefaultMaxLength(agreementRef.getPmode(), TRIM)) {
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "AgreementRef Pmode is too long (over 255 characters)", agreementRef.getPmode(), null);
+        }
+    }
+
+    private void validateService(final eu.domibus.ebms3.common.model.Service service) throws EbMS3Exception {
+        if (service == null) {
+            LOG.businessError(DomibusMessageCode.BUS_SERVICE_NOT_SPECIFIED);
+            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Mandatory field Service is not provided.", null, null);
+        }
+        final String serviceValue = service.getValue();
+        final String serviceType = service.getType();
+        if (isBlank(serviceValue)) {
+            LOG.businessError(DomibusMessageCode.BUS_SERVICE_NOT_SPECIFIED);
+            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Mandatory field Service is not provided.", null, null);
+        }
+        if (isStringLengthGreaterThanDefaultMaxLength(serviceValue, TRIM)) {
+            LOG.businessError(DomibusMessageCode.BUS_SERVICE_TOO_LONG);
+            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "Service is too long (over 255 characters).", null, null);
+        }
+        if (isBlank(serviceType)) {
+            LOG.businessError(DomibusMessageCode.BUS_SERVICE_TYPE_NOT_SPECIFIED);
+            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Mandatory field ServiceType is not provided.", null, null);
+        }
+        if (isStringLengthGreaterThanDefaultMaxLength(serviceType, TRIM)) {
+            LOG.businessError(DomibusMessageCode.BUS_SERVICE_TYPE_TOO_LONG);
+            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "ServiceType is too long (over 255 characters).", null, null);
+        }
+    }
+
+    private void validateAction(String action) throws EbMS3Exception {
+        if (isBlank(action)) {
+            LOG.businessError(DomibusMessageCode.BUS_ACTION_NOT_SPECIFIED);
+            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Mandatory field Action is not provided.", null, null);
+        }
+        if (isStringLengthGreaterThanDefaultMaxLength(action, TRIM)) {
+            LOG.businessError(DomibusMessageCode.BUS_ACTION_TOO_LONG);
+            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "Action is too long (over 255 characters).", null, null);
         }
     }
 
@@ -245,11 +426,11 @@ public class BackendMessageValidator {
      */
     public void validateConversationId(String conversationId) throws EbMS3Exception {
         //conversationId is an optional element
-        if (StringUtils.isBlank(conversationId)) {
+        if (isBlank(conversationId)) {
             LOG.debug("Optional field ConversationId is null or empty");
             return;
         }
-        if (isStringLengthGreaterThan(conversationId, 255)) {
+        if (isStringLengthGreaterThanDefaultMaxLength(conversationId, TRIM)) {
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "ConversationId is too long (over 255 characters)", conversationId, null);
         }
     }

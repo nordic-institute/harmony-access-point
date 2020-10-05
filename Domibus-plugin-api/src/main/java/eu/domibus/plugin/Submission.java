@@ -1,4 +1,3 @@
-
 package eu.domibus.plugin;
 
 import eu.domibus.logging.DomibusLogger;
@@ -9,8 +8,7 @@ import org.springframework.util.StringUtils;
 import javax.activation.DataHandler;
 import java.util.*;
 
-import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.apache.commons.lang3.StringUtils.trim;
+import static org.apache.commons.lang3.StringUtils.*;
 
 /**
  * This class represents the datamodel of the domibus backend transport layer.
@@ -69,7 +67,7 @@ public class Submission {
      * @param mpc string identifying the Message Partition Chanel
      */
     public void setMpc(String mpc) {
-        this.mpc = mpc;
+        this.mpc = trim(mpc);
     }
 
     /**
@@ -195,7 +193,7 @@ public class Submission {
      * @param conversationId a string identifying the set of related messages that make up a conversation between Parties
      */
     public void setConversationId(final String conversationId) {
-        this.conversationId = conversationId;
+        this.conversationId = trim(conversationId);
     }
 
     /**
@@ -227,6 +225,9 @@ public class Submission {
      * @param fromRole a string identifying the authorized role of the Party sending
      */
     public void setFromRole(final String fromRole) {
+        if (isBlank(fromRole)) {
+            throw new IllegalArgumentException("Mandatory field From Role is not provided");
+        }
         this.fromRole = trim(fromRole);
     }
 
@@ -258,7 +259,7 @@ public class Submission {
      * @param messageId a string representing a globally unique identifier conforming to MessageId [RFC2822]
      */
     public void setMessageId(final String messageId) {
-        this.messageId = messageId;
+        this.messageId = messageId; //not trimming message id as non printable special characters needs to be checked.
     }
 
     /**
@@ -271,7 +272,7 @@ public class Submission {
      * @return a string containing the {@link #messageId} value of an ebMS Message to which this messages relates
      */
     public String getRefToMessageId() {
-        return this.refToMessageId;
+        return this.refToMessageId; //not trimming as message id may have non printable special characters that needs to be checked.
     }
 
     /**
@@ -343,6 +344,9 @@ public class Submission {
      * @param serviceType a string that indicates how the parties sending and receiving the message will interpret the {@link #service} value
      */
     public void setServiceType(final String serviceType) {
+        if (isBlank(serviceType)) {
+            throw new IllegalArgumentException("Mandatory field ServiceType is not provided");
+        }
         this.serviceType = trim(serviceType);
     }
 
@@ -375,6 +379,9 @@ public class Submission {
      * @param toRole a string identifying the authorized role of the receiving Party
      */
     public void setToRole(final String toRole) {
+        if (isBlank(toRole)) {
+            throw new IllegalArgumentException("Mandatory field To Role is not provided");
+        }
         this.toRole = trim(toRole);
     }
 
@@ -567,6 +574,12 @@ public class Submission {
      * @param partyIdType a string that identifies the type of the partyId
      */
     public void addFromParty(final String partyId, final String partyIdType) {
+        if (isBlank(partyId)) {
+            throw new IllegalArgumentException("Mandatory field From PartyId is not provided");
+        }
+        if (isBlank(partyIdType)) {
+            throw new IllegalArgumentException("Mandatory field From PartyIdType is not provided");
+        }
         this.fromParties.add(new Submission.Party(partyId, partyIdType));
     }
 
@@ -592,6 +605,12 @@ public class Submission {
      * @param partyIdType a string that identifies the type of the partyId
      */
     public void addToParty(final String partyId, final String partyIdType) {
+        if (isBlank(partyId)) {
+            throw new IllegalArgumentException("Mandatory field To PartyId is not provided");
+        }
+        if (isBlank(partyIdType)) {
+            throw new IllegalArgumentException("Mandatory field To PartyIdType is not provided");
+        }
         this.toParties.add(new Submission.Party(partyId, partyIdType));
     }
 
@@ -600,11 +619,8 @@ public class Submission {
         private final String partyIdType;
 
         public Party(final String partyId, final String partyIdType) {
-            if (isBlank(partyId)) {
-                throw new IllegalArgumentException("Mandatory field PartyId must not be empty");
-            }
-            this.partyId = partyId;
-            this.partyIdType = partyIdType;
+            this.partyId = trim(partyId);
+            this.partyIdType = trim(partyIdType);
         }
 
         public String getPartyId() {
@@ -647,14 +663,14 @@ public class Submission {
         private String filepath;
 
         public Payload(final String contentId, final DataHandler payloadDatahandler, final Collection<TypedProperty> payloadProperties, final boolean inBody, final Description description, String schemaLocation) {
-            this.contentId = contentId;
+            this.contentId = trim(contentId);
             this.payloadDatahandler = payloadDatahandler;
             this.description = description;
             this.payloadProperties = payloadProperties;
             this.inBody = inBody;
 
             String tSchemaLocation = schemaLocation;
-            if ("".equals(tSchemaLocation)) {
+            if (isEmpty(tSchemaLocation)) {
                 LOG.debug("schema location is empty. replacing with null");
                 tSchemaLocation = null;
             }
@@ -728,12 +744,12 @@ public class Submission {
         }
 
         public TypedProperty(String key, String value, String type) {
-            if (!StringUtils.hasLength(key) || !StringUtils.hasLength(value)) {
+            if (isBlank(key) || isBlank(value)) {
                 throw new IllegalArgumentException("message properties must have a non-empty name and value (key [" + key + "], value [" + value + "]");
             }
-            this.key = key;
-            this.value = value;
-            this.type = type;
+            this.key = trim(key);
+            this.value = trim(value);
+            this.type = trim(type);
         }
 
         @Override

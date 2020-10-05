@@ -326,7 +326,7 @@ public abstract class PModeProvider {
         String initiatorRole = userMessage.getPartyInfo().getFrom().getRole();
         if (StringUtils.isBlank(initiatorRole)) {
             EbMS3Exception exception = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "Mandatory field Sender Role is not provided.", null, null);
-            LOG.businessError(DomibusMessageCode.BUS_INITIATOR_ROLE_NOT_SPECIFIED);
+            LOG.businessError(DomibusMessageCode.BUS_FROM_ROLE_NOT_SPECIFIED);
             throw exception;
         }
         return getBusinessProcessRole(initiatorRole);
@@ -361,7 +361,7 @@ public abstract class PModeProvider {
         String responderRole = userMessage.getPartyInfo().getTo().getRole();
         if (StringUtils.isBlank(responderRole)) {
             EbMS3Exception exception = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "Mandatory field Receiver Role is not provided.", null, null);
-            LOG.businessError(DomibusMessageCode.BUS_RECEIVER_ROLE_NOT_SPECIFIED);
+            LOG.businessError(DomibusMessageCode.BUS_TO_ROLE_NOT_SPECIFIED);
             throw exception;
         }
         return getBusinessProcessRole(responderRole);

@@ -361,50 +361,28 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
         }
 
         String originalUser = authUtils.getOriginalUserFromSecurityContext();
-        String displayUser = originalUser == null ? "super user" : originalUser;
+        String displayUser = (originalUser == null) ? "super user" : originalUser;
         LOG.debug("Authorized as [{}]", displayUser);
 
         UserMessage userMessage = transformer.transformFromSubmission(messageData);
-
         if (userMessage == null) {
             LOG.warn(USER_MESSAGE_IS_NULL);
             throw new MessageNotFoundException(USER_MESSAGE_IS_NULL);
         }
+        final String messageId = userMessage.getMessageInfo().getMessageId();
+        LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
 
         validateOriginalUser(userMessage, originalUser, MessageConstants.ORIGINAL_SENDER);
 
         try {
-            // MessageInfo is always initialized in the get method
-            MessageInfo messageInfo = userMessage.getMessageInfo();
-            String messageId = messageInfo.getMessageId();
-            if (messageId == null) {
-                messageId = messageIdGenerator.generateMessageId();
-                messageInfo.setMessageId(messageId);
-            } else {
-                backendMessageValidator.validateMessageId(messageId);
-                userMessage.getMessageInfo().setMessageId(messageId);
-            }
-            LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageInfo.getMessageId());
+            populateMessageIdIfNotPresent(userMessage.getMessageInfo());
 
-            String refToMessageId = messageInfo.getRefToMessageId();
-            if (refToMessageId != null) {
-                backendMessageValidator.validateRefToMessageId(refToMessageId);
-            }
-
-            backendMessageValidator.validateAgreementRef(userMessage.getCollaborationInfo().getAgreementRef());
-
-            backendMessageValidator.validateConversationId(userMessage.getCollaborationInfo().getConversationId());
-
-            // handle if the messageId is unique. This should only fail if the ID is set from the outside
-            if (!MessageStatus.NOT_FOUND.equals(userMessageLogDao.getMessageStatus(messageId))) {
-                throw new DuplicateMessageException(MESSAGE_WITH_ID_STR + messageId + "] already exists. Message identifiers must be unique");
-            }
+            backendMessageValidator.validateUserMessage(userMessage);
 
             Messaging message = ebMS3Of.createMessaging();
             message.setUserMessage(userMessage);
 
             MessageExchangeConfiguration userMessageExchangeConfiguration;
-
             Party to = null;
             MessageStatus messageStatus = null;
             if (messageExchangeService.forcePullOnMpc(userMessage)) {
@@ -444,8 +422,8 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             try {
                 messagingService.storeMessage(message, MSHRole.SENDING, legConfiguration, backendName);
             } catch (CompressionException exc) {
-                LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_COMPRESSION_FAILURE, userMessage.getMessageInfo().getMessageId());
-                EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0303, exc.getMessage(), userMessage.getMessageInfo().getMessageId(), exc);
+                LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_COMPRESSION_FAILURE, messageId);
+                EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0303, exc.getMessage(), messageId, exc);
                 ex.setMshRole(MSHRole.SENDING);
                 throw ex;
             } catch (InvalidPayloadSizeException e) {
@@ -455,7 +433,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                     messagingDao.clearFileSystemPayloads(userMessage);
                 }
                 LOG.businessError(DomibusMessageCode.BUS_PAYLOAD_INVALID_SIZE, legConfiguration.getPayloadProfile().getMaxSize(), legConfiguration.getPayloadProfile().getName());
-                EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, e.getMessage(), userMessage.getMessageInfo().getMessageId(), e);
+                EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, e.getMessage(), messageId, e);
                 ex.setMshRole(MSHRole.SENDING);
                 throw ex;
             }
@@ -472,19 +450,27 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                 prepareForPushOrPull(userMessage, userMessageLog, pModeKey, messageStatus);
             }
 
-            uiReplicationSignalService.userMessageSubmitted(userMessage.getMessageInfo().getMessageId());
-
+            uiReplicationSignalService.userMessageSubmitted(messageId);
             LOG.info("Message submitted");
-            return userMessage.getMessageInfo().getMessageId();
+            return messageId;
 
         } catch (EbMS3Exception ebms3Ex) {
-            LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + userMessage.getMessageInfo().getMessageId() + TO_STR + backendName + "]", ebms3Ex);
+            LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + messageId + TO_STR + backendName + "]", ebms3Ex);
             errorLogDao.create(new ErrorLogEntry(ebms3Ex));
             throw MessagingExceptionFactory.transform(ebms3Ex);
         } catch (PModeException p) {
-            LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + userMessage.getMessageInfo().getMessageId() + TO_STR + backendName + "]" + p.getMessage(), p);
-            errorLogDao.create(new ErrorLogEntry(MSHRole.SENDING, userMessage.getMessageInfo().getMessageId(), ErrorCode.EBMS_0010, p.getMessage()));
+            LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + messageId + TO_STR + backendName + "]" + p.getMessage(), p);
+            errorLogDao.create(new ErrorLogEntry(MSHRole.SENDING, messageId, ErrorCode.EBMS_0010, p.getMessage()));
             throw new PModeMismatchException(p.getMessage(), p);
+        }
+    }
+
+    private void populateMessageIdIfNotPresent(MessageInfo messageInfo) {
+        if(messageInfo == null){
+            return;
+        }
+        if(messageInfo.getMessageId() == null){
+            messageInfo.setMessageId(messageIdGenerator.generateMessageId());
         }
     }
 

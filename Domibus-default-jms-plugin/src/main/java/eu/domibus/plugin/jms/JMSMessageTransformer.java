@@ -29,8 +29,7 @@ import java.util.Collection;
 import java.util.Enumeration;
 
 import static eu.domibus.plugin.jms.JMSMessageConstants.*;
-import static org.apache.commons.lang3.StringUtils.isEmpty;
-import static org.apache.commons.lang3.StringUtils.trim;
+import static org.apache.commons.lang3.StringUtils.*;
 
 /**
  * This class is responsible for transformations from {@link javax.jms.MapMessage} to {@link eu.domibus.plugin.Submission} and vice versa
@@ -204,73 +203,89 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
     public Submission transformToSubmission(final MapMessage messageIn) {
         final Submission target = new Submission();
         try {
-            String mpc = trim(messageIn.getStringProperty(MPC));
-            if (!isEmpty(mpc)) {
-                target.setMpc(mpc);
-            }
-            target.setMessageId(trim(messageIn.getStringProperty(MESSAGE_ID)));
-
-            setTargetFromPartyIdAndFromPartyType(messageIn, target);
-
-            target.setFromRole(getPropertyWithFallback(messageIn, FROM_ROLE));
-
-            setTargetToPartyIdAndToPartyType(messageIn, target);
-
-            target.setToRole(getPropertyWithFallback(messageIn, TO_ROLE));
-
-            target.setAction(getAction(messageIn));
-
-            target.setService(getService(messageIn));
-
-            target.setServiceType(getPropertyWithFallback(messageIn, SERVICE_TYPE));
-
-            target.setAgreementRef(getPropertyWithFallback(messageIn, AGREEMENT_REF));
-
-            target.setConversationId(trim(messageIn.getStringProperty(CONVERSATION_ID)));
-
-            //not part of ebMS3, eCODEX legacy property
-            String strOriginalSender = trim(messageIn.getStringProperty(PROPERTY_ORIGINAL_SENDER));
-            if (!isEmpty(strOriginalSender)) {
-                target.addMessageProperty(PROPERTY_ORIGINAL_SENDER, strOriginalSender);
-            }
-
-            String endpoint = trim(messageIn.getStringProperty(PROPERTY_ENDPOINT));
-            if (!isEmpty(endpoint)) {
-                target.addMessageProperty(PROPERTY_ENDPOINT, messageIn.getStringProperty(PROPERTY_ENDPOINT));
-            }
-
-            //not part of ebMS3, eCODEX legacy property
-            String strFinalRecipient = trim(messageIn.getStringProperty(PROPERTY_FINAL_RECIPIENT));
-
-            String strFinalRecipientType = trim(messageIn.getStringProperty(PROPERTY_FINAL_RECIPIENT_TYPE));
-
-            LOG.debug("FinalRecipient [{}] and FinalRecipientType [{}] properties from Message", strFinalRecipient, strFinalRecipientType);
-
-            if (!isEmpty(strFinalRecipient)) {
-                target.addMessageProperty(PROPERTY_FINAL_RECIPIENT, strFinalRecipient, strFinalRecipientType);
-            }
-
-            target.setRefToMessageId(trim(messageIn.getStringProperty(REF_TO_MESSAGE_ID)));
-
-            final int numPayloads = messageIn.getIntProperty(TOTAL_NUMBER_OF_PAYLOADS);
-
-            Enumeration<String> allProps = messageIn.getPropertyNames();
-            while (allProps.hasMoreElements()) {
-                String key = allProps.nextElement();
-                if (key.startsWith(PROPERTY_PREFIX)) {
-                    target.addMessageProperty(key.substring(PROPERTY_PREFIX.length()), trim(messageIn.getStringProperty(key)), trim(messageIn.getStringProperty(PROPERTY_TYPE_PREFIX + key.substring(PROPERTY_PREFIX.length()))));
-                }
-            }
-
-            String bodyloadEnabled = getPropertyWithFallback(messageIn, JMSMessageConstants.P1_IN_BODY);
-            for (int i = 1; i <= numPayloads; i++) {
-                transformToSubmissionHandlePayload(messageIn, target, bodyloadEnabled, i);
-            }
+            target.setMpc(messageIn.getStringProperty(MPC));
+            populateMessageInfo(target, messageIn);
+            populatePartyInfo(target, messageIn);
+            populateCollaborationInfo(target, messageIn);
+            populateMessageProperties(target, messageIn);
+            populatePayloadInfo(target, messageIn);
         } catch (final JMSException ex) {
             LOG.error("Error while getting properties from MapMessage", ex);
             throw new DefaultJmsPluginException(ex);
         }
         return target;
+    }
+
+    private void populateMessageInfo(Submission target, MapMessage messageIn) throws JMSException {
+        if(target == null || messageIn == null){
+            return;
+        }
+        target.setMessageId(messageIn.getStringProperty(MESSAGE_ID));
+        target.setRefToMessageId(messageIn.getStringProperty(REF_TO_MESSAGE_ID));
+    }
+
+    private void populatePartyInfo(Submission target, MapMessage messageIn) throws JMSException {
+        if(target == null || messageIn == null){
+            return;
+        }
+        setTargetFromPartyIdAndFromPartyType(messageIn, target);
+        target.setFromRole(getPropertyWithFallback(messageIn, FROM_ROLE));
+
+        setTargetToPartyIdAndToPartyType(messageIn, target);
+        target.setToRole(getPropertyWithFallback(messageIn, TO_ROLE));
+    }
+
+    private void populateCollaborationInfo(Submission target, MapMessage messageIn) throws JMSException {
+        if(target == null || messageIn == null){
+            return;
+        }
+        target.setAgreementRef(getPropertyWithFallback(messageIn, AGREEMENT_REF));
+        target.setAction(getAction(messageIn));
+        target.setService(getService(messageIn));
+        target.setServiceType(getPropertyWithFallback(messageIn, SERVICE_TYPE));
+        target.setConversationId(messageIn.getStringProperty(CONVERSATION_ID));
+    }
+
+    private void populateMessageProperties(Submission target, MapMessage messageIn) throws JMSException {
+        if(target == null || messageIn == null){
+            return;
+        }
+        //not part of ebMS3, eCODEX legacy property
+        String strOriginalSender = messageIn.getStringProperty(PROPERTY_ORIGINAL_SENDER);
+        if (!isBlank(strOriginalSender)) {
+            target.addMessageProperty(PROPERTY_ORIGINAL_SENDER, strOriginalSender);
+        }
+        String endpoint = messageIn.getStringProperty(PROPERTY_ENDPOINT);
+        if (!isEmpty(endpoint)) {
+            target.addMessageProperty(PROPERTY_ENDPOINT, messageIn.getStringProperty(PROPERTY_ENDPOINT));
+        }
+
+        //not part of ebMS3, eCODEX legacy property
+        String strFinalRecipient = messageIn.getStringProperty(PROPERTY_FINAL_RECIPIENT);
+        String strFinalRecipientType = messageIn.getStringProperty(PROPERTY_FINAL_RECIPIENT_TYPE);
+        LOG.debug("FinalRecipient [{}] and FinalRecipientType [{}] properties from Message", strFinalRecipient, strFinalRecipientType);
+        if (!isEmpty(strFinalRecipient)) {
+            target.addMessageProperty(PROPERTY_FINAL_RECIPIENT, strFinalRecipient, strFinalRecipientType);
+        }
+
+        Enumeration<String> allProps = messageIn.getPropertyNames();
+        while (allProps.hasMoreElements()) {
+            String key = allProps.nextElement();
+            if (key.startsWith(PROPERTY_PREFIX)) {
+                target.addMessageProperty(key.substring(PROPERTY_PREFIX.length()), messageIn.getStringProperty(key), messageIn.getStringProperty(PROPERTY_TYPE_PREFIX + key.substring(PROPERTY_PREFIX.length())));
+            }
+        }
+    }
+
+    private void populatePayloadInfo(Submission target, MapMessage messageIn) throws JMSException {
+        if(target == null || messageIn == null){
+            return;
+        }
+        final int numPayloads = messageIn.getIntProperty(TOTAL_NUMBER_OF_PAYLOADS);
+        String bodyloadEnabled = getPropertyWithFallback(messageIn, JMSMessageConstants.P1_IN_BODY);
+        for (int i = 1; i <= numPayloads; i++) {
+            transformToSubmissionHandlePayload(messageIn, target, bodyloadEnabled, i);
+        }
     }
 
     private String getPropertyWithFallback(final MapMessage messageIn, String propName) throws JMSException {
@@ -297,7 +312,9 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
         String fromPartyID = getPropertyWithFallback(messageIn, FROM_PARTY_ID);
         String fromPartyType = getPropertyWithFallback(messageIn, FROM_PARTY_TYPE);
         LOG.debug("From Party Id  [{}] and Type [{}]", fromPartyID, fromPartyType);
-        target.addFromParty(fromPartyID, fromPartyType);
+        if (fromPartyID != null) {
+            target.addFromParty(fromPartyID, fromPartyType);
+        }
     }
 
     private void transformToSubmissionHandlePayload(MapMessage messageIn, Submission target, String bodyloadEnabled, int i) throws JMSException {
