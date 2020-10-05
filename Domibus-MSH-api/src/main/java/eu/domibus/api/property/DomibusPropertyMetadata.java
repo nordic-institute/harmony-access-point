@@ -94,6 +94,7 @@ public class DomibusPropertyMetadata {
     public static DomibusPropertyMetadata getOnTheFlyProperty(String propertyName) {
         DomibusPropertyMetadata res = new DomibusPropertyMetadata(propertyName, Usage.ANY, true);
         res.setModule(Module.UNKNOWN);
+        res.setWritable(false);
         return res;
     }
 
@@ -273,20 +274,7 @@ public class DomibusPropertyMetadata {
     }
 
     public String getUsageText() {
-        switch (usage) {
-            case 1:
-                return "Global";
-            case 2:
-                return "Domain";
-            case 3:
-                return "Global and Domain";
-            case 4:
-                return "Super";
-            case 6:
-                return "Domain and Super";
-            default:
-                return null;
-        }
+        return Usage.getUsageText(usage);
     }
 
     @Override
@@ -327,13 +315,32 @@ public class DomibusPropertyMetadata {
     /**
      * States if a property is used as a global, domain, super or a valid combination of them
      */
-    public class Usage {
+    public static class Usage {
         public static final int GLOBAL = 1;
         public static final int DOMAIN = 2;
         public static final int SUPER = 4;
         public static final int GLOBAL_AND_DOMAIN = GLOBAL | DOMAIN;
         public static final int DOMAIN_AND_SUPER = DOMAIN | SUPER;
         public static final int ANY = GLOBAL | DOMAIN | SUPER;
+
+        static String getUsageText(int usage) {
+            switch (usage) {
+                case 1:
+                    return "Global";
+                case 2:
+                    return "Domain";
+                case 3:
+                    return "Global and Domain";
+                case 4:
+                    return "Super";
+                case 6:
+                    return "Domain and Super";
+                case 7:
+                    return "Any";
+                default:
+                    return null;
+            }
+        }
     }
 
     /**
