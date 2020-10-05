@@ -3,6 +3,8 @@ package eu.domibus.api.property;
 import eu.domibus.api.property.validators.CronValidator;
 import eu.domibus.api.property.validators.DomibusPropertyValidator;
 import eu.domibus.api.property.validators.RegexpValidator;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -323,21 +325,24 @@ public class DomibusPropertyMetadata {
         public static final int DOMAIN_AND_SUPER = DOMAIN | SUPER;
         public static final int ANY = GLOBAL | DOMAIN | SUPER;
 
+        private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(Usage.class);
+
         static String getUsageText(int usage) {
             switch (usage) {
-                case 1:
+                case GLOBAL:
                     return "Global";
-                case 2:
+                case DOMAIN:
                     return "Domain";
-                case 3:
+                case GLOBAL_AND_DOMAIN:
                     return "Global and Domain";
-                case 4:
+                case SUPER:
                     return "Super";
-                case 6:
+                case DOMAIN_AND_SUPER:
                     return "Domain and Super";
-                case 7:
+                case ANY:
                     return "Any";
                 default:
+                    LOG.warn("Unsupported usage value asked [{}]", usage);
                     return null;
             }
         }
