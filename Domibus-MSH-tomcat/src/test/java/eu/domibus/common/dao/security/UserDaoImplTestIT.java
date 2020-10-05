@@ -15,7 +15,7 @@ import javax.persistence.PersistenceContext;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -35,18 +35,17 @@ public class UserDaoImplTestIT extends AbstractIT {
     @Test
     @Transactional
     @Rollback
-    public void getSuspendedUsers() throws Exception {
+    public void getSuspendedUsers() {
         UserEntityBase user = createUser("userOne");
         Date date = asDate(LocalDate.now().minusDays(2));
         user.setSuspensionDate(date);
 
-        List<UserEntityBase> users = userDao.getSuspendedUsers(asDate(LocalDate.now().minusDays(1)));
+        List<User> users = userDao.getSuspendedUsers(asDate(LocalDate.now().minusDays(1)));
 
         assertEquals(1, users.size());
         user = users.get(0);
-//        assertEquals("test@gmail.com", user.getEmail());
         assertEquals("test", user.getPassword());
-        assertEquals(true, user.isActive());
+        assertTrue(user.isActive());
     }
 
     @Test
@@ -59,7 +58,7 @@ public class UserDaoImplTestIT extends AbstractIT {
 
         assertNotNull(userOne);
 
-        userDao.delete(Arrays.asList(userOne));
+        userDao.delete(Collections.singletonList(userOne));
     }
 
     @Test
@@ -80,7 +79,7 @@ public class UserDaoImplTestIT extends AbstractIT {
     @Rollback
     public void delete() {
         createUser("user4");
-        final List<User> users = Arrays.asList(createUser("user5"));
+        final List<User> users = Collections.singletonList(createUser("user5"));
         userDao.delete(users);
 
         User user = userDao.loadUserByUsername("user4");
@@ -93,14 +92,14 @@ public class UserDaoImplTestIT extends AbstractIT {
     @Test
     @Transactional
     @Rollback
-    public void findWithPasswordChangedBetween() throws Exception {
+    public void findWithPasswordChangedBetween()  {
         User user1 = createUser("userPassChanged1");
         user1.setPasswordChangeDate(LocalDateTime.now().minusDays(5));
 
         User user2 = createUser("userPassChanged2");
         user2.setPasswordChangeDate(LocalDateTime.now().minusDays(2));
 
-        List<UserEntityBase> users = userDao.findWithPasswordChangedBetween(LocalDate.now().minusDays(3), LocalDate.now().minusDays(1), false);
+        List<User> users = userDao.findWithPasswordChangedBetween(LocalDate.now().minusDays(3), LocalDate.now().minusDays(1), false);
 
         assertEquals(1, users.size());
         assertEquals("userPassChanged2", users.get(0).getUserName());
@@ -109,21 +108,21 @@ public class UserDaoImplTestIT extends AbstractIT {
     @Test
     @Transactional
     @Rollback
-    public void update() throws Exception {
+    public void update()  {
         User user = createUser("updateUser");
         assertEquals("test@gmail.com", user.getEmail());
         assertEquals("test", user.getPassword());
-        assertEquals(true, user.isActive());
+        assertTrue(user.isActive());
 
         user.setEmail("changed@gmail.com");
         user.setActive(false);
 
-        final List<User> users = Arrays.asList(user);
+        final List<User> users = Collections.singletonList(user);
         userDao.update(users);
 
-        User sameUser = (User) userDao.findByUserName("updateUser");
+        User sameUser = userDao.findByUserName("updateUser");
         assertEquals("changed@gmail.com", sameUser.getEmail());
-        assertEquals(false, sameUser.isActive());
+        assertFalse(sameUser.isActive());
     }
 
     @Test
@@ -142,7 +141,7 @@ public class UserDaoImplTestIT extends AbstractIT {
         assertFalse(res);
 
         userName = "user2ForExistsTest";
-        user = createUser(userName);
+        createUser(userName);
 
         res = userDao.existsWithId(userName);
         assertTrue(res);
