@@ -344,9 +344,6 @@ public class Submission {
      * @param serviceType a string that indicates how the parties sending and receiving the message will interpret the {@link #service} value
      */
     public void setServiceType(final String serviceType) {
-        if (isBlank(serviceType)) {
-            throw new IllegalArgumentException("Mandatory field ServiceType is not provided");
-        }
         this.serviceType = trim(serviceType);
     }
 
@@ -575,10 +572,10 @@ public class Submission {
      */
     public void addFromParty(final String partyId, final String partyIdType) {
         if (isBlank(partyId)) {
-            throw new IllegalArgumentException("Mandatory field From PartyId is not provided");
+            throw new IllegalArgumentException("Mandatory field From PartyId is empty.");
         }
         if (isBlank(partyIdType)) {
-            throw new IllegalArgumentException("Mandatory field From PartyIdType is not provided");
+            throw new IllegalArgumentException("Mandatory field From PartyIdType is not provided.");
         }
         this.fromParties.add(new Submission.Party(partyId, partyIdType));
     }
@@ -606,10 +603,10 @@ public class Submission {
      */
     public void addToParty(final String partyId, final String partyIdType) {
         if (isBlank(partyId)) {
-            throw new IllegalArgumentException("Mandatory field To PartyId is not provided");
+            throw new IllegalArgumentException("Mandatory field To PartyId is empty.");
         }
         if (isBlank(partyIdType)) {
-            throw new IllegalArgumentException("Mandatory field To PartyIdType is not provided");
+            throw new IllegalArgumentException("Mandatory field To PartyIdType is not provided.");
         }
         this.toParties.add(new Submission.Party(partyId, partyIdType));
     }

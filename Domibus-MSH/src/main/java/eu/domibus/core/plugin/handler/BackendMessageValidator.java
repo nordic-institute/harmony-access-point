@@ -397,10 +397,6 @@ public class BackendMessageValidator {
             LOG.businessError(DomibusMessageCode.BUS_SERVICE_TOO_LONG);
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "Service is too long (over 255 characters).", null, null);
         }
-        if (isBlank(serviceType)) {
-            LOG.businessError(DomibusMessageCode.BUS_SERVICE_TYPE_NOT_SPECIFIED);
-            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Mandatory field ServiceType is not provided.", null, null);
-        }
         if (isStringLengthGreaterThanDefaultMaxLength(serviceType, TRIM)) {
             LOG.businessError(DomibusMessageCode.BUS_SERVICE_TYPE_TOO_LONG);
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "ServiceType is too long (over 255 characters).", null, null);
