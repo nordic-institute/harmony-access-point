@@ -4,8 +4,8 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.MessageStatus;
-import eu.domibus.core.alerts.configuration.ReaderMethodAlertConfigurationManager;
 import eu.domibus.core.alerts.configuration.AlertConfigurationManager;
+import eu.domibus.core.alerts.configuration.ReaderMethodAlertConfigurationManager;
 import eu.domibus.core.alerts.model.common.AlertLevel;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.service.AlertConfigurationService;
@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.AbstractMap;
+import java.util.Arrays;
 import java.util.stream.IntStream;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
@@ -73,14 +74,18 @@ public class MessagingConfigurationManager
                 return new MessagingModuleConfiguration();
             }
             final String[] states = messageCommunicationStates.split(",");
+            final String[] trimmedStates = Arrays.stream(states).filter(state -> StringUtils.isNotBlank(state)).map(state -> StringUtils.trim(state)).distinct().toArray(String[]::new);
+
             final String[] levels = messageCommunicationLevels.split(",");
+            final String[] trimmedLevels = Arrays.stream(levels).filter(level -> StringUtils.isNotBlank(level)).map(level -> StringUtils.trim(level)).distinct().toArray(String[]::new);
+
             final boolean eachStatusHasALevel = (states.length == levels.length);
             LOG.debug("Each message status has his own level[{}]", eachStatusHasALevel);
 
             MessagingModuleConfiguration messagingConfiguration = new MessagingModuleConfiguration(mailSubject);
             IntStream.
-                    range(0, states.length).
-                    mapToObj(i -> new AbstractMap.SimpleImmutableEntry<>(MessageStatus.valueOf(states[i]), AlertLevel.valueOf(levels[eachStatusHasALevel ? i : 0]))).
+                    range(0, trimmedStates.length).
+                    mapToObj(i -> new AbstractMap.SimpleImmutableEntry<>(MessageStatus.valueOf(trimmedStates[i]), AlertLevel.valueOf(trimmedLevels[eachStatusHasALevel ? i : 0]))).
                     forEach(entry -> messagingConfiguration.addStatusLevelAssociation(entry.getKey(), entry.getValue())); //NOSONAR
             LOG.info("Alert message status change module activated for domain:[{}]", currentDomain);
             return messagingConfiguration;
@@ -90,5 +95,4 @@ public class MessagingConfigurationManager
         }
 
     }
-
 }
