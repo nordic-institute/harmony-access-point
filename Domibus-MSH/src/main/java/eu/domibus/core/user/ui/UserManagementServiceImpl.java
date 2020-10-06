@@ -7,7 +7,6 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.user.UserManagementException;
 import eu.domibus.core.alerts.service.ConsoleUserAlertsServiceImpl;
-import eu.domibus.core.user.UserEntityBase;
 import eu.domibus.core.user.UserLoginErrorReason;
 import eu.domibus.core.user.UserPersistenceService;
 import eu.domibus.core.user.UserService;
@@ -135,7 +134,7 @@ public class UserManagementServiceImpl implements UserService {
      */
     @Override
     public void validateExpiredPassword(final String userName) {
-        UserEntityBase user = getUserWithName(userName);
+        User user = getUserWithName(userName);
         boolean defaultPassword = user.hasDefaultPassword();
         LocalDateTime passwordChangeDate = user.getPasswordChangeDate();
 
@@ -144,7 +143,7 @@ public class UserManagementServiceImpl implements UserService {
 
     @Override
     public Integer getDaysTillExpiration(String userName) {
-        UserEntityBase user = getUserWithName(userName);
+        User user = getUserWithName(userName);
         boolean isDefaultPassword = user.hasDefaultPassword();
         LocalDateTime passwordChangeDate = user.getPasswordChangeDate();
 
@@ -172,9 +171,7 @@ public class UserManagementServiceImpl implements UserService {
         LOG.debug("Retrieving console users");
         List<User> userEntities = userDao.listUsers();
 
-        List<eu.domibus.api.user.User> users = prepareUsers(getDomainForUserFn, userEntities);
-
-        return users;
+        return prepareUsers(getDomainForUserFn, userEntities);
     }
 
     /**
@@ -206,8 +203,8 @@ public class UserManagementServiceImpl implements UserService {
         return userDomainService.getDomainForUser(user.getUserName());
     }
 
-    private UserEntityBase getUserWithName(String userName) {
-        UserEntityBase user = userDao.findByUserName(userName);
+    protected User getUserWithName(String userName) {
+        User user = userDao.findByUserName(userName);
         if (user == null) {
             throw new UserManagementException("Could not find console user with the name " + userName);
         }

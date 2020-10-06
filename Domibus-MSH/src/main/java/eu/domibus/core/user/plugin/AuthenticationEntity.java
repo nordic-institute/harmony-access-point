@@ -25,9 +25,11 @@ import java.time.LocalDateTime;
 @RevisionLogicalName("PluginUser")
 public class AuthenticationEntity extends UserEntityBaseImpl implements UserEntityBase {
 
-    @Column(name = "CERTIFICATE_ID")
+    public static final String CERTIFICATE_ID = "CERTIFICATE_ID";
+    public static final String USER_NAME = "USERNAME";
+    @Column(name = CERTIFICATE_ID)
     private String certificateId;
-    @Column(name = "USERNAME")
+    @Column(name = USER_NAME)
     private String userName;
     @Column(name = "PASSWD")
     private String password;
