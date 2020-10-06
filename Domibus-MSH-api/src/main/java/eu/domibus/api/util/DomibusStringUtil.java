@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 
 public final class DomibusStringUtil {
     public static final int DEFAULT_MAX_STRING_LENGTH = 255;
+    public static final String ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH = " is too long (over 255 characters).";
 
     public static String uncamelcase(String str) {
         String result = str.replaceAll("(\\p{Ll})(\\p{Lu})", "$1 $2");

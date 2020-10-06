@@ -168,7 +168,7 @@ public class DatabaseMessageHandlerTest {
     @Tested
     private DatabaseMessageHandler databaseMessageHandler;
 
-    protected Property createProperty(String name, String value, String type) {
+    protected static Property createProperty(String name, String value, String type) {
         Property aProperty = new Property();
         aProperty.setValue(value);
         aProperty.setName(name);
@@ -176,7 +176,7 @@ public class DatabaseMessageHandlerTest {
         return aProperty;
     }
 
-    protected UserMessage createUserMessage() {
+    protected static UserMessage createUserMessage() {
         UserMessage userMessage = new UserMessage();
         CollaborationInfo collaborationInfo = new CollaborationInfo();
         collaborationInfo.setAction("TC2Leg1");
