@@ -96,7 +96,7 @@ public class Submission {
      */
     public void setAction(final String action) {
         if (isBlank(action)) {
-            throw new IllegalArgumentException("Mandatory field Action is not provided");
+            throw new IllegalArgumentException("Mandatory field Action is not provided.");
         }
         this.action = trim(action);
     }
@@ -225,9 +225,6 @@ public class Submission {
      * @param fromRole a string identifying the authorized role of the Party sending
      */
     public void setFromRole(final String fromRole) {
-        if (isBlank(fromRole)) {
-            throw new IllegalArgumentException("Mandatory field From Role is not provided");
-        }
         this.fromRole = trim(fromRole);
     }
 
@@ -314,7 +311,7 @@ public class Submission {
      */
     public void setService(final String service) {
         if (isBlank(service)) {
-            throw new IllegalArgumentException("Mandatory field Service is not provided");
+            throw new IllegalArgumentException("Mandatory field Service is not provided.");
         }
         this.service = trim(service);
     }
@@ -376,9 +373,6 @@ public class Submission {
      * @param toRole a string identifying the authorized role of the receiving Party
      */
     public void setToRole(final String toRole) {
-        if (isBlank(toRole)) {
-            throw new IllegalArgumentException("Mandatory field To Role is not provided");
-        }
         this.toRole = trim(toRole);
     }
 
@@ -571,12 +565,6 @@ public class Submission {
      * @param partyIdType a string that identifies the type of the partyId
      */
     public void addFromParty(final String partyId, final String partyIdType) {
-        if (isBlank(partyId)) {
-            throw new IllegalArgumentException("Mandatory field From PartyId is empty.");
-        }
-        if (isBlank(partyIdType)) {
-            throw new IllegalArgumentException("Mandatory field From PartyIdType is not provided.");
-        }
         this.fromParties.add(new Submission.Party(partyId, partyIdType));
     }
 
@@ -602,12 +590,6 @@ public class Submission {
      * @param partyIdType a string that identifies the type of the partyId
      */
     public void addToParty(final String partyId, final String partyIdType) {
-        if (isBlank(partyId)) {
-            throw new IllegalArgumentException("Mandatory field To PartyId is empty.");
-        }
-        if (isBlank(partyIdType)) {
-            throw new IllegalArgumentException("Mandatory field To PartyIdType is not provided.");
-        }
         this.toParties.add(new Submission.Party(partyId, partyIdType));
     }
 
