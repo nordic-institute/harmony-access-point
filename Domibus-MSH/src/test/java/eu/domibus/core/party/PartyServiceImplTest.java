@@ -1160,6 +1160,7 @@ public class PartyServiceImplTest {
             List<String> aliases;
             multiDomainCertificateProvider.removeCertificate(currentDomain, aliases = withCapture());
             multiDomainCertificateProvider.addCertificate(currentDomain, certificates = withCapture(), true);
+            certificateService.saveCertificateAndLogRevocation(domainProvider.getCurrentDomain());
             Assert.assertTrue("Should update party truststore when removing certificates of the parties",
                     aliases.size() == 1
                             && "party_blue".equals(aliases.get(0).toString()));
