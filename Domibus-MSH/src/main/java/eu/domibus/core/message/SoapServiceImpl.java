@@ -66,6 +66,7 @@ public class SoapServiceImpl implements SoapService {
     private Node getMessagingNode(SoapMessage message) throws IOException, EbMS3Exception {
         final InputStream inputStream = message.getContent(InputStream.class);
         final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        //we use apache cxf IOUtils.copy intentionally here - do not replace it with other libraries
         copy(inputStream, byteArrayOutputStream);
         final byte[] data = byteArrayOutputStream.toByteArray();
         message.setContent(InputStream.class, new ByteArrayInputStream(data));
@@ -76,6 +77,7 @@ public class SoapServiceImpl implements SoapService {
         }
         final Element soapEnvelope = new StaxToDOMConverter().convert(xmlStreamReader);
         message.removeContent(XMLStreamReader.class);
+        message.setContent(InputStream.class, new ByteArrayInputStream(data));
         return soapEnvelope.getElementsByTagNameNS(ObjectFactory._Messaging_QNAME.getNamespaceURI(), ObjectFactory._Messaging_QNAME.getLocalPart()).item(0);
     }
 
