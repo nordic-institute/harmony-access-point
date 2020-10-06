@@ -35,7 +35,6 @@ public class MessageFilterUpdatedCommandTaskTest {
 
         new FullVerifications() {{
             routingService.invalidateBackendFiltersCache();
-            ;
         }};
 
     }
