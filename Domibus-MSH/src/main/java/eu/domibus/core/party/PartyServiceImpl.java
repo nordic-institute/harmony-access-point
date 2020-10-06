@@ -524,6 +524,9 @@ public class PartyServiceImpl implements PartyService {
         removePartyCertificate(aliases);
 
         addPartyCertificate(partyToCertificateMap);
+
+        // triger update certificate table
+        certificateService.saveCertificateAndLogRevocation(domainProvider.getCurrentDomain());
     }
 
     /**
