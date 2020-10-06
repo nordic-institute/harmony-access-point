@@ -41,8 +41,9 @@ import java.util.Set;
 @RevisionLogicalName("User")
 public class User extends UserEntityBaseImpl implements UserEntityBase {
 
+    public static final String USER_NAME = "USER_NAME";
     @NotNull
-    @Column(name = "USER_NAME")
+    @Column(name = USER_NAME)
     private String userName;
 
     @Column(name = "USER_EMAIL")

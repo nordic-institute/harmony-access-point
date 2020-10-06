@@ -219,7 +219,6 @@ public class MessageListenerContainerConfiguration {
         messageListenerContainer.setDestination(destination);
         messageListenerContainer.setMessageListener(messageListener);
         messageListenerContainer.setTransactionManager(transactionManager);
-        messageListenerContainer.setCacheLevel(DefaultMessageListenerContainer.CACHE_CONNECTION);
 
         final String concurrency = domibusPropertyProvider.getProperty(domain, domainPropertyConcurrency);
         if(StringUtils.isEmpty(concurrency)) {

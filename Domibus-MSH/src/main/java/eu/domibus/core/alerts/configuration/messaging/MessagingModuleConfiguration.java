@@ -21,7 +21,7 @@ public class MessagingModuleConfiguration extends AlertModuleConfigurationBase {
 
     private static final Logger LOG = DomibusLoggerFactory.getLogger(MessagingModuleConfiguration.class);
 
-    private Map<MessageStatus, AlertLevel> messageStatusLevels = new EnumMap<>(MessageStatus.class);
+    protected Map<MessageStatus, AlertLevel> messageStatusLevels = new EnumMap<>(MessageStatus.class);
 
     public MessagingModuleConfiguration(final String mailSubject) {
         super(AlertType.MSG_STATUS_CHANGED, mailSubject);
