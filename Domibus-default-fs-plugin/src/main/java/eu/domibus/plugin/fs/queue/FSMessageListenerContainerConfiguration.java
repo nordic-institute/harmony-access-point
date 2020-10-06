@@ -63,7 +63,6 @@ public class FSMessageListenerContainerConfiguration {
         messageListenerContainer.setDestination(fsPluginSendQueue);
         messageListenerContainer.setMessageListener(fsSendMessageListener);
         messageListenerContainer.setTransactionManager(transactionManager);
-        messageListenerContainer.setCacheLevel(DefaultMessageListenerContainer.CACHE_CONNECTION);
         messageListenerContainer.setConcurrency(queueConcurrency);
         messageListenerContainer.setSessionTransacted(true);
         messageListenerContainer.setSessionAcknowledgeMode(0);

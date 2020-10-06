@@ -9,11 +9,11 @@ import java.util.List;
  * @since 4.1
  */
 public interface UserDaoBase<U extends UserEntityBase> {
-    UserEntityBase findByUserName(String userName);
+    U findByUserName(String userName);
 
-    List<UserEntityBase> findWithPasswordChangedBetween(LocalDate start, LocalDate end, boolean withDefaultPassword);
+    List<U> findWithPasswordChangedBetween(LocalDate start, LocalDate end, boolean withDefaultPassword);
 
-    List<UserEntityBase> getSuspendedUsers(Date currentTimeMinusSuspensionInterval);
+    List<U> getSuspendedUsers(Date currentTimeMinusSuspensionInterval);
 
     void update(U user, boolean flush);
 

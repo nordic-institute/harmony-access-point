@@ -58,7 +58,7 @@ public class UIMessageDaoImplIT {
 
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         uiMessageEntity1 = createUIMessageEntity(messageId1, "domibus-blue", "domibus-red", MSHRole.SENDING);
         uiMessageEntity2 = createUIMessageEntity(messageId2, "domibus-blue", "domibus-red", MSHRole.SENDING);
         uiMessageEntity3 = createUIMessageEntity(messageId3, "domibus-red", "domibus-blue", MSHRole.RECEIVING);
@@ -155,7 +155,15 @@ public class UIMessageDaoImplIT {
         //update
         uiMessageEntity3.setSendAttempts(3);
         uiMessageDao.saveOrUpdate(uiMessageEntity3);
-        Assert.assertEquals(3, uiMessageDao.findUIMessageByMessageId(messageId3).getSendAttempts());
+        UIMessageEntity uiMessageByMessageId = uiMessageDao.findUIMessageByMessageId(messageId3);
+        Assert.assertEquals(3, uiMessageByMessageId.getSendAttempts());
+
+        Assert.assertNotNull(uiMessageByMessageId.getCreatedBy());
+        Assert.assertNotNull(uiMessageByMessageId.getCreationTime());
+        Assert.assertNotNull(uiMessageByMessageId.getModifiedBy());
+        Assert.assertNotNull(uiMessageByMessageId.getModificationTime());
+
+        Assert.assertNotEquals(uiMessageByMessageId.getCreationTime(), uiMessageByMessageId.getModificationTime());
     }
 
 }

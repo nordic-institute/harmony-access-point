@@ -3,7 +3,6 @@ package eu.domibus.core.user.plugin;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.core.dao.ListDao;
 import eu.domibus.core.user.UserDaoBase;
-import eu.domibus.core.user.UserEntityBase;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.StringUtils;
@@ -31,42 +30,42 @@ public class AuthenticationDAO extends ListDao<AuthenticationEntity> implements 
 
     public AuthenticationEntity findByUser(final String username) {
         final TypedQuery<AuthenticationEntity> query = this.em.createNamedQuery("AuthenticationEntity.findByUsername", AuthenticationEntity.class);
-        query.setParameter("USERNAME", username);
+        query.setParameter(AuthenticationEntity.USER_NAME, username);
 
         return query.getSingleResult();
     }
 
     public List<AuthenticationEntity> listByUser(final String username) {
         final TypedQuery<AuthenticationEntity> query = this.em.createNamedQuery("AuthenticationEntity.findByUsername", AuthenticationEntity.class);
-        query.setParameter("USERNAME", username);
+        query.setParameter(AuthenticationEntity.USER_NAME, username);
 
         return query.getResultList();
     }
 
     public List<AuthRole> getRolesForUser(final String username) {
         final TypedQuery<String> query = this.em.createNamedQuery("AuthenticationEntity.getRolesForUsername", String.class);
-        query.setParameter("USERNAME", username);
+        query.setParameter(AuthenticationEntity.USER_NAME, username);
 
         return getAuthRoles(query);
     }
 
     public AuthenticationEntity findByCertificateId(final String certificateId) {
         final TypedQuery<AuthenticationEntity> query = this.em.createNamedQuery("AuthenticationEntity.findByCertificateId", AuthenticationEntity.class);
-        query.setParameter("CERTIFICATE_ID", certificateId);
+        query.setParameter(AuthenticationEntity.CERTIFICATE_ID, certificateId);
 
         return query.getSingleResult();
     }
 
     public List<AuthenticationEntity> listByCertificateId(final String certificateId) {
         final TypedQuery<AuthenticationEntity> query = this.em.createNamedQuery("AuthenticationEntity.findByCertificateId", AuthenticationEntity.class);
-        query.setParameter("CERTIFICATE_ID", certificateId);
+        query.setParameter(AuthenticationEntity.CERTIFICATE_ID, certificateId);
 
         return query.getResultList();
     }
 
     public List<AuthRole> getRolesForCertificateId(final String certificateId) {
         final TypedQuery<String> query = this.em.createNamedQuery("AuthenticationEntity.getRolesForCertificateId", String.class);
-        query.setParameter("CERTIFICATE_ID", certificateId);
+        query.setParameter(AuthenticationEntity.CERTIFICATE_ID, certificateId);
 
         return getAuthRoles(query);
     }
@@ -101,7 +100,7 @@ public class AuthenticationDAO extends ListDao<AuthenticationEntity> implements 
         return predicates;
     }
 
-    public List<UserEntityBase> findWithPasswordChangedBetween(LocalDate from, LocalDate to, boolean withDefaultPassword) {
+    public List<AuthenticationEntity> findWithPasswordChangedBetween(LocalDate from, LocalDate to, boolean withDefaultPassword) {
         TypedQuery<AuthenticationEntity> namedQuery = em.createNamedQuery("AuthenticationEntity.findWithPasswordChangedBetween", AuthenticationEntity.class);
         namedQuery.setParameter("START_DATE", from.atStartOfDay());
         namedQuery.setParameter("END_DATE", to.atStartOfDay());
@@ -115,7 +114,7 @@ public class AuthenticationDAO extends ListDao<AuthenticationEntity> implements 
     }
 
     @Override
-    public List<UserEntityBase> getSuspendedUsers(Date currentTimeMinusSuspensionInterval) {
+    public List<AuthenticationEntity> getSuspendedUsers(Date currentTimeMinusSuspensionInterval) {
         TypedQuery<AuthenticationEntity> namedQuery = em.createNamedQuery("AuthenticationEntity.findSuspendedUsers", AuthenticationEntity.class);
         namedQuery.setParameter("SUSPENSION_INTERVAL", currentTimeMinusSuspensionInterval);
         return namedQuery.getResultList().stream().collect(Collectors.toList());
@@ -134,7 +133,7 @@ public class AuthenticationDAO extends ListDao<AuthenticationEntity> implements 
     }
 
     @Override
-    public UserEntityBase findByUserName(String userName) {
+    public AuthenticationEntity findByUserName(String userName) {
         return findByUser(userName);
     }
 

@@ -53,8 +53,12 @@ public abstract class AbstractBaseEntity implements Serializable {
         if (StringUtils.isEmpty(user)) {
             user = getDataBaseUser();
         }
+        Date time = Calendar.getInstance().getTime();
         setCreatedBy(user);
-        setCreationTime(Calendar.getInstance().getTime());
+        setCreationTime(time);
+
+        setModifiedBy(user);
+        setModificationTime(time);
     }
 
     protected String getDataBaseUser() {

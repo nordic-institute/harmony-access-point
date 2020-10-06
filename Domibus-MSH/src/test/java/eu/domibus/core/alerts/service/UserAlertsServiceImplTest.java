@@ -32,6 +32,7 @@ import java.util.List;
  * @author Ion Perpegel
  * @since 4.1
  */
+@SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(JMockit.class)
 public class UserAlertsServiceImplTest {
 
@@ -40,9 +41,6 @@ public class UserAlertsServiceImplTest {
 
     @Injectable
     DomibusPropertyProvider domibusPropertyProvider;
-
-    @Injectable
-    protected UserPasswordHistoryDao userPasswordHistoryDao;
 
     @Injectable
     private UserPersistenceService userPersistenceService;
@@ -72,7 +70,7 @@ public class UserAlertsServiceImplTest {
     private UserAlertsServiceImpl userAlertsService;
 
     @Test
-    public void testSendPasswordExpiredAlerts(@Mocked UserDaoBase dao,
+    public void testSendPasswordExpiredAlerts(@Mocked UserDaoBase<UserEntityBase> dao,
                                               @Mocked PasswordExpirationAlertModuleConfiguration alertConfiguration) {
         final LocalDate today = LocalDate.of(2018, 10, 15);
         final Integer maxPasswordAge = 10;
@@ -121,7 +119,7 @@ public class UserAlertsServiceImplTest {
     }
 
     @Test
-    public void testSendPasswordImminentExpirationAlerts(@Mocked UserDaoBase dao,
+    public void testSendPasswordImminentExpirationAlerts(@Mocked UserDaoBase<UserEntityBase> dao,
                                                          @Mocked PasswordExpirationAlertModuleConfiguration alertConfiguration) {
         final LocalDate today = LocalDate.of(2018, 10, 15);
         final Integer maxPasswordAge = 10;
@@ -171,6 +169,26 @@ public class UserAlertsServiceImplTest {
     }
 
     @Test
+    public void testSendPasswordImminentExpirationAlerts_inactive(
+            @Mocked PasswordExpirationAlertModuleConfiguration alertConfiguration) {
+        new Expectations(userAlertsService) {{
+            userAlertsService.getEventTypeForPasswordImminentExpiration();
+            result = EventType.PASSWORD_IMMINENT_EXPIRATION;
+
+            userAlertsService.getImminentExpirationAlertConfiguration();
+            result = alertConfiguration;
+
+            alertConfiguration.isActive();
+            result = false;
+        }};
+
+        userAlertsService.triggerImminentExpirationEvents(false);
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
     public void testSendPasswordAlerts() {
         new Expectations(userAlertsService) {{
             userAlertsService.triggerExpiredEvents(true);
@@ -181,14 +199,24 @@ public class UserAlertsServiceImplTest {
 
         userAlertsService.triggerPasswordExpirationEvents();
 
-        new VerificationsInOrder() {{
-            userAlertsService.triggerExpiredEvents(true);
-            userAlertsService.triggerExpiredEvents(false);
-            userAlertsService.triggerImminentExpirationEvents(true);
-            userAlertsService.triggerImminentExpirationEvents(false);
-        }};
+        new FullVerifications() {
+        };
     }
 
+    @Test
+    public void testSendPasswordAlerts_exception() {
+        new Expectations(userAlertsService) {{
+            userAlertsService.triggerExpiredEvents(true);
+            result = new Exception("ERROR");
+            userAlertsService.triggerImminentExpirationEvents(true);
+            result = new Exception("ERROR");
+        }};
+
+        userAlertsService.triggerPasswordExpirationEvents();
+
+        new FullVerifications() {
+        };
+    }
 
     @Test
     public void doNotSendPasswordExpiredEventsIfPasswordExpirationIsDisabled(@Mocked PasswordExpirationAlertModuleConfiguration alertConfiguration) {
@@ -258,15 +286,16 @@ public class UserAlertsServiceImplTest {
     }
 
     @Test
-    public void triggerLoginEventsTest() {
-        final User user1 = new User() {{
-            setUserName("user1");
-            setPassword("anypassword");
-        }};
-        LoginFailureModuleConfiguration conf = new LoginFailureModuleConfiguration(AlertType.USER_LOGIN_FAILURE, AlertLevel.MEDIUM, "");
-        new Expectations() {{
+    public void triggerLoginEventsTest_BAD_CREDENTIALS(
+            @Mocked LoginFailureModuleConfiguration LoginFailureModuleConfiguration) {
+
+        new Expectations(userAlertsService) {{
+            LoginFailureModuleConfiguration.isActive();
+            result = true;
+
             userAlertsService.getLoginFailureConfiguration();
-            result = conf;
+            result = LoginFailureModuleConfiguration;
+
             userAlertsService.getUserType();
             result = UserEntityBase.Type.CONSOLE;
         }};
@@ -274,8 +303,96 @@ public class UserAlertsServiceImplTest {
         userAlertsService.triggerLoginEvents("user1", UserLoginErrorReason.BAD_CREDENTIALS);
 
         new VerificationsInOrder() {{
-            eventService.enqueueLoginFailureEvent(UserEntityBase.Type.CONSOLE, user1.getUserName(), (Date) any, false);
+            eventService.enqueueLoginFailureEvent(UserEntityBase.Type.CONSOLE, "user1", (Date) any, false);
             times = 1;
+        }};
+    }
+
+    @Test
+    public void triggerLoginEventsTest_SUSPENDED_inactive(
+            @Mocked AccountDisabledModuleConfiguration accountDisabledConfiguration,
+            @Mocked LoginFailureModuleConfiguration LoginFailureModuleConfiguration) {
+
+        new Expectations(userAlertsService) {{
+            LoginFailureModuleConfiguration.isActive();
+            result = true;
+            userAlertsService.getLoginFailureConfiguration();
+            result = LoginFailureModuleConfiguration;
+
+            userAlertsService.getAccountDisabledConfiguration();
+            result = accountDisabledConfiguration;
+
+            accountDisabledConfiguration.isActive();
+            result = false;
+        }};
+
+        userAlertsService.triggerLoginEvents("user1", UserLoginErrorReason.SUSPENDED);
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void triggerLoginEventsTest_SUSPENDED_active_eachLogin(
+            @Mocked AccountDisabledModuleConfiguration accountDisabledConfiguration,
+            @Mocked LoginFailureModuleConfiguration LoginFailureModuleConfiguration) {
+
+        new Expectations(userAlertsService) {{
+            LoginFailureModuleConfiguration.isActive();
+            result = true;
+
+            userAlertsService.getLoginFailureConfiguration();
+            result = LoginFailureModuleConfiguration;
+
+            userAlertsService.getAccountDisabledConfiguration();
+            result = accountDisabledConfiguration;
+
+            accountDisabledConfiguration.isActive();
+            result = true;
+
+            accountDisabledConfiguration.shouldTriggerAccountDisabledAtEachLogin();
+            result = true;
+
+            userAlertsService.getUserType();
+            result = UserEntityBase.Type.CONSOLE;
+        }};
+
+        userAlertsService.triggerLoginEvents("user1", UserLoginErrorReason.SUSPENDED);
+
+        new FullVerifications() {{
+            eventService.enqueueAccountDisabledEvent(UserEntityBase.Type.CONSOLE, "user1", withAny(new Date()));
+        }};
+    }
+
+    @Test
+    public void triggerLoginEventsTest_SUSPENDED_active_notEachLogin(
+            @Mocked AccountDisabledModuleConfiguration accountDisabledConfiguration,
+            @Mocked LoginFailureModuleConfiguration LoginFailureModuleConfiguration) {
+
+        new Expectations(userAlertsService) {{
+            LoginFailureModuleConfiguration.isActive();
+            result = true;
+
+            userAlertsService.getLoginFailureConfiguration();
+            result = LoginFailureModuleConfiguration;
+
+            userAlertsService.getAccountDisabledConfiguration();
+            result = accountDisabledConfiguration;
+
+            accountDisabledConfiguration.isActive();
+            result = true;
+
+            accountDisabledConfiguration.shouldTriggerAccountDisabledAtEachLogin();
+            result = false;
+
+            userAlertsService.getUserType();
+            result = UserEntityBase.Type.CONSOLE;
+        }};
+
+        userAlertsService.triggerLoginEvents("user1", UserLoginErrorReason.SUSPENDED);
+
+        new FullVerifications() {{
+            eventService.enqueueLoginFailureEvent(UserEntityBase.Type.CONSOLE, "user1", withAny(new Date()), true);
         }};
     }
 
