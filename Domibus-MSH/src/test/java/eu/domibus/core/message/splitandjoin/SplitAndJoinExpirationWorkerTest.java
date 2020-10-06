@@ -15,8 +15,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.quartz.JobExecutionContext;
 
-import javax.jms.JMSException;
-
 /**
  * @author Cosmin Baciu
  * @since 4.1
@@ -48,7 +46,7 @@ public class SplitAndJoinExpirationWorkerTest {
     @Test
     public void executeJob_callPrivate(@Injectable JobExecutionContext context, @Injectable Domain domain) {
         new Expectations() {{
-            authUtils.wrapApplicationSecurityContextToMethod((ApplicationAuthenticatedProcedure)any, anyString, anyString);
+            authUtils.runMethodWithSecurityContext((ApplicationAuthenticatedProcedure)any, anyString, anyString);
         }};
 
         splitAndJoinExpirationWorker.executeJob(context, domain);
@@ -58,7 +56,7 @@ public class SplitAndJoinExpirationWorkerTest {
             String username;
             String password;
             AuthRole role;
-            authUtils.wrapApplicationSecurityContextToMethod(function = withCapture(),
+            authUtils.runMethodWithSecurityContext(function = withCapture(),
                     username=withCapture(), password=withCapture());
             Assert.assertNotNull(function);
             Assert.assertEquals("splitAndJoinExpiration_user",username);

@@ -34,7 +34,7 @@ public class SendRetryWorker extends DomibusQuartzJobBean {
 
     @Override
     protected void executeJob(final JobExecutionContext context, final Domain domain) throws JobExecutionException {
-        authUtils.wrapApplicationSecurityContextToMethod(this::executeJob,
+        authUtils.runMethodWithSecurityContext(this::executeJob,
                     "retry_user", "retry_password");
     }
 

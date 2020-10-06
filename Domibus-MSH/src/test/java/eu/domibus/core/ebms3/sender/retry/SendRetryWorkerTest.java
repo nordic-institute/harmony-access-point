@@ -3,7 +3,6 @@ package eu.domibus.core.ebms3.sender.retry;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.security.functions.ApplicationAuthenticatedProcedure;
 import eu.domibus.core.util.DatabaseUtil;
@@ -56,7 +55,7 @@ public class SendRetryWorkerTest {
                                 final @Injectable Domain domain) throws Exception {
 
         new Expectations() {{
-            authUtils.wrapApplicationSecurityContextToMethod((ApplicationAuthenticatedProcedure)any, anyString, anyString);
+            authUtils.runMethodWithSecurityContext((ApplicationAuthenticatedProcedure)any, anyString, anyString);
         }};
 
         sendRetryWorker.executeJob(jobExecutionContext, domain);
@@ -65,7 +64,7 @@ public class SendRetryWorkerTest {
             ApplicationAuthenticatedProcedure function;
             String username;
             String password;
-            authUtils.wrapApplicationSecurityContextToMethod(function = withCapture(),
+            authUtils.runMethodWithSecurityContext(function = withCapture(),
                     username=withCapture(), password=withCapture());
             Assert.assertNotNull(function);
             Assert.assertEquals("retry_user",username);

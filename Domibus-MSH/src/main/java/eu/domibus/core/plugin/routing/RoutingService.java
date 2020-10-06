@@ -83,16 +83,16 @@ public class RoutingService {
 
         if (domibusConfigurationService.isSingleTenantAware()) {
             LOG.debug("Creating plugin backend filters in Non MultiTenancy environment");
-            authUtils.wrapApplicationSecurityContextToMethod(this::createBackendFilters,
-                    "domibus", "Domibus", AuthRole.ROLE_AP_ADMIN );
+            authUtils.runMethodWithSecurityContext(this::createBackendFilters,
+                    "domibus", "domibus", AuthRole.ROLE_AP_ADMIN );
         } else {
             // Get All Domains
             final List<Domain> domains = domainService.getDomains();
             LOG.debug("Creating plugin backend filters for all the domains in MultiTenancy environment");
             for (Domain domain : domains) {
-                Runnable wrappedCreateBackendFilters = () -> authUtils.wrapApplicationSecurityContextToMethod(
+                Runnable wrappedCreateBackendFilters = () -> authUtils.runMethodWithSecurityContext(
                         this::createBackendFilters, "domibus",
-                        "Domibus", AuthRole.ROLE_AP_ADMIN );
+                        "domibus", AuthRole.ROLE_AP_ADMIN );
                 domainTaskExecutor.submit( wrappedCreateBackendFilters, domain);
             }
         }

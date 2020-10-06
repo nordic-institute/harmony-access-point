@@ -89,7 +89,7 @@ public class JMSQueuesCountSet implements MetricSet {
     }
 
     protected List<JMSDestination> getQueuesAuthenticated() {
-        return authUtils.wrapApplicationSecurityContextToFunction(this::getQueues,
+        return authUtils.runFunctionWithSecurityContext(this::getQueues,
                 "jms_metrics_user", "jms_metrics_password", AuthRole.ROLE_AP_ADMIN);
     }
 
@@ -101,7 +101,7 @@ public class JMSQueuesCountSet implements MetricSet {
 
     protected long getQueueSize(final JMSDestination jmsDestination) {
         return domainTaskExecutor.submit(() -> {
-            final long queueSize = authUtils.wrapApplicationSecurityContextToFunction(()->jmsManager.getDestinationSize(jmsDestination),
+            final long queueSize = authUtils.runFunctionWithSecurityContext(() -> jmsManager.getDestinationSize(jmsDestination),
                     "jms_metrics_user", "jms_metrics_password", AuthRole.ROLE_AP_ADMIN);
             LOG.debug("getQueueSize for queue=[{}] returned count=[{}]", jmsDestination.getName(), queueSize);
             return queueSize;

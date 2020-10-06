@@ -163,35 +163,37 @@ public class AuthUtilsImpl implements AuthUtils {
     }
 
     @Override
-    public void wrapApplicationSecurityContextToMethod(ApplicationAuthenticatedProcedure runnable, String user, String password) {
-        wrapApplicationSecurityContextToMethod(runnable, user, password, AuthRole.ROLE_ADMIN);
+    public void runMethodWithSecurityContext(ApplicationAuthenticatedProcedure runnable, String user, String password) {
+        runMethodWithSecurityContext(runnable, user, password, AuthRole.ROLE_ADMIN);
     }
 
     @Override
-    public void wrapApplicationSecurityContextToMethod(ApplicationAuthenticatedProcedure method, String user, String password, AuthRole authRole) {
-        if (!isUnsecureLoginAllowed()) {
+    public void runMethodWithSecurityContext(ApplicationAuthenticatedProcedure method, String user, String password, AuthRole authRole) {
+        if (isUnsecureLoginAllowed()) {
+            method.invoke();
+        } else {
             try {
                 setAuthenticationToSecurityContext(user, password, authRole);
                 method.invoke();
             } finally {
                 clearSecurityContext();
             }
-        } else {
-            method.invoke();
         }
     }
 
     @Override
-    public <R> R wrapApplicationSecurityContextToFunction(ApplicationAuthenticatedFunction function, String user, String password, AuthRole authRole) {
-        if (!isUnsecureLoginAllowed()) {
-            try {
-                setAuthenticationToSecurityContext(user, password, authRole);
-                return (R) function.invoke();
-            } finally {
-                clearSecurityContext();
-            }
+    public <R> R runFunctionWithSecurityContext(ApplicationAuthenticatedFunction function, String user, String password, AuthRole authRole) {
+        if (isUnsecureLoginAllowed()) {
+            LOG.debug("Unsecure login is allowed: not Spring security is set before executing the method.");
+            return (R) function.invoke();
         }
-        return (R) function.invoke();
+
+        try {
+            setAuthenticationToSecurityContext(user, password, authRole);
+            return (R) function.invoke();
+        } finally {
+            clearSecurityContext();
+        }
     }
 
     @Override

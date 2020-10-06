@@ -17,5 +17,5 @@ public interface ApplicationAuthenticatedFunction <R> {
      * Invoke function wrapped with spring security context and return value
      * @return value
      */
-    public abstract R invoke();
+    abstract R invoke();
 }

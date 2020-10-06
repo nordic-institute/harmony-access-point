@@ -3,7 +3,6 @@ package eu.domibus.core.metrics;
 import com.codahale.metrics.Metric;
 import eu.domibus.api.jms.JMSDestination;
 import eu.domibus.api.jms.JMSManager;
-import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
@@ -122,7 +121,7 @@ public class JMSQueuesCountSetTest {
         JMSQueuesCountSet jmsQueuesCountSet = new JMSQueuesCountSet(jmsManager, authUtils, domainTaskExecutor, 20, false);
 
         new Expectations() {{
-            authUtils.wrapApplicationSecurityContextToFunction((ApplicationAuthenticatedFunction) any, anyString, anyString, (AuthRole)any);
+            authUtils.runFunctionWithSecurityContext((ApplicationAuthenticatedFunction) any, anyString, anyString, (AuthRole)any);
         }};
 
         jmsQueuesCountSet.getQueuesAuthenticated();
@@ -132,7 +131,7 @@ public class JMSQueuesCountSetTest {
             String username;
             String password;
             AuthRole role;
-            authUtils.wrapApplicationSecurityContextToFunction(function = withCapture(),
+            authUtils.runFunctionWithSecurityContext(function = withCapture(),
                     username=withCapture(), password=withCapture(), role=withCapture());
 
             Assert.assertNotNull(function);

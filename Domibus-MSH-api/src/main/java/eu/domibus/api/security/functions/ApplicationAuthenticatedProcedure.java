@@ -16,5 +16,5 @@ public interface ApplicationAuthenticatedProcedure {
     /**
      * Invoke function wrapped with spring security context.
      */
-    public abstract void invoke();
+    abstract void invoke();
 }

@@ -47,7 +47,7 @@ public interface AuthUtils {
      * @param user - Authentication: username
      * @param password - Authentication: username
      */
-    void wrapApplicationSecurityContextToMethod(ApplicationAuthenticatedProcedure function, String user, String password);
+    void runMethodWithSecurityContext(ApplicationAuthenticatedProcedure function, String user, String password);
 
     /**
      * Method execute function given in function parameter.
@@ -60,7 +60,7 @@ public interface AuthUtils {
      * @param password - Authentication: username
      * @param authRole - Authentication: role
      */
-    void wrapApplicationSecurityContextToMethod(ApplicationAuthenticatedProcedure function, String user, String password, AuthRole authRole);
+    void runMethodWithSecurityContext(ApplicationAuthenticatedProcedure function, String user, String password, AuthRole authRole);
 
     /**
      * Method execute function given in function parameter.
@@ -74,7 +74,7 @@ public interface AuthUtils {
      * @param authRole - Authentication: role
      * return function result
      */
-    <R> R wrapApplicationSecurityContextToFunction(ApplicationAuthenticatedFunction function, String user, String password, AuthRole authRole);
+    <R> R runFunctionWithSecurityContext(ApplicationAuthenticatedFunction function, String user, String password, AuthRole authRole);
 
 
 }

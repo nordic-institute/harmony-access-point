@@ -568,7 +568,7 @@ public class RoutingServiceTest {
             criteriaFactory.getInstance();
             result = iRoutingCriteria;
 
-            authUtils.wrapApplicationSecurityContextToMethod((ApplicationAuthenticatedProcedure)any, anyString, anyString, (AuthRole)any);
+            authUtils.runMethodWithSecurityContext((ApplicationAuthenticatedProcedure)any, anyString, anyString, (AuthRole)any);
             times = 1;
         }};
 
@@ -579,7 +579,7 @@ public class RoutingServiceTest {
             String username;
             String password;
             AuthRole role;
-            authUtils.wrapApplicationSecurityContextToMethod(function = withCapture(),
+            authUtils.runMethodWithSecurityContext(function = withCapture(),
                     username=withCapture(), password=withCapture(), role=withCapture());
             Assert.assertNotNull(function);
             Assert.assertEquals("domibus",username);
@@ -742,7 +742,7 @@ public class RoutingServiceTest {
             routingCriteriaFactory.getInstance();
             result = null;
 
-            authUtils.wrapApplicationSecurityContextToMethod((ApplicationAuthenticatedProcedure)any, anyString, anyString, (AuthRole)any);
+            authUtils.runMethodWithSecurityContext((ApplicationAuthenticatedProcedure)any, anyString, anyString, (AuthRole)any);
         }};
 
         routingService.init();
@@ -752,7 +752,7 @@ public class RoutingServiceTest {
             String username;
             String password;
             AuthRole role;
-            authUtils.wrapApplicationSecurityContextToMethod(function = withCapture(),
+            authUtils.runMethodWithSecurityContext(function = withCapture(),
                     username=withCapture(), password=withCapture(), role=withCapture());
             Assert.assertNotNull(function);
             Assert.assertEquals("domibus",username);

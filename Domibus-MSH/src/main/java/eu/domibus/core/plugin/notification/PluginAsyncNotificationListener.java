@@ -53,11 +53,11 @@ public class PluginAsyncNotificationListener implements MessageListener {
     @Timer(clazz = PluginAsyncNotificationListener.class,value="onMessage")
     @Counter(clazz = PluginAsyncNotificationListener.class,value="onMessage")
     public void onMessage(final Message message) {
-        authUtils.wrapApplicationSecurityContextToMethod(()->onMessagePrivate(message),
-                "notif", "notif", AuthRole.ROLE_AP_ADMIN);
+        authUtils.runMethodWithSecurityContext(()-> doOnMessage(message),
+                "notif", "notif", AuthRole.ROLE_ADMIN);
     }
 
-    public void onMessagePrivate(final Message message) {
+    public void doOnMessage(final Message message) {
         try {
             final String messageId = message.getStringProperty(MessageConstants.MESSAGE_ID);
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);

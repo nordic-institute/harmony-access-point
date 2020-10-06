@@ -106,7 +106,7 @@ public class RetentionListenerTest {
     public void onMessage_addsAuthentication(@Mocked DomibusLogger domibusLogger)  throws JMSException {
         // Given
         new Expectations() {{
-            authUtils.wrapApplicationSecurityContextToMethod((ApplicationAuthenticatedProcedure)any, anyString, anyString, (AuthRole)any);
+            authUtils.runMethodWithSecurityContext((ApplicationAuthenticatedProcedure)any, anyString, anyString, (AuthRole)any);
         }};
 
         // When
@@ -118,7 +118,7 @@ public class RetentionListenerTest {
             String username;
             String password;
             AuthRole role;
-            authUtils.wrapApplicationSecurityContextToMethod(function = withCapture(),
+            authUtils.runMethodWithSecurityContext(function = withCapture(),
                     username=withCapture(), password=withCapture(), role=withCapture());
             Assert.assertNotNull(function);
             Assert.assertEquals("retention",username);

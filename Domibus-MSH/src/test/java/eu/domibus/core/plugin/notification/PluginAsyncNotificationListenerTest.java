@@ -67,7 +67,7 @@ public class PluginAsyncNotificationListenerTest {
             result = messageProperties;
         }};
 
-        pluginAsyncNotificationListener.onMessagePrivate(message);
+        pluginAsyncNotificationListener.doOnMessage(message);
 
         new Verifications() {{
             pluginEventNotifier.notifyPlugin(notificationListenerService.getBackendConnector(), messageId, messageProperties);
@@ -81,7 +81,7 @@ public class PluginAsyncNotificationListenerTest {
                                              @Injectable Map<String, String> messageProperties)  throws JMSException {
         // Given
         new Expectations() {{
-            authUtils.wrapApplicationSecurityContextToMethod((ApplicationAuthenticatedProcedure)any, anyString, anyString, (AuthRole)any);
+            authUtils.runMethodWithSecurityContext((ApplicationAuthenticatedProcedure)any, anyString, anyString, (AuthRole)any);
         }};
 
         // When
@@ -93,12 +93,12 @@ public class PluginAsyncNotificationListenerTest {
             String username;
             String password;
             AuthRole role;
-            authUtils.wrapApplicationSecurityContextToMethod(function = withCapture(),
+            authUtils.runMethodWithSecurityContext(function = withCapture(),
                     username=withCapture(), password=withCapture(), role=withCapture());
             Assert.assertNotNull(function);
             Assert.assertEquals("notif",username);
             Assert.assertEquals("notif",password);
-            Assert.assertEquals(AuthRole.ROLE_AP_ADMIN,role);
+            Assert.assertEquals(AuthRole.ROLE_ADMIN,role);
 
         }};
     }

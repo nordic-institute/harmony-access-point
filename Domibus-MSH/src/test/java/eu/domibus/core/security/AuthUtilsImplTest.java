@@ -454,14 +454,14 @@ public class AuthUtilsImplTest {
             authUtilsImpl.clearSecurityContext();
         }};
 
-        authUtilsImpl.wrapApplicationSecurityContextToMethod(expectedFunction, expectedUsername, expectedPassword, AuthRole.ROLE_ADMIN);
+        authUtilsImpl.runMethodWithSecurityContext(expectedFunction, expectedUsername, expectedPassword, AuthRole.ROLE_ADMIN);
 
         new FullVerifications() {{
             ApplicationAuthenticatedProcedure function;
             String username;
             String password;
             AuthRole role;
-            authUtilsImpl.wrapApplicationSecurityContextToMethod(function = withCapture(),
+            authUtilsImpl.runMethodWithSecurityContext(function = withCapture(),
                     username=withCapture(), password=withCapture(), role=withCapture());
             Assert.assertEquals(expectedFunction, function);
             Assert.assertEquals(expectedUsername,username);
@@ -484,7 +484,7 @@ public class AuthUtilsImplTest {
             expectedFunction.invoke();
         }};
 
-        authUtilsImpl.wrapApplicationSecurityContextToMethod(expectedFunction, expectedUsername, expectedPassword, AuthRole.ROLE_ADMIN);
+        authUtilsImpl.runMethodWithSecurityContext(expectedFunction, expectedUsername, expectedPassword, AuthRole.ROLE_ADMIN);
 
         new FullVerifications() {{
         }};
@@ -505,7 +505,7 @@ public class AuthUtilsImplTest {
             authUtilsImpl.clearSecurityContext();
         }};
         try {
-            authUtilsImpl.wrapApplicationSecurityContextToMethod(runnable, username, password, AuthRole.ROLE_ADMIN);
+            authUtilsImpl.runMethodWithSecurityContext(runnable, username, password, AuthRole.ROLE_ADMIN);
             fail("Method should rethrow error");
         } catch (RuntimeException exc) {
             // ignore
