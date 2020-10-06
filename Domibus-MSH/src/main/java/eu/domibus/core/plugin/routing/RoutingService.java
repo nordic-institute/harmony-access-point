@@ -1,5 +1,6 @@
 package eu.domibus.core.plugin.routing;
 
+import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
@@ -70,6 +71,9 @@ public class RoutingService {
 
     @Autowired
     protected AuthUtils authUtils;
+
+    @Autowired
+    protected SignalService signalService;
 
     protected Map<String, IRoutingCriteria> criteriaMap;
     protected final Object backendFiltersCacheLock = new Object();
@@ -207,7 +211,6 @@ public class RoutingService {
 
     }
 
-    @CacheEvict(value = "backendFilterCache", allEntries = true)
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_AP_ADMIN')")
     public void updateBackendFilters(final List<BackendFilter> filters) {
         validateFilters(filters);
@@ -220,6 +223,7 @@ public class RoutingService {
         backendFilterDao.update(backendFilterEntities);
 
         invalidateBackendFiltersCache();
+        signalService.signalMessageFiltersUpdated();
     }
 
     protected BackendFilter getMatchingBackendFilter(final List<BackendFilter> backendFilters, final Map<String, IRoutingCriteria> criteriaMap, final UserMessage userMessage) {

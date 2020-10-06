@@ -1,5 +1,6 @@
 package eu.domibus.core.plugin.routing;
 
+import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
@@ -73,6 +74,9 @@ public class RoutingServiceTest {
 
     @Injectable
     AuthUtils authUtils;
+
+    @Injectable
+    SignalService signalService;
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
@@ -1093,6 +1097,44 @@ public class RoutingServiceTest {
             times = 1;
             backendFilterDao.update(backendFilterEntities);
             times = 1;
+        }};
+    }
+
+    @Test
+    public void updateBackendFilters(@Injectable BackendFilter filter1,
+                                     @Injectable BackendFilter filter2,
+                                     @Injectable List<BackendFilterEntity> allBackendFilterEntities) {
+        RoutingService routingService = new RoutingService();
+        routingService.backendFilterDao = backendFilterDao;
+        routingService.backendConnectorProvider = backendConnectorProvider;
+        routingService.authUtils = authUtils;
+        routingService.signalService = signalService;
+        routingService.coreConverter = coreConverter;
+
+        List<BackendFilter> filters = new ArrayList<>();
+        filters.add(filter1);
+        filters.add(filter2);
+
+        new Expectations(routingService) {{
+            backendFilterDao.findAll();
+            result = allBackendFilterEntities;
+
+            coreConverter.convert(filters, BackendFilterEntity.class);
+            result = allBackendFilterEntities;
+
+            routingService.validateFilters((List<BackendFilter>) any);
+            routingService.invalidateBackendFiltersCache();
+            routingService.updateFilterIndices((List<BackendFilterEntity>) any);;
+        }};
+
+        routingService.updateBackendFilters(filters);
+
+        new FullVerifications() {{
+            backendFilterDao.delete(allBackendFilterEntities);
+            routingService.updateFilterIndices(allBackendFilterEntities);;
+            backendFilterDao.update(allBackendFilterEntities);
+            routingService.invalidateBackendFiltersCache();
+            signalService.signalMessageFiltersUpdated();
         }};
     }
 }
