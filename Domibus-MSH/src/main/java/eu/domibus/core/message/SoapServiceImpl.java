@@ -24,7 +24,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import static org.apache.commons.io.IOUtils.copy;
+import static org.apache.cxf.helpers.IOUtils.copy;
 
 
 /**
