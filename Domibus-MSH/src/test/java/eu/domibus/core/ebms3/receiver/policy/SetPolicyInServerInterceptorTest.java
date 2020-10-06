@@ -11,6 +11,7 @@ import eu.domibus.core.property.DomibusVersionService;
 import eu.domibus.ebms3.common.model.Messaging;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
+import org.apache.cxf.binding.soap.SoapMessage;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -60,6 +61,17 @@ public class SetPolicyInServerInterceptorTest {
 
         new FullVerifications(setPolicyInServerInterceptor, backendNotificationService) {{
             backendNotificationService.notifyMessageReceivedFailure(messaging.getUserMessage(), userMessageHandlerService.createErrorResult(ebMS3Exception));
+        }};
+    }
+
+    @Test
+    public void logIncomingMessaging(final @Mocked SoapMessage soapMessage) throws Exception {
+
+        //tested method
+        setPolicyInServerInterceptor.logIncomingMessaging(soapMessage);
+
+        new Verifications() {{
+            soapService.getMessagingAsRAWXml(soapMessage);
         }};
     }
 }
