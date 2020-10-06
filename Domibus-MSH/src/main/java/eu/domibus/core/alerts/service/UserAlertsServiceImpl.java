@@ -13,6 +13,7 @@ import eu.domibus.core.user.UserEntityBase;
 import eu.domibus.core.user.UserLoginErrorReason;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -51,7 +52,7 @@ public abstract class UserAlertsServiceImpl implements UserAlertsService {
 
     protected abstract EventType getEventTypeForPasswordExpired();
 
-    protected abstract UserDaoBase getUserDao();
+    protected abstract UserDaoBase<UserEntityBase> getUserDao();
 
     protected abstract UserEntityBase.Type getUserType();
 
@@ -79,7 +80,7 @@ public abstract class UserAlertsServiceImpl implements UserAlertsService {
             case SUSPENDED:
                 final AccountDisabledModuleConfiguration accountDisabledConfiguration = getAccountDisabledConfiguration();
                 if (accountDisabledConfiguration.isActive()) {
-                    if (accountDisabledConfiguration.shouldTriggerAccountDisabledAtEachLogin()) {
+                    if (BooleanUtils.isTrue(accountDisabledConfiguration.shouldTriggerAccountDisabledAtEachLogin())) {
                         eventService.enqueueAccountDisabledEvent(getUserType(), userName, new Date());
                     } else if (loginFailureConfiguration.isActive()) {
                         eventService.enqueueLoginFailureEvent(getUserType(), userName, new Date(), true);
@@ -158,9 +159,7 @@ public abstract class UserAlertsServiceImpl implements UserAlertsService {
         List<UserEntityBase> eligibleUsers = getUserDao().findWithPasswordChangedBetween(from, to, usersWithDefaultPassword);
         LOG.debug("[{}]: Found [{}] eligible {} users", eventType, eligibleUsers.size(), (usersWithDefaultPassword ? DEFAULT : StringUtils.EMPTY));
 
-        eligibleUsers.forEach(user -> {
-            eventService.enqueuePasswordExpirationEvent(eventType, user, maxPasswordAgeInDays, alertConfiguration);
-        });
+        eligibleUsers.forEach(user -> eventService.enqueuePasswordExpirationEvent(eventType, user, maxPasswordAgeInDays, alertConfiguration));
     }
 
 }
