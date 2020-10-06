@@ -9,7 +9,7 @@ import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.routing.RoutingCriteria;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
-import eu.domibus.api.security.functions.ApplicationAuthenticatedProcedure;
+import eu.domibus.api.security.functions.AuthenticatedProcedure;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.plugin.BackendConnectorProvider;
@@ -568,22 +568,22 @@ public class RoutingServiceTest {
             criteriaFactory.getInstance();
             result = iRoutingCriteria;
 
-            authUtils.runMethodWithSecurityContext((ApplicationAuthenticatedProcedure)any, anyString, anyString, (AuthRole)any);
+            authUtils.runWithSecurityContext((AuthenticatedProcedure)any, anyString, anyString, (AuthRole)any);
             times = 1;
         }};
 
         routingService.init();
 
         new FullVerifications() {{
-            ApplicationAuthenticatedProcedure function;
+            AuthenticatedProcedure function;
             String username;
             String password;
             AuthRole role;
-            authUtils.runMethodWithSecurityContext(function = withCapture(),
+            authUtils.runWithSecurityContext(function = withCapture(),
                     username=withCapture(), password=withCapture(), role=withCapture());
             Assert.assertNotNull(function);
             Assert.assertEquals("domibus",username);
-            Assert.assertEquals("Domibus",password);
+            Assert.assertEquals("domibus",password);
             Assert.assertEquals(AuthRole.ROLE_AP_ADMIN,role);
         }};
     }
@@ -742,21 +742,21 @@ public class RoutingServiceTest {
             routingCriteriaFactory.getInstance();
             result = null;
 
-            authUtils.runMethodWithSecurityContext((ApplicationAuthenticatedProcedure)any, anyString, anyString, (AuthRole)any);
+            authUtils.runWithSecurityContext((AuthenticatedProcedure)any, anyString, anyString, (AuthRole)any);
         }};
 
         routingService.init();
 
         new FullVerifications() {{
-            ApplicationAuthenticatedProcedure function;
+            AuthenticatedProcedure function;
             String username;
             String password;
             AuthRole role;
-            authUtils.runMethodWithSecurityContext(function = withCapture(),
+            authUtils.runWithSecurityContext(function = withCapture(),
                     username=withCapture(), password=withCapture(), role=withCapture());
             Assert.assertNotNull(function);
             Assert.assertEquals("domibus",username);
-            Assert.assertEquals("Domibus",password);
+            Assert.assertEquals("domibus",password);
             Assert.assertEquals(AuthRole.ROLE_AP_ADMIN,role);
         }};
     }

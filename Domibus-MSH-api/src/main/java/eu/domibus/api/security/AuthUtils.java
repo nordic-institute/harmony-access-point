@@ -1,7 +1,7 @@
 package eu.domibus.api.security;
 
-import eu.domibus.api.security.functions.ApplicationAuthenticatedFunction;
-import eu.domibus.api.security.functions.ApplicationAuthenticatedProcedure;
+import eu.domibus.api.security.functions.AuthenticatedFunction;
+import eu.domibus.api.security.functions.AuthenticatedProcedure;
 /**
  * @author Cosmin Baciu
  * @since 3.3
@@ -47,7 +47,7 @@ public interface AuthUtils {
      * @param user - Authentication: username
      * @param password - Authentication: username
      */
-    void runMethodWithSecurityContext(ApplicationAuthenticatedProcedure function, String user, String password);
+    void runWithSecurityContext(AuthenticatedProcedure function, String user, String password);
 
     /**
      * Method execute function given in function parameter.
@@ -60,7 +60,22 @@ public interface AuthUtils {
      * @param password - Authentication: username
      * @param authRole - Authentication: role
      */
-    void runMethodWithSecurityContext(ApplicationAuthenticatedProcedure function, String user, String password, AuthRole authRole);
+    void runWithSecurityContext(AuthenticatedProcedure function, String user, String password, AuthRole authRole);
+
+
+    /**
+     * Method execute function given in function parameter.
+     * If method isUnsecureLoginAllowed returns false or parameter forceSecurityContext is set to true, then
+     * the spring security context with user Authentication and role 'authRole; is set before invoking the function.
+     * After the method is executed the security context is removed.
+     *
+     * @param function - method to wrap
+     * @param user - Authentication: username
+     * @param password - Authentication: username
+     * @param authRole - Authentication: role
+     *  @param authRole  - forceSecurityContext:
+     */
+    void runWithSecurityContext(AuthenticatedProcedure function, String user, String password, AuthRole authRole, boolean forceSecurityContext);
 
     /**
      * Method execute function given in function parameter.
@@ -74,7 +89,6 @@ public interface AuthUtils {
      * @param authRole - Authentication: role
      * return function result
      */
-    <R> R runFunctionWithSecurityContext(ApplicationAuthenticatedFunction function, String user, String password, AuthRole authRole);
-
+    <R> R runFunctionWithSecurityContext(AuthenticatedFunction function, String user, String password, AuthRole authRole);
 
 }

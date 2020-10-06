@@ -5,7 +5,7 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
-import eu.domibus.api.security.functions.ApplicationAuthenticatedProcedure;
+import eu.domibus.api.security.functions.AuthenticatedProcedure;
 import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.util.DatabaseUtil;
 import mockit.*;
@@ -46,17 +46,17 @@ public class SplitAndJoinExpirationWorkerTest {
     @Test
     public void executeJob_callPrivate(@Injectable JobExecutionContext context, @Injectable Domain domain) {
         new Expectations() {{
-            authUtils.runMethodWithSecurityContext((ApplicationAuthenticatedProcedure)any, anyString, anyString);
+            authUtils.runWithSecurityContext((AuthenticatedProcedure)any, anyString, anyString);
         }};
 
         splitAndJoinExpirationWorker.executeJob(context, domain);
 
         new Verifications() {{
-            ApplicationAuthenticatedProcedure function;
+            AuthenticatedProcedure function;
             String username;
             String password;
             AuthRole role;
-            authUtils.runMethodWithSecurityContext(function = withCapture(),
+            authUtils.runWithSecurityContext(function = withCapture(),
                     username=withCapture(), password=withCapture());
             Assert.assertNotNull(function);
             Assert.assertEquals("splitAndJoinExpiration_user",username);

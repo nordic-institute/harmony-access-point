@@ -12,10 +12,10 @@ package eu.domibus.api.security.functions;
  * @since 4.2
  */
 @FunctionalInterface
-public interface ApplicationAuthenticatedFunction <R> {
+public interface AuthenticatedFunction<R> {
     /**
      * Invoke function wrapped with spring security context and return value
      * @return value
      */
-    abstract R invoke();
+    R invoke();
 }

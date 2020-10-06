@@ -3,7 +3,7 @@ package eu.domibus.core.plugin.notification;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
-import eu.domibus.api.security.functions.ApplicationAuthenticatedProcedure;
+import eu.domibus.api.security.functions.AuthenticatedProcedure;
 import eu.domibus.common.NotificationType;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.notification.AsyncNotificationConfiguration;
@@ -81,7 +81,7 @@ public class PluginAsyncNotificationListenerTest {
                                              @Injectable Map<String, String> messageProperties)  throws JMSException {
         // Given
         new Expectations() {{
-            authUtils.runMethodWithSecurityContext((ApplicationAuthenticatedProcedure)any, anyString, anyString, (AuthRole)any);
+            authUtils.runWithSecurityContext((AuthenticatedProcedure)any, anyString, anyString, (AuthRole)any);
         }};
 
         // When
@@ -89,11 +89,11 @@ public class PluginAsyncNotificationListenerTest {
 
         // Then
         new FullVerifications() {{
-            ApplicationAuthenticatedProcedure function;
+            AuthenticatedProcedure function;
             String username;
             String password;
             AuthRole role;
-            authUtils.runMethodWithSecurityContext(function = withCapture(),
+            authUtils.runWithSecurityContext(function = withCapture(),
                     username=withCapture(), password=withCapture(), role=withCapture());
             Assert.assertNotNull(function);
             Assert.assertEquals("notif",username);

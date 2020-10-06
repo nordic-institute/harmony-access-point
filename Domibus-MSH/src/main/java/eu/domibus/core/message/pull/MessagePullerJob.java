@@ -31,7 +31,7 @@ public class MessagePullerJob extends DomibusQuartzJobBean {
     @Override
     protected void executeJob(JobExecutionContext context, Domain domain) throws JobExecutionException {
         try {
-            authUtils.runMethodWithSecurityContext(messageExchangeService::initiatePullRequest,
+            authUtils.runWithSecurityContext(messageExchangeService::initiatePullRequest,
                     "retry_user", "retry_password", AuthRole.ROLE_AP_ADMIN);
         } catch (PModeException e) {
             LOG.warn("Invalid pmode configuration for pull request " + e.getMessage(), e);

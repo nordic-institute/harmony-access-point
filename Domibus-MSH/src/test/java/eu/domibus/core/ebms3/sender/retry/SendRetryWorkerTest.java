@@ -4,7 +4,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.security.AuthUtils;
-import eu.domibus.api.security.functions.ApplicationAuthenticatedProcedure;
+import eu.domibus.api.security.functions.AuthenticatedProcedure;
 import eu.domibus.core.util.DatabaseUtil;
 import mockit.Expectations;
 import mockit.FullVerifications;
@@ -55,16 +55,16 @@ public class SendRetryWorkerTest {
                                 final @Injectable Domain domain) throws Exception {
 
         new Expectations() {{
-            authUtils.runMethodWithSecurityContext((ApplicationAuthenticatedProcedure)any, anyString, anyString);
+            authUtils.runWithSecurityContext((AuthenticatedProcedure)any, anyString, anyString);
         }};
 
         sendRetryWorker.executeJob(jobExecutionContext, domain);
 
         new FullVerifications() {{
-            ApplicationAuthenticatedProcedure function;
+            AuthenticatedProcedure function;
             String username;
             String password;
-            authUtils.runMethodWithSecurityContext(function = withCapture(),
+            authUtils.runWithSecurityContext(function = withCapture(),
                     username=withCapture(), password=withCapture());
             Assert.assertNotNull(function);
             Assert.assertEquals("retry_user",username);

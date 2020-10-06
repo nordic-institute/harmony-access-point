@@ -53,7 +53,7 @@ public class PluginAsyncNotificationListener implements MessageListener {
     @Timer(clazz = PluginAsyncNotificationListener.class,value="onMessage")
     @Counter(clazz = PluginAsyncNotificationListener.class,value="onMessage")
     public void onMessage(final Message message) {
-        authUtils.runMethodWithSecurityContext(()-> doOnMessage(message),
+        authUtils.runWithSecurityContext(()-> doOnMessage(message),
                 "notif", "notif", AuthRole.ROLE_ADMIN);
     }
 

@@ -34,7 +34,7 @@ public class SplitAndJoinExpirationWorker extends DomibusQuartzJobBean {
     protected void executeJob(JobExecutionContext context, Domain domain) {
         LOG.debug("SplitAndJoinExpirationWorker executed");
 
-        authUtils.runMethodWithSecurityContext(this::executeJob,
+        authUtils.runWithSecurityContext(this::executeJob,
                 "splitAndJoinExpiration_user", "splitAndJoinExpiration_password");
     }
 

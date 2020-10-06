@@ -4,7 +4,7 @@ import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthenticationException;
-import eu.domibus.api.security.functions.ApplicationAuthenticatedProcedure;
+import eu.domibus.api.security.functions.AuthenticatedProcedure;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
@@ -442,7 +442,7 @@ public class AuthUtilsImplTest {
     }
 
     @Test
-    public void wrapApplicationSecurityContextToMethod_AddSecurityContext(@Mocked ApplicationAuthenticatedProcedure expectedFunction) {
+    public void runWithSecurityContext_AddSecurityContext(@Mocked AuthenticatedProcedure expectedFunction) {
         String expectedUsername = UUID.randomUUID().toString();
         String expectedPassword = UUID.randomUUID().toString();
         new Expectations(authUtilsImpl) {{
@@ -454,14 +454,14 @@ public class AuthUtilsImplTest {
             authUtilsImpl.clearSecurityContext();
         }};
 
-        authUtilsImpl.runMethodWithSecurityContext(expectedFunction, expectedUsername, expectedPassword, AuthRole.ROLE_ADMIN);
+        authUtilsImpl.runWithSecurityContext(expectedFunction, expectedUsername, expectedPassword, AuthRole.ROLE_ADMIN);
 
         new FullVerifications() {{
-            ApplicationAuthenticatedProcedure function;
+            AuthenticatedProcedure function;
             String username;
             String password;
             AuthRole role;
-            authUtilsImpl.runMethodWithSecurityContext(function = withCapture(),
+            authUtilsImpl.runWithSecurityContext(function = withCapture(),
                     username=withCapture(), password=withCapture(), role=withCapture());
             Assert.assertEquals(expectedFunction, function);
             Assert.assertEquals(expectedUsername,username);
@@ -471,7 +471,7 @@ public class AuthUtilsImplTest {
     }
 
     @Test
-    public void wrapApplicationSecurityContextToMethod_NoSecurityContext(@Mocked ApplicationAuthenticatedProcedure expectedFunction) {
+    public void runWithSecurityContext_NoSecurityContext(@Mocked AuthenticatedProcedure expectedFunction) {
         String expectedUsername = UUID.randomUUID().toString();
         String expectedPassword = UUID.randomUUID().toString();
         new Expectations(authUtilsImpl) {{
@@ -484,34 +484,63 @@ public class AuthUtilsImplTest {
             expectedFunction.invoke();
         }};
 
-        authUtilsImpl.runMethodWithSecurityContext(expectedFunction, expectedUsername, expectedPassword, AuthRole.ROLE_ADMIN);
+        authUtilsImpl.runWithSecurityContext(expectedFunction, expectedUsername, expectedPassword, AuthRole.ROLE_ADMIN, false);
 
-        new FullVerifications() {{
+        new FullVerifications(authUtilsImpl) {{
+            authUtilsImpl.setAuthenticationToSecurityContext(anyString, anyString, (AuthRole) any);
+            times=0;
+            expectedFunction.invoke();
+            authUtilsImpl.clearSecurityContext();
+            times=0;
         }};
     }
 
+    @Test
+    public void runWithSecurityContext_NoSecurityContext_Force(@Mocked AuthenticatedProcedure expectedFunction) {
+        // same tests as runWithSecurityContext_NoSecurityContext but force the security context
+        String expectedUsername = UUID.randomUUID().toString();
+        String expectedPassword = UUID.randomUUID().toString();
+        new Expectations(authUtilsImpl) {{
+            domibusConfigurationService.isMultiTenantAware();
+            result=false;
+
+            domibusPropertyProvider.getBooleanProperty(DOMIBUS_AUTH_UNSECURE_LOGIN_ALLOWED);
+            result=true;
+
+            expectedFunction.invoke();
+        }};
+
+        authUtilsImpl.runWithSecurityContext(expectedFunction, expectedUsername, expectedPassword, AuthRole.ROLE_ADMIN, true);
+
+        new FullVerifications(authUtilsImpl) {{
+            authUtilsImpl.setAuthenticationToSecurityContext(anyString, anyString, (AuthRole) any);
+            times=1;
+            expectedFunction.invoke();
+            authUtilsImpl.clearSecurityContext();
+            times=1;
+        }};
+    }
 
     @Test
-    public void wrapApplicationSecurityContextToMethod_ClearSecurityContextOnThrowException(@Mocked ApplicationAuthenticatedProcedure runnable) {
+    public void runWithSecurityContext_ClearSecurityContextOnThrowException(@Mocked AuthenticatedProcedure runnable) {
         String username = UUID.randomUUID().toString();
         String password = UUID.randomUUID().toString();
-        new Expectations() {{
-            domibusConfigurationService.isMultiTenantAware();
-            result = true;
-
+        new Expectations(authUtilsImpl) {{
             runnable.invoke();
             result = new RuntimeException();
-            authUtilsImpl.setAuthenticationToSecurityContext(username, password, AuthRole.ROLE_ADMIN);
-            authUtilsImpl.clearSecurityContext();
         }};
+
         try {
-            authUtilsImpl.runMethodWithSecurityContext(runnable, username, password, AuthRole.ROLE_ADMIN);
-            fail("Method should rethrow error");
+            authUtilsImpl.runWithSecurityContext(runnable, username, password, AuthRole.ROLE_ADMIN, true);
+            fail("Method should throw error");
         } catch (RuntimeException exc) {
             // ignore
         }
-
-        new FullVerifications() {{
+        // verify that clearSecurityContext was called
+        new FullVerificationsInOrder(authUtilsImpl) {{
+            authUtilsImpl.setAuthenticationToSecurityContext(anyString, anyString, (AuthRole) any);
+            runnable.invoke();
+            authUtilsImpl.clearSecurityContext();
         }};
     }
 

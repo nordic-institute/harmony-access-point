@@ -4,7 +4,7 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
-import eu.domibus.api.security.functions.ApplicationAuthenticatedProcedure;
+import eu.domibus.api.security.functions.AuthenticatedProcedure;
 import eu.domibus.core.message.UserMessageDefaultService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.messaging.MessageConstants;
@@ -106,7 +106,7 @@ public class RetentionListenerTest {
     public void onMessage_addsAuthentication(@Mocked DomibusLogger domibusLogger)  throws JMSException {
         // Given
         new Expectations() {{
-            authUtils.runMethodWithSecurityContext((ApplicationAuthenticatedProcedure)any, anyString, anyString, (AuthRole)any);
+            authUtils.runWithSecurityContext((AuthenticatedProcedure)any, anyString, anyString, (AuthRole)any);
         }};
 
         // When
@@ -114,11 +114,11 @@ public class RetentionListenerTest {
 
         // Then
         new FullVerifications() {{
-            ApplicationAuthenticatedProcedure function;
+            AuthenticatedProcedure function;
             String username;
             String password;
             AuthRole role;
-            authUtils.runMethodWithSecurityContext(function = withCapture(),
+            authUtils.runWithSecurityContext(function = withCapture(),
                     username=withCapture(), password=withCapture(), role=withCapture());
             Assert.assertNotNull(function);
             Assert.assertEquals("retention",username);

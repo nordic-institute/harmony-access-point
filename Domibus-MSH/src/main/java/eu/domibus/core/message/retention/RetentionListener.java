@@ -47,7 +47,7 @@ public class RetentionListener implements MessageListener {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void onMessage(final Message message) {
-        authUtils.runMethodWithSecurityContext(() -> onMessagePrivate(message), "retention", "retention", AuthRole.ROLE_ADMIN);
+        authUtils.runWithSecurityContext(() -> onMessagePrivate(message), "retention", "retention", AuthRole.ROLE_ADMIN);
     }
 
     protected void onMessagePrivate(final Message message) {

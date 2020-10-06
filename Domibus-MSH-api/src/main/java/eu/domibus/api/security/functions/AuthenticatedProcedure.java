@@ -12,9 +12,9 @@ package eu.domibus.api.security.functions;
  */
 
 @FunctionalInterface
-public interface ApplicationAuthenticatedProcedure {
+public interface AuthenticatedProcedure {
     /**
      * Invoke function wrapped with spring security context.
      */
-    abstract void invoke();
+    void invoke();
 }

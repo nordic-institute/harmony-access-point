@@ -6,7 +6,7 @@ import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
-import eu.domibus.api.security.functions.ApplicationAuthenticatedFunction;
+import eu.domibus.api.security.functions.AuthenticatedFunction;
 import mockit.*;
 import org.junit.Assert;
 import org.junit.Test;
@@ -121,13 +121,13 @@ public class JMSQueuesCountSetTest {
         JMSQueuesCountSet jmsQueuesCountSet = new JMSQueuesCountSet(jmsManager, authUtils, domainTaskExecutor, 20, false);
 
         new Expectations() {{
-            authUtils.runFunctionWithSecurityContext((ApplicationAuthenticatedFunction) any, anyString, anyString, (AuthRole)any);
+            authUtils.runFunctionWithSecurityContext((AuthenticatedFunction) any, anyString, anyString, (AuthRole)any);
         }};
 
         jmsQueuesCountSet.getQueuesAuthenticated();
 
         new Verifications() {{
-            ApplicationAuthenticatedFunction function;
+            AuthenticatedFunction function;
             String username;
             String password;
             AuthRole role;
