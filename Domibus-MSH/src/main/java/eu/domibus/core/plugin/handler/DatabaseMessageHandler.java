@@ -56,6 +56,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static eu.domibus.logging.DomibusMessageCode.MANDATORY_MESSAGE_HEADER_METADATA_MISSING;
+
 /**
  * This class is responsible of handling the plugins requests for all the operations exposed.
  * During submit, it manages the user authentication and the AS4 message's validation, compression and saving.
@@ -366,7 +368,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
         UserMessage userMessage = transformer.transformFromSubmission(messageData);
         if (userMessage == null) {
-            LOG.warn(USER_MESSAGE_IS_NULL);
+            LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "UserMessage");
             throw new MessageNotFoundException(USER_MESSAGE_IS_NULL);
         }
         String messageId = null;
@@ -377,7 +379,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
             validateOriginalUser(userMessage, originalUser, MessageConstants.ORIGINAL_SENDER);
 
-            backendMessageValidator.validateUserMessage(userMessage);
+            backendMessageValidator.validateUserMessageForPmodeMatch(userMessage, MSHRole.SENDING);
 
             Messaging message = ebMS3Of.createMessaging();
             message.setUserMessage(userMessage);

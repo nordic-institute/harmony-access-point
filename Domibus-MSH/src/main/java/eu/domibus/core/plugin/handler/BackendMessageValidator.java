@@ -13,9 +13,7 @@ import eu.domibus.core.message.compression.CompressionService;
 import eu.domibus.ebms3.common.model.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.messaging.DuplicateMessageException;
-import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.plugin.validation.SubmissionValidationException;
 import org.apache.commons.lang3.Validate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +27,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 import static eu.domibus.api.util.DomibusStringUtil.TRIM_DECISION.DO_NOT_TRIM;
 import static eu.domibus.api.util.DomibusStringUtil.TRIM_DECISION.TRIM;
 import static eu.domibus.api.util.DomibusStringUtil.isStringLengthGreaterThanDefaultMaxLength;
+import static eu.domibus.logging.DomibusMessageCode.*;
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -49,10 +48,10 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 @Service
 public class BackendMessageValidator {
 
+    public static final String PARTY_INFO_TO_PARTY_ID = "PartyInfo/To/PartyId";
+    public static final String PARTY_INFO_FROM_PARTY_ID = "PartyInfo/From/PartyId";
     protected static final String KEY_MESSAGEID_PATTERN = DOMIBUS_SEND_MESSAGE_MESSAGE_ID_PATTERN;
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(BackendMessageValidator.class);
-    private static final String USER_MESSAGE_IS_NULL = "UserMessage is null";
-    private static final String MESSAGE_WITH_ID_STR = "Message with id [";
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
@@ -149,19 +148,33 @@ public class BackendMessageValidator {
         }
     }
 
-    public void validateUserMessage(UserMessage userMessage) throws MessageNotFoundException, EbMS3Exception, DuplicateMessageException {
+    /**
+     * Validates the essential fields in a {@link UserMessage} to ensure elements necessary for pMode matching have been provided by the user.
+     *
+     * @param userMessage
+     * @param mshRole
+     * @throws EbMS3Exception
+     * @throws DuplicateMessageException
+     */
+    public void validateUserMessageForPmodeMatch(UserMessage userMessage, MSHRole mshRole) throws EbMS3Exception, DuplicateMessageException {
         if (userMessage == null) {
-            LOG.warn(USER_MESSAGE_IS_NULL);
-            throw new MessageNotFoundException(USER_MESSAGE_IS_NULL);
+            LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "UserMessage");
+            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Mandatory header metadata UserMessage is not provided.", null, null);
         }
-        validateMessageInfo(userMessage.getMessageInfo());  // MessageInfo is always initialized in the get method
-        validatePartyInfo(userMessage.getPartyInfo());
-        validateCollaborationInfo(userMessage.getCollaborationInfo());
+        try {
+            validateMessageInfo(userMessage.getMessageInfo());  // MessageInfo is always initialized in the get method
+            validatePartyInfo(userMessage.getPartyInfo());
+            validateCollaborationInfo(userMessage.getCollaborationInfo());
+        } catch (EbMS3Exception ebms3ex) {
+            ebms3ex.setMshRole(mshRole);
+            throw ebms3ex;
+        }
     }
 
     private void validateMessageInfo(MessageInfo messageInfo) throws EbMS3Exception, DuplicateMessageException {
         if (messageInfo == null) {
-            return;
+            LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "MessageInfo");
+            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Mandatory header metadata UserMessage/MessageInfo is not provided.", null, null);
         }
         validateMessageId(messageInfo.getMessageId());
         //check duplicate message id
@@ -198,16 +211,19 @@ public class BackendMessageValidator {
      */
     public void validateMessageId(final String messageId) throws EbMS3Exception, DuplicateMessageException {
         if (messageId == null) {
-            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "required element eb:Messaging/eb:UserMessage/eb:MessageId missing", messageId, null);
+            LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "MessageId");
+            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Mandatory field MessageId is not provided.", null, null);
         }
         if (isStringLengthGreaterThanDefaultMaxLength(messageId, DO_NOT_TRIM)) {
-            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "MessageId value is too long (over 255 characters)", messageId, null);
+            LOG.businessError(VALUE_LONGER_THAN_DEFAULT_STRING_LENGTH, "MessageId", messageId);
+            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "Value of MessageId is too long (over 255 characters).", messageId, null);
         }
         validateMessageIdPattern(messageId, "eb:Messaging/eb:UserMessage/eb:MessageInfo/eb:MessageId");
 
         // handle if the messageId is unique. This should only fail if the ID is set from the outside
         if (!MessageStatus.NOT_FOUND.equals(userMessageLogDao.getMessageStatus(messageId))) {
-            throw new DuplicateMessageException(MESSAGE_WITH_ID_STR + messageId + "] already exists. Message identifiers must be unique");
+            LOG.businessError(DUPLICATE_MESSAGEID, messageId);
+            throw new DuplicateMessageException("Message with id [" + messageId + "] already exists. Message identifiers must be unique.");
         }
     }
 
@@ -223,7 +239,8 @@ public class BackendMessageValidator {
             return;
         }
         if (isStringLengthGreaterThanDefaultMaxLength(refToMessageId, DO_NOT_TRIM)) {
-            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "RefToMessageId value is too long (over 255 characters).", refToMessageId, null);
+            LOG.businessError(VALUE_LONGER_THAN_DEFAULT_STRING_LENGTH, "RefToMessageId", refToMessageId);
+            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "RefToMessageId value is too long (over 255 characters).", null, null);
         }
         validateMessageIdPattern(refToMessageId, "eb:Messaging/eb:UserMessage/eb:MessageInfo/eb:RefToMessageId");
     }
@@ -241,14 +258,16 @@ public class BackendMessageValidator {
         Pattern patternNoControlChar = Pattern.compile(messageIdPattern);
         Matcher m = patternNoControlChar.matcher(messageId);
         if (!m.matches()) {
-            String errorMessage = "Element " + elementType + " does not conform to the required MessageIdPattern: " + messageIdPattern;
+            LOG.businessError(VALUE_DO_NOT_CONFORM_TO_MESSAGEID_PATTERN, elementType, messageIdPattern);
+            String errorMessage = "Value of " + elementType + " does not conform to the required MessageIdPattern: " + messageIdPattern;
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, errorMessage, messageId, null);
         }
     }
 
     private void validatePartyInfo(PartyInfo partyInfo) throws EbMS3Exception {
         if (partyInfo == null) {
-            return;
+            LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "PartyInfo");
+            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Mandatory field PartyInfo is not provided.", null, null);
         }
         validateFromPartyId(partyInfo.getFrom());
         validateFromRole(partyInfo.getFrom());
@@ -258,29 +277,30 @@ public class BackendMessageValidator {
 
     private void validateFromPartyId(From from) throws EbMS3Exception {
         if (from == null) {
-            return;
+            LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "PartyInfo/From");
+            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Mandatory field PartyInfo/From is not provided.", null, null);
         }
         final Set<PartyId> fromParties = from.getPartyId();
         if (isEmpty(fromParties)) {
-            LOG.businessError(DomibusMessageCode.BUS_FROM_PARTYID_NOT_SPECIFIED);
+            LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, PARTY_INFO_FROM_PARTY_ID);
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Mandatory field From PartyId is not provided.", null, null);
         }
         for (PartyId fromParty : fromParties) {
             if (isBlank(fromParty.getValue())) {
-                LOG.businessError(DomibusMessageCode.BUS_FROM_PARTYID_NOT_SPECIFIED);
+                LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, PARTY_INFO_FROM_PARTY_ID);
                 throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Mandatory field From PartyId is not provided.", null, null);
             }
             if (isStringLengthGreaterThanDefaultMaxLength(fromParty.getValue(), TRIM)) {
-                LOG.businessError(DomibusMessageCode.BUS_FROM_PARTYID_TOO_LONG);
+                LOG.businessError(VALUE_LONGER_THAN_DEFAULT_STRING_LENGTH, PARTY_INFO_FROM_PARTY_ID, fromParty.getValue());
                 throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "From PartyId is too long (over 255 characters).", null, null);
             }
             if (isBlank(fromParty.getType())) {
                 //Although for AS4 the PartyIdType is optional, the ICD for default plugins states the PartyIdType is mandatory
-                LOG.businessError(DomibusMessageCode.BUS_FROM_PARTYIDTYPE_NOT_SPECIFIED);
+                LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "From PartyIdType");
                 throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Mandatory field From PartyIdType is not provided.", null, null);
             }
             if (isStringLengthGreaterThanDefaultMaxLength(fromParty.getType(), TRIM)) {
-                LOG.businessError(DomibusMessageCode.BUS_FROM_PARTYIDTYPE_TOO_LONG);
+                LOG.businessError(VALUE_LONGER_THAN_DEFAULT_STRING_LENGTH, "From PartyIdType", fromParty.getType());
                 throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "From PartyIdType is too long (over 255 characters).", null, null);
             }
         }
@@ -288,44 +308,46 @@ public class BackendMessageValidator {
 
     private void validateFromRole(From from) throws EbMS3Exception {
         if (from == null) {
-            return;
+            LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "PartyInfo/From");
+            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Mandatory field PartyInfo/From is not provided.", null, null);
         }
         final String fromRole = from.getRole();
         if (isBlank(fromRole)) {
-            LOG.businessError(DomibusMessageCode.BUS_FROM_ROLE_NOT_SPECIFIED);
+            LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "PartyInfo/From/Role");
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Mandatory field From Role is not provided.", null, null);
         }
         if (isStringLengthGreaterThanDefaultMaxLength(fromRole, TRIM)) {
-            LOG.businessError(DomibusMessageCode.BUS_FROM_ROLE_TOO_LONG);
+            LOG.businessError(VALUE_LONGER_THAN_DEFAULT_STRING_LENGTH, "PartyInfo/From/Role", fromRole);
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "From Role is too long (over 255 characters).", null, null);
         }
     }
 
     private void validateToPartyId(To to) throws EbMS3Exception {
         if (to == null) {
-            return;
+            LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "PartyInfo/To");
+            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Mandatory field PartyInfo/To is not provided.", null, null);
         }
         final Set<PartyId> toParties = to.getPartyId();
         if (isEmpty(toParties)) {
-            LOG.businessError(DomibusMessageCode.BUS_TO_PARTYID_NOT_SPECIFIED);
+            LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, PARTY_INFO_TO_PARTY_ID);
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Mandatory field To PartyId is not provided.", null, null);
         }
         for (PartyId toParty : toParties) {
             if (isBlank(toParty.getValue())) {
-                LOG.businessError(DomibusMessageCode.BUS_TO_PARTYID_NOT_SPECIFIED);
+                LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, PARTY_INFO_TO_PARTY_ID);
                 throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Mandatory field To PartyId is not provided.", null, null);
             }
             if (isStringLengthGreaterThanDefaultMaxLength(toParty.getValue(), TRIM)) {
-                LOG.businessError(DomibusMessageCode.BUS_TO_PARTYID_TOO_LONG);
+                LOG.businessError(VALUE_LONGER_THAN_DEFAULT_STRING_LENGTH, PARTY_INFO_TO_PARTY_ID, toParty.getValue());
                 throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "To PartyId is too long (over 255 characters).", null, null);
             }
             if (isBlank(toParty.getType())) {
                 //Although for AS4 the PartyIdType is optional, the ICD for default plugins states the PartyIdType is mandatory
-                LOG.businessError(DomibusMessageCode.BUS_TO_PARTYIDTYPE_NOT_SPECIFIED);
+                LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "To PartyIdType");
                 throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Mandatory field To PartyIdType is not provided.", null, null);
             }
             if (isStringLengthGreaterThanDefaultMaxLength(toParty.getType(), TRIM)) {
-                LOG.businessError(DomibusMessageCode.BUS_TO_PARTYIDTYPE_TOO_LONG);
+                LOG.businessError(VALUE_LONGER_THAN_DEFAULT_STRING_LENGTH, "To PartyIdType", toParty.getType());
                 throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "To PartyIdType is too long (over 255 characters).", null, null);
             }
         }
@@ -333,22 +355,24 @@ public class BackendMessageValidator {
 
     private void validateToRole(To to) throws EbMS3Exception {
         if (to == null) {
-            return;
+            LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "PartyInfo/To");
+            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Mandatory field PartyInfo/To is not provided.", null, null);
         }
         final String toRole = to.getRole();
         if (isBlank(toRole)) {
-            LOG.businessError(DomibusMessageCode.BUS_TO_ROLE_NOT_SPECIFIED);
+            LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "PartyInfo/To/Role");
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Mandatory field To Role is not provided.", null, null);
         }
         if (isStringLengthGreaterThanDefaultMaxLength(toRole, TRIM)) {
-            LOG.businessError(DomibusMessageCode.BUS_TO_ROLE_TOO_LONG);
+            LOG.businessError(VALUE_LONGER_THAN_DEFAULT_STRING_LENGTH, "PartyInfo/To/Role", toRole);
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "To Role is too long (over 255 characters).", null, null);
         }
     }
 
     private void validateCollaborationInfo(CollaborationInfo collaborationInfo) throws EbMS3Exception {
         if (collaborationInfo == null) {
-            return;
+            LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "UserMessage/CollaborationInfo");
+            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Mandatory field UserMessage/CollaborationInfo is not provided.", null, null);
         }
         validateAgreementRef(collaborationInfo.getAgreementRef());
         validateService(collaborationInfo.getService());
@@ -369,47 +393,43 @@ public class BackendMessageValidator {
             return;
         }
         if (isStringLengthGreaterThanDefaultMaxLength(agreementRef.getValue(), TRIM)) {
-            LOG.businessError(DomibusMessageCode.BUS_AGREEMENT_REF_VALUE_TOO_LONG);
+            LOG.businessError(VALUE_LONGER_THAN_DEFAULT_STRING_LENGTH, "AgreementRef", agreementRef.getValue());
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "AgreementRef Value is too long (over 255 characters).", null, null);
         }
         if (isStringLengthGreaterThanDefaultMaxLength(agreementRef.getType(), TRIM)) {
-            LOG.businessError(DomibusMessageCode.BUS_AGREEMENT_REF_TYPE_TOO_LONG);
+            LOG.businessError(VALUE_LONGER_THAN_DEFAULT_STRING_LENGTH, "AgreementRef Type", agreementRef.getType());
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "AgreementRef Type is too long (over 255 characters).", null, null);
         }
-
         if (isStringLengthGreaterThanDefaultMaxLength(agreementRef.getPmode(), TRIM)) {
+            LOG.businessError(VALUE_LONGER_THAN_DEFAULT_STRING_LENGTH, "AgreementRef Pmode", agreementRef.getPmode());
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "AgreementRef Pmode is too long (over 255 characters)", agreementRef.getPmode(), null);
         }
     }
 
     private void validateService(final eu.domibus.ebms3.common.model.Service service) throws EbMS3Exception {
-        if (service == null) {
-            LOG.businessError(DomibusMessageCode.BUS_SERVICE_NOT_SPECIFIED);
+        if (service == null || isBlank(service.getValue())) {
+            LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "Service");
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Mandatory field Service is not provided.", null, null);
         }
         final String serviceValue = service.getValue();
         final String serviceType = service.getType();
-        if (isBlank(serviceValue)) {
-            LOG.businessError(DomibusMessageCode.BUS_SERVICE_NOT_SPECIFIED);
-            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Mandatory field Service is not provided.", null, null);
-        }
         if (isStringLengthGreaterThanDefaultMaxLength(serviceValue, TRIM)) {
-            LOG.businessError(DomibusMessageCode.BUS_SERVICE_TOO_LONG);
+            LOG.businessError(VALUE_LONGER_THAN_DEFAULT_STRING_LENGTH, "Service", serviceValue);
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "Service is too long (over 255 characters).", null, null);
         }
         if (isStringLengthGreaterThanDefaultMaxLength(serviceType, TRIM)) {
-            LOG.businessError(DomibusMessageCode.BUS_SERVICE_TYPE_TOO_LONG);
+            LOG.businessError(VALUE_LONGER_THAN_DEFAULT_STRING_LENGTH, "ServiceType", serviceType);
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "ServiceType is too long (over 255 characters).", null, null);
         }
     }
 
     private void validateAction(String action) throws EbMS3Exception {
         if (isBlank(action)) {
-            LOG.businessError(DomibusMessageCode.BUS_ACTION_NOT_SPECIFIED);
+            LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "Action");
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Mandatory field Action is not provided.", null, null);
         }
         if (isStringLengthGreaterThanDefaultMaxLength(action, TRIM)) {
-            LOG.businessError(DomibusMessageCode.BUS_ACTION_TOO_LONG);
+            LOG.businessError(VALUE_LONGER_THAN_DEFAULT_STRING_LENGTH, "Action", action);
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "Action is too long (over 255 characters).", null, null);
         }
     }

@@ -413,7 +413,7 @@ public class DatabaseMessageHandlerTest {
             transformer.transformFromSubmission(messageData);
             result = userMessage;
 
-            backendMessageValidator.validateUserMessage(userMessage);
+            backendMessageValidator.validateUserMessageForPmodeMatch(userMessage, MSHRole.SENDING);
             result = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0008, "MessageId value is too long (over 255 characters)", null, null);
         }};
 
@@ -457,7 +457,7 @@ public class DatabaseMessageHandlerTest {
             messageIdGenerator.generateMessageId();
             result = MESS_ID;
 
-            backendMessageValidator.validateUserMessage(userMessage);
+            backendMessageValidator.validateUserMessageForPmodeMatch(userMessage, MSHRole.SENDING);
             result = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0008, "RefToMessageId value is too long (over 255 characters)", refToMessageId, null);
         }};
 
@@ -673,7 +673,7 @@ public class DatabaseMessageHandlerTest {
             messageIdGenerator.generateMessageId();
             result = MESS_ID;
 
-            backendMessageValidator.validateUserMessage(userMessage);
+            backendMessageValidator.validateUserMessageForPmodeMatch(userMessage, MSHRole.SENDING);
             result = new DuplicateMessageException("Message with id [" + MESS_ID + "] already exists. Message identifiers must be unique");
         }};
 
