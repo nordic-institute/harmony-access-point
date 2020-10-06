@@ -32,9 +32,14 @@ public class RetentionWorker extends DomibusQuartzJobBean {
     protected void executeJob(JobExecutionContext context, Domain domain) {
         LOG.debug("RetentionWorker executed");
         if(!authUtils.isUnsecureLoginAllowed()) {
-            authUtils.setAuthenticationToSecurityContext("retention_user", "retention_password");
+            authUtils.wrapApplicationSecurityContextToMethod(this::executeJob,
+                    "retention_user", "retention_password");
+        } else {
+            executeJob();
         }
+    }
 
+    protected void executeJob(){
         if (configurationDAO.configurationExists()) {
             messageRetentionService.deleteExpiredMessages();
         }

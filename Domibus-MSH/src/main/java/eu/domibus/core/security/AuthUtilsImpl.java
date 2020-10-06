@@ -5,6 +5,8 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.security.AuthenticationException;
+import eu.domibus.api.security.functions.ApplicationAuthenticatedFunction;
+import eu.domibus.api.security.functions.ApplicationAuthenticatedProcedure;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -160,4 +162,40 @@ public class AuthUtilsImpl implements AuthUtils {
         return isAdmin();
     }
 
+    @Override
+    public void wrapApplicationSecurityContextToMethod(ApplicationAuthenticatedProcedure runnable, String user, String password) {
+        wrapApplicationSecurityContextToMethod(runnable, user, password, AuthRole.ROLE_ADMIN);
+    }
+
+    @Override
+    public void wrapApplicationSecurityContextToMethod(ApplicationAuthenticatedProcedure method, String user, String password, AuthRole authRole) {
+        if (!isUnsecureLoginAllowed()) {
+            try {
+                setAuthenticationToSecurityContext(user, password, authRole);
+                method.invoke();
+            } finally {
+                clearSecurityContext();
+            }
+        } else {
+            method.invoke();
+        }
+    }
+
+    @Override
+    public <R> R wrapApplicationSecurityContextToFunction(ApplicationAuthenticatedFunction function, String user, String password, AuthRole authRole) {
+        if (!isUnsecureLoginAllowed()) {
+            try {
+                setAuthenticationToSecurityContext(user, password, authRole);
+                return (R) function.invoke();
+            } finally {
+                clearSecurityContext();
+            }
+        }
+        return (R) function.invoke();
+    }
+
+    @Override
+    public void clearSecurityContext() {
+        SecurityContextHolder.clearContext();
+    }
 }

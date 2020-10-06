@@ -83,13 +83,17 @@ public class RoutingService {
 
         if (domibusConfigurationService.isSingleTenantAware()) {
             LOG.debug("Creating plugin backend filters in Non MultiTenancy environment");
-            createBackendFilters();
+            authUtils.wrapApplicationSecurityContextToMethod(this::createBackendFilters,
+                    "domibus", "Domibus", AuthRole.ROLE_AP_ADMIN );
         } else {
             // Get All Domains
             final List<Domain> domains = domainService.getDomains();
             LOG.debug("Creating plugin backend filters for all the domains in MultiTenancy environment");
             for (Domain domain : domains) {
-                domainTaskExecutor.submit(this::createBackendFilters, domain);
+                Runnable wrappedCreateBackendFilters = () -> authUtils.wrapApplicationSecurityContextToMethod(
+                        this::createBackendFilters, "domibus",
+                        "Domibus", AuthRole.ROLE_AP_ADMIN );
+                domainTaskExecutor.submit( wrappedCreateBackendFilters, domain);
             }
         }
 
@@ -129,10 +133,6 @@ public class RoutingService {
      */
     protected void createBackendFilters() {
         List<BackendFilterEntity> backendFilterEntitiesInDB = backendFilterDao.findAll();
-
-        //Setting security context authentication to have user details in audit logs when create message filters
-        authUtils.setAuthenticationToSecurityContext("domibus", "domibus", AuthRole.ROLE_AP_ADMIN);
-
         List<String> pluginToAdd = backendConnectorProvider.getBackendConnectors()
                 .stream()
                 .map(BackendConnector::getName)

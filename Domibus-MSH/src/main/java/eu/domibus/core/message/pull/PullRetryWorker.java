@@ -28,11 +28,11 @@ public class PullRetryWorker extends DomibusQuartzJobBean {
 
     @Override
     protected void executeJob(JobExecutionContext context, Domain domain) throws JobExecutionException {
+        authUtils.wrapApplicationSecurityContextToMethod(this::executeJob,
+                    "retry_user", "retry_password");
+    }
 
-        if(!authUtils.isUnsecureLoginAllowed()) {
-            authUtils.setAuthenticationToSecurityContext("retry_user", "retry_password");
-        }
-
+    protected void executeJob(){
         try {
             retryService.bulkExpirePullMessages();
         } catch (Exception e) {

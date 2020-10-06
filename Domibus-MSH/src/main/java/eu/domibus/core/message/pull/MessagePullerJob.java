@@ -5,9 +5,9 @@ import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.core.message.MessageExchangeService;
+import eu.domibus.core.scheduler.DomibusQuartzJobBean;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.core.scheduler.DomibusQuartzJobBean;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -31,10 +31,8 @@ public class MessagePullerJob extends DomibusQuartzJobBean {
     @Override
     protected void executeJob(JobExecutionContext context, Domain domain) throws JobExecutionException {
         try {
-            if (!authUtils.isUnsecureLoginAllowed()) {
-                authUtils.setAuthenticationToSecurityContext("retry_user", "retry_password", AuthRole.ROLE_AP_ADMIN);
-            }
-            messageExchangeService.initiatePullRequest();
+            authUtils.wrapApplicationSecurityContextToMethod(messageExchangeService::initiatePullRequest,
+                    "retry_user", "retry_password", AuthRole.ROLE_AP_ADMIN);
         } catch (PModeException e) {
             LOG.warn("Invalid pmode configuration for pull request " + e.getMessage(), e);
         }

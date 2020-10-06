@@ -47,9 +47,10 @@ public class RetentionListener implements MessageListener {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void onMessage(final Message message) {
-        if (!authUtils.isUnsecureLoginAllowed()) {
-            authUtils.setAuthenticationToSecurityContext("retention", "retention", AuthRole.ROLE_ADMIN);
-        }
+        authUtils.wrapApplicationSecurityContextToMethod(() -> onMessagePrivate(message), "retention", "retention", AuthRole.ROLE_ADMIN);
+    }
+
+    protected void onMessagePrivate(final Message message) {
 
         try {
             final String domainCode = message.getStringProperty(MessageConstants.DOMAIN);
@@ -77,4 +78,6 @@ public class RetentionListener implements MessageListener {
             LOG.error("Error processing JMS message", e);
         }
     }
+
+
 }
