@@ -369,13 +369,13 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             LOG.warn(USER_MESSAGE_IS_NULL);
             throw new MessageNotFoundException(USER_MESSAGE_IS_NULL);
         }
-        final String messageId = userMessage.getMessageInfo().getMessageId();
-        LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
-
-        validateOriginalUser(userMessage, originalUser, MessageConstants.ORIGINAL_SENDER);
-
+        String messageId = null;
         try {
             populateMessageIdIfNotPresent(userMessage.getMessageInfo());
+            messageId = userMessage.getMessageInfo().getMessageId();
+            LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
+
+            validateOriginalUser(userMessage, originalUser, MessageConstants.ORIGINAL_SENDER);
 
             backendMessageValidator.validateUserMessage(userMessage);
 
@@ -451,7 +451,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             }
 
             uiReplicationSignalService.userMessageSubmitted(messageId);
-            LOG.info("Message submitted");
+            LOG.info("Message with id: [{}] submitted", messageId);
             return messageId;
 
         } catch (EbMS3Exception ebms3Ex) {
@@ -471,6 +471,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
         }
         if(messageInfo.getMessageId() == null){
             messageInfo.setMessageId(messageIdGenerator.generateMessageId());
+            LOG.debug("Generated MessageId: [{}]", messageInfo.getMessageId());
         }
     }
 

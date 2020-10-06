@@ -4,9 +4,11 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
+import eu.domibus.common.MessageStatus;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.Role;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.ebms3.common.model.AgreementRef;
 import mockit.Expectations;
 import mockit.Injectable;
@@ -46,8 +48,13 @@ public class BackendMessageValidatorTest {
     @Injectable
     DomainContextProvider domainContextProvider;
 
+    @Injectable
+    private UserMessageLogDao userMessageLogDao;
+
     @Tested
     BackendMessageValidator backendMessageValidatorObj;
+
+
 
     @Test
     public void validateMessageId() throws Exception {
@@ -55,6 +62,9 @@ public class BackendMessageValidatorTest {
         new Expectations() {{
             domibusPropertyProvider.getProperty(BackendMessageValidator.KEY_MESSAGEID_PATTERN);
             result = MESSAGE_ID_PATTERN;
+
+            userMessageLogDao.getMessageStatus(anyString);
+            result = MessageStatus.NOT_FOUND;
         }};
 
         /*Happy Flow No error should occur*/
@@ -114,9 +124,9 @@ public class BackendMessageValidatorTest {
         try {
             String messageId6 = "1234567890-123456789-01234567890/1234567890/1234567890.1234567890.123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890@domibus.eu";
             backendMessageValidatorObj.validateMessageId(messageId6);
-            Assert.fail("Expected exception EBMS_0008 was not raised!");
+            Assert.fail("Expected exception EBMS_0003 was not raised!");
         } catch (EbMS3Exception e2) {
-            Assert.assertEquals("EBMS:0008", e2.getErrorCode().getCode().getErrorCode().getErrorCodeName());
+            Assert.assertEquals("EBMS:0003", e2.getErrorCode().getCode().getErrorCode().getErrorCodeName());
         }
         /*Message id more than 255 characters long should result in error*/
 
@@ -199,9 +209,9 @@ public class BackendMessageValidatorTest {
         try {
             String refTomessageId6 = "1234567890-123456789-01234567890/1234567890/1234567890.1234567890.123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890@domibus.eu";
             backendMessageValidatorObj.validateRefToMessageId(refTomessageId6);
-            Assert.fail("Expected exception EBMS_0008 was not raised!");
+            Assert.fail("Expected exception EBMS_0003 was not raised!");
         } catch (EbMS3Exception e2) {
-            Assert.assertEquals("EBMS:0008", e2.getErrorCode().getCode().getErrorCode().getErrorCodeName());
+            Assert.assertEquals("EBMS:0003", e2.getErrorCode().getCode().getErrorCode().getErrorCodeName());
         }
         /*Message id more than 255 characters long should result in error*/
 
@@ -222,6 +232,9 @@ public class BackendMessageValidatorTest {
         new Expectations() {{
             domibusPropertyProvider.getProperty(BackendMessageValidator.KEY_MESSAGEID_PATTERN);
             result = null;
+
+            userMessageLogDao.getMessageStatus(anyString);
+            result = MessageStatus.NOT_FOUND;
         }};
 
         /*If the domibus-configuration file does not have the message id format, then message id pattern validation must be skipped. No exception expected*/
