@@ -114,7 +114,7 @@ public class SignalServiceImpl implements SignalService {
         LOG.debug("Signaling message filters change [{}] domain", domainCode);
 
         Map<String, String> commandProperties = new HashMap<>();
-        commandProperties.put(Command.COMMAND, Command.DOMIBUS_PROPERTY_CHANGE);
+        commandProperties.put(Command.COMMAND, Command.MESSAGE_FILTER_UPDATE);
         commandProperties.put(MessageConstants.DOMAIN, domainCode);
 
         sendMessage(commandProperties);
