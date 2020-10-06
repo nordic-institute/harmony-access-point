@@ -9,6 +9,7 @@ import eu.domibus.ebms3.common.model.ObjectFactory;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.binding.soap.SoapMessage;
+import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.interceptor.StaxInInterceptor;
 import org.apache.neethi.builders.converters.StaxToDOMConverter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +48,7 @@ public class SoapServiceImpl implements SoapService {
     public Messaging getMessage(final SoapMessage message) throws IOException, EbMS3Exception {
         final InputStream inputStream = message.getContent(InputStream.class);
         final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        copy(inputStream, byteArrayOutputStream); //FIXME: do not copy the whole byte[], use SequenceInputstream instead
+        IOUtils.copy(inputStream, byteArrayOutputStream); //FIXME: do not copy the whole byte[], use SequenceInputstream instead
         final byte[] data = byteArrayOutputStream.toByteArray();
         message.setContent(InputStream.class, new ByteArrayInputStream(data));
         new StaxInInterceptor().handleMessage(message);
@@ -58,6 +59,7 @@ public class SoapServiceImpl implements SoapService {
         final Element soapEnvelope = new StaxToDOMConverter().convert(xmlStreamReader);
         message.removeContent(XMLStreamReader.class);
         message.setContent(InputStream.class, new ByteArrayInputStream(data));
+        //message.setContent(XMLStreamReader.class, XMLInputFactory.newInstance().createXMLStreamReader(message.getContent(InputStream.class)));
         final Node messagingNode = soapEnvelope.getElementsByTagNameNS(ObjectFactory._Messaging_QNAME.getNamespaceURI(), ObjectFactory._Messaging_QNAME.getLocalPart()).item(0);
         if (messagingNode == null) {
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Messaging header is empty!", null, null);
@@ -82,10 +84,8 @@ public class SoapServiceImpl implements SoapService {
         if (xmlStreamReader == null) {
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Messaging header is missing!", null, null);
         }
-
         final Element soapEnvelope = new StaxToDOMConverter().convert(xmlStreamReader);
         message.removeContent(XMLStreamReader.class);
-        message.setContent(InputStream.class, new ByteArrayInputStream(data));
         final Node messagingNode = soapEnvelope.getElementsByTagNameNS(ObjectFactory._Messaging_QNAME.getNamespaceURI(), ObjectFactory._Messaging_QNAME.getLocalPart()).item(0);
 
         return soapUtil.getRawXMLMessage(messagingNode);
