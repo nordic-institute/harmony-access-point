@@ -11,7 +11,10 @@ import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.ebms3.common.model.*;
 import eu.domibus.messaging.DuplicateMessageException;
-import mockit.*;
+import mockit.Expectations;
+import mockit.Injectable;
+import mockit.Tested;
+import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
@@ -479,8 +482,6 @@ public class BackendMessageValidatorTest {
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("Mandatory header metadata UserMessage is not provided.");
         backendMessageValidatorObj.validateUserMessageForPmodeMatch(null, MSHRole.SENDING);
-        new FullVerifications() {{
-        }};
     }
 
     @Test
@@ -488,15 +489,13 @@ public class BackendMessageValidatorTest {
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("Mandatory header metadata UserMessage/MessageInfo is not provided.");
         backendMessageValidatorObj.validateMessageInfo(null);
-        new FullVerifications() {{
-        }};
     }
 
     @Test
-    public void validatePartyInfo_PartyInfoNull() throws EbMS3Exception {
+    public void validatePartyInfoForPModeMatch_PartyInfoNull() throws EbMS3Exception {
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("Mandatory field PartyInfo is not provided.");
-        backendMessageValidatorObj.validatePartyInfo(null);
+        backendMessageValidatorObj.validatePartyInfoForPModeMatch(null, MSHRole.SENDING);
 
     }
 
@@ -504,7 +503,7 @@ public class BackendMessageValidatorTest {
     public void validateFromPartyId_FromNull() throws EbMS3Exception {
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("Mandatory field PartyInfo/From is not provided.");
-        backendMessageValidatorObj.validateFromPartyId(null);
+        backendMessageValidatorObj.validateFromPartyId(null, MSHRole.SENDING);
 
     }
 
@@ -513,7 +512,7 @@ public class BackendMessageValidatorTest {
         From from = new From();
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("Mandatory field From PartyId is not provided.");
-        backendMessageValidatorObj.validateFromPartyId(from);
+        backendMessageValidatorObj.validateFromPartyId(from, MSHRole.SENDING);
 
     }
 
@@ -526,7 +525,7 @@ public class BackendMessageValidatorTest {
         from.getPartyId().add(fromPartyId);
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("Mandatory field From PartyId is not provided.");
-        backendMessageValidatorObj.validateFromPartyId(from);
+        backendMessageValidatorObj.validateFromPartyId(from, MSHRole.SENDING);
 
     }
 
@@ -539,7 +538,7 @@ public class BackendMessageValidatorTest {
         from.getPartyId().add(fromPartyId);
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("From PartyId" + ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH);
-        backendMessageValidatorObj.validateFromPartyId(from);
+        backendMessageValidatorObj.validateFromPartyId(from, MSHRole.SENDING);
 
     }
 
@@ -552,7 +551,7 @@ public class BackendMessageValidatorTest {
         from.getPartyId().add(fromPartyId);
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("Mandatory field From PartyIdType is not provided.");
-        backendMessageValidatorObj.validateFromPartyId(from);
+        backendMessageValidatorObj.validateFromPartyId(from, MSHRole.SENDING);
 
     }
 
@@ -565,7 +564,7 @@ public class BackendMessageValidatorTest {
         from.getPartyId().add(fromPartyId);
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("From PartyIdType" + ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH);
-        backendMessageValidatorObj.validateFromPartyId(from);
+        backendMessageValidatorObj.validateFromPartyId(from, MSHRole.SENDING);
 
     }
 
@@ -573,7 +572,7 @@ public class BackendMessageValidatorTest {
     public void validateFromRole_FromNull() throws EbMS3Exception {
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("Mandatory field PartyInfo/From is not provided.");
-        backendMessageValidatorObj.validateFromRole(null);
+        backendMessageValidatorObj.validateFromRole(null, MSHRole.SENDING);
 
     }
 
@@ -583,7 +582,7 @@ public class BackendMessageValidatorTest {
         from.setRole("   ");
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("Mandatory field From Role is not provided.");
-        backendMessageValidatorObj.validateFromRole(from);
+        backendMessageValidatorObj.validateFromRole(from, MSHRole.SENDING);
 
     }
 
@@ -593,29 +592,25 @@ public class BackendMessageValidatorTest {
         from.setRole(StringUtils.repeat("X", 256));
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("From Role" + ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH);
-        backendMessageValidatorObj.validateFromRole(from);
+        backendMessageValidatorObj.validateFromRole(from, MSHRole.SENDING);
 
     }
 
     @Test
-    public void validateToPartyId_ToNull() throws EbMS3Exception {
-        thrown.expect(EbMS3Exception.class);
-        thrown.expectMessage("Mandatory field PartyInfo/To is not provided.");
-        backendMessageValidatorObj.validateToPartyId(null);
-
+    public void validateToPartyIdForPModeMatch_ToNull() throws EbMS3Exception {
+        ExpectedException.none();
+        backendMessageValidatorObj.validateToPartyIdForPModeMatch(null, MSHRole.SENDING);
     }
 
     @Test
-    public void validateToPartyId_EmptyToParties() throws EbMS3Exception {
+    public void validateToPartyIdForPModeMatch_EmptyToParties() throws EbMS3Exception {
         To to = new To();
-        thrown.expect(EbMS3Exception.class);
-        thrown.expectMessage("Mandatory field To PartyId is not provided.");
-        backendMessageValidatorObj.validateToPartyId(to);
-
+        ExpectedException.none();
+        backendMessageValidatorObj.validateToPartyIdForPModeMatch(to, MSHRole.SENDING);
     }
 
     @Test
-    public void validateToPartyId_BlankToPartId() throws EbMS3Exception {
+    public void validateToPartyIdForPModeMatch_BlankToPartId() throws EbMS3Exception {
         To to = new To();
         PartyId toPartyId = new PartyId();
         toPartyId.setValue("        ");
@@ -623,12 +618,12 @@ public class BackendMessageValidatorTest {
         to.getPartyId().add(toPartyId);
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("Mandatory field To PartyId is not provided.");
-        backendMessageValidatorObj.validateToPartyId(to);
+        backendMessageValidatorObj.validateToPartyIdForPModeMatch(to, MSHRole.SENDING);
 
     }
 
     @Test
-    public void validateToPartyId_ToPartIdTooLong() throws EbMS3Exception {
+    public void validateToPartyIdForPModeMatch_ToPartIdTooLong() throws EbMS3Exception {
         To to = new To();
         PartyId toPartyId = new PartyId();
         toPartyId.setValue(StringUtils.repeat("X", 256));
@@ -636,12 +631,12 @@ public class BackendMessageValidatorTest {
         to.getPartyId().add(toPartyId);
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("To PartyId" + ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH);
-        backendMessageValidatorObj.validateToPartyId(to);
+        backendMessageValidatorObj.validateToPartyIdForPModeMatch(to, MSHRole.SENDING);
 
     }
 
     @Test
-    public void validateToPartyId_ToPartIdTypeBlank() throws EbMS3Exception {
+    public void validateToPartyIdForPModeMatch_ToPartIdTypeBlank() throws EbMS3Exception {
         To to = new To();
         PartyId toPartyId = new PartyId();
         toPartyId.setValue(StringUtils.repeat("X", 255));
@@ -649,12 +644,12 @@ public class BackendMessageValidatorTest {
         to.getPartyId().add(toPartyId);
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("Mandatory field To PartyIdType is not provided.");
-        backendMessageValidatorObj.validateToPartyId(to);
+        backendMessageValidatorObj.validateToPartyIdForPModeMatch(to, MSHRole.SENDING);
 
     }
 
     @Test
-    public void validateToPartyId_ToPartIdTypeTooLong() throws EbMS3Exception {
+    public void validateToPartyIdForPModeMatch_ToPartIdTypeTooLong() throws EbMS3Exception {
         To to = new To();
         PartyId toPartyId = new PartyId();
         toPartyId.setValue(StringUtils.repeat("X", 255));
@@ -662,16 +657,14 @@ public class BackendMessageValidatorTest {
         to.getPartyId().add(toPartyId);
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("To PartyIdType" + ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH);
-        backendMessageValidatorObj.validateToPartyId(to);
+        backendMessageValidatorObj.validateToPartyIdForPModeMatch(to, MSHRole.SENDING);
 
     }
 
     @Test
     public void validateToRole_ToNull() throws EbMS3Exception {
-        thrown.expect(EbMS3Exception.class);
-        thrown.expectMessage("Mandatory field PartyInfo/To is not provided.");
-        backendMessageValidatorObj.validateToRole(null);
-
+        ExpectedException.none();
+        backendMessageValidatorObj.validateToRoleForPModeMatch(null, MSHRole.SENDING);
     }
 
     @Test
@@ -680,7 +673,7 @@ public class BackendMessageValidatorTest {
         to.setRole("   ");
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("Mandatory field To Role is not provided.");
-        backendMessageValidatorObj.validateToRole(to);
+        backendMessageValidatorObj.validateToRoleForPModeMatch(to, MSHRole.SENDING);
 
     }
 
@@ -690,7 +683,7 @@ public class BackendMessageValidatorTest {
         to.setRole(StringUtils.repeat("X", 256));
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("To Role" + ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH);
-        backendMessageValidatorObj.validateToRole(to);
+        backendMessageValidatorObj.validateToRoleForPModeMatch(to, MSHRole.SENDING);
 
     }
 

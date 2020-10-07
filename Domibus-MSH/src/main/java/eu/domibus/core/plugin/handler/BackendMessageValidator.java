@@ -15,6 +15,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.DuplicateMessageException;
 import eu.domibus.plugin.validation.SubmissionValidationException;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -249,7 +250,7 @@ public class BackendMessageValidator {
         }
         try {
             validateMessageInfo(userMessage.getMessageInfo());  // MessageInfo is always initialized in the get method
-            validatePartyInfo(userMessage.getPartyInfo());
+            validatePartyInfoForPModeMatch(userMessage.getPartyInfo(), mshRole);
             validateCollaborationInfo(userMessage.getCollaborationInfo());
         } catch (EbMS3Exception ebms3ex) {
             ebms3ex.setMshRole(mshRole);
@@ -267,18 +268,18 @@ public class BackendMessageValidator {
         validateRefToMessageId(messageInfo.getRefToMessageId());
     }
 
-    protected void validatePartyInfo(PartyInfo partyInfo) throws EbMS3Exception {
+    protected void validatePartyInfoForPModeMatch(PartyInfo partyInfo, MSHRole mshRole) throws EbMS3Exception {
         if (partyInfo == null) {
             LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "PartyInfo");
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Mandatory field PartyInfo is not provided.", null, null);
         }
-        validateFromPartyId(partyInfo.getFrom());
-        validateFromRole(partyInfo.getFrom());
-        validateToPartyId(partyInfo.getTo());
-        validateToRole(partyInfo.getTo());
+        validateFromPartyId(partyInfo.getFrom(), mshRole);
+        validateFromRole(partyInfo.getFrom(), mshRole);
+        validateToPartyIdForPModeMatch(partyInfo.getTo(), mshRole);
+        validateToRoleForPModeMatch(partyInfo.getTo(), mshRole);
     }
 
-    protected void validateFromPartyId(From from) throws EbMS3Exception {
+    protected void validateFromPartyId(From from, MSHRole mshRole) throws EbMS3Exception {
         if (from == null) {
             LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "PartyInfo/From");
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Mandatory field PartyInfo/From is not provided.", null, null);
@@ -309,7 +310,7 @@ public class BackendMessageValidator {
         }
     }
 
-    protected void validateFromRole(From from) throws EbMS3Exception {
+    protected void validateFromRole(From from, MSHRole mshRole) throws EbMS3Exception {
         if (from == null) {
             LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "PartyInfo/From");
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Mandatory field PartyInfo/From is not provided.", null, null);
@@ -325,16 +326,13 @@ public class BackendMessageValidator {
         }
     }
 
-    protected void validateToPartyId(To to) throws EbMS3Exception {
-        if (to == null) {
-            LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "PartyInfo/To");
-            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Mandatory field PartyInfo/To is not provided.", null, null);
+    protected void validateToPartyIdForPModeMatch(To to, MSHRole mshRole) throws EbMS3Exception {
+        if (to == null || isEmpty(to.getPartyId())) {
+            //In scenario of DynamicDiscovery Backend will not provide To/PartyId details, it is discovered by Domibus during PMode match.
+            //Hence elements To and To/Party are optional
+            return;
         }
         final Set<PartyId> toParties = to.getPartyId();
-        if (isEmpty(toParties)) {
-            LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, PARTY_INFO_TO_PARTY_ID);
-            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Mandatory field To PartyId is not provided.", null, null);
-        }
         for (PartyId toParty : toParties) {
             if (isBlank(toParty.getValue())) {
                 LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, PARTY_INFO_TO_PARTY_ID);
@@ -356,10 +354,11 @@ public class BackendMessageValidator {
         }
     }
 
-    protected void validateToRole(To to) throws EbMS3Exception {
-        if (to == null) {
-            LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "PartyInfo/To");
-            throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Mandatory field PartyInfo/To is not provided.", null, null);
+    protected void validateToRoleForPModeMatch(To to, MSHRole mshRole) throws EbMS3Exception {
+        if (to == null || StringUtils.isEmpty(to.getRole())) {
+            //In scenario of DynamicDiscovery Backend will not provide To/PartyId details, it is discovered by Domibus during PMode match.
+            //Hence elements To and To/Role are optional
+            return;
         }
         final String toRole = to.getRole();
         if (isBlank(toRole)) {
