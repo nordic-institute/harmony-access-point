@@ -241,36 +241,10 @@
 			</responderParties>
 			<legs>
 				<leg name="pushTestcase1tc1Action"/>
-			</legs>
-		</process>
-		<process name="tc2Process" agreement="agreementEmpty" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
-			<initiatorParties>
-				<initiatorParty name="blue_gw"/>
-				<initiatorParty name="red_gw"/>
-				<initiatorParty name="black_gw"/>
-			</initiatorParties>
-			<responderParties>
-				<responderParty name="white_gw"/>
-				<responderParty name="blue_gw"/>
-				<responderParty name="red_gw"/>
-			</responderParties>
-			<legs>
 				<leg name="pushTestcase2tc1Action"/>
-			</legs>
-		</process>
-		<process name="tc3Process" agreement="agreementEmpty" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
-			<initiatorParties>
-				<initiatorParty name="blue_gw"/>
-				<initiatorParty name="red_gw"/>
-				<initiatorParty name="black_gw"/>
-			</initiatorParties>
-			<responderParties>
-				<responderParty name="white_gw"/>
-				<responderParty name="blue_gw"/>
-				<responderParty name="red_gw"/>
-			</responderParties>
-			<legs>
 				<leg name="pushTestcase3tc1Action"/>
+				<leg name="pushTestcase7tc7Action"/>
+				<leg name="pushTestcase07tc07Action"/>
 			</legs>
 		</process>
 		<process name="tc4Process" agreement="agreementDummy" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
@@ -299,36 +273,6 @@
 			</responderParties>
 			<legs>
 				<leg name="pushTestcase6tc1Action"/>
-			</legs>
-		</process>
-		<process name="tc7Process" agreement="agreementEmpty" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
-			<initiatorParties>
-				<initiatorParty name="blue_gw"/>
-				<initiatorParty name="red_gw"/>
-				<initiatorParty name="black_gw"/>
-			</initiatorParties>
-			<responderParties>
-				<responderParty name="white_gw"/>
-				<responderParty name="blue_gw"/>
-				<responderParty name="red_gw"/>
-			</responderParties>
-			<legs>
-				<leg name="pushTestcase7tc7Action"/>
-			</legs>
-		</process>
-		<process name="tc07Process" agreement="agreementEmpty" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
-			<initiatorParties>
-				<initiatorParty name="blue_gw"/>
-				<initiatorParty name="red_gw"/>
-				<initiatorParty name="black_gw"/>
-			</initiatorParties>
-			<responderParties>
-				<responderParty name="white_gw"/>
-				<responderParty name="blue_gw"/>
-				<responderParty name="red_gw"/>
-			</responderParties>
-			<legs>
-				<leg name="pushTestcase07tc07Action"/>
 			</legs>
 		</process>		
 		<process name="tc8Process" agreement="agreementForDomJMS020" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
@@ -368,47 +312,20 @@
 			</responderParties>
 			<legs>
 				<leg name="pushTestcase10tc10Action"/>
-			</legs>
-		</process>	
-		<process name="tc11Process" agreement="agreementEmpty" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
-			<initiatorParties>
-				<initiatorParty name="blue_gw"/>
-				<initiatorParty name="red_gw"/>
-			</initiatorParties>
-			<responderParties>
-				<responderParty name="blue_gw"/>
-				<responderParty name="red_gw"/>
-			</responderParties>
-			<legs>
 				<leg name="pushTestcase11tc11Action"/>
-			</legs>
-		</process>		
-		<process name="tc12Process" agreement="agreementEmpty" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
-			<initiatorParties>
-				<initiatorParty name="blue_gw"/>
-				<initiatorParty name="red_gw"/>
-			</initiatorParties>
-			<responderParties>
-				<responderParty name="blue_gw"/>
-				<responderParty name="red_gw"/>
-			</responderParties>
-			<legs>
 				<leg name="pushTestcase12tc12Action"/>
-			</legs>
-		</process>
-		<process name="tc0Process" agreement="agreementEmpty" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
-			<initiatorParties>
-				<initiatorParty name="blue_gw"/>
-				<initiatorParty name="red_gw"/>
-			</initiatorParties>
-			<responderParties>
-				<responderParty name="blue_gw"/>
-				<responderParty name="red_gw"/>
-			</responderParties>
-			<legs>
+				<leg name="pushTestcase19tc19Action"/>
+				<leg name="pushTestcase23tc23Action"/>
+				<leg name="pushTestcase24tc24Action"/>
+				<leg name="pushTestcase25tc25Action"/>
+				<leg name="pushTestcase26tc26Action"/>
+				<leg name="pushTestcase31tc31Action"/>
+				<leg name="pushTestcase33tc33Action"/>
+				<leg name="testServiceCase"/>
 				<leg name="pushConnectivityTest"/>
+				<leg name="backendToNodeAckBundleTxResponse"/>
 			</legs>
-		</process>	
+		</process>			
 		<process name="tc13Process" agreement="" mep="oneway" binding="pull" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
 			<initiatorParties>
 				<initiatorParty name="red_gw"/>
@@ -475,19 +392,6 @@
 				<leg name="pullTestcase18tc18Action"/>
 			</legs>
 		</process>
-		<process name="tc19Process" agreement="agreementEmpty" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
-			<initiatorParties>
-				<initiatorParty name="blue_gw"/>
-				<initiatorParty name="red_gw"/>
-			</initiatorParties>
-			<responderParties>
-				<responderParty name="blue_gw"/>
-				<responderParty name="red_gw"/>
-			</responderParties>
-			<legs>
-				<leg name="pushTestcase19tc19Action"/>
-			</legs>
-		</process>
 		<process name="tc20Process" agreement="agreementDummy" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
 			<initiatorParties>
 				<initiatorParty name="blue_gw"/>
@@ -527,71 +431,6 @@
 				<leg name="pullTestcase22tc22Action"/>
 			</legs>
 		</process>
-		<process name="tc23Process" agreement="agreementEmpty" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
-			<initiatorParties>
-				<initiatorParty name="blue_gw"/>
-				<initiatorParty name="red_gw"/>
-			</initiatorParties>
-			<responderParties>
-				<responderParty name="blue_gw"/>
-				<responderParty name="red_gw"/>
-			</responderParties>
-			<legs>
-				<leg name="pushTestcase23tc23Action"/>
-			</legs>
-		</process>
-		<process name="tc24Process" agreement="agreementEmpty" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
-			<initiatorParties>
-				<initiatorParty name="blue_gw"/>
-				<initiatorParty name="red_gw"/>
-			</initiatorParties>
-			<responderParties>
-				<responderParty name="blue_gw"/>
-				<responderParty name="red_gw"/>
-			</responderParties>
-			<legs>
-				<leg name="pushTestcase24tc24Action"/>
-			</legs>
-		</process>
-		<process name="tc25Process" agreement="agreementEmpty" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
-			<initiatorParties>
-				<initiatorParty name="blue_gw"/>
-				<initiatorParty name="red_gw"/>
-			</initiatorParties>
-			<responderParties>
-				<responderParty name="blue_gw"/>
-				<responderParty name="red_gw"/>
-			</responderParties>
-			<legs>
-				<leg name="pushTestcase25tc25Action"/>
-			</legs>
-		</process>
-		<process name="tc26Process" agreement="agreementEmpty" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
-			<initiatorParties>
-				<initiatorParty name="blue_gw"/>
-				<initiatorParty name="red_gw"/>
-			</initiatorParties>
-			<responderParties>
-				<responderParty name="blue_gw"/>
-				<responderParty name="red_gw"/>
-			</responderParties>
-			<legs>
-				<leg name="pushTestcase26tc26Action"/>
-			</legs>
-		</process>
-		<process name="etxAS4_PUSHProcess" agreement="agreementEmpty" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
-			<initiatorParties>
-				<initiatorParty name="blue_gw"/>
-				<initiatorParty name="red_gw"/>
-			</initiatorParties>
-			<responderParties>
-				<responderParty name="blue_gw"/>
-				<responderParty name="red_gw"/>
-			</responderParties>
-			<legs>
-				<leg name="backendToNodeAckBundleTxResponse"/>
-			</legs>
-		</process>
 		<process name="tc27Process" agreement="agreementEmpty" mep="oneway" binding="push" initiatorRole="peppolSenderRole" responderRole="peppolReceiverRole">
 			<initiatorParties>
 				<initiatorParty name="blue_gw"/>
@@ -605,19 +444,6 @@
 				<leg name="pushTestcase27tc27Action"/>
 			</legs>
 		</process>
-		<process name="testServiceProcess" agreement="agreementEmpty" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
-			<initiatorParties>
-				<initiatorParty name="blue_gw"/>
-				<initiatorParty name="red_gw"/>
-			</initiatorParties>
-			<responderParties>
-				<responderParty name="blue_gw"/>
-				<responderParty name="red_gw"/>
-			</responderParties>
-			<legs>
-				<leg name="testServiceCase"/>
-			</legs>
-		</process>
 		<process name="tc28Process" agreement="" mep="oneway" binding="pull" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
 			<initiatorParties>
 				<initiatorParty name="red_gw"/>
@@ -629,19 +455,6 @@
 				<leg name="pullTestcase28tc28Action"/>
 			</legs>
 		</process>
-		<process name="tc31Process" agreement="agreementEmpty" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
-			<initiatorParties>
-				<initiatorParty name="blue_gw"/>
-				<initiatorParty name="red_gw"/>
-			</initiatorParties>
-			<responderParties>
-				<responderParty name="blue_gw"/>
-				<responderParty name="red_gw"/>
-			</responderParties>
-			<legs>
-				<leg name="pushTestcase31tc31Action"/>
-			</legs>
-		</process>
 		<process name="tc32Process" agreement="" mep="oneway" binding="pull" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
 			<initiatorParties>
 				<initiatorParty name="red_gw"/>
@@ -651,19 +464,6 @@
 			</responderParties>
 			<legs>
 				<leg name="pullTestcase32tc32Action"/>
-			</legs>
-		</process>
-		<process name="tc33Process" agreement="agreementEmpty" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
-			<initiatorParties>
-				<initiatorParty name="blue_gw"/>
-				<initiatorParty name="red_gw"/>
-			</initiatorParties>
-			<responderParties>
-				<responderParty name="blue_gw"/>
-				<responderParty name="red_gw"/>
-			</responderParties>
-			<legs>
-				<leg name="pushTestcase33tc33Action"/>
 			</legs>
 		</process>		
 	</businessProcesses>
