@@ -497,8 +497,7 @@ public class BackendMessageValidatorTest {
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("Mandatory field PartyInfo is not provided.");
         backendMessageValidatorObj.validatePartyInfo(null);
-        new FullVerifications() {{
-        }};
+
     }
 
     @Test
@@ -506,8 +505,7 @@ public class BackendMessageValidatorTest {
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("Mandatory field PartyInfo/From is not provided.");
         backendMessageValidatorObj.validateFromPartyId(null);
-        new FullVerifications() {{
-        }};
+
     }
 
     @Test
@@ -516,8 +514,7 @@ public class BackendMessageValidatorTest {
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("Mandatory field From PartyId is not provided.");
         backendMessageValidatorObj.validateFromPartyId(from);
-        new FullVerifications() {{
-        }};
+
     }
 
     @Test
@@ -530,8 +527,7 @@ public class BackendMessageValidatorTest {
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("Mandatory field From PartyId is not provided.");
         backendMessageValidatorObj.validateFromPartyId(from);
-        new FullVerifications() {{
-        }};
+
     }
 
     @Test
@@ -544,8 +540,7 @@ public class BackendMessageValidatorTest {
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("From PartyId" + ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH);
         backendMessageValidatorObj.validateFromPartyId(from);
-        new FullVerifications() {{
-        }};
+
     }
 
     @Test
@@ -558,8 +553,7 @@ public class BackendMessageValidatorTest {
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("Mandatory field From PartyIdType is not provided.");
         backendMessageValidatorObj.validateFromPartyId(from);
-        new FullVerifications() {{
-        }};
+
     }
 
     @Test
@@ -572,8 +566,7 @@ public class BackendMessageValidatorTest {
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("From PartyIdType" + ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH);
         backendMessageValidatorObj.validateFromPartyId(from);
-        new FullVerifications() {{
-        }};
+
     }
 
     @Test
@@ -581,8 +574,7 @@ public class BackendMessageValidatorTest {
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("Mandatory field PartyInfo/From is not provided.");
         backendMessageValidatorObj.validateFromRole(null);
-        new FullVerifications() {{
-        }};
+
     }
 
     @Test
@@ -592,8 +584,7 @@ public class BackendMessageValidatorTest {
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("Mandatory field From Role is not provided.");
         backendMessageValidatorObj.validateFromRole(from);
-        new FullVerifications() {{
-        }};
+
     }
 
     @Test
@@ -603,8 +594,7 @@ public class BackendMessageValidatorTest {
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("From Role" + ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH);
         backendMessageValidatorObj.validateFromRole(from);
-        new FullVerifications() {{
-        }};
+
     }
 
     @Test
@@ -612,8 +602,7 @@ public class BackendMessageValidatorTest {
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("Mandatory field PartyInfo/To is not provided.");
         backendMessageValidatorObj.validateToPartyId(null);
-        new FullVerifications() {{
-        }};
+
     }
 
     @Test
@@ -622,8 +611,7 @@ public class BackendMessageValidatorTest {
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("Mandatory field To PartyId is not provided.");
         backendMessageValidatorObj.validateToPartyId(to);
-        new FullVerifications() {{
-        }};
+
     }
 
     @Test
@@ -636,8 +624,7 @@ public class BackendMessageValidatorTest {
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("Mandatory field To PartyId is not provided.");
         backendMessageValidatorObj.validateToPartyId(to);
-        new FullVerifications() {{
-        }};
+
     }
 
     @Test
@@ -650,8 +637,7 @@ public class BackendMessageValidatorTest {
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("To PartyId" + ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH);
         backendMessageValidatorObj.validateToPartyId(to);
-        new FullVerifications() {{
-        }};
+
     }
 
     @Test
@@ -664,8 +650,7 @@ public class BackendMessageValidatorTest {
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("Mandatory field To PartyIdType is not provided.");
         backendMessageValidatorObj.validateToPartyId(to);
-        new FullVerifications() {{
-        }};
+
     }
 
     @Test
@@ -678,8 +663,7 @@ public class BackendMessageValidatorTest {
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("To PartyIdType" + ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH);
         backendMessageValidatorObj.validateToPartyId(to);
-        new FullVerifications() {{
-        }};
+
     }
 
     @Test
@@ -687,8 +671,7 @@ public class BackendMessageValidatorTest {
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("Mandatory field PartyInfo/To is not provided.");
         backendMessageValidatorObj.validateToRole(null);
-        new FullVerifications() {{
-        }};
+
     }
 
     @Test
@@ -698,8 +681,7 @@ public class BackendMessageValidatorTest {
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("Mandatory field To Role is not provided.");
         backendMessageValidatorObj.validateToRole(to);
-        new FullVerifications() {{
-        }};
+
     }
 
     @Test
@@ -709,8 +691,7 @@ public class BackendMessageValidatorTest {
         thrown.expect(EbMS3Exception.class);
         thrown.expectMessage("To Role" + ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH);
         backendMessageValidatorObj.validateToRole(to);
-        new FullVerifications() {{
-        }};
+
     }
 
     @Test
