@@ -3,6 +3,8 @@ package eu.domibus.core.audit;
 import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.core.audit.envers.ModificationType;
 import eu.domibus.core.audit.envers.RevisionLog;
+import eu.domibus.core.spring.SpringContextProvider;
+import eu.domibus.core.util.DatabaseUtil;
 import mockit.Expectations;
 import mockit.Mocked;
 import mockit.Tested;
@@ -10,6 +12,7 @@ import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.context.ApplicationContext;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -51,6 +54,30 @@ public class CustomRevisionEntityListenerTest {
         customRevisionEntityListener.newRevision(revision);
         assertTrue(revision.getRevisionDate() != null);
         assertEquals(null, revision.getUserName());
+    }
+
+    @Test
+    public void newRevisionWithDatabaseAuthentication(@Mocked SecurityContextHolder securityContextHolder,
+                                                      @Mocked SpringContextProvider springContextProvider,
+                                                      @Mocked ApplicationContext applicationContext,
+                                                      @Mocked DatabaseUtil databaseUtil) throws Exception {
+        String databaseUsername = "DatabaseUser";
+
+        new Expectations(customRevisionEntityListener) {{
+            springContextProvider.getApplicationContext();
+            result = applicationContext;
+            applicationContext.getBean(DatabaseUtil.DATABASE_USER, DatabaseUtil.class);
+            result = databaseUtil;
+            databaseUtil.getDatabaseUserName();
+            result = databaseUsername;
+
+            SecurityContextHolder.getContext().getAuthentication();
+            result = null;
+        }};
+        RevisionLog revision = new RevisionLog();
+        customRevisionEntityListener.newRevision(revision);
+        assertTrue(revision.getRevisionDate() != null);
+        assertEquals(databaseUsername, revision.getUserName());
     }
 
     @Test

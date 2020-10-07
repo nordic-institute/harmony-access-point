@@ -10,6 +10,7 @@ import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.routing.RoutingCriteria;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
+import eu.domibus.api.security.functions.AuthenticatedProcedure;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.plugin.BackendConnectorProvider;
@@ -542,7 +543,8 @@ public class RoutingServiceTest {
     public void testInitWithOutEmptyBackendFilter(@Injectable CriteriaFactory criteriaFactory,
                                                   @Injectable IRoutingCriteria iRoutingCriteria,
                                                   @Injectable BackendConnector backendConnector,
-                                                  @Injectable BackendConnectorProvider backendConnectorProvider) {
+                                                  @Injectable BackendConnectorProvider backendConnectorProvider,
+                                                  @Injectable AuthUtils authUtils) {
         RoutingService routingService = new RoutingService();
 
         List<CriteriaFactory> routingCriteriaFactories = new ArrayList<>();
@@ -552,6 +554,7 @@ public class RoutingServiceTest {
         routingService.domainService = domainService;
         routingService.domainTaskExecutor = domainTaskExecutor;
         routingService.backendConnectorProvider = backendConnectorProvider;
+        routingService.authUtils = authUtils;
 
         List<BackendConnector> backendConnectors = new ArrayList<>();
         backendConnectors.add(backendConnector);
@@ -569,14 +572,26 @@ public class RoutingServiceTest {
             criteriaFactory.getInstance();
             result = iRoutingCriteria;
 
-            routingService.createBackendFilters();
+            authUtils.runWithSecurityContext((AuthenticatedProcedure)any, anyString, anyString, (AuthRole)any, anyBoolean);
             times = 1;
         }};
 
         routingService.init();
 
-        new FullVerifications() {
-        };
+        new FullVerifications() {{
+            AuthenticatedProcedure function;
+            String username;
+            String password;
+            AuthRole role;
+            boolean forceContext;
+            authUtils.runWithSecurityContext(function = withCapture(),
+                    username=withCapture(), password=withCapture(), role=withCapture(), forceContext=withCapture());
+            Assert.assertNotNull(function);
+            Assert.assertEquals("domibus",username);
+            Assert.assertEquals("domibus",password);
+            Assert.assertEquals(AuthRole.ROLE_AP_ADMIN,role);
+            Assert.assertTrue(forceContext); // always true - audit reason
+        }};
     }
 
     @Test
@@ -700,7 +715,8 @@ public class RoutingServiceTest {
                                          @Injectable Domain domain,
                                          @Injectable IRoutingCriteria iRoutingCriteria,
                                          @Injectable BackendConnector backendConnector,
-                                         @Injectable BackendConnectorProvider backendConnectorProvider) {
+                                         @Injectable BackendConnectorProvider backendConnectorProvider,
+                                         @Injectable AuthUtils authUtils) {
         RoutingService routingService = new RoutingService();
 
         List<CriteriaFactory> routingCriteriaFactories = new ArrayList<>();
@@ -714,6 +730,7 @@ public class RoutingServiceTest {
         routingService.domainService = domainService;
         routingService.domainTaskExecutor = domainTaskExecutor;
         routingService.backendConnectorProvider = backendConnectorProvider;
+        routingService.authUtils = authUtils;
 
         List<BackendConnector> backendConnectors = new ArrayList<>();
         backendConnectors.add(backendConnector);
@@ -731,13 +748,25 @@ public class RoutingServiceTest {
             routingCriteriaFactory.getInstance();
             result = null;
 
-            routingService.createBackendFilters();
+            authUtils.runWithSecurityContext((AuthenticatedProcedure)any, anyString, anyString, (AuthRole)any, anyBoolean);
         }};
 
         routingService.init();
 
-        new FullVerifications() {
-        };
+        new FullVerifications(authUtils) {{
+            AuthenticatedProcedure function;
+            String username;
+            String password;
+            AuthRole role;
+            boolean forceSetContext;
+            authUtils.runWithSecurityContext(function = withCapture(),
+                    username=withCapture(), password=withCapture(), role=withCapture(), forceSetContext=withCapture());
+            Assert.assertNotNull(function);
+            Assert.assertEquals("domibus",username);
+            Assert.assertEquals("domibus",password);
+            Assert.assertEquals(AuthRole.ROLE_AP_ADMIN,role);
+            Assert.assertTrue(forceSetContext); // always true for audit reasons
+        }};
     }
 
     @Test
@@ -856,7 +885,6 @@ public class RoutingServiceTest {
         routingService.createBackendFilters();
 
         new FullVerifications() {{
-            authUtils.setAuthenticationToSecurityContext("domibus", "domibus", AuthRole.ROLE_AP_ADMIN);
             backendFilterDao.create(backendFilterEntities);
             times = 1;
         }};
@@ -1088,9 +1116,6 @@ public class RoutingServiceTest {
         routingService.createBackendFilters();
 
         new Verifications() {{
-            authUtils.setAuthenticationToSecurityContext("domibus", "domibus", AuthRole.ROLE_AP_ADMIN);
-            backendFilterDao.delete(dbFiltersNotInBackendConnectors);
-            times = 1;
             backendFilterDao.findAll();
             times = 1;
             routingService.updateFilterIndices(backendFilterEntities);
