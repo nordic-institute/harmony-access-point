@@ -88,7 +88,7 @@ public enum DomibusMessageCode implements MessageCode {
     BUS_PAYLOAD_INVALID_SIZE("BUS-077", "Payload size is greater than maximum size [{}] defined in payload profile [{}]"),
     MANDATORY_MESSAGE_HEADER_METADATA_MISSING("BUS-078", "Mandatory Message Header metadata [{}] is not provided."),
     VALUE_LONGER_THAN_DEFAULT_STRING_LENGTH("BUS-079", "Value of [{}] is too long (over 255 characters). Value provided: [{}]"),
-    VALUE_DO_NOT_CONFORM_TO_MESSAGEID_PATTERN("BUS-080", "Value of [{}] does not conform to the required MessageIdPattern: [{}]"),
+    VALUE_DO_NOT_CONFORM_TO_MESSAGEID_PATTERN("BUS-080", "Value of [{}] does not conform to the required MessageIdPattern: [{}]. Value provided: [{}]"),
     DUPLICATE_MESSAGEID("BUS-081", "Message with id [{}] already exists. Message identifiers must be unique."),
 
     SEC_UNSECURED_LOGIN_ALLOWED("SEC-001", "Unsecure login is allowed, no authentication will be performed"),

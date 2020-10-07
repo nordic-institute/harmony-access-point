@@ -252,11 +252,11 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
         }
         //not part of ebMS3, eCODEX legacy property
         String strOriginalSender = messageIn.getStringProperty(PROPERTY_ORIGINAL_SENDER);
-        if (!isBlank(strOriginalSender)) {
+        if (isNotBlank(strOriginalSender)) {
             target.addMessageProperty(PROPERTY_ORIGINAL_SENDER, strOriginalSender);
         }
         String endpoint = messageIn.getStringProperty(PROPERTY_ENDPOINT);
-        if (!isEmpty(endpoint)) {
+        if (isNotEmpty(endpoint)) {
             target.addMessageProperty(PROPERTY_ENDPOINT, messageIn.getStringProperty(PROPERTY_ENDPOINT));
         }
 
@@ -264,7 +264,7 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
         String strFinalRecipient = messageIn.getStringProperty(PROPERTY_FINAL_RECIPIENT);
         String strFinalRecipientType = messageIn.getStringProperty(PROPERTY_FINAL_RECIPIENT_TYPE);
         LOG.debug("FinalRecipient [{}] and FinalRecipientType [{}] properties from Message", strFinalRecipient, strFinalRecipientType);
-        if (!isEmpty(strFinalRecipient)) {
+        if (isNotEmpty(strFinalRecipient)) {
             target.addMessageProperty(PROPERTY_FINAL_RECIPIENT, strFinalRecipient, strFinalRecipientType);
         }
 

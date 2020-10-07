@@ -24,10 +24,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SEND_MESSAGE_MESSAGE_ID_PATTERN;
-import static eu.domibus.api.util.DomibusStringUtil.ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH;
-import static eu.domibus.api.util.DomibusStringUtil.TRIM_DECISION.DO_NOT_TRIM;
-import static eu.domibus.api.util.DomibusStringUtil.TRIM_DECISION.TRIM;
-import static eu.domibus.api.util.DomibusStringUtil.isStringLengthGreaterThanDefaultMaxLength;
+import static eu.domibus.api.util.DomibusStringUtil.*;
 import static eu.domibus.logging.DomibusMessageCode.*;
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -259,7 +256,7 @@ public class BackendMessageValidator {
         Pattern patternNoControlChar = Pattern.compile(messageIdPattern);
         Matcher m = patternNoControlChar.matcher(messageId);
         if (!m.matches()) {
-            LOG.businessError(VALUE_DO_NOT_CONFORM_TO_MESSAGEID_PATTERN, elementType, messageIdPattern);
+            LOG.businessError(VALUE_DO_NOT_CONFORM_TO_MESSAGEID_PATTERN, elementType, messageIdPattern, messageId);
             String errorMessage = "Value of " + elementType + " does not conform to the required MessageIdPattern: " + messageIdPattern;
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, errorMessage, messageId, null);
         }
