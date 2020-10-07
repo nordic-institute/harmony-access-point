@@ -3,7 +3,9 @@ package eu.domibus.core.audit;
 import eu.domibus.core.audit.envers.ModificationType;
 import eu.domibus.core.audit.envers.RevisionLog;
 import eu.domibus.core.audit.envers.RevisionLogicalName;
+import eu.domibus.core.spring.SpringContextProvider;
 import eu.domibus.core.util.AnnotationsUtil;
+import eu.domibus.core.util.DatabaseUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.hibernate.envers.EntityTrackingRevisionListener;
@@ -43,6 +45,10 @@ public class CustomRevisionEntityListener implements EntityTrackingRevisionListe
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null) {
             revisionLog.setUserName(authentication.getName());
+        } else {
+            String databaseUserName = getDataBaseUser();
+            LOG.trace("No authentication in application security context. Set DataBase username: [{}] to audit log.", databaseUserName);
+            revisionLog.setUserName(databaseUserName);
         }
     }
 
@@ -85,6 +91,19 @@ public class CustomRevisionEntityListener implements EntityTrackingRevisionListe
                 throw new IllegalArgumentException(msg);
         }
     }
+
+    /**
+     * Retrieve database user from Spring application context!
+     * @return database username.
+     */
+    protected String getDataBaseUser() {
+        if (SpringContextProvider.getApplicationContext()==null){
+            return null;
+        }
+
+        final DatabaseUtil databaseUtil = SpringContextProvider.getApplicationContext().getBean(DatabaseUtil.DATABASE_USER, DatabaseUtil.class);
+        return databaseUtil!=null?databaseUtil.getDatabaseUserName():null;
+     }
 
 
 }

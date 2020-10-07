@@ -568,7 +568,7 @@ public class RoutingServiceTest {
             criteriaFactory.getInstance();
             result = iRoutingCriteria;
 
-            authUtils.runWithSecurityContext((AuthenticatedProcedure)any, anyString, anyString, (AuthRole)any);
+            authUtils.runWithSecurityContext((AuthenticatedProcedure)any, anyString, anyString, (AuthRole)any, anyBoolean);
             times = 1;
         }};
 
@@ -579,12 +579,14 @@ public class RoutingServiceTest {
             String username;
             String password;
             AuthRole role;
+            boolean forceContext;
             authUtils.runWithSecurityContext(function = withCapture(),
-                    username=withCapture(), password=withCapture(), role=withCapture());
+                    username=withCapture(), password=withCapture(), role=withCapture(), forceContext=withCapture());
             Assert.assertNotNull(function);
             Assert.assertEquals("domibus",username);
             Assert.assertEquals("domibus",password);
             Assert.assertEquals(AuthRole.ROLE_AP_ADMIN,role);
+            Assert.assertTrue(forceContext); // always true - audit reason
         }};
     }
 
@@ -742,22 +744,24 @@ public class RoutingServiceTest {
             routingCriteriaFactory.getInstance();
             result = null;
 
-            authUtils.runWithSecurityContext((AuthenticatedProcedure)any, anyString, anyString, (AuthRole)any);
+            authUtils.runWithSecurityContext((AuthenticatedProcedure)any, anyString, anyString, (AuthRole)any, anyBoolean);
         }};
 
         routingService.init();
 
-        new FullVerifications() {{
+        new FullVerifications(authUtils) {{
             AuthenticatedProcedure function;
             String username;
             String password;
             AuthRole role;
+            boolean forceSetContext;
             authUtils.runWithSecurityContext(function = withCapture(),
-                    username=withCapture(), password=withCapture(), role=withCapture());
+                    username=withCapture(), password=withCapture(), role=withCapture(), forceSetContext=withCapture());
             Assert.assertNotNull(function);
             Assert.assertEquals("domibus",username);
             Assert.assertEquals("domibus",password);
             Assert.assertEquals(AuthRole.ROLE_AP_ADMIN,role);
+            Assert.assertTrue(forceSetContext); // always true for audit reasons
         }};
     }
 

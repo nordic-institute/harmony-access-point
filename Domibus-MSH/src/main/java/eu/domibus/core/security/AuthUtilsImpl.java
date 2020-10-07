@@ -175,7 +175,7 @@ public class AuthUtilsImpl implements AuthUtils {
     @Override
     public void runWithSecurityContext(AuthenticatedProcedure method, String user, String password, AuthRole authRole, boolean forceSecurityContext) {
         if (isUnsecureLoginAllowed() && !forceSecurityContext) {
-            LOG.debug("Run method without spring security context");
+            LOG.debug("Run method without spring security context.");
             method.invoke();
             return;
         }
