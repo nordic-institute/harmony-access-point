@@ -6,11 +6,12 @@ import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.user.User;
 import eu.domibus.api.user.UserRole;
 import eu.domibus.api.user.UserState;
-import eu.domibus.core.ebms3.EbMS3Exception;
-import eu.domibus.core.user.UserService;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.csv.CsvServiceImpl;
+import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.user.UserService;
 import eu.domibus.web.rest.error.ErrorHandlerService;
+import eu.domibus.web.rest.ro.UserFilterRequestRO;
 import eu.domibus.web.rest.ro.UserResponseRO;
 import mockit.Expectations;
 import mockit.Injectable;
@@ -143,7 +144,7 @@ public class UserResourceTest {
     }
 
     @Test
-    public void testGetCsv() throws EbMS3Exception {
+    public void testGetCsv(@Injectable UserFilterRequestRO request) throws EbMS3Exception {
         // Given
         List<UserResponseRO> usersResponseROList = new ArrayList<>();
         UserResponseRO userResponseRO = new UserResponseRO() {{
@@ -164,7 +165,7 @@ public class UserResourceTest {
         }};
 
         // When
-        final ResponseEntity<String> csv = userResource.getCsv();
+        final ResponseEntity<String> csv = userResource.getCsv(request);
 
         // Then
         Assert.assertEquals(HttpStatus.OK, csv.getStatusCode());

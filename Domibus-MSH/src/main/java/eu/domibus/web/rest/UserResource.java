@@ -20,7 +20,9 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.ErrorRO;
+import eu.domibus.web.rest.ro.UserFilterRequestRO;
 import eu.domibus.web.rest.ro.UserResponseRO;
+import eu.domibus.web.rest.ro.UserResultRO;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -127,11 +129,14 @@ public class UserResource extends BaseResource {
      * @return CSV file with the contents of User table
      */
     @GetMapping(path = "/csv")
-    public ResponseEntity<String> getCsv() {
+    public ResponseEntity<String> getCsv(UserFilterRequestRO request) {
+        request.setPageStart(0);
+        request.setPageSize(getCsvService().getPageSizeForExport());
+        final UserResultRO result = retrieveAndPackageUsers(request);
         final List<UserResponseRO> entries = getUsers();
         getCsvService().validateMaxRows(entries.size());
 
-        return exportToCSV(entries,
+        return exportToCSV(result.getEntries(),
                 UserResponseRO.class,
                 ImmutableMap.of(
                         "UserName".toUpperCase(), "Username",
@@ -150,6 +155,21 @@ public class UserResource extends BaseResource {
             return userManagementService;
         }
     }
+
+    protected UserResultRO retrieveAndPackageUsers(UserFilterRequestRO request) {
+        LOG.debug("Retrieving plugin users.");
+       /* List<UserResponseRO> users = getUserService().findUsers(request.getAuthType(), request.getAuthRole(), request.getOriginalUser(), request.getUserName(),
+                request.getPageStart(), request.getPageSize());*/
+        List<User> users = getUserService().findUsers();
+
+        UserResultRO result = new UserResultRO();
+       // result.setEntries(users);
+        result.setPage(request.getPageStart());
+        result.setPageSize(request.getPageSize());
+
+        return result;
+    }
+
 
     private void validateUsers(List<UserResponseRO> users) {
         users.forEach(user -> {

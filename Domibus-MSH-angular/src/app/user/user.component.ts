@@ -1,11 +1,19 @@
-import {AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {
+  AfterViewChecked,
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  OnInit,
+  TemplateRef,
+  ViewChild
+} from '@angular/core';
 import {UserResponseRO, UserState} from './support/user';
 import {UserSearchCriteria, UserService} from './support/user.service';
 import {MAT_CHECKBOX_CLICK_ACTION, MatDialog} from '@angular/material';
 import {UserValidatorService} from 'app/user/support/uservalidator.service';
 import {AlertService} from '../common/alert/alert.service';
 import {EditUserComponent} from 'app/user/edituser-form/edituser-form.component';
-import {HttpClient} from '@angular/common/http';
+import {HttpClient, HttpParams} from '@angular/common/http';
 import {SecurityService} from '../security/security.service';
 import {DomainService} from '../security/domain.service';
 import {Domain} from '../security/domain';
@@ -344,8 +352,16 @@ export class UserComponent extends mix(BaseListComponent)
     }
   }
 
+  protected createAndSetParameters(): HttpParams {
+    let filterParams = super.createAndSetParameters();
+    filterParams = filterParams.append('isDeletedUsers',this.filter.deleted_notSet);
+    filterParams = filterParams.append('page', '0');
+    filterParams = filterParams.append('pageSize', '10000');
+    return filterParams;
+  }
+
   get csvUrl(): string {
-    return UserComponent.USER_CSV_URL;
+    return UserComponent.USER_CSV_URL + '?' + this.createAndSetParameters();
   }
 
   setState() {
