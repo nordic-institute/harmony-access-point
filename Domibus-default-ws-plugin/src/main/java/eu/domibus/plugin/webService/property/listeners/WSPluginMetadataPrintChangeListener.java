@@ -12,19 +12,19 @@ import org.springframework.stereotype.Service;
 import static eu.domibus.plugin.webService.configuration.WSPluginConfiguration.DOMIBUS_LOGGING_METADATA_PRINT;
 
 /**
- * Handles the change of wsplugin.mtom.enabled property of backendInterfaceEndpoint
+ * Handles the change of domibus.logging.metadata.print property of backendInterfaceEndpoint
  *
- * @author Ion Perpegel
+ * @author François Gautier
  * @since 4.2
  */
-@Service("wsMetadataPrintChangeListener")
-public class MetadataPrintChangeListener implements PluginPropertyChangeListener {
+@Service("wsPluginMetadataPrintChangeListener")
+public class WSPluginMetadataPrintChangeListener implements PluginPropertyChangeListener {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MetadataPrintChangeListener.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginMetadataPrintChangeListener.class);
 
     private final WSPluginLoggingEventSender wsPluginLoggingEventSender;
 
-    public MetadataPrintChangeListener(@Qualifier("wsPluginLoggingEventSender") WSPluginLoggingEventSender  wsPluginLoggingEventSender) {
+    public WSPluginMetadataPrintChangeListener(@Qualifier("wsPluginLoggingEventSender") WSPluginLoggingEventSender  wsPluginLoggingEventSender) {
         this.wsPluginLoggingEventSender = wsPluginLoggingEventSender;
     }
 
