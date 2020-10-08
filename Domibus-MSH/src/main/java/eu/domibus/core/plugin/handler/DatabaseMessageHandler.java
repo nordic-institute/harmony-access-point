@@ -57,6 +57,7 @@ import java.util.List;
 import java.util.Map;
 
 import static eu.domibus.logging.DomibusMessageCode.MANDATORY_MESSAGE_HEADER_METADATA_MISSING;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
  * This class is responsible of handling the plugins requests for all the operations exposed.
@@ -471,7 +472,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
         if(messageInfo == null){
             return;
         }
-        if(messageInfo.getMessageId() == null){
+        if(isBlank(messageInfo.getMessageId())){
             messageInfo.setMessageId(messageIdGenerator.generateMessageId());
             LOG.debug("Generated MessageId: [{}]", messageInfo.getMessageId());
         }
