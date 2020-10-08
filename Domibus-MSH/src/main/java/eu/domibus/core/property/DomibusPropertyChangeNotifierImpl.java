@@ -7,7 +7,6 @@ import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.property.PluginPropertyChangeListener;
-import eu.domibus.plugin.property.PluginPropertyChangeNotifier;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -28,7 +27,7 @@ public class DomibusPropertyChangeNotifierImpl implements DomibusPropertyChangeN
 
     protected List<DomibusPropertyChangeListener> allPropertyChangeListeners;
 
-    private SignalService signalService;
+    private final SignalService signalService;
 
     public DomibusPropertyChangeNotifierImpl(
             List<DomibusPropertyChangeListener> propertyChangeListeners,
@@ -40,7 +39,7 @@ public class DomibusPropertyChangeNotifierImpl implements DomibusPropertyChangeN
         allPropertyChangeListeners = new ArrayList<>();
         allPropertyChangeListeners.addAll(propertyChangeListeners);
 
-        //adapt plugin prop change listeners to treat them all polimorphically
+        //adapt plugin prop change listeners to treat them all with polymorphism
         List<DomibusPropertyChangeListener> pluginPropertyChangeListenerAdapters = getPluginPropertyChangeListenerAdapters(pluginPropertyChangeListeners);
         allPropertyChangeListeners.addAll(pluginPropertyChangeListenerAdapters);
     }

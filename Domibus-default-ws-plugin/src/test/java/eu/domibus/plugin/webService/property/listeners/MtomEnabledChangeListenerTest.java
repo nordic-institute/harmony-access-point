@@ -3,6 +3,7 @@ package eu.domibus.plugin.webService.property.listeners;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -16,22 +17,26 @@ import javax.xml.ws.soap.SOAPBinding;
 @RunWith(JMockit.class)
 public class MtomEnabledChangeListenerTest {
 
-    @Injectable
-    Endpoint backendInterfaceEndpoint;
+    @Mocked
+    private Endpoint backendInterfaceEndpoint;
 
-    @Tested
-    MtomEnabledChangeListener listener = new MtomEnabledChangeListener(backendInterfaceEndpoint);
+    private MtomEnabledChangeListener listener;
+
+    @Before
+    public void setUp() {
+        listener = new MtomEnabledChangeListener(backendInterfaceEndpoint);
+    }
 
     @Test
     public void handlesProperty_false() {
         boolean result = listener.handlesProperty("wsplugin.schema.validation.enabled");
-        Assert.assertEquals(false, result);
+        Assert.assertFalse(result);
     }
 
     @Test
     public void handlesProperty_true() {
         boolean result = listener.handlesProperty("wsplugin.mtom.enabled");
-        Assert.assertEquals(true, result);
+        Assert.assertTrue(result);
     }
 
     @Test
@@ -42,7 +47,7 @@ public class MtomEnabledChangeListenerTest {
         }};
 
         listener.propertyValueChanged("default", "wsplugin.mtom.enabled", "true");
-        new Verifications() {{
+        new FullVerifications() {{
             soapBinding.setMTOMEnabled(true);
         }};
 
