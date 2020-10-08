@@ -145,6 +145,16 @@ public class BackendMessageValidatorTest {
         }
         /*Message id should not be null*/
 
+        /*Message id should not be blank*/
+        try {
+            String messageId9 = "     ";
+            backendMessageValidatorObj.validateMessageId(messageId9);
+            Assert.fail("Expected exception EBMS_0009 was not raised!");
+        } catch (EbMS3Exception e2) {
+            Assert.assertEquals("EBMS:0009", e2.getErrorCode().getCode().getErrorCode().getErrorCodeName());
+        }
+        /*Message id should not be null*/
+
     }
 
 

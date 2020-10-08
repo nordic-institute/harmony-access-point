@@ -91,7 +91,7 @@ public class BackendMessageValidator {
      */
     public void validateMessageId(final String messageId) throws EbMS3Exception, DuplicateMessageException {
 
-        if (messageId == null) {
+        if (isBlank(messageId)) {
             LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "MessageId");
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Mandatory field MessageId is not provided.", null, null);
         }

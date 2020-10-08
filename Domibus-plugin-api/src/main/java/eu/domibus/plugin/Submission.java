@@ -256,7 +256,7 @@ public class Submission {
      * @param messageId a string representing a globally unique identifier conforming to MessageId [RFC2822]
      */
     public void setMessageId(final String messageId) {
-        this.messageId = messageId; //not trimming message id as non printable special characters needs to be checked.
+        this.messageId = trim(messageId);
     }
 
     /**
@@ -269,7 +269,7 @@ public class Submission {
      * @return a string containing the {@link #messageId} value of an ebMS Message to which this messages relates
      */
     public String getRefToMessageId() {
-        return this.refToMessageId; //not trimming as message id may have non printable special characters that needs to be checked.
+        return this.refToMessageId;
     }
 
     /**
@@ -282,7 +282,7 @@ public class Submission {
      * @param refToMessageId a string containing the {@link #messageId} value of an ebMS Message to which this messages relates
      */
     public void setRefToMessageId(final String refToMessageId) {
-        this.refToMessageId = refToMessageId;
+        this.refToMessageId = trim(refToMessageId);
     }
 
     /**
