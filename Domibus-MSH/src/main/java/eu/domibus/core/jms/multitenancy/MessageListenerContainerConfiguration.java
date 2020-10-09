@@ -228,7 +228,8 @@ public class MessageListenerContainerConfiguration {
         messageListenerContainer.setConcurrency(concurrency);
 
         String timeoutPropertyName = getTimeoutPropertyName(domainPropertyConcurrency);
-        final Integer timeout = NumberUtils.toInt(domibusPropertyProvider.getProperty(domain, timeoutPropertyName));
+        String timeoutPropertyValue = domibusPropertyProvider.getProperty(domain, timeoutPropertyName);
+        final Integer timeout = NumberUtils.toInt(timeoutPropertyValue);
         if (timeout > 0) {
             messageListenerContainer.setTransactionTimeout(timeout);
             LOG.info("The timeout [{}] was set for the queue [{}].", timeout, destination.toString());
