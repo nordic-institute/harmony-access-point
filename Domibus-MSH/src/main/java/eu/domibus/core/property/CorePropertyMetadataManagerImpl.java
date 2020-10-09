@@ -86,6 +86,8 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_SECURITY_EXT_AUTH_PROVIDER_ENABLED, Type.BOOLEAN),
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_SCHEMAFACTORY, Type.CLASS),
 
+            new DomibusPropertyMetadata(DOMIBUS_DISPATCHER_TIMEOUT, Type.NUMERIC, false, Usage.DOMAIN, true),
+
             //writable properties
             new DomibusPropertyMetadata(DOMIBUS_UI_TITLE_NAME, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_UI_REPLICATION_ENABLED, Type.BOOLEAN, Usage.DOMAIN, true),
