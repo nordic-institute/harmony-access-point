@@ -1,9 +1,9 @@
 package eu.domibus.core.jms.multitenancy;
 
 import eu.domibus.api.exceptions.DomibusCoreException;
-import eu.domibus.common.JMSConstants;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.common.JMSConstants;
 import eu.domibus.core.ebms3.sender.MessageSenderListener;
 import eu.domibus.core.message.pull.PullMessageSender;
 import eu.domibus.core.message.pull.PullReceiptListener;
@@ -14,6 +14,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -221,11 +222,17 @@ public class MessageListenerContainerConfiguration {
         messageListenerContainer.setTransactionManager(transactionManager);
 
         final String concurrency = domibusPropertyProvider.getProperty(domain, domainPropertyConcurrency);
-        if(StringUtils.isEmpty(concurrency)) {
+        if (StringUtils.isEmpty(concurrency)) {
             throw new DomibusCoreException("Concurrency value not defined for property [" + domainPropertyConcurrency + "]");
         }
-
         messageListenerContainer.setConcurrency(concurrency);
+
+        String timeoutPropertyName = getTimeoutPropertyName(domainPropertyConcurrency);
+        final String timeout = domibusPropertyProvider.getProperty(domain, timeoutPropertyName);
+        if (StringUtils.isNotEmpty(timeout) && NumberUtils.toInt(timeout) > 0) {
+            messageListenerContainer.setTransactionTimeout(NumberUtils.toInt(timeout));
+        }
+
         messageListenerContainer.setSessionTransacted(true);
         messageListenerContainer.setSessionAcknowledgeMode(0);
         messageListenerContainer.setTaskExecutor(schedulingTaskExecutor);
@@ -238,6 +245,10 @@ public class MessageListenerContainerConfiguration {
 
         LOG.debug("DefaultMessageListenerContainer initialized for domain [{}] with concurrency=[{}]", domain, concurrency);
         return messageListenerContainer;
+    }
+
+    private String getTimeoutPropertyName(String concurrencyPropertyName) {
+        return concurrencyPropertyName.substring(0, concurrencyPropertyName.lastIndexOf(".")) + ".timeout";
     }
 
 }
