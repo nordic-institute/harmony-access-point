@@ -16,16 +16,16 @@ import static eu.domibus.plugin.webService.configuration.WSPluginConfiguration.D
  * @since 4.2
  */
 @RunWith(JMockit.class)
-public class WSPluginMetadataPrintChangeListenerTest {
+public class WSPluginLoggingMetadataPrintChangeListenerTest {
 
     @Mocked
     private WSPluginLoggingEventSender loggingSender;
 
-    protected WSPluginMetadataPrintChangeListener listener;
+    protected WSPluginLoggingMetadataPrintChangeListener listener;
 
     @Before
     public void setUp() {
-        listener = new WSPluginMetadataPrintChangeListener(loggingSender);
+        listener = new WSPluginLoggingMetadataPrintChangeListener(loggingSender);
     }
 
     @Test

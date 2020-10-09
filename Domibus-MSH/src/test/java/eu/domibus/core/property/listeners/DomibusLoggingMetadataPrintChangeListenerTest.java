@@ -16,16 +16,16 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  * @since 4.2
  */
 @RunWith(JMockit.class)
-public class MetadataPrintChangeListenerTest {
+public class DomibusLoggingMetadataPrintChangeListenerTest {
 
     @Mocked
     private DomibusLoggingEventSender loggingSender;
 
-    protected MetadataPrintChangeListener listener;
+    protected DomibusLoggingMetadataPrintChangeListener listener;
 
     @Before
     public void setUp() {
-        listener = new MetadataPrintChangeListener(loggingSender);
+        listener = new DomibusLoggingMetadataPrintChangeListener(loggingSender);
     }
 
     @Test

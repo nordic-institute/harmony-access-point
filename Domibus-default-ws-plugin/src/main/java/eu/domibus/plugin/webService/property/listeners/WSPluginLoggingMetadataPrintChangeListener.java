@@ -17,14 +17,14 @@ import static eu.domibus.plugin.webService.configuration.WSPluginConfiguration.D
  * @author François Gautier
  * @since 4.2
  */
-@Service("wsPluginMetadataPrintChangeListener")
-public class WSPluginMetadataPrintChangeListener implements PluginPropertyChangeListener {
+@Service("wsPluginLoggingMetadataPrintChangeListener")
+public class WSPluginLoggingMetadataPrintChangeListener implements PluginPropertyChangeListener {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginMetadataPrintChangeListener.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginLoggingMetadataPrintChangeListener.class);
 
     private final WSPluginLoggingEventSender wsPluginLoggingEventSender;
 
-    public WSPluginMetadataPrintChangeListener(@Qualifier("wsPluginLoggingEventSender") WSPluginLoggingEventSender  wsPluginLoggingEventSender) {
+    public WSPluginLoggingMetadataPrintChangeListener(@Qualifier("wsPluginLoggingEventSender") WSPluginLoggingEventSender  wsPluginLoggingEventSender) {
         this.wsPluginLoggingEventSender = wsPluginLoggingEventSender;
     }
 

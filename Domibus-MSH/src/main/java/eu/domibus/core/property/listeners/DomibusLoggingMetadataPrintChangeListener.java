@@ -18,13 +18,13 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  * @since 4.2
  */
 @Service
-public class MetadataPrintChangeListener implements PluginPropertyChangeListener {
+public class DomibusLoggingMetadataPrintChangeListener implements PluginPropertyChangeListener {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MetadataPrintChangeListener.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusLoggingMetadataPrintChangeListener.class);
 
     private final DomibusLoggingEventSender domibusLoggingEventSender;
 
-    public MetadataPrintChangeListener(@Qualifier("loggingSender") DomibusLoggingEventSender domibusLoggingEventSender) {
+    public DomibusLoggingMetadataPrintChangeListener(@Qualifier("loggingSender") DomibusLoggingEventSender domibusLoggingEventSender) {
         this.domibusLoggingEventSender = domibusLoggingEventSender;
     }
 
