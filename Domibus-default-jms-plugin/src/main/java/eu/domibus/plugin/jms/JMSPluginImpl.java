@@ -120,7 +120,6 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
 
             LOG.info("Submitted message with messageId [{}], jmsCorrelationID [{}}]", messageID, jmsCorrelationID);
         } catch (Exception e) {
-            LOG.error("Exception occurred while receiving message [" + map + "]", e);
             throw new DefaultJmsPluginException("Exception occurred while receiving message [" + map + "]", e);
         }
     }
