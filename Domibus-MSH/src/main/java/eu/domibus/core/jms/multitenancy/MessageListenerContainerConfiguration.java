@@ -231,6 +231,9 @@ public class MessageListenerContainerConfiguration {
         final String timeout = domibusPropertyProvider.getProperty(domain, timeoutPropertyName);
         if (StringUtils.isNotEmpty(timeout) && NumberUtils.toInt(timeout) > 0) {
             messageListenerContainer.setTransactionTimeout(NumberUtils.toInt(timeout));
+            LOG.info("The timeout [{}] was set for the queue [{}].", timeout, destination.toString());
+        } else {
+            LOG.info("The timeout was not set for the queue [{}].", destination.toString());
         }
 
         messageListenerContainer.setSessionTransacted(true);
