@@ -281,7 +281,10 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
         if(target == null || messageIn == null){
             return;
         }
-        final int numPayloads = messageIn.getIntProperty(TOTAL_NUMBER_OF_PAYLOADS);
+        int numPayloads = 0;
+        if(messageIn.propertyExists(TOTAL_NUMBER_OF_PAYLOADS)){
+            numPayloads = messageIn.getIntProperty(TOTAL_NUMBER_OF_PAYLOADS);
+        }
         String bodyloadEnabled = getPropertyWithFallback(messageIn, JMSMessageConstants.P1_IN_BODY);
         for (int i = 1; i <= numPayloads; i++) {
             transformToSubmissionHandlePayload(messageIn, target, bodyloadEnabled, i);
