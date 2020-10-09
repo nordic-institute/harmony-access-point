@@ -228,9 +228,9 @@ public class MessageListenerContainerConfiguration {
         messageListenerContainer.setConcurrency(concurrency);
 
         String timeoutPropertyName = getTimeoutPropertyName(domainPropertyConcurrency);
-        final String timeout = domibusPropertyProvider.getProperty(domain, timeoutPropertyName);
-        if (StringUtils.isNotEmpty(timeout) && NumberUtils.toInt(timeout) > 0) {
-            messageListenerContainer.setTransactionTimeout(NumberUtils.toInt(timeout));
+        final Integer timeout = NumberUtils.toInt(domibusPropertyProvider.getProperty(domain, timeoutPropertyName));
+        if (timeout > 0) {
+            messageListenerContainer.setTransactionTimeout(timeout);
             LOG.info("The timeout [{}] was set for the queue [{}].", timeout, destination.toString());
         } else {
             LOG.info("The timeout was not set for the queue [{}].", destination.toString());
