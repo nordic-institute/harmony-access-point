@@ -109,13 +109,10 @@ public class SetPolicyInServerInterceptorTest {
 
         setPolicyInServerInterceptor.handleMessage(message);
 
-        new Verifications() {{
+        new FullVerifications() {{
             soapService.getMessage(message);
-            times = 1;
             policyService.parsePolicy("policies" + File.separator + anyString);
-            times = 1;
             setPolicyInServerInterceptor.setBindingOperation(message);
-            times = 1;
         }};
     }
 

@@ -1,10 +1,7 @@
 package eu.domibus.core.user.plugin;
 
 import eu.domibus.api.security.AuthRole;
-import mockit.Expectations;
-import mockit.Injectable;
-import mockit.Tested;
-import mockit.Verifications;
+import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
@@ -46,11 +43,9 @@ public class AuthenticationDAOTest {
         authenticationDAO.findByUser(username);
 
         new Verifications() {{
-            query.setParameter(AuthenticationEntity.USER_NAME, username);
-            times = 1;
-
-            query.getSingleResult();
-            times = 1;
+            Object userNameActual;
+            query.setParameter(AuthenticationEntity.USER_NAME, userNameActual = withCapture());
+            Assert.assertEquals(username, userNameActual);
         }};
     }
 
@@ -66,11 +61,9 @@ public class AuthenticationDAOTest {
         authenticationDAO.listByUser(username);
 
         new Verifications() {{
-            query.setParameter(AuthenticationEntity.USER_NAME, username);
-            times = 1;
-
-            query.getResultList();
-            times = 1;
+            Object userNameActual;
+            query.setParameter(AuthenticationEntity.USER_NAME, userNameActual = withCapture());
+            Assert.assertEquals(username, userNameActual);
         }};
     }
 
@@ -196,18 +189,11 @@ public class AuthenticationDAOTest {
 
         authenticationDAO.findWithPasswordChangedBetween(from, to, withDefaultPassword);
 
-        new Verifications() {{
+        new FullVerifications() {{
             query.setParameter("START_DATE", from.atStartOfDay());
-            times = 1;
-
             query.setParameter("END_DATE", to.atStartOfDay());
-            times = 1;
-
             query.setParameter("DEFAULT_PASSWORD", withDefaultPassword);
-            times = 1;
-
             query.getResultList().stream().collect(Collectors.toList());
-            times = 1;
         }};
     }
 
