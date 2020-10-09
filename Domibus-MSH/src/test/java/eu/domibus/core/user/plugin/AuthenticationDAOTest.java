@@ -226,7 +226,6 @@ public class AuthenticationDAOTest {
     @Test
     public void getSuspendedUsers(@Injectable TypedQuery<AuthenticationEntity> query) {
         final Date currentTimeMinusSuspensionInterval = new Date(2323223232L);
-        ;
 
         new Expectations() {{
             entityManager.createNamedQuery("AuthenticationEntity.findSuspendedUsers", AuthenticationEntity.class);
