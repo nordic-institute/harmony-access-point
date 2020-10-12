@@ -228,12 +228,16 @@ public class MessageListenerContainerConfiguration {
         messageListenerContainer.setConcurrency(concurrency);
 
         String timeoutPropertyName = getTimeoutPropertyName(domainPropertyConcurrency);
-        String timeoutPropertyValue = domibusPropertyProvider.getProperty(domain, timeoutPropertyName);
-        LOG.info("The timeout property value for the queue [{}] is [{}].", destination.toString(), timeoutPropertyValue);
-        final Integer timeout = NumberUtils.toInt(timeoutPropertyValue);
-        if (timeout > 0) {
-            messageListenerContainer.setTransactionTimeout(timeout);
-            LOG.info("The timeout [{}] was set for the queue [{}].", timeout, destination.toString());
+        boolean isTimeoutDefined = domibusPropertyProvider.containsPropertyKey(timeoutPropertyName);
+        LOG.info("The timeout property [{}] for the queue [{}] is not defined.", timeoutPropertyName, destination.toString());
+        if (isTimeoutDefined) {
+            String timeoutPropertyValue = domibusPropertyProvider.getProperty(domain, timeoutPropertyName);
+            LOG.info("The timeout property value for the queue [{}] is [{}].", destination.toString(), timeoutPropertyValue);
+            final Integer timeout = NumberUtils.toInt(timeoutPropertyValue);
+            if (timeout > 0) {
+                messageListenerContainer.setTransactionTimeout(timeout);
+                LOG.info("The timeout [{}] was set for the queue [{}].", timeout, destination.toString());
+            }
         }
 
         messageListenerContainer.setSessionTransacted(true);
