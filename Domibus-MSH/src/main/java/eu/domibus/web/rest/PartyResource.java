@@ -115,6 +115,8 @@ public class PartyResource extends BaseResource {
     public ValidationResponseRO updateParties(@RequestBody List<PartyResponseRo> partiesRo) {
         LOG.debug("Updating parties [{}]", Arrays.toString(partiesRo.toArray()));
 
+        sanitize(partiesRo);
+
         List<Party> partyList = domainConverter.convert(partiesRo, Party.class);
         LOG.debug("Updating partyList [{}]", partyList.toArray());
 
@@ -125,6 +127,16 @@ public class PartyResource extends BaseResource {
         List<ValidationIssue> pModeUpdateIssues = partyService.updateParties(partyList, certificates);
 
         return pModeValidationHelper.getValidationResponse(pModeUpdateIssues, "PMode parties have been successfully updated.");
+    }
+
+    protected void sanitize(List<PartyResponseRo> partiesRo) {
+        partiesRo.stream().forEach(party -> {
+            party.setName(StringUtils.trim(party.getName()));
+            party.getIdentifiers().stream().forEach(id -> {
+                id.setPartyId(StringUtils.trim(id.getPartyId()));
+                id.getPartyIdType().setName(StringUtils.trim(id.getPartyIdType().getName()));
+            });
+        });
     }
 
     /**
