@@ -17,7 +17,6 @@ import eu.domibus.web.rest.ro.PartyFilterRequestRO;
 import eu.domibus.web.rest.ro.TrustStoreRO;
 import eu.domibus.web.rest.ro.ValidationResponseRO;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -137,7 +136,10 @@ public class PartyResource extends BaseResource {
             party.setName(StringUtils.trim(party.getName()));
             party.getIdentifiers().stream().forEach(id -> {
                 id.setPartyId(StringUtils.trim(id.getPartyId()));
-                id.getPartyIdType().setName(StringUtils.trim(id.getPartyIdType().getName()));
+                PartyIdTypeRo partyIdType = id.getPartyIdType();
+                if (partyIdType != null) {
+                    partyIdType.setName(StringUtils.trim(partyIdType.getName()));
+                }
             });
         });
     }
