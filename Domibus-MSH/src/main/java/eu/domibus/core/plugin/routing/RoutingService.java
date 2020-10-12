@@ -22,7 +22,7 @@ import eu.domibus.plugin.BackendConnector;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
@@ -48,6 +48,7 @@ public class RoutingService {
     @Autowired
     protected BackendFilterDao backendFilterDao;
 
+    @Lazy
     @Autowired
     protected BackendConnectorProvider backendConnectorProvider;
 
@@ -81,9 +82,9 @@ public class RoutingService {
 
     @PostConstruct
     public void init() {
-        if (CollectionUtils.isEmpty(backendConnectorProvider.getBackendConnectors())) {
-            throw new ConfigurationException("No Plugin available! Please configure at least one backend plugin in order to run domibus");
-        }
+//        if (CollectionUtils.isEmpty(backendConnectorProvider.getBackendConnectors())) {
+//            throw new ConfigurationException("No Plugin available! Please configure at least one backend plugin in order to run domibus");
+//        }
 
         if (domibusConfigurationService.isSingleTenantAware()) {
             LOG.debug("Creating plugin backend filters in Non MultiTenancy environment");
