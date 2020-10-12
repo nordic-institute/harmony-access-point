@@ -11,10 +11,7 @@ import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import eu.domibus.core.csv.CsvServiceImpl;
-import eu.domibus.core.party.CertificateContentRo;
-import eu.domibus.core.party.IdentifierRo;
-import eu.domibus.core.party.PartyResponseRo;
-import eu.domibus.core.party.ProcessRo;
+import eu.domibus.core.party.*;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
 import eu.domibus.web.rest.ro.PartyFilterRequestRO;
 import eu.domibus.web.rest.ro.TrustStoreRO;
@@ -227,11 +224,6 @@ public class PartyResourceTest {
         TrustStoreRO res = partyResource.convertCertificateContent(partyName, cert);
 
         assertEquals(res, tr);
-
-//        new Verifications() {{
-//            certificateService.convertCertificateContent(certContent);
-//            times = 1;
-//        }};
     }
 
 
@@ -269,8 +261,10 @@ public class PartyResourceTest {
     public void testUpdateParties() {
         // Given
         PartyResponseRo partyResponseRo = new PartyResponseRo();
+        partyResponseRo.setIdentifiers(new HashSet<>());
         List<PartyResponseRo> partiesRo = Arrays.asList(partyResponseRo);
         Party party = new Party();
+
         List<Party> partyList = Arrays.asList(party);
 
         new Expectations(partyResource) {{
@@ -285,5 +279,32 @@ public class PartyResourceTest {
 
         // Then
         Assert.assertEquals(0, response.getIssues().size());
+    }
+
+    @Test
+    public void testSanitize() {
+        String partyIdTypeName = "partyIdTypeName";
+        String partyIdId = "blue";
+        String partyName = "domibus-blue";
+
+        PartyIdTypeRo pIdType = new PartyIdTypeRo();
+        pIdType.setName(partyIdTypeName + "  ");
+        pIdType.setValue("partyIdTypeValue");
+        IdentifierRo partyId = new IdentifierRo();
+        partyId.setPartyId("  " + partyIdId);
+        partyId.setPartyIdType(pIdType);
+
+        PartyResponseRo party = new PartyResponseRo();
+        party.setName(" " + partyName + "  ");
+        party.setIdentifiers(Sets.newHashSet(partyId));
+
+        List<PartyResponseRo> parties = Arrays.asList(party);
+
+        partyResource.sanitize(parties);
+
+        Assert.assertEquals(partyName, parties.get(0).getName());
+        IdentifierRo id1 = parties.get(0).getIdentifiers().stream().findFirst().get();
+        Assert.assertEquals(partyIdId, id1.getPartyId());
+        Assert.assertEquals(partyIdTypeName, id1.getPartyIdType().getName());
     }
 }
