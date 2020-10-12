@@ -229,14 +229,15 @@ public class MessageListenerContainerConfiguration {
 
         String timeoutPropertyName = getTimeoutPropertyName(domainPropertyConcurrency);
         boolean isTimeoutDefined = domibusPropertyProvider.containsPropertyKey(timeoutPropertyName);
-        LOG.info("The timeout property [{}] for the queue [{}] is not defined.", timeoutPropertyName, destination.toString());
-        if (isTimeoutDefined) {
+        if (!isTimeoutDefined) {
+            LOG.debug("The timeout property [{}] for the queue [{}] is not defined.", timeoutPropertyName, destination);
+        } else {
             String timeoutPropertyValue = domibusPropertyProvider.getProperty(domain, timeoutPropertyName);
-            LOG.info("The timeout property value for the queue [{}] is [{}].", destination.toString(), timeoutPropertyValue);
+            LOG.debug("The timeout property value for the queue [{}] is [{}].", destination, timeoutPropertyValue);
             final Integer timeout = NumberUtils.toInt(timeoutPropertyValue);
             if (timeout > 0) {
                 messageListenerContainer.setTransactionTimeout(timeout);
-                LOG.info("The timeout [{}] was set for the queue [{}].", timeout, destination.toString());
+                LOG.info("The timeout [{}] was set for the queue [{}].", timeout, destination);
             }
         }
 
