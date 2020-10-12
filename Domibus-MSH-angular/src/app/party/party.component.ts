@@ -278,7 +278,7 @@ export class PartyComponent extends mix(BaseListComponent)
   }
 
   private isPersisted(party: PartyResponseRo) {
-    return party.entityId;
+    return party.entityId != null;
   }
 
   OnSort() {
