@@ -10,6 +10,7 @@ import {ApplicationContextService} from '../common/application-context.service';
 import {DialogsService} from '../common/dialogs/dialogs.service';
 import {PropertiesService} from '../properties/support/properties.service';
 import {SessionService} from './session.service';
+import {SessionState} from './SessionState';
 
 @Injectable()
 export class SecurityService {
@@ -98,9 +99,18 @@ export class SecurityService {
   }
 
   async checkCanLogout(): Promise<boolean> {
-    const currentComponent = this.applicationService.getCurrentComponent();
+    const session: SessionState = this.sessionService.getCurrentSession();
+    if (session !== SessionState.ACTIVE) {
+      return true;
+    }
 
+    const currentComponent = this.applicationService.getCurrentComponent();
     if (!currentComponent) {
+      return true;
+    }
+
+    const isAuthenticated = await this.isAuthenticated();
+    if (!isAuthenticated) {
       return true;
     }
 
