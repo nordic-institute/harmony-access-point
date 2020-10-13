@@ -8,7 +8,6 @@ import eu.domibus.plugin.AbstractBackendConnector;
 import eu.domibus.plugin.BackendConnector;
 import eu.domibus.plugin.NotificationListener;
 import eu.domibus.plugin.notification.AsyncNotificationConfiguration;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,7 +25,7 @@ public class BackendConnectorService {
     protected AsyncNotificationConfigurationService asyncNotificationConfigurationService;
 
 
-    public BackendConnectorService(@Lazy BackendConnectorProvider backendConnectorProvider, AsyncNotificationConfigurationService asyncNotificationConfigurationService) {
+    public BackendConnectorService(BackendConnectorProvider backendConnectorProvider, AsyncNotificationConfigurationService asyncNotificationConfigurationService) {
         this.backendConnectorProvider = backendConnectorProvider;
         this.asyncNotificationConfigurationService = asyncNotificationConfigurationService;
     }

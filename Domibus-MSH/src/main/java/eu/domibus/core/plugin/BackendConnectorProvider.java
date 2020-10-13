@@ -1,6 +1,7 @@
 package eu.domibus.core.plugin;
 
 import eu.domibus.plugin.BackendConnector;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,7 +15,7 @@ public class BackendConnectorProvider {
 
     protected List<BackendConnector<?, ?>> backendConnectors;
 
-    public BackendConnectorProvider(List<BackendConnector<?, ?>> backendConnectors) {
+    public BackendConnectorProvider(@Lazy List<BackendConnector<?, ?>> backendConnectors) {
         this.backendConnectors = backendConnectors;
     }
 

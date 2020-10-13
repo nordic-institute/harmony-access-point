@@ -22,7 +22,6 @@ import eu.domibus.plugin.BackendConnector;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,7 +47,6 @@ public class RoutingService {
     @Autowired
     protected BackendFilterDao backendFilterDao;
 
-    @Lazy
     @Autowired
     protected BackendConnectorProvider backendConnectorProvider;
 

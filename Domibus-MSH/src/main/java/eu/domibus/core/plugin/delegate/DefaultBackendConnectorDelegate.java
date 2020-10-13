@@ -10,7 +10,6 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.BackendConnector;
 import eu.domibus.plugin.NotificationListener;
 import eu.domibus.plugin.notification.AsyncNotificationConfiguration;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 /**
@@ -30,7 +29,7 @@ public class DefaultBackendConnectorDelegate implements BackendConnectorDelegate
 
     public DefaultBackendConnectorDelegate(ClassUtil classUtil,
                                            AsyncNotificationConfigurationService asyncNotificationConfigurationService,
-                                           @Lazy BackendConnectorProvider backendConnectorProvider,
+                                           BackendConnectorProvider backendConnectorProvider,
                                            BackendConnectorService backendConnectorService) {
         this.classUtil = classUtil;
         this.asyncNotificationConfigurationService = asyncNotificationConfigurationService;
