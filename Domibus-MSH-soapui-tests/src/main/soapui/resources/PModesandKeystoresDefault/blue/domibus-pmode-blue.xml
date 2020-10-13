@@ -65,6 +65,10 @@
 				<propertyRef property="propWithoutTypeProperty"/>
 				<propertyRef property="propWithTypeProperty"/>
 			</propertySet>
+			<propertySet name="twoCornersPropertySet">
+				<propertyRef property="propWithoutTypeProperty"/>
+				<propertyRef property="propWithTypeProperty"/>
+			</propertySet>
 	
 		</properties>
 		<payloadProfiles>
@@ -147,6 +151,7 @@
 			<service name="testService31" value="bdx:noprocess" type="tc31"/>			
 			<service name="testService32" value="bdx:noprocess" type="tc32"/>					
 			<service name="testService" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service"/>
+			<service name="testServiceUntyped" value="bdx:noprocessuntyped"/>
 		</services>
 		<actions>
 			<action name="tc1Action" value="TC1Leg1"/>
@@ -228,7 +233,9 @@
 			<legConfiguration name="pushTestcase31tc31Action" service="testService31" action="tc31Action" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" 	                         errorHandling="demoErrorHandling" compressPayloads="true"/>			
 			<legConfiguration name="pullTestcase32tc32Action" service="testService32" action="tc32Action" defaultMpc="defaultMpcNine" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet"                                 errorHandling="demoErrorHandling" compressPayloads="true"/>
 			<legConfiguration name="pushTestcase33tc33Action" service="testService32" action="tc33Action" splitting="default" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
-			</legConfigurations>
+		    <legConfiguration name="pushTestcase34tc34Action" service="testServiceUntyped" action="tc10Action" defaultMpc="defaultMpcJMS" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="ecodexPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
+			<legConfiguration name="pushTestcase35tc35Action" service="testServiceUntyped" action="tc33Action" defaultMpc="defaultMpc" reliability="AS4Reliability" security="eDeliveryAS4Policy" receptionAwareness="receptionAwareness" propertySet="twoCornersPropertySet" payloadProfile="MessageProfile" errorHandling="demoErrorHandling" compressPayloads="true"/>
+		</legConfigurations>
 
 			
 		<process name="tc1Process" agreement="agreementEmpty" mep="oneway" binding="push" initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
@@ -324,6 +331,8 @@
 				<leg name="pushTestcase26tc26Action"/>
 				<leg name="pushTestcase31tc31Action"/>
 				<leg name="pushTestcase33tc33Action"/>
+				<leg name="pushTestcase34tc34Action"/>
+				<leg name="pushTestcase35tc35Action"/>
 				<leg name="testServiceCase"/>
 				<leg name="pushConnectivityTest"/>
 				<leg name="backendToNodeAckBundleTxResponse"/>
