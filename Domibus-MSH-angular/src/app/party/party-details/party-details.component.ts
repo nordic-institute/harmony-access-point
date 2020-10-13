@@ -94,6 +94,11 @@ export class PartyDetailsComponent extends EditPopupBaseComponent implements OnI
   }
 
   uploadCertificate() {
+    if (!this.party.name) {
+      this.alertService.error('Please provide a party name in order to import a certificate.');
+      return;
+    }
+
     const fi = this.fileInput.nativeElement;
     const file = fi.files[0];
 
