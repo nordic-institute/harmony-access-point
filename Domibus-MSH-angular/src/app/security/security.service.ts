@@ -99,8 +99,7 @@ export class SecurityService {
   }
 
   async checkCanLogout(): Promise<boolean> {
-    const session: SessionState = this.sessionService.getCurrentSession();
-    if (session !== SessionState.ACTIVE) {
+    if (this.sessionService.getCurrentSession() !== SessionState.ACTIVE) {
       return true;
     }
 

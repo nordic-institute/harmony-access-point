@@ -14,21 +14,20 @@ export class DirtyGuard implements CanActivate, CanDeactivate<any> {
               private securityService: SecurityService, private sessionService: SessionService,) {
   };
 
-  canActivate(next: ActivatedRouteSnapshot,
-              state: RouterStateSnapshot): Observable<boolean> | Promise<boolean> | boolean {
+  canActivate(next: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> | Promise<boolean> | boolean {
     return true;
   }
 
-  async canDeactivate(component: any, currentRoute: ActivatedRouteSnapshot,
-                      currentState: RouterStateSnapshot, nextState?: RouterStateSnapshot) {
+  async canDeactivate(component: any, currentRoute: ActivatedRouteSnapshot, currentState: RouterStateSnapshot, nextState?: RouterStateSnapshot) {
 
-    const session: SessionState = this.sessionService.getCurrentSession();
-    if (session !== SessionState.ACTIVE) {
+    if (this.sessionService.getCurrentSession() !== SessionState.ACTIVE) {
       return true;
     }
+
     if (!this.securityService.getCurrentUser()) {
       return true;
     }
+
     const isAuthenticated = await this.securityService.isAuthenticated();
     if (!isAuthenticated) {
       return true;
