@@ -1,6 +1,7 @@
 package eu.domibus.core.spring;
 
 import eu.domibus.api.encryption.EncryptionService;
+import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,9 @@ public class DomibusContextRefreshedListener {
     @Autowired
     protected EncryptionService encryptionService;
 
+    @Autowired
+    protected RoutingService routingService;
+
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     @EventListener
     public void onApplicationEvent(ContextRefreshedEvent event) {
@@ -33,6 +37,8 @@ public class DomibusContextRefreshedListener {
             LOG.info("Skipping event: we are processing only the web application context event");
             return;
         }
+
+        routingService.init();
 
         encryptionService.handleEncryption();
 

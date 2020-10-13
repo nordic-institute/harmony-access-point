@@ -22,11 +22,10 @@ import eu.domibus.plugin.BackendConnector;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -79,7 +78,7 @@ public class RoutingService {
     protected final Object backendFiltersCacheLock = new Object();
     protected volatile Map<Domain, List<BackendFilter>> backendFiltersCache = new HashMap<>();
 
-    @PostConstruct
+    @Transactional
     public void init() {
         if (CollectionUtils.isEmpty(backendConnectorProvider.getBackendConnectors())) {
             throw new ConfigurationException("No Plugin available! Please configure at least one backend plugin in order to run domibus");
