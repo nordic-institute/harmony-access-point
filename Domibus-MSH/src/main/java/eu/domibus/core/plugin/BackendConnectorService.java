@@ -24,7 +24,6 @@ public class BackendConnectorService {
     protected BackendConnectorProvider backendConnectorProvider;
     protected AsyncNotificationConfigurationService asyncNotificationConfigurationService;
 
-
     public BackendConnectorService(BackendConnectorProvider backendConnectorProvider, AsyncNotificationConfigurationService asyncNotificationConfigurationService) {
         this.backendConnectorProvider = backendConnectorProvider;
         this.asyncNotificationConfigurationService = asyncNotificationConfigurationService;
