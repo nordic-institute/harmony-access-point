@@ -33,6 +33,7 @@ import static org.apache.commons.lang3.reflect.FieldUtils.readField;
 @Service
 public class LoggingServiceImpl implements LoggingService {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(LoggingServiceImpl.class);
+    private static final String INNER_CLASS_NAME_DELIMITER = "$";
 
     @Autowired
     protected DomibusConfigurationService domibusConfigurationService;
@@ -196,6 +197,11 @@ public class LoggingServiceImpl implements LoggingService {
         List<Logger> childrenList = null;
         try {
             childrenList = (List<Logger>) readField(logger, "childrenList", true);
+            if (childrenList != null) {
+                //Inner classes present will appear as childrenList and impact main classes even if showClasses is false. They need to be filtered out.
+                Predicate<Logger> checkInnerClassPredicate = c -> !StringUtils.contains(c.getName(), logger.getName() + INNER_CLASS_NAME_DELIMITER);
+                childrenList = childrenList.stream().filter(checkInnerClassPredicate).collect(Collectors.toList());
+            }
         } catch (IllegalAccessException e) {
             LOG.debug("Not able to read children for logger: {}", logger.getName());
         }
