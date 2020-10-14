@@ -285,21 +285,15 @@ public class LoggingServiceImplTest {
 
     }
 
-    @Test
-    public void getLoggingLevel(@Injectable Logger logger) {
-        /*final org.slf4j.Logger LOG1 = LoggerFactory.getLogger(LoggingServiceImplTest.class);
-
-        LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
-        List<Logger> loggerList = loggerContext.getLoggerList();
-        loggerList.forEach(logger1 -> System.out.println(logger1.getName()));
-        System.out.println("************************");
-        List<LoggingEntry> result = loggingService.getLoggingLevel("dom", true);
-        result.forEach(loggingEntry -> System.out.println(loggingEntry));
-        System.out.println("************************");*/
-
-        //loggingService.addLoggerOfClass(logger, false);
-    }
-
+    /**
+     * Testing that presence of inner class loggers will be caught for main class and will not impact other loggers at packge level.
+     * If packge is supplied - expect true
+     * if main class with child loggers due to inner class is supplied - expect false
+     * 
+     * @param packageLogger
+     * @param mainClassLogger
+     * @param innerClassLogger
+     */
     @Test
     public void addLoggerOfClass_PresenceOfInnerClassReturnFalse(@Injectable Logger packageLogger, @Injectable Logger mainClassLogger, @Injectable Logger innerClassLogger) {
 
