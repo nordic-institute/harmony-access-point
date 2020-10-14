@@ -227,14 +227,7 @@ public class MessageListenerContainerConfiguration {
         }
         messageListenerContainer.setConcurrency(concurrency);
 
-        String timeoutPropertyName = getTimeoutPropertyName(domainPropertyConcurrency);
-        String timeoutPropertyValue = domibusPropertyProvider.getProperty(domain, timeoutPropertyName);
-        LOG.info("The timeout property value for the queue [{}] is [{}].", destination.toString(), timeoutPropertyValue);
-        final Integer timeout = NumberUtils.toInt(timeoutPropertyValue);
-        if (timeout > 0) {
-            messageListenerContainer.setTransactionTimeout(timeout);
-            LOG.info("The timeout [{}] was set for the queue [{}].", timeout, destination.toString());
-        }
+        manageTimeout(domain, destination, domainPropertyConcurrency, messageListenerContainer);
 
         messageListenerContainer.setSessionTransacted(true);
         messageListenerContainer.setSessionAcknowledgeMode(0);
@@ -248,6 +241,23 @@ public class MessageListenerContainerConfiguration {
 
         LOG.debug("DefaultMessageListenerContainer initialized for domain [{}] with concurrency=[{}]", domain, concurrency);
         return messageListenerContainer;
+    }
+
+    protected void manageTimeout(Domain domain, Queue destination, String domainPropertyConcurrency, DefaultMessageListenerContainer messageListenerContainer) {
+        String timeoutPropertyName = getTimeoutPropertyName(domainPropertyConcurrency);
+        boolean isTimeoutDefined = domibusPropertyProvider.containsPropertyKey(timeoutPropertyName);
+        if (!isTimeoutDefined) {
+            LOG.debug("The timeout property [{}] for the queue [{}] is not defined.", timeoutPropertyName, destination);
+            return;
+        }
+        String timeoutPropertyValue = domibusPropertyProvider.getProperty(domain, timeoutPropertyName);
+        final Integer timeout = NumberUtils.toInt(timeoutPropertyValue);
+        if (timeout <= 0) {
+            LOG.debug("The timeout property value for the queue [{}] is badly or not defined: [{}].", destination, timeoutPropertyValue);
+            return;
+        }
+        messageListenerContainer.setTransactionTimeout(timeout);
+        LOG.info("The timeout [{}] was set for the queue [{}].", timeout, destination);
     }
 
     private String getTimeoutPropertyName(String concurrencyPropertyName) {
