@@ -290,9 +290,6 @@ public class LoggingServiceImplTest {
      * If packge is supplied - expect true
      * if main class with child loggers due to inner class is supplied - expect false
      * 
-     * @param packageLogger
-     * @param mainClassLogger
-     * @param innerClassLogger
      */
     @Test
     public void addLoggerOfClass_PresenceOfInnerClassReturnFalse(@Injectable Logger packageLogger, @Injectable Logger mainClassLogger, @Injectable Logger innerClassLogger) {
