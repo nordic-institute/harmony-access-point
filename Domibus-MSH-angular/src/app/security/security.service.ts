@@ -271,11 +271,6 @@ export class SecurityService {
     }
   }
 
-  private getCurrentUserLastUpdate(): Date {
-    const res = localStorage.getItem(this.CURRENT_USER_UPDATED_ON);
-    return res ? new Date(res) : null;
-  }
-
   isClientConnected(): boolean {
     return this.getCurrentUser() != null;
   }
