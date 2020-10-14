@@ -10,8 +10,7 @@ import {SessionService} from '../../security/session.service';
 @Injectable()
 export class DirtyGuard implements CanActivate, CanDeactivate<any> {
 
-  constructor(public dialog: MatDialog, private dialogsService: DialogsService,
-              private securityService: SecurityService, private sessionService: SessionService,) {
+  constructor(public dialog: MatDialog, private dialogsService: DialogsService, private securityService: SecurityService) {
   };
 
   canActivate(next: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> | Promise<boolean> | boolean {
@@ -20,22 +19,20 @@ export class DirtyGuard implements CanActivate, CanDeactivate<any> {
 
   async canDeactivate(component: any, currentRoute: ActivatedRouteSnapshot, currentState: RouterStateSnapshot, nextState?: RouterStateSnapshot) {
 
-    if (this.sessionService.getCurrentSession() !== SessionState.ACTIVE) {
+    if (!component) {
       return true;
     }
 
-    if (!this.securityService.getCurrentUser()) {
-      return true;
-    }
-
-    const isAuthenticated = await this.securityService.isAuthenticated();
-    if (!isAuthenticated) {
+    const canBypassCheckDirty = await this.securityService.canBypassCheckDirty();
+    if (canBypassCheckDirty) {
       return true;
     }
 
     if (component.isDirty && !component.isDirty()) {
       return true;
     }
+
     return this.dialogsService.openCancelDialog();
   }
+
 }

@@ -11,6 +11,7 @@ import {DialogsService} from '../common/dialogs/dialogs.service';
 import {PropertiesService} from '../properties/support/properties.service';
 import {SessionService} from './session.service';
 import {SessionState} from './SessionState';
+import {instanceOfModifiableList} from '../common/mixins/type.utils';
 
 @Injectable()
 export class SecurityService {
@@ -83,7 +84,7 @@ export class SecurityService {
   async logout() {
     this.alertService.close();
 
-    const canLogout = await this.checkCanLogout();
+    const canLogout = await this.canLogout();
     if (!canLogout) {
       return;
     }
@@ -98,32 +99,26 @@ export class SecurityService {
       });
   }
 
-  async checkCanLogout(): Promise<boolean> {
-    if (this.sessionService.getCurrentSession() !== SessionState.ACTIVE) {
-      return true;
-    }
-
+  async canLogout(): Promise<boolean> {
     const currentComponent = this.applicationService.getCurrentComponent();
     if (!currentComponent) {
       return true;
     }
 
-    const isAuthenticated = await this.isAuthenticated();
-    if (!isAuthenticated) {
+    if (!instanceOfModifiableList(currentComponent)) {
       return true;
     }
 
-    let canLogoutPromise = Promise.resolve(true);
-    if (currentComponent.isDirty && currentComponent.isDirty()) {
-      canLogoutPromise = this.dialogsService.openCancelDialog();
-    }
-    try {
-      const canLogout = await canLogoutPromise;
-      return canLogout;
-    } catch (ex) {
-      console.log('An error occurred while checking logout: ', ex);
+    const canBypassCheckDirty = await this.canBypassCheckDirty();
+    if (canBypassCheckDirty) {
       return true;
     }
+
+    if (currentComponent.isDirty()) {
+      return this.dialogsService.openCancelDialog();
+    }
+
+    return true;
   }
 
   getPluginPasswordPolicy(): Promise<PasswordPolicyRO> {
@@ -266,6 +261,21 @@ export class SecurityService {
     const pattern = await this.propertiesService.getDomainOrGlobalPropertyValue('domibus.passwordPolicy.pattern', forDomain);
     const message = await this.propertiesService.getDomainOrGlobalPropertyValue('domibus.passwordPolicy.validationMessage', forDomain);
     return new PasswordPolicyRO(pattern, message);
+  }
+
+  async canBypassCheckDirty(): Promise<boolean> {
+    if (this.sessionService.getCurrentSession() !== SessionState.ACTIVE) {
+      return true;
+    }
+
+    if (!this.getCurrentUser()) {
+      return true;
+    }
+
+    const isAuthenticated = await this.isAuthenticated();
+    if (!isAuthenticated) {
+      return true;
+    }
   }
 }
 

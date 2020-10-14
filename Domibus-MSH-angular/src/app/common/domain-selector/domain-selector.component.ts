@@ -6,6 +6,7 @@ import {MatDialog} from '@angular/material';
 import {AlertService} from '../alert/alert.service';
 import {ActivatedRoute, ActivatedRouteSnapshot, Router, RoutesRecognized} from '@angular/router';
 import {DialogsService} from '../dialogs/dialogs.service';
+import {instanceOfModifiableList} from '../mixins/type.utils';
 
 @Component({
   selector: 'domain-selector',
@@ -62,14 +63,11 @@ export class DomainSelectorComponent implements OnInit {
   }
 
   async changeDomain() {
-    let canChangeDomain = Promise.resolve(true);
-    if (this.currentComponent.isDirty && this.currentComponent.isDirty()) {
-      canChangeDomain = this.dialogsService.openCancelDialog();
-    }
-
     try {
-      const canChange = await canChangeDomain;
-      if (!canChange) throw false;
+      const canChange = await this.canChangeDomain();
+      if (!canChange) {
+        throw false;
+      }
 
       if (this.currentComponent.beforeDomainChange) {
         try {
@@ -108,6 +106,26 @@ export class DomainSelectorComponent implements OnInit {
         this.alertService.exception('The server didn\'t respond, please try again later', ex);
       }
     }
+  }
+
+  private async canChangeDomain() {
+    if (!this.currentComponent) {
+      return true;
+    }
+
+    if (!instanceOfModifiableList(this.currentComponent)) {
+      return true;
+    }
+
+    const canBypassCheckDirty = await this.securityService.canBypassCheckDirty();
+    if (canBypassCheckDirty) {
+      return true;
+    }
+
+    if (this.currentComponent.isDirty()) {
+      return this.dialogsService.openCancelDialog();
+    }
+    return true;
   }
 
 }

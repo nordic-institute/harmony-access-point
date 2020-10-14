@@ -119,18 +119,30 @@ export let PageableListMixin = (superclass: Constructable) => class extends supe
       this.offset = offset;
       this.page();
     } else {
-      //TODO: try to use before event instead(if exists) or make grid show the correct value
+      // TODO: try to use before event instead(if exists) or make grid show the correct value
     }
     return canChangePage;
   }
 
-  private canProceedToPageChange(): Promise<boolean> {
-    if (this.type == PaginationType.Server) {
-      if (instanceOfModifiableList(this) && this.isDirty()) {
-        return this.dialogsService.openCancelDialog();
-      }
+  private async canProceedToPageChange(): Promise<boolean> {
+    if (this.type == PaginationType.Client) {
+      return true;
     }
-    return Promise.resolve(true);
+
+    if (!instanceOfModifiableList(this)) {
+      return true;
+    }
+
+    const canBypassCheckDirty = await this.securityService.canBypassCheckDirty();
+    if (canBypassCheckDirty) {
+      return true;
+    }
+
+    if (this.isDirty()) {
+      return this.dialogsService.openCancelDialog();
+    }
+
+    return true;
   }
 
   // using an arrow-function instead of a regular function to preserve the correct "this" when called from the row-limiter component context

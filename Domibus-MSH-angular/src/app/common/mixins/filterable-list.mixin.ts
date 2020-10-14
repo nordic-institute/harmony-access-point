@@ -126,11 +126,20 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
     Object.assign(this.filter, this.activeFilter);
   }
 
-  protected canProceedToFilter(): Promise<boolean> {
-    if (instanceOfModifiableList(this) && this.isDirty()) {
+  protected async canProceedToFilter(): Promise<boolean> {
+    if (!instanceOfModifiableList(this)) {
+      return true;
+    }
+
+    const canBypassCheckDirty = await this.securityService.canBypassCheckDirty();
+    if (canBypassCheckDirty) {
+      return true;
+    }
+
+    if (this.isDirty()) {
       return this.dialogsService.openCancelDialog();
     }
-    return Promise.resolve(true);
+    return true;
   }
 
   canSearch(): boolean | Promise<boolean> {
