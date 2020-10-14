@@ -593,7 +593,7 @@ public class UserMessageDefaultService implements UserMessageService {
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
     public void deleteMessages(List<String> userMessageIds) {
-        LOG.debug("Deleting user messages [{}]", userMessageIds.size());
+        LOG.debug("Deleting [{}] user messages", userMessageIds.size());
         LOG.trace("Deleting user messages [{}]", userMessageIds);
 
         List<String> signalMessageIds = messageInfoDao.findSignalMessageIds(userMessageIds);
