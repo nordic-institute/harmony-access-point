@@ -61,6 +61,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   async ngOnInit() {
     this.sessionService.resetCurrentSession();
+    this.securityService.clearSession();
     const user = await this.securityService.getCurrentUserFromServer();
     if (user) {
       this.securityService.initialiseApp(user);

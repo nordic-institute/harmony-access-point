@@ -4,6 +4,7 @@ import {SecurityService} from '../../security/security.service';
 import {DomibusInfoService} from '../appinfo/domibusinfo.service';
 import {SessionService} from '../../security/session.service';
 import {SessionState} from '../../security/SessionState';
+import {DomainService} from '../../security/domain.service';
 
 /**
  * It will handle for each route where is defined:
@@ -15,7 +16,8 @@ export class AuthenticatedAuthorizedGuard implements CanActivate {
 
   constructor(private router: Router, private securityService: SecurityService,
               private domibusInfoService: DomibusInfoService,
-              private sessionService: SessionService) {
+              private sessionService: SessionService,
+              private domainService: DomainService) {
   }
 
   async canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
@@ -55,6 +57,7 @@ export class AuthenticatedAuthorizedGuard implements CanActivate {
     if (this.securityService.isClientConnected()) {
       this.sessionService.setExpiredSession(SessionState.EXPIRED_INACTIVITY_OR_ERROR);
       this.securityService.clearSession();
+      this.domainService.resetDomain();
     }
   }
 

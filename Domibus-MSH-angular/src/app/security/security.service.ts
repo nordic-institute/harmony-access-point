@@ -66,23 +66,6 @@ export class SecurityService {
     }
   }
 
-  /**
-   * get the user from the server and saves it locally
-   */
-  async getCurrentUserAndSaveLocally() {
-    let userSet = false;
-    try {
-      const user = await this.getCurrentUserFromServer();
-      if (user) {
-        this.updateCurrentUser(user);
-        userSet = true;
-      }
-    } catch (ex) {
-      console.log('getCurrentUserAndSaveLocally error' + ex);
-    }
-    return userSet;
-  }
-
   async logout() {
     this.alertService.close();
 
@@ -93,6 +76,7 @@ export class SecurityService {
 
     this.sessionService.setExpiredSession(SessionState.EXPIRED_LOGGED_OUT);
     this.clearSession();
+    this.domainService.resetDomain();
 
     this.http.delete('rest/security/authentication').subscribe((res) => {
         this.securityEventService.notifyLogoutSuccessEvent(res);
@@ -123,7 +107,6 @@ export class SecurityService {
   }
 
   clearSession() {
-    this.domainService.resetDomain();
     localStorage.removeItem(this.CURRENT_USER);
     localStorage.removeItem(this.CURRENT_USER_UPDATED_ON);
   }
@@ -293,8 +276,7 @@ export class SecurityService {
     return res ? new Date(res) : null;
   }
 
-
-  isClientConnected() {
+  isClientConnected(): boolean {
     const lastUpdate = this.getCurrentUserLastUpdate();
     if (lastUpdate == null) {
       return this.getCurrentUser() != null;
