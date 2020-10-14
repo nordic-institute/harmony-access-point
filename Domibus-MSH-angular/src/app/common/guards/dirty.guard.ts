@@ -6,6 +6,7 @@ import {DialogsService} from '../dialogs/dialogs.service';
 import {SecurityService} from '../../security/security.service';
 import {SessionState} from '../../security/SessionState';
 import {SessionService} from '../../security/session.service';
+import {instanceOfModifiableList} from '../mixins/type.utils';
 
 @Injectable()
 export class DirtyGuard implements CanActivate, CanDeactivate<any> {
@@ -23,12 +24,16 @@ export class DirtyGuard implements CanActivate, CanDeactivate<any> {
       return true;
     }
 
+    if (!instanceOfModifiableList(component)) {
+      return true;
+    }
+
     const canBypassCheckDirty = await this.securityService.canBypassCheckDirty();
     if (canBypassCheckDirty) {
       return true;
     }
 
-    if (component.isDirty && !component.isDirty()) {
+    if (!component.isDirty()) {
       return true;
     }
 

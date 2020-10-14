@@ -138,11 +138,11 @@ export let PageableListMixin = (superclass: Constructable) => class extends supe
       return true;
     }
 
-    if (this.isDirty()) {
-      return this.dialogsService.openCancelDialog();
+    if (!this.isDirty()) {
+      return true;
     }
 
-    return true;
+    return this.dialogsService.openCancelDialog();
   }
 
   // using an arrow-function instead of a regular function to preserve the correct "this" when called from the row-limiter component context

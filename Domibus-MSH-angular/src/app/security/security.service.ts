@@ -114,11 +114,11 @@ export class SecurityService {
       return true;
     }
 
-    if (currentComponent.isDirty()) {
-      return this.dialogsService.openCancelDialog();
+    if (!currentComponent.isDirty()) {
+      return true;
     }
 
-    return true;
+    return this.dialogsService.openCancelDialog();
   }
 
   getPluginPasswordPolicy(): Promise<PasswordPolicyRO> {

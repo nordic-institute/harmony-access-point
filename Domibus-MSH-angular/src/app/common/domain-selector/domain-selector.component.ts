@@ -122,10 +122,11 @@ export class DomainSelectorComponent implements OnInit {
       return true;
     }
 
-    if (this.currentComponent.isDirty()) {
-      return this.dialogsService.openCancelDialog();
+    if (!this.currentComponent.isDirty()) {
+      return true;
     }
-    return true;
+
+    return this.dialogsService.openCancelDialog();
   }
 
 }

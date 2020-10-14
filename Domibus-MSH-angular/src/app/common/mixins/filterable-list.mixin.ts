@@ -136,10 +136,11 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
       return true;
     }
 
-    if (this.isDirty()) {
-      return this.dialogsService.openCancelDialog();
+    if (!this.isDirty()) {
+      return true;
     }
-    return true;
+
+    return this.dialogsService.openCancelDialog();
   }
 
   canSearch(): boolean | Promise<boolean> {
