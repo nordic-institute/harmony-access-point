@@ -831,9 +831,7 @@ public class AuditPgTest extends SeleniumTest {
 	@Test(description = "AU-12", groups = {"multiTenancy", "singleTenancy"})
 	public void deleteJMSMessage() throws Exception {
 		SoftAssert soft = new SoftAssert();
-		
-		selectRandomDomain();
-		
+
 		String queue = rest.jms().getRandomQNameWithMessages();
 		if (StringUtils.isEmpty(queue)) {
 			throw new SkipException("No queue has messages");
@@ -845,6 +843,7 @@ public class AuditPgTest extends SeleniumTest {
 		AuditPage page = new AuditPage(driver);
 		log.info("Navigate to Audit page");
 		page.getSidebar().goToPage(PAGES.AUDIT);
+		page.wait.forXMillis(1000);
 		page.grid().waitForRowsToLoad();
 		
 		page.filters().getTableFilter().selectOptionByText("Jms message");

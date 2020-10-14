@@ -523,6 +523,7 @@ public class MessageFilterPgTest extends SeleniumTest {
 		MessageFilterModal popup = new MessageFilterModal(driver);
 //		popup.getPluginSelect().selectOptionByIndex(0);
 		popup.actionInput.sendKeys(actionName);
+		popup.serviceInput.sendKeys(actionName+":"+actionName);
 		popup.clickOK();
 		log.info("created new filter with action" + actionName);
 		

@@ -195,7 +195,8 @@ public class ErrorLogPgUXTest extends SeleniumTest {
 		ErrorLogPage page = new ErrorLogPage(driver);
 		page.getSidebar().goToPage(PAGES.ERROR_LOG);
 		DGrid grid = page.grid();
-		
+
+		grid.waitForRowsToLoad();
 		int gridRows = grid.getRowsNo();
 		int allRows = grid.getPagination().getTotalItems();
 		
@@ -215,7 +216,7 @@ public class ErrorLogPgUXTest extends SeleniumTest {
 		
 		log.info("check that the same number of rows is shown");
 		soft.assertTrue(grid.getRowsNo() == gridRows, "Grid shows the same number of rows as before");
-		soft.assertTrue(grid.getPagination().getTotalItems() == allRows, "Pagination shows the same number of rows as before");
+		soft.assertTrue(grid.getPagination().getTotalItems() >= allRows, "Pagination shows at least the same number of rows as before");
 		
 		soft.assertAll();
 	}

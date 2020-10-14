@@ -3,6 +3,7 @@ package ddsl.dcomponents;
 import ddsl.dobjects.DButton;
 import ddsl.dobjects.DLink;
 import ddsl.enums.PAGES;
+import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -144,14 +145,21 @@ public class SideNavigation extends DComponent {
 	}
 	
 	public void goToPage(PAGES page) throws Exception {
+		DomibusPage pg = new DomibusPage(driver);
+
 		log.info("Navigating to " + page.name());
 		DLink link = getPageLnk(page);
-		link.click();
-		
-		log.debug("Navigated to " + page.name());
-		
 		String text = link.element.findElement(By.cssSelector("span span")).getText().trim();
-		DomibusPage pg = new DomibusPage(driver);
+
+		if(StringUtils.containsIgnoreCase(pg.getTitle(), text)){
+			log.info("already here, refreshing page");
+			pg.refreshPage();
+		}else {
+			link.click();
+		}
+
+		log.debug("Navigated to " + page.name());
+
 		wait.forElementToContainText(pg.pageTitle, text);
 	}
 	
