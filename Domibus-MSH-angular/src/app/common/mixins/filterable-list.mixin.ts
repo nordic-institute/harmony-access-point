@@ -127,20 +127,8 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
   }
 
   protected async canProceedToFilter(): Promise<boolean> {
-    if (!instanceOfModifiableList(this)) {
-      return true;
-    }
 
-    const canBypassCheckDirty = await this.securityService.canBypassCheckDirty();
-    if (canBypassCheckDirty) {
-      return true;
-    }
-
-    if (!this.isDirty()) {
-      return true;
-    }
-
-    return this.dialogsService.openCancelDialog();
+    return this.securityService.canAbandonUnsavedChanges(this);
   }
 
   canSearch(): boolean | Promise<boolean> {

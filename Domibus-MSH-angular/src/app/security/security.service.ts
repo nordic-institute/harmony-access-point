@@ -12,6 +12,7 @@ import {PropertiesService} from '../properties/support/properties.service';
 import {SessionService} from './session.service';
 import {SessionState} from './SessionState';
 import {instanceOfModifiableList} from '../common/mixins/type.utils';
+import {ActivatedRouteSnapshot, RouterStateSnapshot} from '@angular/router';
 
 @Injectable()
 export class SecurityService {
@@ -89,6 +90,7 @@ export class SecurityService {
       return;
     }
 
+    this.sessionService.setExpiredSession(SessionState.EXPIRED_LOGGED_OUT);
     this.clearSession();
 
     this.http.delete('rest/security/authentication').subscribe((res) => {
@@ -100,25 +102,9 @@ export class SecurityService {
   }
 
   async canLogout(): Promise<boolean> {
+
     const currentComponent = this.applicationService.getCurrentComponent();
-    if (!currentComponent) {
-      return true;
-    }
-
-    if (!instanceOfModifiableList(currentComponent)) {
-      return true;
-    }
-
-    const canBypassCheckDirty = await this.canBypassCheckDirty();
-    if (canBypassCheckDirty) {
-      return true;
-    }
-
-    if (!currentComponent.isDirty()) {
-      return true;
-    }
-
-    return this.dialogsService.openCancelDialog();
+    return this.canAbandonUnsavedChanges(currentComponent);
   }
 
   getPluginPasswordPolicy(): Promise<PasswordPolicyRO> {
@@ -263,7 +249,29 @@ export class SecurityService {
     return new PasswordPolicyRO(pattern, message);
   }
 
-  async canBypassCheckDirty(): Promise<boolean> {
+  async canAbandonUnsavedChanges(component: any) {
+
+    if (!component) {
+      return true;
+    }
+
+    if (!instanceOfModifiableList(component)) {
+      return true;
+    }
+
+    const canBypassCheckDirty = await this.canBypassCheckDirty();
+    if (canBypassCheckDirty) {
+      return true;
+    }
+
+    if (!component.isDirty()) {
+      return true;
+    }
+
+    return this.dialogsService.openCancelDialog();
+  }
+
+  private async canBypassCheckDirty(): Promise<boolean> {
     if (this.sessionService.getCurrentSession() !== SessionState.ACTIVE) {
       return true;
     }

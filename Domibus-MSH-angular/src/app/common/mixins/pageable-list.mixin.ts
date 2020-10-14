@@ -17,7 +17,7 @@ export let ServerPageableListMixin = (superclass: Constructable) => class extend
     super.type = PaginationType.Server;
   }
 
-  //when server-paging, call get data from server
+  // when server-paging, call get data from server
   public page() {
     this.loadServerData();
   }
@@ -125,24 +125,12 @@ export let PageableListMixin = (superclass: Constructable) => class extends supe
   }
 
   private async canProceedToPageChange(): Promise<boolean> {
+
     if (this.type == PaginationType.Client) {
       return true;
     }
 
-    if (!instanceOfModifiableList(this)) {
-      return true;
-    }
-
-    const canBypassCheckDirty = await this.securityService.canBypassCheckDirty();
-    if (canBypassCheckDirty) {
-      return true;
-    }
-
-    if (!this.isDirty()) {
-      return true;
-    }
-
-    return this.dialogsService.openCancelDialog();
+    return this.securityService.canAbandonUnsavedChanges(this);
   }
 
   // using an arrow-function instead of a regular function to preserve the correct "this" when called from the row-limiter component context

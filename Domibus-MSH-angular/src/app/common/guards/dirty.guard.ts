@@ -20,24 +20,7 @@ export class DirtyGuard implements CanActivate, CanDeactivate<any> {
 
   async canDeactivate(component: any, currentRoute: ActivatedRouteSnapshot, currentState: RouterStateSnapshot, nextState?: RouterStateSnapshot) {
 
-    if (!component) {
-      return true;
-    }
-
-    if (!instanceOfModifiableList(component)) {
-      return true;
-    }
-
-    const canBypassCheckDirty = await this.securityService.canBypassCheckDirty();
-    if (canBypassCheckDirty) {
-      return true;
-    }
-
-    if (!component.isDirty()) {
-      return true;
-    }
-
-    return this.dialogsService.openCancelDialog();
+    return this.securityService.canAbandonUnsavedChanges(component);
   }
 
 }

@@ -163,9 +163,8 @@ export class AppComponent implements OnInit, OnDestroy {
 
   logout(event: Event): void {
     event.preventDefault();
-    this.setManuallyLoggedOutInThisTab();
-    this.sessionService.setExpiredSession(SessionState.EXPIRED_LOGGED_OUT);
     this.securityService.logout();
+    this.setManuallyLoggedOutInThisTab();
   }
 
   toggleMenu() {

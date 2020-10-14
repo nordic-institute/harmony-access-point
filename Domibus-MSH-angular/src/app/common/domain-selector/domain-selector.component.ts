@@ -109,24 +109,8 @@ export class DomainSelectorComponent implements OnInit {
   }
 
   private async canChangeDomain() {
-    if (!this.currentComponent) {
-      return true;
-    }
 
-    if (!instanceOfModifiableList(this.currentComponent)) {
-      return true;
-    }
-
-    const canBypassCheckDirty = await this.securityService.canBypassCheckDirty();
-    if (canBypassCheckDirty) {
-      return true;
-    }
-
-    if (!this.currentComponent.isDirty()) {
-      return true;
-    }
-
-    return this.dialogsService.openCancelDialog();
+    return this.securityService.canAbandonUnsavedChanges(this.currentComponent);
   }
 
 }
