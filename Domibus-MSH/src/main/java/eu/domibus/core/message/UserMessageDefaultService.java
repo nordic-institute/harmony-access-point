@@ -597,7 +597,7 @@ public class UserMessageDefaultService implements UserMessageService {
         LOG.trace("Deleting user messages [{}]", userMessageIds);
 
         List<String> signalMessageIds = messageInfoDao.findSignalMessageIds(userMessageIds);
-        LOG.debug("Deleting signal messages [{}]", signalMessageIds.size());
+        LOG.debug("Deleting [{}] signal messages", signalMessageIds.size());
         LOG.trace("Deleting signal messages [{}]", signalMessageIds);
         List<Long> receiptIds = signalMessageDao.findReceiptIdsByMessageIds(signalMessageIds);
         int deleteResult = messageInfoDao.deleteMessages(userMessageIds);
