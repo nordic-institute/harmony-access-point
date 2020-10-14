@@ -76,6 +76,8 @@ public class JMSMessageConstants {
     public static final String QUEUE_IN = JMS_PLUGIN_PROPERTY_PREFIX + "." + "queue.in";
     public static final String QUEUE_IN_CONCURRENCY = JMS_PLUGIN_PROPERTY_PREFIX + "." + "queue.in.concurrency";
 
+    public static final String MESSAGE_NOTIFICATIONS = JMS_PLUGIN_PROPERTY_PREFIX + "." + "messages.notifications";
+
 
 
 }

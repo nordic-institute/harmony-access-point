@@ -71,7 +71,7 @@
                                                         <xs:complexType>
                                                             <xs:attribute id="partyIdType" name="name"
                                                                           type="max255-non-empty-string" use="required"/>
-                                                            <xs:attribute name="value" type="xs:anyURI"
+                                                            <xs:attribute name="value" type="max1024-anyURI"
                                                                           use="required"/>
                                                         </xs:complexType>
                                                     </xs:element>
@@ -103,7 +103,7 @@
                                                               type="xs:string"/>
                                                 <xs:attribute name="userName" type="max255-non-empty-string"/>
                                                 <xs:attribute name="password" type="max255-non-empty-string"/>
-                                                <xs:attribute name="endpoint" type="xs:anyURI"
+                                                <xs:attribute name="endpoint" type="max1024-anyURI"
                                                               use="required"/>
                                                 <!-- NOT SUPPORTED YET -->
                                                 <xs:attribute
@@ -127,7 +127,7 @@
                                             <xs:complexType>
                                                 <xs:attribute name="name" type="max255-non-empty-string"
                                                               use="required"/>
-                                                <xs:attribute name="value" type="xs:anyURI"
+                                                <xs:attribute name="value" type="max1024-anyURI"
                                                               use="required"/>
                                                 <xs:attribute default="1" name="legs"
                                                               type="xs:int"/>
@@ -137,7 +137,7 @@
                                             <xs:complexType>
                                                 <xs:attribute name="name" type="max255-non-empty-string"
                                                               use="required"/>
-                                                <xs:attribute name="value" type="xs:anyURI"
+                                                <xs:attribute name="value" type="max1024-anyURI"
                                                               use="required"/>
                                             </xs:complexType>
                                         </xs:element>
@@ -218,12 +218,12 @@
                                             <xs:complexType>
                                                 <xs:attribute name="name" use="required"
                                                               type="max255-non-empty-string"/>
-                                                <xs:attribute name="cid" type="xs:string"
+                                                <xs:attribute name="cid" type="max255-string"
                                                               use="required"/>
                                                 <xs:attribute name="mimeType" type="max255-non-empty-string"/>
                                                 <xs:attribute name="inBody" type="xs:string"/>
                                                 <xs:attribute name="schemaFile" form="unqualified"
-                                                              type="xs:anyURI"/>
+                                                              type="max1024-anyURI"/>
                                                 <xs:attribute name="maxSize" type="xs:int"/>
                                                 <xs:attribute name="required" type="xs:boolean"
                                                               use="required"/>
@@ -376,7 +376,7 @@
                                                               use="required"/>
                                                 <xs:attribute name="retry" type="max255-non-empty-string"/>
                                                 <xs:attribute name="duplicateDetection"
-                                                              type="xs:string"/>
+                                                              type="xs:boolean"/>
                                             </xs:complexType>
                                         </xs:element>
                                         <xs:element maxOccurs="unbounded" name="reliability">
@@ -385,7 +385,7 @@
                                                               use="required"/>
                                                 <xs:attribute name="replyPattern" type="max255-non-empty-string"
                                                               use="required"/>
-                                                <xs:attribute name="nonRepudiation" type="max255-non-empty-string"
+                                                <xs:attribute name="nonRepudiation" type="xs:boolean"
                                                               use="required"/>
                                             </xs:complexType>
                                         </xs:element>
@@ -546,6 +546,12 @@
         <xs:restriction base="xs:string">
             <xs:minLength value="0"/>
             <xs:maxLength value="255"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="max1024-anyURI">
+        <xs:restriction base="xs:anyURI">
+            <xs:minLength value="0"/>
+            <xs:maxLength value="1024"/>
         </xs:restriction>
     </xs:simpleType>
     <xs:simpleType name="max10k-integer">

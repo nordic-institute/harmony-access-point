@@ -2,6 +2,7 @@ package eu.domibus.web.rest;
 
 import com.google.common.collect.Lists;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.core.alerts.model.common.AlertCriteria;
@@ -21,10 +22,10 @@ import org.junit.Test;
 
 import javax.xml.bind.ValidationException;
 import java.util.*;
-import java.util.function.Supplier;
+import java.util.function.LongSupplier;
+import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class AlertResourceTest {
     @Tested
@@ -44,6 +45,9 @@ public class AlertResourceTest {
 
     @Injectable
     DomainTaskExecutor domainTaskExecutor;
+
+    @Injectable
+    DomibusConfigurationService domibusConfigurationService;
 
     AlertCriteria alertCriteria;
     List<Alert> alerts;
@@ -366,10 +370,34 @@ public class AlertResourceTest {
         new Verifications(1) {{
             assertEquals(1, alertsRO.size());
             assertEquals(isSuperAdmin, alertsRO.get(0).isSuperAdmin());
-            csvServiceImpl.validateMaxRows(1, (Supplier<Long>) any);
+            csvServiceImpl.validateMaxRows(1, (LongSupplier) any);
             times = 1;
             alertService.countAlerts((AlertCriteria) any);
             times = 0;
         }};
+    }
+
+    @Test
+    public void test_getAlertTypesAsStrings() {
+        new Expectations() {{
+            domibusConfigurationService.isExtAuthProviderEnabled();
+            result = false;
+        }};
+
+        List<String> alertTypesAsStrings = alertResource.getAlertTypesAsStrings();
+        assertEquals(13, alertTypesAsStrings.size());
+        assertTrue(alertTypesAsStrings.containsAll(AlertResource.forbiddenAlertTypesExtAuthProvider.stream().map(alertType -> alertType.name()).collect(Collectors.toSet())));
+    }
+
+    @Test
+    public void test_getAlertTypesAsStrings_ExtAuthProvider() {
+        new Expectations() {{
+            domibusConfigurationService.isExtAuthProviderEnabled();
+            result = true;
+        }};
+
+        List<String> alertTypesAsStrings = alertResource.getAlertTypesAsStrings();
+        assertEquals(8, alertTypesAsStrings.size());
+        assertFalse(alertTypesAsStrings.containsAll(AlertResource.forbiddenAlertTypesExtAuthProvider.stream().map(alertType -> alertType.name()).collect(Collectors.toSet())));
     }
 }

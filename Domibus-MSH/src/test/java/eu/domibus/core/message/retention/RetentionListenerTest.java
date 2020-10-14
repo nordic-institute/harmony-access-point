@@ -4,24 +4,21 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
+import eu.domibus.api.security.functions.AuthenticatedProcedure;
 import eu.domibus.core.message.UserMessageDefaultService;
-import eu.domibus.core.message.retention.RetentionListener;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.messaging.MessageConstants;
-import mockit.Expectations;
-import mockit.Injectable;
-import mockit.Mocked;
-import mockit.Tested;
-import mockit.Verifications;
+import mockit.*;
 import mockit.integration.junit4.JMockit;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
 import java.util.Arrays;
 import java.util.List;
+
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RETENTION_WORKER_MESSAGE_ID_LIST_SEPARATOR;
 
@@ -61,7 +58,7 @@ public class RetentionListenerTest {
         }};
 
         // When
-        retentionListener.onMessage(message);
+        retentionListener.onMessagePrivate(message);
 
         // Then
         new Verifications() {{
@@ -83,7 +80,7 @@ public class RetentionListenerTest {
         }};
 
         // When
-        retentionListener.onMessage(message);
+        retentionListener.onMessagePrivate(message);
 
         // Then
         new Verifications() {{
@@ -100,7 +97,7 @@ public class RetentionListenerTest {
         }};
 
         // When
-        retentionListener.onMessage(message);
+        retentionListener.onMessagePrivate(message);
 
     }
 
@@ -109,16 +106,24 @@ public class RetentionListenerTest {
     public void onMessage_addsAuthentication(@Mocked DomibusLogger domibusLogger)  throws JMSException {
         // Given
         new Expectations() {{
-            authUtils.isUnsecureLoginAllowed(); result = false;
-            message.getStringProperty(MessageRetentionDefaultService.DELETE_TYPE); result = MessageDeleteType.SINGLE.name();
+            authUtils.runWithSecurityContext((AuthenticatedProcedure)any, anyString, anyString, (AuthRole)any);
         }};
 
         // When
         retentionListener.onMessage(message);
 
         // Then
-        new Verifications() {{
-            authUtils.setAuthenticationToSecurityContext(anyString, anyString, AuthRole.ROLE_ADMIN);
+        new FullVerifications() {{
+            AuthenticatedProcedure function;
+            String username;
+            String password;
+            AuthRole role;
+            authUtils.runWithSecurityContext(function = withCapture(),
+                    username=withCapture(), password=withCapture(), role=withCapture());
+            Assert.assertNotNull(function);
+            Assert.assertEquals("retention",username);
+            Assert.assertEquals("retention",password);
+            Assert.assertEquals(AuthRole.ROLE_ADMIN,role);
         }};
     }
 }

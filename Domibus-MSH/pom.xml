@@ -30,11 +30,6 @@
         <!-- Domibus modules -->
         <dependency>
             <groupId>eu.domibus</groupId>
-            <artifactId>domibus-angular</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>eu.domibus</groupId>
             <artifactId>domibus-plugin-api</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -58,11 +53,7 @@
             <artifactId>domibus-logging</artifactId>
             <scope>compile</scope>
         </dependency>
-        <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-ext-services-delegate</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+
         <dependency>
             <groupId>eu.domibus</groupId>
             <artifactId>domibus-ext-model</artifactId>

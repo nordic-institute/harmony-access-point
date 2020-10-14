@@ -1,5 +1,6 @@
 package eu.domibus.core.plugin.routing;
 
+import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
@@ -21,11 +22,10 @@ import eu.domibus.plugin.BackendConnector;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -71,11 +71,14 @@ public class RoutingService {
     @Autowired
     protected AuthUtils authUtils;
 
+    @Autowired
+    protected SignalService signalService;
+
     protected Map<String, IRoutingCriteria> criteriaMap;
     protected final Object backendFiltersCacheLock = new Object();
     protected volatile Map<Domain, List<BackendFilter>> backendFiltersCache = new HashMap<>();
 
-    @PostConstruct
+    @Transactional
     public void init() {
         if (CollectionUtils.isEmpty(backendConnectorProvider.getBackendConnectors())) {
             throw new ConfigurationException("No Plugin available! Please configure at least one backend plugin in order to run domibus");
@@ -83,13 +86,17 @@ public class RoutingService {
 
         if (domibusConfigurationService.isSingleTenantAware()) {
             LOG.debug("Creating plugin backend filters in Non MultiTenancy environment");
-            createBackendFilters();
+            authUtils.runWithSecurityContext(this::createBackendFilters,
+                    "domibus", "domibus", AuthRole.ROLE_AP_ADMIN, true );
         } else {
             // Get All Domains
             final List<Domain> domains = domainService.getDomains();
             LOG.debug("Creating plugin backend filters for all the domains in MultiTenancy environment");
             for (Domain domain : domains) {
-                domainTaskExecutor.submit(this::createBackendFilters, domain);
+                Runnable wrappedCreateBackendFilters = () -> authUtils.runWithSecurityContext(
+                        this::createBackendFilters, "domibus",
+                        "domibus", AuthRole.ROLE_AP_ADMIN, true );
+                domainTaskExecutor.submit( wrappedCreateBackendFilters, domain);
             }
         }
 
@@ -129,10 +136,6 @@ public class RoutingService {
      */
     protected void createBackendFilters() {
         List<BackendFilterEntity> backendFilterEntitiesInDB = backendFilterDao.findAll();
-
-        //Setting security context authentication to have user details in audit logs when create message filters
-        authUtils.setAuthenticationToSecurityContext("domibus", "domibus", AuthRole.ROLE_AP_ADMIN);
-
         List<String> pluginToAdd = backendConnectorProvider.getBackendConnectors()
                 .stream()
                 .map(BackendConnector::getName)
@@ -207,7 +210,6 @@ public class RoutingService {
 
     }
 
-    @CacheEvict(value = "backendFilterCache", allEntries = true)
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_AP_ADMIN')")
     public void updateBackendFilters(final List<BackendFilter> filters) {
         validateFilters(filters);
@@ -220,6 +222,7 @@ public class RoutingService {
         backendFilterDao.update(backendFilterEntities);
 
         invalidateBackendFiltersCache();
+        signalService.signalMessageFiltersUpdated();
     }
 
     protected BackendFilter getMatchingBackendFilter(final List<BackendFilter> backendFilters, final Map<String, IRoutingCriteria> criteriaMap, final UserMessage userMessage) {

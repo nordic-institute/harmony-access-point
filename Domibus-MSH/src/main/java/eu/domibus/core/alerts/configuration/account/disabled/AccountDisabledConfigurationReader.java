@@ -3,6 +3,7 @@ package eu.domibus.core.alerts.configuration.account.disabled;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.core.alerts.configuration.AlertConfigurationReader;
 import eu.domibus.core.alerts.configuration.UserAuthenticationConfiguration;
 import eu.domibus.core.alerts.model.common.AlertLevel;
 import eu.domibus.core.alerts.model.common.AlertType;
@@ -18,7 +19,9 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author Ion Perpegel
  * @since 4.2
  */
-public abstract class AccountDisabledConfigurationReader implements UserAuthenticationConfiguration {
+public abstract class AccountDisabledConfigurationReader
+        implements AlertConfigurationReader<AccountDisabledModuleConfiguration>, UserAuthenticationConfiguration {
+
     private static final Logger LOG = DomibusLoggerFactory.getLogger(AccountDisabledConfigurationReader.class);
 
     @Autowired
@@ -30,7 +33,7 @@ public abstract class AccountDisabledConfigurationReader implements UserAuthenti
     @Autowired
     AlertConfigurationService alertConfigurationService;
 
-    protected abstract AlertType getAlertType();
+    public abstract AlertType getAlertType();
 
     protected abstract String getModuleName();
 
@@ -42,6 +45,7 @@ public abstract class AccountDisabledConfigurationReader implements UserAuthenti
 
     protected abstract String getAlertEmailSubjectPropertyName();
 
+    @Override
     public AccountDisabledModuleConfiguration readConfiguration() {
 
         Domain currentDomain = domainContextProvider.getCurrentDomainSafely();

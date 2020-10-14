@@ -236,7 +236,7 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 		soft.assertAll();
 	}
 	
-	@Test(description = "PU-18", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "PU-36", groups = {"multiTenancy", "singleTenancy"})
 	public void filterPluginUserList() throws Exception {
 		List<String> usernames = new ArrayList<>();
 		for (int i = 0; i < 5; i++) {
@@ -269,7 +269,7 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 	
 	/* PU-15 - Admin tries to create new user with username less than 3 letters long */
 //	known failure, was decided it will not be fixed
-	@Test(description = "PU-15", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "PU-15", groups = {"multiTenancy", "singleTenancy"})
 	public void pluginUsernameTooShort() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		log.info("testing username with only 2 letters");
@@ -437,7 +437,7 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 	}
 	
 	/* PU-26 - Click All/None link */
-	@Test(description = "PU-25", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "PU-26", groups = {"multiTenancy", "singleTenancy"})
 	public void checkAllNoneLnk() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		PluginUsersPage page = new PluginUsersPage(driver);
@@ -513,11 +513,14 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 		
 		PluginUsersPage page = new PluginUsersPage(driver);
 		page.getSidebar().goToPage(PAGES.PLUGIN_USERS);
+		page.grid().waitForRowsToLoad();
 		
 		List<String> authType = page.filters.getAuthTypeSelect().getOptionsTexts();
 		for (String auth : authType) {
 			// check scenario for both types of plugin users
 			page.filters.getAuthTypeSelect().selectOptionByText(auth);
+			page.grid().waitForRowsToLoad();
+			
 			log.info("checking Cancel button state");
 			soft.assertFalse(page.getCancelBtn().isEnabled(), "Cancel button is disabled on page load");
 			
@@ -532,9 +535,11 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 				log.info("filling form for new cert user for CERTIFICATION auth type :" + certUserName);
 				page.newCertUser(certUserName, DRoles.ADMIN);
 			}
+			
 			page.grid().waitForRowsToLoad();
 			log.info("checking Cancel button state");
 			soft.assertTrue(page.getCancelBtn().isEnabled(), "Cancel button is enabled after new user creation");
+			
 			page.getSaveBtn().click();
 			new Dialog(driver).confirm();
 			

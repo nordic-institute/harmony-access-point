@@ -145,4 +145,20 @@ public class SignalServiceImplTest {
         }};
     }
 
+    @Test
+    public void signalMessageFiltersUpdated() {
+        new Expectations(signalService) {{
+            domainContextProvider.getCurrentDomain().getCode();
+            result = "default";
+        }};
+
+        signalService.signalMessageFiltersUpdated();
+
+        new Verifications() {{
+            Map<String, String> commandPropertiesActual;
+            signalService.sendMessage(commandPropertiesActual = withCapture());
+            Assert.assertNotNull(commandPropertiesActual);
+            Assert.assertEquals(Command.MESSAGE_FILTER_UPDATE, commandPropertiesActual.get(Command.COMMAND));
+        }};
+    }
 }

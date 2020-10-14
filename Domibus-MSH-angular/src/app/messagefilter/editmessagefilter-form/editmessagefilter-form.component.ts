@@ -29,6 +29,15 @@ export class EditMessageFilterComponent extends EditPopupBaseComponent {
   entity: BackendFilterEntry;
   criteria: any;
 
+  partyPattern = '[a-zA-Z0-9_:-]+:[a-zA-Z0-9_:-]+';
+  partyPatternMessage = 'You should follow the rule: ' + this.partyPattern;
+
+  actionPattern = '[a-zA-Z0-9_:-]+';
+  actionPatternMessage = 'You should follow the rule: ' + this.actionPattern;
+
+  servicePattern = '[a-zA-Z0-9_:\\\\./-]+:[a-zA-Z0-9_:-]+';
+  servicePatternMessage = 'You should follow the rule: ' + this.servicePattern;
+
   constructor(public dialogRef: MatDialogRef<EditMessageFilterComponent>, @Inject(MAT_DIALOG_DATA) public data: any,
               private cdr: ChangeDetectorRef) {
     super(dialogRef, data);
@@ -74,7 +83,9 @@ export class EditMessageFilterComponent extends EditPopupBaseComponent {
   }
 
   isFormDisabled() {
-    if (!this.editForm) return true;
+    if (!this.editForm) {
+      return true;
+    }
     return this.editForm.invalid || (!this.editForm.dirty && this.entity.persisted);
   }
 }

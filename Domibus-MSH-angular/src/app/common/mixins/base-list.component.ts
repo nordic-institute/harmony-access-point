@@ -43,7 +43,7 @@ export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
   }
 
   public get name(): string {
-    return this.constructor.name;
+    return undefined;
   }
 
   protected get GETUrl(): string {

@@ -167,7 +167,8 @@ public class ReliabilityChecker {
                     }
 
                     final List<String> referencesFromSecurityHeader = nonRepudiationChecker.getNonRepudiationDetailsFromSecurityInfoNode(request.getSOAPHeader().getElementsByTagNameNS(WSConstants.SIG_NS, WSConstants.SIG_INFO_LN).item(0));
-                    final List<String> referencesFromNonRepudiationInformation = nonRepudiationChecker.getNonRepudiationDetailsFromReceipt(response.getSOAPHeader().getElementsByTagNameNS(NonRepudiationConstants.NS_NRR, NonRepudiationConstants.NRR_LN).item(0));
+                    final Node nonRepudiationDetailsNode = getNonRepudiationDetailsNodeFromReceipt(response, messageId);
+                    final List<String> referencesFromNonRepudiationInformation = nonRepudiationChecker.getNonRepudiationDetailsFromReceipt(nonRepudiationDetailsNode);
 
                     if (!nonRepudiationChecker.compareUnorderedReferenceNodeLists(referencesFromSecurityHeader, referencesFromNonRepudiationInformation)) {
                         LOG.businessError(DomibusMessageCode.BUS_RELIABILITY_INVALID_NOT_MATCHING_THE_MESSAGE, soapPartToString(response), soapPartToString(request));
@@ -197,6 +198,26 @@ public class ReliabilityChecker {
         LOG.businessError(DomibusMessageCode.BUS_RELIABILITY_GENERAL_ERROR, messageId);
         return matcher.fails();
 
+    }
+
+    /**
+     * Method returns NonRepudiationDetails element or EBMS3 exception if element does not exists
+     * @param response: soap as4 NonRepudiation receipt
+     * @param messageId: outgoing message is
+     * @return NonRepudiationDetails node
+     * @throws EbMS3Exception: element NonRepudiationDetails does not exist in response
+     * @throws SOAPException: error when parsing response
+     */
+    protected Node getNonRepudiationDetailsNodeFromReceipt(final SOAPMessage response, final String messageId) throws EbMS3Exception, SOAPException {
+        final NodeList nodeList = response.getSOAPHeader().getElementsByTagNameNS(NonRepudiationConstants.NS_NRR, NonRepudiationConstants.NRR_LN);
+        if (nodeList.getLength() == 0 || nodeList.item(0) == null) {
+            LOG.businessError(DomibusMessageCode.BUS_RELIABILITY_INVALID_WITH_NO_SECURITY_HEADER, messageId);
+            EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0302, "Invalid NonRepudiationInformation: No element found", messageId, null);
+            ex.setMshRole(MSHRole.SENDING);
+            ex.setSignalMessageId(messageId);
+            throw ex;
+        }
+        return nodeList.item(0);
     }
 
 

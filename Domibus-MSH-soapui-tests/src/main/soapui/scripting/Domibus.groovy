@@ -324,18 +324,36 @@ def findNumberOfDomain(String inputSite) {
         return domID as String
     }
 
-        //---------------------------------------------------------------------------------------------------------------------------------
-        // Clean all the messages from all defined for domains databases
-        def cleanDatabaseAll() {
+//---------------------------------------------------------------------------------------------------------------------------------
+    // Clean all the messages from all defined for domains databases
+    def cleanDatabaseAll() {
         debugLog("  ====  Calling \"cleanDatabaseAll\".", log)
         openAllDbConnections()
         cleanDatabaseForDomains(allDomainsProperties.keySet())
         closeAllDbConnections()
     }
-
 //---------------------------------------------------------------------------------------------------------------------------------
-        // Clean all the messages from the DB for provided list of domain defined by domain IDs
-        def cleanDatabaseForDomains(domainIdList) {
+	// Clean certificate from table 
+    def cleanCertificateEntries(String domainName, String certAlias) {
+        debugLog("  ====  Calling \"cleanCertificateEntries\".", log);
+		
+		debugLog("   cleanCertificateEntries  [][]  Target domain: "+domainName, log);
+		debugLog("   cleanCertificateEntries  [][]  Target certificate alias: "+certAlias, log);
+
+        def sqlQueriesList = [
+            "delete from TB_CERTIFICATE where LOWER(CERTIFICATE_ALIAS) = LOWER('${certAlias}')"
+        ] as String[]
+		
+		openAllDbConnections();
+		def domain = retrieveDomainId(domainName)
+        debugLog("  cleanCertificateEntries  [][]  Clean certificate ${certAlias} for domain ID: ${domain}", log)
+        executeListOfSqlQueries(sqlQueriesList, domain)		
+		closeAllDbConnections();
+
+    }
+//---------------------------------------------------------------------------------------------------------------------------------
+    // Clean all the messages from the DB for provided list of domain defined by domain IDs
+    def cleanDatabaseForDomains(domainIdList) {
         debugLog("  ====  Calling \"cleanDatabaseForDomains\" ${domainIdList}.", log)
         def sqlQueriesList = [
             "delete from TB_RAWENVELOPE_LOG",
@@ -1182,7 +1200,7 @@ def findNumberOfDomain(String inputSite) {
 		
 		// Create plugin user for authentication
 		if(pluginUsername.toLowerCase().equals("user")){
-			pluginUsername="userPl"+(new Date().format("dd-HHmmss"));
+			pluginUsername="userPl"+(new Date().format("ddHHmmss"));
 			addPluginUser(side, context, log, domainValue, userRole, pluginUsername, pluginPassword,"urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1",true,authUser,authPwd);
 		}
 		
@@ -2155,7 +2173,7 @@ static def ifWindowsEscapeJsonString(json) {
         if (inputCommand) {
             proc = inputCommand.execute()
             if (proc != null) {
-                proc.consumeProcessOutput(outputCatcher, errorCatcher);
+                //proc.consumeProcessOutput(outputCatcher, errorCatcher);
                 proc.waitForProcessOutput(outputCatcher, errorCatcher);
             }
         }

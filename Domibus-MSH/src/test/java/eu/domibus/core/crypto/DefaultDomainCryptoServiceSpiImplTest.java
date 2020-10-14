@@ -11,7 +11,10 @@ import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.wss4j.common.crypto.Merlin;
 import org.apache.wss4j.common.ext.WSSecurityException;
-import org.junit.*;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
@@ -86,7 +89,7 @@ public class DefaultDomainCryptoServiceSpiImplTest {
     public void throwsExceptionWhenFailingToLoadMerlinProperties_WSSecurityException(@Mocked Merlin merlin) throws WSSecurityException, IOException {
         // Given
         thrown.expect(CryptoException.class);
-        thrown.expectMessage("Error loading properties");
+        thrown.expectMessage("Error occurred when loading the properties of TrustStore/KeyStore");
 
         new Expectations() {{
             merlin.loadProperties((Properties) any, (ClassLoader) any, null);
@@ -101,7 +104,7 @@ public class DefaultDomainCryptoServiceSpiImplTest {
     public void throwsExceptionWhenFailingToLoadMerlinProperties_IOException(@Mocked Merlin merlin) throws WSSecurityException, IOException {
         // Given
         thrown.expect(CryptoException.class);
-        thrown.expectMessage("Error loading properties");
+        thrown.expectMessage("Error occurred when loading the properties of TrustStore/KeyStore");
 
         new Expectations() {{
             merlin.loadProperties((Properties) any, (ClassLoader) any, null);

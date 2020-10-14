@@ -3,7 +3,9 @@ package eu.domibus.core.alerts.configuration.password;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.core.alerts.configuration.AlertConfigurationReader;
 import eu.domibus.core.alerts.configuration.UserAuthenticationConfiguration;
+import eu.domibus.core.alerts.configuration.login.LoginFailureModuleConfiguration;
 import eu.domibus.core.alerts.model.common.AlertLevel;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.service.AlertConfigurationService;
@@ -19,7 +21,9 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  * @author Ion Perpegel
  * @since 4.2
  */
-public abstract class PasswordExpirationAlertConfigurationReader implements UserAuthenticationConfiguration {
+public abstract class PasswordExpirationAlertConfigurationReader
+        implements AlertConfigurationReader<PasswordExpirationAlertModuleConfiguration>, UserAuthenticationConfiguration {
+
     private static final Logger LOG = DomibusLoggerFactory.getLogger(PasswordExpirationAlertConfigurationReader.class);
 
     @Autowired
@@ -31,7 +35,8 @@ public abstract class PasswordExpirationAlertConfigurationReader implements User
     @Autowired
     AlertConfigurationService alertConfigurationService;
 
-    protected abstract AlertType getAlertType();
+    @Override
+    public abstract AlertType getAlertType();
 
     public PasswordExpirationAlertModuleConfiguration readConfiguration() {
         Domain domain = domainContextProvider.getCurrentDomainSafely();

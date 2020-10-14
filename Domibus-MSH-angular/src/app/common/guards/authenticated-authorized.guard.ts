@@ -1,8 +1,7 @@
 ﻿import {Injectable} from '@angular/core';
-import {ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot} from '@angular/router';
+import {ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot, UrlTree} from '@angular/router';
 import {SecurityService} from '../../security/security.service';
 import {DomibusInfoService} from '../appinfo/domibusinfo.service';
-import {AlertService} from '../alert/alert.service';
 import {SessionService} from '../../security/session.service';
 import {SessionState} from '../../security/SessionState';
 
@@ -16,49 +15,56 @@ export class AuthenticatedAuthorizedGuard implements CanActivate {
 
   constructor(private router: Router, private securityService: SecurityService,
               private domibusInfoService: DomibusInfoService,
-              private alertService: AlertService,
               private sessionService: SessionService) {
   }
 
   async canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
-    let canActivate = false;
-
-    try {
-      let isUserFromExternalAuthProvider = await this.domibusInfoService.isExtAuthProviderEnabled();
-      let isAuthenticated = await this.securityService.isAuthenticated();
-
-      if (isAuthenticated) {
-        canActivate = true;
-
-        // check also authorization
-        const allowedRoles = route.data.checkRoles;
-        if (!!allowedRoles) { // only if there are roles to check
-          const isAuthorized = this.securityService.isAuthorized(allowedRoles);
-          if (!isAuthorized) {
-            canActivate = false;
-
-            this.router.navigate([isUserFromExternalAuthProvider ? '/notAuthorized' : '/']);
-          }
-        }
-      } else {
-        // mark the session as expired
-        this.sessionService.setExpiredSession(SessionState.EXPIRED_INACTIVITY_OR_ERROR);
-
-        // not logged in so redirect to login page with the return url
-        // todo: the call to clear is not cohesive, should refactor
-        this.securityService.clearSession();
-        // todo: the redirect is duplicated, should refactor
-        if (!isUserFromExternalAuthProvider) {
-          this.router.navigate(['/login'], {queryParams: {returnUrl: state.url}});
-        } else {
-          // EU Login redirect to logout
-          this.router.navigate(['/logout']);
-        }
-      }
-    } catch (error) {
-      this.alertService.exception('Error while checking authentication:', error);
+    const isAuthenticated = await this.securityService.isAuthenticated();
+    if (!isAuthenticated) {
+      this.handleNotAuthenticated();
+      return this.getNotAuthenticatedRoute(state);
     }
-    return canActivate;
+
+    // check also authorization
+    const isAuthorized = await this.isAuthorized(route);
+    if (!isAuthorized) {
+      return this.getNotAuthorizedRoute();
+    }
+
+    return true;
   }
 
+  private async isAuthorized(route: ActivatedRouteSnapshot): Promise<boolean> {
+    let allowedRoles;
+    const routeData = route.data;
+    if (!!routeData.checkRolesFn) {
+      allowedRoles = await routeData.checkRolesFn.call();
+    } else {
+      allowedRoles = routeData.checkRoles
+    }
+    return this.securityService.isCurrentUserInRole(allowedRoles);
+  }
+
+  private getNotAuthorizedRoute(): UrlTree {
+    // needs to be a route without authorization guard, otherwise it will loop forever
+    return this.router.parseUrl('/notAuthorized');
+  }
+
+  private handleNotAuthenticated() {
+    // if previously connected then the session went expired
+    if (this.securityService.getCurrentUser()) { // todo add date condition
+      this.sessionService.setExpiredSession(SessionState.EXPIRED_INACTIVITY_OR_ERROR);
+      this.securityService.clearSession();
+    }
+  }
+
+  private async getNotAuthenticatedRoute(state: RouterStateSnapshot): Promise<UrlTree> {
+    let isExtAuthProvider = await this.domibusInfoService.isExtAuthProviderEnabled();
+    // not logged in so redirect to login page with the return url
+    if (!isExtAuthProvider) {
+      return this.router.createUrlTree(['/login'], {queryParams: {returnUrl: state.url}});
+    }
+    // EU Login redirect to logout
+    return this.router.createUrlTree(['/logout']);
+  }
 }

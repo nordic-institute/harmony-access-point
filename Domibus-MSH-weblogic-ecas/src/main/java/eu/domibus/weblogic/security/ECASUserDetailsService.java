@@ -1,15 +1,15 @@
 package eu.domibus.weblogic.security;
 
 
-import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthRole;
-import eu.domibus.web.security.UserDetail;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.web.security.UserDetail;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
@@ -146,12 +146,15 @@ public class ECASUserDetailsService implements AuthenticationUserDetailsService<
 
         //chose highest privilege among LDAP user groups
         final GrantedAuthority grantedAuthority = chooseHighestUserGroup(userGroupsStr);
+        LOG.debug("highest role is [{}]", grantedAuthority != null ? grantedAuthority.getAuthority() : StringUtils.EMPTY);
 
         Domain domain = domibusConfigurationService.isMultiTenantAware() ? domainService.getDomain(domainCodeFromLDAP)
                 : DomainService.DEFAULT_DOMAIN;
+        LOG.debug("assigned domain is [{}]", domain);
 
         if (null != grantedAuthority && null != domain) {
             //we set the groups only if LDAP groups are mapping on both privileges and domain code
+            LOG.debug("granted role is [{}]", grantedAuthority.getAuthority());
             userGroups.add(grantedAuthority);
         }
         LOG.debug("userDetail  userGroups={}", userGroups);

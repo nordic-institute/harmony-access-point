@@ -12,7 +12,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static junit.framework.TestCase.assertNotNull;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Ion Perpegel
@@ -28,20 +29,27 @@ public class UserRoleDaoImplTestIT extends AbstractIT {
     @Test
     @Transactional
     @Rollback
-    public void listRoles() throws Exception {
-        UserRole role = createUserRole("USER_ROLE_1");
+    public void listRoles() {
+        createUserRole("USER_ROLE_1");
 
         List<UserRole> roles = userRoleDao.listRoles();
 
         assertEquals(1, roles.size());
-        assertEquals("USER_ROLE_1", roles.get(0).getName());
+        assertEquals(1, roles.size());
+        UserRole userRole = roles.get(0);
+        assertEquals("USER_ROLE_1", userRole.getName());
+        assertNotNull(userRole.getCreationTime());
+        assertNotNull(userRole.getModificationTime());
+        assertEquals(userRole.getCreationTime(), userRole.getModificationTime());
+        assertNotNull(userRole.getCreatedBy());
+        assertNotNull(userRole.getModifiedBy());
     }
 
     @Test
     @Transactional
     @Rollback
-    public void findByName() throws Exception {
-        UserRole role = createUserRole("USER_ROLE_2");
+    public void findByName() {
+        createUserRole("USER_ROLE_2");
 
         UserRole found = userRoleDao.findByName("USER_ROLE_2");
 
@@ -49,10 +57,9 @@ public class UserRoleDaoImplTestIT extends AbstractIT {
         assertEquals("USER_ROLE_2", found.getName());
     }
 
-    private UserRole createUserRole(String name) {
+    private void createUserRole(String name) {
         UserRole userRole = new UserRole(name);
         entityManager.persist(userRole);
-        return userRole;
     }
 
 }

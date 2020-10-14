@@ -9,7 +9,6 @@ import java.util.Map;
  * @since 4.1.1
  */
 public interface DomibusPropertyMetadataManagerSPI {
-
     /**
      * Get all the properties metadata that support changing at runtime
      *
@@ -132,6 +131,7 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_SEND_MESSAGE_ATTEMPT_AUDIT_ACTIVE = "domibus.sendMessage.attempt.audit.active";
     String DOMIBUS_FOURCORNERMODEL_ENABLED = "domibus.fourcornermodel.enabled";
     String DOMIBUS_LOGGING_PAYLOAD_PRINT = "domibus.logging.payload.print";
+    String DOMIBUS_LOGGING_METADATA_PRINT = "domibus.logging.metadata.print";
     String DOMIBUS_LOGGING_EBMS3_ERROR_PRINT = "domibus.logging.ebms3.error.print";
     String DOMIBUS_LOGGING_CXF_LIMIT = "domibus.logging.cxf.limit";
     String DOMIBUS_ATTACHMENT_TEMP_STORAGE_LOCATION = "domibus.attachment.temp.storage.location";
@@ -326,5 +326,6 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_METRICS_MONITOR_JMS_QUEUES_SHOW_DLQ_ONLY = "domibus.metrics.monitor.jms.queues.show.dlq.only";
     String DOMIBUS_SCHEMAFACTORY = "domibus.javax.xml.validation.SchemaFactory";
     String DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES = "domibus.ui.resend.action.enabled.received.minutes";
+    String DOMIBUS_DISPATCHER_TIMEOUT = "domibus.dispatcher.timeout";
 
 }

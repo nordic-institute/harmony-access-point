@@ -16,6 +16,7 @@ import FilterableListMixin from '../common/mixins/filterable-list.mixin';
 import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
 import {ClientPageableListMixin} from '../common/mixins/pageable-list.mixin';
 import {ApplicationContextService} from '../common/application-context.service';
+import {ComponentName} from '../common/component-name-decorator';
 
 @Component({
   moduleId: module.id,
@@ -25,7 +26,7 @@ import {ApplicationContextService} from '../common/application-context.service';
     {provide: MAT_CHECKBOX_CLICK_ACTION, useValue: 'check'}
   ]
 })
-
+@ComponentName('Users')
 export class UserComponent extends mix(BaseListComponent)
   .with(FilterableListMixin, ModifiableListMixin, ClientPageableListMixin)
   implements OnInit, AfterViewInit, AfterViewChecked {
@@ -49,6 +50,7 @@ export class UserComponent extends mix(BaseListComponent)
   editedUser: UserResponseRO;
   areRowsDeleted: boolean;
   deletedStatuses: any[];
+  allUsers: UserResponseRO[];
 
   constructor(private applicationService: ApplicationContextService, private http: HttpClient, private userService: UserService,
               public dialog: MatDialog, private dialogsService: DialogsService, private userValidatorService: UserValidatorService,
@@ -69,10 +71,6 @@ export class UserComponent extends mix(BaseListComponent)
     this.getUserRoles();
     this.areRowsDeleted = false;
     this.filterData();
-  }
-
-  public get name(): string {
-    return 'Users';
   }
 
   async ngAfterViewInit() {
@@ -155,17 +153,37 @@ export class UserComponent extends mix(BaseListComponent)
   }
 
   async getUsers(): Promise<any> {
-    return this.userService.getUsers(this.activeFilter).toPromise().then(async users => {
-      await this.userService.checkConfiguredCorrectlyForMultitenancy(users);
+    return this.userService.getUsers()
+      .then(async allUsers => {
+        this.allUsers = allUsers;
+        let users = allUsers.filter(this.applyFilter(this.activeFilter));
 
-      await this.setDomain(users);
+        await this.userService.checkConfiguredCorrectlyForMultitenancy(users);
 
-      super.rows = users;
-      super.count = users.length;
+        await this.setDomain(users);
 
-      this.areRowsDeleted = false;
-      this.disableSelection();
-    });
+        super.rows = users;
+        super.count = users.length;
+
+        this.areRowsDeleted = false;
+        this.disableSelection();
+      });
+  }
+
+  private applyFilter(filter: UserSearchCriteria) {
+    return (user) => {
+      let crit1 = true, crit2 = true, crit3 = true;
+      if (filter.userName) {
+        crit1 = user.userName === filter.userName;
+      }
+      if (!filter.deleted_notSet) {
+        crit2 = user.deleted === filter.deleted;
+      }
+      if (filter.authRole) {
+        crit3 = user.roles === filter.authRole;
+      }
+      return crit1 && crit2 && crit3;
+    }
   }
 
   private async setDomain(users: UserResponseRO[]) {
@@ -232,6 +250,7 @@ export class UserComponent extends mix(BaseListComponent)
     }).afterClosed().subscribe(ok => {
       if (ok) {
         super.rows = [...this.rows, this.editedUser];
+        this.allUsers.push(this.editedUser);
         super.count = this.count + 1;
         this.currentUser = this.editedUser;
       } else {
@@ -295,6 +314,7 @@ export class UserComponent extends mix(BaseListComponent)
     for (const itemToDelete of users) {
       if (itemToDelete.status === UserState[UserState.NEW]) {
         this.rows.splice(this.rows.indexOf(itemToDelete), 1);
+        this.allUsers.splice(this.allUsers.indexOf(itemToDelete), 1);
       } else {
         itemToDelete.status = UserState[UserState.REMOVED];
         itemToDelete.deleted = true;
@@ -311,15 +331,17 @@ export class UserComponent extends mix(BaseListComponent)
   }
 
   async doSave(): Promise<any> {
-    const isValid = this.userValidatorService.validateUsers(this.rows);
-    if (!isValid) {
-      return false;
-    }
+    try {
+      this.userValidatorService.validateUsers(this.allUsers);
 
-    const modifiedUsers = this.rows.filter(el => el.status !== UserState[UserState.PERSISTED]);
-    return this.http.put(UserComponent.USER_USERS_URL, modifiedUsers).toPromise().then(() => {
-      this.loadServerData();
-    });
+      const modifiedUsers = this.rows.filter(el => el.status !== UserState[UserState.PERSISTED]);
+      return this.http.put(UserComponent.USER_USERS_URL, modifiedUsers).toPromise().then(() => {
+        this.loadServerData();
+      });
+    } catch (ex) {
+      this.alertService.exception('Cannot save users:', ex);
+      return Promise.reject(ex);
+    }
   }
 
   get csvUrl(): string {

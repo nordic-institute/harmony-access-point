@@ -34,10 +34,11 @@ public class SendRetryWorker extends DomibusQuartzJobBean {
 
     @Override
     protected void executeJob(final JobExecutionContext context, final Domain domain) throws JobExecutionException {
-        if(!authUtils.isUnsecureLoginAllowed()) {
-            authUtils.setAuthenticationToSecurityContext("retry_user", "retry_password");
-        }
+        authUtils.runWithSecurityContext(this::executeJob,
+                    "retry_user", "retry_password");
+    }
 
+    protected void executeJob(){
         try {
             final List<String> messagesNotAlreadyQueued = retryService.getMessagesNotAlreadyScheduled();
 
@@ -47,7 +48,5 @@ public class SendRetryWorker extends DomibusQuartzJobBean {
         } catch (Exception e) {
             LOG.error("Error while enqueueing messages.", e);
         }
-
-
     }
 }

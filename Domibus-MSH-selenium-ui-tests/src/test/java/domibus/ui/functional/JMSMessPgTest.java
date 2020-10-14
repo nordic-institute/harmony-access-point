@@ -242,11 +242,12 @@ public class JMSMessPgTest extends SeleniumTest {
 		JMSMonitoringPage page = new JMSMonitoringPage(driver);
 		log.info("Login into application and navigate to JMS Monitoring page");
 		page.getSidebar().goToPage(PAGES.JMS_MONITORING);
+		page.grid().waitForRowsToLoad();
 		
 		log.info("Choose domain name from page title");
 		String domain = selectRandomDomain();
 		
-		page.filters().getJmsQueueSelect().selectOptionByText(q);
+		page.filters().getJmsQueueSelect().selectQueueByName(q);
 		
 		log.info("select any message queue having some messages");
 		log.info("wait for grid row to load");
@@ -285,6 +286,7 @@ public class JMSMessPgTest extends SeleniumTest {
 		SoftAssert soft = new SoftAssert();
 		
 		String q = rest.jms().getRandomQNameWithMessages();
+		log.debug("found queue: {}", q);
 		if (StringUtils.isEmpty(q)) {
 			throw new SkipException("no queue has messages");
 		}
@@ -292,10 +294,12 @@ public class JMSMessPgTest extends SeleniumTest {
 		JMSMonitoringPage page = new JMSMonitoringPage(driver);
 		log.info("Login into application and navigate to JMS Monitoring page");
 		page.getSidebar().goToPage(PAGES.JMS_MONITORING);
+		page.grid().waitForRowsToLoad();
 		
 		String domain = page.getDomainFromTitle();
 		
-		page.filters().getJmsQueueSelect().selectOptionByText(q);
+//		page.filters().getJmsQueueSelect().selectOptionByText(q);
+		page.filters().getJmsQueueSelect().selectQueueByName(q);
 		
 		log.info("select any message queue having some messages");
 		log.info("wait for grid row to load");
@@ -320,33 +324,6 @@ public class JMSMessPgTest extends SeleniumTest {
 		soft.assertAll();
 	}
 	
-	/* This method will verify data of Received Upto field*/
-	@Test(description = "JMS-21", groups = {"multiTenancy", "singleTenancy"})
-	public void checkReceivedUpTo() throws Exception {
-		SoftAssert soft = new SoftAssert();
-		
-		String domain = selectRandomDomain();
-		
-		JMSMonitoringPage page = new JMSMonitoringPage(driver);
-		page.getSidebar().goToPage(PAGES.JMS_MONITORING);
-		
-		log.info("getting expectyed date");
-		Calendar cal = Calendar.getInstance();
-		cal.set(Calendar.HOUR_OF_DAY, 23);
-		cal.set(Calendar.MINUTE, 59);
-		Date date = cal.getTime();
-		String expectedDateStr = TestRunData.DATEWIDGET_DATE_FORMAT.format(date).trim();
-		log.debug("expected date = " + expectedDateStr);
-		
-		String pageDateStr = page.filters().getJmsToDatePicker().getSelectedDate();
-		log.info("Got date str from page: " + pageDateStr);
-		
-		log.info("checking dates");
-		soft.assertEquals(pageDateStr, expectedDateStr, "Date string is as expected");
-		
-		soft.assertAll();
-		
-	}
 	
 	/* This method will verify scenario of jms message deletion on domain change*/
 	@Test(description = "JMS-12", groups = {"multiTenancy"})
@@ -364,7 +341,8 @@ public class JMSMessPgTest extends SeleniumTest {
 		
 		String domain = page.getDomainFromTitle();
 		
-		page.filters().getJmsQueueSelect().selectOptionByText(q);
+		page.grid().waitForRowsToLoad();
+		page.filters().getJmsQueueSelect().selectQueueByName(q);
 		
 		log.info("select any message queue having some messages");
 		log.info("wait for grid row to load");
@@ -406,6 +384,36 @@ public class JMSMessPgTest extends SeleniumTest {
 		
 		soft.assertAll();
 	}
+	
+	/* This method will verify data of Received Upto field*/
+	@Test(description = "JMS-21", groups = {"multiTenancy", "singleTenancy"})
+	public void checkReceivedUpTo() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		
+		String domain = selectRandomDomain();
+		
+		JMSMonitoringPage page = new JMSMonitoringPage(driver);
+		page.getSidebar().goToPage(PAGES.JMS_MONITORING);
+		page.grid().waitForRowsToLoad();
+		
+		log.info("getting expectyed date");
+		Calendar cal = Calendar.getInstance();
+		cal.set(Calendar.HOUR_OF_DAY, 23);
+		cal.set(Calendar.MINUTE, 59);
+		Date date = cal.getTime();
+		String expectedDateStr = TestRunData.DATEWIDGET_DATE_FORMAT.format(date).trim();
+		log.debug("expected date = " + expectedDateStr);
+		
+		String pageDateStr = page.filters().getJmsToDatePicker().getSelectedDate();
+		log.info("Got date str from page: " + pageDateStr);
+		
+		log.info("checking dates");
+		soft.assertEquals(pageDateStr, expectedDateStr, "Date string is as expected");
+		
+		soft.assertAll();
+		
+	}
+	
 	
 	/* This method will verify jms message queue count on Input filter*/
 	@Test(description = "JMS-23", groups = {"multiTenancy", "singleTenancy"})
@@ -452,7 +460,7 @@ public class JMSMessPgTest extends SeleniumTest {
 		
 		log.info("selecting queue with name " + q);
 		page.grid().waitForRowsToLoad();
-		page.filters().getJmsQueueSelect().selectOptionByText(q);
+		page.filters().getJmsQueueSelect().selectQueueByName(q);
 		
 		log.info("Selecting row 0");
 		page.grid().selectRow(0);
@@ -472,12 +480,11 @@ public class JMSMessPgTest extends SeleniumTest {
 			
 			log.info("Login into application with domain admin and navigate to JMS Monitoring page");
 			login(user, data.defaultPass());
-			log.info("uploading pmode");
 			page.getSidebar().goToPage(PAGES.JMS_MONITORING);
 			
 			log.info("selecting queue with name " + q);
 			page.grid().waitForRowsToLoad();
-			page.filters().getJmsQueueSelect().selectOptionByText(q);
+			page.filters().getJmsQueueSelect().selectQueueByName(q);
 			
 			log.info("Selecting row 0");
 			page.grid().selectRow(0);
@@ -490,11 +497,7 @@ public class JMSMessPgTest extends SeleniumTest {
 			
 			verifyQueueHasMessageCount(queues, false, soft);
 		}
-		
-		
 		soft.assertAll();
-		
-		
 	}
 	
 	/* This method will verify jms message count on queue in case of super admin*/
@@ -535,7 +538,7 @@ public class JMSMessPgTest extends SeleniumTest {
 		
 		log.info("selecting queue with name " + q);
 		page.grid().waitForRowsToLoad();
-		page.filters().getJmsQueueSelect().selectOptionByText(q);
+		page.filters().getJmsQueueSelect().selectQueueByName(q);
 		page.grid().waitForRowsToLoad();
 		
 		log.info("Selecting row 0");

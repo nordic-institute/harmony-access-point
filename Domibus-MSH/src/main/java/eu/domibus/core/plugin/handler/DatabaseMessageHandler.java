@@ -21,6 +21,8 @@ import eu.domibus.core.message.compression.CompressionException;
 import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.payload.PayloadProfileValidator;
 import eu.domibus.core.payload.persistence.InvalidPayloadSizeException;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
@@ -34,8 +36,6 @@ import eu.domibus.ebms3.common.model.MessageInfo;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.ObjectFactory;
 import eu.domibus.ebms3.common.model.UserMessage;
-import eu.domibus.core.metrics.Counter;
-import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -56,6 +56,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static eu.domibus.logging.DomibusMessageCode.MANDATORY_MESSAGE_HEADER_METADATA_MISSING;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+
 /**
  * This class is responsible of handling the plugins requests for all the operations exposed.
  * During submit, it manages the user authentication and the AS4 message's validation, compression and saving.
@@ -69,14 +72,34 @@ import java.util.Map;
 public class DatabaseMessageHandler implements MessageSubmitter, MessageRetriever, MessagePuller {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DatabaseMessageHandler.class);
+    private static final String USER_MESSAGE_IS_NULL = "UserMessage is null";
     private static final String MESSAGE_WITH_ID_STR = "Message with id [";
     private static final String WAS_NOT_FOUND_STR = "] was not found";
     private static final String ERROR_SUBMITTING_THE_MESSAGE_STR = "Error submitting the message [";
     private static final String TO_STR = "] to [";
-    static final String USER_MESSAGE_IS_NULL = "UserMessage is null";
 
     private final ObjectFactory ebMS3Of = new ObjectFactory();
 
+    @Autowired
+    protected AuthUtils authUtils;
+
+    @Autowired
+    protected UserMessageDefaultService userMessageService;
+
+    @Autowired
+    protected UIReplicationSignalService uiReplicationSignalService;
+
+    @Autowired
+    protected SplitAndJoinService splitAndJoinService;
+
+    @Autowired
+    protected PModeDefaultService pModeDefaultService;
+
+    @Autowired
+    protected UserMessageServiceHelper userMessageServiceHelper;
+
+    @Autowired
+    protected MessagePropertyValidator messagePropertyValidator;
 
     @Autowired
     private SubmissionAS4Transformer transformer;
@@ -122,27 +145,6 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
     @Autowired
     private PullMessageService pullMessageService;
-
-    @Autowired
-    protected AuthUtils authUtils;
-
-    @Autowired
-    protected UserMessageDefaultService userMessageService;
-
-    @Autowired
-    protected UIReplicationSignalService uiReplicationSignalService;
-
-    @Autowired
-    protected SplitAndJoinService splitAndJoinService;
-
-    @Autowired
-    protected PModeDefaultService pModeDefaultService;
-
-    @Autowired
-    protected UserMessageServiceHelper userMessageServiceHelper;
-
-    @Autowired
-    protected MessagePropertyValidator messagePropertyValidator;
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
@@ -350,8 +352,8 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     @Override
     @Transactional
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
-    @Timer(clazz = DatabaseMessageHandler.class,value = "submit")
-    @Counter(clazz = DatabaseMessageHandler.class,value = "submit")
+    @Timer(clazz = DatabaseMessageHandler.class, value = "submit")
+    @Counter(clazz = DatabaseMessageHandler.class, value = "submit")
     public String submit(final Submission messageData, final String backendName) throws MessagingProcessingException {
         if (StringUtils.isNotEmpty(messageData.getMessageId())) {
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageData.getMessageId());
@@ -362,45 +364,28 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
         }
 
         String originalUser = authUtils.getOriginalUserFromSecurityContext();
-        String displayUser = originalUser == null ? "super user" : originalUser;
+        String displayUser = (originalUser == null) ? "super user" : originalUser;
         LOG.debug("Authorized as [{}]", displayUser);
 
         UserMessage userMessage = transformer.transformFromSubmission(messageData);
-
         if (userMessage == null) {
-            LOG.warn(USER_MESSAGE_IS_NULL);
+            LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "UserMessage");
             throw new MessageNotFoundException(USER_MESSAGE_IS_NULL);
         }
-
-        validateOriginalUser(userMessage, originalUser, MessageConstants.ORIGINAL_SENDER);
-
+        String messageId = null;
         try {
-            // MessageInfo is always initialized in the get method
-            MessageInfo messageInfo = userMessage.getMessageInfo();
-            String messageId = messageInfo.getMessageId();
-            if (messageId == null) {
-                messageId = messageIdGenerator.generateMessageId();
-                messageInfo.setMessageId(messageId);
-            } else {
-                backendMessageValidator.validateMessageId(messageId);
-                userMessage.getMessageInfo().setMessageId(messageId);
-            }
-            LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageInfo.getMessageId());
+            populateMessageIdIfNotPresent(userMessage.getMessageInfo());
+            messageId = userMessage.getMessageInfo().getMessageId();
+            LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
 
-            String refToMessageId = messageInfo.getRefToMessageId();
-            if (refToMessageId != null) {
-                backendMessageValidator.validateRefToMessageId(refToMessageId);
-            }
-            // handle if the messageId is unique. This should only fail if the ID is set from the outside
-            if (!MessageStatus.NOT_FOUND.equals(userMessageLogDao.getMessageStatus(messageId))) {
-                throw new DuplicateMessageException(MESSAGE_WITH_ID_STR + messageId + "] already exists. Message identifiers must be unique");
-            }
+            validateOriginalUser(userMessage, originalUser, MessageConstants.ORIGINAL_SENDER);
+
+            backendMessageValidator.validateUserMessageForPmodeMatch(userMessage, MSHRole.SENDING);
 
             Messaging message = ebMS3Of.createMessaging();
             message.setUserMessage(userMessage);
 
             MessageExchangeConfiguration userMessageExchangeConfiguration;
-
             Party to = null;
             MessageStatus messageStatus = null;
             if (messageExchangeService.forcePullOnMpc(userMessage)) {
@@ -440,8 +425,8 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             try {
                 messagingService.storeMessage(message, MSHRole.SENDING, legConfiguration, backendName);
             } catch (CompressionException exc) {
-                LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_COMPRESSION_FAILURE, userMessage.getMessageInfo().getMessageId());
-                EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0303, exc.getMessage(), userMessage.getMessageInfo().getMessageId(), exc);
+                LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_COMPRESSION_FAILURE, messageId);
+                EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0303, exc.getMessage(), messageId, exc);
                 ex.setMshRole(MSHRole.SENDING);
                 throw ex;
             } catch (InvalidPayloadSizeException e) {
@@ -451,7 +436,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                     messagingDao.clearFileSystemPayloads(userMessage);
                 }
                 LOG.businessError(DomibusMessageCode.BUS_PAYLOAD_INVALID_SIZE, legConfiguration.getPayloadProfile().getMaxSize(), legConfiguration.getPayloadProfile().getName());
-                EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, e.getMessage(), userMessage.getMessageInfo().getMessageId(), e);
+                EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, e.getMessage(), messageId, e);
                 ex.setMshRole(MSHRole.SENDING);
                 throw ex;
             }
@@ -468,19 +453,28 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                 prepareForPushOrPull(userMessage, userMessageLog, pModeKey, messageStatus);
             }
 
-            uiReplicationSignalService.userMessageSubmitted(userMessage.getMessageInfo().getMessageId());
-
-            LOG.info("Message submitted");
-            return userMessage.getMessageInfo().getMessageId();
+            uiReplicationSignalService.userMessageSubmitted(messageId);
+            LOG.info("Message with id: [{}] submitted", messageId);
+            return messageId;
 
         } catch (EbMS3Exception ebms3Ex) {
-            LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + userMessage.getMessageInfo().getMessageId() + TO_STR + backendName + "]", ebms3Ex);
+            LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + messageId + TO_STR + backendName + "]", ebms3Ex);
             errorLogDao.create(new ErrorLogEntry(ebms3Ex));
             throw MessagingExceptionFactory.transform(ebms3Ex);
         } catch (PModeException p) {
-            LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + userMessage.getMessageInfo().getMessageId() + TO_STR + backendName + "]" + p.getMessage(), p);
-            errorLogDao.create(new ErrorLogEntry(MSHRole.SENDING, userMessage.getMessageInfo().getMessageId(), ErrorCode.EBMS_0010, p.getMessage()));
+            LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + messageId + TO_STR + backendName + "]" + p.getMessage(), p);
+            errorLogDao.create(new ErrorLogEntry(MSHRole.SENDING, messageId, ErrorCode.EBMS_0010, p.getMessage()));
             throw new PModeMismatchException(p.getMessage(), p);
+        }
+    }
+
+    private void populateMessageIdIfNotPresent(MessageInfo messageInfo) {
+        if(messageInfo == null){
+            return;
+        }
+        if(isBlank(messageInfo.getMessageId())){
+            messageInfo.setMessageId(messageIdGenerator.generateMessageId());
+            LOG.debug("Generated MessageId: [{}]", messageInfo.getMessageId());
         }
     }
 

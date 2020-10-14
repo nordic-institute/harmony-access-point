@@ -47,9 +47,6 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
     protected PasswordEncryptionExtService pluginPasswordEncryptionService;
 
     @Autowired
-    protected DomainExtService domainExtService;
-
-    @Autowired
     protected DomibusConfigurationExtService domibusConfigurationExtService;
 
     @Autowired
@@ -416,31 +413,55 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
 
     @Override
     public synchronized Map<String, DomibusPropertyMetadataDTO> getKnownProperties() {
-        if (knownProperties == null) {
-            knownProperties = new HashMap<>();
-
-            Map<String, DomibusPropertyMetadataDTO> baseProperties = fsPluginPropertiesMetadataManager.getKnownProperties();
-
-            for (DomibusPropertyMetadataDTO propMeta : baseProperties.values()) {
-                if (shouldMultiplyPropertyMetadata(propMeta)) {
-                    LOG.debug("Multiplying the domain property [{}] for each domain.", propMeta.getName());
-                    for (String domain : getDomains()) {
-                        String name = getDomainPropertyName(domain, propMeta.getName());
-                        DomibusPropertyMetadataDTO propertyMetadata = new DomibusPropertyMetadataDTO(name, propMeta.getType(), Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Usage.DOMAIN, propMeta.isWithFallback());
-                        propertyMetadata.setStoredGlobally(false);
-                        knownProperties.put(propertyMetadata.getName(), propertyMetadata);
-                    }
-                } else {
-                    LOG.debug("Adding the simple property [{}] to the known property list.", propMeta.getName());
-                    String name = propMeta.getName().contains(PROPERTY_PREFIX) ? propMeta.getName() : PROPERTY_PREFIX + propMeta.getName();
-                    propMeta.setName(name);
-                    propMeta.setUsage(DomibusPropertyMetadataDTO.Usage.GLOBAL);
-                    knownProperties.put(propMeta.getName(), propMeta);
-                }
-            }
+        if (knownProperties != null) {
+            return knownProperties;
         }
 
+        knownProperties = new HashMap<>();
+
+        Map<String, DomibusPropertyMetadataDTO> baseProperties = fsPluginPropertiesMetadataManager.getKnownProperties();
+
+        // in multi-tenancy mode - we only expose the "base" properties from the current domain
+        if (domibusConfigurationExtService.isMultiTenantAware()) {
+            updatePropertiesForMultitenancy(baseProperties);
+            return knownProperties;
+        }
+
+        //single tenancy mode
+        updatePropertiesForSingletenancy(baseProperties);
         return knownProperties;
+    }
+
+    protected void updatePropertiesForSingletenancy(Map<String, DomibusPropertyMetadataDTO> baseProperties) {
+        for (DomibusPropertyMetadataDTO propMeta : baseProperties.values()) {
+            if (shouldMultiplyPropertyMetadata(propMeta)) {
+                LOG.debug("Multiplying the domain property [{}] for each domain.", propMeta.getName());
+                for (String domain : getDomains()) {
+                    String name = getDomainPropertyName(domain, propMeta.getName());
+                    DomibusPropertyMetadataDTO propertyMetadata = new DomibusPropertyMetadataDTO(name, propMeta.getType(), Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Usage.DOMAIN, propMeta.isWithFallback());
+                    propertyMetadata.setStoredGlobally(propMeta.isStoredGlobally());
+                    knownProperties.put(propertyMetadata.getName(), propertyMetadata);
+                }
+            } else {
+                updatePropertyName(propMeta);
+                //if not multiplied, the usage should be global
+                propMeta.setUsage(DomibusPropertyMetadataDTO.Usage.GLOBAL);
+                knownProperties.put(propMeta.getName(), propMeta);
+            }
+        }
+    }
+
+    protected void updatePropertiesForMultitenancy(Map<String, DomibusPropertyMetadataDTO> baseProperties) {
+        for (DomibusPropertyMetadataDTO propMeta : baseProperties.values()) {
+            updatePropertyName(propMeta);
+            knownProperties.put(propMeta.getName(), propMeta);
+        }
+    }
+
+    private void updatePropertyName(DomibusPropertyMetadataDTO propMeta) {
+        String name = propMeta.getName().contains(PROPERTY_PREFIX) ? propMeta.getName() : PROPERTY_PREFIX + propMeta.getName();
+        propMeta.setName(name);
+        LOG.debug("Update the simple property name [{}] of the known property list.", name);
     }
 
     @Override
@@ -454,10 +475,8 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
         }
 
         // propertyName may or may not already include the domaincode (in single-tenancy vs multi-tenancy)
-        if (propertyName.startsWith(DOMAIN_PREFIX)) {
-            if (this.properties.containsKey(propertyName)) {
-                return this.properties.getProperty(propertyName);
-            }
+        if (propertyName.startsWith(DOMAIN_PREFIX) && this.properties.containsKey(propertyName)) {
+            return this.properties.getProperty(propertyName);
         }
         String baseName = getBasePropertyName(propertyName);
         String key1 = DOMAIN_PREFIX + domainCode + DOT + baseName;
@@ -510,12 +529,13 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
     protected boolean shouldMultiplyPropertyMetadata(DomibusPropertyMetadataDTO propMeta) {
         // in single-domain mode - we only expose the "base" properties
         // in fsplugin's custom multi-domain mode, in single-tenancy - we expose each "base" property once per every domain
-        // in multi-tenancy mode - we only expose the "base" properties from the current domain
-        boolean multiplyDomainProperties = !domibusConfigurationExtService.isMultiTenantAware() && getDomains().size() > 1;
-
-        return multiplyDomainProperties
+        return getDomains().size() > 1
                 && propMeta.isDomain()
                 // we do not multiply properties used for quartz jobs
-                && !TriggerChangeListener.CronPropertyNamesToJobMap.keySet().stream().anyMatch(key -> key.contains(propMeta.getName()));
+                && !isQuartzRelated(propMeta);
+    }
+
+    private boolean isQuartzRelated(DomibusPropertyMetadataDTO propMeta) {
+        return TriggerChangeListener.CRON_PROPERTY_NAMES_TO_JOB_MAP.keySet().stream().anyMatch(key -> key.contains(propMeta.getName()));
     }
 }

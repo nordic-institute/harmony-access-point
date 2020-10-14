@@ -19,7 +19,9 @@ public class DomibusAdminServlet extends AdminServlet {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusAdminServlet.class);
 
+    @SuppressWarnings("squid:S2226") // Following the pattern of AdminServlet
     private transient MetricsServlet domibusMetricsServlet;
+    @SuppressWarnings("squid:S2226") // Following the pattern of AdminServlet
     private transient String metricsUri;
 
     @Override

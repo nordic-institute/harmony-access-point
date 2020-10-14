@@ -1,6 +1,5 @@
 package eu.domibus.core.property;
 
-import eu.domibus.api.property.DomibusProperty;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.DomibusPropertyMetadata.Type;
 import eu.domibus.api.property.DomibusPropertyMetadata.Usage;
@@ -86,6 +85,8 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
 
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_SECURITY_EXT_AUTH_PROVIDER_ENABLED, Type.BOOLEAN),
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_SCHEMAFACTORY, Type.CLASS),
+
+            new DomibusPropertyMetadata(DOMIBUS_DISPATCHER_TIMEOUT, Type.NUMERIC, false, Usage.DOMAIN, true),
 
             //writable properties
             new DomibusPropertyMetadata(DOMIBUS_UI_TITLE_NAME, Usage.DOMAIN, true),
@@ -192,7 +193,8 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMIBUS_SEND_MESSAGE_SUCCESS_DELETE_PAYLOAD, Type.BOOLEAN, Usage.DOMAIN, true),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_SEND_MESSAGE_ATTEMPT_AUDIT_ACTIVE, Type.BOOLEAN),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_FOURCORNERMODEL_ENABLED, Type.BOOLEAN),
-            DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_LOGGING_PAYLOAD_PRINT, Type.BOOLEAN),     //there are still usages in xml!!!! move them?
+            DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_LOGGING_PAYLOAD_PRINT, Type.BOOLEAN),
+            DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_LOGGING_METADATA_PRINT, Type.BOOLEAN),
             new DomibusPropertyMetadata(DOMIBUS_LOGGING_EBMS3_ERROR_PRINT, Type.BOOLEAN, Usage.DOMAIN, true),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_LOGGING_CXF_LIMIT, Type.NUMERIC),         //there are still usages in xml!!!! move them?
 

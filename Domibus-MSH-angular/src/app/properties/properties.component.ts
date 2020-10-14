@@ -8,6 +8,7 @@ import {ServerPageableListMixin} from '../common/mixins/pageable-list.mixin';
 import FilterableListMixin from '../common/mixins/filterable-list.mixin';
 import {HttpClient} from '@angular/common/http';
 import {ApplicationContextService} from '../common/application-context.service';
+import {ComponentName} from '../common/component-name-decorator';
 
 @Component({
   moduleId: module.id,
@@ -15,7 +16,7 @@ import {ApplicationContextService} from '../common/application-context.service';
   styleUrls: ['properties.component.css'],
   providers: [PropertiesService]
 })
-
+@ComponentName('Domibus Properties')
 export class PropertiesComponent extends mix(BaseListComponent)
   .with(FilterableListMixin, ServerPageableListMixin)
   implements OnInit, AfterViewInit, AfterViewChecked {
@@ -38,10 +39,6 @@ export class PropertiesComponent extends mix(BaseListComponent)
 
     this.propertiesService.loadPropertyTypes();
     this.filterData();
-  }
-
-  public get name(): string {
-    return 'Domibus Properties';
   }
 
   protected get GETUrl(): string {

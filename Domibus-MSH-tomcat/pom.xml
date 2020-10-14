@@ -35,6 +35,16 @@
         </dependency>
         <dependency>
             <groupId>eu.domibus</groupId>
+            <artifactId>domibus-angular</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>eu.domibus</groupId>
+            <artifactId>domibus-ext-services-delegate</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>eu.domibus</groupId>
             <artifactId>domibus-taskexecutor-tomcat</artifactId>
             <version>${project.version}</version>
         </dependency>
