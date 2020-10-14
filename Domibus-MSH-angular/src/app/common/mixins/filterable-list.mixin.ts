@@ -5,6 +5,8 @@ import {IFilterableList} from './ifilterable-list';
 import {HttpParams} from '@angular/common/http';
 import {PaginationType} from './ipageable-list';
 import {NgForm} from '@angular/forms';
+import {PropertiesService} from '../../properties/support/properties.service';
+import {SecurityService} from '../../security/security.service';
 
 /**
  * @author Ion Perpegel
@@ -127,8 +129,8 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
   }
 
   protected async canProceedToFilter(): Promise<boolean> {
-
-    return this.securityService.canAbandonUnsavedChanges(this);
+    let securityService = this.applicationService.injector.get(SecurityService);
+    return securityService.canAbandonUnsavedChanges(this);
   }
 
   canSearch(): boolean | Promise<boolean> {

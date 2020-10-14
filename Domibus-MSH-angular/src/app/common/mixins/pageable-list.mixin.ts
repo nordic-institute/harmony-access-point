@@ -4,6 +4,7 @@ import {IPageableList, PaginationType} from './ipageable-list';
 import {instanceOfFilterableList, instanceOfModifiableList} from './type.utils';
 import {OnInit} from '@angular/core';
 import {HttpParams} from '@angular/common/http';
+import {SecurityService} from '../../security/security.service';
 
 /**
  * @author Ion Perpegel
@@ -130,7 +131,8 @@ export let PageableListMixin = (superclass: Constructable) => class extends supe
       return true;
     }
 
-    return this.securityService.canAbandonUnsavedChanges(this);
+    let securityService = this.applicationService.injector.get(SecurityService);
+    return securityService.canAbandonUnsavedChanges(this);
   }
 
   // using an arrow-function instead of a regular function to preserve the correct "this" when called from the row-limiter component context

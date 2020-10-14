@@ -11,7 +11,7 @@ import {instanceOfModifiableList} from '../mixins/type.utils';
 @Injectable()
 export class DirtyGuard implements CanActivate, CanDeactivate<any> {
 
-  constructor(public dialog: MatDialog, private dialogsService: DialogsService, private securityService: SecurityService) {
+  constructor(private securityService: SecurityService) {
   };
 
   canActivate(next: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> | Promise<boolean> | boolean {

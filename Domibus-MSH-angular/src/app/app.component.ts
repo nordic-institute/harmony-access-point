@@ -61,20 +61,20 @@ export class AppComponent implements OnInit, OnDestroy {
 
   async ngOnInit() {
     this.sessionService.resetCurrentSession();
+    const user = await this.securityService.getCurrentUserFromServer();
+    if (user) {
+      this.securityService.updateCurrentUser(user);
+      this.domainService.setAppTitle();
+      this.updateSession();
+    }
     this.extAuthProviderEnabled = await this.domibusInfoService.isExtAuthProviderEnabled();
-    if (this.extAuthProviderEnabled) {
-      const user = await this.securityService.getCurrentUserFromServer();
-      if (user) {
-        this.securityService.updateCurrentUser(user);
-        this.domainService.setAppTitle();
-      }
-      if (this.extAuthProvideRedirectTo) {
-        const success = await this.router.navigate([this.extAuthProvideRedirectTo]);
-        if (success) {
-          console.log('redirect to: ' + this.extAuthProvideRedirectTo + ' done');
-        }
+    if (this.extAuthProviderEnabled && this.extAuthProvideRedirectTo) {
+      const success = await this.router.navigate([this.extAuthProvideRedirectTo]);
+      if (success) {
+        console.log('redirect to: ' + this.extAuthProvideRedirectTo + ' done');
       }
     }
+
     this.isMultiDomain = await this.domainService.isMultiDomain().toPromise();
 
     this.loginSubscription = this.securityEventService.onLoginSuccessEvent().subscribe(() => this.onLoginSuccessEvent());
@@ -135,6 +135,10 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   onLoginSuccessEvent() {
+    this.updateSession();
+  }
+
+  private updateSession() {
     this.clearSessionStorage();
     this.sessionService.updateCurrentSession(SessionState.ACTIVE);
   }
