@@ -277,13 +277,7 @@ export class SecurityService {
   }
 
   isClientConnected(): boolean {
-    const lastUpdate = this.getCurrentUserLastUpdate();
-    if (lastUpdate == null) {
-      return this.getCurrentUser() != null;
-    }
-    const diffInHours = (new Date().getTime() - this.getCurrentUserLastUpdate().getTime()) / (1000 * 60 * 60);
-    const res = this.getCurrentUser() != null && diffInHours < 12;
-    return res;
+    return this.getCurrentUser() != null;
   }
 
   initialiseApp(user: User) {
