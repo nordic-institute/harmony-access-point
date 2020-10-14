@@ -188,7 +188,7 @@ public class LoggingServiceImpl implements LoggingService {
      * @return true/false if this logger should be added to the list
      */
     @SuppressWarnings(value = "unchecked")
-    private boolean addLoggerOfClass(Logger logger, boolean showClasses) {
+    protected boolean addLoggerOfClass(Logger logger, boolean showClasses) {
         if (showClasses) {
             //it doesn't matter, this logger will be added anyway
             return true;
@@ -197,9 +197,9 @@ public class LoggingServiceImpl implements LoggingService {
         List<Logger> childrenList = null;
         try {
             childrenList = (List<Logger>) readField(logger, "childrenList", true);
-            if (childrenList != null) {
-                //Inner classes present will appear as childrenList and impact main classes even if showClasses is false. They need to be filtered out.
-                Predicate<Logger> checkInnerClassPredicate = c -> !StringUtils.contains(c.getName(), logger.getName() + INNER_CLASS_NAME_DELIMITER);
+            if (CollectionUtils.isNotEmpty(childrenList)) {
+                //Inner classes present will appear in the childrenList and impact main classes even if showClasses is false. They need to be filtered out.
+                Predicate<Logger> checkInnerClassPredicate = l -> !StringUtils.contains(l.getName(), logger.getName() + INNER_CLASS_NAME_DELIMITER);
                 childrenList = childrenList.stream().filter(checkInnerClassPredicate).collect(Collectors.toList());
             }
         } catch (IllegalAccessException e) {
