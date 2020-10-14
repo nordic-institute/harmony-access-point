@@ -56,8 +56,7 @@ export class SecurityService {
         console.log('Login returned a null user!');
         throw new Error('An error occurred while logging in.');
       }
-      this.updateCurrentUser(user);
-      this.domainService.setAppTitle();
+      this.initialiseApp(user);
       this.securityEventService.notifyLoginSuccessEvent(user);
       return user;
     } catch (error) {
@@ -303,6 +302,12 @@ export class SecurityService {
     const diffInHours = (new Date().getTime() - this.getCurrentUserLastUpdate().getTime()) / (1000 * 60 * 60);
     const res = this.getCurrentUser() != null && diffInHours < 12;
     return res;
+  }
+
+  initialiseApp(user: User) {
+    this.updateCurrentUser(user);
+    this.domainService.setAppTitle();
+    this.sessionService.updateCurrentSession(SessionState.ACTIVE);
   }
 }
 

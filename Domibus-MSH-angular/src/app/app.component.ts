@@ -63,9 +63,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.sessionService.resetCurrentSession();
     const user = await this.securityService.getCurrentUserFromServer();
     if (user) {
-      this.securityService.updateCurrentUser(user);
-      this.domainService.setAppTitle();
-      this.updateSession();
+      this.securityService.initialiseApp(user);
     }
     this.extAuthProviderEnabled = await this.domibusInfoService.isExtAuthProviderEnabled();
     if (this.extAuthProviderEnabled && this.extAuthProvideRedirectTo) {
@@ -135,12 +133,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   onLoginSuccessEvent() {
-    this.updateSession();
-  }
-
-  private updateSession() {
     this.clearSessionStorage();
-    this.sessionService.updateCurrentSession(SessionState.ACTIVE);
   }
 
   isAdmin(): boolean {
