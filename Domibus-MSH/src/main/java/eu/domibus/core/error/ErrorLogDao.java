@@ -1,6 +1,8 @@
 package eu.domibus.core.error;
 
 import eu.domibus.core.dao.ListDao;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -98,6 +100,8 @@ public class ErrorLogDao extends ListDao<ErrorLogEntry> {
         super.create(errorLogEntry);
     }
 
+    @Timer(clazz = ErrorLogDao.class,value = "deleteMessages.deleteErrorLogsByMessageIdInError")
+    @Counter(clazz = ErrorLogDao.class,value = "deleteMessages.deleteErrorLogsByMessageIdInError")
     public int deleteErrorLogsByMessageIdInError(List<String> messageIds) {
         final Query deleteQuery = em.createNamedQuery("ErrorLogEntry.deleteByMessageIdsInError");
         deleteQuery.setParameter("MESSAGEIDS", messageIds);

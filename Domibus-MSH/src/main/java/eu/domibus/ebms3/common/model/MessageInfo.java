@@ -34,7 +34,7 @@ import java.util.Date;
 @Entity
 @Table(name = "TB_MESSAGE_INFO")
 @NamedQueries({
-        @NamedQuery(name = "MessageInfo.findSignalMessageIds", query = "select messageId from MessageInfo mi where mi.refToMessageId in :MESSAGEIDS"),
+        @NamedQuery(name = "MessageInfo.findMessageIdsWithRefToMessageIds", query = "select mi.messageId from MessageInfo mi, SignalMessageLog sml where (sml.messageId=mi.messageId and sml.messageType=:MESSAGE_TYPE) and mi.refToMessageId in :MESSAGEIDS"),
         @NamedQuery(name = "MessageInfo.deleteMessages", query = "delete from MessageInfo mi where mi.messageId in :MESSAGEIDS"),
 })
 public class MessageInfo extends AbstractBaseEntity {
