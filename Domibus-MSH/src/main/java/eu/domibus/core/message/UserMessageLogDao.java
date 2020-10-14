@@ -3,6 +3,8 @@ package eu.domibus.core.message;
 import com.google.common.collect.Maps;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.plugin.notification.NotificationStatus;
 import eu.domibus.ebms3.common.model.MessageType;
 import eu.domibus.logging.DomibusLogger;
@@ -208,6 +210,8 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         return resultList;
     }
 
+    @Timer(clazz = UserMessageLogDao.class,value = "deleteMessages.deleteMessageLogs")
+    @Counter(clazz = UserMessageLogDao.class,value = "deleteMessages.deleteMessageLogs")
     public int deleteMessageLogs(List<String> messageIds) {
         final Query deleteQuery = em.createNamedQuery("UserMessageLog.deleteMessageLogs");
         deleteQuery.setParameter("MESSAGEIDS", messageIds);

@@ -177,21 +177,21 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
     @Override
     public void deletePayloadOnSendSuccess(UserMessage userMessage, UserMessageLog userMessageLog) {
         if (shouldDeletePayloadOnSendSuccess()) {
-            LOG.debug("Message payload cleared on send success.");
+            LOG.trace("Message payload cleared on send success.");
             deletePayload(userMessage, userMessageLog);
             return;
         }
-        LOG.debug("Message payload not cleared on send success");
+        LOG.trace("Message payload not cleared on send success");
     }
 
     @Override
     public void deletePayloadOnSendFailure(UserMessage userMessage, UserMessageLog userMessageLog) {
         if (shouldDeletePayloadOnSendFailure(userMessage)) {
-            LOG.debug("Message payload cleared on send failure.");
+            LOG.trace("Message payload cleared on send failure.");
             deletePayload(userMessage, userMessageLog);
             return;
         }
-        LOG.debug("Message payload not cleared on send failure");
+        LOG.trace("Message payload not cleared on send failure");
     }
 
     protected void deletePayload(UserMessage userMessage, UserMessageLog userMessageLog) {
