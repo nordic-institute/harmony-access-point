@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import static org.apache.commons.lang3.ClassUtils.INNER_CLASS_SEPARATOR;
 import static org.apache.commons.lang3.reflect.FieldUtils.readField;
 
 /**
@@ -33,7 +34,6 @@ import static org.apache.commons.lang3.reflect.FieldUtils.readField;
 @Service
 public class LoggingServiceImpl implements LoggingService {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(LoggingServiceImpl.class);
-    private static final String INNER_CLASS_NAME_DELIMITER = "$";
 
     @Autowired
     protected DomibusConfigurationService domibusConfigurationService;
@@ -200,7 +200,7 @@ public class LoggingServiceImpl implements LoggingService {
             if (CollectionUtils.isNotEmpty(childrenList)) {
                 LOG.trace("Checking for inner classes and filtering them out.");
                 //Inner classes present will appear in the childrenList and impact main classes even if showClasses is false. They need to be filtered out.
-                Predicate<Logger> checkInnerClassPredicate = childLogger -> !StringUtils.contains(childLogger.getName(), logger.getName() + INNER_CLASS_NAME_DELIMITER);
+                Predicate<Logger> checkInnerClassPredicate = childLogger -> !StringUtils.contains(childLogger.getName(), logger.getName() + INNER_CLASS_SEPARATOR);
                 childrenList = childrenList.stream().filter(checkInnerClassPredicate).collect(Collectors.toList());
             }
         } catch (IllegalAccessException e) {
