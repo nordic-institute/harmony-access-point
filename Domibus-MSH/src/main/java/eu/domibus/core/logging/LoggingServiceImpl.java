@@ -198,12 +198,13 @@ public class LoggingServiceImpl implements LoggingService {
         try {
             childrenList = (List<Logger>) readField(logger, "childrenList", true);
             if (CollectionUtils.isNotEmpty(childrenList)) {
+                LOG.trace("Checking for inner classes and filtering them out.");
                 //Inner classes present will appear in the childrenList and impact main classes even if showClasses is false. They need to be filtered out.
-                Predicate<Logger> checkInnerClassPredicate = l -> !StringUtils.contains(l.getName(), logger.getName() + INNER_CLASS_NAME_DELIMITER);
+                Predicate<Logger> checkInnerClassPredicate = childLogger -> !StringUtils.contains(childLogger.getName(), logger.getName() + INNER_CLASS_NAME_DELIMITER);
                 childrenList = childrenList.stream().filter(checkInnerClassPredicate).collect(Collectors.toList());
             }
         } catch (IllegalAccessException e) {
-            LOG.debug("Not able to read children for logger: {}", logger.getName());
+            LOG.debug("Not able to read children for logger: [{}]", logger.getName(), e);
         }
 
         return CollectionUtils.isNotEmpty(childrenList);
