@@ -116,7 +116,7 @@ export class AppComponent implements OnInit, OnDestroy {
     // TODO(18/09/20, Ion Perpegel): review the possible status values and their meaning
     if (error && (error.status === Server.HTTP_FORBIDDEN || error.status === Server.HTTP_UNAUTHORIZED)) {
       // did we have previously a valid session?
-      if (this.securityService.getCurrentUser()) {
+      if (this.securityService.isClientConnected()) {
         this.sessionService.setExpiredSession(SessionState.EXPIRED_INACTIVITY_OR_ERROR);
         this.securityService.logout();
       }

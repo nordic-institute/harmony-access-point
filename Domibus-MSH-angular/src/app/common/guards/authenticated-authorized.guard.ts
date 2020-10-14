@@ -52,7 +52,7 @@ export class AuthenticatedAuthorizedGuard implements CanActivate {
 
   private handleNotAuthenticated() {
     // if previously connected then the session went expired
-    if (this.securityService.getCurrentUser()) { // todo add date condition
+    if (this.securityService.isClientConnected()) {
       this.sessionService.setExpiredSession(SessionState.EXPIRED_INACTIVITY_OR_ERROR);
       this.securityService.clearSession();
     }

@@ -12,7 +12,6 @@ import {PropertiesService} from '../properties/support/properties.service';
 import {SessionService} from './session.service';
 import {SessionState} from './SessionState';
 import {instanceOfModifiableList} from '../common/mixins/type.utils';
-import {ActivatedRouteSnapshot, RouterStateSnapshot} from '@angular/router';
 
 @Injectable()
 export class SecurityService {
@@ -22,6 +21,9 @@ export class SecurityService {
   public static USER_ROLES = [SecurityService.ROLE_USER, SecurityService.ROLE_DOMAIN_ADMIN, SecurityService.ROLE_AP_ADMIN];
   public static ADMIN_ROLES = [SecurityService.ROLE_DOMAIN_ADMIN, SecurityService.ROLE_AP_ADMIN];
   private static injector: Injector;
+
+  private CURRENT_USER = 'currentUser';
+  private CURRENT_USER_UPDATED_ON = 'currentUserUpdatedOn';
 
   pluginPasswordPolicy: Promise<PasswordPolicyRO>;
   public password: string;
@@ -123,17 +125,18 @@ export class SecurityService {
 
   clearSession() {
     this.domainService.resetDomain();
-    localStorage.removeItem('currentUser');
+    localStorage.removeItem(this.CURRENT_USER);
+    localStorage.removeItem(this.CURRENT_USER_UPDATED_ON);
   }
 
   getCurrentUser(): User {
-    const storedUser = localStorage.getItem('currentUser');
+    const storedUser = localStorage.getItem(this.CURRENT_USER);
     return storedUser ? JSON.parse(storedUser) : null;
   }
 
   updateCurrentUser(user: User): void {
-    localStorage.setItem('currentUser', JSON.stringify(user));
-    localStorage.setItem('currentUserUpdateTime', new Date().toISOString());
+    localStorage.setItem(this.CURRENT_USER, JSON.stringify(user));
+    localStorage.setItem(this.CURRENT_USER_UPDATED_ON, new Date().toJSON());
   }
 
   isUserConnected(): Promise<string> {
@@ -284,6 +287,22 @@ export class SecurityService {
     if (!isAuthenticated) {
       return true;
     }
+  }
+
+  private getCurrentUserLastUpdate(): Date {
+    const res = localStorage.getItem(this.CURRENT_USER_UPDATED_ON);
+    return res ? new Date(res) : null;
+  }
+
+
+  isClientConnected() {
+    const lastUpdate = this.getCurrentUserLastUpdate();
+    if (lastUpdate == null) {
+      return this.getCurrentUser() != null;
+    }
+    const diffInHours = (new Date().getTime() - this.getCurrentUserLastUpdate().getTime()) / (1000 * 60 * 60);
+    const res = this.getCurrentUser() != null && diffInHours < 12;
+    return res;
   }
 }
 
