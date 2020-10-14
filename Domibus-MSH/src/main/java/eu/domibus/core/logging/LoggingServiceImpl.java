@@ -93,7 +93,7 @@ public class LoggingServiceImpl implements LoggingService {
 
         Predicate<Logger> nameStartsWithPredicate = p -> p.getName().startsWith(loggerName);
         Predicate<Logger> nameContainsPredicate = p -> p.getName().contains(loggerName);
-        Predicate<Logger> isLoggerForClassPredicate = p -> addLoggerOfClass(p, showClasses);
+        Predicate<Logger> isLoggerForClassPredicate = p -> addChildLoggers(p, showClasses);
         Predicate<Logger> fullPredicate = (nameStartsWithPredicate.or(nameContainsPredicate)).and(isLoggerForClassPredicate);
 
         //filter existing loggers which starts with name
@@ -188,7 +188,7 @@ public class LoggingServiceImpl implements LoggingService {
      * @return true/false if this logger should be added to the list
      */
     @SuppressWarnings(value = "unchecked")
-    protected boolean addLoggerOfClass(Logger logger, boolean showClasses) {
+    protected boolean addChildLoggers(Logger logger, boolean showClasses) {
         if (showClasses) {
             //it doesn't matter, this logger will be added anyway
             return true;

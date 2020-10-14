@@ -292,7 +292,7 @@ public class LoggingServiceImplTest {
      * 
      */
     @Test
-    public void addLoggerOfClass_PresenceOfInnerClassReturnFalse(@Injectable Logger packageLogger, @Injectable Logger mainClassLogger, @Injectable Logger innerClassLogger) {
+    public void addChildLoggers_PresenceOfInnerClassReturnFalse(@Injectable Logger packageLogger, @Injectable Logger mainClassLogger, @Injectable Logger innerClassLogger) {
 
         final List<Logger> innerClassChildLoggers = new ArrayList<>();
 
@@ -336,9 +336,9 @@ public class LoggingServiceImplTest {
             result = innerClassLoggerName;
         }};
 
-        Assert.assertFalse("Main Class having child loggers due to inner class should return false", loggingService.addLoggerOfClass(mainClassLogger, false));
-        Assert.assertTrue("Package having child loggers due to main classes should return true", loggingService.addLoggerOfClass(packageLogger, false));
-        Assert.assertFalse("Inner Class having no child loggers should return false", loggingService.addLoggerOfClass(innerClassLogger, false));
-        Assert.assertTrue("ShowClasses being enabled should always return true", loggingService.addLoggerOfClass(innerClassLogger, true));
+        Assert.assertFalse("Main Class having child loggers due to inner class should return false", loggingService.addChildLoggers(mainClassLogger, false));
+        Assert.assertTrue("Package having child loggers due to main classes should return true", loggingService.addChildLoggers(packageLogger, false));
+        Assert.assertFalse("Inner Class having no child loggers should return false", loggingService.addChildLoggers(innerClassLogger, false));
+        Assert.assertTrue("ShowClasses being enabled should always return true", loggingService.addChildLoggers(innerClassLogger, true));
     }
 }
