@@ -78,7 +78,6 @@ public class RoutingService {
     protected final Object backendFiltersCacheLock = new Object();
     protected volatile Map<Domain, List<BackendFilter>> backendFiltersCache = new HashMap<>();
 
-    @Transactional
     public void init() {
         if (CollectionUtils.isEmpty(backendConnectorProvider.getBackendConnectors())) {
             throw new ConfigurationException("No Plugin available! Please configure at least one backend plugin in order to run domibus");
