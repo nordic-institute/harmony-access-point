@@ -68,6 +68,11 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
     }
 
     @Override
+    public void submit(Runnable task, Domain domain, boolean waitForTask, Long timeout, TimeUnit timeUnit) {
+        submit(schedulingTaskExecutor, task, domain, waitForTask, timeout, timeUnit);
+    }
+
+    @Override
     public void submitLongRunningTask(Runnable task, Domain domain) {
         submitLongRunningTask(task, null, domain);
     }

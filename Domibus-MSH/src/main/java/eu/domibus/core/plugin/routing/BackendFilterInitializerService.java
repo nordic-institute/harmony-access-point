@@ -14,6 +14,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Cosmin Baciu
@@ -68,7 +69,9 @@ public class BackendFilterInitializerService {
             Runnable wrappedCreateBackendFilters = () -> authUtils.runWithSecurityContext(
                     routingService::createBackendFilters, "domibus",
                     "domibus", AuthRole.ROLE_AP_ADMIN, true);
-            domainTaskExecutor.submit(wrappedCreateBackendFilters, domain);
+            //wait 3 minutes to complete the task; the actual execution of the business logic is fast but
+            //sometime at server startup it might take a while to have enough threads available
+            domainTaskExecutor.submit(wrappedCreateBackendFilters, domain, true, 3L, TimeUnit.MINUTES);
 
             LOG.debug("Finished checking and updating the configured plugins for domain [{}]", domain);
         }
