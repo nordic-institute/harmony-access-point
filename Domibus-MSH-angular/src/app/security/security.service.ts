@@ -62,7 +62,6 @@ export class SecurityService {
   private async doLogin(username: string, password: string): Promise<User> {
     const user = await this.http.post<User>('rest/security/authentication', {username: username, password: password}).toPromise();
     if (!user) {
-      console.log('Login returned a null user!');
       throw new Error('An error occurred while logging in.');
     }
     return user;
@@ -139,7 +138,7 @@ export class SecurityService {
         this.isUserConnected().then(isConnected => {
           resolve(true);
         }, err => {
-          console.log('Error while calling isUserConnected: ',  err);
+          console.log('Error while calling isUserConnected: ', err);
           resolve(false);
         });
       } catch (ex) {
@@ -283,10 +282,13 @@ export class SecurityService {
 
     const user: User = await getUserFn();
 
-    this.updateCurrentUser(user);
-    this.domainService.setAppTitle();
-    this.sessionService.updateCurrentSession(SessionState.ACTIVE);
-
+    if (user) {
+      this.updateCurrentUser(user);
+      this.domainService.setAppTitle();
+      this.sessionService.updateCurrentSession(SessionState.ACTIVE);
+    } else {
+      console.warn(getUserFn.name + ' method returned an empty user.');
+    }
     return user;
   }
 }
