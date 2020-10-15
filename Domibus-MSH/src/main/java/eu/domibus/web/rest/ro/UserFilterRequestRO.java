@@ -13,7 +13,7 @@ public class UserFilterRequestRO implements Serializable {
     private int pageSize = 10;
     private AuthRole authRole;
     private String userName;
-    boolean isDeletedUsers;
+    private String deleted;
 
     public int getPageStart() {
         return pageStart;
@@ -46,12 +46,13 @@ public class UserFilterRequestRO implements Serializable {
     public void setUserName(String userName) {
         this.userName = userName;
     }
-
-    public boolean isDeletedUsers() {
-        return isDeletedUsers;
+    public String getDeleted() {
+        return deleted;
     }
 
-    public void setDeletedUsers(boolean deletedUsers) {
-        this.isDeletedUsers = deletedUsers;
+    public void setDeleted(String deleted) {
+        this.deleted = deleted;
     }
-}
+
+
+   }

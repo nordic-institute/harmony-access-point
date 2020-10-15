@@ -354,7 +354,9 @@ export class UserComponent extends mix(BaseListComponent)
 
   protected createAndSetParameters(): HttpParams {
     let filterParams = super.createAndSetParameters();
-    filterParams = filterParams.append('isDeletedUsers',this.filter.deleted_notSet);
+    if(this.filter.deleted_notSet){
+      filterParams = filterParams.set('deleted','all');
+    }
     filterParams = filterParams.append('page', '0');
     filterParams = filterParams.append('pageSize', '10000');
     return filterParams;
