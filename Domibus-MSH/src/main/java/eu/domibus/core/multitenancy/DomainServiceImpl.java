@@ -112,8 +112,8 @@ public class DomainServiceImpl implements DomainService {
         if (generalSchema == null) {
             synchronized (generalSchemaLock) {
                 if (generalSchema == null) {
-                    LOG.debug("Caching general schema [{}]", generalSchema);
                     generalSchema = domibusPropertyProvider.getProperty(DomainService.GENERAL_SCHEMA_PROPERTY);
+                    LOG.debug("Caching general schema [{}]", generalSchema);
                 }
             }
         }
