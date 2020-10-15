@@ -105,6 +105,7 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
             }
             messageOut.setStringProperty(PROTOCOL, "AS4");
             messageOut.setStringProperty(AGREEMENT_REF, submission.getAgreementRef());
+            messageOut.setStringProperty(AGREEMENT_REF_TYPE, submission.getAgreementRefType());
             messageOut.setStringProperty(REF_TO_MESSAGE_ID, submission.getRefToMessageId());
 
             // save the first payload (payload_1) for the bodyload (if exists)
@@ -218,6 +219,8 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
             target.setServiceType(getPropertyWithFallback(messageIn, SERVICE_TYPE));
 
             target.setAgreementRef(getPropertyWithFallback(messageIn, AGREEMENT_REF));
+
+            target.setAgreementRefType(getPropertyWithFallback(messageIn, AGREEMENT_REF_TYPE));
 
             target.setConversationId(trim(messageIn.getStringProperty(CONVERSATION_ID)));
 

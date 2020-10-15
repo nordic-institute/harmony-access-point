@@ -50,6 +50,7 @@ public class JMSMessageTransformerTest {
     private static final String PAYLOAD_2_FILENAME = "payload_2_fileName";
     private static final String FILENAME_TEST = "09878378732323.payload";
     private static final String CUSTOM_AGREEMENT_REF = "customAgreement";
+    private static final String CUSTOM_AGREEMENT_REF_TYPE = "customAgreementType";
 
 
     @Injectable
@@ -151,6 +152,7 @@ public class JMSMessageTransformerTest {
         messageMap.setStringProperty(JMSMessageConstants.PROPERTY_FINAL_RECIPIENT_TYPE, FINAL_RECIPIENT_TYPE);
         messageMap.setStringProperty(JMSMessageConstants.PROTOCOL, PROTOCOL_AS4);
         messageMap.setStringProperty(JMSMessageConstants.AGREEMENT_REF, "customAgreement");
+        messageMap.setStringProperty(JMSMessageConstants.AGREEMENT_REF_TYPE, "ref_type");
         messageMap.setStringProperty(PAYLOAD_1_FILENAME, FILENAME_TEST);
 
         messageMap.setJMSCorrelationID("12345");
@@ -221,6 +223,7 @@ public class JMSMessageTransformerTest {
         messageMap.setStringProperty(JMSMessageConstants.PROPERTY_FINAL_RECIPIENT, "\t" + FINAL_RECIPIENT + "\t");
         messageMap.setStringProperty(JMSMessageConstants.PROTOCOL, "\t" + PROTOCOL_AS4 + "\t\t");
         messageMap.setStringProperty(JMSMessageConstants.AGREEMENT_REF, CUSTOM_AGREEMENT_REF);
+        messageMap.setStringProperty(JMSMessageConstants.AGREEMENT_REF_TYPE, CUSTOM_AGREEMENT_REF_TYPE);
 
         messageMap.setJMSCorrelationID("12345");
 
@@ -288,6 +291,9 @@ public class JMSMessageTransformerTest {
 
             testObj.getProperty(JMSMessageConstants.AGREEMENT_REF);
             result = CUSTOM_AGREEMENT_REF;
+
+            testObj.getProperty(JMSMessageConstants.AGREEMENT_REF_TYPE);
+            result = CUSTOM_AGREEMENT_REF_TYPE;
         }};
 
         MapMessage messageMap = new ActiveMQMapMessage();
@@ -326,6 +332,7 @@ public class JMSMessageTransformerTest {
         Assert.assertEquals(SERVICE_TYPE_TC1, objSubmission.getServiceType());
         Assert.assertEquals(ACTION_TC1LEG1, objSubmission.getAction());
         Assert.assertEquals(CUSTOM_AGREEMENT_REF, objSubmission.getAgreementRef());
+        Assert.assertEquals(CUSTOM_AGREEMENT_REF_TYPE, objSubmission.getAgreementRefType());
     }
 
 }
