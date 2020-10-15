@@ -2,6 +2,8 @@ package eu.domibus.core.message.retention;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.security.AuthUtils;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.scheduler.DomibusQuartzJobBean;
 import eu.domibus.logging.DomibusLogger;
@@ -29,6 +31,8 @@ public class RetentionWorker extends DomibusQuartzJobBean {
     private AuthUtils authUtils;
 
     @Override
+    @Timer(clazz = RetentionWorker.class,value = "deleteExpiredMessages")
+    @Counter(clazz = RetentionWorker.class,value = "deleteExpiredMessages")
     protected void executeJob(JobExecutionContext context, Domain domain) {
         LOG.debug("RetentionWorker executed");
         authUtils.runWithSecurityContext(this::executeJob, "retention_user", "retention_password");

@@ -31,6 +31,7 @@ public class DMessages {
 	public static final String PASS_NO_MATCH_MESSAGE = "Passwords do not match";
 	public static final String PASS_EMPTY_MESSAGE = "You should type a password";
 
+	public static final String PLUGINUSER_MODAL_ORIGINAL_USER_ERR = "You should follow the rule: urn:oasis:names:tc:ebcore:partyid-type:[unregistered]:[corner]";
 	public static final String PLUGINUSER_SAVE_SUCCESS = "The operation 'update plugin users' completed successfully.";
 	public static final String PLUGINUSER_DUPLICATE_USERNAME = "The operation 'update plugin users' did not complete successfully. [DOM_001]:Cannot add user %s because it already exists in the %s domain.";
 	public static final String PLUGINUSER_DUPLICATE_USERNAME_SAMEDOMAIN = "The operation 'update plugin users' did not complete successfully. [DOM_001]:Cannot add user %s because this name already exists.";
@@ -74,7 +75,7 @@ public class DMessages {
 	
 	public class Users {
 		public static final String DUPLICATE_USERNAME_ERROR = "The operation 'update users' did not complete successfully. [DOM_001]:Cannot add user %s because it already exists in the %s domain.";
-		public static final String DUPLICATE_USERNAME_SAMEDOMAIN_ERROR = "Duplicate user name for user: %s.";
+		public static final String DUPLICATE_USERNAME_SAMEDOMAIN_ERROR = "The operation 'update users' did not complete successfully. Duplicate user name for users: %s";
 	}
 
 }
