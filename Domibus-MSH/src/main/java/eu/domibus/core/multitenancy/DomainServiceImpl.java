@@ -12,7 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DATABASE_SCHEMA;
 
@@ -26,6 +28,10 @@ public class DomainServiceImpl implements DomainService {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainServiceImpl.class);
 
     private static final String DEFAULT_QUARTZ_SCHEDULER_NAME = "schedulerFactoryBean";
+
+    protected final Object generalSchemaLock = new Object();
+    protected volatile String generalSchema;
+    protected volatile Map<Domain, String> domainSchemas = new HashMap<>();
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
@@ -76,20 +82,42 @@ public class DomainServiceImpl implements DomainService {
     }
 
     /**
-     * Get database schema name for the domain
+     * Get database schema name for the domain. Uses a local cache. This mechanism should be removed when EDELIVERY-7353 it will be implemented
      *
      * @param domain
      * @return database schema name
      */
-
     @Override
-    public String getDatabaseSchema(Domain domain){
-        return domibusPropertyProvider.getProperty(domain, DOMIBUS_DATABASE_SCHEMA);
+    public String getDatabaseSchema(Domain domain) {
+        String domainSchema = domainSchemas.get(domain);
+        if (domainSchema == null) {
+            synchronized (domainSchemas) {
+                if (domainSchemas.get(domain) == null) {
+                    String value = domibusPropertyProvider.getProperty(domain, DOMIBUS_DATABASE_SCHEMA);
+                    LOG.debug("Caching domain schema [{}] for domain [{}]", value, domain);
+                    domainSchemas.put(domain, value);
+                    domainSchema = value;
+                }
+            }
+        }
+
+        return domainSchema;
     }
 
+    /**
+     * Get the configured general schema. Uses a local cache. This mechanism should be removed when EDELIVERY-7353 it will be implemented
+     */
     @Override
     public String getGeneralSchema() {
-        return domibusPropertyProvider.getProperty(DomainService.GENERAL_SCHEMA_PROPERTY);
+        if (generalSchema == null) {
+            synchronized (generalSchemaLock) {
+                if (generalSchema == null) {
+                    LOG.debug("Caching general schema [{}]", generalSchema);
+                    generalSchema = domibusPropertyProvider.getProperty(DomainService.GENERAL_SCHEMA_PROPERTY);
+                }
+            }
+        }
+        return generalSchema;
     }
 
     @Override
