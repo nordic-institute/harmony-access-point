@@ -63,6 +63,8 @@ export class DomainSelectorComponent implements OnInit {
   }
 
   async changeDomain() {
+    this.alertService.clearAlert();
+
     try {
       const canChange = await this.canChangeDomain();
       if (!canChange) {

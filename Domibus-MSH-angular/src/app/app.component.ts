@@ -77,17 +77,6 @@ export class AppComponent implements OnInit {
       });
   }
 
-  private onHttpEventService(error) {
-    // TODO(18/09/20, Ion Perpegel): review the possible status values and their meaning
-    if (error && (error.status === Server.HTTP_FORBIDDEN || error.status === Server.HTTP_UNAUTHORIZED)) {
-      // did we have previously a valid session?
-      if (this.securityService.isClientConnected()) {
-        this.sessionService.setExpiredSession(SessionState.EXPIRED_INACTIVITY_OR_ERROR);
-        this.securityService.logout();
-      }
-    }
-  }
-
   isAdmin(): boolean {
     return this.securityService.isCurrentUserAdmin();
   }
@@ -132,4 +121,14 @@ export class AppComponent implements OnInit {
     this.router.navigate(['changePassword']);
   }
 
+  private onHttpEventService(error) {
+    // TODO(18/09/20, Ion Perpegel): review the possible status values and their meaning
+    if (error && (error.status === Server.HTTP_FORBIDDEN || error.status === Server.HTTP_UNAUTHORIZED)) {
+      // did we have previously a valid session?
+      if (this.securityService.isClientConnected()) {
+        this.sessionService.setExpiredSession(SessionState.EXPIRED_INACTIVITY_OR_ERROR);
+        this.securityService.logout();
+      }
+    }
+  }
 }
