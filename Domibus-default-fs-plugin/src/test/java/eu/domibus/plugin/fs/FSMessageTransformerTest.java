@@ -59,6 +59,7 @@ public class FSMessageTransformerTest {
     private static final String APPLICATION_XML = "application/xml";
     private static final String TEXT_XML = "text/xml";
     private static final String AGREEMENT_REF_A1 = "A1";
+    private static final String AGREEMENT_REF_TYPE_T1 = "T1";
     private static final String EMPTY_STR = "";
     private static final String MYPROP = "MyProp";
     private static final String MYPROP_TYPE = "propType";
@@ -92,7 +93,7 @@ public class FSMessageTransformerTest {
         submission.setServiceType(SERVICE_TYPE_TC1);
         submission.setService(SERVICE_NOPROCESS);
         submission.setAction(ACTION_TC1LEG1);
-        submission.setAgreementRefType(EMPTY_STR);
+        submission.setAgreementRefType(AGREEMENT_REF_TYPE_T1);
         submission.setAgreementRef(AGREEMENT_REF_A1);
         submission.setConversationId(conversationId);
 
