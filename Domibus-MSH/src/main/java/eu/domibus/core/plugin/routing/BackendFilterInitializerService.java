@@ -61,12 +61,16 @@ public class BackendFilterInitializerService {
 
         // multitenancy
         final List<Domain> domains = domainService.getDomains();
-        LOG.debug("Creating plugin backend filters for all the domains in MultiTenancy environment");
+        LOG.debug("Checking and updating the configured plugins for all the domains in MultiTenancy environment");
         for (Domain domain : domains) {
+            LOG.debug("Checking and updating the configured plugins for domain [{}]", domain);
+
             Runnable wrappedCreateBackendFilters = () -> authUtils.runWithSecurityContext(
                     routingService::createBackendFilters, "domibus",
                     "domibus", AuthRole.ROLE_AP_ADMIN, true);
             domainTaskExecutor.submit(wrappedCreateBackendFilters, domain);
+
+            LOG.debug("Finished checking and updating the configured plugins for domain [{}]", domain);
         }
 
         LOG.info("Finished checking and updating the configured plugins");
