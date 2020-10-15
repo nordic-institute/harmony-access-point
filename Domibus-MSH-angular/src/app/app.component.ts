@@ -60,12 +60,9 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit() {
-    this.sessionService.resetCurrentSession();
-    this.securityService.clearSession();
-    const user = await this.securityService.getCurrentUserFromServer();
-    if (user) {
-      this.securityService.initialiseApp(user);
-    }
+    const getUserFn = () => this.securityService.getCurrentUserFromServer();
+    await this.securityService.initialiseApp(getUserFn);
+
     this.extAuthProviderEnabled = await this.domibusInfoService.isExtAuthProviderEnabled();
     if (this.extAuthProviderEnabled && this.extAuthProvideRedirectTo) {
       const success = await this.router.navigate([this.extAuthProvideRedirectTo]);

@@ -46,24 +46,26 @@ export class SecurityService {
     SecurityService.injector = this.injector;
   }
 
-  async login(username: string, password: string): Promise<User> {
-    this.domainService.resetDomain();
-    this.sessionService.resetCurrentSession();
-
+  async login(username: string, password: string) {
     try {
-      const user = await this.http.post<User>('rest/security/authentication', {username: username, password: password}).toPromise();
-      if (!user) {
-        console.log('Login returned a null user!');
-        throw new Error('An error occurred while logging in.');
-      }
-      this.initialiseApp(user);
-      this.securityEventService.notifyLoginSuccessEvent(user);
-      return user;
+      this.domainService.resetDomain();
+      const getUserFn = () => this.doLogin(username, password);
+      await this.initialiseApp(getUserFn);
+      this.securityEventService.notifyLoginSuccessEvent();
     } catch (error) {
       console.log('Login error:', error);
       this.securityEventService.notifyLoginErrorEvent(error);
       throw error;
     }
+  }
+
+  private async doLogin(username: string, password: string): Promise<User> {
+    const user = await this.http.post<User>('rest/security/authentication', {username: username, password: password}).toPromise();
+    if (!user) {
+      console.log('Login returned a null user!');
+      throw new Error('An error occurred while logging in.');
+    }
+    return user;
   }
 
   async logout() {
@@ -244,7 +246,7 @@ export class SecurityService {
       return true;
     }
 
-    const canBypassCheckDirty = await this.canBypassCheckDirty();
+    const canBypassCheckDirty = await this.canBypassDirtyChecking();
     if (canBypassCheckDirty) {
       return true;
     }
@@ -256,7 +258,7 @@ export class SecurityService {
     return this.dialogsService.openCancelDialog();
   }
 
-  private async canBypassCheckDirty(): Promise<boolean> {
+  private async canBypassDirtyChecking(): Promise<boolean> {
     if (this.sessionService.getCurrentSession() !== SessionState.ACTIVE) {
       return true;
     }
@@ -275,7 +277,12 @@ export class SecurityService {
     return this.getCurrentUser() != null;
   }
 
-  initialiseApp(user: User) {
+  async initialiseApp(getUserFn: () => Promise<User>) {
+    this.sessionService.resetCurrentSession();
+    this.clearSession();
+
+    const user: User = await getUserFn();
+
     this.updateCurrentUser(user);
     this.domainService.setAppTitle();
     this.sessionService.updateCurrentSession(SessionState.ACTIVE);
