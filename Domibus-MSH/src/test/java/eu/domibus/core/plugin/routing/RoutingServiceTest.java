@@ -550,11 +550,7 @@ public class RoutingServiceTest {
         List<CriteriaFactory> routingCriteriaFactories = new ArrayList<>();
         routingCriteriaFactories.add(criteriaFactory);
         routingService.routingCriteriaFactories = routingCriteriaFactories;
-        routingService.domibusConfigurationService = domibusConfigurationService;
-        routingService.domainService = domainService;
-        routingService.domainTaskExecutor = domainTaskExecutor;
         routingService.backendConnectorProvider = backendConnectorProvider;
-        routingService.authUtils = authUtils;
 
         List<BackendConnector> backendConnectors = new ArrayList<>();
         backendConnectors.add(backendConnector);
@@ -609,9 +605,6 @@ public class RoutingServiceTest {
         domains.add(domain);
 
         routingService.routingCriteriaFactories = routingCriteriaFactories;
-        routingService.domibusConfigurationService = domibusConfigurationService;
-        routingService.domainService = domainService;
-        routingService.domainTaskExecutor = domainTaskExecutor;
         routingService.backendConnectorProvider = backendConnectorProvider;
 
         List<BackendConnector> backendConnectors = new ArrayList<>();
@@ -676,9 +669,6 @@ public class RoutingServiceTest {
         domains.add(domain);
 
         routingService.routingCriteriaFactories = routingCriteriaFactories;
-        routingService.domibusConfigurationService = domibusConfigurationService;
-        routingService.domainService = domainService;
-        routingService.domainTaskExecutor = domainTaskExecutor;
         routingService.backendConnectorProvider = backendConnectorProvider;
 
         List<BackendConnector> backendConnectors = new ArrayList<>();
@@ -726,11 +716,7 @@ public class RoutingServiceTest {
         domains.add(domain);
 
         routingService.routingCriteriaFactories = routingCriteriaFactories;
-        routingService.domibusConfigurationService = domibusConfigurationService;
-        routingService.domainService = domainService;
-        routingService.domainTaskExecutor = domainTaskExecutor;
         routingService.backendConnectorProvider = backendConnectorProvider;
-        routingService.authUtils = authUtils;
 
         List<BackendConnector> backendConnectors = new ArrayList<>();
         backendConnectors.add(backendConnector);
@@ -857,7 +843,6 @@ public class RoutingServiceTest {
         RoutingService routingService = new RoutingService();
         routingService.backendFilterDao = backendFilterDao;
         routingService.backendConnectorProvider = backendConnectorProvider;
-        routingService.authUtils = authUtils;
 
         List<BackendFilterEntity> entitiesInDb = new ArrayList<>();
 
@@ -1080,7 +1065,6 @@ public class RoutingServiceTest {
         RoutingService routingService = new RoutingService();
         routingService.backendFilterDao = backendFilterDao;
         routingService.backendConnectorProvider = backendConnectorProvider;
-        routingService.authUtils = authUtils;
 
         List<BackendFilterEntity> entitiesInDb = new ArrayList<>();
         entitiesInDb.add(dbBackendFilterEntity);
@@ -1132,7 +1116,6 @@ public class RoutingServiceTest {
         RoutingService routingService = new RoutingService();
         routingService.backendFilterDao = backendFilterDao;
         routingService.backendConnectorProvider = backendConnectorProvider;
-        routingService.authUtils = authUtils;
         routingService.signalService = signalService;
         routingService.coreConverter = coreConverter;
 

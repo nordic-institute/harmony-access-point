@@ -3,13 +3,8 @@ package eu.domibus.core.plugin.routing;
 import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.api.multitenancy.DomainTaskExecutor;
-import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.routing.RoutingCriteria;
-import eu.domibus.api.security.AuthRole;
-import eu.domibus.api.security.AuthUtils;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.plugin.BackendConnectorProvider;
@@ -24,6 +19,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
@@ -54,22 +50,10 @@ public class RoutingService {
     protected DomainCoreConverter coreConverter;
 
     @Autowired
-    protected DomibusConfigurationService domibusConfigurationService;
-
-    @Autowired
-    protected DomainService domainService;
-
-    @Autowired
-    protected DomainTaskExecutor domainTaskExecutor;
-
-    @Autowired
     protected List<CriteriaFactory> routingCriteriaFactories;
 
     @Autowired
     protected DomainContextProvider domainContextProvider;
-
-    @Autowired
-    protected AuthUtils authUtils;
 
     @Autowired
     protected SignalService signalService;
@@ -80,26 +64,6 @@ public class RoutingService {
 
     @PostConstruct
     public void init() {
-        if (CollectionUtils.isEmpty(backendConnectorProvider.getBackendConnectors())) {
-            throw new ConfigurationException("No Plugin available! Please configure at least one backend plugin in order to run domibus");
-        }
-
-        if (domibusConfigurationService.isSingleTenantAware()) {
-            LOG.debug("Creating plugin backend filters in Non MultiTenancy environment");
-            authUtils.runWithSecurityContext(this::createBackendFilters,
-                    "domibus", "domibus", AuthRole.ROLE_AP_ADMIN, true );
-        } else {
-            // Get All Domains
-            final List<Domain> domains = domainService.getDomains();
-            LOG.debug("Creating plugin backend filters for all the domains in MultiTenancy environment");
-            for (Domain domain : domains) {
-                Runnable wrappedCreateBackendFilters = () -> authUtils.runWithSecurityContext(
-                        this::createBackendFilters, "domibus",
-                        "domibus", AuthRole.ROLE_AP_ADMIN, true );
-                domainTaskExecutor.submit( wrappedCreateBackendFilters, domain);
-            }
-        }
-
         criteriaMap = new HashMap<>();
         for (final CriteriaFactory routingCriteriaFactory : routingCriteriaFactories) {
             criteriaMap.put(routingCriteriaFactory.getName(), routingCriteriaFactory.getInstance());
@@ -134,14 +98,15 @@ public class RoutingService {
     /**
      * Create backend filters for the installed plugins that do not have one already created
      */
-    protected void createBackendFilters() {
+    @Transactional
+    public void createBackendFilters() {
         List<BackendFilterEntity> backendFilterEntitiesInDB = backendFilterDao.findAll();
         List<String> pluginToAdd = backendConnectorProvider.getBackendConnectors()
                 .stream()
                 .map(BackendConnector::getName)
                 .collect(Collectors.toList());
 
-//checking if any existing database plugins are already removed from the plugin location
+        //checking if any existing database plugins are already removed from the plugin location
         List<BackendFilterEntity> dbFiltersNotInBackendConnectors = backendFilterEntitiesInDB.stream().filter(
                 backendFilterEntity -> pluginToAdd.stream().noneMatch(plugin -> StringUtils.equalsIgnoreCase(plugin, backendFilterEntity.getBackendName()))).collect(Collectors.toList());
         if (!CollectionUtils.isEmpty(dbFiltersNotInBackendConnectors)) {
