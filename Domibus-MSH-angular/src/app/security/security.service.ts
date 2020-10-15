@@ -67,7 +67,7 @@ export class SecurityService {
     return user;
   }
 
-  async logout() {
+  async logout(): Promise<any> {
     this.alertService.close();
 
     const canLogout = await this.canLogout();
@@ -79,7 +79,7 @@ export class SecurityService {
     this.clearSession();
     this.domainService.resetDomain();
 
-    this.http.delete('rest/security/authentication').subscribe((res) => {
+    return this.http.delete('rest/security/authentication').subscribe((res) => {
         this.securityEventService.notifyLogoutSuccessEvent(res);
       },
       (error: any) => {

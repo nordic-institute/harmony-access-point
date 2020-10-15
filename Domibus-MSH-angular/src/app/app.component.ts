@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {SecurityService} from './security/security.service';
 import {NavigationEnd, Router, RouterOutlet, RoutesRecognized} from '@angular/router';
 import {SecurityEventService} from './security/security.event.service';
@@ -6,11 +6,9 @@ import {DomainService} from './security/domain.service';
 import {HttpEventService} from './common/http/http.event.service';
 import {DomibusInfoService} from './common/appinfo/domibusinfo.service';
 import {ApplicationContextService} from './common/application-context.service';
-import {SessionExpiredDialogComponent} from './security/session-expired-dialog/session-expired-dialog.component';
 import {DialogsService} from './common/dialogs/dialogs.service';
 import {Server} from './security/Server';
-import {SESSION_STORAGE_KEY_EXPIRATION_SHOWN, SESSION_STORAGE_KEY_LOGGED_OUT, SessionState} from './security/SessionState';
-import {Subscription, timer} from 'rxjs';
+import {SessionState} from './security/SessionState';
 import {SessionService} from './security/session.service';
 
 @Component({
@@ -18,7 +16,7 @@ import {SessionService} from './security/session.service';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent implements OnInit, OnDestroy {
+export class AppComponent implements OnInit {
 
   fullMenu = true;
   menuClass: string = this.fullMenu ? 'menu-expanded' : 'menu-collapsed';
@@ -28,9 +26,6 @@ export class AppComponent implements OnInit, OnDestroy {
 
   @ViewChild(RouterOutlet, {static: false})
   outlet: RouterOutlet;
-
-  private loginSubscription: Subscription;
-  private timerSubscription: Subscription;
 
   constructor(private securityService: SecurityService,
               private router: Router,
@@ -48,7 +43,8 @@ export class AppComponent implements OnInit, OnDestroy {
     this.router.events.subscribe(event => {
       if (event instanceof RoutesRecognized) {
         if (event.url.indexOf('?ticket=ST') !== -1) {
-          this.onLoginSuccessEvent();
+          this.sessionService.clearSessionStorage();
+          this.sessionService.updateCurrentSession(SessionState.ACTIVE);
           let route = event.state.root.firstChild;
           this.extAuthProvideRedirectTo = '/' + route.url;
         }
@@ -73,39 +69,12 @@ export class AppComponent implements OnInit, OnDestroy {
 
     this.isMultiDomain = await this.domainService.isMultiDomain().toPromise();
 
-    this.loginSubscription = this.securityEventService.onLoginSuccessEvent().subscribe(() => this.onLoginSuccessEvent());
-
-    this.timerSubscription = timer(0, 3000).subscribe(everyThreeSeconds => this.refreshUsingSessionState());
-
     this.httpEventService.subscribe((error) => this.onHttpEventService(error));
 
     this.securityEventService.onLogoutSuccessEvent().subscribe(
       data => {
         this.router.navigate([this.isExtAuthProviderEnabled() ? '/logout' : '/login']);
       });
-  }
-
-  private refreshUsingSessionState() {
-    const session: SessionState = this.sessionService.getCurrentSession();
-
-    if (session === SessionState.ACTIVE) {
-      if ((this.isExtAuthProviderEnabled() && this.router.url.match(/\/logout(\?.*)?$/))
-        || (!this.isExtAuthProviderEnabled() && this.router.url.match(/\/login(\?.*)?$/))) {
-        this.clearSessionStorage();
-
-        // refresh the router outlet since we logged in another browser tab
-        this.refreshRoute();
-      }
-    } else if (session === SessionState.EXPIRED_INACTIVITY_OR_ERROR || session === SessionState.EXPIRED_LOGGED_OUT) {
-      if (this.isExpirationDialogAlreadyShown() || this.isManuallyLoggedOutInThisBrowserTab()) {
-        return;
-      }
-      this.setExpirationDialogAlreadyShown();
-      this.dialogsService.openAndThen(SessionExpiredDialogComponent, {data: session}).then(data => {
-        // refresh the router outlet since we logged out in another browser tab
-        this.refreshRoute();
-      });
-    }
   }
 
   private onHttpEventService(error) {
@@ -117,21 +86,6 @@ export class AppComponent implements OnInit, OnDestroy {
         this.securityService.logout();
       }
     }
-  }
-
-  private refreshRoute() {
-    this.router.navigate([], {
-      skipLocationChange: true, // don't pushing a new state into history
-    });
-  }
-
-  ngOnDestroy() {
-    this.loginSubscription.unsubscribe();
-    this.timerSubscription.unsubscribe();
-  }
-
-  onLoginSuccessEvent() {
-    this.clearSessionStorage();
   }
 
   isAdmin(): boolean {
@@ -156,10 +110,10 @@ export class AppComponent implements OnInit, OnDestroy {
     return user ? user.username : '';
   }
 
-  logout(event: Event): void {
+  async logout(event: Event) {
     event.preventDefault();
-    this.securityService.logout();
-    this.setManuallyLoggedOutInThisTab();
+    await this.securityService.logout();
+    this.sessionService.setManuallyLoggedOutInThisTab();
   }
 
   toggleMenu() {
@@ -178,24 +132,4 @@ export class AppComponent implements OnInit, OnDestroy {
     this.router.navigate(['changePassword']);
   }
 
-  private setExpirationDialogAlreadyShown() {
-    sessionStorage.setItem(SESSION_STORAGE_KEY_EXPIRATION_SHOWN, 'true');
-  }
-
-  private isExpirationDialogAlreadyShown() {
-    return sessionStorage.getItem(SESSION_STORAGE_KEY_EXPIRATION_SHOWN);
-  }
-
-  private setManuallyLoggedOutInThisTab() {
-    sessionStorage.setItem(SESSION_STORAGE_KEY_LOGGED_OUT, 'true');
-  }
-
-  private isManuallyLoggedOutInThisBrowserTab() {
-    return sessionStorage.getItem(SESSION_STORAGE_KEY_LOGGED_OUT);
-  }
-
-  private clearSessionStorage() {
-    sessionStorage.removeItem(SESSION_STORAGE_KEY_EXPIRATION_SHOWN);
-    sessionStorage.removeItem(SESSION_STORAGE_KEY_LOGGED_OUT);
-  }
 }

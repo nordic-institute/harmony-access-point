@@ -104,6 +104,8 @@ export class DomainSelectorComponent implements OnInit {
       this.domainCode = this.currentDomainCode;
       if (ex.status <= 0) {
         this.alertService.exception('The server didn\'t respond, please try again later', ex);
+      } else {
+        this.alertService.exception('Error trying to chenge the domain: ', ex);
       }
     }
   }
