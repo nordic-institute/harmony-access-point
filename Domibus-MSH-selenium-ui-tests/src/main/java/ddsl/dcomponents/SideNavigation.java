@@ -151,7 +151,13 @@ public class SideNavigation extends DComponent {
 		DLink link = getPageLnk(page);
 		String text = link.element.findElement(By.cssSelector("span span")).getText().trim();
 
-		if(StringUtils.containsIgnoreCase(pg.getTitle(), text)){
+		String pgTitle = null;
+
+		try {
+			pgTitle = pg.getTitle();
+		} catch (Exception e) { }
+
+		if(StringUtils.containsIgnoreCase(pgTitle, text)){
 			log.info("already here, refreshing page");
 			pg.refreshPage();
 		}else {
