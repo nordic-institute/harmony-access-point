@@ -1,7 +1,6 @@
 package eu.domibus.core.spring;
 
 import eu.domibus.api.encryption.EncryptionService;
-import eu.domibus.core.plugin.routing.RoutingService;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -18,9 +17,6 @@ public class DomibusContextRefreshedListenerTest {
 
     @Injectable
     protected EncryptionService encryptionService;
-
-    @Injectable
-    RoutingService routingService;
 
     @Tested
     DomibusContextRefreshedListener domibusContextRefreshedListener;
@@ -42,8 +38,6 @@ public class DomibusContextRefreshedListenerTest {
         new Verifications() {{
             encryptionService.handleEncryption();
             times = 0;
-            routingService.init();
-            times = 0;
         }};
     }
 
@@ -63,8 +57,6 @@ public class DomibusContextRefreshedListenerTest {
 
         new Verifications() {{
             encryptionService.handleEncryption();
-            times = 1;
-            routingService.init();
             times = 1;
         }};
     }
