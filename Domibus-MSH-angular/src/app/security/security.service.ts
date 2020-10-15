@@ -139,11 +139,11 @@ export class SecurityService {
         this.isUserConnected().then(isConnected => {
           resolve(true);
         }, err => {
-          console.log('Error while calling isUserConnected: ' + err);
+          console.log('Error while calling isUserConnected: ',  err);
           resolve(false);
         });
       } catch (ex) {
-        console.log('Error while calling isUserConnected: ' + ex);
+        console.log('Error while calling isUserConnected: ', ex);
         this.alertService.error('An error occurred while checking authentication:');
         resolve(false);
       }
@@ -277,7 +277,7 @@ export class SecurityService {
     return this.getCurrentUser() != null;
   }
 
-  async initialiseApp(getUserFn: () => Promise<User>) {
+  async initialiseApp(getUserFn: () => Promise<User>): Promise<User> {
     this.sessionService.resetCurrentSession();
     this.clearSession();
 
@@ -286,6 +286,8 @@ export class SecurityService {
     this.updateCurrentUser(user);
     this.domainService.setAppTitle();
     this.sessionService.updateCurrentSession(SessionState.ACTIVE);
+
+    return user;
   }
 }
 

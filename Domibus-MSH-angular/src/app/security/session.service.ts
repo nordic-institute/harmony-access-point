@@ -11,7 +11,7 @@ import {LOCAL_STORAGE_KEY_CURRENT_SESSION, SessionState} from './SessionState';
 export class SessionService {
 
   resetCurrentSession() {
-    localStorage.setItem(LOCAL_STORAGE_KEY_CURRENT_SESSION, JSON.stringify(SessionState.NOT_INITIALISED));
+    localStorage.setItem(LOCAL_STORAGE_KEY_CURRENT_SESSION, JSON.stringify(SessionState.INACTIVE));
   }
 
   getCurrentSession(): SessionState {
@@ -27,7 +27,7 @@ export class SessionService {
     if (session === SessionState.EXPIRED_LOGGED_OUT || session === SessionState.EXPIRED_INACTIVITY_OR_ERROR) {
       const currentSession = this.getCurrentSession();
       // Only mark the current session as expired when the user is logged in
-      if (currentSession === SessionState.NOT_INITIALISED || currentSession === SessionState.ACTIVE) {
+      if (currentSession === SessionState.ACTIVE) {
         this.updateCurrentSession(session);
       }
     }
