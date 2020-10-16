@@ -82,7 +82,7 @@ public class BackendFilterInitializerServiceTest {
             Assert.assertNotNull(function);
             Assert.assertEquals("domibus", username);
             Assert.assertEquals("domibus", password);
-            Assert.assertEquals(AuthRole.ROLE_AP_ADMIN, role);
+            Assert.assertEquals(AuthRole.ROLE_ADMIN, role);
             Assert.assertTrue(forceSetContext); // always true for audit reasons
         }};
     }

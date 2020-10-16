@@ -59,7 +59,7 @@ public class BackendFilterInitializerService {
         if (domibusConfigurationService.isSingleTenantAware()) {
             LOG.debug("Creating plugin backend filters in Non MultiTenancy environment");
             authUtils.runWithSecurityContext(routingService::createBackendFilters,
-                    "domibus", "domibus", AuthRole.ROLE_AP_ADMIN, true);
+                    "domibus", "domibus", AuthRole.ROLE_ADMIN, true);
             return;
         }
 
