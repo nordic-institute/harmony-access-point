@@ -486,7 +486,7 @@ public class CachingPModeProvider extends PModeProvider {
      * @param identifierPartyIdType
      * @return
      */
-    private boolean isPartyIdTypeMatching(String partyIdType, String identifierPartyIdType) {
+    protected boolean isPartyIdTypeMatching(String partyIdType, String identifierPartyIdType) {
         return (isEmpty(partyIdType) && isEmpty(identifierPartyIdType)) || equalsIgnoreCase(partyIdType, identifierPartyIdType);
     }
 
