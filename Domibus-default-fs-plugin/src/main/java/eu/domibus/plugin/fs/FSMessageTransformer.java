@@ -90,7 +90,7 @@ public class FSMessageTransformer implements MessageRetrievalTransformer<FSMessa
         setPartyInfoToSubmission(submission, metadata.getPartyInfo());
         setCollaborationInfoToSubmission(submission, metadata.getCollaborationInfo());
         setMessagePropertiesToSubmission(submission, metadata.getMessageProperties());
-            try {
+        try {
             setPayloadToSubmission(submission, messageIn.getPayloads(), metadata);
         } catch (FSPayloadException ex) {
             throw new FSPluginException("Could not set payload to Submission", ex);
