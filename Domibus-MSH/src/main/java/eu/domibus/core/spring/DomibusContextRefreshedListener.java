@@ -1,6 +1,7 @@
 package eu.domibus.core.spring;
 
 import eu.domibus.api.encryption.EncryptionService;
+import eu.domibus.core.plugin.routing.BackendFilterInitializerService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,9 @@ public class DomibusContextRefreshedListener {
     @Autowired
     protected EncryptionService encryptionService;
 
+    @Autowired
+    protected BackendFilterInitializerService backendFilterInitializerService;
+
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     @EventListener
     public void onApplicationEvent(ContextRefreshedEvent event) {
@@ -34,6 +38,7 @@ public class DomibusContextRefreshedListener {
             return;
         }
 
+        backendFilterInitializerService.updateMessageFilters();
         encryptionService.handleEncryption();
 
         LOG.info("Finished processing ContextRefreshedEvent");

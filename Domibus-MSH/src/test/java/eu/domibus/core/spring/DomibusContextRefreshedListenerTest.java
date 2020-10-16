@@ -1,6 +1,7 @@
 package eu.domibus.core.spring;
 
 import eu.domibus.api.encryption.EncryptionService;
+import eu.domibus.core.plugin.routing.BackendFilterInitializerService;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -15,11 +16,14 @@ import org.springframework.context.event.ContextRefreshedEvent;
  */
 public class DomibusContextRefreshedListenerTest {
 
-    @Injectable
-    protected EncryptionService encryptionService;
-
     @Tested
     DomibusContextRefreshedListener domibusContextRefreshedListener;
+
+    @Injectable
+    protected BackendFilterInitializerService backendFilterInitializerService;
+
+    @Injectable
+    protected EncryptionService encryptionService;
 
 
     @Test
@@ -37,6 +41,9 @@ public class DomibusContextRefreshedListenerTest {
 
         new Verifications() {{
             encryptionService.handleEncryption();
+            times = 0;
+
+            backendFilterInitializerService.updateMessageFilters();
             times = 0;
         }};
     }
@@ -57,6 +64,9 @@ public class DomibusContextRefreshedListenerTest {
 
         new Verifications() {{
             encryptionService.handleEncryption();
+            times = 1;
+
+            backendFilterInitializerService.updateMessageFilters();
             times = 1;
         }};
     }
