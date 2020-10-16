@@ -22,6 +22,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static eu.domibus.logging.DomibusMessageCode.MANDATORY_MESSAGE_HEADER_METADATA_MISSING;
+
 /**
  * This class is responsible for transformations from {@link FSMessage} to
  * {@link eu.domibus.plugin.Submission} and vice versa
@@ -35,6 +37,7 @@ public class FSMessageTransformer implements MessageRetrievalTransformer<FSMessa
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FSMessageTransformer.class);
 
     private static final String PAYLOAD_PROPERTY_MIME_TYPE = "MimeType";
+    public static final String PARTY_INFO_FROM_PARTY_ID = "PartyInfo/From/PartyId";
 
     protected final ObjectFactory objectFactory = new ObjectFactory();
 
@@ -44,6 +47,7 @@ public class FSMessageTransformer implements MessageRetrievalTransformer<FSMessa
     @Autowired
     protected FileUtilExtService fileUtilExtService;
 
+
     /**
      * Transforms {@link eu.domibus.plugin.Submission} to {@link FSMessage}
      *
@@ -52,7 +56,7 @@ public class FSMessageTransformer implements MessageRetrievalTransformer<FSMessa
      * @return result of the transformation as {@link FSMessage}
      */
     @Override
-    public FSMessage transformFromSubmission(final Submission submission, final FSMessage messageOut) {
+    public FSMessage transformFromSubmission(final Submission submission, final FSMessage messageOut){
         UserMessage metadata = objectFactory.createUserMessage();
         metadata.setMessageInfo(getMessageInfo(submission));
         metadata.setMpc(submission.getMpc());
@@ -86,7 +90,7 @@ public class FSMessageTransformer implements MessageRetrievalTransformer<FSMessa
         setPartyInfoToSubmission(submission, metadata.getPartyInfo());
         setCollaborationInfoToSubmission(submission, metadata.getCollaborationInfo());
         setMessagePropertiesToSubmission(submission, metadata.getMessageProperties());
-        try {
+            try {
             setPayloadToSubmission(submission, messageIn.getPayloads(), metadata);
         } catch (FSPayloadException ex) {
             throw new FSPluginException("Could not set payload to Submission", ex);
@@ -346,6 +350,8 @@ public class FSMessageTransformer implements MessageRetrievalTransformer<FSMessa
         String fromRole = submission.getFromRole();
 
         PartyId fromPartyId = objectFactory.createPartyId();
+        validateFromParty(fromParty, fromRole);
+
         fromPartyId.setType(fromParty.getPartyIdType());
         fromPartyId.setValue(fromParty.getPartyId());
 
@@ -371,5 +377,35 @@ public class FSMessageTransformer implements MessageRetrievalTransformer<FSMessa
         partyInfo.setTo(to);
 
         return partyInfo;
+    }
+
+    protected void validateFromParty(Submission.Party fromParty, String fromRole) throws FSPluginException {
+        if (fromParty == null) {
+            LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "PartyInfo/From");
+            throw new FSPluginException("Mandatory field PartyInfo/From is not provided.");
+        }
+
+        if ((StringUtils.isBlank(fromParty.getPartyId())) || (StringUtils.length(fromParty.getPartyId()) == 0)) {
+            LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, PARTY_INFO_FROM_PARTY_ID);
+            throw new FSPluginException("Mandatory field From PartyId is not provided.");
+        }
+
+        validateFromPartyIdType(fromParty.getPartyIdType());
+        validateFromRole(fromRole);
+    }
+
+    protected void validateFromPartyIdType(String fromPartyIdType) throws FSPluginException {
+        if (StringUtils.isBlank(fromPartyIdType)) {
+            //Although for AS4 the PartyIdType is optional, the ICD for default plugins states the PartyIdType is mandatory
+            LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "From PartyIdType");
+            throw new FSPluginException("Mandatory field From PartyIdType is not provided.");
+        }
+    }
+
+    protected void validateFromRole(String fromRole) throws FSPluginException {
+        if (StringUtils.isBlank(fromRole)) {
+            LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "PartyInfo/From/Role");
+            throw new FSPluginException("Mandatory field From Role is not provided.");
+        }
     }
 }
