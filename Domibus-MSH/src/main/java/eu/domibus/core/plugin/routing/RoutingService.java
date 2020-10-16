@@ -132,10 +132,13 @@ public class RoutingService {
         }
         pluginToAdd.removeAll(backendFilterEntitiesInDB.stream().map(BackendFilterEntity::getBackendName).collect(Collectors.toList()));
 
-        List<BackendFilterEntity> backendFilterEntities = createBackendFilterEntities(pluginToAdd, getMaxIndex(backendFilterEntitiesInDB) + 1);
-        LOG.debug("Creating backend filters [{}]", backendFilterEntities);
-        backendFilterDao.create(backendFilterEntities);
-        LOG.debug("Finished creating backend filters");
+        if (CollectionUtils.isNotEmpty(pluginToAdd)) {
+            List<BackendFilterEntity> backendFilterEntities = buildBackendFilterEntities(pluginToAdd, getMaxIndex(backendFilterEntitiesInDB) + 1);
+            LOG.debug("Creating backend filters [{}]", backendFilterEntities);
+
+            backendFilterDao.create(backendFilterEntities);
+            LOG.debug("Finished creating backend filters");
+        }
 
         LOG.debug("Finished checking backend filters");
     }
@@ -156,7 +159,7 @@ public class RoutingService {
      *
      * @return backendFilters
      */
-    protected List<BackendFilterEntity> createBackendFilterEntities(List<String> pluginList, int priority) {
+    protected List<BackendFilterEntity> buildBackendFilterEntities(List<String> pluginList, int priority) {
         if (CollectionUtils.isEmpty(pluginList)) {
             return new ArrayList<>();
         }

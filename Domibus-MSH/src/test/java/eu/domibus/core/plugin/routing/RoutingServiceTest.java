@@ -8,9 +8,7 @@ import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.routing.RoutingCriteria;
-import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
-import eu.domibus.api.security.functions.AuthenticatedProcedure;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.plugin.BackendConnectorProvider;
@@ -551,7 +549,7 @@ public class RoutingServiceTest {
         RoutingService routingService = new RoutingService();
 
 
-        List<BackendFilterEntity> backendFilterEntities = routingService.createBackendFilterEntities(notificationListenerPluginsList, 1);
+        List<BackendFilterEntity> backendFilterEntities = routingService.buildBackendFilterEntities(notificationListenerPluginsList, 1);
         assertEquals(backendFilterEntities.size(), 2);
 
         new FullVerifications() {
@@ -562,7 +560,7 @@ public class RoutingServiceTest {
     public void createBackendFilterEntity_empty(@Injectable BackendFilterEntity backendFilterEntity) {
         RoutingService routingService = new RoutingService();
 
-        List<BackendFilterEntity> backendFilters = routingService.createBackendFilterEntities(null, 1);
+        List<BackendFilterEntity> backendFilters = routingService.buildBackendFilterEntities(null, 1);
         assertEquals(0, backendFilters.size());
     }
 
@@ -579,7 +577,7 @@ public class RoutingServiceTest {
         pluginList.add(WS_PLUGIN.getPluginName());
         pluginList.add("TEST3");
 
-        List<BackendFilterEntity> backendFilters = routingService.createBackendFilterEntities(pluginList, priority);
+        List<BackendFilterEntity> backendFilters = routingService.buildBackendFilterEntities(pluginList, priority);
 
         assertEquals("TEST2", backendFilters.get(0).getBackendName());
         assertEquals(4, backendFilters.get(0).getIndex());
@@ -606,7 +604,7 @@ public class RoutingServiceTest {
                 JMS_PLUGIN.getPluginName(),
                 WS_PLUGIN.getPluginName());
 
-        List<BackendFilterEntity> allBackendFilters = routingService.createBackendFilterEntities(pluginToAdd, 0);
+        List<BackendFilterEntity> allBackendFilters = routingService.buildBackendFilterEntities(pluginToAdd, 0);
 
         assertThat(allBackendFilters.size(), is(3));
         assertThat(allBackendFilters.get(2).getBackendName(), is(FS_PLUGIN.getPluginName()));
@@ -644,7 +642,7 @@ public class RoutingServiceTest {
             routingService.getMaxIndex(entitiesInDb);
             result = 0;
 
-            routingService.createBackendFilterEntities(withCapture(pluginsToAdd), 1);
+            routingService.buildBackendFilterEntities(withCapture(pluginsToAdd), 1);
             result = backendFilterEntities;
         }};
 
@@ -870,12 +868,6 @@ public class RoutingServiceTest {
 
             backendConnector.getName();
             result = JMS_PLUGIN.getPluginName();
-
-            routingService.getMaxIndex(backendFilterEntities);
-            result = 1;
-
-            routingService.createBackendFilterEntities(withCapture(pluginsToAdd), 2);
-            result = entitiesInDb;
         }};
 
         routingService.createBackendFilters();
