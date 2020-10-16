@@ -46,6 +46,9 @@ public class BackendFilterInitializerService {
         this.routingService = routingService;
     }
 
+    /**
+     * Updates the backend filters from the database based on the configured plugins
+     */
     public void updateMessageFilters() {
         LOG.info("Checking and updating the configured plugins");
 
