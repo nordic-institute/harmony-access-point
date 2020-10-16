@@ -130,7 +130,7 @@ public class FSMessageTransformerTest {
         Assert.assertEquals(SERVICE_TYPE_TC1, collaborationInfo.getService().getType());
         Assert.assertEquals(SERVICE_NOPROCESS, collaborationInfo.getService().getValue());
         Assert.assertEquals(ACTION_TC1LEG1, collaborationInfo.getAction());
-        Assert.assertEquals(EMPTY_STR, collaborationInfo.getAgreementRef().getType());
+        Assert.assertEquals(AGREEMENT_REF_TYPE_T1, collaborationInfo.getAgreementRef().getType());
         Assert.assertEquals(AGREEMENT_REF_A1, collaborationInfo.getAgreementRef().getValue());
 
         List<Property> propertyList = userMessage.getMessageProperties().getProperty();
