@@ -299,11 +299,6 @@ public class BackendMessageValidator {
                 LOG.businessError(VALUE_LONGER_THAN_DEFAULT_STRING_LENGTH, PARTY_INFO_FROM_PARTY_ID, fromParty.getValue());
                 throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "From PartyId" + ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH, null, null);
             }
-            if (isBlank(fromParty.getType())) {
-                //Although for AS4 the PartyIdType is optional, the ICD for default plugins states the PartyIdType is mandatory
-                LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "From PartyIdType");
-                throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Mandatory field From PartyIdType is not provided.", null, null);
-            }
             if (isTrimmedStringLengthLongerThanDefaultMaxLength(fromParty.getType())) {
                 LOG.businessError(VALUE_LONGER_THAN_DEFAULT_STRING_LENGTH, "From PartyIdType", fromParty.getType());
                 throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "From PartyIdType" + ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH, null, null);
@@ -342,11 +337,6 @@ public class BackendMessageValidator {
             if (isTrimmedStringLengthLongerThanDefaultMaxLength(toParty.getValue())) {
                 LOG.businessError(VALUE_LONGER_THAN_DEFAULT_STRING_LENGTH, PARTY_INFO_TO_PARTY_ID, toParty.getValue());
                 throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "To PartyId" + ERROR_MSG_STRING_LONGER_THAN_DEFAULT_STRING_LENGTH, null, null);
-            }
-            if (isBlank(toParty.getType())) {
-                //Although for AS4 the PartyIdType is optional, the ICD for default plugins states the PartyIdType is mandatory
-                LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "To PartyIdType");
-                throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Mandatory field To PartyIdType is not provided.", null, null);
             }
             if (isTrimmedStringLengthLongerThanDefaultMaxLength(toParty.getType())) {
                 LOG.businessError(VALUE_LONGER_THAN_DEFAULT_STRING_LENGTH, "To PartyIdType", toParty.getType());
