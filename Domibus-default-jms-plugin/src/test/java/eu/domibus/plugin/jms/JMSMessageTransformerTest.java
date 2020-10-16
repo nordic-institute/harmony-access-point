@@ -5,10 +5,7 @@ import eu.domibus.ext.services.DomibusPropertyExtService;
 import eu.domibus.ext.services.FileUtilExtService;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.Submission;
-import mockit.Expectations;
-import mockit.Injectable;
-import mockit.NonStrictExpectations;
-import mockit.Tested;
+import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.activemq.command.ActiveMQMapMessage;
 import org.junit.Assert;
@@ -17,8 +14,10 @@ import org.junit.runner.RunWith;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import javax.activation.DataHandler;
+import javax.jms.JMSException;
 import javax.jms.MapMessage;
 import javax.mail.util.ByteArrayDataSource;
+import javax.ws.rs.core.MediaType;
 import java.io.File;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -72,6 +71,8 @@ public class JMSMessageTransformerTest {
 
     @Tested
     JMSMessageTransformer testObj = new JMSMessageTransformer();
+    @Mocked
+    private MapMessage messageIn;
 
 
     /**
@@ -222,9 +223,10 @@ public class JMSMessageTransformerTest {
                         .flatMap(payload -> payload.getPayloadProperties().stream())
                         .collect(toList());
 
-        assertEquals(3, typedProperties.size());
+        assertEquals(4, typedProperties.size());
 
-        assertEquals(DEFAULT_MT, getMandatoryProperty(typedProperties, MIME_TYPE).getValue());
+        assertEquals(DEFAULT_MT, getMandatoryProperties(typedProperties, MIME_TYPE).get(0).getValue());
+        assertEquals(MediaType.APPLICATION_OCTET_STREAM, getMandatoryProperties(typedProperties, MIME_TYPE).get(1).getValue());
         assertEquals("filename", getMandatoryProperty(typedProperties, PAYLOAD_FILENAME).getValue());
         assertEquals(JMS_PAYLOAD_NAME_FORMAT+"name", getMandatoryProperty(typedProperties, MessageConstants.PAYLOAD_PROPERTY_FILE_NAME).getValue());
     }
@@ -240,6 +242,17 @@ public class JMSMessageTransformerTest {
                 .filter(typedProperty -> equalsAnyIgnoreCase(key, typedProperty.getKey()))
                 .findAny()
                 .orElseThrow(() -> new AssertionError("Property:" + key + "Not found"));
+    }
+    /**
+     * @param typedProperties from {@link Submission}
+     * @param key             of the property
+     * @return Submission.TypedProperty with {@param key}
+     * @throws AssertionError if property not found
+     */
+    private List<Submission.TypedProperty> getMandatoryProperties(Collection<Submission.TypedProperty> typedProperties, String key) {
+        return typedProperties.stream()
+                .filter(typedProperty -> equalsAnyIgnoreCase(key, typedProperty.getKey()))
+                .collect(toList());
     }
 
     /*
@@ -360,4 +373,34 @@ public class JMSMessageTransformerTest {
         assertEquals(CUSTOM_AGREEMENT_REF, objSubmission.getAgreementRef());
     }
 
+    @Test
+    public void getMimeType_null() throws JMSException {
+        assertGetMimeType(MediaType.APPLICATION_OCTET_STREAM, null);
+    }
+
+    @Test
+    public void getMimeType_empty() throws JMSException {
+        assertGetMimeType(MediaType.APPLICATION_OCTET_STREAM, "");
+    }
+
+    @Test
+    public void getMimeType_spaces() throws JMSException {
+        assertGetMimeType(MediaType.APPLICATION_OCTET_STREAM, "     ");
+    }
+
+    @Test
+    public void getMimeType_ok() throws JMSException {
+        assertGetMimeType("application/json", "  application/json   ");
+    }
+
+    private void assertGetMimeType(String expected, String actual) throws JMSException {
+        new Expectations(){{
+            messageIn.getStringProperty("payload_1_mimeType");
+            times = 1;
+            result = actual;
+        }};
+        String mimeType = testObj.getMimeType(messageIn, 1);
+        assertEquals(expected, mimeType);
+        new FullVerifications(){};
+    }
 }
