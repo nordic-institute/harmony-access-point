@@ -294,9 +294,7 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
     }
 
     private String getPropertyWithFallback(final MapMessage messageIn, String propName) throws JMSException {
-        String propValue;
-
-        propValue = trim(messageIn.getStringProperty(propName));
+        String propValue = trim(messageIn.getStringProperty(propName));
         if (isEmpty(propValue)) {
             propValue = getProperty(propName);
         }
