@@ -241,7 +241,7 @@ public class CachingPModeProviderTest {
     }
 
     @Test
-    public void testFindPartyName_EmptyPartyType(@Mocked PartyId partyId1) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException {
+    public void testFindPartyName_EmptyPartyType(@Mocked PartyId partyId1) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException, EbMS3Exception {
         configuration = loadSamplePModeConfiguration(VALID_PMODE_CONFIG_URI);
         configuration.getBusinessProcesses().getParties().forEach(pmodeParty -> pmodeParty.getIdentifiers().forEach(pmodePartyIdentifier -> pmodePartyIdentifier.setPartyIdType(null)));
         new Expectations() {{
@@ -255,11 +255,7 @@ public class CachingPModeProviderTest {
             result = "";
         }};
 
-        try {
-            Assert.assertEquals("blue_gw", cachingPModeProvider.findPartyName(Collections.singletonList(partyId1)));
-        } catch (Exception e) {
-            Assert.assertTrue("Expected EbMS3Exception", e instanceof EbMS3Exception);
-        }
+        Assert.assertEquals("blue_gw", cachingPModeProvider.findPartyName(Collections.singletonList(partyId1)));
     }
 
     @Test
