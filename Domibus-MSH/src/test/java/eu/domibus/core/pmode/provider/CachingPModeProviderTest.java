@@ -1642,6 +1642,7 @@ public class CachingPModeProviderTest {
         assertTrue(cachingPModeProvider.isPartyIdTypeMatching(null, ""));
         assertTrue(cachingPModeProvider.isPartyIdTypeMatching("", ""));
         assertTrue(cachingPModeProvider.isPartyIdTypeMatching("testidType", "TESTIDTYPE"));
+        assertFalse(cachingPModeProvider.isPartyIdTypeMatching("testidType1", "TESTIDTYPE2"));
 
     }
 }
