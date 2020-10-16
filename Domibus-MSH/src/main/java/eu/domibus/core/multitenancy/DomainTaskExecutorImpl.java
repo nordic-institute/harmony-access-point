@@ -83,12 +83,12 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
     }
 
     protected void submit(SchedulingTaskExecutor taskExecutor, Runnable task, Domain domain, boolean waitForTask, Long timeout, TimeUnit timeUnit) {
-        LOG.debug("Submitting task for domain [{}]", domain);
+        LOG.trace("Submitting task for domain [{}]", domain);
 
         final DomainRunnable domainRunnable = new DomainRunnable(domainContextProvider, domain, task);
         submitRunnable(taskExecutor, domainRunnable, waitForTask, timeout, timeUnit);
 
-        LOG.debug("Completed task for domain [{}]", domain);
+        LOG.trace("Completed task for domain [{}]", domain);
     }
 
     protected void submitRunnable(SchedulingTaskExecutor taskExecutor, Runnable task, boolean waitForTask, Long timeout, TimeUnit timeUnit) {
