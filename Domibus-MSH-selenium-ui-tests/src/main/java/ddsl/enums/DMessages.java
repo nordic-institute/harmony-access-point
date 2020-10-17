@@ -69,6 +69,8 @@ public class DMessages {
 	public static final String ALERT_ID_INPUT_VALIDATION_MESSAGE = "Alert Id must be 19 digits long and must not start with a 0";
 	public static final String ALERT_UPDATE_SUCCESS_MESSAGE = "The operation 'update alerts' completed successfully.";
 
+	public static final String SESSION_EXPIRED_MESSAGE = "You have been logged out because of inactivity or missing access permissions.";
+
 	
 	
 	
