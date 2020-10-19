@@ -46,7 +46,6 @@ public class FSMessageTransformer implements MessageRetrievalTransformer<FSMessa
     @Autowired
     protected FileUtilExtService fileUtilExtService;
 
-
     /**
      * Transforms {@link eu.domibus.plugin.Submission} to {@link FSMessage}
      *
