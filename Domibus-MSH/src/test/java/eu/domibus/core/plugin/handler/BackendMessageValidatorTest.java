@@ -559,8 +559,7 @@ public class BackendMessageValidatorTest {
         fromPartyId.setValue(StringUtils.repeat("X", 255));
         fromPartyId.setType("        ");
         from.getPartyId().add(fromPartyId);
-        thrown.expect(EbMS3Exception.class);
-        thrown.expectMessage("Mandatory field From PartyIdType is not provided.");
+        ExpectedException.none();
         backendMessageValidatorObj.validateFromPartyId(from, MSHRole.SENDING);
 
     }
