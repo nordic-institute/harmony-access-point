@@ -32,7 +32,7 @@ public class ErrorLogPgTest extends SeleniumTest {
 		log.info("Compare grid data for both domain");
 		List<String> errorIds = page.grid().getListedValuesOnColumn("Message Id");
 		for (String errorId : errorIds) {
-			soft.assertTrue(messIds.contains(errorId), "ID is present in list of message ids for this domain");
+			soft.assertTrue(messIds.contains(errorId), "ID is present in list of message ids for this domain : " + errorId);
 		}
 		
 		soft.assertAll();
@@ -173,7 +173,8 @@ public class ErrorLogPgTest extends SeleniumTest {
 		
 		String messId = ids.get(0);
 		log.debug("messID = " + messId);
-		
+
+		int sendAttempts = rest.messages().searchMessage(messId, domain).getInt("sendAttempts");
 		
 		log.info("Navigate to Errors page");
 		ErrorLogPage page = new ErrorLogPage(driver);
@@ -187,17 +188,8 @@ public class ErrorLogPgTest extends SeleniumTest {
 		page.filters().getSearchButton().click();
 		page.grid().waitForRowsToLoad();
 		
-		List<String> codes = page.grid().getValuesOnColumn("Error Code");
-		
-		boolean same = true;
-		for (int i = 0; i < codes.size()-1; i++) {
-			if(!StringUtils.equalsIgnoreCase(codes.get(0), codes.get(i))){
-				same = false;
-			}
-		}
-		
-		soft.assertTrue(same , "All errror codes are the same");
-		
+		soft.assertEquals(page.grid().getRowsNo(), sendAttempts, "The number of errors matches the number of send attempts");
+
 		soft.assertAll();
 	}
 	

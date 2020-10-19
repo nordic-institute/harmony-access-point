@@ -103,6 +103,7 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
             }
             messageOut.setStringProperty(PROTOCOL, "AS4");
             messageOut.setStringProperty(AGREEMENT_REF, submission.getAgreementRef());
+            messageOut.setStringProperty(AGREEMENT_REF_TYPE, submission.getAgreementRefType());
             messageOut.setStringProperty(REF_TO_MESSAGE_ID, submission.getRefToMessageId());
 
             // save the first payload (payload_1) for the bodyload (if exists)
@@ -142,10 +143,10 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
             messageOut.setStringProperty(MessageFormat.format(PAYLOAD_MIME_TYPE_FORMAT, 1), findMime(p.getPayloadProperties()));
             messageOut.setStringProperty(MessageFormat.format(PAYLOAD_MIME_CONTENT_ID_FORMAT, 1), p.getContentId());
         } else {
-            final String payContID = String.valueOf(MessageFormat.format(PAYLOAD_MIME_CONTENT_ID_FORMAT, counter));
-            final String propPayload = String.valueOf(MessageFormat.format(PAYLOAD_NAME_FORMAT, counter));
-            final String payMimeTypeProp = String.valueOf(MessageFormat.format(PAYLOAD_MIME_TYPE_FORMAT, counter));
-            final String payFileNameProp = String.valueOf(MessageFormat.format(PAYLOAD_FILE_NAME_FORMAT, counter));
+            final String payContID = MessageFormat.format(PAYLOAD_MIME_CONTENT_ID_FORMAT, counter);
+            final String propPayload = MessageFormat.format(PAYLOAD_NAME_FORMAT, counter);
+            final String payMimeTypeProp = MessageFormat.format(PAYLOAD_MIME_TYPE_FORMAT, counter);
+            final String payFileNameProp = MessageFormat.format(PAYLOAD_FILE_NAME_FORMAT, counter);
             if (p.getPayloadDatahandler() != null) {
                 if (putAttachmentsInQueue) {
                     LOG.debug("putAttachmentsInQueue is true");
@@ -240,6 +241,7 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
             return;
         }
         target.setAgreementRef(getPropertyWithFallback(messageIn, AGREEMENT_REF));
+        target.setAgreementRefType(getPropertyWithFallback(messageIn, AGREEMENT_REF_TYPE));
         target.setAction(getAction(messageIn));
         target.setService(getService(messageIn));
         target.setServiceType(getPropertyWithFallback(messageIn, SERVICE_TYPE));
@@ -292,9 +294,7 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
     }
 
     private String getPropertyWithFallback(final MapMessage messageIn, String propName) throws JMSException {
-        String propValue = null;
-
-        propValue = trim(messageIn.getStringProperty(propName));
+        String propValue = trim(messageIn.getStringProperty(propName));
         if (isEmpty(propValue)) {
             propValue = getProperty(propName);
         }
@@ -321,7 +321,7 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
     }
 
     private void transformToSubmissionHandlePayload(MapMessage messageIn, Submission target, String bodyloadEnabled, int i) throws JMSException {
-        final String propPayload = String.valueOf(MessageFormat.format(PAYLOAD_NAME_FORMAT, i));
+        final String propPayload = MessageFormat.format(PAYLOAD_NAME_FORMAT, i);
 
         final String contentId;
         final String mimeType;

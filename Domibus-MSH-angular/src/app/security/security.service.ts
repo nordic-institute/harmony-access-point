@@ -10,6 +10,8 @@ import {ApplicationContextService} from '../common/application-context.service';
 import {DialogsService} from '../common/dialogs/dialogs.service';
 import {PropertiesService} from '../properties/support/properties.service';
 import {SessionService} from './session.service';
+import {SessionState} from './SessionState';
+import {instanceOfModifiableList} from '../common/mixins/type.utils';
 
 @Injectable()
 export class SecurityService {
@@ -19,6 +21,9 @@ export class SecurityService {
   public static USER_ROLES = [SecurityService.ROLE_USER, SecurityService.ROLE_DOMAIN_ADMIN, SecurityService.ROLE_AP_ADMIN];
   public static ADMIN_ROLES = [SecurityService.ROLE_DOMAIN_ADMIN, SecurityService.ROLE_AP_ADMIN];
   private static injector: Injector;
+
+  private CURRENT_USER = 'currentUser';
+  private CURRENT_USER_UPDATED_ON = 'currentUserUpdatedOn';
 
   pluginPasswordPolicy: Promise<PasswordPolicyRO>;
   public password: string;
@@ -41,20 +46,12 @@ export class SecurityService {
     SecurityService.injector = this.injector;
   }
 
-  async login(username: string, password: string): Promise<User> {
-    this.domainService.resetDomain();
-    this.sessionService.resetCurrentSession();
-
+  async login(username: string, password: string) {
     try {
-      const user = await this.http.post<User>('rest/security/authentication', {username: username, password: password}).toPromise();
-      if (!user) {
-        console.log('Login returned a null user!');
-        throw new Error('An error occurred while logging in.');
-      }
-      this.updateCurrentUser(user);
-      this.domainService.setAppTitle();
-      this.securityEventService.notifyLoginSuccessEvent(user);
-      return user;
+      this.domainService.resetDomain();
+      const getUserFn = () => this.doLogin(username, password);
+      await this.initialiseApp(getUserFn);
+      this.securityEventService.notifyLoginSuccessEvent();
     } catch (error) {
       console.log('Login error:', error);
       this.securityEventService.notifyLoginErrorEvent(error);
@@ -62,34 +59,27 @@ export class SecurityService {
     }
   }
 
-  /**
-   * get the user from the server and saves it locally
-   */
-  async getCurrentUserAndSaveLocally() {
-    let userSet = false;
-    try {
-      const user = await this.getCurrentUserFromServer();
-      if (user) {
-        this.updateCurrentUser(user);
-        userSet = true;
-      }
-    } catch (ex) {
-      console.log('getCurrentUserAndSaveLocally error' + ex);
+  private async doLogin(username: string, password: string): Promise<User> {
+    const user = await this.http.post<User>('rest/security/authentication', {username: username, password: password}).toPromise();
+    if (!user) {
+      throw new Error('An error occurred while logging in.');
     }
-    return userSet;
+    return user;
   }
 
-  async logout() {
+  async logout(): Promise<any> {
     this.alertService.close();
 
-    const canLogout = await this.checkCanLogout();
+    const canLogout = await this.canLogout();
     if (!canLogout) {
       return;
     }
 
+    this.sessionService.setExpiredSession(SessionState.EXPIRED_LOGGED_OUT);
     this.clearSession();
+    this.domainService.resetDomain();
 
-    this.http.delete('rest/security/authentication').subscribe((res) => {
+    return this.http.delete('rest/security/authentication').subscribe((res) => {
         this.securityEventService.notifyLogoutSuccessEvent(res);
       },
       (error: any) => {
@@ -97,24 +87,10 @@ export class SecurityService {
       });
   }
 
-  async checkCanLogout(): Promise<boolean> {
+  async canLogout(): Promise<boolean> {
+
     const currentComponent = this.applicationService.getCurrentComponent();
-
-    if (!currentComponent) {
-      return true;
-    }
-
-    let canLogoutPromise = Promise.resolve(true);
-    if (currentComponent.isDirty && currentComponent.isDirty()) {
-      canLogoutPromise = this.dialogsService.openCancelDialog();
-    }
-    try {
-      const canLogout = await canLogoutPromise;
-      return canLogout;
-    } catch (ex) {
-      console.log('An error occurred while checking logout: ', ex);
-      return true;
-    }
+    return this.canAbandonUnsavedChanges(currentComponent);
   }
 
   getPluginPasswordPolicy(): Promise<PasswordPolicyRO> {
@@ -132,18 +108,18 @@ export class SecurityService {
   }
 
   clearSession() {
-    this.domainService.resetDomain();
-    localStorage.removeItem('currentUser');
+    localStorage.removeItem(this.CURRENT_USER);
+    localStorage.removeItem(this.CURRENT_USER_UPDATED_ON);
   }
 
   getCurrentUser(): User {
-    const storedUser = localStorage.getItem('currentUser');
+    const storedUser = localStorage.getItem(this.CURRENT_USER);
     return storedUser ? JSON.parse(storedUser) : null;
   }
 
   updateCurrentUser(user: User): void {
-    localStorage.setItem('currentUser', JSON.stringify(user));
-    localStorage.setItem('currentUserUpdateTime', new Date().toISOString());
+    localStorage.setItem(this.CURRENT_USER, JSON.stringify(user));
+    localStorage.setItem(this.CURRENT_USER_UPDATED_ON, new Date().toJSON());
   }
 
   isUserConnected(): Promise<string> {
@@ -162,11 +138,11 @@ export class SecurityService {
         this.isUserConnected().then(isConnected => {
           resolve(true);
         }, err => {
-          console.log('Error while calling isUserConnected: ' + err);
+          console.log('Error while calling isUserConnected: ', err);
           resolve(false);
         });
       } catch (ex) {
-        console.log('Error while calling isUserConnected: ' + ex);
+        console.log('Error while calling isUserConnected: ', ex);
         this.alertService.error('An error occurred while checking authentication:');
         resolve(false);
       }
@@ -257,6 +233,63 @@ export class SecurityService {
     const pattern = await this.propertiesService.getDomainOrGlobalPropertyValue('domibus.passwordPolicy.pattern', forDomain);
     const message = await this.propertiesService.getDomainOrGlobalPropertyValue('domibus.passwordPolicy.validationMessage', forDomain);
     return new PasswordPolicyRO(pattern, message);
+  }
+
+  async canAbandonUnsavedChanges(component: any) {
+
+    if (!component) {
+      return true;
+    }
+
+    if (!instanceOfModifiableList(component)) {
+      return true;
+    }
+
+    const canBypassCheckDirty = await this.canBypassDirtyChecking();
+    if (canBypassCheckDirty) {
+      return true;
+    }
+
+    if (!component.isDirty()) {
+      return true;
+    }
+
+    return this.dialogsService.openCancelDialog();
+  }
+
+  private async canBypassDirtyChecking(): Promise<boolean> {
+    if (this.sessionService.getCurrentSession() !== SessionState.ACTIVE) {
+      return true;
+    }
+
+    if (!this.getCurrentUser()) {
+      return true;
+    }
+
+    const isAuthenticated = await this.isAuthenticated();
+    if (!isAuthenticated) {
+      return true;
+    }
+  }
+
+  isClientConnected(): boolean {
+    return this.getCurrentUser() != null;
+  }
+
+  async initialiseApp(getUserFn: () => Promise<User>): Promise<User> {
+    this.sessionService.resetCurrentSession();
+    this.clearSession();
+
+    const user: User = await getUserFn();
+
+    if (user) {
+      this.updateCurrentUser(user);
+      this.domainService.setAppTitle();
+      this.sessionService.updateCurrentSession(SessionState.ACTIVE);
+    } else {
+      console.warn(getUserFn.name + ' method returned an empty user.');
+    }
+    return user;
   }
 }
 
