@@ -62,9 +62,7 @@ public class FSMessageTransformer implements MessageRetrievalTransformer<FSMessa
         metadata.setPartyInfo(getPartyInfoFromSubmission(submission));
         metadata.setCollaborationInfo(getCollaborationInfoFromSubmission(submission));
         metadata.setMessageProperties(getMessagePropertiesFromSubmission(submission));
-        LOG.debug("Setting getPayloadInfoFromSubmission : [{}]", submission);
         metadata.setPayloadInfo(getPayloadInfoFromSubmission(submission));
-        LOG.debug("Setting getPayloadsFromSubmission: [{}]", submission);
         Map<String, FSPayload> dataHandlers = getPayloadsFromSubmission(submission);
         return new FSMessage(dataHandlers, metadata);
     }
@@ -106,7 +104,7 @@ public class FSMessageTransformer implements MessageRetrievalTransformer<FSMessa
             DataHandler dataHandler = fsPayload.getDataHandler();
             final String fileName = fsPayload.getFileName();
             String mimeType = fsMimeTypeHelper.getMimeType(dataHandler.getName());
-            LOG.debug("mimeType from dataHandler: [{}]", mimeType);
+
             /* PartInfo defined in the metadata file take precedence to the plugin properties */
             String metadataContentId = extractContentIdFromMetadata(metadata);
             if (StringUtils.isNotBlank(metadataContentId)) {
@@ -114,7 +112,6 @@ public class FSMessageTransformer implements MessageRetrievalTransformer<FSMessa
                 contentId = metadataContentId;
             }
             String metadataMimeType = extractMimeTypeFromMetadata(metadata);
-            LOG.debug("MetadataMimeType from metadata file: [{}]", metadataMimeType);
             if (StringUtils.isNotBlank(metadataMimeType)) {
                 LOG.debug("Setting mimeType from metadata file: [{}]", metadataMimeType);
                 mimeType = metadataMimeType;
@@ -215,10 +212,8 @@ public class FSMessageTransformer implements MessageRetrievalTransformer<FSMessa
 
             //mime type
             String mimeType = extractPayloadProperty(payload, PAYLOAD_PROPERTY_MIME_TYPE);
-            LOG.debug("MimeType Value in Payload: [{}] ", mimeType);
             if (mimeType == null) {
                 mimeType = payload.getPayloadDatahandler().getContentType();
-                LOG.debug("MimeType Value was null, so added Datahandler ContentType as mimeType: [{}] ", mimeType);
             }
 
             //file name
@@ -273,32 +268,14 @@ public class FSMessageTransformer implements MessageRetrievalTransformer<FSMessa
             final PartProperties partProperties = new PartProperties();
             for (final Submission.TypedProperty payloadProperty : submissionPayload.getPayloadProperties()) {
                 final Property property = new Property();
-                LOG.debug("Adding payloadProperty key:[{}] value:[{}] type:[{}] to payload [{}]", payloadProperty.getKey(),
-                        payloadProperty.getValue(), payloadProperty.getType(), submissionPayload.getContentId());
-                if (StringUtils.isBlank(payloadProperty.getValue())) {
-                    LOG.debug("Adding payloadProperty key:[{}] value:[{}] type:[{}] to payload [{}]", payloadProperty.getKey(),
-                            payloadProperty.getValue(), payloadProperty.getType(), submissionPayload.getContentId());
-                    LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "MimeType Value");
-                    throw new FSPluginException("MimeType Value is not provided.");
-                }
                 property.setName(payloadProperty.getKey());
                 property.setValue(payloadProperty.getValue());
                 property.setType(payloadProperty.getType());
-                if (StringUtils.isBlank(property.getValue())) {
-                    LOG.debug("Adding property key:[{}] value:[{}] type:[{}] to payload [{}]", property.getName(),
-                            property.getValue(), property.getType(), submissionPayload.getContentId());
-                    LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "MimeType Value");
-                    throw new FSPluginException("MimeType Value is not provided.");
-                }
                 LOG.debug("Adding property name:[{}] type:[{}] value:[{}] to payload [{}]", property.getName(),
                         property.getType(), property.getValue(), submissionPayload.getContentId());
                 partProperties.getProperty().add(property);
             }
-            if (StringUtils.isBlank(partProperties.getProperty().get(0).getValue())) {
-                LOG.debug("Adding partProperties value:[{}] ContentId:[{} ", partProperties.getProperty().get(0).getValue(), submissionPayload.getContentId());
-                LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "MimeType Value");
-                throw new FSPluginException("MimeType Value is not provided.");
-            }
+
             partInfo.setPartProperties(partProperties);
             payloadInfo.getPartInfo().add(partInfo);
         }
