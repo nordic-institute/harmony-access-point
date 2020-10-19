@@ -383,7 +383,7 @@ public class UserMessageLogDaoTest {
         }};
 
         // WHEN
-        List<String> result = userMessageLogDao.getUndownloadedUserMessagesOlderThan(null, null, 1);
+        List<UserMessageLog> result = userMessageLogDao.getUndownloadedUserMessagesOlderThan(null, null, 1);
 
         // THEN
         Assert.assertSame("Should have returned the user messages found being not downloaded and older than the provided date", list, result);
@@ -398,7 +398,7 @@ public class UserMessageLogDaoTest {
         }};
 
         // WHEN
-        List<String> result = userMessageLogDao.getSentUserMessagesOlderThan(null, null, 1);
+        List<UserMessageLog> result = userMessageLogDao.getSentUserMessagesOlderThan(null, null, 1);
 
         // THEN
         Assert.assertSame("Should have returned the user messages found being sent and older than the provided date", list, result);
@@ -413,7 +413,7 @@ public class UserMessageLogDaoTest {
         }};
 
         // WHEN
-        List<String> result = userMessageLogDao.getUndownloadedUserMessagesOlderThan(null, null, 1);
+        List<UserMessageLog> result = userMessageLogDao.getUndownloadedUserMessagesOlderThan(null, null, 1);
 
         // THEN
         Assert.assertTrue("Should have returned an empty list when no messages found being not downloaded and older than the provided date", result.isEmpty());
@@ -481,7 +481,7 @@ public class UserMessageLogDaoTest {
         }};
 
         // WHEN
-        List<String> result = userMessageLogDao.getDownloadedUserMessagesOlderThan(null, null, 1);
+        List<UserMessageLog> result = userMessageLogDao.getDownloadedUserMessagesOlderThan(null, null, 1);
 
         // THEN
         Assert.assertSame("Should have returned the user messages that are not downloaded and older than the provided date", list, result);
@@ -496,7 +496,7 @@ public class UserMessageLogDaoTest {
         }};
 
         // WHEN
-        List<String> result = userMessageLogDao.getDownloadedUserMessagesOlderThan(null, null, 1);
+        List<UserMessageLog> result = userMessageLogDao.getDownloadedUserMessagesOlderThan(null, null, 1);
 
         // THEN
         Assert.assertTrue("Should have returned an empty list when no messages found being downloaded and older than the provided date", result.isEmpty());

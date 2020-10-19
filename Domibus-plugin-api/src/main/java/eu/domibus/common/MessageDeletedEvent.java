@@ -1,20 +1,22 @@
 package eu.domibus.common;
 
+import java.util.List;
+
 /**
- * This event is used to notify the connector when a message is deleted.
+ * This event is used to notify the connector when messages are deleted.
  *
  * @author Cosmin Baciu
  * @since 4.2
  */
 public class MessageDeletedEvent {
 
-    protected String messageId;
+    protected List<String> messageIds;
 
-    public String getMessageId() {
-        return messageId;
+    public List<String> getMessageIds() {
+        return messageIds;
     }
 
-    public void setMessageId(String messageId) {
-        this.messageId = messageId;
+    public void setMessageIds(List<String> messageIds) {
+        this.messageIds = messageIds;
     }
 }

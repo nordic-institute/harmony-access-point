@@ -19,6 +19,8 @@ import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.Arrays;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
@@ -91,12 +93,15 @@ public class DefaultBackendConnectorDelegateTest {
             backendConnectorService.isInstanceOfNotificationListener(asyncNotificationConfiguration);
             result = true;
 
+            event.getMessageIds();
+            result = Arrays.asList("abc");
+
         }};
 
         defaultBackendConnectorDelegate.callNotificationListerForMessageDeletedEvent(backendConnector, event);
 
         new Verifications() {{
-            asyncNotificationConfiguration.deleteMessageCallback(event.getMessageId());
+            asyncNotificationConfiguration.deleteMessageCallback(anyString);
         }};
     }
 

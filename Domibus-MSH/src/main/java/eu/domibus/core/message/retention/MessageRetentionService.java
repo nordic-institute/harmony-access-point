@@ -22,7 +22,9 @@ public interface MessageRetentionService {
 
     void scheduleDeleteMessages(List<String> messageIds);
 
-    void scheduleDeleteMessages(List<String> messageIds, int maxBatch);
+    void scheduleDeleteMessagesByMessageLog(List<UserMessageLog> userMessageLogs);
+
+    void scheduleDeleteMessagesByMessageLog(List<UserMessageLog> messages, int maxBatch);
 
     void deletePayloadOnSendSuccess(UserMessage userMessage, UserMessageLog userMessageLog);
 

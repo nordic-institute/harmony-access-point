@@ -266,8 +266,8 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
     public void messageDeletedEvent(MessageDeletedEvent event) {
         //for backward compatibility purposes
         if (notificationListener != null) {
-            LOG.debug("Calling deleteMessageCallback from the NotificationListenerService for message id [{}]", event.getMessageId());
-            notificationListener.deleteMessageCallback(event.getMessageId());
+            LOG.debug("Calling deleteMessageCallback from the NotificationListenerService for message id [{}]", event.getMessageIds().get(0));
+            notificationListener.deleteMessageCallback(event.getMessageIds().get(0));
         }
     }
 }

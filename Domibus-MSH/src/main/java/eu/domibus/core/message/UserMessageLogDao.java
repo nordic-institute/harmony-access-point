@@ -125,20 +125,20 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         }
     }
 
-    public List<String> getUndownloadedUserMessagesOlderThan(Date date, String mpc, Integer expiredNotDownloadedMessagesLimit) {
+    public List<UserMessageLog> getUndownloadedUserMessagesOlderThan(Date date, String mpc, Integer expiredNotDownloadedMessagesLimit) {
         return getMessagesOlderThan(date, mpc, expiredNotDownloadedMessagesLimit, "UserMessageLog.findUndownloadedUserMessagesOlderThan");
     }
 
-    public List<String> getDownloadedUserMessagesOlderThan(Date date, String mpc, Integer expiredDownloadedMessagesLimit) {
+    public List<UserMessageLog> getDownloadedUserMessagesOlderThan(Date date, String mpc, Integer expiredDownloadedMessagesLimit) {
         return getMessagesOlderThan(date, mpc, expiredDownloadedMessagesLimit, "UserMessageLog.findDownloadedUserMessagesOlderThan");
     }
 
-    public List<String> getSentUserMessagesOlderThan(Date date, String mpc, Integer expiredSentMessagesLimit) {
+    public List<UserMessageLog> getSentUserMessagesOlderThan(Date date, String mpc, Integer expiredSentMessagesLimit) {
         return getMessagesOlderThan(date, mpc, expiredSentMessagesLimit, "UserMessageLog.findSentUserMessagesOlderThan");
     }
 
-    private List<String> getMessagesOlderThan(Date startDate, String mpc, Integer expiredMessagesLimit, String queryName) {
-        TypedQuery<String> query = em.createNamedQuery(queryName, String.class);
+    private List<UserMessageLog> getMessagesOlderThan(Date startDate, String mpc, Integer expiredMessagesLimit, String queryName) {
+        TypedQuery<UserMessageLog> query = em.createNamedQuery(queryName, UserMessageLog.class);
         query.setParameter("DATE", startDate);
         query.setParameter("MPC", mpc);
         query.setMaxResults(expiredMessagesLimit);

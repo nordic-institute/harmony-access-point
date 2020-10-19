@@ -112,7 +112,7 @@ public class DefaultBackendConnectorDelegate implements BackendConnectorDelegate
         if (backendConnectorService.isInstanceOfNotificationListener(asyncNotificationConfiguration)) {
             NotificationListener notificationListener = (NotificationListener) asyncNotificationConfiguration;
             LOG.debug("Calling NotificationListener for message deletion callback for connector [{}]", backendConnector.getName());
-            notificationListener.deleteMessageCallback(event.getMessageId());
+            notificationListener.deleteMessageCallback(event.getMessageIds().get(0));
         }
     }
 
