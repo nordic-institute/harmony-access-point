@@ -336,7 +336,7 @@ public class FSMessageTransformerTest {
     }
 
     @Test
-    public void validateFromRole() {
+    public void validateFromEmptyRole() {
 
         try {
             fsMessageTransformer.validateFromRole(" ");
@@ -346,4 +346,25 @@ public class FSMessageTransformerTest {
         }
     }
 
+    @Test
+    public void validateFromValidPartyWithRole(@Injectable Submission.Party fromParty) {
+        Set<Submission.Party> parties = new HashSet<>();
+        parties.add(fromParty);
+
+        new Expectations(fsMessageTransformer) {{
+            fromParty.getPartyId();
+            result = "domibus-blue";
+            fromParty.getPartyIdType();
+            result = UNREGISTERED_PARTY_TYPE;
+        }};
+        fsMessageTransformer.validateFromParty(fromParty, INITIATOR_ROLE);
+
+        new Verifications() {{
+            fsMessageTransformer.validateFromPartyIdType(UNREGISTERED_PARTY_TYPE);
+            times = 1;
+            fsMessageTransformer.validateFromRole(INITIATOR_ROLE);
+            times = 1;
+        }};
+
+    }
 }
