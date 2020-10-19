@@ -54,7 +54,7 @@ public class FSMessageTransformer implements MessageRetrievalTransformer<FSMessa
      * @return result of the transformation as {@link FSMessage}
      */
     @Override
-    public FSMessage transformFromSubmission(final Submission submission, final FSMessage messageOut){
+    public FSMessage transformFromSubmission(final Submission submission, final FSMessage messageOut) {
         UserMessage metadata = objectFactory.createUserMessage();
         metadata.setMessageInfo(getMessageInfo(submission));
         metadata.setMpc(submission.getMpc());
