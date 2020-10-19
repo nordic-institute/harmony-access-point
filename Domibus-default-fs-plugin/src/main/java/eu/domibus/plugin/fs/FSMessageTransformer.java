@@ -407,22 +407,13 @@ public class FSMessageTransformer implements MessageRetrievalTransformer<FSMessa
             throw new FSPluginException("Mandatory field PartyInfo/From is not provided.");
         }
 
-        if ((StringUtils.isBlank(fromParty.getPartyId())) || (StringUtils.length(fromParty.getPartyId()) == 0)) {
+        if (StringUtils.isBlank(fromParty.getPartyId())) {
             LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "PartyInfo/From/PartyId");
             throw new FSPluginException("Mandatory field From PartyId is not provided.");
         }
-
-        validateFromPartyIdType(fromParty.getPartyIdType());
         validateFromRole(fromRole);
     }
 
-    protected void validateFromPartyIdType(String fromPartyIdType) throws FSPluginException {
-        if (StringUtils.isBlank(fromPartyIdType)) {
-            //Although for AS4 the PartyIdType is optional, the ICD for default plugins states the PartyIdType is mandatory
-            LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "From PartyIdType");
-            throw new FSPluginException("Mandatory field From PartyIdType is not provided.");
-        }
-    }
 
     protected void validateFromRole(String fromRole) throws FSPluginException {
         if (StringUtils.isBlank(fromRole)) {

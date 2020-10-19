@@ -317,21 +317,19 @@ public class FSMessageTransformerTest {
     }
 
     @Test
-    public void validateFromPartyEmptyPartyIdType(@Injectable Submission submission, @Injectable Submission.Party fromParty) {
+    public void validateFromPartyEmptyPartyId(@Injectable Submission submission, @Injectable Submission.Party fromParty) {
 
         Set<Submission.Party> parties = new HashSet<>();
         parties.add(fromParty);
         new Expectations() {{
             fromParty.getPartyId();
-            result = "domibus-blue";
-            fromParty.getPartyIdType();
             result = " ";
         }};
         try {
             fsMessageTransformer.validateFromParty(fromParty, null);
             Assert.fail();
         } catch (FSPluginException ex) {
-            Assert.assertEquals(ex.getMessage(), "Mandatory field From PartyIdType is not provided.");
+            Assert.assertEquals(ex.getMessage(), "Mandatory field From PartyId is not provided.");
         }
     }
 
@@ -354,17 +352,12 @@ public class FSMessageTransformerTest {
         new Expectations(fsMessageTransformer) {{
             fromParty.getPartyId();
             result = "domibus-blue";
-            fromParty.getPartyIdType();
-            result = UNREGISTERED_PARTY_TYPE;
         }};
         fsMessageTransformer.validateFromParty(fromParty, INITIATOR_ROLE);
 
         new Verifications() {{
-            fsMessageTransformer.validateFromPartyIdType(UNREGISTERED_PARTY_TYPE);
-            times = 1;
             fsMessageTransformer.validateFromRole(INITIATOR_ROLE);
             times = 1;
         }};
-
     }
 }
