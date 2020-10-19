@@ -28,13 +28,14 @@ export class InputDebounceBehaviourDirective implements ControlValueAccessor, On
 
   private setValueFn: Function;
   private lastValue: string;
+  private initialValue: string;
 
   constructor(private _elementRef: ElementRef, private _renderer: Renderer2) {
   }
 
   ngOnInit() {
     if (typeof this.debounceTime !== 'number') {
-      this.debounceTime = 2000; // default debounce to 2sec
+      this.debounceTime = 500;
     }
   }
 
@@ -51,14 +52,14 @@ export class InputDebounceBehaviourDirective implements ControlValueAccessor, On
   @HostListener('blur')
   onBlur() {
     if (this.setValueFn) {
-      const element = this._elementRef.nativeElement;
-      if (element && element.value != this.lastValue) {
+      if (this.initialValue != this.lastValue) {
         this.setValueFn(this.lastValue);
       }
     }
   }
 
   writeValue(value: string) {
+    this.initialValue = value;
     this.lastValue = value;
     const element = this._elementRef.nativeElement;
     this._renderer.setProperty(element, 'value', (value == null ? '' : value));
