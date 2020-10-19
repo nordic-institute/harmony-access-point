@@ -26,38 +26,41 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <cxf.version>3.3.6</cxf.version>
-        <spring.version>5.2.4.RELEASE</spring.version>
-        <spring.security.version>5.3.2.RELEASE</spring.security.version>
-        <hibernate.version>5.4.18.Final</hibernate.version>
+        <spring.version>5.2.9.RELEASE</spring.version>
+        <spring.security.version>5.4.1</spring.security.version>
+        <hibernate.version>5.4.22.Final</hibernate.version>
+<!--        <hibernate.validator.version>6.1.6.Final</hibernate.validator.version>-->
         <hibernate.validator.version>5.1.2.Final</hibernate.validator.version>
+<!--        <activemq.version>5.16.0</activemq.version>-->
         <activemq.version>5.15.13</activemq.version>
         <aspectj.version>1.9.4</aspectj.version>
-        <slf4j.version>1.7.28</slf4j.version>
+        <slf4j.version>1.7.30</slf4j.version>
         <logback.version>1.2.3</logback.version>
-        <logback.elasticsearch.appender.version>1.6</logback.elasticsearch.appender.version>
-        <httpclient.version>4.5.10</httpclient.version>
+        <!--<logback.elasticsearch.appender.version>1.6</logback.elasticsearch.appender.version>-->
+        <httpclient.version>4.5.13</httpclient.version>
         <commons-configuration.version>1.10</commons-configuration.version>
-        <commons-lang3.version>3.9</commons-lang3.version>
-        <commons-io.version>2.6</commons-io.version>
+<!--        <commons-configuration2.version>2.5</commons-configuration2.version>-->
+        <commons-lang3.version>3.11</commons-lang3.version>
+        <commons-io.version>2.8.0</commons-io.version>
         <commons-fileupload.version>1.4</commons-fileupload.version>
         <commons-collections4.version>4.4</commons-collections4.version>
         <commons-beanutils.version>1.9.4</commons-beanutils.version>
-        <commons-codec.version>1.13</commons-codec.version>
-        <bouncycastle.version>1.64</bouncycastle.version>
+        <commons-codec.version>1.15</commons-codec.version>
+        <bouncycastle.version>1.66</bouncycastle.version>
         <quartz.version>2.3.2</quartz.version>
-        <c3p0.version>0.9.5.4</c3p0.version>
-        <org.mapstruct.version>1.3.1.Final</org.mapstruct.version>
+        <c3p0.version>0.9.5.5</c3p0.version>
+        <org.mapstruct.version>1.4.1.Final</org.mapstruct.version>
         <jackson.version>2.9.10</jackson.version>
         <!-- see project-check-exclude.xml file -->
         <jackson-databind.version>2.9.10.6</jackson-databind.version>
         <commons-test.version>4.2</commons-test.version>
-        <xstream.version>1.4.11</xstream.version>
-        <freemarker.version>2.3.29</freemarker.version>
+        <xstream.version>1.4.13</xstream.version>
+        <freemarker.version>2.3.30</freemarker.version>
         <mail.version>1.6.2</mail.version>
         <jaxb.version>2.3.0</jaxb.version>
         <dom4j.version>2.1.3</dom4j.version>
         <tika.version>1.24.1</tika.version>
-        <peppol.version>1.1.3</peppol.version>
+        <peppol.version>1.1.4</peppol.version>
         <dynamic.discovery.client.version>1.12</dynamic.discovery.client.version>
         <javax.validation.version>2.0.1.Final</javax.validation.version>
         <mockito.version>1.10.19</mockito.version>
