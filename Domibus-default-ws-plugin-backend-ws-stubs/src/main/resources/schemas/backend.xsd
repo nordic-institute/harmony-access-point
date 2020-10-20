@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-            xmlns:tns="http://org.ecodex.backend/"
-            targetNamespace="http://org.ecodex.backend/">
+            xmlns:tns="eu.europa.ec.eu.edelivery.domibus"
+            targetNamespace="eu.europa.ec.eu.edelivery.domibus">
 
     <xsd:simpleType name="max255-non-empty-string">
         <xsd:restriction base="xsd:string">

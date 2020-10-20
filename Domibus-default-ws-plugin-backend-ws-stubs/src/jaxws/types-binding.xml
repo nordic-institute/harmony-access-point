@@ -8,7 +8,7 @@
     <!-- XSD types packages customization -->
     <jaxb:bindings schemaLocation="../main/resources/schemas/backend.xsd" node="/xsd:schema">
         <jaxb:schemaBindings>
-            <jaxb:package name="eu.domibus.backend.webservice.generated"/>
+            <jaxb:package name="eu.domibus.webservice.backend.generated"/>
         </jaxb:schemaBindings>
     </jaxb:bindings>
 

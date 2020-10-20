@@ -1,4 +1,4 @@
-package eu.domibus.backend.webservice;
+package eu.domibus.webservice.backend;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.transport.servlet.CXFServlet;

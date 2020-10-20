@@ -3,7 +3,7 @@
                 xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
 
     <jaxws:bindings node="wsdl:definitions" wsdlLocation="../main/resources/schemas/BackendService.wsdl">
-        <jaxws:package name="eu.domibus.backend.webservice.generated"/>
+        <jaxws:package name="eu.domibus.webservice.backend.generated"/>
     </jaxws:bindings>
 
 </jaxws:bindings>

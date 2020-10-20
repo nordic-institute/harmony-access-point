@@ -1,8 +1,8 @@
-package eu.domibus.backend.webservice;
+package eu.domibus.webservice.backend;
 
-import eu.domibus.backend.webservice.generated.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.webservice.backend.generated.*;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.xml.ws.BindingType;
@@ -15,8 +15,8 @@ import java.util.UUID;
 @javax.jws.WebService(
         serviceName = "BackendService",
         portName = "BACKEND_PORT",
-        targetNamespace = "http://org.ecodex.backend/",
-        endpointInterface = "eu.domibus.backend.webservice.generated.BackendInterface")
+        targetNamespace = "eu.europa.ec.eu.edelivery.domibus",
+        endpointInterface = "eu.domibus.webservice.backend.generated.BackendInterface")
 @BindingType(SOAPBinding.SOAP12HTTP_BINDING)
 public class BackendClient implements BackendInterface {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(BackendClient.class);

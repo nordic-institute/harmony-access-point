@@ -13,23 +13,10 @@
         <version>5.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>domibus-backend-ws-stubs</artifactId>
+    <artifactId>domibus-default-ws-plugin-backend-ws-stubs</artifactId>
     <name>Domibus MSH Backend WS Stubs</name>
 
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-dependencies</artifactId>
-                <version>${spring-boot.version}</version>
-                <type>pom</type>
-                <scope>test</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
     <dependencies>
-
         <!--        START TEST        -->
         <dependency>
             <groupId>eu.domibus</groupId>
