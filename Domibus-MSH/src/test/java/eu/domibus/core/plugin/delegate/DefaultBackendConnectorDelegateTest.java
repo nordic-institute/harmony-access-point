@@ -1,6 +1,7 @@
 package eu.domibus.core.plugin.delegate;
 
 import eu.domibus.api.util.ClassUtil;
+import eu.domibus.common.MessageDeletedBatchEvent;
 import eu.domibus.common.MessageDeletedEvent;
 import eu.domibus.common.MessageReceiveFailureEvent;
 import eu.domibus.core.plugin.BackendConnectorProvider;
@@ -76,6 +77,23 @@ public class DefaultBackendConnectorDelegateTest {
 
         new Verifications() {{
             backendConnector.messageDeletedEvent(event);
+        }};
+    }
+
+    @Test
+    public void messageDeletedBatchEvent(@Injectable MessageDeletedBatchEvent event,
+                                    @Injectable BackendConnector backendConnector) {
+        String backend = "mybackend";
+
+        new Expectations(defaultBackendConnectorDelegate) {{
+            backendConnectorProvider.getBackendConnector(backend);
+            result = backendConnector;
+        }};
+
+        defaultBackendConnectorDelegate.messageDeletedBatchEvent(backend, event);
+
+        new Verifications() {{
+            backendConnector.messageDeletedBatchEvent(event);
         }};
     }
 
