@@ -13,7 +13,7 @@ public interface JsonUtil<T> {
 
     List<String> jsonToList(String list);
 
-    String listOfTToJson(List<T> list);
+    String listToJson(List<T> list);
 
-    List<T> jsonToListOfT(String list, Type type);
+    List<T> jsonToList(String list, Type type);
 }

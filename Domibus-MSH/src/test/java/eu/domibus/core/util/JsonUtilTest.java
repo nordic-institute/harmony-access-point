@@ -30,7 +30,7 @@ public class JsonUtilTest {
         Type type = new TypeToken<ArrayList<String>>() {
         }.getType();
 
-        List<String> strings = jsonUtil.jsonToListOfT(json, type);
+        List<String> strings = jsonUtil.jsonToList(json, type);
         Assert.assertTrue(strings.get(0).equals("1"));
     }
 }

@@ -8,6 +8,7 @@ import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.util.JsonUtil;
 import eu.domibus.core.message.UserMessageDefaultService;
 import eu.domibus.core.message.UserMessageLog;
+import eu.domibus.core.message.UserMessageLogDto;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
@@ -73,7 +74,7 @@ public class RetentionListener implements MessageListener {
             if (MessageDeleteType.MULTI == deleteType) {
                 String userMessageLogsStr = message.getStringProperty(MessageRetentionDefaultService.MESSAGE_LOGS);
 
-                List<UserMessageLog> userMessageLogs = deserializeMessageLog(userMessageLogsStr);
+                List<UserMessageLogDto> userMessageLogs = deserializeMessageLog(userMessageLogsStr);
 
                 LOG.info("There are [{}] messages to delete in batch", userMessageLogs.size());
 
@@ -87,11 +88,11 @@ public class RetentionListener implements MessageListener {
         }
     }
 
-    protected List<UserMessageLog> deserializeMessageLog(String userMessageLogsStr) {
-        Type type = new TypeToken<ArrayList<UserMessageLog>>() {
+    protected List<UserMessageLogDto> deserializeMessageLog(String userMessageLogsStr) {
+        Type type = new TypeToken<ArrayList<UserMessageLogDto>>() {
         }.getType();
 
-        List<UserMessageLog> messageLogs = jsonUtil.jsonToListOfT(userMessageLogsStr, type);
+        List<UserMessageLogDto> messageLogs = jsonUtil.jsonToList(userMessageLogsStr, type);
 
         LOG.debug("UserMessageLogs size is [{}]", messageLogs.size());
 

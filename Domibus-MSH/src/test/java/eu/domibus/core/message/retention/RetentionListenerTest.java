@@ -8,6 +8,7 @@ import eu.domibus.api.security.functions.AuthenticatedProcedure;
 import eu.domibus.api.util.JsonUtil;
 import eu.domibus.core.message.UserMessageDefaultService;
 import eu.domibus.core.message.UserMessageLog;
+import eu.domibus.core.message.UserMessageLogDto;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.messaging.MessageConstants;
 import mockit.*;
@@ -85,7 +86,7 @@ public class RetentionListenerTest {
         new Verifications() {{
             domainContextProvider.setCurrentDomain(anyString);
             retentionListener.deserializeMessageLog(userMessageLogsStr);
-            userMessageDefaultService.deleteMessages((List<UserMessageLog>)any);
+            userMessageDefaultService.deleteMessages((List<UserMessageLogDto>)any);
         }};
     }
 

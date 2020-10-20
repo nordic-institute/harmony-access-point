@@ -37,7 +37,7 @@ public class JsonUtilImpl<T> implements JsonUtil<T> {
     }
 
     @Override
-    public String listOfTToJson(List<T> list) {
+    public String listToJson(List<T> list) {
         if (list == null) {
             return null;
         }
@@ -45,7 +45,7 @@ public class JsonUtilImpl<T> implements JsonUtil<T> {
     }
 
     @Override
-    public List<T> jsonToListOfT(String list, Type type) {
+    public List<T> jsonToList(String list, Type type) {
         if (list == null) {
             return null;
         }

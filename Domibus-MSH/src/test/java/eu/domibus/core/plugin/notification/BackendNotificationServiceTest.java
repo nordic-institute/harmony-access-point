@@ -32,10 +32,7 @@ import org.junit.runner.RunWith;
 
 import javax.jms.Queue;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PLUGIN_NOTIFICATION_ACTIVE;
 import static eu.domibus.common.NotificationType.*;
@@ -542,6 +539,27 @@ public class BackendNotificationServiceTest {
         }};
     }
 
+    @Test
+    public void testNotifyMessageDeleted(@Injectable UserMessageLogDto uml1, @Injectable UserMessageLogDto uml2) {
+
+        String backend = "ws";
+        List<UserMessageLogDto> userMessageLogDtos = Arrays.asList(uml1, uml2);
+        List<String> messageIds = Arrays.asList("abc", "def");
+
+        new Expectations(backendNotificationService) {{
+            uml1.getBackend(); result = backend;
+            uml2.getBackend(); result = backend;
+
+            backendNotificationService.getAllMessageIdsForBackend(userMessageLogDtos, backend); result = messageIds;
+            backendNotificationService.createMessageDeleteBatchEvent(backend, (List<String>)any);
+
+        }};
+
+        backendNotificationService.notifyMessageDeleted(userMessageLogDtos);
+
+        new Verifications() {
+        };
+    }
 
     @Test
     public void testNotifyMessageReceivedFailure(@Injectable UserMessage userMessage,

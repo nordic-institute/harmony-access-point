@@ -592,8 +592,8 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public void deleteMessages(List<UserMessageLog> userMessageLogs) {
-        List<String> userMessageIds = userMessageLogs.stream().map(userMessageLog -> userMessageLog.getMessageInfo().getMessageId()).collect(Collectors.toList());
+    public void deleteMessages(List<UserMessageLogDto> userMessageLogs) {
+        List<String> userMessageIds = userMessageLogs.stream().map(userMessageLog -> userMessageLog.getMessageId()).collect(Collectors.toList());
 
         LOG.debug("Deleting [{}] user messages", userMessageIds.size());
         LOG.trace("Deleting user messages [{}]", userMessageIds);

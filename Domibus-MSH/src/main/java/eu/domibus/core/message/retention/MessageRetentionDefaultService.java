@@ -9,6 +9,7 @@ import eu.domibus.api.util.JsonUtil;
 import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.UserMessageLog;
 import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.message.UserMessageLogDto;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
@@ -96,7 +97,7 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
         String fileLocation = domibusPropertyProvider.getProperty(DOMIBUS_ATTACHMENT_STORAGE_LOCATION);
         // If messageRetentionDownloaded is equal to -1, the messages will be kept indefinitely and, if 0 and no file system storage was used, they have already been deleted during download operation.
         if (messageRetentionDownloaded > 0 || (StringUtils.isNotEmpty(fileLocation) && messageRetentionDownloaded >= 0)) {
-            List<UserMessageLog> downloadedMessages = userMessageLogDao.getDownloadedUserMessagesOlderThan(DateUtils.addMinutes(new Date(), messageRetentionDownloaded * -1),
+            List<UserMessageLogDto> downloadedMessages = userMessageLogDao.getDownloadedUserMessagesOlderThan(DateUtils.addMinutes(new Date(), messageRetentionDownloaded * -1),
                     mpc, expiredDownloadedMessagesLimit);
             if (CollectionUtils.isEmpty(downloadedMessages)) {
                 LOG.debug("There are no expired downloaded messages.");
@@ -113,7 +114,7 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
         LOG.debug("Deleting expired not-downloaded messages for MPC [{}] using expiredNotDownloadedMessagesLimit [{}]", mpc, expiredNotDownloadedMessagesLimit);
         final int messageRetentionNotDownloaded = pModeProvider.getRetentionUndownloadedByMpcURI(mpc);
         if (messageRetentionNotDownloaded > -1) { // if -1 the messages will be kept indefinitely and if 0, although it makes no sense, is legal
-            final List<UserMessageLog> notDownloadedMessages = userMessageLogDao.getUndownloadedUserMessagesOlderThan(DateUtils.addMinutes(new Date(), messageRetentionNotDownloaded * -1),
+            final List<UserMessageLogDto> notDownloadedMessages = userMessageLogDao.getUndownloadedUserMessagesOlderThan(DateUtils.addMinutes(new Date(), messageRetentionNotDownloaded * -1),
                     mpc, expiredNotDownloadedMessagesLimit);
             if (CollectionUtils.isEmpty(notDownloadedMessages)) {
                 LOG.debug("There are no expired not-downloaded messages.");
@@ -132,7 +133,7 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
 
         if (messageRetentionSent > -1) { // if -1 the messages will be kept indefinitely
             LOG.trace("messageRetentionSent [{}]", messageRetentionSent);
-            final List<UserMessageLog> sentMessages = userMessageLogDao.getSentUserMessagesOlderThan(DateUtils.addMinutes(new Date(), messageRetentionSent * -1),
+            final List<UserMessageLogDto> sentMessages = userMessageLogDao.getSentUserMessagesOlderThan(DateUtils.addMinutes(new Date(), messageRetentionSent * -1),
                     mpc, expiredSentMessagesLimit);
             if (CollectionUtils.isEmpty(sentMessages)) {
                 LOG.debug("There are no expired sent messages.");
@@ -145,7 +146,7 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
         }
     }
 
-    public void scheduleDeleteMessages(List<UserMessageLog> userMessageLogs, String mpc) {
+    public void scheduleDeleteMessages(List<UserMessageLogDto> userMessageLogs, String mpc) {
         final boolean isDeleteMessageMetadata = pModeProvider.isDeleteMessageMetadataByMpcURI(mpc);
         LOG.trace("isDeleteMessageMetadata [{}]", isDeleteMessageMetadata);
         if (isDeleteMessageMetadata) { // schedule delete in batch
@@ -160,9 +161,9 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
     }
 
     @Override
-    public void scheduleDeleteMessagesByMessageLog(List<UserMessageLog> userMessageLogs) {
+    public void scheduleDeleteMessagesByMessageLog(List<UserMessageLogDto> userMessageLogs) {
         List<String> messageIds = userMessageLogs.stream().map(userMessageLog ->
-                userMessageLog.getMessageInfo().getMessageId()).collect(Collectors.toList());
+                userMessageLog.getMessageId()).collect(Collectors.toList());
         scheduleDeleteMessages(messageIds);
     }
 
@@ -220,13 +221,13 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
     }
 
     @Override
-    public void scheduleDeleteMessagesByMessageLog(List<UserMessageLog> userMessageLogs, int maxBatch) {
+    public void scheduleDeleteMessagesByMessageLog(List<UserMessageLogDto> userMessageLogs, int maxBatch) {
         if (CollectionUtils.isEmpty(userMessageLogs)) {
             LOG.debug("No message to be scheduled for deletion");
             return;
         }
 
-        List<UserMessageLog> userMessageLogsToDelete = new ArrayList<>(userMessageLogs);
+        List<UserMessageLogDto> userMessageLogsToDelete = new ArrayList<>(userMessageLogs);
 
         while (userMessageLogsToDelete.size() > 0) {
             LOG.debug("messageIds size is [{}]", userMessageLogsToDelete.size());
@@ -235,19 +236,19 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
                 LOG.debug("currentBatch [{}] is higher than maxBatch [{}]", currentBatch, maxBatch);
                 currentBatch = maxBatch;
             }
-            List<UserMessageLog> userMessageLogsBatch = userMessageLogsToDelete.stream().limit(currentBatch).collect(Collectors.toList());
+            List<UserMessageLogDto> userMessageLogsBatch = userMessageLogsToDelete.stream().limit(currentBatch).collect(Collectors.toList());
             userMessageLogsToDelete.removeAll(userMessageLogsBatch);
             LOG.debug("After removal messageIds size is [{}]", userMessageLogsToDelete.size());
             scheduleDeleteBatchMessages(userMessageLogsBatch);
         }
     }
 
-    protected void scheduleDeleteBatchMessages(List<UserMessageLog> userMessageLogsBatch) {
+    protected void scheduleDeleteBatchMessages(List<UserMessageLogDto> userMessageLogsBatch) {
         LOG.debug("Scheduling to delete [{}] messages", userMessageLogsBatch.size());
 
         JmsMessage message = JMSMessageBuilder.create()
                 .property(DELETE_TYPE, MessageDeleteType.MULTI.name())
-                .property(MESSAGE_LOGS, jsonUtil.listOfTToJson(userMessageLogsBatch))
+                .property(MESSAGE_LOGS, jsonUtil.listToJson(userMessageLogsBatch))
                 .build();
         jmsManager.sendMessageToQueue(message, retentionMessageQueue);
     }
