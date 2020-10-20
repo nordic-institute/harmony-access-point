@@ -378,7 +378,7 @@ public class UserMessageLogDaoTest {
     public void testGetUndownloadedUserMessagesOlderThan(@Injectable TypedQuery<String> query, @Injectable List<String> list) {
         // GIVEN
         new Expectations() {{
-            em.createNamedQuery("UserMessageLog.findUndownloadedUserMessagesOlderThan", String.class); result = query;
+            em.createNamedQuery("UserMessageLog.findUndownloadedUserMessagesOlderThan", UserMessageLog.class); result = query;
             query.getResultList(); result = list;
         }};
 
@@ -393,7 +393,7 @@ public class UserMessageLogDaoTest {
     public void testGetSentUserMessagesOlderThan(@Injectable TypedQuery<String> query, @Injectable List<String> list) {
         // GIVEN
         new Expectations() {{
-            em.createNamedQuery("UserMessageLog.findSentUserMessagesOlderThan", String.class); result = query;
+            em.createNamedQuery("UserMessageLog.findSentUserMessagesOlderThan", UserMessageLog.class); result = query;
             query.getResultList(); result = list;
         }};
 
@@ -408,7 +408,7 @@ public class UserMessageLogDaoTest {
     public void testGetUndownloadedUserMessagesOlderThan_returnsEmptyListWhenNoMessagesFound(@Injectable TypedQuery<String> query) {
         // GIVEN
         new Expectations() {{
-            em.createNamedQuery("UserMessageLog.findUndownloadedUserMessagesOlderThan", String.class); result = query;
+            em.createNamedQuery("UserMessageLog.findUndownloadedUserMessagesOlderThan", UserMessageLog.class); result = query;
             query.getResultList(); result = new NoResultException();
         }};
 
@@ -423,7 +423,7 @@ public class UserMessageLogDaoTest {
     public void testGetUndownloadedUserMessagesOlderThan_Date(@Injectable Date startDate, @Injectable TypedQuery<String> query) {
         // GIVEN
         new Expectations() {{
-            em.createNamedQuery("UserMessageLog.findUndownloadedUserMessagesOlderThan", String.class); result = query;
+            em.createNamedQuery("UserMessageLog.findUndownloadedUserMessagesOlderThan", UserMessageLog.class); result = query;
         }};
 
         // WHEN
@@ -439,7 +439,7 @@ public class UserMessageLogDaoTest {
     public void testGetUndownloadedUserMessagesOlderThan_Mpc(@Injectable TypedQuery<String> query) {
         // GIVEN
         new Expectations() {{
-            em.createNamedQuery("UserMessageLog.findUndownloadedUserMessagesOlderThan", String.class); result = query;
+            em.createNamedQuery("UserMessageLog.findUndownloadedUserMessagesOlderThan", UserMessageLog.class); result = query;
         }};
 
         // WHEN
@@ -455,7 +455,7 @@ public class UserMessageLogDaoTest {
     public void testGetUndownloadedUserMessagesOlderThan_ExpiredNotDownloadedMessagesLimit(@Injectable TypedQuery<String> query) {
         // GIVEN
         new Expectations() {{
-            em.createNamedQuery("UserMessageLog.findUndownloadedUserMessagesOlderThan", String.class); result = query;
+            em.createNamedQuery("UserMessageLog.findUndownloadedUserMessagesOlderThan", UserMessageLog.class); result = query;
         }};
 
         // WHEN
@@ -476,7 +476,7 @@ public class UserMessageLogDaoTest {
     public void testGetDownloadedUserMessagesOlderThan(@Injectable TypedQuery<String> query, @Injectable List<String> list) {
         // GIVEN
         new Expectations() {{
-            em.createNamedQuery("UserMessageLog.findDownloadedUserMessagesOlderThan", String.class); result = query;
+            em.createNamedQuery("UserMessageLog.findDownloadedUserMessagesOlderThan", UserMessageLog.class); result = query;
             query.getResultList(); result = list;
         }};
 
@@ -491,7 +491,7 @@ public class UserMessageLogDaoTest {
     public void testGetDownloadedUserMessagesOlderThan_returnsEmptyListWhenNoMessagesFound(@Injectable TypedQuery<String> query) {
         // GIVEN
         new Expectations() {{
-            em.createNamedQuery("UserMessageLog.findDownloadedUserMessagesOlderThan", String.class); result = query;
+            em.createNamedQuery("UserMessageLog.findDownloadedUserMessagesOlderThan", UserMessageLog.class); result = query;
             query.getResultList(); result = new NoResultException();
         }};
 
@@ -506,7 +506,7 @@ public class UserMessageLogDaoTest {
     public void testGetDownloadedUserMessagesOlderThan_Date(@Injectable Date startDate, @Injectable TypedQuery<String> query) {
         // GIVEN
         new Expectations() {{
-            em.createNamedQuery("UserMessageLog.findDownloadedUserMessagesOlderThan", String.class); result = query;
+            em.createNamedQuery("UserMessageLog.findDownloadedUserMessagesOlderThan", UserMessageLog.class); result = query;
         }};
 
         // WHEN
@@ -522,7 +522,7 @@ public class UserMessageLogDaoTest {
     public void testGetDownloadedUserMessagesOlderThan_Mpc(@Injectable TypedQuery<String> query) {
         // GIVEN
         new Expectations() {{
-            em.createNamedQuery("UserMessageLog.findDownloadedUserMessagesOlderThan", String.class); result = query;
+            em.createNamedQuery("UserMessageLog.findDownloadedUserMessagesOlderThan", UserMessageLog.class); result = query;
         }};
 
         // WHEN
@@ -538,7 +538,7 @@ public class UserMessageLogDaoTest {
     public void testGetDownloadedUserMessagesOlderThan_ExpiredDownloadedMessagesLimit(@Injectable TypedQuery<String> query) {
         // GIVEN
         new Expectations() {{
-            em.createNamedQuery("UserMessageLog.findDownloadedUserMessagesOlderThan", String.class); result = query;
+            em.createNamedQuery("UserMessageLog.findDownloadedUserMessagesOlderThan", UserMessageLog.class); result = query;
         }};
 
         // WHEN

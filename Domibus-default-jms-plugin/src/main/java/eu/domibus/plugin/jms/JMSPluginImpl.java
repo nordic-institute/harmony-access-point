@@ -173,6 +173,16 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
         sendJmsMessage(jmsMessageDTO, event.getMessageId(), JMSPLUGIN_QUEUE_REPLY, JMSPLUGIN_QUEUE_REPLY_ROUTING);
     }
 
+    @Override
+    public void messageDeletedBatchEvent(final MessageDeletedBatchEvent event) {
+        LOG.info("Message delete batch success [{}]", event.getMessageIds());
+    }
+
+    @Override
+    public void messageDeletedEvent(final MessageDeletedEvent event) {
+        LOG.info("Message delete success [{}]", event.getMessageId());
+    }
+
     protected void sendJmsMessage(JmsMessageDTO message, String messageId, String defaultQueueProperty, String routingQueuePrefixProperty) {
         String queueValue = jmsPluginQueueService.getJMSQueue(messageId, defaultQueueProperty, routingQueuePrefixProperty);
 

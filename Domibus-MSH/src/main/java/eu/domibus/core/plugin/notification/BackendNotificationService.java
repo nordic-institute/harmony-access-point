@@ -166,8 +166,15 @@ public class BackendNotificationService {
             return;
         }
 
-        backends.stream().forEach(backend -> createMessageDeleteEvent(backend, getAllMessageIdsForBackend(userMessageLogsToNotify, backend)));
+        backends.stream().forEach(backend -> createMessageDeleteBatchEvent(backend, getAllMessageIdsForBackend(userMessageLogsToNotify, backend)));
     }
+
+    protected void createMessageDeleteBatchEvent(String backend, List<String> messageIds) {
+        MessageDeletedBatchEvent messageDeletedBatchEvent = new MessageDeletedBatchEvent();
+        messageDeletedBatchEvent.setMessageIds(messageIds);
+        backendConnectorDelegate.messageDeletedBatchEvent(backend, messageDeletedBatchEvent);
+    }
+
 
     protected List<String> getAllMessageIdsForBackend (final List<UserMessageLog> userMessageLogs, String backend){
         List<UserMessageLog> userMessageLogsFilteredByBackend = userMessageLogs.stream().filter(userMessageLog -> userMessageLog.getBackend().equals(backend)).collect(Collectors.toList());
@@ -176,12 +183,7 @@ public class BackendNotificationService {
         return messageIds;
     }
 
-    protected void createMessageDeleteEvent(String backend, List<String> messageIds) {
-        MessageDeletedEvent messageDeletedEvent = new MessageDeletedEvent();
-        messageDeletedEvent.setMessageIds(messageIds);
-        backendConnectorDelegate.messageDeletedEvent(backend, messageDeletedEvent);
 
-    }
 
     public void notifyMessageDeleted(String messageId, UserMessageLog userMessageLog) {
         if (userMessageLog == null) {
@@ -198,7 +200,9 @@ public class BackendNotificationService {
             return;
         }
 
-        createMessageDeleteEvent(backend, Arrays.asList(messageId));
+        MessageDeletedEvent messageDeletedEvent = new MessageDeletedEvent();
+        messageDeletedEvent.setMessageId(messageId);
+        backendConnectorDelegate.messageDeletedEvent(backend, messageDeletedEvent);
     }
 
     public void notifyPayloadSubmitted(final UserMessage userMessage, String originalFilename, PartInfo partInfo, String backendName) {

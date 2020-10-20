@@ -93,8 +93,8 @@ public class DefaultBackendConnectorDelegateTest {
             backendConnectorService.isInstanceOfNotificationListener(asyncNotificationConfiguration);
             result = true;
 
-            event.getMessageIds();
-            result = Arrays.asList("abc");
+            event.getMessageId();
+            result = "abc";
 
         }};
 
