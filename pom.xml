@@ -133,7 +133,6 @@
         <commons-lang.version>2.6</commons-lang.version>
         <jakarta.activation.version>1.2.1</jakarta.activation.version>
         <jakarta.xml.bind-api.version>2.3.2</jakarta.xml.bind-api.version>
-        <asm.version>5.2</asm.version>
         <geronimo-1.1_spec.version>1.1.1</geronimo-1.1_spec.version>
         <geronimo-jms_2.0_spec.version>1.0-alpha-2</geronimo-jms_2.0_spec.version>
         <neethi.version>3.1.1</neethi.version>
