@@ -39,9 +39,9 @@ public class UserFilteringDao extends ListDao<User> {
             Object filterValue = filter.getValue();
             if (filterValue != null) {
                 if (filter.getKey().equals("roles")) {
-                    LOG.debug("Adding predicates for users roles : [{}]  [{}]  [{}]",filterValue, filterValue.toString(), filter.getValue());
+                    LOG.debug("Adding predicates for users roles : [{}]", filterValue);
                     predicates.add(criteriaBuilder.equal(userEntity.get(filterKey), filterValue));
-                   // predicates.add(criteriaBuilder.equal(userEntity.<String>get(filterKey), filterValue.toString()));
+                    // predicates.add(criteriaBuilder.equal(userEntity.<String>get(filterKey), filterValue.toString()));
                 }
                 if (filterValue instanceof String) {
                     addStringPredicates(criteriaBuilder, userEntity, predicates, filter, filterKey, filterValue);
