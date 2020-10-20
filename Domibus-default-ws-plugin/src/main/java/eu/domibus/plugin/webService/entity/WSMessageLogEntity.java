@@ -24,7 +24,7 @@ import java.util.Date;
         @NamedQuery(name = "WSMessageLogEntity.deleteByMessageId",
                 query = "DELETE FROM WSMessageLogEntity wsMessageLogEntity where wsMessageLogEntity.messageId=:MESSAGE_ID"),
         @NamedQuery(name = "WSMessageLogEntity.deleteByMessageIds",
-                query = "DELETE FROM WSMessageLogEntity wsMessageLogEntity where wsMessageLogEntity.messageId in :MESSAGE_IDs")
+                query = "DELETE FROM WSMessageLogEntity wsMessageLogEntity where wsMessageLogEntity.messageId in :MESSAGE_IDS")
 
 })
 public class WSMessageLogEntity {
