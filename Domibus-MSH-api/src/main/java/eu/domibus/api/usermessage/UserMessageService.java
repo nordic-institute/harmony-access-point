@@ -165,10 +165,12 @@ public interface UserMessageService {
     byte[] getMessageWithAttachmentsAsZip(String messageId) throws MessageNotFoundException, IOException;
 
     /**
+     *
+     * @param messageType
      * @param messageId
      * @return
      * @throws MessageNotFoundException
      * @throws IOException
      */
-    byte[] getMessageEnvelopesAsZip(String messageId) throws MessageNotFoundException, IOException;
+    byte[] getMessageEnvelopesAsZip(String messageType, String messageId) throws MessageNotFoundException, IOException;
 }
