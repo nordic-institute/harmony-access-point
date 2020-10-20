@@ -177,8 +177,7 @@ public class BackendNotificationService {
 
 
     protected List<String> getAllMessageIdsForBackend (final List<UserMessageLogDto> userMessageLogs, String backend){
-        List<UserMessageLogDto> userMessageLogsFilteredByBackend = userMessageLogs.stream().filter(userMessageLog -> userMessageLog.getBackend().equals(backend)).collect(Collectors.toList());
-        List<String> messageIds = userMessageLogsFilteredByBackend.stream().map(userMessageLog -> userMessageLog.getMessageId()).collect(Collectors.toList());
+        List<String> messageIds = userMessageLogs.stream().filter(userMessageLog -> userMessageLog.getBackend().equals(backend)).map(userMessageLog -> userMessageLog.getMessageId()).collect(Collectors.toList());
         LOG.debug("There are [{}] delete messages to notify for backend [{}]", messageIds.size(), backend);
         return messageIds;
     }
