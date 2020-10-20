@@ -16,6 +16,7 @@ import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.core.message.UserMessageLog;
+import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
 import eu.domibus.core.message.reliability.ReliabilityService;
 import eu.domibus.core.pmode.provider.PModeProvider;
@@ -56,6 +57,9 @@ public abstract class AbstractUserMessageSender implements MessageSender {
 
     @Autowired
     protected ResponseHandler responseHandler;
+
+    @Autowired
+    protected NonRepudiationService nonRepudiationService;
 
     @Autowired
     protected MessageExchangeService messageExchangeService;
@@ -138,6 +142,8 @@ public abstract class AbstractUserMessageSender implements MessageSender {
             getLog().debug("PMode found : " + pModeKey);
             final SOAPMessage requestSoapMessage = createSOAPMessage(userMessage, legConfiguration);
             responseSoapMessage = mshDispatcher.dispatch(requestSoapMessage, receiverParty.getEndpoint(), policy, legConfiguration, pModeKey);
+
+            nonRepudiationService.saveRequest(requestSoapMessage, userMessage); // TODO: maybe move before the actual sending??
             responseResult = responseHandler.verifyResponse(responseSoapMessage, messageId);
 
             reliabilityCheckSuccessful = reliabilityChecker.check(requestSoapMessage, responseSoapMessage, responseResult, legConfiguration);

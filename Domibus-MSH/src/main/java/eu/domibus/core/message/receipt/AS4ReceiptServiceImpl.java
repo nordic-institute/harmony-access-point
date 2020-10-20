@@ -238,6 +238,8 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
         signalMessageLogDao.create(signalMessageLog);
 
         uiReplicationSignalService.signalMessageSubmitted(signalMessageLog.getMessageId());
+
+        nonRepudiationService.saveResponse(responseMessage, signalMessage);
     }
 
 
