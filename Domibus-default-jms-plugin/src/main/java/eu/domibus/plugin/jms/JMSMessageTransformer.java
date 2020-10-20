@@ -284,6 +284,7 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
         if (target == null || messageIn == null) {
             return;
         }
+        LOG.debug("Submission message id [{}]", target.getMessageId());
         int numPayloads = 0;
         if (messageIn.propertyExists(TOTAL_NUMBER_OF_PAYLOADS)) {
             numPayloads = messageIn.getIntProperty(TOTAL_NUMBER_OF_PAYLOADS);
@@ -324,18 +325,13 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
     private void transformToSubmissionHandlePayload(MapMessage messageIn, Submission target, String bodyloadEnabled, int i) throws JMSException {
         final String propPayload = MessageFormat.format(PAYLOAD_NAME_FORMAT, i);
 
-        final String contentId;
-        final String mimeType;
-        String fileName;
-        String payloadName;
-
-        mimeType = getMimeType(messageIn, i);
+        final String mimeType = getMimeType(messageIn, i);
         final String payFileNameProp = MessageFormat.format(PAYLOAD_FILE_NAME_FORMAT, i);
-        fileName = fileUtilExtService.sanitizeFileName(trim(messageIn.getStringProperty(payFileNameProp)));
+        String fileName = fileUtilExtService.sanitizeFileName(trim(messageIn.getStringProperty(payFileNameProp)));
         final String payloadNameProperty = MessageFormat.format(JMS_PAYLOAD_NAME_FORMAT, i);
-        payloadName = fileUtilExtService.sanitizeFileName(trim(messageIn.getStringProperty(payloadNameProperty)));
+        String payloadName = fileUtilExtService.sanitizeFileName(trim(messageIn.getStringProperty(payloadNameProperty)));
         final String payContID = MessageFormat.format(PAYLOAD_MIME_CONTENT_ID_FORMAT, i);
-        contentId = trim(messageIn.getStringProperty(payContID));
+        final String contentId = trim(messageIn.getStringProperty(payContID));
         final Collection<Submission.TypedProperty> partProperties = new ArrayList<>();
         partProperties.add(new Submission.TypedProperty(MIME_TYPE, mimeType));
         if (fileName != null && !fileName.trim().equals("")) {
@@ -364,10 +360,11 @@ public class JMSMessageTransformer implements MessageRetrievalTransformer<MapMes
      *
      * @return {@link MediaType#APPLICATION_OCTET_STREAM} if null or empty
      */
-    protected String getMimeType(MapMessage messageIn, int i) throws JMSException {
-        final String payMimeTypeProp = MessageFormat.format(JMSMessageConstants.PAYLOAD_MIME_TYPE_FORMAT, i);
+    protected String getMimeType(MapMessage messageIn, int index) throws JMSException {
+        final String payMimeTypeProp = MessageFormat.format(JMSMessageConstants.PAYLOAD_MIME_TYPE_FORMAT, index);
         String mimeType = trim(messageIn.getStringProperty(payMimeTypeProp));
         if (StringUtils.isBlank(mimeType)) {
+            LOG.debug("Use default mime type: [{}]", MediaType.APPLICATION_OCTET_STREAM);
             return MediaType.APPLICATION_OCTET_STREAM;
         }
         return mimeType;
