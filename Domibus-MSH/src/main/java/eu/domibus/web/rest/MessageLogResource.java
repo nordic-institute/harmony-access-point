@@ -85,10 +85,11 @@ public class MessageLogResource extends BaseResource {
         this.messagesLogService = messagesLogService;
         this.uiReplicationSignalService = uiReplicationSignalService;
         this.domibusConfigurationService = domibusConfigurationService;
+
+        init();
     }
 
-    @PostConstruct
-    public void init() {
+    private void init() {
         SimpleDateFormat ft = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
         try {
             defaultFrom = ft.parse("1970-01-01 23:59:00");
@@ -180,16 +181,6 @@ public class MessageLogResource extends BaseResource {
                 MODULE_NAME_MESSAGES);
     }
 
-    private List<String> getExcludedProperties() {
-        List<String> excludedProperties = Lists.newArrayList(PROPERTY_SOURCE_MESSAGE, PROPERTY_MESSAGE_FRAGMENT);
-        if(!domibusConfigurationService.isFourCornerEnabled()) {
-            excludedProperties.add(PROPERTY_ORIGINAL_SENDER);
-            excludedProperties.add(PROPERTY_FINAL_RECIPIENT);
-        }
-        LOG.debug("Found properties to exclude from the generated CSV file: {}", excludedProperties);
-        return excludedProperties;
-    }
-
     /**
      * This method gets the last send UserMessage for the given party Id
      *
@@ -215,6 +206,16 @@ public class MessageLogResource extends BaseResource {
     public ResponseEntity<TestServiceMessageInfoRO> getLastTestReceived(@Valid LatestIncomingMessageRequestRO request) throws TestServiceException {
         TestServiceMessageInfoRO testServiceMessageInfoRO = testService.getLastTestReceivedWithErrors(request.getPartyId(), request.getUserMessageId());
         return ResponseEntity.ok().body(testServiceMessageInfoRO);
+    }
+
+    private List<String> getExcludedProperties() {
+        List<String> excludedProperties = Lists.newArrayList(PROPERTY_SOURCE_MESSAGE, PROPERTY_MESSAGE_FRAGMENT);
+        if(!domibusConfigurationService.isFourCornerEnabled()) {
+            excludedProperties.add(PROPERTY_ORIGINAL_SENDER);
+            excludedProperties.add(PROPERTY_FINAL_RECIPIENT);
+        }
+        LOG.debug("Found properties to exclude from the generated CSV file: {}", excludedProperties);
+        return excludedProperties;
     }
 
     private HashMap<String, Object> createFilterMap(MessageLogFilterRequestRO request) {

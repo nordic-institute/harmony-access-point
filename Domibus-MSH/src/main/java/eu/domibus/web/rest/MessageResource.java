@@ -75,6 +75,18 @@ public class MessageResource {
                 .body(new ByteArrayResource(zip));
     }
 
+    @RequestMapping(value = "/envelopes")
+    public ResponseEntity<ByteArrayResource> downloadEnvelopes(@RequestParam(value = "messageId", required = true) String messageId)
+            throws MessageNotFoundException, IOException {
+
+        byte[] zip = userMessageService.getMessageEnvelopesAsZip(messageId);
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType("application/zip"))
+                .header("content-disposition", "attachment; filename=" + messageId + ".zip")
+                .body(new ByteArrayResource(zip));
+    }
+
     @RequestMapping(value = "/exists", method = RequestMethod.GET)
     public boolean checkMessageContentExists(@RequestParam(value = "messageId", required = true) String messageId) {
         MessageLogRO message = messagesLogService.findUserMessageById(messageId);

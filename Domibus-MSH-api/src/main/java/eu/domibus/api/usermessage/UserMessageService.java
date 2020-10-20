@@ -147,6 +147,7 @@ public interface UserMessageService {
 
     /**
      * Retrieves a message by id as a byte array
+     *
      * @param messageId
      * @return the message serialized as byte array
      * @throws MessageNotFoundException in case there is no message with this id
@@ -155,11 +156,19 @@ public interface UserMessageService {
 
     /**
      * Retrieves the message content as a zip file(used for downloading a message)
+     *
      * @param messageId
      * @return a zip file with the message content
      * @throws MessageNotFoundException in case the message does nor exists or the content could not be retrieved( already sent and deleted)
-     * @throws IOException in case a read error
+     * @throws IOException              in case a read error
      */
     byte[] getMessageWithAttachmentsAsZip(String messageId) throws MessageNotFoundException, IOException;
 
+    /**
+     * @param messageId
+     * @return
+     * @throws MessageNotFoundException
+     * @throws IOException
+     */
+    byte[] getMessageEnvelopesAsZip(String messageId) throws MessageNotFoundException, IOException;
 }

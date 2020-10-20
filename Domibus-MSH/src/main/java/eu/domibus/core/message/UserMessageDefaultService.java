@@ -27,12 +27,15 @@ import eu.domibus.core.jms.DispatchMessageCreator;
 import eu.domibus.core.message.acknowledge.MessageAcknowledgementDao;
 import eu.domibus.core.message.attempt.MessageAttemptDao;
 import eu.domibus.core.message.converter.MessageConverterService;
+import eu.domibus.core.message.nonrepudiation.RawEnvelopeLogDao;
 import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.message.splitandjoin.MessageGroupDao;
 import eu.domibus.core.message.splitandjoin.MessageGroupEntity;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinException;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
@@ -40,9 +43,8 @@ import eu.domibus.core.replication.UIMessageDao;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.PartInfo;
+import eu.domibus.ebms3.common.model.SignalMessage;
 import eu.domibus.ebms3.common.model.UserMessage;
-import eu.domibus.core.metrics.Counter;
-import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.MDCKey;
@@ -66,7 +68,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SEND_MESSAGE_SUCCESS_DELETE_PAYLOAD;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 /**
@@ -182,6 +183,9 @@ public class UserMessageDefaultService implements UserMessageService {
 
     @Autowired
     DateUtil dateUtil;
+
+    @Autowired
+    private RawEnvelopeLogDao rawEnvelopeLogDao;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 1200) // 20 minutes
     public void createMessageFragments(UserMessage sourceMessage, MessageGroupEntity messageGroupEntity, List<String> fragmentFiles) {
@@ -370,8 +374,8 @@ public class UserMessageDefaultService implements UserMessageService {
         scheduleSending(userMessage, userMessageLog.getMessageId(), userMessageLog, jmsMessage);
     }
 
-    @Timer(clazz = DatabaseMessageHandler.class,value = "scheduleSending")
-    @Counter(clazz = DatabaseMessageHandler.class,value = "scheduleSending")
+    @Timer(clazz = DatabaseMessageHandler.class, value = "scheduleSending")
+    @Counter(clazz = DatabaseMessageHandler.class, value = "scheduleSending")
     protected void scheduleSending(final UserMessage userMessage, final String messageId, UserMessageLog userMessageLog, JmsMessage jmsMessage) {
         if (userMessageLog.isSplitAndJoin()) {
             LOG.debug("Sending message to sendLargeMessageQueue");
@@ -631,6 +635,12 @@ public class UserMessageDefaultService implements UserMessageService {
         return zipFiles(message);
     }
 
+    @Override
+    public byte[] getMessageEnvelopesAsZip(String messageId) throws MessageNotFoundException, IOException {
+        Map<String, InputStream> message = getMessageEnvelopes(messageId);
+        return zipFiles(message);
+    }
+
     protected Map<String, InputStream> getMessageContentWithAttachments(String messageId) throws MessageNotFoundException {
 
         UserMessage userMessage = getUserMessageById(messageId);
@@ -662,6 +672,33 @@ public class UserMessageDefaultService implements UserMessageService {
         }
 
         auditService.addMessageDownloadedAudit(messageId);
+
+        return result;
+    }
+
+    protected Map<String, InputStream> getMessageEnvelopes(String messageId) throws MessageNotFoundException {
+        Map<String, InputStream> result = new HashMap<>();
+
+        UserMessage userMessage = getUserMessageById(messageId);
+//        RawEnvelopeDto userEnvelope = rawEnvelopeLogDao.findUserMessageEnvelopeById(userMessage.getEntityId());
+//        InputStream userEnvelopeStream = new ByteArrayInputStream(userEnvelope.getRawMessage().getBytes());
+        InputStream userEnvelopeStream = new ByteArrayInputStream(userMessage.getRawEnvelopeLog().getRawXML().getBytes());
+
+        result.put("user_message_envelope.xml", userEnvelopeStream);
+
+        SignalMessage signalMessage = messagingDao.findSignalMessageByUserMessageId(messageId);
+        InputStream signalEnvelopeStream = new ByteArrayInputStream(signalMessage.getRawEnvelopeLog().getRawXML().getBytes());
+        result.put("signal_message_envelope.xml", signalEnvelopeStream);
+
+//        List<SignalMessage> signalMessages = signalMessageDao.findSignalMessagesByRefMessageId(messageId);
+//        signalMessages.forEach(signalMessage -> {
+////            RawEnvelopeDto signalEnvelope = rawEnvelopeLogDao.findSignalMessageEnvelopeById(signalMessage.getEntityId());
+////            InputStream signalEnvelopeStream = new ByteArrayInputStream(signalEnvelope.getRawMessage().getBytes());
+//            InputStream signalEnvelopeStream = new ByteArrayInputStream(signalMessage.getRawEnvelopeLog().getRawXML().getBytes());
+//            result.put("signal_message_envelope" + signalMessage.getEntityId() + ".xml", signalEnvelopeStream);
+//        });
+
+//        auditService.addMessageEnvelopesDownloadedAudit(messageId);
 
         return result;
     }
