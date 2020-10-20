@@ -133,8 +133,10 @@ public class UserResource extends BaseResource {
         request.setPageStart(0);
         request.setPageSize(getCsvService().getPageSizeForExport());
         final UserResultRO result = retrieveAndPackageUsers(request);
-        final List<UserResponseRO> entries = getUsers();
-        getCsvService().validateMaxRows(entries.size());
+
+        getCsvService().validateMaxRows(result.getEntries().size(),
+                () -> getUserService().countUsers(request.getAuthRole(), request.getUserName(), request.getDeleted()));
+
 
         return exportToCSV(result.getEntries(),
                 UserResponseRO.class,
@@ -157,13 +159,13 @@ public class UserResource extends BaseResource {
     }
 
     protected UserResultRO retrieveAndPackageUsers(UserFilterRequestRO request) {
-        LOG.debug("Retrieving plugin users.");
-       /* List<UserResponseRO> users = getUserService().findUsers(request.getAuthType(), request.getAuthRole(), request.getOriginalUser(), request.getUserName(),
-                request.getPageStart(), request.getPageSize());*/
-        List<User> users = getUserService().findUsers();
-
+        LOG.debug("Retrieving users.");
+        List<User> users =  getUserService().findUsers(request.getAuthRole(), request.getUserName(), request.getDeleted(),
+                request.getPageStart(), request.getPageSize());
+       /* List<User> users = getUserService().findUsers();*/
+        List<UserResponseRO> userResponseROS = prepareResponse(users);
         UserResultRO result = new UserResultRO();
-       // result.setEntries(users);
+        result.setEntries(userResponseROS);
         result.setPage(request.getPageStart());
         result.setPageSize(request.getPageSize());
 
