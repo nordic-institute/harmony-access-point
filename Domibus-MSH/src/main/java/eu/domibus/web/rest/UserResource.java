@@ -162,7 +162,6 @@ public class UserResource extends BaseResource {
         LOG.debug("Retrieving users.");
         List<User> users =  getUserService().findUsers(request.getAuthRole(), request.getUserName(), request.getDeleted(),
                 request.getPageStart(), request.getPageSize());
-       /* List<User> users = getUserService().findUsers();*/
         List<UserResponseRO> userResponseROS = prepareResponse(users);
         UserResultRO result = new UserResultRO();
         result.setEntries(userResponseROS);

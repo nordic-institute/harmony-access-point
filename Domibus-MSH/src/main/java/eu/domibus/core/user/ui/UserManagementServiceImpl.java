@@ -251,21 +251,18 @@ public class UserManagementServiceImpl implements UserService {
         HashMap<String, Object> filters = new HashMap<>();
         if (authRole != null) {
             UserRole userRole = userRoleDao.findByName(authRole.name());
-            Set<UserRole> roles =new HashSet<>();
+            Set<UserRole> roles = new HashSet<>();
             roles.add(userRole);
-            LOG.debug("Adding filters when users authRole is not null : [{}]", userRole.getName());
             filters.put("roles", roles);
         }
-        if(deleted.equals(ALL_USERS)){
-            LOG.debug("Adding filters when users deleted is all : [{}]", deleted);
+        if (deleted.equals(ALL_USERS)) {
             filters.put("deleted", null);
 
-        }else{
-            LOG.debug("Adding filters when users deleted is true/false: [{}]", deleted);
+        } else {
             filters.put("deleted", Boolean.parseBoolean(deleted));
-            LOG.debug("boolean value of deleted: [{}]", Boolean.parseBoolean(deleted));
         }
         filters.put("userName", userName);
+
         LOG.debug("Added users filters: [{}]", filters);
         return filters;
     }

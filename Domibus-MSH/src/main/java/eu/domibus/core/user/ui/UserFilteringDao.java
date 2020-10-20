@@ -20,20 +20,13 @@ public class UserFilteringDao extends ListDao<User> {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserFilteringDao.class);
 
-    public UserFilteringDao(){
+    public UserFilteringDao() {
         super(User.class);
-        }
+    }
 
     @Override
     protected List<Predicate> getPredicates(Map<String, Object> filters, CriteriaBuilder criteriaBuilder, Root<User> userEntity) {
         List<Predicate> predicates = new ArrayList<>();
-       /* for (final Map.Entry<String, Object> filter : filters.entrySet()) {
-            if (filter.getValue() == null || StringUtils.isEmpty((String) filter.getValue()) || StringUtils.isEmpty(filter.getKey())) {
-                continue;
-            } else {
-                predicates.add(criteriaBuilder.like(ele.<String>get(filter.getKey()), (String) filter.getValue()));
-           }
-        }*/
         for (Map.Entry<String, Object> filter : filters.entrySet()) {
             String filterKey = filter.getKey();
             Object filterValue = filter.getValue();
@@ -41,7 +34,6 @@ public class UserFilteringDao extends ListDao<User> {
                 if (filter.getKey().equals("roles")) {
                     LOG.debug("Adding predicates for users roles : [{}]", filterValue);
                     predicates.add(criteriaBuilder.equal(userEntity.get(filterKey), filterValue));
-                    // predicates.add(criteriaBuilder.equal(userEntity.<String>get(filterKey), filterValue.toString()));
                 }
                 if (filterValue instanceof String) {
                     addStringPredicates(criteriaBuilder, userEntity, predicates, filter, filterKey, filterValue);
