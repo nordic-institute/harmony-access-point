@@ -26,7 +26,7 @@ public class BackendApplication {
 
     @Bean
     public ServletRegistrationBean<CXFServlet> cxfServlet() {
-        return new ServletRegistrationBean<>(new CXFServlet(), "/services/*");
+        return new ServletRegistrationBean<>(new CXFServlet(), "/*");
     }
 
     @Bean

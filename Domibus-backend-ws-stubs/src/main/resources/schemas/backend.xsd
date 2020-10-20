@@ -11,6 +11,27 @@
         </xsd:restriction>
     </xsd:simpleType>
 
+    <xsd:simpleType name="messageStatus">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="READY_TO_SEND"/>
+            <xsd:enumeration value="READY_TO_PULL"/>
+            <xsd:enumeration value="BEING_PULLED"/>
+            <xsd:enumeration value="SEND_ENQUEUED"/>
+            <xsd:enumeration value="SEND_IN_PROGRESS"/>
+            <xsd:enumeration value="WAITING_FOR_RECEIPT"/>
+            <xsd:enumeration value="ACKNOWLEDGED"/>
+            <xsd:enumeration value="ACKNOWLEDGED_WITH_WARNING"/>
+            <xsd:enumeration value="SEND_ATTEMPT_FAILED"/>
+            <xsd:enumeration value="SEND_FAILURE"/>
+            <xsd:enumeration value="NOT_FOUND"/>
+            <xsd:enumeration value="WAITING_FOR_RETRY"/>
+            <xsd:enumeration value="RECEIVED"/>
+            <xsd:enumeration value="RECEIVED_WITH_WARNINGS"/>
+            <xsd:enumeration value="DELETED"/>
+            <xsd:enumeration value="DOWNLOADED"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+
     <xsd:element name="FaultDetail">
         <xsd:complexType>
             <xsd:sequence>
@@ -29,6 +50,70 @@
     </xsd:element>
 
     <xsd:element name="sendSuccessResponse">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element maxOccurs="unbounded" minOccurs="0" name="messageID" nillable="true" type="xsd:string"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="sendFailure">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="messageID" type="tns:max255-non-empty-string"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="sendFailureResponse">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element maxOccurs="unbounded" minOccurs="0" name="messageID" nillable="true" type="xsd:string"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="receiveSuccess">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="messageID" type="tns:max255-non-empty-string"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="receiveSuccessResponse">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element maxOccurs="unbounded" minOccurs="0" name="messageID" nillable="true" type="xsd:string"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="receiveFailure">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="messageID" type="tns:max255-non-empty-string"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="receiveFailureResponse">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element maxOccurs="unbounded" minOccurs="0" name="messageID" nillable="true" type="xsd:string"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="messageStatusChange">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="messageID" type="tns:max255-non-empty-string"/>
+                <xsd:element name="messageStatus" type="tns:messageStatus"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="messageStatusChangeResponse">
         <xsd:complexType>
             <xsd:sequence>
                 <xsd:element maxOccurs="unbounded" minOccurs="0" name="messageID" nillable="true" type="xsd:string"/>
