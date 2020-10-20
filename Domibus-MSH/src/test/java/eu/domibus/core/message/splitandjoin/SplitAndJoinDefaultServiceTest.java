@@ -845,7 +845,7 @@ public class SplitAndJoinDefaultServiceTest {
             messageGroupDao.update(messageGroupEntity);
 
             List<String> messageIds = null;
-            //messageRetentionService.scheduleDeleteMessages(messageIds = withCapture());
+            messageRetentionService.scheduleDeleteMessages(messageIds = withCapture());
             Assert.assertTrue(messageIds.contains(fragmentId));
 
             userMessageDefaultService.scheduleSendingSignalError(groupId, ebMS3ErrorCode, errorDetail, reversePmodeKey);
