@@ -61,6 +61,7 @@ import javax.jms.Queue;
 import java.io.*;
 import java.sql.Timestamp;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -591,9 +592,10 @@ public class UserMessageDefaultService implements UserMessageService {
         userMessageLogService.setSignalMessageAsDeleted(messaging.getSignalMessage());
     }
 
-    @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public void deleteMessages(List<String> userMessageIds) {
+    public void deleteMessages(List<UserMessageLogDto> userMessageLogs) {
+        List<String> userMessageIds = userMessageLogs.stream().map(userMessageLog -> userMessageLog.getMessageId()).collect(Collectors.toList());
+
         LOG.debug("Deleting [{}] user messages", userMessageIds.size());
         LOG.trace("Deleting user messages [{}]", userMessageIds);
 
@@ -621,6 +623,8 @@ public class UserMessageDefaultService implements UserMessageService {
         LOG.debug("Deleted [{}] deleteUIMessagesByMessageIds for signalMessages.", deleteResult);
         deleteResult = messageAcknowledgementDao.deleteMessageAcknowledgementsByMessageIds(userMessageIds);
         LOG.debug("Deleted [{}] deleteMessageAcknowledgementsByMessageIds.", deleteResult);
+
+        backendNotificationService.notifyMessageDeleted(userMessageLogs);
     }
 
     @Override

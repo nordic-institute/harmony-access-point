@@ -147,7 +147,7 @@ public class LoginTests extends RestTest {
 			rest.callLogin(username, data.getNewTestPass());
 		}
 
-		rest.users().blockUser(username, null);
+		rest.users().deactivate(username, null);
 		rest.users().deleteUser(username, null);
 
 		ClientResponse response = rest.callLogin(username, data.defaultPass());
