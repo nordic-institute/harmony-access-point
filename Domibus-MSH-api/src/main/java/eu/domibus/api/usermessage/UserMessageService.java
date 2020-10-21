@@ -173,7 +173,7 @@ public interface UserMessageService {
      * @throws IOException
      */
 //    byte[] getMessageEnvelopesAsZip(String messageType, String messageId) throws MessageNotFoundException, IOException;
-
     byte[] getMessageEnvelopesAsZip(String messageId) throws MessageNotFoundException, IOException;
 
+    String getMessageEnvelope(String messageId, String messageType);
 }

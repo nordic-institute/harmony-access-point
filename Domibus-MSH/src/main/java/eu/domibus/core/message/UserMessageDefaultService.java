@@ -642,6 +642,16 @@ public class UserMessageDefaultService implements UserMessageService {
         return zipFiles(message);
     }
 
+    @Override
+    public String getMessageEnvelope(String messageId, String messageTypeString) {
+        MessageType messageType = MessageType.valueOf(messageTypeString);
+        if (messageType == MessageType.USER_MESSAGE) {
+            return getUserMessageEnvelope(messageId);
+        } else {
+            return getSignalEnvelope(messageId);
+        }
+    }
+
 
 //    @Override
 //    public byte[] getMessageEnvelopesAsZip(String messageType, String messageId) throws MessageNotFoundException, IOException {
@@ -688,21 +698,39 @@ public class UserMessageDefaultService implements UserMessageService {
     protected Map<String, InputStream> getMessageEnvelopes(String messageId) throws MessageNotFoundException {
         Map<String, InputStream> result = new HashMap<>();
 
-        UserMessage userMessage = getUserMessageById(messageId);
-        if (userMessage != null && userMessage.getRawEnvelopeLog() != null) {
-            InputStream userEnvelopeStream = new ByteArrayInputStream(userMessage.getRawEnvelopeLog().getRawXML().getBytes());
+        String userMessageEnvelope = getUserMessageEnvelope(messageId);
+        if (userMessageEnvelope != null) {
+            InputStream userEnvelopeStream = new ByteArrayInputStream(userMessageEnvelope.getBytes());
             result.put("user_message_envelope.xml", userEnvelopeStream);
         }
 
-        SignalMessage signalMessage = messagingDao.findSignalMessageByUserMessageId(messageId);
-        if (signalMessage != null && signalMessage.getRawEnvelopeLog() != null) {
-            InputStream signalEnvelopeStream = new ByteArrayInputStream(signalMessage.getRawEnvelopeLog().getRawXML().getBytes());
+        String signalEnvelope = getSignalEnvelope(messageId);
+        if (signalEnvelope != null) {
+            InputStream signalEnvelopeStream = new ByteArrayInputStream(signalEnvelope.getBytes());
             result.put("signal_message_envelope.xml", signalEnvelopeStream);
         }
 
 //        auditService.addMessageEnvelopesDownloadedAudit(messageId);
 
         return result;
+    }
+
+    private String getSignalEnvelope(String messageId) {
+        SignalMessage signalMessage = messagingDao.findSignalMessageByUserMessageId(messageId);
+        if (signalMessage != null && signalMessage.getRawEnvelopeLog() != null) {
+            String envelope = signalMessage.getRawEnvelopeLog().getRawXML();
+            return envelope;
+        }
+        return null;
+    }
+
+    private String getUserMessageEnvelope(String messageId) {
+        UserMessage userMessage = getUserMessageById(messageId);
+        if (userMessage != null && userMessage.getRawEnvelopeLog() != null) {
+            String envelope = userMessage.getRawEnvelopeLog().getRawXML();
+            return envelope;
+        }
+        return null;
     }
 
 //    protected Map<String, InputStream> getMessageEnvelopes(MessageType messageType, String messageId) throws MessageNotFoundException {

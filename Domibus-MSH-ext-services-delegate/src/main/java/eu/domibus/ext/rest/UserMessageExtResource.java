@@ -1,5 +1,6 @@
 package eu.domibus.ext.rest;
 
+import eu.domibus.api.messaging.MessageNotFoundException;
 import eu.domibus.ext.domain.ErrorDTO;
 import eu.domibus.ext.domain.UserMessageDTO;
 import eu.domibus.ext.exceptions.UserMessageExtException;
@@ -10,6 +11,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Authorization;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -47,5 +49,18 @@ public class UserMessageExtResource {
     public UserMessageDTO getUserMessage(@PathVariable(value = "messageId") String messageId) {
         LOG.debug("Getting User Message with id = '{}", messageId);
         return userMessageExtService.getMessage(messageId);
+    }
+
+    @RequestMapping(value = "/envelopes")
+    public ResponseEntity<String> downloadEnvelopes(@RequestParam(value = "messageId", required = true) String messageId,
+                                                    @RequestParam(value = "messageType", required = true, defaultValue = "USER_MESSAGE") String messageType)
+            throws MessageNotFoundException {
+
+        String result = userMessageExtService.getMessageEnvelope(messageId, messageType);
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType("application/xml"))
+                .header("content-disposition", "attachment; filename=envelope_" + messageId + ".zip")
+                .body(result);
     }
 }

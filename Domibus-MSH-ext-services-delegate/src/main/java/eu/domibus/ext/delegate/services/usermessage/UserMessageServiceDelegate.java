@@ -40,4 +40,13 @@ public class UserMessageServiceDelegate implements UserMessageExtService{
         }
         return domainConverter.convert(userMessage, UserMessageDTO.class);
     }
+
+    @Override
+    public String getMessageEnvelope(String messageId, String messageType) {
+        LOG.debug("Getting message envelope with messageId='" + messageId + "'");
+        userMessageSecurityService.checkMessageAuthorization(messageId);
+
+        final String xml = userMessageCoreService.getMessageEnvelope(messageId, messageType);
+        return xml;
+    }
 }

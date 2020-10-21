@@ -19,4 +19,6 @@ public interface UserMessageExtService {
      * @throws UserMessageExtException Raised in case an exception occurs while trying to get the user message {@link UserMessageExtException}
      */
     UserMessageDTO getMessage(String messageId) throws UserMessageExtException;
+
+    String getMessageEnvelope(String messageId, String messageType);
 }
