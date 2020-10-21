@@ -7,6 +7,7 @@ import eu.domibus.plugin.fs.exception.FSPluginException;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
+import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
@@ -279,5 +280,85 @@ public class FSMessageTransformerTest {
         FSMessage fsMessage = new FSMessage(fsPayloads, metadata);
 
         return fsMessage;
+    }
+
+    @Test
+    public void getPartyInfoFromSubmissionTest(@Injectable Submission submission, @Injectable Submission.Party fromParty) {
+
+        Set<Submission.Party> parties = new HashSet<>();
+        parties.add(fromParty);
+        new Expectations(fsMessageTransformer) {{
+            submission.getFromParties();
+            result = parties;
+            submission.getFromRole();
+            result = INITIATOR_ROLE;
+        }};
+        try {
+            fsMessageTransformer.getPartyInfoFromSubmission(submission);
+            Assert.fail();
+        } catch (FSPluginException ex) {
+            Assert.assertEquals(ex.getMessage(), "Mandatory field From PartyId is not provided.");
+        }
+
+        new Verifications() {{
+            fsMessageTransformer.validateFromParty(fromParty, INITIATOR_ROLE);
+            times = 1;
+        }};
+
+    }
+
+    @Test
+    public void validateFromParty() {
+        try {
+            fsMessageTransformer.validateFromParty(null, null);
+            Assert.fail();
+        } catch (FSPluginException ex) {
+            Assert.assertEquals(ex.getMessage(), "Mandatory field PartyInfo/From is not provided.");
+        }
+    }
+
+    @Test
+    public void validateFromPartyEmptyPartyId(@Injectable Submission submission, @Injectable Submission.Party fromParty) {
+
+        Set<Submission.Party> parties = new HashSet<>();
+        parties.add(fromParty);
+        new Expectations() {{
+            fromParty.getPartyId();
+            result = " ";
+        }};
+        try {
+            fsMessageTransformer.validateFromParty(fromParty, null);
+            Assert.fail();
+        } catch (FSPluginException ex) {
+            Assert.assertEquals(ex.getMessage(), "Mandatory field From PartyId is not provided.");
+        }
+    }
+
+    @Test
+    public void validateFromEmptyRole() {
+
+        try {
+            fsMessageTransformer.validateFromRole(" ");
+            Assert.fail();
+        } catch (FSPluginException ex) {
+            Assert.assertEquals(ex.getMessage(), "Mandatory field From Role is not provided.");
+        }
+    }
+
+    @Test
+    public void validateFromValidPartyWithRole(@Injectable Submission.Party fromParty) {
+        Set<Submission.Party> parties = new HashSet<>();
+        parties.add(fromParty);
+
+        new Expectations(fsMessageTransformer) {{
+            fromParty.getPartyId();
+            result = "domibus-blue";
+        }};
+        fsMessageTransformer.validateFromParty(fromParty, INITIATOR_ROLE);
+
+        new Verifications() {{
+            fsMessageTransformer.validateFromRole(INITIATOR_ROLE);
+            times = 1;
+        }};
     }
 }
