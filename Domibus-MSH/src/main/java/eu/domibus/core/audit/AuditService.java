@@ -108,5 +108,12 @@ public interface AuditService {
     void addJmsMessageMovedAudit(
             String messageId,
             String fromQueue, String toQueue, String domainCode);
+
+    /**
+     * Add message envelopes download audit for a message.
+     *
+     * @param messageId the id of the message.
+     */
+    void addMessageEnvelopesDownloadedAudit(String messageId);
 }
 

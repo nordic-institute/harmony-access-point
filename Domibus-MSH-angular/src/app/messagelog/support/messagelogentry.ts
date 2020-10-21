@@ -1,18 +1,18 @@
 export class MessageLogEntry {
   constructor(public messageId: string,
-              mshRole: string,
-              conversationId: string,
-              messageType: string,
-              messageStatus: string,
-              notificationStatus: string,
+              public mshRole: string,
+              public conversationId: string,
+              public messageType: string,
+              public messageStatus: string,
+              public notificationStatus: string,
               public fromPartyId: string,
               public toPartyId: string,
               public originalSender: string,
               public finalRecipient: string,
-              refToMessageId: string,
+              public refToMessageId: string,
               public receivedFrom: Date,
               public receivedTo: Date,
-              isTestMessage: boolean
+              public isTestMessage: boolean
   ) {
 
   }
