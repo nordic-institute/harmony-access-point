@@ -75,23 +75,6 @@ public class MessageResource {
                 .body(new ByteArrayResource(zip));
     }
 
-    @RequestMapping(value = "/envelopes")
-//    public ResponseEntity<ByteArrayResource> downloadEnvelopes(@RequestParam(value = "messageType", required = true) String messageType,
-//                                                               @RequestParam(value = "messageId", required = true) String messageId)
-//            throws MessageNotFoundException, IOException {
-    public ResponseEntity<ByteArrayResource> downloadEnvelopes(@RequestParam(value = "messageId", required = true) String messageId)
-            throws MessageNotFoundException, IOException {
-
-        byte[] zip = userMessageService.getMessageEnvelopesAsZip(messageId);
-
-//        byte[] zip = userMessageService.getMessageEnvelopesAsZip(messageType, messageId);
-
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType("application/zip"))
-                .header("content-disposition", "attachment; filename=" + messageId + ".zip")
-                .body(new ByteArrayResource(zip));
-    }
-
     @RequestMapping(value = "/exists", method = RequestMethod.GET)
     public boolean checkMessageContentExists(@RequestParam(value = "messageId", required = true) String messageId) {
         MessageLogRO message = messagesLogService.findUserMessageById(messageId);
@@ -106,4 +89,22 @@ public class MessageResource {
         return true;
     }
 
+    @GetMapping(value = "/{messageId:.+}/envelopes")
+    public ResponseEntity<ByteArrayResource> downloadMessageEnvelopes(@PathVariable(value = "messageId") String messageId) {
+        return getByteArrayResourceResponseEntity(messageId);
+    }
+
+    @GetMapping(value = "/envelopes")
+    public ResponseEntity<ByteArrayResource> downloadEnvelopes(@RequestParam(value = "messageId", required = true) String messageId) {
+        return getByteArrayResourceResponseEntity(messageId);
+    }
+
+    private ResponseEntity<ByteArrayResource> getByteArrayResourceResponseEntity(@PathVariable("messageId") String messageId) {
+        byte[] zip = userMessageService.getMessageEnvelopesAsZip(messageId);
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType("application/zip"))
+                .header("content-disposition", "attachment; filename=message_envelopes_" + messageId + ".zip")
+                .body(new ByteArrayResource(zip));
+    }
 }

@@ -20,5 +20,9 @@ public interface UserMessageExtService {
      */
     UserMessageDTO getMessage(String messageId) throws UserMessageExtException;
 
-    String getMessageEnvelope(String messageId, String messageType);
+    String getUserMessageEnvelope(String messageId);
+
+    String getSignalMessageEnvelope(String messageId);
+
+    //    String getMessageEnvelope(String messageId, String messageType);
 }

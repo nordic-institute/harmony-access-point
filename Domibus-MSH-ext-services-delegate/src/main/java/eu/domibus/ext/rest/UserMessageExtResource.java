@@ -1,6 +1,5 @@
 package eu.domibus.ext.rest;
 
-import eu.domibus.api.messaging.MessageNotFoundException;
 import eu.domibus.ext.domain.ErrorDTO;
 import eu.domibus.ext.domain.UserMessageDTO;
 import eu.domibus.ext.exceptions.UserMessageExtException;
@@ -51,16 +50,29 @@ public class UserMessageExtResource {
         return userMessageExtService.getMessage(messageId);
     }
 
-    @RequestMapping(value = "/envelopes")
-    public ResponseEntity<String> downloadEnvelopes(@RequestParam(value = "messageId", required = true) String messageId,
-                                                    @RequestParam(value = "messageType", required = true, defaultValue = "USER_MESSAGE") String messageType)
-            throws MessageNotFoundException {
-
-        String result = userMessageExtService.getMessageEnvelope(messageId, messageType);
+    @ApiOperation(value = "Get user message envelope", notes = "Retrieve the user message envelope with the specified message id",
+            authorizations = @Authorization(value = "basicAuth"), tags = "envelope")
+    @GetMapping(path = "/{messageId:.+}/envelope")
+    public ResponseEntity<String> downloadUserMessageEnvelope(@PathVariable(value = "messageId") String messageId) {
+        LOG.debug("Getting User Message envelope with id = '{}", messageId);
+        String result = userMessageExtService.getUserMessageEnvelope(messageId);
 
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType("application/xml"))
-                .header("content-disposition", "attachment; filename=envelope_" + messageId + ".zip")
+                .header("content-disposition", "attachment; filename=user_message_envelope_" + messageId + ".xml")
+                .body(result);
+    }
+
+    @ApiOperation(value = "Get signal message envelope", notes = "Retrieve the signal message envelope with the specified user message id",
+            authorizations = @Authorization(value = "basicAuth"), tags = "signalEnvelope")
+    @GetMapping(path = "/{messageId:.+}/signalEnvelope")
+    public ResponseEntity<String> downloadSignalMessageEnvelope(@PathVariable(value = "messageId") String messageId) {
+        LOG.debug("Getting User Message envelope with id = '{}", messageId);
+        String result = userMessageExtService.getSignalMessageEnvelope(messageId);
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType("application/xml"))
+                .header("content-disposition", "attachment; filename=signal_message_envelope_" + messageId + ".xml")
                 .body(result);
     }
 }
