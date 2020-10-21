@@ -40,7 +40,9 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.jms.Queue;
 import java.sql.Timestamp;
 import java.util.*;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PLUGIN_NOTIFICATION_ACTIVE;
 
@@ -151,7 +153,8 @@ public class BackendNotificationService {
             LOG.warn("Empty notification list of userMessageLogs");
             return;
         }
-        final List<UserMessageLogDto> userMessageLogsToNotify = userMessageLogs.stream().filter(userMessageLog -> !userMessageLog.isTestMessage()).collect(Collectors.toList());
+        Supplier<Stream<UserMessageLogDto>> streamSupplier = () -> userMessageLogs.stream();
+        final List<UserMessageLogDto> userMessageLogsToNotify = streamSupplier.get().filter(userMessageLog -> !userMessageLog.isTestMessage()).collect(Collectors.toList());
 
         if(CollectionUtils.isEmpty(userMessageLogsToNotify)) {
             LOG.info("No more delete message notifications.");
