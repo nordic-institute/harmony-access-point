@@ -90,7 +90,7 @@ public class BaseTest {
 		int noOfErrors = 0;
 		int retries = 0;
 		while (noOfErrors == 0 && retries < 120) {
-			System.out.println("waiting for errors to be logged");
+			log.info("waiting for errors to be logged");
 			try {
 				noOfErrors = rest.errors().getErrors(null).length();
 				retries++;
