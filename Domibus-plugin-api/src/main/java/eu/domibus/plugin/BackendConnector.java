@@ -148,6 +148,15 @@ public interface BackendConnector<U, T> {
     default void messageDeletedEvent(MessageDeletedEvent event) {
     }
 
+
+    /**
+     * Custom action to be performed by the plugins when a batch of messages are being deleted
+     *
+     * @param event The message delete batch event details eg list of message ids
+     */
+    default void messageDeletedBatchEvent(MessageDeletedBatchEvent event) {
+    }
+
     /**
      * This method gets called when an incoming message is rejected by the MSH
      *

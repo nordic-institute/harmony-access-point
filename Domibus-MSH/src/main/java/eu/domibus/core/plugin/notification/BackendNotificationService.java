@@ -28,6 +28,7 @@ import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.BackendConnector;
 import eu.domibus.plugin.NotificationListener;
 import eu.domibus.plugin.notification.AsyncNotificationConfiguration;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,9 +39,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.jms.Queue;
 import java.sql.Timestamp;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PLUGIN_NOTIFICATION_ACTIVE;
@@ -147,6 +146,42 @@ public class BackendNotificationService {
         notifyOfIncoming(matchingBackendFilter, userMessage, notificationType, new HashMap<>());
     }
 
+    public void notifyMessageDeleted(List<UserMessageLogDto> userMessageLogs) {
+        if (CollectionUtils.isEmpty(userMessageLogs)) {
+            LOG.warn("Empty notification list of userMessageLogs");
+            return;
+        }
+        final List<UserMessageLogDto> userMessageLogsToNotify = userMessageLogs.stream().filter(userMessageLog -> !userMessageLog.isTestMessage()).collect(Collectors.toList());
+
+        if(CollectionUtils.isEmpty(userMessageLogsToNotify)) {
+            LOG.info("No more delete message notifications.");
+            return;
+        }
+        List<String> backends = userMessageLogsToNotify.stream().map(userMessageLog -> userMessageLog.getBackend()).distinct().collect(Collectors.toList());
+
+        LOG.debug("Following backends will be notified with message delete events [{}]", backends);
+
+        if (CollectionUtils.isEmpty(backends)) {
+            LOG.warn("Could not find any backend for batch delete notification");
+            return;
+        }
+
+        backends.stream().forEach(backend -> createMessageDeleteBatchEvent(backend, getAllMessageIdsForBackend(userMessageLogsToNotify, backend)));
+    }
+
+    protected void createMessageDeleteBatchEvent(String backend, List<String> messageIds) {
+        MessageDeletedBatchEvent messageDeletedBatchEvent = new MessageDeletedBatchEvent();
+        messageDeletedBatchEvent.setMessageIds(messageIds);
+        backendConnectorDelegate.messageDeletedBatchEvent(backend, messageDeletedBatchEvent);
+    }
+
+
+    protected List<String> getAllMessageIdsForBackend (final List<UserMessageLogDto> userMessageLogs, String backend){
+        List<String> messageIds = userMessageLogs.stream().filter(userMessageLog -> userMessageLog.getBackend().equals(backend)).map(userMessageLog -> userMessageLog.getMessageId()).collect(Collectors.toList());
+        LOG.debug("There are [{}] delete messages to notify for backend [{}]", messageIds.size(), backend);
+        return messageIds;
+    }
+
     public void notifyMessageDeleted(String messageId, UserMessageLog userMessageLog) {
         if (userMessageLog == null) {
             LOG.warn("Could not find message with id [{}]", messageId);
@@ -165,7 +200,6 @@ public class BackendNotificationService {
         MessageDeletedEvent messageDeletedEvent = new MessageDeletedEvent();
         messageDeletedEvent.setMessageId(messageId);
         backendConnectorDelegate.messageDeletedEvent(backend, messageDeletedEvent);
-
     }
 
     public void notifyPayloadSubmitted(final UserMessage userMessage, String originalFilename, PartInfo partInfo, String backendName) {

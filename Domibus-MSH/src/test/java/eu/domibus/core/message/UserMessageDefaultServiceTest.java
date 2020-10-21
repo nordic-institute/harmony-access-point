@@ -608,63 +608,15 @@ public class UserMessageDefaultServiceTest {
         }};
     }
 
-    /*@Test
-    public void testDeleteMessagePluginCallback(@Injectable final NotificationListener notificationListener1,
-                                                @Injectable UserMessageLog userMessageLog) {
-        final String messageId = "1";
-        final String backend = "myPlugin";
-        final List<NotificationListener> notificationListeners = new ArrayList<>();
-        notificationListeners.add(notificationListener1);
-
-        new Expectations(userMessageDefaultService) {{
-            routingService.getNotificationListeners();
-            result = notificationListeners;
-
-            userMessageLog.getBackend();
-            result = backend;
-
-            routingService.getNotificationListener(backend);
-            result = notificationListener1;
-
-        }};
-
-        userMessageDefaultService.notifyMessageDeleted(messageId, userMessageLog);
-
-        new Verifications() {{
-            notificationListener1.deleteMessageCallback(messageId);
-        }};
-    }*/
-/*
     @Test
-    public void deleteMessagePluginCallbackForTestMessage(@Injectable final NotificationListener notificationListener1,
-                                                          @Injectable UserMessageLog userMessageLog) {
-        final String messageId = "1";
-        final List<NotificationListener> notificationListeners = new ArrayList<>();
-        notificationListeners.add(notificationListener1);
+    public void testDeleteMessages(@Injectable List<UserMessageLogDto> userMessageLogDtos) {
 
-        new Expectations(userMessageDefaultService) {{
-            routingService.getNotificationListeners();
-            result = notificationListeners;
-
-            userMessageLog.isTestMessage();
-            result = true;
-
-        }};
-
-        userMessageDefaultService.deleteMessagePluginCallback(messageId, userMessageLog);
+        userMessageDefaultService.deleteMessages(userMessageLogDtos);
 
         new Verifications() {{
-            userMessageLog.getBackend();
-            times = 0;
-
-            routingService.getNotificationListener(anyString);
-            times = 0;
-
-            notificationListener1.deleteMessageCallback(messageId);
-            times = 0;
-
+            backendNotificationService.notifyMessageDeleted(userMessageLogDtos);
         }};
-    }*/
+    }
 
     @Test
     public void marksTheUserMessageAsDeleted(@Injectable Messaging messaging,
