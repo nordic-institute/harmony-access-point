@@ -44,7 +44,11 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
   /**
    * The method is trying to call the search if the component doesn't have unsaved changes, otherwise raises a popup to the client
    */
-  public async tryFilter(): Promise<boolean> {
+  public async tryFilter(userInitiated = true): Promise<boolean> {
+    if (userInitiated) {
+      this.alertService.clearAlert();
+    }
+
     const canFilter = await this.canProceedToFilter();
     if (canFilter) {
       this.setActiveFilter();
@@ -62,7 +66,6 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
    * The method is supposed to be overridden in derived classes to implement actual search
    */
   public filterData(): Promise<any> {
-    setTimeout(() => this.alertService.clearAlert(), 3000);
 
     this.setActiveFilter();
 
