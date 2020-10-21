@@ -141,9 +141,10 @@ public abstract class AbstractUserMessageSender implements MessageSender {
 
             getLog().debug("PMode found : " + pModeKey);
             final SOAPMessage requestSoapMessage = createSOAPMessage(userMessage, legConfiguration);
+            nonRepudiationService.saveRequest(requestSoapMessage, userMessage);
+
             responseSoapMessage = mshDispatcher.dispatch(requestSoapMessage, receiverParty.getEndpoint(), policy, legConfiguration, pModeKey);
 
-            nonRepudiationService.saveRequest(requestSoapMessage, userMessage); // TODO: maybe move before the actual sending??
             responseResult = responseHandler.verifyResponse(responseSoapMessage, messageId);
 
             reliabilityCheckSuccessful = reliabilityChecker.check(requestSoapMessage, responseSoapMessage, responseResult, legConfiguration);
