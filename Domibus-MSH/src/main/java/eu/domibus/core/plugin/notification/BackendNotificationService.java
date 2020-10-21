@@ -157,7 +157,7 @@ public class BackendNotificationService {
             LOG.info("No more delete message notifications.");
             return;
         }
-        List<String> backends = userMessageLogs.stream().map(userMessageLog -> userMessageLog.getBackend()).distinct().collect(Collectors.toList());
+        List<String> backends = userMessageLogsToNotify.stream().map(userMessageLog -> userMessageLog.getBackend()).distinct().collect(Collectors.toList());
 
         LOG.debug("Following backends will be notified with message delete events [{}]", backends);
 

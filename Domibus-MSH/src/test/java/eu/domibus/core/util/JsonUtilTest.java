@@ -1,7 +1,10 @@
 package eu.domibus.core.util;
 
 import com.google.gson.reflect.TypeToken;
+import eu.domibus.api.message.MessageSubtype;
+import eu.domibus.api.util.JsonUtil;
 import eu.domibus.core.message.UserMessageLog;
+import eu.domibus.core.message.UserMessageLogDto;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -25,12 +28,16 @@ public class JsonUtilTest {
     }
 
     @Test
-    public void testJsonToListOfT() throws Exception {
-        String json = "['1', '2']";
-        Type type = new TypeToken<ArrayList<String>>() {
-        }.getType();
+    public void serializaDeserializeIT() {
 
-        List<String> strings = jsonUtil.jsonToList(json, type);
-        Assert.assertTrue(strings.get(0).equals("1"));
+        String id1 = "id1";
+        String id2 = "id2";
+        List<String> ids = Arrays.asList(id1, id2);
+        String json = jsonUtil.listToJson(ids);
+        List<String> list = jsonUtil.jsonToList(json);
+
+        Assert.assertTrue(list.size() == 2);
+        Assert.assertTrue(list.get(0).equals(id1));
+        Assert.assertTrue(list.get(1).equals(id2));
     }
 }

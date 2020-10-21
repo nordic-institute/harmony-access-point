@@ -27,16 +27,6 @@ public class JsonUtilImpl<T> implements JsonUtil<T> {
     }
 
     @Override
-    public List<String> jsonToList(String list) {
-        if (list == null) {
-            return null;
-        }
-        Type type = new TypeToken<ArrayList<String>>() {
-        }.getType();
-        return new Gson().fromJson(list, type);
-    }
-
-    @Override
     public String listToJson(List<T> list) {
         if (list == null) {
             return null;
@@ -45,10 +35,13 @@ public class JsonUtilImpl<T> implements JsonUtil<T> {
     }
 
     @Override
-    public List<T> jsonToList(String list, Type type) {
+    public List<T> jsonToList(String list) {
         if (list == null) {
             return null;
         }
+
+        Type type = new TypeToken<ArrayList<T>>() {
+        }.getType();
 
         return new Gson().fromJson(list, type);
     }

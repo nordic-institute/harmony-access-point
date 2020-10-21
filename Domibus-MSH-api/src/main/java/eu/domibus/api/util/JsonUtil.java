@@ -11,9 +11,7 @@ public interface JsonUtil<T> {
 
     Map<String, Object> jsonToMap(String map);
 
-    List<String> jsonToList(String list);
-
     String listToJson(List<T> list);
 
-    List<T> jsonToList(String list, Type type);
+    List<T> jsonToList(String list);
 }
