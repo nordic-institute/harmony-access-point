@@ -567,6 +567,7 @@ public class UserMessageDefaultService implements UserMessageService {
 
     @Override
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
+    @Transactional(propagation = Propagation.REQUIRED)
     public void deleteMessage(String messageId) {
         LOG.debug("Deleting message [{}]", messageId);
 
@@ -593,10 +594,13 @@ public class UserMessageDefaultService implements UserMessageService {
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
     public void deleteMessages(List<String> userMessageIds) {
-        LOG.debug("Deleting messages [{}]", userMessageIds);
-        List<String> signalMessageIds = messageInfoDao.findSignalMessageIds(userMessageIds);
-        List<Long> receiptIds = signalMessageDao.findReceiptIdsByMessageIds(signalMessageIds);
+        LOG.debug("Deleting [{}] user messages", userMessageIds.size());
+        LOG.trace("Deleting user messages [{}]", userMessageIds);
 
+        List<String> signalMessageIds = messageInfoDao.findSignalMessageIds(userMessageIds);
+        LOG.debug("Deleting [{}] signal messages", signalMessageIds.size());
+        LOG.trace("Deleting signal messages [{}]", signalMessageIds);
+        List<Long> receiptIds = signalMessageDao.findReceiptIdsByMessageIds(signalMessageIds);
         int deleteResult = messageInfoDao.deleteMessages(userMessageIds);
         LOG.debug("Deleted [{}] messageInfo for userMessage.", deleteResult);
         deleteResult = messageInfoDao.deleteMessages(signalMessageIds);

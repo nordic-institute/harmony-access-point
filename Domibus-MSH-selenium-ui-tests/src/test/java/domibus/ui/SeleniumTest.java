@@ -160,10 +160,12 @@ public class SeleniumTest extends BaseTest {
 		log.info("will select domain " +domain);
 		
 		DomibusPage page = new DomibusPage(driver);
-		page.getDomainSelector().selectOptionByText(domain);
-		page.wait.forXMillis(500);
+//		page.getDomainSelector().selectOptionByText(domain);
+//		page.wait.forXMillis(500);
 		
-		return domain;
+//		return domain;
+
+		return page.getDomainFromTitle();
 	}
 	
 	protected <T extends FilterArea> void basicFilterPresence(SoftAssert soft, T filtersArea, JSONArray filtersDescription) throws Exception {

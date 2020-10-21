@@ -70,7 +70,7 @@ public class AuthenticationDAO extends ListDao<AuthenticationEntity> implements 
         return getAuthRoles(query);
     }
 
-    private List<AuthRole> getAuthRoles(TypedQuery<String> query) {
+    protected List<AuthRole> getAuthRoles(TypedQuery<String> query) {
         List<AuthRole> authRoles = new ArrayList<>();
         String rolesStr = query.getSingleResult();
         String[] roles = StringUtils.split(rolesStr, ';');

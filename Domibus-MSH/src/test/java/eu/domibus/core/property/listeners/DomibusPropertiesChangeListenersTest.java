@@ -231,7 +231,7 @@ public class DomibusPropertiesChangeListenersTest {
     CRLService crlService;
 
     @Test
-    public void testPropertyChangeListeners() throws Exception {
+    public void testPropertyChangeListeners() {
         DomibusPropertyChangeListener[] domibusPropertyChangeListeners = new DomibusPropertyChangeListener[]{
                 blacklistChangeListener,
                 concurrencyChangeListener,

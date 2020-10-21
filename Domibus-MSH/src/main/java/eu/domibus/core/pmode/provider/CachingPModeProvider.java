@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED;
 import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 /**
  * @author Cosmin Baciu, Thomas Dussart, Ioana Dragusanu
@@ -468,7 +469,7 @@ public class CachingPModeProvider extends PModeProvider {
                     partyIdValue = id.getValue();
                     String identifierPartyIdType = getIdentifierPartyIdType(identifier);
                     LOG.debug("Find party with type:[{}] and identifier:[{}] by comparing with pmode id type:[{}] and pmode identifier:[{}]", partyIdType, id.getValue(), identifierPartyIdType, identifier.getPartyId());
-                    if (equalsIgnoreCase(partyIdType, identifierPartyIdType) && equalsIgnoreCase(id.getValue(), identifier.getPartyId())) {
+                    if (isPartyIdTypeMatching(partyIdType, identifierPartyIdType) && equalsIgnoreCase(id.getValue(), identifier.getPartyId())) {
                         LOG.trace("Party with type:[{}] and identifier:[{}] matched", partyIdType, id.getValue());
                         return party.getName();
                     }
@@ -476,6 +477,17 @@ public class CachingPModeProvider extends PModeProvider {
             }
         }
         throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "No matching party found for type [" + partyIdType + "] and value [" + partyIdValue + "]", null, null);
+    }
+
+    /**
+     * PartyIdType can be null or empty string
+     *
+     * @param partyIdType
+     * @param identifierPartyIdType
+     * @return
+     */
+    protected boolean isPartyIdTypeMatching(String partyIdType, String identifierPartyIdType) {
+        return (isEmpty(partyIdType) && isEmpty(identifierPartyIdType)) || equalsIgnoreCase(partyIdType, identifierPartyIdType);
     }
 
     protected String getIdentifierPartyIdType(Identifier identifier) {

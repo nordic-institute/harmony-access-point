@@ -42,7 +42,7 @@ public class PluginUserModal extends EditModal {
 	
 	@FindBy(css = "editbasicpluginuser-form form #username_id + span.help-block>div")
 	private WebElement usernameErrMess;
-	@FindBy(css = "editbasicpluginuser-form form #originalUser_id + span.help-block>div")
+	@FindBy(css = "#originalUser_id ~ .help-block div")
 	private WebElement originalUserErrMess;
 	@FindBy(css = "editbasicpluginuser-form form #password_id + span.help-block>div")
 	private WebElement passErrMess;

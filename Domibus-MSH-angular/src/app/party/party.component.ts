@@ -1,7 +1,15 @@
-import {AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {
+  AfterViewChecked,
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  OnInit,
+  TemplateRef,
+  ViewChild
+} from '@angular/core';
 import {MatDialog} from '@angular/material';
 import {PartyService} from './support/party.service';
-import {CertificateRo, PartyFilteredResult, PartyResponseRo, ProcessRo} from './support/party';
+import {PartyFilteredResult, PartyResponseRo, ProcessRo} from './support/party';
 import {AlertService} from '../common/alert/alert.service';
 import {PartyDetailsComponent} from './party-details/party-details.component';
 import {DirtyOperations} from '../common/dirty-operations';
@@ -258,20 +266,19 @@ export class PartyComponent extends mix(BaseListComponent)
     return ok;
   }
 
-  manageCertificate(party: PartyResponseRo): Promise<CertificateRo> {
-    return new Promise((resolve, reject) => {
-      if (!party.certificate) {
-        this.partyService.getCertificate(party.name)
-          .subscribe((cert: CertificateRo) => {
-            party.certificate = cert;
-            resolve(cert);
-          }, err => {
-            resolve(null);
-          });
-      } else {
-        resolve(party.certificate);
+  async manageCertificate(party: PartyResponseRo) {
+    if (party.name && this.isPersisted(party) && !party.certificate) {
+      try {
+        const cert = await this.partyService.getCertificate(party.name).toPromise();
+        party.certificate = cert;
+      } catch (ex) {
+        this.alertService.exception(`Could not get the certificate for the party ${party.name}`, ex);
       }
-    });
+    }
+  }
+
+  private isPersisted(party: PartyResponseRo) {
+    return party.entityId != null;
   }
 
   OnSort() {

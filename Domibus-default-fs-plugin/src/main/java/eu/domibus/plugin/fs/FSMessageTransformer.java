@@ -300,8 +300,10 @@ public class FSMessageTransformer implements MessageRetrievalTransformer<FSMessa
             submission.setAgreementRef(agreementRef.getValue());
             submission.setAgreementRefType(agreementRef.getType());
         }
-        submission.setService(service.getValue());
-        submission.setServiceType(service.getType());
+        if(service != null) {
+            submission.setService(service.getValue());
+            submission.setServiceType(service.getType());
+        }
         submission.setAction(collaborationInfo.getAction());
         if (collaborationInfo.getConversationId() != null) {
             submission.setConversationId(collaborationInfo.getConversationId());

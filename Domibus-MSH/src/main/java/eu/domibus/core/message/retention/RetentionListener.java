@@ -5,6 +5,8 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.core.message.UserMessageDefaultService;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
@@ -45,11 +47,13 @@ public class RetentionListener implements MessageListener {
     @Autowired
     DomibusPropertyProvider domibusPropertyProvider;
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Timer(clazz = RetentionListener.class,value = "onMessage.deleteMessages")
+    @Counter(clazz = RetentionListener.class,value = "onMessage.deleteMessages")
     public void onMessage(final Message message) {
-        if (!authUtils.isUnsecureLoginAllowed()) {
-            authUtils.setAuthenticationToSecurityContext("retention", "retention", AuthRole.ROLE_ADMIN);
-        }
+        authUtils.runWithSecurityContext(() -> onMessagePrivate(message), "retention", "retention", AuthRole.ROLE_ADMIN);
+    }
+
+    protected void onMessagePrivate(final Message message) {
 
         try {
             final String domainCode = message.getStringProperty(MessageConstants.DOMAIN);
@@ -67,7 +71,7 @@ public class RetentionListener implements MessageListener {
             if (MessageDeleteType.MULTI == deleteType) {
                 final String separator = domibusPropertyProvider.getProperty(DOMIBUS_RETENTION_WORKER_MESSAGE_ID_LIST_SEPARATOR);
                 List<String> messageIds = Arrays.asList(StringUtils.splitByWholeSeparator(message.getStringProperty(MessageRetentionDefaultService.MESSAGE_IDS), separator));
-                LOG.debug("There are [{}] messages to delete [{}] in batch", messageIds.size(), messageIds);
+                LOG.info("There are [{}] messages to delete in batch", messageIds.size());
                 userMessageDefaultService.deleteMessages(messageIds);
                 return;
             }
@@ -77,4 +81,6 @@ public class RetentionListener implements MessageListener {
             LOG.error("Error processing JMS message", e);
         }
     }
+
+
 }

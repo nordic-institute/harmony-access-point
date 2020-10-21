@@ -35,6 +35,8 @@ public class SendJMSMessageOnTomcat {
             //messageMap.setStringProperty("serviceType", "noSecurity");
             //messageMap.setStringProperty("serviceType", "signOnly");
             messageMap.setStringProperty("serviceType", "tc1");
+            messageMap.setStringProperty("agreementRef", "A1");
+            messageMap.setStringProperty("agreementRefType", "T1");
 
             messageMap.setStringProperty("action", "TC1Leg1");
             messageMap.setStringProperty("conversationId", "123");

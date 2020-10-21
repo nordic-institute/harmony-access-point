@@ -86,6 +86,8 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_SECURITY_EXT_AUTH_PROVIDER_ENABLED, Type.BOOLEAN),
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_SCHEMAFACTORY, Type.CLASS),
 
+            new DomibusPropertyMetadata(DOMIBUS_DISPATCHER_TIMEOUT, Type.NUMERIC, false, Usage.DOMAIN, true),
+
             //writable properties
             new DomibusPropertyMetadata(DOMIBUS_UI_TITLE_NAME, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_UI_REPLICATION_ENABLED, Type.BOOLEAN, Usage.DOMAIN, true),
@@ -178,7 +180,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PROXY_HTTP_HOST, Type.URI),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PROXY_HTTP_PORT, Type.NUMERIC),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PROXY_USER),
-            new DomibusPropertyMetadata(DOMIBUS_PROXY_PASSWORD, Type.PASSWORD, Module.MSH, true, Usage.GLOBAL, false, false, true, false),
+            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_PROXY_PASSWORD, Type.PASSWORD, true),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PROXY_NON_PROXY_HOSTS),
 
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_JDBC_DATASOURCE_JNDI_NAME, Type.JNDI),

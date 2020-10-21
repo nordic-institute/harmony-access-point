@@ -82,8 +82,7 @@ public class BaseTest {
 		for (int i = 0; i < msf.length(); i++) {
 			msfTS.put(msf.getJSONObject(i));
 		}
-		System.out.println("msfTS = " + msfTS);
-		
+
 		rest.messFilters().updateFilterList(msfTS, domain);
 	}
 	
