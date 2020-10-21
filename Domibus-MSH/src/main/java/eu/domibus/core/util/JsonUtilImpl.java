@@ -14,7 +14,7 @@ import java.util.Map;
  * Created by Cosmin Baciu on 22-Aug-16.
  */
 @Component
-public class JsonUtilImpl<T> implements JsonUtil<T> {
+public class JsonUtilImpl implements JsonUtil {
 
     @Override
     public Map<String, Object> jsonToMap(String map) {
@@ -27,7 +27,7 @@ public class JsonUtilImpl<T> implements JsonUtil<T> {
     }
 
     @Override
-    public String listToJson(List<T> list) {
+    public String listToJson(List list) {
         if (list == null) {
             return null;
         }
@@ -35,13 +35,22 @@ public class JsonUtilImpl<T> implements JsonUtil<T> {
     }
 
     @Override
-    public List<T> jsonToList(String list) {
+    public List jsonToList(String list) {
         if (list == null) {
             return null;
         }
 
-        Type type = new TypeToken<ArrayList<T>>() {
+        Type type = new TypeToken<ArrayList<String>>() {
         }.getType();
+
+        return new Gson().fromJson(list, type);
+    }
+
+    @Override
+    public List jsonToList(String list, Type type) {
+        if (list == null) {
+            return null;
+        }
 
         return new Gson().fromJson(list, type);
     }

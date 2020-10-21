@@ -73,7 +73,8 @@ public class RetentionListener implements MessageListener {
 
             if (MessageDeleteType.MULTI == deleteType) {
                 String userMessageLogsStr = message.getStringProperty(MessageRetentionDefaultService.MESSAGE_LOGS);
-                List<UserMessageLogDto> userMessageLogs = jsonUtil.jsonToList(userMessageLogsStr);
+                Type type = new TypeToken<ArrayList<UserMessageLogDto>>() {}.getType();
+                List<UserMessageLogDto> userMessageLogs = jsonUtil.jsonToList(userMessageLogsStr, type);
                 LOG.info("There are [{}] messages to delete in batch", userMessageLogs.size());
                 userMessageDefaultService.deleteMessages(userMessageLogs);
                 return;
