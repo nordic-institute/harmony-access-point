@@ -172,5 +172,8 @@ public interface UserMessageService {
      * @throws MessageNotFoundException
      * @throws IOException
      */
-    byte[] getMessageEnvelopesAsZip(String messageType, String messageId) throws MessageNotFoundException, IOException;
+//    byte[] getMessageEnvelopesAsZip(String messageType, String messageId) throws MessageNotFoundException, IOException;
+
+    byte[] getMessageEnvelopesAsZip(String messageId) throws MessageNotFoundException, IOException;
+
 }

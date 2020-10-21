@@ -4,7 +4,6 @@ import eu.domibus.api.messaging.MessageNotFoundException;
 import eu.domibus.api.messaging.MessagingException;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.core.message.MessagesLogService;
-import eu.domibus.ebms3.common.model.MessageType;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.error.ErrorHandlerService;
@@ -77,11 +76,15 @@ public class MessageResource {
     }
 
     @RequestMapping(value = "/envelopes")
-    public ResponseEntity<ByteArrayResource> downloadEnvelopes(@RequestParam(value = "messageType", required = true) String messageType,
-                                                               @RequestParam(value = "messageId", required = true) String messageId)
+//    public ResponseEntity<ByteArrayResource> downloadEnvelopes(@RequestParam(value = "messageType", required = true) String messageType,
+//                                                               @RequestParam(value = "messageId", required = true) String messageId)
+//            throws MessageNotFoundException, IOException {
+    public ResponseEntity<ByteArrayResource> downloadEnvelopes(@RequestParam(value = "messageId", required = true) String messageId)
             throws MessageNotFoundException, IOException {
 
-        byte[] zip = userMessageService.getMessageEnvelopesAsZip(messageType, messageId);
+        byte[] zip = userMessageService.getMessageEnvelopesAsZip(messageId);
+
+//        byte[] zip = userMessageService.getMessageEnvelopesAsZip(messageType, messageId);
 
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType("application/zip"))
