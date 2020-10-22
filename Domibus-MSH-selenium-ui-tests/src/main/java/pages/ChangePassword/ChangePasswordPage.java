@@ -27,10 +27,16 @@ public class ChangePasswordPage extends DomibusPage {
 	
 	@FindBy(id = "newPassword_id")
 	private WebElement newPassField;
+
+	@FindBy(css = "#newPassword_id ~ span div.ng-star-inserted")
+	private WebElement newPassFieldErrMess;
 	
 	@FindBy(id = "confirmation_id")
 	private WebElement confirmationField;
-	
+
+	@FindBy(css = "#confirmation_id ~ span div.ng-star-inserted")
+	private WebElement confirmationFieldErrMess;
+
 	@FindBy(id = "editbuttonok_id")
 	private WebElement updateButton;
 	
@@ -127,6 +133,7 @@ public class ChangePasswordPage extends DomibusPage {
 		getConfirmationField().click();
 		getConfirmationField().fill(confirmPass);
 		getCPassField().click();
+
 		if (isValidationMsgPresent(confirmationFieldLabel) || isValidationMsgPresent(newPasswordFieldLabel)) {
 			return;
 		}
@@ -136,43 +143,22 @@ public class ChangePasswordPage extends DomibusPage {
 
 
 
-    /*
-    This method returns CSS of validation message shown under field with provided FieldLabel
-    *   @param FieldName :- Name of Input Field
-    *   @return :- CSS of validation message under input field
-     */
-
-	public String getCssOfValidationMsg(String fieldName) {
-		if (fieldName.equals(newPasswordFieldLabel)) {
-			String fieldLabel = fieldName;
-			String[] labels = fieldLabel.split(" ");
-			String FieldName1 = labels[0].toLowerCase().concat(labels[1]);
-			return "input[id='" + FieldName1 + "_id']~span.help-block>div";
-		} else if (fieldName.equals(confirmationFieldLabel)) {
-			String str = fieldName.toLowerCase();
-			return "input[id='" + str + "_id']~span.help-block>div";
-		} else {
-			return "";
-		}
-	}
-
 	/*
 	This method print message under provided FieldLabel
 	*@param FieldName :- Name of Input Field
 	* @return :-Boolean result for Presence of Validation message under input field
 	 */
 	public Boolean isValidationMsgPresent(String fieldName) throws Exception {
-		try {
-			WebElement elm = driver.findElement(By.cssSelector(getCssOfValidationMsg(fieldName)));
-			wait.forElementToBe(elm);
-			if (elm.isDisplayed()) {
-				log.info("Validation message under field " + fieldName + "\r\n" + elm.getText().trim());
-				return true;
-			}
-		} catch (Exception e) {
+
+		switch (fieldName){
+			case confirmationFieldLabel:
+				return weToDobject(confirmationFieldErrMess).isPresent();
+			case newPasswordFieldLabel:
+				return weToDobject(newPassFieldErrMess).isEnabled();
+			default:
+				throw new Exception("field name not recognized - " + fieldName);
 		}
-		log.info("message is not displayed");
-		return false;
+
 	}
 
 	/*
@@ -181,18 +167,19 @@ public class ChangePasswordPage extends DomibusPage {
 	* @return : the string under the input
 	 */
 	public String getValidationMsg(String fieldName) throws Exception {
-		if (isValidationMsgPresent(fieldName)) {
-			WebElement elm = driver.findElement(By.cssSelector(getCssOfValidationMsg(fieldName)));
-			log.info("Validation message under field " + fieldName + "\r\n" + elm.getText().trim());
-			return weToDobject(elm).getText();
+		switch (fieldName){
+			case confirmationFieldLabel:
+				return weToDobject(confirmationFieldErrMess).getText();
+			case newPasswordFieldLabel:
+				return weToDobject(newPassFieldErrMess).getText();
+			default:
+				throw new Exception("field name not recognized - " + fieldName);
 		}
-		log.info("message is not displayed");
-		return "";
 	}
 
 	public void pressTABKey() throws Exception {
 		weToDobject(mandatoryFieldsText).click();
-		wait.forXMillis(300);
+		wait.forXMillis(500);
 	}
 
 }
