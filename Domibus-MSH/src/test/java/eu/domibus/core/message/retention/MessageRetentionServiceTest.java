@@ -75,6 +75,7 @@ public class MessageRetentionServiceTest {
     final Integer expiredDownloadedMessagesLimit = 10;
     final Integer expiredNotDownloadedMessagesLimit = 20;
     final Integer expiredSentMessagesLimit = 30;
+    final Integer expiredPayloadDeletedMessagesLimit = 30;
     List<UserMessageLogDto> expiredMessages;
     final List<String> mpcs = Arrays.asList(new String[]{mpc1, mpc2});
 
@@ -132,12 +133,15 @@ public class MessageRetentionServiceTest {
             messageRetentionService.getRetentionValue(DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_SENT_MAX_DELETE);
             result = expiredSentMessagesLimit;
 
+            messageRetentionService.getRetentionValue(DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_PAYLOAD_DELETED_MAX_DELETE);
+            result = expiredPayloadDeletedMessagesLimit;
+
         }};
 
         messageRetentionService.deleteExpiredMessages();
 
         new Verifications() {{
-            messageRetentionService.deleteExpiredMessages(mpc1, expiredDownloadedMessagesLimit, expiredNotDownloadedMessagesLimit, expiredSentMessagesLimit);
+            messageRetentionService.deleteExpiredMessages(mpc1, expiredDownloadedMessagesLimit, expiredNotDownloadedMessagesLimit, expiredSentMessagesLimit, expiredPayloadDeletedMessagesLimit);
         }};
     }
 
@@ -326,7 +330,7 @@ public class MessageRetentionServiceTest {
             messageRetentionService.deleteExpiredNotDownloadedMessages(mpc1, expiredNotDownloadedMessagesLimit);
         }};
 
-        messageRetentionService.deleteExpiredMessages(mpc1, expiredDownloadedMessagesLimit, expiredNotDownloadedMessagesLimit, expiredSentMessagesLimit);
+        messageRetentionService.deleteExpiredMessages(mpc1, expiredDownloadedMessagesLimit, expiredNotDownloadedMessagesLimit, expiredSentMessagesLimit, expiredPayloadDeletedMessagesLimit);
 
         //the verifications are done in the Expectations block
 
@@ -361,6 +365,40 @@ public class MessageRetentionServiceTest {
         new Verifications() {{
             userMessageLogDao.getUndownloadedUserMessagesOlderThan(withAny(new Date()), anyString, null);
             times = 0;
+        }};
+    }
+
+    @Test
+    public void testDeleteExpiredPayloadDeletedMessages() {
+        final Integer messagesDeleteLimit = 5;
+
+        new Expectations(messageRetentionService) {{
+            userMessageLogDao.getDeletedUserMessagesOlderThan(withAny(new Date()), mpc1, null);
+            result = expiredMessages;
+            pModeProvider.isDeleteMessageMetadataByMpcURI(anyString);
+            result = true;
+            messageRetentionService.scheduleDeleteMessages(expiredMessages, mpc1); times = 1;
+        }};
+
+        messageRetentionService.deleteExpiredPayloadDeletedMessages(mpc1, messagesDeleteLimit);
+
+        new Verifications() {{
+        }};
+    }
+
+    @Test
+    public void testDeleteExpiredPayloadDeletedMessagesMetadataFalse() {
+        final Integer messagesDeleteLimit = 5;
+
+        new Expectations(messageRetentionService) {{
+            pModeProvider.isDeleteMessageMetadataByMpcURI(anyString);
+            result = false;
+            messageRetentionService.scheduleDeleteMessages(expiredMessages, mpc1); times = 0;
+        }};
+
+        messageRetentionService.deleteExpiredPayloadDeletedMessages(mpc1, messagesDeleteLimit);
+
+        new Verifications() {{
         }};
     }
 
