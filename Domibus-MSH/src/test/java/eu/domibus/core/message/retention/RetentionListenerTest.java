@@ -19,6 +19,7 @@ import org.junit.runner.RunWith;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
+import java.lang.reflect.Type;
 import java.util.List;
 
 
@@ -84,8 +85,7 @@ public class RetentionListenerTest {
 
         // Then
         new Verifications() {{
-            domainContextProvider.setCurrentDomain(anyString);
-            jsonUtil.jsonToList(anyString);
+            jsonUtil.jsonToList(anyString, (Type) any);
             userMessageDefaultService.deleteMessages((List<UserMessageLogDto>)any);
         }};
     }

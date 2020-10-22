@@ -614,7 +614,7 @@ public class UserMessageDefaultServiceTest {
         userMessageDefaultService.deleteMessages(userMessageLogDtos);
 
         new Verifications() {{
-            backendNotificationService.notifyMessageDeleted(userMessageLogDtos);
+            backendNotificationService.notifyMessageDeleted((List<UserMessageLogDto>) any);
         }};
     }
 
