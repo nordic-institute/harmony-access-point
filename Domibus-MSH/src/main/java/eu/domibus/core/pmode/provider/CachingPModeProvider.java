@@ -698,7 +698,7 @@ public class CachingPModeProvider extends PModeProvider {
             if (equalsIgnoreCase(mpc1.getQualifiedName(), mpcURI)) {
                 int maxBatch = mpc1.getMaxBatchDelete();
                 LOG.debug("Found MPC with name [{}] and maxBatchDelete [{}]", mpc1.getName(), maxBatch);
-                if (maxBatch == -1 || maxBatch > maxValue) {
+                if (maxBatch <= 0 || maxBatch > maxValue) {
                     LOG.debug("Using default maxBatch value [{}]", maxValue);
                     return maxValue;
                 }

@@ -405,6 +405,21 @@ public class UserMessageLogDaoTest {
     }
 
     @Test
+    public void testGetDeletedUserMessagesOlderThan(@Injectable TypedQuery<String> query, @Injectable List<String> list) {
+        // GIVEN
+        new Expectations() {{
+            em.createNamedQuery("UserMessageLog.findDeletedUserMessagesOlderThan", UserMessageLogDto.class); result = query;
+            query.getResultList(); result = list;
+        }};
+
+        // WHEN
+        List<UserMessageLogDto> result = userMessageLogDao.getDeletedUserMessagesOlderThan(null, null, 1);
+
+        // THEN
+        Assert.assertSame("Should have returned the user messages found having payload deleted and older than the provided date", list, result);
+    }
+
+    @Test
     public void testGetUndownloadedUserMessagesOlderThan_returnsEmptyListWhenNoMessagesFound(@Injectable TypedQuery<String> query) {
         // GIVEN
         new Expectations() {{
@@ -420,6 +435,21 @@ public class UserMessageLogDaoTest {
     }
 
     @Test
+    public void testGetDeletedUserMessagesOlderThan_returnsEmptyListWhenNoMessagesFound(@Injectable TypedQuery<String> query) {
+        // GIVEN
+        new Expectations() {{
+            em.createNamedQuery("UserMessageLog.findDeletedUserMessagesOlderThan", UserMessageLogDto.class); result = query;
+            query.getResultList(); result = new NoResultException();
+        }};
+
+        // WHEN
+        List<UserMessageLogDto> result = userMessageLogDao.getDeletedUserMessagesOlderThan(null, null, 1);
+
+        // THEN
+        Assert.assertTrue("Should have returned an empty list when no messages found with payload deleted and older than the provided date", result.isEmpty());
+    }
+
+    @Test
     public void testGetUndownloadedUserMessagesOlderThan_Date(@Injectable Date startDate, @Injectable TypedQuery<String> query) {
         // GIVEN
         new Expectations() {{
@@ -428,6 +458,22 @@ public class UserMessageLogDaoTest {
 
         // WHEN
         userMessageLogDao.getUndownloadedUserMessagesOlderThan(startDate, null, 1);
+
+        // THEN
+        new Verifications() {{
+            query.setParameter("DATE", startDate);
+        }};
+    }
+
+    @Test
+    public void testGetDeletedUserMessagesOlderThan_Date(@Injectable Date startDate, @Injectable TypedQuery<String> query) {
+        // GIVEN
+        new Expectations() {{
+            em.createNamedQuery("UserMessageLog.findDeletedUserMessagesOlderThan", UserMessageLogDto.class); result = query;
+        }};
+
+        // WHEN
+        userMessageLogDao.getDeletedUserMessagesOlderThan(startDate, null, 1);
 
         // THEN
         new Verifications() {{
@@ -467,10 +513,21 @@ public class UserMessageLogDaoTest {
         }};
     }
 
+    @Test
+    public void testGetDeletedUserMessagesOlderThan_ExpiredDeletedMessagesLimit(@Injectable TypedQuery<String> query) {
+        // GIVEN
+        new Expectations() {{
+            em.createNamedQuery("UserMessageLog.findDeletedUserMessagesOlderThan", UserMessageLogDto.class); result = query;
+        }};
 
+        // WHEN
+        userMessageLogDao.getDeletedUserMessagesOlderThan(null, null, 13);
 
-
-
+        // THEN
+        new Verifications() {{
+            query.setMaxResults(13);
+        }};
+    }
 
     @Test
     public void testGetDownloadedUserMessagesOlderThan(@Injectable TypedQuery<String> query, @Injectable List<String> list) {
