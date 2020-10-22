@@ -23,6 +23,4 @@ public interface UserMessageExtService {
     String getUserMessageEnvelope(String messageId);
 
     String getSignalMessageEnvelope(String messageId);
-
-    //    String getMessageEnvelope(String messageId, String messageType);
 }

@@ -89,7 +89,7 @@ public class MessageLogResource extends BaseResource {
         init();
     }
 
-    private void init() {
+    protected void init() {
         SimpleDateFormat ft = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
         try {
             defaultFrom = ft.parse("1970-01-01 23:59:00");

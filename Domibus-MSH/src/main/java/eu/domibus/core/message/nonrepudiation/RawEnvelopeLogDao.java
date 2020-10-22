@@ -45,18 +45,6 @@ public class RawEnvelopeLogDao extends BasicDao<RawEnvelopeLog> {
         return namedQuery.getResultList();
     }
 
-//    public RawEnvelopeDto findSignalMessageEnvelopeById(final long signalMessageId) {
-//        TypedQuery<RawEnvelopeDto> namedQuery = em.createNamedQuery("RawDto.findBySignalMessageId", RawEnvelopeDto.class);
-//        namedQuery.setParameter("SIGNAL_MESSAGE_ID", signalMessageId);
-//        try {
-//            LOG.debug("[findUserMessageEnvelopeById][Message]:[{}]", signalMessageId);
-//            return namedQuery.getSingleResult();
-//        } catch (NoResultException nr) {
-//            LOG.trace("The message with id[{}] has no associated raw xml saved in the database.", signalMessageId, nr);
-//            return null;
-//        }
-//    }
-
     /**
      * Delete all the raw entries related to a given UserMessage id.
      *

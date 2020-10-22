@@ -54,7 +54,7 @@ public class UserMessageExtResource {
             authorizations = @Authorization(value = "basicAuth"), tags = "envelope")
     @GetMapping(path = "/{messageId:.+}/envelope")
     public ResponseEntity<String> downloadUserMessageEnvelope(@PathVariable(value = "messageId") String messageId) {
-        LOG.debug("Getting User Message envelope with id = '{}", messageId);
+        LOG.debug("Getting User Message Envelope with id = [{}]", messageId);
         String result = userMessageExtService.getUserMessageEnvelope(messageId);
 
         return ResponseEntity.ok()
@@ -67,7 +67,7 @@ public class UserMessageExtResource {
             authorizations = @Authorization(value = "basicAuth"), tags = "signalEnvelope")
     @GetMapping(path = "/{messageId:.+}/signalEnvelope")
     public ResponseEntity<String> downloadSignalMessageEnvelope(@PathVariable(value = "messageId") String messageId) {
-        LOG.debug("Getting User Message envelope with id = '{}", messageId);
+        LOG.debug("Getting Signal Message Envelope with id = [{}]", messageId);
         String result = userMessageExtService.getSignalMessageEnvelope(messageId);
 
         return ResponseEntity.ok()
