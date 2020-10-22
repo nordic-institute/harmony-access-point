@@ -2,7 +2,6 @@ package eu.domibus.core.plugin.notification;
 
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
-import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusConfigurationService;
@@ -559,15 +558,18 @@ public class BackendNotificationServiceTest {
     }
 
     @Test
-    public void getAllMessageIdsForBackendTest() {
+    public void getAllMessageIdsForBackendTest(@Injectable UserMessageLogDto uml1, @Injectable UserMessageLogDto uml2) {
 
         String backend = "ws";
-        UserMessageLogDto uml1 = new UserMessageLogDto("abc", null, backend);
-        UserMessageLogDto uml2 = new UserMessageLogDto("def", null, backend);
         List<UserMessageLogDto> userMessageLogDtos = Arrays.asList(uml1, uml2);
         List<String> messageIds = Arrays.asList("abc", "def");
 
         new Expectations(backendNotificationService) {{
+            uml1.getMessageId(); result = "abc";
+            uml2.getMessageId(); result = "def";
+            uml1.getBackend(); result = backend;
+            uml2.getBackend(); result = backend;
+
         }};
 
         List<String> result = backendNotificationService.getAllMessageIdsForBackend(userMessageLogDtos, backend);
@@ -578,15 +580,17 @@ public class BackendNotificationServiceTest {
     }
 
     @Test
-    public void testNotifyMessageDeletedRemoveTestMessages() {
+    public void testNotifyMessageDeletedRemoveTestMessages(@Injectable UserMessageLogDto uml1, @Injectable UserMessageLogDto uml2) {
 
         String backend = "ws";
-        UserMessageLogDto uml1 = new UserMessageLogDto("abc", null, backend);
-        UserMessageLogDto uml2 = new UserMessageLogDto("abc", MessageSubtype.TEST, backend);
         List<UserMessageLogDto> userMessageLogDtos = Arrays.asList(uml1, uml2);
         List<UserMessageLogDto> userMessageLogDtosNoTest = Arrays.asList(uml1);
 
         new Expectations(backendNotificationService) {{
+            uml1.getBackend(); result = backend;
+            uml2.getBackend(); times = 0;
+            uml2.isTestMessage(); result = true;
+
             backendNotificationService.getAllMessageIdsForBackend(userMessageLogDtosNoTest, backend); times = 1;
             backendNotificationService.createMessageDeleteBatchEvent(backend, (List<String>)any);
 
@@ -599,14 +603,15 @@ public class BackendNotificationServiceTest {
     }
 
     @Test
-    public void testNotifyMessageDeletedEmptyList() {
+    public void testNotifyMessageDeletedEmptyList(@Injectable UserMessageLogDto uml1, @Injectable UserMessageLogDto uml2) {
 
         String backend = "ws";
-        UserMessageLogDto uml1 = new UserMessageLogDto("abc", null, backend);
-        UserMessageLogDto uml2 = new UserMessageLogDto("abc", null, backend);
         List<UserMessageLogDto> userMessageLogDtos = Arrays.asList();
 
         new Expectations(backendNotificationService) {{
+            uml1.getBackend(); times = 0;
+            uml2.getBackend(); times = 0;
+
             backendNotificationService.getAllMessageIdsForBackend(userMessageLogDtos, backend); times = 0;
             backendNotificationService.createMessageDeleteBatchEvent(backend, (List<String>)any); times = 0;
 
@@ -619,15 +624,16 @@ public class BackendNotificationServiceTest {
     }
 
     @Test
-    public void testNotifyMessageDeleted() {
+    public void testNotifyMessageDeleted(@Injectable UserMessageLogDto uml1, @Injectable UserMessageLogDto uml2) {
 
         String backend = "ws";
-        UserMessageLogDto uml1 = new UserMessageLogDto("abc", null, backend);
-        UserMessageLogDto uml2 = new UserMessageLogDto("abc", null, backend);
         List<UserMessageLogDto> userMessageLogDtos = Arrays.asList(uml1, uml2);
         List<String> messageIds = Arrays.asList("abc", "def");
 
         new Expectations(backendNotificationService) {{
+            uml1.getBackend(); result = backend;
+            uml2.getBackend(); result = backend;
+
             backendNotificationService.getAllMessageIdsForBackend(userMessageLogDtos, backend); result = messageIds;
             backendNotificationService.createMessageDeleteBatchEvent(backend, (List<String>)any);
 

@@ -606,10 +606,7 @@ public class UserMessageDefaultServiceTest {
     }
 
     @Test
-    public void testDeleteMessages() {
-        String backend = "ws";
-        UserMessageLogDto uml1 = new UserMessageLogDto("abc", null, backend);
-        UserMessageLogDto uml2 = new UserMessageLogDto("def", null, backend);
+    public void testDeleteMessages(@Injectable UserMessageLogDto uml1, @Injectable UserMessageLogDto uml2) {
         List<UserMessageLogDto> userMessageLogDtos = Arrays.asList(uml1, uml2);
 
         userMessageDefaultService.deleteMessages(userMessageLogDtos);
