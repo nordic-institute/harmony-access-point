@@ -7,9 +7,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.xml.ws.BindingType;
 import javax.xml.ws.soap.SOAPBinding;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
 
 
 @javax.jws.WebService(
@@ -23,12 +20,13 @@ public class BackendWebservice implements BackendInterface {
     private final ObjectFactory objectFactory = new ObjectFactory();
 
     @Override
-    public List<String> sendSuccess(String messageID) throws SendSuccessFault {
+    public Object sendSuccess(SendSuccess sendSuccess) throws SendSuccessFault {
+        String messageID = sendSuccess.getMessageID();
         LOG.info("SendSuccess received for id [{}]", messageID);
         if (StringUtils.containsIgnoreCase(messageID, "err")) {
             throw new SendSuccessFault(getErrorMessage(messageID), getDefaultFaultDetail());
         }
-        return Collections.singletonList(UUID.randomUUID().toString());
+        return null;
     }
 
     private String getErrorMessage(String messageID) {
@@ -36,39 +34,43 @@ public class BackendWebservice implements BackendInterface {
     }
 
     @Override
-    public List<String> sendFailure(String messageID) throws SendFailureFault {
+    public Object sendFailure(SendFailure sendSuccess) throws SendFailureFault {
+        String messageID = sendSuccess.getMessageID();
         LOG.info("sendFailure received for id [{}]", messageID);
         if (StringUtils.containsIgnoreCase(messageID, "err")) {
             throw new SendFailureFault(getErrorMessage(messageID), getDefaultFaultDetail());
         }
-        return Collections.singletonList(UUID.randomUUID().toString());
+        return null;
     }
 
     @Override
-    public List<String> receiveSuccess(String messageID) throws ReceiveSuccessFault {
+    public Object receiveSuccess(ReceiveSuccess sendSuccess) throws ReceiveSuccessFault {
+        String messageID = sendSuccess.getMessageID();
         LOG.info("ReceiveSuccess received for id [{}]", messageID);
         if (StringUtils.containsIgnoreCase(messageID, "err")) {
             throw new ReceiveSuccessFault(getErrorMessage(messageID), getDefaultFaultDetail());
         }
-        return Collections.singletonList(UUID.randomUUID().toString());
+        return null;
     }
 
     @Override
-    public List<String> receiveFailure(String messageID) throws ReceiveFailureFault {
+    public Object receiveFailure(ReceiveFailure sendSuccess) throws ReceiveFailureFault {
+        String messageID = sendSuccess.getMessageID();
         LOG.info("receiveFailure received for id [{}]", messageID);
         if (StringUtils.containsIgnoreCase(messageID, "err")) {
             throw new ReceiveFailureFault(getErrorMessage(messageID), getDefaultFaultDetail());
         }
-        return Collections.singletonList(UUID.randomUUID().toString());
+        return null;
     }
 
     @Override
-    public List<String> messageStatusChange(String messageID, MessageStatus messageStatus) throws MessageStatusChangeFault {
-        LOG.info("messageStatusChange received for id [{}] and status [{}]", messageID, messageStatus);
+    public Object messageStatusChange(MessageStatusChange messageStatusChange) throws MessageStatusChangeFault {
+        String messageID = messageStatusChange.getMessageID();
+        LOG.info("messageStatusChange received for id [{}] and status [{}]", messageID, messageStatusChange.getMessageStatus());
         if (StringUtils.containsIgnoreCase(messageID, "err")) {
             throw new MessageStatusChangeFault(getErrorMessage(messageID), getDefaultFaultDetail());
         }
-        return Collections.singletonList(UUID.randomUUID().toString());
+        return null;
     }
 
     private BackendFaultDetail getDefaultFaultDetail() {

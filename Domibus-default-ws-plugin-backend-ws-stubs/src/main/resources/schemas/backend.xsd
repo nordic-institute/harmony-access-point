@@ -50,11 +50,6 @@
     </xsd:element>
 
     <xsd:element name="sendSuccessResponse">
-        <xsd:complexType>
-            <xsd:sequence>
-                <xsd:element maxOccurs="unbounded" minOccurs="0" name="messageID" nillable="true" type="xsd:string"/>
-            </xsd:sequence>
-        </xsd:complexType>
     </xsd:element>
 
     <xsd:element name="sendFailure">
@@ -66,11 +61,7 @@
     </xsd:element>
 
     <xsd:element name="sendFailureResponse">
-        <xsd:complexType>
-            <xsd:sequence>
-                <xsd:element maxOccurs="unbounded" minOccurs="0" name="messageID" nillable="true" type="xsd:string"/>
-            </xsd:sequence>
-        </xsd:complexType>
+
     </xsd:element>
     <xsd:element name="receiveSuccess">
         <xsd:complexType>
@@ -81,11 +72,6 @@
     </xsd:element>
 
     <xsd:element name="receiveSuccessResponse">
-        <xsd:complexType>
-            <xsd:sequence>
-                <xsd:element maxOccurs="unbounded" minOccurs="0" name="messageID" nillable="true" type="xsd:string"/>
-            </xsd:sequence>
-        </xsd:complexType>
     </xsd:element>
 
     <xsd:element name="receiveFailure">
@@ -97,11 +83,6 @@
     </xsd:element>
 
     <xsd:element name="receiveFailureResponse">
-        <xsd:complexType>
-            <xsd:sequence>
-                <xsd:element maxOccurs="unbounded" minOccurs="0" name="messageID" nillable="true" type="xsd:string"/>
-            </xsd:sequence>
-        </xsd:complexType>
     </xsd:element>
 
     <xsd:element name="messageStatusChange">
@@ -114,11 +95,6 @@
     </xsd:element>
 
     <xsd:element name="messageStatusChangeResponse">
-        <xsd:complexType>
-            <xsd:sequence>
-                <xsd:element maxOccurs="unbounded" minOccurs="0" name="messageID" nillable="true" type="xsd:string"/>
-            </xsd:sequence>
-        </xsd:complexType>
     </xsd:element>
 
 </xsd:schema>
