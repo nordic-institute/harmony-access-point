@@ -18,6 +18,7 @@ import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.audit.AuditService;
+import eu.domibus.core.audit.envers.ModificationType;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
@@ -671,19 +672,66 @@ public class UserMessageDefaultService implements UserMessageService {
             return null;
         }
 
-        String envelope = userEnvelopes.get(0).getRawMessage();
-        return envelope;
+        auditService.addMessageEnvelopesDownloadedAudit(messageId, ModificationType.USER_MESSAGE_ENVELOPE_DOWNLOADED);
+        return userEnvelopes.get(0).getRawMessage();
     }
 
     @Override
     public String getSignalMessageEnvelope(String userMessageId) {
         SignalMessage signalMessage = messagingDao.findSignalMessageByUserMessageId(userMessageId);
-        if (signalMessage != null && signalMessage.getRawEnvelopeLog() != null) {
-            String envelope = signalMessage.getRawEnvelopeLog().getRawXML();
-            return envelope;
+        if (signalMessage == null || signalMessage.getRawEnvelopeLog() == null) {
+            return null;
         }
-        return null;
+        auditService.addMessageEnvelopesDownloadedAudit(userMessageId, ModificationType.SIGNAL_MESSAGE_ENVELOPE_DOWNLOADED);
+        return signalMessage.getRawEnvelopeLog().getRawXML();
     }
+
+    protected Map<String, InputStream> getMessageEnvelopes(String messageId) throws MessageNotFoundException {
+        Map<String, InputStream> result = new HashMap<>();
+
+        String userMessageEnvelope = getUserMessageEnvelope(messageId);
+        if (userMessageEnvelope != null) {
+            InputStream userEnvelopeStream = new ByteArrayInputStream(userMessageEnvelope.getBytes());
+            result.put("user_message_envelope.xml", userEnvelopeStream);
+        }
+
+        String signalEnvelope = getSignalMessageEnvelope(messageId);
+        if (signalEnvelope != null) {
+            InputStream signalEnvelopeStream = new ByteArrayInputStream(signalEnvelope.getBytes());
+            result.put("signal_message_envelope.xml", signalEnvelopeStream);
+        }
+
+        return result;
+    }
+
+//    protected Map<String, InputStream> getUserMessageEnvelopes(String messageId) {
+//        Map<String, InputStream> result = new HashMap<>();
+//
+//        UserMessage userMessage = getUserMessageById(messageId);
+////        RawEnvelopeDto userEnvelope = rawEnvelopeLogDao.findUserMessageEnvelopeById(userMessage.getEntityId());
+////        InputStream userEnvelopeStream = new ByteArrayInputStream(userEnvelope.getRawMessage().getBytes());
+//        if (userMessage != null && userMessage.getRawEnvelopeLog() != null) {
+//            InputStream userEnvelopeStream = new ByteArrayInputStream(userMessage.getRawEnvelopeLog().getRawXML().getBytes());
+//            result.put("user_message_envelope.xml", userEnvelopeStream);
+//        }
+//
+//        SignalMessage signalMessage = messagingDao.findSignalMessageByUserMessageId(messageId);
+//        if (signalMessage != null && signalMessage.getRawEnvelopeLog() != null) {
+//            InputStream signalEnvelopeStream = new ByteArrayInputStream(signalMessage.getRawEnvelopeLog().getRawXML().getBytes());
+//            result.put("signal_message_envelope.xml", signalEnvelopeStream);
+//        }
+////        List<SignalMessage> signalMessages = signalMessageDao.findSignalMessagesByRefMessageId(messageId);
+////        signalMessages.forEach(signalMessage -> {
+//////            RawEnvelopeDto signalEnvelope = rawEnvelopeLogDao.findSignalMessageEnvelopeById(signalMessage.getEntityId());
+//////            InputStream signalEnvelopeStream = new ByteArrayInputStream(signalEnvelope.getRawMessage().getBytes());
+////            InputStream signalEnvelopeStream = new ByteArrayInputStream(signalMessage.getRawEnvelopeLog().getRawXML().getBytes());
+////            result.put("signal_message_envelope" + signalMessage.getEntityId() + ".xml", signalEnvelopeStream);
+////        });
+//
+////        auditService.addMessageEnvelopesDownloadedAudit(messageId);
+//
+//        return result;
+//    }
 
     protected Map<String, InputStream> getMessageContentWithAttachments(String messageId) throws MessageNotFoundException {
 
@@ -719,55 +767,6 @@ public class UserMessageDefaultService implements UserMessageService {
 
         return result;
     }
-
-    protected Map<String, InputStream> getMessageEnvelopes(String messageId) throws MessageNotFoundException {
-        Map<String, InputStream> result = new HashMap<>();
-
-        String userMessageEnvelope = getUserMessageEnvelope(messageId);
-        if (userMessageEnvelope != null) {
-            InputStream userEnvelopeStream = new ByteArrayInputStream(userMessageEnvelope.getBytes());
-            result.put("user_message_envelope.xml", userEnvelopeStream);
-        }
-
-        String signalEnvelope = getSignalMessageEnvelope(messageId);
-        if (signalEnvelope != null) {
-            InputStream signalEnvelopeStream = new ByteArrayInputStream(signalEnvelope.getBytes());
-            result.put("signal_message_envelope.xml", signalEnvelopeStream);
-        }
-
-//        auditService.addMessageEnvelopesDownloadedAudit(messageId);
-
-        return result;
-    }
-
-//    protected Map<String, InputStream> getUserMessageEnvelopes(String messageId) {
-//        Map<String, InputStream> result = new HashMap<>();
-//
-//        UserMessage userMessage = getUserMessageById(messageId);
-////        RawEnvelopeDto userEnvelope = rawEnvelopeLogDao.findUserMessageEnvelopeById(userMessage.getEntityId());
-////        InputStream userEnvelopeStream = new ByteArrayInputStream(userEnvelope.getRawMessage().getBytes());
-//        if (userMessage != null && userMessage.getRawEnvelopeLog() != null) {
-//            InputStream userEnvelopeStream = new ByteArrayInputStream(userMessage.getRawEnvelopeLog().getRawXML().getBytes());
-//            result.put("user_message_envelope.xml", userEnvelopeStream);
-//        }
-//
-//        SignalMessage signalMessage = messagingDao.findSignalMessageByUserMessageId(messageId);
-//        if (signalMessage != null && signalMessage.getRawEnvelopeLog() != null) {
-//            InputStream signalEnvelopeStream = new ByteArrayInputStream(signalMessage.getRawEnvelopeLog().getRawXML().getBytes());
-//            result.put("signal_message_envelope.xml", signalEnvelopeStream);
-//        }
-////        List<SignalMessage> signalMessages = signalMessageDao.findSignalMessagesByRefMessageId(messageId);
-////        signalMessages.forEach(signalMessage -> {
-//////            RawEnvelopeDto signalEnvelope = rawEnvelopeLogDao.findSignalMessageEnvelopeById(signalMessage.getEntityId());
-//////            InputStream signalEnvelopeStream = new ByteArrayInputStream(signalEnvelope.getRawMessage().getBytes());
-////            InputStream signalEnvelopeStream = new ByteArrayInputStream(signalMessage.getRawEnvelopeLog().getRawXML().getBytes());
-////            result.put("signal_message_envelope" + signalMessage.getEntityId() + ".xml", signalEnvelopeStream);
-////        });
-//
-////        auditService.addMessageEnvelopesDownloadedAudit(messageId);
-//
-//        return result;
-//    }
 
     protected UserMessage getUserMessageById(String messageId) throws MessageNotFoundException {
         UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);

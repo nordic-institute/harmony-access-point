@@ -1,6 +1,7 @@
 package eu.domibus.core.audit;
 
 import eu.domibus.api.audit.AuditLog;
+import eu.domibus.core.audit.envers.ModificationType;
 import eu.domibus.core.audit.envers.RevisionLogicalName;
 
 import java.util.Date;
@@ -110,10 +111,11 @@ public interface AuditService {
             String fromQueue, String toQueue, String domainCode);
 
     /**
-     * Add message envelopes download audit for a message.
+     * Add download audit for am envelope of user or signal messages
      *
      * @param messageId the id of the message.
+     * @param modificationType the modification type: either user or signal MessageEnvelopeDownload
      */
-    void addMessageEnvelopesDownloadedAudit(String messageId);
+    void addMessageEnvelopesDownloadedAudit(String messageId, ModificationType modificationType);
 }
 

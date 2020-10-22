@@ -206,8 +206,9 @@ public class AuditServiceImpl implements AuditService {
     }
 
     @Override
-    public void addMessageEnvelopesDownloadedAudit(String messageId) {
-        addMessageDownloadedAudit(messageId);
+    @Transactional
+    public void addMessageEnvelopesDownloadedAudit(String messageId, ModificationType modificationType) {
+        auditDao.saveMessageAudit(new MessageAudit(messageId, authUtils.getAuthenticatedUser(), new Date(), modificationType));
     }
 
     protected void handleSaveJMSMessage(String messageId, String fromQueue, ModificationType modificationType, String domainCode) {
