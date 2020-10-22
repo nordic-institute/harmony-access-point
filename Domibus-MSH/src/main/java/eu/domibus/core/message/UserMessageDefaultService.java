@@ -27,6 +27,7 @@ import eu.domibus.core.jms.DispatchMessageCreator;
 import eu.domibus.core.message.acknowledge.MessageAcknowledgementDao;
 import eu.domibus.core.message.attempt.MessageAttemptDao;
 import eu.domibus.core.message.converter.MessageConverterService;
+import eu.domibus.core.message.nonrepudiation.RawEnvelopeDto;
 import eu.domibus.core.message.nonrepudiation.RawEnvelopeLogDao;
 import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.message.signal.SignalMessageDao;
@@ -656,11 +657,17 @@ public class UserMessageDefaultService implements UserMessageService {
     @Override
     public String getUserMessageEnvelope(String messageId) {
         UserMessage userMessage = getUserMessageById(messageId);
-        if (userMessage != null && userMessage.getRawEnvelopeLog() != null) {
-            String envelope = userMessage.getRawEnvelopeLog().getRawXML();
-            return envelope;
+        if (userMessage == null) {
+            return null;
         }
-        return null;
+
+        List<RawEnvelopeDto> userEnvelopes = rawEnvelopeLogDao.findUserMessageEnvelopesById(userMessage.getEntityId());
+        if (CollectionUtils.isEmpty(userEnvelopes)) {
+            return null;
+        }
+
+        String envelope = userEnvelopes.get(0).getRawMessage();
+        return envelope;
     }
 
     @Override

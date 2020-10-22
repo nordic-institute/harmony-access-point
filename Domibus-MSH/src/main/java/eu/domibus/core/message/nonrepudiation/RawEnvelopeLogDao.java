@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
+import java.util.List;
 
 /**
  * @author idragusa
@@ -37,29 +38,24 @@ public class RawEnvelopeLogDao extends BasicDao<RawEnvelopeLog> {
         }
     }
 
-    public RawEnvelopeDto findUserMessageEnvelopeById(final long userMessageId) {
+    public List<RawEnvelopeDto> findUserMessageEnvelopesById(final long userMessageId) {
         TypedQuery<RawEnvelopeDto> namedQuery = em.createNamedQuery("RawDto.findByUserMessageId", RawEnvelopeDto.class);
         namedQuery.setParameter("USER_MESSAGE_ID", userMessageId);
-        try {
-            LOG.debug("[findUserMessageEnvelopeById][Message]:[{}]", userMessageId);
-            return namedQuery.getSingleResult();
-        } catch (NoResultException nr) {
-            LOG.trace("The message with id[{}] has no associated raw xml saved in the database.", userMessageId, nr);
-            return null;
-        }
+        LOG.debug("[findUserMessageEnvelopeById][Message]:[{}]", userMessageId);
+        return namedQuery.getResultList();
     }
 
-    public RawEnvelopeDto findSignalMessageEnvelopeById(final long signalMessageId) {
-        TypedQuery<RawEnvelopeDto> namedQuery = em.createNamedQuery("RawDto.findBySignalMessageId", RawEnvelopeDto.class);
-        namedQuery.setParameter("SIGNAL_MESSAGE_ID", signalMessageId);
-        try {
-            LOG.debug("[findUserMessageEnvelopeById][Message]:[{}]", signalMessageId);
-            return namedQuery.getSingleResult();
-        } catch (NoResultException nr) {
-            LOG.trace("The message with id[{}] has no associated raw xml saved in the database.", signalMessageId, nr);
-            return null;
-        }
-    }
+//    public RawEnvelopeDto findSignalMessageEnvelopeById(final long signalMessageId) {
+//        TypedQuery<RawEnvelopeDto> namedQuery = em.createNamedQuery("RawDto.findBySignalMessageId", RawEnvelopeDto.class);
+//        namedQuery.setParameter("SIGNAL_MESSAGE_ID", signalMessageId);
+//        try {
+//            LOG.debug("[findUserMessageEnvelopeById][Message]:[{}]", signalMessageId);
+//            return namedQuery.getSingleResult();
+//        } catch (NoResultException nr) {
+//            LOG.trace("The message with id[{}] has no associated raw xml saved in the database.", signalMessageId, nr);
+//            return null;
+//        }
+//    }
 
     /**
      * Delete all the raw entries related to a given UserMessage id.
