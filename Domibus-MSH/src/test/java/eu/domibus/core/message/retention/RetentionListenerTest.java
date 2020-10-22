@@ -85,7 +85,6 @@ public class RetentionListenerTest {
 
         // Then
         new Verifications() {{
-            domainContextProvider.setCurrentDomain(anyString);
             jsonUtil.jsonToList(anyString, (Type) any);
             userMessageDefaultService.deleteMessages((List<UserMessageLogDto>)any);
         }};
