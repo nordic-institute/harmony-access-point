@@ -153,8 +153,8 @@ public class BackendNotificationService {
             LOG.warn("Empty notification list of userMessageLogs");
             return;
         }
-        Supplier<Stream<UserMessageLogDto>> streamSupplier = () -> userMessageLogs.stream();
-        final List<UserMessageLogDto> userMessageLogsToNotify = streamSupplier.get().filter(userMessageLog -> !userMessageLog.isTestMessage()).collect(Collectors.toList());
+
+        final List<UserMessageLogDto> userMessageLogsToNotify = userMessageLogs.stream().filter(userMessageLog -> !userMessageLog.isTestMessage()).collect(Collectors.toList());
 
         if(CollectionUtils.isEmpty(userMessageLogsToNotify)) {
             LOG.info("No more delete message notifications.");

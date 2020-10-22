@@ -42,10 +42,7 @@ import org.junit.runner.RunWith;
 
 import javax.jms.Queue;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES;
 import static org.junit.Assert.assertEquals;
@@ -609,7 +606,11 @@ public class UserMessageDefaultServiceTest {
     }
 
     @Test
-    public void testDeleteMessages(@Injectable List<UserMessageLogDto> userMessageLogDtos) {
+    public void testDeleteMessages() {
+        String backend = "ws";
+        UserMessageLogDto uml1 = new UserMessageLogDto("abc", null, backend);
+        UserMessageLogDto uml2 = new UserMessageLogDto("def", null, backend);
+        List<UserMessageLogDto> userMessageLogDtos = Arrays.asList(uml1, uml2);
 
         userMessageDefaultService.deleteMessages(userMessageLogDtos);
 
