@@ -30,12 +30,12 @@ public class BackendApplication {
     }
 
     @Bean
-    public BackendClient createWSPlugin() {
-        return new BackendClient();
+    public BackendWebservice createWSPlugin() {
+        return new BackendWebservice();
     }
 
     @Bean
-    public Endpoint backendInterfaceEndpoint(BackendClient backendWebService    ) {
+    public Endpoint backendInterfaceEndpoint(BackendWebservice backendWebService    ) {
         return Endpoint.publish("/backend", backendWebService);
     }
 }

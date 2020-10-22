@@ -1358,6 +1358,7 @@
             <modules>
                 <module>Domibus-ws-stubs</module>
                 <module>Domibus-default-ws-plugin-backend-ws-stubs</module>
+                <module>Domibus-default-ws-plugin-backend-ws-test</module>
                 <module>Domibus-default-ws-plugin</module>
                 <module>Domibus-default-jms-plugin</module>
                 <module>Domibus-default-fs-plugin</module>

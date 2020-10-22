@@ -32,7 +32,7 @@
         </xsd:restriction>
     </xsd:simpleType>
 
-    <xsd:element name="FaultDetail">
+    <xsd:element name="BackendFaultDetail">
         <xsd:complexType>
             <xsd:sequence>
                 <xsd:element name="code" type="xsd:string"/>

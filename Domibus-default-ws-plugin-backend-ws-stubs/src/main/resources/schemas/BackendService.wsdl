@@ -22,7 +22,7 @@
         </wsdl:part>
     </wsdl:message>
     <wsdl:message name="sendSuccessFault">
-        <wsdl:part element="tns:FaultDetail" name="sendSuccessFault">
+        <wsdl:part element="tns:BackendFaultDetail" name="sendSuccessFault">
         </wsdl:part>
     </wsdl:message>
 
@@ -35,7 +35,7 @@
         </wsdl:part>
     </wsdl:message>
     <wsdl:message name="sendFailureFault">
-        <wsdl:part element="tns:FaultDetail" name="sendFailureFault">
+        <wsdl:part element="tns:BackendFaultDetail" name="sendFailureFault">
         </wsdl:part>
     </wsdl:message>
     <wsdl:message name="receiveSuccess">
@@ -47,7 +47,7 @@
         </wsdl:part>
     </wsdl:message>
     <wsdl:message name="receiveSuccessFault">
-        <wsdl:part element="tns:FaultDetail" name="receiveSuccessFault">
+        <wsdl:part element="tns:BackendFaultDetail" name="receiveSuccessFault">
         </wsdl:part>
     </wsdl:message>
 
@@ -60,7 +60,7 @@
         </wsdl:part>
     </wsdl:message>
     <wsdl:message name="receiveFailureFault">
-        <wsdl:part element="tns:FaultDetail" name="receiveFailureFault">
+        <wsdl:part element="tns:BackendFaultDetail" name="receiveFailureFault">
         </wsdl:part>
     </wsdl:message>
 
@@ -73,7 +73,7 @@
         </wsdl:part>
     </wsdl:message>
     <wsdl:message name="messageStatusChangeFault">
-        <wsdl:part element="tns:FaultDetail" name="messageStatusChangeFault">
+        <wsdl:part element="tns:BackendFaultDetail" name="messageStatusChangeFault">
         </wsdl:part>
     </wsdl:message>
 
