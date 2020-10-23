@@ -19,11 +19,11 @@ import eu.domibus.core.message.UserMessageLog;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
 import eu.domibus.core.message.reliability.ReliabilityService;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.UserMessage;
-import eu.domibus.core.metrics.Counter;
-import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusMessageCode;
 import org.apache.commons.lang3.Validate;
@@ -74,8 +74,8 @@ public abstract class AbstractUserMessageSender implements MessageSender {
     private ErrorLogDao errorLogDao;
 
     @Override
-    @Timer(clazz = AbstractUserMessageSender.class,value = "outgoing_user_message")
-    @Counter(clazz = AbstractUserMessageSender.class,value = "outgoing_user_message")
+    @Timer(clazz = AbstractUserMessageSender.class, value = "outgoing_user_message")
+    @Counter(clazz = AbstractUserMessageSender.class, value = "outgoing_user_message")
     public void sendMessage(final Messaging messaging, final UserMessageLog userMessageLog) {
         final UserMessage userMessage = messaging.getUserMessage();
         String messageId = userMessage.getMessageInfo().getMessageId();
@@ -87,6 +87,7 @@ public abstract class AbstractUserMessageSender implements MessageSender {
 
         ReliabilityChecker.CheckResult reliabilityCheckSuccessful = ReliabilityChecker.CheckResult.SEND_FAIL;
         ResponseResult responseResult = null;
+        SOAPMessage requestSoapMessage = null;
         SOAPMessage responseSoapMessage = null;
 
         LegConfiguration legConfiguration = null;
@@ -140,8 +141,7 @@ public abstract class AbstractUserMessageSender implements MessageSender {
             }
 
             getLog().debug("PMode found : " + pModeKey);
-            final SOAPMessage requestSoapMessage = createSOAPMessage(userMessage, legConfiguration);
-            nonRepudiationService.saveRequest(requestSoapMessage, userMessage);
+            requestSoapMessage = createSOAPMessage(userMessage, legConfiguration);
 
             responseSoapMessage = mshDispatcher.dispatch(requestSoapMessage, receiverParty.getEndpoint(), policy, legConfiguration, pModeKey);
 
@@ -167,6 +167,10 @@ public abstract class AbstractUserMessageSender implements MessageSender {
             attempt.setStatus(MessageAttemptStatus.ERROR);
             throw t;
         } finally {
+            if (requestSoapMessage != null) {
+                nonRepudiationService.saveRequest(requestSoapMessage, userMessage);
+            }
+
             try {
                 getLog().debug("Finally handle reliability");
                 reliabilityService.handleReliability(messageId, messaging, userMessageLog, reliabilityCheckSuccessful, responseSoapMessage, responseResult, legConfiguration, attempt);
