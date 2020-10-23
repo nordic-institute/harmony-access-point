@@ -491,7 +491,7 @@
         </dependency>
         <!-- End Dropwizard -->
         <dependency>
-            <groupId>org.ehcache</groupId>
+            <groupId>net.sf.ehcache</groupId>
             <artifactId>ehcache</artifactId>
             <scope>provided</scope>
         </dependency>
