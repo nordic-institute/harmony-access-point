@@ -8,7 +8,10 @@ import org.slf4j.LoggerFactory;
 import javax.xml.ws.BindingType;
 import javax.xml.ws.soap.SOAPBinding;
 
-
+/**
+ * @author François Gautier
+ * @since 5.0
+ */
 @javax.jws.WebService(
         serviceName = "BackendService",
         portName = "BACKEND_PORT",
