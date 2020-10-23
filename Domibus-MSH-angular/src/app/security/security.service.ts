@@ -290,7 +290,6 @@ export class SecurityService {
     this.initialiseAppPromise = new Promise((resolve, reject) => {
       this.sessionService.resetCurrentSession();
       this.clearSession();
-      console.log('Calling getUserFn');
       getUserFn().then((user: User) => {
         if (user) {
           this.updateCurrentUser(user);
