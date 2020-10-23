@@ -280,8 +280,13 @@ export class SecurityService {
 
   async isAppInitialized(): Promise<boolean> {
     if (this.initialiseAppPromise) {
-      await this.initialiseAppPromise;
-      return true;
+      try {
+        await this.initialiseAppPromise;
+        return true;
+      } catch (e) {
+        this.alertService.exception('Exception while initializing application', e);
+        return false;
+      }
     }
     return false;
   }
