@@ -128,7 +128,7 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.ehcache</groupId>
+            <groupId>net.sf.ehcache</groupId>
             <artifactId>ehcache</artifactId>
             <scope>provided</scope>
         </dependency>
