@@ -49,9 +49,6 @@
         </xsd:complexType>
     </xsd:element>
 
-    <xsd:element name="sendSuccessResponse">
-    </xsd:element>
-
     <xsd:element name="sendFailure">
         <xsd:complexType>
             <xsd:sequence>
@@ -60,18 +57,12 @@
         </xsd:complexType>
     </xsd:element>
 
-    <xsd:element name="sendFailureResponse">
-
-    </xsd:element>
     <xsd:element name="receiveSuccess">
         <xsd:complexType>
             <xsd:sequence>
                 <xsd:element name="messageID" type="tns:max255-non-empty-string"/>
             </xsd:sequence>
         </xsd:complexType>
-    </xsd:element>
-
-    <xsd:element name="receiveSuccessResponse">
     </xsd:element>
 
     <xsd:element name="receiveFailure">
@@ -82,9 +73,6 @@
         </xsd:complexType>
     </xsd:element>
 
-    <xsd:element name="receiveFailureResponse">
-    </xsd:element>
-
     <xsd:element name="messageStatusChange">
         <xsd:complexType>
             <xsd:sequence>
@@ -92,9 +80,6 @@
                 <xsd:element name="messageStatus" type="tns:messageStatus"/>
             </xsd:sequence>
         </xsd:complexType>
-    </xsd:element>
-
-    <xsd:element name="messageStatusChangeResponse">
     </xsd:element>
 
 </xsd:schema>

@@ -17,10 +17,7 @@
         <wsdl:part element="tns:sendSuccess" name="sendSuccess">
         </wsdl:part>
     </wsdl:message>
-    <wsdl:message name="sendSuccessResponse">
-        <wsdl:part element="tns:sendSuccessResponse" name="sendSuccessResponse">
-        </wsdl:part>
-    </wsdl:message>
+    <wsdl:message name="sendSuccessResponse"/>
     <wsdl:message name="sendSuccessFault">
         <wsdl:part element="tns:BackendFaultDetail" name="sendSuccessFault">
         </wsdl:part>
@@ -30,10 +27,7 @@
         <wsdl:part element="tns:sendFailure" name="sendFailure">
         </wsdl:part>
     </wsdl:message>
-    <wsdl:message name="sendFailureResponse">
-        <wsdl:part element="tns:sendFailureResponse" name="sendFailureResponse">
-        </wsdl:part>
-    </wsdl:message>
+    <wsdl:message name="sendFailureResponse"/>
     <wsdl:message name="sendFailureFault">
         <wsdl:part element="tns:BackendFaultDetail" name="sendFailureFault">
         </wsdl:part>
@@ -42,10 +36,7 @@
         <wsdl:part element="tns:receiveSuccess" name="receiveSuccess">
         </wsdl:part>
     </wsdl:message>
-    <wsdl:message name="receiveSuccessResponse">
-        <wsdl:part element="tns:receiveSuccessResponse" name="receiveSuccessResponse">
-        </wsdl:part>
-    </wsdl:message>
+    <wsdl:message name="receiveSuccessResponse"/>
     <wsdl:message name="receiveSuccessFault">
         <wsdl:part element="tns:BackendFaultDetail" name="receiveSuccessFault">
         </wsdl:part>
@@ -55,10 +46,7 @@
         <wsdl:part element="tns:receiveFailure" name="receiveFailure">
         </wsdl:part>
     </wsdl:message>
-    <wsdl:message name="receiveFailureResponse">
-        <wsdl:part element="tns:receiveFailureResponse" name="receiveFailureResponse">
-        </wsdl:part>
-    </wsdl:message>
+    <wsdl:message name="receiveFailureResponse"/>
     <wsdl:message name="receiveFailureFault">
         <wsdl:part element="tns:BackendFaultDetail" name="receiveFailureFault">
         </wsdl:part>
@@ -68,10 +56,7 @@
         <wsdl:part element="tns:messageStatusChange" name="messageStatusChange">
         </wsdl:part>
     </wsdl:message>
-    <wsdl:message name="messageStatusChangeResponse">
-        <wsdl:part element="tns:messageStatusChangeResponse" name="messageStatusChangeResponse">
-        </wsdl:part>
-    </wsdl:message>
+    <wsdl:message name="messageStatusChangeResponse"/>
     <wsdl:message name="messageStatusChangeFault">
         <wsdl:part element="tns:BackendFaultDetail" name="messageStatusChangeFault">
         </wsdl:part>

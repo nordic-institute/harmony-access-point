@@ -20,13 +20,12 @@ public class BackendWebservice implements BackendInterface {
     private final ObjectFactory objectFactory = new ObjectFactory();
 
     @Override
-    public Object sendSuccess(SendSuccess sendSuccess) throws SendSuccessFault {
+    public void sendSuccess(SendSuccess sendSuccess) throws SendSuccessFault {
         String messageID = sendSuccess.getMessageID();
         LOG.info("SendSuccess received for id [{}]", messageID);
         if (StringUtils.containsIgnoreCase(messageID, "err")) {
             throw new SendSuccessFault(getErrorMessage(messageID), getDefaultFaultDetail());
         }
-        return null;
     }
 
     private String getErrorMessage(String messageID) {
@@ -34,43 +33,39 @@ public class BackendWebservice implements BackendInterface {
     }
 
     @Override
-    public Object sendFailure(SendFailure sendSuccess) throws SendFailureFault {
+    public void sendFailure(SendFailure sendSuccess) throws SendFailureFault {
         String messageID = sendSuccess.getMessageID();
         LOG.info("sendFailure received for id [{}]", messageID);
         if (StringUtils.containsIgnoreCase(messageID, "err")) {
             throw new SendFailureFault(getErrorMessage(messageID), getDefaultFaultDetail());
         }
-        return null;
     }
 
     @Override
-    public Object receiveSuccess(ReceiveSuccess sendSuccess) throws ReceiveSuccessFault {
+    public void receiveSuccess(ReceiveSuccess sendSuccess) throws ReceiveSuccessFault {
         String messageID = sendSuccess.getMessageID();
         LOG.info("ReceiveSuccess received for id [{}]", messageID);
         if (StringUtils.containsIgnoreCase(messageID, "err")) {
             throw new ReceiveSuccessFault(getErrorMessage(messageID), getDefaultFaultDetail());
         }
-        return null;
     }
 
     @Override
-    public Object receiveFailure(ReceiveFailure sendSuccess) throws ReceiveFailureFault {
+    public void receiveFailure(ReceiveFailure sendSuccess) throws ReceiveFailureFault {
         String messageID = sendSuccess.getMessageID();
         LOG.info("receiveFailure received for id [{}]", messageID);
         if (StringUtils.containsIgnoreCase(messageID, "err")) {
             throw new ReceiveFailureFault(getErrorMessage(messageID), getDefaultFaultDetail());
         }
-        return null;
     }
 
     @Override
-    public Object messageStatusChange(MessageStatusChange messageStatusChange) throws MessageStatusChangeFault {
+    public void messageStatusChange(MessageStatusChange messageStatusChange) throws MessageStatusChangeFault {
         String messageID = messageStatusChange.getMessageID();
         LOG.info("messageStatusChange received for id [{}] and status [{}]", messageID, messageStatusChange.getMessageStatus());
         if (StringUtils.containsIgnoreCase(messageID, "err")) {
             throw new MessageStatusChangeFault(getErrorMessage(messageID), getDefaultFaultDetail());
         }
-        return null;
     }
 
     private BackendFaultDetail getDefaultFaultDetail() {
