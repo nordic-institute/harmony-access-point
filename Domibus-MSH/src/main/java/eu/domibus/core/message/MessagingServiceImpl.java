@@ -11,11 +11,14 @@ import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.compression.CompressionException;
 import eu.domibus.core.message.compression.CompressionService;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.payload.persistence.PayloadPersistence;
 import eu.domibus.core.payload.persistence.PayloadPersistenceHelper;
 import eu.domibus.core.payload.persistence.PayloadPersistenceProvider;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
+import eu.domibus.core.util.SoapUtil;
 import eu.domibus.ebms3.common.model.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -79,6 +82,8 @@ public class MessagingServiceImpl implements MessagingService {
     protected PayloadPersistenceHelper payloadPersistenceHelper;
 
     @Override
+    @Timer(clazz = MessagingServiceImpl.class, value = "storeMessage")
+    @Counter(clazz = MessagingServiceImpl.class, value = "storeMessage")
     public void storeMessage(Messaging messaging, MSHRole mshRole, final LegConfiguration legConfiguration, String backendName) throws CompressionException {
         if (messaging == null || messaging.getUserMessage() == null) {
             return;
@@ -145,6 +150,8 @@ public class MessagingServiceImpl implements MessagingService {
         }
     }
 
+    @Timer(clazz = MessagingServiceImpl.class, value = "storeSourceMessagePayloads")
+    @Counter(clazz = MessagingServiceImpl.class, value = "storeSourceMessagePayloads")
     protected void storeSourceMessagePayloads(Messaging messaging, MSHRole mshRole, LegConfiguration legConfiguration, String backendName) {
         LOG.debug("Saving the SourceMessage payloads");
 
@@ -165,6 +172,8 @@ public class MessagingServiceImpl implements MessagingService {
     }
 
     @Override
+    @Timer(clazz = MessagingServiceImpl.class, value = "storePayloads")
+    @Counter(clazz = MessagingServiceImpl.class, value = "storePayloads")
     public void storePayloads(Messaging messaging, MSHRole mshRole, LegConfiguration legConfiguration, String backendName) {
         if (messaging.getUserMessage().getPayloadInfo() == null || messaging.getUserMessage().getPayloadInfo().getPartInfo() == null) {
             LOG.debug("No payloads to store");
