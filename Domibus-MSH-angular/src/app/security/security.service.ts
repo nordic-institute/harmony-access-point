@@ -28,6 +28,8 @@ export class SecurityService {
   pluginPasswordPolicy: Promise<PasswordPolicyRO>;
   public password: string;
 
+  private initialiseAppPromise: Promise<User>;
+
   public static async getAllowedRolesForSTandMT(stRoles, mtRoles) {
     let domainService = SecurityService.injector.get<DomainService>(DomainService);
     let isMulti = await domainService.isMultiDomain().toPromise();
@@ -276,20 +278,36 @@ export class SecurityService {
     return this.getCurrentUser() != null;
   }
 
-  async initialiseApp(getUserFn: () => Promise<User>): Promise<User> {
-    this.sessionService.resetCurrentSession();
-    this.clearSession();
-
-    const user: User = await getUserFn();
-
-    if (user) {
-      this.updateCurrentUser(user);
-      this.domainService.setAppTitle();
-      this.sessionService.updateCurrentSession(SessionState.ACTIVE);
-    } else {
-      console.warn(getUserFn.name + ' method returned an empty user.');
+  async isAppInitialized(): Promise<boolean> {
+    if (this.initialiseAppPromise) {
+      await this.initialiseAppPromise;
+      return true;
     }
-    return user;
+    return false;
   }
+
+  initialiseApp(getUserFn: () => Promise<User>): Promise<User> {
+    this.initialiseAppPromise = new Promise((resolve, reject) => {
+      this.sessionService.resetCurrentSession();
+      this.clearSession();
+      console.log('Calling getUserFn');
+      getUserFn().then((user: User) => {
+        if (user) {
+          this.updateCurrentUser(user);
+          this.domainService.setAppTitle();
+          this.sessionService.updateCurrentSession(SessionState.ACTIVE);
+        } else {
+          console.warn(getUserFn.name + ' method returned an empty user.');
+        }
+        resolve(user);
+      }, err => {
+        console.log('Error while calling ' + getUserFn.name + ' function: ', err);
+        reject(err);
+      });
+    });
+
+    return this.initialiseAppPromise;
+  }
+
 }
 
