@@ -163,16 +163,26 @@ public interface UserMessageService {
     byte[] getMessageWithAttachmentsAsZip(String messageId) throws MessageNotFoundException, IOException;
 
     /**
-     * @param messageId
-     * @return
-     * @throws MessageNotFoundException
-     * @throws IOException
+     * Retrieves the user and signal message envelopes xmls as a zip file(used for downloading a message)
+     *
+     * @param messageId user message id
+     * @return a zip file with the envelopes
      */
-//    byte[] getMessageEnvelopesAsZip(String messageType, String messageId) throws MessageNotFoundException, IOException;
     byte[] getMessageEnvelopesAsZip(String messageId);
 
-    //    String getMessageEnvelope(String messageId, String messageType);
-    String getUserMessageEnvelope(String messageId);
+    /**
+     * Retrieves the user message envelope xml
+     *
+     * @param userMessageId user message id
+     * @return a string representing the envelope in xml format
+     */
+    String getUserMessageEnvelope(String userMessageId);
 
+    /**
+     * Retrieves the signal message envelope xml corresponding to the user message with the specified id
+     *
+     * @param userMessageId user message id
+     * @return a string representing the envelope in xml format
+     */
     String getSignalMessageEnvelope(String userMessageId);
 }
