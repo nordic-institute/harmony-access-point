@@ -26,8 +26,8 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <cxf.version>3.3.6</cxf.version>
-        <spring.version>5.2.4.RELEASE</spring.version>
-        <spring.security.version>5.3.2.RELEASE</spring.security.version>
+        <spring.version>5.2.9.RELEASE</spring.version>
+        <spring.security.version>5.4.1</spring.security.version>
         <hibernate.version>5.4.18.Final</hibernate.version>
         <hibernate.validator.version>5.1.2.Final</hibernate.validator.version>
         <activemq.version>5.15.13</activemq.version>
@@ -174,7 +174,7 @@
         </pluginRepository>
         <pluginRepository>
             <id>SmartBearPluginRepository</id>
-            <url>https://www.soapui.org/repository/maven2</url>
+            <url>/repository/maven2</url>
         </pluginRepository>
         <pluginRepository>
             <id>smartbear</id>
