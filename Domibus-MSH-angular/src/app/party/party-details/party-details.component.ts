@@ -258,4 +258,10 @@ export class PartyDetailsComponent extends EditPopupBaseComponent implements OnI
     row.isResponder = !row.isResponder;
     this.markDirty();
   }
+
+  onImportClicked($event: MouseEvent) {
+    if (!this.party.name) {
+      $event.preventDefault();
+    }
+  }
 }
