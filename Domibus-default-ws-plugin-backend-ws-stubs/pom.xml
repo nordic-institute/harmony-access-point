@@ -16,6 +16,24 @@
     <artifactId>domibus-default-ws-plugin-backend-ws-stubs</artifactId>
     <name>Domibus MSH Backend WS Stubs</name>
 
+     <dependencies>
+            <!-- these dependencies are not included in jdk11 -->
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.activation</groupId>
+            <artifactId>activation</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.xml.ws</groupId>
+            <artifactId>jaxws-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
     <build>
         <plugins>
 
