@@ -85,11 +85,10 @@ public class MessageLogResource extends BaseResource {
         this.messagesLogService = messagesLogService;
         this.uiReplicationSignalService = uiReplicationSignalService;
         this.domibusConfigurationService = domibusConfigurationService;
-
-        init();
     }
 
-    protected void init() {
+    @PostConstruct
+    public void init() {
         SimpleDateFormat ft = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
         try {
             defaultFrom = ft.parse("1970-01-01 23:59:00");
@@ -210,7 +209,7 @@ public class MessageLogResource extends BaseResource {
 
     private List<String> getExcludedProperties() {
         List<String> excludedProperties = Lists.newArrayList(PROPERTY_SOURCE_MESSAGE, PROPERTY_MESSAGE_FRAGMENT);
-        if(!domibusConfigurationService.isFourCornerEnabled()) {
+        if (!domibusConfigurationService.isFourCornerEnabled()) {
             excludedProperties.add(PROPERTY_ORIGINAL_SENDER);
             excludedProperties.add(PROPERTY_FINAL_RECIPIENT);
         }
