@@ -1,7 +1,7 @@
 
 package eu.domibus.core.ebms3.sender.client;
 
-import eu.domibus.api.http.TLSReaderService;
+import eu.domibus.api.cxf.TLSReaderService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -21,10 +21,10 @@ import java.util.Optional;
  * @author Christian Koch, Stefan Mueller
  */
 @Service
-public class TLSReader implements TLSReaderService {
+public class TLSReaderServiceImpl implements TLSReaderService {
     public static final String CLIENT_AUTHENTICATION_XML = "clientauthentication.xml";
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TLSReader.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TLSReaderServiceImpl.class);
 
     public static final String REGEX_DOMIBUS_CONFIG_LOCATION = "\\Q${domibus.config.location}\\E";
 

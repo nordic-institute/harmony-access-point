@@ -6,6 +6,7 @@ import eu.domibus.ext.services.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.webService.property.WSPluginPropertyManager;
+import eu.domibus.webservice.backend.generated.BackendInterface;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -13,10 +14,15 @@ import org.springframework.context.annotation.Configuration;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
+import javax.xml.soap.MessageFactory;
+import javax.xml.soap.SOAPConstants;
+import javax.xml.soap.SOAPException;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.function.Predicate;
+
+import static eu.domibus.plugin.webService.configuration.WSPluginConfiguration.JAXB_CONTEXT_WEBSERVICE_BACKEND;
 
 /**
  * @author François Gautier
@@ -24,26 +30,45 @@ import java.util.function.Predicate;
  */
 @Configuration
 public class WSPluginDispatcherConfiguration {
+
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginDispatcherConfiguration.class);
 
-    @Bean(name = "jaxbContextWebserviceBackend")
+    @Bean(name = JAXB_CONTEXT_WEBSERVICE_BACKEND)
     public JAXBContext jaxbContextWebserviceBackend() throws JAXBException {
-        return JAXBContext.newInstance("eu.domibus.webservice.backend.generated");
+        return JAXBContext.newInstance(BackendInterface.class.getPackage().getName());
     }
 
     @Bean
-    public WSPluginDispatcher wsPluginDispatcher(@Qualifier("taskExecutor") Executor executor,
-                                                 @Qualifier(value = "jaxbContextWebserviceBackend") JAXBContext jaxbContextWebserviceBackend,
+    public WSPluginDispatcher wsPluginDispatcher(@Qualifier(value = JAXB_CONTEXT_WEBSERVICE_BACKEND) JAXBContext jaxbContextWebserviceBackend,
                                                  DomainContextExtService domainContextExtService,
-                                                 TLSReaderExtService tlsReaderDelegate,
-                                                 ProxyUtilExtService proxyUtilExtService,
-                                                 WSPluginPropertyManager wsPluginPropertyManager) {
-        return new WSPluginDispatcher(executor,
-                jaxbContextWebserviceBackend,
+                                                 XMLUtilExtService xmlUtilExtService,
+                                                 WSPluginDispatchClientProvider wsPluginDispatchClientProvider) {
+        return new WSPluginDispatcher(jaxbContextWebserviceBackend,
                 domainContextExtService,
+                xmlUtilExtService,
+                wsPluginDispatchClientProvider);
+    }
+
+    @Bean
+    public WSPluginDispatchClientProvider wsPluginDispatchClientProvider(@Qualifier("taskExecutor") Executor executor,
+                                              TLSReaderExtService tlsReaderDelegate,
+                                              ProxyUtilExtService proxyUtilExtService,
+                                              WSPluginPropertyManager wsPluginPropertyManager){
+        return new WSPluginDispatchClientProvider(executor,
                 tlsReaderDelegate,
                 proxyUtilExtService,
                 wsPluginPropertyManager);
+    }
+
+    @Bean
+    public XMLUtilExtService xmlUtilExtService() {
+        return () -> {
+            try {
+                return MessageFactory.newInstance(SOAPConstants.SOAP_1_2_PROTOCOL);
+            } catch (SOAPException e) {
+                throw new IllegalStateException("MessageFactory.newInstance(SOAPConstants.SOAP_1_2_PROTOCOL) could not be build");
+            }
+        };
     }
 
     @Bean

@@ -1,6 +1,6 @@
 package eu.domibus.ext.delegate.services.http;
 
-import eu.domibus.api.http.TLSReaderService;
+import eu.domibus.api.cxf.TLSReaderService;
 import eu.domibus.ext.services.TLSReaderExtService;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.springframework.stereotype.Service;

@@ -1,6 +1,6 @@
 package eu.domibus.core.proxy;
 
-import eu.domibus.api.http.ProxyUtilService;
+import eu.domibus.api.cxf.http.ProxyUtilService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.BooleanUtils;

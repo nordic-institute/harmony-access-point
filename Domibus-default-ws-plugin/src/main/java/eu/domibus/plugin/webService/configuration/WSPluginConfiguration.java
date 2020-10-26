@@ -12,6 +12,7 @@ import eu.domibus.plugin.webService.impl.WSPluginFaultOutInterceptor;
 import eu.domibus.plugin.webService.impl.WebServicePluginImpl;
 import eu.domibus.plugin.webService.logging.WSPluginLoggingEventSender;
 import eu.domibus.plugin.webService.property.WSPluginPropertyManager;
+import eu.domibus.webservice.backend.generated.BackendInterface;
 import org.apache.cxf.Bus;
 import org.apache.cxf.ext.logging.LoggingFeature;
 import org.apache.cxf.jaxws.EndpointImpl;
@@ -41,11 +42,11 @@ public class WSPluginConfiguration {
     public static final String DOMIBUS_LOGGING_PAYLOAD_PRINT = "domibus.logging.payload.print";
     public static final String DOMIBUS_LOGGING_METADATA_PRINT = "domibus.logging.metadata.print";
     public static final String DOMIBUS_LOGGING_CXF_LIMIT = "domibus.logging.cxf.limit";
+    public static final String JAXB_CONTEXT_WEBSERVICE_BACKEND = "jaxbContextWebserviceBackend";
 
-
-    @Bean("jaxbContextWebserviceBackend")
+    @Bean(JAXB_CONTEXT_WEBSERVICE_BACKEND)
     public JAXBContext jaxbContextEBMS() throws JAXBException {
-        return JAXBContext.newInstance("eu.domibus.webservice.backend.generated");
+        return JAXBContext.newInstance(BackendInterface.class.getPackage().getName());
     }
 
     @Bean("backendWebservice")

@@ -1,4 +1,4 @@
-package eu.domibus.api.http;
+package eu.domibus.api.cxf.http;
 
 import org.apache.http.client.CredentialsProvider;
 import org.apache.cxf.transport.http.HTTPConduit;
@@ -10,7 +10,10 @@ import org.apache.http.HttpHost;
  * @since 5.0
  */
 public interface ProxyUtilService {
+
     HttpHost getConfiguredProxy();
+
     CredentialsProvider getConfiguredCredentialsProvider();
+
     void configureProxy(HTTPClientPolicy httpClientPolicy, HTTPConduit httpConduit);
 }

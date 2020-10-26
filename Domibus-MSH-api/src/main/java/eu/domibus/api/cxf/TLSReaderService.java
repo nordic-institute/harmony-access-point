@@ -1,4 +1,4 @@
-package eu.domibus.api.http;
+package eu.domibus.api.cxf;
 
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 

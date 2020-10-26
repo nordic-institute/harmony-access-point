@@ -1,6 +1,6 @@
 package eu.domibus.ext.delegate.services.http;
 
-import eu.domibus.api.http.ProxyUtilService;
+import eu.domibus.api.cxf.http.ProxyUtilService;
 import eu.domibus.ext.services.ProxyUtilExtService;
 import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
