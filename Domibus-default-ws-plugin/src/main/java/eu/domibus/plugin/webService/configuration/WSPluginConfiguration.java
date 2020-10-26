@@ -21,6 +21,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 
 import javax.jms.Queue;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
 import javax.xml.ws.Endpoint;
 import java.util.*;
 
@@ -40,6 +42,11 @@ public class WSPluginConfiguration {
     public static final String DOMIBUS_LOGGING_METADATA_PRINT = "domibus.logging.metadata.print";
     public static final String DOMIBUS_LOGGING_CXF_LIMIT = "domibus.logging.cxf.limit";
 
+
+    @Bean("jaxbContextWebserviceBackend")
+    public JAXBContext jaxbContextEBMS() throws JAXBException {
+        return JAXBContext.newInstance("eu.domibus.webservice.backend.generated");
+    }
 
     @Bean("backendWebservice")
     public WebServicePluginImpl createWSPlugin(DomibusPropertyExtService domibusPropertyExtService) {

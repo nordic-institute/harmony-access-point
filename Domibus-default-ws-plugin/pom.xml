@@ -55,6 +55,7 @@
             <artifactId>cxf-rt-transports-local</artifactId>
         </dependency>
         <!--        CXF END-->
+        <!--        Domibus Start     -->
         <dependency>
             <groupId>eu.domibus</groupId>
             <artifactId>domibus-plugin-api</artifactId>
@@ -75,8 +76,15 @@
         </dependency>
         <dependency>
             <groupId>eu.domibus</groupId>
+            <artifactId>domibus-default-ws-plugin-backend-ws-stubs</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>eu.domibus</groupId>
             <artifactId>domibus-logging</artifactId>
         </dependency>
+        <!--       Domibus End      -->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
@@ -132,7 +140,7 @@
             <artifactId>ehcache</artifactId>
             <scope>provided</scope>
         </dependency>
-        <!-- Tests -->
+        <!--        START TEST        -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -143,6 +151,18 @@
             <artifactId>jmockit</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>eu.domibus</groupId>
+            <artifactId>domibus-default-ws-plugin-backend-ws-test</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <!--        END TEST        -->
     </dependencies>
     <build>
         <plugins>

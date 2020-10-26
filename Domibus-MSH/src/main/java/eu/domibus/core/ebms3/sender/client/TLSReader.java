@@ -1,6 +1,7 @@
 
 package eu.domibus.core.ebms3.sender.client;
 
+import eu.domibus.api.http.TLSReaderService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -10,8 +11,6 @@ import org.apache.cxf.configuration.jsse.TLSClientParametersConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -22,7 +21,7 @@ import java.util.Optional;
  * @author Christian Koch, Stefan Mueller
  */
 @Service
-public class TLSReader {
+public class TLSReader implements TLSReaderService {
     public static final String CLIENT_AUTHENTICATION_XML = "clientauthentication.xml";
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TLSReader.class);
