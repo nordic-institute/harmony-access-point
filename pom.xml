@@ -762,7 +762,7 @@
             <dependency>
                 <groupId>javax.cache</groupId>
                 <artifactId>cache-api</artifactId>
-                <version>1.0.0</version>
+                <version>1.1.1</version>
             </dependency>
 
             <!-- XStream -->
@@ -1355,8 +1355,8 @@
             </activation>
             <modules>
                 <module>Domibus-ws-stubs</module>
-<!--                <module>Domibus-default-ws-plugin-backend-ws-stubs</module>-->
-<!--                <module>Domibus-default-ws-plugin-backend-ws-test</module>-->
+                <module>Domibus-default-ws-plugin-backend-ws-stubs</module>
+                <module>Domibus-default-ws-plugin-backend-ws-test</module>
                 <module>Domibus-default-ws-plugin</module>
                 <module>Domibus-default-jms-plugin</module>
                 <module>Domibus-default-fs-plugin</module>

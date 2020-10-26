@@ -2,8 +2,9 @@ package eu.domibus.core.crypto.spi.dss;
 
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.Element;
+import org.ehcache.Cache;
+//import net.sf.ehcache.Cache;
+//import net.sf.ehcache.Element;
 
 /**
  * @author Thomas Dussart
@@ -23,7 +24,7 @@ public class DssCache {
 
     public void addToCache(final String key, Boolean valid) {
         LOG.debug("Add certificate chain key to cache:[{}], valid:[{}]", key, valid);
-        cache.putIfAbsent(new Element(key, valid));
+        cache.putIfAbsent(key, valid);
     }
 
     public boolean isChainValid(final String key) {
@@ -34,6 +35,7 @@ public class DssCache {
 
     public void clear(){
         LOG.info("Clearing DSS cache");
-        cache.removeAll();
+//        cache.removeAll();
+        cache.clear();
     }
 }

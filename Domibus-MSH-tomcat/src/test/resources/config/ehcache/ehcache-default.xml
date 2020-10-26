@@ -47,9 +47,11 @@
 
     <cache alias="jmsDestinations" uses-template="default-values"/>
 
+
     <cache-template name="default-values">
         <expiry>
             <ttl unit="seconds">3600</ttl>
         </expiry>
+        <heap unit="entries">200</heap>
     </cache-template>
 </config>

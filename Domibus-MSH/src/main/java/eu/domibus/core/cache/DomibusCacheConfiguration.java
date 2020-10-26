@@ -5,11 +5,14 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.jcache.JCacheCacheManager;
-import org.springframework.cache.jcache.JCacheManagerFactoryBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ClassPathResource;
 
-import java.net.URISyntaxException;
+import javax.cache.CacheManager;
+import javax.cache.Caching;
+import javax.cache.spi.CachingProvider;
+import java.io.File;
 
 /**
  * @author Cosmin Baciu
@@ -28,19 +31,18 @@ public class DomibusCacheConfiguration {
     @Value("${domibus.config.location}/plugins/config")
     protected String pluginsConfigLocation;
 
+    @Bean(name = "cacheManager")
+    public org.springframework.cache.CacheManager cacheManager() throws  Exception {
+        CachingProvider provider = Caching.getCachingProvider();
 
-    @Bean
-    public JCacheCacheManager jCacheCacheManager(JCacheManagerFactoryBean jCacheManagerFactoryBean){
-        JCacheCacheManager jCacheCacheManager = new JCacheCacheManager();
-        jCacheCacheManager.setCacheManager(jCacheManagerFactoryBean.getObject());
-        return jCacheCacheManager;
-    }
+        //default cache first
+        final ClassPathResource classPathResource = new ClassPathResource("config/ehcache/ehcache-default.xml");
 
-    @Bean
-    public JCacheManagerFactoryBean jCacheManagerFactoryBean() throws URISyntaxException {
-        JCacheManagerFactoryBean jCacheManagerFactoryBean = new JCacheManagerFactoryBean();
-        jCacheManagerFactoryBean.setCacheManagerUri(getClass().getResource("config/ehcache/ehcache-default.xml").toURI());
-        return jCacheManagerFactoryBean;
+        CacheManager cacheManager = provider.getCacheManager(
+                classPathResource.getURL().toURI(),
+                getClass().getClassLoader());
+
+        return new JCacheCacheManager(cacheManager);
     }
 
 //    @Bean(name = "cacheManager")
@@ -67,9 +69,9 @@ public class DomibusCacheConfiguration {
 //        return ehCacheManagerFactoryBean;
 //    }
 //
-//    protected boolean externalCacheFileExists() {
-//        return new File(externalEhCacheFile).exists();
-//    }
+    protected boolean externalCacheFileExists() {
+        return new File(externalEhCacheFile).exists();
+    }
 //
 //    /**
 //     * Get the configuration defined in the external ehcache.xml file and merge it into the default ehcache-default.xml configuration.
