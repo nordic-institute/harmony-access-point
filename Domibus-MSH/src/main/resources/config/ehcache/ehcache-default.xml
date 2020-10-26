@@ -1,97 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config
+        xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+        xmlns:jsr107='http://www.ehcache.org/v3/jsr107'
+        xmlns='http://www.ehcache.org/v3'
+        xsi:schemaLocation="
+        http://www.ehcache.org/v3 http://www.ehcache.org/schema/ehcache-core-3.5.xsd
+        http://www.ehcache.org/v3/jsr107 http://www.ehcache.org/schema/ehcache-107-ext-3.5.xsd">
+
+    <service>
+        <jsr107:defaults enable-management="false" enable-statistics="true"/>
+    </service>
+
+    <cache alias="policyCache" uses-template="default-values">
+<!--        <key-type>java.lang.String</key-type>-->
+<!--        <value-type>org.apache.neethi.Policy</value-type>-->
+
+
+    </cache>
+    <cache alias="tlsCache">
+<!--        <key-type>java.lang.String</key-type>-->
+<!--        <value-type>org.apache.cxf.configuration.jsse.TLSClientParameters</value-type>-->
+    </cache>
+
+    <cache-template name="default-values">
+        <expiry>
+            <ttl unit="seconds">3600</ttl>
+        </expiry>
+    </cache-template>
+</config>
+
+
+
 
 
 <!-- Security Policy cache configuration -->
-<ehcache>
-    <cache name="policyCache"
-           maxBytesLocalHeap="5m"
-           timeToLiveSeconds="3600"
-           overflowToDisk="false" >
-    </cache>
-    <cache name="backendFilterCache"
-           maxBytesLocalHeap="5m"
-           timeToLiveSeconds="3600"
-           overflowToDisk="false">
-    </cache>
-    <cache name="tlsCache"
-           maxBytesLocalHeap="5m"
-           timeToLiveSeconds="3600"
-           overflowToDisk="false">
-        <sizeOfPolicy maxDepth="100" maxDepthExceededBehavior="abort"/>
-    </cache>
-    <cache name="certValidationByAlias"
-           maxBytesLocalHeap="5m"
-           timeToLiveSeconds="3600"
-           overflowToDisk="false">
-    </cache>
-    <cache name="crlByCert"
-           maxBytesLocalHeap="5m"
-           timeToLiveSeconds="3600"
-           overflowToDisk="false">
-    </cache>
-    <cache name="lookupInfo"
-           maxBytesLocalHeap="5m"
-           timeToLiveSeconds="3600"
-           overflowToDisk="false">
-    </cache>
-    <cache name="dispatchClient"
-           maxBytesLocalHeap="10m"
-           timeToLiveSeconds="3600"
-           overflowToDisk="false">
-    </cache>
-    <cache name="auditTarget"
-           maxBytesLocalHeap="5m"
-           timeToLiveSeconds="3600"
-           overflowToDisk="false">
-    </cache>
-    <cache name="userDomain"
-           maxBytesLocalHeap="5m"
-           timeToLiveSeconds="3600"
-           overflowToDisk="false">
-    </cache>
-    <cache name="preferredUserDomain"
-           maxBytesLocalHeap="5m"
-           timeToLiveSeconds="3600"
-           overflowToDisk="false">
-    </cache>
-    <cache name="allDomains"
-           maxBytesLocalHeap="5m"
-           timeToLiveSeconds="3600"
-           overflowToDisk="false">
-    </cache>
-    <cache name="domainByCode"
-           maxBytesLocalHeap="5m"
-           timeToLiveSeconds="3600"
-           overflowToDisk="false">
-    </cache>
-    <cache name="domainByScheduler"
-           maxBytesLocalHeap="5m"
-           timeToLiveSeconds="3600"
-           overflowToDisk="false">
-    </cache>
-    <cache name="dss-cache"
-           maxBytesLocalHeap="5m"
-           timeToLiveSeconds="600"
-           overflowToDisk="false">
-    </cache>
-    <cache name="encryptionKey"
-           maxBytesLocalHeap="5m"
-           timeToLiveSeconds="3600"
-           overflowToDisk="false">
-    </cache>
-    <cache name="passwordEncryptionKey"
-           maxBytesLocalHeap="5m"
-           timeToLiveSeconds="3600"
-           overflowToDisk="false">
-    </cache>
-    <cache name="multitenantCache"
-           maxBytesLocalHeap="5m"
-           timeToLiveSeconds="3600"
-           overflowToDisk="false">
-    </cache>
-    <cache name="jmsDestinations"
-           maxBytesLocalHeap="5m"
-           timeToLiveSeconds="300"
-           overflowToDisk="false">
-    </cache>
+<!--<ehcache>-->
+<!--    <cache name="policyCache"-->
+<!--           maxBytesLocalHeap="5m"-->
+<!--           timeToLiveSeconds="3600"-->
+<!--           overflowToDisk="false" >-->
+<!--    </cache>-->
+<!--    <cache name="backendFilterCache"-->
+<!--           maxBytesLocalHeap="5m"-->
+<!--           timeToLiveSeconds="3600"-->
+<!--           overflowToDisk="false">-->
+<!--    </cache>-->
+<!--    <cache name="tlsCache"-->
+<!--           maxBytesLocalHeap="5m"-->
+<!--           timeToLiveSeconds="3600"-->
+<!--           overflowToDisk="false">-->
+<!--        <sizeOfPolicy maxDepth="100" maxDepthExceededBehavior="abort"/>-->
+<!--    </cache>-->
+<!--    <cache name="certValidationByAlias"-->
+<!--           maxBytesLocalHeap="5m"-->
+<!--           timeToLiveSeconds="3600"-->
+<!--           overflowToDisk="false">-->
+<!--    </cache>-->
+<!--    <cache name="crlByCert"-->
+<!--           maxBytesLocalHeap="5m"-->
+<!--           timeToLiveSeconds="3600"-->
+<!--           overflowToDisk="false">-->
+<!--    </cache>-->
+<!--    <cache name="lookupInfo"-->
+<!--           maxBytesLocalHeap="5m"-->
+<!--           timeToLiveSeconds="3600"-->
+<!--           overflowToDisk="false">-->
+<!--    </cache>-->
+<!--    <cache name="dispatchClient"-->
+<!--           maxBytesLocalHeap="10m"-->
+<!--           timeToLiveSeconds="3600"-->
+<!--           overflowToDisk="false">-->
+<!--    </cache>-->
+<!--    <cache name="auditTarget"-->
+<!--           maxBytesLocalHeap="5m"-->
+<!--           timeToLiveSeconds="3600"-->
+<!--           overflowToDisk="false">-->
+<!--    </cache>-->
+<!--    <cache name="userDomain"-->
+<!--           maxBytesLocalHeap="5m"-->
+<!--           timeToLiveSeconds="3600"-->
+<!--           overflowToDisk="false">-->
+<!--    </cache>-->
+<!--    <cache name="preferredUserDomain"-->
+<!--           maxBytesLocalHeap="5m"-->
+<!--           timeToLiveSeconds="3600"-->
+<!--           overflowToDisk="false">-->
+<!--    </cache>-->
+<!--    <cache name="allDomains"-->
+<!--           maxBytesLocalHeap="5m"-->
+<!--           timeToLiveSeconds="3600"-->
+<!--           overflowToDisk="false">-->
+<!--    </cache>-->
+<!--    <cache name="domainByCode"-->
+<!--           maxBytesLocalHeap="5m"-->
+<!--           timeToLiveSeconds="3600"-->
+<!--           overflowToDisk="false">-->
+<!--    </cache>-->
+<!--    <cache name="domainByScheduler"-->
+<!--           maxBytesLocalHeap="5m"-->
+<!--           timeToLiveSeconds="3600"-->
+<!--           overflowToDisk="false">-->
+<!--    </cache>-->
+<!--    <cache name="dss-cache"-->
+<!--           maxBytesLocalHeap="5m"-->
+<!--           timeToLiveSeconds="600"-->
+<!--           overflowToDisk="false">-->
+<!--    </cache>-->
+<!--    <cache name="encryptionKey"-->
+<!--           maxBytesLocalHeap="5m"-->
+<!--           timeToLiveSeconds="3600"-->
+<!--           overflowToDisk="false">-->
+<!--    </cache>-->
+<!--    <cache name="passwordEncryptionKey"-->
+<!--           maxBytesLocalHeap="5m"-->
+<!--           timeToLiveSeconds="3600"-->
+<!--           overflowToDisk="false">-->
+<!--    </cache>-->
+<!--    <cache name="multitenantCache"-->
+<!--           maxBytesLocalHeap="5m"-->
+<!--           timeToLiveSeconds="3600"-->
+<!--           overflowToDisk="false">-->
+<!--    </cache>-->
+<!--    <cache name="jmsDestinations"-->
+<!--           maxBytesLocalHeap="5m"-->
+<!--           timeToLiveSeconds="300"-->
+<!--           overflowToDisk="false">-->
+<!--    </cache>-->
 
-</ehcache>
+<!--</ehcache>-->

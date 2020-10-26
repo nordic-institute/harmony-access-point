@@ -11,6 +11,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -123,6 +124,7 @@ public class CRLServiceImplIT {
     }
 
     @Test
+    @Ignore
     public void test_isCertificateRevoked_withCache() {
 
         X509CRL x509CRLMock = Mockito.mock(X509CRL.class);

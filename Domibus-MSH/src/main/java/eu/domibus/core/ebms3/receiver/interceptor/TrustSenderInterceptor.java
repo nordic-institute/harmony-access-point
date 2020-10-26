@@ -40,6 +40,7 @@ import org.apache.wss4j.dom.str.EncryptedKeySTRParser;
 import org.apache.wss4j.dom.str.STRParserParameters;
 import org.apache.wss4j.dom.str.STRParserResult;
 import org.apache.wss4j.dom.util.WSSecurityUtil;
+import org.apache.xml.security.c14n.InvalidCanonicalizerException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Element;
@@ -230,7 +231,11 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
         }
 
         requestData.setWssConfig(config);
-        requestData.setEncryptionSerializer(new StaxSerializer());
+        try {
+            requestData.setEncryptionSerializer(new StaxSerializer());
+        } catch (InvalidCanonicalizerException e) {
+            LOG.error("Unable to setEncryptionSerializer: ", e);
+        }
 
         SoapVersion version = msg.getVersion();
         SAAJInInterceptor.INSTANCE.handleMessage(msg);

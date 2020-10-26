@@ -6,6 +6,7 @@ import org.apache.cxf.resource.ResourceManager;
 import org.apache.cxf.rt.security.utils.SecurityUtils;
 import org.apache.cxf.ws.security.SecurityConstants;
 import org.apache.cxf.ws.security.tokenstore.EHCacheTokenStore;
+import org.apache.cxf.ws.security.tokenstore.TokenStoreException;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -25,6 +26,14 @@ public class CXFCacheConfiguration {
         final ResourceManager resourceManager = bus.getExtension(ResourceManager.class);
         final URL url = SecurityUtils.loadResource(resourceManager, "cxf-ehcache.xml");
         LOG.debug("Loading the CXF EHCacheTokenStore from [{}]", url);
-        return new EHCacheTokenStore(SecurityConstants.TOKEN_STORE_CACHE_INSTANCE, bus, url);
+
+        EHCacheTokenStore ehCacheTokenStore = null;
+        try {
+            ehCacheTokenStore = new EHCacheTokenStore(SecurityConstants.TOKEN_STORE_CACHE_INSTANCE, bus, url);
+        } catch (TokenStoreException e) {
+            LOG.error("Unable to create a new EHCacheTokenStore: ", e);
+        }
+
+        return ehCacheTokenStore ;
     }
 }

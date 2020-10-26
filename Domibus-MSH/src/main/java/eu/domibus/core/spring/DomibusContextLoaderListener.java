@@ -4,7 +4,6 @@ import ch.qos.logback.classic.LoggerContext;
 import eu.domibus.core.plugin.classloader.PluginClassLoader;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import net.sf.ehcache.constructs.web.ShutdownListener;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
@@ -58,7 +57,14 @@ public class DomibusContextLoaderListener extends ContextLoaderListener {
     }
 
     protected void shutdownEhCache(ServletContextEvent servletContextEvent) {
-        LOG.info("Shutting down net.sf.ehcache");
-        new ShutdownListener().contextDestroyed(servletContextEvent);
+        LOG.info("Shutting down org.ehcache");
+        //TODO enachca Check later
+//        List knownCacheManagers = CacheManager.ALL_CACHE_MANAGERS;
+//        if (LOG.isDebugEnabled()) {
+//            LOG.debug("Shutting down " + knownCacheManagers.size() + " CacheManagers.");
+//        }
+//        while (!knownCacheManagers.isEmpty()) {
+//            ((CacheManager) CacheManager.ALL_CACHE_MANAGERS.get(0)).shutdown();
+//        }
     }
 }
