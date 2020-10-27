@@ -9,57 +9,47 @@
     <wsdl:types>
 
         <schema xmlns="http://www.w3.org/2001/XMLSchema">
-            <import namespace="eu.domibus" schemaLocation="backend.xsd"/>
+            <import namespace="eu.domibus" schemaLocation="BackendService.xsd"/>
         </schema>
     </wsdl:types>
 
     <wsdl:message name="sendSuccess">
-        <wsdl:part element="tns:sendSuccess" name="sendSuccess">
-        </wsdl:part>
+        <wsdl:part element="tns:sendSuccess" name="sendSuccess"/>
     </wsdl:message>
     <wsdl:message name="sendSuccessResponse"/>
     <wsdl:message name="sendSuccessFault">
-        <wsdl:part element="tns:BackendFaultDetail" name="sendSuccessFault">
-        </wsdl:part>
+        <wsdl:part element="tns:BackendFaultDetail" name="sendSuccessFault"/>
     </wsdl:message>
 
     <wsdl:message name="sendFailure">
-        <wsdl:part element="tns:sendFailure" name="sendFailure">
-        </wsdl:part>
+        <wsdl:part element="tns:sendFailure" name="sendFailure"/>
     </wsdl:message>
     <wsdl:message name="sendFailureResponse"/>
     <wsdl:message name="sendFailureFault">
-        <wsdl:part element="tns:BackendFaultDetail" name="sendFailureFault">
-        </wsdl:part>
+        <wsdl:part element="tns:BackendFaultDetail" name="sendFailureFault"/>
     </wsdl:message>
     <wsdl:message name="receiveSuccess">
-        <wsdl:part element="tns:receiveSuccess" name="receiveSuccess">
-        </wsdl:part>
+        <wsdl:part element="tns:receiveSuccess" name="receiveSuccess"/>
     </wsdl:message>
     <wsdl:message name="receiveSuccessResponse"/>
     <wsdl:message name="receiveSuccessFault">
-        <wsdl:part element="tns:BackendFaultDetail" name="receiveSuccessFault">
-        </wsdl:part>
+        <wsdl:part element="tns:BackendFaultDetail" name="receiveSuccessFault"/>
     </wsdl:message>
 
     <wsdl:message name="receiveFailure">
-        <wsdl:part element="tns:receiveFailure" name="receiveFailure">
-        </wsdl:part>
+        <wsdl:part element="tns:receiveFailure" name="receiveFailure"/>
     </wsdl:message>
     <wsdl:message name="receiveFailureResponse"/>
     <wsdl:message name="receiveFailureFault">
-        <wsdl:part element="tns:BackendFaultDetail" name="receiveFailureFault">
-        </wsdl:part>
+        <wsdl:part element="tns:BackendFaultDetail" name="receiveFailureFault"/>
     </wsdl:message>
 
     <wsdl:message name="messageStatusChange">
-        <wsdl:part element="tns:messageStatusChange" name="messageStatusChange">
-        </wsdl:part>
+        <wsdl:part element="tns:messageStatusChange" name="messageStatusChange"/>
     </wsdl:message>
     <wsdl:message name="messageStatusChangeResponse"/>
     <wsdl:message name="messageStatusChangeFault">
-        <wsdl:part element="tns:BackendFaultDetail" name="messageStatusChangeFault">
-        </wsdl:part>
+        <wsdl:part element="tns:BackendFaultDetail" name="messageStatusChangeFault"/>
     </wsdl:message>
 
     <wsdl:portType name="BackendInterface">
