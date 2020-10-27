@@ -149,4 +149,5 @@ public interface DomibusPropertyExtService {
     @Deprecated
     String getResolvedProperty(String propertyName);
 
+    void setProperty(DomainDTO domain, String propertyName, String propertyValue, boolean broadcast);
 }
