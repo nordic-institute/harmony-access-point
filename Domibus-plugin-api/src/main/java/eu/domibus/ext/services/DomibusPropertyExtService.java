@@ -6,6 +6,7 @@ import eu.domibus.ext.domain.DomainDTO;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
+
 /**
  * Responsible for property related operations
  *
@@ -25,7 +26,7 @@ public interface DomibusPropertyExtService {
     /**
      * Gets the property value with the provided name for a specific domain
      *
-     * @param domain The domain property
+     * @param domain       The domain property
      * @param propertyName The property name for which the value is retrieved
      * @return The property value
      */
@@ -49,6 +50,7 @@ public interface DomibusPropertyExtService {
 
     /**
      * Returns all property names for which the given predicate is true
+     *
      * @param predicate the predicate to filter with
      * @return A set of property names
      */
@@ -67,6 +69,7 @@ public interface DomibusPropertyExtService {
 
     /**
      * Get the list of configured message notifications, separated by comma, configured in the plugin property file
+     *
      * @param notificationPropertyName The property name
      * @return the list of message notifications
      */
@@ -93,7 +96,7 @@ public interface DomibusPropertyExtService {
      * @param propertyValue The new property value
      */
     /**
-     * @deprecated Use instead {@link eu.domibus.ext.services.DomibusPropertyExtService#setProperty(java.lang.String, java.lang.String) }
+     * @deprecated Use instead {@link eu.domibus.ext.services.DomibusPropertyExtService#setProperty(eu.domibus.ext.domain.DomainDTO, java.lang.String, java.lang.String, boolean) }
      */
     @Deprecated
     void setDomainProperty(DomainDTO domain, String propertyName, String propertyValue);
@@ -101,7 +104,7 @@ public interface DomibusPropertyExtService {
     /**
      * Sets the property value with the provided name for the current domain
      *
-     * @param propertyName The property name for which the value is updated
+     * @param propertyName  The property name for which the value is updated
      * @param propertyValue The new property value
      */
     void setProperty(String propertyName, String propertyValue);
@@ -118,6 +121,7 @@ public interface DomibusPropertyExtService {
 
     /**
      * Verify that a property key exists within the domibus/default-domain properties.
+     *
      * @param propertyName the name of the property
      * @return true if the property exists.
      */
@@ -126,7 +130,7 @@ public interface DomibusPropertyExtService {
     /**
      * Gets the property value with the provided name for a specific domain
      *
-     * @param domain The domain property
+     * @param domain       The domain property
      * @param propertyName The property name for which the value is retrieved
      * @param defaultValue The default value to return in case the property value is not found
      * @return The property value
@@ -149,5 +153,14 @@ public interface DomibusPropertyExtService {
     @Deprecated
     String getResolvedProperty(String propertyName);
 
-    void setProperty(DomainDTO domain, String propertyName, String propertyValue, boolean broadcast);
+    /**
+     * Sets the property value with the provided name for a specific domain
+     *
+     * @param domain        The domain on which to set the property value
+     * @param propertyName  The property name for which the value is updated
+     * @param propertyValue The new property value
+     * @param broadcast     If the new value should be broadcasted to all nodes in the cluster
+     **/
+    default void setProperty(DomainDTO domain, String propertyName, String propertyValue, boolean broadcast) {
+    }
 }
