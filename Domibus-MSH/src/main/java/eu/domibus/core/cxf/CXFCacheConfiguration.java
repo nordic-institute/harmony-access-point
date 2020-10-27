@@ -34,6 +34,6 @@ public class CXFCacheConfiguration {
             LOG.error("Unable to create a new EHCacheTokenStore: ", e);
         }
 
-        return ehCacheTokenStore ;
+        return ehCacheTokenStore;
     }
 }

@@ -1,6 +1,5 @@
 package eu.domibus.core.ehcache;
 
-
 import org.ehcache.sizeof.annotations.IgnoreSizeOf;
 
 /**
