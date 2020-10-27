@@ -25,6 +25,6 @@ public class CvsSerializerListTest {
     @Test
     public void serialize() {
         Assert.assertEquals(cvsSerializerList.serialize(new ArrayList<>()), "");
-        Assert.assertEquals(cvsSerializerList.serialize(Arrays.asList("1", "2")), "1 2");
+        Assert.assertEquals(cvsSerializerList.serialize(Arrays.asList("1", "2")), "1,2");
     }
 }
