@@ -5,26 +5,13 @@ import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.domain.metrics.Counter;
 import eu.domibus.ext.domain.metrics.Timer;
 import eu.domibus.ext.services.DomainContextExtService;
-import eu.domibus.ext.services.XMLUtilExtService;
-import eu.domibus.logging.DomibusLogger;
-import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.webService.exception.WSPluginException;
-import eu.domibus.webservice.backend.generated.ObjectFactory;
-import eu.domibus.webservice.backend.generated.SendSuccess;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.Dispatch;
 import javax.xml.ws.WebServiceException;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.net.ConnectException;
-
-import static eu.domibus.plugin.webService.configuration.WSPluginPushConfiguration.JAXB_CONTEXT_WEBSERVICE_BACKEND;
 
 /**
  * @author François Gautier
@@ -33,19 +20,13 @@ import static eu.domibus.plugin.webService.configuration.WSPluginPushConfigurati
 @Service
 public class WSPluginDispatcher {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginDispatcher.class);
-    private final JAXBContext jaxbContextWebserviceBackend;
     private final DomainContextExtService domainContextExtService;
-    private final XMLUtilExtService xmlUtilExtService;
+
     private final WSPluginDispatchClientProvider wsPluginDispatchClientProvider;
 
-    public WSPluginDispatcher(@Qualifier(value = JAXB_CONTEXT_WEBSERVICE_BACKEND) JAXBContext jaxbContextWebserviceBackend,
-                              DomainContextExtService domainContextExtService,
-                              XMLUtilExtService xmlUtilExtService,
+    public WSPluginDispatcher(DomainContextExtService domainContextExtService,
                               WSPluginDispatchClientProvider wsPluginDispatchClientProvider) {
-        this.jaxbContextWebserviceBackend = jaxbContextWebserviceBackend;
         this.domainContextExtService = domainContextExtService;
-        this.xmlUtilExtService = xmlUtilExtService;
         this.wsPluginDispatchClientProvider = wsPluginDispatchClientProvider;
     }
 
@@ -67,23 +48,6 @@ public class WSPluginDispatcher {
             throw new WSPluginException("Error dispatching message to " + endpoint, exception);
         }
         return result;
-    }
-
-    public SOAPMessage getSoapMessageSendSuccess(String messageId) throws SOAPException, JAXBException, IOException {
-        SOAPMessage message = xmlUtilExtService.getMessageFactorySoap12().createMessage();
-
-        SendSuccess sendSuccess = new ObjectFactory().createSendSuccess();
-        sendSuccess.setMessageID(messageId);
-        jaxbContextWebserviceBackend.createMarshaller().marshal(sendSuccess, message.getSOAPBody());
-
-        LOG.debug("Getting message for send succes: [{}]", getXML(message));
-        return message;
-    }
-
-    public String getXML(SOAPMessage message) throws SOAPException, IOException {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        message.writeTo(out);
-        return new String(out.toByteArray());
     }
 }
 

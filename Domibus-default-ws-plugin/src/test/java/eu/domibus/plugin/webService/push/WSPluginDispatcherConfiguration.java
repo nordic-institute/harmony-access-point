@@ -31,21 +31,21 @@ public class WSPluginDispatcherConfiguration extends WSPluginPushConfiguration {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginDispatcherConfiguration.class);
 
     @Bean
-    public WSPluginDispatcher wsPluginDispatcher(@Qualifier(value = JAXB_CONTEXT_WEBSERVICE_BACKEND) JAXBContext jaxbContextWebserviceBackend,
-                                                 DomainContextExtService domainContextExtService,
-                                                 XMLUtilExtService xmlUtilExtService,
+    public WSPluginMessageBuilder wsPluginMessageBuilder(XMLUtilExtService xmlUtilExtService, JAXBContext jaxbContextWebserviceBackend) {
+        return new WSPluginMessageBuilder(xmlUtilExtService, jaxbContextWebserviceBackend);
+    }
+
+    @Bean
+    public WSPluginDispatcher wsPluginDispatcher(DomainContextExtService domainContextExtService,
                                                  WSPluginDispatchClientProvider wsPluginDispatchClientProvider) {
-        return new WSPluginDispatcher(jaxbContextWebserviceBackend,
-                domainContextExtService,
-                xmlUtilExtService,
-                wsPluginDispatchClientProvider);
+        return new WSPluginDispatcher(domainContextExtService, wsPluginDispatchClientProvider);
     }
 
     @Bean
     public WSPluginDispatchClientProvider wsPluginDispatchClientProvider(@Qualifier("taskExecutor") Executor executor,
-                                              TLSReaderExtService tlsReaderDelegate,
-                                              ProxyCxfUtilExtService proxyUtilExtService,
-                                              WSPluginPropertyManager wsPluginPropertyManager){
+                                                                         TLSReaderExtService tlsReaderDelegate,
+                                                                         ProxyCxfUtilExtService proxyUtilExtService,
+                                                                         WSPluginPropertyManager wsPluginPropertyManager) {
         return new WSPluginDispatchClientProvider(executor,
                 tlsReaderDelegate,
                 proxyUtilExtService,
@@ -67,6 +67,7 @@ public class WSPluginDispatcherConfiguration extends WSPluginPushConfiguration {
     public ProxyCxfUtilExtService proxyUtilExtService() {
         return (httpClientPolicy, httpConduit) -> LOG.info("configureProxy");
     }
+
     @Bean
     public TLSReaderExtService tlsReaderExtService() {
         return domainCode -> new TLSClientParameters();
@@ -82,7 +83,7 @@ public class WSPluginDispatcherConfiguration extends WSPluginPushConfiguration {
         return new DomibusPropertyExtService() {
             @Override
             public String getProperty(String propertyName) {
-                switch (propertyName){
+                switch (propertyName) {
                     case WSPluginPropertyManager.DISPATCHER_CONNECTION_TIMEOUT:
                         return "1000";
                     case WSPluginPropertyManager.DISPATCHER_RECEIVE_TIMEOUT:
