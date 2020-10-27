@@ -4,6 +4,8 @@ import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 
 /**
+ * Interface allowing Domibus extension/plugin to use cxf proxy configuration of Domibus.
+ *
  * @author François Gautier
  * @since 5.0
  */

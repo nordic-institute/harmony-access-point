@@ -7,10 +7,10 @@ import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.springframework.stereotype.Service;
 
 /**
+ *  Delegate class allowing Domibus extension/plugin to use cxf Proxy configuration of Domibus
+ *
  * @author François Gautier
  * @since 5.0
- *
- * Delegate class allowing Domibus extension/plugin to use cxf Proxy configuration of Domibus
  */
 @Service
 public class ProxyCxfUtilDelegate implements ProxyCxfUtilExtService {

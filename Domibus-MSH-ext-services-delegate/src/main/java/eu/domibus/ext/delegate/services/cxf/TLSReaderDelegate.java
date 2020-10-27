@@ -6,10 +6,11 @@ import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.springframework.stereotype.Service;
 
 /**
+ * Delegate class allowing Domibus extension/plugin to use TLS configuration of Domibus.
+ *
  * @author François Gautier
  * @since 5.0
  *
- * Delegate class allowing Domibus extension/plugin to use TLS configuration of Domibus.
  */
 @Service
 public class TLSReaderDelegate implements TLSReaderExtService {

@@ -6,10 +6,10 @@ import eu.domibus.ext.services.XMLUtilExtService;
 import javax.xml.soap.MessageFactory;
 
 /**
+ * Delegate class allowing Domibus extension/plugin to use XML utility class of Domibus
+ *
  * @author François Gautier
  * @since 5.0
- *
- * Delegate class allowing Domibus extension/plugin to use XML utility class of Domibus
  */
 public class XMLUtilDelegate implements XMLUtilExtService {
 
