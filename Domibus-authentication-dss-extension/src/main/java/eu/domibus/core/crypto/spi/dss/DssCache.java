@@ -3,8 +3,6 @@ package eu.domibus.core.crypto.spi.dss;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.ehcache.Cache;
-//import net.sf.ehcache.Cache;
-//import net.sf.ehcache.Element;
 
 /**
  * @author Thomas Dussart
@@ -33,9 +31,8 @@ public class DssCache {
         return certificateKeyInCache;
     }
 
-    public void clear(){
+    public void clear() {
         LOG.info("Clearing DSS cache");
-//        cache.removeAll();
         cache.clear();
     }
 }
