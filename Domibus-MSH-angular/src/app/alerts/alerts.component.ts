@@ -233,7 +233,7 @@ export class AlertsComponent extends mix(BaseListComponent)
   }
 
   isFutureAlert(alertType: string): boolean {
-    return alertType.includes(this.IMMINENT_SUFFIX);
+    return alertType && alertType.includes(this.IMMINENT_SUFFIX);
   }
 
   onTimestampCreationFromChange(event) {
