@@ -1,6 +1,6 @@
 package eu.domibus.plugin.webService.push;
 
-import eu.domibus.ext.services.ProxyUtilExtService;
+import eu.domibus.ext.services.ProxyCxfUtilExtService;
 import eu.domibus.ext.services.TLSReaderExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -11,14 +11,12 @@ import org.apache.cxf.jaxws.DispatchImpl;
 import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.transports.http.configuration.ConnectionType;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.Dispatch;
 import javax.xml.ws.soap.SOAPBinding;
-
 import java.util.concurrent.Executor;
 
 import static eu.domibus.plugin.webService.property.WSPluginPropertyManager.*;
@@ -34,20 +32,19 @@ public class WSPluginDispatchClientProvider {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginDispatchClientProvider.class);
 
-    public static final String NAMESPACE_DOMIBUS = "eu.europa.ec.eu.edelivery.domibus";
+    public static final String NAMESPACE_DOMIBUS = "eu.domibus";
     public static final QName SERVICE_NAME = new QName(NAMESPACE_DOMIBUS, "wsplugin-dispatch-service");
     public static final QName PORT_NAME = new QName(NAMESPACE_DOMIBUS, "wsplugin-dispatch");
 
-    @Autowired
     private final Executor executor;
-    @Autowired
     private final TLSReaderExtService tlsReaderDelegate;
-    @Autowired
-    private final ProxyUtilExtService proxyUtilExtService;
-    @Autowired
+    private final ProxyCxfUtilExtService proxyUtilExtService;
     private final WSPluginPropertyManager wsPluginPropertyManager;
 
-    public WSPluginDispatchClientProvider(Executor executor, TLSReaderExtService tlsReaderDelegate, ProxyUtilExtService proxyUtilExtService, WSPluginPropertyManager wsPluginPropertyManager) {
+    public WSPluginDispatchClientProvider(Executor executor,
+                                          TLSReaderExtService tlsReaderDelegate,
+                                          ProxyCxfUtilExtService proxyUtilExtService,
+                                          WSPluginPropertyManager wsPluginPropertyManager) {
         this.executor = executor;
         this.tlsReaderDelegate = tlsReaderDelegate;
         this.proxyUtilExtService = proxyUtilExtService;

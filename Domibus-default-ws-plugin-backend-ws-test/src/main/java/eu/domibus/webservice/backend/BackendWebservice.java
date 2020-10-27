@@ -15,7 +15,7 @@ import javax.xml.ws.soap.SOAPBinding;
 @javax.jws.WebService(
         serviceName = "BackendService",
         portName = "BACKEND_PORT",
-        targetNamespace = "eu.europa.ec.eu.edelivery.domibus",
+        targetNamespace = "eu.domibus",
         endpointInterface = "eu.domibus.webservice.backend.generated.BackendInterface")
 @BindingType(SOAPBinding.SOAP12HTTP_BINDING)
 public class BackendWebservice implements BackendInterface {

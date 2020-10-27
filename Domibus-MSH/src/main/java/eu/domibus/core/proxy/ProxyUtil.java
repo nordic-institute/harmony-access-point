@@ -1,13 +1,8 @@
 package eu.domibus.core.proxy;
 
-import eu.domibus.api.cxf.http.ProxyUtilService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.cxf.configuration.security.ProxyAuthorizationPolicy;
-import org.apache.cxf.transport.http.HTTPConduit;
-import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -20,14 +15,13 @@ import org.springframework.stereotype.Component;
  * @author idragusa
  */
 @Component
-public class ProxyUtil implements ProxyUtilService {
+public class ProxyUtil {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ProxyUtil.class);
 
     @Autowired
     DomibusProxyService domibusProxyService;
 
-    @Override
     public HttpHost getConfiguredProxy() {
         if (BooleanUtils.isTrue(domibusProxyService.useProxy())) {
             DomibusProxy domibusProxy = domibusProxyService.getDomibusProxy();
@@ -38,7 +32,6 @@ public class ProxyUtil implements ProxyUtilService {
         return null;
     }
 
-    @Override
     public CredentialsProvider getConfiguredCredentialsProvider() {
 
         if(domibusProxyService.useProxy() && domibusProxyService.isProxyUserSet()) {
@@ -52,31 +45,5 @@ public class ProxyUtil implements ProxyUtilService {
         }
         LOG.debug("Proxy not enabled, credentials provider is null");
         return null;
-    }
-
-    @Override
-    public void configureProxy(final HTTPClientPolicy httpClientPolicy, HTTPConduit httpConduit) {
-        if (BooleanUtils.isNotTrue(domibusProxyService.useProxy())) {
-            LOG.debug("Usage of proxy not required");
-            return;
-        }
-
-        DomibusProxy proxy = domibusProxyService.getDomibusProxy();
-        LOG.debug("Configuring proxy [{}] [{}] [{}] [{}] ", proxy.getHttpProxyHost(),
-                proxy.getHttpProxyPort(), proxy.getHttpProxyUser(), proxy.getNonProxyHosts());
-        httpClientPolicy.setProxyServer(proxy.getHttpProxyHost());
-        httpClientPolicy.setProxyServerPort(proxy.getHttpProxyPort());
-        httpClientPolicy.setProxyServerType(org.apache.cxf.transports.http.configuration.ProxyServerType.HTTP);
-
-        if (!StringUtils.isBlank(proxy.getNonProxyHosts())) {
-            httpClientPolicy.setNonProxyHosts(proxy.getNonProxyHosts());
-        }
-
-        if (BooleanUtils.isTrue(domibusProxyService.isProxyUserSet())) {
-            ProxyAuthorizationPolicy policy = new ProxyAuthorizationPolicy();
-            policy.setUserName(proxy.getHttpProxyUser());
-            policy.setPassword(proxy.getHttpProxyPassword());
-            httpConduit.setProxyAuthorization(policy);
-        }
     }
 }

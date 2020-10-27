@@ -3,7 +3,7 @@ package eu.domibus.core.ebms3.sender.client;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.ehcache.IgnoreSizeOfWrapper;
 import eu.domibus.core.proxy.DomibusProxyService;
-import eu.domibus.core.proxy.ProxyUtil;
+import eu.domibus.core.proxy.ProxyCxfUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.BooleanUtils;
@@ -73,7 +73,7 @@ public class DispatchClientDefaultProvider implements DispatchClientProvider {
     protected DomibusProxyService domibusProxyService;
 
     @Autowired
-    protected ProxyUtil proxyUtil;
+    protected ProxyCxfUtil proxyUtil;
 
     /**
      * JIRA: EDELIVERY-6755 showed a deadlock while instantiating cxf dispatcher during start-up

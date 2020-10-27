@@ -5,15 +5,14 @@ import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.plugin.webService.configuration.WSPluginPushConfiguration;
 import eu.domibus.plugin.webService.property.WSPluginPropertyManager;
-import eu.domibus.webservice.backend.generated.BackendInterface;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
 import javax.xml.soap.MessageFactory;
 import javax.xml.soap.SOAPConstants;
 import javax.xml.soap.SOAPException;
@@ -22,21 +21,14 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.function.Predicate;
 
-import static eu.domibus.plugin.webService.configuration.WSPluginConfiguration.JAXB_CONTEXT_WEBSERVICE_BACKEND;
-
 /**
  * @author François Gautier
  * @since 4.2
  */
 @Configuration
-public class WSPluginDispatcherConfiguration {
+public class WSPluginDispatcherConfiguration extends WSPluginPushConfiguration {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginDispatcherConfiguration.class);
-
-    @Bean(name = JAXB_CONTEXT_WEBSERVICE_BACKEND)
-    public JAXBContext jaxbContextWebserviceBackend() throws JAXBException {
-        return JAXBContext.newInstance(BackendInterface.class.getPackage().getName());
-    }
 
     @Bean
     public WSPluginDispatcher wsPluginDispatcher(@Qualifier(value = JAXB_CONTEXT_WEBSERVICE_BACKEND) JAXBContext jaxbContextWebserviceBackend,
@@ -52,7 +44,7 @@ public class WSPluginDispatcherConfiguration {
     @Bean
     public WSPluginDispatchClientProvider wsPluginDispatchClientProvider(@Qualifier("taskExecutor") Executor executor,
                                               TLSReaderExtService tlsReaderDelegate,
-                                              ProxyUtilExtService proxyUtilExtService,
+                                              ProxyCxfUtilExtService proxyUtilExtService,
                                               WSPluginPropertyManager wsPluginPropertyManager){
         return new WSPluginDispatchClientProvider(executor,
                 tlsReaderDelegate,
@@ -72,7 +64,7 @@ public class WSPluginDispatcherConfiguration {
     }
 
     @Bean
-    public ProxyUtilExtService proxyUtilExtService() {
+    public ProxyCxfUtilExtService proxyUtilExtService() {
         return (httpClientPolicy, httpConduit) -> LOG.info("configureProxy");
     }
     @Bean

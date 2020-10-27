@@ -1,4 +1,4 @@
-package eu.domibus.ext.delegate.services.http;
+package eu.domibus.ext.delegate.services.cxf;
 
 import eu.domibus.api.cxf.TLSReaderService;
 import eu.domibus.ext.services.TLSReaderExtService;

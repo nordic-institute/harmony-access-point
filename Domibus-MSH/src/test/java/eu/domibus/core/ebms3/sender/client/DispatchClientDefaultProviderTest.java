@@ -3,7 +3,7 @@ package eu.domibus.core.ebms3.sender.client;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.proxy.DomibusProxy;
 import eu.domibus.core.proxy.DomibusProxyService;
-import eu.domibus.core.proxy.ProxyUtil;
+import eu.domibus.core.proxy.ProxyCxfUtil;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
@@ -45,7 +45,7 @@ public class DispatchClientDefaultProviderTest {
     @Injectable
     protected DomibusProxyService domibusProxyService;
     @Injectable
-    protected ProxyUtil proxyUtil;
+    protected ProxyCxfUtil proxyUtil;
 
     @Tested
     DispatchClientDefaultProvider dispatchClientDefaultProvider;

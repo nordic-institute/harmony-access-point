@@ -11,7 +11,9 @@ import org.springframework.stereotype.Component;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toMap;
 
 /**
  * Property manager for ws plugin, now forwards all calls to domibus property provider as all his properties are managed in core
@@ -49,7 +51,7 @@ public class WSPluginPropertyManager extends DomibusPropertyExtServiceDelegateAb
                 new DomibusPropertyMetadataDTO(DISPATCHER_CHUNKING_THRESHOLD, Type.NUMERIC, Module.WS_PLUGIN, Usage.GLOBAL),
                 new DomibusPropertyMetadataDTO(DISPATCHER_CONNECTION_KEEP_ALIVE, Type.BOOLEAN, Module.WS_PLUGIN, Usage.GLOBAL)
         );
-        knownProperties = allProperties.stream().collect(Collectors.toMap(DomibusPropertyMetadataDTO::getName, value -> value));
+        knownProperties = allProperties.stream().collect(toMap(DomibusPropertyMetadataDTO::getName, identity()));
     }
 
     @Override

@@ -24,8 +24,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.ConnectException;
 
-import static eu.domibus.plugin.webService.configuration.WSPluginConfiguration.JAXB_CONTEXT_WEBSERVICE_BACKEND;
-
+import static eu.domibus.plugin.webService.configuration.WSPluginPushConfiguration.JAXB_CONTEXT_WEBSERVICE_BACKEND;
 
 /**
  * @author François Gautier
@@ -39,7 +38,6 @@ public class WSPluginDispatcher {
     private final DomainContextExtService domainContextExtService;
     private final XMLUtilExtService xmlUtilExtService;
     private final WSPluginDispatchClientProvider wsPluginDispatchClientProvider;
-
 
     public WSPluginDispatcher(@Qualifier(value = JAXB_CONTEXT_WEBSERVICE_BACKEND) JAXBContext jaxbContextWebserviceBackend,
                               DomainContextExtService domainContextExtService,
