@@ -33,7 +33,6 @@ public class DomibusContextLoaderListener extends ContextLoaderListener {
     @Override
     public void contextDestroyed(ServletContextEvent servletContextEvent) {
         super.contextDestroyed(servletContextEvent);
-        shutdownEhCache(servletContextEvent);
         shutdownPluginClassLoader();
         shutdownLogger();
     }
@@ -54,17 +53,5 @@ public class DomibusContextLoaderListener extends ContextLoaderListener {
         } catch (IOException e) {
             LOG.warn("Error closing PluginClassLoader", e);
         }
-    }
-
-    protected void shutdownEhCache(ServletContextEvent servletContextEvent) {
-        LOG.info("Shutting down org.ehcache");
-        //TODO enachca Check later
-//        List knownCacheManagers = CacheManager.ALL_CACHE_MANAGERS;
-//        if (LOG.isDebugEnabled()) {
-//            LOG.debug("Shutting down " + knownCacheManagers.size() + " CacheManagers.");
-//        }
-//        while (!knownCacheManagers.isEmpty()) {
-//            ((CacheManager) CacheManager.ALL_CACHE_MANAGERS.get(0)).shutdown();
-//        }
     }
 }
