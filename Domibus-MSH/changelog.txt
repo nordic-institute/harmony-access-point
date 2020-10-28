@@ -1,3 +1,5 @@
+Domibus 5.0
+- Ehcache library was upgraded to 3.8.1 version
 Domibus 4.2
 - Added a new property domibus.logging.metadata.print - prints the AS4 metadata in the logs when org.apache.cxf is set to at least INFO in logback.xml. Defaults to true.
 - Deprecated the following classes/methods:
