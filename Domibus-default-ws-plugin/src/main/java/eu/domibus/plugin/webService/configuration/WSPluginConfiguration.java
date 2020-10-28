@@ -40,7 +40,6 @@ public class WSPluginConfiguration {
     public static final String DOMIBUS_LOGGING_METADATA_PRINT = "domibus.logging.metadata.print";
     public static final String DOMIBUS_LOGGING_CXF_LIMIT = "domibus.logging.cxf.limit";
 
-
     @Bean("backendWebservice")
     public WebServicePluginImpl createWSPlugin(DomibusPropertyExtService domibusPropertyExtService) {
         List<NotificationType> messageNotifications = domibusPropertyExtService.getConfiguredNotifications(WSPluginPropertyManager.MESSAGE_NOTIFICATIONS);
