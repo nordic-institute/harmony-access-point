@@ -232,6 +232,7 @@ public class UserManagementServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<eu.domibus.api.user.User> findUsers(AuthRole authRole, String userName, String deleted, int page, int pageSize) {
         Map<String, Object> filters = createFilterMap(authRole, userName, deleted);
         List<User> users = listDao.findPaged(page * pageSize, pageSize, "entityId", true, filters);
