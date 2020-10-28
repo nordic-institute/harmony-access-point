@@ -7,8 +7,8 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.util.SocketUtils;
 
-import javax.xml.soap.SOAPMessage;
 import java.util.UUID;
 
 /**
@@ -19,6 +19,7 @@ import java.util.UUID;
 @ContextConfiguration(classes = {WSPluginDispatcherConfiguration.class})
 public class WSPluginDispatcherTest {
 
+    private int backendPort;
     @Autowired
     private WSPluginMessageBuilder wsPluginMessageBuilder;
     @Autowired
@@ -26,13 +27,14 @@ public class WSPluginDispatcherTest {
 
     @Before
     public void setUp() {
-        //start BackendApplication on localhost:8080
-        BackendApplication.main(new String[]{});
+        backendPort = SocketUtils.findAvailableTcpPort(3000, 3100);
+        BackendApplication.main(backendPort, new String[]{});
     }
 
     @Test
     public void sendSuccess() {
-        SOAPMessage soapMessage = wsPluginDispatcher.dispatch(wsPluginMessageBuilder.buildSOAPMessageSendSuccess(UUID.randomUUID().toString()), "http://localhost:8080/backend");
-//        wsPluginDispatcher.getXML(soapMessage);
+        wsPluginDispatcher.dispatch(
+                wsPluginMessageBuilder.buildSOAPMessageSendSuccess(UUID.randomUUID().toString()),
+                "http://localhost:" + backendPort + "/backend");
     }
 }

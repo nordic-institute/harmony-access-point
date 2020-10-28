@@ -9,6 +9,7 @@ import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 
 import javax.xml.ws.Endpoint;
+import java.util.Collections;
 
 /**
  * @author François Gautier
@@ -17,8 +18,10 @@ import javax.xml.ws.Endpoint;
 @SpringBootApplication
 public class BackendApplication {
 
-    public static void main(String[] args) {
-        SpringApplication.run(BackendApplication.class, args);
+    public static void main(int port, String[] args) {
+        SpringApplication app = new SpringApplication(BackendApplication.class);
+        app.setDefaultProperties(Collections.singletonMap("server.port", "" + port));
+        app.run(args);
     }
 
     @Autowired
@@ -35,7 +38,7 @@ public class BackendApplication {
     }
 
     @Bean
-    public Endpoint backendInterfaceEndpoint(BackendWebservice backendWebService    ) {
+    public Endpoint backendInterfaceEndpoint(BackendWebservice backendWebService) {
         return Endpoint.publish("/backend", backendWebService);
     }
 }
