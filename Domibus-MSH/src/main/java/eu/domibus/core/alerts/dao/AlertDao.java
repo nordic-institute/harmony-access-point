@@ -53,7 +53,7 @@ public class AlertDao extends BasicDao<Alert> {
         return query.getResultList();
     }
 
-    private void addDynamicPredicates(AlertCriteria alertCriteria, CriteriaBuilder builder, Root<Alert> subRoot, List<Predicate> predicates) {
+    protected void addDynamicPredicates(AlertCriteria alertCriteria, CriteriaBuilder builder, Root<Alert> subRoot, List<Predicate> predicates) {
         final Map<String, String> parameters = alertCriteria.getParameters();
 
         if (!parameters.isEmpty()) {
