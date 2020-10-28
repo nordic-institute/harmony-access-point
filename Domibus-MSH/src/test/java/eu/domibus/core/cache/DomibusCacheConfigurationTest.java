@@ -3,8 +3,6 @@ package eu.domibus.core.cache;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.core.io.Resource;
@@ -27,41 +25,42 @@ public class DomibusCacheConfigurationTest {
     @Tested
     DomibusCacheConfiguration domibusCacheConfiguration;
 
-    @Before
-    public void setUp() throws Exception {
-       // System.setProperty("domibus.config.location", new File("target/test-classes").getAbsolutePath());
-    }
 
     @Test
     public void test_cacheManagerExternalFilePresent() throws  Exception {
-
+        prepareTestEhCacheFiles();
         new Expectations(domibusCacheConfiguration) {{
             domibusCacheConfiguration.externalCacheFileExists();
             result = true;
-            Deencapsulation.setField(domibusCacheConfiguration, "externalEhCacheFile", "target/test-classes/conf/domibus/internal/ehcache.xml");
+
         }};
 
         //tested method
         org.springframework.cache.CacheManager cacheManager = domibusCacheConfiguration.cacheManager();
 
-        Assert.assertNotNull(cacheManager.getCache("policyCache"));
+        Assert.assertNotNull(cacheManager.getCache("policyCacheDefault"));
         Assert.assertNotNull(cacheManager.getCache("policyCacheExternal"));
 
     }
 
+    protected void prepareTestEhCacheFiles() {
+        Deencapsulation.setField(domibusCacheConfiguration, "defaultEhCacheFile", "config/ehcache/ehcache-default-test.xml");
+        Deencapsulation.setField(domibusCacheConfiguration, "externalEhCacheFile", "target/test-classes/conf/domibus/internal/ehcache-test.xml");
+    }
+
     @Test
-    @Ignore
     public void test_cacheManagerNoExternalFilePresent() throws  Exception {
+        prepareTestEhCacheFiles();
         new Expectations(domibusCacheConfiguration) {{
             domibusCacheConfiguration.externalCacheFileExists();
-            result = false;;
+            result = false;
         }};
 
         //tested method
         org.springframework.cache.CacheManager cacheManager = domibusCacheConfiguration.cacheManager();
 
-        Assert.assertNotNull(cacheManager.getCache("policyCache"));
-        Assert.assertNotNull(cacheManager.getCache("policyCacheExternal"));
+        Assert.assertNotNull(cacheManager.getCache("policyCacheDefault"));
+        Assert.assertNull(cacheManager.getCache("policyCacheExternal"));
     }
 
 

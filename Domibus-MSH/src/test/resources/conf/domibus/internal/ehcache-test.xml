@@ -12,15 +12,15 @@
     </service>
 
 
-    <cache alias="policyCacheExternal" uses-template="default-values"/>
+    <cache alias="policyCacheExternal" uses-template="ttl-3600-heap-5mb"/>
 
 
 
-    <cache-template name="default-values">
+    <cache-template name="ttl-3600-heap-5mb">
         <expiry>
-            <ttl unit="seconds">7200</ttl>
+            <ttl>3600</ttl>
         </expiry>
-        <heap unit="entries">200</heap>
+        <heap unit="MB">5</heap>
     </cache-template>
 
 </config>

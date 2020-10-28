@@ -46,12 +46,14 @@ public class DomibusCacheConfiguration {
     @Value("${domibus.config.location}/plugins/config")
     protected String pluginsConfigLocation;
 
+    protected String defaultEhCacheFile = "config/ehcache/ehcache-default.xml";
+
     @Bean(name = "cacheManager")
     public org.springframework.cache.CacheManager cacheManager() throws Exception {
         CachingProvider provider = Caching.getCachingProvider();
 
         //default cache
-        final ClassPathResource classPathResource = new ClassPathResource("config/ehcache/ehcache-default.xml");
+        final ClassPathResource classPathResource = new ClassPathResource(defaultEhCacheFile);
 
         CacheManager cacheManager = provider.getCacheManager(
                 classPathResource.getURL().toURI(),
