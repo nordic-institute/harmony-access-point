@@ -19,6 +19,6 @@ public class CvsSerializerList implements CvsSerializer {
 
     @Override
     public String serialize(Object fieldValue) {
-        return ((List<Object>) fieldValue).stream().map(el -> el.toString()).collect(Collectors.joining(" "));
+        return ((List<Object>) fieldValue).stream().map(el -> el.toString()).collect(Collectors.joining(LIST_DELIMITER));
     }
 }
