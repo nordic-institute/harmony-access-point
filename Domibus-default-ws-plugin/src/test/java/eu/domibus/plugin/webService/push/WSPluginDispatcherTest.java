@@ -19,6 +19,7 @@ import java.util.UUID;
 @ContextConfiguration(classes = {WSPluginDispatcherConfiguration.class})
 public class WSPluginDispatcherTest {
 
+    public static final int PORT = 18080;
     @Autowired
     private WSPluginMessageBuilder wsPluginMessageBuilder;
     @Autowired
@@ -26,13 +27,14 @@ public class WSPluginDispatcherTest {
 
     @Before
     public void setUp() {
-        //start BackendApplication on localhost:8080
-        BackendApplication.main(new String[]{});
+        BackendApplication.main(PORT, new String[]{});
     }
 
     @Test
     public void sendSuccess() {
-        SOAPMessage soapMessage = wsPluginDispatcher.dispatch(wsPluginMessageBuilder.buildSOAPMessageSendSuccess(UUID.randomUUID().toString()), "http://localhost:8080/backend");
+        SOAPMessage soapMessage = wsPluginDispatcher.dispatch(
+                wsPluginMessageBuilder.buildSOAPMessageSendSuccess(UUID.randomUUID().toString()),
+                "http://localhost:" + PORT + "/backend");
 //        wsPluginDispatcher.getXML(soapMessage);
     }
 }
