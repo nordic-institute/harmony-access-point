@@ -179,4 +179,14 @@ public interface DomibusPropertyExtService {
         return null;
     }
 
+    /**
+     * Sets the property value with the provided name for a specific domain
+     *
+     * @param domain        The domain on which to set the property value
+     * @param propertyName  The property name for which the value is updated
+     * @param propertyValue The new property value
+     * @param broadcast     If the new value should be broadcasted to all nodes in the cluster
+     **/
+    default void setProperty(DomainDTO domain, String propertyName, String propertyValue, boolean broadcast) {
+    }
 }
