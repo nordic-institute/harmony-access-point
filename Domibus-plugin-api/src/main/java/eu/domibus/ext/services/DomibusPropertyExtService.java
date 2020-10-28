@@ -6,6 +6,7 @@ import eu.domibus.ext.domain.DomainDTO;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
+
 /**
  * Responsible for property related operations
  *
@@ -25,11 +26,13 @@ public interface DomibusPropertyExtService {
     /**
      * Gets the property value with the provided name for a specific domain
      *
-     * @param domain The domain property
+     * @param domain       The domain property
      * @param propertyName The property name for which the value is retrieved
      * @return The property value
      */
-    String getProperty(DomainDTO domain, String propertyName);
+    default String getProperty(DomainDTO domain, String propertyName) {
+        return null;
+    }
 
     /**
      * Gets the integer property value with the provided name
@@ -37,7 +40,9 @@ public interface DomibusPropertyExtService {
      * @param propertyName The property name for which the integer value is retrieved
      * @return The property value as Integer
      */
-    Integer getIntegerProperty(String propertyName);
+    default Integer getIntegerProperty(String propertyName) {
+        return null;
+    }
 
     /**
      * Gets the boolean property value with the provided name
@@ -45,14 +50,19 @@ public interface DomibusPropertyExtService {
      * @param propertyName The property name for which the integer value is retrieved
      * @return The property value as Boolean
      */
-    Boolean getBooleanProperty(String propertyName);
+    default Boolean getBooleanProperty(String propertyName) {
+        return null;
+    }
 
     /**
      * Returns all property names for which the given predicate is true
+     *
      * @param predicate the predicate to filter with
      * @return A set of property names
      */
-    Set<String> filterPropertiesName(Predicate<String> predicate);
+    default Set<String> filterPropertiesName(Predicate<String> predicate) {
+        return null;
+    }
 
     /**
      * Returns the list of nested properties names(only the first level) starting with the specified prefix
@@ -63,14 +73,19 @@ public interface DomibusPropertyExtService {
      * @param prefix The nested properties prefix
      * @return the list of nested properties
      */
-    List<String> getNestedProperties(String prefix);
+    default List<String> getNestedProperties(String prefix) {
+        return null;
+    }
 
     /**
      * Get the list of configured message notifications, separated by comma, configured in the plugin property file
+     *
      * @param notificationPropertyName The property name
      * @return the list of message notifications
      */
-    List<NotificationType> getConfiguredNotifications(String notificationPropertyName);
+    default List<NotificationType> getConfiguredNotifications(String notificationPropertyName) {
+        return null;
+    }
 
     /**
      * Gets the property value with the provided name for a specific domain
@@ -83,7 +98,9 @@ public interface DomibusPropertyExtService {
      * @deprecated Use instead {@link eu.domibus.ext.services.DomibusPropertyExtService#getProperty(eu.domibus.ext.domain.DomainDTO, java.lang.String) }
      */
     @Deprecated
-    String getDomainProperty(DomainDTO domain, String propertyName);
+    default String getDomainProperty(DomainDTO domain, String propertyName) {
+        return null;
+    }
 
     /**
      * Sets the property value with the provided name for a specific domain
@@ -96,15 +113,17 @@ public interface DomibusPropertyExtService {
      * @deprecated Use instead {@link eu.domibus.ext.services.DomibusPropertyExtService#setProperty(java.lang.String, java.lang.String) }
      */
     @Deprecated
-    void setDomainProperty(DomainDTO domain, String propertyName, String propertyValue);
+    default void setDomainProperty(DomainDTO domain, String propertyName, String propertyValue) {
+    }
 
     /**
      * Sets the property value with the provided name for the current domain
      *
-     * @param propertyName The property name for which the value is updated
+     * @param propertyName  The property name for which the value is updated
      * @param propertyValue The new property value
      */
-    void setProperty(String propertyName, String propertyValue);
+    default void setProperty(String propertyName, String propertyValue) {
+    }
 
     /**
      * Verify that a property key exists within a domain configuration whether it is empty or not.
@@ -114,19 +133,24 @@ public interface DomibusPropertyExtService {
      * @param propertyName the property name.
      * @return true if the property exists.
      */
-    boolean containsDomainPropertyKey(DomainDTO domain, String propertyName);
+    default boolean containsDomainPropertyKey(DomainDTO domain, String propertyName) {
+        return false;
+    }
 
     /**
      * Verify that a property key exists within the domibus/default-domain properties.
+     *
      * @param propertyName the name of the property
      * @return true if the property exists.
      */
-    boolean containsPropertyKey(String propertyName);
+    default boolean containsPropertyKey(String propertyName) {
+        return false;
+    }
 
     /**
      * Gets the property value with the provided name for a specific domain
      *
-     * @param domain The domain property
+     * @param domain       The domain property
      * @param propertyName The property name for which the value is retrieved
      * @param defaultValue The default value to return in case the property value is not found
      * @return The property value
@@ -135,18 +159,24 @@ public interface DomibusPropertyExtService {
     /**
      * @deprecated Use instead {@link eu.domibus.ext.services.DomibusPropertyExtService#getProperty(eu.domibus.ext.domain.DomainDTO, java.lang.String) }
      */
-    String getDomainProperty(DomainDTO domain, String propertyName, String defaultValue);
+    default String getDomainProperty(DomainDTO domain, String propertyName, String defaultValue) {
+        return null;
+    }
 
     /**
      * @deprecated Use instead {@link eu.domibus.ext.services.DomibusPropertyExtService#getDomainProperty(eu.domibus.ext.domain.DomainDTO, java.lang.String) }
      */
     @Deprecated
-    String getDomainResolvedProperty(DomainDTO domain, String propertyName);
+    default String getDomainResolvedProperty(DomainDTO domain, String propertyName) {
+        return null;
+    }
 
     /**
      * @deprecated Use instead {@link DomibusPropertyExtService#getProperty(java.lang.String) }
      */
     @Deprecated
-    String getResolvedProperty(String propertyName);
+    default String getResolvedProperty(String propertyName) {
+        return null;
+    }
 
 }
