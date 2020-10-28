@@ -121,7 +121,7 @@ public class DomibusCacheConfiguration {
             return;
         }
         for (String cacheName : cacheNames) {
-            if (cacheManager.getCache(cacheName) != null) {
+            if (cacheExists(cacheManager, cacheName)) {
                 final String errorMessage = "Plugin cache \"" + cacheName + "\" already exists in Domibus";
                 throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, errorMessage);
             }
@@ -129,6 +129,8 @@ public class DomibusCacheConfiguration {
             cacheManager.createCache(cacheName, config);
         }
     }
+
+
 
     /**
      * Retrieves the location of default-ehcache.xml and ehcache.xml files
@@ -180,7 +182,7 @@ public class DomibusCacheConfiguration {
     protected void overridesDefaultCache(@NotNull CacheManager defaultCacheManager, @NotNull CacheManager cacheManager) {
 
         for (String cacheName : cacheManager.getCacheNames()) {
-            if (defaultCacheManager.getCache(cacheName) != null) {
+            if (cacheExists(defaultCacheManager, cacheName)) {
                 LOG.debug("Overriding the default cache [{}]", cacheName);
                 defaultCacheManager.destroyCache(cacheName);
             }
@@ -190,5 +192,13 @@ public class DomibusCacheConfiguration {
             defaultCacheManager.createCache(cacheName, config);
             LOG.debug("Adding [{}] into the default cache", cacheName);
         }
+    }
+
+    protected boolean cacheExists(CacheManager cacheManager, String cacheName) {
+        List<String> cacheNames =
+                StreamSupport.stream(cacheManager.getCacheNames().spliterator(), false)
+                        .collect(Collectors.toList());
+
+        return cacheNames.contains(cacheName);
     }
 }
