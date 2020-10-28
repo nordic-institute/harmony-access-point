@@ -118,7 +118,6 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
      * {@inheritDoc}
      */
     @Override
-    @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
     public MessageStatus getMessageStatus(final MessageExchangeConfiguration messageExchangeConfiguration) {
         MessageStatus messageStatus = SEND_ENQUEUED;
         List<Process> processes = pModeProvider.findPullProcessesByMessageContext(messageExchangeConfiguration);
