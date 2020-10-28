@@ -273,7 +273,7 @@ export class PartyComponent extends mix(BaseListComponent)
         const cert = await this.partyService.getCertificate(party.name).toPromise();
         party.certificate = cert;
       } catch (ex) {
-        if (this.isNotPresent(ex)) {
+        if (this.isCertificateNotFound(ex)) {
           party.certificate = null;
         } else {
           this.alertService.exception(`Could not get the certificate for the party ${party.name}`, ex);
@@ -282,7 +282,7 @@ export class PartyComponent extends mix(BaseListComponent)
     }
   }
 
-  private isNotPresent(ex) {
+  private isCertificateNotFound(ex) {
     return ex.status == Server.HTTP_NOTFOUND;
   }
 
