@@ -1,6 +1,6 @@
 Domibus 5.0 (from 4.2)
                 - Ehcache has been upgraded to version 3.8.1 affecting "\conf\domibus\internal\ehcache.xml" cache definitions file:
-                    - If you use custom caches definitions defined in this file replace the old file with the new file and perform the fallowing steps:
+                    - If you use custom caches definitions defined in this file replace the old file with the new file and perform the following steps:
                         Replace:     <cache name="policyCache"
                                             maxBytesLocalHeap="5m"
                                             timeToLiveSeconds="3600"
