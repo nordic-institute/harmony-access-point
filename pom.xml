@@ -125,7 +125,8 @@
         <wss4j-ws-security.version>2.3.0</wss4j-ws-security.version>
         <xmlsec.version>2.2.0</xmlsec.version>
         <httpcore.version>4.4.13</httpcore.version>
-        <ehcache.version>2.10.6</ehcache.version>
+        <ehcache.version>3.8.1</ehcache.version>
+        <cache-api.version>1.1.1</cache-api.version>
         <commons-collections.version>3.2.2</commons-collections.version>
         <commons-net.version>3.7.2</commons-net.version>
         <jcifs.version>1.3.17</jcifs.version>
@@ -755,9 +756,14 @@
 
             <!-- Ehcache -->
             <dependency>
-                <groupId>net.sf.ehcache</groupId>
+                <groupId>org.ehcache</groupId>
                 <artifactId>ehcache</artifactId>
                 <version>${ehcache.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.cache</groupId>
+                <artifactId>cache-api</artifactId>
+                <version>${cache-api.version}</version>
             </dependency>
 
             <!-- XStream -->
