@@ -8,9 +8,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.criteria.*;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import javax.persistence.criteria.SetJoin;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -67,8 +69,8 @@ public class UserFilteringDao extends ListDao<User> {
                     //predicates.add(criteriaBuilder.isNotNull(userEntity.get(User_.roles)));
 
                     //Solution 7 - empty hashSet
-                    Path<Object> userField = userEntity.get("roles");
-                    predicates.add(userField.in(new HashSet<>()));
+                   /* Path<Object> userField = userEntity.get("roles");
+                    predicates.add(userField.in(new HashSet<>()));*/
 
 
                 }
