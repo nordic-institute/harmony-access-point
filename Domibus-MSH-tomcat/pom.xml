@@ -109,12 +109,6 @@
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-core</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>javax.cache</groupId>
-            <artifactId>cache-api</artifactId>
-            <scope>provided</scope>
-        </dependency>
         <!-- End Spring -->
 
         <!-- ActiveMQ -->
