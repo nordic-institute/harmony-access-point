@@ -189,7 +189,12 @@ public class AuthUtilsImpl implements AuthUtils {
 
     @Override
     public <R> R runFunctionWithSecurityContext(AuthenticatedFunction function, String user, String password, AuthRole authRole) {
-        if (isUnsecureLoginAllowed()) {
+        return runFunctionWithSecurityContext(function, user, password, authRole, false);
+    }
+
+    @Override
+    public <R> R runFunctionWithSecurityContext(AuthenticatedFunction function, String user, String password, AuthRole authRole, boolean forceSecurityContext) {
+        if (isUnsecureLoginAllowed() && !forceSecurityContext) {
             LOG.debug("Unsecure login is allowed: not Spring security is set before executing the method.");
             return (R) function.invoke();
         }
