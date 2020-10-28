@@ -23,7 +23,6 @@ import {DialogsService} from '../common/dialogs/dialogs.service';
 import {ClientPageableListMixin} from '../common/mixins/pageable-list.mixin';
 import {ApplicationContextService} from '../common/application-context.service';
 import {ComponentName} from '../common/component-name-decorator';
-import {Server} from '../security/Server';
 
 /**
  * @author Thomas Dussart, Ion Perpegel
@@ -268,22 +267,14 @@ export class PartyComponent extends mix(BaseListComponent)
   }
 
   async manageCertificate(party: PartyResponseRo) {
-    if (party.name && this.isPersisted(party) && party.certificate === undefined) {
+    if (party.name && this.isPersisted(party) && !party.certificate) {
       try {
         const cert = await this.partyService.getCertificate(party.name).toPromise();
         party.certificate = cert;
       } catch (ex) {
-        if (this.isNotPresent(ex)) {
-          party.certificate = null;
-        } else {
-          this.alertService.exception(`Could not get the certificate for the party ${party.name}`, ex);
-        }
+        this.alertService.exception(`Could not get the certificate for the party ${party.name}`, ex);
       }
     }
-  }
-
-  private isNotPresent(ex) {
-    return ex.status == Server.HTTP_NOTFOUND;
   }
 
   private isPersisted(party: PartyResponseRo) {
