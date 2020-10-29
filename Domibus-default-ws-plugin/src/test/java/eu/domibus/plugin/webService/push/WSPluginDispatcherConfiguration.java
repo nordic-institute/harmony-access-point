@@ -23,7 +23,7 @@ import java.util.function.Predicate;
 
 /**
  * @author François Gautier
- * @since 4.2
+ * @since 5.0
  */
 @Configuration
 public class WSPluginDispatcherConfiguration extends WSPluginPushConfiguration {

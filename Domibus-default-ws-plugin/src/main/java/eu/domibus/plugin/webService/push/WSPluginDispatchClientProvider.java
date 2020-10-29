@@ -11,6 +11,7 @@ import org.apache.cxf.jaxws.DispatchImpl;
 import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.transports.http.configuration.ConnectionType;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import javax.xml.namespace.QName;
@@ -41,7 +42,7 @@ public class WSPluginDispatchClientProvider {
     private final ProxyCxfUtilExtService proxyUtilExtService;
     private final WSPluginPropertyManager wsPluginPropertyManager;
 
-    public WSPluginDispatchClientProvider(Executor executor,
+    public WSPluginDispatchClientProvider(@Qualifier("taskExecutor") Executor executor,
                                           TLSReaderExtService tlsReaderDelegate,
                                           ProxyCxfUtilExtService proxyUtilExtService,
                                           WSPluginPropertyManager wsPluginPropertyManager) {
