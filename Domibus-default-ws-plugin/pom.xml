@@ -147,6 +147,12 @@
         </dependency>
         <!--        START TEST        -->
         <dependency>
+            <groupId>eu.domibus</groupId>
+            <artifactId>domibus-test</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>

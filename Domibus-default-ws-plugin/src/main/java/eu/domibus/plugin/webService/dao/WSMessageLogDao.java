@@ -1,7 +1,5 @@
 package eu.domibus.plugin.webService.dao;
 
-import eu.domibus.logging.DomibusLogger;
-import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.webService.entity.WSMessageLogEntity;
 import org.springframework.stereotype.Repository;
 
@@ -16,8 +14,6 @@ import java.util.List;
  */
 @Repository
 public class WSMessageLogDao extends WSBasicDao<WSMessageLogEntity> {
-
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSMessageLogDao.class);
 
     private static final String MESSAGE_ID = "MESSAGE_ID";
     private static final String FINAL_RECIPIENT= "FINAL_RECIPIENT";

@@ -1,6 +1,5 @@
 package eu.domibus.plugin.webService.dao;
 
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
