@@ -15,6 +15,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Filtering users from database based on search criteria's
+ *
+ * @author Soumya Chandran
+ * @since 4.2
+ */
 @Repository
 @Transactional
 public class UserFilteringDao extends ListDao<User> {
