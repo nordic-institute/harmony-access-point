@@ -1354,22 +1354,106 @@ def findNumberOfDomain(String inputSite) {
         return domainMap.name;
     }*/
 //---------------------------------------------------------------------------------------------------------------------------------
-    static def getDomain(String side, context, log, String userLogin = SUPER_USER, String passwordLogin = SUPER_USER_PWD) {
+    static def isFourCornerEnabled(String side, context, log, String userLogin = null, String passwordLogin = null) {
+        debugLog("  ====  Calling \"isFourCornerEnabled\".", log)
+       
+        log.info "  isFourCornerEnabled  [][]  Get four corner mode Domibus $side.";
+        def commandString = null;
+        def commandResult = null;
+        def authenticationUser=userLogin;
+        def authenticationPwd=passwordLogin;
+
+        (authenticationUser, authenticationPwd) = retriveAdminCredentials(context, log, side, authenticationUser, authenticationPwd)
+
+		commandString = ["curl", urlToDomibus(side, log, context) + "/rest/application/fourcornerenabled",
+						"--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
+						"-H", "Content-Type: application/json",
+						"-H", "X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
+						"-v"]
+        commandResult = runCommandInShell(commandString, log)
+        assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*204.*/)||(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/)),"Error:isFourCornerEnabled: Error in the isFourCornerEnabled response."
+		debugLog("  ====  END \"isFourCornerEnabled\".", log);
+		if(commandResult[0].substring(5).trim().equals("true")){
+			return true;
+		}else{
+			return false;
+		}
+    }
+//---------------------------------------------------------------------------------------------------------------------------------
+    static def isMultitenancy(String side, context, log, String userLogin = SUPER_USER, String passwordLogin = SUPER_USER_PWD) {
+        debugLog("  ====  Calling \"isMultitenancy\".", log)
+        
+        log.info "  isMultitenancy  [][]  Checking if Domibus is deployed in multitenancy for Domibus \"$side\".";
+        def commandString = null;
+        def commandResult = null;
+
+		commandString = ["curl", urlToDomibus(side, log, context) + "/rest/application/multitenancy",
+						"--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
+						"-H", "Content-Type: application/json",
+						"-H", "X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, userLogin, passwordLogin),
+						"-v"]
+        commandResult = runCommandInShell(commandString, log)
+        assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*204.*/)||(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/)),"Error:isMultitenancy: Error in the isMultitenancy response."
+		debugLog("  ====  END \"isMultitenancy\".", log);
+		if(commandResult[0].substring(5).trim().equals("true")){
+			return true;
+		}else{
+			return false;
+		}
+    }
+//---------------------------------------------------------------------------------------------------------------------------------
+    static def getUItitle(String side, context, log,domainValue="default" ,String userLogin = null, String passwordLogin = null) {
+        debugLog("  ====  Calling \"getUItitle\".", log)
+        
+        log.info "  getUItitle  [][]  Get current UI title for Domibus $side.";
+        def commandString = null;
+        def commandResult = null;
+        def authenticationUser=userLogin;
+        def authenticationPwd=passwordLogin;
+
+        (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
+		
+		commandString = ["curl", urlToDomibus(side, log, context) + "/rest/application/name",
+						"--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
+						"-H", "Content-Type: application/json",
+						"-H", "X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
+						"-v"]
+        commandResult = runCommandInShell(commandString, log)
+        assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*204.*/)||(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/)),"Error:getUItitle: Error in the getUItitle response."
+		debugLog("  ====  END \"getUItitle\".", log)
+        return commandResult[0].substring(5).replace("\"", "").trim();
+    }
+//---------------------------------------------------------------------------------------------------------------------------------	
+    static def getDomain(String side, context, log,infoType="code" ,String userLogin = SUPER_USER, String passwordLogin = SUPER_USER_PWD) {
         debugLog("  ====  Calling \"getDomain\".", log)
         assert(userLogin == SUPER_USER),"Error:getDomains: To manipulate domains, login must be done with user: \"$SUPER_USER\"."
         log.info "  getDomain  [][]  Get current domain for Domibus $side.";
         def commandString = null;
         def commandResult = null;
-
-		commandString = ["curl", urlToDomibus(side, log, context) + "/rest/application/name",
+		def responseOutput=null;
+		def dataMap = null;
+		def jsonSlurper = new JsonSlurper();
+		
+		// If multitenancy is on no need to continu
+        if(!isMultitenancy(side, context, log)){
+			return "default";
+		}
+		
+		commandString = ["curl", urlToDomibus(side, log, context) + "/rest/security/user/domain",
 						"--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
 						"-H", "Content-Type: application/json",
 						"-H", "X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, userLogin, passwordLogin),
 						"-v"]
         commandResult = runCommandInShell(commandString, log)
         assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*204.*/)||(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/)),"Error:getDomain: Error in the getDomain response."
-		debugLog("  ====  END \"getDomain\".", log)
-        return commandResult[0].substring(5)
+		debugLog("  ====  END \"getDomain\".", log);
+		responseOutput=commandResult[0].substring(5);
+		dataMap = jsonSlurper.parseText(responseOutput);
+		if(infoType.equals("code")){
+			return dataMap.code;
+		}else{
+			return dataMap.name;
+		}
     }
 //---------------------------------------------------------------------------------------------------------------------------------
     static def setDomain(String side, context, log, String domainValue, String userLogin=SUPER_USER, String passwordLogin=SUPER_USER_PWD){
