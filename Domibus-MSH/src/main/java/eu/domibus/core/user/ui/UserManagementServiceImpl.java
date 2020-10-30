@@ -5,6 +5,7 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthRole;
+import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.user.UserManagementException;
 import eu.domibus.core.alerts.service.ConsoleUserAlertsServiceImpl;
 import eu.domibus.core.dao.ListDao;
@@ -72,6 +73,9 @@ public class UserManagementServiceImpl implements UserService {
 
     @Autowired
     ConsoleUserAlertsServiceImpl userAlertsService;
+
+    @Autowired
+    protected AuthUtils authUtils;
 
     @Autowired
     @Qualifier("userFilteringDao")

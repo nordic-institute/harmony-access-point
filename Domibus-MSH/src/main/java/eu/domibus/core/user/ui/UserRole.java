@@ -30,13 +30,13 @@ import java.util.Set;
 )
 @Audited(withModifiedFlag = true)
 @RevisionLogicalName(value = "User", auditOrder = 1)
-public class UserRole extends AbstractBaseEntity {
+public class UserRole extends AbstractBaseEntity{
 
     @NotNull
     @Column(name = "ROLE_NAME")
     private String name;
-    @ManyToMany(mappedBy = "roles", fetch = FetchType.LAZY)
-    private Set<User> users = new HashSet<>();
+    @ManyToMany(mappedBy = "roles",fetch = FetchType.LAZY)
+    private Set<User> users=new HashSet<>();
 
     @SuppressWarnings("squid:S2637")
     public UserRole(String name) {
@@ -51,7 +51,7 @@ public class UserRole extends AbstractBaseEntity {
         return name;
     }
 
-    public void addUser(User user) {
+    public void addUser(User user){
         users.add(user);
     }
 
