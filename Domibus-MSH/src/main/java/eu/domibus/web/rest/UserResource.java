@@ -160,7 +160,7 @@ public class UserResource extends BaseResource {
 
     protected UserResultRO retrieveAndPackageUsers(UserFilterRequestRO request) {
         LOG.debug("Retrieving users.");
-        List<User> users =  getUserService().findUsers(request.getAuthRole(), request.getUserName(), request.getDeleted(),
+        List<User> users = getUserService().findUsersWithFilters(request.getAuthRole(), request.getUserName(), request.getDeleted(),
                 request.getPageStart(), request.getPageSize());
         List<UserResponseRO> userResponseROS = prepareResponse(users);
         UserResultRO result = new UserResultRO();
@@ -199,7 +199,7 @@ public class UserResource extends BaseResource {
      * @param users
      * @return a list of
      */
-    private List<UserResponseRO> prepareResponse(List<User> users) {
+    protected List<UserResponseRO> prepareResponse(List<User> users) {
         List<UserResponseRO> userResponseROS = domainConverter.convert(users, UserResponseRO.class);
         for (UserResponseRO userResponseRO : userResponseROS) {
             userResponseRO.setStatus("PERSISTED");

@@ -7,7 +7,6 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.user.UserManagementException;
 import eu.domibus.core.alerts.service.ConsoleUserAlertsServiceImpl;
-import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.dao.ListDao;
 import eu.domibus.core.user.UserLoginErrorReason;
 import eu.domibus.core.user.UserPersistenceService;
@@ -24,7 +23,10 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 
 /**
@@ -75,10 +77,10 @@ public class UserManagementServiceImpl implements UserService {
     @Qualifier("userFilteringDao")
     private ListDao listDao;
 
-    @Autowired
-    private DomainCoreConverter domainConverter;
-
     public static final String ALL_USERS = "all";
+
+    public UserManagementServiceImpl() {
+    }
 
 
     /**
@@ -231,38 +233,54 @@ public class UserManagementServiceImpl implements UserService {
         }
     }
 
+    /**
+     * Search users based on the following criteria's.
+     *
+     * @param authRole criteria to search the role of user (ROLE_ADMIN or ROLE_USER)
+     * @param userName criteria to search by userName
+     * @param page     pagination start
+     * @param pageSize page size.
+     */
     @Override
-    public List<eu.domibus.api.user.User> findUsers(AuthRole authRole, String userName, String deleted, int page, int pageSize) {
-        Map<String, Object> filters = createFilterMap(authRole, userName, deleted);
-        List<User> users = listDao.findPaged(page * pageSize, pageSize, "entityId", true, filters);
-        List<eu.domibus.api.user.User> finalUsers = prepareUsers(this::getDomainForUser, users);
+    @Transactional(readOnly = true)
+    public List<eu.domibus.api.user.User> findUsersWithFilters(AuthRole authRole, String userName, String deleted, int page, int pageSize) {
+        return findUsersWithFilters(authRole, userName, deleted, page, pageSize, this::getDomainForUser);
+    }
 
+
+    protected List<eu.domibus.api.user.User> findUsersWithFilters(AuthRole authRole, String userName, String deleted, int page, int pageSize, Function<eu.domibus.api.user.User, String> getDomainForUserFn) {
+
+        LOG.debug("Retrieving console users");
+        Map<String, Object> filters = createFilterMap(userName, deleted, authRole);
+        List<User> users = listDao.findPaged(page * pageSize, pageSize, "entityId", true, filters);
+        List<eu.domibus.api.user.User> finalUsers = prepareUsers(getDomainForUserFn, users);
         return finalUsers;
     }
 
+
     @Override
+    @Transactional
     public long countUsers(AuthRole authRole, String userName, String deleted) {
-        Map<String, Object> filters = createFilterMap(authRole,userName, deleted);
-         List<User> users = userDao.listUsers();
-        return users.size();
+        Map<String, Object> filters = createFilterMap(userName, deleted, authRole);
+        return listDao.countEntries(filters);
     }
 
-    protected Map<String, Object> createFilterMap(AuthRole authRole, String userName, String deleted) {
+    protected Map<String, Object> createFilterMap(String userName, String deleted, AuthRole authRole) {
         HashMap<String, Object> filters = new HashMap<>();
+        if (userName != null) {
+            filters.put("userName", userName);
+        }
+        if (deleted != null) {
+            if (deleted.equals(ALL_USERS)) {
+                filters.put("deleted", null);
+
+            } else {
+                filters.put("deleted", Boolean.parseBoolean(deleted));
+            }
+        }
         if (authRole != null) {
-            UserRole userRole = userRoleDao.findByName(authRole.name());
-            Set<UserRole> roles = new HashSet<>();
-            roles.add(userRole);
-            filters.put("roles", roles);
+            filters.put("userRole", authRole.name());
         }
-        if (deleted.equals(ALL_USERS)) {
-            filters.put("deleted", null);
-
-        } else {
-            filters.put("deleted", Boolean.parseBoolean(deleted));
-        }
-        filters.put("userName", userName);
-
         LOG.debug("Added users filters: [{}]", filters);
         return filters;
     }

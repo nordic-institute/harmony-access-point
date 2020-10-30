@@ -76,18 +76,19 @@ public interface UserService {
     /**
      * Search the users. The search is made based on the following
      * criteria.
-     * @param authRole criteria to search on the authentication role of the user (ROLE_ADMIN or ROLE_USER)
-     * @param userName criteria to search by userName
+     *
+     * @param authRole  criteria to search the role of user (ROLE_ADMIN or ROLE_USER)
+     * @param userName  criteria to search by userName
      * @param pageStart pagination start
-     * @param pageSize page size.
+     * @param pageSize  page size.
      * @return a list of users.
      */
-    List<eu.domibus.api.user.User> findUsers(AuthRole authRole, String userName, String deleted, int pageStart, int pageSize);
+    List<eu.domibus.api.user.User> findUsersWithFilters(AuthRole authRole, String userName, String deleted, int pageStart, int pageSize);
 
     /**
      * Counts the users matching the search criteria.
      *
-     * @param authRole criteria to search on the authentication role of the user (ROLE_ADMIN or ROLE_USER)
+     * @param authRole criteria to search the role of user (ROLE_ADMIN or ROLE_USER)
      * @param userName criteria to search by userName
      * @return the count of matching users.
      */

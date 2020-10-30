@@ -4,12 +4,14 @@ import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.user.User;
+import eu.domibus.core.dao.ListDao;
 import eu.domibus.core.multitenancy.dao.UserDomainDao;
 import eu.domibus.core.multitenancy.dao.UserDomainEntity;
 import eu.domibus.core.user.ui.UserManagementServiceImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,6 +38,10 @@ public class SuperUserManagementServiceImpl extends UserManagementServiceImpl {
     @Autowired
     protected UserDomainDao userDomainDao;
 
+    @Autowired
+    @Qualifier("userFilteringDao")
+    private ListDao listDao;
+
     /**
      * {@inheritDoc}
      */
@@ -50,6 +56,41 @@ public class SuperUserManagementServiceImpl extends UserManagementServiceImpl {
 
         return allUsers;
     }
+
+    /**
+     * Search users based on the following filters.
+     *
+     *@param authRole  criteria to search the role of user (ROLE_ADMIN or ROLE_USER)
+     *@param userName  criteria to search by userName
+     *@param page pagination start
+     *@param pageSize  page size.
+     */
+    @Override
+    public List<eu.domibus.api.user.User> findUsersWithFilters(AuthRole authRole, String userName, String deleted, int page, int pageSize) {
+        // retrieve domain users
+        List<eu.domibus.api.user.User> allUsers = super.findUsersWithFilters(authRole, userName, deleted, page, pageSize);
+
+        // retrieve super users
+        List<eu.domibus.api.user.User> superUsers = getSuperUsersWithFilters(authRole, userName, deleted, page, pageSize);
+        allUsers.addAll(superUsers);
+
+        return allUsers;
+    }
+
+    /**
+     * Get super users from the general schema with the filters. <br>
+     * This is done in a separate thread as the DB connection is cached per thread and cannot be changed anymore to the schema of the associated domain
+     *@param authRole  criteria to search the role of user (ROLE_ADMIN or ROLE_USER)
+     *@param userName  criteria to search by userName
+     *@param page pagination start
+     *@param pageSize  page size
+     *@return the list of users from the general schema
+     */
+    protected List<User> getSuperUsersWithFilters(AuthRole authRole, String userName, String deleted, int page, int pageSize) {
+        LOG.debug("Searching for super users");
+        return domainTaskExecutor.submit(() -> super.findUsersWithFilters(authRole, userName, deleted,  page, pageSize, this::getPreferredDomainForUser));
+    }
+
 
     /**
      * Get all super users from the general schema. <br>
