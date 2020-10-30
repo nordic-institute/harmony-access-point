@@ -1392,7 +1392,8 @@ def findNumberOfDomain(String inputSite) {
 						"-H", "Content-Type: application/json",
 						"-H", "X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, userLogin, passwordLogin),
 						"-v"]
-        commandResult = runCommandInShell(commandString, log)
+        commandResult = runCommandInShell(commandString, log);
+		resetAuthTokens(log);
         assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*204.*/)||(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/)),"Error:isMultitenancy: Error in the isMultitenancy response."
 		debugLog("  ====  END \"isMultitenancy\".", log);
 		if(commandResult[0].substring(5).trim().equals("true")){
@@ -1426,7 +1427,7 @@ def findNumberOfDomain(String inputSite) {
 //---------------------------------------------------------------------------------------------------------------------------------	
     static def getDomain(String side, context, log,infoType="code" ,String userLogin = SUPER_USER, String passwordLogin = SUPER_USER_PWD) {
         debugLog("  ====  Calling \"getDomain\".", log)
-        assert(userLogin == SUPER_USER),"Error:getDomains: To manipulate domains, login must be done with user: \"$SUPER_USER\"."
+
         log.info "  getDomain  [][]  Get current domain for Domibus $side.";
         def commandString = null;
         def commandResult = null;
@@ -1435,7 +1436,8 @@ def findNumberOfDomain(String inputSite) {
 		def jsonSlurper = new JsonSlurper();
 		
 		// If multitenancy is on no need to continu
-        if(!isMultitenancy(side, context, log)){
+        if(!getMultitenancyFromSide(side, context, log)){
+			debugLog("  getDomain  [][]  Singletenancy deployment: Return \"default\" value.", log);
 			return "default";
 		}
 		
@@ -1461,7 +1463,6 @@ def findNumberOfDomain(String inputSite) {
         def commandString = null;
         def commandResult = null;
 
-        assert(userLogin==SUPER_USER),"Error:setDomain: To manipulate domains, login must be done with user: \"$SUPER_USER\"."
         debugLog("  setDomain  [][]  Set domain for Domibus $side.", log)
 		if (domainValue == getDomain(side, context, log)) {
             debugLog("  setDomain  [][]  Requested domain is equal to the current value: no action needed", log)
@@ -1534,7 +1535,7 @@ def findNumberOfDomain(String inputSite) {
             } else {
                 debugLog("  addAdminConsoleUser  [][]  Users list before the update: " + usersMap, log)
                 debugLog("  addAdminConsoleUser  [][]  Prepare user \"$userAC\" details to be added.", log)
-                curlParams = "[ { \"roles\": \"$userRole\", \"userName\": \"$userAC\", \"password\": \"$passwordAC\", \"status\": \"NEW\", \"active\": true, \"suspended\": false, \"authorities\": [], \"deleted\": false } ]";
+                curlParams = "[ { \"roles\": \"$userRole\",\"domain\": \"$domainValue\", \"userName\": \"$userAC\", \"password\": \"$passwordAC\", \"status\": \"NEW\", \"active\": true, \"suspended\": false, \"authorities\": [], \"deleted\": false } ]";
                 debugLog("  addAdminConsoleUser  [][]  Inserting user \"$userAC\" in list.", log)
                 debugLog("  addAdminConsoleUser  [][]  User \"$userAC\" parameters: $curlParams.", log)
 				commandString = ["curl ",urlToDomibus(side, log, context) + "/rest/user/users",
