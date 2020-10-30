@@ -1,9 +1,6 @@
 package eu.domibus.core.message.nonrepudiation;
 
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
-import eu.domibus.core.message.MessageExchangeService;
-import eu.domibus.core.util.SoapUtil;
-import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.binding.soap.SoapMessage;
@@ -11,7 +8,6 @@ import org.apache.cxf.binding.soap.interceptor.AbstractSoapInterceptor;
 import org.apache.cxf.binding.soap.interceptor.SoapOutInterceptor;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.phase.Phase;
-import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -41,12 +37,15 @@ public class SaveRawEnvelopeInterceptor extends AbstractSoapInterceptor {
     @Override
     public void handleMessage(SoapMessage message) throws Fault {
 
+        LOG.debug("Entering save signal envelope method");
+
         final SOAPMessage jaxwsMessage = message.getContent(SOAPMessage.class);
 
         String userMessageId = (String) message.getExchange().get(DispatchClientDefaultProvider.EBMS_MESSAGE_ID);
 
         if (userMessageId != null) {
             nonRepudiationService.saveResponse(jaxwsMessage, userMessageId);
+            LOG.debug("Saved the signal message envelope for user message id [{}]", userMessageId);
         }
     }
 
