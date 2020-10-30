@@ -263,10 +263,11 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- required by hibernate-validator -->
+        <!--  //TODO check after finishing EDELIVERY-7390 -->
         <dependency>
             <groupId>org.glassfish</groupId>
             <artifactId>javax.el</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <!-- Test dependencies -->
