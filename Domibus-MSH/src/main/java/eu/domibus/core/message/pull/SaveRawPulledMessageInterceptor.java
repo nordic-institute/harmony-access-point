@@ -3,10 +3,8 @@ package eu.domibus.core.message.pull;
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
 import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
 import eu.domibus.core.message.MessageExchangeService;
-import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.ebms3.common.model.MessageType;
-import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.binding.soap.SoapMessage;
@@ -14,7 +12,6 @@ import org.apache.cxf.binding.soap.interceptor.AbstractSoapInterceptor;
 import org.apache.cxf.binding.soap.interceptor.SoapOutInterceptor;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.phase.Phase;
-import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -41,9 +38,6 @@ public class SaveRawPulledMessageInterceptor extends AbstractSoapInterceptor {
     @Autowired
     protected SoapUtil soapUtil;
 
-    @Autowired
-    protected NonRepudiationService nonRepudiationService;
-
     public SaveRawPulledMessageInterceptor() {
         super(Phase.WRITE_ENDING);
         addAfter(SoapOutInterceptor.SoapOutEndingInterceptor.class.getName());
@@ -51,18 +45,6 @@ public class SaveRawPulledMessageInterceptor extends AbstractSoapInterceptor {
 
     @Override
     public void handleMessage(SoapMessage message) throws Fault {
-
-        // TODO move elsewhere
-        final SOAPMessage jaxwsMessage = message.getContent(javax.xml.soap.SOAPMessage.class);
-
-        String userMessageId = (String)message.getExchange().get(DispatchClientDefaultProvider.EBMS_MESSAGE_ID);
-
-        if (userMessageId!=null)
-            nonRepudiationService.saveResponse(jaxwsMessage, userMessageId);
-
-        // message.getExchange().get("ebms.messageid")
-
-        // TODO end
 
         Object messageType = message.getExchange().get(MSHDispatcher.MESSAGE_TYPE_OUT);
         Object messageId = message.getExchange().get(DispatchClientDefaultProvider.MESSAGE_ID);
@@ -77,10 +59,6 @@ public class SaveRawPulledMessageInterceptor extends AbstractSoapInterceptor {
         } catch (TransformerException e) {
             throw new WebServiceException(new IllegalArgumentException(e));
         }
-    }
-
-    protected Messaging getMessaging() {
-        return (Messaging) PhaseInterceptorChain.getCurrentMessage().get(DispatchClientDefaultProvider.MESSAGING_KEY_CONTEXT_PROPERTY);
     }
 
 }

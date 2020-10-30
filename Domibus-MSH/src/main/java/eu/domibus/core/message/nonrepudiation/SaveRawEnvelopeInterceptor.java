@@ -1,0 +1,52 @@
+package eu.domibus.core.message.nonrepudiation;
+
+import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
+import eu.domibus.core.message.MessageExchangeService;
+import eu.domibus.core.util.SoapUtil;
+import eu.domibus.ebms3.common.model.Messaging;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.cxf.binding.soap.SoapMessage;
+import org.apache.cxf.binding.soap.interceptor.AbstractSoapInterceptor;
+import org.apache.cxf.binding.soap.interceptor.SoapOutInterceptor;
+import org.apache.cxf.interceptor.Fault;
+import org.apache.cxf.phase.Phase;
+import org.apache.cxf.phase.PhaseInterceptorChain;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.xml.soap.SOAPMessage;
+
+/**
+ * Interceptor to save the raw xml envelope of a signal message.
+ * The non repudiation mechanism needs the raw message at the end of the interceptor queue,
+ * as it needs the security interceptors added
+ *
+ * @author Ion Perpegel
+ * @since 5.0
+ */
+@Service
+public class SaveRawEnvelopeInterceptor extends AbstractSoapInterceptor {
+
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SaveRawEnvelopeInterceptor.class);
+
+    @Autowired
+    protected NonRepudiationService nonRepudiationService;
+
+    public SaveRawEnvelopeInterceptor() {
+        super(Phase.WRITE_ENDING);
+        addAfter(SoapOutInterceptor.SoapOutEndingInterceptor.class.getName());
+    }
+
+    @Override
+    public void handleMessage(SoapMessage message) throws Fault {
+
+        final SOAPMessage jaxwsMessage = message.getContent(SOAPMessage.class);
+
+        String userMessageId = (String) message.getExchange().get(DispatchClientDefaultProvider.EBMS_MESSAGE_ID);
+
+        if (userMessageId != null)
+            nonRepudiationService.saveResponse(jaxwsMessage, userMessageId);
+    }
+
+}
