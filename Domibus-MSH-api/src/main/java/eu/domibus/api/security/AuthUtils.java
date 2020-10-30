@@ -73,7 +73,7 @@ public interface AuthUtils {
      * @param user - Authentication: username
      * @param password - Authentication: username
      * @param authRole - Authentication: role
-     *  @param authRole  - forceSecurityContext:
+     * @param forceSecurityContext - force security context even if unsecured login is allowed
      */
     void runWithSecurityContext(AuthenticatedProcedure function, String user, String password, AuthRole authRole, boolean forceSecurityContext);
 
@@ -91,4 +91,20 @@ public interface AuthUtils {
      */
     <R> R runFunctionWithSecurityContext(AuthenticatedFunction function, String user, String password, AuthRole authRole);
 
+    /**
+     * Method execute function given in function parameter.
+     * If method isUnsecureLoginAllowed returns false, then
+     * the spring security context with user Authentication and role 'authRole; is set before invoking the function.
+     * After the method is executed the security context is removed.
+     *
+     * @param function - method to wrap
+     * @param user - Authentication: username
+     * @param password - Authentication: username
+     * @param authRole - Authentication: role
+     * @param forceSecurityContext - force security context even if unsecured login is allowed
+     * return function result
+     */
+    <R> R runFunctionWithSecurityContext(AuthenticatedFunction function, String user, String password, AuthRole authRole, boolean forceSecurityContext);
+
 }
+

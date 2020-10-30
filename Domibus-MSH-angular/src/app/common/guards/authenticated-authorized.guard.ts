@@ -27,7 +27,9 @@ export class AuthenticatedAuthorizedGuard implements CanActivate {
       return this.getNotAuthenticatedRoute(state);
     }
 
-    // check also authorization
+    // make sure the app is properly initialized before checking anything else
+    await this.securityService.isAppInitialized();
+
     const isAuthorized = await this.isAuthorized(route);
     if (!isAuthorized) {
       return this.getNotAuthorizedRoute();

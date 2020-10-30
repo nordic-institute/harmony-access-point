@@ -75,12 +75,14 @@
 			<payload name="businessContentPayload" cid="cid:message" required="true" mimeType="text/xml" inBody="false"/>
 			<payload name="businessContentAttachment" cid="cid:attachment" required="false" mimeType="application/pdf" inBody="false"/>
 			<payload name="textbusinessContentAttachment" cid="cid:txtattachment" required="false" mimeType="text/plain" inBody="false"/>
+			<payload name="octetStreambusinessContentAttachment" cid="cid:osattachment" required="false" mimeType="application/octet-stream" inBody="false"/>
 			<payload name="businessContentPayloadInBody" cid="" required="true" mimeType="text/xml" inBody="true"/>
 			<payload name="businessContentPayloadInBodyTwo" cid="" required="true" mimeType="application/xml" inBody="true"/>
 			<payloadProfile name="MessageProfile" maxSize="2147483647">
 				<attachment name="businessContentPayload"/>
 				<attachment name="businessContentAttachment"/>
 				<attachment name="textbusinessContentAttachment"/>
+				<attachment name="octetStreambusinessContentAttachment"/>
 			</payloadProfile>
 			<payloadProfile name="MessageProfilePayloadInBody" maxSize="2147483647">
 				<attachment name="businessContentPayloadInBody"/>

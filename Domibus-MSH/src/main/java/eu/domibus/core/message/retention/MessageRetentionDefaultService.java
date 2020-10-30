@@ -77,18 +77,21 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
         final Integer expiredDownloadedMessagesLimit = getRetentionValue(DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_DOWNLOADED_MAX_DELETE);
         final Integer expiredNotDownloadedMessagesLimit = getRetentionValue(DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_NOT_DOWNLOADED_MAX_DELETE);
         final Integer expiredSentMessagesLimit = getRetentionValue(DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_SENT_MAX_DELETE);
+        final Integer expiredPayloadDeletedMessagesLimit = getRetentionValue(DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_PAYLOAD_DELETED_MAX_DELETE);
+
         for (final String mpc : mpcs) {
-            deleteExpiredMessages(mpc, expiredDownloadedMessagesLimit, expiredNotDownloadedMessagesLimit, expiredSentMessagesLimit);
+            deleteExpiredMessages(mpc, expiredDownloadedMessagesLimit, expiredNotDownloadedMessagesLimit, expiredSentMessagesLimit, expiredPayloadDeletedMessagesLimit);
         }
     }
 
     @Override
-    public void deleteExpiredMessages(String mpc, Integer expiredDownloadedMessagesLimit, Integer expiredNotDownloadedMessagesLimit, Integer expiredSentMessagesLimit) {
+    public void deleteExpiredMessages(String mpc, Integer expiredDownloadedMessagesLimit, Integer expiredNotDownloadedMessagesLimit, Integer expiredSentMessagesLimit, Integer expiredPayloadDeletedMessagesLimit) {
         LOG.debug("Deleting expired messages for MPC [{}] using expiredDownloadedMessagesLimit [{}]" +
                 " and expiredNotDownloadedMessagesLimit [{}]", mpc, expiredDownloadedMessagesLimit, expiredNotDownloadedMessagesLimit);
         deleteExpiredDownloadedMessages(mpc, expiredDownloadedMessagesLimit);
         deleteExpiredNotDownloadedMessages(mpc, expiredNotDownloadedMessagesLimit);
         deleteExpiredSentMessages(mpc, expiredSentMessagesLimit);
+        deleteExpiredPayloadDeletedMessages(mpc, expiredPayloadDeletedMessagesLimit);
     }
 
     protected void deleteExpiredDownloadedMessages(String mpc, Integer expiredDownloadedMessagesLimit) {
@@ -106,8 +109,27 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
             final int deleted = downloadedMessages.size();
             LOG.debug("Found [{}] downloaded messages to delete", deleted);
             scheduleDeleteMessages(downloadedMessages, mpc);
-            LOG.debug("Deleted [{}] downloaded messages", deleted);
+            LOG.debug("Scheduled [{}] downloaded messages", deleted);
         }
+    }
+
+    protected void deleteExpiredPayloadDeletedMessages(String mpc, Integer expiredPayloadDeletedMessagesLimit) {
+        final boolean isDeleteMessageMetadata = pModeProvider.isDeleteMessageMetadataByMpcURI(mpc);
+        if (!isDeleteMessageMetadata) { // only schedule delete of entire messages if delete metadata is true
+            return;
+        }
+
+        LOG.debug("Deleting expired payload deleted messages for MPC [{}] using expiredPayloadDeletedMessagesLimit [{}]", mpc, expiredPayloadDeletedMessagesLimit);
+        final List<UserMessageLogDto> deletedMessages = userMessageLogDao.getDeletedUserMessagesOlderThan(DateUtils.addMinutes(new Date(), 1), // give 1 minute for the previous state
+                mpc, expiredPayloadDeletedMessagesLimit);
+        if (CollectionUtils.isEmpty(deletedMessages)) {
+            LOG.debug("There are no expired payload deleted messages.");
+            return;
+        }
+        final int deleted = deletedMessages.size();
+        LOG.debug("Found [{}] payload deleted messages to delete", deleted);
+        scheduleDeleteMessages(deletedMessages, mpc);
+        LOG.debug("Scheduled [{}] payload deleted messages", deleted);
     }
 
     protected void deleteExpiredNotDownloadedMessages(String mpc, Integer expiredNotDownloadedMessagesLimit) {
@@ -123,7 +145,7 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
             final int deleted = notDownloadedMessages.size();
             LOG.debug("Found [{}] not-downloaded messages to delete", deleted);
             scheduleDeleteMessages(notDownloadedMessages, mpc);
-            LOG.debug("Deleted [{}] not-downloaded messages", deleted);
+            LOG.debug("Scheduled [{}] not-downloaded messages", deleted);
         }
     }
 
@@ -142,7 +164,7 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
             final int deleted = sentMessages.size();
             LOG.debug("Found [{}] sent messages to delete", deleted);
             scheduleDeleteMessages(sentMessages, mpc);
-            LOG.debug("Deleted [{}] sent messages", deleted);
+            LOG.debug("Scheduled [{}] sent messages", deleted);
         }
     }
 

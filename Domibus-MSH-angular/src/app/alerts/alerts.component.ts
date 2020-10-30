@@ -229,11 +229,16 @@ export class AlertsComponent extends mix(BaseListComponent)
       this.dateToName = item + ' TO';
       this.alertTypeWithDate = true;
     });
-    this.dynamicDataToMaxDate = this.isFutureAlert(alertType) ? null : new Date();
+    this.dynamicDataToMaxDate = this.getDynamicDataToMaxDate(alertType);
+    this.dynamicDataFromMaxDate = this.getDynamicDataToMaxDate(alertType);
+  }
+
+  private getDynamicDataToMaxDate(alertType: string) {
+    return this.isFutureAlert(alertType) ? null : new Date();
   }
 
   isFutureAlert(alertType: string): boolean {
-    return alertType.includes(this.IMMINENT_SUFFIX);
+    return alertType && alertType.includes(this.IMMINENT_SUFFIX);
   }
 
   onTimestampCreationFromChange(event) {

@@ -13,7 +13,9 @@ export class RedirectHomeGuard implements CanActivate {
   constructor(private router: Router, private securityService: SecurityService) {
   }
 
-  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
+  async canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
+    await this.securityService.isAppInitialized();
+
     const currentUser = this.securityService.getCurrentUser();
     if (!!currentUser) {
       this.router.navigate(['/']);
