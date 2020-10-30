@@ -26,7 +26,7 @@ public class RawEnvelopeLog extends AbstractBaseEntity {
     @JoinColumn(name = "USERMESSAGE_ID_FK")
     protected UserMessage userMessage;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "SIGNALMESSAGE_ID_FK")
     protected SignalMessage signalMessage;
 
