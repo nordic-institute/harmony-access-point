@@ -10,7 +10,6 @@ import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.security.functions.AuthenticatedFunction;
 import eu.domibus.api.user.UserManagementException;
 import eu.domibus.core.alerts.service.ConsoleUserAlertsServiceImpl;
-import eu.domibus.core.dao.ListDao;
 import eu.domibus.core.user.UserPersistenceService;
 import eu.domibus.core.user.ui.converters.UserConverter;
 import eu.domibus.core.user.ui.security.ConsoleUserSecurityPolicyManager;
@@ -72,7 +71,7 @@ public class UserManagementServiceImplTest {
     protected AuthUtils authUtils;
 
     @Injectable
-    ListDao userFilteringDao;
+    UserFilteringDao userFilteringDao;
 
     @Test
     public void findUsersTest() {
@@ -411,10 +410,7 @@ public class UserManagementServiceImplTest {
     @Test
     public void createFilterMap(@Injectable User userEntity, @Injectable eu.domibus.api.user.User user) {
 
-
-        Map<String, Object> filters = new HashMap<>();
-
-        filters = userManagementService.createFilterMap("admin", "true", AuthRole.ROLE_ADMIN);
+        Map<String, Object> filters = userManagementService.createFilterMap("admin", "true", AuthRole.ROLE_ADMIN);
 
         Assert.assertEquals(3, filters.size());
     }

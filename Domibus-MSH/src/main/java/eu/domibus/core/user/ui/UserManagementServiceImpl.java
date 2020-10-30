@@ -8,7 +8,6 @@ import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.user.UserManagementException;
 import eu.domibus.core.alerts.service.ConsoleUserAlertsServiceImpl;
-import eu.domibus.core.dao.ListDao;
 import eu.domibus.core.user.UserLoginErrorReason;
 import eu.domibus.core.user.UserPersistenceService;
 import eu.domibus.core.user.UserService;
@@ -17,8 +16,8 @@ import eu.domibus.core.user.ui.security.ConsoleUserSecurityPolicyManager;
 import eu.domibus.core.user.ui.security.password.ConsoleUserPasswordHistoryDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -78,14 +77,12 @@ public class UserManagementServiceImpl implements UserService {
     protected AuthUtils authUtils;
 
     @Autowired
-    @Qualifier("userFilteringDao")
-    private ListDao listDao;
+    private UserFilteringDao listDao;
 
-    public static final String ALL_USERS = "all";
-
-    public UserManagementServiceImpl() {
-    }
-
+    private static final String ALL_USERS = "all";
+    private static final String USER_NAME = "userName";
+    private static final String USER_ROLE = "userRole";
+    private static final String DELETED_USER = "deleted";
 
     /**
      * {@inheritDoc}
@@ -248,7 +245,6 @@ public class UserManagementServiceImpl implements UserService {
      * @param pageSize page size.
      */
     @Override
-    @Transactional(readOnly = true)
     public List<eu.domibus.api.user.User> findUsersWithFilters(AuthRole authRole, String userName, String deleted, int page, int pageSize) {
         return findUsersWithFilters(authRole, userName, deleted, page, pageSize, this::getDomainForUser);
     }
@@ -265,7 +261,6 @@ public class UserManagementServiceImpl implements UserService {
 
 
     @Override
-    @Transactional
     public long countUsers(AuthRole authRole, String userName, String deleted) {
         Map<String, Object> filters = createFilterMap(userName, deleted, authRole);
         return listDao.countEntries(filters);
@@ -273,21 +268,30 @@ public class UserManagementServiceImpl implements UserService {
 
     protected Map<String, Object> createFilterMap(String userName, String deleted, AuthRole authRole) {
         HashMap<String, Object> filters = new HashMap<>();
-        if (userName != null) {
-            filters.put("userName", userName);
-        }
-        if (deleted != null) {
-            if (deleted.equals(ALL_USERS)) {
-                filters.put("deleted", null);
-
-            } else {
-                filters.put("deleted", Boolean.parseBoolean(deleted));
-            }
-        }
-        if (authRole != null) {
-            filters.put("userRole", authRole.name());
-        }
+        getUserNameFilter(userName, filters);
+        getDeletedUserFilter(deleted, filters);
+        getUserRoleFilter(authRole, filters);
         LOG.debug("Added users filters: [{}]", filters);
         return filters;
+    }
+
+    protected void getUserRoleFilter(AuthRole authRole, HashMap<String, Object> filters) {
+        if (authRole != null) {
+            filters.put(USER_ROLE, authRole.name());
+        }
+    }
+
+    protected void getUserNameFilter(String userName, HashMap<String, Object> filters) {
+        if (userName != null) {
+            filters.put(USER_NAME, userName);
+        }
+    }
+
+    protected void getDeletedUserFilter(String deleted, HashMap<String, Object> filters) {
+        if (StringUtils.equals(deleted, ALL_USERS)) {
+            filters.put(DELETED_USER, null);
+        } else {
+            filters.put(DELETED_USER, Boolean.parseBoolean(deleted));
+        }
     }
 }
