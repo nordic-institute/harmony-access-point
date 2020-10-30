@@ -88,7 +88,7 @@
 			<action name="testAction" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test"/>
 		</actions>
 		<as4>
-			<receptionAwareness name="receptionAwareness" retry="12;4;CONSTANT" duplicateDetection="true"/>
+			<receptionAwareness name="receptionAwareness" retry="1;1;CONSTANT" duplicateDetection="true"/>
 			<reliability name="AS4Reliability" nonRepudiation="true" replyPattern="response"/>
 		</as4>
 		<splittingConfigurations>

@@ -98,6 +98,16 @@ public class DefaultBackendConnectorDelegate implements BackendConnectorDelegate
         callNotificationListerForMessageDeletedEvent(backendConnector, event);
     }
 
+    @Override
+    public void messageDeletedBatchEvent(String backend, MessageDeletedBatchEvent event) {
+        BackendConnector<?, ?> backendConnector = backendConnectorProvider.getBackendConnector(backend);
+        if (backendConnector == null) {
+            LOG.warn("Could not find connector for backend [{}]", backend);
+            return;
+        }
+        backendConnector.messageDeletedBatchEvent(event);
+    }
+
     /**
      * Call the NotificationLister if needed to maintain the backward compatibility
      *

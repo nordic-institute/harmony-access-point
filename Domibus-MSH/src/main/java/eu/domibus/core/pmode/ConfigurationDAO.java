@@ -2,9 +2,9 @@
 package eu.domibus.core.pmode;
 
 
-import eu.domibus.core.dao.BasicDao;
-import eu.domibus.common.model.configuration.*;
 import eu.domibus.common.model.configuration.Process;
+import eu.domibus.common.model.configuration.*;
+import eu.domibus.core.dao.BasicDao;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,6 +48,8 @@ public class ConfigurationDAO extends BasicDao<Configuration> {
             process.getInitiatorParties().size();
             process.getResponderParties().size();
             process.getLegs().size();
+            // change PersistentSet with HasSet
+            process.detachParties();
         }
 
 

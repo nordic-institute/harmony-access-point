@@ -14,7 +14,7 @@ import org.testng.SkipException;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.messages.MessageDetailsModal;
-import pages.messages.MessageFilters;
+import pages.messages.MessageFilterArea;
 import pages.messages.MessageResendModal;
 import pages.messages.MessagesPage;
 import utils.Gen;
@@ -22,7 +22,6 @@ import utils.TestRunData;
 import utils.TestUtils;
 import utils.soap_client.MessageConstants;
 
-import java.io.File;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -123,7 +122,7 @@ public class MessagesPgTest extends SeleniumTest {
 		UIMessage messInfo = mapper.readValue(messages.get(0).toString(), UIMessage.class);
 		
 		
-		MessageFilters filters = page.getFilters();
+		MessageFilterArea filters = page.getFilters();
 		
 		String receivedFromDate = TestRunData.DATEWIDGET_DATE_FORMAT.format(new Date(messInfo.getReceived() - 60000));
 		String receivedToDate = TestRunData.DATEWIDGET_DATE_FORMAT.format(new Date(messInfo.getReceived() + 60000));

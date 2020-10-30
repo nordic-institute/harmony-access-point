@@ -4,6 +4,7 @@ import {IPageableList, PaginationType} from './ipageable-list';
 import {instanceOfFilterableList, instanceOfModifiableList} from './type.utils';
 import {OnInit} from '@angular/core';
 import {HttpParams} from '@angular/common/http';
+import {SecurityService} from '../../security/security.service';
 
 /**
  * @author Ion Perpegel
@@ -17,7 +18,7 @@ export let ServerPageableListMixin = (superclass: Constructable) => class extend
     super.type = PaginationType.Server;
   }
 
-  //when server-paging, call get data from server
+  // when server-paging, call get data from server
   public page() {
     this.loadServerData();
   }
@@ -119,18 +120,19 @@ export let PageableListMixin = (superclass: Constructable) => class extends supe
       this.offset = offset;
       this.page();
     } else {
-      //TODO: try to use before event instead(if exists) or make grid show the correct value
+      // TODO: try to use before event instead(if exists) or make grid show the correct value
     }
     return canChangePage;
   }
 
-  private canProceedToPageChange(): Promise<boolean> {
-    if (this.type == PaginationType.Server) {
-      if (instanceOfModifiableList(this) && this.isDirty()) {
-        return this.dialogsService.openCancelDialog();
-      }
+  private async canProceedToPageChange(): Promise<boolean> {
+
+    if (this.type == PaginationType.Client) {
+      return true;
     }
-    return Promise.resolve(true);
+
+    let securityService = this.applicationService.injector.get(SecurityService);
+    return securityService.canAbandonUnsavedChanges(this);
   }
 
   // using an arrow-function instead of a regular function to preserve the correct "this" when called from the row-limiter component context

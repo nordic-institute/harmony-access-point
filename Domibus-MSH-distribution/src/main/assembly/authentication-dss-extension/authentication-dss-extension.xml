@@ -21,6 +21,11 @@
             <outputDirectory>truststore</outputDirectory>
             <filtered>false</filtered>
         </file>
+        <file>
+            <source>${project.basedir}/../Domibus-authentication-dss-extension/src/main/conf/dss-tls-truststore.p12</source>
+            <outputDirectory>truststore</outputDirectory>
+            <filtered>false</filtered>
+        </file>
         <!-- Extention jar -->
         <file>
             <source>${project.basedir}/../Domibus-authentication-dss-extension/target/domibus-authentication-dss-extension-${project.version}.jar</source>

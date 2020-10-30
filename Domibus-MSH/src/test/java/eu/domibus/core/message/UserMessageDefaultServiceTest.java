@@ -42,10 +42,7 @@ import org.junit.runner.RunWith;
 
 import javax.jms.Queue;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES;
 import static org.junit.Assert.assertEquals;
@@ -608,63 +605,16 @@ public class UserMessageDefaultServiceTest {
         }};
     }
 
-    /*@Test
-    public void testDeleteMessagePluginCallback(@Injectable final NotificationListener notificationListener1,
-                                                @Injectable UserMessageLog userMessageLog) {
-        final String messageId = "1";
-        final String backend = "myPlugin";
-        final List<NotificationListener> notificationListeners = new ArrayList<>();
-        notificationListeners.add(notificationListener1);
-
-        new Expectations(userMessageDefaultService) {{
-            routingService.getNotificationListeners();
-            result = notificationListeners;
-
-            userMessageLog.getBackend();
-            result = backend;
-
-            routingService.getNotificationListener(backend);
-            result = notificationListener1;
-
-        }};
-
-        userMessageDefaultService.notifyMessageDeleted(messageId, userMessageLog);
-
-        new Verifications() {{
-            notificationListener1.deleteMessageCallback(messageId);
-        }};
-    }*/
-/*
     @Test
-    public void deleteMessagePluginCallbackForTestMessage(@Injectable final NotificationListener notificationListener1,
-                                                          @Injectable UserMessageLog userMessageLog) {
-        final String messageId = "1";
-        final List<NotificationListener> notificationListeners = new ArrayList<>();
-        notificationListeners.add(notificationListener1);
+    public void testDeleteMessages(@Injectable UserMessageLogDto uml1, @Injectable UserMessageLogDto uml2) {
+        List<UserMessageLogDto> userMessageLogDtos = Arrays.asList(uml1, uml2);
 
-        new Expectations(userMessageDefaultService) {{
-            routingService.getNotificationListeners();
-            result = notificationListeners;
-
-            userMessageLog.isTestMessage();
-            result = true;
-
-        }};
-
-        userMessageDefaultService.deleteMessagePluginCallback(messageId, userMessageLog);
+        userMessageDefaultService.deleteMessages(userMessageLogDtos);
 
         new Verifications() {{
-            userMessageLog.getBackend();
-            times = 0;
-
-            routingService.getNotificationListener(anyString);
-            times = 0;
-
-            notificationListener1.deleteMessageCallback(messageId);
-            times = 0;
-
+            backendNotificationService.notifyMessageDeleted((List<UserMessageLogDto>) any);
         }};
-    }*/
+    }
 
     @Test
     public void marksTheUserMessageAsDeleted(@Injectable Messaging messaging,

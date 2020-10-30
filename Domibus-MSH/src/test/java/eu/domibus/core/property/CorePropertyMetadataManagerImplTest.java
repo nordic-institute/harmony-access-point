@@ -36,7 +36,7 @@ public class CorePropertyMetadataManagerImplTest {
         DomibusPropertyMetadata actual = props.get(DOMIBUS_UI_TITLE_NAME);
 
         Assert.assertEquals(DOMIBUS_UI_TITLE_NAME, actual.getName());
-        Assert.assertEquals(actual.getUsage(), DomibusPropertyMetadata.Usage.DOMAIN);
+        Assert.assertEquals(actual.getUsage(), DomibusPropertyMetadata.Usage.DOMAIN.getValue());
         Assert.assertTrue(actual.isWithFallback());
     }
 

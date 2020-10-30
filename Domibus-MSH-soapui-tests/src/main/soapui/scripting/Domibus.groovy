@@ -2223,8 +2223,8 @@ static def ifWindowsEscapeJsonString(json) {
         def multitenancyOn =  null
         multitenancyOn = getMultitenancyFromSide(side, context, log)
         if (multitenancyOn) {
-            log.info("  retriveAdminCredentials  [][]  retriveAdminCredentials for Domibus $side and domain $domainValue.")
-            debugLog("  retriveAdminCredentials  [][]  First, set domain to $domainValue.", log)
+            log.info("  retriveAdminCredentialsForDomain  [][]  retriveAdminCredentialsForDomain for Domibus $side and domain $domainValue.")
+            debugLog("  retriveAdminCredentialsForDomain  [][]  First, set domain to $domainValue.", log)
             setDomain(side, context, log, domainValue)
             // If authentication details are not fully provided, use default values
             if ( (authUser == null) || (authPwd == null) ) {
@@ -2232,7 +2232,7 @@ static def ifWindowsEscapeJsonString(json) {
                 authenticationPwd = SUPER_USER_PWD;
             }
         } else {
-            log.info("  retriveAdminCredentials  [][]  retriveAdminCredentials for Domibus $side.")
+            log.info("  retriveAdminCredentialsForDomain  [][]  retriveAdminCredentialsForDomain for Domibus $side.")
             // If authentication details are not fully provided, use default values
             if ( (authUser == null) || (authPwd == null) ) {
                 authenticationUser = DEFAULT_ADMIN_USER;
@@ -2859,8 +2859,8 @@ static def String pathToLogFiles(side, log, context) {
 
 //---------------------------------------------------------------------------------------------------------------------------------
 // REST PUT request to test blacklisted characters
-    static def curlBlackList_PUT(String side, context, log, String userAC, String domainValue="Default", String userRole="ROLE_ADMIN", String passwordAC="Domibus-123", String authUser=null, String authPwd=null){
-        debugLog("  ====  Calling \"curlBlackList_PUT\".", log)
+    static def userInputCheck_PUT(String side, context, log, String userAC,listType="blacklist", String domainValue="Default", String userRole="ROLE_ADMIN", String passwordAC="Domibus-123", String authUser=null, String authPwd=null){
+        debugLog("  ====  Calling \"userInputCheck_PUT\".", log)
         def usersMap=null;
         def mapElement=null;
         def multitenancyOn=false;
@@ -2875,10 +2875,10 @@ static def String pathToLogFiles(side, log, context) {
             (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd);
             usersMap = jsonSlurper.parseText(getAdminConsoleUsers(side, context, log))
             if (userExists(usersMap, userAC, log, false)) {
-                log.error "Error:curlBlackList_PUT: Admin Console user \"$userAC\" already exist: usernames must be unique.";
+                log.error "Error:userInputCheck_PUT: Admin Console user \"$userAC\" already exist: usernames must be unique.";
             } else {
                 curlParams = "[ { \"roles\": \"$userRole\", \"userName\": \"$userAC\", \"password\": \"$passwordAC\", \"status\": \"NEW\", \"active\": true, \"suspended\": false, \"authorities\": [], \"deleted\": false } ]";
-                debugLog("  curlBlackList_PUT  [][]  User \"$userAC\" parameters: $curlParams.", log)
+                debugLog("  userInputCheck_PUT  [][]  User \"$userAC\" parameters: $curlParams.", log)
 				commandString = ["curl ",urlToDomibus(side, log, context) + "/rest/user/users",
 								"--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
 								"-H", "Content-Type: application/json",
@@ -2886,9 +2886,14 @@ static def String pathToLogFiles(side, log, context) {
 								"-X", "PUT",
 								"--data-binary", formatJsonForCurl(curlParams, log),
 								"-v"]
-                commandResult = runCommandInShell(commandString, log)
-                assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*400.*/)&&(commandResult[0]==~ /(?s).*Forbidden character.*detected.*/)),"Error:curlBlackList_PUT: Forbidden character not detected.";
-                log.info "  curlBlackList_PUT  [][]  Forbidden character detected in value \"$userAC\".";
+                commandResult = runCommandInShell(commandString, log);
+				if(listType.toLowerCase().equals("blacklist")){
+					assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*400.*/)&&(commandResult[0]==~ /(?s).*Forbidden character.*detected.*/)),"Error:userInputCheck_PUT: Forbidden character not detected.";
+					log.info "  userInputCheck_PUT  [][]  Forbidden character detected in value \"$userAC\".";
+				}else{
+					assert(!((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*400.*/)&&(commandResult[0]==~ /(?s).*Forbidden character.*detected.*/))),"Error:userInputCheck_PUT: Forbidden character detected.";
+					log.info "  userInputCheck_PUT  [][]  No forbidden characters detected in value \"$userAC\".";
+				}				
             }
         } finally {
             resetAuthTokens(log);
@@ -2897,10 +2902,10 @@ static def String pathToLogFiles(side, log, context) {
 
 
 //---------------------------------------------------------------------------------------------------------------------------------
-// REST GET request to test blacklisted characters
-	static def curlBlackList_GET(String side, context, log, String data="\$%25%5E%26\$%25%26\$%26\$", domainValue="Default", String authUser=null, String authPwd=null){
-        debugLog("  ====  Calling \"curlBlackList_GET\".", log)
-        debugLog("  curlBlackList_GET  [][]  Get Admin Console users for Domibus \"$side\".", log)
+// REST GET request to test blacklisted/whitelisted characters
+	static def userInputCheck_GET(String side, context, log, String data="\$%25%5E%26\$%25%26\$%26\$",listType="blacklist", domainValue="Default", String authUser=null, String authPwd=null){
+        debugLog("  ====  Calling \"userInputCheck_GET\".", log)
+        debugLog("  userInputCheck_GET  [][]  Get Admin Console users for Domibus \"$side\".", log)
         def commandString = null;
         def commandResult = null;
         def multitenancyOn=false;
@@ -2911,9 +2916,15 @@ static def String pathToLogFiles(side, log, context) {
 			//(authenticationUser, authenticationPwd) = retriveAdminCredentials(context, log, side, authenticationUser, authenticationPwd)
 			(authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
 			commandString="curl "+urlToDomibus(side, log, context)+"/rest/messagelog?orderBy=received&asc=false&messageId="+data+"&messageType=USER_MESSAGE&page=0&pageSize=10 -b "+context.expand( '${projectDir}')+ File.separator + "cookie.txt -v -H \"Content-Type: application/json\" -H \"X-XSRF-TOKEN: "+ returnXsfrToken(side,context,log,authenticationUser,authenticationPwd)+"\" -X GET ";
-			commandResult = runCommandInShell(commandString, log)
-			assert(commandResult[0]==~ /(?s).*Forbidden character.*detected.*/),"Error:curlBlackList_GET: Forbidden character not detected.";
-			log.info "  curlBlackList_GET  [][]  Forbidden character detected in value \"$data\".";
+			commandResult = runCommandInShell(commandString, log);
+			if(listType.toLowerCase().equals("blacklist")){
+				assert(commandResult[0]==~ /(?s).*Forbidden character.*detected.*/),"Error:userInputCheck_GET: Forbidden character not detected.";
+				log.info "  userInputCheck_GET  [][]  Forbidden character detected in value \"$data\".";
+			}else{
+				assert(!(commandResult[0]==~ /(?s).*Forbidden character.*detected.*/)),"Error:userInputCheck_GET: Forbidden character detected.";
+				log.info "  userInputCheck_GET  [][]  No forbidden characters detected in value \"$data\".";			
+			}
+			
 		} finally {
             resetAuthTokens(log)
         }
@@ -2921,8 +2932,8 @@ static def String pathToLogFiles(side, log, context) {
 
 //---------------------------------------------------------------------------------------------------------------------------------
 // REST POST request to test blacklisted characters
-	static def curlBlackList_POST(String side, context, log, String userLogin = DEFAULT_ADMIN_USER, passwordLogin = DEFAULT_ADMIN_USER_PWD) {
-        debugLog("  ====  Calling \"curlBlackList_POST\".", log)
+	static def userInputCheck_POST(String side, context, log,listType="blacklist" ,String userLogin = DEFAULT_ADMIN_USER, passwordLogin = DEFAULT_ADMIN_USER_PWD) {
+        debugLog("  ====  Calling \"userInputCheck_POST\".", log)
         def commandString = null;
         def commandResult = null;
 		def json = ifWindowsEscapeJsonString('{\"username\":\"' + "${userLogin}" + '\",\"password\":\"' + "${passwordLogin}" + '\"}')
@@ -2937,8 +2948,13 @@ static def String pathToLogFiles(side, log, context) {
 		} finally {
             resetAuthTokens(log)
         }
-        assert(commandResult[0]==~ /(?s).*Forbidden character.*detected.*/),"Error:curlBlackList_POST: Forbidden character not detected."
-        log.info "  curlBlackList_POST  [][]  Forbidden character detected in value \"$userLogin\".";
+		if(listType.toLowerCase().equals("blacklist")){
+			assert(commandResult[0]==~ /(?s).*Forbidden character.*detected.*/),"Error:userInputCheck_POST: Forbidden character not detected.";
+			log.info "  userInputCheck_POST  [][]  Forbidden character detected in value \"$userLogin\".";
+		}else{
+			assert(!(commandResult[0]==~ /(?s).*Forbidden character.*detected.*/)),"Error:userInputCheck_POST: Forbidden character detected.";
+			log.info "  userInputCheck_POST  [][]  No forbidden characters detected in value \"$userLogin\".";
+		}
     }
 
 //---------------------------------------------------------------------------------------------------------------------------------

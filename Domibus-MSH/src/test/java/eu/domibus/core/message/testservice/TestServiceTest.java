@@ -111,17 +111,6 @@ public class TestServiceTest {
     }
 
     @Test
-    public void failsToCreateTheMessageDataToSubmitWhenTheSenderIsNull() {
-        givenSender(null);
-
-        // Expected exception
-        thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage("partyId must not be empty");
-
-        whenCreatingTheSubmissionMessageData();
-    }
-
-    @Test
     public void createsTheMessageDataToSubmitHavingTheCorrectPayload() {
         givenSenderAndInitiatorCorrectlySet();
 
