@@ -70,7 +70,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SEND_MESSAGE_SUCCESS_DELETE_PAYLOAD;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 /**
@@ -377,8 +376,8 @@ public class UserMessageDefaultService implements UserMessageService {
         scheduleSending(userMessage, userMessageLog.getMessageId(), userMessageLog, jmsMessage);
     }
 
-    @Timer(clazz = DatabaseMessageHandler.class,value = "scheduleSending")
-    @Counter(clazz = DatabaseMessageHandler.class,value = "scheduleSending")
+    @Timer(clazz = DatabaseMessageHandler.class, value = "scheduleSending")
+    @Counter(clazz = DatabaseMessageHandler.class, value = "scheduleSending")
     protected void scheduleSending(final UserMessage userMessage, final String messageId, UserMessageLog userMessageLog, JmsMessage jmsMessage) {
         if (userMessageLog.isSplitAndJoin()) {
             LOG.debug("Sending message to sendLargeMessageQueue");
@@ -644,7 +643,8 @@ public class UserMessageDefaultService implements UserMessageService {
         try {
             return zipFiles(message);
         } catch (IOException e) {
-            return null;
+            LOG.warn("Could not zipp message envelopes with id [{}].", messageId);
+            return new byte[0];
         }
     }
 
