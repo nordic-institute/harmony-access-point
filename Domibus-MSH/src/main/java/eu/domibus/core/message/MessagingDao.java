@@ -66,6 +66,13 @@ public class MessagingDao extends BasicDao<Messaging> {
         return DataAccessUtils.singleResult(query.getResultList());
     }
 
+    public SignalMessage findSignalMessageByUserMessageId(final String messageId) {
+        final TypedQuery<SignalMessage> query = this.em.createNamedQuery("Messaging.findSignalMessageByUserMessageId", SignalMessage.class);
+        query.setParameter(MESSAGE_ID, messageId);
+
+        return DataAccessUtils.singleResult(query.getResultList());
+    }
+
     public Messaging findMessageByMessageId(final String messageId) {
         try {
             final TypedQuery<Messaging> query = em.createNamedQuery("Messaging.findMessageByMessageId", Messaging.class);

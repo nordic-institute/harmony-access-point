@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
+import java.util.List;
 
 /**
  * @author idragusa
@@ -35,6 +36,13 @@ public class RawEnvelopeLogDao extends BasicDao<RawEnvelopeLog> {
             LOG.trace("The message with id[{}] has no associated raw xml saved in the database.", messageId, nr);
             return null;
         }
+    }
+
+    public List<RawEnvelopeDto> findUserMessageEnvelopesById(final long userMessageId) {
+        TypedQuery<RawEnvelopeDto> namedQuery = em.createNamedQuery("RawDto.findByUserMessageId", RawEnvelopeDto.class);
+        namedQuery.setParameter("USER_MESSAGE_ID", userMessageId);
+        LOG.debug("[findUserMessageEnvelopeById][Message]:[{}]", userMessageId);
+        return namedQuery.getResultList();
     }
 
     /**

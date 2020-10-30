@@ -72,7 +72,7 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
     protected final UIReplicationSignalService uiReplicationSignalService;
     protected final UserMessageHandlerService userMessageHandlerService;
     private final TimestampDateFormatter timestampDateFormatter;
-    protected final NonRepudiationService nonRepudiationService;
+//    protected final NonRepudiationService nonRepudiationService;
     private final SignalMessageLogDao signalMessageLogDao;
     protected final UserMessageService userMessageService;
     private final MessageIdGenerator messageIdGenerator;
@@ -86,7 +86,7 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
     public AS4ReceiptServiceImpl(UIReplicationSignalService uiReplicationSignalService,
                                  UserMessageHandlerService userMessageHandlerService,
                                  TimestampDateFormatter timestampDateFormatter,
-                                 NonRepudiationService nonRepudiationService,
+//                                 NonRepudiationService nonRepudiationService,
                                  SignalMessageLogDao signalMessageLogDao,
                                  UserMessageService userMessageService,
                                  MessageIdGenerator messageIdGenerator,
@@ -99,7 +99,7 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
         this.uiReplicationSignalService = uiReplicationSignalService;
         this.userMessageHandlerService = userMessageHandlerService;
         this.timestampDateFormatter = timestampDateFormatter;
-        this.nonRepudiationService = nonRepudiationService;
+//        this.nonRepudiationService = nonRepudiationService;
         this.signalMessageLogDao = signalMessageLogDao;
         this.userMessageService = userMessageService;
         this.messageIdGenerator = messageIdGenerator;

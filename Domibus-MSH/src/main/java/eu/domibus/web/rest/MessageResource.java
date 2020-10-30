@@ -89,4 +89,22 @@ public class MessageResource {
         return true;
     }
 
+    @GetMapping(value = "/{messageId:.+}/envelopes")
+    public ResponseEntity<ByteArrayResource> downloadMessageEnvelopes(@PathVariable(value = "messageId") String messageId) {
+        return getByteArrayResourceResponseEntity(messageId);
+    }
+
+    @GetMapping(value = "/envelopes")
+    public ResponseEntity<ByteArrayResource> downloadEnvelopes(@RequestParam(value = "messageId", required = true) String messageId) {
+        return getByteArrayResourceResponseEntity(messageId);
+    }
+
+    private ResponseEntity<ByteArrayResource> getByteArrayResourceResponseEntity(@PathVariable("messageId") String messageId) {
+        byte[] zip = userMessageService.getMessageEnvelopesAsZip(messageId);
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType("application/zip"))
+                .header("content-disposition", "attachment; filename=message_envelopes_" + messageId + ".zip")
+                .body(new ByteArrayResource(zip));
+    }
 }

@@ -1,16 +1,19 @@
 package eu.domibus.core.message.nonrepudiation;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.ebms3.common.model.SignalMessage;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.cxf.common.util.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.TransformerException;
+import java.util.List;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_NONREPUDIATION_AUDIT_ACTIVE;
 
@@ -31,6 +34,9 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
 
     @Autowired
     protected SoapUtil soapUtil;
+
+    @Autowired
+    private SignalMessageDao signalMessageDao;
 
     @Override
     public void saveRequest(SOAPMessage request, UserMessage userMessage) {
@@ -69,6 +75,22 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
         } catch (TransformerException e) {
             LOG.warn("Unable to log the raw message XML due to: ", e);
         }
+    }
+
+    @Override
+    public void saveResponse(SOAPMessage response, String userMessageId) {
+        if (isNonRepudiationAuditDisabled()) {
+            return;
+        }
+
+        List<SignalMessage> signalMessages = signalMessageDao.findSignalMessagesByRefMessageId(userMessageId);
+        if (CollectionUtils.isEmpty(signalMessages)) {
+            LOG.error("Could not find any signal message for ref message [{}]", userMessageId);
+            return;
+        }
+
+        SignalMessage signalMessage = signalMessages.stream().findFirst().get();
+        saveResponse(response, signalMessage);
     }
 
     protected boolean isNonRepudiationAuditDisabled() {
