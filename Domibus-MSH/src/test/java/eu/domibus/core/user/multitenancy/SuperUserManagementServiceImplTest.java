@@ -11,6 +11,7 @@ import eu.domibus.api.user.User;
 import eu.domibus.core.alerts.service.AlertConfigurationService;
 import eu.domibus.core.alerts.service.ConsoleUserAlertsServiceImpl;
 import eu.domibus.core.alerts.service.EventService;
+import eu.domibus.core.dao.ListDao;
 import eu.domibus.core.multitenancy.dao.UserDomainDao;
 import eu.domibus.core.multitenancy.dao.UserDomainEntity;
 import eu.domibus.core.user.UserPersistenceService;
@@ -92,6 +93,9 @@ public class SuperUserManagementServiceImplTest {
 
     @Injectable
     protected AuthUtils authUtils;
+
+    @Injectable
+    ListDao userFilteringDao;
 
     @Test
     public void findUsers() {
