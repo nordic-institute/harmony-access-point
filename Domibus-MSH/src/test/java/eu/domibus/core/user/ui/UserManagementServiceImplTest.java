@@ -7,6 +7,7 @@ import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
+import eu.domibus.api.security.functions.AuthenticatedFunction;
 import eu.domibus.api.user.UserManagementException;
 import eu.domibus.core.alerts.service.ConsoleUserAlertsServiceImpl;
 import eu.domibus.core.dao.ListDao;
@@ -119,7 +120,7 @@ public class UserManagementServiceImplTest {
         String userName = "user1";
         userManagementService.handleWrongAuthentication(userName);
         new Verifications() {{
-            userPasswordManager.handleWrongAuthentication(userName);
+            authUtils.runFunctionWithSecurityContext((AuthenticatedFunction) any, "domibus", "domibus", AuthRole.ROLE_ADMIN, true);
             times = 1;
         }};
     }
@@ -268,7 +269,8 @@ public class UserManagementServiceImplTest {
         }};
         userManagementService.validateAtLeastOneOfRole(role);
 
-        new FullVerifications(){};
+        new FullVerifications() {
+        };
     }
 
     @Test
@@ -321,17 +323,18 @@ public class UserManagementServiceImplTest {
 
         userManagementService.updateUsers(users);
 
-        new FullVerifications(){{
+        new FullVerifications() {{
             userPersistenceService.updateUsers(users);
             times = 1;
         }};
 
     }
+
     @Test
     public void triggerPasswordAlerts() {
         userManagementService.triggerPasswordAlerts();
 
-        new FullVerifications(){{
+        new FullVerifications() {{
             consoleUserAlertsService.triggerPasswordExpirationEvents();
             times = 1;
         }};
@@ -340,13 +343,13 @@ public class UserManagementServiceImplTest {
     @Test
     public void changePassword() {
         String username = "username";
-        String         currentPassword = "currentPassword";
+        String currentPassword = "currentPassword";
         String newPassword = "newPassword";
         userManagementService.changePassword(username,
                 currentPassword,
                 newPassword);
 
-        new FullVerifications(){{
+        new FullVerifications() {{
             userPersistenceService.changePassword(username, currentPassword, newPassword);
             times = 1;
         }};
@@ -390,7 +393,6 @@ public class UserManagementServiceImplTest {
 
     @Test
     public void countUsers(@Injectable User userEntity, @Injectable eu.domibus.api.user.User user) {
-
 
         Map<String, Object> filters = new HashMap<>();
 
