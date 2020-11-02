@@ -27,7 +27,7 @@ public class SaveRawEnvelopeInterceptor extends AbstractSoapInterceptor {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SaveRawEnvelopeInterceptor.class);
 
     @Autowired
-    protected NonRepudiationService nonRepudiationService;
+    NonRepudiationService nonRepudiationService;
 
     public SaveRawEnvelopeInterceptor() {
         super(Phase.WRITE_ENDING);
