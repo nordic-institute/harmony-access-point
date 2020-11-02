@@ -7,15 +7,20 @@
     <mat-card>
       <mat-card-content>
         <div *ngIf="useFileSelector">
-          <input name="file" placeholder="File" #fileInput type="file" id="pmode" accept=".xml" required on>
+          <label class="custom-file-upload">
+            <input name="file" #fileInput type="file" id="pmode" accept=".xml" (change)="selectFile()" style="display: none;">
+            <span class="custom-file-upload-inner">Choose File </span>
+          </label>
+          {{selectedFileName}}
         </div>
         <div>
-          <h3 style="font-style: normal; font-size: small">Description:</h3>
-          <textarea name="desc" #desc="ngModel" rows="5" [(ngModel)]="description" id="description_id" maxlength="254" required
-                    style="resize: none; width: 100%; height: 100%;"></textarea>
-          <span class="help-block" *ngIf="shouldShowErrors(desc)">
+          <mat-form-field style="margin-top: 10px;width: 100%;">
+            <textarea matInput name="desc" #desc="ngModel" rows="5" [(ngModel)]="description" id="description_id" maxlength="254" required
+                      placeholder="Description" style="resize: none; width: 100%; height: 100%;"></textarea>
+            <span class="help-block" *ngIf="shouldShowErrors(desc)">
             <div *ngIf="desc.errors?.required" style="color:red; font-size: 70%">Description is required</div>
           </span>
+          </mat-form-field>
         </div>
       </mat-card-content>
     </mat-card>

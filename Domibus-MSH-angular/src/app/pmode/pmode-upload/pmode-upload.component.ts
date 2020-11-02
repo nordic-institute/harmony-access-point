@@ -16,6 +16,7 @@ export class PmodeUploadComponent implements OnInit {
   submitInProgress = false;
   description = '';
   useFileSelector = true;
+  selectedFileName: string;
 
   @ViewChild('fileInput', {static: false})
   private fileInput;
@@ -86,5 +87,11 @@ export class PmodeUploadComponent implements OnInit {
 
   public shouldShowErrors(field: NgControl | NgForm | AbstractControl): boolean {
     return (field.touched || field.dirty) && !!field.errors;
+  }
+
+  selectFile() {
+    const fi = this.fileInput.nativeElement;
+    const file = fi.files[0];
+    this.selectedFileName = file.name;
   }
 }
