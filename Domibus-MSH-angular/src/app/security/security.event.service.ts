@@ -14,8 +14,8 @@ export class SecurityEventService {
   constructor() {
   }
 
-  notifyLoginSuccessEvent(res: any) {
-    this.loginSuccessSubject.next(res);
+  notifyLoginSuccessEvent() {
+    this.loginSuccessSubject.next();
   }
 
   onLoginSuccessEvent(): Observable<any> {

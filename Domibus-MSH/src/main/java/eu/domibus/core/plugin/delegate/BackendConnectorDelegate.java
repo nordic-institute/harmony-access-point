@@ -21,4 +21,6 @@ public interface BackendConnectorDelegate {
 
     void messageDeletedEvent(String backendName, MessageDeletedEvent event);
 
+    void messageDeletedBatchEvent(String backendName, MessageDeletedBatchEvent event);
+
 }

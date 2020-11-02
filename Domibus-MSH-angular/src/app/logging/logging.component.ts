@@ -8,6 +8,7 @@ import FilterableListMixin from '../common/mixins/filterable-list.mixin';
 import {ServerPageableListMixin} from '../common/mixins/pageable-list.mixin';
 import {ServerSortableListMixin} from '../common/mixins/sortable-list.mixin';
 import {ApplicationContextService} from '../common/application-context.service';
+import {ComponentName} from '../common/component-name-decorator';
 
 /**
  * @author Catalin Enache
@@ -18,7 +19,7 @@ import {ApplicationContextService} from '../common/application-context.service';
   templateUrl: 'logging.component.html',
   providers: [],
 })
-
+@ComponentName('Logging')
 export class LoggingComponent extends mix(BaseListComponent)
   .with(FilterableListMixin, ServerPageableListMixin, ServerSortableListMixin)
   implements OnInit, AfterViewInit, AfterViewChecked {
@@ -42,6 +43,10 @@ export class LoggingComponent extends mix(BaseListComponent)
     super.asc = false;
 
     this.filterData();
+  }
+
+  public get name(): string {
+    return 'Logging';
   }
 
   ngAfterViewInit() {

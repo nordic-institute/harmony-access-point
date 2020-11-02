@@ -10,6 +10,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.*;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -49,7 +50,9 @@ public class ConfigurationPropertyResource extends BaseResource {
 
     @ExceptionHandler({DomibusPropertyException.class})
     public ResponseEntity<ErrorRO> handleDomibusPropertyException(DomibusPropertyException ex) {
-        return errorHandlerService.createResponse(ex, HttpStatus.BAD_REQUEST);
+        Throwable rootCause = ExceptionUtils.getRootCause(ex);
+        String message = rootCause == null ? ex.getMessage() : rootCause.getMessage();
+        return errorHandlerService.createResponse(message, HttpStatus.BAD_REQUEST);
     }
 
     @GetMapping

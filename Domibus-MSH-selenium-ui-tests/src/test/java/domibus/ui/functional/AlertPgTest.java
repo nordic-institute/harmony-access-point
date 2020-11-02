@@ -264,7 +264,7 @@ public class AlertPgTest extends SeleniumTest {
 		log.info("Check if Multidomain exists");
 		if (data.isMultiDomain()) {
 			log.info("Click on Show domain checkbox");
-			page.filters().getShowDomainCheckbox().click();
+			page.filters().getShowDomainCheckbox().check();
 		}
 		
 		log.info("Click on search button");
@@ -274,15 +274,10 @@ public class AlertPgTest extends SeleniumTest {
 		log.info("Validate data for given message id,status ,alert type ,alert status and level");
 		List<String> allInfo = page.grid().getValuesOnColumn("Parameters");
 		
-		boolean found = false;
 		for (String info : allInfo) {
 			soft.assertTrue(info.contains(messID), "Row contains alert for message status changed for :" + messID);
-			if (!found) {
-				found = info.contains("SEND_FAILURE") && info.contains("SEND_ENQUEUED");
-			}
+			soft.assertTrue(info.contains("SEND_FAILURE"), "Row contains alert for message status changed for :" + messID);
 		}
-		
-		soft.assertTrue(found, "Found row that alerts of message status transition");
 		
 		soft.assertAll();
 		
@@ -897,7 +892,7 @@ public class AlertPgTest extends SeleniumTest {
 	}
 	
 	/* disabled because EDELIVERY-4186 */
-	@Test(description = "ALRT-20", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "ALRT-20", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void verifyHeaders() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		AlertPage page = new AlertPage(driver);

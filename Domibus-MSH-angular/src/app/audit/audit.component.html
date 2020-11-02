@@ -10,7 +10,8 @@
             <mat-select matInput placeholder="Table" id="table_id" name="table" multiple [(ngModel)]="filter.auditTargetName">
               <mat-option *ngFor="let item of existingAuditTargets" [value]="item">{{item}}</mat-option>
             </mat-select>
-            <mat-select matInput placeholder="User" id="user_id" name="userId" multiple [(ngModel)]="filter.user">
+            <mat-select matInput placeholder="User" id="user_id" name="userId" multiple [(ngModel)]="filter.user"
+                        *ngIf="!extAuthProviderEnabled" id="user_id">
               <mat-option *ngFor="let item of existingUsers" [value]="item">{{item}}</mat-option>
             </mat-select>
             <mat-select matInput placeholder="Action" id="action_id" name="action" multiple [(ngModel)]="filter.action">
@@ -44,7 +45,7 @@
   </div>
 
   <div style="height: calc(100% - 190px); overflow-y: auto; overflow-x: hidden;">
-    <page-grid [parent]="this" [sortedColumns]="[{prop: 'changed', dir: 'desc'}]"></page-grid>
+    <page-grid [parent]="this"></page-grid>
   </div>
 
   <ng-template #rowWithDateFormatTpl let-row="row" let-value="value" ngx-datatable-cell-template>

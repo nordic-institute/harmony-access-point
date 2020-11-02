@@ -17,6 +17,7 @@ import org.junit.runner.RunWith;
 import org.mockito.*;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -59,9 +60,10 @@ public class AuditServiceImplTest {
 
     @Test
     public void listAuditTarget() throws Exception {
+        when(domibusConfigurationService.isExtAuthProviderEnabled()).thenReturn(false);
         List<String> targets = auditService.listAuditTarget();
         targets.stream().forEach(System.out::println);
-        assertEquals(7, targets.size());
+        assertEquals(8, targets.size());
         assertTrue(targets.contains("User"));
         assertTrue(targets.contains("Pmode"));
         assertTrue(targets.contains("Pmode Archive"));
@@ -69,6 +71,23 @@ public class AuditServiceImplTest {
         assertTrue(targets.contains("Message filter"));
         assertTrue(targets.contains("Jms message"));
         assertTrue(targets.contains("PluginUser"));
+        assertTrue(targets.contains("Certificate"));
+    }
+
+    @Test
+    public void listAuditTarget_ExtAuthProvider() throws Exception {
+        when(domibusConfigurationService.isExtAuthProviderEnabled()).thenReturn(true);
+        List<String> targets = auditService.listAuditTarget();
+        targets.stream().forEach(System.out::println);
+        assertEquals(7, targets.size());
+        assertFalse(targets.contains("User"));
+        assertTrue(targets.contains("Pmode"));
+        assertTrue(targets.contains("Pmode Archive"));
+        assertTrue(targets.contains("Message"));
+        assertTrue(targets.contains("Message filter"));
+        assertTrue(targets.contains("Jms message"));
+        assertTrue(targets.contains("PluginUser"));
+        assertTrue(targets.contains("Certificate"));
     }
 
     @Test

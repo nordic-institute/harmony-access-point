@@ -8,6 +8,7 @@ import {HttpClient, HttpParams} from '@angular/common/http';
 import {PropertiesService} from '../../properties/support/properties.service';
 import {ApplicationContextService} from '../application-context.service';
 import {CustomURLEncoder} from '../custom-url-encoder';
+import {SecurityService} from '../../security/security.service';
 
 /**
  * @author Ion Perpegel
@@ -31,7 +32,7 @@ export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
   public isLoading: boolean;
   private propertiesService: PropertiesService;
 
-  constructor(protected applicationService: ApplicationContextService, protected alertService: AlertService, private http: HttpClient) {
+  constructor(protected applicationService: ApplicationContextService, protected alertService: AlertService, protected http: HttpClient) {
     this.columnPicker = new ColumnPickerBase();
   }
 
@@ -43,7 +44,7 @@ export default class BaseListComponent<T> implements IBaseList<T>, OnInit {
   }
 
   public get name(): string {
-    return this.constructor.name;
+    return undefined;
   }
 
   protected get GETUrl(): string {

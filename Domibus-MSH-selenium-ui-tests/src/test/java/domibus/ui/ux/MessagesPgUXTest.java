@@ -6,11 +6,11 @@ import domibus.ui.SeleniumTest;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
-import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
+import pages.messages.MessageFilterArea;
 import pages.messages.MessagesPage;
 import rest.RestServicePaths;
 import utils.Gen;
@@ -29,7 +29,8 @@ import java.util.List;
 public class MessagesPgUXTest extends SeleniumTest {
 	
 	JSONObject descriptorObj = TestUtils.getPageDescriptorObject(PAGES.MESSAGES);
-	
+
+
 	/*Login as system admin and open Messages page*/
 	@Test(description = "MSG-1", groups = {"multiTenancy", "singleTenancy"})
 	public void openMessagesPage() throws Exception {
@@ -322,7 +323,7 @@ public class MessagesPgUXTest extends SeleniumTest {
 	}
 	
 	/* verify the two headers, Message Fragments and Source Message are NOT present in csv if not available as grid column */
-	@Test(description = "MSG-25", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "MSG-26", groups = {"multiTenancy", "singleTenancy"})
 	public void verifySplitAndJoinSpecificHeaders() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		

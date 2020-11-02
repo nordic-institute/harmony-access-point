@@ -8,7 +8,7 @@
           <form name="filterForm" #filterForm="ngForm" (submit)="tryFilter()">
             <!-- Processed -->
             <mat-select placeholder="Processed" [(ngModel)]="filter.processed" name="processed" id="processed_id">
-              <mat-option [value]="''"></mat-option>
+              <mat-option [value]=""></mat-option>
               <mat-option *ngFor="let aprocessed of aProcessedValues" [value]="aprocessed">
                 {{aprocessed}}
               </mat-option>
@@ -16,7 +16,7 @@
             <!-- Alert Type (Basic) -->
             <mat-select placeholder="Alert Type" [(ngModel)]="filter.alertType" name="alertType"
                         id="alerttype_id" (selectionChange)="onAlertTypeChanged(filter.alertType)">
-              <mat-option [value]="''"></mat-option>
+              <mat-option [value]=""></mat-option>
               <mat-option *ngFor="let atype of aTypes" [value]="atype">
                 {{atype}}
               </mat-option>
@@ -24,7 +24,7 @@
 
             <mat-select placeholder="Alert Status" [(ngModel)]="filter.alertStatus" name="alertStatus"
                         id="alertstatus_id">
-              <mat-option [value]="''"></mat-option>
+              <mat-option [value]=""></mat-option>
               <mat-option *ngFor="let aStatus of aStatuses" [value]="aStatus">
                 {{aStatus}}
               </mat-option>
@@ -41,7 +41,7 @@
             <!-- Alert Level (Basic) -->
             <mat-select placeholder="Alert Level" [(ngModel)]="filter.alertLevel" name="alertLevel"
                         id="alertlevel_id">
-              <mat-option [value]="''">
+              <mat-option [value]="">
               </mat-option>
               <mat-option *ngFor="let alevel of aLevels" [value]="alevel">
                 {{alevel}}
@@ -51,20 +51,20 @@
             <md2-datepicker placeholder="Creation From:" appClearInvalid
                             [(ngModel)]="filter.creationFrom"
                             name="creationFrom"
-                            [max]="timestampCreationFromMaxDate"
+                            [max]="creationFromMaxDate"
                             (change)='onTimestampCreationFromChange($event)'
                             [type]="'datetime'"
-                            #timestampControl="ngModel" id="creationfrom_id">
+                            id="creationfrom_id">
             </md2-datepicker>
             <!-- Creation To (Basic) -->
             <md2-datepicker placeholder="Creation To:" appClearInvalid
                             [(ngModel)]="filter.creationTo"
                             name="creationTo"
-                            [min]="timestampCreationToMinDate"
-                            [max]="timestampCreationToMaxDate"
+                            [min]="creationToMinDate"
+                            [max]="creationToMaxDate"
                             (change)='onTimestampCreationToChange($event)'
                             [type]="'datetime'"
-                            #timestampControl="ngModel" id="creationto_id">
+                            id="creationto_id">
             </md2-datepicker>
             <ng-container *ngIf="displayDomainCheckBox">
               <mat-checkbox name="showDomainAlerts" [(ngModel)]="filter.domainAlerts" id="showDomainAlerts_id">
@@ -75,21 +75,21 @@
             <md2-datepicker placeholder="Reporting From:" appClearInvalid
                             [(ngModel)]="filter.reportingFrom"
                             name="reportingFrom"
-                            [max]="timestampReportingFromMaxDate"
+                            [max]="reportingFromMaxDate"
                             (change)='onTimestampReportingFromChange($event)'
                             [type]="'datetime'"
-                            #timestampControl="ngModel" id="reportingfrom_id" *ngIf="advancedSearch"
+                            id="reportingfrom_id" *ngIf="advancedSearch"
                             advanced-filter-behaviour [parent]="this">
             </md2-datepicker>
             <!-- Reporting To -->
             <md2-datepicker placeholder="Reporting To:" appClearInvalid
                             [(ngModel)]="filter.reportingTo"
                             name="reportingTo"
-                            [min]="timestampReportingToMinDate"
-                            [max]="timestampReportingToMaxDate"
+                            [min]="reportingToMinDate"
+                            [max]="reportingToMaxDate"
                             (change)='onTimestampReportingToChange($event)'
                             [type]="'datetime'"
-                            #timestampControl="ngModel" id="reportingto_id" *ngIf="advancedSearch"
+                            id="reportingto_id" *ngIf="advancedSearch"
                             advanced-filter-behaviour [parent]="this">
             </md2-datepicker>
 
@@ -111,15 +111,20 @@
                                   placeholder={{dateFromName}}
                                   [(ngModel)]="dynamicDatesFilter.from"
                                   name="from"
+                                  [max]="dynamicDataFromMaxDate"
+                                  (change)='onDynamicDataFromChange($event)'
                                   [type]="'datetime'"
-                                  #timestampControl="ngModel" id={{dateFromName}}_id>
+                                  id={{dateFromName}}_id>
                   </md2-datepicker>
                   <md2-datepicker matInput
                                   placeholder={{dateToName}}
                                   [(ngModel)]="dynamicDatesFilter.to"
                                   name="To"
+                                  [min]="dynamicDataToMinDate"
+                                  [max]="dynamicDataToMaxDate"
+                                  (change)='onDynamicDataToChange($event)'
                                   [type]="'datetime'"
-                                  #timestampControl="ngModel" id={{dateToName}}_id>
+                                  id={{dateToName}}_id>
                   </md2-datepicker>
                 </span>
                 </mat-card-content>
@@ -142,7 +147,7 @@
         <page-grid [parent]="this" [selectionType]="'multi'"></page-grid>
       </div>
 
-      <ng-template #rowProcessed let-row="row" let-value="value" ngx-datatable-cell-template >
+      <ng-template #rowProcessed let-row="row" let-value="value" ngx-datatable-cell-template>
         <mat-checkbox autofocus id="processed{{rows.indexOf(row)}}_id" [(ngModel)]="row.processed"
                       (click)="setProcessedValue(row)" [disabled]="row.deleted || isLoading">
         </mat-checkbox>

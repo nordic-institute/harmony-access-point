@@ -1160,6 +1160,7 @@ public class PartyServiceImplTest {
             List<String> aliases;
             multiDomainCertificateProvider.removeCertificate(currentDomain, aliases = withCapture());
             multiDomainCertificateProvider.addCertificate(currentDomain, certificates = withCapture(), true);
+            certificateService.saveCertificateAndLogRevocation(domainProvider.getCurrentDomain());
             Assert.assertTrue("Should update party truststore when removing certificates of the parties",
                     aliases.size() == 1
                             && "party_blue".equals(aliases.get(0).toString()));
@@ -1752,5 +1753,32 @@ public class PartyServiceImplTest {
         } catch (PModeValidationException ex) {
             Assert.fail();
         }
+    }
+
+    @Test
+    public void testSanitize() {
+        String partyIdTypeName = "partyIdTypeName";
+        String partyIdId = "blue";
+        String partyName = "domibus-blue";
+
+        eu.domibus.api.party.PartyIdType pIdType = new eu.domibus.api.party.PartyIdType();
+        pIdType.setName(partyIdTypeName + "  ");
+        pIdType.setValue("partyIdTypeValue");
+        Identifier partyId = new Identifier();
+        partyId.setPartyId("  " + partyIdId);
+        partyId.setPartyIdType(pIdType);
+
+        Party party = new Party();
+        party.setName(" " + partyName + "  ");
+        party.setIdentifiers(Arrays.asList(partyId));
+
+        List<Party> parties = Arrays.asList(party);
+
+        partyService.sanitizeParties(parties);
+
+        Assert.assertEquals(partyName, parties.get(0).getName());
+        Identifier id1 = parties.get(0).getIdentifiers().stream().findFirst().get();
+        Assert.assertEquals(partyIdId, id1.getPartyId());
+        Assert.assertEquals(partyIdTypeName, id1.getPartyIdType().getName());
     }
 }

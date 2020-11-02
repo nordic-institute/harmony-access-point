@@ -20,6 +20,7 @@ public class JMSMessageConstants {
     public static final String SERVICE_TYPE = "serviceType";
     public static final String CONVERSATION_ID = "conversationId";
     public static final String AGREEMENT_REF = "agreementRef";
+    public static final String AGREEMENT_REF_TYPE = "agreementRefType";
     public static final String REF_TO_MESSAGE_ID = "refToMessageId";
     public static final String FROM_PARTY_ID = "fromPartyId";
     public static final String FROM_PARTY_TYPE = "fromPartyType";
@@ -75,6 +76,8 @@ public class JMSMessageConstants {
     public static final String QUEUE_NOTIFICATION = JMS_PLUGIN_PROPERTY_PREFIX + "." + "queue.notification";
     public static final String QUEUE_IN = JMS_PLUGIN_PROPERTY_PREFIX + "." + "queue.in";
     public static final String QUEUE_IN_CONCURRENCY = JMS_PLUGIN_PROPERTY_PREFIX + "." + "queue.in.concurrency";
+
+    public static final String MESSAGE_NOTIFICATIONS = JMS_PLUGIN_PROPERTY_PREFIX + "." + "messages.notifications";
 
 
 

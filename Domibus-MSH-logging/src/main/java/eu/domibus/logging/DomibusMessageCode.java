@@ -86,10 +86,10 @@ public enum DomibusMessageCode implements MessageCode {
     BUS_RECEIVER_PARTY_ID_NOT_FOUND("BUS-075", "Receiver Party id not found for value [{}]"),
     BUS_PROPERTY_DUPLICATE("BUS-076", "Duplicate Message Property found for property name [{}]"),
     BUS_PAYLOAD_INVALID_SIZE("BUS-077", "Payload size is greater than maximum size [{}] defined in payload profile [{}]"),
-    BUS_FROM_PARTYID_NOT_SPECIFIED("BUS-078", "Mandatory field From PartyId is not provided"),
-    BUS_INITIATOR_ROLE_NOT_SPECIFIED("BUS-079", "Mandatory field Sender Role is not provided"),
-    BUS_TO_PARTYID_NOT_SPECIFIED("BUS-080", "Mandatory field To PartyId is not provided"),
-    BUS_RECEIVER_ROLE_NOT_SPECIFIED("BUS-081", "Mandatory field Receiver Role is not provided"),
+    MANDATORY_MESSAGE_HEADER_METADATA_MISSING("BUS-078", "Mandatory Message Header metadata [{}] is not provided."),
+    VALUE_LONGER_THAN_DEFAULT_STRING_LENGTH("BUS-079", "Value of [{}] is too long (over 255 characters). Value provided: [{}]"),
+    VALUE_DO_NOT_CONFORM_TO_MESSAGEID_PATTERN("BUS-080", "Value of [{}] does not conform to the required MessageIdPattern: [{}]. Value provided: [{}]"),
+    DUPLICATE_MESSAGEID("BUS-081", "Message with id [{}] already exists. Message identifiers must be unique."),
 
     SEC_UNSECURED_LOGIN_ALLOWED("SEC-001", "Unsecure login is allowed, no authentication will be performed"),
     SEC_BASIC_AUTHENTICATION_USE("SEC-002", "Basic authentication is used"),
@@ -108,8 +108,8 @@ public enum DomibusMessageCode implements MessageCode {
     SEC_CONSOLE_LOGIN_SUSPENDED_USER("SEC-015", "The user [{}] is suspended"),
     SEC_CONSOLE_LOGIN_BAD_CREDENTIALS("SEC-016", "The user [{}] is trying to login with bad credentials"),
     SEC_CONSOLE_LOGIN_LOCKED_USER("SEC-017", "The user [{}] is locked after trying to login for [{}] wrong attempts."),
-    SEC_CERTIFICATE_SOON_REVOKED("SEC-018", "The certificate with alias [{}] will be revoked on [{}]"),
-    SEC_CERTIFICATE_REVOKED("SEC-019", "The certificate with alias [{}] is revoked since [{}]"),
+    SEC_CERTIFICATE_SOON_REVOKED("SEC-018", "The [{}] certificate with alias [{}] will be revoked on [{}]"),
+    SEC_CERTIFICATE_REVOKED("SEC-019", "The [{}] certificate with alias [{}] is revoked since [{}]"),
     SEC_PASSWORD_IMMINENT_EXPIRATION("SEC-020", "The password for user [{}] will expire on [{}]"),
     SEC_PASSWORD_EXPIRED("SEC-021", "The password for user [{}] expired on [{}]");
 

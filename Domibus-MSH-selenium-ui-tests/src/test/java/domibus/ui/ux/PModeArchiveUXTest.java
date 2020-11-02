@@ -229,7 +229,7 @@ public class PModeArchiveUXTest extends SeleniumTest {
 	}
 	
 	/*PMA-7 - User Doubleclick on grid row*/
-	@Test(description = "PMA-6", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "PMA-7", groups = {"multiTenancy", "singleTenancy"})
 	public void doubleClickRow() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		PModeArchivePage page = new PModeArchivePage(driver);

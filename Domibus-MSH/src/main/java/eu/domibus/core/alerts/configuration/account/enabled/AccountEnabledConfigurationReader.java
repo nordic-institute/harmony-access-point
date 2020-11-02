@@ -3,15 +3,14 @@ package eu.domibus.core.alerts.configuration.account.enabled;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.core.alerts.configuration.AlertConfigurationReader;
+import eu.domibus.core.alerts.configuration.AlertModuleConfigurationBase;
 import eu.domibus.core.alerts.model.common.AlertLevel;
 import eu.domibus.core.alerts.model.common.AlertType;
-import eu.domibus.core.alerts.configuration.AlertModuleConfigurationBase;
 import eu.domibus.core.alerts.service.AlertConfigurationService;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ALERT_ACTIVE;
 
 /**
  * Base code for reading of console and plugin user account enabled alert configuration
@@ -19,7 +18,9 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  * @author Ion Perpegel
  * @since 4.2
  */
-public abstract class AccountEnabledConfigurationReader {
+public abstract class AccountEnabledConfigurationReader
+        implements AlertConfigurationReader<AlertModuleConfigurationBase> {
+
     private static final Logger LOG = DomibusLoggerFactory.getLogger(AccountEnabledConfigurationReader.class);
 
     @Autowired
@@ -31,7 +32,8 @@ public abstract class AccountEnabledConfigurationReader {
     @Autowired
     AlertConfigurationService alertConfigurationService;
 
-    protected abstract AlertType getAlertType();
+    @Override
+    public abstract AlertType getAlertType();
 
     protected abstract String getModuleName();
 

@@ -3,23 +3,32 @@ package eu.domibus.ext.delegate.services.property;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.common.NotificationType;
 import eu.domibus.ext.delegate.converter.DomainExtConverter;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomibusPropertyExtService;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
 /**
  * @author Cosmin Baciu
  * @since 4.0
  */
 @Service
 public class DomibusPropertyServiceDelegate implements DomibusPropertyExtService {
+
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusPropertyServiceDelegate.class);
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
@@ -49,6 +58,11 @@ public class DomibusPropertyServiceDelegate implements DomibusPropertyExtService
     }
 
     @Override
+    public Boolean getBooleanProperty(String propertyName) {
+        return domibusPropertyProvider.getBooleanProperty(propertyName);
+    }
+
+    @Override
     public Set<String> filterPropertiesName(Predicate<String> predicate) {
         return domibusPropertyProvider.filterPropertiesName(predicate);
     }
@@ -56,6 +70,37 @@ public class DomibusPropertyServiceDelegate implements DomibusPropertyExtService
     @Override
     public List<String> getNestedProperties(String prefix) {
         return domibusPropertyProvider.getNestedProperties(prefix);
+    }
+
+    @Override
+    public List<NotificationType> getConfiguredNotifications(String notificationPropertyName) {
+        String messageNotificationPropertyValue = getProperty(notificationPropertyName);
+        if (StringUtils.isEmpty(messageNotificationPropertyValue)) {
+            LOG.debug("Property [{}] value is empty", notificationPropertyName);
+            return Collections.EMPTY_LIST;
+        }
+        LOG.debug("Property [{}] value is [{}]", notificationPropertyName, messageNotificationPropertyValue);
+        String[] messageNotifications = StringUtils.split(messageNotificationPropertyValue, ",");
+        return Arrays.asList(messageNotifications).stream()
+                .map(notificationValue -> getNotificationType(notificationValue))
+                .filter(notificationType -> notificationType != null)
+                .distinct()
+                .collect(Collectors.toList());
+    }
+
+    protected NotificationType getNotificationType(String notificationValue) {
+        String trimmedValue = StringUtils.trim(notificationValue);
+        if (StringUtils.isBlank(trimmedValue)) {
+            LOG.warn("Empty notification type ignored");
+            return null;
+        }
+
+        try {
+            return NotificationType.valueOf(trimmedValue);
+        } catch (IllegalArgumentException e) {
+            LOG.warn("Unrecognized notification type [{}]", trimmedValue, e);
+            return null;
+        }
     }
 
     @Override
@@ -107,5 +152,11 @@ public class DomibusPropertyServiceDelegate implements DomibusPropertyExtService
     @Override
     public String getResolvedProperty(String propertyName) {
         return getProperty(propertyName);
+    }
+
+    @Override
+    public void setProperty(DomainDTO domain, String propertyName, String propertyValue, boolean broadcast) {
+        final Domain domibusDomain = domainConverter.convert(domain, Domain.class);
+        domibusPropertyProvider.setProperty(domibusDomain, propertyName, propertyValue, broadcast);
     }
 }

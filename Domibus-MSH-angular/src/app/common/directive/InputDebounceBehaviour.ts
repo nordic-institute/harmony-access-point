@@ -1,5 +1,5 @@
-import {Directive, ElementRef, Renderer2, HostListener, Input, OnInit} from '@angular/core';
-import {NG_VALUE_ACCESSOR, ControlValueAccessor, NgModel} from '@angular/forms';
+import {Directive, ElementRef, HostListener, Input, OnInit, Renderer2} from '@angular/core';
+import {ControlValueAccessor, NG_VALUE_ACCESSOR} from '@angular/forms';
 
 /**
  * @author Ion Perpegel
@@ -28,34 +28,35 @@ export class InputDebounceBehaviourDirective implements ControlValueAccessor, On
 
   private setValueFn: Function;
   private lastValue: string;
+  private initialValue: string;
 
   constructor(private _elementRef: ElementRef, private _renderer: Renderer2) {
   }
 
   ngOnInit() {
     if (typeof this.debounceTime !== 'number') {
-      this.debounceTime = 2000; // default debounce to 2sec
+      this.debounceTime = 500;
     }
   }
 
   @HostListener('input', ['$event.target.value'])
   input(value: string) {
     this.lastValue = value;
-    if (value) {
-      this.onChange(value);
-    } else {
-      this.setValueFn(value);
-    }
+    console.log('this.onChange', value)
+    this.onChange(value);
   }
 
   @HostListener('blur')
   onBlur() {
     if (this.setValueFn) {
+      if (this.initialValue != this.lastValue) {
         this.setValueFn(this.lastValue);
+      }
     }
   }
 
   writeValue(value: string) {
+    this.initialValue = value;
     this.lastValue = value;
     const element = this._elementRef.nativeElement;
     this._renderer.setProperty(element, 'value', (value == null ? '' : value));

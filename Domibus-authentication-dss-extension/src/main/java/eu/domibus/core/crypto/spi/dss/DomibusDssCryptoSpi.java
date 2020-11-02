@@ -15,7 +15,6 @@ import eu.europa.esig.dss.validation.CertificateVerifier;
 import eu.europa.esig.dss.validation.reports.CertificateReports;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.wss4j.common.ext.WSSecurityException;
-import org.springframework.cglib.core.internal.Function;
 
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
@@ -36,8 +35,6 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
 
     private static final String CERTPATH = "certpath";
 
-    private Function<Void, CertificateVerifier> certificateVerifierFactory;
-
     private TSLRepository tslRepository;
 
     private ValidationReport validationReport;
@@ -48,17 +45,18 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
 
     private DssCache dssCache;
 
+    private CertificateVerifierService certificateVerifierService;
+
     public DomibusDssCryptoSpi(
             final DomainCryptoServiceSpi defaultDomainCryptoService,
-            final Function<Void
-                    , CertificateVerifier> certificateVerifierFactory,
             final TSLRepository tslRepository,
             final ValidationReport validationReport,
             final ValidationConstraintPropertyMapper constraintMapper,
             final PkiExtService pkiExtService,
-            final DssCache dssCache) {
+            final DssCache dssCache,
+            CertificateVerifierService certificateVerifierService) {
         super(defaultDomainCryptoService);
-        this.certificateVerifierFactory = certificateVerifierFactory;
+        this.certificateVerifierService = certificateVerifierService;
         this.tslRepository = tslRepository;
         this.validationReport = validationReport;
         this.constraintMapper = constraintMapper;
@@ -88,7 +86,7 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
         }
         final X509Certificate leafCertificate = getX509LeafCertificate(certs);
         //add signing certificate to DSS.
-        final CertificateVerifier certificateVerifier = certificateVerifierFactory.apply(null);
+        final CertificateVerifier certificateVerifier = certificateVerifierService.getCertificateVerifier();
         CertificateSource adjunctCertSource = prepareCertificateSource(certs, leafCertificate);
         certificateVerifier.setAdjunctCertSource(adjunctCertSource);
         LOG.debug("Leaf certificate:[{}] to be validated by dss", leafCertificate.getSubjectDN().getName());

@@ -7,7 +7,6 @@ import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
 import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -19,18 +18,6 @@ import java.util.List;
  * @author Cosmin Baciu
  */
 public interface BackendConnector<U, T> {
-
-    List<NotificationType> DEFAULT_PULL_NOTIFICATIONS = Arrays.asList(
-            NotificationType.MESSAGE_RECEIVED,
-            NotificationType.MESSAGE_SEND_FAILURE,
-            NotificationType.MESSAGE_RECEIVED_FAILURE);
-    List<NotificationType> DEFAULT_PUSH_NOTIFICATIONS = Arrays.asList(
-            NotificationType.MESSAGE_RECEIVED,
-            NotificationType.MESSAGE_SEND_FAILURE,
-            NotificationType.MESSAGE_RECEIVED_FAILURE,
-            NotificationType.MESSAGE_SEND_SUCCESS,
-            NotificationType.MESSAGE_STATUS_CHANGE);
-
 
     /**
      * @return the MessageSubmissionTransformer matching the intended backend submission DTO
@@ -107,7 +94,9 @@ public interface BackendConnector<U, T> {
      *
      * @param event containing details about the deliver message event
      */
-    void deliverMessage(final DeliverMessageEvent event);
+    default void deliverMessage(final DeliverMessageEvent event) {
+
+    }
 
     /**
      * Delivers the message with the associated messageId to the backend application. Plugins working in Mode.PUSH mode
@@ -115,9 +104,12 @@ public interface BackendConnector<U, T> {
      * retrieved by a subclass by calling super.downloadMessage(messageId, target)
      *
      * @param messageId containing details about the deliver message event
+     * @deprecated use {@link BackendConnector#deliverMessage(DeliverMessageEvent)}
      */
     @Deprecated
-    void deliverMessage(final String messageId);
+    default void deliverMessage(final String messageId) {
+
+    }
 
     /**
      * Initiates a pull request for the given mpc
@@ -148,7 +140,7 @@ public interface BackendConnector<U, T> {
      * @return the plugin notifications
      */
     default List<NotificationType> getRequiredNotifications() {
-        return DEFAULT_PUSH_NOTIFICATIONS;
+        return NotificationType.DEFAULT_PUSH_NOTIFICATIONS;
     }
 
     /**
@@ -157,6 +149,15 @@ public interface BackendConnector<U, T> {
      * @param event The message delete event details eg message id
      */
     default void messageDeletedEvent(MessageDeletedEvent event) {
+    }
+
+
+    /**
+     * Custom action to be performed by the plugins when a batch of messages are being deleted
+     *
+     * @param event The message delete batch event details eg list of message ids
+     */
+    default void messageDeletedBatchEvent(MessageDeletedBatchEvent event) {
     }
 
     /**
@@ -194,9 +195,12 @@ public interface BackendConnector<U, T> {
      * are provided by #getErrorsForMessage. This is only called for messages that have no rerty attempts left.
      *
      * @param messageId the Id of the failed message
+     * @deprecated use {@link BackendConnector#messageSendFailed(MessageSendFailedEvent)} )}
      */
     @Deprecated
-    void messageSendFailed(String messageId);
+    default void messageSendFailed(String messageId) {
+
+    }
 
     /**
      * This method gets called when an outgoing message associated with a Mode.PUSH plugin and an associated
@@ -205,16 +209,21 @@ public interface BackendConnector<U, T> {
      *
      * @param event The event containing the details of the send failed event
      */
-    void messageSendFailed(MessageSendFailedEvent event);
+    default void messageSendFailed(MessageSendFailedEvent event) {
+
+    }
 
     /**
      * This method gets called when an outgoing message associated with a Mode.PUSH plugin has been successfully sent
      * to the intended receiving MSH
      *
      * @param messageId the Id of the successful message
+     * @deprecated use {@link BackendConnector#messageSendSuccess(MessageSendSuccessEvent)}
      */
     @Deprecated
-    void messageSendSuccess(String messageId);
+    default void messageSendSuccess(String messageId) {
+
+    }
 
     /**
      * This method gets called when an outgoing message associated with a Mode.PUSH plugin has been successfully sent
@@ -222,7 +231,9 @@ public interface BackendConnector<U, T> {
      *
      * @param event The event containing the details of the message send success event
      */
-    void messageSendSuccess(final MessageSendSuccessEvent event);
+    default void messageSendSuccess(final MessageSendSuccessEvent event){
+
+    }
 
     /**
      * Describes the behaviour of the plugin regarding message delivery to the backend application

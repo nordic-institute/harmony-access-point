@@ -9,13 +9,10 @@ import eu.domibus.common.ErrorResult;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.model.configuration.*;
-import eu.domibus.core.payload.PayloadProfileValidator;
-import eu.domibus.core.pmode.validation.validators.MessagePropertyValidator;
-import eu.domibus.core.pmode.validation.validators.PropertyProfileValidator;
+import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.Ebms3Constants;
 import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.error.ErrorLogEntry;
-import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.generator.id.MessageIdGenerator;
 import eu.domibus.core.message.*;
 import eu.domibus.core.message.compression.CompressionException;
@@ -24,10 +21,13 @@ import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
+import eu.domibus.core.payload.PayloadProfileValidator;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.plugin.transformer.SubmissionAS4Transformer;
 import eu.domibus.core.pmode.PModeDefaultService;
 import eu.domibus.core.pmode.provider.PModeProvider;
+import eu.domibus.core.pmode.validation.validators.MessagePropertyValidator;
+import eu.domibus.core.pmode.validation.validators.PropertyProfileValidator;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.model.ObjectFactory;
 import eu.domibus.ebms3.common.model.Property;
@@ -81,11 +81,32 @@ public class DatabaseMessageHandlerTest {
             AGREEMENT + MessageExchangeConfiguration.PMODEKEY_SEPARATOR +
             LEG;
 
-    @Tested
-    private DatabaseMessageHandler databaseMessageHandler;
+    @Injectable
+    private PModeDefaultService pModeDefaultService;
 
     @Injectable
-    JMSManager jmsManager;
+    private UserMessageDefaultService userMessageDefaultService;
+
+    @Injectable
+    private UserMessageServiceHelper userMessageServiceHelper;
+
+    @Injectable
+    private JMSManager jmsManager;
+
+    @Injectable
+    private AuthUtils authUtils;
+
+    @Injectable
+    private LegConfiguration legConfiguration;
+
+    @Injectable
+    private SplitAndJoinService splitAndJoinService;
+
+    @Injectable
+    private PayloadFileStorageProvider storageProvider;
+
+    @Injectable
+    private MessagePropertyValidator messagePropertyValidator;
 
     @Injectable
     private Queue sendMessageQueue;
@@ -139,37 +160,15 @@ public class DatabaseMessageHandlerTest {
     private PullMessageService pullMessageService;
 
     @Injectable
-    AuthUtils authUtils;
-
-    @Injectable
     private UserMessageDefaultService userMessageService;
 
     @Injectable
     private UIReplicationSignalService uiReplicationSignalService;
 
-    @Injectable
-    LegConfiguration legConfiguration;
+    @Tested
+    private DatabaseMessageHandler databaseMessageHandler;
 
-    @Injectable
-    SplitAndJoinService splitAndJoinService;
-
-    @Injectable
-    PayloadFileStorageProvider storageProvider;
-
-    @Injectable
-    protected PModeDefaultService pModeDefaultService;
-
-    @Injectable
-    protected UserMessageDefaultService userMessageDefaultService;
-
-    @Injectable
-    protected UserMessageServiceHelper userMessageServiceHelper;
-
-    @Injectable
-    MessagePropertyValidator messagePropertyValidator;
-
-
-    protected Property createProperty(String name, String value, String type) {
+    protected static Property createProperty(String name, String value, String type) {
         Property aProperty = new Property();
         aProperty.setValue(value);
         aProperty.setName(name);
@@ -177,7 +176,7 @@ public class DatabaseMessageHandlerTest {
         return aProperty;
     }
 
-    protected UserMessage createUserMessage() {
+    protected static UserMessage createUserMessage() {
         UserMessage userMessage = new UserMessage();
         CollaborationInfo collaborationInfo = new CollaborationInfo();
         collaborationInfo.setAction("TC2Leg1");
@@ -232,13 +231,12 @@ public class DatabaseMessageHandlerTest {
     @Test
     public void testSubmitMessageGreen2RedOk(@Injectable final Submission messageData,
                                              @Injectable PartInfo partInfo,
-                                             @Injectable UserMessage userMessage,
                                              @Injectable MessageExchangeConfiguration messageExchangeConfiguration,
                                              @Injectable Party sender,
                                              @Injectable Party receiver,
                                              @Injectable Party confParty) throws Exception {
+        final UserMessage userMessage = new UserMessage();
         new Expectations() {{
-
             authUtils.getOriginalUserFromSecurityContext();
             result = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1";
 
@@ -247,9 +245,6 @@ public class DatabaseMessageHandlerTest {
 
             messageIdGenerator.generateMessageId();
             result = MESS_ID;
-
-            userMessageLogDao.getMessageStatus(MESS_ID);
-            result = MessageStatus.NOT_FOUND;
 
             pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
             result = messageExchangeConfiguration;
@@ -273,11 +268,11 @@ public class DatabaseMessageHandlerTest {
         }};
 
         final String messageId = databaseMessageHandler.submit(messageData, BACKEND);
+        assertEquals(MESS_ID, messageId);
 
         new Verifications() {{
             authUtils.getOriginalUserFromSecurityContext();
             messageIdGenerator.generateMessageId();
-            userMessageLogDao.getMessageStatus(MESS_ID);
             pModeProvider.findUserMessageExchangeContext(withAny(new UserMessage()), MSHRole.SENDING);
             pModeProvider.getLegConfiguration(pModeKey);
             messagePropertyValidator.validate(withAny(new Messaging()), MSHRole.SENDING);
@@ -285,7 +280,6 @@ public class DatabaseMessageHandlerTest {
             userMessageLogService.save(messageId, anyString, anyString, MSHRole.SENDING.toString(), anyInt, anyString, anyString, anyString, anyString, anyString, null, null);
             userMessageService.scheduleSending(userMessage, (UserMessageLog) any);
         }};
-
     }
 
     @Test
@@ -301,9 +295,6 @@ public class DatabaseMessageHandlerTest {
 
             messageIdGenerator.generateMessageId();
             result = MESS_ID;
-
-            userMessageLogDao.getMessageStatus(MESS_ID);
-            result = MessageStatus.NOT_FOUND;
 
             pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
             MessageExchangeConfiguration messageExchangeConfiguration = new MessageExchangeConfiguration("", "green_gw", "red_gw", "testService1", "TC2Leg1", "pushTestcase1tc2Action");
@@ -349,7 +340,6 @@ public class DatabaseMessageHandlerTest {
         new Verifications() {{
             authUtils.getOriginalUserFromSecurityContext();
             messageIdGenerator.generateMessageId();
-            userMessageLogDao.getMessageStatus(MESS_ID);
             pModeProvider.findUserMessageExchangeContext(withAny(new UserMessage()), MSHRole.SENDING);
             pModeProvider.getLegConfiguration(anyString);
             UserMessage message;
@@ -375,9 +365,6 @@ public class DatabaseMessageHandlerTest {
 
             messageIdGenerator.generateMessageId();
             result = MESS_ID;
-
-            userMessageLogDao.getMessageStatus(MESS_ID);
-            result = MessageStatus.NOT_FOUND;
 
             pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
             result = new MessageExchangeConfiguration("", "green_gw", "red_gw", "testService1", "TC2Leg1", "pushTestcase1tc2Action");
@@ -407,7 +394,6 @@ public class DatabaseMessageHandlerTest {
         new Verifications() {{
             authUtils.getOriginalUserFromSecurityContext();
             messageIdGenerator.generateMessageId();
-            userMessageLogDao.getMessageStatus(MESS_ID);
             pModeProvider.findUserMessageExchangeContext(withAny(new UserMessage()), MSHRole.SENDING);
             pModeProvider.getLegConfiguration(anyString);
             messagePropertyValidator.validate(withAny(new Messaging()), MSHRole.SENDING);
@@ -427,7 +413,7 @@ public class DatabaseMessageHandlerTest {
             transformer.transformFromSubmission(messageData);
             result = userMessage;
 
-            backendMessageValidator.validateMessageId(messageId);
+            backendMessageValidator.validateUserMessageForPmodeMatch(userMessage, MSHRole.SENDING);
             result = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0008, "MessageId value is too long (over 255 characters)", null, null);
         }};
 
@@ -471,7 +457,7 @@ public class DatabaseMessageHandlerTest {
             messageIdGenerator.generateMessageId();
             result = MESS_ID;
 
-            backendMessageValidator.validateRefToMessageId(refToMessageId);
+            backendMessageValidator.validateUserMessageForPmodeMatch(userMessage, MSHRole.SENDING);
             result = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0008, "RefToMessageId value is too long (over 255 characters)", refToMessageId, null);
         }};
 
@@ -511,13 +497,8 @@ public class DatabaseMessageHandlerTest {
             messageIdGenerator.generateMessageId();
             result = MESS_ID;
 
-            userMessageLogDao.getMessageStatus(MESS_ID);
-            result = MessageStatus.NOT_FOUND;
-
-
             pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
             result = new MessageExchangeConfiguration("", "green_gw", "red_gw", "testService1", "TC2Leg1", "pushTestcase1tc2Action");
-            ;
 
             // Here the configuration of the access point is supposed to be BLUE!
             Party confParty = new Party();
@@ -543,7 +524,6 @@ public class DatabaseMessageHandlerTest {
         new Verifications() {{
             authUtils.getOriginalUserFromSecurityContext();
             messageIdGenerator.generateMessageId();
-            userMessageLogDao.getMessageStatus(MESS_ID);
             pModeProvider.findUserMessageExchangeContext(withAny(new UserMessage()), MSHRole.SENDING);
             backendMessageValidator.validateParties(withAny(new Party()), withAny(new Party()));
             backendMessageValidator.validateInitiatorParty(withAny(new Party()), withAny(new Party()));
@@ -573,12 +553,8 @@ public class DatabaseMessageHandlerTest {
             messageIdGenerator.generateMessageId();
             result = MESS_ID;
 
-            userMessageLogDao.getMessageStatus(MESS_ID);
-            result = MessageStatus.NOT_FOUND;
-
             backendMessageValidator.validateParties(withAny(new Party()), withAny(new Party()));
             result = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, "The initiator party's name is the same as the responder party's one", null, null);
-
         }};
 
         try {
@@ -593,7 +569,6 @@ public class DatabaseMessageHandlerTest {
         new Verifications() {{
             authUtils.getOriginalUserFromSecurityContext();
             messageIdGenerator.generateMessageId();
-            userMessageLogDao.getMessageStatus(MESS_ID);
             pModeProvider.findUserMessageExchangeContext(withAny(new UserMessage()), MSHRole.SENDING);
             backendMessageValidator.validateParties(withAny(new Party()), withAny(new Party()));
 
@@ -622,12 +597,8 @@ public class DatabaseMessageHandlerTest {
             messageIdGenerator.generateMessageId();
             result = MESS_ID;
 
-            userMessageLogDao.getMessageStatus(MESS_ID);
-            result = MessageStatus.NOT_FOUND;
-
             pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
             result = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, "PMode could not be found. Are PModes configured in the database?", MESS_ID, null);
-
         }};
 
         try {
@@ -642,7 +613,6 @@ public class DatabaseMessageHandlerTest {
         new Verifications() {{
             authUtils.getOriginalUserFromSecurityContext();
             messageIdGenerator.generateMessageId();
-            userMessageLogDao.getMessageStatus(MESS_ID);
             pModeProvider.findUserMessageExchangeContext(withAny(new UserMessage()), MSHRole.SENDING);
             pModeProvider.getLegConfiguration(anyString);
             times = 0;
@@ -662,9 +632,6 @@ public class DatabaseMessageHandlerTest {
 
             messageIdGenerator.generateMessageId();
             result = MESS_ID;
-
-            userMessageLogDao.getMessageStatus(MESS_ID);
-            result = MessageStatus.NOT_FOUND;
 
             pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
             MessageExchangeConfiguration messageExchangeConfiguration = new MessageExchangeConfiguration("", "green_gw", "red_gw", "testService1", "TC2Leg1", "pushTestcase1tc2Action");
@@ -687,7 +654,6 @@ public class DatabaseMessageHandlerTest {
         new Verifications() {{
             authUtils.getOriginalUserFromSecurityContext();
             messageIdGenerator.generateMessageId();
-            userMessageLogDao.getMessageStatus(MESS_ID);
             pModeProvider.findUserMessageExchangeContext(withAny(new UserMessage()), MSHRole.SENDING);
             pModeProvider.getLegConfiguration(anyString);
             messagingService.storeMessage(withAny(new Messaging()), MSHRole.SENDING, legConfiguration, anyString);
@@ -699,19 +665,16 @@ public class DatabaseMessageHandlerTest {
     }
 
     @Test
-    public void testSubmitDuplicateMessage(@Injectable final Submission messageData) throws Exception {
+    public void testSubmitDuplicateMessage(@Injectable final Submission messageData, @Injectable UserMessage userMessage) throws Exception {
         new Expectations() {{
-
-            UserMessage userMessage = new UserMessage();
             transformer.transformFromSubmission(messageData);
             result = userMessage;
 
             messageIdGenerator.generateMessageId();
             result = MESS_ID;
 
-            userMessageLogDao.getMessageStatus(MESS_ID);
-            result = MessageStatus.ACKNOWLEDGED;
-
+            backendMessageValidator.validateUserMessageForPmodeMatch(userMessage, MSHRole.SENDING);
+            result = new DuplicateMessageException("Message with id [" + MESS_ID + "] already exists. Message identifiers must be unique");
         }};
 
         try {
@@ -725,7 +688,6 @@ public class DatabaseMessageHandlerTest {
         new Verifications() {{
             authUtils.getOriginalUserFromSecurityContext();
             messageIdGenerator.generateMessageId();
-            userMessageLogDao.getMessageStatus(MESS_ID);
         }};
     }
 
@@ -755,8 +717,6 @@ public class DatabaseMessageHandlerTest {
 
         new Verifications() {{
             authUtils.getOriginalUserFromSecurityContext();
-            messageIdGenerator.generateMessageId();
-            times = 0;
         }};
     }
 
@@ -764,7 +724,6 @@ public class DatabaseMessageHandlerTest {
     @Test
     public void testSubmitMessageStoreNOk(@Injectable final Submission messageData, @Injectable PartInfo partInfo) throws Exception {
         new Expectations() {{
-
             authUtils.getOriginalUserFromSecurityContext();
             result = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1";
 
@@ -775,12 +734,8 @@ public class DatabaseMessageHandlerTest {
             messageIdGenerator.generateMessageId();
             result = MESS_ID;
 
-            userMessageLogDao.getMessageStatus(MESS_ID);
-            result = MessageStatus.NOT_FOUND;
-
             pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
             result = new MessageExchangeConfiguration("", "green_gw", "red_gw", "testService1", "TC2Leg1", "pushTestcase1tc2Action");
-            ;
 
             Party sender = new Party();
             sender.setName(GREEN);
@@ -816,14 +771,12 @@ public class DatabaseMessageHandlerTest {
         new Verifications() {{
             authUtils.getOriginalUserFromSecurityContext();
             messageIdGenerator.generateMessageId();
-            userMessageLogDao.getMessageStatus(MESS_ID);
             pModeProvider.findUserMessageExchangeContext(withAny(new UserMessage()), MSHRole.SENDING);
             pModeProvider.getLegConfiguration(anyString);
             messagingService.storeMessage(withAny(new Messaging()), MSHRole.SENDING, legConfiguration, anyString);
             userMessageLogDao.create(withAny(new UserMessageLog()));
             times = 0;
         }};
-
     }
 
 

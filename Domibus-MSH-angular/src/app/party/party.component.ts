@@ -1,7 +1,15 @@
-import {AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {
+  AfterViewChecked,
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  OnInit,
+  TemplateRef,
+  ViewChild
+} from '@angular/core';
 import {MatDialog} from '@angular/material';
 import {PartyService} from './support/party.service';
-import {CertificateRo, PartyFilteredResult, PartyResponseRo, ProcessRo} from './support/party';
+import {PartyFilteredResult, PartyResponseRo, ProcessRo} from './support/party';
 import {AlertService} from '../common/alert/alert.service';
 import {PartyDetailsComponent} from './party-details/party-details.component';
 import {DirtyOperations} from '../common/dirty-operations';
@@ -14,6 +22,8 @@ import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
 import {DialogsService} from '../common/dialogs/dialogs.service';
 import {ClientPageableListMixin} from '../common/mixins/pageable-list.mixin';
 import {ApplicationContextService} from '../common/application-context.service';
+import {ComponentName} from '../common/component-name-decorator';
+import {Server} from '../security/Server';
 
 /**
  * @author Thomas Dussart, Ion Perpegel
@@ -26,7 +36,7 @@ import {ApplicationContextService} from '../common/application-context.service';
   templateUrl: './party.component.html',
   styleUrls: ['./party.component.css']
 })
-
+@ComponentName('Parties')
 export class PartyComponent extends mix(BaseListComponent)
   .with(ClientFilterableListMixin, ModifiableListMixin, ClientPageableListMixin)
   implements OnInit, DirtyOperations, AfterViewInit, AfterViewChecked {
@@ -65,10 +75,6 @@ export class PartyComponent extends mix(BaseListComponent)
     } else {
       this.pModeExists = false;
     }
-  }
-
-  public get name(): string {
-    return 'Parties';
   }
 
   ngAfterViewInit() {
@@ -227,24 +233,30 @@ export class PartyComponent extends mix(BaseListComponent)
 
     await this.manageCertificate(row);
 
-    const rowCopy = JSON.parse(JSON.stringify(row)); // clone
+    const edited = JSON.parse(JSON.stringify(row)); // clone
     const allProcessesCopy = JSON.parse(JSON.stringify(this.allProcesses));
 
     const dialogRef = this.dialog.open(PartyDetailsComponent, {
       data: {
-        edit: rowCopy,
+        edit: edited,
         allProcesses: allProcessesCopy
       }
     });
 
     const ok = await dialogRef.afterClosed().toPromise();
     if (ok) {
-      if (JSON.stringify(row) === JSON.stringify(rowCopy)) {
-        return;
-      } // nothing changed
+      const rowCopy: PartyResponseRo = JSON.parse(JSON.stringify(row));
+      // just for the sake of comparison
+      rowCopy.processesWithPartyAsInitiator.forEach(el => el.entityId = 0);
+      rowCopy.processesWithPartyAsResponder.forEach(el => el.entityId = 0);
 
-      Object.assign(row, rowCopy);
-      row.name = rowCopy.name;// TODO temp
+      if (JSON.stringify(rowCopy) === JSON.stringify(edited)) {
+        // nothing changed
+        return;
+      }
+
+      Object.assign(row, edited);
+      row.name = edited.name;
       super.rows = [...this.rows];
 
       if (this.updatedParties.indexOf(row) < 0) {
@@ -255,20 +267,27 @@ export class PartyComponent extends mix(BaseListComponent)
     return ok;
   }
 
-  manageCertificate(party: PartyResponseRo): Promise<CertificateRo> {
-    return new Promise((resolve, reject) => {
-      if (!party.certificate) {
-        this.partyService.getCertificate(party.name)
-          .subscribe((cert: CertificateRo) => {
-            party.certificate = cert;
-            resolve(cert);
-          }, err => {
-            resolve(null);
-          });
-      } else {
-        resolve(party.certificate);
+  async manageCertificate(party: PartyResponseRo) {
+    if (party.name && this.isPersisted(party) && party.certificate === undefined) {
+      try {
+        const cert = await this.partyService.getCertificate(party.name).toPromise();
+        party.certificate = cert;
+      } catch (ex) {
+        if (this.isCertificateNotFound(ex)) {
+          party.certificate = null;
+        } else {
+          this.alertService.exception(`Could not get the certificate for the party ${party.name}`, ex);
+        }
       }
-    });
+    }
+  }
+
+  private isCertificateNotFound(ex) {
+    return ex.status == Server.HTTP_NOTFOUND;
+  }
+
+  private isPersisted(party: PartyResponseRo) {
+    return party.entityId != null;
   }
 
   OnSort() {

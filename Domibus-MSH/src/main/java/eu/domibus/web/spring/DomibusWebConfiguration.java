@@ -1,6 +1,5 @@
 package eu.domibus.web.spring;
 
-import eu.domibus.ext.rest.spring.DomibusExtWebConfiguration;
 import eu.domibus.web.converter.CustomMappingJackson2HttpMessageConverter;
 import eu.domibus.web.rest.validators.RestQueryParamsValidationInterceptor;
 import eu.domibus.web.security.AuthenticatedPrincipalInterceptor;
@@ -24,7 +23,7 @@ import java.util.List;
  */
 @EnableWebMvc
 @Configuration("domibusWebConfiguration")
-@Import(DomibusExtWebConfiguration.class)
+@Import(DomibusWebContextSelector.class)
 @ComponentScan(basePackages = "eu.domibus.web")
 @ImportResource("classpath*:config/*-domibusServlet.xml")
 @EnableAspectJAutoProxy(proxyTargetClass = true)
@@ -36,7 +35,7 @@ public class DomibusWebConfiguration implements WebMvcConfigurer {
         registry.addInterceptor(defaultPasswordInterceptor())
                 .addPathPatterns("/rest/**")
                 .excludePathPatterns("/rest/security/user")
-                .excludePathPatterns("/rest/security/username")
+                .excludePathPatterns("/rest/security/user/connected")
                 .excludePathPatterns("/rest/security/authentication")
                 .excludePathPatterns("/rest/security/user/domain")
                 .excludePathPatterns("/rest/security/user/password")

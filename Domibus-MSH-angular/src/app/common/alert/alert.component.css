@@ -3,6 +3,7 @@
   color: white;
   opacity: 1;
   transition: opacity 0.6s;
+  word-wrap: break-word;
 }
 
 .alert-error {background-color: #f44336;}

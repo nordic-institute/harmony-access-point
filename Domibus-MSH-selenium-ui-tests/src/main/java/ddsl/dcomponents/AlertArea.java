@@ -14,7 +14,6 @@ import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
  */
 
 
-@SuppressWarnings("SpellCheckingInspection")
 public class AlertArea extends DComponent {
 
 	@FindBy(id = "alertmessage_id")

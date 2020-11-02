@@ -1,5 +1,6 @@
 package eu.domibus.core.logging.cxf;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.ext.logging.event.LogEvent;
 import org.apache.cxf.ext.logging.event.LogMessageFormatter;
 import org.apache.cxf.ext.logging.slf4j.Slf4jEventSender;
@@ -22,8 +23,14 @@ public class DomibusLoggingEventSender extends Slf4jEventSender  {
 
     private boolean printPayload;
 
+    private boolean printMetadata;
+
     public void setPrintPayload(boolean printPayload) {
         this.printPayload = printPayload;
+    }
+
+    public void setPrintMetadata(boolean printMetadata) {
+        this.printMetadata = printMetadata;
     }
 
     @Autowired
@@ -31,6 +38,9 @@ public class DomibusLoggingEventSender extends Slf4jEventSender  {
 
     @Override
     protected String getLogMessage(LogEvent event) {
+        if (!isCxfLoggingInfoEnabled()) {
+            return StringUtils.EMPTY;
+        }
         if (checkIfStripPayloadPossible()) {
             try {
                 domibusLoggingEventHelper.stripPayload(event);
@@ -38,19 +48,21 @@ public class DomibusLoggingEventSender extends Slf4jEventSender  {
                 LOG.error("Exception while stripping the payload: ", e);
             }
         }
-        return LogMessageFormatter.format(event);
+        if (printMetadata) {
+            LOG.debug("Apache CXF logging metadata will be printed");
+            return LogMessageFormatter.format(event);
+        }
+        return event.getPayload();
     }
 
     protected boolean checkIfStripPayloadPossible() {
         LOG.debug("Printing payload is{}active", printPayload ? " " : " not ");
-        if (printPayload) {
-            return false;
-        }
-        boolean isCxfLoggingInfoEnabled = LoggerFactory.getLogger(ORG_APACHE_CXF_CATEGORY).isInfoEnabled();
-        if (isCxfLoggingInfoEnabled) {
-            LOG.debug("[{}] is set to at least INFO level", ORG_APACHE_CXF_CATEGORY);
-        }
+        return !printPayload;
+    }
 
+    protected boolean isCxfLoggingInfoEnabled() {
+        boolean isCxfLoggingInfoEnabled = LoggerFactory.getLogger(ORG_APACHE_CXF_CATEGORY).isInfoEnabled();
+        LOG.debug("[{}] is {}set to INFO level", ORG_APACHE_CXF_CATEGORY, isCxfLoggingInfoEnabled ? StringUtils.EMPTY : "not ");
         return isCxfLoggingInfoEnabled;
     }
 

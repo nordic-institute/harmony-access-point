@@ -2,7 +2,6 @@ package eu.domibus.core.user.ui;
 
 
 import eu.domibus.core.dao.BasicDao;
-import eu.domibus.core.user.UserEntityBase;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.NoResultException;
@@ -33,7 +32,7 @@ public class UserDaoImpl extends BasicDao<User> implements UserDao {
     }
 
     @Override
-    public List<UserEntityBase> getSuspendedUsers(final Date currentTimeMinusSuspensionInterval) {
+    public List<User> getSuspendedUsers(final Date currentTimeMinusSuspensionInterval) {
         TypedQuery<User> namedQuery = em.createNamedQuery("User.findSuspendedUsers", User.class);
         namedQuery.setParameter("SUSPENSION_INTERVAL", currentTimeMinusSuspensionInterval);
         return namedQuery.getResultList().stream().collect(Collectors.toList());
@@ -42,7 +41,7 @@ public class UserDaoImpl extends BasicDao<User> implements UserDao {
     @Override
     public User loadUserByUsername(String userName) {
         TypedQuery<User> namedQuery = em.createNamedQuery("User.findByUserName", User.class);
-        namedQuery.setParameter("USER_NAME", userName);
+        namedQuery.setParameter(User.USER_NAME, userName);
         try {
             return namedQuery.getSingleResult();
         } catch (NoResultException e) {
@@ -53,7 +52,7 @@ public class UserDaoImpl extends BasicDao<User> implements UserDao {
     @Override
     public User loadActiveUserByUsername(String userName) {
         TypedQuery<User> namedQuery = em.createNamedQuery("User.findActiveByUserName", User.class);
-        namedQuery.setParameter("USER_NAME", userName);
+        namedQuery.setParameter(User.USER_NAME, userName);
         try {
             return namedQuery.getSingleResult();
         } catch (NoResultException e) {
@@ -77,12 +76,12 @@ public class UserDaoImpl extends BasicDao<User> implements UserDao {
     }
 
     @Override
-    public UserEntityBase findByUserName(String userName) {
+    public User findByUserName(String userName) {
         return loadUserByUsername(userName);
     }
 
     @Override
-    public List<UserEntityBase> findWithPasswordChangedBetween(LocalDate start, LocalDate end, boolean withDefaultPassword) {
+    public List<User> findWithPasswordChangedBetween(LocalDate start, LocalDate end, boolean withDefaultPassword) {
         TypedQuery<User> namedQuery = em.createNamedQuery("User.findWithPasswordChangedBetween", User.class);
         namedQuery.setParameter("START_DATE", start.atStartOfDay());
         namedQuery.setParameter("END_DATE", end.atStartOfDay());
@@ -92,7 +91,7 @@ public class UserDaoImpl extends BasicDao<User> implements UserDao {
 
     @Override
     public void update(User user, boolean flush) {
-        this.update((User) user);
+        this.update(user);
         if (flush) {
             this.flush();
         }

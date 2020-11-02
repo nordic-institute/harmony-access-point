@@ -33,6 +33,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED;
+import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 /**
  * @author Cosmin Baciu, Thomas Dussart, Ioana Dragusanu
@@ -118,7 +120,7 @@ public class CachingPModeProvider extends PModeProvider {
     protected List<Process> getAllPullProcesses() {
         final List<Process> processes = getConfiguration().getBusinessProcesses().getProcesses();
         return processes.stream()
-                .filter(process -> isPullProcess(process))
+                .filter(this::isPullProcess)
                 .collect(Collectors.toList());
     }
 
@@ -126,8 +128,8 @@ public class CachingPModeProvider extends PModeProvider {
         Set<Party> initiators = new HashSet<>();
         final List<Process> pullProcesses = getAllPullProcesses();
         pullProcesses.stream()
-                .map(process -> process.getInitiatorParties())
-                .forEach(parties -> initiators.addAll(parties));
+                .map(Process::getInitiatorParties)
+                .forEach(initiators::addAll);
         return initiators;
     }
 
@@ -162,10 +164,10 @@ public class CachingPModeProvider extends PModeProvider {
      * @param agreementName the agreement name
      */
     protected boolean matchAgreement(Process process, String agreementName) {
-        return (process.getAgreement() != null && StringUtils.equalsIgnoreCase(process.getAgreement().getName(), agreementName)
-                || (StringUtils.equalsIgnoreCase(agreementName, OPTIONAL_AND_EMPTY) && process.getAgreement() == null)
+        return (process.getAgreement() != null && equalsIgnoreCase(process.getAgreement().getName(), agreementName)
+                || (equalsIgnoreCase(agreementName, OPTIONAL_AND_EMPTY) && process.getAgreement() == null)
                 // Please notice that this is only for backward compatibility and will be removed ASAP!
-                || (StringUtils.equalsIgnoreCase(agreementName, OPTIONAL_AND_EMPTY) && process.getAgreement() != null && StringUtils.isEmpty(process.getAgreement().getValue()))
+                || (equalsIgnoreCase(agreementName, OPTIONAL_AND_EMPTY) && process.getAgreement() != null && StringUtils.isEmpty(process.getAgreement().getValue()))
         );
     }
 
@@ -193,7 +195,7 @@ public class CachingPModeProvider extends PModeProvider {
         }
 
         for (final Party party : process.getInitiatorParties()) {
-            if (StringUtils.equalsIgnoreCase(party.getName(), processTypePartyExtractor.getSenderParty())) {
+            if (equalsIgnoreCase(party.getName(), processTypePartyExtractor.getSenderParty())) {
                 return true;
             }
         }
@@ -221,7 +223,7 @@ public class CachingPModeProvider extends PModeProvider {
         }
 
         for (final Party party : process.getResponderParties()) {
-            if (StringUtils.equalsIgnoreCase(party.getName(), processTypePartyExtractor.getReceiverParty())) {
+            if (equalsIgnoreCase(party.getName(), processTypePartyExtractor.getReceiverParty())) {
                 return true;
             }
         }
@@ -267,9 +269,9 @@ public class CachingPModeProvider extends PModeProvider {
     }
 
     protected boolean candidateMatches(LegConfiguration candidate, String service, String action, String mpc) {
-        if (StringUtils.equalsIgnoreCase(candidate.getService().getName(), service)
-                && StringUtils.equalsIgnoreCase(candidate.getAction().getName(), action)
-                && StringUtils.equalsIgnoreCase(candidate.getDefaultMpc().getQualifiedName(), mpc)) {
+        if (equalsIgnoreCase(candidate.getService().getName(), service)
+                && equalsIgnoreCase(candidate.getAction().getName(), action)
+                && equalsIgnoreCase(candidate.getDefaultMpc().getQualifiedName(), mpc)) {
             return true;
         }
         return false;
@@ -371,7 +373,7 @@ public class CachingPModeProvider extends PModeProvider {
     }
 
     protected void checkServiceMismatch(LegConfiguration candidateLeg, LegFilterCriteria legFilterCriteria) {
-        if (StringUtils.equalsIgnoreCase(candidateLeg.getService().getName(), legFilterCriteria.getService())) {
+        if (equalsIgnoreCase(candidateLeg.getService().getName(), legFilterCriteria.getService())) {
             LOG.debug("Service:[{}] matched for Leg:[{}]", legFilterCriteria.getService(), candidateLeg.getName());
             return;
         }
@@ -379,7 +381,7 @@ public class CachingPModeProvider extends PModeProvider {
     }
 
     protected void checkActionMismatch(LegConfiguration candidateLeg, LegFilterCriteria legFilterCriteria) {
-        if (StringUtils.equalsIgnoreCase(candidateLeg.getAction().getName(), legFilterCriteria.getAction())) {
+        if (equalsIgnoreCase(candidateLeg.getAction().getName(), legFilterCriteria.getAction())) {
             LOG.debug("Action:[{}] matched for Leg:[{}]", legFilterCriteria.getAction(), candidateLeg.getName());
             return;
         }
@@ -422,7 +424,7 @@ public class CachingPModeProvider extends PModeProvider {
     @Override
     public String findActionName(final String action) throws EbMS3Exception {
         for (final Action action1 : this.getConfiguration().getBusinessProcesses().getActions()) {
-            if (StringUtils.equalsIgnoreCase(action1.getValue(), action)) {
+            if (equalsIgnoreCase(action1.getValue(), action)) {
                 return action1.getName();
             }
         }
@@ -432,7 +434,7 @@ public class CachingPModeProvider extends PModeProvider {
     @Override
     public Mpc findMpc(final String mpcValue) throws EbMS3Exception {
         for (final Mpc mpc : this.getConfiguration().getMpcs()) {
-            if (StringUtils.equalsIgnoreCase(mpc.getQualifiedName(), mpcValue)) {
+            if (equalsIgnoreCase(mpc.getQualifiedName(), mpcValue)) {
                 return mpc;
             }
         }
@@ -446,10 +448,10 @@ public class CachingPModeProvider extends PModeProvider {
         }
 
         for (final Service service1 : this.getConfiguration().getBusinessProcesses().getServices()) {
-            if ((StringUtils.equalsIgnoreCase(service1.getServiceType(), service.getType()) || (!StringUtils.isNotEmpty(service1.getServiceType()) && !StringUtils.isNotEmpty(service.getType()))))
-                if (StringUtils.equalsIgnoreCase(service1.getValue(), service.getValue())) {
-                    return service1.getName();
-                }
+            if ((equalsIgnoreCase(service1.getServiceType(), service.getType()) ||
+                    (!StringUtils.isNotEmpty(service1.getServiceType()) && !StringUtils.isNotEmpty(service.getType()))) &&
+                    equalsIgnoreCase(service1.getValue(), service.getValue()))
+                return service1.getName();
         }
         throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "No matching service found for type [" + service.getType() + "] and value [" + service.getValue() + "]", null, null);
     }
@@ -461,25 +463,13 @@ public class CachingPModeProvider extends PModeProvider {
         for (final Party party : this.getConfiguration().getBusinessProcesses().getParties()) {
             for (final PartyId id : partyId) {
                 for (final Identifier identifier : party.getIdentifiers()) {
-                    if (id.getType() != null) {
-                        partyIdType = id.getType();
-                        try {
-                            URI.create(partyIdType);
-                        } catch (final IllegalArgumentException e) {
-                            final EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "no matching party found", null, e);
-                            ex.setErrorDetail("PartyId " + id.getValue() + " is not a valid URI [CORE]");
-                            throw ex;
-                        }
-                    }
+                    partyIdType = id.getType();
+                    validateURI(id);
                     // identifierPartyIdType can be also null!
-                    String identifierPartyIdType = null;
                     partyIdValue = id.getValue();
-                    if (identifier.getPartyIdType() != null &&
-                        StringUtils.isNotEmpty(identifier.getPartyIdType().getValue())) {
-                        identifierPartyIdType = identifier.getPartyIdType().getValue();
-                    }
+                    String identifierPartyIdType = getIdentifierPartyIdType(identifier);
                     LOG.debug("Find party with type:[{}] and identifier:[{}] by comparing with pmode id type:[{}] and pmode identifier:[{}]", partyIdType, id.getValue(), identifierPartyIdType, identifier.getPartyId());
-                    if (StringUtils.equalsIgnoreCase(partyIdType, identifierPartyIdType) && StringUtils.equalsIgnoreCase(id.getValue(), identifier.getPartyId())) {
+                    if (isPartyIdTypeMatching(partyIdType, identifierPartyIdType) && equalsIgnoreCase(id.getValue(), identifier.getPartyId())) {
                         LOG.trace("Party with type:[{}] and identifier:[{}] matched", partyIdType, id.getValue());
                         return party.getName();
                     }
@@ -489,6 +479,38 @@ public class CachingPModeProvider extends PModeProvider {
         throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "No matching party found for type [" + partyIdType + "] and value [" + partyIdValue + "]", null, null);
     }
 
+    /**
+     * PartyIdType can be null or empty string
+     *
+     * @param partyIdType
+     * @param identifierPartyIdType
+     * @return
+     */
+    protected boolean isPartyIdTypeMatching(String partyIdType, String identifierPartyIdType) {
+        return (isEmpty(partyIdType) && isEmpty(identifierPartyIdType)) || equalsIgnoreCase(partyIdType, identifierPartyIdType);
+    }
+
+    protected String getIdentifierPartyIdType(Identifier identifier) {
+        if (identifier.getPartyIdType() != null &&
+                StringUtils.isNotEmpty(identifier.getPartyIdType().getValue())) {
+            return identifier.getPartyIdType().getValue();
+        }
+        return null;
+    }
+
+    protected void validateURI(PartyId id) throws EbMS3Exception {
+        if (id.getType() == null) {
+            return;
+        }
+        try {
+            URI.create(id.getType());
+        } catch (final IllegalArgumentException e) {
+            final EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "no matching party found", null, e);
+            ex.setErrorDetail("PartyId " + id.getValue() + " is not a valid URI [CORE]");
+            throw ex;
+        }
+    }
+
     @Override
     public String findAgreement(final AgreementRef agreementRef) throws EbMS3Exception {
         if (agreementRef == null || agreementRef.getValue() == null || agreementRef.getValue().isEmpty()) {
@@ -496,8 +518,8 @@ public class CachingPModeProvider extends PModeProvider {
         }
 
         for (final Agreement agreement : this.getConfiguration().getBusinessProcesses().getAgreements()) {
-            if ((StringUtils.isEmpty(agreementRef.getType()) || StringUtils.equalsIgnoreCase(agreement.getType(), agreementRef.getType()))
-                    && StringUtils.equalsIgnoreCase(agreementRef.getValue(), agreement.getValue())) {
+            if ((StringUtils.isEmpty(agreementRef.getType()) || equalsIgnoreCase(agreement.getType(), agreementRef.getType()))
+                    && equalsIgnoreCase(agreementRef.getValue(), agreement.getValue())) {
                 return agreement.getName();
             }
         }
@@ -509,7 +531,7 @@ public class CachingPModeProvider extends PModeProvider {
         for (final Party party : this.getConfiguration().getBusinessProcesses().getParties()) {
             final List<Identifier> identifiers = party.getIdentifiers();
             for (Identifier identifier : identifiers) {
-                if (StringUtils.equalsIgnoreCase(identifier.getPartyId(), partyIdentifier)) {
+                if (equalsIgnoreCase(identifier.getPartyId(), partyIdentifier)) {
                     return party;
                 }
             }
@@ -521,7 +543,7 @@ public class CachingPModeProvider extends PModeProvider {
     public Party getSenderParty(final String pModeKey) {
         final String partyKey = this.getSenderPartyNameFromPModeKey(pModeKey);
         for (final Party party : this.getConfiguration().getBusinessProcesses().getParties()) {
-            if (StringUtils.equalsIgnoreCase(party.getName(), partyKey)) {
+            if (equalsIgnoreCase(party.getName(), partyKey)) {
                 return party;
             }
         }
@@ -532,7 +554,7 @@ public class CachingPModeProvider extends PModeProvider {
     public Party getReceiverParty(final String pModeKey) {
         final String partyKey = this.getReceiverPartyNameFromPModeKey(pModeKey);
         for (final Party party : this.getConfiguration().getBusinessProcesses().getParties()) {
-            if (StringUtils.equalsIgnoreCase(party.getName(), partyKey)) {
+            if (equalsIgnoreCase(party.getName(), partyKey)) {
                 return party;
             }
         }
@@ -543,7 +565,7 @@ public class CachingPModeProvider extends PModeProvider {
     public Service getService(final String pModeKey) {
         final String serviceKey = this.getServiceNameFromPModeKey(pModeKey);
         for (final Service service : this.getConfiguration().getBusinessProcesses().getServices()) {
-            if (StringUtils.equalsIgnoreCase(service.getName(), serviceKey)) {
+            if (equalsIgnoreCase(service.getName(), serviceKey)) {
                 return service;
             }
         }
@@ -554,7 +576,7 @@ public class CachingPModeProvider extends PModeProvider {
     public Action getAction(final String pModeKey) {
         final String actionKey = this.getActionNameFromPModeKey(pModeKey);
         for (final Action action : this.getConfiguration().getBusinessProcesses().getActions()) {
-            if (StringUtils.equalsIgnoreCase(action.getName(), actionKey)) {
+            if (equalsIgnoreCase(action.getName(), actionKey)) {
                 return action;
             }
         }
@@ -565,7 +587,7 @@ public class CachingPModeProvider extends PModeProvider {
     public Agreement getAgreement(final String pModeKey) {
         final String agreementKey = this.getAgreementRefNameFromPModeKey(pModeKey);
         for (final Agreement agreement : this.getConfiguration().getBusinessProcesses().getAgreements()) {
-            if (StringUtils.equalsIgnoreCase(agreement.getName(), agreementKey)) {
+            if (equalsIgnoreCase(agreement.getName(), agreementKey)) {
                 return agreement;
             }
         }
@@ -576,7 +598,7 @@ public class CachingPModeProvider extends PModeProvider {
     public LegConfiguration getLegConfiguration(final String pModeKey) {
         final String legKey = this.getLegConfigurationNameFromPModeKey(pModeKey);
         for (final LegConfiguration legConfiguration : this.getConfiguration().getBusinessProcesses().getLegConfigurations()) {
-            if (StringUtils.equalsIgnoreCase(legConfiguration.getName(), legKey)) {
+            if (equalsIgnoreCase(legConfiguration.getName(), legKey)) {
                 return legConfiguration;
             }
         }
@@ -586,7 +608,7 @@ public class CachingPModeProvider extends PModeProvider {
     @Override
     public boolean isMpcExistant(final String mpc) {
         for (final Mpc mpc1 : this.getConfiguration().getMpcs()) {
-            if (StringUtils.equalsIgnoreCase(mpc1.getName(), mpc)) {
+            if (equalsIgnoreCase(mpc1.getName(), mpc)) {
                 return true;
             }
         }
@@ -596,7 +618,7 @@ public class CachingPModeProvider extends PModeProvider {
     @Override
     public int getRetentionDownloadedByMpcName(final String mpcName) {
         for (final Mpc mpc1 : this.getConfiguration().getMpcs()) {
-            if (StringUtils.equalsIgnoreCase(mpc1.getName(), mpcName)) {
+            if (equalsIgnoreCase(mpc1.getName(), mpcName)) {
                 return mpc1.getRetentionDownloaded();
             }
         }
@@ -609,7 +631,7 @@ public class CachingPModeProvider extends PModeProvider {
     @Override
     public int getRetentionDownloadedByMpcURI(final String mpcURI) {
         for (final Mpc mpc1 : this.getConfiguration().getMpcs()) {
-            if (StringUtils.equalsIgnoreCase(mpc1.getQualifiedName(), mpcURI)) {
+            if (equalsIgnoreCase(mpc1.getQualifiedName(), mpcURI)) {
                 return mpc1.getRetentionDownloaded();
             }
         }
@@ -622,7 +644,7 @@ public class CachingPModeProvider extends PModeProvider {
     @Override
     public int getRetentionUndownloadedByMpcName(final String mpcName) {
         for (final Mpc mpc1 : this.getConfiguration().getMpcs()) {
-            if (StringUtils.equalsIgnoreCase(mpc1.getName(), mpcName)) {
+            if (equalsIgnoreCase(mpc1.getName(), mpcName)) {
                 return mpc1.getRetentionUndownloaded();
             }
         }
@@ -635,7 +657,7 @@ public class CachingPModeProvider extends PModeProvider {
     @Override
     public int getRetentionUndownloadedByMpcURI(final String mpcURI) {
         for (final Mpc mpc1 : this.getConfiguration().getMpcs()) {
-            if (StringUtils.equalsIgnoreCase(mpc1.getQualifiedName(), mpcURI)) {
+            if (equalsIgnoreCase(mpc1.getQualifiedName(), mpcURI)) {
                 return mpc1.getRetentionUndownloaded();
             }
         }
@@ -648,7 +670,7 @@ public class CachingPModeProvider extends PModeProvider {
     @Override
     public int getRetentionSentByMpcURI(final String mpcURI) {
         for (final Mpc mpc1 : this.getConfiguration().getMpcs()) {
-            if (StringUtils.equalsIgnoreCase(mpc1.getQualifiedName(), mpcURI)) {
+            if (equalsIgnoreCase(mpc1.getQualifiedName(), mpcURI)) {
                 return mpc1.getRetentionSent();
             }
         }
@@ -661,7 +683,7 @@ public class CachingPModeProvider extends PModeProvider {
     @Override
     public boolean isDeleteMessageMetadataByMpcURI(final String mpcURI) {
         for (final Mpc mpc1 : this.getConfiguration().getMpcs()) {
-            if (StringUtils.equalsIgnoreCase(mpc1.getQualifiedName(), mpcURI)) {
+            if (equalsIgnoreCase(mpc1.getQualifiedName(), mpcURI)) {
                 LOG.debug("Found MPC with name [{}] and isDeleteMessageMetadata [{}]", mpc1.getName(), mpc1.isDeleteMessageMetadata());
                 return mpc1.isDeleteMessageMetadata();
             }
@@ -673,10 +695,10 @@ public class CachingPModeProvider extends PModeProvider {
     @Override
     public int getRetentionMaxBatchByMpcURI(final String mpcURI, final int maxValue) {
         for (final Mpc mpc1 : this.getConfiguration().getMpcs()) {
-            if (StringUtils.equalsIgnoreCase(mpc1.getQualifiedName(), mpcURI)) {
+            if (equalsIgnoreCase(mpc1.getQualifiedName(), mpcURI)) {
                 int maxBatch = mpc1.getMaxBatchDelete();
                 LOG.debug("Found MPC with name [{}] and maxBatchDelete [{}]", mpc1.getName(), maxBatch);
-                if(maxBatch == -1 || maxBatch > maxValue) {
+                if (maxBatch <= 0 || maxBatch > maxValue) {
                     LOG.debug("Using default maxBatch value [{}]", maxValue);
                     return maxValue;
                 }
@@ -710,7 +732,7 @@ public class CachingPModeProvider extends PModeProvider {
     @Override
     public Role getBusinessProcessRole(String roleValue) throws EbMS3Exception {
         for (Role role : this.getConfiguration().getBusinessProcesses().getRoles()) {
-            if (StringUtils.equalsIgnoreCase(role.getValue(), roleValue)) {
+            if (equalsIgnoreCase(role.getValue(), roleValue)) {
                 LOG.debug("Found role [{}]", roleValue);
                 return role;
             }
@@ -745,8 +767,7 @@ public class CachingPModeProvider extends PModeProvider {
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
     public List<ValidationIssue> updatePModes(final byte[] bytes, String description) throws XmlProcessingException, PModeValidationException {
-        List<ValidationIssue> issues = super.updatePModes(bytes, description);
-        return issues;
+        return super.updatePModes(bytes, description);
     }
 
     @Override
@@ -840,7 +861,7 @@ public class CachingPModeProvider extends PModeProvider {
 
     @Override
     public List<String> findPartyIdByServiceAndAction(final String service, final String action, final List<MessageExchangePattern> meps) {
-        List<String> result = new ArrayList<String>();
+        List<String> result = new ArrayList<>();
         List<Process> processes = filterProcessesByMep(meps);
         for (Process process : processes) {
             for (LegConfiguration legConfiguration : process.getLegs()) {
@@ -879,15 +900,15 @@ public class CachingPModeProvider extends PModeProvider {
     }
 
     private List<String> handleLegConfiguration(LegConfiguration legConfiguration, Process process, String service, String action) {
-        if (StringUtils.equalsIgnoreCase(legConfiguration.getService().getValue(), service)
-                && StringUtils.equalsIgnoreCase(legConfiguration.getAction().getValue(), action)) {
+        if (equalsIgnoreCase(legConfiguration.getService().getValue(), service)
+                && equalsIgnoreCase(legConfiguration.getAction().getValue(), action)) {
             return handleProcessParties(process);
         }
-        return new ArrayList<String>();
+        return new ArrayList<>();
     }
 
     protected List<String> handleProcessParties(Process process) {
-        List<String> result = new ArrayList<String>();
+        List<String> result = new ArrayList<>();
         for (Party party : process.getResponderParties()) {
             String partyId = getOnePartyId(party);
             if (partyId != null) {
@@ -923,7 +944,7 @@ public class CachingPModeProvider extends PModeProvider {
 
     private String getPartyIdTypeHandleParty(Party party, String partyIdentifier) {
         for (Identifier identifier : party.getIdentifiers()) {
-            if (StringUtils.equalsIgnoreCase(identifier.getPartyId(), partyIdentifier)) {
+            if (equalsIgnoreCase(identifier.getPartyId(), partyIdentifier)) {
                 return identifier.getPartyIdType().getValue();
             }
         }
@@ -933,7 +954,7 @@ public class CachingPModeProvider extends PModeProvider {
     @Override
     public String getServiceType(String serviceValue) {
         for (Service service : getConfiguration().getBusinessProcesses().getServices()) {
-            if (StringUtils.equalsIgnoreCase(service.getValue(), serviceValue)) {
+            if (equalsIgnoreCase(service.getValue(), serviceValue)) {
                 return service.getServiceType();
             }
         }
@@ -944,7 +965,7 @@ public class CachingPModeProvider extends PModeProvider {
         List<Process> result = new ArrayList<>();
         for (Process process : getConfiguration().getBusinessProcesses().getProcesses()) {
             for (LegConfiguration legConfiguration : process.getLegs()) {
-                if (StringUtils.equalsIgnoreCase(legConfiguration.getService().getValue(), serviceValue)) {
+                if (equalsIgnoreCase(legConfiguration.getService().getValue(), serviceValue)) {
                     result.add(process);
                 }
             }
@@ -973,7 +994,7 @@ public class CachingPModeProvider extends PModeProvider {
     @Nullable
     private String getRoleHandleProcess(Process found, String roleType) {
         for (Process process : getConfiguration().getBusinessProcesses().getProcesses()) {
-            if (StringUtils.equalsIgnoreCase(process.getName(), found.getName())) {
+            if (equalsIgnoreCase(process.getName(), found.getName())) {
                 if (roleType.equalsIgnoreCase("initiator")) {
                     return process.getInitiatorRole().getValue();
                 }
@@ -995,14 +1016,16 @@ public class CachingPModeProvider extends PModeProvider {
     public String getAgreementRef(String serviceValue) {
         for (Process found : getProcessFromService(serviceValue)) {
             String agreementRefHandleProcess = getAgreementRefHandleProcess(found);
-            return agreementRefHandleProcess;
+            if (agreementRefHandleProcess != null) {
+                return agreementRefHandleProcess;
+            }
         }
         return null;
     }
 
     public String findMpcUri(final String mpcName) throws EbMS3Exception {
         for (final Mpc mpc : this.getConfiguration().getMpcs()) {
-            if (StringUtils.equalsIgnoreCase(mpc.getName(), mpcName)) {
+            if (equalsIgnoreCase(mpc.getName(), mpcName)) {
                 return mpc.getQualifiedName();
             }
         }
@@ -1012,7 +1035,7 @@ public class CachingPModeProvider extends PModeProvider {
     @Nullable
     private String getAgreementRefHandleProcess(Process found) {
         for (Process process : getConfiguration().getBusinessProcesses().getProcesses()) {
-            if (StringUtils.equalsIgnoreCase(process.getName(), found.getName())) {
+            if (equalsIgnoreCase(process.getName(), found.getName())) {
                 Agreement agreement = process.getAgreement();
                 if (agreement != null) {
                     return agreement.getValue();

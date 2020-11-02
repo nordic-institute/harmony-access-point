@@ -14,19 +14,19 @@ import {AuditComponent} from './audit/audit.component';
 import {PartyComponent} from './party/party.component';
 import {AlertsComponent} from './alerts/alerts.component';
 import {PluginUserComponent} from './pluginuser/pluginuser.component';
-import {DefaultPasswordGuard} from './security/defaultPassword.guard';
+import {DefaultPasswordGuard} from './common/guards/defaultPassword.guard';
 import {AuthExternalProviderGuard} from './common/guards/auth-external-provider.guard';
 import {LoggingComponent} from './logging/logging.component';
 import {ChangePasswordComponent} from './security/change-password/change-password.component';
-import {LogoutAuthExtProviderComponent} from "./security/logout/logout.components";
-import {RedirectHomeGuard} from "./common/guards/redirect-home.guard";
-import {NotAuthorizedComponent} from "./security/not-authorized/not-authorized.components";
-import {SecurityService} from "./security/security.service";
+import {LogoutAuthExtProviderComponent} from './security/logout/logout.components';
+import {RedirectHomeGuard} from './common/guards/redirect-home.guard';
+import {NotAuthorizedComponent} from './security/not-authorized/not-authorized.components';
+import {SecurityService} from './security/security.service';
 import {PropertiesComponent} from './properties/properties.component';
 import {ConnectionsComponent} from './testservice/connections.component';
 import {AuthInternalProviderGuard} from './common/guards/auth-internal-provider.guard';
 
-const appRoutes: Routes = [
+export const appRoutes: Routes = [
   {
     path: '',
     component: MessageLogComponent,
@@ -196,7 +196,7 @@ const appRoutes: Routes = [
     canActivate: [AuthenticatedAuthorizedGuard, DefaultPasswordGuard],
     data: {
       isDomainIndependent: true,
-      checkRoles: SecurityService.ADMIN_ROLES,
+      checkRolesFn: checkRoles([SecurityService.ROLE_DOMAIN_ADMIN], [SecurityService.ROLE_AP_ADMIN]),
       helpPage: 'Logging'
     },
     runGuardsAndResolvers: 'always'
@@ -239,3 +239,7 @@ const appRoutes: Routes = [
 ];
 
 export const routing = RouterModule.forRoot(appRoutes, {onSameUrlNavigation: 'reload'});
+
+export function checkRoles(stRoles, mtRoles) {
+  return () => SecurityService.getAllowedRolesForSTandMT(stRoles, mtRoles);
+}

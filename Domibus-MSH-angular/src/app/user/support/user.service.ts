@@ -15,9 +15,8 @@ export class UserService {
               private domainService: DomainService) {
   }
 
-  getUsers(filter: UserSearchCriteria): Observable<UserResponseRO[]> {
-    return this.http.get<UserResponseRO[]>('rest/user/users')
-      .filter(this.filterData(filter))
+  getUsers(): Promise<UserResponseRO[]> {
+    return this.http.get<UserResponseRO[]>('rest/user/users').toPromise();
   }
 
   getUserNames(): Observable<string[]> {
@@ -53,25 +52,6 @@ export class UserService {
     }
   }
 
-  private filterData(filter: UserSearchCriteria) {
-    return function (users) {
-      let results = users.slice();
-
-      if (filter.userName) {
-        results = results.filter(el => el.userName.indexOf(filter.userName) >= 0);
-      }
-      if (!filter.deleted_notSet) {
-        results = results.filter(el => el.deleted === filter.deleted);
-      }
-      if (filter.authRole) {
-        results = results.filter(el => el.roles === filter.authRole);
-      }
-
-      users.length = 0;
-      users.push(...results);
-      return users;
-    }
-  }
 }
 
 export class UserSearchCriteria {

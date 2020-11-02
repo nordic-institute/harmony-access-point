@@ -1,5 +1,6 @@
 package eu.domibus.core.jms;
 
+import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.jms.JMSDestination;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.multitenancy.Domain;
@@ -217,6 +218,8 @@ public class JMSManagerImplTest {
         jmsMessageIDDomains.add(new JMSMessageDomainDTO("2", "domain2"));
 
         new Expectations(jmsManager) {{
+            jmsManager.validateMessagesMove(source, destination, messageIds);
+
             jmsManager.getJMSMessageDomain(source, messageIds);
             result = jmsMessageIDDomains;
 
@@ -499,5 +502,169 @@ public class JMSManagerImplTest {
         new FullVerifications() {{
 
         }};
+    }
+
+    @Test
+    public void testValidateMesaageMove_BlankAndNullIds() {
+        String source = "src";
+        String destination = "dest1";
+        String[] messageIds = {"", null};
+
+        // When
+        try {
+            jmsManager.validateMessagesMove(source, destination, messageIds);
+            Assert.fail();
+        } catch (RequestValidationException e) {
+            //do nothing
+        }
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void testValidateMesaageMove_NoIds() {
+        String source = "src";
+        String destination = "dest1";
+        String[] messageIds = {};
+
+        // When
+        try {
+            jmsManager.validateMessagesMove(source, destination, messageIds);
+            Assert.fail();
+        } catch (RequestValidationException e) {
+            //do nothing
+        }
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void testValidateMesaageMove_SameDestAsSrc() {
+        String source = "src";
+        String destination = "src";
+        String[] messageIds = {"id1"};
+
+        // When
+        try {
+            jmsManager.validateMessagesMove(source, destination, messageIds);
+            Assert.fail();
+        } catch (RequestValidationException e) {
+            //do nothing
+        }
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void testActionMove_InvalidDestination(final @Mocked SortedMap<String, JMSDestination> dests,
+                                                  final @Mocked JMSDestination queue1,
+                                                  final @Mocked JMSDestination queue2) {
+        String source = "src";
+        String destination = "domibus.queue3";
+        String[] messageIds = {"id1"};
+
+        // Given
+        new Expectations(jmsManager) {{
+            jmsManager.getDestinations();
+            result = dests;
+
+            dests.values();
+            result = Arrays.asList(queue2, queue1);
+
+            queue1.getName();
+            result = "domibus.queue2";
+
+            queue2.getName();
+            result = "domibus.queue2";
+        }};
+
+        // When
+        try {
+            jmsManager.validateMessagesMove(source, destination, messageIds);
+            Assert.fail();
+        } catch (RequestValidationException e) {
+            //do nothing
+        }
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void testActionMove_InvalidMsgId(final @Mocked SortedMap<String, JMSDestination> dests,
+                                            final @Mocked JMSDestination queue1) {
+        String source = "src";
+        String destination = "domibus.queue1";
+        String[] messageIds = {"id1"};
+
+        // Given
+        new Expectations(jmsManager) {{
+            jmsManager.getDestinations();
+            result = dests;
+
+            dests.values();
+            result = Arrays.asList(queue1);
+
+            queue1.getName();
+            result = "domibus.queue1";
+
+            internalJmsManager.getMessage(source, "id1");
+            result = null;
+        }};
+
+        // When
+        try {
+            jmsManager.validateMessagesMove(source, destination, messageIds);
+            Assert.fail();
+        } catch (RequestValidationException e) {
+            //do nothing
+        }
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void testActionMove_DifferentThanOriginalQueue(final @Mocked SortedMap<String, JMSDestination> dests,
+                                                          final @Mocked JMSDestination queue1, @Mocked InternalJmsMessage msg,
+                                                          @Mocked Map<String, String> getCustomProperties) {
+        String source = "src";
+        String destination = "domibus.queue1";
+        String[] messageIds = {"id1"};
+
+        // Given
+        new Expectations(jmsManager) {{
+            jmsManager.getDestinations();
+            result = dests;
+
+            dests.values();
+            result = Arrays.asList(queue1);
+
+            queue1.getName();
+            result = "domibus.queue1";
+
+            internalJmsManager.getMessage(source, "id1");
+            result = msg;
+
+            msg.getCustomProperties();
+            result = getCustomProperties;
+
+            getCustomProperties.get("originalQueue");
+            result = "some other queue";
+        }};
+
+        // When
+        try {
+            jmsManager.validateMessagesMove(source, destination, messageIds);
+            Assert.fail();
+        } catch (RequestValidationException e) {
+            //do nothing
+        }
+
+        new FullVerifications() {
+        };
     }
 }

@@ -14,11 +14,14 @@ import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
 import {ServerPageableListMixin} from '../common/mixins/pageable-list.mixin';
 import {ApplicationContextService} from '../common/application-context.service';
 import {AlertsEntry} from './support/alertsentry';
+import {ComponentName} from '../common/component-name-decorator';
+import {Md2DateChange} from 'angular-md2';
 
 @Component({
   moduleId: module.id,
   templateUrl: 'alerts.component.html',
 })
+@ComponentName('Alerts')
 export class AlertsComponent extends mix(BaseListComponent)
   .with(FilterableListMixin, ServerSortableListMixin, ModifiableListMixin, ServerPageableListMixin)
   implements OnInit, AfterViewInit, AfterViewChecked {
@@ -29,6 +32,10 @@ export class AlertsComponent extends mix(BaseListComponent)
   static readonly ALERTS_STATUS_URL: string = AlertsComponent.ALERTS_URL + '/status';
   static readonly ALERTS_LEVELS_URL: string = AlertsComponent.ALERTS_URL + '/levels';
   static readonly ALERTS_PARAMS_URL: string = AlertsComponent.ALERTS_URL + '/params';
+
+  TIME_SUFFIX = '_TIME';
+  DATE_SUFFIX = '_DATE';
+  IMMINENT_SUFFIX = '_IMMINENT';
 
   @ViewChild('rowProcessed', {static: false}) rowProcessed: TemplateRef<any>;
   @ViewChild('rowWithDateFormatTpl', {static: false}) rowWithDateFormatTpl: TemplateRef<any>;
@@ -46,12 +53,17 @@ export class AlertsComponent extends mix(BaseListComponent)
   nonDateParameters: Array<any>;
   alertTypeWithDate: boolean;
 
-  timestampCreationFromMaxDate: Date;
-  timestampCreationToMinDate: Date;
-  timestampCreationToMaxDate: Date;
-  timestampReportingFromMaxDate: Date;
-  timestampReportingToMinDate: Date;
-  timestampReportingToMaxDate: Date;
+  creationFromMaxDate: Date;
+  creationToMinDate: Date;
+  creationToMaxDate: Date;
+
+  reportingFromMaxDate: Date;
+  reportingToMinDate: Date;
+  reportingToMaxDate: Date;
+
+  dynamicDataFromMaxDate: Date;
+  dynamicDataToMinDate: Date;
+  dynamicDataToMaxDate: Date;
 
   dateFromName: string;
   dateToName: string;
@@ -79,12 +91,17 @@ export class AlertsComponent extends mix(BaseListComponent)
     this.nonDateParameters = [];
     this.alertTypeWithDate = false;
 
-    this.timestampCreationFromMaxDate = new Date();
-    this.timestampCreationToMinDate = null;
-    this.timestampCreationToMaxDate = new Date();
-    this.timestampReportingFromMaxDate = new Date();
-    this.timestampReportingToMinDate = null;
-    this.timestampReportingToMaxDate = new Date();
+    this.creationFromMaxDate = new Date();
+    this.creationToMinDate = null;
+    this.creationToMaxDate = new Date();
+
+    this.reportingFromMaxDate = new Date();
+    this.reportingToMinDate = null;
+    this.reportingToMaxDate = new Date();
+
+    this.dynamicDataFromMaxDate = new Date();
+    this.dynamicDataToMinDate = null;
+    this.dynamicDataToMaxDate = new Date();
 
     this.dateFromName = '';
     this.dateToName = '';
@@ -97,10 +114,6 @@ export class AlertsComponent extends mix(BaseListComponent)
     this.areRowsDeleted = false;
     this.areRowsEdited = false;
     this.filterData();
-  }
-
-  public get name(): string {
-    return 'Alerts';
   }
 
   ngAfterViewInit() {
@@ -202,37 +215,54 @@ export class AlertsComponent extends mix(BaseListComponent)
     this.dynamicFilters = [];
     this.dynamicDatesFilter = [];
     const alertParameters = await this.getAlertParameters(alertType);
-    const TIME_SUFFIX = '_TIME';
-    const DATE_SUFFIX = '_DATE';
+
     let nonDateParameters = alertParameters.filter((value) => {
       console.log('Value:' + value);
-      return (value.search(TIME_SUFFIX) === -1 && value.search(DATE_SUFFIX) === -1)
+      return (value.search(this.TIME_SUFFIX) === -1 && value.search(this.DATE_SUFFIX) === -1)
     });
     this.nonDateParameters.push(...nonDateParameters);
     let dateParameters = alertParameters.filter((value) => {
-      return value.search(TIME_SUFFIX) > 0 || value.search(DATE_SUFFIX) > 1
+      return value.search(this.TIME_SUFFIX) > 0 || value.search(this.DATE_SUFFIX) > 1
     });
     dateParameters.forEach(item => {
       this.dateFromName = item + ' FROM';
       this.dateToName = item + ' TO';
       this.alertTypeWithDate = true;
     });
+    this.dynamicDataToMaxDate = this.getDynamicDataToMaxDate(alertType);
+    this.dynamicDataFromMaxDate = this.getDynamicDataToMaxDate(alertType);
+  }
+
+  private getDynamicDataToMaxDate(alertType: string) {
+    return this.isFutureAlert(alertType) ? null : new Date();
+  }
+
+  isFutureAlert(alertType: string): boolean {
+    return alertType && alertType.includes(this.IMMINENT_SUFFIX);
   }
 
   onTimestampCreationFromChange(event) {
-    this.timestampCreationToMinDate = event.value;
+    this.creationToMinDate = event.value;
   }
 
   onTimestampCreationToChange(event) {
-    this.timestampCreationFromMaxDate = event.value;
+    this.creationFromMaxDate = event.value;
   }
 
   onTimestampReportingFromChange(event) {
-    this.timestampReportingToMinDate = event.value;
+    this.reportingToMinDate = event.value;
   }
 
   onTimestampReportingToChange(event) {
-    this.timestampReportingFromMaxDate = event.value;
+    this.reportingFromMaxDate = event.value;
+  }
+
+  onDynamicDataFromChange($event: Md2DateChange) {
+    this.dynamicDataToMinDate = $event.value;
+  }
+
+  onDynamicDataToChange($event: Md2DateChange) {
+    this.dynamicDataFromMaxDate = $event.value;
   }
 
   setIsDirty() {
