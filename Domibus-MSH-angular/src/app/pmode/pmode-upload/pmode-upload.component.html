@@ -1,29 +1,35 @@
 <h2 mat-dialog-title *ngIf="useFileSelector">Upload File</h2>
 <h2 mat-dialog-title *ngIf="!useFileSelector">Save PMode changes</h2>
 
-<mat-dialog-content style="height:180px;width:450px">
-  <mat-card>
-    <mat-card-content>
-      <div *ngIf="useFileSelector">
-        <input placeholder="File" #fileInput type="file" id="pmode" accept=".xml" required on>
-      </div>
-      <div>
-        <h3 style="font-style: normal; font-size: small">Description:</h3>
-        <textarea style="resize: none; width: 100%; height: 100%;" rows="5" [(ngModel)]="description" id="description_id" maxlength="254"
-                  required></textarea>
-      </div>
-    </mat-card-content>
-  </mat-card>
-</mat-dialog-content>
+<mat-dialog-content style="width:450px">
 
-<div class="buttonsRow">
-  <button id="editbuttonok_id" mat-raised-button color="primary" (click)="submit()" style="margin-top:10px;margin-right: 10px;" [disabled]="!canUpload()">
-    <mat-icon>check_circle</mat-icon>
-    <span>OK</span>
-  </button>
-  <button id="editbuttoncancel_id" mat-raised-button color="primary" (click)="cancel()"
-          style="margin-top:10px">
-    <mat-icon>cancel</mat-icon>
-    <span>Cancel</span>
-  </button>
-</div>
+  <form #editForm="ngForm" (submit)="submit()">
+    <mat-card>
+      <mat-card-content>
+        <div *ngIf="useFileSelector">
+          <input name="file" placeholder="File" #fileInput type="file" id="pmode" accept=".xml" required on>
+        </div>
+        <div>
+          <h3 style="font-style: normal; font-size: small">Description:</h3>
+          <textarea name="desc" #desc="ngModel" rows="5" [(ngModel)]="description" id="description_id" maxlength="254" required
+                    style="resize: none; width: 100%; height: 100%;"></textarea>
+          <span class="help-block" *ngIf="shouldShowErrors(desc)">
+            <div *ngIf="desc.errors?.required" style="color:red; font-size: 70%">Description is required</div>
+          </span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <div class="buttonsRow">
+      <button id="editbuttonok_id" type="submit" mat-raised-button color="primary" style="margin-top:10px;margin-right: 10px;" [disabled]="!canUpload()">
+        <mat-icon>check_circle</mat-icon>
+        <span>OK</span>
+      </button>
+      <button id="editbuttoncancel_id" mat-raised-button color="primary" (click)="cancel()"
+              style="margin-top:10px">
+        <mat-icon>cancel</mat-icon>
+        <span>Cancel</span>
+      </button>
+    </div>
+  </form>
+</mat-dialog-content>
