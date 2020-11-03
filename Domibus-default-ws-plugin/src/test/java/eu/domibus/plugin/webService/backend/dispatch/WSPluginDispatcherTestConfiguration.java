@@ -1,13 +1,10 @@
-package eu.domibus.plugin.webService.push;
+package eu.domibus.plugin.webService.backend.dispatch;
 
 import eu.domibus.common.NotificationType;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.plugin.webService.backend.dispatch.WSPluginDispatchClientProvider;
-import eu.domibus.plugin.webService.backend.dispatch.WSPluginDispatcher;
-import eu.domibus.plugin.webService.backend.dispatch.WSPluginMessageBuilder;
 import eu.domibus.plugin.webService.configuration.WSPluginDispatchConfiguration;
 import eu.domibus.plugin.webService.property.WSPluginPropertyManager;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
@@ -29,9 +26,9 @@ import java.util.function.Predicate;
  * @since 5.0
  */
 @Configuration
-public class WSPluginDispatcherConfiguration extends WSPluginDispatchConfiguration {
+public class WSPluginDispatcherTestConfiguration extends WSPluginDispatchConfiguration {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginDispatcherConfiguration.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginDispatcherTestConfiguration.class);
 
     @Bean
     public WSPluginMessageBuilder wsPluginMessageBuilder(XMLUtilExtService xmlUtilExtService, JAXBContext jaxbContextWebserviceBackend) {
