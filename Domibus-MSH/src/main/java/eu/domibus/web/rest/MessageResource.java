@@ -9,7 +9,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.ErrorRO;
 import eu.domibus.web.rest.ro.MessageLogRO;
-import org.bouncycastle.util.Arrays;
+import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpStatus;
@@ -103,7 +103,7 @@ public class MessageResource {
     private ResponseEntity<ByteArrayResource> getByteArrayResourceResponseEntity(@PathVariable("messageId") String messageId) {
         byte[] zip = userMessageService.getMessageEnvelopesAsZip(messageId);
 
-        if (Arrays.isNullOrEmpty(zip)) {
+        if (ArrayUtils.isEmpty(zip)) {
             return ResponseEntity.noContent().build();
         }
 
