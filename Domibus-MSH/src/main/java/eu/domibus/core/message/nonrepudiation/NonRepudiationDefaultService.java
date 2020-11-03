@@ -11,7 +11,6 @@ import eu.domibus.ebms3.common.model.SignalMessage;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.apache.commons.io.IOUtils;
 import org.apache.cxf.common.util.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,6 +18,7 @@ import org.springframework.stereotype.Service;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.TransformerException;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
@@ -151,16 +151,20 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
 
         String userMessageEnvelope = getUserMessageEnvelope(messageId);
         if (userMessageEnvelope != null) {
-            InputStream userEnvelopeStream = new ByteArrayInputStream(userMessageEnvelope.getBytes());
-            result.put("user_message_envelope.xml", userEnvelopeStream);
-            IOUtils.closeQuietly(userEnvelopeStream);
+            try (InputStream userEnvelopeStream = new ByteArrayInputStream(userMessageEnvelope.getBytes())) {
+                result.put("user_message_envelope.xml", userEnvelopeStream);
+            } catch (IOException e) {
+                LOG.debug("Error creating stream for the user message raw envelope with corresponding user message id [{}].", messageId);
+            }
         }
 
         String signalEnvelope = getSignalMessageEnvelope(messageId);
         if (signalEnvelope != null) {
-            InputStream signalEnvelopeStream = new ByteArrayInputStream(signalEnvelope.getBytes());
-            result.put("signal_message_envelope.xml", signalEnvelopeStream);
-            IOUtils.closeQuietly(signalEnvelopeStream);
+            try (InputStream signalEnvelopeStream = new ByteArrayInputStream(signalEnvelope.getBytes())) {
+                result.put("signal_message_envelope.xml", signalEnvelopeStream);
+            } catch (IOException e) {
+                LOG.debug("Error creating stream for the signal message raw envelope with corresponding user message id [{}].", messageId);
+            }
         }
 
         return result;
@@ -174,7 +178,6 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
 
         return userMessage;
     }
-
 
 
     protected boolean isNonRepudiationAuditDisabled() {
