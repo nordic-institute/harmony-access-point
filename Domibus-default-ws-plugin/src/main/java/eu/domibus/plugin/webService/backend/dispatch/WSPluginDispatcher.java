@@ -1,5 +1,5 @@
 
-package eu.domibus.plugin.webService.push;
+package eu.domibus.plugin.webService.backend.dispatch;
 
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.domain.metrics.Counter;

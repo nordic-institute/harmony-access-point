@@ -206,7 +206,7 @@
                                offline:mysql?changeLogFile=${project.build.directory}/liquibase/changelog-5.0-delta.mysql
                            </url>
                            <migrationSqlOutputFile>
-                               ${project.build.directory}/sql-scripts/mysql5innoDb-4.2.0-to-5.0-migration.ddl
+                               ${project.build.directory}/sql-scripts/mysql5innoDb-4.2-to-5.0-migration.ddl
                            </migrationSqlOutputFile>
                        </configuration>
                    </execution>

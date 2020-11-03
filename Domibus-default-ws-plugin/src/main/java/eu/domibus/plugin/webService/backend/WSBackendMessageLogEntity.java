@@ -1,4 +1,4 @@
-package eu.domibus.plugin.webService.entity;
+package eu.domibus.plugin.webService.backend;
 
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;

@@ -1,4 +1,4 @@
-package eu.domibus.plugin.webService.entity;
+package eu.domibus.plugin.webService.backend;
 
 /**
  * @author Francois Gautier

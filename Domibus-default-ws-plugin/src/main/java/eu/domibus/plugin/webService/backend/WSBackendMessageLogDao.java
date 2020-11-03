@@ -1,6 +1,6 @@
-package eu.domibus.plugin.webService.dao;
+package eu.domibus.plugin.webService.backend;
 
-import eu.domibus.plugin.webService.entity.WSBackendMessageLogEntity;
+import eu.domibus.plugin.webService.dao.WSBasicDao;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.NoResultException;

@@ -1,5 +1,7 @@
 package eu.domibus.plugin.webService.push;
 
+import eu.domibus.plugin.webService.backend.dispatch.WSPluginDispatcher;
+import eu.domibus.plugin.webService.backend.dispatch.WSPluginMessageBuilder;
 import eu.domibus.webservice.backend.BackendApplication;
 import org.junit.Before;
 import org.junit.Test;

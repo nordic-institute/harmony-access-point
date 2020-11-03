@@ -5,7 +5,10 @@ import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.plugin.webService.configuration.WSPluginPushConfiguration;
+import eu.domibus.plugin.webService.backend.dispatch.WSPluginDispatchClientProvider;
+import eu.domibus.plugin.webService.backend.dispatch.WSPluginDispatcher;
+import eu.domibus.plugin.webService.backend.dispatch.WSPluginMessageBuilder;
+import eu.domibus.plugin.webService.configuration.WSPluginDispatchConfiguration;
 import eu.domibus.plugin.webService.property.WSPluginPropertyManager;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -26,7 +29,7 @@ import java.util.function.Predicate;
  * @since 5.0
  */
 @Configuration
-public class WSPluginDispatcherConfiguration extends WSPluginPushConfiguration {
+public class WSPluginDispatcherConfiguration extends WSPluginDispatchConfiguration {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginDispatcherConfiguration.class);
 
