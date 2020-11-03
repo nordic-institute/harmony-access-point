@@ -8,7 +8,7 @@ import {AbstractControl, NgControl, NgForm} from '@angular/forms';
 @Component({
   selector: 'app-pmode-upload',
   templateUrl: './pmode-upload.component.html',
-  styleUrls: ['../support/pmode.component.css']
+  styleUrls: ['../support/pmode.component.css', './pmode-upload.component.css']
 })
 export class PmodeUploadComponent implements OnInit {
 
