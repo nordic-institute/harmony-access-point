@@ -621,7 +621,9 @@ public class PmodePartiesPgTest extends SeleniumTest {
 		rest.pmode().uploadPMode("pmodes/Edelivery-blue.xml", null);
 		
 		PModePartiesPage page = navigateToPage();
-		
+
+		page.grid().getGridCtrl().showOnlyColumn("Party Name");
+
 		page.grid().scrollToAndDoubleClick("Party Name", "red_gw");
 		
 		PPartyModal modal = new PPartyModal(driver);
@@ -775,7 +777,8 @@ public class PmodePartiesPgTest extends SeleniumTest {
 		PModePartiesPage page = new PModePartiesPage(driver);
 		if (page.getTitle().contains("Parties")) {
 			page.refreshPage();
-		} else {
+		}
+		if (!page.getTitle().contains("Parties")) {
 			page.getSidebar().goToPage(PAGES.PMODE_PARTIES);
 		}
 		page.grid().waitForRowsToLoad();

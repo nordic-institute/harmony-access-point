@@ -93,7 +93,7 @@ public class DatePicker extends DComponent {
 	}
 
 	private WebElement getInput(){
-		input = container.findElement(By.cssSelector("md2-datepicker-value"));
+		input = container.findElement(By.cssSelector(".md2-datepicker-value"));
 		return input;
 	}
 	private WebElement getExpandBtn(){

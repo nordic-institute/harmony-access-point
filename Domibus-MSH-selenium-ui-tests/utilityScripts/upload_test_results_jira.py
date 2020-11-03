@@ -304,7 +304,13 @@ def parse_rest_testng_results():
 
 def parse_selenium_testng_results():
     global results
+    toIgnore = ["logSeparator", "logout", "afterClass", "beforeClass"]
+
     for tc in root.iter('test-method'):
+
+        if tc.attrib["name"] in toIgnore:
+            continue
+
         if 'description' not in tc.attrib:
             log.info("Could not find test id in description for - " + str(tc.attrib))
             continue
