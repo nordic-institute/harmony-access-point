@@ -18,7 +18,6 @@ import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.audit.AuditService;
-import eu.domibus.core.audit.envers.ModificationType;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
@@ -28,8 +27,7 @@ import eu.domibus.core.jms.DispatchMessageCreator;
 import eu.domibus.core.message.acknowledge.MessageAcknowledgementDao;
 import eu.domibus.core.message.attempt.MessageAttemptDao;
 import eu.domibus.core.message.converter.MessageConverterService;
-import eu.domibus.core.message.nonrepudiation.RawEnvelopeDto;
-import eu.domibus.core.message.nonrepudiation.RawEnvelopeLogDao;
+import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
@@ -45,7 +43,6 @@ import eu.domibus.core.replication.UIMessageDao;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.PartInfo;
-import eu.domibus.ebms3.common.model.SignalMessage;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -187,7 +184,7 @@ public class UserMessageDefaultService implements UserMessageService {
     DateUtil dateUtil;
 
     @Autowired
-    private RawEnvelopeLogDao rawEnvelopeLogDao;
+    NonRepudiationService nonRepudiationService;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 1200) // 20 minutes
     public void createMessageFragments(UserMessage sourceMessage, MessageGroupEntity messageGroupEntity, List<String> fragmentFiles) {
@@ -639,7 +636,7 @@ public class UserMessageDefaultService implements UserMessageService {
 
     @Override
     public byte[] getMessageEnvelopesAsZip(String messageId) {
-        Map<String, InputStream> message = getMessageEnvelopes(messageId);
+        Map<String, InputStream> message = nonRepudiationService.getMessageEnvelopes(messageId);
         try {
             return zipFiles(message);
         } catch (IOException e) {
@@ -649,60 +646,15 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     @Override
-    public String getUserMessageEnvelope(String messageId) {
-        UserMessage userMessage = getUserMessageById(messageId);
-        if (userMessage == null) {
-            LOG.info("User message with id [{}] was not found.", messageId);
-            return null;
-        }
-
-        RawEnvelopeDto userEnvelope = rawEnvelopeLogDao.findUserMessageEnvelopeById(userMessage.getEntityId());
-        if (userEnvelope == null) {
-            LOG.info("User message envelope with entity id [{}] was not found.", userMessage.getEntityId());
-            return null;
-        }
-
-        auditService.addMessageEnvelopesDownloadedAudit(messageId, ModificationType.USER_MESSAGE_ENVELOPE_DOWNLOADED);
-        LOG.debug("Returning the user message envelope with id [{}]: [{}]", messageId, userEnvelope.getRawMessage());
-        return userEnvelope.getRawMessage();
+    public String getUserMessageEnvelope(String userMessageId) {
+        return nonRepudiationService.getUserMessageEnvelope(userMessageId);
     }
 
     @Override
     public String getSignalMessageEnvelope(String userMessageId) {
-        SignalMessage signalMessage = messagingDao.findSignalMessageByUserMessageId(userMessageId);
-        if (signalMessage == null) {
-            LOG.info("Signal message with corresponding user message id [{}] was not found.", userMessageId);
-            return null;
-        }
-        if (signalMessage.getRawEnvelopeLog() == null) {
-            LOG.info("Signal message raw envelope with corresponding user message id [{}] was not found.", userMessageId);
-            return null;
-        }
-
-        auditService.addMessageEnvelopesDownloadedAudit(userMessageId, ModificationType.SIGNAL_MESSAGE_ENVELOPE_DOWNLOADED);
-        LOG.debug("Returning the signal message envelope with user message id [{}]: [{}]", userMessageId, signalMessage.getRawEnvelopeLog().getRawXML());
-        return signalMessage.getRawEnvelopeLog().getRawXML();
+        return nonRepudiationService.getSignalMessageEnvelope(userMessageId);
     }
 
-    protected Map<String, InputStream> getMessageEnvelopes(String messageId) {
-        Map<String, InputStream> result = new HashMap<>();
-
-        String userMessageEnvelope = getUserMessageEnvelope(messageId);
-        if (userMessageEnvelope != null) {
-            InputStream userEnvelopeStream = new ByteArrayInputStream(userMessageEnvelope.getBytes());
-            result.put("user_message_envelope.xml", userEnvelopeStream);
-            IOUtils.closeQuietly(userEnvelopeStream);
-        }
-
-        String signalEnvelope = getSignalMessageEnvelope(messageId);
-        if (signalEnvelope != null) {
-            InputStream signalEnvelopeStream = new ByteArrayInputStream(signalEnvelope.getBytes());
-            result.put("signal_message_envelope.xml", signalEnvelopeStream);
-            IOUtils.closeQuietly(signalEnvelopeStream);
-        }
-
-        return result;
-    }
 
     protected Map<String, InputStream> getMessageContentWithAttachments(String messageId) throws MessageNotFoundException {
 
