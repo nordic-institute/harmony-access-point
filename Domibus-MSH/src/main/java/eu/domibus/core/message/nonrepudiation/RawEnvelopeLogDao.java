@@ -3,12 +3,12 @@ package eu.domibus.core.message.nonrepudiation;
 import eu.domibus.core.dao.BasicDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
-import java.util.List;
 
 /**
  * @author idragusa
@@ -38,11 +38,11 @@ public class RawEnvelopeLogDao extends BasicDao<RawEnvelopeLog> {
         }
     }
 
-    public List<RawEnvelopeDto> findUserMessageEnvelopesById(final long userMessageId) {
+    public RawEnvelopeDto findUserMessageEnvelopeById(final long userMessageId) {
         TypedQuery<RawEnvelopeDto> namedQuery = em.createNamedQuery("RawDto.findByUserMessageId", RawEnvelopeDto.class);
         namedQuery.setParameter("USER_MESSAGE_ID", userMessageId);
         LOG.debug("[findUserMessageEnvelopeById][Message]:[{}]", userMessageId);
-        return namedQuery.getResultList();
+        return DataAccessUtils.singleResult(namedQuery.getResultList());
     }
 
     /**

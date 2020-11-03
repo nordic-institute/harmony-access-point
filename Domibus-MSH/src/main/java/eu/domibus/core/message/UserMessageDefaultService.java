@@ -656,15 +656,15 @@ public class UserMessageDefaultService implements UserMessageService {
             return null;
         }
 
-        List<RawEnvelopeDto> userEnvelopes = rawEnvelopeLogDao.findUserMessageEnvelopesById(userMessage.getEntityId());
-        if (CollectionUtils.isEmpty(userEnvelopes)) {
-            LOG.info("User message envelopes with entity id [{}] were not found.", userMessage.getEntityId());
+        RawEnvelopeDto userEnvelope = rawEnvelopeLogDao.findUserMessageEnvelopeById(userMessage.getEntityId());
+        if (userEnvelope == null) {
+            LOG.info("User message envelope with entity id [{}] was not found.", userMessage.getEntityId());
             return null;
         }
 
         auditService.addMessageEnvelopesDownloadedAudit(messageId, ModificationType.USER_MESSAGE_ENVELOPE_DOWNLOADED);
-        LOG.debug("Returning the most recent user message envelope with id [{}]: [{}]", messageId, userEnvelopes.get(0).getRawMessage());
-        return userEnvelopes.get(0).getRawMessage();
+        LOG.debug("Returning the user message envelope with id [{}]: [{}]", messageId, userEnvelope.getRawMessage());
+        return userEnvelope.getRawMessage();
     }
 
     @Override

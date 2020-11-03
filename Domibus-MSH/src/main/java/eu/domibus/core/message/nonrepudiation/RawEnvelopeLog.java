@@ -19,7 +19,7 @@ import javax.persistence.*;
         @NamedQuery(name = "RawDto.findByMessageId", query = "SELECT new eu.domibus.core.message.nonrepudiation.RawEnvelopeDto(l.entityId,l.rawXML) FROM RawEnvelopeLog l where l.messageId=:MESSAGE_ID"),
         @NamedQuery(name = "Raw.deleteByMessageID", query = "DELETE FROM RawEnvelopeLog r where r.messageId=:MESSAGE_ID"),
         @NamedQuery(name = "RawDto.findByUserMessageId", query = "SELECT new eu.domibus.core.message.nonrepudiation.RawEnvelopeDto(l.entityId,l.rawXML) " +
-                "FROM RawEnvelopeLog l where l.userMessage.entityId=:USER_MESSAGE_ID order by l.entityId desc"),
+                "FROM RawEnvelopeLog l where l.userMessage.entityId=:USER_MESSAGE_ID"),
 })
 public class RawEnvelopeLog extends AbstractBaseEntity {
     @OneToOne(cascade = CascadeType.REMOVE)
