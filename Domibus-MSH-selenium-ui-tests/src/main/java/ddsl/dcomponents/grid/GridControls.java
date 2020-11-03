@@ -148,6 +148,13 @@ public class GridControls extends DComponent {
 		weToDLink(allLnk).click();
 		hideCtrls();
 	}
-	
+
+	public void showOnlyColumn(String columnName) throws Exception {
+		showCtrls();
+		getNoneLnk().click();
+		checkBoxWithLabel(columnName);
+		hideCtrls();
+	}
+
 	
 }
