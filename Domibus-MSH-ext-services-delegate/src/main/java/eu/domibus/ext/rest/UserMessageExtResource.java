@@ -9,6 +9,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Authorization;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -55,12 +56,10 @@ public class UserMessageExtResource {
     @GetMapping(path = "/{messageId:.+}/envelope")
     public ResponseEntity<String> downloadUserMessageEnvelope(@PathVariable(value = "messageId") String messageId) {
         LOG.debug("Getting User Message Envelope with id = [{}]", messageId);
+
         String result = userMessageExtService.getUserMessageEnvelope(messageId);
 
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType("application/xml"))
-                .header("content-disposition", "attachment; filename=user_message_envelope_" + messageId + ".xml")
-                .body(result);
+        return buildResponse(result, "user_message_envelope_" + messageId + ".xml");
     }
 
     @ApiOperation(value = "Get signal message envelope", notes = "Retrieve the signal message envelope with the specified user message id",
@@ -68,11 +67,20 @@ public class UserMessageExtResource {
     @GetMapping(path = "/{messageId:.+}/signalEnvelope")
     public ResponseEntity<String> downloadSignalMessageEnvelope(@PathVariable(value = "messageId") String messageId) {
         LOG.debug("Getting Signal Message Envelope with id = [{}]", messageId);
+
         String result = userMessageExtService.getSignalMessageEnvelope(messageId);
+
+        return buildResponse(result, "signal_message_envelope_" + messageId + ".xml");
+    }
+
+    private ResponseEntity<String> buildResponse(String result, String fileName) {
+        if (StringUtils.isBlank(result)) {
+            return ResponseEntity.noContent().build();
+        }
 
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType("application/xml"))
-                .header("content-disposition", "attachment; filename=signal_message_envelope_" + messageId + ".xml")
+                .header("content-disposition", "attachment; filename=" + fileName)
                 .body(result);
     }
 }
