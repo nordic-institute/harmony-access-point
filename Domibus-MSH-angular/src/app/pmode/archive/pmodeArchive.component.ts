@@ -2,7 +2,7 @@ import {AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, OnInit, T
 import {HttpClient} from '@angular/common/http';
 import {AlertService} from 'app/common/alert/alert.service';
 import {MatDialog} from '@angular/material';
-import {PmodeUploadComponent} from '../pmode-upload/pmode-upload.component';
+import {PmodeUploadComponent} from '../upload/pmode-upload.component';
 import * as FileSaver from 'file-saver';
 import {ActionDirtyDialogComponent} from 'app/pmode/action-dirty-dialog/action-dirty-dialog.component';
 import {Observable} from 'rxjs/Observable';
