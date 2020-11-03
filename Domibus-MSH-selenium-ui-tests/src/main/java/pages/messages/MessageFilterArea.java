@@ -2,6 +2,7 @@ package pages.messages;
 
 import ddsl.dcomponents.FilterArea;
 import ddsl.dobjects.DInput;
+import ddsl.dobjects.DatePicker;
 import ddsl.dobjects.Select;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -13,7 +14,7 @@ import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
  * @author Catalin Comanici
  * @since 4.1
  */
-public class MessageFilters extends FilterArea {
+public class MessageFilterArea extends FilterArea {
 	//	-------------------- Basic filters ---------------------------
 	@FindBy(id = "messageid_id")
 	public WebElement messageIDInput;
@@ -46,7 +47,7 @@ public class MessageFilters extends FilterArea {
 	@FindBy(id = "showTestMessages_id")
 	public WebElement showTestMessagesChk;
 	
-	public MessageFilters(WebDriver driver) {
+	public MessageFilterArea(WebDriver driver) {
 		super(driver);
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 	}
@@ -155,5 +156,8 @@ public class MessageFilters extends FilterArea {
 	public Select getNotificationStatus() {
 		return new Select(driver, notificationStatusContainer);
 	}
-	
+
+	public DatePicker getReceivedFromContainer() {
+		return weToDatePicker(receivedFromContainer);
+	}
 }

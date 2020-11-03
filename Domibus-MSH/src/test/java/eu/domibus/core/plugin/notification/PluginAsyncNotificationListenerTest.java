@@ -1,18 +1,15 @@
 package eu.domibus.core.plugin.notification;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
+import eu.domibus.api.security.functions.AuthenticatedProcedure;
 import eu.domibus.common.NotificationType;
-import eu.domibus.core.plugin.notification.PluginAsyncNotificationListener;
-import eu.domibus.core.plugin.notification.PluginEventNotifier;
-import eu.domibus.core.plugin.notification.PluginEventNotifierProvider;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.notification.AsyncNotificationConfiguration;
-import mockit.Expectations;
-import mockit.Injectable;
-import mockit.Tested;
-import mockit.Verifications;
+import mockit.*;
 import mockit.integration.junit4.JMockit;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.jms.config.JmsListenerContainerFactory;
@@ -70,7 +67,7 @@ public class PluginAsyncNotificationListenerTest {
             result = messageProperties;
         }};
 
-        pluginAsyncNotificationListener.onMessage(message);
+        pluginAsyncNotificationListener.doOnMessage(message);
 
         new Verifications() {{
             pluginEventNotifier.notifyPlugin(notificationListenerService.getBackendConnector(), messageId, messageProperties);
@@ -78,5 +75,31 @@ public class PluginAsyncNotificationListenerTest {
         }};
     }
 
+    @Test
+    public void onMessage_addsAuthentication(@Injectable Message message,
+                                             @Injectable PluginEventNotifier pluginEventNotifier,
+                                             @Injectable Map<String, String> messageProperties)  throws JMSException {
+        // Given
+        new Expectations() {{
+            authUtils.runWithSecurityContext((AuthenticatedProcedure)any, anyString, anyString, (AuthRole)any);
+        }};
 
+        // When
+        pluginAsyncNotificationListener.onMessage(message);
+
+        // Then
+        new FullVerifications() {{
+            AuthenticatedProcedure function;
+            String username;
+            String password;
+            AuthRole role;
+            authUtils.runWithSecurityContext(function = withCapture(),
+                    username=withCapture(), password=withCapture(), role=withCapture());
+            Assert.assertNotNull(function);
+            Assert.assertEquals("notif",username);
+            Assert.assertEquals("notif",password);
+            Assert.assertEquals(AuthRole.ROLE_ADMIN,role);
+
+        }};
+    }
 }

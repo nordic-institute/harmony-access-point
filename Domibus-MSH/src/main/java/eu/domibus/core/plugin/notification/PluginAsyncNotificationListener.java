@@ -7,7 +7,6 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.common.NotificationType;
-import eu.domibus.core.ebms3.sender.MessageSenderListener;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
@@ -54,10 +53,11 @@ public class PluginAsyncNotificationListener implements MessageListener {
     @Timer(clazz = PluginAsyncNotificationListener.class,value="onMessage")
     @Counter(clazz = PluginAsyncNotificationListener.class,value="onMessage")
     public void onMessage(final Message message) {
-        if (!authUtils.isUnsecureLoginAllowed()) {
-            authUtils.setAuthenticationToSecurityContext("notif", "notif", AuthRole.ROLE_ADMIN);
-        }
+        authUtils.runWithSecurityContext(()-> doOnMessage(message),
+                "notif", "notif", AuthRole.ROLE_ADMIN);
+    }
 
+    public void doOnMessage(final Message message) {
         try {
             final String messageId = message.getStringProperty(MessageConstants.MESSAGE_ID);
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);

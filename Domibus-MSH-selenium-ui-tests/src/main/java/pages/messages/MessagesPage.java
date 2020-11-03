@@ -43,8 +43,8 @@ public class MessagesPage extends DomibusPage {
 		return new DButton(driver, resendBtn);
 	}
 	
-	public MessageFilters getFilters() {
-		return new MessageFilters(driver);
+	public MessageFilterArea getFilters() {
+		return new MessageFilterArea(driver);
 	}
 	
 	public boolean isLoaded() {

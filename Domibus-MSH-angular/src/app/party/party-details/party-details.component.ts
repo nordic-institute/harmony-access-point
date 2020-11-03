@@ -94,6 +94,11 @@ export class PartyDetailsComponent extends EditPopupBaseComponent implements OnI
   }
 
   uploadCertificate() {
+    if (!this.party.name) {
+      this.alertService.error('Please provide a party name in order to import a certificate.');
+      return;
+    }
+
     const fi = this.fileInput.nativeElement;
     const file = fi.files[0];
 
@@ -252,5 +257,11 @@ export class PartyDetailsComponent extends EditPopupBaseComponent implements OnI
   checkResponder(row: any) {
     row.isResponder = !row.isResponder;
     this.markDirty();
+  }
+
+  onImportClicked($event: MouseEvent) {
+    if (!this.party.name) {
+      $event.preventDefault();
+    }
   }
 }
