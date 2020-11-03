@@ -31,7 +31,7 @@ public class UserMessageServiceDelegate implements UserMessageExtService {
 
     @Override
     public UserMessageDTO getMessage(String messageId) throws UserMessageExtException {
-        LOG.debug("Getting message with messageId='" + messageId + "'");
+        LOG.debug("Getting message with messageId[{}].", messageId);
         userMessageSecurityService.checkMessageAuthorization(messageId);
 
         final UserMessage userMessage = userMessageCoreService.getMessage(messageId);
@@ -43,7 +43,7 @@ public class UserMessageServiceDelegate implements UserMessageExtService {
 
     @Override
     public String getUserMessageEnvelope(String messageId) {
-        LOG.debug("Getting user message envelope with messageId='" + messageId + "'");
+        LOG.debug("Getting user message envelope with messageId [{}].", messageId);
         userMessageSecurityService.checkMessageAuthorization(messageId);
 
         return userMessageCoreService.getUserMessageEnvelope(messageId);
