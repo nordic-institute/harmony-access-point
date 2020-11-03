@@ -56,6 +56,7 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
     @Override
     public void saveRequest(SOAPMessage request, UserMessage userMessage) {
         if (isNonRepudiationAuditDisabled()) {
+            LOG.debug("Non Repudiation Audit is disabled, skip saving non-repudiation data for message [{}].", userMessageId);
             return;
         }
 
@@ -77,6 +78,7 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
     @Override
     public void saveResponse(SOAPMessage response, SignalMessage signalMessage) {
         if (isNonRepudiationAuditDisabled()) {
+            LOG.debug("Non Repudiation Audit is disabled, skip saving non-repudiation data for message [{}].", userMessageId);
             return;
         }
 
@@ -95,7 +97,7 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
     @Override
     public void saveResponse(SOAPMessage response, String userMessageId) {
         if (isNonRepudiationAuditDisabled()) {
-            LOG.debug("Non Repudiation Audit is disabled for message [{}], exiting.", userMessageId);
+            LOG.debug("Non Repudiation Audit is disabled, skip saving non-repudiation data for message [{}].", userMessageId);
             return;
         }
 
