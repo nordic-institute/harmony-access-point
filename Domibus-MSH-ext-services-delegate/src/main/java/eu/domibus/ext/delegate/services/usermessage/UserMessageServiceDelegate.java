@@ -51,7 +51,7 @@ public class UserMessageServiceDelegate implements UserMessageExtService {
 
     @Override
     public String getSignalMessageEnvelope(String messageId) {
-        LOG.debug("Getting user message envelope with messageId='" + messageId + "'");
+        LOG.debug("Getting user message envelope with messageId [{}].", messageId);
         userMessageSecurityService.checkMessageAuthorization(messageId);
 
         return userMessageCoreService.getSignalMessageEnvelope(messageId);

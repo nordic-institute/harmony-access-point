@@ -79,7 +79,7 @@ public class UserMessageExtResource {
         }
 
         return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType("application/xml"))
+                .contentType(MediaType.parseMediaType(MediaType.APPLICATION_XML_VALUE))
                 .header("content-disposition", "attachment; filename=" + fileName)
                 .body(result);
     }

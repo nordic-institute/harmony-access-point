@@ -95,6 +95,7 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
     @Override
     public void saveResponse(SOAPMessage response, String userMessageId) {
         if (isNonRepudiationAuditDisabled()) {
+            LOG.debug("Non Repudiation Audit is disabled for message [{}], exiting.", userMessageId);
             return;
         }
 
@@ -104,7 +105,9 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
             return;
         }
 
+        // in case we will save the signal messages for unsuccessful operations, this code will take the one corresponding to the successful one
         SignalMessage signalMessage = signalMessages.stream().findFirst().get();
+
         saveResponse(response, signalMessage);
     }
 
