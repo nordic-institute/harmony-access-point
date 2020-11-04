@@ -4,7 +4,7 @@ import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.core.plugin.notification.NotificationStatus;
-import eu.domibus.core.dao.InMemoryDataBaseConfig;
+import eu.domibus.core.dao.InMemoryDatabaseMshConfig;
 import eu.domibus.ebms3.common.model.MessageType;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -28,7 +28,7 @@ import java.util.*;
  * @since 4.1
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {InMemoryDataBaseConfig.class, UIMessageDaoImplIT.UIReplicationConfig.class})
+@ContextConfiguration(classes = {InMemoryDatabaseMshConfig.class, UIMessageDaoImplIT.UIReplicationConfig.class})
 @ActiveProfiles("IN_MEMORY_DATABASE")
 @Transactional
 public class UIMessageDaoImplIT {
