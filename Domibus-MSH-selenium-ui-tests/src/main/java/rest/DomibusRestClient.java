@@ -170,7 +170,7 @@ public class DomibusRestClient extends BaseRestClient {
 		log.info("created user " + username);
 		
 		if (!active) {
-			users().blockUser(username, domainCode);
+			users().deactivate(username, domainCode);
 			log.info("deactivated user " + username);
 		}
 		if (deleted) {
@@ -224,7 +224,7 @@ public class DomibusRestClient extends BaseRestClient {
 		log.info("created user " + username);
 		
 		if (!active) {
-			users().blockUser(username, domainCode);
+			users().deactivate(username, domainCode);
 			log.info("deactivated user " + username);
 		}
 		

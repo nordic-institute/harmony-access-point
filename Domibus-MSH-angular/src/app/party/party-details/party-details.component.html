@@ -52,9 +52,9 @@
                     <input matInput placeholder="Fingerprints" name="fingerPrint" value="{{party.certificate?.fingerprints}}" id="fingerPrint_id">
                   </mat-form-field>
                 </fieldset>
-                <label class="custom-file-upload">
+                <label [ngClass]="{'custom-file-upload': party.name, 'custom-file-upload-disabled': !party.name }" (click)="onImportClicked($event)">
                   <input #fileInput type="file" id="custom-file-upload" accept=".cer" (change)="uploadCertificate()">
-                  <span class="custom-file-upload-inner">Import</span>
+                  <span [ngClass]="{'custom-file-upload-inner': party.name, 'custom-file-upload-inner-disabled': !party.name }">Import</span>
                 </label>
               </div>
             </mat-card-content>

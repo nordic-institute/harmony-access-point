@@ -27,15 +27,13 @@ import eu.domibus.plugin.BackendConnector;
 import eu.domibus.plugin.notification.AsyncNotificationConfiguration;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.jms.Queue;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PLUGIN_NOTIFICATION_ACTIVE;
 import static eu.domibus.common.NotificationType.*;
@@ -542,6 +540,110 @@ public class BackendNotificationServiceTest {
         }};
     }
 
+    @Test
+    public void createMessageDeleteBatchEventTest() {
+
+        String backend = "ws";
+        List<String> messageIds = Arrays.asList("abc", "def");
+
+        new Expectations(backendNotificationService) {{
+            backendConnectorDelegate.messageDeletedBatchEvent(backend, (MessageDeletedBatchEvent) any);
+
+        }};
+
+        backendNotificationService.createMessageDeleteBatchEvent(backend, messageIds);
+
+        new Verifications() {
+        };
+    }
+
+    @Test
+    public void getAllMessageIdsForBackendTest(@Injectable UserMessageLogDto uml1, @Injectable UserMessageLogDto uml2) {
+
+        String backend = "ws";
+        List<UserMessageLogDto> userMessageLogDtos = Arrays.asList(uml1, uml2);
+        List<String> messageIds = Arrays.asList("abc", "def");
+
+        new Expectations(backendNotificationService) {{
+            uml1.getMessageId(); result = "abc";
+            uml2.getMessageId(); result = "def";
+            uml1.getBackend(); result = backend;
+            uml2.getBackend(); result = backend;
+
+        }};
+
+        List<String> result = backendNotificationService.getAllMessageIdsForBackend(userMessageLogDtos, backend);
+        Assert.assertTrue(result.equals(messageIds));
+
+        new Verifications() {
+        };
+    }
+
+    @Test
+    public void testNotifyMessageDeletedRemoveTestMessages(@Injectable UserMessageLogDto uml1, @Injectable UserMessageLogDto uml2) {
+
+        String backend = "ws";
+        List<UserMessageLogDto> userMessageLogDtos = Arrays.asList(uml1, uml2);
+        List<UserMessageLogDto> userMessageLogDtosNoTest = Arrays.asList(uml1);
+
+        new Expectations(backendNotificationService) {{
+            uml1.getBackend(); result = backend;
+            uml2.getBackend(); times = 0;
+            uml2.isTestMessage(); result = true;
+
+            backendNotificationService.getAllMessageIdsForBackend(userMessageLogDtosNoTest, backend); times = 1;
+            backendNotificationService.createMessageDeleteBatchEvent(backend, (List<String>)any);
+
+        }};
+
+        backendNotificationService.notifyMessageDeleted(userMessageLogDtos);
+
+        new Verifications() {
+        };
+    }
+
+    @Test
+    public void testNotifyMessageDeletedEmptyList(@Injectable UserMessageLogDto uml1, @Injectable UserMessageLogDto uml2) {
+
+        String backend = "ws";
+        List<UserMessageLogDto> userMessageLogDtos = Arrays.asList();
+
+        new Expectations(backendNotificationService) {{
+            uml1.getBackend(); times = 0;
+            uml2.getBackend(); times = 0;
+
+            backendNotificationService.getAllMessageIdsForBackend(userMessageLogDtos, backend); times = 0;
+            backendNotificationService.createMessageDeleteBatchEvent(backend, (List<String>)any); times = 0;
+
+        }};
+
+        backendNotificationService.notifyMessageDeleted(userMessageLogDtos);
+
+        new Verifications() {
+        };
+    }
+
+    @Test
+    public void testNotifyMessageDeleted(@Injectable UserMessageLogDto uml1, @Injectable UserMessageLogDto uml2) {
+
+        String backend = "ws";
+        List<UserMessageLogDto> userMessageLogDtos = Arrays.asList(uml1, uml2);
+        List<String> messageIds = Arrays.asList("abc", "def");
+
+        new Expectations(backendNotificationService) {{
+            uml1.getBackend(); result = backend;
+            uml2.getBackend(); result = backend;
+
+            backendNotificationService.getAllMessageIdsForBackend(userMessageLogDtos, backend); result = messageIds;
+            backendNotificationService.createMessageDeleteBatchEvent(backend, (List<String>)any);
+
+        }};
+
+        backendNotificationService.notifyMessageDeleted(userMessageLogDtos);
+
+        new Verifications() {
+        };
+    }
 
     @Test
     public void testNotifyMessageReceivedFailure(@Injectable UserMessage userMessage,

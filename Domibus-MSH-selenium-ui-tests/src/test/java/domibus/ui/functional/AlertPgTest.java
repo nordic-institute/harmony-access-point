@@ -892,7 +892,7 @@ public class AlertPgTest extends SeleniumTest {
 	}
 	
 	/* disabled because EDELIVERY-4186 */
-	@Test(description = "ALRT-20", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "ALRT-20", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void verifyHeaders() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		AlertPage page = new AlertPage(driver);

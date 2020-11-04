@@ -12,6 +12,7 @@ import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
@@ -59,6 +60,9 @@ public class CustomAuthenticationProviderTest {
 
     @Injectable
     PluginUserSecurityPolicyManager passwordValidator;
+
+    @Injectable
+    protected AuthUtils authUtils;
 
     @Tested
     CustomAuthenticationProvider securityCustomAuthenticationProvider;

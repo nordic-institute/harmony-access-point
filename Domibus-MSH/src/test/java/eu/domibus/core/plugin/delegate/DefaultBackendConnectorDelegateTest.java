@@ -1,6 +1,7 @@
 package eu.domibus.core.plugin.delegate;
 
 import eu.domibus.api.util.ClassUtil;
+import eu.domibus.common.MessageDeletedBatchEvent;
 import eu.domibus.common.MessageDeletedEvent;
 import eu.domibus.common.MessageReceiveFailureEvent;
 import eu.domibus.core.plugin.BackendConnectorProvider;
@@ -18,6 +19,8 @@ import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -78,6 +81,23 @@ public class DefaultBackendConnectorDelegateTest {
     }
 
     @Test
+    public void messageDeletedBatchEvent(@Injectable MessageDeletedBatchEvent event,
+                                    @Injectable BackendConnector backendConnector) {
+        String backend = "mybackend";
+
+        new Expectations(defaultBackendConnectorDelegate) {{
+            backendConnectorProvider.getBackendConnector(backend);
+            result = backendConnector;
+        }};
+
+        defaultBackendConnectorDelegate.messageDeletedBatchEvent(backend, event);
+
+        new Verifications() {{
+            backendConnector.messageDeletedBatchEvent(event);
+        }};
+    }
+
+    @Test
     public void callNotificationListerForMessageDeletedEvent(@Injectable BackendConnector<?, ?> backendConnector,
                                                              @Injectable MessageDeletedEvent event,
                                                              @Injectable NotificationListenerService asyncNotificationConfiguration) {
@@ -91,12 +111,15 @@ public class DefaultBackendConnectorDelegateTest {
             backendConnectorService.isInstanceOfNotificationListener(asyncNotificationConfiguration);
             result = true;
 
+            event.getMessageId();
+            result = "abc";
+
         }};
 
         defaultBackendConnectorDelegate.callNotificationListerForMessageDeletedEvent(backendConnector, event);
 
         new Verifications() {{
-            asyncNotificationConfiguration.deleteMessageCallback(event.getMessageId());
+            asyncNotificationConfiguration.deleteMessageCallback(anyString);
         }};
     }
 

@@ -16,6 +16,7 @@ import java.util.List;
 public class WSMessageLogDao extends WSBasicDao<WSMessageLogEntity> {
 
     private static final String MESSAGE_ID = "MESSAGE_ID";
+    private static final String MESSAGE_IDS = "MESSAGE_IDS";
     private static final String FINAL_RECIPIENT= "FINAL_RECIPIENT";
 
     public WSMessageLogDao() {
@@ -78,6 +79,17 @@ public class WSMessageLogDao extends WSBasicDao<WSMessageLogEntity> {
     public void deleteByMessageId(final String messageId) {
         Query query = em.createNamedQuery("WSMessageLogEntity.deleteByMessageId");
         query.setParameter(MESSAGE_ID, messageId);
+        query.executeUpdate();
+    }
+
+    /**
+     * Delete the entries related to a given MessageIds.
+     *
+     * @param messageIds the ids of the messages that should be deleted.
+     */
+    public void deleteByMessageIds(final List<String> messageIds) {
+        Query query = em.createNamedQuery("WSMessageLogEntity.deleteByMessageIds");
+        query.setParameter(MESSAGE_IDS, messageIds);
         query.executeUpdate();
     }
 }

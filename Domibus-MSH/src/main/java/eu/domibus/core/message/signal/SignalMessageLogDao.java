@@ -6,6 +6,8 @@ import eu.domibus.common.MessageStatus;
 import eu.domibus.core.message.MessageLogDao;
 import eu.domibus.core.message.MessageLogInfo;
 import eu.domibus.core.message.MessageLogInfoFilter;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.ebms3.common.model.MessageType;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -86,6 +88,8 @@ public class SignalMessageLogDao extends MessageLogDao<SignalMessageLog> {
         return queryParameterized.getResultList();
     }
 
+    @Timer(clazz = SignalMessageLogDao.class,value = "deleteMessages.deleteMessageLogs")
+    @Counter(clazz = SignalMessageLogDao.class,value = "deleteMessages.deleteMessageLogs")
     public int deleteMessageLogs(List<String> messageIds) {
         final Query deleteQuery = em.createNamedQuery("SignalMessageLog.deleteMessageLogs");
         deleteQuery.setParameter("MESSAGEIDS", messageIds);

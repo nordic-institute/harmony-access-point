@@ -173,7 +173,9 @@ public class RightsTests extends RestTest {
 		
 		soft.assertAll();
 	}
-	
+
+
+
 	private int callGetPath(String path, DomibusRestClient client) throws Exception {
 		ClientResponse response = client.getPath(path);
 		
