@@ -283,7 +283,6 @@
             <artifactId>hibernate-validator</artifactId>
         </dependency>
 
-        <!--  //TODO check after finishing EDELIVERY-7390 -->
         <dependency>
             <groupId>org.glassfish</groupId>
             <artifactId>javax.el</artifactId>
