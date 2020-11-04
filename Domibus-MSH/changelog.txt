@@ -1,3 +1,5 @@
+Domibus 5.0
+- Update all libraries to the latest version: Apache CXF 3.4.0, Ehcache 3.8.1, Hibernate Validator 6.1.5.Final, etc
 Domibus 4.2
 - Added a new property domibus.logging.metadata.print - prints the AS4 metadata in the logs when org.apache.cxf is set to at least INFO in logback.xml. Defaults to true.
 - Deprecated the following classes/methods:
