@@ -31,7 +31,6 @@ public class CXFCacheConfiguration {
         try {
             ehCacheTokenStore = new EHCacheTokenStore(SecurityConstants.TOKEN_STORE_CACHE_INSTANCE, bus, url);
         } catch (TokenStoreException e) {
-            LOG.error("Unable to create a new EHCacheTokenStore: ", e);
             throw e;
         }
 
