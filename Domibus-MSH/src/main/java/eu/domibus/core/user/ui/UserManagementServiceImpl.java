@@ -268,26 +268,26 @@ public class UserManagementServiceImpl implements UserService {
 
     protected Map<String, Object> createFilterMap(String userName, String deleted, AuthRole authRole) {
         HashMap<String, Object> filters = new HashMap<>();
-        getUserNameFilter(userName, filters);
-        getDeletedUserFilter(deleted, filters);
-        getUserRoleFilter(authRole, filters);
+        addUserNameFilter(userName, filters);
+        addDeletedUserFilter(deleted, filters);
+        addUserRoleFilter(authRole, filters);
         LOG.debug("Added users filters: [{}]", filters);
         return filters;
     }
 
-    protected void getUserRoleFilter(AuthRole authRole, HashMap<String, Object> filters) {
+    protected void addUserRoleFilter(AuthRole authRole, HashMap<String, Object> filters) {
         if (authRole != null) {
             filters.put(USER_ROLE, authRole.name());
         }
     }
 
-    protected void getUserNameFilter(String userName, HashMap<String, Object> filters) {
+    protected void addUserNameFilter(String userName, HashMap<String, Object> filters) {
         if (userName != null) {
             filters.put(USER_NAME, userName);
         }
     }
 
-    protected void getDeletedUserFilter(String deleted, HashMap<String, Object> filters) {
+    protected void addDeletedUserFilter(String deleted, HashMap<String, Object> filters) {
         if (StringUtils.equals(deleted, ALL_USERS)) {
             filters.put(DELETED_USER, null);
         } else {
