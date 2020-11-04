@@ -22,16 +22,17 @@ public class CXFCacheConfiguration {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CXFCacheConfiguration.class);
 
     @Bean("ehCacheTokenStore")
-    public EHCacheTokenStore ehCacheTokenStore(DomibusBus bus) {
+    public EHCacheTokenStore ehCacheTokenStore(DomibusBus bus) throws TokenStoreException {
         final ResourceManager resourceManager = bus.getExtension(ResourceManager.class);
         final URL url = SecurityUtils.loadResource(resourceManager, "cxf-ehcache.xml");
         LOG.debug("Loading the CXF EHCacheTokenStore from [{}]", url);
 
-        EHCacheTokenStore ehCacheTokenStore = null;
+        EHCacheTokenStore ehCacheTokenStore;
         try {
             ehCacheTokenStore = new EHCacheTokenStore(SecurityConstants.TOKEN_STORE_CACHE_INSTANCE, bus, url);
         } catch (TokenStoreException e) {
             LOG.error("Unable to create a new EHCacheTokenStore: ", e);
+            throw e;
         }
 
         return ehCacheTokenStore;
