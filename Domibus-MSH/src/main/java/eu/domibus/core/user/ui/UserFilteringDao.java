@@ -37,30 +37,45 @@ public class UserFilteringDao extends ListDao<User> {
     @Override
     protected List<Predicate> getPredicates(Map<String, Object> filters, CriteriaBuilder criteriaBuilder, Root<User> userEntity) {
         List<Predicate> predicates = new ArrayList<>();
-        addUserRolePredicate(criteriaBuilder, userEntity, predicates, filters.get(USER_ROLE));
-        addUserNamePredicate(criteriaBuilder, userEntity, predicates, filters.get(USER_NAME));
-        addUserDeletedPredicate(criteriaBuilder, userEntity, predicates, filters.get(DELETED_USER));
+        Predicate rolePredicate = addUserRolePredicate(criteriaBuilder, userEntity, filters);
+        if (rolePredicate != null) {
+            predicates.add(rolePredicate);
+        }
+        Predicate namePredicate = addUserNamePredicate(criteriaBuilder, userEntity, filters);
+        if (namePredicate != null) {
+            predicates.add(namePredicate);
+        }
+        Predicate userDeletedPredicate = addUserDeletedPredicate(criteriaBuilder, userEntity, filters);
+        if (userDeletedPredicate != null) {
+            predicates.add(userDeletedPredicate);
+        }
         LOG.debug("Number of predicates added for users filtering [{}]", predicates.size());
         return predicates;
     }
 
-    protected void addUserDeletedPredicate(CriteriaBuilder criteriaBuilder, Root<User> userEntity, List<Predicate> predicates, Object filterValue) {
+    protected Predicate addUserDeletedPredicate(CriteriaBuilder criteriaBuilder, Root<User> userEntity, Map<String, Object> filters) {
+        Object filterValue = filters.get(DELETED_USER);
         if (filterValue != null) {
-            predicates.add(criteriaBuilder.equal(userEntity.get(DELETED_USER), filterValue));
+            return criteriaBuilder.equal(userEntity.get(DELETED_USER), filterValue);
         }
+        return null;
     }
 
-    protected void addUserNamePredicate(CriteriaBuilder criteriaBuilder, Root<User> userEntity, List<Predicate> predicates, Object filterValue) {
+    protected Predicate addUserNamePredicate(CriteriaBuilder criteriaBuilder, Root<User> userEntity, Map<String, Object> filters) {
+        Object filterValue = filters.get(USER_NAME);
         if (filterValue != null) {
-            predicates.add(criteriaBuilder.like(userEntity.get(USER_NAME), (String) filterValue));
+            return criteriaBuilder.like(userEntity.get(USER_NAME), (String) filterValue);
         }
+        return null;
     }
 
-    protected void addUserRolePredicate(CriteriaBuilder criteriaBuilder, Root<User> userEntity, List<Predicate> predicates, Object filterValue) {
+    protected Predicate addUserRolePredicate(CriteriaBuilder criteriaBuilder, Root<User> userEntity, Map<String, Object> filters) {
+        Object filterValue = filters.get(USER_ROLE);
         if (filterValue != null) {
             final SetJoin<User, UserRole> userRoleJoin = userEntity.join(User_.roles);
-            final Predicate predicate = criteriaBuilder.and(criteriaBuilder.equal(userRoleJoin.get(UserRole_.NAME), filterValue));
-            predicates.add(predicate);
+            return criteriaBuilder.and(criteriaBuilder.equal(userRoleJoin.get(UserRole_.NAME), filterValue));
+
         }
+        return null;
     }
 }
