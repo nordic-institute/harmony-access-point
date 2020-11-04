@@ -231,13 +231,14 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
         }
 
         requestData.setWssConfig(config);
+        SoapVersion version = msg.getVersion();
         try {
             requestData.setEncryptionSerializer(new StaxSerializer());
-        } catch (InvalidCanonicalizerException e) {
-            LOG.error("Unable to setEncryptionSerializer: ", e);
+        } catch (InvalidCanonicalizerException invalidCanonicalizerEx) {
+            throw new SoapFault("InvalidCanonicalizerException", invalidCanonicalizerEx, version.getSender());
         }
 
-        SoapVersion version = msg.getVersion();
+
         SAAJInInterceptor.INSTANCE.handleMessage(msg);
         try {
             requestData.setMsgContext(msg);
