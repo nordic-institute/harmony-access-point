@@ -11,7 +11,7 @@ import javax.sql.DataSource;
  */
 @EnableTransactionManagement
 @Profile("IN_MEMORY_DATABASE")
-public class InMemoryDataBaseMshConfig extends AbstractDatabaseMshConfig {
+public class InMemoryDatabaseMshConfig extends AbstractDatabaseMshConfig {
 
     public DataSource dataSource() {
         return getH2DataSource();

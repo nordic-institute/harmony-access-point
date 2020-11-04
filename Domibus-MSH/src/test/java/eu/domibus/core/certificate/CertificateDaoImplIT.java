@@ -1,7 +1,7 @@
 package eu.domibus.core.certificate;
 
 import eu.domibus.api.util.DateUtil;
-import eu.domibus.core.dao.InMemoryDataBaseMshConfig;
+import eu.domibus.core.dao.InMemoryDatabaseMshConfig;
 import eu.domibus.core.util.DateUtilImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -34,7 +34,7 @@ import static org.junit.Assert.assertNull;
  * @since 4.0
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {InMemoryDataBaseMshConfig.class,
+@ContextConfiguration(classes = {InMemoryDatabaseMshConfig.class,
         CertificateDaoImplIT.CertificateDaoConfig.class})
 @ActiveProfiles("IN_MEMORY_DATABASE")
 public class CertificateDaoImplIT {
