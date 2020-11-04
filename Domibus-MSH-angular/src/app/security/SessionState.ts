@@ -6,7 +6,6 @@
  */
 export const enum SessionState {
   // TODO(18/09/20, Ion Perpegel): split the eunum in 2: state and reason
-  NOT_INITIALISED,
   INACTIVE,
   ACTIVE,
   EXPIRED_INACTIVITY_OR_ERROR = 'You have been logged out because of inactivity or missing access permissions.',

@@ -17,13 +17,14 @@ public class ErrorLogPgTest extends SeleniumTest {
 
 	/* This method will verify domain specific error messages on each domain by changing domain through domain
      selector by Super user */
-	
+//	TODO: find a better way to select domains and check
 	@Test(description = "ERR-8", groups = {"multiTenancy"})
 	public void openErrorLogPage() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
 		String domain = selectRandomDomain();
-		List<String> messIds = rest.messages().getListOfMessagesIds(domain);
+		String domain1 = rest.getNonDefaultDomain();
+		List<String> messIds = rest.messages().getListOfMessagesIds(domain1);
 		
 		ErrorLogPage page = new ErrorLogPage(driver);
 		page.getSidebar().goToPage(PAGES.ERROR_LOG);
@@ -32,7 +33,7 @@ public class ErrorLogPgTest extends SeleniumTest {
 		log.info("Compare grid data for both domain");
 		List<String> errorIds = page.grid().getListedValuesOnColumn("Message Id");
 		for (String errorId : errorIds) {
-			soft.assertTrue(messIds.contains(errorId), "ID is present in list of message ids for this domain");
+			soft.assertFalse(messIds.contains(errorId), "ID is NOT present in list of message ids for the other domain : " + errorId);
 		}
 		
 		soft.assertAll();
@@ -173,7 +174,8 @@ public class ErrorLogPgTest extends SeleniumTest {
 		
 		String messId = ids.get(0);
 		log.debug("messID = " + messId);
-		
+
+		int sendAttempts = rest.messages().searchMessage(messId, domain).getInt("sendAttempts");
 		
 		log.info("Navigate to Errors page");
 		ErrorLogPage page = new ErrorLogPage(driver);
@@ -187,17 +189,8 @@ public class ErrorLogPgTest extends SeleniumTest {
 		page.filters().getSearchButton().click();
 		page.grid().waitForRowsToLoad();
 		
-		List<String> codes = page.grid().getValuesOnColumn("Error Code");
-		
-		boolean same = true;
-		for (int i = 0; i < codes.size()-1; i++) {
-			if(!StringUtils.equalsIgnoreCase(codes.get(0), codes.get(i))){
-				same = false;
-			}
-		}
-		
-		soft.assertTrue(same , "All errror codes are the same");
-		
+		soft.assertEquals(page.grid().getRowsNo(), sendAttempts, "The number of errors matches the number of send attempts");
+
 		soft.assertAll();
 	}
 	

@@ -68,6 +68,11 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
     }
 
     @Override
+    public void submit(Runnable task, Domain domain, boolean waitForTask, Long timeout, TimeUnit timeUnit) {
+        submit(schedulingTaskExecutor, task, domain, waitForTask, timeout, timeUnit);
+    }
+
+    @Override
     public void submitLongRunningTask(Runnable task, Domain domain) {
         submitLongRunningTask(task, null, domain);
     }
@@ -82,6 +87,8 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
 
         final DomainRunnable domainRunnable = new DomainRunnable(domainContextProvider, domain, task);
         submitRunnable(taskExecutor, domainRunnable, waitForTask, timeout, timeUnit);
+
+        LOG.trace("Completed task for domain [{}]", domain);
     }
 
     protected void submitRunnable(SchedulingTaskExecutor taskExecutor, Runnable task, boolean waitForTask, Long timeout, TimeUnit timeUnit) {
@@ -91,6 +98,7 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
             LOG.debug("Waiting for task to complete");
             try {
                 utrFuture.get(timeout, timeUnit);
+                LOG.debug("Task completed");
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 throw new DomainTaskException("Could not execute task", e);

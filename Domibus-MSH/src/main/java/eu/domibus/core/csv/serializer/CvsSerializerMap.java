@@ -19,6 +19,9 @@ public class CvsSerializerMap implements CvsSerializer {
 
     @Override
     public String serialize(Object fieldValue) {
-        return new GsonBuilder().disableHtmlEscaping().create().toJson(fieldValue);
+        return new GsonBuilder()
+                .serializeNulls()
+                .disableHtmlEscaping()
+                .create().toJson(fieldValue);
     }
 }

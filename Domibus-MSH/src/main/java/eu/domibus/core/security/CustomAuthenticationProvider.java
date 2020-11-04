@@ -50,6 +50,9 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
     @Autowired
     PluginUserAlertsServiceImpl userAlertsService;
 
+    @Autowired
+    protected AuthUtils authUtils;
+
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         try {
@@ -82,7 +85,9 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
                     //check expired; it does not produce an alert here
                     isAuthenticated = isAuthenticated && !isPasswordExpired(user);
                 } else {
-                    pluginUserPasswordManager.handleWrongAuthentication(userName);
+                    // there is no security context when the user failed to login -> we're creating one
+                    authUtils.runWithSecurityContext(() -> pluginUserPasswordManager.handleWrongAuthentication(userName),
+                            "domibus", "domibus", AuthRole.ROLE_ADMIN, true);
                 }
 
                 authentication.setAuthenticated(isAuthenticated);

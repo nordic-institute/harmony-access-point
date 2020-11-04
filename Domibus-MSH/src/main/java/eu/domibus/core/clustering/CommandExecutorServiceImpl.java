@@ -11,6 +11,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -33,8 +34,8 @@ public class CommandExecutorServiceImpl implements CommandExecutorService {
 
     public CommandExecutorServiceImpl(CommandService commandService,
                                       ServerInfoService serverInfoService,
-                                      List<CommandTask> commandTasks,
-                                      @Autowired(required = false) List<CommandExtTask> pluginCommands) {
+                                      @Lazy List<CommandTask> commandTasks, //SPIs CommandTask and CommandExtTask must be injected Lazy to avoid circular dependency
+                                      @Lazy @Autowired(required = false) List<CommandExtTask> pluginCommands) {
         this.commandService = commandService;
         this.serverInfoService = serverInfoService;
         this.commandTasks = commandTasks;

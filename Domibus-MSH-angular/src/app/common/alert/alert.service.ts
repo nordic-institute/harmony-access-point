@@ -135,6 +135,8 @@ export class AlertService {
         } else {
           errMsg = this.tryParseHtmlResponse(response.error);
         }
+      } else  if (response.message) {
+        errMsg = response.message;
       }
     } else if (response instanceof HttpResponse) {
       errMsg = response.body;

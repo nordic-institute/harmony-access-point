@@ -145,7 +145,7 @@ public class DomibusPropertyExtServiceDelegateAbstractTest extends TestCase {
 
         new Verifications() {{
             domainExtService.getDomain(domainCode);
-            domibusPropertyExtService.setDomainProperty(domain, propertyName, propertyValue);
+            domibusPropertyExtService.setProperty(domain, propertyName, propertyValue, broadcast);
         }};
     }
 

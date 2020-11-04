@@ -484,7 +484,9 @@ public class UsersPgTest extends SeleniumTest {
 		String deleted_username = rest.getUser(null, DRoles.USER, false, true, false).getString("userName");
 		
 		SoftAssert soft = new SoftAssert();
-		UsersPage page = loginAndGoToUsersPage(data.getAdminUser());
+		UsersPage page = new UsersPage(driver);
+		page.getSidebar().goToPage(PAGES.USERS);
+		page.grid().waitForRowsToLoad();
 
 //		active user
 		log.info("creating new user with existing active username");
@@ -510,7 +512,7 @@ public class UsersPgTest extends SeleniumTest {
 		
 		log.info("checking error message");
 		soft.assertTrue(page.getAlertArea().isError(), "Error message displayed");
-		soft.assertEquals(page.getAlertArea().getAlertMessage(), String.format(DMessages.Users.DUPLICATE_USERNAME_SAMEDOMAIN_ERROR, username), "Correct message displayed");
+		soft.assertEquals(page.getAlertArea().getAlertMessage(), String.format(DMessages.Users.DUPLICATE_USERNAME_SAMEDOMAIN_ERROR, username + ", " + deleted_username), "Correct message displayed");
 		
 		soft.assertAll();
 	}
@@ -708,11 +710,11 @@ public class UsersPgTest extends SeleniumTest {
 		UsersPage page = new UsersPage(driver);
 		page.getSidebar().goToPage(PAGES.USERS);
 		
-		log.info("Update Email for new Super user  " + userName);
+		log.info("Update Email for new Super user " + userName);
 		page.grid().scrollToAndSelect("Username", userName);
 		page.getEditBtn().click();
+
 		UserModal modal = new UserModal(driver);
-		
 		modal.fillData(null, "abc@gmail.com", "", "", "");
 		modal.getOkBtn().click();
 		page.saveAndConfirm();

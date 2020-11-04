@@ -14,12 +14,12 @@ import javax.xml.bind.JAXBException;
  * @since 5.0
  */
 @Configuration
-public class WSPluginPushConfiguration {
+public class WSPluginDispatchConfiguration {
 
     public static final String JAXB_CONTEXT_WEBSERVICE_BACKEND = "jaxbContextWebserviceBackend";
 
     @Bean(JAXB_CONTEXT_WEBSERVICE_BACKEND)
-    public JAXBContext jaxbContextEBMS() throws JAXBException {
+    public JAXBContext jaxbContextBackend() throws JAXBException {
         return JAXBContext.newInstance(BackendInterface.class.getPackage().getName());
     }
 }

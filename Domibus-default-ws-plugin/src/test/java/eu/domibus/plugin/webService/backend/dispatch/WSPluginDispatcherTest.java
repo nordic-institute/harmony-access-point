@@ -1,4 +1,4 @@
-package eu.domibus.plugin.webService.push;
+package eu.domibus.plugin.webService.backend.dispatch;
 
 import eu.domibus.webservice.backend.BackendApplication;
 import org.junit.Before;
@@ -16,7 +16,7 @@ import java.util.UUID;
  * @since 5.0
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {WSPluginDispatcherConfiguration.class})
+@ContextConfiguration(classes = {WSPluginDispatcherTestConfiguration.class})
 public class WSPluginDispatcherTest {
 
     private int backendPort;

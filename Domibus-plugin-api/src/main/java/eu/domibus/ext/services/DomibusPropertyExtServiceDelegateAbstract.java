@@ -80,6 +80,7 @@ public abstract class DomibusPropertyExtServiceDelegateAbstract implements Domib
 
     @Override
     public String getKnownPropertyValue(String domainCode, String propertyName) {
+        LOG.debug("The get property call for the domain [{}] was forwarded for the current domain.", domainCode);
         return getKnownPropertyValue(propertyName);
     }
 
@@ -90,7 +91,7 @@ public abstract class DomibusPropertyExtServiceDelegateAbstract implements Domib
         DomibusPropertyMetadataDTO propMeta = getKnownProperties().get(propertyName);
         if (propMeta.isStoredGlobally()) {
             final DomainDTO domain = domainExtService.getDomain(domainCode);
-            domibusPropertyExtService.setDomainProperty(domain, propertyName, propertyValue);
+            domibusPropertyExtService.setProperty(domain, propertyName, propertyValue, broadcast);
         }
 
         LOG.debug("Property [{}] is not stored globally so onSetLocalPropertyValue is called.", propertyName);

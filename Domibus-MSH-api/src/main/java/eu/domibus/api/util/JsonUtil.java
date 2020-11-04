@@ -1,5 +1,6 @@
 package eu.domibus.api.util;
 
+import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 
@@ -10,5 +11,9 @@ public interface JsonUtil {
 
     Map<String, Object> jsonToMap(String map);
 
-    List<String> jsonToList(String list);
+    String listToJson(List list);
+
+    List jsonToList(String list);
+
+    List jsonToList(String list, Type type);
 }

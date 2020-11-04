@@ -119,7 +119,7 @@ export class PluginUserComponent extends mix(BaseListComponent)
   changeAuthType(x) {
     this.clearSearchParams();
 
-    super.tryFilter();
+    super.tryFilter(false);
   }
 
   clearSearchParams() {
