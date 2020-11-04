@@ -1,5 +1,9 @@
 package eu.domibus.core.message.pull;
 
+import eu.domibus.api.model.Messaging;
+import eu.domibus.api.model.PullRequest;
+import eu.domibus.api.model.SignalMessage;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
@@ -21,7 +25,6 @@ import eu.domibus.core.security.AuthorizationService;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.TimestampDateFormatter;
 import eu.domibus.core.message.reliability.ReliabilityMatcher;
-import eu.domibus.ebms3.common.model.*;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.ebms3.receiver.MessageTestUtility;
 import eu.domibus.core.ebms3.receiver.handler.IncomingMessageHandlerFactory;

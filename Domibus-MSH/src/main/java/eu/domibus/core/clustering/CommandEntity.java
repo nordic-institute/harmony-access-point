@@ -1,6 +1,6 @@
 package eu.domibus.core.clustering;
 
-import eu.domibus.ebms3.common.model.AbstractBaseEntity;
+import eu.domibus.api.model.AbstractBaseEntity;
 import org.hibernate.annotations.BatchSize;
 
 import javax.persistence.*;

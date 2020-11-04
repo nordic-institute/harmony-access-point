@@ -1,7 +1,7 @@
 package eu.domibus.core.message.retention;
 
 import eu.domibus.core.message.UserMessageLog;
-import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.api.model.UserMessage;
 
 import java.util.List;
 

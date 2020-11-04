@@ -1,7 +1,7 @@
 package eu.domibus.core.message.signal;
 
 import eu.domibus.api.message.MessageSubtype;
-import eu.domibus.common.MSHRole;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.core.plugin.notification.NotificationStatus;
 

@@ -15,7 +15,7 @@ import eu.domibus.core.message.pull.MessagingLockDao;
 import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.messaging.MessageConstants;
 import mockit.*;
 import mockit.integration.junit4.JMockit;

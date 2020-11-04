@@ -8,17 +8,14 @@ import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.UserMessageLog;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.messaging.MessageConstants;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
-import org.apache.commons.collections.CollectionUtils;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import javax.jms.MapMessage;
 import javax.jms.Queue;
 import java.util.ArrayList;
 import java.util.Arrays;

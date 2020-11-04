@@ -13,7 +13,7 @@ import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.core.plugin.routing.dao.BackendFilterDao;
-import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.plugin.BackendConnector;
 import eu.domibus.plugin.NotificationListener;
 import eu.domibus.plugin.notification.AsyncNotificationConfiguration;

@@ -40,7 +40,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  * @author Sebastian-Ion TINCU
  * @since 3.2
  */
-@Component
+@Component(XMLUtil.BEAN_NAME)
 public class XMLUtilImpl implements XMLUtil {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(XMLUtilImpl.class);
@@ -71,11 +71,11 @@ public class XMLUtilImpl implements XMLUtil {
         }
     });
 
-    public static DocumentBuilderFactory getDocumentBuilderFactory() {
+    public DocumentBuilderFactory getDocumentBuilderFactory() {
         return documentBuilderFactoryThreadLocal.get();
     }
 
-    public static DocumentBuilderFactory getDocumentBuilderFactoryNamespaceAware() {
+    public DocumentBuilderFactory getDocumentBuilderFactoryNamespaceAware() {
         return documentBuilderFactoryNamespaceAwareThreadLocal.get();
     }
 
@@ -89,15 +89,15 @@ public class XMLUtilImpl implements XMLUtil {
         return transformerFactory;
     }
 
-    public static MessageFactory getMessageFactory() {
+
+
+    @Override
+    public MessageFactory getMessageFactorySoap12() {
         return messageFactoryThreadLocal.get();
     }
 
-    public MessageFactory getMessageFactorySoap12() {
-        return XMLUtilImpl.messageFactoryThreadLocal.get();
-    }
-
-    public static TransformerFactory getTransformerFactory() {
+    @Override
+    public TransformerFactory getTransformerFactory() {
         return transformerFactoryThreadLocal.get();
     }
 

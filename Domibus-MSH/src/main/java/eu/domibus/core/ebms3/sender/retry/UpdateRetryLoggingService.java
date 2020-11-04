@@ -4,7 +4,7 @@ import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.message.attempt.MessageAttemptService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
-import eu.domibus.common.MSHRole;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
@@ -16,7 +16,7 @@ import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.plugin.notification.NotificationStatus;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.replication.UIReplicationSignalService;
-import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -30,7 +30,6 @@ import java.sql.Timestamp;
 import java.util.Date;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MSH_RETRY_MESSAGE_EXPIRATION_DELAY;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SEND_MESSAGE_FAILURE_DELETE_PAYLOAD;
 
 /**
  * @author Cosmin Baciu

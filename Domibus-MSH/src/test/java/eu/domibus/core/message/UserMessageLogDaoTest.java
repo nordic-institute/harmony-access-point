@@ -2,9 +2,9 @@ package eu.domibus.core.message;
 
 import com.google.common.collect.Lists;
 import eu.domibus.api.message.MessageSubtype;
-import eu.domibus.common.MSHRole;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.core.plugin.notification.NotificationStatus;
-import eu.domibus.ebms3.common.model.MessageType;
+import eu.domibus.api.model.MessageType;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;

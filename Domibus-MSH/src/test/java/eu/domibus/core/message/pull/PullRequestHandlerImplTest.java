@@ -3,6 +3,8 @@ package eu.domibus.core.message.pull;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.message.attempt.MessageAttemptService;
+import eu.domibus.api.model.*;
+import eu.domibus.api.model.Error;
 import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.security.ChainCertificateInvalidException;
 import eu.domibus.common.ErrorCode;
@@ -20,8 +22,6 @@ import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
 import eu.domibus.core.message.reliability.ReliabilityMatcher;
 import eu.domibus.core.message.reliability.ReliabilityService;
-import eu.domibus.ebms3.common.model.Error;
-import eu.domibus.ebms3.common.model.*;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.cxf.phase.PhaseInterceptorChain;
@@ -99,7 +99,7 @@ public class PullRequestHandlerImplTest {
         }};
         pullRequestHandler.handleRequest(messageId, pullContext);
         new Verifications() {{
-            eu.domibus.ebms3.common.model.Error error;
+            Error error;
             messageBuilder.buildSOAPFaultMessage(error = withCapture());
             error.equals(ebMS3Exception.getFaultInfoError());
             times = 1;

@@ -1,8 +1,8 @@
 package eu.domibus.core.ebms3.receiver.leg;
 
+import eu.domibus.api.model.*;
 import eu.domibus.core.message.pull.PullRequestLegConfigurationExtractor;
 import eu.domibus.core.message.pull.PullRequestLegConfigurationFactory;
-import eu.domibus.ebms3.common.model.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.message.MessageImpl;

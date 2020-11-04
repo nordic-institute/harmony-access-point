@@ -3,7 +3,7 @@ package eu.domibus.web.rest;
 import eu.domibus.api.csv.CsvException;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.ErrorCode;
-import eu.domibus.common.MSHRole;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.error.ErrorLogEntry;

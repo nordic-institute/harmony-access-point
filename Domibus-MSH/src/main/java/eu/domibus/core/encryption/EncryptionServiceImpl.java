@@ -6,7 +6,7 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.encryption.PasswordEncryptionService;
-import eu.domibus.core.payload.encryption.PayloadEncryptionService;
+import eu.domibus.api.payload.encryption.PayloadEncryptionService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.BooleanUtils;

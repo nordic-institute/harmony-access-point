@@ -1,14 +1,14 @@
 package eu.domibus.core.message.pull;
 
+import eu.domibus.api.ebms3.model.Error;
+import eu.domibus.api.ebms3.model.Messaging;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.common.ErrorCode;
-import eu.domibus.common.MSHRole;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
 import eu.domibus.core.util.MessageUtil;
-import eu.domibus.ebms3.common.model.Error;
-import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.neethi.Policy;
 import org.slf4j.Logger;

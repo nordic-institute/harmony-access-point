@@ -2,16 +2,19 @@ package eu.domibus.core.message.splitandjoin;
 
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
+import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
+import eu.domibus.api.model.splitandjoin.MessageHeaderEntity;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.ErrorCode;
-import eu.domibus.common.MSHRole;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.Splitting;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.Ebms3Converter;
 import eu.domibus.core.ebms3.receiver.handler.IncomingSourceMessageHandler;
 import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
@@ -31,10 +34,10 @@ import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
-import eu.domibus.ebms3.common.model.Error;
-import eu.domibus.ebms3.common.model.Messaging;
-import eu.domibus.ebms3.common.model.PartInfo;
-import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.api.model.Error;
+import eu.domibus.api.model.Messaging;
+import eu.domibus.api.model.PartInfo;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections.CollectionUtils;
@@ -149,6 +152,9 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
     @Autowired
     protected ErrorService errorService;
 
+    @Autowired
+    protected Ebms3Converter ebms3Converter;
+
     @Override
     public void createUserFragmentsFromSourceFile(String sourceMessageFileName, SOAPMessage sourceMessageRequest, UserMessage userMessage, String contentTypeString, boolean compression) {
         MessageGroupEntity messageGroupEntity = new MessageGroupEntity();
@@ -216,7 +222,8 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
         LOG.debug("Rejoining SourceMessage for group [{}]", groupId);
 
         final SOAPMessage sourceRequest = rejoinSourceMessage(groupId, new File(sourceMessageFile));
-        Messaging sourceMessaging = messageUtil.getMessage(sourceRequest);
+        eu.domibus.api.ebms3.model.Messaging ebms3Messaging = messageUtil.getMessage(sourceRequest);
+        Messaging sourceMessaging = ebms3Converter.convertFromEbms3(ebms3Messaging);
         sourceMessaging.getUserMessage().setSplitAndJoin(true);
 
         MessageExchangeConfiguration userMessageExchangeContext = null;

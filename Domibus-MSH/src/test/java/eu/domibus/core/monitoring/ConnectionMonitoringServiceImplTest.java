@@ -4,7 +4,7 @@ import eu.domibus.api.party.PartyService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.core.message.testservice.TestService;
-import eu.domibus.core.ebms3.Ebms3Constants;
+import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.web.rest.ro.ConnectionMonitorRO;
 import eu.domibus.web.rest.ro.TestServiceMessageInfoRO;

@@ -1,9 +1,8 @@
 package eu.domibus.core.message;
 
-import eu.domibus.core.message.MessagingDao;
-import eu.domibus.ebms3.common.model.PartInfo;
-import eu.domibus.ebms3.common.model.SignalMessage;
-import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.api.model.PartInfo;
+import eu.domibus.api.model.SignalMessage;
+import eu.domibus.api.model.UserMessage;
 import mockit.*;
 import org.junit.Assert;
 import org.junit.Test;

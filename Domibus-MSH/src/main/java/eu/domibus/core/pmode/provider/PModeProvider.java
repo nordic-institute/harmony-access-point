@@ -1,6 +1,8 @@
 package eu.domibus.core.pmode.provider;
 
 import eu.domibus.api.cluster.SignalService;
+import eu.domibus.api.ebms3.MessageExchangePattern;
+import eu.domibus.api.model.*;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pmode.PModeArchiveInfo;
 import eu.domibus.api.pmode.PModeValidationException;
@@ -9,20 +11,19 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.xml.UnmarshallerResult;
 import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.ErrorCode;
-import eu.domibus.common.MSHRole;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.Service;
 import eu.domibus.common.model.configuration.*;
 import eu.domibus.core.crypto.spi.PullRequestPmodeData;
 import eu.domibus.core.crypto.spi.model.UserMessagePmodeData;
 import eu.domibus.core.ebms3.EbMS3Exception;
-import eu.domibus.core.ebms3.Ebms3Constants;
+import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.core.message.MessageExchangeConfiguration;
 import eu.domibus.core.message.pull.MpcService;
 import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.pmode.ConfigurationRawDAO;
 import eu.domibus.core.pmode.validation.PModeValidationService;
-import eu.domibus.ebms3.common.model.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -386,7 +387,7 @@ public abstract class PModeProvider {
 
     public abstract Mpc findMpc(final String mpcValue) throws EbMS3Exception;
 
-    public abstract String findServiceName(eu.domibus.ebms3.common.model.Service service) throws EbMS3Exception;
+    public abstract String findServiceName(eu.domibus.api.model.Service service) throws EbMS3Exception;
 
     public abstract String findPartyName(Collection<PartyId> partyId) throws EbMS3Exception;
 
@@ -395,7 +396,7 @@ public abstract class PModeProvider {
     public UserMessagePmodeData getUserMessagePmodeData(UserMessage userMessage) throws EbMS3Exception {
         final String actionValue = userMessage.getCollaborationInfo().getAction();
         final String actionName = findActionName(actionValue);
-        final eu.domibus.ebms3.common.model.Service service = userMessage.getCollaborationInfo().getService();
+        final eu.domibus.api.model.Service service = userMessage.getCollaborationInfo().getService();
         final String serviceName = findServiceName(service);
         final String partyName = findPartyName(userMessage.getPartyInfo().getFrom().getPartyId());
         return new UserMessagePmodeData(serviceName, actionName, partyName);

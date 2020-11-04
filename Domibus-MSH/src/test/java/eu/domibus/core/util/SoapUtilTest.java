@@ -1,8 +1,8 @@
 package eu.domibus.core.util;
 
+import eu.domibus.api.ebms3.model.ObjectFactory;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
-import eu.domibus.ebms3.common.model.ObjectFactory;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.*;

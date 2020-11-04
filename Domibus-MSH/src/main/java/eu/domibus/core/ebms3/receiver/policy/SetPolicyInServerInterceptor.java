@@ -1,9 +1,10 @@
 package eu.domibus.core.ebms3.receiver.policy;
 
 import eu.domibus.common.ErrorCode;
-import eu.domibus.common.MSHRole;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.Ebms3Converter;
 import eu.domibus.core.ebms3.receiver.interceptor.CheckEBMSHeaderInterceptor;
 import eu.domibus.core.ebms3.receiver.interceptor.SOAPMessageBuilderInterceptor;
 import eu.domibus.core.ebms3.receiver.leg.LegConfigurationExtractor;
@@ -11,7 +12,7 @@ import eu.domibus.core.ebms3.receiver.leg.ServerInMessageLegConfigurationFactory
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
 import eu.domibus.core.message.UserMessageHandlerService;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
-import eu.domibus.ebms3.common.model.Messaging;
+import eu.domibus.api.model.Messaging;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -41,18 +42,19 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SetPolicyInServerInterceptor.class);
 
     protected ServerInMessageLegConfigurationFactory serverInMessageLegConfigurationFactory;
-
     protected BackendNotificationService backendNotificationService;
-
     protected UserMessageHandlerService userMessageHandlerService;
+    protected Ebms3Converter ebms3Converter;
 
     public SetPolicyInServerInterceptor(ServerInMessageLegConfigurationFactory serverInMessageLegConfigurationFactory,
                                         BackendNotificationService backendNotificationService,
-                                        UserMessageHandlerService userMessageHandlerService
+                                        UserMessageHandlerService userMessageHandlerService,
+                                        Ebms3Converter ebms3Converter
                                         ) {
         this.serverInMessageLegConfigurationFactory = serverInMessageLegConfigurationFactory;
         this.backendNotificationService = backendNotificationService;
         this.userMessageHandlerService = userMessageHandlerService;
+        this.ebms3Converter = ebms3Converter;
     }
 
     @Override
@@ -79,7 +81,9 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
         LegConfiguration legConfiguration = null;
 
         try {
-            messaging = soapService.getMessage(message);
+            eu.domibus.api.ebms3.model.Messaging ebms3Messaging = soapService.getMessage(message);
+            messaging = ebms3Converter.convertFromEbms3(ebms3Messaging);
+
             message.put(DispatchClientDefaultProvider.MESSAGING_KEY_CONTEXT_PROPERTY, messaging);
 
             LegConfigurationExtractor legConfigurationExtractor = serverInMessageLegConfigurationFactory.extractMessageConfiguration(message, messaging);

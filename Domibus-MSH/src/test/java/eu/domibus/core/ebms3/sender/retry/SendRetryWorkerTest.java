@@ -4,7 +4,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.security.AuthUtils;
-import eu.domibus.core.util.DatabaseUtil;
+import eu.domibus.core.util.DatabaseUtilImpl;
 import mockit.Expectations;
 import mockit.FullVerifications;
 import mockit.Injectable;
@@ -46,7 +46,7 @@ public class SendRetryWorkerTest {
     DomainContextProvider domainContextProvider;
 
     @Injectable
-    DatabaseUtil databaseUtil;
+    DatabaseUtilImpl databaseUtil;
 
     @Test
     public void test_executeJob(final @Injectable JobExecutionContext jobExecutionContext,

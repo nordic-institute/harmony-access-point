@@ -5,7 +5,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.property.encryption.PasswordEncryptionService;
-import eu.domibus.core.payload.encryption.PayloadEncryptionService;
+import eu.domibus.api.payload.encryption.PayloadEncryptionService;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;

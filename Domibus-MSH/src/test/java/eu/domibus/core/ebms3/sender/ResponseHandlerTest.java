@@ -1,8 +1,10 @@
 package eu.domibus.core.ebms3.sender;
 
+import eu.domibus.api.ebms3.model.Messaging;
+import eu.domibus.api.ebms3.model.SignalMessage;
 import eu.domibus.api.exceptions.DomibusDateTimeException;
 import eu.domibus.common.ErrorCode;
-import eu.domibus.common.MSHRole;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.message.MessagingDao;
@@ -11,8 +13,6 @@ import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDefaultService;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.core.util.MessageUtil;
-import eu.domibus.ebms3.common.model.Messaging;
-import eu.domibus.ebms3.common.model.SignalMessage;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;

@@ -1,13 +1,13 @@
 package eu.domibus.core.util;
 
+import eu.domibus.api.ebms3.model.*;
+import eu.domibus.api.ebms3.model.Error;
+import eu.domibus.api.ebms3.model.mf.MessageFragmentType;
 import eu.domibus.api.exceptions.DomibusDateTimeException;
 import eu.domibus.api.messaging.MessagingException;
+import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.core.ebms3.EbMS3Exception;
-import eu.domibus.core.util.xml.XMLUtilImpl;
-import eu.domibus.ebms3.common.model.Error;
-import eu.domibus.ebms3.common.model.*;
-import eu.domibus.ebms3.common.model.mf.MessageFragmentType;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections.CollectionUtils;
@@ -92,14 +92,18 @@ public class MessageUtil {
 
     protected final SoapUtil soapUtil;
 
+    protected XMLUtil xmlUtil;
+
     public MessageUtil(@Qualifier("jaxbContextEBMS") JAXBContext jaxbContext,
                        @Qualifier("jaxbContextMessageFragment") JAXBContext jaxbContextMessageFragment,
                        DomibusDateFormatter domibusDateFormatter,
-                       SoapUtil soapUtil) {
+                       SoapUtil soapUtil,
+                       XMLUtil xmlUtil) {
         this.jaxbContext = jaxbContext;
         this.jaxbContextMessageFragment = jaxbContextMessageFragment;
         this.domibusDateFormatter = domibusDateFormatter;
         this.soapUtil = soapUtil;
+        this.xmlUtil = xmlUtil;
     }
 
     @SuppressWarnings("unchecked")
@@ -115,7 +119,7 @@ public class MessageUtil {
     /**
      * Extract the Messaging object using DOM API instead of JAXB
      *
-     * @throws SOAPException in the case of a Technical error while parsing the {@link SOAPMessage}
+     * @throws SOAPException  in the case of a Technical error while parsing the {@link SOAPMessage}
      * @throws EbMS3Exception in the case of a Business error while parsing the {@link SOAPMessage}
      */
     public Messaging getMessagingWithDom(final SOAPMessage soapMessage) throws SOAPException, EbMS3Exception {
@@ -138,11 +142,6 @@ public class MessageUtil {
 
             final UserMessage userMessage = createUserMessage(messagingNode);
             messaging.setUserMessage(userMessage);
-
-            final Map<QName, String> otherAttributes = getOtherAttributes(messagingNode);
-            if (otherAttributes != null) {
-                messaging.getOtherAttributes().putAll(otherAttributes);
-            }
 
             LOG.debug("Finished creating the Messaging instance from the SOAPMessage using DOM processing");
             return messaging;
@@ -273,7 +272,7 @@ public class MessageUtil {
         LOG.debug("Creating CollaborationInfo");
 
         CollaborationInfo result = new CollaborationInfo();
-        eu.domibus.ebms3.common.model.Service service = createService(collaborationInfoNode);
+        eu.domibus.api.ebms3.model.Service service = createService(collaborationInfoNode);
         result.setService(service);
 
         final String conversationId = getFirstChildValue(collaborationInfoNode, CONVERSATION_ID);
@@ -305,7 +304,7 @@ public class MessageUtil {
         return result;
     }
 
-    protected eu.domibus.ebms3.common.model.Service createService(Node collaborationInfoNode) {
+    protected eu.domibus.api.ebms3.model.Service createService(Node collaborationInfoNode) {
         final Node serviceNode = getFirstChild(collaborationInfoNode, SERVICE);
         if (serviceNode == null) {
             LOG.debug("Service is null");
@@ -316,7 +315,7 @@ public class MessageUtil {
         final String serviceType = getAttribute(serviceNode, "type");
         final String serviceValue = getTextContent(serviceNode);
 
-        eu.domibus.ebms3.common.model.Service result = new eu.domibus.ebms3.common.model.Service();
+        eu.domibus.api.ebms3.model.Service result = new eu.domibus.api.ebms3.model.Service();
         result.setValue(serviceValue);
         result.setType(serviceType);
         return result;
@@ -592,7 +591,7 @@ public class MessageUtil {
 
     protected String nodeToString(final Node node) throws TransformerException {
         final StringWriter sw = new StringWriter();
-        final Transformer t = XMLUtilImpl.getTransformerFactory().newTransformer();
+        final Transformer t = xmlUtil.getTransformerFactory().newTransformer();
         t.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
         t.transform(new DOMSource(node), new StreamResult(sw));
         return sw.toString();
@@ -659,7 +658,7 @@ public class MessageUtil {
     public MessageFragmentType getMessageFragment(final SOAPMessage request) {
         try {
             LOG.debug("Unmarshalling the MessageFragmentType instance from the request");
-            final Iterator iterator = request.getSOAPHeader().getChildElements(eu.domibus.ebms3.common.model.mf.ObjectFactory._MessageFragment_QNAME);
+            final Iterator iterator = request.getSOAPHeader().getChildElements(eu.domibus.api.ebms3.model.mf.ObjectFactory._MessageFragment_QNAME);
             if (!iterator.hasNext()) {
                 return null;
             }

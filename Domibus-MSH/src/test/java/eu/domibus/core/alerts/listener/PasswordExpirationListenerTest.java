@@ -5,7 +5,7 @@ import eu.domibus.core.alerts.dao.EventDao;
 import eu.domibus.core.alerts.model.service.Alert;
 import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.core.alerts.service.AlertService;
-import eu.domibus.core.util.DatabaseUtil;
+import eu.domibus.core.util.DatabaseUtilImpl;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -30,7 +30,7 @@ public class PasswordExpirationListenerTest {
     private EventDao eventDao;
 
     @Injectable
-    private DatabaseUtil databaseUtil;
+    private DatabaseUtilImpl databaseUtil;
 
     @Test
     public void testPasswordEvent() {

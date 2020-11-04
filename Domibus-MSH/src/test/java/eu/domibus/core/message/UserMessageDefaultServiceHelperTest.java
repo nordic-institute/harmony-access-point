@@ -1,12 +1,12 @@
 package eu.domibus.core.message;
 
-import eu.domibus.ebms3.common.model.MessageInfo;
-import eu.domibus.ebms3.common.model.MessageProperties;
-import eu.domibus.ebms3.common.model.PartyId;
-import eu.domibus.ebms3.common.model.PartyInfo;
-import eu.domibus.ebms3.common.model.Property;
-import eu.domibus.ebms3.common.model.To;
-import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.api.model.MessageInfo;
+import eu.domibus.api.model.MessageProperties;
+import eu.domibus.api.model.PartyId;
+import eu.domibus.api.model.PartyInfo;
+import eu.domibus.api.model.Property;
+import eu.domibus.api.model.To;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.messaging.MessageConstants;
 import mockit.Expectations;
 import mockit.Injectable;

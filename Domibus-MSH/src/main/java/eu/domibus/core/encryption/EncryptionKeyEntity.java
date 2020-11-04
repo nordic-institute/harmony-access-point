@@ -1,7 +1,7 @@
 
 package eu.domibus.core.encryption;
 
-import eu.domibus.ebms3.common.model.AbstractBaseEntity;
+import eu.domibus.api.model.AbstractBaseEntity;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;

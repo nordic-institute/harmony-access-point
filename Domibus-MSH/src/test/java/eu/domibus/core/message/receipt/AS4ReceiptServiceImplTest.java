@@ -1,10 +1,12 @@
 package eu.domibus.core.message.receipt;
 
+import eu.domibus.api.ebms3.model.ObjectFactory;
 import eu.domibus.api.message.MessageSubtype;
+import eu.domibus.api.model.*;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.ErrorCode;
-import eu.domibus.common.MSHRole;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.ReplyPattern;
@@ -32,7 +34,6 @@ import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.core.util.TimestampDateFormatter;
 import eu.domibus.core.util.xml.XMLUtilImpl;
-import eu.domibus.ebms3.common.model.*;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -146,7 +147,7 @@ public class AS4ReceiptServiceImplTest {
             soapRequestMessage.getSOAPPart();
             result = soapPart;
 
-            XMLUtilImpl.getMessageFactory();
+            xmlUtil.getMessageFactorySoap12();
             result = messageFactory;
 
             messageIdGenerator.generateMessageId();
@@ -210,7 +211,7 @@ public class AS4ReceiptServiceImplTest {
             messaging.getUserMessage();
             result = userMessage;
 
-            XMLUtilImpl.getMessageFactory();
+            xmlUtil.getMessageFactorySoap12();
             result = messageFactory;
 
             messageFactory.createMessage();

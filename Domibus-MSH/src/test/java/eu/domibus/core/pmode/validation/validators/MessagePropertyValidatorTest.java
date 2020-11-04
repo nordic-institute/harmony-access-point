@@ -1,10 +1,10 @@
 package eu.domibus.core.pmode.validation.validators;
 
-import eu.domibus.common.MSHRole;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.core.ebms3.EbMS3Exception;
-import eu.domibus.ebms3.common.model.MessageProperties;
-import eu.domibus.ebms3.common.model.Messaging;
-import eu.domibus.ebms3.common.model.Property;
+import eu.domibus.api.model.MessageProperties;
+import eu.domibus.api.model.Messaging;
+import eu.domibus.api.model.Property;
 import mockit.Expectations;
 import mockit.FullVerifications;
 import mockit.Mocked;

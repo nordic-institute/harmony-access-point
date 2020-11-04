@@ -3,7 +3,7 @@ package eu.domibus.core.replication;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.core.util.DatabaseUtil;
+import eu.domibus.core.util.DatabaseUtilImpl;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
@@ -33,7 +33,7 @@ public class UIReplicationJobTest {
     private DomainContextProvider domainContextProvider;
 
     @Injectable
-    private DatabaseUtil databaseUtil;
+    private DatabaseUtilImpl databaseUtil;
 
     @Test
     public void testExecuteJob_UIReplicationEnabled(final @Mocked JobExecutionContext jobExecutionContext, final @Mocked Domain domain) throws Exception {

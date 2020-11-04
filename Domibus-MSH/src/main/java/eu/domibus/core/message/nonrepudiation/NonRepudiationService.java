@@ -1,7 +1,7 @@
 package eu.domibus.core.message.nonrepudiation;
 
-import eu.domibus.ebms3.common.model.SignalMessage;
-import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.api.model.SignalMessage;
+import eu.domibus.api.model.UserMessage;
 
 import javax.xml.soap.SOAPMessage;
 
@@ -14,5 +14,5 @@ public interface NonRepudiationService {
 
     void saveRequest(SOAPMessage request, UserMessage userMessage);
 
-    void saveResponse(SOAPMessage response,SignalMessage signalMessage);
+    void saveResponse(SOAPMessage response, SignalMessage signalMessage);
 }

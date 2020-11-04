@@ -1,10 +1,10 @@
 package eu.domibus.core.message;
 
+import eu.domibus.api.ebms3.model.Messaging;
+import eu.domibus.api.ebms3.model.ObjectFactory;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.util.MessageUtil;
-import eu.domibus.ebms3.common.model.Messaging;
-import eu.domibus.ebms3.common.model.ObjectFactory;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.binding.soap.SoapMessage;

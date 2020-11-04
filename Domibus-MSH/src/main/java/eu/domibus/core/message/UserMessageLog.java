@@ -1,7 +1,7 @@
 package eu.domibus.core.message;
 
-import eu.domibus.ebms3.common.model.MessageInfo;
-import eu.domibus.ebms3.common.model.MessageType;
+import eu.domibus.api.model.MessageInfo;
+import eu.domibus.api.model.MessageType;
 import org.apache.commons.lang3.BooleanUtils;
 
 import javax.persistence.*;

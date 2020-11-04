@@ -1,14 +1,13 @@
 package eu.domibus.core.ebms3.receiver;
 
 import eu.domibus.common.ErrorCode;
-import eu.domibus.common.MSHRole;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.receiver.handler.IncomingMessageHandler;
 import eu.domibus.core.ebms3.receiver.handler.IncomingMessageHandlerFactory;
-import eu.domibus.core.ebms3.sender.AbstractUserMessageSender;
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
 import eu.domibus.core.util.MessageUtil;
-import eu.domibus.ebms3.common.model.Messaging;
+import eu.domibus.api.model.Messaging;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;

@@ -1,6 +1,6 @@
 package eu.domibus.core.ebms3.receiver;
 
-import eu.domibus.ebms3.common.model.*;
+import eu.domibus.api.model.*;
 import org.apache.cxf.staxutils.StaxUtils;
 import org.w3c.dom.Document;
 

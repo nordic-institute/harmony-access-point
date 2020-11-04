@@ -1,9 +1,10 @@
 package eu.domibus.core.message.nonrepudiation;
 
+import eu.domibus.api.model.RawEnvelopeLog;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.util.SoapUtil;
-import eu.domibus.ebms3.common.model.SignalMessage;
-import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.api.model.SignalMessage;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

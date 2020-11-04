@@ -5,7 +5,7 @@ import eu.domibus.core.ebms3.sender.ResponseHandler;
 import eu.domibus.core.message.MessageLog;
 import eu.domibus.core.message.UserMessageLog;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
-import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.api.model.UserMessage;
 
 public interface PullMessageService {
 

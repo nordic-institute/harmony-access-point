@@ -5,27 +5,28 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.jms.JMSManager;
+import eu.domibus.api.model.Service;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.ErrorCode;
-import eu.domibus.common.MSHRole;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.*;
 import eu.domibus.core.ebms3.EbMS3Exception;
-import eu.domibus.core.ebms3.Ebms3Constants;
+import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.message.MessageExchangeConfiguration;
 import eu.domibus.core.message.pull.MpcService;
 import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.pmode.*;
 import eu.domibus.core.pmode.validation.PModeValidationService;
-import eu.domibus.ebms3.common.model.AgreementRef;
-import eu.domibus.ebms3.common.model.MessageExchangePattern;
-import eu.domibus.ebms3.common.model.PartyId;
-import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.api.model.AgreementRef;
+import eu.domibus.api.ebms3.MessageExchangePattern;
+import eu.domibus.api.model.PartyId;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.test.util.PojoInstaciatorUtil;
@@ -1035,7 +1036,7 @@ public class CachingPModeProviderTest {
     }
 
     @Test
-    public void testfindServiceName(@Mocked eu.domibus.ebms3.common.model.Service service) throws JAXBException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    public void testfindServiceName(@Mocked Service service) throws JAXBException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         configuration = loadSamplePModeConfiguration(VALID_PMODE_CONFIG_URI);
         new Expectations(cachingPModeProvider) {{
             cachingPModeProvider.getConfiguration().getBusinessProcesses().getServices();

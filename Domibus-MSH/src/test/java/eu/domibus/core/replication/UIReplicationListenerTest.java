@@ -3,7 +3,7 @@ package eu.domibus.core.replication;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.core.plugin.notification.NotificationStatus;
-import eu.domibus.core.util.DatabaseUtil;
+import eu.domibus.core.util.DatabaseUtilImpl;
 import eu.domibus.messaging.MessageConstants;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -31,7 +31,7 @@ public class UIReplicationListenerTest {
     private UIReplicationSignalService uiReplicationSignalService;
 
     @Injectable
-    private DatabaseUtil databaseUtil;
+    private DatabaseUtilImpl databaseUtil;
 
     @Tested
     UIReplicationListener uiReplicationListener;

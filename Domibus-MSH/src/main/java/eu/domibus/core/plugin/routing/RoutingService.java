@@ -14,7 +14,7 @@ import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.core.plugin.notification.BackendPluginEnum;
 import eu.domibus.core.plugin.routing.dao.BackendFilterDao;
-import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.BackendConnector;

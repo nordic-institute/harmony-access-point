@@ -1,7 +1,8 @@
 package eu.domibus.plugin.webService;
 
+import eu.domibus.api.model.Messaging;
+import eu.domibus.core.ebms3.Ebms3Converter;
 import eu.domibus.core.util.MessageUtil;
-import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.core.ebms3.receiver.MSHWebservice;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
@@ -19,6 +20,8 @@ public class MSHWebserviceTest extends MSHWebservice {
     @Autowired
     MessageUtil messageUtil;
 
+    Ebms3Converter ebms3Converter;
+
     @Override
     protected Messaging getMessaging() {
         return messaging;
@@ -27,7 +30,8 @@ public class MSHWebserviceTest extends MSHWebservice {
     @Override
     public SOAPMessage invoke(SOAPMessage request) {
         try {
-            messaging = messageUtil.getMessaging(request);
+            eu.domibus.api.ebms3.model.Messaging ebms3Messaging = messageUtil.getMessaging(request);
+            messaging = ebms3Converter.convertFromEbms3(ebms3Messaging);
         } catch (Exception e) {
             throw new WebServiceException("Error getting Messaging");
         }

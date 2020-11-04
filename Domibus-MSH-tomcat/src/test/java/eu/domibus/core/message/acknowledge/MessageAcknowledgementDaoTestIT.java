@@ -1,7 +1,7 @@
 package eu.domibus.core.message.acknowledge;
 
 import eu.domibus.AbstractIT;
-import eu.domibus.common.MSHRole;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.core.message.MessageLogInfo;
 import eu.domibus.core.message.MessagingDao;
@@ -9,8 +9,8 @@ import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogBuilder;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.plugin.notification.NotificationStatus;
-import eu.domibus.ebms3.common.model.Messaging;
-import eu.domibus.ebms3.common.model.SignalMessage;
+import eu.domibus.api.model.Messaging;
+import eu.domibus.api.model.SignalMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.junit.Before;

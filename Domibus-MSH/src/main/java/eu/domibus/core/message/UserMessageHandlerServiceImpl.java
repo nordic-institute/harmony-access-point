@@ -1,15 +1,23 @@
 package eu.domibus.core.message;
 
+import eu.domibus.api.ebms3.model.mf.MessageFragmentType;
+import eu.domibus.api.ebms3.model.mf.MessageHeaderType;
+import eu.domibus.api.model.*;
+import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.splitandjoin.MessageFragmentEntity;
+import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
+import eu.domibus.api.model.splitandjoin.MessageHeaderEntity;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.usermessage.UserMessageService;
+import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.*;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.ebms3.EbMS3Exception;
-import eu.domibus.core.ebms3.Ebms3Constants;
+import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.core.message.compression.CompressionException;
 import eu.domibus.core.message.compression.CompressionService;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
@@ -29,9 +37,6 @@ import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.core.util.xml.XMLUtilImpl;
-import eu.domibus.ebms3.common.model.*;
-import eu.domibus.ebms3.common.model.mf.MessageFragmentType;
-import eu.domibus.ebms3.common.model.mf.MessageHeaderType;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
@@ -80,6 +85,9 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
 
     @Autowired
     protected SoapUtil soapUtil;
+
+    @Autowired
+    protected XMLUtil xmlUtil;
 
     @Autowired
     private PModeProvider pModeProvider;
@@ -610,7 +618,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
         final Source source = new DOMSource(bodyContent);
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
         final Result result = new StreamResult(out);
-        final Transformer transformer = XMLUtilImpl.getTransformerFactory().newTransformer();
+        final Transformer transformer = xmlUtil.getTransformerFactory().newTransformer();
         transformer.transform(source, result);
         return new DataHandler(new ByteArrayDataSource(out.toByteArray(), "text/xml"));
     }
@@ -628,7 +636,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     @Override
     public ErrorResult createErrorResult(EbMS3Exception ebm3Exception) {
         ErrorResultImpl result = new ErrorResultImpl();
-        result.setMshRole(MSHRole.RECEIVING);
+        result.setMshRole(eu.domibus.common.MSHRole.RECEIVING);
         result.setMessageInErrorId(ebm3Exception.getRefToMessageId());
         try {
             result.setErrorCode(ebm3Exception.getErrorCodeObject());

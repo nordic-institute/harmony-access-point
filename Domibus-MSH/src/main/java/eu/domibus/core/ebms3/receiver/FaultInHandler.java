@@ -1,7 +1,7 @@
 package eu.domibus.core.ebms3.receiver;
 
 import eu.domibus.common.ErrorCode;
-import eu.domibus.common.MSHRole;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.core.ebms3.ws.handler.AbstractFaultHandler;
@@ -10,7 +10,7 @@ import eu.domibus.core.error.ErrorService;
 import eu.domibus.core.message.UserMessageHandlerService;
 import eu.domibus.core.pmode.NoMatchingPModeFoundException;
 import eu.domibus.core.util.SoapUtil;
-import eu.domibus.ebms3.common.model.Messaging;
+import eu.domibus.api.model.Messaging;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;

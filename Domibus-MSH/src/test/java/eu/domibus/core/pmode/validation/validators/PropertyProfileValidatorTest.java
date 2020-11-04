@@ -10,11 +10,10 @@ import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.UserMessageDefaultServiceHelper;
 import eu.domibus.core.message.UserMessageServiceHelper;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.core.pmode.validation.validators.PropertyProfileValidator;
 import eu.domibus.core.property.DomibusPropertyProviderImpl;
 import eu.domibus.core.util.xml.XMLUtilImpl;
-import eu.domibus.ebms3.common.model.MessageProperties;
-import eu.domibus.ebms3.common.model.Messaging;
+import eu.domibus.api.model.MessageProperties;
+import eu.domibus.api.model.Messaging;
 import eu.domibus.messaging.MessageConstants;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -111,12 +110,12 @@ public class PropertyProfileValidatorTest {
     public void checkDuplicateMessagePropertiesTest(@Injectable Messaging messaging,
                                                     @Injectable MessageProperties messageProperties,
                                                     @Injectable Property profiledProperty,
-                                                    @Injectable eu.domibus.ebms3.common.model.Property messageProperty,
-                                                    @Injectable eu.domibus.ebms3.common.model.Property messageProperty1) throws EbMS3Exception, FileNotFoundException, XMLStreamException, JAXBException, ParserConfigurationException, SAXException {
+                                                    @Injectable eu.domibus.api.model.Property messageProperty,
+                                                    @Injectable eu.domibus.api.model.Property messageProperty1) throws EbMS3Exception, FileNotFoundException, XMLStreamException, JAXBException, ParserConfigurationException, SAXException {
         Set<Property> properties = new HashSet<>();
         final List<Property> modifiablePropertyList = new ArrayList<>();
         properties.add(createProperty(MessageConstants.ORIGINAL_SENDER, MessageConstants.ORIGINAL_SENDER, "String", true));
-        Set<eu.domibus.ebms3.common.model.Property> messagePropertiesSet = new HashSet<>();
+        Set<eu.domibus.api.model.Property> messagePropertiesSet = new HashSet<>();
         String duplicateMessageProperty = "originalSender";
         messagePropertiesSet.add(messageProperty);
         messagePropertiesSet.add(messageProperty1);

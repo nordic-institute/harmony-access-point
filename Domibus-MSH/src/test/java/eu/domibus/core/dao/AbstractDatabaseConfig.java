@@ -1,7 +1,7 @@
 package eu.domibus.core.dao;
 
 import eu.domibus.core.jpa.DomibusConnectionProvider;
-import eu.domibus.core.util.DatabaseUtil;
+import eu.domibus.core.util.DatabaseUtilImpl;
 import mockit.Deencapsulation;
 import org.hibernate.cfg.Environment;
 import org.hibernate.engine.jdbc.connections.spi.ConnectionProvider;
@@ -54,8 +54,8 @@ public abstract class AbstractDatabaseConfig {
     }
 
     @Bean
-    public DatabaseUtil databaseUtil() {
-        DatabaseUtil databaseUtil = new DatabaseUtil();
+    public DatabaseUtilImpl databaseUtil() {
+        DatabaseUtilImpl databaseUtil = new DatabaseUtilImpl();
         Deencapsulation.setField(databaseUtil, "dataSource", dataSource());
         databaseUtil.init();
         return databaseUtil;

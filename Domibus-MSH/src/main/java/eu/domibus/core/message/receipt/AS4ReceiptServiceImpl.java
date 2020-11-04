@@ -1,14 +1,17 @@
 package eu.domibus.core.message.receipt;
 
+import eu.domibus.api.ebms3.model.ObjectFactory;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.api.message.UserMessageException;
 import eu.domibus.api.usermessage.UserMessageService;
+import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.ErrorCode;
-import eu.domibus.common.MSHRole;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.model.configuration.ReplyPattern;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.Ebms3Converter;
 import eu.domibus.core.generator.id.MessageIdGenerator;
 import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.UserMessageHandlerService;
@@ -29,10 +32,9 @@ import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.core.util.TimestampDateFormatter;
 import eu.domibus.core.util.xml.XMLUtilImpl;
-import eu.domibus.ebms3.common.model.Messaging;
-import eu.domibus.ebms3.common.model.ObjectFactory;
-import eu.domibus.ebms3.common.model.SignalMessage;
-import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.api.model.Messaging;
+import eu.domibus.api.model.SignalMessage;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -82,6 +84,8 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
     private final MessagingDao messagingDao;
     protected final MessageUtil messageUtil;
     protected final SoapUtil soapUtil;
+    protected XMLUtil xmlUtil;
+    protected Ebms3Converter ebms3Converter;
 
     public AS4ReceiptServiceImpl(UIReplicationSignalService uiReplicationSignalService,
                                  UserMessageHandlerService userMessageHandlerService,
@@ -95,7 +99,9 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
                                  MessageGroupDao messageGroupDao,
                                  MessagingDao messagingDao,
                                  MessageUtil messageUtil,
-                                 SoapUtil soapUtil) {
+                                 SoapUtil soapUtil,
+                                 XMLUtil xmlUtil,
+                                 Ebms3Converter ebms3Converter) {
         this.uiReplicationSignalService = uiReplicationSignalService;
         this.userMessageHandlerService = userMessageHandlerService;
         this.timestampDateFormatter = timestampDateFormatter;
@@ -109,6 +115,8 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
         this.messagingDao = messagingDao;
         this.messageUtil = messageUtil;
         this.soapUtil = soapUtil;
+        this.xmlUtil = xmlUtil;
+        this.ebms3Converter = ebms3Converter;
     }
 
     @Override
@@ -144,7 +152,7 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
         if (ReplyPattern.RESPONSE.equals(replyPattern)) {
             LOG.debug("Generating receipt for incoming message");
             try {
-                responseMessage = XMLUtilImpl.getMessageFactory().createMessage();
+                responseMessage = xmlUtil.getMessageFactorySoap12().createMessage();
 
 
                 String messageId;
@@ -202,8 +210,8 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
     protected void saveResponse(final SOAPMessage responseMessage, boolean selfSendingFlag) throws EbMS3Exception, SOAPException {
         LOG.debug("Saving response, self sending  [{}]", selfSendingFlag);
 
-        Messaging messaging = messageUtil.getMessagingWithDom(responseMessage);
-        final SignalMessage signalMessage = messaging.getSignalMessage();
+        eu.domibus.api.ebms3.model.Messaging messaging = messageUtil.getMessagingWithDom(responseMessage);
+        final SignalMessage signalMessage = ebms3Converter.convertFromEbms3(messaging.getSignalMessage());
 
         if (selfSendingFlag) {
                 /*we add a defined suffix in order to assure DB integrity - messageId unicity

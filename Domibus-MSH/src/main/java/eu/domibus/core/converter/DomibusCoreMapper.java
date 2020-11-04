@@ -3,6 +3,7 @@ package eu.domibus.core.converter;
 import eu.domibus.api.audit.AuditLog;
 import eu.domibus.api.cluster.Command;
 import eu.domibus.api.message.attempt.MessageAttempt;
+import eu.domibus.api.model.*;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.party.Party;
 import eu.domibus.api.pmode.PModeArchiveInfo;
@@ -32,7 +33,6 @@ import eu.domibus.core.party.ProcessRo;
 import eu.domibus.core.replication.UIMessageDiffEntity;
 import eu.domibus.core.replication.UIMessageEntity;
 import eu.domibus.core.user.plugin.AuthenticationEntity;
-import eu.domibus.ebms3.common.model.*;
 import eu.domibus.ext.domain.*;
 import eu.domibus.core.plugin.routing.BackendFilterEntity;
 import eu.domibus.core.plugin.routing.RoutingCriteriaEntity;
@@ -40,7 +40,6 @@ import eu.domibus.web.rest.ro.*;
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.Mappings;
 
 /**
  * @author Ioana Dragusanu (idragusa)
@@ -137,7 +136,6 @@ public interface DomibusCoreMapper {
     @InheritInverseConfiguration
     PullRequestDTO pullRequestToPullRequestDTO(PullRequest pullRequest);
 
-    @Mapping(target = "otherAttributes", ignore = true)
     PullRequest pullRequestDTOToPullRequest(PullRequestDTO pullRequestDTO);
 
     @Mapping(target = "authenticationType", ignore = true)

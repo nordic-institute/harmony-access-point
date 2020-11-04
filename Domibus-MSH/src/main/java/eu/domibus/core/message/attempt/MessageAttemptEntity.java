@@ -1,7 +1,7 @@
 package eu.domibus.core.message.attempt;
 
 import eu.domibus.api.message.attempt.MessageAttemptStatus;
-import eu.domibus.ebms3.common.model.AbstractBaseEntity;
+import eu.domibus.api.model.AbstractBaseEntity;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 

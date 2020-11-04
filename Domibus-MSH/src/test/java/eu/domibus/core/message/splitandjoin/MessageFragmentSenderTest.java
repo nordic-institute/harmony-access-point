@@ -1,6 +1,7 @@
 package eu.domibus.core.message.splitandjoin;
 
 import eu.domibus.api.message.attempt.MessageAttemptService;
+import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
 import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.core.ebms3.sender.ResponseHandler;
 import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
@@ -11,7 +12,7 @@ import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
 import eu.domibus.core.message.reliability.ReliabilityService;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.api.model.UserMessage;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;

@@ -1,30 +1,28 @@
 package eu.domibus.core.ebms3.sender;
 
+import eu.domibus.api.ebms3.model.ObjectFactory;
+import eu.domibus.api.model.*;
+import eu.domibus.api.model.Error;
+import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.ErrorCode;
-import eu.domibus.common.MSHRole;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.Ebms3Converter;
 import eu.domibus.core.ebms3.sender.exception.SendMessageException;
 import eu.domibus.core.generator.id.MessageIdGenerator;
 import eu.domibus.core.message.UserMessageFactory;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationConstants;
-import eu.domibus.core.message.splitandjoin.MessageGroupEntity;
-import eu.domibus.core.message.splitandjoin.MessageHeaderEntity;
+import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
+import eu.domibus.api.model.splitandjoin.MessageHeaderEntity;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.core.util.xml.XMLUtilImpl;
-import eu.domibus.ebms3.common.model.Error;
-import eu.domibus.ebms3.common.model.*;
-import eu.domibus.ebms3.common.model.mf.MessageFragmentType;
-import eu.domibus.ebms3.common.model.mf.MessageHeaderType;
-import eu.domibus.ebms3.common.model.mf.TypeType;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
@@ -73,6 +71,11 @@ public class EbMS3MessageBuilder {
 
     @Autowired
     protected SoapUtil soapUtil;
+
+    @Autowired
+    protected XMLUtil xmlUtil;
+
+    protected Ebms3Converter ebms3Converter;
 
     public SOAPMessage buildSOAPMessage(final SignalMessage signalMessage, final LegConfiguration leg) throws EbMS3Exception {
         return buildSOAPMessage(signalMessage);
@@ -123,8 +126,8 @@ public class EbMS3MessageBuilder {
     protected SOAPMessage buildSOAPUserMessage(final UserMessage userMessage, MessageGroupEntity messageGroupEntity) throws EbMS3Exception {
         final SOAPMessage message;
         try {
-            message = XMLUtilImpl.getMessageFactory().createMessage();
-            final Messaging messaging = this.ebMS3Of.createMessaging();
+            message = xmlUtil.getMessageFactorySoap12().createMessage();
+            final eu.domibus.api.ebms3.model.Messaging messaging = this.ebMS3Of.createMessaging();
 
             message.getSOAPBody().setAttributeNS(NonRepudiationConstants.ID_NAMESPACE_URI, NonRepudiationConstants.ID_QUALIFIED_NAME, NonRepudiationConstants.URI_WSU_NS);
 
@@ -138,16 +141,19 @@ public class EbMS3MessageBuilder {
                 this.attachPayload(partInfo, message);
             }
             if (messageGroupEntity != null) {
-                final MessageFragmentType messageFragment = createMessageFragment(userMessage, messageGroupEntity);
+                final eu.domibus.api.ebms3.model.mf.MessageFragmentType messageFragment = createMessageFragment(userMessage, messageGroupEntity);
                 jaxbContextMessageFragment.createMarshaller().marshal(messageFragment, message.getSOAPHeader());
 
-                final SOAPElement messageFragmentElement = (SOAPElement) message.getSOAPHeader().getChildElements(eu.domibus.ebms3.common.model.mf.ObjectFactory._MessageFragment_QNAME).next();
+                final SOAPElement messageFragmentElement = (SOAPElement) message.getSOAPHeader().getChildElements(eu.domibus.api.ebms3.model.mf.ObjectFactory._MessageFragment_QNAME).next();
                 messageFragmentElement.setAttributeNS(NonRepudiationConstants.ID_NAMESPACE_URI, NonRepudiationConstants.ID_QUALIFIED_NAME, NonRepudiationConstants.URI_WSU_NS);
                 messageFragmentElement.addAttribute(NonRepudiationConstants.ID_QNAME, ID_PREFIX_MESSAGE_FRAGMENT + messageIDDigest);
 
-                messaging.setUserMessage(userMessageFactory.cloneUserMessageFragment(userMessage));
+                UserMessage cloneUserMessageFragment = userMessageFactory.cloneUserMessageFragment(userMessage);
+                eu.domibus.api.ebms3.model.UserMessage ebms3UserMessageFragment = ebms3Converter.convertToEbms3(cloneUserMessageFragment);
+                messaging.setUserMessage(ebms3UserMessageFragment);
             } else {
-                messaging.setUserMessage(userMessage);
+                eu.domibus.api.ebms3.model.UserMessage ebms3UserMessageFragment = ebms3Converter.convertToEbms3(userMessage);
+                messaging.setUserMessage(ebms3UserMessageFragment);
             }
 
             this.jaxbContext.createMarshaller().marshal(messaging, message.getSOAPHeader());
@@ -169,8 +175,8 @@ public class EbMS3MessageBuilder {
     protected SOAPMessage buildSOAPMessage(final SignalMessage signalMessage) {
         final SOAPMessage message;
         try {
-            message = XMLUtilImpl.getMessageFactory().createMessage();
-            final Messaging messaging = this.ebMS3Of.createMessaging();
+            message = xmlUtil.getMessageFactorySoap12().createMessage();
+            final eu.domibus.api.ebms3.model.Messaging messaging = this.ebMS3Of.createMessaging();
 
             if (signalMessage != null) {
                 if (signalMessage.getMessageInfo() == null) {
@@ -185,7 +191,8 @@ public class EbMS3MessageBuilder {
                         && signalMessage.getError().iterator().hasNext()) {
                     signalMessage.getMessageInfo().setRefToMessageId(signalMessage.getError().iterator().next().getRefToMessageInError());
                 }
-                messaging.setSignalMessage(signalMessage);
+                eu.domibus.api.ebms3.model.SignalMessage ebms3SignalMessage = ebms3Converter.convertToEbms3(signalMessage);
+                messaging.setSignalMessage(ebms3SignalMessage);
             }
             this.jaxbContext.createMarshaller().marshal(messaging, message.getSOAPHeader());
             message.saveChanges();
@@ -208,7 +215,7 @@ public class EbMS3MessageBuilder {
         }
         final DataHandler dataHandler = partInfo.getPayloadDatahandler();
         if (partInfo.isInBody() && mimeType != null && mimeType.toLowerCase().contains("xml")) { //TODO: respect empty soap body config
-            final DocumentBuilderFactory documentBuilderFactory = XMLUtilImpl.getDocumentBuilderFactoryNamespaceAware();
+            final DocumentBuilderFactory documentBuilderFactory = xmlUtil.getDocumentBuilderFactoryNamespaceAware();
             final DocumentBuilder builder = documentBuilderFactory.newDocumentBuilder();
             message.getSOAPBody().addDocument(builder.parse(dataHandler.getInputStream()));
             partInfo.setHref(null);
@@ -235,8 +242,8 @@ public class EbMS3MessageBuilder {
         this.jaxbContext = jaxbContext;
     }
 
-    protected MessageFragmentType createMessageFragment(UserMessage userMessageFragment, MessageGroupEntity messageGroupEntity) {
-        MessageFragmentType result = new MessageFragmentType();
+    protected eu.domibus.api.ebms3.model.mf.MessageFragmentType createMessageFragment(UserMessage userMessageFragment, MessageGroupEntity messageGroupEntity) {
+        eu.domibus.api.ebms3.model.mf.MessageFragmentType result = new eu.domibus.api.ebms3.model.mf.MessageFragmentType();
 
         result.setAction(messageGroupEntity.getSoapAction());
 
@@ -261,12 +268,12 @@ public class EbMS3MessageBuilder {
         return result;
     }
 
-    protected MessageHeaderType createMessageHeaderType(MessageHeaderEntity messageHeaderEntity) {
-        MessageHeaderType messageHeader = new MessageHeaderType();
+    protected eu.domibus.api.ebms3.model.mf.MessageHeaderType createMessageHeaderType(MessageHeaderEntity messageHeaderEntity) {
+        eu.domibus.api.ebms3.model.mf.MessageHeaderType messageHeader = new eu.domibus.api.ebms3.model.mf.MessageHeaderType();
         messageHeader.setBoundary(messageHeaderEntity.getBoundary());
         messageHeader.setStart(messageHeaderEntity.getStart());
         messageHeader.setContentType("Multipart/Related");
-        messageHeader.setType(TypeType.TEXT_XML);
+        messageHeader.setType(eu.domibus.api.ebms3.model.mf.TypeType.TEXT_XML);
         return messageHeader;
     }
 }

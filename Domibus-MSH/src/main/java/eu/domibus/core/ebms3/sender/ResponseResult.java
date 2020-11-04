@@ -1,6 +1,6 @@
 package eu.domibus.core.ebms3.sender;
 
-import eu.domibus.ebms3.common.model.Messaging;
+import eu.domibus.api.ebms3.model.Messaging;
 
 /**
  * This class holds the result of the {@link eu.domibus.core.ebms3.sender.ResponseHandler} check

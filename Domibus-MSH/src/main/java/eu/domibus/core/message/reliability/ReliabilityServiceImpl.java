@@ -3,6 +3,7 @@ package eu.domibus.core.message.reliability;
 import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
+import eu.domibus.core.ebms3.Ebms3Converter;
 import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.common.model.configuration.LegConfiguration;
@@ -11,9 +12,9 @@ import eu.domibus.core.message.UserMessageLogDefaultService;
 import eu.domibus.core.message.retention.MessageRetentionService;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
 import eu.domibus.core.message.UserMessageHandlerService;
-import eu.domibus.ebms3.common.model.Messaging;
+import eu.domibus.api.model.Messaging;
 import eu.domibus.core.replication.UIReplicationSignalService;
-import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.ebms3.sender.ResponseHandler;
 import eu.domibus.core.ebms3.sender.ResponseResult;
@@ -74,6 +75,8 @@ public class ReliabilityServiceImpl implements ReliabilityService {
 
     @Autowired
     MessageRetentionService messageRetentionService;
+
+
 
     /**
      * {@inheritDoc}

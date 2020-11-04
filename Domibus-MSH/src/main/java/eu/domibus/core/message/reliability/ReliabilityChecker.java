@@ -1,8 +1,13 @@
 package eu.domibus.core.message.reliability;
 
+import eu.domibus.api.ebms3.model.Messaging;
+import eu.domibus.api.ebms3.model.ObjectFactory;
+import eu.domibus.api.ebms3.model.SignalMessage;
+import eu.domibus.api.ebms3.model.UserMessage;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.ErrorCode;
-import eu.domibus.common.MSHRole;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Reliability;
 import eu.domibus.core.ebms3.EbMS3Exception;
@@ -13,11 +18,6 @@ import eu.domibus.core.message.nonrepudiation.NonRepudiationChecker;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationConstants;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.util.SoapUtil;
-import eu.domibus.core.util.xml.XMLUtilImpl;
-import eu.domibus.ebms3.common.model.Messaging;
-import eu.domibus.ebms3.common.model.ObjectFactory;
-import eu.domibus.ebms3.common.model.SignalMessage;
-import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -75,6 +75,9 @@ public class ReliabilityChecker {
 
     @Autowired
     protected SoapUtil soapUtil;
+
+    @Autowired
+    protected XMLUtil xmlUtil;
 
     @Transactional(rollbackFor = EbMS3Exception.class)
     public CheckResult check(final SOAPMessage request, final SOAPMessage response, final ResponseResult responseResult, final Reliability reliability) throws EbMS3Exception {
@@ -226,7 +229,7 @@ public class ReliabilityChecker {
             return null;
         }
         try (StringWriter stringWriter = new StringWriter()) {
-            Transformer transformer = XMLUtilImpl.getTransformerFactory().newTransformer();
+            Transformer transformer = xmlUtil.getTransformerFactory().newTransformer();
             transformer.transform(new DOMSource(soapMessage.getSOAPPart()), new StreamResult(stringWriter));
             return stringWriter.toString();
         } catch (IOException | TransformerException e) {

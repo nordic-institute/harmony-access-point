@@ -8,7 +8,7 @@ import eu.domibus.core.message.SoapService;
 import eu.domibus.core.message.UserMessageHandlerService;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.property.DomibusVersionService;
-import eu.domibus.ebms3.common.model.Messaging;
+import eu.domibus.api.model.Messaging;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;

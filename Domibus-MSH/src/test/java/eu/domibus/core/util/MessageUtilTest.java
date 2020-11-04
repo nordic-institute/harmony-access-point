@@ -1,12 +1,13 @@
 package eu.domibus.core.util;
 
+import eu.domibus.api.ebms3.model.ObjectFactory;
+import eu.domibus.api.ebms3.model.mf.MessageFragmentType;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.messaging.MessagingException;
+import eu.domibus.api.model.*;
+import eu.domibus.api.model.Error;
 import eu.domibus.core.ebms3.EbMS3Exception;
-import eu.domibus.ebms3.common.model.Error;
-import eu.domibus.ebms3.common.model.*;
-import eu.domibus.ebms3.common.model.mf.MessageFragmentType;
 import mockit.Expectations;
 import mockit.FullVerifications;
 import mockit.Injectable;
@@ -295,7 +296,7 @@ public class MessageUtilTest {
     @Test
     public void createCollaborationInfo(@Injectable Node collaborationInfoNode,
                                         @Injectable Node userMessageNode,
-                                        @Injectable eu.domibus.ebms3.common.model.Service service,
+                                        @Injectable Service service,
                                         @Injectable CollaborationInfo collaborationInfo,
                                         @Injectable AgreementRef agreement) {
         final String CONVERSATION_ID = "ConversationId";
@@ -356,7 +357,7 @@ public class MessageUtilTest {
     @Test
     public void createService(@Injectable Node collaborationInfoNode,
                               @Injectable Node serviceNode,
-                              @Injectable eu.domibus.ebms3.common.model.Service service) {
+                              @Injectable Service service) {
         new Expectations(messageUtil) {{
             messageUtil.getFirstChild(collaborationInfoNode, "Service");
             result = serviceNode;

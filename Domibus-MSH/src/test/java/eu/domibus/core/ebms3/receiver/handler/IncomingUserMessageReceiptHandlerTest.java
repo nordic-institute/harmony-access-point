@@ -2,7 +2,7 @@ package eu.domibus.core.ebms3.receiver.handler;
 
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.common.ErrorCode;
-import eu.domibus.common.MSHRole;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Reliability;
@@ -31,8 +31,8 @@ import eu.domibus.core.pmode.validation.validators.PropertyProfileValidator;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.core.util.TimestampDateFormatter;
-import eu.domibus.ebms3.common.model.Messaging;
-import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.api.model.Messaging;
+import eu.domibus.api.model.UserMessage;
 import mockit.*;
 import org.junit.Test;
 

@@ -1,7 +1,7 @@
 package eu.domibus.core.ebms3.sender.interceptor;
 
 import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
-import eu.domibus.core.spring.SpringContextProvider;
+import eu.domibus.api.spring.SpringContextProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.Mocked;
