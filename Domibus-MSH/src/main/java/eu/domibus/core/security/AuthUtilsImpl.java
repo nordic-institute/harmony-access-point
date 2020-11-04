@@ -5,6 +5,8 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.security.AuthenticationException;
+import eu.domibus.api.security.functions.AuthenticatedFunction;
+import eu.domibus.api.security.functions.AuthenticatedProcedure;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -160,4 +162,53 @@ public class AuthUtilsImpl implements AuthUtils {
         return isAdmin();
     }
 
+    @Override
+    public void runWithSecurityContext(AuthenticatedProcedure runnable, String user, String password) {
+        runWithSecurityContext(runnable, user, password, AuthRole.ROLE_ADMIN);
+    }
+
+    @Override
+    public void runWithSecurityContext(AuthenticatedProcedure method, String user, String password, AuthRole authRole) {
+        runWithSecurityContext(method, user, password, authRole, false);
+    }
+
+    @Override
+    public void runWithSecurityContext(AuthenticatedProcedure method, String user, String password, AuthRole authRole, boolean forceSecurityContext) {
+        if (isUnsecureLoginAllowed() && !forceSecurityContext) {
+            LOG.debug("Run method without spring security context.");
+            method.invoke();
+            return;
+        }
+        try {
+            setAuthenticationToSecurityContext(user, password, authRole);
+            method.invoke();
+        } finally {
+            clearSecurityContext();
+        }
+    }
+
+    @Override
+    public <R> R runFunctionWithSecurityContext(AuthenticatedFunction function, String user, String password, AuthRole authRole) {
+        return runFunctionWithSecurityContext(function, user, password, authRole, false);
+    }
+
+    @Override
+    public <R> R runFunctionWithSecurityContext(AuthenticatedFunction function, String user, String password, AuthRole authRole, boolean forceSecurityContext) {
+        if (isUnsecureLoginAllowed() && !forceSecurityContext) {
+            LOG.debug("Unsecure login is allowed: not Spring security is set before executing the method.");
+            return (R) function.invoke();
+        }
+
+        try {
+            setAuthenticationToSecurityContext(user, password, authRole);
+            return (R) function.invoke();
+        } finally {
+            clearSecurityContext();
+        }
+    }
+
+    @Override
+    public void clearSecurityContext() {
+        SecurityContextHolder.clearContext();
+    }
 }

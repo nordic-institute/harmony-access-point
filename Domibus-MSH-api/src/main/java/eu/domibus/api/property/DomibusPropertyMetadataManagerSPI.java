@@ -9,7 +9,6 @@ import java.util.Map;
  * @since 4.1.1
  */
 public interface DomibusPropertyMetadataManagerSPI {
-
     /**
      * Get all the properties metadata that support changing at runtime
      *
@@ -114,8 +113,8 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_DOWNLOADED_MAX_DELETE = "domibus.retentionWorker.message.retention.downloaded.max.delete";
     String DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_NOT_DOWNLOADED_MAX_DELETE = "domibus.retentionWorker.message.retention.not_downloaded.max.delete";
     String DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_SENT_MAX_DELETE = "domibus.retentionWorker.message.retention.sent.max.delete";
+    String DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_PAYLOAD_DELETED_MAX_DELETE = "domibus.retentionWorker.message.retention.payload_deleted.max.delete";
     String DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_BATCH_DELETE = "domibus.retentionWorker.message.retention.batch.delete";
-    String DOMIBUS_RETENTION_WORKER_MESSAGE_ID_LIST_SEPARATOR = "domibus.retentionWorker.message.id.list.separator";
     String DOMIBUS_RETENTION_JMS_CONCURRENCY = "domibus.retention.jms.concurrency";
     String DOMIBUS_DISPATCH_EBMS_ERROR_UNRECOVERABLE_RETRY = "domibus.dispatch.ebms.error.unrecoverable.retry";
     String DOMIBUS_PROXY_ENABLED = DOMIBUS_PROXY_PREFIX + "enabled";
@@ -327,5 +326,6 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_METRICS_MONITOR_JMS_QUEUES_SHOW_DLQ_ONLY = "domibus.metrics.monitor.jms.queues.show.dlq.only";
     String DOMIBUS_SCHEMAFACTORY = "domibus.javax.xml.validation.SchemaFactory";
     String DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES = "domibus.ui.resend.action.enabled.received.minutes";
+    String DOMIBUS_DISPATCHER_TIMEOUT = "domibus.dispatcher.timeout";
 
 }

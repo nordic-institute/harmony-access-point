@@ -4,6 +4,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.property.PluginPropertyChangeListener;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import javax.xml.ws.Endpoint;
@@ -22,9 +23,9 @@ public class MtomEnabledChangeListener implements PluginPropertyChangeListener {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MtomEnabledChangeListener.class);
 
-    private Endpoint backendInterfaceEndpoint;
+    private final Endpoint backendInterfaceEndpoint;
 
-    public MtomEnabledChangeListener(Endpoint backendInterfaceEndpoint) {
+    public MtomEnabledChangeListener(@Qualifier("backendInterfaceEndpoint") Endpoint backendInterfaceEndpoint) {
         this.backendInterfaceEndpoint = backendInterfaceEndpoint;
     }
 

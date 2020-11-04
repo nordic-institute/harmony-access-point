@@ -230,7 +230,8 @@ public class CsvServiceImplTest {
 
         String s = csvServiceImpl.serializeFieldValue(declaredField, o);
 
-        Assert.assertEquals("2020-01-01 12:59:00GMT+0100", s);
+        String timeOffset = ZonedDateTime.now().getOffset().toString().replace(":", "");
+        Assert.assertEquals("2020-01-01 12:59:00GMT" + timeOffset, s);
 
         new FullVerifications() {
         };
@@ -247,7 +248,8 @@ public class CsvServiceImplTest {
 
         String s = csvServiceImpl.serializeFieldValue(declaredField, o);
 
-        Assert.assertEquals("2020-01-01 12:59:00GMT+0100", s);
+        String timeOffset = ZonedDateTime.now().getOffset().toString().replace(":", "");
+        Assert.assertEquals("2020-01-01 12:59:00GMT" + timeOffset, s);
 
         new FullVerifications() {
         };
