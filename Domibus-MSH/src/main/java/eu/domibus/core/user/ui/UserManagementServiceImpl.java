@@ -16,6 +16,7 @@ import eu.domibus.core.user.ui.security.ConsoleUserSecurityPolicyManager;
 import eu.domibus.core.user.ui.security.password.ConsoleUserPasswordHistoryDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -23,7 +24,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 
 /**
@@ -72,6 +75,14 @@ public class UserManagementServiceImpl implements UserService {
 
     @Autowired
     protected AuthUtils authUtils;
+
+    @Autowired
+    private UserFilteringDao listDao;
+
+    private static final String ALL_USERS = "all";
+    private static final String USER_NAME = "userName";
+    private static final String USER_ROLE = "userRole";
+    private static final String DELETED_USER = "deleted";
 
     /**
      * {@inheritDoc}
@@ -225,4 +236,62 @@ public class UserManagementServiceImpl implements UserService {
         }
     }
 
+    /**
+     * Search users based on the following criteria's.
+     *
+     * @param authRole criteria to search the role of user (ROLE_ADMIN or ROLE_USER)
+     * @param userName criteria to search by userName
+     * @param page     pagination start
+     * @param pageSize page size.
+     */
+    @Override
+    public List<eu.domibus.api.user.User> findUsersWithFilters(AuthRole authRole, String userName, String deleted, int page, int pageSize) {
+        return findUsersWithFilters(authRole, userName, deleted, page, pageSize, this::getDomainForUser);
+    }
+
+
+    protected List<eu.domibus.api.user.User> findUsersWithFilters(AuthRole authRole, String userName, String deleted, int page, int pageSize, Function<eu.domibus.api.user.User, String> getDomainForUserFn) {
+
+        LOG.debug("Retrieving console users");
+        Map<String, Object> filters = createFilterMap(userName, deleted, authRole);
+        List<User> users = listDao.findPaged(page * pageSize, pageSize, "entityId", true, filters);
+        List<eu.domibus.api.user.User> finalUsers = prepareUsers(getDomainForUserFn, users);
+        return finalUsers;
+    }
+
+
+    @Override
+    public long countUsers(AuthRole authRole, String userName, String deleted) {
+        Map<String, Object> filters = createFilterMap(userName, deleted, authRole);
+        return listDao.countEntries(filters);
+    }
+
+    protected Map<String, Object> createFilterMap(String userName, String deleted, AuthRole authRole) {
+        HashMap<String, Object> filters = new HashMap<>();
+        addUserNameFilter(userName, filters);
+        addDeletedUserFilter(deleted, filters);
+        addUserRoleFilter(authRole, filters);
+        LOG.debug("Added users filters: [{}]", filters);
+        return filters;
+    }
+
+    protected void addUserRoleFilter(AuthRole authRole, HashMap<String, Object> filters) {
+        if (authRole != null) {
+            filters.put(USER_ROLE, authRole.name());
+        }
+    }
+
+    protected void addUserNameFilter(String userName, HashMap<String, Object> filters) {
+        if (userName != null) {
+            filters.put(USER_NAME, userName);
+        }
+    }
+
+    protected void addDeletedUserFilter(String deleted, HashMap<String, Object> filters) {
+        if (StringUtils.equals(deleted, ALL_USERS)) {
+            filters.put(DELETED_USER, null);
+        } else {
+            filters.put(DELETED_USER, Boolean.parseBoolean(deleted));
+        }
+    }
 }
