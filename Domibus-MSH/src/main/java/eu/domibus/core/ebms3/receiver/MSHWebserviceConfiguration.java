@@ -24,6 +24,7 @@ import org.springframework.context.annotation.Configuration;
 
 import javax.xml.ws.Endpoint;
 import java.util.*;
+import java.util.concurrent.Executor;
 
 /**
  * @author Cosmin Baciu
@@ -39,6 +40,7 @@ public class MSHWebserviceConfiguration {
                         MSHWebservice mshWebservice,
                         @Qualifier("loggingFeature") LoggingFeature loggingFeature,
                         @Qualifier("ehCacheTokenStore") EHCacheTokenStore ehCacheTokenStore,
+                        @Qualifier("mshTaskExecutor") Executor executor,
                         SimpleKeystorePasswordCallback simpleKeystorePasswordCallback,
                         Wss4JMultiDomainCryptoProvider wss4JMultiDomainCryptoProvider,
                         DomibusReadyInterceptor domibusReadyInterceptor,
@@ -61,6 +63,8 @@ public class MSHWebserviceConfiguration {
         endpoint.setOutFaultInterceptors(Arrays.asList(setCodeValueFaultOutInterceptor, clearMDCInterceptor));
         endpoint.setFeatures(Arrays.asList(loggingFeature));
         endpoint.setHandlers(Arrays.asList(faultInHandler));
+        LOG.info("Configuring MSH task executor on /msh endpoint.");
+        endpoint.setExecutor(executor);
 
         endpoint.publish("/msh");
         return endpoint;

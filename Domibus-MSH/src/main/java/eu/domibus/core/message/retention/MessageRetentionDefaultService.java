@@ -10,6 +10,8 @@ import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.UserMessageLog;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.UserMessageLogDto;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
@@ -72,6 +74,8 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
      * {@inheritDoc}
      */
     @Override
+    @Timer(clazz = MessageRetentionDefaultService.class,value = "schedule_deleteExpiredMessages")
+    @Counter(clazz = MessageRetentionDefaultService.class,value = "schedule_deleteExpiredMessages")
     public void deleteExpiredMessages() {
         final List<String> mpcs = pModeProvider.getMpcURIList();
         final Integer expiredDownloadedMessagesLimit = getRetentionValue(DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_DOWNLOADED_MAX_DELETE);
