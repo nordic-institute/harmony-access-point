@@ -122,8 +122,7 @@ public class UserManagementServiceImpl implements UserService {
      * {@inheritDoc}
      */
     @Override
-    @Transactional
-    public UserLoginErrorReason handleWrongAuthentication(final String userName) {
+    public synchronized UserLoginErrorReason handleWrongAuthentication(final String userName) {
         // there is no security context when the user failed to login -> we're creating one
         return authUtils.runFunctionWithSecurityContext(() -> userPasswordManager.handleWrongAuthentication(userName),
                 "domibus", "domibus", AuthRole.ROLE_ADMIN, true);

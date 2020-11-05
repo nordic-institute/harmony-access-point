@@ -32,7 +32,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,7 +40,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * @author Cosmin Baciu, Catalin Enache
@@ -96,8 +94,7 @@ public class AuthenticationResource {
         return errorHandlerService.createResponse(ex, HttpStatus.FORBIDDEN);
     }
 
-    @RequestMapping(value = "authentication", method = RequestMethod.POST)
-    @Transactional(noRollbackFor = BadCredentialsException.class)
+    @PostMapping(value = "authentication")
     public UserRO authenticate(@RequestBody @Valid LoginRO loginRO, HttpServletResponse response, HttpServletRequest request) {
 
         String domainCode = userDomainService.getDomainForUser(loginRO.getUsername());
