@@ -28,6 +28,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 
 /**
  * @author Cosmin Baciu
+ * @author Ion Perpegel
  * @since 3.3
  */
 @Service
@@ -183,7 +184,6 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
 
         return userMessage;
     }
-
 
     protected boolean isNonRepudiationAuditDisabled() {
         return !domibusPropertyProvider.getBooleanProperty(DOMIBUS_NONREPUDIATION_AUDIT_ACTIVE);

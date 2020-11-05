@@ -100,7 +100,7 @@ public class MessageResource {
         return getByteArrayResourceResponseEntity(messageId);
     }
 
-    private ResponseEntity<ByteArrayResource> getByteArrayResourceResponseEntity(@PathVariable("messageId") String messageId) {
+    protected ResponseEntity<ByteArrayResource> getByteArrayResourceResponseEntity(String messageId) {
         byte[] zip = userMessageService.getMessageEnvelopesAsZip(messageId);
 
         if (ArrayUtils.isEmpty(zip)) {
