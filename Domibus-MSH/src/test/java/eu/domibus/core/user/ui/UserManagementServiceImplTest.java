@@ -6,6 +6,8 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthRole;
+import eu.domibus.api.security.AuthUtils;
+import eu.domibus.api.security.functions.AuthenticatedFunction;
 import eu.domibus.api.user.UserManagementException;
 import eu.domibus.core.alerts.service.ConsoleUserAlertsServiceImpl;
 import eu.domibus.core.user.UserPersistenceService;
@@ -19,10 +21,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.function.Function;
 
 /**
@@ -67,6 +66,12 @@ public class UserManagementServiceImplTest {
 
     @Injectable
     ConsoleUserAlertsServiceImpl consoleUserAlertsService;
+
+    @Injectable
+    protected AuthUtils authUtils;
+
+    @Injectable
+    UserFilteringDao userFilteringDao;
 
     @Test
     public void findUsersTest() {
@@ -114,7 +119,7 @@ public class UserManagementServiceImplTest {
         String userName = "user1";
         userManagementService.handleWrongAuthentication(userName);
         new Verifications() {{
-            userPasswordManager.handleWrongAuthentication(userName);
+            authUtils.runFunctionWithSecurityContext((AuthenticatedFunction) any, "domibus", "domibus", AuthRole.ROLE_ADMIN, true);
             times = 1;
         }};
     }
@@ -263,7 +268,8 @@ public class UserManagementServiceImplTest {
         }};
         userManagementService.validateAtLeastOneOfRole(role);
 
-        new FullVerifications(){};
+        new FullVerifications() {
+        };
     }
 
     @Test
@@ -316,17 +322,18 @@ public class UserManagementServiceImplTest {
 
         userManagementService.updateUsers(users);
 
-        new FullVerifications(){{
+        new FullVerifications() {{
             userPersistenceService.updateUsers(users);
             times = 1;
         }};
 
     }
+
     @Test
     public void triggerPasswordAlerts() {
         userManagementService.triggerPasswordAlerts();
 
-        new FullVerifications(){{
+        new FullVerifications() {{
             consoleUserAlertsService.triggerPasswordExpirationEvents();
             times = 1;
         }};
@@ -335,16 +342,77 @@ public class UserManagementServiceImplTest {
     @Test
     public void changePassword() {
         String username = "username";
-        String         currentPassword = "currentPassword";
+        String currentPassword = "currentPassword";
         String newPassword = "newPassword";
         userManagementService.changePassword(username,
                 currentPassword,
                 newPassword);
 
-        new FullVerifications(){{
+        new FullVerifications() {{
             userPersistenceService.changePassword(username, currentPassword, newPassword);
             times = 1;
         }};
+    }
+
+    @Test
+    public void findUsersWithFiltersTest(@Injectable User userEntity,
+                                         @Injectable eu.domibus.api.user.User user,
+                                         @Injectable Function<eu.domibus.api.user.User, String> getDomainForUserFn) {
+
+        List<User> userEntities = Collections.singletonList(userEntity);
+        List<eu.domibus.api.user.User> users = Collections.singletonList(user);
+        Map<String, Object> filters = new HashMap<>();
+
+        new Expectations(userManagementService) {{
+            userManagementService.createFilterMap("admin", "true", AuthRole.ROLE_ADMIN);
+            result = filters;
+            userFilteringDao.findPaged(1 * 10, 10, "entityId", true, filters);
+            result = userEntities;
+            userManagementService.prepareUsers(getDomainForUserFn, userEntities);
+            result = users;
+        }};
+
+        List<eu.domibus.api.user.User> result = userManagementService.findUsersWithFilters(AuthRole.ROLE_ADMIN, "admin", "true", 1, 10, getDomainForUserFn);
+        Assert.assertEquals(users, result);
+
+        new FullVerifications() {{
+
+        }};
+    }
+
+    @Test
+    public void findUsersWithFilters(@Injectable Function<eu.domibus.api.user.User, String> getDomainForUserFn) {
+
+        userManagementService.findUsersWithFilters(AuthRole.ROLE_ADMIN, "admin", "true", 1, 10);
+
+        new FullVerifications(userManagementService) {{
+            userManagementService.findUsersWithFilters(AuthRole.ROLE_ADMIN, "admin", "true", 1, 10, getDomainForUserFn);
+        }};
+    }
+
+    @Test
+    public void countUsers(@Injectable User userEntity, @Injectable eu.domibus.api.user.User user) {
+
+        Map<String, Object> filters = new HashMap<>();
+
+        new Expectations(userManagementService) {{
+            userManagementService.createFilterMap("admin", "true", AuthRole.ROLE_ADMIN);
+            result = filters;
+        }};
+
+        userManagementService.countUsers(AuthRole.ROLE_ADMIN, "admin", "true");
+
+        new FullVerifications() {{
+            userFilteringDao.countEntries(filters);
+        }};
+    }
+
+    @Test
+    public void createFilterMap(@Injectable User userEntity, @Injectable eu.domibus.api.user.User user) {
+
+        Map<String, Object> filters = userManagementService.createFilterMap("admin", "true", AuthRole.ROLE_ADMIN);
+
+        Assert.assertEquals(3, filters.size());
     }
 }
 
