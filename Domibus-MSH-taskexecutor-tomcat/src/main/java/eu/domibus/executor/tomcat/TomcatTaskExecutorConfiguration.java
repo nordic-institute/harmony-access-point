@@ -17,7 +17,7 @@ public class TomcatTaskExecutorConfiguration {
 
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(TomcatTaskExecutorConfiguration.class);
 
-    @Bean(name = {"taskExecutor", "quartzTaskExecutor"})
+    @Bean(name = {"taskExecutor", "quartzTaskExecutor", "mshTaskExecutor"})
     public SimpleThreadPoolTaskExecutor simpleThreadPoolTaskExecutor(DomibusPropertyProvider domibusPropertyProvider) {
         SimpleThreadPoolTaskExecutor poolTaskExecutor = new SimpleThreadPoolTaskExecutor();
 

@@ -30,7 +30,7 @@ public class WildFlyTaskExecutorConfiguration {
         return domibusExecutorServiceFactory;
     }
 
-    @Bean("taskExecutor")
+    @Bean(name = {"taskExecutor", "mshTaskExecutor"})
     public DomibusWildFlyTaskExecutor taskExecutor(@Qualifier("domibusExecutorService") ManagedExecutorService managedExecutorService) {
         DomibusWildFlyTaskExecutor domibusWildFlyTaskExecutor = new DomibusWildFlyTaskExecutor();
         domibusWildFlyTaskExecutor.setExecutorService(managedExecutorService);
