@@ -15,6 +15,7 @@ import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.plugin_users.PluginUserModal;
 import pages.plugin_users.PluginUsersPage;
+import rest.RestServicePaths;
 import utils.Gen;
 import utils.TestUtils;
 
@@ -497,7 +498,89 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 		
 		soft.assertAll();
 	}
-	
+
+
+	/* EDELIVERY-5237 - PU-27 - Download all lists of users  */
+	@Test(description = "PU-27", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	public void downloadAsCSV() throws Exception {
+		JSONArray colDescs = descriptorObj.getJSONObject("grid").getJSONArray("columns");
+
+		SoftAssert soft = new SoftAssert();
+		PluginUsersPage page = new PluginUsersPage(driver);
+		page.getSidebar().goToPage(PAGES.PLUGIN_USERS);
+		page.grid().waitForRowsToLoad();
+
+		String fileName = page.pressSaveCsvAndSaveFile();
+		log.info("downloaded file with name " + fileName);
+
+		page.grid().getGridCtrl().showCtrls();
+		page.grid().getGridCtrl().getAllLnk().click();
+		page.grid().sortBy("User Name");
+
+		log.info("set page size to 100");
+		page.grid().getPagination().getPageSizeSelect().selectOptionByText("100");
+
+		log.info("checking info in grid against the file");
+		page.grid().relaxCheckCSVvsGridInfo(fileName, soft, "text");
+
+		page.filters().getAuthTypeSelect().selectOptionByText("CERTIFICATE");
+		page.grid().waitForRowsToLoad();
+
+		fileName = page.pressSaveCsvAndSaveFile();
+		log.info("downloaded file with name " + fileName);
+
+		page.grid().getGridCtrl().showCtrls();
+		page.grid().getGridCtrl().getAllLnk().click();
+		page.grid().sortBy("Certificate Id");
+
+		log.info("set page size to 100");
+		page.grid().getPagination().getPageSizeSelect().selectOptionByText("100");
+
+		log.info("checking info in grid against the file");
+		page.grid().relaxCheckCSVvsGridInfo(fileName, soft, "text");
+
+
+
+		soft.assertAll();
+	}
+/* EDELIVERY-5237 - PU-27 - Download all lists of users  */
+
+
+	@Test(description = "PU-30", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	public void verifyCSVHeaders() throws Exception {
+		JSONArray colDescs = descriptorObj.getJSONObject("grid").getJSONArray("columns");
+
+		SoftAssert soft = new SoftAssert();
+		PluginUsersPage page = new PluginUsersPage(driver);
+		page.getSidebar().goToPage(PAGES.PLUGIN_USERS);
+		page.grid().waitForRowsToLoad();
+
+		String fileName = page.pressSaveCsvAndSaveFile();
+		log.info("downloaded file with name " + fileName);
+
+		page.grid().getGridCtrl().showCtrls();
+		page.grid().getGridCtrl().getAllLnk().click();
+
+
+		log.info("checking info in grid against the file");
+		page.grid().checkCSVvsGridHeaders(fileName, soft);
+
+		page.filters().getAuthTypeSelect().selectOptionByText("CERTIFICATE");
+		page.grid().waitForRowsToLoad();
+
+		fileName = page.pressSaveCsvAndSaveFile();
+		log.info("downloaded file with name " + fileName);
+
+		page.grid().getGridCtrl().showCtrls();
+		page.grid().getGridCtrl().getAllLnk().click();
+
+		log.info("checking info in grid against the file");
+		page.grid().checkCSVvsGridHeaders(fileName, soft);
+
+
+		soft.assertAll();
+	}
+
 	
 	
 	

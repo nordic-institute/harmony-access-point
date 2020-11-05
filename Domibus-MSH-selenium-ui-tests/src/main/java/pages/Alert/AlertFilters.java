@@ -27,7 +27,7 @@ public class AlertFilters extends FilterArea {
 	public WebElement alertLevelContainer;
 	@FindBy(id = "creationfrom_id")
 	public WebElement creationFromContainer;
-	@FindBy(id = "creation_id")
+	@FindBy(id = "creationto_id")
 	public WebElement creationToContainer;
 	//--------------Advance Filters-------------
 	@FindBy(id = "reportingfrom_id")
