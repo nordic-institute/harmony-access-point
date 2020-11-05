@@ -33,7 +33,6 @@ import java.util.concurrent.Executor;
  * @since 4.2
  */
 @Configuration
-@DependsOn({"springContextProvider"})
 public class MSHWebserviceConfiguration {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MSHWebserviceConfiguration.class);

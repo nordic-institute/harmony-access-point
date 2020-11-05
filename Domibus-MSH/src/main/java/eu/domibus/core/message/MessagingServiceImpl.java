@@ -155,16 +155,11 @@ public class MessagingServiceImpl implements MessagingService {
 
     protected void storeSourceMessagePayloads(Messaging messaging, MSHRole mshRole, LegConfiguration legConfiguration, String backendName) {
         LOG.debug("Saving the SourceMessage payloads");
-        com.codahale.metrics.Timer.Context timer = metricRegistry.timer(MetricRegistry.name(MessagingServiceImpl.class, "storeSourceMessagePayloads.timer")).time();
-        com.codahale.metrics.Counter counter = metricRegistry.counter(MetricRegistry.name(MessagingServiceImpl.class, "storeSourceMessagePayloads.counter"));
-        counter.inc();
         storePayloads(messaging, mshRole, legConfiguration, backendName);
 
         final String messageId = messaging.getUserMessage().getMessageInfo().getMessageId();
         LOG.debug("Scheduling the SourceMessage sending");
         userMessageService.scheduleSourceMessageSending(messageId);
-        timer.stop();
-        counter.dec();
     }
 
     protected void setPayloadsContentType(Messaging messaging) {

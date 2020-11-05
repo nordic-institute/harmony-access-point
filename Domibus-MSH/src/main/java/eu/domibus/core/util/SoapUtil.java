@@ -48,7 +48,7 @@ public class SoapUtil {
     protected DomibusPropertyProvider domibusPropertyProvider;
 
     @Timer(clazz = SoapUtil.class, value = "logMessage")
-    @Counter(clazz = SoapUtil.class, value = "SoapUtil")
+    @Counter(clazz = SoapUtil.class, value = "logMessage")
     public void logMessage(SOAPMessage request) throws IOException, TransformerException {
         if (LOG.isDebugEnabled() && domibusPropertyProvider.getBooleanProperty(DOMIBUS_LOGGING_PAYLOAD_PRINT)) {
             try (StringWriter sw = new StringWriter()) {

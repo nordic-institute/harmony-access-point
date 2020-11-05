@@ -43,18 +43,11 @@ public class IncomingUserMessageHandler extends AbstractIncomingMessageHandler {
     protected MetricRegistry metricRegistry;
 
     @Override
-    @Timer(clazz = IncomingUserMessageHandler.class,value ="processMessage")
-    @Counter(clazz = IncomingUserMessageHandler.class,value ="processMessage")
     protected SOAPMessage processMessage(LegConfiguration legConfiguration, String pmodeKey, SOAPMessage request, Messaging messaging, boolean testMessage) throws EbMS3Exception, TransformerException, IOException, JAXBException, SOAPException {
         LOG.debug("Processing UserMessage");
         authorizationService.authorizeUserMessage(request, messaging.getUserMessage());
-        com.codahale.metrics.Timer.Context timer = metricRegistry.timer(MetricRegistry.name(IncomingUserMessageHandler.class, "around_handleNewUserMessage.timer", "timer")).time();
-        com.codahale.metrics.Counter counter = metricRegistry.counter(MetricRegistry.name(IncomingUserMessageHandler.class, "around_handleNewUserMessage.counter", "counter"));
-        counter.inc();
         final SOAPMessage response = userMessageHandlerService.handleNewUserMessage(legConfiguration, pmodeKey, request, messaging, testMessage);
         attachmentCleanupService.cleanAttachments(request);
-        timer.stop();
-        counter.dec();
         return response;
     }
 }
