@@ -18,11 +18,9 @@ import org.apache.cxf.ext.logging.LoggingFeature;
 import org.apache.cxf.jaxws.EndpointImpl;
 import org.apache.cxf.jaxws.handler.SetCodeValueFaultOutInterceptor;
 import org.apache.cxf.ws.security.tokenstore.EHCacheTokenStore;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
 
 import javax.xml.ws.Endpoint;
 import java.util.*;
@@ -37,15 +35,12 @@ public class MSHWebserviceConfiguration {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MSHWebserviceConfiguration.class);
 
-    @Autowired
-    @Qualifier("mshTaskExecutor")
-    private Executor executor;
-
     @Bean("msh")
     public Endpoint msh(DomibusBus domibusBus,
                         MSHWebservice mshWebservice,
                         @Qualifier("loggingFeature") LoggingFeature loggingFeature,
                         @Qualifier("ehCacheTokenStore") EHCacheTokenStore ehCacheTokenStore,
+                        @Qualifier("mshTaskExecutor") Executor executor,
                         SimpleKeystorePasswordCallback simpleKeystorePasswordCallback,
                         Wss4JMultiDomainCryptoProvider wss4JMultiDomainCryptoProvider,
                         DomibusReadyInterceptor domibusReadyInterceptor,
