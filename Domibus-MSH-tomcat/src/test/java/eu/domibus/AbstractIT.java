@@ -19,6 +19,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.web.spring.DomibusWebConfiguration;
+import org.apache.activemq.ActiveMQXAConnection;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -114,8 +115,8 @@ public abstract class AbstractIT {
         System.setProperty("domibus.config.location", new File("target/test-classes").getAbsolutePath());
 
         //we are using randomly available port in order to allow run in parallel
-        int activeMQConnectorPort = SocketUtils.findAvailableTcpPort(2000, 2100);
-        int activeMQBrokerPort = SocketUtils.findAvailableTcpPort(61616, 61690);
+        int activeMQConnectorPort = SocketUtils.findAvailableTcpPort(2000, 3100);
+        int activeMQBrokerPort = SocketUtils.findAvailableTcpPort(61616, 62690);
         System.setProperty(ACTIVE_MQ_CONNECTOR_PORT, String.valueOf(activeMQConnectorPort));
         System.setProperty(ACTIVE_MQ_TRANSPORT_CONNECTOR_URI, "vm://localhost:" + activeMQBrokerPort + "?broker.persistent=false");
         LOG.info("activeMQ.connectorPort=[{}]", activeMQConnectorPort);
@@ -224,6 +225,8 @@ public abstract class AbstractIT {
      */
     protected void pushQueueMessage(String messageId, javax.jms.Connection connection, String queueName) throws Exception {
 
+        // set XA mode to Session.AUTO_ACKNOWLEDGE - test does not use XA transaction
+        ((ActiveMQXAConnection)connection).setXaAckMode(Session.AUTO_ACKNOWLEDGE);
         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
         Destination destination = session.createQueue(queueName);
         MessageProducer producer = session.createProducer(destination);
@@ -253,6 +256,8 @@ public abstract class AbstractIT {
      */
     protected Message popQueueMessageWithTimeout(javax.jms.Connection connection, String queueName, long mSecs) throws Exception {
 
+        // set XA mode to Session.AUTO_ACKNOWLEDGE - test does not use XA transaction
+        ((ActiveMQXAConnection)connection).setXaAckMode(Session.AUTO_ACKNOWLEDGE);
         Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
         Destination destination = session.createQueue(queueName);
         MessageConsumer consumer = session.createConsumer(destination);

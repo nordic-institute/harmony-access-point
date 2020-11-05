@@ -29,7 +29,7 @@
         <spring.version>5.2.9.RELEASE</spring.version>
         <spring.security.version>5.4.1</spring.security.version>
         <hibernate.version>5.4.22.Final</hibernate.version>
-        <activemq.version>5.15.13</activemq.version>
+        <activemq.version>5.16.0</activemq.version>
         <aspectj.version>1.9.4</aspectj.version>
         <slf4j.version>1.7.30</slf4j.version>
         <logback.version>1.2.3</logback.version>
