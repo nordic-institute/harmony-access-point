@@ -75,6 +75,7 @@ public class SideNavigation extends DComponent {
 	
 	private boolean isPmodeSectionExpanded() {
 		try {
+			wait.forAttributeToContain(pmodeExpandLnk, "class", "mat-expanded");
 			return new DButton(driver, pmodeExpandLnk).getAttribute("class").contains("mat-expanded");
 		} catch (Exception e) {
 		}
@@ -84,10 +85,12 @@ public class SideNavigation extends DComponent {
 	private void expandPmodeSection() {
 		if (isPmodeSectionExpanded()) return;
 		try {
-			new DButton(driver, pmodeExpandLnk).click();
+			weToDButton(pmodeExpandLnk).click();
+			wait.forAttributeToContain(pmodeExpandLnk, "class", "mat-expanded");
 		} catch (Exception e) {
-			// log.warn("Could not expand pmode: ", e);
+			log.warn("Could not expand pmode: ", e);
 		}
+		wait.forXMillis(200);
 	}
 	
 	public DLink getPageLnk(PAGES page) {
