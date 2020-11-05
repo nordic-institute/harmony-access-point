@@ -1,5 +1,6 @@
 package eu.domibus.core.message;
 
+import com.codahale.metrics.MetricRegistry;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
@@ -18,7 +19,6 @@ import eu.domibus.core.payload.persistence.PayloadPersistenceHelper;
 import eu.domibus.core.payload.persistence.PayloadPersistenceProvider;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
-import eu.domibus.core.util.SoapUtil;
 import eu.domibus.ebms3.common.model.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -80,6 +80,9 @@ public class MessagingServiceImpl implements MessagingService {
 
     @Autowired
     protected PayloadPersistenceHelper payloadPersistenceHelper;
+
+    @Autowired
+    MetricRegistry metricRegistry;
 
     @Override
     @Timer(clazz = MessagingServiceImpl.class, value = "storeMessage")
@@ -150,16 +153,18 @@ public class MessagingServiceImpl implements MessagingService {
         }
     }
 
-    @Timer(clazz = MessagingServiceImpl.class, value = "storeSourceMessagePayloads")
-    @Counter(clazz = MessagingServiceImpl.class, value = "storeSourceMessagePayloads")
     protected void storeSourceMessagePayloads(Messaging messaging, MSHRole mshRole, LegConfiguration legConfiguration, String backendName) {
         LOG.debug("Saving the SourceMessage payloads");
-
+        com.codahale.metrics.Timer.Context timer = metricRegistry.timer(MetricRegistry.name(MessagingServiceImpl.class, "storeSourceMessagePayloads.timer")).time();
+        com.codahale.metrics.Counter counter = metricRegistry.counter(MetricRegistry.name(MessagingServiceImpl.class, "storeSourceMessagePayloads.counter"));
+        counter.inc();
         storePayloads(messaging, mshRole, legConfiguration, backendName);
 
         final String messageId = messaging.getUserMessage().getMessageInfo().getMessageId();
         LOG.debug("Scheduling the SourceMessage sending");
         userMessageService.scheduleSourceMessageSending(messageId);
+        timer.stop();
+        counter.dec();
     }
 
     protected void setPayloadsContentType(Messaging messaging) {

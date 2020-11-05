@@ -18,21 +18,29 @@ import org.apache.cxf.ext.logging.LoggingFeature;
 import org.apache.cxf.jaxws.EndpointImpl;
 import org.apache.cxf.jaxws.handler.SetCodeValueFaultOutInterceptor;
 import org.apache.cxf.ws.security.tokenstore.EHCacheTokenStore;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 
 import javax.xml.ws.Endpoint;
 import java.util.*;
+import java.util.concurrent.Executor;
 
 /**
  * @author Cosmin Baciu
  * @since 4.2
  */
 @Configuration
+@DependsOn({"springContextProvider"})
 public class MSHWebserviceConfiguration {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MSHWebserviceConfiguration.class);
+
+    @Autowired
+    @Qualifier("mshTaskExecutor")
+    private Executor executor;
 
     @Bean("msh")
     public Endpoint msh(DomibusBus domibusBus,
@@ -61,6 +69,8 @@ public class MSHWebserviceConfiguration {
         endpoint.setOutFaultInterceptors(Arrays.asList(setCodeValueFaultOutInterceptor, clearMDCInterceptor));
         endpoint.setFeatures(Arrays.asList(loggingFeature));
         endpoint.setHandlers(Arrays.asList(faultInHandler));
+        LOG.info("Configuring MSH task executor on /msh endpoint.");
+        endpoint.setExecutor(executor);
 
         endpoint.publish("/msh");
         return endpoint;
