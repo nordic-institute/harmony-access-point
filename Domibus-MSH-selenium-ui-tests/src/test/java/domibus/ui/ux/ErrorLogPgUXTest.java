@@ -15,7 +15,9 @@ import pages.errorLog.ErrorModal;
 import rest.RestServicePaths;
 import utils.TestUtils;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -195,7 +197,8 @@ public class ErrorLogPgUXTest extends SeleniumTest {
 		ErrorLogPage page = new ErrorLogPage(driver);
 		page.getSidebar().goToPage(PAGES.ERROR_LOG);
 		DGrid grid = page.grid();
-		
+
+		grid.waitForRowsToLoad();
 		int gridRows = grid.getRowsNo();
 		int allRows = grid.getPagination().getTotalItems();
 		
@@ -215,7 +218,7 @@ public class ErrorLogPgUXTest extends SeleniumTest {
 		
 		log.info("check that the same number of rows is shown");
 		soft.assertTrue(grid.getRowsNo() == gridRows, "Grid shows the same number of rows as before");
-		soft.assertTrue(grid.getPagination().getTotalItems() == allRows, "Pagination shows the same number of rows as before");
+		soft.assertTrue(grid.getPagination().getTotalItems() >= allRows, "Pagination shows at least the same number of rows as before");
 		
 		soft.assertAll();
 	}
@@ -359,6 +362,30 @@ public class ErrorLogPgUXTest extends SeleniumTest {
 		
 		soft.assertAll();
 	}
+
+	/* ERR-16 - Download list as CSV */
+	@Test(description = "ERR-16", groups = {"multiTenancy", "singleTenancy"})
+	public void downloadErrCSV() throws Exception {
+
+		SoftAssert soft = new SoftAssert();
+		ErrorLogPage page = new ErrorLogPage(driver);
+		page.getSidebar().goToPage(PAGES.ERROR_LOG);
+
+		log.info("Click on download csv button");
+		String csvFile = page.pressSaveCsvAndSaveFile();
+
+		log.info("Click on show link");
+		page.grid().getGridCtrl().showCtrls();
+
+		log.info("Click on All link to show all available column headers");
+		page.grid().getGridCtrl().showAllColumns();
+
+		page.grid().checkCSVvsGridHeaders(csvFile, soft);
+		int maxMess = page.grid().getRowsNo();
+
+		page.grid().relaxCheckCSVvsGridInfo(csvFile, soft, "datetime"); //checkCSVvsGridInfo(completeFilePath, soft);
+		soft.assertAll();
+	}
 	
 	/* Check sorting on the basis of Headers of Grid  */
 	@Test(description = "ERR-22", groups = {"multiTenancy", "singleTenancy"})
@@ -407,6 +434,16 @@ public class ErrorLogPgUXTest extends SeleniumTest {
 		page.grid().checkCSVvsGridHeaders(fileName, soft);
 		soft.assertAll();
 	}
-	
+
+
+	@Test(description = "ERR-23", groups = {"multiTenancy", "singleTenancy"})
+	public void maxMinCalendar() throws Exception{
+		ErrorLogPage page = new ErrorLogPage(driver);
+		page.getSidebar().goToPage(PAGES.ERROR_LOG);
+
+		Date date = new SimpleDateFormat("yyyy-MM-dd hh:mm").parse("2019-05-05 03:03");
+		page.filters().getErrFrom().selectDate(date);
+	}
+
 }
 

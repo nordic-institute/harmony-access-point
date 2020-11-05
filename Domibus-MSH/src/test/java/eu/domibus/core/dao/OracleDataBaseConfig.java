@@ -2,12 +2,9 @@ package eu.domibus.core.dao;
 
 import eu.domibus.core.audit.AuditIT;
 import org.springframework.context.annotation.Profile;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.sql.DataSource;
-import java.util.HashMap;
-import java.util.Map;
 
 
 /**
@@ -20,21 +17,15 @@ import java.util.Map;
  */
 @EnableTransactionManagement
 @Profile("ORACLE_DATABASE")
-public class OracleDataBaseConfig extends AbstractDatabaseConfig {
+public class OracleDataBaseConfig extends AbstractDatabaseMshConfig {
 
     public DataSource dataSource() {
-        DriverManagerDataSource driverManagerDataSource = new DriverManagerDataSource();
-        driverManagerDataSource.setDriverClassName("oracle.jdbc.OracleDriver");
-        driverManagerDataSource.setUrl("");
-        driverManagerDataSource.setUsername("sa");
-        driverManagerDataSource.setPassword("");
-        return driverManagerDataSource;
+        return getOracleDataSource();
     }
 
-    public Map<Object, Object> getProperties() {
-        Map<Object, Object> properties = new HashMap<>();
-        properties.put("hibernate.dialect","org.hibernate.dialect.Oracle10gDialect");
-        return properties;
+    @Override
+    public String getSpecificDatabaseDialect() {
+        return ORACLE_DIALECT;
     }
 
 }

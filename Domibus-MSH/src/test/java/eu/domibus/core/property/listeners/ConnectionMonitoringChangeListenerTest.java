@@ -90,11 +90,11 @@ public class ConnectionMonitoringChangeListenerTest {
         try {
             listener.propertyValueChanged("default", DOMIBUS_MONITORING_CONNECTION_PARTY_ENABLED, value);
 
-            if (valid == false) {
+            if (!valid) {
                 Assert.fail("[" + value + "] property value shouldn't have been accepted");
             }
         } catch (DomibusPropertyException ex) {
-            if (valid == false) {
+            if (!valid) {
                 LOG.info("Exception thrown as expected when trying to set invalid property value: [{}]", value, ex);
             } else {
                 LOG.error("Unexpected exception thrown when trying to set valid property value: [{}]", value, ex);

@@ -34,7 +34,7 @@ public class TLSReaderTest {
     private DomibusConfigurationService domibusConfigurationService;
 
     @Tested
-    private TLSReader tlsReader;
+    private TLSReaderServiceImpl tlsReader;
 
     private String domainCode;
 

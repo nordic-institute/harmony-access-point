@@ -140,13 +140,13 @@ public class UsersClient extends BaseRestClient {
 		}
 	}
 	
-	public void unblockUser(String username, String domain) {
+	public void activate(String username, String domain) {
 		HashMap<String, String> toUpdate = new HashMap<>();
 		toUpdate.put("active", "true");
 		updateUser(username, toUpdate, domain);
 	}
 	
-	public void blockUser(String username, String domain) {
+	public void deactivate(String username, String domain) {
 		HashMap<String, String> toUpdate = new HashMap<>();
 		toUpdate.put("active", "false");
 		updateUser(username, toUpdate, domain);

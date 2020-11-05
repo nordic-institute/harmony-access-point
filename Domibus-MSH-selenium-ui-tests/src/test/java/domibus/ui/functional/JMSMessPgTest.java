@@ -77,9 +77,9 @@ public class JMSMessPgTest extends SeleniumTest {
 		soft.assertAll();
 	}
 	
-	//	This cannot run reliable because messages are pulled from the queues as the tests run
+	//	Disabled because functionality change and it needs to be updated
 	/*JMS-8 - Move message*/
-	@Test(description = "JMS-8", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "JMS-8", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void moveMessage() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -340,7 +340,6 @@ public class JMSMessPgTest extends SeleniumTest {
 		page.getSidebar().goToPage(PAGES.JMS_MONITORING);
 		
 		String domain = page.getDomainFromTitle();
-		
 		page.grid().waitForRowsToLoad();
 		page.filters().getJmsQueueSelect().selectQueueByName(q);
 		
@@ -358,7 +357,7 @@ public class JMSMessPgTest extends SeleniumTest {
 		log.info("Check message count in queue");
 		page.grid().waitForRowsToLoad();
 		
-		page.filters().getJmsQueueSelect().selectOptionByText(q);
+		page.filters().getJmsQueueSelect().selectQueueByName(q);
 		
 		log.info("After domain chenge select any message queue having some messages");
 		log.info("wait for grid row to load");
@@ -375,6 +374,7 @@ public class JMSMessPgTest extends SeleniumTest {
 		
 		log.info("Click on save button");
 		page.getSaveButton().click();
+		new Dialog(driver).confirm();
 		
 		log.info("Check presence of success message on deletion");
 		soft.assertTrue(page.getAlertArea().getAlertMessage().contains("success"), "Success message is shown on deletion");

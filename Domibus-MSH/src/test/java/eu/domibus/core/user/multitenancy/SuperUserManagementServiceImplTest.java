@@ -6,6 +6,7 @@ import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthRole;
+import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.user.User;
 import eu.domibus.core.alerts.service.AlertConfigurationService;
 import eu.domibus.core.alerts.service.ConsoleUserAlertsServiceImpl;
@@ -94,6 +95,9 @@ public class SuperUserManagementServiceImplTest {
 
     @Injectable
     UserDomainDao userDomainDao;
+
+    @Injectable
+    protected AuthUtils authUtils;
 
     @Test
     public void findUsers() {

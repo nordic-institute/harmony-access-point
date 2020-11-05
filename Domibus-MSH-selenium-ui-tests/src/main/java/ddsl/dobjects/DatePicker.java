@@ -1,6 +1,7 @@
 package ddsl.dobjects;
 
 import ddsl.dcomponents.DComponent;
+import org.apache.commons.lang3.time.DateUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -20,6 +21,8 @@ import java.util.List;
 
 public class DatePicker extends DComponent {
 	private final String dateFormat = "dd/MM/yyyy HH:mm";
+	private final WebElement container;
+
 	//------------ Header controls --------------------------------------------
 	@FindBy(css = "div.md2-calendar-header-year")
 	private WebElement headerY;
@@ -29,11 +32,18 @@ public class DatePicker extends DComponent {
 	private WebElement headerH;
 	@FindBy(css = "div.md2-calendar-header-minutes")
 	private WebElement headerMin;
-	@FindBy(className = "md2-datepicker-value")
-	private WebElement input;
+
+	@FindBy(css = "div.md2-calendar-header")
+	private WebElement header;
+
 //------------------------------------------------------------------------
-	@FindBy(css = "span.md2-datepicker-arrow")
-	private WebElement expandoBtn;
+
+//	@FindBy(css = "span.md2-datepicker-arrow")
+	private WebElement expandBtn;
+
+//	@FindBy(className = "md2-datepicker-value")
+	private WebElement input;
+
 	//-------------Prev/Next controls ----------------------------------------
 	@FindBy(css = "div.md2-calendar-previous-button")
 	private WebElement previousBtn;
@@ -60,9 +70,38 @@ public class DatePicker extends DComponent {
 	
 	public DatePicker(WebDriver driver, WebElement container) {
 		super(driver);
-		PageFactory.initElements(new AjaxElementLocatorFactory(container, data.getTIMEOUT()), this);
+		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
+
+		this.container = container;
 	}
-	
+
+
+	public void selectDate(Date date) {
+		try {
+			expandWidget();
+
+//			String  currentListedDate = weToDobject(header).getText();
+//			Date listedDate = DateUtils.parseDate(currentListedDate, "yyyy EEE, MMM dd HH:mm");
+//
+//			listedDate.
+//			while (listedDate)
+
+
+
+		} catch (Exception e) {
+		}
+	}
+
+	private WebElement getInput(){
+		input = container.findElement(By.cssSelector("md2-datepicker-value"));
+		return input;
+	}
+	private WebElement getExpandBtn(){
+		expandBtn = container.findElement(By.cssSelector("span.md2-datepicker-arrow"));
+		return expandBtn;
+	}
+
+
 	private boolean isExpanded() {
 		try {
 			return weToDobject(currentValue).isVisible();
@@ -73,62 +112,34 @@ public class DatePicker extends DComponent {
 	
 	public void expandWidget() throws Exception {
 		if (!isExpanded()) {
-			weToDButton(expandoBtn).click();
-			PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
+			weToDButton(getExpandBtn()).click();
 		}
 	}
-	
+
+
+
+
+
+
+
+
+
+
+	//	used don't change
 	public void selectDate(String date) throws Exception {
 		log.debug("inputting date... " + date);
-		
-		DInput pickerInput = new DInput(driver, input);
+
+		DInput pickerInput = new DInput(driver, getInput());
 		pickerInput.fill(date);
 	}
-	
+//	used don't change
 	public String getSelectedDate() {
-		return new DInput(driver, input).getText().trim();
+		return new DInput(driver, getInput()).getText().trim();
 	}
-	
+//	used don't change
 	public void clearSelectedDate() throws Exception {
-		new DInput(driver, input).clear();
+		new DInput(driver, getInput()).clear();
 	}
-	
-	public void selectDate(Date date) {
-		try {
-			expandoBtn.click();
-		} catch (Exception e) {
-		}
-	}
-	
-	public void selectYear(int year) throws Exception {
-		
-		weToDobject(headerY).click();
-		DButton prev = weToDButton(previousBtn);
-		DButton next = weToDButton(nextBtn);
-		DObject curVal = weToDobject(currentValue);
-		
-		int selectedYear = Integer.valueOf(curVal.getText());
-		
-		if (selectedYear == year) {
-			return;
-		}
-		DButton toPush;
-		if (selectedYear < year) {
-			toPush = next;
-		} else {
-			toPush = prev;
-		}
-		while (selectedYear != year) {
-			toPush.click();
-			selectedYear = Integer.valueOf(curVal.getText());
-		}
-		
-	}
-	
-	public void selectMonth(String month) {
-	
-	
-	}
-	
+
 	
 }

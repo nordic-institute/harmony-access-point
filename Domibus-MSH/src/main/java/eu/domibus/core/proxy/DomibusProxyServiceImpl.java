@@ -5,6 +5,7 @@ import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -65,7 +66,7 @@ public class DomibusProxyServiceImpl implements DomibusProxyService {
         domibusProxy = new DomibusProxy();
         LOG.info("Initialize Domibus proxy.");
         Boolean enabled = domibusPropertyProvider.getBooleanProperty(DOMIBUS_PROXY_ENABLED);
-        if (!enabled) {
+        if (BooleanUtils.isNotTrue(enabled)) {
             LOG.info("Proxy not required. The property domibus.proxy.enabled is not configured");
             return;
         }

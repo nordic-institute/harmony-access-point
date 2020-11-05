@@ -58,7 +58,7 @@ public class JMSQueuesCountSet implements MetricSet {
     public Map<String, Metric> getMetrics() {
         final Map<String, Metric> gauges = new HashMap<>();
 
-        List<JMSDestination> jmsDestinations = showDLQOnly ? getQueueNamesDLQ() : getQueues();
+        List<JMSDestination> jmsDestinations = showDLQOnly ? getQueueNamesDLQ() : getQueuesAuthenticated();
         LOG.debug("Using queues [{}] for metrics with refreshPeriod=[{}]", jmsDestinations, refreshPeriod);
 
         for (JMSDestination jmsDestination : jmsDestinations) {
@@ -83,26 +83,26 @@ public class JMSQueuesCountSet implements MetricSet {
         }
     }
 
-    private void assureSecurityRights() {
-        if (!authUtils.isUnsecureLoginAllowed()) {
-            authUtils.setAuthenticationToSecurityContext("jms_metrics_user", "jms_metrics_password", AuthRole.ROLE_AP_ADMIN);
-        }
-    }
 
-    private List<JMSDestination> getQueues() {
-        assureSecurityRights();
+    protected List<JMSDestination> getQueues() {
         return new ArrayList<>(jmsManager.getDestinations().values());
     }
 
-    private List<JMSDestination> getQueueNamesDLQ() {
-        return getQueues().stream().filter(jmsDestination -> StringUtils.containsIgnoreCase(jmsDestination.getName(), "domibus")
+    protected List<JMSDestination> getQueuesAuthenticated() {
+        return authUtils.runFunctionWithSecurityContext(this::getQueues,
+                "jms_metrics_user", "jms_metrics_password", AuthRole.ROLE_AP_ADMIN);
+    }
+
+    protected List<JMSDestination> getQueueNamesDLQ() {
+        List<JMSDestination> lstAllQueues = getQueuesAuthenticated();
+        return lstAllQueues.stream().filter(jmsDestination -> StringUtils.containsIgnoreCase(jmsDestination.getName(), "domibus")
                 && StringUtils.containsIgnoreCase(jmsDestination.getName(), "DLQ")).collect(Collectors.toList());
     }
 
-    private long getQueueSize(final JMSDestination jmsDestination) {
+    protected long getQueueSize(final JMSDestination jmsDestination) {
         return domainTaskExecutor.submit(() -> {
-            assureSecurityRights();
-            final long queueSize = jmsManager.getDestinationSize(jmsDestination);
+            final long queueSize = authUtils.runFunctionWithSecurityContext(() -> jmsManager.getDestinationSize(jmsDestination),
+                    "jms_metrics_user", "jms_metrics_password", AuthRole.ROLE_AP_ADMIN);
             LOG.debug("getQueueSize for queue=[{}] returned count=[{}]", jmsDestination.getName(), queueSize);
             return queueSize;
         });

@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.HttpMethod;
 import javax.xml.bind.JAXBException;
+import javax.xml.transform.TransformerException;
 import java.io.File;
 import java.io.IOException;
 
@@ -104,6 +105,7 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
             setBindingOperation(message);
             LOG.debug("", e); // Those errors are expected (no PMode found, therefore DEBUG)
             processPluginNotification(e, legConfiguration, messaging);
+            logIncomingMessaging(message);
             throw new Fault(e);
         } catch (IOException | JAXBException e) {
             setBindingOperation(message);
@@ -131,6 +133,20 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
             }
         } catch (Exception ex) {
             LOG.businessError(DomibusMessageCode.BUS_BACKEND_NOTIFICATION_FAILED, ex, messageId);
+        }
+    }
+
+    protected void logIncomingMessaging(SoapMessage message) {
+        if (message == null) {
+            LOG.debug("SoapMessage is null");
+            return;
+        }
+        try {
+            String xml = soapService.getMessagingAsRAWXml(message);
+            LOG.error("EbMS3Exception caused by incoming message: {}", xml);
+
+        } catch (IOException | EbMS3Exception | TransformerException e) {
+            LOG.error("Error while getting Soap Envelope", e);
         }
     }
 

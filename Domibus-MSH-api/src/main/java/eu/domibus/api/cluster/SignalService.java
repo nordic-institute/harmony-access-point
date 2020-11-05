@@ -43,4 +43,9 @@ public interface SignalService {
     void signalDomibusPropertyChange(String domainCode, String propertyName, String propertyValue);
 
     void sendMessage(Map<String, String> commandProperties);
+
+    /**
+     * Signals the update of the Message Filters
+     */
+    void signalMessageFiltersUpdated();
 }

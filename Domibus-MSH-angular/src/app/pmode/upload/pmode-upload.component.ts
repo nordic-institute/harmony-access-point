@@ -3,11 +3,12 @@ import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material';
 import {HttpClient} from '@angular/common/http';
 import {AlertService} from '../../common/alert/alert.service';
 import {FileUploadValidatorService} from '../../common/file-upload-validator.service';
+import {AbstractControl, NgControl, NgForm} from '@angular/forms';
 
 @Component({
   selector: 'app-pmode-upload',
   templateUrl: './pmode-upload.component.html',
-  styleUrls: ['../support/pmode.component.css']
+  styleUrls: ['../support/pmode.component.css', './pmode-upload.component.css']
 })
 export class PmodeUploadComponent implements OnInit {
 
@@ -15,6 +16,7 @@ export class PmodeUploadComponent implements OnInit {
   submitInProgress = false;
   description = '';
   useFileSelector = true;
+  selectedFileName: string;
 
   @ViewChild('fileInput', {static: false})
   private fileInput;
@@ -81,5 +83,15 @@ export class PmodeUploadComponent implements OnInit {
 
   canUpload() {
     return this.hasFile() && this.description.length !== 0 && !this.submitInProgress;
+  }
+
+  public shouldShowErrors(field: NgControl | NgForm | AbstractControl): boolean {
+    return (field.touched || field.dirty) && !!field.errors;
+  }
+
+  selectFile() {
+    const fi = this.fileInput.nativeElement;
+    const file = fi.files[0];
+    this.selectedFileName = file.name;
   }
 }

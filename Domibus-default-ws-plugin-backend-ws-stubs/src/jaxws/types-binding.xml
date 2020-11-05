@@ -6,7 +6,7 @@
                jaxb:extensionBindingPrefixes="xjc">
 
     <!-- XSD types packages customization -->
-    <jaxb:bindings schemaLocation="../main/resources/schemas/backend.xsd" node="/xsd:schema">
+    <jaxb:bindings schemaLocation="../main/resources/schemas/BackendService.xsd" node="/xsd:schema">
         <jaxb:schemaBindings>
             <jaxb:package name="eu.domibus.webservice.backend.generated"/>
         </jaxb:schemaBindings>

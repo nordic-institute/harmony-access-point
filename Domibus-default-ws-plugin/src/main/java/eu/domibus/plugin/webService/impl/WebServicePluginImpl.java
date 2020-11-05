@@ -153,6 +153,19 @@ public class WebServicePluginImpl extends AbstractBackendConnector<Messaging, Us
     }
 
     @Override
+    public void messageDeletedBatchEvent(final MessageDeletedBatchEvent event) {
+        LOG.info("Message delete batch event [{}]", event.getMessageIds());
+
+        wsMessageLogDao.deleteByMessageIds(event.getMessageIds());
+    }
+
+    @Override
+    public void messageDeletedEvent(final MessageDeletedEvent event) {
+        LOG.info("Message delete event [{}]", event.getMessageId());
+        wsMessageLogDao.deleteByMessageId(event.getMessageId());
+    }
+
+    @Override
     public void messageSendSuccess(final MessageSendSuccessEvent event) {
         LOG.info("Message send success [{}]", event.getMessageId());
     }
