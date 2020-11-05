@@ -1,6 +1,5 @@
 package eu.domibus.core.message;
 
-import com.codahale.metrics.MetricRegistry;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
@@ -80,9 +79,6 @@ public class MessagingServiceImpl implements MessagingService {
 
     @Autowired
     protected PayloadPersistenceHelper payloadPersistenceHelper;
-
-    @Autowired
-    MetricRegistry metricRegistry;
 
     @Override
     @Timer(clazz = MessagingServiceImpl.class, value = "storeMessage")
