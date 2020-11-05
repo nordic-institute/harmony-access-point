@@ -180,7 +180,7 @@ public class DomibusPropertiesChangeListenersTest {
     DomibusScheduler domibusScheduler;
 
     @Mocked
-    PayloadFileStorage mockStorage = new PayloadFileStorage();
+    PayloadFileStorage mockStorage = new PayloadFileStorage(null);
 
     @Injectable
     private MailSender mailSender;
@@ -282,7 +282,6 @@ public class DomibusPropertiesChangeListenersTest {
         }
 
         new Verifications() {{
-            mockStorage.initFileSystemStorage();
             pullFrequencyHelper.reset();
             payloadEncryptionService.createPayloadEncryptionKeyIfNotExists((Domain) any);
             cryptoService.reset();
