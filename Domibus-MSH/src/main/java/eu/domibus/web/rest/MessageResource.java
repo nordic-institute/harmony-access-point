@@ -9,6 +9,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.ErrorRO;
 import eu.domibus.web.rest.ro.MessageLogRO;
+import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpStatus;
@@ -89,4 +90,26 @@ public class MessageResource {
         return true;
     }
 
+    @GetMapping(value = "/{messageId:.+}/envelopes")
+    public ResponseEntity<ByteArrayResource> downloadMessageEnvelopes(@PathVariable(value = "messageId") String messageId) {
+        return getByteArrayResourceResponseEntity(messageId);
+    }
+
+    @GetMapping(value = "/envelopes")
+    public ResponseEntity<ByteArrayResource> downloadEnvelopes(@RequestParam(value = "messageId", required = true) String messageId) {
+        return getByteArrayResourceResponseEntity(messageId);
+    }
+
+    protected ResponseEntity<ByteArrayResource> getByteArrayResourceResponseEntity(String messageId) {
+        byte[] zip = userMessageService.getMessageEnvelopesAsZip(messageId);
+
+        if (ArrayUtils.isEmpty(zip)) {
+            return ResponseEntity.noContent().build();
+        }
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType("application/zip"))
+                .header("content-disposition", "attachment; filename=message_envelopes_" + messageId + ".zip")
+                .body(new ByteArrayResource(zip));
+    }
 }

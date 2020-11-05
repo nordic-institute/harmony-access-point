@@ -205,6 +205,12 @@ public class AuditServiceImpl implements AuditService {
         handleSaveJMSMessage(messageId, fromQueue, ModificationType.MOVED, domainCode);
     }
 
+    @Override
+    @Transactional
+    public void addMessageEnvelopesDownloadedAudit(String messageId, ModificationType modificationType) {
+        auditDao.saveMessageAudit(new MessageAudit(messageId, authUtils.getAuthenticatedUser(), new Date(), modificationType));
+    }
+
     protected void handleSaveJMSMessage(String messageId, String fromQueue, ModificationType modificationType, String domainCode) {
         Domain domain = domainService.getDomain(domainCode);
         final String userName = authUtils.getAuthenticatedUser();

@@ -34,6 +34,8 @@ import java.util.Set;
                 query = "select signalMessage from SignalMessage signalMessage where signalMessage.messageInfo.refToMessageId = :ORI_MESSAGE_ID"),
         @NamedQuery(name = "SignalMessage.findReceiptIdsByMessageIds",
                 query = "select signalMessage.receipt.entityId from SignalMessage signalMessage where signalMessage.messageInfo.messageId IN :MESSAGEIDS"),
+        @NamedQuery(name = "SignalMessage.findSignalMessageByMessageId",
+                query = "select signalMessage from SignalMessage signalMessage where signalMessage.messageInfo.messageId = :MESSAGE_ID"),
 })
 public class SignalMessage extends AbstractBaseEntity {
 
@@ -178,5 +180,9 @@ public class SignalMessage extends AbstractBaseEntity {
             this.any = new ArrayList<>();
         }
         return this.any;
+    }
+
+    public RawEnvelopeLog getRawEnvelopeLog() {
+        return rawEnvelopeLog;
     }
 }
