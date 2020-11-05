@@ -22,11 +22,11 @@ public class SubmissionAS4Transformer {
     public UserMessage transformFromSubmission(final Submission submission) {
         final UserMessage result = new UserMessage();
         result.setMpc(submission.getMpc());
-        this.generateCollaborationInfo(submission, result);
         this.generateMessageInfo(submission, result);
         this.generatePartyInfo(submission, result);
-        this.generatePayload(submission, result);
+        this.generateCollaborationInfo(submission, result);
         this.generateMessageProperties(submission, result);
+        this.generatePayload(submission, result);
 
         return result;
     }

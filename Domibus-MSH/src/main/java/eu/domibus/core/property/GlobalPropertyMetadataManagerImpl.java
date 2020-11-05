@@ -31,7 +31,7 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
     @Autowired
     protected List<DomibusPropertyMetadataManagerSPI> propertyMetadataManagers;
 
-    @Autowired
+    @Autowired(required = false)
     @Lazy
     protected List<DomibusPropertyManagerExt> extPropertyManagers;
 

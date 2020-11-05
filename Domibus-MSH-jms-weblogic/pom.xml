@@ -13,7 +13,7 @@
     <artifactId>domibus-jms-weblogic</artifactId>
     <packaging>jar</packaging>
 	<name>Domibus MSH JMS WebLogic</name>
- 
+
 
     <build>
         <plugins>

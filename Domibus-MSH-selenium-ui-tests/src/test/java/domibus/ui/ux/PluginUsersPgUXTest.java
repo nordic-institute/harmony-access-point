@@ -179,7 +179,7 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 	}
 	
 	
-	@Test(description = "PU-11-1", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "PU-11-1", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void createPluginUserFieldValidations() throws Exception {
 		String username = Gen.randomAlphaNumeric(10);
 		SoftAssert soft = new SoftAssert();
@@ -542,7 +542,10 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 			
 			page.getSaveBtn().click();
 			new Dialog(driver).confirm();
-			
+
+			soft.assertFalse(page.getAlertArea().isError(), "Success message is shown");
+			soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.PLUGINUSER_SAVE_SUCCESS, "Correct success message is shown");
+
 			page.grid().waitForRowsToLoad();
 		}
 		soft.assertAll();

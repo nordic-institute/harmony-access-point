@@ -4,19 +4,21 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import eu.domibus.api.cluster.SignalService;
-import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.jms.JMSMessageBuilder;
 import eu.domibus.api.jms.JmsMessage;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.core.converter.DomainCoreConverter;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.reflect.FieldUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -88,7 +90,6 @@ public class LoggingServiceImplTest {
             Assert.assertTrue(le.getMessage().contains("Not a known log level"));
         }
     }
-
 
 
     @Test
@@ -249,7 +250,7 @@ public class LoggingServiceImplTest {
     }
 
     @Test
-    public void testToLevel(){
+    public void testToLevel() {
         String level = "ALL";
         Assert.assertEquals(Level.ALL, loggingService.toLevel(level));
 
@@ -282,5 +283,62 @@ public class LoggingServiceImplTest {
             Assert.assertEquals(DomibusCoreErrorCode.DOM_001, le.getError());
         }
 
+    }
+
+    /**
+     * Testing that presence of inner class loggers will be caught for main class and will not impact other loggers at packge level.
+     * If packge is supplied - expect true
+     * if main class with child loggers due to inner class is supplied - expect false
+     * 
+     */
+    @Test
+    public void addChildLoggers_PresenceOfInnerClassReturnFalse(@Injectable Logger packageLogger, @Injectable Logger mainClassLogger, @Injectable Logger innerClassLogger) {
+
+        final List<Logger> innerClassChildLoggers = new ArrayList<>();
+
+        final List<Logger> mainClassChildLoggers = new ArrayList<>();
+        mainClassChildLoggers.add(innerClassLogger);
+
+        final List<Logger> packageChildLoggers = new ArrayList<>();
+        packageChildLoggers.add(mainClassLogger);
+        packageChildLoggers.addAll(mainClassChildLoggers);
+
+        final String packageLoggerName = "org.springframework.security.config.annotation.authentication.configuration";
+        final String mainClassLoggerName = "org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration";
+        final String innerClassLoggerName = "org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration$EnableGlobalAuthenticationAutowiredConfigurer";
+
+        new MockUp<FieldUtils>() {
+            @Mock
+            public Object readField(Object target, String fieldName, boolean forceAccess) throws IllegalAccessException {
+                if ("childrenList".equalsIgnoreCase(fieldName) && (target instanceof Logger)) {
+                    if (packageLoggerName.equalsIgnoreCase(((Logger) target).getName())) {
+                        return packageChildLoggers;
+                    }
+                    if (mainClassLoggerName.equalsIgnoreCase(((Logger) target).getName())) {
+                        return mainClassChildLoggers;
+                    }
+                    if (innerClassLoggerName.equalsIgnoreCase(((Logger) target).getName())) {
+                        return innerClassChildLoggers;
+                    }
+                }
+                return null;
+            }
+        };
+
+        new Expectations() {{
+            packageLogger.getName();
+            result = packageLoggerName;
+
+            mainClassLogger.getName();
+            result = mainClassLoggerName;
+
+            innerClassLogger.getName();
+            result = innerClassLoggerName;
+        }};
+
+        Assert.assertFalse("Main Class having child loggers due to inner class should return false", loggingService.addChildLoggers(mainClassLogger, false));
+        Assert.assertTrue("Package having child loggers due to main classes should return true", loggingService.addChildLoggers(packageLogger, false));
+        Assert.assertFalse("Inner Class having no child loggers should return false", loggingService.addChildLoggers(innerClassLogger, false));
+        Assert.assertTrue("ShowClasses being enabled should always return true", loggingService.addChildLoggers(innerClassLogger, true));
     }
 }

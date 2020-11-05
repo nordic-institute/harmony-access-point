@@ -23,6 +23,9 @@ public class InfoModal extends DComponent {
 	@FindBy(css = "mat-dialog-container h2")
 	WebElement title;
 
+	@FindBy(css = "mat-dialog-container mat-dialog-content")
+	WebElement message;
+
 	public InfoModal(WebDriver driver) {
 		super(driver);
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
@@ -35,6 +38,10 @@ public class InfoModal extends DComponent {
 
 	public String getTitle() throws Exception {
 		return new DObject(driver, title).getText();
+	}
+
+	public String getMessage() throws Exception {
+		return weToDobject(message).getText();
 	}
 
 

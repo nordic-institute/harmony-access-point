@@ -63,6 +63,9 @@ import javax.jms.Queue;
 import java.io.*;
 import java.sql.Timestamp;
 import java.util.*;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -569,6 +572,7 @@ public class UserMessageDefaultService implements UserMessageService {
 
     @Override
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
+    @Transactional(propagation = Propagation.REQUIRED)
     public void deleteMessage(String messageId) {
         LOG.debug("Deleting message [{}]", messageId);
 
@@ -592,13 +596,18 @@ public class UserMessageDefaultService implements UserMessageService {
         userMessageLogService.setSignalMessageAsDeleted(messaging.getSignalMessage());
     }
 
-    @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public void deleteMessages(List<String> userMessageIds) {
-        LOG.debug("Deleting messages [{}]", userMessageIds);
-        List<String> signalMessageIds = messageInfoDao.findSignalMessageIds(userMessageIds);
-        List<Long> receiptIds = signalMessageDao.findReceiptIdsByMessageIds(signalMessageIds);
+    public void deleteMessages(List<UserMessageLogDto> userMessageLogs) {
 
+        List<String> userMessageIds = userMessageLogs.stream().map(userMessageLog -> userMessageLog.getMessageId()).collect(Collectors.toList());
+
+        LOG.debug("Deleting [{}] user messages", userMessageIds.size());
+        LOG.trace("Deleting user messages [{}]", userMessageIds);
+
+        List<String> signalMessageIds = messageInfoDao.findSignalMessageIds(userMessageIds);
+        LOG.debug("Deleting [{}] signal messages", signalMessageIds.size());
+        LOG.trace("Deleting signal messages [{}]", signalMessageIds);
+        List<Long> receiptIds = signalMessageDao.findReceiptIdsByMessageIds(signalMessageIds);
         int deleteResult = messageInfoDao.deleteMessages(userMessageIds);
         LOG.debug("Deleted [{}] messageInfo for userMessage.", deleteResult);
         deleteResult = messageInfoDao.deleteMessages(signalMessageIds);
@@ -619,6 +628,8 @@ public class UserMessageDefaultService implements UserMessageService {
         LOG.debug("Deleted [{}] deleteUIMessagesByMessageIds for signalMessages.", deleteResult);
         deleteResult = messageAcknowledgementDao.deleteMessageAcknowledgementsByMessageIds(userMessageIds);
         LOG.debug("Deleted [{}] deleteMessageAcknowledgementsByMessageIds.", deleteResult);
+
+        backendNotificationService.notifyMessageDeleted(userMessageLogs);
     }
 
     @Override

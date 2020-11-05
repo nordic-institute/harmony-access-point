@@ -1,6 +1,8 @@
 package eu.domibus.core.message.signal;
 
 import eu.domibus.core.dao.BasicDao;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.ebms3.common.model.SignalMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -51,6 +53,8 @@ public class SignalMessageDao extends BasicDao<SignalMessage> {
         return query.getResultList();
     }
 
+    @Timer(clazz = SignalMessageDao.class,value = "deleteMessages.deleteReceipts")
+    @Counter(clazz = SignalMessageDao.class,value = "deleteMessages.deleteReceipts")
     public int deleteReceipts(List<Long> receiptIds) {
         final Query deleteQuery = em.createNamedQuery("Receipt.deleteReceipts");
         deleteQuery.setParameter("RECEIPTIDS", receiptIds);

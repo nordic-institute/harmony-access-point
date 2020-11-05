@@ -1,4 +1,4 @@
-package eu.domibus.plugin.webService.push;
+package eu.domibus.plugin.webService.backend.dispatch;
 
 import eu.domibus.ext.services.XMLUtilExtService;
 import eu.domibus.logging.DomibusLogger;
