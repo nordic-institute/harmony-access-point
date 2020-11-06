@@ -52,10 +52,10 @@ public class ValidationConstraintPropertyMapperTest {
 
         final List<ConstraintInternal> constraints = constraintPropertyMapper.map();
         Assert.assertEquals(2, constraints.size());
-        Assert.assertTrue(constraints.stream().
-                anyMatch(constraintInternal -> constraintInternal.getName().equals(ADEST_IRTPTBST.name()) && constraintInternal.getStatus().equals("OK")));
-        Assert.assertTrue(constraints.stream().
-                anyMatch(constraintInternal -> constraintInternal.getName().equals(QUAL_FOR_SIGN_AT_CC.name()) && constraintInternal.getStatus().equals("WARNING")));
+        Assert.assertTrue(constraints.stream()
+                .anyMatch(constraintInternal -> constraintInternal.getName().equals(ADEST_IRTPTBST.name()) && constraintInternal.getStatus().equals("OK")));
+        Assert.assertTrue(constraints.stream()
+                .anyMatch(constraintInternal -> constraintInternal.getName().equals(QUAL_FOR_SIGN_AT_CC.name()) && constraintInternal.getStatus().equals("WARNING")));
 
     }
 
