@@ -283,6 +283,7 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_JMS_XACONNECTION_FACTORY_MAX_POOL_SIZE = "domibus.jms.XAConnectionFactory.maxPoolSize";
     String DOMIBUS_JMS_QUEUE_ALERT = "domibus.jms.queue.alert";
     String DOMIBUS_TASK_EXECUTOR_THREAD_COUNT = "domibus.taskExecutor.threadCount";
+    String DOMIBUS_MSH_TASK_EXECUTOR_THREAD_COUNT = "domibus.mshTaskExecutor.threadCount";
     String COM_ATOMIKOS_ICATCH_OUTPUT_DIR = "com.atomikos.icatch.output_dir";
     String COM_ATOMIKOS_ICATCH_LOG_BASE_DIR = "com.atomikos.icatch.log_base_dir";
     String COM_ATOMIKOS_ICATCH_DEFAULT_JTA_TIMEOUT = "com.atomikos.icatch.default_jta_timeout";

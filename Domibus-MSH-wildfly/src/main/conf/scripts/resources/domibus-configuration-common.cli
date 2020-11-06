@@ -3,6 +3,7 @@
 /subsystem=ee/managed-executor-service=default:write-attribute(name=max-threads, value=200)
 
 /subsystem=ee/managed-executor-service=domibusExecutorService:add(jndi-name="java:jboss/ee/concurrency/executor/DomibusExecutorService", context-service="default", hung-task-threshold="60000",  core-threads="200", max-threads=500, keepalive-time="5000")
+/subsystem=ee/managed-executor-service=mshExecutorService:add(jndi-name="java:jboss/ee/concurrency/executor/MshExecutorService", context-service="default", hung-task-threshold="60000",  core-threads="30", max-threads=100, keepalive-time="5000")
 /subsystem=ee/managed-executor-service=quartzExecutorService:add(jndi-name="java:jboss/ee/concurrency/executor/QuartzExecutorService", context-service="default", hung-task-threshold="0", long-running-tasks="true",  core-threads="100", max-threads=300, keepalive-time="5000")
 
 /subsystem=messaging-activemq/server=default:undefine-attribute(name=jmx-management-enabled)
