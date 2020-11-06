@@ -212,8 +212,8 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
         }
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public synchronized UserLoginErrorReason handleWrongAuthentication(final String userName) {
+    @Transactional
+    public UserLoginErrorReason handleWrongAuthentication(final String userName) {
         U user = getUserDao().findByUserName(userName);
 
         UserLoginErrorReason userLoginErrorReason = getLoginFailureReason(userName, user);
@@ -249,6 +249,7 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
         int maxAttemptAmount = getMaxAttemptAmount(user);
 
         user.setAttemptCount(user.getAttemptCount() + 1);
+        LOG.debug("setAttemptCount [{}] out of [{}] for user [{}]", user.getAttemptCount(), maxAttemptAmount, user.getUserName());
 
         if (user.getAttemptCount() >= maxAttemptAmount) {
             LOG.debug("Applying account locking policy, max number of attempt ([{}]) reached for user [{}]", maxAttemptAmount, user.getUserName());
