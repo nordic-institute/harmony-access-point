@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_LOGGING_PAYLOAD_PRINT;
 
 /**
- * Handles the change of {@link eu.domibus.api.property.DomibusPropertyMetadataManagerSPI#DOMIBUS_LOGGING_PAYLOAD_PRINT}
+ * Handles the change of {@value eu.domibus.api.property.DomibusPropertyMetadataManagerSPI#DOMIBUS_LOGGING_PAYLOAD_PRINT}
  * of {@link DomibusLoggingEventSender}
  *
  * @author François Gautier

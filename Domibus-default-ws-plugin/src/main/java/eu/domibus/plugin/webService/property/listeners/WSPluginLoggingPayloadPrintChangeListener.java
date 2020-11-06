@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import static eu.domibus.plugin.webService.configuration.WSPluginConfiguration.DOMIBUS_LOGGING_PAYLOAD_PRINT;
 
 /**
- * Handles the change of {@link eu.domibus.plugin.webService.configuration.WSPluginConfiguration#DOMIBUS_LOGGING_PAYLOAD_PRINT}
+ * Handles the change of {@value eu.domibus.plugin.webService.configuration.WSPluginConfiguration#DOMIBUS_LOGGING_PAYLOAD_PRINT}
  * property of backendInterfaceEndpoint
  *
  * @author François Gautier
