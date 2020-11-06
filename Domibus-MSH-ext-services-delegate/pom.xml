@@ -133,6 +133,12 @@
         <dependency>
             <groupId>eu.europa.ec.digit.commons</groupId>
             <artifactId>commons-test</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.reflections</groupId>
+                    <artifactId>reflections</artifactId>
+                </exclusion>
+            </exclusions>
             <scope>test</scope>
         </dependency>
         <dependency>

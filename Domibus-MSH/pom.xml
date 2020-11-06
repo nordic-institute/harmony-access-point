@@ -75,6 +75,12 @@
             <groupId>eu.europa.ec.digit.commons</groupId>
             <artifactId>commons-test</artifactId>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.reflections</groupId>
+                    <artifactId>reflections</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- AspectJ -->
@@ -112,16 +118,16 @@
         <dependency>
             <groupId>org.reflections</groupId>
             <artifactId>reflections</artifactId>
-            <version>0.9.10</version>
+            <version>0.9.12</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.google.guava</groupId>
                     <artifactId>guava</artifactId>
                 </exclusion>
-                <exclusion>
+               <!-- <exclusion>
                     <groupId>org.javassist</groupId>
                     <artifactId>javassist</artifactId>
-                </exclusion>
+                </exclusion>-->
             </exclusions>
         </dependency>
 
@@ -266,7 +272,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <scope>provided</scope>
+            <scope>provided</scope><!---->
         </dependency>
 
         <!-- Hibernate -->
