@@ -249,7 +249,7 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
         int maxAttemptAmount = getMaxAttemptAmount(user);
 
         user.setAttemptCount(user.getAttemptCount() + 1);
-        LOG.debug("set AttemptCount for user [{}] attempt ([{}]/[{}])", user.getUserName(), user.getAttemptCount(), maxAttemptAmount);
+        LOG.debug("setAttemptCount [{}] out of [{}] for user [{}]", user.getAttemptCount(), maxAttemptAmount, user.getUserName());
 
         if (user.getAttemptCount() >= maxAttemptAmount) {
             LOG.debug("Applying account locking policy, max number of attempt ([{}]) reached for user [{}]", maxAttemptAmount, user.getUserName());
