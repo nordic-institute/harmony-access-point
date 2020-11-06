@@ -9,29 +9,29 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import static eu.domibus.plugin.webService.configuration.WSPluginConfiguration.DOMIBUS_LOGGING_METADATA_PRINT;
+import static eu.domibus.plugin.webService.configuration.WSPluginConfiguration.DOMIBUS_LOGGING_PAYLOAD_PRINT;
 
 /**
- * Handles the change of {@link eu.domibus.plugin.webService.configuration.WSPluginConfiguration#DOMIBUS_LOGGING_METADATA_PRINT}
+ * Handles the change of {@link eu.domibus.plugin.webService.configuration.WSPluginConfiguration#DOMIBUS_LOGGING_PAYLOAD_PRINT}
  * property of backendInterfaceEndpoint
  *
  * @author François Gautier
- * @since 4.2
+ * @since 5.0
  */
-@Service("wsPluginLoggingMetadataPrintChangeListener")
-public class WSPluginLoggingMetadataPrintChangeListener implements PluginPropertyChangeListener {
+@Service("wsPluginLoggingPayloadPrintChangeListener")
+public class WSPluginLoggingPayloadPrintChangeListener implements PluginPropertyChangeListener {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginLoggingMetadataPrintChangeListener.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginLoggingPayloadPrintChangeListener.class);
 
     private final WSPluginLoggingEventSender wsPluginLoggingEventSender;
 
-    public WSPluginLoggingMetadataPrintChangeListener(@Qualifier("wsPluginLoggingEventSender") WSPluginLoggingEventSender  wsPluginLoggingEventSender) {
+    public WSPluginLoggingPayloadPrintChangeListener(@Qualifier("wsPluginLoggingEventSender") WSPluginLoggingEventSender  wsPluginLoggingEventSender) {
         this.wsPluginLoggingEventSender = wsPluginLoggingEventSender;
     }
 
     @Override
     public boolean handlesProperty(String propertyName) {
-        boolean doesHandle = StringUtils.equals(propertyName, DOMIBUS_LOGGING_METADATA_PRINT);
+        boolean doesHandle = StringUtils.equals(propertyName, DOMIBUS_LOGGING_PAYLOAD_PRINT);
         LOG.trace("Handling [{}] property: [{}]", propertyName, doesHandle);
         return doesHandle;
     }
@@ -40,6 +40,6 @@ public class WSPluginLoggingMetadataPrintChangeListener implements PluginPropert
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) {
         boolean val = BooleanUtils.isTrue(Boolean.valueOf(propertyValue));
         LOG.trace("Setting [{}] property to [{}] on domain: [{}] for wsPluginLoggingEventSender", propertyName, val, domainCode);
-        wsPluginLoggingEventSender.setPrintMetadata(val);
+        wsPluginLoggingEventSender.setPrintPayload(val);
     }
 }
