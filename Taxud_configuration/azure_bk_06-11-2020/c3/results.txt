@@ -1,0 +1,33 @@
+
+
+Retention (delete 8k messages per minute while running with 600msg/sec):
+4000 messages ACK
+4000 messages DOWNLOADED
+Concurency: 3-5
+Cron: 0 0/1 * * *
+default batch = 1000
+RetentionListener INFO log level
+
+schedule_deleteExpiredMessages: avg 10 seconds
+deletedMessages (a batch of 1000): avg 3 sec
+
+After db restart the incoming time is around 0.4 with and without retention.
+With retention it oscillates between 275 to 325 messages outgoing.
+Datasource - Wait Seconds High Count = 3
+
+
+
+Retention (delete 100k messages per minute while there is no message exchange)
+50000 messages ACK
+50000 messages DOWNLOADED
+Concurency: 3-10
+Cron: 0 0/1 * * *
+default batch = 1000
+RetentionListener INFO log level
+
+schedule_deleteExpiredMessages: avg 30 seconds
+deletedMessages (a batch of 1000): avg 16 sec
+
+
+
+
