@@ -27,4 +27,15 @@ public class TomcatTaskExecutorConfiguration {
         poolTaskExecutor.setThreadCount(threadCount);
         return poolTaskExecutor;
     }
+
+    @Bean("mshTaskExecutor")
+    public SimpleThreadPoolTaskExecutor simpleThreadPoolMshTaskExecutor(DomibusPropertyProvider domibusPropertyProvider) {
+        SimpleThreadPoolTaskExecutor poolTaskExecutor = new SimpleThreadPoolTaskExecutor();
+
+        Integer threadCount = domibusPropertyProvider.getIntegerProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_MSH_TASK_EXECUTOR_THREAD_COUNT);
+        LOGGER.debug("Configured property [{}] with [{}]", DomibusPropertyMetadataManagerSPI.DOMIBUS_MSH_TASK_EXECUTOR_THREAD_COUNT, threadCount);
+
+        poolTaskExecutor.setThreadCount(threadCount);
+        return poolTaskExecutor;
+    }
 }

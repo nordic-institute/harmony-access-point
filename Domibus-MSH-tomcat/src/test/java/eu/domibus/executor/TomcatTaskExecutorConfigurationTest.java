@@ -38,4 +38,26 @@ public class TomcatTaskExecutorConfigurationTest {
             poolTaskExecutor.setThreadCount(threadCount);
         }};
     }
+
+    @Test
+    public void simpleThreadPoolMshTaskExecutor(@Injectable DomibusPropertyProvider domibusPropertyProvider,
+                                             @Mocked SimpleThreadPoolTaskExecutor poolTaskExecutor) {
+        int threadCount = 35;
+
+        new Expectations() {{
+            new SimpleThreadPoolTaskExecutor();
+            result = poolTaskExecutor;
+
+            domibusPropertyProvider.getIntegerProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_MSH_TASK_EXECUTOR_THREAD_COUNT);
+            result = threadCount;
+        }};
+
+        tomcatTaskExecutorConfiguration.simpleThreadPoolMshTaskExecutor(domibusPropertyProvider);
+
+        new FullVerifications() {{
+            poolTaskExecutor.setThreadCount(threadCount);
+        }};
+    }
+
+
 }
