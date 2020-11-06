@@ -1,0 +1,27 @@
+#### Incoming Timelion
+##########################
+
+.es(index=metricbeat-*,
+    timefield='@timestamp',    metric='avg:dropwizard.MS1.eu.domibus.core.ebms3.receiver.MSHWebservice.incoming_user_message.timer.m1_rate').label('MS1 Incoming'),
+.es(index=metricbeat-*,
+    timefield='@timestamp',    metric='avg:dropwizard.MS2.eu.domibus.core.ebms3.receiver.MSHWebservice.incoming_user_message.timer.m1_rate').label('MS2 Incoming'),
+.es(index=metricbeat-*,
+ timefield='@timestamp',    metric='avg:dropwizard.MS3.eu.domibus.core.ebms3.receiver.MSHWebservice.incoming_user_message.timer.m1_rate').label('MS3 Incoming'),
+	.es(index=metricbeat-*,
+    timefield='@timestamp',    metric='avg:dropwizard.MS4.eu.domibus.core.ebms3.receiver.MSHWebservice.incoming_user_message.timer.m1_rate').label('MS4 Incoming'),
+	.es(index=metricbeat-*,
+    timefield='@timestamp',    metric='avg:dropwizard.MS5.eu.domibus.core.ebms3.receiver.MSHWebservice.incoming_user_message.timer.m1_rate').label('MS5 Incoming').title('Incoming throughput')
+	
+#### Outgoing Timelion
+##########################
+
+.es(index=metricbeat-*,
+    timefield='@timestamp',    metric='avg:dropwizard.MS1.eu.domibus.core.ebms3.sender.AbstractUserMessageSender.outgoing_user_message.timer.m1_rate').label('MS1 Outgoing'),
+.es(index=metricbeat-*,
+    timefield='@timestamp',    metric='avg:dropwizard.MS2.eu.domibus.core.ebms3.sender.AbstractUserMessageSender.outgoing_user_message.timer.m1_rate').label('MS2 Outgoing'),
+.es(index=metricbeat-*,
+ timefield='@timestamp',    metric='avg:dropwizard.MS3.eu.domibus.core.ebms3.sender.AbstractUserMessageSender.outgoing_user_message.timer.m1_rate').label('MS3 Outgoing'),
+	.es(index=metricbeat-*,
+    timefield='@timestamp',    metric='avg:dropwizard.MS4.eu.domibus.core.ebms3.sender.AbstractUserMessageSender.outgoing_user_message.timer.m1_rate').label('MS4 Outgoing'),
+	.es(index=metricbeat-*,
+    timefield='@timestamp',    metric='avg:dropwizard.MS5.eu.domibus.core.ebms3.sender.AbstractUserMessageSender.outgoing_user_message.timer.m1_rate').label('MS5 Outgoing').title('Outgoing throughput')
