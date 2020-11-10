@@ -398,7 +398,7 @@ public class UserMessageLogDaoTest {
         }};
 
         // WHEN
-        List<UserMessageLogDto> result = userMessageLogDao.getSentUserMessagesOlderThan(null, null, 1, false);
+        List<UserMessageLogDto> result = userMessageLogDao.getSentUserMessagesOlderThan(null, null, 1, true);
 
         // THEN
         Assert.assertSame("Should have returned the user messages found being sent and older than the provided date", list, result);
