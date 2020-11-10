@@ -159,8 +159,10 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
 
         if (messageRetentionSent > -1) { // if -1 the messages will be kept indefinitely
             LOG.trace("messageRetentionSent [{}]", messageRetentionSent);
-            final List<UserMessageLogDto> sentMessages = userMessageLogDao.getSentUserMessagesOlderThan(DateUtils.addMinutes(new Date(), messageRetentionSent * -1),
-                    mpc, expiredSentMessagesLimit);
+            final boolean isDeleteMessageMetadata = pModeProvider.isDeleteMessageMetadataByMpcURI(mpc);
+            List<UserMessageLogDto> sentMessages = userMessageLogDao.getSentUserMessagesOlderThan(DateUtils.addMinutes(new Date(), messageRetentionSent * -1),
+                    mpc, expiredSentMessagesLimit, isDeleteMessageMetadata);
+
             if (CollectionUtils.isEmpty(sentMessages)) {
                 LOG.debug("There are no expired sent messages.");
                 return;
