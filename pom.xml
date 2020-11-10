@@ -364,6 +364,9 @@
                 <artifactId>spring-webmvc</artifactId>
                 <version>${spring.version}</version>
             </dependency>
+            <!-- overwrite Spring Security transitive dependency
+             keep this dependency till upgrade to Spring Security 5.x
+             -->
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-expression</artifactId>
