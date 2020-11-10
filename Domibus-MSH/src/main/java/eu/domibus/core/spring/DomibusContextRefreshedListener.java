@@ -57,6 +57,7 @@ public class DomibusContextRefreshedListener {
         LOG.info("Finished processing ContextRefreshedEvent");
     }
 
+    // intentionally nothing for now
     protected void executeOnAllNodesOfCluster() {
     }
 
@@ -68,6 +69,7 @@ public class DomibusContextRefreshedListener {
         });
     }
 
+    // below code could be moved in a separate service in 5.0
     protected void executeWithLockIfNeeded(Runnable task) {
         if (useLockForExecution()) {
             LOG.debug("Handling execution using lock file.");
