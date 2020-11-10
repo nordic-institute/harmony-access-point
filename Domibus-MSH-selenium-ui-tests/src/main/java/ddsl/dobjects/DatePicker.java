@@ -8,7 +8,9 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
+import utils.TestUtils;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -76,20 +78,9 @@ public class DatePicker extends DComponent {
 	}
 
 
-	public void selectDate(Date date) {
-		try {
-			expandWidget();
-
-//			String  currentListedDate = weToDobject(header).getText();
-//			Date listedDate = DateUtils.parseDate(currentListedDate, "yyyy EEE, MMM dd HH:mm");
-//
-//			listedDate.
-//			while (listedDate)
-
-
-
-		} catch (Exception e) {
-		}
+	public void selectDate(Date date) throws Exception {
+		String dateStr  = new SimpleDateFormat(dateFormat).format(date);
+		selectDate(dateStr);
 	}
 
 	private WebElement getInput(){
@@ -115,14 +106,6 @@ public class DatePicker extends DComponent {
 			weToDButton(getExpandBtn()).click();
 		}
 	}
-
-
-
-
-
-
-
-
 
 
 	//	used don't change
