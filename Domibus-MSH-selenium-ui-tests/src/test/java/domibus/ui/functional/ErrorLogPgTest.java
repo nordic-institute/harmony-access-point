@@ -149,7 +149,7 @@ public class ErrorLogPgTest extends SeleniumTest {
 		for (String dateStr : dates) {
 			long errorTime = TestRunData.UI_DATE_FORMAT.parse(dateStr).getTime();
 			log.debug("time = " + errorTime);
-			if (errorTime == failed) {
+			if (Math.abs(errorTime - failed) < 5000) {
 				log.info("found error");
 				foundErr = true;
 			}
