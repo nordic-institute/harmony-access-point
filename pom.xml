@@ -28,7 +28,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <cxf.version>3.2.13</cxf.version>
         <spring.version>4.3.29.RELEASE</spring.version>
-        <spring.security.version>4.2.19.RELEASE</spring.security.version>
+        <spring.security.version>4.2.16.RELEASE</spring.security.version>
         <hibernate.version>5.2.12.Final</hibernate.version>
         <hibernate.validator.version>5.1.2.Final</hibernate.validator.version>
         <activemq.version>5.15.13</activemq.version>
