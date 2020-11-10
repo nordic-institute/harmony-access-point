@@ -1,9 +1,9 @@
 package eu.domibus.core.encryption;
 
-import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.encryption.PasswordEncryptionService;
 import eu.domibus.core.payload.encryption.PayloadEncryptionService;
 import mockit.Expectations;
@@ -16,7 +16,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Cosmin Baciu
@@ -31,9 +31,6 @@ public class EncryptionServiceImplTest {
     protected PasswordEncryptionService passwordEncryptionService;
 
     @Injectable
-    protected DomainTaskExecutor domainTaskExecutor;
-
-    @Injectable
     protected DomibusConfigurationService domibusConfigurationService;
 
     @Injectable
@@ -42,64 +39,40 @@ public class EncryptionServiceImplTest {
     @Tested
     EncryptionServiceImpl encryptionService;
 
-//    @Test
-//    public void useLockForEncryption() {
-//        new Expectations(encryptionService) {{
-//            domibusConfigurationService.isClusterDeployment();
-//            result = true;
-//
-//            encryptionService.isAnyEncryptionActive();
-//            result = true;
-//        }};
-//
-//        assertTrue(encryptionService.useLockForEncryption());
-//    }
+    @Test
+    public void isAnyEncryptionActiveWithGeneralEncryptionActive() {
+        new Expectations() {{
+            domibusConfigurationService.isPasswordEncryptionActive();
+            result = true;
+        }};
 
-//    @Test
-//    public void useLockForEncryptionNoCluster() {
-//        new Expectations(encryptionService) {{
-//            domibusConfigurationService.isClusterDeployment();
-//            result = false;
-//
-//            encryptionService.isAnyEncryptionActive();
-//            result = true;
-//        }};
-//
-//        assertFalse(encryptionService.useLockForEncryption());
-//    }
+        assertTrue(encryptionService.isAnyEncryptionActive());
+    }
 
-//    @Test
-//    public void isAnyEncryptionActiveWithGeneralEncryptionActive() {
-//        new Expectations() {{
-//            domibusConfigurationService.isPasswordEncryptionActive();
-//            result = true;
-//        }};
-//
-//        assertTrue(encryptionService.isAnyEncryptionActive());
-//    }
+    @Test
+    public void isAnyEncryptionActiveWithOneDomainActive(@Injectable Domain domain1) {
+        List<Domain> domains = new ArrayList<>();
+        domains.add(domain1);
 
-//    @Test
-//    public void isAnyEncryptionActiveWithOneDomainActive(@Injectable Domain domain1) {
-//        List<Domain> domains = new ArrayList<>();
-//        domains.add(domain1);
-//
-//        new Expectations() {{
-//            domibusConfigurationService.isPasswordEncryptionActive();
-//            result = false;
-//
-//            domainService.getDomains();
-//            result = domains;
-//
-//            domibusConfigurationService.isPayloadEncryptionActive(domain1);
-//            result = true;
-//        }};
-//
-//        assertTrue(encryptionService.isAnyEncryptionActive());
-//    }
+        new Expectations() {{
+            domibusConfigurationService.isPasswordEncryptionActive();
+            result = false;
+
+            domainService.getDomains();
+            result = domains;
+
+            domibusConfigurationService.isPayloadEncryptionActive(domain1);
+            result = true;
+        }};
+
+        assertTrue(encryptionService.isAnyEncryptionActive());
+    }
 
     @Test
     public void handleEncryption() {
         new Expectations(encryptionService) {{
+            encryptionService.isAnyEncryptionActive();
+            result = true;
             encryptionService.doHandleEncryption();
         }};
 
@@ -111,36 +84,19 @@ public class EncryptionServiceImplTest {
         }};
     }
 
-//    @Test
-//    public void handleEncryptionWithLockFile(@Injectable File fileLock) {
-//        new Expectations(encryptionService) {{
-//            encryptionService.useLockForEncryption();
-//            result = true;
-//
-//            encryptionService.getLockFileLocation();
-//            result = fileLock;
-//        }};
-//
-//        encryptionService.handleEncryption();
-//
-//        new Verifications() {{
-//            domainTaskExecutor.submit((Runnable) any, null, fileLock);
-//            times = 1;
-//        }};
-//    }
+    @Test
+    public void handleEncryption_not() {
+        new Expectations(encryptionService) {{
+            encryptionService.isAnyEncryptionActive();
+            result = false;
+        }};
 
-//    @Test
-//    public void getLockFile() {
-//        String configLocation = "home";
-//
-//        new Expectations() {{
-//            domibusConfigurationService.getConfigLocation();
-//            result = configLocation;
-//        }};
-//
-//        final File lockFile = encryptionService.getLockFileLocation();
-//        assertEquals(configLocation, lockFile.getParent());
-//        assertEquals(EncryptionServiceImpl.ENCRYPTION_LOCK, lockFile.getName());
-//    }
+        encryptionService.handleEncryption();
+
+        new Verifications() {{
+            encryptionService.doHandleEncryption();
+            times = 0;
+        }};
+    }
 
 }

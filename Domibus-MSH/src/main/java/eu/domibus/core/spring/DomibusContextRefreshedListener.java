@@ -86,7 +86,7 @@ public class DomibusContextRefreshedListener {
         return clusterDeployment;
     }
 
-    private File getLockFileLocation() {
+    protected File getLockFileLocation() {
         return new File(domibusConfigurationService.getConfigLocation(), ENCRYPTION_LOCK);
     }
 }
