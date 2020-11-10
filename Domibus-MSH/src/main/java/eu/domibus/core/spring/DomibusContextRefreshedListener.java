@@ -25,12 +25,19 @@ public class DomibusContextRefreshedListener {
 
     private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusContextRefreshedListener.class);
 
+    public static final String ENCRYPTION_LOCK = "encryption.lock";
+
     @Autowired
     protected EncryptionService encryptionService;
 
     @Autowired
     protected BackendFilterInitializerService backendFilterInitializerService;
 
+    @Autowired
+    protected DomibusConfigurationService domibusConfigurationService;
+
+    @Autowired
+    protected DomainTaskExecutor domainTaskExecutor;
 
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     @EventListener
@@ -43,30 +50,28 @@ public class DomibusContextRefreshedListener {
             return;
         }
 
-        executeOnSingleNode(() -> {
-            backendFilterInitializerService.updateMessageFilters();
-            encryptionService.handleEncryption();
-        });
+        executeOnSingleNodeOfCluster();
+
+        executeOnAllNodesOfCluster();
 
         LOG.info("Finished processing ContextRefreshedEvent");
     }
 
+    protected void executeOnAllNodesOfCluster() {
+    }
 
-    // move to a dedicated service
-    @Autowired
-    protected DomibusConfigurationService domibusConfigurationService;
+    protected void executeOnSingleNodeOfCluster() {
+        LOG.debug("Executing on single node...");
+        executeWithLockIfNeeded(() -> {
+            backendFilterInitializerService.updateMessageFilters();
+            encryptionService.handleEncryption();
+        });
+    }
 
-    @Autowired
-    protected DomainTaskExecutor domainTaskExecutor;
-
-    public static final String ENCRYPTION_LOCK = "encryption.lock";
-
-    public void executeOnSingleNode(Runnable task) {
+    protected void executeWithLockIfNeeded(Runnable task) {
         if (useLockForExecution()) {
             LOG.debug("Handling execution using lock file.");
-
             final File fileLock = getLockFileLocation();
-
             domainTaskExecutor.submit(task, null, fileLock);
         } else {
             LOG.debug("Handling execution without lock.");
@@ -81,7 +86,7 @@ public class DomibusContextRefreshedListener {
         return clusterDeployment;
     }
 
-    protected File getLockFileLocation() {
+    private File getLockFileLocation() {
         return new File(domibusConfigurationService.getConfigLocation(), ENCRYPTION_LOCK);
     }
 }
