@@ -1,12 +1,14 @@
 package eu.domibus.core.ebms3.receiver;
 
+import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.multitenancy.DomainTaskException;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.receiver.handler.IncomingMessageHandler;
 import eu.domibus.core.ebms3.receiver.handler.IncomingMessageHandlerFactory;
-import eu.domibus.core.ebms3.sender.AbstractUserMessageSender;
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
+import eu.domibus.core.multitenancy.DomainContextProviderImpl;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.core.metrics.Counter;
@@ -16,6 +18,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.*;
 import javax.xml.ws.soap.SOAPBinding;
@@ -42,12 +45,21 @@ public class MSHWebservice implements Provider<SOAPMessage> {
     @Autowired
     protected IncomingMessageHandlerFactory incomingMessageHandlerFactory;
 
+    @Autowired
+    private DomainContextProvider domainContextProvider;
+
     @Timer(clazz = MSHWebservice.class,value = "incoming_user_message")
     @Counter(clazz = MSHWebservice.class,value = "incoming_user_message")
     @Override
     public SOAPMessage invoke(final SOAPMessage request) {
         LOG.trace("Message received");
 
+        try {
+            final String domainCode = (String)request.getProperty(DomainContextProviderImpl.HEADER_DOMIBUS_DOMAIN);
+            domainContextProvider.setCurrentDomain(domainCode);
+        } catch (SOAPException se) {
+                throw new DomainTaskException("Could not get current domain from request header " + DomainContextProviderImpl.HEADER_DOMIBUS_DOMAIN);
+        }
         Messaging messaging = getMessaging();
         if (messaging == null) {
             LOG.error("Error getting Messaging");
