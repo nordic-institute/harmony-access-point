@@ -77,9 +77,17 @@ public class DomibusContextRefreshedListener {
     // below code could be moved in a separate service in 5.0
     protected void executeWithLockIfNeeded(Runnable task) {
         LOG.debug("Executing in serial mode");
-        if (useLockForExecution()) {
+        if (isClusterEnvironment()) {
+            File fileLock = null;
+            try {
+                fileLock = getLockFileLocation();
+            } catch (Throwable ex) {
+                LOG.error("Exception creating the lock file.", ex);
+                LOG.debug("Handling execution without lock.");
+                task.run();
+                return;
+            }
             LOG.debug("Handling execution using lock file.");
-            final File fileLock = getLockFileLocation();
             domainTaskExecutor.submit(task, null, fileLock);
         } else {
             LOG.debug("Handling execution without lock.");
@@ -87,7 +95,7 @@ public class DomibusContextRefreshedListener {
         }
     }
 
-    protected boolean useLockForExecution() {
+    protected boolean isClusterEnvironment() {
         final boolean clusterDeployment = domibusConfigurationService.isClusterDeployment();
         LOG.debug("Cluster deployment? [{}]", clusterDeployment);
 

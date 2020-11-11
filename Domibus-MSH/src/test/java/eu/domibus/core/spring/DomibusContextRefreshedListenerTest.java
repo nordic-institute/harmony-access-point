@@ -89,7 +89,7 @@ public class DomibusContextRefreshedListenerTest {
             result = true;
         }};
 
-        assertTrue(domibusContextRefreshedListener.useLockForExecution());
+        assertTrue(domibusContextRefreshedListener.isClusterEnvironment());
     }
 
     @Test
@@ -99,13 +99,13 @@ public class DomibusContextRefreshedListenerTest {
             result = false;
         }};
 
-        assertFalse(domibusContextRefreshedListener.useLockForExecution());
+        assertFalse(domibusContextRefreshedListener.isClusterEnvironment());
     }
 
     @Test
     public void handleEncryptionWithLockFile(@Injectable File fileLock, @Injectable Runnable task) {
         new Expectations(domibusContextRefreshedListener) {{
-            domibusContextRefreshedListener.useLockForExecution();
+            domibusContextRefreshedListener.isClusterEnvironment();
             result = true;
 
             domibusContextRefreshedListener.getLockFileLocation();
