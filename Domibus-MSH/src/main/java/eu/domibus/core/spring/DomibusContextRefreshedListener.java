@@ -51,27 +51,32 @@ public class DomibusContextRefreshedListener {
             return;
         }
 
-        executeOnlyOnce();
+        executeWithLockIfNeeded(this::executeSynchronized);
 
-        executeOnAllNodesOfCluster();
+        executeNonSynchronized();
 
         LOG.info("Finished processing ContextRefreshedEvent");
     }
 
-    // intentionally nothing for now
-    protected void executeOnAllNodesOfCluster() {
+    /**
+     * Method executed in a serial/sync mode (if in a cluster environment)
+     * Add code that needs to be executed with regard to other nodes in the cluster
+     */
+    protected void executeSynchronized() {
+        backendFilterInitializerService.updateMessageFilters();
+        encryptionService.handleEncryption();
     }
 
-    protected void executeOnlyOnce() {
-        LOG.debug("Executing on single node...");
-        executeWithLockIfNeeded(() -> {
-            backendFilterInitializerService.updateMessageFilters();
-            encryptionService.handleEncryption();
-        });
+    /**
+     * Method executed in a parallel/not sync mode (in any environment)
+     * Add code that does not need to be executed with regard to other nodes in the cluster
+     */
+    protected void executeNonSynchronized() {
     }
 
     // below code could be moved in a separate service in 5.0
     protected void executeWithLockIfNeeded(Runnable task) {
+        LOG.debug("Executing in serial mode");
         if (useLockForExecution()) {
             LOG.debug("Handling execution using lock file.");
             final File fileLock = getLockFileLocation();
