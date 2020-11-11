@@ -74,7 +74,7 @@ public class DomibusContextRefreshedListener {
     protected void executeNonSynchronized() {
     }
 
-    // below code could be moved in a separate service in 5.0
+    // TODO: below code to be moved to a separate service EDELIVERY-7462.
     protected void executeWithLockIfNeeded(Runnable task) {
         LOG.debug("Executing in serial mode");
         if (useLockForExecution()) {
