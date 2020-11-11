@@ -18,6 +18,7 @@ import java.io.File;
 
 /**
  * @author Cosmin Baciu
+ * @author Ion Perpegel
  * @since 4.1
  */
 @Component
@@ -50,7 +51,7 @@ public class DomibusContextRefreshedListener {
             return;
         }
 
-        executeOnSingleNodeOfCluster();
+        executeOnlyOnce();
 
         executeOnAllNodesOfCluster();
 
@@ -61,7 +62,7 @@ public class DomibusContextRefreshedListener {
     protected void executeOnAllNodesOfCluster() {
     }
 
-    protected void executeOnSingleNodeOfCluster() {
+    protected void executeOnlyOnce() {
         LOG.debug("Executing on single node...");
         executeWithLockIfNeeded(() -> {
             backendFilterInitializerService.updateMessageFilters();
