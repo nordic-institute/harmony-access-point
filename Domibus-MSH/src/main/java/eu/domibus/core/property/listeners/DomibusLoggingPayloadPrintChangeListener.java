@@ -9,29 +9,29 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_LOGGING_METADATA_PRINT;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_LOGGING_PAYLOAD_PRINT;
 
 /**
- * Handles the change of {@value eu.domibus.api.property.DomibusPropertyMetadataManagerSPI#DOMIBUS_LOGGING_METADATA_PRINT}
- * property of {@link DomibusLoggingEventSender}
+ * Handles the change of {@value eu.domibus.api.property.DomibusPropertyMetadataManagerSPI#DOMIBUS_LOGGING_PAYLOAD_PRINT}
+ * of {@link DomibusLoggingEventSender}
  *
  * @author François Gautier
- * @since 4.2
+ * @since 5.0
  */
 @Service
-public class DomibusLoggingMetadataPrintChangeListener implements PluginPropertyChangeListener {
+public class DomibusLoggingPayloadPrintChangeListener implements PluginPropertyChangeListener {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusLoggingMetadataPrintChangeListener.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusLoggingPayloadPrintChangeListener.class);
 
     private final DomibusLoggingEventSender domibusLoggingEventSender;
 
-    public DomibusLoggingMetadataPrintChangeListener(@Qualifier("loggingSender") DomibusLoggingEventSender domibusLoggingEventSender) {
+    public DomibusLoggingPayloadPrintChangeListener(@Qualifier("loggingSender") DomibusLoggingEventSender domibusLoggingEventSender) {
         this.domibusLoggingEventSender = domibusLoggingEventSender;
     }
 
     @Override
     public boolean handlesProperty(String propertyName) {
-        boolean doesHandle = StringUtils.equals(propertyName, DOMIBUS_LOGGING_METADATA_PRINT);
+        boolean doesHandle = StringUtils.equals(propertyName, DOMIBUS_LOGGING_PAYLOAD_PRINT);
         LOG.trace("Handling [{}] property: [{}]", propertyName, doesHandle);
         return doesHandle;
     }
@@ -40,6 +40,6 @@ public class DomibusLoggingMetadataPrintChangeListener implements PluginProperty
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) {
         boolean val = BooleanUtils.isTrue(Boolean.valueOf(propertyValue));
         LOG.trace("Setting [{}] property to [{}] on domain: [{}] for loggingSender", propertyName, val, domainCode);
-        domibusLoggingEventSender.setPrintMetadata(val);
+        domibusLoggingEventSender.setPrintPayload(val);
     }
 }

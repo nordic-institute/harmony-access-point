@@ -3,6 +3,7 @@ package eu.domibus.core.message.nonrepudiation;
 import eu.domibus.core.dao.BasicDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.NoResultException;
@@ -35,6 +36,13 @@ public class RawEnvelopeLogDao extends BasicDao<RawEnvelopeLog> {
             LOG.trace("The message with id[{}] has no associated raw xml saved in the database.", messageId, nr);
             return null;
         }
+    }
+
+    public RawEnvelopeDto findUserMessageEnvelopeById(final long userMessageId) {
+        TypedQuery<RawEnvelopeDto> namedQuery = em.createNamedQuery("RawDto.findByUserMessageId", RawEnvelopeDto.class);
+        namedQuery.setParameter("USER_MESSAGE_ID", userMessageId);
+        LOG.debug("[findUserMessageEnvelopeById][Message]:[{}]", userMessageId);
+        return DataAccessUtils.singleResult(namedQuery.getResultList());
     }
 
     /**
