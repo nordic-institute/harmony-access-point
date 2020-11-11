@@ -26,7 +26,7 @@ public class DomibusContextRefreshedListener {
 
     private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusContextRefreshedListener.class);
 
-    public static final String ENCRYPTION_LOCK = "encryption.lock";
+    public static final String SYNC_LOCK_FILE = "synchronization.lock";
 
     @Autowired
     protected EncryptionService encryptionService;
@@ -95,6 +95,6 @@ public class DomibusContextRefreshedListener {
     }
 
     protected File getLockFileLocation() {
-        return new File(domibusConfigurationService.getConfigLocation(), ENCRYPTION_LOCK);
+        return new File(domibusConfigurationService.getConfigLocation(), SYNC_LOCK_FILE);
     }
 }
