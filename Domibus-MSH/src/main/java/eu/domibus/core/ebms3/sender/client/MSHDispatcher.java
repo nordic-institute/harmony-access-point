@@ -8,7 +8,6 @@ import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
-import eu.domibus.core.multitenancy.DomainContextProviderImpl;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
@@ -82,7 +81,7 @@ public class MSHDispatcher {
 
         Map<String, List<String>> headers = new HashMap<>();
         headers.put(HEADER_DOMIBUS_MESSAGE_ID, Arrays.asList(userMessage.getMessageInfo().getMessageId()));
-        headers.put(DomainContextProviderImpl.HEADER_DOMIBUS_DOMAIN, Arrays.asList(domain.getCode()));
+        headers.put(DomainContextProvider.HEADER_DOMIBUS_DOMAIN, Arrays.asList(domain.getCode()));
         if(legConfiguration.getSplitting() != null && legConfiguration.getSplitting().getCompression()) {
             headers.put(HEADER_DOMIBUS_SPLITTING_COMPRESSION, Arrays.asList("true"));
 

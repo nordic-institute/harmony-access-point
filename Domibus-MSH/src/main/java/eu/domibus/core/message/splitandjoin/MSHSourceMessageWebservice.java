@@ -4,7 +4,6 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
-import eu.domibus.core.multitenancy.DomainContextProviderImpl;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.core.util.xml.XMLUtilImpl;
@@ -58,7 +57,7 @@ public class MSHSourceMessageWebservice implements Provider<SOAPMessage> {
     public SOAPMessage invoke(final SOAPMessage request) {
         LOG.debug("Processing SourceMessage request");
 
-        final String domain = LOG.getMDC(DomainContextProviderImpl.HEADER_DOMIBUS_DOMAIN);
+        final String domain = LOG.getMDC(DomainContextProvider.HEADER_DOMIBUS_DOMAIN);
         domainContextProvider.setCurrentDomain(domain);
         final Domain currentDomain = domainContextProvider.getCurrentDomain();
 

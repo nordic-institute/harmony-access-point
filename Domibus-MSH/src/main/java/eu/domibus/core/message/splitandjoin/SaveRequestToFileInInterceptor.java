@@ -58,12 +58,12 @@ public class SaveRequestToFileInInterceptor extends AbstractPhaseInterceptor<Mes
         Map<String, List<String>> headers = (Map<String, List<String>>) message.get(Message.PROTOCOL_HEADERS);
         String messageId = getHeaderValue(headers, MSHDispatcher.HEADER_DOMIBUS_MESSAGE_ID);
         boolean compression = Boolean.valueOf(getHeaderValue(headers, MSHDispatcher.HEADER_DOMIBUS_SPLITTING_COMPRESSION));
-        String domainCode = getHeaderValue(headers, DomainContextProviderImpl.HEADER_DOMIBUS_DOMAIN);
+        String domainCode = getHeaderValue(headers, DomainContextProvider.HEADER_DOMIBUS_DOMAIN);
         String encoding = (String) message.get(Message.ENCODING);
         String contentType = (String) message.get(Message.CONTENT_TYPE);
         LOG.putMDC(Message.CONTENT_TYPE, contentType);
         LOG.putMDC(MSHDispatcher.HEADER_DOMIBUS_SPLITTING_COMPRESSION, String.valueOf(compression));
-        LOG.putMDC(DomainContextProviderImpl.HEADER_DOMIBUS_DOMAIN, domainCode);
+        LOG.putMDC(DomainContextProvider.HEADER_DOMIBUS_DOMAIN, domainCode);
         domainContextProvider.setCurrentDomain(domainCode);
 
         final String temporaryDirectoryLocation = domibusPropertyProvider.getProperty(PayloadFileStorage.TEMPORARY_ATTACHMENT_STORAGE_LOCATION);

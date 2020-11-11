@@ -59,7 +59,7 @@ public class SetDomainInInterceptor extends AbstractSoapInterceptor {
         String domainCode = getDomainCode(httpRequest);
         LOG.debug("Using domain [{}]", domainCode);
         domainContextProvider.setCurrentDomain(domainCode);
-        message.put(DomainContextProviderImpl.HEADER_DOMIBUS_DOMAIN, domainCode);
+        message.put(DomainContextProvider.HEADER_DOMIBUS_DOMAIN, domainCode);
     }
 
     protected String getDomainCode(HttpServletRequest httpRequest) {

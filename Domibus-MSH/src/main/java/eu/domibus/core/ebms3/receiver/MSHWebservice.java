@@ -8,7 +8,6 @@ import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.receiver.handler.IncomingMessageHandler;
 import eu.domibus.core.ebms3.receiver.handler.IncomingMessageHandlerFactory;
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
-import eu.domibus.core.multitenancy.DomainContextProviderImpl;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.core.metrics.Counter;
@@ -80,10 +79,10 @@ public class MSHWebservice implements Provider<SOAPMessage> {
     protected void setCurrentDomain(final SOAPMessage request) {
         LOG.trace("Setting the current domain");
         try {
-            final String domainCode = (String)request.getProperty(DomainContextProviderImpl.HEADER_DOMIBUS_DOMAIN);
+            final String domainCode = (String)request.getProperty(DomainContextProvider.HEADER_DOMIBUS_DOMAIN);
             domainContextProvider.setCurrentDomain(domainCode);
         } catch (SOAPException se) {
-            throw new DomainTaskException("Could not get current domain from request header " + DomainContextProviderImpl.HEADER_DOMIBUS_DOMAIN);
+            throw new DomainTaskException("Could not get current domain from request header " + DomainContextProvider.HEADER_DOMIBUS_DOMAIN);
         }
     }
 
