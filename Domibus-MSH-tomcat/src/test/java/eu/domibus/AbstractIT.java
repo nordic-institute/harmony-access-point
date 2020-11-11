@@ -287,6 +287,8 @@ public abstract class AbstractIT {
         String pModeKey = composePModeKey("blue_gw", "red_gw", "testService1", "tc1Action", "", "pushTestcase1tc1Action");
 
         message.setProperty(DispatchClientDefaultProvider.PMODE_KEY_CONTEXT_PROPERTY, pModeKey);
+        message.setProperty(DomainContextProvider.HEADER_DOMIBUS_DOMAIN, DomainService.DEFAULT_DOMAIN.getCode());
+
         return message;
     }
 
