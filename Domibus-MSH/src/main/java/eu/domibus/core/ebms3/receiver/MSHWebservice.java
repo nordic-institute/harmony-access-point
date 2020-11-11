@@ -53,13 +53,7 @@ public class MSHWebservice implements Provider<SOAPMessage> {
     @Override
     public SOAPMessage invoke(final SOAPMessage request) {
         LOG.trace("Message received");
-
-        try {
-            final String domainCode = (String)request.getProperty(DomainContextProviderImpl.HEADER_DOMIBUS_DOMAIN);
-            domainContextProvider.setCurrentDomain(domainCode);
-        } catch (SOAPException se) {
-                throw new DomainTaskException("Could not get current domain from request header " + DomainContextProviderImpl.HEADER_DOMIBUS_DOMAIN);
-        }
+        setCurrentDomain(request);
         Messaging messaging = getMessaging();
         if (messaging == null) {
             LOG.error("Error getting Messaging");
@@ -81,6 +75,16 @@ public class MSHWebservice implements Provider<SOAPMessage> {
         }
         return soapMessage;
 
+    }
+
+    protected void setCurrentDomain(final SOAPMessage request) {
+        LOG.trace("Setting the current domain");
+        try {
+            final String domainCode = (String)request.getProperty(DomainContextProviderImpl.HEADER_DOMIBUS_DOMAIN);
+            domainContextProvider.setCurrentDomain(domainCode);
+        } catch (SOAPException se) {
+            throw new DomainTaskException("Could not get current domain from request header " + DomainContextProviderImpl.HEADER_DOMIBUS_DOMAIN);
+        }
     }
 
     protected Messaging getMessaging() {
