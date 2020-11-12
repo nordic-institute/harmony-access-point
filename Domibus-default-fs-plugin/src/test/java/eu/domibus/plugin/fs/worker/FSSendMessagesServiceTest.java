@@ -430,8 +430,12 @@ public class FSSendMessagesServiceTest {
     }
 
     @Test
-    public void testClearObservedFiles() throws InterruptedException {
+    public void testClearObservedFiles() {
         final String domain = "default";
+        final String fileName = "ram:///FSSendMessagesServiceTest/OUT/content.xml2";
+        long fileSize = 1234;
+        long currentTime = new Date().getTime();
+        instance.observedFilesInfo.put(fileName, new FileInfo(fileSize, currentTime - 800, domain));
 
         new Expectations(1, instance) {{
             fsPluginProperties.getSendDelay(domain);
@@ -441,17 +445,7 @@ public class FSSendMessagesServiceTest {
             result = 300;
         }};
 
-        instance.checkSizeChangedRecently(contentFile, domain);
-
-        //tested method
-        Assert.assertEquals(1, instance.observedFilesInfo.size());
         instance.clearObservedFiles(domain);
-        Assert.assertEquals(1, instance.observedFilesInfo.size());
-
-
-        Thread.sleep(800);
-        instance.clearObservedFiles(domain);
-
         Assert.assertEquals(0, instance.observedFilesInfo.size());
     }
 
