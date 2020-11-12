@@ -7,6 +7,7 @@ import eu.domibus.core.jpa.DomibusJPAConfiguration;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.core.property.PrefixedProperties;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,6 +25,12 @@ public class TomcatDatasourceConfiguration {
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(TomcatDatasourceConfiguration.class);
 
     public static final String DOMIBUS_DATASOURCE_XA_PROPERTY = "domibus.datasource.xa.property.";
+
+    public static final String DOMIBUS_DATASOURCE_XA_PROPERTY_VALUE_PREFIX_ORACLE_URL = "jdbc:oracle:";
+
+    public static final String DOMIBUS_DATASOURCE_XA_PROPERTY_KEY_URL = DOMIBUS_DATASOURCE_XA_PROPERTY + "url";
+
+    public static final String DOMIBUS_DATASOURCE_XA_PROPERTY_KEY_ORACLE_URL = DOMIBUS_DATASOURCE_XA_PROPERTY + "URL";
 
     @Bean(name = DomibusJPAConfiguration.DOMIBUS_JDBC_XA_DATA_SOURCE, initMethod = "init", destroyMethod = "close")
     @DependsOn("userTransactionService")
@@ -57,6 +64,24 @@ public class TomcatDatasourceConfiguration {
     @Bean("xaProperties")
     public PrefixedProperties xaProperties(DomibusPropertyProvider domibusPropertyProvider) {
         final PrefixedProperties prefixedProperties = new PrefixedProperties(domibusPropertyProvider, DOMIBUS_DATASOURCE_XA_PROPERTY);
+
+        /*
+         * The URL property name for the OracleXADataSource is 'URL', not 'url', with the setter like #setURL(String).
+         * Because of this issue we need to change the case of the URL property from the domibus.properties to uppercase.
+         * This is only needed when configuring Tomcat with Oracle, and only for the XA URL property (the non-XA URL
+         * property is set through Atomikos' API - using #setUrl(String) below - , while the XA one may be set using reflection
+         * - within #setXaProperties(Properties) above -).
+         */
+        prefixedProperties.entrySet()
+                .stream()
+                .filter(property -> StringUtils.equalsIgnoreCase(property.getKey().toString(), DOMIBUS_DATASOURCE_XA_PROPERTY_KEY_URL)
+                        && StringUtils.startsWithIgnoreCase(property.getValue().toString(), DOMIBUS_DATASOURCE_XA_PROPERTY_VALUE_PREFIX_ORACLE_URL))
+                .peek(property -> LOGGER.info("Switching the URL property key to uppercase as required by an OracleXEDataSource: [{}]->[{}]", property.getKey(), property.getValue()))
+                .findAny()
+                .ifPresent(property -> {
+                    prefixedProperties.remove(DOMIBUS_DATASOURCE_XA_PROPERTY_KEY_URL);
+                    prefixedProperties.setProperty(DOMIBUS_DATASOURCE_XA_PROPERTY_KEY_ORACLE_URL, property.getValue().toString());
+                });
 
         prefixedProperties.setProperty("password", domibusPropertyProvider.getProperty(DOMIBUS_DATASOURCE_XA_PROPERTY_PASSWORD));
         return prefixedProperties;
