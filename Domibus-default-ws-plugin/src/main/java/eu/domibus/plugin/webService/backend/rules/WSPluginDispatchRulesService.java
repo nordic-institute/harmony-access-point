@@ -3,6 +3,7 @@ package eu.domibus.plugin.webService.backend.rules;
 import eu.domibus.ext.services.DomibusPropertyExtService;
 import eu.domibus.plugin.webService.backend.WSBackendMessageType;
 import eu.domibus.plugin.webService.exception.WSPluginException;
+import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.common.util.CollectionUtils;
 import org.springframework.stereotype.Service;
@@ -76,9 +77,9 @@ public class WSPluginDispatchRulesService {
 
     protected List<WSBackendMessageType> getTypes(String property) {
         List<WSBackendMessageType> result = new ArrayList<>();
-        String[] split = StringUtils.split(property, ",");
+        String[] messageTypes = StringUtils.split(RegExUtils.replaceAll(property, " ",""), ",");
 
-        for (String type : split) {
+        for (String type : messageTypes) {
             try {
                 result.add(WSBackendMessageType.valueOf(type));
             } catch (Exception e) {

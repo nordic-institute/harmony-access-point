@@ -30,11 +30,11 @@ public class BackendApplication {
      */
     public static void main(String[] args) {
         SpringApplication app = new SpringApplication(BackendApplication.class);
-        String arg = args[0];
-        if(StringUtils.isBlank(arg)){
-            arg = DEFAULT_PORT;
+        String port = DEFAULT_PORT;
+        if(args != null && args.length > 0 && StringUtils.isNotBlank(args[0])){
+            port = args[0];
         }
-        app.setDefaultProperties(Collections.singletonMap("server.port", arg));
+        app.setDefaultProperties(Collections.singletonMap("server.port", port));
         app.run(args);
     }
 
