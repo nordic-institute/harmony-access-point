@@ -82,7 +82,7 @@ public class MSHWebservice implements Provider<SOAPMessage> {
             final String domainCode = (String)request.getProperty(DomainContextProvider.HEADER_DOMIBUS_DOMAIN);
             domainContextProvider.setCurrentDomain(domainCode);
         } catch (SOAPException se) {
-            throw new DomainTaskException("Could not get current domain from request header " + DomainContextProvider.HEADER_DOMIBUS_DOMAIN);
+            throw new DomainTaskException("Could not get current domain from request header " + DomainContextProvider.HEADER_DOMIBUS_DOMAIN, se);
         }
     }
 
