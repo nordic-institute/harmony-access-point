@@ -445,6 +445,7 @@ public class FSSendMessagesServiceTest {
             result = 300;
         }};
 
+        //tested method
         instance.clearObservedFiles(domain);
         Assert.assertEquals(0, instance.observedFilesInfo.size());
     }
