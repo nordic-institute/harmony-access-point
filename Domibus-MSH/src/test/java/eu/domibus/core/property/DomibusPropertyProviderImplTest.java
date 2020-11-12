@@ -7,10 +7,8 @@ import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.encryption.PasswordEncryptionService;
-import mockit.Expectations;
-import mockit.Injectable;
-import mockit.Tested;
-import mockit.Verifications;
+import eu.domibus.ext.domain.DomainDTO;
+import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
@@ -20,20 +18,20 @@ import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertySource;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Predicate;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * @author Ion Perpegel
  */
+@SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(JMockit.class)
 public class DomibusPropertyProviderImplTest {
 
+    public static final String PREFIX = "prefix";
     @Tested
     DomibusPropertyProviderImpl domibusPropertyProvider;
 
@@ -66,9 +64,9 @@ public class DomibusPropertyProviderImplTest {
     @Injectable
     PrimitivePropertyTypesManager primitivePropertyTypesManager;
 
-    private String propertyName = "domibus.property.name";
-    private String propertyValue = "domibus.property.value";
-    private Domain domain = new Domain("domain1", "Domain 1");
+    private final String propertyName = "domibus.property.name";
+    private final String propertyValue = "domibus.property.value";
+    private final Domain domain = new Domain("domain1", "Domain 1");
 
     @Test
     public void getProperty() {
@@ -226,7 +224,7 @@ public class DomibusPropertyProviderImplTest {
         }};
 
         String result = domibusPropertyProvider.getInternalProperty(propertyName);
-        assertEquals(null, result);
+        assertNull(result);
 
         new Verifications() {{
             domibusPropertyProvider.getGlobalProperty(prop);
@@ -316,7 +314,7 @@ public class DomibusPropertyProviderImplTest {
         }};
 
         String result = domibusPropertyProvider.getInternalProperty(propertyName);
-        assertEquals(null, result);
+        assertNull(result);
 
         new Verifications() {{
             domibusPropertyProvider.getGlobalProperty(prop);
@@ -330,12 +328,10 @@ public class DomibusPropertyProviderImplTest {
 
     @Test(expected = DomibusPropertyException.class)
     public void getDomainProperty_NullDomain() {
-        String result = domibusPropertyProvider.getProperty(null, propertyName);
+        domibusPropertyProvider.getProperty(null, propertyName);
 
-        new Verifications() {{
-            globalPropertyMetadataManager.getPropertyMetadata(propertyName);
-            times = 0;
-        }};
+        new FullVerifications() {
+        };
     }
 
     @Test
@@ -376,7 +372,7 @@ public class DomibusPropertyProviderImplTest {
             result = true;
         }};
 
-        String result = domibusPropertyProvider.getInternalProperty(domain, propertyName);
+        domibusPropertyProvider.getInternalProperty(domain, propertyName);
 
         new Verifications() {{
             domibusConfigurationService.isMultiTenantAware();
@@ -448,7 +444,7 @@ public class DomibusPropertyProviderImplTest {
     @Test
     public void getBooleanProperty() {
         String val = "true";
-        boolean boolVal = Boolean.valueOf(val);
+        boolean boolVal = true;
 
         new Expectations(domibusPropertyProvider) {{
             domibusPropertyProvider.getProperty(propertyName);
@@ -465,7 +461,7 @@ public class DomibusPropertyProviderImplTest {
     @Test
     public void getBooleanDomainProperty() {
         String val = "true";
-        boolean boolVal = Boolean.valueOf(val);
+        boolean boolVal = true;
 
         new Expectations(domibusPropertyProvider) {{
             domibusPropertyProvider.getProperty(domain, propertyName);
@@ -480,7 +476,7 @@ public class DomibusPropertyProviderImplTest {
     }
 
     @Test
-    public void filterPropertiesName(@Injectable PropertySource propertySource,
+    public void filterPropertiesName(@Injectable PropertySource<?> propertySource,
                                      @Injectable Predicate<String> predicate) {
         MutablePropertySources propertySources = new MutablePropertySources();
         propertySources.addFirst(propertySource);
@@ -489,7 +485,7 @@ public class DomibusPropertyProviderImplTest {
             environment.getPropertySources();
             result = propertySources;
 
-            domibusPropertyProvider.filterPropertySource((Predicate<String>) any, (PropertySource) any);
+            domibusPropertyProvider.filterPropertySource(withAny(predicate), withAny(propertySource));
         }};
 
         domibusPropertyProvider.filterPropertiesName(predicate);
@@ -553,7 +549,7 @@ public class DomibusPropertyProviderImplTest {
 
         String res = domibusPropertyProvider.getDomainOrDefaultValue(prop, domain);
 
-        assertEquals(null, res);
+        assertNull(res);
 
         new Verifications() {{
             domibusPropertyProvider.getPropertyValue(prop.getName(), domain, prop.isEncrypted());
@@ -608,13 +604,28 @@ public class DomibusPropertyProviderImplTest {
         propertiesStartingWithPrefix.add("routing.rule1.service");
 
         new Expectations(domibusPropertyProvider) {{
-            domibusPropertyProvider.filterPropertiesName((Predicate) any);
+            domibusPropertyProvider.filterPropertiesName(withAny(s -> true));
             result = propertiesStartingWithPrefix;
         }};
 
         List<String> nestedProperties = domibusPropertyProvider.getNestedProperties(prefix);
         Assert.assertEquals(1, nestedProperties.size());
         Assert.assertTrue(nestedProperties.contains("rule1"));
+    }
+
+    @Test
+    public void testGetNestedProperties_empty() {
+        String prefix = "routing";
+
+        Set<String> propertiesStartingWithPrefix = new HashSet<>();
+
+        new Expectations(domibusPropertyProvider) {{
+            domibusPropertyProvider.filterPropertiesName(withAny(s -> true));
+            result = propertiesStartingWithPrefix;
+        }};
+
+        List<String> nestedProperties = domibusPropertyProvider.getNestedProperties(prefix);
+        Assert.assertEquals(0, nestedProperties.size());
     }
 
     @Test
@@ -671,5 +682,76 @@ public class DomibusPropertyProviderImplTest {
 
         String value = domibusPropertyProvider.computePropertyPrefix(domain, "rule1");
         Assert.assertEquals(domainCode + ".rule1", value);
+    }
+
+    @Test
+    public void getProperties_empty(@Mocked Predicate<String> predicate) {
+        new Expectations(domibusPropertyProvider) {{
+            domibusPropertyProvider.filterPropertiesName(withAny(predicate));
+            times = 1;
+            result = new TreeSet<>();
+        }};
+        List<String> prefix = domibusPropertyProvider.getProperties(PREFIX);
+        assertEquals(0, prefix.size());
+        new FullVerifications(){};
+
+    }
+
+    @Test
+    public void getProperties_ok(@Mocked Predicate<String> predicate) {
+        TreeSet<String> objects = new TreeSet<>();
+        objects.add("exemple");
+        new Expectations(domibusPropertyProvider) {{
+            domibusPropertyProvider.filterPropertiesName(withAny(predicate));
+            times = 1;
+            result = objects;
+        }};
+        List<String> prefix = domibusPropertyProvider.getProperties(PREFIX);
+        assertEquals(1, prefix.size());
+        new FullVerifications(){};
+
+    }
+
+    @Test
+    public void getPropertyPrefix_singletenancy() {
+        new Expectations() {{
+            domibusConfigurationService.isMultiTenantAware();
+            result = false;
+        }};
+        String result = domibusPropertyProvider.getPropertyPrefix(null, PREFIX);
+        assertEquals("prefix.", result);
+        new FullVerifications(){};
+
+    }
+
+    @Test
+    public void getPropertyPrefix_Multitenancy_domainNull() {
+        new Expectations() {{
+            domibusConfigurationService.isMultiTenantAware();
+            result = true;
+
+            domainContextProvider.getCurrentDomain();
+            result = DomainService.DEFAULT_DOMAIN;
+        }};
+        String result = domibusPropertyProvider.getPropertyPrefix(null, PREFIX);
+        assertEquals(DomainDTO.DEFAULT_DOMAIN + "." + PREFIX + ".", result);
+        new FullVerifications(){};
+
+    }
+
+    @Test
+    public void getAllNestedProperties() {
+        new Expectations(domibusPropertyProvider) {{
+            domibusPropertyProvider.getPropertyPrefix(null, PREFIX);
+            times = 1;
+            result = DomainDTO.DEFAULT_DOMAIN + "." + PREFIX + ".";
+
+            domibusPropertyProvider.getProperties(DomainDTO.DEFAULT_DOMAIN + "." + PREFIX + ".");
+            times = 1;
+            result = new ArrayList<>();
+        }};
+
+        domibusPropertyProvider.getAllNestedProperties(PREFIX);
+        new FullVerifications(){};
     }
 }

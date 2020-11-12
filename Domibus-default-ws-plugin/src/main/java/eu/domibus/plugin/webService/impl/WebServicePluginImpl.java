@@ -16,6 +16,7 @@ import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.AbstractBackendConnector;
 import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
 import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
+import eu.domibus.plugin.webService.backend.WSPluginBackendService;
 import eu.domibus.plugin.webService.dao.WSMessageLogDao;
 import eu.domibus.plugin.webService.entity.WSMessageLogEntity;
 import eu.domibus.plugin.webService.generated.*;
@@ -83,6 +84,8 @@ public class WebServicePluginImpl extends AbstractBackendConnector<Messaging, Us
 
     @Autowired
     AuthenticationExtService authenticationExtService;
+    @Autowired
+    WSPluginBackendService wsPluginBackendService;
 
     public WebServicePluginImpl() {
         super(PLUGIN_NAME);
@@ -168,6 +171,22 @@ public class WebServicePluginImpl extends AbstractBackendConnector<Messaging, Us
     @Override
     public void messageSendSuccess(final MessageSendSuccessEvent event) {
         LOG.info("Message send success [{}]", event.getMessageId());
+        wsPluginBackendService.sendSuccess(event.getMessageId(), getRecipient(event));
+    }
+
+    protected String getRecipient(MessageSendSuccessEvent event) {
+        UserMessage userMessage;
+        try {
+            userMessage = this.browseMessage(event.getMessageId(), null);
+        } catch (MessageNotFoundException e) {
+            return null;
+        }
+        if (userMessage.getPartyInfo() == null ||
+                userMessage.getPartyInfo().getTo() == null ||
+                userMessage.getPartyInfo().getTo().getPartyId() == null) {
+            return null;
+        }
+        return userMessage.getPartyInfo().getTo().getPartyId().getValue();
     }
 
     private void addPartInfos(SubmitRequest submitRequest, Messaging ebMSHeaderInfo) throws SubmitMessageFault {

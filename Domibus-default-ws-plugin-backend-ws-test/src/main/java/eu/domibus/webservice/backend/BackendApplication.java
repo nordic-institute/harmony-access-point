@@ -1,5 +1,6 @@
 package eu.domibus.webservice.backend;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.Bus;
 import org.apache.cxf.transport.servlet.CXFServlet;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,14 +19,24 @@ import java.util.Collections;
 @SpringBootApplication
 public class BackendApplication {
 
-    public static void main(int port, String[] args) {
-        SpringApplication app = new SpringApplication(BackendApplication.class);
-        app.setDefaultProperties(Collections.singletonMap("server.port", "" + port));
-        app.run(args);
-    }
+    public static final String DEFAULT_PORT = "8080";
 
     @Autowired
     private Bus bus;
+
+    /**
+     * Run BackendApplication with a given port number (default : {@value DEFAULT_PORT}
+     * @param args 0: port number
+     */
+    public static void main(String[] args) {
+        SpringApplication app = new SpringApplication(BackendApplication.class);
+        String arg = args[0];
+        if(StringUtils.isBlank(arg)){
+            arg = DEFAULT_PORT;
+        }
+        app.setDefaultProperties(Collections.singletonMap("server.port", arg));
+        app.run(args);
+    }
 
     @Bean
     public ServletRegistrationBean<CXFServlet> cxfServlet() {

@@ -1,5 +1,7 @@
 package eu.domibus.plugin.webService.backend.dispatch;
 
+import eu.domibus.plugin.webService.backend.WSBackendMessageLogEntity;
+import eu.domibus.plugin.webService.backend.WSBackendMessageType;
 import eu.domibus.webservice.backend.BackendApplication;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,13 +30,16 @@ public class WSPluginDispatcherTest {
     @Before
     public void setUp() {
         backendPort = SocketUtils.findAvailableTcpPort(3000, 3100);
-        BackendApplication.main(backendPort, new String[]{});
+        BackendApplication.main(new String[]{""+backendPort});
     }
 
     @Test
     public void sendSuccess() {
+        WSBackendMessageLogEntity wsBackendMessageLogEntity = new WSBackendMessageLogEntity();
+        wsBackendMessageLogEntity.setMessageId(UUID.randomUUID().toString());
+        wsBackendMessageLogEntity.setType(WSBackendMessageType.SEND_SUCCESS);
         wsPluginDispatcher.dispatch(
-                wsPluginMessageBuilder.buildSOAPMessageSendSuccess(UUID.randomUUID().toString()),
+                wsPluginMessageBuilder.buildSOAPMessageSendSuccess(wsBackendMessageLogEntity),
                 "http://localhost:" + backendPort + "/backend");
     }
 }
