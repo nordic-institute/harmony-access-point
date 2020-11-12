@@ -83,9 +83,10 @@ public class WebServicePluginImpl extends AbstractBackendConnector<Messaging, Us
     protected WSPluginPropertyManager wsPluginPropertyManager;
 
     @Autowired
-    AuthenticationExtService authenticationExtService;
+    private AuthenticationExtService authenticationExtService;
+
     @Autowired
-    WSPluginBackendService wsPluginBackendService;
+    private WSPluginBackendService wsPluginBackendService;
 
     public WebServicePluginImpl() {
         super(PLUGIN_NAME);
@@ -179,11 +180,13 @@ public class WebServicePluginImpl extends AbstractBackendConnector<Messaging, Us
         try {
             userMessage = this.browseMessage(event.getMessageId(), null);
         } catch (MessageNotFoundException e) {
+            LOG.warn("Domibus Message not found for messageId: [{}]", event.getMessageId());
             return null;
         }
         if (userMessage.getPartyInfo() == null ||
                 userMessage.getPartyInfo().getTo() == null ||
                 userMessage.getPartyInfo().getTo().getPartyId() == null) {
+            LOG.warn("Final recipient not for for messageId: [{}]", event.getMessageId());
             return null;
         }
         return userMessage.getPartyInfo().getTo().getPartyId().getValue();

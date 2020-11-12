@@ -21,6 +21,7 @@ public class WSPluginMessageSender {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginMessageSender.class);
 
     protected final WSPluginMessageBuilder wsPluginMessageBuilder;
+
     protected final WSPluginDispatcher wsPluginDispatcher;
 
     public WSPluginMessageSender(WSPluginMessageBuilder wsPluginMessageBuilder,
@@ -42,8 +43,6 @@ public class WSPluginMessageSender {
             //NOSONAR: Catching Throwable is done on purpose in order to even catch out of memory exceptions in case large files are sent.
             LOG.error("Error occurred when sending message with ID [{}]", wsBackendMessageLogEntity.getMessageId(), t);
             throw t;
-        } finally {
-            LOG.debug("Finally handle reliability");
         }
     }
 

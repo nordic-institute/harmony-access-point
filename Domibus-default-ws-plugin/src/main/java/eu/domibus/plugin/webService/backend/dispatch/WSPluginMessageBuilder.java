@@ -36,9 +36,7 @@ public class WSPluginMessageBuilder {
     }
 
     public SOAPMessage buildSOAPMessageSendSuccess(final WSBackendMessageLogEntity messageLogEntity) {
-        Object jaxbElement;
-
-        jaxbElement = getJaxbElement(messageLogEntity);
+        Object jaxbElement = getJaxbElement(messageLogEntity);
         SOAPMessage soapMessage = buildSOAPMessage(jaxbElement);
 
         if (LOG.isDebugEnabled()) {
@@ -47,7 +45,7 @@ public class WSPluginMessageBuilder {
         return soapMessage;
     }
 
-    private Object getJaxbElement(WSBackendMessageLogEntity messageLogEntity) {
+    protected Object getJaxbElement(WSBackendMessageLogEntity messageLogEntity) {
         switch (messageLogEntity.getType()) {
             case SEND_SUCCESS:
                 return getSendSuccess(messageLogEntity);
@@ -58,17 +56,17 @@ public class WSPluginMessageBuilder {
             case MESSAGE_STATUS_CHANGE:
             case SUBMIT_MESSAGE:
             default:
-                throw new IllegalStateException("Unexpected value: " + messageLogEntity.getType());
+                throw new IllegalArgumentException("Unexpected value: " + messageLogEntity.getType());
         }
     }
 
-    private SendFailure getSendFailure(WSBackendMessageLogEntity messageLogEntity) {
+    protected SendFailure getSendFailure(WSBackendMessageLogEntity messageLogEntity) {
         SendFailure sendFailure = new ObjectFactory().createSendFailure();
         sendFailure.setMessageID(messageLogEntity.getMessageId());
         return sendFailure;
     }
 
-    private SendSuccess getSendSuccess(WSBackendMessageLogEntity messageLogEntity) {
+    protected SendSuccess getSendSuccess(WSBackendMessageLogEntity messageLogEntity) {
         SendSuccess sendSuccess = new ObjectFactory().createSendSuccess();
         sendSuccess.setMessageID(messageLogEntity.getMessageId());
         return sendSuccess;

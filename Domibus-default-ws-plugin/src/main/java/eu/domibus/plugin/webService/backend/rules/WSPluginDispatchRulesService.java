@@ -1,6 +1,8 @@
 package eu.domibus.plugin.webService.backend.rules;
 
 import eu.domibus.ext.services.DomibusPropertyExtService;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.webService.backend.WSBackendMessageType;
 import eu.domibus.plugin.webService.exception.WSPluginException;
 import org.apache.commons.lang3.RegExUtils;
@@ -16,6 +18,7 @@ import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.equalsAnyIgnoreCase;
+import static org.apache.commons.lang3.StringUtils.trim;
 
 /**
  * @author François Gautier
@@ -23,6 +26,7 @@ import static org.apache.commons.lang3.StringUtils.equalsAnyIgnoreCase;
  */
 @Service
 public class WSPluginDispatchRulesService {
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginDispatchRulesService.class);
 
     public static final String WSPLUGIN_PUSH_PREFIX = "wsplugin.push";
     public static final String PUSH_RULE_PREFIX = WSPLUGIN_PUSH_PREFIX + ".rule";
@@ -77,13 +81,13 @@ public class WSPluginDispatchRulesService {
 
     protected List<WSBackendMessageType> getTypes(String property) {
         List<WSBackendMessageType> result = new ArrayList<>();
-        String[] messageTypes = StringUtils.split(RegExUtils.replaceAll(property, " ",""), ",");
+        String[] messageTypes = StringUtils.split(RegExUtils.replaceAll(property, " ", ""), ",");
 
         for (String type : messageTypes) {
             try {
-                result.add(WSBackendMessageType.valueOf(type));
+                result.add(WSBackendMessageType.valueOf(trim(type)));
             } catch (Exception e) {
-                throw new WSPluginException("Type does not exists [" + type + "]. It should be one of "+ Arrays.toString(WSBackendMessageType.values()), e);
+                throw new WSPluginException("Type does not exists [" + type + "]. It should be one of " + Arrays.toString(WSBackendMessageType.values()), e);
             }
         }
 
@@ -106,13 +110,14 @@ public class WSPluginDispatchRulesService {
 
     protected void setRetryInformation(WSPluginDispatchRuleBuilder ruleBuilder, String property) {
         ruleBuilder.withRetry(property);
+        if (StringUtils.isBlank(property)) {
+            return;
+        }
         try {
-            if (StringUtils.isNotBlank(property)) {
-                String[] retryValues = StringUtils.split(property, ";");
-                ruleBuilder.withRetryTimeout(Integer.parseInt(retryValues[0]));
-                ruleBuilder.withRetryCount(Integer.parseInt(retryValues[1]));
-                ruleBuilder.withRetryStrategy(WSPluginRetryStrategy.valueOf(retryValues[2]));
-            }
+            String[] retryValues = StringUtils.split(RegExUtils.replaceAll(property, " ", ""), ";");
+            ruleBuilder.withRetryTimeout(Integer.parseInt(trim(retryValues[0])));
+            ruleBuilder.withRetryCount(Integer.parseInt(trim(retryValues[1])));
+            ruleBuilder.withRetryStrategy(WSPluginRetryStrategy.valueOf(trim(retryValues[2])));
         } catch (ArrayIndexOutOfBoundsException | IllegalArgumentException e) {
             throw new WSPluginException(
                     "The format of the property [" + PUSH_RULE_PREFIX + ruleBuilder.getIndex() + PUSH_RULE_RETRY + "] " +
@@ -121,16 +126,18 @@ public class WSPluginDispatchRulesService {
         }
     }
 
-    protected Integer getIndex(String s) {
-        String s1 = StringUtils.substringAfter(s, PUSH_RULE_PREFIX);
-        if (StringUtils.isBlank(s1)) {
+    protected Integer getIndex(String property) {
+        String afterPrefix = StringUtils.substringAfter(property, PUSH_RULE_PREFIX);
+        if (StringUtils.isBlank(afterPrefix)) {
+            LOG.debug("Index not found for property: [{}]", property);
             return null;
         }
-        String s2 = StringUtils.substringBefore(s1, ".");
-        if (StringUtils.isBlank(s2)) {
+        String index = StringUtils.substringBefore(afterPrefix, ".");
+        if (StringUtils.isBlank(index)) {
+            LOG.debug("Index not found for property: [{}] after prefix: [{}]", property, afterPrefix);
             return null;
         }
-        return Integer.parseInt(s2);
+        return Integer.parseInt(index);
     }
 
 }

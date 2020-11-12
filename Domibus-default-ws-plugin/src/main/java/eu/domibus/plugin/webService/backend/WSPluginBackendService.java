@@ -29,28 +29,31 @@ public class WSPluginBackendService {
 
     public void sendSuccess(String messageId, String recipient) {
         if (StringUtils.isBlank(recipient)) {
-            LOG.debug("(Send success) No recipient found for messageId: [{}]", messageId);
+            LOG.debug("No recipient found for messageId: [{}]", messageId);
             return;
         }
 
         List<WSPluginDispatchRule> rules = wsBackendRulesService.getRules(recipient);
         if (CollectionUtils.isEmpty(rules)) {
-            LOG.debug("(Send success) No rule found for recipient: [{}]", recipient);
+            LOG.debug("No rule found for recipient: [{}]", recipient);
             return;
         }
 
         for (WSPluginDispatchRule wsPluginDispatchRule : rules) {
             if(wsPluginDispatchRule.getTypes().contains(WSBackendMessageType.SEND_SUCCESS)) {
-                WSBackendMessageLogEntity wsBackendMessageLogEntity = new WSBackendMessageLogEntity();
-                wsBackendMessageLogEntity.setMessageId(messageId);
-                wsBackendMessageLogEntity.setEndpoint(wsPluginDispatchRule.getEndpoint());
-                wsBackendMessageLogEntity.setFinalRecipient(recipient);
-                wsBackendMessageLogEntity.setType(WSBackendMessageType.SEND_SUCCESS);
-                wsBackendMessageLogEntity.setSendAttempts(1);
-                wsBackendMessageLogEntity.setSendAttemptsMax(wsPluginDispatchRule.getRetryCount());
-
-                wsPluginMessageSender.sendMessageSuccess(wsBackendMessageLogEntity);
+                wsPluginMessageSender.sendMessageSuccess(getWsBackendMessageLogEntity(messageId, recipient, wsPluginDispatchRule));
             }
         }
+    }
+
+    protected WSBackendMessageLogEntity getWsBackendMessageLogEntity(String messageId, String recipient, WSPluginDispatchRule wsPluginDispatchRule) {
+        WSBackendMessageLogEntity wsBackendMessageLogEntity = new WSBackendMessageLogEntity();
+        wsBackendMessageLogEntity.setMessageId(messageId);
+        wsBackendMessageLogEntity.setEndpoint(wsPluginDispatchRule.getEndpoint());
+        wsBackendMessageLogEntity.setFinalRecipient(recipient);
+        wsBackendMessageLogEntity.setType(WSBackendMessageType.SEND_SUCCESS);
+        wsBackendMessageLogEntity.setSendAttempts(1);
+        wsBackendMessageLogEntity.setSendAttemptsMax(wsPluginDispatchRule.getRetryCount());
+        return wsBackendMessageLogEntity;
     }
 }

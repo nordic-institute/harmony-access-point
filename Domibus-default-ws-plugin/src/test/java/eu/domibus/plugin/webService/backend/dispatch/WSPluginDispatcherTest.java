@@ -30,7 +30,7 @@ public class WSPluginDispatcherTest {
     @Before
     public void setUp() {
         backendPort = SocketUtils.findAvailableTcpPort(3000, 3100);
-        BackendApplication.main(new String[]{""+backendPort});
+        BackendApplication.main(new String[]{"" + backendPort});
     }
 
     @Test
