@@ -39,7 +39,6 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 @NamedQueries({
         @NamedQuery(name = "PartInfo.loadBinaryData", query = "select pi.binaryData from PartInfo pi where pi.entityId=:ENTITY_ID"),
         @NamedQuery(name = "PartInfo.findFilenames", query = "select pi.fileName from UserMessage um join um.payloadInfo.partInfo pi where um.messageInfo.messageId IN :MESSAGEIDS"),
-        //@NamedQuery(name = "PartInfo.findFilenames", query = "select partInfo.fileName from PartInfo partInfo join PayloadInfo payloadInfo on payloadInfo.entityId=partInfo.entityId where payloadInfo.entityId in (select um.entityId from UserMessage um where um.messageInfo.messageId IN :MESSAGEIDS)")
 })
 @Entity
 @Table(name = "TB_PART_INFO")
