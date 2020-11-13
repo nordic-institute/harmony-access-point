@@ -3,22 +3,18 @@ package eu.domibus.plugin.webService.backend.rules;
 import eu.domibus.ext.services.DomibusPropertyExtService;
 import eu.domibus.plugin.webService.backend.WSBackendMessageType;
 import eu.domibus.plugin.webService.exception.WSPluginException;
-import mockit.Expectations;
-import mockit.Injectable;
-import mockit.Mocked;
-import mockit.Tested;
+import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import static eu.domibus.plugin.webService.backend.rules.WSPluginDispatchRulesService.*;
-import static java.time.LocalDateTime.of;
-import static java.time.ZoneId.systemDefault;
-import static java.util.Date.from;
 import static org.junit.Assert.*;
 
 /**
@@ -28,6 +24,8 @@ import static org.junit.Assert.*;
 @RunWith(JMockit.class)
 public class WSPluginDispatchRulesServiceTest {
 
+    public static final String RULE_NAME_1 = "red1";
+    public static final String RULE_NAME_3 = "red3";
     @Tested
     private WSPluginDispatchRulesService wsPluginDispatchRulesService;
 
@@ -35,38 +33,8 @@ public class WSPluginDispatchRulesServiceTest {
     private DomibusPropertyExtService domibusPropertyExtService;
 
     @Test
-    public void getIndex_null() {
-        assertNull(wsPluginDispatchRulesService.getIndex(null));
-    }
-
-    @Test
-    public void getIndex_blank() {
-        assertNull(wsPluginDispatchRulesService.getIndex(""));
-    }
-
-    @Test
-    public void getIndex_noInteger() {
-        assertNull(wsPluginDispatchRulesService.getIndex("nope"));
-    }
-
-    @Test
-    public void getIndex_noInteger2() {
-        assertNull(wsPluginDispatchRulesService.getIndex(PUSH_RULE_PREFIX + ".something.else"));
-    }
-
-    @Test
-    public void getIndex_wrongPrefix() {
-        assertNull(wsPluginDispatchRulesService.getIndex("nope1.neither"));
-    }
-
-    @Test
-    public void getIndex_ok() {
-        assertEquals(4, (int) wsPluginDispatchRulesService.getIndex(PUSH_RULE_PREFIX + 4 + ".something.else"));
-    }
-
-    @Test
     public void setRetryInformation_null() {
-        WSPluginDispatchRuleBuilder ruleBuilder = new WSPluginDispatchRuleBuilder(1);
+        WSPluginDispatchRuleBuilder ruleBuilder = new WSPluginDispatchRuleBuilder(RULE_NAME_1);
         wsPluginDispatchRulesService.setRetryInformation(ruleBuilder, null);
         WSPluginDispatchRule build = ruleBuilder.build();
         assertNull(build.getRetry());
@@ -77,7 +45,7 @@ public class WSPluginDispatchRulesServiceTest {
 
     @Test
     public void setRetryInformation_empty() {
-        WSPluginDispatchRuleBuilder ruleBuilder = new WSPluginDispatchRuleBuilder(1);
+        WSPluginDispatchRuleBuilder ruleBuilder = new WSPluginDispatchRuleBuilder(RULE_NAME_1);
         wsPluginDispatchRulesService.setRetryInformation(ruleBuilder, "");
         WSPluginDispatchRule build = ruleBuilder.build();
         assertEquals("", build.getRetry());
@@ -88,98 +56,92 @@ public class WSPluginDispatchRulesServiceTest {
 
     @Test
     public void setRetryInformation_ok() {
-        WSPluginDispatchRuleBuilder ruleBuilder = new WSPluginDispatchRuleBuilder(1);
+        WSPluginDispatchRuleBuilder ruleBuilder = new WSPluginDispatchRuleBuilder(RULE_NAME_1);
         wsPluginDispatchRulesService.setRetryInformation(ruleBuilder, "60;5;CONSTANT");
         WSPluginDispatchRule build = ruleBuilder.build();
         assertEquals("60;5;CONSTANT", build.getRetry());
         assertEquals(5, build.getRetryCount());
         assertEquals(60, build.getRetryTimeout());
-        assertEquals(WSPluginRetryStrategy.CONSTANT, build.getRetryStrategy());
+        assertEquals(WSPluginRetryStrategyType.CONSTANT, build.getRetryStrategy());
     }
 
     @Test(expected = WSPluginException.class)
     public void setRetryInformation_NumberFormatException() {
-        WSPluginDispatchRuleBuilder ruleBuilder = new WSPluginDispatchRuleBuilder(1);
+        WSPluginDispatchRuleBuilder ruleBuilder = new WSPluginDispatchRuleBuilder(RULE_NAME_1);
         wsPluginDispatchRulesService.setRetryInformation(ruleBuilder, "60:5:CONSTANT");
     }
 
     @Test(expected = WSPluginException.class)
     public void setRetryInformation_OutOfBound() {
-        WSPluginDispatchRuleBuilder ruleBuilder = new WSPluginDispatchRuleBuilder(1);
+        WSPluginDispatchRuleBuilder ruleBuilder = new WSPluginDispatchRuleBuilder(RULE_NAME_1);
         wsPluginDispatchRulesService.setRetryInformation(ruleBuilder, "60;5");
     }
 
     @Test
     public void initRules_noRuleFound() {
         new Expectations() {{
-            domibusPropertyExtService.getAllNestedProperties(WSPLUGIN_PUSH_PREFIX);
+            domibusPropertyExtService.getNestedProperties("wsplugin.push.rules");
             times = 1;
             result = new ArrayList<>();
         }};
         List<WSPluginDispatchRule> wsPluginDispatchRules = wsPluginDispatchRulesService.generateRules();
         assertEquals(0, wsPluginDispatchRules.size());
+
+        new FullVerifications(){};
     }
 
     @Test
     public void initRules_2rules() {
-        String first = "first";
-        String second = "second";
+
         new Expectations(wsPluginDispatchRulesService) {{
-            domibusPropertyExtService.getAllNestedProperties(WSPLUGIN_PUSH_PREFIX);
+            domibusPropertyExtService.getNestedProperties("wsplugin.push.rules");
             times = 1;
-            result = Arrays.asList("second", "first");
+            result = Arrays.asList(RULE_NAME_1,                    RULE_NAME_3);
 
-            wsPluginDispatchRulesService.getIndex(first);
-            result = 1;
-            times = 1;
-
-            wsPluginDispatchRulesService.getIndex(second);
-            result = 3;
-            times = 1;
-
-            domibusPropertyExtService.getProperty(PUSH_RULE_PREFIX + 1 + PUSH_RULE_DESCRIPTION);
+            domibusPropertyExtService.getProperty(PUSH_RULE_PREFIX + RULE_NAME_1);
             result = "desc1";
             times = 1;
-            domibusPropertyExtService.getProperty(PUSH_RULE_PREFIX + 1 + PUSH_RULE_RECIPIENT);
+            domibusPropertyExtService.getProperty(PUSH_RULE_PREFIX + RULE_NAME_1 + PUSH_RULE_RECIPIENT);
             result = "recipient1";
             times = 1;
-            domibusPropertyExtService.getProperty(PUSH_RULE_PREFIX + 1 + PUSH_RULE_ENDPOINT);
+            domibusPropertyExtService.getProperty(PUSH_RULE_PREFIX + RULE_NAME_1 + PUSH_RULE_ENDPOINT);
             result = "endPoint1";
             times = 1;
-            domibusPropertyExtService.getProperty(PUSH_RULE_PREFIX + 1 + PUSH_RULE_RETRY);
+            domibusPropertyExtService.getProperty(PUSH_RULE_PREFIX + RULE_NAME_1 + PUSH_RULE_RETRY);
             result = "1;1;CONSTANT";
             times = 1;
-            domibusPropertyExtService.getProperty(PUSH_RULE_PREFIX + 1 + PUSH_RULE_TYPE);
+            domibusPropertyExtService.getProperty(PUSH_RULE_PREFIX + RULE_NAME_1 + PUSH_RULE_TYPE);
             result = "SEND_SUCCESS";
             times = 1;
 
-            domibusPropertyExtService.getProperty(PUSH_RULE_PREFIX + 3 + PUSH_RULE_DESCRIPTION);
+            domibusPropertyExtService.getProperty(PUSH_RULE_PREFIX + RULE_NAME_3);
             result = "desc3";
             times = 1;
-            domibusPropertyExtService.getProperty(PUSH_RULE_PREFIX + 3 + PUSH_RULE_RECIPIENT);
+            domibusPropertyExtService.getProperty(PUSH_RULE_PREFIX + RULE_NAME_3 + PUSH_RULE_RECIPIENT);
             result = "recipient3";
             times = 1;
-            domibusPropertyExtService.getProperty(PUSH_RULE_PREFIX + 3 + PUSH_RULE_ENDPOINT);
+            domibusPropertyExtService.getProperty(PUSH_RULE_PREFIX + RULE_NAME_3 + PUSH_RULE_ENDPOINT);
             result = "endPoint3";
             times = 1;
-            domibusPropertyExtService.getProperty(PUSH_RULE_PREFIX + 3 + PUSH_RULE_RETRY);
+            domibusPropertyExtService.getProperty(PUSH_RULE_PREFIX + RULE_NAME_3 + PUSH_RULE_RETRY);
             result = "3;3;CONSTANT";
             times = 1;
-            domibusPropertyExtService.getProperty(PUSH_RULE_PREFIX + 3 + PUSH_RULE_TYPE);
+            domibusPropertyExtService.getProperty(PUSH_RULE_PREFIX + RULE_NAME_3+ PUSH_RULE_TYPE);
             result = "SEND_SUCCESS";
             times = 1;
         }};
+
         List<WSPluginDispatchRule> wsPluginDispatchRules = wsPluginDispatchRulesService.generateRules();
         assertEquals(2, wsPluginDispatchRules.size());
         WSPluginDispatchRule firstRule = wsPluginDispatchRules.get(0);
         assertEquals("desc1", firstRule.getDescription());
         assertEquals("recipient1", firstRule.getRecipient());
-        assertEquals("endPoint1", firstRule.getEndpoint());
+        assertEquals(RULE_NAME_1, firstRule.getRuleName());
         assertEquals("1;1;CONSTANT", firstRule.getRetry());
         WSPluginDispatchRule secondRule = wsPluginDispatchRules.get(1);
         assertEquals("desc3", secondRule.getDescription());
         assertEquals("recipient3", secondRule.getRecipient());
-        assertEquals("endPoint3", secondRule.getEndpoint());
+        assertEquals(RULE_NAME_3, secondRule.getRuleName());
         assertEquals("3;3;CONSTANT", secondRule.getRetry());
     }
 
@@ -190,7 +152,7 @@ public class WSPluginDispatchRulesServiceTest {
             result = Collections.singletonList(wsPluginDispatchRule);
             times = 1;
         }};
-        wsPluginDispatchRulesService.getRules("recipient");
+        wsPluginDispatchRulesService.getRulesByRecipient("recipient");
     }
 
     @Test
@@ -209,35 +171,4 @@ public class WSPluginDispatchRulesServiceTest {
         wsPluginDispatchRulesService.getTypes("NOPE");
     }
 
-    @Test
-    public void calculateNextAttempt_SEND_ONCE() {
-        Date nextAttempt = wsPluginDispatchRulesService.calculateNextAttempt(WSPluginRetryStrategy.SEND_ONCE, null, 1, 2);
-        assertNull(nextAttempt);
-    }
-
-    @Test
-    public void calculateNextAttempt_CONSTANT_noDateReceived() {
-        Date nextAttempt = wsPluginDispatchRulesService.calculateNextAttempt(WSPluginRetryStrategy.CONSTANT, null, 1, 2);
-        assertNull(nextAttempt);
-    }
-
-    @Test
-    public void calculateNextAttempt_CONSTANT_attemptsNegative() {
-        Date nextAttempt = wsPluginDispatchRulesService.calculateNextAttempt(WSPluginRetryStrategy.CONSTANT, new Date(), -1, 2);
-        assertNull(nextAttempt);
-    }
-
-    @Test
-    public void calculateNextAttempt_CONSTANT_timeoutNegative() {
-        Date nextAttempt = wsPluginDispatchRulesService.calculateNextAttempt(WSPluginRetryStrategy.CONSTANT, new Date(), 1, -2);
-        assertNull(nextAttempt);
-    }
-
-    @Test
-    public void calculateNextAttempt_CONSTANT_ok() {
-        ZonedDateTime received = of(2020, 12, 31, 12, 0).atZone(systemDefault());
-        Date expected = from(received.plusMinutes(1).toInstant());
-        Date nextAttempt = wsPluginDispatchRulesService.calculateNextAttempt(WSPluginRetryStrategy.CONSTANT, from(received.toInstant()), 10, 10);
-        assertEquals(expected, nextAttempt);
-    }
 }

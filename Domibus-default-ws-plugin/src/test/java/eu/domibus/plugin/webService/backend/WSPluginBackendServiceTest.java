@@ -37,13 +37,13 @@ public class WSPluginBackendServiceTest {
     @Test
     public void sendSuccess(@Mocked WSPluginDispatchRule wsPluginDispatchRule) {
         new Expectations() {{
-            wsBackendRulesService.getRules(RECIPIENT);
+            wsBackendRulesService.getRulesByRecipient(RECIPIENT);
             times = 1;
             result = Collections.singletonList(wsPluginDispatchRule);
 
             wsPluginDispatchRule.getTypes();
             result = Arrays.asList(WSBackendMessageType.SEND_SUCCESS, WSBackendMessageType.MESSAGE_STATUS_CHANGE);
-            wsPluginDispatchRule.getEndpoint();
+            wsPluginDispatchRule.getRuleName();
             result = END_POINT;
             wsPluginDispatchRule.getRetryCount();
             result = RETRY_MAX;
@@ -56,7 +56,7 @@ public class WSPluginBackendServiceTest {
             wsPluginMessageSender.sendMessageSuccess(wsBackendMessageLogEntity = withCapture());
 
             Assert.assertEquals(MESSAGE_ID, wsBackendMessageLogEntity.getMessageId());
-            Assert.assertEquals(END_POINT, wsBackendMessageLogEntity.getEndpoint());
+            Assert.assertEquals(END_POINT, wsBackendMessageLogEntity.getRuleName());
             Assert.assertEquals(RECIPIENT, wsBackendMessageLogEntity.getFinalRecipient());
             Assert.assertEquals(WSBackendMessageType.SEND_SUCCESS, wsBackendMessageLogEntity.getType());
             Assert.assertEquals(1, wsBackendMessageLogEntity.getSendAttempts());
@@ -74,7 +74,7 @@ public class WSPluginBackendServiceTest {
     @Test
     public void noRules(@Mocked WSPluginDispatchRule wsPluginDispatchRule) {
         new Expectations(){{
-            wsBackendRulesService.getRules(RECIPIENT);
+            wsBackendRulesService.getRulesByRecipient(RECIPIENT);
             times = 1;
             result = new ArrayList<>();
         }};

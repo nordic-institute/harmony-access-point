@@ -1,6 +1,7 @@
 package eu.domibus.plugin.webService.backend.dispatch;
 
 import eu.domibus.plugin.webService.backend.WSBackendMessageLogEntity;
+import eu.domibus.plugin.webService.backend.rules.WSPluginDispatchRulesService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
@@ -17,7 +18,8 @@ import javax.xml.soap.SOAPMessage;
 @RunWith(JMockit.class)
 public class WSPluginMessageSenderTest {
 
-    public static final String END_POINT = "endPoint";
+    public static final String RULE_NAME = "ruleName";
+    public static final String END_POINT = "endpoint";
     @Tested
     private WSPluginMessageSender wsPluginMessageSender;
 
@@ -27,6 +29,9 @@ public class WSPluginMessageSenderTest {
     @Injectable
     protected WSPluginDispatcher wsPluginDispatcher;
 
+    @Injectable
+    protected WSPluginDispatchRulesService wsPluginDispatchRulesService;
+
     @Test
     public void sendMessageSuccess(@Mocked WSBackendMessageLogEntity wsBackendMessageLogEntity,
                                    @Mocked SOAPMessage soapMessage) {
@@ -35,7 +40,10 @@ public class WSPluginMessageSenderTest {
             result = soapMessage;
             times = 1;
 
-            wsBackendMessageLogEntity.getEndpoint();
+            wsBackendMessageLogEntity.getRuleName();
+            result = RULE_NAME;
+
+            wsPluginDispatchRulesService.getEndpoint(RULE_NAME);
             result = END_POINT;
 
             wsPluginDispatcher.dispatch(soapMessage, END_POINT);
@@ -58,11 +66,13 @@ public class WSPluginMessageSenderTest {
             result = soapMessage;
             times = 1;
 
-            wsBackendMessageLogEntity.getEndpoint();
-            result = END_POINT;
+            wsBackendMessageLogEntity.getRuleName();
+            result = RULE_NAME;
 
             wsBackendMessageLogEntity.getMessageId();
             result = "MessageId";
+            wsPluginDispatchRulesService.getEndpoint(RULE_NAME);
+            result = END_POINT;
 
             wsPluginDispatcher.dispatch(soapMessage, END_POINT);
             result = new IllegalStateException("ERROR");

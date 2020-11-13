@@ -39,14 +39,6 @@ public interface DomibusPropertyProvider {
     Set<String> filterPropertiesName(Predicate<String> predicate);
 
     /**
-     * Returns the list of nested properties names (ALL) starting with the specified prefix
-     *
-     * @param propertyPrefix The nested properties prefix with/without domain
-     * @return the list of nested properties
-     */
-    List<String> getAllNestedProperties(String propertyPrefix);
-
-    /**
      * Returns the list of nested properties names(only the first level) starting with the specified prefix
      * <p/>
      * Eg. Given the properties routing.rule1=Rule1 name, routing.rule1.queue=jms.queue1, routing.rule2=Rule2 name, routing.rule2.queue=jms.queue2

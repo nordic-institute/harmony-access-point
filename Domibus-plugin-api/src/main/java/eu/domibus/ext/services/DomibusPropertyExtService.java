@@ -78,16 +78,6 @@ public interface DomibusPropertyExtService {
     }
 
     /**
-     * Returns the list of nested properties names (all) starting with the specified prefix
-     *
-     * @param prefix The nested properties prefix
-     * @return the list of nested properties
-     */
-    default List<String> getAllNestedProperties(String prefix) {
-        return null;
-    }
-
-    /**
      * Get the list of configured message notifications, separated by comma, configured in the plugin property file
      *
      * @param notificationPropertyName The property name

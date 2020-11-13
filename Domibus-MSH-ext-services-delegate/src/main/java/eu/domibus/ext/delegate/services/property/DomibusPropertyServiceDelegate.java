@@ -73,11 +73,6 @@ public class DomibusPropertyServiceDelegate implements DomibusPropertyExtService
     }
 
     @Override
-    public List<String> getAllNestedProperties(String prefix) {
-        return domibusPropertyProvider.getAllNestedProperties(prefix);
-    }
-
-    @Override
     public List<NotificationType> getConfiguredNotifications(String notificationPropertyName) {
         String messageNotificationPropertyValue = getProperty(notificationPropertyName);
         if (StringUtils.isEmpty(messageNotificationPropertyValue)) {

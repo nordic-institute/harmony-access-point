@@ -45,11 +45,6 @@ public class FSPluginDomibusPropertyExtServiceMock implements DomibusPropertyExt
     }
 
     @Override
-    public List<String> getAllNestedProperties(String prefix) {
-        return null;
-    }
-
-    @Override
     public String getDomainProperty(DomainDTO domain, String propertyName) {
         return null;
     }

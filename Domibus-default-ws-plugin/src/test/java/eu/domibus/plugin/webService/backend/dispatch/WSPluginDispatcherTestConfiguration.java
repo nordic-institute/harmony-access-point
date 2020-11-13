@@ -124,11 +124,6 @@ public class WSPluginDispatcherTestConfiguration extends WSPluginDispatchConfigu
             }
 
             @Override
-            public List<String> getAllNestedProperties(String prefix) {
-                return null;
-            }
-
-            @Override
             public List<NotificationType> getConfiguredNotifications(String notificationPropertyName) {
                 return null;
             }

@@ -5,6 +5,7 @@ import eu.domibus.ext.domain.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.webService.backend.WSBackendMessageLogEntity;
+import eu.domibus.plugin.webService.backend.rules.WSPluginDispatchRulesService;
 import org.springframework.stereotype.Service;
 
 import javax.xml.soap.SOAPMessage;
@@ -24,10 +25,14 @@ public class WSPluginMessageSender {
 
     protected final WSPluginDispatcher wsPluginDispatcher;
 
+    protected final WSPluginDispatchRulesService wsPluginDispatchRulesService;
+
     public WSPluginMessageSender(WSPluginMessageBuilder wsPluginMessageBuilder,
-                                 WSPluginDispatcher wsPluginDispatcher) {
+                                 WSPluginDispatcher wsPluginDispatcher,
+                                 WSPluginDispatchRulesService wsPluginDispatchRulesService) {
         this.wsPluginMessageBuilder = wsPluginMessageBuilder;
         this.wsPluginDispatcher = wsPluginDispatcher;
+        this.wsPluginDispatchRulesService = wsPluginDispatchRulesService;
     }
 
     @Timer(clazz = WSPluginMessageSender.class, value = "wsplugin_outgoing_backend_message")
@@ -38,7 +43,7 @@ public class WSPluginMessageSender {
 
     private void dispatch(WSBackendMessageLogEntity wsBackendMessageLogEntity, SOAPMessage requestSoapMessage) {
         try {
-            wsPluginDispatcher.dispatch(requestSoapMessage, wsBackendMessageLogEntity.getEndpoint());
+            wsPluginDispatcher.dispatch(requestSoapMessage, wsPluginDispatchRulesService.getEndpoint(wsBackendMessageLogEntity.getRuleName()));
         } catch (Throwable t) {
             //NOSONAR: Catching Throwable is done on purpose in order to even catch out of memory exceptions in case large files are sent.
             LOG.error("Error occurred when sending message with ID [{}]", wsBackendMessageLogEntity.getMessageId(), t);

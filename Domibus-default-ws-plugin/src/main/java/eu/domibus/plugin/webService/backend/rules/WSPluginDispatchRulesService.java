@@ -1,8 +1,6 @@
 package eu.domibus.plugin.webService.backend.rules;
 
 import eu.domibus.ext.services.DomibusPropertyExtService;
-import eu.domibus.logging.DomibusLogger;
-import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.webService.backend.WSBackendMessageType;
 import eu.domibus.plugin.webService.exception.WSPluginException;
 import org.apache.commons.lang3.RegExUtils;
@@ -10,7 +8,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.common.util.CollectionUtils;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import javax.annotation.PostConstruct;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
@@ -23,13 +24,9 @@ import static org.apache.commons.lang3.StringUtils.trim;
  */
 @Service
 public class WSPluginDispatchRulesService {
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginDispatchRulesService.class);
 
-    public static final String WSPLUGIN_PUSH_PREFIX = "wsplugin.push";
-
-    public static final String PUSH_RULE_PREFIX = WSPLUGIN_PUSH_PREFIX + ".rule";
-
-    public static final String PUSH_RULE_DESCRIPTION = ".description";
+    public static final String PUSH_RULE_BASE = "wsplugin.push.rules";
+    public static final String PUSH_RULE_PREFIX = PUSH_RULE_BASE + ".";
 
     public static final String PUSH_RULE_RECIPIENT = ".recipient";
 
@@ -39,16 +36,17 @@ public class WSPluginDispatchRulesService {
 
     public static final String PUSH_RULE_TYPE = ".type";
 
-    public static final int DEFAULT_MAX_ATTEMPTS = 60000;
-
-    public static final int MULTIPLIER_MINUTES_TO_MILLIS = 60000;
-
     private final DomibusPropertyExtService domibusPropertyExtService;
     private volatile List<WSPluginDispatchRule> rules;
     private final Object rulesLock = new Object();
 
     public WSPluginDispatchRulesService(DomibusPropertyExtService domibusPropertyExtService) {
         this.domibusPropertyExtService = domibusPropertyExtService;
+    }
+
+    @PostConstruct
+    public void init() {
+        getRules();
     }
 
     public List<WSPluginDispatchRule> getRules() {
@@ -63,23 +61,19 @@ public class WSPluginDispatchRulesService {
     }
 
     protected List<WSPluginDispatchRule> generateRules() {
-        List<String> nestedProperties = domibusPropertyExtService.getAllNestedProperties(WSPLUGIN_PUSH_PREFIX);
+        List<String> nestedProperties = domibusPropertyExtService.getNestedProperties(PUSH_RULE_BASE);
         List<WSPluginDispatchRuleBuilder> builderSortedByIndex = nestedProperties
                 .stream()
-                .map(this::getIndex)
-                .filter(Objects::nonNull)
-                .distinct()
-                .sorted(Integer::compareTo)
                 .map(WSPluginDispatchRuleBuilder::new)
                 .collect(toList());
 
         List<WSPluginDispatchRule> result = new ArrayList<>();
         for (WSPluginDispatchRuleBuilder ruleBuilder : builderSortedByIndex) {
-            ruleBuilder.withDescription(domibusPropertyExtService.getProperty(PUSH_RULE_PREFIX + ruleBuilder.getIndex() + PUSH_RULE_DESCRIPTION));
-            ruleBuilder.withRecipient(domibusPropertyExtService.getProperty(PUSH_RULE_PREFIX + ruleBuilder.getIndex() + PUSH_RULE_RECIPIENT));
-            ruleBuilder.withEndpoint(domibusPropertyExtService.getProperty(PUSH_RULE_PREFIX + ruleBuilder.getIndex() + PUSH_RULE_ENDPOINT));
-            ruleBuilder.withType(getTypes(domibusPropertyExtService.getProperty(PUSH_RULE_PREFIX + ruleBuilder.getIndex() + PUSH_RULE_TYPE)));
-            setRetryInformation(ruleBuilder, domibusPropertyExtService.getProperty(PUSH_RULE_PREFIX + ruleBuilder.getIndex() + PUSH_RULE_RETRY));
+            ruleBuilder.withDescription(domibusPropertyExtService.getProperty(PUSH_RULE_PREFIX + ruleBuilder.getRuleName()));
+            ruleBuilder.withRecipient(domibusPropertyExtService.getProperty(PUSH_RULE_PREFIX + ruleBuilder.getRuleName() + PUSH_RULE_RECIPIENT));
+            ruleBuilder.withEndpoint(domibusPropertyExtService.getProperty(PUSH_RULE_PREFIX + ruleBuilder.getRuleName() + PUSH_RULE_ENDPOINT));
+            ruleBuilder.withType(getTypes(domibusPropertyExtService.getProperty(PUSH_RULE_PREFIX + ruleBuilder.getRuleName() + PUSH_RULE_TYPE)));
+            setRetryInformation(ruleBuilder, domibusPropertyExtService.getProperty(PUSH_RULE_PREFIX + ruleBuilder.getRuleName() + PUSH_RULE_RETRY));
             result.add(ruleBuilder.build());
         }
 
@@ -108,10 +102,21 @@ public class WSPluginDispatchRulesService {
      * @param recipient of a message
      * @return order set of rules for a given {@param recipient}
      */
-    public List<WSPluginDispatchRule> getRules(String recipient) {
+    public List<WSPluginDispatchRule> getRulesByRecipient(String recipient) {
         return getRules()
                 .stream()
                 .filter(wsPluginDispatchRule -> equalsAnyIgnoreCase(recipient, wsPluginDispatchRule.getRecipient()))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * @param ruleName
+     * @return order set of rules for a given {@param ruleName}
+     */
+    public List<WSPluginDispatchRule> getRulesByRuleName(String ruleName) {
+        return getRules()
+                .stream()
+                .filter(wsPluginDispatchRule -> equalsAnyIgnoreCase(ruleName, wsPluginDispatchRule.getRuleName()))
                 .collect(Collectors.toList());
     }
 
@@ -124,60 +129,16 @@ public class WSPluginDispatchRulesService {
             String[] retryValues = StringUtils.split(RegExUtils.replaceAll(property, " ", ""), ";");
             ruleBuilder.withRetryTimeout(Integer.parseInt(trim(retryValues[0])));
             ruleBuilder.withRetryCount(Integer.parseInt(trim(retryValues[1])));
-            ruleBuilder.withRetryStrategy(WSPluginRetryStrategy.valueOf(trim(retryValues[2])));
+            ruleBuilder.withRetryStrategy(WSPluginRetryStrategyType.valueOf(trim(retryValues[2])));
         } catch (ArrayIndexOutOfBoundsException | IllegalArgumentException e) {
             throw new WSPluginException(
-                    "The format of the property [" + PUSH_RULE_PREFIX + ruleBuilder.getIndex() + PUSH_RULE_RETRY + "] " +
+                    "The format of the property [" + PUSH_RULE_BASE + ruleBuilder.getRuleName() + PUSH_RULE_RETRY + "] " +
                             "is incorrect :[" + property + "]. " +
                             "Format: retryTimeout;retryCount;(CONSTANT - SEND_ONCE) (ex: 4;12;CONSTANT)", e);
         }
     }
 
-    protected Integer getIndex(String property) {
-        String afterPrefix = StringUtils.substringAfter(property, PUSH_RULE_PREFIX);
-        if (StringUtils.isBlank(afterPrefix)) {
-            LOG.debug("Index not found for property: [{}]", property);
-            return null;
-        }
-        String index = StringUtils.substringBefore(afterPrefix, ".");
-        if (StringUtils.isBlank(index)) {
-            LOG.debug("Index not found for property: [{}] after prefix: [{}]", property, afterPrefix);
-            return null;
-        }
-        return Integer.parseInt(index);
+    public String getEndpoint(String ruleName) {
+        return getRulesByRuleName(ruleName).stream().findAny().map(WSPluginDispatchRule::getEndpoint).orElse("");
     }
-
-    public Date calculateNextAttempt(final WSPluginRetryStrategy wsPluginRetryStrategy,
-                                     final Date received,
-                                     int maxAttempts,
-                                     final int timeoutInMinutes) {
-
-        if (wsPluginRetryStrategy == WSPluginRetryStrategy.CONSTANT) {
-            LOG.debug("Compute next date. maxAttempts: [{}] timeoutInMinutes: [{}] received: [{}]", maxAttempts, timeoutInMinutes, received);
-
-            if (maxAttempts < 0 || timeoutInMinutes < 0 || received == null) {
-                LOG.debug("No date to be calculated.");
-                return null;
-            }
-            if (maxAttempts > DEFAULT_MAX_ATTEMPTS) {
-                maxAttempts = DEFAULT_MAX_ATTEMPTS;
-            }
-            final long now = System.currentTimeMillis();
-            long retry = received.getTime();
-            final long stopTime = received.getTime() + ((long) timeoutInMinutes * MULTIPLIER_MINUTES_TO_MILLIS) + 5000; // We grant 5 extra seconds to avoid not sending the last attempt
-            while (retry <= stopTime) {
-                retry += (long) timeoutInMinutes * MULTIPLIER_MINUTES_TO_MILLIS / maxAttempts;
-                if (retry > now && retry < stopTime) {
-                    return new Date(retry);
-                }
-            }
-            LOG.debug("No date to be calculated.");
-            return null;
-        } else if (wsPluginRetryStrategy == WSPluginRetryStrategy.SEND_ONCE) {
-            LOG.debug("No date to be calculated (SendOnceAttemptAlgorithm). received: [{}] timeoutInMinutes: [{}] received: [{}]", received, timeoutInMinutes, received);
-            return null;
-        }
-        throw new IllegalArgumentException("Strategy not recognized: [" + wsPluginRetryStrategy + "]");
-    }
-
 }

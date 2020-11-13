@@ -97,7 +97,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     @Override
     public Set<String> filterPropertiesName(Predicate<String> predicate) {
         Set<String> result = new HashSet<>();
-        for (PropertySource<?> propertySource : environment.getPropertySources()) {
+        for (PropertySource propertySource : environment.getPropertySources()) {
             Set<String> propertySourceNames = filterPropertySource(predicate, propertySource);
             result.addAll(propertySourceNames);
         }
@@ -122,7 +122,6 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     /**
      * Gets the property prefix taking into account the current domain
      *
-     * @param domain if null, find current domain
      * @param prefix The initial property prefix
      * @return The computed property prefix
      */
@@ -147,39 +146,29 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     @Override
     public List<String> getNestedProperties(Domain domain, String prefix) {
         String propertyPrefix = getPropertyPrefix(domain, prefix);
+        LOG.debug("Getting nested properties for prefix [{}]", propertyPrefix);
 
-        List<String> propertiesStartingWithPrefix = getProperties(propertyPrefix);
+        List<String> result = new ArrayList<>();
+        Set<String> propertiesStartingWithPrefix = filterPropertiesName(property -> StringUtils.startsWith(property, propertyPrefix));
+        if (CollectionUtils.isEmpty(propertiesStartingWithPrefix)) {
+            LOG.debug("No properties found starting with prefix [{}]", propertyPrefix);
+            return result;
+        }
+        LOG.debug("Found properties [{}] starting with prefix [{}]", propertiesStartingWithPrefix, propertyPrefix);
         List<String> firstLevelProperties = propertiesStartingWithPrefix.stream()
                 .map(property -> StringUtils.substringAfter(property, propertyPrefix))
                 .filter(property -> StringUtils.containsNone(property, ".")).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(firstLevelProperties)) {
             LOG.debug("No first level properties found starting with prefix [{}]", propertyPrefix);
-            return new ArrayList<>();
+            return result;
         }
         LOG.debug("Found first level properties [{}] starting with prefix [{}]", firstLevelProperties, propertyPrefix);
         return firstLevelProperties;
     }
 
-    protected List<String> getProperties(String propertyPrefix) {
-        LOG.debug("Getting nested properties for prefix [{}]", propertyPrefix);
-
-        Set<String> propertiesStartingWithPrefix = filterPropertiesName(property -> StringUtils.startsWith(property, propertyPrefix));
-        if (CollectionUtils.isEmpty(propertiesStartingWithPrefix)) {
-            LOG.debug("No properties found starting with prefix [{}]", propertyPrefix);
-            return new ArrayList<>();
-        }
-        LOG.debug("Found properties [{}] starting with prefix [{}]", propertiesStartingWithPrefix, propertyPrefix);
-        return new ArrayList<>(propertiesStartingWithPrefix);
-    }
-
     @Override
     public List<String> getNestedProperties(String prefix) {
         return getNestedProperties(null, prefix);
-    }
-
-    @Override
-    public List<String> getAllNestedProperties(String prefix) {
-        return getProperties(getPropertyPrefix(null, prefix));
     }
 
     @Override

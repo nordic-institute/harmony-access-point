@@ -33,7 +33,7 @@ public class WSPluginBackendService {
             return;
         }
 
-        List<WSPluginDispatchRule> rules = wsBackendRulesService.getRules(recipient);
+        List<WSPluginDispatchRule> rules = wsBackendRulesService.getRulesByRecipient(recipient);
         if (CollectionUtils.isEmpty(rules)) {
             LOG.debug("No rule found for recipient: [{}]", recipient);
             return;
@@ -49,7 +49,7 @@ public class WSPluginBackendService {
     protected WSBackendMessageLogEntity getWsBackendMessageLogEntity(String messageId, String recipient, WSPluginDispatchRule wsPluginDispatchRule) {
         WSBackendMessageLogEntity wsBackendMessageLogEntity = new WSBackendMessageLogEntity();
         wsBackendMessageLogEntity.setMessageId(messageId);
-        wsBackendMessageLogEntity.setEndpoint(wsPluginDispatchRule.getEndpoint());
+        wsBackendMessageLogEntity.setRuleName(wsPluginDispatchRule.getRuleName());
         wsBackendMessageLogEntity.setFinalRecipient(recipient);
         wsBackendMessageLogEntity.setType(WSBackendMessageType.SEND_SUCCESS);
         wsBackendMessageLogEntity.setSendAttempts(1);

@@ -9,21 +9,21 @@ import java.util.List;
  * @since 5.0
  */
 public class WSPluginDispatchRuleBuilder {
-    private int index;
     private String description;
     private String recipient;
+    private String ruleName;
     private String endpoint;
     private List<WSBackendMessageType> types;
     private String retry;
     private int retryTimeout;
     private int retryCount;
-    private WSPluginRetryStrategy retryStrategy;
+    private WSPluginRetryStrategyType retryStrategy;
 
-    WSPluginDispatchRule build() {
+    public WSPluginDispatchRule build() {
         return new WSPluginDispatchRule(
-                index,
                 description,
                 recipient,
+                ruleName,
                 endpoint,
                 types,
                 retry,
@@ -32,14 +32,18 @@ public class WSPluginDispatchRuleBuilder {
                 retryStrategy);
     }
 
-    public int getIndex() {
-        return index;
+    public WSPluginDispatchRuleBuilder(String ruleName) {
+        this.ruleName = ruleName;
     }
 
-    public WSPluginDispatchRuleBuilder(int index) {
-        this.index = index;
+    public String getRuleName() {
+        return ruleName;
     }
 
+    public WSPluginDispatchRuleBuilder withEndpoint(String endpoint) {
+        this.endpoint = endpoint;
+        return this;
+    }
     public WSPluginDispatchRuleBuilder withDescription(String description) {
         this.description = description;
         return this;
@@ -50,10 +54,6 @@ public class WSPluginDispatchRuleBuilder {
         return this;
     }
 
-    public WSPluginDispatchRuleBuilder withEndpoint(String endpoint) {
-        this.endpoint = endpoint;
-        return this;
-    }
     public WSPluginDispatchRuleBuilder withType(List<WSBackendMessageType> types) {
         this.types = types;
         return this;
@@ -74,7 +74,7 @@ public class WSPluginDispatchRuleBuilder {
         return this;
     }
 
-    public WSPluginDispatchRuleBuilder withRetryStrategy(WSPluginRetryStrategy strategy) {
+    public WSPluginDispatchRuleBuilder withRetryStrategy(WSPluginRetryStrategyType strategy) {
         this.retryStrategy = strategy;
         return this;
     }
