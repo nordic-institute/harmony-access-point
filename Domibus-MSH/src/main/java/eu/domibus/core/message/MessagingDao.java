@@ -123,12 +123,12 @@ public class MessagingDao extends BasicDao<Messaging> {
 
     public void deletePayloadFiles(List<String> filenames) {
         if(CollectionUtils.isEmpty(filenames)) {
-            LOG.info("No payload data file to delete from the filesystem");
+            LOG.debug("No payload data file to delete from the filesystem");
             return;
         }
 
         for(String filename : filenames) {
-            LOG.info("Deleting payload data file: [{}]", filename);
+            LOG.debug("Deleting payload data file: [{}]", filename);
             deletePayloadFile(filename);
         }
     }
