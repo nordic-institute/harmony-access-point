@@ -5,10 +5,13 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.util.ClassUtil;
+import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PROPERTY_LENGTH_MAX;
@@ -39,7 +42,11 @@ public class DomibusPropertyProviderDispatcher {
     @Autowired
     DomibusPropertyChangeManager domibusPropertyChangeManager;
 
+    @Cacheable(value = DomibusCacheService.DOMIBUS_PROPERTY_CACHE,
+            key = "(#domain != null ? #domain : #domainContextProvider?.getCurrentDomain()) + #propertyName")
     public String getInternalOrExternalProperty(String propertyName, Domain domain) throws DomibusPropertyException {
+        LOG.warn("Call getProperty on current domain [{}] for property [{}]", domain, propertyName);
+
         DomibusPropertyMetadata propMeta = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
         if (propMeta.isStoredGlobally()) {
             return getInternalPropertyValue(domain, propertyName);
@@ -53,6 +60,8 @@ public class DomibusPropertyProviderDispatcher {
         return getExternalPropertyValue(propertyName, domain, manager);
     }
 
+    @CacheEvict(value = DomibusCacheService.DOMIBUS_PROPERTY_CACHE,
+            key = "(#domain != null ? #domain : #domainContextProvider?.getCurrentDomain()) + #propertyName")
     public void setInternalOrExternalProperty(Domain domain, String propertyName, String propertyValue, boolean broadcast) throws DomibusPropertyException {
         Integer maxLength = domibusPropertyProvider.getIntegerProperty(DOMIBUS_PROPERTY_LENGTH_MAX);
         if (maxLength > 0 && propertyValue != null && propertyValue.length() > maxLength) {
