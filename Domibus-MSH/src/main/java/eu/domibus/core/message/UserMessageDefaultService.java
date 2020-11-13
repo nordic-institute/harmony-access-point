@@ -602,6 +602,9 @@ public class UserMessageDefaultService implements UserMessageService {
         LOG.debug("Deleting [{}] user messages", userMessageIds.size());
         LOG.trace("Deleting user messages [{}]", userMessageIds);
 
+        List<String> filenames = messagingDao.findFileSystemPayloadFilenames(userMessageIds);
+        messagingDao.deletePayloadFiles(filenames);
+
         List<String> signalMessageIds = messageInfoDao.findSignalMessageIds(userMessageIds);
         LOG.debug("Deleting [{}] signal messages", signalMessageIds.size());
         LOG.trace("Deleting signal messages [{}]", signalMessageIds);

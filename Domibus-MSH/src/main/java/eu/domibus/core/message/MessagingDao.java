@@ -98,6 +98,12 @@ public class MessagingDao extends BasicDao<Messaging> {
         LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_DATA_CLEARED, messageId);
     }
 
+    public List<String> findFileSystemPayloadFilenames(List<String> messageIds) {
+        TypedQuery<String> query = em.createNamedQuery("PartInfo.findFilenames", String.class);
+        query.setParameter("MESSAGEIDS", messageIds);
+        return query.getResultList();
+    }
+
     /**
      * Deletes the payloads saved on the file system
      *
@@ -111,12 +117,27 @@ public class MessagingDao extends BasicDao<Messaging> {
         }
 
         for (PartInfo result : fileSystemPayloads) {
-            try {
-                Files.delete(Paths.get(result.getFileName()));
-            } catch (IOException e) {
-                LOG.debug("Problem deleting payload data files", e);
-            }
+            deletePayloadFile(result.getFileName());
+        }
+    }
 
+    public void deletePayloadFiles(List<String> filenames) {
+        if(CollectionUtils.isEmpty(filenames)) {
+            LOG.info("No payload data file to delete from the filesystem");
+            return;
+        }
+
+        for(String filename : filenames) {
+            LOG.info("Deleting payload data file: [{}]", filename);
+            deletePayloadFile(filename);
+        }
+    }
+
+    public void deletePayloadFile(String filename) {
+        try {
+            Files.delete(Paths.get(filename));
+        } catch (IOException e) {
+            LOG.debug("Problem deleting payload data files", e);
         }
     }
 
