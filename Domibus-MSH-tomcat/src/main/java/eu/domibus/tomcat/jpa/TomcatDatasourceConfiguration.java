@@ -24,13 +24,13 @@ public class TomcatDatasourceConfiguration {
 
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(TomcatDatasourceConfiguration.class);
 
-    public static final String DOMIBUS_DATASOURCE_XA_PROPERTY = "domibus.datasource.xa.property.";
+    protected static final String DOMIBUS_DATASOURCE_XA_PROPERTY = "domibus.datasource.xa.property.";
 
-    public static final String DOMIBUS_DATASOURCE_XA_PROPERTY_VALUE_PREFIX_ORACLE_URL = "jdbc:oracle:";
+    protected static final String DOMIBUS_DATASOURCE_XA_PROPERTY_VALUE_PREFIX_ORACLE_URL = "jdbc:oracle:";
 
-    public static final String DOMIBUS_DATASOURCE_XA_PROPERTY_KEY_URL = DOMIBUS_DATASOURCE_XA_PROPERTY + "url";
+    protected static final String DOMIBUS_DATASOURCE_XA_PROPERTY_KEY_URL = "url";
 
-    public static final String DOMIBUS_DATASOURCE_XA_PROPERTY_KEY_ORACLE_URL = DOMIBUS_DATASOURCE_XA_PROPERTY + "URL";
+    protected static final String DOMIBUS_DATASOURCE_XA_PROPERTY_KEY_ORACLE_URL = "URL";
 
     @Bean(name = DomibusJPAConfiguration.DOMIBUS_JDBC_XA_DATA_SOURCE, initMethod = "init", destroyMethod = "close")
     @DependsOn("userTransactionService")

@@ -9,7 +9,7 @@ import org.junit.runner.RunWith;
 
 import java.util.Collections;
 
-import static eu.domibus.tomcat.jpa.TomcatDatasourceConfiguration.DOMIBUS_DATASOURCE_XA_PROPERTY;
+import static eu.domibus.tomcat.jpa.TomcatDatasourceConfiguration.*;
 
 @RunWith(JMockit.class)
 public class TomcatDatasourceConfigurationTest {
@@ -30,14 +30,14 @@ public class TomcatDatasourceConfigurationTest {
             result = prefixedProperties;
 
             prefixedProperties.entrySet();
-            result = Collections.singletonMap("domibus.datasource.xa.property.url", "jdbc:oracle:thin:localhost:1521/XE").entrySet();
+            result = Collections.singletonMap(DOMIBUS_DATASOURCE_XA_PROPERTY_KEY_URL, "jdbc:oracle:thin:localhost:1521/XE").entrySet();
         }};
 
         tomcatDatasourceConfiguration.xaProperties(domibusPropertyProvider);
 
         new Verifications() {{
-            prefixedProperties.remove("domibus.datasource.xa.property.url");
-            prefixedProperties.setProperty("domibus.datasource.xa.property.URL", "jdbc:oracle:thin:localhost:1521/XE");
+            prefixedProperties.remove(DOMIBUS_DATASOURCE_XA_PROPERTY_KEY_URL);
+            prefixedProperties.setProperty(DOMIBUS_DATASOURCE_XA_PROPERTY_KEY_ORACLE_URL, "jdbc:oracle:thin:localhost:1521/XE");
         }};
     }
 
@@ -48,16 +48,16 @@ public class TomcatDatasourceConfigurationTest {
             result = prefixedProperties;
 
             prefixedProperties.entrySet();
-            result = Collections.singletonMap("domibus.datasource.xa.property.url", "jdbc:mysql://localhost:3306/domibus?pinGlobalTxToPhysicalConnection=true").entrySet();
+            result = Collections.singletonMap(DOMIBUS_DATASOURCE_XA_PROPERTY_KEY_URL, "jdbc:mysql://localhost:3306/domibus?pinGlobalTxToPhysicalConnection=true").entrySet();
         }};
 
         tomcatDatasourceConfiguration.xaProperties(domibusPropertyProvider);
 
         new Verifications() {{
-            prefixedProperties.remove("domibus.datasource.xa.property.url");
+            prefixedProperties.remove(DOMIBUS_DATASOURCE_XA_PROPERTY_KEY_URL);
             times = 0;
 
-            prefixedProperties.setProperty("domibus.datasource.xa.property.URL", "jdbc:mysql://localhost:3306/domibus?pinGlobalTxToPhysicalConnection=true");
+            prefixedProperties.setProperty(DOMIBUS_DATASOURCE_XA_PROPERTY_KEY_ORACLE_URL, "jdbc:mysql://localhost:3306/domibus?pinGlobalTxToPhysicalConnection=true");
             times = 0;
         }};
     }
