@@ -10,6 +10,7 @@ import mockit.Injectable;
 import mockit.Mocked;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -23,6 +24,7 @@ import javax.xml.bind.JAXBContext;
 @RunWith(JMockit.class)
 public class WSPluginMessageBuilderTest {
 
+    public static final String MESSAGE_ID = "messageId";
     @Tested
     private WSPluginMessageBuilder wsPluginMessageBuilder;
 
@@ -53,5 +55,25 @@ public class WSPluginMessageBuilderTest {
             result = new SendFailure();
         }};
         wsPluginMessageBuilder.getJaxbElement(messageLogEntity);
+    }
+
+    @Test
+    public void getSendSuccess(@Mocked WSBackendMessageLogEntity messageLogEntity) {
+        new Expectations(){{
+            messageLogEntity.getMessageId();
+            result = MESSAGE_ID;
+        }};
+        SendSuccess sendSuccess = wsPluginMessageBuilder.getSendSuccess(messageLogEntity);
+        Assert.assertEquals(MESSAGE_ID, sendSuccess.getMessageID());
+    }
+
+    @Test
+    public void getSendFailure(@Mocked WSBackendMessageLogEntity messageLogEntity) {
+        new Expectations(){{
+            messageLogEntity.getMessageId();
+            result = MESSAGE_ID;
+        }};
+        SendFailure sendFailure = wsPluginMessageBuilder.getSendFailure(messageLogEntity);
+        Assert.assertEquals(MESSAGE_ID, sendFailure.getMessageID());
     }
 }

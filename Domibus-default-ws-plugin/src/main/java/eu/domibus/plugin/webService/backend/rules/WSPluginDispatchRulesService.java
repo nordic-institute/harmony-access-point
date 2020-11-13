@@ -10,10 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.common.util.CollectionUtils;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
@@ -29,12 +26,22 @@ public class WSPluginDispatchRulesService {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginDispatchRulesService.class);
 
     public static final String WSPLUGIN_PUSH_PREFIX = "wsplugin.push";
+
     public static final String PUSH_RULE_PREFIX = WSPLUGIN_PUSH_PREFIX + ".rule";
+
     public static final String PUSH_RULE_DESCRIPTION = ".description";
+
     public static final String PUSH_RULE_RECIPIENT = ".recipient";
+
     public static final String PUSH_RULE_ENDPOINT = ".endpoint";
+
     public static final String PUSH_RULE_RETRY = ".retry";
+
     public static final String PUSH_RULE_TYPE = ".type";
+
+    public static final int DEFAULT_MAX_ATTEMPTS = 60000;
+
+    public static final int MULTIPLIER_MINUTES_TO_MILLIS = 60000;
 
     private final DomibusPropertyExtService domibusPropertyExtService;
     private volatile List<WSPluginDispatchRule> rules;
@@ -138,6 +145,39 @@ public class WSPluginDispatchRulesService {
             return null;
         }
         return Integer.parseInt(index);
+    }
+
+    public Date calculateNextAttempt(final WSPluginRetryStrategy wsPluginRetryStrategy,
+                                     final Date received,
+                                     int maxAttempts,
+                                     final int timeoutInMinutes) {
+
+        if (wsPluginRetryStrategy == WSPluginRetryStrategy.CONSTANT) {
+            LOG.debug("Compute next date. maxAttempts: [{}] timeoutInMinutes: [{}] received: [{}]", maxAttempts, timeoutInMinutes, received);
+
+            if (maxAttempts < 0 || timeoutInMinutes < 0 || received == null) {
+                LOG.debug("No date to be calculated.");
+                return null;
+            }
+            if (maxAttempts > DEFAULT_MAX_ATTEMPTS) {
+                maxAttempts = DEFAULT_MAX_ATTEMPTS;
+            }
+            final long now = System.currentTimeMillis();
+            long retry = received.getTime();
+            final long stopTime = received.getTime() + ((long) timeoutInMinutes * MULTIPLIER_MINUTES_TO_MILLIS) + 5000; // We grant 5 extra seconds to avoid not sending the last attempt
+            while (retry <= stopTime) {
+                retry += (long) timeoutInMinutes * MULTIPLIER_MINUTES_TO_MILLIS / maxAttempts;
+                if (retry > now && retry < stopTime) {
+                    return new Date(retry);
+                }
+            }
+            LOG.debug("No date to be calculated.");
+            return null;
+        } else if (wsPluginRetryStrategy == WSPluginRetryStrategy.SEND_ONCE) {
+            LOG.debug("No date to be calculated (SendOnceAttemptAlgorithm). received: [{}] timeoutInMinutes: [{}] received: [{}]", received, timeoutInMinutes, received);
+            return null;
+        }
+        throw new IllegalArgumentException("Strategy not recognized: [" + wsPluginRetryStrategy + "]");
     }
 
 }

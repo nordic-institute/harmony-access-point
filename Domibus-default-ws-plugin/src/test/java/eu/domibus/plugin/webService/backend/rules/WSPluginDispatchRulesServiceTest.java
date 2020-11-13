@@ -12,12 +12,13 @@ import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.time.ZonedDateTime;
+import java.util.*;
 
 import static eu.domibus.plugin.webService.backend.rules.WSPluginDispatchRulesService.*;
+import static java.time.LocalDateTime.of;
+import static java.time.ZoneId.systemDefault;
+import static java.util.Date.from;
 import static org.junit.Assert.*;
 
 /**
@@ -206,5 +207,37 @@ public class WSPluginDispatchRulesServiceTest {
     @Test(expected = WSPluginException.class)
     public void getTypes_typeDoesntExists() {
         wsPluginDispatchRulesService.getTypes("NOPE");
+    }
+
+    @Test
+    public void calculateNextAttempt_SEND_ONCE() {
+        Date nextAttempt = wsPluginDispatchRulesService.calculateNextAttempt(WSPluginRetryStrategy.SEND_ONCE, null, 1, 2);
+        assertNull(nextAttempt);
+    }
+
+    @Test
+    public void calculateNextAttempt_CONSTANT_noDateReceived() {
+        Date nextAttempt = wsPluginDispatchRulesService.calculateNextAttempt(WSPluginRetryStrategy.CONSTANT, null, 1, 2);
+        assertNull(nextAttempt);
+    }
+
+    @Test
+    public void calculateNextAttempt_CONSTANT_attemptsNegative() {
+        Date nextAttempt = wsPluginDispatchRulesService.calculateNextAttempt(WSPluginRetryStrategy.CONSTANT, new Date(), -1, 2);
+        assertNull(nextAttempt);
+    }
+
+    @Test
+    public void calculateNextAttempt_CONSTANT_timeoutNegative() {
+        Date nextAttempt = wsPluginDispatchRulesService.calculateNextAttempt(WSPluginRetryStrategy.CONSTANT, new Date(), 1, -2);
+        assertNull(nextAttempt);
+    }
+
+    @Test
+    public void calculateNextAttempt_CONSTANT_ok() {
+        ZonedDateTime received = of(2020, 12, 31, 12, 0).atZone(systemDefault());
+        Date expected = from(received.plusMinutes(1).toInstant());
+        Date nextAttempt = wsPluginDispatchRulesService.calculateNextAttempt(WSPluginRetryStrategy.CONSTANT, from(received.toInstant()), 10, 10);
+        assertEquals(expected, nextAttempt);
     }
 }
