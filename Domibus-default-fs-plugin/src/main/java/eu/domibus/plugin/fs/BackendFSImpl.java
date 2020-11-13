@@ -37,10 +37,7 @@ import javax.validation.constraints.NotNull;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static eu.domibus.common.MessageStatus.*;
 
@@ -264,13 +261,19 @@ public class BackendFSImpl extends AbstractBackendConnector<FSMessage, FSMessage
         String fileName = fsPayload.getFileName();
 
         //contentId file name - if the parsing of the received fileName fails we will return this
-        final String fileNameContentId = contentId.replaceFirst("cid:", StringUtils.EMPTY) + getFileNameExtension(fsPayload.getMimeType());
+        final String fileNameContentId = getFileNameContentIdBase(contentId) + getFileNameExtension(fsPayload.getMimeType());
+
+        //received payloadName is empty, returning the content Id based one
+        if (StringUtils.isBlank(fileName)) {
+            LOG.debug("received payload filename is empty, returning contentId based one=[{}]", fileNameContentId);
+            return fileNameContentId;
+        }
 
         String decodedFileName;
         try {
             decodedFileName = UriParser.decode(fileName);
         } catch (FileSystemException e) {
-            LOG.error("Error while decoding the fileName=[{}]", fileName, e);
+            LOG.error("Error while decoding the fileName=[{}], returning contentId based one=[{}]", fileName, fileNameContentId, e);
             return fileNameContentId;
         }
         if (decodedFileName != null && !StringUtils.equals(fileName, decodedFileName)) {
@@ -286,6 +289,15 @@ public class BackendFSImpl extends AbstractBackendConnector<FSMessage, FSMessage
         }
         LOG.debug("returned fileName=[{}]", fileName);
         return fileName;
+    }
+
+    protected String getFileNameContentIdBase(String contentId) {
+        if (StringUtils.isBlank(contentId)) {
+            String randomUUID = UUID.randomUUID().toString();
+            LOG.debug("received contentId is blank, generating alternate FileNameContentIdBase: [{}]", randomUUID);
+            return randomUUID;
+        }
+        return contentId.replaceFirst("cid:", StringUtils.EMPTY);
     }
 
     protected String getFileNameExtension(String mimeType) {
