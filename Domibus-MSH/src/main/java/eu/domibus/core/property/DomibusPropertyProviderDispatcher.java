@@ -27,6 +27,8 @@ public class DomibusPropertyProviderDispatcher {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusPropertyProviderDispatcher.class);
 
+    private static final String CACHE_KEY_EXPRESSION = "(#domain != null ? #domain : #domainContextProvider?.getCurrentDomain()) + #propertyName";
+
     @Autowired
     ClassUtil classUtil;
 
@@ -42,11 +44,8 @@ public class DomibusPropertyProviderDispatcher {
     @Autowired
     DomibusPropertyChangeManager domibusPropertyChangeManager;
 
-    @Cacheable(value = DomibusCacheService.DOMIBUS_PROPERTY_CACHE,
-            key = "(#domain != null ? #domain : #domainContextProvider?.getCurrentDomain()) + #propertyName")
+    @Cacheable(value = DomibusCacheService.DOMIBUS_PROPERTY_CACHE, key = CACHE_KEY_EXPRESSION)
     public String getInternalOrExternalProperty(String propertyName, Domain domain) throws DomibusPropertyException {
-        LOG.warn("Call getProperty on current domain [{}] for property [{}]", domain, propertyName);
-
         DomibusPropertyMetadata propMeta = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
         if (propMeta.isStoredGlobally()) {
             return getInternalPropertyValue(domain, propertyName);
@@ -60,8 +59,7 @@ public class DomibusPropertyProviderDispatcher {
         return getExternalPropertyValue(propertyName, domain, manager);
     }
 
-    @CacheEvict(value = DomibusCacheService.DOMIBUS_PROPERTY_CACHE,
-            key = "(#domain != null ? #domain : #domainContextProvider?.getCurrentDomain()) + #propertyName")
+    @CacheEvict(value = DomibusCacheService.DOMIBUS_PROPERTY_CACHE, key = CACHE_KEY_EXPRESSION)
     public void setInternalOrExternalProperty(Domain domain, String propertyName, String propertyValue, boolean broadcast) throws DomibusPropertyException {
         Integer maxLength = domibusPropertyProvider.getIntegerProperty(DOMIBUS_PROPERTY_LENGTH_MAX);
         if (maxLength > 0 && propertyValue != null && propertyValue.length() > maxLength) {
