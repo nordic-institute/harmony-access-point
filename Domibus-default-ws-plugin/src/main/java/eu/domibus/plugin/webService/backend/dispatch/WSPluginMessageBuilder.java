@@ -3,8 +3,10 @@ package eu.domibus.plugin.webService.backend.dispatch;
 import eu.domibus.ext.services.XMLUtilExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.plugin.webService.backend.WSBackendMessageLogEntity;
 import eu.domibus.plugin.webService.exception.WSPluginException;
 import eu.domibus.webservice.backend.generated.ObjectFactory;
+import eu.domibus.webservice.backend.generated.SendFailure;
 import eu.domibus.webservice.backend.generated.SendSuccess;
 import org.springframework.stereotype.Service;
 
@@ -33,15 +35,41 @@ public class WSPluginMessageBuilder {
         this.jaxbContextWebserviceBackend = jaxbContextWebserviceBackend;
     }
 
-    public SOAPMessage buildSOAPMessageSendSuccess(final String messageId) {
-        SendSuccess sendSuccess = new ObjectFactory().createSendSuccess();
-        sendSuccess.setMessageID(messageId);
-        SOAPMessage soapMessage = buildSOAPMessage(sendSuccess);
+    public SOAPMessage buildSOAPMessageSendSuccess(final WSBackendMessageLogEntity messageLogEntity) {
+        Object jaxbElement = getJaxbElement(messageLogEntity);
+        SOAPMessage soapMessage = buildSOAPMessage(jaxbElement);
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Getting message for class [{}]: [{}]", sendSuccess.getClass(), getXML(soapMessage));
+            LOG.debug("Getting message for class [{}]: [{}]", jaxbElement.getClass(), getXML(soapMessage));
         }
         return soapMessage;
+    }
+
+    protected Object getJaxbElement(WSBackendMessageLogEntity messageLogEntity) {
+        switch (messageLogEntity.getType()) {
+            case SEND_SUCCESS:
+                return getSendSuccess(messageLogEntity);
+            case SEND_FAILURE:
+                return getSendFailure(messageLogEntity);
+            case RECEIVE_SUCCESS:
+            case RECEIVE_FAIL:
+            case MESSAGE_STATUS_CHANGE:
+            case SUBMIT_MESSAGE:
+            default:
+                throw new IllegalArgumentException("Unexpected value: " + messageLogEntity.getType());
+        }
+    }
+
+    protected SendFailure getSendFailure(WSBackendMessageLogEntity messageLogEntity) {
+        SendFailure sendFailure = new ObjectFactory().createSendFailure();
+        sendFailure.setMessageID(messageLogEntity.getMessageId());
+        return sendFailure;
+    }
+
+    protected SendSuccess getSendSuccess(WSBackendMessageLogEntity messageLogEntity) {
+        SendSuccess sendSuccess = new ObjectFactory().createSendSuccess();
+        sendSuccess.setMessageID(messageLogEntity.getMessageId());
+        return sendSuccess;
     }
 
     public String getXML(SOAPMessage message) {

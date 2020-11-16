@@ -1,19 +1,18 @@
 package eu.domibus.plugin.webService.impl;
 
-import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging;
+import eu.domibus.common.MessageSendSuccessEvent;
+import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.*;
 import eu.domibus.ext.services.*;
 import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.plugin.MessageLister;
 import eu.domibus.plugin.handler.MessagePuller;
 import eu.domibus.plugin.handler.MessageRetriever;
 import eu.domibus.plugin.handler.MessageSubmitter;
+import eu.domibus.plugin.webService.backend.WSPluginBackendService;
 import eu.domibus.plugin.webService.dao.WSMessageLogDao;
 import eu.domibus.plugin.webService.generated.*;
 import eu.domibus.plugin.webService.property.WSPluginPropertyManager;
-import mockit.Expectations;
-import mockit.Injectable;
-import mockit.Tested;
-import mockit.Verifications;
+import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,16 +22,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * @author Cosmin Baciu
  * @since 4.0.2
  */
+@SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(JMockit.class)
 public class WebServicePluginImplTest {
 
+    public static final String RECIPIENT = "Recipient";
+
+    public static final String MESSAGE_ID = "messageId";
+
+    public static final String TO_RECIPIENT = "to_recipient";
+
     @Tested
-    private WebServicePluginImpl backendWebService;
+    private WebServicePluginImpl webServicePlugin;
 
     @Injectable
     private StubDtoTransformer defaultTransformer;
@@ -71,15 +78,18 @@ public class WebServicePluginImplTest {
     protected WSPluginPropertyManager wsPluginPropertyManager;
 
     @Injectable
-    AuthenticationExtService authenticationExtService;
+    private AuthenticationExtService authenticationExtService;
+
+    @Injectable
+    private WSPluginBackendService wsPluginBackendService;
 
 
     @Test(expected = SubmitMessageFault.class)
-    public void validateSubmitRequestWithPayloadsAndBodyload(@Injectable SubmitRequest submitRequest,
+    public void validateSubmitRequestWithPayloadsAndBodyLoad(@Injectable SubmitRequest submitRequest,
                                                              @Injectable Messaging ebMSHeaderInfo,
                                                              @Injectable LargePayloadType payload1,
                                                              @Injectable LargePayloadType payload2,
-                                                             @Injectable LargePayloadType bodyload) throws SubmitMessageFault {
+                                                             @Injectable LargePayloadType bodyLoad) throws SubmitMessageFault {
         List<LargePayloadType> payloadList = new ArrayList<>();
         payloadList.add(payload1);
         payloadList.add(payload2);
@@ -95,13 +105,13 @@ public class WebServicePluginImplTest {
             result = "cid:message2";
 
             submitRequest.getBodyload();
-            result = bodyload;
+            result = bodyLoad;
 
-            bodyload.getPayloadId();
+            bodyLoad.getPayloadId();
             result = "null";
         }};
 
-        backendWebService.validateSubmitRequest(submitRequest, ebMSHeaderInfo);
+        webServicePlugin.validateSubmitRequest(submitRequest, ebMSHeaderInfo);
     }
 
     @Test(expected = SubmitMessageFault.class)
@@ -119,23 +129,23 @@ public class WebServicePluginImplTest {
             result = null;
         }};
 
-        backendWebService.validateSubmitRequest(submitRequest, ebMSHeaderInfo);
+        webServicePlugin.validateSubmitRequest(submitRequest, ebMSHeaderInfo);
     }
 
     @Test(expected = SubmitMessageFault.class)
-    public void validateSubmitRequestWithPayloadIdAddedForBodyload(@Injectable SubmitRequest submitRequest,
+    public void validateSubmitRequestWithPayloadIdAddedForBodyLoad(@Injectable SubmitRequest submitRequest,
                                                                    @Injectable Messaging ebMSHeaderInfo,
-                                                                   @Injectable LargePayloadType bodyload) throws SubmitMessageFault {
+                                                                   @Injectable LargePayloadType bodyLoad) throws SubmitMessageFault {
 
         new Expectations() {{
             submitRequest.getBodyload();
-            result = bodyload;
+            result = bodyLoad;
 
-            bodyload.getPayloadId();
+            bodyLoad.getPayloadId();
             result = "cid:message";
         }};
 
-        backendWebService.validateSubmitRequest(submitRequest, ebMSHeaderInfo);
+        webServicePlugin.validateSubmitRequest(submitRequest, ebMSHeaderInfo);
     }
 
     @Test
@@ -150,7 +160,7 @@ public class WebServicePluginImplTest {
 
         // backendWebService.retrieveMessage(retrieveMessageRequest, new Holder<RetrieveMessageResponse>(retrieveMessageResponse), new Holder<>(ebMSHeaderInfo));
 
-        backendWebService.submitMessage(submitRequest, ebMSHeaderInfo);
+        webServicePlugin.submitMessage(submitRequest, ebMSHeaderInfo);
 
         new Verifications() {{
             String messageId;
@@ -164,15 +174,15 @@ public class WebServicePluginImplTest {
                                                                                     @Injectable RetrieveMessageResponse retrieveMessageResponse,
                                                                                     @Injectable Messaging ebMSHeaderInfo,
                                                                                     @Injectable MessageLister lister) throws RetrieveMessageFault, MessageNotFoundException {
-        new Expectations(backendWebService) {{
+        new Expectations(webServicePlugin) {{
             retrieveMessageRequest.getMessageID();
             result = "-Dom137--";
             lister.removeFromPending(anyString);
             result = null;
         }};
 
-        backendWebService.setLister(lister);
-        backendWebService.retrieveMessage(retrieveMessageRequest, new Holder<RetrieveMessageResponse>(retrieveMessageResponse), new Holder<>(ebMSHeaderInfo));
+        webServicePlugin.setLister(lister);
+        webServicePlugin.retrieveMessage(retrieveMessageRequest, new Holder<>(retrieveMessageResponse), new Holder<>(ebMSHeaderInfo));
 
         new Verifications() {{
             String messageId;
@@ -186,15 +196,133 @@ public class WebServicePluginImplTest {
         new Expectations() {{
             statusRequest.getMessageID();
             result = "-Dom138--";
-
         }};
 
-        backendWebService.getStatus(statusRequest);
+        webServicePlugin.getStatus(statusRequest);
 
         new Verifications() {{
             String messageId;
             messageExtService.cleanMessageIdentifier(messageId = withCapture());
             assertEquals("The message identifier should have been cleaned before retrieving the message", "-Dom138--", messageId);
         }};
+    }
+
+    @Test
+    public void sendSuccess(@Mocked MessageSendSuccessEvent event) {
+        new Expectations(webServicePlugin) {{
+            webServicePlugin.getRecipient(event);
+            times = 1;
+            result = RECIPIENT;
+
+            event.getMessageId();
+            result = MESSAGE_ID;
+
+            wsPluginBackendService.sendSuccess(MESSAGE_ID, RECIPIENT);
+            times = 1;
+        }};
+        webServicePlugin.messageSendSuccess(event);
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void getRecipient_messageNotFound(@Mocked MessageSendSuccessEvent event) throws MessageNotFoundException {
+        new Expectations(webServicePlugin) {{
+            event.getMessageId();
+            result = MESSAGE_ID;
+
+            webServicePlugin.browseMessage(MESSAGE_ID, null);
+            result = new MessageNotFoundException("TEST");
+        }};
+        assertNull(webServicePlugin.getRecipient(event));
+    }
+
+    @Test
+    public void getRecipient_partyInfoNull(@Mocked MessageSendSuccessEvent event,
+                             @Mocked UserMessage userMessage) throws MessageNotFoundException {
+        new Expectations(webServicePlugin) {{
+            event.getMessageId();
+            result = MESSAGE_ID;
+
+            webServicePlugin.browseMessage(MESSAGE_ID, null);
+            result = userMessage;
+
+            userMessage.getPartyInfo();
+            result = null;
+        }};
+        assertNull(webServicePlugin.getRecipient(event));
+    }
+
+    @Test
+    public void getRecipient_getToNull(
+            @Mocked MessageSendSuccessEvent event,
+            @Mocked UserMessage userMessage,
+            @Mocked PartyInfo partyInfo) throws MessageNotFoundException {
+        new Expectations(webServicePlugin) {{
+            event.getMessageId();
+            result = MESSAGE_ID;
+
+            webServicePlugin.browseMessage(MESSAGE_ID, null);
+            result = userMessage;
+
+            userMessage.getPartyInfo();
+            result = partyInfo;
+            partyInfo.getTo();
+            result = null;
+        }};
+        assertNull(webServicePlugin.getRecipient(event));
+    }
+
+    @Test
+    public void getRecipient_partyIdNull(
+            @Mocked MessageSendSuccessEvent event,
+            @Mocked UserMessage userMessage,
+            @Mocked PartyInfo partyInfo,
+            @Mocked To to) throws MessageNotFoundException {
+        new Expectations(webServicePlugin) {{
+            event.getMessageId();
+            result = MESSAGE_ID;
+
+            webServicePlugin.browseMessage(MESSAGE_ID, null);
+            result = userMessage;
+
+            userMessage.getPartyInfo();
+            result = partyInfo;
+            partyInfo.getTo();
+            result = to;
+            to.getPartyId();
+            result = null;
+        }};
+        assertNull(webServicePlugin.getRecipient(event));
+    }
+
+    @Test
+    public void getRecipient_partyIdNull(
+            @Mocked MessageSendSuccessEvent event,
+            @Mocked UserMessage userMessage,
+            @Mocked PartyInfo partyInfo,
+            @Mocked To to,
+            @Mocked PartyId partyId) throws MessageNotFoundException {
+        new Expectations(webServicePlugin) {{
+            event.getMessageId();
+            result = MESSAGE_ID;
+
+            webServicePlugin.browseMessage(MESSAGE_ID, null);
+            result = userMessage;
+
+            userMessage.getPartyInfo();
+            result = partyInfo;
+
+            partyInfo.getTo();
+            result = to;
+
+            to.getPartyId();
+            result = partyId;
+
+            partyId.getValue();
+            result = TO_RECIPIENT;
+        }};
+        assertEquals(TO_RECIPIENT, webServicePlugin.getRecipient(event));
     }
 }
