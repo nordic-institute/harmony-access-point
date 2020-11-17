@@ -1,6 +1,7 @@
 package domibus.ui.ux;
 
 import ddsl.dcomponents.grid.DGrid;
+import ddsl.dcomponents.grid.Pagination;
 import ddsl.enums.PAGES;
 import domibus.ui.SeleniumTest;
 import org.apache.commons.collections4.ListUtils;
@@ -444,6 +445,43 @@ public class ErrorLogPgUXTest extends SeleniumTest {
 		Date date = new SimpleDateFormat("yyyy-MM-dd hh:mm").parse("2019-05-05 03:03");
 		page.filters().getErrFrom().selectDate(date);
 	}
+
+
+	/* ERR-24 - Perform sorting on last page when multiple pages are available */
+	@Test(description = "ERR-24", groups = {"multiTenancy", "singleTenancy"})
+	public void checkSortingOnLastPage() throws Exception {
+
+		SoftAssert soft = new SoftAssert();
+		log.info("Navigate to Error log page");
+		ErrorLogPage page = new ErrorLogPage(driver);
+		page.getSidebar().goToPage(PAGES.ERROR_LOG);
+
+		DGrid grid = page.grid();
+		Pagination pg = grid.getPagination();
+
+		log.info("Checking if we have enough pages to perform test");
+		if( pg.getExpectedNoOfPages() <=1 ){
+			throw new SkipException("Not enough pages for test");
+		}
+
+		log.info("Going to last page");
+		pg.skipToLastPage();
+
+		grid.waitForRowsToLoad();
+
+		log.info("Sorting by Error Code");
+		grid.sortBy("Error Code");
+		grid.waitForRowsToLoad();
+
+
+		log.info("Checking if current page is first page");
+		soft.assertEquals(pg.getActivePage(), Integer.valueOf(1), "Current page is reset to 1 after sorting");
+
+
+		soft.assertAll();
+	}
+
+
 
 }
 
