@@ -1,6 +1,8 @@
 package eu.domibus.plugin.webService.backend.rules;
 
 import eu.domibus.ext.services.DomibusPropertyExtService;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.webService.backend.WSBackendMessageType;
 import eu.domibus.plugin.webService.exception.WSPluginException;
 import org.apache.commons.lang3.RegExUtils;
@@ -8,10 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.common.util.CollectionUtils;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
@@ -25,6 +24,8 @@ import static org.apache.commons.lang3.StringUtils.trim;
 @Service
 public class WSPluginDispatchRulesService {
 
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginDispatchRulesService.class);
+
     public static final String PUSH_RULE_BASE = "wsplugin.push.rules";
     public static final String PUSH_RULE_PREFIX = PUSH_RULE_BASE + ".";
 
@@ -37,27 +38,24 @@ public class WSPluginDispatchRulesService {
     public static final String PUSH_RULE_TYPE = ".type";
 
     private final DomibusPropertyExtService domibusPropertyExtService;
-    private volatile List<WSPluginDispatchRule> rules;
-    private final Object rulesLock = new Object();
+    private volatile Map<String, List<WSPluginDispatchRule>> rules = new HashMap<>();
 
     public WSPluginDispatchRulesService(DomibusPropertyExtService domibusPropertyExtService) {
         this.domibusPropertyExtService = domibusPropertyExtService;
     }
 
-    @PostConstruct
-    public void init() {
-        getRules();
-    }
-
     public List<WSPluginDispatchRule> getRules() {
-        if (rules == null) {
-            synchronized (rulesLock) {
-                if (rules == null) {
-                    rules = generateRules();
+        String mdc = LOG.getMDC(DomibusLogger.MDC_DOMAIN);
+        List<WSPluginDispatchRule> forOneDomain;
+        if (rules.get(mdc) == null) {
+            synchronized (rules) {
+                if (rules.get(mdc) == null) {
+                    forOneDomain = generateRules();
+                    rules.put(mdc, forOneDomain);
                 }
             }
         }
-        return rules;
+        return rules.get(mdc);
     }
 
     protected List<WSPluginDispatchRule> generateRules() {

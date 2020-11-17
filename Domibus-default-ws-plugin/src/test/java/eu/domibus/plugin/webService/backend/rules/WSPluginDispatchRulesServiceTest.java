@@ -1,6 +1,8 @@
 package eu.domibus.plugin.webService.backend.rules;
 
 import eu.domibus.ext.services.DomibusPropertyExtService;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.webService.backend.WSBackendMessageType;
 import eu.domibus.plugin.webService.exception.WSPluginException;
 import mockit.*;
@@ -23,6 +25,8 @@ import static org.junit.Assert.*;
  */
 @RunWith(JMockit.class)
 public class WSPluginDispatchRulesServiceTest {
+
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginDispatchRulesServiceTest.class);
 
     public static final String RULE_NAME_1 = "red1";
     public static final String RULE_NAME_3 = "red3";
@@ -87,7 +91,8 @@ public class WSPluginDispatchRulesServiceTest {
         List<WSPluginDispatchRule> wsPluginDispatchRules = wsPluginDispatchRulesService.generateRules();
         assertEquals(0, wsPluginDispatchRules.size());
 
-        new FullVerifications(){};
+        new FullVerifications() {
+        };
     }
 
     @Test
@@ -96,7 +101,7 @@ public class WSPluginDispatchRulesServiceTest {
         new Expectations(wsPluginDispatchRulesService) {{
             domibusPropertyExtService.getNestedProperties("wsplugin.push.rules");
             times = 1;
-            result = Arrays.asList(RULE_NAME_1,                    RULE_NAME_3);
+            result = Arrays.asList(RULE_NAME_1, RULE_NAME_3);
 
             domibusPropertyExtService.getProperty(PUSH_RULE_PREFIX + RULE_NAME_1);
             result = "desc1";
@@ -126,7 +131,7 @@ public class WSPluginDispatchRulesServiceTest {
             domibusPropertyExtService.getProperty(PUSH_RULE_PREFIX + RULE_NAME_3 + PUSH_RULE_RETRY);
             result = "3;3;CONSTANT";
             times = 1;
-            domibusPropertyExtService.getProperty(PUSH_RULE_PREFIX + RULE_NAME_3+ PUSH_RULE_TYPE);
+            domibusPropertyExtService.getProperty(PUSH_RULE_PREFIX + RULE_NAME_3 + PUSH_RULE_TYPE);
             result = "SEND_SUCCESS";
             times = 1;
         }};
@@ -146,7 +151,7 @@ public class WSPluginDispatchRulesServiceTest {
     }
 
     @Test
-    public void getRules(@Mocked WSPluginDispatchRule wsPluginDispatchRule) {
+    public void getRulesByRecipient(@Mocked WSPluginDispatchRule wsPluginDispatchRule) {
         new Expectations(wsPluginDispatchRulesService) {{
             wsPluginDispatchRulesService.getRules();
             result = Collections.singletonList(wsPluginDispatchRule);
@@ -171,4 +176,26 @@ public class WSPluginDispatchRulesServiceTest {
         wsPluginDispatchRulesService.getTypes("NOPE");
     }
 
+    @Test
+    public void getRules() {
+
+        new Expectations(wsPluginDispatchRulesService) {{
+            wsPluginDispatchRulesService.generateRules();
+            result = Collections.singletonList(new WSPluginDispatchRuleBuilder("test1").build());
+            result = Arrays.asList(
+                    new WSPluginDispatchRuleBuilder("test20").build(),
+                    new WSPluginDispatchRuleBuilder("test21").build());
+            times = 2;
+        }};
+        LOG.putMDC(DomibusLogger.MDC_DOMAIN, "test1");
+        assertEquals(1, wsPluginDispatchRulesService.getRules().size());
+        LOG.putMDC(DomibusLogger.MDC_DOMAIN, "test2");
+        assertEquals(2, wsPluginDispatchRulesService.getRules().size());
+        LOG.putMDC(DomibusLogger.MDC_DOMAIN, "test1");
+        assertEquals(1, wsPluginDispatchRulesService.getRules().size());
+
+        new FullVerifications() {
+        };
+
+    }
 }
