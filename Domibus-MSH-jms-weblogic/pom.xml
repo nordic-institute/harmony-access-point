@@ -86,12 +86,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.oracle.weblogic</groupId>
-            <artifactId>wlthint3client</artifactId>
-            <version>12.1.1</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
         </dependency>
