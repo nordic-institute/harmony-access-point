@@ -38,7 +38,7 @@ public class WSPluginDispatchRulesService {
     public static final String PUSH_RULE_TYPE = ".type";
 
     private final DomibusPropertyExtService domibusPropertyExtService;
-    private volatile Map<String, List<WSPluginDispatchRule>> rules = new HashMap<>();
+    private final Map<String, List<WSPluginDispatchRule>> rules = new HashMap<>();
 
     public WSPluginDispatchRulesService(DomibusPropertyExtService domibusPropertyExtService) {
         this.domibusPropertyExtService = domibusPropertyExtService;
@@ -50,6 +50,7 @@ public class WSPluginDispatchRulesService {
         if (domainRules == null) {
             synchronized (rules) {
                 if (rules.get(domain) == null) {
+                    LOG.info("Find the rules of reliability for the domain [{}]", domain);
                     domainRules = generateRules();
                     rules.put(domain, domainRules);
                 }
@@ -72,7 +73,9 @@ public class WSPluginDispatchRulesService {
             ruleBuilder.withEndpoint(domibusPropertyExtService.getProperty(PUSH_RULE_PREFIX + ruleBuilder.getRuleName() + PUSH_RULE_ENDPOINT));
             ruleBuilder.withType(getTypes(domibusPropertyExtService.getProperty(PUSH_RULE_PREFIX + ruleBuilder.getRuleName() + PUSH_RULE_TYPE)));
             setRetryInformation(ruleBuilder, domibusPropertyExtService.getProperty(PUSH_RULE_PREFIX + ruleBuilder.getRuleName() + PUSH_RULE_RETRY));
-            result.add(ruleBuilder.build());
+            WSPluginDispatchRule dispatchRule = ruleBuilder.build();
+            result.add(dispatchRule);
+            LOG.info("WSPlugin reliability dispatch rule found: [{}]", dispatchRule);
         }
 
         return result;
@@ -81,7 +84,7 @@ public class WSPluginDispatchRulesService {
     protected List<WSBackendMessageType> getTypes(String property) {
         List<WSBackendMessageType> result = new ArrayList<>();
         String[] messageTypes = StringUtils.split(RegExUtils.replaceAll(property, " ", ""), ",");
-
+        LOG.debug("get WSBackendMessageType with property: [{}]", property);
         for (String type : messageTypes) {
             try {
                 result.add(WSBackendMessageType.valueOf(trim(type)));
@@ -120,6 +123,7 @@ public class WSPluginDispatchRulesService {
 
     protected void setRetryInformation(WSPluginDispatchRuleBuilder ruleBuilder, String property) {
         ruleBuilder.withRetry(property);
+        LOG.debug("set retry information with property value: [{}]", property);
         if (StringUtils.isBlank(property)) {
             return;
         }
