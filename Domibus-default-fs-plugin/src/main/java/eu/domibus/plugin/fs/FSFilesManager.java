@@ -176,7 +176,7 @@ public class FSFilesManager {
         LOG.debug("Renaming file [{}] to [{}]", file.getName().getPath(), newFileName);
 
         FileObject newFile = resolveSibling(file, newFileName);
-        //Close open handlers on the file before rename.
+        //Close open handles on the file before rename.
         file.close();
         file.moveTo(newFile);
 
@@ -186,6 +186,8 @@ public class FSFilesManager {
     }
 
     public void moveFile(FileObject file, FileObject targetFile) throws FileSystemException {
+        //Close open handles on the file before rename.
+        file.close();
         file.moveTo(targetFile);
 
         forceLastModifiedTimeIfSupported(targetFile);
