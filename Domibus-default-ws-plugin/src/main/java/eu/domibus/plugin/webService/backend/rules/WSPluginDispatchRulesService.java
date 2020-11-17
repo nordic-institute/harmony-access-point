@@ -46,12 +46,10 @@ public class WSPluginDispatchRulesService {
 
     public List<WSPluginDispatchRule> getRules() {
         String domain = LOG.getMDC(DomibusLogger.MDC_DOMAIN);
-        List<WSPluginDispatchRule> domainDispatchRules;
         if (rules.get(domain) == null) {
             synchronized (rules) {
                 if (rules.get(domain) == null) {
-                    domainDispatchRules = generateRules();
-                    rules.put(domain, domainDispatchRules);
+                    rules.put(domain, generateRules());
                 }
             }
         }
