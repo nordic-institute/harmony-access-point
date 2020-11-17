@@ -28,17 +28,14 @@ import java.io.OutputStreamWriter;
 @Component
 public class FSFilesManager {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FSFilesManager.class);
-
-    private static final String FTP_PREFIX = "ftp:";
-    private static final String PARENT_RELATIVE_PATH = "../";
-    private static final int TEN_SECONDS = 10000;
-
     public static final String INCOMING_FOLDER = "IN";
     public static final String OUTGOING_FOLDER = "OUT";
     public static final String SENT_FOLDER = "SENT";
     public static final String FAILED_FOLDER = "FAILED";
-
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FSFilesManager.class);
+    private static final String FTP_PREFIX = "ftp:";
+    private static final String PARENT_RELATIVE_PATH = "../";
+    private static final int TEN_SECONDS = 10000;
     @Autowired
     protected FSPluginProperties fsPluginProperties;
 
@@ -176,6 +173,8 @@ public class FSFilesManager {
         LOG.debug("Renaming file [{}] to [{}]", file.getName().getPath(), newFileName);
 
         FileObject newFile = resolveSibling(file, newFileName);
+        //Close open handlers on the file before rename.
+        file.close();
         file.moveTo(newFile);
 
         forceLastModifiedTimeIfSupported(newFile);
