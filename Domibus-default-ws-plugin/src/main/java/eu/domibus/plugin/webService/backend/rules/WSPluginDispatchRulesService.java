@@ -45,17 +45,17 @@ public class WSPluginDispatchRulesService {
     }
 
     public List<WSPluginDispatchRule> getRules() {
-        String mdc = LOG.getMDC(DomibusLogger.MDC_DOMAIN);
-        List<WSPluginDispatchRule> forOneDomain;
-        if (rules.get(mdc) == null) {
+        String domain = LOG.getMDC(DomibusLogger.MDC_DOMAIN);
+        List<WSPluginDispatchRule> domainDispatchRules;
+        if (rules.get(domain) == null) {
             synchronized (rules) {
-                if (rules.get(mdc) == null) {
-                    forOneDomain = generateRules();
-                    rules.put(mdc, forOneDomain);
+                if (rules.get(domain) == null) {
+                    domainDispatchRules = generateRules();
+                    rules.put(domain, domainDispatchRules);
                 }
             }
         }
-        return rules.get(mdc);
+        return rules.get(domain);
     }
 
     protected List<WSPluginDispatchRule> generateRules() {
