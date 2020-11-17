@@ -63,7 +63,7 @@
             <column name="BACKEND_MESSAGE_STATUS" type="VARCHAR(255)" remarks="The status describing the state of the backend message"/>
             <column name="BACKEND_MESSAGE_TYPE" type="VARCHAR(255)" remarks="The type describing the kind backend message"/>
 
-            <column name="ENDPOINT" type="VARCHAR(255)" remarks="Endpoint used for dispatching"/>
+            <column name="RULE_NAME" type="VARCHAR(255)" remarks="Name of the rule used for dispatching"/>
             <column name="SENT" type="DATETIME" remarks="DateTime when the message had been dispatched">
                 <constraints nullable="false"/>
             </column>

@@ -54,8 +54,8 @@ public class WSBackendMessageLogEntity {
     @Column(name = "BACKEND_MESSAGE_TYPE")
     private WSBackendMessageType type;
 
-    @Column(name = "ENDPOINT")
-    private String endpoint;
+    @Column(name = "RULE_NAME")
+    private String ruleName;
 
     @Column(name = "SENT")
     @Temporal(TemporalType.TIMESTAMP)
@@ -162,12 +162,12 @@ public class WSBackendMessageLogEntity {
         this.type = type;
     }
 
-    public String getEndpoint() {
-        return endpoint;
+    public String getRuleName() {
+        return ruleName;
     }
 
-    public void setEndpoint(String endpoint) {
-        this.endpoint = endpoint;
+    public void setRuleName(String endpoint) {
+        this.ruleName = endpoint;
     }
 
     public Date getSent() {

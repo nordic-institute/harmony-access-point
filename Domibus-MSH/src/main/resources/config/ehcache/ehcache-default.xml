@@ -57,6 +57,9 @@
         </expiry>
         <heap unit="MB">5</heap>
     </cache>
+
+    <cache alias="domibusProperties" uses-template="ttl-3600-heap-5mb"/>
+
     <!-- cache definitions ends here -->
 
     <cache-template name="ttl-3600-heap-5mb">
