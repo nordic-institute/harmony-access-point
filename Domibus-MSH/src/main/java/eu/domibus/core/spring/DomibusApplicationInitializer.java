@@ -39,7 +39,7 @@ import java.util.*;
  * @author Cosmin Baciu
  * @since 4.2
  */
-@Order(Ordered.HIGHEST_PRECEDENCE)
+@Order(Ordered.HIGHEST_PRECEDENCE + 1)
 public class DomibusApplicationInitializer implements WebApplicationInitializer {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusApplicationInitializer.class);
@@ -62,7 +62,7 @@ public class DomibusApplicationInitializer implements WebApplicationInitializer 
         Thread.currentThread().setContextClassLoader(pluginClassLoader);
 
         AnnotationConfigWebApplicationContext rootContext = new AnnotationConfigWebApplicationContext();
-        rootContext.register(DomibusRootConfiguration.class);
+        rootContext.register(DomibusRootConfiguration.class, SessionConfig.class);
 
         try {
             configurePropertySources(rootContext, domibusConfigLocation);
