@@ -156,5 +156,11 @@ public class GridControls extends DComponent {
 		hideCtrls();
 	}
 
+	public void hideColumn(String columnName) throws Exception {
+		showCtrls();
+		uncheckBoxWithLabel(columnName);
+		hideCtrls();
+	}
+
 	
 }
