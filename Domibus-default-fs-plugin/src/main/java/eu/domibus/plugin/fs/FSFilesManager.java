@@ -210,6 +210,7 @@ public class FSFilesManager {
     }
 
     public boolean deleteFolder(FileObject file) throws FileSystemException {
+        file.close();
         return (file.deleteAll() > 0L);
     }
 
