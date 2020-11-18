@@ -1,4 +1,4 @@
-Domibus 4.2 (from 4.1.5):
+Domibus 4.2 (from 4.1.6):
                 - Run the appropriate DB migration script(mysql5innoDb-4.1.5-to-4.2-migration.ddl for MySQL or oracle10g-4.1.5-to-4.2-migration.ddl for Oracle)
                 - Replace the Domibus war
                 - Delete the default plugin(s) config file(s) eg ws-plugin.xml, jms-plugin.xml and fs-plugin.xml from "\domibus\conf\domibus\plugins\config"
@@ -25,6 +25,8 @@ Domibus 4.2 (from 4.1.5):
                     and replace 'core-threads="50" max-threads="200"' with 'core-threads="200" max-threads="500"'
                    - in standalone-full.xml - add
                     <managed-executor-service name="mshExecutorService" jndi-name="java:jboss/ee/concurrency/executor/MshExecutorService" context-service="default" hung-task-threshold="60000" core-threads="100" max-threads="300" keepalive-time="5000"/>
+Domibus 4.1.6 (from 4.1.5)
+                - Please replace the Domibus war
 Domibus 4.1.5 (from 4.1.3)
                 - Run the appropriate DB migration script(mysql5innoDb-4.1.3-to-4.1.5-migration.ddl for MySQL or oracle10g-4.1.3-to-4.1.5-migration.ddl for Oracle)
                 - Replace the Domibus war and the default plugin(s) config file(s), property file(s) and jar(s) into "\domibus\conf\domibus\plugins\config" respectively into "\domibus\conf\domibus\plugins\lib"
