@@ -28,9 +28,6 @@ public class DomibusSessionConfiguration {
     @Autowired
     DomibusPropertyProviderImpl domibusPropertyProvider;
 
-    @Autowired
-    protected PlatformTransactionManager transactionManager;
-
     @Bean
     public EmbeddedDatabase dataSource() {
         return new EmbeddedDatabaseBuilder()
