@@ -23,7 +23,7 @@ import javax.sql.DataSource;
  */
 @Configuration
 @EnableJdbcHttpSession
-public class SessionConfig {
+public class DomibusSessionConfiguration {
 
     @Autowired
     DomibusPropertyProviderImpl domibusPropertyProvider;
