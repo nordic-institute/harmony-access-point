@@ -67,6 +67,8 @@ public class SideNavigation extends DComponent {
 	private WebElement loggingLnk;
 	@FindBy(css = "#connectionmonitoring_id")
 	private WebElement connectionMonitoring_Lnk;
+	@FindBy(css = "#properties_id")
+	private WebElement properties_Lnk;
 	
 	public SideNavigation(WebDriver driver) {
 		super(driver);
@@ -130,8 +132,11 @@ public class SideNavigation extends DComponent {
 				return new DLink(driver, loggingLnk);
 			case CONNECTION_MONITORING:
 				return new DLink(driver, connectionMonitoring_Lnk);
+			case PROPERTIES:
+				return new DLink(driver, properties_Lnk);
+			default:
+				return null;
 		}
-		return null;
 	}
 	
 	public List<String> availableOptions() throws Exception {
@@ -162,6 +167,12 @@ public class SideNavigation extends DComponent {
 		log.debug("got link with text " + link.getLinkText());
 
 		String text = link.element.findElement(By.cssSelector("span span")).getText().trim();
+
+//		compensating for link to page title inconsistency for page Domibus Properties
+		if(StringUtils.equalsIgnoreCase(text, "Domibus Properties")){
+			text = "Properties";
+		}
+
 
 		String pgTitle = null;
 
@@ -203,6 +214,18 @@ public class SideNavigation extends DComponent {
 				&& getPageLnk(PAGES.CONNECTION_MONITORING).isPresent()
 		);
 	}
-	
+
+	public boolean isLinkPresent(PAGES page) throws Exception {
+
+		boolean isLinkPresent  = true;
+		try {
+			getPageLnk(page).getLinkText();
+		} catch (Exception e) {
+			isLinkPresent = false;
+		}
+		return isLinkPresent;
+	}
+
+
 	
 }
