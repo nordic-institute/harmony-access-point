@@ -10,10 +10,7 @@ import org.springframework.session.web.context.AbstractHttpSessionApplicationIni
  *
  * @author Ion Perpegel
  * @since 5.0
- */
-
-/**
- * Make sure this is executed first so that the Spring session filter is added before anybody else
+ * Makes sure this is executed first so that the Spring session filter is added before anybody else
  */
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class DomibusSessionInitializer extends AbstractHttpSessionApplicationInitializer {

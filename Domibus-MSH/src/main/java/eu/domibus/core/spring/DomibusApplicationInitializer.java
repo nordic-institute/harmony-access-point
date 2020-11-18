@@ -38,9 +38,6 @@ import java.util.*;
 /**
  * @author Cosmin Baciu
  * @since 4.2
- */
-
-/**
  * The order must be less than that of the DomibusSessionInitializer so that the Spring session filter is added to the chain first
  */
 @Order(Ordered.HIGHEST_PRECEDENCE + 1)
