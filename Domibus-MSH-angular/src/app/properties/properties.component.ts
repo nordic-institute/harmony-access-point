@@ -1,6 +1,6 @@
 import {AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {AlertService} from '../common/alert/alert.service';
-import {PropertiesService, PropertyListModel} from './support/properties.service';
+import {PropertiesService, PropertyListModel, PropertyModel} from './support/properties.service';
 import {SecurityService} from '../security/security.service';
 import mix from '../common/mixins/mixin.utils';
 import BaseListComponent from '../common/mixins/base-list.component';

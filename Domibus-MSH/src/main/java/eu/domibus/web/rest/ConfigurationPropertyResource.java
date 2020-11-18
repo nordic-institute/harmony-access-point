@@ -13,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -82,7 +83,7 @@ public class ConfigurationPropertyResource extends BaseResource {
      * @param isDomain      tells if it is set in a domain context
      * @param propertyValue the value of the property
      */
-    @PutMapping(path = "/{propertyName:.+}")
+    @PutMapping(path = "/{propertyName:.+}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @SkipWhiteListed
     public void setProperty(@PathVariable String propertyName,
                             @RequestParam(required = false, defaultValue = "true") boolean isDomain,
@@ -129,7 +130,7 @@ public class ConfigurationPropertyResource extends BaseResource {
      * @param propertyName the name of the property
      * @return object containing both metadata and value
      */
-    @GetMapping(path = "/{propertyName:.+}")
+    @GetMapping(path = "/{propertyName:.+}", produces = MediaType.APPLICATION_JSON_VALUE)
     public DomibusPropertyRO getProperty(@Valid @PathVariable String propertyName) {
         DomibusProperty prop = configurationPropertyResourceHelper.getProperty(propertyName);
         DomibusPropertyRO convertedProp = domainConverter.convert(prop, DomibusPropertyRO.class);

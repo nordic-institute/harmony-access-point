@@ -5,7 +5,6 @@ import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
-import eu.domibus.ext.domain.Module;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -68,7 +67,9 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
             DomibusPropertyMetadata propMeta = getComposableProperty(allPropertyMetadataMap, propertyName);
             if (propMeta != null) {
                 LOG.trace("Found compose-able property [{}], returning its metadata.", propertyName);
-                return clonePropertyMetadata(propertyName, propMeta);
+                DomibusPropertyMetadata newPropMeta = clonePropertyMetadata(propertyName, propMeta);
+                newPropMeta.setComposable(false);
+                return newPropMeta;
             }
 
             // if still not found, initialize metadata on-the-fly
@@ -85,13 +86,14 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
 
         synchronized (propertyMetadataMapLock) {
             LOG.trace("Acquired lock to search new property: [{}]", propertyName);
-            return getComposableProperty(map, propertyName) != null;
+            DomibusPropertyMetadata propMeta = getComposableProperty(map, propertyName);
+            return propMeta != null;
         }
     }
 
     protected DomibusPropertyMetadata getComposableProperty(Map<String, DomibusPropertyMetadata> map, String propertyName) {
-        return map.values().stream().filter(
-                propertyMetadata -> propertyMetadata.isComposable() && propertyName.startsWith(propertyMetadata.getName()))
+        return map.values().stream()
+                .filter(propertyMetadata -> propertyMetadata.isComposable() && propertyName.startsWith(propertyMetadata.getName() + "."))
                 .findAny()
                 .orElse(null);
     }

@@ -65,7 +65,9 @@
                  (focus)="onPropertyValueFocus(row)"
                  (blur)="onPropertyValueBlur(row)"
                  (keydown.enter)="updateProperty(row)"
-                 (keydown.escape)="revertProperty(row)">
+                 (keydown.escape)="revertProperty(row)"
+                 [disabled]="row.composable"
+          >
 
           <span class="property-edit-buttons input-group-addon">
               <button mat-icon-button (click)="updateProperty(row)" [disabled]="!canUpdate(row)" button-click-behaviour>

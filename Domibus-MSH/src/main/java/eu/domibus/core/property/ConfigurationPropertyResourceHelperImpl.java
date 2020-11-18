@@ -11,17 +11,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
+ * Responsible with getting the domibus properties that can be changed at runtime, getting and setting their values
+ *
  * @author Ion Perpegel
  * @since 4.1.1
- * <p>
- * responsible with getting the domibus properties that can be changed at runtime, getting and setting their values
  */
 @Service
 public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPropertyResourceHelper {
@@ -84,17 +81,9 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
         return properties;
     }
 
-    protected List<DomibusProperty> sortProperties(List<DomibusProperty> properties) {
-        List<DomibusProperty> list = properties.stream()
-                .filter(property -> property.getMetadata() != null && property.getMetadata().getName() != null)
-                .collect(Collectors.toList());
-        list.sort(Comparator.comparing(property -> property.getMetadata().getName()));
-        return list;
-    }
-
     @Override
     public void setPropertyValue(String propertyName, boolean isDomain, String propertyValue) throws DomibusPropertyException {
-        validateProperty(propertyName, propertyValue);
+        validatePropertyValue(propertyName, propertyValue);
 
         if (isDomain) {
             LOG.debug("Setting the value [{}] for the domain property [{}] in the current domain.", propertyValue, propertyName);
@@ -123,6 +112,39 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
         return getValueAndCreateProperty(propertyMetadata);
     }
 
+    protected List<DomibusProperty> getPropertyValues(List<DomibusPropertyMetadata> properties) {
+        Map<String, DomibusProperty> result = new HashMap<>();
+
+        for (DomibusPropertyMetadata propMeta : properties) {
+            if (!propMeta.isComposable()) {
+                DomibusProperty prop = getValueAndCreateProperty(propMeta);
+                addIfMissing(result, prop);
+            } else {
+                List<DomibusProperty> props = getNestedProperties(propMeta);
+                props.forEach(prop -> addIfMissing(result, prop));
+            }
+        }
+
+        return new ArrayList<>(result.values());
+    }
+
+    private List<DomibusProperty> getNestedProperties(DomibusPropertyMetadata propMeta) {
+        List<String> suffixes = domibusPropertyProvider.getNestedProperties(propMeta.getName());
+        List<DomibusProperty> result = suffixes.stream()
+                .map(suffix -> getProperty(propMeta.getName() + "." + suffix))
+                .collect(Collectors.toList());
+        result.add(getProperty(propMeta.getName()));
+        return result;
+    }
+
+    protected List<DomibusProperty> sortProperties(List<DomibusProperty> properties) {
+        List<DomibusProperty> list = properties.stream()
+                .filter(property -> property.getMetadata() != null && property.getMetadata().getName() != null)
+                .collect(Collectors.toList());
+        list.sort(Comparator.comparing(property -> property.getMetadata().getName()));
+        return list;
+    }
+
     protected List<DomibusProperty> filterByValue(String value, List<DomibusProperty> properties) {
         if (value == null) {
             return properties;
@@ -132,23 +154,28 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
                 .collect(Collectors.toList());
     }
 
-    protected void validateProperty(String propertyName, String propertyValue) {
+    protected void validatePropertyValue(String propertyName, String propertyValue) {
         propertyNameBlacklistValidator.validate(propertyName, ACCEPTED_CHARACTERS_IN_PROPERTY_NAMES);
 
         DomibusProperty prop = getProperty(propertyName);
+
+        if (!prop.getMetadata().isWritable()) {
+            throw new DomibusPropertyException("Cannot set property " + propertyName + " because it is not writable.");
+        }
+
+        if (prop.getMetadata().isComposable()) {
+            throw new DomibusPropertyException("Cannot set property " + propertyName + ". You can only set its nested properties.");
+        }
+
         prop.setValue(propertyValue);
         domibusPropertyValueValidator.validate(prop);
     }
 
-    protected List<DomibusProperty> getPropertyValues(List<DomibusPropertyMetadata> properties) {
-        List<DomibusProperty> list = new ArrayList<>();
-
-        for (DomibusPropertyMetadata propMeta : properties) {
-            DomibusProperty prop = getValueAndCreateProperty(propMeta);
-            list.add(prop);
+    private void addIfMissing(Map<String, DomibusProperty> result, DomibusProperty prop) {
+        String name = prop.getMetadata().getName();
+        if (!result.containsKey(name)) {
+            result.put(name, prop);
         }
-
-        return list;
     }
 
     protected DomibusProperty getValueAndCreateProperty(DomibusPropertyMetadata propMeta) {

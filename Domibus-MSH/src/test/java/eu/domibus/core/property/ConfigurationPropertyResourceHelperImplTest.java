@@ -125,7 +125,7 @@ public class ConfigurationPropertyResourceHelperImplTest {
         String value = "propValue";
 
         new Expectations(configurationPropertyResourceHelper) {{
-            configurationPropertyResourceHelper.validateProperty(name, value);
+            configurationPropertyResourceHelper.validatePropertyValue(name, value);
         }};
 
         configurationPropertyResourceHelper.setPropertyValue(name, isDomain, value);
@@ -142,7 +142,7 @@ public class ConfigurationPropertyResourceHelperImplTest {
         String value = "propValue";
 
         new Expectations(configurationPropertyResourceHelper) {{
-            configurationPropertyResourceHelper.validateProperty(name, value);
+            configurationPropertyResourceHelper.validatePropertyValue(name, value);
             authUtils.isSuperAdmin();
             result = false;
         }};
@@ -162,9 +162,8 @@ public class ConfigurationPropertyResourceHelperImplTest {
         String value = "propValue";
 
         new Expectations(configurationPropertyResourceHelper) {{
+            configurationPropertyResourceHelper.validatePropertyValue(name, value);
             authUtils.isSuperAdmin();
-            result = true;
-            globalPropertyMetadataManager.hasKnownProperty(name);
             result = true;
         }};
 
@@ -252,9 +251,12 @@ public class ConfigurationPropertyResourceHelperImplTest {
         new Expectations(configurationPropertyResourceHelper) {{
             configurationPropertyResourceHelper.getProperty(propertyName);
             result = prop;
+
+            prop.getMetadata().isWritable();
+            result = true;
         }};
 
-        configurationPropertyResourceHelper.validateProperty(propertyName, propertyValue);
+        configurationPropertyResourceHelper.validatePropertyValue(propertyName, propertyValue);
 
         new Verifications() {{
             propertyNameBlacklistValidator.validate(propertyName, ACCEPTED_CHARACTERS_IN_PROPERTY_NAMES);
