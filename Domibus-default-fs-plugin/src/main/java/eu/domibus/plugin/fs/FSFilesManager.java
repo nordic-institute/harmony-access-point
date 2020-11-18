@@ -163,6 +163,7 @@ public class FSFilesManager {
     public boolean deleteLockFile(FileObject file) throws FileSystemException {
         final FileObject lockFile = resolveSibling(file, fsFileNameHelper.getLockFilename(file));
         if (lockFile.exists()) {
+            lockFile.close();
             LOG.debug("Deleting lock file for [{}]", file.getName().getBaseName());
             return lockFile.delete();
         } else {
@@ -204,6 +205,7 @@ public class FSFilesManager {
     }
 
     public boolean deleteFile(FileObject file) throws FileSystemException {
+        file.close();
         return file.delete();
     }
 
