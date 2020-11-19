@@ -391,7 +391,8 @@ public class AuditPgUXTest extends SeleniumTest {
 		soft.assertTrue(new File(filePath).exists(), "File is downloaded successfully");
 		String completeFilePath = filePath;
 
-		page.grid().checkCSVvsGridInfo(completeFilePath, soft);
+//		page.grid().checkCSVvsGridInfo(completeFilePath, soft);
+		page.grid().relaxCheckCSVvsGridInfo(completeFilePath, soft, "datetime");
 		soft.assertAll();
 	}
 
