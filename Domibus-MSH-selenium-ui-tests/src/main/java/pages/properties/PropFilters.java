@@ -37,22 +37,24 @@ public class PropFilters extends FilterArea {
 
 		log.info("Filtering properties by name {}, type {}, module {}, value {}, showDomain {}", name, type, module, value, showDomain);
 
-		if(StringUtils.isNotEmpty(name)){
+		if (StringUtils.isNotEmpty(name)) {
 			weToDInput(nameInputLct).fill(name);
 		}
 
-		if(StringUtils.isNotEmpty(type)){
+		if (StringUtils.isNotEmpty(type)) {
 			weToDInput(typeInputLct).fill(type);
 		}
 
-		if(StringUtils.isNotEmpty(module)){
+		if (StringUtils.isNotEmpty(module)) {
 			weToDInput(moduleInputLct).fill(module);
 		}
-		if(StringUtils.isNotEmpty(value)){
+		if (StringUtils.isNotEmpty(value)) {
 			weToDInput(valueInputLct).fill(value);
 		}
 
-		weToCheckbox(showDomainChkLct).set(showDomain);
+		if (null != showDomain) {
+			weToCheckbox(showDomainChkLct).set(showDomain);
+		}
 
 		clickSearch();
 

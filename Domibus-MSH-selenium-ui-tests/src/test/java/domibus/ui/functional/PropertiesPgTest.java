@@ -8,6 +8,7 @@ import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.properties.PropertiesPage;
 
+import java.util.HashMap;
 import java.util.List;
 
 public class PropertiesPgTest extends SeleniumTest {
@@ -19,9 +20,9 @@ public class PropertiesPgTest extends SeleniumTest {
 
 		DomibusPage page = new DomibusPage(driver);
 		log.info("checking if option is available for system admin");
-		soft.assertTrue( page.getSidebar().isLinkPresent(PAGES.PROPERTIES), data.getAdminUser().get("username") + "has the option to access properties");
+		soft.assertTrue(page.getSidebar().isLinkPresent(PAGES.PROPERTIES), data.getAdminUser().get("username") + "has the option to access properties");
 
-		if(data.isMultiDomain()){
+		if (data.isMultiDomain()) {
 			String username = rest.getUsername(null, DRoles.ADMIN, true, false, true);
 			login(username, data.defaultPass());
 			log.info("checking if option is available for role ADMIN");
@@ -67,5 +68,63 @@ public class PropertiesPgTest extends SeleniumTest {
 	}
 
 
+	/*  EDELIVERY-7305 - PROP-3 - Open Properties page as Admin  */
+	@Test(description = "PROP-3", groups = {"multiTenancy", "singleTenancy"})
+	public void openPageAdmin() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		String username = rest.getUsername(null, DRoles.ADMIN, true, false, true);
+		login(username, data.defaultPass());
+
+		log.info("going to properties page");
+		PropertiesPage page = new PropertiesPage(driver);
+		page.getSidebar().goToPage(PAGES.PROPERTIES);
+
+		log.info("waiting for grid to load");
+		page.propGrid().waitForRowsToLoad();
+
+		log.info("checking page elements are visible");
+		soft.assertTrue(page.filters().getNameInput().isVisible(), "Name input is displayed");
+		soft.assertTrue(page.filters().getTypeInput().isVisible(), "Type input is displayed");
+		soft.assertTrue(page.filters().getModuleInput().isVisible(), "Module input is displayed");
+		soft.assertTrue(page.filters().getValueInput().isVisible(), "Value input is displayed");
+		soft.assertFalse(page.filters().getShowDomainChk().isPresent(), "Show domain checkbox is NOT displayed");
+
+		soft.assertTrue(page.grid().isPresent(), "Grid displayed");
+
+		log.info(" checking if a global property can be viewed by admin");
+		page.filters().filterBy("wsplugin.mtom.enabled", null, null, null, null);
+		page.grid().waitForRowsToLoad();
+
+		soft.assertEquals(page.grid().getRowsNo(), 0, "No rows displayed");
+
+		soft.assertAll();
+	}
+
+
+	/*  EDELIVERY-7306 - PROP-4 - Filter properties using available filters  */
+	@Test(description = "PROP-4", groups = {"multiTenancy", "singleTenancy"})
+	public void filterProperties() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		log.info("going to properties page");
+		PropertiesPage page = new PropertiesPage(driver);
+		page.getSidebar().goToPage(PAGES.PROPERTIES);
+
+		log.info("waiting for grid to load");
+		page.propGrid().waitForRowsToLoad();
+
+		log.info(" checking if a global property can be viewed by admin");
+		page.filters().filterBy("wsplugin.mtom.enabled", null, null, null, false);
+		page.grid().waitForRowsToLoad();
+
+		soft.assertEquals(page.grid().getRowsNo(), 1, "1 rows displayed");
+
+		HashMap<String, String> info = page.grid().getRowInfo(0);
+
+		soft.assertEquals(info.get("Property Name"), "wsplugin.mtom.enabled", "correct property name is displayed");
+
+		soft.assertAll();
+	}
 
 }

@@ -17,6 +17,7 @@ import pages.messages.MessagesPage;
 import pages.plugin_users.PluginUsersPage;
 import pages.pmode.parties.PModePartiesPage;
 import pages.pmode.parties.PartiesFilters;
+import pages.properties.PropertiesPage;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -68,7 +69,7 @@ public class AllPgTest extends SeleniumTest {
 		}
 	}
 
-	/*Check non acceptance of forbidden characters in input filters of all pages*/
+	/*Check that forbidden characters are not accepted in input filters of all pages*/
 	@Test(description = "ALLDOM-5", groups = {"multiTenancy", "singleTenancy"})
 	public void checkFilterIpData() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -77,7 +78,7 @@ public class AllPgTest extends SeleniumTest {
 		for (PAGES pageName : PAGES.values()) {
 
 			if (pagesToSkip.contains(pageName)) {
-				//skipping these pages as they dont have filter area available to pass forbidden char
+				//skipping these pages as they don't have filter area available to pass forbidden char
 				continue;
 			}
 
@@ -135,11 +136,14 @@ public class AllPgTest extends SeleniumTest {
 			}
 
 			/* Check disabled because method generating random input accepts letters too which doesn't pass alert ID field validation. Needs fix and refactor */
-//
-//			else if (PAGES.ALERTS.equals(pageName)) {
+			else if (PAGES.ALERTS.equals(pageName)) {
+				continue;
 //				soft.assertNotEquals(searchData, new AlertPage(driver).filters().getAlertIdInput().getText(), "Grid has diff data for both domain -6");
-//
-//			}
+
+			}
+			else if (PAGES.PROPERTIES.equals(pageName)) {
+				soft.assertNotEquals(searchData, new PropertiesPage(driver).filters().getNameInput().getText(), "Grid has diff data for both domain -6");
+			}
 			else {
 				soft. fail("something went wrong");
 			}
@@ -191,6 +195,11 @@ public class AllPgTest extends SeleniumTest {
 				aPage.filters().getAdvancedLink().click();
 				aPage.filters().getAlertIdInput().fill(inputData);
 				return aPage.filters().alertIdValidation.getText();
+			case PROPERTIES:
+				log.debug("Enter user defined data in input fields of PROPERTIES page");
+				PropertiesPage pPage = new PropertiesPage(driver);
+				pPage.filters().filterBy(inputData, inputData,inputData,inputData,true);
+				return pPage.filters().getNameInput().getText();
 		}
 		return null;
 	}
