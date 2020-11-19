@@ -59,9 +59,10 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
     }
 
     @Override
-    public List<DomibusProperty> getAllWritableProperties(String name, boolean showDomain, String type, String module, String value) {
+    public List<DomibusProperty> getAllWritableProperties(String name, boolean showDomain, String type, String module, String value, Boolean isWritable) {
         List<DomibusPropertyMetadata> propertiesMetadata = filterProperties(globalPropertyMetadataManager.getAllProperties(),
-                name, showDomain, type, module);
+                name, showDomain, type, module, isWritable);
+
         if (CollectionUtils.isEmpty(propertiesMetadata)) {
             return new ArrayList();
         }
@@ -128,7 +129,7 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
         return new ArrayList<>(result.values());
     }
 
-    private List<DomibusProperty> getNestedProperties(DomibusPropertyMetadata propMeta) {
+    protected List<DomibusProperty> getNestedProperties(DomibusPropertyMetadata propMeta) {
         List<String> suffixes = domibusPropertyProvider.getNestedProperties(propMeta.getName());
         List<DomibusProperty> result = suffixes.stream()
                 .map(suffix -> getProperty(propMeta.getName() + "." + suffix))
@@ -190,10 +191,10 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
         return prop;
     }
 
-    protected List<DomibusPropertyMetadata> filterProperties(Map<String, DomibusPropertyMetadata> propertiesMap, String name,
-                                                             boolean showDomain, String type, String module) {
+    protected List<DomibusPropertyMetadata> filterProperties(Map<String, DomibusPropertyMetadata> propertiesMap,
+                                                             String name, boolean showDomain, String type, String module, Boolean isWritable) {
         List<DomibusPropertyMetadata> knownProps = propertiesMap.values().stream()
-                .filter(prop -> prop.isWritable())
+                .filter(prop -> isWritable == null || isWritable == prop.isWritable())
                 .filter(prop -> name == null || StringUtils.containsIgnoreCase(prop.getName(), name))
                 .filter(prop -> type == null || StringUtils.equals(type, prop.getType()))
                 .filter(prop -> module == null || StringUtils.equals(module, prop.getModule()))
