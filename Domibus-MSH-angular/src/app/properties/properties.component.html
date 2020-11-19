@@ -6,43 +6,50 @@
       <mat-card-content>
         <div class="panel">
           <form name="filterForm" #filterForm="ngForm" (submit)="tryFilter()">
+
             <span>
-              <mat-form-field>
+              <mat-form-field style="width: 500px;">
                 <input matInput id="filterPropertyName_id" name="filterPropertyName" [(ngModel)]="filter.name"
                        placeholder="Property Name...">
               </mat-form-field>
             </span>
 
-            <span>
-              <mat-form-field>
-                <input matInput id="filterPropertyType_id" name="filterPropertyType" [(ngModel)]="filter.type"
-                       placeholder="Property Type...">
-              </mat-form-field>
-            </span>
-
-            <span>
-              <mat-form-field>
-                <input matInput id="filterPropertyModule_id" name="filterPropertyModule" [(ngModel)]="filter.module"
-                       placeholder="Property Module...">
-              </mat-form-field>
-            </span>
-
-            <span>
-              <mat-form-field>
-                <input matInput id="filterPropertyValue_id" name="filterPropertyValue" [(ngModel)]="filter.value"
-                       placeholder="Property Value...">
-              </mat-form-field>
-            </span>
-
-            <span>
-              <ng-container *ngIf="showGlobalPropertiesControl">
-                <mat-checkbox id="includeSuperProperties_id" name="includeSuperProperties" [(ngModel)]="filter.showDomain">
+            <span *ngIf="showGlobalPropertiesControl" style="margin-right: 30px;">
+              <ng-container>
+                <mat-checkbox id="includeSuperProperties_id" name="includeSuperProperties"
+                              [(ngModel)]="filter.showDomain">
                   Show Domain Properties
                 </mat-checkbox>
               </ng-container>
             </span>
 
-            <filter-area-footer [parent]="this" [isAdvancedVisible]="false" [form]="filterForm"></filter-area-footer>
+            <span style="margin-right: 30px;">
+              <tri-state-checkbox name="filterIsWritable"
+                                  [(ngModel)]="filter.isWritable">Is Writable</tri-state-checkbox>
+            </span>
+
+            <span *ngIf="advancedSearch">
+              <mat-form-field>
+                <input matInput id="filterPropertyType_id" name="type" [(ngModel)]="filter.type"
+                       placeholder="Property Type..." advanced-filter-behaviour [parent]="this">
+              </mat-form-field>
+            </span>
+
+            <span *ngIf="advancedSearch">
+              <mat-form-field>
+                <input matInput id="filterPropertyModule_id" name="module" [(ngModel)]="filter.module"
+                       placeholder="Property Module..." advanced-filter-behaviour [parent]="this">
+              </mat-form-field>
+            </span>
+
+            <span *ngIf="advancedSearch">
+              <mat-form-field>
+                <input matInput id="filterPropertyValue_id" name="value" [(ngModel)]="filter.value"
+                       placeholder="Property Value..." advanced-filter-behaviour [parent]="this">
+              </mat-form-field>
+            </span>
+
+            <filter-area-footer [parent]="this" [form]="filterForm"></filter-area-footer>
 
           </form>
         </div>
@@ -59,14 +66,21 @@
       </div>
 
       <ng-template #propertyValueTpl let-row="row" let-value="value" ngx-datatable-cell-template>
-        <div class="input-group property-edit">
+        <div class="input-group property-view" *ngIf="row.composable">
+          <button mat-icon-button [disabled]="row.writable" (click)="addNewNestedProperty(row)" button-click-behaviour style="float: right;">
+            <mat-icon mat-tooltip="New" mdTooltipPosition="above">note_add</mat-icon>
+          </button>
+        </div>
+        <div class="input-group property-view" *ngIf="!row.writable">
+          {{row.value}}
+        </div>
+        <div class="input-group property-edit" *ngIf="canWriteProperty(row)">
           <input matInput type="text" autocomplete="off" class="form-control property-value"
                  [(ngModel)]="row.value"
                  (focus)="onPropertyValueFocus(row)"
                  (blur)="onPropertyValueBlur(row)"
                  (keydown.enter)="updateProperty(row)"
                  (keydown.escape)="revertProperty(row)"
-                 [disabled]="row.composable"
           >
 
           <span class="property-edit-buttons input-group-addon">

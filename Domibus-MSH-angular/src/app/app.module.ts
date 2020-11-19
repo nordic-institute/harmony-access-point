@@ -106,6 +106,7 @@ import {ApplicationContextService} from './common/application-context.service';
 import {SessionExpiredDialogComponent} from './security/session-expired-dialog/session-expired-dialog.component';
 import {SessionService} from './security/session.service';
 import {AuthInternalProviderGuard} from './common/guards/auth-internal-provider.guard';
+import {AddNestedPropertyDialogComponent} from './properties/support/add-nested-property-dialog/add-nested-property-dialog.component';
 
 @NgModule({
   declarations: [
@@ -168,6 +169,7 @@ import {AuthInternalProviderGuard} from './common/guards/auth-internal-provider.
     ConnectionsComponent,
     ConnectionDetailsComponent,
     SessionExpiredDialogComponent,
+    AddNestedPropertyDialogComponent
   ],
   entryComponents: [
     AppComponent,
@@ -195,6 +197,7 @@ import {AuthInternalProviderGuard} from './common/guards/auth-internal-provider.
     ConnectionDetailsComponent,
     AlertComponent,
     SessionExpiredDialogComponent,
+    AddNestedPropertyDialogComponent
   ],
   imports: [
     BrowserModule,
