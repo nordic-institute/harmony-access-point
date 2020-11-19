@@ -35,12 +35,14 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.*;
 
+import static eu.domibus.core.spring.DomibusSessionInitializer.HIGH_PRECEDENCE;
+
 /**
  * @author Cosmin Baciu
  * @since 4.2
- * The order must be less than that of the DomibusSessionInitializer so that the Spring session filter is added to the chain first
+ * The order must be high but less than that of the DomibusSessionInitializer so that the Spring session filter is added to the chain first
  */
-@Order(Ordered.HIGHEST_PRECEDENCE + 1)
+@Order(HIGH_PRECEDENCE)
 public class DomibusApplicationInitializer implements WebApplicationInitializer {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusApplicationInitializer.class);
