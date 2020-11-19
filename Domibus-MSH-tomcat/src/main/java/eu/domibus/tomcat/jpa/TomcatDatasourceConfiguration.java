@@ -13,6 +13,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 
+import java.util.Map;
+import java.util.function.Consumer;
+
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 /**
@@ -78,15 +81,23 @@ public class TomcatDatasourceConfiguration {
                         && StringUtils.startsWithIgnoreCase(property.getValue().toString(), DOMIBUS_DATASOURCE_XA_PROPERTY_VALUE_PREFIX_ORACLE_URL))
                 .peek(property -> LOGGER.info("Switching the URL property key to uppercase as required by an OracleXEDataSource: [{}]->[{}]", property.getKey(), property.getValue()))
                 .findAny()
-                .ifPresent(property -> {
-                    prefixedProperties.remove(DOMIBUS_DATASOURCE_XA_PROPERTY_KEY_URL);
-                    prefixedProperties.setProperty(DOMIBUS_DATASOURCE_XA_PROPERTY_KEY_ORACLE_URL, property.getValue().toString());
-                });
+                .ifPresent(getUppercasePropertyKeyConsumer(prefixedProperties));
 
         prefixedProperties.setProperty("password", domibusPropertyProvider.getProperty(DOMIBUS_DATASOURCE_XA_PROPERTY_PASSWORD));
         return prefixedProperties;
     }
 
+    private Consumer<Map.Entry<Object, Object>> getUppercasePropertyKeyConsumer(final PrefixedProperties prefixedProperties) {
+        Consumer<Map.Entry<Object, Object>> uppercasePropertyKeyCreation = property -> {
+            LOGGER.debug("Creating the new URL property: [{}]->[{}]", DOMIBUS_DATASOURCE_XA_PROPERTY_KEY_ORACLE_URL, property.getValue());
+            prefixedProperties.setProperty(DOMIBUS_DATASOURCE_XA_PROPERTY_KEY_ORACLE_URL, property.getValue().toString());
+        };
+        Consumer<Map.Entry<Object, Object>> lowercasePropertyKeyRemoval = property -> {
+            LOGGER.debug("Removing the old URL property: [{}]->[{}]", property.getKey(), property.getValue());
+            prefixedProperties.remove(DOMIBUS_DATASOURCE_XA_PROPERTY_KEY_URL);
+        };
+        return uppercasePropertyKeyCreation.andThen(lowercasePropertyKeyRemoval);
+    }
 
     @Bean(name = DomibusJPAConfiguration.DOMIBUS_JDBC_NON_XA_DATA_SOURCE, initMethod = "init", destroyMethod = "close")
     public AtomikosNonXADataSourceBean domibusNonXADatasource(DomibusPropertyProvider domibusPropertyProvider) {
