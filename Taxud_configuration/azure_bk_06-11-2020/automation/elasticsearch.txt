@@ -25,3 +25,5 @@
     timefield='@timestamp',    metric='avg:dropwizard.MS4.eu.domibus.core.ebms3.sender.AbstractUserMessageSender.outgoing_user_message.timer.m1_rate').label('MS4 Outgoing'),
 	.es(index=metricbeat-*,
     timefield='@timestamp',    metric='avg:dropwizard.MS5.eu.domibus.core.ebms3.sender.AbstractUserMessageSender.outgoing_user_message.timer.m1_rate').label('MS5 Outgoing').title('Outgoing throughput')
+	
+	

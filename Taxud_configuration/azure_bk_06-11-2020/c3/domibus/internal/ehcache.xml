@@ -1,0 +1,85 @@
+<!-- Domibus cache configuration -->
+<ehcache>
+    <!-- Please find below in comments the cache entries used internally by Domibus. If needed one or multiple cache entries can be uncommented and customized -->
+    <!-- Additional cache entries can be added if needed by custom plugins -->
+
+    <cache name="policyCache"
+           maxBytesLocalHeap="50m"
+           timeToLiveSeconds="3600"
+           overflowToDisk="false" >
+    </cache>
+    <cache name="backendFilterCache"
+           maxBytesLocalHeap="50m"
+           timeToLiveSeconds="3600"
+           overflowToDisk="false">
+    </cache>
+    <cache name="tlsCache"
+           maxBytesLocalHeap="50m"
+           timeToLiveSeconds="3600"
+           overflowToDisk="false">
+    </cache>
+    <cache name="certValidationByAlias"
+           maxBytesLocalHeap="50m"
+           timeToLiveSeconds="3600"
+           overflowToDisk="false">
+    </cache>
+    <cache name="crlByCert"
+           maxBytesLocalHeap="50m"
+           timeToLiveSeconds="3600"
+           overflowToDisk="false">
+    </cache>
+    <cache name="lookupInfo"
+           maxBytesLocalHeap="50m"
+           timeToLiveSeconds="3600"
+           overflowToDisk="false">
+    </cache>
+    <cache name="dispatchClient"
+           maxBytesLocalHeap="50m"
+           timeToLiveSeconds="3600"
+           overflowToDisk="false">
+        <sizeOfPolicy maxDepthExceededBehavior="abort"/>
+    </cache>
+    <cache name="auditTarget"
+           maxBytesLocalHeap="50m"
+           timeToLiveSeconds="3600"
+           overflowToDisk="false">
+    </cache>
+     <cache name="userDomain"
+           maxBytesLocalHeap="50m"
+           timeToLiveSeconds="3600"
+           overflowToDisk="false">
+    </cache>
+    <cache name="preferredUserDomain"
+           maxBytesLocalHeap="50m"
+           timeToLiveSeconds="3600"
+           overflowToDisk="false">
+    </cache>
+     <cache name="allDomains"
+           maxBytesLocalHeap="50m"
+           timeToLiveSeconds="3600"
+           overflowToDisk="false">
+    </cache>
+    <cache name="domainByCode"
+           maxBytesLocalHeap="50m"
+           timeToLiveSeconds="3600"
+           overflowToDisk="false">
+    </cache>
+    <cache name="domainByScheduler"
+           maxBytesLocalHeap="50m"
+           timeToLiveSeconds="3600"
+           overflowToDisk="false">
+    </cache>
+
+    <cache name="dss-cache"
+           maxBytesLocalHeap="50m"
+           timeToLiveSeconds="3600"
+           overflowToDisk="false">
+    </cache>
+    
+	<cache name="uumds-cache"
+           maxBytesLocalHeap="50m"
+           timeToLiveSeconds="3600"
+           overflowToDisk="false">
+    </cache>
+
+</ehcache>
