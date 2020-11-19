@@ -3,11 +3,13 @@ package eu.domibus.core.property;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -36,6 +38,9 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
 
     @Autowired
     protected DomainCoreConverter domainConverter;
+
+    @Autowired
+    protected DomibusPropertyProvider domibusPropertyProvider;
 
     protected Map<String, DomibusPropertyMetadata> allPropertyMetadataMap;
     protected Map<String, DomibusPropertyMetadata> internalPropertyMetadataMap;
@@ -79,25 +84,6 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
         }
     }
 
-    protected boolean hasProperty(Map<String, DomibusPropertyMetadata> map, String propertyName) {
-        if (map.containsKey(propertyName)) {
-            return true;
-        }
-
-        synchronized (propertyMetadataMapLock) {
-            LOG.trace("Acquired lock to search new property: [{}]", propertyName);
-            DomibusPropertyMetadata propMeta = getComposableProperty(map, propertyName);
-            return propMeta != null;
-        }
-    }
-
-    protected DomibusPropertyMetadata getComposableProperty(Map<String, DomibusPropertyMetadata> map, String propertyName) {
-        return map.values().stream()
-                .filter(propertyMetadata -> propertyMetadata.isComposable() && propertyName.startsWith(propertyMetadata.getName() + "."))
-                .findAny()
-                .orElse(null);
-    }
-
     @Override
     public DomibusPropertyManagerExt getManagerForProperty(String propertyName) throws DomibusPropertyException {
         loadPropertiesIfNotFound(propertyName);
@@ -120,6 +106,45 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
     @Override
     public boolean hasKnownProperty(String propertyName) {
         return hasProperty(getAllProperties(), propertyName);
+    }
+
+    @Override
+    public boolean isComposableProperty(String propertyName) {
+        return getComposableProperty(getAllProperties(), propertyName) != null;
+    }
+
+    protected boolean hasProperty(Map<String, DomibusPropertyMetadata> map, String propertyName) {
+        return map.containsKey(propertyName)
+                || hasComposableProperty(map, propertyName);
+    }
+
+    /**
+     * Checks if the given property name corresponds to a composable property with a declared value in property bag
+     *
+     * @param map the map with proerty metadata
+     * @param propertyName the name of the property
+     * @return true if it is
+     */
+    protected boolean hasComposableProperty(Map<String, DomibusPropertyMetadata> map, String propertyName) {
+        synchronized (propertyMetadataMapLock) {
+            LOG.trace("Acquired lock to search new property: [{}]", propertyName);
+            DomibusPropertyMetadata propMeta = getComposableProperty(map, propertyName);
+            if (propMeta == null) {
+                return false;
+            }
+            List<String> props = domibusPropertyProvider.getNestedProperties(propMeta.getName());
+            if (CollectionUtils.isEmpty(props)) {
+                return false;
+            }
+            return props.stream().anyMatch(prop -> propertyName.equals(propMeta.getName() + "." + prop));
+        }
+    }
+
+    protected DomibusPropertyMetadata getComposableProperty(Map<String, DomibusPropertyMetadata> map, String propertyName) {
+        return map.values().stream()
+                .filter(propertyMetadata -> propertyMetadata.isComposable() && propertyName.startsWith(propertyMetadata.getName() + "."))
+                .findAny()
+                .orElse(null);
     }
 
     /**

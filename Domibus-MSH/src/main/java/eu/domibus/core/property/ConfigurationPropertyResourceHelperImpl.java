@@ -113,6 +113,21 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
         return getValueAndCreateProperty(propertyMetadata);
     }
 
+    /**
+     * If found, returns the property info or, if composable, creates metadata and returns it
+     *
+     * @param propertyName the name of the property
+     * @return its metadata and value
+     */
+    protected DomibusProperty getOrCreateProperty(String propertyName) {
+        if (globalPropertyMetadataManager.hasKnownProperty(propertyName)
+                || globalPropertyMetadataManager.isComposableProperty(propertyName)) {
+            DomibusPropertyMetadata propertyMetadata = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
+            return getValueAndCreateProperty(propertyMetadata);
+        }
+        return null;
+    }
+
     protected List<DomibusProperty> getPropertyValues(List<DomibusPropertyMetadata> properties) {
         Map<String, DomibusProperty> result = new HashMap<>();
 
@@ -158,7 +173,11 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
     protected void validatePropertyValue(String propertyName, String propertyValue) {
         propertyNameBlacklistValidator.validate(propertyName, ACCEPTED_CHARACTERS_IN_PROPERTY_NAMES);
 
-        DomibusProperty prop = getProperty(propertyName);
+        DomibusProperty prop = getOrCreateProperty(propertyName);
+
+        if (prop == null) {
+            throw new DomibusPropertyException("Cannot set property " + propertyName + " because it does not exist.");
+        }
 
         if (!prop.getMetadata().isWritable()) {
             throw new DomibusPropertyException("Cannot set property " + propertyName + " because it is not writable.");

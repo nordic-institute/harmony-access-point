@@ -9,14 +9,16 @@ import java.util.Map;
 public interface GlobalPropertyMetadataManager {
 
     /**
-     *  Returns all properties metadata, internal and from external modules
+     * Returns all properties metadata, internal and from external modules
+     *
      * @return Map<String, DomibusPropertyMetadata> the map of property metadata
      */
     Map<String, DomibusPropertyMetadata> getAllProperties();
 
     /**
      * Returns the metadata for a given propertyName by interrogating all property managers known to Domibus in order to find it.
-     * If not found, it assumes it is a global property and it creates the corresponding metadata on-the-fly.
+     * If not found, it checks for a possible composable property and creates if it is
+     * If still not found, it assumes it is a global property and it creates the corresponding metadata on-the-fly.
      *
      * @param propertyName
      * @return DomibusPropertyMetadata
@@ -33,9 +35,18 @@ public interface GlobalPropertyMetadataManager {
     DomibusPropertyManagerExt getManagerForProperty(String propertyName) throws DomibusPropertyException;
 
     /**
-     * Checks if a domibus property exists with the specified name
+     * Checks if a domibus property exists with the exact specified name or a composable property that matches and has a value defined
+     *
      * @param propertyName the name of the propertyto check
      * @return true if it exists; otherwise false
      */
     boolean hasKnownProperty(String propertyName);
+
+    /**
+     * Checks if the name represents a composable type of property in a broad sense (any suffix is accepted)
+     *
+     * @param propertyName the name
+     * @return true if composable
+     */
+    boolean isComposableProperty(String propertyName);
 }

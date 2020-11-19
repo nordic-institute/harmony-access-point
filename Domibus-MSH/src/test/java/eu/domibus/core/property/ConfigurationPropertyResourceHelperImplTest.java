@@ -244,12 +244,69 @@ public class ConfigurationPropertyResourceHelperImplTest {
     }
 
     @Test
-    public void validateProperty(@Mocked DomibusProperty prop) {
+    public void getOrCreateProperty(@Mocked DomibusProperty prop, @Mocked DomibusPropertyMetadata propMeta) {
+        String propertyName = "propName";
+
+        new Expectations(configurationPropertyResourceHelper) {{
+            globalPropertyMetadataManager.hasKnownProperty(propertyName);
+            result = true;
+            globalPropertyMetadataManager.getPropertyMetadata(propertyName);
+            result = propMeta;
+            configurationPropertyResourceHelper.getValueAndCreateProperty(propMeta);
+            result = prop;
+        }};
+
+        DomibusProperty result = configurationPropertyResourceHelper.getOrCreateProperty(propertyName);
+        Assert.assertEquals(prop, result);
+
+        new Verifications() {{
+            globalPropertyMetadataManager.getPropertyMetadata(propertyName);
+        }};
+    }
+
+    @Test
+    public void getOrCreatePropertyNull(@Mocked DomibusProperty prop, @Mocked DomibusPropertyMetadata propMeta) {
+        String propertyName = "propName";
+
+        new Expectations(configurationPropertyResourceHelper) {{
+            globalPropertyMetadataManager.hasKnownProperty(propertyName);
+            result = false;
+            globalPropertyMetadataManager.isComposableProperty(propertyName);
+            result = false;
+        }};
+
+        DomibusProperty result = configurationPropertyResourceHelper.getOrCreateProperty(propertyName);
+        Assert.assertEquals(null, result);
+
+        new Verifications() {{
+            globalPropertyMetadataManager.getPropertyMetadata(propertyName);
+            times = 0;
+        }};
+    }
+
+    @Test
+    public void getOrCreateProperty(@Mocked DomibusProperty prop) {
+        String propertyName = "propName";
+
+        new Expectations() {{
+            globalPropertyMetadataManager.hasKnownProperty(propertyName);
+            result = true;
+        }};
+
+        configurationPropertyResourceHelper.getOrCreateProperty(propertyName);
+
+        new Verifications() {{
+            globalPropertyMetadataManager.getPropertyMetadata(propertyName);
+        }};
+    }
+
+    @Test
+    public void validatePropertyValue(@Mocked DomibusProperty prop) {
         String propertyName = "propName";
         String propertyValue = "prop value";
 
         new Expectations(configurationPropertyResourceHelper) {{
-            configurationPropertyResourceHelper.getProperty(propertyName);
+            configurationPropertyResourceHelper.getOrCreateProperty(propertyName);
             result = prop;
 
             prop.getMetadata().isWritable();
@@ -261,6 +318,72 @@ public class ConfigurationPropertyResourceHelperImplTest {
         new Verifications() {{
             propertyNameBlacklistValidator.validate(propertyName, ACCEPTED_CHARACTERS_IN_PROPERTY_NAMES);
             domibusPropertyValueValidator.validate(prop);
+        }};
+    }
+
+    @Test(expected = DomibusPropertyException.class)
+    public void validatePropertyValueNotExistent(@Mocked DomibusProperty prop) {
+        String propertyName = "propName";
+        String propertyValue = "prop value";
+
+        new Expectations(configurationPropertyResourceHelper) {{
+            configurationPropertyResourceHelper.getOrCreateProperty(propertyName);
+            result = prop;
+
+            prop.getMetadata().isWritable();
+            result = false;
+        }};
+
+        configurationPropertyResourceHelper.validatePropertyValue(propertyName, propertyValue);
+
+        new Verifications() {{
+            propertyNameBlacklistValidator.validate(propertyName, ACCEPTED_CHARACTERS_IN_PROPERTY_NAMES);
+            domibusPropertyValueValidator.validate(prop);
+            times = 0;
+        }};
+    }
+
+    @Test(expected = DomibusPropertyException.class)
+    public void validatePropertyValueComposable(@Mocked DomibusProperty prop) {
+        String propertyName = "propName";
+        String propertyValue = "prop value";
+
+        new Expectations(configurationPropertyResourceHelper) {{
+            configurationPropertyResourceHelper.getOrCreateProperty(propertyName);
+            result = prop;
+
+            prop.getMetadata().isWritable();
+            result = true;
+
+            prop.getMetadata().isComposable();
+            result = true;
+        }};
+
+        configurationPropertyResourceHelper.validatePropertyValue(propertyName, propertyValue);
+
+        new Verifications() {{
+            propertyNameBlacklistValidator.validate(propertyName, ACCEPTED_CHARACTERS_IN_PROPERTY_NAMES);
+            domibusPropertyValueValidator.validate(prop);
+            times = 0;
+        }};
+    }
+
+    @Test(expected = DomibusPropertyException.class)
+    public void validatePropertyValueNotWritable(@Mocked DomibusProperty prop) {
+        String propertyName = "propName";
+        String propertyValue = "prop value";
+
+        new Expectations(configurationPropertyResourceHelper) {{
+            configurationPropertyResourceHelper.getOrCreateProperty(propertyName);
+            result = null;
+        }};
+
+        configurationPropertyResourceHelper.validatePropertyValue(propertyName, propertyValue);
+
+        new Verifications() {{
+            propertyNameBlacklistValidator.validate(propertyName, ACCEPTED_CHARACTERS_IN_PROPERTY_NAMES);
+            domibusPropertyValueValidator.validate(prop);
+            times = 0;
         }};
     }
 
