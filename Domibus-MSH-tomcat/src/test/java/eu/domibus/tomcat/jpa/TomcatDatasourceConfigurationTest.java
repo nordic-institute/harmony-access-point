@@ -35,9 +35,9 @@ public class TomcatDatasourceConfigurationTest {
 
         tomcatDatasourceConfiguration.xaProperties(domibusPropertyProvider);
 
-        new Verifications() {{
-            prefixedProperties.remove(DOMIBUS_DATASOURCE_XA_PROPERTY_KEY_URL);
+        new VerificationsInOrder() {{
             prefixedProperties.setProperty(DOMIBUS_DATASOURCE_XA_PROPERTY_KEY_ORACLE_URL, "jdbc:oracle:thin:localhost:1521/XE");
+            prefixedProperties.remove(DOMIBUS_DATASOURCE_XA_PROPERTY_KEY_URL);
         }};
     }
 
