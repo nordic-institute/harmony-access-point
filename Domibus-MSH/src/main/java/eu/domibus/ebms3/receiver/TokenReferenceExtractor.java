@@ -63,9 +63,17 @@ public class TokenReferenceExtractor {
                 Element signatureEl = (Element) currentChild;
                 for (Node innerCurrentChild = signatureEl.getFirstChild(); innerCurrentChild != null; innerCurrentChild = innerCurrentChild.getNextSibling()) {
                     if (KEYINFO.getLocalPart().equals(innerCurrentChild.getLocalName()) && KEYINFO.getNamespaceURI().equals(innerCurrentChild.getNamespaceURI())) {
-                        return (Element) innerCurrentChild.getFirstChild();
+                        return getFirstChildElement(innerCurrentChild);
                     }
                 }
+            }
+        }
+        return null;
+    }
+    protected Element getFirstChildElement(Node fNode) {
+        for(Node currentChild = fNode.getFirstChild(); currentChild != null; currentChild = currentChild.getNextSibling()) {
+            if (Node.ELEMENT_NODE == currentChild.getNodeType() ) {
+                return (Element)currentChild;
             }
         }
         return null;
