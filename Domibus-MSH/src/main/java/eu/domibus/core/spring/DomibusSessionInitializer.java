@@ -16,5 +16,5 @@ import org.springframework.session.web.context.AbstractHttpSessionApplicationIni
 public class DomibusSessionInitializer extends AbstractHttpSessionApplicationInitializer {
     // High precedence but less than the highest possible
     // HIGHEST_PRECEDENCE is negative so adding one actually decreases the precedence
-    public static final int HIGH_PRECEDENCE = Ordered.HIGHEST_PRECEDENCE + 1;
+    public static final int SESSION_INITIALIZER_ORDER = Ordered.HIGHEST_PRECEDENCE + 1;
 }
