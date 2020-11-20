@@ -25,7 +25,6 @@
         <soapui.remoteUrl>http://localhost:9080</soapui.remoteUrl>
     </properties>
 
-
     <dependencies>
         <!-- Domibus modules -->
         <dependency>
@@ -189,6 +188,19 @@
             <artifactId>spring-security-config</artifactId>
         </dependency>
         <!-- End Spring Security -->
+
+        <!-- Spring Session -->
+        <dependency>
+            <groupId>org.springframework.session</groupId>
+            <artifactId>spring-session-core</artifactId>
+            <version>${spring.session.core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.session</groupId>
+            <artifactId>spring-session-jdbc</artifactId>
+            <version>${spring.session.jdbc.version}</version>
+        </dependency>
+        <!-- End Spring Session -->
 
         <!-- CXF -->
         <dependency>
@@ -506,6 +518,7 @@
             <artifactId>commons-collections</artifactId>
             <scope>provided</scope>
         </dependency>
+
     </dependencies>
 
     <build>
