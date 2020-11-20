@@ -39,7 +39,7 @@ import static eu.domibus.core.spring.DomibusSessionInitializer.SESSION_INITIALIZ
 /**
  * @author Cosmin Baciu
  * @since 4.2
- * The order must be high but less than that of the DomibusSessionInitializer so that the Spring session filter is added to the chain first
+ * The priority should be lower( the numbaer higher) than that of DomibusSessionInitializer so that the Spring session filter is added to the chain first
  */
 @Order(SESSION_INITIALIZER_ORDER + 1)
 public class DomibusApplicationInitializer implements WebApplicationInitializer {
