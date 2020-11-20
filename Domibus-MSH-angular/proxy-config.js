@@ -13,7 +13,7 @@ const PROXY_CONFIG = {
           .replace("Path=/domibus/", "Path=/")
           .replace("Path=/domibus", "Path=/"))
           .replace("path=/domibus", "path=/");
-        console.log('test');
+        console.log(proxyRes.headers["set-cookie"]);
       }
     },
   }
