@@ -14,8 +14,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
-import static org.apache.commons.lang3.StringUtils.equalsAnyIgnoreCase;
-import static org.apache.commons.lang3.StringUtils.trim;
+import static org.apache.commons.lang3.StringUtils.*;
 
 /**
  * @author François Gautier
@@ -110,11 +109,7 @@ public class WSPluginDispatchRulesService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * @param ruleName
-     * @return order set of rules for a given {@param ruleName}
-     */
-    public List<WSPluginDispatchRule> getRulesByRuleName(String ruleName) {
+    protected List<WSPluginDispatchRule> getRulesByName(String ruleName) {
         return getRules()
                 .stream()
                 .filter(wsPluginDispatchRule -> equalsAnyIgnoreCase(ruleName, wsPluginDispatchRule.getRuleName()))

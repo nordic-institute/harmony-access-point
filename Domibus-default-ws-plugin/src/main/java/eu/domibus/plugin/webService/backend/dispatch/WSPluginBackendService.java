@@ -2,7 +2,8 @@ package eu.domibus.plugin.webService.backend;
 
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.plugin.webService.backend.dispatch.WSPluginMessageSender;
+import eu.domibus.plugin.webService.backend.WSBackendMessageType;
+import eu.domibus.plugin.webService.backend.reliability.retry.WSPluginBackendRetryService;
 import eu.domibus.plugin.webService.backend.rules.WSPluginDispatchRule;
 import eu.domibus.plugin.webService.backend.rules.WSPluginDispatchRulesService;
 import org.apache.commons.lang3.StringUtils;
@@ -19,11 +20,12 @@ import java.util.List;
 public class WSPluginBackendService {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginBackendService.class);
 
-    final WSPluginMessageSender wsPluginMessageSender;
+    final WSPluginBackendRetryService retryService;
     final WSPluginDispatchRulesService wsBackendRulesService;
 
-    public WSPluginBackendService(WSPluginMessageSender wsPluginMessageSender, WSPluginDispatchRulesService wsBackendRulesService) {
-        this.wsPluginMessageSender = wsPluginMessageSender;
+    public WSPluginBackendService(WSPluginBackendRetryService retryService,
+                                  WSPluginDispatchRulesService wsBackendRulesService) {
+        this.retryService = retryService;
         this.wsBackendRulesService = wsBackendRulesService;
     }
 

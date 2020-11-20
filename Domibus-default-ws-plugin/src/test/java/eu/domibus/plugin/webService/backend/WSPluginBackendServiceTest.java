@@ -1,11 +1,11 @@
 package eu.domibus.plugin.webService.backend;
 
-import eu.domibus.plugin.webService.backend.dispatch.WSPluginMessageSender;
+import eu.domibus.plugin.webService.backend.dispatch.WSPluginBackendService;
+import eu.domibus.plugin.webService.backend.reliability.retry.WSPluginBackendRetryService;
 import eu.domibus.plugin.webService.backend.rules.WSPluginDispatchRule;
 import eu.domibus.plugin.webService.backend.rules.WSPluginDispatchRulesService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -29,7 +29,7 @@ public class WSPluginBackendServiceTest {
     private WSPluginBackendService wsPluginBackendService;
 
     @Injectable
-    private WSPluginMessageSender wsPluginMessageSender;
+    private WSPluginBackendRetryService retryService;
 
     @Injectable
     private WSPluginDispatchRulesService wsBackendRulesService;
@@ -43,24 +43,13 @@ public class WSPluginBackendServiceTest {
 
             wsPluginDispatchRule.getTypes();
             result = Arrays.asList(WSBackendMessageType.SEND_SUCCESS, WSBackendMessageType.MESSAGE_STATUS_CHANGE);
-            wsPluginDispatchRule.getRuleName();
-            result = END_POINT;
-            wsPluginDispatchRule.getRetryCount();
-            result = RETRY_MAX;
         }};
 
         wsPluginBackendService.sendSuccess(MESSAGE_ID, RECIPIENT);
 
-        new FullVerifications(){{
-            WSBackendMessageLogEntity wsBackendMessageLogEntity;
-            wsPluginMessageSender.sendMessageSuccess(wsBackendMessageLogEntity = withCapture());
-
-            Assert.assertEquals(MESSAGE_ID, wsBackendMessageLogEntity.getMessageId());
-            Assert.assertEquals(END_POINT, wsBackendMessageLogEntity.getRuleName());
-            Assert.assertEquals(RECIPIENT, wsBackendMessageLogEntity.getFinalRecipient());
-            Assert.assertEquals(WSBackendMessageType.SEND_SUCCESS, wsBackendMessageLogEntity.getType());
-            Assert.assertEquals(1, wsBackendMessageLogEntity.getSendAttempts());
-            Assert.assertEquals(RETRY_MAX, wsBackendMessageLogEntity.getSendAttemptsMax());
+        new FullVerifications() {{
+            retryService.sendNotification(MESSAGE_ID, RECIPIENT, wsPluginDispatchRule);
+            times = 1;
         }};
     }
 
@@ -68,12 +57,13 @@ public class WSPluginBackendServiceTest {
     public void sendSuccess_noRecipient(@Mocked WSPluginDispatchRule wsPluginDispatchRule) {
         wsPluginBackendService.sendSuccess(MESSAGE_ID, "");
 
-        new FullVerifications(){};
+        new FullVerifications() {
+        };
     }
 
     @Test
     public void noRules(@Mocked WSPluginDispatchRule wsPluginDispatchRule) {
-        new Expectations(){{
+        new Expectations() {{
             wsBackendRulesService.getRulesByRecipient(RECIPIENT);
             times = 1;
             result = new ArrayList<>();
@@ -81,6 +71,7 @@ public class WSPluginBackendServiceTest {
 
         wsPluginBackendService.sendSuccess("", RECIPIENT);
 
-        new FullVerifications(){};
+        new FullVerifications() {
+        };
     }
 }

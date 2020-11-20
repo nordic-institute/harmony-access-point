@@ -26,8 +26,8 @@ public class WSPluginDispatchRule {
                                 String endpoint,
                                 List<WSBackendMessageType> types,
                                 String retry,
-                                int retryTimeout,
-                                int retryCount,
+                                Integer retryTimeout,
+                                Integer retryCount,
                                 WSPluginRetryStrategyType retryStrategy) {
         this.description = description;
         this.recipient = recipient;

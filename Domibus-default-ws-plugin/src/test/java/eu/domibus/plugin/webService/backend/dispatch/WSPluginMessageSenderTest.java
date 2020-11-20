@@ -1,6 +1,11 @@
 package eu.domibus.plugin.webService.backend.dispatch;
 
+import eu.domibus.plugin.webService.backend.WSBackendMessageLogDao;
 import eu.domibus.plugin.webService.backend.WSBackendMessageLogEntity;
+import eu.domibus.plugin.webService.backend.WSBackendMessageStatus;
+import eu.domibus.plugin.webService.backend.WSBackendMessageType;
+import eu.domibus.plugin.webService.backend.reliability.WSPluginBackendReliabilityService;
+import eu.domibus.plugin.webService.backend.rules.WSPluginDispatchRule;
 import eu.domibus.plugin.webService.backend.rules.WSPluginDispatchRulesService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -20,6 +25,7 @@ public class WSPluginMessageSenderTest {
 
     public static final String RULE_NAME = "ruleName";
     public static final String END_POINT = "endpoint";
+    public static final String MESSAGE_ID = "messageId";
     @Tested
     private WSPluginMessageSender wsPluginMessageSender;
 
@@ -32,18 +38,36 @@ public class WSPluginMessageSenderTest {
     @Injectable
     protected WSPluginDispatchRulesService wsPluginDispatchRulesService;
 
+    @Injectable
+    protected WSBackendMessageLogDao wsBackendMessageLogDao;
+
+    @Injectable
+    protected WSPluginBackendReliabilityService reliabilityService;
+
+
     @Test
     public void sendMessageSuccess(@Mocked WSBackendMessageLogEntity wsBackendMessageLogEntity,
-                                   @Mocked SOAPMessage soapMessage) {
+                                   @Mocked SOAPMessage soapMessage,
+                                   @Mocked WSPluginDispatchRule wsPluginDispatchRule) {
         new Expectations() {{
-            wsPluginMessageBuilder.buildSOAPMessageSendSuccess(wsBackendMessageLogEntity);
+
+            wsPluginMessageBuilder.buildSOAPMessage(wsBackendMessageLogEntity);
             result = soapMessage;
             times = 1;
 
             wsBackendMessageLogEntity.getRuleName();
             result = RULE_NAME;
 
-            wsPluginDispatchRulesService.getEndpoint(RULE_NAME);
+            wsBackendMessageLogEntity.getType();
+            result = WSBackendMessageType.SEND_SUCCESS;
+
+            wsBackendMessageLogEntity.getMessageId();
+            result = MESSAGE_ID;
+
+            wsPluginDispatchRulesService.getOneRule(RULE_NAME);
+            result = wsPluginDispatchRule;
+
+            wsPluginDispatchRule.getEndpoint();
             result = END_POINT;
 
             wsPluginDispatcher.dispatch(soapMessage, END_POINT);
@@ -53,14 +77,19 @@ public class WSPluginMessageSenderTest {
 
         wsPluginMessageSender.sendMessageSuccess(wsBackendMessageLogEntity);
 
-        new FullVerifications() {
-        };
+        new FullVerifications() {{
+            reliabilityService.changeStatus(wsBackendMessageLogEntity, WSBackendMessageStatus.SEND_IN_PROGRESS);
+            times = 1;
+            reliabilityService.changeStatus(wsBackendMessageLogEntity, WSBackendMessageStatus.SENT);
+            times = 1;
+        }};
     }
 
     @Test
     public void sendMessageSuccess_exception(
             @Mocked WSBackendMessageLogEntity wsBackendMessageLogEntity,
-            @Mocked SOAPMessage soapMessage) {
+            @Mocked SOAPMessage soapMessage,
+            @Mocked WSPluginDispatchRule wsPluginDispatchRule) {
         new Expectations() {{
             wsPluginMessageBuilder.buildSOAPMessageSendSuccess(wsBackendMessageLogEntity);
             result = soapMessage;
@@ -69,9 +98,16 @@ public class WSPluginMessageSenderTest {
             wsBackendMessageLogEntity.getRuleName();
             result = RULE_NAME;
 
+            wsBackendMessageLogEntity.getType();
+            result = WSBackendMessageType.SEND_SUCCESS;
+
             wsBackendMessageLogEntity.getMessageId();
-            result = "MessageId";
-            wsPluginDispatchRulesService.getEndpoint(RULE_NAME);
+            result = MESSAGE_ID;
+
+            wsPluginDispatchRulesService.getOneRule(RULE_NAME);
+            result = wsPluginDispatchRule;
+
+            wsPluginDispatchRule.getEndpoint();
             result = END_POINT;
 
             wsPluginDispatcher.dispatch(soapMessage, END_POINT);
@@ -86,7 +122,11 @@ public class WSPluginMessageSenderTest {
             //OK
         }
 
-        new FullVerifications() {
-        };
+        new FullVerifications() {{
+            reliabilityService.changeStatus(wsBackendMessageLogEntity, WSBackendMessageStatus.SEND_IN_PROGRESS);
+            times = 1;
+            reliabilityService.handleReliability(wsBackendMessageLogEntity, wsPluginDispatchRule);
+            times = 1;
+        }};
     }
 }
