@@ -186,7 +186,7 @@ export class PropertiesComponent extends mix(BaseListComponent)
       newProp.value = data.propertyValue;
       newProp.composable = false;
       await this.propertiesService.updateProperty(newProp, this.filter.showDomain);
-      
+
       super.rows = [...this.rows, newProp];
       super.count = this.rows.length;
     } catch (e) {

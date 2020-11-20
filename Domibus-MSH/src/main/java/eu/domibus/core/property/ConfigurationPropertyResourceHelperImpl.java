@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Responsible with getting the domibus properties that can be changed at runtime, getting and setting their values
@@ -130,11 +131,17 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
     }
 
     protected List<DomibusProperty> getNestedProperties(DomibusPropertyMetadata propMeta) {
-        List<String> suffixes = domibusPropertyProvider.getNestedProperties(propMeta.getName());
-        List<DomibusProperty> result = suffixes.stream()
-                .map(suffix -> getProperty(propMeta.getName() + "." + suffix))
-                .collect(Collectors.toList());
+        //add parent property
+        List<DomibusProperty> result = new ArrayList<>();
         result.add(getProperty(propMeta.getName()));
+
+        //add nested
+        List<String> nestedProps = domibusPropertyProvider.getNestedProperties(propMeta.getName());
+        List<DomibusProperty> nested = nestedProps.stream()
+                .map(nestedProp -> getProperty(propMeta.getName() + "." + nestedProp))
+                .collect(Collectors.toList());
+        result.addAll(nested);
+
         return result;
     }
 

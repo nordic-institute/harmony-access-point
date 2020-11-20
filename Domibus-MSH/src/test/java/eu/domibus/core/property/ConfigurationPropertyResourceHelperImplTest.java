@@ -18,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -197,6 +198,36 @@ public class ConfigurationPropertyResourceHelperImplTest {
     }
 
     @Test
+    public void getNestedProperties(@Mocked DomibusPropertyMetadata propMeta,
+                                    @Mocked DomibusProperty prop1,
+                                    @Mocked DomibusProperty prop2,
+                                    @Mocked DomibusProperty parentProp) {
+
+        List<String> nestedProps = Arrays.asList("prop1", "prop2");
+
+        new Expectations(configurationPropertyResourceHelper) {{
+            propMeta.getName();
+            result = "domibus.property.name";
+            configurationPropertyResourceHelper.getProperty(propMeta.getName());
+            result = parentProp;
+            domibusPropertyProvider.getNestedProperties(propMeta.getName());
+            result = nestedProps;
+            configurationPropertyResourceHelper.getProperty(propMeta.getName() + ".prop1");
+            result = prop1;
+            configurationPropertyResourceHelper.getProperty(propMeta.getName() + ".prop2");
+            result = prop2;
+        }};
+
+        List<DomibusProperty> actual = configurationPropertyResourceHelper.getNestedProperties(propMeta);
+
+        Assert.assertEquals(3, actual.size());
+        Assert.assertEquals(parentProp, actual.get(0));
+        Assert.assertEquals(prop1, actual.get(1));
+        Assert.assertEquals(prop2, actual.get(2));
+    }
+
+
+    @Test
     public void filterProperties() {
         String name = "domibus.UI";
         Boolean showDomain = true;
@@ -278,7 +309,7 @@ public class ConfigurationPropertyResourceHelperImplTest {
 
         new Verifications() {{
             globalPropertyMetadataManager.getPropertyMetadata(propertyName);
-            times=0;
+            times = 0;
         }};
     }
 
