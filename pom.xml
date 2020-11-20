@@ -64,7 +64,7 @@
         <glassfish.javax.el.version>3.0.0</glassfish.javax.el.version>
         <mockito.version>1.10.19</mockito.version>
         <h2.version>1.4.200</h2.version>
-        <liquibase.version>3.5.5</liquibase.version>
+        <liquibase.version>4.2.0</liquibase.version>
         <mysql.connector.java.version>8.0.22</mysql.connector.java.version>
         <wiremock.version>2.26.2</wiremock.version>
         <dropwizard.metrics.version>4.1.13</dropwizard.metrics.version>
