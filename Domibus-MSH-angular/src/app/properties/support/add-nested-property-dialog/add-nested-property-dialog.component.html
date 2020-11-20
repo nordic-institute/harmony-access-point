@@ -4,7 +4,7 @@
   <form #editForm="ngForm" (submit)="submitForm()">
     <mat-card>
 
-      {{property.name + '.' + propertySuffix}}
+      {{property.name + '.'}}<span style="color: deepskyblue; font-weight: bold;">{{propertySuffix}}</span>
 
       <div style="margin-top:15px;">
         <mat-form-field [style.width]="'100%'">
