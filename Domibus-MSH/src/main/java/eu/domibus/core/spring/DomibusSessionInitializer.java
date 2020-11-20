@@ -16,7 +16,6 @@ import static eu.domibus.core.spring.DomibusSessionInitializer.SESSION_INITIALIZ
  */
 @Order(SESSION_INITIALIZER_ORDER)
 public class DomibusSessionInitializer extends AbstractHttpSessionApplicationInitializer {
-    // High precedence but less than the highest possible
     // HIGHEST_PRECEDENCE is negative so adding one actually decreases the precedence
     public static final int SESSION_INITIALIZER_ORDER = Ordered.HIGHEST_PRECEDENCE;
 }
