@@ -28,6 +28,8 @@
         <cxf.version>3.4.0</cxf.version>
         <spring.version>5.2.9.RELEASE</spring.version>
         <spring.security.version>5.4.1</spring.security.version>
+        <spring.session.core.version>2.3.1.RELEASE</spring.session.core.version>
+        <spring.session.jdbc.version>2.3.1.RELEASE</spring.session.jdbc.version>
         <hibernate.version>5.4.22.Final</hibernate.version>
         <activemq.version>5.16.0</activemq.version>
         <aspectj.version>1.9.4</aspectj.version>
@@ -64,7 +66,7 @@
         <glassfish.javax.el.version>3.0.0</glassfish.javax.el.version>
         <mockito.version>1.10.19</mockito.version>
         <h2.version>1.4.200</h2.version>
-        <liquibase.version>3.5.5</liquibase.version>
+        <liquibase.version>4.2.0</liquibase.version>
         <mysql.connector.java.version>8.0.22</mysql.connector.java.version>
         <wiremock.version>2.26.2</wiremock.version>
         <dropwizard.metrics.version>4.1.13</dropwizard.metrics.version>
@@ -1028,7 +1030,8 @@
                 <groupId>com.h2database</groupId>
                 <artifactId>h2</artifactId>
                 <version>${h2.version}</version>
-                <scope>test</scope>
+                <scope>runtime</scope>
+                <optional>true</optional>
             </dependency>
             <dependency>
                 <groupId>org.liquibase</groupId>

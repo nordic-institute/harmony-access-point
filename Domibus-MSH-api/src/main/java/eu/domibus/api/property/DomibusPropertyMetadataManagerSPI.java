@@ -326,6 +326,6 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_METRICS_MONITOR_JMS_QUEUES_SHOW_DLQ_ONLY = "domibus.metrics.monitor.jms.queues.show.dlq.only";
     String DOMIBUS_SCHEMAFACTORY = "domibus.javax.xml.validation.SchemaFactory";
     String DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES = "domibus.ui.resend.action.enabled.received.minutes";
+    String DOMIBUS_UI_SESSION_SECURE = "domibus.ui.session.secure";
     String DOMIBUS_DISPATCHER_TIMEOUT = "domibus.dispatcher.timeout";
-
 }
