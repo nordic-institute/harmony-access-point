@@ -67,7 +67,7 @@
 
       <ng-template #propertyValueTpl let-row="row" let-value="value" ngx-datatable-cell-template>
         <div class="input-group property-view" *ngIf="row.composable">
-          <button mat-icon-button [disabled]="row.writable" (click)="addNewNestedProperty(row)" button-click-behaviour style="float: right;">
+          <button mat-icon-button [disabled]="!row.writable" (click)="addNewNestedProperty(row)" button-click-behaviour style="float: right;">
             <mat-icon mat-tooltip="New" mdTooltipPosition="above">note_add</mat-icon>
           </button>
         </div>

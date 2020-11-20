@@ -271,7 +271,7 @@ public class ConfigurationPropertyResourceHelperImplTest {
         new Expectations(configurationPropertyResourceHelper) {{
             globalPropertyMetadataManager.hasKnownProperty(propertyName);
             result = false;
-            globalPropertyMetadataManager.isComposableProperty(propertyName);
+            globalPropertyMetadataManager.getComposableProperty(propertyName);
             result = false;
         }};
 

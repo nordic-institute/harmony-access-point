@@ -109,8 +109,8 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
     }
 
     @Override
-    public boolean isComposableProperty(String propertyName) {
-        return getComposableProperty(getAllProperties(), propertyName) != null;
+    public DomibusPropertyMetadata getComposableProperty(String propertyName) {
+        return getComposableProperty(getAllProperties(), propertyName);
     }
 
     protected boolean hasProperty(Map<String, DomibusPropertyMetadata> map, String propertyName) {
@@ -121,7 +121,7 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
     /**
      * Checks if the given property name corresponds to a composable property with a declared value in property bag
      *
-     * @param map the map with proerty metadata
+     * @param map          the map with proerty metadata
      * @param propertyName the name of the property
      * @return true if it is
      */

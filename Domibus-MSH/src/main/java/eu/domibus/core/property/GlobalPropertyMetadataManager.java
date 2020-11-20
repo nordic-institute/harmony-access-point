@@ -48,5 +48,5 @@ public interface GlobalPropertyMetadataManager {
      * @param propertyName the name
      * @return true if composable
      */
-    boolean isComposableProperty(String propertyName);
+    DomibusPropertyMetadata getComposableProperty(String propertyName);
 }

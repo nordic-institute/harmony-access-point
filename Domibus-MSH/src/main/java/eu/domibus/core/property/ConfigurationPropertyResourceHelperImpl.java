@@ -121,7 +121,7 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
      */
     protected DomibusProperty getOrCreateProperty(String propertyName) {
         if (globalPropertyMetadataManager.hasKnownProperty(propertyName)
-                || globalPropertyMetadataManager.isComposableProperty(propertyName)) {
+                || globalPropertyMetadataManager.getComposableProperty(propertyName) != null) {
             DomibusPropertyMetadata propertyMetadata = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
             return getValueAndCreateProperty(propertyMetadata);
         }
@@ -173,22 +173,32 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
     protected void validatePropertyValue(String propertyName, String propertyValue) {
         propertyNameBlacklistValidator.validate(propertyName, ACCEPTED_CHARACTERS_IN_PROPERTY_NAMES);
 
-        DomibusProperty prop = getOrCreateProperty(propertyName);
+        DomibusPropertyMetadata propMeta = getPropertyMetadata(propertyName);
 
-        if (prop == null) {
+        if (propMeta == null) {
             throw new DomibusPropertyException("Cannot set property " + propertyName + " because it does not exist.");
         }
 
-        if (!prop.getMetadata().isWritable()) {
+        if (!propMeta.isWritable()) {
             throw new DomibusPropertyException("Cannot set property " + propertyName + " because it is not writable.");
         }
 
-        if (prop.getMetadata().isComposable()) {
+        if (propMeta.getName().equals(propertyName) && propMeta.isComposable()) {
             throw new DomibusPropertyException("Cannot set property " + propertyName + ". You can only set its nested properties.");
         }
 
+        DomibusProperty prop = createProperty(propMeta, propertyValue);
+
         prop.setValue(propertyValue);
         domibusPropertyValueValidator.validate(prop);
+    }
+
+    protected DomibusPropertyMetadata getPropertyMetadata(String propertyName) {
+        if (globalPropertyMetadataManager.hasKnownProperty(propertyName)) {
+            return globalPropertyMetadataManager.getPropertyMetadata(propertyName);
+        }
+        //find parent if composable
+        return globalPropertyMetadataManager.getComposableProperty(propertyName);
     }
 
     private void addIfMissing(Map<String, DomibusProperty> result, DomibusProperty prop) {
