@@ -113,21 +113,6 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
         return getValueAndCreateProperty(propertyMetadata);
     }
 
-    /**
-     * If found, returns the property info or, if composable, creates metadata and returns it
-     *
-     * @param propertyName the name of the property
-     * @return its metadata and value
-     */
-    protected DomibusProperty getOrCreateProperty(String propertyName) {
-        if (globalPropertyMetadataManager.hasKnownProperty(propertyName)
-                || globalPropertyMetadataManager.getComposableProperty(propertyName) != null) {
-            DomibusPropertyMetadata propertyMetadata = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
-            return getValueAndCreateProperty(propertyMetadata);
-        }
-        return null;
-    }
-
     protected List<DomibusProperty> getPropertyValues(List<DomibusPropertyMetadata> properties) {
         Map<String, DomibusProperty> result = new HashMap<>();
 
