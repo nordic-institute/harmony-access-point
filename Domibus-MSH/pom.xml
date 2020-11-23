@@ -200,6 +200,12 @@
             <artifactId>spring-session-jdbc</artifactId>
             <version>${spring.session.jdbc.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>${h2.version}</version>
+            <scope>runtime</scope>
+        </dependency>
         <!-- End Spring Session -->
 
         <!-- CXF -->
