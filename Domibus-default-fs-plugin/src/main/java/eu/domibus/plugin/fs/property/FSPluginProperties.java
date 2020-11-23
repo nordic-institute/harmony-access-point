@@ -13,7 +13,6 @@ import eu.domibus.plugin.fs.property.listeners.TriggerChangeListener;
 import eu.domibus.plugin.fs.worker.FSSendMessagesService;
 import eu.domibus.plugin.property.PluginPropertyChangeNotifier;
 import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -105,7 +104,7 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
      * @return The cron expression that defines the frequency of the sent messages purge job
      */
     public String getSentPurgeWorkerCronExpression(String domain) {
-        return getDomainProperty(domain, SENT_PURGE_WORKER_CRONEXPRESSION);
+        return super.getKnownPropertyValue(SENT_PURGE_WORKER_CRONEXPRESSION);
     }
 
     /**
@@ -124,7 +123,7 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
      * @return The threshold value in MB
      */
     public Long getPayloadsScheduleThresholdMB(String domain) {
-        String value = getDomainProperty(domain, PAYLOAD_SCHEDULE_THRESHOLD);
+        String value = super.getKnownPropertyValue(PAYLOAD_SCHEDULE_THRESHOLD);
         return NumberUtils.toLong(value);
     }
 
@@ -139,22 +138,22 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
     /**
      * @return The cron expression that defines the frequency of the failed messages purge job
      */
-    public String getFailedPurgeWorkerCronExpression(String domain) {
-        return getDomainProperty(domain, FAILED_PURGE_WORKER_CRONEXPRESSION);
+    public String getFailedPurgeWorkerCronExpression() {
+        return super.getKnownPropertyValue(FAILED_PURGE_WORKER_CRONEXPRESSION);
     }
 
     /**
      * @return The cron expression that defines the frequency of the received messages purge job
      */
-    public String getReceivedPurgeWorkerCronExpression(String domain) {
-        return getDomainProperty(domain, RECEIVED_PURGE_WORKER_CRONEXPRESSION);
+    public String getReceivedPurgeWorkerCronExpression() {
+        return super.getKnownPropertyValue(RECEIVED_PURGE_WORKER_CRONEXPRESSION);
     }
 
     /**
      * @return The cron expression that defines the frequency of the orphan lock files purge job
      */
-    public String getLocksPurgeWorkerCronExpression(String domain) {
-        return getDomainProperty(domain, LOCKS_PURGE_WORKER_CRONEXPRESSION);
+    public String getLocksPurgeWorkerCronExpression() {
+        return super.getKnownPropertyValue(LOCKS_PURGE_WORKER_CRONEXPRESSION);
     }
 
     /**
@@ -222,7 +221,7 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
      * @return the user used to authenticate
      */
     public String getAuthenticationUser(String domain) {
-        return getDomainPropertyNoDefault(domain, AUTHENTICATION_USER, null);
+        return getDomainPropertyNoDefault(domain, AUTHENTICATION_USER);
     }
 
     /**
@@ -230,7 +229,7 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
      * @return the password used to authenticate
      */
     public String getAuthenticationPassword(String domain) {
-        String result = getDomainPropertyNoDefault(domain, AUTHENTICATION_PASSWORD, null);
+        String result = getDomainPropertyNoDefault(domain, AUTHENTICATION_PASSWORD);
         if (pluginPasswordEncryptionService.isValueEncrypted(result)) {
             LOG.debug("Decrypting property [{}] for domain [{}]", AUTHENTICATION_PASSWORD, domain);
             //passwords are encrypted using the key of the default domain; this is because there is no clear segregation between FS Plugin properties per domain
@@ -245,8 +244,8 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
      * @return the domain order
      */
     public Integer getOrder(String domain) {
-        String value = getDomainProperty(domain, ORDER);
-        return getInteger(value, Integer.MAX_VALUE);
+//        String value =
+        return getIntegerDomainProperty(domain, ORDER);
     }
 
 //    Properties getProperties() {
@@ -280,17 +279,14 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
      * @return delay value in milliseconds
      */
     public Integer getSendDelay(String domain) {
-        String value = getDomainProperty(domain, SEND_DELAY);
-        return getInteger(value, 2000);
+        return getIntegerDomainProperty(domain, SEND_DELAY);
     }
 
     /**
-     * @param domain The domain property qualifier
      * @return send worker interval in milliseconds
      */
-    public Integer getSendWorkerInterval(String domain) {
-        String value = getDomainProperty(domain, SEND_WORKER_INTERVAL);
-        return getInteger(value, 10000);
+    public Integer getSendWorkerInterval() {
+        return super.getKnownIntegerPropertyValue(SEND_WORKER_INTERVAL);
     }
 
     /**
@@ -329,7 +325,7 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
      * @return True if password encryption is active
      */
     public boolean isPasswordEncryptionActive() {
-        final String passwordEncryptionActive = getDomainPropertyNoDefault(DEFAULT_DOMAIN, PASSWORD_ENCRYPTION_ACTIVE, "false");
+        final String passwordEncryptionActive = getDomainPropertyNoDefault(DEFAULT_DOMAIN, PASSWORD_ENCRYPTION_ACTIVE);
         return BooleanUtils.toBoolean(passwordEncryptionActive);
     }
 
@@ -344,10 +340,10 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
 
     public String getDomainProperty(String domain, String propertyName) {
         if (domibusConfigurationExtService.isMultiTenantAware()) {
-            return super.getKnownPropertyValue(domain, propertyName);
+            return super.getKnownPropertyValue(propertyName);
         }
-            //ST
-            return super.getKnownPropertyValue(domain + "." + propertyName);
+        //ST
+        return super.getKnownPropertyValue(domain + "." + propertyName);
 
 
 
@@ -358,40 +354,54 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
 //        return properties.getProperty(PROPERTY_PREFIX + propertyName, defaultValue);
     }
 
-    public String getDomainPropertyNoDefault(String domain, String propertyName, String defaultValue) {
-        String domainFullPropertyName = getDomainPropertyName(domain, propertyName);
-        if (properties.containsKey(domainFullPropertyName)) {
-            return properties.getProperty(domainFullPropertyName, defaultValue);
+    public Integer getIntegerDomainProperty(String domain, String propertyName) {
+        if (domibusConfigurationExtService.isMultiTenantAware()) {
+            //TODO
+            return super.getKnownIntegerPropertyValue(propertyName);
         }
-        if (DEFAULT_DOMAIN.equals(domain)) {
-            if (!StringUtils.startsWith(propertyName, PROPERTY_PREFIX)) {
-                propertyName = PROPERTY_PREFIX + propertyName;
-            }
-            return properties.getProperty(propertyName, defaultValue);
-        }
-        // cannot use default values
-        return null;
+        //ST
+        return super.getKnownIntegerPropertyValue(domain + "." + propertyName);
     }
 
-    private Integer getInteger(String value, Integer defaultValue) {
-        Integer result = defaultValue;
-        if (StringUtils.isNotEmpty(value)) {
-            result = Integer.valueOf(value);
-        }
-        return result;
+    public String getDomainPropertyNoDefault(String domain, String propertyName) {
+//        String domainFullPropertyName = getDomainPropertyName(domain, propertyName);
+//        if (properties.containsKey(domainFullPropertyName)) {
+//            return properties.getProperty(domainFullPropertyName, defaultValue);
+//        }
+//        if (DEFAULT_DOMAIN.equals(domain)) {
+//            if (!StringUtils.startsWith(propertyName, PROPERTY_PREFIX)) {
+//                propertyName = PROPERTY_PREFIX + propertyName;
+//            }
+//            return properties.getProperty(propertyName, defaultValue);
+//        }
+
+
+        // cannot use default values
+        return getDomainProperty(domain, propertyName);
+//
+//        return null;
     }
+
+//    private Integer getInteger(String value, Integer defaultValue) {
+//        Integer result = defaultValue;
+//        if (StringUtils.isNotEmpty(value)) {
+//            result = Integer.valueOf(value);
+//        }
+//        return result;
+//    }
 
     protected List<String> readDomains() {
         List<String> tempDomains = new ArrayList<>();
 
-        for (String propName : properties.stringPropertyNames()) {
-            if (propName.startsWith(DOMAIN_PREFIX)) {
-                String domain = extractDomainName(propName);
-                if (!tempDomains.contains(domain)) {
-                    tempDomains.add(domain);
-                }
-            }
-        }
+//        for (String propName : properties.stringPropertyNames()) {
+//            if (propName.startsWith(DOMAIN_PREFIX)) {
+//                String domain = extractDomainName(propName);
+//                if (!tempDomains.contains(domain)) {
+//                    tempDomains.add(domain);
+//                }
+//            }
+//        }
+        tempDomains.add("DOMAIN1");
         if (!tempDomains.contains(DEFAULT_DOMAIN)) {
             tempDomains.add(DEFAULT_DOMAIN);
         }
@@ -428,7 +438,7 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
 //            baseName = StringUtils.removeStart(baseName, PROPERTY_PREFIX);
 //        }
 //        return baseName;
-//    }
+////    }
 
     @Override
     public synchronized Map<String, DomibusPropertyMetadataDTO> getKnownProperties() {

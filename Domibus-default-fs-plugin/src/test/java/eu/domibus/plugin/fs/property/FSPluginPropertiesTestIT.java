@@ -1,6 +1,5 @@
 package eu.domibus.plugin.fs.property;
 
-import eu.domibus.common.NotificationType;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.*;
 import eu.domibus.plugin.property.PluginPropertyChangeNotifier;
@@ -16,10 +15,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Properties;
-import java.util.Set;
-import java.util.function.Predicate;
 
 import static org.mockito.Mockito.when;
 
@@ -158,7 +154,7 @@ public class FSPluginPropertiesTestIT {
 
     @Test
     public void testGetFailedPurgeWorkerCronExpression() {
-        Assert.assertEquals("0 0/1 * * * ?", fSPluginProperties.getFailedPurgeWorkerCronExpression(null));
+        Assert.assertEquals("0 0/1 * * * ?", fSPluginProperties.getFailedPurgeWorkerCronExpression());
     }
 
     @Test

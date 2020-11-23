@@ -78,7 +78,7 @@ public class FSPluginPropertiesMetadataManagerImpl implements DomibusPropertyMet
 
     public static final String FSPLUGIN_PASSWORD_ENCRYPTION_PROPERTIES = PROPERTY_PREFIX + "password.encryption.properties"; //NOSONAR
 
-    public static final String OUT_QUEUE = "send.queue";
+    public static final String OUT_QUEUE = PROPERTY_PREFIX + "send.queue";
 
     Map<String, DomibusPropertyMetadataDTO> knownProperties;
 
@@ -105,7 +105,7 @@ public class FSPluginPropertiesMetadataManagerImpl implements DomibusPropertyMet
                 new DomibusPropertyMetadataDTO(MESSAGE_NOTIFICATIONS, Type.COMMA_SEPARATED_LIST, Module.FS_PLUGIN, false, Usage.GLOBAL, false, true, false, false),
                 new DomibusPropertyMetadataDTO(PASSWORD_ENCRYPTION_ACTIVE, Type.BOOLEAN, Module.FS_PLUGIN, false, Usage.DOMAIN, false, true, false, false),
                 new DomibusPropertyMetadataDTO(FSPLUGIN_PASSWORD_ENCRYPTION_PROPERTIES, Type.COMMA_SEPARATED_LIST, Module.FS_PLUGIN, false, Usage.DOMAIN, false, true, false, false),
-                new DomibusPropertyMetadataDTO(OUT_QUEUE, Type.JNDI, Module.FS_PLUGIN, false, Usage.GLOBAL, false, true, false, false),
+                new DomibusPropertyMetadataDTO(OUT_QUEUE, Type.JNDI, Module.FS_PLUGIN, false, Usage.GLOBAL, true, true, false, false),
 
                 //writable properties
                 new DomibusPropertyMetadataDTO(SEND_WORKER_INTERVAL, Type.NUMERIC, Module.FS_PLUGIN, Usage.DOMAIN, true),
@@ -118,7 +118,7 @@ public class FSPluginPropertiesMetadataManagerImpl implements DomibusPropertyMet
                 new DomibusPropertyMetadataDTO(AUTHENTICATION_PASSWORD, Type.PASSWORD, Module.FS_PLUGIN, true, Usage.DOMAIN, false, true, true, false),
                 new DomibusPropertyMetadataDTO(USER, Module.FS_PLUGIN, Usage.DOMAIN, false),
                 new DomibusPropertyMetadataDTO(PASSWORD, Type.PASSWORD, Module.FS_PLUGIN, true, Usage.DOMAIN, false, true, true, false),
-                // with fallback
+                // with fallback - domain like in ST and full domain in MT
                 new DomibusPropertyMetadataDTO(LOCATION, Type.URI, Module.FS_PLUGIN, Usage.DOMAIN, true),
                 new DomibusPropertyMetadataDTO(ORDER, Type.NUMERIC, Module.FS_PLUGIN, Usage.DOMAIN, true),
                 new DomibusPropertyMetadataDTO(EXPRESSION, Type.REGEXP, Module.FS_PLUGIN, Usage.DOMAIN, true),

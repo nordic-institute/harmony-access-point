@@ -34,17 +34,32 @@ public class FSWorkersConfiguration {
         return obj;
     }
 
+//    @Bean
+//    @Scope(BeanDefinition.SCOPE_PROTOTYPE)
+//    public SimpleTriggerFactoryBean fsPluginSendMessagesWorkerTrigger(FSPluginProperties fsPluginProperties) {
+//        DomainDTO domain = domainContextExtService.getCurrentDomainSafely();
+//        if (domain == null) {
+//            return null; // this job only works for a domain
+//        }
+//        String domainCode = domain.getCode();
+//        SimpleTriggerFactoryBean obj = new SimpleTriggerFactoryBean();
+//        obj.setJobDetail(fsPluginSendMessagesWorkerJob().getObject());
+//        obj.setRepeatInterval(fsPluginProperties.getSendWorkerInterval(domainCode));
+//        obj.setStartDelay(20000);
+//        return obj;
+//    }
+
     @Bean
-    @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-    public SimpleTriggerFactoryBean fsPluginSendMessagesWorkerTrigger(FSPluginProperties fsPluginProperties) {
-        DomainDTO domain = domainContextExtService.getCurrentDomainSafely();
-        if (domain == null) {
-            return null; // this job only works for a domain
-        }
-        String domainCode = domain.getCode();
+    @Scope(BeanDefinition.SCOPE_PROTOTYPE) //TODO check MT
+    public SimpleTriggerFactoryBean fsPluginSendMessagesWorkerTrigger2(FSPluginProperties fsPluginProperties) {
+//        DomainDTO domain = domainContextExtService.getCurrentDomainSafely();
+//        if (domain == null) {
+//            return null; // this job only works for a domain
+//        }
+//        String domainCode = domain.getCode();
         SimpleTriggerFactoryBean obj = new SimpleTriggerFactoryBean();
         obj.setJobDetail(fsPluginSendMessagesWorkerJob().getObject());
-        obj.setRepeatInterval(fsPluginProperties.getSendWorkerInterval(domainCode));
+        obj.setRepeatInterval(fsPluginProperties.getSendWorkerInterval());
         obj.setStartDelay(20000);
         return obj;
     }
@@ -81,16 +96,16 @@ public class FSWorkersConfiguration {
     }
 
     @Bean
-    @Scope(BeanDefinition.SCOPE_PROTOTYPE)
+    @Scope(BeanDefinition.SCOPE_PROTOTYPE) //TODO check MT
     public CronTriggerFactoryBean fsPluginPurgeFailedWorkerTrigger(FSPluginProperties fsPluginProperties) {
-        DomainDTO domain = domainContextExtService.getCurrentDomainSafely();
-        if (domain == null) {
-            return null; // this job only works for a domain
-        }
-        String domainCode = domain.getCode();
+//        DomainDTO domain = domainContextExtService.getCurrentDomainSafely();
+//        if (domain == null) {
+//            return null; // this job only works for a domain
+//        }
+//        String domainCode = domain.getCode();
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(fsPluginPurgeFailedWorkerJob().getObject());
-        obj.setCronExpression(fsPluginProperties.getFailedPurgeWorkerCronExpression(domainCode));
+        obj.setCronExpression(fsPluginProperties.getFailedPurgeWorkerCronExpression());
         obj.setStartDelay(20000);
         return obj;
     }
@@ -113,7 +128,7 @@ public class FSWorkersConfiguration {
         String domainCode = domain.getCode();
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(fsPluginPurgeReceivedWorkerJob().getObject());
-        obj.setCronExpression(fsPluginProperties.getReceivedPurgeWorkerCronExpression(domainCode));
+        obj.setCronExpression(fsPluginProperties.getReceivedPurgeWorkerCronExpression());
         obj.setStartDelay(20000);
         return obj;
     }
@@ -136,7 +151,7 @@ public class FSWorkersConfiguration {
         String domainCode = domain.getCode();
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(fsPluginPurgeLocksWorkerJob().getObject());
-        obj.setCronExpression(fsPluginProperties.getLocksPurgeWorkerCronExpression(domainCode));
+        obj.setCronExpression(fsPluginProperties.getLocksPurgeWorkerCronExpression());
         obj.setStartDelay(20000);
         return obj;
     }
