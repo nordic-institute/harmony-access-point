@@ -23,7 +23,7 @@ public interface ConfigurationPropertyResourceHelper {
      * @param value the value of the property
      * @return the list of the properties: metadata and value
      */
-    List<DomibusProperty> getAllWritableProperties(String name, boolean showDomainProperties, String type, String module, String value, Boolean writable);
+    List<DomibusProperty> getAllProperties(String name, boolean showDomainProperties, String type, String module, String value, Boolean writable);
 
     /**
      * Sets the property with specified name to the specified value

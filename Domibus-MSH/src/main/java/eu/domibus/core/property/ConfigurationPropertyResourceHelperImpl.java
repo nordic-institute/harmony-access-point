@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Responsible with getting the domibus properties that can be changed at runtime, getting and setting their values
@@ -60,7 +59,7 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
     }
 
     @Override
-    public List<DomibusProperty> getAllWritableProperties(String name, boolean showDomain, String type, String module, String value, Boolean isWritable) {
+    public List<DomibusProperty> getAllProperties(String name, boolean showDomain, String type, String module, String value, Boolean isWritable) {
         List<DomibusPropertyMetadata> propertiesMetadata = filterProperties(globalPropertyMetadataManager.getAllProperties(),
                 name, showDomain, type, module, isWritable);
 
@@ -175,8 +174,8 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
             throw new DomibusPropertyException("Cannot set property " + propertyName + " because it is not writable.");
         }
 
-        if (propMeta.getName().equals(propertyName) && propMeta.isComposable()) {
-            throw new DomibusPropertyException("Cannot set property " + propertyName + ". You can only set its nested properties.");
+        if (StringUtils.equals(propMeta.getName(), propertyName) && propMeta.isComposable()) {
+            throw new DomibusPropertyException("Cannot set composable property " + propertyName + " directly. You can only set its nested properties.");
         }
 
         DomibusProperty prop = createProperty(propMeta, propertyValue);
@@ -186,10 +185,11 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
     }
 
     protected DomibusPropertyMetadata getPropertyMetadata(String propertyName) {
+        // check property metadata is declared
         if (globalPropertyMetadataManager.hasKnownProperty(propertyName)) {
             return globalPropertyMetadataManager.getPropertyMetadata(propertyName);
         }
-        //find parent if composable
+        // Last chance: if it is a composable property, return its 'parent'/source metadata
         return globalPropertyMetadataManager.getComposableProperty(propertyName);
     }
 

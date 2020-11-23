@@ -43,10 +43,10 @@ public interface GlobalPropertyMetadataManager {
     boolean hasKnownProperty(String propertyName);
 
     /**
-     * Checks if the name represents a composable type of property in a broad sense (any suffix is accepted)
+     * Checks if the name represents a composable type of property in a broad sense (any suffix is accepted) and returns the source/parent metadata
      *
      * @param propertyName the name
-     * @return true if composable
+     * @return the source metadata, if composable; otherwise null
      */
     DomibusPropertyMetadata getComposableProperty(String propertyName);
 }
