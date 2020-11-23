@@ -1,4 +1,4 @@
-package eu.domibus.plugin.webService.backend.rules;
+package eu.domibus.plugin.webService.backend.reliability.strategy;
 
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;

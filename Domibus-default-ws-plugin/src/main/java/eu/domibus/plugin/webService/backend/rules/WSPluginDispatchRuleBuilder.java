@@ -1,6 +1,7 @@
 package eu.domibus.plugin.webService.backend.rules;
 
 import eu.domibus.plugin.webService.backend.WSBackendMessageType;
+import eu.domibus.plugin.webService.backend.reliability.strategy.WSPluginRetryStrategyType;
 
 import java.util.List;
 
@@ -15,8 +16,8 @@ public class WSPluginDispatchRuleBuilder {
     private String endpoint;
     private List<WSBackendMessageType> types;
     private String retry;
-    private int retryTimeout;
-    private int retryCount;
+    private Integer retryTimeout;
+    private Integer retryCount;
     private WSPluginRetryStrategyType retryStrategy;
 
     public WSPluginDispatchRule build() {

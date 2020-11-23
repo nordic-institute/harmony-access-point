@@ -39,7 +39,7 @@ public class WSPluginDispatcherTest {
         wsBackendMessageLogEntity.setMessageId(UUID.randomUUID().toString());
         wsBackendMessageLogEntity.setType(WSBackendMessageType.SEND_SUCCESS);
         wsPluginDispatcher.dispatch(
-                wsPluginMessageBuilder.buildSOAPMessageSendSuccess(wsBackendMessageLogEntity),
+                wsPluginMessageBuilder.buildSOAPMessage(wsBackendMessageLogEntity),
                 "http://localhost:" + backendPort + "/backend");
     }
 }

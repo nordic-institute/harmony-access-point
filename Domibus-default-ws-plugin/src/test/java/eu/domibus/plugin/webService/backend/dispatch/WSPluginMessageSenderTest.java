@@ -75,7 +75,7 @@ public class WSPluginMessageSenderTest {
             times = 1;
         }};
 
-        wsPluginMessageSender.sendMessageSuccess(wsBackendMessageLogEntity);
+        wsPluginMessageSender.sendNotification(wsBackendMessageLogEntity);
 
         new FullVerifications() {{
             reliabilityService.changeStatus(wsBackendMessageLogEntity, WSBackendMessageStatus.SEND_IN_PROGRESS);
@@ -91,7 +91,7 @@ public class WSPluginMessageSenderTest {
             @Mocked SOAPMessage soapMessage,
             @Mocked WSPluginDispatchRule wsPluginDispatchRule) {
         new Expectations() {{
-            wsPluginMessageBuilder.buildSOAPMessageSendSuccess(wsBackendMessageLogEntity);
+            wsPluginMessageBuilder.buildSOAPMessage(wsBackendMessageLogEntity);
             result = soapMessage;
             times = 1;
 
@@ -116,7 +116,7 @@ public class WSPluginMessageSenderTest {
         }};
 
         try {
-            wsPluginMessageSender.sendMessageSuccess(wsBackendMessageLogEntity);
+            wsPluginMessageSender.sendNotification(wsBackendMessageLogEntity);
             Assert.fail();
         } catch (Exception e) {
             //OK

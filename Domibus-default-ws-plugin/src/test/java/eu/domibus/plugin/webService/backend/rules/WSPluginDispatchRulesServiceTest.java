@@ -44,8 +44,8 @@ public class WSPluginDispatchRulesServiceTest {
         rulesService.setRetryInformation(ruleBuilder, null);
         WSPluginDispatchRule build = ruleBuilder.build();
         assertNull(build.getRetry());
-        assertEquals(0, build.getRetryCount());
-        assertEquals(0, build.getRetryTimeout());
+        assertNull(build.getRetryCount());
+        assertNull(build.getRetryTimeout());
         assertNull(build.getRetryStrategy());
     }
 
@@ -55,8 +55,8 @@ public class WSPluginDispatchRulesServiceTest {
         rulesService.setRetryInformation(ruleBuilder, "");
         WSPluginDispatchRule build = ruleBuilder.build();
         assertEquals("", build.getRetry());
-        assertEquals(0, build.getRetryCount());
-        assertEquals(0, build.getRetryTimeout());
+        assertNull(build.getRetryCount());
+        assertNull(build.getRetryTimeout());
         assertNull(build.getRetryStrategy());
     }
 
@@ -66,8 +66,8 @@ public class WSPluginDispatchRulesServiceTest {
         rulesService.setRetryInformation(ruleBuilder, "60;5;CONSTANT");
         WSPluginDispatchRule build = ruleBuilder.build();
         assertEquals("60;5;CONSTANT", build.getRetry());
-        assertEquals(5, build.getRetryCount());
-        assertEquals(60, build.getRetryTimeout());
+        assertEquals(5, build.getRetryCount().intValue());
+        assertEquals(60, build.getRetryTimeout().intValue());
         assertEquals(WSPluginRetryStrategyType.CONSTANT, build.getRetryStrategy());
     }
 

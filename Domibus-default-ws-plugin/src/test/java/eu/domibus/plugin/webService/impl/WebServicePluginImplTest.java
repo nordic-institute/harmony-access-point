@@ -1,5 +1,8 @@
 package eu.domibus.plugin.webService.impl;
 
+import eu.domibus.common.DeliverMessageEvent;
+import eu.domibus.common.MessageReceiveFailureEvent;
+import eu.domibus.common.MessageSendFailedEvent;
 import eu.domibus.common.MessageSendSuccessEvent;
 import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.*;
 import eu.domibus.ext.services.*;
@@ -8,8 +11,10 @@ import eu.domibus.plugin.MessageLister;
 import eu.domibus.plugin.handler.MessagePuller;
 import eu.domibus.plugin.handler.MessageRetriever;
 import eu.domibus.plugin.handler.MessageSubmitter;
-import eu.domibus.plugin.webService.backend.WSPluginBackendService;
+import eu.domibus.plugin.webService.backend.dispatch.WSPluginBackendService;
+import eu.domibus.plugin.webService.backend.WSBackendMessageType;
 import eu.domibus.plugin.webService.dao.WSMessageLogDao;
+import eu.domibus.plugin.webService.entity.WSMessageLogEntity;
 import eu.domibus.plugin.webService.generated.*;
 import eu.domibus.plugin.webService.property.WSPluginPropertyManager;
 import mockit.*;
@@ -21,6 +26,7 @@ import javax.xml.ws.Holder;
 import java.util.ArrayList;
 import java.util.List;
 
+import static eu.domibus.plugin.webService.backend.WSBackendMessageType.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
@@ -208,25 +214,6 @@ public class WebServicePluginImplTest {
     }
 
     @Test
-    public void sendSuccess(@Mocked MessageSendSuccessEvent event) {
-        new Expectations(webServicePlugin) {{
-            webServicePlugin.getRecipient(event);
-            times = 1;
-            result = RECIPIENT;
-
-            event.getMessageId();
-            result = MESSAGE_ID;
-
-            wsPluginBackendService.sendSuccess(MESSAGE_ID, RECIPIENT);
-            times = 1;
-        }};
-        webServicePlugin.messageSendSuccess(event);
-
-        new FullVerifications() {
-        };
-    }
-
-    @Test
     public void getRecipient_messageNotFound(@Mocked MessageSendSuccessEvent event) throws MessageNotFoundException {
         new Expectations(webServicePlugin) {{
             event.getMessageId();
@@ -235,12 +222,12 @@ public class WebServicePluginImplTest {
             webServicePlugin.browseMessage(MESSAGE_ID, null);
             result = new MessageNotFoundException("TEST");
         }};
-        assertNull(webServicePlugin.getRecipient(event));
+        assertNull(webServicePlugin.getRecipient(event.getMessageId()));
     }
 
     @Test
     public void getRecipient_partyInfoNull(@Mocked MessageSendSuccessEvent event,
-                             @Mocked UserMessage userMessage) throws MessageNotFoundException {
+                                           @Mocked UserMessage userMessage) throws MessageNotFoundException {
         new Expectations(webServicePlugin) {{
             event.getMessageId();
             result = MESSAGE_ID;
@@ -251,7 +238,7 @@ public class WebServicePluginImplTest {
             userMessage.getPartyInfo();
             result = null;
         }};
-        assertNull(webServicePlugin.getRecipient(event));
+        assertNull(webServicePlugin.getRecipient(event.getMessageId()));
     }
 
     @Test
@@ -271,7 +258,7 @@ public class WebServicePluginImplTest {
             partyInfo.getTo();
             result = null;
         }};
-        assertNull(webServicePlugin.getRecipient(event));
+        assertNull(webServicePlugin.getRecipient(event.getMessageId()));
     }
 
     @Test
@@ -294,7 +281,7 @@ public class WebServicePluginImplTest {
             to.getPartyId();
             result = null;
         }};
-        assertNull(webServicePlugin.getRecipient(event));
+        assertNull(webServicePlugin.getRecipient(event.getMessageId()));
     }
 
     @Test
@@ -323,6 +310,88 @@ public class WebServicePluginImplTest {
             partyId.getValue();
             result = TO_RECIPIENT;
         }};
-        assertEquals(TO_RECIPIENT, webServicePlugin.getRecipient(event));
+        assertEquals(TO_RECIPIENT, webServicePlugin.getRecipient(event.getMessageId()));
+    }
+
+    @Test
+    public void deliverMessage(@Mocked DeliverMessageEvent deliverMessageEvent,
+                               @Mocked WSMessageLogEntity wsMessageLogEntity) {
+        new Expectations(webServicePlugin) {{
+            webServicePlugin.getRecipient(MESSAGE_ID);
+            times = 1;
+            result = RECIPIENT;
+
+            deliverMessageEvent.getMessageId();
+            result = MESSAGE_ID;
+        }};
+
+        webServicePlugin.deliverMessage(deliverMessageEvent);
+
+        new Verifications() {{
+            wsMessageLogDao.create(withAny(wsMessageLogEntity));
+            times = 1;
+
+            wsPluginBackendService.sendNotification(RECEIVE_SUCCESS, MESSAGE_ID, RECIPIENT);
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void sendSuccess(@Mocked MessageSendSuccessEvent event) {
+        new Expectations(webServicePlugin) {{
+            webServicePlugin.getRecipient(MESSAGE_ID);
+            times = 1;
+            result = RECIPIENT;
+
+            event.getMessageId();
+            result = MESSAGE_ID;
+
+            wsPluginBackendService.sendNotification(WSBackendMessageType.SEND_SUCCESS, MESSAGE_ID, RECIPIENT);
+            times = 1;
+        }};
+        webServicePlugin.messageSendSuccess(event);
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void messageReceiveFailed(@Mocked MessageReceiveFailureEvent event,
+                               @Mocked WSMessageLogEntity wsMessageLogEntity) {
+        new Expectations(webServicePlugin) {{
+            webServicePlugin.getRecipient(MESSAGE_ID);
+            times = 1;
+            result = RECIPIENT;
+
+            event.getMessageId();
+            result = MESSAGE_ID;
+        }};
+
+        webServicePlugin.messageReceiveFailed(event);
+
+        new Verifications() {{
+            wsPluginBackendService.sendNotification(RECEIVE_FAIL, MESSAGE_ID, RECIPIENT);
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void messageSendFailed(@Mocked MessageSendFailedEvent event,
+                               @Mocked WSMessageLogEntity wsMessageLogEntity) {
+        new Expectations(webServicePlugin) {{
+            webServicePlugin.getRecipient(MESSAGE_ID);
+            times = 1;
+            result = RECIPIENT;
+
+            event.getMessageId();
+            result = MESSAGE_ID;
+        }};
+
+        webServicePlugin.messageSendFailed(event);
+
+        new Verifications() {{
+            wsPluginBackendService.sendNotification(SEND_FAILURE, MESSAGE_ID, RECIPIENT);
+            times = 1;
+        }};
     }
 }

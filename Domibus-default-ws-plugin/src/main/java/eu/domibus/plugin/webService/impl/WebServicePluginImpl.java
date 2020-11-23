@@ -6,7 +6,10 @@ import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.exceptions.AuthenticationExtException;
 import eu.domibus.ext.exceptions.MessageAcknowledgeExtException;
-import eu.domibus.ext.services.*;
+import eu.domibus.ext.services.AuthenticationExtService;
+import eu.domibus.ext.services.DomainContextExtService;
+import eu.domibus.ext.services.DomainExtService;
+import eu.domibus.ext.services.MessageAcknowledgeExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -16,12 +19,12 @@ import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.AbstractBackendConnector;
 import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
 import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
-import eu.domibus.plugin.webService.backend.WSPluginBackendService;
+import eu.domibus.plugin.webService.backend.dispatch.WSPluginBackendService;
 import eu.domibus.plugin.webService.dao.WSMessageLogDao;
 import eu.domibus.plugin.webService.entity.WSMessageLogEntity;
-import eu.domibus.plugin.webService.generated.*;
 import eu.domibus.plugin.webService.generated.ErrorCode;
 import eu.domibus.plugin.webService.generated.MessageStatus;
+import eu.domibus.plugin.webService.generated.*;
 import eu.domibus.plugin.webService.property.WSPluginPropertyManager;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.common.util.CollectionUtils;
@@ -36,6 +39,8 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static eu.domibus.plugin.webService.backend.WSBackendMessageType.*;
 
 @SuppressWarnings("ValidExternallyBoundObject")
 @javax.jws.WebService(
@@ -139,11 +144,13 @@ public class WebServicePluginImpl extends AbstractBackendConnector<Messaging, Us
         LOG.info("Deliver message: [{}]", event);
         WSMessageLogEntity wsMessageLogEntity = new WSMessageLogEntity(event.getMessageId(), event.getFinalRecipient(), new Date());
         wsMessageLogDao.create(wsMessageLogEntity);
+        wsPluginBackendService.sendNotification(RECEIVE_SUCCESS, event.getMessageId(), getRecipient(event.getMessageId()));
     }
 
     @Override
     public void messageReceiveFailed(final MessageReceiveFailureEvent event) {
         LOG.info("Message receive failed [{}]", event);
+        wsPluginBackendService.sendNotification(RECEIVE_FAIL, event.getMessageId(), getRecipient(event.getMessageId()));
     }
 
     @Override
@@ -154,6 +161,7 @@ public class WebServicePluginImpl extends AbstractBackendConnector<Messaging, Us
     @Override
     public void messageSendFailed(final MessageSendFailedEvent event) {
         LOG.info("Message send failed [{}]", event);
+        wsPluginBackendService.sendNotification(SEND_FAILURE, event.getMessageId(), getRecipient(event.getMessageId()));
     }
 
     @Override
@@ -172,21 +180,21 @@ public class WebServicePluginImpl extends AbstractBackendConnector<Messaging, Us
     @Override
     public void messageSendSuccess(final MessageSendSuccessEvent event) {
         LOG.info("Message send success [{}]", event.getMessageId());
-        wsPluginBackendService.sendSuccess(event.getMessageId(), getRecipient(event));
+        wsPluginBackendService.sendNotification(SEND_SUCCESS, event.getMessageId(), getRecipient(event.getMessageId()));
     }
 
-    protected String getRecipient(MessageSendSuccessEvent event) {
+    protected String getRecipient(String messageId) {
         UserMessage userMessage;
         try {
-            userMessage = this.browseMessage(event.getMessageId(), null);
+            userMessage = this.browseMessage(messageId, null);
         } catch (MessageNotFoundException e) {
-            LOG.warn("Domibus Message not found for messageId: [{}]", event.getMessageId());
+            LOG.warn("Domibus Message not found for messageId: [{}]", messageId);
             return null;
         }
         if (userMessage.getPartyInfo() == null ||
                 userMessage.getPartyInfo().getTo() == null ||
                 userMessage.getPartyInfo().getTo().getPartyId() == null) {
-            LOG.warn("Final recipient not for for messageId: [{}]", event.getMessageId());
+            LOG.warn("Final recipient not for for messageId: [{}]", messageId);
             return null;
         }
         return userMessage.getPartyInfo().getTo().getPartyId().getValue();

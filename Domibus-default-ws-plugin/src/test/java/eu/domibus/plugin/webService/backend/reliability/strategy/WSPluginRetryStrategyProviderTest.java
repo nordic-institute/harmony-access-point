@@ -1,5 +1,6 @@
 package eu.domibus.plugin.webService.backend.reliability.strategy;
 
+import eu.domibus.plugin.webService.backend.reliability.strategy.*;
 import org.junit.Before;
 import org.junit.Test;
 

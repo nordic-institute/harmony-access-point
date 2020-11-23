@@ -1,4 +1,4 @@
-package eu.domibus.plugin.webService.backend.rules;
+package eu.domibus.plugin.webService.backend.reliability.strategy;
 
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;

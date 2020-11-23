@@ -5,9 +5,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.webService.backend.WSBackendMessageLogEntity;
 import eu.domibus.plugin.webService.exception.WSPluginException;
-import eu.domibus.webservice.backend.generated.ObjectFactory;
-import eu.domibus.webservice.backend.generated.SendFailure;
-import eu.domibus.webservice.backend.generated.SendSuccess;
+import eu.domibus.webservice.backend.generated.*;
 import org.springframework.stereotype.Service;
 
 import javax.xml.bind.JAXBContext;
@@ -35,9 +33,9 @@ public class WSPluginMessageBuilder {
         this.jaxbContextWebserviceBackend = jaxbContextWebserviceBackend;
     }
 
-    public SOAPMessage buildSOAPMessageSendSuccess(final WSBackendMessageLogEntity messageLogEntity) {
+    public SOAPMessage buildSOAPMessage(final WSBackendMessageLogEntity messageLogEntity) {
         Object jaxbElement = getJaxbElement(messageLogEntity);
-        SOAPMessage soapMessage = buildSOAPMessage(jaxbElement);
+        SOAPMessage soapMessage = createSOAPMessage(jaxbElement);
 
         if (LOG.isDebugEnabled()) {
             LOG.debug("Getting message for class [{}]: [{}]", jaxbElement.getClass(), getXML(soapMessage));
@@ -52,12 +50,26 @@ public class WSPluginMessageBuilder {
             case SEND_FAILURE:
                 return getSendFailure(messageLogEntity);
             case RECEIVE_SUCCESS:
+                return getReceiveSuccess(messageLogEntity);
             case RECEIVE_FAIL:
+                return getReceiveFailure(messageLogEntity);
             case MESSAGE_STATUS_CHANGE:
             case SUBMIT_MESSAGE:
             default:
                 throw new IllegalArgumentException("Unexpected value: " + messageLogEntity.getType());
         }
+    }
+
+    private ReceiveFailure getReceiveFailure(WSBackendMessageLogEntity messageLogEntity) {
+        ReceiveFailure sendFailure = new ObjectFactory().createReceiveFailure();
+        sendFailure.setMessageID(messageLogEntity.getMessageId());
+        return sendFailure;
+    }
+
+    private ReceiveSuccess getReceiveSuccess(WSBackendMessageLogEntity messageLogEntity) {
+        ReceiveSuccess sendFailure = new ObjectFactory().createReceiveSuccess();
+        sendFailure.setMessageID(messageLogEntity.getMessageId());
+        return sendFailure;
     }
 
     protected SendFailure getSendFailure(WSBackendMessageLogEntity messageLogEntity) {
@@ -82,7 +94,7 @@ public class WSPluginMessageBuilder {
         }
     }
 
-    protected SOAPMessage buildSOAPMessage(final Object messaging) {
+    protected SOAPMessage createSOAPMessage(final Object messaging) {
         final SOAPMessage message;
         try {
             message = xmlUtilExtService.getMessageFactorySoap12().createMessage();

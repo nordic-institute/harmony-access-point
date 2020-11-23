@@ -12,8 +12,6 @@ import eu.domibus.plugin.webService.backend.rules.WSPluginDispatchRule;
 import eu.domibus.plugin.webService.backend.rules.WSPluginDispatchRulesService;
 import org.springframework.stereotype.Service;
 
-import javax.xml.soap.SOAPMessage;
-
 /**
  * Common logic for sending messages to C1/C4 from WS Plugin
  *
@@ -35,18 +33,16 @@ public class WSPluginMessageSender {
 
     protected final WSPluginDispatcher dispatcher;
 
-    public WSPluginMessageSender(WSPluginMessageBuilder wsPluginMessageBuilder,
-                                 WSPluginDispatcher wsPluginDispatcher,
-                                 WSPluginDispatchRulesService wsPluginDispatchRulesService) {
-        this.wsPluginMessageBuilder = wsPluginMessageBuilder;
-        this.wsPluginDispatcher = wsPluginDispatcher;
-        this.wsPluginDispatchRulesService = wsPluginDispatchRulesService;
-    }
-
-    @Timer(clazz = WSPluginMessageSender.class, value = "wsplugin_outgoing_backend_message")
-    @Counter(clazz = WSPluginMessageSender.class, value = "wsplugin_outgoing_backend_message")
-    public void sendMessageSuccess(final WSBackendMessageLogEntity wsBackendMessageLogEntity) {
-        dispatch(wsBackendMessageLogEntity, wsPluginMessageBuilder.buildSOAPMessageSendSuccess(wsBackendMessageLogEntity));
+    public WSPluginMessageSender(WSPluginBackendReliabilityService reliabilityService,
+                                 WSBackendMessageLogDao wsBackendMessageLogDao,
+                                 WSPluginDispatchRulesService rulesService,
+                                 WSPluginMessageBuilder messageBuilder,
+                                 WSPluginDispatcher dispatcher) {
+        this.reliabilityService = reliabilityService;
+        this.wsBackendMessageLogDao = wsBackendMessageLogDao;
+        this.rulesService = rulesService;
+        this.messageBuilder = messageBuilder;
+        this.dispatcher = dispatcher;
     }
 
     /**
@@ -67,10 +63,15 @@ public class WSPluginMessageSender {
                 endpoint,
                 backendMessage);
         try {
-            wsPluginDispatcher.dispatch(requestSoapMessage, wsPluginDispatchRulesService.getEndpoint(wsBackendMessageLogEntity.getRuleName()));
-        } catch (Throwable t) {
-            //NOSONAR: Catching Throwable is done on purpose in order to even catch out of memory exceptions in case large files are sent.
-            LOG.error("Error occurred when sending message with ID [{}]", wsBackendMessageLogEntity.getMessageId(), t);
+            dispatcher.dispatch(messageBuilder.buildSOAPMessage(backendMessage), endpoint);
+            reliabilityService.changeStatus(backendMessage, WSBackendMessageStatus.SENT);
+            LOG.info("Backend notification [{}] for domibus id [{}] sent to [{}] successfully",
+                    backendMessage.getType(),
+                    backendMessage.getMessageId(),
+                    endpoint);
+        } catch (Throwable t) {//NOSONAR: Catching Throwable is done on purpose in order to even catch out of memory exceptions.
+            reliabilityService.handleReliability(backendMessage, oneRule);
+            LOG.error("Error occurred when sending message with ID [{}]", backendMessage.getMessageId(), t);
             throw t;
         }
     }

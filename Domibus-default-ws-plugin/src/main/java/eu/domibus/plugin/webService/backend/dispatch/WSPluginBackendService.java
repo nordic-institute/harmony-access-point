@@ -1,4 +1,4 @@
-package eu.domibus.plugin.webService.backend;
+package eu.domibus.plugin.webService.backend.dispatch;
 
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -29,7 +29,7 @@ public class WSPluginBackendService {
         this.wsBackendRulesService = wsBackendRulesService;
     }
 
-    public void sendSuccess(String messageId, String recipient) {
+    public void sendNotification(WSBackendMessageType sendSuccess, String messageId, String recipient) {
         if (StringUtils.isBlank(recipient)) {
             LOG.debug("No recipient found for messageId: [{}]", messageId);
             return;
@@ -41,21 +41,10 @@ public class WSPluginBackendService {
             return;
         }
 
-        for (WSPluginDispatchRule wsPluginDispatchRule : rules) {
-            if(wsPluginDispatchRule.getTypes().contains(WSBackendMessageType.SEND_SUCCESS)) {
-                wsPluginMessageSender.sendMessageSuccess(getWsBackendMessageLogEntity(messageId, recipient, wsPluginDispatchRule));
+        for (WSPluginDispatchRule rule : rules) {
+            if(rule.getTypes().contains(sendSuccess)) {
+                retryService.sendNotification(messageId, recipient, rule);
             }
         }
-    }
-
-    protected WSBackendMessageLogEntity getWsBackendMessageLogEntity(String messageId, String recipient, WSPluginDispatchRule wsPluginDispatchRule) {
-        WSBackendMessageLogEntity wsBackendMessageLogEntity = new WSBackendMessageLogEntity();
-        wsBackendMessageLogEntity.setMessageId(messageId);
-        wsBackendMessageLogEntity.setRuleName(wsPluginDispatchRule.getRuleName());
-        wsBackendMessageLogEntity.setFinalRecipient(recipient);
-        wsBackendMessageLogEntity.setType(WSBackendMessageType.SEND_SUCCESS);
-        wsBackendMessageLogEntity.setSendAttempts(1);
-        wsBackendMessageLogEntity.setSendAttemptsMax(wsPluginDispatchRule.getRetryCount());
-        return wsBackendMessageLogEntity;
     }
 }
