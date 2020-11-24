@@ -1030,8 +1030,7 @@
                 <groupId>com.h2database</groupId>
                 <artifactId>h2</artifactId>
                 <version>${h2.version}</version>
-                <scope>runtime</scope>
-                <optional>true</optional>
+                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.liquibase</groupId>
