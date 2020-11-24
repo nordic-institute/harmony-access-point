@@ -200,6 +200,7 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
     private void addIfMissing(Map<String, DomibusProperty> result, DomibusProperty prop) {
         String name = prop.getMetadata().getName();
         if (!result.containsKey(name)) {
+            LOG.debug("Adding property with name [{}] to the result list", name);
             result.put(name, prop);
         }
     }
