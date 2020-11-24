@@ -11,24 +11,23 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import static eu.domibus.api.property.DomibusPropertyMetadata.NAME_SEPARATOR;
+
 /**
+ * Responsible with getting the domibus properties that can be changed at runtime, getting and setting their values
+ *
  * @author Ion Perpegel
  * @since 4.1.1
- * <p>
- * responsible with getting the domibus properties that can be changed at runtime, getting and setting their values
  */
 @Service
 public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPropertyResourceHelper {
 
     private static final Logger LOG = DomibusLoggerFactory.getLogger(ConfigurationPropertyResourceHelperImpl.class);
 
-    public static final String ACCEPTED_CHARACTERS_IN_PROPERTY_NAMES = ".";
+    public static final String ACCEPTED_CHARACTERS_IN_PROPERTY_NAMES = NAME_SEPARATOR;
 
     private DomibusConfigurationService domibusConfigurationService;
 
@@ -62,9 +61,10 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
     }
 
     @Override
-    public List<DomibusProperty> getAllWritableProperties(String name, boolean showDomain, String type, String module, String value) {
+    public List<DomibusProperty> getAllProperties(String name, boolean showDomain, String type, String module, String value, Boolean isWritable) {
         List<DomibusPropertyMetadata> propertiesMetadata = filterProperties(globalPropertyMetadataManager.getAllProperties(),
-                name, showDomain, type, module);
+                name, showDomain, type, module, isWritable);
+
         if (CollectionUtils.isEmpty(propertiesMetadata)) {
             return new ArrayList();
         }
@@ -84,17 +84,9 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
         return properties;
     }
 
-    protected List<DomibusProperty> sortProperties(List<DomibusProperty> properties) {
-        List<DomibusProperty> list = properties.stream()
-                .filter(property -> property.getMetadata() != null && property.getMetadata().getName() != null)
-                .collect(Collectors.toList());
-        list.sort(Comparator.comparing(property -> property.getMetadata().getName()));
-        return list;
-    }
-
     @Override
     public void setPropertyValue(String propertyName, boolean isDomain, String propertyValue) throws DomibusPropertyException {
-        validateProperty(propertyName, propertyValue);
+        validatePropertyValue(propertyName, propertyValue);
 
         if (isDomain) {
             LOG.debug("Setting the value [{}] for the domain property [{}] in the current domain.", propertyValue, propertyName);
@@ -123,6 +115,47 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
         return getValueAndCreateProperty(propertyMetadata);
     }
 
+    protected List<DomibusProperty> getPropertyValues(List<DomibusPropertyMetadata> properties) {
+        Map<String, DomibusProperty> result = new HashMap<>();
+
+        for (DomibusPropertyMetadata propMeta : properties) {
+            if (!propMeta.isComposable()) {
+                LOG.trace("Getting property value for non-composable property [{}]", propMeta.getName());
+                DomibusProperty prop = getValueAndCreateProperty(propMeta);
+                addIfMissing(result, prop);
+            } else {
+                LOG.trace("Getting property value for composable property [{}]", propMeta.getName());
+                List<DomibusProperty> props = getNestedProperties(propMeta);
+                props.forEach(prop -> addIfMissing(result, prop));
+            }
+        }
+
+        return new ArrayList<>(result.values());
+    }
+
+    protected List<DomibusProperty> getNestedProperties(DomibusPropertyMetadata propMeta) {
+        //add parent property
+        List<DomibusProperty> result = new ArrayList<>();
+        result.add(getProperty(propMeta.getName()));
+
+        //add nested
+        List<String> nestedProps = domibusPropertyProvider.getNestedProperties(propMeta.getName());
+        List<DomibusProperty> nested = nestedProps.stream()
+                .map(nestedProp -> getProperty(propMeta.getName() + NAME_SEPARATOR + nestedProp))
+                .collect(Collectors.toList());
+        result.addAll(nested);
+
+        return result;
+    }
+
+    protected List<DomibusProperty> sortProperties(List<DomibusProperty> properties) {
+        List<DomibusProperty> list = properties.stream()
+                .filter(property -> property.getMetadata() != null && StringUtils.isNotBlank(property.getMetadata().getName()))
+                .collect(Collectors.toList());
+        list.sort(Comparator.comparing(property -> property.getMetadata().getName()));
+        return list;
+    }
+
     protected List<DomibusProperty> filterByValue(String value, List<DomibusProperty> properties) {
         if (value == null) {
             return properties;
@@ -132,23 +165,44 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
                 .collect(Collectors.toList());
     }
 
-    protected void validateProperty(String propertyName, String propertyValue) {
+    protected void validatePropertyValue(String propertyName, String propertyValue) {
         propertyNameBlacklistValidator.validate(propertyName, ACCEPTED_CHARACTERS_IN_PROPERTY_NAMES);
 
-        DomibusProperty prop = getProperty(propertyName);
+        DomibusPropertyMetadata propMeta = getPropertyMetadata(propertyName);
+
+        if (propMeta == null) {
+            throw new DomibusPropertyException("Cannot set property [" + propertyName + "] because it does not exist.");
+        }
+
+        if (!propMeta.isWritable()) {
+            throw new DomibusPropertyException("Cannot set property [" + propertyName + "] because it is not writable.");
+        }
+
+        if (StringUtils.equals(propMeta.getName(), propertyName) && propMeta.isComposable()) {
+            throw new DomibusPropertyException("Cannot set composable property [" + propertyName + "] directly. You can only set its nested properties.");
+        }
+
+        DomibusProperty prop = createProperty(propMeta, propertyValue);
+
         prop.setValue(propertyValue);
         domibusPropertyValueValidator.validate(prop);
     }
 
-    protected List<DomibusProperty> getPropertyValues(List<DomibusPropertyMetadata> properties) {
-        List<DomibusProperty> list = new ArrayList<>();
-
-        for (DomibusPropertyMetadata propMeta : properties) {
-            DomibusProperty prop = getValueAndCreateProperty(propMeta);
-            list.add(prop);
+    protected DomibusPropertyMetadata getPropertyMetadata(String propertyName) {
+        // check property metadata is declared
+        if (globalPropertyMetadataManager.hasKnownProperty(propertyName)) {
+            return globalPropertyMetadataManager.getPropertyMetadata(propertyName);
         }
+        // Last chance: if it is a composable property, return its 'parent'/source metadata
+        return globalPropertyMetadataManager.getComposableProperty(propertyName);
+    }
 
-        return list;
+    private void addIfMissing(Map<String, DomibusProperty> result, DomibusProperty prop) {
+        String name = prop.getMetadata().getName();
+        if (!result.containsKey(name)) {
+            LOG.debug("Adding property with name [{}] to the result list", name);
+            result.put(name, prop);
+        }
     }
 
     protected DomibusProperty getValueAndCreateProperty(DomibusPropertyMetadata propMeta) {
@@ -163,10 +217,10 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
         return prop;
     }
 
-    protected List<DomibusPropertyMetadata> filterProperties(Map<String, DomibusPropertyMetadata> propertiesMap, String name,
-                                                             boolean showDomain, String type, String module) {
+    protected List<DomibusPropertyMetadata> filterProperties(Map<String, DomibusPropertyMetadata> propertiesMap,
+                                                             String name, boolean showDomain, String type, String module, Boolean isWritable) {
         List<DomibusPropertyMetadata> knownProps = propertiesMap.values().stream()
-                .filter(prop -> prop.isWritable())
+                .filter(prop -> isWritable == null || isWritable == prop.isWritable())
                 .filter(prop -> name == null || StringUtils.containsIgnoreCase(prop.getName(), name))
                 .filter(prop -> type == null || StringUtils.equals(type, prop.getType()))
                 .filter(prop -> module == null || StringUtils.equals(module, prop.getModule()))
