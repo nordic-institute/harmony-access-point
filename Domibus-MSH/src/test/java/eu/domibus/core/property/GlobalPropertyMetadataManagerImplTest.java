@@ -334,12 +334,12 @@ public class GlobalPropertyMetadataManagerImplTest {
         }};
 
         boolean result = globalPropertyMetadataManager.hasComposableProperty(map, propertyName);
-        Assert.assertEquals(true, result);
+        Assert.assertTrue(result);
     }
 
     @Test
     public void hasComposablePropertyNegative(@Injectable DomibusPropertyMetadata propMeta,
-                                      @Injectable Map<String, DomibusPropertyMetadata> map) {
+                                              @Injectable Map<String, DomibusPropertyMetadata> map) {
         String propertyName = "domibus.composable.property.suffix1";
 
         new Expectations(globalPropertyMetadataManager) {{
@@ -353,7 +353,7 @@ public class GlobalPropertyMetadataManagerImplTest {
 
     @Test
     public void hasComposablePropertyNegative2(@Injectable DomibusPropertyMetadata propMeta,
-                                      @Injectable Map<String, DomibusPropertyMetadata> map) {
+                                               @Injectable Map<String, DomibusPropertyMetadata> map) {
         String propertyName = "domibus.composable.property.suffix1";
         String compPropertyName = "domibus.composable.property";
 
@@ -369,6 +369,6 @@ public class GlobalPropertyMetadataManagerImplTest {
         }};
 
         boolean result = globalPropertyMetadataManager.hasComposableProperty(map, propertyName);
-        Assert.assertEquals(false, result);
+        Assert.assertFalse(result);
     }
 }
