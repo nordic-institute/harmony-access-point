@@ -2,6 +2,10 @@ import {Component, forwardRef, Input} from '@angular/core';
 import {ControlValueAccessor, NG_VALUE_ACCESSOR} from '@angular/forms';
 import {MAT_CHECKBOX_CLICK_ACTION} from '@angular/material/checkbox';
 
+/**
+ * @author Ion Perpegel
+ * @since 5.0
+ */
 @Component({
   selector: 'tri-state-checkbox',
   templateUrl: './tri-state-checkbox.component.html',

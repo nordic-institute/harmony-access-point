@@ -6,7 +6,7 @@ import {EditPopupBaseComponent} from '../../../common/edit-popup-base.component'
 
 /**
  * @author Ion Perpegel
- * @since 4.2
+ * @since 5.0
  */
 @Component({
   selector: 'app-session-expired-dialog',

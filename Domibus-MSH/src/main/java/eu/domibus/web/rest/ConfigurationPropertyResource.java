@@ -83,7 +83,7 @@ public class ConfigurationPropertyResource extends BaseResource {
      * @param isDomain      tells if it is set in a domain context
      * @param propertyValue the value of the property
      */
-    @PutMapping(path = "/{propertyName:.+}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(path = "/{propertyName:.+}")
     @SkipWhiteListed
     public void setProperty(@PathVariable String propertyName,
                             @RequestParam(required = false, defaultValue = "true") boolean isDomain,
