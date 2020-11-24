@@ -36,7 +36,7 @@ public class GlobalPropertyMetadataManagerIT extends AbstractIT {
         String propertyName = "non-existent-property";
 
         DomibusPropertyMetadata res = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
-        Assert.assertTrue(res != null);
+        Assert.assertNotNull(res);
         Assert.assertEquals(propertyName, res.getName());
         Assert.assertEquals(DomibusPropertyMetadata.Usage.ANY.getValue(), res.getUsage());
     }
@@ -46,7 +46,7 @@ public class GlobalPropertyMetadataManagerIT extends AbstractIT {
         String propertyName = DOMIBUS_UI_TITLE_NAME;
 
         DomibusPropertyMetadata res = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
-        Assert.assertTrue(res != null);
+        Assert.assertNotNull(res);
         Assert.assertEquals(propertyName, res.getName());
     }
 
@@ -60,7 +60,7 @@ public class GlobalPropertyMetadataManagerIT extends AbstractIT {
 
         DomibusPropertyMetadata res = globalPropertyMetadataManager.getPropertyMetadata(nestedPropertyName);
 
-        Assert.assertTrue(res != null);
+        Assert.assertNotNull(res);
         Assert.assertEquals(nestedPropertyName, res.getName());
         Assert.assertEquals(false, res.isComposable());
     }
@@ -75,7 +75,7 @@ public class GlobalPropertyMetadataManagerIT extends AbstractIT {
 
         DomibusPropertyMetadata res = globalPropertyMetadataManager.getComposableProperty(nestedPropertyName);
 
-        Assert.assertTrue(res != null);
+        Assert.assertNotNull(res);
         Assert.assertEquals(composablePropertyName, res.getName());
         Assert.assertEquals(true, res.isComposable());
     }

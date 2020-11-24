@@ -13,7 +13,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -61,7 +60,7 @@ public class ConfigurationPropertyResource extends BaseResource {
         PropertyResponseRO response = new PropertyResponseRO();
 
         List<DomibusProperty> items = configurationPropertyResourceHelper.getAllProperties(request.getName(),
-                request.isShowDomain(), request.getType(), request.getModule(), request.getValue(), request.getIsWritable());
+                request.isShowDomain(), request.getType(), request.getModule(), request.getValue(), request.isWritable());
         response.setCount(items.size());
         items = items.stream()
                 .skip((long) request.getPage() * request.getPageSize())
@@ -101,7 +100,7 @@ public class ConfigurationPropertyResource extends BaseResource {
     @GetMapping(path = "/csv")
     public ResponseEntity<String> getCsv(@Valid PropertyFilterRequestRO request) {
         List<DomibusProperty> items = configurationPropertyResourceHelper
-                .getAllProperties(request.getName(), request.isShowDomain(), request.getType(), request.getModule(), request.getValue(), request.getIsWritable());
+                .getAllProperties(request.getName(), request.isShowDomain(), request.getType(), request.getModule(), request.getValue(), request.isWritable());
         getCsvService().validateMaxRows(items.size());
 
         List<DomibusPropertyRO> convertedItems = domainConverter.convert(items, DomibusPropertyRO.class);
@@ -130,7 +129,7 @@ public class ConfigurationPropertyResource extends BaseResource {
      * @param propertyName the name of the property
      * @return object containing both metadata and value
      */
-    @GetMapping(path = "/{propertyName:.+}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = "/{propertyName:.+}")
     public DomibusPropertyRO getProperty(@Valid @PathVariable String propertyName) {
         DomibusProperty prop = configurationPropertyResourceHelper.getProperty(propertyName);
         DomibusPropertyRO convertedProp = domainConverter.convert(prop, DomibusPropertyRO.class);

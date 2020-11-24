@@ -81,11 +81,11 @@ public class PropertyFilterRequestRO implements Serializable {
         this.value = value;
     }
 
-    public Boolean getIsWritable() {
+    public Boolean isWritable() {
         return writable;
     }
 
-    public void setIsWritable(Boolean isWritable) {
+    public void setWritable(Boolean isWritable) {
         this.writable = isWritable;
     }
 }
