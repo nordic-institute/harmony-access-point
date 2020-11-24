@@ -9,12 +9,18 @@ import eu.domibus.core.property.GlobalPropertyMetadataManager;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DISPATCHER_TIMEOUT;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_UI_TITLE_NAME;
 
+/**
+ * @author Ion Perpegel
+ * @since 5.0
+ */
+@Service
 public class ConfigurationPropertyResourceHelperIT extends AbstractIT {
 
     @Autowired
@@ -85,6 +91,9 @@ public class ConfigurationPropertyResourceHelperIT extends AbstractIT {
         Assert.assertEquals(propertyValue, result.getValue());
     }
 
+    /**
+     * tests adding a nested property: checking that is is added with the correct name
+     */
     @Test
     public void setProperty_nested() {
         String composablePropertyName = "composable_property";

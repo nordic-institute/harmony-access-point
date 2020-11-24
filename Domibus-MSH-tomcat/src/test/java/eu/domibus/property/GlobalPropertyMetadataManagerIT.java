@@ -10,6 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PULL_REQUEST_SEND_PER_JOB_CYCLE_PER_MPC;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_UI_TITLE_NAME;
 
+/**
+ * @author Ion Perpegel
+ * @since 5.0
+ */
 public class GlobalPropertyMetadataManagerIT extends AbstractIT {
 
     @Autowired
