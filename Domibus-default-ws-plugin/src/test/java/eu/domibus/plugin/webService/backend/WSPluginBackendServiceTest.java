@@ -23,8 +23,7 @@ public class WSPluginBackendServiceTest {
 
     public static final String RECIPIENT = "recipient";
     public static final String MESSAGE_ID = "messageId";
-    public static final String END_POINT = "endPoint";
-    public static final int RETRY_MAX = 10;
+    public static final String RULE_NAME = "ruleName";
     @Tested
     private WSPluginBackendService wsPluginBackendService;
 
@@ -43,6 +42,9 @@ public class WSPluginBackendServiceTest {
 
             wsPluginDispatchRule.getTypes();
             result = Arrays.asList(WSBackendMessageType.SEND_SUCCESS, WSBackendMessageType.MESSAGE_STATUS_CHANGE);
+
+            wsPluginDispatchRule.getRuleName();
+            result = RULE_NAME;
         }};
 
         wsPluginBackendService.sendNotification(WSBackendMessageType.SEND_SUCCESS, MESSAGE_ID, RECIPIENT);

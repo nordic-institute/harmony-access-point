@@ -117,7 +117,7 @@ public class WSPluginDispatchRulesService {
                 .collect(Collectors.toList());
     }
 
-    public WSPluginDispatchRule getOneRule(String ruleName) {
+    public WSPluginDispatchRule getRule(String ruleName) {
         return getRulesByName(ruleName).stream().findAny().orElse(new WSPluginDispatchRuleBuilder(EMPTY).build());
     }
 

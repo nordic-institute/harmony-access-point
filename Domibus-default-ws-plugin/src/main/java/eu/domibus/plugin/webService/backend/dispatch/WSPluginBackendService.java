@@ -29,20 +29,21 @@ public class WSPluginBackendService {
         this.wsBackendRulesService = wsBackendRulesService;
     }
 
-    public void sendNotification(WSBackendMessageType sendSuccess, String messageId, String recipient) {
+    public void sendNotification(WSBackendMessageType messageType, String messageId, String recipient) {
         if (StringUtils.isBlank(recipient)) {
-            LOG.debug("No recipient found for messageId: [{}]", messageId);
+            LOG.warn("No recipient found for messageId: [{}]", messageId);
             return;
         }
 
         List<WSPluginDispatchRule> rules = wsBackendRulesService.getRulesByRecipient(recipient);
         if (CollectionUtils.isEmpty(rules)) {
-            LOG.debug("No rule found for recipient: [{}]", recipient);
+            LOG.warn("No rule found for recipient: [{}]", recipient);
             return;
         }
 
         for (WSPluginDispatchRule rule : rules) {
-            if(rule.getTypes().contains(sendSuccess)) {
+            if (rule.getTypes().contains(messageType)) {
+                LOG.info("Rule [{}] found for message id [{}] and recipient [{}]", rule.getRuleName(), messageId, recipient);
                 retryService.sendNotification(messageId, recipient, rule);
             }
         }

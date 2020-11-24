@@ -8,6 +8,7 @@ import eu.domibus.plugin.webService.backend.reliability.strategy.WSPluginRetrySt
 import eu.domibus.plugin.webService.backend.reliability.strategy.WSPluginRetryStrategyProvider;
 import eu.domibus.plugin.webService.backend.reliability.strategy.WSPluginRetryStrategyType;
 import eu.domibus.plugin.webService.backend.rules.WSPluginDispatchRule;
+import eu.domibus.plugin.webService.exception.WSPluginException;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
@@ -92,7 +93,7 @@ public class WSPluginBackendReliabilityServiceTest {
         }};
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = WSPluginException.class)
     public void updateNextAttempt_noStrategy(
             @Mocked WSBackendMessageLogEntity backendMessage,
             @Mocked WSPluginDispatchRule rule,
@@ -154,21 +155,6 @@ public class WSPluginBackendReliabilityServiceTest {
             result = ONE_MINUTE_AGO;
         }};
         Assert.assertFalse(reliabilityService.hasAttemptsLeft(backendMessage, RETRY_TIMOUT));
-    }
-
-    @Test
-    public void changeStatus(@Mocked WSBackendMessageLogEntity backendMessage) {
-
-        reliabilityService.changeStatus(backendMessage, WSBackendMessageStatus.WAITING_FOR_RETRY);
-
-
-        new FullVerifications() {{
-            backendMessage.setMessageStatus(WSBackendMessageStatus.WAITING_FOR_RETRY);
-            times = 1;
-
-            wsBackendMessageLogDao.update(backendMessage);
-            times = 1;
-        }};
     }
 
     @Test

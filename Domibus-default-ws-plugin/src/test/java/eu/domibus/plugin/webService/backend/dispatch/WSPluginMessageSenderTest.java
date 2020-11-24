@@ -64,7 +64,7 @@ public class WSPluginMessageSenderTest {
             wsBackendMessageLogEntity.getMessageId();
             result = MESSAGE_ID;
 
-            wsPluginDispatchRulesService.getOneRule(RULE_NAME);
+            wsPluginDispatchRulesService.getRule(RULE_NAME);
             result = wsPluginDispatchRule;
 
             wsPluginDispatchRule.getEndpoint();
@@ -78,9 +78,9 @@ public class WSPluginMessageSenderTest {
         wsPluginMessageSender.sendNotification(wsBackendMessageLogEntity);
 
         new FullVerifications() {{
-            reliabilityService.changeStatus(wsBackendMessageLogEntity, WSBackendMessageStatus.SEND_IN_PROGRESS);
+            wsBackendMessageLogEntity.setMessageStatus(WSBackendMessageStatus.SEND_IN_PROGRESS);
             times = 1;
-            reliabilityService.changeStatus(wsBackendMessageLogEntity, WSBackendMessageStatus.SENT);
+            wsBackendMessageLogEntity.setMessageStatus(WSBackendMessageStatus.SENT);
             times = 1;
         }};
     }
@@ -104,7 +104,7 @@ public class WSPluginMessageSenderTest {
             wsBackendMessageLogEntity.getMessageId();
             result = MESSAGE_ID;
 
-            wsPluginDispatchRulesService.getOneRule(RULE_NAME);
+            wsPluginDispatchRulesService.getRule(RULE_NAME);
             result = wsPluginDispatchRule;
 
             wsPluginDispatchRule.getEndpoint();
@@ -123,7 +123,7 @@ public class WSPluginMessageSenderTest {
         }
 
         new FullVerifications() {{
-            reliabilityService.changeStatus(wsBackendMessageLogEntity, WSBackendMessageStatus.SEND_IN_PROGRESS);
+            wsBackendMessageLogEntity.setMessageStatus(WSBackendMessageStatus.SEND_IN_PROGRESS);
             times = 1;
             reliabilityService.handleReliability(wsBackendMessageLogEntity, wsPluginDispatchRule);
             times = 1;

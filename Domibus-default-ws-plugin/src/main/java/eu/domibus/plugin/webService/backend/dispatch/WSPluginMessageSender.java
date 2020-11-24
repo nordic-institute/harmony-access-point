@@ -53,24 +53,23 @@ public class WSPluginMessageSender {
     @Timer(clazz = WSPluginMessageSender.class, value = "wsplugin_outgoing_backend_message_notification")
     @Counter(clazz = WSPluginMessageSender.class, value = "wsplugin_outgoing_backend_message_notification")
     public void sendNotification(final WSBackendMessageLogEntity backendMessage) {
-        reliabilityService.changeStatus(backendMessage, WSBackendMessageStatus.SEND_IN_PROGRESS);
-        WSPluginDispatchRule oneRule = rulesService.getOneRule(backendMessage.getRuleName());
+        backendMessage.setMessageStatus(WSBackendMessageStatus.SEND_IN_PROGRESS);
+        WSPluginDispatchRule dispatchRule = rulesService.getRule(backendMessage.getRuleName());
 
-        String endpoint = oneRule.getEndpoint();
-        LOG.info("Send backend notification [{}] for domibus id [{}] to [{}]. wsBackendMessageLogEntity [{}]",
+        String endpoint = dispatchRule.getEndpoint();
+        LOG.info("Send backend notification [{}] for domibus id [{}] to [{}].",
                 backendMessage.getType(),
                 backendMessage.getMessageId(),
-                endpoint,
-                backendMessage);
+                endpoint);
         try {
             dispatcher.dispatch(messageBuilder.buildSOAPMessage(backendMessage), endpoint);
-            reliabilityService.changeStatus(backendMessage, WSBackendMessageStatus.SENT);
+            backendMessage.setMessageStatus(WSBackendMessageStatus.SENT);
             LOG.info("Backend notification [{}] for domibus id [{}] sent to [{}] successfully",
                     backendMessage.getType(),
                     backendMessage.getMessageId(),
                     endpoint);
         } catch (Throwable t) {//NOSONAR: Catching Throwable is done on purpose in order to even catch out of memory exceptions.
-            reliabilityService.handleReliability(backendMessage, oneRule);
+            reliabilityService.handleReliability(backendMessage, dispatchRule);
             LOG.error("Error occurred when sending message with ID [{}]", backendMessage.getMessageId(), t);
             throw t;
         }

@@ -226,7 +226,7 @@ public class WSPluginDispatchRulesServiceTest {
             result = rule1;
             times = 1;
         }};
-        WSPluginDispatchRule ruleFound = rulesService.getOneRule(RULE_NAME_1);
+        WSPluginDispatchRule ruleFound = rulesService.getRule(RULE_NAME_1);
 
         assertEquals(rule1, ruleFound);
     }
@@ -240,7 +240,7 @@ public class WSPluginDispatchRulesServiceTest {
             result = rule3;
             times = 1;
         }};
-        WSPluginDispatchRule ruleFound = rulesService.getOneRule(RULE_NAME_1);
+        WSPluginDispatchRule ruleFound = rulesService.getRule(RULE_NAME_1);
 
         assertNotNull(ruleFound);
         assertNotNull(StringUtils.EMPTY, ruleFound.getRuleName());

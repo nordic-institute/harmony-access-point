@@ -1,15 +1,14 @@
-package eu.domibus.plugin.webService.configuration;
+package eu.domibus.plugin.webService.backend.reliability.retry;
 
 import eu.domibus.ext.services.DomibusPropertyExtService;
-import eu.domibus.plugin.webService.backend.reliability.retry.WSPluginBackendSendRetryWorker;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
+import org.springframework.scheduling.quartz.CronTriggerFactoryBean;
 import org.springframework.scheduling.quartz.JobDetailFactoryBean;
-import org.springframework.scheduling.quartz.SimpleTriggerFactoryBean;
 
-import static eu.domibus.plugin.webService.property.WSPluginPropertyManager.DISPATCHER_REPEAT_INTERVAL;
+import static eu.domibus.plugin.webService.property.WSPluginPropertyManager.DISPATCHER_CRON_EXPRESSION;
 
 /**
  * @author François Gautier
@@ -28,10 +27,10 @@ public class WSPluginWorkersConfiguration {
 
     @Bean
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-    public SimpleTriggerFactoryBean wsPluginBackendSendRetryWorkerTrigger(DomibusPropertyExtService propertyExtService) {
-        SimpleTriggerFactoryBean trigger = new SimpleTriggerFactoryBean();
+    public CronTriggerFactoryBean wsPluginBackendSendRetryWorkerTrigger(DomibusPropertyExtService propertyExtService) {
+        CronTriggerFactoryBean trigger = new CronTriggerFactoryBean();
         trigger.setJobDetail(wsPluginBackendSendRetryWorker().getObject());
-        trigger.setRepeatInterval(propertyExtService.getIntegerProperty(DISPATCHER_REPEAT_INTERVAL));
+        trigger.setCronExpression(propertyExtService.getProperty(DISPATCHER_CRON_EXPRESSION));
         trigger.setStartDelay(20000);
         return trigger;
     }

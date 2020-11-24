@@ -9,6 +9,7 @@ import eu.domibus.plugin.webService.backend.dispatch.WSPluginMessageSender;
 import eu.domibus.plugin.webService.backend.rules.WSPluginDispatchRule;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +37,7 @@ public class WSPluginBackendRetryService {
         List<WSBackendMessageLogEntity> result = new ArrayList<>();
 
         final List<WSBackendMessageLogEntity> messageIdsToSend = wsBackendMessageLogDao.findRetryMessages();
-        if (messageIdsToSend.isEmpty()) {
+        if (CollectionUtils.isEmpty(messageIdsToSend)) {
             LOG.trace("No backend message found to be resend");
             return result;
         }
@@ -54,16 +55,16 @@ public class WSPluginBackendRetryService {
                 wsPluginMessageSender.sendNotification(backendMessage);
             }
         } catch (Exception e) {
-            LOG.error("Error while enqueueing messages.", e);
+            LOG.error("Error while sending notifications.", e);
         }
     }
 
     @Transactional
     public void sendNotification(String messageId, String recipient, WSPluginDispatchRule rule) {
         try {
-            wsPluginMessageSender.sendNotification(
-                    wsBackendMessageLogDao.createEntity(
-                            getWsBackendMessageLogEntity(messageId, recipient, rule)));
+            WSBackendMessageLogEntity backendMessage = getWsBackendMessageLogEntity(messageId, recipient, rule);
+            WSBackendMessageLogEntity persistedBackendMessage = wsBackendMessageLogDao.createEntity(backendMessage);
+            wsPluginMessageSender.sendNotification(persistedBackendMessage);
         } catch (Exception e) {
             LOG.error("Try catch to be removed with the use of jms queue: JIRA EDELIVERY-7478", e);
         }

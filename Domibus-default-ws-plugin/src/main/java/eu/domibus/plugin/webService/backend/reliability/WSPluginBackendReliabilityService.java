@@ -9,6 +9,7 @@ import eu.domibus.plugin.webService.backend.WSBackendMessageStatus;
 import eu.domibus.plugin.webService.backend.reliability.strategy.WSPluginRetryStrategy;
 import eu.domibus.plugin.webService.backend.reliability.strategy.WSPluginRetryStrategyProvider;
 import eu.domibus.plugin.webService.backend.rules.WSPluginDispatchRule;
+import eu.domibus.plugin.webService.exception.WSPluginException;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -36,11 +37,6 @@ public class WSPluginBackendReliabilityService {
         this.wsBackendMessageLogDao = wsBackendMessageLogDao;
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.wsPluginRetryStrategyProvider = wsPluginRetryStrategyProvider;
-    }
-
-    public void changeStatus(WSBackendMessageLogEntity backendMessage, WSBackendMessageStatus status) {
-        backendMessage.setMessageStatus(status);
-        wsBackendMessageLogDao.update(backendMessage);
     }
 
     public void handleReliability(WSBackendMessageLogEntity backendMessage, WSPluginDispatchRule rule) {
@@ -98,7 +94,7 @@ public class WSPluginBackendReliabilityService {
         }
         WSPluginRetryStrategy strategy = wsPluginRetryStrategyProvider.getStrategy(rule.getRetryStrategy());
         if (strategy == null) {
-            throw new IllegalArgumentException(
+            throw new WSPluginException(
                     "Strategy not found for rule :[" + backendMessage.getRuleName() + "] " +
                             "for backendMessageLogEntity ID: [" + backendMessage.getEntityId() + "]");
         }

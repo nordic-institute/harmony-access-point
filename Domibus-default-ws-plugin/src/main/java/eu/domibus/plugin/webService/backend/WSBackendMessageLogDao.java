@@ -55,6 +55,7 @@ public class WSBackendMessageLogDao extends WSBasicDao<WSBackendMessageLogEntity
                 "WSBackendMessageLogEntity.findRetryMessages",
                 WSBackendMessageLogEntity.class);
         query.setParameter("CURRENT_TIMESTAMP", new Date(System.currentTimeMillis()));
+        query.setParameter("MESSAGE_STATUS", WSBackendMessageStatus.WAITING_FOR_RETRY);
 
         return query.getResultList();
     }
