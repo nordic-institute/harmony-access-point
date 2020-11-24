@@ -80,6 +80,8 @@ public class FSPluginPropertiesMetadataManagerImpl implements DomibusPropertyMet
 
     public static final String OUT_QUEUE = PROPERTY_PREFIX + "send.queue";
 
+    protected static final String DOMAINS_LIST = PROPERTY_PREFIX + "domains.list";
+
     Map<String, DomibusPropertyMetadataDTO> knownProperties;
 
     public FSPluginPropertiesMetadataManagerImpl() {
@@ -106,6 +108,7 @@ public class FSPluginPropertiesMetadataManagerImpl implements DomibusPropertyMet
                 new DomibusPropertyMetadataDTO(PASSWORD_ENCRYPTION_ACTIVE, Type.BOOLEAN, Module.FS_PLUGIN, false, Usage.DOMAIN, false, true, false, false),
                 new DomibusPropertyMetadataDTO(FSPLUGIN_PASSWORD_ENCRYPTION_PROPERTIES, Type.COMMA_SEPARATED_LIST, Module.FS_PLUGIN, false, Usage.DOMAIN, false, true, false, false),
                 new DomibusPropertyMetadataDTO(OUT_QUEUE, Type.JNDI, Module.FS_PLUGIN, false, Usage.GLOBAL, true, true, false, false),
+                new DomibusPropertyMetadataDTO(DOMAINS_LIST, Type.COMMA_SEPARATED_LIST, Module.FS_PLUGIN, false, Usage.GLOBAL, false, true, false, false),
 
                 //writable properties
                 new DomibusPropertyMetadataDTO(SEND_WORKER_INTERVAL, Type.NUMERIC, Module.FS_PLUGIN, Usage.DOMAIN, true),
