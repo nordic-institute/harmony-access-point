@@ -111,7 +111,7 @@ public class GlobalPropertyMetadataManagerImplTest {
             times = 1;
             allPropertyMetadataMap.get(anyString);
             result = null;
-            globalPropertyMetadataManager.getComposableProperty(allPropertyMetadataMap, propertyName);
+            globalPropertyMetadataManager.getComposablePropertyMetadata(allPropertyMetadataMap, propertyName);
             result = propMeta;
             domainConverter.convert(propMeta, DomibusPropertyMetadata.class);
             result = propMeta;
@@ -325,7 +325,7 @@ public class GlobalPropertyMetadataManagerImplTest {
         List<String> nestedProps = Arrays.asList("suffix1");
 
         new Expectations(globalPropertyMetadataManager) {{
-            globalPropertyMetadataManager.getComposableProperty(map, propertyName);
+            globalPropertyMetadataManager.getComposablePropertyMetadata(map, propertyName);
             result = propMeta;
             propMeta.getName();
             result = compPropertyName;
@@ -343,7 +343,7 @@ public class GlobalPropertyMetadataManagerImplTest {
         String propertyName = "domibus.composable.property.suffix1";
 
         new Expectations(globalPropertyMetadataManager) {{
-            globalPropertyMetadataManager.getComposableProperty(map, propertyName);
+            globalPropertyMetadataManager.getComposablePropertyMetadata(map, propertyName);
             result = null;
         }};
 
@@ -360,7 +360,7 @@ public class GlobalPropertyMetadataManagerImplTest {
         List<String> nestedProps = Arrays.asList();
 
         new Expectations(globalPropertyMetadataManager) {{
-            globalPropertyMetadataManager.getComposableProperty(map, propertyName);
+            globalPropertyMetadataManager.getComposablePropertyMetadata(map, propertyName);
             result = propMeta;
             propMeta.getName();
             result = compPropertyName;

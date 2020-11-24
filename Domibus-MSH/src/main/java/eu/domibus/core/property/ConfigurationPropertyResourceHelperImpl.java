@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static eu.domibus.api.property.DomibusPropertyMetadata.NAME_SEPARATOR;
+
 /**
  * Responsible with getting the domibus properties that can be changed at runtime, getting and setting their values
  *
@@ -25,7 +27,7 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
 
     private static final Logger LOG = DomibusLoggerFactory.getLogger(ConfigurationPropertyResourceHelperImpl.class);
 
-    public static final String ACCEPTED_CHARACTERS_IN_PROPERTY_NAMES = ".";
+    public static final String ACCEPTED_CHARACTERS_IN_PROPERTY_NAMES = NAME_SEPARATOR;
 
     private DomibusConfigurationService domibusConfigurationService;
 
@@ -118,9 +120,11 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
 
         for (DomibusPropertyMetadata propMeta : properties) {
             if (!propMeta.isComposable()) {
+                LOG.trace("Getting property value for non-composable property [{}]", propMeta.getName());
                 DomibusProperty prop = getValueAndCreateProperty(propMeta);
                 addIfMissing(result, prop);
             } else {
+                LOG.trace("Getting property value for composable property [{}]", propMeta.getName());
                 List<DomibusProperty> props = getNestedProperties(propMeta);
                 props.forEach(prop -> addIfMissing(result, prop));
             }
@@ -137,7 +141,7 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
         //add nested
         List<String> nestedProps = domibusPropertyProvider.getNestedProperties(propMeta.getName());
         List<DomibusProperty> nested = nestedProps.stream()
-                .map(nestedProp -> getProperty(propMeta.getName() + "." + nestedProp))
+                .map(nestedProp -> getProperty(propMeta.getName() + NAME_SEPARATOR + nestedProp))
                 .collect(Collectors.toList());
         result.addAll(nested);
 
@@ -146,7 +150,7 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
 
     protected List<DomibusProperty> sortProperties(List<DomibusProperty> properties) {
         List<DomibusProperty> list = properties.stream()
-                .filter(property -> property.getMetadata() != null && property.getMetadata().getName() != null)
+                .filter(property -> property.getMetadata() != null && StringUtils.isNotBlank(property.getMetadata().getName()))
                 .collect(Collectors.toList());
         list.sort(Comparator.comparing(property -> property.getMetadata().getName()));
         return list;
@@ -167,15 +171,15 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
         DomibusPropertyMetadata propMeta = getPropertyMetadata(propertyName);
 
         if (propMeta == null) {
-            throw new DomibusPropertyException("Cannot set property " + propertyName + " because it does not exist.");
+            throw new DomibusPropertyException("Cannot set property [" + propertyName + "] because it does not exist.");
         }
 
         if (!propMeta.isWritable()) {
-            throw new DomibusPropertyException("Cannot set property " + propertyName + " because it is not writable.");
+            throw new DomibusPropertyException("Cannot set property [" + propertyName + "] because it is not writable.");
         }
 
         if (StringUtils.equals(propMeta.getName(), propertyName) && propMeta.isComposable()) {
-            throw new DomibusPropertyException("Cannot set composable property " + propertyName + " directly. You can only set its nested properties.");
+            throw new DomibusPropertyException("Cannot set composable property [" + propertyName + "] directly. You can only set its nested properties.");
         }
 
         DomibusProperty prop = createProperty(propMeta, propertyValue);

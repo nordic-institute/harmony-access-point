@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static eu.domibus.api.property.DomibusPropertyMetadata.NAME_SEPARATOR;
+
 /**
  * Helper class involved in managing the property metadata of core or external property managers ( metadata integrator)
  *
@@ -69,7 +71,7 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
             LOG.trace("Acquired lock to search new property: [{}]", propertyName);
 
             // try to see if it is a compose-able property, i.e. propertyName+suffix
-            DomibusPropertyMetadata propMeta = getComposableProperty(allPropertyMetadataMap, propertyName);
+            DomibusPropertyMetadata propMeta = getComposablePropertyMetadata(allPropertyMetadataMap, propertyName);
             if (propMeta != null) {
                 LOG.trace("Found compose-able property [{}], returning its metadata.", propertyName);
                 DomibusPropertyMetadata newPropMeta = clonePropertyMetadata(propertyName, propMeta);
@@ -110,7 +112,7 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
 
     @Override
     public DomibusPropertyMetadata getComposableProperty(String propertyName) {
-        return getComposableProperty(getAllProperties(), propertyName);
+        return getComposablePropertyMetadata(getAllProperties(), propertyName);
     }
 
     protected boolean hasProperty(Map<String, DomibusPropertyMetadata> map, String propertyName) {
@@ -128,21 +130,23 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
     protected boolean hasComposableProperty(Map<String, DomibusPropertyMetadata> map, String propertyName) {
         synchronized (propertyMetadataMapLock) {
             LOG.trace("Acquired lock to search new property: [{}]", propertyName);
-            DomibusPropertyMetadata propMeta = getComposableProperty(map, propertyName);
+            DomibusPropertyMetadata propMeta = getComposablePropertyMetadata(map, propertyName);
             if (propMeta == null) {
+                LOG.trace("Could not find composable property metadata for [{}].", propertyName);
                 return false;
             }
             List<String> props = domibusPropertyProvider.getNestedProperties(propMeta.getName());
             if (CollectionUtils.isEmpty(props)) {
+                LOG.trace("Could not find any nested properties for [{}].", propMeta.getName());
                 return false;
             }
-            return props.stream().anyMatch(prop -> propertyName.equals(propMeta.getName() + "." + prop));
+            return props.stream().anyMatch(prop -> propertyName.equals(propMeta.getName() + NAME_SEPARATOR + prop));
         }
     }
 
-    protected DomibusPropertyMetadata getComposableProperty(Map<String, DomibusPropertyMetadata> map, String propertyName) {
+    protected DomibusPropertyMetadata getComposablePropertyMetadata(Map<String, DomibusPropertyMetadata> map, String propertyName) {
         return map.values().stream()
-                .filter(propertyMetadata -> propertyMetadata.isComposable() && propertyName.startsWith(propertyMetadata.getName() + "."))
+                .filter(propertyMetadata -> propertyMetadata.isComposable() && propertyName.startsWith(propertyMetadata.getName() + NAME_SEPARATOR))
                 .findAny()
                 .orElse(null);
     }
