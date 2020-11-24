@@ -85,7 +85,7 @@ public class DomibusApplicationInitializerTest {
         domibusApplicationInitializer.onStartup(servletContext);
 
         new FullVerifications() {{
-            annotationConfigWebApplicationContext.register(DomibusRootConfiguration.class);
+            annotationConfigWebApplicationContext.register(DomibusRootConfiguration.class, DomibusSessionConfiguration.class);
             annotationConfigWebApplicationContext.register(DomibusWebConfiguration.class);
 
             List<EventListener> list = new ArrayList<>();
@@ -145,7 +145,7 @@ public class DomibusApplicationInitializerTest {
 
         new FullVerifications() {{
 
-            annotationConfigWebApplicationContext.register(DomibusRootConfiguration.class);
+            annotationConfigWebApplicationContext.register(DomibusRootConfiguration.class, DomibusSessionConfiguration.class);
 
         }};
     }
