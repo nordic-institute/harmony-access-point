@@ -36,13 +36,16 @@ public class SuperUserManagementServiceImpl extends UserManagementServiceImpl {
     @Autowired
     protected UserDomainDao userDomainDao;
 
+    @Autowired
+    protected UserManagementServiceImpl userManagementService;
+
     /**
      * {@inheritDoc}
      */
     @Override
     public List<eu.domibus.api.user.User> findUsers() {
         // retrieve domain users
-        List<eu.domibus.api.user.User> allUsers = super.findUsers();
+        List<eu.domibus.api.user.User> allUsers = userManagementService.findUsers();
 
         // retrieve super users
         List<eu.domibus.api.user.User> superUsers = getSuperUsers();
@@ -62,7 +65,7 @@ public class SuperUserManagementServiceImpl extends UserManagementServiceImpl {
     @Override
     public List<eu.domibus.api.user.User> findUsersWithFilters(AuthRole authRole, String userName, String deleted, int page, int pageSize) {
         // retrieve domain users
-        List<eu.domibus.api.user.User> allUsers = super.findUsersWithFilters(authRole, userName, deleted, page, pageSize);
+        List<eu.domibus.api.user.User> allUsers = userManagementService.findUsersWithFilters(authRole, userName, deleted, page, pageSize);
 
         // retrieve super users
         List<eu.domibus.api.user.User> superUsers = getSuperUsersWithFilters(authRole, userName, deleted, page, pageSize);
@@ -114,21 +117,27 @@ public class SuperUserManagementServiceImpl extends UserManagementServiceImpl {
     @Override
     @Transactional
     public void updateUsers(List<eu.domibus.api.user.User> users) {
+
         List<eu.domibus.api.user.User> regularUsers = users.stream()
                 .filter(u -> !u.getAuthorities().contains(AuthRole.ROLE_AP_ADMIN.name()))
                 .collect(Collectors.toList());
-        super.updateUsers(regularUsers);
-        super.validateAtLeastOneOfRole(AuthRole.ROLE_ADMIN);
+        try {
+            userManagementService.updateUsers(regularUsers);
+        } catch (Throwable ex) {
+            regularUsers.forEach(user -> userDomainService.deleteDomainForUser(user.getUserName()));
+            throw ex;
+        }
 
         List<eu.domibus.api.user.User> superUsers = users.stream()
                 .filter(u -> u.getAuthorities().contains(AuthRole.ROLE_AP_ADMIN.name()))
                 .collect(Collectors.toList());
-
         domainTaskExecutor.submit(() -> {
-            // this block needs to called inside a transaction;
-            // for this the whole code inside the block needs to reside into a Spring bean service marked with transaction REQUIRED
-            super.updateUsers(superUsers);
-            super.validateAtLeastOneOfRole(AuthRole.ROLE_AP_ADMIN);
+            try {
+                super.updateUsers(superUsers);
+            } catch (Throwable ex) {
+                superUsers.forEach(user -> userDomainService.deleteDomainForUser(user.getUserName()));
+                throw ex;
+            }
         });
     }
 
@@ -140,4 +149,7 @@ public class SuperUserManagementServiceImpl extends UserManagementServiceImpl {
         });
     }
 
+    protected AuthRole getAdminRole() {
+        return AuthRole.ROLE_AP_ADMIN;
+    }
 }

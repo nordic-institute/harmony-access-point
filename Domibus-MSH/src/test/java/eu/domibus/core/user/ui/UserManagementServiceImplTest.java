@@ -237,7 +237,7 @@ public class UserManagementServiceImplTest {
             result = users;
         }};
         try {
-            userManagementService.validateAtLeastOneOfRole(role);
+            userManagementService.ensureAtLeastOneActiveAdmin(role);
             Assert.fail();
         } catch (UserManagementException ex) {
             Assert.assertEquals(DomibusCoreErrorCode.DOM_001, ex.getError());
@@ -266,7 +266,7 @@ public class UserManagementServiceImplTest {
             userDao.findByRole(role.toString());
             result = users;
         }};
-        userManagementService.validateAtLeastOneOfRole(role);
+        userManagementService.ensureAtLeastOneActiveAdmin(role);
 
         new FullVerifications() {
         };

@@ -116,6 +116,7 @@ public class UserManagementServiceImpl implements UserService {
     @Transactional
     public void updateUsers(List<eu.domibus.api.user.User> users) {
         userPersistenceService.updateUsers(users);
+        ensureAtLeastOneActiveAdmin(getAdminRole());
     }
 
     /**
@@ -227,7 +228,7 @@ public class UserManagementServiceImpl implements UserService {
         return user;
     }
 
-    public void validateAtLeastOneOfRole(AuthRole role) {
+    protected void ensureAtLeastOneActiveAdmin(AuthRole role) {
         List<User> users = userDao.findByRole(role.toString());
         long count = users.stream().filter(u -> !u.isDeleted() && u.isActive()).count();
         if (count == 0) {
@@ -292,5 +293,9 @@ public class UserManagementServiceImpl implements UserService {
         } else {
             filters.put(DELETED_USER, Boolean.parseBoolean(deleted));
         }
+    }
+
+    protected AuthRole getAdminRole() {
+        return AuthRole.ROLE_ADMIN;
     }
 }
