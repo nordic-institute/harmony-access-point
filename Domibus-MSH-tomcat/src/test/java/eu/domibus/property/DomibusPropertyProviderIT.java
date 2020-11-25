@@ -12,7 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_UI_SUPPORT_TEAM_NAME;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_UI_TITLE_NAME;
 
-
+/**
+ * @author Ion Perpegel
+ * @since 4.2
+ */
 public class DomibusPropertyProviderIT extends AbstractIT {
 
     @Autowired

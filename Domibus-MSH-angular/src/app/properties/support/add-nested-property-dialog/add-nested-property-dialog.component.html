@@ -1,0 +1,34 @@
+<h2 mat-dialog-title>Add Nested Property</h2>
+
+<mat-dialog-content style="width: 500px;">
+  <form #editForm="ngForm" (submit)="submitForm()">
+    <mat-card>
+
+      {{property.name + '.'}}<span style="color: deepskyblue; font-weight: bold;">{{propertySuffix}}</span>
+
+      <div style="margin-top:15px;">
+        <mat-form-field [style.width]="'100%'">
+          <input matInput placeholder="Property Suffix" name="suffix" id="suffix_id" [(ngModel)]="propertySuffix"
+                 input-debounce #suffix="ngModel" maxlength="255" required>
+          <span class="help-block" *ngIf="shouldShowErrors(suffix)">
+            <div *ngIf="suffix.errors?.required" style="color:red; font-size: 70%"></div>
+          </span>
+        </mat-form-field>
+      </div>
+
+      <div style="margin-top:5px;">
+        <mat-form-field [style.width]="'100%'">
+          <input matInput placeholder="Property Value" name="value" id="value_id" [(ngModel)]="propertyValue"
+                 input-debounce
+                 #value="ngModel" maxlength="255" required>
+          <span class="help-block" *ngIf="shouldShowErrors(value)">
+            <div *ngIf="value.errors?.required" style="color:red; font-size: 70%"></div>
+          </span>
+        </mat-form-field>
+      </div>
+
+      <popup-edit-footer [parent]="this"></popup-edit-footer>
+
+    </mat-card>
+  </form>
+</mat-dialog-content>
