@@ -6,10 +6,7 @@ import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.exceptions.AuthenticationExtException;
 import eu.domibus.ext.exceptions.MessageAcknowledgeExtException;
-import eu.domibus.ext.services.AuthenticationExtService;
-import eu.domibus.ext.services.DomainContextExtService;
-import eu.domibus.ext.services.DomainExtService;
-import eu.domibus.ext.services.MessageAcknowledgeExtService;
+import eu.domibus.ext.services.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -93,6 +90,9 @@ public class WebServicePluginImpl extends AbstractBackendConnector<Messaging, Us
     @Autowired
     private WSPluginBackendService wsPluginBackendService;
 
+    @Autowired
+    private UserMessageExtService userMessageExtService;
+
     public WebServicePluginImpl() {
         super(PLUGIN_NAME);
     }
@@ -144,13 +144,13 @@ public class WebServicePluginImpl extends AbstractBackendConnector<Messaging, Us
         LOG.info("Deliver message: [{}]", event);
         WSMessageLogEntity wsMessageLogEntity = new WSMessageLogEntity(event.getMessageId(), event.getFinalRecipient(), new Date());
         wsMessageLogDao.create(wsMessageLogEntity);
-        wsPluginBackendService.sendNotification(RECEIVE_SUCCESS, event.getMessageId(), getRecipient(event.getMessageId()));
+        wsPluginBackendService.sendNotification(RECEIVE_SUCCESS, event.getMessageId(), userMessageExtService.getFinalRecipient(event.getMessageId()));
     }
 
     @Override
     public void messageReceiveFailed(final MessageReceiveFailureEvent event) {
         LOG.info("Message receive failed [{}]", event);
-        wsPluginBackendService.sendNotification(RECEIVE_FAIL, event.getMessageId(), getRecipient(event.getMessageId()));
+        wsPluginBackendService.sendNotification(RECEIVE_FAIL, event.getMessageId(), userMessageExtService.getFinalRecipient(event.getMessageId()));
     }
 
     @Override
@@ -161,7 +161,7 @@ public class WebServicePluginImpl extends AbstractBackendConnector<Messaging, Us
     @Override
     public void messageSendFailed(final MessageSendFailedEvent event) {
         LOG.info("Message send failed [{}]", event);
-        wsPluginBackendService.sendNotification(SEND_FAILURE, event.getMessageId(), getRecipient(event.getMessageId()));
+        wsPluginBackendService.sendNotification(SEND_FAILURE, event.getMessageId(), userMessageExtService.getFinalRecipient(event.getMessageId()));
     }
 
     @Override
@@ -180,24 +180,7 @@ public class WebServicePluginImpl extends AbstractBackendConnector<Messaging, Us
     @Override
     public void messageSendSuccess(final MessageSendSuccessEvent event) {
         LOG.info("Message send success [{}]", event.getMessageId());
-        wsPluginBackendService.sendNotification(SEND_SUCCESS, event.getMessageId(), getRecipient(event.getMessageId()));
-    }
-
-    protected String getRecipient(String messageId) {
-        UserMessage userMessage;
-        try {
-            userMessage = this.browseMessage(messageId, null);
-        } catch (MessageNotFoundException e) {
-            LOG.warn("Domibus Message not found for messageId: [{}]", messageId);
-            return null;
-        }
-        if (userMessage.getPartyInfo() == null ||
-                userMessage.getPartyInfo().getTo() == null ||
-                userMessage.getPartyInfo().getTo().getPartyId() == null) {
-            LOG.warn("Final recipient not for for messageId: [{}]", messageId);
-            return null;
-        }
-        return userMessage.getPartyInfo().getTo().getPartyId().getValue();
+        wsPluginBackendService.sendNotification(SEND_SUCCESS, event.getMessageId(), userMessageExtService.getFinalRecipient(event.getMessageId()));
     }
 
     private void addPartInfos(SubmitRequest submitRequest, Messaging ebMSHeaderInfo) throws SubmitMessageFault {
@@ -349,7 +332,8 @@ public class WebServicePluginImpl extends AbstractBackendConnector<Messaging, Us
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 300, rollbackFor = RetrieveMessageFault.class)
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
-    public void retrieveMessage(RetrieveMessageRequest retrieveMessageRequest, Holder<RetrieveMessageResponse> retrieveMessageResponse,
+    public void retrieveMessage(RetrieveMessageRequest retrieveMessageRequest,
+                                Holder<RetrieveMessageResponse> retrieveMessageResponse,
                                 Holder<Messaging> ebMSHeaderInfo) throws RetrieveMessageFault {
         UserMessage userMessage;
         boolean isMessageIdNotEmpty = StringUtils.isNotEmpty(retrieveMessageRequest.getMessageID());
@@ -366,20 +350,7 @@ public class WebServicePluginImpl extends AbstractBackendConnector<Messaging, Us
             throw new RetrieveMessageFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", webServicePluginExceptionFactory.createFault("No message with id [" + trimmedMessageId + "] pending for download"));
         }
 
-        try {
-            userMessage = downloadMessage(trimmedMessageId, null);
-        } catch (final MessageNotFoundException mnfEx) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(MESSAGE_NOT_FOUND_ID + retrieveMessageRequest.getMessageID() + "]", mnfEx);
-            }
-            LOG.error(MESSAGE_NOT_FOUND_ID + retrieveMessageRequest.getMessageID() + "]");
-            throw new RetrieveMessageFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", webServicePluginExceptionFactory.createDownloadMessageFault(mnfEx));
-        }
-
-        if (userMessage == null) {
-            LOG.error(MESSAGE_NOT_FOUND_ID + retrieveMessageRequest.getMessageID() + "]");
-            throw new RetrieveMessageFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", webServicePluginExceptionFactory.createFault("UserMessage not found"));
-        }
+        userMessage = getUserMessage(retrieveMessageRequest, trimmedMessageId);
 
         // To avoid blocking errors during the Header's response validation
         if (StringUtils.isEmpty(userMessage.getCollaborationInfo().getAgreementRef().getValue())) {
@@ -401,6 +372,25 @@ public class WebServicePluginImpl extends AbstractBackendConnector<Messaging, Us
 
         // remove downloaded message from the plugin table containing the pending messages
         wsMessageLogDao.delete(wsMessageLogEntity);
+    }
+
+    private UserMessage getUserMessage(RetrieveMessageRequest retrieveMessageRequest, String trimmedMessageId) throws RetrieveMessageFault {
+        UserMessage userMessage;
+        try {
+            userMessage = downloadMessage(trimmedMessageId, null);
+        } catch (final MessageNotFoundException mnfEx) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(MESSAGE_NOT_FOUND_ID + retrieveMessageRequest.getMessageID() + "]", mnfEx);
+            }
+            LOG.error(MESSAGE_NOT_FOUND_ID + retrieveMessageRequest.getMessageID() + "]");
+            throw new RetrieveMessageFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", webServicePluginExceptionFactory.createDownloadMessageFault(mnfEx));
+        }
+
+        if (userMessage == null) {
+            LOG.error(MESSAGE_NOT_FOUND_ID + retrieveMessageRequest.getMessageID() + "]");
+            throw new RetrieveMessageFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", webServicePluginExceptionFactory.createFault("UserMessage not found"));
+        }
+        return userMessage;
     }
 
     private void fillInfoPartsForLargeFiles(Holder<RetrieveMessageResponse> retrieveMessageResponse, Messaging messaging) {

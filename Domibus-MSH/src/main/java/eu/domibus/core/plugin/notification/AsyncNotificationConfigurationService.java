@@ -5,6 +5,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.notification.AsyncNotificationConfiguration;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,6 +20,7 @@ public class AsyncNotificationConfigurationService {
     public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AsyncNotificationConfigurationService.class);
 
     @Autowired(required = false)
+    @Lazy
     protected List<AsyncNotificationConfiguration> asyncNotificationConfigurations;
 
     public AsyncNotificationConfiguration getAsyncPluginConfiguration(String backendName) {
