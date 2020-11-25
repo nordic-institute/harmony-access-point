@@ -3,25 +3,26 @@ package eu.domibus.plugin.fs.property;
 
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
+import eu.domibus.ext.domain.Module;
 import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomibusConfigurationExtService;
 import eu.domibus.ext.services.DomibusPropertyExtServiceDelegateAbstract;
 import eu.domibus.ext.services.PasswordEncryptionExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.plugin.fs.property.listeners.TriggerChangeListener;
 import eu.domibus.plugin.fs.worker.FSSendMessagesService;
 import eu.domibus.plugin.property.PluginPropertyChangeNotifier;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -36,6 +37,7 @@ import static eu.domibus.plugin.fs.worker.FSSendMessagesService.DEFAULT_DOMAIN;
  * @author @author FERNANDES Henrique, GONCALVES Bruno
  */
 @Service
+@PropertySource(value = "file:///${domibus.config.location}/plugins/config/fs-plugin.properties") //still keeping this for reading fs plugin domain list
 public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstract {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FSPluginProperties.class);
@@ -44,8 +46,8 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
 
     private static final String DEFAULT_CONTENT_ID = "cid:message";
 
-//    @Resource(name = "fsPluginProperties")
-//    private Properties properties;
+    @Value("${fsplugin.domains.list}")
+    private String fsPluginDomainsList;
 
     @Autowired
     protected PasswordEncryptionExtService pluginPasswordEncryptionService;
@@ -96,6 +98,26 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
         }
     }
 
+    protected List<String> readDomains() {
+        List<String> tempDomains = new ArrayList<>();
+
+        //getting domains list
+        String domainsListStr = fsPluginDomainsList;
+        if (StringUtils.isNotEmpty(domainsListStr)) {
+            List<String> fsPluginDomains = Stream.of(domainsListStr.split(","))
+                    .map(String::trim)
+                    .distinct()
+                    .collect(Collectors.toList());
+            LOG.debug("The following domains were found [{}]", fsPluginDomains);
+            tempDomains.addAll(fsPluginDomains);
+        }
+
+        if (!tempDomains.contains(DEFAULT_DOMAIN)) {
+            tempDomains.add(DEFAULT_DOMAIN);
+        }
+
+        return tempDomains;
+    }
     /**
      * @param domain The domain property qualifier
      * @return The location of the directory that the plugin will use to manage the messages to be sent and received
@@ -127,6 +149,22 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
         String value = getDomainProperty(domain, SENT_PURGE_EXPIRED);
         return NumberUtils.toInt(value);
     }
+
+
+    @Override
+    public String getKnownPropertyValue(String propertyName) {
+        checkPropertyExists(propertyName);
+
+        DomibusPropertyMetadataDTO propMeta = getKnownProperties().get(propertyName);
+        if (propMeta.isStoredGlobally()) {
+            return domibusPropertyExtService.getProperty(propertyName);
+        }
+
+        LOG.trace("Property [{}] is not stored globally so onGetLocalPropertyValue is called.", propertyName);
+        return onGetLocalPropertyValue(propertyName, propMeta);
+    }
+
+
 
     /**
      * Gets the threshold value that will be used to schedule payloads for async saving
@@ -342,32 +380,22 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
     }
 
 
-//    public String getDomainProperty(String domain, String propertyName, String defaultValue) {
-//        String domainFullPropertyName = getDomainPropertyName(domain, propertyName);
-//        if (properties.containsKey(domainFullPropertyName)) {
-//            return properties.getProperty(domainFullPropertyName, defaultValue);
-//        }
-//        return properties.getProperty(PROPERTY_PREFIX + propertyName, defaultValue);
-//    }
-
+    /**
+     * get the base (mapped to default) and other domains property
+     * @param domain
+     * @param propertyName
+     * @return
+     */
     public String getDomainProperty(String domain, String propertyName) {
         if (domibusConfigurationExtService.isMultiTenantAware()) {
             return super.getKnownPropertyValue(propertyName);
         }
         //ST
-        if (domain.equalsIgnoreCase(DEFAULT_DOMAIN)) {
-            return super.getKnownPropertyValue(propertyName);
-        } else {
-            return super.getKnownPropertyValue(domain + "." + propertyName);
-        }
-
-
-
-//        String domainFullPropertyName = getDomainPropertyName(domain, propertyName);
-//        if (properties.containsKey(domainFullPropertyName)) {
-//            return properties.getProperty(domainFullPropertyName, defaultValue);
+//        if (domain.equalsIgnoreCase(DEFAULT_DOMAIN)) {
+//            return super.getKnownPropertyValue(propertyName);
+//        } else {
+            return super.getKnownPropertyValue(domain + DOT + propertyName);
 //        }
-//        return properties.getProperty(PROPERTY_PREFIX + propertyName, defaultValue);
     }
 
     public Integer getIntegerDomainProperty(String domain, String propertyName) {
@@ -376,22 +404,9 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
     }
 
     public String getDomainPropertyNoDefault(String domain, String propertyName) {
-//        String domainFullPropertyName = getDomainPropertyName(domain, propertyName);
-//        if (properties.containsKey(domainFullPropertyName)) {
-//            return properties.getProperty(domainFullPropertyName, defaultValue);
-//        }
-//        if (DEFAULT_DOMAIN.equals(domain)) {
-//            if (!StringUtils.startsWith(propertyName, PROPERTY_PREFIX)) {
-//                propertyName = PROPERTY_PREFIX + propertyName;
-//            }
-//            return properties.getProperty(propertyName, defaultValue);
-//        }
-
 
         // cannot use default values
         return getDomainProperty(domain, propertyName);
-//
-//        return null;
     }
 
     private Integer getInteger(String value, Integer defaultValue) {
@@ -402,86 +417,64 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
         return result;
     }
 
-    protected List<String> readDomains() {
-        List<String> tempDomains = new ArrayList<>();
-
-        //getting domains list
-//        if (!domibusConfigurationExtService.isMultiTenantAware()) {
-            String domainsListStr = super.getKnownPropertyValue(DOMAINS_LIST);
-            if (StringUtils.isNotEmpty(domainsListStr)) {
-                List<String> domains = Stream.of(domainsListStr.split(","))
-                        .map(String::trim)
-                        .distinct()
-                        .collect(Collectors.toList());
-                LOG.debug("The following domains were found [{}]", domains);
-                tempDomains.addAll(domains);
-            }
-//        }
 
 
-        //TODO enachca why?
-        if (!tempDomains.contains(DEFAULT_DOMAIN)) {
-            tempDomains.add(DEFAULT_DOMAIN);
-        }
-
-        Collections.sort(tempDomains, (domain1, domain2) -> {
+    protected void sortDomains() {
+        Collections.sort(getDomains(), (domain1, domain2) -> {
             Integer domain1Order = getOrder(domain1);
             Integer domain2Order = getOrder(domain2);
             return domain1Order - domain2Order;
         });
-        return tempDomains;
     }
 
 
 
     @Override
     public synchronized Map<String, DomibusPropertyMetadataDTO> getKnownProperties() {
-//        if (knownProperties != null) {
-//            return knownProperties;
-//        }
-//
-//        knownProperties = new HashMap<>();
-//
-//        Map<String, DomibusPropertyMetadataDTO> baseProperties = fsPluginPropertiesMetadataManager.getKnownProperties();
-//
-//
+        if (knownProperties != null) {
+            return knownProperties;
+        }
+        knownProperties = new HashMap<>();
 
-//        // in multi-tenancy mode - we only expose the "base" properties from the current domain
-//        if (domibusConfigurationExtService.isMultiTenantAware()) {
-//            updatePropertiesForMultitenancy(baseProperties);
-//            return knownProperties;
-//        }
-//
-//        //single tenancy mode
-//        updatePropertiesForSingletenancy(baseProperties);
-//        return knownProperties;
-        return fsPluginPropertiesMetadataManager.getKnownProperties();
+        Map<String, DomibusPropertyMetadataDTO> baseProperties = fsPluginPropertiesMetadataManager.getKnownProperties();
+
+       //  in multi-tenancy mode - we only expose the "base" properties from the current domain
+        if (domibusConfigurationExtService.isMultiTenantAware()) {
+            updatePropertiesForMultitenancy(baseProperties);
+            return knownProperties;
+        }
+
+        //single tenancy mode
+        updatePropertiesForSingletenancy(baseProperties);
+        return knownProperties;
     }
 
     protected void updatePropertiesForSingletenancy(Map<String, DomibusPropertyMetadataDTO> baseProperties) {
-//        for (DomibusPropertyMetadataDTO propMeta : baseProperties.values()) {
-//            if (shouldMultiplyPropertyMetadata(propMeta)) {
-//                LOG.debug("Multiplying the domain property [{}] for each domain.", propMeta.getName());
-//                for (String domain : getDomains()) {
-//                    String name = getDomainPropertyName(domain, propMeta.getName());
-//                    DomibusPropertyMetadataDTO propertyMetadata = new DomibusPropertyMetadataDTO(name, propMeta.getType(), Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Usage.DOMAIN, propMeta.isWithFallback());
-//                    propertyMetadata.setStoredGlobally(propMeta.isStoredGlobally());
-//                    knownProperties.put(propertyMetadata.getName(), propertyMetadata);
-//                }
-//            } else {
-//                updatePropertyName(propMeta);
-//                //if not multiplied, the usage should be global
-//                propMeta.setUsage(DomibusPropertyMetadataDTO.Usage.GLOBAL);
-//                knownProperties.put(propMeta.getName(), propMeta);
-//            }
-//        }
+        for (DomibusPropertyMetadataDTO propMeta : baseProperties.values()) {
+            if (shouldMultiplyPropertyMetadata(propMeta)) {
+                LOG.debug("Multiplying the domain property [{}] for each domain.", propMeta.getName());
+                for (String domain : getDomains()) {
+//                    if (!DEFAULT_DOMAIN.equalsIgnoreCase(domain)) {
+                        String name = domain + DOT + propMeta.getName();
+                        DomibusPropertyMetadataDTO propertyMetadata = new DomibusPropertyMetadataDTO(name, propMeta.getType(), Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Usage.DOMAIN, propMeta.isWithFallback());
+                        propertyMetadata.setStoredGlobally(true/*propMeta.isStoredGlobally()*/);
+                        knownProperties.put(propertyMetadata.getName(), propertyMetadata);
+//                    }
+                }
+            } else {
+                //if not multiplied, the usage should be global
+                //TODO enachca check why?
+                propMeta.setUsage(DomibusPropertyMetadataDTO.Usage.GLOBAL);
+                knownProperties.put(propMeta.getName(), propMeta);
+            }
+        }
     }
 
     protected void updatePropertiesForMultitenancy(Map<String, DomibusPropertyMetadataDTO> baseProperties) {
-//        for (DomibusPropertyMetadataDTO propMeta : baseProperties.values()) {
-//            updatePropertyName(propMeta);
-//            knownProperties.put(propMeta.getName(), propMeta);
-//        }
+        for (DomibusPropertyMetadataDTO propMeta : baseProperties.values()) {
+            //updatePropertyName(propMeta);
+            knownProperties.put(propMeta.getName(), propMeta);
+        }
     }
 
 //    private void updatePropertyName(DomibusPropertyMetadataDTO propMeta) {
@@ -560,16 +553,16 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
 //        setKnownPropertyValue(domainCode, propertyName, propertyValue);
 //    }
 
-//    protected boolean shouldMultiplyPropertyMetadata(DomibusPropertyMetadataDTO propMeta) {
-//        // in single-domain mode - we only expose the "base" properties
-//        // in fsplugin's custom multi-domain mode, in single-tenancy - we expose each "base" property once per every domain
-//        return getDomains().size() > 1
-//                && propMeta.isDomain()
-//                // we do not multiply properties used for quartz jobs
-//                && !isQuartzRelated(propMeta);
-//    }
+    protected boolean shouldMultiplyPropertyMetadata(DomibusPropertyMetadataDTO propMeta) {
+        // in single-domain mode - we only expose the "base" properties
+        // in fsplugin's custom multi-domain mode, in single-tenancy - we expose each "base" property once per every domain
+        return getDomains().size() > 1
+                && propMeta.isDomain()
+                // we do not multiply properties used for quartz jobs
+                && !isQuartzRelated(propMeta);
+    }
 
-//    private boolean isQuartzRelated(DomibusPropertyMetadataDTO propMeta) {
-//        return TriggerChangeListener.CRON_PROPERTY_NAMES_TO_JOB_MAP.keySet().stream().anyMatch(key -> key.contains(propMeta.getName()));
-//    }
+    private boolean isQuartzRelated(DomibusPropertyMetadataDTO propMeta) {
+        return TriggerChangeListener.CRON_PROPERTY_NAMES_TO_JOB_MAP.keySet().stream().anyMatch(key -> key.contains(propMeta.getName()));
+    }
 }

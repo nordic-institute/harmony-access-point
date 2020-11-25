@@ -136,7 +136,6 @@ public class FSPluginPropertiesMetadataManagerImpl implements DomibusPropertyMet
                 new DomibusPropertyMetadataDTO(PAYLOAD_ID, Type.URI, Module.FS_PLUGIN, Usage.DOMAIN, true),
                 new DomibusPropertyMetadataDTO(OUT_QUEUE_CONCURRENCY, Type.CONCURRENCY, Module.FS_PLUGIN, Usage.DOMAIN, true),
         })
-//                .peek(propertyMetadataDTO -> propertyMetadataDTO.setStoredGlobally(true))
                 .collect(Collectors.toMap(x -> x.getName(), x -> x));
     }
 }

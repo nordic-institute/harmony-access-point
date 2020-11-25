@@ -12,19 +12,13 @@ import eu.domibus.plugin.fs.property.FSPluginPropertiesMetadataManagerImpl;
 import eu.domibus.plugin.notification.PluginAsyncNotificationConfiguration;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.beans.factory.config.PropertiesFactoryBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 import javax.jms.Queue;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -67,22 +61,22 @@ public class FSPluginConfiguration {
         return pluginAsyncNotificationConfiguration;
     }
 
-    @Bean("fsPluginProperties")
-    public PropertiesFactoryBean fsPluginProperties() throws IOException {
-        PropertiesFactoryBean result = new PropertiesFactoryBean();
-        result.setIgnoreResourceNotFound(true);
-
-        List<Resource> resources = new ArrayList<>();
-        resources.add(new ClassPathResource("config/fs-plugin.properties"));
-
-        PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
-        LOG.debug("Using FSPlugin external properties file [{}]", fsPluginExternalPropertiesFile);
-        Resource domibusProperties = resolver.getResource(fsPluginExternalPropertiesFile);
-        resources.add(domibusProperties);
-
-        result.setLocations(resources.toArray(new Resource[0]));
-        return result;
-    }
+//    @Bean("fsPluginProperties")
+//    public PropertiesFactoryBean fsPluginProperties() throws IOException {
+//        PropertiesFactoryBean result = new PropertiesFactoryBean();
+//        result.setIgnoreResourceNotFound(true);
+//
+//        List<Resource> resources = new ArrayList<>();
+//        resources.add(new ClassPathResource("config/fs-plugin.properties"));
+//
+//        PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
+//        LOG.debug("Using FSPlugin external properties file [{}]", fsPluginExternalPropertiesFile);
+//        Resource domibusProperties = resolver.getResource(fsPluginExternalPropertiesFile);
+//        resources.add(domibusProperties);
+//
+//        result.setLocations(resources.toArray(new Resource[0]));
+//        return result;
+//    }
 
     @Bean("fsPluginJaxbContext")
     public JAXBContext jaxbContext() throws JAXBException {
