@@ -49,6 +49,8 @@ public class TokenReferenceExtractorTest {
             result = TrustSenderInterceptor.KEYINFO.getNamespaceURI();
             keyInfo.getFirstChild();
             result = securityTokenrRefecence;
+            securityTokenrRefecence.getNodeType();
+            result = Node.ELEMENT_NODE;
             securityTokenrRefecence.getChildNodes().getLength();
             result = 1;
             securityTokenrRefecence.getChildNodes().item(0).getLocalName();
@@ -93,6 +95,8 @@ public class TokenReferenceExtractorTest {
             result = TrustSenderInterceptor.KEYINFO.getNamespaceURI();
             keyInfo.getFirstChild();
             result = securityTokenrRefecence;
+            securityTokenrRefecence.getNodeType();
+            result = Node.ELEMENT_NODE;
             securityTokenrRefecence.getChildNodes().getLength();
             result = 1;
             securityTokenrRefecence.getChildNodes().item(0).getLocalName();
