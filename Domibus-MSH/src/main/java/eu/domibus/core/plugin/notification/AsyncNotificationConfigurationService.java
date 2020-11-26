@@ -20,7 +20,7 @@ public class AsyncNotificationConfigurationService {
     public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AsyncNotificationConfigurationService.class);
 
     @Autowired(required = false)
-    @Lazy
+    @Lazy //Lazy loading of AsyncNotificationConfiguration to avoid the circular dependency triggered by loading the BackendConnectors(SPIs) at startup
     protected List<AsyncNotificationConfiguration> asyncNotificationConfigurations;
 
     public AsyncNotificationConfiguration getAsyncPluginConfiguration(String backendName) {

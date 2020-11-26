@@ -46,22 +46,19 @@ public class WSPluginBackendReliabilityService {
         LOG.debug("Backend message [{}] updated for retry", backendMessage);
 
         if (hasAttemptsLeft(backendMessage, rule.getRetryTimeout())) {
-            LOG.info("Marking backend notification message id [{}] as waiting for retry for domibus id [{}] ",
-                    backendMessage.getEntityId(),
-                    backendMessage.getMessageId());
             setWaitingForRetry(backendMessage, rule);
         } else {
-            LOG.info("Marking backend notification message id [{}] as failed for domibus id [{}] ",
-                    backendMessage.getEntityId(),
-                    backendMessage.getMessageId());
             setFailed(backendMessage);
         }
         wsBackendMessageLogDao.update(backendMessage);
     }
 
-    protected void setFailed(WSBackendMessageLogEntity backendMessageLogEntity) {
-        backendMessageLogEntity.setFailed(new Date());
-        backendMessageLogEntity.setMessageStatus(WSBackendMessageStatus.SEND_FAILURE);
+    protected void setFailed(WSBackendMessageLogEntity backendMessage) {
+        LOG.info("Marking backend notification message id [{}] as failed for domibus id [{}] ",
+                backendMessage.getEntityId(),
+                backendMessage.getMessageId());
+        backendMessage.setFailed(new Date());
+        backendMessage.setMessageStatus(WSBackendMessageStatus.SEND_FAILURE);
     }
 
     /**
@@ -88,6 +85,9 @@ public class WSPluginBackendReliabilityService {
     }
 
     protected void setWaitingForRetry(WSBackendMessageLogEntity backendMessage, WSPluginDispatchRule rule) {
+        LOG.info("Marking backend notification message id [{}] as waiting for retry for domibus id [{}] ",
+                backendMessage.getEntityId(),
+                backendMessage.getMessageId());
         Date nextAttempt = new Date();
         if (backendMessage.getNextAttempt() != null) {
             nextAttempt = new Date(backendMessage.getNextAttempt().getTime());

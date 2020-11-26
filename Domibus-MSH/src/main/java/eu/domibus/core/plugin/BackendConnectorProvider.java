@@ -15,6 +15,7 @@ public class BackendConnectorProvider {
 
     protected List<BackendConnector<?, ?>> backendConnectors;
 
+    //BackendConnector (SPIs) must be injected Lazily to avoid circular dependency with core services
     public BackendConnectorProvider(@Lazy List<BackendConnector<?, ?>> backendConnectors) {
         this.backendConnectors = backendConnectors;
     }
