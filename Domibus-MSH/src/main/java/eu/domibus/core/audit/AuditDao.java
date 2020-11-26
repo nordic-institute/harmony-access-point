@@ -48,4 +48,6 @@ public interface AuditDao {
     void savePModeArchiveAudit(PModeArchiveAudit pmodeArchiveAudit);
 
     void saveJmsMessageAudit(JmsMessageAudit jmsMessageAudit);
+
+    void saveTruststoreAudit(TruststoreAudit messageAudit);
 }
