@@ -79,7 +79,7 @@ public class SuperUserManagementServiceImplTest {
     @Injectable
     protected DomainTaskExecutor domainTaskExecutor;
 
-    @Mocked
+    @Injectable
     private UserManagementServiceImpl userManagementService;
 
     @Injectable
@@ -159,8 +159,8 @@ public class SuperUserManagementServiceImplTest {
 
     @Test
     public void getPreferredDomainForUser(@Mocked eu.domibus.api.user.User user,
-                                 @Mocked UserDomainEntity userDomainEntity1,
-                                 @Mocked UserDomainEntity userDomainEntity2) {
+                                          @Mocked UserDomainEntity userDomainEntity1,
+                                          @Mocked UserDomainEntity userDomainEntity2) {
 
         new Expectations() {{
             user.getUserName();
