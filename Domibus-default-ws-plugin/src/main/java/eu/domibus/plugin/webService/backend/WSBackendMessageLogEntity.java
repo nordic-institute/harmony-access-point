@@ -13,10 +13,20 @@ import java.util.Date;
  */
 @Entity
 @Table(name = "WS_PLUGIN_TB_BACKEND_MESSAGE_LOG")
-@NamedQuery(name = "WSBackendMessageLogEntity.findByMessageId",
-        query = "select wsBackendMessageLogEntity " +
-                "from WSBackendMessageLogEntity wsBackendMessageLogEntity " +
-                "where wsBackendMessageLogEntity.messageId=:MESSAGE_ID")
+@NamedQueries({
+        @NamedQuery(name = "WSBackendMessageLogEntity.findByMessageId",
+                query = "select wsBackendMessageLogEntity " +
+                        "from WSBackendMessageLogEntity wsBackendMessageLogEntity " +
+                        "where wsBackendMessageLogEntity.messageId=:MESSAGE_ID"),
+        @NamedQuery(name = "WSBackendMessageLogEntity.findRetryMessages",
+                query = "select backendMessage " +
+                        "from WSBackendMessageLogEntity backendMessage " +
+                        "where backendMessage.messageStatus = :MESSAGE_STATUS " +
+                        "and backendMessage.nextAttempt < :CURRENT_TIMESTAMP " +
+                        "and 1 <= backendMessage.sendAttempts " +
+                        "and backendMessage.sendAttempts <= backendMessage.sendAttemptsMax " +
+                        "and (backendMessage.scheduled is null or backendMessage.scheduled=false)")
+})
 public class WSBackendMessageLogEntity {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSBackendMessageLogEntity.class);

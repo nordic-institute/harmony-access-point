@@ -1,4 +1,6 @@
-package eu.domibus.plugin.webService.backend.rules;
+package eu.domibus.plugin.webService.backend.reliability.strategy;
+
+import org.springframework.stereotype.Service;
 
 import java.util.Date;
 
@@ -6,6 +8,7 @@ import java.util.Date;
  * @author François Gautier
  * @since 5.0
  */
+@Service
 public class WSPluginRetryStrategySendOnce implements WSPluginRetryStrategy {
 
     @Override

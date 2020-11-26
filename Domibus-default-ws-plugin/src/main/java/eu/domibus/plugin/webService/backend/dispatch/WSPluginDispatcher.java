@@ -2,8 +2,6 @@
 package eu.domibus.plugin.webService.backend.dispatch;
 
 import eu.domibus.ext.domain.DomainDTO;
-import eu.domibus.ext.domain.metrics.Counter;
-import eu.domibus.ext.domain.metrics.Timer;
 import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.plugin.webService.exception.WSPluginException;
 import org.springframework.stereotype.Service;
@@ -30,8 +28,6 @@ public class WSPluginDispatcher {
         this.wsPluginDispatchClientProvider = wsPluginDispatchClientProvider;
     }
 
-    @Timer(clazz = WSPluginDispatcher.class, value = "dispatch")
-    @Counter(clazz = WSPluginDispatcher.class, value = "dispatch")
     public SOAPMessage dispatch(final SOAPMessage soapMessage, String endpoint) {
         DomainDTO domain = domainContextExtService.getCurrentDomain();
 

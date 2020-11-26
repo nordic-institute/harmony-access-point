@@ -4,6 +4,7 @@ import eu.domibus.ext.services.DomibusPropertyExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.webService.backend.WSBackendMessageType;
+import eu.domibus.plugin.webService.backend.reliability.strategy.WSPluginRetryStrategyType;
 import eu.domibus.plugin.webService.exception.WSPluginException;
 import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -14,8 +15,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
-import static org.apache.commons.lang3.StringUtils.equalsAnyIgnoreCase;
-import static org.apache.commons.lang3.StringUtils.trim;
+import static org.apache.commons.lang3.StringUtils.*;
 
 /**
  * @author François Gautier
@@ -110,15 +110,15 @@ public class WSPluginDispatchRulesService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * @param ruleName
-     * @return order set of rules for a given {@param ruleName}
-     */
-    public List<WSPluginDispatchRule> getRulesByRuleName(String ruleName) {
+    protected List<WSPluginDispatchRule> getRulesByName(String ruleName) {
         return getRules()
                 .stream()
                 .filter(wsPluginDispatchRule -> equalsAnyIgnoreCase(ruleName, wsPluginDispatchRule.getRuleName()))
                 .collect(Collectors.toList());
+    }
+
+    public WSPluginDispatchRule getRule(String ruleName) {
+        return getRulesByName(ruleName).stream().findAny().orElse(new WSPluginDispatchRuleBuilder(EMPTY).build());
     }
 
     protected void setRetryInformation(WSPluginDispatchRuleBuilder ruleBuilder, String property) {
@@ -140,7 +140,7 @@ public class WSPluginDispatchRulesService {
         }
     }
 
-    public String getEndpoint(String ruleName) {
-        return getRulesByRuleName(ruleName).stream().findAny().map(WSPluginDispatchRule::getEndpoint).orElse("");
+    public WSPluginRetryStrategyType getStrategy(String ruleName) {
+        return getRulesByName(ruleName).stream().findAny().map(WSPluginDispatchRule::getRetryStrategy).orElse(null);
     }
 }
