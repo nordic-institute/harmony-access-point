@@ -57,6 +57,12 @@ public class WSPluginBackendReliabilityServiceTest {
                                   @Mocked WSPluginDispatchRule rule,
                                   @Mocked WSPluginRetryStrategy retryStrategy) {
         new Expectations() {{
+            backendMessage.getEntityId();
+            result = 1L;
+
+            backendMessage.getMessageId();
+            result = "messageId";
+
             backendMessage.getNextAttempt();
             result = A_DATE;
             times = ATTEMPTS;
