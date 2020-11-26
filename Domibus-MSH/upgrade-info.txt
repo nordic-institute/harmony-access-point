@@ -1,6 +1,8 @@
 Domibus 4.2 (from 4.2-RC1)
                 - Run the appropriate DB migration script(mysql5innoDb-4.2-RC1-to-4.2-migration.ddl for MySQL or oracle10g-4.2-RC1-to-4.2-migration.ddl for Oracle)
                 - Replace the Domibus war
+                - Replace the default plugin(s) property file(s) and jar(s) into "\domibus\conf\domibus\plugins\config" respectively into "\domibus\conf\domibus\plugins\lib"
+                 -Replace the domibus.properties file(Please comment the property 'domibus.database.schema', if Domibus is configured in single-tenancy mode with Oracle database)
 Domibus 4.2 (from 4.1.6):
                 - Run the appropriate DB migration script(mysql5innoDb-4.1.5-to-4.2-migration.ddl for MySQL or oracle10g-4.1.5-to-4.2-migration.ddl for Oracle)
                 - Replace the Domibus war
