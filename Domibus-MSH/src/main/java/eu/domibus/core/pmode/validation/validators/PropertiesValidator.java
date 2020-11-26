@@ -2,7 +2,6 @@ package eu.domibus.core.pmode.validation.validators;
 
 import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.common.model.configuration.Configuration;
-import eu.domibus.common.model.configuration.Property;
 import eu.domibus.common.model.configuration.PropertyRef;
 import eu.domibus.core.pmode.validation.PModeValidator;
 import org.apache.commons.lang3.StringUtils;
@@ -41,11 +40,10 @@ public class PropertiesValidator implements PModeValidator {
     }
 
     private boolean notFoundInProperties(Configuration pMode, PropertyRef propertyRef) {
-        for (final Property property : pMode.getBusinessProcesses().getProperties()) {
-            if (StringUtils.equals(property.getName(), propertyRef.getProperty())) {
-                return false;
-            }
-        }
-        return true;
+       return pMode
+               .getBusinessProcesses()
+               .getProperties()
+               .stream()
+               .noneMatch(property -> StringUtils.equals(property.getName(), propertyRef.getProperty()));
     }
 }
