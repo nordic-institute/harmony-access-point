@@ -1,5 +1,6 @@
 package eu.domibus.core.user.multitenancy;
 
+import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.security.AuthRole;
@@ -129,10 +130,10 @@ public class SuperUserManagementServiceImpl extends UserManagementServiceImpl {
                 .collect(Collectors.toList());
         try {
             userManagementService.updateUsers(regularUsers);
-        } catch (Throwable ex) {
+        } catch (DomibusCoreException ex) {
             LOG.trace("Remove domain association for new users.");
             regularUsers.stream()
-                    .filter(user->user.isNew())
+                    .filter(user -> user.isNew())
                     .forEach(user -> userDomainService.deleteDomainForUser(user.getUserName()));
             throw ex;
         }
@@ -143,10 +144,10 @@ public class SuperUserManagementServiceImpl extends UserManagementServiceImpl {
         domainTaskExecutor.submit(() -> {
             try {
                 super.updateUsers(superUsers);
-            } catch (Throwable ex) {
+            } catch (DomibusCoreException ex) {
                 LOG.trace("Remove domain association for new super users.");
                 superUsers.stream()
-                        .filter(user->user.isNew())
+                        .filter(user -> user.isNew())
                         .forEach(user -> userDomainService.deleteDomainForUser(user.getUserName()));
                 throw ex;
             }
