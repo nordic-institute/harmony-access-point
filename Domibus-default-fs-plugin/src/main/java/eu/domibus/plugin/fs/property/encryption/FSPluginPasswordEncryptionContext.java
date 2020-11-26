@@ -50,7 +50,7 @@ public class FSPluginPasswordEncryptionContext implements PluginPasswordEncrypti
 
     @Override
     public String getProperty(String propertyName) {
-        return fsPluginProperties.getDomainPropertyNoDefault(domain.getCode(), propertyName);
+        return fsPluginProperties.getDomainProperty(domain.getCode(), propertyName);
     }
 
     @Override
@@ -62,7 +62,7 @@ public class FSPluginPasswordEncryptionContext implements PluginPasswordEncrypti
 
     @Override
     public List<String> getPropertiesToEncrypt() {
-        final String propertiesToEncryptString = fsPluginProperties.getDomainPropertyNoDefault(domain.getCode(), FSPLUGIN_PASSWORD_ENCRYPTION_PROPERTIES);
+        final String propertiesToEncryptString = fsPluginProperties.getDomainProperty(domain.getCode(), FSPLUGIN_PASSWORD_ENCRYPTION_PROPERTIES);
 
         if (StringUtils.isEmpty(propertiesToEncryptString)) {
             LOG.debug("No properties to encrypt");
