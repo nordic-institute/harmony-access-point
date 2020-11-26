@@ -1,8 +1,9 @@
 package eu.domibus.core.spring;
 
-import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.core.property.DomibusPropertyProviderImpl;
 import eu.domibus.core.security.configuration.SecurityInternalAuthProviderCondition;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
@@ -15,6 +16,9 @@ import org.springframework.session.jdbc.config.annotation.web.http.EnableJdbcHtt
 import org.springframework.session.web.http.CookieSerializer;
 import org.springframework.session.web.http.DefaultCookieSerializer;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_UI_SESSION_SECURE;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_UI_SESSION_TIMEOUT;
+
 /**
  * Beans and configuration needed by Spring Session
  *
@@ -25,6 +29,8 @@ import org.springframework.session.web.http.DefaultCookieSerializer;
 @EnableJdbcHttpSession
 @Conditional(SecurityInternalAuthProviderCondition.class)
 public class DomibusSessionConfiguration {
+
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusSessionConfiguration.class);
 
     @Autowired
     DomibusPropertyProviderImpl domibusPropertyProvider;
@@ -40,11 +46,31 @@ public class DomibusSessionConfiguration {
 
     @Bean
     public CookieSerializer cookieSerializer() {
-        Boolean secure = domibusPropertyProvider.getBooleanProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_UI_SESSION_SECURE);
-
         DefaultCookieSerializer serializer = new DefaultCookieSerializer();
-        serializer.setUseSecureCookie(secure);
+
+        setSecure(serializer);
+
+        setTimeout(serializer);
+
         return serializer;
+    }
+
+    private void setTimeout(DefaultCookieSerializer serializer) {
+        int timeout = domibusPropertyProvider.getIntegerProperty(DOMIBUS_UI_SESSION_TIMEOUT);
+        if (timeout <= 0) {
+            LOG.info("Session timeout should be positive, not [{}].", timeout);
+            return;
+        }
+
+        serializer.setCookieMaxAge(timeout * 60);
+        LOG.debug("Session timeout set to [{}].", timeout);
+    }
+
+    private void setSecure(DefaultCookieSerializer serializer) {
+        Boolean secure = domibusPropertyProvider.getBooleanProperty(DOMIBUS_UI_SESSION_SECURE);
+        serializer.setUseSecureCookie(secure);
+        LOG.debug("Session secure set to [{}].", secure);
+
     }
 
 }
