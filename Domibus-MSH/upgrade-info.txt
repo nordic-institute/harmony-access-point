@@ -1,10 +1,3 @@
-Domibus 4.2 (from 4.2-RC1)
-                - Run the appropriate DB migration script(mysql5innoDb-4.2-RC1-to-4.2-migration.ddl for MySQL or oracle10g-4.2-RC1-to-4.2-migration.ddl for Oracle)
-                - Replace the Domibus war
-                - Replace the default plugin(s) property file(s) and jar(s) into "\domibus\conf\domibus\plugins\config" respectively into "\domibus\conf\domibus\plugins\lib"
-                - Replace the domibus.properties file(Please comment the property 'domibus.database.schema', if Domibus is configured in single-tenancy mode with Oracle database)
-                - [WebLogic only]
-                     - execute the WLST API script(from "/conf/domibus/scripts/upgrades") 4.1.6-to-4.2-WeblogicSingleServer.properties for single server deployment or 4.1.6-to-4.2-WeblogicCluster.properties for cluster deployment
 Domibus 4.2 (from 4.1.6):
                 - Run the appropriate DB migration script(mysql5innoDb-4.1.5-to-4.2-migration.ddl for MySQL or oracle10g-4.1.5-to-4.2-migration.ddl for Oracle)
                 - Replace the Domibus war
@@ -32,6 +25,15 @@ Domibus 4.2 (from 4.1.6):
                     and replace 'core-threads="50" max-threads="200"' with 'core-threads="200" max-threads="500"'
                    - in standalone-full.xml - add
                     <managed-executor-service name="mshExecutorService" jndi-name="java:jboss/ee/concurrency/executor/MshExecutorService" context-service="default" hung-task-threshold="60000" core-threads="100" max-threads="300" keepalive-time="5000"/>
+                - [WebLogic only]
+                    - execute the WLST API script(from "/conf/domibus/scripts/upgrades") 4.1.6-to-4.2-WeblogicSingleServer.properties for single server deployment or 4.1.6-to-4.2-WeblogicCluster.properties for cluster deployment
+Domibus 4.2 (from 4.2-RC1):
+                - Run the appropriate DB migration script(mysql5innoDb-4.2-RC1-to-4.2-migration.ddl for MySQL or oracle10g-4.2-RC1-to-4.2-migration.ddl for Oracle)
+                - Replace the Domibus war
+                - Replace the default plugin(s) property file(s) and jar(s) into "\domibus\conf\domibus\plugins\config" respectively into "\domibus\conf\domibus\plugins\lib"
+                - Replace the domibus.properties file(Please comment the property 'domibus.database.schema', if Domibus is configured in single-tenancy mode with Oracle database)
+                - [WebLogic only]
+                     - execute the WLST API script(from "/conf/domibus/scripts/upgrades") 4.1.6-to-4.2-WeblogicSingleServer.properties for single server deployment or 4.1.6-to-4.2-WeblogicCluster.properties for cluster deployment
 Domibus 4.1.6 (from 4.1.5)
                 - Please replace the Domibus war
 Domibus 4.1.5 (from 4.1.3)
