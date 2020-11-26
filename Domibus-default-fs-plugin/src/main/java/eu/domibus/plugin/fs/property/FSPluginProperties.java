@@ -127,8 +127,9 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
     public String getLocation(String domain) {
         String value = getDomainProperty(domain, LOCATION);
         if (StringUtils.isBlank(value)) {
-            LOG.warn("[{}] property not set for domain=[{}] going to use java.io.tmpdir", LOCATION, domain);
-            return System.getProperty("java.io.tmpdir");
+            String tmpFolder = System.getProperty("java.io.tmpdir");
+            LOG.warn("[{}] property not set for domain=[{}] going to use [{}]", LOCATION, domain, tmpFolder);
+            return tmpFolder;
         }
         return value;
     }
