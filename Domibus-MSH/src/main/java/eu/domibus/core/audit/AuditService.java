@@ -108,5 +108,10 @@ public interface AuditService {
     void addJmsMessageMovedAudit(
             String messageId,
             String fromQueue, String toQueue, String domainCode);
+
+    /**
+     * Add truststore downloaded
+     **/
+    void addTruststoreDownloadedAudit();
 }
 

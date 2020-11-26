@@ -174,4 +174,10 @@ public class AuditDaoImpl implements AuditDao {
     public void saveJmsMessageAudit(final JmsMessageAudit jmsMessageAudit) {
         entityManager.persist(jmsMessageAudit);
     }
+
+    @Override
+    @Transactional
+    public void saveTruststoreAudit(TruststoreAudit audit) {
+        entityManager.persist(audit);
+    }
 }

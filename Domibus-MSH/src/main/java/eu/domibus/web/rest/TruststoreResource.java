@@ -6,6 +6,7 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.api.validators.SkipWhiteListed;
+import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import eu.domibus.logging.DomibusLogger;
@@ -59,6 +60,9 @@ public class TruststoreResource extends BaseResource {
     @Autowired
     MultiPartFileUtil multiPartFileUtil;
 
+    @Autowired
+    private AuditService auditService;
+
     @ExceptionHandler({CryptoException.class})
     public ResponseEntity<ErrorRO> handleCryptoException(CryptoException ex) {
         return errorHandlerService.createResponse(ex, HttpStatus.BAD_REQUEST);
@@ -82,6 +86,9 @@ public class TruststoreResource extends BaseResource {
     @RequestMapping(value = "/download", method = RequestMethod.GET, produces = "application/octet-stream")
     public ResponseEntity<ByteArrayResource> downloadTrustStore() throws IOException {
         byte[] content = certificateService.getTruststoreContent();
+
+        auditService.addTruststoreDownloadedAudit();
+
         ByteArrayResource resource = new ByteArrayResource(content);
 
         HttpStatus status = HttpStatus.OK;
