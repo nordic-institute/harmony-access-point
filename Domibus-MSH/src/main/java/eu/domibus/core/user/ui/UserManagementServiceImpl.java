@@ -30,6 +30,8 @@ import java.util.Map;
 import java.util.function.Function;
 
 /**
+ *  * Management of regular users, used in ST mode and when a domain admin user logs in in MT mode
+ *
  * @author Thomas Dussart, Ion Perpegel
  * @since 3.3
  */

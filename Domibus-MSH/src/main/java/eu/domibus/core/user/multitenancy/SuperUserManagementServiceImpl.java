@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
+ * Management of all users ( domain and super users), used when a super-user logs in in MT mode
+ *
  * @author Ion Perpegel
  * @since 4.0
  */
@@ -118,13 +120,20 @@ public class SuperUserManagementServiceImpl extends UserManagementServiceImpl {
     @Transactional
     public void updateUsers(List<eu.domibus.api.user.User> users) {
 
+        // cannot reuse the bellow code properly because of the use of super keyword
+        // TODO: refactor this class by splitting it in 2: SuperUserManagementService( deals only with super users)
+        // and AllUserManagementService which is the aggregator of SuperUserManagementService and UserManagementService
+        // EDELIVERY-7510
         List<eu.domibus.api.user.User> regularUsers = users.stream()
                 .filter(u -> !u.getAuthorities().contains(AuthRole.ROLE_AP_ADMIN.name()))
                 .collect(Collectors.toList());
         try {
             userManagementService.updateUsers(regularUsers);
         } catch (Throwable ex) {
-            regularUsers.forEach(user -> userDomainService.deleteDomainForUser(user.getUserName()));
+            LOG.trace("Remove domain association for new users.");
+            regularUsers.stream()
+                    .filter(user->user.isNew())
+                    .forEach(user -> userDomainService.deleteDomainForUser(user.getUserName()));
             throw ex;
         }
 
@@ -135,7 +144,10 @@ public class SuperUserManagementServiceImpl extends UserManagementServiceImpl {
             try {
                 super.updateUsers(superUsers);
             } catch (Throwable ex) {
-                superUsers.forEach(user -> userDomainService.deleteDomainForUser(user.getUserName()));
+                LOG.trace("Remove domain association for new super users.");
+                superUsers.stream()
+                        .filter(user->user.isNew())
+                        .forEach(user -> userDomainService.deleteDomainForUser(user.getUserName()));
                 throw ex;
             }
         });

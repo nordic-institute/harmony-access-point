@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 
 /**
- * @author Ion Perpegel(nperpion)
+ * @author Ion Perpegel
  * @since 4.0
  */
 public class UserDomainServiceMultiDomainImpl implements UserDomainService {
@@ -25,7 +25,6 @@ public class UserDomainServiceMultiDomainImpl implements UserDomainService {
 
     @Autowired
     protected DomibusCacheService domibusCacheService;
-
 
     /**
      * Get the domain associated to the provided user from the general schema. <br>
