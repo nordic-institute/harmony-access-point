@@ -205,7 +205,6 @@ public class AuditServiceImpl implements AuditService {
     /**
      * {@inheritDoc}
      */
-    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void addTruststoreDownloadedAudit() {
         auditDao.saveTruststoreAudit(
