@@ -154,7 +154,7 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
      * @return The time interval (seconds) to purge sent messages
      */
     public Integer getSentPurgeExpired(String domain) {
-        return getIntegerDomainProperty(domain, SENT_PURGE_EXPIRED);
+        return getDomainIntegerProperty(domain, SENT_PURGE_EXPIRED);
     }
 
 
@@ -202,7 +202,7 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
      * @return The time interval (seconds) to purge failed messages
      */
     public Integer getFailedPurgeExpired(String domain) {
-        return getIntegerDomainProperty(domain, FAILED_PURGE_EXPIRED);
+        return getDomainIntegerProperty(domain, FAILED_PURGE_EXPIRED);
     }
 
     /**
@@ -210,7 +210,7 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
      * @return The time interval (seconds) to purge received messages
      */
     public Integer getReceivedPurgeExpired(String domain) {
-        return getIntegerDomainProperty(domain, RECEIVED_PURGE_EXPIRED);
+        return getDomainIntegerProperty(domain, RECEIVED_PURGE_EXPIRED);
     }
 
     /**
@@ -218,7 +218,7 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
      * @return The time interval (seconds) to purge orphan lock files
      */
     public Integer getLocksPurgeExpired(String domain) {
-        return getIntegerDomainProperty(domain, LOCKS_PURGE_EXPIRED);
+        return getDomainIntegerProperty(domain, LOCKS_PURGE_EXPIRED);
     }
 
     /**
@@ -309,7 +309,7 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
      * @return delay value in milliseconds
      */
     public Integer getSendDelay(String domain) {
-        return getIntegerDomainProperty(domain, SEND_DELAY);
+        return getDomainIntegerProperty(domain, SEND_DELAY);
     }
 
     /**
@@ -397,16 +397,10 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
         return value;
     }
 
-    public Integer getIntegerDomainProperty(String domain, String propertyName) {
+    public Integer getDomainIntegerProperty(String domain, String propertyName) {
         String value = getDomainProperty(domain, propertyName);
         return NumberUtils.toInt(value);
     }
-
-//    public String getDomainPropertyNoDefault(String domain, String propertyName) {
-//
-//        // cannot use default values
-//        return getDomainProperty(domain, propertyName);
-//    }
 
     private Integer getInteger(String value, Integer defaultValue) {
         Integer result = defaultValue;
@@ -460,7 +454,6 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
                 }
             } else {
                 //if not multiplied, the usage should be global
-                //TODO enachca check why?
                 propMeta.setUsage(DomibusPropertyMetadataDTO.Usage.GLOBAL);
                 knownProperties.put(propMeta.getName(), propMeta);
             }
@@ -469,51 +462,10 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
 
     protected void updatePropertiesForMultitenancy(Map<String, DomibusPropertyMetadataDTO> baseProperties) {
         for (DomibusPropertyMetadataDTO propMeta : baseProperties.values()) {
-            //updatePropertyName(propMeta);
             knownProperties.put(propMeta.getName(), propMeta);
         }
     }
 
-//    private void updatePropertyName(DomibusPropertyMetadataDTO propMeta) {
-//        String name = propMeta.getName().contains(PROPERTY_PREFIX) ? propMeta.getName() : PROPERTY_PREFIX + propMeta.getName();
-//        propMeta.setName(name);
-//        LOG.debug("Update the simple property name [{}] of the known property list.", name);
-//    }
-
-//    @Override
-//    public boolean hasKnownProperty(String name) {
-//        return this.getKnownProperties().containsKey(name);
-//    }
-
-//    @Override
-//    public String getKnownPropertyValue(String domainCode, String propertyName) {
-//        if (!hasKnownProperty(propertyName)) {
-//            throw new DomibusPropertyExtException("Unknown property name: " + propertyName);
-//        }
-//
-//        if (domibusConfigurationExtService.isMultiTenantAware()) {
-//            //MT
-//        } else {
-//            //ST
-//        }
-//
-//
-//        // propertyName may or may not already include the domaincode (in single-tenancy vs multi-tenancy)
-//        if (propertyName.startsWith(DOMAIN_PREFIX) && this.properties.containsKey(propertyName)) {
-//            return this.properties.getProperty(propertyName);
-//        }
-//        String baseName = getBasePropertyName(propertyName);
-//        String key1 = DOMAIN_PREFIX + domainCode + DOT + baseName;
-//        String key2 = PROPERTY_PREFIX + baseName;
-//
-//        if (this.properties.containsKey(key1)) {
-//            return this.properties.getProperty(key1);
-//        }
-//        if (this.properties.containsKey(key2)) {
-//            return this.properties.getProperty(key2);
-//        }
-//        return null;
-//    }
 
 //    @Override
 //    public String getKnownPropertyValue(String propertyName) {
