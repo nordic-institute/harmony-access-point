@@ -7,7 +7,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import static eu.domibus.plugin.fs.property.FSPluginPropertiesMetadataManagerImpl.*;
+import static eu.domibus.plugin.fs.property.FSPluginPropertiesMetadataManagerImpl.EXPRESSION;
+import static eu.domibus.plugin.fs.property.FSPluginPropertiesMetadataManagerImpl.ORDER;
 
 /**
  * @author Ion Perpegel
@@ -26,7 +27,7 @@ public class DomainPropertiesChangeListener implements PluginPropertyChangeListe
 
     @Override
     public boolean handlesProperty(String propertyName) {
-        return StringUtils.equalsAnyIgnoreCase(propertyName, PROPERTY_PREFIX + ORDER, PROPERTY_PREFIX + EXPRESSION);
+        return StringUtils.equalsAnyIgnoreCase(propertyName, ORDER, EXPRESSION);
     }
 
     @Override

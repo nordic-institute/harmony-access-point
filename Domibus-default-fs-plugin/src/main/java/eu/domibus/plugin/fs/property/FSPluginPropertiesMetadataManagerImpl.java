@@ -20,65 +20,63 @@ import java.util.stream.Collectors;
 @Component
 public class FSPluginPropertiesMetadataManagerImpl implements DomibusPropertyMetadataManagerExt {
 
-    public static final String PROPERTY_PREFIX = "fsplugin.";
+    protected static final String LOCATION = "fsplugin.messages.location";
 
-    protected static final String LOCATION = PROPERTY_PREFIX + "messages.location";
+    protected static final String SENT_ACTION = "fsplugin.messages.sent.action";
 
-    protected static final String SENT_ACTION = PROPERTY_PREFIX+ "messages.sent.action";
+    public static final String SENT_PURGE_WORKER_CRONEXPRESSION = "fsplugin.messages.sent.purge.worker.cronExpression";
 
-    public static final String SENT_PURGE_WORKER_CRONEXPRESSION = PROPERTY_PREFIX+ "messages.sent.purge.worker.cronExpression";
+    protected static final String SENT_PURGE_EXPIRED = "fsplugin.messages.sent.purge.expired";
 
-    protected static final String SENT_PURGE_EXPIRED = PROPERTY_PREFIX+ "messages.sent.purge.expired";
+    protected static final String FAILED_ACTION = "fsplugin.messages.failed.action";
 
-    protected static final String FAILED_ACTION = PROPERTY_PREFIX+"messages.failed.action";
+    public static final String FAILED_PURGE_WORKER_CRONEXPRESSION = "fsplugin.messages.failed.purge.worker.cronExpression";
 
-    public static final String FAILED_PURGE_WORKER_CRONEXPRESSION = PROPERTY_PREFIX + "messages.failed.purge.worker.cronExpression";
+    protected static final String FAILED_PURGE_EXPIRED = "fsplugin.messages.failed.purge.expired";
 
-    protected static final String FAILED_PURGE_EXPIRED = PROPERTY_PREFIX + "messages.failed.purge.expired";
+    protected static final String RECEIVED_PURGE_EXPIRED = "fsplugin.messages.received.purge.expired";
 
-    protected static final String RECEIVED_PURGE_EXPIRED = PROPERTY_PREFIX + "messages.received.purge.expired";
+    public static final String OUT_QUEUE_CONCURRENCY = "fsplugin.send.queue.concurrency";
 
-    public static final String OUT_QUEUE_CONCURRENCY = PROPERTY_PREFIX +"send.queue.concurrency";
+    protected static final String SEND_DELAY = "fsplugin.messages.send.delay";
 
-    protected static final String SEND_DELAY = PROPERTY_PREFIX + "messages.send.delay";
+    public static final String SEND_WORKER_INTERVAL = "fsplugin.messages.send.worker.repeatInterval";
 
-    public static final String SEND_WORKER_INTERVAL = PROPERTY_PREFIX + "messages.send.worker.repeatInterval";
+    public static final String RECEIVED_PURGE_WORKER_CRONEXPRESSION = "fsplugin.messages.received.purge.worker.cronExpression";
 
-    public static final String RECEIVED_PURGE_WORKER_CRONEXPRESSION = PROPERTY_PREFIX + "messages.received.purge.worker.cronExpression";
+    public static final String LOCKS_PURGE_WORKER_CRONEXPRESSION = "fsplugin.messages.locks.purge.worker.cronExpression";
 
-    public static final String LOCKS_PURGE_WORKER_CRONEXPRESSION = PROPERTY_PREFIX + "messages.locks.purge.worker.cronExpression";
+    protected static final String LOCKS_PURGE_EXPIRED = "fsplugin.messages.locks.purge.expired";
 
-    protected static final String LOCKS_PURGE_EXPIRED = PROPERTY_PREFIX + "messages.locks.purge.expired";
+    protected static final String USER = "fsplugin.messages.user";
 
-    protected static final String USER = PROPERTY_PREFIX + "messages.user";
-
-    protected static final String PAYLOAD_ID = PROPERTY_PREFIX + "messages.payload.id";
+    protected static final String PAYLOAD_ID = "fsplugin.messages.payload.id";
 
     // Sonar confuses this constant with an actual password
     @SuppressWarnings("squid:S2068")
-    protected static final String PASSWORD = PROPERTY_PREFIX + "messages.password";
+    protected static final String PASSWORD = "fsplugin.messages.password";
 
-    public static final String MESSAGE_NOTIFICATIONS = PROPERTY_PREFIX + "messages.notifications";
+    public static final String MESSAGE_NOTIFICATIONS = "fsplugin.messages.notifications";
 
-    protected static final String AUTHENTICATION_USER = PROPERTY_PREFIX + "authentication.user";
+    protected static final String AUTHENTICATION_USER = "fsplugin.authentication.user";
 
     // Sonar confuses this constant with an actual password
     @SuppressWarnings("squid:S2068")
-    protected static final String AUTHENTICATION_PASSWORD = PROPERTY_PREFIX + "authentication.password";
+    protected static final String AUTHENTICATION_PASSWORD = "fsplugin.authentication.password";
 
-    public static final String EXPRESSION = PROPERTY_PREFIX + "messages.expression";
+    public static final String EXPRESSION = "fsplugin.messages.expression";
 
-    public static final String ORDER = PROPERTY_PREFIX + "order";
+    public static final String ORDER = "fsplugin.order";
 
-    protected static final String PAYLOAD_SCHEDULE_THRESHOLD = PROPERTY_PREFIX + "messages.payload.schedule.threshold";
+    protected static final String PAYLOAD_SCHEDULE_THRESHOLD = "fsplugin.messages.payload.schedule.threshold";
 
-    protected static final String PASSWORD_ENCRYPTION_ACTIVE = PROPERTY_PREFIX + "password.encryption.active"; //NOSONAR
+    protected static final String PASSWORD_ENCRYPTION_ACTIVE = "fsplugin.password.encryption.active"; //NOSONAR
 
-    public static final String FSPLUGIN_PASSWORD_ENCRYPTION_PROPERTIES = PROPERTY_PREFIX + "password.encryption.properties"; //NOSONAR
+    public static final String FSPLUGIN_PASSWORD_ENCRYPTION_PROPERTIES = "fsplugin.password.encryption.properties"; //NOSONAR
 
-    public static final String OUT_QUEUE = PROPERTY_PREFIX + "send.queue";
+    public static final String OUT_QUEUE = "fsplugin.send.queue";
 
-    protected static final String DOMAINS_LIST = PROPERTY_PREFIX + "domains.list";
+    protected static final String DOMAINS_LIST = "fsplugin.domains.list";
 
     Map<String, DomibusPropertyMetadataDTO> knownProperties;
 

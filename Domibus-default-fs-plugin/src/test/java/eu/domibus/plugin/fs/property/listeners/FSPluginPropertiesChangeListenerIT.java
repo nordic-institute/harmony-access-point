@@ -153,18 +153,18 @@ public class FSPluginPropertiesChangeListenerIT {
 
     @Test
     public void testTriggerChangeListener() {
-        boolean handlesWorkerInterval = triggerChangeListener.handlesProperty(PROPERTY_PREFIX + SEND_WORKER_INTERVAL);
+        boolean handlesWorkerInterval = triggerChangeListener.handlesProperty(SEND_WORKER_INTERVAL);
         Assert.assertTrue(handlesWorkerInterval);
 
         try {
-            triggerChangeListener.propertyValueChanged("default", PROPERTY_PREFIX + SEND_WORKER_INTERVAL, "wrong-value");
+            triggerChangeListener.propertyValueChanged("default", SEND_WORKER_INTERVAL, "wrong-value");
             Assert.fail("Expected exception not raised");
         } catch (IllegalArgumentException e) {
             Assert.assertTrue(e.getMessage().contains("Invalid"));
         }
 
-        triggerChangeListener.propertyValueChanged("default", PROPERTY_PREFIX + SEND_WORKER_INTERVAL, "3000");
-        triggerChangeListener.propertyValueChanged("default", PROPERTY_PREFIX + SENT_PURGE_WORKER_CRONEXPRESSION, "0 0/15 * * * ?");
+        triggerChangeListener.propertyValueChanged("default", SEND_WORKER_INTERVAL, "3000");
+        triggerChangeListener.propertyValueChanged("default", SENT_PURGE_WORKER_CRONEXPRESSION, "0 0/15 * * * ?");
 
         Mockito.verify(domibusSchedulerExt, Mockito.times(1)).rescheduleJob("default", "fsPluginSendMessagesWorkerJob", 3000);
         Mockito.verify(domibusSchedulerExt, Mockito.times(1)).rescheduleJob("default", "fsPluginPurgeSentWorkerJob", "0 0/15 * * * ?");
