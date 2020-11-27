@@ -59,9 +59,6 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
     @Autowired
     protected DomibusConfigurationService domibusConfigurationService;
 
-    @Autowired
-    UserSessionsService userSessionsService;
-
     protected abstract String getPasswordComplexityPatternProperty();
 
     public abstract String getPasswordHistoryPolicyProperty();
@@ -252,30 +249,40 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
         LOG.debug("setAttemptCount [{}] out of [{}] for user [{}]", user.getAttemptCount(), maxAttemptAmount, user.getUserName());
 
         if (user.getAttemptCount() >= maxAttemptAmount) {
-            LOG.debug("Applying account locking policy, max number of attempt ([{}]) reached for user [{}]", maxAttemptAmount, user.getUserName());
-            user.setActive(false);
-            user.setSuspensionDate(new Date(System.currentTimeMillis()));
-            LOG.securityWarn(DomibusMessageCode.SEC_CONSOLE_LOGIN_LOCKED_USER, user.getUserName(), maxAttemptAmount);
-            userSessionsService.invalidateSessions(user);
-            getUserAlertsService().triggerDisabledEvent(user);
+            onSuspendUser(user, maxAttemptAmount);
         }
 
         getUserDao().update(user, true);
     }
 
+    protected void onSuspendUser(U user, int maxAttemptAmount) {
+        LOG.debug("Applying account locking policy, max number of attempt ([{}]) reached for user [{}]", maxAttemptAmount, user.getUserName());
+        user.setActive(false);
+        user.setSuspensionDate(new Date(System.currentTimeMillis()));
+        LOG.securityWarn(DomibusMessageCode.SEC_CONSOLE_LOGIN_LOCKED_USER, user.getUserName(), maxAttemptAmount);
+        getUserAlertsService().triggerDisabledEvent(user);
+    }
+
     public UserEntityBase applyLockingPolicyOnUpdate(UserBase user) {
         UserEntityBase userEntity = getUserDao().findByUserName(user.getUserName());
         if (!userEntity.isActive() && user.isActive()) {
-            userEntity.setSuspensionDate(null);
-            userEntity.setAttemptCount(0);
-            getUserAlertsService().triggerEnabledEvent(user);
+            onActivateUser(user, userEntity);
         } else if (!user.isActive() && userEntity.isActive()) {
-            LOG.debug("User:[{}] is being disabled, invalidating session.", user.getUserName());
-            userSessionsService.invalidateSessions(user);
-            getUserAlertsService().triggerDisabledEvent(user);
+            onInactivateUser(user);
         }
         userEntity.setActive(user.isActive());
         return userEntity;
+    }
+
+    protected void onInactivateUser(UserBase user) {
+        LOG.debug("User:[{}] is being disabled, invalidating session.", user.getUserName());
+        getUserAlertsService().triggerDisabledEvent(user);
+    }
+
+    protected void onActivateUser(UserBase user, UserEntityBase userEntity) {
+        userEntity.setSuspensionDate(null);
+        userEntity.setAttemptCount(0);
+        getUserAlertsService().triggerEnabledEvent(user);
     }
 
     @Transactional
