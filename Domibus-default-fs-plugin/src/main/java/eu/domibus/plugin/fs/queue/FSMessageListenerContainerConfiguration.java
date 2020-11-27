@@ -50,7 +50,7 @@ public class FSMessageListenerContainerConfiguration {
     private FSPluginProperties fsPluginProperties;
 
     @Bean(name = "fsPluginOutContainer")
-    @Scope(BeanDefinition.SCOPE_PROTOTYPE) //TODO enachca check this
+    @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public MessageListenerContainer createDefaultMessageListenerContainer(DomainDTO domain) {
         DefaultMessageListenerContainer messageListenerContainer = new DefaultMessageListenerContainer();
 

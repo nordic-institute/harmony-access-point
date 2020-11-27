@@ -139,7 +139,7 @@ public class FSPluginPropertiesTestIT {
 
     @Test
     public void testGetSentPurgeWorkerCronExpression() {
-        Assert.assertEquals("0 0/1 * * * ?", fSPluginProperties.getSentPurgeWorkerCronExpression(null));
+        Assert.assertEquals("0 0/1 * * * ?", fSPluginProperties.getSentPurgeWorkerCronExpression());
     }
 
     @Test

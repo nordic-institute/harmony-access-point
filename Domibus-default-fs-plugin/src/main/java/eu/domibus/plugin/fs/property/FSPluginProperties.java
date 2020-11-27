@@ -46,8 +46,6 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
 
     private static final String DOT = ".";
 
-    private static final String DEFAULT_CONTENT_ID = "cid:message";
-
     @Value("${fsplugin.domains.list:}")//still keeping this for reading fs plugin domain list
     private String fsPluginDomainsList;
 
@@ -145,7 +143,7 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
     /**
      * @return The cron expression that defines the frequency of the sent messages purge job
      */
-    public String getSentPurgeWorkerCronExpression(String domain) {
+    public String getSentPurgeWorkerCronExpression() {
         return super.getKnownPropertyValue(SENT_PURGE_WORKER_CRONEXPRESSION);
     }
 
@@ -397,7 +395,7 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
         return value;
     }
 
-    public Integer getDomainIntegerProperty(String domain, String propertyName) {
+    protected Integer getDomainIntegerProperty(String domain, String propertyName) {
         String value = getDomainProperty(domain, propertyName);
         return NumberUtils.toInt(value);
     }
@@ -465,42 +463,6 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
             knownProperties.put(propMeta.getName(), propMeta);
         }
     }
-
-
-//    @Override
-//    public String getKnownPropertyValue(String propertyName) {
-//        DomainDTO currentDomain = domainContextProvider.getCurrentDomainSafely();
-//        String domainCode = currentDomain == null ? null : currentDomain.getCode();
-//        return getKnownPropertyValue(domainCode, propertyName);
-//    }
-
-//    @Override
-//    public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue, boolean broadcast) {
-//        LOG.debug("Updating value of property [{}] on domain [{}]", propertyName, domainCode);
-//        if (!hasKnownProperty(propertyName)) {
-//            throw new DomibusPropertyExtException("Unknown property name: " + propertyName);
-//        }
-//
-//        String propertyKey = propertyName;
-//        if (domibusConfigurationExtService.isMultiTenantAware()) {
-//            propertyKey = getDomainPropertyName(domainCode, propertyName);
-//        }
-//        this.properties.setProperty(propertyKey, propertyValue);
-//
-//        LOG.debug("Signaling property value changed for [{}] property, broadcast: [{}]", propertyName, broadcast);
-//        pluginPropertyChangeNotifier.signalPropertyValueChanged(domainCode, propertyName, propertyValue, broadcast);
-//    }
-//
-//    public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue) {
-//        setKnownPropertyValue(domainCode, propertyName, propertyValue, true);
-//    }
-
-//    @Override
-//    public void setKnownPropertyValue(String propertyName, String propertyValue) {
-//        DomainDTO currentDomain = domainContextProvider.getCurrentDomainSafely();
-//        String domainCode = currentDomain == null ? null : currentDomain.getCode();
-//        setKnownPropertyValue(domainCode, propertyName, propertyValue);
-//    }
 
     protected boolean shouldMultiplyPropertyMetadata(DomibusPropertyMetadataDTO propMeta) {
         // in single-domain mode - we only expose the "base" properties

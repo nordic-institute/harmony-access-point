@@ -22,8 +22,6 @@ public class FSPluginPropertiesMetadataManagerImpl implements DomibusPropertyMet
 
     public static final String PROPERTY_PREFIX = "fsplugin.";
 
-    //protected static final String DOMAIN_PREFIX = "fsplugin.domains.";
-
     protected static final String LOCATION = PROPERTY_PREFIX + "messages.location";
 
     protected static final String SENT_ACTION = PROPERTY_PREFIX+ "messages.sent.action";
@@ -136,6 +134,6 @@ public class FSPluginPropertiesMetadataManagerImpl implements DomibusPropertyMet
                 new DomibusPropertyMetadataDTO(PAYLOAD_ID, Type.URI, Module.FS_PLUGIN, Usage.DOMAIN, true),
                 new DomibusPropertyMetadataDTO(OUT_QUEUE_CONCURRENCY, Type.CONCURRENCY, Module.FS_PLUGIN, Usage.DOMAIN, true),
         })
-                .collect(Collectors.toMap(x -> x.getName(), x -> x));
+                .collect(Collectors.toMap(DomibusPropertyMetadataDTO::getName, x -> x));
     }
 }
