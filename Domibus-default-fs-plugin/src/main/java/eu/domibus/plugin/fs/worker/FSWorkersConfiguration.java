@@ -1,5 +1,6 @@
 package eu.domibus.plugin.fs.worker;
 
+import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -35,8 +36,13 @@ public class FSWorkersConfiguration {
 
 
     @Bean
-    @Scope(BeanDefinition.SCOPE_PROTOTYPE) //TODO check MT
+    @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public SimpleTriggerFactoryBean fsPluginSendMessagesWorkerTrigger(FSPluginProperties fsPluginProperties) {
+        DomainDTO domain = domainContextExtService.getCurrentDomainSafely();
+        if (domain == null) {
+            LOG.debug("fsPluginSendMessagesWorkerTrigger, domain is null");
+            return null; // this job only works for a domain
+        }
         SimpleTriggerFactoryBean obj = new SimpleTriggerFactoryBean();
         obj.setJobDetail(fsPluginSendMessagesWorkerJob().getObject());
         obj.setRepeatInterval(fsPluginProperties.getSendWorkerInterval());
@@ -55,6 +61,11 @@ public class FSWorkersConfiguration {
     @Bean
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public CronTriggerFactoryBean fsPluginPurgeSentWorkerTrigger(FSPluginProperties fsPluginProperties) {
+        DomainDTO domain = domainContextExtService.getCurrentDomainSafely();
+        if (domain == null) {
+            LOG.debug("fsPluginPurgeSentWorkerTrigger, domain is null");
+            return null; // this job only works for a domain
+        }
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(fsPluginPurgeSentWorkerJob().getObject());
         obj.setCronExpression(fsPluginProperties.getSentPurgeWorkerCronExpression());
@@ -71,8 +82,13 @@ public class FSWorkersConfiguration {
     }
 
     @Bean
-    @Scope(BeanDefinition.SCOPE_PROTOTYPE) //TODO check MT
+    @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public CronTriggerFactoryBean fsPluginPurgeFailedWorkerTrigger(FSPluginProperties fsPluginProperties) {
+        DomainDTO domain = domainContextExtService.getCurrentDomainSafely();
+        if (domain == null) {
+            LOG.debug("fsPluginPurgeFailedWorkerTrigger, domain is null");
+            return null; // this job only works for a domain
+        }
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(fsPluginPurgeFailedWorkerJob().getObject());
         obj.setCronExpression(fsPluginProperties.getFailedPurgeWorkerCronExpression());
@@ -91,6 +107,11 @@ public class FSWorkersConfiguration {
     @Bean
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public CronTriggerFactoryBean fsPluginPurgeReceivedWorkerTrigger(FSPluginProperties fsPluginProperties) {
+        DomainDTO domain = domainContextExtService.getCurrentDomainSafely();
+        if (domain == null) {
+            LOG.debug("fsPluginPurgeReceivedWorkerTrigger, domain is null");
+            return null; // this job only works for a domain
+        }
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(fsPluginPurgeReceivedWorkerJob().getObject());
         obj.setCronExpression(fsPluginProperties.getReceivedPurgeWorkerCronExpression());
@@ -109,6 +130,11 @@ public class FSWorkersConfiguration {
     @Bean
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public CronTriggerFactoryBean fsPluginPurgeLocksWorkerTrigger(FSPluginProperties fsPluginProperties) {
+        DomainDTO domain = domainContextExtService.getCurrentDomainSafely();
+        if (domain == null) {
+            LOG.debug("fsPluginPurgeLocksWorkerTrigger, domain is null");
+            return null; // this job only works for a domain
+        }
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(fsPluginPurgeLocksWorkerJob().getObject());
         obj.setCronExpression(fsPluginProperties.getLocksPurgeWorkerCronExpression());
