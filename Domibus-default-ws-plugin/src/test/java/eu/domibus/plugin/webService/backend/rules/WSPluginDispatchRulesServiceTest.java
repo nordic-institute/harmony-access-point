@@ -1,10 +1,14 @@
 package eu.domibus.plugin.webService.backend.rules;
 
 import eu.domibus.ext.services.DomibusPropertyExtService;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.webService.backend.WSBackendMessageType;
+import eu.domibus.plugin.webService.backend.reliability.strategy.WSPluginRetryStrategyType;
 import eu.domibus.plugin.webService.exception.WSPluginException;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
+import org.apache.commons.lang3.StringUtils;
 import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,10 +28,12 @@ import static org.junit.Assert.*;
 @RunWith(JMockit.class)
 public class WSPluginDispatchRulesServiceTest {
 
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginDispatchRulesServiceTest.class);
+
     public static final String RULE_NAME_1 = "red1";
     public static final String RULE_NAME_3 = "red3";
     @Tested
-    private WSPluginDispatchRulesService wsPluginDispatchRulesService;
+    private WSPluginDispatchRulesService rulesService;
 
     @Injectable
     private DomibusPropertyExtService domibusPropertyExtService;
@@ -35,46 +41,46 @@ public class WSPluginDispatchRulesServiceTest {
     @Test
     public void setRetryInformation_null() {
         WSPluginDispatchRuleBuilder ruleBuilder = new WSPluginDispatchRuleBuilder(RULE_NAME_1);
-        wsPluginDispatchRulesService.setRetryInformation(ruleBuilder, null);
+        rulesService.setRetryInformation(ruleBuilder, null);
         WSPluginDispatchRule build = ruleBuilder.build();
         assertNull(build.getRetry());
-        assertEquals(0, build.getRetryCount());
-        assertEquals(0, build.getRetryTimeout());
+        assertNull(build.getRetryCount());
+        assertNull(build.getRetryTimeout());
         assertNull(build.getRetryStrategy());
     }
 
     @Test
     public void setRetryInformation_empty() {
         WSPluginDispatchRuleBuilder ruleBuilder = new WSPluginDispatchRuleBuilder(RULE_NAME_1);
-        wsPluginDispatchRulesService.setRetryInformation(ruleBuilder, "");
+        rulesService.setRetryInformation(ruleBuilder, "");
         WSPluginDispatchRule build = ruleBuilder.build();
         assertEquals("", build.getRetry());
-        assertEquals(0, build.getRetryCount());
-        assertEquals(0, build.getRetryTimeout());
+        assertNull(build.getRetryCount());
+        assertNull(build.getRetryTimeout());
         assertNull(build.getRetryStrategy());
     }
 
     @Test
     public void setRetryInformation_ok() {
         WSPluginDispatchRuleBuilder ruleBuilder = new WSPluginDispatchRuleBuilder(RULE_NAME_1);
-        wsPluginDispatchRulesService.setRetryInformation(ruleBuilder, "60;5;CONSTANT");
+        rulesService.setRetryInformation(ruleBuilder, "60;5;CONSTANT");
         WSPluginDispatchRule build = ruleBuilder.build();
         assertEquals("60;5;CONSTANT", build.getRetry());
-        assertEquals(5, build.getRetryCount());
-        assertEquals(60, build.getRetryTimeout());
+        assertEquals(5, build.getRetryCount().intValue());
+        assertEquals(60, build.getRetryTimeout().intValue());
         assertEquals(WSPluginRetryStrategyType.CONSTANT, build.getRetryStrategy());
     }
 
     @Test(expected = WSPluginException.class)
     public void setRetryInformation_NumberFormatException() {
         WSPluginDispatchRuleBuilder ruleBuilder = new WSPluginDispatchRuleBuilder(RULE_NAME_1);
-        wsPluginDispatchRulesService.setRetryInformation(ruleBuilder, "60:5:CONSTANT");
+        rulesService.setRetryInformation(ruleBuilder, "60:5:CONSTANT");
     }
 
     @Test(expected = WSPluginException.class)
     public void setRetryInformation_OutOfBound() {
         WSPluginDispatchRuleBuilder ruleBuilder = new WSPluginDispatchRuleBuilder(RULE_NAME_1);
-        wsPluginDispatchRulesService.setRetryInformation(ruleBuilder, "60;5");
+        rulesService.setRetryInformation(ruleBuilder, "60;5");
     }
 
     @Test
@@ -84,19 +90,20 @@ public class WSPluginDispatchRulesServiceTest {
             times = 1;
             result = new ArrayList<>();
         }};
-        List<WSPluginDispatchRule> wsPluginDispatchRules = wsPluginDispatchRulesService.generateRules();
+        List<WSPluginDispatchRule> wsPluginDispatchRules = rulesService.generateRules();
         assertEquals(0, wsPluginDispatchRules.size());
 
-        new FullVerifications(){};
+        new FullVerifications() {
+        };
     }
 
     @Test
     public void initRules_2rules() {
 
-        new Expectations(wsPluginDispatchRulesService) {{
+        new Expectations(rulesService) {{
             domibusPropertyExtService.getNestedProperties("wsplugin.push.rules");
             times = 1;
-            result = Arrays.asList(RULE_NAME_1,                    RULE_NAME_3);
+            result = Arrays.asList(RULE_NAME_1, RULE_NAME_3);
 
             domibusPropertyExtService.getProperty(PUSH_RULE_PREFIX + RULE_NAME_1);
             result = "desc1";
@@ -126,12 +133,12 @@ public class WSPluginDispatchRulesServiceTest {
             domibusPropertyExtService.getProperty(PUSH_RULE_PREFIX + RULE_NAME_3 + PUSH_RULE_RETRY);
             result = "3;3;CONSTANT";
             times = 1;
-            domibusPropertyExtService.getProperty(PUSH_RULE_PREFIX + RULE_NAME_3+ PUSH_RULE_TYPE);
+            domibusPropertyExtService.getProperty(PUSH_RULE_PREFIX + RULE_NAME_3 + PUSH_RULE_TYPE);
             result = "SEND_SUCCESS";
             times = 1;
         }};
 
-        List<WSPluginDispatchRule> wsPluginDispatchRules = wsPluginDispatchRulesService.generateRules();
+        List<WSPluginDispatchRule> wsPluginDispatchRules = rulesService.generateRules();
         assertEquals(2, wsPluginDispatchRules.size());
         WSPluginDispatchRule firstRule = wsPluginDispatchRules.get(0);
         assertEquals("desc1", firstRule.getDescription());
@@ -146,29 +153,124 @@ public class WSPluginDispatchRulesServiceTest {
     }
 
     @Test
-    public void getRules(@Mocked WSPluginDispatchRule wsPluginDispatchRule) {
-        new Expectations(wsPluginDispatchRulesService) {{
-            wsPluginDispatchRulesService.getRules();
+    public void getRulesByRecipient(@Mocked WSPluginDispatchRule wsPluginDispatchRule) {
+        new Expectations(rulesService) {{
+            rulesService.getRules();
             result = Collections.singletonList(wsPluginDispatchRule);
             times = 1;
         }};
-        wsPluginDispatchRulesService.getRulesByRecipient("recipient");
+        rulesService.getRulesByRecipient("recipient");
     }
 
     @Test
     public void getTypes_ok() {
-        List<WSBackendMessageType> types = wsPluginDispatchRulesService.getTypes("SEND_SUCCESS,RECEIVE_FAIL");
+        List<WSBackendMessageType> types = rulesService.getTypes("SEND_SUCCESS,RECEIVE_FAIL");
         assertThat(types, CoreMatchers.hasItems(WSBackendMessageType.SEND_SUCCESS, WSBackendMessageType.RECEIVE_FAIL));
     }
 
     @Test(expected = WSPluginException.class)
     public void getTypes_noType() {
-        wsPluginDispatchRulesService.getTypes("");
+        rulesService.getTypes("");
     }
 
     @Test(expected = WSPluginException.class)
     public void getTypes_typeDoesntExists() {
-        wsPluginDispatchRulesService.getTypes("NOPE");
+        rulesService.getTypes("NOPE");
     }
 
+    @Test
+    public void getRules() {
+
+        new Expectations(rulesService) {{
+            rulesService.generateRules();
+            result = Collections.singletonList(new WSPluginDispatchRuleBuilder("test1").build());
+            result = Arrays.asList(
+                    new WSPluginDispatchRuleBuilder("test20").build(),
+                    new WSPluginDispatchRuleBuilder("test21").build());
+            times = 2;
+        }};
+        LOG.putMDC(DomibusLogger.MDC_DOMAIN, "test1");
+        assertEquals(1, rulesService.getRules().size());
+        LOG.putMDC(DomibusLogger.MDC_DOMAIN, "test2");
+        assertEquals(2, rulesService.getRules().size());
+        LOG.putMDC(DomibusLogger.MDC_DOMAIN, "test1");
+        assertEquals(1, rulesService.getRules().size());
+
+        new FullVerifications() {
+        };
+
+    }
+
+    @Test
+    public void getRulesByName_found() {
+        WSPluginDispatchRule rule1 = new WSPluginDispatchRuleBuilder(RULE_NAME_1).build();
+        WSPluginDispatchRule rule3 = new WSPluginDispatchRuleBuilder(RULE_NAME_3).build();
+
+        new Expectations(rulesService) {{
+            rulesService.getRules();
+            result = Arrays.asList(rule1, rule3);
+            times = 1;
+        }};
+        List<WSPluginDispatchRule> rulesByName = rulesService.getRulesByName(RULE_NAME_1);
+
+        assertEquals(1, rulesByName.size());
+        assertEquals(rule1, rulesByName.get(0));
+    }
+
+    @Test
+    public void getOneRule_found(@Mocked WSPluginDispatchRule wsPluginDispatchRule) {
+        WSPluginDispatchRule rule1 = new WSPluginDispatchRuleBuilder(RULE_NAME_1).build();
+
+        new Expectations(rulesService) {{
+            rulesService.getRulesByName(RULE_NAME_1);
+            result = rule1;
+            times = 1;
+        }};
+        WSPluginDispatchRule ruleFound = rulesService.getRule(RULE_NAME_1);
+
+        assertEquals(rule1, ruleFound);
+    }
+
+    @Test
+    public void getOneRule_notFound() {
+        WSPluginDispatchRule rule3 = new WSPluginDispatchRuleBuilder(RULE_NAME_3).build();
+
+        new Expectations(rulesService) {{
+            rulesService.getRulesByName(RULE_NAME_1);
+            result = rule3;
+            times = 1;
+        }};
+        WSPluginDispatchRule ruleFound = rulesService.getRule(RULE_NAME_1);
+
+        assertNotNull(ruleFound);
+        assertNotNull(StringUtils.EMPTY, ruleFound.getRuleName());
+    }
+
+    @Test
+    public void getStrategy_found() {
+        WSPluginDispatchRule rule1 = new WSPluginDispatchRuleBuilder(RULE_NAME_1)
+                .withRetryStrategy(WSPluginRetryStrategyType.CONSTANT)
+                .build();
+
+        new Expectations(rulesService) {{
+            rulesService.getRulesByName(RULE_NAME_1);
+            result = rule1;
+            times = 1;
+        }};
+        WSPluginRetryStrategyType ruleFound = rulesService.getStrategy(RULE_NAME_1);
+
+        assertEquals(WSPluginRetryStrategyType.CONSTANT, ruleFound);
+    }
+
+    @Test
+    public void getStrategy_noRules() {
+        new Expectations(rulesService) {{
+            rulesService.getRulesByName(RULE_NAME_1);
+            result = new ArrayList<>();
+            times = 1;
+        }};
+        WSPluginRetryStrategyType strategyFound = rulesService.getStrategy(RULE_NAME_1);
+
+        assertNull(strategyFound);
+    }
 }

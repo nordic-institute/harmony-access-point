@@ -23,6 +23,8 @@ public class PropertyFilterRequestRO implements Serializable {
 
     private String value;
 
+    private Boolean writable;
+
     public int getPage() {
         return page;
     }
@@ -77,5 +79,13 @@ public class PropertyFilterRequestRO implements Serializable {
 
     public void setValue(String value) {
         this.value = value;
+    }
+
+    public Boolean isWritable() {
+        return writable;
+    }
+
+    public void setWritable(Boolean isWritable) {
+        this.writable = isWritable;
     }
 }

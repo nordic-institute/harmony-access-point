@@ -1,22 +1,21 @@
 package eu.domibus.plugin.webService.backend.rules;
 
 import eu.domibus.ext.services.DomibusPropertyExtService;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.webService.backend.WSBackendMessageType;
+import eu.domibus.plugin.webService.backend.reliability.strategy.WSPluginRetryStrategyType;
 import eu.domibus.plugin.webService.exception.WSPluginException;
 import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.common.util.CollectionUtils;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
-import static org.apache.commons.lang3.StringUtils.equalsAnyIgnoreCase;
-import static org.apache.commons.lang3.StringUtils.trim;
+import static org.apache.commons.lang3.StringUtils.*;
 
 /**
  * @author François Gautier
@@ -24,6 +23,8 @@ import static org.apache.commons.lang3.StringUtils.trim;
  */
 @Service
 public class WSPluginDispatchRulesService {
+
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginDispatchRulesService.class);
 
     public static final String PUSH_RULE_BASE = "wsplugin.push.rules";
     public static final String PUSH_RULE_PREFIX = PUSH_RULE_BASE + ".";
@@ -37,27 +38,25 @@ public class WSPluginDispatchRulesService {
     public static final String PUSH_RULE_TYPE = ".type";
 
     private final DomibusPropertyExtService domibusPropertyExtService;
-    private volatile List<WSPluginDispatchRule> rules;
-    private final Object rulesLock = new Object();
+    private final Map<String, List<WSPluginDispatchRule>> rules = new HashMap<>();
 
     public WSPluginDispatchRulesService(DomibusPropertyExtService domibusPropertyExtService) {
         this.domibusPropertyExtService = domibusPropertyExtService;
     }
 
-    @PostConstruct
-    public void init() {
-        getRules();
-    }
-
     public List<WSPluginDispatchRule> getRules() {
-        if (rules == null) {
-            synchronized (rulesLock) {
-                if (rules == null) {
-                    rules = generateRules();
+        String domain = LOG.getMDC(DomibusLogger.MDC_DOMAIN);
+        List<WSPluginDispatchRule> domainRules = rules.get(domain);
+        if (domainRules == null) {
+            synchronized (rules) {
+                if (rules.get(domain) == null) {
+                    LOG.info("Find the rules of reliability for the domain [{}]", domain);
+                    domainRules = generateRules();
+                    rules.put(domain, domainRules);
                 }
             }
         }
-        return rules;
+        return domainRules;
     }
 
     protected List<WSPluginDispatchRule> generateRules() {
@@ -74,7 +73,9 @@ public class WSPluginDispatchRulesService {
             ruleBuilder.withEndpoint(domibusPropertyExtService.getProperty(PUSH_RULE_PREFIX + ruleBuilder.getRuleName() + PUSH_RULE_ENDPOINT));
             ruleBuilder.withType(getTypes(domibusPropertyExtService.getProperty(PUSH_RULE_PREFIX + ruleBuilder.getRuleName() + PUSH_RULE_TYPE)));
             setRetryInformation(ruleBuilder, domibusPropertyExtService.getProperty(PUSH_RULE_PREFIX + ruleBuilder.getRuleName() + PUSH_RULE_RETRY));
-            result.add(ruleBuilder.build());
+            WSPluginDispatchRule dispatchRule = ruleBuilder.build();
+            result.add(dispatchRule);
+            LOG.info("WSPlugin reliability dispatch rule found: [{}]", dispatchRule);
         }
 
         return result;
@@ -83,7 +84,7 @@ public class WSPluginDispatchRulesService {
     protected List<WSBackendMessageType> getTypes(String property) {
         List<WSBackendMessageType> result = new ArrayList<>();
         String[] messageTypes = StringUtils.split(RegExUtils.replaceAll(property, " ", ""), ",");
-
+        LOG.debug("get WSBackendMessageType with property: [{}]", property);
         for (String type : messageTypes) {
             try {
                 result.add(WSBackendMessageType.valueOf(trim(type)));
@@ -109,19 +110,20 @@ public class WSPluginDispatchRulesService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * @param ruleName
-     * @return order set of rules for a given {@param ruleName}
-     */
-    public List<WSPluginDispatchRule> getRulesByRuleName(String ruleName) {
+    protected List<WSPluginDispatchRule> getRulesByName(String ruleName) {
         return getRules()
                 .stream()
                 .filter(wsPluginDispatchRule -> equalsAnyIgnoreCase(ruleName, wsPluginDispatchRule.getRuleName()))
                 .collect(Collectors.toList());
     }
 
+    public WSPluginDispatchRule getRule(String ruleName) {
+        return getRulesByName(ruleName).stream().findAny().orElse(new WSPluginDispatchRuleBuilder(EMPTY).build());
+    }
+
     protected void setRetryInformation(WSPluginDispatchRuleBuilder ruleBuilder, String property) {
         ruleBuilder.withRetry(property);
+        LOG.debug("set retry information with property value: [{}]", property);
         if (StringUtils.isBlank(property)) {
             return;
         }
@@ -138,7 +140,7 @@ public class WSPluginDispatchRulesService {
         }
     }
 
-    public String getEndpoint(String ruleName) {
-        return getRulesByRuleName(ruleName).stream().findAny().map(WSPluginDispatchRule::getEndpoint).orElse("");
+    public WSPluginRetryStrategyType getStrategy(String ruleName) {
+        return getRulesByName(ruleName).stream().findAny().map(WSPluginDispatchRule::getRetryStrategy).orElse(null);
     }
 }

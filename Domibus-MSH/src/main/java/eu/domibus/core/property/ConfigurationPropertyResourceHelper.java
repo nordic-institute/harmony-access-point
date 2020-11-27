@@ -21,9 +21,10 @@ public interface ConfigurationPropertyResourceHelper {
      * @param type the type of the property
      * @param module the module of the property
      * @param value the value of the property
+     * @param writable if the property is writable or not ( or both if it is null)
      * @return the list of the properties: metadata and value
      */
-    List<DomibusProperty> getAllWritableProperties(String name, boolean showDomainProperties, String type, String module, String value);
+    List<DomibusProperty> getAllProperties(String name, boolean showDomainProperties, String type, String module, String value, Boolean writable);
 
     /**
      * Sets the property with specified name to the specified value

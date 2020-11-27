@@ -7,10 +7,7 @@ import eu.domibus.api.message.UserMessageSecurityService;
 import eu.domibus.ext.domain.UserMessageDTO;
 import eu.domibus.ext.exceptions.DomibusErrorCode;
 import eu.domibus.ext.exceptions.UserMessageExtException;
-import mockit.Expectations;
-import mockit.Injectable;
-import mockit.Tested;
-import mockit.Verifications;
+import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
@@ -21,6 +18,7 @@ import java.util.Date;
 @RunWith(JMockit.class)
 public class UserMessageServiceDelegateTest {
 
+    public static final String FINAL_RECIPIENT = "finalRecipient";
     @Tested
     UserMessageServiceDelegate userMessageServiceDelegate;
 
@@ -32,6 +30,7 @@ public class UserMessageServiceDelegateTest {
 
     @Injectable
     UserMessageSecurityService userMessageSecurityService;
+    public static final String MESSAGE_ID = "messageId";
 
     @Test
     public void testGetMessageSuccess() {
@@ -78,21 +77,85 @@ public class UserMessageServiceDelegateTest {
     public void testGetMessageException() {
         // Given
         final UserMessageExtException userMessageExtException = new UserMessageExtException(DomibusErrorCode.DOM_001, "test");
-        final String messageId = "messageId";
 
         new Expectations() {{
-            userMessageService.getMessage(messageId);
+            userMessageService.getMessage(MESSAGE_ID);
             result = userMessageExtException;
         }};
 
         // When
         try {
-            userMessageServiceDelegate.getMessage(messageId);
+            userMessageServiceDelegate.getMessage(MESSAGE_ID);
+            Assert.fail();
         } catch (UserMessageExtException e) {
             // Then
-            Assert.assertTrue(userMessageExtException == e);
-            return;
+            Assert.assertSame(userMessageExtException, e);
         }
-        Assert.fail();
+
+    }
+
+    @Test
+    public void testGetMessage_null() {
+        // Given
+        new Expectations() {{
+            userMessageService.getMessage(MESSAGE_ID);
+            result = null;
+        }};
+
+        UserMessageDTO message = userMessageServiceDelegate.getMessage(MESSAGE_ID);
+        Assert.assertNull(message);
+
+        new FullVerifications(){{
+            userMessageSecurityService.checkMessageAuthorization(MESSAGE_ID);
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void getFinalRecipient() {
+        new Expectations() {{
+            userMessageService.getFinalRecipient(MESSAGE_ID);
+            times = 1;
+            result = FINAL_RECIPIENT;
+        }};
+
+        String finalRecipient = userMessageServiceDelegate.getFinalRecipient(MESSAGE_ID);
+        Assert.assertEquals(FINAL_RECIPIENT, finalRecipient);
+        new FullVerifications() {{
+            userMessageSecurityService.checkMessageAuthorization(MESSAGE_ID);
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void getUserMessageEnvelope() {
+        new Expectations() {{
+            userMessageService.getUserMessageEnvelope(MESSAGE_ID);
+            times = 1;
+            result = FINAL_RECIPIENT;
+        }};
+
+        String finalRecipient = userMessageServiceDelegate.getUserMessageEnvelope(MESSAGE_ID);
+        Assert.assertEquals(FINAL_RECIPIENT, finalRecipient);
+        new FullVerifications() {{
+            userMessageSecurityService.checkMessageAuthorization(MESSAGE_ID);
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void getSignalMessageEnvelope() {
+        new Expectations() {{
+            userMessageService.getSignalMessageEnvelope(MESSAGE_ID);
+            times = 1;
+            result = FINAL_RECIPIENT;
+        }};
+
+        String finalRecipient = userMessageServiceDelegate.getSignalMessageEnvelope(MESSAGE_ID);
+        Assert.assertEquals(FINAL_RECIPIENT, finalRecipient);
+        new FullVerifications() {{
+            userMessageSecurityService.checkMessageAuthorization(MESSAGE_ID);
+            times = 1;
+        }};
     }
 }

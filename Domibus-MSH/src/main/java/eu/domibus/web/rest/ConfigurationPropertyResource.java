@@ -59,8 +59,8 @@ public class ConfigurationPropertyResource extends BaseResource {
     public PropertyResponseRO getProperties(@Valid PropertyFilterRequestRO request) {
         PropertyResponseRO response = new PropertyResponseRO();
 
-        List<DomibusProperty> items = configurationPropertyResourceHelper.getAllWritableProperties(request.getName(),
-                request.isShowDomain(), request.getType(), request.getModule(), request.getValue());
+        List<DomibusProperty> items = configurationPropertyResourceHelper.getAllProperties(request.getName(),
+                request.isShowDomain(), request.getType(), request.getModule(), request.getValue(), request.isWritable());
         response.setCount(items.size());
         items = items.stream()
                 .skip((long) request.getPage() * request.getPageSize())
@@ -100,7 +100,7 @@ public class ConfigurationPropertyResource extends BaseResource {
     @GetMapping(path = "/csv")
     public ResponseEntity<String> getCsv(@Valid PropertyFilterRequestRO request) {
         List<DomibusProperty> items = configurationPropertyResourceHelper
-                .getAllWritableProperties(request.getName(), request.isShowDomain(), request.getType(), request.getModule(), request.getValue());
+                .getAllProperties(request.getName(), request.isShowDomain(), request.getType(), request.getModule(), request.getValue(), request.isWritable());
         getCsvService().validateMaxRows(items.size());
 
         List<DomibusPropertyRO> convertedItems = domainConverter.convert(items, DomibusPropertyRO.class);

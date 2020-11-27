@@ -1,5 +1,6 @@
-package eu.domibus.plugin.webService.backend.rules;
+package eu.domibus.plugin.webService.backend.reliability.strategy;
 
+import eu.domibus.plugin.webService.backend.reliability.strategy.WSPluginRetryStrategyConstant;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;

@@ -1,7 +1,8 @@
-package eu.domibus.plugin.webService.backend.rules;
+package eu.domibus.plugin.webService.backend.reliability.strategy;
 
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.springframework.stereotype.Service;
 
 import java.util.Date;
 
@@ -9,13 +10,14 @@ import java.util.Date;
  * @author François Gautier
  * @since 5.0
  */
+@Service
 public class WSPluginRetryStrategyConstant implements WSPluginRetryStrategy {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginRetryStrategyConstant.class);
 
     public static final int DEFAULT_MAX_ATTEMPTS = 60000;
 
-    public static final int MULTIPLIER_MINUTES_TO_MILLIS = 60000;
+    public static final long MULTIPLIER_MINUTES_TO_MILLIS = 60000;
 
     @Override
     public Date calculateNextAttempt(Date received, int maxAttempts, int timeoutInMinutes) {
@@ -30,7 +32,7 @@ public class WSPluginRetryStrategyConstant implements WSPluginRetryStrategy {
         }
         final long now = System.currentTimeMillis();
         long retry = received.getTime();
-        final long stopTime = received.getTime() + ((long) timeoutInMinutes * MULTIPLIER_MINUTES_TO_MILLIS) + 5000; // We grant 5 extra seconds to avoid not sending the last attempt
+        final long stopTime = received.getTime() + (timeoutInMinutes * MULTIPLIER_MINUTES_TO_MILLIS) + 5000; // We grant 5 extra seconds to avoid not sending the last attempt
         while (retry <= stopTime) {
             retry += (long) timeoutInMinutes * MULTIPLIER_MINUTES_TO_MILLIS / maxAttempts;
             if (retry > now && retry < stopTime) {

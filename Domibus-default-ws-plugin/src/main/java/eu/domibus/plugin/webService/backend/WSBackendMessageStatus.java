@@ -17,12 +17,6 @@ public enum WSBackendMessageStatus {
     SEND_IN_PROGRESS,
 
     /**
-     * The last attempt to send the message has failed. There will either be retries, or the status will change to
-     * SEND_FAILURE (depending on the corresponding PMode)
-     */
-    SEND_ATTEMPT_FAILED,
-
-    /**
      * The final send attempt of the message has failed and there will be no more retries
      */
     SEND_FAILURE,

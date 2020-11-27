@@ -23,4 +23,11 @@ public interface UserMessageExtService {
     String getUserMessageEnvelope(String messageId);
 
     String getSignalMessageEnvelope(String messageId);
+
+    /**
+     * Gets the final recipient from the properties of the domibus message
+     * @param messageId if the domibus message
+     * @return {@code finalRecipient} or {@code null} if message not found
+     */
+    String getFinalRecipient(String messageId);
 }
