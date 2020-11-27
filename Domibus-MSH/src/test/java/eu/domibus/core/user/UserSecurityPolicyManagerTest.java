@@ -72,9 +72,6 @@ public class UserSecurityPolicyManagerTest {
     @Injectable
     protected DomibusConfigurationService domibusConfigurationService;
 
-    @Injectable
-    UserSessionsService userSessionsService;
-
     @Tested
     UserSecurityPolicyManager<User> securityPolicyManager;
 
