@@ -219,7 +219,7 @@ public class UserManagementServiceImplTest {
     }
 
     @Test
-    public void validateAtLeastOneOfRoleTest_nok() {
+    public void validateAtLeastOneOfRoleTest_nok(@Injectable AuthRole role) {
 
         User deletedUser = new User() {{
             setDeleted(true);
@@ -233,11 +233,11 @@ public class UserManagementServiceImplTest {
                 deletedUser,
                 inactiveUser);
         new Expectations() {{
-            userDao.findByRole(AuthRole.ROLE_ADMIN.toString());
+            userDao.findByRole(role.toString());
             result = users;
         }};
         try {
-            userManagementService.ensureAtLeastOneActiveAdmin();
+            userManagementService.ensureAtLeastOneActiveAdmin(role);
             Assert.fail();
         } catch (UserManagementException ex) {
             Assert.assertEquals(DomibusCoreErrorCode.DOM_001, ex.getError());
@@ -245,7 +245,7 @@ public class UserManagementServiceImplTest {
     }
 
     @Test
-    public void validateAtLeastOneOfRoleTest_ok() {
+    public void validateAtLeastOneOfRoleTest_ok(@Injectable AuthRole role) {
         User validUser = new User() {{
             setDeleted(false);
             setActive(true);
@@ -263,10 +263,10 @@ public class UserManagementServiceImplTest {
                 inactiveUser);
 
         new Expectations() {{
-            userDao.findByRole(AuthRole.ROLE_ADMIN.toString());
+            userDao.findByRole(role.toString());
             result = users;
         }};
-        userManagementService.ensureAtLeastOneActiveAdmin();
+        userManagementService.ensureAtLeastOneActiveAdmin(role);
 
         new FullVerifications() {
         };
@@ -319,10 +319,6 @@ public class UserManagementServiceImplTest {
     @Test
     public void updateUsers() {
         ArrayList<eu.domibus.api.user.User> users = new ArrayList<>();
-
-        new Expectations(userManagementService) {{
-            userManagementService.ensureAtLeastOneActiveAdmin();
-        }};
 
         userManagementService.updateUsers(users);
 
