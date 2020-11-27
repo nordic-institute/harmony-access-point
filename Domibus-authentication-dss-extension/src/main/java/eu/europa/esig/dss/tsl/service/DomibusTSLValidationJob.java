@@ -83,6 +83,10 @@ public class DomibusTSLValidationJob {
         this.repository = repository;
     }
 
+    public String getCacheDirectoryPath(){
+        return this.repository.getCacheDirectoryPath();
+    }
+
     public void clearRepository(){
         try {
             repository.clearRepository();
