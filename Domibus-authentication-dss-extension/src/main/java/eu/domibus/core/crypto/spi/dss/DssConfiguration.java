@@ -421,11 +421,6 @@ public class DssConfiguration {
         return new TriggerChangeListener(domibusSchedulerExtService);
     }
 
-    @PostConstruct
-    public void postInit(){
-        LOG.info("Initiating DSS");
-        commandExtService.executeCommand(DssRefreshCommand.COMMAND_NAME,new HashMap<>());
-    }
 
 
 }

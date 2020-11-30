@@ -5,11 +5,13 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.europa.esig.dss.tsl.service.DomibusTSLValidationJob;
 
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -64,5 +66,10 @@ public class DssRefreshCommand implements CommandExtTask {
         } catch (IOException e) {
             LOG.error("Error while checking if cache directory:[{}] is empty", serverCacheDirectoryPath, e);
         }
+    }
+
+    @PostConstruct
+    public void init(){
+        execute(new HashMap<>());
     }
 }
