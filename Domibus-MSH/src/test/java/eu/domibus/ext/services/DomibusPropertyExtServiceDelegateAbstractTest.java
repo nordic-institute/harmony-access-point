@@ -62,7 +62,7 @@ public class DomibusPropertyExtServiceDelegateAbstractTest extends TestCase {
             result = propMeta;
             propMeta.isStoredGlobally();
             result = false;
-            domibusPropertyExtServiceDelegateAbstract.onGetLocalPropertyValue(propertyName, propMeta);
+            domibusPropertyExtServiceDelegateAbstract.onGetLocalPropertyValue(propertyName);
             result = propValue;
         }};
 

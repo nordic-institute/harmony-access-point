@@ -79,7 +79,7 @@ public class DomibusPropertyProviderDispatcher {
             return getExternalModulePropertyValue(manager, propertyName);
         }
         LOG.debug("Getting property [{}] on domain [{}] of manager [{}].", propertyName, domain, manager);
-        return manager.getKnownPropertyValue(propertyName);
+        return manager.getKnownPropertyValue(domain.getCode(), propertyName);
     }
 
     protected void setExternalPropertyValue(Domain domain, String propertyName, String propertyValue, boolean broadcast, DomibusPropertyManagerExt manager) {
@@ -112,10 +112,10 @@ public class DomibusPropertyProviderDispatcher {
 
     protected String getExternalModulePropertyValue(DomibusPropertyManagerExt propertyManager, String propertyName) {
         if (classUtil.isMethodDefined(propertyManager, "getKnownPropertyValue", new Class[]{String.class})) {
-            LOG.trace("Calling getKnownPropertyValue method");
+            LOG.trace("Calling getKnownPropertyValue(propertyName) method");
             return propertyManager.getKnownPropertyValue(propertyName);
         }
-        LOG.trace("Calling deprecated getKnownPropertyValue method");
+        LOG.trace("No getKnownPropertyValue(propertyName) method defined in [{}]; calling getKnownPropertyValue(currentDomain.getCode(), propertyName) method instead.", propertyManager);
         Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
         return propertyManager.getKnownPropertyValue(currentDomain.getCode(), propertyName);
     }
