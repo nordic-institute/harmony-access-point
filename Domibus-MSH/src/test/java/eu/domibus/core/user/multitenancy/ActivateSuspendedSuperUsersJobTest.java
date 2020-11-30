@@ -9,6 +9,7 @@ import eu.domibus.core.user.UserService;
 import eu.domibus.core.util.DatabaseUtil;
 import mockit.FullVerifications;
 import mockit.Injectable;
+import mockit.Mocked;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
@@ -44,7 +45,7 @@ public class ActivateSuspendedSuperUsersJobTest {
     protected AuthUtils authUtils;
 
     @Test
-    public void executeJob(@Injectable JobExecutionContext context) {
+    public void executeJob(@Mocked JobExecutionContext context) {
 
         activateSuspendedSuperUsersJob.executeJob(context);
 

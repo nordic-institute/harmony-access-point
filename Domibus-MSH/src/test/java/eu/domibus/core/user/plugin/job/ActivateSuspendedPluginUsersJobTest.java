@@ -1,4 +1,4 @@
-package eu.domibus.core.user.ui.job;
+package eu.domibus.core.user.plugin.job;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
@@ -7,6 +7,7 @@ import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.security.functions.AuthenticatedProcedure;
 import eu.domibus.core.user.UserService;
+import eu.domibus.core.user.plugin.PluginUserServiceImpl;
 import eu.domibus.core.util.DatabaseUtil;
 import mockit.FullVerifications;
 import mockit.Injectable;
@@ -16,6 +17,7 @@ import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
 
 import static org.junit.Assert.*;
 
@@ -24,10 +26,13 @@ import static org.junit.Assert.*;
  * @since 5.0
  */
 @RunWith(JMockit.class)
-public class ActivateSuspendedUsersJobTest {
+public class ActivateSuspendedPluginUsersJobTest {
 
     @Tested
-    ActivateSuspendedUsersJob activateSuspendedSuperUsersJob;
+    ActivateSuspendedPluginUsersJob activateSuspendedPluginUsersJob;
+
+    @Injectable
+    private PluginUserServiceImpl pluginUserService;
 
     @Injectable
     private UserService userManagementService;
@@ -45,9 +50,9 @@ public class ActivateSuspendedUsersJobTest {
     protected AuthUtils authUtils;
 
     @Test
-    public void executeJob(@Mocked JobExecutionContext context, @Mocked Domain domain) {
+    public void executeJob(@Mocked JobExecutionContext context, @Mocked Domain domain) throws JobExecutionException {
 
-        activateSuspendedSuperUsersJob.executeJob(context, domain);
+        activateSuspendedPluginUsersJob.executeJob(context, domain);
 
         new FullVerifications() {{
             AuthenticatedProcedure function;
@@ -64,6 +69,5 @@ public class ActivateSuspendedUsersJobTest {
             assertNotNull(function);
         }};
     }
-
 
 }
