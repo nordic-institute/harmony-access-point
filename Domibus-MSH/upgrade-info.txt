@@ -1,4 +1,5 @@
 Domibus 5.0 (from 4.2)
+                - In case of load balancers: change the name of the session cookie, from JSESSIONID to SESSION.
                 - Ehcache has been upgraded to version 3.8.1 affecting "\conf\domibus\internal\ehcache.xml" cache definitions file:
                     - If you use custom caches definitions defined in this file replace the old file with the new file and perform the following steps:
                         Replace:     <cache name="policyCache"
