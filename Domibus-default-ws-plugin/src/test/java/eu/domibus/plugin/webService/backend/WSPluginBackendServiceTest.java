@@ -47,17 +47,17 @@ public class WSPluginBackendServiceTest {
             result = RULE_NAME;
         }};
 
-        wsPluginBackendService.sendNotification(WSBackendMessageType.SEND_SUCCESS, MESSAGE_ID, RECIPIENT);
+        wsPluginBackendService.send(MESSAGE_ID, WSBackendMessageType.SEND_SUCCESS);
 
         new FullVerifications() {{
-            retryService.sendNotification(MESSAGE_ID, RECIPIENT, wsPluginDispatchRule);
+            retryService.send(MESSAGE_ID, RECIPIENT, wsPluginDispatchRule, WSBackendMessageType.SEND_SUCCESS);
             times = 1;
         }};
     }
 
     @Test
     public void sendSuccess_noRecipient(@Mocked WSPluginDispatchRule wsPluginDispatchRule) {
-        wsPluginBackendService.sendNotification(WSBackendMessageType.SEND_SUCCESS, MESSAGE_ID, "");
+        wsPluginBackendService.send(MESSAGE_ID,  WSBackendMessageType.SEND_SUCCESS);
 
         new FullVerifications() {
         };
@@ -71,7 +71,7 @@ public class WSPluginBackendServiceTest {
             result = new ArrayList<>();
         }};
 
-        wsPluginBackendService.sendNotification(WSBackendMessageType.SEND_SUCCESS, "", RECIPIENT);
+        wsPluginBackendService.send("",  WSBackendMessageType.SEND_SUCCESS);
 
         new FullVerifications() {
         };

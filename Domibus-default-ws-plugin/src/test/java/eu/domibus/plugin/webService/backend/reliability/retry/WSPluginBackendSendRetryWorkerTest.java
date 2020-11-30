@@ -38,7 +38,7 @@ public class WSPluginBackendSendRetryWorkerTest {
         retryWorker.executeJob(null, null);
 
         new FullVerifications() {{
-            retryService.sendNotifications();
+            retryService.sendWaitingForRetry();
             times = 1;
         }};
     }

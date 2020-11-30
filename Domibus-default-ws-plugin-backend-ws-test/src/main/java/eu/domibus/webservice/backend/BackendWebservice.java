@@ -23,6 +23,19 @@ public class BackendWebservice implements BackendInterface {
     private final ObjectFactory objectFactory = new ObjectFactory();
 
     @Override
+    public void submitMessage(SubmitMessage submitMessage) throws SubmitMessageFault {
+        String messageID = submitMessage.getMessageID();
+        LOG.info("SubmitMessage received for id [{}]. Payload id [{}], contentType [{}]. [{}] Payload",
+                messageID,
+                submitMessage.getBodyload().getContentType(),
+                submitMessage.getBodyload().getPayloadId(),
+                submitMessage.getPayload().size());
+        if (StringUtils.containsIgnoreCase(messageID, "err")) {
+            throw new SubmitMessageFault(getErrorMessage(messageID), getDefaultFaultDetail());
+        }
+    }
+
+    @Override
     public void sendSuccess(SendSuccess sendSuccess) throws SendSuccessFault {
         String messageID = sendSuccess.getMessageID();
         LOG.info("SendSuccess received for id [{}]", messageID);

@@ -71,7 +71,6 @@ public class WSPluginMessageSender {
         } catch (Throwable t) {//NOSONAR: Catching Throwable is done on purpose in order to even catch out of memory exceptions.
             reliabilityService.handleReliability(backendMessage, dispatchRule);
             LOG.error("Error occurred when sending message with ID [{}]", backendMessage.getMessageId(), t);
-            throw t;
         }
     }
 

@@ -23,6 +23,6 @@ public class WSPluginBackendSendRetryWorker extends DomibusQuartzJobExtBean {
 
     @Override
     protected void executeJob(final JobExecutionContext context, DomainDTO domain) {
-        retryService.sendNotifications();
+        retryService.sendWaitingForRetry();
     }
 }

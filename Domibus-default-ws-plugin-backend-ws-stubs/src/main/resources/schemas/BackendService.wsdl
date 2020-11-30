@@ -13,6 +13,14 @@
         </schema>
     </wsdl:types>
 
+    <wsdl:message name="submitMessage">
+        <wsdl:part element="tns:submitMessage" name="submitMessage"/>
+    </wsdl:message>
+    <wsdl:message name="submitMessageResponse"/>
+    <wsdl:message name="submitMessageFault">
+        <wsdl:part element="tns:BackendFaultDetail" name="submitMessageFault"/>
+    </wsdl:message>
+
     <wsdl:message name="sendSuccess">
         <wsdl:part element="tns:sendSuccess" name="sendSuccess"/>
     </wsdl:message>
@@ -53,6 +61,14 @@
     </wsdl:message>
 
     <wsdl:portType name="BackendInterface">
+        <wsdl:operation name="submitMessage">
+            <wsdl:input message="tns:submitMessage" name="submitMessage">
+            </wsdl:input>
+            <wsdl:output message="tns:submitMessageResponse" name="submitMessageResponse">
+            </wsdl:output>
+            <wsdl:fault message="tns:submitMessageFault" name="submitMessageFault">
+            </wsdl:fault>
+        </wsdl:operation>
         <wsdl:operation name="sendSuccess">
             <wsdl:input message="tns:sendSuccess" name="sendSuccess">
             </wsdl:input>
@@ -97,6 +113,18 @@
 
     <wsdl:binding name="BackendServiceSoapBinding" type="tns:BackendInterface">
         <soap12:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="submitMessage">
+            <soap12:operation soapAction="" style="document"/>
+            <wsdl:input name="submitMessage">
+                <soap12:body parts="submitMessage" use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="submitMessageResponse">
+                <soap12:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="submitMessageFault">
+                <soap12:fault name="submitMessageFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
         <wsdl:operation name="sendSuccess">
             <soap12:operation soapAction="" style="document"/>
             <wsdl:input name="sendSuccess">

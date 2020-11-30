@@ -1,16 +1,22 @@
 package eu.domibus.plugin.webService.backend.reliability.retry;
 
+import eu.domibus.ext.domain.JMSMessageDTOBuilder;
+import eu.domibus.ext.domain.JmsMessageDTO;
+import eu.domibus.ext.services.JMSExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.webService.backend.WSBackendMessageLogDao;
 import eu.domibus.plugin.webService.backend.WSBackendMessageLogEntity;
 import eu.domibus.plugin.webService.backend.WSBackendMessageType;
-import eu.domibus.plugin.webService.backend.dispatch.WSPluginMessageSender;
+import eu.domibus.plugin.webService.backend.queue.WSSendMessageListener;
 import eu.domibus.plugin.webService.backend.rules.WSPluginDispatchRule;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import javax.jms.Queue;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,14 +29,18 @@ public class WSPluginBackendRetryService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginBackendRetryService.class);
 
-    private final WSPluginMessageSender wsPluginMessageSender;
-
     private final WSBackendMessageLogDao wsBackendMessageLogDao;
 
-    public WSPluginBackendRetryService(WSPluginMessageSender wsPluginMessageSender,
-                                       WSBackendMessageLogDao wsBackendMessageLogDao) {
-        this.wsPluginMessageSender = wsPluginMessageSender;
+    protected JMSExtService jmsExtService;
+
+    protected Queue wsPluginSendQueue;
+
+    public WSPluginBackendRetryService(WSBackendMessageLogDao wsBackendMessageLogDao,
+                                       JMSExtService jmsExtService,
+                                       @Qualifier("wsPluginSendQueue") Queue wsPluginSendQueue) {
         this.wsBackendMessageLogDao = wsBackendMessageLogDao;
+        this.jmsExtService = jmsExtService;
+        this.wsPluginSendQueue = wsPluginSendQueue;
     }
 
     public List<WSBackendMessageLogEntity> getMessagesNotAlreadyScheduled() {
@@ -47,35 +57,41 @@ public class WSPluginBackendRetryService {
     }
 
     @Transactional
-    public void sendNotifications() {
+    public void sendWaitingForRetry() {
         try {
             final List<WSBackendMessageLogEntity> messagesNotAlreadyQueued = getMessagesNotAlreadyScheduled();
 
             for (final WSBackendMessageLogEntity backendMessage : messagesNotAlreadyQueued) {
-                wsPluginMessageSender.sendNotification(backendMessage);
+                sendToQueue(backendMessage);
             }
         } catch (Exception e) {
             LOG.error("Error while sending notifications.", e);
         }
     }
 
-    @Transactional
-    public void sendNotification(String messageId, String recipient, WSPluginDispatchRule rule) {
-        try {
-            WSBackendMessageLogEntity backendMessage = getWsBackendMessageLogEntity(messageId, recipient, rule);
-            WSBackendMessageLogEntity persistedBackendMessage = wsBackendMessageLogDao.createEntity(backendMessage);
-            wsPluginMessageSender.sendNotification(persistedBackendMessage);
-        } catch (Exception e) {
-            LOG.error("Try catch to be removed with the use of jms queue: JIRA EDELIVERY-7478", e);
-        }
+    private void sendToQueue(WSBackendMessageLogEntity backendMessage) {
+        final JmsMessageDTO jmsMessage = JMSMessageDTOBuilder.
+                create()
+                .property(MessageConstants.MESSAGE_ID, backendMessage.getMessageId())
+                .property(WSSendMessageListener.ID, backendMessage.getEntityId())
+                .property(WSSendMessageListener.TYPE, backendMessage.getType().name())
+                .build();
+        jmsExtService.sendMessageToQueue(jmsMessage, wsPluginSendQueue);
     }
 
-    protected WSBackendMessageLogEntity getWsBackendMessageLogEntity(String messageId, String recipient, WSPluginDispatchRule rule) {
+    @Transactional
+    public void send(String messageId, String recipient, WSPluginDispatchRule rule, WSBackendMessageType messageType) {
+        WSBackendMessageLogEntity backendMessage = getWsBackendMessageLogEntity(messageType, messageId, recipient, rule);
+        WSBackendMessageLogEntity persistedBackendMessage = wsBackendMessageLogDao.createEntity(backendMessage);
+        sendToQueue(persistedBackendMessage);
+    }
+
+    protected WSBackendMessageLogEntity getWsBackendMessageLogEntity(WSBackendMessageType messageType, String messageId, String recipient, WSPluginDispatchRule rule) {
         WSBackendMessageLogEntity wsBackendMessageLogEntity = new WSBackendMessageLogEntity();
         wsBackendMessageLogEntity.setMessageId(messageId);
         wsBackendMessageLogEntity.setRuleName(rule.getRuleName());
         wsBackendMessageLogEntity.setFinalRecipient(recipient);
-        wsBackendMessageLogEntity.setType(WSBackendMessageType.SEND_SUCCESS);
+        wsBackendMessageLogEntity.setType(messageType);
         wsBackendMessageLogEntity.setSendAttempts(0);
         wsBackendMessageLogEntity.setSendAttemptsMax(rule.getRetryCount());
         return wsBackendMessageLogEntity;

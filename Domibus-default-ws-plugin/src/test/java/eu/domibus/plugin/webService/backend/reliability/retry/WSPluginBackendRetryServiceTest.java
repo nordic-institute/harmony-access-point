@@ -81,7 +81,7 @@ public class WSPluginBackendRetryServiceTest {
             times = 1;
         }};
 
-        retryService.sendNotification(MESSAGE_ID, RECIPIENT, rule);
+        retryService.send(MESSAGE_ID, RECIPIENT, rule, WSBackendMessageType.SEND_SUCCESS);
 
         new Verifications() {{
             wsPluginMessageSender.sendNotification(backendMessage);
@@ -107,7 +107,7 @@ public class WSPluginBackendRetryServiceTest {
             result = entities;
             times = 1;
         }};
-        retryService.sendNotifications();
+        retryService.sendWaitingForRetry();
 
         new FullVerifications(){{
             wsPluginMessageSender.sendNotification(entity1);

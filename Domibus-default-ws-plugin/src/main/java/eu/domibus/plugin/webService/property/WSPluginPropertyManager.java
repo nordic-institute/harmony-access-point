@@ -36,6 +36,8 @@ public class WSPluginPropertyManager extends DomibusPropertyExtServiceDelegateAb
     public static final String DISPATCHER_CHUNKING_THRESHOLD = "wsplugin.dispatcher.chunkingThreshold";
     public static final String DISPATCHER_CONNECTION_KEEP_ALIVE = "wsplugin.dispatcher.connection.keepAlive";
     public static final String DISPATCHER_CRON_EXPRESSION = "wsplugin.dispatcher.worker.cronExpression";
+    public static final String DISPATCHER_SEND_QUEUE_NAME = "wsplugin.send.queue";
+    public static final String DISPATCHER_SEND_QUEUE_CONCURRENCY = "wsplugin.send.queue.concurrency";
 
     private final Map<String, DomibusPropertyMetadataDTO> knownProperties;
 
@@ -51,7 +53,9 @@ public class WSPluginPropertyManager extends DomibusPropertyExtServiceDelegateAb
                 new DomibusPropertyMetadataDTO(DISPATCHER_ALLOW_CHUNKING, Type.BOOLEAN, Module.WS_PLUGIN, Usage.GLOBAL),
                 new DomibusPropertyMetadataDTO(DISPATCHER_CHUNKING_THRESHOLD, Type.NUMERIC, Module.WS_PLUGIN, Usage.GLOBAL),
                 new DomibusPropertyMetadataDTO(DISPATCHER_CONNECTION_KEEP_ALIVE, Type.BOOLEAN, Module.WS_PLUGIN, Usage.GLOBAL),
-                new DomibusPropertyMetadataDTO(DISPATCHER_CRON_EXPRESSION, Type.STRING, Module.WS_PLUGIN, Usage.GLOBAL)
+                new DomibusPropertyMetadataDTO(DISPATCHER_CRON_EXPRESSION, Type.STRING, Module.WS_PLUGIN, Usage.GLOBAL),
+                new DomibusPropertyMetadataDTO(DISPATCHER_SEND_QUEUE_NAME, Type.STRING, Module.WS_PLUGIN, Usage.GLOBAL),
+                new DomibusPropertyMetadataDTO(DISPATCHER_SEND_QUEUE_CONCURRENCY, Type.STRING, Module.WS_PLUGIN, Usage.GLOBAL)
         );
         knownProperties = allProperties.stream().collect(toMap(DomibusPropertyMetadataDTO::getName, identity()));
     }

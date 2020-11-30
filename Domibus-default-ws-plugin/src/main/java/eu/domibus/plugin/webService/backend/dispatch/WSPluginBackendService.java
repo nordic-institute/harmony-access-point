@@ -1,5 +1,6 @@
 package eu.domibus.plugin.webService.backend.dispatch;
 
+import eu.domibus.ext.services.UserMessageExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.webService.backend.WSBackendMessageType;
@@ -23,29 +24,37 @@ public class WSPluginBackendService {
     final WSPluginBackendRetryService retryService;
     final WSPluginDispatchRulesService wsBackendRulesService;
 
+    final UserMessageExtService userMessageExtService;
+
     public WSPluginBackendService(WSPluginBackendRetryService retryService,
-                                  WSPluginDispatchRulesService wsBackendRulesService) {
+                                  WSPluginDispatchRulesService wsBackendRulesService,
+                                  UserMessageExtService userMessageExtService) {
         this.retryService = retryService;
         this.wsBackendRulesService = wsBackendRulesService;
+        this.userMessageExtService = userMessageExtService;
     }
 
-    public void sendNotification(WSBackendMessageType messageType, String messageId, String recipient) {
-        if (StringUtils.isBlank(recipient)) {
+    public void send(String messageId, WSBackendMessageType... messageTypes) {
+        String finalRecipient = userMessageExtService.getFinalRecipient(messageId);
+        if (StringUtils.isBlank(finalRecipient)) {
             LOG.warn("No recipient found for messageId: [{}]", messageId);
             return;
         }
 
-        List<WSPluginDispatchRule> rules = wsBackendRulesService.getRulesByRecipient(recipient);
+        List<WSPluginDispatchRule> rules = wsBackendRulesService.getRulesByRecipient(finalRecipient);
         if (CollectionUtils.isEmpty(rules)) {
-            LOG.warn("No rule found for recipient: [{}]", recipient);
+            LOG.warn("No rule found for recipient: [{}]", finalRecipient);
             return;
         }
 
-        for (WSPluginDispatchRule rule : rules) {
-            if (rule.getTypes().contains(messageType)) {
-                LOG.info("Rule [{}] found for message id [{}] and recipient [{}]", rule.getRuleName(), messageId, recipient);
-                retryService.sendNotification(messageId, recipient, rule);
+        for (WSBackendMessageType messageType : messageTypes) {
+            for (WSPluginDispatchRule rule : rules) {
+                if (rule.getTypes().contains(messageType)) {
+                    LOG.info("Rule [{}] found for message id [{}] and recipient [{}]", rule.getRuleName(), messageId, finalRecipient);
+                    retryService.send(messageId, finalRecipient, rule, messageType);
+                }
             }
         }
+
     }
 }

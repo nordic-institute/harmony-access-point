@@ -1,15 +1,15 @@
 package eu.domibus.plugin.webService.configuration;
 
 import eu.domibus.common.NotificationType;
-import eu.domibus.ext.services.DomibusPropertyExtService;
+import eu.domibus.ext.services.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.environment.DomibusEnvironmentUtil;
 import eu.domibus.plugin.notification.PluginAsyncNotificationConfiguration;
-import eu.domibus.plugin.webService.impl.ClearAuthenticationMDCInterceptor;
-import eu.domibus.plugin.webService.impl.CustomAuthenticationInterceptor;
-import eu.domibus.plugin.webService.impl.WSPluginFaultOutInterceptor;
-import eu.domibus.plugin.webService.impl.WebServicePluginImpl;
+import eu.domibus.plugin.webService.backend.dispatch.WSPluginBackendService;
+import eu.domibus.plugin.webService.connector.WSPluginImpl;
+import eu.domibus.plugin.webService.dao.WSMessageLogDao;
+import eu.domibus.plugin.webService.impl.*;
 import eu.domibus.plugin.webService.logging.WSPluginLoggingEventSender;
 import eu.domibus.plugin.webService.property.WSPluginPropertyManager;
 import org.apache.cxf.Bus;
@@ -40,20 +40,43 @@ public class WSPluginConfiguration {
     public static final String DOMIBUS_LOGGING_METADATA_PRINT = "domibus.logging.metadata.print";
     public static final String DOMIBUS_LOGGING_CXF_LIMIT = "domibus.logging.cxf.limit";
 
-    @Bean("backendWebservice")
-    public WebServicePluginImpl createWSPlugin(DomibusPropertyExtService domibusPropertyExtService) {
+    @Bean("backendWSPlugin")
+    public WSPluginImpl createBackendJMSImpl(DomibusPropertyExtService domibusPropertyExtService,
+                                             StubDtoTransformer defaultTransformer,
+                                             WSMessageLogDao wsMessageLogDao,
+                                             WSPluginBackendService wsPluginBackendService) {
         List<NotificationType> messageNotifications = domibusPropertyExtService.getConfiguredNotifications(WSPluginPropertyManager.MESSAGE_NOTIFICATIONS);
         LOG.debug("Using the following message notifications [{}]", messageNotifications);
-        WebServicePluginImpl webServicePlugin = new WebServicePluginImpl();
-        webServicePlugin.setRequiredNotifications(messageNotifications);
-        return webServicePlugin;
+        WSPluginImpl jmsPlugin = new WSPluginImpl(defaultTransformer, wsMessageLogDao, wsPluginBackendService);
+        jmsPlugin.setRequiredNotifications(messageNotifications);
+        return jmsPlugin;
     }
+
+    @Bean("backendWebservice")
+    public WebServicePluginImpl createWSPlugin(MessageAcknowledgeExtService messageAcknowledgeExtService,
+                                               WebServicePluginExceptionFactory webServicePluginExceptionFactory,
+                                               WSMessageLogDao wsMessageLogDao,
+                                               DomainContextExtService domainContextExtService,
+                                               WSPluginPropertyManager wsPluginPropertyManager,
+                                               AuthenticationExtService authenticationExtService,
+                                               MessageExtService messageExtService,
+                                               WSPluginImpl wsPlugin) {
+        return new WebServicePluginImpl(messageAcknowledgeExtService,
+                webServicePluginExceptionFactory,
+                wsMessageLogDao,
+                domainContextExtService,
+                wsPluginPropertyManager,
+                authenticationExtService,
+                messageExtService,
+                wsPlugin);
+    }
+
 
     @Bean("webserviceAsyncPluginConfiguration")
     public PluginAsyncNotificationConfiguration pluginAsyncNotificationConfiguration(@Qualifier("notifyBackendWebServiceQueue") Queue notifyBackendWebServiceQueue,
-                                                                                     WebServicePluginImpl backendWebService,
+                                                                                     WSPluginImpl wsPlugin,
                                                                                      Environment environment) {
-        PluginAsyncNotificationConfiguration pluginAsyncNotificationConfiguration = new PluginAsyncNotificationConfiguration(backendWebService, notifyBackendWebServiceQueue);
+        PluginAsyncNotificationConfiguration pluginAsyncNotificationConfiguration = new PluginAsyncNotificationConfiguration(wsPlugin, notifyBackendWebServiceQueue);
         if (DomibusEnvironmentUtil.INSTANCE.isApplicationServer(environment)) {
             String queueNotificationJndi = NOTIFY_BACKEND_QUEUE_JNDI;
             LOG.debug("Domibus is running inside an application server. Setting the queue name to [{}]", queueNotificationJndi);

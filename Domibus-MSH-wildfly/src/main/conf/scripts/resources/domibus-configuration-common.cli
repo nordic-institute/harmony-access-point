@@ -27,6 +27,7 @@
 /subsystem=messaging-activemq/server=default/jms-queue=DomibusUnknownReceiverQueue:add(durable=true,entries=[java:/jms/domibus.internal.notification.unknown,java:/jms/queue/DomibusUnknownReceiverQueue])
 /subsystem=messaging-activemq/server=default/jms-queue=DomibusNotifyBackendQueue:add(durable=true,entries=[java:/jms/domibus.internal.notification.queue,java:/jms/queue/DomibusNotifyBackendQueue])
 /subsystem=messaging-activemq/server=default/jms-queue=DomibusFSPluginSendQueue:add(durable=true,entries=[java:/jms/domibus.fsplugin.send.queue,java:/jms/queue/DomibusFSPluginSendQueue])
+/subsystem=messaging-activemq/server=default/jms-queue=DomibusWSPluginSendQueue:add(durable=true,entries=[java:/jms/domibus.wsplugin.send.queue,java:/jms/queue/DomibusWSPluginSendQueue])
 /subsystem=messaging-activemq/server=default/jms-queue=DomibusDLQ:add(durable=true,entries=[java:/jms/domibus.DLQ,java:/jms/queue/DomibusDLQ])
 
 /subsystem=messaging-activemq/server=default/address-setting=jms.queue.DomibusSendMessageQueue/:add(expiry-address=jms.queue.ExpiryQueue,redelivery-delay=1000,max-delivery-attempts=0)

@@ -15,6 +15,41 @@ Domibus 5.0 (from 4.2)
                                         </cache>
                         Or with <cache alias="policyCache" uses-template="ttl-3600-heap-5mb"/> if you want to reuse cache-template "ttl-3600-heap-5mb" already defined by Domibus
                     - If you don't use custom caches just replace the old file with the new file version
+                - [WebLogic only]
+                   o execute the WLST API script(from "\conf\domibus\scripts\upgrades") 4.2-to-5.0-WeblogicSingleServer.properties for single server deployment or 4.2-to-5.0-WeblogicCluster.properties for cluster deployment
+                - [Wildfly only]
+                   o in case the probe URL is used, the new probe URL is /domibus/services/msh
+                   o in file "cef_edelivery_path\domibus\standalone\configuration\standalone-full.xml":
+                        - add the following queues
+                            .............................
+                            <subsystem xmlns="urn:jboss:domain:messaging-activemq:3.0">
+                                <server name="default">
+                                .............................
+                                 <address-setting name="jms.queue.DomibusWSPluginSendQueue" expiry-address="jms.queue.ExpiryQueue" max-delivery-attempts="0"/>
+
+                                <jms-queue name="DomibusWSPluginSendQueue" entries="java:/jms/domibus.wsplugin.send.queue java:/jms/queue/DomibusWSPluginSendQueue" durable="true"/>
+                                .............................
+                                </server>
+                            </subsystem>
+                            .............................
+               - [Tomcat only]
+                    o in file "cef_edelivery_path\domibus\conf\domibus\internal\activemq.xml":
+                              - in the destinations section add the following queues:
+                                         .............................
+                                         <destinations>
+                                             .............................
+                                              <queue id="wsPluginSendQueue" physicalName="${wsplugin.send.queue:domibus.wsplugin.send.queue}"/>
+                                             .............................
+                                         </destinations>
+                                         .............................
+                              -  in the redeliveryPolicyEntries section add the following entries:
+                                         .............................
+                                         <redeliveryPolicyEntries>
+                                             .............................
+                                             <redeliveryPolicy queue="${wsplugin.send.queue:domibus.wsplugin.send.queue}" maximumRedeliveries="0"/>
+                                             .............................
+                                         </redeliveryPolicyEntries>
+                                         .............................
 Domibus 4.2 (from 4.1.5):
                 - Run the appropriate DB migration script(mysql5innoDb-4.1.5-to-4.2-migration.ddl for MySQL or oracle10g-4.1.5-to-4.2-migration.ddl for Oracle)
                 - Replace the Domibus war
