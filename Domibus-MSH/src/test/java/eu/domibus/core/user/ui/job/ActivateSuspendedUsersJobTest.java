@@ -1,5 +1,6 @@
-package eu.domibus.core.user.multitenancy;
+package eu.domibus.core.user.ui.job;
 
+import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.security.AuthRole;
@@ -18,15 +19,14 @@ import org.quartz.JobExecutionContext;
 import static org.junit.Assert.*;
 
 /**
- * @author Soumya Chandran
- * @since 4.2
+ * @author François Gautier
+ * @since 5.0
  */
 @RunWith(JMockit.class)
-public class ActivateSuspendedSuperUsersJobTest {
+public class ActivateSuspendedUsersJobTest {
 
     @Tested
-    ActivateSuspendedSuperUsersJob activateSuspendedSuperUsersJob;
-
+    ActivateSuspendedUsersJob activateSuspendedSuperUsersJob;
 
     @Injectable
     private UserService userManagementService;
@@ -44,9 +44,9 @@ public class ActivateSuspendedSuperUsersJobTest {
     protected AuthUtils authUtils;
 
     @Test
-    public void executeJob(@Injectable JobExecutionContext context) {
+    public void executeJob(@Injectable JobExecutionContext context, @Injectable Domain domain) {
 
-        activateSuspendedSuperUsersJob.executeJob(context);
+        activateSuspendedSuperUsersJob.executeJob(context, domain);
 
         new FullVerifications() {{
             AuthenticatedProcedure function;
@@ -63,5 +63,6 @@ public class ActivateSuspendedSuperUsersJobTest {
             assertNotNull(function);
         }};
     }
+
 
 }
