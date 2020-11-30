@@ -1,26 +1,30 @@
 package eu.domibus.web.rest;
 
-import eu.domibus.api.multitenancy.DomainTaskExecutor;
-import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.multitenancy.DomainTaskExecutor;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
-import eu.domibus.core.property.DomibusVersionService;
 import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.property.DomibusVersionService;
 import eu.domibus.web.rest.ro.DomainRO;
 import eu.domibus.web.rest.ro.DomibusInfoRO;
 import eu.domibus.web.rest.ro.SupportTeamInfoRO;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
+import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.cache.CacheManager;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -59,6 +63,9 @@ public class ApplicationResourceTest {
 
     @Injectable
     DomainTaskExecutor domainTaskExecutor;
+
+    @Injectable
+    CacheManager cacheManager;
 
     @Test
     public void testGetDomibusInfo() throws Exception {
@@ -173,5 +180,23 @@ public class ApplicationResourceTest {
         Assert.assertNotNull(supportTeamInfoRO);
         Assert.assertEquals(supportTeamName, supportTeamInfoRO.getName());
         Assert.assertEquals(supportTeamEmail, supportTeamInfoRO.getEmail());
+    }
+
+    @Test
+    public void evictCaches() {
+        Collection<String> cacheNames = new ArrayList<>();
+        String cacheName = "cache1";
+        cacheNames.add(cacheName);
+
+        new Expectations() {{
+            cacheManager.getCacheNames();
+            result = cacheNames;
+        }};
+
+        applicationResource.evictCaches();
+
+        new Verifications() {{
+            cacheManager.getCache(cacheName).clear();
+        }};
     }
 }
