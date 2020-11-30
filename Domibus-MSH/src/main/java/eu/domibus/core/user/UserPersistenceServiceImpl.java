@@ -15,6 +15,8 @@ import eu.domibus.core.user.ui.UserRoleDao;
 import eu.domibus.core.user.ui.security.ConsoleUserSecurityPolicyManager;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.web.security.AuthenticationService;
+import eu.domibus.web.security.UserDetail;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -56,6 +58,9 @@ public class UserPersistenceServiceImpl implements UserPersistenceService {
     @Autowired
     UserSessionsService userSessionsService;
 
+    @Autowired
+    AuthenticationService authenticationService;
+
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
     public void updateUsers(List<eu.domibus.api.user.User> users) {
@@ -89,24 +94,44 @@ public class UserPersistenceServiceImpl implements UserPersistenceService {
 
     protected void updateUsers(Collection<eu.domibus.api.user.User> users, boolean withPasswordChange) {
         for (eu.domibus.api.user.User user : users) {
-            User existing = userDao.loadUserByUsername(user.getUserName());
+            updateUser(withPasswordChange, user);
+        }
+    }
 
-            //suspension logic
-            securityPolicyManager.applyLockingPolicyOnUpdate(user);
+    protected void updateUser(boolean withPasswordChange, eu.domibus.api.user.User user) {
+        User existing = userDao.loadUserByUsername(user.getUserName());
 
-            if (withPasswordChange) {
-                changePassword(existing, user.getPassword());
-            }
+        checkCanUpdateIfCurrentUser(user, existing);
 
-            existing.setEmail(user.getEmail());
+        securityPolicyManager.applyLockingPolicyOnUpdate(user, existing);
+        existing.setActive(user.isActive());
 
-            updateRolesIfNecessary(user, existing);
+        if (withPasswordChange) {
+            changePassword(existing, user.getPassword());
+        }
 
-            userDao.update(existing);
+        existing.setEmail(user.getEmail());
 
-            if (user.getAuthorities() != null && user.getAuthorities().contains(AuthRole.ROLE_AP_ADMIN.name())) {
-                userDomainService.setPreferredDomainForUser(user.getUserName(), user.getDomain());
-            }
+        updateRolesIfNecessary(user, existing);
+
+        userDao.update(existing);
+
+        if (user.getAuthorities() != null && user.getAuthorities().contains(AuthRole.ROLE_AP_ADMIN.name())) {
+            userDomainService.setPreferredDomainForUser(user.getUserName(), user.getDomain());
+        }
+    }
+
+    protected void checkCanUpdateIfCurrentUser(eu.domibus.api.user.User user, User existing) {
+        UserDetail loggedUser = authenticationService.getLoggedUser();
+        if (!StringUtils.equals(loggedUser.getUsername(), user.getUserName())) {
+            LOG.debug("No need to validate update possibility for a not-logged-in user [{}]; exiting.", user.getUserName());
+            return;
+        }
+        if (existing.isActive() != user.isActive()) {
+            throw new UserManagementException("Cannot change the active status of the logged user.");
+        }
+        if (!sameRoles(user, existing)) {
+            throw new UserManagementException("Cannot change the role of the logged user.");
         }
     }
 

@@ -655,7 +655,7 @@ public class UserSecurityPolicyManagerTest {
             result = userAlertsService;
         }};
 
-        securityPolicyManager.applyLockingPolicyOnUpdate(user);
+        securityPolicyManager.applyLockingPolicyOnUpdate(user, userEntity);
 
         new Verifications() {{
             userAlertsService.triggerEnabledEvent(user);
@@ -683,7 +683,7 @@ public class UserSecurityPolicyManagerTest {
             result = userAlertsService;
         }};
 
-        securityPolicyManager.applyLockingPolicyOnUpdate(user);
+        securityPolicyManager.applyLockingPolicyOnUpdate(user, userEntity);
 
         new Verifications() {{
             userAlertsService.triggerDisabledEvent(user);

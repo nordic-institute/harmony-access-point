@@ -2,8 +2,11 @@ package eu.domibus.web.security;
 
 import eu.domibus.api.multitenancy.DomainTaskException;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -12,6 +15,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
  * @since 4.1
  */
 public abstract class AuthenticationServiceBase {
+
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AuthenticationServiceBase.class);
 
     @Autowired
     protected DomainService domainService;
@@ -36,5 +41,18 @@ public abstract class AuthenticationServiceBase {
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
-
+    /**
+     * It will return the Principal from {@link SecurityContextHolder}
+     * if different from {@link AnonymousAuthenticationToken}
+     * @return logged in user info
+     */
+    public UserDetail getLoggedUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication!= null && !(authentication instanceof AnonymousAuthenticationToken)) {
+            UserDetail userDetail = (UserDetail) authentication.getPrincipal();
+            LOG.debug("Principal found on SecurityContextHolder: {}", userDetail);
+            return userDetail;
+        }
+        return null;
+    }
 }

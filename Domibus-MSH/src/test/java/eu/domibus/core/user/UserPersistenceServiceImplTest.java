@@ -191,7 +191,7 @@ public class UserPersistenceServiceImplTest {
         userPersistenceService.updateUsers(users, true);
 
         new Verifications() {{
-            securityPolicyManager.applyLockingPolicyOnUpdate(user);
+            securityPolicyManager.applyLockingPolicyOnUpdate(user, userEntity);
             times = 1;
             securityPolicyManager.changePassword(userEntity, user.getPassword());
             times = 1;
