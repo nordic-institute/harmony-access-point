@@ -9,7 +9,6 @@ import eu.domibus.plugin.webService.backend.rules.WSPluginDispatchRule;
 import eu.domibus.plugin.webService.backend.rules.WSPluginDispatchRulesService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -115,12 +114,7 @@ public class WSPluginMessageSenderTest {
             times = 1;
         }};
 
-        try {
-            wsPluginMessageSender.sendNotification(wsBackendMessageLogEntity);
-            Assert.fail();
-        } catch (Exception e) {
-            //OK
-        }
+        wsPluginMessageSender.sendNotification(wsBackendMessageLogEntity);
 
         new FullVerifications() {{
             wsBackendMessageLogEntity.setMessageStatus(WSBackendMessageStatus.SEND_IN_PROGRESS);

@@ -3,6 +3,7 @@ package eu.domibus.plugin.webService.backend.dispatch;
 import eu.domibus.ext.services.XMLUtilExtService;
 import eu.domibus.plugin.webService.backend.WSBackendMessageLogEntity;
 import eu.domibus.plugin.webService.backend.WSBackendMessageType;
+import eu.domibus.plugin.webService.connector.WSPluginImpl;
 import eu.domibus.webservice.backend.generated.SendFailure;
 import eu.domibus.webservice.backend.generated.SendSuccess;
 import mockit.Expectations;
@@ -33,6 +34,9 @@ public class WSPluginMessageBuilderTest {
 
     @Injectable
     private JAXBContext jaxbContextWebserviceBackend;
+
+    @Injectable
+    private WSPluginImpl wsPlugin;
 
     @Test
     public void getJaxbElement_sendSuccess(@Mocked WSBackendMessageLogEntity messageLogEntity) {

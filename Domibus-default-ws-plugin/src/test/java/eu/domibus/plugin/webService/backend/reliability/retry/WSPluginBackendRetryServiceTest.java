@@ -1,9 +1,12 @@
 package eu.domibus.plugin.webService.backend.reliability.retry;
 
+import eu.domibus.ext.domain.JmsMessageDTO;
+import eu.domibus.ext.services.JMSExtService;
+import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.webService.backend.WSBackendMessageLogDao;
 import eu.domibus.plugin.webService.backend.WSBackendMessageLogEntity;
 import eu.domibus.plugin.webService.backend.WSBackendMessageType;
-import eu.domibus.plugin.webService.backend.dispatch.WSPluginMessageSender;
+import eu.domibus.plugin.webService.backend.queue.WSSendMessageListener;
 import eu.domibus.plugin.webService.backend.rules.WSPluginDispatchRule;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -11,6 +14,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import javax.jms.Queue;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -30,6 +34,9 @@ public class WSPluginBackendRetryServiceTest {
     public static final String MESSAGE_ID = "messageId";
     public static final int RETRY_MAX = 10;
     public static final String RULE_NAME = "ruleName";
+    public static final long BACKEND_MESSAGE_ID = 1L;
+    public static final long BACKEND_MESSAGE_ID2 = 2L;
+    public static final String MESSAGE_ID_2 = "messageId2";
 
     @Tested
     private WSPluginBackendRetryService retryService;
@@ -37,7 +44,11 @@ public class WSPluginBackendRetryServiceTest {
     private WSBackendMessageLogDao wsBackendMessageLogDao;
 
     @Injectable
-    private WSPluginMessageSender wsPluginMessageSender;
+    protected JMSExtService jmsExtService;
+
+    @Injectable
+    protected Queue wsPluginSendQueue;
+
 
     @Test
     public void getMessagesNotAlreadyScheduled() {
@@ -65,8 +76,12 @@ public class WSPluginBackendRetryServiceTest {
     @Test
     public void sendNotification(@Mocked WSPluginDispatchRule rule) {
         List<WSBackendMessageLogEntity> backendMessages = new ArrayList<>();
+        //backendMessage cannot be mocked because of the constructor in the code.
+         WSBackendMessageLogEntity backendMessage = new WSBackendMessageLogEntity();
+         backendMessage.setMessageId(MESSAGE_ID);
+         backendMessage.setEntityId(BACKEND_MESSAGE_ID);
+         backendMessage.setType(WSBackendMessageType.SEND_SUCCESS);
         //Since we are making a capture of WSBackendMessageLogEntity, we can not use a Mock object here
-        WSBackendMessageLogEntity backendMessage = new WSBackendMessageLogEntity();
         new Expectations() {{
             wsBackendMessageLogDao.createEntity(withCapture(backendMessages));
             result = backendMessage;
@@ -74,7 +89,6 @@ public class WSPluginBackendRetryServiceTest {
 
             rule.getRuleName();
             result = RULE_NAME;
-            times = 1;
 
             rule.getRetryCount();
             result = RETRY_MAX;
@@ -84,8 +98,11 @@ public class WSPluginBackendRetryServiceTest {
         retryService.send(MESSAGE_ID, RECIPIENT, rule, WSBackendMessageType.SEND_SUCCESS);
 
         new Verifications() {{
-            wsPluginMessageSender.sendNotification(backendMessage);
-            times = 1;
+            JmsMessageDTO jmsMessageDTO;
+            jmsExtService.sendMessageToQueue(jmsMessageDTO = withCapture(), wsPluginSendQueue);
+            assertEquals(MESSAGE_ID, jmsMessageDTO.getProperties().get(MessageConstants.MESSAGE_ID));
+            assertEquals(BACKEND_MESSAGE_ID, jmsMessageDTO.getProperties().get(WSSendMessageListener.ID));
+            assertEquals(WSBackendMessageType.SEND_SUCCESS.name(), jmsMessageDTO.getProperties().get(WSSendMessageListener.TYPE));
         }};
 
         assertEquals(1, backendMessages.size());
@@ -106,15 +123,40 @@ public class WSPluginBackendRetryServiceTest {
             retryService.getMessagesNotAlreadyScheduled();
             result = entities;
             times = 1;
+
+            entity1.getMessageId();
+            result = MESSAGE_ID;
+
+            entity1.getEntityId();
+            result = BACKEND_MESSAGE_ID;
+
+            entity1.getType();
+            result = WSBackendMessageType.SEND_SUCCESS;
+
+            entity2.getMessageId();
+            result = MESSAGE_ID_2;
+
+            entity2.getEntityId();
+            result = BACKEND_MESSAGE_ID2;
+
+            entity2.getType();
+            result = WSBackendMessageType.SEND_FAILURE;
         }};
         retryService.sendWaitingForRetry();
 
         new FullVerifications(){{
-            wsPluginMessageSender.sendNotification(entity1);
-            times = 1;
 
-            wsPluginMessageSender.sendNotification(entity2);
-            times = 1;
+            List<JmsMessageDTO> jmsMessageDTO =  new ArrayList<>();
+            jmsExtService.sendMessageToQueue(withCapture(jmsMessageDTO), wsPluginSendQueue);
+
+            assertEquals(MESSAGE_ID, jmsMessageDTO.get(0).getProperties().get(MessageConstants.MESSAGE_ID));
+            assertEquals(BACKEND_MESSAGE_ID, jmsMessageDTO.get(0).getProperties().get(WSSendMessageListener.ID));
+            assertEquals(WSBackendMessageType.SEND_SUCCESS.name(), jmsMessageDTO.get(0).getProperties().get(WSSendMessageListener.TYPE));
+
+            assertEquals(MESSAGE_ID_2, jmsMessageDTO.get(1).getProperties().get(MessageConstants.MESSAGE_ID));
+            assertEquals(BACKEND_MESSAGE_ID2, jmsMessageDTO.get(1).getProperties().get(WSSendMessageListener.ID));
+            assertEquals(WSBackendMessageType.SEND_FAILURE.name(), jmsMessageDTO.get(1).getProperties().get(WSSendMessageListener.TYPE));
+
         }};
     }
 }
