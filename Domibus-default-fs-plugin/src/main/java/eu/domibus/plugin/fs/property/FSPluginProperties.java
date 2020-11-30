@@ -13,13 +13,11 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.fs.property.listeners.TriggerChangeListener;
 import eu.domibus.plugin.fs.worker.FSSendMessagesService;
-import eu.domibus.plugin.property.PluginPropertyChangeNotifier;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 
@@ -60,10 +58,6 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
 
     @Autowired
     protected DomainContextExtService domainContextProvider;
-
-    @Autowired
-    @Lazy
-    PluginPropertyChangeNotifier pluginPropertyChangeNotifier;
 
     private volatile List<String> domains;
 
@@ -115,6 +109,12 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
         if (!tempDomains.contains(DEFAULT_DOMAIN)) {
             tempDomains.add(DEFAULT_DOMAIN);
         }
+
+        Collections.sort(tempDomains, (domain1, domain2) -> {
+            Integer domain1Order = getOrder(domain1);
+            Integer domain2Order = getOrder(domain2);
+            return domain1Order - domain2Order;
+        });
 
         return tempDomains;
     }
@@ -280,8 +280,7 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
      * @return the domain order
      */
     public Integer getOrder(String domain) {
-        String value = getDomainProperty(domain, ORDER);
-        return getInteger(value, Integer.MAX_VALUE);
+        return getDomainIntegerProperty(domain, ORDER);
     }
 
     /**
@@ -366,7 +365,8 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
      */
     public String getDomainProperty(String domain, String propertyName) {
         if (domibusConfigurationExtService.isMultiTenantAware()) {
-            return super.getKnownPropertyValue(propertyName);
+            DomainDTO domainDTO = domainExtService.getDomain(domain);
+            return domibusPropertyExtService.getDomainProperty(domainDTO, propertyName);
         }
         //ST
         return getDomainPropertyST(domain, propertyName);
@@ -400,26 +400,6 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
         return NumberUtils.toInt(value);
     }
 
-    private Integer getInteger(String value, Integer defaultValue) {
-        Integer result = defaultValue;
-        if (StringUtils.isNotEmpty(value)) {
-            result = Integer.valueOf(value);
-        }
-        return result;
-    }
-
-
-    //TODO enachca
-    protected void sortDomains() {
-        Collections.sort(getDomains(), (domain1, domain2) -> {
-            Integer domain1Order = getOrder(domain1);
-            Integer domain2Order = getOrder(domain2);
-            return domain1Order - domain2Order;
-        });
-    }
-
-
-
     @Override
     public synchronized Map<String, DomibusPropertyMetadataDTO> getKnownProperties() {
         if (knownProperties != null) {
@@ -439,6 +419,7 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
         updatePropertiesForSingletenancy(baseProperties);
         return knownProperties;
     }
+
 
     protected void updatePropertiesForSingletenancy(Map<String, DomibusPropertyMetadataDTO> baseProperties) {
         for (DomibusPropertyMetadataDTO propMeta : baseProperties.values()) {
