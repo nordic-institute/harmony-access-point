@@ -142,12 +142,12 @@ public class FSPluginPropertiesChangeListenerIT {
         boolean notHandled = domainPropertiesChangeListener.handlesProperty("fsplugin.messages.expression.not.handled");
         Assert.assertFalse(notHandled);
 
-        final List<String> oldDomains = fSPluginProperties.getDomains();
+        final List<String> oldDomains = fSPluginProperties.getDomainsOrdered();
 
         domainPropertiesChangeListener.propertyValueChanged("default", "fsplugin.order", "10");
         domainPropertiesChangeListener.propertyValueChanged("default", "fsplugin.messages.expression", "bdx:noprocess#TC1Leg1");
 
-        final List<String> newDomains = fSPluginProperties.getDomains();
+        final List<String> newDomains = fSPluginProperties.getDomainsOrdered();
         Assert.assertNotSame(newDomains, oldDomains);
     }
 

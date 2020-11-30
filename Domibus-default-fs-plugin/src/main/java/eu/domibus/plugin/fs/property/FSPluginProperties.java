@@ -59,7 +59,7 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
     @Autowired
     protected DomainContextExtService domainContextProvider;
 
-    private volatile List<String> domains;
+    private final List<String> domains = new ArrayList<>();
 
     protected final Object domainsLock = new Object();
 
@@ -71,14 +71,24 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
 
 
     /**
-     * Get the domain list
-     * @return The available domains set
+     * Get the FS Plugin domain list
+     * @return The available domains list
      */
-    public List<String> getDomains() {
-        if (domains == null) {
+    public List<String> getDomainsOrdered() {
+        Collections.sort(getDomains(), (domain1, domain2) -> {
+            Integer domain1Order = getOrder(domain1);
+            Integer domain2Order = getOrder(domain2);
+            return domain1Order - domain2Order;
+        });
+
+        return domains;
+    }
+
+    protected List<String> getDomains() {
+        if (domains.isEmpty()) {
             synchronized (domainsLock) {
-                if (domains == null) {
-                    domains = readDomains();
+                if (domains.isEmpty()) {
+                    domains.addAll(readDomains());
                 }
             }
         }
@@ -88,7 +98,7 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
     public void resetDomains() {
         LOG.debug("Resetting domains");
         synchronized (domainsLock) {
-            domains = null;
+            domains.clear();
         }
     }
 
@@ -109,12 +119,6 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
         if (!tempDomains.contains(DEFAULT_DOMAIN)) {
             tempDomains.add(DEFAULT_DOMAIN);
         }
-
-        Collections.sort(tempDomains, (domain1, domain2) -> {
-            Integer domain1Order = getOrder(domain1);
-            Integer domain2Order = getOrder(domain2);
-            return domain1Order - domain2Order;
-        });
 
         return tempDomains;
     }
