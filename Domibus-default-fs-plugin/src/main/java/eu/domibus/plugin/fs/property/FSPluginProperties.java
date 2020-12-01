@@ -105,7 +105,7 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
 
         //getting domains list
         String domainsListStr = fsPluginDomainsList;
-        if (StringUtils.isNotEmpty(domainsListStr)) {
+        if (StringUtils.isNotBlank(domainsListStr)) {
             List<String> fsPluginDomains = Stream.of(domainsListStr.split(","))
                     .map(String::trim)
                     .distinct()
