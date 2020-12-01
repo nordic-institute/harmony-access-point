@@ -32,8 +32,10 @@ public class DomibusSessionConfiguration {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusSessionConfiguration.class);
 
+    public static final String SESSION_COOKIE_NAME = "JSESSIONID";
+
     @Autowired
-    DomibusPropertyProviderImpl domibusPropertyProvider;
+    protected DomibusPropertyProviderImpl domibusPropertyProvider;
 
     @Bean
     @SpringSessionDataSource
@@ -48,11 +50,16 @@ public class DomibusSessionConfiguration {
     public CookieSerializer cookieSerializer() {
         DefaultCookieSerializer serializer = new DefaultCookieSerializer();
 
+        setName(serializer);
         setSecure(serializer);
-
         setTimeout(serializer);
 
         return serializer;
+    }
+
+    private void setName(DefaultCookieSerializer serializer) {
+        serializer.setCookieName(SESSION_COOKIE_NAME);
+        LOG.debug("Session cookie name set to [{}].", SESSION_COOKIE_NAME);
     }
 
     private void setTimeout(DefaultCookieSerializer serializer) {
@@ -70,7 +77,5 @@ public class DomibusSessionConfiguration {
         Boolean secure = domibusPropertyProvider.getBooleanProperty(DOMIBUS_UI_SESSION_SECURE);
         serializer.setUseSecureCookie(secure);
         LOG.debug("Session secure set to [{}].", secure);
-
     }
-
 }
