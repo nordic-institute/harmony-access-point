@@ -18,7 +18,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -37,7 +36,6 @@ import static eu.domibus.plugin.fs.worker.FSSendMessagesService.DEFAULT_DOMAIN;
  * @author GONCALVES Bruno
  */
 @Service
-@PropertySource(value = "file:///${domibus.config.location}/plugins/config/fs-plugin.properties")
 public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstract {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FSPluginProperties.class);
