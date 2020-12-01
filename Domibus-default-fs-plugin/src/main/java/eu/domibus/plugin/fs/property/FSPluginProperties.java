@@ -377,16 +377,15 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
     }
 
     protected String getDomainPropertyST(String domain, String propertyName) {
-        String value;
 
+        //default domain
         if (DEFAULT_DOMAIN.equalsIgnoreCase(domain)) {
-            //default domain
             LOG.debug("Retrieving property [{}] for default domain", propertyName);
-            value = super.getKnownPropertyValue(propertyName);
-            return value;
+            return super.getKnownPropertyValue(propertyName);
         }
 
         //FS Plugin domain like properties for ST
+        String value;
         String propertyNameFinal = domain + DOT + propertyName;
         LOG.debug("Retrieving property [{}] for [{}] domain", propertyNameFinal, domain);
         value = super.getKnownPropertyValue(propertyNameFinal);
