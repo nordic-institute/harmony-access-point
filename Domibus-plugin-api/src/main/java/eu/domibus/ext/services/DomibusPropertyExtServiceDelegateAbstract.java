@@ -153,7 +153,7 @@ public abstract class DomibusPropertyExtServiceDelegateAbstract implements Domib
         return getKnownProperties().containsKey(name);
     }
 
-    private DomibusPropertyMetadataDTO getPropertyMetadataIfExists(String propertyName) {
+    protected DomibusPropertyMetadataDTO getPropertyMetadataIfExists(String propertyName) {
         checkPropertyExists(propertyName);
         return getKnownProperties().get(propertyName);
     }

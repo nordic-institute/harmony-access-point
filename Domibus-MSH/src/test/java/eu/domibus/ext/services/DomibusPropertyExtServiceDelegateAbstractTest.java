@@ -229,4 +229,55 @@ public class DomibusPropertyExtServiceDelegateAbstractTest extends TestCase {
         }};
     }
 
+    @Test
+    public void getKnownPropertyValue_domain_global(@Mocked String propertyName, @Mocked DomainDTO domain,
+                                                    @Mocked Map<String, DomibusPropertyMetadataDTO> props,
+                                                    @Mocked DomibusPropertyMetadataDTO propMeta) {
+        String propValue = "propValue";
+        String domainCode = "domainCode";
+
+        new Expectations(domibusPropertyExtServiceDelegateAbstract) {{
+            domibusPropertyExtServiceDelegateAbstract.hasKnownProperty(propertyName);
+            result = true;
+            domibusPropertyExtServiceDelegateAbstract.getKnownProperties();
+            result = props;
+            props.get(propertyName);
+            result = propMeta;
+            propMeta.isStoredGlobally();
+            result = true;
+            domainExtService.getDomain(domainCode);
+            result = domain;
+            domibusPropertyExtService.getProperty(domain, propertyName);
+            result = propValue;
+        }};
+
+        String result = domibusPropertyExtServiceDelegateAbstract.getKnownPropertyValue(domainCode, propertyName);
+
+        Assert.assertEquals(propValue, result);
+    }
+
+    @Test
+    public void getKnownPropertyValue_domain_local(@Mocked String propertyName,
+                                            @Mocked Map<String, DomibusPropertyMetadataDTO> props,
+                                            @Mocked DomibusPropertyMetadataDTO propMeta) {
+        String propValue = "propValue";
+        String domainCode = "domainCode";
+
+        new Expectations(domibusPropertyExtServiceDelegateAbstract) {{
+            domibusPropertyExtServiceDelegateAbstract.hasKnownProperty(propertyName);
+            result = true;
+            domibusPropertyExtServiceDelegateAbstract.getKnownProperties();
+            result = props;
+            props.get(propertyName);
+            result = propMeta;
+            propMeta.isStoredGlobally();
+            result = false;
+            domibusPropertyExtServiceDelegateAbstract.onGetLocalPropertyValue(domainCode, propertyName);
+            result = propValue;
+        }};
+
+        String result = domibusPropertyExtServiceDelegateAbstract.getKnownPropertyValue(domainCode, propertyName);
+
+        Assert.assertEquals(propValue, result);
+    }
 }
