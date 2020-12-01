@@ -368,7 +368,7 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
     public String getDomainProperty(String domain, String propertyName) {
         if (domibusConfigurationExtService.isMultiTenantAware()) {
             DomainDTO domainDTO = domainExtService.getDomain(domain);
-            return domibusPropertyExtService.getDomainProperty(domainDTO, propertyName);
+            return domibusPropertyExtService.getProperty(domainDTO, propertyName);
         }
         //ST
         return getDomainPropertyST(domain, propertyName);
