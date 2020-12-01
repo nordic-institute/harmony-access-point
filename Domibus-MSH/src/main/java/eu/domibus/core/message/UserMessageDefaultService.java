@@ -63,9 +63,7 @@ import javax.jms.Queue;
 import java.io.*;
 import java.sql.Timestamp;
 import java.util.*;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -217,6 +215,16 @@ public class UserMessageDefaultService implements UserMessageService {
             return null;
         }
         return userMessageServiceHelper.getFinalRecipient(userMessage);
+    }
+
+    @Override
+    public String getOriginalSender(String messageId) {
+        final UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
+        if (userMessage == null) {
+            LOG.debug("Message [{}] does not exist", messageId);
+            return null;
+        }
+        return userMessageServiceHelper.getOriginalSender(userMessage);
     }
 
     @Override

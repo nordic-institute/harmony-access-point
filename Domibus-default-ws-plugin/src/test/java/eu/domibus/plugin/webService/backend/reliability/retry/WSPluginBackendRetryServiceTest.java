@@ -30,7 +30,8 @@ import static org.junit.Assert.assertNotNull;
 @SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(JMockit.class)
 public class WSPluginBackendRetryServiceTest {
-    public static final String RECIPIENT = "recipient";
+    public static final String FINAL_RECIPIENT = "finalRecipient";
+    public static final String ORIGINAL_SENDER = "originalSender";
     public static final String MESSAGE_ID = "messageId";
     public static final int RETRY_MAX = 10;
     public static final String RULE_NAME = "ruleName";
@@ -77,10 +78,10 @@ public class WSPluginBackendRetryServiceTest {
     public void sendNotification(@Mocked WSPluginDispatchRule rule) {
         List<WSBackendMessageLogEntity> backendMessages = new ArrayList<>();
         //backendMessage cannot be mocked because of the constructor in the code.
-         WSBackendMessageLogEntity backendMessage = new WSBackendMessageLogEntity();
-         backendMessage.setMessageId(MESSAGE_ID);
-         backendMessage.setEntityId(BACKEND_MESSAGE_ID);
-         backendMessage.setType(WSBackendMessageType.SEND_SUCCESS);
+        WSBackendMessageLogEntity backendMessage = new WSBackendMessageLogEntity();
+        backendMessage.setMessageId(MESSAGE_ID);
+        backendMessage.setEntityId(BACKEND_MESSAGE_ID);
+        backendMessage.setType(WSBackendMessageType.SEND_SUCCESS);
         //Since we are making a capture of WSBackendMessageLogEntity, we can not use a Mock object here
         new Expectations() {{
             wsBackendMessageLogDao.createEntity(withCapture(backendMessages));
@@ -95,7 +96,7 @@ public class WSPluginBackendRetryServiceTest {
             times = 1;
         }};
 
-        retryService.send(MESSAGE_ID, RECIPIENT, rule, WSBackendMessageType.SEND_SUCCESS);
+        retryService.send(MESSAGE_ID, FINAL_RECIPIENT, ORIGINAL_SENDER, rule, WSBackendMessageType.SEND_SUCCESS);
 
         new Verifications() {{
             JmsMessageDTO jmsMessageDTO;
@@ -110,7 +111,8 @@ public class WSPluginBackendRetryServiceTest {
         WSBackendMessageLogEntity wsBackendMessageLogEntity = backendMessages.get(0);
         Assert.assertEquals(MESSAGE_ID, wsBackendMessageLogEntity.getMessageId());
         Assert.assertEquals(RULE_NAME, wsBackendMessageLogEntity.getRuleName());
-        Assert.assertEquals(RECIPIENT, wsBackendMessageLogEntity.getFinalRecipient());
+        Assert.assertEquals(FINAL_RECIPIENT, wsBackendMessageLogEntity.getFinalRecipient());
+        Assert.assertEquals(ORIGINAL_SENDER, wsBackendMessageLogEntity.getOriginalSender());
         Assert.assertEquals(WSBackendMessageType.SEND_SUCCESS, wsBackendMessageLogEntity.getType());
         Assert.assertEquals(0, wsBackendMessageLogEntity.getSendAttempts());
         Assert.assertEquals(RETRY_MAX, wsBackendMessageLogEntity.getSendAttemptsMax());
@@ -144,9 +146,9 @@ public class WSPluginBackendRetryServiceTest {
         }};
         retryService.sendWaitingForRetry();
 
-        new FullVerifications(){{
+        new FullVerifications() {{
 
-            List<JmsMessageDTO> jmsMessageDTO =  new ArrayList<>();
+            List<JmsMessageDTO> jmsMessageDTO = new ArrayList<>();
             jmsExtService.sendMessageToQueue(withCapture(jmsMessageDTO), wsPluginSendQueue);
 
             assertEquals(MESSAGE_ID, jmsMessageDTO.get(0).getProperties().get(MessageConstants.MESSAGE_ID));

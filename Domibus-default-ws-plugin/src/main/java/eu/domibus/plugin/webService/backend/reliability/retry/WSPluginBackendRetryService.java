@@ -80,17 +80,23 @@ public class WSPluginBackendRetryService {
     }
 
     @Transactional
-    public void send(String messageId, String recipient, WSPluginDispatchRule rule, WSBackendMessageType messageType) {
-        WSBackendMessageLogEntity backendMessage = getWsBackendMessageLogEntity(messageType, messageId, recipient, rule);
+    public void send(String messageId, String finalRecipient, String originalSender, WSPluginDispatchRule rule, WSBackendMessageType messageType) {
+        WSBackendMessageLogEntity backendMessage = getWsBackendMessageLogEntity(messageType, messageId, finalRecipient, originalSender, rule);
         WSBackendMessageLogEntity persistedBackendMessage = wsBackendMessageLogDao.createEntity(backendMessage);
         sendToQueue(persistedBackendMessage);
     }
 
-    protected WSBackendMessageLogEntity getWsBackendMessageLogEntity(WSBackendMessageType messageType, String messageId, String recipient, WSPluginDispatchRule rule) {
+    protected WSBackendMessageLogEntity getWsBackendMessageLogEntity(
+            WSBackendMessageType messageType,
+            String messageId,
+            String finalRecipient,
+            String originalSender,
+            WSPluginDispatchRule rule) {
         WSBackendMessageLogEntity wsBackendMessageLogEntity = new WSBackendMessageLogEntity();
         wsBackendMessageLogEntity.setMessageId(messageId);
         wsBackendMessageLogEntity.setRuleName(rule.getRuleName());
-        wsBackendMessageLogEntity.setFinalRecipient(recipient);
+        wsBackendMessageLogEntity.setFinalRecipient(finalRecipient);
+        wsBackendMessageLogEntity.setOriginalSender(originalSender);
         wsBackendMessageLogEntity.setType(messageType);
         wsBackendMessageLogEntity.setSendAttempts(0);
         wsBackendMessageLogEntity.setSendAttemptsMax(rule.getRetryCount());

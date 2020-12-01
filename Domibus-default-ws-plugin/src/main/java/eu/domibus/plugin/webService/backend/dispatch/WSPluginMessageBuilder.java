@@ -1,6 +1,7 @@
 package eu.domibus.plugin.webService.backend.dispatch;
 
 import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.PartInfo;
+import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Property;
 import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.UserMessage;
 import eu.domibus.ext.services.XMLUtilExtService;
 import eu.domibus.logging.DomibusLogger;
@@ -11,6 +12,7 @@ import eu.domibus.plugin.webService.connector.WSPluginImpl;
 import eu.domibus.plugin.webService.exception.WSPluginException;
 import eu.domibus.plugin.webService.impl.ExtendedPartInfo;
 import eu.domibus.webservice.backend.generated.*;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.common.util.CollectionUtils;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +31,8 @@ import java.io.IOException;
 public class WSPluginMessageBuilder {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginMessageBuilder.class);
+    public static final String MIME_TYPE = "MimeType";
+    public static final String PAYLOAD_NAME = "PayloadName";
 
     private final JAXBContext jaxbContextWebserviceBackend;
 
@@ -84,6 +88,9 @@ public class WSPluginMessageBuilder {
         }
         SubmitMessage submitMessage = new eu.domibus.webservice.backend.generated.ObjectFactory().createSubmitMessage();
 
+        submitMessage.setFinalRecipient(messageLogEntity.getFinalRecipient());
+        submitMessage.setOriginalSender(messageLogEntity.getOriginalSender());
+
         fillInfoPartsForLargeFiles(submitMessage, userMessage);
         return submitMessage;
     }
@@ -107,7 +114,13 @@ public class WSPluginMessageBuilder {
                 payloadType.setPayloadId(partInfo.getHref());
                 retrieveMessageResponse.getPayload().add(payloadType);
             }
+            payloadType.setMimeType(getPropertyValue(extPartInfo, MIME_TYPE));
+            payloadType.setPayloadName(getPropertyValue(extPartInfo, PAYLOAD_NAME));
         }
+    }
+
+    private String getPropertyValue(ExtendedPartInfo extPartInfo, String mimeType) {
+        return extPartInfo.getPartProperties().getProperty().stream().filter(property -> StringUtils.equalsAnyIgnoreCase(mimeType, property.getName())).findAny().map(Property::getValue).orElse(null);
     }
 
     private ReceiveFailure getReceiveFailure(WSBackendMessageLogEntity messageLogEntity) {

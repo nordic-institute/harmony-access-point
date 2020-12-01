@@ -1,5 +1,6 @@
 package eu.domibus.plugin.webService.backend.dispatch;
 
+import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.plugin.webService.backend.WSBackendMessageLogDao;
 import eu.domibus.plugin.webService.backend.WSBackendMessageLogEntity;
 import eu.domibus.plugin.webService.backend.WSBackendMessageStatus;
@@ -7,6 +8,7 @@ import eu.domibus.plugin.webService.backend.WSBackendMessageType;
 import eu.domibus.plugin.webService.backend.reliability.WSPluginBackendReliabilityService;
 import eu.domibus.plugin.webService.backend.rules.WSPluginDispatchRule;
 import eu.domibus.plugin.webService.backend.rules.WSPluginDispatchRulesService;
+import eu.domibus.plugin.webService.connector.WSPluginImpl;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
@@ -43,6 +45,50 @@ public class WSPluginMessageSenderTest {
     @Injectable
     protected WSPluginBackendReliabilityService reliabilityService;
 
+    @Injectable
+    protected WSPluginImpl wsPlugin;
+
+    @Test
+    public void sendSubmitMessage(@Mocked WSBackendMessageLogEntity wsBackendMessageLogEntity,
+                                   @Mocked SOAPMessage soapMessage,
+                                   @Mocked WSPluginDispatchRule wsPluginDispatchRule) throws MessageNotFoundException {
+        new Expectations() {{
+
+            wsPluginMessageBuilder.buildSOAPMessage(wsBackendMessageLogEntity);
+            result = soapMessage;
+            times = 1;
+
+            wsBackendMessageLogEntity.getRuleName();
+            result = RULE_NAME;
+
+            wsBackendMessageLogEntity.getType();
+            result = WSBackendMessageType.SUBMIT_MESSAGE;
+
+            wsBackendMessageLogEntity.getMessageId();
+            result = MESSAGE_ID;
+
+            wsPluginDispatchRulesService.getRule(RULE_NAME);
+            result = wsPluginDispatchRule;
+
+            wsPluginDispatchRule.getEndpoint();
+            result = END_POINT;
+
+            wsPluginDispatcher.dispatch(soapMessage, END_POINT);
+            result = soapMessage;
+            times = 1;
+        }};
+
+        wsPluginMessageSender.sendNotification(wsBackendMessageLogEntity);
+
+        new FullVerifications() {{
+            wsBackendMessageLogEntity.setMessageStatus(WSBackendMessageStatus.SEND_IN_PROGRESS);
+            times = 1;
+            wsBackendMessageLogEntity.setMessageStatus(WSBackendMessageStatus.SENT);
+            times = 1;
+            wsPlugin.downloadMessage(MESSAGE_ID, null);
+            times = 1;
+        }};
+    }
 
     @Test
     public void sendMessageSuccess(@Mocked WSBackendMessageLogEntity wsBackendMessageLogEntity,

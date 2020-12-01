@@ -22,7 +22,8 @@ import java.util.Collections;
 @RunWith(JMockit.class)
 public class WSPluginBackendServiceTest {
 
-    public static final String RECIPIENT = "recipient";
+    public static final String FINAL_RECIPIENT = "finalRecipient";
+    public static final String ORIGINAL_SENDER = "originalSender";
     public static final String MESSAGE_ID = "messageId";
     public static final String RULE_NAME = "ruleName";
     @Tested
@@ -42,9 +43,12 @@ public class WSPluginBackendServiceTest {
         new Expectations() {{
             userMessageExtService.getFinalRecipient(MESSAGE_ID);
             times = 1;
-            result = RECIPIENT;
+            result = FINAL_RECIPIENT;
+            userMessageExtService.getOriginalSender(MESSAGE_ID);
+            times = 1;
+            result = ORIGINAL_SENDER;
 
-            wsBackendRulesService.getRulesByRecipient(RECIPIENT);
+            wsBackendRulesService.getRulesByRecipient(FINAL_RECIPIENT);
             times = 1;
             result = Collections.singletonList(wsPluginDispatchRule);
 
@@ -59,20 +63,20 @@ public class WSPluginBackendServiceTest {
         wsPluginBackendService.send(MESSAGE_ID, WSBackendMessageType.SEND_SUCCESS);
 
         new FullVerifications() {{
-            retryService.send(MESSAGE_ID, RECIPIENT, wsPluginDispatchRule, WSBackendMessageType.SEND_SUCCESS);
+            retryService.send(MESSAGE_ID, FINAL_RECIPIENT, ORIGINAL_SENDER, wsPluginDispatchRule, WSBackendMessageType.SEND_SUCCESS);
             times = 1;
         }};
     }
 
     @Test
     public void sendSuccess_noRecipient(@Mocked WSPluginDispatchRule wsPluginDispatchRule) {
-        new Expectations(){{
+        new Expectations() {{
             userMessageExtService.getFinalRecipient(MESSAGE_ID);
             times = 1;
             result = null;
         }};
 
-        wsPluginBackendService.send(MESSAGE_ID,  WSBackendMessageType.SEND_SUCCESS);
+        wsPluginBackendService.send(MESSAGE_ID, WSBackendMessageType.SEND_SUCCESS);
 
         new FullVerifications() {
         };
@@ -84,14 +88,14 @@ public class WSPluginBackendServiceTest {
 
             userMessageExtService.getFinalRecipient(MESSAGE_ID);
             times = 1;
-            result = RECIPIENT;
+            result = FINAL_RECIPIENT;
 
-            wsBackendRulesService.getRulesByRecipient(RECIPIENT);
+            wsBackendRulesService.getRulesByRecipient(FINAL_RECIPIENT);
             times = 1;
             result = new ArrayList<>();
         }};
 
-        wsPluginBackendService.send(MESSAGE_ID,  WSBackendMessageType.SEND_SUCCESS);
+        wsPluginBackendService.send(MESSAGE_ID, WSBackendMessageType.SEND_SUCCESS);
 
         new FullVerifications() {
         };

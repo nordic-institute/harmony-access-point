@@ -56,6 +56,9 @@ public class WSBackendMessageLogEntity {
     @Column(name = "FINAL_RECIPIENT")
     private String finalRecipient;
 
+    @Column(name = "ORIGINAL_SENDER")
+    private String originalSender;
+
     @Column(name = "BACKEND_MESSAGE_STATUS")
     @Enumerated(EnumType.STRING)
     private WSBackendMessageStatus messageStatus;
@@ -154,6 +157,15 @@ public class WSBackendMessageLogEntity {
 
     public void setFinalRecipient(String finalRecipient) {
         this.finalRecipient = finalRecipient;
+    }
+
+    public String getOriginalSender() {
+        return originalSender;
+    }
+
+    public WSBackendMessageLogEntity setOriginalSender(String originalSender) {
+        this.originalSender = originalSender;
+        return this;
     }
 
     public WSBackendMessageStatus getMessageStatus() {

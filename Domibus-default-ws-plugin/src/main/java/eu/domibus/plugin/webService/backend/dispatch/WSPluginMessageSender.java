@@ -7,9 +7,11 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.webService.backend.WSBackendMessageLogDao;
 import eu.domibus.plugin.webService.backend.WSBackendMessageLogEntity;
 import eu.domibus.plugin.webService.backend.WSBackendMessageStatus;
+import eu.domibus.plugin.webService.backend.WSBackendMessageType;
 import eu.domibus.plugin.webService.backend.reliability.WSPluginBackendReliabilityService;
 import eu.domibus.plugin.webService.backend.rules.WSPluginDispatchRule;
 import eu.domibus.plugin.webService.backend.rules.WSPluginDispatchRulesService;
+import eu.domibus.plugin.webService.connector.WSPluginImpl;
 import org.springframework.stereotype.Service;
 
 /**
@@ -33,16 +35,20 @@ public class WSPluginMessageSender {
 
     protected final WSPluginDispatcher dispatcher;
 
+    protected final WSPluginImpl wsPlugin;
+
     public WSPluginMessageSender(WSPluginBackendReliabilityService reliabilityService,
                                  WSBackendMessageLogDao wsBackendMessageLogDao,
                                  WSPluginDispatchRulesService rulesService,
                                  WSPluginMessageBuilder messageBuilder,
-                                 WSPluginDispatcher dispatcher) {
+                                 WSPluginDispatcher dispatcher,
+                                 WSPluginImpl wsPlugin) {
         this.reliabilityService = reliabilityService;
         this.wsBackendMessageLogDao = wsBackendMessageLogDao;
         this.rulesService = rulesService;
         this.messageBuilder = messageBuilder;
         this.dispatcher = dispatcher;
+        this.wsPlugin = wsPlugin;
     }
 
     /**
@@ -68,6 +74,9 @@ public class WSPluginMessageSender {
                     backendMessage.getType(),
                     backendMessage.getMessageId(),
                     endpoint);
+            if(backendMessage.getType() ==  WSBackendMessageType.SUBMIT_MESSAGE) {
+                wsPlugin.downloadMessage(backendMessage.getMessageId(), null);
+            }
         } catch (Throwable t) {//NOSONAR: Catching Throwable is done on purpose in order to even catch out of memory exceptions.
             reliabilityService.handleReliability(backendMessage, dispatchRule);
             LOG.error("Error occurred when sending message with ID [{}]", backendMessage.getMessageId(), t);
