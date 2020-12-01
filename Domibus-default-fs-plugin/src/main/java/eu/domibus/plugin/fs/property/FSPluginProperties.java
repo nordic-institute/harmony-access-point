@@ -379,23 +379,27 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
     protected String getDomainPropertyST(String domain, String propertyName) {
         String value;
 
-        if (!DEFAULT_DOMAIN.equalsIgnoreCase(domain)) { //FS Plugin domain like properties for ST
-            String propertyNameFinal = domain + DOT + propertyName;
-            value = super.getKnownPropertyValue(propertyNameFinal);
-            DomibusPropertyMetadataDTO propertyMetadataDTO = getKnownProperties().get(propertyNameFinal);
+        if (DEFAULT_DOMAIN.equalsIgnoreCase(domain)) {
+            //default domain
+            LOG.debug("Retrieving property [{}] for default domain", propertyName);
+            value = super.getKnownPropertyValue(propertyName);
+            return value;
+        }
 
-            if (value == null && propertyMetadataDTO.isWithFallback()) { //try to get the value from default properties file
+        //FS Plugin domain like properties for ST
+        String propertyNameFinal = domain + DOT + propertyName;
+        LOG.debug("Retrieving property [{}] for [{}] domain", propertyNameFinal, domain);
+        value = super.getKnownPropertyValue(propertyNameFinal);
+        if (value == null) {
+            DomibusPropertyMetadataDTO propertyMetadataDTO = getKnownProperties().get(propertyNameFinal);
+            if (propertyMetadataDTO.isWithFallback()) { //try to get the value from default properties file
                 LOG.debug("going to obtain default value for property [{}] which has fallback", propertyNameFinal);
                 value = super.getKnownPropertyValue(propertyName);
                 if (StringUtils.isEmpty(value)) {
                     throw new DomibusPropertyExtException("FSPlugin property [" + propertyNameFinal + "] is empty or not present in fs-plugin.properties file");
                 }
             }
-        } else {
-            //default domain
-            value = super.getKnownPropertyValue(propertyName);
         }
-
         return value;
     }
 
@@ -428,18 +432,23 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
     protected void updatePropertiesForSingletenancy(Map<String, DomibusPropertyMetadataDTO> baseProperties) {
         for (DomibusPropertyMetadataDTO propMeta : baseProperties.values()) {
             if (shouldMultiplyPropertyMetadata(propMeta)) {
-                LOG.debug("Multiplying the domain property [{}] for each domain.", propMeta.getName());
-                for (String domain : getDomains()) {
-                        String name = (DEFAULT_DOMAIN.equals(domain) ? StringUtils.EMPTY : domain + DOT) + propMeta.getName();
-                        DomibusPropertyMetadataDTO propertyMetadata = new DomibusPropertyMetadataDTO(name, propMeta.getType(), Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Usage.DOMAIN, propMeta.isWithFallback());
-                        propertyMetadata.setStoredGlobally(true/*propMeta.isStoredGlobally()*/);
-                        knownProperties.put(propertyMetadata.getName(), propertyMetadata);
-                }
+                multiplyProperty(propMeta);
             } else {
                 //if not multiplied, the usage should be global
                 propMeta.setUsage(DomibusPropertyMetadataDTO.Usage.GLOBAL);
                 knownProperties.put(propMeta.getName(), propMeta);
             }
+        }
+    }
+
+    private void multiplyProperty(DomibusPropertyMetadataDTO propMeta) {
+        LOG.debug("Multiplying the domain property [{}] for each domain.", propMeta.getName());
+        for (String domain : getDomains()) {
+            String name = (DEFAULT_DOMAIN.equals(domain) ? StringUtils.EMPTY : domain + DOT) + propMeta.getName();
+            DomibusPropertyMetadataDTO propertyMetadata = new DomibusPropertyMetadataDTO(name, propMeta.getType(),
+                    Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Usage.DOMAIN, propMeta.isWithFallback());
+            propertyMetadata.setStoredGlobally(true);
+            knownProperties.put(propertyMetadata.getName(), propertyMetadata);
         }
     }
 
