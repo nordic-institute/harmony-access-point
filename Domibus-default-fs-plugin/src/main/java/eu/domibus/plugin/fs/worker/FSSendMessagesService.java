@@ -372,7 +372,7 @@ public class FSSendMessagesService {
     protected void clearObservedFiles(String domain) {
         LOG.trace("Starting clear of the observed files for domain [{}]; there are [{}] entries", domain, observedFilesInfo.size());
 
-        int delta = 2 * fsPluginProperties.getSendWorkerInterval() + fsPluginProperties.getSendDelay(domain);
+        int delta = 2 * fsPluginProperties.getSendWorkerInterval(domain) + fsPluginProperties.getSendDelay(domain);
         long currentTime = new Date().getTime();
         String[] keys = observedFilesInfo.keySet().toArray(new String[]{});
         for (String key : keys) {

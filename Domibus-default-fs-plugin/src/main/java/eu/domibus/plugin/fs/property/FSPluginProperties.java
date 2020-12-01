@@ -144,9 +144,10 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
 
     /**
      * @return The cron expression that defines the frequency of the sent messages purge job
+     * @param domain The domain property qualifier
      */
-    public String getSentPurgeWorkerCronExpression() {
-        return super.getKnownPropertyValue(SENT_PURGE_WORKER_CRONEXPRESSION);
+    public String getSentPurgeWorkerCronExpression(String domain) {
+        return getDomainProperty(domain, SENT_PURGE_WORKER_CRONEXPRESSION);
     }
 
     /**
@@ -177,24 +178,27 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
     }
 
     /**
+     * @param domain The domain property qualifier
      * @return The cron expression that defines the frequency of the failed messages purge job
      */
-    public String getFailedPurgeWorkerCronExpression() {
-        return super.getKnownPropertyValue(FAILED_PURGE_WORKER_CRONEXPRESSION);
+    public String getFailedPurgeWorkerCronExpression(String domain) {
+        return getDomainProperty(domain, FAILED_PURGE_WORKER_CRONEXPRESSION);
     }
 
     /**
+     * @param domain The domain property qualifier
      * @return The cron expression that defines the frequency of the received messages purge job
      */
-    public String getReceivedPurgeWorkerCronExpression() {
-        return super.getKnownPropertyValue(RECEIVED_PURGE_WORKER_CRONEXPRESSION);
+    public String getReceivedPurgeWorkerCronExpression(String domain) {
+        return getDomainProperty(domain, RECEIVED_PURGE_WORKER_CRONEXPRESSION);
     }
 
     /**
+     * @param domain  The domain property qualifier
      * @return The cron expression that defines the frequency of the orphan lock files purge job
      */
-    public String getLocksPurgeWorkerCronExpression() {
-        return super.getKnownPropertyValue(LOCKS_PURGE_WORKER_CRONEXPRESSION);
+    public String getLocksPurgeWorkerCronExpression(String domain) {
+        return getDomainProperty(domain, LOCKS_PURGE_WORKER_CRONEXPRESSION);
     }
 
     /**
@@ -312,10 +316,11 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
     }
 
     /**
+     * @param domain The domain property qualifier
      * @return send worker interval in milliseconds
      */
-    public Integer getSendWorkerInterval() {
-        return super.getKnownIntegerPropertyValue(SEND_WORKER_INTERVAL);
+    public Integer getSendWorkerInterval(String domain) {
+        return  getDomainIntegerProperty(domain, SEND_WORKER_INTERVAL);
     }
 
     /**

@@ -441,7 +441,7 @@ public class FSSendMessagesServiceTest {
             fsPluginProperties.getSendDelay(domain);
             result = 100;
 
-            fsPluginProperties.getSendWorkerInterval();
+            fsPluginProperties.getSendWorkerInterval(domain);
             result = 300;
         }};
 
