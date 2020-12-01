@@ -1,6 +1,8 @@
 package eu.domibus.core.user.plugin.job;
 
 import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.security.AuthRole;
+import eu.domibus.api.security.AuthUtils;
 import eu.domibus.core.user.plugin.PluginUserServiceImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -26,12 +28,16 @@ public class ActivateSuspendedPluginUsersJob extends DomibusQuartzJobBean {
     @Autowired
     private PluginUserServiceImpl userService;
 
+    @Autowired
+    protected AuthUtils authUtils;
+
     @Override
     protected void executeJob(JobExecutionContext context, Domain domain) throws JobExecutionException {
 
-        LOG.debug("Executing job to unlock suspended plugin accounts at " + new Date());
+        LOG.debug("Executing job to unlock suspended plugin accounts at {}", new Date());
 
-        userService.reactivateSuspendedUsers();
+        authUtils.runWithSecurityContext(() -> userService.reactivateSuspendedUsers(), "domibus", "domibus",
+                AuthRole.ROLE_AP_ADMIN, true);
     }
 
 }
