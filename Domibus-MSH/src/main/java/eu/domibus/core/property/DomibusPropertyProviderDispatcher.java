@@ -115,8 +115,8 @@ public class DomibusPropertyProviderDispatcher {
             LOG.trace("Calling getKnownPropertyValue(propertyName) method");
             return propertyManager.getKnownPropertyValue(propertyName);
         }
-        LOG.trace("No getKnownPropertyValue(propertyName) method defined in [{}]; calling getKnownPropertyValue(currentDomain.getCode(), propertyName) method instead.", propertyManager);
         Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
+        LOG.trace("Going to call getKnownPropertyValue for current domain [{}] as property manager [{}] doesn't have the method without domain defined", currentDomain, propertyManager);
         return propertyManager.getKnownPropertyValue(currentDomain.getCode(), propertyName);
     }
 

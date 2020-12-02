@@ -12,6 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import static eu.domibus.property.ExternalModulePropertyManager.*;
 
+/**
+ * @author Ion Perpegel
+ * @since 4.2
+ */
 public class DomibusPropertyProviderIT extends AbstractIT {
 
     @Autowired
