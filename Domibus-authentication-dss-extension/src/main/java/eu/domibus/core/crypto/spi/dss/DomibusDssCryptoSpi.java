@@ -2,6 +2,8 @@ package eu.domibus.core.crypto.spi.dss;
 
 import eu.domibus.core.crypto.spi.AbstractCryptoServiceSpi;
 import eu.domibus.core.crypto.spi.DomainCryptoServiceSpi;
+import eu.domibus.ext.domain.metrics.Counter;
+import eu.domibus.ext.domain.metrics.Timer;
 import eu.domibus.ext.services.PkiExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -66,6 +68,8 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
 
 
     @Override
+    @Timer(clazz = DomibusDssCryptoSpi.class,value = "verifyTrust")
+    @Counter(clazz = DomibusDssCryptoSpi.class,value = "verifyTrust")
     public void verifyTrust(X509Certificate[] certs, boolean enableRevocation, Collection<Pattern> subjectCertConstraints, Collection<Pattern> issuerCertConstraints) throws WSSecurityException {
         //display some trusted list information.
         logDebugTslInfo();
@@ -95,7 +99,7 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
         //Validate.
         validate(certificateValidator);
         dssCache.addToCache(cacheKey, true);
-        LOG.debug("Certificate:[{}] passed DSS trust validation:", leafCertificate.getSubjectDN());
+        LOG.info("Certificate:[{}] passed DSS trust validation and is added to cache", leafCertificate.getSubjectDN());
     }
 
     protected void validate(CertificateValidator certificateValidator) throws WSSecurityException {
