@@ -7,8 +7,8 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.user.UserManagementException;
 import eu.domibus.api.user.UserState;
-import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.alerts.service.AlertConfigurationService;
+import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.user.ui.User;
 import eu.domibus.core.user.ui.UserDao;
@@ -16,6 +16,8 @@ import eu.domibus.core.user.ui.UserRole;
 import eu.domibus.core.user.ui.UserRoleDao;
 import eu.domibus.core.user.ui.security.ConsoleUserSecurityPolicyManager;
 import eu.domibus.core.user.ui.security.password.ConsoleUserPasswordHistoryDao;
+import eu.domibus.web.security.AuthenticationService;
+import eu.domibus.web.security.UserDetail;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.lang3.StringUtils;
@@ -69,6 +71,9 @@ public class UserPersistenceServiceImplTest {
 
     @Autowired
     private DomainCoreConverter domainConverter2;
+
+    @Injectable
+    AuthenticationService authenticationService;
 
     @Tested
     private UserPersistenceServiceImpl userPersistenceService;
@@ -183,9 +188,10 @@ public class UserPersistenceServiceImplTest {
         }};
         Collection<eu.domibus.api.user.User> users = Arrays.asList(user);
 
-        new Expectations() {{
+        new Expectations(userPersistenceService) {{
             userDao.loadUserByUsername(anyString);
             result = userEntity;
+            userPersistenceService.checkCanUpdateIfCurrentUser(user, userEntity);
         }};
 
         userPersistenceService.updateUsers(users, true);
@@ -348,5 +354,69 @@ public class UserPersistenceServiceImplTest {
         Assert.assertFalse(res2);
         boolean res3 = userPersistenceService.isUpdated(user1);
         Assert.assertFalse(res3);
+    }
+
+    @Test
+    public void checkCanUpdateIfCurrentUser(@Mocked eu.domibus.api.user.User user, @Mocked User existing, @Mocked UserDetail loggedUser) {
+        String userName1 = "userName1", userName2 = "userName2";
+        new Expectations(userPersistenceService) {{
+            authenticationService.getLoggedUser();
+            result = loggedUser;
+            loggedUser.getUsername();
+            result = userName1;
+            user.getUserName();
+            result = userName2;
+        }};
+
+        userPersistenceService.checkCanUpdateIfCurrentUser(user, existing);
+
+        new Verifications() {{
+            existing.isActive();
+            times = 0;
+        }};
+    }
+
+    @Test(expected = UserManagementException.class)
+    public void checkCanUpdateIfCurrentUser_ChangeActive(@Mocked eu.domibus.api.user.User user, @Mocked User existing, @Mocked UserDetail loggedUser) {
+        String userName = "userName";
+        new Expectations() {{
+            authenticationService.getLoggedUser();
+            result = loggedUser;
+            loggedUser.getUsername();
+            result = userName;
+            user.getUserName();
+            result = userName;
+            existing.isActive();
+            result = true;
+            user.isActive();
+            result = false;
+        }};
+
+        userPersistenceService.checkCanUpdateIfCurrentUser(user, existing);
+    }
+
+    @Test(expected = UserManagementException.class)
+    public void checkCanUpdateIfCurrentUser_ChangeRole(@Mocked eu.domibus.api.user.User user, @Mocked User existing, @Mocked UserDetail loggedUser) {
+        String userName = "userName";
+        new Expectations(userPersistenceService) {{
+            authenticationService.getLoggedUser();
+            result = loggedUser;
+            loggedUser.getUsername();
+            result = userName;
+            user.getUserName();
+            result = userName;
+            existing.isActive();
+            result = true;
+            user.isActive();
+            result = true;
+            userPersistenceService.sameRoles(user, existing);
+            result = false;
+        }};
+
+        userPersistenceService.checkCanUpdateIfCurrentUser(user, existing);
+
+        new Verifications() {{
+            existing.isActive();
+        }};
     }
 }

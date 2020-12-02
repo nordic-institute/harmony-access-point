@@ -124,14 +124,14 @@ public class UserPersistenceServiceImpl implements UserPersistenceService {
     protected void checkCanUpdateIfCurrentUser(eu.domibus.api.user.User user, User existing) {
         UserDetail loggedUser = authenticationService.getLoggedUser();
         if (!StringUtils.equals(loggedUser.getUsername(), user.getUserName())) {
-            LOG.debug("No need to validate update possibility for a not-logged-in user [{}]; exiting.", user.getUserName());
+            LOG.debug("No need to validate the permission to update a user if it is different than the logged-in user [{}]; exiting.", user.getUserName());
             return;
         }
         if (existing.isActive() != user.isActive()) {
-            throw new UserManagementException("Cannot change the active status of the logged user.");
+            throw new UserManagementException("Cannot change the active status of the logged-in user.");
         }
         if (!sameRoles(user, existing)) {
-            throw new UserManagementException("Cannot change the role of the logged user.");
+            throw new UserManagementException("Cannot change the role of the logged-in user.");
         }
     }
 
@@ -152,7 +152,7 @@ public class UserPersistenceServiceImpl implements UserPersistenceService {
         addRoleToUser(user.getAuthorities(), existing);
     }
 
-    private boolean sameRoles(eu.domibus.api.user.User user, User existing) {
+    protected boolean sameRoles(eu.domibus.api.user.User user, User existing) {
         String newRoles = user.getAuthorities().toString();
         String existingRoles = existing.getRoles().stream().map(role -> role.getName()).collect(Collectors.toList()).toString();
         return newRoles.equals(existingRoles);
