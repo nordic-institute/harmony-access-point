@@ -10,6 +10,7 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 
 /**
@@ -30,6 +31,7 @@ public class DssRefreshWorker extends DomibusQuartzJobExtBean {
 
     @Override
     public void executeJob(JobExecutionContext context, DomainDTO domain) {
+        LOG.info("Executing DSS refresh job at:[{}]", LocalDateTime.now());
         commandExtService.executeCommand(DssRefreshCommand.COMMAND_NAME,new HashMap<>());
     }
 }

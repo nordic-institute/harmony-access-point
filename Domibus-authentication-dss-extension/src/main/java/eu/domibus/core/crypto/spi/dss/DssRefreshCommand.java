@@ -11,6 +11,7 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -43,6 +44,7 @@ public class DssRefreshCommand implements CommandExtTask {
 
     @Override
     public void execute(Map<String, String> properties) {
+        LOG.info("Executing command to refresh DSS trusted lists at:[{}]", LocalDateTime.now());
         String serverCacheDirectoryPath = domibusTSLValidationJob.getCacheDirectoryPath();
         Path cachePath = Paths.get(serverCacheDirectoryPath);
         if (!cachePath.toFile().exists()) {
