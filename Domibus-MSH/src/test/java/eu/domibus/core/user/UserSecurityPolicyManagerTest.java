@@ -647,17 +647,15 @@ public class UserSecurityPolicyManagerTest {
             setActive(true);
         }};
         new Expectations() {{
-            securityPolicyManager.getUserDao();
-            result = userDao;
-            userDao.findByUserName(anyString);
-            result = userEntity;
             securityPolicyManager.getUserAlertsService();
             result = userAlertsService;
         }};
 
-        securityPolicyManager.applyLockingPolicyOnUpdate(user);
+        securityPolicyManager.applyLockingPolicyOnUpdate(user, userEntity);
 
         new Verifications() {{
+            userEntity.setSuspensionDate(null);
+            userEntity.setAttemptCount(0);
             userAlertsService.triggerEnabledEvent(user);
             times = 1;
         }};
@@ -675,15 +673,11 @@ public class UserSecurityPolicyManagerTest {
         user.setUserName("user");
 
         new Expectations() {{
-            securityPolicyManager.getUserDao();
-            result = userDao;
-            userDao.findByUserName(anyString);
-            result = userEntity;
             securityPolicyManager.getUserAlertsService();
             result = userAlertsService;
         }};
 
-        securityPolicyManager.applyLockingPolicyOnUpdate(user);
+        securityPolicyManager.applyLockingPolicyOnUpdate(user, userEntity);
 
         new Verifications() {{
             userAlertsService.triggerDisabledEvent(user);

@@ -64,5 +64,4 @@ public class AuthenticationServiceImpl extends AuthenticationServiceBase impleme
         return principal;
     }
 
-
 }

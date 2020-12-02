@@ -263,15 +263,12 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
         getUserAlertsService().triggerDisabledEvent(user);
     }
 
-    public UserEntityBase applyLockingPolicyOnUpdate(UserBase user) {
-        UserEntityBase userEntity = getUserDao().findByUserName(user.getUserName());
+    public void applyLockingPolicyOnUpdate(UserBase user, UserEntityBase userEntity) {
         if (!userEntity.isActive() && user.isActive()) {
             onActivateUser(user, userEntity);
         } else if (!user.isActive() && userEntity.isActive()) {
             onInactivateUser(user);
         }
-        userEntity.setActive(user.isActive());
-        return userEntity;
     }
 
     protected void onInactivateUser(UserBase user) {

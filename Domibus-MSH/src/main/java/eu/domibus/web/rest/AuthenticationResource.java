@@ -83,7 +83,6 @@ public class AuthenticationResource {
     @Autowired
     CompositeSessionAuthenticationStrategy sas;
 
-
     @ExceptionHandler({AccountStatusException.class})
     public ResponseEntity<ErrorRO> handleAccountStatusException(AccountStatusException ex) {
         return errorHandlerService.createResponse(ex, HttpStatus.FORBIDDEN);
@@ -153,7 +152,7 @@ public class AuthenticationResource {
     @RequestMapping(value = "user", method = RequestMethod.GET)
     public UserRO getUser() {
         LOG.debug("get user - start");
-        UserDetail userDetail = getLoggedUser();
+        UserDetail userDetail = authenticationService.getLoggedUser();
 
         return userDetail != null ? createUserRO(userDetail, userDetail.getUsername()) : null;
     }
@@ -191,25 +190,10 @@ public class AuthenticationResource {
     @RequestMapping(value = "user/password", method = RequestMethod.PUT)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void changePassword(@RequestBody @Valid ChangePasswordRO param) {
-        UserDetail loggedUser = this.getLoggedUser();
+        UserDetail loggedUser = authenticationService.getLoggedUser();
         LOG.debug("Changing password for user [{}]", loggedUser.getUsername());
         getUserService().changePassword(loggedUser.getUsername(), param.getCurrentPassword(), param.getNewPassword());
         loggedUser.setDefaultPasswordUsed(false);
-    }
-
-    /**
-     * It will return the Principal from {@link SecurityContextHolder}
-     * if different from {@link AnonymousAuthenticationToken}
-     * @return
-     */
-    UserDetail getLoggedUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication!= null && !(authentication instanceof AnonymousAuthenticationToken)) {
-            UserDetail userDetail = (UserDetail) authentication.getPrincipal();
-            LOG.debug("Principal found on SecurityContextHolder: {}", userDetail);
-            return userDetail;
-        }
-        return null;
     }
 
     UserService getUserService() {
