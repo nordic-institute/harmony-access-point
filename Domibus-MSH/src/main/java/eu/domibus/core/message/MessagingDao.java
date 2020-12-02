@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.*;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.function.Predicate;
@@ -127,6 +128,7 @@ public class MessagingDao extends BasicDao<Messaging> {
             return;
         }
 
+        LOG.debug("Thre are [{}] payloads on filesystem to delete: [{}] ", filenames.size() );
         for(String filename : filenames) {
             LOG.debug("Deleting payload data file: [{}]", filename);
             deletePayloadFile(filename);
@@ -134,8 +136,18 @@ public class MessagingDao extends BasicDao<Messaging> {
     }
 
     public void deletePayloadFile(String filename) {
+        if(StringUtils.isEmpty(filename) || StringUtils.isAllBlank(filename)) {
+            LOG.warn("Empty filename used to delete payload on filesystem!");
+            return;
+        }
+
         try {
-            Files.delete(Paths.get(filename));
+            Path path = Paths.get(filename);
+            if(path == null) {
+                LOG.warn("Trying to delete an empty path, filename [{}]", filename);
+                return;
+            }
+            Files.delete(path);
         } catch (IOException e) {
             LOG.debug("Problem deleting payload data files", e);
         }
