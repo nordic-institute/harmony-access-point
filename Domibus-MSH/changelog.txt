@@ -4,7 +4,6 @@ Domibus 4.2
     - eu.domibus.plugin.NotificationListener
     - eu.domibus.plugin.NotificationListenerService
     - eu.domibus.submission.WeblogicNotificationListenerService
-    - eu.domibus.ext.services.DomibusPropertyManagerExt.getKnownPropertyValue(java.lang.String, java.lang.String)
     - eu.domibus.ext.services.DomibusPropertyManagerExt.setKnownPropertyValue(java.lang.String, java.lang.String, java.lang.String)
     - eu.domibus.ext.services.PModeExtService.updatePModeFile(byte[], java.lang.String)
 - Use Domibus nested property mechanism for DSS dynamic properties for constraints and custom trusted list
@@ -350,8 +349,9 @@ Domibus 4.2
 - Add remarks to TB_COMMAND/TB_COMMAND_PROPERTY tables
 - Maximum length of Pmode's URI attributes(endpoint, partyIdType's value, Mep's value, binding's value and 'schemaFile' attribute of payload) extended from 255 to 1024.
 Domibus 4.1.6
-- fixed an issue in the FSPlugin when PayloadName property is missing
-- updated spring, activemq and jackson libraries
+- Fixed an issue in the FSPlugin when PayloadName property is missing
+- Fixed an issue while receiving a message using PKIPath
+- Updated Spring, ActiveMQ and Jackson libraries
 Domibus 4.1.5
 - AS4 String message properties has been increased from 255 characters to 1024
 - Synchronization of Certificate verification security level of the SMP certificate in dynamic discovery for Peppol and Oasis.

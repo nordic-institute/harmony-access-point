@@ -1,17 +1,17 @@
 Domibus 4.2 (from 4.1.6):
                 - Run the appropriate DB migration script(mysql5innoDb-4.1.5-to-4.2-migration.ddl for MySQL or oracle10g-4.1.5-to-4.2-migration.ddl for Oracle)
                 - Replace the Domibus war
-                - Delete the default plugin(s) config file(s) eg ws-plugin.xml, jms-plugin.xml and fs-plugin.xml from "\domibus\conf\domibus\plugins\config"
-                - Replace the default plugin(s) property file(s) and jar(s) into "\domibus\conf\domibus\plugins\config" respectively into "\domibus\conf\domibus\plugins\lib"
+                - Delete the default plugins config files(ws-plugin.xml, jms-plugin.xml and fs-plugin.xml) from "conf/domibus/plugins/config"
+                - Replace the default plugins property files and jars into "conf/domibus/plugins/config" respectively into "/conf/domibus/plugins/lib"
                 - PMode payload profile maxSize re-enabled: remove the comment about maxSize <payloadProfile name="MessageProfile" maxSize="40894464"> <!-- maxSize is currently ignored -->
                   and replace the value with maxSize="2147483647" in the PMode file
                 - Change the name of domibus.ui.csv.max.rows property to domibus.ui.csv.rows.max in domibus.properties file
                 - [Tomcat only]
                    - if Oracle database is used, change oracle database configuration property domibus.datasource.xa.property.URL to domibus.datasource.xa.property.url in domibus.properties.
-                   - in file "conf\domibus\internal\activemq.xml"
+                   - in file "conf/domibus/internal/activemq.xml"
                         - remove properties-ref="domibusProperties" from the line <context:property-placeholder properties-ref="domibusProperties" ignore-resource-not-found="true" ignore-unresolvable="true"/>
                 - [Multitenancy only]
-                   - run the appropriate DB migration script(mysql5innoDb-4.1.5-to-4.2-multi-tenancy-migration.ddl for MySQL or oracle10g-4.1.5-to-4.2-multi-tenancy-migration.ddl for Oracle)
+                   - run the appropriate DB migration script (mysql5innoDb-4.1.5-to-4.2-multi-tenancy-migration.ddl for MySQL or oracle10g-4.1.5-to-4.2-multi-tenancy-migration.ddl for Oracle)
                    - add the configuration file default-domibus.properties for the 'default' domain from the distribution
                    - add the configuration file super-domibus.properties from the distribution
                    - in the domain specific configuration files(eg domain_name-domibus.properties), replace the names of the domain_name.payload.temp.* properties with domain_name.domibus.payload.temp.*
@@ -25,6 +25,15 @@ Domibus 4.2 (from 4.1.6):
                     and replace 'core-threads="50" max-threads="200"' with 'core-threads="200" max-threads="500"'
                    - in standalone-full.xml - add
                     <managed-executor-service name="mshExecutorService" jndi-name="java:jboss/ee/concurrency/executor/MshExecutorService" context-service="default" hung-task-threshold="60000" core-threads="100" max-threads="300" keepalive-time="5000"/>
+                - [WebLogic only]
+                    - execute the WLST API script(from "/conf/domibus/scripts/upgrades") 4.1.6-to-4.2-WeblogicSingleServer.properties for single server deployment or 4.1.6-to-4.2-WeblogicCluster.properties for cluster deployment
+Domibus 4.2 (from 4.2-RC1):
+                - Run the appropriate DB migration script(mysql5innoDb-4.2-RC1-to-4.2-migration.ddl for MySQL or oracle10g-4.2-RC1-to-4.2-migration.ddl for Oracle)
+                - Replace the Domibus war
+                - Replace the default plugin(s) property file(s) and jar(s) into "\domibus\conf\domibus\plugins\config" respectively into "\domibus\conf\domibus\plugins\lib"
+                - Replace the domibus.properties file(Please comment the property 'domibus.database.schema', if Domibus is configured in single-tenancy mode with Oracle database)
+                - [WebLogic only]
+                     - execute the WLST API script(from "/conf/domibus/scripts/upgrades") 4.1.6-to-4.2-WeblogicSingleServer.properties for single server deployment or 4.1.6-to-4.2-WeblogicCluster.properties for cluster deployment
 Domibus 4.1.6 (from 4.1.5)
                 - Please replace the Domibus war
 Domibus 4.1.5 (from 4.1.3)
