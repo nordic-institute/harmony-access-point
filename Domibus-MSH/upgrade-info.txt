@@ -1,4 +1,10 @@
 Domibus 4.2 (from 4.1.6):
+                Domibus 4.2 supports newer version of application servers and databases. Support for Oracle OpenJDK 11 has been also introduced on top of Oracle JDK 8 which was already supported.
+                  It is mandatory to update to one of the below supported servers and databases.
+                    Servers: Tomcat 9.x, WildFly 20.0.x, WebLogic 12.2.1.4
+                    Database: MySQL 8, Oracle 12c, Oracle 19c
+                  It is optional to upgrade to Oracle OpenJDK 11, you can still use Domibus 4.2 with Oracle JDK 8.
+
                 - Run the appropriate DB migration script(mysql5innoDb-4.1.5-to-4.2-migration.ddl for MySQL or oracle10g-4.1.5-to-4.2-migration.ddl for Oracle)
                 - Replace the Domibus war
                 - Delete the default plugins config files(ws-plugin.xml, jms-plugin.xml and fs-plugin.xml) from "conf/domibus/plugins/config"
