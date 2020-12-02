@@ -10,7 +10,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import static eu.domibus.property.ExternalModulePropertyManager.*;
+import static eu.domibus.property.ExternalTestModulePropertyManager.*;
 
 /**
  * @author Ion Perpegel

@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
  * @since 5.0
  */
 @Component
-public class ExternalModulePropertyManager extends DomibusPropertyExtServiceDelegateAbstract
+public class ExternalTestModulePropertyManager extends DomibusPropertyExtServiceDelegateAbstract
         implements DomibusPropertyManagerExt {
 
     public static final String EXTERNAL_NOT_EXISTENT = "externalModule.notExistent";
@@ -32,7 +32,7 @@ public class ExternalModulePropertyManager extends DomibusPropertyExtServiceDele
 
     private Map<String, String> knownPropertyValues = new HashMap<>();
 
-    public ExternalModulePropertyManager() {
+    public ExternalTestModulePropertyManager() {
         List<DomibusPropertyMetadataDTO> allProperties = Arrays.asList(
                 new DomibusPropertyMetadataDTO(EXTERNAL_MODULE_EXISTENT_NOT_HANDLED, Type.STRING, "ExternalModule", Usage.DOMAIN),
                 new DomibusPropertyMetadataDTO(EXTERNAL_MODULE_EXISTENT_LOCALLY_HANDLED, Type.STRING, "ExternalModule", Usage.DOMAIN),
