@@ -1,6 +1,7 @@
 package eu.domibus.core.ebms3.sender.client;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.core.cxf.DomibusHTTPConduitFactory;
 import eu.domibus.core.ehcache.IgnoreSizeOfWrapper;
 import eu.domibus.core.proxy.DomibusProxyService;
 import eu.domibus.core.proxy.ProxyCxfUtil;
@@ -13,12 +14,12 @@ import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.ClientImpl;
 import org.apache.cxf.jaxws.DispatchImpl;
 import org.apache.cxf.transport.http.HTTPConduit;
+import org.apache.cxf.transport.http.HTTPConduitFactory;
 import org.apache.cxf.transport.local.LocalConduit;
 import org.apache.cxf.transports.http.configuration.ConnectionType;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.apache.cxf.ws.policy.PolicyConstants;
 import org.apache.neethi.Policy;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.DependsOn;
@@ -58,23 +59,30 @@ public class DispatchClientDefaultProvider implements DispatchClientProvider {
     public static final String DOMIBUS_DISPATCHER_ALLOWCHUNKING = DOMIBUS_DISPATCHER_ALLOW_CHUNKING;
     public static final String DOMIBUS_DISPATCHER_CHUNKINGTHRESHOLD = DOMIBUS_DISPATCHER_CHUNKING_THRESHOLD;
 
+    private final TLSReaderServiceImpl tlsReader;
 
-    @Autowired
-    private TLSReaderServiceImpl tlsReader;
+    private final Executor executor;
 
-    @Autowired
-    @Qualifier("taskExecutor")
-    private Executor executor;
+    protected final DomibusPropertyProvider domibusPropertyProvider;
 
-    @Autowired
-    protected DomibusPropertyProvider domibusPropertyProvider;
+    protected final DomibusProxyService domibusProxyService;
 
-    @Autowired
-    @Qualifier("domibusProxyService")
-    protected DomibusProxyService domibusProxyService;
+    protected final ProxyCxfUtil proxyUtil;
 
-    @Autowired
-    protected ProxyCxfUtil proxyUtil;
+    protected final DomibusHTTPConduitFactory domibusHTTPConduitFactory;
+
+    public DispatchClientDefaultProvider(TLSReaderServiceImpl tlsReader,
+                                         @Qualifier("taskExecutor") Executor executor,
+                                         DomibusPropertyProvider domibusPropertyProvider,
+                                         @Qualifier("domibusProxyService") DomibusProxyService domibusProxyService,
+                                         ProxyCxfUtil proxyUtil, DomibusHTTPConduitFactory domibusHTTPConduitFactory) {
+        this.tlsReader = tlsReader;
+        this.executor = executor;
+        this.domibusPropertyProvider = domibusPropertyProvider;
+        this.domibusProxyService = domibusProxyService;
+        this.proxyUtil = proxyUtil;
+        this.domibusHTTPConduitFactory = domibusHTTPConduitFactory;
+    }
 
     /**
      * JIRA: EDELIVERY-6755 showed a deadlock while instantiating cxf dispatcher during start-up
@@ -97,13 +105,17 @@ public class DispatchClientDefaultProvider implements DispatchClientProvider {
         dispatch.getRequestContext().put(ASYMMETRIC_SIG_ALGO_PROPERTY, algorithm);
         dispatch.getRequestContext().put(PMODE_KEY_CONTEXT_PROPERTY, pModeKey);
         final Client client = ((DispatchImpl<SOAPMessage>) dispatch).getClient();
+        Boolean sslOffload = domibusPropertyProvider.getBooleanProperty(DOMIBUS_CONNECTION_CXF_SSL_OFFLOAD_ENABLE);
+        if(sslOffload) {
+            client.getEndpoint().getEndpointInfo().setProperty(HTTPConduitFactory.class.getName(), domibusHTTPConduitFactory);
+        }
         final HTTPConduit httpConduit = (HTTPConduit) client.getConduit();
         final HTTPClientPolicy httpClientPolicy = httpConduit.getClient();
 
         httpConduit.setClient(httpClientPolicy);
         setHttpClientPolicy(httpClientPolicy);
 
-        if (endpoint.startsWith("https://")) {
+        if (endpoint.startsWith("https://") && !sslOffload) {
             final TLSClientParameters params = tlsReader.getTlsClientParameters(domain);
             if (params != null) {
                 httpConduit.setTlsClientParameters(params);
