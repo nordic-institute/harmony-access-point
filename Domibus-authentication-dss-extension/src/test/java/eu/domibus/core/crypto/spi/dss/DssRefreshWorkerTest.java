@@ -1,6 +1,7 @@
 package eu.domibus.core.crypto.spi.dss;
 
 import eu.domibus.ext.domain.DomainDTO;
+import eu.domibus.ext.services.CommandExtService;
 import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomainExtService;
 import eu.europa.esig.dss.tsl.service.DomibusTSLValidationJob;
@@ -11,6 +12,8 @@ import org.junit.runner.RunWith;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.HashMap;
 
 import static org.junit.Assert.*;
 
@@ -28,36 +31,16 @@ public class DssRefreshWorkerTest {
     protected DomainContextExtService domainContextExtService;
 
     @Injectable
-    private DomibusTSLValidationJob tslValidationJob;
-
-    @Injectable
-    private DssExtensionPropertyManager dssExtensionPropertyManager;
+    private CommandExtService commandExtService;;
 
     @Tested
     private DssRefreshWorker dssRefreshWorker;
 
     @Test
     public void executeJobRefresh(final @Mocked JobExecutionContext context,final @Mocked  DomainDTO domain) throws JobExecutionException {
-        new Expectations(){{
-            dssExtensionPropertyManager.getKnownPropertyValue(DssExtensionPropertyManager.DSS_FULL_TLS_REFRESH);
-            result="false";
-        }};
         dssRefreshWorker.executeJob(context,domain);
         new Verifications(){{
-            tslValidationJob.clearRepository();times=0;
-            tslValidationJob.refresh();times=1;
-        }};
-    }
-    @Test
-    public void executeJobFullRefresh(final @Mocked JobExecutionContext context,final @Mocked  DomainDTO domain) throws JobExecutionException {
-        new Expectations(){{
-            dssExtensionPropertyManager.getKnownPropertyValue(DssExtensionPropertyManager.DSS_FULL_TLS_REFRESH);
-            result="true";
-        }};
-        dssRefreshWorker.executeJob(context,domain);
-        new Verifications(){{
-            tslValidationJob.clearRepository();times=1;
-            tslValidationJob.refresh();times=1;
+            commandExtService.executeCommand(DssRefreshCommand.COMMAND_NAME,withAny(new HashMap<>()));
         }};
     }
 }

@@ -211,6 +211,7 @@ public class DomibusTSLValidationJob {
                         } else {
                             potentialSigners = getPotentialSigners(lotlPointers, countryCode);
                         }
+                        LOG.info("Validating TLS for:[{}]",countryModel.getFilepath());
                         DomibusTSLValidator tslValidator = new DomibusTSLValidator(new FileDocument(countryModel.getFilepath()), countryCode, potentialSigners, certificateVerifierService.getCertificateVerifier());
                         futureValidationResults.add(executorService.submit(tslValidator));
                     }

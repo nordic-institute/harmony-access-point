@@ -5,9 +5,7 @@ import eu.domibus.ext.quartz.DomibusQuartzJobExtBean;
 import eu.domibus.ext.services.CommandExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.europa.esig.dss.tsl.service.DomibusTSLValidationJob;
 import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
@@ -24,14 +22,11 @@ public class DssRefreshWorker extends DomibusQuartzJobExtBean {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DssRefreshWorker.class);
 
     @Autowired
-    private DomibusTSLValidationJob tslValidationJob;
-
-    @Autowired
     private CommandExtService commandExtService;
 
     @Override
     public void executeJob(JobExecutionContext context, DomainDTO domain) {
         LOG.info("Executing DSS refresh job at:[{}]", LocalDateTime.now());
-        commandExtService.executeCommand(DssRefreshCommand.COMMAND_NAME,new HashMap<>());
+        commandExtService.executeCommand(DssRefreshCommand.COMMAND_NAME, new HashMap<>());
     }
 }

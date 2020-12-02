@@ -44,17 +44,23 @@ public class DssRefreshCommand implements CommandExtTask {
 
     @Override
     public void execute(Map<String, String> properties) {
+        LOG.info("Start DSS trusted lists refresh job");
+        if (Boolean.parseBoolean(dssExtensionPropertyManager.getKnownPropertyValue(DssExtensionPropertyManager.DSS_FULL_TLS_REFRESH))) {
+            domibusTSLValidationJob.clearRepository();
+            LOG.info("DSS trusted lists cleared");
+        }
+        domibusTSLValidationJob.refresh();
+        LOG.info("DSS trusted lists refreshed");
+    }
+
+    @PostConstruct
+    public void init(){
         LOG.info("Executing command to refresh DSS trusted lists at:[{}]", LocalDateTime.now());
         String serverCacheDirectoryPath = domibusTSLValidationJob.getCacheDirectoryPath();
         Path cachePath = Paths.get(serverCacheDirectoryPath);
         if (!cachePath.toFile().exists()) {
             LOG.error("Dss cache directory[{}] should be created by the system, please check permissions", serverCacheDirectoryPath);
             return;
-        }
-        LOG.info("Start DSS trusted lists refresh job");
-        if (Boolean.parseBoolean(dssExtensionPropertyManager.getKnownPropertyValue(DssExtensionPropertyManager.DSS_FULL_TLS_REFRESH))) {
-            domibusTSLValidationJob.clearRepository();
-            LOG.info("DSS trusted lists cleared");
         }
         try (DirectoryStream<Path> ds = Files.newDirectoryStream(cachePath)) {
             Iterator files = ds.iterator();
@@ -68,10 +74,5 @@ public class DssRefreshCommand implements CommandExtTask {
         } catch (IOException e) {
             LOG.error("Error while checking if cache directory:[{}] is empty", serverCacheDirectoryPath, e);
         }
-    }
-
-    @PostConstruct
-    public void init(){
-        execute(new HashMap<>());
     }
 }
