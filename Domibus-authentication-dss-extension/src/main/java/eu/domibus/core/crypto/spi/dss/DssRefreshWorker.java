@@ -5,6 +5,7 @@ import eu.domibus.ext.quartz.DomibusQuartzJobExtBean;
 import eu.domibus.ext.services.CommandExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -15,8 +16,11 @@ import java.util.HashMap;
  * @author Thomas Dussart
  * @since 4.1
  * <p>
- * Job to launch dss refresh mechanism.
+ *
+ * This job will trigger a DSS refresh on the node executing the job and send a command to the other nodes
+ * to perform as DSS refresh too.
  */
+@DisallowConcurrentExecution
 public class DssRefreshWorker extends DomibusQuartzJobExtBean {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DssRefreshWorker.class);

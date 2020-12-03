@@ -17,8 +17,11 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
+ *
  * @author Thomas Dussart
  * @since 4.2
+ *
+ * This command triggers a refresh of the DSS trusted list on the node it is executed.
  */
 public class DssRefreshCommand implements CommandExtTask {
 
