@@ -8,7 +8,6 @@ import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.jms.spi.InternalJMSException;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -52,6 +51,7 @@ public class JmsResource extends BaseResource {
     @GetMapping(value = {"/messages"})
     public MessagesResponseRO messages(@Valid JmsFilterRequestRO request) {
         List<JmsMessage> messages = jmsManager.browseMessages(request.getSource(), request.getJmsType(), request.getFromDate(), request.getToDate(), request.getSelector());
+        customizeProperties(messages);
         final MessagesResponseRO response = new MessagesResponseRO();
         response.setMessages(messages);
         return response;
@@ -86,18 +86,14 @@ public class JmsResource extends BaseResource {
     public ResponseEntity<String> getCsv(@Valid JmsFilterRequestRO request) {
 
         // get list of messages
-        final List<JmsMessage> jmsMessageList = jmsManager.browseMessages(
-                request.getSource(),
-                request.getJmsType(),
-                request.getFromDate(),
-                request.getToDate(),
-                request.getSelector())
+        final List<JmsMessage> jmsMessageList = jmsManager
+                .browseMessages(request.getSource(), request.getJmsType(), request.getFromDate(), request.getToDate(), request.getSelector())
                 .stream().sorted(Comparator.comparing(JmsMessage::getTimestamp).reversed())
                 .collect(Collectors.toList());
 
         getCsvService().validateMaxRows(jmsMessageList.size());
 
-        customizeJMSProperties(jmsMessageList);
+        customizePropertiesForCSV(jmsMessageList);
 
         return exportToCSV(jmsMessageList, JmsMessage.class,
                 ImmutableMap.of(
@@ -107,15 +103,22 @@ public class JmsResource extends BaseResource {
                         "CustomProperties".toUpperCase(), "Custom prop",
                         "Properties".toUpperCase(), "JMS prop"
                 ),
-                Arrays.asList("PROPERTY_ORIGINAL_QUEUE", "jmsCorrelationId", "priority"),
+                Arrays.asList("PROPERTY_ORIGINAL_QUEUE", "jmsCorrelationId", "priority", "content"),
                 "jmsmonitoring");
 
     }
 
-    private void customizeJMSProperties(List<JmsMessage> jmsMessageList) {
+    private void customizePropertiesForCSV(List<JmsMessage> jmsMessageList) {
         for (JmsMessage message : jmsMessageList) {
             message.setCustomProperties(message.getCustomProperties());
             message.setProperties(message.getJMSProperties());
+            message.setContent(null);
+        }
+    }
+
+    private void customizeProperties(List<JmsMessage> jmsMessageList) {
+        for (JmsMessage message : jmsMessageList) {
+            message.setContent(null);
         }
     }
 
