@@ -25,6 +25,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -45,10 +46,19 @@ public class FSPluginConfiguration {
     @Value("file:///${domibus.config.location}/plugins/config/fs-plugin.properties")
     protected String fsPluginExternalPropertiesFile;
 
+    protected List<NotificationType> defaultMessageNotifications = Arrays.asList(
+                            NotificationType.MESSAGE_RECEIVED, NotificationType.MESSAGE_SEND_FAILURE, NotificationType.MESSAGE_RECEIVED_FAILURE,
+                            NotificationType.MESSAGE_SEND_SUCCESS, NotificationType.MESSAGE_STATUS_CHANGE);
+
     @Bean("backendFSPlugin")
     public FSPluginImpl createFSPlugin(DomibusPropertyExtService domibusPropertyExtService) {
         List<NotificationType> messageNotifications = domibusPropertyExtService.getConfiguredNotifications(FSPluginPropertiesMetadataManagerImpl.PROPERTY_PREFIX + FSPluginPropertiesMetadataManagerImpl.MESSAGE_NOTIFICATIONS);
         LOG.debug("Using the following message notifications [{}]", messageNotifications);
+        if (!messageNotifications.containsAll(defaultMessageNotifications)) {
+            LOG.warn("FSPlugin will not function properly if the following message notifications will not be set: [{}]",
+                    defaultMessageNotifications);
+        }
+
         FSPluginImpl fsPlugin = new FSPluginImpl();
         fsPlugin.setRequiredNotifications(messageNotifications);
         return fsPlugin;
