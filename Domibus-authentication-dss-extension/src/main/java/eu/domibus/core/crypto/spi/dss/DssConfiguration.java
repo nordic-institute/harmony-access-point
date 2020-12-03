@@ -34,7 +34,6 @@ import org.springframework.core.env.Environment;
 import org.springframework.scheduling.quartz.CronTriggerFactoryBean;
 import org.springframework.scheduling.quartz.JobDetailFactoryBean;
 
-import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -48,7 +47,6 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
 
 
@@ -420,7 +418,6 @@ public class DssConfiguration {
     public TriggerChangeListener triggerChangeListener(@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") DomibusSchedulerExtService domibusSchedulerExtService) {
         return new TriggerChangeListener(domibusSchedulerExtService);
     }
-
 
 
 }
