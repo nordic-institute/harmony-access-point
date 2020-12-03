@@ -1,7 +1,7 @@
 package eu.domibus.web.security;
 
-import eu.domibus.api.multitenancy.DomainTaskException;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.multitenancy.DomainTaskException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -44,15 +44,19 @@ public abstract class AuthenticationServiceBase {
     /**
      * It will return the Principal from {@link SecurityContextHolder}
      * if different from {@link AnonymousAuthenticationToken}
+     *
      * @return logged in user info
      */
     public UserDetail getLoggedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication!= null && !(authentication instanceof AnonymousAuthenticationToken)) {
+        if (authentication != null
+                && !(authentication instanceof AnonymousAuthenticationToken)
+                && (authentication.getPrincipal() instanceof UserDetail)) {
             UserDetail userDetail = (UserDetail) authentication.getPrincipal();
             LOG.debug("Principal found on SecurityContextHolder: {}", userDetail);
             return userDetail;
         }
+        LOG.warn("Authentication is missing from the security context or it is of wrong type. Could not return the logged user.");
         return null;
     }
 }

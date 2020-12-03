@@ -144,7 +144,7 @@ public class SuperUserManagementServiceImpl extends UserManagementServiceImpl {
                 .filter(u -> u.getAuthorities().contains(AuthRole.ROLE_AP_ADMIN.name()))
                 .collect(Collectors.toList());
 
-        //todo: better add a new method on domainTaskExecutor: submitEithSecurityContext that preserves the sec context
+        //todo: better add a new method on domainTaskExecutor: submitWithSecurityContext that preserves the sec context
         final Authentication currentAuthentication = SecurityContextHolder.getContext().getAuthentication();
         domainTaskExecutor.submit(() -> {
             SecurityContextHolder.getContext().setAuthentication(currentAuthentication);
