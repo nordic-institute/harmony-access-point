@@ -136,7 +136,7 @@ public class MessagingDao extends BasicDao<Messaging> {
     }
 
     public void deletePayloadFile(String filename) {
-        if(StringUtils.isEmpty(filename) || StringUtils.isAllBlank(filename)) {
+        if(StringUtils.isAllBlank(filename)) {
             LOG.warn("Empty filename used to delete payload on filesystem!");
             return;
         }
