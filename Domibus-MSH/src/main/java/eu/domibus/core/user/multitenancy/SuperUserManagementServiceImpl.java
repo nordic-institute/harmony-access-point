@@ -148,7 +148,7 @@ public class SuperUserManagementServiceImpl extends UserManagementServiceImpl {
         // another solution would be to keep the security context/ principal in a service of ours
         final Authentication currentAuthentication = SecurityContextHolder.getContext().getAuthentication();
         domainTaskExecutor.submit(() -> {
-            // we need the security context because we try to get the logged user down the way
+            // we need the security context restored on this thread because we try to get the logged user down the way
             SecurityContextHolder.getContext().setAuthentication(currentAuthentication);
             try {
                 super.updateUsers(superUsers);
