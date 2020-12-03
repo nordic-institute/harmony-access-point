@@ -14,13 +14,13 @@
         <SchemeOperatorAddress>
             <PostalAddresses>
                 <PostalAddress xml:lang="fr">
-                    <StreetAddress>Rue de la Loi 200</StreetAddress>
+                    <StreetAddress>Rue de la Loi 202</StreetAddress>
                     <Locality>Bruxelles</Locality>
                     <PostalCode>1049</PostalCode>
                     <CountryName>BE</CountryName>
                 </PostalAddress>
                 <PostalAddress xml:lang="en">
-                    <StreetAddress>Rue de la Loi/Wetstraat 200</StreetAddress>
+                    <StreetAddress>Rue de la Loi/Wetstraat 202</StreetAddress>
                     <Locality>Brussels</Locality>
                     <PostalCode>1049</PostalCode>
                     <CountryName>BE</CountryName>

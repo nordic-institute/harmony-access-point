@@ -84,10 +84,10 @@ public class Signing {
                         Collections.singletonList(ref));
         // Load the KeyStore and get the signing key and certificate.
         KeyStore ks = KeyStore.getInstance("JKS");
-        ks.load(new FileInputStream("C:\\Users\\dussa\\IdeaProjects\\domibus\\Domibus-authentication-dss-extension\\src\\test\\java\\gateway_keystore.jks"), "test123".toCharArray());
+        ks.load(new FileInputStream("C:\\Users\\thomas\\IdeaProjects\\secondDomibus\\Domibus-authentication-dss-extension\\src\\test\\java\\gateway_keystore.jks"), "test123".toCharArray());
         KeyStore.PrivateKeyEntry keyEntry =
                 (KeyStore.PrivateKeyEntry) ks.getEntry
-                        ("red_gw", new KeyStore.PasswordProtection("test123".toCharArray()));
+                        ("be00000001", new KeyStore.PasswordProtection("test123".toCharArray()));
         X509Certificate cert = (X509Certificate) keyEntry.getCertificate();
 
 // Create the KeyInfo containing the X509Data.
@@ -102,7 +102,7 @@ public class Signing {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         dbf.setNamespaceAware(true);
         Document doc = dbf.newDocumentBuilder().parse
-                (new FileInputStream("C:\\Users\\dussa\\IdeaProjects\\domibus\\Domibus-authentication-dss-extension\\src\\test\\java\\EDEL_unsigned.xml"));
+                (new FileInputStream("C:\\Users\\thomas\\IdeaProjects\\secondDomibus\\Domibus-authentication-dss-extension\\src\\test\\java\\EDEL_unsigned.xml"));
 
 // Create a DOMSignContext and specify the RSA PrivateKey and
 // location of the resulting XMLSignature's parent element.
@@ -116,7 +116,7 @@ public class Signing {
         signature.sign(dsc);
 
         // Output the resulting document.
-        OutputStream os = new FileOutputStream("C:\\Users\\dussa\\IdeaProjects\\domibus\\Domibus-authentication-dss-extension\\src\\test\\java\\EDEL.xml");
+        OutputStream os = new FileOutputStream("C:\\Users\\thomas\\IdeaProjects\\secondDomibus\\Domibus-authentication-dss-extension\\src\\test\\java\\EDEL.xml");
         TransformerFactory tf = TransformerFactory.newInstance();
         Transformer trans = tf.newTransformer();
         trans.transform(new DOMSource(doc), new StreamResult(os));
