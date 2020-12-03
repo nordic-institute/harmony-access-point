@@ -3,10 +3,10 @@ package eu.domibus.core.user.plugin.job;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
+import eu.domibus.core.scheduler.DomibusQuartzJobBean;
 import eu.domibus.core.user.plugin.PluginUserServiceImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.core.scheduler.DomibusQuartzJobBean;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -36,8 +36,7 @@ public class ActivateSuspendedPluginUsersJob extends DomibusQuartzJobBean {
 
         LOG.debug("Executing job to unlock suspended plugin accounts at {}", new Date());
 
-        authUtils.runWithSecurityContext(() -> userService.reactivateSuspendedUsers(), "domibus", "domibus",
-                AuthRole.ROLE_AP_ADMIN, true);
+        authUtils.runWithDomibusSecurityContext(() -> userService.reactivateSuspendedUsers(), AuthRole.ROLE_AP_ADMIN, true);
     }
 
 }

@@ -38,8 +38,7 @@ public class ActivateSuspendedUsersJob extends DomibusQuartzJobBean {
 
         LOG.debug("Executing job to unlock suspended accounts at {}", new Date());
 
-        authUtils.runWithSecurityContext(() -> userService.reactivateSuspendedUsers(), "domibus", "domibus",
-                AuthRole.ROLE_AP_ADMIN, true);
+        authUtils.runWithDomibusSecurityContext(() -> userService.reactivateSuspendedUsers(), AuthRole.ROLE_AP_ADMIN, true);
     }
 
 }

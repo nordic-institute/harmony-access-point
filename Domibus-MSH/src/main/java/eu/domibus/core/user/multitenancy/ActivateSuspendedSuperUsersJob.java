@@ -2,11 +2,11 @@ package eu.domibus.core.user.multitenancy;
 
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
+import eu.domibus.core.scheduler.GeneralQuartzJobBean;
 import eu.domibus.core.user.UserService;
 import eu.domibus.core.user.ui.UserManagementServiceImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.core.scheduler.GeneralQuartzJobBean;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +36,6 @@ public class ActivateSuspendedSuperUsersJob extends GeneralQuartzJobBean {
     protected void executeJob(JobExecutionContext context) {
         LOG.debug("Executing job to unlock suspended SUPER USER accounts at {}", new Date());
 
-        authUtils.runWithSecurityContext(() -> userService.reactivateSuspendedUsers(), "domibus", "domibus",
-                AuthRole.ROLE_AP_ADMIN, true);
+        authUtils.runWithDomibusSecurityContext(() -> userService.reactivateSuspendedUsers(), AuthRole.ROLE_AP_ADMIN, true);
     }
 }
