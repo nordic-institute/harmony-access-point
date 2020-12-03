@@ -51,14 +51,10 @@ public class ActivateSuspendedSuperUsersJobTest {
 
         new FullVerifications() {{
             AuthenticatedProcedure function;
-            String user;
-            String password;
             AuthRole authRole;
             boolean forceSecurityContext;
-            authUtils.runWithSecurityContext(function = withCapture(), user = withCapture(), password = withCapture(), authRole = withCapture(), forceSecurityContext = withCapture());
+            authUtils.runWithDomibusSecurityContext(function = withCapture(), authRole = withCapture(), forceSecurityContext = withCapture());
 
-            assertEquals("domibus", user);
-            assertEquals("domibus", password);
             assertEquals(AuthRole.ROLE_AP_ADMIN, authRole);
             assertTrue(forceSecurityContext);
             assertNotNull(function);
