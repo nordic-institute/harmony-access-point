@@ -123,7 +123,7 @@ public class UserPersistenceServiceImpl implements UserPersistenceService {
 
     protected void checkCanUpdateIfCurrentUser(eu.domibus.api.user.User user, User existing) {
         UserDetail loggedUser = authenticationService.getLoggedUser();
-        if (!StringUtils.equals(loggedUser.getUsername(), user.getUserName())) {
+        if (loggedUser == null || !StringUtils.equals(loggedUser.getUsername(), user.getUserName())) {
             LOG.debug("No need to validate the permission to update a user if it is different than the logged-in user [{}]; exiting.", user.getUserName());
             return;
         }
