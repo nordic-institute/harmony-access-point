@@ -44,7 +44,7 @@ public class DssRefreshCommand implements CommandExtTask {
 
     @Override
     public void execute(Map<String, String> properties) {
-        LOG.info("Start DSS trusted lists refresh job");
+        LOG.info("Start DSS trusted lists refresh command");
         if (Boolean.parseBoolean(dssExtensionPropertyManager.getKnownPropertyValue(DssExtensionPropertyManager.DSS_FULL_TLS_REFRESH))) {
             domibusTSLValidationJob.clearRepository();
             LOG.info("DSS trusted lists cleared");

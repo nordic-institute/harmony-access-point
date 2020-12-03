@@ -33,6 +33,9 @@ public class DssRefreshWorkerTest {
     @Injectable
     private CommandExtService commandExtService;;
 
+    @Injectable
+    private DssRefreshCommand dssRefreshCommand;
+
     @Tested
     private DssRefreshWorker dssRefreshWorker;
 
@@ -41,6 +44,7 @@ public class DssRefreshWorkerTest {
         dssRefreshWorker.executeJob(context,domain);
         new Verifications(){{
             commandExtService.executeCommand(DssRefreshCommand.COMMAND_NAME,withAny(new HashMap<>()));
+            dssRefreshCommand.execute(withAny(new HashMap<>()));
         }};
     }
 }

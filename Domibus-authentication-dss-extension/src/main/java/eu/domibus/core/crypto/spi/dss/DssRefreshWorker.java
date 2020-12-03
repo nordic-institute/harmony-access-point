@@ -24,9 +24,13 @@ public class DssRefreshWorker extends DomibusQuartzJobExtBean {
     @Autowired
     private CommandExtService commandExtService;
 
+    @Autowired
+    private DssRefreshCommand dssRefreshCommand;
+
     @Override
     public void executeJob(JobExecutionContext context, DomainDTO domain) {
         LOG.info("Executing DSS refresh job at:[{}]", LocalDateTime.now());
         commandExtService.executeCommand(DssRefreshCommand.COMMAND_NAME, new HashMap<>());
+        dssRefreshCommand.execute(new HashMap<>());
     }
 }
