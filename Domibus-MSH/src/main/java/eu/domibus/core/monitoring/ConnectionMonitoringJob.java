@@ -34,8 +34,7 @@ public class ConnectionMonitoringJob extends DomibusQuartzJobBean {
         }
 
         LOG.debug("ConnectionMonitoringJob started on [{}] domain", domain);
-        authUtils.runWithSecurityContext(connectionMonitoringService::sendTestMessages,
-                "domibus", "domibus", AuthRole.ROLE_ADMIN);
+        authUtils.runWithDomibusSecurityContext(connectionMonitoringService::sendTestMessages, AuthRole.ROLE_ADMIN);
         LOG.debug("ConnectionMonitoringJob ended on [{}] domain", domain);
     }
 }
