@@ -27,11 +27,11 @@ public class TriggerChangeListener implements PluginPropertyChangeListener {
 
     public static final Map<String, String> CRON_PROPERTY_NAMES_TO_JOB_MAP = unmodifiableMap(of(
             new String[][]{
-                    {PROPERTY_PREFIX + SEND_WORKER_INTERVAL, "fsPluginSendMessagesWorkerJob"},
-                    {PROPERTY_PREFIX + SENT_PURGE_WORKER_CRONEXPRESSION, "fsPluginPurgeSentWorkerJob"},
-                    {PROPERTY_PREFIX + FAILED_PURGE_WORKER_CRONEXPRESSION, "fsPluginPurgeFailedWorkerJob"},
-                    {PROPERTY_PREFIX + RECEIVED_PURGE_WORKER_CRONEXPRESSION, "fsPluginPurgeReceivedWorkerJob"},
-                    {PROPERTY_PREFIX + LOCKS_PURGE_WORKER_CRONEXPRESSION, "fsPluginPurgeLocksWorkerJob"},
+                    {SEND_WORKER_INTERVAL, "fsPluginSendMessagesWorkerJob"},
+                    {SENT_PURGE_WORKER_CRONEXPRESSION, "fsPluginPurgeSentWorkerJob"},
+                    {FAILED_PURGE_WORKER_CRONEXPRESSION, "fsPluginPurgeFailedWorkerJob"},
+                    {RECEIVED_PURGE_WORKER_CRONEXPRESSION, "fsPluginPurgeReceivedWorkerJob"},
+                    {LOCKS_PURGE_WORKER_CRONEXPRESSION, "fsPluginPurgeLocksWorkerJob"},
             }).collect(Collectors.toMap(data -> data[0], data -> data[1])));
 
     @Override

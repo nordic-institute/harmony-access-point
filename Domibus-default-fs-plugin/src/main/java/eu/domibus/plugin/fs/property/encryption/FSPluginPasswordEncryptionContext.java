@@ -2,10 +2,10 @@ package eu.domibus.plugin.fs.property.encryption;
 
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.DomibusConfigurationExtService;
+import eu.domibus.ext.services.PasswordEncryptionExtService;
+import eu.domibus.ext.services.PluginPasswordEncryptionContext;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.ext.services.PluginPasswordEncryptionContext;
-import eu.domibus.ext.services.PasswordEncryptionExtService;
 import eu.domibus.plugin.fs.property.FSPluginProperties;
 import org.apache.commons.lang3.StringUtils;
 
@@ -50,7 +50,7 @@ public class FSPluginPasswordEncryptionContext implements PluginPasswordEncrypti
 
     @Override
     public String getProperty(String propertyName) {
-        return fsPluginProperties.getDomainPropertyNoDefault(domain.getCode(), propertyName, null);
+        return fsPluginProperties.getDomainProperty(domain.getCode(), propertyName);
     }
 
     @Override
@@ -62,7 +62,7 @@ public class FSPluginPasswordEncryptionContext implements PluginPasswordEncrypti
 
     @Override
     public List<String> getPropertiesToEncrypt() {
-        final String propertiesToEncryptString = fsPluginProperties.getDomainPropertyNoDefault(domain.getCode(), FSPLUGIN_PASSWORD_ENCRYPTION_PROPERTIES, null);
+        final String propertiesToEncryptString = fsPluginProperties.getDomainProperty(domain.getCode(), FSPLUGIN_PASSWORD_ENCRYPTION_PROPERTIES);
 
         if (StringUtils.isEmpty(propertiesToEncryptString)) {
             LOG.debug("No properties to encrypt");
