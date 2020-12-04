@@ -401,7 +401,7 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
             if (propertyMetadataDTO.isWithFallback()) { //try to get the value from default properties file
                 LOG.debug("going to obtain default value for property [{}] which has fallback", propertyNameFinal);
                 value = super.getKnownPropertyValue(propertyName);
-                if (StringUtils.isEmpty(value)) {
+                if (value == null) {
                     throw new DomibusPropertyExtException("FSPlugin property [" + propertyNameFinal + "] is empty or not present in fs-plugin.properties file");
                 }
             }
