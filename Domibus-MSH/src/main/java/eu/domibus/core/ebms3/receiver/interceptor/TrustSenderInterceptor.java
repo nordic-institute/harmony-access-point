@@ -15,8 +15,10 @@ import eu.domibus.core.ebms3.receiver.token.TokenReferenceExtractor;
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
 import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
 import eu.domibus.core.message.MessageExchangeConfiguration;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.ebms3.common.model.MessageInfo;
 import eu.domibus.ebms3.common.model.MessageType;
+import eu.domibus.ext.domain.metrics.Counter;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.codec.binary.Base64;
@@ -111,6 +113,8 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
      * @param message the incoming CXF soap message to handle
      */
     @Override
+    @Timer(clazz = TrustSenderInterceptor.class,value = "handleMessage")
+    @Counter(clazz = TrustSenderInterceptor.class,value = "handleMessage")
     public void handleMessage(final SoapMessage message) throws Fault {
         if (!domibusPropertyProvider.getBooleanProperty(DOMIBUS_SENDER_TRUST_VALIDATION_ONRECEIVING)) {
             LOG.warn("No trust verification of sending certificate");
