@@ -58,6 +58,7 @@ public class DssRefreshCommand implements CommandExtTask {
 
     @PostConstruct
     public void init(){
+        //TODO please refer to the following ticket EDELIVERY-7555 and refactor the code.
         LOG.info("Executing command to refresh DSS trusted lists at:[{}]", LocalDateTime.now());
         String serverCacheDirectoryPath = domibusTSLValidationJob.getCacheDirectoryPath();
         Path cachePath = Paths.get(serverCacheDirectoryPath);
