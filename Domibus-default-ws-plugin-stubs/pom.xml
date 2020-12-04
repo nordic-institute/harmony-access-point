@@ -17,9 +17,10 @@
 
 
   <dependencies>
+      <!--Domibus dependencies start-->
       <dependency>
           <groupId>eu.domibus</groupId>
-          <artifactId>domibus-ws-stubs</artifactId>
+          <artifactId>domibus-default-ws-plugin-stub-utils</artifactId>
           <version>${project.version}</version>
       </dependency>
   </dependencies>

@@ -21,12 +21,12 @@
         </schema>
 
         <schema xmlns="http://www.w3.org/2001/XMLSchema">
-            <import namespace="http://eu.domibus.wsplugin/" schemaLocation="webServicePlugin-backend.xsd"/>
+            <import namespace="http://eu.domibus.wsplugin/" schemaLocation="webservicePlugin-backend.xsd"/>
         </schema>
 
         <schema xmlns="http://www.w3.org/2001/XMLSchema">
             <import namespace="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/"
-                    schemaLocation="webServicePlugin-header.xsd"/>
+                    schemaLocation="webservicePlugin-header.xsd"/>
         </schema>
 
     </wsdl:types>

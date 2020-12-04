@@ -1,4 +1,4 @@
-package eu.domibus.ws.jaxb;
+package eu.domibus.plugin.webService.jaxb;
 
 import mockit.Expectations;
 import mockit.Injectable;
@@ -10,8 +10,6 @@ import org.junit.runner.RunWith;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-
-import static org.junit.Assert.*;
 
 /**
  * @author Sebastian-Ion TINCU

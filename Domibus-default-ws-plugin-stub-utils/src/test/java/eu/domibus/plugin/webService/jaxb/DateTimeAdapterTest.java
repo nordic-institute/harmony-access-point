@@ -1,4 +1,4 @@
-package eu.domibus.ws.jaxb;
+package eu.domibus.plugin.webService.jaxb;
 
 import mockit.Expectations;
 import mockit.Injectable;

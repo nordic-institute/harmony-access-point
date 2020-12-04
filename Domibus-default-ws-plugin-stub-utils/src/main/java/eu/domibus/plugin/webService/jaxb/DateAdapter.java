@@ -1,9 +1,8 @@
-package eu.domibus.ws.jaxb;
-
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
+package eu.domibus.plugin.webService.jaxb;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 /**
  * Custom adapter which extends {@link XmlAdapter} for {@code xsd:date} mapped to {@link LocalDate}
