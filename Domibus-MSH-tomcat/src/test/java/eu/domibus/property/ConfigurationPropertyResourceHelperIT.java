@@ -7,6 +7,7 @@ import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.core.property.ConfigurationPropertyResourceHelperImpl;
 import eu.domibus.core.property.GlobalPropertyMetadataManager;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -118,6 +119,7 @@ public class ConfigurationPropertyResourceHelperIT extends AbstractIT {
     }
 
     @Test
+    @Ignore //EDELIVERY-7553
     public void getProperty_nested_notfound() {
         String composablePropertyName = "composable_property";
         String nestedPropertyName = composablePropertyName + ".prop1";

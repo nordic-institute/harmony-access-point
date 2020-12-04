@@ -57,7 +57,7 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
     @Autowired
     protected DomainContextExtService domainContextProvider;
 
-    private final List<String> domains = new ArrayList<>();
+    private volatile List<String> domains;
 
     protected final Object domainsLock = new Object();
 
@@ -83,10 +83,10 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
     }
 
     protected List<String> getDomains() {
-        if (domains.isEmpty()) {
+        if (domains == null) {
             synchronized (domainsLock) {
-                if (domains.isEmpty()) {
-                    domains.addAll(readDomains());
+                if (domains == null) {
+                    domains = readDomains();
                 }
             }
         }
@@ -96,7 +96,7 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
     public void resetDomains() {
         LOG.debug("Resetting domains");
         synchronized (domainsLock) {
-            domains.clear();
+            domains = null;
         }
     }
 
@@ -286,7 +286,11 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
      * @return the domain order
      */
     public Integer getOrder(String domain) {
-        return getDomainIntegerProperty(domain, ORDER);
+        String value = getDomainProperty(domain, ORDER);
+        if (StringUtils.isNotBlank(value)) {
+           return NumberUtils.toInt(value);
+        }
+        return Integer.MAX_VALUE;
     }
 
     /**
