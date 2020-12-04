@@ -37,7 +37,6 @@ import org.springframework.scheduling.quartz.JobDetailFactoryBean;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -48,7 +47,6 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.Iterator;
 import java.util.List;
 
 
@@ -120,6 +118,9 @@ public class DssConfiguration {
     @Autowired
     protected ObjectProvider<CertificateVerifier> certificateVerifierObjectProvider;
 
+    @Autowired
+    private CommandExtService commandExtService;
+
     @Bean
     public TrustedListsCertificateSource trustedListSource() {
         return new TrustedListsCertificateSource();
@@ -181,7 +182,7 @@ public class DssConfiguration {
 
     @Bean
     public CertificateVerifierService certificateVerifierService(DssCache dssCache) {
-        return new CertificateVerifierService(dssCache,certificateVerifierObjectProvider);
+        return new CertificateVerifierService(dssCache, certificateVerifierObjectProvider);
     }
 
     @Bean
@@ -295,25 +296,12 @@ public class DssConfiguration {
         validationJob.setOjContentKeyStore(ojContentKeyStore);
         validationJob.setCheckLOTLSignature(true);
         validationJob.setCheckTSLSignatures(true);
-        String serverCacheDirectoryPath = tslRepository.getCacheDirectoryPath();
-        Path cachePath = Paths.get(serverCacheDirectoryPath);
-        if (!cachePath.toFile().exists()) {
-            LOG.error("Dss cache directory[{}] should be created by the system, please check permissions", serverCacheDirectoryPath);
-            return validationJob;
-        }
-        try (DirectoryStream<Path> ds = Files.newDirectoryStream(cachePath)) {
-            Iterator files = ds.iterator();
-            if (!files.hasNext()) {
-                LOG.debug("Cache directory is empty, refreshing trusted lists needed");
-                validationJob.refresh();
-            } else {
-                LOG.debug("Cache directory is not empty, loading trusted lists from disk");
-                validationJob.initRepository();
-            }
-        } catch (IOException e) {
-            LOG.error("Error while checking if cache directory:[{}] is empty", serverCacheDirectoryPath, e);
-        }
         return validationJob;
+    }
+
+    @Bean
+    public DssRefreshCommand dssRefreshCommand(DomibusTSLValidationJob domibusTSLValidationJob, DssExtensionPropertyManager dssExtensionPropertyManager) {
+        return new DssRefreshCommand(domibusTSLValidationJob, dssExtensionPropertyManager);
     }
 
     @Bean
@@ -417,8 +405,8 @@ public class DssConfiguration {
     }
 
     @Bean
-    public NetworkConfigurationListener networkConfigurationListener(final DomibusDataLoader dataLoader,final ProxyHelper proxyHelper){
-        return new NetworkConfigurationListener(dataLoader,proxyHelper);
+    public NetworkConfigurationListener networkConfigurationListener(final DomibusDataLoader dataLoader, final ProxyHelper proxyHelper) {
+        return new NetworkConfigurationListener(dataLoader, proxyHelper);
     }
 
     @Bean
@@ -427,7 +415,9 @@ public class DssConfiguration {
     }
 
     @Bean
-    public TriggerChangeListener triggerChangeListener(@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") DomibusSchedulerExtService domibusSchedulerExtService){
+    public TriggerChangeListener triggerChangeListener(@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") DomibusSchedulerExtService domibusSchedulerExtService) {
         return new TriggerChangeListener(domibusSchedulerExtService);
     }
+
+
 }
