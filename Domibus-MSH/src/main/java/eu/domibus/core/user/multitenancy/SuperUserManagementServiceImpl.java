@@ -11,6 +11,8 @@ import eu.domibus.core.user.ui.UserManagementServiceImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -141,7 +143,13 @@ public class SuperUserManagementServiceImpl extends UserManagementServiceImpl {
         List<eu.domibus.api.user.User> superUsers = users.stream()
                 .filter(u -> u.getAuthorities().contains(AuthRole.ROLE_AP_ADMIN.name()))
                 .collect(Collectors.toList());
+
+        // TODO: better add a new method on domainTaskExecutor: submitWithSecurityContext that preserves the sec context
+        // another solution would be to keep the security context/ principal in a service of ours
+        final Authentication currentAuthentication = SecurityContextHolder.getContext().getAuthentication();
         domainTaskExecutor.submit(() -> {
+            // we need the security context restored on this thread because we try to get the logged user down the way
+            SecurityContextHolder.getContext().setAuthentication(currentAuthentication);
             try {
                 super.updateUsers(superUsers);
             } catch (DomibusCoreException ex) {
