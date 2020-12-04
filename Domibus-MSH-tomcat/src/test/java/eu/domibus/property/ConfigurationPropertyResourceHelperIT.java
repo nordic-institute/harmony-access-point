@@ -7,7 +7,6 @@ import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.core.property.ConfigurationPropertyResourceHelperImpl;
 import eu.domibus.core.property.GlobalPropertyMetadataManager;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -119,9 +118,11 @@ public class ConfigurationPropertyResourceHelperIT extends AbstractIT {
     }
 
     @Test
-    @Ignore //EDELIVERY-7553
     public void getProperty_nested_notfound() {
-        String composablePropertyName = "composable_property";
+        String composablePropertyName = "composable_property2";
+        //TODO EDELIVERY-7553 if we use "composable_property1" here the test
+        // will fail while running at package or project level but pass at class level
+        //so we need to check if is not related also to @Cacheable
         String nestedPropertyName = composablePropertyName + ".prop1";
         DomibusPropertyMetadata propertyMetadata = DomibusPropertyMetadata.getGlobalProperty(composablePropertyName);
         propertyMetadata.setComposable(true);
