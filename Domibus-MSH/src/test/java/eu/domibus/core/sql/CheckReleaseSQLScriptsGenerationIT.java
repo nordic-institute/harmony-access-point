@@ -28,8 +28,8 @@ public class CheckReleaseSQLScriptsGenerationIT {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CheckReleaseSQLScriptsGenerationIT.class);
 
-    private static final String MYSQL_DDL_PREFIX = "mysql5innoDb-";
-    private static final String ORACLE_DDL_PREFIX = "oracle10g-";
+    private static final String MYSQL_DDL_PREFIX = "mysql8innoDb-";
+    private static final String ORACLE_DDL_PREFIX = "oracle12g-";
     private static final String RELEASE_DDL_SUFFIX = ".ddl";
     private static final String MULTITENANCY_DDL_SUFFIX = "-multi-tenancy.ddl";
     private static final String DATA_DDL_SUFFIX = "-data.ddl";
