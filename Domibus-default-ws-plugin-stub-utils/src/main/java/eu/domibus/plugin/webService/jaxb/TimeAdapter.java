@@ -1,4 +1,4 @@
-package eu.domibus.plugin.webService.jaxb;
+package eu.domibus.plugin.webservice.jaxb;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import java.time.LocalTime;
