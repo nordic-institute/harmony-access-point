@@ -119,7 +119,7 @@ public class UserManagementServiceImplTest {
         String userName = "user1";
         userManagementService.handleWrongAuthentication(userName);
         new Verifications() {{
-            authUtils.runFunctionWithSecurityContext((AuthenticatedFunction) any, "domibus", "domibus", AuthRole.ROLE_ADMIN, true);
+            authUtils.runFunctionWithDomibusSecurityContext((AuthenticatedFunction) any, AuthRole.ROLE_ADMIN, true);
             times = 1;
         }};
     }
