@@ -14,6 +14,8 @@ import eu.domibus.core.alerts.configuration.certificate.imminent.ImminentExpirat
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.alerts.service.AlertConfigurationService;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -94,6 +96,8 @@ public class CertificateServiceImpl implements CertificateService {
     private ExpiredCertificateConfigurationManager expiredCertificateConfigurationManager;
 
     @Override
+    @Timer(clazz = CertificateServiceImpl.class,value = "isCertificateChainValid")
+    @Counter(clazz = CertificateServiceImpl.class,value = "isCertificateChainValid")
     public boolean isCertificateChainValid(List<? extends java.security.cert.Certificate> certificateChain) {
         for (java.security.cert.Certificate certificate : certificateChain) {
             boolean certificateValid = isCertificateValid((X509Certificate) certificate);
@@ -107,6 +111,8 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
+    @Timer(clazz = CertificateServiceImpl.class,value = "isCertificateChainValid.truststore")
+    @Counter(clazz = CertificateServiceImpl.class,value = "isCertificateChainValid.truststore")
     public boolean isCertificateChainValid(KeyStore trustStore, String alias) throws DomibusCertificateException {
         X509Certificate[] certificateChain = null;
         try {
@@ -140,6 +146,8 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
+    @Timer(clazz = CertificateServiceImpl.class,value = "isCertificateValid")
+    @Counter(clazz = CertificateServiceImpl.class,value = "isCertificateValid")
     public boolean isCertificateValid(X509Certificate cert) throws DomibusCertificateException {
         boolean isValid = checkValidity(cert);
         if (!isValid) {
@@ -166,6 +174,8 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
+    @Timer(clazz = CertificateServiceImpl.class,value = "extractCommonName")
+    @Counter(clazz = CertificateServiceImpl.class,value = "extractCommonName")
     public String extractCommonName(final X509Certificate certificate) throws InvalidNameException {
 
         final String dn = certificate.getSubjectDN().getName();
@@ -184,6 +194,8 @@ public class CertificateServiceImpl implements CertificateService {
      * {@inheritDoc}
      */
     @Override
+    @Timer(clazz = CertificateServiceImpl.class,value = "getTrustStoreEntries")
+    @Counter(clazz = CertificateServiceImpl.class,value = "getTrustStoreEntries")
     public List<TrustStoreEntry> getTrustStoreEntries(final KeyStore trustStore) {
         try {
             List<TrustStoreEntry> trustStoreEntries = new ArrayList<>();
