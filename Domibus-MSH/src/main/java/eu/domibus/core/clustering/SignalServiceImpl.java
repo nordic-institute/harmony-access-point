@@ -119,4 +119,17 @@ public class SignalServiceImpl implements SignalService {
 
         sendMessage(commandProperties);
     }
+
+    @Override
+    public void signalMessageClearCaches() {
+        String domainCode = domainContextProvider.getCurrentDomain().getCode();
+
+        LOG.debug("Signaling clearing caches [{}] domain", domainCode);
+
+        Map<String, String> commandProperties = new HashMap<>();
+        commandProperties.put(Command.COMMAND, Command.EVICT_CACHES);
+        commandProperties.put(MessageConstants.DOMAIN, domainCode);
+
+        sendMessage(commandProperties);
+    }
 }

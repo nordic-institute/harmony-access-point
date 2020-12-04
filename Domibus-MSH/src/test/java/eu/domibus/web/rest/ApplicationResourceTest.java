@@ -7,6 +7,7 @@ import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
+import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.property.DomibusVersionService;
 import eu.domibus.web.rest.ro.DomainRO;
@@ -20,11 +21,8 @@ import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.cache.CacheManager;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -65,7 +63,7 @@ public class ApplicationResourceTest {
     DomainTaskExecutor domainTaskExecutor;
 
     @Injectable
-    CacheManager cacheManager;
+    DomibusCacheService domibusCacheService;
 
     @Test
     public void testGetDomibusInfo() throws Exception {
@@ -183,20 +181,36 @@ public class ApplicationResourceTest {
     }
 
     @Test
-    public void evictCaches() {
-        Collection<String> cacheNames = new ArrayList<>();
-        String cacheName = "cache1";
-        cacheNames.add(cacheName);
+    public void evictCachesInSingleTenancy() {
 
         new Expectations() {{
-            cacheManager.getCacheNames();
-            result = cacheNames;
+            domibusConfigurationService.isSingleTenantAware();
+            result = true;
         }};
 
         applicationResource.evictCaches();
 
         new Verifications() {{
-            cacheManager.getCache(cacheName).clear();
+            domibusCacheService.clearAllCaches();
+        }};
+    }
+
+    @Test
+    public void evictCachesInMultiTenancy() {
+
+        new Expectations() {{
+            domibusConfigurationService.isSingleTenantAware();
+            result = false;
+            domibusConfigurationService.isMultiTenantAware();
+            result = true;
+            authUtils.isSuperAdmin();
+            result = true;
+        }};
+
+        applicationResource.evictCaches();
+
+        new Verifications() {{
+            domibusCacheService.clearAllCaches();
         }};
     }
 }
