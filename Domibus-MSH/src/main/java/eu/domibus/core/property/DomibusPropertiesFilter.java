@@ -1,8 +1,10 @@
 package eu.domibus.core.property;
 
 /**
+ * Filtering and sorting parameters for domibus properties
+ * 
  * @author Ion Perpegel
- * @since 4.1.1
+ * @since 5.0
  */
 
 public class DomibusPropertiesFilter {
