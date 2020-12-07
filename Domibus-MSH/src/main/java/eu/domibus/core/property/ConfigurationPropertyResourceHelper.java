@@ -16,10 +16,10 @@ public interface ConfigurationPropertyResourceHelper {
     /**
      * Retrieves all properties from MSH and plugins filtered by the parameters
      *
-     * @param filter all filter attributes by which to filter
+     * @param filterAttributes all attributes by which to filter and sort
      * @return the list of the properties: metadata and value
      */
-    List<DomibusProperty> getAllProperties(DomibusPropertiesFilter filter);
+    List<DomibusProperty> getAllProperties(DomibusPropertiesFilter filterAttributes);
 
     /**
      * Sets the property with specified name to the specified value
