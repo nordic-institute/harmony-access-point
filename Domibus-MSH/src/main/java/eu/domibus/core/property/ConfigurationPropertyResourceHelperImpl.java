@@ -77,15 +77,16 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
 
         List<DomibusProperty> properties;
 
-        properties = filterByDomain(filter, propertiesMetadata);
+        properties = getByDomain(filter, propertiesMetadata);
 
         properties = filterByValue(filter.getValue(), properties);
 
         properties = sortProperties(properties, filter.getOrderBy(), filter.getAsc());
+
         return properties;
     }
 
-    private List<DomibusProperty> filterByDomain(DomibusPropertiesFilter filter, List<DomibusPropertyMetadata> propertiesMetadata) {
+    private List<DomibusProperty> getByDomain(DomibusPropertiesFilter filter, List<DomibusPropertyMetadata> propertiesMetadata) {
         List<DomibusProperty> properties;
         if (filter.isShowDomain()) {
             properties = getPropertyValues(propertiesMetadata);

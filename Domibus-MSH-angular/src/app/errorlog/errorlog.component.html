@@ -88,7 +88,7 @@
     <grid-header [parent]="this"></grid-header>
 
     <div style="height: calc(100% - 100px); overflow-y: auto; overflow-x: hidden;">
-      <page-grid [parent]="this" [sortedColumns]="[{prop: 'timestamp', dir: 'desc'}]"></page-grid>
+      <page-grid [parent]="this"` [sortedColumns]="[{prop: 'timestamp', dir: 'desc'}]"`></page-grid>
     </div>
 
     <ng-template #rowWithDateFormatTpl let-row="row" let-value="value" ngx-datatable-cell-template>

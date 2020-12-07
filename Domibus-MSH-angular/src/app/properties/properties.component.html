@@ -62,7 +62,7 @@
       <grid-header [parent]="this"></grid-header>
 
       <div style="height: calc(100% - 70px); overflow-y: auto; overflow-x: hidden;">
-        <page-grid [parent]="this"></page-grid>
+        <page-grid [parent]="this"  [sortedColumns]="[{prop: 'name', dir: 'asc'}]"></page-grid>
       </div>
 
       <ng-template #propertyValueTpl let-row="row" let-value="value" ngx-datatable-cell-template>

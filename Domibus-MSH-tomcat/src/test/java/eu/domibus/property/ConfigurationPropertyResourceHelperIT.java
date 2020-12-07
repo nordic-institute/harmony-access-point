@@ -5,6 +5,7 @@ import eu.domibus.api.property.DomibusProperty;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.core.property.ConfigurationPropertyResourceHelperImpl;
+import eu.domibus.core.property.DomibusPropertiesFilter;
 import eu.domibus.core.property.GlobalPropertyMetadataManager;
 import org.junit.Assert;
 import org.junit.Test;
@@ -66,13 +67,17 @@ public class ConfigurationPropertyResourceHelperIT extends AbstractIT {
         String propertyValue = "100";
         globalPropertyMetadataManager.getAllProperties().put(propertyName, propertyMetadata);
 
+        DomibusPropertiesFilter filter = new DomibusPropertiesFilter();
+        filter.setName(propertyName);
+        filter.setShowDomain(isDomain);
+
         try {
             configurationPropertyResourceHelper.setPropertyValue(propertyName, isDomain, propertyValue);
             Assert.fail();
         } catch (DomibusPropertyException ex) {
             Assert.assertTrue(ex.getMessage().contains("You can only set its nested properties"));
 
-            List<DomibusProperty> result2 = configurationPropertyResourceHelper.getAllProperties(propertyName, isDomain, null, null, null, null);
+            List<DomibusProperty> result2 = configurationPropertyResourceHelper.getAllProperties(filter);
             Assert.assertEquals(1, result2.size());
         }
     }
@@ -102,6 +107,13 @@ public class ConfigurationPropertyResourceHelperIT extends AbstractIT {
         DomibusPropertyMetadata propertyMetadata = DomibusPropertyMetadata.getGlobalProperty(composablePropertyName);
         propertyMetadata.setComposable(true);
         String propertyValue = "100";
+
+        DomibusPropertiesFilter filter = new DomibusPropertiesFilter();
+        filter.setName(composablePropertyName);
+        filter.setShowDomain(isDomain);
+        filter.setOrderBy("name");
+        filter.setAsc(true);
+
         globalPropertyMetadataManager.getAllProperties().put(composablePropertyName, propertyMetadata);
 
         configurationPropertyResourceHelper.setPropertyValue(nestedPropertyName, isDomain, propertyValue);
@@ -111,7 +123,7 @@ public class ConfigurationPropertyResourceHelperIT extends AbstractIT {
         Assert.assertEquals(nestedPropertyName, result.getMetadata().getName());
         Assert.assertEquals(propertyValue, result.getValue());
 
-        List<DomibusProperty> result2 = configurationPropertyResourceHelper.getAllProperties(composablePropertyName, isDomain, null, null, null, null);
+        List<DomibusProperty> result2 = configurationPropertyResourceHelper.getAllProperties(filter);
         Assert.assertEquals(2, result2.size());
         Assert.assertEquals(composablePropertyName, result2.get(0).getMetadata().getName());
         Assert.assertEquals(nestedPropertyName, result2.get(1).getMetadata().getName());
