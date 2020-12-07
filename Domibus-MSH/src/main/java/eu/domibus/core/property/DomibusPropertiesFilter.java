@@ -2,7 +2,7 @@ package eu.domibus.core.property;
 
 /**
  * Filtering and sorting parameters for domibus properties
- * 
+ *
  * @author Ion Perpegel
  * @since 5.0
  */

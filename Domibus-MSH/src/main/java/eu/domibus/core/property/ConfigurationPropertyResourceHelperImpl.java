@@ -86,17 +86,6 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
         return properties;
     }
 
-    private List<DomibusProperty> getByDomain(DomibusPropertiesFilter filter, List<DomibusPropertyMetadata> propertiesMetadata) {
-        List<DomibusProperty> properties;
-        if (filter.isShowDomain()) {
-            properties = getPropertyValues(propertiesMetadata);
-        } else {
-            // for non-domain properties, we get the values in the null-domain context:
-            properties = domainTaskExecutor.submit(() -> getPropertyValues(propertiesMetadata));
-        }
-        return properties;
-    }
-
     @Override
     public void setPropertyValue(String propertyName, boolean isDomain, String propertyValue) throws DomibusPropertyException {
         validatePropertyValue(propertyName, propertyValue);
@@ -126,6 +115,17 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
 
         DomibusPropertyMetadata propertyMetadata = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
         return getValueAndCreateProperty(propertyMetadata);
+    }
+
+    protected List<DomibusProperty> getByDomain(DomibusPropertiesFilter filter, List<DomibusPropertyMetadata> propertiesMetadata) {
+        List<DomibusProperty> properties;
+        if (filter.isShowDomain()) {
+            properties = getPropertyValues(propertiesMetadata);
+        } else {
+            // for non-domain properties, we get the values in the null-domain context:
+            properties = domainTaskExecutor.submit(() -> getPropertyValues(propertiesMetadata));
+        }
+        return properties;
     }
 
     protected List<DomibusProperty> getPropertyValues(List<DomibusPropertyMetadata> properties) {
