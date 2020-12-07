@@ -61,6 +61,8 @@ public class CheckReleaseSQLScriptsGenerationIT {
         preVerifications(domibusArtifactVersion, sqlScriptsDirectory);
 
         String domibusArtifactVersionNoSnapshot = StringUtils.stripEnd(domibusArtifactVersion, "-SNAPSHOT");
+        domibusArtifactVersionNoSnapshot = StringUtils.removeAll(domibusArtifactVersionNoSnapshot, "-.*");
+
         LOG.debug("domibusArtifactVersion_NoSnapshot:" + domibusArtifactVersionNoSnapshot);
 
         Assert.assertTrue("Oracle Release version DDLs should be present in " + sqlScriptsDirectory.getAbsolutePath(), checkPresenceOfFile(ORACLE_DDL_PREFIX, domibusArtifactVersionNoSnapshot, RELEASE_DDL_SUFFIX, sqlScriptsDirectory));
@@ -77,6 +79,7 @@ public class CheckReleaseSQLScriptsGenerationIT {
         preVerifications(domibusArtifactVersion, sqlScriptsDirectory);
 
         String domibusArtifactVersionNoSnapshot = StringUtils.stripEnd(domibusArtifactVersion, "-SNAPSHOT");
+        domibusArtifactVersionNoSnapshot = StringUtils.removeAll(domibusArtifactVersionNoSnapshot, "-.*");
         LOG.debug("domibusArtifactVersion_NoSnapshot:" + domibusArtifactVersionNoSnapshot);
 
         Assert.assertTrue("MySQL Release version DDLs should be present in " + sqlScriptsDirectory.getAbsolutePath(), checkPresenceOfFile(MYSQL_DDL_PREFIX, domibusArtifactVersionNoSnapshot, RELEASE_DDL_SUFFIX, sqlScriptsDirectory));

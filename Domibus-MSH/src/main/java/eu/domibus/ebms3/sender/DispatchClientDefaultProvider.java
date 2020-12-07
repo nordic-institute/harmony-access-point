@@ -1,10 +1,12 @@
 package eu.domibus.ebms3.sender;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.core.cxf.DomibusHTTPConduitFactory;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.proxy.DomibusProxy;
 import eu.domibus.proxy.DomibusProxyService;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.configuration.security.ProxyAuthorizationPolicy;
@@ -14,6 +16,7 @@ import org.apache.cxf.jaxws.DispatchImpl;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.transport.MessageObserver;
 import org.apache.cxf.transport.http.HTTPConduit;
+import org.apache.cxf.transport.http.HTTPConduitFactory;
 import org.apache.cxf.transport.local.LocalConduit;
 import org.apache.cxf.transports.http.configuration.ConnectionType;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
@@ -53,20 +56,27 @@ public class DispatchClientDefaultProvider implements DispatchClientProvider {
     public static final String DOMIBUS_DISPATCHER_ALLOWCHUNKING = DOMIBUS_DISPATCHER_ALLOW_CHUNKING;
     public static final String DOMIBUS_DISPATCHER_CHUNKINGTHRESHOLD = DOMIBUS_DISPATCHER_CHUNKING_THRESHOLD;
 
+    private final TLSReader tlsReader;
 
-    @Autowired
-    private TLSReader tlsReader;
+    private final Executor executor;
 
-    @Autowired
-    @Qualifier("taskExecutor")
-    private Executor executor;
+    protected final DomibusPropertyProvider domibusPropertyProvider;
 
-    @Autowired
-    protected DomibusPropertyProvider domibusPropertyProvider;
+    protected final DomibusProxyService domibusProxyService;
 
-    @Autowired
-    @Qualifier("domibusProxyService")
-    protected DomibusProxyService domibusProxyService;
+    protected final DomibusHTTPConduitFactory domibusHTTPConduitFactory;
+
+    public DispatchClientDefaultProvider(TLSReader tlsReader,
+                                         @Qualifier("taskExecutor") Executor executor,
+                                         DomibusPropertyProvider domibusPropertyProvider,
+                                         @Qualifier("domibusProxyService") DomibusProxyService domibusProxyService,
+                                         DomibusHTTPConduitFactory domibusHTTPConduitFactory) {
+        this.tlsReader = tlsReader;
+        this.executor = executor;
+        this.domibusPropertyProvider = domibusPropertyProvider;
+        this.domibusProxyService = domibusProxyService;
+        this.domibusHTTPConduitFactory = domibusHTTPConduitFactory;
+    }
 
     @Cacheable(value = "dispatchClient", key = "#domain + #endpoint + #pModeKey", condition = "#cacheable")
     @Override
@@ -78,13 +88,18 @@ public class DispatchClientDefaultProvider implements DispatchClientProvider {
         dispatch.getRequestContext().put(ASYMMETRIC_SIG_ALGO_PROPERTY, algorithm);
         dispatch.getRequestContext().put(PMODE_KEY_CONTEXT_PROPERTY, pModeKey);
         final Client client = ((DispatchImpl<SOAPMessage>) dispatch).getClient();
+        Boolean sslOffload = domibusPropertyProvider.getBooleanProperty(DOMIBUS_CONNECTION_CXF_SSL_OFFLOAD_ENABLE);
+        if(BooleanUtils.isTrue(sslOffload)) {
+            LOG.debug("Configure the SSL offloading HTTP conduit factory for endpoint [{}]", endpoint);
+            client.getEndpoint().getEndpointInfo().setProperty(HTTPConduitFactory.class.getName(), domibusHTTPConduitFactory);
+        }
         final HTTPConduit httpConduit = (HTTPConduit) client.getConduit();
         final HTTPClientPolicy httpClientPolicy = httpConduit.getClient();
 
         httpConduit.setClient(httpClientPolicy);
         setHttpClientPolicy(httpClientPolicy);
 
-        if (endpoint.startsWith("https://")) {
+        if (endpoint.startsWith("https://") && BooleanUtils.isFalse(sslOffload)) {
             final TLSClientParameters params = tlsReader.getTlsClientParameters(domain);
             if (params != null) {
                 httpConduit.setTlsClientParameters(params);

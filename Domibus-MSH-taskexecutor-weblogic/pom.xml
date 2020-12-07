@@ -8,12 +8,12 @@
     <parent>
         <groupId>eu.domibus</groupId>
         <artifactId>domibus</artifactId>
-        <version>4.1.5-SNAPSHOT</version>
+        <version>4.1.5-ssl-offload-SNAPSHOT</version>
     </parent>
     <artifactId>domibus-taskexecutor-weblogic</artifactId>
     <packaging>jar</packaging>
 	<name>Domibus MSH TaskExecutor for WebLogic</name>
- 
+
 
     <build>
         <plugins>
@@ -29,7 +29,7 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
             <scope>provided</scope>
-        </dependency>      
+        </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>

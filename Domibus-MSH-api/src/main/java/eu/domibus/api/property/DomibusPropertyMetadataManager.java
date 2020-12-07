@@ -109,6 +109,7 @@ public interface DomibusPropertyMetadataManager {
     String DOMIBUS_FOURCORNERMODEL_ENABLED = "domibus.fourcornermodel.enabled";
     String DOMIBUS_LOGGING_PAYLOAD_PRINT = "domibus.logging.payload.print";
     String DOMIBUS_LOGGING_CXF_LIMIT = "domibus.logging.cxf.limit";
+    String DOMIBUS_CONNECTION_CXF_SSL_OFFLOAD_ENABLE = "domibus.connection.cxf.ssl.offload.enable";
     String DOMIBUS_ATTACHMENT_TEMP_STORAGE_LOCATION = "domibus.attachment.temp.storage.location";
     String DOMIBUS_DISPATCHER_SPLIT_AND_JOIN_CONCURRENCY = "domibus.dispatcher.splitAndJoin.concurrency";
     String DOMIBUS_DISPATCHER_SPLIT_AND_JOIN_PAYLOADS_SCHEDULE_THRESHOLD = "domibus.dispatcher.splitAndJoin.payloads.schedule.threshold";
