@@ -202,7 +202,7 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
         return globalPropertyMetadataManager.getComposableProperty(propertyName);
     }
 
-    private void addIfMissing(Map<String, DomibusProperty> result, DomibusProperty prop) {
+    protected void addIfMissing(Map<String, DomibusProperty> result, DomibusProperty prop) {
         String name = prop.getMetadata().getName();
         if (!result.containsKey(name)) {
             LOG.debug("Adding property with name [{}] to the result list", name);
@@ -253,14 +253,14 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
         return properties.stream().sorted(comparator).collect(Collectors.toList());
     }
 
-    private void initSortMap() {
+    protected void initSortMap() {
         addPropertyComparator("name", domibusProperty -> domibusProperty.getMetadata().getName());
         addPropertyComparator("type", domibusProperty -> domibusProperty.getMetadata().getType());
         addPropertyComparator("module", domibusProperty -> domibusProperty.getMetadata().getModule());
         addPropertyComparator("usage", domibusProperty -> domibusProperty.getMetadata().getUsageText());
     }
 
-    private void addPropertyComparator(String propertyName, Function<DomibusProperty, String> comparatorFunction) {
+    protected void addPropertyComparator(String propertyName, Function<DomibusProperty, String> comparatorFunction) {
         Comparator<DomibusProperty> comparator = Comparator.comparing(comparatorFunction);
         sortingComparatorsMap.put(new SortMapKey(propertyName, true), comparator);
         Comparator<DomibusProperty> reverseComparator = comparator.reversed();
