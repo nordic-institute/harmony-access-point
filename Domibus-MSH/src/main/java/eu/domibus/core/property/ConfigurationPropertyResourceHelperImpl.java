@@ -77,11 +77,11 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
 
         List<DomibusProperty> properties;
 
-        properties = getByDomain(filter, propertiesMetadata);
-
-        properties = filterByValue(filter.getValue(), properties);
-
-        properties = sortProperties(properties, filter.getOrderBy(), filter.getAsc());
+        properties = new RetrieveProcess()
+                .getByDomain(filter, propertiesMetadata)
+                .filterByValue(filter.getValue())
+                .sort(filter.getOrderBy(), filter.getAsc())
+                .getResults();
 
         return properties;
     }
@@ -117,17 +117,6 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
         return getValueAndCreateProperty(propertyMetadata);
     }
 
-    protected List<DomibusProperty> getByDomain(DomibusPropertiesFilter filter, List<DomibusPropertyMetadata> propertiesMetadata) {
-        List<DomibusProperty> properties;
-        if (filter.isShowDomain()) {
-            properties = getPropertyValues(propertiesMetadata);
-        } else {
-            // for non-domain properties, we get the values in the null-domain context:
-            properties = domainTaskExecutor.submit(() -> getPropertyValues(propertiesMetadata));
-        }
-        return properties;
-    }
-
     protected List<DomibusProperty> getPropertyValues(List<DomibusPropertyMetadata> properties) {
         Map<String, DomibusProperty> result = new HashMap<>();
 
@@ -159,15 +148,6 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
         result.addAll(nested);
 
         return result;
-    }
-
-    protected List<DomibusProperty> filterByValue(String value, List<DomibusProperty> properties) {
-        if (value == null) {
-            return properties;
-        }
-        return properties.stream()
-                .filter(prop -> StringUtils.equals(value, prop.getValue()))
-                .collect(Collectors.toList());
     }
 
     protected void validatePropertyValue(String propertyName, String propertyValue) {
@@ -245,14 +225,6 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
         throw new DomibusPropertyException("Cannot request global and super properties if not a super user.");
     }
 
-    protected List<DomibusProperty> sortProperties(List<DomibusProperty> properties, String sortAttribute, boolean sortAscending) {
-        Comparator<DomibusProperty> comparator = sortingComparatorsMap.get(new SortMapKey(sortAttribute, sortAscending));
-        if (comparator == null) {
-            return properties;
-        }
-        return properties.stream().sorted(comparator).collect(Collectors.toList());
-    }
-
     protected void initSortMap() {
         addPropertyComparator("name", domibusProperty -> domibusProperty.getMetadata().getName());
         addPropertyComparator("type", domibusProperty -> domibusProperty.getMetadata().getType());
@@ -267,7 +239,7 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
         sortingComparatorsMap.put(new SortMapKey(propertyName, false), reverseComparator);
     }
 
-    class SortMapKey {
+    static class SortMapKey {
         private String field;
         private boolean asc;
 
@@ -296,5 +268,42 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
                     .isEquals();
         }
 
+    }
+
+    class RetrieveProcess {
+        List<DomibusProperty> properties;
+
+        protected RetrieveProcess getByDomain(DomibusPropertiesFilter filter, List<DomibusPropertyMetadata> propertiesMetadata) {
+            if (filter.isShowDomain()) {
+                properties = getPropertyValues(propertiesMetadata);
+            } else {
+                // for non-domain properties, we get the values in the null-domain context:
+                properties = domainTaskExecutor.submit(() -> getPropertyValues(propertiesMetadata));
+            }
+            return this;
+        }
+
+        protected RetrieveProcess filterByValue(String value) {
+            if (value == null) {
+                return this;
+            }
+            properties = properties.stream()
+                    .filter(prop -> StringUtils.equals(value, prop.getValue()))
+                    .collect(Collectors.toList());
+            return this;
+        }
+
+        protected RetrieveProcess sort(String sortAttribute, boolean sortAscending) {
+            Comparator<DomibusProperty> comparator = sortingComparatorsMap.get(new SortMapKey(sortAttribute, sortAscending));
+            if (comparator == null) {
+                return this;
+            }
+            properties = properties.stream().sorted(comparator).collect(Collectors.toList());
+            return this;
+        }
+
+        public List<DomibusProperty> getResults() {
+            return properties;
+        }
     }
 }
