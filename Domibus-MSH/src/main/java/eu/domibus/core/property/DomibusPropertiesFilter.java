@@ -1,15 +1,11 @@
-package eu.domibus.web.rest.ro;
+package eu.domibus.core.property;
 
 /**
  * @author Ion Perpegel
  * @since 4.1.1
  */
 
-public class PropertyFilterRequestRO {
-
-    private int page = 0;
-
-    private int pageSize = 10;
+public class DomibusPropertiesFilter {
 
     private String name;
 
@@ -26,22 +22,6 @@ public class PropertyFilterRequestRO {
     private String sortAttribute;
 
     private Boolean sortAscending;
-
-    public int getPage() {
-        return page;
-    }
-
-    public void setPage(int page) {
-        this.page = page;
-    }
-
-    public int getPageSize() {
-        return pageSize;
-    }
-
-    public void setPageSize(int pageSize) {
-        this.pageSize = pageSize;
-    }
 
     public String getName() {
         return name;

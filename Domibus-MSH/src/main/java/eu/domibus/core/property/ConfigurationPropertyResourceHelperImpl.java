@@ -61,9 +61,8 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
     }
 
     @Override
-    public List<DomibusProperty> getAllProperties(String name, boolean showDomain, String type, String module, String value, Boolean isWritable) {
-        List<DomibusPropertyMetadata> propertiesMetadata = filterProperties(globalPropertyMetadataManager.getAllProperties(),
-                name, showDomain, type, module, isWritable);
+    public List<DomibusProperty> getAllProperties(DomibusPropertiesFilter filter) {
+        List<DomibusPropertyMetadata> propertiesMetadata = filterProperties(globalPropertyMetadataManager.getAllProperties(), filter);
 
         if (CollectionUtils.isEmpty(propertiesMetadata)) {
             return new ArrayList();
@@ -71,14 +70,14 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
 
         List<DomibusProperty> properties;
 
-        if (showDomain) {
+        if (filter.isShowDomain()) {
             properties = getPropertyValues(propertiesMetadata);
         } else {
             // for non-domain properties, we get the values in the null-domain context:
             properties = domainTaskExecutor.submit(() -> getPropertyValues(propertiesMetadata));
         }
 
-        properties = filterByValue(value, properties);
+        properties = filterByValue(filter.getValue(), properties);
         properties = sortProperties(properties);
 
         return properties;
@@ -217,20 +216,19 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
         return prop;
     }
 
-    protected List<DomibusPropertyMetadata> filterProperties(Map<String, DomibusPropertyMetadata> propertiesMap,
-                                                             String name, boolean showDomain, String type, String module, Boolean isWritable) {
+    protected List<DomibusPropertyMetadata> filterProperties(Map<String, DomibusPropertyMetadata> propertiesMap, DomibusPropertiesFilter filter) {
         List<DomibusPropertyMetadata> knownProps = propertiesMap.values().stream()
-                .filter(prop -> isWritable == null || isWritable == prop.isWritable())
-                .filter(prop -> name == null || StringUtils.containsIgnoreCase(prop.getName(), name))
-                .filter(prop -> type == null || StringUtils.equals(type, prop.getType()))
-                .filter(prop -> module == null || StringUtils.equals(module, prop.getModule()))
+                .filter(prop -> filter.isWritable() == null || filter.isWritable() == prop.isWritable())
+                .filter(prop -> filter.getName() == null || StringUtils.containsIgnoreCase(prop.getName(), filter.getName()))
+                .filter(prop -> filter.getType() == null || StringUtils.equals(filter.getType(), prop.getType()))
+                .filter(prop -> filter.getName() == null || StringUtils.equals(filter.getModule(), prop.getModule()))
                 .collect(Collectors.toList());
 
         if (!domibusConfigurationService.isMultiTenantAware()) {
             return knownProps;
         }
 
-        if (showDomain) {
+        if (filter.isShowDomain()) {
             return knownProps.stream().filter(p -> p.isDomain()).collect(Collectors.toList());
         }
 
