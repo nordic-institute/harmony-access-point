@@ -41,7 +41,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+
+import static eu.domibus.core.spring.DomibusSessionConfiguration.SESSION_COOKIE_NAME;
 
 /**
  * @author Cosmin Baciu, Catalin Enache
@@ -53,6 +54,8 @@ import java.util.Optional;
 public class AuthenticationResource {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AuthenticationResource.class);
+
+    public static final String CSRF_COOKIE_NAME = "XSRF-TOKEN";
 
     @Autowired
     protected AuthenticationService authenticationService;
@@ -83,8 +86,7 @@ public class AuthenticationResource {
     private AuthUtils authUtils;
 
     @Autowired
-    CompositeSessionAuthenticationStrategy sas;
-
+    protected CompositeSessionAuthenticationStrategy sas;
 
     @ExceptionHandler({AccountStatusException.class})
     public ResponseEntity<ErrorRO> handleAccountStatusException(AccountStatusException ex) {
@@ -136,7 +138,7 @@ public class AuthenticationResource {
         }
 
         LOG.debug("Logging out user [" + auth.getName() + "]");
-        new DomibusCookieClearingLogoutHandler("JSESSIONID", "XSRF-TOKEN").logout(request, response, null);
+        new DomibusCookieClearingLogoutHandler(SESSION_COOKIE_NAME, CSRF_COOKIE_NAME).logout(request, response, null);
         LOG.debug("Cleared cookies");
         new SecurityContextLogoutHandler().logout(request, response, auth);
         LOG.debug("Logged out");

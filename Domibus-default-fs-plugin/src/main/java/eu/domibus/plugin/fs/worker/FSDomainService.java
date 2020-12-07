@@ -83,7 +83,7 @@ public class FSDomainService {
         
         // in single-tenancy, process all fsplugin-defined domains
         LOG.trace("Single-tenancy mode, process known domains");
-        return fsPluginProperties.getDomains();
+        return fsPluginProperties.getDomainsOrdered();
     }
 
     /**
@@ -153,7 +153,7 @@ public class FSDomainService {
         LOG.debug("Resolving domain for service [{}] and action [{}]", service, action);
 
         String serviceAction = service + "#" + action;
-        List<String> domains = fsPluginProperties.getDomains();
+        List<String> domains = fsPluginProperties.getDomainsOrdered();
         for (String domain : domains) {
             Pattern domainExpressionPattern = getFSPluginDomainPattern(domain);
             if (domainExpressionPattern != null) {

@@ -5,8 +5,8 @@ import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomainExtService;
 import eu.domibus.ext.services.DomibusConfigurationExtService;
 import eu.domibus.plugin.fs.FSMessage;
-import eu.domibus.plugin.fs.property.FSPluginProperties;
 import eu.domibus.plugin.fs.exception.FSSetUpException;
+import eu.domibus.plugin.fs.property.FSPluginProperties;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -131,7 +131,7 @@ public class FSDomainServiceTest {
         domains.add("DOMAIN1");
 
         new Expectations(1, fsDomainService) {{
-            fsPluginProperties.getDomains();
+            fsPluginProperties.getDomainsOrdered();
             result = domains;
 
             fsPluginProperties.getExpression("DOMAIN1");
@@ -153,7 +153,7 @@ public class FSDomainServiceTest {
         domains.add("DOMAIN2");
 
         new Expectations(1, fsDomainService) {{
-            fsPluginProperties.getDomains();
+            fsPluginProperties.getDomainsOrdered();
             result = domains;
 
             fsPluginProperties.getExpression("DOMAIN2");
@@ -180,7 +180,7 @@ public class FSDomainServiceTest {
         domains.add("DOMAIN2");
 
         new Expectations(1, fsDomainService) {{
-            fsPluginProperties.getDomains();
+            fsPluginProperties.getDomainsOrdered();
             result = domains;
 
             fsPluginProperties.getExpression("DOMAIN1");
@@ -209,7 +209,7 @@ public class FSDomainServiceTest {
         domains.add("DOMAIN1");
 
         new Expectations(1, fsDomainService) {{
-            fsPluginProperties.getDomains();
+            fsPluginProperties.getDomainsOrdered();
             result = domains;
 
             fsPluginProperties.getExpression("DOMAIN1");
