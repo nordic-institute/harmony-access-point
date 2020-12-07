@@ -28,7 +28,7 @@
         <cxf.version>3.3.6</cxf.version>
         <spring.version>5.2.9.RELEASE</spring.version>
         <spring.security.version>5.4.1</spring.security.version>
-        <hibernate.version>5.4.18.Final</hibernate.version>
+        <hibernate.version>5.4.25.Final</hibernate.version>
         <hibernate.validator.version>5.1.2.Final</hibernate.validator.version>
         <activemq.version>5.15.13</activemq.version>
         <aspectj.version>1.9.4</aspectj.version>
@@ -51,7 +51,7 @@
         <!-- see project-check-exclude.xml file -->
         <jackson-databind.version>2.9.10.6</jackson-databind.version>
         <commons-test.version>4.2</commons-test.version>
-        <xstream.version>1.4.11</xstream.version>
+        <xstream.version>1.4.14</xstream.version>
         <freemarker.version>2.3.29</freemarker.version>
         <mail.version>1.6.2</mail.version>
         <jaxb.version>2.3.0</jaxb.version>
