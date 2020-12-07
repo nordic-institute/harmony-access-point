@@ -7,6 +7,7 @@ import org.apache.cxf.transport.http.HTTPConduitFactory;
 import org.apache.cxf.transport.http.HTTPTransportFactory;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 /**
@@ -32,7 +33,7 @@ public class DomibusHTTPConduitFactory implements HTTPConduitFactory {
     }
 
     @Override
-    public HTTPConduit createConduit(HTTPTransportFactory httpTransportFactory, Bus bus,
+    public HTTPConduit createConduit(HTTPTransportFactory httpTransportFactory, @Qualifier(Bus.DEFAULT_BUS_ID) Bus bus,
                                      EndpointInfo endpointInfo, EndpointReferenceType target) {
          return domibusURLConnectionHTTPConduitProvider.getObject(domibusHttpsURLConnectionFactory, bus, endpointInfo, target);
     }

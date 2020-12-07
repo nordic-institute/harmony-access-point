@@ -49,7 +49,7 @@ public class CxfConfiguration {
     @Bean
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public DomibusURLConnectionHTTPConduit domibusURLConnectionHTTPConduit(DomibusHttpsURLConnectionFactory domibusHttpsURLConnectionFactory,
-                                                                           Bus bus,
+                                                                           DomibusBus bus,
                                                                            EndpointInfo endpointInfo,
                                                                            EndpointReferenceType target) throws IOException {
         return new DomibusURLConnectionHTTPConduit(domibusHttpsURLConnectionFactory, bus, endpointInfo, target);

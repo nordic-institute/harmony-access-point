@@ -4,7 +4,6 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
-import org.apache.cxf.Bus;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.http.Address;
@@ -34,7 +33,7 @@ public class DomibusURLConnectionHTTPConduit extends URLConnectionHTTPConduit {
     public static final String PROTOCOL_HTTPS = "https";
 
     public DomibusURLConnectionHTTPConduit(DomibusHttpsURLConnectionFactory domibusHttpsURLConnectionFactory,
-                                           Bus bus,
+                                           DomibusBus bus,
                                            EndpointInfo endpointInfo,
                                            EndpointReferenceType target) throws IOException {
         super(bus, endpointInfo, target);
@@ -46,14 +45,14 @@ public class DomibusURLConnectionHTTPConduit extends URLConnectionHTTPConduit {
         URL url = address.getURL();
         if(StringUtils.equalsIgnoreCase(url.getProtocol(), PROTOCOL_HTTPS)) {
             try {
-                LOG.info("Switch [{}] to an HTTP URL for SSL offloading", address.getString());
+                LOG.debug("Switch [{}] to an HTTP connection for SSL offloading", address.getString());
                 String result = StringUtils.replaceOnce(address.getString(), PROTOCOL_HTTPS + ":", PROTOCOL_HTTP + ":");
                 address = new Address(result);
 
-                LOG.info("Revert the protocol part of the HTTP URL back to HTTPS");
+                LOG.debug("Revert the protocol part of the HTTP URL back to HTTPS");
                 FieldUtils.writeField(address.getURL(), "protocol", PROTOCOL_HTTPS, true);
             } catch (Exception e) {
-                LOG.error("An error occurred when switching the URL to HTTP for SSL offloading", e);
+                LOG.error("An error occurred when switching the connection to HTTP for SSL offloading", e);
             }
         }
 
