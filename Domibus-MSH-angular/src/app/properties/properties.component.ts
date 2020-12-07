@@ -56,7 +56,7 @@ export class PropertiesComponent extends mix(BaseListComponent)
       {
         name: 'Property Name',
         prop: 'name',
-        showInitially: true
+        showInitially: true,
       },
       {
         name: 'Type',
@@ -67,7 +67,8 @@ export class PropertiesComponent extends mix(BaseListComponent)
       {
         name: 'Description',
         prop: 'description',
-        width: 25
+        width: 25,
+        sortable: false
       },
       {
         name: 'Module',
@@ -77,7 +78,8 @@ export class PropertiesComponent extends mix(BaseListComponent)
       {
         name: 'Section',
         prop: 'section',
-        width: 25
+        width: 25,
+        sortable: false
       },
       {
         cellTemplate: this.propertyUsageTpl,
@@ -88,28 +90,33 @@ export class PropertiesComponent extends mix(BaseListComponent)
       {
         name: 'With Fallback',
         prop: 'withFallback',
-        width: 25
+        width: 25,
+        sortable: false
       },
       {
         name: 'Is Writable',
         prop: 'writable',
-        width: 25
+        width: 25,
+        sortable: false
       },
       {
         name: 'Is Encrypted',
         prop: 'encrypted',
-        width: 25
+        width: 25,
+        sortable: false
       },
       {
         name: 'Is Composable',
         prop: 'composable',
-        width: 25
+        width: 25,
+        sortable: false
       },
       {
         cellTemplate: this.propertyValueTpl,
         name: 'Property Value',
         showInitially: true,
-        width: 250
+        width: 250,
+        sortable: false
       },
 
     ];

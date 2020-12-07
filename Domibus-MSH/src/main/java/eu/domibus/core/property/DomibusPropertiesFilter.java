@@ -19,7 +19,7 @@ public class DomibusPropertiesFilter {
 
     private Boolean writable;
 
-    private String sortBy;
+    private String orderBy;
 
     private boolean asc;
 
@@ -71,12 +71,12 @@ public class DomibusPropertiesFilter {
         this.writable = isWritable;
     }
 
-    public String getSortBy() {
-        return sortBy;
+    public String getOrderBy() {
+        return orderBy;
     }
 
-    public void setSortBy(String sortBy) {
-        this.sortBy = sortBy;
+    public void setOrderBy(String orderBy) {
+        this.orderBy = orderBy;
     }
 
     public Boolean getAsc() {

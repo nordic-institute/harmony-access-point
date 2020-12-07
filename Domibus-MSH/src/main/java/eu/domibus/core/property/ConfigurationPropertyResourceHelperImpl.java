@@ -8,10 +8,13 @@ import eu.domibus.core.rest.validators.FieldBlacklistValidator;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadata.NAME_SEPARATOR;
@@ -42,6 +45,8 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
     private DomibusPropertyValueValidator domibusPropertyValueValidator;
 
     private FieldBlacklistValidator propertyNameBlacklistValidator;
+
+    Map<Key, Comparator<DomibusProperty>> map = new HashMap<>();
 
     public ConfigurationPropertyResourceHelperImpl(DomibusConfigurationService domibusConfigurationService,
                                                    DomibusPropertyProvider domibusPropertyProvider,
@@ -76,7 +81,7 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
 
         properties = filterByValue(filter.getValue(), properties);
 
-        properties = sortProperties(properties, filter.getSortBy(), filter.getAsc());
+        properties = sortProperties(properties, filter.getOrderBy(), filter.getAsc());
         return properties;
     }
 
@@ -239,26 +244,56 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
         throw new DomibusPropertyException("Cannot request global and super properties if not a super user.");
     }
 
-    Map<Key, Comparator<DomibusProperty>> map = new HashMap<>();
-
     protected List<DomibusProperty> sortProperties(List<DomibusProperty> properties, String sortAttribute, boolean sortAscending) {
-        return properties;
-//        return properties.stream().sorted(Comparator.comparing(property -> property.getMetadata().getName())).collect(Collectors.toList());
-//        return properties.stream().sorted(map.get(new Key(sortAttribute, sortAscending))).collect(Collectors.toList());
+        Comparator<DomibusProperty> comparator = map.get(new Key(sortAttribute, sortAscending));
+        if (comparator == null) {
+            return properties;
+        }
+        return properties.stream().sorted(comparator).collect(Collectors.toList());
     }
 
     private void initSortMap() {
-        map.put(new Key("name", true), Comparator.comparing(domibusProperty -> domibusProperty.getMetadata().getName()));
-//        map.put(new Key("name", false), Comparator.comparing(domibusProperty -> domibusProperty.getMetadata().getName()).reversed());
+        addPropertyComparator("name", domibusProperty -> domibusProperty.getMetadata().getName());
+        addPropertyComparator("type", domibusProperty -> domibusProperty.getMetadata().getType());
+        addPropertyComparator("module", domibusProperty -> domibusProperty.getMetadata().getModule());
+        addPropertyComparator("usage", domibusProperty -> domibusProperty.getMetadata().getUsageText());
+    }
+
+    private void addPropertyComparator(String propName, Function<DomibusProperty, String> compF) {
+        Comparator<DomibusProperty> comp = Comparator.comparing(compF);
+        map.put(new Key(propName, true), comp);
+        Comparator<DomibusProperty> reverseNameComp = comp.reversed();
+        map.put(new Key(propName, false), reverseNameComp);
     }
 
     class Key {
-        Key(String filed, boolean asc) {
-
+        Key(String field, boolean asc) {
+            this.field = field;
+            this.asc = asc;
         }
 
         String field;
         boolean asc;
-        // getters/setters/hashcode/equals
+
+        @Override
+        public int hashCode() {
+            return new HashCodeBuilder(17, 37)
+                    .append(field)
+                    .append(asc)
+                    .toHashCode();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            Key obj = (Key) o;
+            return new EqualsBuilder()
+                    .append(field, obj.field)
+                    .append(asc, obj.asc)
+                    .isEquals();
+        }
+
     }
 }
