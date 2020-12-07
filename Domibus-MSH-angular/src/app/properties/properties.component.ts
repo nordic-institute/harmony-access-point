@@ -13,6 +13,7 @@ import {MAT_CHECKBOX_CLICK_ACTION} from '@angular/material/checkbox';
 import {SessionExpiredDialogComponent} from '../security/session-expired-dialog/session-expired-dialog.component';
 import {DialogsService} from '../common/dialogs/dialogs.service';
 import {AddNestedPropertyDialogComponent} from './support/add-nested-property-dialog/add-nested-property-dialog.component';
+import {ServerSortableListMixin} from '../common/mixins/sortable-list.mixin';
 
 @Component({
   moduleId: module.id,
@@ -22,7 +23,7 @@ import {AddNestedPropertyDialogComponent} from './support/add-nested-property-di
 })
 @ComponentName('Domibus Properties')
 export class PropertiesComponent extends mix(BaseListComponent)
-  .with(FilterableListMixin, ServerPageableListMixin)
+  .with(FilterableListMixin, ServerPageableListMixin, ServerSortableListMixin)
   implements OnInit, AfterViewInit, AfterViewChecked {
 
   showGlobalPropertiesControl: boolean;

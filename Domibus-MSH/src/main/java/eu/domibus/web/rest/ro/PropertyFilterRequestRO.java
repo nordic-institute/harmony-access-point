@@ -23,9 +23,9 @@ public class PropertyFilterRequestRO {
 
     private Boolean writable;
 
-    private String sortAttribute;
+    private String orderBy;
 
-    private Boolean sortAscending;
+    private boolean asc;
 
     public int getPage() {
         return page;
@@ -91,19 +91,19 @@ public class PropertyFilterRequestRO {
         this.writable = isWritable;
     }
 
-    public String getSortAttribute() {
-        return sortAttribute;
+    public String getOrderBy() {
+        return orderBy;
     }
 
-    public void setSortAttribute(String sortAttribute) {
-        this.sortAttribute = sortAttribute;
+    public void setOrderBy(String orderBy) {
+        this.orderBy = orderBy;
     }
 
-    public Boolean getSortAscending() {
-        return sortAscending;
+    public Boolean getAsc() {
+        return asc;
     }
 
-    public void setSortAscending(Boolean sortAscending) {
-        this.sortAscending = sortAscending;
+    public void setAsc(Boolean asc) {
+        this.asc = asc;
     }
 }

@@ -19,9 +19,9 @@ public class DomibusPropertiesFilter {
 
     private Boolean writable;
 
-    private String sortAttribute;
+    private String sortBy;
 
-    private Boolean sortAscending;
+    private boolean asc;
 
     public String getName() {
         return name;
@@ -71,19 +71,19 @@ public class DomibusPropertiesFilter {
         this.writable = isWritable;
     }
 
-    public String getSortAttribute() {
-        return sortAttribute;
+    public String getSortBy() {
+        return sortBy;
     }
 
-    public void setSortAttribute(String sortAttribute) {
-        this.sortAttribute = sortAttribute;
+    public void setSortBy(String sortBy) {
+        this.sortBy = sortBy;
     }
 
-    public Boolean getSortAscending() {
-        return sortAscending;
+    public Boolean getAsc() {
+        return asc;
     }
 
-    public void setSortAscending(Boolean sortAscending) {
-        this.sortAscending = sortAscending;
+    public void setAsc(Boolean asc) {
+        this.asc = asc;
     }
 }

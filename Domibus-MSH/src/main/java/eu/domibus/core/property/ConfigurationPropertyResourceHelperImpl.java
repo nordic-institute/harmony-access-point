@@ -58,6 +58,8 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
         this.domibusPropertyValueValidator = domibusPropertyValueValidator;
         this.propertyNameBlacklistValidator = propertyNameBlacklistValidator;
         this.propertyNameBlacklistValidator.init();
+
+        initSortMap();
     }
 
     @Override
@@ -70,16 +72,22 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
 
         List<DomibusProperty> properties;
 
+        properties = filterByDomain(filter, propertiesMetadata);
+
+        properties = filterByValue(filter.getValue(), properties);
+
+        properties = sortProperties(properties, filter.getSortBy(), filter.getAsc());
+        return properties;
+    }
+
+    private List<DomibusProperty> filterByDomain(DomibusPropertiesFilter filter, List<DomibusPropertyMetadata> propertiesMetadata) {
+        List<DomibusProperty> properties;
         if (filter.isShowDomain()) {
             properties = getPropertyValues(propertiesMetadata);
         } else {
             // for non-domain properties, we get the values in the null-domain context:
             properties = domainTaskExecutor.submit(() -> getPropertyValues(propertiesMetadata));
         }
-
-        properties = filterByValue(filter.getValue(), properties);
-        properties = sortProperties(properties);
-
         return properties;
     }
 
@@ -145,14 +153,6 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
         result.addAll(nested);
 
         return result;
-    }
-
-    protected List<DomibusProperty> sortProperties(List<DomibusProperty> properties) {
-        List<DomibusProperty> list = properties.stream()
-                .filter(property -> property.getMetadata() != null && StringUtils.isNotBlank(property.getMetadata().getName()))
-                .collect(Collectors.toList());
-        list.sort(Comparator.comparing(property -> property.getMetadata().getName()));
-        return list;
     }
 
     protected List<DomibusProperty> filterByValue(String value, List<DomibusProperty> properties) {
@@ -239,4 +239,26 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
         throw new DomibusPropertyException("Cannot request global and super properties if not a super user.");
     }
 
+    Map<Key, Comparator<DomibusProperty>> map = new HashMap<>();
+
+    protected List<DomibusProperty> sortProperties(List<DomibusProperty> properties, String sortAttribute, boolean sortAscending) {
+        return properties;
+//        return properties.stream().sorted(Comparator.comparing(property -> property.getMetadata().getName())).collect(Collectors.toList());
+//        return properties.stream().sorted(map.get(new Key(sortAttribute, sortAscending))).collect(Collectors.toList());
+    }
+
+    private void initSortMap() {
+        map.put(new Key("name", true), Comparator.comparing(domibusProperty -> domibusProperty.getMetadata().getName()));
+//        map.put(new Key("name", false), Comparator.comparing(domibusProperty -> domibusProperty.getMetadata().getName()).reversed());
+    }
+
+    class Key {
+        Key(String filed, boolean asc) {
+
+        }
+
+        String field;
+        boolean asc;
+        // getters/setters/hashcode/equals
+    }
 }
