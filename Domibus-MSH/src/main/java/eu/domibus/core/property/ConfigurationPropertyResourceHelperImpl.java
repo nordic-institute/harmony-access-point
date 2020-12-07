@@ -221,7 +221,7 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
                 .filter(prop -> filter.isWritable() == null || filter.isWritable() == prop.isWritable())
                 .filter(prop -> filter.getName() == null || StringUtils.containsIgnoreCase(prop.getName(), filter.getName()))
                 .filter(prop -> filter.getType() == null || StringUtils.equals(filter.getType(), prop.getType()))
-                .filter(prop -> filter.getName() == null || StringUtils.equals(filter.getModule(), prop.getModule()))
+                .filter(prop -> filter.getModule() == null || StringUtils.equals(filter.getModule(), prop.getModule()))
                 .collect(Collectors.toList());
 
         if (!domibusConfigurationService.isMultiTenantAware()) {
