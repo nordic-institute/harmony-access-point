@@ -46,7 +46,7 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
 
     private FieldBlacklistValidator propertyNameBlacklistValidator;
 
-    Map<Key, Comparator<DomibusProperty>> map = new HashMap<>();
+    private Map<SortMapKey, Comparator<DomibusProperty>> sortingComparatorsMap = new HashMap<>();
 
     public ConfigurationPropertyResourceHelperImpl(DomibusConfigurationService domibusConfigurationService,
                                                    DomibusPropertyProvider domibusPropertyProvider,
@@ -246,7 +246,7 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
     }
 
     protected List<DomibusProperty> sortProperties(List<DomibusProperty> properties, String sortAttribute, boolean sortAscending) {
-        Comparator<DomibusProperty> comparator = map.get(new Key(sortAttribute, sortAscending));
+        Comparator<DomibusProperty> comparator = sortingComparatorsMap.get(new SortMapKey(sortAttribute, sortAscending));
         if (comparator == null) {
             return properties;
         }
@@ -260,21 +260,21 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
         addPropertyComparator("usage", domibusProperty -> domibusProperty.getMetadata().getUsageText());
     }
 
-    private void addPropertyComparator(String propName, Function<DomibusProperty, String> compF) {
-        Comparator<DomibusProperty> comp = Comparator.comparing(compF);
-        map.put(new Key(propName, true), comp);
-        Comparator<DomibusProperty> reverseNameComp = comp.reversed();
-        map.put(new Key(propName, false), reverseNameComp);
+    private void addPropertyComparator(String propertyName, Function<DomibusProperty, String> comparatorFunction) {
+        Comparator<DomibusProperty> comparator = Comparator.comparing(comparatorFunction);
+        sortingComparatorsMap.put(new SortMapKey(propertyName, true), comparator);
+        Comparator<DomibusProperty> reverseComparator = comparator.reversed();
+        sortingComparatorsMap.put(new SortMapKey(propertyName, false), reverseComparator);
     }
 
-    class Key {
-        Key(String field, boolean asc) {
+    class SortMapKey {
+        private String field;
+        private boolean asc;
+
+        SortMapKey(String field, boolean asc) {
             this.field = field;
             this.asc = asc;
         }
-
-        String field;
-        boolean asc;
 
         @Override
         public int hashCode() {
@@ -289,7 +289,7 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
 
-            Key obj = (Key) o;
+            SortMapKey obj = (SortMapKey) o;
             return new EqualsBuilder()
                     .append(field, obj.field)
                     .append(asc, obj.asc)
