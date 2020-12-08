@@ -9,8 +9,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_UI_SUPPORT_TEAM_NAME;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_UI_TITLE_NAME;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 /**
  * @author Ion Perpegel
@@ -30,7 +29,7 @@ public class DomibusPropertyProviderIT extends AbstractIT {
     Domain defaultDomain = new Domain("default", "Default");
 
     @Test
-    public void testCache() {
+    public void testCacheDomain() {
         String propertyName = DOMIBUS_UI_TITLE_NAME;
 
         //not in cache now
@@ -45,8 +44,8 @@ public class DomibusPropertyProviderIT extends AbstractIT {
     }
 
     @Test
-    public void testCache2() {
-        String propertyName = DOMIBUS_UI_TITLE_NAME;
+    public void testCacheNoDomain() {
+        String propertyName = DOMIBUS_UI_REPLICATION_QUEUE_CONCURENCY;
 
         //not in cache now
         String cachedValue = getCachedValue(propertyName);
