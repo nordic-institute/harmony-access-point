@@ -3,6 +3,8 @@ package pages.Alert;
 import ddsl.dcomponents.FilterArea;
 import ddsl.dobjects.*;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -11,7 +13,6 @@ import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 public class AlertFilters extends FilterArea {
@@ -27,7 +28,7 @@ public class AlertFilters extends FilterArea {
 	public WebElement alertLevelContainer;
 	@FindBy(id = "creationfrom_id")
 	public WebElement creationFromContainer;
-	@FindBy(id = "creation_id")
+	@FindBy(id = "creationto_id")
 	public WebElement creationToContainer;
 	//--------------Advance Filters-------------
 	@FindBy(id = "reportingfrom_id")
@@ -63,7 +64,13 @@ public class AlertFilters extends FilterArea {
 	@FindBy(css="mat-error.mat-error")
 	public WebElement alertIdValidation;
 	
-	
+//	------------------ Selectors for extra filters
+
+	@FindBy(css="div.selectionCriteria div form div.panel.ng-star-inserted")
+	public WebElement extraFiltersContainer;
+
+
+
 	List<String> processedFilterData = Arrays.asList("UNPROCESSED", "PROCESSED","");
 	List<String> alertTypeFilterData = Arrays.asList("", "MSG_STATUS_CHANGED", "CERT_IMMINENT_EXPIRATION", "CERT_EXPIRED", "USER_LOGIN_FAILURE", "USER_ACCOUNT_DISABLED", "USER_ACCOUNT_ENABLED", "PLUGIN_USER_LOGIN_FAILURE", "PLUGIN_USER_ACCOUNT_DISABLED", "PLUGIN_USER_ACCOUNT_ENABLED", "PASSWORD_IMMINENT_EXPIRATION", "PASSWORD_EXPIRED", "PLUGIN_PASSWORD_IMMINENT_EXPIRATION", "PLUGIN_PASSWORD_EXPIRED");
 	List<String> alertStatusFilterData = Arrays.asList("SEND_ENQUEUED", "SUCCESS","FAILED","RETRY","");
@@ -193,4 +200,35 @@ public class AlertFilters extends FilterArea {
 	public Select getProcessedSelect() {
 		return weToSelect(processedContainer);
 	}
+
+	public List<String> getXFilterNames() throws Exception{
+		List<String> filterNames = new ArrayList<String>();
+
+		boolean areXFiltersVisible = false;
+
+		try {
+			areXFiltersVisible = weToDobject(extraFiltersContainer).isVisible();
+		} catch (Exception e) { }
+
+		if(!areXFiltersVisible){return filterNames;}
+
+		List<WebElement> filterInputs = extraFiltersContainer.findElements(By.tagName("input"));
+		for (WebElement filterInput : filterInputs) {
+			String placeHolder = weToDobject(filterInput).getAttribute("placeholder");
+
+			if(StringUtils.isEmpty(placeHolder)){
+				System.out.println(filterInput.findElement(By.cssSelector(" + span")).getAttribute("placeholder"));
+			}
+
+// TODO: solve for datepicker
+		}
+
+		return filterNames;
+	}
+
+	public Select getAlertTypeSelect(){
+		return weToSelect(alertTypeContainer);
+	}
+
+
 }

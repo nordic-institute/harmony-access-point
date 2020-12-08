@@ -6,6 +6,8 @@ package eu.domibus.api.multitenancy;
  */
 public interface DomainContextProvider {
 
+    String HEADER_DOMIBUS_DOMAIN = "DOMIBUS-DOMAIN";
+
     Domain getCurrentDomain();
 
     /**

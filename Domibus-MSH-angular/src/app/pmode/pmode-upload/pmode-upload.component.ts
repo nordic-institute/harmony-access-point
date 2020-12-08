@@ -61,7 +61,7 @@ export class PmodeUploadComponent implements OnInit {
 
       const res = await this.http.post<string>(this.url, input).toPromise();
 
-      this.alertService.success(res, 0);
+      this.alertService.success(res, 10000);
       this.dialogRef.close({done: true});
       this.submitInProgress = false;
     } catch (err) {

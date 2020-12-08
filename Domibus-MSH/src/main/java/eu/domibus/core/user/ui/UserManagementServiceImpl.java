@@ -30,6 +30,8 @@ import java.util.Map;
 import java.util.function.Function;
 
 /**
+ * * Management of regular users, used in ST mode and when a domain admin user logs in in MT mode
+ *
  * @author Thomas Dussart, Ion Perpegel
  * @since 3.3
  */
@@ -116,17 +118,16 @@ public class UserManagementServiceImpl implements UserService {
     @Transactional
     public void updateUsers(List<eu.domibus.api.user.User> users) {
         userPersistenceService.updateUsers(users);
+        ensureAtLeastOneActiveAdmin();
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    @Transactional
-    public UserLoginErrorReason handleWrongAuthentication(final String userName) {
+    public synchronized UserLoginErrorReason handleWrongAuthentication(final String userName) {
         // there is no security context when the user failed to login -> we're creating one
-        return authUtils.runFunctionWithSecurityContext(() -> userPasswordManager.handleWrongAuthentication(userName),
-                "domibus", "domibus", AuthRole.ROLE_ADMIN, true);
+        return authUtils.runFunctionWithDomibusSecurityContext(() -> userPasswordManager.handleWrongAuthentication(userName), AuthRole.ROLE_ADMIN, true);
     }
 
     /**
@@ -181,6 +182,7 @@ public class UserManagementServiceImpl implements UserService {
 
     /**
      * Retrieves users from DB and sets some attributes for each user
+     *
      * @param getDomainForUserFn the function to get the domain
      * @return the list of users
      */
@@ -193,6 +195,7 @@ public class UserManagementServiceImpl implements UserService {
 
     /**
      * Calls a function to get the domain for each user and also sets expiration date
+     *
      * @param getDomainForUserFn the function to get the domain
      * @return the list of users
      */
@@ -228,7 +231,8 @@ public class UserManagementServiceImpl implements UserService {
         return user;
     }
 
-    public void validateAtLeastOneOfRole(AuthRole role) {
+    protected void ensureAtLeastOneActiveAdmin() {
+        AuthRole role = getAdminRole();
         List<User> users = userDao.findByRole(role.toString());
         long count = users.stream().filter(u -> !u.isDeleted() && u.isActive()).count();
         if (count == 0) {
@@ -293,5 +297,9 @@ public class UserManagementServiceImpl implements UserService {
         } else {
             filters.put(DELETED_USER, Boolean.parseBoolean(deleted));
         }
+    }
+
+    protected AuthRole getAdminRole() {
+        return AuthRole.ROLE_ADMIN;
     }
 }

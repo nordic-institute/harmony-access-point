@@ -2,6 +2,7 @@
 
 <suite name="SELENIUM">
 
+
 	<groups>
 		<run>
 			<include name="multiTenancy"/>

@@ -119,7 +119,7 @@ public class UserManagementServiceImplTest {
         String userName = "user1";
         userManagementService.handleWrongAuthentication(userName);
         new Verifications() {{
-            authUtils.runFunctionWithSecurityContext((AuthenticatedFunction) any, "domibus", "domibus", AuthRole.ROLE_ADMIN, true);
+            authUtils.runFunctionWithDomibusSecurityContext((AuthenticatedFunction) any, AuthRole.ROLE_ADMIN, true);
             times = 1;
         }};
     }
@@ -219,7 +219,7 @@ public class UserManagementServiceImplTest {
     }
 
     @Test
-    public void validateAtLeastOneOfRoleTest_nok(@Injectable AuthRole role) {
+    public void validateAtLeastOneOfRoleTest_nok() {
 
         User deletedUser = new User() {{
             setDeleted(true);
@@ -233,11 +233,11 @@ public class UserManagementServiceImplTest {
                 deletedUser,
                 inactiveUser);
         new Expectations() {{
-            userDao.findByRole(role.toString());
+            userDao.findByRole(AuthRole.ROLE_ADMIN.toString());
             result = users;
         }};
         try {
-            userManagementService.validateAtLeastOneOfRole(role);
+            userManagementService.ensureAtLeastOneActiveAdmin();
             Assert.fail();
         } catch (UserManagementException ex) {
             Assert.assertEquals(DomibusCoreErrorCode.DOM_001, ex.getError());
@@ -245,7 +245,7 @@ public class UserManagementServiceImplTest {
     }
 
     @Test
-    public void validateAtLeastOneOfRoleTest_ok(@Injectable AuthRole role) {
+    public void validateAtLeastOneOfRoleTest_ok() {
         User validUser = new User() {{
             setDeleted(false);
             setActive(true);
@@ -263,10 +263,10 @@ public class UserManagementServiceImplTest {
                 inactiveUser);
 
         new Expectations() {{
-            userDao.findByRole(role.toString());
+            userDao.findByRole(AuthRole.ROLE_ADMIN.toString());
             result = users;
         }};
-        userManagementService.validateAtLeastOneOfRole(role);
+        userManagementService.ensureAtLeastOneActiveAdmin();
 
         new FullVerifications() {
         };
@@ -319,6 +319,10 @@ public class UserManagementServiceImplTest {
     @Test
     public void updateUsers() {
         ArrayList<eu.domibus.api.user.User> users = new ArrayList<>();
+
+        new Expectations(userManagementService) {{
+            userManagementService.ensureAtLeastOneActiveAdmin();
+        }};
 
         userManagementService.updateUsers(users);
 

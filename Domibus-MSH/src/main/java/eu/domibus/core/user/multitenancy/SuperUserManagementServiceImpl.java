@@ -1,5 +1,6 @@
 package eu.domibus.core.user.multitenancy;
 
+import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.security.AuthRole;
@@ -10,6 +11,8 @@ import eu.domibus.core.user.ui.UserManagementServiceImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +20,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
+ * Management of all users ( domain and super users), used when a super-user logs in in MT mode
+ *
  * @author Ion Perpegel
  * @since 4.0
  */
@@ -36,13 +41,16 @@ public class SuperUserManagementServiceImpl extends UserManagementServiceImpl {
     @Autowired
     protected UserDomainDao userDomainDao;
 
+    @Autowired
+    protected UserManagementServiceImpl userManagementService;
+
     /**
      * {@inheritDoc}
      */
     @Override
     public List<eu.domibus.api.user.User> findUsers() {
         // retrieve domain users
-        List<eu.domibus.api.user.User> allUsers = super.findUsers();
+        List<eu.domibus.api.user.User> allUsers = userManagementService.findUsers();
 
         // retrieve super users
         List<eu.domibus.api.user.User> superUsers = getSuperUsers();
@@ -62,7 +70,7 @@ public class SuperUserManagementServiceImpl extends UserManagementServiceImpl {
     @Override
     public List<eu.domibus.api.user.User> findUsersWithFilters(AuthRole authRole, String userName, String deleted, int page, int pageSize) {
         // retrieve domain users
-        List<eu.domibus.api.user.User> allUsers = super.findUsersWithFilters(authRole, userName, deleted, page, pageSize);
+        List<eu.domibus.api.user.User> allUsers = userManagementService.findUsersWithFilters(authRole, userName, deleted, page, pageSize);
 
         // retrieve super users
         List<eu.domibus.api.user.User> superUsers = getSuperUsersWithFilters(authRole, userName, deleted, page, pageSize);
@@ -114,21 +122,43 @@ public class SuperUserManagementServiceImpl extends UserManagementServiceImpl {
     @Override
     @Transactional
     public void updateUsers(List<eu.domibus.api.user.User> users) {
+
+        // cannot reuse the bellow code properly because of the use of super keyword
+        // TODO: refactor this class by splitting it in 2: SuperUserManagementService( deals only with super users)
+        // and AllUserManagementService which is the aggregator of SuperUserManagementService and UserManagementService
+        // EDELIVERY-7510
         List<eu.domibus.api.user.User> regularUsers = users.stream()
                 .filter(u -> !u.getAuthorities().contains(AuthRole.ROLE_AP_ADMIN.name()))
                 .collect(Collectors.toList());
-        super.updateUsers(regularUsers);
-        super.validateAtLeastOneOfRole(AuthRole.ROLE_ADMIN);
+        try {
+            userManagementService.updateUsers(regularUsers);
+        } catch (DomibusCoreException ex) {
+            LOG.trace("Remove domain association for new users.");
+            regularUsers.stream()
+                    .filter(user -> user.isNew())
+                    .forEach(user -> userDomainService.deleteDomainForUser(user.getUserName()));
+            throw ex;
+        }
 
         List<eu.domibus.api.user.User> superUsers = users.stream()
                 .filter(u -> u.getAuthorities().contains(AuthRole.ROLE_AP_ADMIN.name()))
                 .collect(Collectors.toList());
 
+        // TODO: better add a new method on domainTaskExecutor: submitWithSecurityContext that preserves the sec context
+        // another solution would be to keep the security context/ principal in a service of ours
+        final Authentication currentAuthentication = SecurityContextHolder.getContext().getAuthentication();
         domainTaskExecutor.submit(() -> {
-            // this block needs to called inside a transaction;
-            // for this the whole code inside the block needs to reside into a Spring bean service marked with transaction REQUIRED
-            super.updateUsers(superUsers);
-            super.validateAtLeastOneOfRole(AuthRole.ROLE_AP_ADMIN);
+            // we need the security context restored on this thread because we try to get the logged user down the way
+            SecurityContextHolder.getContext().setAuthentication(currentAuthentication);
+            try {
+                super.updateUsers(superUsers);
+            } catch (DomibusCoreException ex) {
+                LOG.trace("Remove domain association for new super users.");
+                superUsers.stream()
+                        .filter(user -> user.isNew())
+                        .forEach(user -> userDomainService.deleteDomainForUser(user.getUserName()));
+                throw ex;
+            }
         });
     }
 
@@ -140,4 +170,7 @@ public class SuperUserManagementServiceImpl extends UserManagementServiceImpl {
         });
     }
 
+    protected AuthRole getAdminRole() {
+        return AuthRole.ROLE_AP_ADMIN;
+    }
 }

@@ -41,7 +41,7 @@ public class AuditRestClient extends BaseRestClient {
 			throw new DomibusRestException("Could not get audit log", response);
 		}
 		
-		JSONArray events = new JSONArray(response.getEntity(String.class));
+		JSONArray events = new JSONArray(sanitizeResponse(response.getEntity(String.class)));
 		
 		return events;
 	}

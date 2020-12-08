@@ -584,6 +584,7 @@ public class UserMessageDefaultService implements UserMessageService {
         Messaging messaging = messagingDao.findMessageByMessageId(messageId);
         UserMessage userMessage = messaging.getUserMessage();
         messagingDao.clearPayloadData(userMessage);
+        userMessageLog.setDeleted(new Date());
 
         if (MessageStatus.ACKNOWLEDGED != userMessageLog.getMessageStatus() &&
                 MessageStatus.ACKNOWLEDGED_WITH_WARNING != userMessageLog.getMessageStatus()) {
@@ -600,6 +601,9 @@ public class UserMessageDefaultService implements UserMessageService {
 
         LOG.debug("Deleting [{}] user messages", userMessageIds.size());
         LOG.trace("Deleting user messages [{}]", userMessageIds);
+
+        List<String> filenames = messagingDao.findFileSystemPayloadFilenames(userMessageIds);
+        messagingDao.deletePayloadFiles(filenames);
 
         List<String> signalMessageIds = messageInfoDao.findSignalMessageIds(userMessageIds);
         LOG.debug("Deleting [{}] signal messages", signalMessageIds.size());

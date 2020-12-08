@@ -2,37 +2,39 @@ package eu.domibus.core.crypto.spi.dss;
 
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.quartz.DomibusQuartzJobExtBean;
+import eu.domibus.ext.services.CommandExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.europa.esig.dss.tsl.service.DomibusTSLValidationJob;
+import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.time.LocalDateTime;
+import java.util.HashMap;
 
 /**
  * @author Thomas Dussart
  * @since 4.1
  * <p>
- * Job to launch dss refresh mechanism.
+ *
+ * This job will trigger a DSS refresh on the node executing the job and send a command to the other nodes
+ * to perform as DSS refresh too.
  */
+@DisallowConcurrentExecution
 public class DssRefreshWorker extends DomibusQuartzJobExtBean {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DssRefreshWorker.class);
 
     @Autowired
-    private DomibusTSLValidationJob tslValidationJob;
+    private CommandExtService commandExtService;
 
     @Autowired
-    private DssExtensionPropertyManager dssExtensionPropertyManager;
+    private DssRefreshCommand dssRefreshCommand;
 
     @Override
-    protected void executeJob(JobExecutionContext context, DomainDTO domain) throws JobExecutionException {
-        LOG.info("Start DSS trusted lists refresh job");
-        if (Boolean.parseBoolean(dssExtensionPropertyManager.getKnownPropertyValue(DssExtensionPropertyManager.DSS_FULL_TLS_REFRESH))) {
-            tslValidationJob.clearRepository();
-            LOG.info("DSS trusted lists cleared");
-        }
-        tslValidationJob.refresh();
-        LOG.info("DSS trusted lists refreshed");
+    public void executeJob(JobExecutionContext context, DomainDTO domain) {
+        LOG.info("Executing DSS refresh job at:[{}]", LocalDateTime.now());
+        commandExtService.executeCommand(DssRefreshCommand.COMMAND_NAME, new HashMap<>());
+        dssRefreshCommand.execute(new HashMap<>());
     }
 }

@@ -405,7 +405,6 @@ public class PmodePartiesPgTest extends SeleniumTest {
 		page.getSaveButton().click();
 		new Dialog(driver).confirm();
 		
-		page.wait.forXMillis(5000);
 		log.info("Validate Success Message");
 		soft.assertTrue(!page.getAlertArea().isError(), "page shows success message");
 		
@@ -413,10 +412,11 @@ public class PmodePartiesPgTest extends SeleniumTest {
 		soft.assertTrue(page.grid().scrollTo(partyName, newPatyName) >= 0, "party is shown in grid");
 		
 		log.info("Navigate to Pmode current page");
-		
+
+		page.getSidebar().goToPage(PAGES.PMODE_CURRENT);
+
 		PModeCurrentPage pModeCurrentPage = new PModeCurrentPage(driver);
-		pModeCurrentPage.getSidebar().goToPage(PAGES.PMODE_CURRENT);
-		
+
 		soft.assertTrue(pModeCurrentPage.getTextArea().isPresent(), "Current pmode is available");
 		String UpdatedPmode = pModeCurrentPage.getTextArea().getText();
 		log.info("Current Pmode is :" + UpdatedPmode);

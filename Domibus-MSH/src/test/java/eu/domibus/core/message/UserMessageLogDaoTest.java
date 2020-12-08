@@ -398,11 +398,27 @@ public class UserMessageLogDaoTest {
         }};
 
         // WHEN
-        List<UserMessageLogDto> result = userMessageLogDao.getSentUserMessagesOlderThan(null, null, 1);
+        List<UserMessageLogDto> result = userMessageLogDao.getSentUserMessagesOlderThan(null, null, 1, true);
 
         // THEN
         Assert.assertSame("Should have returned the user messages found being sent and older than the provided date", list, result);
     }
+
+    @Test
+    public void testGetSentUserMessagesWithPayloadNotClearedOlderThan(@Injectable TypedQuery<String> query, @Injectable List<String> list) {
+        // GIVEN
+        new Expectations() {{
+            em.createNamedQuery("UserMessageLog.findSentUserMessagesWithPayloadNotClearedOlderThan", UserMessageLogDto.class); result = query;
+            query.getResultList(); result = list;
+        }};
+
+        // WHEN
+        List<UserMessageLogDto> result = userMessageLogDao.getSentUserMessagesWithPayloadNotClearedOlderThan(null, null, 1);
+
+        // THEN
+        Assert.assertSame("Should have returned the user messages found being sent and older than the provided date", list, result);
+    }
+
 
     @Test
     public void testGetDeletedUserMessagesOlderThan(@Injectable TypedQuery<String> query, @Injectable List<String> list) {

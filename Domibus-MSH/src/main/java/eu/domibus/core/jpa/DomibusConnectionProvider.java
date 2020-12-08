@@ -52,7 +52,7 @@ public class DomibusConnectionProvider implements ConnectionProvider {
 
     @Override
     public boolean supportsAggressiveRelease() {
-        return true;
+        return false;
     }
 
     @Override
