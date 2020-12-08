@@ -31,7 +31,7 @@ public class DefaultDomibusConfigurationService implements DomibusConfigurationS
     private DataBaseEngine dataBaseEngine;
 
     @Autowired
-    protected DomibusPropertyProvider domibusPropertyProvider;
+    public DomibusPropertyProviderImpl domibusPropertyProvider;
 
     @Override
     public String getConfigLocation() {
@@ -41,7 +41,7 @@ public class DefaultDomibusConfigurationService implements DomibusConfigurationS
     @Cacheable("multitenantCache")
     @Override
     public boolean isMultiTenantAware() {
-        return StringUtils.isNotBlank(domibusPropertyProvider.getProperty(DomainService.GENERAL_SCHEMA_PROPERTY));
+        return StringUtils.isNotBlank(domibusPropertyProvider.getInternalProperty(DomainService.GENERAL_SCHEMA_PROPERTY));
     }
 
     @Override

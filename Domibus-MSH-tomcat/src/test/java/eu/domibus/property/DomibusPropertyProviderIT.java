@@ -14,7 +14,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 
 /**
  * @author Ion Perpegel
- * @since 4.2
+ * @since 5.0
  */
 public class DomibusPropertyProviderIT extends AbstractIT {
 
@@ -45,6 +45,21 @@ public class DomibusPropertyProviderIT extends AbstractIT {
     }
 
     @Test
+    public void testCache2() {
+        String propertyName = DOMIBUS_UI_TITLE_NAME;
+
+        //not in cache now
+        String cachedValue = getCachedValue(propertyName);
+        //ads to cache
+        String actualValue = domibusPropertyProvider.getProperty(propertyName);
+        Assert.assertNotEquals(actualValue, cachedValue);
+
+        //gets the cached value now
+        cachedValue = getCachedValue(propertyName);
+        Assert.assertEquals(actualValue, cachedValue);
+    }
+
+    @Test
     public void testCacheEvict() {
         String propertyName = DOMIBUS_UI_SUPPORT_TEAM_NAME;
 
@@ -71,6 +86,16 @@ public class DomibusPropertyProviderIT extends AbstractIT {
     }
 
     private String getCachedValue(Domain domain, String propertyName) {
-        return cacheManager.getCache(DomibusCacheService.DOMIBUS_PROPERTY_CACHE).get(domain.getCode() + propertyName, String.class);
+        if (domain == null) {
+            domain = domainContextProvider.getCurrentDomainSafely();
+        }
+        String domainCode = domain == null ? "global" : domain.getCode();
+
+        String key = domainCode + ":" + propertyName;
+        return cacheManager.getCache(DomibusCacheService.DOMIBUS_PROPERTY_CACHE).get(key, String.class);
+    }
+
+    private String getCachedValue(String propertyName) {
+        return getCachedValue(null, propertyName);
     }
 }
