@@ -83,7 +83,7 @@ public class WSPluginConfiguration {
                                              ClearAuthenticationMDCInterceptor clearAuthenticationMDCInterceptor,
                                              WSPluginFaultOutInterceptor wsPluginFaultOutInterceptor,
                                              @Qualifier("wsLoggingFeature") LoggingFeature wsLoggingFeature) {
-        EndpointImpl endpoint = new EndpointImpl(bus, backendWebService);
+        EndpointImpl endpoint = new EndpointImpl(bus, backendWebService); //NOSONAR
         Map<String, Object> endpointProperties = getEndpointProperties(wsPluginPropertyManager);
         endpoint.setProperties(endpointProperties);
         endpoint.setSchemaLocations(getSchemaLocations());

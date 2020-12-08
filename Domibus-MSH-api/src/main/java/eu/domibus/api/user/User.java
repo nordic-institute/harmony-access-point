@@ -142,4 +142,8 @@ public class User implements UserBase {
     public void setExpirationDate(LocalDateTime expirationDate) {
         this.expirationDate = expirationDate;
     }
+
+    public boolean isNew() {
+        return UserState.NEW.name().equals(getStatus());
+    }
 }

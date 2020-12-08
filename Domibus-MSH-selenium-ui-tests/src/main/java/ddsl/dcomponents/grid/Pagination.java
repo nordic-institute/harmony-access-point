@@ -244,4 +244,5 @@ public class Pagination extends DComponent {
 	public DObject getPageCount() {
 		return new DObject(driver, pageCount);
 	}
+
 }

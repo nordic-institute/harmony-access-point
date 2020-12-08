@@ -558,9 +558,10 @@ public class PluginUsersPgTest extends SeleniumTest {
 		soft.assertAll();
 	}
 	
-	
+
+	/* Disabled due to existing bug EDELIVERY-7472 */
 	/*	PU-32 - Create duplicate plugin users by smashing the save button multiple times 	*/
-	@Test(description = "PU-32", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "PU-32", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void newUserSaveMultipleSaves() throws Exception {
 		
 		String username = Gen.randomAlphaNumeric(9);

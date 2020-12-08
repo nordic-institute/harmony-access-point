@@ -7,19 +7,18 @@ import {SecurityService} from '../../security/security.service';
 import {SessionState} from '../../security/SessionState';
 import {SessionService} from '../../security/session.service';
 import {instanceOfModifiableList} from '../mixins/type.utils';
+import {ApplicationContextService} from '../application-context.service';
 
 @Injectable()
-export class DirtyGuard implements CanActivate, CanDeactivate<any> {
+export class DirtyGuard implements CanDeactivate<any> {
 
   constructor(private securityService: SecurityService) {
   };
 
-  canActivate(next: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> | Promise<boolean> | boolean {
-    return true;
-  }
-
   async canDeactivate(component: any, currentRoute: ActivatedRouteSnapshot, currentState: RouterStateSnapshot, nextState?: RouterStateSnapshot) {
-
+    if (currentState.url == nextState.url) {
+      return true;
+    }
     return this.securityService.canAbandonUnsavedChanges(component);
   }
 

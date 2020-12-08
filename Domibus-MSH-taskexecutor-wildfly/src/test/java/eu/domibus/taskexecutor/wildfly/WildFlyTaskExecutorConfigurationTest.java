@@ -24,6 +24,12 @@ public class WildFlyTaskExecutorConfigurationTest {
     }
 
     @Test
+    public void mshExecutorService() {
+        DomibusExecutorServiceFactory mshExecutorServiceFactory = wildFlyTaskExecutorConfiguration.mshExecutorService();
+        Assert.assertEquals(WildFlyTaskExecutorConfiguration.JAVA_JBOSS_EE_CONCURRENCY_EXECUTOR_MSH_EXECUTOR_SERVICE, mshExecutorServiceFactory.getExecutorServiceJndiName());
+    }
+
+    @Test
     public void quartzExecutorService() {
         DomibusExecutorServiceFactory domibusExecutorServiceFactory = wildFlyTaskExecutorConfiguration.quartzExecutorService();
         Assert.assertEquals(WildFlyTaskExecutorConfiguration.JAVA_JBOSS_EE_CONCURRENCY_EXECUTOR_QUARTZ_EXECUTOR_SERVICE, domibusExecutorServiceFactory.getExecutorServiceJndiName());
@@ -33,6 +39,16 @@ public class WildFlyTaskExecutorConfigurationTest {
     public void taskExecutor(@Injectable ManagedExecutorService managedExecutorService,
                              @Mocked DomibusWildFlyTaskExecutor domibusWildFlyTaskExecutor) {
         wildFlyTaskExecutorConfiguration.taskExecutor(managedExecutorService);
+
+        new Verifications() {{
+            domibusWildFlyTaskExecutor.setExecutorService(managedExecutorService);
+        }};
+    }
+
+    @Test
+    public void mshTaskExecutor(@Injectable ManagedExecutorService managedExecutorService,
+                             @Mocked DomibusWildFlyTaskExecutor domibusWildFlyTaskExecutor) {
+        wildFlyTaskExecutorConfiguration.mshTaskExecutor(managedExecutorService);
 
         new Verifications() {{
             domibusWildFlyTaskExecutor.setExecutorService(managedExecutorService);

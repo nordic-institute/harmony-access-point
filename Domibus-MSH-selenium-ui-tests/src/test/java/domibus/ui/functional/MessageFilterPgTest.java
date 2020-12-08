@@ -1,5 +1,6 @@
 package domibus.ui.functional;
 
+import ddsl.dcomponents.grid.DGrid;
 import ddsl.dcomponents.popups.Dialog;
 import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
@@ -1205,6 +1206,51 @@ public class MessageFilterPgTest extends SeleniumTest {
 		} else {
 			throw new SkipException("Only one plugin found, this test is skipped");
 		}
+		soft.assertAll();
+	}
+
+
+	/* MSGF-34 - Verify downloaded CSV file against data in the grid  */
+	@Test(description = "MSGF-34", groups = {"multiTenancy", "singleTenancy"})
+	public void downloadAsCSV() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		MessageFilterPage page = navigateToPage();
+
+		DGrid grid = page.grid();
+		grid.waitForRowsToLoad();
+
+		String filePath = page.pressSaveCsvAndSaveFile();
+
+		log.info("Check if file is downloaded at given location");
+		soft.assertTrue(new File(filePath).exists(), "File is downloaded successfully");
+
+		log.info("Compare headers from downloaded csv and grid");
+		page.grid().checkCSVvsGridHeaders(filePath, soft);
+
+
+		soft.assertAll();
+	}
+
+	/* MSGF-35 - Sort the grid  */
+	@Test(description = "MSGF-35", groups = {"multiTenancy", "singleTenancy"})
+	public void checkSorting() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		MessageFilterPage page = navigateToPage();
+
+		DGrid grid = page.grid();
+		grid.waitForRowsToLoad();
+
+		log.info("Check default sorted column");
+		soft.assertNull(grid.getSortedColumnName(), "Grid is not sortable and no column is marked as sorted by default");
+
+		grid.sortBy("Plugin");
+
+		log.info("Check sorted column name after sorting attempt");
+		soft.assertNull(grid.getSortedColumnName(), "Grid is not sortable and no column is marked as sorted ");
+
+
 		soft.assertAll();
 	}
 

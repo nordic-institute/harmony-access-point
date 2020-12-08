@@ -1,6 +1,7 @@
 package utils.driver;
 
 import org.apache.commons.lang3.StringUtils;
+import org.openqa.selenium.Dimension;
 import org.openqa.selenium.Proxy;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -35,7 +36,8 @@ public class DriverManager {
 		} else {
 			driver = getChromeDriver();
 		}
-		driver.manage().window().maximize();
+//		driver.manage().window().maximize();
+		driver.manage().window().setSize(new Dimension(1920,1080));
 		driver.manage().timeouts().implicitlyWait(2, TimeUnit.SECONDS);
 		return driver;
 	}
@@ -60,7 +62,7 @@ public class DriverManager {
 		if (data.useProxy()) {
 			options.setCapability(CapabilityType.PROXY, getProxy());
 		}
-		
+
 		return new ChromeDriver(options);
 	}
 	
@@ -68,7 +70,7 @@ public class DriverManager {
 		System.setProperty("webdriver.gecko.driver", data.getFirefoxDriverPath());
 		
 		FirefoxOptions options = new FirefoxOptions();
-		
+		options.setHeadless(data.isHeadless());
 		//code added for auto download
 		options.addPreference("browser.download.folderList", 2);
 		options.addPreference("browser.download.manager.showWhenStarting",false);

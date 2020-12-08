@@ -3,6 +3,7 @@ package domibus.ui.functional;
 import ddsl.enums.PAGES;
 import domibus.ui.SeleniumTest;
 import org.apache.commons.lang3.StringUtils;
+import org.testng.SkipException;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.connectionMon.ConnectionMonitoringPage;
@@ -20,11 +21,11 @@ import java.util.List;
 
 public class ConnectionMonitorTest extends SeleniumTest {
 	
-	/* TS-1 - Login as super admin and open Connections Monitoring page */
-	@Test(description = "TS-1", groups = {"multiTenancy", "singleTenancy"}, enabled = true)
+	/* CM-2 - Login as super admin and open Connections Monitoring page */
+	@Test(description = "CM-2", groups = {"multiTenancy", "singleTenancy"})
 	public void openWindow() throws Exception {
 		SoftAssert soft = new SoftAssert();
-		
+
 		ConnectionMonitoringPage page = new ConnectionMonitoringPage(driver);
 		page.getSidebar().goToPage(PAGES.CONNECTION_MONITORING);
 		
@@ -35,6 +36,23 @@ public class ConnectionMonitorTest extends SeleniumTest {
 		
 		log.info("checking page ..");
 		soft.assertTrue(page.isLoaded(), "Page shows all desired elements");
+		soft.assertAll();
+	}
+
+	/* CM-1 - Login as system admin and open Connection Monitoring page without proper Pmode */
+	@Test(description = "CM-1", groups = {"multiTenancy", "singleTenancy"})
+	public void openWindowNoPmode() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		ConnectionMonitoringPage page = new ConnectionMonitoringPage(driver);
+		page.getSidebar().goToPage(PAGES.CONNECTION_MONITORING);
+
+		if (!rest.pmode().isPmodeUploaded(null)) {
+			log.info("checking error message when no pmode is uploaded");
+			soft.assertTrue(page.invalidConfigurationState(), "Page shows invalid configuration state");
+		}else {
+			throw new SkipException("Pmode already uploaded, test could not be executed");
+		}
 		soft.assertAll();
 	}
 

@@ -13,7 +13,16 @@ import org.springframework.context.annotation.Configuration;
 public class WebLogicTaskExecutorConfiguration {
 
     public static final String JAVA_COMP_ENV_DOMIBUS_WORK_MANAGER = "java:comp/env/DomibusWorkManager";
+    public static final String JAVA_COMP_ENV_MSH_WORK_MANAGER = "java:comp/env/MshWorkManager";
     public static final String JAVA_COMP_ENV_QUARTZ_WORK_MANAGER = "java:comp/env/QuartzWorkManager";
+
+
+    @Bean("mshWorkManager")
+    public WorkManagerFactory mshWorkManagerFactory() {
+        WorkManagerFactory workManagerFactory = new WorkManagerFactory();
+        workManagerFactory.setWorkManagerJndiName(JAVA_COMP_ENV_MSH_WORK_MANAGER);
+        return workManagerFactory;
+    }
 
     @Bean("domibusWorkManager")
     public WorkManagerFactory workManagerFactory() {
@@ -27,6 +36,13 @@ public class WebLogicTaskExecutorConfiguration {
         WorkManagerFactory workManagerFactory = new WorkManagerFactory();
         workManagerFactory.setWorkManagerJndiName(JAVA_COMP_ENV_QUARTZ_WORK_MANAGER);
         return workManagerFactory;
+    }
+
+    @Bean("mshTaskExecutor")
+    public DomibusWorkManagerTaskExecutor mshTaskExecutor(@Qualifier("mshWorkManager") WorkManager workManager) {
+        DomibusWorkManagerTaskExecutor domibusWorkManagerTaskExecutor = new DomibusWorkManagerTaskExecutor();
+        domibusWorkManagerTaskExecutor.setWorkManager(workManager);
+        return domibusWorkManagerTaskExecutor;
     }
 
     @Bean("taskExecutor")
