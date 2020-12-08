@@ -5,21 +5,24 @@ import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
 import eu.domibus.ext.domain.Module;
 import eu.domibus.ext.exceptions.DomibusPropertyExtException;
-import eu.domibus.ext.services.*;
+import eu.domibus.ext.services.DomainContextExtService;
+import eu.domibus.ext.services.DomibusConfigurationExtService;
+import eu.domibus.ext.services.DomibusPropertyExtServiceDelegateAbstract;
+import eu.domibus.ext.services.PasswordEncryptionExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.fs.property.listeners.TriggerChangeListener;
 import eu.domibus.plugin.fs.worker.FSSendMessagesService;
-import eu.domibus.plugin.property.PluginPropertyChangeNotifier;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static eu.domibus.plugin.fs.property.FSPluginPropertiesMetadataManagerImpl.*;
 import static eu.domibus.plugin.fs.worker.FSSendMessagesService.DEFAULT_DOMAIN;
@@ -29,19 +32,18 @@ import static eu.domibus.plugin.fs.worker.FSSendMessagesService.DEFAULT_DOMAIN;
  * <p>
  * All the plugin configurable properties must be accessed and handled through this component.
  *
- * @author @author FERNANDES Henrique, GONCALVES Bruno
+ * @author FERNANDES Henrique
+ * @author GONCALVES Bruno
  */
 @Service
-public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstract implements DomibusPropertyManagerExt {
+public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstract {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FSPluginProperties.class);
 
     private static final String DOT = ".";
 
-    private static final String DEFAULT_CONTENT_ID = "cid:message";
-
-    @Resource(name = "fsPluginProperties")
-    private Properties properties;
+    @Value("${fsplugin.domains.list:}")//still keeping this for reading fs plugin domain list
+    private String fsPluginDomainsList;
 
     @Autowired
     protected PasswordEncryptionExtService pluginPasswordEncryptionService;
@@ -55,11 +57,9 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
     @Autowired
     protected DomainContextExtService domainContextProvider;
 
-    @Autowired
-    @Lazy
-    PluginPropertyChangeNotifier pluginPropertyChangeNotifier;
+    private volatile List<String> domains;
 
-    private List<String> domains;
+    protected final Object domainsLock = new Object();
 
     protected Map<String, DomibusPropertyMetadataDTO> knownProperties;
 
@@ -67,27 +67,71 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
 
     public static final String ACTION_ARCHIVE = "archive";
 
+
     /**
-     * @return The available domains set
+     * Get the FS Plugin domain list
+     * @return The available domains list
      */
-    public List<String> getDomains() {
+    public List<String> getDomainsOrdered() {
+        Collections.sort(getDomains(), (domain1, domain2) -> {
+            Integer domain1Order = getOrder(domain1);
+            Integer domain2Order = getOrder(domain2);
+            return domain1Order - domain2Order;
+        });
+
+        return domains;
+    }
+
+    protected List<String> getDomains() {
         if (domains == null) {
-            domains = readDomains();
+            synchronized (domainsLock) {
+                if (domains == null) {
+                    domains = readDomains();
+                }
+            }
         }
         return domains;
     }
 
     public void resetDomains() {
         LOG.debug("Resetting domains");
-        domains = null;
+        synchronized (domainsLock) {
+            domains = null;
+        }
     }
 
+    protected List<String> readDomains() {
+        List<String> tempDomains = new ArrayList<>();
+
+        //getting domains list
+        String domainsListStr = fsPluginDomainsList;
+        if (StringUtils.isNotBlank(domainsListStr)) {
+            List<String> fsPluginDomains = Stream.of(domainsListStr.split(","))
+                    .map(String::trim)
+                    .distinct()
+                    .collect(Collectors.toList());
+            LOG.debug("The following domains were found [{}]", fsPluginDomains);
+            tempDomains.addAll(fsPluginDomains);
+        }
+
+        if (!tempDomains.contains(DEFAULT_DOMAIN)) {
+            tempDomains.add(DEFAULT_DOMAIN);
+        }
+
+        return tempDomains;
+    }
     /**
      * @param domain The domain property qualifier
      * @return The location of the directory that the plugin will use to manage the messages to be sent and received
      */
     public String getLocation(String domain) {
-        return getDomainProperty(domain, LOCATION, System.getProperty("java.io.tmpdir"));
+        String value = getDomainProperty(domain, LOCATION);
+        if (StringUtils.isBlank(value)) {
+            String tmpFolder = System.getProperty("java.io.tmpdir");
+            LOG.warn("[{}] property not set for domain=[{}] going to use [{}]", LOCATION, domain, tmpFolder);
+            return tmpFolder;
+        }
+        return value;
     }
 
     /**
@@ -95,14 +139,15 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
      * @return The plugin action when message is sent successfully from C2 to C3 ('delete' or 'archive')
      */
     public String getSentAction(String domain) {
-        return getDomainProperty(domain, SENT_ACTION, ACTION_DELETE);
+        return getDomainProperty(domain, SENT_ACTION);
     }
 
     /**
      * @return The cron expression that defines the frequency of the sent messages purge job
+     * @param domain The domain property qualifier
      */
     public String getSentPurgeWorkerCronExpression(String domain) {
-        return getDomainProperty(domain, SENT_PURGE_WORKER_CRONEXPRESSION, null);
+        return getDomainProperty(domain, SENT_PURGE_WORKER_CRONEXPRESSION);
     }
 
     /**
@@ -110,18 +155,17 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
      * @return The time interval (seconds) to purge sent messages
      */
     public Integer getSentPurgeExpired(String domain) {
-        String value = getDomainProperty(domain, SENT_PURGE_EXPIRED, "600");
-        return NumberUtils.toInt(value);
+        return getDomainIntegerProperty(domain, SENT_PURGE_EXPIRED);
     }
+
 
     /**
      * Gets the threshold value that will be used to schedule payloads for async saving
      *
-     * @param domain The domain for which the value will be retrieved
      * @return The threshold value in MB
      */
-    public Long getPayloadsScheduleThresholdMB(String domain) {
-        String value = getDomainProperty(domain, PAYLOAD_SCHEDULE_THRESHOLD, "1000");
+    public Long getPayloadsScheduleThresholdMB() {
+        String value = super.getKnownPropertyValue(PAYLOAD_SCHEDULE_THRESHOLD);
         return NumberUtils.toLong(value);
     }
 
@@ -130,28 +174,31 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
      * @return The plugin action when message fails
      */
     public String getFailedAction(String domain) {
-        return getDomainProperty(domain, FAILED_ACTION, ACTION_DELETE);
+        return getDomainProperty(domain, FAILED_ACTION);
     }
 
     /**
+     * @param domain The domain property qualifier
      * @return The cron expression that defines the frequency of the failed messages purge job
      */
     public String getFailedPurgeWorkerCronExpression(String domain) {
-        return getDomainProperty(domain, FAILED_PURGE_WORKER_CRONEXPRESSION, null);
+        return getDomainProperty(domain, FAILED_PURGE_WORKER_CRONEXPRESSION);
     }
 
     /**
+     * @param domain The domain property qualifier
      * @return The cron expression that defines the frequency of the received messages purge job
      */
     public String getReceivedPurgeWorkerCronExpression(String domain) {
-        return getDomainProperty(domain, RECEIVED_PURGE_WORKER_CRONEXPRESSION, null);
+        return getDomainProperty(domain, RECEIVED_PURGE_WORKER_CRONEXPRESSION);
     }
 
     /**
+     * @param domain  The domain property qualifier
      * @return The cron expression that defines the frequency of the orphan lock files purge job
      */
     public String getLocksPurgeWorkerCronExpression(String domain) {
-        return getDomainProperty(domain, LOCKS_PURGE_WORKER_CRONEXPRESSION, null);
+        return getDomainProperty(domain, LOCKS_PURGE_WORKER_CRONEXPRESSION);
     }
 
     /**
@@ -159,8 +206,7 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
      * @return The time interval (seconds) to purge failed messages
      */
     public Integer getFailedPurgeExpired(String domain) {
-        String value = getDomainProperty(domain, FAILED_PURGE_EXPIRED, "600");
-        return NumberUtils.toInt(value);
+        return getDomainIntegerProperty(domain, FAILED_PURGE_EXPIRED);
     }
 
     /**
@@ -168,8 +214,7 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
      * @return The time interval (seconds) to purge received messages
      */
     public Integer getReceivedPurgeExpired(String domain) {
-        String value = getDomainProperty(domain, RECEIVED_PURGE_EXPIRED, "600");
-        return NumberUtils.toInt(value);
+        return getDomainIntegerProperty(domain, RECEIVED_PURGE_EXPIRED);
     }
 
     /**
@@ -177,8 +222,7 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
      * @return The time interval (seconds) to purge orphan lock files
      */
     public Integer getLocksPurgeExpired(String domain) {
-        String value = getDomainProperty(domain, LOCKS_PURGE_EXPIRED, "600");
-        return NumberUtils.toInt(value);
+        return getDomainIntegerProperty(domain, LOCKS_PURGE_EXPIRED);
     }
 
     /**
@@ -186,7 +230,7 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
      * @return the user used to access the location specified by the property
      */
     public String getUser(String domain) {
-        return getDomainProperty(domain, USER, null);
+        return getDomainProperty(domain, USER);
     }
 
     /**
@@ -196,7 +240,7 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
      * @return The identifier used to reference payloads of messages belonging to a particular domain.
      */
     public String getPayloadId(String domain) {
-        return getDomainProperty(domain, PAYLOAD_ID, DEFAULT_CONTENT_ID);
+        return getDomainProperty(domain, PAYLOAD_ID);
     }
 
     /**
@@ -204,7 +248,7 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
      * @return the password used to access the location specified by the property
      */
     public String getPassword(String domain) {
-        String result = getDomainProperty(domain, PASSWORD, null);
+        String result = getDomainProperty(domain, PASSWORD);
         if (pluginPasswordEncryptionService.isValueEncrypted(result)) {
             LOG.debug("Decrypting property [{}] for domain [{}]", PASSWORD, domain);
             //passwords are encrypted using the key of the default domain; this is because there is no clear segregation between FS Plugin properties per domain
@@ -219,7 +263,7 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
      * @return the user used to authenticate
      */
     public String getAuthenticationUser(String domain) {
-        return getDomainPropertyNoDefault(domain, AUTHENTICATION_USER, null);
+        return getDomainProperty(domain, AUTHENTICATION_USER);
     }
 
     /**
@@ -227,7 +271,7 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
      * @return the password used to authenticate
      */
     public String getAuthenticationPassword(String domain) {
-        String result = getDomainPropertyNoDefault(domain, AUTHENTICATION_PASSWORD, null);
+        String result = getDomainProperty(domain, AUTHENTICATION_PASSWORD);
         if (pluginPasswordEncryptionService.isValueEncrypted(result)) {
             LOG.debug("Decrypting property [{}] for domain [{}]", AUTHENTICATION_PASSWORD, domain);
             //passwords are encrypted using the key of the default domain; this is because there is no clear segregation between FS Plugin properties per domain
@@ -242,16 +286,11 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
      * @return the domain order
      */
     public Integer getOrder(String domain) {
-        String value = getDomainProperty(domain, ORDER, null);
-        return getInteger(value, Integer.MAX_VALUE);
-    }
-
-    Properties getProperties() {
-        return properties;
-    }
-
-    void setProperties(Properties properties) {
-        this.properties = properties;
+        String value = getDomainProperty(domain, ORDER);
+        if (StringUtils.isNotBlank(value)) {
+           return NumberUtils.toInt(value);
+        }
+        return Integer.MAX_VALUE;
     }
 
     /**
@@ -259,7 +298,7 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
      * @return the regex expression used to determine the domain location
      */
     public String getExpression(String domain) {
-        return getDomainProperty(domain, EXPRESSION, null);
+        return getDomainProperty(domain, EXPRESSION);
     }
 
     /**
@@ -269,7 +308,7 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
      * @return concurrency value
      */
     public String getMessageOutQueueConcurrency(final String domain) {
-        return getDomainProperty(domain, OUT_QUEUE_CONCURRENCY, "5-10");
+        return getDomainProperty(domain, OUT_QUEUE_CONCURRENCY);
     }
 
     /**
@@ -277,8 +316,7 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
      * @return delay value in milliseconds
      */
     public Integer getSendDelay(String domain) {
-        String value = getDomainProperty(domain, SEND_DELAY, null);
-        return getInteger(value, 2000);
+        return getDomainIntegerProperty(domain, SEND_DELAY);
     }
 
     /**
@@ -286,8 +324,7 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
      * @return send worker interval in milliseconds
      */
     public Integer getSendWorkerInterval(String domain) {
-        String value = getDomainProperty(domain, SEND_WORKER_INTERVAL, null);
-        return getInteger(value, 10000);
+        return  getDomainIntegerProperty(domain, SEND_WORKER_INTERVAL);
     }
 
     /**
@@ -326,89 +363,55 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
      * @return True if password encryption is active
      */
     public boolean isPasswordEncryptionActive() {
-        final String passwordEncryptionActive = getDomainPropertyNoDefault(DEFAULT_DOMAIN, PASSWORD_ENCRYPTION_ACTIVE, "false");
+        final String passwordEncryptionActive = getDomainProperty(DEFAULT_DOMAIN, PASSWORD_ENCRYPTION_ACTIVE);
         return BooleanUtils.toBoolean(passwordEncryptionActive);
     }
 
 
-    public String getDomainProperty(String domain, String propertyName, String defaultValue) {
-        String domainFullPropertyName = getDomainPropertyName(domain, propertyName);
-        if (properties.containsKey(domainFullPropertyName)) {
-            return properties.getProperty(domainFullPropertyName, defaultValue);
+    /**
+     * get the base (mapped to default) and other domains property
+     * @param domain
+     * @param propertyName
+     * @return
+     */
+    public String getDomainProperty(String domain, String propertyName) {
+        if (domibusConfigurationExtService.isMultiTenantAware()) {
+            DomainDTO domainDTO = domainExtService.getDomain(domain);
+            return domibusPropertyExtService.getProperty(domainDTO, propertyName);
         }
-        return properties.getProperty(PROPERTY_PREFIX + propertyName, defaultValue);
+        //ST
+        return getDomainPropertyST(domain, propertyName);
     }
 
-    public String getDomainPropertyNoDefault(String domain, String propertyName, String defaultValue) {
-        String domainFullPropertyName = getDomainPropertyName(domain, propertyName);
-        if (properties.containsKey(domainFullPropertyName)) {
-            return properties.getProperty(domainFullPropertyName, defaultValue);
-        }
-        if (DEFAULT_DOMAIN.equals(domain)) {
-            if (!StringUtils.startsWith(propertyName, PROPERTY_PREFIX)) {
-                propertyName = PROPERTY_PREFIX + propertyName;
-            }
-            return properties.getProperty(propertyName, defaultValue);
-        }
-        // cannot use default values
-        return null;
-    }
+    protected String getDomainPropertyST(String domain, String propertyName) {
 
-    private Integer getInteger(String value, Integer defaultValue) {
-        Integer result = defaultValue;
-        if (StringUtils.isNotEmpty(value)) {
-            result = Integer.valueOf(value);
+        //default domain
+        if (DEFAULT_DOMAIN.equalsIgnoreCase(domain)) {
+            LOG.debug("Retrieving property [{}] for default domain", propertyName);
+            return super.getKnownPropertyValue(propertyName);
         }
-        return result;
-    }
 
-    protected List<String> readDomains() {
-        List<String> tempDomains = new ArrayList<>();
-
-        for (String propName : properties.stringPropertyNames()) {
-            if (propName.startsWith(DOMAIN_PREFIX)) {
-                String domain = extractDomainName(propName);
-                if (!tempDomains.contains(domain)) {
-                    tempDomains.add(domain);
+        //FS Plugin domain like properties for ST
+        String value;
+        String propertyNameFinal = domain + DOT + propertyName;
+        LOG.debug("Retrieving property [{}] for [{}] domain", propertyNameFinal, domain);
+        value = super.getKnownPropertyValue(propertyNameFinal);
+        if (value == null) {
+            DomibusPropertyMetadataDTO propertyMetadataDTO = getKnownProperties().get(propertyNameFinal);
+            if (propertyMetadataDTO.isWithFallback()) { //try to get the value from default properties file
+                LOG.debug("going to obtain default value for property [{}] which has fallback", propertyNameFinal);
+                value = super.getKnownPropertyValue(propertyName);
+                if (value == null) {
+                    throw new DomibusPropertyExtException("FSPlugin property [" + propertyNameFinal + "] is empty or not present in fs-plugin.properties file");
                 }
             }
         }
-        if (!tempDomains.contains(DEFAULT_DOMAIN)) {
-            tempDomains.add(DEFAULT_DOMAIN);
-        }
-
-        Collections.sort(tempDomains, (domain1, domain2) -> {
-            Integer domain1Order = getOrder(domain1);
-            Integer domain2Order = getOrder(domain2);
-            return domain1Order - domain2Order;
-        });
-        return tempDomains;
+        return value;
     }
 
-    private String getDomainPropertyName(String domain, String propertyName) {
-        if (domain == null) {
-            return propertyName;
-        }
-        String basePropertyName = getBasePropertyName(propertyName);
-        return DOMAIN_PREFIX + domain + DOT + basePropertyName;
-    }
-
-    private String extractDomainName(String propName) {
-        String unPrefixedProp = StringUtils.removeStart(propName, DOMAIN_PREFIX);
-        return StringUtils.substringBefore(unPrefixedProp, DOT);
-    }
-
-    private String getBasePropertyName(String propName) {
-        String baseName = propName;
-        if (baseName.startsWith(DOMAIN_PREFIX)) { // fsplugin.domains.x.baseName
-            LOG.trace("Processing a domain property name [{}]", baseName);
-            baseName = StringUtils.removeStart(baseName, DOMAIN_PREFIX);
-            baseName = StringUtils.substringAfter(baseName, DOT); // remove the domain name
-        } else if (baseName.startsWith(PROPERTY_PREFIX)) { // fsplugin.baseName
-            LOG.trace("Processing a non-domain property name [{}]", baseName);
-            baseName = StringUtils.removeStart(baseName, PROPERTY_PREFIX);
-        }
-        return baseName;
+    protected Integer getDomainIntegerProperty(String domain, String propertyName) {
+        String value = getDomainProperty(domain, propertyName);
+        return NumberUtils.toInt(value);
     }
 
     @Override
@@ -416,12 +419,11 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
         if (knownProperties != null) {
             return knownProperties;
         }
-
         knownProperties = new HashMap<>();
 
         Map<String, DomibusPropertyMetadataDTO> baseProperties = fsPluginPropertiesMetadataManager.getKnownProperties();
 
-        // in multi-tenancy mode - we only expose the "base" properties from the current domain
+       //  in multi-tenancy mode - we only expose the "base" properties from the current domain
         if (domibusConfigurationExtService.isMultiTenantAware()) {
             updatePropertiesForMultitenancy(baseProperties);
             return knownProperties;
@@ -432,18 +434,12 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
         return knownProperties;
     }
 
+
     protected void updatePropertiesForSingletenancy(Map<String, DomibusPropertyMetadataDTO> baseProperties) {
         for (DomibusPropertyMetadataDTO propMeta : baseProperties.values()) {
             if (shouldMultiplyPropertyMetadata(propMeta)) {
-                LOG.debug("Multiplying the domain property [{}] for each domain.", propMeta.getName());
-                for (String domain : getDomains()) {
-                    String name = getDomainPropertyName(domain, propMeta.getName());
-                    DomibusPropertyMetadataDTO propertyMetadata = new DomibusPropertyMetadataDTO(name, propMeta.getType(), Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Usage.DOMAIN, propMeta.isWithFallback());
-                    propertyMetadata.setStoredGlobally(propMeta.isStoredGlobally());
-                    knownProperties.put(propertyMetadata.getName(), propertyMetadata);
-                }
+                multiplyProperty(propMeta);
             } else {
-                updatePropertyName(propMeta);
                 //if not multiplied, the usage should be global
                 propMeta.setUsage(DomibusPropertyMetadataDTO.Usage.GLOBAL);
                 knownProperties.put(propMeta.getName(), propMeta);
@@ -451,79 +447,21 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
         }
     }
 
+    private void multiplyProperty(DomibusPropertyMetadataDTO propMeta) {
+        LOG.debug("Multiplying the domain property [{}] for each domain.", propMeta.getName());
+        for (String domain : getDomains()) {
+            String name = (DEFAULT_DOMAIN.equals(domain) ? StringUtils.EMPTY : domain + DOT) + propMeta.getName();
+            DomibusPropertyMetadataDTO propertyMetadata = new DomibusPropertyMetadataDTO(name, propMeta.getType(),
+                    Module.FS_PLUGIN, DomibusPropertyMetadataDTO.Usage.DOMAIN, propMeta.isWithFallback());
+            propertyMetadata.setStoredGlobally(true);
+            knownProperties.put(propertyMetadata.getName(), propertyMetadata);
+        }
+    }
+
     protected void updatePropertiesForMultitenancy(Map<String, DomibusPropertyMetadataDTO> baseProperties) {
         for (DomibusPropertyMetadataDTO propMeta : baseProperties.values()) {
-            updatePropertyName(propMeta);
             knownProperties.put(propMeta.getName(), propMeta);
         }
-    }
-
-    private void updatePropertyName(DomibusPropertyMetadataDTO propMeta) {
-        String name = propMeta.getName().contains(PROPERTY_PREFIX) ? propMeta.getName() : PROPERTY_PREFIX + propMeta.getName();
-        propMeta.setName(name);
-        LOG.debug("Update the simple property name [{}] of the known property list.", name);
-    }
-
-    @Override
-    public boolean hasKnownProperty(String name) {
-        return this.getKnownProperties().containsKey(name);
-    }
-
-    public String getKnownPropertyValue(String domainCode, String propertyName) {
-        if (!hasKnownProperty(propertyName)) {
-            throw new DomibusPropertyExtException("Unknown property name: " + propertyName);
-        }
-
-        // propertyName may or may not already include the domaincode (in single-tenancy vs multi-tenancy)
-        if (propertyName.startsWith(DOMAIN_PREFIX) && this.properties.containsKey(propertyName)) {
-            return this.properties.getProperty(propertyName);
-        }
-        String baseName = getBasePropertyName(propertyName);
-        String key1 = DOMAIN_PREFIX + domainCode + DOT + baseName;
-        String key2 = PROPERTY_PREFIX + baseName;
-
-        if (this.properties.containsKey(key1)) {
-            return this.properties.getProperty(key1);
-        }
-        if (this.properties.containsKey(key2)) {
-            return this.properties.getProperty(key2);
-        }
-        return null;
-    }
-
-    @Override
-    public String getKnownPropertyValue(String propertyName) {
-        DomainDTO currentDomain = domainContextProvider.getCurrentDomainSafely();
-        String domainCode = currentDomain == null ? null : currentDomain.getCode();
-        return getKnownPropertyValue(domainCode, propertyName);
-    }
-
-    @Override
-    public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue, boolean broadcast) {
-        LOG.debug("Updating value of property [{}] on domain [{}]", propertyName, domainCode);
-        if (!hasKnownProperty(propertyName)) {
-            throw new DomibusPropertyExtException("Unknown property name: " + propertyName);
-        }
-
-        String propertyKey = propertyName;
-        if (domibusConfigurationExtService.isMultiTenantAware()) {
-            propertyKey = getDomainPropertyName(domainCode, propertyName);
-        }
-        this.properties.setProperty(propertyKey, propertyValue);
-
-        LOG.debug("Signaling property value changed for [{}] property, broadcast: [{}]", propertyName, broadcast);
-        pluginPropertyChangeNotifier.signalPropertyValueChanged(domainCode, propertyName, propertyValue, broadcast);
-    }
-
-    public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue) {
-        setKnownPropertyValue(domainCode, propertyName, propertyValue, true);
-    }
-
-    @Override
-    public void setKnownPropertyValue(String propertyName, String propertyValue) {
-        DomainDTO currentDomain = domainContextProvider.getCurrentDomainSafely();
-        String domainCode = currentDomain == null ? null : currentDomain.getCode();
-        setKnownPropertyValue(domainCode, propertyName, propertyValue);
     }
 
     protected boolean shouldMultiplyPropertyMetadata(DomibusPropertyMetadataDTO propMeta) {

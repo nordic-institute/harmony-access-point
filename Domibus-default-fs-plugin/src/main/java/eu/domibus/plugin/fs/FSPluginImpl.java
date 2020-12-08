@@ -169,7 +169,7 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
                 LOG.info("Message metadata file written at: [{}]", fileObject.getName().getURI());
             }
 
-            final boolean scheduleFSMessagePayloadsSaving = scheduleFSMessagePayloadsSaving(fsMessage, fsPluginDomain);
+            final boolean scheduleFSMessagePayloadsSaving = scheduleFSMessagePayloadsSaving(fsMessage);
             if (scheduleFSMessagePayloadsSaving) {
                 LOG.debug("FSMessage payloads for message [{}] will be scheduled for saving", messageId);
 
@@ -223,10 +223,9 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
      * Checks if the message payloads will be scheduled(async) or directly(sync) saved
      *
      * @param fsMessage The message payloads to be checked
-     * @param domain    The current domain
      * @return true if the payloads will be scheduled for saving
      */
-    protected boolean scheduleFSMessagePayloadsSaving(FSMessage fsMessage, String domain) {
+    protected boolean scheduleFSMessagePayloadsSaving(FSMessage fsMessage) {
         final Map<String, FSPayload> payloads = fsMessage.getPayloads();
         if (payloads == null || payloads.isEmpty()) {
             LOG.debug("FSMessage does not have any payloads");
@@ -240,7 +239,7 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
 
         LOG.debug("FSMessage payloads totalPayloadLength(bytes) [{}]", totalPayloadLength);
 
-        final Long payloadsScheduleThresholdMB = fsPluginProperties.getPayloadsScheduleThresholdMB(domain);
+        final Long payloadsScheduleThresholdMB = fsPluginProperties.getPayloadsScheduleThresholdMB();
         LOG.debug("Using configured payloadsScheduleThresholdMB [{}]", payloadsScheduleThresholdMB);
 
         final Long payloadsScheduleThresholdBytes = payloadsScheduleThresholdMB * FileUtils.ONE_MB;

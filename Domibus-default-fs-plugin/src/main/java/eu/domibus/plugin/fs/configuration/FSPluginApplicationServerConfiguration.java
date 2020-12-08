@@ -40,7 +40,7 @@ public class FSPluginApplicationServerConfiguration {
     public JndiObjectFactoryBean sendMessageQueue(FSPluginProperties fsPluginProperties) {
         JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
 
-        String sendQueueJndi = fsPluginProperties.getKnownPropertyValue(FSPluginPropertiesMetadataManagerImpl.PROPERTY_PREFIX + FSPluginPropertiesMetadataManagerImpl.OUT_QUEUE);
+        String sendQueueJndi = fsPluginProperties.getKnownPropertyValue(FSPluginPropertiesMetadataManagerImpl.OUT_QUEUE);
         LOG.debug("Using send queue jndi [{}]", sendQueueJndi);
         jndiObjectFactoryBean.setJndiName(sendQueueJndi);
 
