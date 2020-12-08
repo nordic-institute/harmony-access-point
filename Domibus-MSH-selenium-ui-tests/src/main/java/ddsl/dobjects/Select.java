@@ -139,5 +139,14 @@ public class Select extends DComponent {
 		contract();
 		return texts;
 	}
-	
+
+	public boolean isEnabled() {
+//		aria-disabled="true"
+		boolean isEnabled = true;
+		try {
+			isEnabled = !Boolean.valueOf(weToDobject(selectContainer).getAttribute("aria-disabled"));
+		}catch (Exception e){}
+
+		return isEnabled;
+	}
 }
