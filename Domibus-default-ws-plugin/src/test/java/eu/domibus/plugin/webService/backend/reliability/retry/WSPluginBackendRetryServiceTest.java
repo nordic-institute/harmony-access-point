@@ -6,7 +6,7 @@ import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.webService.backend.WSBackendMessageLogDao;
 import eu.domibus.plugin.webService.backend.WSBackendMessageLogEntity;
 import eu.domibus.plugin.webService.backend.WSBackendMessageType;
-import eu.domibus.plugin.webService.backend.queue.WSSendMessageListener;
+import eu.domibus.plugin.webService.backend.reliability.queue.WSSendMessageListener;
 import eu.domibus.plugin.webService.backend.rules.WSPluginDispatchRule;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -14,6 +14,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import javax.jms.JMSException;
 import javax.jms.Queue;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -119,7 +120,7 @@ public class WSPluginBackendRetryServiceTest {
     }
 
     @Test
-    public void sendNotifications(@Mocked WSBackendMessageLogEntity entity1, @Mocked WSBackendMessageLogEntity entity2) {
+    public void sendNotifications(@Mocked WSBackendMessageLogEntity entity1, @Mocked WSBackendMessageLogEntity entity2) throws JMSException {
         List<WSBackendMessageLogEntity> entities = Arrays.asList(entity1, entity2);
         new Expectations(retryService) {{
             retryService.getMessagesNotAlreadyScheduled();
@@ -143,6 +144,9 @@ public class WSPluginBackendRetryServiceTest {
 
             entity2.getType();
             result = WSBackendMessageType.SEND_FAILURE;
+
+            wsPluginSendQueue.getQueueName();
+            result = "queueName";
         }};
         retryService.sendWaitingForRetry();
 
@@ -159,6 +163,9 @@ public class WSPluginBackendRetryServiceTest {
             assertEquals(BACKEND_MESSAGE_ID2, jmsMessageDTO.get(1).getProperties().get(WSSendMessageListener.ID));
             assertEquals(WSBackendMessageType.SEND_FAILURE.name(), jmsMessageDTO.get(1).getProperties().get(WSSendMessageListener.TYPE));
 
+
+            entity1.setScheduled(true);
+            entity2.setScheduled(true);
         }};
     }
 }

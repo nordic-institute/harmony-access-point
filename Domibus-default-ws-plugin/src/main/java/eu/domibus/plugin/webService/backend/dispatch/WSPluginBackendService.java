@@ -52,7 +52,7 @@ public class WSPluginBackendService {
         for (WSBackendMessageType messageType : messageTypes) {
             for (WSPluginDispatchRule rule : rules) {
                 if (rule.getTypes().contains(messageType)) {
-                    LOG.info("Rule [{}] found for message id [{}] and recipient [{}]", rule.getRuleName(), messageId, finalRecipient);
+                    LOG.debug("Rule [{}] found for recipient [{}]", rule.getRuleName(), finalRecipient);
                     retryService.send(messageId, finalRecipient, originalSender, rule, messageType);
                 }
             }

@@ -1,4 +1,4 @@
-package eu.domibus.plugin.webService.backend.queue;
+package eu.domibus.plugin.webService.backend.reliability.queue;
 
 import eu.domibus.common.JMSConstants;
 import eu.domibus.ext.domain.DomainDTO;
@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 import org.springframework.jms.listener.MessageListenerContainer;
+import org.springframework.jndi.JndiObjectFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.jms.ConnectionFactory;
@@ -36,11 +37,11 @@ public class WSMessageListenerContainerConfiguration {
 
     @Autowired
     @Qualifier("wsPluginSendQueue")
-    private Queue fsPluginSendQueue;
+    private Queue wsPluginSendQueue;
 
     @Qualifier("wsSendMessageListener")
     @Autowired
-    private WSSendMessageListener fsSendMessageListener;
+    private WSSendMessageListener wsSendMessageListener;
 
     @Autowired
     @Qualifier(JMSConstants.DOMIBUS_JMS_XACONNECTION_FACTORY)
@@ -63,8 +64,8 @@ public class WSMessageListenerContainerConfiguration {
 
         messageListenerContainer.setMessageSelector(messageSelector);
         messageListenerContainer.setConnectionFactory(connectionFactory);
-        messageListenerContainer.setDestination(fsPluginSendQueue);
-        messageListenerContainer.setMessageListener(fsSendMessageListener);
+        messageListenerContainer.setDestination(wsPluginSendQueue);
+        messageListenerContainer.setMessageListener(wsSendMessageListener);
         messageListenerContainer.setTransactionManager(transactionManager);
         messageListenerContainer.setConcurrency(queueConcurrency);
         messageListenerContainer.setSessionTransacted(true);
@@ -73,5 +74,17 @@ public class WSMessageListenerContainerConfiguration {
         messageListenerContainer.afterPropertiesSet();
 
         return messageListenerContainer;
+    }
+
+    @Bean("wsPluginSendQueue")
+    public JndiObjectFactoryBean sendMessageQueue(WSPluginPropertyManager wsPluginPropertyManager) {
+        String queueName = wsPluginPropertyManager.getKnownPropertyValue(WSPluginPropertyManager.DISPATCHER_SEND_QUEUE_NAME);
+        LOG.debug("Using ws plugin send queue name [{}]", queueName);
+        JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
+
+        jndiObjectFactoryBean.setJndiName(queueName);
+
+        jndiObjectFactoryBean.setExpectedType(Queue.class);
+        return jndiObjectFactoryBean;
     }
 }

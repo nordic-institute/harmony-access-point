@@ -1,4 +1,4 @@
-package eu.domibus.plugin.webService.backend.queue;
+package eu.domibus.plugin.webService.backend.reliability.queue;
 
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.logging.DomibusLogger;

@@ -9,13 +9,14 @@ import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.webService.backend.WSBackendMessageLogDao;
 import eu.domibus.plugin.webService.backend.WSBackendMessageLogEntity;
 import eu.domibus.plugin.webService.backend.WSBackendMessageType;
-import eu.domibus.plugin.webService.backend.queue.WSSendMessageListener;
+import eu.domibus.plugin.webService.backend.reliability.queue.WSSendMessageListener;
 import eu.domibus.plugin.webService.backend.rules.WSPluginDispatchRule;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import javax.jms.JMSException;
 import javax.jms.Queue;
 import java.util.ArrayList;
 import java.util.List;
@@ -63,6 +64,7 @@ public class WSPluginBackendRetryService {
 
             for (final WSBackendMessageLogEntity backendMessage : messagesNotAlreadyQueued) {
                 sendToQueue(backendMessage);
+                backendMessage.setScheduled(true);
             }
         } catch (Exception e) {
             LOG.error("Error while sending notifications.", e);
@@ -70,6 +72,7 @@ public class WSPluginBackendRetryService {
     }
 
     private void sendToQueue(WSBackendMessageLogEntity backendMessage) {
+        LOG.debug("Send backendMessage [{}] to queue [{}]", backendMessage.getEntityId(), getQueueName());
         final JmsMessageDTO jmsMessage = JMSMessageDTOBuilder.
                 create()
                 .property(MessageConstants.MESSAGE_ID, backendMessage.getMessageId())
@@ -77,6 +80,16 @@ public class WSPluginBackendRetryService {
                 .property(WSSendMessageListener.TYPE, backendMessage.getType().name())
                 .build();
         jmsExtService.sendMessageToQueue(jmsMessage, wsPluginSendQueue);
+        backendMessage.setScheduled(true);
+    }
+
+    private String getQueueName() {
+        try {
+            return wsPluginSendQueue.getQueueName();
+        } catch (JMSException e) {
+            LOG.trace("wsPluginSendQueue name not found");
+            return null;
+        }
     }
 
     @Transactional

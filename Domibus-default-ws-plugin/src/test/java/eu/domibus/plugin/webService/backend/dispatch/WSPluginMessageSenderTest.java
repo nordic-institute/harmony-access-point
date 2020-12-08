@@ -26,7 +26,8 @@ public class WSPluginMessageSenderTest {
 
     public static final String RULE_NAME = "ruleName";
     public static final String END_POINT = "endpoint";
-    public static final String MESSAGE_ID = "messageId";
+    public static final Long ID = 1L;
+    public static final String MESSAGE_ID = "MessageId";
     @Tested
     private WSPluginMessageSender wsPluginMessageSender;
 
@@ -64,6 +65,8 @@ public class WSPluginMessageSenderTest {
             wsBackendMessageLogEntity.getType();
             result = WSBackendMessageType.SUBMIT_MESSAGE;
 
+            wsBackendMessageLogEntity.getEntityId();
+            result = ID;
             wsBackendMessageLogEntity.getMessageId();
             result = MESSAGE_ID;
 
@@ -106,6 +109,9 @@ public class WSPluginMessageSenderTest {
             wsBackendMessageLogEntity.getType();
             result = WSBackendMessageType.SEND_SUCCESS;
 
+            wsBackendMessageLogEntity.getEntityId();
+            result = ID;
+
             wsBackendMessageLogEntity.getMessageId();
             result = MESSAGE_ID;
 
@@ -146,8 +152,8 @@ public class WSPluginMessageSenderTest {
             wsBackendMessageLogEntity.getType();
             result = WSBackendMessageType.SEND_SUCCESS;
 
-            wsBackendMessageLogEntity.getMessageId();
-            result = MESSAGE_ID;
+            wsBackendMessageLogEntity.getEntityId();
+            result = ID;
 
             wsPluginDispatchRulesService.getRule(RULE_NAME);
             result = wsPluginDispatchRule;

@@ -1,6 +1,7 @@
-package eu.domibus.plugin.webService.backend.queue;
+package eu.domibus.plugin.webService.backend.reliability.queue;
 
-import eu.domibus.ext.exceptions.AuthenticationExtException;
+import eu.domibus.ext.domain.DomainDTO;
+import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
@@ -33,18 +34,20 @@ public class WSSendMessageListener implements MessageListener {
 
     private final WSPluginMessageSender wsPluginMessageSender;
     private final WSBackendMessageLogDao wsBackendMessageLogDao;
+    private final DomainContextExtService domainContextExtService;
+
 
     public WSSendMessageListener(WSPluginMessageSender wsPluginMessageSender,
-                                 WSBackendMessageLogDao wsBackendMessageLogDao) {
+                                 WSBackendMessageLogDao wsBackendMessageLogDao,
+                                 DomainContextExtService domainContextExtService) {
         this.wsPluginMessageSender = wsPluginMessageSender;
         this.wsBackendMessageLogDao = wsBackendMessageLogDao;
+        this.domainContextExtService = domainContextExtService;
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW, noRollbackFor = {AuthenticationExtException.class}, timeout = 1200)// 20 minutes
+    @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 1200)// 20 minutes
     @Override
     public void onMessage(Message message) {
-        LOG.debug("received message on fsPluginSendQueue");
-
         String domain;
         String messageId;
         long id;
@@ -54,15 +57,19 @@ public class WSSendMessageListener implements MessageListener {
             messageId = message.getStringProperty(MessageConstants.MESSAGE_ID);
             id = message.getLongProperty(ID);
             type = message.getStringProperty(TYPE);
-            LOG.debug("received message on wsPluginSendQueue for domain: [{}], domibus message id: [{}], backend message id [{}] and type [{}]", domain, messageId, id, type);
-        } catch (JMSException e) {
+       } catch (JMSException e) {
             LOG.error("Unable to extract domainCode or fileName from JMS message");
             return;
         }
 
+        LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
+        domainContextExtService.setCurrentDomain(new DomainDTO(domain, domain));
+
+        LOG.debug("received message on wsPluginSendQueue for domain: [{}], backend message id [{}] and type [{}]", domain, id, type);
+
         WSBackendMessageLogEntity backendMessage = wsBackendMessageLogDao.getById(id);
 
-        if(backendMessage == null){
+        if (backendMessage == null) {
             LOG.error("Error while consuming JMS message: [{}] entity not found.", id);
             return;
         }
@@ -78,6 +85,7 @@ public class WSSendMessageListener implements MessageListener {
         }
 
         wsPluginMessageSender.sendNotification(backendMessage);
+        backendMessage.setScheduled(false);
     }
 
 }

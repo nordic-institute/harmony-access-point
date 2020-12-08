@@ -12,7 +12,6 @@ import eu.domibus.plugin.webService.connector.WSPluginImpl;
 import eu.domibus.plugin.webService.exception.WSPluginException;
 import eu.domibus.plugin.webService.impl.ExtendedPartInfo;
 import eu.domibus.webservice.backend.generated.*;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.common.util.CollectionUtils;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +21,8 @@ import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+
+import static org.apache.commons.lang3.StringUtils.equalsAnyIgnoreCase;
 
 /**
  * @author François Gautier
@@ -77,7 +78,7 @@ public class WSPluginMessageBuilder {
         }
     }
 
-    private SubmitMessage getSubmitMessage(WSBackendMessageLogEntity messageLogEntity) {
+    protected SubmitMessage getSubmitMessage(WSBackendMessageLogEntity messageLogEntity) {
         String messageId = messageLogEntity.getMessageId();//to be trimmed?
 
         UserMessage userMessage = new UserMessage();
@@ -87,7 +88,7 @@ public class WSPluginMessageBuilder {
             throw new WSPluginException("Domibus message could not be found with message id: [" + messageId + "]", e);
         }
         SubmitMessage submitMessage = new eu.domibus.webservice.backend.generated.ObjectFactory().createSubmitMessage();
-
+        submitMessage.setMessageID(messageLogEntity.getMessageId());
         submitMessage.setFinalRecipient(messageLogEntity.getFinalRecipient());
         submitMessage.setOriginalSender(messageLogEntity.getOriginalSender());
 
@@ -95,41 +96,56 @@ public class WSPluginMessageBuilder {
         return submitMessage;
     }
 
-    private void fillInfoPartsForLargeFiles(SubmitMessage retrieveMessageResponse, UserMessage userMessage) {
+    protected void fillInfoPartsForLargeFiles(SubmitMessage submitMessage, UserMessage userMessage) {
         if (userMessage.getPayloadInfo() == null || CollectionUtils.isEmpty(userMessage.getPayloadInfo().getPartInfo())) {
-            LOG.info("No payload found for message [{}]", userMessage.getMessageInfo().getMessageId());
+            String messageId = "";
+            if (userMessage.getMessageInfo() != null) {
+                messageId = userMessage.getMessageInfo().getMessageId();
+            }
+            LOG.info("No payload found for message [{}]", messageId);
             return;
         }
 
         for (final PartInfo partInfo : userMessage.getPayloadInfo().getPartInfo()) {
-            ExtendedPartInfo extPartInfo = (ExtendedPartInfo) partInfo;
-            eu.domibus.webservice.backend.generated.LargePayloadType payloadType = new eu.domibus.webservice.backend.generated.ObjectFactory().createLargePayloadType();
-            if (extPartInfo.getPayloadDatahandler() != null) {
-                LOG.debug("payloadDatahandler Content Type: " + extPartInfo.getPayloadDatahandler().getContentType());
-                payloadType.setValue(extPartInfo.getPayloadDatahandler());
-            }
-            if (extPartInfo.isInBody()) {
-                retrieveMessageResponse.setBodyload(payloadType);
-            } else {
-                payloadType.setPayloadId(partInfo.getHref());
-                retrieveMessageResponse.getPayload().add(payloadType);
-            }
-            payloadType.setMimeType(getPropertyValue(extPartInfo, MIME_TYPE));
-            payloadType.setPayloadName(getPropertyValue(extPartInfo, PAYLOAD_NAME));
+            fillInfoPart(submitMessage, (ExtendedPartInfo) partInfo);
         }
     }
 
-    private String getPropertyValue(ExtendedPartInfo extPartInfo, String mimeType) {
-        return extPartInfo.getPartProperties().getProperty().stream().filter(property -> StringUtils.equalsAnyIgnoreCase(mimeType, property.getName())).findAny().map(Property::getValue).orElse(null);
+    protected void fillInfoPart(SubmitMessage submitMessage, ExtendedPartInfo extPartInfo) {
+        eu.domibus.webservice.backend.generated.LargePayloadType payloadType = new eu.domibus.webservice.backend.generated.ObjectFactory().createLargePayloadType();
+        if (extPartInfo.getPayloadDatahandler() != null) {
+            LOG.debug("payloadDatahandler Content Type: " + extPartInfo.getPayloadDatahandler().getContentType());
+            payloadType.setValue(extPartInfo.getPayloadDatahandler());
+        }
+        payloadType.setMimeType(getAnyPropertyValue(extPartInfo, MIME_TYPE));
+        payloadType.setPayloadName(getAnyPropertyValue(extPartInfo, PAYLOAD_NAME));
+
+        if (extPartInfo.isInBody()) {
+            submitMessage.setBodyload(payloadType);
+        } else {
+            payloadType.setPayloadId(extPartInfo.getHref());
+            submitMessage.getPayload().add(payloadType);
+        }
     }
 
-    private ReceiveFailure getReceiveFailure(WSBackendMessageLogEntity messageLogEntity) {
+    protected String getAnyPropertyValue(ExtendedPartInfo extPartInfo, String mimeType) {
+        return extPartInfo
+                .getPartProperties()
+                .getProperty()
+                .stream()
+                .filter(property -> equalsAnyIgnoreCase(mimeType, property.getName()))
+                .findAny()
+                .map(Property::getValue)
+                .orElse(null);
+    }
+
+    protected ReceiveFailure getReceiveFailure(WSBackendMessageLogEntity messageLogEntity) {
         ReceiveFailure sendFailure = new ObjectFactory().createReceiveFailure();
         sendFailure.setMessageID(messageLogEntity.getMessageId());
         return sendFailure;
     }
 
-    private ReceiveSuccess getReceiveSuccess(WSBackendMessageLogEntity messageLogEntity) {
+    protected ReceiveSuccess getReceiveSuccess(WSBackendMessageLogEntity messageLogEntity) {
         ReceiveSuccess sendFailure = new ObjectFactory().createReceiveSuccess();
         sendFailure.setMessageID(messageLogEntity.getMessageId());
         return sendFailure;
@@ -162,7 +178,7 @@ public class WSPluginMessageBuilder {
         try {
             message = xmlUtilExtService.getMessageFactorySoap12().createMessage();
 
-            this.jaxbContextWebserviceBackend.createMarshaller().marshal(messaging, message.getSOAPBody());
+            jaxbContextWebserviceBackend.createMarshaller().marshal(messaging, message.getSOAPBody());
             message.saveChanges();
         } catch (final JAXBException | SOAPException ex) {
             throw new WSPluginException("Could not build the soap message for ws plugin", ex);

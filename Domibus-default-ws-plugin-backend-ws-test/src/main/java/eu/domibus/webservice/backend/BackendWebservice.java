@@ -2,11 +2,17 @@ package eu.domibus.webservice.backend;
 
 import eu.domibus.webservice.backend.generated.*;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.vfs2.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.activation.DataHandler;
 import javax.xml.ws.BindingType;
 import javax.xml.ws.soap.SOAPBinding;
+import java.io.File;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 /**
  * @author François Gautier
@@ -20,7 +26,17 @@ import javax.xml.ws.soap.SOAPBinding;
 @BindingType(SOAPBinding.SOAP12HTTP_BINDING)
 public class BackendWebservice implements BackendInterface {
     private static final Logger LOG = LoggerFactory.getLogger(BackendWebservice.class);
+    public static final String OUT = "out";
     private final ObjectFactory objectFactory = new ObjectFactory();
+
+    private FileObject getFile(final String fileName) throws FileSystemException {
+        FileSystemManager fsManager = VFS.getManager();
+
+        File baseFile = new File(OUT);
+        LOG.info("Save file [{}] in folder: {}", fileName, baseFile.getAbsolutePath());
+
+        return fsManager.resolveFile(baseFile, fileName);
+    }
 
     @Override
     public void submitMessage(SubmitMessage submitMessage) throws SubmitMessageFault {
@@ -29,59 +45,24 @@ public class BackendWebservice implements BackendInterface {
                 messageID,
                 submitMessage.getBodyload(),
                 submitMessage.getPayload().size());
-//        for (LargePayloadType entry : submitMessage.getPayload()) {
-//            FSPayload fsPayload = entry.getValue();
-//            DataHandler dataHandler = entry.getValue();
-//            String contentId = entry.getKey();
-//            String fileName = getFileName(contentId, fsPayload);
-//
-//            try (FileObject fileObject = incomingFolderByMessageId.resolveFile(fileName);
-//                 FileContent fileContent = fileObject.getContent()) {
-//                dataHandler.writeTo(fileContent.getOutputStream());
-//                LOG.info("Message payload with cid [{}] received: [{}]", contentId, fileObject.getName());
-//            } catch (IOException e) {
-//                throw new IllegalStateException("An error occurred persisting downloaded message " + messageId, e);
-//            }
-//        }
+        for (LargePayloadType entry : submitMessage.getPayload()) {
+            DataHandler dataHandler = entry.getValue();
+            String mimeType = entry.getMimeType();
+            String fileName = entry.getPayloadName();
+
+            String prefixWithDateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_hh'H'mm'm'ss's'"));
+            try (FileObject fileObject = getFile(prefixWithDateTime + "_" + fileName);
+                 FileContent fileContent = fileObject.getContent()) {
+                dataHandler.writeTo(fileContent.getOutputStream());
+                LOG.info("Message payload [{}] with mimeType [{}] received: [{}]", fileName, mimeType, fileObject.getName());
+            } catch (IOException e) {
+                throw new IllegalStateException("An error occurred writing downloaded message " + messageID, e);
+            }
+        }
         if (StringUtils.containsIgnoreCase(messageID, "err")) {
             throw new SubmitMessageFault(getErrorMessage(messageID), getDefaultFaultDetail());
         }
     }
-//    protected String getFileName(String contentId, FSPayload fsPayload) {
-//        //original name + extension
-//        String fileName = fsPayload.getFileName();
-//
-//        //contentId file name - if the parsing of the received fileName fails we will return this
-//        final String fileNameContentId = getFileNameContentIdBase(contentId) + getFileNameExtension(fsPayload.getMimeType());
-//
-//        //received payloadName is empty, returning the content Id based one
-//        if (StringUtils.isBlank(fileName)) {
-//            LOG.debug("received payload filename is empty, returning contentId based one=[{}]", fileNameContentId);
-//            return fileNameContentId;
-//        }
-//
-//        String decodedFileName;
-//        try {
-//            decodedFileName = UriParser.decode(fileName);
-//        } catch (FileSystemException e) {
-//            LOG.error("Error while decoding the fileName=[{}], returning contentId based one=[{}]", fileName, fileNameContentId, e);
-//            return fileNameContentId;
-//        }
-//        if (decodedFileName != null && !StringUtils.equals(fileName, decodedFileName)) {
-//            //we have an encoded fileName
-//            fileName = decodedFileName;
-//            LOG.debug("fileName value decoded to=[{}]", decodedFileName);
-//        }
-//
-//        try (FileObject fileObject = incomingFolderByMessageId.resolveFile(fileName, NameScope.CHILD)) {
-//        } catch (FileSystemException e) {
-//            LOG.warn("invalid fileName or outside the parent folder=[{}], returning contentId based one=[{}]", fileName, fileNameContentId);
-//            return fileNameContentId;
-//        }
-//        LOG.debug("returned fileName=[{}]", fileName);
-//        return fileName;
-//    }
-
 
     @Override
     public void sendSuccess(SendSuccess sendSuccess) throws SendSuccessFault {
