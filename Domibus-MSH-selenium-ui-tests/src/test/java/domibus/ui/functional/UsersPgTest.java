@@ -118,13 +118,52 @@ public class UsersPgTest extends SeleniumTest {
 		
 		String adminUser = rest.getUser(null, DRoles.ADMIN, true, false, true).getString("userName");
 		String toEditUser = rest.getUser(null, DRoles.USER, true, false, false).getString("userName");
-		
+
 		log.info("got user " + toEditUser);
 		log.info("got admin " + adminUser);
-		
-		login(adminUser, data.defaultPass()).getSidebar().goToPage(PAGES.USERS);
+
 		UsersPage page = new UsersPage(driver);
-		
+		page.getSidebar().goToPage(PAGES.USERS);
+
+		if (data.isMultiDomain()) {
+			String superUser = rest.getUser(null, DRoles.SUPER, true, false, true).getString("userName");
+
+			page.refreshPage();
+
+			log.info("click NEW");
+			page.getNewBtn().click();
+
+			UserModal modal = new UserModal(driver);
+
+			soft.assertTrue(testRoleList(SUPER_NEW_VISIBLE_ROLES, modal), "All roles available for SUPER when creating new user");
+			log.info("closing modal");
+			page.clickVoidSpace();
+
+			log.info("editing user " + toEditUser);
+			page.grid().scrollToAndSelect("Username", toEditUser);
+			page.getEditBtn().click();
+			soft.assertTrue(testRoleList(SUPER_EDIT_USER_VISIBLE_ROLES, modal), "All roles available for SUPER when editing a user");
+			log.info("closing modal");
+			page.clickVoidSpace();
+
+			log.info("editing admin " + adminUser);
+			page.grid().scrollToAndSelect("Username", adminUser);
+			page.getEditBtn().click();
+			soft.assertTrue(testRoleList(SUPER_EDIT_ADMIN_VISIBLE_ROLES, modal), "All roles available for SUPER when editing an ADMIN");
+			log.info("closing modal");
+			page.clickVoidSpace();
+
+			log.info("editing super user " + superUser);
+			page.grid().scrollToAndSelect("Username", superUser);
+			page.getEditBtn().click();
+			soft.assertTrue(testRoleList(SUPER_EDIT_SUPER_VISIBLE_ROLES, modal), "All roles available for SUPER when editing an SUPER");
+			log.info("closing modal");
+			page.clickVoidSpace();
+
+
+			login(adminUser, data.defaultPass()).getSidebar().goToPage(PAGES.USERS);
+		}
+
 		log.info("click NEW");
 		page.getNewBtn().click();
 		UserModal modal = new UserModal(driver);
@@ -141,39 +180,7 @@ public class UsersPgTest extends SeleniumTest {
 		log.info("closing user modal");
 		page.clickVoidSpace();
 		
-		if (data.isMultiDomain()) {
-			logout();
-			String superUser = rest.getUser(null, DRoles.SUPER, true, false, true).getString("userName");
-			log.info("checking for super admin " + superUser);
-			login(superUser, data.defaultPass()).getSidebar().goToPage(PAGES.USERS);
-			
-			log.info("click NEW");
-			page.getNewBtn().click();
-			soft.assertTrue(testRoleList(SUPER_NEW_VISIBLE_ROLES, modal), "All roles available for SUPER when creating new user");
-			log.info("closing modal");
-			page.clickVoidSpace();
-			
-			log.info("editing user " + toEditUser);
-			page.grid().scrollToAndSelect("Username", toEditUser);
-			page.getEditBtn().click();
-			soft.assertTrue(testRoleList(SUPER_EDIT_USER_VISIBLE_ROLES, modal), "All roles available for SUPER when editing a user");
-			log.info("closing modal");
-			page.clickVoidSpace();
-			
-			log.info("editing admin " + adminUser);
-			page.grid().scrollToAndSelect("Username", adminUser);
-			page.getEditBtn().click();
-			soft.assertTrue(testRoleList(SUPER_EDIT_ADMIN_VISIBLE_ROLES, modal), "All roles available for SUPER when editing an ADMIN");
-			log.info("closing modal");
-			page.clickVoidSpace();
-			
-			log.info("editing super user " + superUser);
-			page.grid().scrollToAndSelect("Username", superUser);
-			page.getEditBtn().click();
-			soft.assertTrue(testRoleList(SUPER_EDIT_SUPER_VISIBLE_ROLES, modal), "All roles available for SUPER when editing an ADMIN");
-			log.info("closing modal");
-			page.clickVoidSpace();
-		}
+
 		
 		soft.assertAll();
 	}
@@ -667,7 +674,7 @@ public class UsersPgTest extends SeleniumTest {
 		SoftAssert soft = new SoftAssert();
 		
 		log.info("Delete all super user except Default one");
-		JSONArray userArray =rest.users().getUsers(null);
+		JSONArray userArray = rest.users().getUsers(null);
 		int userCount = userArray.length();
 		
 		for (int i = 0; i < userCount; i++) {
@@ -690,7 +697,8 @@ public class UsersPgTest extends SeleniumTest {
 		page.getEditBtn().click();
 		UserModal modal = new UserModal(driver);
 		
-		soft.assertTrue(modal.getRoleSelect().getOptionsTexts().size() == 1, "only one role is present ");
+		soft.assertFalse(modal.getRoleSelect().isEnabled()
+				, "role select is disabled");
 		page.clickVoidSpace();
 		log.info("Role change is not possible for super user ");
 		soft.assertAll();
