@@ -27,7 +27,6 @@ export class PropertiesComponent extends mix(BaseListComponent)
 
   showGlobalPropertiesControl: boolean;
 
-  @ViewChild('propertyUsageTpl', {static: false}) propertyUsageTpl: TemplateRef<any>;
   @ViewChild('propertyValueTpl', {static: false}) propertyValueTpl: TemplateRef<any>;
 
   constructor(private applicationService: ApplicationContextService, private http: HttpClient, private propertiesService: PropertiesService,
@@ -79,8 +78,8 @@ export class PropertiesComponent extends mix(BaseListComponent)
         width: 25
       },
       {
-        cellTemplate: this.propertyUsageTpl,
         name: 'Usage',
+        prop: 'usageText',
         showInitially: true,
         width: 25
       },
@@ -107,6 +106,7 @@ export class PropertiesComponent extends mix(BaseListComponent)
       {
         cellTemplate: this.propertyValueTpl,
         name: 'Property Value',
+        prop: 'value',
         showInitially: true,
         width: 250
       },

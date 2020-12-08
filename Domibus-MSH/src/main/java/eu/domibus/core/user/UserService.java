@@ -1,5 +1,6 @@
 package eu.domibus.core.user;
 
+import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.user.User;
 
 import java.util.List;
@@ -71,4 +72,25 @@ public interface UserService {
     public void triggerPasswordAlerts();
 
     void changePassword(String username, String currentPassword, String newPassword);
+
+    /**
+     * Search the users. The search is made based on the following
+     * criteria.
+     *
+     * @param authRole  criteria to search the role of user (ROLE_ADMIN or ROLE_USER)
+     * @param userName  criteria to search by userName
+     * @param pageStart pagination start
+     * @param pageSize  page size.
+     * @return a list of users.
+     */
+    List<eu.domibus.api.user.User> findUsersWithFilters(AuthRole authRole, String userName, String deleted, int pageStart, int pageSize);
+
+    /**
+     * Counts the users matching the search criteria.
+     *
+     * @param authRole criteria to search the role of user (ROLE_ADMIN or ROLE_USER)
+     * @param userName criteria to search by userName
+     * @return the count of matching users.
+     */
+    long countUsers(AuthRole authRole, String userName, String deleted);
 }

@@ -24,7 +24,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AccountStatusException;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -32,7 +31,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -98,8 +96,7 @@ public class AuthenticationResource {
         return errorHandlerService.createResponse(ex, HttpStatus.FORBIDDEN);
     }
 
-    @RequestMapping(value = "authentication", method = RequestMethod.POST)
-    @Transactional(noRollbackFor = BadCredentialsException.class)
+    @PostMapping(value = "authentication")
     public UserRO authenticate(@RequestBody @Valid LoginRO loginRO, HttpServletResponse response, HttpServletRequest request) {
 
         String domainCode = userDomainService.getDomainForUser(loginRO.getUsername());
@@ -129,7 +126,7 @@ public class AuthenticationResource {
         return createUserRO(principal, loginRO.getUsername());
     }
 
-    @RequestMapping(value = "authentication", method = RequestMethod.DELETE)
+    @DeleteMapping(value = "authentication")
     public void logout(HttpServletRequest request, HttpServletResponse response) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null) {
@@ -155,10 +152,10 @@ public class AuthenticationResource {
         return true;
     }
 
-    @RequestMapping(value = "user", method = RequestMethod.GET)
+    @GetMapping(value = "user")
     public UserRO getUser() {
         LOG.debug("get user - start");
-        UserDetail userDetail = getLoggedUser();
+        UserDetail userDetail = authenticationService.getLoggedUser();
 
         return userDetail != null ? createUserRO(userDetail, userDetail.getUsername()) : null;
     }
@@ -168,7 +165,7 @@ public class AuthenticationResource {
      *
      * @return the current domain
      */
-    @RequestMapping(value = "user/domain", method = RequestMethod.GET)
+    @GetMapping(value = "user/domain")
     public DomainRO getCurrentDomain() {
         LOG.debug("Getting current domain");
         Domain domain = domainContextProvider.getCurrentDomainSafely();
@@ -180,7 +177,7 @@ public class AuthenticationResource {
      *
      * @param domainCode the code of the new current domain
      */
-    @RequestMapping(value = "user/domain", method = RequestMethod.PUT)
+    @PutMapping(value = "user/domain")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void setCurrentDomain(@RequestBody @Valid String domainCode) {
         LOG.debug("Setting current domain " + domainCode);
@@ -193,28 +190,13 @@ public class AuthenticationResource {
      * @param param the object holding the current and new passwords of the current user
      *
      * */
-    @RequestMapping(value = "user/password", method = RequestMethod.PUT)
+    @PutMapping(value = "user/password")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void changePassword(@RequestBody @Valid ChangePasswordRO param) {
-        UserDetail loggedUser = this.getLoggedUser();
+        UserDetail loggedUser = authenticationService.getLoggedUser();
         LOG.debug("Changing password for user [{}]", loggedUser.getUsername());
         getUserService().changePassword(loggedUser.getUsername(), param.getCurrentPassword(), param.getNewPassword());
         loggedUser.setDefaultPasswordUsed(false);
-    }
-
-    /**
-     * It will return the Principal from {@link SecurityContextHolder}
-     * if different from {@link AnonymousAuthenticationToken}
-     * @return
-     */
-    UserDetail getLoggedUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication!= null && !(authentication instanceof AnonymousAuthenticationToken)) {
-            UserDetail userDetail = (UserDetail) authentication.getPrincipal();
-            LOG.debug("Principal found on SecurityContextHolder: {}", userDetail);
-            return userDetail;
-        }
-        return null;
     }
 
     UserService getUserService() {

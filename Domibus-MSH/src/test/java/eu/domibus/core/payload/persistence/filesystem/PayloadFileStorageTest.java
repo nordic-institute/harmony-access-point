@@ -24,14 +24,11 @@ public class PayloadFileStorageTest {
     @Injectable
     DomibusPropertyProvider domibusPropertyProvider;
 
-    @Injectable
-    File storageDirectory;
-
     @Tested
     PayloadFileStorage payloadFileStorage;
 
     @Test
-    public void initFileSystemStorage(@Injectable Domain domain, @Injectable Path path) {
+    public void init(@Injectable Domain domain, @Injectable Path path) {
 
         final String location = "D:\\domibus_tomcat\\domibus_blue\\domibus\\payload_storage";
         final String ATTACHMENT_STORAGE_LOCATION = "domibus.attachment.storage.location";
@@ -44,7 +41,7 @@ public class PayloadFileStorageTest {
             result = path;
         }};
 
-        payloadFileStorage.initFileSystemStorage();
+        payloadFileStorage.init();
 
         new Verifications() {{
             path.toFile();
@@ -54,7 +51,7 @@ public class PayloadFileStorageTest {
     }
 
     @Test
-    public void createLocationWithRelativePath() {
+    public void createLocationWithRelativePath(@Injectable Domain domain) {
 
         final String location = "..\\domibus_blue\\domibus\\payload_storage";
         try {
@@ -67,7 +64,7 @@ public class PayloadFileStorageTest {
     }
 
     @Test
-    public void createLocationWithAbsolutePath(@Injectable Path path, @Injectable Files files) {
+    public void createLocationWithAbsolutePath(@Injectable Path path, @Injectable Files files, @Injectable Domain domain) {
         final String location = System.getProperty("java.io.tmpdir");
         path = payloadFileStorage.createLocation(location);
         Assert.assertNotNull(path);
@@ -75,13 +72,8 @@ public class PayloadFileStorageTest {
     }
 
     @Test
-    public void getStorageDirectory() {
+    public void getStorageDirectory(@Injectable Domain domain) {
         Assert.assertNull(payloadFileStorage.getStorageDirectory());
     }
 
-    @Test
-    public void getDomain(@Injectable Domain domain) {
-        Assert.assertNotNull(payloadFileStorage.getDomain());
-
-    }
 }

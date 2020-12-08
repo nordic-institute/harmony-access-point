@@ -66,22 +66,18 @@ public class BackendFilterInitializerServiceTest {
             domibusConfigurationService.isSingleTenantAware();
             result = true;
 
-            authUtils.runWithSecurityContext((AuthenticatedProcedure) any, anyString, anyString, (AuthRole) any, anyBoolean);
+            authUtils.runWithDomibusSecurityContext((AuthenticatedProcedure) any, (AuthRole) any, anyBoolean);
         }};
 
         backendFilterInitializerService.updateMessageFilters();
 
         new FullVerifications(authUtils) {{
             AuthenticatedProcedure function;
-            String username;
-            String password;
             AuthRole role;
             boolean forceSetContext;
-            authUtils.runWithSecurityContext(function = withCapture(),
-                    username = withCapture(), password = withCapture(), role = withCapture(), forceSetContext = withCapture());
+            authUtils.runWithDomibusSecurityContext(function = withCapture(),
+                    role = withCapture(), forceSetContext = withCapture());
             Assert.assertNotNull(function);
-            Assert.assertEquals("domibus", username);
-            Assert.assertEquals("domibus", password);
             Assert.assertEquals(AuthRole.ROLE_ADMIN, role);
             Assert.assertTrue(forceSetContext); // always true for audit reasons
         }};

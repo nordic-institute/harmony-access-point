@@ -7,6 +7,7 @@ import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.receiver.policy.SetPolicyInInterceptor;
+import eu.domibus.core.multitenancy.DomainContextProviderImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -58,6 +59,7 @@ public class SetDomainInInterceptor extends AbstractSoapInterceptor {
         String domainCode = getDomainCode(httpRequest);
         LOG.debug("Using domain [{}]", domainCode);
         domainContextProvider.setCurrentDomain(domainCode);
+        message.put(DomainContextProvider.HEADER_DOMIBUS_DOMAIN, domainCode);
     }
 
     protected String getDomainCode(HttpServletRequest httpRequest) {

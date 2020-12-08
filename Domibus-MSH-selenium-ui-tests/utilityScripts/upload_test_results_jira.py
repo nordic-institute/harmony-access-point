@@ -7,18 +7,18 @@ from requests.auth import HTTPBasicAuth
 import sys
 import xml.etree.ElementTree as ET
 
-log.basicConfig(level=log.INFO, format='%(asctime)s  %(levelname)-10s %(processName)s  %(name)s %(message)s',
-                datefmt="%Y-%m-%d-%H-%M-%S")
+log.basicConfig(level=log.INFO, format='%(asctime)s  %(levelname)-10s %(processName)s  %(name)s %(message)s', datefmt="%Y-%m-%d-%H-%M-%S")
 
 STATUSES = {'PASS': 1, 'FAIL': 2, 'WIP': 3, 'BLOCKED': 4, 'UNEXECUTED': -1}
 headers = {'Content-type': 'application/json', 'Accept': 'application/json'}
 
 projectKey = 'EDELIVERY'
-cycleNameStub = 'SEL_WC_MT_'
+cycleNameStub = 'SEL_WF_MT_'
 parentCycleId = 143
-boardID = 15
-buildNoSource = "http://localhost:9008/domibus/rest/application/info"
-environment_config = "Docker_WeblogicCluster-Oracle-Multitenancy"
+boardID = 111
+buildNoSource = "http://localhost:9088/domibus/rest/application/info"
+
+environment_config = "Wildfly-Mysql-Multitenancy"
 cycle_description = ''
 
 baseUrl = "https://ec.europa.eu/cefdigital/tracker"
@@ -146,7 +146,7 @@ def get_sprint_id():
     params['state'] = 'active'
     resp = requests.get(baseUrl + sprintPath.format(boardID), params=params, cookies=cookiesJar)
     if resp.status_code != 200:
-        log.info('Getting active sprint failed with status - ' + resp.status_code)
+        log.info('Getting active sprint failed with status - ' + str(resp.status_code))
         exit(6)
     respJson = resp.json()
     log.debug(respJson)
@@ -304,7 +304,13 @@ def parse_rest_testng_results():
 
 def parse_selenium_testng_results():
     global results
+    toIgnore = ["logSeparator", "logout", "afterClass", "beforeClass"]
+
     for tc in root.iter('test-method'):
+
+        if tc.attrib["name"] in toIgnore:
+            continue
+
         if 'description' not in tc.attrib:
             log.info("Could not find test id in description for - " + str(tc.attrib))
             continue

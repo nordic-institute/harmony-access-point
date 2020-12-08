@@ -36,6 +36,6 @@ public class StorageChangeListener implements DomibusPropertyChangeListener {
         final Domain domain = domainService.getDomain(domainCode);
         PayloadFileStorage storage = payloadFileStorageProvider.forDomain(domain);
 
-        storage.initFileSystemStorage();
+        storage.reset();
     }
 }

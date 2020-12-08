@@ -646,6 +646,7 @@ public class UserMessageDefaultServiceTest {
 
         new FullVerifications() {{
             messagingDao.clearPayloadData(userMessage);
+            userMessageLog.setDeleted((Date)any);
             userMessageLogService.setMessageAsDeleted(userMessage, userMessageLog);
             userMessageLogService.setSignalMessageAsDeleted(signalMessage);
             userMessageLog.getMessageStatus();
@@ -678,6 +679,7 @@ public class UserMessageDefaultServiceTest {
 
         new FullVerifications() {{
             messagingDao.clearPayloadData(userMessage);
+            userMessageLog.setDeleted((Date)any);
             userMessageLogService.setMessageAsDeleted(userMessage, userMessageLog);
             userMessageLogService.setSignalMessageAsDeleted((SignalMessage) null);
             userMessageLog.getMessageStatus();

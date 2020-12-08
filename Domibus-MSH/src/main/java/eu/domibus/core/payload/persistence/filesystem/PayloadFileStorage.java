@@ -7,6 +7,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.util.WarningUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -23,9 +24,9 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ATTACHMENT_TEMP_STORAGE_LOCATION;
 
 /**
- * @version 2.0
  * @author Ioana Dragusanu
  * @author Martini Federico
+ * @version 2.0
  */
 @Component
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -43,43 +44,36 @@ public class PayloadFileStorage {
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
 
-    public PayloadFileStorage() {
-        storageDirectory = null;
+    public PayloadFileStorage(Domain domain) {
+        this.domain = domain;
     }
 
-    public PayloadFileStorage(File storageDirectory) {
-        this.storageDirectory = storageDirectory;
+    @PostConstruct
+    public void init() {
+
+        final String location = domibusPropertyProvider.getProperty(this.domain, ATTACHMENT_STORAGE_LOCATION);
+        if (StringUtils.isBlank(location)) {
+            LOG.warn("No file system storage defined. This is fine for small attachments but might lead to database issues when processing large payloads");
+            return;
+        }
+
+        Path path = createLocation(location);
+        if (path == null) {
+            LOG.warn("There was an error initializing the payload folder, so Domibus will be using the database");
+            return;
+        }
+
+        storageDirectory = path.toFile();
+        LOG.info("Initialized payload folder on path [{}] for domain [{}]", path, this.domain);
     }
 
     public File getStorageDirectory() {
         return storageDirectory;
     }
 
-    public void setDomain(Domain domain) {
-        this.domain = domain;
-    }
-
-    public Domain getDomain() {
-        return domain;
-    }
-
-    @PostConstruct
-    public void initFileSystemStorage() {
-        final String location = domibusPropertyProvider.getProperty(this.domain, ATTACHMENT_STORAGE_LOCATION);
-        if (location != null && !location.isEmpty()) {
-            if (storageDirectory == null) {
-                Path path = createLocation(location);
-                if (path != null) {
-                    storageDirectory = path.toFile();
-                    LOG.info("Initialized payload folder on path [{}] for domain [{}]", path, this.domain);
-                } else {
-                    LOG.warn("There was an error initializing the payload folder, so Domibus will be using the database");
-                }
-            }
-        } else {
-            LOG.warn("No file system storage defined. This is fine for small attachments but might lead to database issues when processing large payloads");
-            storageDirectory = null;
-        }
+    public void reset() {
+        storageDirectory = null;
+        init();
     }
 
     /**
@@ -118,5 +112,4 @@ public class PayloadFileStorage {
         }
         return payloadPath;
     }
-
 }

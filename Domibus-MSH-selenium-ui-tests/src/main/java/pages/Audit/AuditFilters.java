@@ -10,6 +10,8 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 
+import java.util.Date;
+
 /**
  * @author Catalin Comanici
  * @since 4.1.2
@@ -70,6 +72,25 @@ public class AuditFilters extends FilterArea {
 			expandArea();
 			getChangedTo().selectDate(changeTo);
 		}
+
+		clickSearch();
+	}
+
+
+	public void advancedFilter(String table, String user, String action, Date changeFrom, Date changeTo) throws Exception {
+		log.debug("table = " + table);
+		log.debug("user = " + user);
+		log.debug("action = " + action);
+		log.debug("changeFrom = " + changeFrom.toString());
+		log.debug("changeTo = " + changeTo.toString());
+
+		getTableFilter().selectOptionByText(table);
+		getUserFilter().selectOptionByText(user);
+		getActionFilter().selectOptionByText(action);
+
+		expandArea();
+		getChangedFrom().selectDate(changeFrom);
+		getChangedTo().selectDate(changeTo);
 
 		clickSearch();
 	}

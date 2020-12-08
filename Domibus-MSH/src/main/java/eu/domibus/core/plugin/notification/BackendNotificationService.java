@@ -113,7 +113,10 @@ public class BackendNotificationService {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void notifyMessageReceivedFailure(final UserMessage userMessage, ErrorResult errorResult) {
+        LOG.debug("Notify message receive failure");
+
         if (isPluginNotificationDisabled()) {
+            LOG.debug("Plugin notification is disabled.");
             return;
         }
         final Map<String, String> properties = new HashMap<>();

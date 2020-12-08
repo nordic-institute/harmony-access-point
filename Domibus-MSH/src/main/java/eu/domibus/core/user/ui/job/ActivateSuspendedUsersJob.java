@@ -1,14 +1,15 @@
 package eu.domibus.core.user.ui.job;
 
 import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.security.AuthRole;
+import eu.domibus.api.security.AuthUtils;
+import eu.domibus.core.scheduler.DomibusQuartzJobBean;
 import eu.domibus.core.user.UserService;
 import eu.domibus.core.user.ui.UserManagementServiceImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.core.scheduler.DomibusQuartzJobBean;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -29,12 +30,15 @@ public class ActivateSuspendedUsersJob extends DomibusQuartzJobBean {
     @Qualifier(UserManagementServiceImpl.BEAN_NAME)
     private UserService userService;
 
+    @Autowired
+    protected AuthUtils authUtils;
+
     @Override
-    protected void executeJob(JobExecutionContext context, Domain domain) throws JobExecutionException {
+    protected void executeJob(JobExecutionContext context, Domain domain) {
 
-        LOG.debug("Executing job to unlock suspended accounts at " + new Date());
+        LOG.debug("Executing job to unlock suspended accounts at {}", new Date());
 
-        userService.reactivateSuspendedUsers();
+        authUtils.runWithDomibusSecurityContext(() -> userService.reactivateSuspendedUsers(), AuthRole.ROLE_AP_ADMIN, true);
     }
 
 }
