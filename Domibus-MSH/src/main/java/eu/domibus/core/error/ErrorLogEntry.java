@@ -26,7 +26,8 @@ import java.util.Date;
         @NamedQuery(name = "ErrorLogEntry.findErrorsByMessageId", query = "select e from ErrorLogEntry e where e.messageInErrorId = :MESSAGE_ID order by e.timestamp desc"),
         @NamedQuery(name = "ErrorLogEntry.findEntries", query = "select e from ErrorLogEntry e"),
         @NamedQuery(name = "ErrorLogEntry.countEntries", query = "select count(e.entityId)  from ErrorLogEntry e"),
-        @NamedQuery(name = "ErrorLogEntry.deleteByMessageIdsInError", query = "delete from ErrorLogEntry e where messageInErrorId IN :MESSAGEIDS")
+        @NamedQuery(name = "ErrorLogEntry.deleteByMessageIdsInError", query = "delete from ErrorLogEntry e where messageInErrorId IN :MESSAGEIDS"),
+        @NamedQuery(name = "ErrorLogEntry.deleteWithoutMessageIds", query = "delete from ErrorLogEntry e where messageInErrorId is null and e.timestamp<:DELETION_DATE")
 })
 public class ErrorLogEntry extends AbstractBaseEntity implements ErrorResult {
     @Column(name = "ERROR_SIGNAL_MESSAGE_ID")

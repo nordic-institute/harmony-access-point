@@ -5,6 +5,7 @@ import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,7 +16,10 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 @Repository
 @Transactional
@@ -107,6 +111,18 @@ public class ErrorLogDao extends ListDao<ErrorLogEntry> {
         deleteQuery.setParameter("MESSAGEIDS", messageIds);
         int result  = deleteQuery.executeUpdate();
         LOG.trace("deleteErrorLogsByMessageIdInError result [{}]", result);
+        return result;
+    }
+
+    public int deleteErrorLogsWithoutMessageIdOlderThan(int days) {
+        Date deletionTime = DateUtils.addDays(new Date(), -days);
+
+        final Query deleteQuery = em.createNamedQuery("ErrorLogEntry.deleteWithoutMessageIds");
+        deleteQuery.setParameter("DELETION_DATE", deletionTime);
+
+        int result  = deleteQuery.executeUpdate();
+        LOG.debug("Cleaned [{}] ErrorLogs having timestamp < [{}] and refToMessageId=null", result, deletionTime);
+
         return result;
     }
 }

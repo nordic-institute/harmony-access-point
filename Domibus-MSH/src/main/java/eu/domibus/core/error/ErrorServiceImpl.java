@@ -1,8 +1,8 @@
 package eu.domibus.core.error;
 
-import eu.domibus.core.error.ErrorLogDao;
-import eu.domibus.core.error.ErrorLogEntry;
-import eu.domibus.core.error.ErrorService;
+import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -17,8 +17,13 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class ErrorServiceImpl implements ErrorService {
 
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ErrorServiceImpl.class);
+
     @Autowired
     private ErrorLogDao errorLogDao;
+
+    @Autowired
+    protected DomibusPropertyProvider domibusPropertyProvider;
 
     /**
      * {@inheritDoc}
@@ -29,5 +34,14 @@ public class ErrorServiceImpl implements ErrorService {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void createErrorLog(ErrorLogEntry errorLogEntry) {
         this.errorLogDao.create(errorLogEntry);
+    }
+
+
+    @Override
+    public int deleteErrorLogWithoutMessageIds() {
+
+
+        int days = 1;
+        return errorLogDao.deleteErrorLogsWithoutMessageIdOlderThan(days);
     }
 }

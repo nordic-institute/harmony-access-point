@@ -12,4 +12,10 @@ public interface ErrorService {
      * @param errorLogEntry the error.
      */
     void createErrorLog(ErrorLogEntry errorLogEntry);
+
+    /**
+     * delete ErrorLogEntry records not having messageId and older than x days
+     * @return
+     */
+    public int deleteErrorLogWithoutMessageIds();
 }
