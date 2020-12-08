@@ -41,6 +41,7 @@ public class DefaultDomibusConfigurationService implements DomibusConfigurationS
     @Cacheable("multitenantCache")
     @Override
     public boolean isMultiTenantAware() {
+        // need this call to the protected method getInternalProperty to avoid infinite loop from domibusPropertyProvider cache expression
         return StringUtils.isNotBlank(domibusPropertyProvider.getInternalProperty(DomainService.GENERAL_SCHEMA_PROPERTY));
     }
 

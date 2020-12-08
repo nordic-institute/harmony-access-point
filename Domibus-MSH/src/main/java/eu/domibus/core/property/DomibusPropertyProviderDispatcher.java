@@ -27,6 +27,8 @@ public class DomibusPropertyProviderDispatcher {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusPropertyProviderDispatcher.class);
 
+    // it is possible for domainContextProvider.getCurrentDomainSafely() to return null for the first stages of bootstrap process
+    // for global properties but it is acceptable since they are not going to mess with super properties
     private static final String CACHE_KEY_EXPRESSION = "(#domain != null ? #domain.getCode() : " +
             "(#root.target.domainContextProvider.getCurrentDomainSafely() == null ? \"global\" " +
             ": #root.target.domainContextProvider.getCurrentDomain().getCode())) + ':' + #propertyName";
