@@ -9,11 +9,8 @@ const PROXY_CONFIG = {
     onProxyRes: function (proxyRes, req, res) {
       let cookies = proxyRes.headers["set-cookie"];
       if (cookies) {
-        proxyRes.headers["set-cookie"] = cookies.map(cookie => cookie
-          .replace("Path=/domibus/", "Path=/")
-          .replace("Path=/domibus", "Path=/"))
-          .replace("path=/domibus", "path=/");
-        console.log(proxyRes.headers["set-cookie"]);
+        proxyRes.headers["set-cookie"] = cookies.map(cookie =>
+          cookie.replace("path=/domibus", "path=/").replace("Path=/domibus", "Path=/").replace("//", "/"));
       }
     },
   }

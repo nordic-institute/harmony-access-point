@@ -94,6 +94,11 @@ public class ConfigurationPropertyResourceHelperImplTest {
         String testValue = "My Domibus value";
         Boolean showDomain = true;
 
+        DomibusPropertiesFilter filter = new DomibusPropertiesFilter();
+        filter.setName(name);
+        filter.setShowDomain(showDomain);
+        filter.setWritable(true);
+
         List<DomibusProperty> properties = propertiesMetadataList.stream().map(el -> {
             DomibusProperty res = new DomibusProperty();
             res.setMetadata(el);
@@ -104,13 +109,14 @@ public class ConfigurationPropertyResourceHelperImplTest {
         new Expectations(configurationPropertyResourceHelper) {{
             globalPropertyMetadataManager.getAllProperties();
             result = allProps;
-            configurationPropertyResourceHelper.filterProperties(allProps, name, showDomain, null, null, true);
+            configurationPropertyResourceHelper.filterProperties(allProps, filter);
             result = propertiesMetadataList;
             configurationPropertyResourceHelper.getPropertyValues(propertiesMetadataList);
             result = properties;
         }};
 
-        List<DomibusProperty> actual = configurationPropertyResourceHelper.getAllProperties(name, showDomain, null, null, testValue, true);
+        filter.setType(testValue);
+        List<DomibusProperty> actual = configurationPropertyResourceHelper.getAllProperties(filter);
 
         Assert.assertEquals(4, actual.size());
         Assert.assertEquals(true, actual.stream().anyMatch(el -> el.getMetadata().getName().equals(DOMIBUS_UI_TITLE_NAME)));
@@ -225,18 +231,22 @@ public class ConfigurationPropertyResourceHelperImplTest {
         Assert.assertEquals(prop2, actual.get(2));
     }
 
-
     @Test
     public void filterProperties() {
         String name = "domibus.UI";
         Boolean showDomain = true;
+
+        DomibusPropertiesFilter filter = new DomibusPropertiesFilter();
+        filter.setName(name);
+        filter.setShowDomain(showDomain);
+        filter.setWritable(true);
 
         new Expectations(configurationPropertyResourceHelper) {{
             domibusConfigurationService.isMultiTenantAware();
             result = true;
         }};
 
-        List<DomibusPropertyMetadata> actual = configurationPropertyResourceHelper.filterProperties(props1, name, showDomain, null, null, true);
+        List<DomibusPropertyMetadata> actual = configurationPropertyResourceHelper.filterProperties(props1, filter);
 
         Assert.assertEquals(2, actual.size());
         Assert.assertTrue(actual.stream().anyMatch(el -> el.getName().equals(DOMIBUS_UI_TITLE_NAME)));
@@ -247,12 +257,17 @@ public class ConfigurationPropertyResourceHelperImplTest {
         String name = "domibus.UI";
         Boolean showDomain = false;
 
+        DomibusPropertiesFilter filter = new DomibusPropertiesFilter();
+        filter.setName(name);
+        filter.setShowDomain(showDomain);
+        filter.setWritable(true);
+
         new Expectations(configurationPropertyResourceHelper) {{
             domibusConfigurationService.isMultiTenantAware();
             result = false;
         }};
 
-        List<DomibusPropertyMetadata> actual = configurationPropertyResourceHelper.filterProperties(props1, name, showDomain, null, null, true);
+        List<DomibusPropertyMetadata> actual = configurationPropertyResourceHelper.filterProperties(props1, filter);
 
         Assert.assertEquals(2, actual.size());
         Assert.assertTrue(actual.stream().anyMatch(el -> el.getName().equals(DOMIBUS_UI_TITLE_NAME)));

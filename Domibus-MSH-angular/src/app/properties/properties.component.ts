@@ -13,6 +13,7 @@ import {MAT_CHECKBOX_CLICK_ACTION} from '@angular/material/checkbox';
 import {SessionExpiredDialogComponent} from '../security/session-expired-dialog/session-expired-dialog.component';
 import {DialogsService} from '../common/dialogs/dialogs.service';
 import {AddNestedPropertyDialogComponent} from './support/add-nested-property-dialog/add-nested-property-dialog.component';
+import {ServerSortableListMixin} from '../common/mixins/sortable-list.mixin';
 
 @Component({
   moduleId: module.id,
@@ -22,7 +23,7 @@ import {AddNestedPropertyDialogComponent} from './support/add-nested-property-di
 })
 @ComponentName('Domibus Properties')
 export class PropertiesComponent extends mix(BaseListComponent)
-  .with(FilterableListMixin, ServerPageableListMixin)
+  .with(FilterableListMixin, ServerPageableListMixin, ServerSortableListMixin)
   implements OnInit, AfterViewInit, AfterViewChecked {
 
   showGlobalPropertiesControl: boolean;
@@ -55,7 +56,7 @@ export class PropertiesComponent extends mix(BaseListComponent)
       {
         name: 'Property Name',
         prop: 'name',
-        showInitially: true
+        showInitially: true,
       },
       {
         name: 'Type',
@@ -66,7 +67,8 @@ export class PropertiesComponent extends mix(BaseListComponent)
       {
         name: 'Description',
         prop: 'description',
-        width: 25
+        width: 25,
+        sortable: false
       },
       {
         name: 'Module',
@@ -76,7 +78,8 @@ export class PropertiesComponent extends mix(BaseListComponent)
       {
         name: 'Section',
         prop: 'section',
-        width: 25
+        width: 25,
+        sortable: false
       },
       {
         cellTemplate: this.propertyUsageTpl,
@@ -87,28 +90,33 @@ export class PropertiesComponent extends mix(BaseListComponent)
       {
         name: 'With Fallback',
         prop: 'withFallback',
-        width: 25
+        width: 25,
+        sortable: false
       },
       {
         name: 'Is Writable',
         prop: 'writable',
-        width: 25
+        width: 25,
+        sortable: false
       },
       {
         name: 'Is Encrypted',
         prop: 'encrypted',
-        width: 25
+        width: 25,
+        sortable: false
       },
       {
         name: 'Is Composable',
         prop: 'composable',
-        width: 25
+        width: 25,
+        sortable: false
       },
       {
         cellTemplate: this.propertyValueTpl,
         name: 'Property Value',
         showInitially: true,
-        width: 250
+        width: 250,
+        sortable: false
       },
 
     ];
