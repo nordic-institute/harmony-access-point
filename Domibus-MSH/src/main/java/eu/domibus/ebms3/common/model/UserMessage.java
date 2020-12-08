@@ -82,9 +82,9 @@ public class UserMessage extends AbstractBaseEntity {
     @OneToOne(cascade = CascadeType.ALL)
     protected MessageFragmentEntity messageFragment;
 
-//    @OneToOne(mappedBy = "userMessage", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-//    @XmlTransient
-//    private RawEnvelopeLog rawEnvelopeLog;
+    @OneToOne(mappedBy = "userMessage", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    @XmlTransient
+    private RawEnvelopeLog rawEnvelopeLog;
 
     public MessageFragmentEntity getMessageFragment() {
         return messageFragment;
