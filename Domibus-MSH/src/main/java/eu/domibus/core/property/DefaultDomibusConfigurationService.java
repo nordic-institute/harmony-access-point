@@ -31,7 +31,7 @@ public class DefaultDomibusConfigurationService implements DomibusConfigurationS
     private DataBaseEngine dataBaseEngine;
 
     @Autowired
-    protected DomibusPropertyProvider domibusPropertyProvider;
+    public DomibusPropertyProviderImpl domibusPropertyProvider;
 
     @Override
     public String getConfigLocation() {
@@ -41,10 +41,12 @@ public class DefaultDomibusConfigurationService implements DomibusConfigurationS
     @Cacheable("multitenantCache")
     @Override
     public boolean isMultiTenantAware() {
-        return StringUtils.isNotBlank(domibusPropertyProvider.getProperty(DomainService.GENERAL_SCHEMA_PROPERTY));
+        // need to call directly the non-public method getInternalProperty to avoid infinite loop from domibusPropertyProvider cache expression
+        return StringUtils.isNotBlank(domibusPropertyProvider.getInternalProperty(DomainService.GENERAL_SCHEMA_PROPERTY));
     }
 
     @Override
+    // this method does not enjoy caching. Should it?
     public boolean isSingleTenantAware() {
         return !isMultiTenantAware();
     }
