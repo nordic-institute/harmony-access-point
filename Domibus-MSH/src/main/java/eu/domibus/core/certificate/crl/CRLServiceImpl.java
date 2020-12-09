@@ -92,8 +92,7 @@ public class CRLServiceImpl implements CRLService {
         return result;
     }
 
-    @Override
-    public boolean isCertificateRevoked(X509Certificate cert, String crlDistributionPointURL) {
+    protected boolean isCertificateRevoked(X509Certificate cert, String crlDistributionPointURL) {
         X509CRL crl = crlUtil.downloadCRL(crlDistributionPointURL);
         LOG.debug("Downloaded CRL is [{}]", crl.getIssuerDN().getName());
         if (crl.isRevoked(cert)) {

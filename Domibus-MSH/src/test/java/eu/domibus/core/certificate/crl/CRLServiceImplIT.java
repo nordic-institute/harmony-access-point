@@ -138,7 +138,7 @@ public class CRLServiceImplIT {
         //second call
         result = crlService.isCertificateRevoked(certificate);
 
-        // verify that the downloadCRL is called only once
+        // verify that the getCrlDistributionPoints is called only once
         Mockito.verify(crlUtil, Mockito.times(1)).getCrlDistributionPoints(Mockito.any(X509Certificate.class));
     }
 
