@@ -3,6 +3,7 @@ package eu.domibus.core.error;
 import eu.domibus.core.dao.ListDao;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
+import eu.domibus.ebms3.common.model.AbstractBaseEntity;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.time.DateUtils;
@@ -20,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Repository
 @Transactional
@@ -115,17 +117,28 @@ public class ErrorLogDao extends ListDao<ErrorLogEntry> {
     }
 
     public int deleteErrorLogsWithoutMessageIdOlderThan(int days, int batchSize) {
+        int result = 0;
         LOG.debug("Going to delete ErrorLogs without messageIds older than [{}] in a batch size of [{}]", days, batchSize);
         Date deletionTime = DateUtils.addDays(new Date(), -days);
 
-        final Query deleteQuery = em.createNamedQuery("ErrorLogEntry.deleteWithoutMessageIds");
-        deleteQuery.setFirstResult(0);
-        deleteQuery.setMaxResults(batchSize);
-        deleteQuery.setParameter("DELETION_DATE", deletionTime);
+        //search the entries
+        final Query selectQuery = em.createNamedQuery("ErrorLogEntry.findErrorsWithoutMessageIds");
+        selectQuery.setFirstResult(0);
+        if (batchSize > 0) {
+            selectQuery.setMaxResults(batchSize);
+        }
+        selectQuery.setParameter("DELETION_DATE", deletionTime);
+        List<ErrorLogEntry> errorLogEntries = selectQuery.getResultList();
+        LOG.debug("[{}] ErrorLogs found", errorLogEntries.size());
 
-        int result  = deleteQuery.executeUpdate();
-        LOG.debug("Cleaned [{}] ErrorLogs without messageIds", result);
-
+        //deletion
+        if (!errorLogEntries.isEmpty()) {
+            final Query deleteQuery = em.createNamedQuery("ErrorLogEntry.deleteErrorsWithoutMessageIds");
+            List<Long> entityIds =  errorLogEntries.stream().map(AbstractBaseEntity::getEntityId).collect(Collectors.toList());
+            deleteQuery.setParameter("ENTITY_IDS", entityIds);
+            result  = deleteQuery.executeUpdate();
+            LOG.debug("Cleaned [{}] ErrorLogs without messageIds", result);
+        }
         return result;
     }
 }
