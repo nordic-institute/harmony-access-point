@@ -16,7 +16,7 @@ import static eu.domibus.property.ExternalTestModulePropertyManager.*;
 
 /**
  * @author Ion Perpegel
- * @since 5.0
+ * @since 4.2
  */
 public class DomibusPropertyProviderIT extends AbstractIT {
 
