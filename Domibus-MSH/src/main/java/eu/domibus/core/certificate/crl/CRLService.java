@@ -19,16 +19,6 @@ public interface CRLService {
     boolean isCertificateRevoked(X509Certificate cert) throws DomibusCRLException;
 
     /**
-     * Checks the pki revocation status against the CRLs coming from
-     * the distribution points. Supports HTTP, HTTPS, FTP, File based URLs.
-     *
-     * @param cert                    the pki to be checked for revocation
-     * @param crlDistributionPointURL URI of the CRL
-     * @return true if the pki is revoked
-     */
-    boolean isCertificateRevoked(X509Certificate cert, String crlDistributionPointURL);
-
-    /**
      * Reset cache and Crl Protocols
      */
     void resetCacheCrlProtocols();
