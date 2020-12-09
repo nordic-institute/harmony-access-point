@@ -30,8 +30,7 @@ public class SaveCertificateAndLogRevocationJob extends DomibusQuartzJobBean {
     protected void executeJob(JobExecutionContext context, Domain domain) {
         LOG.info("Checking certificate expiration");
         // add authentication for audit user_name logging. Check also the filterPlugin function
-        authUtils.runWithSecurityContext(() -> onExecuteJob(context, domain), "domibus", "domibus",
-                AuthRole.ROLE_AP_ADMIN, true);
+        authUtils.runWithDomibusSecurityContext(() -> onExecuteJob(context, domain), AuthRole.ROLE_AP_ADMIN, true);
     }
 
     protected void onExecuteJob(JobExecutionContext context, Domain domain) {

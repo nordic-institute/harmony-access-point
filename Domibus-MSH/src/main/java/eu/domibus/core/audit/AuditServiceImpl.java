@@ -10,10 +10,7 @@ import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.PartyIdType;
 import eu.domibus.core.audit.envers.ModificationType;
 import eu.domibus.core.audit.envers.RevisionLogicalName;
-import eu.domibus.core.audit.model.JmsMessageAudit;
-import eu.domibus.core.audit.model.MessageAudit;
-import eu.domibus.core.audit.model.PModeArchiveAudit;
-import eu.domibus.core.audit.model.PModeAudit;
+import eu.domibus.core.audit.model.*;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.user.ui.User;
 import eu.domibus.core.user.ui.UserRole;
@@ -203,6 +200,15 @@ public class AuditServiceImpl implements AuditService {
             final String messageId,
             final String fromQueue, final String toQueue, String domainCode) {
         handleSaveJMSMessage(messageId, fromQueue, ModificationType.MOVED, domainCode);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void addTruststoreDownloadedAudit() {
+        auditDao.saveTruststoreAudit(
+                new TruststoreAudit(authUtils.getAuthenticatedUser(), new Date(), ModificationType.DOWNLOADED));
     }
 
     @Override
