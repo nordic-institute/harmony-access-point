@@ -16,7 +16,7 @@ import static eu.domibus.property.ExternalTestModulePropertyManager.*;
 
 /**
  * @author Ion Perpegel
- * @since 5.0
+ * @since 4.2
  */
 public class DomibusPropertyProviderIT extends AbstractIT {
 
@@ -75,6 +75,7 @@ public class DomibusPropertyProviderIT extends AbstractIT {
         //gets the cached value now
         cachedValue = getCachedValue(defaultDomain, propertyName);
         Assert.assertNotNull(cachedValue);
+        Assert.assertEquals(cachedValue, actualValue);
 
         String newValue = actualValue + "MODIFIED";
         //evicts from cache
