@@ -5,10 +5,13 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.util.ClassUtil;
+import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PROPERTY_LENGTH_MAX;
@@ -24,21 +27,28 @@ public class DomibusPropertyProviderDispatcher {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusPropertyProviderDispatcher.class);
 
+    // it is possible for domainContextProvider.getCurrentDomainSafely() to return null for the first stages of bootstrap process
+    // for global properties but it is acceptable since they are not going to mess with super properties
+    private static final String CACHE_KEY_EXPRESSION = "(#domain != null ? #domain.getCode() : " +
+            "(#root.target.domainContextProvider.getCurrentDomainSafely() == null ? \"global\" " +
+            ": #root.target.domainContextProvider.getCurrentDomain().getCode())) + ':' + #propertyName";
+
     @Autowired
     ClassUtil classUtil;
 
     @Autowired
-    protected DomainContextProvider domainContextProvider;
+    public DomainContextProvider domainContextProvider;
 
     @Autowired
     GlobalPropertyMetadataManager globalPropertyMetadataManager;
 
     @Autowired
-    private DomibusPropertyProviderImpl domibusPropertyProvider;
+    DomibusPropertyProviderImpl domibusPropertyProvider;
 
     @Autowired
     DomibusPropertyChangeManager domibusPropertyChangeManager;
 
+    @Cacheable(value = DomibusCacheService.DOMIBUS_PROPERTY_CACHE, key = CACHE_KEY_EXPRESSION)
     public String getInternalOrExternalProperty(String propertyName, Domain domain) throws DomibusPropertyException {
         DomibusPropertyMetadata propMeta = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
         if (propMeta.isStoredGlobally()) {
@@ -53,6 +63,7 @@ public class DomibusPropertyProviderDispatcher {
         return getExternalPropertyValue(propertyName, domain, manager);
     }
 
+    @CacheEvict(value = DomibusCacheService.DOMIBUS_PROPERTY_CACHE, key = CACHE_KEY_EXPRESSION)
     public void setInternalOrExternalProperty(Domain domain, String propertyName, String propertyValue, boolean broadcast) throws DomibusPropertyException {
         Integer maxLength = domibusPropertyProvider.getIntegerProperty(DOMIBUS_PROPERTY_LENGTH_MAX);
         if (maxLength > 0 && propertyValue != null && propertyValue.length() > maxLength) {
