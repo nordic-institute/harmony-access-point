@@ -27,25 +27,30 @@ public class DomibusPropertyProviderDispatcher {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusPropertyProviderDispatcher.class);
 
-    private static final String CACHE_KEY_EXPRESSION = "(#domain != null ? #domain : #domainContextProvider?.getCurrentDomain()) + #propertyName";
+    // it is possible for domainContextProvider.getCurrentDomainSafely() to return null for the first stages of bootstrap process
+    // for global properties but it is acceptable since they are not going to mess with super properties
+    private static final String CACHE_KEY_EXPRESSION = "(#domain != null ? #domain.getCode() : " +
+            "(#root.target.domainContextProvider.getCurrentDomainSafely() == null ? \"global\" " +
+            ": #root.target.domainContextProvider.getCurrentDomain().getCode())) + ':' + #propertyName";
 
     @Autowired
     ClassUtil classUtil;
 
     @Autowired
-    protected DomainContextProvider domainContextProvider;
+    public DomainContextProvider domainContextProvider;
 
     @Autowired
     GlobalPropertyMetadataManager globalPropertyMetadataManager;
 
     @Autowired
-    private DomibusPropertyProviderImpl domibusPropertyProvider;
+    DomibusPropertyProviderImpl domibusPropertyProvider;
 
     @Autowired
     DomibusPropertyChangeManager domibusPropertyChangeManager;
 
     @Cacheable(value = DomibusCacheService.DOMIBUS_PROPERTY_CACHE, key = CACHE_KEY_EXPRESSION)
     public String getInternalOrExternalProperty(String propertyName, Domain domain) throws DomibusPropertyException {
+
         DomibusPropertyMetadata propMeta = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
         if (propMeta.isStoredGlobally()) {
             return getInternalPropertyValue(domain, propertyName);

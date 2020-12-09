@@ -11,8 +11,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_UI_SUPPORT_TEAM_NAME;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_UI_TITLE_NAME;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 import static eu.domibus.property.ExternalTestModulePropertyManager.*;
 
 /**
@@ -36,12 +35,12 @@ public class DomibusPropertyProviderIT extends AbstractIT {
     Domain defaultDomain = new Domain("default", "Default");
 
     @Test
-    public void testCache() {
+    public void testCacheDomain() {
         String propertyName = DOMIBUS_UI_TITLE_NAME;
 
         //not in cache now
         String cachedValue = getCachedValue(defaultDomain, propertyName);
-        //ads to cache
+        //add to cache
         String actualValue = domibusPropertyProvider.getProperty(defaultDomain, propertyName);
         Assert.assertNotEquals(actualValue, cachedValue);
 
@@ -51,16 +50,32 @@ public class DomibusPropertyProviderIT extends AbstractIT {
     }
 
     @Test
+    public void testCacheNoDomain() {
+        String propertyName = DOMIBUS_UI_REPLICATION_QUEUE_CONCURENCY;
+
+        //not in cache now
+        String cachedValue = getCachedValue(propertyName);
+        //add to cache
+        String actualValue = domibusPropertyProvider.getProperty(propertyName);
+        Assert.assertNotEquals(actualValue, cachedValue);
+
+        //gets the cached value now
+        cachedValue = getCachedValue(propertyName);
+        Assert.assertEquals(actualValue, cachedValue);
+    }
+
+    @Test
     public void testCacheEvict() {
         String propertyName = DOMIBUS_UI_SUPPORT_TEAM_NAME;
 
         String cachedValue = getCachedValue(defaultDomain, propertyName);
         Assert.assertNull(cachedValue);
-        //ads to cache
+        //add to cache
         String actualValue = domibusPropertyProvider.getProperty(defaultDomain, propertyName);
         //gets the cached value now
         cachedValue = getCachedValue(defaultDomain, propertyName);
         Assert.assertNotNull(cachedValue);
+        Assert.assertEquals(cachedValue, actualValue);
 
         String newValue = actualValue + "MODIFIED";
         //evicts from cache
@@ -69,7 +84,7 @@ public class DomibusPropertyProviderIT extends AbstractIT {
         cachedValue = getCachedValue(defaultDomain, propertyName);
         Assert.assertNull(cachedValue);
 
-        //ads to cache again
+        //add to cache again
         actualValue = domibusPropertyProvider.getProperty(defaultDomain, propertyName);
         //finds it there
         cachedValue = getCachedValue(defaultDomain, propertyName);
@@ -77,7 +92,17 @@ public class DomibusPropertyProviderIT extends AbstractIT {
     }
 
     private String getCachedValue(Domain domain, String propertyName) {
-        return cacheManager.getCache(DomibusCacheService.DOMIBUS_PROPERTY_CACHE).get(domain.getCode() + propertyName, String.class);
+        if (domain == null) {
+            domain = domainContextProvider.getCurrentDomainSafely();
+        }
+        String domainCode = domain == null ? "global" : domain.getCode();
+
+        String key = domainCode + ":" + propertyName;
+        return cacheManager.getCache(DomibusCacheService.DOMIBUS_PROPERTY_CACHE).get(key, String.class);
+    }
+
+    private String getCachedValue(String propertyName) {
+        return getCachedValue(null, propertyName);
     }
 
     @Test
