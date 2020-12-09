@@ -40,7 +40,7 @@ public class MSHWebserviceConfiguration {
                         MSHWebservice mshWebservice,
                         @Qualifier("loggingFeature") LoggingFeature loggingFeature,
                         @Qualifier("ehCacheTokenStore") EHCacheTokenStore ehCacheTokenStore,
-                        @Qualifier("mshTaskExecutor") Executor executor,
+                        @Qualifier("taskExecutor") Executor executor,
                         SimpleKeystorePasswordCallback simpleKeystorePasswordCallback,
                         Wss4JMultiDomainCryptoProvider wss4JMultiDomainCryptoProvider,
                         DomibusReadyInterceptor domibusReadyInterceptor,
