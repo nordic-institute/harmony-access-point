@@ -2,6 +2,8 @@ package eu.domibus.core.ebms3.sender.client;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.ehcache.IgnoreSizeOfWrapper;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.proxy.DomibusProxy;
 import eu.domibus.core.proxy.DomibusProxyService;
 import eu.domibus.logging.DomibusLogger;
@@ -87,6 +89,8 @@ public class DispatchClientDefaultProvider implements DispatchClientProvider {
 
     @Cacheable(value = "dispatchClient", key = "#domain + #endpoint + #pModeKey", condition = "#cacheable")
     @Override
+    @Timer(clazz = DispatchClientDefaultProvider.class,value = "getClient")
+    @Counter(clazz = DispatchClientDefaultProvider.class,value = "getClient")
     public IgnoreSizeOfWrapper<Dispatch<SOAPMessage>> getClient(String domain, String endpoint, String algorithm, Policy policy, final String pModeKey, boolean cacheable) {
         LOG.debug("Getting the dispatch client for endpoint [{}] on domain [{}]", endpoint, domain);
 
@@ -116,6 +120,8 @@ public class DispatchClientDefaultProvider implements DispatchClientProvider {
 
 
     @Override
+    @Timer(clazz = DispatchClientDefaultProvider.class,value = "getLocalClient")
+    @Counter(clazz = DispatchClientDefaultProvider.class,value = "getLocalClient")
     public Dispatch<SOAPMessage> getLocalClient(String domain, String endpoint) {
         LOG.debug("Creating the dispatch client for endpoint [{}] on domain [{}]", endpoint, domain);
         Dispatch<SOAPMessage> dispatch = createLocalWSServiceDispatcher(endpoint);
@@ -136,6 +142,8 @@ public class DispatchClientDefaultProvider implements DispatchClientProvider {
         return dispatch;
     }
 
+    @Timer(clazz = DispatchClientDefaultProvider.class,value = "setHttpClientPolicy")
+    @Counter(clazz = DispatchClientDefaultProvider.class,value = "setHttpClientPolicy")
     public void setHttpClientPolicy(HTTPClientPolicy httpClientPolicy) {
         //ConnectionTimeOut - Specifies the amount of time, in milliseconds, that the consumer will attempt to establish a connection before it times out. 0 is infinite.
         int connectionTimeout = Integer.parseInt(domibusPropertyProvider.getProperty(DOMIBUS_DISPATCHER_CONNECTIONTIMEOUT));
