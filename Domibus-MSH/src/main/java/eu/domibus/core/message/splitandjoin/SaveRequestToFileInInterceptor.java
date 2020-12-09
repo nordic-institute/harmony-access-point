@@ -6,6 +6,7 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
+import eu.domibus.core.multitenancy.DomainContextProviderImpl;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorage;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.logging.DomibusLogger;
@@ -19,8 +20,6 @@ import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
 import org.apache.http.entity.ContentType;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -59,12 +58,12 @@ public class SaveRequestToFileInInterceptor extends AbstractPhaseInterceptor<Mes
         Map<String, List<String>> headers = (Map<String, List<String>>) message.get(Message.PROTOCOL_HEADERS);
         String messageId = getHeaderValue(headers, MSHDispatcher.HEADER_DOMIBUS_MESSAGE_ID);
         boolean compression = Boolean.valueOf(getHeaderValue(headers, MSHDispatcher.HEADER_DOMIBUS_SPLITTING_COMPRESSION));
-        String domainCode = getHeaderValue(headers, MSHDispatcher.HEADER_DOMIBUS_DOMAIN);
+        String domainCode = getHeaderValue(headers, DomainContextProvider.HEADER_DOMIBUS_DOMAIN);
         String encoding = (String) message.get(Message.ENCODING);
         String contentType = (String) message.get(Message.CONTENT_TYPE);
         LOG.putMDC(Message.CONTENT_TYPE, contentType);
         LOG.putMDC(MSHDispatcher.HEADER_DOMIBUS_SPLITTING_COMPRESSION, String.valueOf(compression));
-        LOG.putMDC(MSHDispatcher.HEADER_DOMIBUS_DOMAIN, domainCode);
+        LOG.putMDC(DomainContextProvider.HEADER_DOMIBUS_DOMAIN, domainCode);
         domainContextProvider.setCurrentDomain(domainCode);
 
         final String temporaryDirectoryLocation = domibusPropertyProvider.getProperty(PayloadFileStorage.TEMPORARY_ATTACHMENT_STORAGE_LOCATION);

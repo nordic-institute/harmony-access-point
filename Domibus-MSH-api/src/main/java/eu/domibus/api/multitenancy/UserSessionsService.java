@@ -8,4 +8,6 @@ import eu.domibus.api.user.UserBase;
  */
 public interface UserSessionsService {
     void invalidateSessions(UserBase user);
+
+    void invalidateSessions(String userName);
 }

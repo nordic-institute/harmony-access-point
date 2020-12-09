@@ -63,6 +63,8 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
 
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_JMS_QUEUE_ALERT, Type.JNDI),
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_TASK_EXECUTOR_THREAD_COUNT, Type.NUMERIC),
+            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_MSH_TASK_EXECUTOR_THREAD_COUNT, Type.NUMERIC),
+
 
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_ALERT_QUEUE_CONCURRENCY, Type.CONCURRENCY),
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(MESSAGE_FACTORY_CLASS, Type.CLASS),

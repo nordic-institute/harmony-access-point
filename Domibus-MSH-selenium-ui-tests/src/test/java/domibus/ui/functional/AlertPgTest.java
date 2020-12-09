@@ -82,8 +82,44 @@ public class AlertPgTest extends SeleniumTest {
 		}
 		return false;
 	}
-	
-	
+
+
+	// EDELIVERY-5283 - ALRT-1 - Login as super admin and open Alerts page
+	@Test(description = "ALRT-1", groups = {"multiTenancy", "singleTenancy"})
+	public void openAlertsPage() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		String username = rest.getUsername(null, DRoles.USER, true, false, false);
+		rest.login(username, "wrong");
+
+		AlertPage page = new AlertPage(driver);
+		page.getSidebar().goToPage(PAGES.ALERTS);
+		page.grid().waitForRowsToLoad();
+
+		log.info("Checking page title");
+		soft.assertEquals(page.getTitle(), descriptorObj.getString("title"), "Page title is correct");
+
+		log.info("checking basic filter presence");
+		basicFilterPresence(soft, page.filters(), descriptorObj.getJSONArray("filters"));
+
+		testDefaultColumnPresence(soft, page.grid(), descriptorObj.getJSONObject("grid").getJSONArray("columns"));
+
+		if (page.grid().getRowsNo() > 0) {
+			soft.assertTrue(page.grid().getPagination().getActivePage() == 1, "Default page shown in pagination is 1");
+		}
+
+		soft.assertTrue(page.grid().getPagination().getPageSizeSelect().getSelectedValue().equals("10"), "10 is selected by default in the page size select");
+
+		testButtonPresence(soft, page, descriptorObj.getJSONArray("buttons"));
+
+
+
+		soft.assertAll();
+
+	}
+
+
+
 	//This method will do Search using Basic filters
 	@Test(description = "ALRT-5", groups = {"multiTenancy", "singleTenancy"})
 	public void searchBasicFilters() throws Exception {
@@ -954,5 +990,36 @@ public class AlertPgTest extends SeleniumTest {
 
 		soft.assertAll();
 	}
-	
+
+	/* EDELIVERY-5471 - ALRT-23 - Check additional filters section for each alert type */
+	@Test(description = "ALRT-23", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	public void checkAditionalFilters() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		log.info("Navigating to Alerts page");
+		AlertPage page = new AlertPage(driver);
+		page.getSidebar().goToPage(PAGES.ALERTS);
+		log.info("waiting for grid to load");
+		page.grid().waitForRowsToLoad();
+
+		AlertFilters filter= new AlertFilters(driver);
+		log.info("iterating trough alert types");
+
+		List<String> options = filter.getAlertTypeSelect().getOptionsTexts();
+
+		for (String option : options) {
+			log.info("checking alert type " + option);
+			filter.getAlertTypeSelect().selectOptionByText(option);
+			List<String>  xFilters = filter.getXFilterNames();
+
+			log.debug(xFilters.toString());
+
+		}
+
+
+
+
+		soft.assertAll();
+	}
+
 }

@@ -120,11 +120,6 @@ export class JmsComponent extends mix(BaseListComponent)
         width: 80
       },
       {
-        cellTemplate: this.rawTextTpl,
-        name: 'Content',
-        prop: 'content'
-      },
-      {
         name: 'Custom prop',
         prop: 'customPropertiesText',
         width: 250

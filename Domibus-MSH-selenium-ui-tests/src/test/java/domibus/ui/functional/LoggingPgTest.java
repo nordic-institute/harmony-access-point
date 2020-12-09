@@ -165,14 +165,15 @@ public class LoggingPgTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-	/*This method will verify changes on  page selector value modification */
+	/* LOG-7 - User changes number of visible rows */
 	@Test(description = "LOG-7", groups = {"multiTenancy", "singleTenancy"})
-	public void changePageSelector() throws Exception {
+	public void changeNumberOfVisibleRows() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		LoggingPage page = new LoggingPage(driver);
 
 		log.info("Login into application with admin user");
 		page.getSidebar().goToPage(PAGES.LOGGING);
+		page.grid().waitForRowsToLoad();
 
 		log.info("Extract total number of items available");
 		page.grid().getPagination().getTotalItems();
@@ -182,11 +183,12 @@ public class LoggingPgTest extends SeleniumTest {
 
 		log.info("Check presence of last page by navigation");
 		page.grid().getPagination().goToPage(totalPagesBeforeUpdate);
+		page.grid().waitForRowsToLoad();
 
 		log.info("Change page selector size value to 25");
 		page.grid().getPagination().getPageSizeSelect().selectOptionByText("25");
-
 		page.grid().waitForRowsToLoad();
+
 		soft.assertTrue(page.grid().getRowsNo() == 25, "Number of rows is  equal to 25");
 
 		log.info("Calculate no of expected pages ");

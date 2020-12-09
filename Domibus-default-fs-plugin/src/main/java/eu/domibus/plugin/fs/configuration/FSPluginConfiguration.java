@@ -18,6 +18,7 @@ import org.springframework.core.env.Environment;
 import javax.jms.Queue;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -35,10 +36,19 @@ public class FSPluginConfiguration {
     public static final String NOTIFY_BACKEND_QUEUE_JNDI = "jms/domibus.notification.filesystem";
     public static final String NOTIFY_BACKEND_FS_QUEUE_NAME = "notifyBackendFSQueue";
 
+    protected List<NotificationType> defaultMessageNotifications = Arrays.asList(
+                            NotificationType.MESSAGE_RECEIVED, NotificationType.MESSAGE_SEND_FAILURE, NotificationType.MESSAGE_RECEIVED_FAILURE,
+                            NotificationType.MESSAGE_SEND_SUCCESS, NotificationType.MESSAGE_STATUS_CHANGE);
+
     @Bean("backendFSPlugin")
     public FSPluginImpl createFSPlugin(DomibusPropertyExtService domibusPropertyExtService) {
         List<NotificationType> messageNotifications = domibusPropertyExtService.getConfiguredNotifications(FSPluginPropertiesMetadataManagerImpl.MESSAGE_NOTIFICATIONS);
         LOG.debug("Using the following message notifications [{}]", messageNotifications);
+        if (!messageNotifications.containsAll(defaultMessageNotifications)) {
+            LOG.warn("FSPlugin will not function properly if the following message notifications will not be set: [{}]",
+                    defaultMessageNotifications);
+        }
+
         FSPluginImpl fsPlugin = new FSPluginImpl();
         fsPlugin.setRequiredNotifications(messageNotifications);
         return fsPlugin;

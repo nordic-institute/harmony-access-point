@@ -337,12 +337,10 @@ public class AuditPgTest extends SeleniumTest {
 		String newPartyName = Gen.randomAlphaNumeric(5);
 		
 		log.info("login into application and navigate to Pmode parties page");
-		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PMODE_PARTIES);
 		PModePartiesPage pPage = new PModePartiesPage(driver);
-		
-		log.info("Validate new button is enabled");
-		soft.assertTrue(pPage.getNewButton().isEnabled(), "New button is enabled");
-		
+		pPage.getSidebar().goToPage(PAGES.PMODE_PARTIES);
+		pPage.grid().waitForRowsToLoad();
+
 		log.info("Click on New button");
 		pPage.getNewButton().click();
 		PartyModal modal = new PartyModal(driver);
@@ -368,8 +366,11 @@ public class AuditPgTest extends SeleniumTest {
 		auditPage.grid().waitForRowsToLoad();
 		
 		log.info("Validate data on Audit page");
-		soft.assertTrue(auditPage.grid().getRowInfo(0).get("Action") != null, "Proper action is logged");
-		soft.assertTrue(auditPage.grid().getRowInfo(1).get("Action") != null, "Proper action is logged");
+
+		List<String> expectedActions = Arrays.asList("", "");
+
+		soft.assertEquals(auditPage.grid().getRowInfo(0).get("Action"), "Created", "Proper action is logged on row 0");
+		soft.assertEquals(auditPage.grid().getRowInfo(1).get("Action"),  "Deleted", "Proper action is logged on row 1");
 		
 		soft.assertAll();
 	}

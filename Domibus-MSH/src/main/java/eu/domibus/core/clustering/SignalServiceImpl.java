@@ -9,6 +9,7 @@ import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusConfigurationService;
+import eu.domibus.api.user.UserBase;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
@@ -116,6 +117,16 @@ public class SignalServiceImpl implements SignalService {
         Map<String, String> commandProperties = new HashMap<>();
         commandProperties.put(Command.COMMAND, Command.MESSAGE_FILTER_UPDATE);
         commandProperties.put(MessageConstants.DOMAIN, domainCode);
+
+        sendMessage(commandProperties);
+    }
+
+    @Override
+    public void signalSessionInvalidation(String userName) {
+        LOG.debug("Signaling user session invalidation for user", userName);
+        Map<String, String> commandProperties = new HashMap<>();
+        commandProperties.put(Command.COMMAND, Command.USER_SESSION_INVALIDATION);
+        commandProperties.put(CommandProperty.USER_NAME, userName);
 
         sendMessage(commandProperties);
     }

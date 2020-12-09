@@ -16,10 +16,7 @@ public class PayloadFileStorageConfiguration {
     @Bean(name = "storage")
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public PayloadFileStorage storage(Domain domain) {
-
-        PayloadFileStorage storage = new PayloadFileStorage();
-        storage.setDomain(domain);
-
+        PayloadFileStorage storage = new PayloadFileStorage(domain);
         return  storage;
     }
 

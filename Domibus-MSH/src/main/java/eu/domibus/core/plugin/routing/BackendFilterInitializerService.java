@@ -58,8 +58,7 @@ public class BackendFilterInitializerService {
 
         if (domibusConfigurationService.isSingleTenantAware()) {
             LOG.debug("Creating plugin backend filters in Non MultiTenancy environment");
-            authUtils.runWithSecurityContext(routingService::createBackendFilters,
-                    "domibus", "domibus", AuthRole.ROLE_ADMIN, true);
+            authUtils.runWithDomibusSecurityContext(routingService::createBackendFilters, AuthRole.ROLE_ADMIN, true);
             return;
         }
 
@@ -69,9 +68,7 @@ public class BackendFilterInitializerService {
         for (Domain domain : domains) {
             LOG.debug("Checking and updating the configured plugins for domain [{}]", domain);
 
-            Runnable wrappedCreateBackendFilters = () -> authUtils.runWithSecurityContext(
-                    routingService::createBackendFilters, "domibus",
-                    "domibus", AuthRole.ROLE_AP_ADMIN, true);
+            Runnable wrappedCreateBackendFilters = () -> authUtils.runWithDomibusSecurityContext(routingService::createBackendFilters, AuthRole.ROLE_AP_ADMIN, true);
             //wait 3 minutes to complete the task; the actual execution of the business logic is fast but
             //sometime at server startup it might take a while to have enough threads available
             domainTaskExecutor.submit(wrappedCreateBackendFilters, domain, true, 3L, TimeUnit.MINUTES);

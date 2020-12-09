@@ -107,7 +107,7 @@ export class DomainSelectorComponent implements OnInit {
       if (ex.status <= 0) {
         this.alertService.exception('The server didn\'t respond, please try again later', ex);
       } else {
-        this.alertService.exception('Error trying to chenge the domain: ', ex);
+        this.alertService.exception('Error trying to change the domain.', ex);
       }
     }
   }
