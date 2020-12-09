@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.*;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.function.Predicate;
@@ -105,6 +106,12 @@ public class MessagingDao extends BasicDao<Messaging> {
         LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_DATA_CLEARED, messageId);
     }
 
+    public List<String> findFileSystemPayloadFilenames(List<String> messageIds) {
+        TypedQuery<String> query = em.createNamedQuery("PartInfo.findFilenames", String.class);
+        query.setParameter("MESSAGEIDS", messageIds);
+        return query.getResultList();
+    }
+
     /**
      * Deletes the payloads saved on the file system
      *
@@ -118,12 +125,38 @@ public class MessagingDao extends BasicDao<Messaging> {
         }
 
         for (PartInfo result : fileSystemPayloads) {
-            try {
-                Files.delete(Paths.get(result.getFileName()));
-            } catch (IOException e) {
-                LOG.debug("Problem deleting payload data files", e);
-            }
+            deletePayloadFile(result.getFileName());
+        }
+    }
 
+    public void deletePayloadFiles(List<String> filenames) {
+        if(CollectionUtils.isEmpty(filenames)) {
+            LOG.debug("No payload data file to delete from the filesystem");
+            return;
+        }
+
+        LOG.debug("Thre are [{}] payloads on filesystem to delete: [{}] ", filenames.size() );
+        for(String filename : filenames) {
+            LOG.debug("Deleting payload data file: [{}]", filename);
+            deletePayloadFile(filename);
+        }
+    }
+
+    public void deletePayloadFile(String filename) {
+        if(StringUtils.isAllBlank(filename)) {
+            LOG.warn("Empty filename used to delete payload on filesystem!");
+            return;
+        }
+
+        try {
+            Path path = Paths.get(filename);
+            if(path == null) {
+                LOG.warn("Trying to delete an empty path, filename [{}]", filename);
+                return;
+            }
+            Files.delete(path);
+        } catch (IOException e) {
+            LOG.debug("Problem deleting payload data files", e);
         }
     }
 

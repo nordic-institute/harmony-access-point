@@ -1,10 +1,14 @@
 package eu.domibus.core.user.ui.security;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.multitenancy.UserSessionsService;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.user.UserBase;
 import eu.domibus.core.alerts.service.ConsoleUserAlertsServiceImpl;
 import eu.domibus.core.alerts.service.UserAlertsService;
-import eu.domibus.core.user.*;
+import eu.domibus.core.user.UserDaoBase;
+import eu.domibus.core.user.UserEntityBase;
+import eu.domibus.core.user.UserPasswordHistoryDao;
 import eu.domibus.core.user.UserSecurityPolicyManager;
 import eu.domibus.core.user.ui.User;
 import eu.domibus.core.user.ui.UserDao;
@@ -48,6 +52,9 @@ public class ConsoleUserSecurityPolicyManager extends UserSecurityPolicyManager<
 
     @Autowired
     protected DomainContextProvider domainContextProvider;
+
+    @Autowired
+    UserSessionsService userSessionsService;
 
     @Override
     protected String getPasswordComplexityPatternProperty() {
@@ -104,4 +111,15 @@ public class ConsoleUserSecurityPolicyManager extends UserSecurityPolicyManager<
         return UserEntityBase.Type.CONSOLE;
     }
 
+    @Override
+    protected void onInactivateUser(UserBase user) {
+        super.onInactivateUser(user);
+        userSessionsService.invalidateSessions(user);
+    }
+
+    @Override
+    protected void onSuspendUser(User user, int maxAttemptAmount) {
+        super.onSuspendUser(user, maxAttemptAmount);
+        userSessionsService.invalidateSessions(user);
+    }
 }

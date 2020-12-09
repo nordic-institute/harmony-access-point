@@ -208,7 +208,10 @@ public class MessageRetentionServiceTest {
             pModeProvider.getRetentionSentByMpcURI(mpc1);
             result = retentionTime;
 
-            userMessageLogDao.getSentUserMessagesOlderThan((Date)any, mpc1, expiredSentMessagesLimit);
+            pModeProvider.isDeleteMessageMetadataByMpcURI(mpc1);
+            result = true;
+
+            userMessageLogDao.getSentUserMessagesOlderThan((Date)any, mpc1, expiredSentMessagesLimit, true);
             result = expiredMessages;
 
             messageRetentionService.scheduleDeleteMessages((List<UserMessageLogDto>)any, mpc1); times = 1;

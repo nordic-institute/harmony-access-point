@@ -83,7 +83,8 @@ import static org.awaitility.Awaitility.with;
 @WebAppConfiguration
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(initializers = PropertyOverrideContextInitializer.class,
-        classes = {DomibusRootConfiguration.class, DomibusWebConfiguration.class, DomibusTestDatasourceConfiguration.class, DomibusTestTransactionConfiguration.class})
+        classes = {DomibusRootConfiguration.class, DomibusWebConfiguration.class,
+                DomibusTestDatasourceConfiguration.class, DomibusTestTransactionConfiguration.class, DomibusTestMocksConfiguration.class})
 @DirtiesContext
 @Rollback
 public abstract class AbstractIT {
@@ -292,6 +293,8 @@ public abstract class AbstractIT {
         String pModeKey = composePModeKey("blue_gw", "red_gw", "testService1", "tc1Action", "", "pushTestcase1tc1Action");
 
         message.setProperty(DispatchClientDefaultProvider.PMODE_KEY_CONTEXT_PROPERTY, pModeKey);
+        message.setProperty(DomainContextProvider.HEADER_DOMIBUS_DOMAIN, DomainService.DEFAULT_DOMAIN.getCode());
+
         return message;
     }
 
