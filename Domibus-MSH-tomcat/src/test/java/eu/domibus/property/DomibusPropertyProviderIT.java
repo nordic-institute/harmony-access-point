@@ -34,7 +34,7 @@ public class DomibusPropertyProviderIT extends AbstractIT {
 
         //not in cache now
         String cachedValue = getCachedValue(defaultDomain, propertyName);
-        //ads to cache
+        //add to cache
         String actualValue = domibusPropertyProvider.getProperty(defaultDomain, propertyName);
         Assert.assertNotEquals(actualValue, cachedValue);
 
@@ -49,7 +49,7 @@ public class DomibusPropertyProviderIT extends AbstractIT {
 
         //not in cache now
         String cachedValue = getCachedValue(propertyName);
-        //ads to cache
+        //add to cache
         String actualValue = domibusPropertyProvider.getProperty(propertyName);
         Assert.assertNotEquals(actualValue, cachedValue);
 
@@ -64,7 +64,7 @@ public class DomibusPropertyProviderIT extends AbstractIT {
 
         String cachedValue = getCachedValue(defaultDomain, propertyName);
         Assert.assertNull(cachedValue);
-        //ads to cache
+        //add to cache
         String actualValue = domibusPropertyProvider.getProperty(defaultDomain, propertyName);
         //gets the cached value now
         cachedValue = getCachedValue(defaultDomain, propertyName);
@@ -77,7 +77,7 @@ public class DomibusPropertyProviderIT extends AbstractIT {
         cachedValue = getCachedValue(defaultDomain, propertyName);
         Assert.assertNull(cachedValue);
 
-        //ads to cache again
+        //add to cache again
         actualValue = domibusPropertyProvider.getProperty(defaultDomain, propertyName);
         //finds it there
         cachedValue = getCachedValue(defaultDomain, propertyName);
