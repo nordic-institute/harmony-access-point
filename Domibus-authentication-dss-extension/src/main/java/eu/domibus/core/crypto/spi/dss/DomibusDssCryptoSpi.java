@@ -95,7 +95,7 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
         //Validate.
         validate(certificateValidator);
         dssCache.addToCache(cacheKey, true);
-        LOG.debug("Certificate:[{}] passed DSS trust validation:", leafCertificate.getSubjectDN());
+        LOG.info("Certificate:[{}] passed DSS trust validation and is added to cache", leafCertificate.getSubjectDN());
     }
 
     protected void validate(CertificateValidator certificateValidator) throws WSSecurityException {

@@ -16,15 +16,10 @@ public interface ConfigurationPropertyResourceHelper {
     /**
      * Retrieves all properties from MSH and plugins filtered by the parameters
      *
-     * @param name part of the property name, case insensitive
-     * @param showDomainProperties domain or global properties
-     * @param type the type of the property
-     * @param module the module of the property
-     * @param value the value of the property
-     * @param writable if the property is writable or not ( or both if it is null)
+     * @param filterAttributes all attributes by which to filter and sort
      * @return the list of the properties: metadata and value
      */
-    List<DomibusProperty> getAllProperties(String name, boolean showDomainProperties, String type, String module, String value, Boolean writable);
+    List<DomibusProperty> getAllProperties(DomibusPropertiesFilter filterAttributes);
 
     /**
      * Sets the property with specified name to the specified value

@@ -9,6 +9,7 @@ import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.util.MultiPartFileUtil;
+import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.converter.DomainCoreConverter;
@@ -16,14 +17,12 @@ import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.TrustStoreRO;
-import mockit.Expectations;
-import mockit.Injectable;
-import mockit.Mocked;
-import mockit.Tested;
+import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -78,6 +77,9 @@ public class TruststoreResourceTest {
 
     @Injectable
     MultiPartFileUtil multiPartFileUtil;
+
+    @Injectable
+    private AuditService auditService;
 
     @Test
     public void testUploadTruststoreFileSuccess() throws IOException {
@@ -254,6 +256,12 @@ public class TruststoreResourceTest {
 
         // Then
         validateResponseEntity(responseEntity, HttpStatus.OK);
+
+        new Verifications(){{
+            certificateService.getTruststoreContent();
+            auditService.addTruststoreDownloadedAudit();
+        }};
+
     }
 
     private void validateResponseEntity(ResponseEntity<? extends Resource> responseEntity, HttpStatus httpStatus) {

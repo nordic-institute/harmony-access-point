@@ -26,7 +26,9 @@ public class PModePartiesTest extends RestTest {
 	@Test(description = "PMP-6")
 	public void createParty() throws Exception {
 		SoftAssert soft = new SoftAssert();
+
 		String uploadPath = "rest_pmodes/pmode-blue.xml";
+
 		for (String domain : domains) {
 			rest.pmode().uploadPMode(uploadPath, domain);
 			JSONArray parties = rest.pmodeParties().getParties();

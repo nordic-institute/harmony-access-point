@@ -15,6 +15,7 @@ import eu.domibus.core.multitenancy.dao.UserDomainDao;
 import eu.domibus.core.multitenancy.dao.UserDomainEntity;
 import eu.domibus.core.user.UserPersistenceService;
 import eu.domibus.core.user.ui.UserDao;
+import eu.domibus.core.user.ui.UserFilteringDao;
 import eu.domibus.core.user.ui.UserManagementServiceImpl;
 import eu.domibus.core.user.ui.UserRoleDao;
 import eu.domibus.core.user.ui.converters.UserConverter;
@@ -22,18 +23,12 @@ import eu.domibus.core.user.ui.security.ConsoleUserSecurityPolicyManager;
 import eu.domibus.core.user.ui.security.password.ConsoleUserPasswordHistoryDao;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.Mockito;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.function.Function;
 
 import static org.junit.Assert.assertEquals;
 
@@ -84,7 +79,7 @@ public class SuperUserManagementServiceImplTest {
     @Injectable
     protected DomainTaskExecutor domainTaskExecutor;
 
-    @Mocked
+    @Injectable
     private UserManagementServiceImpl userManagementService;
 
     @Injectable
@@ -98,6 +93,9 @@ public class SuperUserManagementServiceImplTest {
 
     @Injectable
     protected AuthUtils authUtils;
+
+    @Injectable
+    UserFilteringDao userFilteringDao;
 
     @Test
     public void findUsers() {
@@ -161,8 +159,8 @@ public class SuperUserManagementServiceImplTest {
 
     @Test
     public void getPreferredDomainForUser(@Mocked eu.domibus.api.user.User user,
-                                 @Mocked UserDomainEntity userDomainEntity1,
-                                 @Mocked UserDomainEntity userDomainEntity2) {
+                                          @Mocked UserDomainEntity userDomainEntity1,
+                                          @Mocked UserDomainEntity userDomainEntity2) {
 
         new Expectations() {{
             user.getUserName();
@@ -182,4 +180,24 @@ public class SuperUserManagementServiceImplTest {
         assertEquals("domain2", res);
     }
 
+    @Test
+    public void findUsersWithFilters(@Injectable eu.domibus.core.user.ui.User userEntity,
+                                     @Injectable eu.domibus.api.user.User user,
+                                     @Injectable eu.domibus.api.user.User user1) {
+        List<User> users = new ArrayList<>();
+        users.add(user);
+        List<User> superUsers = new ArrayList<>();
+        superUsers.add(user1);
+
+        new Expectations() {{
+            userManagementService.findUsersWithFilters(AuthRole.ROLE_ADMIN, "admin", "true", 1, 10);
+            result = users;
+            superUserManagementService.getSuperUsersWithFilters(AuthRole.ROLE_ADMIN, "admin", "true", 1, 10);
+            result = superUsers;
+        }};
+
+        List<User> all = superUserManagementService.findUsersWithFilters(AuthRole.ROLE_ADMIN, "admin", "true", 1, 10);
+
+        assertEquals(all.size(), 2);
+    }
 }

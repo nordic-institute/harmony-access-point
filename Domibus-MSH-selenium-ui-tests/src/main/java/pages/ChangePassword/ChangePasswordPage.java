@@ -152,9 +152,18 @@ public class ChangePasswordPage extends DomibusPage {
 
 		switch (fieldName){
 			case confirmationFieldLabel:
-				return weToDobject(confirmationFieldErrMess).isPresent();
+				try {
+					return weToDobject(confirmationFieldErrMess).isPresent();
+				} catch (Exception e) {
+					return false;
+				}
 			case newPasswordFieldLabel:
-				return weToDobject(newPassFieldErrMess).isEnabled();
+				try {
+					return weToDobject(newPassFieldErrMess).isEnabled();
+				} catch (Exception e) {
+					return false;
+				}
+
 			default:
 				throw new Exception("field name not recognized - " + fieldName);
 		}

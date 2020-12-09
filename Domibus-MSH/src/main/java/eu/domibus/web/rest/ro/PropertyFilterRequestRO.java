@@ -1,13 +1,11 @@
 package eu.domibus.web.rest.ro;
 
-import java.io.Serializable;
-
 /**
  * @author Ion Perpegel
  * @since 4.1.1
  */
 
-public class PropertyFilterRequestRO implements Serializable {
+public class PropertyFilterRequestRO {
 
     private int page = 0;
 
@@ -24,6 +22,10 @@ public class PropertyFilterRequestRO implements Serializable {
     private String value;
 
     private Boolean writable;
+
+    private String orderBy;
+
+    private boolean asc;
 
     public int getPage() {
         return page;
@@ -87,5 +89,21 @@ public class PropertyFilterRequestRO implements Serializable {
 
     public void setWritable(Boolean isWritable) {
         this.writable = isWritable;
+    }
+
+    public String getOrderBy() {
+        return orderBy;
+    }
+
+    public void setOrderBy(String orderBy) {
+        this.orderBy = orderBy;
+    }
+
+    public Boolean getAsc() {
+        return asc;
+    }
+
+    public void setAsc(Boolean asc) {
+        this.asc = asc;
     }
 }

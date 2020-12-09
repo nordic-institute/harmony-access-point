@@ -53,6 +53,33 @@
           "value": "GW"
         }
       }
+    ],
+    "properties": [
+      {
+        "name": "originalSenderProperty",
+        "key": "originalSender",
+        "datatype": "string",
+        "required": "true"
+      },
+      {
+        "name": "propertyNotUsed",
+        "key": "notUsed",
+        "datatype": "string",
+        "required": "true"
+      }
+    ],
+    "propertySets": [
+      {
+        "name": "eDeliveryPropertySet",
+        "propertyRef": [
+          {
+            "property": "originalSenderProperty"
+          },
+          {
+            "property": "propertyRefNotDefined"
+          }
+        ]
+      }
     ]
   }
 }
