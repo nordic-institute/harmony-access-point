@@ -12,7 +12,6 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -52,6 +51,7 @@ public class CronExpressionChangeListener implements DomibusPropertyChangeListen
             {DOMIBUS_UI_REPLICATION_SYNC_CRON, "uiReplicationJob"},
             {DOMIBUS_SPLIT_AND_JOIN_RECEIVE_EXPIRATION_CRON, "splitAndJoinExpirationJob"},
             {DOMIBUS_MONITORING_CONNECTION_CRON, "connectionMonitoringJob"},
+            {DOMIBUS_ERRORLOG_CLEANER_CRON, "errorLogCleanerJob"}
     }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
 
     @Override

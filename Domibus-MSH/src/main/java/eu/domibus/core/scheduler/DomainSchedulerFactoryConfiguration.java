@@ -464,8 +464,9 @@ public class DomainSchedulerFactoryConfiguration {
     @Bean
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public CronTriggerFactoryBean errorLogCleanerTrigger() {
-        if (domainContextProvider.getCurrentDomainSafely() == null)
+        if (domainContextProvider.getCurrentDomainSafely() == null) {
             return null;
+        }
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(errorLogCleanerJob().getObject());
         obj.setCronExpression(domibusPropertyProvider.getProperty(DOMIBUS_ERRORLOG_CLEANER_CRON));

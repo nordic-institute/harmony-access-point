@@ -15,7 +15,6 @@ public interface ErrorService {
 
     /**
      * delete ErrorLogEntry records not having messageId and older than x days
-     * @return
      */
-    public int deleteErrorLogWithoutMessageIds();
+    public void deleteErrorLogWithoutMessageIds();
 }

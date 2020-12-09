@@ -41,11 +41,10 @@ public class ErrorServiceImpl implements ErrorService {
 
 
     @Override
-    public int deleteErrorLogWithoutMessageIds() {
-
-
+    public void deleteErrorLogWithoutMessageIds() {
         int days = domibusPropertyProvider.getIntegerProperty(DOMIBUS_ERRORLOG_CLEANER_OLDER_DAYS);
         int batchSize = domibusPropertyProvider.getIntegerProperty(DOMIBUS_ERRORLOG_CLEANER_BATCH_SIZE);
-        return errorLogDao.deleteErrorLogsWithoutMessageIdOlderThan(days, batchSize);
+
+        errorLogDao.deleteErrorLogsWithoutMessageIdOlderThan(days, batchSize);
     }
 }
