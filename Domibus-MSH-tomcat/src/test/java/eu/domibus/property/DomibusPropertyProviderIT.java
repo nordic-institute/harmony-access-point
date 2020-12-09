@@ -75,6 +75,7 @@ public class DomibusPropertyProviderIT extends AbstractIT {
         //gets the cached value now
         cachedValue = getCachedValue(defaultDomain, propertyName);
         Assert.assertNotNull(cachedValue);
+        Assert.assertEquals(cachedValue, actualValue);
 
         String newValue = actualValue + "MODIFIED";
         //evicts from cache
