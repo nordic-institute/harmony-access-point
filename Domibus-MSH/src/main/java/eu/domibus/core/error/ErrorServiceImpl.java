@@ -8,6 +8,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ERRORLOG_CLEANER_BATCH_SIZE;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ERRORLOG_CLEANER_OLDER_DAYS;
+
 /**
  * @author Thomas Dussart
  * @since 3.3
@@ -41,7 +44,8 @@ public class ErrorServiceImpl implements ErrorService {
     public int deleteErrorLogWithoutMessageIds() {
 
 
-        int days = 1;
-        return errorLogDao.deleteErrorLogsWithoutMessageIdOlderThan(days);
+        int days = domibusPropertyProvider.getIntegerProperty(DOMIBUS_ERRORLOG_CLEANER_OLDER_DAYS);
+        int batchSize = domibusPropertyProvider.getIntegerProperty(DOMIBUS_ERRORLOG_CLEANER_BATCH_SIZE);
+        return errorLogDao.deleteErrorLogsWithoutMessageIdOlderThan(days, batchSize);
     }
 }

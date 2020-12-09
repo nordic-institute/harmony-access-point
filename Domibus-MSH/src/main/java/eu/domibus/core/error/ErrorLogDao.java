@@ -114,10 +114,13 @@ public class ErrorLogDao extends ListDao<ErrorLogEntry> {
         return result;
     }
 
-    public int deleteErrorLogsWithoutMessageIdOlderThan(int days) {
+    public int deleteErrorLogsWithoutMessageIdOlderThan(int days, int batchSize) {
+        LOG.debug("Going to delete errorlogs without messageIds older than [{}] in a batch size of [{}]", days, batchSize);
         Date deletionTime = DateUtils.addDays(new Date(), -days);
 
         final Query deleteQuery = em.createNamedQuery("ErrorLogEntry.deleteWithoutMessageIds");
+        deleteQuery.setFirstResult(0);
+        deleteQuery.setMaxResults(batchSize);
         deleteQuery.setParameter("DELETION_DATE", deletionTime);
 
         int result  = deleteQuery.executeUpdate();

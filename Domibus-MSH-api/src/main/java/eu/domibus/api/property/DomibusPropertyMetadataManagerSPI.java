@@ -329,4 +329,9 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_UI_SESSION_SECURE = "domibus.ui.session.secure";
     String DOMIBUS_DISPATCHER_TIMEOUT = "domibus.dispatcher.timeout";
     String DOMIBUS_UI_SESSION_TIMEOUT = "domibus.ui.session.timeout";
+
+    String DOMIBUS_ERRORLOG_CLEANER_CRON = "domibus.errorlog.cleaner.cron";
+    String DOMIBUS_ERRORLOG_CLEANER_OLDER_DAYS = "domibus.errorlog.cleaner.older.days";
+    String DOMIBUS_ERRORLOG_CLEANER_BATCH_SIZE = "domibus.errorlog.cleaner.batch.size";
+
 }
