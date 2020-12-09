@@ -311,9 +311,10 @@ public class PluginUsersPgTest extends SeleniumTest {
 		log.info("creating plugin user with certificate " + certId);
 		
 		SoftAssert soft = new SoftAssert();
-		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PLUGIN_USERS);
 		PluginUsersPage page = new PluginUsersPage(driver);
-		
+		page.getSidebar().goToPage(PAGES.PLUGIN_USERS);
+		page.grid().waitForRowsToLoad();
+
 		log.info("switching to auth type certificate");
 		page.filters.getAuthTypeSelect().selectOptionByText("CERTIFICATE");
 		page.grid().waitForRowsToLoad();
@@ -345,9 +346,12 @@ public class PluginUsersPgTest extends SeleniumTest {
 		log.info("creating plugin user with certificate " + certId);
 		
 		SoftAssert soft = new SoftAssert();
-		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PLUGIN_USERS);
-		
+
 		PluginUsersPage page = new PluginUsersPage(driver);
+		page.getSidebar().goToPage(PAGES.PLUGIN_USERS);
+		page.grid().waitForRowsToLoad();
+
+
 		log.info("switching to auth type certificate");
 		page.filters.getAuthTypeSelect().selectOptionByText("CERTIFICATE");
 		page.grid().waitForRowsToLoad();
@@ -471,6 +475,7 @@ public class PluginUsersPgTest extends SeleniumTest {
 		
 		PluginUsersPage page = new PluginUsersPage(driver);
 		page.getSidebar().goToPage(PAGES.PLUGIN_USERS);
+		page.grid().waitForRowsToLoad();
 		
 		page.filters.getAuthTypeSelect().selectOptionByText("CERTIFICATE");
 		page.grid().waitForRowsToLoad();
