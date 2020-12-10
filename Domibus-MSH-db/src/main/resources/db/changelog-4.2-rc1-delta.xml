@@ -13,9 +13,7 @@
         <modifyDataType columnName="VALUE" newDataType="VARCHAR(1024)" tableName="TB_PM_MEP_BINDING"/>
         <modifyDataType columnName="SCHEMA_FILE" newDataType="VARCHAR(1024)" tableName="TB_PM_PAYLOAD"/>
     </changeSet>
-    <changeSet id="DELETE_MESSAGE_METADATA" author="idragusa">
-        <dropIndex tableName="TB_MESSAGE_UI" indexName="IDX_MSG_UI_MESSAGE_ID"/>
-    </changeSet>
+
     <changeSet author="Joze Rihtarsic" id="EDELIVERY-4335">
         <createTable tableName="TB_CERTIFICATE_AUD">
             <column name="ID_PK" type="BIGINT">
