@@ -10,6 +10,7 @@ import eu.domibus.core.ebms3.receiver.leg.LegConfigurationExtractor;
 import eu.domibus.core.ebms3.receiver.leg.ServerInMessageLegConfigurationFactory;
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
 import eu.domibus.core.message.UserMessageHandlerService;
+import eu.domibus.core.metrics.MetricsHelper;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.logging.DomibusLogger;
@@ -31,6 +32,8 @@ import javax.xml.transform.TransformerException;
 import java.io.File;
 import java.io.IOException;
 
+import static com.codahale.metrics.MetricRegistry.name;
+
 /**
  * @author Thomas Dussart
  * @author Cosmin Baciu
@@ -42,9 +45,7 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SetPolicyInServerInterceptor.class);
 
     protected ServerInMessageLegConfigurationFactory serverInMessageLegConfigurationFactory;
-
     protected BackendNotificationService backendNotificationService;
-
     protected UserMessageHandlerService userMessageHandlerService;
 
     public SetPolicyInServerInterceptor(ServerInMessageLegConfigurationFactory serverInMessageLegConfigurationFactory,
@@ -73,6 +74,8 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
             }
             return;
         }
+
+        com.codahale.metrics.Timer.Context methodTimer = MetricsHelper.getMetricRegistry().timer(name(SetPolicyInServerInterceptor.class, "handleMessage", "timer")).time();
 
         Messaging messaging = null;
         String policyName = null;
@@ -113,6 +116,8 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
             EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, "no valid security policy found", messaging != null ? messageId : "unknown", e);
             ex.setMshRole(MSHRole.RECEIVING);
             throw new Fault(ex);
+        } finally {
+            methodTimer.stop();
         }
     }
 

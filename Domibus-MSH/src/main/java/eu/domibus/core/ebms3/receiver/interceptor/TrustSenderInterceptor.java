@@ -14,7 +14,9 @@ import eu.domibus.core.ebms3.receiver.token.TokenReference;
 import eu.domibus.core.ebms3.receiver.token.TokenReferenceExtractor;
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
 import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
+import eu.domibus.core.ebms3.sender.interceptor.PrepareAttachmentInterceptor;
 import eu.domibus.core.message.MessageExchangeConfiguration;
+import eu.domibus.core.metrics.MetricsHelper;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.ebms3.common.model.MessageInfo;
 import eu.domibus.ebms3.common.model.MessageType;
@@ -63,6 +65,7 @@ import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.codahale.metrics.MetricRegistry.name;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONRECEIVING;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SENDER_TRUST_VALIDATION_ONRECEIVING;
 
@@ -132,6 +135,8 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
             LOG.debug("PULL Signal Message");
             isPullMessage = true;
         }
+        com.codahale.metrics.Timer.Context methodTimer = MetricsHelper.getMetricRegistry().timer(name(TrustSenderInterceptor.class, "handleMessage_internal", "timer")).time();
+
 
         String senderPartyName;
         String receiverPartyName;
@@ -153,6 +158,8 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
             ebMS3Ex.setMshRole(MSHRole.RECEIVING);
             throw new Fault(ebMS3Ex);
         }
+
+        methodTimer.stop();
     }
 
     protected Boolean checkCertificateValidity(List<? extends Certificate> certificateChain, String sender, boolean isPullMessage) {

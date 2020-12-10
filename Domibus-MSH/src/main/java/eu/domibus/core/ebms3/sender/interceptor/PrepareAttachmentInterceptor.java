@@ -1,6 +1,7 @@
 package eu.domibus.core.ebms3.sender.interceptor;
 
 import eu.domibus.core.ebms3.sender.interceptor.SetPolicyOutInterceptor;
+import eu.domibus.core.metrics.MetricsHelper;
 import org.apache.cxf.attachment.AttachmentImpl;
 import org.apache.cxf.attachment.AttachmentUtil;
 import org.apache.cxf.helpers.CastUtils;
@@ -17,6 +18,8 @@ import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import java.util.ArrayList;
 import java.util.Iterator;
+
+import static com.codahale.metrics.MetricRegistry.name;
 
 /**
  * @author Thomas Dussart
@@ -38,6 +41,8 @@ public class PrepareAttachmentInterceptor extends AbstractPhaseInterceptor<Messa
      */
     @Override
     public void handleMessage(final Message message) throws Fault {
+        com.codahale.metrics.Timer.Context methodTimer = MetricsHelper.getMetricRegistry().timer(name(PrepareAttachmentInterceptor.class, "handleMessage", "timer")).time();
+
         final SOAPMessage soapMessage = message.getContent(SOAPMessage.class);
         if (soapMessage.countAttachments() > 0) {
             if (message.getAttachments() == null) {
@@ -63,6 +68,8 @@ public class PrepareAttachmentInterceptor extends AbstractPhaseInterceptor<Messa
             }
         }
         message.getInterceptorChain().add(new SetPolicyOutInterceptor.LogAfterPolicyCheckInterceptor());
+
+        methodTimer.stop();
     }
 
 }

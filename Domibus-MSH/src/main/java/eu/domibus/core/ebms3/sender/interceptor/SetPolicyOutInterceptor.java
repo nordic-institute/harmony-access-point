@@ -8,6 +8,7 @@ import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
 import eu.domibus.core.ebms3.ws.policy.PolicyService;
 import eu.domibus.core.exception.ConfigurationException;
+import eu.domibus.core.metrics.MetricsHelper;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -25,6 +26,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.xml.soap.SOAPMessage;
+
+import static com.codahale.metrics.MetricRegistry.name;
 
 /**
  * This interceptor is responsible for discovery and setup of WS-Security Policies for outgoing messages
@@ -61,6 +64,8 @@ public class SetPolicyOutInterceptor extends AbstractSoapInterceptor {
      */
     @Override
     public void handleMessage(final SoapMessage message) throws Fault {
+        com.codahale.metrics.Timer.Context methodTimer = MetricsHelper.getMetricRegistry().timer(name(SetPolicyOutInterceptor.class, "handleMessage", "timer")).time();
+
         LOG.debug("SetPolicyOutInterceptor");
         final String pModeKey = (String) message.getContextualProperty(DispatchClientDefaultProvider.PMODE_KEY_CONTEXT_PROPERTY);
         LOG.debug("Using pmodeKey [{}]", pModeKey);
@@ -90,6 +95,8 @@ public class SetPolicyOutInterceptor extends AbstractSoapInterceptor {
         } catch (final ConfigurationException e) {
             LOG.businessError(DomibusMessageCode.BUS_SECURITY_POLICY_OUTGOING_NOT_FOUND, e, legConfiguration.getSecurity().getPolicy());
             throw new Fault(new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0004, "Could not find policy file " + domibusConfigurationService.getConfigLocation() + "/" + this.pModeProvider.getLegConfiguration(pModeKey).getSecurity(), null, null));
+        } finally {
+            methodTimer.stop();
         }
     }
 

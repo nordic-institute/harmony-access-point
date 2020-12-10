@@ -1,5 +1,6 @@
 package eu.domibus.core.ebms3.receiver.interceptor;
 
+import eu.domibus.core.metrics.MetricsHelper;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -19,6 +20,8 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
 
+import static com.codahale.metrics.MetricRegistry.name;
+
 /**
  * @author Cosmin Baciu
  * @since 4.1.2
@@ -35,6 +38,8 @@ public class SOAPMessageBuilderInterceptor extends AbstractSoapInterceptor {
 
     @Override
     public void handleMessage(final SoapMessage message) throws Fault {
+        com.codahale.metrics.Timer.Context methodTimer = MetricsHelper.getMetricRegistry().timer(name(SOAPMessageBuilderInterceptor.class, "handleMessage_internal", "timer")).time();
+
         final SOAPMessage result = message.getContent(SOAPMessage.class);
         try {
             SAAJInInterceptor.replaceHeaders(result, message);
@@ -65,6 +70,8 @@ public class SOAPMessageBuilderInterceptor extends AbstractSoapInterceptor {
 
         } catch (final SOAPException soapEx) {
             LOG.error("Could not replace headers for incoming Message", soapEx);
+        } finally {
+            methodTimer.stop();
         }
 
     }

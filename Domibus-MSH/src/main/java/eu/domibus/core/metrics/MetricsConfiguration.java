@@ -40,7 +40,7 @@ public class MetricsConfiguration {
         return new HealthCheckRegistry();
     }
 
-    @Bean
+    @Bean("domibusMetricRegistry")
     public MetricRegistry metricRegistry(DomibusPropertyProvider domibusPropertyProvider,
                                          JMSManager jmsManager, AuthUtils authUtils, DomainTaskExecutor domainTaskExecutor) {
 

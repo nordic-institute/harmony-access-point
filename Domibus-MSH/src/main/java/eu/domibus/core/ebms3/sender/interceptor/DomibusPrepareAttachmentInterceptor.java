@@ -1,5 +1,6 @@
 package eu.domibus.core.ebms3.sender.interceptor;
 
+import eu.domibus.core.metrics.MetricsHelper;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.binding.soap.SoapMessage;
@@ -9,6 +10,8 @@ import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.ws.policy.PolicyInInterceptor;
 import org.springframework.stereotype.Service;
+
+import static com.codahale.metrics.MetricRegistry.name;
 
 /**
  * 
@@ -28,8 +31,12 @@ public class DomibusPrepareAttachmentInterceptor extends AbstractSoapInterceptor
    
     @Override
     public void handleMessage(final SoapMessage message) throws Fault {
+        com.codahale.metrics.Timer.Context methodTimer = MetricsHelper.getMetricRegistry().timer(name(DomibusPrepareAttachmentInterceptor.class, "handleMessage", "timer")).time();
+
         LOG.debug("DomibusPrepareAttachmentInterceptor");
         message.getExchange().put(ClientImpl.FINISHED, Boolean.TRUE);
         message.getInterceptorChain().add(new PrepareAttachmentInterceptor());
+
+        methodTimer.stop();
     }
 }

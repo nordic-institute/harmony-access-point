@@ -1,5 +1,6 @@
 package eu.domibus.core.ebms3.sender.interceptor;
 
+import eu.domibus.core.metrics.MetricsHelper;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.interceptor.AbstractSoapInterceptor;
 import org.apache.cxf.interceptor.AttachmentOutInterceptor;
@@ -10,6 +11,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.Iterator;
 
+import static com.codahale.metrics.MetricRegistry.name;
+
 @Service("domibusAttachmentOutInterceptorRemoval")
 public class DomibusAttachmentOutInterceptorRemoval extends AbstractSoapInterceptor {
     public DomibusAttachmentOutInterceptorRemoval() {
@@ -19,6 +22,8 @@ public class DomibusAttachmentOutInterceptorRemoval extends AbstractSoapIntercep
 
     @Override
     public void handleMessage(SoapMessage message) {
+        com.codahale.metrics.Timer.Context methodTimer = MetricsHelper.getMetricRegistry().timer(name(DomibusAttachmentOutInterceptorRemoval.class, "handleMessage", "timer")).time();
+
         if (message == null ||
                 message.getInterceptorChain() == null ||
                 message.getInterceptorChain().iterator() == null)
@@ -32,5 +37,7 @@ public class DomibusAttachmentOutInterceptorRemoval extends AbstractSoapIntercep
                 return;
             }
         }
+
+        methodTimer.stop();
     }
 }
