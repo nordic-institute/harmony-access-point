@@ -28,10 +28,10 @@ import static eu.domibus.api.property.DomibusConfigurationService.PASSWORD_ENCRY
 public class DefaultDomibusConfigurationServiceTest {
 
     @Injectable
-    private DataBaseEngine dataBaseEngine;
+    DomibusPropertyProviderImpl domibusPropertyProvider;
 
     @Injectable
-    protected DomibusPropertyProvider domibusPropertyProvider;
+    private DataBaseEngine dataBaseEngine;
 
     @Mocked
     DomibusLoggerFactory domibusLoggerFactory;

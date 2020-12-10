@@ -1,6 +1,7 @@
 package eu.domibus.property;
 
 import eu.domibus.AbstractIT;
+import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.ext.exceptions.DomibusPropertyExtException;
 import eu.domibus.ext.services.DomibusConfigurationExtService;
@@ -21,8 +22,8 @@ import static eu.domibus.plugin.fs.worker.FSSendMessagesService.DEFAULT_DOMAIN;
 import static org.mockito.Mockito.when;
 
 /**
- * @since 5.0
  * @author Catalin Enache
+ * @since 5.0
  */
 public class FSPluginPropertiesIT extends AbstractIT {
 
@@ -211,14 +212,19 @@ public class FSPluginPropertiesIT extends AbstractIT {
         value1 = fsPluginProperties.getKnownPropertyValue(domainDefault, domain1 + "." + propertyName2);
         value2 = fsPluginProperties.getKnownPropertyValue(domainDefault, domain2 + "." + propertyName2);
 
-        //TODO EDELIVERY-7553 - due to Cacheable in core classes?
-        //Assert.assertEquals(newPropertyValue1, value1);
-        //Assert.assertEquals(newPropertyValue2, value2);
+        Assert.assertEquals(newPropertyValue1, value1);
+        Assert.assertEquals(newPropertyValue2, value2);
 
         // reset context
         fsPluginProperties.setKnownPropertyValue(domainDefault, domain1 + "." + propertyName1, oldPropertyValue1);
-        //TODO EDELIVERY-7553 - fix when property will be able to save a null value
-        //fsPluginProperties.setKnownPropertyValue(domainDefault, domain2 + "." + propertyName2, oldPropertyValue2, true);
+
+        // the map that holds property values cannot accept null
+        try {
+            fsPluginProperties.setKnownPropertyValue(domainDefault, domain2 + "." + propertyName2, null, true);
+            Assert.fail();
+        } catch (DomibusPropertyException ex) {
+            Assert.assertTrue(ex.getMessage().contains("Cannot set a null value for a property"));
+        }
     }
 
     @Test

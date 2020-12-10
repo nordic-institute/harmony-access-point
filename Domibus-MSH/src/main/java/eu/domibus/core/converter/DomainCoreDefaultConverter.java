@@ -34,6 +34,7 @@ import eu.domibus.core.party.PartyResponseRo;
 import eu.domibus.core.party.ProcessRo;
 import eu.domibus.core.plugin.routing.BackendFilterEntity;
 import eu.domibus.core.plugin.routing.RoutingCriteriaEntity;
+import eu.domibus.core.property.DomibusPropertiesFilter;
 import eu.domibus.core.replication.UIMessageDiffEntity;
 import eu.domibus.core.replication.UIMessageEntity;
 import eu.domibus.core.user.plugin.AuthenticationEntity;
@@ -393,6 +394,11 @@ public class DomainCoreDefaultConverter implements DomainCoreConverter {
         if (typeOfT == DomibusPropertyMetadata.class && source.getClass() == DomibusPropertyMetadata.class) {
             LOG.trace("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
             return (T) domibusCoreMapper.propertyMetadataTopropertyMetadata((DomibusPropertyMetadata) source);
+        }
+
+        if (typeOfT == DomibusPropertiesFilter.class && source.getClass() == PropertyFilterRequestRO.class) {
+            LOG.trace("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.domibusPropertyFilterRequestTOdomibusPropertiesFilter((PropertyFilterRequestRO) source);
         }
 
         String errorMsg = String.format("Type not converted: T=[%s] U=[%s]", typeOfT, source.getClass());

@@ -36,17 +36,23 @@ public class SideNavigation extends DComponent {
 	@FindBy(css = "mat-sidenav button.sideNavButton[tabindex=\"0\"]")
 	private List<WebElement> matSidebarButtons;
 	//	----------------------------------------------------
-	@FindBy(css = "div.mat-expansion-panel-content > div > div > button:nth-child(1)")
+
+	@FindBy(id = "current_pmode_id")
 	private WebElement pmodeCurrentLnk;
-	@FindBy(css = "div.mat-expansion-panel-content > div > div > button:nth-child(2)")
+
+	@FindBy(id = "pmode_archive_id")
 	private WebElement pmodeArchiveLnk;
-	@FindBy(css = "div.mat-expansion-panel-content > div > div > button:nth-child(3)")
+
+	@FindBy(id = "pmode_party_id")
 	private WebElement pmodePartiesLnk;
+
 	@FindBy(css = "mat-sidenav mat-expansion-panel mat-expansion-panel-header")
 	private WebElement pmodeExpandLnk;
+	//	----------------------------------------------------
+
 	@FindBy(id = "jmsmonitoring_id")
 	private WebElement jmsmonitoringLnk;
-	//	----------------------------------------------------
+
 	@FindBy(id = "truststore_id")
 	private WebElement truststoreLnk;
 	@FindBy(id = "user_id")
@@ -61,6 +67,8 @@ public class SideNavigation extends DComponent {
 	private WebElement loggingLnk;
 	@FindBy(css = "#connectionmonitoring_id")
 	private WebElement connectionMonitoring_Lnk;
+	@FindBy(css = "#properties_id")
+	private WebElement properties_Lnk;
 	
 	public SideNavigation(WebDriver driver) {
 		super(driver);
@@ -69,6 +77,7 @@ public class SideNavigation extends DComponent {
 	
 	private boolean isPmodeSectionExpanded() {
 		try {
+			wait.forAttributeToContain(pmodeExpandLnk, "class", "mat-expanded");
 			return new DButton(driver, pmodeExpandLnk).getAttribute("class").contains("mat-expanded");
 		} catch (Exception e) {
 		}
@@ -78,10 +87,12 @@ public class SideNavigation extends DComponent {
 	private void expandPmodeSection() {
 		if (isPmodeSectionExpanded()) return;
 		try {
-			new DButton(driver, pmodeExpandLnk).click();
+			weToDButton(pmodeExpandLnk).click();
+			wait.forAttributeToContain(pmodeExpandLnk, "class", "mat-expanded");
 		} catch (Exception e) {
-			// log.warn("Could not expand pmode: ", e);
+			log.warn("Could not expand pmode: ", e);
 		}
+		wait.forXMillis(200);
 	}
 	
 	public DLink getPageLnk(PAGES page) {
@@ -121,8 +132,11 @@ public class SideNavigation extends DComponent {
 				return new DLink(driver, loggingLnk);
 			case CONNECTION_MONITORING:
 				return new DLink(driver, connectionMonitoring_Lnk);
+			case PROPERTIES:
+				return new DLink(driver, properties_Lnk);
+			default:
+				return null;
 		}
-		return null;
 	}
 	
 	public List<String> availableOptions() throws Exception {
@@ -149,7 +163,16 @@ public class SideNavigation extends DComponent {
 
 		log.info("Navigating to " + page.name());
 		DLink link = getPageLnk(page);
+
+		log.debug("got link with text " + link.getLinkText());
+
 		String text = link.element.findElement(By.cssSelector("span span")).getText().trim();
+
+//		compensating for link to page title inconsistency for page Domibus Properties
+		if(StringUtils.equalsIgnoreCase(text, "Domibus Properties")){
+			text = "Properties";
+		}
+
 
 		String pgTitle = null;
 
@@ -163,10 +186,9 @@ public class SideNavigation extends DComponent {
 		}else {
 			link.click();
 		}
-
+		wait.forElementToContainText(pg.pageTitle, text);
 		log.debug("Navigated to " + page.name());
 
-		wait.forElementToContainText(pg.pageTitle, text);
 	}
 	
 	public boolean isUserState() throws Exception {
@@ -192,6 +214,18 @@ public class SideNavigation extends DComponent {
 				&& getPageLnk(PAGES.CONNECTION_MONITORING).isPresent()
 		);
 	}
-	
+
+	public boolean isLinkPresent(PAGES page) throws Exception {
+
+		boolean isLinkPresent  = true;
+		try {
+			getPageLnk(page).getLinkText();
+		} catch (Exception e) {
+			isLinkPresent = false;
+		}
+		return isLinkPresent;
+	}
+
+
 	
 }

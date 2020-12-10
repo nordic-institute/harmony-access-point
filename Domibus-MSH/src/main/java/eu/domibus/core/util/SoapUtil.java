@@ -2,6 +2,9 @@ package eu.domibus.core.util;
 
 import com.google.common.io.CharStreams;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.core.message.UserMessageHandlerServiceImpl;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.util.xml.XMLUtilImpl;
 import eu.domibus.ebms3.common.model.ObjectFactory;
 import eu.domibus.logging.DomibusLogger;
@@ -44,6 +47,8 @@ public class SoapUtil {
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
 
+    @Timer(clazz = SoapUtil.class, value = "logMessage")
+    @Counter(clazz = SoapUtil.class, value = "logMessage")
     public void logMessage(SOAPMessage request) throws IOException, TransformerException {
         if (LOG.isDebugEnabled() && domibusPropertyProvider.getBooleanProperty(DOMIBUS_LOGGING_PAYLOAD_PRINT)) {
             try (StringWriter sw = new StringWriter()) {

@@ -9,6 +9,7 @@ import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusConfigurationService;
+import eu.domibus.api.user.UserBase;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
@@ -121,14 +122,11 @@ public class SignalServiceImpl implements SignalService {
     }
 
     @Override
-    public void signalMessageClearCaches() {
-        String domainCode = domainContextProvider.getCurrentDomain().getCode();
-
-        LOG.debug("Signaling clearing caches [{}] domain", domainCode);
-
+    public void signalSessionInvalidation(String userName) {
+        LOG.debug("Signaling user session invalidation for user", userName);
         Map<String, String> commandProperties = new HashMap<>();
-        commandProperties.put(Command.COMMAND, Command.EVICT_CACHES);
-        commandProperties.put(MessageConstants.DOMAIN, domainCode);
+        commandProperties.put(Command.COMMAND, Command.USER_SESSION_INVALIDATION);
+        commandProperties.put(CommandProperty.USER_NAME, userName);
 
         sendMessage(commandProperties);
     }

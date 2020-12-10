@@ -31,6 +31,13 @@ public class WebLogicTaskExecutorConfigurationTest {
     }
 
     @Test
+    public void mshWorkManager() {
+        WorkManagerFactory workManagerFactory = webLogicTaskExecutorConfiguration.mshWorkManagerFactory();
+        Assert.assertEquals(WebLogicTaskExecutorConfiguration.JAVA_COMP_ENV_MSH_WORK_MANAGER, workManagerFactory.getWorkManagerJndiName());
+    }
+
+
+    @Test
     public void taskExecutor(@Injectable WorkManager workManager) {
         DomibusWorkManagerTaskExecutor domibusWorkManagerTaskExecutor = webLogicTaskExecutorConfiguration.taskExecutor(workManager);
         Assert.assertEquals(domibusWorkManagerTaskExecutor.workManager, workManager);
@@ -38,7 +45,13 @@ public class WebLogicTaskExecutorConfigurationTest {
 
     @Test
     public void quartzTaskExecutor(@Injectable WorkManager workManager) {
-        DomibusWorkManagerTaskExecutor domibusWorkManagerTaskExecutor = webLogicTaskExecutorConfiguration.taskExecutor(workManager);
+        DomibusWorkManagerTaskExecutor domibusWorkManagerTaskExecutor = webLogicTaskExecutorConfiguration.quartzTaskExecutor(workManager);
+        Assert.assertEquals(domibusWorkManagerTaskExecutor.workManager, workManager);
+    }
+
+    @Test
+    public void mshTaskExecutor(@Injectable WorkManager workManager) {
+        DomibusWorkManagerTaskExecutor domibusWorkManagerTaskExecutor = webLogicTaskExecutorConfiguration.mshTaskExecutor(workManager);
         Assert.assertEquals(domibusWorkManagerTaskExecutor.workManager, workManager);
     }
 }

@@ -36,7 +36,10 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "PartInfo", propOrder = {"schema", "description", "partProperties"})
-@NamedQueries(@NamedQuery(name = "PartInfo.loadBinaryData", query = "select pi.binaryData from PartInfo pi where pi.entityId=:ENTITY_ID"))
+@NamedQueries({
+        @NamedQuery(name = "PartInfo.loadBinaryData", query = "select pi.binaryData from PartInfo pi where pi.entityId=:ENTITY_ID"),
+        @NamedQuery(name = "PartInfo.findFilenames", query = "select pi.fileName from UserMessage um join um.payloadInfo.partInfo pi where um.messageInfo.messageId IN :MESSAGEIDS and pi.fileName is not null"),
+})
 @Entity
 @Table(name = "TB_PART_INFO")
 public class PartInfo extends AbstractBaseEntity implements Comparable<PartInfo> {

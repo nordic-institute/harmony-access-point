@@ -1,6 +1,7 @@
 package eu.domibus.api.cluster;
 
 import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.user.UserBase;
 
 import java.util.Map;
 
@@ -50,7 +51,7 @@ public interface SignalService {
     void signalMessageFiltersUpdated();
 
     /**
-     * Signals the clearing of the Caches
+     * Signals the session invalidation for the specified user
      */
-    void signalMessageClearCaches();
+    void signalSessionInvalidation(String userName);
 }

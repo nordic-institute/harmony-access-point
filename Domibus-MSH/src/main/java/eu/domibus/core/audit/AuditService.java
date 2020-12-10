@@ -111,6 +111,11 @@ public interface AuditService {
             String fromQueue, String toQueue, String domainCode);
 
     /**
+     * Add truststore downloaded
+     **/
+    void addTruststoreDownloadedAudit();
+
+    /**
      * Add download audit for am envelope of user or signal messages
      *
      * @param messageId the id of the message.

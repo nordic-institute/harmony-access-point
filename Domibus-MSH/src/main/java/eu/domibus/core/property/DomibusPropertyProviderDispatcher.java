@@ -27,25 +27,30 @@ public class DomibusPropertyProviderDispatcher {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusPropertyProviderDispatcher.class);
 
-    private static final String CACHE_KEY_EXPRESSION = "(#domain != null ? #domain : #domainContextProvider?.getCurrentDomain()) + #propertyName";
+    // it is possible for domainContextProvider.getCurrentDomainSafely() to return null for the first stages of bootstrap process
+    // for global properties but it is acceptable since they are not going to mess with super properties
+    private static final String CACHE_KEY_EXPRESSION = "(#domain != null ? #domain.getCode() : " +
+            "(#root.target.domainContextProvider.getCurrentDomainSafely() == null ? \"global\" " +
+            ": #root.target.domainContextProvider.getCurrentDomain().getCode())) + ':' + #propertyName";
 
     @Autowired
     ClassUtil classUtil;
 
     @Autowired
-    protected DomainContextProvider domainContextProvider;
+    public DomainContextProvider domainContextProvider;
 
     @Autowired
     GlobalPropertyMetadataManager globalPropertyMetadataManager;
 
     @Autowired
-    private DomibusPropertyProviderImpl domibusPropertyProvider;
+    DomibusPropertyProviderImpl domibusPropertyProvider;
 
     @Autowired
     DomibusPropertyChangeManager domibusPropertyChangeManager;
 
     @Cacheable(value = DomibusCacheService.DOMIBUS_PROPERTY_CACHE, key = CACHE_KEY_EXPRESSION)
     public String getInternalOrExternalProperty(String propertyName, Domain domain) throws DomibusPropertyException {
+
         DomibusPropertyMetadata propMeta = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
         if (propMeta.isStoredGlobally()) {
             return getInternalPropertyValue(domain, propertyName);
@@ -86,7 +91,7 @@ public class DomibusPropertyProviderDispatcher {
             return getExternalModulePropertyValue(manager, propertyName);
         }
         LOG.debug("Getting property [{}] on domain [{}] of manager [{}].", propertyName, domain, manager);
-        return manager.getKnownPropertyValue(propertyName);
+        return manager.getKnownPropertyValue(domain.getCode(), propertyName);
     }
 
     protected void setExternalPropertyValue(Domain domain, String propertyName, String propertyValue, boolean broadcast, DomibusPropertyManagerExt manager) {
@@ -119,11 +124,11 @@ public class DomibusPropertyProviderDispatcher {
 
     protected String getExternalModulePropertyValue(DomibusPropertyManagerExt propertyManager, String propertyName) {
         if (classUtil.isMethodDefined(propertyManager, "getKnownPropertyValue", new Class[]{String.class})) {
-            LOG.trace("Calling getKnownPropertyValue method");
+            LOG.trace("Calling getKnownPropertyValue(propertyName) method");
             return propertyManager.getKnownPropertyValue(propertyName);
         }
-        LOG.trace("Calling deprecated getKnownPropertyValue method");
         Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
+        LOG.trace("Going to call getKnownPropertyValue for current domain [{}] as property manager [{}] doesn't have the method without domain defined", currentDomain, propertyManager);
         return propertyManager.getKnownPropertyValue(currentDomain.getCode(), propertyName);
     }
 

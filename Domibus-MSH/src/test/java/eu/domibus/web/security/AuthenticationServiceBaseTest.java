@@ -3,8 +3,6 @@ package eu.domibus.web.security;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainTaskException;
-import eu.domibus.web.security.AuthenticationServiceBase;
-import eu.domibus.web.security.UserDetail;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.lang3.StringUtils;
@@ -13,11 +11,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Catalin Enache
@@ -32,7 +33,7 @@ public class AuthenticationServiceBaseTest {
     @Injectable
     DomainService domainService;
 
-    private List<Domain> domains  = new ArrayList<>();
+    private List<Domain> domains = new ArrayList<>();
 
     @Before
     public void setUp() throws Exception {
@@ -118,5 +119,52 @@ public class AuthenticationServiceBaseTest {
 
         new FullVerifications() {{
         }};
+    }
+
+    @Test
+    public void testGetLoggedUser_PrincipalExists(final @Mocked SecurityContext securityContext, final @Mocked Authentication authentication) {
+        Set<GrantedAuthority> authorities = new HashSet<>();
+        final UserDetail userDetail = new UserDetail("username", "password", authorities);
+
+        new Expectations() {{
+            new MockUp<SecurityContextHolder>() {
+                @Mock
+                SecurityContext getContext() {
+                    return securityContext;
+                }
+            };
+
+            securityContext.getAuthentication();
+            result = authentication;
+
+            authentication.getPrincipal();
+            result = userDetail;
+
+        }};
+
+        //tested method
+        UserDetail userDetai1Actual = authenticationServiceBase.getLoggedUser();
+        Assert.assertEquals(userDetail, userDetai1Actual);
+    }
+
+    @Test
+    public void testGetLoggedUser_PrincipalDoesntExists(final @Mocked SecurityContext securityContext) {
+
+        new Expectations(authenticationServiceBase) {{
+            new MockUp<SecurityContextHolder>() {
+                @Mock
+                SecurityContext getContext() {
+                    return securityContext;
+                }
+            };
+
+            securityContext.getAuthentication();
+            result = null;
+
+        }};
+
+        //tested method
+        UserDetail userDetai1Actual = authenticationServiceBase.getLoggedUser();
+        Assert.assertNull(userDetai1Actual);
     }
 }
