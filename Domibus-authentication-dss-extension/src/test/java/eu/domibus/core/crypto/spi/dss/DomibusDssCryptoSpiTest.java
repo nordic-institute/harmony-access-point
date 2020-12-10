@@ -10,11 +10,13 @@ import eu.europa.esig.dss.validation.CertificateValidator;
 import eu.europa.esig.dss.validation.reports.CertificateReports;
 import mockit.Expectations;
 import mockit.Mocked;
+import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.math.BigInteger;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -195,9 +197,67 @@ public class DomibusDssCryptoSpiTest {
             validationReport.extractInvalidConstraints((CertificateReports)any,(List<ConstraintInternal>)any);
             result= Collections.emptyList();
 
+            validLeafhCertificate.getSerialNumber();
+            result= BigInteger.ONE;
+
+            validLeafhCertificate.getIssuerDN().getName();
+            result="leafCertificate";
+
+            chainCertificate.getSerialNumber();
+            result= BigInteger.TEN;
+
+            chainCertificate.getIssuerDN().getName();
+            result="chainCertificate";
+
+            dssCache.isChainValid("1leafCertificate10chainCertificate");
+            returns(false,false);
+
         }};
 
         domibusDssCryptoProvider.verifyTrust(x509Certificates, true, null, null);
+
+    }
+
+    @Test
+    public void verifyTrustValidityAddedByAnotherThread(
+
+            @Mocked TSLRepository tslRepository,
+            @Mocked ValidationConstraintPropertyMapper constraintMapper,
+            @Mocked X509Certificate validLeafhCertificate,
+            @Mocked X509Certificate chainCertificate,
+            @Mocked PkiExtService pkiExtService,
+            @Mocked DssCache dssCache,
+            @Mocked CertificateVerifierService certificateVerifierService) throws WSSecurityException {
+        final X509Certificate[] x509Certificates = {validLeafhCertificate, chainCertificate};
+        org.apache.xml.security.Init.init();
+
+        ValidationReport validationReport = new ValidationReport();
+        final DomibusDssCryptoSpi domibusDssCryptoProvider = new DomibusDssCryptoSpi(new FakeDefaultDssCrypto(), tslRepository, validationReport, constraintMapper, pkiExtService, dssCache, certificateVerifierService);
+
+        new Expectations(domibusDssCryptoProvider, validationReport) {{
+
+            validLeafhCertificate.getSerialNumber();
+            result= BigInteger.ONE;
+
+            validLeafhCertificate.getIssuerDN().getName();
+            result="leafCertificate";
+
+            chainCertificate.getSerialNumber();
+            result= BigInteger.TEN;
+
+            chainCertificate.getIssuerDN().getName();
+            result="chainCertificate";
+
+            dssCache.isChainValid("1leafCertificate10chainCertificate");
+            returns(false,true);
+
+        }};
+
+        domibusDssCryptoProvider.verifyTrust(x509Certificates, true, null, null);
+
+        new Verifications(){{
+            pkiExtService.extractLeafCertificateFromChain(withAny(new ArrayList<>()));times=0;
+        }};
 
     }
 

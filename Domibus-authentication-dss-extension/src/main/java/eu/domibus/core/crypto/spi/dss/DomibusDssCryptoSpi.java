@@ -86,6 +86,7 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
         }
         synchronized (DomibusDssCryptoSpi.class) {
             if (dssCache.isChainValid(cacheKey)) {
+                LOG.trace("Certificate has been added to the DSS cache by another thread.");
                 return;
             }
             final X509Certificate leafCertificate = getX509LeafCertificate(certs);
