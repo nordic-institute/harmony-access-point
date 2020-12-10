@@ -3,7 +3,6 @@ package eu.domibus.core.error;
 import eu.domibus.core.dao.ListDao;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
-import eu.domibus.ebms3.common.model.AbstractBaseEntity;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.time.DateUtils;
@@ -21,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Repository
 @Transactional
@@ -128,14 +126,13 @@ public class ErrorLogDao extends ListDao<ErrorLogEntry> {
             selectQuery.setMaxResults(batchSize);
         }
         selectQuery.setParameter("DELETION_DATE", deletionTime);
-        List<ErrorLogEntry> errorLogEntries = selectQuery.getResultList();
-        LOG.debug("[{}] ErrorLogs found", errorLogEntries.size());
+        List<Long> errorLogEntriesEntityIds = selectQuery.getResultList();
+        LOG.debug("[{}] ErrorLogs found", errorLogEntriesEntityIds.size());
 
         //deletion
-        if (!errorLogEntries.isEmpty()) {
+        if (!errorLogEntriesEntityIds.isEmpty()) {
             final Query deleteQuery = em.createNamedQuery("ErrorLogEntry.deleteErrorsWithoutMessageIds");
-            List<Long> entityIds =  errorLogEntries.stream().map(AbstractBaseEntity::getEntityId).collect(Collectors.toList());
-            deleteQuery.setParameter("ENTITY_IDS", entityIds);
+            deleteQuery.setParameter("ENTITY_IDS", errorLogEntriesEntityIds);
             result  = deleteQuery.executeUpdate();
             LOG.debug("Cleaned [{}] ErrorLogs without messageIds", result);
         }
