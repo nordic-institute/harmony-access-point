@@ -30,7 +30,7 @@ public class DefaultDomibusConfigurationService implements DomibusConfigurationS
     private DataBaseEngine dataBaseEngine;
 
     @Autowired
-    public DomibusPropertyProvider domibusPropertyProvider;
+    DomibusPropertyProvider domibusPropertyProvider;
 
     @Override
     public String getConfigLocation() {
