@@ -21,6 +21,8 @@ import javax.jms.Queue;
 import java.util.ArrayList;
 import java.util.List;
 
+import static eu.domibus.plugin.webService.backend.reliability.queue.WSMessageListenerContainerConfiguration.WS_PLUGIN_SEND_QUEUE;
+
 /**
  * @author Francois Gautier
  * @since 5.0
@@ -38,7 +40,7 @@ public class WSPluginBackendRetryService {
 
     public WSPluginBackendRetryService(WSBackendMessageLogDao wsBackendMessageLogDao,
                                        JMSExtService jmsExtService,
-                                       @Qualifier("wsPluginSendQueue") Queue wsPluginSendQueue) {
+                                       @Qualifier(WS_PLUGIN_SEND_QUEUE) Queue wsPluginSendQueue) {
         this.wsBackendMessageLogDao = wsBackendMessageLogDao;
         this.jmsExtService = jmsExtService;
         this.wsPluginSendQueue = wsPluginSendQueue;
@@ -64,7 +66,6 @@ public class WSPluginBackendRetryService {
 
             for (final WSBackendMessageLogEntity backendMessage : messagesNotAlreadyQueued) {
                 sendToQueue(backendMessage);
-                backendMessage.setScheduled(true);
             }
         } catch (Exception e) {
             LOG.error("Error while sending notifications.", e);
@@ -87,7 +88,7 @@ public class WSPluginBackendRetryService {
         try {
             return wsPluginSendQueue.getQueueName();
         } catch (JMSException e) {
-            LOG.trace("wsPluginSendQueue name not found");
+            LOG.trace("wsPluginSendQueue name not found", e);
             return null;
         }
     }

@@ -173,39 +173,47 @@ public class WebServicePluginImpl implements BackendInterface {
             partInfosToAdd.add(extendedPartInfo);
             i.remove();
 
-            boolean foundPayload = false;
-            final String href = extendedPartInfo.getHref();
-            LOG.debug("Looking for payload: {}", href);
-            for (final LargePayloadType payload : submitRequest.getPayload()) {
-                LOG.debug("comparing with payload id: " + payload.getPayloadId());
-                if (StringUtils.equalsIgnoreCase(payload.getPayloadId(), href)) {
-                    this.copyPartProperties(payload.getContentType(), extendedPartInfo);
-                    extendedPartInfo.setInBody(false);
-                    LOG.debug("sendMessage - payload Content Type: " + payload.getContentType());
-                    extendedPartInfo.setPayloadDatahandler(payload.getValue());
-                    foundPayload = true;
-                    break;
-                }
-            }
-
-            if (!foundPayload) {
-                final LargePayloadType bodyload = submitRequest.getBodyload();
-                if (bodyload == null) {
-                    // in this case the payload referenced in the partInfo was neither an external payload nor a bodyload
-                    throw new SubmitMessageFault("No Payload or Bodyload found for PartInfo with href: " + extendedPartInfo.getHref(), generateDefaultFaultDetail(extendedPartInfo.getHref()));
-                }
-                // It can only be in body load, href MAY be null!
-                if (href == null && bodyload.getPayloadId() == null || href != null && StringUtils.equalsIgnoreCase(href, bodyload.getPayloadId())) {
-                    this.copyPartProperties(bodyload.getContentType(), extendedPartInfo);
-                    extendedPartInfo.setInBody(true);
-                    LOG.debug("sendMessage - bodyload Content Type: " + bodyload.getContentType());
-                    extendedPartInfo.setPayloadDatahandler(bodyload.getValue());
-                } else {
-                    throw new SubmitMessageFault("No payload found for PartInfo with href: " + extendedPartInfo.getHref(), generateDefaultFaultDetail(extendedPartInfo.getHref()));
-                }
-            }
+            initPartInfoPayLoad(submitRequest, extendedPartInfo);
         }
         partInfoList.addAll(partInfosToAdd);
+    }
+
+    private void initPartInfoPayLoad(SubmitRequest submitRequest, ExtendedPartInfo extendedPartInfo) throws SubmitMessageFault {
+        boolean foundPayload = false;
+        final String href = extendedPartInfo.getHref();
+        LOG.debug("Looking for payload: {}", href);
+        for (final LargePayloadType payload : submitRequest.getPayload()) {
+            LOG.debug("comparing with payload id: " + payload.getPayloadId());
+            if (StringUtils.equalsIgnoreCase(payload.getPayloadId(), href)) {
+                this.copyPartProperties(payload.getContentType(), extendedPartInfo);
+                extendedPartInfo.setInBody(false);
+                LOG.debug("sendMessage - payload Content Type: " + payload.getContentType());
+                extendedPartInfo.setPayloadDatahandler(payload.getValue());
+                foundPayload = true;
+                break;
+            }
+        }
+
+        if (!foundPayload) {
+            initPayloadInBody(submitRequest, extendedPartInfo, href);
+        }
+    }
+
+    private void initPayloadInBody(SubmitRequest submitRequest, ExtendedPartInfo extendedPartInfo, String href) throws SubmitMessageFault {
+        final LargePayloadType bodyload = submitRequest.getBodyload();
+        if (bodyload == null) {
+            // in this case the payload referenced in the partInfo was neither an external payload nor a bodyload
+            throw new SubmitMessageFault("No Payload or Bodyload found for PartInfo with href: " + extendedPartInfo.getHref(), generateDefaultFaultDetail(extendedPartInfo.getHref()));
+        }
+        // It can only be in body load, href MAY be null!
+        if (href == null && bodyload.getPayloadId() == null || href != null && StringUtils.equalsIgnoreCase(href, bodyload.getPayloadId())) {
+            this.copyPartProperties(bodyload.getContentType(), extendedPartInfo);
+            extendedPartInfo.setInBody(true);
+            LOG.debug("sendMessage - bodyload Content Type: " + bodyload.getContentType());
+            extendedPartInfo.setPayloadDatahandler(bodyload.getValue());
+        } else {
+            throw new SubmitMessageFault("No payload found for PartInfo with href: " + extendedPartInfo.getHref(), generateDefaultFaultDetail(extendedPartInfo.getHref()));
+        }
     }
 
     protected void validateSubmitRequest(SubmitRequest submitRequest, Messaging ebMSHeaderInfo) throws SubmitMessageFault {
@@ -377,7 +385,7 @@ public class WebServicePluginImpl implements BackendInterface {
             ExtendedPartInfo extPartInfo = (ExtendedPartInfo) partInfo;
             LargePayloadType payloadType = WEBSERVICE_OF.createLargePayloadType();
             if (extPartInfo.getPayloadDatahandler() != null) {
-                LOG.debug("payloadDatahandler Content Type: " + extPartInfo.getPayloadDatahandler().getContentType());
+                LOG.debug("payloadDatahandler Content Type: [{}]", extPartInfo.getPayloadDatahandler().getContentType());
                 payloadType.setValue(extPartInfo.getPayloadDatahandler());
             }
             if (extPartInfo.isInBody()) {

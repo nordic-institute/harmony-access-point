@@ -27,9 +27,11 @@ public class WSPluginTomcatConfiguration {
     }
 
     @Bean("wsPluginSendQueue")
+    @Conditional(TomcatCondition.class)
     public ActiveMQQueue fsPluginSendQueue(WSPluginPropertyManager wsPluginPropertyManager) {
         String queueName = wsPluginPropertyManager.getKnownPropertyValue(WSPluginPropertyManager.DISPATCHER_SEND_QUEUE_NAME);
         LOG.debug("Using ws plugin send queue name [{}]", queueName);
         return new ActiveMQQueue(queueName);
     }
+
 }

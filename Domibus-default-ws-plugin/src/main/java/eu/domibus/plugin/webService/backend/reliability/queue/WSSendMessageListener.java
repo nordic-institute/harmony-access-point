@@ -4,6 +4,7 @@ import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.webService.backend.WSBackendMessageLogDao;
 import eu.domibus.plugin.webService.backend.WSBackendMessageLogEntity;
@@ -17,14 +18,18 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
 
+import static eu.domibus.plugin.webService.backend.reliability.queue.WSSendMessageListener.WS_SEND_MESSAGE_LISTENER;
+
 /**
  * WS Plugin Send Queue message listener
  *
  * @author François Gautier
  * @since 5.0
  */
-@Service("wsSendMessageListener")
+@Service(WS_SEND_MESSAGE_LISTENER)
 public class WSSendMessageListener implements MessageListener {
+
+    public static final String WS_SEND_MESSAGE_LISTENER = "wsSendMessageListener";
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSSendMessageListener.class);
 
@@ -45,8 +50,9 @@ public class WSSendMessageListener implements MessageListener {
         this.domainContextExtService = domainContextExtService;
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 1200)// 20 minutes
     @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 1200)// 20 minutes
+    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_DOMAIN})
     public void onMessage(Message message) {
         String domain;
         String messageId;
@@ -58,7 +64,7 @@ public class WSSendMessageListener implements MessageListener {
             id = message.getLongProperty(ID);
             type = message.getStringProperty(TYPE);
        } catch (JMSException e) {
-            LOG.error("Unable to extract domainCode or fileName from JMS message");
+            LOG.error("Unable to extract domainCode or fileName from JMS message", e);
             return;
         }
 

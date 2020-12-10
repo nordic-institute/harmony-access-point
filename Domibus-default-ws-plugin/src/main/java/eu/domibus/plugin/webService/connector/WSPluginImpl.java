@@ -18,6 +18,12 @@ import java.util.Date;
 
 import static eu.domibus.plugin.webService.backend.WSBackendMessageType.*;
 
+/**
+ * Backend connector for the WS Plugin
+ *
+ * @author François Gautier
+ * @since 5.0
+ */
 public class WSPluginImpl extends AbstractBackendConnector<Messaging, UserMessage> {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginImpl.class);

@@ -12,7 +12,7 @@ import eu.domibus.plugin.webService.connector.WSPluginImpl;
 import eu.domibus.plugin.webService.exception.WSPluginException;
 import eu.domibus.plugin.webService.impl.ExtendedPartInfo;
 import eu.domibus.webservice.backend.generated.*;
-import org.apache.cxf.common.util.CollectionUtils;
+import org.springframework.util.CollectionUtils;
 import org.springframework.stereotype.Service;
 
 import javax.xml.bind.JAXBContext;
@@ -79,7 +79,7 @@ public class WSPluginMessageBuilder {
     }
 
     protected SubmitMessage getSubmitMessage(WSBackendMessageLogEntity messageLogEntity) {
-        String messageId = messageLogEntity.getMessageId();//to be trimmed?
+        String messageId = messageLogEntity.getMessageId();
 
         UserMessage userMessage = new UserMessage();
         try {
@@ -101,8 +101,8 @@ public class WSPluginMessageBuilder {
             String messageId = "";
             if (userMessage.getMessageInfo() != null) {
                 messageId = userMessage.getMessageInfo().getMessageId();
+                LOG.info("No payload found for message [{}]", messageId);
             }
-            LOG.info("No payload found for message [{}]", messageId);
             return;
         }
 

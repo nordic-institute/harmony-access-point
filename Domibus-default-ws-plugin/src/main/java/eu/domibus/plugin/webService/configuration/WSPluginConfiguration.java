@@ -40,7 +40,7 @@ public class WSPluginConfiguration {
     public static final String DOMIBUS_LOGGING_METADATA_PRINT = "domibus.logging.metadata.print";
     public static final String DOMIBUS_LOGGING_CXF_LIMIT = "domibus.logging.cxf.limit";
 
-    @Bean("backendWSPlugin")
+    @Bean(WSPluginImpl.PLUGIN_NAME)
     public WSPluginImpl createBackendJMSImpl(DomibusPropertyExtService domibusPropertyExtService,
                                              StubDtoTransformer defaultTransformer,
                                              WSMessageLogDao wsMessageLogDao,
