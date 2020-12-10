@@ -2,7 +2,6 @@ package eu.domibus.core.property;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -25,6 +24,8 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DATABASE_GENERAL_SCHEMA;
+
 /**
  * Single entry point for getting and setting internal and external domibus properties
  *
@@ -41,9 +42,6 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
     @Autowired
     protected PasswordEncryptionService passwordEncryptionService;
-
-    @Autowired
-    protected DomibusConfigurationService domibusConfigurationService;
 
     @Autowired
     protected ConfigurableEnvironment environment;
@@ -128,7 +126,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     protected String getPropertyPrefix(Domain domain, String prefix) {
         String propertyPrefix = prefix;
 
-        if (domibusConfigurationService.isMultiTenantAware()) {
+        if (isMultiTenantAware()) {
             Domain currentDomain = domain;
 
             if (currentDomain == null) {
@@ -211,7 +209,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         }
 
         //single-tenancy mode
-        if (!domibusConfigurationService.isMultiTenantAware()) {
+        if (!isMultiTenantAware()) {
             LOG.trace("Single tenancy mode: thus retrieving the global value for property [{}]", propertyName);
             return getGlobalProperty(prop);
         }
@@ -247,7 +245,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
         DomibusPropertyMetadata prop = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
         //single-tenancy mode
-        if (!domibusConfigurationService.isMultiTenantAware()) {
+        if (!isMultiTenantAware()) {
             LOG.trace("In single-tenancy mode, retrieving global value for property [{}] on domain [{}].", propertyName, domain);
             return getGlobalProperty(prop);
         }
@@ -350,4 +348,9 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         return domain.getCode() + "." + propertyName;
     }
 
+    // duplicated part of the code from context provider so that we can brake the circular dependency
+    protected boolean isMultiTenantAware() {
+        String propValue = getPropertyValue(DOMIBUS_DATABASE_GENERAL_SCHEMA, null, false);
+        return StringUtils.isNotBlank(propValue);
+    }
 }
