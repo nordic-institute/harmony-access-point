@@ -998,8 +998,6 @@
     <changeSet author="Sebastian-Ion TINCU" id="EDELIVERY-6595-2">
         <modifyDataType columnName="END_DATE" newDataType="DATETIME" tableName="TB_SEND_ATTEMPT" />
         <modifyDataType columnName="START_DATE" newDataType="DATETIME" tableName="TB_SEND_ATTEMPT" />
-        <addNotNullConstraint columnDataType="DATETIME" columnName="END_DATE" tableName="TB_SEND_ATTEMPT" />
-        <addNotNullConstraint columnDataType="DATETIME" columnName="START_DATE" tableName="TB_SEND_ATTEMPT" />
 
         <modifyDataType columnName="NOT_VALID_BEFORE_DATE" newDataType="DATETIME" tableName="TB_CERTIFICATE" />
         <modifyDataType columnName="NOT_VALID_AFTER_DATE" newDataType="DATETIME" tableName="TB_CERTIFICATE" />
