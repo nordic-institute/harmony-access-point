@@ -562,25 +562,6 @@ public class DomibusPropertyProviderImplTest {
     }
 
     @Test
-    public void setValueInDomibusPropertySource(@Injectable MutablePropertySources propertySources,
-                                                @Injectable DomibusPropertiesPropertySource domibusPropertiesPropertySource) {
-        new Expectations(domibusPropertyProvider) {{
-            environment.getPropertySources();
-            result = propertySources;
-            propertySources.get(DomibusPropertiesPropertySource.NAME);
-            result = domibusPropertiesPropertySource;
-        }};
-
-        domibusPropertyProvider.setValueInDomibusPropertySource(propertyName, propertyValue);
-
-        new Verifications() {{
-            environment.getPropertySources();
-            propertySources.get(DomibusPropertiesPropertySource.NAME);
-            domibusPropertiesPropertySource.setProperty(propertyName, propertyValue);
-        }};
-    }
-
-    @Test
     public void getPropertyValue() {
 
         new Expectations(domibusPropertyProvider) {{
