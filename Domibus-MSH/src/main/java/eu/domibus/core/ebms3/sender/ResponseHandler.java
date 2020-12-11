@@ -85,10 +85,11 @@ public class ResponseHandler {
 
     public void saveResponse(final SOAPMessage response, final Messaging sentMessage, final Messaging messagingResponse) {
         final SignalMessage signalMessage = messagingResponse.getSignalMessage();
-        nonRepudiationService.saveResponse(response, signalMessage);
 
         // Stores the signal message
         signalMessageDao.create(signalMessage);
+
+        nonRepudiationService.saveResponse(response, signalMessage);
 
         sentMessage.setSignalMessage(signalMessage);
         messagingDao.update(sentMessage);

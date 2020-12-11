@@ -10,7 +10,7 @@ import javax.persistence.*;
 /**
  * @author idragusa
  * @since 3.2.5
- *
+ * <p>
  * Entity class containing the raw xml of the a message.
  */
 @Entity
@@ -22,14 +22,6 @@ import javax.persistence.*;
                 query = "DELETE FROM RawEnvelopeLog r where r.messageId=:MESSAGE_ID")
 })
 public class RawEnvelopeLog extends AbstractBaseEntity {
-    @OneToOne(cascade = CascadeType.REMOVE)
-    @JoinColumn(name = "USERMESSAGE_ID_FK")
-    protected UserMessage userMessage;
-
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "SIGNALMESSAGE_ID_FK")
-    protected SignalMessage signalMessage;
-
     @Lob
     @Column(name = "RAW_XML")
     protected String rawXML;
@@ -37,24 +29,13 @@ public class RawEnvelopeLog extends AbstractBaseEntity {
     @Column(name = "MESSAGE_ID")
     protected String messageId;
 
+    @Column(name = "USERMESSAGE_ID_FK")
+    protected Long userMessageId;
+
+    @Column(name = "SIGNALMESSAGE_ID_FK")
+    protected Long signalMessageId;
 
     public RawEnvelopeLog() {
-    }
-
-    public UserMessage getUserMessage() {
-        return userMessage;
-    }
-
-    public void setUserMessage(UserMessage userMessage) {
-        this.userMessage = userMessage;
-    }
-
-    public SignalMessage getSignalMessage() {
-        return signalMessage;
-    }
-
-    public void setSignalMessage(SignalMessage signalMessage) {
-        this.signalMessage = signalMessage;
     }
 
     public String getRawXML() {
@@ -67,5 +48,25 @@ public class RawEnvelopeLog extends AbstractBaseEntity {
 
     public void setMessageId(String messageId) {
         this.messageId = messageId;
+    }
+
+    public String getMessageId() {
+        return messageId;
+    }
+
+    public Long getUserMessageId() {
+        return userMessageId;
+    }
+
+    public void setUserMessageId(Long userMessageId) {
+        this.userMessageId = userMessageId;
+    }
+
+    public Long getSignalMessageId() {
+        return signalMessageId;
+    }
+
+    public void setSignalMessageId(Long signalMessageId) {
+        this.signalMessageId = signalMessageId;
     }
 }

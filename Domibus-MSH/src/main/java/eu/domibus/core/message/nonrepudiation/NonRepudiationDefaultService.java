@@ -46,7 +46,7 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
                 rawEnvelopeLog.setMessageId(userMessage.getMessageInfo().getMessageId());
             }
             rawEnvelopeLog.setRawXML(rawXMLMessage);
-            rawEnvelopeLog.setUserMessage(userMessage);
+            rawEnvelopeLog.setUserMessageId(userMessage.getEntityId());
             rawEnvelopeLogDao.create(rawEnvelopeLog);
         } catch (TransformerException e) {
             LOG.warn("Unable to log the raw message XML due to: ", e);
@@ -64,7 +64,7 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
             LOG.debug("Persist raw XML envelope: " + rawXMLMessage);
             RawEnvelopeLog rawEnvelopeLog = new RawEnvelopeLog();
             rawEnvelopeLog.setRawXML(rawXMLMessage);
-            rawEnvelopeLog.setSignalMessage(signalMessage);
+            rawEnvelopeLog.setSignalMessageId(signalMessage.getEntityId());
             rawEnvelopeLogDao.create(rawEnvelopeLog);
         } catch (TransformerException e) {
             LOG.warn("Unable to log the raw message XML due to: ", e);

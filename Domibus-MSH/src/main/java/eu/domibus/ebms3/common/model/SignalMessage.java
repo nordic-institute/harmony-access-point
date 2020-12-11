@@ -55,10 +55,6 @@ public class SignalMessage extends AbstractBaseEntity {
     //According to how we read the spec those attributes serve no purpose in the AS4 profile, therefore they are discarded
     protected List<Object> any; //NOSONAR
 
-    @OneToOne(mappedBy = "signalMessage", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @XmlTransient
-    private RawEnvelopeLog rawEnvelopeLog;
-
     /**
      * Gets the value of the messageInfo property.
      *
