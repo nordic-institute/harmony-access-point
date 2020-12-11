@@ -20,7 +20,6 @@ public class DomainContextProviderImpl implements DomainContextProvider {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainContextProviderImpl.class);
 
-
     @Autowired
     protected DomainService domainService;
 

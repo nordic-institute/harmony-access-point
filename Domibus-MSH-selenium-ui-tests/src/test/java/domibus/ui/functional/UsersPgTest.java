@@ -575,7 +575,9 @@ public class UsersPgTest extends SeleniumTest {
 		log.info("got plugin user " + username);
 		
 		SoftAssert soft = new SoftAssert();
-		UsersPage page = loginAndGoToUsersPage(data.getAdminUser());
+		UsersPage page = new UsersPage(driver);
+		page.getSidebar().goToPage(PAGES.USERS);
+		page.grid().waitForRowsToLoad();
 		
 		log.info("creating new user");
 		page.getNewBtn().click();
