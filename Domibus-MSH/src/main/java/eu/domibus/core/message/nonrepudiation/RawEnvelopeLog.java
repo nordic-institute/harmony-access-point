@@ -6,6 +6,7 @@ import eu.domibus.ebms3.common.model.SignalMessage;
 import eu.domibus.ebms3.common.model.UserMessage;
 
 import javax.persistence.*;
+import java.nio.charset.StandardCharsets;
 
 /**
  * @author idragusa
@@ -24,7 +25,7 @@ import javax.persistence.*;
 public class RawEnvelopeLog extends AbstractBaseEntity {
     @Lob
     @Column(name = "RAW_XML")
-    protected String rawXML;
+    protected byte[] rawXML;
 
     @Column(name = "MESSAGE_ID")
     protected String messageId;
@@ -38,12 +39,8 @@ public class RawEnvelopeLog extends AbstractBaseEntity {
     public RawEnvelopeLog() {
     }
 
-    public String getRawXML() {
-        return rawXML;
-    }
-
     public void setRawXML(String rawXML) {
-        this.rawXML = rawXML;
+        this.rawXML = rawXML.getBytes(StandardCharsets.UTF_8);
     }
 
     public void setMessageId(String messageId) {

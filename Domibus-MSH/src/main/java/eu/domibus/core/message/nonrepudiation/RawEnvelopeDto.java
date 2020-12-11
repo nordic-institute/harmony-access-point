@@ -1,16 +1,20 @@
 package eu.domibus.core.message.nonrepudiation;
 
+import java.nio.charset.StandardCharsets;
+
 /**
  * @author Thomas Dussart
  * @since 3.3
  */
 public class RawEnvelopeDto {
-    final String rawMessage;
+    String rawMessage;
     final long id;
 
-    public RawEnvelopeDto(long id, String rawMessage) {
+    public RawEnvelopeDto(long id, byte[] rawMessage) {
         this.id = id;
-        this.rawMessage = rawMessage;
+        if (rawMessage != null) {
+            this.rawMessage = new String(rawMessage, StandardCharsets.UTF_8);
+        }
     }
 
     public String getRawMessage() {

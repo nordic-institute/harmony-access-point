@@ -1271,7 +1271,7 @@
             </column>
             <column name="USERMESSAGE_ID_FK" type="BIGINT"/>
             <column name="SIGNALMESSAGE_ID_FK" type="BIGINT"/>
-            <column name="RAW_XML" type="CLOB"/>
+            <column name="RAW_XML" type="LONGBLOB"/>
             <column name="MESSAGE_ID" type="VARCHAR(255)"/>
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
