@@ -62,7 +62,7 @@ public class DomibusPropertyProviderDispatcher {
         return getExternalPropertyValue(propertyName, domain, manager);
     }
 
-    @CacheEvict(value = DomibusCacheService.DOMIBUS_PROPERTY_CACHE, key = CACHE_KEY_EXPRESSION)
+    @CacheEvict(value = DomibusCacheService.DOMIBUS_PROPERTY_CACHE, key = CACHE_KEY_EXPRESSION, beforeInvocation = true)
     public void setInternalOrExternalProperty(Domain domain, String propertyName, String propertyValue, boolean broadcast) throws DomibusPropertyException {
         Integer maxLength = domibusPropertyProvider.getIntegerProperty(DOMIBUS_PROPERTY_LENGTH_MAX);
         if (maxLength > 0 && propertyValue != null && propertyValue.length() > maxLength) {
