@@ -6,6 +6,7 @@ import eu.domibus.core.metrics.Timer;
 import eu.domibus.ebms3.common.model.AbstractBaseEntity;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -132,7 +133,7 @@ public class ErrorLogDao extends ListDao<ErrorLogEntry> {
         LOG.debug("[{}] ErrorLogs found", errorLogEntries.size());
 
         //deletion
-        if (!errorLogEntries.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(errorLogEntries)) {
             final Query deleteQuery = em.createNamedQuery("ErrorLogEntry.deleteErrorsWithoutMessageIds");
             List<Long> entityIds =  errorLogEntries.stream().map(AbstractBaseEntity::getEntityId).collect(Collectors.toList());
             deleteQuery.setParameter("ENTITY_IDS", entityIds);
