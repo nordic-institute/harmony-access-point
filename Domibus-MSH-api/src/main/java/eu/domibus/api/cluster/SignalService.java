@@ -57,5 +57,5 @@ public interface SignalService {
     /**
      * Signals the clearing of the Caches
      */
-    void signalMessageClearCaches();
+    void signalClearCaches();
 }

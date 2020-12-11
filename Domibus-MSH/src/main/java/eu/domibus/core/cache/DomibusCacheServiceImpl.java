@@ -1,5 +1,6 @@
 package eu.domibus.core.cache;
 
+import eu.domibus.api.cluster.SignalService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -23,6 +24,9 @@ public class DomibusCacheServiceImpl implements DomibusCacheService {
     @Autowired
     private CacheManager cacheManager;
 
+    @Autowired
+    protected SignalService signalService;
+
     @Override
     public void clearCache(String refreshCacheName) {
         Collection<String> cacheNames = cacheManager.getCacheNames();
@@ -44,5 +48,6 @@ public class DomibusCacheServiceImpl implements DomibusCacheService {
         for (String cacheName : cacheNames) {
             cacheManager.getCache(cacheName).clear();
         }
+        signalService.signalClearCaches();
     }
 }

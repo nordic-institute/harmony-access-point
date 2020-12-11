@@ -223,4 +223,16 @@ public class ApplicationResource {
             domibusCacheService.clearAllCaches();
         }
     }
+
+    /**
+     * Rest method to clear all caches from the cacheManager.
+     */
+    @DeleteMapping(value = "cache")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_AP_ADMIN')")
+    public void evictCaches() {
+        LOG.debug("Clearing caches*****..");
+        if (domibusConfigurationService.isSingleTenantAware() || (domibusConfigurationService.isMultiTenantAware() && authUtils.isSuperAdmin())) {
+            domibusCacheService.clearAllCaches();
+        }
+    }
 }

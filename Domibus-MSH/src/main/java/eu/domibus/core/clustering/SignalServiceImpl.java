@@ -130,7 +130,7 @@ public class SignalServiceImpl implements SignalService {
         sendMessage(commandProperties);
     }
 
-    public void signalMessageClearCaches() {
+    public void signalClearCaches() {
         String domainCode = domainContextProvider.getCurrentDomain().getCode();
 
         LOG.debug("Signaling clearing caches [{}] domain", domainCode);

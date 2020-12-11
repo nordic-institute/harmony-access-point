@@ -163,13 +163,30 @@ public class SignalServiceImplTest {
     }
 
     @Test
-    public void signalMessageClearCaches() {
+    public void signalClearCaches() {
         new Expectations(signalService) {{
             domainContextProvider.getCurrentDomain().getCode();
             result = "default";
         }};
 
         signalService.signalMessageClearCaches();
+
+        new Verifications() {{
+            Map<String, String> commandPropertiesActual;
+            signalService.sendMessage(commandPropertiesActual = withCapture());
+            Assert.assertNotNull(commandPropertiesActual);
+            Assert.assertEquals(Command.EVICT_CACHES, commandPropertiesActual.get(Command.COMMAND));
+        }};
+    }
+
+    @Test
+    public void signalClearCaches() {
+        new Expectations(signalService) {{
+            domainContextProvider.getCurrentDomain().getCode();
+            result = "default";
+        }};
+
+        signalService.signalClearCaches();
 
         new Verifications() {{
             Map<String, String> commandPropertiesActual;
