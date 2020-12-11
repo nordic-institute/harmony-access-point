@@ -15,7 +15,7 @@ public class DssCache {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DssCache.class);
 
-    private final Cache cache;
+    private Cache cache;
 
     public DssCache(Cache cache) {
         this.cache = cache;
