@@ -4,6 +4,7 @@ import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.security.AuthRole;
+import eu.domibus.api.user.AtLeastOneAdminException;
 import eu.domibus.api.user.User;
 import eu.domibus.core.multitenancy.dao.UserDomainDao;
 import eu.domibus.core.multitenancy.dao.UserDomainEntity;
@@ -132,7 +133,7 @@ public class SuperUserManagementServiceImpl extends UserManagementServiceImpl {
                 .collect(Collectors.toList());
         try {
             userManagementService.updateUsers(regularUsers);
-        } catch (DomibusCoreException ex) {
+        } catch (AtLeastOneAdminException ex) {
             LOG.trace("Remove domain association for new users.");
             regularUsers.stream()
                     .filter(user -> user.isNew())
@@ -152,7 +153,7 @@ public class SuperUserManagementServiceImpl extends UserManagementServiceImpl {
             SecurityContextHolder.getContext().setAuthentication(currentAuthentication);
             try {
                 super.updateUsers(superUsers);
-            } catch (DomibusCoreException ex) {
+            } catch (AtLeastOneAdminException ex) {
                 LOG.trace("Remove domain association for new super users.");
                 superUsers.stream()
                         .filter(user -> user.isNew())
