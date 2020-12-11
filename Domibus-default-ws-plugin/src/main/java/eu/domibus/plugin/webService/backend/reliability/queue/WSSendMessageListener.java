@@ -52,7 +52,7 @@ public class WSSendMessageListener implements MessageListener {
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 1200)// 20 minutes
-    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_DOMAIN})
+    @MDCKey({DomibusLogger.MDC_MESSAGE_ID})
     public void onMessage(Message message) {
         String domain;
         String messageId;

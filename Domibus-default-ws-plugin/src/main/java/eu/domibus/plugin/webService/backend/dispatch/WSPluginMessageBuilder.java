@@ -114,7 +114,7 @@ public class WSPluginMessageBuilder {
     protected void fillInfoPart(SubmitMessage submitMessage, ExtendedPartInfo extPartInfo) {
         eu.domibus.webservice.backend.generated.LargePayloadType payloadType = new eu.domibus.webservice.backend.generated.ObjectFactory().createLargePayloadType();
         if (extPartInfo.getPayloadDatahandler() != null) {
-            LOG.debug("payloadDatahandler Content Type: " + extPartInfo.getPayloadDatahandler().getContentType());
+            LOG.debug("payloadDatahandler Content Type: {}", extPartInfo.getPayloadDatahandler().getContentType());
             payloadType.setValue(extPartInfo.getPayloadDatahandler());
         }
         payloadType.setMimeType(getAnyPropertyValue(extPartInfo, MIME_TYPE));
