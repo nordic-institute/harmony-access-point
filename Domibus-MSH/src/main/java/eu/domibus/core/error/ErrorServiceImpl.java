@@ -1,12 +1,15 @@
 package eu.domibus.core.error;
 
-import eu.domibus.core.error.ErrorLogDao;
-import eu.domibus.core.error.ErrorLogEntry;
-import eu.domibus.core.error.ErrorService;
+import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ERRORLOG_CLEANER_BATCH_SIZE;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ERRORLOG_CLEANER_OLDER_DAYS;
 
 /**
  * @author Thomas Dussart
@@ -17,8 +20,13 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class ErrorServiceImpl implements ErrorService {
 
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ErrorServiceImpl.class);
+
     @Autowired
     private ErrorLogDao errorLogDao;
+
+    @Autowired
+    protected DomibusPropertyProvider domibusPropertyProvider;
 
     /**
      * {@inheritDoc}
@@ -29,5 +37,14 @@ public class ErrorServiceImpl implements ErrorService {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void createErrorLog(ErrorLogEntry errorLogEntry) {
         this.errorLogDao.create(errorLogEntry);
+    }
+
+
+    @Override
+    public void deleteErrorLogWithoutMessageIds() {
+        int days = domibusPropertyProvider.getIntegerProperty(DOMIBUS_ERRORLOG_CLEANER_OLDER_DAYS);
+        int batchSize = domibusPropertyProvider.getIntegerProperty(DOMIBUS_ERRORLOG_CLEANER_BATCH_SIZE);
+
+        errorLogDao.deleteErrorLogsWithoutMessageIdOlderThan(days, batchSize);
     }
 }
