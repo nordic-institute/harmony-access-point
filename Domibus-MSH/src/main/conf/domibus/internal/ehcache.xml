@@ -89,10 +89,5 @@
            timeToLiveSeconds="300"
            overflowToDisk="false">
     </cache>
-    <cache name="domibusProperties"
-           maxBytesLocalHeap="5m"
-           timeToLiveSeconds="3600"
-           overflowToDisk="false">
-    </cache>
     -->
 </ehcache>
