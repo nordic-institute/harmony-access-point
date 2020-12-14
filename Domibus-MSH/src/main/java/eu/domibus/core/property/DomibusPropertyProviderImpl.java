@@ -37,7 +37,8 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusPropertyProviderImpl.class);
 
-    private Boolean isMultiTenantAware = null;
+    private volatile Boolean isMultiTenantAware = null;
+    private Object isMultiTenantAwareLock = new Object();
 
     @Autowired
     protected DomainContextProvider domainContextProvider;
@@ -351,10 +352,14 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     }
 
     // duplicated part of the code from context provider so that we can brake the circular dependency
-    protected synchronized boolean isMultiTenantAware() {
+    protected boolean isMultiTenantAware() {
         if (isMultiTenantAware == null) {
-            String propValue = getPropertyValue(DOMIBUS_DATABASE_GENERAL_SCHEMA, null, false);
-            isMultiTenantAware = StringUtils.isNotBlank(propValue);
+            synchronized (isMultiTenantAwareLock) {
+                if (isMultiTenantAware == null) {
+                    String propValue = getPropertyValue(DOMIBUS_DATABASE_GENERAL_SCHEMA, null, false);
+                    isMultiTenantAware = StringUtils.isNotBlank(propValue);
+                }
+            }
         }
         return isMultiTenantAware;
     }
