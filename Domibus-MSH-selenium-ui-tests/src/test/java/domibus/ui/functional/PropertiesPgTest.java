@@ -1,11 +1,13 @@
 package domibus.ui.functional;
 
+import com.sun.jersey.api.client.ClientResponse;
 import ddsl.dcomponents.DomibusPage;
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.enums.DMessages;
 import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
 import domibus.ui.SeleniumTest;
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.testng.annotations.Test;
@@ -432,10 +434,124 @@ public class PropertiesPgTest extends SeleniumTest {
 
 		page.propGrid().relaxCheckCSVvsGridInfo(filename, soft, "text");
 
+		soft.assertAll();
+	}
 
+
+	/* EDELIVERY-7318 - PROP-16 - Update property domibus.console.login.maximum.attempt   */
+	@Test(description = "PROP-16", groups = {"multiTenancy", "singleTenancy"})
+	public void updateMaxLoginAttempts() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		log.info("going to properties page");
+		PropertiesPage page = new PropertiesPage(driver);
+		page.getSidebar().goToPage(PAGES.PROPERTIES);
+
+		log.info("waiting for grid to load");
+		page.propGrid().waitForRowsToLoad();
+
+		page.filters().filterBy("domibus.console.login.maximum.attempt", null, null, null, null);
+		PropGrid grid = page.propGrid();
+		grid.waitForRowsToLoad();
+
+
+		grid.setPropertyValue("domibus.console.login.maximum.attempt", "1");
+
+		String username = rest.getUsername(null, DRoles.USER, true, false, false);
+
+		boolean userBlocked = false;
+		int attempts = 0;
+
+		while (!userBlocked && attempts<10) {
+			log.info("attempting login with wring pass and user " + username);
+			ClientResponse response = rest.callLogin(username, "wrong password");
+			attempts++;
+
+			log.info("checking error message for account suspended message");
+			String errMessage = response.getEntity(String.class);
+			userBlocked = errMessage.contains("Suspended");
+		}
+
+		log.info("verifying number of attempts");
+		soft.assertEquals(attempts, 2, "User is blocked on the second attempt to login");
 
 		soft.assertAll();
 	}
+
+	/* EDELIVERY-7319 - PROP-17 - Update property domibus.console.login.suspension.time  */
+	@Test(description = "PROP-17", groups = {"multiTenancy", "singleTenancy"})
+	public void updateSuspensionTime() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		log.info("going to properties page");
+		PropertiesPage page = new PropertiesPage(driver);
+		page.getSidebar().goToPage(PAGES.PROPERTIES);
+
+		log.info("waiting for grid to load");
+		page.propGrid().waitForRowsToLoad();
+
+		PropGrid grid = page.propGrid();
+		grid.waitForRowsToLoad();
+
+
+		grid.setPropertyValue("domibus.console.login.suspension.time", "10");
+		grid.setPropertyValue("domibus.account.unlock.cron", "0 * * ? * *");
+
+		String username = rest.getUsername(null, DRoles.USER, true, false, true);
+
+		boolean userBlocked = false;
+		int attempts = 0;
+
+		while (!userBlocked && attempts<10) {
+			log.info("attempting login with wring pass and user " + username);
+			ClientResponse response = rest.callLogin(username, "wrong password");
+			attempts++;
+
+			log.info("checking error message for account suspended message");
+			String errMessage = response.getEntity(String.class);
+			userBlocked = errMessage.contains("Suspended");
+		}
+
+		page.wait.forXMillis(60000);
+		ClientResponse response = rest.callLogin(username, data.defaultPass());
+		soft.assertEquals( response.getStatus(), 200, "Login response is success");
+
+		soft.assertAll();
+	}
+
+
+	/* EDELIVERY-7323 - PROP-18 - Update property domibus.file.upload.maxSize  */
+	@Test(description = "PROP-18", groups = {"multiTenancy", "singleTenancy"})
+	public void updateMaxUploadSize() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		log.info("going to properties page");
+		PropertiesPage page = new PropertiesPage(driver);
+		page.getSidebar().goToPage(PAGES.PROPERTIES);
+
+		log.info("waiting for grid to load");
+		page.propGrid().waitForRowsToLoad();
+
+		page.filters().filterBy("domibus.file.upload.maxSize", null, null, null, false);
+
+		PropGrid grid = page.propGrid();
+		grid.waitForRowsToLoad();
+
+		grid.setPropertyValue("domibus.file.upload.maxSize", "100");
+
+		ClientResponse response = null;
+		try {
+			response = rest.pmode().uploadPMode("pmodes/pmode-dataSetupBlue.xml", "test comment", null);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		soft.assertTrue(StringUtils.containsIgnoreCase(response.getEntity(String.class),"Maximum upload size of 100 bytes exceeded" ), "error message contains mention of file size exceeded");
+
+		rest.properties().updateGlobalProperty("domibus.file.upload.maxSize", "1000000");
+		soft.assertAll();
+	}
+
 
 
 
