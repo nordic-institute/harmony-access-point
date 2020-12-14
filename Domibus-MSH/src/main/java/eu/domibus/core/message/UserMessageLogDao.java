@@ -128,6 +128,21 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         }
     }
 
+    @Timer(clazz = UserMessageLogDao.class, value = "countByMessageId.role")
+    @Counter(clazz = UserMessageLogDao.class, value = "countByMessageId.role")
+    public Integer countByMessageId(String messageId, MSHRole mshRole) {
+        TypedQuery<Integer> query = this.em.createNamedQuery("UserMessageLog.countByMessageIdAndRole", Integer.class);
+        query.setParameter(STR_MESSAGE_ID, messageId);
+        query.setParameter("MSH_ROLE", mshRole);
+
+        try {
+            return query.getSingleResult();
+        } catch (NoResultException nrEx) {
+            LOG.debug("Query UserMessageLog.findByMessageId did not find any result for message with id [" + messageId + "] and MSH role [" + mshRole + "]");
+            return 0;
+        }
+    }
+
     public List<UserMessageLogDto> getDeletedUserMessagesOlderThan(Date date, String mpc, Integer expiredDeletedMessagesLimit) {
         return getMessagesOlderThan(date, mpc, expiredDeletedMessagesLimit, "UserMessageLog.findDeletedUserMessagesOlderThan");
     }

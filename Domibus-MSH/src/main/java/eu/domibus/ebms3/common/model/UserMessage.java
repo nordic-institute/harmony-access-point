@@ -77,17 +77,18 @@ public class UserMessage extends AbstractBaseEntity {
     @Column(name = "SPLIT_AND_JOIN")
     protected Boolean splitAndJoin;
 
-    @XmlTransient
+/*    @XmlTransient
     @JoinColumn(name = "FK_MESSAGE_FRAGMENT_ID")
     @OneToOne(cascade = CascadeType.ALL)
-    protected MessageFragmentEntity messageFragment;
+    protected MessageFragmentEntity messageFragment;*/
 
     public MessageFragmentEntity getMessageFragment() {
-        return messageFragment;
+        return null;
+//        return messageFragment;
     }
 
     public void setMessageFragment(MessageFragmentEntity messageFragment) {
-        this.messageFragment = messageFragment;
+//        this.messageFragment = messageFragment;
     }
 
     /**
@@ -253,11 +254,13 @@ public class UserMessage extends AbstractBaseEntity {
     }
 
     public boolean isUserMessageFragment() {
-        return isSplitAndJoin() && messageFragment != null;
+        return false;
+//        return isSplitAndJoin() && messageFragment != null;
     }
 
     public boolean isSourceMessage() {
-        return isSplitAndJoin() && messageFragment == null;
+        return false;
+//        return isSplitAndJoin() && messageFragment == null;
     }
 
     @Override

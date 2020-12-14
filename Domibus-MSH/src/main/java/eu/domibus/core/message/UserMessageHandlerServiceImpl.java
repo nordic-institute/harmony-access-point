@@ -543,8 +543,8 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
      */
     protected Boolean checkDuplicate(final Messaging messaging) {
         LOG.debug("Checking for duplicate messages");
-        return false;
-        //userMessageLogDao.findByMessageId(messaging.getUserMessage().getMessageInfo().getMessageId(), MSHRole.RECEIVING) != null;
+        //return userMessageLogDao.findByMessageId(messaging.getUserMessage().getMessageInfo().getMessageId(), MSHRole.RECEIVING) != null;
+        return userMessageLogDao.countByMessageId(messaging.getUserMessage().getMessageInfo().getMessageId(), MSHRole.RECEIVING) > 0;
     }
 
     @Override
