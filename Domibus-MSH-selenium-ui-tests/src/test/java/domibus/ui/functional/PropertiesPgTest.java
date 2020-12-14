@@ -1,17 +1,27 @@
 package domibus.ui.functional;
 
 import ddsl.dcomponents.DomibusPage;
+import ddsl.dcomponents.grid.DGrid;
+import ddsl.enums.DMessages;
 import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
 import domibus.ui.SeleniumTest;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
+import pages.properties.PropGrid;
 import pages.properties.PropertiesPage;
+import utils.Gen;
+import utils.TestUtils;
 
 import java.util.HashMap;
 import java.util.List;
 
 public class PropertiesPgTest extends SeleniumTest {
+
+	JSONObject descriptorObj = TestUtils.getPageDescriptorObject(PAGES.PROPERTIES);
+
 
 	/*EDELIVERY-7302 - PROP-1 - Verify presence of Domibus Properties page*/
 	@Test(description = "PROP-1", groups = {"multiTenancy", "singleTenancy"})
@@ -126,5 +136,307 @@ public class PropertiesPgTest extends SeleniumTest {
 
 		soft.assertAll();
 	}
+
+	/*  EDELIVERY-7307 - PROP-5 - Change number of rows visible  */
+	@Test(description = "PROP-5", groups = {"multiTenancy", "singleTenancy"})
+	public void changeNumberOfRows() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		log.info("going to properties page");
+		PropertiesPage page = new PropertiesPage(driver);
+		page.getSidebar().goToPage(PAGES.PROPERTIES);
+
+		log.info("waiting for grid to load");
+		page.propGrid().waitForRowsToLoad();
+
+		log.info("check changing number of rows visible");
+		page.grid().checkChangeNumberOfRows(soft);
+
+		soft.assertAll();
+	}
+
+	/*  EDELIVERY-7308 - PROP-6 - Change visible columns  */
+	@Test(description = "PROP-6", groups = {"multiTenancy", "singleTenancy"})
+	public void changeVisibleColumns() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		log.info("going to properties page");
+		PropertiesPage page = new PropertiesPage(driver);
+		page.getSidebar().goToPage(PAGES.PROPERTIES);
+
+		log.info("waiting for grid to load");
+		page.propGrid().waitForRowsToLoad();
+
+		log.info("checking changing visible columns");
+		page.propGrid().checkModifyVisibleColumns(soft);
+
+		soft.assertAll();
+	}
+
+	/* EDELIVERY-7309 - PROP-7 - Sort grid  */
+	@Test(description = "PROP-7", groups = {"multiTenancy", "singleTenancy"})
+	public void checkSorting() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		log.info("going to properties page");
+		PropertiesPage page = new PropertiesPage(driver);
+		page.getSidebar().goToPage(PAGES.PROPERTIES);
+
+		log.info("waiting for grid to load");
+		page.propGrid().waitForRowsToLoad();
+
+		log.info("checking sorting");
+
+		JSONArray colDescs = descriptorObj.getJSONObject("grid").getJSONArray("columns");
+		DGrid grid = page.propGrid();
+
+		for (int i = 0; i < 3; i++) {
+			JSONObject colDesc = colDescs.getJSONObject(i);
+			if (grid.getColumnNames().contains(colDesc.getString("name"))) {
+				TestUtils.testSortingForColumn(soft, page.propGrid(), colDesc);
+			}
+		}
+
+		soft.assertAll();
+	}
+
+	/* EDELIVERY-7310 - PROP-8 - Change active domain  */
+	@Test(description = "PROP-8", groups = {"multiTenancy"})
+	public void changeDomain() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		log.info("setting domaint title to empty string for default domain");
+		rest.properties().updateDomibusProperty("domain.title", "", null);
+
+		log.info("going to properties page");
+		PropertiesPage page = new PropertiesPage(driver);
+		page.getSidebar().goToPage(PAGES.PROPERTIES);
+
+		log.info("waiting for grid to load");
+		page.propGrid().waitForRowsToLoad();
+
+		log.info("filter for property domain.title");
+		page.filters().filterBy("domain.title", null, null, null, true);
+		page.propGrid().waitForRowsToLoad();
+
+		page.propGrid().setPropertyValue("domain.title", page.getDomainFromTitle());
+
+		String firstValue = page.propGrid().getPropertyValue("domain.title");
+		log.info("got property value "  + firstValue);
+
+		log.info("changing domain");
+		page.getDomainSelector().selectAnotherDomain();
+		page.propGrid().waitForRowsToLoad();
+
+
+		String newDomainValue = page.propGrid().getPropertyValue("domain.title");
+		log.info("got value for new domain: " + newDomainValue);
+
+		soft.assertNotEquals(firstValue, newDomainValue, "Values from the different domains are not equal");
+
+		log.info("resetting value");
+		rest.properties().updateDomibusProperty("domain.title", "", null);
+
+
+		soft.assertAll();
+	}
+
+	/* EDELIVERY-7311 - PROP-9 - Update property value to valid value and press save  */
+	@Test(description = "PROP-9", groups = {"multiTenancy", "singleTenancy"})
+	public void updateAndSave() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		String domainTitleVal = Gen.randomAlphaNumeric(15);
+
+		log.info("going to properties page");
+		PropertiesPage page = new PropertiesPage(driver);
+		page.getSidebar().goToPage(PAGES.PROPERTIES);
+
+		log.info("waiting for grid to load");
+		page.propGrid().waitForRowsToLoad();
+
+		log.info("filter for property domain.title");
+		page.filters().filterBy("domain.title", null, null, null, true);
+		page.propGrid().waitForRowsToLoad();
+
+		page.propGrid().setPropertyValue("domain.title", domainTitleVal);
+
+		page.refreshPage();
+
+		String value = page.propGrid().getPropertyValue("domain.title");
+		log.info("got property value "  + value);
+
+		soft.assertEquals(value , domainTitleVal , "Set value is saved properly");
+
+		log.info("resetting value");
+		rest.properties().updateDomibusProperty("domain.title", "", null);
+
+
+		soft.assertAll();
+	}
+
+
+	/* EDELIVERY-7312 - PROP-10 - Update property value to invalid value and press save  */
+	@Test(description = "PROP-10", groups = {"multiTenancy", "singleTenancy"})
+	public void updateInvalidValue() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		rest.properties().updateDomibusProperty("domibus.property.validation.enabled", "true");
+
+		log.info("going to properties page");
+		PropertiesPage page = new PropertiesPage(driver);
+		page.getSidebar().goToPage(PAGES.PROPERTIES);
+
+		log.info("waiting for grid to load");
+		page.propGrid().waitForRowsToLoad();
+
+		log.info("filter for boolean properties");
+		page.filters().filterBy("", "BOOLEAN", null, null, true);
+		page.propGrid().waitForRowsToLoad();
+
+		log.info("getting info on row 0");
+		HashMap<String, String> info = page.propGrid().getRowInfo(0);
+
+		String toSetValue = Gen.randomAlphaNumeric(5);
+		log.info("setting invalid value " + toSetValue);
+		page.propGrid().setPropRowValueAndSave(0, toSetValue);
+
+		log.info("checking for error message");
+		soft.assertTrue( page.getAlertArea().isError(), "Error message is shown");
+
+		log.info("check correct message is shown");
+		soft.assertEquals( page.getAlertArea().getAlertMessage(),
+				String.format(DMessages.PROPERTIES_UPDATE_ERROR_TYPE, toSetValue, info.get("Property Name"), "BOOLEAN"),
+				"Correct error message is shown");
+
+		page.refreshPage();
+		page.propGrid().waitForRowsToLoad();
+
+		String value = page.propGrid().getPropertyValue(info.get("Property Name"));
+		log.info("getting value after refresh: " +value);
+
+		soft.assertEquals(value , info.get("Property Value") , "Set value was not saved");
+
+		soft.assertAll();
+	}
+
+
+	/* EDELIVERY-7313 - PROP-11 - Update property value and press revert  */
+	@Test(description = "PROP-11", groups = {"multiTenancy", "singleTenancy"})
+	public void updateAndRevert() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		log.info("going to properties page");
+		PropertiesPage page = new PropertiesPage(driver);
+		page.getSidebar().goToPage(PAGES.PROPERTIES);
+
+		log.info("waiting for grid to load");
+		page.propGrid().waitForRowsToLoad();
+
+		log.info("getting info on row 0");
+		HashMap<String, String> info = page.propGrid().getRowInfo(0);
+
+		String toSetValue = Gen.randomAlphaNumeric(5);
+		log.info("setting invalid value " + toSetValue);
+		page.propGrid().setPropRowValueAndRevert(0, toSetValue);
+
+		String value = page.propGrid().getPropertyValue(info.get("Property Name"));
+		log.info("getting value after refresh: " +value);
+
+		soft.assertEquals(value , info.get("Property Value") , "Set value was not saved");
+
+		soft.assertAll();
+	}
+
+
+	/* EDELIVERY-7314 - PROP-12 - Update property value don't press save and move focus on another field  */
+	@Test(description = "PROP-12", groups = {"multiTenancy", "singleTenancy"})
+	public void fillAndDontSave() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		log.info("going to properties page");
+		PropertiesPage page = new PropertiesPage(driver);
+		page.getSidebar().goToPage(PAGES.PROPERTIES);
+
+		log.info("waiting for grid to load");
+		page.propGrid().waitForRowsToLoad();
+
+		log.info("getting info on row 0");
+		HashMap<String, String> info = page.propGrid().getRowInfo(0);
+
+		String toSetValue = Gen.randomAlphaNumeric(5);
+		log.info("setting invalid value " + toSetValue);
+		page.propGrid().setPropRowValue(0, toSetValue);
+
+
+		page.grid().getGridCtrl().showCtrls();
+		page.wait.forXMillis(3000);
+
+		String value = page.propGrid().getPropertyValue(info.get("Property Name"));
+		log.info("getting value after refresh: " +value);
+
+		soft.assertEquals(value , info.get("Property Value") , "Set value was not saved");
+
+		soft.assertAll();
+	}
+
+
+	/* EDELIVERY-7315 - PROP-13 - Update property value don't press save and go to another page   */
+	@Test(description = "PROP-13", groups = {"multiTenancy", "singleTenancy"})
+	public void fillAndGoPage2() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		log.info("going to properties page");
+		PropertiesPage page = new PropertiesPage(driver);
+		page.getSidebar().goToPage(PAGES.PROPERTIES);
+
+		log.info("waiting for grid to load");
+		page.propGrid().waitForRowsToLoad();
+
+		log.info("getting info on row 0");
+		HashMap<String, String> info = page.propGrid().getRowInfo(0);
+
+		String toSetValue = Gen.randomAlphaNumeric(5);
+		log.info("setting invalid value " + toSetValue);
+		page.propGrid().setPropRowValue(0, toSetValue);
+
+
+		page.wait.forXMillis(1000);
+		page.grid().getPagination().goToNextPage();
+
+		String value = page.propGrid().getPropertyValue(info.get("Property Name"));
+		log.info("getting value after refresh: " +value);
+
+		soft.assertEquals(value , info.get("Property Value") , "Set value was not saved");
+
+		soft.assertAll();
+	}
+
+	/* EDELIVERY-7316 - PROP-14 - Export to CSV   */
+	@Test(description = "PROP-14", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	public void exportCSV() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		log.info("going to properties page");
+		PropertiesPage page = new PropertiesPage(driver);
+		page.getSidebar().goToPage(PAGES.PROPERTIES);
+
+		log.info("waiting for grid to load");
+		page.propGrid().waitForRowsToLoad();
+
+		PropGrid grid = page.propGrid();
+		grid.getGridCtrl().showAllColumns();
+		grid.getPagination().getPageSizeSelect().selectOptionByText("100");
+
+		String filename = page.pressSaveCsvAndSaveFile();
+
+		page.propGrid().relaxCheckCSVvsGridInfo(filename, soft, "text");
+
+
+
+		soft.assertAll();
+	}
+
+
 
 }
