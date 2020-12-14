@@ -103,7 +103,8 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         }
     }
 
-
+    @Timer(clazz = UserMessageLogDao.class, value = "findByMessageId")
+    @Counter(clazz = UserMessageLogDao.class, value = "findByMessageId")
     public UserMessageLog findByMessageId(String messageId) {
         //TODO do not bubble up DAO specific exceptions; just return null and make sure it is treated accordingly
         TypedQuery<UserMessageLog> query = em.createNamedQuery("UserMessageLog.findByMessageId", UserMessageLog.class);
@@ -112,6 +113,8 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
     }
 
+    @Timer(clazz = UserMessageLogDao.class, value = "findByMessageId.role")
+    @Counter(clazz = UserMessageLogDao.class, value = "findByMessageId.role")
     public UserMessageLog findByMessageId(String messageId, MSHRole mshRole) {
         TypedQuery<UserMessageLog> query = this.em.createNamedQuery("UserMessageLog.findByMessageIdAndRole", UserMessageLog.class);
         query.setParameter(STR_MESSAGE_ID, messageId);

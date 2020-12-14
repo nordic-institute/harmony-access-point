@@ -3,6 +3,8 @@ package eu.domibus.core.message;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.core.dao.BasicDao;
 import eu.domibus.core.message.pull.MessagePullDto;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.PartInfo;
 import eu.domibus.ebms3.common.model.SignalMessage;
@@ -53,6 +55,8 @@ public class MessagingDao extends BasicDao<Messaging> {
         return query.getResultList();
     }
 
+    @Timer(clazz = MessagingDao.class, value = "findUserMessageByMessageId")
+    @Counter(clazz = MessagingDao.class, value = "findUserMessageByMessageId")
     public UserMessage findUserMessageByMessageId(final String messageId) {
         final TypedQuery<UserMessage> query = this.em.createNamedQuery("Messaging.findUserMessageByMessageId", UserMessage.class);
         query.setParameter(MESSAGE_ID, messageId);
