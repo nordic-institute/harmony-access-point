@@ -27,11 +27,6 @@ public class DomibusPropertyProviderDispatcher {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusPropertyProviderDispatcher.class);
 
-    // it is possible for getCurrentDomainCode() to return null for the first stages of bootstrap process
-    // for global properties but it is acceptable since they are not going to mess with super properties
-    private static final String CACHE_KEY_EXPRESSION = "(#domain != null ? #domain.getCode() : " +
-            "(#root.target.getCurrentDomainCode()) == null ? \"global\" : #root.target.getCurrentDomainCode()) + ':' + #propertyName";
-
     @Autowired
     ClassUtil classUtil;
 
@@ -47,7 +42,6 @@ public class DomibusPropertyProviderDispatcher {
     @Autowired
     protected DomainService domainService;
 
-    @Cacheable(value = DomibusCacheService.DOMIBUS_PROPERTY_CACHE, key = CACHE_KEY_EXPRESSION)
     public String getInternalOrExternalProperty(String propertyName, Domain domain) throws DomibusPropertyException {
         DomibusPropertyMetadata propMeta = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
         if (propMeta.isStoredGlobally()) {
@@ -62,7 +56,6 @@ public class DomibusPropertyProviderDispatcher {
         return getExternalPropertyValue(propertyName, domain, manager);
     }
 
-    @CacheEvict(value = DomibusCacheService.DOMIBUS_PROPERTY_CACHE, key = CACHE_KEY_EXPRESSION, beforeInvocation = true)
     public void setInternalOrExternalProperty(Domain domain, String propertyName, String propertyValue, boolean broadcast) throws DomibusPropertyException {
         Integer maxLength = domibusPropertyProvider.getIntegerProperty(DOMIBUS_PROPERTY_LENGTH_MAX);
         if (maxLength > 0 && propertyValue != null && propertyValue.length() > maxLength) {
