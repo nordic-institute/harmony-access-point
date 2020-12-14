@@ -10,6 +10,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -38,6 +39,7 @@ public class DefaultDomibusConfigurationService implements DomibusConfigurationS
     }
 
     @Override
+    @Cacheable("multitenantCache")
     public boolean isMultiTenantAware() {
         return StringUtils.isNotBlank(domibusPropertyProvider.getProperty(DomainService.GENERAL_SCHEMA_PROPERTY));
     }
