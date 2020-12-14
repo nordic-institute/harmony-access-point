@@ -96,6 +96,22 @@
         </xsd:complexType>
     </xsd:element>
 
+    <xsd:element name="delete">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="messageID" type="tns:max255-non-empty-string"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="deleteBatch">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element maxOccurs="unbounded" minOccurs="0" name="messageID" nillable="true" type="xsd:string"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+
     <xsd:element name="messageStatusChange">
         <xsd:complexType>
             <xsd:sequence>

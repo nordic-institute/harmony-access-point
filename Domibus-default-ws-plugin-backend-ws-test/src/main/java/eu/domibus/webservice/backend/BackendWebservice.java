@@ -13,6 +13,8 @@ import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author François Gautier
@@ -101,6 +103,24 @@ public class BackendWebservice implements BackendInterface {
         LOG.info("receiveFailure received for id [{}]", messageID);
         if (StringUtils.containsIgnoreCase(messageID, "err")) {
             throw new ReceiveFailureFault(getErrorMessage(messageID), getDefaultFaultDetail());
+        }
+    }
+
+    @Override
+    public void delete(Delete delete) throws DeleteFault {
+        String messageID = delete.getMessageID();
+        LOG.info("delete received for id [{}]", messageID);
+        if (StringUtils.containsIgnoreCase(messageID, "err")) {
+            throw new DeleteFault(getErrorMessage(messageID), getDefaultFaultDetail());
+        }
+    }
+
+    @Override
+    public void deleteBatch(DeleteBatch deleteBatch) throws DeleteBatchFault {
+        List<String> messageIDs = deleteBatch.getMessageID();
+        LOG.info("delete received for ids [{}]", messageIDs);
+        if (messageIDs.stream().anyMatch(s ->  StringUtils.containsIgnoreCase(s, "err"))) {
+            throw new DeleteBatchFault(getErrorMessage(Arrays.toString(messageIDs.toArray())), getDefaultFaultDetail());
         }
     }
 

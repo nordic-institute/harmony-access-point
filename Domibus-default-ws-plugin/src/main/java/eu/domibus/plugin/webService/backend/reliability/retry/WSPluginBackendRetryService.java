@@ -95,14 +95,22 @@ public class WSPluginBackendRetryService {
 
     @Transactional
     public void send(String messageId, String finalRecipient, String originalSender, WSPluginDispatchRule rule, WSBackendMessageType messageType) {
-        WSBackendMessageLogEntity backendMessage = getWsBackendMessageLogEntity(messageType, messageId, finalRecipient, originalSender, rule);
+        WSBackendMessageLogEntity backendMessage = getWsBackendMessageLogEntity(messageId, messageType, finalRecipient, originalSender, rule);
         WSBackendMessageLogEntity persistedBackendMessage = wsBackendMessageLogDao.createEntity(backendMessage);
         sendToQueue(persistedBackendMessage);
     }
 
+    @Transactional
+    public void send(List<String> messageIds, String finalRecipient, WSPluginDispatchRule rule, WSBackendMessageType messageType) {
+        WSBackendMessageLogEntity backendMessage = getWsBackendMessageLogEntity(null, messageType, finalRecipient, null, rule);
+        WSBackendMessageLogEntity persistedBackendMessage = wsBackendMessageLogDao.createEntity(backendMessage);
+        LOG.info("[{}] backend message id [{}] for messagesIds [{}]", messageType, persistedBackendMessage.getEntityId(), messageIds);
+        sendToQueue(persistedBackendMessage);
+    }
+
     protected WSBackendMessageLogEntity getWsBackendMessageLogEntity(
-            WSBackendMessageType messageType,
             String messageId,
+            WSBackendMessageType messageType,
             String finalRecipient,
             String originalSender,
             WSPluginDispatchRule rule) {

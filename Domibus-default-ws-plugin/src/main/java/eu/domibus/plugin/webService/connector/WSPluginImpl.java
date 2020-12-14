@@ -78,9 +78,7 @@ public class WSPluginImpl extends AbstractBackendConnector<Messaging, UserMessag
     public void messageDeletedBatchEvent(final MessageDeletedBatchEvent event) {
         LOG.info("Message delete batch event [{}]", event.getMessageIds());
         wsMessageLogDao.deleteByMessageIds(event.getMessageIds());
-        for (String messageId : event.getMessageIds()) {
-            wsPluginBackendService.send(messageId, DELETED);
-        }
+        wsPluginBackendService.send(event.getMessageIds(), DELETED_BATCH);
     }
 
     @Override

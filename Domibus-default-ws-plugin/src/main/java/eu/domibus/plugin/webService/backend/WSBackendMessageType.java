@@ -39,5 +39,10 @@ public enum WSBackendMessageType {
     /**
      * Notify C1 of a domibus message deleted
      */
-    DELETED
+    DELETED,
+
+    /**
+     * Notify C1 of a domibus messages deleted by batch
+     */
+    DELETED_BATCH
 }
