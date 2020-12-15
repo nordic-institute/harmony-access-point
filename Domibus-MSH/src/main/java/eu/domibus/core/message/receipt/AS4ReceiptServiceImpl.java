@@ -22,6 +22,7 @@ import eu.domibus.core.message.signal.SignalMessageLogBuilder;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.message.splitandjoin.MessageGroupDao;
 import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.MetricsHelper;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.plugin.notification.NotificationStatus;
 import eu.domibus.core.replication.UIReplicationSignalService;
@@ -54,6 +55,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.util.Iterator;
+
+import static com.codahale.metrics.MetricRegistry.name;
 
 /**
  * @author Cosmin Baciu
@@ -141,11 +144,12 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
         SOAPMessage responseMessage = null;
         UserMessage userMessage = messaging.getUserMessage();
 
+        com.codahale.metrics.Timer.Context methodTimer = MetricsHelper.getMetricRegistry().timer(name(AS4ReceiptServiceImpl.class, "generateReceipt", "timer")).time();
+
         if (ReplyPattern.RESPONSE.equals(replyPattern)) {
             LOG.debug("Generating receipt for incoming message");
             try {
                 responseMessage = XMLUtilImpl.getMessageFactory().createMessage();
-
 
                 String messageId;
                 String timestamp;
@@ -176,7 +180,9 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
                 setMessagingId(responseMessage, userMessage);
 
                 if (!duplicate) {
+                    com.codahale.metrics.Timer.Context sr = MetricsHelper.getMetricRegistry().timer(name(AS4ReceiptServiceImpl.class, "generateReceipt.saveResponse", "timer")).time();
                     saveResponse(responseMessage, selfSendingFlag);
+                    sr.stop();
                 }
 
                 LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_RECEIPT_GENERATED, nonRepudiation);
@@ -190,6 +196,7 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
                 throw ex;
             }
         }
+        methodTimer.stop();
         return responseMessage;
     }
 
@@ -200,6 +207,8 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
      * @param selfSendingFlag indicates that the message is sent to the same Domibus instance
      */
     protected void saveResponse(final SOAPMessage responseMessage, boolean selfSendingFlag) throws EbMS3Exception, SOAPException {
+        com.codahale.metrics.Timer.Context sr = MetricsHelper.getMetricRegistry().timer(name(AS4ReceiptServiceImpl.class, "generateReceipt.saveResponse.untilCreate", "timer")).time();
+
         LOG.debug("Saving response, self sending  [{}]", selfSendingFlag);
 
         Messaging messaging = messageUtil.getMessagingWithDom(responseMessage);
@@ -212,11 +221,16 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
             signalMessage.getMessageInfo().setRefToMessageId(signalMessage.getMessageInfo().getRefToMessageId() + UserMessageHandlerService.SELF_SENDING_SUFFIX);
             signalMessage.getMessageInfo().setMessageId(signalMessage.getMessageInfo().getMessageId() + UserMessageHandlerService.SELF_SENDING_SUFFIX);
         }
+        sr.stop();
         LOG.debug("Save signalMessage with messageId [{}], refToMessageId [{}]", signalMessage.getMessageInfo().getMessageId(), signalMessage.getMessageInfo().getRefToMessageId());
         // Stores the signal message
+        com.codahale.metrics.Timer.Context createTimer = MetricsHelper.getMetricRegistry().timer(name(AS4ReceiptServiceImpl.class, "generateReceipt.saveResponse.create", "timer")).time();
         signalMessageDao.create(signalMessage);
+        createTimer.stop();
         // Updating the reference to the signal message
+        com.codahale.metrics.Timer.Context fmi = MetricsHelper.getMetricRegistry().timer(name(AS4ReceiptServiceImpl.class, "generateReceipt.saveResponse.findMessageByMessageId", "timer")).time();
         Messaging sentMessage = messagingDao.findMessageByMessageId(messaging.getSignalMessage().getMessageInfo().getRefToMessageId());
+        fmi.stop();
         MessageSubtype messageSubtype = null;
         if (sentMessage != null) {
             LOG.debug("Updating the reference to the signal message [{}]", sentMessage.getUserMessage().getMessageInfo().getMessageId());

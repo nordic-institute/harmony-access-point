@@ -15,7 +15,9 @@ import eu.domibus.core.message.compression.CompressionService;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.nonrepudiation.RawEnvelopeLogDao;
 import eu.domibus.core.message.receipt.AS4ReceiptService;
+import eu.domibus.core.message.receipt.AS4ReceiptServiceImpl;
 import eu.domibus.core.message.splitandjoin.*;
+import eu.domibus.core.metrics.MetricsHelper;
 import eu.domibus.core.payload.PayloadProfileValidator;
 import eu.domibus.core.payload.persistence.InvalidPayloadSizeException;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
@@ -64,6 +66,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Iterator;
 
+import static com.codahale.metrics.MetricRegistry.name;
 import static org.apache.commons.lang3.BooleanUtils.isTrue;
 
 /**
@@ -222,8 +225,6 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
         }
     }
 
-    @Timer(clazz = UserMessageHandlerServiceImpl.class, value = "handleIncomingMessage")
-    @Counter(clazz = UserMessageHandlerServiceImpl.class, value = "handleIncomingMessage")
     protected void handleIncomingMessage(
             final LegConfiguration legConfiguration,
             String pmodeKey,
@@ -233,6 +234,8 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
             boolean messageExists,
             boolean testMessage)
             throws IOException, TransformerException, EbMS3Exception, SOAPException {
+        com.codahale.metrics.Timer.Context fmi = MetricsHelper.getMetricRegistry().timer(name(AS4ReceiptServiceImpl.class, "handleIncomingMessage", "timer")).time();
+
         soapUtil.logMessage(request);
 
         if (selfSending) {
@@ -272,6 +275,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
                 }
             }
         }
+        fmi.stop();
     }
 
 
@@ -543,8 +547,8 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
      */
     protected Boolean checkDuplicate(final Messaging messaging) {
         LOG.debug("Checking for duplicate messages");
-        //return userMessageLogDao.findByMessageId(messaging.getUserMessage().getMessageInfo().getMessageId(), MSHRole.RECEIVING) != null;
-        return userMessageLogDao.countByMessageId(messaging.getUserMessage().getMessageInfo().getMessageId(), MSHRole.RECEIVING) > 0;
+        return userMessageLogDao.findByMessageId(messaging.getUserMessage().getMessageInfo().getMessageId(), MSHRole.RECEIVING) != null;
+        //return userMessageLogDao.countByMessageId(messaging.getUserMessage().getMessageInfo().getMessageId(), MSHRole.RECEIVING) > 0;
     }
 
     @Override
