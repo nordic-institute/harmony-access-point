@@ -217,6 +217,10 @@ public class FSFilesManager {
     public FileObject setUpFileSystem(String domain) throws FileSystemException {
         // Domain or default location
         String location = fsPluginProperties.getLocation(domain);
+        if (StringUtils.isBlank(location)) {
+            throw new FSSetUpException("Location folder is not set for domain=[" + domain + "].");
+        }
+
         String authDomain = null;
         String user = fsPluginProperties.getUser(domain);
         String password = fsPluginProperties.getPassword(domain);
