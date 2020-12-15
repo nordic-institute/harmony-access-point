@@ -66,7 +66,6 @@ public abstract class AuthenticationServiceBase {
      *
      * @param authentication the immutable authentication object
      */
-    // EDELIVERY-7611 - do this inside setDomain method of UserDetails
     protected void refreshSecurityContext(Authentication authentication) {
         SecurityContextHolder.clearContext();
         SecurityContextHolder.getContext().setAuthentication(authentication);
