@@ -1,6 +1,5 @@
 package eu.domibus.web.rest;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.property.DomibusConfigurationService;
@@ -8,6 +7,7 @@ import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.core.alerts.model.common.*;
 import eu.domibus.core.alerts.model.service.Alert;
+import eu.domibus.core.alerts.model.web.AlertCsvRO;
 import eu.domibus.core.alerts.model.web.AlertRo;
 import eu.domibus.core.alerts.service.AlertService;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -22,10 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.AbstractMap.SimpleImmutableEntry;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -169,16 +166,16 @@ public class AlertResource extends BaseResource {
         request.setPage(0);
         request.setPageSize(getCsvService().getPageSizeForExport());
         AlertCriteria alertCriteria = getAlertCriteria(request);
-        List<AlertRo> alertRoList;
+        List<AlertCsvRO> alertCsvRoList;
         if (!authUtils.isSuperAdmin() || request.getDomainAlerts()) {
-            alertRoList = fetchAndTransformAlerts(alertCriteria, false);
+            alertCsvRoList = fetchAndTransformAlerts(alertCriteria);
         } else {
-            alertRoList = domainTaskExecutor.submit(() -> fetchAndTransformAlerts(alertCriteria, true));
+            alertCsvRoList = domainTaskExecutor.submit(() -> fetchAndTransformAlerts(alertCriteria));
         }
 
-        return exportToCSV(alertRoList,
-                AlertRo.class,
-                ImmutableMap.of("entityId".toUpperCase(), "Alert Id"),
+        return exportToCSV(alertCsvRoList,
+                AlertCsvRO.class,
+                new HashMap<>(),
                 "alerts");
     }
 
@@ -202,12 +199,11 @@ public class AlertResource extends BaseResource {
         return alert;
     }
 
-    protected List<AlertRo> fetchAndTransformAlerts(AlertCriteria alertCriteria, boolean isSuperAdmin) {
+    protected List<AlertCsvRO> fetchAndTransformAlerts(AlertCriteria alertCriteria) {
         final List<Alert> alerts = alertService.findAlerts(alertCriteria);
         getCsvService().validateMaxRows(alerts.size(), () -> alertService.countAlerts(alertCriteria));
 
-        final List<AlertRo> alertRoList = alerts.stream().map(this::transform).collect(Collectors.toList());
-        alertRoList.forEach(alert -> alert.setSuperAdmin(isSuperAdmin));
+        final List<AlertCsvRO> alertRoList = alerts.stream().map(this::transformCsv).collect(Collectors.toList());
         return alertRoList;
     }
 
@@ -303,6 +299,27 @@ public class AlertResource extends BaseResource {
         alertRo.setParameters(alertParameterValues);
         return alertRo;
     }
+
+    private AlertCsvRO transformCsv(Alert alert) {
+        AlertCsvRO alertRo = new AlertCsvRO();
+        alertRo.setProcessed(alert.isProcessed());
+        alertRo.setAlertType(alert.getAlertType().name());
+        alertRo.setAlertLevel(alert.getAlertLevel().name());
+        alertRo.setCreationTime(alert.getCreationTime());
+        alertRo.setAlertStatus(alert.getAlertStatus().name());
+
+        final List<String> alertParameterNames = getAlertParameters(alert.getAlertType().name());
+        final List<String> alertParameterValues = alertParameterNames.
+                stream().
+                map(paramName -> alert.getEvents().iterator().next().findOptionalProperty(paramName)).
+                filter(Optional::isPresent).
+                map(Optional::get).
+                map(this::manageMaxLength).
+                collect(Collectors.toList());
+        alertRo.setParameters(alertParameterValues);
+        return alertRo;
+    }
+
 
     private String manageMaxLength(String param) {
         return StringUtils.abbreviate(param, 254);
