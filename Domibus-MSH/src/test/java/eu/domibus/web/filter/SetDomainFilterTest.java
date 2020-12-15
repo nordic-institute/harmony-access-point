@@ -42,6 +42,24 @@ public class SetDomainFilterTest {
             setDomainFilter.getAuthenticatedUser();
             result = userDetail;
 
+            setDomainFilter.getDomain(userDetail);
+            this.result = domainCode;
+        }};
+
+        setDomainFilter.doFilter(request, response, chain);
+
+        new Verifications() {{
+            domainContextProvider.setCurrentDomain(domainCode);
+            chain.doFilter(request, response);
+        }};
+    }
+
+    @Test
+    public void getDomain(@Mocked UserDetail userDetail) {
+
+        String domainCode = "default";
+
+        new Expectations(setDomainFilter) {{
             domibusConfigurationService.isMultiTenantAware();
             result = true;
 
@@ -49,12 +67,7 @@ public class SetDomainFilterTest {
             this.result = domainCode;
         }};
 
-        setDomainFilter.doFilter(request, response, chain);
-
-        new Verifications(){{
-            userDetail.getDomain();
-            domainContextProvider.setCurrentDomain(domainCode);
-            chain.doFilter(request, response);
-        }};
+        String result = setDomainFilter.getDomain(userDetail);
+        Assert.assertEquals(domainCode, result);
     }
 }
