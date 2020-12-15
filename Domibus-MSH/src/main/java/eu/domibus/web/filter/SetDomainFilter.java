@@ -45,6 +45,7 @@ public class SetDomainFilter extends GenericFilterBean {
     }
 
     //TODO: replace with an already existing method from AuthenticationServiceBase (or move it in AuthUtils) and reuse everywhere
+    // EDELIVERY-7610
     private UserDetail getAuthenticatedUser() {
         final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated() && (authentication.getPrincipal() instanceof UserDetail)) {
