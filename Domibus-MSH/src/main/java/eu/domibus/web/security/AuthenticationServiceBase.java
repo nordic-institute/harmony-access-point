@@ -38,7 +38,7 @@ public abstract class AuthenticationServiceBase {
         final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserDetail securityUser = (UserDetail) authentication.getPrincipal();
         securityUser.setDomain(domainCode);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        refreshSecurityContext(authentication);
     }
 
     /**
@@ -58,5 +58,17 @@ public abstract class AuthenticationServiceBase {
         }
         LOG.warn("Authentication is missing from the security context or it is of wrong type. Could not return the logged user.");
         return null;
+    }
+
+    /**
+     * Refreshes the SecurityContext by first clearing any existing security context (this is only
+     * needed when the user details have changed and need to be updated in the user session).
+     *
+     * @param authentication the immutable authentication object
+     */
+    // EDELIVERY-7611 - do this inside setDomain method of UserDetails
+    protected void refreshSecurityContext(Authentication authentication) {
+        SecurityContextHolder.clearContext();
+        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 }
