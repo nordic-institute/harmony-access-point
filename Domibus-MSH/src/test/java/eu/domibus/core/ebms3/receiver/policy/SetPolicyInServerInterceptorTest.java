@@ -2,6 +2,7 @@ package eu.domibus.core.ebms3.receiver.policy;
 
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.ebms3.receiver.leg.ServerInMessageLegConfigurationFactory;
 import eu.domibus.core.ebms3.ws.policy.PolicyService;
 import eu.domibus.core.message.SoapService;
@@ -32,6 +33,9 @@ public class SetPolicyInServerInterceptorTest {
 
     @Injectable
     SoapService soapService;
+
+    @Injectable
+    Ebms3Converter ebms3Converter;
 
     @Injectable
     protected PolicyService policyService;

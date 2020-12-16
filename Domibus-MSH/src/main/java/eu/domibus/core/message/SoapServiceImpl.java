@@ -1,6 +1,6 @@
 package eu.domibus.core.message;
 
-import eu.domibus.api.ebms3.model.Messaging;
+import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.ebms3.model.ObjectFactory;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.core.ebms3.EbMS3Exception;
@@ -38,7 +38,7 @@ public class SoapServiceImpl implements SoapService {
     protected MessageUtil messageUtil;
 
 
-    public Messaging getMessage(final SoapMessage message) throws IOException, EbMS3Exception {
+    public Ebms3Messaging getMessage(final SoapMessage message) throws IOException, EbMS3Exception {
         final InputStream inputStream = message.getContent(InputStream.class);
         final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         IOUtils.copy(inputStream, byteArrayOutputStream); //FIXME: do not copy the whole byte[], use SequenceInputstream instead

@@ -3,7 +3,6 @@ package eu.domibus.core.message.reliability;
 import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
-import eu.domibus.core.ebms3.Ebms3Converter;
 import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.common.model.configuration.LegConfiguration;

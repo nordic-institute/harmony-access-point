@@ -1,5 +1,6 @@
 package eu.domibus.core.message.receipt;
 
+import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.ebms3.model.ObjectFactory;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.message.MessageSubtype;
@@ -11,7 +12,7 @@ import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.model.configuration.ReplyPattern;
 import eu.domibus.core.ebms3.EbMS3Exception;
-import eu.domibus.core.ebms3.Ebms3Converter;
+import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.generator.id.MessageIdGenerator;
 import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.UserMessageHandlerService;
@@ -210,8 +211,8 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
     protected void saveResponse(final SOAPMessage responseMessage, boolean selfSendingFlag) throws EbMS3Exception, SOAPException {
         LOG.debug("Saving response, self sending  [{}]", selfSendingFlag);
 
-        eu.domibus.api.ebms3.model.Messaging messaging = messageUtil.getMessagingWithDom(responseMessage);
-        final SignalMessage signalMessage = ebms3Converter.convertFromEbms3(messaging.getSignalMessage());
+        Ebms3Messaging ebms3Messaging = messageUtil.getMessagingWithDom(responseMessage);
+        final SignalMessage signalMessage = ebms3Converter.convertFromEbms3(ebms3Messaging.getSignalMessage());
 
         if (selfSendingFlag) {
                 /*we add a defined suffix in order to assure DB integrity - messageId unicity
@@ -224,7 +225,7 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
         // Stores the signal message
         signalMessageDao.create(signalMessage);
         // Updating the reference to the signal message
-        Messaging sentMessage = messagingDao.findMessageByMessageId(messaging.getSignalMessage().getMessageInfo().getRefToMessageId());
+        Messaging sentMessage = messagingDao.findMessageByMessageId(ebms3Messaging.getSignalMessage().getMessageInfo().getRefToMessageId());
         MessageSubtype messageSubtype = null;
         if (sentMessage != null) {
             LOG.debug("Updating the reference to the signal message [{}]", sentMessage.getUserMessage().getMessageInfo().getMessageId());
@@ -236,7 +237,7 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
         }
         // Builds the signal message log
         SignalMessageLogBuilder smlBuilder = SignalMessageLogBuilder.create()
-                .setMessageId(messaging.getSignalMessage().getMessageInfo().getMessageId())
+                .setMessageId(ebms3Messaging.getSignalMessage().getMessageInfo().getMessageId())
                 .setMessageStatus(MessageStatus.ACKNOWLEDGED)
                 .setMshRole(MSHRole.SENDING)
                 .setNotificationStatus(NotificationStatus.NOT_REQUIRED);

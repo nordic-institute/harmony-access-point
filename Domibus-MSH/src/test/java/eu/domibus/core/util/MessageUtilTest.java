@@ -1,17 +1,15 @@
 package eu.domibus.core.util;
 
-import eu.domibus.api.ebms3.model.ObjectFactory;
-import eu.domibus.api.ebms3.model.mf.MessageFragmentType;
+import eu.domibus.api.ebms3.model.*;
+import eu.domibus.api.ebms3.model.mf.Ebms3MessageFragmentType;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.messaging.MessagingException;
 import eu.domibus.api.model.*;
 import eu.domibus.api.model.Error;
+import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.core.ebms3.EbMS3Exception;
-import mockit.Expectations;
-import mockit.FullVerifications;
-import mockit.Injectable;
-import mockit.Tested;
+import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
@@ -48,6 +46,9 @@ public class MessageUtilTest {
     MessageUtil messageUtil;
 
     @Injectable
+    XMLUtil xmlUtil;
+
+    @Injectable
     JAXBContext jaxbContextEBMS;
 
     @Injectable
@@ -65,7 +66,7 @@ public class MessageUtilTest {
                              @Injectable Unmarshaller unmarshaller,
                              @Injectable JAXBElement<Messaging> root
     ) throws SOAPException, JAXBException {
-        Messaging expectedMessaging = new Messaging();
+        Ebms3Messaging expectedMessaging = new Ebms3Messaging();
         new Expectations() {{
             soapMessage.getSOAPHeader().getChildElements(ObjectFactory._Messaging_QNAME);
             result = node;
@@ -85,7 +86,7 @@ public class MessageUtilTest {
     @Test
     public void getMessagingWithDom(@Injectable SOAPMessage soapMessage,
                                     @Injectable Node messagingNode,
-                                    @Injectable Messaging messaging) throws SOAPException, EbMS3Exception {
+                                    @Injectable Ebms3Messaging messaging) throws SOAPException, EbMS3Exception {
         new Expectations(messageUtil) {{
             soapMessage.getSOAPHeader().getChildElements(ObjectFactory._Messaging_QNAME);
             result = messagingNode;
@@ -114,9 +115,9 @@ public class MessageUtilTest {
 
     @Test
     public void getNodeMessagingWithDom(@Injectable Node messagingNode,
-                                        @Injectable Messaging messaging,
-                                        @Injectable SignalMessage signalMessage,
-                                        @Injectable UserMessage userMessage,
+                                        @Injectable Ebms3Messaging messaging,
+                                        @Injectable Ebms3SignalMessage signalMessage,
+                                        @Injectable Ebms3UserMessage userMessage,
                                         @Injectable QName qName) throws SOAPException, EbMS3Exception {
         final Map<QName, String> otherAttributes = new HashMap<>();
 
@@ -151,14 +152,14 @@ public class MessageUtilTest {
 
     @Test
     public void createUserMessage(@Injectable Node messagingNode,
-                                  @Injectable Messaging messaging,
+                                  @Injectable Ebms3Messaging messaging,
                                   @Injectable Node userMessageNode,
-                                  @Injectable UserMessage userMessage,
-                                  @Injectable MessageInfo messageInfo,
-                                  @Injectable PartyInfo partyInfo,
-                                  @Injectable CollaborationInfo collaborationInfo,
-                                  @Injectable MessageProperties messageProperties,
-                                  @Injectable PayloadInfo payloadInfo) {
+                                  @Injectable Ebms3UserMessage userMessage,
+                                  @Injectable Ebms3MessageInfo messageInfo,
+                                  @Injectable Ebms3PartyInfo partyInfo,
+                                  @Injectable Ebms3CollaborationInfo collaborationInfo,
+                                  @Injectable Ebms3MessageProperties messageProperties,
+                                  @Injectable Ebms3PayloadInfo payloadInfo) {
         final String USER_MESSAGE = "UserMessage";
 
         new Expectations(messageUtil) {{
@@ -225,7 +226,7 @@ public class MessageUtilTest {
     @Test
     public void createPartProperties(@Injectable Node partInfoNode,
                                      @Injectable Node partPropertiesNode,
-                                     @Injectable Property property) {
+                                     @Injectable Ebms3Property property) {
         final String PART_PROPERTIES = "PartProperties";
         final String PROPERTY = "Property";
         final List<Node> propertyNodes = new ArrayList<>();
@@ -264,8 +265,8 @@ public class MessageUtilTest {
     @Test
     public void createMessageProperties(@Injectable Node messagePropertiesNode,
                                         @Injectable Node userMessageNode,
-                                        @Injectable MessageProperties messageProperties,
-                                        @Injectable Property property) {
+                                        @Injectable Ebms3MessageProperties messageProperties,
+                                        @Injectable Ebms3Property property) {
         final String PROPERTY = "Property";
         final List<Node> propertyNodes = new ArrayList<>();
         propertyNodes.add(userMessageNode);
@@ -296,9 +297,9 @@ public class MessageUtilTest {
     @Test
     public void createCollaborationInfo(@Injectable Node collaborationInfoNode,
                                         @Injectable Node userMessageNode,
-                                        @Injectable Service service,
-                                        @Injectable CollaborationInfo collaborationInfo,
-                                        @Injectable AgreementRef agreement) {
+                                        @Injectable Ebms3Service service,
+                                        @Injectable Ebms3CollaborationInfo collaborationInfo,
+                                        @Injectable Ebms3AgreementRef agreement) {
         final String CONVERSATION_ID = "ConversationId";
         final String ACTION = "Action";
 
@@ -383,8 +384,8 @@ public class MessageUtilTest {
     @Test
     public void createPartyInfo(@Injectable Node userMessageNode,
                                 @Injectable Node partyInfoNode,
-                                @Injectable From from,
-                                @Injectable To to) {
+                                @Injectable Ebms3From from,
+                                @Injectable Ebms3To to) {
         new Expectations(messageUtil) {{
             messageUtil.getFirstChild(userMessageNode, "PartyInfo");
             result = partyInfoNode;
@@ -474,7 +475,7 @@ public class MessageUtilTest {
     @Test
     public void createPartyIds(@Injectable Node parent,
                                @Injectable Node partyIdNode,
-                               @Injectable PartyId partyId) {
+                               @Injectable Ebms3PartyId partyId) {
         final List<Node> partyIdNodes = new ArrayList<>();
         partyIdNodes.add(partyIdNode);
 
@@ -490,7 +491,7 @@ public class MessageUtilTest {
 
     @Test
     public void createPartyId(@Injectable Node partyIdNode,
-                              @Injectable PartyId partyId) {
+                              @Injectable Ebms3PartyId partyId) {
 
         new Expectations(messageUtil) {{
             messageUtil.getAttribute(partyIdNode, "type");
@@ -505,12 +506,12 @@ public class MessageUtilTest {
     @Test
     public void createSignalMessage(@Injectable Node messagingNode,
                                     @Injectable Node signalNode,
-                                    @Injectable MessageInfo messageInfo,
-                                    @Injectable SignalMessage signalMessage,
-                                    @Injectable Receipt receipt,
-                                    @Injectable PullRequest pullRequest,
-                                    @Injectable Error error) throws SOAPException {
-        Set<Error> errors = new HashSet<>();
+                                    @Injectable Ebms3MessageInfo messageInfo,
+                                    @Injectable Ebms3SignalMessage signalMessage,
+                                    @Injectable Ebms3Receipt receipt,
+                                    @Injectable Ebms3PullRequest pullRequest,
+                                    @Injectable Ebms3Error error) throws SOAPException {
+        Set<Ebms3Error> errors = new HashSet<>();
         errors.add(error);
 
         new Expectations(messageUtil) {{
@@ -585,7 +586,7 @@ public class MessageUtilTest {
     @Test
     public void createErrors(@Injectable Node signalNode,
                              @Injectable Node errorNode,
-                             @Injectable Error error) {
+                             @Injectable Ebms3Error error) {
         final List<Node> errorNodeList = new ArrayList<>();
         errorNodeList.add(errorNode);
 
@@ -616,8 +617,8 @@ public class MessageUtilTest {
     @Test
     public void createError(@Injectable Node signalNode,
                             @Injectable Node errorNode,
-                            @Injectable Error error,
-                            @Injectable Description description) {
+                            @Injectable Ebms3Error error,
+                            @Injectable Ebms3Description description) {
         final String CATEGORY = "category";
         final String ERROR_CODE = "errorCode";
         final String ORIGIN = "origin";
@@ -939,7 +940,7 @@ public class MessageUtilTest {
                                    @Injectable Iterator iterator,
                                    @Injectable Node messagingXml,
                                    @Injectable Unmarshaller unmarshaller,
-                                   @Injectable JAXBElement<MessageFragmentType> root) throws SOAPException, JAXBException {
+                                   @Injectable JAXBElement<Ebms3MessageFragmentType> root) throws SOAPException, JAXBException {
         final QName _MessageFragment_QNAME = new QName("http://docs.oasis-open.org/ebxml-msg/ns/v3.0/mf/2010/04/", "MessageFragment");
 
         new Expectations(messageUtil) {{
@@ -954,7 +955,7 @@ public class MessageUtilTest {
             unmarshaller.unmarshal(messagingXml);
             result = root;
             root.getValue();
-            result = new MessageFragmentType();
+            result = new Ebms3MessageFragmentType();
         }};
 
         assertNotNull(messageUtil.getMessageFragment(soapMessage));
@@ -1022,11 +1023,11 @@ public class MessageUtilTest {
 
     @Test
     public void getMessage_ok(@Injectable SOAPMessage request,
-                              @Injectable Messaging messaging) throws SOAPException, JAXBException {
+                              @Injectable Ebms3Messaging messaging) throws SOAPException, JAXBException {
 
         new Expectations(messageUtil) {{
             messageUtil.getMessaging(request);
-            result = new Messaging();
+            result = messaging;
         }};
 
         assertNotNull(messageUtil.getMessage(request));
@@ -1145,6 +1146,8 @@ public class MessageUtilTest {
 
         assertThat(messageUtil.nodeToString(null), is(""));
 
-        new FullVerifications() {};
+        new Verifications() {{
+            xmlUtil.getTransformerFactory().newTransformer();
+        }};
     }
 }

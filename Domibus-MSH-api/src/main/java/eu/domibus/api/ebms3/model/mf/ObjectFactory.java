@@ -38,27 +38,27 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link MessageFragmentType }
+     * Create an instance of {@link Ebms3MessageFragmentType }
      * 
      */
-    public MessageFragmentType createMessageFragmentType() {
-        return new MessageFragmentType();
+    public Ebms3MessageFragmentType createMessageFragmentType() {
+        return new Ebms3MessageFragmentType();
     }
 
     /**
-     * Create an instance of {@link MessageHeaderType }
+     * Create an instance of {@link Ebms3MessageHeaderType }
      * 
      */
-    public MessageHeaderType createMessageHeaderType() {
-        return new MessageHeaderType();
+    public Ebms3MessageHeaderType createMessageHeaderType() {
+        return new Ebms3MessageHeaderType();
     }
 
     /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link MessageFragmentType }{@code >}}
+     * Create an instance of {@link JAXBElement }{@code <}{@link Ebms3MessageFragmentType }{@code >}}
      * 
      */
     @XmlElementDecl(namespace = "http://docs.oasis-open.org/ebxml-msg/ns/v3.0/mf/2010/04/", name = "MessageFragment")
-    public JAXBElement<MessageFragmentType> createMessageFragment(MessageFragmentType value) {
-        return new JAXBElement<MessageFragmentType>(_MessageFragment_QNAME, MessageFragmentType.class, null, value);
+    public JAXBElement<Ebms3MessageFragmentType> createMessageFragment(Ebms3MessageFragmentType value) {
+        return new JAXBElement<Ebms3MessageFragmentType>(_MessageFragment_QNAME, Ebms3MessageFragmentType.class, null, value);
     }
 }

@@ -1,7 +1,7 @@
 package eu.domibus.core.ebms3.ws.handler;
 
+import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.ebms3.model.ObjectFactory;
-import eu.domibus.api.model.Messaging;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,20 +30,20 @@ public abstract class AbstractFaultHandler implements SOAPHandler<SOAPMessageCon
     protected JAXBContext jaxbContext;
 
     /**
-     * This method extracts a ebMS3 messaging header {@link Messaging} from a {@link javax.xml.soap.SOAPMessage}
+     * This method extracts a ebMS3 messaging header {@link Ebms3Messaging} from a {@link javax.xml.soap.SOAPMessage}
      *
      * @param soapMessage the SOAP message
-     * @return a ebMS3 messaging header {@link Messaging}
+     * @return a ebMS3 messaging header {@link Ebms3Messaging}
      */
-    protected Messaging extractMessaging(final SOAPMessage soapMessage) {
-        Messaging messaging = null;
+    protected Ebms3Messaging extractMessaging(final SOAPMessage soapMessage) {
+        Ebms3Messaging ebms3Messaging = null;
         try {
-            messaging = ((JAXBElement<Messaging>) this.jaxbContext.createUnmarshaller().unmarshal((Node) soapMessage.getSOAPHeader().getChildElements(ObjectFactory._Messaging_QNAME).next())).getValue();
+            ebms3Messaging = ((JAXBElement<Ebms3Messaging>) this.jaxbContext.createUnmarshaller().unmarshal((Node) soapMessage.getSOAPHeader().getChildElements(ObjectFactory._Messaging_QNAME).next())).getValue();
         } catch (JAXBException | SOAPException e) {
             //TODO: make nice
             AbstractFaultHandler.LOG.error("Error extracting messaging object", e);
         }
 
-        return messaging;
+        return ebms3Messaging;
     }
 }

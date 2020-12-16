@@ -1,14 +1,15 @@
 package eu.domibus.core.ebms3.sender;
 
-import eu.domibus.api.ebms3.model.Messaging;
-import eu.domibus.api.ebms3.model.SignalMessage;
+import eu.domibus.api.ebms3.model.Ebms3Error;
+import eu.domibus.api.ebms3.model.Ebms3Messaging;
+import eu.domibus.api.ebms3.model.Ebms3SignalMessage;
 import eu.domibus.api.exceptions.DomibusDateTimeException;
 import eu.domibus.api.model.Error;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
-import eu.domibus.core.ebms3.Ebms3Converter;
+import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.message.MessagingDao;
@@ -65,10 +66,10 @@ public class ResponseHandler {
 
         ResponseResult result = new ResponseResult();
 
-        final Messaging messaging;
+        final Ebms3Messaging ebms3Messaging;
         try {
-            messaging = messageUtil.getMessagingWithDom(response);
-            result.setResponseMessaging(messaging);
+            ebms3Messaging = messageUtil.getMessagingWithDom(response);
+            result.setResponseMessaging(ebms3Messaging);
         } catch (SOAPException | DomibusDateTimeException ex) {
             throw EbMS3ExceptionBuilder
                     .getInstance()
@@ -80,15 +81,15 @@ public class ResponseHandler {
                     .build();
         }
 
-        final SignalMessage signalMessage = messaging.getSignalMessage();
-        final ResponseStatus responseStatus = getResponseStatus(signalMessage);
+        final Ebms3SignalMessage ebms3SignalMessage = ebms3Messaging.getSignalMessage();
+        final ResponseStatus responseStatus = getResponseStatus(ebms3SignalMessage);
         result.setResponseStatus(responseStatus);
 
         return result;
     }
 
-    public void saveResponse(final SOAPMessage response, final eu.domibus.api.model.Messaging sentMessage, final Messaging messagingResponse) {
-        eu.domibus.api.model.Messaging convertedMessagingResponse = ebms3Converter.convertFromEbms3(messagingResponse);
+    public void saveResponse(final SOAPMessage response, final eu.domibus.api.model.Messaging sentMessage, final Ebms3Messaging ebms3MessagingResponse) {
+        eu.domibus.api.model.Messaging convertedMessagingResponse = ebms3Converter.convertFromEbms3(ebms3MessagingResponse);
 
         final eu.domibus.api.model.SignalMessage signalMessage = convertedMessagingResponse.getSignalMessage();
         nonRepudiationService.saveResponse(response, signalMessage);
@@ -135,18 +136,18 @@ public class ResponseHandler {
         }
     }
 
-    protected ResponseStatus getResponseStatus(eu.domibus.api.ebms3.model.SignalMessage signalMessage) throws EbMS3Exception {
+    protected ResponseStatus getResponseStatus(Ebms3SignalMessage ebms3SignalMessage) throws EbMS3Exception {
         LOGGER.debug("Getting response status");
 
         // Checks if the signal message is Ok
-        if (signalMessage.getError() == null || signalMessage.getError().isEmpty()) {
+        if (ebms3SignalMessage.getError() == null || ebms3SignalMessage.getError().isEmpty()) {
             LOGGER.debug("Response message contains no errors");
             return ResponseStatus.OK;
         }
 
-        for (final eu.domibus.api.ebms3.model.Error error : signalMessage.getError()) {
-            if (ErrorCode.SEVERITY_FAILURE.equalsIgnoreCase(error.getSeverity())) {
-                EbMS3Exception ebMS3Ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.findErrorCodeBy(error.getErrorCode()), error.getErrorDetail(), error.getRefToMessageInError(), null);
+        for (final Ebms3Error ebms3Error : ebms3SignalMessage.getError()) {
+            if (ErrorCode.SEVERITY_FAILURE.equalsIgnoreCase(ebms3Error.getSeverity())) {
+                EbMS3Exception ebMS3Ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.findErrorCodeBy(ebms3Error.getErrorCode()), ebms3Error.getErrorDetail(), ebms3Error.getRefToMessageInError(), null);
                 ebMS3Ex.setMshRole(MSHRole.SENDING);
                 throw ebMS3Ex;
             }

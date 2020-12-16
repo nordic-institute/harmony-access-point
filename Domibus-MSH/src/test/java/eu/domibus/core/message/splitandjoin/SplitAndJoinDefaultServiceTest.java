@@ -1,5 +1,6 @@
 package eu.domibus.core.message.splitandjoin;
 
+import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
@@ -12,6 +13,7 @@ import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.Splitting;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.ebms3.receiver.handler.IncomingSourceMessageHandler;
 import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
@@ -141,6 +143,9 @@ public class SplitAndJoinDefaultServiceTest {
     @Injectable
     protected ErrorService errorService;
 
+    @Injectable
+    Ebms3Converter ebms3Converter;
+
     @Rule
     public TemporaryFolder testFolder = new TemporaryFolder();
 
@@ -210,6 +215,7 @@ public class SplitAndJoinDefaultServiceTest {
 
     @Test
     public void rejoinSourceMessage(@Injectable final SOAPMessage sourceRequest,
+                                    @Injectable final Ebms3Messaging ebms3Messaging,
                                     @Injectable final Messaging messaging,
                                     @Injectable MessageExchangeConfiguration userMessageExchangeConfiguration,
                                     @Injectable LegConfiguration legConfiguration
@@ -226,7 +232,7 @@ public class SplitAndJoinDefaultServiceTest {
             result = sourceRequest;
 
             messageUtil.getMessage(sourceRequest);
-            result = messaging;
+            result = ebms3Messaging;
 
             pModeProvider.findUserMessageExchangeContext(messaging.getUserMessage(), MSHRole.RECEIVING);
             result = userMessageExchangeConfiguration;

@@ -1,6 +1,6 @@
 package eu.domibus.core.message;
 
-import eu.domibus.api.ebms3.model.Messaging;
+import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import org.apache.cxf.binding.soap.SoapMessage;
 
@@ -14,5 +14,5 @@ import java.io.IOException;
 
 public interface SoapService {
 
-    Messaging getMessage(final SoapMessage message) throws IOException, JAXBException, EbMS3Exception;
+    Ebms3Messaging getMessage(final SoapMessage message) throws IOException, JAXBException, EbMS3Exception;
 }

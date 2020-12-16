@@ -1,14 +1,14 @@
 package eu.domibus.core.message.splitandjoin;
 
+import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.util.xml.XMLUtil;
-import eu.domibus.core.ebms3.Ebms3Converter;
+import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
-import eu.domibus.core.util.xml.XMLUtilImpl;
 import eu.domibus.api.model.Messaging;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
@@ -79,7 +79,7 @@ public class MSHSourceMessageWebservice implements Provider<SOAPMessage> {
         Messaging messaging = null;
         try {
             userMessageRequest = splitAndJoinService.getUserMessage(new File(sourceMessageFileName), contentTypeString);
-            eu.domibus.api.ebms3.model.Messaging ebms3Messaging = messageUtil.getMessaging(userMessageRequest);
+            Ebms3Messaging ebms3Messaging = messageUtil.getMessaging(userMessageRequest);
             messaging = ebms3Converter.convertFromEbms3(ebms3Messaging);
         } catch (Exception e) {
             LOG.error("Error getting the Messaging object from the SOAPMessage", e);

@@ -1,10 +1,11 @@
 package eu.domibus.core.ebms3.receiver.policy;
 
+import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
-import eu.domibus.core.ebms3.Ebms3Converter;
+import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.ebms3.receiver.interceptor.CheckEBMSHeaderInterceptor;
 import eu.domibus.core.ebms3.receiver.interceptor.SOAPMessageBuilderInterceptor;
 import eu.domibus.core.ebms3.receiver.leg.LegConfigurationExtractor;
@@ -81,7 +82,7 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
         LegConfiguration legConfiguration = null;
 
         try {
-            eu.domibus.api.ebms3.model.Messaging ebms3Messaging = soapService.getMessage(message);
+            Ebms3Messaging ebms3Messaging = soapService.getMessage(message);
             messaging = ebms3Converter.convertFromEbms3(ebms3Messaging);
 
             message.put(DispatchClientDefaultProvider.MESSAGING_KEY_CONTEXT_PROPERTY, messaging);

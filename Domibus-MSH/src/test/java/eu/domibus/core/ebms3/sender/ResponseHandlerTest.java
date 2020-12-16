@@ -1,11 +1,12 @@
 package eu.domibus.core.ebms3.sender;
 
-import eu.domibus.api.ebms3.model.Messaging;
-import eu.domibus.api.ebms3.model.SignalMessage;
+import eu.domibus.api.ebms3.model.Ebms3Messaging;
+import eu.domibus.api.ebms3.model.Ebms3SignalMessage;
 import eu.domibus.api.exceptions.DomibusDateTimeException;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
@@ -55,23 +56,26 @@ public class ResponseHandlerTest {
     @Mocked
     private SOAPMessage soapMessage;
     @Mocked
-    private Messaging messaging;
+    private Ebms3Messaging ebms3Messaging;
     @Mocked
-    private SignalMessage signalMessage;
+    private Ebms3SignalMessage ebms3SignalMessage;
     @Mocked
     private ResponseHandler.ResponseStatus responseStatus;
+
+    @Injectable
+    Ebms3Converter ebms3Converter;
 
     @Test
     public void verifyResponse_ok() throws EbMS3Exception, SOAPException {
 
         new Expectations(responseHandler) {{
             messageUtil.getMessagingWithDom(soapMessage);
-            result = messaging;
+            result = ebms3Messaging;
 
-            messaging.getSignalMessage();
-            result = signalMessage;
+            ebms3Messaging.getSignalMessage();
+            result = ebms3SignalMessage;
 
-            responseHandler.getResponseStatus(signalMessage);
+            responseHandler.getResponseStatus(ebms3SignalMessage);
             result = responseStatus;
 
         }};

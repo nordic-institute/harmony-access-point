@@ -1,5 +1,6 @@
 package eu.domibus.core.message.pull;
 
+import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.message.UserMessageException;
 import eu.domibus.api.model.Error;
@@ -9,7 +10,7 @@ import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.ebms3.EbMS3Exception;
-import eu.domibus.core.ebms3.Ebms3Converter;
+import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
 import eu.domibus.core.ebms3.ws.policy.PolicyService;
@@ -139,7 +140,7 @@ public class PullMessageSender {
             LOG.trace("Send soap message");
             final SOAPMessage response = mshDispatcher.dispatch(soapMessage, receiverParty.getEndpoint(), policy, legConfiguration, pModeKey);
             pullFrequencyHelper.success(legConfiguration.getDefaultMpc().getName());
-            eu.domibus.api.ebms3.model.Messaging ebms3Messaging = messageUtil.getMessage(response);
+            Ebms3Messaging ebms3Messaging = messageUtil.getMessage(response);
             messaging = ebms3Converter.convertFromEbms3(ebms3Messaging);
 
             if (messaging.getUserMessage() == null && messaging.getSignalMessage() != null) {

@@ -1,19 +1,18 @@
 package eu.domibus.core.plugin.handler;
 
+import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.jms.JMSManager;
-import eu.domibus.api.model.*;
 import eu.domibus.api.model.Property;
 import eu.domibus.api.model.Service;
+import eu.domibus.api.model.*;
 import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.ErrorResult;
-import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.model.configuration.*;
 import eu.domibus.core.ebms3.EbMS3Exception;
-import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.generator.id.MessageIdGenerator;
@@ -1036,14 +1035,18 @@ public class DatabaseMessageHandlerTest {
 
     @Test
     public void testGetErrorsForMessageOk() throws Exception {
-        new Expectations() {{
 
+
+
+        new Expectations() {{
             authUtils.isUnsecureLoginAllowed();
             result = false;
 
             EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0008, "MessageId value is too long (over 255 characters)", MESS_ID, null);
             List<ErrorLogEntry> list = new ArrayList<>();
-            list.add(new ErrorLogEntry(ex));
+            ErrorLogEntry errorLogEntry = new ErrorLogEntry(ex);
+            errorLogEntry.setMshRole(MSHRole.RECEIVING);
+            list.add(errorLogEntry);
 
             errorLogDao.getErrorsForMessage(MESS_ID);
             result = list;

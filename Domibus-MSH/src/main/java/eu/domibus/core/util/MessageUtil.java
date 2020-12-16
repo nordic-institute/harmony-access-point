@@ -1,8 +1,8 @@
 package eu.domibus.core.util;
 
 import eu.domibus.api.ebms3.model.*;
-import eu.domibus.api.ebms3.model.Error;
-import eu.domibus.api.ebms3.model.mf.MessageFragmentType;
+import eu.domibus.api.ebms3.model.Ebms3Error;
+import eu.domibus.api.ebms3.model.mf.Ebms3MessageFragmentType;
 import eu.domibus.api.exceptions.DomibusDateTimeException;
 import eu.domibus.api.messaging.MessagingException;
 import eu.domibus.api.util.xml.XMLUtil;
@@ -107,12 +107,12 @@ public class MessageUtil {
     }
 
     @SuppressWarnings("unchecked")
-    public Messaging getMessaging(final SOAPMessage soapMessage) throws SOAPException, JAXBException {
+    public Ebms3Messaging getMessaging(final SOAPMessage soapMessage) throws SOAPException, JAXBException {
         LOG.debug("Unmarshalling the Messaging instance from the SOAPMessage");
 
         final Node messagingXml = (Node) soapMessage.getSOAPHeader().getChildElements(ObjectFactory._Messaging_QNAME).next();
         final Unmarshaller unmarshaller = jaxbContext.createUnmarshaller(); //Those are not thread-safe, therefore a new one is created each call
-        final JAXBElement<Messaging> root = (JAXBElement<Messaging>) unmarshaller.unmarshal(messagingXml);
+        final JAXBElement<Ebms3Messaging> root = (JAXBElement<Ebms3Messaging>) unmarshaller.unmarshal(messagingXml);
         return root.getValue();
     }
 
@@ -122,12 +122,12 @@ public class MessageUtil {
      * @throws SOAPException  in the case of a Technical error while parsing the {@link SOAPMessage}
      * @throws EbMS3Exception in the case of a Business error while parsing the {@link SOAPMessage}
      */
-    public Messaging getMessagingWithDom(final SOAPMessage soapMessage) throws SOAPException, EbMS3Exception {
+    public Ebms3Messaging getMessagingWithDom(final SOAPMessage soapMessage) throws SOAPException, EbMS3Exception {
         final Node messagingNode = (Node) soapMessage.getSOAPHeader().getChildElements(ObjectFactory._Messaging_QNAME).next();
         return getMessagingWithDom(messagingNode);
     }
 
-    public Messaging getMessagingWithDom(final Node messagingNode) throws SOAPException, EbMS3Exception {
+    public Ebms3Messaging getMessagingWithDom(final Node messagingNode) throws SOAPException, EbMS3Exception {
         LOG.debug("Creating the Messaging instance from the SOAPMessage using DOM processing");
 
         if (messagingNode == null) {
@@ -135,51 +135,56 @@ public class MessageUtil {
         }
 
         try {
-            Messaging messaging = new Messaging();
+            Ebms3Messaging ebms3Messaging = new Ebms3Messaging();
 
-            final SignalMessage signalMessage = createSignalMessage(messagingNode);
-            messaging.setSignalMessage(signalMessage);
+            final Ebms3SignalMessage ebms3SignalMessage = createSignalMessage(messagingNode);
+            ebms3Messaging.setSignalMessage(ebms3SignalMessage);
 
-            final UserMessage userMessage = createUserMessage(messagingNode);
-            messaging.setUserMessage(userMessage);
+            final Ebms3UserMessage ebms3UserMessage = createUserMessage(messagingNode);
+            ebms3Messaging.setUserMessage(ebms3UserMessage);
+
+            final Map<QName, String> otherAttributes = getOtherAttributes(messagingNode);
+            if (otherAttributes != null) {
+                ebms3Messaging.getOtherAttributes().putAll(otherAttributes);
+            }
 
             LOG.debug("Finished creating the Messaging instance from the SOAPMessage using DOM processing");
-            return messaging;
+            return ebms3Messaging;
         } catch (DomibusDateTimeException e) {
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, e.getMessage(), null, e);
         }
     }
 
-    protected UserMessage createUserMessage(Node messagingNode) {
+    protected Ebms3UserMessage createUserMessage(Node messagingNode) {
         final Node userMessageNode = getFirstChild(messagingNode, USER_MESSAGE);
         if (userMessageNode == null) {
             LOG.debug("UserMessage is null");
             return null;
         }
-        UserMessage result = new UserMessage();
+        Ebms3UserMessage result = new Ebms3UserMessage();
 
         final String mpc = getAttribute(userMessageNode, "mpc");
         result.setMpc(mpc);
 
-        final MessageInfo messageInfo = createMessageInfo(userMessageNode);
-        result.setMessageInfo(messageInfo);
+        final Ebms3MessageInfo ebms3MessageInfo = createMessageInfo(userMessageNode);
+        result.setMessageInfo(ebms3MessageInfo);
 
-        PartyInfo partyInfo = createPartyInfo(userMessageNode);
-        result.setPartyInfo(partyInfo);
+        Ebms3PartyInfo ebms3PartyInfo = createPartyInfo(userMessageNode);
+        result.setPartyInfo(ebms3PartyInfo);
 
-        CollaborationInfo collaborationInfo = createCollaborationInfo(userMessageNode);
-        result.setCollaborationInfo(collaborationInfo);
+        Ebms3CollaborationInfo ebms3CollaborationInfo = createCollaborationInfo(userMessageNode);
+        result.setCollaborationInfo(ebms3CollaborationInfo);
 
-        MessageProperties messageProperties = createMessageProperties(userMessageNode);
-        result.setMessageProperties(messageProperties);
+        Ebms3MessageProperties ebms3MessageProperties = createMessageProperties(userMessageNode);
+        result.setMessageProperties(ebms3MessageProperties);
 
-        PayloadInfo payloadInfo = createPayloadInfo(userMessageNode);
-        result.setPayloadInfo(payloadInfo);
+        Ebms3PayloadInfo ebms3PayloadInfo = createPayloadInfo(userMessageNode);
+        result.setPayloadInfo(ebms3PayloadInfo);
 
         return result;
     }
 
-    protected PayloadInfo createPayloadInfo(Node userMessageNode) {
+    protected Ebms3PayloadInfo createPayloadInfo(Node userMessageNode) {
         final Node payloadInfoNode = getFirstChild(userMessageNode, PAYLOAD_INFO);
         if (payloadInfoNode == null) {
             LOG.debug("PayloadInfo is null");
@@ -187,29 +192,29 @@ public class MessageUtil {
         }
         LOG.debug("Creating PayloadInfo");
 
-        PayloadInfo result = new PayloadInfo();
+        Ebms3PayloadInfo result = new Ebms3PayloadInfo();
 
         final List<Node> partInfoNodes = getChildren(payloadInfoNode, PART_INFO);
         for (Node partInfoNode : partInfoNodes) {
-            PartInfo partInfo = createPartInfo(partInfoNode);
-            result.getPartInfo().add(partInfo);
+            Ebms3PartInfo ebms3PartInfo = createPartInfo(partInfoNode);
+            result.getPartInfo().add(ebms3PartInfo);
         }
 
         return result;
     }
 
-    private PartInfo createPartInfo(Node partInfoNode) {
-        PartInfo result = new PartInfo();
+    private Ebms3PartInfo createPartInfo(Node partInfoNode) {
+        Ebms3PartInfo result = new Ebms3PartInfo();
 
         final String href = getAttribute(partInfoNode, HREF);
         result.setHref(href);
-        PartProperties partProperties = createPartProperties(partInfoNode);
-        result.setPartProperties(partProperties);
+        Ebms3PartProperties ebms3PartProperties = createPartProperties(partInfoNode);
+        result.setPartProperties(ebms3PartProperties);
 
         return result;
     }
 
-    protected PartProperties createPartProperties(Node partInfoNode) {
+    protected Ebms3PartProperties createPartProperties(Node partInfoNode) {
         final Node partPropertiesNode = getFirstChild(partInfoNode, PART_PROPERTIES);
         if (partPropertiesNode == null) {
             LOG.debug("PartProperties is null");
@@ -217,21 +222,21 @@ public class MessageUtil {
         }
         LOG.debug("Creating createPartProperties");
 
-        PartProperties result = new PartProperties();
-        Set<Property> properties = new HashSet<>();
+        Ebms3PartProperties result = new Ebms3PartProperties();
+        Set<Ebms3Property> properties = new HashSet<>();
 
 
         final List<Node> propertyNodes = getChildren(partPropertiesNode, PROPERTY);
         for (Node propertyNode : propertyNodes) {
-            final Property property = createProperty(propertyNode);
-            properties.add(property);
+            final Ebms3Property ebms3Property = createProperty(propertyNode);
+            properties.add(ebms3Property);
         }
         result.setProperty(properties);
 
         return result;
     }
 
-    protected MessageProperties createMessageProperties(Node userMessageNode) {
+    protected Ebms3MessageProperties createMessageProperties(Node userMessageNode) {
         final Node messagePropertiesNode = getFirstChild(userMessageNode, MESSAGE_PROPERTIES);
         if (messagePropertiesNode == null) {
             LOG.debug("MessageProperties is null");
@@ -239,19 +244,19 @@ public class MessageUtil {
         }
         LOG.debug("Creating MessageProperties");
 
-        MessageProperties result = new MessageProperties();
+        Ebms3MessageProperties result = new Ebms3MessageProperties();
 
         final List<Node> propertyNodes = getChildren(messagePropertiesNode, PROPERTY);
         for (Node propertyNode : propertyNodes) {
-            final Property property = createProperty(propertyNode);
-            result.getProperty().add(property);
+            final Ebms3Property ebms3Property = createProperty(propertyNode);
+            result.getProperty().add(ebms3Property);
         }
 
         return result;
     }
 
-    protected Property createProperty(Node propertyNode) {
-        Property result = new Property();
+    protected Ebms3Property createProperty(Node propertyNode) {
+        Ebms3Property result = new Ebms3Property();
         final String name = getAttribute(propertyNode, NAME);
         final String type = getAttribute(propertyNode, TYPE);
         final String value = getTextContent(propertyNode);
@@ -263,7 +268,7 @@ public class MessageUtil {
         return result;
     }
 
-    protected CollaborationInfo createCollaborationInfo(Node userMessageNode) {
+    protected Ebms3CollaborationInfo createCollaborationInfo(Node userMessageNode) {
         final Node collaborationInfoNode = getFirstChild(userMessageNode, COLLABORATION_INFO);
         if (collaborationInfoNode == null) {
             LOG.debug("CollaborationInfo is null");
@@ -271,9 +276,9 @@ public class MessageUtil {
         }
         LOG.debug("Creating CollaborationInfo");
 
-        CollaborationInfo result = new CollaborationInfo();
-        eu.domibus.api.ebms3.model.Service service = createService(collaborationInfoNode);
-        result.setService(service);
+        Ebms3CollaborationInfo result = new Ebms3CollaborationInfo();
+        Ebms3Service ebms3Service = createService(collaborationInfoNode);
+        result.setService(ebms3Service);
 
         final String conversationId = getFirstChildValue(collaborationInfoNode, CONVERSATION_ID);
         result.setConversationId(conversationId);
@@ -281,13 +286,13 @@ public class MessageUtil {
         final String action = getFirstChildValue(collaborationInfoNode, ACTION);
         result.setAction(action);
 
-        AgreementRef agreement = createAgreementRef(collaborationInfoNode);
+        Ebms3AgreementRef agreement = createAgreementRef(collaborationInfoNode);
         result.setAgreementRef(agreement);
 
         return result;
     }
 
-    protected AgreementRef createAgreementRef(Node collaborationInfoNode) {
+    protected Ebms3AgreementRef createAgreementRef(Node collaborationInfoNode) {
         final Node agreementRefNode = getFirstChild(collaborationInfoNode, "AgreementRef");
         if (agreementRefNode == null) {
             LOG.debug("AgreementRef is null");
@@ -298,13 +303,13 @@ public class MessageUtil {
         final String serviceType = getAttribute(agreementRefNode, "type");
         final String serviceValue = getTextContent(agreementRefNode);
 
-        AgreementRef result = new AgreementRef();
+        Ebms3AgreementRef result = new Ebms3AgreementRef();
         result.setValue(serviceValue);
         result.setType(serviceType);
         return result;
     }
 
-    protected eu.domibus.api.ebms3.model.Service createService(Node collaborationInfoNode) {
+    protected Ebms3Service createService(Node collaborationInfoNode) {
         final Node serviceNode = getFirstChild(collaborationInfoNode, SERVICE);
         if (serviceNode == null) {
             LOG.debug("Service is null");
@@ -315,13 +320,13 @@ public class MessageUtil {
         final String serviceType = getAttribute(serviceNode, "type");
         final String serviceValue = getTextContent(serviceNode);
 
-        eu.domibus.api.ebms3.model.Service result = new eu.domibus.api.ebms3.model.Service();
+        Ebms3Service result = new Ebms3Service();
         result.setValue(serviceValue);
         result.setType(serviceType);
         return result;
     }
 
-    protected PartyInfo createPartyInfo(Node userMessageNode) {
+    protected Ebms3PartyInfo createPartyInfo(Node userMessageNode) {
         final Node partyInfoNode = getFirstChild(userMessageNode, PARTY_INFO);
         if (partyInfoNode == null) {
             LOG.debug("PartyInfo is null");
@@ -329,72 +334,72 @@ public class MessageUtil {
         }
         LOG.debug("Creating PartyInfo");
 
-        PartyInfo result = new PartyInfo();
+        Ebms3PartyInfo result = new Ebms3PartyInfo();
 
-        final From from = createFrom(partyInfoNode);
-        result.setFrom(from);
+        final Ebms3From ebms3From = createFrom(partyInfoNode);
+        result.setFrom(ebms3From);
 
-        final To to = createTo(partyInfoNode);
-        result.setTo(to);
+        final Ebms3To ebms3To = createTo(partyInfoNode);
+        result.setTo(ebms3To);
 
         return result;
     }
 
-    protected To createTo(Node partyInfoNode) {
+    protected Ebms3To createTo(Node partyInfoNode) {
         final Node toNode = getFirstChild(partyInfoNode, TO);
         if (toNode == null) {
             LOG.debug("To is null");
             return null;
         }
-        To result = new To();
+        Ebms3To result = new Ebms3To();
         final String role = getFirstChildValue(toNode, ROLE);
         result.setRole(role);
-        final Set<PartyId> partyIds = createPartyIds(toNode);
-        result.getPartyId().addAll(partyIds);
+        final Set<Ebms3PartyId> ebms3PartyIds = createPartyIds(toNode);
+        result.getPartyId().addAll(ebms3PartyIds);
 
         return result;
     }
 
-    protected From createFrom(final Node partyInfoNode) {
+    protected Ebms3From createFrom(final Node partyInfoNode) {
         final Node fromNode = getFirstChild(partyInfoNode, FROM);
         if (fromNode == null) {
             LOG.debug("From is null");
             return null;
         }
-        From result = new From();
+        Ebms3From result = new Ebms3From();
         final String role = getFirstChildValue(fromNode, ROLE);
         result.setRole(role);
-        final Set<PartyId> partyIds = createPartyIds(fromNode);
-        result.getPartyId().addAll(partyIds);
+        final Set<Ebms3PartyId> ebms3PartyIds = createPartyIds(fromNode);
+        result.getPartyId().addAll(ebms3PartyIds);
 
 
         return result;
     }
 
-    protected Set<PartyId> createPartyIds(Node parent) {
+    protected Set<Ebms3PartyId> createPartyIds(Node parent) {
         final List<Node> partyIdNodes = getChildren(parent, PARTY_ID);
 
-        Set<PartyId> result = new HashSet<>();
+        Set<Ebms3PartyId> result = new HashSet<>();
         for (Node partyIdNode : partyIdNodes) {
-            final PartyId partyId = createPartyId(partyIdNode);
-            result.add(partyId);
+            final Ebms3PartyId ebms3PartyId = createPartyId(partyIdNode);
+            result.add(ebms3PartyId);
         }
 
         return result;
     }
 
-    protected PartyId createPartyId(Node partyIdNode) {
+    protected Ebms3PartyId createPartyId(Node partyIdNode) {
         final String partyType = getAttribute(partyIdNode, TYPE);
         final String partyValue = getTextContent(partyIdNode);
 
-        PartyId result = new PartyId();
+        Ebms3PartyId result = new Ebms3PartyId();
         result.setType(partyType);
         result.setValue(partyValue);
 
         return result;
     }
 
-    protected SignalMessage createSignalMessage(final Node messagingNode) throws SOAPException {
+    protected Ebms3SignalMessage createSignalMessage(final Node messagingNode) throws SOAPException {
         final Node signalNode = getFirstChild(messagingNode, SIGNAL_MESSAGE);
         if (signalNode == null) {
             LOG.debug("SignalMessage is null");
@@ -402,20 +407,20 @@ public class MessageUtil {
         }
         LOG.debug("Creating SignalMessage");
 
-        SignalMessage result = new SignalMessage();
+        Ebms3SignalMessage result = new Ebms3SignalMessage();
 
-        final MessageInfo messageInfo = createMessageInfo(signalNode);
-        result.setMessageInfo(messageInfo);
+        final Ebms3MessageInfo ebms3MessageInfo = createMessageInfo(signalNode);
+        result.setMessageInfo(ebms3MessageInfo);
 
-        final Receipt receipt = createReceipt(signalNode);
-        result.setReceipt(receipt);
+        final Ebms3Receipt ebms3Receipt = createReceipt(signalNode);
+        result.setReceipt(ebms3Receipt);
 
-        PullRequest pullRequest = createPullRequest(signalNode);
-        result.setPullRequest(pullRequest);
+        Ebms3PullRequest ebms3PullRequest = createPullRequest(signalNode);
+        result.setPullRequest(ebms3PullRequest);
 
-        Set<Error> error = createErrors(signalNode);
-        if (CollectionUtils.isNotEmpty(error)) {
-            result.getError().addAll(error);
+        Set<Ebms3Error> ebms3Error = createErrors(signalNode);
+        if (CollectionUtils.isNotEmpty(ebms3Error)) {
+            result.getError().addAll(ebms3Error);
         }
         return result;
     }
@@ -443,8 +448,8 @@ public class MessageUtil {
         return result;
     }
 
-    protected Set<Error> createErrors(Node signalNode) {
-        Set<Error> result = new HashSet<>();
+    protected Set<Ebms3Error> createErrors(Node signalNode) {
+        Set<Ebms3Error> result = new HashSet<>();
 
         final List<Node> errorNodeList = getChildren(signalNode, ERROR);
         if (CollectionUtils.isEmpty(errorNodeList)) {
@@ -455,15 +460,15 @@ public class MessageUtil {
         LOG.debug("Creating Errors");
 
         for (Node errorNode : errorNodeList) {
-            Error error = createError(errorNode);
-            result.add(error);
+            Ebms3Error ebms3Error = createError(errorNode);
+            result.add(ebms3Error);
         }
 
         return result;
     }
 
-    protected Error createError(Node errorNode) {
-        Error result = new Error();
+    protected Ebms3Error createError(Node errorNode) {
+        Ebms3Error result = new Ebms3Error();
         final String category = getAttribute(errorNode, CATEGORY);
         result.setCategory(category);
         final String errorCode = getAttribute(errorNode, ERROR_CODE);
@@ -477,9 +482,9 @@ public class MessageUtil {
         final String shortDescription = getAttribute(errorNode, SHORT_DESCRIPTION);
         result.setShortDescription(shortDescription);
 
-        final Description description = createDescription(errorNode);
-        if (description != null) {
-            result.setDescription(description);
+        final Ebms3Description ebms3Description = createDescription(errorNode);
+        if (ebms3Description != null) {
+            result.setDescription(ebms3Description);
         }
         final String errorDetail = getErrorDetail(errorNode);
         result.setErrorDetail(errorDetail);
@@ -496,14 +501,14 @@ public class MessageUtil {
         return getTextContent(errorDetailNode);
     }
 
-    protected Description createDescription(Node errorNode) {
+    protected Ebms3Description createDescription(Node errorNode) {
         final Node description = getFirstChild(errorNode, DESCRIPTION);
         if (description == null) {
             return null;
         }
         final String lang = getAttribute(errorNode, LANG);
         final String textContent = getTextContent(description);
-        Description result = new Description();
+        Ebms3Description result = new Ebms3Description();
         result.setLang(lang);
         result.setValue(textContent);
 
@@ -522,7 +527,7 @@ public class MessageUtil {
         return getTextContent(uri);
     }
 
-    protected Receipt createReceipt(final Node signalNode) throws SOAPException {
+    protected Ebms3Receipt createReceipt(final Node signalNode) throws SOAPException {
         final Node receiptNode = getFirstChild(signalNode, RECEIPT);
         if (receiptNode == null) {
             LOG.debug("Receipt node is null");
@@ -530,20 +535,20 @@ public class MessageUtil {
         }
 
         LOG.debug("Creating Receipt");
-        Receipt receipt = new Receipt();
+        Ebms3Receipt ebms3Receipt = new Ebms3Receipt();
 
         final String nonRepudiationInformation = getNonRepudiationInformationFromReceipt(receiptNode);
         if (StringUtils.isNotEmpty(nonRepudiationInformation)) {
             LOG.debug("Adding [{}] to the Receipt", NON_REPUDIATION_INFORMATION);
-            receipt.getAny().add(nonRepudiationInformation);
+            ebms3Receipt.getAny().add(nonRepudiationInformation);
         }
         String userMessageFromReceipt = getUserMessageFromReceipt(receiptNode);
         if (StringUtils.isNotEmpty(userMessageFromReceipt)) {
             LOG.debug("Adding [{}] to the Receipt", USER_MESSAGE);
-            receipt.getAny().add(userMessageFromReceipt);
+            ebms3Receipt.getAny().add(userMessageFromReceipt);
         }
 
-        return receipt;
+        return ebms3Receipt;
     }
 
     protected String getNonRepudiationInformationFromReceipt(final Node receiptNode) throws SOAPException {
@@ -574,7 +579,7 @@ public class MessageUtil {
         }
     }
 
-    protected PullRequest createPullRequest(Node signalNode) {
+    protected Ebms3PullRequest createPullRequest(Node signalNode) {
         final Node pullRequestNode = getFirstChild(signalNode, PULL_REQUEST);
         if (pullRequestNode == null) {
             LOG.debug("PullRequest is null");
@@ -582,7 +587,7 @@ public class MessageUtil {
         }
         LOG.debug("Creating PullRequest");
 
-        PullRequest result = new PullRequest();
+        Ebms3PullRequest result = new Ebms3PullRequest();
         final String mpc = getAttribute(pullRequestNode, "mpc");
         result.setMpc(mpc);
 
@@ -597,7 +602,7 @@ public class MessageUtil {
         return sw.toString();
     }
 
-    protected MessageInfo createMessageInfo(final Node signalNode) {
+    protected Ebms3MessageInfo createMessageInfo(final Node signalNode) {
         final Node messageInfoNode = getFirstChild(signalNode, MESSAGE_INFO);
         if (messageInfoNode == null) {
             LOG.debug("MessageInfo is null");
@@ -605,20 +610,20 @@ public class MessageUtil {
         }
         LOG.debug("Creating MessageInfo");
 
-        MessageInfo messageInfo = new MessageInfo();
+        Ebms3MessageInfo ebms3MessageInfo = new Ebms3MessageInfo();
         final String timestampString = getFirstChildValue(messageInfoNode, TIMESTAMP);
         if (timestampString != null) {
             final Date date = domibusDateFormatter.fromString(timestampString);
-            messageInfo.setTimestamp(date);
+            ebms3MessageInfo.setTimestamp(date);
         }
 
         final String messageId = getFirstChildValue(messageInfoNode, MESSAGE_ID);
-        messageInfo.setMessageId(messageId);
+        ebms3MessageInfo.setMessageId(messageId);
 
         final String refToMessageId = getFirstChildValue(messageInfoNode, REF_TO_MESSAGE_ID);
-        messageInfo.setRefToMessageId(refToMessageId);
+        ebms3MessageInfo.setRefToMessageId(refToMessageId);
 
-        return messageInfo;
+        return ebms3MessageInfo;
     }
 
     protected List<Node> getChildren(Node parent, String childName) {
@@ -655,7 +660,7 @@ public class MessageUtil {
     }
 
     @SuppressWarnings("unchecked")
-    public MessageFragmentType getMessageFragment(final SOAPMessage request) {
+    public Ebms3MessageFragmentType getMessageFragment(final SOAPMessage request) {
         try {
             LOG.debug("Unmarshalling the MessageFragmentType instance from the request");
             final Iterator iterator = request.getSOAPHeader().getChildElements(eu.domibus.api.ebms3.model.mf.ObjectFactory._MessageFragment_QNAME);
@@ -665,21 +670,21 @@ public class MessageUtil {
 
             final Node messagingXml = (Node) iterator.next();
             final Unmarshaller unmarshaller = jaxbContextMessageFragment.createUnmarshaller(); //Those are not thread-safe, therefore a new one is created each call
-            final JAXBElement<MessageFragmentType> root = (JAXBElement<MessageFragmentType>) unmarshaller.unmarshal(messagingXml);
+            final JAXBElement<Ebms3MessageFragmentType> root = (JAXBElement<Ebms3MessageFragmentType>) unmarshaller.unmarshal(messagingXml);
             return root.getValue();
         } catch (SOAPException | JAXBException e) {
             throw new MessagingException("Not possible to get the MessageFragmentType", e);
         }
     }
 
-    public Messaging getMessage(SOAPMessage request) {
-        Messaging messaging;
+    public Ebms3Messaging getMessage(SOAPMessage request) {
+        Ebms3Messaging ebms3Messaging;
         try {
-            messaging = getMessaging(request);
+            ebms3Messaging = getMessaging(request);
         } catch (SOAPException | JAXBException e) {
             throw new MessagingException("Not possible to getMessage", e);
         }
-        return messaging;
+        return ebms3Messaging;
     }
 
 }

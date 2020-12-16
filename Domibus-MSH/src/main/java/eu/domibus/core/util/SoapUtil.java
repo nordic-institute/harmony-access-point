@@ -41,11 +41,13 @@ public class SoapUtil {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SoapUtil.class);
 
-    @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
-
-    @Autowired
     protected XMLUtil xmlUtil;
+
+    public SoapUtil(DomibusPropertyProvider domibusPropertyProvider, XMLUtil xmlUtil) {
+        this.domibusPropertyProvider = domibusPropertyProvider;
+        this.xmlUtil = xmlUtil;
+    }
 
     public void logMessage(SOAPMessage request) throws IOException, TransformerException {
         if (LOG.isDebugEnabled() && domibusPropertyProvider.getBooleanProperty(DOMIBUS_LOGGING_PAYLOAD_PRINT)) {

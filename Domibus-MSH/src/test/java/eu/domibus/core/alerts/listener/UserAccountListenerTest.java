@@ -1,11 +1,11 @@
 package eu.domibus.core.alerts.listener;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.util.DatabaseUtil;
 import eu.domibus.core.alerts.model.service.Alert;
 import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.core.alerts.service.AlertService;
 import eu.domibus.core.alerts.service.EventService;
-import eu.domibus.core.util.DatabaseUtilImpl;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
@@ -30,7 +30,7 @@ public class UserAccountListenerTest {
     private DomainContextProvider domainContextProvider;
 
     @Injectable
-    private DatabaseUtilImpl databaseUtil;
+    private DatabaseUtil databaseUtil;
 
     @Tested
     private UserAccountListener userAccountListener;
@@ -38,7 +38,7 @@ public class UserAccountListenerTest {
     @Test
     public void onLoginFailure(@Mocked final Event event,
                                @Mocked final Alert alert) {
-        new Expectations(){{
+        new Expectations() {{
             databaseUtil.getDatabaseUserName();
             times = 1;
             result = "databaseUserName";
@@ -62,7 +62,7 @@ public class UserAccountListenerTest {
     public void onLoginFailure_domain(@Mocked final Event event, @Mocked final Alert alert) {
         String domain = "domain";
 
-        new Expectations(){{
+        new Expectations() {{
             databaseUtil.getDatabaseUserName();
             times = 1;
             result = "databaseUserName";

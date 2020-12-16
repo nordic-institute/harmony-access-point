@@ -188,6 +188,14 @@ public class PartInfo extends AbstractBaseEntity implements Comparable<PartInfo>
         this.length = length;
     }
 
+    public void setPartOrder(int partOrder) {
+        this.partOrder = partOrder;
+    }
+
+    public int getPartOrder() {
+        return partOrder;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this)
