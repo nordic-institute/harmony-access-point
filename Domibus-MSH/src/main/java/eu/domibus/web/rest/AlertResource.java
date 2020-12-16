@@ -300,7 +300,7 @@ public class AlertResource extends BaseResource {
         return alertRo;
     }
 
-    private AlertCsvRO transformCsv(Alert alert) {
+    protected AlertCsvRO transformCsv(Alert alert) {
         AlertCsvRO alertRo = new AlertCsvRO();
         alertRo.setProcessed(alert.isProcessed());
         alertRo.setAlertType(alert.getAlertType().name());
@@ -309,13 +309,13 @@ public class AlertResource extends BaseResource {
         alertRo.setAlertStatus(alert.getAlertStatus().name());
 
         final List<String> alertParameterNames = getAlertParameters(alert.getAlertType().name());
-        final List<String> alertParameterValues = alertParameterNames.
-                stream().
-                map(paramName -> alert.getEvents().iterator().next().findOptionalProperty(paramName)).
-                filter(Optional::isPresent).
-                map(Optional::get).
-                map(this::manageMaxLength).
-                collect(Collectors.toList());
+        final List<String> alertParameterValues = alertParameterNames
+                .stream()
+                .flatMap(paramName -> alert.getEvents().stream().map(event -> event.findOptionalProperty(paramName).orElse(null)))
+                .filter(Objects::nonNull)
+                .map(this::manageMaxLength)
+                .collect(Collectors.toList());
+
         alertRo.setParameters(alertParameterValues);
         return alertRo;
     }
