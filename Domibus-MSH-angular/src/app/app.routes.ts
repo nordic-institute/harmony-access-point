@@ -25,6 +25,7 @@ import {SecurityService} from './security/security.service';
 import {PropertiesComponent} from './properties/properties.component';
 import {ConnectionsComponent} from './testservice/connections.component';
 import {AuthInternalProviderGuard} from './common/guards/auth-internal-provider.guard';
+import {TLSTruststoreComponent} from './truststore/tls.truststore.component';
 
 export const appRoutes: Routes = [
   {
@@ -95,6 +96,16 @@ export const appRoutes: Routes = [
   {
     path: 'truststore',
     component: TruststoreComponent,
+    canActivate: [AuthenticatedAuthorizedGuard, DefaultPasswordGuard],
+    data: {
+      checkRoles: SecurityService.ADMIN_ROLES,
+      helpPage: 'Truststore'
+    },
+    runGuardsAndResolvers: 'always'
+  },
+  {
+    path: 'tlstruststore',
+    component: TLSTruststoreComponent,
     canActivate: [AuthenticatedAuthorizedGuard, DefaultPasswordGuard],
     data: {
       checkRoles: SecurityService.ADMIN_ROLES,

@@ -25,9 +25,11 @@ export class TruststoreComponent extends mix(BaseListComponent)
   .with(ClientPageableListMixin)
   implements OnInit, AfterViewInit, AfterViewChecked {
 
-  static readonly TRUSTSTORE_URL: string = 'rest/truststore';
-  static readonly TRUSTSTORE_CSV_URL: string = TruststoreComponent.TRUSTSTORE_URL + '/csv';
-  static readonly TRUSTSTORE_DOWNLOAD_URL: string = TruststoreComponent.TRUSTSTORE_URL + '/download';
+  protected TRUSTSTORE_URL: string = 'rest/truststore';
+  protected TRUSTSTORE_CSV_URL: string = this.TRUSTSTORE_URL + '/csv';
+  protected TRUSTSTORE_DOWNLOAD_URL: string = this.TRUSTSTORE_URL + '/download';
+  protected TRUSTSTORE_UPLOAD_URL: string = this.TRUSTSTORE_URL + '/save';
+  protected TRUSTSTORE_LIST_ENTRIES_URL: string = this.TRUSTSTORE_URL + '/list';
 
   @ViewChild('rowWithDateFormatTpl', {static: false}) rowWithDateFormatTpl: TemplateRef<any>;
 
@@ -84,7 +86,7 @@ export class TruststoreComponent extends mix(BaseListComponent)
   }
 
   async getTrustStoreEntries() {
-    const trustStoreEntries: TrustStoreEntry[] = await this.trustStoreService.getEntries();
+    const trustStoreEntries: TrustStoreEntry[] = await this.trustStoreService.getEntries(this.TRUSTSTORE_LIST_ENTRIES_URL);
 
     trustStoreEntries.forEach(el => el.isExpired = new Date(el.validUntil) < new Date());
 
@@ -99,7 +101,8 @@ export class TruststoreComponent extends mix(BaseListComponent)
   }
 
   openEditTrustStore() {
-    this.dialog.open(TrustStoreUploadComponent).componentInstance.onTruststoreUploaded
+    this.dialog.open(TrustStoreUploadComponent, {data: {url: this.TRUSTSTORE_UPLOAD_URL}})
+      .componentInstance.onTruststoreUploaded
       .subscribe(updated => {
         this.getTrustStoreEntries();
       });
@@ -109,7 +112,7 @@ export class TruststoreComponent extends mix(BaseListComponent)
    * Method called when Download button or icon is clicked
    */
   downloadCurrentTrustStore() {
-    this.http.get(TruststoreComponent.TRUSTSTORE_DOWNLOAD_URL, {responseType: 'blob', observe: 'response'})
+    this.http.get(this.TRUSTSTORE_DOWNLOAD_URL, {responseType: 'blob', observe: 'response'})
       .subscribe(res => {
         this.trustStoreService.saveTrustStoreFile(res.body);
       }, err => {
@@ -130,7 +133,7 @@ export class TruststoreComponent extends mix(BaseListComponent)
   }
 
   get csvUrl(): string {
-    return TruststoreComponent.TRUSTSTORE_CSV_URL;
+    return this.TRUSTSTORE_CSV_URL;
   }
 
   getRowClass(row) {

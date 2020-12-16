@@ -1,9 +1,10 @@
-import {Component, EventEmitter, Output, ViewChild} from '@angular/core';
+import {Component, EventEmitter, Inject, Output, ViewChild} from '@angular/core';
 import {MatDialogRef} from '@angular/material';
 import {TrustStoreService} from '../support/trustore.service';
 import {AlertService} from '../../common/alert/alert.service';
 import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
 import {FileUploadValidatorService} from '../../common/file-upload-validator.service';
+import {MAT_DIALOG_DATA} from '@angular/material/dialog';
 
 @Component({
   selector: 'app-truststore-upload',
@@ -24,7 +25,9 @@ export class TrustStoreUploadComponent {
   constructor(public dialogRef: MatDialogRef<TrustStoreUploadComponent>,
               private truststoreService: TrustStoreService,
               private alertService: AlertService,
-              private fb: FormBuilder, private fileUploadService: FileUploadValidatorService) {
+              private fb: FormBuilder, private fileUploadService: FileUploadValidatorService,
+              @Inject(MAT_DIALOG_DATA) public data: any) {
+
     this.truststoreForm = fb.group({
       'password': new FormControl('', Validators.required),
     });
@@ -44,7 +47,7 @@ export class TrustStoreUploadComponent {
       try {
         await this.fileUploadService.validateFileSize(fileToUpload);
 
-        this.truststoreService.uploadTrustStore(fileToUpload, this.truststoreForm.get('password').value)
+        this.truststoreService.uploadTrustStore(this.data.url, fileToUpload, this.truststoreForm.get('password').value)
           .subscribe(res => {
               this.alertService.success(res);
               this.onTruststoreUploaded.emit();

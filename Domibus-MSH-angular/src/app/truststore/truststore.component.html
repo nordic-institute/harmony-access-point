@@ -13,22 +13,18 @@
       <span class="text-select">{{value | domibusDate}}</span>
     </ng-template>
 
-    <table class="group-action-button">
-      <tr>
-        <td>
-          <button mat-raised-button color="primary" (click)="openEditTrustStore()" id="uploadbutton_id"
-                  button-click-behaviour>
-            <mat-icon>file_upload</mat-icon>
-            <span>Upload</span>
-          </button>
-          <button mat-raised-button color="primary" (click)="downloadCurrentTrustStore()"
-                  [disabled]="!canDownload()" id="downloadbutton_id"
-                  button-click-behaviour>
-            <mat-icon>file_download</mat-icon>
-            <span>Download</span>
-          </button>
-        </td>
-      </tr>
-    </table>
+    <div class="group-action-button">
+      <button mat-raised-button color="primary" (click)="openEditTrustStore()" id="uploadbutton_id"
+              button-click-behaviour>
+        <mat-icon>file_upload</mat-icon>
+        <span>Upload</span>
+      </button>
+      <button mat-raised-button color="primary" (click)="downloadCurrentTrustStore()"
+              [disabled]="!canDownload()" id="downloadbutton_id"
+              button-click-behaviour>
+        <mat-icon>file_download</mat-icon>
+        <span>Download</span>
+      </button>
+    </div>
   </div>
 </div>

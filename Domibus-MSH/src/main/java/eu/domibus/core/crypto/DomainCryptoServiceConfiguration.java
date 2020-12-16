@@ -26,5 +26,12 @@ public class DomainCryptoServiceConfiguration {
         return domainCertificateProvider;
     }
 
+    @Bean
+    @Scope(BeanDefinition.SCOPE_PROTOTYPE)
+    public TLSDomainCryptoServiceImpl tlsDomainCertificateProviderImpl(Domain domain) {
+        LOG.debug("Instantiating the tls certificate provider for domain [{}]", domain);
 
+        final TLSDomainCryptoServiceImpl domainCertificateProvider = new TLSDomainCryptoServiceImpl(domain);
+        return domainCertificateProvider;
+    }
 }

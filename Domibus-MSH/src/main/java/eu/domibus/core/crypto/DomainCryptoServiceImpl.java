@@ -1,35 +1,21 @@
 package eu.domibus.core.crypto;
 
-import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.multitenancy.Domain;
-import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
-import eu.domibus.core.ebms3.EbMS3Exception;
-import eu.domibus.core.converter.DomainCoreConverter;
-import eu.domibus.core.crypto.api.CertificateEntry;
 import eu.domibus.core.crypto.api.DomainCryptoService;
-import eu.domibus.core.crypto.spi.CertificateEntrySpi;
 import eu.domibus.core.crypto.spi.DomainCryptoServiceSpi;
-import eu.domibus.core.crypto.spi.DomainSpi;
 import eu.domibus.core.crypto.spi.model.AuthenticationError;
 import eu.domibus.core.crypto.spi.model.AuthenticationException;
+import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.apache.wss4j.common.crypto.CryptoType;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
-import javax.security.auth.callback.CallbackHandler;
 import javax.xml.ws.WebServiceException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
 import java.util.List;
@@ -44,31 +30,23 @@ import static eu.domibus.core.crypto.spi.AbstractCryptoServiceSpi.DEFAULT_AUTHEN
  * @author Cosmin Baciu
  * @since 4.0
  */
-public class DomainCryptoServiceImpl implements DomainCryptoService {
+public class DomainCryptoServiceImpl extends BaseDomainCryptoServiceImpl implements DomainCryptoService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainCryptoServiceImpl.class);
 
     protected static final String IAM_AUTHENTICATION_IDENTIFIER = DOMIBUS_EXTENSION_IAM_AUTHENTICATION_IDENTIFIER;
 
-    private DomainCryptoServiceSpi iamProvider;
-
-    private Domain domain;
-
     @Autowired
     private List<DomainCryptoServiceSpi> domainCryptoServiceSpiList;
 
     @Autowired
-    private DomainCoreConverter domainCoreConverter;
-
-    @Autowired
     private DomibusPropertyProvider domibusPropertyProvider;
 
-
-    public DomainCryptoServiceImpl() {
-    }
+//    public DomainCryptoServiceImpl() {
+//    }
 
     public DomainCryptoServiceImpl(Domain domain) {
-        this.domain = domain;
+        super(domain);
     }
 
     @PostConstruct
@@ -95,50 +73,9 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
         }
 
         iamProvider = providerList.get(0);
-        iamProvider.setDomain(new DomainSpi(domain.getCode(), domain.getName()));
-        iamProvider.init();
+        super.init(iamProvider);
 
         LOG.info("Active IAM provider identifier:[{}] for domain:[{}]", iamProvider.getIdentifier(), domain.getName());
-    }
-
-    @Override
-    public X509Certificate getCertificateFromKeyStore(String alias) throws KeyStoreException {
-        return iamProvider.getCertificateFromKeyStore(alias);
-    }
-
-    @Override
-    public X509Certificate getCertificateFromTrustStore(String alias) throws KeyStoreException {
-        return iamProvider.getCertificateFromTrustStore(alias);
-    }
-
-    @Override
-    public X509Certificate[] getX509Certificates(CryptoType cryptoType) throws WSSecurityException {
-        return iamProvider.getX509Certificates(cryptoType);
-    }
-
-    @Override
-    public String getX509Identifier(X509Certificate cert) throws WSSecurityException {
-        return iamProvider.getX509Identifier(cert);
-    }
-
-    @Override
-    public PrivateKey getPrivateKey(X509Certificate certificate, CallbackHandler callbackHandler) throws WSSecurityException {
-        return iamProvider.getPrivateKey(certificate, callbackHandler);
-    }
-
-    @Override
-    public PrivateKey getPrivateKey(PublicKey publicKey, CallbackHandler callbackHandler) throws WSSecurityException {
-        return iamProvider.getPrivateKey(publicKey, callbackHandler);
-    }
-
-    @Override
-    public PrivateKey getPrivateKey(String identifier, String password) throws WSSecurityException {
-        return iamProvider.getPrivateKey(identifier, password);
-    }
-
-    @Override
-    public void verifyTrust(PublicKey publicKey) throws WSSecurityException {
-        iamProvider.verifyTrust(publicKey);
     }
 
     @Override
@@ -163,69 +100,11 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
     }
 
     @Override
-    public String getDefaultX509Identifier() throws WSSecurityException {
-        return iamProvider.getDefaultX509Identifier();
-    }
-
-    @Override
-    public String getPrivateKeyPassword(String alias) {
-        return iamProvider.getPrivateKeyPassword(alias);
-    }
-
-    @Override
-    public void refreshTrustStore() throws CryptoException {
-        iamProvider.refreshTrustStore();
-    }
-
-    @Override
-    public void replaceTrustStore(byte[] store, String password) throws CryptoException {
-        iamProvider.replaceTrustStore(store, password);
-    }
-
-    @Override
-    public KeyStore getKeyStore() {
-        return iamProvider.getKeyStore();
-    }
-
-    @Override
-    public KeyStore getTrustStore() {
-        return iamProvider.getTrustStore();
-    }
-
-
-    @Override
-    public boolean isCertificateChainValid(String alias) throws DomibusCertificateException {
-        return iamProvider.isCertificateChainValid(alias);
-    }
-
-    @Override
-    public boolean addCertificate(X509Certificate certificate, String alias, boolean overwrite) {
-        return iamProvider.addCertificate(certificate, alias, overwrite);
-    }
-
-    @Override
-    public void addCertificate(List<CertificateEntry> certificates, boolean overwrite) {
-        List<CertificateEntrySpi> list = certificates.stream()
-                .map(c -> new CertificateEntrySpi(c.getAlias(), c.getCertificate()))
-                .collect(Collectors.toList());
-        iamProvider.addCertificate(list, overwrite);
-    }
-
-
     public String getTrustStoreType() {
         return domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_TYPE);
     }
 
-    @Override
-    public boolean removeCertificate(String alias) {
-        return iamProvider.removeCertificate(alias);
-    }
-
-    @Override
-    public void removeCertificate(List<String> aliases) {
-        iamProvider.removeCertificate(aliases);
-    }
-
+    // used only in tests
     protected void setDomainCryptoServiceSpiList(List<DomainCryptoServiceSpi> domainCryptoServiceSpiList) {
         this.domainCryptoServiceSpiList = domainCryptoServiceSpiList;
     }

@@ -107,6 +107,7 @@ import {SessionExpiredDialogComponent} from './security/session-expired-dialog/s
 import {SessionService} from './security/session.service';
 import {AuthInternalProviderGuard} from './common/guards/auth-internal-provider.guard';
 import {AddNestedPropertyDialogComponent} from './properties/support/add-nested-property-dialog/add-nested-property-dialog.component';
+import {TLSTruststoreComponent} from './truststore/tls.truststore.component';
 
 @NgModule({
   declarations: [
@@ -121,6 +122,7 @@ import {AddNestedPropertyDialogComponent} from './properties/support/add-nested-
     CurrentPModeComponent,
     PModeArchiveComponent,
     TruststoreComponent,
+    TLSTruststoreComponent,
     PmodeUploadComponent,
     PmodeViewComponent,
     YesNoDialogComponent,

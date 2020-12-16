@@ -54,6 +54,10 @@
       <mat-icon mat-tooltip="Truststore">vpn_key</mat-icon>
       <span>Truststore</span>
     </button>
+    <button mat-raised-button class="sideNavButton" [routerLink]="['/tlstruststore']" *ngIf="isAdmin()" id="tls_truststore_id">
+      <mat-icon mat-tooltip="TLSTruststore">vpn_key</mat-icon>
+      <span>TLSTruststore</span>
+    </button>
     <button mat-raised-button class="sideNavButton" [routerLink]="['/user']"
             *ngIf="isAdmin() && !isExtAuthProviderEnabled()" id="user_id">
       <mat-icon mat-tooltip="Users">people</mat-icon>
