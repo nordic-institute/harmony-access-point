@@ -14,6 +14,12 @@
     <name>Domibus MSH Default WS Plugin Stubs</name>
 
     <dependencies>
+        <!--Domibus dependencies start-->
+        <dependency>
+            <groupId>eu.domibus</groupId>
+            <artifactId>domibus-default-ws-plugin-stub-utils</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!-- Tests -->
         <dependency>
