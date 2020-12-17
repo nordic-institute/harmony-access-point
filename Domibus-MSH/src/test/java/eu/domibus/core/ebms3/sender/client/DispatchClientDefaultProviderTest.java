@@ -50,7 +50,7 @@ public class DispatchClientDefaultProviderTest {
     protected ProxyCxfUtil proxyUtil;
 
     @Injectable
-    protected final DomibusHTTPConduitFactory domibusHTTPConduitFactory;
+    protected DomibusHTTPConduitFactory domibusHTTPConduitFactory;
 
     @Tested
     DispatchClientDefaultProvider dispatchClientDefaultProvider;
