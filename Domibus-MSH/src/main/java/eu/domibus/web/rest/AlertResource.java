@@ -1,5 +1,6 @@
 package eu.domibus.web.rest;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.property.DomibusConfigurationService;
@@ -7,7 +8,6 @@ import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.core.alerts.model.common.*;
 import eu.domibus.core.alerts.model.service.Alert;
-import eu.domibus.core.alerts.model.web.AlertCsvRO;
 import eu.domibus.core.alerts.model.web.AlertRo;
 import eu.domibus.core.alerts.service.AlertService;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -22,7 +22,10 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.AbstractMap.SimpleImmutableEntry;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -166,16 +169,18 @@ public class AlertResource extends BaseResource {
         request.setPage(0);
         request.setPageSize(getCsvService().getPageSizeForExport());
         AlertCriteria alertCriteria = getAlertCriteria(request);
-        List<AlertCsvRO> alertCsvRoList;
+        List<AlertRo> alertRoList;
         if (!authUtils.isSuperAdmin() || request.getDomainAlerts()) {
-            alertCsvRoList = fetchAndTransformAlerts(alertCriteria);
+            alertRoList = fetchAndTransformAlerts(alertCriteria, false);
         } else {
-            alertCsvRoList = domainTaskExecutor.submit(() -> fetchAndTransformAlerts(alertCriteria));
+            alertRoList = domainTaskExecutor.submit(() -> fetchAndTransformAlerts(alertCriteria, true));
         }
 
-        return exportToCSV(alertCsvRoList,
-                AlertCsvRO.class,
-                new HashMap<>(),
+        return exportToCSV(alertRoList,
+                AlertRo.class,
+                ImmutableMap.of("entityId".toUpperCase(), "Alert Id",
+                        "attempts".toUpperCase(), "Sent Attempts"),
+                Arrays.asList("deleted", "alertDescription", "superAdmin"),
                 "alerts");
     }
 
@@ -199,11 +204,12 @@ public class AlertResource extends BaseResource {
         return alert;
     }
 
-    protected List<AlertCsvRO> fetchAndTransformAlerts(AlertCriteria alertCriteria) {
+    protected List<AlertRo> fetchAndTransformAlerts(AlertCriteria alertCriteria, boolean isSuperAdmin) {
         final List<Alert> alerts = alertService.findAlerts(alertCriteria);
         getCsvService().validateMaxRows(alerts.size(), () -> alertService.countAlerts(alertCriteria));
 
-        final List<AlertCsvRO> alertRoList = alerts.stream().map(this::transformCsv).collect(Collectors.toList());
+        final List<AlertRo> alertRoList = alerts.stream().map(this::transform).collect(Collectors.toList());
+        alertRoList.forEach(alert -> alert.setSuperAdmin(isSuperAdmin));
         return alertRoList;
     }
 
@@ -274,7 +280,7 @@ public class AlertResource extends BaseResource {
 
     }
 
-    private AlertRo transform(Alert alert) {
+    protected AlertRo transform(Alert alert) {
         AlertRo alertRo = new AlertRo();
         alertRo.setProcessed(alert.isProcessed());
         alertRo.setEntityId(alert.getEntityId());
@@ -289,37 +295,15 @@ public class AlertResource extends BaseResource {
         alertRo.setNextAttempt(alert.getNextAttempt());
 
         final List<String> alertParameterNames = getAlertParameters(alert.getAlertType().name());
-        final List<String> alertParameterValues = alertParameterNames.
-                stream().
-                map(paramName -> alert.getEvents().iterator().next().findOptionalProperty(paramName)).
-                filter(Optional::isPresent).
-                map(Optional::get).
-                map(this::manageMaxLength).
-                collect(Collectors.toList());
-        alertRo.setParameters(alertParameterValues);
-        return alertRo;
-    }
-
-    protected AlertCsvRO transformCsv(Alert alert) {
-        AlertCsvRO alertRo = new AlertCsvRO();
-        alertRo.setProcessed(alert.isProcessed());
-        alertRo.setAlertType(alert.getAlertType().name());
-        alertRo.setAlertLevel(alert.getAlertLevel().name());
-        alertRo.setCreationTime(alert.getCreationTime());
-        alertRo.setAlertStatus(alert.getAlertStatus().name());
-
-        final List<String> alertParameterNames = getAlertParameters(alert.getAlertType().name());
         final List<String> alertParameterValues = alertParameterNames
                 .stream()
                 .flatMap(paramName -> alert.getEvents().stream().map(event -> event.findOptionalProperty(paramName).orElse(null)))
                 .filter(Objects::nonNull)
                 .map(this::manageMaxLength)
                 .collect(Collectors.toList());
-
         alertRo.setParameters(alertParameterValues);
         return alertRo;
     }
-
 
     private String manageMaxLength(String param) {
         return StringUtils.abbreviate(param, 254);

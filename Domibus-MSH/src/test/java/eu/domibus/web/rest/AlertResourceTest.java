@@ -11,7 +11,6 @@ import eu.domibus.core.alerts.model.common.AlertStatus;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.service.Alert;
 import eu.domibus.core.alerts.model.service.Event;
-import eu.domibus.core.alerts.model.web.AlertCsvRO;
 import eu.domibus.core.alerts.model.web.AlertRo;
 import eu.domibus.core.alerts.service.AlertService;
 import eu.domibus.core.csv.CsvServiceImpl;
@@ -359,15 +358,18 @@ public class AlertResourceTest {
     @Test
     public void testFetchAndTransformAlerts() {
         initAlertsData(); // 1 alert
+
+        boolean isSuperAdmin = true;
         new Expectations() {{
             alertService.findAlerts((AlertCriteria) any);
             result = alerts;
         }};
 
-        List<AlertCsvRO> alertsRO = alertResource.fetchAndTransformAlerts(alertCriteria);
+        List<AlertRo> alertsRO = alertResource.fetchAndTransformAlerts(alertCriteria, isSuperAdmin);
 
         new Verifications(1) {{
             assertEquals(1, alertsRO.size());
+            assertEquals(isSuperAdmin, alertsRO.get(0).isSuperAdmin());
             csvServiceImpl.validateMaxRows(1, (LongSupplier) any);
             times = 1;
             alertService.countAlerts((AlertCriteria) any);
@@ -376,15 +378,15 @@ public class AlertResourceTest {
     }
 
     @Test
-    public void transformCsv(@Injectable Alert alert,@Injectable AlertCsvRO alertRo) {
+    public void transform(@Injectable Alert alert,@Injectable AlertRo alertRo) {
         new Expectations(alertResource) {{
             alert.getAlertType().name();
             result = AlertType.USER_LOGIN_FAILURE;
         }};
 
-        alertRo = alertResource.transformCsv(alert);
+        alertRo = alertResource.transform(alert);
 
-        AlertCsvRO finalAlertRo = alertRo;
+        AlertRo finalAlertRo = alertRo;
         new Verifications(1) {{
             assertNotNull(finalAlertRo);
             assertEquals("USER_LOGIN_FAILURE", finalAlertRo.getAlertType());
