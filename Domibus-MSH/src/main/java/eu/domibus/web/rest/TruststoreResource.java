@@ -129,6 +129,7 @@ public class TruststoreResource extends BaseResource {
     }
 
     // TLS truststore
+    // TODO: change urls; reuse code;
     @Autowired
     @Qualifier("TLSMultiDomainCryptoServiceImpl")
     protected MultiDomainCryptoService tlsMultiDomainCertificateProvider;

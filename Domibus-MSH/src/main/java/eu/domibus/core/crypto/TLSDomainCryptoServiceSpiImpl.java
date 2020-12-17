@@ -1,7 +1,7 @@
 package eu.domibus.core.crypto;
 
+import eu.domibus.api.cxf.TLSReaderService;
 import eu.domibus.core.crypto.spi.DomainCryptoServiceSpi;
-import eu.domibus.core.ebms3.sender.client.TLSReaderServiceImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.configuration.security.TLSClientParametersType;
@@ -21,7 +21,7 @@ public class TLSDomainCryptoServiceSpiImpl extends BaseDomainCryptoServiceSpiImp
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TLSDomainCryptoServiceSpiImpl.class);
 
     @Autowired
-    private TLSReaderServiceImpl tlsReader;
+    private TLSReaderService tlsReader;
 
     private TLSClientParametersType params;
 

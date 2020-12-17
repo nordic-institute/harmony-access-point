@@ -2,6 +2,7 @@
 package eu.domibus.core.ebms3.sender.client;
 
 import eu.domibus.api.cxf.TLSReaderService;
+import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -22,6 +23,7 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+import java.io.IOException;
 import java.io.StringReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -30,6 +32,7 @@ import java.util.*;
 
 /**
  * @author Christian Koch, Stefan Mueller
+ * @author Ion Perpegel
  */
 @Service
 public class TLSReaderServiceImpl implements TLSReaderService {
@@ -49,12 +52,8 @@ public class TLSReaderServiceImpl implements TLSReaderService {
             return null;
         }
         try {
-            byte[] encoded = Files.readAllBytes(path.get());
-            String config = new String(encoded, "UTF-8");
-            //TODO this replacement should be extracted into a service method
-            config = config.replaceAll(REGEX_DOMIBUS_CONFIG_LOCATION, domibusConfigurationService.getConfigLocation().replace('\\', '/'));
-
-            return (TLSClientParameters) TLSClientParametersConfig.createTLSClientParameters(config);
+            String fileContent = getFileContent(path);
+            return (TLSClientParameters) TLSClientParametersConfig.createTLSClientParameters(fileContent);
         } catch (Exception e) {
             LOG.warn("Mutual authentication will not be supported for [{}]", path);
             LOG.trace("", e);
@@ -62,43 +61,30 @@ public class TLSReaderServiceImpl implements TLSReaderService {
         }
     }
 
+    // add cache??
+    @Override
     public TLSClientParametersType getTlsClientParametersType(String domainCode) {
         Optional<Path> path = getClientAuthenticationPath(domainCode);
         if (!path.isPresent()) {
-            return null;
+            throw new DomibusCertificateException("Could not find client authentication file for domain [" + domainCode + "]");
         }
         try {
-            byte[] encoded = Files.readAllBytes(path.get());
-            String config = new String(encoded, "UTF-8");
-            //TODO this replacement should be extracted into a service method
-            config = config.replaceAll(REGEX_DOMIBUS_CONFIG_LOCATION, domibusConfigurationService.getConfigLocation().replace('\\', '/'));
-
-            return createTLSClientParameters(config);
+            String fileContent = getFileContent(path);
+            return createTLSClientParameters(fileContent);
         } catch (Exception e) {
-            LOG.warn("Mutual authentication will not be supported for [{}]", path);
-            LOG.trace("", e);
-            return null;
+            throw new DomibusCertificateException("Could not process client authentication file for domain [" + domainCode + "]", e);
         }
-
     }
 
-    private TLSClientParametersType createTLSClientParameters(String s) {
+    private TLSClientParametersType createTLSClientParameters(String s) throws XMLStreamException, JAXBException {
         StringReader reader = new StringReader(s);
         XMLStreamReader data = StaxUtils.createXMLStreamReader(reader);
 
         try {
             JAXBElement<TLSClientParametersType> type = JAXBUtils.unmarshall(getContext(), data, TLSClientParametersType.class);
-            return (TLSClientParametersType) type.getValue();
-        } catch (RuntimeException var15) {
-            throw var15;
-        } catch (Exception var16) {
-            throw new RuntimeException(var16);
+            return type.getValue();
         } finally {
-            try {
-                StaxUtils.close(data);
-            } catch (XMLStreamException var14) {
-                throw new RuntimeException(var14);
-            }
+            StaxUtils.close(data);
         }
     }
 
@@ -117,6 +103,13 @@ public class TLSReaderServiceImpl implements TLSReaderService {
         return context;
     }
 
+    private String getFileContent(Optional<Path> path) throws IOException {
+        byte[] encoded = Files.readAllBytes(path.get());
+        String config = new String(encoded, "UTF-8");
+        //TODO this replacement should be extracted into a service method
+        config = config.replaceAll(REGEX_DOMIBUS_CONFIG_LOCATION, domibusConfigurationService.getConfigLocation().replace('\\', '/'));
+        return config;
+    }
 
     /**
      * <p>Returns the path to the file that contains the TLS client configuration parameters.</p><br />

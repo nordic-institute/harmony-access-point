@@ -20,20 +20,16 @@ public class TLSMultiDomainCryptoServiceImpl extends MultiDomainCryptoServiceImp
 //    @Autowired
 //    private DomibusCacheService domibusCacheService;
 
-//    @Autowired
-//    TLSDomainCryptoServiceFactoryImpl tlsDomainCryptoServiceFactory;
-
     @Override
     protected DomainCryptoService createForDomain(Domain domain) {
-        DomainCryptoService res = objectProvider.getObject(domain);
-        return res;
-//        return tlsDomainCryptoServiceFactory.createDomainCryptoService(domain);
+        return objectProvider.getObject(domain);
     }
 
     @Override
     public void replaceTrustStore(Domain domain, String storeFileName, byte[] store, String password) throws CryptoException {
         super.replaceTrustStore(domain, storeFileName, store, password);
 
-//        domibusCacheService.clearCache("certValidationByAlias"); //which/any cache to clear??
+        //which/any cache to clear??
+//        domibusCacheService.clearCache("certValidationByAlias");
     }
 }

@@ -20,8 +20,6 @@ import org.springframework.stereotype.Service;
 @Primary //get rid
 public class MultiDomainCryptoServiceImpl extends BaseMultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
 
-//    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MultiDomainCryptoServiceImpl.class);
-
     @Autowired
     private DomainCryptoServiceFactory domainCertificateProviderFactory;
 

@@ -98,7 +98,7 @@ public abstract class BaseMultiDomainCryptoServiceImpl implements MultiDomainCry
         domainCertificateProvider.replaceTrustStore(store, password);
     }
 
-    //specific or generic
+    //specific or generic??
     protected void validateTruststoreType(String storeType, String storeFileName) {
         String fileType = FilenameUtils.getExtension(storeFileName).toLowerCase();
         switch (storeType.toLowerCase()) {
