@@ -72,7 +72,7 @@ public class WSPluginBackendRetryService {
         }
     }
 
-    private void sendToQueue(WSBackendMessageLogEntity backendMessage) {
+    protected void sendToQueue(WSBackendMessageLogEntity backendMessage) {
         LOG.debug("Send backendMessage [{}] to queue [{}]", backendMessage.getEntityId(), getQueueName());
         final JmsMessageDTO jmsMessage = JMSMessageDTOBuilder.
                 create()
@@ -104,7 +104,7 @@ public class WSPluginBackendRetryService {
     public void send(List<String> messageIds, String finalRecipient, WSPluginDispatchRule rule, WSBackendMessageType messageType) {
         WSBackendMessageLogEntity backendMessage = getWsBackendMessageLogEntity(null, messageType, finalRecipient, null, rule);
         WSBackendMessageLogEntity persistedBackendMessage = wsBackendMessageLogDao.createEntity(backendMessage);
-        LOG.info("[{}] backend message id [{}] for messagesIds [{}]", messageType, persistedBackendMessage.getEntityId(), messageIds);
+        LOG.info("[{}] backend message id [{}] for [{}] messagesIds [{}]", messageType, persistedBackendMessage.getEntityId(), messageIds.size(), messageIds);
         sendToQueue(persistedBackendMessage);
     }
 

@@ -1,9 +1,6 @@
 package eu.domibus.plugin.webService.connector;
 
-import eu.domibus.common.DeliverMessageEvent;
-import eu.domibus.common.MessageReceiveFailureEvent;
-import eu.domibus.common.MessageSendFailedEvent;
-import eu.domibus.common.MessageSendSuccessEvent;
+import eu.domibus.common.*;
 import eu.domibus.ext.services.MessageExtService;
 import eu.domibus.plugin.handler.MessagePuller;
 import eu.domibus.plugin.handler.MessageRetriever;
@@ -17,6 +14,9 @@ import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static eu.domibus.plugin.webService.backend.WSBackendMessageType.*;
 import static org.junit.Assert.assertEquals;
@@ -61,7 +61,7 @@ public class WSPluginImplTest {
     @Test
     public void deliverMessage(@Mocked DeliverMessageEvent deliverMessageEvent,
                                @Mocked WSMessageLogEntity wsMessageLogEntity) {
-        new Expectations(wsPlugin) {{
+        new Expectations() {{
             deliverMessageEvent.getMessageId();
             result = MESSAGE_ID;
         }};
@@ -79,7 +79,7 @@ public class WSPluginImplTest {
 
     @Test
     public void sendSuccess(@Mocked MessageSendSuccessEvent event) {
-        new Expectations(wsPlugin) {{
+        new Expectations() {{
             event.getMessageId();
             result = MESSAGE_ID;
 
@@ -93,9 +93,8 @@ public class WSPluginImplTest {
     }
 
     @Test
-    public void messageReceiveFailed(@Mocked MessageReceiveFailureEvent event,
-                                     @Mocked WSMessageLogEntity wsMessageLogEntity) {
-        new Expectations(wsPlugin) {{
+    public void messageReceiveFailed(@Mocked MessageReceiveFailureEvent event) {
+        new Expectations() {{
             event.getMessageId();
             result = MESSAGE_ID;
         }};
@@ -109,9 +108,8 @@ public class WSPluginImplTest {
     }
 
     @Test
-    public void messageSendFailed(@Mocked MessageSendFailedEvent event,
-                                  @Mocked WSMessageLogEntity wsMessageLogEntity) {
-        new Expectations(wsPlugin) {{
+    public void messageSendFailed(@Mocked MessageSendFailedEvent event) {
+        new Expectations() {{
             event.getMessageId();
             result = MESSAGE_ID;
         }};
@@ -120,6 +118,55 @@ public class WSPluginImplTest {
 
         new Verifications() {{
             wsPluginBackendService.send(MESSAGE_ID, SEND_FAILURE);
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void messageStatusChanged(@Mocked MessageStatusChangeEvent event) {
+        new Expectations() {{
+            event.getMessageId();
+            result = MESSAGE_ID;
+        }};
+
+        wsPlugin.messageStatusChanged(event);
+
+        new Verifications() {{
+            wsPluginBackendService.send(MESSAGE_ID, MESSAGE_STATUS_CHANGE);
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void messageDeletedBatchEvent(@Mocked MessageDeletedBatchEvent event) {
+        List<String> messageIds = new ArrayList<>();
+        new Expectations() {{
+            event.getMessageIds();
+            result = messageIds;
+        }};
+
+        wsPlugin.messageDeletedBatchEvent(event);
+
+        new Verifications() {{
+            wsMessageLogDao.deleteByMessageIds(messageIds);
+            times = 1;
+
+            wsPluginBackendService.send(messageIds, DELETED_BATCH);
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void messageDeletedEvent(@Mocked MessageDeletedEvent event) {
+        new Expectations() {{
+            event.getMessageId();
+            result = MESSAGE_ID;
+        }};
+
+        wsPlugin.messageDeletedEvent(event);
+
+        new Verifications() {{
+            wsPluginBackendService.send(MESSAGE_ID, DELETED);
             times = 1;
         }};
     }

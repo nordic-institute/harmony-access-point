@@ -13,6 +13,7 @@ import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.jms.JMSException;
 import javax.jms.Queue;
@@ -148,6 +149,7 @@ public class WSPluginBackendRetryServiceTest {
             wsPluginSendQueue.getQueueName();
             result = "queueName";
         }};
+
         retryService.sendWaitingForRetry();
 
         new FullVerifications() {{
@@ -167,5 +169,27 @@ public class WSPluginBackendRetryServiceTest {
             entity1.setScheduled(true);
             entity2.setScheduled(true);
         }};
+    }
+
+    @Test
+    public void send(@Mocked WSPluginDispatchRule rule,
+                     @Mocked WSBackendMessageLogEntity backendMessage) {
+        new Expectations(retryService) {{
+            retryService.getWsBackendMessageLogEntity(null, WSBackendMessageType.DELETED_BATCH, FINAL_RECIPIENT, null, rule);
+            result = backendMessage;
+
+            wsBackendMessageLogDao.createEntity(backendMessage);
+            result = backendMessage;
+
+            backendMessage.getEntityId();
+            result = 1L;
+
+            retryService.sendToQueue(backendMessage);
+            times = 1;
+        }};
+
+        retryService.send(Arrays.asList("1", "2"), FINAL_RECIPIENT, rule, WSBackendMessageType.DELETED_BATCH);
+
+        new FullVerifications(){};
     }
 }

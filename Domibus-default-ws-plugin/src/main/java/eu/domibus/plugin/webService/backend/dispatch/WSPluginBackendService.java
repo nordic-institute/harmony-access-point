@@ -61,12 +61,29 @@ public class WSPluginBackendService {
 
     }
 
-    public void send(List<String> messageIds, WSBackendMessageType... messageTypes) {
+    public void send(List<String> messageIds, WSBackendMessageType messageType) {
+
+        Map<String, List<String>> messageIdsPerRecipient = sortMessageIdsPerFinalRecipients(messageIds);
+
+        Set<Map.Entry<String, List<WSPluginDispatchRule>>> rulesForRecipients =
+                getRulesForFinalRecipients(messageIdsPerRecipient).entrySet();
+        for (Map.Entry<String, List<WSPluginDispatchRule>> rulesForOneRecipient : rulesForRecipients) {
+            String finalRecipient = rulesForOneRecipient.getKey();
+            List<String> messagesIdsForRecipient = messageIdsPerRecipient.get(rulesForOneRecipient.getKey());
+            List<WSPluginDispatchRule> rulesForRecipient = rulesForOneRecipient.getValue();
+            sendNotificationsForOneRecipient(finalRecipient, messagesIdsForRecipient, rulesForRecipient, messageType);
+        }
+    }
+
+    protected Map<String, List<String>> sortMessageIdsPerFinalRecipients(List<String> messageIds) {
         Map<String, List<String>> messageIdsPerRecipient = new HashMap<>();
         for (String messageId : messageIds) {
             addMessageIdToMap(messageId, messageIdsPerRecipient);
         }
+        return messageIdsPerRecipient;
+    }
 
+    protected Map<String, List<WSPluginDispatchRule>> getRulesForFinalRecipients(Map<String, List<String>> messageIdsPerRecipient) {
         Map<String, List<WSPluginDispatchRule>> rulesPerRecipient = new HashMap<>();
         for (String finalRecipient : messageIdsPerRecipient.keySet()) {
             List<WSPluginDispatchRule> rules = wsBackendRulesService.getRulesByRecipient(finalRecipient);
@@ -75,34 +92,28 @@ public class WSPluginBackendService {
             }
             rulesPerRecipient.put(finalRecipient, rules);
         }
+        return rulesPerRecipient;
+    }
 
+    protected void sendNotificationsForOneRecipient(
+            String finalRecipient,
+            List<String> messageIds,
+            List<WSPluginDispatchRule> value,
+            WSBackendMessageType messageType) {
+        for (WSPluginDispatchRule wsPluginDispatchRule : value) {
+            sendNotificationsForOneRule(finalRecipient, messageIds, messageType, wsPluginDispatchRule);
+        }
+    }
 
-        for (WSBackendMessageType messageType : messageTypes) {
-            for (Map.Entry<String, List<WSPluginDispatchRule>> rulesForRecipientEntry : rulesPerRecipient.entrySet()) {
-                WSPluginDispatchRule rule = getRule(messageType, rulesForRecipientEntry);
-                if (rule != null) {
-                    String finalRecipient = rulesForRecipientEntry.getKey();
-                    List<String> messageIdsForRecipient = messageIdsPerRecipient.get(finalRecipient);
-                    retryService.send(messageIdsForRecipient, finalRecipient, rule, messageType);
-                }
+    protected void sendNotificationsForOneRule(String finalRecipient, List<String> messageIds, WSBackendMessageType messageType, WSPluginDispatchRule wsPluginDispatchRule) {
+        for (WSBackendMessageType type : wsPluginDispatchRule.getTypes()) {
+            if (type == messageType) {
+                retryService.send(messageIds, finalRecipient, wsPluginDispatchRule, messageType);
             }
         }
     }
 
-    private WSPluginDispatchRule getRule(
-            WSBackendMessageType messageType, Map.Entry<String,
-            List<WSPluginDispatchRule>> stringListEntry) {
-        for (WSPluginDispatchRule wsPluginDispatchRule : stringListEntry.getValue()) {
-            for (WSBackendMessageType type : wsPluginDispatchRule.getTypes()) {
-                if (type == messageType) {
-                    return wsPluginDispatchRule;
-                }
-            }
-        }
-        return null;
-    }
-
-    private void addMessageIdToMap(String messageId, Map<String, List<String>> messageIdGroupedByRecipient) {
+    protected void addMessageIdToMap(String messageId, Map<String, List<String>> messageIdGroupedByRecipient) {
         String finalRecipient = userMessageExtService.getFinalRecipient(messageId);
 
         if (StringUtils.isBlank(finalRecipient)) {
