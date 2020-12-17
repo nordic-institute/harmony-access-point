@@ -605,11 +605,15 @@
         "inputStream" : {
           "$ref" : "#/definitions/InputStream"
         },
+        "readable" : {
+          "type" : "boolean"
+        },
         "filename" : {
           "type" : "string"
         },
-        "readable" : {
-          "type" : "boolean"
+        "uri" : {
+          "type" : "string",
+          "format" : "uri"
         },
         "url" : {
           "type" : "string",
@@ -620,10 +624,6 @@
         },
         "open" : {
           "type" : "boolean"
-        },
-        "uri" : {
-          "type" : "string",
-          "format" : "uri"
         }
       }
     },
@@ -868,7 +868,6 @@
         },
         "identifiers" : {
           "type" : "array",
-          "uniqueItems" : true,
           "items" : {
             "$ref" : "#/definitions/PartyIdentifierDTO"
           }
