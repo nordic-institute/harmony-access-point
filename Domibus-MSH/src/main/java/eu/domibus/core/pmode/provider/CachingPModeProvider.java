@@ -1013,11 +1013,11 @@ public class CachingPModeProvider extends PModeProvider {
      * @return the agreement value
      */
     @Override
-    public String getAgreementRef(String serviceValue) {
+    public Agreement getAgreementRef(String serviceValue) {
         for (Process found : getProcessFromService(serviceValue)) {
-            String agreementRefHandleProcess = getAgreementRefHandleProcess(found);
-            if (agreementRefHandleProcess != null) {
-                return agreementRefHandleProcess;
+            Agreement agreement = getAgreementRefHandleProcess(found);
+            if (agreement != null) {
+                return agreement;
             }
         }
         return null;
@@ -1033,12 +1033,12 @@ public class CachingPModeProvider extends PModeProvider {
     }
 
     @Nullable
-    private String getAgreementRefHandleProcess(Process found) {
+    private Agreement getAgreementRefHandleProcess(Process found) {
         for (Process process : getConfiguration().getBusinessProcesses().getProcesses()) {
             if (equalsIgnoreCase(process.getName(), found.getName())) {
                 Agreement agreement = process.getAgreement();
                 if (agreement != null) {
-                    return agreement.getValue();
+                    return agreement;
                 }
             }
         }
