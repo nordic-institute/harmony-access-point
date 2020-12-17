@@ -1,56 +1,51 @@
 package eu.domibus.core.encryption;
 
-import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.encryption.EncryptionService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.api.multitenancy.DomainTaskExecutor;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.encryption.PasswordEncryptionService;
 import eu.domibus.core.payload.encryption.PayloadEncryptionService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.io.File;
 import java.util.List;
 
 @Service
 public class EncryptionServiceImpl implements EncryptionService {
 
-    private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(EncryptionServiceImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EncryptionServiceImpl.class);
 
-    public static final String ENCRYPTION_LOCK = "encryption.lock";
+    protected final PayloadEncryptionService payloadEncryptionService;
 
-    @Autowired
-    protected PayloadEncryptionService payloadEncryptionService;
+    protected final PasswordEncryptionService passwordEncryptionService;
 
-    @Autowired
-    protected PasswordEncryptionService passwordEncryptionService;
+    protected final DomibusConfigurationService domibusConfigurationService;
 
-    @Autowired
-    protected DomainTaskExecutor domainTaskExecutor;
+    protected final DomainService domainService;
 
-    @Autowired
-    protected DomibusConfigurationService domibusConfigurationService;
+    public EncryptionServiceImpl(
+            PayloadEncryptionService payloadEncryptionService,
+            PasswordEncryptionService passwordEncryptionService,
+            DomibusConfigurationService domibusConfigurationService,
+            DomainService domainService) {
+        this.payloadEncryptionService = payloadEncryptionService;
+        this.passwordEncryptionService = passwordEncryptionService;
+        this.domibusConfigurationService = domibusConfigurationService;
+        this.domainService = domainService;
+    }
 
-    @Autowired
-    protected DomainService domainService;
-
-    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public void handleEncryption() {
-        if (useLockForEncryption()) {
-            LOG.debug("Handling encryption using lock file");
-
-            final File fileLock = getLockFileLocation();
-            domainTaskExecutor.submit(() -> doHandleEncryption(), null, fileLock);
-        } else {
-            LOG.debug("Handling encryption");
-            doHandleEncryption();
+        final boolean anyEncryptionActive = isAnyEncryptionActive();
+        if (!anyEncryptionActive) {
+            LOG.info("Encryption is not active; exiting");
+            return;
         }
+        LOG.debug("Handling encryption");
+        doHandleEncryption();
     }
 
     protected void doHandleEncryption() {
@@ -67,16 +62,6 @@ public class EncryptionServiceImpl implements EncryptionService {
         }
     }
 
-    protected boolean useLockForEncryption() {
-        final boolean clusterDeployment = domibusConfigurationService.isClusterDeployment();
-        LOG.debug("Cluster deployment? [{}]", clusterDeployment);
-
-        final boolean anyEncryptionActive = isAnyEncryptionActive();
-        LOG.debug("isAnyEncryptionActive? [{}]", anyEncryptionActive);
-
-        return clusterDeployment && isAnyEncryptionActive();
-    }
-
     protected boolean isAnyEncryptionActive() {
         final boolean generalPasswordEncryptionActive = domibusConfigurationService.isPasswordEncryptionActive();
         if (generalPasswordEncryptionActive) {
@@ -87,7 +72,7 @@ public class EncryptionServiceImpl implements EncryptionService {
         final List<Domain> domains = domainService.getDomains();
         for (Domain domain : domains) {
             final Boolean payloadEncryptionActive = domibusConfigurationService.isPayloadEncryptionActive(domain);
-            if (payloadEncryptionActive) {
+            if (BooleanUtils.isTrue(payloadEncryptionActive)) {
                 LOG.debug("Payload encryption is active for domain [{}]", domain);
                 return true;
             }
@@ -102,7 +87,4 @@ public class EncryptionServiceImpl implements EncryptionService {
         return false;
     }
 
-    protected File getLockFileLocation() {
-        return new File(domibusConfigurationService.getConfigLocation(), ENCRYPTION_LOCK);
-    }
 }

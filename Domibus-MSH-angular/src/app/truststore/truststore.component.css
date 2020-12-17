@@ -41,3 +41,7 @@ label:hover, label:active, input:hover + label, input:active + label {
 .firstColumn {
   width: 20%;
 }
+
+/deep/ .highlighted-row .datatable-body-cell {
+  color: red !important;
+}

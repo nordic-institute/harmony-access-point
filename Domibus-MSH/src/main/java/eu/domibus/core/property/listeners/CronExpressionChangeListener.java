@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 /**
  * @author Ion Perpegel
@@ -41,23 +41,17 @@ public class CronExpressionChangeListener implements DomibusPropertyChangeListen
     DomibusScheduler domibusScheduler;
 
     Map<String, String> propertyToJobMap = Stream.of(new String[][]{
-            {DOMIBUS_ACCOUNT_UNLOCK_CRON, "activateSuspendedUsersJob"}, //todo: handle also the super Job
             {DOMIBUS_CERTIFICATE_CHECK_CRON, "saveCertificateAndLogRevocationJob"},
             {DOMIBUS_PLUGIN_ACCOUNT_UNLOCK_CRON, "activateSuspendedPluginUsersJob"},
-            {DOMIBUS_PASSWORD_POLICIES_CHECK_CRON, "userPasswordPolicyAlertJob"},
             {DOMIBUS_PLUGIN_PASSWORD_POLICIES_CHECK_CRON, "pluginUserPasswordPolicyAlertJob"},
             {DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_CRON, "temporaryPayloadRetentionJob"},
             {DOMIBUS_MSH_RETRY_CRON, "retryWorkerJob"},
             {DOMIBUS_RETENTION_WORKER_CRON_EXPRESSION, "retentionWorkerJob"},
             {DOMIBUS_MSH_PULL_CRON, "pullRequestWorkerJob"},
             {DOMIBUS_PULL_RETRY_CRON, "pullRetryWorkerJob"},
-            {DOMIBUS_ALERT_CLEANER_CRON, "alertCleanerJob"},
-            {DOMIBUS_ALERT_RETRY_CRON, "alertRetryJob"},
-            {DOMIBUS_ALERT_SUPER_CLEANER_CRON, "alertCleanerSuperJob"},
-            {DOMIBUS_ALERT_SUPER_RETRY_CRON, "alertRetryJSuperJob"},
             {DOMIBUS_UI_REPLICATION_SYNC_CRON, "uiReplicationJob"},
             {DOMIBUS_SPLIT_AND_JOIN_RECEIVE_EXPIRATION_CRON, "splitAndJoinExpirationJob"},
-
+            {DOMIBUS_MONITORING_CONNECTION_CRON, "connectionMonitoringJob"},
     }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
 
     @Override
@@ -66,7 +60,6 @@ public class CronExpressionChangeListener implements DomibusPropertyChangeListen
     }
 
     @Override
-    @Transactional(noRollbackFor = DomibusCoreException.class)
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) {
         String jobName = propertyToJobMap.get(propertyName);
         if (jobName == null) {
@@ -83,5 +76,4 @@ public class CronExpressionChangeListener implements DomibusPropertyChangeListen
             throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Could not reschedule job: " + jobName, ex);
         }
     }
-
 }

@@ -32,108 +32,102 @@ import java.util.Map;
 
 public class DomibusC1 {
 	private static final Log LOG = LogFactory.getLog(DomibusC1.class);
-
+	
 	private static final String TEST_SUBMIT_MESSAGE_SUBMITREQUEST = "src/main/resources/eu/domibus/example/ws/submitMessage_submitRequest.xml";
 	private static final String TEST_SUBMIT_MESSAGE_MESSAGING = "src/main/resources/eu/domibus/example/ws/submitMessage_messaging.xml";
-
+	
 	private static final String DEFAULT_WEBSERVICE_LOCATION = new TestRunData().getUiBaseUrl() + "services/backend?wsdl";
-
+	
 	private static JAXBContext jaxbMessagingContext;
 	private static JAXBContext jaxbWebserviceContext;
-
-
+	
+	
 	private String wsdl;
-
-
-
+	
+	
 	public DomibusC1() {
 		this(DEFAULT_WEBSERVICE_LOCATION);
-
+		
 		try {
 			jaxbMessagingContext = JAXBContext.newInstance("eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704");
 			jaxbWebserviceContext = JAXBContext.newInstance("eu.domibus.plugin.webService.generated");
 		} catch (JAXBException e) {
 			throw new RuntimeException("Initialization of Helper class failed.");
 		}
-
-
+		
+		
 	}
-
+	
 	public DomibusC1(String webserviceLocation) {
 		this.wsdl = webserviceLocation;
 	}
-
-
+	
+	private static <E> E parseSendRequestXML(final String uriSendRequestXML, Class<E> requestType) throws Exception {
+		return (E) jaxbWebserviceContext.createUnmarshaller().unmarshal(new File(uriSendRequestXML));
+	}
+	
+	private static Messaging parseMessagingXML(String uriMessagingXML) throws Exception {
+		return ((JAXBElement<Messaging>) jaxbMessagingContext.createUnmarshaller().unmarshal(new File(uriMessagingXML))).getValue();
+	}
+	
 	public BackendInterface getPort(String username, String password) throws MalformedURLException {
 		if (wsdl == null || wsdl.isEmpty()) {
 			throw new IllegalArgumentException("No webservice location specified");
 		}
-
+		
 		BackendService11 backendService = new BackendService11(new URL(wsdl), new QName("http://org.ecodex.backend/1_1/", "BackendService_1_1"));
 		BackendInterface backendPort = backendService.getBACKENDPORT();
-
+		
 		//enable chunking
 		BindingProvider bindingProvider = (BindingProvider) backendPort;
 		if (username != null && !username.isEmpty()) {
-//            LOG.debug("Adding username [" + username + "] to the requestContext");
+			
 			bindingProvider.getRequestContext().put(BindingProvider.USERNAME_PROPERTY, username);
 		}
 		if (password != null && !password.isEmpty()) {
-//            LOG.debug("Adding password to the requestContext");
 			bindingProvider.getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, password);
 		}
-
+		
 		Map<String, Object> ctxt = bindingProvider.getRequestContext();
-//		ctxt.put(JAXWSProperties.HTTP_CLIENT_STREAMING_CHUNK_SIZE, 8192);
 		ctxt.put("com.sun.xml.internal.ws.transport.http.client.streaming.chunk.size", 8192);
-		//enable MTOM
+		
 		SOAPBinding binding = (SOAPBinding) bindingProvider.getBinding();
 		binding.setMTOMEnabled(true);
-
-
+		
+		
 		//comment the following lines if sending large files
 		List<Handler> handlers = bindingProvider.getBinding().getHandlerChain();
-//        handlers.add(new MessageLoggingHandler());
+		
 		bindingProvider.getBinding().setHandlerChain(handlers);
-
+		
 		return backendPort;
 	}
-
-
-	private static <E> E parseSendRequestXML(final String uriSendRequestXML, Class<E> requestType) throws Exception {
-		return (E) jaxbWebserviceContext.createUnmarshaller().unmarshal(new File(uriSendRequestXML));
-	}
-
-	private static Messaging parseMessagingXML(String uriMessagingXML) throws Exception {
-		return ((JAXBElement<Messaging>) jaxbMessagingContext.createUnmarshaller().unmarshal(new File(uriMessagingXML))).getValue();
-	}
-
-
+	
 	public String sendMessage(String pluginU, String password, String messageRefID, String conversationID) throws Exception {
 		BackendInterface backendInterface = getPort(pluginU, password);
-
-
+		
+		
 		SubmitRequest submitRequest = parseSendRequestXML(TEST_SUBMIT_MESSAGE_SUBMITREQUEST, SubmitRequest.class);
 		Messaging messaging = parseMessagingXML(TEST_SUBMIT_MESSAGE_MESSAGING);
-
+		
 		if (null != messageRefID) {
 			MessageInfo info = new MessageInfo();
 			info.setRefToMessageId(messageRefID);
 			messaging.getUserMessage().setMessageInfo(info);
 		}
-
+		
 		if (null != conversationID) {
 			messaging.getUserMessage().getCollaborationInfo().setConversationId(conversationID);
 		}
-
+		
 		SubmitResponse result = backendInterface.submitMessage(submitRequest, messaging);
-
-		if (null != result.getMessageID()){
+		
+		if (null != result.getMessageID()) {
 			return result.getMessageID().get(0);
 		}
-		System.out.println(result);
-		throw new RuntimeException("Could not send message");
+		LOG.debug(result);
+		throw new Exception("Could not send message");
 	}
-
-
+	
+	
 }

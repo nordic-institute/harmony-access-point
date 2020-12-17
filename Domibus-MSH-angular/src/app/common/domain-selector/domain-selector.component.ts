@@ -2,10 +2,11 @@ import {Component, Input, OnInit} from '@angular/core';
 import {SecurityService} from '../../security/security.service';
 import {DomainService} from '../../security/domain.service';
 import {Domain} from '../../security/domain';
-import {MdDialog} from '@angular/material';
-import {CancelDialogComponent} from '../cancel-dialog/cancel-dialog.component';
+import {MatDialog} from '@angular/material';
 import {AlertService} from '../alert/alert.service';
 import {ActivatedRoute, ActivatedRouteSnapshot, Router, RoutesRecognized} from '@angular/router';
+import {DialogsService} from '../dialogs/dialogs.service';
+import {instanceOfModifiableList} from '../mixins/type.utils';
 
 @Component({
   selector: 'domain-selector',
@@ -25,7 +26,8 @@ export class DomainSelectorComponent implements OnInit {
 
   constructor(private domainService: DomainService,
               private securityService: SecurityService,
-              private dialog: MdDialog,
+              private dialog: MatDialog,
+              private dialogsService: DialogsService,
               private alertService: AlertService,
               private router: Router,
               private route: ActivatedRoute) {
@@ -61,24 +63,23 @@ export class DomainSelectorComponent implements OnInit {
   }
 
   async changeDomain() {
-    let canChangeDomain = Promise.resolve(true);
-    if (this.supportsDirtyOperations() && this.currentComponent.isDirty()) {
-      canChangeDomain = this.dialog.open(CancelDialogComponent).afterClosed().toPromise<boolean>();
-    }
+    this.alertService.clearAlert();
 
     try {
-      const canChange = await canChangeDomain;
-      if (!canChange) throw false;
+      const canChange = await this.canChangeDomain();
+      if (!canChange) {
+        throw false;
+      }
 
       if (this.currentComponent.beforeDomainChange) {
         try {
           this.currentComponent.beforeDomainChange();
         } catch (e) {
-          console.log(e);
+          console.log('Exception raised in before domain change code', e);
         }
       }
 
-      const domain = this.domains.find(d => d.code == this.domainCode);
+      const domain = this.domains.find(d => d.code === this.domainCode);
       await this.domainService.setCurrentDomain(domain);
 
       this.alertService.clearAlert();
@@ -89,7 +90,15 @@ export class DomainSelectorComponent implements OnInit {
         try {
           this.currentComponent.ngOnInit();
         } catch (e) {
-          console.log(e);
+          this.alertService.exception('Error in init code', e);
+        }
+      }
+
+      if (this.currentComponent.ngAfterViewInit) {
+        try {
+          this.currentComponent.ngAfterViewInit();
+        } catch (e) {
+          this.alertService.exception('Error in after view init code', e);
         }
       }
 
@@ -97,13 +106,16 @@ export class DomainSelectorComponent implements OnInit {
       this.domainCode = this.currentDomainCode;
       if (ex.status <= 0) {
         this.alertService.exception('The server didn\'t respond, please try again later', ex);
+      } else {
+        this.alertService.exception('Error trying to change the domain.', ex);
       }
     }
   }
 
-  private supportsDirtyOperations() {
-    return this.currentComponent && this.currentComponent.isDirty
-      && this.currentComponent.isDirty instanceof Function;
+  private async canChangeDomain() {
+
+    return this.securityService.canAbandonUnsavedChanges(this.currentComponent);
   }
+
 }
 

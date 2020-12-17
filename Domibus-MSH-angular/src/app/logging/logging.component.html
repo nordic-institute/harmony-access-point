@@ -1,77 +1,62 @@
-﻿<page-header id="loggingheader_id">Logging</page-header>
-<div class="selectionCriteria">
-  <md-card>
-    <md-card-content>
+﻿<div style="height: calc(100% - 15px);">
+  <page-header id="loggingheader_id">{{name}}</page-header>
 
-      <div class="panel">
-        <form name="filterForm" #filterForm="ngForm" (ngSubmit)="search()">
+  <div class="selectionCriteria">
+    <mat-card>
+      <mat-card-content>
 
-          <md-input-container>
-            <input mdInput placeholder="Package or class name" name="packageClassName"
-                   [(ngModel)]="filter.loggerName" #loggerName="ngModel" id="loggerName_id"
-                   width="40px" tooltip="Enter here the package name e.g. 'eu.domibus' or 'ROOT' or part of the name">
-          </md-input-container>
-          <input type="checkbox" name="showClasses" [(ngModel)]="filter.showClasses"
-                 #showClasses="ngModel" id="showClasses_id">
-          <span>Show Classes</span>
+        <div class="panel">
+          <form name="filterForm" #filterForm="ngForm" (ngSubmit)="tryFilter()">
 
-          <div class="searchArea">
-            <button md-raised-button color="primary" [disabled]="!filterForm.form.valid" id="searchbutton_id"
-                    type="submit">
-              <md-icon>search</md-icon>
-              <span>Search</span>
-            </button>
+            <mat-form-field>
+              <input matInput placeholder="Package or class name" name="packageClassName"
+                     [(ngModel)]="filter.loggerName" #loggerName="ngModel" id="loggerName_id"
+                     width="40px" tooltip="Enter here the package name e.g. 'eu.domibus' or 'ROOT' or part of the name">
+            </mat-form-field>
+            <mat-checkbox name="showClasses" [(ngModel)]="filter.showClasses" #showClasses="ngModel"
+                          id="showClasses_id">
+              Show Classes
+            </mat-checkbox>
 
-            <button md-raised-button color="primary" id="resetbutton_id" (click)="resetLogging()" style="float:right" tooltip="Click to reset logging configuration"
-            type="button">
-              <md-icon>cached</md-icon>
-              <span>Reset</span>
-            </button>
+            <div class="searchArea" style="position: relative;">
 
-          </div>
-        </form>
+              <filter-area-footer [parent]="this" [isAdvancedVisible]="false" [form]="filterForm"></filter-area-footer>
 
-      </div>
+              <button mat-raised-button color="primary" id="resetbutton_id" (click)="resetLogging()"
+                      style="position: absolute;right: 0;top: 0;"
+                      tooltip="Click to reset logging configuration"
+                      type="button">
+                <mat-icon>cached</mat-icon>
+                <span>Reset</span>
+              </button>
 
-    </md-card-content>
-  </md-card>
-</div>
+            </div>
+          </form>
 
-<div class="panel">
-  <div class="group-filter-button">
+        </div>
+
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <div class="panel" style="height: calc(100% - 140px);">
+    <div class="group-filter-button">
     <span class="row-button">
       <app-row-limiter [pageSizes]="rowLimiter.pageSizes"
                        (onPageSizeChanged)="changePageSize($event.value)"></app-row-limiter>
     </span>
+    </div>
+
+    <div style="height: calc(100% - 70px); overflow-y: auto; overflow-x: hidden;">
+      <page-grid [parent]="this" [selectionType]="'multi'"></page-grid>
+    </div>
+
+    <ng-template #rowWithToggleTpl let-row="row" let-value="value" ngx-datatable-cell-template>
+      <mat-button-toggle-group [name]="row.name" (ngModelChange)="onLevelChange($event, row)" [(ngModel)]="row.level">
+        <mat-button-toggle *ngFor="let level of levels" [value]="level">
+          {{level}}
+        </mat-button-toggle>
+      </mat-button-toggle-group>
+    </ng-template>
   </div>
-
-  <ngx-datatable
-    id="loggingTable"
-    class="material striped"
-    [rows]="rows"
-    [columnMode]="'force'"
-    [columns]="columnPicker.selectedColumns"
-    [headerHeight]="50"
-    [footerHeight]="50"
-    [rowHeight]="'auto'"
-    [scrollbarH]="true"
-    [externalPaging]="true"
-    [externalSorting]="true"
-    [loadingIndicator]="loading"
-    [count]="count"
-    [offset]="offset"
-    [limit]="rowLimiter.pageSize"
-    [sorts]="[{prop: 'timestamp', dir: 'desc'}]"
-    (page)='onPage($event)'
-    (sort)="onSort($event)"
-  >
-</ngx-datatable>
-
-  <ng-template #rowWithToggleTpl let-row="row" let-value="value" ngx-datatable-cell-template>
-    <md-button-toggle-group [name]="row.name" (ngModelChange)="onLevelChange($event, row)" [(ngModel)]="row.level">
-      <md-button-toggle *ngFor="let level of levels" [value]="level">
-        {{level}}
-      </md-button-toggle>
-    </md-button-toggle-group>
-  </ng-template>
 </div>

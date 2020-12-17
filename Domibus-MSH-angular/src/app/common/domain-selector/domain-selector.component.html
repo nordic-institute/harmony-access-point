@@ -1,5 +1,5 @@
-<md-select *ngIf="showDomains" [(ngModel)]="domainCode" (change)="changeDomain()">
-	<md-option *ngFor="let d of domains" [value]="d.code">
+<mat-select *ngIf="showDomains" [(ngModel)]="domainCode" (selectionChange)="changeDomain()">
+	<mat-option *ngFor="let d of domains" [value]="d.code">
 	  {{d.name}}
-	</md-option>
-</md-select>
+	</mat-option>
+</mat-select>

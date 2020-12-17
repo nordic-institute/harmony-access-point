@@ -1,11 +1,13 @@
 package eu.domibus.core.multitenancy.dao;
 
 
-import eu.domibus.api.configuration.DomibusConfigurationService;
+import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.common.services.DomibusCacheService;
+import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.FileUtils;
@@ -19,8 +21,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMAIN_TITLE;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMAIN_TITLE;
 
 
 /**
@@ -34,12 +37,14 @@ public class DomainDaoImpl implements DomainDao {
 
     private static final String[] DOMAIN_FILE_EXTENSION = {"properties"};
     private static final String DOMAIN_FILE_SUFFIX = "-domibus";
+    public static final String SUPER = "super";
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
 
     @Autowired
     protected DomibusConfigurationService domibusConfigurationService;
+    protected static final String DOMAIN_NAME_REGEX = "^[a-z0-9_]*$";
 
     @Cacheable(value = DomibusCacheService.ALL_DOMAINS_CACHE)
     @Override
@@ -47,9 +52,9 @@ public class DomainDaoImpl implements DomainDao {
         LOG.trace("Finding all domains");
 
         List<Domain> result = new ArrayList<>();
-        result.add(DomainService.DEFAULT_DOMAIN);
         if (!domibusConfigurationService.isMultiTenantAware()) {
             LOG.trace("Domibus is running in non multitenant mode, adding only the default domain");
+            result.add(DomainService.DEFAULT_DOMAIN);
             return result;
         }
 
@@ -62,26 +67,49 @@ public class DomainDaoImpl implements DomainDao {
             return result;
         }
 
-        List<Domain> additionalDomains = new ArrayList<>();
-        for (File propertyFile : propertyFiles) {
-            final String fileName = propertyFile.getName();
-            if (StringUtils.containsIgnoreCase(fileName, DOMAIN_FILE_SUFFIX)) {
-                LOG.trace("Getting domain code from file [{}]", fileName);
-                String domainCode = StringUtils.substringBefore(fileName, DOMAIN_FILE_SUFFIX);
+        List<String> fileNames = propertyFiles.stream().map(file -> file.getName())
+                .filter(fileName -> StringUtils.containsIgnoreCase(fileName, DOMAIN_FILE_SUFFIX))
+                .filter(fileName -> !StringUtils.containsIgnoreCase(fileName, SUPER)).collect(Collectors.toList());
 
-                Domain domain = new Domain(domainCode, null);
+        List<Domain> domains = new ArrayList<>();
+        for (String fileName : fileNames) {
+            LOG.trace("Getting domain code from file [{}]", fileName);
+            String domainCode = StringUtils.substringBefore(fileName, DOMAIN_FILE_SUFFIX);
+            if (isValidDomain(domains, domainCode)) {
+                Domain domain = new Domain();
+                domain.setCode(domainCode.toLowerCase());
                 domain.setName(getDomainTitle(domain));
-                additionalDomains.add(domain);
-
-                LOG.trace("Added domain [{}]", domain);
+                domains.add(domain);
+                LOG.trace("Domain name is valid. Added domain [{}]", domain);
             }
         }
-        additionalDomains.sort(Comparator.comparing(Domain::getName, String.CASE_INSENSITIVE_ORDER));
-        result.addAll(additionalDomains);
+        if (domains.stream().noneMatch(domain -> DomainService.DEFAULT_DOMAIN.equals(domain))) {
+            LOG.warn("Default domain is normally present in the configuration.");
+        }
+
+        domains.sort(Comparator.comparing(Domain::getName, String.CASE_INSENSITIVE_ORDER));
+        result.addAll(domains);
 
         LOG.trace("Found the following domains [{}]", result);
 
         return result;
+    }
+
+    protected boolean isValidDomain(List<Domain> domains, String domainCode) {
+        if (Character.isDigit(domainCode.charAt(0))) {
+            LOG.error("Domain name [{}] should not start with a number. It should start with a letter and contain only lower case letters, numbers and underscore.", domainCode);
+            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Domain name should not start with a number. Invalid domain name:" + domainCode);
+        }
+
+        if (domains.stream().anyMatch(d -> d.getCode().equals(domainCode))) {
+            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Found duplicate domain name :" + domainCode);
+        }
+        if (!domainCode.matches(DOMAIN_NAME_REGEX)) {
+            LOG.error("Domain name [{}] is not valid. It should start with a letter and contain only lower case letters, numbers and underscore.", domainCode);
+            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Forbidden characters like capital letters or special characters, except underscore found in domain name. Invalid domain name:" + domainCode);
+        } else {
+            return true;
+        }
     }
 
     protected String getDomainTitle(Domain domain) {

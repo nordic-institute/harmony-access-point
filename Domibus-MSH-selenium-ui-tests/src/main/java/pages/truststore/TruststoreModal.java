@@ -8,22 +8,15 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
-import utils.TestRunData;
 
 import java.util.HashMap;
 import java.util.List;
 
 /**
  * @author Catalin Comanici
-
  * @since 4.1
  */
 public class TruststoreModal extends InfoModal {
-	public TruststoreModal(WebDriver driver) {
-		super(driver);
-		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
-	}
-
 	@FindBy(css = "input[placeholder=Name]")
 	WebElement nameInput;
 	@FindBy(css = "input[placeholder=Subject]")
@@ -34,7 +27,10 @@ public class TruststoreModal extends InfoModal {
 	WebElement validFromInput;
 	@FindBy(css = "input[placeholder=\"Valid until\"]")
 	WebElement validToInput;
-
+	public TruststoreModal(WebDriver driver) {
+		super(driver);
+		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
+	}
 
 	public DInput getNameInput() {
 		return new DInput(driver, nameInput);
@@ -57,7 +53,7 @@ public class TruststoreModal extends InfoModal {
 	}
 
 	public HashMap<String, String> getInfo() throws Exception {
-		List<WebElement> inputs = driver.findElements(By.cssSelector("md-dialog-container input"));
+		List<WebElement> inputs = driver.findElements(By.cssSelector("mat-dialog-container input"));
 		HashMap<String, String> info = new HashMap<>();
 
 		for (WebElement input : inputs) {

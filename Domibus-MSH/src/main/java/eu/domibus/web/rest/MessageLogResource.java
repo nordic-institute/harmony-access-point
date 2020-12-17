@@ -1,30 +1,22 @@
 package eu.domibus.web.rest;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
-import eu.domibus.common.NotificationStatus;
-import eu.domibus.common.dao.MessagingDao;
-import eu.domibus.common.dao.UserMessageLogDao;
-import eu.domibus.common.model.configuration.Party;
-import eu.domibus.common.model.logging.MessageLogInfo;
-import eu.domibus.common.model.logging.UserMessageLog;
-import eu.domibus.common.services.MessagesLogService;
-import eu.domibus.core.csv.CsvCustomColumns;
-import eu.domibus.core.csv.CsvExcludedItems;
-import eu.domibus.core.csv.CsvService;
-import eu.domibus.core.csv.CsvServiceImpl;
-import eu.domibus.core.pmode.PModeProvider;
+import eu.domibus.core.message.MessageLogInfo;
+import eu.domibus.core.message.MessagesLogService;
+import eu.domibus.core.message.testservice.TestService;
+import eu.domibus.core.message.testservice.TestServiceException;
+import eu.domibus.core.plugin.notification.NotificationStatus;
 import eu.domibus.core.replication.UIMessageService;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.model.MessageType;
-import eu.domibus.ebms3.common.model.Messaging;
-import eu.domibus.ebms3.common.model.SignalMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.ro.*;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,7 +24,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.PostConstruct;
-import javax.persistence.NoResultException;
 import javax.validation.Valid;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -51,35 +42,50 @@ public class MessageLogResource extends BaseResource {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageLogResource.class);
 
-    private static final String RECEIVED_FROM_STR = "receivedFrom";
-    private static final String RECEIVED_TO_STR = "receivedTo";
+    private static final String MODULE_NAME_MESSAGES = "messages";
 
-    @Autowired
-    private UserMessageLogDao userMessageLogDao;
+    private static final String PROPERTY_CONVERSATION_ID = "conversationId";
+    private static final String PROPERTY_FINAL_RECIPIENT = "finalRecipient";
+    private static final String PROPERTY_FROM_PARTY_ID = "fromPartyId";
+    private static final String PROPERTY_MESSAGE_FRAGMENT = "messageFragment";
+    private static final String PROPERTY_MESSAGE_ID = "messageId";
+    private static final String PROPERTY_MESSAGE_STATUS = "messageStatus";
+    private static final String PROPERTY_MESSAGE_SUBTYPE = "messageSubtype";
+    private static final String PROPERTY_MESSAGE_TYPE = "messageType";
+    private static final String PROPERTY_MSH_ROLE = "mshRole";
+    private static final String PROPERTY_NOTIFICATION_STATUS = "notificationStatus";
+    private static final String PROPERTY_ORIGINAL_SENDER = "originalSender";
+    private static final String PROPERTY_RECEIVED_FROM = "receivedFrom";
+    private static final String PROPERTY_RECEIVED_TO = "receivedTo";
+    private static final String PROPERTY_REF_TO_MESSAGE_ID = "refToMessageId";
+    private static final String PROPERTY_SOURCE_MESSAGE = "sourceMessage";
+    private static final String PROPERTY_TO_PARTY_ID = "toPartyId";
 
-    @Autowired
-    private MessagingDao messagingDao;
+    public static final String COLUMN_NAME_AP_ROLE = "AP Role";
 
-    @Autowired
-    private PModeProvider pModeProvider;
+    private final TestService testService;
 
-    @Autowired
-    private DateUtil dateUtil;
+    private final DateUtil dateUtil;
 
-    @Autowired
-    private CsvServiceImpl csvServiceImpl;
+    private final UIMessageService uiMessageService;
 
-    @Autowired
-    private UIMessageService uiMessageService;
+    private final MessagesLogService messagesLogService;
 
-    @Autowired
-    private MessagesLogService messagesLogService;
+    private final UIReplicationSignalService uiReplicationSignalService;
 
-    @Autowired
-    private UIReplicationSignalService uiReplicationSignalService;
+    private final DomibusConfigurationService domibusConfigurationService;
 
     Date defaultFrom;
     Date defaultTo;
+
+    public MessageLogResource(TestService testService, DateUtil dateUtil, UIMessageService uiMessageService, MessagesLogService messagesLogService, UIReplicationSignalService uiReplicationSignalService, DomibusConfigurationService domibusConfigurationService) {
+        this.testService = testService;
+        this.dateUtil = dateUtil;
+        this.uiMessageService = uiMessageService;
+        this.messagesLogService = messagesLogService;
+        this.uiReplicationSignalService = uiReplicationSignalService;
+        this.domibusConfigurationService = domibusConfigurationService;
+    }
 
     @PostConstruct
     public void init() {
@@ -109,9 +115,9 @@ public class MessageLogResource extends BaseResource {
         if (to == null) {
             to = defaultTo;
         }
-        filters.put(RECEIVED_FROM_STR, from);
-        filters.put(RECEIVED_TO_STR, to);
-        filters.put("messageType", request.getMessageType());
+        filters.put(PROPERTY_RECEIVED_FROM, from);
+        filters.put(PROPERTY_RECEIVED_TO, to);
+        filters.put(PROPERTY_MESSAGE_TYPE, request.getMessageType());
 
         LOG.debug("using filters [{}]", filters);
 
@@ -127,10 +133,10 @@ public class MessageLogResource extends BaseResource {
         }
 
         if (defaultFrom.equals(from)) {
-            filters.remove(RECEIVED_FROM_STR);
+            filters.remove(PROPERTY_RECEIVED_FROM);
         }
         if (defaultTo.equals(to)) {
-            filters.remove(RECEIVED_TO_STR);
+            filters.remove(PROPERTY_RECEIVED_TO);
         }
         result.setFilter(filters);
         result.setMshRoles(MSHRole.values());
@@ -149,108 +155,82 @@ public class MessageLogResource extends BaseResource {
      * @return CSV file with the contents of Messages table
      */
     @GetMapping(path = "/csv")
-    public ResponseEntity<String> getCsv(@Valid MessageLogFilterRequestRO request) {
+    public ResponseEntity<String> getCsv(@Valid final MessageLogFilterRequestRO request) {
         HashMap<String, Object> filters = createFilterMap(request);
 
-        filters.put(RECEIVED_FROM_STR, dateUtil.fromString(request.getReceivedFrom()));
-        filters.put(RECEIVED_TO_STR, dateUtil.fromString(request.getReceivedTo()));
-        filters.put("messageType", request.getMessageType());
+        filters.put(PROPERTY_RECEIVED_FROM, dateUtil.fromString(request.getReceivedFrom()));
+        filters.put(PROPERTY_RECEIVED_TO, dateUtil.fromString(request.getReceivedTo()));
+        filters.put(PROPERTY_MESSAGE_TYPE, request.getMessageType());
 
-        int maxNumberRowsToExport = csvServiceImpl.getMaxNumberRowsToExport();
-
+        int maxNumberRowsToExport = getCsvService().getPageSizeForExport();
         List<MessageLogInfo> resultList;
         if (uiReplicationSignalService.isReplicationEnabled()) {
             /** use TB_MESSAGE_UI table instead */
             resultList = uiMessageService.findPaged(0, maxNumberRowsToExport, request.getOrderBy(), request.getAsc(), filters);
+            getCsvService().validateMaxRows(resultList.size(), () -> uiMessageService.countMessages(filters));
         } else {
             resultList = messagesLogService.findAllInfoCSV(request.getMessageType(), maxNumberRowsToExport, request.getOrderBy(), request.getAsc(), filters);
+            getCsvService().validateMaxRows(resultList.size(), () -> messagesLogService.countMessages(request.getMessageType(), filters));
         }
 
         return exportToCSV(resultList,
                 MessageLogInfo.class,
-                CsvCustomColumns.MESSAGE_RESOURCE.getCustomColumns(),
-                CsvExcludedItems.MESSAGE_LOG_RESOURCE.getExcludedItems(),
-                "messages");
+                ImmutableMap.of(PROPERTY_MSH_ROLE.toUpperCase(), COLUMN_NAME_AP_ROLE),
+                getExcludedProperties(),
+                MODULE_NAME_MESSAGES);
     }
 
+    private List<String> getExcludedProperties() {
+        List<String> excludedProperties = Lists.newArrayList(PROPERTY_SOURCE_MESSAGE, PROPERTY_MESSAGE_FRAGMENT);
+        if(!domibusConfigurationService.isFourCornerEnabled()) {
+            excludedProperties.add(PROPERTY_ORIGINAL_SENDER);
+            excludedProperties.add(PROPERTY_FINAL_RECIPIENT);
+        }
+        LOG.debug("Found properties to exclude from the generated CSV file: {}", excludedProperties);
+        return excludedProperties;
+    }
+
+    /**
+     * This method gets the last send UserMessage for the given party Id
+     *
+     * @param request
+     * @return ResposeEntity of TestServiceMessageInfoRO
+     * @throws TestServiceException
+     */
     @GetMapping(value = "test/outgoing/latest")
-    public ResponseEntity<TestServiceMessageInfoRO> getLastTestSent(@Valid LatestOutgoingMessageRequestRO request) {
-        String partyId = request.getPartyId();
-        LOG.debug("Getting last sent test message for partyId='{}'", partyId);
-
-        String userMessageId = userMessageLogDao.findLastUserTestMessageId(partyId);
-        if (StringUtils.isBlank(userMessageId)) {
-            LOG.debug("Could not find last user message id for party [{}]", partyId);
-            return ResponseEntity.noContent().build();
-        }
-
-        UserMessageLog userMessageLog = null;
-        //TODO create a UserMessageLog object independent of Hibernate annotations in the domibus-api and use the UserMessageLogService instead
-        try {
-            userMessageLog = userMessageLogDao.findByMessageId(userMessageId);
-        } catch (NoResultException ex) {
-            LOG.trace("No UserMessageLog found for message with id [{}]", userMessageId);
-        }
-
-        if (userMessageLog != null) {
-            TestServiceMessageInfoRO testServiceMessageInfoRO = new TestServiceMessageInfoRO();
-            testServiceMessageInfoRO.setMessageId(userMessageId);
-            testServiceMessageInfoRO.setTimeReceived(userMessageLog.getReceived());
-            testServiceMessageInfoRO.setPartyId(partyId);
-            Party party = pModeProvider.getPartyByIdentifier(partyId);
-            testServiceMessageInfoRO.setAccessPoint(party.getEndpoint());
-
-            return ResponseEntity.ok().body(testServiceMessageInfoRO);
-        }
-
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<TestServiceMessageInfoRO> getLastTestSent(@Valid LatestOutgoingMessageRequestRO request) throws TestServiceException {
+        TestServiceMessageInfoRO testServiceMessageInfoRO = testService.getLastTestSentWithErrors(request.getPartyId());
+        return ResponseEntity.ok().body(testServiceMessageInfoRO);
     }
 
+
+    /**
+     * This method gets last Received Signal Message for the given party Id and User MessageId
+     *
+     * @param request
+     * @return ResposeEntity of TestServiceMessageInfoRO
+     * @throws TestServiceException
+     */
     @GetMapping(value = "test/incoming/latest")
-    public ResponseEntity<TestServiceMessageInfoRO> getLastTestReceived(@Valid LatestIncomingMessageRequestRO request) {
-        String partyId = request.getPartyId();
-        String userMessageId = request.getUserMessageId();
-        LOG.debug("Getting last received test message from partyId='{}'", partyId);
-
-        Messaging messaging = messagingDao.findMessageByMessageId(userMessageId);
-        if (messaging == null) {
-            LOG.debug("Could not find messaging for message ID[{}]", userMessageId);
-            return ResponseEntity.noContent().build();
-        }
-
-        SignalMessage signalMessage = messaging.getSignalMessage();
-        if (signalMessage != null) {
-            TestServiceMessageInfoRO testServiceMessageInfoRO = new TestServiceMessageInfoRO();
-            testServiceMessageInfoRO.setMessageId(signalMessage.getMessageInfo().getMessageId());
-            testServiceMessageInfoRO.setTimeReceived(signalMessage.getMessageInfo().getTimestamp());
-            Party party = pModeProvider.getPartyByIdentifier(partyId);
-            testServiceMessageInfoRO.setPartyId(partyId);
-            testServiceMessageInfoRO.setAccessPoint(party.getEndpoint());
-
-            return ResponseEntity.ok().body(testServiceMessageInfoRO);
-        }
-
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<TestServiceMessageInfoRO> getLastTestReceived(@Valid LatestIncomingMessageRequestRO request) throws TestServiceException {
+        TestServiceMessageInfoRO testServiceMessageInfoRO = testService.getLastTestReceivedWithErrors(request.getPartyId(), request.getUserMessageId());
+        return ResponseEntity.ok().body(testServiceMessageInfoRO);
     }
 
     private HashMap<String, Object> createFilterMap(MessageLogFilterRequestRO request) {
         HashMap<String, Object> filters = new HashMap<>();
-        filters.put("messageId", request.getMessageId());
-        filters.put("conversationId", request.getConversationId());
-        filters.put("mshRole", request.getMshRole());
-        filters.put("messageStatus", request.getMessageStatus());
-        filters.put("notificationStatus", request.getNotificationStatus());
-        filters.put("fromPartyId", request.getFromPartyId());
-        filters.put("toPartyId", request.getToPartyId());
-        filters.put("refToMessageId", request.getRefToMessageId());
-        filters.put("originalSender", request.getOriginalSender());
-        filters.put("finalRecipient", request.getFinalRecipient());
-        filters.put("messageSubtype", request.getMessageSubtype());
+        filters.put(PROPERTY_MESSAGE_ID, request.getMessageId());
+        filters.put(PROPERTY_CONVERSATION_ID, request.getConversationId());
+        filters.put(PROPERTY_MSH_ROLE, request.getMshRole());
+        filters.put(PROPERTY_MESSAGE_STATUS, request.getMessageStatus());
+        filters.put(PROPERTY_NOTIFICATION_STATUS, request.getNotificationStatus());
+        filters.put(PROPERTY_FROM_PARTY_ID, request.getFromPartyId());
+        filters.put(PROPERTY_TO_PARTY_ID, request.getToPartyId());
+        filters.put(PROPERTY_REF_TO_MESSAGE_ID, request.getRefToMessageId());
+        filters.put(PROPERTY_ORIGINAL_SENDER, request.getOriginalSender());
+        filters.put(PROPERTY_FINAL_RECIPIENT, request.getFinalRecipient());
+        filters.put(PROPERTY_MESSAGE_SUBTYPE, request.getMessageSubtype());
         return filters;
     }
 
-    @Override
-    public CsvService getCsvService() {
-        return csvServiceImpl;
-    }
 }

@@ -3,7 +3,7 @@ package eu.domibus.core.crypto;
 import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.pki.DomibusCertificateException;
-import eu.domibus.common.services.DomibusCacheService;
+import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.crypto.api.CertificateEntry;
 import eu.domibus.core.crypto.api.DomainCryptoService;
 import eu.domibus.core.crypto.api.DomainCryptoServiceFactory;
@@ -16,6 +16,7 @@ import org.apache.wss4j.common.ext.WSSecurityException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.security.auth.callback.CallbackHandler;
@@ -140,7 +141,6 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     }
 
     @Override
-    @Transactional(noRollbackFor = DomibusCertificateException.class)
     @Cacheable(value = "certValidationByAlias", key = "#domain.code + #alias")
     public boolean isCertificateChainValid(Domain domain, String alias) throws DomibusCertificateException {
         final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);

@@ -3,12 +3,12 @@ package eu.domibus.core.message.acknowledge;
 import eu.domibus.AbstractIT;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
-import eu.domibus.common.NotificationStatus;
-import eu.domibus.common.dao.MessagingDao;
-import eu.domibus.common.dao.SignalMessageDao;
-import eu.domibus.common.dao.SignalMessageLogDao;
-import eu.domibus.common.model.logging.MessageLogInfo;
-import eu.domibus.common.model.logging.SignalMessageLogBuilder;
+import eu.domibus.core.message.MessageLogInfo;
+import eu.domibus.core.message.MessagingDao;
+import eu.domibus.core.message.signal.SignalMessageDao;
+import eu.domibus.core.message.signal.SignalMessageLogBuilder;
+import eu.domibus.core.message.signal.SignalMessageLogDao;
+import eu.domibus.core.plugin.notification.NotificationStatus;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.SignalMessage;
 import eu.domibus.logging.DomibusLogger;
@@ -29,8 +29,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Cosmin Baciu
@@ -65,7 +65,7 @@ public class MessageAcknowledgementDaoTestIT extends AbstractIT {
 
     @Test
     @Transactional
-    public void testSaveMessageAcknowledge() throws Exception {
+    public void testSaveMessageAcknowledge() {
         String user = "baciuco";
         String messageId = "123";
         Timestamp acknowledgetTimestamp = new Timestamp(System.currentTimeMillis());
@@ -81,7 +81,7 @@ public class MessageAcknowledgementDaoTestIT extends AbstractIT {
         final List<MessageAcknowledgementEntity> retrievedEntityList = messageAcknowledgementDao.findByMessageId(messageId);
 
         assertNotNull(retrievedEntityList);
-        assertNotNull(retrievedEntityList.size() == 1);
+        assertEquals(1, retrievedEntityList.size());
 
         final MessageAcknowledgementEntity retrievedEntity = retrievedEntityList.get(0);
         assertEquals(entity.getEntityId(), retrievedEntity.getEntityId());
@@ -91,6 +91,13 @@ public class MessageAcknowledgementDaoTestIT extends AbstractIT {
         assertEquals(entity.getFrom(), retrievedEntity.getFrom());
         assertEquals(entity.getTo(), retrievedEntity.getTo());
         assertEquals(entity.getProperties().iterator().next(), retrievedEntity.getProperties().iterator().next());
+
+        assertNotNull(entity.getCreationTime());
+        assertNotNull(entity.getCreatedBy());
+        assertNotNull(entity.getModificationTime());
+        assertNotNull(entity.getModifiedBy());
+
+        assertEquals(entity.getCreationTime().getTime(), entity.getModificationTime().getTime());
     }
 
     //@Test

@@ -1,7 +1,9 @@
 package eu.domibus.api.usermessage;
 
+import eu.domibus.api.messaging.MessageNotFoundException;
 import eu.domibus.api.usermessage.domain.UserMessage;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
@@ -55,12 +57,10 @@ public interface UserMessageService {
 
     void deleteMessage(String messageId);
 
-    void scheduleSending(String messageId, boolean isSplitAndJoin);
-
     /**
      * Schedules the handling of the SplitAndJoin send failed event
      *
-     * @param groupId The groupId for which the failure will be triggered
+     * @param groupId     The groupId for which the failure will be triggered
      * @param errorDetail The error detail
      */
     void scheduleSplitAndJoinSendFailed(String groupId, String errorDetail);
@@ -116,10 +116,7 @@ public interface UserMessageService {
 
     void scheduleSplitAndJoinReceiveFailed(String groupId, String sourceMessageId, String errorCode, String errorDetail);
 
-    void scheduleSending(String messageId, Long delay, boolean isSplitAndJoin);
-
-    void scheduleSending(String messageId, int retryCount, boolean isSplitAndJoin);
-
+    void scheduleSending(String messageId, Long delay);
 
     /**
      * Schedule the sending of the asynchronous Pull Receipt
@@ -132,10 +129,9 @@ public interface UserMessageService {
     /**
      * Schedule the sending of the asynchronous Pull Receipt (counting the retries)
      *
-     * @param messageId MessageId of the UserMessage (for which the pull receipt was generated)
-     * @param pmodeKey  the pmode key of the UserMessage
+     * @param messageId  MessageId of the UserMessage (for which the pull receipt was generated)
+     * @param pmodeKey   the pmode key of the UserMessage
      * @param retryCount the number of current attempts to send the receipt
-     *
      */
     void scheduleSendingPullReceipt(String messageId, String pmodeKey, int retryCount);
 
@@ -146,4 +142,22 @@ public interface UserMessageService {
      * @return User Message {@link UserMessage}
      */
     UserMessage getMessage(String messageId);
+
+    /**
+     * Retrieves a message by id as a byte array
+     * @param messageId
+     * @return the message serialized as byte array
+     * @throws MessageNotFoundException in case there is no message with this id
+     */
+    byte[] getMessageAsBytes(String messageId) throws MessageNotFoundException;
+
+    /**
+     * Retrieves the message content as a zip file(used for downloading a message)
+     * @param messageId
+     * @return a zip file with the message content
+     * @throws MessageNotFoundException in case the message does nor exists or the content could not be retrieved( already sent and deleted)
+     * @throws IOException in case a read error
+     */
+    byte[] getMessageWithAttachmentsAsZip(String messageId) throws MessageNotFoundException, IOException;
+
 }

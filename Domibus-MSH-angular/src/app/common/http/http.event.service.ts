@@ -1,6 +1,5 @@
 import {Injectable} from '@angular/core';
 import {Subject} from 'rxjs/Subject';
-import {Response} from '@angular/http';
 
 @Injectable()
 export class HttpEventService extends Subject<any> {
@@ -8,7 +7,7 @@ export class HttpEventService extends Subject<any> {
     super();
   }
 
-  requestForbiddenEvent (error: Response) {
+  requestForbiddenEvent (error: any) {
     if (error) {
       super.next(error);
     }

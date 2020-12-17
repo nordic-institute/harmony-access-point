@@ -20,7 +20,18 @@ public class JmsMessageCreator implements MessageCreator {
 
     @Override
     public Message createMessage(Session session) throws JMSException {
-        if(InternalJmsMessage.MessageType.MAP_MESSAGE == internalJmsMessage.getMessageType()) {
+        Message message = doCreateMessage(session);
+
+        Integer priority = internalJmsMessage.getPriority();
+        if (priority != null) {
+            message.setJMSPriority(priority);
+            message.setStringProperty(InternalJmsMessage.MESSAGE_PRIORITY_USED, "true");
+        }
+        return message;
+    }
+
+    protected Message doCreateMessage(Session session) throws JMSException {
+        if (InternalJmsMessage.MessageType.MAP_MESSAGE == internalJmsMessage.getMessageType()) {
             return createMapMessage(session);
         }
         return createTextMessage(session);
@@ -31,11 +42,11 @@ public class JmsMessageCreator implements MessageCreator {
         if (internalJmsMessage.getType() != null) {
             result.setJMSType(internalJmsMessage.getType());
         }
-        Map<String, Object> customProperties = internalJmsMessage.getCustomProperties();
+        Map<String, String> customProperties = internalJmsMessage.getCustomProperties();
         if (!customProperties.isEmpty()) {
             for (String pName : customProperties.keySet()) {
-                Object pValue = customProperties.get(pName);
-                result.setObjectProperty(pName, pValue);
+                String pValue = customProperties.get(pName);
+                result.setStringProperty(pName, pValue);
             }
         }
         return result;
@@ -48,11 +59,11 @@ public class JmsMessageCreator implements MessageCreator {
         if (internalJmsMessage.getType() != null) {
             result.setJMSType(internalJmsMessage.getType());
         }
-        Map<String, Object> customProperties = internalJmsMessage.getCustomProperties();
+        Map<String, String> customProperties = internalJmsMessage.getCustomProperties();
         if (!customProperties.isEmpty()) {
             for (String pName : customProperties.keySet()) {
-                Object pValue = customProperties.get(pName);
-                result.setObjectProperty(pName, pValue);
+                String pValue = customProperties.get(pName);
+                result.setStringProperty(pName, pValue);
             }
         }
         return result;

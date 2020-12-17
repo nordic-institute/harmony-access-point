@@ -6,7 +6,7 @@ package ddsl.enums;
  */
 
 public enum PAGES {
-
+	
 	MESSAGES,
 	MESSAGE_FILTER,
 	ERROR_LOG,
@@ -19,9 +19,9 @@ public enum PAGES {
 	PLUGIN_USERS,
 	AUDIT,
 	ALERTS,
-	TEST_SERVICE,
-	LOGGING
-
+	LOGGING,
+	CONNECTION_MONITORING,
+	PROPERTIES;
 
 
 }

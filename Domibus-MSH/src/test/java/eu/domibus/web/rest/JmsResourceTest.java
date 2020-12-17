@@ -1,14 +1,15 @@
 package eu.domibus.web.rest;
 
+import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.jms.JMSDestination;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
-import eu.domibus.common.services.AuditService;
+import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.csv.CsvServiceImpl;
+import eu.domibus.jms.spi.InternalJMSException;
+import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.*;
-import mockit.Expectations;
-import mockit.Injectable;
-import mockit.Tested;
+import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
@@ -22,14 +23,22 @@ import java.util.*;
  * @author Tiago Miguel
  * @since 3.3
  */
+@SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(JMockit.class)
 public class JmsResourceTest {
 
+    public static final List<String> MESSAGES_IDS = Arrays.asList("message1", "message2");
+    public static final String DOMIBUS_QUEUE_1 = "domibus.queue1";
+    public static final String SOURCE_1 = "source1";
+
+    @Mocked
+    private MessagesActionRequestRO messagesActionRequestRO;
+
     @Tested
-    JmsResource jmsResource;
+    private JmsResource jmsResource;
 
     @Injectable
-    JMSManager jmsManager;
+    private JMSManager jmsManager;
 
     @Injectable
     private AuditService auditService;
@@ -37,159 +46,194 @@ public class JmsResourceTest {
     @Injectable
     private CsvServiceImpl csvServiceImpl;
 
+    @Injectable
+    private ErrorHandlerService errorHandlerService;
+
     @Test
     public void testDestinations() {
+        SortedMap<String, JMSDestination> dests = new TreeMap<>();
         // Given
-        final SortedMap<String, JMSDestination> resultMap = new TreeMap<>();
-        JMSDestination destination1 = new JMSDestination();
-        destination1.setName("destination1");
-        resultMap.put("test1", destination1);
         new Expectations() {{
             jmsManager.getDestinations();
-            result = resultMap;
+            result = dests;
         }};
 
         // When
-        ResponseEntity<DestinationsResponseRO> responseEntity = jmsResource.destinations();
-        DestinationsResponseRO destinations = responseEntity.getBody();
+        DestinationsResponseRO destinations = jmsResource.destinations();
 
         // Then
         Assert.assertNotNull(destinations);
-        Assert.assertEquals(1, destinations.getJmsDestinations().size());
-        JMSDestination jmsDestinationTest1 = destinations.getJmsDestinations().get("test1");
-        Assert.assertEquals("destination1", jmsDestinationTest1.getName());
+        Assert.assertEquals(dests, destinations.getJmsDestinations());
+
+        new FullVerifications() {
+        };
     }
 
     @Test
-    public void testMessages() {
+    public void testMessages(final @Mocked JmsFilterRequestRO requestRO) {
         // Given
-        JmsFilterRequestRO requestRO = new JmsFilterRequestRO();
-
         final List<JmsMessage> jmsMessageList = new ArrayList<>();
-        JmsMessage jmsMessage = new JmsMessage();
-        jmsMessage.setId("jmsMessageId");
-        jmsMessage.setType("type1");
-        jmsMessage.setContent("content1");
-        jmsMessage.setProperty("prop1", "value1");
-        jmsMessage.setTimestamp(new Date());
-        jmsMessageList.add(jmsMessage);
 
         new Expectations() {{
+            requestRO.getSource();
+            times = 1;
+            requestRO.getJmsType();
+            times = 1;
+            requestRO.getFromDate();
+            times = 1;
+            requestRO.getToDate();
+            times = 1;
+            requestRO.getSelector();
+            times = 1;
             jmsManager.browseMessages(anyString, anyString, (Date) any, (Date) any, anyString);
             result = jmsMessageList;
         }};
 
         // When
-        ResponseEntity<MessagesResponseRO> messages = jmsResource.messages(requestRO);
+        MessagesResponseRO messages = jmsResource.messages(requestRO);
 
         // Then
         Assert.assertNotNull(messages);
-        Assert.assertEquals(jmsMessageList, messages.getBody().getMessages());
+        Assert.assertEquals(jmsMessageList, messages.getMessages());
+        new FullVerifications() {
+        };
     }
 
     @Test
-    public void testActionMoveNoValidParam() {
+    public void testAction_wrongAction() {
         // Given
-        SortedMap<String, JMSDestination> dests = new TreeMap<>();
-        dests.put("domibus.queue1", new JMSDestination());
         new Expectations() {{
-            jmsManager.getDestinations();
-            result = dests;
+            messagesActionRequestRO.getSelectedMessages();
+            result = new ArrayList<>();
+            times = 1;
+            messagesActionRequestRO.getAction();
+            result = null;
         }};
-
-        List<String> selectedMessages = new ArrayList<>();
-        selectedMessages.add("message1");
-        MessagesActionRequestRO request = new MessagesActionRequestRO();
-        request.setAction(MessagesActionRequestRO.Action.MOVE);
-        request.setSource("source1");
-        request.setDestination("domibus.queue2");
-        request.setSelectedMessages(selectedMessages);
 
         // When
-        ResponseEntity<MessagesActionResponseRO> responseEntity = jmsResource.action(request);
+        try {
+            jmsResource.action(messagesActionRequestRO);
+            Assert.fail();
+        } catch (RequestValidationException e) {
+            //do nothing
+        }
 
-        // Then
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
+        new FullVerifications() {
+        };
     }
 
     @Test
-    public void testActionMove() {
-        SortedMap<String, JMSDestination> dests = new TreeMap<>();
-        dests.put("domibus.queue1", new JMSDestination() {{ setName("domibus.queue1"); }});
+    public void testActionMove_ok(final @Mocked SortedMap<String, JMSDestination> dests,
+                                  final @Mocked JMSDestination queue1,
+                                  final @Mocked JMSDestination queue2) {
+        // Given
         new Expectations() {{
-            jmsManager.getDestinations();
-            result = dests;
+            messagesActionRequestRO.getSelectedMessages();
+            result = MESSAGES_IDS;
+
+            messagesActionRequestRO.getAction();
+            result = MessagesActionRequestRO.Action.MOVE;
+
+            messagesActionRequestRO.getDestination();
+            result = DOMIBUS_QUEUE_1;
+
+            messagesActionRequestRO.getSource();
+            result = SOURCE_1;
         }};
-        testAction(MessagesActionRequestRO.Action.MOVE);
+        // When
+        MessagesActionResponseRO responseEntity = jmsResource.action(messagesActionRequestRO);
+
+        // Then
+        Assert.assertNotNull(responseEntity);
+        Assert.assertEquals("Success", responseEntity.getOutcome());
+
+        new FullVerifications() {{
+            jmsManager.moveMessages(SOURCE_1, DOMIBUS_QUEUE_1, MESSAGES_IDS.toArray(new String[0]));
+            times = 1;
+        }};
     }
 
     @Test
     public void testActionRemove() {
-        testAction(MessagesActionRequestRO.Action.REMOVE);
-    }
-
-    private void testAction(MessagesActionRequestRO.Action action) {
         // Given
-        List<String> selectedMessages = new ArrayList<>();
-        selectedMessages.add("message1");
-        MessagesActionRequestRO request = new MessagesActionRequestRO();
-        request.setAction(action);
-        request.setSource("source1");
-        request.setDestination("domibus.queue1");
-        request.setSelectedMessages(selectedMessages);
+        new Expectations() {{
+            messagesActionRequestRO.getSelectedMessages();
+            result = MESSAGES_IDS;
+
+            messagesActionRequestRO.getAction();
+            result = MessagesActionRequestRO.Action.REMOVE;
+
+            messagesActionRequestRO.getSource();
+            result = "source1";
+        }};
 
         // When
-        ResponseEntity<MessagesActionResponseRO> responseEntity = jmsResource.action(request);
+        MessagesActionResponseRO responseEntity = jmsResource.action(messagesActionRequestRO);
 
         // Then
         Assert.assertNotNull(responseEntity);
-        Assert.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        Assert.assertEquals("application/json", responseEntity.getHeaders().get("Content-Type").get(0));
-        Assert.assertEquals("Success", responseEntity.getBody().getOutcome());
+        Assert.assertEquals("Success", responseEntity.getOutcome());
+
+        new FullVerifications() {{
+            jmsManager.deleteMessages(anyString, (String[]) any);
+            times = 1;
+        }};
     }
 
     @Test
-    public void testActionException() {
+    public void testActionRemove_InternalJMSException() {
         // Given
-        MessagesActionRequestRO request = new MessagesActionRequestRO();
-        request.setSelectedMessages(null); // force runtime exception
+        new Expectations() {{
+            messagesActionRequestRO.getSelectedMessages();
+            result = Arrays.asList("message1", "message2");
 
+            messagesActionRequestRO.getAction();
+            result = MessagesActionRequestRO.Action.REMOVE;
+
+            messagesActionRequestRO.getSource();
+            result = "source1";
+
+            jmsManager.deleteMessages(anyString, (String[]) any);
+            times = 1;
+            result = new InternalJMSException();
+        }};
         // When
-        ResponseEntity<MessagesActionResponseRO> responseEntity = jmsResource.action(request);
-
+        try {
+            jmsResource.action(messagesActionRequestRO);
+        } catch (InternalJMSException e) {
+            //Do nothing
+        }
         // Then
-        Assert.assertNotNull(responseEntity);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
-        Assert.assertEquals("application/json", responseEntity.getHeaders().get("Content-Type").get(0));
-        Assert.assertNull(responseEntity.getBody().getOutcome());
+        new FullVerifications() {
+        };
     }
 
+    @Test
+    public void testGetCsv(@Injectable JmsMessage jmsMessage) {
+        // Given
+        String source = "source";
+        String jmsType = null;
+        String selector = "selector";
+        List<JmsMessage> jmsMessageList = new ArrayList<>();
+        String mockCsvResult = "csv";
 
-//    @Test
-//    public void testGetCsv() throws EbMS3Exception {
-//        // Given
-//        String source = "";
-//        String jmsType = null;
-//        Long fromDate = LocalDate.now().plusDays(-10).toEpochDay();
-//        Long toDate = LocalDate.now().toEpochDay();
-//        String selector = "";
-//        JmsMessage jmsMessage = new JmsMessage();
-//        List<JmsMessage> jmsMessageList = Arrays.asList(jmsMessage);
-//        String mockCsvResult = "csv";
-//
-//        new Expectations(jmsResource) {{
-//            jmsManager.browseMessages(source, jmsType, (Date) any, (Date) any, selector);
-//            result = jmsMessageList;
-//            csvServiceImpl.exportToCSV(jmsMessageList, JmsMessage.class, (Map<String, String>) any, (List<String>) any);
-//            result = mockCsvResult;
-//        }};
-//
-//        // When
-//        final ResponseEntity<String> csv = jmsResource.getCsv(source, jmsType, fromDate, toDate, selector);
-//
-//        // Then
-//        Assert.assertEquals(HttpStatus.OK, csv.getStatusCode());
-//        Assert.assertEquals(mockCsvResult, csv.getBody());
-//    }
+        new Expectations(jmsResource) {{
+            jmsManager.browseMessages(source, jmsType, (Date) any, (Date) any, selector);
+            result = jmsMessageList;
+            csvServiceImpl.exportToCSV(jmsMessageList, JmsMessage.class, (Map<String, String>) any, (List<String>) any);
+            result = mockCsvResult;
+        }};
+
+        // When
+        final ResponseEntity<String> csv = jmsResource.getCsv(new JmsFilterRequestRO() {{
+            setSource(source);
+            setSelector(selector);
+            setJmsType(jmsType);
+        }});
+
+        // Then
+        Assert.assertEquals(HttpStatus.OK, csv.getStatusCode());
+        Assert.assertEquals(mockCsvResult, csv.getBody());
+    }
 
 }

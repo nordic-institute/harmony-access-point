@@ -1,27 +1,28 @@
 package eu.domibus.web.rest;
 
 import com.google.common.base.Strings;
-import eu.domibus.api.configuration.DomibusConfigurationService;
+import com.google.common.collect.ImmutableMap;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.DomainTaskException;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.user.User;
 import eu.domibus.api.user.UserManagementException;
 import eu.domibus.api.user.UserRole;
 import eu.domibus.api.user.UserState;
-import eu.domibus.common.services.UserService;
 import eu.domibus.core.converter.DomainCoreConverter;
-import eu.domibus.core.csv.CsvCustomColumns;
-import eu.domibus.core.csv.CsvExcludedItems;
-import eu.domibus.core.csv.CsvService;
-import eu.domibus.core.csv.CsvServiceImpl;
-import eu.domibus.ext.rest.ErrorRO;
+import eu.domibus.core.user.UserService;
+import eu.domibus.core.user.multitenancy.SuperUserManagementServiceImpl;
+import eu.domibus.core.user.ui.UserManagementServiceImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.error.ErrorHandlerService;
+import eu.domibus.web.rest.ro.ErrorRO;
+import eu.domibus.web.rest.ro.UserFilterRequestRO;
 import eu.domibus.web.rest.ro.UserResponseRO;
+import eu.domibus.web.rest.ro.UserResultRO;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -50,19 +51,16 @@ public class UserResource extends BaseResource {
 
     @Autowired
     @Lazy
-    @Qualifier("superUserManagementService")
+    @Qualifier(SuperUserManagementServiceImpl.BEAN_NAME)
     private UserService superUserManagementService;
 
     @Autowired
     @Lazy
-    @Qualifier("userManagementService")
+    @Qualifier(UserManagementServiceImpl.BEAN_NAME)
     private UserService userManagementService;
 
     @Autowired
     private DomainCoreConverter domainConverter;
-
-    @Autowired
-    private CsvServiceImpl csvServiceImpl;
 
     @Autowired
     private AuthUtils authUtils;
@@ -72,14 +70,6 @@ public class UserResource extends BaseResource {
 
     @Autowired
     private DomibusConfigurationService domibusConfigurationService;
-
-    private UserService getUserService() {
-        if (authUtils.isSuperAdmin()) {
-            return superUserManagementService;
-        } else {
-            return userManagementService;
-        }
-    }
 
     @ExceptionHandler({UserManagementException.class})
     public ResponseEntity<ErrorRO> handleUserManagementException(UserManagementException ex) {
@@ -100,7 +90,7 @@ public class UserResource extends BaseResource {
      * {@inheritDoc}
      */
     @GetMapping(value = {"/users"})
-    public List<UserResponseRO> users() {
+    public List<UserResponseRO> getUsers() {
         LOG.debug("Retrieving users");
 
         List<User> users = getUserService().findUsers();
@@ -115,27 +105,6 @@ public class UserResource extends BaseResource {
         updateUserRoles(userROS);
         List<User> users = domainConverter.convert(userROS, User.class);
         getUserService().updateUsers(users);
-    }
-
-    private void validateUsers(List<UserResponseRO> users) {
-        users.forEach(user -> {
-            if (Strings.isNullOrEmpty(user.getUserName())) {
-                throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "User name cannot be null.");
-            }
-
-            if (Strings.isNullOrEmpty(user.getRoles())) {
-                throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "User role cannot be null.");
-            }
-        });
-    }
-
-    private void updateUserRoles(List<UserResponseRO> userROS) {
-        for (UserResponseRO userRo : userROS) {
-            if (Objects.equals(userRo.getStatus(), UserState.NEW.name()) || Objects.equals(userRo.getStatus(), UserState.UPDATED.name())) {
-                List<String> auths = Arrays.asList(userRo.getRoles().split(","));
-                userRo.setAuthorities(auths);
-            }
-        }
     }
 
     @GetMapping(value = {"/userroles"})
@@ -160,23 +129,68 @@ public class UserResource extends BaseResource {
      * @return CSV file with the contents of User table
      */
     @GetMapping(path = "/csv")
-    public ResponseEntity<String> getCsv() {
+    public ResponseEntity<String> getCsv(UserFilterRequestRO request) {
+        request.setPageStart(0);
+        request.setPageSize(getCsvService().getPageSizeForExport());
+        final UserResultRO result = retrieveAndPackageUsers(request);
 
-        // get list of users
-        final List<UserResponseRO> userResponseROList = users();
+        getCsvService().validateMaxRows(result.getEntries().size(),
+                () -> getUserService().countUsers(request.getAuthRole(), request.getUserName(), request.getDeleted()));
 
-        return exportToCSV(userResponseROList, UserResponseRO.class,
-                CsvCustomColumns.USER_RESOURCE.getCustomColumns(),
+
+        return exportToCSV(result.getEntries(),
+                UserResponseRO.class,
+                ImmutableMap.of(
+                        "UserName".toUpperCase(), "Username",
+                        "Roles".toUpperCase(), "Role"
+                ),
                 domibusConfigurationService.isMultiTenantAware() ?
-                        CsvExcludedItems.USER_RESOURCE_MULTI.getExcludedItems() :
-                        CsvExcludedItems.USER_RESOURCE.getExcludedItems(),
+                        Arrays.asList("authorities", "status", "password", "suspended") :
+                        Arrays.asList("authorities", "status", "password", "suspended", "domain"),
                 "users");
     }
 
+    private UserService getUserService() {
+        if (authUtils.isSuperAdmin()) {
+            return superUserManagementService;
+        } else {
+            return userManagementService;
+        }
+    }
 
-    @Override
-    public CsvService getCsvService() {
-        return csvServiceImpl;
+    protected UserResultRO retrieveAndPackageUsers(UserFilterRequestRO request) {
+        LOG.debug("Retrieving users.");
+        List<User> users = getUserService().findUsersWithFilters(request.getAuthRole(), request.getUserName(), request.getDeleted(),
+                request.getPageStart(), request.getPageSize());
+        List<UserResponseRO> userResponseROS = prepareResponse(users);
+        UserResultRO result = new UserResultRO();
+        result.setEntries(userResponseROS);
+        result.setPage(request.getPageStart());
+        result.setPageSize(request.getPageSize());
+
+        return result;
+    }
+
+
+    private void validateUsers(List<UserResponseRO> users) {
+        users.forEach(user -> {
+            if (Strings.isNullOrEmpty(user.getUserName())) {
+                throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "User name cannot be null.");
+            }
+
+            if (Strings.isNullOrEmpty(user.getRoles())) {
+                throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "User role cannot be null.");
+            }
+        });
+    }
+
+    private void updateUserRoles(List<UserResponseRO> userROS) {
+        for (UserResponseRO userRo : userROS) {
+            if (Objects.equals(userRo.getStatus(), UserState.NEW.name()) || Objects.equals(userRo.getStatus(), UserState.UPDATED.name())) {
+                List<String> auths = Arrays.asList(userRo.getRoles().split(","));
+                userRo.setAuthorities(auths);
+            }
+        }
     }
 
     /**
@@ -185,7 +199,7 @@ public class UserResource extends BaseResource {
      * @param users
      * @return a list of
      */
-    private List<UserResponseRO> prepareResponse(List<User> users) {
+    protected List<UserResponseRO> prepareResponse(List<User> users) {
         List<UserResponseRO> userResponseROS = domainConverter.convert(users, UserResponseRO.class);
         for (UserResponseRO userResponseRO : userResponseROS) {
             userResponseRO.setStatus("PERSISTED");

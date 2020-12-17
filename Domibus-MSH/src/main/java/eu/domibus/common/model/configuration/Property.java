@@ -16,7 +16,7 @@ import javax.xml.bind.annotation.XmlType;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "")
 @Entity(name = "CONFIGURATION_PROPERTY")
-@Table(name = "TB_MESSAGE_PROPERTY")
+@Table(name = "TB_PM_MESSAGE_PROPERTY")
 public class Property extends AbstractBaseEntity {
 
     @XmlAttribute(name = "name", required = true)

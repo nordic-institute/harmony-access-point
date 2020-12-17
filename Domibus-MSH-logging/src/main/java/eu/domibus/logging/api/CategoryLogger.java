@@ -159,7 +159,10 @@ public class CategoryLogger extends LoggerWrapper implements Logger {
     }
 
     public String getMDC(String key) {
-        return MDC.get(getMDCKey(key));
+        final String mdcKey = getMDCKey(key);
+        String val = MDC.get(mdcKey);
+        LOG.trace("Found key [{}] with value [{}] in MDC", mdcKey, val);
+        return val;
     }
 
     public String getMDCKey(String key) {

@@ -1,8 +1,6 @@
 package eu.domibus.web.security;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.common.model.security.UserDetail;
-import eu.domibus.common.services.impl.UserDetailServiceImpl;
 import mockit.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -12,6 +10,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PASSWORD_POLICY_CHECK_DEFAULT_PASSWORD;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -31,7 +30,7 @@ public class DefaultPasswordInterceptorTest {
     @Before
     public void setup() {
         new NonStrictExpectations() {{
-            domibusPropertyProvider.getProperty(UserDetailServiceImpl.CHECK_DEFAULT_PASSWORD);
+            domibusPropertyProvider.getProperty(DOMIBUS_PASSWORD_POLICY_CHECK_DEFAULT_PASSWORD);
             result = "true";
             SecurityContextHolder.getContext().getAuthentication();
             result = authentication;
@@ -71,7 +70,7 @@ public class DefaultPasswordInterceptorTest {
                                                  @Injectable final HttpServletResponse httpServletResponse,
                                                  @Injectable final Object handler) throws Exception {
         new Expectations() {{
-            domibusPropertyProvider.getProperty(UserDetailServiceImpl.CHECK_DEFAULT_PASSWORD);
+            domibusPropertyProvider.getProperty(DOMIBUS_PASSWORD_POLICY_CHECK_DEFAULT_PASSWORD);
             result = "false";
         }};
 

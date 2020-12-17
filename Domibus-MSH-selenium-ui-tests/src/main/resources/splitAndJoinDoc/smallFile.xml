@@ -33,7 +33,8 @@
 			<mep name="oneway" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/oneWay"/>
 			<mep name="twoway" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/twoWay"/>
 			<binding name="push" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/push"/>
-			<binding name="pushAndPush" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/push-and-push"/>
+			<binding name="pushAndPush"
+					 value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/push-and-push"/>
 		</meps>
 		<properties>
 			<property name="originalSenderProperty"
@@ -58,7 +59,7 @@
 					 cid="cid:attachment"
 					 required="false"
 					 mimeType="application/octet-stream"/>
-			<payloadProfile name="MessageProfile" maxSize="40894464"> <!-- maxSize is currently ignored -->
+			<payloadProfile name="MessageProfile" maxSize="2147483647">
 				<attachment name="businessContentPayload"/>
 				<attachment name="businessContentAttachment"/>
 			</payloadProfile>
@@ -66,7 +67,7 @@
 		<securities>
 			<security name="eDeliveryAS4Policy"
 					  policy="eDeliveryAS4Policy.xml"
-					  signatureMethod="RSA_SHA256" />
+					  signatureMethod="RSA_SHA256"/>
 		</securities>
 		<errorHandlings>
 			<errorHandling name="demoErrorHandling"
@@ -112,7 +113,7 @@
 							  payloadProfile="MessageProfile"
 							  errorHandling="demoErrorHandling"
 							  compressPayloads="true"
-			splitting="default"/>
+							  splitting="default"/>
 			<legConfiguration name="testServiceCase"
 							  service="testService"
 							  action="testAction"

@@ -1,17 +1,22 @@
 package eu.domibus.core.message.testservice;
 
 import com.thoughtworks.xstream.XStream;
-import eu.domibus.core.pmode.PModeProvider;
-import eu.domibus.ebms3.common.model.Ebms3Constants;
+import eu.domibus.common.model.configuration.Agreement;
+import eu.domibus.common.model.configuration.Party;
+import eu.domibus.core.ebms3.Ebms3Constants;
+import eu.domibus.core.error.ErrorLogDao;
+import eu.domibus.core.message.MessagingDao;
+import eu.domibus.core.message.UserMessageLog;
+import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.message.signal.SignalMessageLogDao;
+import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
+import eu.domibus.core.pmode.provider.PModeProvider;
+import eu.domibus.ebms3.common.model.Messaging;
+import eu.domibus.ebms3.common.model.SignalMessage;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.Submission;
-import eu.domibus.plugin.handler.DatabaseMessageHandler;
-import mockit.Deencapsulation;
-import mockit.Expectations;
-import mockit.Injectable;
-import mockit.Mocked;
-import mockit.NonStrictExpectations;
-import mockit.Tested;
+import eu.domibus.web.rest.ro.TestServiceMessageInfoRO;
+import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Before;
@@ -40,6 +45,21 @@ public class TestServiceTest {
     private PModeProvider pModeProvider;
 
     @Injectable
+    private UserMessageLogDao userMessageLogDao;
+
+    @Injectable
+    private SignalMessageLogDao signalMessageLogDao;
+
+    @Injectable
+    private UserMessageLog userMessageLog;
+
+    @Injectable
+    private MessagingDao messagingDao;
+
+    @Injectable
+    private ErrorLogDao errorLogDao;
+
+    @Injectable
     private DatabaseMessageHandler databaseMessageHandler;
 
     @Rule
@@ -47,6 +67,9 @@ public class TestServiceTest {
 
     @Mocked
     private XStream xStream;
+
+    @Mocked
+    SignalMessage signalMessage;
 
     private String sender;
 
@@ -69,10 +92,13 @@ public class TestServiceTest {
 
     private String responderRole;
 
-    private String agreement;
+    private Agreement agreement;
 
     private String messageId, returnedMessageId;
 
+    private String partyId = "test";
+
+    private String userMessageId = "testmessageid";
 
     @Before
     public void setUp() {
@@ -83,29 +109,6 @@ public class TestServiceTest {
             xStream.fromXML((InputStream) any);
             result = submission;
         }};
-    }
-
-    @Test
-    public void failsToCreateTheMessageDataToSubmitWhenTheSenderIsNull() {
-        givenSender(null);
-
-        // Expected exception
-        thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage("partyId must not be empty");
-
-        whenCreatingTheSubmissionMessageData();
-    }
-
-    @Test
-    public void failsToCreateTheMessageDataToSubmitWhenTheInitiatorRoleIsNull() {
-        givenSenderCorrectlySet();
-        givenInitiatorRole(null);
-
-        // Expected exception
-        thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage("from role must not be empty");
-
-        whenCreatingTheSubmissionMessageData();
     }
 
     @Test
@@ -160,7 +163,9 @@ public class TestServiceTest {
     @Test
     public void createsTheMessageDataToSubmitHavingTheCorrectAgreementReference() {
         givenSenderAndInitiatorCorrectlySet();
-        givenAgreementReference("agreement");
+        Agreement agreement = new Agreement();
+        agreement.setValue("agreement");
+        givenAgreementReference(agreement);
 
         whenCreatingTheSubmissionMessageData();
 
@@ -175,7 +180,6 @@ public class TestServiceTest {
 
         thenTheConversationIdentifierIsCorrectlyDefined();
     }
-
 
 
     @Test
@@ -286,7 +290,7 @@ public class TestServiceTest {
         }};
     }
 
-    private void givenAgreementReference(String agreement) {
+    private void givenAgreementReference(Agreement agreement) {
         this.agreement = agreement;
         new Expectations() {{
             pModeProvider.getAgreementRef(Ebms3Constants.TEST_SERVICE);
@@ -307,10 +311,10 @@ public class TestServiceTest {
     }
 
     private void whenCreatingTheSubmissionMessageData() {
-        returnedSubmission = Deencapsulation.invoke(testService, "createSubmission", new Class[] {String.class}, sender);
+        returnedSubmission = Deencapsulation.invoke(testService, "createSubmission", new Class[]{String.class}, sender);
     }
 
-    private void whenSubmittingTheTestMessageNormallyWithoutDynamicDiscovery() throws Exception{
+    private void whenSubmittingTheTestMessageNormallyWithoutDynamicDiscovery() throws Exception {
         returnedMessageId = testService.submitTest(sender, receiver);
     }
 
@@ -365,11 +369,135 @@ public class TestServiceTest {
     }
 
     private void thenTheAgreementReferenceIsCorrectlyDefined() {
-        Assert.assertEquals("The agreement reference should have been correctly defined", agreement, returnedSubmission.getAgreementRef());
+        Assert.assertEquals("The agreement reference should have been correctly defined", agreement.getValue(), returnedSubmission.getAgreementRef());
     }
 
     private void thenTheConversationIdentifierIsCorrectlyDefined() {
         Assert.assertEquals("The conversation identifier should have been correctly defined since it's required and the Access Point MUST set its value to \"1\" " +
                 "according to section 4.3 of the [ebMS3CORE] specification", "1", returnedSubmission.getConversationId());
+    }
+
+    @Test
+    public void testGetLastTestSent() {
+        new Expectations() {{
+            new XStream();
+            times = 0;
+            xStream.fromXML((InputStream) any);
+            times = 0;
+            userMessageLogDao.findLastTestMessageId(partyId);
+            result = userMessageId;
+            userMessageLogDao.findByMessageId(userMessageId);
+            result = userMessageLog;
+        }};
+        TestServiceMessageInfoRO lastTestSent = testService.getLastTestSentWithErrors(partyId);
+        Assert.assertEquals(partyId, lastTestSent.getPartyId());
+    }
+
+    @Test(expected = TestServiceException.class)
+    public void testGetLastTestSent_NotFound() throws TestServiceException {
+        // Given
+        new Expectations() {{
+            new XStream();
+            times = 0;
+            xStream.fromXML((InputStream) any);
+            times = 0;
+            userMessageLogDao.findLastTestMessageId(anyString);
+            result = userMessageId;
+            userMessageLogDao.findByMessageId(userMessageId);
+            result = null;
+        }};
+
+        // When
+        testService.getLastTestSentWithErrors(partyId);
+    }
+
+    @Test
+    public void testGetLastTestReceivedWithUserMessageId(@Injectable Messaging messaging, @Injectable Party party) throws TestServiceException {
+        // Given
+        new Expectations() {{
+            party.getEndpoint();
+            result = "testEndpoint";
+            new XStream();
+            times = 0;
+            xStream.fromXML((InputStream) any);
+            times = 0;
+            messagingDao.findMessageByMessageId(anyString);
+            result = messaging;
+            messaging.getSignalMessage();
+            result = signalMessage;
+            pModeProvider.getPartyByIdentifier(partyId);
+            result = party;
+        }};
+
+        // When
+        TestServiceMessageInfoRO lastTestReceived = testService.getLastTestReceivedWithErrors(partyId, userMessageId);
+
+        // Then
+        TestServiceMessageInfoRO testServiceMessageInfoRO = lastTestReceived;
+        Assert.assertEquals(testServiceMessageInfoRO.getMessageId(), signalMessage.getMessageInfo().getMessageId());
+        Assert.assertEquals(testServiceMessageInfoRO.getPartyId(), partyId);
+        Assert.assertEquals(testServiceMessageInfoRO.getTimeReceived(), signalMessage.getMessageInfo().getTimestamp());
+        Assert.assertEquals(testServiceMessageInfoRO.getAccessPoint(), party.getEndpoint());
+    }
+
+    @Test(expected = Exception.class)
+    public void testGetLastTestReceived_NotFound(@Injectable Messaging messaging) throws Exception {
+        // Given
+        new Expectations() {{
+            new XStream();
+            times = 0;
+            xStream.fromXML((InputStream) any);
+            times = 0;
+            messagingDao.findMessageByMessageId(anyString);
+            result = messaging;
+            messaging.getSignalMessage();
+            result = null;
+        }};
+
+        testService.getLastTestReceivedWithErrors(partyId, userMessageId);
+    }
+
+    @Test
+    public void testGetLastTestReceived(@Injectable Party party) throws TestServiceException {
+        // Given
+        new Expectations() {{
+            party.getEndpoint();
+            result = "testEndpoint";
+            new XStream();
+            times = 0;
+            xStream.fromXML((InputStream) any);
+            times = 0;
+            signalMessageLogDao.findLastTestMessageId(partyId);
+            result = "signalMessageId";
+            messagingDao.findSignalMessageByMessageId("signalMessageId");
+            result = signalMessage;
+            pModeProvider.getPartyByIdentifier(partyId);
+            result = party;
+        }};
+
+        // When
+        TestServiceMessageInfoRO lastTestReceived = testService.getLastTestReceived(partyId, null);
+
+        // Then
+        TestServiceMessageInfoRO testServiceMessageInfoRO = lastTestReceived;
+        Assert.assertEquals(testServiceMessageInfoRO.getMessageId(), signalMessage.getMessageInfo().getMessageId());
+        Assert.assertEquals(testServiceMessageInfoRO.getPartyId(), partyId);
+        Assert.assertEquals(testServiceMessageInfoRO.getTimeReceived(), signalMessage.getMessageInfo().getTimestamp());
+        Assert.assertEquals(testServiceMessageInfoRO.getAccessPoint(), party.getEndpoint());
+    }
+
+    protected void testGetErrorsDetails() {
+        String userMessageId = "mess_id_1", errorDetails = "DOM005-Cannot find party";
+
+        new Expectations(testService) {{
+            testService.getErrorsForMessage(userMessageId);
+            returns(null, errorDetails);
+        }};
+
+        String result = testService.getErrorsDetails(userMessageId);
+        Assert.assertTrue(result.equals("Please call the method again to see the details."));
+
+        result = testService.getErrorsDetails(userMessageId);
+        Assert.assertTrue(result.equals("Error details are: " + errorDetails));
     }
 }

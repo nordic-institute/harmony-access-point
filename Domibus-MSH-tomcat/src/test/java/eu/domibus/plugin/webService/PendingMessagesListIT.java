@@ -4,7 +4,7 @@ import eu.domibus.AbstractBackendWSIT;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.common.NotificationType;
-import eu.domibus.messaging.NotifyMessageCreator;
+import eu.domibus.core.plugin.notification.NotifyMessageCreator;
 import eu.domibus.plugin.webService.generated.ListPendingMessagesResponse;
 import org.junit.Assert;
 import org.junit.Test;
@@ -41,6 +41,7 @@ public class PendingMessagesListIT extends AbstractBackendWSIT {
             jmsManager.sendMessageToQueue(message, WS_NOT_QUEUE);
         }
 
+        waitForMessages(3);
         String request = new String("<listPendingMessagesRequest></listPendingMessagesRequest>");
         ListPendingMessagesResponse response = backendWebService.listPendingMessages(request);
 

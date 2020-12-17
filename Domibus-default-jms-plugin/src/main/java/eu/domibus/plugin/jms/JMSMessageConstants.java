@@ -5,6 +5,7 @@ import eu.domibus.messaging.MessageConstants;
 
 /**
  * @author Christian Koch, Stefan Mueller
+ * @author Cosmin Baciu
  */
 public class JMSMessageConstants {
 
@@ -19,6 +20,7 @@ public class JMSMessageConstants {
     public static final String SERVICE_TYPE = "serviceType";
     public static final String CONVERSATION_ID = "conversationId";
     public static final String AGREEMENT_REF = "agreementRef";
+    public static final String AGREEMENT_REF_TYPE = "agreementRefType";
     public static final String REF_TO_MESSAGE_ID = "refToMessageId";
     public static final String FROM_PARTY_ID = "fromPartyId";
     public static final String FROM_PARTY_TYPE = "fromPartyType";
@@ -56,4 +58,27 @@ public class JMSMessageConstants {
 
     public static final String USERNAME = "username";
     public static final String PASSWORD = "password"; //NOSONAR
+
+    public static final String JMSPLUGIN_QUEUE_REPLY = "jmsplugin.queue.reply";
+    public static final String JMSPLUGIN_QUEUE_REPLY_ROUTING = "jmsplugin.queue.reply.routing";
+    public static final String JMSPLUGIN_QUEUE_CONSUMER_NOTIFICATION_ERROR = "jmsplugin.queue.consumer.notification.error";
+    public static final String JMSPLUGIN_QUEUE_CONSUMER_NOTIFICATION_ERROR_ROUTING = "jmsplugin.queue.consumer.notification.error.routing";
+    public static final String JMSPLUGIN_QUEUE_PRODUCER_NOTIFICATION_ERROR = "jmsplugin.queue.producer.notification.error";
+    public static final String JMSPLUGIN_QUEUE_PRODUCER_NOTIFICATION_ERROR_ROUTING = "jmsplugin.queue.producer.notification.error.routing";
+    public static final String JMSPLUGIN_QUEUE_OUT = "jmsplugin.queue.out";
+    public static final String JMSPLUGIN_QUEUE_OUT_ROUTING = "jmsplugin.queue.out.routing";
+
+    public static final String CONNECTION_FACTORY = JMS_PLUGIN_PROPERTY_PREFIX + "." + "connection.factory";
+    public static final String CONNECTION_FACTORY_NAME= "domibusJMSPlugin-ConnectionFactory";
+    public static final String CACHING_CONNECTION_FACTORY_NAME= "domibusJMSPlugin-Caching-ConnectionFactory";
+    public static final String CACHING_CONNECTION_FACTORY_SESSION_CACHE_SIZE= JMS_PLUGIN_PROPERTY_PREFIX + "." + "jms.connectionFactory.session.cache.size";
+
+    public static final String QUEUE_NOTIFICATION = JMS_PLUGIN_PROPERTY_PREFIX + "." + "queue.notification";
+    public static final String QUEUE_IN = JMS_PLUGIN_PROPERTY_PREFIX + "." + "queue.in";
+    public static final String QUEUE_IN_CONCURRENCY = JMS_PLUGIN_PROPERTY_PREFIX + "." + "queue.in.concurrency";
+
+    public static final String MESSAGE_NOTIFICATIONS = JMS_PLUGIN_PROPERTY_PREFIX + "." + "messages.notifications";
+
+
+
 }

@@ -1,8 +1,8 @@
 package eu.domibus.jms.activemq;
 
 import eu.domibus.api.cluster.CommandProperty;
-import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.jms.JMSDestinationHelper;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.server.ServerInfoService;
 import eu.domibus.jms.spi.InternalJMSDestination;
@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jms.core.JmsOperations;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import javax.jms.Queue;
@@ -44,6 +45,7 @@ public class InternalJMSManagerActiveMQ implements InternalJMSManager {
 
     private static final String PROPERTY_OBJECT_NAME = "ObjectName";
 
+
     protected Map<String, ObjectName> queueMap;
 
     @Autowired
@@ -57,7 +59,7 @@ public class InternalJMSManagerActiveMQ implements InternalJMSManager {
     JMSDestinationHelper jmsDestinationHelper;
 
     @Resource(name = "jmsSender")
-    private JmsOperations jmsOperations;
+    private JmsOperations jmsSender;
 
     @Autowired
     JMSSelectorUtil jmsSelectorUtil;
@@ -73,7 +75,6 @@ public class InternalJMSManagerActiveMQ implements InternalJMSManager {
 
     @Override
     public Map<String, InternalJMSDestination> findDestinationsGroupedByFQName() {
-
         Map<String, InternalJMSDestination> destinationMap = new TreeMap<>();
 
         try {
@@ -88,16 +89,22 @@ public class InternalJMSManagerActiveMQ implements InternalJMSManager {
         }
     }
 
-
     protected InternalJMSDestination createInternalJmsDestination(ObjectName name, QueueViewMBean queueMbean) {
         InternalJMSDestination internalJmsDestination = new InternalJMSDestination();
         internalJmsDestination.setName(queueMbean.getName());
         internalJmsDestination.setInternal(jmsDestinationHelper.isInternal(queueMbean.getName()));
         internalJmsDestination.setType(InternalJMSDestination.QUEUE_TYPE);
-        /* in multi-tenancy mode we show the number of messages only to super admin */
-        internalJmsDestination.setNumberOfMessages(domibusConfigurationService.isMultiTenantAware() && !authUtils.isSuperAdmin() ? NB_MESSAGES_ADMIN : queueMbean.getQueueSize());
+        internalJmsDestination.setNumberOfMessages(getMessagesTotalCount(queueMbean));
         internalJmsDestination.setProperty(PROPERTY_OBJECT_NAME, name);
         return internalJmsDestination;
+    }
+
+    protected long getMessagesTotalCount(QueueViewMBean queueMbean) {
+        if (domibusConfigurationService.isMultiTenantAware() && !authUtils.isSuperAdmin()) {
+            //in multi-tenancy mode we show the number of messages only to super admin
+            return NB_MESSAGES_ADMIN;
+        }
+        return queueMbean.getQueueSize();
     }
 
     protected QueueViewMBean getQueueViewMBean(ObjectName objectName) {
@@ -127,12 +134,22 @@ public class InternalJMSManagerActiveMQ implements InternalJMSManager {
 
     @Override
     public void sendMessage(InternalJmsMessage message, String destination) {
+        sendMessage(message, destination, jmsSender);
+    }
+
+    @Override
+    public void sendMessage(InternalJmsMessage message, String destination, JmsOperations jmsOperations) {
         ActiveMQQueue activeMQQueue = new ActiveMQQueue(destination);
-        sendMessage(message, activeMQQueue);
+        sendMessage(message, activeMQQueue, jmsOperations);
     }
 
     @Override
     public void sendMessage(InternalJmsMessage message, Destination destination) {
+        sendMessage(message, destination, jmsSender);
+    }
+
+    @Override
+    public void sendMessage(InternalJmsMessage message, Destination destination, JmsOperations jmsOperations) {
         jmsOperations.send(destination, new JmsMessageCreator(message));
     }
 
@@ -150,12 +167,12 @@ public class InternalJMSManagerActiveMQ implements InternalJMSManager {
     }
 
     @Override
-    public void deleteMessages(String source, String[] messageIds) {
+    public int deleteMessages(String source, String[] messageIds) {
         try {
             QueueViewMBean queue = getQueueViewMBean(source);
-            queue.removeMatchingMessages(jmsSelectorUtil.getSelector(messageIds));
+            return queue.removeMatchingMessages(jmsSelectorUtil.getSelector(messageIds));
         } catch (Exception e) {
-            throw new InternalJMSException("Failed to delete messages from source [" + source + "]:" + messageIds, e);
+            throw new InternalJMSException("Failed to delete messages from source [" + source + "]:" + Arrays.toString(messageIds), e);
         }
     }
 
@@ -255,10 +272,18 @@ public class InternalJMSManagerActiveMQ implements InternalJMSManager {
         result.setTimestamp(jmsTimestamp);
         String jmsMessageId = getCompositeValue(data, "JMSMessageID");
         result.setId(jmsMessageId);
+
+        Map<String, String> properties = new HashMap<>();
+
+        Integer priority = getCompositeValue(data, JMS_PRIORITY);
+        result.setPriority(priority);
+        if (priority != null) {
+            properties.put(JMS_PRIORITY, String.valueOf(priority));
+        }
+
         String textValue = getCompositeValue(data, "Text");
         result.setContent(textValue);
 
-        Map<String, Object> properties = new HashMap<>();
 
         Set<String> allPropertyNames = data.getCompositeType().keySet();
         for (String propertyName : allPropertyNames) {
@@ -270,11 +295,11 @@ public class InternalJMSManagerActiveMQ implements InternalJMSManager {
                 }
             }
             if (propertyValue instanceof Map) {
-                Collection<CompositeDataSupport> values = ((Map)propertyValue).values();
+                Collection<CompositeDataSupport> values = ((Map) propertyValue).values();
                 for (CompositeDataSupport compositeDataSupport : values) {
                     String key = (String) compositeDataSupport.get("key");
                     Object value = compositeDataSupport.get("value");
-                    properties.put(key, value);
+                    properties.put(key, String.valueOf(value));
                 }
             }
         }
@@ -284,15 +309,16 @@ public class InternalJMSManagerActiveMQ implements InternalJMSManager {
     }
 
     @Override
-    public void moveMessages(String source, String destination, String[] messageIds) {
+    public int moveMessages(String source, String destination, String[] messageIds) {
         try {
             QueueViewMBean queue = getQueueViewMBean(source);
-            queue.moveMatchingMessagesTo(jmsSelectorUtil.getSelector(messageIds), destination);
+            return queue.moveMatchingMessagesTo(jmsSelectorUtil.getSelector(messageIds), destination);
         } catch (Exception e) {
-            throw new InternalJMSException("Failed to move messages from source [" + source + "] to destination [" + destination + "]:" + messageIds, e);
+            throw new InternalJMSException("Failed to move messages from source [" + source + "] to destination [" + destination + "]:" + Arrays.toString(messageIds), e);
         }
     }
 
+    @Transactional
     @Override
     public InternalJmsMessage consumeMessage(String source, String customMessageId) {
 
@@ -313,6 +339,14 @@ public class InternalJMSManagerActiveMQ implements InternalJMSManager {
         return intJmsMsg;
     }
 
+    @Override
+    public long getDestinationCount(InternalJMSDestination internalJMSDestination) {
+        ObjectName objectName = internalJMSDestination.getProperty(PROPERTY_OBJECT_NAME);
+        QueueViewMBean queueMbean = getQueueViewMBean(objectName);
+
+        return getMessagesTotalCount(queueMbean);
+    }
+
     protected List<InternalJmsMessage> getMessagesFromDestination(String destination, String selector) throws JMSActiveMQException {
         Queue queue;
 
@@ -326,7 +360,7 @@ public class InternalJMSManagerActiveMQ implements InternalJMSManager {
             return new ArrayList<>();
         }
 
-        return jmsOperations.browseSelected(queue, selector, (session, browser) -> {
+        return jmsSender.browseSelected(queue, selector, (session, browser) -> {
             List<InternalJmsMessage> result = new ArrayList<>();
             Enumeration enumeration = browser.getEnumeration();
             while (enumeration.hasMoreElements()) {
@@ -349,13 +383,14 @@ public class InternalJMSManagerActiveMQ implements InternalJMSManager {
         result.setId(textMessage.getJMSMessageID());
         result.setTimestamp(new Date(textMessage.getJMSTimestamp()));
         result.setType(textMessage.getJMSType());
+        result.setPriority(textMessage.getJMSPriority());
         Enumeration propertyNames = textMessage.getPropertyNames();
 
-        Map<String, Object> properties = new HashMap<>();
+        Map<String, String> properties = new HashMap<>();
         while (propertyNames.hasMoreElements()) {
             String name = (String) propertyNames.nextElement();
-            Object objectProperty = textMessage.getObjectProperty(name);
-            properties.put(name, objectProperty);
+            String value = textMessage.getStringProperty(name);
+            properties.put(name, value);
         }
         result.setProperties(properties);
         return result;

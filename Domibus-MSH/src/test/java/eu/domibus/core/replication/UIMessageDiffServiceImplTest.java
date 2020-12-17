@@ -102,7 +102,7 @@ public class UIMessageDiffServiceImplTest {
         final List<UIMessageDiffEntity> uiMessageDiffEntityList = Collections.singletonList(uiMessageDiffEntity);
 
         new Expectations(uiMessageDiffService) {{
-            domibusPropertyProvider.getDomainProperty(UIMessageDiffServiceImpl.MAX_ROWS_KEY);
+            domibusPropertyProvider.getProperty(UIMessageDiffServiceImpl.MAX_ROWS_KEY);
             result = 10000;
 
             uiMessageDiffService.countAll();

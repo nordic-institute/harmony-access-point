@@ -1,8 +1,8 @@
 /* You can add global styles to this file, and also import other style files */
 @import '~@angular/material/prebuilt-themes/deeppurple-amber.css';
-@import '~@swimlane/ngx-datatable/release/index.css';
-@import '~@swimlane/ngx-datatable/release/themes/material.css';
-@import '~@swimlane/ngx-datatable/release/assets/icons.css';
+@import '~@swimlane/ngx-datatable/index.css';
+@import '~@swimlane/ngx-datatable/themes/material.css';
+@import '~@swimlane/ngx-datatable/assets/icons.css';
 @import 'assets/fonts/fonts.css';
 
 /*--------------------------------------------------
@@ -40,13 +40,14 @@ tr:before,
 td:before,
 form:before,
 tbody:before,
-md-card:before,
-md-card-content:before,
+mat-card:before,
+mat-card-content:before,
 .panel:before,
 .selectionCriteria:before,
 table.buttonsRow:before,
+div.buttonsRow:before,
 table.buttonsMoveRow,
-md-input-container:before,
+mat-input-container:before,
 ngx-datatable span:before:not([class^="datatable-icon-"]) {
   content: " " !important;
 }
@@ -85,7 +86,7 @@ ngx-datatable span:before:not([class^="datatable-icon-"]) {
 
 /* --- SIDEBAR --------- */
 /*---------------------- */
-md-sidenav[_ngcontent-c0] {
+mat-sidenav[_ngcontent-c0] {
   box-shadow: 0px 0px 2px #9B9B9B !important;
 }
 
@@ -137,9 +138,14 @@ md-sidenav[_ngcontent-c0] {
 }
 
 /* --- MAIN CONTENT --------- */
-/*--------------------------- */
+
 .mat-sidenav-content {
   min-height: 100vh;
+}
+
+.mat-drawer-content {
+  overflow: hidden !important;
+  overflow-y: auto !important;
 }
 
 /* --- Hamburger Menu ---*/
@@ -180,26 +186,16 @@ md-sidenav[_ngcontent-c0] {
   width: 50px;
 }
 
-/*--------------------------------------------------
-    [LOGIN PAGE]
-----------------------------------------------------*/
-.login-page form {
-  margin-top: 70px;
-}
-
-.login-page #formContainer {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-}
 
 /*--------------------------------------------------
     [HEADING]
 ----------------------------------------------------*/
 
-h1 {
-  font-size: 48px;
-  margin-top: 0;
+page-header h1 {
+  /*font-size: 48px;*/
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  font-size: xx-large !important;
 }
 
 h2 {
@@ -229,48 +225,47 @@ a:hover {
     [PANEL]
 ----------------------------------------------------*/
 .panel {
-  margin-bottom: 20px;
-  padding: 20px;
+  padding: 0px 20px;
   background: #FFF;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.12), 0 1px 2px 0 rgba(0, 0, 0, 0.24);
+  /*box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.12), 0 1px 2px 0 rgba(0, 0, 0, 0.24);*/
 }
 
-md-card {
+mat-card {
   margin: 0;
 }
 
 .searchArea {
-  margin-top: 0 !important;
+  margin-top: 10px !important;
 }
 
 /* --- INPUT ---*/
-.panel md-select, .panel md2-datepicker, .panel md2-select {
+.panel mat-select, .panel md2-datepicker, .panel mat-select {
   padding-top: 10px;
   padding-bottom: 10px;
 }
 
-.panel md-select, .panel md-input-container, .panel md2-datepicker, .panel md2-select {
+.panel mat-select, .panel mat-input-container, .panel md2-datepicker, .panel mat-select {
   margin-right: 2%;
 }
 
-.panel md-input-container, .panel md-select, .panel md2-datepicker, .panel md2-select {
+.panel mat-input-container, .panel mat-select, .panel md2-datepicker, .panel mat-select {
   width: 22%;
 }
 
 @media (max-width: 991px) {
-  .panel md-input-container, .panel md-select, .panel md2-datepicker, .panel md2-select {
+  .panel mat-input-container, .panel mat-select, .panel md2-datepicker, .panel mat-select {
     width: 46%;
   }
 }
 
 @media (max-width: 767px) {
-  .panel md-input-container, .panel md-select, .panel md2-datepicker, .panel md2-select {
+  .panel mat-input-container, .panel mat-select, .panel md2-datepicker, .panel mat-select {
     width: 100%;
   }
 }
 
-.md-select-menu-container,
-.md2-select-panel {
+.mat-select-menu-container,
+.mat-select-panel {
   z-index: 99999 !important;
 }
 
@@ -278,22 +273,33 @@ md-card {
 .group-filter-button {
   position: relative;
   margin-bottom: 20px;
-  padding-top: 20px;
+  margin-left: 10px;
+  padding-top: 5px;
 }
 
 .column-filter-button a.hide-show-column {
   position: absolute;
-  top: 30px;
+  top: 20px;
   right: 0;
 }
 
 .all-none-selection {
+  padding-top: 10px;
   padding-left: 10px;
+}
+
+.all-none-selection a {
+  margin-right: 10px;
+}
+
+.all-none-selection a:last-child {
+  margin-right: 0;
 }
 
 /* --- GROUP BUTTON ACTION ---*/
 .group-action-button {
-  margin-top: 20px;
+  margin-top: 10px;
+  display: inline-block;
 }
 
 .group-action-button button {
@@ -312,4 +318,90 @@ md-card {
   background: #FFF;
   box-shadow: none;
   border: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.mat-form-field {
+  display: inline-block;
+  width: 22%;
+  margin-right: 30px;
+  /*vertical-align: middle;*/
+}
+
+.mat-icon {
+  margin-right: 10px;
+}
+
+input {
+  background-color: white !important;
+}
+
+.mat-select-trigger {
+  padding-bottom: 6px;
+  border-bottom: solid 0.5px lightgray;
+}
+
+mat-select .mat-select {
+  padding: 14px 0;
+}
+
+.mat-card:not([class*=mat-elevation-z]) {
+  box-shadow: none !important;
+}
+
+.ngx-datatable.material .datatable-header .datatable-header-cell {
+  font-size: 16px;
+}
+
+.buttonsRow button {
+  margin-right: 16px;
+}
+
+.buttonsRow button:last-child {
+  margin-right: 0;
+}
+
+.md2-datepicker-placeholder {
+  z-index: 1;
+}
+
+.mat-form-field-appearance-legacy .mat-form-field-underline {
+  height: 0.05em !important;
+  background-color: lightgray !important;
+}
+
+.ngx-datatable.material .datatable-body .datatable-body-row .datatable-body-cell {
+  padding-top: 10px !important;
+  padding-bottom: 10px !important;
+}
+
+.ngx-datatable.material .datatable-body .datatable-body-row .datatable-body-cell .mat-icon-button {
+  height: 30px !important;
+  margin-top: -10px !important;
+}
+
+.mat-snack-bar-container {
+  max-width: 50vw !important;
+}
+
+.mat-snack-bar-container.error {
+  background-color: #f44336 !important;
+}
+
+.mat-snack-bar-container.success {
+  background-color: forestgreen !important;
+}
+
+.mat-simple-snackbar {
+  color: white !important;
+  font-size: 16px !important;
+}
+
+html, body, app-root, ng-component {
+  height: 100%;
+  overflow-y: hidden;
+}
+
+.full-height {
+  height: 100%;
+  overflow-y: hidden;
 }

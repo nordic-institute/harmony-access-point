@@ -20,11 +20,12 @@ public class Command {
     public static final String LOGGING_RESET = "LOGGING_RESET";
     public static final String LOGGING_SET_LEVEL = "LOGGING_SET_LEVEL";
     public static final String DOMIBUS_PROPERTY_CHANGE = "DOMIBUS_PROPERTY_CHANGE";
+    public static final String MESSAGE_FILTER_UPDATE = "MESSAGE_FILTER_UPDATE";
+    public static final String USER_SESSION_INVALIDATION = "USER_SESSION_INVALIDATION";
 
     private int entityId;
     protected String commandName;
     protected String serverName;
-    protected String domain;
     protected Date creationTime;
 
     private Map<String, String> commandProperties = new HashMap<>();
@@ -43,14 +44,6 @@ public class Command {
 
     public void setServerName(String serverName) {
         this.serverName = serverName;
-    }
-
-    public String getDomain() {
-        return domain;
-    }
-
-    public void setDomain(String domain) {
-        this.domain = domain;
     }
 
     public Date getCreationTime() {
@@ -88,7 +81,6 @@ public class Command {
         return new EqualsBuilder()
                 .append(commandName, command.commandName)
                 .append(serverName, command.serverName)
-                .append(domain, command.domain)
                 .append(commandProperties, command.commandProperties)
                 .isEquals();
     }
@@ -98,7 +90,6 @@ public class Command {
         return new HashCodeBuilder(17, 37)
                 .append(commandName)
                 .append(serverName)
-                .append(domain)
                 .append(commandProperties)
                 .toHashCode();
     }

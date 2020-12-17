@@ -14,8 +14,8 @@
             <package-name>com.google.*</package-name>
             <package-name>org.codehaus.stax2.*</package-name>
             <package-name>org.bouncycastle.*</package-name>
-            <package-name>org.apache.wss4j.*</package-name>
             <package-name>org.apache.cxf.*</package-name>
+            <package-name>org.apache.wss4j.*</package-name>
             <package-name>org.apache.commons.io.*</package-name>
             <package-name>org.apache.commons.lang.*</package-name>
             <package-name>org.apache.commons.lang3.*</package-name>
@@ -47,7 +47,9 @@
             <resource-name>META-INF/services/javax.xml.ws.spi.Provider</resource-name>
             <resource-name>META-INF/services/javax.persistence.spi.PersistenceProvider</resource-name>
             <resource-name>org/slf4j/impl/StaticLoggerBinder.class</resource-name>
+            <resource-name>META-INF/services/javax.xml.soap.MetaFactory</resource-name>
         </prefer-application-resources>
         <allow-all-roles>true</allow-all-roles>
     </container-descriptor>
+    <wl-dispatch-policy>MshWorkManager</wl-dispatch-policy>
 </weblogic-web-app>

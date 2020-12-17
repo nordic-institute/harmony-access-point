@@ -1,76 +1,82 @@
-<div style="width: 700px">
+<div style="width: 700px" *ngIf="userForm">
   <p class="domibusTextSmall" style="margin:0;font-weight: bold">{{formTitle}}</p>
-  <form [formGroup]="userForm" (submit)="submitForm()">
-    <md-card>
+
+  <form [formGroup]="userForm" (submit)="submitForm()" novalidate autocomplete="off">
+
+    <mat-card>
+
+      <input type="text" name="username" style="position: absolute; top: -100px;">
+      <input type="password" name="password" style="position: absolute; top: -100px;">
+
       <div style="margin-top:15px;">
-        <md-input-container [style.width]="'100%'">
-          <input mdInput placeholder="Username" name="username" id="username_id" [value]="userName" (blur)="updateUserName($event)" [formControl]="userForm.controls['userName']" maxlength="255" required>
-          <div *ngIf="userForm.controls['userName'].hasError('required')" style="color:red; font-size: 70%">You should type an username</div>
-        </md-input-container>
+        <mat-form-field [style.width]="'100%'">
+          <input #user_name matInput id="username_id" placeholder="User Name *" name="userName" formControlName="userName" input-debounce>
+          <span class="help-block" *ngIf="shouldShowErrorsForFieldNamed('userName')">
+            <div *ngIf="userForm.get('userName').errors?.required" style="color:red; font-size: 70%">{{userNameRequiredMessage}}</div>
+            <div *ngIf="userForm.get('userName').errors?.minlength" style="color:red; font-size: 70%">{{userNameMinLengthMessage}}</div>
+            <div *ngIf="userForm.get('userName').errors?.pattern" style="color:red; font-size: 70%">{{userNamePatternMessage}}</div>
+          </span>
+        </mat-form-field>
       </div>
 
       <div style="margin-top:-5px;">
-        <md-input-container [style.width]="'100%'">
-          <input mdInput placeholder="Email" name="email" id="email_id" [value]="email" (blur)="updateEmail($event)" [formControl]="userForm.controls['email']" [pattern]=emailPattern maxlength="255">
-          <div *ngIf="userForm.controls['email'].hasError('pattern')" style="color:red; font-size: 70%">You should type an email</div>
-        </md-input-container>
+        <mat-form-field [style.width]="'100%'">
+          <input matInput id="email_id" name="email" formControlName="email" placeholder="Email" input-debounce>
+          <span class="help-block" *ngIf="shouldShowErrorsForFieldNamed('email')">
+            <div *ngIf="userForm.get('email').errors?.pattern" style="color:red; font-size: 70%">You should type a valid email</div>
+          </span>
+        </mat-form-field>
       </div>
 
       <div style="margin-top:10px;">
-        <md2-select mdInput placeholder="Role" [style.width]="'100%'" [formControl]="userForm.controls['role']"
-                    [(ngModel)]="role" required (change)="onRoleChange()">
-          <md2-option *ngFor="let item of existingRoles" [value]="item">{{item}}</md2-option>
-        </md2-select>
-        <div *ngIf="userForm.controls['role'].hasError('required')" style="color:red; font-size: 70%">You need to choose at least one role for this user</div>
+        <mat-select matInput id="role_id" name="roles" formControlName="roles" (selectionChange)="onRoleChange($event)" [style.width]="'100%'" placeholder="Role *">
+          <mat-option *ngFor="let item of existingRoles" [value]="item">{{item}}</mat-option>
+        </mat-select>
+        <span class="help-block" *ngIf="shouldShowErrorsForFieldNamed('roles')">
+          <div *ngIf="userForm.get('roles').errors?.required" style="color:red; font-size: 70%">You need to choose at least one role for this user</div>
+        </span>
       </div>
 
       <div style="margin-top:30px;" [hidden]="!isDomainVisible">
-        <md2-select mdInput placeholder="{{isSuperAdmin() ? 'Preferred Domain' : 'Domain'}}" [style.width]="'100%'" [formControl]="userForm.controls['domain']"
-                    [(ngModel)]="domain" [disabled]="isDomainDisabled()" required>
-          <md2-option *ngFor="let item of existingDomains" [(value)]="item.code">{{item.name}}</md2-option>
-        </md2-select>
-        <div *ngIf="userForm.controls['domain'].hasError('required')" style="color:red; font-size: 70%">You need to choose a domain for this user</div>
-        <div *ngIf="userForm.controls['domain'].hasError('domain')" style="color:red; font-size: 70%">The domain should be the current one</div>
+        <mat-select matInput id="domain_id" name="domain" formControlName="domain" placeholder="Domain *" [style.width]="'100%'">
+          <mat-option *ngFor="let item of existingDomains" [value]="item.code">{{item.name}}</mat-option>
+        </mat-select>
+        <span class="help-block" *ngIf="shouldShowErrorsForFieldNamed('domain')">
+<!--          <div *ngIf="userForm.get('domain').errors?.required" style="color:red; font-size: 70%">You need to choose a domain for this user</div>-->
+          <div *ngIf="userForm.errors?.domain" style="color:red; font-size: 70%">The domain should be the current one</div>
+        </span>
       </div>
 
       <div style="margin-top:15px;">
-        <md-input-container [style.width]="'100%'">
-          <input mdInput placeholder="Password" name="password" id="password_id" type="password" [value]="password" (blur)="updatePassword($event)" [formControl]="userForm.controls['password']" [pattern]=passwordPattern [required]="!editMode" >
-          <div *ngIf="!editMode && userForm.controls['password'].hasError('required')" style="color:red; font-size: 70%">You should type a password</div>
-          <div *ngIf="userForm.controls['password'].dirty && userForm.controls['password'].hasError('pattern')" style="color:red; font-size: 70%">
-            Password should follow all of these rules:<br>
-            <div [innerHTML]="passwordValidationMessage"></div>
-          </div>
-        </md-input-container>
+        <mat-form-field [style.width]="'100%'">
+          <input matInput type="password" id="password_id" name="password" formControlName="password" placeholder="Password *" input-debounce>
+
+          <span class="help-block" *ngIf="shouldShowErrorsForFieldNamed('password')">
+            <div *ngIf="userForm.get('password').errors?.required" style="color:red; font-size: 70%">You should type a password</div>
+            <div *ngIf="userForm.get('password').errors?.pattern" style="color:red; font-size: 70%">
+              Password should follow all of these rules:<br><div [innerHTML]="passwordValidationMessage"></div>
+            </div>
+          </span>
+        </mat-form-field>
       </div>
 
       <div>
-        <md-input-container [style.width]="'100%'">
-          <input mdInput placeholder="Confirmation" name="confirmation" id="confirmation_id" type="password" [value]="confirmation" [formControl]="userForm.controls['confirmation']" [required]="!editMode" >
-          <div *ngIf="!editMode && userForm.controls['confirmation'].hasError('required')" style="color:red; font-size: 70%">You should type a password</div>
-          <div *ngIf="userForm.controls['confirmation'].hasError('confirmation')" style="color:red; font-size: 70%">Passwords do not match</div>
-        </md-input-container>
+        <mat-form-field [style.width]="'100%'">
+          <input matInput type="password" id="confirmation_id" name="confirmation" formControlName="confirmation" placeholder="Confirmation *" input-debounce>
+
+          <span class="help-block" *ngIf="shouldShowErrorsForFieldNamed('confirmation')">
+            <div *ngIf="userForm.get('confirmation').errors?.required" style="color:red; font-size: 70%">You should type a password</div>
+            <div *ngIf="userForm.errors?.match" style="color:red; font-size: 70%">Passwords do not match</div>
+          </span>
+        </mat-form-field>
       </div>
 
       <div style="margin-bottom: 20px;margin-top: 10px;">
-        Active<input type="checkbox" [checked]="active" (blur)="updateActive($event)" [formControl]="userForm.controls['active']">
+        <mat-checkbox id="active_id" formControlName="active">Active</mat-checkbox>
       </div>
 
-      <table class="buttonsRow">
-        <tr>
-          <td>
-            <button md-raised-button color="primary" [md-dialog-close]="true" (click)="submitForm()" id="editbuttonok_id" [disabled]="!userForm.valid">
-              <md-icon>check_circle</md-icon>
-              <span>OK</span>
-            </button>
-            <button md-raised-button color="primary" id="editbuttoncancel_id" md-dialog-close>
-              <md-icon>cancel</md-icon>
-              <span>Cancel</span>
-            </button>
-          </td>
-        </tr>
-      </table>
-      <div  style="text-align: right; font-size: 70%">* required fields</div>
-    </md-card>
+      <popup-edit-footer [parent]="this"></popup-edit-footer>
+
+    </mat-card>
   </form>
 </div>

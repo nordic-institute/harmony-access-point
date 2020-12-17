@@ -1,144 +1,138 @@
-import {Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
-import {UserResponseRO, UserState} from './user';
-import {UserSearchCriteria, UserService} from './user.service';
-import {MdDialog, MdDialogRef} from '@angular/material';
-import {UserValidatorService} from 'app/user/uservalidator.service';
+import {
+  AfterViewChecked,
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  OnInit,
+  TemplateRef,
+  ViewChild
+} from '@angular/core';
+import {UserResponseRO, UserState} from './support/user';
+import {UserSearchCriteria, UserService} from './support/user.service';
+import {MAT_CHECKBOX_CLICK_ACTION, MatDialog} from '@angular/material';
+import {UserValidatorService} from 'app/user/support/uservalidator.service';
 import {AlertService} from '../common/alert/alert.service';
 import {EditUserComponent} from 'app/user/edituser-form/edituser-form.component';
-import {isNullOrUndefined} from 'util';
-import {Http} from '@angular/http';
-import {DirtyOperations} from '../common/dirty-operations';
-import {CancelDialogComponent} from '../common/cancel-dialog/cancel-dialog.component';
-import {SaveDialogComponent} from '../common/save-dialog/save-dialog.component';
-import {ColumnPickerBase} from '../common/column-picker/column-picker-base';
-import {RowLimiterBase} from '../common/row-limiter/row-limiter-base';
+import {HttpClient, HttpParams} from '@angular/common/http';
 import {SecurityService} from '../security/security.service';
-import {DownloadService} from '../common/download.service';
-import {AlertComponent} from '../common/alert/alert.component';
 import {DomainService} from '../security/domain.service';
 import {Domain} from '../security/domain';
+import {DialogsService} from '../common/dialogs/dialogs.service';
+import mix from '../common/mixins/mixin.utils';
+import BaseListComponent from '../common/mixins/base-list.component';
+import FilterableListMixin from '../common/mixins/filterable-list.mixin';
+import ModifiableListMixin from '../common/mixins/modifiable-list.mixin';
+import {ClientPageableListMixin} from '../common/mixins/pageable-list.mixin';
+import {ApplicationContextService} from '../common/application-context.service';
+import {ComponentName} from '../common/component-name-decorator';
 
 @Component({
   moduleId: module.id,
   templateUrl: 'user.component.html',
-  styleUrls: ['./user.component.css']
+  styleUrls: ['./user.component.css'],
+  providers: [
+    {provide: MAT_CHECKBOX_CLICK_ACTION, useValue: 'check'}
+  ]
 })
+@ComponentName('Users')
+export class UserComponent extends mix(BaseListComponent)
+  .with(FilterableListMixin, ModifiableListMixin, ClientPageableListMixin)
+  implements OnInit, AfterViewInit, AfterViewChecked {
 
-export class UserComponent implements OnInit, DirtyOperations {
   static readonly USER_URL: string = 'rest/user';
   static readonly USER_USERS_URL: string = UserComponent.USER_URL + '/users';
   static readonly USER_CSV_URL: string = UserComponent.USER_URL + '/csv';
 
-  @ViewChild('passwordTpl') passwordTpl: TemplateRef<any>;
-  @ViewChild('editableTpl') editableTpl: TemplateRef<any>;
-  @ViewChild('checkBoxTpl') checkBoxTpl: TemplateRef<any>;
-  @ViewChild('deletedTpl') deletedTpl: TemplateRef<any>;
-  @ViewChild('rowActions') rowActions: TemplateRef<any>;
+  @ViewChild('editableTpl', {static: false}) editableTpl: TemplateRef<any>;
+  @ViewChild('checkBoxTpl', {static: false}) checkBoxTpl: TemplateRef<any>;
+  @ViewChild('deletedTpl', {static: false}) deletedTpl: TemplateRef<any>;
+  @ViewChild('rowActions', {static: false}) rowActions: TemplateRef<any>;
+  @ViewChild('rowWithDateFormatTpl', {static: false}) public rowWithDateFormatTpl: TemplateRef<any>;
 
-  columnPicker: ColumnPickerBase = new ColumnPickerBase();
-  rowLimiter: RowLimiterBase = new RowLimiterBase();
-
-  users: Array<UserResponseRO>;
   userRoles: Array<String>;
   domains: Domain[];
+  domainsPromise: Promise<Domain[]>;
   currentDomain: Domain;
 
-  selected: any[];
-
-  enableCancel: boolean;
-  enableSave: boolean;
-  enableDelete: boolean;
-  enableEdit: boolean;
-
   currentUser: UserResponseRO;
-
   editedUser: UserResponseRO;
-
-  dirty: boolean;
   areRowsDeleted: boolean;
-
-  filter: UserSearchCriteria;
   deletedStatuses: any[];
-  offset: number;
+  allUsers: UserResponseRO[];
 
-  isBusy = false;
-
-  constructor(private http: Http,
-              private userService: UserService,
-              public dialog: MdDialog,
-              private userValidatorService: UserValidatorService,
-              private alertService: AlertService,
-              private securityService: SecurityService,
-              private domainService: DomainService) {
+  constructor(private applicationService: ApplicationContextService, private http: HttpClient, private userService: UserService,
+              public dialog: MatDialog, private dialogsService: DialogsService, private userValidatorService: UserValidatorService,
+              private alertService: AlertService, private securityService: SecurityService, private domainService: DomainService,
+              private changeDetector: ChangeDetectorRef) {
+    super();
   }
 
   async ngOnInit() {
-    this.isBusy = true;
-    this.offset = 0;
-    this.filter = new UserSearchCriteria();
+    super.ngOnInit();
+
+    super.filter = new UserSearchCriteria();
     this.deletedStatuses = [null, true, false];
-
-    this.columnPicker = new ColumnPickerBase();
-    this.rowLimiter = new RowLimiterBase();
-
-    this.users = [];
     this.userRoles = [];
-
-    this.enableCancel = false;
-    this.enableSave = false;
-    this.enableDelete = false;
-    this.enableEdit = false;
     this.currentUser = null;
     this.editedUser = null;
+    this.domainService.getCurrentDomain().subscribe((domain: Domain) => this.currentDomain = domain);
+    this.getUserRoles();
+    this.areRowsDeleted = false;
+    this.filterData();
+  }
 
-    this.selected = [];
-
+  async ngAfterViewInit() {
     this.columnPicker.allColumns = [
       {
         cellTemplate: this.editableTpl,
         name: 'Username',
         prop: 'userName',
-        canAutoResize: true
+        canAutoResize: true,
+        showInitially: true
       },
       {
         cellTemplate: this.editableTpl,
         name: 'Role',
         prop: 'roles',
-        canAutoResize: true
+        canAutoResize: true,
+        showInitially: true
       },
       {
         cellTemplate: this.editableTpl,
         name: 'Email',
         prop: 'email',
-        canAutoResize: true
-      },
-      {
-        cellTemplate: this.passwordTpl,
-        name: 'Password',
-        prop: 'password',
         canAutoResize: true,
-        sortable: false,
-        width: 25
+        showInitially: false
       },
       {
         cellTemplate: this.checkBoxTpl,
         name: 'Active',
         canAutoResize: true,
-        width: 25
+        width: 25,
+        showInitially: true
       },
       {
         cellTemplate: this.deletedTpl,
         name: 'Deleted',
         canAutoResize: true,
-        width: 25
+        width: 25,
+        showInitially: false
+      },
+      {
+        cellTemplate: this.rowWithDateFormatTpl,
+        name: 'Expiration Date',
+        prop: 'expirationDate',
+        canAutoResize: true,
+        showInitially: true
       },
       {
         cellTemplate: this.rowActions,
         name: 'Actions',
         width: 60,
         canAutoResize: true,
-        sortable: false
-      }
+        sortable: false,
+        showInitially: true
+      },
     ];
 
     const showDomain = await this.userService.isDomainVisible();
@@ -150,36 +144,62 @@ export class UserComponent implements OnInit, DirtyOperations {
           cellTemplate: this.editableTpl,
           name: 'Domain',
           prop: 'domainName',
-          canAutoResize: true
+          canAutoResize: true,
+          showInitially: true
         });
     }
-    this.domainService.getCurrentDomain().subscribe((domain: Domain) => this.currentDomain = domain);
 
-    this.columnPicker.selectedColumns = this.columnPicker.allColumns.filter(col => {
-      return ['Username', 'Role', 'Domain', 'Active', 'Deleted', 'Actions'].indexOf(col.name) !== -1
-    });
-
-    this.getUsers();
-
-    this.getUserRoles();
-
-    this.dirty = false;
-    this.areRowsDeleted = false;
+    this.columnPicker.selectedColumns = this.columnPicker.allColumns.filter(col => col.showInitially);
   }
 
-  getUsers(): void {
-    this.isBusy = true;
-    this.userService.getUsers(this.filter).subscribe(results => {
-      results.forEach(user => {
-        this.setDomainName(user);
+  ngAfterViewChecked() {
+    this.changeDetector.detectChanges();
+  }
+
+  public async getDataAndSetResults(): Promise<any> {
+    return this.getUsers();
+  }
+
+  async getUsers(): Promise<any> {
+    return this.userService.getUsers()
+      .then(async allUsers => {
+        this.allUsers = allUsers;
+        let users = allUsers.filter(this.applyFilter(this.activeFilter));
+
+        await this.userService.checkConfiguredCorrectlyForMultitenancy(users);
+
+        await this.setDomain(users);
+
+        super.rows = users;
+        super.count = users.length;
+
+        this.areRowsDeleted = false;
+        this.disableSelection();
       });
-      this.users = results;
-      this.isBusy = false;
-    }, err => {
-      this.isBusy = false;
-    });
-    this.dirty = false;
-    this.areRowsDeleted = false;
+  }
+
+  private applyFilter(filter: UserSearchCriteria) {
+    return (user) => {
+      let crit1 = true, crit2 = true, crit3 = true;
+      if (filter.userName) {
+        crit1 = user.userName === filter.userName;
+      }
+      if (!filter.deleted_notSet) {
+        crit2 = user.deleted === filter.deleted;
+      }
+      if (filter.authRole) {
+        crit3 = user.roles === filter.authRole;
+      }
+      return crit1 && crit2 && crit3;
+    }
+  }
+
+  private async setDomain(users: UserResponseRO[]) {
+    const showDomain = await this.userService.isDomainVisible();
+    if (showDomain) {
+      await this.getUserDomains();
+      users.forEach(user => this.setDomainName(user));
+    }
   }
 
   private setDomainName(user) {
@@ -197,28 +217,17 @@ export class UserComponent implements OnInit, DirtyOperations {
   }
 
   async getUserDomains(): Promise<Domain[]> {
-    var res = await this.domainService.getDomains();
-    this.domains = res;
-    return res;
+    if (this.domainsPromise) {
+      return this.domainsPromise;
+    }
+    this.domainsPromise = this.domainService.getDomains();
+    this.domains = await this.domainsPromise;
+    return this.domains;
   }
 
   onSelect({selected}) {
-    if (isNullOrUndefined(selected) || selected.length == 0) {
-      // unselect
-      this.enableDelete = false;
-      this.enableEdit = false;
-
-      return;
-    }
-
-    // select
     this.currentUser = this.selected[0];
     this.editedUser = this.currentUser;
-
-    this.selected.splice(0, this.selected.length);
-    this.selected.push(...selected);
-    this.enableDelete = selected.length > 0 && !selected.every(el => el.deleted);
-    this.enableEdit = selected.length == 1 && !selected[0].deleted;
   }
 
   private isLoggedInUserSelected(selected): boolean {
@@ -231,90 +240,72 @@ export class UserComponent implements OnInit, DirtyOperations {
     return false;
   }
 
-  buttonNew(): void {
-    if (this.isBusy) return;
+  add(): void {
+    if (this.isBusy()) {
+      return;
+    }
 
     this.setPage(this.getLastPage());
 
-    this.editedUser = new UserResponseRO('', this.currentDomain, '', '', true, UserState[UserState.NEW], [], false, false);
+    this.editedUser = new UserResponseRO('', this.currentDomain, '', '', true, UserState[UserState.NEW], [], false, false, null);
     this.setIsDirty();
-    const formRef: MdDialogRef<EditUserComponent> = this.dialog.open(EditUserComponent, {
+    this.dialog.open(EditUserComponent, {
       data: {
-        edit: false,
         user: this.editedUser,
         userroles: this.userRoles,
         userdomains: this.domains
       }
-    });
-    formRef.afterClosed().subscribe(ok => {
+    }).afterClosed().subscribe(ok => {
       if (ok) {
-        this.onSaveEditForm(formRef);
-        this.users.push(this.editedUser);
+        super.rows = [...this.rows, this.editedUser];
+        this.allUsers.push(this.editedUser);
+        super.count = this.count + 1;
         this.currentUser = this.editedUser;
       } else {
-        this.selected = [];
-        this.enableEdit = false;
-        this.enableDelete = false;
+        super.selected = [];
       }
       this.setIsDirty();
     });
   }
 
-  buttonEdit() {
+  edit() {
     if (this.currentUser && this.currentUser.deleted) {
-      this.alertService.error('You cannot edit a deleted user.', false, 3000);
+      this.alertService.error('You cannot edit a deleted user.', false, 5000);
       return;
     }
-    this.buttonEditAction(this.currentUser);
+    this.editUser(this.currentUser);
   }
 
-  buttonEditAction(currentUser) {
-    if (this.isBusy) return;
+  editUser(currentUser) {
+    if (this.isLoading) {
+      return;
+    }
 
-    const formRef: MdDialogRef<EditUserComponent> = this.dialog.open(EditUserComponent, {
+    const rowCopy = Object.assign({}, currentUser);
+    this.dialog.open(EditUserComponent, {
       data: {
-        edit: true,
-        user: currentUser,
+        user: rowCopy,
         userroles: this.userRoles,
         userdomains: this.domains
       }
-    });
-    formRef.afterClosed().subscribe(ok => {
+    }).afterClosed().subscribe(ok => {
       if (ok) {
-        this.onSaveEditForm(formRef);
-        this.setIsDirty();
+        if (JSON.stringify(currentUser) !== JSON.stringify(rowCopy)) {
+          Object.assign(currentUser, rowCopy);
+          if (currentUser.status == UserState[UserState.PERSISTED]) {
+            currentUser.status = UserState[UserState.UPDATED]
+          }
+          this.setIsDirty();
+        }
       }
     });
-  }
-
-  private onSaveEditForm(formRef: MdDialogRef<EditUserComponent>) {
-    const editForm = formRef.componentInstance;
-    const user = this.editedUser;
-    if (!user) return;
-
-    user.userName = editForm.userName || user.userName; // only for add
-    user.email = editForm.email;
-    user.roles = editForm.role;
-    user.domain = editForm.domain;
-    this.setDomainName(user);
-    user.password = editForm.password;
-    user.active = editForm.active;
-
-    if (editForm.userForm.dirty) {
-      if (UserState[UserState.PERSISTED] === user.status) {
-        user.status = UserState[UserState.UPDATED]
-      }
-    }
   }
 
   setIsDirty() {
-    this.dirty = this.areRowsDeleted || this.users.filter(el => el.status !== UserState[UserState.PERSISTED]).length > 0;
-
-    this.enableSave = this.dirty;
-    this.enableCancel = this.dirty;
+    super.isChanged = this.areRowsDeleted || this.rows.filter(el => el.status !== UserState[UserState.PERSISTED]).length > 0;
   }
 
-  buttonDelete() {
+  delete() {
     this.deleteUsers(this.selected);
   }
 
@@ -328,128 +319,82 @@ export class UserComponent implements OnInit, DirtyOperations {
       return;
     }
 
-    this.enableDelete = false;
-    this.enableEdit = false;
-
-    for (const itemToDelete of  users) {
+    for (const itemToDelete of users) {
       if (itemToDelete.status === UserState[UserState.NEW]) {
-        this.users.splice(this.users.indexOf(itemToDelete), 1);
+        this.rows.splice(this.rows.indexOf(itemToDelete), 1);
+        this.allUsers.splice(this.allUsers.indexOf(itemToDelete), 1);
       } else {
         itemToDelete.status = UserState[UserState.REMOVED];
         itemToDelete.deleted = true;
       }
     }
 
-    this.selected = [];
+    super.selected = [];
     this.areRowsDeleted = true;
     this.setIsDirty();
   }
 
-  private disableSelectionAndButtons() {
-    this.selected = [];
-    this.enableCancel = false;
-    this.enableSave = false;
-    this.enableEdit = false;
-    this.enableDelete = false;
+  private disableSelection() {
+    super.selected = [];
   }
 
-  cancel() {
-    this.dialog.open(CancelDialogComponent).afterClosed().subscribe(yes => {
-      if (yes) {
-        this.disableSelectionAndButtons();
-        this.users = [];
-        this.getUsers();
-      }
-    });
-  }
-
-  async save(withDownloadCSV: boolean) {
+  async doSave(): Promise<any> {
     try {
-      const isValid = this.userValidatorService.validateUsers(this.users);
-      if (!isValid) return;
+      this.userValidatorService.validateUsers(this.allUsers);
 
-      const proceed = await this.dialog.open(SaveDialogComponent).afterClosed().toPromise();
-      if (proceed) {
-        this.disableSelectionAndButtons();
-        const modifiedUsers = this.users.filter(el => el.status !== UserState[UserState.PERSISTED]);
-        this.isBusy = true;
-        this.http.put(UserComponent.USER_USERS_URL, modifiedUsers).subscribe(res => {
-          this.isBusy = false;
-          this.getUsers();
-          this.alertService.success('The operation \'update users\' completed successfully.', false);
-          if (withDownloadCSV) {
-            DownloadService.downloadNative(UserComponent.USER_CSV_URL);
-          }
-        }, err => {
-          this.isBusy = false;
-          this.getUsers();
-          this.alertService.exception('The operation \'update users\' not completed successfully.', err, false);
-        });
-      } else {
-        if (withDownloadCSV) {
-          DownloadService.downloadNative(UserComponent.USER_CSV_URL);
-        }
-      }
-    } catch (err) {
-      this.isBusy = false;
-      this.alertService.exception('The operation \'update users\' completed with errors.', err);
+      const modifiedUsers = this.rows.filter(el => el.status !== UserState[UserState.PERSISTED]);
+      return this.http.put(UserComponent.USER_USERS_URL, modifiedUsers).toPromise().then(() => {
+        this.loadServerData();
+      });
+    } catch (ex) {
+      this.alertService.exception('Cannot save users:', ex);
+      return Promise.reject(ex);
     }
   }
 
-  /**
-   * Saves the content of the datatable into a CSV file
-   */
-  saveAsCSV() {
-    if (this.isDirty()) {
-      this.save(true);
-    } else {
-      if (this.users.length > AlertComponent.MAX_COUNT_CSV) {
-        this.alertService.error(AlertComponent.CSV_ERROR_MESSAGE);
-        return;
-      }
+  protected createAndSetParameters(): HttpParams {
+    let filterParams = super.createAndSetParameters();
+    if(this.filter.deleted_notSet){
+      filterParams = filterParams.set('deleted','all');
+    }
+    filterParams = filterParams.append('page', '0');
+    filterParams = filterParams.append('pageSize', '10000');
+    return filterParams;
+  }
 
-      DownloadService.downloadNative(UserComponent.USER_CSV_URL);
+  get csvUrl(): string {
+    return UserComponent.USER_CSV_URL + '?' + this.createAndSetParameters();
+  }
+
+  setState() {
+    this.filter.deleted_notSet = this.filter.i++ % 3 === 1;
+    if (this.filter.deleted_notSet) {
+      this.filter.deleted = true;
     }
   }
 
-  isDirty(): boolean {
-    return this.enableCancel;
+  canEdit() {
+    return this.oneRowSelected() && this.selectedRowNotDeleted() && !this.isBusy();
   }
 
-  async checkIsDirty(): Promise<boolean> {
-    if (!this.isDirty()) {
-      return Promise.resolve(true);
-    }
-
-    const ok = await this.dialog.open(CancelDialogComponent).afterClosed().toPromise();
-    return Promise.resolve(ok);
+  canDelete() {
+    return this.atLeastOneRowSelected() && this.notEveryRowIsDeleted() && !this.isBusy();
   }
 
-  //we create this function like so to preserve the correct "this" when called from the row-limiter component context
-  onPageSizeChanging = async (newPageLimit: number): Promise<boolean> => {
-    const isDirty = await this.checkIsDirty();
-    const canChangePage = !isDirty;
-    return canChangePage;
-  };
-
-  changePageSize(newPageLimit: number) {
-    this.rowLimiter.pageSize = newPageLimit;
-    this.disableSelectionAndButtons();
-    this.users = [];
-    this.getUsers();
+  private notEveryRowIsDeleted() {
+    return !this.selected.every(el => el.deleted);
   }
 
-  onChangePage(event: any): void {
-    this.setPage(event.offset);
+  private atLeastOneRowSelected() {
+    return this.selected.length > 0;
   }
 
-  setPage(offset: number): void {
-    this.offset = offset;
+  private selectedRowNotDeleted() {
+    return !this.selected[0].deleted;
   }
 
-  getLastPage(): number {
-    if (!this.users || !this.rowLimiter || !this.rowLimiter.pageSize)
-      return 0;
-    return Math.floor(this.users.length / this.rowLimiter.pageSize);
+  private oneRowSelected() {
+    return this.selected.length === 1;
   }
+
 }

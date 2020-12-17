@@ -15,7 +15,11 @@
   }, {
     "name" : "monitoring"
   }, {
+    "name" : "party"
+  }, {
     "name" : "pmode"
+  }, {
+    "name" : "status"
   }, {
     "name" : "usermessage"
   } ],
@@ -122,6 +126,35 @@
             "description" : "successful operation",
             "schema" : {
               "$ref" : "#/definitions/UserMessageDTO"
+            }
+          }
+        },
+        "security" : [ {
+          "basicAuth" : [ ]
+        } ]
+      }
+    },
+    "/ext/monitoring/application/status" : {
+      "get" : {
+        "tags" : [ "status" ],
+        "summary" : "Check Domibus is Alive ",
+        "description" : "Shows the accessibility and status of Domibus Database, JMS broker and Quartz Trigger",
+        "operationId" : "getMonitoringDetails",
+        "parameters" : [ {
+          "name" : "filter",
+          "in" : "query",
+          "required" : true,
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          },
+          "collectionFormat" : "multi"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/MonitoringInfoDTO"
             }
           }
         },
@@ -313,6 +346,151 @@
         } ]
       }
     },
+    "/ext/party" : {
+      "get" : {
+        "tags" : [ "party" ],
+        "summary" : "Get Parties",
+        "description" : "Get Parties using certain criteria like name, endpoint, partyId, process name. Use pageStart and pageSize for pagination purposes",
+        "operationId" : "listParties",
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/definitions/PartyDTO"
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "basicAuth" : [ ]
+        } ]
+      },
+      "post" : {
+        "tags" : [ "party" ],
+        "summary" : "Creates a Party",
+        "description" : "Creates a Party using name, party id, endpoint and identifiers which are mandatory fields",
+        "operationId" : "createParty",
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "body",
+          "required" : false,
+          "schema" : {
+            "$ref" : "#/definitions/PartyDTO"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "type" : "string"
+            }
+          },
+          "201" : {
+            "description" : ""
+          }
+        },
+        "security" : [ {
+          "basicAuth" : [ ]
+        } ]
+      },
+      "put" : {
+        "tags" : [ "party" ],
+        "summary" : "Update a Party",
+        "description" : "Update a Party based on party name",
+        "operationId" : "updateParty",
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "body",
+          "required" : false,
+          "schema" : {
+            "$ref" : "#/definitions/PartyDTO"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "type" : "string"
+            }
+          }
+        },
+        "security" : [ {
+          "basicAuth" : [ ]
+        } ]
+      },
+      "delete" : {
+        "tags" : [ "party" ],
+        "summary" : "Delete a Party",
+        "description" : "Delete a Party based on party name",
+        "operationId" : "deleteParty",
+        "parameters" : [ {
+          "name" : "partyName",
+          "in" : "query",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "type" : "string"
+            }
+          }
+        },
+        "security" : [ {
+          "basicAuth" : [ ]
+        } ]
+      }
+    },
+    "/ext/party/processes" : {
+      "get" : {
+        "tags" : [ "party" ],
+        "summary" : "List all Processes",
+        "description" : "List all Processes",
+        "operationId" : "listProcesses",
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/definitions/ProcessDTO"
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "basicAuth" : [ ]
+        } ]
+      }
+    },
+    "/ext/party/{partyName}/certificate" : {
+      "get" : {
+        "tags" : [ "party" ],
+        "summary" : "Get Certificate for a Party",
+        "description" : "Get Certificate for a Party based on party name",
+        "operationId" : "getCertificateForParty",
+        "parameters" : [ {
+          "name" : "",
+          "in" : "path",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "type" : "object"
+            }
+          }
+        },
+        "security" : [ {
+          "basicAuth" : [ ]
+        } ]
+      }
+    },
     "/ext/pmode" : {
       "post" : {
         "tags" : [ "pmode" ],
@@ -335,7 +513,7 @@
           "200" : {
             "description" : "successful operation",
             "schema" : {
-              "type" : "string"
+              "$ref" : "#/definitions/ValidationResponseDTO"
             }
           }
         },
@@ -611,6 +789,17 @@
         }
       }
     },
+    "MonitoringInfoDTO" : {
+      "type" : "object",
+      "properties" : {
+        "services" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/ServiceInfoDTO"
+          }
+        }
+      }
+    },
     "PModeArchiveInfoDTO" : {
       "type" : "object",
       "properties" : {
@@ -665,6 +854,42 @@
         }
       }
     },
+    "PartyDTO" : {
+      "type" : "object",
+      "properties" : {
+        "name" : {
+          "type" : "string"
+        },
+        "userName" : {
+          "type" : "string"
+        },
+        "endpoint" : {
+          "type" : "string"
+        },
+        "identifiers" : {
+          "type" : "array",
+          "uniqueItems" : true,
+          "items" : {
+            "$ref" : "#/definitions/PartyIdentifierDTO"
+          }
+        },
+        "processesWithPartyAsInitiator" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/ProcessDTO"
+          }
+        },
+        "processesWithPartyAsResponder" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/ProcessDTO"
+          }
+        },
+        "certificateContent" : {
+          "type" : "string"
+        }
+      }
+    },
     "PartyIdDTO" : {
       "type" : "object",
       "properties" : {
@@ -672,6 +897,28 @@
           "type" : "string"
         },
         "type" : {
+          "type" : "string"
+        }
+      }
+    },
+    "PartyIdentifierDTO" : {
+      "type" : "object",
+      "properties" : {
+        "partyId" : {
+          "type" : "string"
+        },
+        "partyIdType" : {
+          "$ref" : "#/definitions/PartyIdentifierTypeDTO"
+        }
+      }
+    },
+    "PartyIdentifierTypeDTO" : {
+      "type" : "object",
+      "properties" : {
+        "name" : {
+          "type" : "string"
+        },
+        "value" : {
           "type" : "string"
         }
       }
@@ -696,6 +943,14 @@
           "items" : {
             "$ref" : "#/definitions/PartInfoDTO"
           }
+        }
+      }
+    },
+    "ProcessDTO" : {
+      "type" : "object",
+      "properties" : {
+        "name" : {
+          "type" : "string"
         }
       }
     },
@@ -738,6 +993,18 @@
         }
       }
     },
+    "ServiceInfoDTO" : {
+      "type" : "object",
+      "properties" : {
+        "name" : {
+          "type" : "string"
+        },
+        "status" : {
+          "type" : "string",
+          "enum" : [ "NORMAL", "ERROR", "BLOCKED" ]
+        }
+      }
+    },
     "ToDTO" : {
       "type" : "object",
       "properties" : {
@@ -773,6 +1040,35 @@
         },
         "mpc" : {
           "type" : "string"
+        }
+      }
+    },
+    "ValidationIssueDTO" : {
+      "type" : "object",
+      "properties" : {
+        "level" : {
+          "type" : "string",
+          "enum" : [ "NOTE", "WARNING", "ERROR" ]
+        },
+        "code" : {
+          "type" : "string"
+        },
+        "message" : {
+          "type" : "string"
+        }
+      }
+    },
+    "ValidationResponseDTO" : {
+      "type" : "object",
+      "properties" : {
+        "message" : {
+          "type" : "string"
+        },
+        "issues" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/ValidationIssueDTO"
+          }
         }
       }
     }

@@ -1,62 +1,63 @@
 package eu.domibus.core.message;
 
-import com.google.common.collect.Lists;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.message.UserMessageException;
-import eu.domibus.api.message.UserMessageLogService;
+import eu.domibus.api.messaging.MessageNotFoundException;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pmode.PModeService;
 import eu.domibus.api.pmode.PModeServiceHelper;
 import eu.domibus.api.pmode.domain.LegConfiguration;
+import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.usermessage.UserMessageService;
+import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.MessageStatus;
-import eu.domibus.common.dao.MessagingDao;
-import eu.domibus.common.dao.SignalMessageDao;
-import eu.domibus.common.dao.SignalMessageLogDao;
-import eu.domibus.common.dao.UserMessageLogDao;
-import eu.domibus.common.model.logging.UserMessageLog;
-import eu.domibus.common.services.MessageExchangeService;
+import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.converter.DomainCoreConverter;
-import eu.domibus.core.message.fragment.MessageGroupDao;
-import eu.domibus.core.message.fragment.MessageGroupEntity;
-import eu.domibus.core.pmode.PModeProvider;
-import eu.domibus.core.pull.PartyExtractor;
-import eu.domibus.core.pull.PullMessageService;
+import eu.domibus.core.jms.DelayedDispatchMessageCreator;
+import eu.domibus.core.jms.DispatchMessageCreator;
+import eu.domibus.core.message.converter.MessageConverterService;
+import eu.domibus.core.message.pull.PullMessageService;
+import eu.domibus.core.message.signal.SignalMessageDao;
+import eu.domibus.core.message.signal.SignalMessageLogDao;
+import eu.domibus.core.message.splitandjoin.MessageGroupDao;
+import eu.domibus.core.message.splitandjoin.MessageGroupEntity;
+import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
+import eu.domibus.core.error.ErrorLogDao;
+import eu.domibus.core.message.acknowledge.MessageAcknowledgementDao;
+import eu.domibus.core.message.attempt.MessageAttemptDao;
+import eu.domibus.core.replication.UIMessageDao;
+import eu.domibus.core.plugin.notification.BackendNotificationService;
+import eu.domibus.core.plugin.routing.RoutingService;
+import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.replication.UIReplicationSignalService;
-import eu.domibus.ebms3.common.UserMessageServiceHelper;
-import eu.domibus.ebms3.common.model.SignalMessage;
-import eu.domibus.ebms3.common.model.UserMessage;
-import eu.domibus.ebms3.receiver.BackendNotificationService;
-import eu.domibus.messaging.DispatchMessageCreator;
+import eu.domibus.ebms3.common.model.*;
 import eu.domibus.messaging.MessagingProcessingException;
-import eu.domibus.plugin.NotificationListener;
-import eu.domibus.plugin.handler.DatabaseMessageHandler;
-import eu.domibus.plugin.transformer.impl.UserMessageFactory;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
+import org.apache.commons.lang3.time.DateUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import javax.jms.JMSException;
 import javax.jms.Queue;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
- * @author Cosmin Baciu
+ * @author Cosmin Baciu, Soumya
  * @since 3.3
  */
+@SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(JMockit.class)
 public class UserMessageDefaultServiceTest {
 
     private static final long SYSTEM_DATE = new Date().getTime();
+    public static final String MESSAGE_ID = "1000";
 
     @Tested
     UserMessageDefaultService userMessageDefaultService;
@@ -80,7 +81,10 @@ public class UserMessageDefaultServiceTest {
     private UserMessageLogDao userMessageLogDao;
 
     @Injectable
-    private UserMessageLogService userMessageLogService;
+    private SignalMessageLogDao signalMessageLogDao;
+
+    @Injectable
+    private UserMessageLogDefaultService userMessageLogService;
 
     @Injectable
     private MessagingDao messagingDao;
@@ -92,10 +96,10 @@ public class UserMessageDefaultServiceTest {
     private SignalMessageDao signalMessageDao;
 
     @Injectable
-    private SignalMessageLogDao signalMessageLogDao;
+    private BackendNotificationService backendNotificationService;
 
     @Injectable
-    private BackendNotificationService backendNotificationService;
+    protected RoutingService routingService;
 
     @Injectable
     private JMSManager jmsManager;
@@ -133,17 +137,43 @@ public class UserMessageDefaultServiceTest {
     @Injectable
     PModeProvider pModeProvider;
 
+    @Injectable
+    MessageConverterService messageConverterService;
+
+    @Injectable
+    AuditService auditService;
+
+    @Injectable
+    UserMessagePriorityService userMessagePriorityService;
+
+    @Injectable
+    DomibusPropertyProvider domibusPropertyProvider;
+
+    @Injectable
+    DateUtil dateUtil;
+
+    @Injectable
+    private MessageInfoDao messageInfoDao;
+
+    @Injectable
+    private MessageAttemptDao messageAttemptDao;
+
+    @Injectable
+    private ErrorLogDao errorLogDao;
+
+    @Injectable
+    private UIMessageDao uiMessageDao;
+
+    @Injectable
+    private MessageAcknowledgementDao messageAcknowledgementDao;
 
     @Test
     public void createMessagingForFragment(@Injectable UserMessage sourceMessage,
                                            @Injectable MessageGroupEntity messageGroupEntity,
                                            @Injectable UserMessage userMessageFragment) throws MessagingProcessingException {
-        String messageId = "123";
         String backendName = "mybackend";
 
-        List<String> fragmentFiles = new ArrayList<>();
         final String fragment1 = "fragment1";
-        fragmentFiles.add(fragment1);
 
         new Expectations() {{
             userMessageFactory.createUserMessageFragment(sourceMessage, messageGroupEntity, 1L, fragment1);
@@ -191,7 +221,7 @@ public class UserMessageDefaultServiceTest {
     }
 
     @Test
-    public void testGetFinalRecipient(@Injectable final UserMessage userMessage) throws Exception {
+    public void testGetFinalRecipient(@Injectable final UserMessage userMessage) {
         final String messageId = "1";
 
         new Expectations() {{
@@ -208,7 +238,7 @@ public class UserMessageDefaultServiceTest {
     }
 
     @Test
-    public void testGetFinalRecipientWhenNoMessageIsFound(@Injectable final UserMessage userMessage) throws Exception {
+    public void testGetFinalRecipientWhenNoMessageIsFound(@Injectable final UserMessage userMessage) {
         final String messageId = "1";
 
         new Expectations() {{
@@ -221,7 +251,7 @@ public class UserMessageDefaultServiceTest {
     }
 
     @Test
-    public void testFailedMessages(@Injectable final UserMessage userMessage) throws Exception {
+    public void testFailedMessages(@Injectable final UserMessage userMessage) {
         final String finalRecipient = "C4";
 
         userMessageDefaultService.getFailedMessages(finalRecipient);
@@ -232,7 +262,7 @@ public class UserMessageDefaultServiceTest {
     }
 
     @Test
-    public void testGetFailedMessageElapsedTime(@Injectable final UserMessageLog userMessageLog) throws Exception {
+    public void testGetFailedMessageElapsedTime(@Injectable final UserMessageLog userMessageLog) {
         final String messageId = "1";
         final Date failedDate = new Date();
 
@@ -247,11 +277,11 @@ public class UserMessageDefaultServiceTest {
         }};
 
         final Long failedMessageElapsedTime = userMessageDefaultService.getFailedMessageElapsedTime(messageId);
-        Assert.assertTrue(SYSTEM_DATE - failedDate.getTime() == failedMessageElapsedTime);
+        assertEquals(SYSTEM_DATE - failedDate.getTime(), (long) failedMessageElapsedTime);
     }
 
     @Test(expected = UserMessageException.class)
-    public void testGetFailedMessageElapsedTimeWhenFailedDateIsNull(@Injectable final UserMessageLog userMessageLog) throws Exception {
+    public void testGetFailedMessageElapsedTimeWhenFailedDateIsNull(@Injectable final UserMessageLog userMessageLog) {
         final String messageId = "1";
 
         new CurrentTimeMillisMock();
@@ -268,7 +298,7 @@ public class UserMessageDefaultServiceTest {
     }
 
     @Test(expected = UserMessageException.class)
-    public void testRestoreMessageWhenMessageIsDeleted(@Injectable final UserMessageLog userMessageLog) throws Exception {
+    public void testRestoreMessageWhenMessageIsDeleted(@Injectable final UserMessageLog userMessageLog) {
         final String messageId = "1";
 
         new Expectations(userMessageDefaultService) {{
@@ -284,7 +314,8 @@ public class UserMessageDefaultServiceTest {
     }
 
     @Test
-    public void testRestorePushedMessage(@Injectable final UserMessageLog userMessageLog) throws Exception {
+    public void testRestorePushedMessage(@Injectable final UserMessageLog userMessageLog,
+                                         @Injectable final UserMessage userMessage) {
         final String messageId = "1";
         final Integer newMaxAttempts = 5;
 
@@ -301,6 +332,8 @@ public class UserMessageDefaultServiceTest {
             userMessageLog.getMessageStatus();
             result = MessageStatus.SEND_ENQUEUED;
 
+            messagingDao.findUserMessageByMessageId(messageId);
+            result = userMessage;
         }};
 
         userMessageDefaultService.restoreFailedMessage(messageId);
@@ -316,16 +349,16 @@ public class UserMessageDefaultServiceTest {
 
             userMessageLogDao.update(userMessageLog);
             uiReplicationSignalService.messageChange(anyString);
-            userMessageDefaultService.scheduleSending(messageId, anyBoolean);
+            userMessageDefaultService.scheduleSending(userMessage, userMessageLog);
 
         }};
     }
 
     @Test
-    public void testRestorePUlledMessage(@Injectable final UserMessageLog userMessageLog, @Injectable final UserMessage userMessage) throws Exception {
+    public void testRestorePUlledMessage(@Injectable final UserMessageLog userMessageLog,
+                                         @Injectable final UserMessage userMessage) {
         final String messageId = "1";
         final Integer newMaxAttempts = 5;
-        final String mpc = "mpc";
 
         new Expectations(userMessageDefaultService) {{
             userMessageDefaultService.getFailedMessage(messageId);
@@ -358,18 +391,20 @@ public class UserMessageDefaultServiceTest {
 
             userMessageLogDao.update(userMessageLog);
             times = 1;
-            userMessageDefaultService.scheduleSending(messageId, anyBoolean);
+
+            userMessageDefaultService.scheduleSending(userMessage, userMessageLog);
             times = 0;
+
             messagingDao.findUserMessageByMessageId(messageId);
             times = 1;
-            PartyExtractor partyExtractor = null;
-            pullMessageService.addPullMessageLock(withAny(partyExtractor), userMessage, userMessageLog);
+
+            pullMessageService.addPullMessageLock(userMessage, userMessageLog);
             times = 1;
         }};
     }
 
     @Test
-    public void testMaxAttemptsConfigurationWhenNoLegIsFound() throws Exception {
+    public void testMaxAttemptsConfigurationWhenNoLegIsFound() {
         final String messageId = "1";
 
         new Expectations(userMessageDefaultService) {{
@@ -379,12 +414,12 @@ public class UserMessageDefaultServiceTest {
         }};
 
         final Integer maxAttemptsConfiguration = userMessageDefaultService.getMaxAttemptsConfiguration(messageId);
-        Assert.assertTrue(maxAttemptsConfiguration == 1);
+        assertEquals(1, (int) maxAttemptsConfiguration);
 
     }
 
     @Test
-    public void testMaxAttemptsConfiguration(@Injectable final LegConfiguration legConfiguration) throws Exception {
+    public void testMaxAttemptsConfiguration(@Injectable final LegConfiguration legConfiguration) {
         final String messageId = "1";
         final Integer pModeMaxAttempts = 5;
 
@@ -398,11 +433,11 @@ public class UserMessageDefaultServiceTest {
         }};
 
         final Integer maxAttemptsConfiguration = userMessageDefaultService.getMaxAttemptsConfiguration(messageId);
-        Assert.assertTrue(maxAttemptsConfiguration == pModeMaxAttempts);
+        Assert.assertSame(maxAttemptsConfiguration, pModeMaxAttempts);
     }
 
     @Test
-    public void testComputeMaxAttempts(@Injectable final UserMessageLog userMessageLog) throws Exception {
+    public void testComputeMaxAttempts(@Injectable final UserMessageLog userMessageLog) {
         final String messageId = "1";
         final Integer pModeMaxAttempts = 5;
 
@@ -416,14 +451,20 @@ public class UserMessageDefaultServiceTest {
         }};
 
         final Integer maxAttemptsConfiguration = userMessageDefaultService.computeNewMaxAttempts(userMessageLog, messageId);
-        Assert.assertTrue(maxAttemptsConfiguration == 11);
+        assertEquals(11, (int) maxAttemptsConfiguration);
     }
 
     @Test
-    public void testScheduleSending(@Injectable final JmsMessage jmsMessage, final @Mocked DispatchMessageCreator dispatchMessageCreator) throws Exception {
+    public void testScheduleSending(@Injectable final JmsMessage jmsMessage,
+                                    @Mocked DispatchMessageCreator dispatchMessageCreator,
+                                    @Injectable UserMessageLog userMessageLog,
+                                    @Injectable UserMessage userMessage) {
         final String messageId = "1";
 
         new Expectations(userMessageDefaultService) {{
+            userMessageLog.getMessageId();
+            result = messageId;
+
             new DispatchMessageCreator(messageId);
             result = dispatchMessageCreator;
 
@@ -432,16 +473,16 @@ public class UserMessageDefaultServiceTest {
 
         }};
 
-        userMessageDefaultService.scheduleSending(messageId, false);
+        userMessageDefaultService.scheduleSending(userMessage, userMessageLog);
 
         new Verifications() {{
-            jmsManager.sendMessageToQueue(jmsMessage, sendMessageQueue);
+            userMessageDefaultService.scheduleSending(userMessage, userMessageLog, jmsMessage);
         }};
 
     }
 
     @Test
-    public void testSchedulePullReceiptSending(@Injectable final JmsMessage jmsMessage) throws Exception {
+    public void testSchedulePullReceiptSending(@Injectable final JmsMessage jmsMessage) {
         final String messageId = "1";
         final String pModeKey = "pModeKey";
 
@@ -455,7 +496,7 @@ public class UserMessageDefaultServiceTest {
     }
 
     @Test
-    public void testRestoreFailedMessagesDuringPeriodWhenAPreviousMessageIsFailing() throws Exception {
+    public void testRestoreFailedMessagesDuringPeriodWhenAPreviousMessageIsFailing() {
         final String finalRecipient = "C4";
         final Date startDate = new Date();
         final Date endDate = new Date();
@@ -483,7 +524,7 @@ public class UserMessageDefaultServiceTest {
     }
 
     @Test
-    public void testRestoreFailedMessagesDuringPeriod() throws Exception {
+    public void testRestoreFailedMessagesDuringPeriod() {
         final String finalRecipient = "C4";
         final Date startDate = new Date();
         final Date endDate = new Date();
@@ -507,7 +548,7 @@ public class UserMessageDefaultServiceTest {
     }
 
     @Test(expected = UserMessageException.class)
-    public void testFailedMessageWhenNoMessageIsFound(@Injectable final UserMessageLog userMessageLog) throws Exception {
+    public void testFailedMessageWhenNoMessageIsFound(@Injectable final UserMessageLog userMessageLog) {
         final String messageId = "1";
 
         new Expectations(userMessageDefaultService) {{
@@ -519,7 +560,7 @@ public class UserMessageDefaultServiceTest {
     }
 
     @Test(expected = UserMessageException.class)
-    public void testFailedMessageWhenStatusIsNotFailed(@Injectable final UserMessageLog userMessageLog) throws Exception {
+    public void testFailedMessageWhenStatusIsNotFailed(@Injectable final UserMessageLog userMessageLog) {
         final String messageId = "1";
 
         new Expectations(userMessageDefaultService) {{
@@ -534,7 +575,7 @@ public class UserMessageDefaultServiceTest {
     }
 
     @Test
-    public void testGetFailedMessage(@Injectable final UserMessageLog userMessageLog) throws Exception {
+    public void testGetFailedMessage(@Injectable final UserMessageLog userMessageLog) {
         final String messageId = "1";
 
         new Expectations(userMessageDefaultService) {{
@@ -550,162 +591,101 @@ public class UserMessageDefaultServiceTest {
     }
 
     @Test
-    public void testDeleteMessaged(@Mocked final NotificationListener notificationListener1) throws Exception {
+    public void testDeleteMessaged(@Injectable UserMessageLog userMessageLog) {
         final String messageId = "1";
-        final String queueName = "wsQueue";
 
         new Expectations(userMessageDefaultService) {{
-            userMessageDefaultService.deleteMessagePluginCallback((String) any);
+            backendNotificationService.notifyMessageDeleted((String) any, userMessageLog);
         }};
 
         userMessageDefaultService.deleteMessage(messageId);
 
         new Verifications() {{
-            userMessageDefaultService.deleteMessagePluginCallback(messageId);
+            backendNotificationService.notifyMessageDeleted(messageId, userMessageLog);
         }};
     }
 
     @Test
-    public void testDeleteMessagePluginCallback(@Injectable final NotificationListener notificationListener1,
-                                                @Injectable UserMessageLog userMessageLog) {
+    public void testDeleteMessages(@Injectable UserMessageLogDto uml1, @Injectable UserMessageLogDto uml2) {
+        List<UserMessageLogDto> userMessageLogDtos = Arrays.asList(uml1, uml2);
+
+        userMessageDefaultService.deleteMessages(userMessageLogDtos);
+
+        new Verifications() {{
+            backendNotificationService.notifyMessageDeleted((List<UserMessageLogDto>) any);
+        }};
+    }
+
+    @Test
+    public void marksTheUserMessageAsDeleted(@Injectable Messaging messaging,
+                                             @Injectable UserMessage userMessage,
+                                             @Injectable UserMessageLog userMessageLog,
+                                             @Injectable SignalMessage signalMessage,
+                                             @Injectable MessageInfo messageInfo) {
         final String messageId = "1";
-        final String backend = "myPlugin";
-        final List<NotificationListener> notificationListeners = new ArrayList<>();
-        notificationListeners.add(notificationListener1);
 
         new Expectations(userMessageDefaultService) {{
-            backendNotificationService.getNotificationListenerServices();
-            result = notificationListeners;
+            messagingDao.findMessageByMessageId(messageId);
+            result = messaging;
+
+            messaging.getUserMessage();
+            result = userMessage;
 
             userMessageLogDao.findByMessageIdSafely(messageId);
             result = userMessageLog;
 
-            userMessageLog.getBackend();
-            result = backend;
-
-            backendNotificationService.getNotificationListener(backend);
-            result = notificationListener1;
-
-            userMessageDefaultService.deleteMessagePluginCallback((String) any, (NotificationListener) any);
-        }};
-
-        userMessageDefaultService.deleteMessagePluginCallback(messageId);
-
-        new Verifications() {{
-            userMessageDefaultService.deleteMessagePluginCallback(messageId, notificationListener1);
-        }};
-    }
-
-    @Test
-    public void testDeleteMessagePluginCallbackForNotificationListener(@Injectable final NotificationListener notificationListener,
-                                                                       @Injectable UserMessageLog userMessageLog,
-                                                                       @Injectable Queue backendNotificationQueue) throws JMSException {
-        final String messageId = "1";
-        final String backendQueue = "myPluginQueue";
-
-        new Expectations(userMessageDefaultService) {{
-            notificationListener.getBackendNotificationQueue();
-            result = backendNotificationQueue;
-
-            backendNotificationQueue.getQueueName();
-            result = backendQueue;
-
-
-        }};
-
-        userMessageDefaultService.deleteMessagePluginCallback(messageId, notificationListener);
-
-        new Verifications() {{
-            jmsManager.consumeMessage(backendQueue, messageId);
-            notificationListener.deleteMessageCallback(messageId);
-        }};
-    }
-
-    @Test
-    public void marksTheUserMessageAsDeleted() throws Exception {
-        final String messageId = "1";
-
-        new Expectations(userMessageDefaultService) {{
-            userMessageDefaultService.handleSignalMessageDelete(messageId);
+            messaging.getSignalMessage();
+            result = signalMessage;
         }};
 
         userMessageDefaultService.deleteMessage(messageId);
 
-        new Verifications() {{
-            messagingDao.clearPayloadData(messageId);
-            userMessageLogService.setMessageAsDeleted(messageId);
+        new FullVerifications() {{
+            messagingDao.clearPayloadData(userMessage);
+            userMessageLog.setDeleted((Date)any);
+            userMessageLogService.setMessageAsDeleted(userMessage, userMessageLog);
+            userMessageLogService.setSignalMessageAsDeleted(signalMessage);
+            userMessageLog.getMessageStatus();
+            backendNotificationService.notifyMessageDeleted(messageId, userMessageLog);
+            times = 1;
         }};
     }
 
     @Test
-    public void clearsSignalMessagesReferencingTheMessageIdOfTheMessageBeingDeleted(@Injectable SignalMessage signalMessage) {
+    public void marksTheUserMessageAsDeleted_emptySignal(@Injectable Messaging messaging,
+                                                         @Injectable UserMessage userMessage,
+                                                         @Injectable UserMessageLog userMessageLog) {
         final String messageId = "1";
 
-        new Expectations() {{
-            signalMessageDao.findSignalMessagesByRefMessageId(messageId);
-            result = Lists.newArrayList(signalMessage);
+        new Expectations(userMessageDefaultService) {{
+            messagingDao.findMessageByMessageId(messageId);
+            result = messaging;
+
+            messaging.getUserMessage();
+            result = userMessage;
+
+            userMessageLogDao.findByMessageIdSafely(messageId);
+            result = userMessageLog;
+
+            messaging.getSignalMessage();
+            result = null;
         }};
 
-        userMessageDefaultService.handleSignalMessageDelete(messageId);
+        userMessageDefaultService.deleteMessage(messageId);
 
-        new Verifications() {{
-            signalMessageDao.clear(signalMessage);
-        }};
-    }
-
-    @Test
-    public void doesNotClearAnySignalMessagesWhenNoSignalMessagesFoundReferencingTheMessageIdOfTheMessageBeingDeleted() throws Exception {
-        final String messageId = "1";
-
-        new Expectations() {{
-            signalMessageDao.findSignalMessagesByRefMessageId(messageId);
-            result = Lists.<SignalMessage>newArrayList();
-        }};
-
-        userMessageDefaultService.handleSignalMessageDelete(messageId);
-
-        new Verifications() {{
-            signalMessageDao.clear((SignalMessage) any);
-            times = 0;
+        new FullVerifications() {{
+            messagingDao.clearPayloadData(userMessage);
+            userMessageLog.setDeleted((Date)any);
+            userMessageLogService.setMessageAsDeleted(userMessage, userMessageLog);
+            userMessageLogService.setSignalMessageAsDeleted((SignalMessage) null);
+            userMessageLog.getMessageStatus();
+            backendNotificationService.notifyMessageDeleted(messageId, userMessageLog);
+            times = 1;
         }};
     }
 
-    @Test
-    public void marksSignalMessagesAsDeletedWhenReferencingTheMessageIdOfTheMessageBeingDeleted() {
-        final String messageId = "1";
-        final String signalMessageId = "signalMessageId";
-
-        new Expectations() {{
-            signalMessageDao.findSignalMessageIdsByRefMessageId(messageId);
-            result = Lists.newArrayList(signalMessageId);
-        }};
-
-        userMessageDefaultService.handleSignalMessageDelete(messageId);
-
-        new Verifications() {{
-            userMessageLogService.setMessageAsDeleted(signalMessageId);
-        }};
-    }
-
-    @Test
-    public void doesNotMarkAnySignalMessagesAsDeletedWhenNoSignalMessagesIdentifiersFoundReferencingTheMessageIdOfTheMessageBeingDeleted() throws Exception {
-        final String messageId = "1";
-
-        new Expectations() {{
-            signalMessageDao.findSignalMessageIdsByRefMessageId(messageId);
-            result = Lists.<String>newArrayList();
-        }};
-
-        userMessageDefaultService.handleSignalMessageDelete(messageId);
-
-        new Verifications() {{
-            userMessageLogService.setMessageAsDeleted(anyString);
-            times = 0;
-        }};
-    }
-
-    @Test
-    public void test_ResendFailedOrSendEnqueuedMessage_StatusSendEnqueued(final @Mocked UserMessageLog userMessageLog) {
+    @Test(expected = UserMessageException.class)
+    public void test_ResendFailedOrSendEnqueuedMessage_StatusSendEnqueued(final @Mocked UserMessageLog userMessageLog) throws Exception {
         final String messageId = UUID.randomUUID().toString();
 
         new Expectations(userMessageDefaultService) {{
@@ -718,6 +698,7 @@ public class UserMessageDefaultServiceTest {
 
         //tested method
         userMessageDefaultService.resendFailedOrSendEnqueuedMessage(messageId);
+
 
         new FullVerifications(userMessageDefaultService) {{
             String messageIdActual;
@@ -749,7 +730,7 @@ public class UserMessageDefaultServiceTest {
     }
 
     @Test
-    public void test_ResendFailedOrSendEnqueuedMessage_MessageNotFound(final @Mocked UserMessageLog userMessageLog) {
+    public void test_ResendFailedOrSendEnqueuedMessage_MessageNotFound() {
         final String messageId = UUID.randomUUID().toString();
 
         new Expectations(userMessageDefaultService) {{
@@ -765,7 +746,61 @@ public class UserMessageDefaultServiceTest {
             Assert.assertEquals(UserMessageException.class, e.getClass());
         }
 
+        new FullVerifications(userMessageDefaultService) {
+        };
+    }
+
+    @Test
+    public void test_sendEnqueued(final @Mocked UserMessageLog userMessageLog, final @Mocked UserMessage userMessage) {
+        final String messageId = UUID.randomUUID().toString();
+
+        new Expectations(userMessageDefaultService) {{
+            userMessageLogDao.findByMessageId(messageId);
+            result = userMessageLog;
+
+            userMessageLog.getMessageStatus();
+            result = MessageStatus.SEND_ENQUEUED;
+
+            domibusPropertyProvider.getIntegerProperty(DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES);
+            result = 2;
+
+            userMessageLog.getReceived();
+            result = DateUtils.addMinutes(new Date(), -3);
+
+            userMessageLog.getNextAttempt();
+            result = null;
+
+            messagingDao.findUserMessageByMessageId(messageId);
+            result = userMessage;
+        }};
+
+        //tested method
+        userMessageDefaultService.sendEnqueuedMessage(messageId);
+
         new FullVerifications(userMessageDefaultService) {{
+            userMessageLog.setNextAttempt(withAny(new Date()));
+            userMessageLogDao.update(userMessageLog);
+            userMessageDefaultService.scheduleSending(userMessage, userMessageLog);
+        }};
+    }
+
+    @Test
+    public void getUserMessagePriority(@Injectable UserMessage userMessage) {
+        String service = "my service";
+        String action = "my action";
+
+        new Expectations() {{
+            userMessageServiceHelper.getService(userMessage);
+            result = service;
+
+            userMessageServiceHelper.getAction(userMessage);
+            result = action;
+        }};
+
+        userMessageDefaultService.getUserMessagePriority(userMessage);
+
+        new Verifications() {{
+            userMessagePriorityService.getPriority(service, action);
         }};
     }
 
@@ -775,4 +810,261 @@ public class UserMessageDefaultServiceTest {
             return SYSTEM_DATE;
         }
     }
+
+    @Test
+    public void deleteFailedMessageTest() {
+        final String messageId = UUID.randomUUID().toString();
+
+        new Expectations(userMessageDefaultService) {{
+            userMessageDefaultService.getFailedMessage(messageId);
+            times = 1;
+            userMessageDefaultService.deleteMessage(messageId);
+            times = 1;
+        }};
+
+        userMessageDefaultService.deleteFailedMessage(messageId);
+
+        new FullVerificationsInOrder(userMessageDefaultService) {{
+            userMessageDefaultService.getFailedMessage(messageId);
+            userMessageDefaultService.deleteMessage(messageId);
+        }};
+    }
+
+    @Test
+    public void scheduleSendingWithDelayTest(@Injectable final JmsMessage jmsMessage,
+                                             @Mocked DelayedDispatchMessageCreator delayedDispatchMessageCreator,
+                                             @Injectable UserMessageLog userMessageLog,
+                                             @Injectable UserMessage userMessage) {
+        final String messageId = UUID.randomUUID().toString();
+        Long delay = 1L;
+        boolean isSplitAndJoin = false;
+
+        new Expectations(userMessageDefaultService) {{
+            userMessageLogDao.findByMessageIdSafely(messageId);
+            result = userMessageLog;
+
+            new DelayedDispatchMessageCreator(messageId, delay);
+            result = delayedDispatchMessageCreator;
+
+            delayedDispatchMessageCreator.createMessage();
+            result = jmsMessage;
+
+            messagingDao.findUserMessageByMessageId(messageId);
+            result = userMessage;
+        }};
+
+        userMessageDefaultService.scheduleSending(messageId, delay);
+
+        new Verifications() {{
+            userMessageDefaultService.scheduleSending(userMessage, userMessageLog, new DelayedDispatchMessageCreator(messageId, delay).createMessage());
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void scheduleSendingWithRetryCountTest(@Injectable final JmsMessage jmsMessage,
+                                                  @Injectable UserMessageLog userMessageLog,
+                                                  @Mocked DispatchMessageCreator dispatchMessageCreator,
+                                                  @Injectable UserMessage userMessage) {
+        final String messageId = UUID.randomUUID().toString();
+
+        int retryCount = 3;
+        boolean isSplitAndJoin = false;
+
+        new Expectations(userMessageDefaultService) {{
+            userMessageLog.getMessageId();
+            result = messageId;
+
+            new DispatchMessageCreator(messageId);
+            result = dispatchMessageCreator;
+
+            dispatchMessageCreator.createMessage(retryCount);
+            result = jmsMessage;
+
+            messagingDao.findUserMessageByMessageId(messageId);
+            result = userMessage;
+        }};
+
+        userMessageDefaultService.scheduleSending(userMessageLog, retryCount);
+
+        new Verifications() {{
+            userMessageDefaultService.scheduleSending(userMessage, messageId, userMessageLog, new DispatchMessageCreator(messageId).createMessage(retryCount));
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void scheduleSendingPullReceiptWithRetryCountTest(@Injectable final JmsMessage jmsMessage,
+                                                             @Injectable UserMessageService userMessageService) {
+        final String messageId = UUID.randomUUID().toString();
+        final String pModeKey = "pModeKey";
+        final int retryCount = 3;
+
+        userMessageDefaultService.scheduleSendingPullReceipt(messageId, pModeKey, retryCount);
+
+        new Verifications() {{
+            jmsManager.sendMessageToQueue((JmsMessage) any, sendPullReceiptQueue);
+        }};
+    }
+
+    @Test
+    public void scheduleSplitAndJoinReceiveFailedTest(@Injectable final JmsMessage jmsMessage,
+                                                      @Injectable UserMessageService userMessageService) {
+        final String sourceMessageId = UUID.randomUUID().toString();
+        final String groupId = "groupId";
+        final String errorCode = "ebms3ErrorCode";
+        final String errorDetail = "ebms3ErrorDetail";
+
+        userMessageDefaultService.scheduleSplitAndJoinReceiveFailed(groupId, sourceMessageId, errorCode, errorDetail);
+
+        new Verifications() {{
+            jmsManager.sendMessageToQueue((JmsMessage) any, splitAndJoinQueue);
+        }};
+
+    }
+
+    @Test
+    public void scheduleSendingSignalErrorTest(@Injectable final JmsMessage jmsMessage,
+                                               @Injectable UserMessageService userMessageService) {
+        final String messageId = UUID.randomUUID().toString();
+        final String pmodeKey = "pmodeKey";
+        final String ebMS3ErrorCode = "ebms3ErrorCode";
+        final String errorDetail = "ebms3ErrorDetail";
+
+        userMessageDefaultService.scheduleSendingSignalError(messageId, ebMS3ErrorCode, errorDetail, pmodeKey);
+
+        new Verifications() {{
+            jmsManager.sendMessageToQueue((JmsMessage) any, splitAndJoinQueue);
+        }};
+    }
+
+    @Test
+    public void scheduleSourceMessageReceiptTest(@Injectable final JmsMessage jmsMessage,
+                                                 @Injectable UserMessageService userMessageService) {
+        final String messageId = UUID.randomUUID().toString();
+        final String pmodeKey = "pmodeKey";
+
+        userMessageDefaultService.scheduleSourceMessageReceipt(messageId, pmodeKey);
+
+        new Verifications() {{
+            jmsManager.sendMessageToQueue((JmsMessage) any, splitAndJoinQueue);
+        }};
+    }
+
+    @Test
+    public void scheduleSourceMessageRejoinTest(@Injectable final JmsMessage jmsMessage,
+                                                @Injectable UserMessageService userMessageService) {
+        final String groupId = "groupId";
+        final String file = "SourceMessageFile";
+        final String backendName = "backendName";
+
+        userMessageDefaultService.scheduleSourceMessageRejoin(groupId, file, backendName);
+
+        new Verifications() {{
+            jmsManager.sendMessageToQueue((JmsMessage) any, splitAndJoinQueue);
+        }};
+    }
+
+    @Test
+    public void scheduleSourceMessageRejoinFileTest(@Injectable final JmsMessage jmsMessage,
+                                                    @Injectable UserMessageService userMessageService) {
+        final String groupId = "groupId";
+        final String backendName = "backendName";
+
+        userMessageDefaultService.scheduleSourceMessageRejoinFile(groupId, backendName);
+
+        new Verifications() {{
+            jmsManager.sendMessageToQueue((JmsMessage) any, splitAndJoinQueue);
+        }};
+    }
+
+    @Test
+    public void scheduleSetUserMessageFragmentAsFailedTest(@Injectable final JmsMessage jmsMessage,
+                                                           @Injectable UserMessageService userMessageService) {
+        final String messageId = UUID.randomUUID().toString();
+
+        userMessageDefaultService.scheduleSetUserMessageFragmentAsFailed(messageId);
+
+        new Verifications() {{
+            jmsManager.sendMessageToQueue((JmsMessage) any, splitAndJoinQueue);
+        }};
+    }
+
+    @Test
+    public void scheduleSplitAndJoinSendFailedTest(@Injectable final JmsMessage jmsMessage,
+                                                   @Injectable UserMessageService userMessageService) {
+        final String groupId = "groupId";
+        final String errorDetail = "ebms3ErrorDetail";
+
+        userMessageDefaultService.scheduleSplitAndJoinSendFailed(groupId, errorDetail);
+
+        new Verifications() {{
+            jmsManager.sendMessageToQueue((JmsMessage) any, splitAndJoinQueue);
+        }};
+    }
+
+    @Test
+    public void scheduleSourceMessageSendingTest(@Injectable final JmsMessage jmsMessage,
+                                                 @Mocked DispatchMessageCreator dispatchMessageCreator) {
+        final String messageId = UUID.randomUUID().toString();
+
+        new Expectations() {{
+            new DispatchMessageCreator(messageId);
+            result = dispatchMessageCreator;
+
+            dispatchMessageCreator.createMessage();
+            result = jmsMessage;
+        }};
+
+        userMessageDefaultService.scheduleSourceMessageSending(messageId);
+
+        new Verifications() {{
+            jmsManager.sendMessageToQueue((JmsMessage) any, sendLargeMessageQueue);
+        }};
+    }
+
+    @Test
+    public void testPayloadName(@Mocked final PartInfo partInfoWithBodyload, @Mocked final PartInfo partInfoWithPayload) {
+        new Expectations() {{
+            partInfoWithBodyload.getHref();
+            result = null;
+            partInfoWithPayload.getHref();
+            result = "cid:1234";
+        }};
+        Assert.assertEquals("bodyload", userMessageDefaultService.getPayloadName(partInfoWithBodyload));
+        Assert.assertEquals("1234", userMessageDefaultService.getPayloadName(partInfoWithPayload));
+    }
+
+    @Test
+    public void getUserMessageById() {
+        final String messageId = UUID.randomUUID().toString();
+        UserMessage userMessage = new UserMessage();
+
+        new Expectations() {{
+            messagingDao.findUserMessageByMessageId(messageId);
+            result = userMessage;
+        }};
+
+        UserMessage result = userMessageDefaultService.getUserMessageById(messageId);
+
+        Assert.assertEquals(userMessage, result);
+    }
+
+    @Test(expected = MessageNotFoundException.class)
+    public void getUserMessageById_notFound() {
+        final String messageId = UUID.randomUUID().toString();
+
+        new Expectations() {{
+            messagingDao.findUserMessageByMessageId(messageId);
+            result = null;
+        }};
+
+        userMessageDefaultService.getUserMessageById(messageId);
+
+        new Verifications() {{
+            auditService.addMessageDownloadedAudit(messageId);
+            times = 0;
+        }};
+    }
+
 }

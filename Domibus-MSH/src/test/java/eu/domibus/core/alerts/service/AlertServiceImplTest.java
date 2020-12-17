@@ -4,7 +4,10 @@ import com.google.common.collect.Lists;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.server.ServerInfoService;
+import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.MessageStatus;
+import eu.domibus.core.alerts.configuration.AlertModuleConfiguration;
+import eu.domibus.core.alerts.configuration.common.CommonConfigurationManager;
 import eu.domibus.core.alerts.dao.AlertDao;
 import eu.domibus.core.alerts.dao.EventDao;
 import eu.domibus.core.alerts.model.common.*;
@@ -19,7 +22,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.jms.Queue;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -27,8 +29,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_ALERT_RETRY_MAX_ATTEMPTS;
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_ALERT_RETRY_TIME;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ALERT_RETRY_MAX_ATTEMPTS;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ALERT_RETRY_TIME;
 import static eu.domibus.core.alerts.model.common.MessageEvent.MESSAGE_ID;
 import static eu.domibus.core.alerts.model.common.MessageEvent.OLD_STATUS;
 import static eu.domibus.core.alerts.service.AlertServiceImpl.*;
@@ -38,6 +40,7 @@ import static org.junit.Assert.*;
  * @author Thomas Dussart
  * @since 4.0
  */
+@SuppressWarnings({"ResultOfMethodCallIgnored", "AccessStaticViaInstance"})
 @RunWith(JMockit.class)
 public class AlertServiceImplTest {
 
@@ -64,13 +67,16 @@ public class AlertServiceImplTest {
     private Queue alertMessageQueue;
 
     @Injectable
-    private MultiDomainAlertConfigurationService multiDomainAlertConfigurationService;
+    private AlertConfigurationService alertConfigurationService;
 
     @Injectable
     private ServerInfoService serverInfoService;
 
+    @Injectable
+    private CommonConfigurationManager commonConfigurationManager;
+
     @Test
-    public void createAlertOnEvent() {
+    public void createAlertOnEvent(@Mocked AlertModuleConfiguration config) {
         final Event event = new Event();
         event.setEntityId(1);
         event.setType(EventType.MSG_STATUS_CHANGED);
@@ -80,13 +86,16 @@ public class AlertServiceImplTest {
             eventDao.read(event.getEntityId());
             result = eventEntity;
 
-            multiDomainAlertConfigurationService.getAlertRetryMaxAttemptPropertyName();
-            result=DOMIBUS_ALERT_RETRY_MAX_ATTEMPTS;
-
-            domibusPropertyProvider.getIntegerDomainProperty(DOMIBUS_ALERT_RETRY_MAX_ATTEMPTS);
+            domibusPropertyProvider.getIntegerProperty(DOMIBUS_ALERT_RETRY_MAX_ATTEMPTS);
             result = 5;
 
-            multiDomainAlertConfigurationService.getAlertLevel(withAny(new Alert()));
+            alertConfigurationService.getModuleConfiguration(AlertType.MSG_STATUS_CHANGED);
+            result = config;
+
+            config.isActive();
+            result = true;
+
+            config.getAlertLevel(event);
             result = AlertLevel.HIGH;
         }};
         alertService.createAlertOnEvent(event);
@@ -117,10 +126,10 @@ public class AlertServiceImplTest {
     }
 
     @Test
-    public void getMailModelForAlert() throws ParseException {
+    public void getMailModelForAlert() {
         final String mailSubject = "Message failure";
         final String mailSubjectServerName = "localhost";
-        final String alertSuperInstanceNameSubjectProperty = MultiDomainAlertConfigurationServiceImpl.DOMIBUS_ALERT_SUPER_INSTANCE_NAME_SUBJECT;
+        final String alertSuperInstanceNameSubjectProperty = AlertConfigurationServiceImpl.DOMIBUS_ALERT_SUPER_INSTANCE_NAME_SUBJECT;
         final String messageId = "messageId";
         final long entityId = 1;
         final AlertType alertType = AlertType.MSG_STATUS_CHANGED;
@@ -131,8 +140,6 @@ public class AlertServiceImplTest {
 
         final eu.domibus.core.alerts.model.persist.Alert persistedAlert = new eu.domibus.core.alerts.model.persist.Alert();
         persistedAlert.setAlertType(alertType);
-        SimpleDateFormat parser = new SimpleDateFormat("dd/mm/yyy HH:mm:ss");
-        Date reportingTime = parser.parse("25/10/1977 00:00:00");
         persistedAlert.setAlertLevel(alertLevel);
 
         final eu.domibus.core.alerts.model.persist.Event event = new eu.domibus.core.alerts.model.persist.Event();
@@ -148,25 +155,23 @@ public class AlertServiceImplTest {
         new Expectations() {{
             alertDao.read(entityId);
             result = persistedAlert;
-            multiDomainAlertConfigurationService.getMailSubject(alertType);
-            result = mailSubject;
 
-            multiDomainAlertConfigurationService.getAlertSuperServerNameSubjectPropertyName();
-            result = alertSuperInstanceNameSubjectProperty;
+            alertConfigurationService.getMailSubject(alertType);
+            result = mailSubject;
 
             domibusPropertyProvider.getProperty(alertSuperInstanceNameSubjectProperty);
             result = mailSubjectServerName;
         }};
 
-        final MailModel mailModelForAlert = alertService.getMailModelForAlert(alert);
+        final MailModel<Map<String, String>> mailModelForAlert = alertService.getMailModelForAlert(alert);
 
         assertEquals(mailSubject + "[" + mailSubjectServerName + "]", mailModelForAlert.getSubject());
         assertEquals(alertType.getTemplate(), mailModelForAlert.getTemplatePath());
-        final Map<String, String> model = (Map<String, String>) mailModelForAlert.getModel();
+        final Map<String, String> model = mailModelForAlert.getModel();
         assertEquals(messageId, model.get(MESSAGE_ID.name()));
         assertEquals(MessageStatus.SEND_ENQUEUED.name(), model.get(OLD_STATUS.name()));
         assertEquals(alertLevel.name(), model.get(ALERT_LEVEL));
-        assertNotNull(reportingTime.toString(), model.get(REPORTING_TIME));
+        assertNotNull(DateUtil.DEFAULT_FORMATTER.parse(model.get(REPORTING_TIME)));
 
     }
 
@@ -198,7 +203,7 @@ public class AlertServiceImplTest {
         alert.setEntityId(entityId);
         alert.setAlertStatus(AlertStatus.FAILED);
 
-        SimpleDateFormat parser = new SimpleDateFormat("dd/mm/yyy HH:mm:ss");
+        SimpleDateFormat parser = new SimpleDateFormat("dd/MM/yyy HH:mm:ss");
         Date nextAttempt = parser.parse("25/10/1977 00:00:00");
 
         new Expectations() {{
@@ -207,15 +212,14 @@ public class AlertServiceImplTest {
 
             persistedAlert.getAlertStatus();
             result=AlertStatus.FAILED;
+
             persistedAlert.getAttempts();
             result=0;
+
             persistedAlert.getMaxAttempts();
             result=2;
 
-            multiDomainAlertConfigurationService.getAlertRetryTimePropertyName();
-            result=DOMIBUS_ALERT_RETRY_TIME;
-
-            domibusPropertyProvider.getIntegerDomainProperty(DOMIBUS_ALERT_RETRY_TIME);
+            domibusPropertyProvider.getIntegerProperty(DOMIBUS_ALERT_RETRY_TIME);
             result = nextAttemptInMinutes;
 
             dateTime.now().plusMinutes(nextAttemptInMinutes).toDate();
@@ -239,7 +243,7 @@ public class AlertServiceImplTest {
         alert.setEntityId(entityId);
         alert.setAlertStatus(AlertStatus.FAILED);
 
-        SimpleDateFormat parser = new SimpleDateFormat("dd/mm/yyy HH:mm:ss");
+        SimpleDateFormat parser = new SimpleDateFormat("dd/MM/yyy HH:mm:ss");
         Date failureTime = parser.parse("25/10/1977 00:00:00");
 
         new Expectations() {{
@@ -323,11 +327,11 @@ public class AlertServiceImplTest {
     @Test
     public void cleanAlerts(final @Mocked org.joda.time.LocalDateTime localDateTime) throws ParseException {
         final int alertLifeTimeInDays = 10;
-        SimpleDateFormat parser = new SimpleDateFormat("dd/mm/yyy HH:mm:ss");
+        SimpleDateFormat parser = new SimpleDateFormat("dd/MM/yyy HH:mm:ss");
         Date alertLimitDate = parser.parse("25/10/1977 00:00:00");
         final List<eu.domibus.core.alerts.model.persist.Alert> alerts = Lists.newArrayList(new eu.domibus.core.alerts.model.persist.Alert());
         new Expectations() {{
-            multiDomainAlertConfigurationService.getCommonConfiguration().getAlertLifeTimeInDays();
+            commonConfigurationManager.getConfiguration().getAlertLifeTimeInDays();
             result = alertLifeTimeInDays;
             localDateTime.now().minusDays(alertLifeTimeInDays).withTime(0, 0, 0, 0).toDate();
             result = alertLimitDate;

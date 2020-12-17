@@ -1,5 +1,6 @@
 package pages.pmode.current;
 
+import ddsl.dcomponents.DomibusPage;
 import ddsl.dobjects.DButton;
 import ddsl.dobjects.DInput;
 import org.openqa.selenium.WebDriver;
@@ -7,8 +8,6 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
-import ddsl.dcomponents.DomibusPage;
-
 
 
 /**
@@ -18,60 +17,57 @@ import ddsl.dcomponents.DomibusPage;
 
 
 public class PModeCurrentPage extends DomibusPage {
-    public PModeCurrentPage(WebDriver driver) {
-        super(driver);
-        PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
-    }
+	@FindBy(id = "pmodetextarea_id")
+	WebElement textArea;
+	@FindBy(id = "cancelButtonId")
+	WebElement cancelBtn;
+	@FindBy(id = "saveButtonId")
+	WebElement saveBtn;
+	@FindBy(id = "uploadButtonId")
+	WebElement uploadBtn;
+	@FindBy(id = "downloadButtonId")
+	WebElement downloadBtn;
+	@FindBy(css = ".pModeInfo >span")
+	WebElement infoTxt;
+	@FindBy(id = "pmodetextarea_id")
+	WebElement CurrentPmodeXml;
+	public PModeCurrentPage(WebDriver driver) {
+		super(driver);
+		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
+	}
 
-    @FindBy(id = "pmodetextarea_id")
-    WebElement textArea;
-    @FindBy(css = "table > tbody > tr > td > button:nth-child(1)")
-    WebElement cancelBtn;
-    @FindBy(css = "table > tbody > tr > td > button:nth-child(2)")
-    WebElement saveBtn;
-    @FindBy(css = "table > tbody > tr > td > button:nth-child(3)")
-    WebElement uploadBtn;
-    @FindBy(css = "table > tbody > tr > td > button:nth-child(4)")
-    WebElement downloadBtn;
-    @FindBy(css = ".pModeInfo >span")
-    WebElement infoTxt;
-    @FindBy(id = "pmodetextarea_id")
-    WebElement CurrentPmodeXml;
-
-
-    public DInput getTextArea() {
-        return new DInput(driver, textArea);
-    }
+	public DInput getTextArea() {
+		return new DInput(driver, textArea);
+	}
 
 
-    public DButton getCancelBtn() {
-        return new DButton(driver, cancelBtn);
-    }
+	public DButton getCancelBtn() {
+		return new DButton(driver, cancelBtn);
+	}
 
-    public DButton getSaveBtn() {
-        return new DButton(driver, saveBtn);
-    }
+	public DButton getSaveBtn() {
+		return new DButton(driver, saveBtn);
+	}
 
-    public DButton getUploadBtn() {
-        return new DButton(driver, uploadBtn);
-    }
+	public DButton getUploadBtn() {
+		return new DButton(driver, uploadBtn);
+	}
 
-    public DButton getDownloadBtn() {
-        return new DButton(driver, downloadBtn);
-    }
+	public DButton getDownloadBtn() {
+		return new DButton(driver, downloadBtn);
+	}
 
 
-    public void getPmodeInfoText() {
-        log.debug("Check if Pmode is uploaded or not ");
-        wait.forElementToBeVisible(infoTxt);
-        if (!infoTxt.isDisplayed()) {
-            log.debug("Pmode is already uploaded");
-        }
-        log.debug("Pmode status on pmode current page : " + infoTxt.getText().trim());
-    }
+	public void getPmodeInfoText() {
+		log.debug("Check if Pmode is uploaded or not ");
+		wait.forElementToBeVisible(infoTxt);
+		if (!infoTxt.isDisplayed()) {
+			log.debug("Pmode is already uploaded");
+		}
+		log.debug("Pmode status on pmode current page : " + infoTxt.getText().trim());
+	}
 
 
 }
-
 
 

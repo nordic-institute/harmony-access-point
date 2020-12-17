@@ -1,23 +1,22 @@
 package eu.domibus.web.rest;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import eu.domibus.api.party.Party;
 import eu.domibus.api.party.PartyService;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.DomibusCertificateException;
+import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.core.converter.DomainCoreConverter;
-import eu.domibus.core.csv.CsvCustomColumns;
-import eu.domibus.core.csv.CsvExcludedItems;
-import eu.domibus.core.csv.CsvService;
-import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.core.party.*;
+import eu.domibus.core.pmode.validation.PModeValidationHelper;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.ro.PartyFilterRequestRO;
 import eu.domibus.web.rest.ro.TrustStoreRO;
+import eu.domibus.web.rest.ro.ValidationResponseRO;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +28,7 @@ import java.util.stream.Collectors;
 
 /**
  * @author Thomas Dussart
+ * @author Ion Perpegel
  * @since 4.0
  */
 @RestController
@@ -39,17 +39,20 @@ public class PartyResource extends BaseResource {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PartyResource.class);
     private static final String DELIMITER = ", ";
 
-    @Autowired
     private DomainCoreConverter domainConverter;
 
-    @Autowired
     private PartyService partyService;
 
-    @Autowired
-    private CsvServiceImpl csvServiceImpl;
-
-    @Autowired
     private CertificateService certificateService;
+
+    PModeValidationHelper pModeValidationHelper;
+
+    public PartyResource(DomainCoreConverter domainConverter, PartyService partyService, CertificateService certificateService, PModeValidationHelper pModeValidationHelper) {
+        this.domainConverter = domainConverter;
+        this.partyService = partyService;
+        this.certificateService = certificateService;
+        this.pModeValidationHelper = pModeValidationHelper;
+    }
 
     @GetMapping(value = {"/list"})
     public List<PartyResponseRo> listParties(@Valid PartyFilterRequestRO request) {
@@ -78,8 +81,7 @@ public class PartyResource extends BaseResource {
             final Set<ProcessRo> processRos = new HashSet<>(processesWithPartyAsInitiator);
             processRos.addAll(processesWithPartyAsResponder);
 
-            processRos
-                    .stream()
+            processRos.stream()
                     .map(item -> new PartyProcessLinkRo(item.getName(), processesWithPartyAsInitiator.contains(item), processesWithPartyAsResponder.contains(item)))
                     .collect(Collectors.toSet());
         });
@@ -95,18 +97,24 @@ public class PartyResource extends BaseResource {
     @GetMapping(path = "/csv")
     public ResponseEntity<String> getCsv(@Valid PartyFilterRequestRO request) {
         request.setPageStart(0);
-        request.setPageSize(csvServiceImpl.getMaxNumberRowsToExport());
+        request.setPageSize(0); // no pagination
         final List<PartyResponseRo> partyResponseRoList = listParties(request);
+        getCsvService().validateMaxRows(partyResponseRoList.size());
 
         return exportToCSV(partyResponseRoList,
                 PartyResponseRo.class,
-                CsvCustomColumns.PARTY_RESOURCE.getCustomColumns(),
-                CsvExcludedItems.PARTY_RESOURCE.getExcludedItems(),
+                ImmutableMap.of(
+                        "Name".toUpperCase(), "Party name",
+                        "EndPoint".toUpperCase(), "End point",
+                        "JoinedIdentifiers".toUpperCase(), "Party id",
+                        "JoinedProcesses".toUpperCase(), "Process"
+                ),
+                Arrays.asList("entityId", "identifiers", "userName", "processesWithPartyAsInitiator", "processesWithPartyAsResponder", "certificateContent"),
                 "pmodeparties");
     }
 
     @PutMapping(value = {"/update"})
-    public ResponseEntity updateParties(@RequestBody List<PartyResponseRo> partiesRo) {
+    public ValidationResponseRO updateParties(@RequestBody List<PartyResponseRo> partiesRo) {
         LOG.debug("Updating parties [{}]", Arrays.toString(partiesRo.toArray()));
 
         List<Party> partyList = domainConverter.convert(partiesRo, Party.class);
@@ -116,16 +124,9 @@ public class PartyResource extends BaseResource {
                 .filter(party -> party.getCertificateContent() != null)
                 .collect(Collectors.toMap(PartyResponseRo::getName, PartyResponseRo::getCertificateContent));
 
-        try {
-            partyService.updateParties(partyList, certificates);
-            return ResponseEntity.noContent().build();
-        } catch (IllegalStateException e) {
-            StringBuilder errorMessageB = new StringBuilder();
-            for (Throwable err = e; err != null; err = err.getCause()) {
-                errorMessageB.append("\n").append(err.getMessage());
-            }
-            return ResponseEntity.badRequest().body(errorMessageB.toString());
-        }
+        List<ValidationIssue> pModeUpdateIssues = partyService.updateParties(partyList, certificates);
+
+        return pModeValidationHelper.getValidationResponse(pModeUpdateIssues, "PMode parties have been successfully updated.");
     }
 
     /**
@@ -244,7 +245,7 @@ public class PartyResource extends BaseResource {
         if (certificate == null) {
             throw new IllegalArgumentException("Certificate parameter must be provided");
         }
-        
+
         String content = certificate.getContent();
         LOG.debug("certificate base 64 received [{}] ", content);
 
@@ -261,8 +262,4 @@ public class PartyResource extends BaseResource {
         return domainConverter.convert(cert, TrustStoreRO.class);
     }
 
-    @Override
-    public CsvService getCsvService() {
-        return csvServiceImpl;
-    }
 }

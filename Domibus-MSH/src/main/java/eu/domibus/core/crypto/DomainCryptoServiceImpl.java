@@ -6,7 +6,7 @@ import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
-import eu.domibus.common.exception.EbMS3Exception;
+import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.crypto.api.CertificateEntry;
 import eu.domibus.core.crypto.api.DomainCryptoService;
@@ -36,8 +36,8 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_EXTENSION_IAM_AUTHENTICATION_IDENTIFIER;
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_SECURITY_TRUSTSTORE_TYPE;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EXTENSION_IAM_AUTHENTICATION_IDENTIFIER;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SECURITY_TRUSTSTORE_TYPE;
 import static eu.domibus.core.crypto.spi.AbstractCryptoServiceSpi.DEFAULT_AUTHENTICATION_SPI;
 
 /**
@@ -73,7 +73,7 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
 
     @PostConstruct
     public void init() {
-        String spiIdentifier = domibusPropertyProvider.getDomainProperty(domain, IAM_AUTHENTICATION_IDENTIFIER);
+        String spiIdentifier = domibusPropertyProvider.getProperty(domain, IAM_AUTHENTICATION_IDENTIFIER);
         if (spiIdentifier.equals(DEFAULT_AUTHENTICATION_SPI) && domainCryptoServiceSpiList.size() > 1) {
             LOG.warn("A custom authentication implementation has been provided but property:[{}}] is configured with default value:[{}]",
                     DOMIBUS_EXTENSION_IAM_AUTHENTICATION_IDENTIFIER, spiIdentifier);
@@ -194,7 +194,6 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
 
 
     @Override
-    @Transactional(noRollbackFor = DomibusCertificateException.class, propagation = Propagation.SUPPORTS)
     public boolean isCertificateChainValid(String alias) throws DomibusCertificateException {
         return iamProvider.isCertificateChainValid(alias);
     }

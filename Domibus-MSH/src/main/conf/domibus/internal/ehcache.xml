@@ -35,10 +35,9 @@
            overflowToDisk="false">
     </cache>
     <cache name="dispatchClient"
-           maxBytesLocalHeap="5m"
+           maxBytesLocalHeap="10m"
            timeToLiveSeconds="3600"
            overflowToDisk="false">
-        <sizeOfPolicy maxDepthExceededBehavior="abort"/>
     </cache>
     <cache name="auditTarget"
            maxBytesLocalHeap="5m"
@@ -91,5 +90,4 @@
            overflowToDisk="false">
     </cache>
     -->
-
 </ehcache>

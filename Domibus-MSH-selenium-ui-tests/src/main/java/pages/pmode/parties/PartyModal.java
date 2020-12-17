@@ -1,7 +1,7 @@
 package pages.pmode.parties;
 
-import ddsl.dcomponents.DomibusPage;
 import ddsl.dcomponents.grid.DGrid;
+import ddsl.dcomponents.popups.EditModal;
 import ddsl.dobjects.DButton;
 import ddsl.dobjects.DInput;
 import org.openqa.selenium.By;
@@ -11,74 +11,52 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
-import pages.pmode.parties.PartyIdentifierModal;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 
 import java.util.List;
 
 /**
  * @author Catalin Comanici
-
  * @since 4.1
  */
-public class PartyModal extends DomibusPage {
+public class PartyModal extends EditModal {
+	@FindBy(css = "#name_id_detail")
+	protected WebElement nameInput;
+	@FindBy(css = "#endPoint_id_detail")
+	protected WebElement endpointInput;
+	@FindBy(css = "#subjectName_id")
+	protected WebElement certSubjectNameInput;
+	@FindBy(css = "#validityFrom_id")
+	protected WebElement certValidFromInput;
+	@FindBy(css = "#validityTo_id")
+	protected WebElement certValidToInput;
+	@FindBy(css = "#issuer_id")
+	protected WebElement certIssuerInput;
+	@FindBy(css = "#fingerPrint_id")
+	protected WebElement certFingerPrintInput;
+	@FindBy(css = "mat-dialog-container div:nth-child(2) > mat-card > mat-card-content > div > label")
+	protected WebElement importButton;
+	@FindBy(css = "#identifierTable")
+	protected WebElement identifierTable;
+	@FindBy(css = "mat-dialog-content div:nth-child(3) button:nth-child(1)")
+	protected WebElement newIdentifierButton;
+	@FindBy(css = "mat-dialog-content div:nth-child(3) button:nth-child(2)")
+	protected WebElement editIdentifierButton;
+	@FindBy(css = "mat-dialog-content div:nth-child(3) button:nth-child(3)")
+	protected WebElement delIdentifierButton;
+	@FindBy(css = "#processTable")
+	protected WebElement processTable;
+	@FindBy(css = "input[type='checkbox']")
+	protected List<WebElement> inputCheckboxes;
+	@FindBy(css = "[id *= 'mat-dialog-title']")
+	protected WebElement partyHeader;
+
 	public PartyModal(WebDriver driver) {
 		super(driver);
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 
 		wait.forElementToBeEnabled(nameInput);
 	}
-
-	@FindBy(css = "app-party-details > md-dialog-content > form > button:nth-child(5)")
-	protected WebElement okBtn;
-
-	@FindBy(css = "md-dialog-container button:nth-of-type(6)")
-	protected WebElement cancelBtn;
-
-	@FindBy(css = "#name_id_detail")
-	protected WebElement nameInput;
-
-	@FindBy(css = "#endPoint_id_detail")
-	protected WebElement endpointInput;
-
-	@FindBy(css = "#subjectName_id")
-	protected WebElement certSubjectNameInput;
-
-	@FindBy(css = "#validityFrom_id")
-	protected WebElement certValidFromInput;
-
-	@FindBy(css = "#validityTo_id")
-	protected WebElement certValidToInput;
-
-	@FindBy(css = "#issuer_id")
-	protected WebElement certIssuerInput;
-
-	@FindBy(css = "#fingerPrint_id")
-	protected WebElement certFingerPrintInput;
-
-	@FindBy(css = "md-dialog-container div:nth-child(2) > md-card > md-card-content > div > label")
-	protected WebElement importButton;
-
-	@FindBy(css = "#identifierTable")
-	protected WebElement identifierTable;
-
-	@FindBy(css = "md-dialog-content div:nth-child(3) button:nth-child(1)")
-	protected WebElement newIdentifierButton;
-
-	@FindBy(css = "md-dialog-content div:nth-child(3) button:nth-child(2)")
-	protected WebElement editIdentifierButton;
-
-	@FindBy(css = "md-dialog-content div:nth-child(3) button:nth-child(3)")
-	protected WebElement delIdentifierButton;
-
-	@FindBy(css = "#processTable")
-	protected WebElement processTable;
-
-	@FindBy(css = "input[type='checkbox']")
-	protected List<WebElement> inputCheckboxes;
-
-	@FindBy(xpath = ".//*[@class='mat-dialog-title'][starts-with(@id,\"md-dialog-title-\")]")
-	protected WebElement partyHeader;
-
 
 	public DInput getNameInput() {
 		return new DInput(driver, nameInput);
@@ -132,67 +110,71 @@ public class PartyModal extends DomibusPage {
 		return new DGrid(driver, processTable);
 	}
 
-	public DButton getOkButton() {
-		return new DButton(driver, okBtn);
-	}
-
 	public void fillNewPartyForm(String name, String endpoint, String partyId) throws Exception {
 		getNameInput().fill(name);
 		getEndpointInput().fill(endpoint);
 		getNewIdentifierButton().click();
 
 		PartyIdentifierModal pimodal = new PartyIdentifierModal(driver);
-		pimodal.fillFileds(partyId);
+		pimodal.fillFields(partyId);
 		pimodal.clickOK();
 	}
 
-	public void clickOK() throws Exception {
-		new DButton(driver, okBtn).click();
-		wait.forElementToBeGone(okBtn);
-	}
-
-	public void clickIRCheckboxes() throws Exception{
+	public void clickIRCheckboxes() throws Exception {
 		wait.forElementToBeVisible(partyHeader);
 		JavascriptExecutor js = (JavascriptExecutor) driver;
 		log.info("Scroll horizontally");
-		js.executeScript("window.scrollBy(0,1000)");
-		List<WebElement> checkboxes = driver.findElements(By.cssSelector("datatable-body-cell >div >md-checkbox"));
-		WebElement headerElement=driver.findElement(By.xpath(getXpathOfFieldHeader("Processes")));
-		wait.forElementToBeVisible(headerElement);
-
-		if( checkboxes.size()>0){
-			log.info("Click on initiator checkbox");
-			checkboxes.get(0).click();
-			WebElement responderCheckbox=checkboxes.get(checkboxes.size()-1);
-			log.info("Click on Responder checkbox");
-			responderCheckbox.click();
+		js.executeScript("document.querySelector('app-party-details > mat-dialog-content > form > div').scrollTo(0, 1000)");
+		
+		List<WebElement> checkboxes = wait.defaultWait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(By.tagName("mat-checkbox")));
+		for (WebElement checkbox : checkboxes) {
+			weToCheckbox(checkbox).check();
 		}
+
 		log.info("Click on Ok button");
-		getOkButton().click();
-
+		getOkBtn().click();
 	}
+	
+	public void participationInProcess(String processName, boolean initiator, boolean responder) throws Exception {
+		wait.forElementToBeVisible(partyHeader);
+		
+		log.info("Scroll to the bottom");
+		((JavascriptExecutor) driver).executeScript("document.querySelector('app-party-details > mat-dialog-content > form > div').scrollTo(0, 1000)");
+		
+		DGrid processTable = getProcessTable();
+		int index = processTable.scrollTo("Process", processName);
+		if(index>=0){
+			WebElement row = processTable.getRowElement(index);
+			WebElement initChk = row.findElement(By.cssSelector("datatable-body-cell:nth-of-type(2) mat-checkbox"));
+			WebElement respChk = row.findElement(By.cssSelector("datatable-body-cell:nth-of-type(3) mat-checkbox"));
+			
+			weToCheckbox(initChk).set(initiator);
+			weToCheckbox(respChk).set(responder);
+			
+		}
+	}
+	
+	
 
-	public Boolean getCheckboxStatus(String fieldName){
+	public Boolean getCheckboxStatus(String fieldName) {
 		wait.forElementToBeVisible(partyHeader);
 		JavascriptExecutor js = (JavascriptExecutor) driver;
 		log.info("Scroll horizontally");
 		js.executeScript("window.scrollBy(0,1000)");
-		List<WebElement> checkboxes = driver.findElements(By.cssSelector("datatable-body-cell >div >md-checkbox"));
-		if(fieldName.equals("Initiator")){
-		log.info("Initiator checkbox selection status : "+ checkboxes.get(0).isSelected());
-		return false;
-		}
-		else if(fieldName.equals("Responder")){
-			log.info("Responder checkbox selection status : "+ checkboxes.get(checkboxes.size()-1).isSelected());
+		List<WebElement> checkboxes = driver.findElements(By.cssSelector("datatable-body-cell >div >mat-checkbox"));
+		if (fieldName.equals("Initiator")) {
+			log.info("Initiator checkbox selection status : " + checkboxes.get(0).isSelected());
 			return false;
-		}
-		else{
+		} else if (fieldName.equals("Responder")) {
+			log.info("Responder checkbox selection status : " + checkboxes.get(checkboxes.size() - 1).isSelected());
+			return false;
+		} else {
 			return true;
 		}
 	}
 
 	public String getXpathOfFieldHeader(String fieldName) {
-		return ".//md-card-title[contains(text()," + fieldName + ")]";
+		return ".//mat-card-title[contains(text()," + fieldName + ")]";
 	}
 }
 

@@ -1,9 +1,10 @@
 package eu.domibus.core.security;
 
+import eu.domibus.api.util.AOPUtil;
 import eu.domibus.common.ErrorCode;
-import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.core.crypto.spi.model.AuthorizationException;
-import eu.domibus.ext.delegate.services.interceptor.ServiceInterceptor;
+import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.exception.CoreServiceExceptionInterceptor;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -12,24 +13,28 @@ import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
 
 /**
- *  @author Thomas Dussart
- *  @since 4.1
- *
- *  Interceptor in charge of converting authentication spi exceptions into crypto exceptions.
+ * @author Thomas Dussart
+ * @since 4.1
+ * <p>
+ * Interceptor in charge of converting authentication spi exceptions into crypto exceptions.
  */
 @Aspect
 @Component
-public class AuthorizationServiceInterceptor extends ServiceInterceptor {
+public class AuthorizationServiceInterceptor extends CoreServiceExceptionInterceptor {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AuthorizationServiceInterceptor.class);
+
+    public AuthorizationServiceInterceptor(AOPUtil aopUtil) {
+        super(aopUtil);
+    }
 
     @Around(value = "execution(public * eu.domibus.core.security.AuthorizationService.*(..))")
     @Override
     public Object intercept(ProceedingJoinPoint joinPoint) throws Throwable {
         Object[] args = joinPoint.getArgs();
-        if(LOG.isTraceEnabled()){
+        if (LOG.isTraceEnabled()) {
             for (Object arg : args) {
-                LOG.trace("Method argument:[{}]",arg);
+                LOG.trace("Method argument:[{}]", arg);
             }
         }
         return super.intercept(joinPoint);
@@ -39,7 +44,7 @@ public class AuthorizationServiceInterceptor extends ServiceInterceptor {
     public Exception convertCoreException(Exception e) {
         if (e instanceof AuthorizationException) {
             AuthorizationException a = (AuthorizationException) e;
-            LOG.trace("Converting Authorization exception:[{}] into EBMSException", e);
+            LOG.trace("Converting Authorization exception:[{}] into EBMSException", a.getClass(), e);
             if (a.getAuthorizationError() != null) {
                 switch (a.getAuthorizationError()) {
                     case INVALID_FORMAT:

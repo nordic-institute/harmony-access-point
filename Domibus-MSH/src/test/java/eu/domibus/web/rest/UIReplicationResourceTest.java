@@ -18,7 +18,7 @@ import java.util.Random;
 /**
  * JUnit for {@link UIReplicationResource} class
  *
- * @author Catalin Enache
+ * @author Catalin Enache, Soumya
  * @since 4.0
  */
 @RunWith(JMockit.class)
@@ -96,6 +96,40 @@ public class UIReplicationResourceTest {
 
         Assert.assertEquals(HttpStatus.OK, restResponse.getStatusCode());
         Assert.assertEquals("no records were synced for TB_MESSAGE_UI table", restResponse.getBody());
+
+        new FullVerifications() {{
+        }};
+    }
+
+    @Test
+    public void testCountData_UIReplicationDisabled() {
+        new Expectations() {{
+            uiReplicationSignalService.isReplicationEnabled();
+            result = false;
+
+        }};
+
+        //tested method
+        final ResponseEntity<String> restResponse = uiReplicationResource.countData();
+
+        Assert.assertEquals(HttpStatus.OK, restResponse.getStatusCode());
+        Assert.assertEquals("UIReplication is disabled. No records will be count to be synced for TB_MESSAGE_UI table", restResponse.getBody());
+    }
+
+    @Test
+    public void testSyncData_UIReplicationDisabled() {
+        final int limit = new Random().nextInt();
+        new Expectations() {{
+            uiReplicationSignalService.isReplicationEnabled();
+            result = false;
+
+        }};
+
+        //tested method
+        final ResponseEntity<String> restResponse = uiReplicationResource.syncData(limit);
+
+        Assert.assertEquals(HttpStatus.OK, restResponse.getStatusCode());
+        Assert.assertEquals("UIReplication is disabled. No records will be synced for TB_MESSAGE_UI table", restResponse.getBody());
 
         new FullVerifications() {{
         }};

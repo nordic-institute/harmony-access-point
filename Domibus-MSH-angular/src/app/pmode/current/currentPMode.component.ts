@@ -1,14 +1,13 @@
 ﻿import {Component, OnInit} from '@angular/core';
-import {Http, Response} from '@angular/http';
+import {HttpClient} from '@angular/common/http';
 import {AlertService} from 'app/common/alert/alert.service';
-import {MdDialog} from '@angular/material';
-import {isNullOrUndefined} from 'util';
+import {MatDialog} from '@angular/material';
 import {PmodeUploadComponent} from '../pmode-upload/pmode-upload.component';
 import * as FileSaver from 'file-saver';
-import {CancelDialogComponent} from 'app/common/cancel-dialog/cancel-dialog.component';
 import {DirtyOperations} from 'app/common/dirty-operations';
-import {Observable} from 'rxjs/Observable';
 import {DateFormatService} from 'app/common/customDate/dateformat.service';
+import {DialogsService} from '../../common/dialogs/dialogs.service';
+import {ApplicationContextService} from '../../common/application-context.service';
 
 @Component({
   moduleId: module.id,
@@ -38,9 +37,10 @@ export class CurrentPModeComponent implements OnInit, DirtyOperations {
    * Constructor
    * @param {Http} http Http object used for the requests
    * @param {AlertService} alertService Alert Service object used for alerting success and error messages
-   * @param {MdDialog} dialog Object used for opening dialogs
+   * @param {MatDialog} dialog Object used for opening dialogs
    */
-  constructor(private http: Http, private alertService: AlertService, public dialog: MdDialog) {
+  constructor(private applicationService: ApplicationContextService, private http: HttpClient, private alertService: AlertService,
+              public dialog: MatDialog, private dialogsService: DialogsService) {
   }
 
   /**
@@ -51,43 +51,35 @@ export class CurrentPModeComponent implements OnInit, DirtyOperations {
   }
 
   /**
-   * Gets all the PMode
-   * @returns {Observable<Response>}
-   */
-  getResultObservable(): Observable<Response> {
-    return this.http.get(CurrentPModeComponent.PMODE_URL + '/list')
-      .publishReplay(1).refCount();
-  }
-
-  /**
    * Gets the current PMode entry
    */
   getCurrentEntry() {
-    if (!isNullOrUndefined(CurrentPModeComponent.PMODE_URL)) {
-      this.pModeContentsDirty = false;
-      this.http.get(CurrentPModeComponent.PMODE_URL + '/current').subscribe(res => {
-        if (res && res.text()) {
-          this.current = res.json();
-          this.getActivePMode();
-        } else {
-          this.current = null;
-          this.pModeExists = false;
-        }
-      })
-    }
+    this.pModeContentsDirty = false;
+    this.http.get(CurrentPModeComponent.PMODE_URL + '/current').subscribe(res => {
+      if (res) {
+        this.current = res;
+        this.getActivePMode();
+      } else {
+        this.current = null;
+        this.pModeExists = false;
+      }
+    })
   }
 
   /**
    * Get Request for the Active PMode XML
    */
   getActivePMode() {
-    if (!isNullOrUndefined(CurrentPModeComponent.PMODE_URL) && this.current !== undefined) {
+    if (this.current && this.current.id) {
       this.pModeContentsDirty = false;
-      this.http.get(CurrentPModeComponent.PMODE_URL + '/' + this.current.id + '?noAudit=true ').subscribe(res => {
+      this.http.get(CurrentPModeComponent.PMODE_URL + '/' + this.current.id + '?noAudit=true', {
+        observe: 'response',
+        responseType: 'text'
+      }).subscribe(res => {
         const HTTP_OK = 200;
         if (res.status === HTTP_OK) {
           this.pModeExists = true;
-          this.pModeContents = res.text();
+          this.pModeContents = res.body;
         }
       }, () => {
         this.pModeExists = false;
@@ -111,14 +103,14 @@ export class CurrentPModeComponent implements OnInit, DirtyOperations {
    */
   download(pmode) {
     if (this.pModeExists) {
-      this.http.get(CurrentPModeComponent.PMODE_URL + '/' + pmode.id).subscribe(res => {
+      this.http.get(CurrentPModeComponent.PMODE_URL + '/' + pmode.id, {observe: 'response', responseType: 'text'}).subscribe(res => {
         const uploadDateStr = DateFormatService.format(new Date(pmode.configurationDate));
-        CurrentPModeComponent.downloadFile(res.text(), uploadDateStr);
+        CurrentPModeComponent.downloadFile(res.body, uploadDateStr);
       }, err => {
-        this.alertService.exception("Error downloading PMode:",err);
+        this.alertService.exception('Error downloading PMode:', err);
       });
     } else {
-      this.alertService.error(this.ERROR_PMODE_EMPTY)
+      this.alertService.error(this.ERROR_PMODE_EMPTY);
     }
   }
 
@@ -146,13 +138,11 @@ export class CurrentPModeComponent implements OnInit, DirtyOperations {
   /**
    * Method called when 'Cancel' button is clicked
    */
-  cancel() {
-    this.dialog.open(CancelDialogComponent)
-      .afterClosed().subscribe(response => {
-      if (response) {
-        this.getCurrentEntry();
-      }
-    });
+  async cancel() {
+    const cancel = await this.dialogsService.openCancelDialog();
+    if (cancel) {
+      this.getCurrentEntry();
+    }
   }
 
   /**

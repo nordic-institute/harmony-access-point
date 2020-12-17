@@ -17,7 +17,7 @@ export class FooterComponent implements OnInit {
   }
 
   async ngOnInit() {
-    const domibusInfo = await this.domibusInfoService.getDomibusInfo();
+    const domibusInfo: DomibusInfo = await this.domibusInfoService.getDomibusInfo();
     this.domibusVersion = domibusInfo.version;
   }
 

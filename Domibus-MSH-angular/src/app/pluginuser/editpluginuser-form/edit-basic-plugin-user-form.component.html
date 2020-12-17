@@ -1,0 +1,77 @@
+<div style="width: 700px">
+  <p class="domibusTextSmall" style="margin:0;font-weight: bold">{{formTitle}}</p>
+
+  <form #editForm="ngForm" (submit)="submitForm()" userCrossFieldValidators>
+    <mat-card>
+      <input type="text" name="username" style="position: absolute; top: -100px;">
+      <input type="password" name="password" style="position: absolute; top: -100px;">
+
+      <div style="margin-top:15px;">
+        <mat-form-field [style.width]="'100%'">
+          <input #user_name matInput placeholder="User Name" name="userName" id="username_id" [(ngModel)]="user.userName" [disabled]="editMode"
+                 input-debounce #userName="ngModel" minlength="4" maxlength="255" required [pattern]="userNamePattern">
+          <span class="help-block" *ngIf="shouldShowErrors(userName)">
+            <div *ngIf="userName.errors?.required" style="color:red; font-size: 70%">{{userNameRequiredMessage}}</div>
+            <div *ngIf="userName.errors?.minlength" style="color:red; font-size: 70%">{{userNameMinLengthMessage}}</div>
+            <div *ngIf="userName.errors?.pattern" style="color:red; font-size: 70%">{{userNamePatternMessage}}</div>
+          </span>
+        </mat-form-field>
+      </div>
+
+      <div style="margin-top:5px;">
+        <mat-form-field [style.width]="'100%'">
+          <input matInput placeholder="Original User" name="originalUser" id="originalUser_id" [(ngModel)]="user.originalUser" input-debounce
+                 #originalUser="ngModel" [required]="isRoleUserSelected(role)" [pattern]="originalUserPattern" maxlength="255">
+          <span class="help-block" *ngIf="shouldShowErrors(originalUser)">
+            <div *ngIf="originalUser.errors?.required" style="color:red; font-size: 70%">{{originalUserRequiredMessage}}</div>
+            <div *ngIf="originalUser.errors?.pattern" style="color:red; font-size: 70%">{{originalUserPatternMessage}}</div>
+          </span>
+        </mat-form-field>
+      </div>
+
+      <div style="margin-top:10px;">
+        <mat-select matInput placeholder="Role" name="role" id="role.id" [(ngModel)]="user.authRoles" #role="ngModel"
+                    required [style.width]="'100%'">
+          <mat-option *ngFor="let item of existingRoles" [value]="item">{{item}}</mat-option>
+        </mat-select>
+        <span class="help-block" *ngIf="shouldShowErrors(role)">
+          <div *ngIf="role.errors?.required" style="color:red; font-size: 70%">You should choose a role</div>
+        </span>
+      </div>
+
+      <div style="margin-top:15px;">
+        <mat-form-field [style.width]="'100%'">
+          <input matInput type="password" placeholder="Password" name="password" id="password_id" [(ngModel)]="user.password" input-debounce
+                 #password="ngModel" [pattern]="passwordPattern" [required]="!editMode">
+          <span class="help-block" *ngIf="shouldShowErrors(password)">
+            <div *ngIf="password.errors?.required" style="color:red; font-size: 70%">You should type a password</div>
+            <div *ngIf="password.errors?.pattern" style="color:red; font-size: 70%">
+              Password should follow all of these rules:<br>
+              <div [innerHTML]="passwordValidationMessage"></div>
+            </div>
+          </span>
+        </mat-form-field>
+      </div>
+
+      <div>
+        <mat-form-field [style.width]="'100%'">
+          <input matInput type="password" placeholder="Confirmation" name="confirmation" id="confirmation_id" [(ngModel)]="passwordConfirmation" input-debounce
+                 #confirmation="ngModel" [required]="!editMode">
+          <span class="help-block" *ngIf="shouldShowErrors(confirmation) || shouldShowErrors(editForm)">
+            <div *ngIf="confirmation.errors?.required" style="color:red; font-size: 70%">You should type a password</div>
+            <div *ngIf="editForm.errors?.match" style="color:red; font-size: 70%">Passwords do not match</div>
+          </span>
+        </mat-form-field>
+      </div>
+
+      <div style="margin-bottom: 20px;margin-top: 10px;">
+        <mat-checkbox id="active_id" name="active" [(ngModel)]="user.active" #active="ngModel">
+          Active
+        </mat-checkbox>
+      </div>
+
+      <popup-edit-footer [parent]="this"></popup-edit-footer>
+
+    </mat-card>
+  </form>
+</div>

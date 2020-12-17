@@ -8,12 +8,10 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
-import utils.TestRunData;
 
 
 /**
  * @author Catalin Comanici
-
  * @version 4.1
  */
 
@@ -21,27 +19,22 @@ import utils.TestRunData;
 public class Dialog extends DComponent {
 
 
+	@FindBy(id = "yesbuttondialog_id")
+	public WebElement yesBtn;
+	@FindBy(id = "nobuttondialog_id")
+	private WebElement noBtn;
+	@FindBy(css = "mat-dialog-container h1")
+	private WebElement dialogMessage;
+
 	public Dialog(WebDriver driver) {
 		super(driver);
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 	}
 
-	@FindBy(id = "yesbuttondialog_id")
-	public WebElement yesBtn;
-
-	@FindBy(id = "nobuttondialog_id")
-	public WebElement noBtn;
-
-	@FindBy(css = "md-dialog-container h1")
-	private WebElement dialogMessage;
-
-	@FindBy(css="md-dialog-container[role='dialog']")
-	public WebElement confirmationPopUp;
-
-	public boolean isLoaded() throws Exception{
+	public boolean isLoaded() throws Exception {
 		return (new DObject(driver, yesBtn).isEnabled()
-		&& new DObject(driver, noBtn).isEnabled()
-		&& new DObject(driver, dialogMessage).isEnabled()
+				&& new DObject(driver, noBtn).isEnabled()
+				&& new DObject(driver, dialogMessage).isEnabled()
 		);
 	}
 
@@ -59,11 +52,6 @@ public class Dialog extends DComponent {
 
 	public String getMessage() throws Exception {
 		return new DObject(driver, dialogMessage).getText();
-	}
-
-	public boolean isPresent() throws Exception{
-		weToDobject(confirmationPopUp).isVisible();
-		return confirmationPopUp.isDisplayed();
 	}
 
 

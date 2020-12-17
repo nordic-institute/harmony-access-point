@@ -1,12 +1,11 @@
 package pages.login;
 
-import ddsl.dobjects.DInput;
+import ddsl.dcomponents.DomibusPage;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
-import ddsl.dcomponents.DomibusPage;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 
 import java.util.HashMap;
@@ -14,32 +13,29 @@ import java.util.HashMap;
 
 /**
  * @author Catalin Comanici
-
  * @version 4.1
  */
 
 
 public class LoginPage extends DomibusPage {
-
-	public LoginPage(WebDriver driver) {
-		super(driver);
-
-		log.debug(".... init");
-
-		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
-	}
-
+	
 	@FindBy(id = "username_id")
 	private WebElement username;
-
 	@FindBy(id = "password_id")
 	private WebElement password;
-
 	@FindBy(id = "loginbutton_id")
 	private WebElement loginBtn;
-
+	
+	public LoginPage(WebDriver driver) {
+		super(driver);
+		
+		log.debug(".... init");
+		
+		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
+	}
+	
 	public boolean isLoaded() {
-
+		
 		log.debug("check if is loaded");
 		wait.forElementToBeVisible(username);
 		if (!username.isEnabled()) {
@@ -57,55 +53,33 @@ public class LoginPage extends DomibusPage {
 		log.debug("Login page controls loaded");
 		return true;
 	}
-
-	public <T extends DomibusPage> T login(String user, String pass, Class<T> expect) {
-		log.debug("Login started");
-		username.clear();
-		username.sendKeys(user);
-		password.clear();
-		password.sendKeys(pass);
-		loginBtn.click();
-		wait.forElementToBeVisible(helpLnk);
-		log.debug("Login action done");
-
-		return PageFactory.initElements(driver, expect);
+	
+	public void login(String user, String pass) throws Exception {
+		HashMap<String, String> usr = new HashMap<>();
+		usr.put("username", user);
+		usr.put("pass", pass);
+		login(usr);
 	}
-
-	public void login(String user, String pass) {
-		log.debug("Login started");
-		username.clear();
-		username.sendKeys(user);
-		password.clear();
-		password.sendKeys(pass);
-		loginBtn.click();
-
+	
+	public void login(String userRole) throws Exception {
+		HashMap<String, String> user = data.getUser(userRole);
+		this.login(user);
+	}
+	
+	public void login(HashMap<String, String> user) throws Exception {
+		
+		log.debug("Login started " + user.get("username") + " / " + user.get("pass"));
+		weToDInput(username).fill(user.get("username"));
+		weToDInput(password).fill(user.get("pass"));
+		weToDButton(loginBtn).click();
+		
 		wait.defaultWait.until(ExpectedConditions.or(
 				ExpectedConditions.visibilityOf(pageTitle),
 				ExpectedConditions.visibilityOf(getAlertArea().alertMessage)
 		));
-
+		
 		log.debug("Login action done");
 	}
-
-	public void login(String userRole) throws Exception {
-		HashMap<String, String> user = data.getUser(userRole);
-		log.debug("Login started");
-		new DInput(driver, username).fill(user.get("username"));
-		new DInput(driver, password).fill(user.get("pass"));
-		loginBtn.click();
-		wait.forElementToBeVisible(helpLnk);
-		log.debug("Login action done");
-	}
-
-	public void login(HashMap<String, String> user) throws Exception {
-
-		log.debug("Login started");
-		new DInput(driver, username).fill(user.get("username"));
-		new DInput(driver, password).fill(user.get("pass"));
-		loginBtn.click();
-		wait.forElementToBeVisible(helpLnk);
-		log.debug("Login action done");
-	}
-
-
+	
+	
 }

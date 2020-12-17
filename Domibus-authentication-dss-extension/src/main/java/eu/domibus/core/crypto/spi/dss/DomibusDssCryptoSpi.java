@@ -1,9 +1,10 @@
 package eu.domibus.core.crypto.spi.dss;
 
-import com.google.common.collect.Lists;
 import eu.domibus.core.crypto.spi.AbstractCryptoServiceSpi;
 import eu.domibus.core.crypto.spi.DomainCryptoServiceSpi;
 import eu.domibus.ext.services.PkiExtService;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import eu.europa.esig.dss.model.x509.CertificateToken;
 import eu.europa.esig.dss.spi.tsl.TLInfo;
 import eu.europa.esig.dss.spi.x509.CertificateSource;
@@ -14,9 +15,6 @@ import eu.europa.esig.dss.validation.CertificateVerifier;
 import eu.europa.esig.dss.validation.reports.CertificateReports;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.wss4j.common.ext.WSSecurityException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.cglib.core.internal.Function;
 
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
@@ -33,11 +31,9 @@ import java.util.regex.Pattern;
  */
 public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DomibusDssCryptoSpi.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusDssCryptoSpi.class);
 
     private static final String CERTPATH = "certpath";
-
-    private Function<Void, CertificateVerifier> certificateVerifierFactory;
 
     private TSLRepository tslRepository;
 
@@ -49,17 +45,18 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
 
     private DssCache dssCache;
 
+    private CertificateVerifierService certificateVerifierService;
+
     public DomibusDssCryptoSpi(
             final DomainCryptoServiceSpi defaultDomainCryptoService,
-            final Function<Void
-                    , CertificateVerifier> certificateVerifierFactory,
             final TSLRepository tslRepository,
             final ValidationReport validationReport,
             final ValidationConstraintPropertyMapper constraintMapper,
             final PkiExtService pkiExtService,
-            final DssCache dssCache) {
+            final DssCache dssCache,
+            CertificateVerifierService certificateVerifierService) {
         super(defaultDomainCryptoService);
-        this.certificateVerifierFactory = certificateVerifierFactory;
+        this.certificateVerifierService = certificateVerifierService;
         this.tslRepository = tslRepository;
         this.validationReport = validationReport;
         this.constraintMapper = constraintMapper;
@@ -87,18 +84,25 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
             LOG.debug("Certificate with cache key:[{}] validated from dss cache", dssCache);
             return;
         }
-        final X509Certificate leafCertificate = getX509LeafCertificate(certs);
-        //add signing certificate to DSS.
-        final CertificateVerifier certificateVerifier = certificateVerifierFactory.apply(null);
-        CertificateSource adjunctCertSource = prepareCertificateSource(certs, leafCertificate);
-        certificateVerifier.setAdjunctCertSource(adjunctCertSource);
-        LOG.debug("Leaf certificate:[{}] to be validated by dss", leafCertificate.getSubjectDN().getName());
-        //add leaf certificate to DSS
-        CertificateValidator certificateValidator = prepareCertificateValidator(leafCertificate, certificateVerifier);
-        //Validate.
-        validate(certificateValidator);
-        dssCache.addToCache(cacheKey, true);
-        LOG.debug("Certificate:[{}] passed DSS trust validation:", leafCertificate.getSubjectDN());
+        synchronized (DomibusDssCryptoSpi.class) {
+            if (dssCache.isChainValid(cacheKey)) {
+                LOG.trace("Certificate has been added to the DSS cache by another thread.");
+                return;
+            }
+            final X509Certificate leafCertificate = getX509LeafCertificate(certs);
+            //add signing certificate to DSS.
+            final CertificateVerifier certificateVerifier = certificateVerifierService.getCertificateVerifier();
+            CertificateSource adjunctCertSource = prepareCertificateSource(certs, leafCertificate);
+            certificateVerifier.setAdjunctCertSource(adjunctCertSource);
+            LOG.debug("Leaf certificate:[{}] to be validated by dss", leafCertificate.getSubjectDN().getName());
+            //add leaf certificate to DSS
+            CertificateValidator certificateValidator = prepareCertificateValidator(leafCertificate, certificateVerifier);
+            //Validate.
+            validate(certificateValidator);
+            dssCache.addToCache(cacheKey, true);
+            LOG.debug("Certificate:[{}] passed DSS trust validation:", leafCertificate.getSubjectDN());
+        }
+
     }
 
     protected void validate(CertificateValidator certificateValidator) throws WSSecurityException {
@@ -125,7 +129,7 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
 
     protected CertificateSource prepareCertificateSource(X509Certificate[] certs, X509Certificate leafCertificate) {
         LOG.debug("Setting up DSS with trust chain");
-        final List<X509Certificate> trustChain = Lists.newArrayList(Arrays.asList(certs));
+        final List<X509Certificate> trustChain = new ArrayList<>(Arrays.asList(certs));
         trustChain.remove(leafCertificate);
         CertificateSource adjunctCertSource = new CommonCertificateSource();
         for (X509Certificate x509TrustCertificate : trustChain) {
@@ -141,7 +145,7 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
         if (certs.length == 1) {
             return certs[0];
         }
-        Certificate certificate = pkiExtService.extractLeafCertificateFromChain(Lists.newArrayList(certs));
+        Certificate certificate = pkiExtService.extractLeafCertificateFromChain(new ArrayList<>(Arrays.asList(certs)));
         if (certificate == null) {
             throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, CERTPATH, new Object[]{"Invalid leaf certificate"});
         }

@@ -30,7 +30,7 @@ import javax.xml.bind.annotation.XmlType;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "")
 @Entity
-@Table(name = "TB_SERVICE")
+@Table(name = "TB_PM_SERVICE")
 @NamedQueries({@NamedQuery(name = "Service.findByServiceAndType", query = "select s.name from Service s where s.value = :SERVICE and s.serviceType= :TYPE"),
         @NamedQuery(name = "Service.findByName", query = "select s from Service s where s.name=:NAME"),
         @NamedQuery(name = "Service.findWithoutType", query = "select s.name from Service s where s.value = :SERVICE and (s.serviceType='' or s.serviceType is null)")})

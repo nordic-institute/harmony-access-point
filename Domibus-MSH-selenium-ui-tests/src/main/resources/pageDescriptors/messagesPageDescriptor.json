@@ -134,13 +134,13 @@
 	  },
 	  {
 		"name": "Send Attempts",
-		"type": "number",
+		"type": "integer",
 		"sortable": true,
 		"visibleByDefault": false
 	  },
 	  {
 		"name": "Send Attempts Max",
-		"type": "number",
+		"type": "integer",
 		"sortable": true,
 		"visibleByDefault": false
 	  },

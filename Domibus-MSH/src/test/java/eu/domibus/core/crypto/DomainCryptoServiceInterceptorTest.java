@@ -2,9 +2,10 @@ package eu.domibus.core.crypto;
 
 import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.pki.DomibusCertificateException;
-import eu.domibus.common.exception.ConfigurationException;
+import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.crypto.spi.CryptoSpiException;
 import eu.domibus.core.crypto.spi.DomibusCertificateSpiException;
+import eu.domibus.core.util.AOPUtilImpl;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.junit.Assert;
 import org.junit.Test;
@@ -21,7 +22,7 @@ public class DomainCryptoServiceInterceptorTest {
     @Test
     public void convertCoreException() {
 
-        DomainCryptoServiceInterceptor domainCryptoServiceInterceptor=new DomainCryptoServiceInterceptor();
+        DomainCryptoServiceInterceptor domainCryptoServiceInterceptor=new DomainCryptoServiceInterceptor(new AOPUtilImpl());
         CryptoException transformedCryptoException = (CryptoException) domainCryptoServiceInterceptor.convertCoreException(new RuntimeException("bla"));
         Assert.assertEquals("[DOM_001]:bla",transformedCryptoException.getMessage());
 

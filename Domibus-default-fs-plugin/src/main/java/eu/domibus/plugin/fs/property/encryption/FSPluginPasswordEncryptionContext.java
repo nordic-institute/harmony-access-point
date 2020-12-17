@@ -15,6 +15,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static eu.domibus.plugin.fs.property.FSPluginPropertiesMetadataManagerImpl.FSPLUGIN_PASSWORD_ENCRYPTION_PROPERTIES;
+
 /**
  * @author Cosmin Baciu
  * @since 4.1.1
@@ -22,8 +24,6 @@ import java.util.stream.Collectors;
 public class FSPluginPasswordEncryptionContext implements PluginPasswordEncryptionContext {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FSPluginPasswordEncryptionContext.class);
-
-    public static final String FSPLUGIN_PASSWORD_ENCRYPTION_PROPERTIES = "fsplugin.password.encryption.properties"; //NOSONAR
 
     protected FSPluginProperties fsPluginProperties;
 

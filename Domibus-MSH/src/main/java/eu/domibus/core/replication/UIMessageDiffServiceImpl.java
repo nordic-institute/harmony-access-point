@@ -1,20 +1,18 @@
 package eu.domibus.core.replication;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.common.util.WarningUtil;
+import eu.domibus.core.util.WarningUtil;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_UI_REPLICATION_SYNC_CRON_MAX_ROWS;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_UI_REPLICATION_SYNC_CRON_MAX_ROWS;
 
 @Service
 public class UIMessageDiffServiceImpl implements UIMessageDiffService {
@@ -37,7 +35,6 @@ public class UIMessageDiffServiceImpl implements UIMessageDiffService {
     private UIMessageService uiMessageService;
 
     @Override
-    @Transactional(readOnly = true, propagation=Propagation.SUPPORTS)
     public int countAll() {
         LOG.debug("start to count UIMessages to be synced");
         long startTime = System.currentTimeMillis();
@@ -49,7 +46,6 @@ public class UIMessageDiffServiceImpl implements UIMessageDiffService {
     }
 
     @Override
-    @Transactional(readOnly = true, propagation=Propagation.SUPPORTS)
     public List<UIMessageDiffEntity> findAll() {
         LOG.debug("start to find UIMessages to be synced");
         long startTime = System.currentTimeMillis();
@@ -86,7 +82,7 @@ public class UIMessageDiffServiceImpl implements UIMessageDiffService {
         }
 
         // check how many rows to sync
-        int maxRowsToSync = NumberUtils.toInt(domibusPropertyProvider.getDomainProperty(MAX_ROWS_KEY));
+        int maxRowsToSync = NumberUtils.toInt(domibusPropertyProvider.getProperty(MAX_ROWS_KEY));
         if (rowsToSyncCount > maxRowsToSync) {
             if (LOG.isWarnEnabled()) {
                 LOG.warn(WarningUtil.warnOutput("There are more than [{}] rows to sync into TB_MESSAGE_UI table " +

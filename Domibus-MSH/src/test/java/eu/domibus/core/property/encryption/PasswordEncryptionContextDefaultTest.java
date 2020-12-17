@@ -1,6 +1,6 @@
 package eu.domibus.core.property.encryption;
 
-import eu.domibus.api.configuration.DomibusConfigurationService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.property.encryption.PasswordEncryptionContextAbstract;
 import eu.domibus.api.property.encryption.PasswordEncryptionService;
@@ -17,8 +17,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import static eu.domibus.api.property.encryption.PasswordEncryptionContextAbstract.DOMIBUS_PASSWORD_ENCRYPTION_KEY_LOCATION;
-import static eu.domibus.api.property.encryption.PasswordEncryptionContextAbstract.DOMIBUS_PASSWORD_ENCRYPTION_PROPERTIES;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PASSWORD_ENCRYPTION_KEY_LOCATION;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PASSWORD_ENCRYPTION_PROPERTIES;
 import static org.junit.Assert.assertEquals;
 
 /**

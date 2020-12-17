@@ -1,74 +1,84 @@
-<page-header id="propertiesheader_id">Properties</page-header>
+<div style="height: calc(100% - 15px);">
+  <page-header id="propertiesheader_id">Properties</page-header>
 
-<div class="selectionCriteria">
-  <md-card>
-    <md-card-content>
-      <div class="panel">
-        <form name="filterForm" #filterForm="ngForm">
-
-          <div>
-            <md-input-container>
-              <input mdInput placeholder="Property Name..." name="filterPropertyName" [(ngModel)]="filter.propertyName" #filterPropertyName="ngModel" id="filterPropertyName_id" (ngModelChange)="onPropertyNameChanged()">
-            </md-input-container>
-          </div>
-
-        </form>
-      </div>
-    </md-card-content>
-  </md-card>
-</div>
-<div>
-  <md-card>
-    <md-card-content>
-
-      <div class="panel">
-        <div class="group-filter-button">
-    <span class="row-button">
-      <app-row-limiter [pageSizes]="rowLimiter.pageSizes"
-                       (onPageSizeChanged)="onChangePageSize($event.value)"></app-row-limiter>
-    </span>
-        </div>
-
-        <ngx-datatable
-          id="propertiesTable"
-          class="material striped"
-          [rows]="rows"
-          [columnMode]="'force'"
-          [columns]="columns"
-          [headerHeight]="50"
-          [footerHeight]="50"
-          [rowHeight]="'auto'"
-          [scrollbarH]="true"
-          [externalPaging]="true"
-          [externalSorting]="true"
-          [loadingIndicator]="loading"
-          [count]="count"
-          [offset]="offset"
-          [limit]="rowLimiter.pageSize"
-          (page)="onPage($event)"
-        >
-        </ngx-datatable>
-
-        <ng-template #propertyValueTpl let-row="row" let-value="value" ngx-datatable-cell-template>
-
-          <div class="input-group property-edit">
-            <input mdInput type="text" autocomplete="off" class="form-control property-value"
-                   [(ngModel)]="row.value"
-                   (focus)="onPropertyValueFocus(row)"
-                   (blur)="onPropertyValueBlur(row)"
-                   (keydown.enter)="updateProperty(row)"
-                   (keydown.escape)="revertProperty(row)">
-
-            <span class="property-edit-buttons input-group-addon">
-              <button md-icon-button (click)="updateProperty(row)" [disabled]="!canUpdate(row)"><md-icon md-tooltip="Save" mdTooltipPosition="above">save</md-icon></button>
-              <button md-icon-button (click)="revertProperty(row)" [disabled]="!canUpdate(row)"><md-icon md-tooltip="Undo" mdTooltipPosition="above">undo</md-icon></button>
+  <div class="selectionCriteria">
+    <mat-card>
+      <mat-card-content>
+        <div class="panel">
+          <form name="filterForm" #filterForm="ngForm" (submit)="tryFilter()">
+            <span>
+              <mat-form-field>
+                <input matInput id="filterPropertyName_id" name="filterPropertyName" [(ngModel)]="filter.name"
+                       placeholder="Property Name...">
+              </mat-form-field>
             </span>
 
-          </div>
+            <span>
+              <mat-form-field>
+                <input matInput id="filterPropertyType_id" name="filterPropertyType" [(ngModel)]="filter.type"
+                       placeholder="Property Type...">
+              </mat-form-field>
+            </span>
 
-        </ng-template>
+            <span>
+              <mat-form-field>
+                <input matInput id="filterPropertyModule_id" name="filterPropertyModule" [(ngModel)]="filter.module"
+                       placeholder="Property Module...">
+              </mat-form-field>
+            </span>
+
+            <span>
+              <mat-form-field>
+                <input matInput id="filterPropertyValue_id" name="filterPropertyValue" [(ngModel)]="filter.value"
+                       placeholder="Property Value...">
+              </mat-form-field>
+            </span>
+
+            <span>
+              <ng-container *ngIf="showGlobalPropertiesControl">
+                <mat-checkbox id="includeSuperProperties_id" name="includeSuperProperties" [(ngModel)]="filter.showDomain">
+                  Show Domain Properties
+                </mat-checkbox>
+              </ng-container>
+            </span>
+
+            <filter-area-footer [parent]="this" [isAdvancedVisible]="false" [form]="filterForm"></filter-area-footer>
+
+          </form>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <div style="height: calc(100% - 150px);">
+    <div class="panel full-height">
+      <grid-header [parent]="this"></grid-header>
+
+      <div style="height: calc(100% - 70px); overflow-y: auto; overflow-x: hidden;">
+        <page-grid [parent]="this"></page-grid>
       </div>
 
-    </md-card-content>
-  </md-card>
+      <ng-template #propertyValueTpl let-row="row" let-value="value" ngx-datatable-cell-template>
+        <div class="input-group property-edit">
+          <input matInput type="text" autocomplete="off" class="form-control property-value"
+                 [(ngModel)]="row.value"
+                 (focus)="onPropertyValueFocus(row)"
+                 (blur)="onPropertyValueBlur(row)"
+                 (keydown.enter)="updateProperty(row)"
+                 (keydown.escape)="revertProperty(row)">
+
+          <span class="property-edit-buttons input-group-addon">
+              <button mat-icon-button (click)="updateProperty(row)" [disabled]="!canUpdate(row)" button-click-behaviour>
+                <mat-icon mat-tooltip="Save" mdTooltipPosition="above">save</mat-icon>
+              </button>
+              <button mat-icon-button (click)="revertProperty(row)" [disabled]="!canUpdate(row)" button-click-behaviour>
+                <mat-icon mat-tooltip="Undo" mdTooltipPosition="above">undo</mat-icon>
+              </button>
+            </span>
+        </div>
+
+      </ng-template>
+
+    </div>
+  </div>
 </div>

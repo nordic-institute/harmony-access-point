@@ -1,0 +1,111 @@
+<mat-dialog-content style="min-width: 50vw;">
+  <div class="scroll-div">
+    <div class="selectionCriteria">
+      <mat-card>
+        <mat-card-content>
+          <div class="panel">
+            <form name="filterForm" #filterForm="ngForm">
+              <!-- Receiver Party -->
+              <label class="receiver-party">
+                Party: {{ partyId }}
+              </label>
+
+              <div class="buttonsRow">
+                <!-- Refresh Button -->
+                <button mat-raised-button color="primary" [disabled]="!sender || !messageInfoSent.messageId || isBusy"
+                        id="updatebutton_id"
+                        (click)="onUpdateClick()" button-click-behaviour>
+                  <mat-icon>refresh</mat-icon>
+                  <span>Update</span>
+                </button>
+                <!-- Test Button -->
+                <button mat-raised-button color="primary" [disabled]="!sender || isBusy" id="testbutton_id" (click)="test()"
+                        button-click-behaviour>
+                  <mat-icon>import_export</mat-icon>
+                  <span>Test</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+    <div>
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Last Sent Echo Request</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="panel">
+            <div>
+              <mat-form-field>
+                <input matInput placeholder="To Party Id" name="toPartyId" id="toPartyId_id"
+                       [(ngModel)]="messageInfoSent.toPartyId" readonly>
+              </mat-form-field>
+            </div>
+
+            <mat-form-field>
+              <input matInput placeholder="To Access Point" name="toAccessPoint" id="toAccessPoint_id"
+                     [(ngModel)]="messageInfoSent.finalRecipient" readonly>
+            </mat-form-field>
+
+            <div>
+              <mat-form-field>
+                <input matInput placeholder="Time Sent" name="timeSent" id="timeSent_id"
+                       [(ngModel)]="messageInfoSent.receivedTo" readonly>
+              </mat-form-field>
+            </div>
+            <div>
+              <mat-form-field>
+                <input matInput placeholder="Message Id" name="toMessageId" id="toMessageId_id"
+                       [(ngModel)]="messageInfoSent.messageId" readonly>
+              </mat-form-field>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Last Received Echo Reply</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="panel">
+            <div>
+              <mat-form-field>
+                <input matInput placeholder="From Party Id" name="fromPartyId" id="fromPartyId_id"
+                       [(ngModel)]="messageInfoReceived.fromPartyId" readonly>
+              </mat-form-field>
+            </div>
+            <div>
+              <mat-form-field>
+                <input matInput placeholder="From Access Point" name="fromAccessPoint" id="fromAccessPoint_id"
+                       [(ngModel)]="messageInfoReceived.originalSender" readonly>
+              </mat-form-field>
+            </div>
+            <div>
+              <mat-form-field>
+                <input matInput placeholder="Time Received" name="timeReceived" id="timeReceived_id"
+                       [(ngModel)]="messageInfoReceived.receivedFrom" readonly>
+              </mat-form-field>
+            </div>
+            <div>
+              <mat-form-field>
+                <input matInput placeholder="Message Id" name="fromMessageId" id="fromMessageId_id"
+                       [(ngModel)]="messageInfoReceived.messageId" readonly>
+              </mat-form-field>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions>
+  <button id="messageLogDetailsCloseButton" mat-raised-button color="primary" [disabled]="isBusy" (click)="dialogRef.close({})"
+          style="margin-top:10px">
+    <mat-icon>close</mat-icon>
+    <span>Close</span>
+  </button>
+</mat-dialog-actions>
+

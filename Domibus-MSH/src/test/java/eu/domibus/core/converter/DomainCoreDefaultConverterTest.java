@@ -14,43 +14,42 @@ import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.user.User;
 import eu.domibus.api.usermessage.domain.CollaborationInfo;
 import eu.domibus.api.util.DateUtil;
-import eu.domibus.clustering.CommandEntity;
-import eu.domibus.common.model.audit.Audit;
-import eu.domibus.common.model.audit.mapper.AuditMapper;
-import eu.domibus.common.model.logging.ErrorLogEntry;
-import eu.domibus.common.model.logging.MessageLogInfo;
-import eu.domibus.common.model.logging.SignalMessageLog;
-import eu.domibus.common.model.logging.UserMessageLog;
 import eu.domibus.core.alerts.model.mapper.EventMapper;
+import eu.domibus.core.alerts.model.mapper.EventMapperImpl;
+import eu.domibus.core.alerts.model.mapper.EventMapperImpl_;
+import eu.domibus.core.audit.model.Audit;
+import eu.domibus.core.audit.model.mapper.AuditMapper;
+import eu.domibus.core.audit.model.mapper.AuditMapperImpl;
+import eu.domibus.core.clustering.CommandEntity;
 import eu.domibus.core.crypto.api.CertificateEntry;
 import eu.domibus.core.crypto.spi.CertificateEntrySpi;
 import eu.domibus.core.crypto.spi.DomainSpi;
+import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.logging.LoggingEntry;
+import eu.domibus.core.message.MessageLogInfo;
+import eu.domibus.core.message.UserMessageLog;
 import eu.domibus.core.message.attempt.MessageAttemptEntity;
+import eu.domibus.core.message.signal.SignalMessageLog;
 import eu.domibus.core.party.PartyResponseRo;
 import eu.domibus.core.party.ProcessRo;
+import eu.domibus.core.plugin.routing.BackendFilterEntity;
+import eu.domibus.core.plugin.routing.RoutingCriteriaEntity;
 import eu.domibus.core.replication.UIMessageDiffEntity;
 import eu.domibus.core.replication.UIMessageEntity;
-import eu.domibus.core.security.AuthenticationEntity;
+import eu.domibus.core.user.plugin.AuthenticationEntity;
 import eu.domibus.core.util.DateUtilImpl;
 import eu.domibus.ebms3.common.model.PartProperties;
 import eu.domibus.ebms3.common.model.Property;
 import eu.domibus.ebms3.common.model.PullRequest;
 import eu.domibus.ebms3.common.model.UserMessage;
-import eu.domibus.ext.domain.PartPropertiesDTO;
-import eu.domibus.ext.domain.PropertyDTO;
-import eu.domibus.ext.domain.PullRequestDTO;
-import eu.domibus.ext.domain.UserMessageDTO;
-import eu.domibus.plugin.routing.BackendFilterEntity;
-import eu.domibus.plugin.routing.RoutingCriteriaEntity;
+import eu.domibus.ext.domain.*;
 import eu.domibus.web.rest.ro.*;
 import eu.europa.ec.digit.commons.test.api.ObjectService;
-import mockit.Injectable;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.test.context.ContextConfiguration;
@@ -71,7 +70,6 @@ import java.util.List;
 public class DomainCoreDefaultConverterTest {
 
     @Configuration
-    @ComponentScan(basePackageClasses = {EventMapper.class, AuditMapper.class, DomibusCoreMapper.class, DomainCoreDefaultConverter.class})
     @ImportResource({
             "classpath:config/commonsTestContext.xml"
     })
@@ -81,16 +79,39 @@ public class DomainCoreDefaultConverterTest {
         public DateUtil dateUtil() {
             return new DateUtilImpl();
         }
+
+        @Bean
+        @Qualifier("delegate")
+        public EventMapper eventMapper() {
+            EventMapperImpl eventMapper = new EventMapperImpl();
+            eventMapper.setDelegate(new EventMapperImpl_());
+            return eventMapper;
+        }
+
+        @Bean
+        public AuditMapper auditMapper() {
+            AuditMapperImpl auditMapper = new AuditMapperImpl();
+            return auditMapper;
+        }
+
+        @Bean
+        public DomainCoreConverter domainCoreConverter() {
+            DomainCoreConverter domainCoreConverter = new DomainCoreDefaultConverter();
+            return domainCoreConverter;
+        }
+
+        @Bean
+        public DomibusCoreMapper domibusCoreMapper() {
+            DomibusCoreMapper domibusCoreMapper = new DomibusCoreMapperImpl();
+            return domibusCoreMapper;
+        }
     }
 
     @Autowired
     DomainCoreConverter domainCoreConverter;
 
-    @Injectable
-    EventMapper eventMapper;
-
-    @Injectable
-    AuditMapper auditMapper;
+    @Autowired
+    DomibusCoreMapper domibusCoreMapper;
 
     @Autowired
     ObjectService objectService;
@@ -197,6 +218,7 @@ public class DomainCoreDefaultConverterTest {
         convertedBack.setSuspended(true);
         convertedBack.setStatus("status");
         convertedBack.setAuthenticationType("authenticationType");
+        convertedBack.setDomain("domain");
         objectService.assertObjects(convertedBack, toConvert);
     }
 
@@ -236,6 +258,22 @@ public class DomainCoreDefaultConverterTest {
     }
 
     @Test
+    public void testConvertDomainToDomainDTO() throws Exception {
+        Domain toConvert = (Domain) objectService.createInstance(Domain.class);
+        final DomainDTO converted = domainCoreConverter.convert(toConvert, DomainDTO.class);
+        final Domain convertedBack = domainCoreConverter.convert(converted, Domain.class);
+        objectService.assertObjects(convertedBack, toConvert);
+    }
+
+    @Test
+    public void testConvertDomainDTOToDomain() throws Exception {
+        DomainDTO toConvert = (DomainDTO) objectService.createInstance(DomainDTO.class);
+        final Domain converted = domainCoreConverter.convert(toConvert, Domain.class);
+        final DomainDTO convertedBack = domainCoreConverter.convert(converted, DomainDTO.class);
+        objectService.assertObjects(convertedBack, toConvert);
+    }
+
+    @Test
     public void testConvertUserResponseRO() throws Exception {
         UserResponseRO toConvert = (UserResponseRO) objectService.createInstance(UserResponseRO.class);
         final User converted = domainCoreConverter.convert(toConvert, User.class);
@@ -248,7 +286,7 @@ public class DomainCoreDefaultConverterTest {
     @Test
     public void testConvertUser() throws Exception {
         User toConvert = (User) objectService.createInstance(User.class);
-        final eu.domibus.common.model.security.User converted = domainCoreConverter.convert(toConvert, eu.domibus.common.model.security.User.class);
+        final eu.domibus.core.user.ui.User converted = domainCoreConverter.convert(toConvert, eu.domibus.core.user.ui.User.class);
         final User convertedBack = domainCoreConverter.convert(converted, User.class);
         convertedBack.setDomain(toConvert.getDomain());
         convertedBack.setStatus(toConvert.getStatus());

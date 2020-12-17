@@ -1,114 +1,69 @@
 package eu.domibus.core.crypto.spi.dss;
 
-import com.google.common.collect.Lists;
-import eu.domibus.ext.domain.DomainDTO;
-import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomibusPropertyExtService;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.env.Environment;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * @author Thomas Dussart
  * @since 4.1
  * <p>
- * This class has a similar behavior than @ConfigurationProperties annotation and allows
- * to parse list of properties in the format domibus.example.name[0],domibus.example.name[1].
+ * This class use the nested properties mechanism of Domibus to extract dynamic properties.
  * <p>
  * Subclasses implement a transform method to create the model needed <E> and the map method will then return a List<E>.
  */
 
 public abstract class PropertyGroupMapper<E> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PropertyGroupMapper.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PropertyGroupMapper.class);
 
-    private final DomibusPropertyExtService domibusPropertyExtService;
-
-    private final DomainContextExtService domainContextExtService;
-
-    private final Environment environment;
+    protected final DomibusPropertyExtService domibusPropertyExtService;
 
     private final Pattern passwordPattern = Pattern.compile(".*password.*", Pattern.CASE_INSENSITIVE);
 
 
-    public PropertyGroupMapper(final DomibusPropertyExtService domibusPropertyExtService,
-                               final DomainContextExtService domainContextExtService,
-                               final Environment environment) {
+    public PropertyGroupMapper(final DomibusPropertyExtService domibusPropertyExtService) {
         this.domibusPropertyExtService = domibusPropertyExtService;
-        this.domainContextExtService = domainContextExtService;
-        this.environment = environment;
     }
 
-    protected List<E> map(String... propertyNames) {
-        boolean propertyEmpty = false;
+    protected List<E> map(String propertyName) {
         List<E> elements = new ArrayList<>();
-        for (int count = 0; count < 100; count++) {
-            Map<String, ImmutablePair<String, String>> keyValues = new HashMap<>();
-            for (String propertyName : Lists.newArrayList(propertyNames)) {
-                final String format = propertyName + "[%s]";
-                final String propertyKey = String.format(format, count);
-                if (!propertyKeyExists(propertyKey)) {
-                    propertyEmpty = true;
-                    break;
+        List<String> mainPropertiesSuffixes
+                = domibusPropertyExtService.getNestedProperties(propertyName);
+        List<String> mainProperties = mainPropertiesSuffixes.stream().map(nestedMainProperty -> propertyName + "." + nestedMainProperty).collect(Collectors.toList());
+        for (String mainProperty : mainProperties) {
+            Map<String, String> keyValues = new HashMap<>();
+            List<String> nestedPropertiesSuffixes
+                    = domibusPropertyExtService.getNestedProperties(mainProperty);
+            for (String nestedPropertySuffix : nestedPropertiesSuffixes) {
+                String nestedPropertyName = mainProperty + "." + nestedPropertySuffix;
+                String propertyValue = domibusPropertyExtService.getProperty(nestedPropertyName);
+                if (!passwordPattern.matcher(nestedPropertyName).matches()) {
+                    LOG.debug("Property:[{}] has following value:[{}]", nestedPropertyName, propertyValue);
                 }
-                final String propertyValue = getPropertyValue(propertyKey);
-                if (!passwordPattern.matcher(propertyKey).matches()) {
-                    LOG.debug("Property:[{}] has following value:[{}]", propertyKey, propertyValue);
-                }
-                keyValues.put(propertyName, new ImmutablePair<>(propertyName, propertyValue));
+                keyValues.put(nestedPropertySuffix, propertyValue);
             }
-            if (!propertyEmpty) {
-                final E transform = transform(keyValues);
-                if (transform != null) {
-                    elements.add(transform);
-                }
-            } else {
-                break;
+            boolean emptyValue = keyValues.entrySet().stream().anyMatch(entry -> StringUtils.isEmpty(entry.getValue()));
+            if (emptyValue || keyValues.size() == 0) {
+                continue;
+            }
+            final E transform = transform(keyValues);
+            if (transform != null) {
+                elements.add(transform);
             }
         }
         return elements;
     }
 
-    private boolean propertyKeyExists(final String key) {
-        boolean keyExist;
-        DomainDTO currentDomain = domainContextExtService.getCurrentDomainSafely();
-        if (currentDomain != null) {
-            keyExist = domibusPropertyExtService.containsDomainPropertyKey(currentDomain, key);
-            LOG.trace("Checking if key:[{}] exists in domain:[{}]:[{}]", key, currentDomain, keyExist);
-        } else {
-            keyExist = domibusPropertyExtService.containsPropertyKey(key);
-            LOG.trace("Checking if key:[{}] exists in default domain configuration:[{}]", key, keyExist);
-        }
-        if (!keyExist) {
-            keyExist = environment.containsProperty(key);
-            LOG.trace("Checking if key:[{}] exists in spring environment:[{}]", key, keyExist);
-        }
-        return keyExist;
-    }
 
-    private String getPropertyValue(String key) {
-        String propertyValue = null;
-        DomainDTO currentDomain = domainContextExtService.getCurrentDomainSafely();
-        if (currentDomain != null) {
-            propertyValue = domibusPropertyExtService.getDomainProperty(currentDomain, key);
-        } else {
-            propertyValue = domibusPropertyExtService.getProperty(key);
-        }
-        if (StringUtils.isEmpty(propertyValue)) {
-            propertyValue = environment.getProperty(key);
-        }
-        LOG.trace("Property with key:[{}] has value:[{}]", key, propertyValue);
-        return propertyValue;
-    }
-
-    abstract E transform(Map<String, ImmutablePair<String, String>> keyValues);
+    abstract E transform(Map<String, String> keyValues);
 
 }

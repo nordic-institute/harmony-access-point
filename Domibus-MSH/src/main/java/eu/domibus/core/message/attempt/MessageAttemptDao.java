@@ -1,12 +1,15 @@
 package eu.domibus.core.message.attempt;
 
-import eu.domibus.common.dao.BasicDao;
+import eu.domibus.core.dao.BasicDao;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
 import javax.persistence.NoResultException;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import java.util.List;
 
@@ -14,7 +17,7 @@ import java.util.List;
  * @author Cosmin Baciu
  * @since 3.3
  */
-@Component
+@Repository
 public class MessageAttemptDao extends BasicDao<MessageAttemptEntity> {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageAttemptDao.class);
@@ -39,4 +42,15 @@ public class MessageAttemptDao extends BasicDao<MessageAttemptEntity> {
         entity.setError(StringUtils.abbreviate(entity.getError(), 255));
         super.create(entity);
     }
+
+    @Timer(clazz = MessageAttemptDao.class,value = "deleteMessages.deleteAttemptsByMessageIds")
+    @Counter(clazz = MessageAttemptDao.class,value = "deleteMessages.deleteAttemptsByMessageIds")
+    public int deleteAttemptsByMessageIds(List<String> messageIds) {
+        final Query deleteQuery = em.createNamedQuery("MessageAttemptEntity.deleteAttemptsByMessageIds");
+        deleteQuery.setParameter("MESSAGEIDS", messageIds);
+        int result  = deleteQuery.executeUpdate();
+        LOG.trace("deleteAttemptsByMessageIds result [{}]", result);
+        return result;
+    }
+
 }

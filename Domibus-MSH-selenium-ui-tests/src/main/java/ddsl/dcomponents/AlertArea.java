@@ -6,7 +6,6 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
-import utils.TestRunData;
 
 
 /**
@@ -15,24 +14,25 @@ import utils.TestRunData;
  */
 
 
-@SuppressWarnings("SpellCheckingInspection")
 public class AlertArea extends DComponent {
+
+	@FindBy(id = "alertmessage_id")
+	public WebElement alertMessage;
+	@FindBy(css = "#alertmessage_id span")
+	public WebElement closeButton;
+	@FindBy(tagName = "snack-bar-container")
+	public WebElement alertContainer;
 
 	public AlertArea(WebDriver driver) {
 		super(driver);
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 	}
 
-	@FindBy(id = "alertmessage_id")
-	public WebElement alertMessage;
-
-	@FindBy(css = "#alertmessage_id span")
-	public WebElement closeButton;
-
-	public String getAlertMessage(){
+	public String getAlertMessage() {
 		try {
-			wait.forElementToBeVisible(alertMessage);
-		} catch (Exception e) {		}
+			wait.forElementToBeVisible(alertMessage, true);
+		} catch (Exception e) {
+		}
 		DObject alertObject = new DObject(driver, alertMessage);
 
 		if (!alertObject.isPresent()) {
@@ -40,7 +40,6 @@ public class AlertArea extends DComponent {
 			return null;
 		}
 
-//		String messageTxt = alertObject.getText().replaceAll("[^a-zA-Z0-9\\[\\]_:/\\.\\\\' ]", "").trim();
 		String messageTxt = alertMessage.getText().replace(closeButton.getText(), "").replaceAll("\n", "").trim();
 
 		log.debug("messageTxt = " + messageTxt);
@@ -51,9 +50,11 @@ public class AlertArea extends DComponent {
 
 	public boolean isError() throws Exception {
 		try {
-			wait.forElementToBeVisible(alertMessage);
-		} catch (Exception e) {}
-		DObject alertObject = new DObject(driver, alertMessage);
+			wait.forElementToBeVisible(alertContainer, true);
+		} catch (Exception e) {
+		}
+
+		DObject alertObject = new DObject(driver, alertContainer);
 
 		if (alertObject.isPresent()) {
 			return (alertObject.getAttribute("class").contains("error"));
@@ -61,7 +62,15 @@ public class AlertArea extends DComponent {
 		throw new Exception("Alert message not present");
 	}
 
+	public boolean isShown() throws Exception {
+		try {
+			wait.forElementToBeVisible(alertContainer, true);
+		} catch (Exception e) {
+			return false;
+		}
+		return true;
+	}
 
-
-
+	
+	
 }

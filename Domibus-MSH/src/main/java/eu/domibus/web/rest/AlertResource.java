@@ -1,29 +1,31 @@
 package eu.domibus.web.rest;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.core.alerts.model.common.*;
 import eu.domibus.core.alerts.model.service.Alert;
 import eu.domibus.core.alerts.model.web.AlertRo;
 import eu.domibus.core.alerts.service.AlertService;
-import eu.domibus.core.csv.CsvCustomColumns;
-import eu.domibus.core.csv.CsvService;
-import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.ro.AlertFilterRequestRO;
 import eu.domibus.web.rest.ro.AlertResult;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.AbstractMap.SimpleImmutableEntry;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -34,20 +36,27 @@ public class AlertResource extends BaseResource {
 
     private static final Logger LOG = DomibusLoggerFactory.getLogger(AlertResource.class);
 
-    @Autowired
+
     private AlertService alertService;
 
-    @Autowired
     private DateUtil dateUtil;
 
-    @Autowired
-    private CsvServiceImpl csvServiceImpl;
-
-    @Autowired
     private AuthUtils authUtils;
 
-    @Autowired
-    protected DomainTaskExecutor domainTaskExecutor;
+    private DomainTaskExecutor domainTaskExecutor;
+
+    private DomibusConfigurationService domibusConfigurationService;
+
+    static List<AlertType> forbiddenAlertTypesExtAuthProvider = Lists.newArrayList(AlertType.PASSWORD_EXPIRED, AlertType.PASSWORD_IMMINENT_EXPIRATION,
+            AlertType.USER_ACCOUNT_DISABLED, AlertType.USER_ACCOUNT_ENABLED, AlertType.USER_LOGIN_FAILURE);
+
+    public AlertResource(AlertService alertService, DateUtil dateUtil, AuthUtils authUtils, DomainTaskExecutor domainTaskExecutor, DomibusConfigurationService domibusConfigurationService) {
+        this.alertService = alertService;
+        this.dateUtil = dateUtil;
+        this.authUtils = authUtils;
+        this.domainTaskExecutor = domainTaskExecutor;
+        this.domibusConfigurationService = domibusConfigurationService;
+    }
 
     @GetMapping
     public AlertResult findAlerts(@Valid AlertFilterRequestRO request) {
@@ -60,21 +69,19 @@ public class AlertResource extends BaseResource {
         return domainTaskExecutor.submit(() -> retrieveAlerts(alertCriteria, true));
     }
 
-
-    protected AlertResult retrieveAlerts(AlertCriteria alertCriteria, boolean isSuperAdmin) {
-        final Long alertCount = alertService.countAlerts(alertCriteria);
-        final List<Alert> alerts = alertService.findAlerts(alertCriteria);
-        final List<AlertRo> alertRoList = alerts.stream().map(this::transform).collect(Collectors.toList());
-        alertRoList.forEach(alert -> alert.setSuperAdmin(isSuperAdmin));
-        final AlertResult alertResult = new AlertResult();
-        alertResult.setAlertsEntries(alertRoList);
-        alertResult.setCount(alertCount.intValue());
-        return alertResult;
-    }
-
     @GetMapping(path = "/types")
     public List<String> getAlertTypes() {
+        return getAlertTypesAsStrings();
+    }
+
+    @NotNull
+    protected List<String> getAlertTypesAsStrings() {
         final List<AlertType> alertTypes = Lists.newArrayList(AlertType.values());
+        if (domibusConfigurationService.isExtAuthProviderEnabled()) {
+            return alertTypes.stream().filter(alertType ->
+                    forbiddenAlertTypesExtAuthProvider.stream().noneMatch(forbiddenAlertType -> forbiddenAlertType.equals(alertType))).
+                    map(Enum::name).collect(Collectors.toList());
+        }
         return alertTypes.stream().map(Enum::name).collect(Collectors.toList());
     }
 
@@ -110,16 +117,57 @@ public class AlertResource extends BaseResource {
 
     @PutMapping
     public void processAlerts(@RequestBody List<AlertRo> alertRos) {
-        final List<Alert> domainAlerts = alertRos.stream().filter(Objects::nonNull).filter(alertRo -> !alertRo.isSuperAdmin()).map(this::toAlert).collect(Collectors.toList());
-        final List<Alert> superAlerts = alertRos.stream().filter(Objects::nonNull).filter(AlertRo::isSuperAdmin).map(this::toAlert).collect(Collectors.toList());
+        final List<Alert> domainAlerts = filterDomainAlerts(alertRos);
+        final List<Alert> superAlerts = filterSuperAlerts(alertRos);
+        final List<Alert> deletedDomainAlerts = filterDeletedDomainAlerts(alertRos);
+        final List<Alert> deletedSuperAlerts = filterDeletedSuperAlerts(alertRos);
+
         alertService.updateAlertProcessed(domainAlerts);
         domainTaskExecutor.submit(() -> alertService.updateAlertProcessed(superAlerts));
+        alertService.deleteAlerts(deletedDomainAlerts);
+        domainTaskExecutor.submit(() -> alertService.deleteAlerts(deletedSuperAlerts));
+    }
+
+    protected List<Alert> filterDomainAlerts(@RequestBody List<AlertRo> alertRos) {
+        return alertRos.stream()
+                .filter(Objects::nonNull)
+                .filter(alertRo -> !alertRo.isSuperAdmin())
+                .filter(alertRo -> !alertRo.isDeleted())
+                .map(this::toAlert)
+                .collect(Collectors.toList());
+    }
+
+    protected List<Alert> filterSuperAlerts(@RequestBody List<AlertRo> alertRos) {
+        return alertRos.stream()
+                .filter(Objects::nonNull)
+                .filter(AlertRo::isSuperAdmin)
+                .filter(alertRo -> !alertRo.isDeleted())
+                .map(this::toAlert)
+                .collect(Collectors.toList());
+    }
+
+    protected List<Alert> filterDeletedDomainAlerts(@RequestBody List<AlertRo> alertRos) {
+        return alertRos.stream()
+                .filter(Objects::nonNull)
+                .filter(alertRo -> alertRo.isDeleted())
+                .filter(alertRo -> !alertRo.isSuperAdmin())
+                .map(this::toAlert)
+                .collect(Collectors.toList());
+    }
+
+    protected List<Alert> filterDeletedSuperAlerts(@RequestBody List<AlertRo> alertRos) {
+        return alertRos.stream()
+                .filter(Objects::nonNull)
+                .filter(alertRo -> alertRo.isDeleted())
+                .filter(AlertRo::isSuperAdmin)
+                .map(this::toAlert)
+                .collect(Collectors.toList());
     }
 
     @GetMapping(path = "/csv")
     public ResponseEntity<String> getCsv(@Valid AlertFilterRequestRO request) {
         request.setPage(0);
-        request.setPageSize(csvServiceImpl.getMaxNumberRowsToExport());
+        request.setPageSize(getCsvService().getPageSizeForExport());
         AlertCriteria alertCriteria = getAlertCriteria(request);
         List<AlertRo> alertRoList;
         if (!authUtils.isSuperAdmin() || request.getDomainAlerts()) {
@@ -130,13 +178,22 @@ public class AlertResource extends BaseResource {
 
         return exportToCSV(alertRoList,
                 AlertRo.class,
-                CsvCustomColumns.ALERT_RESOURCE.getCustomColumns(),
-                new ArrayList<>(),
+                ImmutableMap.of("entityId".toUpperCase(), "Alert Id"),
                 "alerts");
-
     }
 
-    private Alert toAlert(AlertRo alertRo) {
+    protected AlertResult retrieveAlerts(AlertCriteria alertCriteria, boolean isSuperAdmin) {
+        final Long alertCount = alertService.countAlerts(alertCriteria);
+        final List<Alert> alerts = alertService.findAlerts(alertCriteria);
+        final List<AlertRo> alertRoList = alerts.stream().map(this::transform).collect(Collectors.toList());
+        alertRoList.forEach(alert -> alert.setSuperAdmin(isSuperAdmin));
+        final AlertResult alertResult = new AlertResult();
+        alertResult.setAlertsEntries(alertRoList);
+        alertResult.setCount(alertCount.intValue());
+        return alertResult;
+    }
+
+    protected Alert toAlert(AlertRo alertRo) {
         final long entityId = alertRo.getEntityId();
         final boolean processed = alertRo.isProcessed();
         Alert alert = new Alert();
@@ -147,6 +204,8 @@ public class AlertResource extends BaseResource {
 
     protected List<AlertRo> fetchAndTransformAlerts(AlertCriteria alertCriteria, boolean isSuperAdmin) {
         final List<Alert> alerts = alertService.findAlerts(alertCriteria);
+        getCsvService().validateMaxRows(alerts.size(), () -> alertService.countAlerts(alertCriteria));
+
         final List<AlertRo> alertRoList = alerts.stream().map(this::transform).collect(Collectors.toList());
         alertRoList.forEach(alert -> alert.setSuperAdmin(isSuperAdmin));
         return alertRoList;
@@ -239,13 +298,14 @@ public class AlertResource extends BaseResource {
                 map(paramName -> alert.getEvents().iterator().next().findOptionalProperty(paramName)).
                 filter(Optional::isPresent).
                 map(Optional::get).
+                map(this::manageMaxLength).
                 collect(Collectors.toList());
         alertRo.setParameters(alertParameterValues);
         return alertRo;
     }
 
-    @Override
-    public CsvService getCsvService() {
-        return csvServiceImpl;
+    private String manageMaxLength(String param) {
+        return StringUtils.abbreviate(param, 254);
     }
+
 }

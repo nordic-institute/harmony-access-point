@@ -1,26 +1,27 @@
 package eu.domibus.web.rest;
 
 import eu.domibus.api.pmode.PModeArchiveInfo;
+import eu.domibus.api.pmode.PModeException;
+import eu.domibus.api.pmode.PModeService;
+import eu.domibus.api.pmode.ValidationIssue;
+import eu.domibus.api.util.MultiPartFileUtil;
+import eu.domibus.api.validators.CustomWhiteListed;
 import eu.domibus.common.model.configuration.ConfigurationRaw;
-import eu.domibus.common.services.AuditService;
+import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.converter.DomainCoreConverter;
-import eu.domibus.core.csv.CsvExcludedItems;
-import eu.domibus.core.csv.CsvService;
-import eu.domibus.core.csv.CsvServiceImpl;
-import eu.domibus.core.pmode.PModeProvider;
+import eu.domibus.core.pmode.provider.PModeProvider;
+import eu.domibus.core.pmode.validation.PModeValidationHelper;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.web.rest.ro.PModeResponseRO;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
+import eu.domibus.web.rest.ro.ValidationResponseRO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.MimeTypeUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -31,9 +32,8 @@ import javax.ws.rs.QueryParam;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -49,21 +49,27 @@ public class PModeResource extends BaseResource {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PModeResource.class);
 
     @Autowired
+    PModeService pModeService;
+
+    @Autowired
     private PModeProvider pModeProvider;
 
     @Autowired
     private DomainCoreConverter domainConverter;
 
     @Autowired
-    private CsvServiceImpl csvServiceImpl;
+    private AuditService auditService;
 
     @Autowired
-    private AuditService auditService;
+    PModeValidationHelper pModeValidationHelper;
+
+    @Autowired
+    MultiPartFileUtil multiPartFileUtil;
 
     @GetMapping(path = "{id}", produces = "application/xml")
     public ResponseEntity<? extends Resource> downloadPmode(
             @PathVariable(value = "id") int id,
-            @DefaultValue("false") @QueryParam("noAudit") boolean noAudit) {
+            @DefaultValue("false") @QueryParam("noAudit") boolean noAudit, @DefaultValue("false") @QueryParam("archiveAudit") boolean archiveAudit) {
 
         final byte[] rawConfiguration = pModeProvider.getPModeFile(id);
         ByteArrayResource resource = new ByteArrayResource(new byte[0]);
@@ -75,7 +81,11 @@ public class PModeResource extends BaseResource {
         if (resource.getByteArray().length == 0) {
             status = HttpStatus.NO_CONTENT;
         } else if (!noAudit) {
-            auditService.addPModeDownloadedAudit(Integer.toString(id));
+            if (archiveAudit) {
+                auditService.addPModeArchiveDownloadedAudit(id);
+            } else {
+                auditService.addPModeDownloadedAudit(id);
+            }
         }
 
         return ResponseEntity.status(status)
@@ -97,33 +107,15 @@ public class PModeResource extends BaseResource {
     }
 
     @PostMapping
-    public ResponseEntity<String> uploadPMode(
-            @RequestPart("file") MultipartFile pmode,
-            @RequestParam("description") @Valid String pModeDescription) {
-        if (pmode.isEmpty()) {
-            return ResponseEntity.badRequest().body("Failed to upload the PMode file since it was empty.");
-        }
-        try {
-            byte[] bytes = pmode.getBytes();
+    public ValidationResponseRO uploadPMode(
+            @RequestPart("file") @Valid MultipartFile pModeFile,
+            //we permit more chars for description
+            @RequestParam("description") @CustomWhiteListed(permitted = ".,;:/*\"&=+%\r\n") String pModeDescription) throws PModeException {
 
-            List<String> pmodeUpdateMessage = pModeProvider.updatePModes(bytes, pModeDescription);
-            String message = "PMode file has been successfully uploaded";
-            if (CollectionUtils.isNotEmpty(pmodeUpdateMessage)) {
-                message += " but some issues were detected: <br>" + StringUtils.join(pmodeUpdateMessage, " <br>");
-            }
-            return ResponseEntity.ok(message);
-        } catch (XmlProcessingException e) {
-            LOG.error("Error uploading the PMode", e);
-            String message = "Failed to upload the PMode file due to: " + ExceptionUtils.getRootCauseMessage(e);
-            if (CollectionUtils.isNotEmpty(e.getErrors())) {
-                message += ";" + StringUtils.join(e.getErrors(), ";");
+        byte[] pModeContent = multiPartFileUtil.validateAndGetFileContent(pModeFile, Arrays.asList(MimeTypeUtils.APPLICATION_XML, MimeTypeUtils.TEXT_XML));
 
-            }
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(message);
-        } catch (Exception e) {
-            LOG.error("Error uploading the PMode", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload the PMode file due to: " + ExceptionUtils.getRootCauseMessage(e));
-        }
+        List<ValidationIssue> pModeUpdateIssues = pModeService.updatePModeFile(pModeContent, pModeDescription);
+        return pModeValidationHelper.getValidationResponse(pModeUpdateIssues, "PMode file has been successfully uploaded.");
     }
 
     @DeleteMapping
@@ -145,7 +137,7 @@ public class PModeResource extends BaseResource {
     }
 
     @PutMapping(value = {"/restore/{id}"})
-    public ResponseEntity<String> restorePmode(@PathVariable(value = "id") Integer id) {
+    public ValidationResponseRO restorePmode(@PathVariable(value = "id") Integer id) {
         ConfigurationRaw existingRawConfiguration = pModeProvider.getRawConfiguration(id);
         ConfigurationRaw newRawConfiguration = new ConfigurationRaw();
         newRawConfiguration.setEntityId(0);
@@ -157,17 +149,8 @@ public class PModeResource extends BaseResource {
         newRawConfiguration.setConfigurationDate(new Date());
         newRawConfiguration.setXml(existingRawConfiguration.getXml());
 
-        String message = "PMode was successfully uploaded";
-        try {
-            List<String> pmodeUpdateMessage = pModeProvider.updatePModes(newRawConfiguration.getXml(), newRawConfiguration.getDescription());
-
-            if (pmodeUpdateMessage != null && !pmodeUpdateMessage.isEmpty()) {
-                message += " but some issues were detected: \n" + StringUtils.join(pmodeUpdateMessage, "\n");
-            }
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Impossible to upload PModes due to \n" + e.getMessage());
-        }
-        return ResponseEntity.ok(message);
+        List<ValidationIssue> pModeUpdateIssues = pModeService.updatePModeFile(newRawConfiguration.getXml(), newRawConfiguration.getDescription());
+        return pModeValidationHelper.getValidationResponse(pModeUpdateIssues, "PMode file has been successfully restored.");
     }
 
     @GetMapping(value = {"/list"})
@@ -184,23 +167,17 @@ public class PModeResource extends BaseResource {
     public ResponseEntity<String> getCsv() {
 
         // get list of archived pmodes
-        List<PModeResponseRO> pModeResponseROList = new ArrayList();
-        pModeResponseROList.addAll(pmodeList());
+        List<PModeResponseRO> pModeList = pmodeList();
+        getCsvService().validateMaxRows(pModeList.size());
 
         // set first PMode as current
-        if (!pModeResponseROList.isEmpty()) {
-            pModeResponseROList.get(0).setCurrent(true);
+        if (!pModeList.isEmpty()) {
+            pModeList.get(0).setCurrent(true);
         }
 
-        return exportToCSV(pModeResponseROList,
+        return exportToCSV(pModeList,
                 PModeResponseRO.class,
-                new HashMap<>(),
-                CsvExcludedItems.PMODE_RESOURCE.getExcludedItems(),
+                Arrays.asList("id"),
                 "pmodearchive");
-    }
-
-    @Override
-    public CsvService getCsvService() {
-        return csvServiceImpl;
     }
 }

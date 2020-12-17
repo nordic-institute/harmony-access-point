@@ -1,5 +1,8 @@
 package eu.domibus.api.party;
 
+import eu.domibus.api.pmode.PModeException;
+import eu.domibus.api.pmode.PModeValidationException;
+import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.api.process.Process;
 
 import java.util.List;
@@ -57,11 +60,13 @@ public interface PartyService {
     String getGatewayPartyIdentifier();
 
     /**
-     * Updates the list of parties.
-     *
-     * @param partyList
+     * Updates the current pMode with the provided parties
+     * @param partyList the list of parties to update as a snapshot
+     * @param certificates the certificates as strings to be saved along the parties
+     * @return a list of issues because the pMode is saved and validated
+     * @throws PModeValidationException If there are validation errors, an exception is thrown
      */
-    void updateParties(List<Party> partyList, Map<String, String> certificates);
+    List<ValidationIssue> updateParties(List<Party> partyList, Map<String, String> certificates) throws PModeValidationException;
 
     /**
      * Retrieve all the processes configured in the pmode.
@@ -69,4 +74,28 @@ public interface PartyService {
      * @return a lit of processes.
      */
     List<Process> getAllProcesses();
+
+    /**
+     * Creates a {@code Party}
+     *
+     * @param party Party object
+     * @param certificateContent certificate content in base64
+     */
+    void createParty(Party party, String certificateContent) throws PModeException;
+
+    /**
+     * Deletes a {@code Party}
+     *
+     * @param partyName
+     * @throws PModeException
+     */
+    void deleteParty(final String partyName) throws PModeException;
+
+    /**
+     * Updates an existing Party
+     *
+     * @param party
+     * @param certificateContent
+     */
+    void updateParty(Party party, String certificateContent) throws PModeException;
 }

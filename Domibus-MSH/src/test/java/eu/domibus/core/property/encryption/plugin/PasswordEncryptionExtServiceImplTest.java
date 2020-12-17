@@ -4,8 +4,8 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.encryption.PasswordEncryptionContext;
 import eu.domibus.api.property.encryption.PasswordEncryptionResult;
 import eu.domibus.api.property.encryption.PasswordEncryptionService;
+import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.property.encryption.PasswordEncryptionContextFactory;
-import eu.domibus.ext.delegate.converter.DomainExtConverter;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.domain.PasswordEncryptionResultDTO;
 import eu.domibus.ext.services.PluginPasswordEncryptionContext;
@@ -14,8 +14,9 @@ import org.junit.Test;
 
 /**
  * @author Cosmin Baciu
- * @since
+ * @since 4.1.2
  */
+@SuppressWarnings("TestMethodWithIncorrectSignature")
 public class PasswordEncryptionExtServiceImplTest {
 
     @Tested
@@ -28,7 +29,7 @@ public class PasswordEncryptionExtServiceImplTest {
     protected PasswordEncryptionContextFactory passwordEncryptionContextFactory;
 
     @Injectable
-    protected DomainExtConverter domainExtConverter;
+    protected DomainCoreConverter domainCoreConverter;
 
     @Test
     public void encryptPasswordsInFile(@Injectable PluginPasswordEncryptionContext pluginPasswordEncryptionContext,
@@ -36,7 +37,7 @@ public class PasswordEncryptionExtServiceImplTest {
                                        @Injectable PasswordEncryptionContext passwordEncryptionContext,
                                        @Mocked PluginPasswordEncryptionContextDelegate pluginPasswordEncryptionContextDelegate) {
         new Expectations() {{
-            domainExtConverter.convert(pluginPasswordEncryptionContext.getDomain(), Domain.class);
+            domainCoreConverter.convert(pluginPasswordEncryptionContext.getDomain(), Domain.class);
             result = domain;
 
             passwordEncryptionContextFactory.getPasswordEncryptionContext(domain);
@@ -48,7 +49,7 @@ public class PasswordEncryptionExtServiceImplTest {
 
         passwordEncryptionExtService.encryptPasswordsInFile(pluginPasswordEncryptionContext);
 
-        new Verifications() {{
+        new FullVerifications() {{
             passwordEncryptionService.encryptPasswords(pluginPasswordEncryptionContextDelegate);
         }};
     }
@@ -59,7 +60,7 @@ public class PasswordEncryptionExtServiceImplTest {
 
         passwordEncryptionExtService.isValueEncrypted(propertyValue);
 
-        new Verifications() {{
+        new FullVerifications() {{
             passwordEncryptionService.isValueEncrypted(propertyValue);
         }};
     }
@@ -70,13 +71,13 @@ public class PasswordEncryptionExtServiceImplTest {
                                 @Injectable String encryptedFormatValue,
                                 @Injectable Domain domain) {
         new Expectations() {{
-            domainExtConverter.convert(domainDTO, Domain.class);
+            domainCoreConverter.convert(domainDTO, Domain.class);
             result = domain;
         }};
 
         passwordEncryptionExtService.decryptProperty(domainDTO, propertyName, encryptedFormatValue);
 
-        new Verifications() {{
+        new FullVerifications() {{
             passwordEncryptionService.decryptProperty(domain, propertyName, encryptedFormatValue);
         }};
     }
@@ -88,7 +89,7 @@ public class PasswordEncryptionExtServiceImplTest {
                                 @Injectable Domain domain,
                                 @Injectable PasswordEncryptionResult passwordEncryptionResult) {
         new Expectations() {{
-            domainExtConverter.convert(domainDTO, Domain.class);
+            domainCoreConverter.convert(domainDTO, Domain.class);
             result = domain;
 
             passwordEncryptionService.encryptProperty(domain, propertyName, encryptedFormatValue);
@@ -97,8 +98,8 @@ public class PasswordEncryptionExtServiceImplTest {
 
         passwordEncryptionExtService.encryptProperty(domainDTO, propertyName, encryptedFormatValue);
 
-        new Verifications() {{
-            domainExtConverter.convert(passwordEncryptionResult, PasswordEncryptionResultDTO.class);
+        new FullVerifications() {{
+            domainCoreConverter.convert(passwordEncryptionResult, PasswordEncryptionResultDTO.class);
         }};
     }
 }

@@ -1,8 +1,8 @@
-import {Component, OnInit} from '@angular/core';
-import {FormBuilder, FormControl, FormGroup} from '@angular/forms';
-import {UserValidatorService} from '../../user/uservalidator.service';
+import {Component, OnInit, ViewChild} from '@angular/core';
+import {AbstractControl, NgControl, NgForm} from '@angular/forms';
+import {UserValidatorService} from '../../user/support/uservalidator.service';
 import {SecurityService} from '../../security/security.service';
-import {Http, Response} from '@angular/http';
+import {HttpClient} from '@angular/common/http';
 import {AlertService} from '../../common/alert/alert.service';
 import {Router} from '@angular/router';
 
@@ -15,29 +15,24 @@ export class ChangePasswordComponent implements OnInit {
 
   currentPassword: string;
   password: string;
-  confirmation: string;
+  passwordConfirmation: string;
   public passwordPattern: string;
   public passwordValidationMessage: string;
-  userForm: FormGroup;
 
-  constructor(private fb: FormBuilder, private securityService: SecurityService,
-              private userValidatorService: UserValidatorService, private http: Http,
+  @ViewChild('userForm', {static: false})
+  public userForm: NgForm;
+
+  constructor(private securityService: SecurityService, private http: HttpClient,
               private alertService: AlertService, private router: Router) {
 
     this.currentPassword = this.securityService.password;
-    this.userForm = fb.group({
-      'currentPassword':  [null],
-      'password': [null],
-      'confirmation': [null]
-    }, {
-      validator: userValidatorService.matchPassword
-    });
-
     this.securityService.password = null;
   }
 
   async ngOnInit() {
-    const passwordPolicy = await this.securityService.getPasswordPolicy();
+    const role = this.securityService.getCurrentUser().authorities[0];
+    const forDomain = role !== SecurityService.ROLE_AP_ADMIN;
+    const passwordPolicy = await this.securityService.getPasswordPolicy(forDomain);
     this.passwordPattern = passwordPolicy.pattern;
     this.passwordValidationMessage = passwordPolicy.validationMessage;
   }
@@ -55,6 +50,14 @@ export class ChangePasswordComponent implements OnInit {
     } catch (error) {
       this.alertService.exception('Password could not be changed.', error);
     }
+  }
+
+  public shouldShowErrors(field: NgControl | NgForm | AbstractControl): boolean {
+    return (field.touched || field.dirty) && !!field.errors;
+  }
+
+  public isFormDisabled() {
+    return !this.userForm || this.userForm.invalid || !this.userForm.dirty;
   }
 
 }

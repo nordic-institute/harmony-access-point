@@ -2,14 +2,17 @@ package eu.domibus.core.security;
 
 import eu.domibus.api.security.*;
 import eu.domibus.core.alerts.service.PluginUserAlertsServiceImpl;
-import eu.domibus.pki.CertificateServiceImpl;
-import eu.domibus.security.PluginUserSecurityPolicyManager;
+import eu.domibus.core.certificate.CertificateServiceImpl;
+import eu.domibus.core.user.plugin.AuthenticationDAO;
+import eu.domibus.core.user.plugin.AuthenticationEntity;
+import eu.domibus.core.user.plugin.security.PluginUserSecurityPolicyManager;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
@@ -57,6 +60,9 @@ public class CustomAuthenticationProviderTest {
 
     @Injectable
     PluginUserSecurityPolicyManager passwordValidator;
+
+    @Injectable
+    protected AuthUtils authUtils;
 
     @Tested
     CustomAuthenticationProvider securityCustomAuthenticationProvider;

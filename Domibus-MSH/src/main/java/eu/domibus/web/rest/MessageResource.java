@@ -1,29 +1,22 @@
 package eu.domibus.web.rest;
 
+import eu.domibus.api.messaging.MessageNotFoundException;
+import eu.domibus.api.messaging.MessagingException;
 import eu.domibus.api.usermessage.UserMessageService;
-import eu.domibus.common.dao.MessagingDao;
-import eu.domibus.common.services.AuditService;
-import eu.domibus.core.message.MessageConverterService;
-import eu.domibus.ebms3.common.model.Messaging;
-import eu.domibus.ebms3.common.model.PartInfo;
-import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.core.message.MessagesLogService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.apache.commons.io.IOUtils;
-import org.apache.cxf.common.util.CollectionUtils;
-import org.apache.cxf.common.util.StringUtils;
+import eu.domibus.web.rest.error.ErrorHandlerService;
+import eu.domibus.web.rest.ro.ErrorRO;
+import eu.domibus.web.rest.ro.MessageLogRO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.*;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
+import java.io.IOException;
 
 /**
  * Created by musatmi on 10/05/2017.
@@ -32,44 +25,38 @@ import java.util.zip.ZipOutputStream;
 @RequestMapping(value = "/rest/message")
 public class MessageResource {
 
-    private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(MessageResource.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageResource.class);
 
     @Autowired
     UserMessageService userMessageService;
 
     @Autowired
-    MessageConverterService messageConverterService;
+    private MessagesLogService messagesLogService;
 
     @Autowired
-    private MessagingDao messagingDao;
+    private ErrorHandlerService errorHandlerService;
 
-    @Autowired
-    private AuditService auditService;
+    @ExceptionHandler({MessagingException.class})
+    public ResponseEntity<ErrorRO> handleMessagingException(MessagingException ex) {
+        return errorHandlerService.createResponse(ex, HttpStatus.EXPECTATION_FAILED);
+    }
+
+    @ExceptionHandler({eu.domibus.messaging.MessageNotFoundException.class})
+    public ResponseEntity<ErrorRO> handleMessageNotFoundException(eu.domibus.messaging.MessageNotFoundException ex) {
+        return errorHandlerService.createResponse(ex, HttpStatus.NOT_FOUND);
+    }
 
     @RequestMapping(path = "/restore", method = RequestMethod.PUT)
     public void resend(@RequestParam(value = "messageId", required = true) String messageId) {
-
         userMessageService.resendFailedOrSendEnqueuedMessage(messageId);
-
-        auditService.addMessageResentAudit(messageId);
     }
 
     @RequestMapping(path = "/{messageId:.+}/downloadOld", method = RequestMethod.GET)
-    public ResponseEntity<ByteArrayResource> download(@PathVariable(value = "messageId") String messageId) {
+    public ResponseEntity<ByteArrayResource> download(@PathVariable(value = "messageId") String messageId) throws MessagingException {
 
-        UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
-        final InputStream content = getMessage(userMessage);
+        byte[] content = userMessageService.getMessageAsBytes(messageId);
 
-        ByteArrayResource resource = new ByteArrayResource(new byte[0]);
-        if (content != null) {
-            try {
-                resource = new ByteArrayResource(IOUtils.toByteArray(content));
-            } catch (IOException e) {
-                LOGGER.error("Error getting input stream for message [{}]", messageId);
-            }
-        }
-
-        auditService.addMessageDownloadedAudit(messageId);
+        ByteArrayResource resource = new ByteArrayResource(content);
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType("application/octet-stream"))
                 .header("content-disposition", "attachment; filename=" + messageId + ".xml")
@@ -77,81 +64,29 @@ public class MessageResource {
     }
 
     @RequestMapping(value = "/download")
-    public ResponseEntity<ByteArrayResource> zipFiles(@RequestParam(value = "messageId", required = true) String messageId) throws IOException {
+    public ResponseEntity<ByteArrayResource> downloadUserMessage(@RequestParam(value = "messageId", required = true) String messageId)
+            throws MessageNotFoundException, IOException {
 
-        UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
-        if (userMessage == null)
-            return ResponseEntity.notFound().build();
-        final Map<String, InputStream> message = getMessageWithAttachments(userMessage);
-        byte[] zip = zip(message);
-        auditService.addMessageDownloadedAudit(messageId);
+        byte[] zip = userMessageService.getMessageWithAttachmentsAsZip(messageId);
+
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType("application/zip"))
                 .header("content-disposition", "attachment; filename=" + messageId + ".zip")
                 .body(new ByteArrayResource(zip));
     }
 
-    public InputStream getMessage(UserMessage userMessage) {
+    @RequestMapping(value = "/exists", method = RequestMethod.GET)
+    public boolean checkMessageContentExists(@RequestParam(value = "messageId", required = true) String messageId) {
+        MessageLogRO message = messagesLogService.findUserMessageById(messageId);
 
-        Messaging message = new Messaging();
-        message.setUserMessage(userMessage);
-
-        return new ByteArrayInputStream(messageConverterService.getAsByteArray(message));
-    }
-
-    private Map<String, InputStream> getMessageWithAttachments(UserMessage userMessage) {
-
-        Map<String, InputStream> ret = new HashMap<>();
-        ret.put("message.xml", getMessage(userMessage));
-
-        if(userMessage.getPayloadInfo() == null ||
-                CollectionUtils.isEmpty(userMessage.getPayloadInfo().getPartInfo())) {
-            return ret;
+        if (message == null) {
+            return false;
         }
-
-        final List<PartInfo> partInfo = userMessage.getPayloadInfo().getPartInfo();
-        for (PartInfo info : partInfo) {
-            try {
-                ret.put(getPayloadName(info), info.getPayloadDatahandler().getInputStream());
-            } catch (IOException e) {
-                LOGGER.error("Error getting input stream for attachment [{}]", info.getHref());
-            }
+        if (message.getDeleted() != null) {
+            LOG.info("Could not find message content for message: [{}]", messageId);
+            return false;
         }
-
-
-        return ret;
-    }
-
-    protected String getPayloadName(PartInfo info) {
-        if(StringUtils.isEmpty(info.getHref())) {
-            return "bodyload";
-        }
-        if(!info.getHref().contains("cid:")) {
-            LOGGER.warn("PayloadId does not contain \"cid:\" prefix [{}]", info.getHref());
-            return info.getHref();
-        }
-
-        return info.getHref().replace("cid:", "");
-    }
-
-    private byte[] zip(Map<String, InputStream> message) throws IOException {
-        //creating byteArray stream, make it bufferable and passing this buffer to ZipOutputStream
-        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-             BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(byteArrayOutputStream);
-             ZipOutputStream zipOutputStream = new ZipOutputStream(bufferedOutputStream)) {
-
-            for (Map.Entry<String, InputStream> entry : message.entrySet()) {
-                zipOutputStream.putNextEntry(new ZipEntry(entry.getKey()));
-
-                IOUtils.copy(entry.getValue(), zipOutputStream);
-
-                zipOutputStream.closeEntry();
-            }
-
-            zipOutputStream.finish();
-            zipOutputStream.flush();
-            return byteArrayOutputStream.toByteArray();
-        }
+        return true;
     }
 
 }

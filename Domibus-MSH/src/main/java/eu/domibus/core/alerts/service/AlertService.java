@@ -6,6 +6,8 @@ import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.core.alerts.model.service.MailModel;
 
 import java.util.List;
+import java.util.Map;
+
 /**
  * @author Thomas Dussart
  * @since 4.0
@@ -30,7 +32,7 @@ public interface AlertService {
      * @param alert the alert.
      * @return the mailModel with data and template information.
      */
-    MailModel getMailModelForAlert(Alert alert);
+    MailModel<Map<String, String>> getMailModelForAlert(Alert alert);
 
     /**
      * Manage the status of the alert after a sending tentative.
@@ -67,4 +69,11 @@ public interface AlertService {
      * @param alerts the alerts to update.
      */
     void updateAlertProcessed(List<Alert> alerts);
+
+    /**
+     * Delete alerts from the non-owning side of the "events - alerts" mapping.
+     *
+     * @param alerts list of alerts to be deleted
+     */
+    void deleteAlerts(List<Alert> alerts);
 }

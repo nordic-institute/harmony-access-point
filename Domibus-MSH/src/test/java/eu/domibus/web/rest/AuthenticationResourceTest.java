@@ -1,23 +1,21 @@
 package eu.domibus.web.rest;
 
-import eu.domibus.api.configuration.DomibusConfigurationService;
-import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.api.multitenancy.DomainTaskException;
-import eu.domibus.api.multitenancy.UserDomainService;
+import eu.domibus.api.property.DomibusConfigurationService;
+import eu.domibus.api.multitenancy.*;
 import eu.domibus.api.security.AuthUtils;
-import eu.domibus.common.model.security.User;
-import eu.domibus.common.model.security.UserDetail;
-import eu.domibus.common.services.UserPersistenceService;
-import eu.domibus.common.services.UserService;
-import eu.domibus.common.util.WarningUtil;
+import eu.domibus.core.user.ui.User;
+import eu.domibus.web.security.UserDetail;
+import eu.domibus.core.user.UserPersistenceService;
+import eu.domibus.core.user.UserService;
+import eu.domibus.core.util.WarningUtil;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.multitenancy.dao.UserDomainDao;
-import eu.domibus.security.AuthenticationService;
+import eu.domibus.web.security.AuthenticationService;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.ChangePasswordRO;
 import eu.domibus.web.rest.ro.DomainRO;
 import eu.domibus.web.rest.ro.LoginRO;
+import eu.domibus.web.rest.ro.UserRO;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
@@ -25,13 +23,17 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.authentication.AccountStatusException;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.CookieClearingLogoutHandler;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
+import org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -83,6 +85,9 @@ public class AuthenticationResourceTest {
     @Injectable
     private AuthUtils authUtils;
 
+    @Injectable
+    CompositeSessionAuthenticationStrategy compositeSessionAuthenticationStrategy;
+
     @Mocked
     Logger LOG;
 
@@ -104,7 +109,7 @@ public class AuthenticationResourceTest {
             authenticationService.authenticate("user", "user", DomainService.DEFAULT_DOMAIN.getCode());
             result = userDetail;
         }};
-        authenticationResource.authenticate(loginRO, new MockHttpServletResponse());
+        authenticationResource.authenticate(loginRO, new MockHttpServletResponse(), null);
         new Verifications() {{
             String message;
             WarningUtil.warnOutput(message = withCapture());
@@ -150,8 +155,8 @@ public class AuthenticationResourceTest {
     @Test
     public void testChangePassword(@Mocked UserDetail loggedUser, @Mocked ChangePasswordRO changePasswordRO) {
 
-        new Expectations(authenticationResource) {{
-            authenticationResource.getLoggedUser();
+        new Expectations() {{
+            authenticationService.getLoggedUser();
             result = loggedUser;
 
             authUtils.isSuperAdmin();
@@ -169,53 +174,6 @@ public class AuthenticationResourceTest {
 
         assertEquals(loggedUser.isDefaultPasswordUsed(), false);
 
-    }
-
-    @Test
-    public void testGetLoggedUser_PrincipalExists(final @Mocked SecurityContext securityContext, final @Mocked Authentication authentication) {
-        Set<GrantedAuthority> authorities = new HashSet<>();
-        final UserDetail userDetail = new UserDetail("username", "password", authorities);
-
-        new Expectations(authenticationResource) {{
-            new MockUp<SecurityContextHolder>() {
-                @Mock
-                SecurityContext getContext() {
-                    return securityContext;
-                }
-            };
-
-            securityContext.getAuthentication();
-            result = authentication;
-
-            authentication.getPrincipal();
-            result = userDetail;
-
-        }};
-
-        //tested method
-        UserDetail userDetai1Actual = authenticationResource.getLoggedUser();
-        Assert.assertEquals(userDetail, userDetai1Actual);
-    }
-
-    @Test
-    public void testGetLoggedUser_PrincipalDoesntExists(final @Mocked SecurityContext securityContext) {
-
-        new Expectations(authenticationResource) {{
-            new MockUp<SecurityContextHolder>() {
-                @Mock
-                SecurityContext getContext() {
-                    return securityContext;
-                }
-            };
-
-            securityContext.getAuthentication();
-            result = null;
-
-        }};
-
-        //tested method
-        UserDetail userDetai1Actual = authenticationResource.getLoggedUser();
-        Assert.assertNull(userDetai1Actual);
     }
 
     @Test
@@ -244,7 +202,6 @@ public class AuthenticationResourceTest {
 
         }};
 
-
         //tested method
         authenticationResource.logout(request, response);
 
@@ -255,20 +212,42 @@ public class AuthenticationResourceTest {
     }
 
     @Test
-    public void testGetUsername(final @Mocked UserDetail userDetail) {
-        final String userName = "toto";
-
-        new Expectations(authenticationResource) {{
-            authenticationResource.getLoggedUser();
+    public void testGetUser(final @Mocked UserDetail userDetail) {
+        new Expectations() {{
+            authenticationService.getLoggedUser();
             result = userDetail;
-
-            userDetail.getUsername();
-            result = userName;
         }};
 
         //tested method
-        final String userNameActual = authenticationResource.getUsername();
-        Assert.assertEquals(userName, userNameActual);
+        final UserRO userNameActual = authenticationResource.getUser();
+        Assert.assertNotNull(userNameActual);
     }
 
+    @Test
+    public void testHandleAccountStatusException(final @Mocked AccountStatusException ex) {
+        new Expectations(authenticationResource) {{
+            errorHandlerService.createResponse(ex, HttpStatus.FORBIDDEN);
+            result = any;
+        }};
+        //tested method
+        authenticationResource.handleAccountStatusException(ex);
+        new FullVerifications() {{
+            errorHandlerService.createResponse(ex, HttpStatus.FORBIDDEN);
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void testHandleAuthenticationException(final @Mocked AuthenticationException ex) {
+        new Expectations(authenticationResource) {{
+            errorHandlerService.createResponse(ex, HttpStatus.FORBIDDEN);
+            result = any;
+        }};
+        //tested method
+        authenticationResource.handleAuthenticationException(ex);
+        new FullVerifications() {{
+            errorHandlerService.createResponse(ex, HttpStatus.FORBIDDEN);
+            times = 1;
+        }};
+    }
 }

@@ -1,11 +1,17 @@
-﻿import {Injectable} from '@angular/core';
-import {Headers, Http, Response} from '@angular/http';
+﻿import {Injectable, Injector} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
 import 'rxjs/add/operator/map';
 import {User} from './user';
 import {SecurityEventService} from './security.event.service';
 import {DomainService} from './domain.service';
 import {PasswordPolicyRO} from './passwordPolicyRO';
 import {AlertService} from '../common/alert/alert.service';
+import {ApplicationContextService} from '../common/application-context.service';
+import {DialogsService} from '../common/dialogs/dialogs.service';
+import {PropertiesService} from '../properties/support/properties.service';
+import {SessionService} from './session.service';
+import {SessionState} from './SessionState';
+import {instanceOfModifiableList} from '../common/mixins/type.utils';
 
 @Injectable()
 export class SecurityService {
@@ -14,62 +20,68 @@ export class SecurityService {
   public static ROLE_USER = 'ROLE_USER';
   public static USER_ROLES = [SecurityService.ROLE_USER, SecurityService.ROLE_DOMAIN_ADMIN, SecurityService.ROLE_AP_ADMIN];
   public static ADMIN_ROLES = [SecurityService.ROLE_DOMAIN_ADMIN, SecurityService.ROLE_AP_ADMIN];
+  private static injector: Injector;
 
-  passwordPolicy: Promise<PasswordPolicyRO>;
+  private CURRENT_USER = 'currentUser';
+  private CURRENT_USER_UPDATED_ON = 'currentUserUpdatedOn';
+
   pluginPasswordPolicy: Promise<PasswordPolicyRO>;
   public password: string;
 
-  constructor(private http: Http,
+  private initialiseAppPromise: Promise<User>;
+
+  public static async getAllowedRolesForSTandMT(stRoles, mtRoles) {
+    let domainService = SecurityService.injector.get<DomainService>(DomainService);
+    let isMulti = await domainService.isMultiDomain().toPromise();
+    return isMulti ? mtRoles : stRoles;
+  }
+
+  constructor(private http: HttpClient,
               private securityEventService: SecurityEventService,
               private alertService: AlertService,
-              private domainService: DomainService) {
+              private domainService: DomainService,
+              private applicationService: ApplicationContextService,
+              private dialogsService: DialogsService,
+              private propertiesService: PropertiesService,
+              private sessionService: SessionService,
+              private injector: Injector) {
+    SecurityService.injector = this.injector;
   }
 
-  login(username: string, password: string) {
-    this.domainService.resetDomain();
-
-    const headers = new Headers({'Content-Type': 'application/json'});
-    return this.http.post('rest/security/authentication',
-      {
-        username: username,
-        password: password
-      }).subscribe((response: Response) => {
-        this.updateCurrentUser(response.json());
-
-        this.domainService.setAppTitle();
-
-        this.securityEventService.notifyLoginSuccessEvent(response);
-      },
-      (error: any) => {
-        console.log('Login error');
-        this.securityEventService.notifyLoginErrorEvent(error);
-      });
-  }
-
-  /**
-   * get the user from the server and saves it locally
-   */
-  async getCurrentUserAndSaveLocally() {
-    let userSet = false;
+  async login(username: string, password: string) {
     try {
-      const user = await this.getCurrentUserFromServer();
-      if (user) {
-        this.updateCurrentUser(user);
-        userSet = true;
-      }
-    } catch (ex) {
-      console.log('getCurrentUserAndSaveLocally error' + ex);
+      this.domainService.resetDomain();
+      const getUserFn = () => this.doLogin(username, password);
+      await this.initialiseApp(getUserFn);
+      this.securityEventService.notifyLoginSuccessEvent();
+    } catch (error) {
+      console.log('Login error:', error);
+      this.securityEventService.notifyLoginErrorEvent(error);
+      throw error;
     }
-    return userSet;
   }
 
-  logout() {
-    console.log('security service - logout');
+  private async doLogin(username: string, password: string): Promise<User> {
+    const user = await this.http.post<User>('rest/security/authentication', {username: username, password: password}).toPromise();
+    if (!user) {
+      throw new Error('An error occurred while logging in.');
+    }
+    return user;
+  }
+
+  async logout(): Promise<any> {
     this.alertService.close();
 
-    this.clearSession();
+    const canLogout = await this.canLogout();
+    if (!canLogout) {
+      return;
+    }
 
-    this.http.delete('rest/security/authentication').subscribe((res: Response) => {
+    this.sessionService.setExpiredSession(SessionState.EXPIRED_LOGGED_OUT);
+    this.clearSession();
+    this.domainService.resetDomain();
+
+    return this.http.delete('rest/security/authentication').subscribe((res) => {
         this.securityEventService.notifyLogoutSuccessEvent(res);
       },
       (error: any) => {
@@ -77,12 +89,16 @@ export class SecurityService {
       });
   }
 
+  async canLogout(): Promise<boolean> {
+
+    const currentComponent = this.applicationService.getCurrentComponent();
+    return this.canAbandonUnsavedChanges(currentComponent);
+  }
+
   getPluginPasswordPolicy(): Promise<PasswordPolicyRO> {
     if (!this.pluginPasswordPolicy) {
-      this.pluginPasswordPolicy = this.http.get('rest/application/pluginPasswordPolicy')
-        .map(this.extractData)
+      this.pluginPasswordPolicy = this.http.get<PasswordPolicyRO>('rest/application/pluginPasswordPolicy')
         .map(this.formatValidationMessage)
-        .catch(err => this.alertService.handleError(err))
         .toPromise();
     }
     return this.pluginPasswordPolicy;
@@ -94,47 +110,44 @@ export class SecurityService {
   }
 
   clearSession() {
-    this.domainService.resetDomain();
-    localStorage.removeItem('currentUser');
+    localStorage.removeItem(this.CURRENT_USER);
+    localStorage.removeItem(this.CURRENT_USER_UPDATED_ON);
   }
 
   getCurrentUser(): User {
-    const storedUser = localStorage.getItem('currentUser');
+    const storedUser = localStorage.getItem(this.CURRENT_USER);
     return storedUser ? JSON.parse(storedUser) : null;
   }
 
   updateCurrentUser(user: User): void {
-    localStorage.setItem('currentUser', JSON.stringify(user));
+    localStorage.setItem(this.CURRENT_USER, JSON.stringify(user));
+    localStorage.setItem(this.CURRENT_USER_UPDATED_ON, new Date().toJSON());
   }
 
-
-  getCurrentUsernameFromServer(): Promise<string> {
-    return this.http.get('rest/security/username').map((resp: Response) => resp.json()).toPromise();
+  isUserConnected(): Promise<string> {
+    return this.http.get<string>('rest/security/user/connected').toPromise();
   }
 
   getCurrentUserFromServer(): Promise<User> {
-    return this.http.get('rest/security/user').map((res: Response) => res.text() ? res.json() : null).toPromise();
+    return this.http.get<User>('rest/security/user').toPromise();
   }
-
 
   isAuthenticated(): Promise<boolean> {
     return new Promise((resolve, reject) => {
-      let isAuthenticated = false;
-
-      // we get the username from the server to trigger the redirection
-      // to the login screen in case the user is not authenticated
-      this.getCurrentUserFromServer().then(user => {
-
-        isAuthenticated = user ? user.username != '' : false;
-        let shouldUpdateUserLocally = isAuthenticated && !this.getCurrentUser();
-        if (shouldUpdateUserLocally) {
-          this.updateCurrentUser(user);
-        }
-        resolve(isAuthenticated);
-      }).catch(reason => {
-        console.log('Error while calling getCurrentUsernameFromServer: ' + reason);
-        reject(false);
-      });
+      // we 'ping' the server to check whether we are connected
+      // if not, trigger the redirection to the login screen
+      try {
+        this.isUserConnected().then(isConnected => {
+          resolve(true);
+        }, err => {
+          console.log('Error while calling isUserConnected: ', err);
+          resolve(false);
+        });
+      } catch (ex) {
+        console.log('Error while calling isUserConnected: ', ex);
+        this.alertService.error('An error occurred while checking authentication:');
+        resolve(false);
+      }
     });
   }
 
@@ -156,36 +169,20 @@ export class SecurityService {
   }
 
   isCurrentUserInRole(roles: Array<string>): boolean {
-    let hasRole = false;
+    if (!roles) {
+      return true;
+    }
     const currentUser = this.getCurrentUser();
     if (currentUser && currentUser.authorities) {
-      roles.forEach((role: string) => {
-        if (currentUser.authorities.indexOf(role) !== -1) {
-          hasRole = true;
-        }
-      });
+      return roles.some(role => currentUser.authorities.includes(role));
     }
-    return hasRole;
+    return false;
   }
 
-
-  isAuthorized(roles: Array<string>) {
-    let isAuthorized = false;
-    if (roles) {
-      isAuthorized = this.isCurrentUserInRole(roles);
-    }
-    return isAuthorized;
-  }
-
-  getPasswordPolicy(): Promise<PasswordPolicyRO> {
-    if (!this.passwordPolicy) {
-      this.passwordPolicy = this.http.get('rest/application/passwordPolicy')
-        .map(this.extractData)
-        .map(this.formatValidationMessage)
-        .catch(err => this.alertService.handleError(err))
-        .toPromise();
-    }
-    return this.passwordPolicy;
+  getPasswordPolicy(forDomain: boolean = true): Promise<PasswordPolicyRO> {
+    return this.http.get<PasswordPolicyRO>('rest/application/passwordPolicy?forDomain=' + forDomain)
+      .map(this.formatValidationMessage)
+      .toPromise();
   }
 
   mustChangePassword(): boolean {
@@ -222,11 +219,6 @@ export class SecurityService {
 
   }
 
-  private extractData(res: Response) {
-    const result = res.json() || {};
-    return result;
-  }
-
   async changePassword(params): Promise<any> {
     const res = this.http.put('rest/security/user/password', params).toPromise();
     await res;
@@ -236,6 +228,89 @@ export class SecurityService {
     this.updateCurrentUser(currentUser);
 
     return res;
+  }
+
+  async getPasswordPolicyForUserRole(role: string): Promise<PasswordPolicyRO> {
+    const forDomain = role !== SecurityService.ROLE_AP_ADMIN;
+    const pattern = await this.propertiesService.getDomainOrGlobalPropertyValue('domibus.passwordPolicy.pattern', forDomain);
+    const message = await this.propertiesService.getDomainOrGlobalPropertyValue('domibus.passwordPolicy.validationMessage', forDomain);
+    return new PasswordPolicyRO(pattern, message);
+  }
+
+  async canAbandonUnsavedChanges(component: any) {
+
+    if (!component) {
+      return true;
+    }
+
+    if (!instanceOfModifiableList(component)) {
+      return true;
+    }
+
+    const canBypassCheckDirty = await this.canBypassDirtyChecking();
+    if (canBypassCheckDirty) {
+      return true;
+    }
+
+    if (!component.isDirty()) {
+      return true;
+    }
+
+    return this.dialogsService.openCancelDialog();
+  }
+
+  private async canBypassDirtyChecking(): Promise<boolean> {
+    if (this.sessionService.getCurrentSession() !== SessionState.ACTIVE) {
+      return true;
+    }
+
+    if (!this.getCurrentUser()) {
+      return true;
+    }
+
+    const isAuthenticated = await this.isAuthenticated();
+    if (!isAuthenticated) {
+      return true;
+    }
+  }
+
+  isClientConnected(): boolean {
+    return this.getCurrentUser() != null;
+  }
+
+  async isAppInitialized(): Promise<boolean> {
+    if (this.initialiseAppPromise) {
+      try {
+        await this.initialiseAppPromise;
+        return true;
+      } catch (e) {
+        this.alertService.exception('Exception while initializing application', e);
+        return false;
+      }
+    }
+    return false;
+  }
+
+  initialiseApp(getUserFn: () => Promise<User>): Promise<User> {
+    this.initialiseAppPromise = new Promise((resolve, reject) => {
+      this.sessionService.resetCurrentSession();
+      this.clearSession();
+      getUserFn().then((user: User) => {
+        if (user) {
+          this.updateCurrentUser(user);
+          this.domainService.setAppTitle();
+          this.sessionService.updateCurrentSession(SessionState.ACTIVE);
+        } else {
+          console.warn(getUserFn.name + ' method returned an empty user.');
+        }
+        resolve(user);
+      }, err => {
+        console.log('Error while calling ' + getUserFn.name + ' function: ', err);
+        reject(err);
+      });
+    });
+
+    return this.initialiseAppPromise;
   }
 
 }

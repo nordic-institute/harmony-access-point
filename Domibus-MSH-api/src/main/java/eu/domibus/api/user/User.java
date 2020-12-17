@@ -2,6 +2,7 @@ package eu.domibus.api.user;
 
 import eu.domibus.api.security.AuthRole;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -21,6 +22,7 @@ public class User implements UserBase {
     private String domain;
     private boolean suspended;
     private boolean deleted;
+    private LocalDateTime expirationDate;
 
     public User(String userName, String email, Boolean active, List<String> authorities, UserState userState,
                 Date suspensionDate, boolean deleted) {
@@ -123,9 +125,25 @@ public class User implements UserBase {
     }
 
     public boolean isSuperAdmin() {
+        return hasRole(AuthRole.ROLE_AP_ADMIN);
+    }
+
+    public boolean hasRole(AuthRole role) {
         if (authorities == null) {
             return false;
         }
-        return authorities.contains(AuthRole.ROLE_AP_ADMIN.name());
+        return authorities.contains(role.name());
+    }
+
+    public LocalDateTime getExpirationDate() {
+        return expirationDate;
+    }
+
+    public void setExpirationDate(LocalDateTime expirationDate) {
+        this.expirationDate = expirationDate;
+    }
+
+    public boolean isNew() {
+        return UserState.NEW.name().equals(getStatus());
     }
 }

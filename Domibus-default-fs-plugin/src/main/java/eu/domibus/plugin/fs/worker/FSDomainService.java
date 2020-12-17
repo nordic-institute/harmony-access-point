@@ -14,6 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,7 +46,9 @@ public class FSDomainService {
     private final Map<String, Pattern> domainPatternCache = new HashMap<>();
 
     /**
-     * Verifies if the provided domain exists. For multitenancy mode it checks if the FS Plugin domain is configured in Domibus core. For non multitenancy mode is always return true.
+     * Verifies if the provided domain exists.
+     * For multitenancy mode it checks if the FS Plugin domain is configured in Domibus core.
+     * For non multitenancy mode it always returns true.
      *
      * @param domain FS Plugin domain
      * @return true if we are in Multi Tenancy configuration and domain is configured. Otherwise it returns true.
@@ -60,8 +63,27 @@ public class FSDomainService {
             LOG.debug("Domain [{}] is configured in Domibus core", domain);
             return true;
         }
-        LOG.debug("Provided domain [{}] is configured in non multitenancy mode", domain);
+        LOG.trace("Provided domain [{}] is configured in non multitenancy mode", domain);
         return true;
+    }
+
+    /**
+     * Returns all domains that need to be processed by various operations (sending, purging etc)
+     * In multi-tenancy, this means only the current domain.
+     * In single-tenancy, all configured fsplugin domains are returned.
+     *
+     * @return a list of domain codes
+     */
+    public List<String> getDomainsToProcess() {
+        if (domibusConfigurationExtService.isMultiTenantAware()) {
+            // in multi-tenancy, process only the current domain
+            LOG.trace("Multi-tenancy mode, process current domain");
+            return Arrays.asList(domainContextExtService.getCurrentDomain().getCode());
+        }
+        
+        // in single-tenancy, process all fsplugin-defined domains
+        LOG.trace("Single-tenancy mode, process known domains");
+        return fsPluginProperties.getDomains();
     }
 
     /**
@@ -176,4 +198,5 @@ public class FSDomainService {
             domainPatternCache.clear();
         }
     }
+
 }

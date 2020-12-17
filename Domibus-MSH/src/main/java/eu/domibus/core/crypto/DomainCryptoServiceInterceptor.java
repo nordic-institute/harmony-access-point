@@ -2,10 +2,11 @@ package eu.domibus.core.crypto;
 
 import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.pki.DomibusCertificateException;
-import eu.domibus.common.exception.ConfigurationException;
+import eu.domibus.api.util.AOPUtil;
 import eu.domibus.core.crypto.spi.CryptoSpiException;
 import eu.domibus.core.crypto.spi.DomibusCertificateSpiException;
-import eu.domibus.ext.delegate.services.interceptor.ServiceInterceptor;
+import eu.domibus.core.exception.ConfigurationException;
+import eu.domibus.core.exception.CoreServiceExceptionInterceptor;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.wss4j.common.ext.WSSecurityException;
@@ -21,9 +22,13 @@ import java.security.KeyStoreException;
  */
 @Aspect
 @Component
-public class DomainCryptoServiceInterceptor extends ServiceInterceptor {
+public class DomainCryptoServiceInterceptor extends CoreServiceExceptionInterceptor {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainCryptoServiceInterceptor.class);
+
+    public DomainCryptoServiceInterceptor(AOPUtil aopUtil) {
+        super(aopUtil);
+    }
 
     @Around(value = "execution(public * eu.domibus.core.crypto.DomainCryptoServiceImpl.*(..))")
     @Override

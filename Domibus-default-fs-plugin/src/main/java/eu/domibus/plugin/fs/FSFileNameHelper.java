@@ -1,14 +1,18 @@
 package eu.domibus.plugin.fs;
 
 import eu.domibus.common.MessageStatus;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileSystemException;
 
-import java.util.Collections;
-import java.util.LinkedList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Helper to create and recognize derived file names
@@ -17,13 +21,15 @@ import java.util.regex.Pattern;
  */
 public class FSFileNameHelper {
 
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FSFileNameHelper.class);
+
     public static final String NAME_SEPARATOR = "_";
     public static final String EXTENSION_SEPARATOR = ".";
     public static final Pattern OUT_DIRECTORY_PATTERN = Pattern.compile("/" + FSFilesManager.OUTGOING_FOLDER + "(/|$)");
     protected static final String UUID_PATTERN = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
     protected static final Pattern PROCESSED_FILE_PATTERN = Pattern.compile(
             NAME_SEPARATOR + UUID_PATTERN + "@.", Pattern.CASE_INSENSITIVE);
-    protected static final String LOCK_SUFFIX = ".lock";
+    public static final String LOCK_SUFFIX = ".lock";
 
     protected List<String> stateSuffixes;
 
@@ -35,6 +41,7 @@ public class FSFileNameHelper {
      * Checks if a given file name has been derived from a {@link eu.domibus.common.MessageStatus}.
      * In practice checks if the filename is suffixed by a dot and any of the
      * known {@link eu.domibus.common.MessageStatus}.
+     *
      * @param fileName the file name to test
      * @return true, if the file name has been derived from a {@link eu.domibus.common.MessageStatus}
      */
@@ -46,6 +53,7 @@ public class FSFileNameHelper {
      * Checks if a given file name has been derived from any message Id.
      * In practice checks if the filename contains an underscore followed by a
      * message Id.
+     *
      * @param fileName the file name to test
      * @return true, if the file name has been derived from a message Id
      */
@@ -57,7 +65,8 @@ public class FSFileNameHelper {
      * Checks if a given file name has been derived from a given message Id.
      * In practice checks if the filename contains an underscore followed by the
      * given message Id.
-     * @param fileName the file name to test
+     *
+     * @param fileName  the file name to test
      * @param messageId the message Id to test
      * @return true, if the file name has been derived from the given message Id
      */
@@ -68,6 +77,7 @@ public class FSFileNameHelper {
     /**
      * Checks if a given file is a lock file, used to lock access to a message
      * file.
+     *
      * @param fileName the file name to test
      * @return true, if the file name matches the lock pattern.
      */
@@ -79,11 +89,16 @@ public class FSFileNameHelper {
         return file.getName().getBaseName() + LOCK_SUFFIX;
     }
 
+    public String getLockFileName(String fileName) {
+        return fileName + LOCK_SUFFIX;
+    }
+
     /**
      * Derives a new file name from the given file name and a message Id.
      * In practice, for a given file name {@code filename.ext} and message Id
      * {@code messageId} generates a new file name of the form {@code filename_messageId.ext}.
-     * @param fileName the file name to derive
+     *
+     * @param fileName  the file name to derive
      * @param messageId the message Id to use for the derivation
      * @return a new file name of the form {@code filename_messageId.ext}
      */
@@ -104,8 +119,9 @@ public class FSFileNameHelper {
      * Derives a new file name from the given file name and a {@link eu.domibus.common.MessageStatus}.
      * In practice, for a given file name {@code filename.ext} and message status
      * {@code MESSAGE_STATUS} generates a new file name of the form {@code filename.ext.MESSAGE_STATUS}.
+     *
      * @param fileName the file name to derive
-     * @param status the message status to use for the derivation
+     * @param status   the message status to use for the derivation
      * @return a new file name of the form {@code filename.ext.MESSAGE_STATUS}
      */
     public String deriveFileName(final String fileName, final MessageStatus status) {
@@ -159,9 +175,23 @@ public class FSFileNameHelper {
         return deriveDirectoryLocation(fileURI, FSFilesManager.FAILED_FOLDER);
     }
 
+    public List<FileObject> filterLockedFiles(FileObject[] files) {
+        return Arrays.stream(files)
+                .filter(file -> isLockFile(file.getName().getBaseName()))
+                .collect(Collectors.toList());
+    }
+
     protected String deriveDirectoryLocation(String fileURI, String destFolder) {
         Matcher matcher = OUT_DIRECTORY_PATTERN.matcher(fileURI);
         return matcher.replaceFirst("/" + destFolder + "/");
     }
 
+    public Optional<String> getRelativeName(FileObject rootFolder, FileObject f) {
+        try {
+            return Optional.of(rootFolder.getName().getRelativeName(f.getName()));
+        } catch (FileSystemException e) {
+            LOG.debug("Exception while trying to get the relative name of [{}] relative to [{}]", f.getName(), rootFolder.getName());
+            return Optional.empty();
+        }
+    }
 }

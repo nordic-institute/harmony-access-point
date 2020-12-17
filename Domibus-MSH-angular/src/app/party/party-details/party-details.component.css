@@ -10,10 +10,23 @@
   background-color: #2196f3;
 }
 
+.custom-file-upload-disabled {
+  border: 1px solid #ccc;
+  display: inline-block;
+  padding: 6px 12px;
+  cursor: default;
+  background-color: rgba(0, 0, 0, 0.12);
+}
+
 .custom-file-upload-inner {
   color: white;
   cursor: pointer;
   background-color: #2196f3;
+}
+
+.custom-file-upload-inner-disabled {
+  color: gray;
+  cursor: default;
 }
 
 .invalid {
@@ -25,4 +38,17 @@
 .invalid::after {
   content: " *";
   color: red;
+}
+
+.edit-form-buttons button {
+  margin-right: 10px;
+  margin-top: 10px;
+}
+
+.mat-dialog-title {
+  margin-bottom: 0 !important;
+}
+
+.edit-form-buttons {
+  margin-top: 10px;
 }

@@ -1,6 +1,6 @@
 package eu.domibus.core.alerts.dao;
 
-import eu.domibus.common.dao.BasicDao;
+import eu.domibus.core.dao.BasicDao;
 import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.model.persist.Event;
 import org.springframework.stereotype.Repository;

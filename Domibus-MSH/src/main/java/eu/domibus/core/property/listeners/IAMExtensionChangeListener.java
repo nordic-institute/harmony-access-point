@@ -3,16 +3,12 @@ package eu.domibus.core.property.listeners;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyChangeListener;
-import eu.domibus.core.crypto.DomainCryptoServiceImpl;
 import eu.domibus.core.crypto.MultiDomainCryptoServiceImpl;
-import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorage;
-import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_ATTACHMENT_STORAGE_LOCATION;
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_EXTENSION_IAM_AUTHENTICATION_IDENTIFIER;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EXTENSION_IAM_AUTHENTICATION_IDENTIFIER;
 
 /**
  * @author Ion Perpegel

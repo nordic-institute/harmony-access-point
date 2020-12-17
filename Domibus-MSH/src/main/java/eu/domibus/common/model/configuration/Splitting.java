@@ -38,7 +38,7 @@ import javax.xml.bind.annotation.XmlType;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "")
 @Entity
-@Table(name = "TB_SPLITTING")
+@Table(name = "TB_PM_SPLITTING")
 @NamedQueries({
         @NamedQuery(name = "Splitting.findByName",
                 query = "select splitting from Splitting splitting where splitting.name=:NAME")})

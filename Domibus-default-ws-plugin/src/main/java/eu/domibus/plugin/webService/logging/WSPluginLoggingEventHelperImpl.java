@@ -1,20 +1,22 @@
 package eu.domibus.plugin.webService.logging;
 
-import eu.domibus.plugin.webService.impl.BackendWebServiceOperation;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.ext.logging.AbstractLoggingInterceptor;
 import org.apache.cxf.ext.logging.event.EventType;
 import org.apache.cxf.ext.logging.event.LogEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+
+import java.util.Map;
 
 /**
  * {@inheritDoc}
  */
 @Service
 public class WSPluginLoggingEventHelperImpl implements WSPluginLoggingEventHelper {
-    private static final Logger LOG = LoggerFactory.getLogger(WSPluginLoggingEventSender.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginLoggingEventHelperImpl.class);
 
     static final String BOUNDARY_MARKER = "boundary=\"";
     static final String BOUNDARY_MARKER_PREFIX = "--";
@@ -23,6 +25,9 @@ public class WSPluginLoggingEventHelperImpl implements WSPluginLoggingEventHelpe
     static final String VALUE_END_MARKER = "</value";
     static final String RETRIEVE_MESSAGE_RESPONSE = "retrieveMessageResponse";
     static final String SUBMIT_REQUEST = "submitRequest";
+    static final String OPERATION_SUBMIT_MESSAGE = "submitMessage";
+    static final String OPERATION_RETRIEVE_MESSAGE = "retrieveMessage";
+    static final String HEADERS_AUTHORIZATION = "Authorization";
 
     @Override
     public void stripPayload(LogEvent event) {
@@ -51,11 +56,22 @@ public class WSPluginLoggingEventHelperImpl implements WSPluginLoggingEventHelpe
     }
 
     @Override
+    public void stripHeaders(LogEvent event) {
+        Map<String, String> headers = event.getHeaders();
+        if (CollectionUtils.isEmpty(headers)) {
+            LOG.debug("no apache cxf headers to strip");
+            return;
+        }
+        headers.entrySet()
+                .removeIf(e -> HEADERS_AUTHORIZATION.equalsIgnoreCase(e.getKey()));
+    }
+
+    @Override
     public String checkIfOperationIsAllowed(LogEvent logEvent) {
-        if (logEvent.getType() == EventType.REQ_IN && logEvent.getOperationName().contains(BackendWebServiceOperation.SUBMIT_MESSAGE)) {
+        if (logEvent.getType() == EventType.REQ_IN && logEvent.getOperationName().contains(OPERATION_SUBMIT_MESSAGE)) {
             return SUBMIT_REQUEST;
         }
-        if (logEvent.getType() == EventType.RESP_OUT && logEvent.getOperationName().contains(BackendWebServiceOperation.RETRIEVE_MESSAGE)) {
+        if (logEvent.getType() == EventType.RESP_OUT && logEvent.getOperationName().contains(OPERATION_RETRIEVE_MESSAGE)) {
             return RETRIEVE_MESSAGE_RESPONSE;
         }
         return null;

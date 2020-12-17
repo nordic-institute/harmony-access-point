@@ -4,17 +4,17 @@ import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.logging.LoggingEntry;
 import eu.domibus.core.logging.LoggingException;
 import eu.domibus.core.logging.LoggingService;
-import eu.domibus.ext.rest.ErrorRO;
 import eu.domibus.web.rest.error.ErrorHandlerService;
+import eu.domibus.web.rest.ro.ErrorRO;
 import eu.domibus.web.rest.ro.LoggingFilterRequestRO;
 import eu.domibus.web.rest.ro.LoggingLevelRO;
 import eu.domibus.web.rest.ro.LoggingLevelResultRO;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -27,6 +27,7 @@ import java.util.List;
  * @author Catalin Enache
  * @since 4.1
  */
+@SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(JMockit.class)
 public class LoggingResourceTest {
 
@@ -41,6 +42,11 @@ public class LoggingResourceTest {
 
     @Injectable
     protected ErrorHandlerService errorHandlerService;
+
+    @Before
+    public void setUp() {
+        loggingResource = new LoggingResource(domainConverter, loggingService, errorHandlerService);
+    }
 
     @Test
     public void testSetLogLevel(final @Mocked LoggingLevelRO loggingLevelRO) {
@@ -60,8 +66,8 @@ public class LoggingResourceTest {
         loggingResource.setLogLevel(loggingLevelRO);
 
         new Verifications() {{
-           loggingService.setLoggingLevel(name, level);
-           times = 1;
+            loggingService.setLoggingLevel(name, level);
+            times = 1;
 
             loggingService.signalSetLoggingLevel(name, level);
             times = 1;
@@ -96,20 +102,18 @@ public class LoggingResourceTest {
 
         }};
 
-        //tested method
-//        final ResponseEntity<LoggingLevelResultRO>  result =
-//                loggingResource.getLogLevel(name, showClasses, 0, 2, null, false);
-        final ResponseEntity<LoggingLevelResultRO>  result =
-                loggingResource.getLogLevel(new LoggingFilterRequestRO(){{
+        final ResponseEntity<LoggingLevelResultRO> result =
+                loggingResource.getLogLevel(new LoggingFilterRequestRO() {{
                     setLoggerName(name);
                     setShowClasses(showClasses);
                     setPageSize(2);
                     setAsc(false);
                 }});
 
+        Assert.assertNotNull(result.getBody());
         Assert.assertNotNull(result.getBody().getLoggingEntries());
         List<LoggingLevelRO> loggingEntries = result.getBody().getLoggingEntries();
-        Assert.assertTrue(!loggingEntries.isEmpty());
+        Assert.assertFalse(loggingEntries.isEmpty());
         Assert.assertEquals(2, loggingEntries.size());
     }
 
@@ -125,7 +129,6 @@ public class LoggingResourceTest {
 
     }
 
-
     @Test
     public void testHandleLoggingException() {
 
@@ -133,12 +136,13 @@ public class LoggingResourceTest {
 
         new Expectations(loggingResource) {{
             errorHandlerService.createResponse(loggingException, HttpStatus.BAD_REQUEST);
-            result = new ResponseEntity(new ErrorRO("[DOM_001]:error while setting log level"), null, HttpStatus.BAD_REQUEST);
+            result = new ResponseEntity<>(new ErrorRO("[DOM_001]:error while setting log level"), null, HttpStatus.BAD_REQUEST);
         }};
 
         //tested method
         final ResponseEntity<ErrorRO> result = loggingResource.handleLoggingException(loggingException);
         Assert.assertNotNull(result);
+        Assert.assertNotNull(result.getBody());
         Assert.assertEquals(loggingException.getMessage(), result.getBody().getMessage());
     }
 }

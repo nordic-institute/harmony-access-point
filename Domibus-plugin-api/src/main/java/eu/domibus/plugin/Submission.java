@@ -1,4 +1,3 @@
-
 package eu.domibus.plugin;
 
 import eu.domibus.logging.DomibusLogger;
@@ -8,6 +7,8 @@ import org.springframework.util.StringUtils;
 
 import javax.activation.DataHandler;
 import java.util.*;
+
+import static org.apache.commons.lang3.StringUtils.*;
 
 /**
  * This class represents the datamodel of the domibus backend transport layer.
@@ -66,7 +67,7 @@ public class Submission {
      * @param mpc string identifying the Message Partition Chanel
      */
     public void setMpc(String mpc) {
-        this.mpc = mpc;
+        this.mpc = trim(mpc);
     }
 
     /**
@@ -94,10 +95,10 @@ public class Submission {
      * @param action a string identifying an operation or an activity within a Service that may support several of these.
      */
     public void setAction(final String action) {
-        if (!StringUtils.hasLength(action)) {
-            throw new IllegalArgumentException("action must not be empty");
+        if (isBlank(action)) {
+            throw new IllegalArgumentException("Mandatory field Action is not provided.");
         }
-        this.action = action;
+        this.action = trim(action);
     }
 
     /**
@@ -131,7 +132,7 @@ public class Submission {
      * @param agreementRef a string that identifies the entity or artifact governing the exchange of messages between the parties.
      */
     public void setAgreementRef(final String agreementRef) {
-        this.agreementRef = agreementRef;
+        this.agreementRef = trim(agreementRef);
     }
 
     /**
@@ -161,7 +162,7 @@ public class Submission {
      * @param agreementRefType a string indicating how the parties sending and receiving the message will interpret the value of the reference {@link #agreementRef}
      */
     public void setAgreementRefType(final String agreementRefType) {
-        this.agreementRefType = agreementRefType;
+        this.agreementRefType = trim(agreementRefType);
     }
 
     /**
@@ -192,7 +193,7 @@ public class Submission {
      * @param conversationId a string identifying the set of related messages that make up a conversation between Parties
      */
     public void setConversationId(final String conversationId) {
-        this.conversationId = conversationId;
+        this.conversationId = trim(conversationId);
     }
 
     /**
@@ -224,10 +225,7 @@ public class Submission {
      * @param fromRole a string identifying the authorized role of the Party sending
      */
     public void setFromRole(final String fromRole) {
-        if (!StringUtils.hasLength(fromRole)) {
-            throw new IllegalArgumentException("from role must not be empty");
-        }
-        this.fromRole = fromRole;
+        this.fromRole = trim(fromRole);
     }
 
     /**
@@ -258,7 +256,7 @@ public class Submission {
      * @param messageId a string representing a globally unique identifier conforming to MessageId [RFC2822]
      */
     public void setMessageId(final String messageId) {
-        this.messageId = messageId;
+        this.messageId = trim(messageId);
     }
 
     /**
@@ -284,7 +282,7 @@ public class Submission {
      * @param refToMessageId a string containing the {@link #messageId} value of an ebMS Message to which this messages relates
      */
     public void setRefToMessageId(final String refToMessageId) {
-        this.refToMessageId = refToMessageId;
+        this.refToMessageId = trim(refToMessageId);
     }
 
     /**
@@ -312,10 +310,10 @@ public class Submission {
      * @param service a string identifying the service that acts on the message
      */
     public void setService(final String service) {
-        if (!StringUtils.hasLength(service)) {
-            throw new IllegalArgumentException("service must not be empty");
+        if (isBlank(service)) {
+            throw new IllegalArgumentException("Mandatory field Service is not provided.");
         }
-        this.service = service;
+        this.service = trim(service);
     }
 
     /**
@@ -343,7 +341,7 @@ public class Submission {
      * @param serviceType a string that indicates how the parties sending and receiving the message will interpret the {@link #service} value
      */
     public void setServiceType(final String serviceType) {
-        this.serviceType = serviceType;
+        this.serviceType = trim(serviceType);
     }
 
     /**
@@ -375,7 +373,7 @@ public class Submission {
      * @param toRole a string identifying the authorized role of the receiving Party
      */
     public void setToRole(final String toRole) {
-        this.toRole = toRole;
+        this.toRole = trim(toRole);
     }
 
     /**
@@ -600,11 +598,8 @@ public class Submission {
         private final String partyIdType;
 
         public Party(final String partyId, final String partyIdType) {
-            if (!StringUtils.hasLength(partyId)) {
-                throw new IllegalArgumentException("partyId must not be empty");
-            }
-            this.partyId = partyId;
-            this.partyIdType = partyIdType;
+            this.partyId = trim(partyId);
+            this.partyIdType = trim(partyIdType);
         }
 
         public String getPartyId() {
@@ -647,14 +642,14 @@ public class Submission {
         private String filepath;
 
         public Payload(final String contentId, final DataHandler payloadDatahandler, final Collection<TypedProperty> payloadProperties, final boolean inBody, final Description description, String schemaLocation) {
-            this.contentId = contentId;
+            this.contentId = trim(contentId);
             this.payloadDatahandler = payloadDatahandler;
             this.description = description;
             this.payloadProperties = payloadProperties;
             this.inBody = inBody;
 
             String tSchemaLocation = schemaLocation;
-            if ("".equals(tSchemaLocation)) {
+            if (isEmpty(tSchemaLocation)) {
                 LOG.debug("schema location is empty. replacing with null");
                 tSchemaLocation = null;
             }
@@ -728,12 +723,12 @@ public class Submission {
         }
 
         public TypedProperty(String key, String value, String type) {
-            if (!StringUtils.hasLength(key) || !StringUtils.hasLength(value)) {
+            if (isBlank(key) || isBlank(value)) {
                 throw new IllegalArgumentException("message properties must have a non-empty name and value (key [" + key + "], value [" + value + "]");
             }
-            this.key = key;
-            this.value = value;
-            this.type = type;
+            this.key = trim(key);
+            this.value = trim(value);
+            this.type = trim(type);
         }
 
         @Override

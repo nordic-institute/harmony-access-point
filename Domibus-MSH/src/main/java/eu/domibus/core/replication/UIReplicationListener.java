@@ -1,6 +1,7 @@
 package eu.domibus.core.replication;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.core.util.DatabaseUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
@@ -33,12 +34,16 @@ public class UIReplicationListener {
     @Autowired
     private UIReplicationSignalService uiReplicationSignalService;
 
+    @Autowired
+    private DatabaseUtil databaseUtil;
+
     @JmsListener(destination = "${domibus.jms.queue.ui.replication}", containerFactory = "uiReplicationJmsListenerContainerFactory")
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void processUIReplication(final MapMessage map) throws JMSException {
 
         final String domainCode = map.getStringProperty(MessageConstants.DOMAIN);
         domainContextProvider.setCurrentDomain(domainCode);
+        LOG.putMDC(DomibusLogger.MDC_USER, databaseUtil.getDatabaseUserName());
 
         //disabling read of JMS messages
         if (!uiReplicationSignalService.isReplicationEnabled()) {

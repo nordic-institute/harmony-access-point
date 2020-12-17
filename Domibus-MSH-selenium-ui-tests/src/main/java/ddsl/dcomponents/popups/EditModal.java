@@ -7,31 +7,25 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
-import utils.TestRunData;
 
 
 /**
  * @author Catalin Comanici
-
  * @version 4.1
  */
 
 
 public class EditModal extends DComponent {
+	@FindBy(css = "mat-dialog-container #editbuttonok_id")
+	protected WebElement okBtn;
+	@FindBy(css = "mat-dialog-container #editbuttoncancel_id")
+	protected WebElement cancelBtn;
+
 	public EditModal(WebDriver driver) {
 		super(driver);
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 		wait.forElementToBe(okBtn);
 	}
-
-	@FindBy(css = "md-dialog-container button:nth-of-type(1)")
-	protected WebElement okBtn;
-
-	@FindBy(css = "md-dialog-container button:nth-of-type(2)")
-	protected WebElement cancelBtn;
-
-	@FindBy(css = "md-dialog-container p")
-	protected WebElement title;
 
 	public DButton getOkBtn() {
 		return new DButton(driver, okBtn);
@@ -42,19 +36,18 @@ public class EditModal extends DComponent {
 	}
 
 	public void clickOK() throws Exception {
+		wait.forXMillis(1000);
+
 		getOkBtn().click();
 		wait.forElementToBeGone(okBtn);
 
-//		hardcoded wait to match the time needed fot the dialog to disappear
-		wait.forXMillis(200);
+//		hardcoded wait to match the time needed for the dialog to disappear
+		wait.forXMillis(500);
 	}
 
 	public void clickCancel() throws Exception {
 		getCancelBtn().click();
 		wait.forElementToBeGone(cancelBtn);
 	}
-
-
-
 
 }

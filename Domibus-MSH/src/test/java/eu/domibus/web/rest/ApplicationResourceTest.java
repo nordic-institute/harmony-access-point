@@ -1,12 +1,13 @@
 package eu.domibus.web.rest;
 
-import eu.domibus.api.configuration.DomibusConfigurationService;
+import eu.domibus.api.multitenancy.DomainTaskExecutor;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
-import eu.domibus.common.util.DomibusPropertiesService;
+import eu.domibus.core.property.DomibusVersionService;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.web.rest.ro.DomainRO;
 import eu.domibus.web.rest.ro.DomibusInfoRO;
@@ -36,7 +37,7 @@ public class ApplicationResourceTest {
     ApplicationResource applicationResource;
 
     @Injectable
-    DomibusPropertiesService domibusPropertiesService;
+    DomibusVersionService domibusVersionService;
 
     @Injectable
     DomibusPropertyProvider domibusPropertyProvider;
@@ -56,11 +57,14 @@ public class ApplicationResourceTest {
     @Injectable
     AuthUtils authUtils;
 
+    @Injectable
+    DomainTaskExecutor domainTaskExecutor;
+
     @Test
     public void testGetDomibusInfo() throws Exception {
         // Given
         new Expectations() {{
-            domibusPropertiesService.getDisplayVersion();
+            domibusVersionService.getDisplayVersion();
             result = DOMIBUS_VERSION;
         }};
 
@@ -75,7 +79,7 @@ public class ApplicationResourceTest {
     public void testDomibusName(String name) {
         // Given
         new Expectations(applicationResource) {{
-            domibusPropertyProvider.getDomainProperty(DomainService.DEFAULT_DOMAIN, ApplicationResource.DOMIBUS_CUSTOM_NAME);
+            domibusPropertyProvider.getProperty(DomainService.DEFAULT_DOMAIN, ApplicationResource.DOMIBUS_CUSTOM_NAME);
             result = name;
         }};
 
@@ -156,10 +160,10 @@ public class ApplicationResourceTest {
         final String supportTeamName = "The Avengers";
         final String supportTeamEmail = "ironman@avengers.com";
         new Expectations() {{
-            domibusPropertyProvider.getDomainProperty(ApplicationResource.SUPPORT_TEAM_NAME_KEY);
+            domibusPropertyProvider.getProperty(ApplicationResource.SUPPORT_TEAM_NAME_KEY);
             result = supportTeamName;
 
-            domibusPropertyProvider.getDomainProperty(ApplicationResource.SUPPORT_TEAM_EMAIL_KEY);
+            domibusPropertyProvider.getProperty(ApplicationResource.SUPPORT_TEAM_EMAIL_KEY);
             result = supportTeamEmail;
         }};
 

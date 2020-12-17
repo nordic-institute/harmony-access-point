@@ -1,7 +1,7 @@
 
 package eu.domibus.common.model.configuration;
 
-import eu.domibus.common.model.common.RevisionLogicalName;
+import eu.domibus.core.audit.envers.RevisionLogicalName;
 import eu.domibus.ebms3.common.model.AbstractBaseEntity;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
@@ -10,7 +10,7 @@ import javax.persistence.*;
 import java.util.Date;
 
 @Entity
-@Table(name = "TB_CONFIGURATION_RAW")
+@Table(name = "TB_PM_CONFIGURATION_RAW")
 @NamedQueries({
         @NamedQuery(name = "ConfigurationRaw.getById",
                 query = "select conf from ConfigurationRaw conf WHERE conf.entityId = :CONF_ID"),

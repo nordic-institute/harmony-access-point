@@ -7,7 +7,6 @@ import ddsl.dcomponents.popups.Dialog;
 import ddsl.dobjects.DButton;
 import ddsl.dobjects.DInput;
 import ddsl.dobjects.DObject;
-import ddsl.enums.PAGES;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -15,22 +14,17 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 import rest.RestServicePaths;
-import utils.Generator;
+import utils.Gen;
 
 public class PModeArchivePage extends DomibusPage {
 
-	public PModeArchivePage(WebDriver driver) {
-		super(driver);
-		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
-	}
-
-	@FindBy(id = "archivePmodeTable")
+	@FindBy(id = "pageGridId")
 	private WebElement archiveGridContainer;
-	@FindBy(id = "cancelbutton_id")
+	@FindBy(id = "cancelButtonId")
 	private WebElement cancelButton;
-	@FindBy(id = "savebutton_id")
+	@FindBy(id = "saveButtonId")
 	private WebElement saveButton;
-	@FindBy(id = "deleteArchivebutton_id")
+	@FindBy(id = "deleteButtonId")
 	private WebElement deleteButton;
 	@FindBy(id = "downloadArchivebutton_id")
 	private WebElement downloadButton;
@@ -50,11 +44,13 @@ public class PModeArchivePage extends DomibusPage {
 	private WebElement XmlTextArea;
 	@FindBy(css = ".mat-raised-button.mat-primary:last-child")
 	private WebElement OkButton;
-	@FindBy(id="saveascsvbutton_id")
-	private WebElement saveCsv;
+	public PModeArchivePage(WebDriver driver) {
+		super(driver);
+		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
+	}
 
 	public DObject getDownloadCSV() {
-		return new DObject(driver, saveCsv);
+		return new DObject(driver, DownloadCurrentFile);
 	}
 
 	public DGrid grid() {
@@ -97,10 +93,6 @@ public class PModeArchivePage extends DomibusPage {
 		return new Dialog(driver);
 	}
 
-	public PModeCurrentPage getPage() {
-		return new PModeCurrentPage(driver);
-	}
-
 	public DInput getXml() {
 		return new DInput(driver, XmlTextArea);
 	}
@@ -138,21 +130,6 @@ public class PModeArchivePage extends DomibusPage {
 		return true;
 	}
 
-	public void getPmodeStatus() throws Exception {
-		log.debug("wait for grid container to be visible");
-		wait.forElementToBeVisible(archiveGridContainer);
-		if (isArchiveGridEmpty()) {
-			log.debug("Navigate to pmode current page as grid container is empty on Pmode archive page");
-			getPage().getSidebar().goToPage(PAGES.PMODE_CURRENT);
-
-			log.debug("Info text shown on Pmode current page " + getPage().infoTxt.getText().trim());
-
-		} else {
-
-			log.debug("Uploaded Pmode count:" + getpagination().getTotalItems());
-		}
-	}
-
 	public Boolean getCurDescTxt() {
 		wait.forElementToBeVisible(cDescription);
 		if (!cDescription.isDisplayed()) {
@@ -177,9 +154,9 @@ public class PModeArchivePage extends DomibusPage {
 		log.debug("Grid row count is: " + grid().getRowsNo());
 		if (grid().getRowsNo() > 10) {
 			log.debug("Generate random row count");
-			rIndex = Generator.randomNumber(10);
+			rIndex = Gen.randomNumber(10);
 		} else {
-			rIndex = Generator.randomNumber(grid().getRowsNo());
+			rIndex = Gen.randomNumber(grid().getRowsNo());
 		}
 		if (rIndex == 0) {
 			log.debug("Row number is zero");

@@ -1,8 +1,8 @@
 package eu.domibus.weblogic.security;
 
-import eu.domibus.common.model.security.UserDetail;
-import eu.domibus.security.AuthenticationService;
-import eu.domibus.security.AuthenticationServiceBase;
+import eu.domibus.web.security.AuthenticationService;
+import eu.domibus.web.security.AuthenticationServiceBase;
+import eu.domibus.web.security.UserDetail;
 
 /**
  * Implementation for ECAS of {@link AuthenticationService}
@@ -17,4 +17,5 @@ public class ECASAuthenticationServiceImpl extends AuthenticationServiceBase imp
     public UserDetail authenticate(String username, String password, String domain) {
         return null;
     }
+
 }

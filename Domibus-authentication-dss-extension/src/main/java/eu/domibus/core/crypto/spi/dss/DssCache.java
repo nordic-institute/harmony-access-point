@@ -15,7 +15,7 @@ public class DssCache {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DssCache.class);
 
-    private final Cache cache;
+    private Cache cache;
 
     public DssCache(Cache cache) {
         this.cache = cache;
@@ -30,5 +30,10 @@ public class DssCache {
         boolean certificateKeyInCache = cache.get(key) != null;
         LOG.debug("Is certificate chain key in cache:[{}]", certificateKeyInCache);
         return certificateKeyInCache;
+    }
+
+    public void clear(){
+        LOG.info("Clearing DSS cache");
+        cache.removeAll();
     }
 }

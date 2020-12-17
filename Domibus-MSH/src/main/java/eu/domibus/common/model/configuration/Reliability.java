@@ -1,6 +1,5 @@
 package eu.domibus.common.model.configuration;
 
-import eu.domibus.common.xmladapter.ReplyPatternAdapter;
 import eu.domibus.ebms3.common.model.AbstractBaseEntity;
 
 import javax.persistence.*;
@@ -21,6 +20,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  *   &lt;complexContent&gt;
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
  *       &lt;attribute name="name" use="required" type="{http://www.w3.org/2001/XMLSchema}string" /&gt;
+ *       &lt;attribute name="nonRepudiation" type="{http://www.w3.org/2001/XMLSchema}boolean" /&gt;
  *       &lt;attribute name="replyPattern" use="required" type="{http://www.w3.org/2001/XMLSchema}string" /&gt;
  *     &lt;/restriction&gt;
  *   &lt;/complexContent&gt;
@@ -32,7 +32,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "")
 @Entity
-@Table(name = "TB_RELIABILITY")
+@Table(name = "TB_PM_RELIABILITY")
 public class Reliability extends AbstractBaseEntity {
 
     @XmlAttribute(name = "name", required = true)

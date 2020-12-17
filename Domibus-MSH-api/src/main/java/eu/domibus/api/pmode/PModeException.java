@@ -8,7 +8,6 @@ import eu.domibus.api.exceptions.DomibusCoreException;
  * @since 3.3
  */
 public class PModeException extends DomibusCoreException {
-
     public PModeException(DomibusCoreErrorCode dce, String message) {
         super(dce, message);
     }

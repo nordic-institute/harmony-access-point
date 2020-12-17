@@ -1,18 +1,24 @@
 package eu.domibus.web.rest.ro;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import eu.domibus.api.validators.CustomWhiteListed;
 import eu.domibus.api.validators.SkipWhiteListed;
+import eu.domibus.web.rest.validators.SizeIfPresent;
 
-import java.io.Serializable;
+import javax.validation.constraints.Pattern;
+import java.time.LocalDateTime;
 
 /**
- * @author Pion
+ * @author Ion Perpegel
  * @since 4.0
  */
-public class PluginUserRO implements Serializable {
+public class PluginUserRO {
 
     private Integer entityId;
 
+    @SizeIfPresent(min = 4, max = 255)
+    @Pattern(regexp = "^[a-zA-Z0-9\\.@_]*$")
     private String userName;
 
     @SkipWhiteListed
@@ -33,6 +39,10 @@ public class PluginUserRO implements Serializable {
 
     private boolean suspended;
 
+    private String domain;
+
+    private LocalDateTime expirationDate;
+
     public Integer getEntityId() {
         return entityId;
     }
@@ -40,7 +50,7 @@ public class PluginUserRO implements Serializable {
     public void setEntityId(Integer entityId) {
         this.entityId = entityId;
     }
- 
+
     public String getUserName() {
         return userName;
     }
@@ -48,7 +58,7 @@ public class PluginUserRO implements Serializable {
     public void setUserName(String username) {
         this.userName = username;
     }
-  
+
     public String getPassword() {
         return password;
     }
@@ -56,7 +66,7 @@ public class PluginUserRO implements Serializable {
     public void setPassword(String password) {
         this.password = password;
     }
-    
+
     public String getCertificateId() {
         return certificateId;
     }
@@ -112,4 +122,23 @@ public class PluginUserRO implements Serializable {
     public void setSuspended(boolean suspended) {
         this.suspended = suspended;
     }
+
+    public String getDomain() {
+        return domain;
+    }
+
+    public void setDomain(String domain) {
+        this.domain = domain;
+    }
+
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
+    public LocalDateTime getExpirationDate() {
+        return expirationDate;
+    }
+
+    @JsonIgnore
+    public void setExpirationDate(LocalDateTime expirationDate) {
+        this.expirationDate = expirationDate;
+    }
+
 }

@@ -2,7 +2,8 @@ package eu.domibus.core.alerts.service;
 
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
-import eu.domibus.common.model.security.UserEntityBase;
+import eu.domibus.core.alerts.configuration.password.PasswordExpirationAlertModuleConfiguration;
+import eu.domibus.core.user.UserEntityBase;
 import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.model.service.Event;
 
@@ -40,6 +41,14 @@ public interface EventService {
      * @param accountDisabledTime the account disabled time.
      */
     void enqueueAccountDisabledEvent(UserEntityBase.Type type, String userName, Date accountDisabledTime);
+
+    /**
+     * Will create a account enabled event and enqueue it to the alert/event monitoring queue.
+     *
+     * @param userName            the user name enabled
+     * @param accountEnabledTime  the account enabled time.
+     */
+    void enqueueAccountEnabledEvent(UserEntityBase.Type type, String userName, Date accountEnabledTime);
 
     /**
      * Will create a certificate imminent expiration event and enqueue it to the alert/event monitoring queue.
@@ -80,6 +89,6 @@ public interface EventService {
      * @param user                 the user for which the event is triggered
      * @param maxPasswordAgeInDays the number of days the password is not expired
      */
-    void enqueuePasswordExpirationEvent(EventType eventType, UserEntityBase user, Integer maxPasswordAgeInDays);
+    void enqueuePasswordExpirationEvent(EventType eventType, UserEntityBase user, Integer maxPasswordAgeInDays, PasswordExpirationAlertModuleConfiguration alertConfiguration);
 
 }

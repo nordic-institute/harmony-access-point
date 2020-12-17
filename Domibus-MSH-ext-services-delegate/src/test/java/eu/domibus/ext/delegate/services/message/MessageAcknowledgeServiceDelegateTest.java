@@ -4,7 +4,7 @@ import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.api.message.acknowledge.MessageAcknowledgeService;
 import eu.domibus.api.message.acknowledge.MessageAcknowledgement;
 import eu.domibus.ext.delegate.converter.DomainExtConverter;
-import eu.domibus.ext.delegate.services.security.SecurityService;
+import eu.domibus.api.message.UserMessageSecurityService;
 import eu.domibus.ext.domain.MessageAcknowledgementDTO;
 import mockit.Expectations;
 import mockit.Injectable;
@@ -40,7 +40,7 @@ public class MessageAcknowledgeServiceDelegateTest {
     UserMessageService userMessageService;
 
     @Injectable
-    SecurityService securityService;
+    UserMessageSecurityService userMessageSecurityService;
 
     @Test
     public void testAcknowledgeMessageDelivered() throws Exception {

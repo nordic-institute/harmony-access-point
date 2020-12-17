@@ -3,6 +3,7 @@ package eu.domibus.ext.delegate.converter;
 import eu.domibus.api.message.acknowledge.MessageAcknowledgement;
 import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.property.encryption.PasswordEncryptionResult;
+import eu.domibus.ext.delegate.mapper.MonitoringMapperDecorator;
 import eu.domibus.ext.domain.MessageAcknowledgementDTO;
 import eu.domibus.ext.domain.MessageAttemptDTO;
 import eu.domibus.ext.domain.PasswordEncryptionResultDTO;
@@ -29,15 +30,13 @@ import java.util.List;
 public class DomainExtDefaultConverterTest {
 
     @Configuration
-    @ComponentScan(basePackageClasses = {MessageAcknowledgement.class, MessageAcknowledgementDTO.class, DomainExtDefaultConverter.class})
+    @ComponentScan(basePackageClasses = {MessageAcknowledgement.class, MessageAcknowledgementDTO.class, DomainExtDefaultConverter.class,  MonitoringMapperDecorator.class})
     @ImportResource({
-            "classpath:config/ext-services-delegate-domibusContext.xml",
             "classpath:config/commonsTestContext.xml"
     })
     static class ContextConfiguration {
 
     }
-
     @Autowired
     DomainExtConverter domibusDomainConverter;
 

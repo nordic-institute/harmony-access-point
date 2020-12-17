@@ -5,24 +5,36 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyChangeListener;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.scheduler.DomibusScheduler;
-import eu.domibus.common.services.DomibusCacheService;
-import eu.domibus.common.validators.GatewayConfigurationValidator;
 import eu.domibus.core.alerts.MailSender;
-import eu.domibus.core.alerts.model.common.AlertType;
-import eu.domibus.core.alerts.model.service.AccountDisabledModuleConfiguration;
+import eu.domibus.core.alerts.configuration.account.disabled.AccountDisabledModuleConfiguration;
+import eu.domibus.core.alerts.configuration.account.disabled.console.ConsoleAccountDisabledConfigurationManager;
+import eu.domibus.core.alerts.configuration.account.disabled.plugin.PluginAccountDisabledConfigurationManager;
+import eu.domibus.core.alerts.configuration.certificate.expired.ExpiredCertificateConfigurationManager;
+import eu.domibus.core.alerts.configuration.certificate.imminent.ImminentExpirationCertificateConfigurationManager;
+import eu.domibus.core.alerts.configuration.common.CommonConfigurationManager;
+import eu.domibus.core.alerts.configuration.login.console.ConsoleLoginFailConfigurationManager;
+import eu.domibus.core.alerts.configuration.login.plugin.PluginLoginFailConfigurationManager;
+import eu.domibus.core.alerts.configuration.messaging.MessagingConfigurationManager;
+import eu.domibus.core.alerts.configuration.password.expired.console.ConsolePasswordExpiredAlertConfigurationManager;
+import eu.domibus.core.alerts.configuration.password.expired.plugin.PluginPasswordExpiredAlertConfigurationManager;
+import eu.domibus.core.alerts.configuration.password.imminent.console.ConsolePasswordImminentExpirationAlertConfigurationManager;
+import eu.domibus.core.alerts.configuration.password.imminent.plugin.PluginPasswordImminentExpirationAlertConfigurationManager;
 import eu.domibus.core.alerts.model.service.ConfigurationLoader;
-import eu.domibus.core.alerts.service.MultiDomainAlertConfigurationService;
+import eu.domibus.core.alerts.service.AlertConfigurationService;
+import eu.domibus.core.cache.DomibusCacheService;
+import eu.domibus.core.certificate.crl.CRLService;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
+import eu.domibus.core.jms.MessageListenerContainerInitializer;
+import eu.domibus.core.message.pull.PullFrequencyHelper;
 import eu.domibus.core.payload.encryption.PayloadEncryptionService;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorage;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
-import eu.domibus.core.pmode.PModeProvider;
-import eu.domibus.core.property.DomibusPropertyMetadataManagerImpl;
-import eu.domibus.ebms3.puller.PullFrequencyHelper;
-import eu.domibus.messaging.MessageListenerContainerInitializer;
-import eu.domibus.proxy.DomibusProxyService;
-import eu.domibus.quartz.DomibusQuartzStarter;
-import eu.domibus.web.rest.validators.BaseBlacklistValidator;
+import eu.domibus.core.pmode.provider.PModeProvider;
+import eu.domibus.core.property.CorePropertyMetadataManagerImpl;
+import eu.domibus.core.property.GatewayConfigurationValidator;
+import eu.domibus.core.proxy.DomibusProxyService;
+import eu.domibus.core.rest.validators.BlacklistValidator;
+import eu.domibus.core.scheduler.DomibusQuartzStarter;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
@@ -80,7 +92,7 @@ public class DomibusPropertiesChangeListenersTest {
     AlertActiveChangeListener alertActiveChangeListener;
 
     @Tested
-    AlertAccountDisabledConfigurationChangeListener alertAccountDisabledConfigurationChangeListener;
+    AlertConsoleAccountDisabledConfigurationChangeListener alertConsoleAccountDisabledConfigurationChangeListener;
 
     @Tested
     AlertCertificateExpiredConfigurationChangeListener alertCertificateExpiredConfigurationChangeListener;
@@ -92,7 +104,7 @@ public class DomibusPropertiesChangeListenersTest {
     AlertCommonConfigurationChangeListener alertCommonConfigurationChangeListener;
 
     @Tested
-    AlertLoginFailureConfigurationChangeListener alertLoginFailureConfigurationChangeListener;
+    AlertConsoleLoginFailureConfigurationChangeListener alertConsoleLoginFailureConfigurationChangeListener;
 
     @Tested
     AlertMailChangeListener alertMailChangeListener;
@@ -119,11 +131,14 @@ public class DomibusPropertiesChangeListenersTest {
     AlertPluginPasswordImminentExpirationConfigurationChangeListener alertPluginPasswordImminentExpirationConfigurationChangeListener;
 
     @Tested
+    CRLChangeListener crlChangeListener;
+
+    @Tested
     @Injectable
-    DomibusPropertyMetadataManagerImpl domibusPropertyMetadataManager;
+    CorePropertyMetadataManagerImpl corePropertyMetadataManager;
 
     @Injectable
-    List<BaseBlacklistValidator> blacklistValidators;
+    List<BlacklistValidator> blacklistValidators;
 
     @Injectable
     DomainService domainService;
@@ -165,19 +180,58 @@ public class DomibusPropertiesChangeListenersTest {
     DomibusScheduler domibusScheduler;
 
     @Mocked
-    PayloadFileStorage mockStorage = new PayloadFileStorage();
+    PayloadFileStorage mockStorage = new PayloadFileStorage(null);
 
     @Injectable
     private MailSender mailSender;
 
     @Injectable
-    private MultiDomainAlertConfigurationService multiDomainAlertConfigurationService;
+    private AlertConfigurationService alertConfigurationService;
 
     @Injectable
     private ConfigurationLoader<AccountDisabledModuleConfiguration> pluginAccountDisabledConfigurationLoader;
 
+    @Injectable
+    ConsoleAccountDisabledConfigurationManager clearConsoleAccountDisabledConfiguration;
+
+    @Injectable
+    ExpiredCertificateConfigurationManager expiredCertificateConfigurationManager;
+
+    @Injectable
+    ImminentExpirationCertificateConfigurationManager imminentExpirationCertificateConfigurationManager;
+
+    @Injectable
+    CommonConfigurationManager commonConfigurationManager;
+
+    @Injectable
+    ConsoleLoginFailConfigurationManager consoleLoginFailConfigurationManager;
+
+    @Injectable
+    MessagingConfigurationManager messagingConfigurationManager;
+
+    @Injectable
+    ConsolePasswordExpiredAlertConfigurationManager consolePasswordExpiredAlertConfigurationManager;
+
+    @Injectable
+    PluginPasswordExpiredAlertConfigurationManager pluginPasswordExpiredAlertConfigurationManager;
+
+    @Injectable
+    ConsolePasswordImminentExpirationAlertConfigurationManager consolePasswordImminentExpirationAlertConfigurationManager;
+
+    @Injectable
+    PluginPasswordImminentExpirationAlertConfigurationManager pluginPasswordImminentExpirationAlertConfigurationManager;
+
+    @Injectable
+    PluginLoginFailConfigurationManager pluginLoginFailConfigurationManager;
+
+    @Injectable
+    PluginAccountDisabledConfigurationManager pluginAccountDisabledConfigurationManager;
+
+    @Injectable
+    CRLService crlService;
+
     @Test
-    public void testPropertyChangeListeners() throws Exception {
+    public void testPropertyChangeListeners() {
         DomibusPropertyChangeListener[] domibusPropertyChangeListeners = new DomibusPropertyChangeListener[]{
                 blacklistChangeListener,
                 concurrencyChangeListener,
@@ -191,13 +245,14 @@ public class DomibusPropertiesChangeListenersTest {
                 proxyChangeListener,
                 pullConfigurationChangeListener,
                 storageChangeListener,
+                crlChangeListener,
 
                 alertActiveChangeListener,
-                alertAccountDisabledConfigurationChangeListener,
+                alertConsoleAccountDisabledConfigurationChangeListener,
                 alertCertificateExpiredConfigurationChangeListener,
                 alertCertificateImminentExpirationConfigurationChangeListener,
                 alertCommonConfigurationChangeListener,
-                alertLoginFailureConfigurationChangeListener,
+                alertConsoleLoginFailureConfigurationChangeListener,
                 alertMailChangeListener,
                 alertMessagingConfigurationChangeListener,
                 alertPasswordExpiredConfigurationChangeListener,
@@ -213,10 +268,10 @@ public class DomibusPropertiesChangeListenersTest {
             result = mockStorage;
         }};
 
-        Map<String, DomibusPropertyMetadata> properties = domibusPropertyMetadataManager.getKnownProperties();
+        Map<String, DomibusPropertyMetadata> properties = corePropertyMetadataManager.getKnownProperties();
 
         for (String propertyName : properties.keySet()) {
-            if (domibusPropertyMetadataManager.hasKnownProperty(propertyName)) {
+            if (corePropertyMetadataManager.hasKnownProperty(propertyName)) {
                 for (DomibusPropertyChangeListener listener : domibusPropertyChangeListeners) {
                     if (listener.handlesProperty(propertyName)) {
                         String testValue = testPropertyValue(propertyName);
@@ -227,33 +282,31 @@ public class DomibusPropertiesChangeListenersTest {
         }
 
         new Verifications() {{
-            mockStorage.initFileSystemStorage();
             pullFrequencyHelper.reset();
             payloadEncryptionService.createPayloadEncryptionKeyIfNotExists((Domain) any);
             cryptoService.reset();
             gatewayConfigurationValidator.validateConfiguration();
             domibusProxyService.resetProxy();
-            messageListenerContainerInitializer.createSendMessageListenerContainer((Domain) any);
+            messageListenerContainerInitializer.setConcurrency((Domain) any, anyString, anyString);
             domibusScheduler.rescheduleJob((Domain) any, anyString, anyString);
             domibusCacheService.clearCache(anyString);
             pModeProvider.refresh();
             blacklistValidators.forEach((Consumer) any);
 
             mailSender.reset();
-            multiDomainAlertConfigurationService.clearAllConfigurations();
-            multiDomainAlertConfigurationService.clearAccountDisabledConfiguration();
-            multiDomainAlertConfigurationService.clearExpiredCertificateConfiguration();
-            multiDomainAlertConfigurationService.clearImminentExpirationCertificateConfiguration();
-            multiDomainAlertConfigurationService.clearCommonConfiguration();
-            multiDomainAlertConfigurationService.clearLoginFailureConfiguration();
+            alertConfigurationService.resetAll();
+            clearConsoleAccountDisabledConfiguration.reset();
+            expiredCertificateConfigurationManager.reset();
+            imminentExpirationCertificateConfigurationManager.reset();
+            commonConfigurationManager.reset();
+            consoleLoginFailConfigurationManager.reset();
             mailSender.reset();
-            multiDomainAlertConfigurationService.clearMessageCommunicationConfiguration();
-            multiDomainAlertConfigurationService.clearPasswordExpirationAlertConfiguration(AlertType.PASSWORD_EXPIRED);
-            multiDomainAlertConfigurationService.clearPasswordExpirationAlertConfiguration(AlertType.PASSWORD_IMMINENT_EXPIRATION);
-            pluginAccountDisabledConfigurationLoader.resetConfiguration();
-            multiDomainAlertConfigurationService.clearPluginLoginFailureConfiguration();
-            multiDomainAlertConfigurationService.clearPasswordExpirationAlertConfiguration(AlertType.PLUGIN_PASSWORD_EXPIRED);
-            multiDomainAlertConfigurationService.clearPasswordExpirationAlertConfiguration(AlertType.PLUGIN_PASSWORD_IMMINENT_EXPIRATION);
+            messagingConfigurationManager.reset();
+            consolePasswordExpiredAlertConfigurationManager.reset();
+            pluginPasswordExpiredAlertConfigurationManager.reset();
+            consolePasswordImminentExpirationAlertConfigurationManager.reset();
+            pluginPasswordImminentExpirationAlertConfigurationManager.reset();
+            crlService.resetCacheCrlProtocols();
         }};
     }
 

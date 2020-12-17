@@ -35,9 +35,8 @@
 		</parties>
 		<meps>
 			<mep name="oneway" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/oneWay"/>
-			<mep name="twoway" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/twoWay"/>
 			<binding name="push" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/push"/>
-			<binding name="pushAndPush" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/pushAndPush"/>
+			<binding name="pull" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/pull"/>
 		</meps>
 		<properties>
 			<property name="originalSenderProperty" 
@@ -63,7 +62,7 @@
 					required="false"
 					mimeType="application/octet-stream"/>
 			<payloadProfile name="MessageProfile" 
-					maxSize="40894464">
+					maxSize="2147483647">
 				<attachment name="businessContentPayload"/>
 				<attachment name="businessContentAttachment"/>
 			</payloadProfile>
@@ -140,6 +139,17 @@
 							  propertySet="ecodexPropertySet"
 							  errorHandling="demoErrorHandling"
 							  compressPayloads="true"/>
+			<legConfiguration name="pushTestcase1tc2ActionWithPayload"
+							  service="testService1"
+							  action="tc2Action"
+							  defaultMpc="defaultMpc"
+							  reliability="AS4Reliability"
+							  security="eDeliveryAS4Policy"
+							  receptionAwareness="receptionAwareness"
+							  propertySet="ecodexPropertySet"
+							  payloadProfile="MessageProfile"
+							  errorHandling="demoErrorHandling"
+							  compressPayloads="true"/>
 		</legConfigurations>
 <process name="tc1Process"
          agreement=""
@@ -160,6 +170,7 @@
 		<leg name="pushTestcase1tc2Action"/>
 		<leg name="pushTestcase1tc3Action"/>
 		<leg name="pushTestcase1tc4Action"/>
+		<leg name="pushTestcase1tc2ActionWithPayload"/>
 	</legs>
 </process>
 	</businessProcesses>

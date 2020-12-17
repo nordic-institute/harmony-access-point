@@ -1,17 +1,18 @@
 package eu.domibus.web.rest;
 
-import eu.domibus.api.configuration.DomibusConfigurationService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.user.User;
 import eu.domibus.api.user.UserRole;
 import eu.domibus.api.user.UserState;
-import eu.domibus.common.exception.EbMS3Exception;
-import eu.domibus.common.services.UserService;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.csv.CsvServiceImpl;
+import eu.domibus.core.user.UserService;
 import eu.domibus.web.rest.error.ErrorHandlerService;
+import eu.domibus.web.rest.ro.UserFilterRequestRO;
 import eu.domibus.web.rest.ro.UserResponseRO;
+import eu.domibus.web.rest.ro.UserResultRO;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -93,7 +94,7 @@ public class UserResourceTest {
         }};
 
         // When
-        List<UserResponseRO> userResponseROS = userResource.users();
+        List<UserResponseRO> userResponseROS = userResource.getUsers();
         userResource.updateUsers(userResponseROS);
 
         // Then
@@ -143,34 +144,43 @@ public class UserResourceTest {
     }
 
     @Test
-    public void testGetCsv() throws EbMS3Exception {
-        // Given
+    public void testGetCsv(@Injectable UserFilterRequestRO request,
+                           @Injectable UserResultRO entries,
+                           @Injectable UserResponseRO userResponseRO,
+                           @Injectable ResponseEntity<String> responseEntity) {
         List<UserResponseRO> usersResponseROList = new ArrayList<>();
-        UserResponseRO userResponseRO = new UserResponseRO() {{
-            setUserName("user1");
-            setEmail("email@email.com");
-            setActive(true);
-        }};
-        List<String> roles = new ArrayList<>();
-        roles.add("ROLE_ADMIN");
-        userResponseRO.setAuthorities(roles);
         usersResponseROList.add(userResponseRO);
+
         new Expectations(userResource) {{
-            userResource.users();
-            result = usersResponseROList;
-            csvServiceImpl.exportToCSV(usersResponseROList, UserResponseRO.class, (Map<String, String>) any, (List<String>) any);
-            result = "Username, Email, Active, Roles" + System.lineSeparator() +
-                    "user1, email@email.com, true, ROLE_ADMIN" + System.lineSeparator();
+            userResource.retrieveAndPackageUsers(request);
+            result = entries;
+            csvServiceImpl.exportToCSV(entries.getEntries(), UserResponseRO.class, (Map<String, String>) any, (List<String>) any);
+            result = anyString;
         }};
 
-        // When
-        final ResponseEntity<String> csv = userResource.getCsv();
+        final ResponseEntity<String> csv = userResource.getCsv(request);
 
-        // Then
         Assert.assertEquals(HttpStatus.OK, csv.getStatusCode());
-        Assert.assertEquals("Username, Email, Active, Roles" + System.lineSeparator() +
-                "user1, email@email.com, true, ROLE_ADMIN" + System.lineSeparator(), csv.getBody());
     }
 
+    @Test
+    public void retrieveAndPackageUsers(@Injectable UserFilterRequestRO request,
+                                        @Injectable UserResultRO entries,
+                                        @Injectable UserResponseRO userResponseRO,
+                                        @Injectable User user) {
+        List<User> users = new ArrayList<>();
+        users.add(user);
+        List<UserResponseRO> userResponseROS = new ArrayList<>();
+        userResponseROS.add(userResponseRO);
 
+        new Expectations(userResource) {{
+            userManagementService.findUsersWithFilters(request.getAuthRole(), request.getUserName(), request.getDeleted(),
+                    request.getPageStart(), request.getPageSize());
+            result = users;
+            userResource.prepareResponse(users);
+            result = userResponseROS;
+        }};
+
+        Assert.assertNotNull(userResource.retrieveAndPackageUsers(request));
+    }
 }

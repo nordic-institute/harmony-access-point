@@ -4,21 +4,19 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.security.AuthUtils;
-import eu.domibus.common.model.security.UserDetail;
-import eu.domibus.common.services.UserService;
-import eu.domibus.common.util.WarningUtil;
 import eu.domibus.core.converter.DomainCoreConverter;
-import eu.domibus.ext.rest.ErrorRO;
+import eu.domibus.core.user.UserService;
+import eu.domibus.core.user.multitenancy.SuperUserManagementServiceImpl;
+import eu.domibus.core.user.ui.UserManagementServiceImpl;
+import eu.domibus.core.util.WarningUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
-import eu.domibus.security.AuthenticationService;
-import eu.domibus.security.DomibusCookieClearingLogoutHandler;
 import eu.domibus.web.rest.error.ErrorHandlerService;
-import eu.domibus.web.rest.ro.ChangePasswordRO;
-import eu.domibus.web.rest.ro.DomainRO;
-import eu.domibus.web.rest.ro.LoginRO;
-import eu.domibus.web.rest.ro.UserRO;
+import eu.domibus.web.rest.ro.*;
+import eu.domibus.web.security.AuthenticationService;
+import eu.domibus.web.security.DomibusCookieClearingLogoutHandler;
+import eu.domibus.web.security.UserDetail;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -32,9 +30,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.logout.CookieClearingLogoutHandler;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -43,7 +40,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * @author Cosmin Baciu, Catalin Enache
@@ -73,16 +69,19 @@ public class AuthenticationResource {
 
     @Autowired
     @Lazy
-    @Qualifier("superUserManagementService")
+    @Qualifier(SuperUserManagementServiceImpl.BEAN_NAME)
     private UserService superUserManagementService;
 
     @Autowired
     @Lazy
-    @Qualifier("userManagementService")
+    @Qualifier(UserManagementServiceImpl.BEAN_NAME)
     private UserService userManagementService;
 
     @Autowired
     private AuthUtils authUtils;
+
+    @Autowired
+    CompositeSessionAuthenticationStrategy sas;
 
     @ExceptionHandler({AccountStatusException.class})
     public ResponseEntity<ErrorRO> handleAccountStatusException(AccountStatusException ex) {
@@ -94,9 +93,8 @@ public class AuthenticationResource {
         return errorHandlerService.createResponse(ex, HttpStatus.FORBIDDEN);
     }
 
-    @RequestMapping(value = "authentication", method = RequestMethod.POST)
-    @Transactional(noRollbackFor = BadCredentialsException.class)
-    public UserRO authenticate(@RequestBody @Valid LoginRO loginRO, HttpServletResponse response) {
+    @PostMapping(value = "authentication")
+    public UserRO authenticate(@RequestBody @Valid LoginRO loginRO, HttpServletResponse response, HttpServletRequest request) {
 
         String domainCode = userDomainService.getDomainForUser(loginRO.getUsername());
         LOG.debug("Determined domain [{}] for user [{}]", domainCode, loginRO.getUsername());
@@ -120,9 +118,10 @@ public class AuthenticationResource {
             LOG.warn(WarningUtil.warnOutput(principal.getUsername() + " is using default password."));
         }
 
+        sas.onAuthentication( SecurityContextHolder.getContext().getAuthentication(), request, response);
+
         return createUserRO(principal, loginRO.getUsername());
     }
-
 
     @RequestMapping(value = "authentication", method = RequestMethod.DELETE)
     public void logout(HttpServletRequest request, HttpServletResponse response) {
@@ -139,15 +138,21 @@ public class AuthenticationResource {
         LOG.debug("Logged out");
     }
 
-    @RequestMapping(value = "username", method = RequestMethod.GET)
-    public String getUsername() {
-        return Optional.ofNullable(getLoggedUser()).map(UserDetail::getUsername).orElse(StringUtils.EMPTY);
+    /**
+     * Method used by admin console to check if the current session is still active
+     * if the user has proper authentication rights and valid session it succeeds
+     * otherwise the method is not called because the infrastructure throws 401 or 403
+     * @return always true
+     */
+    @GetMapping(value = "user/connected")
+    public boolean isUserConnected() {
+        return true;
     }
 
     @RequestMapping(value = "user", method = RequestMethod.GET)
     public UserRO getUser() {
         LOG.debug("get user - start");
-        UserDetail userDetail = getLoggedUser();
+        UserDetail userDetail = authenticationService.getLoggedUser();
 
         return userDetail != null ? createUserRO(userDetail, userDetail.getUsername()) : null;
     }
@@ -185,25 +190,10 @@ public class AuthenticationResource {
     @RequestMapping(value = "user/password", method = RequestMethod.PUT)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void changePassword(@RequestBody @Valid ChangePasswordRO param) {
-        UserDetail loggedUser = this.getLoggedUser();
+        UserDetail loggedUser = authenticationService.getLoggedUser();
         LOG.debug("Changing password for user [{}]", loggedUser.getUsername());
         getUserService().changePassword(loggedUser.getUsername(), param.getCurrentPassword(), param.getNewPassword());
         loggedUser.setDefaultPasswordUsed(false);
-    }
-
-    /**
-     * It will return the Principal from {@link SecurityContextHolder}
-     * if different from {@link AnonymousAuthenticationToken}
-     * @return
-     */
-    UserDetail getLoggedUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication!= null && !(authentication instanceof AnonymousAuthenticationToken)) {
-            UserDetail userDetail = (UserDetail) authentication.getPrincipal();
-            LOG.debug("Principal found on SecurityContextHolder: {}", userDetail);
-            return userDetail;
-        }
-        return null;
     }
 
     UserService getUserService() {

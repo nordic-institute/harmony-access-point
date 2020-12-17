@@ -16,7 +16,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 /**
  * @author Cosmin Baciu
@@ -39,14 +39,14 @@ public class TemporaryPayloadServiceImplTest {
         filesToClean.add(file1);
 
         new Expectations(temporaryPayloadService) {{
-            temporaryPayloadService.getFilesToClean(domain, directory);
+            temporaryPayloadService.getFilesToClean(directory);
             result = filesToClean;
 
             temporaryPayloadService.deleteFileSafely((File) any);
 
         }};
 
-        temporaryPayloadService.cleanTemporaryPayloads(domain, directory);
+        temporaryPayloadService.cleanTemporaryPayloads(directory);
 
         new Verifications() {{
             temporaryPayloadService.deleteFileSafely(file1);
@@ -85,7 +85,7 @@ public class TemporaryPayloadServiceImplTest {
         String excludeRegex = "regexExpression";
 
         new Expectations() {{
-            domibusPropertyProvider.getProperty(domain, DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_EXCLUDE_REGEX);
+            domibusPropertyProvider.getProperty(DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_EXCLUDE_REGEX);
             result = excludeRegex;
 
             Pattern.compile(excludeRegex);
@@ -95,7 +95,7 @@ public class TemporaryPayloadServiceImplTest {
             result = regexIOFileFilter;
         }};
 
-        temporaryPayloadService.getRegexFileFilter(domain);
+        temporaryPayloadService.getRegexFileFilter();
 
         new Verifications() {{
             FileFilterUtils.notFileFilter(regexIOFileFilter);
@@ -111,14 +111,14 @@ public class TemporaryPayloadServiceImplTest {
         long currentTimeMillis = 6 * 60 * 1000;
 
         new Expectations() {{
-            domibusPropertyProvider.getIntegerDomainProperty(domain, DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_EXPIRATION);
+            domibusPropertyProvider.getIntegerProperty(DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_EXPIRATION);
             result = expirationThresholdInMinutes;
 
             System.currentTimeMillis();
             result = currentTimeMillis;
         }};
 
-        temporaryPayloadService.getAgeFileFilter(domain);
+        temporaryPayloadService.getAgeFileFilter();
 
         new Verifications() {{
             FileFilterUtils.ageFileFilter(60000);
@@ -132,7 +132,7 @@ public class TemporaryPayloadServiceImplTest {
         String directories = "dir1,dir2";
 
         new Expectations(temporaryPayloadService) {{
-            domibusPropertyProvider.getProperty(domain, DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_DIRECTORIES);
+            domibusPropertyProvider.getProperty(DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_DIRECTORIES);
             result = directories;
 
             temporaryPayloadService.getDirectory("dir1");
@@ -142,7 +142,7 @@ public class TemporaryPayloadServiceImplTest {
             result = dir2;
         }};
 
-        final List<File> temporaryLocations = temporaryPayloadService.getTemporaryLocations(domain);
+        final List<File> temporaryLocations = temporaryPayloadService.getTemporaryLocations();
         Assert.assertEquals(2, temporaryLocations.size());
         Assert.assertTrue(temporaryLocations.iterator().next() == dir1);
         Assert.assertTrue(temporaryLocations.iterator().next() == dir1);

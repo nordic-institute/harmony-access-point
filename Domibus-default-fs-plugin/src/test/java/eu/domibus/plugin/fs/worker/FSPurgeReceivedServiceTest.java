@@ -94,7 +94,7 @@ public class FSPurgeReceivedServiceTest {
         domains.add(FSSendMessagesService.DEFAULT_DOMAIN);
 
         new Expectations(1, instance) {{
-            fsPluginProperties.getDomains();
+            fsMultiTenancyService.getDomainsToProcess();
             result = domains;
 
             fsMultiTenancyService.verifyDomainExists(FSSendMessagesService.DEFAULT_DOMAIN);
@@ -111,6 +111,12 @@ public class FSPurgeReceivedServiceTest {
 
             fsPluginProperties.getReceivedPurgeExpired(FSSendMessagesService.DEFAULT_DOMAIN);
             result = 20;
+
+            fsFilesManager.isFileOlderThan(recentFile, 20);
+            result = false;
+
+            fsFilesManager.isFileOlderThan(oldFile, 20);
+            result = true;
         }};
 
         instance.purgeMessages();
@@ -126,7 +132,7 @@ public class FSPurgeReceivedServiceTest {
             fsMultiTenancyService.verifyDomainExists("DOMAIN1");
             result = true;
 
-            fsPluginProperties.getDomains();
+            fsMultiTenancyService.getDomainsToProcess();
             result = Collections.singletonList("DOMAIN1");
 
             fsFilesManager.setUpFileSystem("DOMAIN1");

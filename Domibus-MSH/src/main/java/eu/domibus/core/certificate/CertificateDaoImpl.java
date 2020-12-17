@@ -1,10 +1,7 @@
 package eu.domibus.core.certificate;
 
 import eu.domibus.api.util.DateUtil;
-import eu.domibus.common.dao.BasicDao;
-import eu.domibus.common.model.certificate.Certificate;
-import eu.domibus.common.model.certificate.CertificateStatus;
-import eu.domibus.common.model.certificate.CertificateType;
+import eu.domibus.core.dao.BasicDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,11 +33,30 @@ public class CertificateDaoImpl extends BasicDao<Certificate> implements Certifi
         Certificate byAliasAndType = getByAliasAndType(certificate.getAlias(), certificate.getCertificateType());
         if (byAliasAndType != null) {
             LOG.debug("Updating certificate [{}]", certificate);
-            certificate.setEntityId(byAliasAndType.getEntityId());
-            certificate.setLastNotification(byAliasAndType.getLastNotification());
-            certificate.setAlertImminentNotificationDate(byAliasAndType.getAlertImminentNotificationDate());
-            certificate.setAlertExpiredNotificationDate(byAliasAndType.getAlertExpiredNotificationDate());
-            em.merge(certificate);
+            if (certificate.getCertificateStatus() != null) {
+                byAliasAndType.setCertificateStatus(certificate.getCertificateStatus());
+            }
+            if (certificate.getLastNotification() != null) {
+                byAliasAndType.setLastNotification(certificate.getLastNotification());
+            }
+            if (certificate.getAlertImminentNotificationDate() != null) {
+                byAliasAndType.setAlertImminentNotificationDate(certificate.getAlertImminentNotificationDate());
+            }
+            if (certificate.getAlertExpiredNotificationDate() != null) {
+                byAliasAndType.setAlertExpiredNotificationDate(certificate.getAlertExpiredNotificationDate());
+            }
+            if (certificate.getCreatedBy() != null) {
+                byAliasAndType.setCreatedBy(certificate.getCreatedBy());
+            }
+            if (certificate.getCreationTime() != null) {
+                byAliasAndType.setCreationTime(certificate.getCreationTime());
+            }
+            if (certificate.getNotBefore() != null) {
+                byAliasAndType.setNotBefore(certificate.getNotBefore());
+            }
+            if (certificate.getNotAfter() != null) {
+                byAliasAndType.setNotAfter(certificate.getNotAfter());
+            }
             return;
         }
         LOG.debug("Saving certificate [{}]", certificate);

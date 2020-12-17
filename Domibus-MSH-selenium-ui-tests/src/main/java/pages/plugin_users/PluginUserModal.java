@@ -1,72 +1,82 @@
 package pages.plugin_users;
 
-import ddsl.dobjects.Select;
 import ddsl.dcomponents.popups.EditModal;
 import ddsl.dobjects.DButton;
 import ddsl.dobjects.DInput;
 import ddsl.dobjects.DObject;
+import ddsl.dobjects.Select;
+import ddsl.enums.DRoles;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
+import utils.Gen;
 
 
 /**
  * @author Catalin Comanici
-
  * @version 4.1
  */
 
 
 public class PluginUserModal extends EditModal {
+	@FindBy(css = "#username_id")
+	private WebElement userNameInput;
+	@FindBy(css = "#originalUser_id")
+	private WebElement originalUserInput;
+	@FindBy(css = "mat-select[placeholder=\"Role\"]")
+	private WebElement rolesSelectContainer;
+	@FindBy(css = "#password_id")
+	private WebElement passwordInput;
+	@FindBy(css = "#confirmation_id")
+	private WebElement confirmationInput;
+	@FindBy(css = "#editbuttonok_id")
+	private WebElement okBtn;
+	@FindBy(css = "#editbuttoncancel_id")
+	private WebElement cancelBtn;
+	
+	@FindBy(css = "editbasicpluginuser-form popup-edit-footer > div.required-fields")
+	private WebElement requiredFieldsText;
+	
+	
+	@FindBy(css = "editbasicpluginuser-form form #username_id + span.help-block>div")
+	private WebElement usernameErrMess;
+	@FindBy(css = "#originalUser_id ~ .help-block div")
+	private WebElement originalUserErrMess;
+	@FindBy(css = "editbasicpluginuser-form form #password_id + span.help-block>div")
+	private WebElement passErrMess;
+	@FindBy(css = "editbasicpluginuser-form form #confirmation_id + span.help-block>div")
+	private WebElement confirmationErrMess;
+	@FindBy(css = "editbasicpluginuser-form form mat-select[placeholder=\"Role\"] + span.help-block>div")
+	private WebElement roleErrMess;
+
 	public PluginUserModal(WebDriver driver) {
 		super(driver);
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 	}
-
-	@FindBy(css = "#username_id")
-	private WebElement userNameInput;
-
-	@FindBy(css = "#originalUser_id")
-	private WebElement originalUserInput;
-
-	@FindBy(css = "md2-select[placeholder=\"Role\"]")
-	private WebElement rolesSelectContainer;
-
-	@FindBy(css = "#password_id")
-	private WebElement passwordInput;
-
-	@FindBy(css = "#confirmation_id")
-	private WebElement confirmationInput;
-
-	@FindBy(css = "#editbuttonok_id")
-	private WebElement okBtn;
-
-	@FindBy(css = "#editbuttoncancel_id")
-	private WebElement cancelBtn;
-
-	@FindBy(css = "editbasicpluginuser-form > div > form > md-card > div:nth-child(1) > md-input-container > div > div.mat-input-flex > div > div")
-	private WebElement usernameErrMess;
-
-	@FindBy(css = "editbasicpluginuser-form > div > form > md-card > div:nth-child(2) > md-input-container > div > div.mat-input-flex > div > div")
-	private WebElement originalUserErrMess;
-
-	@FindBy(css = "editbasicpluginuser-form > div > form > md-card > div:nth-child(4) > md-input-container > div > div.mat-input-flex > div > div")
-	private WebElement passErrMess;
-
-	@FindBy(css = "editbasicpluginuser-form > div > form > md-card > div:nth-child(5) > md-input-container > div > div.mat-input-flex > div > div")
-	private WebElement confirmationErrMess;
-
-	@FindBy(css = "editbasicpluginuser-form > div > form > md-card > div:nth-child(3) > div")
-	private WebElement roleErrMess;
-
 
 	public void fillData(String user, String role, String password, String confirmation) throws Exception {
 		getUserNameInput().fill(user);
 		getPasswordInput().fill(password);
 		getConfirmationInput().fill(confirmation);
 
+		if(role.equalsIgnoreCase(DRoles.USER)){
+			String corner = Gen.randomAlphaNumeric(5);
+			getOriginalUserInput().fill("urn:oasis:names:tc:ebcore:partyid-type:unregistered:" + corner);
+		}
+		
+		getRolesSelect().selectOptionByText(role);
+	}
+	
+	public void fillCertUserData(String user, String role) throws Exception {
+		getUserNameInput().fill(user);
+
+//		if(role.equalsIgnoreCase(DRoles.USER)){
+//			String corner = Gen.randomAlphaNumeric(5);
+//			getOriginalUserInput().fill("urn:oasis:names:tc:ebcore:partyid-type:unregistered:" + corner);
+//		}
+		
 		getRolesSelect().selectOptionByText(role);
 	}
 
@@ -120,15 +130,8 @@ public class PluginUserModal extends EditModal {
 		return new DObject(driver, roleErrMess);
 	}
 
-	/**
-	 * This method will fill data for plugin user with authentication type as Certificate
-	 *
-	 * @param user Username of user to be added
-	 * @param role Role of user to be added
-	 */
-	public void fillData(String user, String role) throws Exception {
-		getUserNameInput().fill(user);
-		getRolesSelect().selectOptionByText(role);
+	public void changeFocus() throws Exception {
+		weToDobject(requiredFieldsText).click();
 	}
 
 }

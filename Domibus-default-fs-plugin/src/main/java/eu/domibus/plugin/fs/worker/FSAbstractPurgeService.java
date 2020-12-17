@@ -9,6 +9,8 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.List;
+
 /**
  * @author FERNANDES Henrique, GONCALVES Bruno
  */
@@ -30,7 +32,8 @@ public abstract class FSAbstractPurgeService {
      * older than X seconds will be removed
      */
     public void purgeMessages() {
-        for (String domain : fsPluginProperties.getDomains()) {
+        List<String> domains = multiTenancyService.getDomainsToProcess();
+        for (String domain : domains) {
             if (multiTenancyService.verifyDomainExists(domain)) {
                 purgeMessages(domain);
             }
@@ -66,7 +69,7 @@ public abstract class FSAbstractPurgeService {
 
     protected void checkAndPurge(FileObject file, Integer expirationLimit) {
         try {
-            if (expirationLimit != null && isFileOlder(file, expirationLimit)) {
+            if (fsFilesManager.isFileOlderThan(file, expirationLimit)) {
                 if (file.isFile()) {
                     LOG.debug("File [{}] is too old. Deleting", file.getName());
                     fsFilesManager.deleteFile(file);
@@ -84,14 +87,6 @@ public abstract class FSAbstractPurgeService {
     }
 
     protected abstract Integer getExpirationLimit(String domain);
-
-    protected boolean isFileOlder(FileObject file, Integer expirationLimit) throws FileSystemException {
-        long currentMillis = System.currentTimeMillis();
-        long modifiedMillis = file.getContent().getLastModifiedTime();
-        long fileAgeSeconds = (currentMillis - modifiedMillis) / 1000;
-
-        return fileAgeSeconds > expirationLimit;
-    }
 
     /**
      * Returns all the files (or folders) to be deleted after a period ot time

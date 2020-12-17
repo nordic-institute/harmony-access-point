@@ -1,11 +1,16 @@
 package eu.domibus.web.rest.ro;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import eu.domibus.api.validators.SkipWhiteListed;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -14,6 +19,9 @@ import java.util.List;
  */
 public class UserResponseRO {
     // order of the fields is important for CSV generation
+
+    @Size(min = 4, max = 255)
+    @Pattern(regexp = "^[a-zA-Z0-9\\.@_]*$")
     private String userName;
 
     private String roles = StringUtils.EMPTY;
@@ -34,6 +42,8 @@ public class UserResponseRO {
     private String domain;
 
     private boolean deleted;
+
+    private LocalDateTime expirationDate;
 
     public String getUserName() {
         return userName;
@@ -88,7 +98,6 @@ public class UserResponseRO {
         this.userName = userName;
     }
 
-
     public void setEmail(String email) {
         this.email = email;
     }
@@ -123,6 +132,16 @@ public class UserResponseRO {
 
     public void setDeleted(boolean deleted) {
         this.deleted = deleted;
+    }
+
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
+    public LocalDateTime getExpirationDate() {
+        return expirationDate;
+    }
+
+    @JsonIgnore
+    public void setExpirationDate(LocalDateTime expirationDate) {
+        this.expirationDate = expirationDate;
     }
 
     @Override

@@ -52,6 +52,10 @@ public class Event extends AbstractBaseEntity {
         alerts.add(alert);
     }
 
+    public void removeAlert(Alert alert) {
+        alerts.remove(alert);
+    }
+
     public void addProperty(final String key, final AbstractEventProperty abstractProperty) {
         abstractProperty.setKey(key);
         properties.put(key, abstractProperty);

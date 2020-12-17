@@ -1,11 +1,11 @@
 package eu.domibus.weblogic.cluster;
 
-import eu.domibus.api.cluster.Command;
-import eu.domibus.api.cluster.CommandService;
+import eu.domibus.api.cluster.CommandExecutorService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,8 +13,6 @@ import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -41,30 +39,23 @@ public class ClusterCommandConfiguration {
     protected DomainTaskExecutor domainTaskExecutor;
 
     @Autowired
-    protected CommandService commandService;
+    protected CommandExecutorService commandExecutorService;
 
-    @Transactional(propagation = Propagation.REQUIRED, timeout = 120)
+    @Autowired
+    protected DomibusConfigurationService domibusConfigurationService;
+
     @Scheduled(fixedDelay = 5000)
     public void scheduleClusterCommandExecution() {
+        String serverName = System.getProperty("weblogic.Name");
+        LOGGER.debug("Server name ...[{}]", serverName);
+
         final List<Domain> domains = domainService.getDomains();
         for (Domain domain : domains) {
-            final Runnable task = new Runnable() {
-                @Override
-                public void run() {
-                    LOGGER.debug("Executing job...");
+            domainTaskExecutor.submit(() -> commandExecutorService.executeCommands(serverName), domain);
+        }
 
-                    String serverName = System.getProperty("weblogic.Name");
-                    final List<Command> commandsByServerName = commandService.findCommandsByServerAndDomainName(serverName, domain.getCode());
-                    if (commandsByServerName == null) {
-                        return;
-                    }
-                    for (Command command : commandsByServerName) {
-                        commandService.executeCommand(command.getCommandName(), domain, command.getCommandProperties());
-                        commandService.deleteCommand(command.getEntityId());
-                    }
-                }
-            };
-            domainTaskExecutor.submit(task, domain);
+        if (domibusConfigurationService.isMultiTenantAware()) {
+            domainTaskExecutor.submit(() -> commandExecutorService.executeCommands(serverName));
         }
     }
 }

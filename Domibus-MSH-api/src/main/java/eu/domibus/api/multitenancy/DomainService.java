@@ -2,6 +2,8 @@ package eu.domibus.api.multitenancy;
 
 import java.util.List;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DATABASE_GENERAL_SCHEMA;
+
 /**
  * @author Cosmin Baciu
  * @since 4.0
@@ -10,7 +12,7 @@ public interface DomainService {
 
     Domain DEFAULT_DOMAIN = new Domain("default", "Default");
 
-    String GENERAL_SCHEMA_PROPERTY = "domibus.database.general.schema";
+    String GENERAL_SCHEMA_PROPERTY = DOMIBUS_DATABASE_GENERAL_SCHEMA;
 
     List<Domain> getDomains();
 
@@ -23,5 +25,7 @@ public interface DomainService {
     String getGeneralSchema();
 
     String getSchedulerName(Domain domain);
+
+    void resetDomains();
 
 }

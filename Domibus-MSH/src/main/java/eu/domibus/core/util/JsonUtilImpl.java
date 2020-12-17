@@ -27,12 +27,32 @@ public class JsonUtilImpl implements JsonUtil {
     }
 
     @Override
-    public List<String> jsonToList(String list) {
+    public String listToJson(List list) {
         if (list == null) {
             return null;
         }
+        return new Gson().toJson(list);
+    }
+
+    @Override
+    public List jsonToList(String list) {
+        if (list == null) {
+            return null;
+        }
+
         Type type = new TypeToken<ArrayList<String>>() {
         }.getType();
+
         return new Gson().fromJson(list, type);
     }
+
+    @Override
+    public List jsonToList(String list, Type type) {
+        if (list == null) {
+            return null;
+        }
+
+        return new Gson().fromJson(list, type);
+    }
+
 }

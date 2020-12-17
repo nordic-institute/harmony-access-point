@@ -1,12 +1,13 @@
 package eu.domibus.web.rest;
 
+import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthType;
 import eu.domibus.api.user.UserState;
-import eu.domibus.common.services.PluginUserService;
+import eu.domibus.core.user.plugin.PluginUserService;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.csv.CsvServiceImpl;
-import eu.domibus.core.security.AuthenticationEntity;
+import eu.domibus.core.user.plugin.AuthenticationEntity;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.PluginUserFilterRequestRO;
 import eu.domibus.web.rest.ro.PluginUserRO;
@@ -40,6 +41,9 @@ public class PluginUserResourceTest {
     @Injectable
     ErrorHandlerService errorHandlerService;
 
+    @Injectable
+    UserDomainService userDomainService;
+
     @Test
     public void findUsersTest() {
         AuthType authType = AuthType.BASIC;
@@ -47,10 +51,6 @@ public class PluginUserResourceTest {
         String originalUser = "originalUser1";
         String userName = "userName1";
         int pageStart = 1, pageSize = 10;
-
-        AuthenticationEntity user = new AuthenticationEntity();
-        user.setUserName("user1");
-        final List<AuthenticationEntity> userList = Arrays.asList(user);
 
         PluginUserRO userRO = new PluginUserRO();
         userRO.setUserName("user1");
@@ -61,9 +61,6 @@ public class PluginUserResourceTest {
             result = 1;
 
             pluginUserService.findUsers(authType, authRole, originalUser, userName, pageStart, pageSize);
-            result = userList;
-
-            domainConverter.convert(userList, PluginUserRO.class);
             result = userROs;
         }};
 
@@ -108,7 +105,6 @@ public class PluginUserResourceTest {
             assertEquals(0, removedUsers.size());
             assertEquals("user1", addedUsers.get(0).getUserName());
         }};
-
     }
 
 }

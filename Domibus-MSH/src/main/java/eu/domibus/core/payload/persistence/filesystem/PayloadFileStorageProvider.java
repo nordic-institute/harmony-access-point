@@ -14,4 +14,5 @@ public interface PayloadFileStorageProvider {
 
     boolean isPayloadsPersistenceInDatabaseConfigured();
 
+    boolean isPayloadsPersistenceFileSystemConfigured();
 }

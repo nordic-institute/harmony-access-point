@@ -1,14 +1,9 @@
 package eu.domibus.core.multitenancy;
 
 import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.api.multitenancy.UserDomain;
 import eu.domibus.api.multitenancy.UserDomainService;
-import eu.domibus.api.user.User;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Ion Perpegel(nperpion)
@@ -41,30 +36,19 @@ public class UserDomainServiceSingleDomainImpl implements UserDomainService {
         return this.getDomainForUser(user);
     }
 
-    /**
-     * Get all super users: in single domain mode, this is an empty list
-     *
-     * @return an empty list
-     */
-    @Override
-    public List<User> getSuperUsers() {
-        return new ArrayList<>();
-    }
-
-
     @Override
     public void setDomainForUser(String user, String domainCode) {
-        return;
+        LOG.trace("set domain for user [{}] in single tenancy mode", user);
     }
 
     @Override
     public void setPreferredDomainForUser(String user, String domainCode) {
-        return;
+        LOG.trace("set preferred domain for user [{}] in single tenancy mode", user);
     }
 
     @Override
     public void deleteDomainForUser(String user) {
-        return;
+        LOG.trace("delete domain for user [{}] in single tenancy mode", user);
     }
 
 }

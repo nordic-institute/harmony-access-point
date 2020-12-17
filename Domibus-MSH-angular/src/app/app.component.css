@@ -1,26 +1,25 @@
-[md-raised-button] {
+[mat-raised-button] {
   width: 100%;
 }
 
-md-sidenav-container {
+mat-sidenav-container {
   width: 100%;
   height: 100%;
   /*border: solid green;*/
 
 }
 
-md-sidenav {
+mat-sidenav {
   text-align: center;
   box-shadow: 7px 7px 10px #9B9B9B;
   /*border: dashed red;*/
 }
 
-md-sidenav.menu-expanded {
-  width: 220px;
-
+mat-sidenav.menu-expanded {
+  width: 250px;
 }
 
-md-sidenav.menu-collapsed {
+mat-sidenav.menu-collapsed {
   width: 50px;
 }
 
@@ -95,4 +94,12 @@ html, body, material-app, .my-content {
 router-outlet {
   /*min-height: 100px;*/
   /*display: block;*/
+}
+
+.mat-raised-button:not([class*="mat-elevation-z"]) {
+  box-shadow: none;
+}
+
+.sideNavSubmenu {
+  margin-bottom: -16px;
 }

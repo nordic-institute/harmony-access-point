@@ -1,11 +1,8 @@
 package ddsl.dcomponents;
 
-import com.google.common.collect.Lists;
 import ddsl.dobjects.DButton;
 import ddsl.dobjects.DObject;
-import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.FileFileFilter;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -24,82 +21,83 @@ import java.io.File;
 
 
 public class DomibusPage extends DComponent {
-
+	
+	@FindBy(css = "page-header > h1")
+	protected WebElement pageTitle;
+	@FindBy(css = ".helpMenu")
+	protected WebElement helpLnk;
+	@FindBy(tagName = "mat-dialog-container")
+	protected WebElement dialogContainer;
+	
+	@FindBy(id = "saveascsvbutton_id")
+	protected WebElement saveCSV;
+	
+	By domainSelectSelector = By.cssSelector("#sandwichMenuHolder > domain-selector > mat-select");
+	
 	public DomibusPage(WebDriver driver) {
 		super(driver);
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 	}
-
-	@FindBy(css = "page-header > h1")
-	protected WebElement pageTitle;
-
-	@FindBy(css = ".helpMenu")
-	protected WebElement helpLnk;
-
-	@FindBy(tagName = "md-dialog-container")
-	protected WebElement dialogContainer;
-
-	@FindBy(id = "saveascsvbutton_id")
-	WebElement downloadCsvButton;
-
+	
 	public AlertArea getAlertArea() {
 		return new AlertArea(driver);
 	}
-
+	
 	public SideNavigation getSidebar() {
 		return new SideNavigation(driver);
 	}
-
+	
 	public SandwichMenu getSandwichMenu() {
 		return new SandwichMenu(driver);
 	}
-
+	
 	public void refreshPage() {
 		driver.navigate().refresh();
 		try {
 			wait.forXMillis(300);
-			waitForTitle();
+			waitForPageToLoad();
+			wait.forXMillis(300);
 		} catch (Exception e) {
-
+			log.warn(e.getMessage());
 		}
 	}
-
-	public DButton getDownloadCsvButton() {
-		return new DButton(driver, downloadCsvButton);
-	}
-
+	
 	public String getTitle() throws Exception {
 		DObject pgTitleObj = new DObject(driver, pageTitle);
 		String rawTitle = pgTitleObj.getText();
-
+		
 		if (rawTitle.contains(":")) {
 //			removing listed domain from title
 			return rawTitle.split(":")[1].trim();
 		}
 		return rawTitle;
 	}
-
+	
 	public String getDomainFromTitle() throws Exception {
 		DObject pgTitleObj = new DObject(driver, pageTitle);
 		String rawTitle = pgTitleObj.getText();
-
+		
 		if (rawTitle.contains(":")) {
 //			removing listed title
 			return rawTitle.split(":")[0].trim();
 		}
 		return null;
 	}
-
+	
 	public DomainSelector getDomainSelector() throws Exception {
-		By domainSelectSelector = By.cssSelector("#sandwichMenuHolder > domain-selector > md-select");
 		WebElement element = driver.findElement(domainSelectSelector);
 		return new DomainSelector(driver, element);
 	}
-
-	public void waitForTitle() {
-		wait.forElementToBe(pageTitle);
+	
+	public void waitForPageToLoad() throws Exception {
+		wait.forElementToBeVisible(getSandwichMenu().expandButton);
 	}
-
+	
+	public void waitForPageTitle() throws Exception {
+		wait.forElementToBeVisible(pageTitle);
+	}
+	
+	
 	public boolean hasOpenDialog() {
 		log.info("checking for any opened dialogs");
 		try {
@@ -111,52 +109,35 @@ public class DomibusPage extends DComponent {
 		}
 		return false;
 	}
-
-	/*  This method will check if downloadCsv link is present on page or not   */
-	public void clickDownloadCsvButton(WebElement element) throws Exception {
-		DButton button = new DButton(driver, element);
-		if (button.isVisible()) {
-			button.click();
-		} else {
-			log.info("CSV Button is not available on this page ");
-		}
-
+	
+	public DButton getSaveCSVButton() {
+		return weToDButton(saveCSV);
 	}
-
-	public File downloadCsv() throws Exception {
-
-		File containerDir = new File(DFileUtils.downloadFolderPath());
-
-		int waited = 0;
-		while ((FileUtils.listFiles(containerDir, FileFileFilter.FILE, null).size() > 0) && (waited < 10)) {
-			FileUtils.cleanDirectory(containerDir);
-			wait.forXMillis(1000);
-			waited++;
+	
+	public String pressSaveCsvAndSaveFile() throws Exception {
+		
+		log.info("Customized location for download");
+		String filePath = data.downloadFolderPath();
+		
+		log.info("Clean given directory");
+		FileUtils.cleanDirectory(new File(filePath));
+		
+		log.info("Click on download csv button");
+		getSaveCSVButton().click();
+		
+		log.info("Wait for download to complete");
+		
+		wait.forXMillis(3000);
+		
+		log.info("Check if file is downloaded at given location");
+		if(!DFileUtils.isFileDownloaded(filePath)){
+			throw new Exception("Could not find file");
 		}
-
-
-		DButton button = weToDButton(downloadCsvButton);
-		if (button.isVisible()) {
-			button.click();
-		} else {
-			log.info("CSV Button is not available on this page ");
-		}
-
-		waited = 0;
-		while ((FileUtils.listFiles(containerDir, FileFileFilter.FILE, null).size() !=1 ) && (waited < 10)) {
-			wait.forXMillis(1000);
-			waited++;
-		}
-
-		if(FileUtils.listFiles(containerDir, FileFileFilter.FILE, null).size() !=1 ){
-			log.error("Unexpected number of files i the download folder: " +
-					FileUtils.listFiles(containerDir, FileFileFilter.FILE, null).size());
-			throw new Exception("Unexpected number of files i the download folder");
-		}
-
-		File file = Lists.newArrayList(FileUtils.listFiles(containerDir, FileFileFilter.FILE, null)).get(0);
-		return file;
+		
+		return DFileUtils.getCompleteFileName(data.downloadFolderPath());
 	}
-
-
+	
+	
+	
+	
 }

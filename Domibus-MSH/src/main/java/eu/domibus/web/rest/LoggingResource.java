@@ -1,20 +1,20 @@
 package eu.domibus.web.rest;
 
 import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.logging.LoggingEntry;
 import eu.domibus.core.logging.LoggingException;
 import eu.domibus.core.logging.LoggingService;
-import eu.domibus.ext.rest.ErrorRO;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.error.ErrorHandlerService;
+import eu.domibus.web.rest.ro.ErrorRO;
 import eu.domibus.web.rest.ro.LoggingFilterRequestRO;
 import eu.domibus.web.rest.ro.LoggingLevelRO;
 import eu.domibus.web.rest.ro.LoggingLevelResultRO;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,14 +35,19 @@ import java.util.List;
 public class LoggingResource {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(LoggingResource.class);
 
-    @Autowired
-    DomainCoreConverter domainConverter;
+    private final DomainCoreConverter domainConverter;
 
-    @Autowired
-    private LoggingService loggingService;
+    private final LoggingService loggingService;
 
-    @Autowired
-    protected ErrorHandlerService errorHandlerService;
+    protected final ErrorHandlerService errorHandlerService;
+
+    public LoggingResource(DomainCoreConverter domainConverter,
+                           LoggingService loggingService,
+                           ErrorHandlerService errorHandlerService) {
+        this.domainConverter = domainConverter;
+        this.loggingService = loggingService;
+        this.errorHandlerService = errorHandlerService;
+    }
 
     @ExceptionHandler({LoggingException.class})
     public ResponseEntity<ErrorRO> handleLoggingException(LoggingException ex) {
@@ -74,10 +79,11 @@ public class LoggingResource {
     }
 
     @GetMapping(value = "/loglevel")
+    @PreAuthorize("@authUtils.isAdminMultiAware()")
     public ResponseEntity<LoggingLevelResultRO> getLogLevel(@Valid LoggingFilterRequestRO request) {
         final LoggingLevelResultRO resultRO = new LoggingLevelResultRO();
-        List<LoggingLevelRO> loggingEntries = domainConverter.
-                convert(loggingService.getLoggingLevel(request.getLoggerName(), request.isShowClasses()), LoggingLevelRO.class);
+        List<LoggingEntry> loggingLevel = loggingService.getLoggingLevel(request.getLoggerName(), request.isShowClasses());
+        List<LoggingLevelRO> loggingEntries = domainConverter.convert(loggingLevel, LoggingLevelRO.class);
 
         int count = loggingEntries.size();
         int fromIndex = request.getPageSize() * request.getPage();

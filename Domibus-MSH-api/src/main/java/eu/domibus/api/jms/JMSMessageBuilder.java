@@ -44,12 +44,17 @@ public class JMSMessageBuilder {
         return this;
     }
 
-    public JMSMessageBuilder properties(Map<String, Object> properties) {
+    public JMSMessageBuilder priority(Integer priority) {
+        jmsMessage.setPriority(priority);
+        return this;
+    }
+
+    public JMSMessageBuilder properties(Map<String, String> properties) {
         jmsMessage.setProperties(properties);
         return this;
     }
 
-    public JMSMessageBuilder property(String name, Object value) {
+    public JMSMessageBuilder property(String name, String value) {
         if(value != null) {
             jmsMessage.getProperties().put(name, value);
         }

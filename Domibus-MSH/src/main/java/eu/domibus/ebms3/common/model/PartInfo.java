@@ -1,11 +1,11 @@
 package eu.domibus.ebms3.common.model;
 
-import eu.domibus.common.AutoCloseFileDataSource;
+import eu.domibus.core.datasource.AutoCloseFileDataSource;
 import eu.domibus.core.encryption.DecryptDataSource;
 import eu.domibus.core.payload.encryption.PayloadEncryptionService;
+import eu.domibus.core.spring.SpringContextProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.spring.SpringContextProvider;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -36,7 +36,10 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "PartInfo", propOrder = {"schema", "description", "partProperties"})
-@NamedQueries(@NamedQuery(name = "PartInfo.loadBinaryData", query = "select pi.binaryData from PartInfo pi where pi.entityId=:ENTITY_ID"))
+@NamedQueries({
+        @NamedQuery(name = "PartInfo.loadBinaryData", query = "select pi.binaryData from PartInfo pi where pi.entityId=:ENTITY_ID"),
+        @NamedQuery(name = "PartInfo.findFilenames", query = "select pi.fileName from UserMessage um join um.payloadInfo.partInfo pi where um.messageInfo.messageId IN :MESSAGEIDS and pi.fileName is not null"),
+})
 @Entity
 @Table(name = "TB_PART_INFO")
 public class PartInfo extends AbstractBaseEntity implements Comparable<PartInfo> {

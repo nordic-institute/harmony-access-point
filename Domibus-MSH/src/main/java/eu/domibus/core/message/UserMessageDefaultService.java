@@ -1,65 +1,76 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
-import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JMSMessageBuilder;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.message.UserMessageException;
-import eu.domibus.api.message.UserMessageLogService;
+import eu.domibus.api.messaging.MessageNotFoundException;
+import eu.domibus.api.messaging.MessagingException;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pmode.PModeService;
 import eu.domibus.api.pmode.PModeServiceHelper;
 import eu.domibus.api.pmode.domain.LegConfiguration;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
+import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
-import eu.domibus.common.dao.MessagingDao;
-import eu.domibus.common.dao.SignalMessageDao;
-import eu.domibus.common.dao.SignalMessageLogDao;
-import eu.domibus.common.dao.UserMessageLogDao;
-import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.common.model.configuration.Party;
-import eu.domibus.common.model.logging.UserMessageLog;
-import eu.domibus.common.services.MessageExchangeService;
+import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.converter.DomainCoreConverter;
-import eu.domibus.core.message.fragment.MessageGroupDao;
-import eu.domibus.core.message.fragment.MessageGroupEntity;
-import eu.domibus.core.pmode.PModeProvider;
-import eu.domibus.core.pull.PartyExtractor;
-import eu.domibus.core.pull.PullMessageService;
+import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
+import eu.domibus.core.error.ErrorLogDao;
+import eu.domibus.core.jms.DelayedDispatchMessageCreator;
+import eu.domibus.core.jms.DispatchMessageCreator;
+import eu.domibus.core.message.acknowledge.MessageAcknowledgementDao;
+import eu.domibus.core.message.attempt.MessageAttemptDao;
+import eu.domibus.core.message.converter.MessageConverterService;
+import eu.domibus.core.message.pull.PullMessageService;
+import eu.domibus.core.message.signal.SignalMessageDao;
+import eu.domibus.core.message.signal.SignalMessageLogDao;
+import eu.domibus.core.message.splitandjoin.MessageGroupDao;
+import eu.domibus.core.message.splitandjoin.MessageGroupEntity;
+import eu.domibus.core.message.splitandjoin.SplitAndJoinException;
+import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
+import eu.domibus.core.plugin.notification.BackendNotificationService;
+import eu.domibus.core.pmode.provider.PModeProvider;
+import eu.domibus.core.replication.UIMessageDao;
 import eu.domibus.core.replication.UIReplicationSignalService;
-import eu.domibus.ebms3.common.UserMessageServiceHelper;
-import eu.domibus.ebms3.common.context.MessageExchangeConfiguration;
-import eu.domibus.ebms3.common.model.SignalMessage;
+import eu.domibus.ebms3.common.model.Messaging;
+import eu.domibus.ebms3.common.model.PartInfo;
 import eu.domibus.ebms3.common.model.UserMessage;
-import eu.domibus.ebms3.receiver.BackendNotificationService;
-import eu.domibus.ebms3.sender.DispatchClientDefaultProvider;
-import eu.domibus.ebms3.sender.SplitAndJoinException;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.logging.MDCKey;
-import eu.domibus.messaging.DelayedDispatchMessageCreator;
-import eu.domibus.messaging.DispatchMessageCreator;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.messaging.MessagingProcessingException;
-import eu.domibus.plugin.NotificationListener;
-import eu.domibus.plugin.handler.DatabaseMessageHandler;
-import eu.domibus.plugin.transformer.impl.UserMessageFactory;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
+import org.apache.cxf.common.util.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.jms.JMSException;
 import javax.jms.Queue;
+import java.io.*;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SEND_MESSAGE_SUCCESS_DELETE_PAYLOAD;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 /**
  * @author Cosmin Baciu
@@ -95,16 +106,34 @@ public class UserMessageDefaultService implements UserMessageService {
     private MessagingDao messagingDao;
 
     @Autowired
-    private UserMessageLogService userMessageLogService;
+    private SignalMessageLogDao signalMessageLogDao;
 
     @Autowired
-    private UserMessageServiceHelper userMessageServiceHelper;
+    private MessageInfoDao messageInfoDao;
 
     @Autowired
     private SignalMessageDao signalMessageDao;
 
     @Autowired
-    private SignalMessageLogDao signalMessageLogDao;
+    private MessageAttemptDao messageAttemptDao;
+
+    @Autowired
+    private ErrorLogDao errorLogDao;
+
+    @Autowired
+    private UIMessageDao uiMessageDao;
+
+    @Autowired
+    private MessageAcknowledgementDao messageAcknowledgementDao;
+
+    @Autowired
+    private UserMessageLogDefaultService userMessageLogService;
+
+    @Autowired
+    private UserMessageServiceHelper userMessageServiceHelper;
+
+    @Autowired
+    protected UserMessagePriorityService userMessagePriorityService;
 
     @Autowired
     private BackendNotificationService backendNotificationService;
@@ -144,6 +173,18 @@ public class UserMessageDefaultService implements UserMessageService {
 
     @Autowired
     private PModeProvider pModeProvider;
+
+    @Autowired
+    MessageConverterService messageConverterService;
+
+    @Autowired
+    private AuditService auditService;
+
+    @Autowired
+    DomibusPropertyProvider domibusPropertyProvider;
+
+    @Autowired
+    DateUtil dateUtil;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 1200) // 20 minutes
     public void createMessageFragments(UserMessage sourceMessage, MessageGroupEntity messageGroupEntity, List<String> fragmentFiles) {
@@ -192,6 +233,7 @@ public class UserMessageDefaultService implements UserMessageService {
 
     }
 
+    @Transactional
     @Override
     public void restoreFailedMessage(String messageId) {
         LOG.info("Restoring message [{}]", messageId);
@@ -216,16 +258,16 @@ public class UserMessageDefaultService implements UserMessageService {
         userMessageLogDao.update(userMessageLog);
         uiReplicationSignalService.messageChange(userMessageLog.getMessageId());
 
+        final UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
         if (MessageStatus.READY_TO_PULL != newMessageStatus) {
-            scheduleSending(messageId, userMessageLog.isSplitAndJoin());
+            scheduleSending(userMessage, userMessageLog);
         } else {
-            final UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
             try {
                 MessageExchangeConfiguration userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, true);
                 String pModeKey = userMessageExchangeConfiguration.getPmodeKey();
                 Party receiverParty = pModeProvider.getReceiverParty(pModeKey);
                 LOG.debug("[restoreFailedMessage]:Message:[{}] add lock", userMessageLog.getMessageId());
-                pullMessageService.addPullMessageLock(new PartyExtractor(receiverParty), userMessage, userMessageLog);
+                pullMessageService.addPullMessageLock(userMessage, userMessageLog);
             } catch (EbMS3Exception ebms3Ex) {
                 LOG.error("Error restoring user message to ready to pull[" + userMessage.getMessageInfo().getMessageId() + "]", ebms3Ex);
             }
@@ -244,11 +286,24 @@ public class UserMessageDefaultService implements UserMessageService {
             throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + "] status is not [" + MessageStatus.SEND_ENQUEUED + "]");
         }
 
+        int resendButtonReceivedMinutes = domibusPropertyProvider.getIntegerProperty(DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES);
+        Date receivedDateDelta = DateUtils.addMinutes(userMessageLog.getReceived(), resendButtonReceivedMinutes);
+        Date currentDate = new Date();
+        if (receivedDateDelta.after(currentDate)) {
+            throw new UserMessageException("You have to wait " + dateUtil.getDiffMinutesBetweenDates(receivedDateDelta, currentDate) + " minutes before resending the message [" + messageId + "]");
+        }
+        if (userMessageLog.getNextAttempt() != null) {
+            throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + "] was already scheduled");
+        }
+
+        final UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
+
         userMessageLog.setNextAttempt(new Date());
         userMessageLogDao.update(userMessageLog);
-        scheduleSending(messageId, userMessageLog.isSplitAndJoin());
+        scheduleSending(userMessage, userMessageLog);
     }
 
+    @Transactional
     @Override
     public void resendFailedOrSendEnqueuedMessage(String messageId) {
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
@@ -260,6 +315,8 @@ public class UserMessageDefaultService implements UserMessageService {
         } else {
             restoreFailedMessage(messageId);
         }
+
+        auditService.addMessageResentAudit(messageId);
     }
 
     protected Integer getMaxAttemptsConfiguration(final String messageId) {
@@ -279,19 +336,59 @@ public class UserMessageDefaultService implements UserMessageService {
         return userMessageLog.getSendAttemptsMax() + maxAttemptsConfiguration + 1; // max retries plus initial reattempt
     }
 
-    @Override
-    public void scheduleSending(String messageId, int retryCount, boolean isSplitAndJoin) {
-        scheduleSending(messageId, new DispatchMessageCreator(messageId).createMessage(retryCount), isSplitAndJoin);
+    protected Integer getUserMessagePriority(UserMessage userMessage) {
+        String service = userMessageServiceHelper.getService(userMessage);
+        String action = userMessageServiceHelper.getAction(userMessage);
+        Integer priority = userMessagePriorityService.getPriority(service, action);
+        LOG.debug("Determined priority [{}]", priority);
+
+        return priority;
+    }
+
+
+    public void scheduleSending(UserMessage userMessage, UserMessageLog userMessageLog) {
+        scheduleSending(userMessage, userMessageLog, new DispatchMessageCreator(userMessageLog.getMessageId()).createMessage());
     }
 
     @Override
-    public void scheduleSending(String messageId, boolean isSplitAndJoin) {
-        scheduleSending(messageId, new DispatchMessageCreator(messageId).createMessage(), isSplitAndJoin);
+    public void scheduleSending(String messageId, Long delay) {
+        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId);
+        UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
+        scheduleSending(userMessage, userMessageLog, new DelayedDispatchMessageCreator(messageId, delay).createMessage());
     }
 
-    @Override
-    public void scheduleSending(String messageId, Long delay, boolean isSplitAndJoin) {
-        scheduleSending(messageId, new DelayedDispatchMessageCreator(messageId, delay).createMessage(), isSplitAndJoin);
+    public void scheduleSending(UserMessageLog userMessageLog, int retryCount) {
+        String messageId = userMessageLog.getMessageId();
+        UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
+        scheduleSending(userMessage, messageId, userMessageLog, new DispatchMessageCreator(messageId).createMessage(retryCount));
+    }
+
+    /**
+     * It sends the JMS message to either {@code sendMessageQueue} or {@code sendLargeMessageQueue}
+     *
+     * @param userMessageLog
+     * @param jmsMessage
+     */
+    protected void scheduleSending(final UserMessage userMessage, final UserMessageLog userMessageLog, JmsMessage jmsMessage) {
+        scheduleSending(userMessage, userMessageLog.getMessageId(), userMessageLog, jmsMessage);
+    }
+
+    @Timer(clazz = DatabaseMessageHandler.class, value = "scheduleSending")
+    @Counter(clazz = DatabaseMessageHandler.class, value = "scheduleSending")
+    protected void scheduleSending(final UserMessage userMessage, final String messageId, UserMessageLog userMessageLog, JmsMessage jmsMessage) {
+        if (userMessageLog.isSplitAndJoin()) {
+            LOG.debug("Sending message to sendLargeMessageQueue");
+            jmsManager.sendMessageToQueue(jmsMessage, sendLargeMessageQueue);
+        } else {
+            Integer priority = getUserMessagePriority(userMessage);
+            jmsMessage.setPriority(priority);
+            LOG.debug("Sending message to sendMessageQueue");
+            jmsManager.sendMessageToQueue(jmsMessage, sendMessageQueue);
+        }
+
+        LOG.debug("Updating UserMessageLog for message id [{}]", messageId);
+        userMessageLog.setScheduled(true);
+        userMessageLogDao.update(userMessageLog);
     }
 
     @Override
@@ -299,32 +396,6 @@ public class UserMessageDefaultService implements UserMessageService {
         LOG.debug("Sending message to sendLargeMessageQueue");
         final JmsMessage jmsMessage = new DispatchMessageCreator(messageId).createMessage();
         jmsManager.sendMessageToQueue(jmsMessage, sendLargeMessageQueue);
-    }
-
-    /**
-     * It sends the JMS message to either {@code sendMessageQueue} or {@code sendLargeMessageQueue}
-     *
-     * @param messageId
-     * @param jmsMessage
-     * @param isSplitAndJoin
-     */
-    protected void scheduleSending(String messageId, JmsMessage jmsMessage, boolean isSplitAndJoin) {
-
-        //sending to the right queue
-        if (isSplitAndJoin) {
-            LOG.debug("Sending message to sendLargeMessageQueue");
-            jmsManager.sendMessageToQueue(jmsMessage, sendLargeMessageQueue);
-        } else {
-            LOG.debug("Sending message to sendMessageQueue");
-            jmsManager.sendMessageToQueue(jmsMessage, sendMessageQueue);
-        }
-
-        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId);
-        if (null != userMessageLog) {
-            //update the message if we find it
-            userMessageLog.setScheduled(true);
-            userMessageLogDao.update(userMessageLog);
-        }
     }
 
     @Override
@@ -438,7 +509,7 @@ public class UserMessageDefaultService implements UserMessageService {
         final JmsMessage jmsMessage = JMSMessageBuilder
                 .create()
                 .property(PULL_RECEIPT_REF_TO_MESSAGE_ID, messageId)
-                .property(MessageConstants.RETRY_COUNT, retryCount)
+                .property(MessageConstants.RETRY_COUNT, String.valueOf(retryCount))
                 .property(DispatchClientDefaultProvider.PMODE_KEY_CONTEXT_PROPERTY, pmodeKey)
                 .build();
         LOG.debug("Sending message to sendPullReceiptQueue");
@@ -454,6 +525,7 @@ public class UserMessageDefaultService implements UserMessageService {
         return domainConverter.convert(userMessageByMessageId, eu.domibus.api.usermessage.domain.UserMessage.class);
     }
 
+    @Transactional
     @Override
     public List<String> restoreFailedMessagesDuringPeriod(Date start, Date end, String finalRecipient) {
         final List<String> failedMessages = userMessageLogDao.findFailedMessages(finalRecipient, start, end);
@@ -477,6 +549,7 @@ public class UserMessageDefaultService implements UserMessageService {
         return restoredMessages;
     }
 
+    @Transactional
     @Override
     public void deleteFailedMessage(String messageId) {
         getFailedMessage(messageId);
@@ -496,66 +569,167 @@ public class UserMessageDefaultService implements UserMessageService {
 
     @Override
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
+    @Transactional(propagation = Propagation.REQUIRED)
     public void deleteMessage(String messageId) {
         LOG.debug("Deleting message [{}]", messageId);
 
         //add messageId to MDC map
-        if (StringUtils.isNotBlank(messageId)) {
+        if (isNotBlank(messageId)) {
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
         }
+        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId);
 
-        deleteMessagePluginCallback(messageId);
+        backendNotificationService.notifyMessageDeleted(messageId, userMessageLog);
 
-        messagingDao.clearPayloadData(messageId);
-        userMessageLogService.setMessageAsDeleted(messageId);
-        handleSignalMessageDelete(messageId);
+        Messaging messaging = messagingDao.findMessageByMessageId(messageId);
+        UserMessage userMessage = messaging.getUserMessage();
+        messagingDao.clearPayloadData(userMessage);
+        userMessageLog.setDeleted(new Date());
+
+        if (MessageStatus.ACKNOWLEDGED != userMessageLog.getMessageStatus() &&
+                MessageStatus.ACKNOWLEDGED_WITH_WARNING != userMessageLog.getMessageStatus()) {
+            userMessageLogService.setMessageAsDeleted(userMessage, userMessageLog);
+        }
+
+        userMessageLogService.setSignalMessageAsDeleted(messaging.getSignalMessage());
     }
 
-    protected void deleteMessagePluginCallback(String messageId) {
-        if (backendNotificationService.getNotificationListenerServices() == null) {
-            LOG.debug("No notification listeners found");
-            return;
-        }
-        UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId);
-        if (userMessageLog == null) {
-            LOG.warn("Could not find message with id [{}]", messageId);
-            return;
-        }
-        String backend = userMessageLog.getBackend();
-        if (StringUtils.isEmpty(backend)) {
-            LOG.warn("Could not find backend for message with id [{}]", messageId);
-            return;
-        }
-        NotificationListener notificationListener = backendNotificationService.getNotificationListener(backend);
-        if (notificationListener == null) {
-            LOG.warn("Could not find notification listener for backend [{}]", backend);
-            return;
-        }
-        deleteMessagePluginCallback(messageId, notificationListener);
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void deleteMessages(List<UserMessageLogDto> userMessageLogs) {
+
+        List<String> userMessageIds = userMessageLogs.stream().map(userMessageLog -> userMessageLog.getMessageId()).collect(Collectors.toList());
+
+        LOG.debug("Deleting [{}] user messages", userMessageIds.size());
+        LOG.trace("Deleting user messages [{}]", userMessageIds);
+
+        List<String> filenames = messagingDao.findFileSystemPayloadFilenames(userMessageIds);
+        messagingDao.deletePayloadFiles(filenames);
+
+        List<String> signalMessageIds = messageInfoDao.findSignalMessageIds(userMessageIds);
+        LOG.debug("Deleting [{}] signal messages", signalMessageIds.size());
+        LOG.trace("Deleting signal messages [{}]", signalMessageIds);
+        List<Long> receiptIds = signalMessageDao.findReceiptIdsByMessageIds(signalMessageIds);
+        int deleteResult = messageInfoDao.deleteMessages(userMessageIds);
+        LOG.debug("Deleted [{}] messageInfo for userMessage.", deleteResult);
+        deleteResult = messageInfoDao.deleteMessages(signalMessageIds);
+        LOG.debug("Deleted [{}] messageInfo for signalMessage.", deleteResult);
+        deleteResult = signalMessageDao.deleteReceipts(receiptIds);
+        LOG.debug("Deleted [{}] receipts.", deleteResult);
+        deleteResult = userMessageLogDao.deleteMessageLogs(userMessageIds);
+        LOG.debug("Deleted [{}] userMessageLogs.", deleteResult);
+        deleteResult = signalMessageLogDao.deleteMessageLogs(signalMessageIds);
+        LOG.debug("Deleted [{}] signalMessageLogs.", deleteResult);
+        deleteResult = messageAttemptDao.deleteAttemptsByMessageIds(userMessageIds);
+        LOG.debug("Deleted [{}] messageSendAttempts.", deleteResult);
+        deleteResult = errorLogDao.deleteErrorLogsByMessageIdInError(userMessageIds);
+        LOG.debug("Deleted [{}] deleteErrorLogsByMessageIdInError.", deleteResult);
+        deleteResult = uiMessageDao.deleteUIMessagesByMessageIds(userMessageIds);
+        LOG.debug("Deleted [{}] deleteUIMessagesByMessageIds for userMessages.", deleteResult);
+        deleteResult = uiMessageDao.deleteUIMessagesByMessageIds(signalMessageIds);
+        LOG.debug("Deleted [{}] deleteUIMessagesByMessageIds for signalMessages.", deleteResult);
+        deleteResult = messageAcknowledgementDao.deleteMessageAcknowledgementsByMessageIds(userMessageIds);
+        LOG.debug("Deleted [{}] deleteMessageAcknowledgementsByMessageIds.", deleteResult);
+
+        backendNotificationService.notifyMessageDeleted(userMessageLogs);
     }
 
-    protected void deleteMessagePluginCallback(String messageId, NotificationListener notificationListener) {
-        try {
-            Queue backendNotificationQueue = notificationListener.getBackendNotificationQueue();
-            if (backendNotificationQueue != null) {
-                String queueName = backendNotificationQueue.getQueueName();
-                JmsMessage message = jmsManager.consumeMessage(queueName, messageId);
-                if (message != null) {
-                    LOG.businessInfo(DomibusMessageCode.BUS_MSG_CONSUMED, messageId, queueName);
+    @Override
+    public byte[] getMessageAsBytes(String messageId) throws MessageNotFoundException {
+        UserMessage userMessage = getUserMessageById(messageId);
+        auditService.addMessageDownloadedAudit(messageId);
+        return messageToBytes(userMessage);
+    }
+
+    @Override
+    public byte[] getMessageWithAttachmentsAsZip(String messageId) throws MessageNotFoundException, IOException {
+        Map<String, InputStream> message = getMessageContentWithAttachments(messageId);
+        return zipFiles(message);
+    }
+
+    protected Map<String, InputStream> getMessageContentWithAttachments(String messageId) throws MessageNotFoundException {
+
+        UserMessage userMessage = getUserMessageById(messageId);
+
+        Map<String, InputStream> result = new HashMap<>();
+        InputStream messageStream = messageToStream(userMessage);
+        result.put("message.xml", messageStream);
+
+        if (userMessage.getPayloadInfo() == null || CollectionUtils.isEmpty(userMessage.getPayloadInfo().getPartInfo())) {
+            LOG.info("No payload info found for message with id [{}]", messageId);
+            return result;
+        }
+
+        final List<PartInfo> partInfos = userMessage.getPayloadInfo().getPartInfo();
+        for (PartInfo pInfo : partInfos) {
+            if (pInfo.getPayloadDatahandler() == null) {
+                try {
+                    messageStream.close();
+                } catch (IOException e) {
+                    LOG.debug("Error encountered while trying to close the message input stream.", e);
                 }
+                throw new MessageNotFoundException("Could not find attachment for [" + pInfo.getHref() + "]");
             }
-        } catch (JMSException jmsEx) {
-            LOG.error("Error trying to get the queue name", jmsEx);
-            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Could not get the queue name", jmsEx.getCause());
+            try {
+                result.put(getPayloadName(pInfo), pInfo.getPayloadDatahandler().getInputStream());
+            } catch (IOException e) {
+                throw new MessagingException("Error getting input stream for attachment [" + pInfo.getHref() + "]", e);
+            }
         }
-        notificationListener.deleteMessageCallback(messageId);
+
+        auditService.addMessageDownloadedAudit(messageId);
+
+        return result;
     }
 
-    protected void handleSignalMessageDelete(String messageId) {
-        List<SignalMessage> signalMessages = signalMessageDao.findSignalMessagesByRefMessageId(messageId);
-        signalMessages.stream().forEach(signalMessage -> signalMessageDao.clear(signalMessage));
+    protected UserMessage getUserMessageById(String messageId) throws MessageNotFoundException {
+        UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
+        if (userMessage == null) {
+            throw new MessageNotFoundException("Could not find message metadata for id " + messageId);
+        }
 
-        List<String> signalMessageIds = signalMessageDao.findSignalMessageIdsByRefMessageId(messageId);
-        signalMessageIds.stream().forEach(signalMessageId -> userMessageLogService.setMessageAsDeleted(signalMessageId));
+        return userMessage;
+    }
+
+    protected InputStream messageToStream(UserMessage userMessage) {
+        return new ByteArrayInputStream(messageToBytes(userMessage));
+    }
+
+    protected byte[] messageToBytes(UserMessage userMessage) {
+        Messaging message = new Messaging();
+        message.setUserMessage(userMessage);
+
+        return messageConverterService.getAsByteArray(message);
+    }
+
+    protected String getPayloadName(PartInfo info) {
+        if (StringUtils.isEmpty(info.getHref())) {
+            return "bodyload";
+        }
+        if (!info.getHref().contains("cid:")) {
+            LOG.warn("PayloadId does not contain \"cid:\" prefix [{}]", info.getHref());
+            return info.getHref();
+        }
+
+        return info.getHref().replace("cid:", "");
+    }
+
+    private byte[] zipFiles(Map<String, InputStream> message) throws IOException {
+        //creating byteArray stream, make it bufferable and passing this buffer to ZipOutputStream
+        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+             BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(byteArrayOutputStream);
+             ZipOutputStream zipOutputStream = new ZipOutputStream(bufferedOutputStream)) {
+
+            for (Map.Entry<String, InputStream> entry : message.entrySet()) {
+                zipOutputStream.putNextEntry(new ZipEntry(entry.getKey()));
+
+                IOUtils.copy(entry.getValue(), zipOutputStream);
+
+                zipOutputStream.closeEntry();
+            }
+
+            zipOutputStream.finish();
+            zipOutputStream.flush();
+            return byteArrayOutputStream.toByteArray();
+        }
     }
 }

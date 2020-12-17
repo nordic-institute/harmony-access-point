@@ -1,8 +1,15 @@
-﻿import {Injectable} from '@angular/core';
-import {NavigationEnd, NavigationStart, Router} from '@angular/router';
-import {Observable} from 'rxjs';
+﻿import {Injectable, Injector} from '@angular/core';
+import {
+  NavigationEnd,
+  NavigationStart,
+  Router,
+  RouterEvent
+} from '@angular/router';
 import {Subject} from 'rxjs/Subject';
-import {Response} from '@angular/http';
+import {HttpErrorResponse, HttpResponse} from '@angular/common/http';
+import {instanceOfMultipleItemsResponse, MultipleItemsResponse, ResponseItemDetail} from './support/multiple-items-response';
+import {MatSnackBar} from '@angular/material';
+import {AlertComponent} from './alert.component';
 
 @Injectable()
 export class AlertService {
@@ -11,29 +18,41 @@ export class AlertService {
   private needsExplicitClosing: boolean;
 
   // TODO move the logic in the ngInit block
-  constructor(private router: Router) {
+  constructor(private router: Router, private matSnackBar: MatSnackBar) {
     this.previousRoute = '';
     // clear alert message on route change
-    router.events.subscribe(event => {
-      if (event instanceof NavigationStart) {
-        if (this.isRouteChanged(event.url)) {
-          // console.log('Clearing alert when navigating from [' + this.previousRoute + '] to [' + event.url + ']');
-          if (!this.needsExplicitClosing) {
-            this.clearAlert();
-          }
-        } else {
-          // console.log('Alert kept when navigating from [' + this.previousRoute + '] to [' + event.url + ']');
-        }
-      } else if (event instanceof NavigationEnd) {
-        const navigationEnd: NavigationEnd = event;
-        this.previousRoute = navigationEnd.url;
-      }
+    router.events.subscribe(event => this.reactToNavigationEvents(event));
+  }
+
+  public success(response: any, duration: number = 5000) {
+    let message = this.formatResponse(response);
+    this.matSnackBar.openFromComponent(AlertComponent, {
+      data: {message: message, service: this},
+      panelClass: 'success',
+      duration: duration,
+      verticalPosition: 'top',
     });
+  }
+
+  public exception(message: string, error: any) {
+    if (error && error.handled) {
+      return;
+    }
+
+    const errMsg = this.formatError(error, message);
+    this.displayErrorMessage(errMsg, false, 0);
+    return Promise.resolve();
+  }
+
+  public error(message: string, keepAfterNavigationChange = false, fadeTime: number = 0) {
+    const errMsg = this.formatError(message);
+
+    this.displayErrorMessage(errMsg, keepAfterNavigationChange, fadeTime);
   }
 
   // called from the alert component explicitly by the user
   public close(): void {
-    this.subject.next();
+    this.matSnackBar.dismiss();
   }
 
   public clearAlert(): void {
@@ -43,49 +62,30 @@ export class AlertService {
     this.close();
   }
 
-  public success(message: string, keepAfterNavigationChange = false) {
-    this.needsExplicitClosing = keepAfterNavigationChange;
-    this.subject.next({type: 'success', text: message});
+  private formatResponse(response: any | string) {
+    let message = '';
+    if (typeof response === 'string') {
+      message = response;
+    } else {
+      if (instanceOfMultipleItemsResponse(response)) {
+        message = this.processMultipleItemsResponse(response);
+      }
+    }
+    return message;
   }
 
-  public error(message: Response | string | any, keepAfterNavigationChange = false,
-               fadeTime: number = 0) {
-    if (message.handled) return;
-    if (message instanceof Response && (message.status === 401 || message.status === 403)) return;
-    if (message.toString().indexOf('Response with status: 403 Forbidden') >= 0) return;
+  private displayErrorMessage(errMsg: string, keepAfterNavigationChange: boolean, fadeTime: number) {
 
     this.needsExplicitClosing = keepAfterNavigationChange;
-    const errMsg = this.formatError(message);
-    this.subject.next({type: 'error', text: errMsg});
+    this.matSnackBar.openFromComponent(AlertComponent, {
+      data: {message: errMsg, service: this},
+      panelClass: 'error',
+      verticalPosition: 'top',
+    });
+
     if (fadeTime) {
       setTimeout(() => this.clearAlert(), fadeTime);
     }
-  }
-
-  public exception(message: string, error: any, keepAfterNavigationChange = false,
-                   fadeTime: number = 0) {
-    const errMsg = this.formatError(error, message);
-    this.error(errMsg, keepAfterNavigationChange, fadeTime);
-  }
-
-  public getMessage(): Observable<any> {
-    return this.subject.asObservable();
-  }
-
-  public handleError(error: Response | any) {
-
-    this.error(error, false);
-
-    let errMsg: string;
-    if (error instanceof Response) {
-      const body = error.headers && error.headers.get('content-type') !== 'text/html;charset=utf-8' ? error.json() || '' : error.toString();
-      const err = body.error || JSON.stringify(body);
-      errMsg = `${error.status} - ${error.statusText || ''} ${err}`;
-    } else {
-      errMsg = error.message ? this.escapeHtml(error.message) : error.toString();
-    }
-    console.error(errMsg);
-    return Promise.reject({reason: errMsg, handled: true});
   }
 
   private getPath(url: string): string {
@@ -114,32 +114,101 @@ export class AlertService {
       .replace(/'/g, '&#039;');
   }
 
-  private formatError(error: Response | string | any, message: string = null): string {
-    let errMsg: string = typeof error === 'string' ? error : error.message ? this.escapeHtml(error.message) : null;
+  private formatError(error: HttpErrorResponse | HttpResponse<any> | string | any, message: string = null): string {
+    let errMsg = this.tryExtractErrorMessageFromResponse(error);
+    errMsg = this.tryParseHtmlResponse(errMsg);
+    errMsg = this.tryClearMessage(errMsg);
+    return (message ? message + ' \n' : '') + (errMsg || '');
+  }
 
-    if (!errMsg) {
-      try {
-        if (error.headers && error.headers.get('content-type') !== 'text/html;charset=utf-8') {
-          if (error.json) {
-            if (error.json().hasOwnProperty('message')) {
-              errMsg = this.escapeHtml(error.json().message);
-            } else {
-              errMsg = error.json().toString();
-            }
-          } else {
-            errMsg = error._body;
-          }
+  private tryExtractErrorMessageFromResponse(response: HttpErrorResponse | HttpResponse<any> | string | any) {
+    let errMsg: string = null;
+
+    if (typeof response === 'string') {
+      errMsg = response;
+    } else if (response instanceof HttpErrorResponse) {
+      if (response.error) {
+        if (instanceOfMultipleItemsResponse(response.error)) {
+          errMsg = this.processMultipleItemsResponse(response.error);
+        } else if (response.error.message) {
+          errMsg = this.escapeHtml(response.error.message);
         } else {
-          errMsg = error._body ? error._body.match(/<h1>(.+)<\/h1>/)[1] : error;
+          errMsg = this.tryParseHtmlResponse(response.error);
         }
-      } catch (e) {
+      } else  if (response.message) {
+        errMsg = response.message;
+      }
+    } else if (response instanceof HttpResponse) {
+      errMsg = response.body;
+    } else if (response instanceof Error) {
+      errMsg = response.message;
+    }
+
+    return errMsg;
+  }
+
+  private processMultipleItemsResponse(response: MultipleItemsResponse) {
+    let message = '';
+    if (response.message) {
+      message = this.escapeHtml(response.message);
+    }
+    if (Array.isArray(response.issues)) {
+      message += '<br>' + this.formatArrayOfItems(response.issues);
+    }
+    return message;
+  }
+
+  private formatArrayOfItems(errors: Array<ResponseItemDetail>): string {
+    let message = '';
+    errors.forEach(err => {
+      let m = (err.level ? err.level + ': ' : '') + (err.message ? this.escapeHtml(err.message) : '');
+      message += m + '<br>';
+    });
+    return message;
+  }
+
+  private tryParseHtmlResponse(errMsg: string) {
+    let res = errMsg;
+    if (errMsg && errMsg.indexOf && errMsg.indexOf('<!doctype html>') >= 0) {
+      let res0 = errMsg.match(/<p><b>Message<\/b>(.+)<\/p><p>/);
+      if (res0 && res0.length > 0) {
+        res = res0[1];
+      }
+      if(!res) {
+        let res1 = errMsg.match(/<h1>(.+)<\/h1>/);
+        if (res1 && res1.length > 0) {
+          res = res1[1];
+        }
+        let res2 = errMsg.match(/<p>(.+)<\/p>/);
+        if (res2 && res2.length >= 0) {
+          res += res2[0];
+        }
       }
     }
+    return res;
+  }
+
+  private tryClearMessage(errMsg: string) {
+    let res = errMsg;
     if (errMsg && errMsg.replace) {
-      errMsg = errMsg.replace('Uncaught (in promise):', '');
-      errMsg = errMsg.replace('[object ProgressEvent]', '');
+      res = errMsg.replace('Uncaught (in promise):', '');
+      res = res.replace('[object ProgressEvent]', '');
     }
-    return (message ? message + ' \n' : '') + (errMsg || '');
+    if (errMsg && errMsg.toString() == '[object Object]') {
+      return '';
+    }
+    return res;
+  }
+
+  private reactToNavigationEvents(event: RouterEvent | NavigationStart | NavigationEnd | any) {
+    if (event instanceof NavigationStart) {
+      if (this.isRouteChanged(event.url)) {
+        this.clearAlert();
+      }
+    } else if (event instanceof NavigationEnd) {
+      const navigationEnd: NavigationEnd = event;
+      this.previousRoute = navigationEnd.url;
+    }
   }
 
 }

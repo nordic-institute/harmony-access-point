@@ -1,13 +1,17 @@
 package eu.domibus.api.jms;
 
+import eu.domibus.api.messaging.MessageNotFoundException;
+import org.springframework.jms.core.JmsOperations;
+
 import javax.jms.Queue;
 import javax.jms.Topic;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.SortedMap;
 
 /**
- * // TODO Documentation
+ * Handle all JMS operations
  *
  * @author Cosmin Baciu
  * @see JmsMessage
@@ -70,6 +74,24 @@ public interface JMSManager {
 
     void sendMapMessageToQueue(JmsMessage message, Queue destination);
 
+    /**
+     * Send a Jms message to a destination.
+     *
+     * @param message       the jms message to be sent
+     * @param destination   the destination where the message should be send.
+     * @param jmsOperations the jms operations to be used for sending
+     */
+    void sendMapMessageToQueue(JmsMessage message, String destination, JmsOperations jmsOperations);
+
+    /**
+     * Send a Jms message to a destination.
+     *
+     * @param message       the jms message to be sent
+     * @param destination   the queue where the message should be send.
+     * @param jmsOperations the jms operations to be used for sending
+     */
+    void sendMapMessageToQueue(JmsMessage message, Queue destination, JmsOperations jmsOperations);
+
     void sendMessageToTopic(JmsMessage message, Topic destination);
 
     /**
@@ -81,8 +103,23 @@ public interface JMSManager {
      */
     void sendMessageToTopic(JmsMessage message, Topic destination, boolean excludeOrigin);
 
+    /**
+     * Delete a list of JMS Messages from {@code source}
+     *
+     * @param source     JMS Queue
+     * @param messageIds cannot be empty and at least one none blank value
+     * @throws IllegalArgumentException if no message deleted
+     */
     void deleteMessages(String source, String[] messageIds);
 
+    /**
+     * Move a list of messages from {@code source} to {@code destination}
+     *
+     * @param source      JMS Queue
+     * @param destination JMS Queue
+     * @param messageIds  cannot be empty and at least one none blank value
+     * @throws IllegalArgumentException if no message moved
+     */
     void moveMessages(String source, String destination, String[] messageIds);
 
     /**
@@ -102,5 +139,29 @@ public interface JMSManager {
      */
     long getDestinationSize(String nameLike);
 
+    /**
+     * Return the number of jms messages in the destination.
+     *
+     * @param jmsDestination JMS Queue
+     * @return the number of messages contained in the destination.
+     */
+    long getDestinationSize(JMSDestination jmsDestination);
+
+
     String getDomainSelector(String selector);
+
+    /**
+     * Lists all messages pending for download by the backend
+     *
+     * @return a collection of messageIds pending for download
+     */
+    Collection<String> listPendingMessages(String queueName);
+
+    /**
+     * Removes the message with the corresponding id from the pending received messages
+     *
+     * @param messageId id of the message to be removed
+     * @throws MessageNotFoundException if the message is not pending
+     */
+    void removeFromPending(String queueName, String messageId) throws MessageNotFoundException;
 }

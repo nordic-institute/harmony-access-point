@@ -1,5 +1,6 @@
 package eu.domibus.ebms3.common.model;
 
+import eu.domibus.core.ebms3.Ebms3Constants;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.persistence.Column;
@@ -8,7 +9,7 @@ import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.*;
 import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import java.util.UUID;
+import java.util.Objects;
 
 /**
  * This REQUIRED element
@@ -29,7 +30,7 @@ public class CollaborationInfo {
     @XmlSchemaType(name = "token")
     @Column(name = "COLL_INFO_CONVERS_ID", nullable = false)
     @NotNull
-    protected String conversationId = UUID.randomUUID().toString();
+    protected String conversationId;
     @XmlElement(name = "Action", required = true)
     @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
     @XmlSchemaType(name = "token")
@@ -191,10 +192,6 @@ public class CollaborationInfo {
 
     @Override
     public int hashCode() {
-        int result = this.conversationId.hashCode();
-        result = 31 * result + this.action.hashCode();
-        result = 31 * result + (this.agreementRef != null ? this.agreementRef.hashCode() : 0);
-        result = 31 * result + this.service.hashCode();
-        return result;
+        return Objects.hash(conversationId, action, agreementRef, service);
     }
 }

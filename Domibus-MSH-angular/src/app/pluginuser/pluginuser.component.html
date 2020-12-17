@@ -1,120 +1,92 @@
-<page-header id="pluginusersheader_id">Plugin Users</page-header>
-<div class="selectionCriteria">
-  <md-card>
-    <md-card-content>
-      <div class="panel">
+<div style="height: calc(100% - 15px);">
+  <page-header id="pluginusersheader_id">Plugin Users</page-header>
 
-        <md-select placeholder="Authentication type" [(ngModel)]="filter.authType" (change)="changeAuthType($event.value)" id="authType_id">
-          <md-option *ngFor="let t of authenticationTypes" [value]="t">
-            {{t}}
-          </md-option>
-        </md-select>
+  <div class="selectionCriteria">
+    <mat-card>
+      <mat-card-content>
+        <div class="panel">
+          <form name="filterForm" #filterForm="ngForm" (submit)="tryFilter()">
+            <mat-select placeholder="Authentication type" [(ngModel)]="filter.authType"
+                        (selectionChange)="changeAuthType($event.value)" id="authType_id" name="authType">
+              <mat-option *ngFor="let t of authenticationTypes" [value]="t">
+                {{t}}
+              </mat-option>
+            </mat-select>
 
-        <md-select placeholder="User role" [(ngModel)]="filter.authRole" id="endPoint_id">
-          <md-option [value]=""></md-option>
-          <md-option *ngFor="let t of userRoles" [value]="t">
-            {{t}}
-          </md-option>
-        </md-select>
+            <mat-select placeholder="User role" [(ngModel)]="filter.authRole" id="endPoint_id" name="endPoint">
+              <mat-option [value]=""></mat-option>
+              <mat-option *ngFor="let t of userRoles" [value]="t">
+                {{t}}
+              </mat-option>
+            </mat-select>
 
-        <md-input-container>
-          <input mdInput placeholder="Original User" [(ngModel)]="filter.originalUser" id="process_id">
-        </md-input-container>
+            <mat-form-field>
+              <input matInput placeholder="Original User" [(ngModel)]="filter.originalUser" id="process_id" name="process">
+            </mat-form-field>
 
-        <md-input-container *ngIf="inBasicMode()">
-          <input mdInput placeholder="Username" [(ngModel)]="filter.userName" id="partyID_id">
-        </md-input-container>
+            <mat-form-field *ngIf="inBasicMode()">
+              <input matInput placeholder="Username" [(ngModel)]="filter.userName" id="partyID_id" name="partyId">
+            </mat-form-field>
 
-        <div class="searchArea">
-          <button md-raised-button color="primary" id="searchbutton_id" (click)="trySearch()"
-                  button-click-behaviour>
-            <md-icon>search</md-icon>
-            <span>Search</span>
-          </button>
+            <filter-area-footer [parent]="this" [isAdvancedVisible]="false" [form]="filterForm"></filter-area-footer>
+
+          </form>
         </div>
-
-      </div>
-    </md-card-content>
-  </md-card>
-</div>
-
-<div class="panel">
-
-  <div class="group-filter-button">
-    <span class="row-button">
-    <app-row-limiter [pageSizes]="rowLimiter.pageSizes"
-                     (onPageSizeChanged)="changePageSize($event.value)"></app-row-limiter>
-    </span>
-    <span class="column-filter-button">
-    <app-column-picker [allColumns]="columnPicker.allColumns" [selectedColumns]="columnPicker.selectedColumns"
-                       (onSelectedColumnsChanged)="columnPicker.changeSelectedColumns($event)">
-
-    </app-column-picker>
-    </span>
-    <button md-icon-button color="primary" (click)="saveAsCSV()" button-click-behaviour
-            id="saveascsvbutton_id" md-tooltip="Export as CSV">
-      <img src="assets/images/exportCSV.svg" width="30" height="30">
-    </button>
+      </mat-card-content>
+    </mat-card>
   </div>
 
-  <ngx-datatable
-    id="userTable"
-    class="material striped"
-    [rows]="displayedUsers"
-    [columns]="columnPicker.selectedColumns"
-    [columnMode]="'force'"
-    [headerHeight]="50"
-    [footerHeight]="50"
-    [rowHeight]="'auto'"
-    [scrollbarH]="true"
-    [externalPaging]="false"
-    [externalSorting]="false"
-    [loadingIndicator]="loading"
-    [selected]="selected"
-    [selectionType]="'single'"
-    [limit]="rowLimiter.pageSize"
-    [count]="displayedUsers.length"
-    [offset]="offset"
-    (activate)="onActivate($event)"
-    (page)="onPageChanged($event)"
-    (sort)="onSort()"
-    ></ngx-datatable>
+  <div class="panel" style="height: calc(100% - 130px);">
+    <grid-header [parent]="this"></grid-header>
 
-  <ng-template #activeTpl let-row="row" ngx-datatable-cell-template>
-    <input type="checkbox" [checked]="row.active" disabled>
-    <ng-container *ngIf="row['suspended']">
-      <span>(Suspended)</span>
-    </ng-container>
-  </ng-template>
+    <div style="height: calc(100% - 150px); overflow-y: auto; overflow-x: hidden;">
+      <ngx-datatable
+        id="pageGridId"
+        class="material striped"
+        [rows]="displayedUsers"
+        [columns]="columnPicker.selectedColumns"
+        [columnMode]="'force'"
+        [headerHeight]="50"
+        [footerHeight]="50"
+        [rowHeight]="'auto'"
+        [scrollbarH]="true"
+        [externalPaging]="false"
+        [externalSorting]="false"
+        [loadingIndicator]="isLoading"
+        [selected]="selected"
+        [selectionType]="'single'"
+        [limit]="rowLimiter.pageSize"
+        [count]="count"
+        [offset]="offset"
+        (activate)="onActivate($event)"
+        (page)="onPage($event)"
+        (sort)="onSort()"
+      ></ngx-datatable>
+    </div>
 
-  <table class="group-action-button">
-    <tr>
-      <td>
-        <button id="userCancelButton" md-raised-button (click)="cancel()" color="primary" [disabled]="!canCancel()"
-                button-click-behaviour>
-          <md-icon>cancel</md-icon>
-          <span>Cancel</span>
-        </button>
-        <button id="userSaveButton" md-raised-button (click)="save()" color="primary" [disabled]="!canSave()"
-                button-click-behaviour>
-          <md-icon>save</md-icon>
-          <span>Save</span>
-        </button>
-        <button id="userNewButton" md-raised-button (click)="add()" color="primary" button-click-behaviour>
-          <md-icon>add</md-icon>
-          <span>New</span>
-        </button>
-        <button md-raised-button (click)="edit(null)" color="primary" [disabled]="!canEdit()"
-                button-click-behaviour>
-          <md-icon>edit</md-icon>
-          <span>Edit</span>
-        </button>
-        <button id="userDeleteButton" md-raised-button (click)="delete()" [disabled]="!canEdit()" color="primary"
-                button-click-behaviour>
-          <md-icon>delete</md-icon>
-          <span>Delete</span>
-        </button>
-      </td>
-    </tr>
-  </table>
+    <ng-template #activeTpl let-row="row" ngx-datatable-cell-template>
+      <mat-checkbox [checked]="row.active" disabled></mat-checkbox>
+      <ng-container *ngIf="row['suspended']">
+        <span>(Suspended)</span>
+      </ng-container>
+    </ng-template>
+
+    <ng-template #rowActions let-row="row" let-value="value" ngx-datatable-cell-template>
+      <button mat-icon-button (click)="edit(row)"
+              color="primary" tooltip="Edit" button-click-behaviour>
+        <mat-icon>edit</mat-icon>
+      </button>
+      <button mat-icon-button (click)="delete(row)" color="primary"
+              tooltip="Delete" button-click-behaviour>
+        <mat-icon>delete</mat-icon>
+      </button>
+    </ng-template>
+
+    <ng-template #rowWithDateFormatTpl let-row="row" let-value="value" ngx-datatable-cell-template>
+      <span class="text-select">{{value| domibusDate}}</span>
+    </ng-template>
+
+    <page-footer [parent]="this"></page-footer>
+
+  </div>
 </div>

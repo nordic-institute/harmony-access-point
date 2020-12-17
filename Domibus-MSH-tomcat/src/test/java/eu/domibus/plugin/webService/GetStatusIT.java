@@ -1,7 +1,7 @@
 package eu.domibus.plugin.webService;
 
 import eu.domibus.AbstractBackendWSIT;
-import eu.domibus.common.services.MessagingService;
+import eu.domibus.core.message.MessagingService;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.webService.generated.MessageStatus;
 import eu.domibus.plugin.webService.generated.StatusFault;
@@ -30,7 +30,7 @@ public class GetStatusIT extends AbstractBackendWSIT {
     MessagingService messagingService;
 
     @Autowired
-    Provider<SOAPMessage> mshWebservice;
+    Provider<SOAPMessage> mshWebserviceTest;
 
     @Before
     public void before() throws IOException, XmlProcessingException {
@@ -38,12 +38,11 @@ public class GetStatusIT extends AbstractBackendWSIT {
     }
 
     @Test
-    @Transactional(propagation = Propagation.REQUIRED)
     public void testGetStatusReceived() throws StatusFault, IOException, SOAPException, SAXException, ParserConfigurationException {
         String filename = "SOAPMessage2.xml";
         String messageId = "43bb6883-77d2-4a41-bac4-52a485d50084@domibus.eu";
         SOAPMessage soapMessage = createSOAPMessage(filename);
-        mshWebservice.invoke(soapMessage);
+        mshWebserviceTest.invoke(soapMessage);
 
         waitUntilMessageIsReceived(messageId);
 
@@ -65,7 +64,7 @@ public class GetStatusIT extends AbstractBackendWSIT {
         String emptyMessageId = "";
         StatusRequest messageStatusRequest = createMessageStatusRequest(emptyMessageId);
         try {
-            MessageStatus response = backendWebService.getStatus(messageStatusRequest);
+            backendWebService.getStatus(messageStatusRequest);
         } catch (StatusFault statusFault) {
             String message = "Message ID is empty";
             Assert.assertEquals(message, statusFault.getMessage());

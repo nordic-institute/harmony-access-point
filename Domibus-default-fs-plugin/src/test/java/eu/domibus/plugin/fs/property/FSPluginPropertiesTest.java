@@ -1,22 +1,19 @@
 package eu.domibus.plugin.fs.property;
 
-import eu.domibus.ext.services.DomainExtService;
-import eu.domibus.ext.services.DomibusConfigurationExtService;
-import eu.domibus.ext.services.PasswordEncryptionExtService;
+import eu.domibus.ext.exceptions.DomibusPropertyExtException;
+import eu.domibus.ext.services.*;
 import eu.domibus.plugin.fs.worker.FSSendMessagesService;
+import eu.domibus.plugin.property.PluginPropertyChangeNotifier;
 import mockit.Expectations;
 import mockit.Injectable;
-import mockit.Mocked;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.context.ApplicationContext;
 
 import java.util.*;
 
-import static eu.domibus.plugin.fs.property.FSPluginPropertiesMetadataManagerImpl.SEND_WORKER_INTERVAL;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -39,11 +36,17 @@ public class FSPluginPropertiesTest {
     protected DomibusConfigurationExtService domibusConfigurationExtService;
 
     @Injectable
-    protected ApplicationContext applicationContext;
+    PluginPropertyChangeNotifier pluginPropertyChangeNotifier;
+
+    @Injectable
+    DomainContextExtService domainContextExtService;
 
     @Tested
     @Injectable
     protected FSPluginPropertiesMetadataManagerImpl fsPluginPropertiesMetadataManager;
+
+    @Injectable
+    DomibusPropertyExtService domibusPropertyExtService;
 
     @Tested
     FSPluginProperties fsPluginProperties;
@@ -99,14 +102,14 @@ public class FSPluginPropertiesTest {
         try {
             fsPluginProperties.getKnownPropertyValue("default", propertyName);
             Assert.fail("Expected exception was not raised!");
-        } catch (IllegalArgumentException e) {
+        } catch (DomibusPropertyExtException e) {
             assertEquals(true, e.getMessage().contains(propertyName));
         }
 
         try {
             fsPluginProperties.setKnownPropertyValue("default", propertyName, "testValue");
             Assert.fail("Expected exception was not raised!");
-        } catch (IllegalArgumentException e) {
+        } catch (DomibusPropertyExtException e) {
             assertEquals(true, e.getMessage().contains(propertyName));
         }
 

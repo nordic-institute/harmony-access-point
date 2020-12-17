@@ -1,8 +1,7 @@
 package eu.domibus.plugin.fs.property.listeners;
 
-import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.*;
-import eu.domibus.messaging.PluginMessageListenerContainer;
+import eu.domibus.plugin.fs.property.FSPluginDomibusPropertyExtServiceMock;
 import eu.domibus.plugin.fs.property.FSPluginProperties;
 import eu.domibus.plugin.fs.property.FSPluginPropertiesMetadataManagerImpl;
 import eu.domibus.plugin.fs.queue.FSSendMessageListenerContainer;
@@ -37,8 +36,7 @@ public class FSPluginPropertiesChangeListenerIT {
 
         @Bean
         public FSPluginProperties pluginProperties() {
-            FSPluginProperties fsPluginProperties = new FSPluginProperties();
-            return fsPluginProperties;
+            return new FSPluginProperties();
         }
 
         @Bean
@@ -107,6 +105,11 @@ public class FSPluginPropertiesChangeListenerIT {
         public FSPluginPropertiesMetadataManagerImpl fsPluginPropertiesMetadataManager() {
             return new FSPluginPropertiesMetadataManagerImpl();
         }
+
+        @Bean
+        public DomibusPropertyExtService domibusPropertyExtService() {
+            return new FSPluginDomibusPropertyExtServiceMock();
+        }
     }
 
     @Autowired
@@ -131,44 +134,44 @@ public class FSPluginPropertiesChangeListenerIT {
     private TriggerChangeListener triggerChangeListener;
 
     @Test
-    public void testDomainPropertiesChangeListener() throws Exception {
-        boolean handlesOrder = domainPropertiesChangeListener.handlesProperty("order");
-        Assert.assertEquals(true, handlesOrder);
-        boolean handlesPattern = domainPropertiesChangeListener.handlesProperty("messages.expression");
-        Assert.assertEquals(true, handlesPattern);
-        boolean notHandled = domainPropertiesChangeListener.handlesProperty("messages.expression.not.handled");
-        Assert.assertEquals(false, notHandled);
+    public void testDomainPropertiesChangeListener() {
+        boolean handlesOrder = domainPropertiesChangeListener.handlesProperty("fsplugin.order");
+        Assert.assertTrue(handlesOrder);
+        boolean handlesPattern = domainPropertiesChangeListener.handlesProperty("fsplugin.messages.expression");
+        Assert.assertTrue(handlesPattern);
+        boolean notHandled = domainPropertiesChangeListener.handlesProperty("fsplugin.messages.expression.not.handled");
+        Assert.assertFalse(notHandled);
 
         final List<String> oldDomains = fSPluginProperties.getDomains();
 
-        domainPropertiesChangeListener.propertyValueChanged("default", "order", "10");
-        domainPropertiesChangeListener.propertyValueChanged("default", "messages.expression", "bdx:noprocess#TC1Leg1");
+        domainPropertiesChangeListener.propertyValueChanged("default", "fsplugin.order", "10");
+        domainPropertiesChangeListener.propertyValueChanged("default", "fsplugin.messages.expression", "bdx:noprocess#TC1Leg1");
 
         final List<String> newDomains = fSPluginProperties.getDomains();
-        Assert.assertTrue(newDomains != oldDomains);
+        Assert.assertNotSame(newDomains, oldDomains);
     }
 
     @Test
-    public void testTriggerChangeListener() throws Exception {
-        boolean handlesWorkerInterval = triggerChangeListener.handlesProperty(SEND_WORKER_INTERVAL);
+    public void testTriggerChangeListener() {
+        boolean handlesWorkerInterval = triggerChangeListener.handlesProperty(PROPERTY_PREFIX + SEND_WORKER_INTERVAL);
         Assert.assertTrue(handlesWorkerInterval);
 
         try {
-            triggerChangeListener.propertyValueChanged("default", SEND_WORKER_INTERVAL, "wrong-value");
+            triggerChangeListener.propertyValueChanged("default", PROPERTY_PREFIX + SEND_WORKER_INTERVAL, "wrong-value");
             Assert.fail("Expected exception not raised");
         } catch (IllegalArgumentException e) {
             Assert.assertTrue(e.getMessage().contains("Invalid"));
         }
 
-        triggerChangeListener.propertyValueChanged("default", SEND_WORKER_INTERVAL, "3000");
-        triggerChangeListener.propertyValueChanged("default", SENT_PURGE_WORKER_CRONEXPRESSION, "0 0/15 * * * ?");
+        triggerChangeListener.propertyValueChanged("default", PROPERTY_PREFIX + SEND_WORKER_INTERVAL, "3000");
+        triggerChangeListener.propertyValueChanged("default", PROPERTY_PREFIX + SENT_PURGE_WORKER_CRONEXPRESSION, "0 0/15 * * * ?");
 
         Mockito.verify(domibusSchedulerExt, Mockito.times(1)).rescheduleJob("default", "fsPluginSendMessagesWorkerJob", 3000);
         Mockito.verify(domibusSchedulerExt, Mockito.times(1)).rescheduleJob("default", "fsPluginPurgeSentWorkerJob", "0 0/15 * * * ?");
     }
 
     @Test
-    public void testOutQueueConcurrencyChangeListener() throws Exception {
+    public void testOutQueueConcurrencyChangeListener() {
         boolean handlesProperty = outQueueConcurrencyChangeListener.handlesProperty(OUT_QUEUE_CONCURRENCY);
         Assert.assertTrue(handlesProperty);
 

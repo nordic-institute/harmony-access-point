@@ -1,6 +1,5 @@
 package eu.domibus.core.cache;
 
-import eu.domibus.common.services.DomibusCacheService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -27,14 +26,13 @@ public class DomibusCacheServiceImpl implements DomibusCacheService {
     private CacheManager cacheManager;
 
     @Override
-    @Transactional(propagation = Propagation.SUPPORTS)
     public void clearCache(String refreshCacheName) {
         Collection<String> cacheNames = cacheManager.getCacheNames();
         for (String cacheName : cacheNames) {
             if (StringUtils.equalsIgnoreCase(cacheName, refreshCacheName)) {
                 final Cache cache = cacheManager.getCache(cacheName);
                 if (cache != null) {
-                    LOG.debug("Clearing cache [" + refreshCacheName + "]");
+                    LOG.debug("Clearing cache [{}]", refreshCacheName);
                     cache.clear();
                 }
             }

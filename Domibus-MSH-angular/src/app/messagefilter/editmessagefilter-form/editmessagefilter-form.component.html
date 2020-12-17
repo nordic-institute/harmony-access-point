@@ -1,62 +1,58 @@
 <div style="width: 500px">
-  <h2 md-dialog-title>{{formTitle}}</h2>
-  <form [formGroup]="messageFilterForm">
-    <md-card>
+  <h2 mat-dialog-title>{{formTitle}}</h2>
+  <form #editForm="ngForm" (submit)="submitForm()">
+    <mat-card>
       <div>
-        <md2-select mdInput placeholder="Plugin" id="backendfilter_id" floatPlaceholder="always" (change)="updatePlugin($event)" [(ngModel)]="plugin" [style.width]="'100%'" [formControl]="messageFilterForm.controls['plugin']">
-          <md2-option *ngFor="let bName of backendFilterNames" [value]="bName.toString()">
+        <mat-select matInput placeholder="Plugin" id="backendfilter_id" name="plugin" [(ngModel)]="entity.backendName" #plugin="ngModel"
+                    floatPlaceholder="always" [style.width]="'100%'">
+          <mat-option *ngFor="let bName of backendFilterNames" [value]="bName.toString()">
             {{bName.toString()}}
-          </md2-option>
-        </md2-select>
+          </mat-option>
+        </mat-select>
       </div>
 
       <div>
-        <md-input-container [style.width]="'100%'">
-          <input mdInput placeholder="From" name="from" id="from_id" [value]="from" (blur)="updateFrom($event)" [formControl]="messageFilterForm.controls['from']" pattern="[a-zA-Z0-9_:-]+:[a-zA-Z0-9_:-]+" [maxLength]="textMaxLength">
-          <div *ngIf="messageFilterForm.controls['from'].hasError('pattern')" style="color:red; font-size: 70%">You should follow the rule: [partyName]:[partyType]</div>
-        </md-input-container>
+        <mat-form-field [style.width]="'100%'">
+          <input matInput placeholder="From" name="from" id="from_id" [(ngModel)]="criteria.from" input-debounce #from="ngModel"
+                 [pattern]="partyPattern" [maxLength]="textMaxLength">
+          <span class="help-block" *ngIf="shouldShowErrors(from)">
+            <div *ngIf="from.errors?.pattern" style="color:red; font-size: 70%">{{partyPatternMessage}}</div>
+          </span>
+        </mat-form-field>
       </div>
 
       <div>
-        <md-input-container [style.width]="'100%'">
-          <input mdInput placeholder="To" name="to" id="to_id" [value]="to" (blur)="updateTo($event)" [formControl]="messageFilterForm.controls['to']" pattern="[a-zA-Z0-9_:-]+:[a-zA-Z0-9_:-]+" [maxLength]="textMaxLength">
-          <div *ngIf="messageFilterForm.controls['to'].hasError('pattern')" style="color:red; font-size: 70%">You should follow the rule: [partyName]:[partyType]</div>
-        </md-input-container>
+        <mat-form-field [style.width]="'100%'">
+          <input matInput placeholder="To" name="to" id="to_id" [(ngModel)]="criteria.to" input-debounce #to="ngModel"
+                 [pattern]="partyPattern" [maxLength]="textMaxLength">
+          <span class="help-block" *ngIf="shouldShowErrors(to)">
+            <div *ngIf="to.errors?.pattern" style="color:red; font-size: 70%">{{partyPatternMessage}}</div>
+          </span>
+        </mat-form-field>
       </div>
 
       <div>
-        <md-input-container [style.width]="'100%'">
-          <input mdInput placeholder="Action" name="action" id="action_id" [value]="action" (blur)="updateAction($event)" [formControl]="messageFilterForm.controls['action']" pattern="[a-zA-Z0-9_:-]+" [maxLength]="textMaxLength">
-          <div *ngIf="messageFilterForm.controls['action'].hasError('pattern')" style="color:red; font-size: 70%">You should follow the rule : [action]</div>
-        </md-input-container>
+        <mat-form-field [style.width]="'100%'">
+          <input matInput placeholder="Action" name="action" id="action_id" [(ngModel)]="criteria.action" input-debounce #action="ngModel"
+                 [pattern]="actionPattern" [maxLength]="textMaxLength">
+          <span class="help-block" *ngIf="shouldShowErrors(action)">
+            <div *ngIf="action.errors?.pattern" style="color:red; font-size: 70%">{{actionPatternMessage}}</div>
+          </span>
+        </mat-form-field>
       </div>
 
       <div>
-        <md-input-container [style.width]="'100%'">
-          <input mdInput placeholder="Service" name="service" id="service_id" [value]="service" (blur)="updateService($event)" [formControl]="messageFilterForm.controls['service']" pattern="[a-zA-Z0-9_:\\./-]+:[a-zA-Z0-9_:-]+" [maxLength]="textMaxLength">
-          <div *ngIf="messageFilterForm.controls['service'].hasError('pattern')" style="color:red; font-size: 70%">You should follow the rule: [serviceName]:[serviceType]</div>
-        </md-input-container>
+        <mat-form-field [style.width]="'100%'">
+          <input matInput placeholder="Service" name="service" id="service_id" [(ngModel)]="criteria.service" input-debounce #service="ngModel"
+                 [pattern]="servicePattern" [maxLength]="textMaxLength">
+          <span class="help-block" *ngIf="shouldShowErrors(service)">
+            <div *ngIf="service.errors?.pattern" style="color:red; font-size: 70%">{{servicePatternMessage}}</div>
+          </span>
+        </mat-form-field>
       </div>
 
-      <table class="buttonsRow">
-        <tr>
-          <td>
-            <!-- Can optionally provide a result for the closing dialog. -->
-            <button md-raised-button color="primary" [md-dialog-close]="true" (click)="submitForm()" type="submit" [disabled]="!messageFilterForm.valid" id="okbutton_id">
-              <md-icon>check_circle</md-icon>
-              <span>OK</span>
-            </button>
-          </td>
-          <td>
-            <button md-raised-button color="primary" md-dialog-close id="cancelbutton_id">
-              <md-icon>cancel</md-icon>
-              <span>Cancel</span>
-            </button>
-          </td>
-        </tr>
-      </table>
+      <popup-edit-footer [parent]="this"></popup-edit-footer>
 
-      <div></div>
-    </md-card>
+    </mat-card>
   </form>
 </div>

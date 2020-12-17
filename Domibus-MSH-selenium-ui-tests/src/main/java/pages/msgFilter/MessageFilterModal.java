@@ -1,10 +1,9 @@
 package pages.msgFilter;
 
-import ddsl.dobjects.Select;
 import ddsl.dcomponents.popups.EditModal;
-import ddsl.dobjects.DButton;
 import ddsl.dobjects.DInput;
 import ddsl.dobjects.DObject;
+import ddsl.dobjects.Select;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -19,6 +18,24 @@ import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 
 
 public class MessageFilterModal extends EditModal {
+	@FindBy(id = "from_id")
+	public WebElement fromInput;
+	@FindBy(id = "to_id")
+	public WebElement toInput;
+	@FindBy(id = "action_id")
+	public WebElement actionInput;
+	@FindBy(id = "service_id")
+	public WebElement serviceInput;
+	@FindBy(css = "mat-card > div:nth-child(2) > mat-form-field > div > div.mat-form-field-flex > div > div")
+	public WebElement fromErrMess;
+	@FindBy(css = "mat-card > div:nth-child(3) > mat-form-field > div > div.mat-form-field-flex > div > div")
+	public WebElement toErrMess;
+	@FindBy(css = "mat-card > div:nth-child(4) > mat-form-field > div > div.mat-form-field-flex > div > div")
+	public WebElement actionErrMess;
+	@FindBy(css = "mat-card > div:nth-child(5) > mat-form-field > div > div.mat-form-field-flex > div > div")
+	public WebElement serviceErrMess;
+	@FindBy(id = "backendfilter_id")
+	WebElement pluginSelectContainer;
 	public MessageFilterModal(WebDriver driver) {
 		super(driver);
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
@@ -26,49 +43,6 @@ public class MessageFilterModal extends EditModal {
 		wait.forElementToBeEnabled(serviceInput);
 		log.debug("Filter details popup initialized");
 	}
-
-	@FindBy(id = "backendfilter_id")
-	WebElement pluginSelectContainer;
-
-	@FindBy(id = "from_id")
-	public WebElement fromInput;
-
-	@FindBy(id = "to_id")
-	public WebElement toInput;
-
-	@FindBy(id = "action_id")
-	public WebElement actionInput;
-
-	@FindBy(id = "service_id")
-	public WebElement serviceInput;
-
-	@FindBy(css = "md-card > div:nth-child(2) > md-input-container > div > div.mat-input-flex > div > div")
-	public WebElement fromErrMess;
-	@FindBy(css = "md-card > div:nth-child(3) > md-input-container > div > div.mat-input-flex > div > div")
-	public WebElement toErrMess;
-	@FindBy(css = "md-card > div:nth-child(4) > md-input-container > div > div.mat-input-flex > div > div")
-	public WebElement actionErrMess;
-	@FindBy(css = "md-card > div:nth-child(5) > md-input-container > div > div.mat-input-flex > div > div")
-	public WebElement serviceErrMess;
-
-
-	@FindBy(id = "okbutton_id")
-	public WebElement okBtn;
-
-	@FindBy(css = "editmessagefilter-form #cancelbutton_id")
-	public WebElement cancelBtn;
-
-
-	@Override
-	public DButton getOkBtn() {
-		return new DButton(driver, okBtn);
-	}
-
-	@Override
-	public DButton getCancelBtn() {
-		return new DButton(driver, cancelBtn);
-	}
-
 
 	public Select getPluginSelect() {
 		return new Select(driver, pluginSelectContainer);

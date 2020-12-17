@@ -5,6 +5,7 @@ import eu.domibus.api.security.TrustStoreEntry;
 
 import javax.naming.InvalidNameException;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.cert.Certificate;
@@ -121,4 +122,6 @@ public interface CertificateService {
      * @throws CertificateException if the base64 string cannot be converted to a certificate entry
      */
     TrustStoreEntry convertCertificateContent(String certificateContent);
+
+    public byte[] getTruststoreContent() throws IOException;
 }

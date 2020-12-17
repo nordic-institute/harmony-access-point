@@ -38,6 +38,15 @@ public class DomibusCoreException extends RuntimeException {
         error = dce;
     }
 
+    /**
+     * Constructs a new DomibusCoreException with a specific message.
+     * @param message the Error message detail. It is saved for later retrieval by the {@link #getMessage()} method.
+     */
+    public DomibusCoreException(String message) {
+        super(". " + message);
+    }
+
+
     public DomibusCoreErrorCode getError() {
         return error;
     }

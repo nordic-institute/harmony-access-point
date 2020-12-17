@@ -3,15 +3,15 @@ package eu.domibus.plugin.jms;
 
 
 import eu.domibus.AbstractBackendJMSIT;
-import eu.domibus.api.message.UserMessageLogService;
 import eu.domibus.common.MSHRole;
-import eu.domibus.common.NotificationStatus;
-import eu.domibus.common.model.logging.UserMessageLog;
-import eu.domibus.common.services.MessagingService;
+import eu.domibus.common.model.configuration.LegConfiguration;
+import eu.domibus.core.message.MessagingService;
+import eu.domibus.core.message.UserMessageLog;
+import eu.domibus.core.message.UserMessageLogDefaultService;
+import eu.domibus.core.plugin.notification.NotificationStatus;
 import eu.domibus.ebms3.common.model.MessageType;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.messaging.XmlProcessingException;
-import eu.domibus.plugin.BackendConnector;
 import eu.domibus.plugin.webService.generated.MshRole;
 import org.junit.Assert;
 import org.junit.Before;
@@ -19,8 +19,6 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.Rollback;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.activation.DataHandler;
 import javax.jms.ConnectionFactory;
@@ -44,13 +42,13 @@ public class DownloadMessageJMSIT extends AbstractBackendJMSIT {
     private ConnectionFactory xaJmsConnectionFactory;
 
     @Autowired
-    BackendConnector backendJms;
+    JMSPluginImpl backendJms;
 
     @Autowired
     MessagingService messagingService;
 
     @Autowired
-    UserMessageLogService userMessageLogService;
+    UserMessageLogDefaultService userMessageLogService;
 
     @Before
     public void before() throws IOException, XmlProcessingException {
@@ -80,8 +78,11 @@ public class DownloadMessageJMSIT extends AbstractBackendJMSIT {
      * @throws JMSException
      */
     @Test
-    @Transactional(propagation = Propagation.REQUIRED)
     public void testDownloadMessageOk() throws Exception {
+        String pModeKey = composePModeKey("blue_gw", "red_gw", "testService1",
+                "tc1Action", "", "pushTestcase1tc2ActionWithPayload");
+        final LegConfiguration legConfiguration = pModeProvider.getLegConfiguration(pModeKey);
+
         String messageId = "2809cef6-240f-4792-bec1-7cb300a34679@domibus.eu";
         final UserMessage userMessage = getUserMessageTemplate();
         String messagePayload = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + "<hello>world</hello>";
@@ -91,7 +92,7 @@ public class DownloadMessageJMSIT extends AbstractBackendJMSIT {
         userMessage.getMessageInfo().setMessageId(messageId);
         eu.domibus.ebms3.common.model.Messaging messaging = new eu.domibus.ebms3.common.model.Messaging();
         messaging.setUserMessage(userMessage);
-        messagingService.storeMessage(messaging, MSHRole.RECEIVING, null, "backendWebservice");
+        messagingService.storeMessage(messaging, MSHRole.RECEIVING, legConfiguration, "backendWebservice");
 
         UserMessageLog userMessageLog = new UserMessageLog();
         userMessageLog.setMessageStatus(eu.domibus.common.MessageStatus.RECEIVED);
@@ -101,14 +102,15 @@ public class DownloadMessageJMSIT extends AbstractBackendJMSIT {
         userMessageLog.setReceived(new Date());
         userMessageLogService.save(messageId, eu.domibus.common.MessageStatus.RECEIVED.name(), NotificationStatus.REQUIRED.name(), MshRole.RECEIVING.name(), 1, "default", "backendWebservice", "", null, null, null, null);
 
-
         javax.jms.Connection connection = xaJmsConnectionFactory.createConnection("domibus", "changeit");
         connection.start();
         pushQueueMessage(messageId, connection, JMS_NOT_QUEUE_NAME);
 
-        backendJms.deliverMessage(messageId);
+        // Is this really needed since the call above is already going to eventually deliver the message through the
+        // notification listener (not very clear what this test tries to achieve)
+//        backendJms.deliverMessage(messageId);
 
-        Message message = popQueueMessageWithTimeout(connection, JMS_BACKEND_OUT_QUEUE_NAME, 2000);
+        Message message = popQueueMessageWithTimeout(connection, JMS_BACKEND_OUT_QUEUE_NAME, 5000);
         Assert.assertNotNull(message);
 
         connection.close();

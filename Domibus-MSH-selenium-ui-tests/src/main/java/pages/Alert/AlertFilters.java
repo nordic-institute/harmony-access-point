@@ -1,20 +1,15 @@
 package pages.Alert;
 
 import ddsl.dcomponents.FilterArea;
-import ddsl.dobjects.Checkbox;
-import ddsl.dobjects.DButton;
-import ddsl.dobjects.DInput;
-import ddsl.dobjects.DLink;
-import ddsl.dobjects.multi_select.MultiSelect;
+import ddsl.dobjects.*;
 import org.apache.commons.collections4.CollectionUtils;
-import org.openqa.selenium.JavascriptExecutor;
+import org.apache.commons.lang3.StringUtils;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
-import org.testng.asserts.SoftAssert;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,14 +17,9 @@ import java.util.List;
 
 public class AlertFilters extends FilterArea {
 
-	public AlertFilters(WebDriver driver) {
-		super(driver);
-		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
-	}
-
 	//-----------------Basic Filters---------------------
 	@FindBy(id = "processed_id")
-	public WebElement ProcessedContainer;
+	public WebElement processedContainer;
 	@FindBy(id = "alerttype_id")
 	public WebElement alertTypeContainer;
 	@FindBy(id = "alertstatus_id")
@@ -38,20 +28,17 @@ public class AlertFilters extends FilterArea {
 	public WebElement alertLevelContainer;
 	@FindBy(id = "creationfrom_id")
 	public WebElement creationFromContainer;
-	@FindBy(id = "creation_id")
+	@FindBy(id = "creationto_id")
 	public WebElement creationToContainer;
-
 	//--------------Advance Filters-------------
 	@FindBy(id = "reportingfrom_id")
 	public WebElement reportingFromContainer;
 	@FindBy(id = "reportingto_id")
 	public WebElement reportingToContainer;
-
 	@FindBy(id = "alertid_id")
 	public WebElement alertIdInput;
 	@FindBy(id = "showDomainAlerts_id")
 	public WebElement showDomainAlert;
-
 	//---------Extended Basic Filters------------------
 	@FindBy(id = "MESSAGE_ID_id")
 	public WebElement msgIdInput;
@@ -67,15 +54,43 @@ public class AlertFilters extends FilterArea {
 	public WebElement roleInput;
 	@FindBy(id = "DESCRIPTION_id")
 	public WebElement descriptionInput;
-
+	
 	@FindBy(id = "searchbutton_id")
 	public WebElement searchButton;
-
-	@FindBy(id="advancedlink_id")
-	public WebElement advanceLink;
-
-	@FindBy(css="md-error.mat-input-error")
+	
+	@FindBy(id = "advancedlink_id")
+	public WebElement advancedLink;
+	
+	@FindBy(css="mat-error.mat-error")
 	public WebElement alertIdValidation;
+	
+//	------------------ Selectors for extra filters
+
+	@FindBy(css="div.selectionCriteria div form div.panel.ng-star-inserted")
+	public WebElement extraFiltersContainer;
+
+
+
+	List<String> processedFilterData = Arrays.asList("UNPROCESSED", "PROCESSED","");
+	List<String> alertTypeFilterData = Arrays.asList("", "MSG_STATUS_CHANGED", "CERT_IMMINENT_EXPIRATION", "CERT_EXPIRED", "USER_LOGIN_FAILURE", "USER_ACCOUNT_DISABLED", "USER_ACCOUNT_ENABLED", "PLUGIN_USER_LOGIN_FAILURE", "PLUGIN_USER_ACCOUNT_DISABLED", "PLUGIN_USER_ACCOUNT_ENABLED", "PASSWORD_IMMINENT_EXPIRATION", "PASSWORD_EXPIRED", "PLUGIN_PASSWORD_IMMINENT_EXPIRATION", "PLUGIN_PASSWORD_EXPIRED");
+	List<String> alertStatusFilterData = Arrays.asList("SEND_ENQUEUED", "SUCCESS","FAILED","RETRY","");
+	List<String> alertLevelFilterData = Arrays.asList("HIGH", "LOW","MEDIUM","");
+	
+	public boolean isAlertIdValidationMessageVisible() throws Exception {
+		try {
+			return weToDobject(alertIdValidation).isVisible();
+		} catch (Exception e) {
+			return false;
+		}
+	}
+	public String getAlertValidationMess() throws Exception {
+		return weToDobject(alertIdValidation).getText();
+	}
+	
+	public AlertFilters(WebDriver driver) {
+		super(driver);
+		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
+	}
 
 	public DButton getSearchButton() {
 		return new DButton(driver, searchButton);
@@ -85,18 +100,6 @@ public class AlertFilters extends FilterArea {
 		return new Checkbox(driver, showDomainAlert);
 	}
 
-	public DLink getAdvanceLink() { return new DLink(driver,advanceLink);}
-
-	public DInput getAlertId() { return new DInput(driver,alertIdInput);}
-
-	public MultiSelect getProcessedSelect() { return new MultiSelect(driver, ProcessedContainer);}
-
-	public MultiSelect getAlertTypeSelect() { return new MultiSelect(driver,alertTypeContainer);}
-
-	public MultiSelect getAlertStatusSelect(){ return new MultiSelect(driver,alertStatusContainer);}
-
-	public MultiSelect getAlertLevelSelect() { return new MultiSelect(driver,alertLevelContainer);}
-
 	public void basicFilterBy(String processedStatus, String alertType, String alertStatus, String alertLevel, String creationFromDate, String creationToDate) throws Exception {
 		log.debug("processedStatus = " + processedStatus);
 		log.debug("alertType = " + alertType);
@@ -105,25 +108,25 @@ public class AlertFilters extends FilterArea {
 		log.debug("CreationFromDate = " + creationFromDate);
 		log.debug("CreationToDate = " + creationToDate);
 
-		weToSelect(ProcessedContainer).selectOptionByText(processedStatus);
+		weToSelect(processedContainer).selectOptionByText(processedStatus);
 		weToSelect(alertTypeContainer).selectOptionByText(alertType);
 		weToSelect(alertStatusContainer).selectOptionByText(alertStatus);
 		weToSelect(alertLevelContainer).selectOptionByText(alertLevel);
 		weToDatePicker(creationFromContainer).selectDate(creationFromDate);
 		weToDatePicker(creationToContainer).selectDate(creationToDate);
-		mouseOverAndClick();
 
+		clickSearch();
 	}
 
 	public void advancedFilterBy(String processedStatus,
-								 String alertType,
-								 String alertStatus,
-								 String alertId,
-								 String alertLevel,
-								 String creationFromDate,
-								 String creationToDate,
-								 String reportingFromDate,
-								 String reportingToDate) throws Exception {
+	                             String alertType,
+	                             String alertStatus,
+	                             String alertId,
+	                             String alertLevel,
+	                             String creationFromDate,
+	                             String creationToDate,
+	                             String reportingFromDate,
+	                             String reportingToDate) throws Exception {
 		log.debug("processedStatus = " + processedStatus);
 		log.debug("alertType = " + alertType);
 		log.debug("alertStatus = " + alertStatus);
@@ -144,55 +147,88 @@ public class AlertFilters extends FilterArea {
 		weToDInput(alertIdInput).fill(alertId);
 		weToDatePicker(reportingFromContainer).selectDate(reportingFromDate);
 		weToDatePicker(reportingToContainer).selectDate(reportingToDate);
-		mouseOverAndClick();
+
+		clickSearch();
 	}
 
 
 	public void showDomainAlert() throws Exception {
-	    log.info("switching to domain alerts");
+		log.info("switching to domain alerts");
 		getShowDomainCheckbox().check();
 		getSearchButton().click();
 	}
 
-	public List<String> getAllDropDownOptions(WebElement containerName) throws Exception{
-		log.info("Extracting all options for given container");
-		List<String> texts =weToSelect(containerName).getOptionsTexts();
-
+	public DInput getMsgIdInput() {
+		return weToDInput(msgIdInput);
+	}
+	
+	public boolean verifyDropdownValues(String fieldLabel) throws Exception {
+		List<String> valuesOnPage = new ArrayList<>();
+		List<String> expectedValues = new ArrayList<>();
+		switch (fieldLabel){
+			case "Processed":
+				expectedValues = processedFilterData;
+				valuesOnPage = weToSelect(processedContainer).getOptionsTexts();
+				break;
+			case "Alert Type":
+				expectedValues = alertTypeFilterData;
+				valuesOnPage = weToSelect(alertTypeContainer).getOptionsTexts();
+				break;
+			case "Alert Status":
+				expectedValues = alertStatusFilterData;
+				valuesOnPage = weToSelect(alertStatusContainer).getOptionsTexts();
+				break;
+			case "Alert Level":
+				expectedValues = alertLevelFilterData;
+				valuesOnPage = weToSelect(alertLevelContainer).getOptionsTexts();
+				break;
+			default:
+				throw new Exception(fieldLabel + " is not in the expected list of dropdown labels");
+		}
 		clickVoidSpace();
-		return texts;
+		return CollectionUtils.isEqualCollection(valuesOnPage,expectedValues);
+	}
+	
+	public DLink getAdvancedLink() {
+		return weToDLink(advancedLink);
+	}
+	
+	public DInput getAlertIdInput() {
+		return weToDInput(alertIdInput);
+	}
+	
+	public Select getProcessedSelect() {
+		return weToSelect(processedContainer);
 	}
 
-	public void verifyDropDownOptions(WebElement containerName, String fieldLabel, SoftAssert soft) throws Exception{
+	public List<String> getXFilterNames() throws Exception{
+		List<String> filterNames = new ArrayList<String>();
 
-		List<String> texts =weToSelect(containerName).getOptionsTexts();
+		boolean areXFiltersVisible = false;
 
-		List<String> processedFilterData = Arrays.asList("UNPROCESSED", "PROCESSED","");
-		List<String> alertTypeFilterData = Arrays.asList("MSG_STATUS_CHANGED", "CERT_IMMINENT_EXPIRATION","CERT_EXPIRED","USER_LOGIN_FAILURE","USER_ACCOUNT_DISABLED","PLUGIN_USER_LOGIN_FAILURE","PLUGIN_USER_ACCOUNT_DISABLED","PASSWORD_IMMINENT_EXPIRATION","PASSWORD_EXPIRED","PLUGIN_PASSWORD_IMMINENT_EXPIRATION","PLUGIN_PASSWORD_EXPIRED","");
-		List<String> alertStatusFilterData = Arrays.asList("SEND_ENQUEUED", "SUCCESS","FAILED","RETRY","");
-		List<String> alertLevelFilterData = Arrays.asList("HIGH", "LOW","MEDIUM","");
+		try {
+			areXFiltersVisible = weToDobject(extraFiltersContainer).isVisible();
+		} catch (Exception e) { }
 
-		if(fieldLabel.equals("Processed")){
-			log.info("Verify Processed filter has all default options present");
-			soft.assertTrue(CollectionUtils.isEqualCollection(processedFilterData,texts),"Comparing default value of Processed filter with available option on admin console");
-			clickVoidSpace();
+		if(!areXFiltersVisible){return filterNames;}
 
+		List<WebElement> filterInputs = extraFiltersContainer.findElements(By.tagName("input"));
+		for (WebElement filterInput : filterInputs) {
+			String placeHolder = weToDobject(filterInput).getAttribute("placeholder");
+
+			if(StringUtils.isEmpty(placeHolder)){
+				System.out.println(filterInput.findElement(By.cssSelector(" + span")).getAttribute("placeholder"));
+			}
+
+// TODO: solve for datepicker
 		}
-		 if(fieldLabel.equals("Alert Type")){
-		 	log.info("Verify Alert Type filter has all default options present");
-			 soft.assertTrue(CollectionUtils.isEqualCollection(alertTypeFilterData,texts),"Comparing default value of alert type with available option on admin console");
-			 clickVoidSpace();
 
-		} if(fieldLabel.equals("Alert Status")){
-		 	log.info("Verify Alert Status filter has all default options present ");
-			soft.assertTrue(CollectionUtils.isEqualCollection(alertStatusFilterData,texts),"Comparing default value of Alert status with available option on admin console");
-			clickVoidSpace();
+		return filterNames;
+	}
 
-		} if(fieldLabel.equals("Alert Level")){
-		 	log.info("Verify Alert Level filter has all default options present");
-			soft.assertTrue(CollectionUtils.isEqualCollection(alertLevelFilterData,texts),"Comparing default value of Alert level with available option on admin console");
-			clickVoidSpace();
-		 }
+	public Select getAlertTypeSelect(){
+		return weToSelect(alertTypeContainer);
+	}
 
-		}
 
 }

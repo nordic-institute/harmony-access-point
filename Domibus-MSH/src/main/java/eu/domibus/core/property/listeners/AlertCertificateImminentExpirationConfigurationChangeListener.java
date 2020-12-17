@@ -1,8 +1,8 @@
 package eu.domibus.core.property.listeners;
 
 import eu.domibus.api.property.DomibusPropertyChangeListener;
-import eu.domibus.api.property.DomibusPropertyMetadataManager;
-import eu.domibus.core.alerts.service.MultiDomainAlertConfigurationService;
+import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
+import eu.domibus.core.alerts.configuration.certificate.imminent.ImminentExpirationCertificateConfigurationManager;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,15 +17,15 @@ import org.springframework.stereotype.Service;
 public class AlertCertificateImminentExpirationConfigurationChangeListener implements DomibusPropertyChangeListener {
 
     @Autowired
-    private MultiDomainAlertConfigurationService multiDomainAlertConfigurationService;
+    private ImminentExpirationCertificateConfigurationManager imminentExpirationCertificateConfigurationManager;
 
     @Override
     public boolean handlesProperty(String propertyName) {
-        return StringUtils.startsWithIgnoreCase(propertyName, DomibusPropertyMetadataManager.DOMIBUS_ALERT_CERT_IMMINENT_EXPIRATION_PREFIX);
+        return StringUtils.startsWithIgnoreCase(propertyName, DomibusPropertyMetadataManagerSPI.DOMIBUS_ALERT_CERT_IMMINENT_EXPIRATION_PREFIX);
     }
 
     @Override
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) {
-        multiDomainAlertConfigurationService.clearImminentExpirationCertificateConfiguration();
+        imminentExpirationCertificateConfigurationManager.reset();
     }
 }

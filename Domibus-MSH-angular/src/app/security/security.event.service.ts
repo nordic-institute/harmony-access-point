@@ -1,5 +1,4 @@
 ﻿import {Injectable} from "@angular/core";
-import {Response} from "@angular/http";
 import {Observable} from "rxjs/Observable";
 import "rxjs/add/operator/map";
 import {Subject} from "rxjs";
@@ -15,11 +14,11 @@ export class SecurityEventService {
   constructor() {
   }
 
-  notifyLoginSuccessEvent(res: Response) {
-    this.loginSuccessSubject.next(res);
+  notifyLoginSuccessEvent() {
+    this.loginSuccessSubject.next();
   }
 
-  onLoginSuccessEvent(): Observable<Response> {
+  onLoginSuccessEvent(): Observable<any> {
     return this.loginSuccessSubject.asObservable();
   }
 
@@ -31,11 +30,11 @@ export class SecurityEventService {
     return this.loginErrorSubject.asObservable();
   }
 
-  notifyLogoutSuccessEvent(res: Response) {
+  notifyLogoutSuccessEvent(res: any) {
     this.logoutSuccessSubject.next(res);
   }
 
-  onLogoutSuccessEvent(): Observable<Response> {
+  onLogoutSuccessEvent(): Observable<any> {
     return this.logoutSuccessSubject.asObservable();
   }
 

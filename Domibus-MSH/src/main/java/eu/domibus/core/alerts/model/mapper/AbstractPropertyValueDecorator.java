@@ -32,6 +32,11 @@ import org.springframework.beans.factory.annotation.Qualifier;
     public AbstractPropertyValueDecorator() {
     }
 
+
+    public void setDelegate(EventMapper delegate) {
+        this.delegate = delegate;
+    }
+
     @Override
     public Event eventServiceToEventPersist(eu.domibus.core.alerts.model.service.Event event) {
         Event event1 = delegate.eventServiceToEventPersist(event);

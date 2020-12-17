@@ -1,7 +1,12 @@
 package eu.domibus.web.rest.error;
 
+import eu.domibus.api.csv.CsvException;
+import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.multitenancy.DomainTaskException;
-import eu.domibus.ext.rest.ErrorRO;
+import eu.domibus.api.pmode.PModeException;
+import eu.domibus.api.pmode.PModeValidationException;
+import eu.domibus.web.rest.ro.ErrorRO;
+import eu.domibus.web.rest.ro.ValidationResponseRO;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -16,6 +21,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import javax.persistence.RollbackException;
+import javax.validation.ConstraintViolationException;
 import javax.validation.ValidationException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,7 +34,7 @@ import java.util.stream.Collectors;
  * the last resort if the error is not caught in the controller where it originated
  */
 
-@ControllerAdvice
+@ControllerAdvice("eu.domibus.web.rest")
 @RequestMapping(produces = "application/vnd.error+json")
 public class GlobalExceptionHandlerAdvice extends ResponseEntityExceptionHandler {
 
@@ -50,14 +56,44 @@ public class GlobalExceptionHandlerAdvice extends ResponseEntityExceptionHandler
         return errorHandlerService.createResponse(ex, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler({RequestValidationException.class})
+    public ResponseEntity<ErrorRO> handleRequestValidationException(RequestValidationException ex) {
+        return errorHandlerService.createResponse(ex, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler({ValidationException.class})
     public ResponseEntity<ErrorRO> handleValidationException(ValidationException ex) {
         return errorHandlerService.createResponse(ex, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler({RuntimeException.class})
+    public ResponseEntity<ErrorRO> handleRuntimeException(RuntimeException ex) {
+        return errorHandlerService.createResponse(ex);
+    }
+
     @ExceptionHandler({Exception.class})
     public ResponseEntity<ErrorRO> handleException(Exception ex) {
         return errorHandlerService.createResponse(ex);
+    }
+
+    @ExceptionHandler({PModeException.class})
+    public ResponseEntity<ErrorRO> handlePModeException(PModeException ex) {
+        return errorHandlerService.createResponse(ex, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler({PModeValidationException.class})
+    public ResponseEntity<ValidationResponseRO> handleValidationException(PModeValidationException ex) {
+        return errorHandlerService.createResponse(ex, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler({CsvException.class})
+    public ResponseEntity<ErrorRO> handleCsvException(CsvException ex) {
+        return errorHandlerService.createResponse(ex, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler({ConstraintViolationException.class})
+    public ResponseEntity<ErrorRO> handleConstraintViolationException(ConstraintViolationException ex) {
+        return errorHandlerService.createConstraintViolationResponse(ex);
     }
 
     private ResponseEntity<ErrorRO> handleWrappedException(Exception ex) {

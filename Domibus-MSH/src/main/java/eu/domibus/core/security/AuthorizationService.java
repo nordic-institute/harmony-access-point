@@ -3,17 +3,17 @@ package eu.domibus.core.security;
 import com.google.common.collect.Lists;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.common.exception.EbMS3Exception;
+import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.crypto.spi.AuthorizationServiceSpi;
 import eu.domibus.core.crypto.spi.PullRequestPmodeData;
 import eu.domibus.core.crypto.spi.model.AuthorizationError;
 import eu.domibus.core.crypto.spi.model.AuthorizationException;
 import eu.domibus.core.crypto.spi.model.UserMessagePmodeData;
-import eu.domibus.core.pmode.PModeProvider;
+import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.ebms3.common.model.PullRequest;
 import eu.domibus.ebms3.common.model.UserMessage;
-import eu.domibus.ebms3.receiver.CertificateExchangeType;
+import eu.domibus.core.certificate.CertificateExchangeType;
 import eu.domibus.ext.domain.PullRequestDTO;
 import eu.domibus.ext.domain.UserMessageDTO;
 import eu.domibus.logging.DomibusLogger;
@@ -27,8 +27,8 @@ import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_EXTENSION_IAM_AUTHORIZATION_IDENTIFIER;
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.DOMIBUS_SENDER_TRUST_VALIDATION_ONRECEIVING;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EXTENSION_IAM_AUTHORIZATION_IDENTIFIER;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SENDER_TRUST_VALIDATION_ONRECEIVING;
 
 /**
  * @author Thomas Dussart
@@ -59,10 +59,10 @@ public class AuthorizationService {
     @Autowired
     private PModeProvider pModeProvider;
 
-    AuthorizationServiceSpi getAuthorizationService() {
-        final String authorizationServiceIndentifier = domibusPropertyProvider.getDomainProperty(IAM_AUTHORIZATION_IDENTIFIER);
+    protected AuthorizationServiceSpi getAuthorizationService() {
+        final String authorizationServiceIdentifier = domibusPropertyProvider.getProperty(IAM_AUTHORIZATION_IDENTIFIER);
         final List<AuthorizationServiceSpi> authorizationServiceList = this.authorizationServiceSpis.stream().
-                filter(authorizationServiceSpi -> authorizationServiceIndentifier.equals(authorizationServiceSpi.getIdentifier())).
+                filter(authorizationServiceSpi -> authorizationServiceIdentifier.equals(authorizationServiceSpi.getIdentifier())).
                 collect(Collectors.toList());
 
         if (LOG.isDebugEnabled()) {
@@ -71,10 +71,10 @@ public class AuthorizationService {
         }
 
         if (authorizationServiceList.size() > 1) {
-            throw new AuthorizationException(AuthorizationError.AUTHORIZATION_MODULE_CONFIGURATION_ISSUE, String.format("More than one authorization service provider for identifier:[%s]", authorizationServiceIndentifier));
+            throw new AuthorizationException(AuthorizationError.AUTHORIZATION_MODULE_CONFIGURATION_ISSUE, String.format("More than one authorization service provider for identifier:[%s]", authorizationServiceIdentifier));
         }
         if (authorizationServiceList.isEmpty()) {
-            throw new AuthorizationException(AuthorizationError.AUTHORIZATION_MODULE_CONFIGURATION_ISSUE, String.format("No authorisation service provider found for given identifier:[%s]", authorizationServiceIndentifier));
+            throw new AuthorizationException(AuthorizationError.AUTHORIZATION_MODULE_CONFIGURATION_ISSUE, String.format("No authorisation service provider found for given identifier:[%s]", authorizationServiceIdentifier));
         }
         return authorizationServiceList.get(0);
     }
@@ -99,9 +99,7 @@ public class AuthorizationService {
             return;
         }
         final CertificateTrust certificateTrust = getCertificateTrust(request);
-        final UserMessagePmodeData userMessagePmodeData;
-
-        userMessagePmodeData = pModeProvider.getUserMessagePmodeData(userMessage);
+        final UserMessagePmodeData userMessagePmodeData= pModeProvider.getUserMessagePmodeData(userMessage);
 
         getAuthorizationService().authorize(certificateTrust.getTrustChain(), certificateTrust.getSigningCertificate(),
                 domainCoreConverter.convert(userMessage, UserMessageDTO.class), userMessagePmodeData);
@@ -109,7 +107,7 @@ public class AuthorizationService {
     }
 
     private boolean isAuthorizationEnabled(SOAPMessage request) {
-        if (!domibusPropertyProvider.getBooleanDomainProperty(DOMIBUS_SENDER_TRUST_VALIDATION_ONRECEIVING)) {
+        if (!domibusPropertyProvider.getBooleanProperty(DOMIBUS_SENDER_TRUST_VALIDATION_ONRECEIVING)) {
             LOG.debug("No trust verification of sending certificate");
             return false;
         }

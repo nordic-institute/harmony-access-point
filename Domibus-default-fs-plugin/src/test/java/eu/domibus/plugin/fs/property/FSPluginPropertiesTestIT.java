@@ -1,8 +1,8 @@
 package eu.domibus.plugin.fs.property;
 
-import eu.domibus.ext.services.DomainExtService;
-import eu.domibus.ext.services.DomibusConfigurationExtService;
-import eu.domibus.ext.services.PasswordEncryptionExtService;
+import eu.domibus.common.NotificationType;
+import eu.domibus.ext.domain.DomainDTO;
+import eu.domibus.ext.services.*;
 import eu.domibus.plugin.property.PluginPropertyChangeNotifier;
 import org.junit.Assert;
 import org.junit.Test;
@@ -16,7 +16,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Properties;
+import java.util.Set;
+import java.util.function.Predicate;
 
 import static org.mockito.Mockito.when;
 
@@ -44,13 +47,15 @@ public class FSPluginPropertiesTestIT {
     @Autowired
     DomibusConfigurationExtService domibusConfigurationExtService;
 
+    @Autowired
+    FSPluginPropertiesMetadataManagerImpl fsPluginPropertiesMetadataManager;
+
     @Configuration
     static class ContextConfiguration {
 
         @Bean
         public FSPluginProperties pluginProperties() {
-            FSPluginProperties fsPluginProperties = new FSPluginProperties();
-            return fsPluginProperties;
+            return new FSPluginProperties();
         }
 
         @Bean
@@ -84,105 +89,135 @@ public class FSPluginPropertiesTestIT {
         public FSPluginPropertiesMetadataManagerImpl fsPluginPropertiesMetadataManager() {
             return new FSPluginPropertiesMetadataManagerImpl();
         }
+
+        @Bean
+        public DomibusPropertyExtService domibusPropertyExtService() {
+            return new FSPluginDomibusPropertyExtServiceMock();
+        }
+
+        @Bean
+        public DomainContextExtService domainContextExtService() {
+            return new DomainContextExtService() {
+                @Override
+                public DomainDTO getCurrentDomain() {
+                    return null;
+                }
+
+                @Override
+                public DomainDTO getCurrentDomainSafely() {
+                    return null;
+                }
+
+                @Override
+                public void setCurrentDomain(DomainDTO domain) {
+
+                }
+
+                @Override
+                public void clearCurrentDomain() {
+
+                }
+            };
+        }
     }
 
     @Test
-    public void testGetLocation() throws Exception {
+    public void testGetLocation() {
         Assert.assertEquals(DEFAULT_LOCATION, fSPluginProperties.getLocation(null));
     }
 
     @Test
-    public void testGetLocation_Domain1() throws Exception {
+    public void testGetLocation_Domain1() {
         Assert.assertEquals(DOMAIN1_LOCATION, fSPluginProperties.getLocation(DOMAIN1));
     }
 
     @Test
-    public void testGetLocation_NonExistentDomain() throws Exception {
+    public void testGetLocation_NonExistentDomain() {
         Assert.assertEquals(DEFAULT_LOCATION, fSPluginProperties.getLocation(NONEXISTENT_DOMAIN));
     }
 
     @Test
-    public void testGetSentAction() throws Exception {
+    public void testGetSentAction() {
         Assert.assertEquals(FSPluginProperties.ACTION_DELETE, fSPluginProperties.getSentAction(null));
     }
 
     @Test
-    public void testGetSentPurgeWorkerCronExpression() throws Exception {
-        Assert.assertEquals("0 0/1 * * * ?", fSPluginProperties.getSentPurgeWorkerCronExpression());
+    public void testGetSentPurgeWorkerCronExpression() {
+        Assert.assertEquals("0 0/1 * * * ?", fSPluginProperties.getSentPurgeWorkerCronExpression(null));
     }
 
     @Test
-    public void testGetSentPurgeExpired() throws Exception {
+    public void testGetSentPurgeExpired() {
         Assert.assertEquals(Integer.valueOf(600), fSPluginProperties.getSentPurgeExpired(null));
     }
 
     @Test
-    public void testGetFailedAction() throws Exception {
+    public void testGetFailedAction() {
         Assert.assertEquals(FSPluginProperties.ACTION_ARCHIVE, fSPluginProperties.getFailedAction(null));
     }
 
     @Test
-    public void testGetFailedPurgeWorkerCronExpression() throws Exception {
-        Assert.assertEquals("0 0/1 * * * ?", fSPluginProperties.getFailedPurgeWorkerCronExpression());
+    public void testGetFailedPurgeWorkerCronExpression() {
+        Assert.assertEquals("0 0/1 * * * ?", fSPluginProperties.getFailedPurgeWorkerCronExpression(null));
     }
 
     @Test
-    public void testGetFailedPurgeExpired() throws Exception {
-        Assert.assertEquals(null, fSPluginProperties.getFailedPurgeExpired(null));
+    public void testGetFailedPurgeExpired() {
+        Assert.assertEquals((Integer) 0, fSPluginProperties.getFailedPurgeExpired(null));
     }
 
     @Test
-    public void testGetReceivedPurgeExpired() throws Exception {
+    public void testGetReceivedPurgeExpired() {
         Assert.assertEquals(Integer.valueOf(600), fSPluginProperties.getReceivedPurgeExpired(null));
     }
 
     @Test
-    public void testGetUser() throws Exception {
+    public void testGetUser() {
         Assert.assertEquals("user1", fSPluginProperties.getUser(DOMAIN1));
     }
 
     @Test
-    public void testGetPassword() throws Exception {
+    public void testGetPassword() {
         Assert.assertEquals("pass1", fSPluginProperties.getPassword(DOMAIN1));
     }
 
     @Test
-    public void testGetUser_NotSecured() throws Exception {
+    public void testGetUser_NotSecured() {
         Assert.assertEquals("", fSPluginProperties.getUser(DOMAIN2));
     }
 
     @Test
-    public void testGetPayloadId_Domain() throws Exception {
+    public void testGetPayloadId_Domain() {
         Assert.assertEquals("cid:attachment", fSPluginProperties.getPayloadId(DOMAIN1));
     }
 
     @Test
-    public void testGetPayloadId_DomainMissing() throws Exception {
+    public void testGetPayloadId_DomainMissing() {
         Assert.assertEquals("cid:message", fSPluginProperties.getPayloadId(DOMAIN2));
     }
 
     @Test
-    public void testGetPayloadId_NullDomain() throws Exception {
+    public void testGetPayloadId_NullDomain() {
         Assert.assertEquals("cid:message", fSPluginProperties.getPayloadId(null));
     }
 
     @Test
-    public void testGetPassword_NotSecured() throws Exception {
+    public void testGetPassword_NotSecured() {
         Assert.assertEquals("", fSPluginProperties.getPassword(DOMAIN2));
     }
 
     @Test
-    public void testGetExpression_Domain1() throws Exception {
+    public void testGetExpression_Domain1() {
         Assert.assertEquals("bdx:noprocess#TC1Leg1", fSPluginProperties.getExpression(DOMAIN1));
     }
 
     @Test
-    public void testGetExpression_Domain2() throws Exception {
+    public void testGetExpression_Domain2() {
         Assert.assertEquals("bdx:noprocess#TC2Leg1", fSPluginProperties.getExpression(DOMAIN2));
     }
 
     @Test
-    public void testGetDomains_Ordered() throws Exception {
+    public void testGetDomains_Ordered() {
         Assert.assertEquals(DOMAIN1, fSPluginProperties.getDomains().get(0));
         Assert.assertEquals(DOMAIN2, fSPluginProperties.getDomains().get(1));
         Assert.assertEquals(ODR, fSPluginProperties.getDomains().get(2));
@@ -190,7 +225,7 @@ public class FSPluginPropertiesTestIT {
     }
 
     @Test
-    public void testGetDomains_UnOrdered() throws Exception {
+    public void testGetDomains_UnOrdered() {
         int unorderedA = fSPluginProperties.getDomains().indexOf(UNORDEREDA);
         int unorderedB = fSPluginProperties.getDomains().indexOf(UNORDEREDB);
 
@@ -207,6 +242,7 @@ public class FSPluginPropertiesTestIT {
         final String oldPropertyValue2 = "/tmp/fs_plugin_data";
         final String newPropertyValue1 = "new-property-value1";
         final String newPropertyValue2 = "new-property-value2";
+        fsPluginPropertiesMetadataManager.createMetadata();
         fSPluginProperties.knownProperties = null;
         Mockito.reset(domibusConfigurationExtService);
         when(domibusConfigurationExtService.isMultiTenantAware()).thenReturn(false);
@@ -242,6 +278,7 @@ public class FSPluginPropertiesTestIT {
         final String oldPropertyValue2 = "/tmp/fs_plugin_data";
         final String newPropertyValue1 = "new-property-value1";
         final String newPropertyValue2 = "new-property-value2";
+        fsPluginPropertiesMetadataManager.createMetadata();
         Mockito.reset(domibusConfigurationExtService);
         when(domibusConfigurationExtService.isMultiTenantAware()).thenReturn(true);
 

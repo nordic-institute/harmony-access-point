@@ -1,0 +1,56 @@
+<page-header id="connectionmonitorheader_id">Connection Monitoring</page-header>
+
+<div class="panel">
+
+</div>
+
+<page-grid [parent]="this" [selectionType]="'none'"></page-grid>
+
+
+<ng-template #rowActions let-row="row" let-value="value" ngx-datatable-cell-template>
+  <div *ngIf="row.testable">
+    <button mat-icon-button (click)="openDetails(row)"
+            color="primary" tooltip="Details" button-click-behaviour>
+      <mat-icon>search</mat-icon>
+    </button>
+    <button mat-icon-button (click)="refreshMonitor(row)"
+            color="primary" tooltip="Refresh" button-click-behaviour>
+      <mat-icon>cached</mat-icon>
+    </button>
+    <button mat-icon-button (click)="sendTestMessage(row)"
+            color="primary" tooltip="Send" button-click-behaviour>
+      <mat-icon>send</mat-icon>
+    </button>
+  </div>
+</ng-template>
+
+
+<ng-template #monitorStatus let-row="row" let-value="value" ngx-datatable-cell-template>
+  <span class="connection-monitor-status">
+    <mat-slide-toggle *ngIf="row.testable" [(ngModel)]="row.monitored" (change)="toggleConnectionMonitor(row)"></mat-slide-toggle>
+    <label *ngIf="!row.testable" matTooltip="This party does not have the test service configured">N/A</label>
+  </span>
+</ng-template>
+
+
+<ng-template #connectionStatus let-row="row" let-value="value" ngx-datatable-cell-template>
+  <div *ngIf="row.testable && row.status" class="connection-status">
+    <span>
+      <mat-icon *ngIf="row.status == 'OK'" style="color: green">check_circle</mat-icon>
+      <mat-icon *ngIf="row.status == 'BROKEN'" style="color: red">error</mat-icon>
+      <mat-icon *ngIf="row.status == 'UNKNOWN'" style="color: orange">indeterminate_check_box</mat-icon>
+      <mat-progress-spinner *ngIf="row.status == 'PENDING'" mode="indeterminate" diameter="32"></mat-progress-spinner>
+    </span>
+    <div>
+      <label>Last sent: </label>
+      <span *ngIf="row.lastSent">{{ formatDate(row.lastSent.timeReceived)  }}</span>
+      <span *ngIf="!row.lastSent">never</span>
+    </div>
+
+    <div>
+      <label>Last received: </label>
+      <span *ngIf="row.lastReceived">{{ formatDate(row.lastReceived.timeReceived) }}</span>
+      <span *ngIf="!row.lastReceived">never</span>
+    </div>
+  </div>
+</ng-template>

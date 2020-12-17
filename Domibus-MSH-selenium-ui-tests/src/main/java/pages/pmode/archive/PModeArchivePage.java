@@ -17,29 +17,23 @@ import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 public class PModeArchivePage extends DomibusPage {
 
 
+	@FindBy(id = "pageGridId")
+	public WebElement gridContainer;
+	@FindBy(id = "cancelButtonId")
+	public WebElement cancelBtn;
+	@FindBy(id = "saveButtonId")
+	public WebElement saveBtn;
+	@FindBy(id = "deleteButtonId")
+	public WebElement deleteBtn;
+	@FindBy(id = "downloadArchivebutton_id")
+	public WebElement downloadBtn;
+	@FindBy(id = "restoreArchivebutton_id")
+	public WebElement restoreBtn;
+
 	public PModeArchivePage(WebDriver driver) {
 		super(driver);
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 	}
-
-
-	@FindBy(id = "archivePmodeTable")
-	public WebElement gridContainer;
-
-	@FindBy(id = "cancelbutton_id")
-	public WebElement cancelBtn;
-
-	@FindBy(id = "savebutton_id")
-	public WebElement saveBtn;
-
-	@FindBy(id = "deleteArchivebutton_id")
-	public WebElement deleteBtn;
-
-	@FindBy(id = "downloadArchivebutton_id")
-	public WebElement downloadBtn;
-
-	@FindBy(id = "restoreArchivebutton_id")
-	public WebElement restoreBtn;
 
 	public PMAGrid pmagrid() {
 		return new PMAGrid(driver, gridContainer);
@@ -69,9 +63,8 @@ public class PModeArchivePage extends DomibusPage {
 		return weToDButton(restoreBtn);
 	}
 
-	public String deleteRow(int rowNo) throws Exception {
+	public void deleteRow(int rowNo) throws Exception {
 		log.info("deleting row " + rowNo);
-		String toRet = grid().getRowInfo(rowNo).get("Configuration Date");
 
 		grid().selectRow(rowNo);
 
@@ -79,7 +72,6 @@ public class PModeArchivePage extends DomibusPage {
 		getSaveBtn().click();
 
 		new Dialog(driver).confirm();
-		return toRet;
 	}
 
 }

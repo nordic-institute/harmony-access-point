@@ -4,11 +4,10 @@ import eu.domibus.api.csv.CsvException;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
-import eu.domibus.common.dao.ErrorLogDao;
-import eu.domibus.common.model.logging.ErrorLogEntry;
+import eu.domibus.core.csv.CsvServiceImpl;
+import eu.domibus.core.error.ErrorLogDao;
+import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.converter.DomainCoreConverter;
-import eu.domibus.core.csv.ErrorLogCsvServiceImpl;
-import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.ErrorLogFilterRequestRO;
 import eu.domibus.web.rest.ro.ErrorLogRO;
 import eu.domibus.web.rest.ro.ErrorLogResultRO;
@@ -19,7 +18,6 @@ import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -47,7 +45,7 @@ public class ErrorLogResourceTest {
     DomainCoreConverter domainConverter;
 
     @Injectable
-    ErrorLogCsvServiceImpl errorLogCsvServiceImpl;
+    CsvServiceImpl csvServiceImpl;
 
     @Test
     public void testGetErrorLog() {
@@ -121,16 +119,13 @@ public class ErrorLogResourceTest {
         errorLogRO.setNotified(date);
         errorLogROEntries.add(errorLogRO);
         new Expectations() {{
-            errorLogCsvServiceImpl.getMaxNumberRowsToExport();
-            result = 10000;
-
             errorLogDao.findPaged(anyInt, anyInt, anyString, anyBoolean, (HashMap<String, Object>) any);
             result = errorLogEntries;
 
             domainConverter.convert(errorLogEntries, ErrorLogRO.class);
             result = errorLogROEntries;
 
-            errorLogCsvServiceImpl.exportToCSV(errorLogROEntries, ErrorLogRO.class, (Map<String, String>) any, (List<String>) any);
+            csvServiceImpl.exportToCSV(errorLogROEntries, ErrorLogRO.class, (Map<String, String>) any, (List<String>) any);
             result = CSV_TITLE +
                     signalMessageIdStr + "," + MSHRole.RECEIVING + "," + refToMessageIdStr + "," + ErrorCode.EBMS_0001.getErrorCodeName() + "," +
                     errorDetailStr + "," + date + "," + date + System.lineSeparator();

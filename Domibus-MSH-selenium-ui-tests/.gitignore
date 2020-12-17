@@ -21,4 +21,3 @@
 .\src\main\java\Main.java
 .\src\test\java\domibus.domibus.playTests.*.java
 .\src\test\java\domibus.mytests\*
-.\src\main\resources\myLocal.properties

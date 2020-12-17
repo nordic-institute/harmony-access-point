@@ -11,31 +11,36 @@
 		"type": "text",
 		"sortable": true,
 		"visibleByDefault": true
-	  },{
+	  },
+	  {
 		"name": "Role",
 		"type": "text",
 		"sortable": true,
 		"visibleByDefault": true
-	  },{
+	  },
+	  {
 		"name": "Email",
 		"type": "text",
 		"sortable": true,
 		"visibleByDefault": false
-	  },{
-		"name": "Password",
-		"type": "text",
-		"sortable": true,
-		"visibleByDefault": false
-	  },{
+	  },
+	  {
 		"name": "Active",
 		"type": "boolean",
-		"sortable": true,
+		"sortable": false,
 		"visibleByDefault": true
-	  },{
+	  },
+	  {
 		"name": "Deleted",
 		"type": "boolean",
 		"sortable": true,
-		"visibleByDefault": true
+		"visibleByDefault": false
+	  },
+	  {
+		"name": "Expiration Date",
+		"type": "datetime",
+		"sortable": true,
+		"visibleByDefault": false
 	  }
 	],
 	"pagination": {

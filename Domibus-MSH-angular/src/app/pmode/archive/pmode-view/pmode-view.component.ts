@@ -1,10 +1,10 @@
 import {Component, Inject, OnInit, ViewChild} from '@angular/core';
-import {MdDialogRef, MD_DIALOG_DATA} from '@angular/material';
+import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material';
 
 @Component({
   selector: 'app-pmode-upload',
   templateUrl: './pmode-view.component.html',
-  styleUrls: ['../../pmode.component.css']
+  styleUrls: ['../../support/pmode.component.css']
 })
 export class PmodeViewComponent implements OnInit {
 
@@ -12,14 +12,14 @@ export class PmodeViewComponent implements OnInit {
   public pModeType: string;
   public display = false;
 
-  @ViewChild('pmode_view_content')
+  @ViewChild('pmode_view_content', {static: false})
   private pmode_view_content;
 
-  constructor (@Inject(MD_DIALOG_DATA) public data: { metadata: any, content: string },
-               public dialogRef: MdDialogRef<PmodeViewComponent>) {
+  constructor(@Inject(MAT_DIALOG_DATA) public data: { metadata: any, content: string },
+              public dialogRef: MatDialogRef<PmodeViewComponent>) {
   }
 
-  ngOnInit () {
+  ngOnInit() {
     this.pMode = this.data;
     this.pModeType = this.pMode.metadata.current ? 'Current' : 'Archive';
     console.log(this.pmode_view_content);
@@ -28,7 +28,7 @@ export class PmodeViewComponent implements OnInit {
     }, 500);
   }
 
-  ok () {
+  ok() {
     this.dialogRef.close();
   };
 }

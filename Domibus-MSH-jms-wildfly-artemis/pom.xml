@@ -4,11 +4,14 @@
          xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+    <properties>
+        <artemis.version>2.10.1</artemis.version>
+    </properties>
 
     <parent>
         <groupId>eu.domibus</groupId>
         <artifactId>domibus</artifactId>
-        <version>4.1.6</version>
+        <version>4.2-SNAPSHOT</version>
     </parent>
     <artifactId>domibus-jms-wildfly-artemis</artifactId>
     <packaging>jar</packaging>
@@ -19,6 +22,10 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
@@ -47,44 +54,36 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>eu.domibus</groupId>
+            <artifactId>domibus-plugin-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- Start Artemis provided dependencies -->
+        <dependency>
             <groupId>org.apache.activemq</groupId>
-            <artifactId>artemis-jms-client</artifactId>
-            <version>1.5.6</version>
-            <!-- OWASP fix start -->
-            <exclusions>
-                <exclusion>
-                    <groupId>org.jgroups</groupId>
-                    <artifactId>jgroups</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>io.netty</groupId>
-                    <artifactId>netty-all</artifactId>
-                </exclusion>
-            </exclusions>
+            <artifactId>artemis-commons</artifactId>
+            <version>${artemis.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-all</artifactId>
-            <version>${netty.version}</version>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-core-client</artifactId>
+            <version>${artemis.version}</version>
+            <scope>provided</scope>
         </dependency>
-        <dependency>
-            <artifactId>jgroups</artifactId>
-            <groupId>org.jgroups</groupId>
-            <version>4.1.5.Final</version>
-        </dependency>
-        <!-- OWASP fix end -->
+        <!-- End Artemis provided dependencies -->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
         </dependency>
         <dependency>
-            <groupId>javax</groupId>
-            <artifactId>javaee-api</artifactId>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jms_2.0_spec</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
-            <artifactId>spring-core</artifactId>
+            <artifactId>spring-beans</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -98,39 +97,15 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context-support</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>eu.domibus</groupId>
             <artifactId>domibus-logging</artifactId>
         </dependency>
 
         <!-- Test dependencies -->
-
-        <dependency>
-            <groupId>jboss</groupId>
-            <artifactId>jboss-client</artifactId>
-            <version>4.0.2</version>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>org.jboss</groupId>
             <artifactId>jboss-remote-naming</artifactId>
             <version>2.0.5.Final</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.xnio</groupId>
-            <artifactId>xnio-nio</artifactId>
-            <version>3.4.3.Final</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.xnio</groupId>
-            <artifactId>xnio-api</artifactId>
-            <version>3.4.6.Final</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -143,12 +118,6 @@
             <artifactId>jmockit</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-
         <!-- End Test dependencies -->
     </dependencies>
 </project>

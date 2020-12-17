@@ -19,7 +19,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManager.*;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 /**
  * @author Cosmin Baciu
@@ -35,8 +35,8 @@ public class TemporaryPayloadServiceImpl implements TemporaryPayloadService {
 
     @Override
     public void cleanTemporaryPayloads(Domain domain) {
-        final List<File> temporaryLocations = getTemporaryLocations(domain);
-        if(CollectionUtils.isEmpty(temporaryLocations)) {
+        final List<File> temporaryLocations = getTemporaryLocations();
+        if (CollectionUtils.isEmpty(temporaryLocations)) {
             LOG.debug("Nothing to clean:no temporary locations defined for domain [{}]", domain);
             return;
         }
@@ -44,15 +44,15 @@ public class TemporaryPayloadServiceImpl implements TemporaryPayloadService {
         LOG.debug("Cleaning temporaryLocations [{}]", temporaryLocations);
 
         for (File temporaryLocation : temporaryLocations) {
-            cleanTemporaryPayloads(domain, temporaryLocation);
+            cleanTemporaryPayloads(temporaryLocation);
         }
         LOG.debug("Finished cleaning temporaryLocations [{}]", temporaryLocations);
     }
 
-    protected void cleanTemporaryPayloads(Domain domain, File directory) {
+    protected void cleanTemporaryPayloads(File directory) {
         LOG.debug("Cleaning temporary directory [{}]", directory);
 
-        final Collection<File> filesToClean = getFilesToClean(domain, directory);
+        final Collection<File> filesToClean = getFilesToClean(directory);
         LOG.debug("Found the following files for deletion [{}]", filesToClean);
 
         for (File file : filesToClean) {
@@ -70,30 +70,30 @@ public class TemporaryPayloadServiceImpl implements TemporaryPayloadService {
         }
     }
 
-    protected Collection<File> getFilesToClean(Domain domain, File directory) {
-        final IOFileFilter regexFileFilter = getRegexFileFilter(domain);
-        final IOFileFilter ageFileFilter = getAgeFileFilter(domain);
+    protected Collection<File> getFilesToClean(File directory) {
+        final IOFileFilter regexFileFilter = getRegexFileFilter();
+        final IOFileFilter ageFileFilter = getAgeFileFilter();
         final IOFileFilter fileFilter = FileFilterUtils.and(regexFileFilter, ageFileFilter);
 
         return FileUtils.listFiles(directory, fileFilter, TrueFileFilter.INSTANCE);
     }
 
-    protected IOFileFilter getRegexFileFilter(Domain domain) {
-        final String excludeRegex = domibusPropertyProvider.getProperty(domain, DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_EXCLUDE_REGEX);
+    protected IOFileFilter getRegexFileFilter() {
+        final String excludeRegex = domibusPropertyProvider.getProperty(DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_EXCLUDE_REGEX);
         LOG.debug("Using temp payload retention regex [{}]", excludeRegex);
         Pattern pattern = Pattern.compile(excludeRegex);
         return FileFilterUtils.notFileFilter(new RegexIOFileFilter(pattern));
     }
 
-    protected IOFileFilter getAgeFileFilter(Domain domain) {
-        final int expirationThresholdInMinutes = domibusPropertyProvider.getIntegerDomainProperty(domain, DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_EXPIRATION);
+    protected IOFileFilter getAgeFileFilter() {
+        final int expirationThresholdInMinutes = domibusPropertyProvider.getIntegerProperty(DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_EXPIRATION);
         LOG.debug("Using temp payload retention expiration threshold in minutes [{}]", expirationThresholdInMinutes);
         long cutoff = System.currentTimeMillis() - (expirationThresholdInMinutes * 60 * 1000);
         return FileFilterUtils.ageFileFilter(cutoff);
     }
 
-    protected List<File> getTemporaryLocations(Domain domain) {
-        final String directories = domibusPropertyProvider.getProperty(domain, DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_DIRECTORIES);
+    protected List<File> getTemporaryLocations() {
+        final String directories = domibusPropertyProvider.getProperty(DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_DIRECTORIES);
         if (StringUtils.isEmpty(directories)) {
             LOG.debug("No configured payload temporary directories to clean");
             return new ArrayList<>();

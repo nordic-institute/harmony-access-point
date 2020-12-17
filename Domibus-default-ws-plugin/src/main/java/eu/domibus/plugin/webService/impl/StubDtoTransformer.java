@@ -14,8 +14,6 @@ import eu.domibus.plugin.webService.generated.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -151,9 +149,7 @@ public class StubDtoTransformer implements MessageSubmissionTransformer<Messagin
     }
 
 
-
     @Override
-    @Transactional(propagation = Propagation.SUPPORTS,noRollbackFor = {IllegalArgumentException.class,IllegalStateException.class})
     public Submission transformToSubmission(final Messaging messageData) {
         return transformFromMessaging(messageData.getUserMessage());
     }
@@ -167,64 +163,98 @@ public class StubDtoTransformer implements MessageSubmissionTransformer<Messagin
      */
     public Submission transformFromMessaging(final UserMessage messaging) {
         LOG.debug("Entered method: transformFromMessaging(final UserMessage messaging)");
-
         final Submission result = new Submission();
         result.setMpc(messaging.getMpc());
-
-        final CollaborationInfo collaborationInfo = messaging.getCollaborationInfo();
-        result.setAction(trim(collaborationInfo.getAction()));
-        result.setService(trim(messaging.getCollaborationInfo().getService().getValue()));
-        result.setServiceType(trim(messaging.getCollaborationInfo().getService().getType()));
-        if (collaborationInfo.getAgreementRef() != null) {
-            result.setAgreementRef(trim(collaborationInfo.getAgreementRef().getValue()));
-            result.setAgreementRefType(trim(collaborationInfo.getAgreementRef().getType()));
-        }
-        result.setConversationId(trim(collaborationInfo.getConversationId()));
-
-        result.setMessageId(messaging.getMessageInfo().getMessageId());  //not trimming message id as non printable special characters needs to be checked.
-        result.setRefToMessageId(trim(messaging.getMessageInfo().getRefToMessageId()));
-
-        if (messaging.getPayloadInfo() != null) {
-            for (final PartInfo partInfo : messaging.getPayloadInfo().getPartInfo()) {
-                ExtendedPartInfo extPartInfo = (ExtendedPartInfo) partInfo;
-                final Collection<Submission.TypedProperty> properties = new ArrayList<>();
-                if (extPartInfo.getPartProperties() != null) {
-                    for (final Property property : extPartInfo.getPartProperties().getProperty()) {
-                        String propertyName = trim(property.getName());
-                        String propertyValue = trim(property.getValue());
-                        if (StringUtils.equals(propertyName, MessageConstants.PAYLOAD_PROPERTY_FILE_NAME)) {
-                            LOG.debug("{} property found=[{}]", propertyName, propertyValue);
-                            propertyValue = fileUtilExtService.sanitizeFileName(propertyValue);
-                        }
-                        properties.add(new Submission.TypedProperty(propertyName, propertyValue, trim(property.getType())));
-                    }
-                }
-                result.addPayload(extPartInfo.getHref(), extPartInfo.getPayloadDatahandler(), properties, extPartInfo.isInBody(), null, null);
-            }
-        }
-
-        if(messaging.getPartyInfo() != null && messaging.getPartyInfo().getFrom() != null) {
-            PartyId partyId = messaging.getPartyInfo().getFrom().getPartyId();
-            if(partyId != null) {
-                result.addFromParty(trim(partyId.getValue()), trim(partyId.getType()));
-            }
-            result.setFromRole(trim(messaging.getPartyInfo().getFrom().getRole()));
-        }
-        if(messaging.getPartyInfo() != null && messaging.getPartyInfo().getTo() != null) {
-            PartyId partyId = messaging.getPartyInfo().getTo().getPartyId();
-            if(partyId != null) {
-                result.addToParty(trim(partyId.getValue()), trim(partyId.getType()));
-            }
-            result.setToRole(trim(messaging.getPartyInfo().getTo().getRole()));
-        }
-
-        if (messaging.getMessageProperties() != null) {
-            for (final Property property : messaging.getMessageProperties().getProperty()) {
-                result.addMessageProperty(trim(property.getName()), trim(property.getValue()), trim(property.getType()));
-            }
-        }
-
+        populateMessageInfo(result, messaging);
+        populatePartyInfo(result, messaging);
+        populateCollaborationInfo(result, messaging);
+        populateMessageProperties(result, messaging);
+        populatePayloadInfo(result, messaging);
         return result;
+    }
+
+    private void populateMessageInfo(Submission result, UserMessage messaging) {
+        final MessageInfo messageInfo = messaging.getMessageInfo();
+        if (result == null || messageInfo == null) {
+            return;
+        }
+        LOG.debug("Populating MessageInfo");
+        result.setMessageId(messageInfo.getMessageId());
+        result.setRefToMessageId(messageInfo.getRefToMessageId());
+    }
+
+    private void populatePartyInfo(Submission result, UserMessage messaging) {
+        final PartyInfo partyInfo = messaging.getPartyInfo();
+        if (result == null || partyInfo == null) {
+            return;
+        }
+        LOG.debug("Populating PartyInfo");
+        if (partyInfo.getFrom() != null) {
+            PartyId partyId = partyInfo.getFrom().getPartyId();
+            if (partyId != null) {
+                result.addFromParty(partyId.getValue(), partyId.getType());
+            }
+            result.setFromRole(partyInfo.getFrom().getRole());
+        }
+        if (partyInfo.getTo() != null) {
+            PartyId partyId = partyInfo.getTo().getPartyId();
+            if (partyId != null) {
+                result.addToParty(partyId.getValue(), partyId.getType());
+            }
+            result.setToRole(partyInfo.getTo().getRole());
+        }
+    }
+
+    private void populateCollaborationInfo(Submission result, UserMessage messaging) {
+        final CollaborationInfo collaborationInfo = messaging.getCollaborationInfo();
+        if (result == null || collaborationInfo == null) {
+            return;
+        }
+        LOG.debug("Populating CollaborationInfo");
+        result.setAction(collaborationInfo.getAction());
+        if (collaborationInfo.getService() != null) {
+            result.setService(collaborationInfo.getService().getValue());
+            result.setServiceType(collaborationInfo.getService().getType());
+        }
+        if (collaborationInfo.getAgreementRef() != null) {
+            result.setAgreementRef(collaborationInfo.getAgreementRef().getValue());
+            result.setAgreementRefType(collaborationInfo.getAgreementRef().getType());
+        }
+        result.setConversationId(collaborationInfo.getConversationId());
+    }
+
+    private void populateMessageProperties(Submission result, UserMessage messaging) {
+        if (result == null || messaging.getMessageProperties() == null) {
+            return;
+        }
+        LOG.debug("Populating MessageProperties");
+        for (final Property property : messaging.getMessageProperties().getProperty()) {
+            result.addMessageProperty(property.getName(), property.getValue(), property.getType());
+        }
+    }
+
+    private void populatePayloadInfo(Submission result, UserMessage messaging) {
+        final PayloadInfo payloadInfo = messaging.getPayloadInfo();
+        if (result == null || payloadInfo == null) {
+            return;
+        }
+        LOG.debug("Populating PayloadInfo");
+        for (final PartInfo partInfo : payloadInfo.getPartInfo()) {
+            ExtendedPartInfo extPartInfo = (ExtendedPartInfo) partInfo;
+            final Collection<Submission.TypedProperty> properties = new ArrayList<>();
+            if (extPartInfo.getPartProperties() != null) {
+                for (final Property property : extPartInfo.getPartProperties().getProperty()) {
+                    String propertyName = trim(property.getName());
+                    String propertyValue = trim(property.getValue());
+                    if (StringUtils.equals(propertyName, MessageConstants.PAYLOAD_PROPERTY_FILE_NAME)) {
+                        LOG.debug("{} property found=[{}]", propertyName, propertyValue);
+                        propertyValue = fileUtilExtService.sanitizeFileName(propertyValue);
+                    }
+                    properties.add(new Submission.TypedProperty(propertyName, propertyValue, trim(property.getType())));
+                }
+            }
+            result.addPayload(extPartInfo.getHref(), extPartInfo.getPayloadDatahandler(), properties, extPartInfo.isInBody(), null, null);
+        }
     }
 
     public MessageStatus transformFromMessageStatus(eu.domibus.common.MessageStatus messageStatus) {

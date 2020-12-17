@@ -1,45 +1,40 @@
 import {Component, Inject, OnInit, ViewChild} from '@angular/core';
-import {MdDialogRef, MD_DIALOG_DATA} from '@angular/material';
-import {Http} from '@angular/http';
+import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material';
+import {HttpClient} from '@angular/common/http';
 import {AlertService} from '../../common/alert/alert.service';
+import {FileUploadValidatorService} from '../../common/file-upload-validator.service';
 
 @Component({
   selector: 'app-pmode-upload',
   templateUrl: './pmode-upload.component.html',
-  styleUrls: ['../pmode.component.css']
+  styleUrls: ['../support/pmode.component.css']
 })
 export class PmodeUploadComponent implements OnInit {
 
   private url = 'rest/pmode';
-
-  enableSubmit = false;
   submitInProgress = false;
+  description = '';
+  useFileSelector = true;
 
-  description: string = '';
-
-  useFileSelector: boolean = true;
-
-  @ViewChild('fileInput')
+  @ViewChild('fileInput', {static: false})
   private fileInput;
 
-  constructor(@Inject(MD_DIALOG_DATA) private data: { pModeContents: string },
-              public dialogRef: MdDialogRef<PmodeUploadComponent>, private http: Http, private alertService: AlertService) {
+  constructor(@Inject(MAT_DIALOG_DATA) private data: { pModeContents: string },
+              public dialogRef: MatDialogRef<PmodeUploadComponent>,
+              private http: HttpClient, private alertService: AlertService,
+              private fileUploadService: FileUploadValidatorService) {
   }
 
   ngOnInit() {
     this.useFileSelector = !this.data || !this.data.pModeContents;
   }
 
-  public checkFileAndDescription() {
-    this.enableSubmit = this.hasFile() && this.description.length !== 0;
-  }
-
   private hasFile(): boolean {
-    return (this.useFileSelector && this.fileInput.nativeElement.files.length !== 0)
+    return (this.useFileSelector && this.fileInput && this.fileInput.nativeElement && this.fileInput.nativeElement.files.length !== 0)
       || (!this.useFileSelector && !!this.data.pModeContents);
   }
 
-  private getFile() {
+  private getFile(): Blob {
     if (this.useFileSelector) {
       return this.fileInput.nativeElement.files[0];
     } else {
@@ -47,33 +42,44 @@ export class PmodeUploadComponent implements OnInit {
     }
   }
 
-  public submit() {
-    if(this.submitInProgress) return;
-
+  public async submit() {
+    if (this.submitInProgress) {
+      return;
+    }
     this.submitInProgress = true;
 
     try {
+      const file = this.getFile();
+      await this.fileUploadService.validateFileSize(file);
+      if (file.type !== 'text/xml') {
+        throw new Error('The file type should be xml.');
+      }
+
       let input = new FormData();
-      input.append('file', this.getFile());
-      input.append('description', this.description);
-      this.http.post(this.url, input).subscribe(res => {
-          this.alertService.success(res.text(), false);
-          this.dialogRef.close({done: true});
-        }, err => {
-          this.alertService.exception("Error uploading the PMode:",err, false);
-          this.dialogRef.close({done: false});
-        },
-        () => {
-          this.submitInProgress = false;
-        }
-      );
-    } catch(e) {
+      input.append('file', file);
+      input.append('description', (this.description || '').trim().replace(/\t/g, ' '));
+
+      const res = await this.http.post<string>(this.url, input).toPromise();
+
+      this.alertService.success(res, 10000);
+      this.dialogRef.close({done: true});
       this.submitInProgress = false;
+    } catch (err) {
+      this.processError(err);
     }
+  }
+
+  private processError(err) {
+    this.alertService.exception('Error uploading the PMode:', err);
+    this.dialogRef.close({done: false});
+    this.submitInProgress = false;
   }
 
   public cancel() {
     this.dialogRef.close({done: false})
   }
 
+  canUpload() {
+    return this.hasFile() && this.description.length !== 0 && !this.submitInProgress;
+  }
 }

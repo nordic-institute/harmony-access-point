@@ -1,9 +1,13 @@
 package eu.domibus.core.message.testservice;
 
-import eu.domibus.core.pmode.PModeProvider;
-import eu.domibus.ebms3.common.model.Ebms3Constants;
+import eu.domibus.core.error.ErrorLogDao;
+import eu.domibus.core.message.MessagingDao;
+import eu.domibus.core.message.signal.SignalMessageLogDao;
+import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.pmode.provider.PModeProvider;
+import eu.domibus.core.ebms3.Ebms3Constants;
 import eu.domibus.plugin.Submission;
-import eu.domibus.plugin.handler.DatabaseMessageHandler;
+import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -29,12 +33,26 @@ public class TestServiceIT {
     @Injectable
     private DatabaseMessageHandler databaseMessageHandler;
 
+    @Injectable
+    private UserMessageLogDao userMessageLogDao;
+
+    @Injectable
+    private SignalMessageLogDao signalMessageLogDao;
+
+    @Injectable
+    private MessagingDao messagingDao;
+
+    @Injectable
+    private ErrorLogDao errorLogDao;
+
     @Test
     public void createSubmission() throws IOException {
         // GIVEN
         new Expectations() {{
-            pModeProvider.getRole("INITIATOR", Ebms3Constants.TEST_SERVICE); result = "initiator";
-            pModeProvider.getRole("RESPONDER", Ebms3Constants.TEST_SERVICE); result = "responder";
+            pModeProvider.getRole("INITIATOR", Ebms3Constants.TEST_SERVICE);
+            result = "initiator";
+            pModeProvider.getRole("RESPONDER", Ebms3Constants.TEST_SERVICE);
+            result = "responder";
         }};
 
         // WHEN

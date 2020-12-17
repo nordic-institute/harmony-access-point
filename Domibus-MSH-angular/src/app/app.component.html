@@ -1,92 +1,98 @@
-<md-sidenav-container>
-  <md-sidenav mode="side" opened="true" ngClass="{{menuClass}}" [disableClose]="true">
+<mat-sidenav-container class="full-height">
+  <mat-sidenav mode="side" opened="true" ngClass="{{menuClass}}" [disableClose]="true">
     <!-- sidenav content -->
     <div id="topLogo">
-      <img src="assets/images/Domibus_logo_icon.svg" [attr.height]="fullMenu ? '74px' : '40px'" [attr.width]="fullMenu ? '74px' : '40px'"/>
+      <img src="assets/images/Domibus_logo_icon.svg" [attr.height]="fullMenu ? '74px' : '40px'"
+           [attr.width]="fullMenu ? '74px' : '40px'"/>
       <div id="topLogoText" *ngIf="fullMenu">
         <h1>Domibus <span>Administration <br>Console</span></h1>
       </div>
     </div>
 
-    <button md-raised-button class="sideNavButton" [routerLink]="['/']" id="messages_id" *ngIf="isUser()">
-      <md-icon md-tooltip="Messages" mdTooltipDisabled="{{fullMenu}}" mdTooltipPosition="right">message</md-icon>
+    <button mat-raised-button class="sideNavButton" [routerLink]="['/']" id="messages_id" *ngIf="isUser()">
+      <mat-icon mat-tooltip="Messages">message</mat-icon>
       <span>Messages</span>
     </button>
-    <button md-raised-button class="sideNavButton" [routerLink]="['/messagefilter']" *ngIf="isAdmin()" id="messagefilter_id">
-      <md-icon md-tooltip="Message Filter" mdTooltipDisabled="{{fullMenu}}" mdTooltipPosition="right">filter_list
-      </md-icon>
+    <button mat-raised-button class="sideNavButton" [routerLink]="['/messagefilter']" *ngIf="isAdmin()"
+            id="messagefilter_id">
+      <mat-icon mat-tooltip="Message Filter">filter_list
+      </mat-icon>
       <span>Message Filter</span>
     </button>
-    <button md-raised-button class="sideNavButton" [routerLink]="['/errorlog']" id="errorlog_id" *ngIf="isUser()">
-      <md-icon md-tooltip="Error Log" mdTooltipDisabled="{{fullMenu}}" mdTooltipPosition="right">sms_failed</md-icon>
+    <button mat-raised-button class="sideNavButton" [routerLink]="['/errorlog']" id="errorlog_id" *ngIf="isUser()">
+      <mat-icon mat-tooltip="Error Log">sms_failed</mat-icon>
       <span>Error Log</span>
     </button>
-    <md-expansion-panel *ngIf="isAdmin()">
-      <md-expansion-panel-header>
-        <button md-raised-button class="sideNavButton" id="pmode_id">
-          <md-icon md-tooltip="PMode" mdTooltipDisabled="{{fullMenu}}" mdTooltipPosition="right">description</md-icon>
+    <mat-expansion-panel *ngIf="isAdmin()">
+      <mat-expansion-panel-header>
+        <button mat-raised-button class="sideNavButton" id="pmode_id">
+          <mat-icon mat-tooltip="PMode">description</mat-icon>
           <span *ngIf="fullMenu">PMode</span>
         </button>
-      </md-expansion-panel-header>
-      <!--[ngClass]="{ 'alert': message, 'alert-success': message.type === 'success', 'alert-error': message.type === 'error' }"-->
+      </mat-expansion-panel-header>
+
       <div class="sideNavSubmenu">
-        <button md-raised-button class="sideNavButton" [routerLink]="['/pmode-current']" id="current_pmode_id">
-          <md-icon md-tooltip="Current PMode" mdTooltipDisabled="{{fullMenu}}" mdTooltipPosition="right">receipt</md-icon>
+        <button mat-raised-button class="sideNavButton" [routerLink]="['/pmode-current']" id="current_pmode_id">
+          <mat-icon mat-tooltip="Current PMode">receipt</mat-icon>
           <span>Current</span>
         </button>
-        <button md-raised-button class="sideNavButton" [routerLink]="['/pmode-archive']" id="pmode_archive_id">
-          <md-icon md-tooltip="PMode Archive" mdTooltipDisabled="{{fullMenu}}" mdTooltipPosition="right">history</md-icon>
+        <button mat-raised-button class="sideNavButton" [routerLink]="['/pmode-archive']" id="pmode_archive_id">
+          <mat-icon mat-tooltip="PMode Archive">history</mat-icon>
           <span>Archive</span>
         </button>
-        <button md-raised-button class="sideNavButton" [routerLink]="['/pmode-party']" id="pmode_party_id">
-          <md-icon md-tooltip="Party management" mdTooltipDisabled="{{fullMenu}}" mdTooltipPosition="right">device_hub</md-icon>
+        <button mat-raised-button class="sideNavButton" [routerLink]="['/pmode-party']" id="pmode_party_id">
+          <mat-icon mat-tooltip="Party management">device_hub</mat-icon>
           <span>Parties</span>
         </button>
       </div>
-    </md-expansion-panel>
-    <button md-raised-button class="sideNavButton" [routerLink]="['/jms']" *ngIf="isAdmin()" id="jmsmonitoring_id">
-      <md-icon md-tooltip="JMS Monitoring" mdTooltipDisabled="{{fullMenu}}" mdTooltipPosition="right">computer</md-icon>
+    </mat-expansion-panel>
+    <button mat-raised-button class="sideNavButton" [routerLink]="['/jms']" *ngIf="isAdmin()" id="jmsmonitoring_id">
+      <mat-icon mat-tooltip="JMS Monitoring">computer</mat-icon>
       <span>JMS Monitoring</span>
     </button>
-    <button md-raised-button class="sideNavButton" [routerLink]="['/truststore']" *ngIf="isAdmin()" id="truststore_id">
-      <md-icon md-tooltip="Truststore" mdTooltipDisabled="{{fullMenu}}" mdTooltipPosition="right">vpn_key</md-icon>
+    <button mat-raised-button class="sideNavButton" [routerLink]="['/truststore']" *ngIf="isAdmin()" id="truststore_id">
+      <mat-icon mat-tooltip="Truststore">vpn_key</mat-icon>
       <span>Truststore</span>
     </button>
-    <button md-raised-button class="sideNavButton" [routerLink]="['/user']" *ngIf="isAdmin() && !isExtAuthProviderEnabled()" id="user_id">
-      <md-icon md-tooltip="Users" mdTooltipDisabled="{{fullMenu}}" mdTooltipPosition="right">people</md-icon>
+    <button mat-raised-button class="sideNavButton" [routerLink]="['/user']"
+            *ngIf="isAdmin() && !isExtAuthProviderEnabled()" id="user_id">
+      <mat-icon mat-tooltip="Users">people</mat-icon>
       <span>Users</span>
     </button>
-    <button md-raised-button class="sideNavButton" [routerLink]="['/pluginuser']" *ngIf="isAdmin()" id="plugin_user_id">
-      <md-icon md-tooltip="Plugin Users" mdTooltipDisabled="{{fullMenu}}" mdTooltipPosition="right">people_outline</md-icon>
+    <button mat-raised-button class="sideNavButton" [routerLink]="['/pluginuser']" *ngIf="isAdmin()"
+            id="plugin_user_id">
+      <mat-icon mat-tooltip="Plugin Users">people_outline</mat-icon>
       <span>Plugin Users</span>
     </button>
-    <button md-raised-button class="sideNavButton" [routerLink]="['/audit']" *ngIf="isAdmin()" id="audit_id">
-      <md-icon md-tooltip="Audit" mdTooltipDisabled="{{fullMenu}}" mdTooltipPosition="right">update</md-icon>
+    <button mat-raised-button class="sideNavButton" [routerLink]="['/audit']" *ngIf="isAdmin()" id="audit_id">
+      <mat-icon mat-tooltip="Audit">update</mat-icon>
       <span>Audit</span>
     </button>
-    <button md-raised-button class="sideNavButton" [routerLink]="['/alerts']" *ngIf="isAdmin()" id="alerts_id">
-      <md-icon md-tooltip="Alerts" mdTooltipDisabled="{{fullMenu}}" mdTooltipPosition="right">add_alert</md-icon>
+    <button mat-raised-button class="sideNavButton" [routerLink]="['/alerts']" *ngIf="isAdmin()" id="alerts_id">
+      <mat-icon mat-tooltip="Alerts">add_alert</mat-icon>
       <span>Alerts</span>
     </button>
-    <button md-raised-button class="sideNavButton" [routerLink]="['/testservice']" *ngIf="isAdmin()" id="testservice_id">
-      <md-icon md-tooltip="Test Service" mdTooltipDisabled="{{fullMenu}}" mdTooltipPosition="right">import_export</md-icon>
-      <span *ngIf="fullMenu">Test Service</span>
+    <button mat-raised-button class="sideNavButton" [routerLink]="['/connections']" *ngIf="isAdmin()"
+            id="connectionmonitoring_id">
+      <mat-icon mat-tooltip="Connection Monitoring">import_export</mat-icon>
+      <span *ngIf="fullMenu">Connection Monitoring</span>
     </button>
-    <button md-raised-button class="sideNavButton" [routerLink]="['/logging']" *ngIf="isAdmin()" id="logging_id">
-      <md-icon md-tooltip="Logging" mdTooltipDisabled="{{fullMenu}}" mdTooltipPosition="right">list_alt</md-icon>
+    <button mat-raised-button class="sideNavButton" [routerLink]="['/logging']" *ngIf="isAdminMultiAware()" id="logging_id">
+      <mat-icon mat-tooltip="Logging">list_alt</mat-icon>
       <span *ngIf="fullMenu">Logging</span>
     </button>
-    <button md-raised-button class="sideNavButton" [routerLink]="['/properties']" *ngIf="isAdmin() && false" id="properties_id">
-      <md-icon md-tooltip="Properties" mdTooltipDisabled="{{fullMenu}}" mdTooltipPosition="right">settings</md-icon>
-      <span>Properties</span>
+    <button mat-raised-button class="sideNavButton" [routerLink]="['/properties']" *ngIf="isAdmin()" id="properties_id">
+      <mat-icon mat-tooltip="View or Set Domibus Properties">settings</mat-icon>
+      <span>Domibus Properties</span>
     </button>
+
     <div class="collapse-button">
-      <button *ngIf="fullMenu" md-raised-button id="expand_id" (click)="toggleMenu()">
-        <md-icon md-tooltip="Collapse" mdTooltipPosition="right">chevron_left</md-icon>
+      <button *ngIf="fullMenu" mat-raised-button id="expand_id" (click)="toggleMenu()">
+        <mat-icon mat-tooltip="Collapse">chevron_left</mat-icon>
       </button>
 
-      <button *ngIf="!fullMenu" md-raised-button id="collapse_id" (click)="toggleMenu()">
-        <md-icon md-tooltip="Expand" mdTooltipPosition="right">chevron_right</md-icon>
+      <button *ngIf="!fullMenu" mat-raised-button id="collapse_id" (click)="toggleMenu()">
+        <mat-icon mat-tooltip="Expand">chevron_right</mat-icon>
       </button>
     </div>
 
@@ -105,62 +111,68 @@
       </div>
     </div>
 
-  </md-sidenav>
+  </mat-sidenav>
 
   <!-- primary content -->
-  <div id=".my-content" style="overflow-x: hidden">
-    <alert></alert>
+  <div id=".my-content" class="full-height" style="overflow-y: auto;">
 
     <div id="sandwichMenuHolder">
 
-      <domain-selector *ngIf="currentUser" [currentComponent]="outlet.activated ? outlet.component : null"></domain-selector>
+      <domain-selector *ngIf="currentUser" [currentComponent]="applicationService.getCurrentComponent()"></domain-selector>
 
       <div class="helpMenu">
         <page-helper></page-helper>
       </div>
       <div id="sandwichMenu">
-        <button md-icon-button [md-menu-trigger-for]="settingsMenu" id="settingsmenu_id" md-tooltip="Menu">
-          <md-icon>menu</md-icon>
+        <button mat-icon-button [mat-menu-trigger-for]="settingsMenu" id="settingsmenu_id" mat-tooltip="Menu">
+          <mat-icon>menu</mat-icon>
         </button>
 
-        <md-menu x-position="before" #settingsMenu="mdMenu">
+        <mat-menu x-position="before" #settingsMenu="matMenu">
 
-          <div *ngIf="currentUser">
+          <div *ngIf="currentUser" id="settingsmenu_expanded_id">
 
-            <button md-menu-item disabled="true" id="currentuser_id">
-              <md-icon>person</md-icon>
+            <button mat-menu-item disabled="true" id="currentuser_id">
+              <mat-icon>person</mat-icon>
               <span>{{currentUser}}</span>
             </button>
 
             <hr/>
 
-            <button md-menu-item (click)="changePassword()" id="changePassword_id" *ngIf="!isExtAuthProviderEnabled()">
-              <md-icon>edit</md-icon>
+            <button mat-menu-item (click)="changePassword()" id="changePassword_id" *ngIf="!isExtAuthProviderEnabled()">
+              <mat-icon>edit</mat-icon>
               <span>Change Password</span>
             </button>
 
-            <button md-menu-item (click)="logout($event)" id="logout_id">
-              <md-icon>power_settings_new</md-icon>
+            <button mat-menu-item (click)="logout($event)" id="logout_id">
+              <mat-icon>power_settings_new</mat-icon>
               <span>Logout</span>
             </button>
 
           </div>
 
-          <div *ngIf="!currentUser" style="text-align: center; vertical-align: middle;margin: 2px;">
-            <button md-menu-item disabled="true">
-              <md-icon>person_outline</md-icon>
+          <div *ngIf="!currentUser" style="text-align: center; vertical-align: middle; margin: 2px;"
+               id="settingsmenu_expanded_id">
+            <button mat-menu-item disabled="true">
+              <mat-icon>person_outline</mat-icon>
               <span>Not logged in</span>
             </button>
           </div>
 
-        </md-menu>
+        </mat-menu>
       </div>
     </div>
-    <div id="routerHolder">
-      <div style="margin:15px">
-        <router-outlet></router-outlet>
+
+    <div id="routerHolder" style="height: calc(100% - 50px);">
+      <div style="margin:15px;height: 100%;">
+        <router-outlet class="full-height"></router-outlet>
       </div>
     </div>
   </div>
 
-</md-sidenav-container>
+</mat-sidenav-container>
+
+
+<!-- this helps avoid md2 vs mat libraries conflicts
+(both mat-select and md2-datepicker controls use this overlay container when they're opened) -->
+<div class="cdk-overlay-container"></div>

@@ -3,15 +3,15 @@ package eu.domibus.core.replication;
 import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
-import eu.domibus.common.NotificationStatus;
-import eu.domibus.dao.InMemoryDataBaseConfig;
+import eu.domibus.core.plugin.notification.NotificationStatus;
+import eu.domibus.core.dao.InMemoryDataBaseConfig;
 import eu.domibus.ebms3.common.model.MessageType;
+import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,7 +33,7 @@ import java.util.*;
 @Transactional
 public class UIMessageDaoImplIT {
 
-    private static final Logger LOG = DomibusLoggerFactory.getLogger(UIReplicationConfig.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UIReplicationConfig.class);
 
     @Autowired
     private UIMessageDaoImpl uiMessageDao;
@@ -58,10 +58,11 @@ public class UIMessageDaoImplIT {
 
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         uiMessageEntity1 = createUIMessageEntity(messageId1, "domibus-blue", "domibus-red", MSHRole.SENDING);
         uiMessageEntity2 = createUIMessageEntity(messageId2, "domibus-blue", "domibus-red", MSHRole.SENDING);
         uiMessageEntity3 = createUIMessageEntity(messageId3, "domibus-red", "domibus-blue", MSHRole.RECEIVING);
+        LOG.putMDC(DomibusLogger.MDC_USER, "test_user");
     }
 
 
@@ -154,7 +155,15 @@ public class UIMessageDaoImplIT {
         //update
         uiMessageEntity3.setSendAttempts(3);
         uiMessageDao.saveOrUpdate(uiMessageEntity3);
-        Assert.assertEquals(3, uiMessageDao.findUIMessageByMessageId(messageId3).getSendAttempts());
+        UIMessageEntity uiMessageByMessageId = uiMessageDao.findUIMessageByMessageId(messageId3);
+        Assert.assertEquals(3, uiMessageByMessageId.getSendAttempts());
+
+        Assert.assertNotNull(uiMessageByMessageId.getCreatedBy());
+        Assert.assertNotNull(uiMessageByMessageId.getCreationTime());
+        Assert.assertNotNull(uiMessageByMessageId.getModifiedBy());
+        Assert.assertNotNull(uiMessageByMessageId.getModificationTime());
+
+        Assert.assertNotEquals(uiMessageByMessageId.getCreationTime(), uiMessageByMessageId.getModificationTime());
     }
 
 }

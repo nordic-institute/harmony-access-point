@@ -1,4 +1,4 @@
-﻿<div *ngIf="message" [ngClass]="{ 'alert': message, 'alert-success': message.type === 'success', 'alert-error': message.type === 'error' }" id="alertmessage_id">
+﻿<div id="alertmessage_id" class="alert">
   <span class="closebtn" (click)="clearAlert()">&times;</span>
-  <span [innerHtml]="message.text"></span>
-</div>
+  <span [innerHtml]="message"></span>
+</div >

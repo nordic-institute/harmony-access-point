@@ -1,23 +1,23 @@
 package eu.domibus.core.pmode;
 
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
-import eu.domibus.api.pmode.PModeArchiveInfo;
-import eu.domibus.api.pmode.PModeException;
-import eu.domibus.api.pmode.PModeService;
+import eu.domibus.api.pmode.*;
 import eu.domibus.api.pmode.domain.LegConfiguration;
 import eu.domibus.api.pmode.domain.ReceptionAwareness;
 import eu.domibus.common.MSHRole;
-import eu.domibus.common.NotificationStatus;
-import eu.domibus.common.dao.MessagingDao;
-import eu.domibus.common.exception.EbMS3Exception;
-import eu.domibus.common.services.MessageExchangeService;
+import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.message.MessageExchangeService;
+import eu.domibus.core.message.MessagingDao;
+import eu.domibus.core.plugin.notification.NotificationStatus;
+import eu.domibus.core.pmode.provider.PModeProvider;
+import eu.domibus.core.pmode.validation.PModeValidationHelper;
 import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.XmlProcessingException;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -28,15 +28,19 @@ import java.util.List;
 @Service
 public class PModeDefaultService implements PModeService {
 
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PModeDefaultService.class);
+
     @Autowired
     MessagingDao messagingDao;
 
     @Autowired
     private PModeProvider pModeProvider;
 
-
     @Autowired
     private MessageExchangeService messageExchangeService;
+
+    @Autowired
+    PModeValidationHelper pModeValidationHelper;
 
     @Override
     public LegConfiguration getLegConfiguration(String messageId) {
@@ -62,19 +66,16 @@ public class PModeDefaultService implements PModeService {
         return pModeProvider.getCurrentPmode();
     }
 
+    @Transactional
     @Override
-    public List<String> updatePModeFile(byte[] bytes, String description) throws PModeException {
+    public List<ValidationIssue> updatePModeFile(byte[] bytes, String description) throws PModeValidationException {
         try {
             return pModeProvider.updatePModes(bytes, description);
         } catch (XmlProcessingException e) {
-            String message = "Failed to upload the PMode file due to: " + ExceptionUtils.getRootCauseMessage(e);
-            if (CollectionUtils.isNotEmpty(e.getErrors())) {
-                message += ";" + StringUtils.join(e.getErrors(), ";");
-            }
-            throw new PModeException(DomibusCoreErrorCode.DOM_001, message);
+            LOG.warn("Xml processing issue while trying to upload pmode with description [{}]", description, e);
+            throw pModeValidationHelper.getPModeValidationException(e, "Failed to upload the PMode file due to: ");
         }
     }
-
 
     protected LegConfiguration convert(eu.domibus.common.model.configuration.LegConfiguration legConfigurationEntity) {
         if (legConfigurationEntity == null) {

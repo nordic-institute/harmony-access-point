@@ -2,6 +2,7 @@ package eu.domibus.plugin.jms.property;
 
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
+import eu.domibus.ext.exceptions.DomibusPropertyExtException;
 import eu.domibus.ext.services.DomainExtService;
 import eu.domibus.ext.services.DomibusPropertyExtService;
 import mockit.Expectations;
@@ -16,6 +17,7 @@ import java.util.Map;
 
 /**
  * @author Ion Perpegel
+ * @author Cosmin Baciu
  * @since 4.1.1
  */
 @RunWith(JMockit.class)
@@ -38,16 +40,13 @@ public class JmsPluginPropertyManagerTest {
     @Test
     public void setKnownPropertyValue() {
         new Expectations() {{
-            domainExtService.getDomain("default");
-            result = testDomain;
-
-            domibusPropertyExtService.getDomainProperty(testDomain, jmsProperty);
+            domibusPropertyExtService.getProperty(jmsProperty);
             returns("old-value", testValue);
         }};
 
-        final String oldValue = jmsPluginPropertyManager.getKnownPropertyValue("default", jmsProperty);
-        jmsPluginPropertyManager.setKnownPropertyValue("default", jmsProperty, testValue);
-        final String newValue = jmsPluginPropertyManager.getKnownPropertyValue("default", jmsProperty);
+        final String oldValue = jmsPluginPropertyManager.getKnownPropertyValue(jmsProperty);
+        jmsPluginPropertyManager.setKnownPropertyValue(jmsProperty, testValue);
+        final String newValue = jmsPluginPropertyManager.getKnownPropertyValue(jmsProperty);
 
         Assert.assertTrue(oldValue != newValue);
         Assert.assertEquals(testValue, newValue);
@@ -70,18 +69,17 @@ public class JmsPluginPropertyManagerTest {
         String unknownPropertyName = "jmsplugin.unknown.property";
 
         try {
-            jmsPluginPropertyManager.getKnownPropertyValue("default", unknownPropertyName);
+            jmsPluginPropertyManager.getKnownPropertyValue(unknownPropertyName);
             Assert.fail("Expected exception not thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (DomibusPropertyExtException ex) {
             Assert.assertTrue(ex.getMessage().contains(unknownPropertyName));
         }
 
         try {
-            jmsPluginPropertyManager.setKnownPropertyValue("default", unknownPropertyName, testValue);
+            jmsPluginPropertyManager.setKnownPropertyValue(unknownPropertyName, testValue);
             Assert.fail("Expected exception not thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (DomibusPropertyExtException ex) {
             Assert.assertTrue(ex.getMessage().contains(unknownPropertyName));
         }
     }
-
 }

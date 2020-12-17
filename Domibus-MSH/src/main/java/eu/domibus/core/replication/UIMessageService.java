@@ -1,6 +1,6 @@
 package eu.domibus.core.replication;
 
-import eu.domibus.common.model.logging.MessageLogInfo;
+import eu.domibus.core.message.MessageLogInfo;
 import eu.domibus.web.rest.ro.MessageLogResultRO;
 
 import java.util.List;
@@ -13,6 +13,8 @@ import java.util.Map;
  * @since 4.0
  */
 public interface UIMessageService {
+
+    long countMessages(Map<String, Object> filters);
 
     List<MessageLogInfo> findPaged(int from, int max, String column, boolean asc, Map<String, Object> filters);
 

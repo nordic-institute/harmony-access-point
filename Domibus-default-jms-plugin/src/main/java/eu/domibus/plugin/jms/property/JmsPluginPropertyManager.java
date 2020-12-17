@@ -1,16 +1,17 @@
 package eu.domibus.plugin.jms.property;
 
-import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
+import eu.domibus.ext.domain.DomibusPropertyMetadataDTO.Type;
+import eu.domibus.ext.domain.DomibusPropertyMetadataDTO.Usage;
 import eu.domibus.ext.domain.Module;
-import eu.domibus.ext.services.DomainExtService;
-import eu.domibus.ext.services.DomibusPropertyExtService;
-import eu.domibus.ext.services.DomibusPropertyManagerExt;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
+import eu.domibus.ext.services.DomibusPropertyExtServiceDelegateAbstract;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -20,65 +21,64 @@ import static eu.domibus.plugin.jms.JMSMessageConstants.*;
  * @author Ion Perpegel
  * @since 4.1.1
  * <p>
- * Property manager for the Default JMS plugin properties.
+ * Property manager for the JmsPlugin properties.
  */
 @Service
-public class JmsPluginPropertyManager implements DomibusPropertyManagerExt {
+public class JmsPluginPropertyManager extends DomibusPropertyExtServiceDelegateAbstract {
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(JmsPluginPropertyManager.class);
 
-    @Autowired
-    protected DomibusPropertyExtService domibusPropertyExtService;
+    private List<DomibusPropertyMetadataDTO> readOnlyGlobalProperties = Arrays.asList(
+            new DomibusPropertyMetadataDTO(CONNECTION_FACTORY, Type.JNDI, Module.JMS_PLUGIN, false, Usage.GLOBAL, true, false, false, false),
+            new DomibusPropertyMetadataDTO(CACHING_CONNECTION_FACTORY_SESSION_CACHE_SIZE, Type.NUMERIC, Module.JMS_PLUGIN, false, Usage.GLOBAL, true, false, false, false),
+            new DomibusPropertyMetadataDTO(QUEUE_NOTIFICATION, Type.JNDI, Module.JMS_PLUGIN, false, Usage.GLOBAL, false, false, false, false),
+            new DomibusPropertyMetadataDTO(QUEUE_IN, Type.JNDI, Module.JMS_PLUGIN, false, Usage.GLOBAL, false, false, false, false),
+            new DomibusPropertyMetadataDTO(QUEUE_IN_CONCURRENCY, Type.CONCURRENCY, Module.JMS_PLUGIN, false, Usage.GLOBAL, false, false, false, false),
+            new DomibusPropertyMetadataDTO(MESSAGE_NOTIFICATIONS, Type.COMMA_SEPARATED_LIST, Module.JMS_PLUGIN, false, Usage.GLOBAL, false, false, false, false)
+    );
 
-    @Autowired
-    protected DomainExtService domainExtService;
+    private List<DomibusPropertyMetadataDTO> readOnlyDomainProperties = Arrays.stream(new String[]{
+            JMSPLUGIN_QUEUE_OUT,
+            JMSPLUGIN_QUEUE_REPLY,
+            JMSPLUGIN_QUEUE_CONSUMER_NOTIFICATION_ERROR,
+            JMSPLUGIN_QUEUE_PRODUCER_NOTIFICATION_ERROR,
+            JMS_PLUGIN_PROPERTY_PREFIX + "." + P1_IN_BODY
+    })
+            .map(name -> new DomibusPropertyMetadataDTO(name, Module.JMS_PLUGIN, false, Usage.DOMAIN, true, false, false, false))
+            .collect(Collectors.toList());
 
-    private String[] knownPropertyNames = new String[]{
-            FROM_PARTY_ID, FROM_PARTY_TYPE, FROM_ROLE,
-            TO_PARTY_ID, TO_PARTY_TYPE, TO_ROLE,
-            AGREEMENT_REF, SERVICE, SERVICE_TYPE, ACTION,
-            PUT_ATTACHMENTS_IN_QUEUE,
-    };
+    private List<DomibusPropertyMetadataDTO> readOnlyComposableDomainProperties = Arrays.stream(new String[]{
+            JMSPLUGIN_QUEUE_OUT_ROUTING,
+            JMSPLUGIN_QUEUE_REPLY_ROUTING,
+            JMSPLUGIN_QUEUE_CONSUMER_NOTIFICATION_ERROR_ROUTING,
+            JMSPLUGIN_QUEUE_PRODUCER_NOTIFICATION_ERROR_ROUTING
+    })
+            .map(name -> new DomibusPropertyMetadataDTO(name, Module.JMS_PLUGIN, false, Usage.DOMAIN, false, false, false, true))
+            .collect(Collectors.toList());
 
-    private Map<String, DomibusPropertyMetadataDTO> knownProperties = Arrays.stream(knownPropertyNames)
-            .map(name -> new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + name, Module.JMS_PLUGIN, true, true))
-            .collect(Collectors.toMap(x -> x.getName(), x -> x));
 
-    @Override
-    public String getKnownPropertyValue(String domainCode, String propertyName) {
-        if (!hasKnownProperty(propertyName)) {
-            throw new IllegalArgumentException("Unknown property: " + propertyName);
-        }
-
-        final DomainDTO domain = domainExtService.getDomain(domainCode);
-
-        if (StringUtils.equalsIgnoreCase(propertyName, PUT_ATTACHMENTS_IN_QUEUE)) {
-            return domibusPropertyExtService.getDomainProperty(domain, propertyName, "true");
-        } else {
-            return domibusPropertyExtService.getDomainProperty(domain, propertyName);
-        }
-    }
-
-    @Override
-    public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue, boolean broadcast) {
-        if (!hasKnownProperty(propertyName)) {
-            throw new IllegalArgumentException("Unknown property: " + propertyName);
-        }
-
-        final DomainDTO domain = domainExtService.getDomain(domainCode);
-        domibusPropertyExtService.setDomainProperty(domain, propertyName, propertyValue);
-    }
-
-    @Override
-    public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue) {
-        setKnownPropertyValue(domainCode, propertyName, propertyValue, true);
-    }
+    private List<DomibusPropertyMetadataDTO> writableProperties = Arrays.asList(
+            new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + FROM_PARTY_ID, Module.JMS_PLUGIN, Usage.DOMAIN, true),
+            new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + FROM_PARTY_TYPE, Type.URI, Module.JMS_PLUGIN, Usage.DOMAIN, true),
+            new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + FROM_ROLE, Type.URI, Module.JMS_PLUGIN, Usage.DOMAIN, true),
+            new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + TO_PARTY_ID, Module.JMS_PLUGIN, Usage.DOMAIN, true),
+            new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + TO_PARTY_TYPE, Type.URI, Module.JMS_PLUGIN, Usage.DOMAIN, true),
+            new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + TO_ROLE, Type.URI, Module.JMS_PLUGIN, Usage.DOMAIN, true),
+            new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + AGREEMENT_REF, Module.JMS_PLUGIN, Usage.DOMAIN, true),
+            new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + AGREEMENT_REF_TYPE, Module.JMS_PLUGIN, Usage.DOMAIN, true),
+            new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + SERVICE, Module.JMS_PLUGIN, Usage.DOMAIN, true),
+            new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + SERVICE_TYPE, Module.JMS_PLUGIN, Usage.DOMAIN, true),
+            new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + ACTION, Module.JMS_PLUGIN, Usage.DOMAIN, true),
+            new DomibusPropertyMetadataDTO(JMS_PLUGIN_PROPERTY_PREFIX + "." + PUT_ATTACHMENTS_IN_QUEUE, Type.BOOLEAN, Module.JMS_PLUGIN, Usage.DOMAIN, true)
+    );
 
     @Override
     public Map<String, DomibusPropertyMetadataDTO> getKnownProperties() {
-        return knownProperties;
-    }
+        List<DomibusPropertyMetadataDTO> allProperties = new ArrayList<>();
+        allProperties.addAll(readOnlyGlobalProperties);
+        allProperties.addAll(readOnlyDomainProperties);
+        allProperties.addAll(readOnlyComposableDomainProperties);
+        allProperties.addAll(writableProperties);
 
-    @Override
-    public boolean hasKnownProperty(String name) {
-        return getKnownProperties().containsKey(name);
+        return allProperties.stream().collect(Collectors.toMap(x -> x.getName(), x -> x));
     }
 }

@@ -2,7 +2,8 @@ package eu.domibus.core.replication;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.common.MessageStatus;
-import eu.domibus.common.NotificationStatus;
+import eu.domibus.core.plugin.notification.NotificationStatus;
+import eu.domibus.core.util.DatabaseUtil;
 import eu.domibus.messaging.MessageConstants;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -29,9 +30,11 @@ public class UIReplicationListenerTest {
     @Injectable
     private UIReplicationSignalService uiReplicationSignalService;
 
+    @Injectable
+    private DatabaseUtil databaseUtil;
+
     @Tested
     UIReplicationListener uiReplicationListener;
-
 
     @Test
     public void testProcessUIReplication_UIReplicationEnabled(final @Mocked MapMessage mapMessage) throws Exception {
@@ -80,6 +83,8 @@ public class UIReplicationListenerTest {
             domainContextProvider.setCurrentDomain(domainCodeActual = withCapture());
             Assert.assertEquals(domainCode, domainCodeActual);
 
+            databaseUtil.getDatabaseUserName();
+
             long jmsTimestampActual;
             uiReplicationDataService.userMessageReceived(messageId, jmsTimestampActual = withCapture());
             Assert.assertEquals(jmsTimestamp, jmsTimestampActual);
@@ -115,11 +120,11 @@ public class UIReplicationListenerTest {
         //tested method
         uiReplicationListener.processUIReplication(mapMessage);
 
-
         new FullVerifications() {{
             String domainCodeActual;
             domainContextProvider.setCurrentDomain(domainCodeActual = withCapture());
             Assert.assertEquals(domainCode, domainCodeActual);
+            databaseUtil.getDatabaseUserName();
         }};
     }
 }

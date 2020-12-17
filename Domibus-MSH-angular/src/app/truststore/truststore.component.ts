@@ -1,16 +1,18 @@
-import {Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/catch';
-import {TrustStoreService} from './trustore.service';
-import {TrustStoreEntry} from './trustore.model';
+import {TrustStoreService} from './support/trustore.service';
 import {TruststoreDialogComponent} from './truststore-dialog/truststore-dialog.component';
-import {MdDialog} from '@angular/material';
+import {MatDialog} from '@angular/material';
 import {TrustStoreUploadComponent} from './truststore-upload/truststore-upload.component';
-import {ColumnPickerBase} from '../common/column-picker/column-picker-base';
-import {RowLimiterBase} from '../common/row-limiter/row-limiter-base';
-import {DownloadService} from '../common/download.service';
-import {AlertComponent} from '../common/alert/alert.component';
 import {AlertService} from '../common/alert/alert.service';
+import {HttpClient} from '@angular/common/http';
+import mix from '../common/mixins/mixin.utils';
+import BaseListComponent from '../common/mixins/base-list.component';
+import {ClientPageableListMixin} from '../common/mixins/pageable-list.mixin';
+import {ApplicationContextService} from '../common/application-context.service';
+import {TrustStoreEntry} from './support/trustore.model';
+import {ComponentName} from '../common/component-name-decorator';
 
 @Component({
   selector: 'app-truststore',
@@ -18,30 +20,31 @@ import {AlertService} from '../common/alert/alert.service';
   styleUrls: ['./truststore.component.css'],
   providers: [TrustStoreService]
 })
-export class TruststoreComponent implements OnInit {
+@ComponentName('TrustStore')
+export class TruststoreComponent extends mix(BaseListComponent)
+  .with(ClientPageableListMixin)
+  implements OnInit, AfterViewInit, AfterViewChecked {
+
   static readonly TRUSTSTORE_URL: string = 'rest/truststore';
   static readonly TRUSTSTORE_CSV_URL: string = TruststoreComponent.TRUSTSTORE_URL + '/csv';
+  static readonly TRUSTSTORE_DOWNLOAD_URL: string = TruststoreComponent.TRUSTSTORE_URL + '/download';
 
-  columnPicker: ColumnPickerBase = new ColumnPickerBase();
+  @ViewChild('rowWithDateFormatTpl', {static: false}) rowWithDateFormatTpl: TemplateRef<any>;
 
-  rowLimiter: RowLimiterBase = new RowLimiterBase();
-
-  @ViewChild('rowWithDateFormatTpl') rowWithDateFormatTpl: TemplateRef<any>;
-
-  trustStoreEntries: Array<TrustStoreEntry>;
-  selectedMessages: Array<any>;
-  loading: boolean;
-
-  rows: Array<any> = [];
-  offset: number;
-
-  constructor (private trustStoreService: TrustStoreService, public dialog: MdDialog, public alertService: AlertService) {
+  constructor(private applicationService: ApplicationContextService, private http: HttpClient, private trustStoreService: TrustStoreService,
+              public dialog: MatDialog, public alertService: AlertService, private changeDetector: ChangeDetectorRef) {
+    super();
   }
 
-  ngOnInit (): void {
+  ngOnInit(): void {
+    super.ngOnInit();
+
+    this.loadServerData();
+  }
+
+  ngAfterViewInit() {
     this.columnPicker.allColumns = [
       {
-
         name: 'Name',
         prop: 'name'
       },
@@ -70,50 +73,32 @@ export class TruststoreComponent implements OnInit {
     this.columnPicker.selectedColumns = this.columnPicker.allColumns.filter(col => {
       return ['Name', 'Subject', 'Issuer', 'Valid from', 'Valid until'].indexOf(col.name) !== -1
     });
-
-    this.trustStoreEntries = [];
-    this.selectedMessages = [];
-    this.rows = [];
-
-    this.offset = 0;
-
-    this.getTrustStoreEntries();
   }
 
-  getTrustStoreEntries (): void {
-    this.trustStoreService.getEntries().subscribe(trustStoreEntries => {
-      this.trustStoreEntries = trustStoreEntries;
-      this.offset = 0;
-    });
+  ngAfterViewChecked() {
+    this.changeDetector.detectChanges();
   }
 
-  onSelect ({selected}) {
-    this.selectedMessages.splice(0, this.selectedMessages.length);
-    this.selectedMessages.push(...selected);
+  public async getDataAndSetResults(): Promise<any> {
+    return this.getTrustStoreEntries();
   }
 
-  onActivate (event) {
-    if ('dblclick' === event.type) {
-      this.details(event.row);
-    }
+  async getTrustStoreEntries() {
+    const trustStoreEntries: TrustStoreEntry[] = await this.trustStoreService.getEntries();
+
+    trustStoreEntries.forEach(el => el.isExpired = new Date(el.validUntil) < new Date());
+
+    super.rows = trustStoreEntries;
+    super.count = trustStoreEntries ? trustStoreEntries.length : 0;
   }
 
-  details (selectedRow: any) {
+  showDetails(selectedRow: any) {
     this.dialog.open(TruststoreDialogComponent, {data: {trustStoreEntry: selectedRow}})
       .afterClosed().subscribe(result => {
     });
   }
 
-  onChangePage (event: any): void {
-    this.offset = event.offset;
-  }
-
-  changePageSize (newPageSize: number) {
-    this.rowLimiter.pageSize = newPageSize;
-    this.getTrustStoreEntries();
-  }
-
-  openEditTrustStore () {
+  openEditTrustStore() {
     this.dialog.open(TrustStoreUploadComponent).componentInstance.onTruststoreUploaded
       .subscribe(updated => {
         this.getTrustStoreEntries();
@@ -121,15 +106,37 @@ export class TruststoreComponent implements OnInit {
   }
 
   /**
-   * Saves the content of the datatable into a CSV file
+   * Method called when Download button or icon is clicked
    */
-  saveAsCSV () {
-    if (this.trustStoreEntries.length > AlertComponent.MAX_COUNT_CSV) {
-      this.alertService.error(AlertComponent.CSV_ERROR_MESSAGE);
-      return;
-    }
+  downloadCurrentTrustStore() {
+    this.http.get(TruststoreComponent.TRUSTSTORE_DOWNLOAD_URL, {responseType: 'blob', observe: 'response'})
+      .subscribe(res => {
+        this.trustStoreService.saveTrustStoreFile(res.body);
+      }, err => {
+        this.alertService.exception('Error downloading TrustStore:', err);
+      });
+  }
 
-    DownloadService.downloadNative(TruststoreComponent.TRUSTSTORE_CSV_URL);
+  /**
+   * Method that checks if 'Download' button should be enabled
+   * @returns {boolean} true, if button can be enabled; and false, otherwise
+   */
+  canDownload(): boolean {
+    if (this.rows.length > 0) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  get csvUrl(): string {
+    return TruststoreComponent.TRUSTSTORE_CSV_URL;
+  }
+
+  getRowClass(row) {
+    return {
+      'highlighted-row': row.isExpired
+    };
   }
 
 }

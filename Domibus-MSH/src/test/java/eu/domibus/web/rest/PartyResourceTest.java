@@ -2,22 +2,23 @@ package eu.domibus.web.rest;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.party.Party;
 import eu.domibus.api.party.PartyService;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.security.TrustStoreEntry;
-import eu.domibus.common.exception.EbMS3Exception;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import eu.domibus.core.csv.CsvServiceImpl;
+import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.party.CertificateContentRo;
 import eu.domibus.core.party.IdentifierRo;
 import eu.domibus.core.party.PartyResponseRo;
 import eu.domibus.core.party.ProcessRo;
+import eu.domibus.core.pmode.validation.PModeValidationHelper;
 import eu.domibus.web.rest.ro.PartyFilterRequestRO;
 import eu.domibus.web.rest.ro.TrustStoreRO;
+import eu.domibus.web.rest.ro.ValidationResponseRO;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -26,11 +27,9 @@ import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import java.time.LocalDate;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
@@ -62,6 +61,9 @@ public class PartyResourceTest {
 
     @Injectable
     private CertificateService certificateService;
+
+    @Injectable
+    PModeValidationHelper pModeValidationHelper;
 
     @Test
     public void listParties() throws Exception {
@@ -225,11 +227,6 @@ public class PartyResourceTest {
         TrustStoreRO res = partyResource.convertCertificateContent(partyName, cert);
 
         assertEquals(res, tr);
-
-//        new Verifications() {{
-//            certificateService.convertCertificateContent(certContent);
-//            times = 1;
-//        }};
     }
 
 
@@ -267,8 +264,10 @@ public class PartyResourceTest {
     public void testUpdateParties() {
         // Given
         PartyResponseRo partyResponseRo = new PartyResponseRo();
+        partyResponseRo.setIdentifiers(new HashSet<>());
         List<PartyResponseRo> partiesRo = Arrays.asList(partyResponseRo);
         Party party = new Party();
+
         List<Party> partyList = Arrays.asList(party);
 
         new Expectations(partyResource) {{
@@ -279,9 +278,10 @@ public class PartyResourceTest {
         }};
 
         // When
-        final ResponseEntity response = partyResource.updateParties(partiesRo);
+        final ValidationResponseRO response = partyResource.updateParties(partiesRo);
 
         // Then
-        Assert.assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        Assert.assertEquals(0, response.getIssues().size());
     }
+
 }

@@ -1,45 +1,34 @@
 import {Injectable} from '@angular/core';
-import {
-  Http, Response, RequestOptionsArgs, Headers, RequestOptions, ConnectionBackend,
-  XHRBackend
-} from '@angular/http';
+import {HttpClient, HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest} from '@angular/common/http';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/catch';
 import 'rxjs/add/operator/share';
 import 'rxjs/add/observable/throw';
 import {HttpEventService} from './http.event.service';
+import {catchError} from 'rxjs/operators';
+import {throwError} from 'rxjs';
+import {Server} from '../../security/Server';
 
 @Injectable()
-export class ExtendedHttpClient extends Http {
-  http: Http;
+export class ExtendedHttpInterceptor implements HttpInterceptor {
+  http: HttpClient;
   httpEventService: HttpEventService;
 
-  constructor (_backend: ConnectionBackend, _defaultOptions: RequestOptions, httpEventService: HttpEventService) {
-    super(_backend, _defaultOptions);
+  constructor(httpEventService: HttpEventService) {
     this.httpEventService = httpEventService;
   }
 
-  setOptions (options?: RequestOptionsArgs): RequestOptionsArgs {
-    if (!options) {
-      options = {};
-    }
-    if (!options.headers) {
-      options.headers = new Headers();
-    }
-    return options;
-  }
-
-  request (url: string, options?: RequestOptionsArgs): Observable<Response> {
-    options = this.setOptions(options);
-
-    return super.request(url, options).catch((error: Response) => {
-      if ((error.status === 403)) {
-        console.log('ExtendedHttpClient: received 403');
-        this.httpEventService.requestForbiddenEvent(error);
-      }
-      return Observable.throw(error);
-    });
+  intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    return next.handle(request).pipe(
+      catchError((error: HttpErrorResponse) => {
+        if (error.status === Server.HTTP_FORBIDDEN) {
+          console.log(`ExtendedHttpClient: received ${Server.HTTP_FORBIDDEN}`);
+          this.httpEventService.requestForbiddenEvent(error);
+        }
+        return throwError(error);
+      })
+    );
   }
 
 }

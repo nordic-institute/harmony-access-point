@@ -29,7 +29,7 @@ public class AlertDispatcherServiceImpl implements AlertDispatcherService {
     public void dispatch(Alert alert) {
         if (findAlert(alert.getEntityId()) == null) {
             if (alert.getAttempts() >= alert.getMaxAttempts()) {
-                LOG.warn("Alert not found in the database, skip dispatching: [{}]", alert);
+                LOG.debug("Alert not found in the database, skip dispatching: [{}]", alert);
                 return;
             }
             alert.setAttempts(alert.getAttempts() + 1);
@@ -37,7 +37,7 @@ public class AlertDispatcherServiceImpl implements AlertDispatcherService {
             LOG.debug("Alert enqueued for retry: [{}]", alert);
             return;
         }
-        LOG.debug("Dispatching alert [{}]" + alert);
+        LOG.debug("Dispatching alert [{}]", alert);
         try {
             alert.setAlertStatus(AlertStatus.FAILED);
             alertMethodFactory.getAlertMethod().sendAlert(alert);
@@ -53,4 +53,5 @@ public class AlertDispatcherServiceImpl implements AlertDispatcherService {
         alertCriteria.setAlertID(alertId);
         return alertService.findAlerts(alertCriteria).stream().findFirst().orElse(null);
     }
+
 }

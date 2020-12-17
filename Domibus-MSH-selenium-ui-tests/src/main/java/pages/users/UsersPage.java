@@ -3,6 +3,7 @@ package pages.users;
 import ddsl.dcomponents.DomibusPage;
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.dcomponents.popups.Dialog;
+import ddsl.dobjects.Checkbox;
 import ddsl.dobjects.DButton;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -11,37 +12,40 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 
 
-
 /**
  * @author Catalin Comanici
-
  * @version 4.1
  */
 
 
 public class UsersPage extends DomibusPage {
+	@FindBy(id = "deleted_id")
+	WebElement deletedChk;
+	@FindBy(id = "pageGridId")
+	private WebElement userTableContainer;
+
+	@FindBy(id = "cancelButtonId")
+	private WebElement cancelBtn;
+
+	@FindBy(id = "saveButtonId")
+	private WebElement saveBtn;
+
+	@FindBy(id = "addButtonId")
+	private WebElement newBtn;
+
+	@FindBy(id = "editButtonId")
+	private WebElement editBtn;
+
+	@FindBy(id = "deleteButtonId")
+	private WebElement deleteBtn;
+
+	@FindBy(id = "searchbutton_id")
+	private WebElement searchBtn;
+
 	public UsersPage(WebDriver driver) {
 		super(driver);
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 	}
-
-	@FindBy(id = "userTable")
-	private WebElement userTableContainer;
-
-	@FindBy(id = "userCancelButton")
-	private WebElement cancelBtn;
-
-	@FindBy(id = "userSaveButton")
-	private WebElement saveBtn;
-
-	@FindBy(id = "userNewButton")
-	private WebElement newBtn;
-
-	@FindBy(id = "userEditButton")
-	private WebElement editBtn;
-
-	@FindBy(id = "userDeleteButton")
-	private WebElement deleteBtn;
 
 	public DGrid grid() {
 		return new DGrid(driver, userTableContainer);
@@ -69,6 +73,14 @@ public class UsersPage extends DomibusPage {
 
 	public DButton getDeleteBtn() {
 		return new DButton(driver, deleteBtn);
+	}
+
+	public DButton getSearchBtn() {
+		return new DButton(driver, searchBtn);
+	}
+
+	public Checkbox getDeletedChk() {
+		return new Checkbox(driver, deletedChk);
 	}
 
 	public boolean isLoaded() throws Exception {
@@ -106,4 +118,14 @@ public class UsersPage extends DomibusPage {
 		modal.fillData("", email, role, password, confirmation);
 		modal.getOkBtn().click();
 	}
+
+	public void includeDeletedUsers() throws Exception {
+		log.info("including deleted users in search");
+		if (!getDeletedChk().isChecked()) {
+			getDeletedChk().click();
+			getDeletedChk().click();
+		}
+		getSearchBtn().click();
+	}
+
 }

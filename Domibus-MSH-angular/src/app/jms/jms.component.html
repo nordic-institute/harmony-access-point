@@ -1,138 +1,91 @@
-<page-header id="jmsmonitoringheader_id">JMS Monitoring</page-header>
-<div class="selectionCriteria">
-  <md-card>
-    <md-card-content>
-      <div class="panel">
+<div style="height: calc(100% - 55px);">
+  <page-header id="jmsmonitoringheader_id">JMS Monitoring</page-header>
 
-        <md-select class="searchField" placeholder="Source" [(ngModel)]="selectedSource" name="jmsQueueSelector"
-                   id="jmsQueueSelector" style="width:40%;">
-          <md-option *ngFor="let queue of queues" [value]="queue" class="queue-combo-item">
-            {{queue.internal ? "[internal]" :""}} {{queue.name}} {{queue.numberOfMessages != -1 ? "(" + queue.numberOfMessages + ")" : ""}}
-          </md-option>
-        </md-select>
-        <md2-datepicker id="jmsFromDatePicker" appClearInvalid
-                        placeholder="Received From:"
-                        [(ngModel)]="filter.fromDate"
-                        name="receivedFrom"
-                        [type]="'datetime'"
-                        [max]="timestampFromMaxDate"
-                        (change)='onTimestampFromChange($event)'
-                        #timestampControl="ngModel">
-        </md2-datepicker>
-        <md2-datepicker id="jmsToDatePicker" appClearInvalid
-                        placeholder="Received Up To:"
-                        [(ngModel)]="filter.toDate"
-                        name="receivedTo"
-                        [min]="timestampToMinDate"
-                        [max]="timestampToMaxDate"
-                        (change)='onTimestampToChange($event)'
-                        [type]="'datetime'"
-                        #timestampControl="ngModel">
-        </md2-datepicker>
+  <div class="selectionCriteria">
+    <mat-card>
+      <mat-card-content>
+        <div class="panel">
+          <form name="filterForm" #filterForm="ngForm" (submit)="tryFilter()">
+            <mat-select class="searchField" placeholder="Source" [(ngModel)]="selectedSource" name="jmsQueueSelector"
+                        id="jmsQueueSelector" style="width:40%;">
+              <mat-option *ngFor="let queue of queues" [value]="queue" class="queue-combo-item">
+                {{queue.internal ? "[internal]" : ""}} {{queue.name}} {{queue.numberOfMessages != -1 ? "(" + queue.numberOfMessages + ")" : ""}}
+              </mat-option>
+            </mat-select>
+            <md2-datepicker id="jmsFromDatePicker" appClearInvalid
+                            placeholder="Received From:"
+                            [(ngModel)]="filter.fromDate"
+                            name="receivedFrom"
+                            [type]="'datetime'"
+                            [max]="timestampFromMaxDate"
+                            (change)='onTimestampFromChange($event)'
+                            #timestampControl="ngModel">
+            </md2-datepicker>
+            <md2-datepicker id="jmsToDatePicker" appClearInvalid
+                            placeholder="Received Up To:"
+                            [(ngModel)]="filter.toDate"
+                            name="receivedTo"
+                            [min]="timestampToMinDate"
+                            [max]="timestampToMaxDate"
+                            (change)='onTimestampToChange($event)'
+                            [type]="'datetime'"
+                            #timestampControl="ngModel">
+            </md2-datepicker>
 
-        <md-input-container id="jmsSelector">
-          <input id="jmsSelectorinput" mdInput placeholder="Selector" [(ngModel)]="filter.selector">
-        </md-input-container>
+            <mat-form-field id="jmsSelector">
+              <input id="jmsSelectorinput" name="selector" matInput placeholder="Selector" [(ngModel)]="filter.selector">
+            </mat-form-field>
 
-        <md-input-container id="jmsType">
-          <input id="jmsTypeInput" mdInput placeholder="JMS Type" [(ngModel)]="filter.jmsType">
-        </md-input-container>
+            <mat-form-field id="jmsType">
+              <input id="jmsTypeInput" name="jmsType" matInput placeholder="JMS Type" [(ngModel)]="filter.jmsType">
+            </mat-form-field>
 
-        <div class="searchArea">
-          <button id="jmsSearchButton" md-raised-button color="primary" (click)="trySearch()" [disabled]="!canSearch()"
-                  button-click-behaviour>
-            <md-icon>search</md-icon>
-            <span>Search</span>
-          </button>
+            <filter-area-footer [parent]="this" [isAdvancedVisible]="false" [form]="filterForm"></filter-area-footer>
+
+          </form>
         </div>
-      </div>
-    </md-card-content>
-  </md-card>
-</div>
-
-<div class="panel">
-  <div class="group-filter-button">
-    <span class="row-button">
-      <app-row-limiter [pageSizes]="rowLimiter.pageSizes"
-                     (onPageSizeChanged)="changePageSize($event.value)"></app-row-limiter>
-    </span>
-    <span class="column-filter-button">
-      <app-column-picker [allColumns]="columnPicker.allColumns" [selectedColumns]="columnPicker.selectedColumns"
-                       (onSelectedColumnsChanged)="columnPicker.changeSelectedColumns($event)"></app-column-picker>
-    </span>
-    <button md-icon-button color="primary" (click)="saveAsCSV()" button-click-behaviour
-            id="saveascsvbutton_id" md-tooltip="Export as CSV">
-      <img src="assets/images/exportCSV.svg" width="30" height="30">
-    </button>
+      </mat-card-content>
+    </mat-card>
   </div>
 
-  <ngx-datatable
-    id="errorLogTable"
-    class="material striped"
-    [rows]="rows"
-    [columns]="columnPicker.selectedColumns"
-    [columnMode]="'force'"
-    [headerHeight]="50"
-    [footerHeight]="50"
-    [rowHeight]="'auto'"
-    [scrollbarH]="true"
-    [loadingIndicator]="loading"
-    [selectionType]="'multi'"
-    [selected]="selectedMessages"
-    [limit]="rowLimiter.pageSize"
-    [offset]="offset"
-    [sorts]="[{prop: 'timestamp', dir: 'desc'}]"
-    (sort)="onSort()"
-    (activate)="onActivate($event)"
-    (select)="onSelect($event)"
-    (page)="onPage($event)"
-  >
-  </ngx-datatable>
+  <div class="panel" style="height: calc(100% - 170px);">
 
-  <ng-template #rowWithJSONTpl let-row="row" let-value="value" ngx-datatable-cell-template>
-    {{value | json}}
-  </ng-template>
+    <grid-header [parent]="this"></grid-header>
 
-  <ng-template #rowWithDateFormatTpl let-row="row" let-value="value" ngx-datatable-cell-template>
-    <span class="text-select">{{value | domibusDate: dateFormat}}</span>
-  </ng-template>
+    <div style="height: calc(100% - 140px); overflow-y: auto; overflow-x: hidden;">
+      <page-grid [parent]="this" [selectionType]="'multi'"
+                 [sortedColumns]="[{prop: 'timestamp', dir: 'desc'}]"></page-grid>
+    </div>
+
+    <ng-template #rowWithDateFormatTpl let-row="row" let-value="value" ngx-datatable-cell-template>
+      <span class="text-select">{{value | domibusDate}}</span>
+    </ng-template>
 
   <ng-template #rawTextTpl let-row="row" let-value="value" ngx-datatable-cell-template>
     <span class="text-select">{{value}}</span>
   </ng-template>
 
-  <ng-template #rowActions let-row="row" let-value="value" ngx-datatable-cell-template>
-    <button id="jmsMoveButtonRow{{row.$$index}}_id" md-icon-button color="primary" (click)="moveAction(row)"
-            tooltip="Move">
-      <md-icon>move_to_inbox</md-icon>
-    </button>
-    <button id="jmsDeleteButtonRow{{row.$$index}}_id" md-icon-button color="primary" (click)="deleteAction(row)"
-            tooltip="Delete">
-      <md-icon>delete</md-icon>
-    </button>
-  </ng-template>
+    <ng-template #rowActions let-row="row" let-value="value" ngx-datatable-cell-template>
+      <button id="jmsMoveButtonRow{{rows.indexOf(row)}}_id" mat-icon-button color="primary" (click)="moveAction(row)"
+              tooltip="Move" button-click-behaviour>
+        <mat-icon>move_to_inbox</mat-icon>
+      </button>
+      <button id="jmsDeleteButtonRow{{rows.indexOf(row)}}_id" mat-icon-button color="primary"
+              (click)="deleteAction(row)"
+              tooltip="Delete" button-click-behaviour>
+        <mat-icon>delete</mat-icon>
+      </button>
+    </ng-template>
 
-  <div class="group-action-button">
-    <button id="jmsCancelButton" md-raised-button color="primary" (click)="cancel()"
-            [disabled]="markedForDeletionMessages.length == 0" button-click-behaviour>
-      <md-icon>cancel</md-icon>
-      <span>Cancel</span>
-    </button>
-    <button id="jmsSaveButton" md-raised-button color="primary" (click)="save()"
-            [disabled]="markedForDeletionMessages.length == 0" button-click-behaviour>
-      <md-icon>save</md-icon>
-      <span>Save</span>
-    </button>
-    <button id="jmsMoveButton" md-raised-button color="primary" (click)="move()"
-            [disabled]="selectedMessages.length == 0" button-click-behaviour>
-      <md-icon>move_to_inbox</md-icon>
-      <span>Move</span>
-    </button>
-    <button id="jmsDeleteButton" md-raised-button color="primary" (click)="delete()"
-            [disabled]="selectedMessages.length == 0" button-click-behaviour>
-      <md-icon>delete</md-icon>
-      <span>Delete</span>
-    </button>
+    <page-footer [parent]="this" [isAddVisible]="false" [isEditVisible]="false"></page-footer>
+
+    <span>
+      <button id="jmsMoveButton" mat-raised-button color="primary" (click)="moveSelected()" [disabled]="!canMove()"
+              button-click-behaviour>
+        <mat-icon>move_to_inbox</mat-icon>
+        <span>Move</span>
+      </button>
+    </span>
+
   </div>
-
 </div>

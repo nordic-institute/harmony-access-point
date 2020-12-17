@@ -1,44 +1,45 @@
-<h2 md-dialog-title>Error log details</h2>
-<md-dialog-content style="height:450px;width:650px">
-  <md-card>
-    <md-card-content>
-      <md-input-container style="width:100%">
-        <input mdInput placeholder="Signal Message Id" value="{{message.errorSignalMessageId}}" readonly/>
-      </md-input-container>
+<h2 mat-dialog-title>Error log details</h2>
 
-      <md-input-container style="width:100%">
-        <input mdInput placeholder="AP Role" value="{{message.mshRole}}" readonly/>
-      </md-input-container>
+<mat-dialog-content style="height:auto;width:650px">
+  <mat-card>
+    <mat-card-content>
+      <mat-form-field style="width:100%">
+        <input matInput placeholder="Signal Message Id" value="{{message.errorSignalMessageId}}" readonly/>
+      </mat-form-field>
 
-      <md-input-container style="width:100%">
-        <input mdInput placeholder="Message Id" value="{{message.messageInErrorId}}" readonly/>
-      </md-input-container>
+      <mat-form-field style="width:100%">
+        <input matInput placeholder="AP Role" value="{{message.mshRole}}" readonly/>
+      </mat-form-field>
 
-      <md-input-container style="width:100%">
-        <input mdInput placeholder="Error Code" value="{{message.errorCode}}" readonly/>
-      </md-input-container>
+      <mat-form-field style="width:100%">
+        <input matInput placeholder="Message Id" value="{{message.messageInErrorId}}" readonly/>
+      </mat-form-field>
 
-      <md-input-container style="width:100%">
-        <input mdInput placeholder="Error Detail" value="{{message.errorDetail}}" readonly/>
-      </md-input-container>
+      <mat-form-field style="width:100%">
+        <input matInput placeholder="Error Code" value="{{message.errorCode}}" readonly/>
+      </mat-form-field>
 
-      <md-input-container style="width:100%">
-        <input mdInput placeholder="Timestamp" value="{{message.timestamp | domibusDate: dateFormat}}" readonly/>
-      </md-input-container>
+      <mat-form-field style="width:100%">
+        <input matInput placeholder="Error Detail" value="{{message.errorDetail}}" readonly/>
+      </mat-form-field>
 
-      <md-input-container style="width:100%">
-        <input mdInput placeholder="Notified" value="{{message.notified | domibusDate: dateFormat}}" readonly/>
-      </md-input-container>
+      <mat-form-field style="width:100%">
+        <input matInput placeholder="Timestamp" value="{{message.timestamp | domibusDate}}" readonly/>
+      </mat-form-field>
 
-    </md-card-content>
-  </md-card>
+      <mat-form-field style="width:100%">
+        <input matInput placeholder="Notified" value="{{message.notified | domibusDate}}" readonly/>
+      </mat-form-field>
 
-</md-dialog-content>
+    </mat-card-content>
+  </mat-card>
 
-<md-dialog-actions>
-  <button id="messageLogDetailsCloseButton" md-raised-button color="primary" (click)="dialogRef.close({})" style="margin-top:10px">
-    <md-icon>close</md-icon>
+</mat-dialog-content>
+
+<mat-dialog-actions>
+  <button id="messageLogDetailsCloseButton" mat-raised-button color="primary" (click)="dialogRef.close({})" style="margin-top:10px">
+    <mat-icon>close</mat-icon>
     <span>Close</span>
   </button>
-</md-dialog-actions>
+</mat-dialog-actions>
 

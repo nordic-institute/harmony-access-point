@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jboss-deployment-structure xmlns="urn:jboss:deployment-structure:1.2">
+    <deployment>
+        <exclude-subsystems>
+            <subsystem name="webservices" />
+            <subsystem name="jaxrs" />
+            <subsystem name="jsf"/>
+        </exclude-subsystems>
+
+        <dependencies>
+            <module name="org.apache.activemq.artemis"/>
+            <module name="javax.xml.ws.api"/>
+            <module name="javax.jms.api"/>
+            <system export="true">
+                <paths>
+                    <path name="com/sun/org/apache/xerces/internal/jaxp/datatype"/>
+                    <path name="com/sun/org/apache/xerces/internal/jaxp/validation"/>
+                    <path name="org/apache/activemq/artemis/api/jms/management"/>
+                </paths>
+            </system>
+        </dependencies>
+
+        <resources>
+            <resource-root path="WEB-INF/lib/bcprov-jdk15on-${bouncycastle.version}.jar" use-physical-code-source="true"/>
+        </resources>
+
+        <exclusions>
+            <module name="org.slf4j" />
+            <module name="org.apache.log4j" />
+            <module name="org.apache.commons.logging"/>
+            <module name="org.jboss.logging"/>
+        </exclusions>
+
+    </deployment>
+</jboss-deployment-structure>

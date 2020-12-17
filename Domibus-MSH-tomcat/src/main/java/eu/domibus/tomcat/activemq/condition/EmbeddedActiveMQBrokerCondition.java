@@ -8,6 +8,8 @@ import org.springframework.context.annotation.ConditionContext;
 import org.springframework.core.env.Environment;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.ACTIVE_MQ_EMBEDDED_CONFIGURATION_FILE;
+
 /**
  * @author Cosmin Baciu
  * @since 3.3
@@ -23,7 +25,7 @@ public class EmbeddedActiveMQBrokerCondition implements Condition {
             LOGGER.debug("Condition not matching: environment is null");
             return false;
         }
-        final boolean embeddedActiveMQ = StringUtils.isNotEmpty(environment.getProperty("activeMQ.embedded.configurationFile"));
+        final boolean embeddedActiveMQ = StringUtils.isNotEmpty(environment.getProperty(ACTIVE_MQ_EMBEDDED_CONFIGURATION_FILE));
         return embeddedActiveMQ;
     }
 }

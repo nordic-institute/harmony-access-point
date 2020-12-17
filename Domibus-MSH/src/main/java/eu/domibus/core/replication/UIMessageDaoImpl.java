@@ -1,8 +1,10 @@
 package eu.domibus.core.replication;
 
 import eu.domibus.api.message.MessageSubtype;
-import eu.domibus.common.dao.ListDao;
-import eu.domibus.common.model.logging.UserMessageLog;
+import eu.domibus.core.dao.ListDao;
+import eu.domibus.core.message.UserMessageLog;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.Query;
 import javax.persistence.TemporalType;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -136,6 +139,8 @@ public class UIMessageDaoImpl extends ListDao<UIMessageEntity> implements UIMess
 
             LOG.debug("TB_MESSAGE_UI will be updated for messageId=[{}]", uiMessageEntityFound.getMessageId());
             uiMessageEntity.setEntityId(uiMessageEntityFound.getEntityId());
+            uiMessageEntity.setCreatedBy(uiMessageEntityFound.getCreatedBy());
+            uiMessageEntity.setCreationTime(uiMessageEntityFound.getCreationTime());
             em.merge(uiMessageEntity);
             LOG.debug("uiMessageEntity having messageId=[{}] have been updated", uiMessageEntity.getMessageId());
             return;
@@ -197,6 +202,17 @@ public class UIMessageDaoImpl extends ListDao<UIMessageEntity> implements UIMess
             }
         }
         return predicates;
+    }
+
+    @Override
+    @Timer(clazz = UIMessageDaoImpl.class,value = "deleteMessages.deleteUIMessagesByMessageIds")
+    @Counter(clazz = UIMessageDaoImpl.class,value = "deleteMessages.deleteUIMessagesByMessageIds")
+    public int deleteUIMessagesByMessageIds(List<String> messageIds) {
+        final Query deleteQuery = em.createNamedQuery("UIMessageEntity.deleteUIMessagesByMessageIds");
+        deleteQuery.setParameter("MESSAGEIDS", messageIds);
+        int result  = deleteQuery.executeUpdate();
+        LOG.trace("deleteUIMessagesByMessageIds result [{}]", result);
+        return result;
     }
 
     private void addStringPredicates(CriteriaBuilder cb, Root<?> ume, List<Predicate> predicates, Map.Entry<String, Object> filter, String filterKey, Object filterValue) {

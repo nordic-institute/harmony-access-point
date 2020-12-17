@@ -39,10 +39,30 @@ public interface AuthenticationExtService {
     void basicAuthenticate(String username, String password) throws AuthenticationExtException;
 
     /**
-     * Checks whether unsecure loggin is allowed
+     * Checks whether unsecure login is allowed
      *
      * @return true in case unsecure loggin is allowed
      */
     boolean isUnsecureLoginAllowed();
+
+    /**
+     * Verifies if the user is authenticated
+     * @throws org.springframework.security.access.AccessDeniedException if the user is not authenticated
+     */
+    void hasUserOrAdminRole();
+
+    /**
+     * Get authenticated user
+     *
+     * @return the authenticated user
+     */
+    String getAuthenticatedUser();
+
+    /**
+     * Get original user of the authenticated user
+     *
+     * @return the original user
+     */
+    String getOriginalUser();
 
 }

@@ -14,7 +14,17 @@ public enum DomibusErrorCode {
     /**
      * Authentication error
      */
-    DOM_002("002");
+    DOM_002("002"),
+
+    /**
+     * PMode error
+     */
+    DOM_003("003"),
+
+    /**
+     * Parties error
+     */
+    DOM_004("004");
 
     private String errorCode;
 

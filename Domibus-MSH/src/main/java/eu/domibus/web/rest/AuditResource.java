@@ -1,15 +1,12 @@
 package eu.domibus.web.rest;
 
+import com.google.common.collect.ImmutableMap;
 import eu.domibus.api.audit.AuditLog;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DateUtil;
-import eu.domibus.common.model.common.ModificationType;
-import eu.domibus.common.services.AuditService;
+import eu.domibus.core.audit.AuditService;
+import eu.domibus.core.audit.envers.ModificationType;
 import eu.domibus.core.converter.DomainCoreConverter;
-import eu.domibus.core.csv.CsvCustomColumns;
-import eu.domibus.core.csv.CsvExcludedItems;
-import eu.domibus.core.csv.CsvService;
-import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.ro.AuditFilterRequestRO;
@@ -17,7 +14,9 @@ import eu.domibus.web.rest.ro.AuditResponseRo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.util.Arrays;
@@ -51,17 +50,14 @@ public class AuditResource extends BaseResource {
     @Autowired
     DateUtil dateUtil;
 
-    @Autowired
-    CsvServiceImpl csvServiceImpl;
-
     /**
      * Entry point of the Audit rest service to list the system audit logs.
      *
      * @param auditCriteria the audit criteria used to filter the returned list.
      * @return an audit list.
      */
-    @PostMapping(value = {"/list"})
-    public List<AuditResponseRo> listAudits(@RequestBody @Valid AuditFilterRequestRO auditCriteria) {
+    @GetMapping(value = {"/list"})
+    public List<AuditResponseRo> listAudits(@Valid AuditFilterRequestRO auditCriteria) {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Audit criteria received:");
             LOG.debug(auditCriteria.toString());
@@ -81,9 +77,8 @@ public class AuditResource extends BaseResource {
         return list;
     }
 
-
-    @PostMapping(value = {"/count"})
-    public Long countAudits(@RequestBody @Valid AuditFilterRequestRO auditCriteria) {
+    @GetMapping(value = {"/count"})
+    public Long countAudits(@Valid AuditFilterRequestRO auditCriteria) {
         return auditService.countAudit(
                 auditCriteria.getAuditTargetName(),
                 changeActionType(auditCriteria.getAction()),
@@ -92,20 +87,44 @@ public class AuditResource extends BaseResource {
                 auditCriteria.getTo());
     }
 
+    @GetMapping(value = {"/targets"})
+    public List<String> auditTargets() {
+        return auditService.listAuditTarget();
+    }
+
+
+    /**
+     * This method returns a CSV file with the contents of Audit table
+     *
+     * @param auditCriteria same filter criteria as in filter method
+     * @return CSV file with the contents of Audit table
+     */
+    @GetMapping(path = "/csv")
+    public ResponseEntity<String> getCsv(@Valid AuditFilterRequestRO auditCriteria) {
+        auditCriteria.setStart(0);
+        auditCriteria.setMax(getCsvService().getPageSizeForExport());
+
+        final List<AuditResponseRo> entries = listAudits(auditCriteria);
+        getCsvService().validateMaxRows(entries.size(), () -> countAudits(auditCriteria));
+
+        return exportToCSV(entries,
+                AuditResponseRo.class,
+                ImmutableMap.of("AuditTargetName".toUpperCase(), "Table"),
+                Arrays.asList("revisionId"),
+                "audit");
+    }
+
     /**
      * Action type send from the admin console are different from the one used in the database.
      * Eg: In the admin console the filter for a modified entity is Modified where in the database a modified record
      * has the MOD flag. This method does the translation.
-     *
-     * @param actions
-     * @return
      */
     private Set<String> changeActionType(Set<String> actions) {
         if (actions == null || actions.isEmpty()) {
             return new HashSet<>();
         }
         return actions.stream()
-                .map(action -> getActionTypesFromLabel(action))
+                .map(this::getActionTypesFromLabel)
                 .flatMap(Set::stream).collect(Collectors.toSet());
     }
 
@@ -123,32 +142,4 @@ public class AuditResource extends BaseResource {
                 findFirst().orElse(code);
     }
 
-    @GetMapping(value = {"/targets"})
-    public List<String> auditTargets() {
-        return auditService.listAuditTarget();
-    }
-
-    /**
-     * This method returns a CSV file with the contents of Audit table
-     *
-     * @param auditCriteria same filter criteria as in filter method
-     * @return CSV file with the contents of Audit table
-     */
-    @GetMapping(path = "/csv")
-    public ResponseEntity<String> getCsv(@Valid AuditFilterRequestRO auditCriteria) {
-        auditCriteria.setStart(0);
-        auditCriteria.setMax(csvServiceImpl.getMaxNumberRowsToExport());
-        final List<AuditResponseRo> auditResponseRos = listAudits(auditCriteria);
-
-        return exportToCSV(auditResponseRos,
-                AuditResponseRo.class,
-                CsvCustomColumns.AUDIT_RESOURCE.getCustomColumns(),
-                CsvExcludedItems.AUDIT_RESOURCE.getExcludedItems(),
-                "audit");
-    }
-
-    @Override
-    public CsvService getCsvService() {
-        return csvServiceImpl;
-    }
 }

@@ -1,0 +1,18 @@
+<div class="group-filter-button">
+  <div class="group-2">
+    <span>
+      <button mat-icon-button color="primary" (click)="parent.saveAsCSV()" [disabled]="parent.isBusy()"
+              id="saveascsvbutton_id" mat-tooltip="Export as CSV" button-click-behaviour>
+        <img src="assets/images/exportCSV.svg" width="30" height="30">
+      </button>
+    </span>
+    <span class="row-limiter">
+      <app-row-limiter [pageSizes]="parent.rowLimiter.pageSizes" [onPageSizeChanging]="parent.onPageSizeChanging"
+                       (onPageSizeChanged)="parent.changePageSize($event.value)"></app-row-limiter>
+    </span>
+  </div>
+  <span class="column-filter-button">
+      <app-column-picker [allColumns]="parent.columnPicker.allColumns" [selectedColumns]="parent.columnPicker.selectedColumns"
+                         (onSelectedColumnsChanged)="parent.columnPicker.changeSelectedColumns($event)"></app-column-picker>
+    </span>
+</div>

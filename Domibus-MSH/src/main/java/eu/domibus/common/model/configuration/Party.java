@@ -1,6 +1,6 @@
 package eu.domibus.common.model.configuration;
 
-import eu.domibus.common.model.common.RevisionLogicalName;
+import eu.domibus.core.audit.envers.RevisionLogicalName;
 import eu.domibus.ebms3.common.model.AbstractBaseEntity;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -9,8 +9,8 @@ import org.hibernate.envers.Audited;
 
 import javax.persistence.*;
 import javax.xml.bind.annotation.*;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.hibernate.envers.RelationTargetAuditMode.NOT_AUDITED;
 
@@ -50,7 +50,7 @@ import static org.hibernate.envers.RelationTargetAuditMode.NOT_AUDITED;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = "identifiers")
 @Entity
-@Table(name = "TB_PARTY")
+@Table(name = "TB_PM_PARTY")
 @NamedQueries({@NamedQuery(name = "Party.findPartyByIdentifier", query = "select p.name from Party p where :PARTY_IDENTIFIER member of p.identifiers"),
         @NamedQuery(name = "Party.findByName", query = "select p from Party p where p.name = :NAME"),
         @NamedQuery(name = "Party.findAll", query = "select p from Party p"),
@@ -64,8 +64,8 @@ public class Party extends AbstractBaseEntity {
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "FK_PARTY")
     @Audited(targetAuditMode = NOT_AUDITED)
-    @AuditJoinTable(name = "TB_PARTY_IDENTIFIER_AUD")
-    protected Set<Identifier> identifiers; //NOSONAR
+    @AuditJoinTable(name = "TB_PM_PARTY_IDENTIFIER_AUD")
+    protected List<Identifier> identifiers; //NOSONAR
     @XmlAttribute(name = "name", required = true)
     @Column(name = "NAME")
     protected String name;
@@ -102,14 +102,14 @@ public class Party extends AbstractBaseEntity {
      *
      * @return a reference to the live list of identifiers
      */
-    public Set<Identifier> getIdentifiers() {
+    public List<Identifier> getIdentifiers() {
         if (this.identifiers == null) {
-            this.identifiers = new HashSet<>();
+            this.identifiers = new ArrayList<>();
         }
         return this.identifiers;
     }
 
-    public void setIdentifiers(Set<Identifier> identifiers) {
+    public void setIdentifiers(List<Identifier> identifiers) {
         this.identifiers = identifiers;
     }
 
@@ -217,7 +217,7 @@ public class Party extends AbstractBaseEntity {
                 .isEquals();
     }
 
-    protected boolean equalIdentifiers(Set<Identifier> identifiers, Set<Identifier> identifiers1) {
+    protected boolean equalIdentifiers(List<Identifier> identifiers, List<Identifier> identifiers1) {
 
         if(identifiers == null && identifiers1 == null) {
             return true;

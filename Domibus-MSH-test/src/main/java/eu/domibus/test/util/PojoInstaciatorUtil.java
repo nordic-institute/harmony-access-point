@@ -1,12 +1,13 @@
 package eu.domibus.test.util;
 
 
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.util.ClassUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.util.*;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -18,7 +19,7 @@ import java.util.regex.Pattern;
  */
 public class PojoInstaciatorUtil {
 
-    private static final Logger logger = Logger.getLogger("PojoInstaciatorUtil");
+    private static final DomibusLogger logger = DomibusLoggerFactory.getLogger("PojoInstaciatorUtil");
     private static Pattern fieldPatern = Pattern.compile("(?<fieldName>\\w*):(?<fieldValue>\\w*)");
     private static Pattern ententityPattehrn = Pattern.compile("(?<entity>\\w*)\\[(?<parameter>.*)\\]");
     private static Pattern rootEntityPattern = Pattern.compile("(?<entity> )\\[(?<parameter>.*)\\]");

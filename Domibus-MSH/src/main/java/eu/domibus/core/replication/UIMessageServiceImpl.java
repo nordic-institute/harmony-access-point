@@ -1,6 +1,6 @@
 package eu.domibus.core.replication;
 
-import eu.domibus.common.model.logging.MessageLogInfo;
+import eu.domibus.core.message.MessageLogInfo;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -32,6 +32,13 @@ public class UIMessageServiceImpl implements UIMessageService {
 
     @Autowired
     private DomainCoreConverter domainConverter;
+
+    @Override
+    @Transactional(readOnly = true)
+    public long countMessages(Map<String, Object> filters) {
+        long numberOfMessages = uiMessageDao.countEntries(filters);
+        return numberOfMessages;
+    }
 
     @Override
     @Transactional(readOnly = true)

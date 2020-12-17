@@ -84,10 +84,8 @@
         </parties>
         <meps>
             <mep name="oneway" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/oneWay"/>
-            <mep name="twoway" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/twoWay"/>
+            <binding name="pull" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/pull"/>
             <binding name="push" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/push"/>
-            <binding name="pushAndPush"
-                     value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/pushAndPush"/>
         </meps>
         <properties>
             <property name="originalSenderProperty"
@@ -122,7 +120,8 @@
         </errorHandlings>
         <agreements>
             <agreement name="agreement1110" value="EDELIVERY-1110" type=""/>
-            <agreement name="agreement1111" value="TestServiceAgreement" type=""/>
+            <agreement name="agreement1111" value="TestServiceAgreement" type="TestServiceAgreementType"/>
+            <agreement name="agreementempty"  type=""/>
             <agreement name="agreementEmpty" value="" type=""/>
         </agreements>
         <services>
@@ -268,8 +267,8 @@
         </process>
         <process name="tc3Process"
                  agreement="agreement1110"
-                 mep="twoway"
-                 binding="pushAndPush"
+                 mep="oneway"
+                 binding="push"
                  initiatorRole="defaultInitiatorRole"
                  responderRole="defaultResponderRole">
             <initiatorParties>
@@ -295,10 +294,28 @@
                 <leg name="pushTestcase3Leg2tc3ActionLeg2"/>
             </legs>
         </process>
+        <process name="testServiceWrong"
+                 agreement="agreementempty"
+                 mep="oneway"
+                 binding="push"
+                 initiatorRole="defaultInitiatorRole"
+                 responderRole="defaultResponderRole">
+            <initiatorParties>
+                <initiatorParty name="blue_gw"/>
+                <initiatorParty name="red_gw"/>
+            </initiatorParties>
+            <responderParties>
+                <responderParty name="blue_gw"/>
+                <responderParty name="red_gw"/>
+            </responderParties>
+            <legs>
+                <leg name="legTestService"/>
+            </legs>
+        </process>
         <process name="testService"
                  agreement="agreement1111"
-                 mep="twoway"
-                 binding="pushAndPush"
+                 mep="oneway"
+                 binding="push"
                  initiatorRole="defaultInitiatorRole"
                  responderRole="defaultResponderRole">
             <initiatorParties>

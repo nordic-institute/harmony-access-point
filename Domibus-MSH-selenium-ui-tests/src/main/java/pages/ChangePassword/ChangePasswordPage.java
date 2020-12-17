@@ -11,10 +11,37 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
-import utils.Generator;
 
 
 public class ChangePasswordPage extends DomibusPage {
+
+	public final String newPasswordFieldLabel = "New Password";
+	public final String currentPasswordFieldLabel = "Current Password";
+	public final String confirmationFieldLabel = "Confirmation";
+	
+	@FindBy(xpath = "//p[contains(text(),'Change Password')]")
+	protected WebElement fieldHeader;
+	
+	@FindBy(id = "currentPassword_id")
+	private WebElement currentPassField;
+	
+	@FindBy(id = "newPassword_id")
+	private WebElement newPassField;
+
+	@FindBy(css = "#newPassword_id ~ span div.ng-star-inserted")
+	private WebElement newPassFieldErrMess;
+	
+	@FindBy(id = "confirmation_id")
+	private WebElement confirmationField;
+
+	@FindBy(css = "#confirmation_id ~ span div.ng-star-inserted")
+	private WebElement confirmationFieldErrMess;
+
+	@FindBy(id = "editbuttonok_id")
+	private WebElement updateButton;
+	
+	@FindBy(css = "mat-card > div:nth-child(5)")
+	private WebElement mandatoryFieldsText;
 
 	public ChangePasswordPage(WebDriver driver) {
 		super(driver);
@@ -22,27 +49,11 @@ public class ChangePasswordPage extends DomibusPage {
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 	}
 
-	public final String newPasswordFieldLabel = "New Password";
-	public final String currentPasswordFieldLabel = "Current Password";
-	public final String confirmationFieldLabel = "Confirmation";
-
-
-	@FindBy(xpath = "//p[contains(text(),'Change Password')]")
-	protected WebElement fieldHeader;
-
-	@FindBy(id = "currentPassword_id")
-	private WebElement currentPassField;
-
-	@FindBy(id = "newPassword_id")
-	private WebElement newPassField;
-
-	@FindBy(id = "confirmation_id")
-	private WebElement confirmationField;
-
-	@FindBy(id = "editbuttonok_id")
-	private WebElement updateButton;
-
-
+	@Override
+	public void waitForPageTitle(){
+		wait.forElementToBeVisible(fieldHeader);
+	}
+	
 	public DInput getCPassField() {
 		return new DInput(driver, currentPassField);
 	}
@@ -111,13 +122,17 @@ public class ChangePasswordPage extends DomibusPage {
 	 */
 	public void setPassFields(String currentPass, String newPass, String confirmPass) throws Exception {
 		log.debug("User enters data in current password field");
+		getCPassField().click();
 		getCPassField().fill(currentPass);
 
 		log.debug("User enters data in New password field");
+		getNPassField().click();
 		getNPassField().fill(newPass);
 
 		log.debug("User enters data in Confirmation field");
+		getConfirmationField().click();
 		getConfirmationField().fill(confirmPass);
+		getCPassField().click();
 
 		if (isValidationMsgPresent(confirmationFieldLabel) || isValidationMsgPresent(newPasswordFieldLabel)) {
 			return;
@@ -128,42 +143,31 @@ public class ChangePasswordPage extends DomibusPage {
 
 
 
-    /*
-    This method returns CSS of validation message shown under field with provided FieldLabel
-    *   @param FieldName :- Name of Input Field
-    *   @return :- CSS of validation message under input field
-     */
-
-	public String getCssOfValidationMsg(String fieldName) {
-		if (fieldName.equals(newPasswordFieldLabel)) {
-			String fieldLabel = fieldName;
-			String[] labels = fieldLabel.split(" ");
-			String FieldName1 = labels[0].toLowerCase().concat(labels[1]);
-			return "input[id='" + FieldName1 + "_id']~div>div";
-		} else if (fieldName.equals(confirmationFieldLabel)) {
-			String str = fieldName.toLowerCase();
-			return "input[id='" + str + "_id']~div>div";
-		} else {
-			return "";
-		}
-	}
-
 	/*
 	This method print message under provided FieldLabel
 	*@param FieldName :- Name of Input Field
 	* @return :-Boolean result for Presence of Validation message under input field
 	 */
 	public Boolean isValidationMsgPresent(String fieldName) throws Exception {
-		try {
-			WebElement elm = driver.findElement(By.cssSelector(getCssOfValidationMsg(fieldName)));
-			wait.forElementToBe(elm);
-			if (elm.isDisplayed()) {
-				log.info("Validation message under field " + fieldName + "\r\n" + elm.getText().trim());
-				return true;
-			}
-		} catch (Exception e) {	}
-		log.info("message is not displayed");
-		return false;
+
+		switch (fieldName){
+			case confirmationFieldLabel:
+				try {
+					return weToDobject(confirmationFieldErrMess).isPresent();
+				} catch (Exception e) {
+					return false;
+				}
+			case newPasswordFieldLabel:
+				try {
+					return weToDobject(newPassFieldErrMess).isEnabled();
+				} catch (Exception e) {
+					return false;
+				}
+
+			default:
+				throw new Exception("field name not recognized - " + fieldName);
+		}
+
 	}
 
 	/*
@@ -172,15 +176,20 @@ public class ChangePasswordPage extends DomibusPage {
 	* @return : the string under the input
 	 */
 	public String getValidationMsg(String fieldName) throws Exception {
-		if (isValidationMsgPresent(fieldName)) {
-			WebElement elm = driver.findElement(By.cssSelector(getCssOfValidationMsg(fieldName)));
-			log.info("Validation message under field " + fieldName + "\r\n" + elm.getText().trim());
-			return weToDobject(elm).getText();
+		switch (fieldName){
+			case confirmationFieldLabel:
+				return weToDobject(confirmationFieldErrMess).getText();
+			case newPasswordFieldLabel:
+				return weToDobject(newPassFieldErrMess).getText();
+			default:
+				throw new Exception("field name not recognized - " + fieldName);
 		}
-		log.info("message is not displayed");
-		return "";
 	}
 
+	public void pressTABKey() throws Exception {
+		weToDobject(mandatoryFieldsText).click();
+		wait.forXMillis(500);
+	}
 
 }
 

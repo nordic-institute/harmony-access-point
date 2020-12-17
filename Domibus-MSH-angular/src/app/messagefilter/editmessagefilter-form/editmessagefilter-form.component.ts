@@ -1,85 +1,91 @@
-import {Component, Inject} from '@angular/core';
-import {FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {MD_DIALOG_DATA, MdDialogRef} from '@angular/material';
-import {BackendFilterEntry} from '../backendfilterentry';
-import {isNullOrUndefined} from 'util';
+import {ChangeDetectorRef, Component, Inject} from '@angular/core';
+import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material';
+import {RoutingCriteriaEntry} from '../support/routingcriteriaentry';
+import {BackendFilterEntry} from '../support/backendfilterentry';
+import {EditPopupBaseComponent} from '../../common/edit-popup-base.component';
 
-let NEW_MODE = 'New Message Filter';
-let EDIT_MODE = 'Message Filter Edit';
-let MAX_LENGTH = 255;
+const NEW_MODE = 'New Message Filter';
+const EDIT_MODE = 'Message Filter Edit';
+const MAX_LENGTH = 255;
 
+/**
+ * @author Tiago Miguel, Ion Perpegel
+ * @since 3.3
+ *
+ * In charge of creating and updating message filters
+ */
 @Component({
   selector: 'editmessagefilter-form',
-  templateUrl: 'editmessagefilter-form.component.html'
+  templateUrl: 'editmessagefilter-form.component.html',
+  styleUrls: ['editmessagefilter-form.component.css'],
 })
-export class EditMessageFilterComponent {
+export class EditMessageFilterComponent extends EditPopupBaseComponent {
 
-  plugin: string;
-  from: string;
-  to: string;
-  service: string;
-  action: string;
-  formTitle: string = EDIT_MODE;
+  formTitle: string;
   textMaxLength = MAX_LENGTH;
 
   backendFilterNames: Array<String> = [];
 
-  messageFilterForm: FormGroup;
+  entity: BackendFilterEntry;
+  criteria: any;
 
-  constructor(public dialogRef: MdDialogRef<EditMessageFilterComponent>,
-              @Inject(MD_DIALOG_DATA) public data: any,
-              fb: FormBuilder) {
-    if (isNullOrUndefined(data.edit)) {
-      this.formTitle = NEW_MODE;
-      this.backendFilterNames = data.backendFilterNames;
-      this.plugin = this.backendFilterNames[0].toString();
-      this.from = '';
-      this.to = '';
-      this.action = '';
-      this.service = '';
-    } else {
-      let backEntry: BackendFilterEntry = new BackendFilterEntry(this.data.edit.entityId,
-        this.data.edit.index,
-        this.data.edit.backendName,
-        this.data.edit.routingCriterias,
-        this.data.edit.persisted);
-      this.backendFilterNames = data.backendFilterNames;
-      this.plugin = backEntry.backendName;
-      this.from = isNullOrUndefined(backEntry.from) ? '' : backEntry.from.expression;
-      this.to = isNullOrUndefined(backEntry.to) ? '' : backEntry.to.expression;
-      this.action = isNullOrUndefined(backEntry.action) ? '' : backEntry.action.expression;
-      this.service = isNullOrUndefined(backEntry.service) ? '' : backEntry.service.expression;
-    }
-    this.messageFilterForm = fb.group({
-      'plugin': [null, Validators.required],
-      'from': [null, Validators.pattern],
-      'to': [null, Validators.pattern],
-      'action': [null, Validators.pattern],
-      'service': [null, Validators.pattern]
+  partyPattern = '[a-zA-Z0-9_:-]+:[a-zA-Z0-9_:-]+';
+  partyPatternMessage = 'You should follow the rule: ' + this.partyPattern;
+
+  actionPattern = '[a-zA-Z0-9_:-]+';
+  actionPatternMessage = 'You should follow the rule: ' + this.actionPattern;
+
+  servicePattern = '[a-zA-Z0-9_:\\\\./-]+:[a-zA-Z0-9_:-]+';
+  servicePatternMessage = 'You should follow the rule: ' + this.servicePattern;
+
+  constructor(public dialogRef: MatDialogRef<EditMessageFilterComponent>, @Inject(MAT_DIALOG_DATA) public data: any,
+              private cdr: ChangeDetectorRef) {
+    super(dialogRef, data);
+
+    this.backendFilterNames = data.backendFilterNames;
+
+    this.entity = this.data.entity;
+    this.extractCriteria();
+
+    this.formTitle = this.entity.persisted ? EDIT_MODE : NEW_MODE;
+  }
+
+  ngAfterViewInit() {
+    this.cdr.detectChanges();
+  }
+
+  private extractCriteria() {
+    this.criteria = BackendFilterEntry.routingCriteriaNames.reduce((map, key) => {
+      map[key] = this.entity[key] ? this.entity[key].expression : null;
+      return map;
+    }, {});
+  }
+
+  onSubmitForm() {
+    this.updateRoutingCriteria();
+    this.entity.routingCriterias = BackendFilterEntry.routingCriteriaNames.map(name => this.entity[name]).filter(el => el != null);
+
+    console.log('onsubmit ', this.entity.routingCriterias)
+  }
+
+  private updateRoutingCriteria() {
+    BackendFilterEntry.routingCriteriaNames.forEach(name => {
+      if (this.criteria[name]) {
+        if (this.entity[name]) { //update
+          this.entity[name].expression = this.criteria[name];
+        } else { //add
+          this.entity[name] = new RoutingCriteriaEntry(null, name, this.criteria[name]);
+        }
+      } else { //delete if exists
+        delete this.entity[name];
+      }
     });
   }
 
-  updatePlugin(event) {
-    this.plugin = event.value;
-  }
-
-  updateFrom(event) {
-    this.from = event.target.value;
-  }
-
-  updateTo(event) {
-    this.to = event.target.value;
-  }
-
-  updateAction(event) {
-    this.action = event.target.value;
-  }
-
-  updateService(event) {
-    this.service = event.target.value;
-  }
-
-  submitForm() {
-    this.dialogRef.close(true);
+  isFormDisabled() {
+    if (!this.editForm) {
+      return true;
+    }
+    return this.editForm.invalid || (!this.editForm.dirty && this.entity.persisted);
   }
 }

@@ -3,7 +3,7 @@ package eu.domibus.core.multitenancy;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.common.services.DomibusCacheService;
+import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.multitenancy.dao.DomainDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -12,7 +12,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DATABASE_SCHEMA;
 
 /**
  * @author Cosmin Baciu
@@ -24,7 +28,10 @@ public class DomainServiceImpl implements DomainService {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainServiceImpl.class);
 
     private static final String DEFAULT_QUARTZ_SCHEDULER_NAME = "schedulerFactoryBean";
-    private static final String DOMIBUS_DATABASE_SCHEMA = "domibus.database.schema";
+
+    protected final Object generalSchemaLock = new Object();
+    protected volatile String generalSchema;
+    protected volatile Map<Domain, String> domainSchemas = new HashMap<>();
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
@@ -32,10 +39,17 @@ public class DomainServiceImpl implements DomainService {
     @Autowired
     protected DomainDao domainDao;
 
+    @Autowired
+    private DomibusCacheService domibusCacheService;
+
+    private List<Domain> domains;
 
     @Override
-    public List<Domain> getDomains() {
-        return domainDao.findAll();
+    public synchronized List<Domain> getDomains() {
+        if (domains == null) {
+            domains = domainDao.findAll();
+        }
+        return domains;
     }
 
     @Cacheable(value = DomibusCacheService.DOMAIN_BY_CODE_CACHE)
@@ -67,14 +81,43 @@ public class DomainServiceImpl implements DomainService {
         return getDomain(schedulerName);
     }
 
+    /**
+     * Get database schema name for the domain. Uses a local cache. This mechanism should be removed when EDELIVERY-7353 it will be implemented
+     *
+     * @param domain
+     * @return database schema name
+     */
     @Override
     public String getDatabaseSchema(Domain domain) {
-        return domibusPropertyProvider.getProperty(domain, DOMIBUS_DATABASE_SCHEMA);
+        String domainSchema = domainSchemas.get(domain);
+        if (domainSchema == null) {
+            synchronized (domainSchemas) {
+                if (domainSchemas.get(domain) == null) {
+                    String value = domibusPropertyProvider.getProperty(domain, DOMIBUS_DATABASE_SCHEMA);
+                    LOG.debug("Caching domain schema [{}] for domain [{}]", value, domain);
+                    domainSchemas.put(domain, value);
+                    domainSchema = value;
+                }
+            }
+        }
+
+        return domainSchema;
     }
 
+    /**
+     * Get the configured general schema. Uses a local cache. This mechanism should be removed when EDELIVERY-7353 it will be implemented
+     */
     @Override
     public String getGeneralSchema() {
-        return domibusPropertyProvider.getProperty(DomainService.GENERAL_SCHEMA_PROPERTY);
+        if (generalSchema == null) {
+            synchronized (generalSchemaLock) {
+                if (generalSchema == null) {
+                    generalSchema = domibusPropertyProvider.getProperty(DomainService.GENERAL_SCHEMA_PROPERTY);
+                    LOG.debug("Caching general schema [{}]", generalSchema);
+                }
+            }
+        }
+        return generalSchema;
     }
 
     @Override
@@ -87,4 +130,10 @@ public class DomainServiceImpl implements DomainService {
         return result;
     }
 
+    @Override
+    public synchronized void resetDomains() {
+        this.domains = null;
+        this.domibusCacheService.clearCache(DomibusCacheService.ALL_DOMAINS_CACHE);
+        this.domibusCacheService.clearCache(DomibusCacheService.DOMAIN_BY_CODE_CACHE);
+    }
 }

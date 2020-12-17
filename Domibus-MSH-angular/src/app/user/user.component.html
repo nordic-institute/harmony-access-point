@@ -1,140 +1,79 @@
-<page-header id="usersheader_id">Users</page-header>
+<div style="height: calc(100% - 15px);">
+  <page-header id="usersheader_id">Users</page-header>
 
-<div *ngIf="false" class="selectionCriteria">
-  <md-card>
-    <md-card-content>
-      <div class="panel">
+  <div *ngIf="true" class="selectionCriteria">
+    <mat-card>
+      <mat-card-content>
+        <div class="panel">
+          <form name="filterForm" #filterForm="ngForm" (submit)="tryFilter()">
+            <mat-select placeholder="User role" [(ngModel)]="filter.authRole" id="role_id" name="roleId">
+              <mat-option [value]=""></mat-option>
+              <mat-option *ngFor="let t of userRoles" [value]="t">
+                {{t}}
+              </mat-option>
+            </mat-select>
 
-        <md-select placeholder="User role" [(ngModel)]="filter.authRole" id="role_id">
-          <md-option *ngFor="let t of userRoles" [value]="t">
-            {{t}}
-          </md-option>
-        </md-select>
+            <mat-form-field>
+              <input matInput placeholder="Username" [(ngModel)]="filter.userName" id="username_id" name="userName">
+            </mat-form-field>
 
-        <md-select placeholder="User deleted" [(ngModel)]="filter.deleted" id="deleted_id">
-          <md-option *ngFor="let t of deletedStatuses" [value]="t">
-            {{t}}
-          </md-option>
-        </md-select>
+            <span style="margin-left: 20px;">
+              <mat-checkbox [(ngModel)]="filter.deleted" [(indeterminate)]="filter.deleted_notSet" (click)="setState()"
+                        id="deleted_id" name="deleted">Deleted</mat-checkbox>
+            </span>
 
-        <md-input-container>
-          <input mdInput placeholder="Username" [(ngModel)]="filter.userName" id="username_id">
-        </md-input-container>
+            <filter-area-footer [parent]="this" [isAdvancedVisible]="false" [form]="filterForm"></filter-area-footer>
 
-        <div class="searchArea">
-          <button md-raised-button color="primary" id="searchbutton_id" (click)="getUsers()" button-click-behaviour>
-            <md-icon>search</md-icon>
-            <span>Search</span>
-          </button>
+          </form>
         </div>
-
-      </div>
-    </md-card-content>
-  </md-card>
-</div>
-
-<div class="panel">
-
-  <div class="group-filter-button">
-    <span class="row-button">
-    <app-row-limiter [pageSizes]="rowLimiter.pageSizes" [onPageSizeChanging]="onPageSizeChanging"
-                     (onPageSizeChanged)="changePageSize($event.value)"></app-row-limiter>
-    </span>
-    <span class="column-filter-button">
-    <app-column-picker [allColumns]="columnPicker.allColumns" [selectedColumns]="columnPicker.selectedColumns"
-                       (onSelectedColumnsChanged)="columnPicker.changeSelectedColumns($event)"></app-column-picker>
-    </span>
-    <button md-icon-button color="primary" (click)="saveAsCSV()" button-click-behaviour
-            id="saveascsvbutton_id" md-tooltip="Export as CSV">
-      <img src="assets/images/exportCSV.svg" width="30" height="30">
-    </button>
+      </mat-card-content>
+    </mat-card>
   </div>
 
-  <ngx-datatable
-    id="userTable"
-    class="material striped"
-    [rows]="users"
-    [columns]="columnPicker.selectedColumns"
-    [columnMode]="'force'"
-    [headerHeight]="50"
-    [footerHeight]="50"
-    [rowHeight]="'auto'"
-    [scrollbarH]="true"
-    [loadingIndicator]="false"
-    [selected]="selected"
-    [limit]="rowLimiter.pageSize"
-    [selectionType]="'multi'"
-    (select)='onSelect($event)'
-    [offset]="offset"
-    (page)="onChangePage($event)">
-  </ngx-datatable>
+  <div class="panel" style="height: calc(100% - 130px);">
 
-  <ng-template #editableTpl let-value="value" let-row="row" ngx-datatable-cell-template>
-          <span (dblclick)="buttonEdit()"
-                class="clickAble" [class.user-deleted]="row.deleted"
+    <grid-header [parent]="this"></grid-header>
+
+    <div style="height: calc(100% - 150px); overflow-y: auto; overflow-x: hidden;">
+      <page-grid [parent]="this" [selectionType]="'multi'"></page-grid>
+    </div>
+
+    <ng-template #editableTpl let-value="value" let-row="row" ngx-datatable-cell-template>
+          <span class="clickAble" [class.user-deleted]="row.deleted"
                 style="word-wrap: break-word">
             {{value}}
           </span>
-  </ng-template>
+    </ng-template>
 
-  <ng-template #passwordTpl let-value="value" let-row="row" ngx-datatable-cell-template>
-          <span (dblclick)="buttonEdit()"
-                class="password-field" class="clickAble">
-            ******
-          </span>
-  </ng-template>
+    <ng-template #checkBoxTpl let-row="row" ngx-datatable-cell-template>
+      <mat-checkbox [checked]="row['active']" disabled></mat-checkbox>
+      <ng-container *ngIf="row['suspended']">
+        <span> (Suspended)</span>
+      </ng-container>
+    </ng-template>
 
-  <ng-template #checkBoxTpl let-row="row" ngx-datatable-cell-template>
-    <input type="checkbox" [checked]="row['active']" disabled>
-    <ng-container *ngIf="row['suspended']">
-      <span>(Suspended)</span>
-    </ng-container>
-  </ng-template>
+    <ng-template #deletedTpl let-row="row" ngx-datatable-cell-template>
+      <mat-checkbox [checked]="row['deleted']" disabled></mat-checkbox>
+    </ng-template>
 
-  <ng-template #deletedTpl let-row="row" ngx-datatable-cell-template>
-    <input type="checkbox" [checked]="row['deleted']" disabled>
-  </ng-template>
+    <ng-template #rowActions let-row="row" let-value="value" ngx-datatable-cell-template>
+      <button id="userEditButtonRow{{rows.indexOf(row)}}_id" mat-icon-button [disabled]="row.deleted || isLoading"
+              (click)="editUser(row)"
+              color="primary" tooltip="Edit" button-click-behaviour>
+        <mat-icon>edit</mat-icon>
+      </button>
+      <button id="userDeleteButtonRow{{rows.indexOf(row)}}_id" mat-icon-button [disabled]="row.deleted || isLoading"
+              (click)="buttonDeleteAction(row)" color="primary"
+              tooltip="Delete" button-click-behaviour>
+        <mat-icon>delete</mat-icon>
+      </button>
+    </ng-template>
 
-  <ng-template #rowActions let-row="row" let-value="value" ngx-datatable-cell-template>
-    <button id="userEditButtonRow{{row.$$index}}_id" md-icon-button [disabled]="row.deleted || isBusy" (click)="buttonEditAction(row)"
-            color="primary" tooltip="Edit" button-click-behaviour>
-      <md-icon>edit</md-icon>
-    </button>
-    <button id="userDeleteButtonRow{{row.$$index}}_id" md-icon-button [disabled]="row.deleted || isBusy" (click)="buttonDeleteAction(row)" color="primary"
-            tooltip="Delete" button-click-behaviour>
-      <md-icon>delete</md-icon>
-    </button>
-  </ng-template>
+    <ng-template #rowWithDateFormatTpl let-row="row" let-value="value" ngx-datatable-cell-template>
+      <span class="text-select">{{value| domibusDate}}</span>
+    </ng-template>
 
-  <table class="group-action-button">
-    <tr>
-      <td>
-        <button id="userCancelButton" md-raised-button (click)="cancel()" color="primary"
-                [disabled]="!enableCancel" button-click-behaviour>
-          <md-icon>cancel</md-icon>
-          <span>Cancel</span>
-        </button>
-        <button id="userSaveButton" md-raised-button (click)="save(false)" color="primary" [disabled]="!enableSave || isBusy"
-                button-click-behaviour>
-          <md-icon>save</md-icon>
-          <span>Save</span>
-        </button>
-        <button id="userNewButton" md-raised-button (click)="buttonNew()" [disabled]="isBusy" color="primary"
-                button-click-behaviour>
-          <md-icon>add</md-icon>
-          <span>New</span>
-        </button>
-        <button id="userEditButton" md-raised-button (click)="buttonEdit()" [disabled]="!enableEdit || isBusy" color="primary"
-                button-click-behaviour>
-          <md-icon>edit</md-icon>
-          <span>Edit</span>
-        </button>
-        <button id="userDeleteButton" md-raised-button (click)="buttonDelete()" [disabled]="!enableDelete || isBusy" color="primary"
-                button-click-behaviour>
-          <md-icon>delete</md-icon>
-          <span>Delete</span>
-        </button>
-      </td>
-    </tr>
-  </table>
+    <page-footer [parent]="this"></page-footer>
+
+  </div>
 </div>

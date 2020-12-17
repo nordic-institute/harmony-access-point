@@ -7,7 +7,10 @@
 			 enabled="true"
 			 default="true"
 			 retention_downloaded="0"
-			 retention_undownloaded="14400"/>
+			 retention_undownloaded="14400"
+			 retention_sent="14400"
+		     delete_message_metadata="false"
+		     max_batch_delete="1000"/>
 	</mpcs>
 	<businessProcesses>
 		<roles>
@@ -21,19 +24,18 @@
 				<partyIdType name="partyTypeUrn" value="urn:oasis:names:tc:ebcore:partyid-type:unregistered"/>
 			</partyIdTypes>
 			<party name="red_gw"
-				    endpoint="http://<red_hostname>:8080/domibus/services/msh">
+				    endpoint="http://red_hostname:8080/domibus/services/msh">
 				<identifier partyId="domibus-red" partyIdType="partyTypeUrn"/>
 			</party>
 			<party name="blue_gw" 
-					endpoint="http://<blue_hostname>:8080/domibus/services/msh">
+					endpoint="http://blue_hostname:8080/domibus/services/msh">
 				<identifier partyId="domibus-blue" partyIdType="partyTypeUrn"/>
 			</party>
 		</parties>
 		<meps>
 			<mep name="oneway" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/oneWay"/>
-			<mep name="twoway" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/twoWay"/>
 			<binding name="push" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/push"/>
-			<binding name="pushAndPush" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/pushAndPush"/>
+			<binding name="pull" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/pull"/>
 		</meps>
 		<properties>
 			<property name="originalSenderProperty" 
@@ -58,7 +60,7 @@
 					cid="cid:attachment" 
 					required="false"
 					mimeType="application/octet-stream"/>
-			<payloadProfile name="MessageProfile" maxSize="40894464"> <!-- maxSize is currently ignored -->
+			<payloadProfile name="MessageProfile" maxSize="2147483647">
 				<attachment name="businessContentPayload"/>
 				<attachment name="businessContentAttachment"/>
 			</payloadProfile>
@@ -88,6 +90,7 @@
 		</actions>
 		<as4>
 			<receptionAwareness name="receptionAwareness" retry="12;4;CONSTANT" duplicateDetection="true"/>
+			<receptionAwareness name="receptionAwarenessTest" retry="0;0;SEND_ONCE" duplicateDetection="true"/>
 			<reliability name="AS4Reliability" nonRepudiation="true" replyPattern="response"/>
 		</as4>
 		<splittingConfigurations>
@@ -118,7 +121,7 @@
 							  defaultMpc="defaultMpc"
 							  reliability="AS4Reliability"
 							  security="eDeliveryAS4Policy"
-							  receptionAwareness="receptionAwareness"
+							  receptionAwareness="receptionAwarenessTest"
 							  propertySet="eDeliveryPropertySet"
 							  payloadProfile="MessageProfile"
 							  errorHandling="demoErrorHandling"

@@ -60,4 +60,18 @@ public class AuthenticationServiceDelegate implements AuthenticationExtService {
         return authUtils.isUnsecureLoginAllowed();
     }
 
+    @Override
+    public void hasUserOrAdminRole() {
+        authUtils.hasUserOrAdminRole();
+    }
+
+    @Override
+    public String getAuthenticatedUser() {
+        return authUtils.getAuthenticatedUser();
+    }
+
+    @Override
+    public String getOriginalUser() {
+        return authUtils.getOriginalUserFromSecurityContext();
+    }
 }

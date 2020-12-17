@@ -1,93 +1,93 @@
-<h2 md-dialog-title>Message details</h2>
-<md-dialog-content style="height:460px;width:650px">
-  <md-card>
-    <md-card-content>
-      <md-input-container style="width:100%">
-        <input mdInput placeholder="Message Id" value="{{message.messageId}}" readonly/>
-      </md-input-container>
+<h2 mat-dialog-title>Message details</h2>
+<mat-dialog-content style="height:460px;width:650px">
+  <mat-card>
+    <mat-card-content>
+      <mat-form-field style="width:100%">
+        <input matInput placeholder="Message Id" value="{{message.messageId}}" readonly/>
+      </mat-form-field>
 
-      <md-input-container style="width:100%">
-        <input mdInput placeholder="From Party Id" value="{{message.fromPartyId}}" readonly/>
-      </md-input-container>
+      <mat-form-field style="width:100%">
+        <input matInput placeholder="From Party Id" value="{{message.fromPartyId}}" readonly/>
+      </mat-form-field>
 
-      <md-input-container style="width:100%">
-        <input mdInput placeholder="To Party Id" value="{{message.toPartyId}}" readonly/>
-      </md-input-container>
+      <mat-form-field style="width:100%">
+        <input matInput placeholder="To Party Id" value="{{message.toPartyId}}" readonly/>
+      </mat-form-field>
 
-      <md-input-container style="width:100%">
-        <input mdInput placeholder="Message Status" value="{{message.messageStatus}}" readonly/>
-      </md-input-container>
+      <mat-form-field style="width:100%">
+        <input matInput placeholder="Message Status" value="{{message.messageStatus}}" readonly/>
+      </mat-form-field>
 
-      <md-input-container style="width:100%">
-        <input mdInput placeholder="Notification Status" value="{{message.notificationStatus}}" readonly/>
-      </md-input-container>
+      <mat-form-field style="width:100%">
+        <input matInput placeholder="Notification Status" value="{{message.notificationStatus}}" readonly/>
+      </mat-form-field>
 
-      <md-input-container style="width:100%">
-        <input mdInput placeholder="Received" value="{{message.received | domibusDate: dateFormat}}" readonly/>
-      </md-input-container>
+      <mat-form-field style="width:100%">
+        <input matInput placeholder="Received" value="{{message.received | domibusDate}}" readonly/>
+      </mat-form-field>
 
-      <md-input-container style="width:100%">
-        <input mdInput placeholder="AP Role" value="{{message.mshRole}}" readonly/>
-      </md-input-container>
+      <mat-form-field style="width:100%">
+        <input matInput placeholder="AP Role" value="{{message.mshRole}}" readonly/>
+      </mat-form-field>
 
-      <md-input-container style="width:100%">
-        <input mdInput placeholder="Send Attempts" value="{{message.sendAttempts}}" readonly/>
-      </md-input-container>
+      <mat-form-field style="width:100%">
+        <input matInput placeholder="Send Attempts" value="{{message.sendAttempts}}" readonly/>
+      </mat-form-field>
 
-      <md-input-container style="width:100%">
-        <input mdInput placeholder="Send Attempts Max" value="{{message.sendAttemptsMax}}" readonly/>
-      </md-input-container>
+      <mat-form-field style="width:100%">
+        <input matInput placeholder="Send Attempts Max" value="{{message.sendAttemptsMax}}" readonly/>
+      </mat-form-field>
 
-      <md-input-container style="width:100%">
-        <input mdInput placeholder="Next Attempt" value="{{message.nextAttempt | domibusDate: dateFormat}}" readonly/>
-      </md-input-container>
+      <mat-form-field style="width:100%">
+        <input matInput placeholder="Next Attempt" value="{{message.nextAttempt | domibusDate}}" readonly/>
+      </mat-form-field>
 
-      <md-input-container style="width:100%">
-        <input mdInput placeholder="Conversation Id" value="{{message.conversationId}}" readonly/>
-      </md-input-container>
+      <mat-form-field style="width:100%">
+        <input matInput placeholder="Conversation Id" value="{{message.conversationId}}" readonly/>
+      </mat-form-field>
 
-      <md-input-container style="width:100%">
-        <input mdInput placeholder="Message Type" value="{{message.messageType}}" readonly/>
-      </md-input-container>
+      <mat-form-field style="width:100%">
+        <input matInput placeholder="Message Type" value="{{message.messageType}}" readonly/>
+      </mat-form-field>
 
-      <md-input-container style="width:100%">
-        <input mdInput placeholder="Message Subtype" value="{{message.messageSubtype}}" readonly/>
-      </md-input-container>
+      <mat-form-field style="width:100%">
+        <input matInput placeholder="Message Subtype" value="{{message.messageSubtype}}" readonly/>
+      </mat-form-field>
 
-      <md-input-container style="width:100%">
-        <input mdInput placeholder="Deleted" value="{{message.deleted | domibusDate: dateFormat }}" readonly/>
-      </md-input-container>
+      <mat-form-field style="width:100%">
+        <input matInput placeholder="Deleted" value="{{message.deleted | domibusDate }}" readonly/>
+      </mat-form-field>
 
-      <md-input-container style="width:100%">
-        <input mdInput placeholder="Failed" value="{{message.failed | domibusDate: dateFormat}}" readonly/>
-      </md-input-container>
+      <mat-form-field style="width:100%">
+        <input matInput placeholder="Failed" value="{{message.failed | domibusDate}}" readonly/>
+      </mat-form-field>
 
-      <md-input-container style="width:100%">
-        <input mdInput placeholder="Restored" value="{{message.restored | domibusDate: dateFormat}}" readonly/>
-      </md-input-container>
+      <mat-form-field style="width:100%">
+        <input matInput placeholder="Restored" value="{{message.restored | domibusDate}}" readonly/>
+      </mat-form-field>
 
-      <md-input-container style="width:100%" *ngIf="fourCornerEnabled">
-        <input mdInput placeholder="Original Sender" value="{{message.originalSender}}" readonly/>
-      </md-input-container>
+      <mat-form-field style="width:100%" *ngIf="fourCornerEnabled">
+        <input matInput placeholder="Original Sender" value="{{message.originalSender}}" readonly/>
+      </mat-form-field>
 
-      <md-input-container style="width:100%" *ngIf="fourCornerEnabled">
-        <input mdInput placeholder="Final Recipient" value="{{message.finalRecipient}}" readonly/>
-      </md-input-container>
+      <mat-form-field style="width:100%" *ngIf="fourCornerEnabled">
+        <input matInput placeholder="Final Recipient" value="{{message.finalRecipient}}" readonly/>
+      </mat-form-field>
 
-      <md-input-container style="width:100%">
-        <input mdInput placeholder="Ref To Message Id" value="{{message.refToMessageId}}" readonly/>
-      </md-input-container>
+      <mat-form-field style="width:100%">
+        <input matInput placeholder="Ref To Message Id" value="{{message.refToMessageId}}" readonly/>
+      </mat-form-field>
 
-    </md-card-content>
-  </md-card>
+    </mat-card-content>
+  </mat-card>
 
-</md-dialog-content>
+</mat-dialog-content>
 
-<md-dialog-actions>
-  <button id="messageLogDetailsCloseButton" md-raised-button color="primary" (click)="dialogRef.close({})"
+<mat-dialog-actions>
+  <button id="messageLogDetailsCloseButton" mat-raised-button color="primary" (click)="dialogRef.close({})"
           style="margin-top:10px">
-    <md-icon>close</md-icon>
+    <mat-icon>close</mat-icon>
     <span>Close</span>
   </button>
-</md-dialog-actions>
+</mat-dialog-actions>
 

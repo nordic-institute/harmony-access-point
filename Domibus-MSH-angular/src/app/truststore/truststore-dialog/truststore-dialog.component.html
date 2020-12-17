@@ -1,32 +1,32 @@
-<h2 md-dialog-title>Truststore entry</h2>
-<md-dialog-content style="height:450px;width:650px">
-  <md-card>
-    <md-card-content>
-      <md-input-container style="width:100%">
-        <input mdInput placeholder="Name" value="{{trustStoreEntry.name}}" readonly/>
-      </md-input-container>
-      <md-input-container style="width:100%">
-        <input mdInput placeholder="Subject" value="{{trustStoreEntry.subject}}" readonly/>
-      </md-input-container>
-      <md-input-container style="width:100%">
-        <input mdInput placeholder="Issuer" value="{{trustStoreEntry.issuer}}" readonly/>
-      </md-input-container>
-      <md-input-container style="width:100%">
-        <input mdInput placeholder="Valid from" value="{{trustStoreEntry.validFrom| domibusDate: dateFormat}}"
+<h2 mat-dialog-title>Truststore entry</h2>
+<mat-dialog-content style="height:auto;width:650px">
+  <mat-card>
+    <mat-card-content>
+      <mat-form-field style="width:100%">
+        <input matInput placeholder="Name" value="{{trustStoreEntry.name}}" readonly/>
+      </mat-form-field>
+      <mat-form-field style="width:100%">
+        <input matInput placeholder="Subject" value="{{trustStoreEntry.subject}}" readonly/>
+      </mat-form-field>
+      <mat-form-field style="width:100%">
+        <input matInput placeholder="Issuer" value="{{trustStoreEntry.issuer}}" readonly/>
+      </mat-form-field>
+      <mat-form-field style="width:100%">
+        <input matInput placeholder="Valid from" value="{{trustStoreEntry.validFrom| domibusDate}}"
                readonly/>
-      </md-input-container>
-      <md-input-container style="width:100%">
-        <input mdInput placeholder="Valid until" value="{{trustStoreEntry.validUntil| domibusDate: dateFormat}}"
+      </mat-form-field>
+      <mat-form-field style="width:100%">
+        <input matInput placeholder="Valid until" value="{{trustStoreEntry.validUntil| domibusDate}}"
                readonly/>
-      </md-input-container>
-    </md-card-content>
-  </md-card>
-</md-dialog-content>
+      </mat-form-field>
+    </mat-card-content>
+  </mat-card>
+</mat-dialog-content>
 
-<md-dialog-actions>
-  <button id="closebutton_id" md-raised-button color="primary" (click)="dialogRef.close({})"
+<mat-dialog-actions>
+  <button id="closebutton_id" mat-raised-button color="primary" (click)="dialogRef.close({})"
           style="margin-top:10px">
-    <md-icon>close</md-icon>
+    <mat-icon>close</mat-icon>
     <span>Close</span>
   </button>
-</md-dialog-actions>
+</mat-dialog-actions>

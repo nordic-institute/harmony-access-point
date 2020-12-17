@@ -1,26 +1,34 @@
-import {Component, OnInit} from '@angular/core';
-import {MdDialogRef} from "@angular/material";
-import {isNullOrUndefined} from "util";
+import {Component, Inject} from '@angular/core';
+import {MatDialogRef} from '@angular/material';
+import {MAT_DIALOG_DATA} from '@angular/material/dialog';
 
 @Component({
   selector: 'app-move-dialog',
   templateUrl: './move-dialog.component.html',
   styleUrls: ['./move-dialog.component.css']
 })
-export class MoveDialogComponent implements OnInit {
+export class MoveDialogComponent {
 
   selectedSource: any;
-  destinationsChoiceDisabled: boolean = false;
-  queues: Array<any> = [];
+  destinationsChoiceDisabled = false;
+  queues: any[] = [];
 
-  constructor(public dialogRef: MdDialogRef<MoveDialogComponent>) {
+  constructor(public dialogRef: MatDialogRef<MoveDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: any) {
+    this.setQueues(data.queues);
   }
 
-  ngOnInit() {
+  private setQueues(queues: any[]) {
+    if (queues && queues.length > 0) {
+      this.queues = queues;
+      this.selectedSource = queues[0];
+      if (queues.length === 1) {
+        this.destinationsChoiceDisabled = true;
+      }
+    }
   }
 
   canOk(): boolean {
-    return !isNullOrUndefined(this.selectedSource);
+    return !!(this.selectedSource);
   }
 
 }

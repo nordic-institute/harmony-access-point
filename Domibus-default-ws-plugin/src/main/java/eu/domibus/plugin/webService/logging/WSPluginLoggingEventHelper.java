@@ -12,5 +12,7 @@ public interface WSPluginLoggingEventHelper {
 
     void stripPayload(LogEvent logEvent);
 
+    void stripHeaders(LogEvent event);
+
     String checkIfOperationIsAllowed(LogEvent logEvent);
 }

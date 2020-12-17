@@ -1,27 +1,25 @@
 import {Injectable} from '@angular/core';
 import {CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, CanDeactivate} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
-import {MdDialog} from '@angular/material';
-import {CancelDialogComponent} from '../cancel-dialog/cancel-dialog.component';
+import {MatDialog} from '@angular/material';
+import {DialogsService} from '../dialogs/dialogs.service';
+import {SecurityService} from '../../security/security.service';
+import {SessionState} from '../../security/SessionState';
+import {SessionService} from '../../security/session.service';
+import {instanceOfModifiableList} from '../mixins/type.utils';
+import {ApplicationContextService} from '../application-context.service';
 
 @Injectable()
-export class DirtyGuard implements CanActivate, CanDeactivate<any> {
+export class DirtyGuard implements CanDeactivate<any> {
 
-  constructor (public dialog: MdDialog) {
-
+  constructor(private securityService: SecurityService) {
   };
 
-  canActivate (next: ActivatedRouteSnapshot,
-               state: RouterStateSnapshot): Observable<boolean> | Promise<boolean> | boolean {
-    return true;
-  }
-
-  canDeactivate (component: any, currentRoute: ActivatedRouteSnapshot,
-                 currentState: RouterStateSnapshot,
-                 nextState?: RouterStateSnapshot): Observable<boolean> | Promise<boolean> | boolean {
-    if (component.isDirty && !component.isDirty()) {
+  async canDeactivate(component: any, currentRoute: ActivatedRouteSnapshot, currentState: RouterStateSnapshot, nextState?: RouterStateSnapshot) {
+    if (currentState.url == nextState.url) {
       return true;
     }
-    return this.dialog.open(CancelDialogComponent).afterClosed();
+    return this.securityService.canAbandonUnsavedChanges(component);
   }
+
 }

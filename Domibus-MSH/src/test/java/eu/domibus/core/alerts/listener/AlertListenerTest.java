@@ -4,6 +4,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.core.alerts.model.service.Alert;
 import eu.domibus.core.alerts.service.AlertDispatcherService;
+import eu.domibus.core.util.DatabaseUtil;
 import mockit.Injectable;
 import mockit.Mocked;
 import mockit.Tested;
@@ -27,6 +28,9 @@ public class AlertListenerTest {
 
     @Injectable
     private DomainContextProvider domainContextProvider;
+
+    @Injectable
+    private DatabaseUtil databaseUtil;
 
     @Tested
     private AlertListener alertListener;

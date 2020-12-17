@@ -1,15 +1,13 @@
 package eu.domibus.web.rest;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.primitives.Ints;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.MSHRole;
-import eu.domibus.common.dao.ErrorLogDao;
-import eu.domibus.common.model.logging.ErrorLogEntry;
 import eu.domibus.core.converter.DomainCoreConverter;
-import eu.domibus.core.csv.CsvCustomColumns;
-import eu.domibus.core.csv.CsvService;
-import eu.domibus.core.csv.ErrorLogCsvServiceImpl;
+import eu.domibus.core.error.ErrorLogDao;
+import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.ro.ErrorLogFilterRequestRO;
@@ -47,9 +45,6 @@ public class ErrorLogResource extends BaseResource {
     @Autowired
     private DomainCoreConverter domainConverter;
 
-    @Autowired
-    ErrorLogCsvServiceImpl errorLogCsvServiceImpl;
-
     @GetMapping
     public ErrorLogResultRO getErrorLog(@Valid ErrorLogFilterRequestRO request) {
         LOGGER.debug("Getting error log");
@@ -81,25 +76,20 @@ public class ErrorLogResource extends BaseResource {
      */
     @GetMapping(path = "/csv")
     public ResponseEntity<String> getCsv(@Valid ErrorLogFilterRequestRO request) {
-        ErrorLogResultRO result = new ErrorLogResultRO();
-
         HashMap<String, Object> filters = createFilterMap(request);
-        result.setFilter(filters);
-
-        final List<ErrorLogEntry> errorLogEntries = errorLogDao.findPaged(0, errorLogCsvServiceImpl.getMaxNumberRowsToExport(),
+        final List<ErrorLogEntry> entries = errorLogDao.findPaged(0, getCsvService().getPageSizeForExport(),
                 request.getOrderBy(), request.getAsc(), filters);
-        final List<ErrorLogRO> errorLogROList = domainConverter.convert(errorLogEntries, ErrorLogRO.class);
+        getCsvService().validateMaxRows(entries.size(), () -> errorLogDao.countEntries(filters));
+
+        final List<ErrorLogRO> errorLogROList = domainConverter.convert(entries, ErrorLogRO.class);
 
         return exportToCSV(errorLogROList,
                 ErrorLogRO.class,
-                CsvCustomColumns.ERRORLOG_RESOURCE.getCustomColumns(),
-                new ArrayList<>(),
+                ImmutableMap.of(
+                        "ErrorSignalMessageId".toUpperCase(), "Signal Message Id",
+                        "MshRole".toUpperCase(), "AP Role",
+                        "MessageInErrorId".toUpperCase(), "Message Id"),
                 "errorlog");
-    }
-
-    @Override
-    public CsvService getCsvService() {
-        return errorLogCsvServiceImpl;
     }
 
     private HashMap<String, Object> createFilterMap(ErrorLogFilterRequestRO request) {

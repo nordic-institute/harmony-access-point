@@ -1,5 +1,5 @@
 import {Directive, ElementRef, OnInit, OnDestroy} from '@angular/core';
-import {Md2Datepicker} from 'md2';
+import {Md2Datepicker} from 'angular-md2';
 
 @Directive({
   selector: '[appClearInvalid]'

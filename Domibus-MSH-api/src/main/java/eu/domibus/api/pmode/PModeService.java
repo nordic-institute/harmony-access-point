@@ -16,5 +16,12 @@ public interface PModeService {
 
     PModeArchiveInfo getCurrentPMode();
 
-    List<String> updatePModeFile(byte[] bytes, String description) throws PModeException;
+    /**
+     * Uploads a new pMode file that becames the current one
+     * @param bytes The byte array representing the pMode content
+     * @param description a description of the upload operation
+     * @return a list of issues( notes or warnings) if any encountered
+     * @throws PModeException In case there are any validation errors amongst the issues, an exception is raised
+     */
+    List<ValidationIssue> updatePModeFile(byte[] bytes, String description) throws PModeException;
 }

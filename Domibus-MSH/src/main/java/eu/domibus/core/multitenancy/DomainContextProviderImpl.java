@@ -1,6 +1,6 @@
 package eu.domibus.core.multitenancy;
 
-import eu.domibus.api.configuration.DomibusConfigurationService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskException;
@@ -10,15 +10,12 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author Cosmin Baciu
  * @since 4.0
  */
 @Service
-@Transactional(propagation = Propagation.NOT_SUPPORTED)
 public class DomainContextProviderImpl implements DomainContextProvider {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainContextProviderImpl.class);

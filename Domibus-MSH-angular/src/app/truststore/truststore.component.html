@@ -1,60 +1,34 @@
-<page-header id="truststoreheader_id">Truststore</page-header>
-<div class="panel">
-  <div class="selectionCriteria">
-    <md-card>
-      <md-card-content>
-        <div class="group-filter-button">
-          <span class="row-button">
-            <app-row-limiter [pageSizes]="rowLimiter.pageSizes"
-                             (onPageSizeChanged)="changePageSize($event.value)"></app-row-limiter>
-          </span>
-          <span class="column-filter-button">
-            <app-column-picker [allColumns]="columnPicker.allColumns" [selectedColumns]="columnPicker.selectedColumns"
-                               (onSelectedColumnsChanged)="columnPicker.changeSelectedColumns($event)"></app-column-picker>
-          </span>
-          <button md-icon-button color="primary" (click)="saveAsCSV()"
-                  id="saveascsvbutton_id" md-tooltip="Export as CSV" button-click-behaviour>
-            <img src="assets/images/exportCSV.svg" width="30" height="30">
+<div style="height: calc(100% - 15px);">
+  <page-header id="truststoreheader_id">Truststore</page-header>
+
+  <div class="panel" style="height: calc(100% - 40px);">
+    <grid-header [parent]="this"></grid-header>
+
+    <div style="height: calc(100% - 100px); overflow-y: auto; overflow-x: hidden;">
+      <page-grid [parent]="this" [selectionType]="'single'" [rowClassFn]="getRowClass"
+                 [sortedColumns]="[{prop: 'alias', dir: 'desc'}]"></page-grid>
+    </div>
+
+    <ng-template #rowWithDateFormatTpl let-row="row" let-value="value" ngx-datatable-cell-template>
+      <span class="text-select">{{value | domibusDate}}</span>
+    </ng-template>
+
+    <table class="group-action-button">
+      <tr>
+        <td>
+          <button mat-raised-button color="primary" (click)="openEditTrustStore()" id="uploadbutton_id"
+                  button-click-behaviour>
+            <mat-icon>file_upload</mat-icon>
+            <span>Upload</span>
           </button>
-        </div>
-
-      <ngx-datatable
-        id="errorLogTable"
-        class="material striped"
-        [rows]="trustStoreEntries"
-        [columnMode]="'force'"
-        [columns]="columnPicker.selectedColumns"
-        [headerHeight]="50"
-        [footerHeight]="50"
-        [rowHeight]="'auto'"
-        [scrollbarH]="true"
-        [loadingIndicator]="loading"
-        [selectionType]="'multi'"
-        [selected]="selectedMessages"
-        [limit]="rowLimiter.pageSize"
-        [offset]="offset"
-        (page)="onChangePage($event)"
-        [sorts]="[{prop: 'alias', dir: 'desc'}]"
-        (activate)="onActivate($event)"
-        (select)="onSelect($event)">
-      </ngx-datatable>
-
-      <ng-template #rowWithDateFormatTpl let-row="row" let-value="value" ngx-datatable-cell-template>
-        <span class="text-select">{{value | domibusDate: dateFormat}}</span>
-      </ng-template>
-
-        <table class="group-action-button">
-          <tr>
-            <td>
-              <button md-raised-button color="primary" (click)="openEditTrustStore()" id="uploadbutton_id" button-click-behaviour>
-                <md-icon>file_upload</md-icon>
-                <span>Upload</span>
-              </button>
-            </td>
-          </tr>
-        </table>
-      </md-card-content>
-    </md-card>
+          <button mat-raised-button color="primary" (click)="downloadCurrentTrustStore()"
+                  [disabled]="!canDownload()" id="downloadbutton_id"
+                  button-click-behaviour>
+            <mat-icon>file_download</mat-icon>
+            <span>Download</span>
+          </button>
+        </td>
+      </tr>
+    </table>
   </div>
 </div>
-

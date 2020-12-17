@@ -1,15 +1,15 @@
 package eu.domibus.weblogic.security;
 
 
-import eu.domibus.api.configuration.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthRole;
-import eu.domibus.common.model.security.UserDetail;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.web.security.UserDetail;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
@@ -52,9 +52,9 @@ public class ECASUserDetailsService implements AuthenticationUserDetailsService<
 
     private static final String ECAS_GROUP = "eu.cec.digit.ecas.client.j2ee.weblogic.EcasGroup";
 
-    static final String ECAS_DOMIBUS_LDAP_GROUP_PREFIX_KEY = "domibus.security.ext.auth.provider.group.prefix";
-    static final String ECAS_DOMIBUS_USER_ROLE_MAPPINGS_KEY = "domibus.security.ext.auth.provider.user.role.mappings";
-    static final String ECAS_DOMIBUS_DOMAIN_MAPPINGS_KEY = "domibus.security.ext.auth.provider.domain.mappings";
+    public static final String ECAS_DOMIBUS_LDAP_GROUP_PREFIX_KEY = "domibus.security.ext.auth.provider.group.prefix";
+    public static final String ECAS_DOMIBUS_USER_ROLE_MAPPINGS_KEY = "domibus.security.ext.auth.provider.user.role.mappings";
+    public static final String ECAS_DOMIBUS_DOMAIN_MAPPINGS_KEY = "domibus.security.ext.auth.provider.domain.mappings";
 
     private static final String ECAS_DOMIBUS_MAPPING_PAIR_SEPARATOR = ";";
     private static final String ECAS_DOMIBUS_MAPPING_VALUE_SEPARATOR = "=";
@@ -146,12 +146,15 @@ public class ECASUserDetailsService implements AuthenticationUserDetailsService<
 
         //chose highest privilege among LDAP user groups
         final GrantedAuthority grantedAuthority = chooseHighestUserGroup(userGroupsStr);
+        LOG.debug("highest role is [{}]", grantedAuthority != null ? grantedAuthority.getAuthority() : StringUtils.EMPTY);
 
         Domain domain = domibusConfigurationService.isMultiTenantAware() ? domainService.getDomain(domainCodeFromLDAP)
                 : DomainService.DEFAULT_DOMAIN;
+        LOG.debug("assigned domain is [{}]", domain);
 
         if (null != grantedAuthority && null != domain) {
             //we set the groups only if LDAP groups are mapping on both privileges and domain code
+            LOG.debug("granted role is [{}]", grantedAuthority.getAuthority());
             userGroups.add(grantedAuthority);
         }
         LOG.debug("userDetail  userGroups={}", userGroups);

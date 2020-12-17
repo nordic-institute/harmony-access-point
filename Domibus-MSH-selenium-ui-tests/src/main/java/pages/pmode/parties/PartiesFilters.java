@@ -1,9 +1,9 @@
 package pages.pmode.parties;
 
 import ddsl.dcomponents.DomibusPage;
-import ddsl.dobjects.Select;
 import ddsl.dobjects.DButton;
 import ddsl.dobjects.DInput;
+import ddsl.dobjects.Select;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -12,17 +12,9 @@ import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 
 /**
  * @author Catalin Comanici
-
  * @since 4.1
  */
 public class PartiesFilters extends DomibusPage {
-	public PartiesFilters(WebDriver driver) {
-		super(driver);
-		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
-	}
-
-	public enum PROCESS_ROLE {I, R, IR}
-
 	@FindBy(id = "name_id")
 	WebElement nameInput;
 	@FindBy(id = "endPoint_id")
@@ -35,7 +27,10 @@ public class PartiesFilters extends DomibusPage {
 	WebElement processRoleSelect;
 	@FindBy(id = "searchbutton_id")
 	WebElement searchButton;
-
+	public PartiesFilters(WebDriver driver) {
+		super(driver);
+		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
+	}
 
 	public DInput getNameInput() {
 		return new DInput(driver, nameInput);
@@ -61,7 +56,7 @@ public class PartiesFilters extends DomibusPage {
 		return new DButton(driver, searchButton);
 	}
 
-	public void filter(String name, String endpoint, String partyID, String process, PROCESS_ROLE role) throws Exception{
+	public void filter(String name, String endpoint, String partyID, String process, PROCESS_ROLE role) throws Exception {
 		getNameInput().fill(name);
 		getEndpointInput().fill(endpoint);
 		getPartyIDInput().fill(partyID);
@@ -71,6 +66,7 @@ public class PartiesFilters extends DomibusPage {
 		getSearchButton().click();
 	}
 
+	public enum PROCESS_ROLE {I, R, IR}
 
 
 }

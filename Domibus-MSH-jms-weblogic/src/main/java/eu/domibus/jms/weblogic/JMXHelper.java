@@ -23,6 +23,8 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
+
 /**
  * @author Cosmin Baciu
  * @since 3.2
@@ -34,9 +36,9 @@ public class JMXHelper {
     public static final String REMOTE_DOMAIN_RUNTIME_MBEANSERVER_JNDI = "/jndi/weblogic.management.mbeanservers.domainruntime";
     public static final String DOMAIN_RUNTIME_SERVICE_OBJECTNAME = "com.bea:Name=DomainRuntimeService,Type=weblogic.management.mbeanservers.domainruntime.DomainRuntimeServiceMBean";
 
-    private static final String ADMIN_URL_PROPERTY = "weblogic.management.server";
-    private static final String DOMIBUS_JMX_USER_PROP = "domibus.jmx.user";
-    private static final String DOMIBUS_JMX_PWD_PROP = "domibus.jmx.password"; //NOSONAR
+    private static final String ADMIN_URL_PROPERTY = WEBLOGIC_MANAGEMENT_SERVER;
+    private static final String DOMIBUS_JMX_USER_PROP = DOMIBUS_JMX_USER;
+    private static final String DOMIBUS_JMX_PWD_PROP = DOMIBUS_JMX_PASSWORD; //NOSONAR
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(JMXHelper.class);
 
@@ -57,7 +59,6 @@ public class JMXHelper {
 
     /**
      * Remotely connect to domain runtime mbean server. Try to find url, username and password using system properties.
-     *
      */
     public JMXConnector getJMXConnector() {
         try {

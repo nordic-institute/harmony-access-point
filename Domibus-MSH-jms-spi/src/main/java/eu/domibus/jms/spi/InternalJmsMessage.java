@@ -10,6 +10,8 @@ import java.util.Map;
  */
 public class InternalJmsMessage {
 
+	public static final String MESSAGE_PRIORITY_USED = "messagePriorityUsed";
+
 	public enum MessageType {
 		TEXT_MESSAGE,
 		MAP_MESSAGE
@@ -20,9 +22,10 @@ public class InternalJmsMessage {
 	protected String jmsCorrelationId;
 	protected String content;
 	protected Date timestamp;
+	protected Integer priority;
 	protected MessageType messageType = MessageType.TEXT_MESSAGE;
 
-	protected Map<String, Object> properties = new HashMap<>();
+	protected Map<String, String> properties = new HashMap<>();
 
 	public String getId() {
 		return id;
@@ -56,7 +59,7 @@ public class InternalJmsMessage {
 		this.timestamp = timestamp;
 	}
 
-	public Map<String, Object> getProperties() {
+	public Map<String, String> getProperties() {
 		return properties;
 	}
 
@@ -76,9 +79,10 @@ public class InternalJmsMessage {
 		this.jmsCorrelationId = jmsCorrelationId;
 	}
 
+
 	//TODO separate between headers and properties
-	public Map<String, Object> getJMSProperties() {
-		Map<String, Object> jmsProperties = new HashMap<>();
+	public Map<String, String> getJMSProperties() {
+		Map<String, String> jmsProperties = new HashMap<>();
 		for (String key : properties.keySet()) {
 			if (key.startsWith("JMS")) {
 				jmsProperties.put(key, properties.get(key));
@@ -88,8 +92,8 @@ public class InternalJmsMessage {
 	}
 
 	//TODO separate between headers and properties
-	public Map<String, Object> getCustomProperties() {
-		Map<String, Object> customProperties = new HashMap<>();
+	public Map<String, String> getCustomProperties() {
+		Map<String, String> customProperties = new HashMap<>();
 		for (String key : properties.keySet()) {
 			if (!key.startsWith("JMS")) {
 				customProperties.put(key, properties.get(key));
@@ -105,14 +109,22 @@ public class InternalJmsMessage {
 		return properties.get(name);
 	}
 
-	public void setProperty(String key, Object value){
+	public void setProperty(String key, String value){
 		if (properties != null) {
 			properties.put(key, value);
 		}
 	}
 
-	public void setProperties(Map<String, Object> properties) {
+	public void setProperties(Map<String, String> properties) {
 		this.properties = properties;
+	}
+
+	public Integer getPriority() {
+		return priority;
+	}
+
+	public void setPriority(Integer priority) {
+		this.priority = priority;
 	}
 
 	@Override

@@ -1,5 +1,6 @@
 package pages.jms;
 
+import ddsl.dcomponents.DComponent;
 import ddsl.dcomponents.popups.EditModal;
 import ddsl.dobjects.DButton;
 import org.openqa.selenium.WebDriver;
@@ -8,43 +9,52 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 
-import java.util.List;
-
 /**
  * @author Catalin Comanici
  * @since 4.1
  */
-public class JMSMoveMessageModal extends EditModal {
-    public JMSMoveMessageModal(WebDriver driver) {
-        super(driver);
-        PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
-    }
+public class JMSMoveMessageModal extends DComponent {
+	
+	@FindBy(id = "messageDialogResendButton")
+	protected WebElement okBtn;
+	
+	@FindBy(id = "messageDialogCancelButton")
+	protected WebElement cancelBtn;
+	
+	@FindBy(id = "jmsqueuedestination_id")
+	protected WebElement queueSelect;
 
-    @FindBy(id = "messageDialogResendButton")
-    protected WebElement okBtn;
+	public JMSMoveMessageModal(WebDriver driver) {
+		super(driver);
+		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
+	}
 
-    @FindBy(id = "messageDialogCancelButton")
-    protected WebElement cancelBtn;
+	public JMSSelect getQueueSelect() {
+		return new JMSSelect(driver, queueSelect);
+	}
 
-    @FindBy(id = "jmsqueuedestination_id")
-    protected WebElement queueSelect;
+	public DButton getOkBtn() {
+		return new DButton(driver, okBtn);
+	}
 
-    @FindBy(css = "span[class=mat-select-arrow]")
-    public List<WebElement> destinationArrows;
+	public DButton getCancelBtn() {
+		return new DButton(driver, cancelBtn);
+	}
+	
+	public void clickOK() throws Exception {
+		getOkBtn().click();
+		wait.forElementToBeGone(okBtn);
 
-    public JMSSelect getQueueSelect() {
-        return new JMSSelect(driver, queueSelect);
-    }
-
-    @Override
-    public DButton getOkBtn() {
-        return new DButton(driver, okBtn);
-    }
-
-    @Override
-    public DButton getCancelBtn() {
-        return new DButton(driver, cancelBtn);
-    }
-
-
+//		hardcoded wait to match the time needed for the dialog to disappear
+		wait.forXMillis(200);
+	}
+	
+	public void clickCancel() throws Exception {
+		getCancelBtn().click();
+		wait.forElementToBeGone(cancelBtn);
+		//		hardcoded wait to match the time needed for the dialog to disappear
+		wait.forXMillis(200);
+	}
+	
+	
 }

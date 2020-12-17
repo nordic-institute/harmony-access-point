@@ -1,7 +1,10 @@
 package ddsl.dobjects;
 
-import org.openqa.selenium.*;
-import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -14,36 +17,45 @@ import java.awt.event.KeyEvent;
 
 
 public class DObject {
-
+	
+	public WebElement element;
+	protected Logger log = LoggerFactory.getLogger(this.getClass());
 	protected WebDriver driver;
 	protected DWait wait;
-
-	public WebElement element;
-
+	
 	public DObject(WebDriver driver, WebElement element) {
 		wait = new DWait(driver);
 		this.driver = driver;
 		this.element = element;
 	}
-
+	
 	public boolean isPresent() {
 		try {
 			wait.forElementToBe(element);
-			((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView();", element);
+			scrollIntoView();
 		} catch (Exception e) {
 			return false;
 		}
 		return true;
 	}
-
+	
 	public boolean isEnabled() throws Exception {
 		if (isPresent()) {
 			wait.forElementToBeEnabled(element);
+			wait.forXMillis(100);
 			return element.isEnabled();
 		}
 		throw new DObjectNotPresentException();
 	}
-
+	
+	public boolean isDisabled() throws Exception {
+		if (isPresent()) {
+			wait.forElementToBeDisabled(element);
+			return !element.isEnabled();
+		}
+		throw new DObjectNotPresentException();
+	}
+	
 	public boolean isVisible() throws Exception {
 		if (isPresent()) {
 			wait.forElementToBeEnabled(element);
@@ -51,16 +63,20 @@ public class DObject {
 		}
 		throw new DObjectNotPresentException();
 	}
-
+	
 	public String getText() throws Exception {
 		if (!isPresent()) {
 			throw new DObjectNotPresentException();
 		}
-		((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView();", element);
+		scrollIntoView();
 		String text = ((JavascriptExecutor) driver).executeScript("return arguments[0].innerText;", element).toString();
 		return text.trim();
 	}
-
+	
+	public void scrollIntoView() {
+		((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView();", element);
+	}
+	
 	public void click() throws Exception {
 		if (isEnabled()) {
 			wait.forElementToBeClickable(element).click();
@@ -68,18 +84,24 @@ public class DObject {
 			throw new Exception("Not enabled");
 		}
 	}
-
+	
 	public String getAttribute(String attributeName) throws Exception {
 		if (isPresent()) {
-			return element.getAttribute(attributeName).trim();
+			String attr = element.getAttribute(attributeName);
+			if (attr == null) {
+				log.debug("Attribute " + attributeName + " not found");
+				return null;
+			}
+			return attr.trim();
 		}
 		throw new DObjectNotPresentException();
 	}
-
+	
 	/*
 	 * This Method is used to press Tab key
 	 */
 	public void pressTABKey() throws Exception {
+		log.info("pressing tab key");
 		try {
 			Robot robot = new Robot();
 //			Simulate a key press
@@ -88,9 +110,9 @@ public class DObject {
 			robot.keyRelease(KeyEvent.VK_TAB);
 			robot.keyRelease(KeyEvent.VK_SHIFT);
 		} catch (AWTException e) {
-			e.printStackTrace();
+			log.error("EXCEPTION: ", e);
 		}
-
-
+		
+		
 	}
 }

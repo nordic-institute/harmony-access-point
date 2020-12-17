@@ -8,9 +8,10 @@ import org.springframework.stereotype.Component;
 
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static eu.domibus.plugin.fs.property.FSPluginPropertiesMetadataManagerImpl.*;
+import static java.util.Collections.unmodifiableMap;
+import static java.util.stream.Stream.of;
 
 /**
  * @author Ion Perpegel
@@ -24,22 +25,24 @@ public class TriggerChangeListener implements PluginPropertyChangeListener {
     @Autowired
     protected DomibusSchedulerExtService domibusSchedulerExt;
 
-    private Map<String, String> propertyToJobMap = Stream.of(new String[][]{
-            {SEND_WORKER_INTERVAL, "fsPluginSendMessagesWorkerJob"},
-            {SENT_PURGE_WORKER_CRONEXPRESSION, "fsPluginPurgeSentWorkerJob"},
-            {FAILED_PURGE_WORKER_CRONEXPRESSION, "fsPluginPurgeFailedWorkerJob"},
-            {RECEIVED_PURGE_WORKER_CRONEXPRESSION, "fsPluginPurgeReceivedWorkerJob"},
-    }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
+    public static final Map<String, String> CRON_PROPERTY_NAMES_TO_JOB_MAP = unmodifiableMap(of(
+            new String[][]{
+                    {PROPERTY_PREFIX + SEND_WORKER_INTERVAL, "fsPluginSendMessagesWorkerJob"},
+                    {PROPERTY_PREFIX + SENT_PURGE_WORKER_CRONEXPRESSION, "fsPluginPurgeSentWorkerJob"},
+                    {PROPERTY_PREFIX + FAILED_PURGE_WORKER_CRONEXPRESSION, "fsPluginPurgeFailedWorkerJob"},
+                    {PROPERTY_PREFIX + RECEIVED_PURGE_WORKER_CRONEXPRESSION, "fsPluginPurgeReceivedWorkerJob"},
+                    {PROPERTY_PREFIX + LOCKS_PURGE_WORKER_CRONEXPRESSION, "fsPluginPurgeLocksWorkerJob"},
+            }).collect(Collectors.toMap(data -> data[0], data -> data[1])));
 
     @Override
     public boolean handlesProperty(String propertyName) {
-        return propertyToJobMap.containsKey(propertyName);
+        return CRON_PROPERTY_NAMES_TO_JOB_MAP.containsKey(propertyName);
     }
 
     @Override
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) {
-        String jobName = propertyToJobMap.get(propertyName);
-        if (StringUtils.equalsIgnoreCase(propertyName, SEND_WORKER_INTERVAL)) {
+        String jobName = CRON_PROPERTY_NAMES_TO_JOB_MAP.get(propertyName);
+        if (StringUtils.endsWithIgnoreCase(propertyName, SEND_WORKER_INTERVAL)) {
             rescheduleWithRepeatInterval(domainCode, jobName, propertyValue);
         } else {
             rescheduleWithCronExpression(domainCode, jobName, propertyValue);

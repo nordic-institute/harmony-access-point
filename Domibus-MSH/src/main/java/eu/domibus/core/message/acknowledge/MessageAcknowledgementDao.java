@@ -1,11 +1,14 @@
 package eu.domibus.core.message.acknowledge;
 
-import eu.domibus.common.dao.BasicDao;
+import eu.domibus.core.dao.BasicDao;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.NoResultException;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import java.util.List;
 
@@ -33,4 +36,15 @@ public class MessageAcknowledgementDao extends BasicDao<MessageAcknowledgementEn
             return null;
         }
     }
+
+    @Timer(clazz = MessageAcknowledgementDao.class,value = "deleteMessages.deleteMessageAcknowledgementsByMessageIds")
+    @Counter(clazz = MessageAcknowledgementDao.class,value = "deleteMessages.deleteMessageAcknowledgementsByMessageIds")
+    public int deleteMessageAcknowledgementsByMessageIds(List<String> messageIds) {
+        final Query deleteQuery = em.createNamedQuery("MessageAcknowledgement.deleteMessageAcknowledgementsByMessageIds");
+        deleteQuery.setParameter("MESSAGEIDS", messageIds);
+        int result = deleteQuery.executeUpdate();
+        LOG.trace("deleteMessageAcknowledgementsByMessageIds result [{}]", result);
+        return result;
+    }
+
 }

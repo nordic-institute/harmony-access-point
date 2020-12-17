@@ -49,7 +49,9 @@
             <resource-name>META-INF/services/javax.xml.bind.JAXBContext</resource-name>
             <resource-name>META-INF/services/javax.xml.ws.spi.Provider</resource-name>
             <resource-name>META-INF/services/javax.persistence.spi.PersistenceProvider</resource-name>
+            <resource-name>META-INF/services/javax.xml.soap.MetaFactory</resource-name>
         </prefer-application-resources>
         <allow-all-roles>true</allow-all-roles>
     </container-descriptor>
+    <wl-dispatch-policy>MshWorkManager</wl-dispatch-policy>
 </weblogic-web-app>

@@ -1,32 +1,30 @@
 package eu.domibus.web.rest;
 
 import eu.domibus.api.csv.CsvException;
-import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.message.MessageSubtype;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
-import eu.domibus.common.NotificationStatus;
-import eu.domibus.common.dao.MessagingDao;
-import eu.domibus.common.dao.PartyDao;
-import eu.domibus.common.dao.UserMessageLogDao;
 import eu.domibus.common.model.configuration.Party;
-import eu.domibus.common.model.logging.MessageLog;
-import eu.domibus.common.model.logging.MessageLogInfo;
-import eu.domibus.common.model.logging.SignalMessageLog;
-import eu.domibus.common.model.logging.UserMessageLog;
-import eu.domibus.common.services.MessagesLogService;
 import eu.domibus.core.csv.CsvServiceImpl;
-import eu.domibus.core.pmode.PModeProvider;
+import eu.domibus.core.message.MessageLog;
+import eu.domibus.core.message.MessageLogInfo;
+import eu.domibus.core.message.MessagesLogService;
+import eu.domibus.core.message.UserMessageLog;
+import eu.domibus.core.message.signal.SignalMessageLog;
+import eu.domibus.core.message.testservice.TestService;
+import eu.domibus.core.message.testservice.TestServiceException;
+import eu.domibus.core.party.PartyDao;
+import eu.domibus.core.plugin.notification.NotificationStatus;
 import eu.domibus.core.replication.UIMessageDao;
 import eu.domibus.core.replication.UIMessageService;
 import eu.domibus.core.replication.UIReplicationSignalService;
+import eu.domibus.core.rest.validators.FieldBlacklistValidator;
 import eu.domibus.ebms3.common.model.MessageType;
-import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.SignalMessage;
 import eu.domibus.web.rest.ro.*;
-import eu.domibus.web.rest.validators.BlacklistValidator;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Mocked;
@@ -54,14 +52,7 @@ public class MessageLogResourceTest {
     MessageLogResource messageLogResource;
 
     @Injectable
-    UserMessageLogDao userMessageLogDao;
-
-    @Injectable
-    PModeProvider pModeProvider;
-
-    // needed Injectable
-    @Injectable
-    MessagingDao messagingDao;
+    TestService testService;
 
     @Injectable
     PartyDao partyDao;
@@ -84,6 +75,9 @@ public class MessageLogResourceTest {
     @Injectable
     private UIReplicationSignalService uiReplicationSignalService;
 
+    @Injectable
+    private DomibusConfigurationService domibusConfigurationService;
+
     @Parameterized.Parameter(0)
     public MessageType messageType;
 
@@ -100,7 +94,7 @@ public class MessageLogResourceTest {
     SignalMessage signalMessage;
 
     @Injectable
-    BlacklistValidator blacklistValidator;
+    FieldBlacklistValidator fieldBlacklistValidator;
 
     @Injectable
     DomibusPropertyProvider domibusPropertyProvider;
@@ -155,9 +149,6 @@ public class MessageLogResourceTest {
         List<MessageLogInfo> messageList = getMessageList(messageType, date, messageSubtype);
 
         new Expectations() {{
-            csvServiceImpl.getMaxNumberRowsToExport();
-            result = 10000;
-
             messagesLogService.findAllInfoCSV(messageType, anyInt, "received", true, (HashMap<String, Object>) any);
             result = messageList;
 
@@ -184,38 +175,12 @@ public class MessageLogResourceTest {
     }
 
     @Test
-    public void testUserMessageGetCsv_Exception() throws CsvException {
-        // Given
-        new Expectations() {{
-            csvServiceImpl.getMaxNumberRowsToExport();
-            result = 10000;
-
-            csvServiceImpl.exportToCSV((List<?>) any, null, null, null);
-            result = new CsvException(DomibusCoreErrorCode.DOM_001, "Exception", new Exception());
-        }};
-
-        // When
-        final ResponseEntity<String> csv = messageLogResource.getCsv(new MessageLogFilterRequestRO() {{
-            setOrderBy("received");
-            setMessageType(messageType);
-            setMessageSubtype(messageSubtype);
-        }});
-
-        // Then
-        Assert.assertEquals(HttpStatus.NO_CONTENT, csv.getStatusCode());
-    }
-
-    @Test
-    public void testGetLastTestSent() {
+    public void testGetLastTestSent(@Injectable TestServiceMessageInfoRO testServiceMessageInfoResult) throws TestServiceException {
         // Given
         String partyId = "test";
-        String userMessageId = "testmessageid";
-        UserMessageLog userMessageLog = new UserMessageLog();
         new Expectations() {{
-            userMessageLogDao.findLastUserTestMessageId(partyId);
-            result = userMessageId;
-            userMessageLogDao.findByMessageId(userMessageId);
-            result = userMessageLog;
+            testService.getLastTestSentWithErrors(partyId);
+            result = testServiceMessageInfoResult;
         }};
 
         // When
@@ -223,47 +188,35 @@ public class MessageLogResourceTest {
                 new LatestOutgoingMessageRequestRO() {{
                     setPartyId(partyId);
                 }});
-
         // Then
         TestServiceMessageInfoRO testServiceMessageInfoRO = lastTestSent.getBody();
-        Assert.assertEquals(partyId, testServiceMessageInfoRO.getPartyId());
-        Assert.assertEquals(userMessageId, testServiceMessageInfoRO.getMessageId());
+        Assert.assertEquals(testServiceMessageInfoResult.getPartyId(), testServiceMessageInfoRO.getPartyId());
     }
 
-    @Test
-    public void testGetLastTestSent_NotFound() {
+    @Test(expected = TestServiceException.class)
+    public void testGetLastTestSent_NotFound() throws TestServiceException {
         // Given
+        String partyId = "partyId";
         new Expectations() {{
-            userMessageLogDao.findLastUserTestMessageId(anyString);
-            result = null;
+            testService.getLastTestSentWithErrors(partyId);
+            result = new TestServiceException("No User Message found. Error Details in error log");
         }};
 
         // When
-        ResponseEntity<TestServiceMessageInfoRO> lastTestSent = messageLogResource.getLastTestSent(
+        messageLogResource.getLastTestSent(
                 new LatestOutgoingMessageRequestRO() {{
-                    setPartyId("test");
+                    setPartyId(partyId);
                 }});
-
-        // Then
-        Assert.assertEquals(HttpStatus.NO_CONTENT, lastTestSent.getStatusCode());
     }
 
     @Test
-    public void testGetLastTestReceived(@Injectable Messaging messaging) {
+    public void testGetLastTestReceived(@Injectable TestServiceMessageInfoRO testServiceMessageInfoResult, @Injectable Party party) throws TestServiceException {
         // Given
         String partyId = "partyId";
         String userMessageId = "userMessageId";
-
-        Party party = new Party();
-        party.setEndpoint("testEndpoint");
-
         new Expectations() {{
-            messagingDao.findMessageByMessageId(anyString);
-            result = messaging;
-            messaging.getSignalMessage();
-            result = signalMessage;
-            pModeProvider.getPartyByIdentifier(partyId);
-            result = party;
+            testService.getLastTestReceivedWithErrors(partyId, userMessageId);
+            result = testServiceMessageInfoResult;
         }};
 
         // When
@@ -272,32 +225,27 @@ public class MessageLogResourceTest {
                     setPartyId(partyId);
                     setUserMessageId(userMessageId);
                 }});
-
         // Then
         TestServiceMessageInfoRO testServiceMessageInfoRO = lastTestReceived.getBody();
-        Assert.assertEquals(testServiceMessageInfoRO.getMessageId(), signalMessage.getMessageInfo().getMessageId());
-        Assert.assertEquals(testServiceMessageInfoRO.getPartyId(), partyId);
-        Assert.assertEquals(testServiceMessageInfoRO.getTimeReceived(), signalMessage.getMessageInfo().getTimestamp());
+        Assert.assertEquals(testServiceMessageInfoRO.getPartyId(), testServiceMessageInfoResult.getPartyId());
         Assert.assertEquals(testServiceMessageInfoRO.getAccessPoint(), party.getEndpoint());
     }
 
-    @Test
-    public void testGetLastTestReceived_NotFound() {
+    @Test(expected = TestServiceException.class)
+    public void testGetLastTestReceived_NotFound() throws TestServiceException {
         // Given
+        String partyId = "partyId";
+        String userMessageId = "userMessageId";
         new Expectations() {{
-            messagingDao.findMessageByMessageId(anyString);
-            result = null;
+            testService.getLastTestReceivedWithErrors(partyId, userMessageId);
+            result = new TestServiceException("No Signal Message found. Error Details in error log");
         }};
 
-        // When
-        ResponseEntity<TestServiceMessageInfoRO> lastTestReceived = messageLogResource.getLastTestReceived(
+        messageLogResource.getLastTestReceived(
                 new LatestIncomingMessageRequestRO() {{
-                    setPartyId("test");
-                    setUserMessageId("test");
+                    setPartyId(partyId);
+                    setUserMessageId(userMessageId);
                 }});
-
-        // Then
-        Assert.assertEquals(HttpStatus.NO_CONTENT, lastTestReceived.getStatusCode());
     }
 
     /**

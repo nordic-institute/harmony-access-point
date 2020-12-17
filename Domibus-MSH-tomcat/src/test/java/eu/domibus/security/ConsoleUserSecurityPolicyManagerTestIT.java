@@ -4,11 +4,13 @@ import eu.domibus.AbstractIT;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.common.dao.security.ConsoleUserPasswordHistoryDao;
-import eu.domibus.common.dao.security.UserDao;
-import eu.domibus.common.model.security.User;
-import eu.domibus.common.model.security.UserRole;
+import eu.domibus.api.user.UserManagementException;
 import eu.domibus.core.alerts.service.ConsoleUserAlertsServiceImpl;
+import eu.domibus.core.user.ui.User;
+import eu.domibus.core.user.ui.UserDao;
+import eu.domibus.core.user.ui.UserRole;
+import eu.domibus.core.user.ui.security.ConsoleUserSecurityPolicyManager;
+import eu.domibus.core.user.ui.security.password.ConsoleUserPasswordHistoryDao;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;
@@ -102,5 +104,13 @@ public class ConsoleUserSecurityPolicyManagerTestIT extends AbstractIT {
     public void testPasswordComplexity_shortPasswordShouldFail() {
         User user = initTestUser("testUser4");
         userSecurityPolicyManager.changePassword(user, "Aa-1");
+    }
+
+    @Test(expected = UserManagementException.class)
+    @Transactional
+    @Rollback
+    public void test_validateUniqueUser() {
+        User user = initTestUser("testUser_Unique");
+        userSecurityPolicyManager.validateUniqueUser(user);
     }
 }

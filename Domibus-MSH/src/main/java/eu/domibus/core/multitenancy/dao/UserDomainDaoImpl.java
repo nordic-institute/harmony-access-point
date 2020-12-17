@@ -1,14 +1,16 @@
 package eu.domibus.core.multitenancy.dao;
 
 
-import eu.domibus.common.dao.BasicDao;
-import eu.domibus.common.model.security.User;
+import eu.domibus.core.dao.BasicDao;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 /**
@@ -18,32 +20,28 @@ import java.util.stream.Collectors;
 @Repository
 public class UserDomainDaoImpl extends BasicDao<UserDomainEntity> implements UserDomainDao {
 
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserDomainDaoImpl.class);
+
     public UserDomainDaoImpl() {
         super(UserDomainEntity.class);
     }
 
     @Override
     public String findDomainByUser(String userName) {
-        TypedQuery<UserDomainEntity> namedQuery = em.createNamedQuery("UserDomainEntity.findByUserName", UserDomainEntity.class);
-        namedQuery.setParameter("USER_NAME", userName);
-        try {
-            final UserDomainEntity userDomainEntity = namedQuery.getSingleResult();
-            return userDomainEntity.getDomain();
-        } catch (NoResultException e) {
+        UserDomainEntity userDomainEntity = findUserDomainEntity(userName);
+        if (userDomainEntity == null) {
             return null;
         }
+        return userDomainEntity.getDomain();
     }
 
     @Override
     public String findPreferredDomainByUser(String userName) {
-        TypedQuery<UserDomainEntity> namedQuery = em.createNamedQuery("UserDomainEntity.findByUserName", UserDomainEntity.class);
-        namedQuery.setParameter("USER_NAME", userName);
-        try {
-            final UserDomainEntity userDomainEntity = namedQuery.getSingleResult();
-            return userDomainEntity.getPreferredDomain();
-        } catch (NoResultException e) {
+        UserDomainEntity userDomainEntity = findUserDomainEntity(userName);
+        if (userDomainEntity == null) {
             return null;
         }
+        return userDomainEntity.getPreferredDomain();
     }
 
     @Override
@@ -51,7 +49,8 @@ public class UserDomainDaoImpl extends BasicDao<UserDomainEntity> implements Use
         TypedQuery<UserDomainEntity> namedQuery = em.createNamedQuery("UserDomainEntity.findPreferredDomains", UserDomainEntity.class);
         return namedQuery.getResultList();
     }
-    
+
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void setDomainByUser(String userName, String domainCode) {
         UserDomainEntity userDomainEntity = findUserDomainEntity(userName);
@@ -65,21 +64,23 @@ public class UserDomainDaoImpl extends BasicDao<UserDomainEntity> implements Use
             this.create(userDomainEntity);
         }
     }
-    
+
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void setPreferredDomainByUser(String userName, String domainCode) {
         UserDomainEntity userDomainEntity = findUserDomainEntity(userName);
         if (userDomainEntity != null) {
             userDomainEntity.setPreferredDomain(domainCode);
             this.update(userDomainEntity);
-        }  else {
+        } else {
             userDomainEntity = new UserDomainEntity();
             userDomainEntity.setUserName(userName);
             userDomainEntity.setPreferredDomain(domainCode);
-            this.create(userDomainEntity); 
+            this.create(userDomainEntity);
         }
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void deleteDomainByUser(String userName) {
         UserDomainEntity userDomainEntity = findUserDomainEntity(userName);
@@ -92,9 +93,9 @@ public class UserDomainDaoImpl extends BasicDao<UserDomainEntity> implements Use
         TypedQuery<UserDomainEntity> namedQuery = em.createNamedQuery("UserDomainEntity.findByUserName", UserDomainEntity.class);
         namedQuery.setParameter("USER_NAME", userName);
         try {
-            final UserDomainEntity userDomainEntity = namedQuery.getSingleResult();
-            return userDomainEntity;
+            return namedQuery.getSingleResult();
         } catch (NoResultException e) {
+            LOG.trace("User domain not found for [{}]", userName);
             return null;
         }
     }

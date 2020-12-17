@@ -8,39 +8,33 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
-import utils.Generator;
-import utils.TestRunData;
+import utils.Gen;
 
 /**
  * @author Catalin Comanici
-
  * @since 4.1
  */
 public class PartyIdentifierModal extends DomibusPage {
+	@FindBy(css = "app-party-identifier-details form button:nth-child(1)")
+	WebElement okBtn;
+	@FindBy(css = "app-party-identifier-details form button:nth-child(2)")
+	WebElement cancelBtn;
+	@FindBy(css = "#partyId_id")
+	WebElement partyIdInput;
+	@FindBy(css = "#partyIdType_id")
+	WebElement partyIdTypeInput;
+	@FindBy(css = "#partyIdValue_id")
+	WebElement partyIdValueInput;
+
 	public PartyIdentifierModal(WebDriver driver) {
 		super(driver);
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 	}
 
-	@FindBy(css = "md-dialog-content > form > button:nth-child(2)")
-	WebElement okBtn;
-
-	@FindBy(css = "md-dialog-content > form > button:nth-child(3)")
-	WebElement cancelBtn;
-
 	public void clickOK() throws Exception {
 		new DButton(driver, okBtn).click();
 		wait.forElementToBeGone(okBtn);
 	}
-
-	@FindBy(css = "#partyId_id")
-	WebElement partyIdInput;
-
-	@FindBy(css = "#partyIdType_id")
-	WebElement partyIdTypeInput;
-
-	@FindBy(css = "#partyIdValue_id")
-	WebElement partyIdValueInput;
 
 	public DInput getPartyIdInput() {
 		return new DInput(driver, partyIdInput);
@@ -54,9 +48,9 @@ public class PartyIdentifierModal extends DomibusPage {
 		return new DInput(driver, partyIdValueInput);
 	}
 
-	public void fillFileds(String partyId) throws Exception {
+	public void fillFields(String partyId) throws Exception {
 		getPartyIdInput().fill(partyId);
-		getPartyIdTypeInput().fill(Generator.randomAlphaNumeric(5));
-		getPartyIdValueInput().fill("urn:oasis:names:tc:ebcore:partyid-type:unregistered");
+		getPartyIdTypeInput().fill(Gen.randomAlphaNumeric(5));
+		getPartyIdValueInput().fill("urn:oasis:names:tc:ebcore:partyid-type:" + Gen.randomAlphaNumeric(15));
 	}
 }

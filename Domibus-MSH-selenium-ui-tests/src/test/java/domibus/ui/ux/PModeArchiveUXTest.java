@@ -1,28 +1,32 @@
 package domibus.ui.ux;
 
+import ddsl.dcomponents.grid.DGrid;
 import ddsl.dcomponents.popups.Dialog;
+import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
-import utils.BaseUXTest;
+import domibus.ui.SeleniumTest;
 import org.apache.commons.lang3.StringUtils;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.json.JSONObject;
-import org.testng.SkipException;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
-import pages.pmode.current.PModeCurrentPage;
 import pages.pmode.archive.PMAModal;
 import pages.pmode.archive.PModeArchivePage;
+import pages.pmode.current.PModeCurrentPage;
 import rest.RestServicePaths;
 import utils.TestUtils;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * @author Catalin Comanici
  * @since 4.1.2
  */
-public class PModeArchiveUXTest extends BaseUXTest {
+public class PModeArchiveUXTest extends SeleniumTest {
 
 	JSONObject descriptorObj = TestUtils.getPageDescriptorObject(PAGES.PMODE_ARCHIVE);
 
@@ -32,11 +36,10 @@ public class PModeArchiveUXTest extends BaseUXTest {
 		SoftAssert soft = new SoftAssert();
 		PModeArchivePage page = new PModeArchivePage(driver);
 		page.getSidebar().goToPage(PAGES.PMODE_ARCHIVE);
-		page.grid().waitForRowsToLoad();
 
 		if (page.grid().getRowsNo() == 0) {
 			soft.assertTrue(!page.getDownloadBtn().isEnabled(), "If archive is empty the download button is disabled");
-			rest.uploadPMode("pmodes/doNothingInvalidRed.xml", null);
+			rest.pmode().uploadPMode("pmodes/doNothingInvalidRed.xml", null);
 			page.refreshPage();
 		}
 
@@ -53,7 +56,7 @@ public class PModeArchiveUXTest extends BaseUXTest {
 
 		soft.assertTrue(page.grid().getPagination().getPageSizeSelect().getSelectedValue().equals("10"), "10 is selected by default in the page size select");
 
-		testButonPresence(soft, page, descriptorObj.getJSONArray("buttons"));
+		testButtonPresence(soft, page, descriptorObj.getJSONArray("buttons"));
 
 		soft.assertAll();
 
@@ -65,13 +68,11 @@ public class PModeArchiveUXTest extends BaseUXTest {
 		SoftAssert soft = new SoftAssert();
 		PModeArchivePage page = new PModeArchivePage(driver);
 		page.getSidebar().goToPage(PAGES.PMODE_ARCHIVE);
-		page.grid().waitForRowsToLoad();
 
 		if (page.grid().getRowsNo() == 0) {
 			log.info("uploading PMode");
-			rest.uploadPMode("pmodes/doNothingInvalidRed.xml", null);
+			rest.pmode().uploadPMode("pmodes/doNothingInvalidRed.xml", null);
 			page.refreshPage();
-			page.grid().waitForRowsToLoad();
 		}
 
 		log.info("checking the first row is the current pmode");
@@ -85,8 +86,8 @@ public class PModeArchiveUXTest extends BaseUXTest {
 		soft.assertTrue(!page.getRestoreBtn().isEnabled(), "Restore is not enabled for the current pmode");
 
 		log.info("checking row action buttons");
-		soft.assertTrue(!page.pmagrid().isActionEnabledForRow(0,"Delete"), "Delete is not enabled for the current pmode");
-		soft.assertTrue(!page.pmagrid().isActionEnabledForRow(0,"Restore"), "Restore is not enabled for the current pmode");
+		soft.assertTrue(!page.pmagrid().isActionEnabledForRow(0, "Delete"), "Delete is not enabled for the current pmode");
+		soft.assertTrue(!page.pmagrid().isActionEnabledForRow(0, "Restore"), "Restore is not enabled for the current pmode");
 
 		soft.assertAll();
 	}
@@ -97,13 +98,11 @@ public class PModeArchiveUXTest extends BaseUXTest {
 		SoftAssert soft = new SoftAssert();
 		PModeArchivePage page = new PModeArchivePage(driver);
 		page.getSidebar().goToPage(PAGES.PMODE_ARCHIVE);
-		page.grid().waitForRowsToLoad();
 
 		if (page.grid().getRowsNo() == 0) {
 			log.info("uploading PMode");
-			rest.uploadPMode("pmodes/doNothingInvalidRed.xml", null);
+			rest.pmode().uploadPMode("pmodes/doNothingInvalidRed.xml", null);
 			page.refreshPage();
-			page.grid().waitForRowsToLoad();
 		}
 
 		log.info("checking the first row is the current pmode");
@@ -121,7 +120,7 @@ public class PModeArchiveUXTest extends BaseUXTest {
 		modal.getOkBtn().click();
 
 		log.info("downloading current pmode");
-		String downloadedPMode = new String(Files.readAllBytes(Paths.get(rest.downloadPmode(null, rest.getLatestPModeID(null)))));
+		String downloadedPMode = new String(Files.readAllBytes(Paths.get(rest.pmode().downloadPmode(null, rest.pmode().getLatestPModeID(null)))));
 
 		page.getSidebar().goToPage(PAGES.PMODE_CURRENT);
 		PModeCurrentPage pmcPage = new PModeCurrentPage(driver);
@@ -129,7 +128,7 @@ public class PModeArchiveUXTest extends BaseUXTest {
 		String listedPmodeCurrent = pmcPage.getTextArea().getText();
 
 		log.info("comparing all 3 pmodes");
-		System.out.println("pmode = " + pmode);
+		log.debug("pmode = " + pmode);
 
 		soft.assertTrue(XMLUnit.compareXML(pmode, downloadedPMode).identical(), "PMode in modal and the one downloaded are the same");
 		soft.assertTrue(XMLUnit.compareXML(pmode, listedPmodeCurrent).identical(), "PMode in modal and the one in Pmode-Current page are the same");
@@ -141,15 +140,15 @@ public class PModeArchiveUXTest extends BaseUXTest {
 	@Test(description = "PMA-4", groups = {"multiTenancy", "singleTenancy"})
 	public void restoreOldFile() throws Exception {
 		SoftAssert soft = new SoftAssert();
+		log.info(" go to PMode Archive page");
 		PModeArchivePage page = new PModeArchivePage(driver);
 		page.getSidebar().goToPage(PAGES.PMODE_ARCHIVE);
-		page.grid().waitForRowsToLoad();
 
+		log.info("make sure there are at least 2 entries in grid");
 		if (page.grid().getRowsNo() < 2) {
-			rest.uploadPMode("pmodes/doNothingSelfSending.xml", null);
-			rest.uploadPMode("pmodes/multipleParties.xml", null);
+			rest.pmode().uploadPMode("pmodes/doNothingSelfSending.xml", null);
+			rest.pmode().uploadPMode("pmodes/multipleParties.xml", null);
 			page.refreshPage();
-			page.grid().waitForRowsToLoad();
 		}
 
 		log.info("doubleclick row 1");
@@ -165,14 +164,13 @@ public class PModeArchiveUXTest extends BaseUXTest {
 		page.pmagrid().clickAction(1, "Restore");
 		new Dialog(driver).confirm();
 
+		page.grid().waitForRowsToLoad();
+
 		log.info("checking description");
 		String currentPmodeDescription = page.grid().getRowInfo(0).get("Description");
-		soft.assertEquals(currentPmodeDescription,
-				"[CURRENT]: Restored version of "+configDate, "Description is updated correctly");
 
 		page.getSidebar().goToPage(PAGES.PMODE_CURRENT);
 		PModeCurrentPage pmcPage = new PModeCurrentPage(driver);
-		pmcPage.waitForTitle();
 
 		log.info("getting listed current pmode");
 		String listedPmodeCurrent = pmcPage.getTextArea().getText();
@@ -186,21 +184,28 @@ public class PModeArchiveUXTest extends BaseUXTest {
 	/*PMA-5 - User tries to delete an older file*/
 	@Test(description = "PMA-5", groups = {"multiTenancy", "singleTenancy"})
 	public void deleteOldFile() throws Exception {
+
+		while (rest.pmode().getPmodesList(null).length() < 3) {
+			rest.pmode().uploadPMode("pmodes/pmode-blue.xml", null);
+		}
+
 		SoftAssert soft = new SoftAssert();
+
 		PModeArchivePage page = new PModeArchivePage(driver);
 		page.getSidebar().goToPage(PAGES.PMODE_ARCHIVE);
 		page.grid().waitForRowsToLoad();
 
-		if (page.grid().getRowsNo() <= 1) {
-			throw new SkipException("Cannot delete old file because there is no old file");
-		}
 		log.info("getting config date for row 1");
-		String configDate = page.deleteRow(1);
+		String description = page.grid().getRowInfo(1).get("Description");
+		page.deleteRow(1);
+
+		soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.PMODE_ARCHIVE_DELETE_SUCCESS, "Correct message is displayed");
+		soft.assertFalse(page.getAlertArea().isError(), "Message is success");
 
 		log.info("searching for deleted row...");
-		int index = page.grid().scrollTo("Configuration Date", configDate);
+		int index = page.grid().scrollTo("Description", description);
 
-		soft.assertTrue(index==-1, "Row doesn't appear in the grid anymore");
+		soft.assertTrue(index == -1, "Row doesn't appear in the grid anymore");
 
 		soft.assertAll();
 	}
@@ -211,9 +216,8 @@ public class PModeArchiveUXTest extends BaseUXTest {
 		SoftAssert soft = new SoftAssert();
 		PModeArchivePage page = new PModeArchivePage(driver);
 		page.getSidebar().goToPage(PAGES.PMODE_ARCHIVE);
-		page.grid().waitForRowsToLoad();
 
-		String fileName = rest.downloadGrid(RestServicePaths.PMODE_ARCHIVE_CSV, null, null);
+		String fileName = rest.csv().downloadGrid(RestServicePaths.PMODE_ARCHIVE_CSV, null, null);
 		log.info("downloaded file with name " + fileName);
 
 		page.grid().getGridCtrl().showCtrls();
@@ -229,18 +233,16 @@ public class PModeArchiveUXTest extends BaseUXTest {
 	}
 
 	/*PMA-7 - User Doubleclick on grid row*/
-	@Test(description = "PMA-6", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "PMA-7", groups = {"multiTenancy", "singleTenancy"})
 	public void doubleClickRow() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		PModeArchivePage page = new PModeArchivePage(driver);
 		page.getSidebar().goToPage(PAGES.PMODE_ARCHIVE);
-		page.grid().waitForRowsToLoad();
 
 		if (page.grid().getRowsNo() == 0) {
 			log.info("uploading pmode");
-			rest.uploadPMode("pmodes/doNothingInvalidRed.xml", null);
+			rest.pmode().uploadPMode("pmodes/doNothingInvalidRed.xml", null);
 			page.refreshPage();
-			page.grid().waitForRowsToLoad();
 		}
 
 		log.info("double clicking row 0");
@@ -256,6 +258,86 @@ public class PModeArchiveUXTest extends BaseUXTest {
 	}
 
 
+	/* PMA-10 - User tries to sort the grid */
+	@Test(description = "PMA-10", groups = {"multiTenancy", "singleTenancy"})
+	public void sortGrid() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		log.info("navigating to Pmode Archive page");
+		PModeArchivePage page = new PModeArchivePage(driver);
+		page.getSidebar().goToPage(PAGES.PMODE_ARCHIVE);
+
+		DGrid grid = page.grid();
+		grid.waitForRowsToLoad();
+
+		log.info("Check default sorted column");
+		soft.assertNull(grid.getSortedColumnName(), "Grid is not sortable and no column is marked as sorted by default");
+
+		grid.sortBy("Description");
+
+		log.info("Check sorted column name after sorting attempt");
+		soft.assertNull(grid.getSortedColumnName(), "Grid is not sortable and no column is marked as sorted ");
+
+
+		soft.assertAll();
+	}
+
+
+	/* PMA-11 - User modifies visible columns */
+	@Test(description = "PMA-11", groups = {"multiTenancy", "singleTenancy"})
+	public void modifyVisibleColumns() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		log.info("navigating to Pmode Archive page");
+		PModeArchivePage page = new PModeArchivePage(driver);
+		page.getSidebar().goToPage(PAGES.PMODE_ARCHIVE);
+
+		DGrid grid = page.grid();
+		grid.waitForRowsToLoad();
+
+		grid.checkModifyVisibleColumns(soft);
+
+
+		soft.assertAll();
+	}
+
+	/* PMA-12 - Change current domain */
+	@Test(description = "PMA-12", groups = {"multiTenancy"})
+	public void domainSegregation() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		log.info("navigating to Pmode Archive page");
+		PModeArchivePage page = new PModeArchivePage(driver);
+		page.getSidebar().goToPage(PAGES.PMODE_ARCHIVE);
+
+		DGrid grid = page.grid();
+		grid.waitForRowsToLoad();
+
+		log.info("extracting listed info");
+		List<HashMap<String, String>> infoDom1 = grid.getListedRowInfo();
+
+		log.info("changing domain");
+		page.getDomainSelector().selectAnotherDomain();
+
+		grid.waitForRowsToLoad();
+		log.info("extracting listed info");
+		List<HashMap<String, String>> infoDom2 = grid.getListedRowInfo();
+
+		log.info("checking for similarities in the data");
+
+		ArrayList<String> similarities = new ArrayList<>();
+		for (int i = 0; i < infoDom1.size(); i++) {
+			String rowDom1 = infoDom1.get(i).toString();
+
+			for (int j = 0; j < infoDom2.size(); j++) {
+				String rowDom2 = infoDom2.get(j).toString();
+				soft.assertNotEquals(rowDom1, rowDom2, "Rows differ between domains");
+			}
+		}
+
+
+		soft.assertAll();
+	}
 
 
 }

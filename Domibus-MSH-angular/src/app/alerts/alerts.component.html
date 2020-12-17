@@ -1,203 +1,175 @@
-<page-header id="alertsheader_id">Alerts</page-header>
+<div style="height: calc(100% - 25px);">
+  <page-header id="alertsheader_id">Alerts</page-header>
 
-<div class="selectionCriteria">
-  <md-card>
-    <md-card-content>
-      <div class="panel">
-        <form name="filterForm" #filterForm="ngForm" (ngSubmit)="trySearch()">
-          <!-- Processed -->
-          <md-select placeholder="Processed" [(ngModel)]="filter.processed" name="processed" id="processed_id">
-            <md-option [value]="''"></md-option>
-            <md-option *ngFor="let aprocessed of aProcessedValues" [value]="aprocessed">
-              {{aprocessed}}
-            </md-option>
-          </md-select>
-          <!-- Alert Type (Basic) -->
-          <md-select placeholder="Alert Type" [(ngModel)]="filter.alertType" name="alertType"
-                     id="alerttype_id" (change)="onAlertTypeChanged(filter.alertType)">
-            <md-option [value]="''"></md-option>
-            <md-option *ngFor="let atype of aTypes" [value]="atype">
-              {{atype}}
-            </md-option>
-          </md-select>
+  <div class="selectionCriteria">
+    <mat-card>
+      <mat-card-content>
+        <div class="panel">
+          <form name="filterForm" #filterForm="ngForm" (submit)="tryFilter()">
+            <!-- Processed -->
+            <mat-select placeholder="Processed" [(ngModel)]="filter.processed" name="processed" id="processed_id">
+              <mat-option [value]=""></mat-option>
+              <mat-option *ngFor="let aprocessed of aProcessedValues" [value]="aprocessed">
+                {{aprocessed}}
+              </mat-option>
+            </mat-select>
+            <!-- Alert Type (Basic) -->
+            <mat-select placeholder="Alert Type" [(ngModel)]="filter.alertType" name="alertType"
+                        id="alerttype_id" (selectionChange)="onAlertTypeChanged(filter.alertType)">
+              <mat-option [value]=""></mat-option>
+              <mat-option *ngFor="let atype of aTypes" [value]="atype">
+                {{atype}}
+              </mat-option>
+            </mat-select>
 
-          <md-select placeholder="Alert Status" [(ngModel)]="filter.alertStatus" name="alertStatus"
-                     id="alertstatus_id">
-            <md-option [value]="''"></md-option>
-            <md-option *ngFor="let aStatus of aStatuses" [value]="aStatus">
-              {{aStatus}}
-            </md-option>
-          </md-select>
-          <!-- Alert Id (Advanced) -->
-          <md-input-container *ngIf="advancedSearch">
-            <input mdInput placeholder="Alert Id" name="alertId" [(ngModel)]="filter.alertId"
-                   #alertId="ngModel" id="alertid_id" pattern="[1-9]{1}[0-9]{0,18}" [errorStateMatcher]="matcher">
-            <md-error *ngIf="alertId.invalid && (alertId.dirty || alertId.touched)">Alert Id must be 19 digits long and must not start with a 0</md-error>
-          </md-input-container>
-          <!-- Alert Level (Basic) -->
-          <md-select placeholder="Alert Level" [(ngModel)]="filter.alertLevel" name="alertLevel"
-                     id="alertlevel_id">
-            <md-option [value]="''">
-            </md-option>
-            <md-option *ngFor="let alevel of aLevels" [value]="alevel">
-              {{alevel}}
-            </md-option>
-          </md-select>
-          <!-- Creation From (Basic) -->
-          <md2-datepicker placeholder="Creation From:" appClearInvalid
-                          [(ngModel)]="filter.creationFrom"
-                          name="creationFrom"
-                          [max]="timestampCreationFromMaxDate"
-                          (change)='onTimestampCreationFromChange($event)'
-                          [type]="'datetime'"
-                          #timestampControl="ngModel" id="creationfrom_id">
-          </md2-datepicker>
-          <!-- Creation To (Basic) -->
-          <md2-datepicker placeholder="Creation To:" appClearInvalid
-                          [(ngModel)]="filter.creationTo"
-                          name="creationTo"
-                          [min]="timestampCreationToMinDate"
-                          [max]="timestampCreationToMaxDate"
-                          (change)='onTimestampCreationToChange($event)'
-                          [type]="'datetime'"
-                          #timestampControl="ngModel" id="creationto_id">
-          </md2-datepicker>
-          <ng-container *ngIf="displayDomainCheckBox">
-            <input type="checkbox" name="showDomainAlerts" [(ngModel)]="filter.domainAlerts"
-                   id="showDomainAlerts_id">
-            <span>Show domain alerts</span>
-          </ng-container>
-          <!-- Reporting From -->
-          <md2-datepicker placeholder="Reporting From:" appClearInvalid
-                          [(ngModel)]="filter.reportingFrom"
-                          name="reportingFrom"
-                          [max]="timestampReportingFromMaxDate"
-                          (change)='onTimestampReportingFromChange($event)'
-                          [type]="'datetime'"
-                          #timestampControl="ngModel" id="reportingfrom_id" *ngIf="advancedSearch">
-          </md2-datepicker>
-          <!-- Reporting To -->
-          <md2-datepicker placeholder="Reporting To:" appClearInvalid
-                          [(ngModel)]="filter.reportingTo"
-                          name="reportingTo"
-                          [min]="timestampReportingToMinDate"
-                          [max]="timestampReportingToMaxDate"
-                          (change)='onTimestampReportingToChange($event)'
-                          [type]="'datetime'"
-                          #timestampControl="ngModel" id="reportingto_id" *ngIf="advancedSearch">
-          </md2-datepicker>
+            <mat-select placeholder="Alert Status" [(ngModel)]="filter.alertStatus" name="alertStatus"
+                        id="alertstatus_id">
+              <mat-option [value]=""></mat-option>
+              <mat-option *ngFor="let aStatus of aStatuses" [value]="aStatus">
+                {{aStatus}}
+              </mat-option>
+            </mat-select>
+            <!-- Alert Id (Advanced) -->
+            <mat-form-field *ngIf="advancedSearch">
+              <input matInput placeholder="Alert Id" name="alertId" [(ngModel)]="filter.alertId"
+                     #alertId="ngModel" id="alertid_id" pattern="[1-9]{1}[0-9]{0,18}" [errorStateMatcher]="matcher"
+                     advanced-filter-behaviour [parent]="this">
+              <mat-error *ngIf="alertId.invalid && (alertId.dirty || alertId.touched)">Alert Id must be 19 digits long
+                and must not start with a 0
+              </mat-error>
+            </mat-form-field>
+            <!-- Alert Level (Basic) -->
+            <mat-select placeholder="Alert Level" [(ngModel)]="filter.alertLevel" name="alertLevel"
+                        id="alertlevel_id">
+              <mat-option [value]="">
+              </mat-option>
+              <mat-option *ngFor="let alevel of aLevels" [value]="alevel">
+                {{alevel}}
+              </mat-option>
+            </mat-select>
+            <!-- Creation From (Basic) -->
+            <md2-datepicker placeholder="Creation From:" appClearInvalid
+                            [(ngModel)]="filter.creationFrom"
+                            name="creationFrom"
+                            [max]="creationFromMaxDate"
+                            (change)='onTimestampCreationFromChange($event)'
+                            [type]="'datetime'"
+                            id="creationfrom_id">
+            </md2-datepicker>
+            <!-- Creation To (Basic) -->
+            <md2-datepicker placeholder="Creation To:" appClearInvalid
+                            [(ngModel)]="filter.creationTo"
+                            name="creationTo"
+                            [min]="creationToMinDate"
+                            [max]="creationToMaxDate"
+                            (change)='onTimestampCreationToChange($event)'
+                            [type]="'datetime'"
+                            id="creationto_id">
+            </md2-datepicker>
+            <ng-container *ngIf="displayDomainCheckBox">
+              <mat-checkbox name="showDomainAlerts" [(ngModel)]="filter.domainAlerts" id="showDomainAlerts_id">
+                Show domain alerts
+              </mat-checkbox>
+            </ng-container>
+            <!-- Reporting From -->
+            <md2-datepicker placeholder="Reporting From:" appClearInvalid
+                            [(ngModel)]="filter.reportingFrom"
+                            name="reportingFrom"
+                            [max]="reportingFromMaxDate"
+                            (change)='onTimestampReportingFromChange($event)'
+                            [type]="'datetime'"
+                            id="reportingfrom_id" *ngIf="advancedSearch"
+                            advanced-filter-behaviour [parent]="this">
+            </md2-datepicker>
+            <!-- Reporting To -->
+            <md2-datepicker placeholder="Reporting To:" appClearInvalid
+                            [(ngModel)]="filter.reportingTo"
+                            name="reportingTo"
+                            [min]="reportingToMinDate"
+                            [max]="reportingToMaxDate"
+                            (change)='onTimestampReportingToChange($event)'
+                            [type]="'datetime'"
+                            id="reportingto_id" *ngIf="advancedSearch"
+                            advanced-filter-behaviour [parent]="this">
+            </md2-datepicker>
 
-          <!-- Alert Type Criteria -->
-          <div class="panel" *ngIf="filter.alertType">
-            <md-card>
-              <div>
-                <md-card-title>
-                  {{filter.alertType}}
-                </md-card-title>
-              </div>
-              <md-card-content>
-                <md-input-container *ngFor="let item of nonDateParameters; let i = index">
-                  <input mdInput placeholder={{item}} name={{item}} [(ngModel)]="dynamicFilters[i]"
-                         #{{item}}="ngModel" id={{item}}_id>
-                </md-input-container>
-                <span *ngIf="alertTypeWithDate">
-                  <md2-datepicker mdInput
+            <!-- Alert Type Criteria -->
+            <div class="panel" *ngIf="filter.alertType">
+              <mat-card>
+                <div>
+                  <mat-card-title>
+                    {{filter.alertType}}
+                  </mat-card-title>
+                </div>
+                <mat-card-content>
+                  <mat-form-field *ngFor="let item of nonDateParameters; let i = index">
+                    <input matInput placeholder={{item}} name={{item}} [(ngModel)]="dynamicFilters[i]"
+                           #{{item}}="ngModel" id={{item}}_id>
+                  </mat-form-field>
+                  <span *ngIf="alertTypeWithDate">
+                  <md2-datepicker matInput
                                   placeholder={{dateFromName}}
                                   [(ngModel)]="dynamicDatesFilter.from"
                                   name="from"
+                                  [max]="dynamicDataFromMaxDate"
+                                  (change)='onDynamicDataFromChange($event)'
                                   [type]="'datetime'"
-                                  #timestampControl="ngModel" id={{dateFromName}}_id>
+                                  id={{dateFromName}}_id>
                   </md2-datepicker>
-                  <md2-datepicker mdInput
+                  <md2-datepicker matInput
                                   placeholder={{dateToName}}
                                   [(ngModel)]="dynamicDatesFilter.to"
                                   name="To"
+                                  [min]="dynamicDataToMinDate"
+                                  [max]="dynamicDataToMaxDate"
+                                  (change)='onDynamicDataToChange($event)'
                                   [type]="'datetime'"
-                                  #timestampControl="ngModel" id={{dateToName}}_id>
+                                  id={{dateToName}}_id>
                   </md2-datepicker>
                 </span>
-              </md-card-content>
-            </md-card>
-          </div>
+                </mat-card-content>
+              </mat-card>
+            </div>
 
-          <!-- Search Button and Basic/Advanced Search-->
-          <div class="searchArea">
-            <button md-raised-button color="primary" [disabled]="!filterForm.form.valid" id="searchbutton_id"
-                    button-click-behaviour>
-              <md-icon>search</md-icon>
-              <span>Search</span>
-            </button>
-            <a href="#" *ngIf="!advancedSearch" (click)="toggleAdvancedSearch()" id="advancedlink_id">Advanced</a>
-            <a href="#" *ngIf="advancedSearch" (click)="toggleAdvancedSearch()" id="basiclink_id">Basic</a>
-          </div>
-        </form>
-      </div>
-    </md-card-content>
-  </md-card>
+            <filter-area-footer [parent]="this" [form]="filterForm"></filter-area-footer>
 
-  <ng-template #rowProcessed let-row="row" let-value="value" ngx-datatable-cell-template>
-    <input autofocus type="checkbox" [checked]="value" id="processed{{row.$$index}}_id"
-           (click)="setProcessedValue(row)"/>
-  </ng-template>
-
-</div>
-
-<div class="panel">
-  <div class="group-filter-button">
-    <span class="row-button">
-      <app-row-limiter [pageSizes]="rowLimiter.pageSizes"
-                       (onPageSizeChanged)="changePageSize($event.value)"></app-row-limiter>
-    </span>
-    <span class="column-filter-button">
-      <app-column-picker [allColumns]="columnPicker.allColumns" [selectedColumns]="columnPicker.selectedColumns"
-                         (onSelectedColumnsChanged)="columnPicker.changeSelectedColumns($event)"></app-column-picker>
-    </span>
-    <button md-icon-button color="primary" (click)="saveAsCSV()"
-            id="saveascsvbutton_id" md-tooltip="Export as CSV">
-      <img src="assets/images/exportCSV.svg" width="30" height="30">
-    </button>
+          </form>
+        </div>
+      </mat-card-content>
+    </mat-card>
   </div>
 
-  <!-- Data Table -->
-  <ngx-datatable
-    id="alertsTable"
-    class="material striped"
-    [rows]="rows"
-    [columns]="columnPicker.selectedColumns"
-    [columnMode]="'force'"
-    [headerHeight]="50"
-    [footerHeight]="50"
-    [rowHeight]="'auto'"
-    [scrollbarH]="true"
-    [externalPaging]="true"
-    [externalSorting]="true"
-    [loadingIndicator]="loading"
-    [count]="count"
-    [offset]="offset"
-    [limit]="rowLimiter.pageSize"
-    (page)='onPage($event)'
-    (sort)="onSort($event)"
-  >
-  </ngx-datatable>
+  <div style="height: calc(100% - 180px);">
+    <div class="panel full-height">
+      <grid-header [parent]="this"></grid-header>
 
-  <ng-template #rowWithDateFormatTpl let-row="row" let-value="value" ngx-datatable-cell-template>
-    <span class="text-select">{{value| domibusDate: dateFormat}}</span>
-  </ng-template>
+      <div style="height: calc(100% - 140px); overflow-y: auto; overflow-x: hidden;">
+        <page-grid [parent]="this" [selectionType]="'multi'"></page-grid>
+      </div>
 
-  <ng-template #rowWithSpaceAfterCommaTpl let-row="row" let-value="value" ngx-datatable-cell-template>
-    <span class="text-select">{{value.join(', ')}}</span>
-  </ng-template>
+      <ng-template #rowProcessed let-row="row" let-value="value" ngx-datatable-cell-template>
+        <mat-checkbox autofocus id="processed{{rows.indexOf(row)}}_id" [(ngModel)]="row.processed"
+                      (click)="setProcessedValue(row)" [disabled]="row.deleted || isLoading">
+        </mat-checkbox>
+      </ng-template>
 
-  <div class="group-action-button">
-    <button id="alertsCancelButton" md-raised-button color="primary" (click)="cancel()"
-            [disabled]="!isDirty()" button-click-behaviour>
-      <md-icon>cancel</md-icon>
-      <span>Cancel</span>
-    </button>
-    <button id="alertsSaveButton" md-raised-button color="primary" (click)="save(false)"
-            [disabled]="!isDirty()" button-click-behaviour>
-      <md-icon>save</md-icon>
-      <span>Save</span>
-    </button>
+      <ng-template #rowWithDateFormatTpl let-row="row" let-value="value" ngx-datatable-cell-template>
+        <span class="text-select">{{value| domibusDate}}</span>
+      </ng-template>
+
+      <ng-template #rowWithSpaceAfterCommaTpl let-row="row" let-value="value" ngx-datatable-cell-template>
+        <span class="text-select">{{value.join(', ')}}</span>
+      </ng-template>
+
+      <ng-template #rowActions let-row="row" let-value="value" ngx-datatable-cell-template>
+        <button id="alertsDeleteButtonRow{{rows.indexOf(row)}}_id" mat-icon-button [disabled]="row.deleted || isLoading"
+                (click)="buttonDeleteAction(row)" color="primary"
+                tooltip="Delete" button-click-behaviour>
+          <mat-icon>delete</mat-icon>
+        </button>
+      </ng-template>
+
+      <page-footer [parent]="this" [isEditVisible]="false" [isAddVisible]="false"></page-footer>
+    </div>
   </div>
 </div>

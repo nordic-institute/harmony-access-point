@@ -2,52 +2,58 @@ package eu.domibus.api.property;
 
 import eu.domibus.api.multitenancy.Domain;
 
+import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
 
 /**
  * @author Cosmin Baciu
+ * @author Ion Perpegel
  * @since 4.0
  */
 public interface DomibusPropertyProvider {
 
     String DOMIBUS_PROPERTY_FILE = "domibus.properties";
 
-    String getProperty(String propertyName);
-
-    String getProperty(String propertyName, boolean decrypt);
-
-    String getProperty(Domain domain, String propertyName);
-
-    String getProperty(Domain domain, String propertyName, boolean decrypt);
-
-
-    /*
-    The getDomainProperty methods retrieve the specified property
-    falling back to the property from the DEFAULT domain if not found.
+    /**
+     * Retrieves the property value, taking into account the property usages and the current domain.
+     * If needed, it falls back to the default value provided in the global properties set.
      */
+    String getProperty(String propertyName) throws DomibusPropertyException;
 
     /**
-     * Look for a property in the active domain configuration file. If the property is not found, it will search for the property in
-     * the following locations and in the respective order:
-     * conf/domibus.properties, classpath://domibus.properties, classpath://domibus-default.properties
-
-     * When actions are executed under a super admin user, there is no domain set on the current thread.
-     * Nevertheless we need to retrieve some default properties. So if no domain is found, this method will retrieve
-     * properties from the default one.
+     * Retrieves the property value from the requested domain. If not found, fall back to the property value from the global properties set.
      *
+     * @param domain       the domain.
      * @param propertyName the property name.
      * @return the value for that property.
      */
-    String getDomainProperty(String propertyName);
+    String getProperty(Domain domain, String propertyName) throws DomibusPropertyException;
 
-    String getDomainProperty(Domain domain, String propertyName);
-
+    /**
+     * Returns all property names for which the given predicate is true
+     *
+     * @param predicate the predicate to filter with
+     * @return A set of property names
+     */
     Set<String> filterPropertiesName(Predicate<String> predicate);
 
     /**
-     * <p>Reads a property value inside the {@link eu.domibus.api.multitenancy.DomainService#DEFAULT_DOMAIN DEFAULT} domain and parses it safely as an {@code Integer} before
-     * returning it.</p><br />
+     * Returns the list of nested properties names(only the first level) starting with the specified prefix
+     * <p/>
+     * Eg. Given the properties routing.rule1=Rule1 name, routing.rule1.queue=jms.queue1, routing.rule2=Rule2 name, routing.rule2.queue=jms.queue2
+     * it will return for the prefix "routing" the following list : rule1, rule2
+     *
+     * @param prefix The nested properties prefix
+     * @return the list of nested properties
+     */
+    List<String> getNestedProperties(String prefix);
+
+
+    List<String> getNestedProperties(Domain domain, String prefix);
+
+    /**
+     * <p>Reads a property value and parses it safely as an {@code Integer} before returning it.</p><br />
      *
      * <p>If the value is not found in the users files, the default value is then being returned from the domibus-default.properties and its corresponding server-specific
      * domibus.properties files that are provided with the application.</p>
@@ -58,23 +64,18 @@ public interface DomibusPropertyProvider {
     Integer getIntegerProperty(String propertyName);
 
     /**
-     * <p>Reads a domain property value and parses it safely as an {@code Integer} before returning it.</p><br />
+     * <p>Reads the property value and parses it safely as an {@code Long} before returning it.</p><br />
      *
      * <p>If the value is not found in the users files, the default value is then being returned from the domibus-default.properties and its corresponding server-specific
      * domibus.properties files that are provided with the application.</p>
      *
      * @param propertyName the property name.
-     * @return The {@code Integer} value of the domain property as specified by the user or the default one provided with the application.
+     * @return The {@code Long} value of the property as specified by the user or the default one provided with the application.
      */
-    Integer getIntegerDomainProperty(String propertyName);
-
-    Integer getIntegerDomainProperty(Domain domain, String propertyName);
-
-    Long getLongDomainProperty(Domain domain, String propertyName);
+    Long getLongProperty(String propertyName);
 
     /**
-     * <p>Reads a property value inside the {@link eu.domibus.api.multitenancy.DomainService#DEFAULT_DOMAIN DEFAULT} domain and parses it safely as a {@code Boolean} before
-     * returning it.</p><br />
+     * <p>Reads a property value and parses it safely as a {@code Boolean} before returning it.</p><br />
      *
      * <p>If the value is not found in the users files, the default value is then being returned from the domibus-default.properties and its corresponding server-specific
      * domibus.properties files that are provided with the application.</p>
@@ -91,11 +92,10 @@ public interface DomibusPropertyProvider {
      * domibus.properties files that are provided with the application.</p>
      *
      * @param propertyName the property name.
+     * @param domain       the domain.
      * @return The {@code Boolean} value of the domain property as specified by the user or the default one provided with the application.
      */
-    Boolean getBooleanDomainProperty(String propertyName);
-
-    Boolean getBooleanDomainProperty(Domain domain, String propertyName);
+    Boolean getBooleanProperty(Domain domain, String propertyName);
 
     /**
      * Verify that a property key exists within a domain configuration whether it is empty or not.
@@ -116,11 +116,35 @@ public interface DomibusPropertyProvider {
     boolean containsPropertyKey(String propertyName);
 
     /**
-     * Changes the value of the given property key.
-     * @param domain the domain of the property
-     * @param propertyName the name of the property
-     * @param propertyValue the new value of the property
+     * Replaces/Sets the current property value in the current domain
+     * In case the value cannot be set because the property change listener fails, the DomibusPropertyException is raised
+     *
+     * @param propertyName  the property name whose value is set
+     * @param propertyValue the new property value
+     * @throws DomibusPropertyException in case the value cannot be set because the property change listener fails
      */
-    void setPropertyValue(Domain domain, String propertyName, String propertyValue);
+    void setProperty(String propertyName, String propertyValue) throws DomibusPropertyException;
 
+    /**
+     * Sets a new property value for the given property, in the given domain.
+     * In case the value cannot be set because the property change listener fails or if the domain is null, the DomibusPropertyException is raised
+     *
+     * @param domain        the domain of the property
+     * @param propertyName  the name of the property
+     * @param propertyValue the new value of the property
+     * @throws DomibusPropertyException in case the value cannot be set because the property change listener fails
+     */
+    void setProperty(Domain domain, String propertyName, String propertyValue) throws DomibusPropertyException;
+
+    /**
+     * Sets a new property value for the given property, in the given domain.
+     * In case the value cannot be set because the property change listener fails or if the domain is null, the DomibusPropertyException is raised
+     *
+     * @param domain        the domain of the property
+     * @param propertyName  the name of the property
+     * @param propertyValue the new value of the property
+     * @param broadcast     Specifies if the property change needs to be broadcasted to all nodes in the cluster
+     * @throws DomibusPropertyException in case the value cannot be set because the property change listener fails or if the domain is null
+     */
+    void setProperty(Domain domain, String propertyName, String propertyValue, boolean broadcast) throws DomibusPropertyException;
 }

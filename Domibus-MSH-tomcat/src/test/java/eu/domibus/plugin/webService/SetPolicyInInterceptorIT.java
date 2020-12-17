@@ -1,8 +1,8 @@
 package eu.domibus.plugin.webService;
 
 import eu.domibus.AbstractBackendWSIT;
-import eu.domibus.ebms3.receiver.MessageLegConfigurationFactory;
-import eu.domibus.ebms3.receiver.SetPolicyInInterceptor;
+import eu.domibus.core.ebms3.receiver.leg.MessageLegConfigurationFactory;
+import eu.domibus.core.ebms3.receiver.policy.SetPolicyInServerInterceptor;
 import eu.domibus.messaging.XmlProcessingException;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.transport.http.AbstractHTTPDestination;
@@ -31,7 +31,7 @@ import java.io.UnsupportedEncodingException;
 public class SetPolicyInInterceptorIT extends AbstractBackendWSIT {
 
     @Autowired
-    SetPolicyInInterceptor setPolicyInInterceptorServer;
+    SetPolicyInServerInterceptor setPolicyInInterceptorServer;
 
     @Autowired
     MessageLegConfigurationFactory serverInMessageLegConfigurationFactory;
@@ -39,7 +39,6 @@ public class SetPolicyInInterceptorIT extends AbstractBackendWSIT {
     @Before
     public void before() throws IOException, XmlProcessingException {
         uploadPmode(wireMockRule.port());
-        setPolicyInInterceptorServer.setMessageLegConfigurationFactory(serverInMessageLegConfigurationFactory);
     }
 
     @Test
@@ -81,6 +80,7 @@ public class SetPolicyInInterceptorIT extends AbstractBackendWSIT {
             String reply = ((MockHttpServletResponse) sm.get(AbstractHTTPDestination.HTTP_RESPONSE)).getContentAsString();
 
             Assert.assertTrue(reply.contains("domibus-MSH"));
+
         } catch (UnsupportedEncodingException e) {
             Assert.fail();
         }

@@ -1,6 +1,9 @@
 package eu.domibus.api.cluster;
 
 import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.user.UserBase;
+
+import java.util.Map;
 
 /**
  * Interface for signal commands into a cluster configuration
@@ -40,4 +43,15 @@ public interface SignalService {
      */
     void signalDomibusPropertyChange(String domainCode, String propertyName, String propertyValue);
 
+    void sendMessage(Map<String, String> commandProperties);
+
+    /**
+     * Signals the update of the Message Filters
+     */
+    void signalMessageFiltersUpdated();
+
+    /**
+     * Signals the session invalidation for the specified user
+     */
+    void signalSessionInvalidation(String userName);
 }

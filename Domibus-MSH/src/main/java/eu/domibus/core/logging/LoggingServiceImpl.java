@@ -7,10 +7,9 @@ import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.util.StatusPrinter;
 import eu.domibus.api.cluster.SignalService;
-import eu.domibus.api.configuration.DomibusConfigurationService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.logging.LogbackLoggingConfigurator;
 import eu.domibus.web.rest.ro.LoggingLevelRO;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -23,6 +22,7 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import static org.apache.commons.lang3.ClassUtils.INNER_CLASS_SEPARATOR;
 import static org.apache.commons.lang3.reflect.FieldUtils.readField;
 
 /**
@@ -93,7 +93,7 @@ public class LoggingServiceImpl implements LoggingService {
 
         Predicate<Logger> nameStartsWithPredicate = p -> p.getName().startsWith(loggerName);
         Predicate<Logger> nameContainsPredicate = p -> p.getName().contains(loggerName);
-        Predicate<Logger> isLoggerForClassPredicate = p -> addLoggerOfClass(p, showClasses);
+        Predicate<Logger> isLoggerForClassPredicate = p -> addChildLoggers(p, showClasses);
         Predicate<Logger> fullPredicate = (nameStartsWithPredicate.or(nameContainsPredicate)).and(isLoggerForClassPredicate);
 
         //filter existing loggers which starts with name
@@ -110,7 +110,7 @@ public class LoggingServiceImpl implements LoggingService {
     @Override
     public void resetLogging() {
         //we are re-using the same service used at context initialization
-        final String logbackConfigurationFile = new LogbackLoggingConfigurator(domibusConfigurationService).getLoggingConfigurationFile();
+        final String logbackConfigurationFile = new LogbackLoggingConfigurator(domibusConfigurationService.getConfigLocation()).getLoggingConfigurationFile();
 
         // assume SLF4J is bound to logback in the current environment
         LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
@@ -188,7 +188,7 @@ public class LoggingServiceImpl implements LoggingService {
      * @return true/false if this logger should be added to the list
      */
     @SuppressWarnings(value = "unchecked")
-    private boolean addLoggerOfClass(Logger logger, boolean showClasses) {
+    protected boolean addChildLoggers(Logger logger, boolean showClasses) {
         if (showClasses) {
             //it doesn't matter, this logger will be added anyway
             return true;
@@ -197,8 +197,14 @@ public class LoggingServiceImpl implements LoggingService {
         List<Logger> childrenList = null;
         try {
             childrenList = (List<Logger>) readField(logger, "childrenList", true);
+            if (CollectionUtils.isNotEmpty(childrenList)) {
+                LOG.trace("Checking for inner classes and filtering them out.");
+                //Inner classes present will appear in the childrenList and impact main classes even if showClasses is false. They need to be filtered out.
+                Predicate<Logger> checkInnerClassPredicate = childLogger -> !StringUtils.contains(childLogger.getName(), logger.getName() + INNER_CLASS_SEPARATOR);
+                childrenList = childrenList.stream().filter(checkInnerClassPredicate).collect(Collectors.toList());
+            }
         } catch (IllegalAccessException e) {
-            LOG.debug("Not able to read children for logger: {}", logger.getName());
+            LOG.debug("Not able to read children for logger: [{}]", logger.getName(), e);
         }
 
         return CollectionUtils.isNotEmpty(childrenList);

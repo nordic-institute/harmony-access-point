@@ -1,9 +1,8 @@
 package eu.domibus.core.property.listeners;
 
 import eu.domibus.api.property.DomibusPropertyChangeListener;
-import eu.domibus.api.property.DomibusPropertyMetadataManager;
-import eu.domibus.core.alerts.model.common.AlertType;
-import eu.domibus.core.alerts.service.MultiDomainAlertConfigurationService;
+import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
+import eu.domibus.core.alerts.configuration.password.imminent.plugin.PluginPasswordImminentExpirationAlertConfigurationManager;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,16 +17,16 @@ import org.springframework.stereotype.Service;
 public class AlertPluginPasswordImminentExpirationConfigurationChangeListener implements DomibusPropertyChangeListener {
 
     @Autowired
-    private MultiDomainAlertConfigurationService multiDomainAlertConfigurationService;
+    private PluginPasswordImminentExpirationAlertConfigurationManager pluginPasswordImminentExpirationAlertConfigurationManager;
 
     @Override
     public boolean handlesProperty(String propertyName) {
-        return StringUtils.startsWithIgnoreCase(propertyName, DomibusPropertyMetadataManager.DOMIBUS_ALERT_PLUGIN_PASSWORD_IMMINENT_EXPIRATION_PREFIX);
+        return StringUtils.startsWithIgnoreCase(propertyName, DomibusPropertyMetadataManagerSPI.DOMIBUS_ALERT_PLUGIN_PASSWORD_IMMINENT_EXPIRATION_PREFIX);
     }
 
     @Override
     public void propertyValueChanged(String domainCode, String propertyName, String propertyValue) {
-        multiDomainAlertConfigurationService.clearPasswordExpirationAlertConfiguration(AlertType.PLUGIN_PASSWORD_IMMINENT_EXPIRATION);
+        pluginPasswordImminentExpirationAlertConfigurationManager.reset();
     }
 }
 

@@ -26,6 +26,10 @@ import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
+import static eu.domibus.plugin.fs.worker.FSSendMessagesService.METADATA_FILE_NAME;
 
 /**
  * @author FERNANDES Henrique, GONCALVES Bruno, Catalin Enache
@@ -40,7 +44,7 @@ public class FSSendMessagesServiceTest {
     private FSPluginProperties fsPluginProperties;
 
     @Injectable
-    private BackendFSImpl backendFSPlugin;
+    private FSPluginImpl backendFSPlugin;
 
     @Injectable
     private FSFilesManager fsFilesManager;
@@ -52,7 +56,7 @@ public class FSSendMessagesServiceTest {
     private DomibusConfigurationExtService domibusConfigurationExtService;
 
     @Injectable
-    private FSDomainService fsMultiTenancyService;
+    private FSDomainService fsDomainService;
 
     @Injectable
     private JMSExtService jmsExtService;
@@ -125,13 +129,13 @@ public class FSSendMessagesServiceTest {
             domibusConfigurationExtService.isSecuredLoginRequired();
             result = true;
 
-            fsPluginProperties.getDomains();
+            fsDomainService.getDomainsToProcess();
             result = Arrays.asList(domain0, domain1);
 
-            fsMultiTenancyService.verifyDomainExists(domain0);
+            fsDomainService.verifyDomainExists(domain0);
             result = true;
 
-            fsMultiTenancyService.verifyDomainExists(domain1);
+            fsDomainService.verifyDomainExists(domain1);
             result = true;
         }};
 
@@ -388,6 +392,7 @@ public class FSSendMessagesServiceTest {
             fsPluginProperties.getSendWorkerInterval(domain);
             result = 300;
         }};
+
         instance.checkSizeChangedRecently(contentFile, domain);
 
         //tested method
@@ -398,4 +403,97 @@ public class FSSendMessagesServiceTest {
         instance.clearObservedFiles(domain);
         Assert.assertEquals(0, instance.observedFilesInfo.size());
     }
+
+    @Test
+    public void buildErrorMessageWithErrorDetailsTest() {
+
+        final String errorDetail = null;
+
+        new Expectations(instance) {{
+            instance.buildErrorMessage(null, null, null, null, null, null);
+            result = any;
+        }};
+
+        Assert.assertNull(instance.buildErrorMessage(errorDetail));
+
+    }
+
+    @Test
+    public void testbuildErrorMessage() {
+        final String errorCode = "DOM_001";
+        final String errorDetail = "Error";
+        final String messageId = "messageId";
+        final String mshRole = "mshRole";
+        final String notified = "notified";
+        final String timestamp = null;
+
+        Assert.assertNotNull(instance.buildErrorMessage(errorCode, errorDetail, messageId, mshRole, notified, timestamp));
+    }
+
+    @Test
+    public void processFileSafelyWithJAXBExceptionTest(@Injectable FileObject processableFile) throws MessagingProcessingException, FileSystemException, JAXBException {
+        String domain = "default";
+
+        new Expectations(instance) {{
+            fsProcessFileService.processFile(processableFile, domain);
+            result = new JAXBException("Invalid metadata file", "DOM_001");
+        }};
+
+        instance.processFileSafely(processableFile, domain);
+
+        new Verifications() {{
+            instance.handleSendFailedMessage(processableFile, domain, withCapture());
+        }};
+    }
+
+    @Test
+    public void processFileSafelyWithMessagingProcessingExceptionTest(@Injectable FileObject processableFile) throws MessagingProcessingException, FileSystemException, JAXBException {
+        String domain = "default";
+
+        new Expectations(instance) {{
+            fsProcessFileService.processFile(processableFile, domain);
+            result = new MessagingProcessingException();
+        }};
+
+        instance.processFileSafely(processableFile, domain);
+
+        new Verifications() {{
+            instance.handleSendFailedMessage(processableFile, domain, withCapture());
+        }};
+    }
+
+    @Test
+    public void processFileSafelyWithRuntimeExceptionTest(@Injectable FileObject processableFile) throws MessagingProcessingException, FileSystemException, JAXBException {
+        String domain = "default";
+
+        new Expectations(instance) {{
+            fsProcessFileService.processFile(processableFile, domain);
+            result = new RuntimeException();
+        }};
+
+        instance.processFileSafely(processableFile, domain);
+
+        new Verifications() {{
+            instance.handleSendFailedMessage(processableFile, domain, withCapture());
+        }};
+    }
+
+    @Test
+    public void isMetadata() {
+        Assert.assertTrue(instance.isMetadata(METADATA_FILE_NAME));
+        Assert.assertFalse(instance.isMetadata("non_metadata.xml"));
+    }
+
+    @Test
+    public void isLocked() {
+        List<String> lockedFileNames = Arrays.asList("file1.pdf", "file2.pdf");
+        Optional<String> existingFileName = Optional.of("file1.pdf");
+        Optional<String> nonExistingFileName = Optional.of("file11.pdf");
+        Optional<String> emptyFileName = Optional.empty();
+
+        Assert.assertTrue(instance.isLocked(lockedFileNames, existingFileName));
+        Assert.assertFalse(instance.isLocked(lockedFileNames, nonExistingFileName));
+        Assert.assertFalse(instance.isLocked(lockedFileNames, emptyFileName));
+    }
+
 }

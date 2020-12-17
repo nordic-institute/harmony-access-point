@@ -19,8 +19,9 @@ public class JmsMessage {
     protected String jmsCorrelationId;
     protected Date timestamp;
     protected String content;
-    protected Map<String, Object> customProperties;
-    protected Map<String, Object> properties = new HashMap<>();
+    protected Integer priority;
+    protected Map<String, String> customProperties;
+    protected Map<String, String> properties = new HashMap<>();
 
     public String getId() {
         return id;
@@ -58,7 +59,7 @@ public class JmsMessage {
         return (T) properties.get(name);
     }
 
-    public void setProperty(String name, Object value) {
+    public void setProperty(String name, String value) {
         properties.put(name, value);
     }
 
@@ -70,8 +71,16 @@ public class JmsMessage {
         this.jmsCorrelationId = jmsCorrelationId;
     }
 
-    public Map<String, Object> getJMSProperties() {
-        Map<String, Object> jmsProperties = new HashMap<>();
+    public Integer getPriority() {
+        return priority;
+    }
+
+    public void setPriority(Integer priority) {
+        this.priority = priority;
+    }
+
+    public Map<String, String> getJMSProperties() {
+        Map<String, String> jmsProperties = new HashMap<>();
         for (String key : properties.keySet()) {
             if (key.startsWith("JMS")) {
                 jmsProperties.put(key, properties.get(key));
@@ -80,7 +89,7 @@ public class JmsMessage {
         return jmsProperties;
     }
 
-    public Map<String, Object> getCustomProperties() {
+    public Map<String, String> getCustomProperties() {
         if (customProperties == null) {
             customProperties = new HashMap<>();
             for (String key : properties.keySet()) {
@@ -92,11 +101,11 @@ public class JmsMessage {
         return customProperties;
     }
 
-    public Map<String, Object> getProperties() {
+    public Map<String, String> getProperties() {
         return properties;
     }
 
-    public void setProperties(Map<String, Object> properties) {
+    public void setProperties(Map<String, String> properties) {
         this.properties = properties;
     }
 
@@ -108,7 +117,7 @@ public class JmsMessage {
         return (String) getCustomProperties().get(key);
     }
 
-    public void setCustomProperties(Map<String, Object> customProperties) {
+    public void setCustomProperties(Map<String, String> customProperties) {
         this.customProperties = customProperties;
     }
 

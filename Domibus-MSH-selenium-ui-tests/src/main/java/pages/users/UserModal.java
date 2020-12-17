@@ -1,10 +1,10 @@
 package pages.users;
 
-import ddsl.dobjects.Select;
 import ddsl.dcomponents.popups.EditModal;
 import ddsl.dobjects.Checkbox;
 import ddsl.dobjects.DInput;
 import ddsl.dobjects.DObject;
+import ddsl.dobjects.Select;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -14,51 +14,38 @@ import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 
 /**
  * @author Catalin Comanici
-
  * @version 4.1
  */
 
 
 public class UserModal extends EditModal {
+	@FindBy(css = "edituser-form form #username_id")
+	WebElement usernameInput;
+	@FindBy(css = "edituser-form form #email_id")
+	WebElement emailInput;
+	@FindBy(css = "edituser-form form #password_id")
+	WebElement passwordInput;
+	@FindBy(css = "edituser-form form #confirmation_id")
+	WebElement confirmationInput;
+	@FindBy(css = "edituser-form form #domain_id")
+	WebElement domainSelectContainer;
+	@FindBy(css = "edituser-form form #role_id")
+	WebElement rolesSelectContainer;
+	@FindBy(css = "edituser-form form #active_id")
+	WebElement activeChk;
+	@FindBy(css = "edituser-form form #username_id + span")
+	private WebElement usernameErrMess;
+	@FindBy(css = "edituser-form form #email_id + span")
+	private WebElement emailErrMess;
+	@FindBy(css = "edituser-form form #password_id + span")
+	private WebElement passErrMess;
+	@FindBy(css = "edituser-form form #confirmation_id + span")
+	private WebElement confirmationErrMess;
 	public UserModal(WebDriver driver) {
 		super(driver);
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 		wait.forElementToBeVisible(okBtn);
 	}
-
-	@FindBy(id = "username_id")
-	WebElement usernameInput;
-
-	@FindBy(id = "email_id")
-	WebElement emailInput;
-
-	@FindBy(id = "password_id")
-	WebElement passwordInput;
-
-	@FindBy(id = "confirmation_id")
-	WebElement confirmationInput;
-
-
-	@FindBy(css = "md-card > div:nth-child(4) > md2-select")
-	WebElement domainSelectContainer;
-
-	@FindBy(css = "md2-select[placeholder=\"Role\"]")
-	WebElement rolesSelectContainer;
-
-	@FindBy(css = "edituser-form > div > form > md-card > div:nth-child(7) input")
-	WebElement activeChk;
-
-
-	@FindBy(css = "edituser-form > div > form > md-card > div:nth-child(1) > md-input-container > div > div.mat-input-flex > div > div")
-	private WebElement usernameErrMess;
-	@FindBy(css = "edituser-form > div > form > md-card > div:nth-child(2) > md-input-container > div > div.mat-input-flex > div > div")
-	private WebElement emailErrMess;
-
-	@FindBy(css = "edituser-form > div > form > md-card > div:nth-child(5) > md-input-container > div > div.mat-input-flex > div > div")
-	private WebElement passErrMess;
-	@FindBy(css = "edituser-form > div > form > md-card > div:nth-child(6) > md-input-container > div > div.mat-input-flex > div > div")
-	private WebElement confirmationErrMess;
-
 
 	public DInput getUserNameInput() {
 		return new DInput(driver, usernameInput);
@@ -96,7 +83,7 @@ public class UserModal extends EditModal {
 		getConfirmationInput().fill(confirmation);
 	}
 
-	public boolean isLoaded() throws Exception{
+	public boolean isLoaded() throws Exception {
 		return (getUserNameInput().isPresent()
 				&& getPasswordInput().isPresent()
 				&& getRoleSelect().isDisplayed()

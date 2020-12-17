@@ -1,22 +1,33 @@
-import {Component, ElementRef, EventEmitter, OnInit, TemplateRef, ViewChild} from '@angular/core';
-import {Http, Response, URLSearchParams} from '@angular/http';
-import {MessageLogResult} from './messagelogresult';
-import {Observable} from 'rxjs';
+import {
+  AfterViewChecked,
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  EventEmitter,
+  OnInit,
+  TemplateRef,
+  ViewChild
+} from '@angular/core';
+import {HttpClient, HttpParams} from '@angular/common/http';
+import {MessageLogResult} from './support/messagelogresult';
 import {AlertService} from '../common/alert/alert.service';
-import {MessagelogDialogComponent} from 'app/messagelog/messagelog-dialog/messagelog-dialog.component';
-import {MdDialog, MdSelectChange} from '@angular/material';
+import {MatDialog, MatSelectChange} from '@angular/material';
 import {MessagelogDetailsComponent} from 'app/messagelog/messagelog-details/messagelog-details.component';
-import {ColumnPickerBase} from '../common/column-picker/column-picker-base';
-import {RowLimiterBase} from '../common/row-limiter/row-limiter-base';
 import {DownloadService} from '../common/download.service';
-import {AlertComponent} from '../common/alert/alert.component';
-import {isNullOrUndefined} from 'util';
 import {DatatableComponent} from '@swimlane/ngx-datatable';
 import {DomibusInfoService} from '../common/appinfo/domibusinfo.service';
 import FilterableListMixin from '../common/mixins/filterable-list.mixin';
-import SortableListMixin from '../common/mixins/sortable-list.mixin';
-import BaseListComponent from '../common/base-list.component';
+import {ServerSortableListMixin} from '../common/mixins/sortable-list.mixin';
+import BaseListComponent from '../common/mixins/base-list.component';
 import mix from '../common/mixins/mixin.utils';
+import {DialogsService} from '../common/dialogs/dialogs.service';
+import {ServerPageableListMixin} from '../common/mixins/pageable-list.mixin';
+import {ApplicationContextService} from '../common/application-context.service';
+import {PropertiesService} from '../properties/support/properties.service';
+import * as moment from 'moment';
+import {SecurityService} from '../security/security.service';
+import {ComponentName} from '../common/component-name-decorator';
 
 @Component({
   moduleId: module.id,
@@ -24,82 +35,81 @@ import mix from '../common/mixins/mixin.utils';
   providers: [],
   styleUrls: ['./messagelog.component.css']
 })
+@ComponentName('Message Logs')
+export class MessageLogComponent extends mix(BaseListComponent)
+  .with(FilterableListMixin, ServerPageableListMixin, ServerSortableListMixin)
+  implements OnInit, AfterViewInit, AfterViewChecked {
 
-export class MessageLogComponent extends mix(BaseListComponent).with(FilterableListMixin, SortableListMixin) implements OnInit {
   static readonly RESEND_URL: string = 'rest/message/restore?messageId=${messageId}';
   static readonly DOWNLOAD_MESSAGE_URL: string = 'rest/message/download?messageId=${messageId}';
+  static readonly CAN_DOWNLOAD_MESSAGE_URL: string = 'rest/message/exists?messageId=${messageId}';
   static readonly MESSAGE_LOG_URL: string = 'rest/messagelog';
 
-  @ViewChild('rowWithDateFormatTpl') public rowWithDateFormatTpl: TemplateRef<any>;
-  @ViewChild('nextAttemptInfoTpl') public nextAttemptInfoTpl: TemplateRef<any>;
-  @ViewChild('nextAttemptInfoWithDateFormatTpl') public nextAttemptInfoWithDateFormatTpl: TemplateRef<any>;
-  @ViewChild('rawTextTpl') public rawTextTpl: TemplateRef<any>;
-  @ViewChild('rowActions') rowActions: TemplateRef<any>;
-  @ViewChild('list') list: DatatableComponent;
-
-  columnPicker: ColumnPickerBase;
-  public rowLimiter: RowLimiterBase;
-
-  selected: any[];
+  @ViewChild('rowWithDateFormatTpl', {static: false}) public rowWithDateFormatTpl: TemplateRef<any>;
+  @ViewChild('nextAttemptInfoTpl', {static: false}) public nextAttemptInfoTpl: TemplateRef<any>;
+  @ViewChild('nextAttemptInfoWithDateFormatTpl', {static: false}) public nextAttemptInfoWithDateFormatTpl: TemplateRef<any>;
+  @ViewChild('rawTextTpl', {static: false}) public rawTextTpl: TemplateRef<any>;
+  @ViewChild('rowActions', {static: false}) rowActions: TemplateRef<any>;
+  @ViewChild('list', {static: false}) list: DatatableComponent;
 
   timestampFromMaxDate: Date;
   timestampToMinDate: Date;
   timestampToMaxDate: Date;
-
-  loading: boolean;
-  rows: any[];
-  count: number;
-  offset: number;
 
   mshRoles: Array<String>;
   msgTypes: Array<String>;
   msgStatuses: Array<String>;
   notifStatus: Array<String>;
 
-  advancedSearch: boolean;
   fourCornerEnabled: boolean;
 
   messageResent: EventEmitter<boolean>;
 
   canSearchByConversationId: boolean;
   conversationIdValue: String;
+  resendReceivedMinutes: number;
 
-  constructor (private http: Http, private alertService: AlertService, private domibusInfoService: DomibusInfoService,
-               public dialog: MdDialog, private elementRef: ElementRef) {
+  constructor(private applicationService: ApplicationContextService, private http: HttpClient, private alertService: AlertService,
+              private domibusInfoService: DomibusInfoService, public dialog: MatDialog, public dialogsService: DialogsService,
+              private elementRef: ElementRef, private changeDetector: ChangeDetectorRef, private propertiesService: PropertiesService,
+              private securityService: SecurityService) {
     super();
   }
 
-  async ngOnInit () {
+  async ngOnInit() {
     super.ngOnInit();
-
-    this.columnPicker = new ColumnPickerBase();
-    this.rowLimiter = new RowLimiterBase();
-
-    this.selected = [];
 
     this.timestampFromMaxDate = new Date();
     this.timestampToMinDate = null;
     this.timestampToMaxDate = new Date();
 
-    this.loading = false;
-    this.rows = [];
-    this.count = 0;
-    this.offset = 0;
-    this.orderBy = 'received';
-    this.asc = false;
+    super.orderBy = 'received';
+    super.asc = false;
 
     this.messageResent = new EventEmitter(false);
 
     this.canSearchByConversationId = true;
 
     this.fourCornerEnabled = await this.domibusInfoService.isFourCornerEnabled();
-    this.configureColumnPicker();
 
-    this.search();
+    if (this.isCurrentUserAdmin()) {
+      this.resendReceivedMinutes = await this.getResendButtonEnabledReceivedMinutes();
+    }
+
+    this.filterData();
   }
 
-  private configureColumnPicker () {
-    this.columnPicker.allColumns.push(
+  async ngAfterViewInit() {
+    this.fourCornerEnabled = await this.domibusInfoService.isFourCornerEnabled();
+    this.configureColumnPicker();
+  }
+
+  ngAfterViewChecked() {
+    this.changeDetector.detectChanges();
+  }
+
+  private configureColumnPicker() {
+    this.columnPicker.allColumns = [
       {
         name: 'Message Id',
         cellTemplate: this.rawTextTpl,
@@ -158,7 +168,7 @@ export class MessageLogComponent extends mix(BaseListComponent).with(FilterableL
         name: 'Deleted',
         width: 155
       }
-    );
+    ];
 
     if (this.fourCornerEnabled) {
       this.columnPicker.allColumns.push(
@@ -200,180 +210,58 @@ export class MessageLogComponent extends mix(BaseListComponent).with(FilterableL
     });
   }
 
-  public beforeDomainChange () {
+  public beforeDomainChange() {
     if (this.list.isHorScroll) {
       this.scrollLeft();
     }
   }
 
-
-  createSearchParams (): URLSearchParams {
-    const searchParams = new URLSearchParams();
-
-    if (this.orderBy) {
-      searchParams.set('orderBy', this.orderBy);
-    }
-    if (this.asc != null) {
-      searchParams.set('asc', this.asc.toString());
-    }
-
-    if (this.activeFilter.messageId) {
-      searchParams.set('messageId', this.activeFilter.messageId);
-    }
-
-    if (this.activeFilter.mshRole) {
-      searchParams.set('mshRole', this.activeFilter.mshRole);
-    }
-
-    if (this.activeFilter.conversationId) {
-      searchParams.set('conversationId', this.activeFilter.conversationId);
-    }
-
-    if (this.activeFilter.messageType) {
-      searchParams.set('messageType', this.activeFilter.messageType);
-    }
-
-    if (this.activeFilter.messageStatus) {
-      searchParams.set('messageStatus', this.activeFilter.messageStatus);
-    }
-
-    if (this.activeFilter.notificationStatus) {
-      searchParams.set('notificationStatus', this.activeFilter.notificationStatus);
-    }
-
-    if (this.activeFilter.fromPartyId) {
-      searchParams.set('fromPartyId', this.activeFilter.fromPartyId);
-    }
-
-    if (this.activeFilter.toPartyId) {
-      searchParams.set('toPartyId', this.activeFilter.toPartyId);
-    }
-
-    if (this.activeFilter.originalSender) {
-      searchParams.set('originalSender', this.activeFilter.originalSender);
-    }
-
-    if (this.activeFilter.finalRecipient) {
-      searchParams.set('finalRecipient', this.activeFilter.finalRecipient);
-    }
-
-    if (this.activeFilter.refToMessageId) {
-      searchParams.set('refToMessageId', this.activeFilter.refToMessageId);
-    }
-
-    if (this.activeFilter.receivedFrom) {
-      searchParams.set('receivedFrom', this.activeFilter.receivedFrom.getTime());
-    }
-
-    if (this.activeFilter.receivedTo) {
-      searchParams.set('receivedTo', this.activeFilter.receivedTo.getTime());
-    }
-
+  protected createAndSetParameters(): HttpParams {
+    let filterParams = super.createAndSetParameters();
     if (this.activeFilter.isTestMessage) {
-      searchParams.set('messageSubtype', this.activeFilter.isTestMessage ? 'TEST' : null)
+      filterParams = filterParams.set('messageSubtype', this.activeFilter.isTestMessage ? 'TEST' : null);
+    } else {
+      filterParams = filterParams.delete('messageSubtype');
     }
-
-    return searchParams;
+    return filterParams;
   }
 
-  getMessageLogEntries (offset: number, pageSize: number): Observable<MessageLogResult> {
-    const searchParams = this.createSearchParams();
-
-    searchParams.set('page', offset.toString());
-    searchParams.set('pageSize', pageSize.toString());
-
-    return this.http.get(MessageLogComponent.MESSAGE_LOG_URL, {search: searchParams})
-      .map((response: Response) =>
-        response.json()
-      );
+  protected get GETUrl(): string {
+    return MessageLogComponent.MESSAGE_LOG_URL;
   }
 
-  /**
-   * The method is the actual implementation of the abstract method declared in the base abstract class
-   */
-  page (offset, pageSize) {
-    this.loading = true;
-    super.resetFilters();
-    this.getMessageLogEntries(offset, pageSize).subscribe((result: MessageLogResult) => {
-      this.offset = offset;
-      this.rowLimiter.pageSize = pageSize;
-      this.count = result.count;
-      this.selected = [];
+  public setServerResults(result: MessageLogResult) {
+    super.count = result.count;
+    super.rows = result.messageLogEntries;
 
-      const start = offset * pageSize;
-      const end = start + pageSize;
-      const newRows = [...result.messageLogEntries];
+    if (result.filter.receivedFrom) {
+      result.filter.receivedFrom = new Date(result.filter.receivedFrom);
+    }
+    if (result.filter.receivedTo) {
+      result.filter.receivedTo = new Date(result.filter.receivedTo);
+    }
+    result.filter.isTestMessage = !!result.filter.messageSubtype;
+    super.filter = result.filter;
 
-      let index = 0;
-      for (let i = start; i < end; i++) {
-        newRows[i] = result.messageLogEntries[index++];
+    this.mshRoles = result.mshRoles;
+    this.msgTypes = result.msgTypes;
+    this.msgStatuses = result.msgStatus.sort();
+    this.notifStatus = result.notifStatus;
+  }
+
+  resendDialog() {
+    this.dialogsService.openResendDialog().then(resend => {
+      if (resend && this.selected[0]) {
+        this.resend(this.selected[0].messageId);
+        super.selected = [];
+        this.messageResent.subscribe(() => {
+          this.page();
+        });
       }
-
-      this.rows = newRows;
-
-      if (result.filter.receivedFrom != null) {
-        result.filter.receivedFrom = new Date(result.filter.receivedFrom);
-      }
-      if (result.filter.receivedTo != null) {
-        result.filter.receivedTo = new Date(result.filter.receivedTo);
-      }
-      result.filter.isTestMessage = !isNullOrUndefined(result.filter.messageSubtype);
-      this.filter = result.filter;
-
-      this.mshRoles = result.mshRoles;
-      this.msgTypes = result.msgTypes;
-      this.msgStatuses = result.msgStatus.sort();
-      this.notifStatus = result.notifStatus;
-
-      this.loading = false;
-    }, (error: any) => {
-      console.log('error getting the message log:' + error);
-      this.loading = false;
-      this.alertService.exception('Error occurred: ', error);
     });
   }
 
-  onPage (event) {
-    this.page(event.offset, event.pageSize);
-  }
-
-  /**
-   * The method is an override of the abstract method defined in SortableList mixin
-   */
-  public reload () {
-    this.page(0, this.rowLimiter.pageSize);
-  }
-
-  onActivate (event) {
-    if ('dblclick' === event.type) {
-      this.details(event.row);
-    }
-  }
-
-  changePageSize (newPageLimit: number) {
-    this.page(0, newPageLimit);
-  }
-
-  search () {
-    super.setActiveFilter();
-    console.log('search by:', this.activeFilter);
-    this.page(0, this.rowLimiter.pageSize);
-  }
-
-  resendDialog () {
-    this.dialog.open(MessagelogDialogComponent).afterClosed()
-      .subscribe(result => {
-        if (result == 'Resend' && this.selected[0]) {
-          this.resend(this.selected[0].messageId);
-          this.selected = [];
-          this.messageResent.subscribe(() => {
-            this.page(0, this.rowLimiter.pageSize);
-          });
-        }
-      });
-  }
-
-  resend (messageId: string) {
+  resend(messageId: string) {
     console.log('Resending message with id ', messageId);
 
     let url = MessageLogComponent.RESEND_URL.replace('${messageId}', encodeURIComponent(messageId));
@@ -388,116 +276,114 @@ export class MessageLogComponent extends mix(BaseListComponent).with(FilterableL
     });
   }
 
-  isResendButtonEnabledAction (row): boolean {
+  isResendButtonEnabledAction(row): boolean {
     return this.isRowResendButtonEnabled(row);
   }
 
-  isResendButtonEnabled () {
+  isResendButtonEnabled() {
     return this.isOneRowSelected() && !this.selected[0].deleted
       && this.isRowResendButtonEnabled(this.selected[0]);
   }
 
-  private isRowResendButtonEnabled (row): boolean {
+  private isRowResendButtonEnabled(row): boolean {
     return !row.deleted
-      && (row.messageStatus === 'SEND_FAILURE' || row.messageStatus === 'SEND_ENQUEUED')
+      && (row.messageStatus === 'SEND_FAILURE' || this.isResendButtonEnabledForSendEnqueued(row))
       && !this.isSplitAndJoinMessage(row);
   }
 
-  private isSplitAndJoinMessage (row) {
+  private isResendButtonEnabledForSendEnqueued(row): boolean {
+    let receivedDateDelta = moment(row.received).add(this.resendReceivedMinutes, 'minutes');
+
+    return (row.messageStatus === 'SEND_ENQUEUED' && receivedDateDelta.isBefore(new Date()) && !row.nextAttempt)
+  }
+
+  private async getResendButtonEnabledReceivedMinutes(): Promise<number> {
+    const res = await this.propertiesService.getResendButtonEnabledReceivedMinutesProperty();
+    return +res.value;
+  }
+
+  private isSplitAndJoinMessage(row) {
     return row.messageFragment || row.sourceMessage;
   }
 
-  isDownloadButtonEnabledAction (row): boolean {
+  isDownloadButtonEnabledAction(row): boolean {
     return this.isRowDownloadButtonEnabled(row);
   }
 
-  isDownloadButtonEnabled (): boolean {
+  isDownloadButtonEnabled(): boolean {
     return this.isOneRowSelected() && this.isRowDownloadButtonEnabled(this.selected[0]);
   }
 
-  private isRowDownloadButtonEnabled (row): boolean {
+  private isRowDownloadButtonEnabled(row): boolean {
     return !row.deleted && row.messageType !== 'SIGNAL_MESSAGE'
       && !this.isSplitAndJoinMessage(row);
   }
 
-  private isOneRowSelected () {
+  private isOneRowSelected() {
     return this.selected && this.selected.length == 1;
   }
 
-  private downloadMessage (messageId) {
-    const url = MessageLogComponent.DOWNLOAD_MESSAGE_URL.replace('${messageId}', encodeURIComponent(messageId));
-    DownloadService.downloadNative(url);
-  }
-
-  downloadAction (row) {
-    this.downloadMessage(row.messageId);
-  }
-
-  download () {
-    this.downloadMessage(this.selected[0].messageId);
-  }
-
-  saveAsCSV () {
-    if (this.count > AlertComponent.MAX_COUNT_CSV) {
-      this.alertService.error(AlertComponent.CSV_ERROR_MESSAGE);
-      return;
+  private async downloadMessage(row) {
+    const messageId = row.messageId;
+    const canDownloadUrl = MessageLogComponent.CAN_DOWNLOAD_MESSAGE_URL.replace('${messageId}', encodeURIComponent(messageId));
+    try {
+      const canDownload = await this.http.get(canDownloadUrl).toPromise();
+      if (canDownload) {
+        const downloadUrl = MessageLogComponent.DOWNLOAD_MESSAGE_URL.replace('${messageId}', encodeURIComponent(messageId));
+        DownloadService.downloadNative(downloadUrl);
+      } else {
+        this.alertService.error(`Message content is no longer available for id ${messageId}.`);
+        row.deleted = true;
+      }
+    } catch (err) {
+      this.alertService.exception(`Could not download message content for id ${messageId}.`, err);
     }
-
-    super.resetFilters();
-    DownloadService.downloadNative(MessageLogComponent.MESSAGE_LOG_URL + '/csv?' + this.createSearchParams().toString());
   }
 
-  details (selectedRow: any) {
+  downloadAction(row) {
+    this.downloadMessage(row);
+  }
+
+  download() {
+    this.downloadMessage(this.selected[0]);
+  }
+
+  get csvUrl(): string {
+    return MessageLogComponent.MESSAGE_LOG_URL + '/csv?' + this.createAndSetParameters();
+  }
+
+  showDetails(selectedRow: any) {
     this.dialog.open(MessagelogDetailsComponent, {
       data: {message: selectedRow, fourCornerEnabled: this.fourCornerEnabled}
     });
   }
 
-  toggleAdvancedSearch () {
-    this.advancedSearch = true;
-  }
-
-  toggleBasicSearch () {
-    this.advancedSearch = false;
-
-    this.resetAdvancedSearchParams();
-  }
-
-  resetAdvancedSearchParams () {
-    this.filter.mshRole = null;
-    this.filter.conversationId = null;
+  onResetAdvancedSearchParams() {
     this.filter.messageType = this.msgTypes[1];
-    this.filter.notificationStatus = null;
-    this.filter.originalSender = null;
-    this.filter.finalRecipient = null;
-    this.filter.refToMessageId = null;
-    this.filter.receivedFrom = null;
-    this.filter.receivedTo = null;
-    this.filter.isTestMessage = null;
-
     this.conversationIdValue = null;
   }
 
-  onTimestampFromChange (event) {
+  onTimestampFromChange(event) {
     this.timestampToMinDate = event.value;
   }
 
-  onTimestampToChange (event) {
+  onTimestampToChange(event) {
     this.timestampFromMaxDate = event.value;
   }
 
-  private showNextAttemptInfo (row: any): boolean {
-    if (row && (row.messageType === 'SIGNAL_MESSAGE' || row.mshRole === 'RECEIVING'))
+  private showNextAttemptInfo(row: any): boolean {
+    if (row && (row.messageType === 'SIGNAL_MESSAGE' || row.mshRole === 'RECEIVING')) {
       return false;
+    }
     return true;
   }
 
-  public scrollLeft () {
+  public scrollLeft() {
     const dataTableBodyDom = this.elementRef.nativeElement.querySelector('.datatable-body');
     dataTableBodyDom.scrollLeft = 0;
   }
 
-  onMessageTypeChanged ($event: MdSelectChange) {
+  onMessageTypeChanged($event: MatSelectChange) {
     this.canSearchByConversationId = (this.filter.messageType == 'USER_MESSAGE');
     if (this.canSearchByConversationId) {
       this.filter.conversationId = this.conversationIdValue;
@@ -505,5 +391,9 @@ export class MessageLogComponent extends mix(BaseListComponent).with(FilterableL
       this.conversationIdValue = this.filter.conversationId;
       this.filter.conversationId = null;
     }
+  }
+
+  isCurrentUserAdmin(): boolean {
+    return this.securityService.isCurrentUserAdmin();
   }
 }
