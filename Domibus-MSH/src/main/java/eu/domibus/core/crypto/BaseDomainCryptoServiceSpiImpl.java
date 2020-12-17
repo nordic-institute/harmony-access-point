@@ -20,6 +20,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -329,13 +332,23 @@ public abstract class BaseDomainCryptoServiceSpiImpl extends Merlin implements D
     }
 
     @Override
-    public String getIdentifier() {
-        return null;
-    }
+    public abstract String getIdentifier();
 
     @Override
     public void setDomain(DomainSpi domain) {
         this.domain = domainCoreConverter.convert(domain, Domain.class);
+    }
+
+    @Override
+    public byte[] getTruststoreContent() {
+        String location = getTrustStoreLocation();
+        File file = new File(location);
+        Path path = Paths.get(file.getAbsolutePath());
+        try {
+            return Files.readAllBytes(path);
+        } catch (IOException e) {
+            throw new DomibusCertificateSpiException("Could not read truststore from [" + location + "]");
+        }
     }
 
     private synchronized boolean doRemoveCertificate(String alias) {

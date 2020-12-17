@@ -12,10 +12,14 @@ import org.apache.wss4j.common.crypto.CryptoType;
 import org.apache.wss4j.common.ext.WSSecurityException;
 
 import javax.security.auth.callback.CallbackHandler;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.security.*;
+import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
 import java.util.List;
@@ -149,8 +153,26 @@ public abstract class BaseDomainCryptoServiceImpl implements DomainCryptoService
         iamProvider.removeCertificate(aliases);
     }
 
+    //try to put this back
 //    @Override
 //    public void reset() {
 //        this.init();
 //    }
+
+    @Override
+    public byte[] getTruststoreContent() {
+        return iamProvider.getTruststoreContent();
+
+//        final KeyStore trustStore = iamProvider.getTrustStore();
+//        File trustStoreFile = new File("temp.jks");
+//        try (FileOutputStream fileOutputStream = new FileOutputStream(trustStoreFile)) {
+//            trustStore.store(fileOutputStream,getTry this.getPrivateKeyPassword().toCharArray());
+//        } catch (FileNotFoundException ex) {
+//            throw new CryptoException("Could not persist truststore: Is the truststore readonly?");
+//        } catch (NoSuchAlgorithmException | IOException | CertificateException | KeyStoreException e) {
+//            throw new CryptoException("Could not persist truststore:", e);
+//        }
+//
+//        byte[] content = Files.readAllBytes(Paths.get(trustStoreFile.getAbsolutePath()));
+    }
 }

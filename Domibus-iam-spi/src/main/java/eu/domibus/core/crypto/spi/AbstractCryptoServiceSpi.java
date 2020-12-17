@@ -147,5 +147,6 @@ public abstract class AbstractCryptoServiceSpi implements DomainCryptoServiceSpi
         defaultDomainCryptoService.init();
     }
 
-
+    @Override
+    public byte[] getTruststoreContent() { return defaultDomainCryptoService.getTruststoreContent(); }
 }

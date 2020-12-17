@@ -513,13 +513,13 @@ public class CertificateServiceImpl implements CertificateService {
         return null;
     }
 
-    @Override
-    public byte[] getTruststoreContent() throws IOException {
-        String location = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_LOCATION);
-        File file = new File(location);
-        Path path = Paths.get(file.getAbsolutePath());
-        return Files.readAllBytes(path);
-    }
+//    @Override
+//    public byte[] getTruststoreContent() throws IOException {
+//        String location = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_LOCATION);
+//        File file = new File(location);
+//        Path path = Paths.get(file.getAbsolutePath());
+//        return Files.readAllBytes(path);
+//    }
 
     public TrustStoreEntry convertCertificateContent(String certificateContent) {
         X509Certificate cert = loadCertificateFromString(certificateContent);

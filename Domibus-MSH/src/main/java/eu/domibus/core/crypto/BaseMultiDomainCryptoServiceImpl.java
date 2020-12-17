@@ -202,4 +202,10 @@ public abstract class BaseMultiDomainCryptoServiceImpl implements MultiDomainCry
 
         domainCertificateProvider.reset();
     }
+
+    @Override
+    public byte[] getTruststoreContent(Domain domain) {
+        final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
+        return domainCertificateProvider.getTruststoreContent();
+    }
 }

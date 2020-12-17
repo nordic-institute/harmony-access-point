@@ -5,6 +5,7 @@ import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.CertificateService;
+import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.api.validators.SkipWhiteListed;
 import eu.domibus.core.audit.AuditService;
@@ -23,13 +24,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.IOException;
 import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -50,6 +46,10 @@ public class TruststoreResource extends BaseResource {
 
     @Autowired
     protected MultiDomainCryptoService multiDomainCertificateProvider;
+
+    @Autowired
+    @Qualifier("TLSMultiDomainCryptoServiceImpl") //or a specific interface??
+    protected MultiDomainCryptoService tlsMultiDomainCertificateProvider;
 
     @Autowired
     protected DomainContextProvider domainProvider;
@@ -77,41 +77,24 @@ public class TruststoreResource extends BaseResource {
     @PostMapping(value = "/truststore/save")
     public String uploadTruststoreFile(@RequestPart("truststore") MultipartFile truststoreFile,
                                        @SkipWhiteListed @RequestParam("password") String password) throws IllegalArgumentException {
-        byte[] truststoreFileContent = multiPartFileUtil.validateAndGetFileContent(truststoreFile);
+        replaceTruststore(multiDomainCertificateProvider, truststoreFile, password);
 
-        if (StringUtils.isBlank(password)) {
-            throw new IllegalArgumentException(ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD);
-        }
-
-        multiDomainCertificateProvider.replaceTrustStore(domainProvider.getCurrentDomain(), truststoreFile.getOriginalFilename(), truststoreFileContent, password);
         // trigger update certificate table
         certificateService.saveCertificateAndLogRevocation(domainProvider.getCurrentDomain());
+
         return "Truststore file has been successfully replaced.";
     }
 
     @GetMapping(value = "/truststore/download", produces = "application/octet-stream")
-    public ResponseEntity<ByteArrayResource> downloadTrustStore() throws IOException {
-        byte[] content = certificateService.getTruststoreContent();
+    public ResponseEntity<ByteArrayResource> downloadTrustStore() {
+//        byte[] content = certificateService.getTruststoreContent();
 
-        auditService.addTruststoreDownloadedAudit();
-
-        ByteArrayResource resource = new ByteArrayResource(content);
-
-        HttpStatus status = HttpStatus.OK;
-        if (resource.getByteArray().length == 0) {
-            status = HttpStatus.NO_CONTENT;
-        }
-
-        return ResponseEntity.status(status)
-                .contentType(MediaType.parseMediaType("application/octet-stream"))
-                .header("content-disposition", "attachment; filename=TrustStore.jks")
-                .body(resource);
+        return downloadTruststoreContent(multiDomainCertificateProvider);
     }
 
     @RequestMapping(value = {"/truststore/list"}, method = GET)
     public List<TrustStoreRO> trustStoreEntries() {
-        final KeyStore trustStore = multiDomainCertificateProvider.getTrustStore(domainProvider.getCurrentDomain());
-        return domainConverter.convert(certificateService.getTrustStoreEntries(trustStore), TrustStoreRO.class);
+        return getTrustStoreEntries(multiDomainCertificateProvider);
     }
 
     /**
@@ -134,44 +117,41 @@ public class TruststoreResource extends BaseResource {
                 "truststore");
     }
 
-    // TLS truststore
-    // TODO: change urls; reuse code;
-    @Autowired
-    @Qualifier("TLSMultiDomainCryptoServiceImpl") //or a specific interface??
-    protected MultiDomainCryptoService tlsMultiDomainCertificateProvider;
-
     @PostMapping(value = "/tlstruststore")
-    public String uploadTLSTruststoreFile(@RequestPart("truststore") MultipartFile file,
-                                          @SkipWhiteListed @RequestParam("password") String password)
-            throws RequestValidationException {
-
-        byte[] fileContent = multiPartFileUtil.validateAndGetFileContent(file);
-
-        if (StringUtils.isBlank(password)) {
-            throw new RequestValidationException(ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD);
-        }
-
-        tlsMultiDomainCertificateProvider.replaceTrustStore(domainProvider.getCurrentDomain(), file.getOriginalFilename(), fileContent, password);
-
+    public String uploadTLSTruststoreFile(@RequestPart("truststore") MultipartFile truststoreFile,
+                                          @SkipWhiteListed @RequestParam("password") String password) throws RequestValidationException {
+        replaceTruststore(tlsMultiDomainCertificateProvider, truststoreFile, password);
         return "TLS truststore file has been successfully replaced.";
     }
 
     @GetMapping(value = "/tlstruststore", produces = "application/octet-stream")
     public ResponseEntity<ByteArrayResource> downloadTLSTrustStore() throws IOException {
-//        byte[] content = certificateService.getTruststoreContent();
-        final KeyStore trustStore = tlsMultiDomainCertificateProvider.getTrustStore(domainProvider.getCurrentDomain());
-        File trustStoreFile = new File("temp.jks");
-        try (FileOutputStream fileOutputStream = new FileOutputStream(trustStoreFile)) {
-            trustStore.store(fileOutputStream, "test123".toCharArray());
-        } catch (FileNotFoundException ex) {
-            throw new CryptoException("Could not persist truststore: Is the truststore readonly?");
-        } catch (NoSuchAlgorithmException | IOException | CertificateException | KeyStoreException e) {
-            throw new CryptoException("Could not persist truststore:", e);
-        }
-//        auditService.addTruststoreDownloadedAudit();
+        return downloadTruststoreContent(tlsMultiDomainCertificateProvider);
+    }
 
-        byte[] content = Files.readAllBytes(Paths.get(trustStoreFile.getAbsolutePath()));
+    @GetMapping(value = {"/tlstruststore/entries"})
+    public List<TrustStoreRO> getTLSTruststoreEntries() {
+        return getTrustStoreEntries(tlsMultiDomainCertificateProvider);
+    }
+
+    private void replaceTruststore(MultiDomainCryptoService certificateProvider, MultipartFile truststoreFile, String password) {
+        byte[] truststoreFileContent = multiPartFileUtil.validateAndGetFileContent(truststoreFile);
+
+        if (StringUtils.isBlank(password)) {
+            throw new IllegalArgumentException(ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD);
+        }
+
+        certificateProvider.replaceTrustStore(domainProvider.getCurrentDomain(), truststoreFile.getOriginalFilename(), truststoreFileContent, password);
+    }
+
+    private ResponseEntity<ByteArrayResource> downloadTruststoreContent(MultiDomainCryptoService multiDomainCertificateProvider) {
+        byte[] content = multiDomainCertificateProvider.getTruststoreContent(domainProvider.getCurrentDomain());
+
+        //todo: adjust this call for both truststores
+        auditService.addTruststoreDownloadedAudit();
+
         ByteArrayResource resource = new ByteArrayResource(content);
+
         HttpStatus status = HttpStatus.OK;
         if (resource.getByteArray().length == 0) {
             status = HttpStatus.NO_CONTENT;
@@ -183,9 +163,9 @@ public class TruststoreResource extends BaseResource {
                 .body(resource);
     }
 
-    @GetMapping(value = {"/tlstruststore/entries"})
-    public List<TrustStoreRO> getTLSTruststoreEntries() {
-        final KeyStore trustStore = tlsMultiDomainCertificateProvider.getTrustStore(domainProvider.getCurrentDomain());
-        return domainConverter.convert(certificateService.getTrustStoreEntries(trustStore), TrustStoreRO.class);
+    private List<TrustStoreRO> getTrustStoreEntries(MultiDomainCryptoService multiDomainCertificateProvider) {
+        final KeyStore store = multiDomainCertificateProvider.getTrustStore(domainProvider.getCurrentDomain());
+        List<TrustStoreEntry> trustStoreEntries = certificateService.getTrustStoreEntries(store);
+        return domainConverter.convert(trustStoreEntries, TrustStoreRO.class);
     }
 }

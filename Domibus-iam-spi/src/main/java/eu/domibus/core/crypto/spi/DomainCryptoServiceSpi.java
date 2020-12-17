@@ -68,4 +68,6 @@ public interface DomainCryptoServiceSpi {
     void setDomain(DomainSpi domain);
 
     void init();
+
+    byte[] getTruststoreContent();
 }

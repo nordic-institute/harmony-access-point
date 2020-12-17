@@ -247,8 +247,8 @@ public class TruststoreResourceTest {
         final byte[] fileContent = new byte[]{1, 0, 1};
         // Given
         new Expectations() {{
-            certificateService.getTruststoreContent();
-            result = fileContent;
+//            certificateService.getTruststoreContent();
+//            result = fileContent;
         }};
 
         // When
@@ -258,7 +258,7 @@ public class TruststoreResourceTest {
         validateResponseEntity(responseEntity, HttpStatus.OK);
 
         new Verifications(){{
-            certificateService.getTruststoreContent();
+//            certificateService.getTruststoreContent();
             auditService.addTruststoreDownloadedAudit();
         }};
 

@@ -7,6 +7,7 @@ import org.apache.wss4j.common.crypto.CryptoType;
 import org.apache.wss4j.common.ext.WSSecurityException;
 
 import javax.security.auth.callback.CallbackHandler;
+import java.io.IOException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.PrivateKey;
@@ -64,6 +65,7 @@ public interface MultiDomainCryptoService {
 
     void reset();
 
-    public void reset(Domain domain);
+    void reset(Domain domain);
 
+    byte[] getTruststoreContent(Domain domain);
 }
