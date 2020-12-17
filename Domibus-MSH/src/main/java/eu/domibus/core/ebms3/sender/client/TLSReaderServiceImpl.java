@@ -76,6 +76,7 @@ public class TLSReaderServiceImpl implements TLSReaderService {
         }
     }
 
+    //todo: try to simplify the code
     private TLSClientParametersType createTLSClientParameters(String s) throws XMLStreamException, JAXBException {
         StringReader reader = new StringReader(s);
         XMLStreamReader data = StaxUtils.createXMLStreamReader(reader);
@@ -106,7 +107,6 @@ public class TLSReaderServiceImpl implements TLSReaderService {
     private String getFileContent(Optional<Path> path) throws IOException {
         byte[] encoded = Files.readAllBytes(path.get());
         String config = new String(encoded, "UTF-8");
-        //TODO this replacement should be extracted into a service method
         config = config.replaceAll(REGEX_DOMIBUS_CONFIG_LOCATION, domibusConfigurationService.getConfigLocation().replace('\\', '/'));
         return config;
     }

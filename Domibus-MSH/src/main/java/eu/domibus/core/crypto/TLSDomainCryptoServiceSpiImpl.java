@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
  * @author Ion Perpegel
  * @since 5.0
  */
-@Component("TLSCryptoService")
+@Component("TLSCryptoService") //todo: try to avoid qualifying
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class TLSDomainCryptoServiceSpiImpl extends BaseDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi {
 
@@ -33,12 +33,14 @@ public class TLSDomainCryptoServiceSpiImpl extends BaseDomainCryptoServiceSpiImp
 
     @Override
     public String getPrivateKeyPassword(String alias) {
-        return "test123"; //from domibus property or from clientauth.xml file??
+        //todo: decide if from domibus property or from clientauth.xml file??
+        return "test123";
     }
 
     @Override
     protected String getPrivateKeyAlias() {
-        return "certificate"; //from domibus property or from clientauth.xml file??
+        //todo: decide if //from domibus property or from clientauth.xml file??
+        return "certificate";
     }
 
     @Override

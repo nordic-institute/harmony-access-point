@@ -29,20 +29,15 @@ public class TLSDomainCryptoServiceImpl extends BaseDomainCryptoServiceImpl impl
     }
 
     @PostConstruct
-    public void init() {
+    protected void init() {
         super.init(domainCryptoServiceSpi);
         LOG.info("Create TLS provider identifier:[{}] for domain:[{}]", iamProvider.getIdentifier(), domain.getName());
     }
 
     @Override
     public String getTrustStoreType() {
-        // or property or what???
+        //todo: decide if property or what???
         return "jks";
-    }
-
-    @Override
-    public void reset() {
-        this.init();
     }
 
 }

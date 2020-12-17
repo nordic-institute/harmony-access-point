@@ -42,9 +42,6 @@ public class DomainCryptoServiceImpl extends BaseDomainCryptoServiceImpl impleme
     @Autowired
     private DomibusPropertyProvider domibusPropertyProvider;
 
-//    public DomainCryptoServiceImpl() {
-//    }
-
     public DomainCryptoServiceImpl(Domain domain) {
         super(domain);
     }
@@ -109,8 +106,4 @@ public class DomainCryptoServiceImpl extends BaseDomainCryptoServiceImpl impleme
         this.domainCryptoServiceSpiList = domainCryptoServiceSpiList;
     }
 
-    @Override
-    public void reset() {
-        this.init();
-    }
 }

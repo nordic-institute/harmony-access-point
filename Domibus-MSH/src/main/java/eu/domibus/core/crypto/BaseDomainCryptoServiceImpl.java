@@ -153,26 +153,15 @@ public abstract class BaseDomainCryptoServiceImpl implements DomainCryptoService
         iamProvider.removeCertificate(aliases);
     }
 
-    //try to put this back
-//    @Override
-//    public void reset() {
-//        this.init();
-//    }
+    protected abstract void init();
+
+    @Override
+    public void reset() {
+        init();
+    }
 
     @Override
     public byte[] getTruststoreContent() {
         return iamProvider.getTruststoreContent();
-
-//        final KeyStore trustStore = iamProvider.getTrustStore();
-//        File trustStoreFile = new File("temp.jks");
-//        try (FileOutputStream fileOutputStream = new FileOutputStream(trustStoreFile)) {
-//            trustStore.store(fileOutputStream,getTry this.getPrivateKeyPassword().toCharArray());
-//        } catch (FileNotFoundException ex) {
-//            throw new CryptoException("Could not persist truststore: Is the truststore readonly?");
-//        } catch (NoSuchAlgorithmException | IOException | CertificateException | KeyStoreException e) {
-//            throw new CryptoException("Could not persist truststore:", e);
-//        }
-//
-//        byte[] content = Files.readAllBytes(Paths.get(trustStoreFile.getAbsolutePath()));
     }
 }
