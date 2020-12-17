@@ -5,8 +5,10 @@ import eu.domibus.api.property.DomibusProperty;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.core.property.ConfigurationPropertyResourceHelper;
+import eu.domibus.core.property.DomibusPropertiesFilter;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.DomibusPropertyRO;
+import eu.domibus.web.rest.ro.PropertyFilterRequestRO;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Mocked;
@@ -16,6 +18,10 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Ion Perpegel
@@ -57,5 +63,29 @@ public class ConfigurationPropertyResourceTest {
         DomibusPropertyRO res = configurationPropertyResource.getProperty("propertyName");
 
         Assert.assertEquals(convertedProp, res);
+    }
+
+    @Test
+    public void getCsv(@Injectable DomibusProperty prop, @Injectable DomibusPropertyRO convertedProp,
+                       @Injectable DomibusPropertiesFilter filter,
+                       @Injectable PropertyFilterRequestRO request) {
+
+        List<DomibusPropertyRO> convertedItems = new ArrayList<>();
+        convertedItems.add(convertedProp);
+        List<DomibusProperty> items = new ArrayList<>();
+        items.add(prop);
+
+        new Expectations() {{
+            domainConverter.convert(request, DomibusPropertiesFilter.class);
+            result = filter;
+            configurationPropertyResourceHelper.getAllProperties(filter);
+            result = items;
+            domainConverter.convert(items, DomibusPropertyRO.class);
+            result = convertedItems;
+        }};
+
+        ResponseEntity<String> res = configurationPropertyResource.getCsv(request);
+
+        Assert.assertEquals(HttpStatus.OK, res.getStatusCode());
     }
 }
