@@ -12,7 +12,8 @@ import org.springframework.stereotype.Service;
 import static eu.domibus.plugin.webService.configuration.WSPluginConfiguration.DOMIBUS_LOGGING_METADATA_PRINT;
 
 /**
- * Handles the change of domibus.logging.metadata.print property of backendInterfaceEndpoint
+ * Handles the change of {@value eu.domibus.plugin.webService.configuration.WSPluginConfiguration#DOMIBUS_LOGGING_METADATA_PRINT}
+ * property of backendInterfaceEndpoint
  *
  * @author François Gautier
  * @since 4.2

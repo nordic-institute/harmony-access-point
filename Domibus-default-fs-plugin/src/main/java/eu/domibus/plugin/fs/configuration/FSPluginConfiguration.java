@@ -11,20 +11,13 @@ import eu.domibus.plugin.fs.ebms3.ObjectFactory;
 import eu.domibus.plugin.fs.property.FSPluginPropertiesMetadataManagerImpl;
 import eu.domibus.plugin.notification.PluginAsyncNotificationConfiguration;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.beans.factory.config.PropertiesFactoryBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 import javax.jms.Queue;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -43,16 +36,13 @@ public class FSPluginConfiguration {
     public static final String NOTIFY_BACKEND_QUEUE_JNDI = "jms/domibus.notification.filesystem";
     public static final String NOTIFY_BACKEND_FS_QUEUE_NAME = "notifyBackendFSQueue";
 
-    @Value("file:///${domibus.config.location}/plugins/config/fs-plugin.properties")
-    protected String fsPluginExternalPropertiesFile;
-
     protected List<NotificationType> defaultMessageNotifications = Arrays.asList(
                             NotificationType.MESSAGE_RECEIVED, NotificationType.MESSAGE_SEND_FAILURE, NotificationType.MESSAGE_RECEIVED_FAILURE,
                             NotificationType.MESSAGE_SEND_SUCCESS, NotificationType.MESSAGE_STATUS_CHANGE);
 
     @Bean("backendFSPlugin")
     public FSPluginImpl createFSPlugin(DomibusPropertyExtService domibusPropertyExtService) {
-        List<NotificationType> messageNotifications = domibusPropertyExtService.getConfiguredNotifications(FSPluginPropertiesMetadataManagerImpl.PROPERTY_PREFIX + FSPluginPropertiesMetadataManagerImpl.MESSAGE_NOTIFICATIONS);
+        List<NotificationType> messageNotifications = domibusPropertyExtService.getConfiguredNotifications(FSPluginPropertiesMetadataManagerImpl.MESSAGE_NOTIFICATIONS);
         LOG.debug("Using the following message notifications [{}]", messageNotifications);
         if (!messageNotifications.containsAll(defaultMessageNotifications)) {
             LOG.warn("FSPlugin will not function properly if the following message notifications will not be set: [{}]",
@@ -75,23 +65,6 @@ public class FSPluginConfiguration {
             pluginAsyncNotificationConfiguration.setQueueName(queueNotificationJndi);
         }
         return pluginAsyncNotificationConfiguration;
-    }
-
-    @Bean("fsPluginProperties")
-    public PropertiesFactoryBean fsPluginProperties() throws IOException {
-        PropertiesFactoryBean result = new PropertiesFactoryBean();
-        result.setIgnoreResourceNotFound(true);
-
-        List<Resource> resources = new ArrayList<>();
-        resources.add(new ClassPathResource("config/fs-plugin.properties"));
-
-        PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
-        LOG.debug("Using FSPlugin external properties file [{}]", fsPluginExternalPropertiesFile);
-        Resource domibusProperties = resolver.getResource(fsPluginExternalPropertiesFile);
-        resources.add(domibusProperties);
-
-        result.setLocations(resources.toArray(new Resource[0]));
-        return result;
     }
 
     @Bean("fsPluginJaxbContext")

@@ -16,11 +16,12 @@ import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.AbstractBackendConnector;
 import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
 import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
+import eu.domibus.plugin.webService.backend.dispatch.WSPluginBackendService;
 import eu.domibus.plugin.webService.dao.WSMessageLogDao;
 import eu.domibus.plugin.webService.entity.WSMessageLogEntity;
-import eu.domibus.plugin.webService.generated.*;
 import eu.domibus.plugin.webService.generated.ErrorCode;
 import eu.domibus.plugin.webService.generated.MessageStatus;
+import eu.domibus.plugin.webService.generated.*;
 import eu.domibus.plugin.webService.property.WSPluginPropertyManager;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.common.util.CollectionUtils;
@@ -35,6 +36,8 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static eu.domibus.plugin.webService.backend.WSBackendMessageType.*;
 
 @SuppressWarnings("ValidExternallyBoundObject")
 @javax.jws.WebService(
@@ -82,7 +85,13 @@ public class WebServicePluginImpl extends AbstractBackendConnector<Messaging, Us
     protected WSPluginPropertyManager wsPluginPropertyManager;
 
     @Autowired
-    AuthenticationExtService authenticationExtService;
+    private AuthenticationExtService authenticationExtService;
+
+    @Autowired
+    private WSPluginBackendService wsPluginBackendService;
+
+    @Autowired
+    private UserMessageExtService userMessageExtService;
 
     public WebServicePluginImpl() {
         super(PLUGIN_NAME);
@@ -135,11 +144,13 @@ public class WebServicePluginImpl extends AbstractBackendConnector<Messaging, Us
         LOG.info("Deliver message: [{}]", event);
         WSMessageLogEntity wsMessageLogEntity = new WSMessageLogEntity(event.getMessageId(), event.getFinalRecipient(), new Date());
         wsMessageLogDao.create(wsMessageLogEntity);
+        wsPluginBackendService.sendNotification(RECEIVE_SUCCESS, event.getMessageId(), userMessageExtService.getFinalRecipient(event.getMessageId()));
     }
 
     @Override
     public void messageReceiveFailed(final MessageReceiveFailureEvent event) {
         LOG.info("Message receive failed [{}]", event);
+        wsPluginBackendService.sendNotification(RECEIVE_FAIL, event.getMessageId(), userMessageExtService.getFinalRecipient(event.getMessageId()));
     }
 
     @Override
@@ -150,6 +161,7 @@ public class WebServicePluginImpl extends AbstractBackendConnector<Messaging, Us
     @Override
     public void messageSendFailed(final MessageSendFailedEvent event) {
         LOG.info("Message send failed [{}]", event);
+        wsPluginBackendService.sendNotification(SEND_FAILURE, event.getMessageId(), userMessageExtService.getFinalRecipient(event.getMessageId()));
     }
 
     @Override
@@ -168,6 +180,7 @@ public class WebServicePluginImpl extends AbstractBackendConnector<Messaging, Us
     @Override
     public void messageSendSuccess(final MessageSendSuccessEvent event) {
         LOG.info("Message send success [{}]", event.getMessageId());
+        wsPluginBackendService.sendNotification(SEND_SUCCESS, event.getMessageId(), userMessageExtService.getFinalRecipient(event.getMessageId()));
     }
 
     private void addPartInfos(SubmitRequest submitRequest, Messaging ebMSHeaderInfo) throws SubmitMessageFault {
@@ -319,7 +332,8 @@ public class WebServicePluginImpl extends AbstractBackendConnector<Messaging, Us
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 300, rollbackFor = RetrieveMessageFault.class)
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
-    public void retrieveMessage(RetrieveMessageRequest retrieveMessageRequest, Holder<RetrieveMessageResponse> retrieveMessageResponse,
+    public void retrieveMessage(RetrieveMessageRequest retrieveMessageRequest,
+                                Holder<RetrieveMessageResponse> retrieveMessageResponse,
                                 Holder<Messaging> ebMSHeaderInfo) throws RetrieveMessageFault {
         UserMessage userMessage;
         boolean isMessageIdNotEmpty = StringUtils.isNotEmpty(retrieveMessageRequest.getMessageID());
@@ -336,20 +350,7 @@ public class WebServicePluginImpl extends AbstractBackendConnector<Messaging, Us
             throw new RetrieveMessageFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", webServicePluginExceptionFactory.createFault("No message with id [" + trimmedMessageId + "] pending for download"));
         }
 
-        try {
-            userMessage = downloadMessage(trimmedMessageId, null);
-        } catch (final MessageNotFoundException mnfEx) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(MESSAGE_NOT_FOUND_ID + retrieveMessageRequest.getMessageID() + "]", mnfEx);
-            }
-            LOG.error(MESSAGE_NOT_FOUND_ID + retrieveMessageRequest.getMessageID() + "]");
-            throw new RetrieveMessageFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", webServicePluginExceptionFactory.createDownloadMessageFault(mnfEx));
-        }
-
-        if (userMessage == null) {
-            LOG.error(MESSAGE_NOT_FOUND_ID + retrieveMessageRequest.getMessageID() + "]");
-            throw new RetrieveMessageFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", webServicePluginExceptionFactory.createFault("UserMessage not found"));
-        }
+        userMessage = getUserMessage(retrieveMessageRequest, trimmedMessageId);
 
         // To avoid blocking errors during the Header's response validation
         if (StringUtils.isEmpty(userMessage.getCollaborationInfo().getAgreementRef().getValue())) {
@@ -371,6 +372,25 @@ public class WebServicePluginImpl extends AbstractBackendConnector<Messaging, Us
 
         // remove downloaded message from the plugin table containing the pending messages
         wsMessageLogDao.delete(wsMessageLogEntity);
+    }
+
+    private UserMessage getUserMessage(RetrieveMessageRequest retrieveMessageRequest, String trimmedMessageId) throws RetrieveMessageFault {
+        UserMessage userMessage;
+        try {
+            userMessage = downloadMessage(trimmedMessageId, null);
+        } catch (final MessageNotFoundException mnfEx) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(MESSAGE_NOT_FOUND_ID + retrieveMessageRequest.getMessageID() + "]", mnfEx);
+            }
+            LOG.error(MESSAGE_NOT_FOUND_ID + retrieveMessageRequest.getMessageID() + "]");
+            throw new RetrieveMessageFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", webServicePluginExceptionFactory.createDownloadMessageFault(mnfEx));
+        }
+
+        if (userMessage == null) {
+            LOG.error(MESSAGE_NOT_FOUND_ID + retrieveMessageRequest.getMessageID() + "]");
+            throw new RetrieveMessageFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", webServicePluginExceptionFactory.createFault("UserMessage not found"));
+        }
+        return userMessage;
     }
 
     private void fillInfoPartsForLargeFiles(Holder<RetrieveMessageResponse> retrieveMessageResponse, Messaging messaging) {

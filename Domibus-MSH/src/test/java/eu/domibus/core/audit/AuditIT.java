@@ -1,7 +1,7 @@
 package eu.domibus.core.audit;
 
 import eu.domibus.core.user.ui.User;
-import eu.domibus.core.dao.InMemoryDataBaseConfig;
+import eu.domibus.core.dao.InMemoryDatabaseMshConfig;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.junit.Before;
@@ -19,7 +19,7 @@ import javax.persistence.PersistenceContext;
  * @since 4.0
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {InMemoryDataBaseConfig.class})
+@ContextConfiguration(classes = {InMemoryDatabaseMshConfig.class})
 @ActiveProfiles("IN_MEMORY_DATABASE")
 public class AuditIT {
 

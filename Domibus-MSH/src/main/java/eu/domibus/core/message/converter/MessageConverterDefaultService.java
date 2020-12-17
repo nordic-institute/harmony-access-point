@@ -1,6 +1,5 @@
 package eu.domibus.core.message.converter;
 
-import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.messaging.MessagingException;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.logging.DomibusLogger;

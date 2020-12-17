@@ -27,12 +27,15 @@ import eu.domibus.core.jms.DispatchMessageCreator;
 import eu.domibus.core.message.acknowledge.MessageAcknowledgementDao;
 import eu.domibus.core.message.attempt.MessageAttemptDao;
 import eu.domibus.core.message.converter.MessageConverterService;
+import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.message.splitandjoin.MessageGroupDao;
 import eu.domibus.core.message.splitandjoin.MessageGroupEntity;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinException;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
@@ -41,8 +44,6 @@ import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.PartInfo;
 import eu.domibus.ebms3.common.model.UserMessage;
-import eu.domibus.core.metrics.Counter;
-import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.MDCKey;
@@ -69,7 +70,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SEND_MESSAGE_SUCCESS_DELETE_PAYLOAD;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 /**
@@ -185,6 +185,9 @@ public class UserMessageDefaultService implements UserMessageService {
 
     @Autowired
     DateUtil dateUtil;
+
+    @Autowired
+    NonRepudiationService nonRepudiationService;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 1200) // 20 minutes
     public void createMessageFragments(UserMessage sourceMessage, MessageGroupEntity messageGroupEntity, List<String> fragmentFiles) {
@@ -645,6 +648,28 @@ public class UserMessageDefaultService implements UserMessageService {
         Map<String, InputStream> message = getMessageContentWithAttachments(messageId);
         return zipFiles(message);
     }
+
+    @Override
+    public byte[] getMessageEnvelopesAsZip(String messageId) {
+        Map<String, InputStream> message = nonRepudiationService.getMessageEnvelopes(messageId);
+        try {
+            return zipFiles(message);
+        } catch (IOException e) {
+            LOG.warn("Could not zipp message envelopes with id [{}].", messageId);
+            return new byte[0];
+        }
+    }
+
+    @Override
+    public String getUserMessageEnvelope(String userMessageId) {
+        return nonRepudiationService.getUserMessageEnvelope(userMessageId);
+    }
+
+    @Override
+    public String getSignalMessageEnvelope(String userMessageId) {
+        return nonRepudiationService.getSignalMessageEnvelope(userMessageId);
+    }
+
 
     protected Map<String, InputStream> getMessageContentWithAttachments(String messageId) throws MessageNotFoundException {
 

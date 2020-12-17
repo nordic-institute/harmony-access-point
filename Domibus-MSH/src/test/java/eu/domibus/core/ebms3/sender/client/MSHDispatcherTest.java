@@ -62,7 +62,7 @@ public class MSHDispatcherTest {
     PolicyService policyService;
 
     @Injectable
-    TLSReader tlsReader;
+    TLSReaderServiceImpl tlsReader;
 
     @Injectable
     PModeProvider pModeProvider;

@@ -31,17 +31,18 @@ public class DefaultDomibusConfigurationService implements DomibusConfigurationS
     private DataBaseEngine dataBaseEngine;
 
     @Autowired
-    DomibusPropertyProvider domibusPropertyProvider;
+    protected DomibusPropertyProvider domibusPropertyProvider;
 
     @Override
     public String getConfigLocation() {
         return domibusPropertyProvider.getProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_CONFIG_LOCATION);
     }
 
-    @Override
     @Cacheable("multitenantCache")
+    @Override
     public boolean isMultiTenantAware() {
-        return StringUtils.isNotBlank(domibusPropertyProvider.getProperty(DomainService.GENERAL_SCHEMA_PROPERTY));
+        // need to call directly the non-public method getInternalProperty to avoid infinite loop from domibusPropertyProvider cache expression
+        return StringUtils.isNotBlank(domibusPropertyProvider.getInternalProperty(DomainService.GENERAL_SCHEMA_PROPERTY));
     }
 
     @Override
