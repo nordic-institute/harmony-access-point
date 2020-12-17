@@ -23,8 +23,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -32,10 +37,11 @@ import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
 /**
  * @author Mircea Musat
+ * @author Ion Perpegel
  * @since 3.3
  */
 @RestController
-@RequestMapping(value = "/rest/truststore")
+@RequestMapping(value = "/rest")
 public class TruststoreResource extends BaseResource {
 
 //    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TruststoreResource.class);
@@ -68,7 +74,7 @@ public class TruststoreResource extends BaseResource {
         return errorHandlerService.createResponse(ex, HttpStatus.BAD_REQUEST);
     }
 
-    @PostMapping(value = "/save")
+    @PostMapping(value = "/truststore/save")
     public String uploadTruststoreFile(@RequestPart("truststore") MultipartFile truststoreFile,
                                        @SkipWhiteListed @RequestParam("password") String password) throws IllegalArgumentException {
         byte[] truststoreFileContent = multiPartFileUtil.validateAndGetFileContent(truststoreFile);
@@ -83,7 +89,7 @@ public class TruststoreResource extends BaseResource {
         return "Truststore file has been successfully replaced.";
     }
 
-    @RequestMapping(value = "/download", method = RequestMethod.GET, produces = "application/octet-stream")
+    @GetMapping(value = "/truststore/download", produces = "application/octet-stream")
     public ResponseEntity<ByteArrayResource> downloadTrustStore() throws IOException {
         byte[] content = certificateService.getTruststoreContent();
 
@@ -102,7 +108,7 @@ public class TruststoreResource extends BaseResource {
                 .body(resource);
     }
 
-    @RequestMapping(value = {"/list"}, method = GET)
+    @RequestMapping(value = {"/truststore/list"}, method = GET)
     public List<TrustStoreRO> trustStoreEntries() {
         final KeyStore trustStore = multiDomainCertificateProvider.getTrustStore(domainProvider.getCurrentDomain());
         return domainConverter.convert(certificateService.getTrustStoreEntries(trustStore), TrustStoreRO.class);
@@ -113,7 +119,7 @@ public class TruststoreResource extends BaseResource {
      *
      * @return CSV file with the contents of Truststore table
      */
-    @GetMapping(path = "/csv")
+    @GetMapping(path = "/truststore/csv")
     public ResponseEntity<String> getCsv() {
         final List<TrustStoreRO> entries = trustStoreEntries();
         getCsvService().validateMaxRows(entries.size());
@@ -131,10 +137,10 @@ public class TruststoreResource extends BaseResource {
     // TLS truststore
     // TODO: change urls; reuse code;
     @Autowired
-    @Qualifier("TLSMultiDomainCryptoServiceImpl")
+    @Qualifier("TLSMultiDomainCryptoServiceImpl") //or a specific interface??
     protected MultiDomainCryptoService tlsMultiDomainCertificateProvider;
 
-    @PostMapping(value = "/tls")
+    @PostMapping(value = "/tlstruststore")
     public String uploadTLSTruststoreFile(@RequestPart("truststore") MultipartFile file,
                                           @SkipWhiteListed @RequestParam("password") String password)
             throws RequestValidationException {
@@ -150,14 +156,22 @@ public class TruststoreResource extends BaseResource {
         return "TLS truststore file has been successfully replaced.";
     }
 
-    @GetMapping(value = "/tls", produces = "application/octet-stream")
+    @GetMapping(value = "/tlstruststore", produces = "application/octet-stream")
     public ResponseEntity<ByteArrayResource> downloadTLSTrustStore() throws IOException {
-        byte[] content = certificateService.getTruststoreContent();
+//        byte[] content = certificateService.getTruststoreContent();
+        final KeyStore trustStore = tlsMultiDomainCertificateProvider.getTrustStore(domainProvider.getCurrentDomain());
+        File trustStoreFile = new File("temp.jks");
+        try (FileOutputStream fileOutputStream = new FileOutputStream(trustStoreFile)) {
+            trustStore.store(fileOutputStream, "test123".toCharArray());
+        } catch (FileNotFoundException ex) {
+            throw new CryptoException("Could not persist truststore: Is the truststore readonly?");
+        } catch (NoSuchAlgorithmException | IOException | CertificateException | KeyStoreException e) {
+            throw new CryptoException("Could not persist truststore:", e);
+        }
+//        auditService.addTruststoreDownloadedAudit();
 
-        auditService.addTruststoreDownloadedAudit();
-
+        byte[] content = Files.readAllBytes(Paths.get(trustStoreFile.getAbsolutePath()));
         ByteArrayResource resource = new ByteArrayResource(content);
-
         HttpStatus status = HttpStatus.OK;
         if (resource.getByteArray().length == 0) {
             status = HttpStatus.NO_CONTENT;
@@ -169,7 +183,7 @@ public class TruststoreResource extends BaseResource {
                 .body(resource);
     }
 
-    @GetMapping(value = {"/tls/entries"})
+    @GetMapping(value = {"/tlstruststore/entries"})
     public List<TrustStoreRO> getTLSTruststoreEntries() {
         final KeyStore trustStore = tlsMultiDomainCertificateProvider.getTrustStore(domainProvider.getCurrentDomain());
         return domainConverter.convert(certificateService.getTrustStoreEntries(trustStore), TrustStoreRO.class);

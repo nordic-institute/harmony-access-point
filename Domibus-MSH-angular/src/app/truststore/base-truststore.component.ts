@@ -102,7 +102,7 @@ export class BaseTruststoreComponent extends mix(BaseListComponent)
     });
   }
 
-  async openEditTrustStore() {
+  async uploadTrustStore() {
     let params = await this.dialog.open(TrustStoreUploadComponent).afterClosed().toPromise();
     if (params != null) {
       try {
@@ -112,7 +112,7 @@ export class BaseTruststoreComponent extends mix(BaseListComponent)
         let res = await this.truststoreService.uploadTrustStore(this.TRUSTSTORE_UPLOAD_URL, params.fileToUpload, params.password).toPromise();
         this.alertService.success(res);
 
-        this.getTrustStoreEntries();
+        await this.getTrustStoreEntries();
       } catch (err) {
         this.alertService.exception(`Error updating truststore file (${params.fileToUpload.name})`, err);
       } finally {
