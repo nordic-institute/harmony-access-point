@@ -24,8 +24,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.security.KeyStore;
+import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.List;
 
@@ -75,7 +78,7 @@ public class TruststoreResource extends BaseResource {
     }
 
     @PostMapping(value = "/truststore/save")
-    public String uploadTruststoreFile(@RequestPart("truststore") MultipartFile truststoreFile,
+    public String uploadTruststoreFile(@RequestPart("file") MultipartFile truststoreFile,
                                        @SkipWhiteListed @RequestParam("password") String password) throws IllegalArgumentException {
         replaceTruststore(multiDomainCertificateProvider, truststoreFile, password);
 
@@ -132,6 +135,28 @@ public class TruststoreResource extends BaseResource {
     @GetMapping(value = {"/tlstruststore/entries"})
     public List<TrustStoreRO> getTLSTruststoreEntries() {
         return getTrustStoreEntries(tlsMultiDomainCertificateProvider);
+    }
+
+    @PostMapping(value = "/tlstruststore/entries")
+    public String addTLSCertificate(@RequestPart("file") MultipartFile certificateFile,
+                                    @RequestParam("alias") @Valid @NotNull String alias) throws RequestValidationException {
+        byte[] fileContent = multiPartFileUtil.validateAndGetFileContent(certificateFile);
+
+        if (StringUtils.isBlank(alias)) {
+            throw new IllegalArgumentException("Please provide an alisas for the secrtificate.");
+        }
+
+        X509Certificate cert = certificateService.loadCertificateFromString(new String(fileContent));
+
+        tlsMultiDomainCertificateProvider.addCertificate(domainProvider.getCurrentDomain(), cert, alias, true);
+
+        return "TLS certificate file has been successfully added.";
+    }
+
+    @DeleteMapping(value = "/tlstruststore/entries/{alias:.+}")
+    public String removeTLSCertificate(@PathVariable String alias) throws RequestValidationException {
+        tlsMultiDomainCertificateProvider.removeCertificate(domainProvider.getCurrentDomain(), alias);
+        return "TLS certificate file has been successfully deleted.";
     }
 
     private void replaceTruststore(MultiDomainCryptoService certificateProvider, MultipartFile truststoreFile, String password) {

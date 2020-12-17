@@ -28,6 +28,8 @@ export class TLSTruststoreComponent extends BaseTruststoreComponent implements O
     this.TRUSTSTORE_DOWNLOAD_URL = this.TRUSTSTORE_URL;
     this.TRUSTSTORE_UPLOAD_URL = this.TRUSTSTORE_URL;
     this.TRUSTSTORE_LIST_ENTRIES_URL = this.TRUSTSTORE_URL + '/entries';
+    this.CER_UPLOAD_URL = this.TRUSTSTORE_URL + '/entries';
+    this.CER_REMOVE_URL = this.TRUSTSTORE_URL + '/entries/alias';
   }
 
   ngOnInit(): void {

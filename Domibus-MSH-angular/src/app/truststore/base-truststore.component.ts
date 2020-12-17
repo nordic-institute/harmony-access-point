@@ -31,6 +31,8 @@ export class BaseTruststoreComponent extends mix(BaseListComponent)
   protected TRUSTSTORE_DOWNLOAD_URL: string;
   protected TRUSTSTORE_UPLOAD_URL: string;
   protected TRUSTSTORE_LIST_ENTRIES_URL: string;
+  protected CER_UPLOAD_URL: string;
+  protected CER_REMOVE_URL: string;
 
   @ViewChild('rowWithDateFormatTpl', {static: false}) rowWithDateFormatTpl: TemplateRef<any>;
 
@@ -107,14 +109,14 @@ export class BaseTruststoreComponent extends mix(BaseListComponent)
     if (params != null) {
       try {
         super.isLoading = true;
-        await this.fileUploadValidatorService.validateFileSize(params.fileToUpload);
+        await this.fileUploadValidatorService.validateFileSize(params.file);
 
-        let res = await this.truststoreService.uploadTrustStore(this.TRUSTSTORE_UPLOAD_URL, params.fileToUpload, params.password).toPromise();
+        let res = await this.truststoreService.uploadFile(this.TRUSTSTORE_UPLOAD_URL, params).toPromise();
         this.alertService.success(res);
 
         await this.getTrustStoreEntries();
       } catch (err) {
-        this.alertService.exception(`Error updating truststore file (${params.fileToUpload.name})`, err);
+        this.alertService.exception(`Error updating truststore file (${params.file.name})`, err);
       } finally {
         super.isLoading = false;
       }
@@ -152,6 +154,44 @@ export class BaseTruststoreComponent extends mix(BaseListComponent)
 
   canUpload() {
     return !this.isBusy();
+  }
+
+  async uploadCertificate() {
+    let params = await this.dialog.open(TrustStoreUploadComponent).afterClosed().toPromise();
+    if (params == null) {
+      return;
+    }
+    try {
+      super.isLoading = true;
+      await this.fileUploadValidatorService.validateFileSize(params.file);
+
+      let res = await this.truststoreService.uploadFile(this.CER_UPLOAD_URL, params).toPromise();
+      this.alertService.success(res);
+
+      await this.getTrustStoreEntries();
+    } catch (err) {
+      this.alertService.exception(`Error updating truststore file (${params.file.name})`, err);
+    } finally {
+      super.isLoading = false;
+    }
+  }
+
+  async removeCertificate() {
+    const cert = this.selected[0];
+    if (!cert) {
+      return;
+    }
+    try {
+      super.isLoading = true;
+      let res = await this.truststoreService.removeCertificate(this.CER_REMOVE_URL, cert);
+      this.alertService.success(res);
+
+      await this.getTrustStoreEntries();
+    } catch (err) {
+      this.alertService.exception(`Error removing the certificate (${cert.name}) from truststore.`, err);
+    } finally {
+      super.isLoading = false;
+    }
   }
 
 }

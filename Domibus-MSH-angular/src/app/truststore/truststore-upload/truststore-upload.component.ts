@@ -35,8 +35,8 @@ export class TrustStoreUploadComponent {
     const fileToUpload = this.fileInput.nativeElement.files[0];
     const password = this.truststoreForm.get('password').value;
     const result = {
-      fileToUpload: fileToUpload,
-      password: password
+      file: fileToUpload,
+      alias: password
     };
     this.dialogRef.close(result);
   }

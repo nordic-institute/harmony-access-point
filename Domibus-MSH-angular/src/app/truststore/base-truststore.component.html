@@ -25,6 +25,18 @@
         <mat-icon>file_download</mat-icon>
         <span>Download</span>
       </button>
+
+      <button mat-raised-button color="primary" (click)="uploadCertificate()"
+              [disabled]="!canUpload()" id="uloadCertificate_id" button-click-behaviour>
+        <mat-icon>file_upload</mat-icon>
+        <span>Add Certificate</span>
+      </button>
+      <button mat-raised-button color="primary" (click)="removeCertificate()"
+              [disabled]="!canUpload()" id="removeCertificate_id" button-click-behaviour>
+        <mat-icon>delete</mat-icon>
+        <span>Remove Certificate</span>
+      </button>
+
     </div>
   </div>
 </div>
