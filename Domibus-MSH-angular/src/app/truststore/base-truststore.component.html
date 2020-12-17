@@ -1,5 +1,5 @@
 <div style="height: calc(100% - 15px);">
-  <page-header id="truststoreheader_id">Truststore</page-header>
+  <page-header id="truststoreheader_id">{{name}}</page-header>
 
   <div class="panel" style="height: calc(100% - 40px);">
     <grid-header [parent]="this"></grid-header>
@@ -15,7 +15,7 @@
 
     <div class="group-action-button">
       <button mat-raised-button color="primary" (click)="openEditTrustStore()" id="uploadbutton_id"
-              button-click-behaviour>
+              [disabled]="!canUpload()" button-click-behaviour>
         <mat-icon>file_upload</mat-icon>
         <span>Upload</span>
       </button>

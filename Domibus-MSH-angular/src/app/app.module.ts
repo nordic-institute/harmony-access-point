@@ -41,7 +41,7 @@ import {DomibusInfoService} from './common/appinfo/domibusinfo.service';
 import {MessageFilterComponent} from './messagefilter/messagefilter.component';
 import {MessageLogComponent} from './messagelog/messagelog.component';
 import {UserComponent} from './user/user.component';
-import {TruststoreComponent} from './truststore/truststore.component';
+import {BaseTruststoreComponent} from './truststore/base-truststore.component';
 import {PmodeUploadComponent} from './pmode/upload/pmode-upload.component';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {JmsComponent} from './jms/jms.component';
@@ -108,6 +108,7 @@ import {SessionService} from './security/session.service';
 import {AuthInternalProviderGuard} from './common/guards/auth-internal-provider.guard';
 import {AddNestedPropertyDialogComponent} from './properties/support/add-nested-property-dialog/add-nested-property-dialog.component';
 import {TLSTruststoreComponent} from './truststore/tls.truststore.component';
+import {TruststoreComponent} from './truststore/truststore.component';
 
 @NgModule({
   declarations: [
@@ -121,8 +122,9 @@ import {TLSTruststoreComponent} from './truststore/tls.truststore.component';
     FooterComponent,
     CurrentPModeComponent,
     PModeArchiveComponent,
-    TruststoreComponent,
+    BaseTruststoreComponent,
     TLSTruststoreComponent,
+    TruststoreComponent,
     PmodeUploadComponent,
     PmodeViewComponent,
     YesNoDialogComponent,

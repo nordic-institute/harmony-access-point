@@ -13,21 +13,23 @@ import {ClientPageableListMixin} from '../common/mixins/pageable-list.mixin';
 import {ApplicationContextService} from '../common/application-context.service';
 import {TrustStoreEntry} from './support/trustore.model';
 import {ComponentName} from '../common/component-name-decorator';
-import {TruststoreComponent} from './truststore.component';
+import {BaseTruststoreComponent} from './base-truststore.component';
+import {FileUploadValidatorService} from '../common/file-upload-validator.service';
 
 @Component({
   selector: 'app-tls-truststore',
-  templateUrl: './truststore.component.html',
+  templateUrl: './base-truststore.component.html',
   providers: [TrustStoreService]
 })
 @ComponentName('TLSTrustStore')
-export class TLSTruststoreComponent extends TruststoreComponent implements OnInit {
+export class TLSTruststoreComponent extends BaseTruststoreComponent implements OnInit {
 
   constructor(applicationService: ApplicationContextService, http: HttpClient, trustStoreService: TrustStoreService,
-              dialog: MatDialog, alertService: AlertService, changeDetector: ChangeDetectorRef) {
-    super(applicationService, http, trustStoreService, dialog, alertService, changeDetector);
+              dialog: MatDialog, alertService: AlertService, changeDetector: ChangeDetectorRef,
+              fileUploadValidatorService: FileUploadValidatorService, truststoreService: TrustStoreService) {
+    super(applicationService, http, trustStoreService, dialog, alertService, changeDetector, fileUploadValidatorService, trustStoreService);
 
-    // this.TRUSTSTORE_URL = 'rest/truststore/tls';
+    // this.TRUSTSTORE_URL = 'rest/truststore/';
     this.TRUSTSTORE_CSV_URL = this.TRUSTSTORE_URL + '/tls/csv';
     this.TRUSTSTORE_DOWNLOAD_URL = this.TRUSTSTORE_URL + '/tls';
     this.TRUSTSTORE_UPLOAD_URL = this.TRUSTSTORE_URL + '/tls';
