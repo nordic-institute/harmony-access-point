@@ -5,6 +5,7 @@ import com.thoughtworks.xstream.security.ExplicitTypePermission;
 import com.thoughtworks.xstream.security.NoTypePermission;
 import com.thoughtworks.xstream.security.PrimitiveTypePermission;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.common.model.configuration.Agreement;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.ebms3.Ebms3Constants;
 import eu.domibus.core.error.ErrorLogDao;
@@ -131,7 +132,11 @@ public class TestService {
         submission.setToRole(pModeProvider.getRole("RESPONDER", Ebms3Constants.TEST_SERVICE));
 
         // Set Agreement Ref
-        submission.setAgreementRef(pModeProvider.getAgreementRef(Ebms3Constants.TEST_SERVICE));
+        Agreement agreementRef = pModeProvider.getAgreementRef(Ebms3Constants.TEST_SERVICE);
+        if(agreementRef != null) {
+            submission.setAgreementRef(agreementRef.getValue());
+            submission.setAgreementRefType(agreementRef.getType());
+        }
 
         // Set Conversation Id
         // As the eb:ConversationId element is required it must always have a value.

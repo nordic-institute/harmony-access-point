@@ -496,5 +496,5 @@ public abstract class PModeProvider {
 
     public abstract String getRole(String roleType, String serviceValue);
 
-    public abstract String getAgreementRef(String serviceValue);
+    public abstract Agreement getAgreementRef(String serviceValue);
 }
