@@ -1368,7 +1368,9 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <modules>
+                <module>Domibus-default-ws-plugin-stub-utils</module>
                 <module>Domibus-ws-stubs</module>
+                <module>Domibus-default-ws-plugin-stubs</module>
                 <module>Domibus-default-ws-plugin-backend-ws-stubs</module>
                 <module>Domibus-default-ws-plugin-backend-ws-test</module>
                 <module>Domibus-default-ws-plugin</module>
