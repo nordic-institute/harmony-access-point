@@ -88,12 +88,16 @@ public class ConfigurationPropertyResourceHelperIT extends AbstractIT {
         boolean isDomain = true;
         String propertyValue = "val1";
 
+        DomibusProperty initial = configurationPropertyResourceHelper.getProperty(propertyName);
+
         configurationPropertyResourceHelper.setPropertyValue(propertyName, isDomain, propertyValue);
 
         DomibusProperty result = configurationPropertyResourceHelper.getProperty(propertyName);
 
         Assert.assertEquals(propertyName, result.getMetadata().getName());
         Assert.assertEquals(propertyValue, result.getValue());
+
+        configurationPropertyResourceHelper.setPropertyValue(propertyName, isDomain, initial.getValue());
     }
 
     /**
