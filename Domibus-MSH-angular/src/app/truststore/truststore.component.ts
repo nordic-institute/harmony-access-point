@@ -23,11 +23,11 @@ export class TruststoreComponent extends BaseTruststoreComponent implements OnIn
               fileUploadValidatorService: FileUploadValidatorService, truststoreService: TrustStoreService) {
     super(applicationService, http, trustStoreService, dialog, alertService, changeDetector, fileUploadValidatorService, trustStoreService);
 
-    this.TRUSTSTORE_URL = 'rest/truststore';
-    this.TRUSTSTORE_CSV_URL = this.TRUSTSTORE_URL + '/csv';
-    this.TRUSTSTORE_DOWNLOAD_URL = this.TRUSTSTORE_URL + '/download';
-    this.TRUSTSTORE_UPLOAD_URL = this.TRUSTSTORE_URL + '/save';
-    this.TRUSTSTORE_LIST_ENTRIES_URL = this.TRUSTSTORE_URL + '/list';
+    this.BASE_URL = 'rest/truststore';
+    this.CSV_URL = this.BASE_URL + '/csv';
+    this.DOWNLOAD_URL = this.BASE_URL + '/download';
+    this.UPLOAD_URL = this.BASE_URL + '/save';
+    this.LIST_ENTRIES_URL = this.BASE_URL + '/list';
 
     this.canHandleCertificates = false;
   }

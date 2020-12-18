@@ -203,7 +203,7 @@ public class TruststoreResourceTest {
         }};
 
         // When
-        final ResponseEntity<String> csv = truststoreResource.getCsv();
+        final ResponseEntity<String> csv = truststoreResource.getEntriesAsCsv();
 
         // Then
         Assert.assertEquals(HttpStatus.OK, csv.getStatusCode());
@@ -225,7 +225,7 @@ public class TruststoreResourceTest {
         }};
 
         // When
-        final ResponseEntity<String> csv = truststoreResource.getCsv();
+        final ResponseEntity<String> csv = truststoreResource.getEntriesAsCsv();
     }
 
     @Test

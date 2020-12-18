@@ -90,8 +90,6 @@ public class TruststoreResource extends BaseResource {
 
     @GetMapping(value = "/truststore/download", produces = "application/octet-stream")
     public ResponseEntity<ByteArrayResource> downloadTrustStore() {
-//        byte[] content = certificateService.getTruststoreContent();
-
         return downloadTruststoreContent(multiDomainCertificateProvider);
     }
 
@@ -100,28 +98,13 @@ public class TruststoreResource extends BaseResource {
         return getTrustStoreEntries(multiDomainCertificateProvider);
     }
 
-    /**
-     * This method returns a CSV file with the contents of Truststore table
-     *
-     * @return CSV file with the contents of Truststore table
-     */
     @GetMapping(path = "/truststore/csv")
-    public ResponseEntity<String> getCsv() {
-        final List<TrustStoreRO> entries = trustStoreEntries();
-        getCsvService().validateMaxRows(entries.size());
-
-        return exportToCSV(entries,
-                TrustStoreRO.class,
-                ImmutableMap.of(
-                        "ValidFrom".toUpperCase(), "Valid from",
-                        "ValidUntil".toUpperCase(), "Valid until"
-                ),
-                Arrays.asList("fingerprints"),
-                "truststore");
+    public ResponseEntity<String> getEntriesAsCsv() {
+        return getEntriesAsCSV(multiDomainCertificateProvider);
     }
 
     @PostMapping(value = "/tlstruststore")
-    public String uploadTLSTruststoreFile(@RequestPart("truststore") MultipartFile truststoreFile,
+    public String uploadTLSTruststoreFile(@RequestPart("file") MultipartFile truststoreFile,
                                           @SkipWhiteListed @RequestParam("password") String password) throws RequestValidationException {
         replaceTruststore(tlsMultiDomainCertificateProvider, truststoreFile, password);
         return "TLS truststore file has been successfully replaced.";
@@ -137,13 +120,18 @@ public class TruststoreResource extends BaseResource {
         return getTrustStoreEntries(tlsMultiDomainCertificateProvider);
     }
 
+    @GetMapping(path = "/tlstruststore/entries/csv")
+    public ResponseEntity<String> getTLSEntriesAsCsv() {
+        return getEntriesAsCSV(tlsMultiDomainCertificateProvider);
+    }
+
     @PostMapping(value = "/tlstruststore/entries")
     public String addTLSCertificate(@RequestPart("file") MultipartFile certificateFile,
                                     @RequestParam("alias") @Valid @NotNull String alias) throws RequestValidationException {
         byte[] fileContent = multiPartFileUtil.validateAndGetFileContent(certificateFile);
 
         if (StringUtils.isBlank(alias)) {
-            throw new IllegalArgumentException("Please provide an alisas for the secrtificate.");
+            throw new IllegalArgumentException("Please provide an alias for the secrtificate.");
         }
 
         X509Certificate cert = certificateService.loadCertificateFromString(new String(fileContent));
@@ -192,5 +180,18 @@ public class TruststoreResource extends BaseResource {
         final KeyStore store = multiDomainCertificateProvider.getTrustStore(domainProvider.getCurrentDomain());
         List<TrustStoreEntry> trustStoreEntries = certificateService.getTrustStoreEntries(store);
         return domainConverter.convert(trustStoreEntries, TrustStoreRO.class);
+    }
+
+    private ResponseEntity<String> getEntriesAsCSV(MultiDomainCryptoService cryptoService) {
+        final List<TrustStoreRO> entries = getTrustStoreEntries(cryptoService);
+        getCsvService().validateMaxRows(entries.size());
+
+        return exportToCSV(entries,
+                TrustStoreRO.class,
+                ImmutableMap.of(
+                        "ValidFrom".toUpperCase(), "Valid from",
+                        "ValidUntil".toUpperCase(), "Valid until"
+                ),
+                Arrays.asList("fingerprints"), "truststore");
     }
 }

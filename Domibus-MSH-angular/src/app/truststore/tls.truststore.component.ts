@@ -23,13 +23,13 @@ export class TLSTruststoreComponent extends BaseTruststoreComponent implements O
               fileUploadValidatorService: FileUploadValidatorService, truststoreService: TrustStoreService) {
     super(applicationService, http, trustStoreService, dialog, alertService, changeDetector, fileUploadValidatorService, trustStoreService);
 
-    this.TRUSTSTORE_URL = 'rest/tlstruststore';
-    this.TRUSTSTORE_CSV_URL = this.TRUSTSTORE_URL + '/csv';
-    this.TRUSTSTORE_DOWNLOAD_URL = this.TRUSTSTORE_URL;
-    this.TRUSTSTORE_UPLOAD_URL = this.TRUSTSTORE_URL;
-    this.TRUSTSTORE_LIST_ENTRIES_URL = this.TRUSTSTORE_URL + '/entries';
-    this.CER_UPLOAD_URL = this.TRUSTSTORE_URL + '/entries';
-    this.CER_REMOVE_URL = this.TRUSTSTORE_URL + '/entries/alias';
+    this.BASE_URL = 'rest/tlstruststore';
+    this.CSV_URL = this.BASE_URL + '/entries/csv';
+    this.DOWNLOAD_URL = this.BASE_URL;
+    this.UPLOAD_URL = this.BASE_URL;
+    this.LIST_ENTRIES_URL = this.BASE_URL + '/entries';
+    this.ADD_CERTIFICATE_URL = this.BASE_URL + '/entries';
+    this.REMOVE_CERTIFICATE_URL = this.BASE_URL + '/entries/alias';
 
     this.canHandleCertificates = true;
   }

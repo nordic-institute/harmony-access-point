@@ -15,6 +15,7 @@ import {TrustStoreEntry} from './support/trustore.model';
 import {ComponentName} from '../common/component-name-decorator';
 import {FileUploadValidatorService} from '../common/file-upload-validator.service';
 import {CertificateUploadComponent} from './certificate-upload/certificate-upload.component';
+import {ComponentType} from 'angular-md2';
 
 @Component({
   selector: 'app-base-truststore',
@@ -23,17 +24,16 @@ import {CertificateUploadComponent} from './certificate-upload/certificate-uploa
   providers: [TrustStoreService]
 })
 @ComponentName('TrustStore')
-export class BaseTruststoreComponent extends mix(BaseListComponent)
-  .with(ClientPageableListMixin)
+export class BaseTruststoreComponent extends mix(BaseListComponent).with(ClientPageableListMixin)
   implements OnInit, AfterViewInit, AfterViewChecked {
 
-  protected TRUSTSTORE_URL = 'rest/truststore';
-  protected TRUSTSTORE_CSV_URL: string;
-  protected TRUSTSTORE_DOWNLOAD_URL: string;
-  protected TRUSTSTORE_UPLOAD_URL: string;
-  protected TRUSTSTORE_LIST_ENTRIES_URL: string;
-  protected CER_UPLOAD_URL: string;
-  protected CER_REMOVE_URL: string;
+  protected BASE_URL: string;
+  protected CSV_URL: string;
+  protected DOWNLOAD_URL: string;
+  protected UPLOAD_URL: string;
+  protected LIST_ENTRIES_URL: string;
+  protected ADD_CERTIFICATE_URL: string;
+  protected REMOVE_CERTIFICATE_URL: string;
 
   protected canHandleCertificates: boolean;
 
@@ -93,7 +93,7 @@ export class BaseTruststoreComponent extends mix(BaseListComponent)
   }
 
   async getTrustStoreEntries() {
-    const trustStoreEntries: TrustStoreEntry[] = await this.trustStoreService.getEntries(this.TRUSTSTORE_LIST_ENTRIES_URL);
+    const trustStoreEntries: TrustStoreEntry[] = await this.trustStoreService.getEntries(this.LIST_ENTRIES_URL);
 
     trustStoreEntries.forEach(el => el.isExpired = new Date(el.validUntil) < new Date());
 
@@ -108,30 +108,13 @@ export class BaseTruststoreComponent extends mix(BaseListComponent)
   }
 
   async uploadTrustStore() {
-    let params = await this.dialog.open(TrustStoreUploadComponent).afterClosed().toPromise();
-    if (params != null) {
-      try {
-        super.isLoading = true;
-        await this.fileUploadValidatorService.validateFileSize(params.file);
-
-        let res = await this.truststoreService.uploadFile(this.TRUSTSTORE_UPLOAD_URL, params);
-        this.alertService.success(res);
-
-        await this.getTrustStoreEntries();
-      } catch (err) {
-        this.alertService.exception(`Error updating truststore file (${params.file.name})`, err);
-      } finally {
-        super.isLoading = false;
-      }
-    }
+    const comp: ComponentType<unknown> = TrustStoreUploadComponent;
+    await this.uploadFile(comp, this.UPLOAD_URL);
   }
 
-  /**
-   * Method called when Download button or icon is clicked
-   */
   downloadCurrentTrustStore() {
     super.isLoading = true;
-    this.http.get(this.TRUSTSTORE_DOWNLOAD_URL, {responseType: 'blob', observe: 'response'})
+    this.http.get(this.DOWNLOAD_URL, {responseType: 'blob', observe: 'response'})
       .subscribe(res => {
         this.trustStoreService.saveTrustStoreFile(res.body);
         super.isLoading = false;
@@ -142,7 +125,7 @@ export class BaseTruststoreComponent extends mix(BaseListComponent)
   }
 
   get csvUrl(): string {
-    return this.TRUSTSTORE_CSV_URL;
+    return this.CSV_URL;
   }
 
   getRowClass(row) {
@@ -160,23 +143,8 @@ export class BaseTruststoreComponent extends mix(BaseListComponent)
   }
 
   async uploadCertificate() {
-    let params = await this.dialog.open(CertificateUploadComponent).afterClosed().toPromise();
-    if (params == null) {
-      return;
-    }
-    try {
-      super.isLoading = true;
-      await this.fileUploadValidatorService.validateFileSize(params.file);
-
-      let res = await this.truststoreService.uploadFile(this.CER_UPLOAD_URL, params);
-      this.alertService.success(res);
-
-      await this.getTrustStoreEntries();
-    } catch (err) {
-      this.alertService.exception(`Error updating truststore file (${params.file.name})`, err);
-    } finally {
-      super.isLoading = false;
-    }
+    const comp: ComponentType<unknown> = CertificateUploadComponent;
+    this.uploadFile(comp, this.ADD_CERTIFICATE_URL);
   }
 
   async removeCertificate() {
@@ -186,7 +154,7 @@ export class BaseTruststoreComponent extends mix(BaseListComponent)
     }
     try {
       super.isLoading = true;
-      let res = await this.truststoreService.removeCertificate(this.CER_REMOVE_URL, cert);
+      let res = await this.truststoreService.removeCertificate(this.REMOVE_CERTIFICATE_URL, cert);
       this.alertService.success(res);
 
       await this.getTrustStoreEntries();
@@ -199,5 +167,24 @@ export class BaseTruststoreComponent extends mix(BaseListComponent)
 
   public showCertificateOperations() {
     return this.canHandleCertificates;
+  }
+
+  private async uploadFile(comp: ComponentType<unknown>, url: string) {
+    let params = await this.dialog.open(comp).afterClosed().toPromise();
+    if (params != null) {
+      try {
+        super.isLoading = true;
+        await this.fileUploadValidatorService.validateFileSize(params.file);
+
+        let res = await this.truststoreService.uploadFile(url, params);
+        this.alertService.success(res);
+
+        await this.getTrustStoreEntries();
+      } catch (err) {
+        this.alertService.exception(`Error updating truststore file (${params.file.name})`, err);
+      } finally {
+        super.isLoading = false;
+      }
+    }
   }
 }

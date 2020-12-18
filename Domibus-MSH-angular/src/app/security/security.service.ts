@@ -301,7 +301,7 @@ export class SecurityService {
           this.domainService.setAppTitle();
           this.sessionService.updateCurrentSession(SessionState.ACTIVE);
         } else {
-          console.warn(getUserFn.name + ' method returned an empty user.');
+          console.warn(getUserFn + ' method returned an empty user.');
         }
         resolve(user);
       }, err => {
