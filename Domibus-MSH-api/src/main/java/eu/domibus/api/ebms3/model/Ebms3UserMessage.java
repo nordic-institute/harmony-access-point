@@ -256,4 +256,8 @@ public class Ebms3UserMessage {
         }
         return null;
     }
+
+    public RawEnvelopeLog getRawEnvelopeLog() {
+        return rawEnvelopeLog;
+    }
 }

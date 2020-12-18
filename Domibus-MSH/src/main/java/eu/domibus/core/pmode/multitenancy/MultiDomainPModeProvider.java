@@ -270,7 +270,7 @@ public class MultiDomainPModeProvider extends PModeProvider {
     }
 
     @Override
-    public String getAgreementRef(String serviceValue) {
+    public Agreement getAgreementRef(String serviceValue) {
         return getCurrentPModeProvider().getAgreementRef(serviceValue);
     }
 

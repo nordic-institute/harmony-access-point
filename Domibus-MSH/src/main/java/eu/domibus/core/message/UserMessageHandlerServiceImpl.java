@@ -122,9 +122,6 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     protected UIReplicationSignalService uiReplicationSignalService;
 
     @Autowired
-    protected RawEnvelopeLogDao rawEnvelopeLogDao;
-
-    @Autowired
     protected MessageUtil messageUtil;
 
     @Autowired

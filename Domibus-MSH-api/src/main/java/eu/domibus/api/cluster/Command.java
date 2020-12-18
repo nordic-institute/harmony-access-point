@@ -20,6 +20,8 @@ public class Command {
     public static final String LOGGING_RESET = "LOGGING_RESET";
     public static final String LOGGING_SET_LEVEL = "LOGGING_SET_LEVEL";
     public static final String DOMIBUS_PROPERTY_CHANGE = "DOMIBUS_PROPERTY_CHANGE";
+    public static final String MESSAGE_FILTER_UPDATE = "MESSAGE_FILTER_UPDATE";
+    public static final String USER_SESSION_INVALIDATION = "USER_SESSION_INVALIDATION";
 
     private int entityId;
     protected String commandName;

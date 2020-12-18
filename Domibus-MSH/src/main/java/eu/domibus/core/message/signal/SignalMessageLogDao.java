@@ -86,6 +86,8 @@ public class SignalMessageLogDao extends MessageLogDao<SignalMessageLog> {
         return queryParameterized.getResultList();
     }
 
+    @Timer(clazz = SignalMessageLogDao.class,value = "deleteMessages.deleteMessageLogs")
+    @Counter(clazz = SignalMessageLogDao.class,value = "deleteMessages.deleteMessageLogs")
     public int deleteMessageLogs(List<String> messageIds) {
         final Query deleteQuery = em.createNamedQuery("SignalMessageLog.deleteMessageLogs");
         deleteQuery.setParameter("MESSAGEIDS", messageIds);

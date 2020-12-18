@@ -1,10 +1,10 @@
 package eu.domibus.core.security;
 
 import eu.domibus.api.security.*;
+import eu.domibus.core.alerts.service.PluginUserAlertsServiceImpl;
 import eu.domibus.core.user.plugin.AuthenticationDAO;
 import eu.domibus.core.user.plugin.AuthenticationEntity;
 import eu.domibus.core.user.plugin.security.PluginUserSecurityPolicyManager;
-import eu.domibus.core.alerts.service.PluginUserAlertsServiceImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +50,9 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
     @Autowired
     PluginUserAlertsServiceImpl userAlertsService;
 
+    @Autowired
+    protected AuthUtils authUtils;
+
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         try {
@@ -82,7 +85,8 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
                     //check expired; it does not produce an alert here
                     isAuthenticated = isAuthenticated && !isPasswordExpired(user);
                 } else {
-                    pluginUserPasswordManager.handleWrongAuthentication(userName);
+                    // there is no security context when the user failed to login -> we're creating one
+                    authUtils.runWithDomibusSecurityContext(() -> pluginUserPasswordManager.handleWrongAuthentication(userName), AuthRole.ROLE_ADMIN, true);
                 }
 
                 authentication.setAuthenticated(isAuthenticated);

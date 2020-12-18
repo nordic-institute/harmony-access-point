@@ -133,13 +133,13 @@ public class CRLEbms3ServiceImplIT {
         Mockito.when(principalMock.getName()).thenReturn(Mockito.any(String.class));
 
         //first call
-        boolean result = crlService.isCertificateRevoked(certificate, crlURLStr);
+        boolean result = crlService.isCertificateRevoked(certificate);
 
         //second call
-        result = crlService.isCertificateRevoked(certificate, crlURLStr);
+        result = crlService.isCertificateRevoked(certificate);
 
-        // verify that the downloadCRL is called only once
-        Mockito.verify(crlUtil, Mockito.times(1)).downloadCRL(Mockito.any(String.class));
+        // verify that the getCrlDistributionPoints is called only once
+        Mockito.verify(crlUtil, Mockito.times(1)).getCrlDistributionPoints(Mockito.any(X509Certificate.class));
     }
 
 }

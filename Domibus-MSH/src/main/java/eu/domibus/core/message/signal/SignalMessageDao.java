@@ -4,6 +4,7 @@ import eu.domibus.core.dao.BasicDao;
 import eu.domibus.api.model.SignalMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +33,12 @@ public class SignalMessageDao extends BasicDao<SignalMessage> {
         return query.getResultList();
     }
 
+    public SignalMessage findSignalMessageByMessageId(final String messageId) {
+        final TypedQuery<SignalMessage> query = em.createNamedQuery("SignalMessage.findSignalMessageByMessageId", SignalMessage.class);
+        query.setParameter("MESSAGE_ID", messageId);
+        return DataAccessUtils.singleResult(query.getResultList());
+    }
+
     public List<String> findSignalMessageIdsByRefMessageId(final String originalMessageId) {
         final TypedQuery<String> query = em.createNamedQuery("SignalMessage.findSignalMessageIdByRefMessageId", String.class);
         query.setParameter("ORI_MESSAGE_ID", originalMessageId);
@@ -44,6 +51,8 @@ public class SignalMessageDao extends BasicDao<SignalMessage> {
         return query.getResultList();
     }
 
+    @Timer(clazz = SignalMessageDao.class,value = "deleteMessages.deleteReceipts")
+    @Counter(clazz = SignalMessageDao.class,value = "deleteMessages.deleteReceipts")
     public int deleteReceipts(List<Long> receiptIds) {
         final Query deleteQuery = em.createNamedQuery("Receipt.deleteReceipts");
         deleteQuery.setParameter("RECEIPTIDS", receiptIds);

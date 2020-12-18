@@ -155,8 +155,8 @@ public class AuthenticationResourceTest {
     @Test
     public void testChangePassword(@Mocked UserDetail loggedUser, @Mocked ChangePasswordRO changePasswordRO) {
 
-        new Expectations(authenticationResource) {{
-            authenticationResource.getLoggedUser();
+        new Expectations() {{
+            authenticationService.getLoggedUser();
             result = loggedUser;
 
             authUtils.isSuperAdmin();
@@ -174,53 +174,6 @@ public class AuthenticationResourceTest {
 
         assertEquals(loggedUser.isDefaultPasswordUsed(), false);
 
-    }
-
-    @Test
-    public void testGetLoggedUser_PrincipalExists(final @Mocked SecurityContext securityContext, final @Mocked Authentication authentication) {
-        Set<GrantedAuthority> authorities = new HashSet<>();
-        final UserDetail userDetail = new UserDetail("username", "password", authorities);
-
-        new Expectations(authenticationResource) {{
-            new MockUp<SecurityContextHolder>() {
-                @Mock
-                SecurityContext getContext() {
-                    return securityContext;
-                }
-            };
-
-            securityContext.getAuthentication();
-            result = authentication;
-
-            authentication.getPrincipal();
-            result = userDetail;
-
-        }};
-
-        //tested method
-        UserDetail userDetai1Actual = authenticationResource.getLoggedUser();
-        Assert.assertEquals(userDetail, userDetai1Actual);
-    }
-
-    @Test
-    public void testGetLoggedUser_PrincipalDoesntExists(final @Mocked SecurityContext securityContext) {
-
-        new Expectations(authenticationResource) {{
-            new MockUp<SecurityContextHolder>() {
-                @Mock
-                SecurityContext getContext() {
-                    return securityContext;
-                }
-            };
-
-            securityContext.getAuthentication();
-            result = null;
-
-        }};
-
-        //tested method
-        UserDetail userDetai1Actual = authenticationResource.getLoggedUser();
-        Assert.assertNull(userDetai1Actual);
     }
 
     @Test
@@ -260,8 +213,8 @@ public class AuthenticationResourceTest {
 
     @Test
     public void testGetUser(final @Mocked UserDetail userDetail) {
-        new Expectations(authenticationResource) {{
-            authenticationResource.getLoggedUser();
+        new Expectations() {{
+            authenticationService.getLoggedUser();
             result = userDetail;
         }};
 

@@ -27,12 +27,15 @@ import eu.domibus.core.jms.DispatchMessageCreator;
 import eu.domibus.core.message.acknowledge.MessageAcknowledgementDao;
 import eu.domibus.core.message.attempt.MessageAttemptDao;
 import eu.domibus.core.message.converter.MessageConverterService;
+import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.message.splitandjoin.MessageGroupDao;
 import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinException;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
@@ -62,6 +65,9 @@ import javax.jms.Queue;
 import java.io.*;
 import java.sql.Timestamp;
 import java.util.*;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -369,8 +375,8 @@ public class UserMessageDefaultService implements UserMessageService {
         scheduleSending(userMessage, userMessageLog.getMessageId(), userMessageLog, jmsMessage);
     }
 
-    @Timer(clazz = DatabaseMessageHandler.class,value = "scheduleSending")
-    @Counter(clazz = DatabaseMessageHandler.class,value = "scheduleSending")
+    @Timer(clazz = DatabaseMessageHandler.class, value = "scheduleSending")
+    @Counter(clazz = DatabaseMessageHandler.class, value = "scheduleSending")
     protected void scheduleSending(final UserMessage userMessage, final String messageId, UserMessageLog userMessageLog, JmsMessage jmsMessage) {
         if (userMessageLog.isSplitAndJoin()) {
             LOG.debug("Sending message to sendLargeMessageQueue");
@@ -588,13 +594,21 @@ public class UserMessageDefaultService implements UserMessageService {
         userMessageLogService.setSignalMessageAsDeleted(messaging.getSignalMessage());
     }
 
-    @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public void deleteMessages(List<String> userMessageIds) {
-        LOG.debug("Deleting messages [{}]", userMessageIds);
-        List<String> signalMessageIds = messageInfoDao.findSignalMessageIds(userMessageIds);
-        List<Long> receiptIds = signalMessageDao.findReceiptIdsByMessageIds(signalMessageIds);
+    public void deleteMessages(List<UserMessageLogDto> userMessageLogs) {
 
+        List<String> userMessageIds = userMessageLogs.stream().map(userMessageLog -> userMessageLog.getMessageId()).collect(Collectors.toList());
+
+        LOG.debug("Deleting [{}] user messages", userMessageIds.size());
+        LOG.trace("Deleting user messages [{}]", userMessageIds);
+
+        List<String> filenames = messagingDao.findFileSystemPayloadFilenames(userMessageIds);
+        messagingDao.deletePayloadFiles(filenames);
+
+        List<String> signalMessageIds = messageInfoDao.findSignalMessageIds(userMessageIds);
+        LOG.debug("Deleting [{}] signal messages", signalMessageIds.size());
+        LOG.trace("Deleting signal messages [{}]", signalMessageIds);
+        List<Long> receiptIds = signalMessageDao.findReceiptIdsByMessageIds(signalMessageIds);
         int deleteResult = messageInfoDao.deleteMessages(userMessageIds);
         LOG.debug("Deleted [{}] messageInfo for userMessage.", deleteResult);
         deleteResult = messageInfoDao.deleteMessages(signalMessageIds);
@@ -615,6 +629,8 @@ public class UserMessageDefaultService implements UserMessageService {
         LOG.debug("Deleted [{}] deleteUIMessagesByMessageIds for signalMessages.", deleteResult);
         deleteResult = messageAcknowledgementDao.deleteMessageAcknowledgementsByMessageIds(userMessageIds);
         LOG.debug("Deleted [{}] deleteMessageAcknowledgementsByMessageIds.", deleteResult);
+
+        backendNotificationService.notifyMessageDeleted(userMessageLogs);
     }
 
     @Override
@@ -629,6 +645,28 @@ public class UserMessageDefaultService implements UserMessageService {
         Map<String, InputStream> message = getMessageContentWithAttachments(messageId);
         return zipFiles(message);
     }
+
+    @Override
+    public byte[] getMessageEnvelopesAsZip(String messageId) {
+        Map<String, InputStream> message = nonRepudiationService.getMessageEnvelopes(messageId);
+        try {
+            return zipFiles(message);
+        } catch (IOException e) {
+            LOG.warn("Could not zipp message envelopes with id [{}].", messageId);
+            return new byte[0];
+        }
+    }
+
+    @Override
+    public String getUserMessageEnvelope(String userMessageId) {
+        return nonRepudiationService.getUserMessageEnvelope(userMessageId);
+    }
+
+    @Override
+    public String getSignalMessageEnvelope(String userMessageId) {
+        return nonRepudiationService.getSignalMessageEnvelope(userMessageId);
+    }
+
 
     protected Map<String, InputStream> getMessageContentWithAttachments(String messageId) throws MessageNotFoundException {
 

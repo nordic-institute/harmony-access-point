@@ -2,10 +2,10 @@
 
 <suite name="SELENIUM">
 
+
 	<groups>
 		<run>
 			<include name="multiTenancy"/>
-<!--			<include name="singleTenancy"/>-->
 		</run>
 	</groups>
 

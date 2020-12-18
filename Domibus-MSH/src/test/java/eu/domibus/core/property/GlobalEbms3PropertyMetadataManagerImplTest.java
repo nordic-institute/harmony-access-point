@@ -4,6 +4,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
@@ -52,6 +53,9 @@ public class GlobalEbms3PropertyMetadataManagerImplTest {
     @Mocked
     private DomibusPropertyManagerExt propertyManager2;
 
+    @Injectable
+    protected DomibusPropertyProvider domibusPropertyProvider;
+
     Map<String, DomibusPropertyMetadataDTO> props1;
     Map<String, DomibusPropertyMetadata> props2;
     String domainCode = "domain1";
@@ -67,11 +71,11 @@ public class GlobalEbms3PropertyMetadataManagerImplTest {
         }).collect(Collectors.toMap(x -> x.getName(), x -> x));
 
         props2 = Arrays.stream(new DomibusPropertyMetadata[]{
-                new DomibusPropertyMetadata(DOMIBUS_UI_SUPPORT_TEAM_NAME, DomibusPropertyMetadataDTO.Usage.DOMAIN, true),
-                new DomibusPropertyMetadata(DOMIBUS_PLUGIN_PASSWORD_POLICY_VALIDATION_MESSAGE, DomibusPropertyMetadataDTO.Usage.DOMAIN, true),
-                new DomibusPropertyMetadata(DOMIBUS_PASSWORD_POLICY_PLUGIN_EXPIRATION, DomibusPropertyMetadataDTO.Usage.DOMAIN, true),
-                new DomibusPropertyMetadata(DOMIBUS_PASSWORD_POLICY_PLUGIN_DEFAULT_PASSWORD_EXPIRATION, DomibusPropertyMetadataDTO.Usage.DOMAIN, true),
-                new DomibusPropertyMetadata(DOMIBUS_PASSWORD_POLICY_PLUGIN_DONT_REUSE_LAST, DomibusPropertyMetadataDTO.Usage.DOMAIN, true),
+                new DomibusPropertyMetadata(DOMIBUS_UI_SUPPORT_TEAM_NAME, DomibusPropertyMetadata.Usage.DOMAIN, true),
+                new DomibusPropertyMetadata(DOMIBUS_PLUGIN_PASSWORD_POLICY_VALIDATION_MESSAGE, DomibusPropertyMetadata.Usage.DOMAIN, true),
+                new DomibusPropertyMetadata(DOMIBUS_PASSWORD_POLICY_PLUGIN_EXPIRATION, DomibusPropertyMetadata.Usage.DOMAIN, true),
+                new DomibusPropertyMetadata(DOMIBUS_PASSWORD_POLICY_PLUGIN_DEFAULT_PASSWORD_EXPIRATION, DomibusPropertyMetadata.Usage.DOMAIN, true),
+                new DomibusPropertyMetadata(DOMIBUS_PASSWORD_POLICY_PLUGIN_DONT_REUSE_LAST, DomibusPropertyMetadata.Usage.DOMAIN, true),
         }).collect(Collectors.toMap(x -> x.getName(), x -> x));
 
         extPropertyManagers = Arrays.asList(propertyManager1, propertyManager2);
@@ -107,7 +111,7 @@ public class GlobalEbms3PropertyMetadataManagerImplTest {
             times = 1;
             allPropertyMetadataMap.get(anyString);
             result = null;
-            globalPropertyMetadataManager.getComposableProperty(allPropertyMetadataMap, propertyName);
+            globalPropertyMetadataManager.getComposablePropertyMetadata(allPropertyMetadataMap, propertyName);
             result = propMeta;
             domainConverter.convert(propMeta, DomibusPropertyMetadata.class);
             result = propMeta;
@@ -312,4 +316,59 @@ public class GlobalEbms3PropertyMetadataManagerImplTest {
         });
     }
 
+    @Test
+    public void hasComposableProperty(@Injectable DomibusPropertyMetadata propMeta,
+                                      @Injectable Map<String, DomibusPropertyMetadata> map) {
+        String propertyName = "domibus.composable.property.suffix1";
+        String compPropertyName = "domibus.composable.property";
+
+        List<String> nestedProps = Arrays.asList("suffix1");
+
+        new Expectations(globalPropertyMetadataManager) {{
+            globalPropertyMetadataManager.getComposablePropertyMetadata(map, propertyName);
+            result = propMeta;
+            propMeta.getName();
+            result = compPropertyName;
+            domibusPropertyProvider.getNestedProperties(compPropertyName);
+            result = nestedProps;
+        }};
+
+        boolean result = globalPropertyMetadataManager.hasComposableProperty(map, propertyName);
+        Assert.assertTrue(result);
+    }
+
+    @Test
+    public void hasComposablePropertyNegative(@Injectable DomibusPropertyMetadata propMeta,
+                                              @Injectable Map<String, DomibusPropertyMetadata> map) {
+        String propertyName = "domibus.composable.property.suffix1";
+
+        new Expectations(globalPropertyMetadataManager) {{
+            globalPropertyMetadataManager.getComposablePropertyMetadata(map, propertyName);
+            result = null;
+        }};
+
+        boolean result = globalPropertyMetadataManager.hasComposableProperty(map, propertyName);
+        Assert.assertEquals(false, result);
+    }
+
+    @Test
+    public void hasComposablePropertyNegative2(@Injectable DomibusPropertyMetadata propMeta,
+                                               @Injectable Map<String, DomibusPropertyMetadata> map) {
+        String propertyName = "domibus.composable.property.suffix1";
+        String compPropertyName = "domibus.composable.property";
+
+        List<String> nestedProps = Arrays.asList();
+
+        new Expectations(globalPropertyMetadataManager) {{
+            globalPropertyMetadataManager.getComposablePropertyMetadata(map, propertyName);
+            result = propMeta;
+            propMeta.getName();
+            result = compPropertyName;
+            domibusPropertyProvider.getNestedProperties(compPropertyName);
+            result = nestedProps;
+        }};
+
+        boolean result = globalPropertyMetadataManager.hasComposableProperty(map, propertyName);
+        Assert.assertFalse(result);
+    }
 }

@@ -65,7 +65,7 @@ public class MSHSourceMessageWebservice implements Provider<SOAPMessage> {
     public SOAPMessage invoke(final SOAPMessage request) {
         LOG.debug("Processing SourceMessage request");
 
-        final String domain = LOG.getMDC(MSHDispatcher.HEADER_DOMIBUS_DOMAIN);
+        final String domain = LOG.getMDC(DomainContextProvider.HEADER_DOMIBUS_DOMAIN);
         domainContextProvider.setCurrentDomain(domain);
         final Domain currentDomain = domainContextProvider.getCurrentDomain();
 

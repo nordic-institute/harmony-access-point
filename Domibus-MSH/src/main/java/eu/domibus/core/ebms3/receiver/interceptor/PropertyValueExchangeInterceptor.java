@@ -1,6 +1,7 @@
 
 package eu.domibus.core.ebms3.receiver.interceptor;
 
+import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.core.certificate.CertificateExchangeType;
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
 import eu.domibus.logging.DomibusLogger;
@@ -33,6 +34,7 @@ public class PropertyValueExchangeInterceptor extends AbstractSoapInterceptor {
         final SOAPMessage jaxwsMessage = message.getContent(javax.xml.soap.SOAPMessage.class);
         try {
             jaxwsMessage.setProperty(DispatchClientDefaultProvider.PMODE_KEY_CONTEXT_PROPERTY, message.getContextualProperty(DispatchClientDefaultProvider.PMODE_KEY_CONTEXT_PROPERTY));
+            jaxwsMessage.setProperty(DomainContextProvider.HEADER_DOMIBUS_DOMAIN, message.getContextualProperty(DomainContextProvider.HEADER_DOMIBUS_DOMAIN));
             jaxwsMessage.setProperty(CertificateExchangeType.getKey(), message.getContextualProperty(CertificateExchangeType.getKey()));
             jaxwsMessage.setProperty(CertificateExchangeType.getValue(), message.getContextualProperty(CertificateExchangeType.getValue()));
         } catch (final SOAPException e) {

@@ -18,7 +18,7 @@ import java.util.List;
 @Repository
 public class MessageInfoDao extends BasicDao<Messaging> {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessagesLogServiceImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageInfoDao.class);
 
     public MessageInfoDao() {
         super(Messaging.class);
@@ -28,23 +28,29 @@ public class MessageInfoDao extends BasicDao<Messaging> {
         final TypedQuery<String> query = em.createNamedQuery("MessageInfo.findUserMessageIds", String.class);
         query.setParameter("MESSAGEIDS", userMessageIds);
         List<String> messageIds = query.getResultList();
-        LOG.trace("Found ids [{}]", messageIds);
+        LOG.debug("Found ids [{}]", messageIds);
         return messageIds;
     }
 
+    @Timer(clazz = MessageInfoDao.class,value = "findSignalMessageIds")
+    @Counter(clazz = MessageInfoDao.class,value = "findSignalMessageIds")
     public List<String> findSignalMessageIds(List<String> userMessageIds) {
-        final TypedQuery<String> query = em.createNamedQuery("MessageInfo.findSignalMessageIds", String.class);
+        final TypedQuery<String> query = em.createNamedQuery("MessageInfo.findMessageIdsWithRefToMessageIds", String.class);
         query.setParameter("MESSAGEIDS", userMessageIds);
+        query.setParameter("MESSAGE_TYPE", MessageType.SIGNAL_MESSAGE);
         List<String> messageIds = query.getResultList();
-        LOG.trace("Found ids [{}]", messageIds);
+        LOG.debug("Found ids [{}]", messageIds);
         return messageIds;
     }
 
+    @Timer(clazz = MessageInfoDao.class,value = "deleteMessages")
+    @Counter(clazz = MessageInfoDao.class,value = "deleteMessages")
     public int deleteMessages(List<String> messageIds) {
+        LOG.debug("deleteMessages [{}]", messageIds.size());
         final Query deleteQuery = em.createNamedQuery("MessageInfo.deleteMessages");
         deleteQuery.setParameter("MESSAGEIDS", messageIds);
         int result  = deleteQuery.executeUpdate();
-        LOG.trace("deleteMessages result [{}]", result);
+        LOG.debug("deleteMessages result [{}]", result);
         return result;
     }
 }

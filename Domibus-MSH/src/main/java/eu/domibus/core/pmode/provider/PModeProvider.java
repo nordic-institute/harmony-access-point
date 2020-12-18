@@ -309,7 +309,7 @@ public abstract class PModeProvider {
         final Set<PartyId> fromPartyId = userMessage.getPartyInfo().getFrom().getPartyId();
         if (CollectionUtils.isEmpty(fromPartyId)) {
             EbMS3Exception exception = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "Mandatory field From PartyId is not provided.", null, null);
-            LOG.businessError(DomibusMessageCode.BUS_FROM_PARTYID_NOT_SPECIFIED);
+            LOG.businessError(DomibusMessageCode.MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "PartyInfo/From/PartyId");
             throw exception;
         }
         try {
@@ -327,7 +327,7 @@ public abstract class PModeProvider {
         String initiatorRole = userMessage.getPartyInfo().getFrom().getRole();
         if (StringUtils.isBlank(initiatorRole)) {
             EbMS3Exception exception = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "Mandatory field Sender Role is not provided.", null, null);
-            LOG.businessError(DomibusMessageCode.BUS_INITIATOR_ROLE_NOT_SPECIFIED);
+            LOG.businessError(DomibusMessageCode.MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "From/Role");
             throw exception;
         }
         return getBusinessProcessRole(initiatorRole);
@@ -338,7 +338,7 @@ public abstract class PModeProvider {
         final Set<PartyId> toPartyId = userMessage.getPartyInfo().getTo().getPartyId();
         if (CollectionUtils.isEmpty(toPartyId)) {
             EbMS3Exception exception = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "Mandatory field To PartyId is not provided.", null, null);
-            LOG.businessError(DomibusMessageCode.BUS_TO_PARTYID_NOT_SPECIFIED);
+            LOG.businessError(DomibusMessageCode.MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "PartyInfo/To/PartyId");
             throw exception;
         }
         try {
@@ -362,7 +362,7 @@ public abstract class PModeProvider {
         String responderRole = userMessage.getPartyInfo().getTo().getRole();
         if (StringUtils.isBlank(responderRole)) {
             EbMS3Exception exception = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "Mandatory field Receiver Role is not provided.", null, null);
-            LOG.businessError(DomibusMessageCode.BUS_RECEIVER_ROLE_NOT_SPECIFIED);
+            LOG.businessError(DomibusMessageCode.MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "To Role");
             throw exception;
         }
         return getBusinessProcessRole(responderRole);
@@ -497,5 +497,5 @@ public abstract class PModeProvider {
 
     public abstract String getRole(String roleType, String serviceValue);
 
-    public abstract String getAgreementRef(String serviceValue);
+    public abstract Agreement getAgreementRef(String serviceValue);
 }

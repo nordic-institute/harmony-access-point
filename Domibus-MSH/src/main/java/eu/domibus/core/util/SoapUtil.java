@@ -13,6 +13,7 @@ import org.apache.cxf.message.MessageImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -49,6 +50,8 @@ public class SoapUtil {
         this.xmlUtil = xmlUtil;
     }
 
+    @Timer(clazz = SoapUtil.class, value = "logMessage")
+    @Counter(clazz = SoapUtil.class, value = "logMessage")
     public void logMessage(SOAPMessage request) throws IOException, TransformerException {
         if (LOG.isDebugEnabled() && domibusPropertyProvider.getBooleanProperty(DOMIBUS_LOGGING_PAYLOAD_PRINT)) {
             try (StringWriter sw = new StringWriter()) {
@@ -110,12 +113,20 @@ public class SoapUtil {
     }
 
     public String getRawXMLMessage(SOAPMessage soapMessage) throws TransformerException {
+        return getRawXmlFromNode(soapMessage.getSOAPPart());
+    }
+
+    public String getRawXMLMessage(Node node) throws TransformerException {
+        return getRawXmlFromNode(node);
+    }
+
+    protected String getRawXMLMessage(Node node) throws TransformerException {
         final StringWriter rawXmlMessageWriter = new StringWriter();
 
         TransformerFactory transformerFactory = xmlUtil.getTransformerFactory();
 
         transformerFactory.newTransformer().transform(
-                new DOMSource(soapMessage.getSOAPPart()),
+                new DOMSource(node),
                 new StreamResult(rawXmlMessageWriter));
 
         return rawXmlMessageWriter.toString();

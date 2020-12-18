@@ -33,8 +33,6 @@ import java.security.cert.CertificateException;
 @RunWith(JMockit.class)
 public class SaveRawPulledMessageInterceptorTest extends SoapInterceptorTest {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SaveRawPulledMessageInterceptorTest.class);
-
     @Injectable
     MessageExchangeService messageExchangeService;
 

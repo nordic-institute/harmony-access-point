@@ -242,6 +242,24 @@ public class CachingPModeProviderTest {
     }
 
     @Test
+    public void testFindPartyName_EmptyPartyType(@Mocked PartyId partyId1) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException, EbMS3Exception {
+        configuration = loadSamplePModeConfiguration(VALID_PMODE_CONFIG_URI);
+        configuration.getBusinessProcesses().getParties().forEach(pmodeParty -> pmodeParty.getIdentifiers().forEach(pmodePartyIdentifier -> pmodePartyIdentifier.setPartyIdType(null)));
+        new Expectations() {{
+            cachingPModeProvider.getConfiguration().getBusinessProcesses().getParties();
+            result = configuration.getBusinessProcesses().getParties();
+
+            partyId1.getValue();
+            result = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:domibus-blue";
+
+            partyId1.getType();
+            result = "";
+        }};
+
+        Assert.assertEquals("blue_gw", cachingPModeProvider.findPartyName(Collections.singletonList(partyId1)));
+    }
+
+    @Test
     public void testRefresh() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException {
         configuration = loadSamplePModeConfiguration(VALID_PMODE_CONFIG_URI);
         new Expectations() {{
@@ -562,10 +580,11 @@ public class CachingPModeProviderTest {
         }};
 
         // When
-        String agreementRef = cachingPModeProvider.getAgreementRef(Ebms3Constants.TEST_SERVICE);
+        Agreement agreementRef = cachingPModeProvider.getAgreementRef(Ebms3Constants.TEST_SERVICE);
 
         // Then
-        assertEquals("TestServiceAgreement", agreementRef);
+        assertEquals("TestServiceAgreement", agreementRef.getValue());
+        assertEquals("TestServiceAgreementType", agreementRef.getType());
     }
 
     @Test
@@ -574,7 +593,7 @@ public class CachingPModeProviderTest {
         String serviceValue = "serviceValue";
 
         // When
-        String agreementRef = cachingPModeProvider.getAgreementRef(serviceValue);
+        Agreement agreementRef = cachingPModeProvider.getAgreementRef(serviceValue);
 
         // Then
         Assert.assertNull(agreementRef);
@@ -619,7 +638,7 @@ public class CachingPModeProviderTest {
     }
 
     @Test
-    public void testFindPullLegNoCandidate() throws  InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException {
+    public void testFindPullLegNoCandidate() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException {
         // Given
         configuration = loadSamplePModeConfiguration(PULL_PMODE_CONFIG_URI);
         new Expectations(cachingPModeProvider) {{
@@ -638,7 +657,7 @@ public class CachingPModeProviderTest {
     }
 
     @Test
-    public void testFindPullLegNoMatchingCandidate() throws  InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException {
+    public void testFindPullLegNoMatchingCandidate() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException {
         // Given
         configuration = loadSamplePModeConfiguration(PULL_PMODE_CONFIG_URI);
         new Expectations(cachingPModeProvider) {{
@@ -718,7 +737,7 @@ public class CachingPModeProviderTest {
     }
 
     @Test
-    public void testMatchInitiatorNotAllowEmpty()  {
+    public void testMatchInitiatorNotAllowEmpty() {
         new Expectations() {{
             pullMessageService.allowDynamicInitiatorInPullProcess();
             result = false;
@@ -979,7 +998,7 @@ public class CachingPModeProviderTest {
     }
 
     @Test
-    public void testfindLegNameServiceActionMismatch() throws  InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException {
+    public void testfindLegNameServiceActionMismatch() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, JAXBException {
         configuration = loadSamplePModeConfiguration(VALID_PMODE_CONFIG_URI);
         final String service = "MismatchService";
         final String action = "IncorrectAction";
@@ -1444,7 +1463,8 @@ public class CachingPModeProviderTest {
             result = initiatorRole;
         }};
         assertEquals(cachingPModeProvider.findInitiatorRole(userMessage), initiatorRole);
-        new FullVerifications() {};
+        new FullVerifications() {
+        };
     }
 
     @Test
@@ -1474,7 +1494,8 @@ public class CachingPModeProviderTest {
 
         assertEquals(cachingPModeProvider.findResponderRole(userMessage), responderRole);
 
-        new FullVerifications() {};
+        new FullVerifications() {
+        };
     }
 
     @Test
@@ -1612,4 +1633,14 @@ public class CachingPModeProviderTest {
         }};
     }
 
+    @Test
+    public void isPartyIdTypeMatching() {
+        assertTrue(cachingPModeProvider.isPartyIdTypeMatching(null, null));
+        assertTrue(cachingPModeProvider.isPartyIdTypeMatching("", null));
+        assertTrue(cachingPModeProvider.isPartyIdTypeMatching(null, ""));
+        assertTrue(cachingPModeProvider.isPartyIdTypeMatching("", ""));
+        assertTrue(cachingPModeProvider.isPartyIdTypeMatching("testidType", "TESTIDTYPE"));
+        assertFalse(cachingPModeProvider.isPartyIdTypeMatching("testidType1", "TESTIDTYPE2"));
+
+    }
 }

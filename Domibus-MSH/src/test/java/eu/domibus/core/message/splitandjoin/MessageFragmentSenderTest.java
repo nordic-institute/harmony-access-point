@@ -9,6 +9,7 @@ import eu.domibus.core.ebms3.ws.policy.PolicyService;
 import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
 import eu.domibus.core.message.reliability.ReliabilityService;
 import eu.domibus.core.pmode.provider.PModeProvider;
@@ -66,6 +67,8 @@ public class MessageFragmentSenderTest {
     @Injectable
     protected ErrorLogDao errorLogDao;
 
+    @Injectable
+    NonRepudiationService nonRepudiationService;
 
     @Test
     public void validateBeforeSendingSuccessful(@Injectable UserMessage userMessage,

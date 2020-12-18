@@ -35,6 +35,11 @@ public class BaseTest {
 		String pass = data.defaultPass();
 		
 		List<String> domains = rest.getDomainCodes();
+
+		if(!data.isMultiDomain()){
+			domains.add("default");
+		}
+
 		for (int i = 0; i < domains.size(); i++) {
 			
 			String domain = domains.get(i);
@@ -82,8 +87,7 @@ public class BaseTest {
 		for (int i = 0; i < msf.length(); i++) {
 			msfTS.put(msf.getJSONObject(i));
 		}
-		System.out.println("msfTS = " + msfTS);
-		
+
 		rest.messFilters().updateFilterList(msfTS, domain);
 	}
 	
@@ -91,7 +95,7 @@ public class BaseTest {
 		int noOfErrors = 0;
 		int retries = 0;
 		while (noOfErrors == 0 && retries < 120) {
-			System.out.println("waiting for errors to be logged");
+			log.info("waiting for errors to be logged");
 			try {
 				noOfErrors = rest.errors().getErrors(null).length();
 				retries++;

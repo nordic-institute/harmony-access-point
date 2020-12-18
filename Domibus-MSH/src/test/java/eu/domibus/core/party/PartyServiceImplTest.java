@@ -1754,4 +1754,31 @@ public class PartyServiceImplTest {
             Assert.fail();
         }
     }
+
+    @Test
+    public void testSanitize() {
+        String partyIdTypeName = "partyIdTypeName";
+        String partyIdId = "blue";
+        String partyName = "domibus-blue";
+
+        eu.domibus.api.party.PartyIdType pIdType = new eu.domibus.api.party.PartyIdType();
+        pIdType.setName(partyIdTypeName + "  ");
+        pIdType.setValue("partyIdTypeValue");
+        Identifier partyId = new Identifier();
+        partyId.setPartyId("  " + partyIdId);
+        partyId.setPartyIdType(pIdType);
+
+        Party party = new Party();
+        party.setName(" " + partyName + "  ");
+        party.setIdentifiers(Arrays.asList(partyId));
+
+        List<Party> parties = Arrays.asList(party);
+
+        partyService.sanitizeParties(parties);
+
+        Assert.assertEquals(partyName, parties.get(0).getName());
+        Identifier id1 = parties.get(0).getIdentifiers().stream().findFirst().get();
+        Assert.assertEquals(partyIdId, id1.getPartyId());
+        Assert.assertEquals(partyIdTypeName, id1.getPartyIdType().getName());
+    }
 }

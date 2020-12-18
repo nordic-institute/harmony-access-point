@@ -86,4 +86,8 @@ public class PropertySet extends AbstractBaseEntity {
     public Set<Property> getProperties() {
         return this.properties;
     }
+
+    public List<PropertyRef> getPropertyRef() {
+        return this.propertyRef;
+    }
 }

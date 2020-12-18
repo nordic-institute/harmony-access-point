@@ -2,6 +2,7 @@ package eu.domibus.core.property;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.util.ClassUtil;
@@ -38,6 +39,9 @@ public class DomibusEbms3PropertyProviderDispatcherTest {
 
     @Injectable
     DomibusPropertyChangeManager domibusPropertyChangeManager;
+
+    @Injectable
+    DomainService domainService;
 
     @Mocked
     DomibusPropertyMetadata propMeta;
@@ -147,7 +151,7 @@ public class DomibusEbms3PropertyProviderDispatcherTest {
 
         new Verifications() {{
             domibusPropertyProviderDispatcher.setInternalPropertyValue(domain, propertyName, propertyValue, true);
-            times=0;
+            times = 0;
             domibusPropertyProviderDispatcher.setExternalPropertyValue(domain, propertyName, propertyValue, true, (DomibusPropertyManagerExt) any);
         }};
     }
@@ -168,7 +172,7 @@ public class DomibusEbms3PropertyProviderDispatcherTest {
 
         new Verifications() {{
             domibusPropertyProviderDispatcher.setExternalPropertyValue(domain, propertyName, propertyValue, true, (DomibusPropertyManagerExt) any);
-            times=0;
+            times = 0;
         }};
     }
 
@@ -178,6 +182,8 @@ public class DomibusEbms3PropertyProviderDispatcherTest {
         new Expectations(domibusPropertyProviderDispatcher) {{
             classUtil.isMethodDefined(propertyManager, "getKnownPropertyValue", new Class[]{String.class});
             returns(true, false);
+            domibusPropertyProviderDispatcher.getCurrentDomainCode();
+            result = "default";
         }};
 
         domibusPropertyProviderDispatcher.getExternalModulePropertyValue(propertyManager, propertyName);
@@ -187,8 +193,8 @@ public class DomibusEbms3PropertyProviderDispatcherTest {
 
         domibusPropertyProviderDispatcher.getExternalModulePropertyValue(propertyManager, propertyName);
         new Verifications() {{
-            Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
-            propertyManager.getKnownPropertyValue(currentDomain.getCode(), propertyName);
+            domibusPropertyProviderDispatcher.getCurrentDomainCode();
+            propertyManager.getKnownPropertyValue("default", propertyName);
         }};
     }
 
@@ -199,6 +205,8 @@ public class DomibusEbms3PropertyProviderDispatcherTest {
         new Expectations(domibusPropertyProviderDispatcher) {{
             classUtil.isMethodDefined(propertyManager, "setKnownPropertyValue", new Class[]{String.class, String.class});
             returns(true, false);
+            domibusPropertyProviderDispatcher.getCurrentDomainCode();
+            result = "default";
         }};
 
         domibusPropertyProviderDispatcher.setExternalModulePropertyValue(propertyManager, propertyName, proertyValue);
@@ -208,8 +216,8 @@ public class DomibusEbms3PropertyProviderDispatcherTest {
 
         domibusPropertyProviderDispatcher.setExternalModulePropertyValue(propertyManager, propertyName, proertyValue);
         new Verifications() {{
-            Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
-            propertyManager.setKnownPropertyValue(currentDomain.getCode(), propertyName, proertyValue);
+            domibusPropertyProviderDispatcher.getCurrentDomainCode();
+            propertyManager.setKnownPropertyValue("default", propertyName, proertyValue);
         }};
     }
 
@@ -223,7 +231,46 @@ public class DomibusEbms3PropertyProviderDispatcherTest {
             result = limit;
         }};
 
-        domibusPropertyProviderDispatcher.setInternalOrExternalProperty(null,propertyToTest, longValue, false);
+        domibusPropertyProviderDispatcher.setInternalOrExternalProperty(null, propertyToTest, longValue, false);
+    }
+
+    @Test
+    public void getExternalPropertyValue_noDomain(@Mocked DomibusPropertyManagerExt manager) {
+        String propertyName = "propertyName";
+        String propertyValue = "propertyValue";
+
+        new Expectations(domibusPropertyProviderDispatcher) {{
+            domibusPropertyProviderDispatcher.getExternalModulePropertyValue(manager, propertyName);
+            result = propertyValue;
+        }};
+
+        String result = domibusPropertyProviderDispatcher.getExternalPropertyValue(propertyName, null, manager);
+
+        assertEquals(propertyValue, result);
+
+        new Verifications() {{
+            domibusPropertyProviderDispatcher.getExternalModulePropertyValue(manager, propertyName);
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void getExternalPropertyValue_domain(@Mocked DomibusPropertyManagerExt manager, @Mocked Domain domain) {
+        String propertyName = "propertyName";
+        String propertyValue = "propertyValue";
+
+        new Expectations() {{
+            manager.getKnownPropertyValue(anyString, propertyName);
+            result = propertyValue;
+        }};
+
+        String result = domibusPropertyProviderDispatcher.getExternalPropertyValue(propertyName, domain, manager);
+        assertEquals(propertyValue, result);
+
+        new Verifications() {{
+            manager.getKnownPropertyValue(domain.getCode(), propertyName);
+            times = 1;
+        }};
     }
 
 }

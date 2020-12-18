@@ -22,6 +22,8 @@ public class MessagePropertyValidator {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessagePropertyValidator.class);
 
 
+    @Timer(clazz = MessagePropertyValidator.class, value = "validate")
+    @Counter(clazz = MessagePropertyValidator.class, value = "validate")
     public void validate(final Messaging messaging, MSHRole mshRole) throws EbMS3Exception {
         final String messageId = messaging.getUserMessage().getMessageInfo().getMessageId();
         LOG.debug("Checking properties size for message [{}]", messageId);

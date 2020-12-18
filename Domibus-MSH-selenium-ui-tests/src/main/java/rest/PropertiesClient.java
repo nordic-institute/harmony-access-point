@@ -55,6 +55,15 @@ public class PropertiesClient extends BaseRestClient {
 		ClientResponse response = textPUT(resource.path(path), value);
 		return response;
 	}
+
+	public ClientResponse updateDomibusProperty(String propertyName, String value, String domain) throws Exception {
+
+		switchDomain(domain);
+
+		String path = RestServicePaths.DOMIBUS_PROPERTIES + "/" + propertyName;
+		ClientResponse response = textPUT(resource.path(path), value);
+		return response;
+	}
 	
 	
 }

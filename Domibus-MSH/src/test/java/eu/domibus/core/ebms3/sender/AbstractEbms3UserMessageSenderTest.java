@@ -16,6 +16,7 @@ import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.core.message.UserMessageLog;
 import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
 import eu.domibus.core.message.reliability.ReliabilityService;
 import eu.domibus.core.pmode.provider.PModeProvider;
@@ -28,6 +29,7 @@ import org.apache.neethi.Policy;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.xml.soap.SOAPMessage;
 import java.util.UUID;
@@ -75,6 +77,9 @@ public class AbstractEbms3UserMessageSenderTest {
 
     @Injectable
     protected ErrorLogDao errorLogDao;
+
+    @Injectable
+    NonRepudiationService nonRepudiationService;
 
     private final String messageId = UUID.randomUUID().toString();
 
@@ -342,6 +347,8 @@ public class AbstractEbms3UserMessageSenderTest {
             mshDispatcher.dispatch(soapMessage, receiverParty.getEndpoint(), policy, legConfiguration, pModeKey);
             result = response;
 
+            nonRepudiationService.saveRequest(soapMessage, userMessage);
+
             responseHandler.verifyResponse(response, messageId);
             result = EbMS3ExceptionBuilder
                     .getInstance()
@@ -367,6 +374,8 @@ public class AbstractEbms3UserMessageSenderTest {
             messageExchangeService.verifySenderCertificate(legConfigurationActual = withCapture(), senderPartyNameActual = withCapture());
             Assert.assertEquals(legConfiguration.getName(), legConfigurationActual.getName());
             Assert.assertEquals(senderName, senderPartyNameActual);
+
+            nonRepudiationService.saveRequest(soapMessage, userMessage);
 
             EbMS3Exception ebMS3ExceptionActual;
             reliabilityChecker.handleEbms3Exception(ebMS3ExceptionActual = withCapture(), messageId);

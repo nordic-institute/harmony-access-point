@@ -3,7 +3,7 @@ package eu.domibus.core.property;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.springframework.util.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Properties;
 import java.util.Set;
@@ -28,7 +28,7 @@ public class PrefixedProperties extends Properties {
             }
             String resolved = domibusPropertyProvider.getProperty(propertyName);
             LOG.trace("Adding property [{}]", key);
-            this.setProperty(key, (String) resolved);
+            this.setProperty(key, resolved);
         }
     }
 }

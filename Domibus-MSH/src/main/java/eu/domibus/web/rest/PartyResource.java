@@ -17,7 +17,6 @@ import eu.domibus.web.rest.ro.PartyFilterRequestRO;
 import eu.domibus.web.rest.ro.TrustStoreRO;
 import eu.domibus.web.rest.ro.ValidationResponseRO;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -40,17 +39,20 @@ public class PartyResource extends BaseResource {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PartyResource.class);
     private static final String DELIMITER = ", ";
 
-    @Autowired
     private DomainCoreConverter domainConverter;
 
-    @Autowired
     private PartyService partyService;
 
-    @Autowired
     private CertificateService certificateService;
 
-    @Autowired
     PModeValidationHelper pModeValidationHelper;
+
+    public PartyResource(DomainCoreConverter domainConverter, PartyService partyService, CertificateService certificateService, PModeValidationHelper pModeValidationHelper) {
+        this.domainConverter = domainConverter;
+        this.partyService = partyService;
+        this.certificateService = certificateService;
+        this.pModeValidationHelper = pModeValidationHelper;
+    }
 
     @GetMapping(value = {"/list"})
     public List<PartyResponseRo> listParties(@Valid PartyFilterRequestRO request) {

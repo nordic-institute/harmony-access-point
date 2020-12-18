@@ -299,6 +299,7 @@
                 <managed-executor-services>
                     <managed-executor-service name="default" jndi-name="java:jboss/ee/concurrency/executor/default" context-service="default" hung-task-threshold="60000" core-threads="50" max-threads="200" keepalive-time="5000"/>
                     <managed-executor-service name="domibusExecutorService" jndi-name="java:jboss/ee/concurrency/executor/DomibusExecutorService" context-service="default" hung-task-threshold="60000" core-threads="200" max-threads="500" keepalive-time="5000"/>
+                    <managed-executor-service name="mshExecutorService" jndi-name="java:jboss/ee/concurrency/executor/MshExecutorService" context-service="default" hung-task-threshold="60000" core-threads="100" max-threads="300" keepalive-time="5000"/>
                     <managed-executor-service name="quartzExecutorService" jndi-name="java:jboss/ee/concurrency/executor/QuartzExecutorService" context-service="default" hung-task-threshold="0" long-running-tasks="true" core-threads="100" max-threads="300" keepalive-time="5000"/>
                 </managed-executor-services>
                 <managed-scheduled-executor-services>
@@ -539,7 +540,7 @@
                 <address-setting name="#" dead-letter-address="jms.queue.DLQ" expiry-address="jms.queue.ExpiryQueue" max-size-bytes="10485760" page-size-bytes="2097152" message-counter-history-day-limit="10"/>
                 <address-setting name="jms.queue.DomibusSendMessageQueue" expiry-address="jms.queue.ExpiryQueue" redelivery-delay="1000" max-delivery-attempts="0"/>
                 <address-setting name="jms.queue.DomibusSendLargeMessageQueue" expiry-address="jms.queue.ExpiryQueue" redelivery-delay="1000" max-delivery-attempts="0"/>
-                <address-setting name="jms.queue.DomibusSplitAndJoinQueue" expiry-address="jms.queue.ExpiryQueue" redelivery-delay="1000" max-delivery-attempts="0"/>
+                <address-setting name="jms.queue.DomibusSplitAndJoinQueue" expiry-address="jms.queue.ExpiryQueue" redelivery-delay="1000" max-delivery-attempts="3"/>
                 <address-setting name="jms.queue.DomibusPullMessageQueue" dead-letter-address="jms.queue.DomibusDLQ" expiry-address="jms.queue.ExpiryQueue" redelivery-delay="1000" max-delivery-attempts="0"/>
                 <address-setting name="jms.queue.DomibusPullReceiptQueue" expiry-address="jms.queue.ExpiryQueue" redelivery-delay="1000" max-delivery-attempts="3"/>
                 <address-setting name="jms.queue.DomibusRetentionMessageQueue" expiry-address="jms.queue.ExpiryQueue" redelivery-delay="10000" max-delivery-attempts="0"/>

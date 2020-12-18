@@ -1,5 +1,6 @@
 package domibus.ui.functional;
 
+import ddsl.dcomponents.grid.DGrid;
 import ddsl.dcomponents.popups.Dialog;
 import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
@@ -360,7 +361,7 @@ public class MessageFilterPgTest extends SeleniumTest {
 	}
 	
 	/*User selects a filter and chooses to edit it then presses Cancel*/
-	@Test(description = "MSGF-12", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "MSGF-12", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void editAndCancel() throws Exception {
 		log.info("Create a filter to edit");
 		String actionName = Gen.randomAlphaNumeric(5);
@@ -398,7 +399,7 @@ public class MessageFilterPgTest extends SeleniumTest {
 	}
 	
 	/* User selects a filter and chooses to edit it then press save */
-	@Test(description = "MSGF-14", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "MSGF-14", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void editAndSave() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -523,6 +524,7 @@ public class MessageFilterPgTest extends SeleniumTest {
 		MessageFilterModal popup = new MessageFilterModal(driver);
 //		popup.getPluginSelect().selectOptionByIndex(0);
 		popup.actionInput.sendKeys(actionName);
+		popup.serviceInput.sendKeys(actionName+":"+actionName);
 		popup.clickOK();
 		log.info("created new filter with action" + actionName);
 		
@@ -550,7 +552,7 @@ public class MessageFilterPgTest extends SeleniumTest {
 	}
 	
 	/* Operate a change in the list of filters and don't press Save or Cancel Change domain */
-	@Test(description = "MSGF-19", groups = {"multiTenancy"})
+	@Test(description = "MSGF-19", groups = {"multiTenancy"}, enabled = false)
 	public void editAndChangeDomain() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -838,7 +840,7 @@ public class MessageFilterPgTest extends SeleniumTest {
 	
 	
 	/* Create a duplicate by editing another filter */
-	@Test(description = "MSGF-28", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "MSGF-28", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void editToDuplicate() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -974,7 +976,7 @@ public class MessageFilterPgTest extends SeleniumTest {
 	}
 
 //
-	@Test(description = "MSGF-22", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "MSGF-22", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void editWithDiffRowSelection() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
@@ -1204,6 +1206,51 @@ public class MessageFilterPgTest extends SeleniumTest {
 		} else {
 			throw new SkipException("Only one plugin found, this test is skipped");
 		}
+		soft.assertAll();
+	}
+
+
+	/* MSGF-34 - Verify downloaded CSV file against data in the grid  */
+	@Test(description = "MSGF-34", groups = {"multiTenancy", "singleTenancy"})
+	public void downloadAsCSV() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		MessageFilterPage page = navigateToPage();
+
+		DGrid grid = page.grid();
+		grid.waitForRowsToLoad();
+
+		String filePath = page.pressSaveCsvAndSaveFile();
+
+		log.info("Check if file is downloaded at given location");
+		soft.assertTrue(new File(filePath).exists(), "File is downloaded successfully");
+
+		log.info("Compare headers from downloaded csv and grid");
+		page.grid().checkCSVvsGridHeaders(filePath, soft);
+
+
+		soft.assertAll();
+	}
+
+	/* MSGF-35 - Sort the grid  */
+	@Test(description = "MSGF-35", groups = {"multiTenancy", "singleTenancy"})
+	public void checkSorting() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		MessageFilterPage page = navigateToPage();
+
+		DGrid grid = page.grid();
+		grid.waitForRowsToLoad();
+
+		log.info("Check default sorted column");
+		soft.assertNull(grid.getSortedColumnName(), "Grid is not sortable and no column is marked as sorted by default");
+
+		grid.sortBy("Plugin");
+
+		log.info("Check sorted column name after sorting attempt");
+		soft.assertNull(grid.getSortedColumnName(), "Grid is not sortable and no column is marked as sorted ");
+
+
 		soft.assertAll();
 	}
 

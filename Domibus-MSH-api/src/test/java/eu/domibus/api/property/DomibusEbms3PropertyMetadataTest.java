@@ -57,6 +57,6 @@ public class DomibusEbms3PropertyMetadataTest {
         DomibusPropertyMetadata res = DomibusPropertyMetadata.getOnTheFlyProperty("propName");
 
         assertEquals("UNKNOWN", res.getModule());
-        assertEquals(DomibusPropertyMetadata.Usage.ANY, res.getUsage());
+        assertEquals(DomibusPropertyMetadata.Usage.ANY.getValue(), res.getUsage());
     }
 }

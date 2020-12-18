@@ -93,7 +93,7 @@ export class JmsComponent extends mix(BaseListComponent)
     });
 
     this.defaultQueueSet.subscribe(oldVal => {
-      super.tryFilter().then(done => {
+      super.tryFilter(false).then(done => {
         if (!done) {
           //revert the drop-down value to the old one
           this._selectedSource = oldVal;
@@ -118,11 +118,6 @@ export class JmsComponent extends mix(BaseListComponent)
         name: 'Time',
         prop: 'timestamp',
         width: 80
-      },
-      {
-        cellTemplate: this.rawTextTpl,
-        name: 'Content',
-        prop: 'content'
       },
       {
         name: 'Custom prop',

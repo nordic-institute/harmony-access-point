@@ -10,7 +10,7 @@
 
       <div style="margin-top:15px;">
         <mat-form-field [style.width]="'100%'">
-          <input #user_name matInput id="username_id" placeholder="User Name *" name="userName" formControlName="userName">
+          <input #user_name matInput id="username_id" placeholder="User Name *" name="userName" formControlName="userName" input-debounce>
           <span class="help-block" *ngIf="shouldShowErrorsForFieldNamed('userName')">
             <div *ngIf="userForm.get('userName').errors?.required" style="color:red; font-size: 70%">{{userNameRequiredMessage}}</div>
             <div *ngIf="userForm.get('userName').errors?.minlength" style="color:red; font-size: 70%">{{userNameMinLengthMessage}}</div>
@@ -21,7 +21,7 @@
 
       <div style="margin-top:-5px;">
         <mat-form-field [style.width]="'100%'">
-          <input matInput id="email_id" name="email" formControlName="email" placeholder="Email">
+          <input matInput id="email_id" name="email" formControlName="email" placeholder="Email" input-debounce>
           <span class="help-block" *ngIf="shouldShowErrorsForFieldNamed('email')">
             <div *ngIf="userForm.get('email').errors?.pattern" style="color:red; font-size: 70%">You should type a valid email</div>
           </span>
@@ -49,7 +49,7 @@
 
       <div style="margin-top:15px;">
         <mat-form-field [style.width]="'100%'">
-          <input matInput type="password" id="password_id" name="password" formControlName="password" placeholder="Password *">
+          <input matInput type="password" id="password_id" name="password" formControlName="password" placeholder="Password *" input-debounce>
 
           <span class="help-block" *ngIf="shouldShowErrorsForFieldNamed('password')">
             <div *ngIf="userForm.get('password').errors?.required" style="color:red; font-size: 70%">You should type a password</div>
@@ -62,7 +62,7 @@
 
       <div>
         <mat-form-field [style.width]="'100%'">
-          <input matInput type="password" id="confirmation_id" name="confirmation" formControlName="confirmation" placeholder="Confirmation *">
+          <input matInput type="password" id="confirmation_id" name="confirmation" formControlName="confirmation" placeholder="Confirmation *" input-debounce>
 
           <span class="help-block" *ngIf="shouldShowErrorsForFieldNamed('confirmation')">
             <div *ngIf="userForm.get('confirmation').errors?.required" style="color:red; font-size: 70%">You should type a password</div>

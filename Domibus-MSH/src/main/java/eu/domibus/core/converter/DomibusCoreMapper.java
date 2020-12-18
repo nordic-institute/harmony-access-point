@@ -30,6 +30,7 @@ import eu.domibus.core.logging.LoggingEntry;
 import eu.domibus.core.message.attempt.MessageAttemptEntity;
 import eu.domibus.core.party.PartyResponseRo;
 import eu.domibus.core.party.ProcessRo;
+import eu.domibus.core.property.DomibusPropertiesFilter;
 import eu.domibus.core.replication.UIMessageDiffEntity;
 import eu.domibus.core.replication.UIMessageEntity;
 import eu.domibus.core.user.plugin.AuthenticationEntity;
@@ -275,4 +276,6 @@ public interface DomibusCoreMapper {
     DomibusPropertyMetadata propertyMetadataDTOTopropertyMetadata(DomibusPropertyMetadataDTO src);
 
     DomibusPropertyMetadata propertyMetadataTopropertyMetadata(DomibusPropertyMetadata src);
+
+    DomibusPropertiesFilter domibusPropertyFilterRequestTOdomibusPropertiesFilter(PropertyFilterRequestRO source);
 }

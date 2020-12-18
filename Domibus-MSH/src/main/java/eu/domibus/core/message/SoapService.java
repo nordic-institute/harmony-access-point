@@ -15,4 +15,6 @@ import java.io.IOException;
 public interface SoapService {
 
     Ebms3Messaging getMessage(final SoapMessage message) throws IOException, JAXBException, EbMS3Exception;
+
+    String getMessagingAsRAWXml(final SoapMessage message) throws IOException, EbMS3Exception, TransformerException;
 }

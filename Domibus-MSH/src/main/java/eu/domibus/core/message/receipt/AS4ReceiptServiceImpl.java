@@ -17,7 +17,6 @@ import eu.domibus.core.generator.id.MessageIdGenerator;
 import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.UserMessageHandlerService;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationConstants;
-import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.nonrepudiation.RawEnvelopeDto;
 import eu.domibus.core.message.nonrepudiation.RawEnvelopeLogDao;
 import eu.domibus.core.message.signal.SignalMessageDao;
@@ -75,7 +74,6 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
     protected final UIReplicationSignalService uiReplicationSignalService;
     protected final UserMessageHandlerService userMessageHandlerService;
     private final TimestampDateFormatter timestampDateFormatter;
-    protected final NonRepudiationService nonRepudiationService;
     private final SignalMessageLogDao signalMessageLogDao;
     protected final UserMessageService userMessageService;
     private final MessageIdGenerator messageIdGenerator;
@@ -91,7 +89,6 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
     public AS4ReceiptServiceImpl(UIReplicationSignalService uiReplicationSignalService,
                                  UserMessageHandlerService userMessageHandlerService,
                                  TimestampDateFormatter timestampDateFormatter,
-                                 NonRepudiationService nonRepudiationService,
                                  SignalMessageLogDao signalMessageLogDao,
                                  UserMessageService userMessageService,
                                  MessageIdGenerator messageIdGenerator,
@@ -106,7 +103,6 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
         this.uiReplicationSignalService = uiReplicationSignalService;
         this.userMessageHandlerService = userMessageHandlerService;
         this.timestampDateFormatter = timestampDateFormatter;
-        this.nonRepudiationService = nonRepudiationService;
         this.signalMessageLogDao = signalMessageLogDao;
         this.userMessageService = userMessageService;
         this.messageIdGenerator = messageIdGenerator;
@@ -139,8 +135,8 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
 
 
     @Override
-    @Timer(clazz = AS4ReceiptServiceImpl.class,value = "generateReceipt")
-    @Counter(clazz = AS4ReceiptServiceImpl.class,value = "generateReceipt")
+    @Timer(clazz = AS4ReceiptServiceImpl.class, value = "generateReceipt")
+    @Counter(clazz = AS4ReceiptServiceImpl.class, value = "generateReceipt")
     public SOAPMessage generateReceipt(final SOAPMessage request,
                                        final Messaging messaging,
                                        final ReplyPattern replyPattern,
