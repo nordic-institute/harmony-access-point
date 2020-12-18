@@ -6,6 +6,7 @@ import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
+import eu.domibus.api.user.AtLeastOneAdminException;
 import eu.domibus.api.user.UserManagementException;
 import eu.domibus.core.alerts.service.ConsoleUserAlertsServiceImpl;
 import eu.domibus.core.user.UserLoginErrorReason;
@@ -236,7 +237,7 @@ public class UserManagementServiceImpl implements UserService {
         List<User> users = userDao.findByRole(role.toString());
         long count = users.stream().filter(u -> !u.isDeleted() && u.isActive()).count();
         if (count == 0) {
-            throw new UserManagementException("There must always be at least one active Domain Admin for each Domain.");
+            throw new AtLeastOneAdminException();
         }
     }
 

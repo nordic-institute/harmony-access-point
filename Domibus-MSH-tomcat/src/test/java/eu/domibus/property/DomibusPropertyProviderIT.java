@@ -4,6 +4,8 @@ import eu.domibus.AbstractIT;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyMetadata;
+import eu.domibus.core.cache.DomibusCacheService;
+import eu.domibus.core.property.DomibusPropertyProviderImpl;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.property.GlobalPropertyMetadataManager;
