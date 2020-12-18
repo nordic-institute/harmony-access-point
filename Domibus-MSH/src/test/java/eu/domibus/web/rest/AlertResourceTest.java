@@ -378,22 +378,6 @@ public class AlertResourceTest {
     }
 
     @Test
-    public void transform(@Injectable Alert alert,@Injectable AlertRo alertRo) {
-        new Expectations(alertResource) {{
-            alert.getAlertType().name();
-            result = AlertType.USER_LOGIN_FAILURE;
-        }};
-
-        alertRo = alertResource.transform(alert);
-
-        AlertRo finalAlertRo = alertRo;
-        new Verifications(1) {{
-            assertNotNull(finalAlertRo);
-            assertEquals("USER_LOGIN_FAILURE", finalAlertRo.getAlertType());
-        }};
-    }
-
-    @Test
     public void test_getAlertTypesAsStrings() {
         new Expectations() {{
             domibusConfigurationService.isExtAuthProviderEnabled();
