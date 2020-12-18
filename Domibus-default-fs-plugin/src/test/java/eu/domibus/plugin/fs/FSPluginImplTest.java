@@ -160,8 +160,8 @@ public class FSPluginImplTest {
         outgoingFolder.close();
         sentFolder.close();
 
-        rootDir.deleteAll();
         rootDir.close();
+        rootDir.deleteAll();
     }
 
     @Test
@@ -198,16 +198,16 @@ public class FSPluginImplTest {
         }};
 
 
-        metadataFile.delete();
         metadataFile.close();
+        metadataFile.delete();
 
         //payload
         FileObject payloadFile = files[1];
 
         Assert.assertEquals(payloadFileName, payloadFile.getName().getBaseName());
         Assert.assertEquals(payloadContent, IOUtils.toString(payloadFile.getContent().getInputStream(), StandardCharsets.UTF_8));
-        payloadFile.delete();
         payloadFile.close();
+        payloadFile.delete();
     }
 
     private void expectationsDeliverMessage(String domain, UserMessage userMessage, Map<String, FSPayload> fsPayloads) throws MessageNotFoundException, FileSystemException {
@@ -300,15 +300,15 @@ public class FSPluginImplTest {
         Assert.assertEquals("message.xml",
                 fileMessage0.getName().getBaseName());
         Assert.assertEquals(messageContent, IOUtils.toString(fileMessage0.getContent().getInputStream(), StandardCharsets.UTF_8));
-        fileMessage0.delete();
         fileMessage0.close();
+        fileMessage0.delete();
 
         FileObject fileMessage1 = files[2];
         Assert.assertEquals("invoice.xml",
                 fileMessage1.getName().getBaseName());
         Assert.assertEquals(invoiceContent, IOUtils.toString(fileMessage1.getContent().getInputStream(), StandardCharsets.UTF_8));
-        fileMessage1.delete();
         fileMessage1.close();
+        fileMessage1.delete();
     }
 
     @Test
@@ -354,15 +354,15 @@ public class FSPluginImplTest {
         Assert.assertEquals("message2.xml",
                 fileMessage0.getName().getBaseName());
         Assert.assertEquals(messageContent, IOUtils.toString(fileMessage0.getContent().getInputStream(), StandardCharsets.UTF_8));
-        fileMessage0.delete();
         fileMessage0.close();
+        fileMessage0.delete();
 
         FileObject fileMessage1 = files[2];
         Assert.assertEquals("invoice2.xml",
                 fileMessage1.getName().getBaseName());
         Assert.assertEquals(invoiceContent, IOUtils.toString(fileMessage1.getContent().getInputStream(), StandardCharsets.UTF_8));
-        fileMessage1.delete();
         fileMessage1.close();
+        fileMessage1.delete();
     }
 
     @Test(expected = FSPluginException.class)

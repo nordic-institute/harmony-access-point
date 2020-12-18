@@ -13,6 +13,9 @@
 .property-edit {
   position: relative;
 }
+.property-view {
+  position: relative;
+}
 .property-edit-buttons {
   position: absolute;
   top: -6px;

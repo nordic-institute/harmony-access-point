@@ -9,7 +9,7 @@ import java.util.Date;
 
 /**
  * @author Ion Perpegel
- * @since 5.0
+ * @since 4.2
  */
 @Entity
 @DiscriminatorValue("Truststore")

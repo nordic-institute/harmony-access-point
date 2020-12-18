@@ -48,7 +48,7 @@ public class ConfigurationDAO extends BasicDao<Configuration> {
             process.getInitiatorParties().size();
             process.getResponderParties().size();
             process.getLegs().size();
-            // change PersistentSet with HasSet
+            // change PersistentSet with HashSet
             process.detachParties();
         }
 

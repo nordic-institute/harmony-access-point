@@ -51,10 +51,8 @@ public class XMLUtilImpl implements XMLUtil {
         this.domibusPropertyProvider = domibusPropertyProvider;
     }
 
-    private static final ThreadLocal<DocumentBuilderFactory> documentBuilderFactoryThreadLocal = ThreadLocal.withInitial(() -> {
-        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-        return documentBuilderFactory;
-    });
+    private static final ThreadLocal<DocumentBuilderFactory> documentBuilderFactoryThreadLocal =
+            ThreadLocal.withInitial(DocumentBuilderFactory::newInstance);
 
     private static final ThreadLocal<DocumentBuilderFactory> documentBuilderFactoryNamespaceAwareThreadLocal = ThreadLocal.withInitial(() -> {
         DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -62,9 +60,8 @@ public class XMLUtilImpl implements XMLUtil {
         return documentBuilderFactory;
     });
 
-    private static final ThreadLocal<TransformerFactory> transformerFactoryThreadLocal = ThreadLocal.withInitial(() -> {
-        return createTransformerFactory();
-    });
+    private static final ThreadLocal<TransformerFactory> transformerFactoryThreadLocal =
+            ThreadLocal.withInitial(XMLUtilImpl::createTransformerFactory);
 
     private static final ThreadLocal<MessageFactory> messageFactoryThreadLocal = ThreadLocal.withInitial(() -> {
         try {
@@ -94,6 +91,10 @@ public class XMLUtilImpl implements XMLUtil {
 
     public static MessageFactory getMessageFactory() {
         return messageFactoryThreadLocal.get();
+    }
+
+    public MessageFactory getMessageFactorySoap12() {
+        return XMLUtilImpl.messageFactoryThreadLocal.get();
     }
 
     public static TransformerFactory getTransformerFactory() {

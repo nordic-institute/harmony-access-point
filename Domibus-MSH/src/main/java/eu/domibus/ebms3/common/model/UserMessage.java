@@ -321,4 +321,8 @@ public class UserMessage extends AbstractBaseEntity {
         }
         return null;
     }
+
+    public RawEnvelopeLog getRawEnvelopeLog() {
+        return rawEnvelopeLog;
+    }
 }

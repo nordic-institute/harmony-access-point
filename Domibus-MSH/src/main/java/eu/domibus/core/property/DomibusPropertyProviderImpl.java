@@ -98,7 +98,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     @Override
     public Set<String> filterPropertiesName(Predicate<String> predicate) {
         Set<String> result = new HashSet<>();
-        for (PropertySource propertySource : environment.getPropertySources()) {
+        for (PropertySource propertySource : getEnvironment().getPropertySources()) {
             Set<String> propertySourceNames = filterPropertySource(predicate, propertySource);
             result.addAll(propertySourceNames);
         }
@@ -175,16 +175,16 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     @Override
     public boolean containsDomainPropertyKey(Domain domain, String propertyName) {
         final String domainPropertyName = getPropertyKeyForDomain(domain, propertyName);
-        boolean domainPropertyKeyFound = environment.containsProperty(domainPropertyName);
+        boolean domainPropertyKeyFound = getEnvironment().containsProperty(domainPropertyName);
         if (!domainPropertyKeyFound) {
-            domainPropertyKeyFound = environment.containsProperty(propertyName);
+            domainPropertyKeyFound = getEnvironment().containsProperty(propertyName);
         }
         return domainPropertyKeyFound;
     }
 
     @Override
     public boolean containsPropertyKey(String propertyName) {
-        return environment.containsProperty(propertyName);
+        return getEnvironment().containsProperty(propertyName);
     }
 
     @Override
@@ -298,7 +298,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
      * @return The value of the property as found in the system properties, the Domibus properties or inside the default Domibus properties.
      */
     protected String getPropertyValue(String propertyName, Domain domain, boolean decrypt) {
-        String result = environment.getProperty(propertyName);
+        String result = getEnvironment().getProperty(propertyName);
 
         if (decrypt && passwordEncryptionService.isValueEncrypted(result)) {
             LOG.debug("Decrypting property [{}]", propertyName);
@@ -362,5 +362,9 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
             }
         }
         return isMultiTenantAware;
+    }
+
+    protected ConfigurableEnvironment getEnvironment() {
+        return environment;
     }
 }

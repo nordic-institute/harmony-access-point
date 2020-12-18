@@ -34,17 +34,18 @@ public class FSWorkersConfiguration {
         return obj;
     }
 
+
     @Bean
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public SimpleTriggerFactoryBean fsPluginSendMessagesWorkerTrigger(FSPluginProperties fsPluginProperties) {
         DomainDTO domain = domainContextExtService.getCurrentDomainSafely();
         if (domain == null) {
+            LOG.debug("we cannot create fsPluginSendMessagesWorkerTrigger, domain is null");
             return null; // this job only works for a domain
         }
-        String domainCode = domain.getCode();
         SimpleTriggerFactoryBean obj = new SimpleTriggerFactoryBean();
         obj.setJobDetail(fsPluginSendMessagesWorkerJob().getObject());
-        obj.setRepeatInterval(fsPluginProperties.getSendWorkerInterval(domainCode));
+        obj.setRepeatInterval(fsPluginProperties.getSendWorkerInterval(domain.getCode()));
         obj.setStartDelay(20000);
         return obj;
     }
@@ -62,12 +63,12 @@ public class FSWorkersConfiguration {
     public CronTriggerFactoryBean fsPluginPurgeSentWorkerTrigger(FSPluginProperties fsPluginProperties) {
         DomainDTO domain = domainContextExtService.getCurrentDomainSafely();
         if (domain == null) {
+            LOG.debug("we cannot create fsPluginPurgeSentWorkerTrigger, domain is null");
             return null; // this job only works for a domain
         }
-        String domainCode = domain.getCode();
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(fsPluginPurgeSentWorkerJob().getObject());
-        obj.setCronExpression(fsPluginProperties.getSentPurgeWorkerCronExpression(domainCode));
+        obj.setCronExpression(fsPluginProperties.getSentPurgeWorkerCronExpression(domain.getCode()));
         obj.setStartDelay(20000);
         return obj;
     }
@@ -85,12 +86,12 @@ public class FSWorkersConfiguration {
     public CronTriggerFactoryBean fsPluginPurgeFailedWorkerTrigger(FSPluginProperties fsPluginProperties) {
         DomainDTO domain = domainContextExtService.getCurrentDomainSafely();
         if (domain == null) {
+            LOG.debug("we cannot create fsPluginPurgeFailedWorkerTrigger, domain is null");
             return null; // this job only works for a domain
         }
-        String domainCode = domain.getCode();
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(fsPluginPurgeFailedWorkerJob().getObject());
-        obj.setCronExpression(fsPluginProperties.getFailedPurgeWorkerCronExpression(domainCode));
+        obj.setCronExpression(fsPluginProperties.getFailedPurgeWorkerCronExpression(domain.getCode()));
         obj.setStartDelay(20000);
         return obj;
     }
@@ -108,12 +109,12 @@ public class FSWorkersConfiguration {
     public CronTriggerFactoryBean fsPluginPurgeReceivedWorkerTrigger(FSPluginProperties fsPluginProperties) {
         DomainDTO domain = domainContextExtService.getCurrentDomainSafely();
         if (domain == null) {
+            LOG.debug("we cannot create fsPluginPurgeReceivedWorkerTrigger, domain is null");
             return null; // this job only works for a domain
         }
-        String domainCode = domain.getCode();
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(fsPluginPurgeReceivedWorkerJob().getObject());
-        obj.setCronExpression(fsPluginProperties.getReceivedPurgeWorkerCronExpression(domainCode));
+        obj.setCronExpression(fsPluginProperties.getReceivedPurgeWorkerCronExpression(domain.getCode()));
         obj.setStartDelay(20000);
         return obj;
     }
@@ -131,12 +132,12 @@ public class FSWorkersConfiguration {
     public CronTriggerFactoryBean fsPluginPurgeLocksWorkerTrigger(FSPluginProperties fsPluginProperties) {
         DomainDTO domain = domainContextExtService.getCurrentDomainSafely();
         if (domain == null) {
+            LOG.debug("we cannot create fsPluginPurgeLocksWorkerTrigger, domain is null");
             return null; // this job only works for a domain
         }
-        String domainCode = domain.getCode();
         CronTriggerFactoryBean obj = new CronTriggerFactoryBean();
         obj.setJobDetail(fsPluginPurgeLocksWorkerJob().getObject());
-        obj.setCronExpression(fsPluginProperties.getLocksPurgeWorkerCronExpression(domainCode));
+        obj.setCronExpression(fsPluginProperties.getLocksPurgeWorkerCronExpression(domain.getCode()));
         obj.setStartDelay(20000);
         return obj;
     }

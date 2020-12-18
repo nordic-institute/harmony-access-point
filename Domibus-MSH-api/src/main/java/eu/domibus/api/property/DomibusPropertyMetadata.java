@@ -16,6 +16,8 @@ import java.util.Arrays;
  */
 public class DomibusPropertyMetadata {
 
+    public static final String NAME_SEPARATOR = ".";
+
     public boolean isOnlyGlobal() {
         return usage == Usage.GLOBAL;
     }

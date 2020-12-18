@@ -17,6 +17,7 @@ import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.jms.DelayedDispatchMessageCreator;
 import eu.domibus.core.jms.DispatchMessageCreator;
 import eu.domibus.core.message.converter.MessageConverterService;
+import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
@@ -166,6 +167,9 @@ public class UserMessageDefaultServiceTest {
 
     @Injectable
     private MessageAcknowledgementDao messageAcknowledgementDao;
+
+    @Injectable
+    NonRepudiationService nonRepudiationService;
 
     @Test
     public void createMessagingForFragment(@Injectable UserMessage sourceMessage,

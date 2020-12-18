@@ -1,3 +1,20 @@
+Domibus 5.0 (from 4.2)
+                - Ehcache has been upgraded to version 3.8.1 affecting "\conf\domibus\internal\ehcache.xml" cache definitions file:
+                    - If you use custom caches definitions defined in this file replace the old file with the new file and perform the following steps:
+                        Replace:     <cache name="policyCache"
+                                            maxBytesLocalHeap="5m"
+                                            timeToLiveSeconds="3600"
+                                            overflowToDisk="false" >
+                                     </cache>
+                        With:
+                                     <cache alias="policyCache">
+                                            <expiry>
+                                                <ttl>3600</ttl>
+                                            </expiry>
+                                            <heap unit="MB">5</heap>
+                                        </cache>
+                        Or with <cache alias="policyCache" uses-template="ttl-3600-heap-5mb"/> if you want to reuse cache-template "ttl-3600-heap-5mb" already defined by Domibus
+                    - If you don't use custom caches just replace the old file with the new file version
 Domibus 4.2 (from 4.1.6):
                 Domibus 4.2 supports newer version of application servers and databases. Support for Oracle OpenJDK 11 has been also introduced on top of Oracle JDK 8 which was already supported.
                   It is mandatory to update to one of the below supported servers and databases.

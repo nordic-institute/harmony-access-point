@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>eu.domibus</groupId>
+    <artifactId>domibus</artifactId>
+    <version>5.0-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>domibus-default-ws-plugin-stubs</artifactId>
+  <version>5.0-SNAPSHOT</version>
+
+  <name>Domibus MSH Default WS Plugin Stubs V2</name>
+
+
+  <dependencies>
+      <!-- these dependencies are not included in jdk11 -->
+      <dependency>
+          <groupId>javax.xml.bind</groupId>
+          <artifactId>jaxb-api</artifactId>
+          <scope>provided</scope>
+      </dependency>
+      <dependency>
+          <groupId>javax.activation</groupId>
+          <artifactId>activation</artifactId>
+          <scope>provided</scope>
+      </dependency>
+      <dependency>
+          <groupId>javax.xml.ws</groupId>
+          <artifactId>jaxws-api</artifactId>
+          <scope>provided</scope>
+      </dependency>
+      <!--Domibus dependencies start-->
+      <dependency>
+          <groupId>eu.domibus</groupId>
+          <artifactId>domibus-default-ws-plugin-stub-utils</artifactId>
+          <version>${project.version}</version>
+      </dependency>
+  </dependencies>
+
+  <build>
+      <plugins>
+          <plugin>
+              <groupId>org.jvnet.jax-ws-commons</groupId>
+              <artifactId>jaxws-maven-plugin</artifactId>
+              <version>2.2</version>
+              <executions>
+                  <execution>
+                      <id>generate-stubs-push-backend</id>
+                      <phase>initialize</phase>
+                      <goals>
+                          <goal>wsimport</goal>
+                      </goals>
+                      <configuration>
+                          <extension>true</extension>
+                          <wsdlDirectory>src/main/resources/schemas</wsdlDirectory>
+                          <verbose>true</verbose>
+                          <wsdlFiles>
+                              <wsdlFile>WebServicePlugin.wsdl</wsdlFile>
+                          </wsdlFiles>
+                      </configuration>
+                  </execution>
+              </executions>
+          </plugin>
+      </plugins>
+  </build>
+</project>

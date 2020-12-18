@@ -49,43 +49,41 @@ public class ValidationReport {
         }
         //Load constraint from certificate element and prepare the all constraint list..
         final List<XmlConstraint> allConstraints = new ArrayList<>();
-        if (detailedReport.
-                getCertificate() != null) {
-            allConstraints.addAll(detailedReport.
-                    getCertificate().
-                    getConstraint().
-                    stream().
-                    peek(xmlConstraint -> LOG.debug("CertificateQualification section:Constraint name:[{}] status:[{}]",xmlConstraint.getName().getNameId(),xmlConstraint.getStatus())).
-                    collect(Collectors.toList()));
+        if (detailedReport.getCertificate() != null) {
+            allConstraints.addAll(detailedReport
+                    .getCertificate()
+                    .getConstraint()
+                    .stream()
+                    .peek(xmlConstraint -> LOG.debug("CertificateQualification section:Constraint name:[{}] status:[{}]",xmlConstraint.getName().getNameId(),xmlConstraint.getStatus()))
+                    .collect(Collectors.toList()));
             //Add constraint from xmlValidationCertificateQualification
-            allConstraints.addAll(detailedReport.
-                    getCertificate().
-                    getValidationCertificateQualification().
-                    stream().
-                    flatMap(xmlValidationCertificateQualification ->
-                            xmlValidationCertificateQualification.getConstraint().stream()).
-                    peek(xmlConstraint -> LOG.debug("Certificate validation qualification section:Constraint name:[{}] status:[{}]",xmlConstraint.getName().getNameId(),xmlConstraint.getStatus())).
-                    collect(Collectors.toList()));
+            allConstraints.addAll(detailedReport
+                    .getCertificate()
+                    .getValidationCertificateQualification()
+                    .stream()
+                    .flatMap(xmlValidationCertificateQualification ->
+                            xmlValidationCertificateQualification.getConstraint().stream())
+                    .peek(xmlConstraint -> LOG.debug("Certificate validation qualification section:Constraint name:[{}] status:[{}]",xmlConstraint.getName().getNameId(),xmlConstraint.getStatus()))
+                    .collect(Collectors.toList()));
         }
-        if (detailedReport.
-                getBasicBuildingBlocks() != null) {
+        if (detailedReport.getBasicBuildingBlocks() != null) {
             //Add constraint from XCV
-            allConstraints.addAll(detailedReport.
-                    getBasicBuildingBlocks().
-                    stream().
-                    filter(xmlBasicBuildingBlocks -> xmlBasicBuildingBlocks.getXCV() != null).
-                    flatMap(xmlBasicBuildingBlocks -> xmlBasicBuildingBlocks.getXCV().getConstraint().stream()).
-                    peek(xmlConstraint -> LOG.debug("XCV section:Constraint name:[{}] status:[{}]",xmlConstraint.getName().getNameId(),xmlConstraint.getStatus())).
-                    collect(Collectors.toList()));
+            allConstraints.addAll(detailedReport
+                    .getBasicBuildingBlocks()
+                    .stream()
+                    .filter(xmlBasicBuildingBlocks -> xmlBasicBuildingBlocks.getXCV() != null)
+                    .flatMap(xmlBasicBuildingBlocks -> xmlBasicBuildingBlocks.getXCV().getConstraint().stream())
+                    .peek(xmlConstraint -> LOG.debug("XCV section:Constraint name:[{}] status:[{}]",xmlConstraint.getName().getNameId(),xmlConstraint.getStatus()))
+                    .collect(Collectors.toList()));
             //Add constraint from Sub XCV
-            allConstraints.addAll(detailedReport.
-                    getBasicBuildingBlocks().
-                    stream().
-                    filter(xmlBasicBuildingBlocks -> xmlBasicBuildingBlocks.getXCV() != null).
-                    flatMap(xmlBasicBuildingBlocks -> xmlBasicBuildingBlocks.getXCV().getSubXCV().stream()).
-                    flatMap(xmlSubXCV -> xmlSubXCV.getConstraint().stream()).
-                    peek(xmlConstraint -> LOG.debug("Sub XCV section:Constraint name:[{}] status:[{}]",xmlConstraint.getName().getNameId(),xmlConstraint.getStatus())).
-                    collect(Collectors.toList()));
+            allConstraints.addAll(detailedReport
+                    .getBasicBuildingBlocks()
+                    .stream()
+                    .filter(xmlBasicBuildingBlocks -> xmlBasicBuildingBlocks.getXCV() != null)
+                    .flatMap(xmlBasicBuildingBlocks -> xmlBasicBuildingBlocks.getXCV().getSubXCV().stream())
+                    .flatMap(xmlSubXCV -> xmlSubXCV.getConstraint().stream())
+                    .peek(xmlConstraint -> LOG.debug("Sub XCV section:Constraint name:[{}] status:[{}]",xmlConstraint.getName().getNameId(),xmlConstraint.getStatus()))
+                    .collect(Collectors.toList()));
         }
 
         if (LOG.isDebugEnabled()) {
@@ -93,16 +91,16 @@ public class ValidationReport {
                     constraint -> LOG.debug("Configured constraint:[{}], status:[{}]", constraint.getName(), constraint.getStatus()));
         }
         for (ConstraintInternal constraintInternal : constraints) {
-            final long count = allConstraints.stream().
-                    filter(xmlConstraint -> constraintInternal.getName().equals(xmlConstraint.getName().getNameId())).count();
+            final long count = allConstraints.stream()
+                    .filter(xmlConstraint -> constraintInternal.getName().equals(xmlConstraint.getName().getNameId())).count();
             if (count == 0) {
                 LOG.error("Configured constraint:[{}] was not found in the report, therefore the validation is impossible", constraintInternal.getName());
                 return Arrays.asList(INVALID_CONSTRAINT_NAME);
             }
-            List<String> constraintsWithWrongStatus = allConstraints.stream().
-                    filter(xmlConstraint ->
-                            xmlConstraint.getName().getNameId().equals(constraintInternal.getName())).
-                    filter(xmlConstraint -> {
+            List<String> constraintsWithWrongStatus = allConstraints.stream()
+                    .filter(xmlConstraint ->
+                            xmlConstraint.getName().getNameId().equals(constraintInternal.getName()))
+                    .filter(xmlConstraint -> {
                         boolean sameStatus = xmlConstraint.getStatus().name().equals(constraintInternal.getStatus());
                         if (sameStatus) {
                             LOG.debug("Checking status  for constraint:[{}] with status:[{}], expected status is:[{}]", xmlConstraint.getName().getNameId(), xmlConstraint.getStatus().name(), constraintInternal.getStatus());
@@ -110,9 +108,9 @@ public class ValidationReport {
                             LOG.warn("Invalid validation for constraint:[{}] with status:[{}], expected status is:[{}]", xmlConstraint.getName().getNameId(), xmlConstraint.getStatus().name(), constraintInternal.getStatus());
                         }
                         return !sameStatus;
-                    }).
-                    map(xmlConstraint -> xmlConstraint.getName().getNameId()).
-                    collect(Collectors.toList());
+                    })
+                    .map(xmlConstraint -> xmlConstraint.getName().getNameId())
+                    .collect(Collectors.toList());
             if (!constraintsWithWrongStatus.isEmpty()) {
                 return constraintsWithWrongStatus;
             }

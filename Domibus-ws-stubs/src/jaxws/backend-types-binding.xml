@@ -8,11 +8,11 @@
     <jaxb:globalBindings optionalProperty="primitive">
         <jaxb:serializable uid="1"/>
         <xjc:javaType name="java.time.LocalDateTime" xmlType="xs:dateTime"
-                      adapter="eu.domibus.ws.jaxb.DateTimeAdapter"/>
+                      adapter="eu.domibus.plugin.webservice.jaxb.DateTimeAdapter"/>
         <xjc:javaType name="java.time.LocalTime" xmlType="xs:time"
-                      adapter="eu.domibus.ws.jaxb.TimeAdapter"/>
+                      adapter="eu.domibus.plugin.webservice.jaxb.TimeAdapter"/>
         <xjc:javaType name="java.time.LocalDate" xmlType="xs:date"
-                      adapter="eu.domibus.ws.jaxb.DateAdapter"/>
+                      adapter="eu.domibus.plugin.webservice.jaxb.DateAdapter"/>
     </jaxb:globalBindings>
 
     <!-- XSD types packages customization -->

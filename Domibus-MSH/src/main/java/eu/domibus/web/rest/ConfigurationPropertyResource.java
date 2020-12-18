@@ -6,6 +6,7 @@ import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.validators.SkipWhiteListed;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.property.ConfigurationPropertyResourceHelper;
+import eu.domibus.core.property.DomibusPropertiesFilter;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.*;
@@ -59,8 +60,9 @@ public class ConfigurationPropertyResource extends BaseResource {
     public PropertyResponseRO getProperties(@Valid PropertyFilterRequestRO request) {
         PropertyResponseRO response = new PropertyResponseRO();
 
-        List<DomibusProperty> items = configurationPropertyResourceHelper.getAllWritableProperties(request.getName(),
-                request.isShowDomain(), request.getType(), request.getModule(), request.getValue());
+        DomibusPropertiesFilter filter = domainConverter.convert(request, DomibusPropertiesFilter.class);
+        List<DomibusProperty> items = configurationPropertyResourceHelper.getAllProperties(filter);
+
         response.setCount(items.size());
         items = items.stream()
                 .skip((long) request.getPage() * request.getPageSize())
@@ -99,8 +101,9 @@ public class ConfigurationPropertyResource extends BaseResource {
      */
     @GetMapping(path = "/csv")
     public ResponseEntity<String> getCsv(@Valid PropertyFilterRequestRO request) {
-        List<DomibusProperty> items = configurationPropertyResourceHelper
-                .getAllWritableProperties(request.getName(), request.isShowDomain(), request.getType(), request.getModule(), request.getValue());
+        DomibusPropertiesFilter filter = domainConverter.convert(request, DomibusPropertiesFilter.class);
+        List<DomibusProperty> items = configurationPropertyResourceHelper.getAllProperties(filter);
+
         getCsvService().validateMaxRows(items.size());
 
         List<DomibusPropertyRO> convertedItems = domainConverter.convert(items, DomibusPropertyRO.class);
