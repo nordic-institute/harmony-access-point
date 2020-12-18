@@ -109,6 +109,7 @@ import {AuthInternalProviderGuard} from './common/guards/auth-internal-provider.
 import {AddNestedPropertyDialogComponent} from './properties/support/add-nested-property-dialog/add-nested-property-dialog.component';
 import {TLSTruststoreComponent} from './truststore/tls.truststore.component';
 import {TruststoreComponent} from './truststore/truststore.component';
+import {CertificateUploadComponent} from './truststore/certificate-upload/certificate-upload.component';
 
 @NgModule({
   declarations: [
@@ -143,7 +144,7 @@ import {TruststoreComponent} from './truststore/truststore.component';
     TruststoreDialogComponent,
     TrustStoreUploadComponent,
     ColumnPickerComponent,
-    TrustStoreUploadComponent,
+    CertificateUploadComponent,
     PageHelperComponent,
     ActionDirtyDialogComponent,
     AuditComponent,
@@ -189,6 +190,7 @@ import {TruststoreComponent} from './truststore/truststore.component';
     EditUserComponent,
     TruststoreDialogComponent,
     TrustStoreUploadComponent,
+    CertificateUploadComponent,
     ActionDirtyDialogComponent,
     PartyDetailsComponent,
     EditPluginUserFormBaseComponent,

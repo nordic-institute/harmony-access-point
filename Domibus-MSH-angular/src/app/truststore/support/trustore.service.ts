@@ -20,10 +20,10 @@ export class TrustStoreService {
     return this.http.get<TrustStoreEntry[]>(url).toPromise();
   }
 
-  uploadFile(url, props): Observable<string> {
+  uploadFile(url, props): Promise<string> {
     let input = new FormData();
     Object.keys(props).forEach(key => input.append(key, props[key]));
-    return this.http.post<string>(url, input);
+    return this.http.post<string>(url, input).toPromise();
   }
 
   /**
@@ -36,7 +36,7 @@ export class TrustStoreService {
     FileSaver.saveAs(blob, filename, false);
   }
 
-  removeCertificate(url: string, cert: any) {
+  removeCertificate(url: string, cert: any): Promise<string> {
     const deleteUrl = url.replace('alias', cert.name);
     return this.http.delete<string>(deleteUrl).toPromise();
   }

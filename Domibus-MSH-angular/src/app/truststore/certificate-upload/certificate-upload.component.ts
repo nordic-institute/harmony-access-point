@@ -5,12 +5,12 @@ import {AbstractControl, FormBuilder, FormControl, FormGroup, NgControl, NgForm,
 import {MAT_DIALOG_DATA} from '@angular/material/dialog';
 
 @Component({
-  selector: 'app-truststore-upload',
-  templateUrl: './truststore-upload.component.html',
-  styleUrls: ['./truststore-upload.component.css'],
+  selector: 'app-certificate-upload',
+  templateUrl: './certificate-upload.component.html',
+  styleUrls: ['./certificate-upload.component.css'],
   providers: [TrustStoreService]
 })
-export class TrustStoreUploadComponent {
+export class CertificateUploadComponent {
 
   truststoreForm: FormGroup;
   selectedFileName: string;
@@ -18,9 +18,9 @@ export class TrustStoreUploadComponent {
 
   @ViewChild('fileInput', {static: false}) fileInput;
 
-  constructor(public dialogRef: MatDialogRef<TrustStoreUploadComponent>, private fb: FormBuilder, @Inject(MAT_DIALOG_DATA) public data: any) {
+  constructor(public dialogRef: MatDialogRef<CertificateUploadComponent>, private fb: FormBuilder, @Inject(MAT_DIALOG_DATA) public data: any) {
     this.truststoreForm = fb.group({
-      'password': new FormControl('', Validators.required),
+      'alias': new FormControl('', Validators.required),
     });
   }
 
@@ -33,10 +33,10 @@ export class TrustStoreUploadComponent {
       return;
     }
     const fileToUpload = this.fileInput.nativeElement.files[0];
-    const password = this.truststoreForm.get('password').value;
+    const alias = this.truststoreForm.get('alias').value;
     const result = {
       file: fileToUpload,
-      password: password
+      alias: alias
     };
     this.dialogRef.close(result);
   }

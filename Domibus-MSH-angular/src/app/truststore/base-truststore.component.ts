@@ -14,6 +14,7 @@ import {ApplicationContextService} from '../common/application-context.service';
 import {TrustStoreEntry} from './support/trustore.model';
 import {ComponentName} from '../common/component-name-decorator';
 import {FileUploadValidatorService} from '../common/file-upload-validator.service';
+import {CertificateUploadComponent} from './certificate-upload/certificate-upload.component';
 
 @Component({
   selector: 'app-base-truststore',
@@ -33,6 +34,8 @@ export class BaseTruststoreComponent extends mix(BaseListComponent)
   protected TRUSTSTORE_LIST_ENTRIES_URL: string;
   protected CER_UPLOAD_URL: string;
   protected CER_REMOVE_URL: string;
+
+  protected canHandleCertificates: boolean;
 
   @ViewChild('rowWithDateFormatTpl', {static: false}) rowWithDateFormatTpl: TemplateRef<any>;
 
@@ -111,7 +114,7 @@ export class BaseTruststoreComponent extends mix(BaseListComponent)
         super.isLoading = true;
         await this.fileUploadValidatorService.validateFileSize(params.file);
 
-        let res = await this.truststoreService.uploadFile(this.TRUSTSTORE_UPLOAD_URL, params).toPromise();
+        let res = await this.truststoreService.uploadFile(this.TRUSTSTORE_UPLOAD_URL, params);
         this.alertService.success(res);
 
         await this.getTrustStoreEntries();
@@ -157,7 +160,7 @@ export class BaseTruststoreComponent extends mix(BaseListComponent)
   }
 
   async uploadCertificate() {
-    let params = await this.dialog.open(TrustStoreUploadComponent).afterClosed().toPromise();
+    let params = await this.dialog.open(CertificateUploadComponent).afterClosed().toPromise();
     if (params == null) {
       return;
     }
@@ -165,7 +168,7 @@ export class BaseTruststoreComponent extends mix(BaseListComponent)
       super.isLoading = true;
       await this.fileUploadValidatorService.validateFileSize(params.file);
 
-      let res = await this.truststoreService.uploadFile(this.CER_UPLOAD_URL, params).toPromise();
+      let res = await this.truststoreService.uploadFile(this.CER_UPLOAD_URL, params);
       this.alertService.success(res);
 
       await this.getTrustStoreEntries();
@@ -194,4 +197,7 @@ export class BaseTruststoreComponent extends mix(BaseListComponent)
     }
   }
 
+  public showCertificateOperations() {
+    return this.canHandleCertificates;
+  }
 }

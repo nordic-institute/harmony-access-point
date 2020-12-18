@@ -15,7 +15,7 @@ import {FileUploadValidatorService} from '../common/file-upload-validator.servic
   templateUrl: './base-truststore.component.html',
   providers: [TrustStoreService]
 })
-@ComponentName('TLSTrustStore')
+@ComponentName('TLS TrustStore')
 export class TLSTruststoreComponent extends BaseTruststoreComponent implements OnInit {
 
   constructor(applicationService: ApplicationContextService, http: HttpClient, trustStoreService: TrustStoreService,
@@ -30,6 +30,8 @@ export class TLSTruststoreComponent extends BaseTruststoreComponent implements O
     this.TRUSTSTORE_LIST_ENTRIES_URL = this.TRUSTSTORE_URL + '/entries';
     this.CER_UPLOAD_URL = this.TRUSTSTORE_URL + '/entries';
     this.CER_REMOVE_URL = this.TRUSTSTORE_URL + '/entries/alias';
+
+    this.canHandleCertificates = true;
   }
 
   ngOnInit(): void {
