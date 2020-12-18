@@ -579,10 +579,11 @@ public class CachingPModeProviderTest {
         }};
 
         // When
-        String agreementRef = cachingPModeProvider.getAgreementRef(Ebms3Constants.TEST_SERVICE);
+        Agreement agreementRef = cachingPModeProvider.getAgreementRef(Ebms3Constants.TEST_SERVICE);
 
         // Then
-        assertEquals("TestServiceAgreement", agreementRef);
+        assertEquals("TestServiceAgreement", agreementRef.getValue());
+        assertEquals("TestServiceAgreementType", agreementRef.getType());
     }
 
     @Test
@@ -591,7 +592,7 @@ public class CachingPModeProviderTest {
         String serviceValue = "serviceValue";
 
         // When
-        String agreementRef = cachingPModeProvider.getAgreementRef(serviceValue);
+        Agreement agreementRef = cachingPModeProvider.getAgreementRef(serviceValue);
 
         // Then
         Assert.assertNull(agreementRef);

@@ -2,6 +2,7 @@ package eu.domibus.core.property;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.util.ClassUtil;
@@ -38,6 +39,9 @@ public class DomibusPropertyProviderDispatcherTest {
 
     @Injectable
     DomibusPropertyChangeManager domibusPropertyChangeManager;
+
+    @Injectable
+    DomainService domainService;
 
     @Mocked
     DomibusPropertyMetadata propMeta;
@@ -178,6 +182,8 @@ public class DomibusPropertyProviderDispatcherTest {
         new Expectations(domibusPropertyProviderDispatcher) {{
             classUtil.isMethodDefined(propertyManager, "getKnownPropertyValue", new Class[]{String.class});
             returns(true, false);
+            domibusPropertyProviderDispatcher.getCurrentDomainCode();
+            result = "default";
         }};
 
         domibusPropertyProviderDispatcher.getExternalModulePropertyValue(propertyManager, propertyName);
@@ -187,8 +193,8 @@ public class DomibusPropertyProviderDispatcherTest {
 
         domibusPropertyProviderDispatcher.getExternalModulePropertyValue(propertyManager, propertyName);
         new Verifications() {{
-            Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
-            propertyManager.getKnownPropertyValue(currentDomain.getCode(), propertyName);
+            domibusPropertyProviderDispatcher.getCurrentDomainCode();
+            propertyManager.getKnownPropertyValue("default", propertyName);
         }};
     }
 
@@ -199,6 +205,8 @@ public class DomibusPropertyProviderDispatcherTest {
         new Expectations(domibusPropertyProviderDispatcher) {{
             classUtil.isMethodDefined(propertyManager, "setKnownPropertyValue", new Class[]{String.class, String.class});
             returns(true, false);
+            domibusPropertyProviderDispatcher.getCurrentDomainCode();
+            result = "default";
         }};
 
         domibusPropertyProviderDispatcher.setExternalModulePropertyValue(propertyManager, propertyName, proertyValue);
@@ -208,8 +216,8 @@ public class DomibusPropertyProviderDispatcherTest {
 
         domibusPropertyProviderDispatcher.setExternalModulePropertyValue(propertyManager, propertyName, proertyValue);
         new Verifications() {{
-            Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
-            propertyManager.setKnownPropertyValue(currentDomain.getCode(), propertyName, proertyValue);
+            domibusPropertyProviderDispatcher.getCurrentDomainCode();
+            propertyManager.setKnownPropertyValue("default", propertyName, proertyValue);
         }};
     }
 

@@ -4,6 +4,7 @@ import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.security.AuthRole;
+import eu.domibus.api.user.AtLeastOneAdminException;
 import eu.domibus.api.user.User;
 import eu.domibus.core.multitenancy.dao.UserDomainDao;
 import eu.domibus.core.multitenancy.dao.UserDomainEntity;
@@ -132,7 +133,7 @@ public class SuperUserManagementServiceImpl extends UserManagementServiceImpl {
                 .collect(Collectors.toList());
         try {
             userManagementService.updateUsers(regularUsers);
-        } catch (DomibusCoreException ex) {
+        } catch (AtLeastOneAdminException ex) { // clear user-domain mapping only for this error
             LOG.trace("Remove domain association for new users.");
             regularUsers.stream()
                     .filter(user -> user.isNew())
@@ -144,15 +145,14 @@ public class SuperUserManagementServiceImpl extends UserManagementServiceImpl {
                 .filter(u -> u.getAuthorities().contains(AuthRole.ROLE_AP_ADMIN.name()))
                 .collect(Collectors.toList());
 
-        // TODO: better add a new method on domainTaskExecutor: submitWithSecurityContext that preserves the sec context
-        // another solution would be to keep the security context/ principal in a service of ours
+        // TODO: maybe add a new method on domainTaskExecutor: submitWithSecurityContext that preserves the sec context
         final Authentication currentAuthentication = SecurityContextHolder.getContext().getAuthentication();
         domainTaskExecutor.submit(() -> {
             // we need the security context restored on this thread because we try to get the logged user down the way
             SecurityContextHolder.getContext().setAuthentication(currentAuthentication);
             try {
                 super.updateUsers(superUsers);
-            } catch (DomibusCoreException ex) {
+            } catch (AtLeastOneAdminException ex) { // clear user-domain mapping only for this error
                 LOG.trace("Remove domain association for new super users.");
                 superUsers.stream()
                         .filter(user -> user.isNew())
