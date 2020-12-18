@@ -213,38 +213,4 @@ public class ApplicationResourceTest {
             domibusCacheService.clearAllCaches();
         }};
     }
-
-    @Test
-    public void evictCachesInSingleTenancy() {
-
-        new Expectations() {{
-            domibusConfigurationService.isSingleTenantAware();
-            result = true;
-        }};
-
-        applicationResource.evictCaches();
-
-        new Verifications() {{
-            domibusCacheService.clearAllCaches();
-        }};
-    }
-
-    @Test
-    public void evictCachesInMultiTenancy() {
-
-        new Expectations() {{
-            domibusConfigurationService.isSingleTenantAware();
-            result = false;
-            domibusConfigurationService.isMultiTenantAware();
-            result = true;
-            authUtils.isSuperAdmin();
-            result = true;
-        }};
-
-        applicationResource.evictCaches();
-
-        new Verifications() {{
-            domibusCacheService.clearAllCaches();
-        }};
-    }
 }

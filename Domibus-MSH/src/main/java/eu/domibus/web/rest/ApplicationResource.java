@@ -17,6 +17,8 @@ import eu.domibus.web.rest.ro.PasswordPolicyRO;
 import eu.domibus.web.rest.ro.SupportTeamInfoRO;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -216,23 +218,17 @@ public class ApplicationResource {
     /**
      * Rest method to clear all caches from the cacheManager.
      */
-    @GetMapping(path = "/clearallcaches")
+    @DeleteMapping(value = "/cache")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_AP_ADMIN')")
-    public void evictCaches() {
+    public ResponseEntity<String> evictCaches() {
+        LOG.debug("Clearing caches..");
         if (domibusConfigurationService.isSingleTenantAware() || (domibusConfigurationService.isMultiTenantAware() && authUtils.isSuperAdmin())) {
             domibusCacheService.clearAllCaches();
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body("Cleared caches successfully.");
         }
-    }
-
-    /**
-     * Rest method to clear all caches from the cacheManager.
-     */
-    @DeleteMapping(value = "cache")
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_AP_ADMIN')")
-    public void evictCaches() {
-        LOG.debug("Clearing caches*****..");
-        if (domibusConfigurationService.isSingleTenantAware() || (domibusConfigurationService.isMultiTenantAware() && authUtils.isSuperAdmin())) {
-            domibusCacheService.clearAllCaches();
-        }
+        return ResponseEntity.badRequest()
+                .body("User does not have privilege to clear caches.");
     }
 }
