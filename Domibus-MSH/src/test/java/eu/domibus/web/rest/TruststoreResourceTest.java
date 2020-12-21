@@ -10,11 +10,13 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.core.audit.AuditService;
-import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.crypto.MultiDomainCryptoServiceImpl;
+import eu.domibus.core.crypto.TLSMultiDomainCryptoServiceImpl;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import eu.domibus.core.csv.CsvServiceImpl;
+import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.TrustStoreRO;
 import mockit.*;
@@ -22,7 +24,7 @@ import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -53,6 +55,12 @@ public class TruststoreResourceTest {
 
     @Injectable
     protected MultiDomainCryptoService multiDomainCertificateProvider;
+
+    @Injectable
+    MultiDomainCryptoServiceImpl multiDomainCryptoService;
+
+    @Injectable
+    TLSMultiDomainCryptoServiceImpl tlsMultiDomainCryptoService;
 
     @Injectable
     protected DomainContextProvider domainProvider;
@@ -114,7 +122,7 @@ public class TruststoreResourceTest {
     }
 
     @Test(expected = CryptoException.class)
-    public void testUploadTruststoreException() throws CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException {
+    public void testUploadTruststoreException(@Injectable MultiDomainCryptoService certificateProvider) throws CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException {
         // Given
         MultipartFile multiPartFile = new MockMultipartFile("filename", new byte[]{1, 0, 1});
 
@@ -127,12 +135,12 @@ public class TruststoreResourceTest {
             domainProvider.getCurrentDomain();
             result = domain;
 
-            multiDomainCertificateProvider.replaceTrustStore(domain, anyString, (byte[]) any, anyString);
+            certificateProvider.replaceTrustStore(domain, anyString, (byte[]) any, anyString);
             result = new CryptoException("Password is incorrect");
         }};
 
         // When
-        truststoreResource.uploadTruststoreFile(multiPartFile, "pass");
+        truststoreResource.replaceTruststore(certificateProvider, multiPartFile, "pass");
     }
 
     private List<TrustStoreRO> getTestTrustStoreROList(Date date) {
@@ -173,9 +181,6 @@ public class TruststoreResourceTest {
             domainProvider.getCurrentDomain();
             result = domain;
 
-            multiDomainCertificateProvider.getTrustStore(domain);
-            result = trustStore;
-
             certificateService.getTrustStoreEntries(trustStore);
             result = trustStoreEntryList;
             domainConverter.convert(trustStoreEntryList, TrustStoreRO.class);
@@ -190,20 +195,21 @@ public class TruststoreResourceTest {
     }
 
     @Test
-    public void testGetCsv() throws EbMS3Exception {
+    public void testGetCsv(@Injectable MultiDomainCryptoService cryptoService, @Mocked String moduleName) throws EbMS3Exception {
         // Given
         Date date = new Date();
         List<TrustStoreRO> trustStoreROList = getTestTrustStoreROList(date);
         new Expectations(truststoreResource) {{
-            truststoreResource.trustStoreEntries();
+            truststoreResource.getTrustStoreEntries(cryptoService);
             result = trustStoreROList;
+
             csvServiceImpl.exportToCSV(trustStoreROList, null, (Map<String, String>) any, (List<String>) any);
             result = "Name, Subject, Issuer, Valid From, Valid Until" + System.lineSeparator() +
                     "Name, Subject, Issuer, " + date + ", " + date + System.lineSeparator();
         }};
 
         // When
-        final ResponseEntity<String> csv = truststoreResource.getEntriesAsCsv();
+        final ResponseEntity<String> csv = truststoreResource.getEntriesAsCSV(cryptoService, moduleName);
 
         // Then
         Assert.assertEquals(HttpStatus.OK, csv.getStatusCode());
@@ -213,19 +219,19 @@ public class TruststoreResourceTest {
     }
 
     @Test(expected = RequestValidationException.class)
-    public void testGetCsv_validationExeption() {
+    public void testGetCsv_validationExeption(@Injectable MultiDomainCryptoService cryptoService) {
         // Given
         Date date = new Date();
         List<TrustStoreRO> trustStoreROList = getTestTrustStoreROList2(date);
         new Expectations(truststoreResource) {{
-            truststoreResource.trustStoreEntries();
+            truststoreResource.getTrustStoreEntries(cryptoService);
             result = trustStoreROList;
             csvServiceImpl.validateMaxRows(trustStoreROList.size());
             result = new RequestValidationException("");
         }};
 
         // When
-        final ResponseEntity<String> csv = truststoreResource.getEntriesAsCsv();
+        final ResponseEntity<String> csv = truststoreResource.getEntriesAsCSV(cryptoService, "truststore");
     }
 
     @Test
@@ -243,23 +249,27 @@ public class TruststoreResourceTest {
     }
 
     @Test
-    public void testDownload() throws IOException {
+    public void testDownload(@Injectable MultiDomainCryptoService multiDomainCertificateProvider,
+                             @Mocked Runnable auditMethod, @Mocked Domain domain) throws IOException {
+
         final byte[] fileContent = new byte[]{1, 0, 1};
         // Given
         new Expectations() {{
-//            certificateService.getTruststoreContent();
-//            result = fileContent;
+            domainProvider.getCurrentDomain();
+            result = domain;
+
+            multiDomainCertificateProvider.getTruststoreContent(domain);
+            result = fileContent;
         }};
 
         // When
-        ResponseEntity<? extends Resource> responseEntity = truststoreResource.downloadTrustStore();
+        ResponseEntity<ByteArrayResource> responseEntity = truststoreResource.downloadTruststoreContent(multiDomainCertificateProvider, auditMethod);
 
         // Then
         validateResponseEntity(responseEntity, HttpStatus.OK);
 
-        new Verifications(){{
-//            certificateService.getTruststoreContent();
-            auditService.addTruststoreDownloadedAudit();
+        new Verifications() {{
+            auditMethod.run();
         }};
 
     }
