@@ -19,8 +19,7 @@ public class TLSDomainCryptoServiceImpl extends BaseDomainCryptoServiceImpl impl
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TLSDomainCryptoServiceImpl.class);
 
     @Autowired
-    @Qualifier("TLSCryptoService") //better solution maybe??
-    private DomainCryptoServiceSpi domainCryptoServiceSpi;
+    private TLSDomainCryptoServiceSpiImpl domainCryptoServiceSpi;
 
     public TLSDomainCryptoServiceImpl(Domain domain) {
         super(domain);
@@ -34,8 +33,7 @@ public class TLSDomainCryptoServiceImpl extends BaseDomainCryptoServiceImpl impl
 
     @Override
     public String getTrustStoreType() {
-        //todo: decide if property or what???
-        return "jks";
+        return domainCryptoServiceSpi.getTrustStoreType();
     }
 
 }

@@ -2,23 +2,26 @@ package eu.domibus.core.crypto;
 
 import eu.domibus.api.cxf.TLSReaderService;
 import eu.domibus.core.crypto.spi.DomainCryptoServiceSpi;
-import eu.domibus.logging.DomibusLogger;
-import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.core.exception.ConfigurationException;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.configuration.security.TLSClientParametersType;
+import org.apache.wss4j.common.crypto.Merlin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import java.util.Properties;
+
 /**
  * @author Ion Perpegel
  * @since 5.0
  */
-@Component("TLSCryptoService") //todo: try to avoid qualifying
+@Component
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class TLSDomainCryptoServiceSpiImpl extends BaseDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TLSDomainCryptoServiceSpiImpl.class);
+//    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TLSDomainCryptoServiceSpiImpl.class);
 
     @Autowired
     private TLSReaderService tlsReader;
@@ -29,33 +32,6 @@ public class TLSDomainCryptoServiceSpiImpl extends BaseDomainCryptoServiceSpiImp
     public void init() {
         params = tlsReader.getTlsClientParametersType(domain.getCode());
         super.init();
-    }
-
-    @Override
-    public String getPrivateKeyPassword(String alias) {
-        //todo: decide if from domibus property or from clientauth.xml file??
-        return "test123";
-    }
-
-    @Override
-    protected String getPrivateKeyAlias() {
-        //todo: decide if //from domibus property or from clientauth.xml file??
-        return "certificate";
-    }
-
-    @Override
-    protected String getKeystoreLocation() {
-        return params.getKeyManagers().getKeyStore().getFile();
-    }
-
-    @Override
-    protected String getKeystorePassword() {
-        return params.getKeyManagers().getKeyStore().getPassword();
-    }
-
-    @Override
-    protected String getKeystoreType() {
-        return params.getKeyManagers().getKeyStore().getType();
     }
 
     @Override
@@ -77,4 +53,38 @@ public class TLSDomainCryptoServiceSpiImpl extends BaseDomainCryptoServiceSpiImp
     public String getIdentifier() {
         return "TLSCryptoService";
     }
+
+    @Override
+    protected Properties getKeystoreProperties() {
+        // mark we don't kare for them
+        return new Properties();
+    }
+
+    @Override
+    public String getPrivateKeyPassword(String alias) {
+        // not used for now anyway
+        return params.getKeyManagers().getKeyPassword();
+    }
+
+    @Override
+    protected String getPrivateKeyAlias() {
+        // not used for now anyway
+        return params.getCertAlias();
+    }
+
+    @Override
+    protected String getKeystoreLocation() {
+        return params.getKeyManagers().getKeyStore().getFile();
+    }
+
+    @Override
+    protected String getKeystorePassword() {
+        return params.getKeyManagers().getKeyStore().getPassword();
+    }
+
+    @Override
+    protected String getKeystoreType() {
+        return params.getKeyManagers().getKeyStore().getType();
+    }
+
 }
