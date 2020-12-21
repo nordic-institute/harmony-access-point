@@ -53,6 +53,7 @@ public abstract class BaseDomainCryptoServiceSpiImpl extends Merlin implements D
     @Autowired
     protected BackupService backupService;
 
+    @Override
     public void init() {
         LOG.debug("Initializing the certificate provider");
 

@@ -2,13 +2,11 @@ package eu.domibus.core.crypto;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.crypto.api.CertificateEntry;
 import eu.domibus.core.crypto.api.DomainCryptoService;
 import eu.domibus.core.crypto.api.DomainCryptoServiceFactory;
 import mockit.*;
-import org.apache.wss4j.common.ext.WSSecurityException;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -68,10 +66,9 @@ public class BaseMultiDomainCryptoServiceImplTest {
     }
 
     @Test
-    public void getX509Certificates() throws WSSecurityException {
+    public void getX509Certificates() {
         Domain domain = DomainService.DEFAULT_DOMAIN;
         DomainCryptoServiceImpl cryptoService = new DomainCryptoServiceImpl(domain);
-        X509Certificate[] certs = null;
 
         new Expectations(mdCryptoService) {{
             mdCryptoService.createForDomain(domain);
@@ -89,7 +86,7 @@ public class BaseMultiDomainCryptoServiceImplTest {
     }
 
     @Test
-    public void getPrivateKeyPassword(@Mocked DomainCryptoServiceImpl cryptoService) throws KeyStoreException {
+    public void getPrivateKeyPassword(@Mocked DomainCryptoServiceImpl cryptoService) {
         Domain domain = DomainService.DEFAULT_DOMAIN;
         String privateKeyAlias = "blue_gw";
 
@@ -106,7 +103,7 @@ public class BaseMultiDomainCryptoServiceImplTest {
     }
 
     @Test
-    public void refreshTrustStore(@Mocked DomainCryptoServiceImpl cryptoService) throws KeyStoreException {
+    public void refreshTrustStore(@Mocked DomainCryptoServiceImpl cryptoService) {
         Domain domain = DomainService.DEFAULT_DOMAIN;
 
         new Expectations(mdCryptoService) {{
@@ -150,7 +147,6 @@ public class BaseMultiDomainCryptoServiceImplTest {
             mdCryptoService.getDomainCertificateProvider(domain);
             result = cryptoService;
         }};
-
 
         mdCryptoService.getKeyStore(domain);
 
@@ -211,7 +207,7 @@ public class BaseMultiDomainCryptoServiceImplTest {
     }
 
     @Test
-    public void addCertificate(@Mocked DomainCryptoServiceImpl cryptoService, @Mocked X509Certificate certificate) throws KeyStoreException {
+    public void addCertificate(@Mocked DomainCryptoServiceImpl cryptoService, @Mocked X509Certificate certificate) {
         Domain domain = DomainService.DEFAULT_DOMAIN;
         String alias = "blue_gw";
         boolean overwrite = true;
@@ -230,7 +226,7 @@ public class BaseMultiDomainCryptoServiceImplTest {
     }
 
     @Test
-    public void addCertificates(@Mocked DomainCryptoServiceImpl cryptoService, @Mocked List<CertificateEntry> certificates) throws KeyStoreException {
+    public void addCertificates(@Mocked DomainCryptoServiceImpl cryptoService, @Mocked List<CertificateEntry> certificates) {
         Domain domain = DomainService.DEFAULT_DOMAIN;
         boolean overwrite = true;
 
@@ -268,7 +264,7 @@ public class BaseMultiDomainCryptoServiceImplTest {
     }
 
     @Test
-    public void removeCertificate(@Mocked DomainCryptoServiceImpl cryptoService) throws KeyStoreException {
+    public void removeCertificate(@Mocked DomainCryptoServiceImpl cryptoService) {
         Domain domain = DomainService.DEFAULT_DOMAIN;
         String alias = "blue_gw";
 
@@ -285,7 +281,7 @@ public class BaseMultiDomainCryptoServiceImplTest {
     }
 
     @Test
-    public void removeCertificates(@Mocked DomainCryptoServiceImpl cryptoService) throws KeyStoreException {
+    public void removeCertificates(@Mocked DomainCryptoServiceImpl cryptoService) {
         Domain domain = DomainService.DEFAULT_DOMAIN;
         List<String> aliases = Arrays.asList("blue_gw", "red_gw");
 
@@ -293,7 +289,7 @@ public class BaseMultiDomainCryptoServiceImplTest {
             mdCryptoService.getDomainCertificateProvider(domain);
             result = cryptoService;
         }};
-;
+        ;
 
         mdCryptoService.removeCertificate(domain, aliases);
 

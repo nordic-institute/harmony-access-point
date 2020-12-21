@@ -56,7 +56,7 @@ public class TLSDomainCryptoServiceSpiImpl extends BaseDomainCryptoServiceSpiImp
 
     @Override
     protected Properties getKeystoreProperties() {
-        // mark we don't kare for them
+        // mark we don't care for them for now
         return new Properties();
     }
 
