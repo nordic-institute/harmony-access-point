@@ -42,10 +42,14 @@ public class TLSReaderServiceImpl implements TLSReaderService {
 
     public static final String REGEX_DOMIBUS_CONFIG_LOCATION = "\\Q${domibus.config.location}\\E";
 
+    private Set<Class<?>> classes;
+    private JAXBContext context;
+
     @Autowired
     private DomibusConfigurationService domibusConfigurationService;
 
     @Cacheable("tlsCache")
+    @Override
     public TLSClientParameters getTlsClientParameters(String domainCode) {
         Optional<Path> path = getClientAuthenticationPath(domainCode);
         if (!path.isPresent()) {
@@ -61,7 +65,6 @@ public class TLSReaderServiceImpl implements TLSReaderService {
         }
     }
 
-    // add cache??
     @Override
     public TLSClientParametersType getTlsClientParametersType(String domainCode) {
         Optional<Path> path = getClientAuthenticationPath(domainCode);
@@ -70,38 +73,10 @@ public class TLSReaderServiceImpl implements TLSReaderService {
         }
         try {
             String fileContent = getFileContent(path);
-            return createTLSClientParameters(fileContent);
+            return getTLSParameters(fileContent);
         } catch (Exception e) {
             throw new DomibusCertificateException("Could not process client authentication file for domain [" + domainCode + "]", e);
         }
-    }
-
-    //todo: try to simplify the code
-    private TLSClientParametersType createTLSClientParameters(String s) throws XMLStreamException, JAXBException {
-        StringReader reader = new StringReader(s);
-        XMLStreamReader data = StaxUtils.createXMLStreamReader(reader);
-
-        try {
-            JAXBElement<TLSClientParametersType> type = JAXBUtils.unmarshall(getContext(), data, TLSClientParametersType.class);
-            return type.getValue();
-        } finally {
-            StaxUtils.close(data);
-        }
-    }
-
-    private static Set<Class<?>> classes;
-    private static JAXBContext context;
-
-    private synchronized JAXBContext getContext() throws JAXBException {
-        if (context == null || classes == null) {
-            Set<Class<?>> c2 = new HashSet();
-            JAXBContextCache.addPackage(c2, PackageUtils.getPackageName(TLSClientParametersType.class), TLSClientParametersConfig.class.getClassLoader());
-            JAXBContextCache.CachedContextAndSchemas ccs = JAXBContextCache.getCachedContextAndSchemas(c2, (String) null, (Map) null, (Collection) null, false);
-            classes = ccs.getClasses();
-            context = ccs.getContext();
-        }
-
-        return context;
     }
 
     private String getFileContent(Optional<Path> path) throws IOException {
@@ -141,4 +116,28 @@ public class TLSReaderServiceImpl implements TLSReaderService {
         return Optional.empty();
     }
 
+    //todo: try to simplify the code
+    private TLSClientParametersType getTLSParameters(String s) throws XMLStreamException, JAXBException {
+        StringReader reader = new StringReader(s);
+        XMLStreamReader data = StaxUtils.createXMLStreamReader(reader);
+
+        try {
+            JAXBElement<TLSClientParametersType> type = JAXBUtils.unmarshall(getContext(), data, TLSClientParametersType.class);
+            return type.getValue();
+        } finally {
+            StaxUtils.close(data);
+        }
+    }
+
+    private synchronized JAXBContext getContext() throws JAXBException {
+        if (context == null || classes == null) {
+            Set<Class<?>> c2 = new HashSet();
+            JAXBContextCache.addPackage(c2, PackageUtils.getPackageName(TLSClientParametersType.class), TLSClientParametersConfig.class.getClassLoader());
+            JAXBContextCache.CachedContextAndSchemas ccs = JAXBContextCache.getCachedContextAndSchemas(c2, (String) null, (Map) null, (Collection) null, false);
+            classes = ccs.getClasses();
+            context = ccs.getContext();
+        }
+
+        return context;
+    }
 }

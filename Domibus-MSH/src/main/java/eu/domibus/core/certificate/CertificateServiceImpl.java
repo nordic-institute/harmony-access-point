@@ -12,12 +12,11 @@ import eu.domibus.core.alerts.configuration.certificate.expired.ExpiredCertifica
 import eu.domibus.core.alerts.configuration.certificate.imminent.ImminentExpirationCertificateConfigurationManager;
 import eu.domibus.core.alerts.configuration.certificate.imminent.ImminentExpirationCertificateModuleConfiguration;
 import eu.domibus.core.alerts.service.EventService;
-import eu.domibus.core.alerts.service.AlertConfigurationService;
+import eu.domibus.core.certificate.crl.CRLService;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.core.certificate.crl.CRLService;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.openssl.jcajce.JcaMiscPEMGenerator;
@@ -37,18 +36,17 @@ import javax.naming.ldap.Rdn;
 import javax.xml.bind.DatatypeConverter;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.cert.*;
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.util.*;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_CERTIFICATE_REVOCATION_OFFSET;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SECURITY_TRUSTSTORE_LOCATION;
 import static eu.domibus.logging.DomibusMessageCode.SEC_CERTIFICATE_REVOKED;
 import static eu.domibus.logging.DomibusMessageCode.SEC_CERTIFICATE_SOON_REVOKED;
 
@@ -77,9 +75,6 @@ public class CertificateServiceImpl implements CertificateService {
 
     @Autowired
     private CertificateDao certificateDao;
-
-    @Autowired
-    private AlertConfigurationService alertConfigurationService;
 
     @Autowired
     private EventService eventService;

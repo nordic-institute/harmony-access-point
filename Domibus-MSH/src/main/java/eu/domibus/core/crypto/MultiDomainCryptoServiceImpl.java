@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
  * @since 4.0
  */
 @Service
-@Primary //get rid
+@Primary
 public class MultiDomainCryptoServiceImpl extends BaseMultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
 
     @Autowired

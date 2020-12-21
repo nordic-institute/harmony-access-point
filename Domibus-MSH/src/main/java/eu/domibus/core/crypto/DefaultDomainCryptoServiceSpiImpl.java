@@ -3,8 +3,6 @@ package eu.domibus.core.crypto;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.crypto.spi.AbstractCryptoServiceSpi;
 import eu.domibus.core.crypto.spi.DomainCryptoServiceSpi;
-import eu.domibus.logging.DomibusLogger;
-import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -12,7 +10,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SECURITY_KEYSTORE_TYPE;
 
 /**
  * @author Cosmin Baciu
@@ -25,7 +22,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 @Qualifier(AbstractCryptoServiceSpi.DEFAULT_AUTHENTICATION_SPI)
 public class DefaultDomainCryptoServiceSpiImpl extends BaseDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DefaultDomainCryptoServiceSpiImpl.class);
+//    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DefaultDomainCryptoServiceSpiImpl.class);
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
