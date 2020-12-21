@@ -10,13 +10,13 @@ import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.api.validators.SkipWhiteListed;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.crypto.MultiDomainCryptoServiceImpl;
+import eu.domibus.core.crypto.TLSMultiDomainCryptoServiceImpl;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.ErrorRO;
 import eu.domibus.web.rest.ro.TrustStoreRO;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -26,7 +26,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.io.IOException;
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
@@ -43,34 +42,39 @@ import static org.springframework.web.bind.annotation.RequestMethod.GET;
 @RequestMapping(value = "/rest")
 public class TruststoreResource extends BaseResource {
 
-//    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TruststoreResource.class);
-
     public static final String ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD = "Failed to upload the truststoreFile file since its password was empty."; //NOSONAR
 
-    @Autowired
-    protected MultiDomainCryptoService multiDomainCertificateProvider;
+//    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TruststoreResource.class);
 
-    @Autowired
-    @Qualifier("TLSMultiDomainCryptoServiceImpl") //or a specific interface??
-    protected MultiDomainCryptoService tlsMultiDomainCertificateProvider;
+    private MultiDomainCryptoServiceImpl multiDomainCertificateProvider;
 
-    @Autowired
-    protected DomainContextProvider domainProvider;
+    private TLSMultiDomainCryptoServiceImpl tlsMultiDomainCertificateProvider;
 
-    @Autowired
+    private DomainContextProvider domainProvider;
+
     private CertificateService certificateService;
 
-    @Autowired
     private DomainCoreConverter domainConverter;
 
-    @Autowired
     private ErrorHandlerService errorHandlerService;
 
-    @Autowired
-    MultiPartFileUtil multiPartFileUtil;
+    private MultiPartFileUtil multiPartFileUtil;
 
-    @Autowired
     private AuditService auditService;
+
+    public TruststoreResource(MultiDomainCryptoServiceImpl multiDomainCertificateProvider, TLSMultiDomainCryptoServiceImpl tlsMultiDomainCertificateProvider,
+                              DomainContextProvider domainProvider, CertificateService certificateService,
+                              DomainCoreConverter domainConverter, ErrorHandlerService errorHandlerService,
+                              MultiPartFileUtil multiPartFileUtil, AuditService auditService) {
+        this.multiDomainCertificateProvider = multiDomainCertificateProvider;
+        this.tlsMultiDomainCertificateProvider = tlsMultiDomainCertificateProvider;
+        this.domainProvider = domainProvider;
+        this.certificateService = certificateService;
+        this.domainConverter = domainConverter;
+        this.errorHandlerService = errorHandlerService;
+        this.multiPartFileUtil = multiPartFileUtil;
+        this.auditService = auditService;
+    }
 
     @ExceptionHandler({CryptoException.class})
     public ResponseEntity<ErrorRO> handleCryptoException(CryptoException ex) {
@@ -90,7 +94,7 @@ public class TruststoreResource extends BaseResource {
 
     @GetMapping(value = "/truststore/download", produces = "application/octet-stream")
     public ResponseEntity<ByteArrayResource> downloadTrustStore() {
-        return downloadTruststoreContent(multiDomainCertificateProvider);
+        return downloadTruststoreContent(multiDomainCertificateProvider, () -> auditService.addTruststoreDownloadedAudit());
     }
 
     @RequestMapping(value = {"/truststore/list"}, method = GET)
@@ -100,7 +104,7 @@ public class TruststoreResource extends BaseResource {
 
     @GetMapping(path = "/truststore/csv")
     public ResponseEntity<String> getEntriesAsCsv() {
-        return getEntriesAsCSV(multiDomainCertificateProvider);
+        return getEntriesAsCSV(multiDomainCertificateProvider, "truststore");
     }
 
     @PostMapping(value = "/tlstruststore")
@@ -111,8 +115,8 @@ public class TruststoreResource extends BaseResource {
     }
 
     @GetMapping(value = "/tlstruststore", produces = "application/octet-stream")
-    public ResponseEntity<ByteArrayResource> downloadTLSTrustStore() throws IOException {
-        return downloadTruststoreContent(tlsMultiDomainCertificateProvider);
+    public ResponseEntity<ByteArrayResource> downloadTLSTrustStore() {
+        return downloadTruststoreContent(tlsMultiDomainCertificateProvider, () -> auditService.addTLSTruststoreDownloadedAudit());
     }
 
     @GetMapping(value = {"/tlstruststore/entries"})
@@ -122,7 +126,7 @@ public class TruststoreResource extends BaseResource {
 
     @GetMapping(path = "/tlstruststore/entries/csv")
     public ResponseEntity<String> getTLSEntriesAsCsv() {
-        return getEntriesAsCSV(tlsMultiDomainCertificateProvider);
+        return getEntriesAsCSV(tlsMultiDomainCertificateProvider, "tlsTruststore");
     }
 
     @PostMapping(value = "/tlstruststore/entries")
@@ -147,7 +151,7 @@ public class TruststoreResource extends BaseResource {
         return "TLS certificate file has been successfully deleted.";
     }
 
-    private void replaceTruststore(MultiDomainCryptoService certificateProvider, MultipartFile truststoreFile, String password) {
+    protected void replaceTruststore(MultiDomainCryptoService certificateProvider, MultipartFile truststoreFile, String password) {
         byte[] truststoreFileContent = multiPartFileUtil.validateAndGetFileContent(truststoreFile);
 
         if (StringUtils.isBlank(password)) {
@@ -157,11 +161,8 @@ public class TruststoreResource extends BaseResource {
         certificateProvider.replaceTrustStore(domainProvider.getCurrentDomain(), truststoreFile.getOriginalFilename(), truststoreFileContent, password);
     }
 
-    private ResponseEntity<ByteArrayResource> downloadTruststoreContent(MultiDomainCryptoService multiDomainCertificateProvider) {
+    protected ResponseEntity<ByteArrayResource> downloadTruststoreContent(MultiDomainCryptoService multiDomainCertificateProvider, Runnable auditMethod) {
         byte[] content = multiDomainCertificateProvider.getTruststoreContent(domainProvider.getCurrentDomain());
-
-        //todo: adjust this call for both truststores
-        auditService.addTruststoreDownloadedAudit();
 
         ByteArrayResource resource = new ByteArrayResource(content);
 
@@ -170,19 +171,21 @@ public class TruststoreResource extends BaseResource {
             status = HttpStatus.NO_CONTENT;
         }
 
+        auditMethod.run();
+
         return ResponseEntity.status(status)
                 .contentType(MediaType.parseMediaType("application/octet-stream"))
                 .header("content-disposition", "attachment; filename=TrustStore.jks")
                 .body(resource);
     }
 
-    private List<TrustStoreRO> getTrustStoreEntries(MultiDomainCryptoService multiDomainCertificateProvider) {
+    protected List<TrustStoreRO> getTrustStoreEntries(MultiDomainCryptoService multiDomainCertificateProvider) {
         final KeyStore store = multiDomainCertificateProvider.getTrustStore(domainProvider.getCurrentDomain());
         List<TrustStoreEntry> trustStoreEntries = certificateService.getTrustStoreEntries(store);
         return domainConverter.convert(trustStoreEntries, TrustStoreRO.class);
     }
 
-    private ResponseEntity<String> getEntriesAsCSV(MultiDomainCryptoService cryptoService) {
+    protected ResponseEntity<String> getEntriesAsCSV(MultiDomainCryptoService cryptoService, String moduleName) {
         final List<TrustStoreRO> entries = getTrustStoreEntries(cryptoService);
         getCsvService().validateMaxRows(entries.size());
 
@@ -192,6 +195,6 @@ public class TruststoreResource extends BaseResource {
                         "ValidFrom".toUpperCase(), "Valid from",
                         "ValidUntil".toUpperCase(), "Valid until"
                 ),
-                Arrays.asList("fingerprints"), "truststore");
+                Arrays.asList("fingerprints"), moduleName);
     }
 }
