@@ -4,10 +4,13 @@ import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.pki.CertificateService;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.util.backup.BackupService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.wss4j.common.crypto.Merlin;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.junit.Assert;
@@ -15,10 +18,17 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Properties;
 
@@ -30,10 +40,9 @@ import static org.apache.wss4j.common.ext.WSSecurityException.ErrorCode.SECURITY
  */
 @RunWith(JMockit.class)
 public class BaseDomainCryptoServiceSpiImplTest {
-    public static final String PRIVATE_KEY_PASSWORD = "privateKeyPassword";
 
     @Tested
-    private BaseDomainCryptoServiceSpiImpl domainCryptoService;
+    private DefaultDomainCryptoServiceSpiImpl domainCryptoService;
 
     @Injectable
     protected CertificateService certificateService;
@@ -53,31 +62,11 @@ public class BaseDomainCryptoServiceSpiImplTest {
     @Injectable
     private BackupService backupService;
 
+    @Injectable
+    DomibusPropertyProvider domibusPropertyProvider;
+
     @Rule
     public ExpectedException thrown = ExpectedException.none();
-
-//    @Before
-//    public void setUp() {
-//        new NonStrictExpectations(domainCryptoService) {{
-//            domainCryptoService.getKeystoreType();
-//            result = "keystoreType";
-//            domainCryptoService.getKeystorePassword();
-//            result = "keystorePassword";
-//            domainCryptoService.getPrivateKeyAlias();
-//            result = "privateKeyAlias";
-//            domainCryptoService.getPrivateKeyPassword(anyString);
-//            result = PRIVATE_KEY_PASSWORD;
-//            domainCryptoService.getKeystoreLocation();
-//            result = "keystoreLocation";
-//
-//            domainCryptoService.getTrustStoreLocation();
-//            result = "trustStoreLocation";
-//            domainCryptoService.getTrustStorePassword();
-//            result = "trustStorePassword";
-//            domainCryptoService.getTrustStoreType();
-//            result = "trustStoreType";
-//        }};
-//    }
 
     @Test
     public void throwsExceptionWhenFailingToLoadMerlinProperties_IOException() throws WSSecurityException, IOException {
@@ -184,5 +173,94 @@ public class BaseDomainCryptoServiceSpiImplTest {
         }};
     }
 
+    @Test
+    public void refreshTrustStore(@Injectable KeyStore trustStore) {
+        // Given
+        new Expectations(domainCryptoService) {{
+            domainCryptoService.loadTrustStore();
+            result = trustStore;
+            domainCryptoService.setTrustStore(trustStore);
+        }};
 
+        // When
+        domainCryptoService.refreshTrustStore();
+
+        new Verifications() {{
+            KeyStore res = domainCryptoService.loadTrustStore();
+            domainCryptoService.setTrustStore(res);
+        }};
+    }
+
+    @Test
+    public void replaceTrustStore(@Mocked KeyStore trustStore,
+                                  @Mocked ByteArrayOutputStream oldTrustStoreBytes,
+                                  @Mocked ByteArrayInputStream newTrustStoreBytes)
+            throws CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException {
+
+        byte[] store = new byte[]{0, 1, 2};
+        String trustPass = "trustPass";
+        String password = "pass";
+        String type = "type";
+
+        new Expectations(domainCryptoService) {{
+            new ByteArrayOutputStream();
+            result = oldTrustStoreBytes;
+            new ByteArrayInputStream(store);
+            result = newTrustStoreBytes;
+            domainCryptoService.getTrustStorePassword();
+            result = trustPass;
+            domainCryptoService.getTruststore();
+            result = trustStore;
+            trustStore.store(oldTrustStoreBytes, trustPass.toCharArray());
+            domainCryptoService.getTrustStoreType();
+            result = type;
+            certificateService.validateLoadOperation(newTrustStoreBytes, password, type);
+            trustStore.load(newTrustStoreBytes, password.toCharArray());
+            domainCryptoService.persistTrustStore();
+        }};
+
+        domainCryptoService.replaceTrustStore(store, password);
+
+        new Verifications() {{
+            trustStore.store(oldTrustStoreBytes, trustPass.toCharArray());
+            certificateService.validateLoadOperation(newTrustStoreBytes, password, type);
+            domainCryptoService.getTruststore().load(newTrustStoreBytes, password.toCharArray());
+            domainCryptoService.persistTrustStore();
+        }};
+    }
+
+    @Test
+    public void persistTrustStore(@Mocked KeyStore trustStore, @Injectable FileOutputStream fileOutputStream)
+            throws IOException, CertificateException, NoSuchAlgorithmException, KeyStoreException, URISyntaxException {
+
+        String trustStoreLocation = "trustLoc";
+        String trustPass = "trustPass";
+        File trustStoreFile = Mockito.mock(File.class);
+        Mockito.when(trustStoreFile.exists()).thenReturn(true);
+
+        new Expectations(domainCryptoService) {{
+            domainCryptoService.getTrustStoreLocation();
+            result = trustStoreLocation;
+            domainCryptoService.createTrustStoreFile(trustStoreLocation);
+            result = trustStoreFile;
+            domainCryptoService.parentFileExists(trustStoreFile);
+            result = true;
+            domainCryptoService.backupTrustStore(trustStoreFile);
+            domainCryptoService.createFileOutputStream(trustStoreFile);
+            result = fileOutputStream;
+            domainCryptoService.getTrustStorePassword();
+            result = trustPass;
+            domainCryptoService.getTruststore();
+            result = trustStore;
+            trustStore.store(fileOutputStream, trustPass.toCharArray());
+            domainCryptoService.signalTrustStoreUpdate();
+        }};
+
+        domainCryptoService.persistTrustStore();
+
+        new Verifications() {{
+            domainCryptoService.backupTrustStore(trustStoreFile);
+            domainCryptoService.signalTrustStoreUpdate();
+        }};
+    }
 }

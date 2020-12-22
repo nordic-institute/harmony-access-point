@@ -22,8 +22,6 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 @Qualifier(AbstractCryptoServiceSpi.DEFAULT_AUTHENTICATION_SPI)
 public class DefaultDomainCryptoServiceSpiImpl extends BaseDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi {
 
-//    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DefaultDomainCryptoServiceSpiImpl.class);
-
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
 

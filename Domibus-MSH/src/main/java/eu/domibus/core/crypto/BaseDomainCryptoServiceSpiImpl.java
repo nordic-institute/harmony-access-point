@@ -93,21 +93,21 @@ public abstract class BaseDomainCryptoServiceSpiImpl extends Merlin implements D
 
         ByteArrayOutputStream oldTrustStoreBytes = new ByteArrayOutputStream();
         try {
-            truststore.store(oldTrustStoreBytes, getTrustStorePassword().toCharArray());
+            getTruststore().store(oldTrustStoreBytes, getTrustStorePassword().toCharArray());
         } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException exc) {
             closeOutputStream(oldTrustStoreBytes);
             throw new CryptoSpiException("Could not replace truststore", exc);
         }
         try (ByteArrayInputStream newTrustStoreBytes = new ByteArrayInputStream(store)) {
             certificateService.validateLoadOperation(newTrustStoreBytes, password, getTrustStoreType());
-            truststore.load(newTrustStoreBytes, password.toCharArray());
+            getTruststore().load(newTrustStoreBytes, password.toCharArray());
             LOG.debug("Truststore successfully loaded");
             persistTrustStore();
             LOG.debug("Truststore successfully persisted");
         } catch (CertificateException | NoSuchAlgorithmException | IOException | CryptoException e) {
             LOG.error("Could not replace truststore", e);
             try {
-                truststore.load(oldTrustStoreBytes.toInputStream(), getTrustStorePassword().toCharArray());
+                getTruststore().load(oldTrustStoreBytes.toInputStream(), getTrustStorePassword().toCharArray());
                 signalTrustStoreUpdate();
             } catch (CertificateException | NoSuchAlgorithmException | IOException exc) {
                 throw new CryptoSpiException("Could not replace truststore and old truststore was not reverted properly. Please correct the error before continuing.", exc);
@@ -116,6 +116,10 @@ public abstract class BaseDomainCryptoServiceSpiImpl extends Merlin implements D
         } finally {
             closeOutputStream(oldTrustStoreBytes);
         }
+    }
+
+    protected KeyStore getTruststore() {
+        return truststore;
     }
 
     private void closeOutputStream(ByteArrayOutputStream outputStream) {
@@ -127,11 +131,11 @@ public abstract class BaseDomainCryptoServiceSpiImpl extends Merlin implements D
         }
     }
 
-    private synchronized void persistTrustStore() throws CryptoException {
-        String trustStoreFileValue = getTrustStoreLocation();
-        LOG.debug("TrustStoreLocation is: [{}]", trustStoreFileValue);
-        File trustStoreFile = new File(trustStoreFileValue);
-        if (!trustStoreFile.getParentFile().exists()) {
+    protected synchronized void persistTrustStore() throws CryptoException {
+        String trustStoreLocation = getTrustStoreLocation();
+        LOG.debug("TrustStoreLocation is: [{}]", trustStoreLocation);
+        File trustStoreFile = createTrustStoreFile(trustStoreLocation);
+        if (!parentFileExists(trustStoreFile)) {
             LOG.debug("Creating directory [" + trustStoreFile.getParentFile() + "]");
             try {
                 FileUtils.forceMkdir(trustStoreFile.getParentFile());
@@ -143,8 +147,8 @@ public abstract class BaseDomainCryptoServiceSpiImpl extends Merlin implements D
         backupTrustStore(trustStoreFile);
 
         LOG.debug("TrustStoreFile is: [{}]", trustStoreFile.getAbsolutePath());
-        try (FileOutputStream fileOutputStream = new FileOutputStream(trustStoreFile)) {
-            truststore.store(fileOutputStream, getTrustStorePassword().toCharArray());
+        try (FileOutputStream fileOutputStream = createFileOutputStream(trustStoreFile)) {
+            getTruststore().store(fileOutputStream, getTrustStorePassword().toCharArray());
         } catch (FileNotFoundException ex) {
             LOG.error("Could not persist truststore:", ex);
             //we address this exception separately
@@ -155,6 +159,19 @@ public abstract class BaseDomainCryptoServiceSpiImpl extends Merlin implements D
         }
 
         signalTrustStoreUpdate();
+    }
+
+    // extracted these methods for testing purposes
+    protected boolean parentFileExists(File trustStoreFile) {
+        return trustStoreFile.getParentFile().exists();
+    }
+
+    protected FileOutputStream createFileOutputStream(File trustStoreFile) throws FileNotFoundException {
+        return new FileOutputStream(trustStoreFile);
+    }
+
+    protected File createTrustStoreFile(String trustStoreLocation) {
+        return new File(trustStoreLocation);
     }
 
     protected void backupTrustStore(File trustStoreFile) throws CryptoException {
