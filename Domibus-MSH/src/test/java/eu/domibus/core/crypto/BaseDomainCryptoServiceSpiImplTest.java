@@ -4,7 +4,6 @@ import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.pki.CertificateService;
-import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.util.backup.BackupService;
 import mockit.*;
@@ -12,7 +11,6 @@ import mockit.integration.junit4.JMockit;
 import org.apache.wss4j.common.crypto.Merlin;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -24,7 +22,6 @@ import java.security.KeyStore;
 import java.security.cert.X509Certificate;
 import java.util.Properties;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 import static org.apache.wss4j.common.ext.WSSecurityException.ErrorCode.SECURITY_ERROR;
 
 /**
@@ -37,9 +34,6 @@ public class BaseDomainCryptoServiceSpiImplTest {
 
     @Tested
     private BaseDomainCryptoServiceSpiImpl domainCryptoService;
-
-    @Injectable
-    protected DomibusPropertyProvider domibusPropertyProvider;
 
     @Injectable
     protected CertificateService certificateService;
@@ -62,27 +56,47 @@ public class BaseDomainCryptoServiceSpiImplTest {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
-    @Before
-    public void setUp() {
-        new NonStrictExpectations() {{
-            domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEYSTORE_TYPE);
-            result = "keystoreType";
-            domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEYSTORE_PASSWORD);
-            result = "keystorePassword";
-            domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS);
-            result = "privateKeyAlias";
-            domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_PASSWORD);
-            result = PRIVATE_KEY_PASSWORD;
-            domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEYSTORE_LOCATION);
-            result = "keystoreLocation";
+//    @Before
+//    public void setUp() {
+//        new NonStrictExpectations(domainCryptoService) {{
+//            domainCryptoService.getKeystoreType();
+//            result = "keystoreType";
+//            domainCryptoService.getKeystorePassword();
+//            result = "keystorePassword";
+//            domainCryptoService.getPrivateKeyAlias();
+//            result = "privateKeyAlias";
+//            domainCryptoService.getPrivateKeyPassword(anyString);
+//            result = PRIVATE_KEY_PASSWORD;
+//            domainCryptoService.getKeystoreLocation();
+//            result = "keystoreLocation";
+//
+//            domainCryptoService.getTrustStoreLocation();
+//            result = "trustStoreLocation";
+//            domainCryptoService.getTrustStorePassword();
+//            result = "trustStorePassword";
+//            domainCryptoService.getTrustStoreType();
+//            result = "trustStoreType";
+//        }};
+//    }
 
-            domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_LOCATION);
-            result = "trustStoreLocation";
-            domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD);
-            result = "trustStorePassword";
-            domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_TYPE);
-            result = "trustStoreType";
+    @Test
+    public void throwsExceptionWhenFailingToLoadMerlinProperties_IOException() throws WSSecurityException, IOException {
+        new Expectations(domainCryptoService) {{
+            domainCryptoService.getKeystoreProperties();
+            result = new Properties();
+            domainCryptoService.getTrustStoreProperties();
+            result = new Properties();
+
+            domainCryptoService.loadProperties((Properties) any, (ClassLoader) any, null);
+            result = new IOException();
         }};
+
+        try {
+            domainCryptoService.init();
+            Assert.fail();
+        } catch (CryptoException ex) {
+            Assert.assertTrue(ex.getMessage().contains("Error occurred when loading the properties of TrustStore/KeyStore"));
+        }
     }
 
     @Test

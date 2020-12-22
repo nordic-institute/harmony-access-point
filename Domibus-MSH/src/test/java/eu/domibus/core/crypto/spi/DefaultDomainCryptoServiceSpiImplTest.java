@@ -1,17 +1,18 @@
 package eu.domibus.core.crypto.spi;
 
 import eu.domibus.api.cluster.SignalService;
-import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.crypto.DefaultDomainCryptoServiceSpiImpl;
 import eu.domibus.core.util.backup.BackupService;
-import mockit.*;
+import mockit.Injectable;
+import mockit.Mocked;
+import mockit.NonStrictExpectations;
+import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 import org.apache.wss4j.common.crypto.Merlin;
-import org.apache.wss4j.common.ext.WSSecurityException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -19,9 +20,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
-import java.io.IOException;
 import java.security.cert.X509Certificate;
-import java.util.Properties;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
@@ -81,21 +80,6 @@ public class DefaultDomainCryptoServiceSpiImplTest {
             domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_TYPE);
             result = "trustStoreType";
         }};
-    }
-
-    @Test
-    public void throwsExceptionWhenFailingToLoadMerlinProperties_IOException(@Mocked Merlin merlin) throws WSSecurityException, IOException {
-        // Given
-        thrown.expect(CryptoException.class);
-        thrown.expectMessage("Error occurred when loading the properties of TrustStore/KeyStore");
-
-        new Expectations() {{
-            merlin.loadProperties((Properties) any, (ClassLoader) any, null);
-            result = new IOException();
-        }};
-
-        // When
-        domainCryptoService.init();
     }
 
     @Test
