@@ -53,6 +53,22 @@ public abstract class BaseDomainCryptoServiceSpiImpl extends Merlin implements D
     @Autowired
     protected BackupService backupService;
 
+    // abstract methods implemented in derived classes
+    protected abstract String getKeystoreLocation();
+
+    protected abstract String getPrivateKeyAlias();
+
+    protected abstract String getKeystorePassword();
+
+    protected abstract String getKeystoreType();
+
+    protected abstract String getTrustStoreLocation();
+
+    protected abstract String getTrustStorePassword();
+
+    public abstract String getTrustStoreType();
+
+    // public interface
     @Override
     public void init() {
         LOG.debug("Initializing the certificate provider");
@@ -118,23 +134,72 @@ public abstract class BaseDomainCryptoServiceSpiImpl extends Merlin implements D
         }
     }
 
-    protected KeyStore getTruststore() {
-        return truststore;
+    @Override
+    public boolean isCertificateChainValid(String alias) throws DomibusCertificateSpiException {
+        LOG.debug("Checking certificate validation for [{}]", alias);
+        KeyStore trustStore = getTrustStore();
+        return certificateService.isCertificateChainValid(trustStore, alias);
     }
 
-    private void closeOutputStream(ByteArrayOutputStream outputStream) {
-        try {
-            LOG.debug("Closing output stream [{}].", outputStream);
-            outputStream.close();
-        } catch (IOException e) {
-            LOG.error("Could not close [{}]", outputStream, e);
+    @Override
+    public synchronized boolean addCertificate(X509Certificate certificate, String alias, boolean overwrite) {
+        boolean added = doAddCertificate(certificate, alias, overwrite);
+        if (added) {
+            persistTrustStore();
         }
+        return added;
+    }
+
+    @Override
+    public synchronized void addCertificate(List<CertificateEntrySpi> certificates, boolean overwrite) {
+        certificates.forEach(certEntry -> doAddCertificate(certEntry.getCertificate(), certEntry.getAlias(), overwrite));
+        persistTrustStore();
+    }
+
+    @Override
+    public boolean removeCertificate(String alias) {
+        boolean removed = doRemoveCertificate(alias);
+        if (removed) {
+            persistTrustStore();
+        }
+        return removed;
+    }
+
+    @Override
+    public void removeCertificate(List<String> aliases) {
+        aliases.forEach(this::doRemoveCertificate);
+        persistTrustStore();
+    }
+
+    @Override
+    public abstract String getIdentifier();
+
+    @Override
+    public void setDomain(DomainSpi domain) {
+        this.domain = domainCoreConverter.convert(domain, Domain.class);
+    }
+
+    @Override
+    public byte[] getTruststoreContent() {
+        String location = getTrustStoreLocation();
+        File file = createFileWithLocation(location);
+        Path path = Paths.get(file.getAbsolutePath());
+        try {
+            return Files.readAllBytes(path);
+        } catch (IOException e) {
+            throw new DomibusCertificateSpiException("Could not read truststore from [" + location + "]");
+        }
+    }
+
+    // protected methods
+    protected KeyStore getTruststore() {
+        return truststore;
     }
 
     protected synchronized void persistTrustStore() throws CryptoException {
         String trustStoreLocation = getTrustStoreLocation();
         LOG.debug("TrustStoreLocation is: [{}]", trustStoreLocation);
-        File trustStoreFile = createTrustStoreFile(trustStoreLocation);
+        File trustStoreFile = createFileWithLocation(trustStoreLocation);
         if (!parentFileExists(trustStoreFile)) {
             LOG.debug("Creating directory [" + trustStoreFile.getParentFile() + "]");
             try {
@@ -161,19 +226,6 @@ public abstract class BaseDomainCryptoServiceSpiImpl extends Merlin implements D
         signalTrustStoreUpdate();
     }
 
-    // extracted these methods for testing purposes
-    protected boolean parentFileExists(File trustStoreFile) {
-        return trustStoreFile.getParentFile().exists();
-    }
-
-    protected FileOutputStream createFileOutputStream(File trustStoreFile) throws FileNotFoundException {
-        return new FileOutputStream(trustStoreFile);
-    }
-
-    protected File createTrustStoreFile(String trustStoreLocation) {
-        return new File(trustStoreLocation);
-    }
-
     protected void backupTrustStore(File trustStoreFile) throws CryptoException {
         if (trustStoreFile == null || StringUtils.isEmpty(trustStoreFile.getAbsolutePath())) {
             LOG.warn("Truststore file was null, nothing to backup!");
@@ -191,31 +243,7 @@ public abstract class BaseDomainCryptoServiceSpiImpl extends Merlin implements D
         }
     }
 
-
-    @Override
-    public boolean isCertificateChainValid(String alias) throws DomibusCertificateSpiException {
-        LOG.debug("Checking certificate validation for [{}]", alias);
-        KeyStore trustStore = getTrustStore();
-        return certificateService.isCertificateChainValid(trustStore, alias);
-    }
-
-    @Override
-    public synchronized boolean addCertificate(X509Certificate certificate, String alias, boolean overwrite) {
-        boolean added = doAddCertificate(certificate, alias, overwrite);
-        if (added) {
-            persistTrustStore();
-        }
-        return added;
-    }
-
-    @Override
-    public synchronized void addCertificate(List<CertificateEntrySpi> certificates, boolean overwrite) {
-        certificates.forEach(certEntry ->
-                doAddCertificate(certEntry.getCertificate(), certEntry.getAlias(), overwrite));
-        persistTrustStore();
-    }
-
-    private boolean doAddCertificate(X509Certificate certificate, String alias, boolean overwrite) {
+    protected boolean doAddCertificate(X509Certificate certificate, String alias, boolean overwrite) {
         boolean containsAlias;
         try {
             containsAlias = getTrustStore().containsAlias(alias);
@@ -239,27 +267,27 @@ public abstract class BaseDomainCryptoServiceSpiImpl extends Merlin implements D
 
     protected KeyStore loadTrustStore() {
         String trustStoreLocation = getTrustStoreLocation();
-        if (trustStoreLocation != null) {
-            trustStoreLocation = trustStoreLocation.trim();
-
-            try (InputStream is = loadInputStream(this.getClass().getClassLoader(), trustStoreLocation)) {
-                String passwd = getTrustStorePassword();
-                if (passwd != null) {
-                    passwd = passwd.trim();
-                    passwd = decryptPassword(passwd, passwordEncryptor);
-                }
-                String type = getTrustStoreType();
-                if (type != null) {
-                    type = type.trim();
-                }
-                final KeyStore trustStore = load(is, passwd, null, type);
-                LOG.debug("The TrustStore {} of type {} has been loaded", trustStoreLocation, type);
-                return trustStore;
-            } catch (WSSecurityException | IOException e) {
-                throw new CryptoException("Error loading truststore", e);
-            }
+        if (trustStoreLocation == null) {
+            throw new CryptoException("Could not load truststore, truststore location is empty");
         }
-        throw new CryptoException("Could not load truststore, truststore location is empty");
+
+        trustStoreLocation = trustStoreLocation.trim();
+        try (InputStream is = loadInputStream(this.getClass().getClassLoader(), trustStoreLocation)) {
+            String passwd = getTrustStorePassword();
+            if (passwd != null) {
+                passwd = passwd.trim();
+                passwd = doDecriptPassword(passwd);
+            }
+            String type = getTrustStoreType();
+            if (type != null) {
+                type = type.trim();
+            }
+            final KeyStore trustStore = doLoad(is, passwd, type);
+            LOG.debug("The TrustStore {} of type {} has been loaded", trustStoreLocation, type);
+            return trustStore;
+        } catch (WSSecurityException | IOException e) {
+            throw new CryptoException("Error loading truststore", e);
+        }
     }
 
     protected Properties getKeystoreProperties() {
@@ -289,14 +317,6 @@ public abstract class BaseDomainCryptoServiceSpiImpl extends Merlin implements D
         return result;
     }
 
-    protected abstract String getKeystoreLocation();
-
-    protected abstract String getPrivateKeyAlias();
-
-    protected abstract String getKeystorePassword();
-
-    protected abstract String getKeystoreType();
-
     protected Properties getTrustStoreProperties() {
         final String trustStoreType = getTrustStoreType();
         final String trustStorePassword = getTrustStorePassword();
@@ -323,53 +343,7 @@ public abstract class BaseDomainCryptoServiceSpiImpl extends Merlin implements D
         return result;
     }
 
-    protected abstract String getTrustStoreLocation();
-
-    protected abstract String getTrustStorePassword();
-
-    public abstract String getTrustStoreType();
-
-    protected void signalTrustStoreUpdate() {
-        // Sends a signal to all the servers from the cluster in order to trigger the refresh of the trust store
-        signalService.signalTrustStoreUpdate(domain);
-    }
-
-    @Override
-    public boolean removeCertificate(String alias) {
-        boolean removed = doRemoveCertificate(alias);
-        if (removed) {
-            persistTrustStore();
-        }
-        return removed;
-    }
-
-    @Override
-    public void removeCertificate(List<String> aliases) {
-        aliases.forEach(this::doRemoveCertificate);
-        persistTrustStore();
-    }
-
-    @Override
-    public abstract String getIdentifier();
-
-    @Override
-    public void setDomain(DomainSpi domain) {
-        this.domain = domainCoreConverter.convert(domain, Domain.class);
-    }
-
-    @Override
-    public byte[] getTruststoreContent() {
-        String location = getTrustStoreLocation();
-        File file = new File(location);
-        Path path = Paths.get(file.getAbsolutePath());
-        try {
-            return Files.readAllBytes(path);
-        } catch (IOException e) {
-            throw new DomibusCertificateSpiException("Could not read truststore from [" + location + "]");
-        }
-    }
-
-    private synchronized boolean doRemoveCertificate(String alias) {
+    protected synchronized boolean doRemoveCertificate(String alias) {
         boolean containsAlias;
         try {
             containsAlias = getTrustStore().containsAlias(alias);
@@ -385,5 +359,40 @@ public abstract class BaseDomainCryptoServiceSpiImpl extends Merlin implements D
         } catch (final KeyStoreException e) {
             throw new ConfigurationException(e);
         }
+    }
+
+    private void closeOutputStream(ByteArrayOutputStream outputStream) {
+        try {
+            LOG.debug("Closing output stream [{}].", outputStream);
+            outputStream.close();
+        } catch (IOException e) {
+            LOG.error("Could not close [{}]", outputStream, e);
+        }
+    }
+
+    // methods extracted for testing purposes
+    protected boolean parentFileExists(File trustStoreFile) {
+        return trustStoreFile.getParentFile().exists();
+    }
+
+    protected FileOutputStream createFileOutputStream(File trustStoreFile) throws FileNotFoundException {
+        return new FileOutputStream(trustStoreFile);
+    }
+
+    protected File createFileWithLocation(String location) {
+        return new File(location);
+    }
+
+    protected KeyStore doLoad(InputStream is, String passwd, String type) throws WSSecurityException {
+        return load(is, passwd, null, type);
+    }
+
+    protected String doDecriptPassword(String passwd) {
+        return decryptPassword(passwd, passwordEncryptor);
+    }
+
+    protected void signalTrustStoreUpdate() {
+        // Sends a signal to all the servers from the cluster in order to trigger the refresh of the trust store
+        signalService.signalTrustStoreUpdate(domain);
     }
 }

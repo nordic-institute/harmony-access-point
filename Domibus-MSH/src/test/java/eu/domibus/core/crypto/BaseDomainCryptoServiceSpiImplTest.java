@@ -6,10 +6,10 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.crypto.spi.CertificateEntrySpi;
 import eu.domibus.core.util.backup.BackupService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.wss4j.common.crypto.Merlin;
 import org.apache.wss4j.common.ext.WSSecurityException;
@@ -20,16 +20,14 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.net.URISyntaxException;
+import java.io.*;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 
 import static org.apache.wss4j.common.ext.WSSecurityException.ErrorCode.SECURITY_ERROR;
@@ -231,7 +229,7 @@ public class BaseDomainCryptoServiceSpiImplTest {
 
     @Test
     public void persistTrustStore(@Mocked KeyStore trustStore, @Injectable FileOutputStream fileOutputStream)
-            throws IOException, CertificateException, NoSuchAlgorithmException, KeyStoreException, URISyntaxException {
+            throws IOException, CertificateException, NoSuchAlgorithmException, KeyStoreException {
 
         String trustStoreLocation = "trustLoc";
         String trustPass = "trustPass";
@@ -241,7 +239,7 @@ public class BaseDomainCryptoServiceSpiImplTest {
         new Expectations(domainCryptoService) {{
             domainCryptoService.getTrustStoreLocation();
             result = trustStoreLocation;
-            domainCryptoService.createTrustStoreFile(trustStoreLocation);
+            domainCryptoService.createFileWithLocation(trustStoreLocation);
             result = trustStoreFile;
             domainCryptoService.parentFileExists(trustStoreFile);
             result = true;
@@ -262,5 +260,175 @@ public class BaseDomainCryptoServiceSpiImplTest {
             domainCryptoService.backupTrustStore(trustStoreFile);
             domainCryptoService.signalTrustStoreUpdate();
         }};
+    }
+
+    @Test
+    public void isCertificateChainValid() {
+        String alias = "alias";
+        new Expectations(domainCryptoService) {{
+            KeyStore trustStore = domainCryptoService.getTrustStore();
+            result = trustStore;
+            certificateService.isCertificateChainValid(trustStore, alias);
+            result = true;
+        }};
+
+        // When
+        boolean result = domainCryptoService.isCertificateChainValid(alias);
+
+        Assert.assertTrue(result);
+    }
+
+    @Test
+    public void addCertificate(@Injectable X509Certificate certificate) {
+        String alias = "alias";
+        boolean overwrite = true;
+
+        new Expectations(domainCryptoService) {{
+            domainCryptoService.doAddCertificate(certificate, alias, overwrite);
+            result = true;
+            domainCryptoService.persistTrustStore();
+        }};
+
+        // When
+        boolean result = domainCryptoService.addCertificate(certificate, alias, overwrite);
+
+        Assert.assertTrue(result);
+
+        new Verifications() {{
+            domainCryptoService.persistTrustStore();
+        }};
+    }
+
+    @Test
+    public void addCertificates(@Mocked X509Certificate certificate1, @Mocked X509Certificate certificate2) {
+        boolean overwrite = true;
+        String alias1 = "alias1", alias2 = "alias2";
+        List<CertificateEntrySpi> certificates = Arrays.asList(
+                new CertificateEntrySpi(alias1, certificate1), new CertificateEntrySpi(alias2, certificate2));
+
+        new Expectations(domainCryptoService) {{
+            domainCryptoService.doAddCertificate((X509Certificate) any, anyString, overwrite);
+            domainCryptoService.persistTrustStore();
+        }};
+
+        domainCryptoService.addCertificate(certificates, overwrite);
+
+        new Verifications() {{
+            domainCryptoService.doAddCertificate(certificate1, alias1, overwrite);
+            domainCryptoService.doAddCertificate(certificate2, alias2, overwrite);
+            domainCryptoService.persistTrustStore();
+        }};
+    }
+
+    @Test
+    public void removeCertificate() {
+        String alias = "alias";
+
+        new Expectations(domainCryptoService) {{
+            domainCryptoService.doRemoveCertificate(alias);
+            result = true;
+            domainCryptoService.persistTrustStore();
+        }};
+
+        boolean result = domainCryptoService.removeCertificate(alias);
+
+        Assert.assertTrue(result);
+
+        new Verifications() {{
+            domainCryptoService.persistTrustStore();
+        }};
+    }
+
+    @Test
+    public void removeCertificates() {
+        String alias1 = "alias1", alias2 = "alias2";
+        List<String> aliases = Arrays.asList(alias1, alias2);
+
+        new Expectations(domainCryptoService) {{
+            domainCryptoService.doRemoveCertificate(anyString);
+            result = true;
+            domainCryptoService.persistTrustStore();
+        }};
+
+        domainCryptoService.removeCertificate(aliases);
+
+        new Verifications() {{
+            domainCryptoService.doRemoveCertificate(alias1);
+            domainCryptoService.doRemoveCertificate(alias2);
+            domainCryptoService.persistTrustStore();
+        }};
+    }
+
+    @Test
+    public void doRemoveCertificate(@Injectable KeyStore trustStore) throws KeyStoreException {
+        String alias = "alias1";
+
+        new Expectations(domainCryptoService) {{
+            domainCryptoService.getTrustStore();
+            result = trustStore;
+            trustStore.containsAlias(alias);
+            result = true;
+            trustStore.deleteEntry(alias);
+        }};
+
+        // When
+        Boolean result = domainCryptoService.doRemoveCertificate(alias);
+
+        Assert.assertTrue(result);
+
+        new Verifications() {{
+            trustStore.deleteEntry(alias);
+        }};
+    }
+
+    @Test
+    public void doAddCertificate(@Mocked KeyStore trustStore, @Injectable X509Certificate certificate) throws KeyStoreException {
+        String alias = "alias";
+        boolean overwrite = true;
+
+        new Expectations(domainCryptoService) {{
+            domainCryptoService.getTrustStore();
+            result = trustStore;
+            trustStore.containsAlias(alias);
+            result = false;
+            domainCryptoService.getTrustStore().setCertificateEntry(alias, certificate);
+        }};
+
+        boolean result = domainCryptoService.doAddCertificate(certificate, alias, overwrite);
+
+        Assert.assertTrue(result);
+
+        new Verifications() {{
+            trustStore.deleteEntry(alias);
+            times = 0;
+        }};
+    }
+
+    @Test
+    public void loadTrustStore(@Mocked KeyStore trustStore, @Mocked InputStream is)
+            throws WSSecurityException, IOException {
+
+        String trustStoreLocation = "trustStoreLocation";
+        String trustStorePassword = "pass", decryptedPass = "pass2";
+        String type = "jks";
+
+        new Expectations(domainCryptoService) {{
+            domainCryptoService.getTrustStoreLocation();
+            result = trustStoreLocation;
+            domainCryptoService.loadInputStream(domainCryptoService.getClass().getClassLoader(), trustStoreLocation);
+            result = is;
+            domainCryptoService.getTrustStorePassword();
+            result = trustStorePassword;
+            domainCryptoService.doDecriptPassword(trustStorePassword);
+            result = decryptedPass;
+            domainCryptoService.getTrustStoreType();
+            result = type;
+            domainCryptoService.doLoad(is, decryptedPass, type);
+            result = trustStore;
+        }};
+
+        KeyStore result = domainCryptoService.loadTrustStore();
+
+        Assert.assertEquals(trustStore, result);
     }
 }
