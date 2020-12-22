@@ -1,5 +1,6 @@
 package eu.domibus.plugin.webService.backend.dispatch;
 
+import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.MessageInfo;
 import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Property;
 import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.UserMessage;
 import eu.domibus.ext.services.XMLUtilExtService;
@@ -67,6 +68,35 @@ public class WSPluginMessageBuilderTest {
         }};
         Object jaxbElement = wsPluginMessageBuilder.getJaxbElement(messageLogEntity);
         assertEquals(SendSuccess.class, jaxbElement.getClass());
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void getJaxbElement_deleteBatch(@Mocked WSBackendMessageLogEntity messageLogEntity) {
+        new Expectations(wsPluginMessageBuilder) {{
+            messageLogEntity.getType();
+            result = WSBackendMessageType.DELETED_BATCH;
+
+            wsPluginMessageBuilder.getDeleteBatch(messageLogEntity);
+            result = new DeleteBatch();
+        }};
+        Object jaxbElement = wsPluginMessageBuilder.getJaxbElement(messageLogEntity);
+        assertEquals(DeleteBatch.class, jaxbElement.getClass());
+        new FullVerifications() {
+        };
+    }
+
+    public void getJaxbElement_delete(@Mocked WSBackendMessageLogEntity messageLogEntity) {
+        new Expectations(wsPluginMessageBuilder) {{
+            messageLogEntity.getType();
+            result = WSBackendMessageType.DELETED;
+
+            wsPluginMessageBuilder.getDelete(messageLogEntity);
+            result = new Delete();
+        }};
+        Object jaxbElement = wsPluginMessageBuilder.getJaxbElement(messageLogEntity);
+        assertEquals(Delete.class, jaxbElement.getClass());
         new FullVerifications() {
         };
     }
@@ -145,6 +175,7 @@ public class WSPluginMessageBuilderTest {
         new FullVerifications() {
         };
     }
+
     @Test
     public void getSDelete(@Mocked WSBackendMessageLogEntity messageLogEntity) {
         new Expectations() {{
@@ -156,6 +187,7 @@ public class WSPluginMessageBuilderTest {
         new FullVerifications() {
         };
     }
+
     @Test
     public void getDeleteBatch(@Mocked WSBackendMessageLogEntity messageLogEntity) {
         new Expectations() {{
@@ -166,6 +198,14 @@ public class WSPluginMessageBuilderTest {
         assertEquals(MESSAGE_ID, sendSuccess.getMessageIds().get(0));
         new FullVerifications() {
         };
+    }
+    @Test(expected = WSPluginException.class)
+    public void getDeleteBatch_empty(@Mocked WSBackendMessageLogEntity messageLogEntity) {
+        new Expectations() {{
+            messageLogEntity.getMessageId();
+            result = "";
+        }};
+        wsPluginMessageBuilder.getDeleteBatch(messageLogEntity);
     }
 
     @Test
@@ -283,8 +323,21 @@ public class WSPluginMessageBuilderTest {
         }};
         wsPluginMessageBuilder.fillInfoPartsForLargeFiles(submitMessage, userMessage);
 
-        new FullVerifications() {
-        };
+        new FullVerifications() {};
+    }
+
+    @Test
+    public void fillInfoPartsForLargeFiles_noPartInfo_empty2(@Mocked SubmitMessage submitMessage, @Mocked UserMessage userMessage) {
+        new Expectations() {{
+            userMessage.getPayloadInfo().getPartInfo();
+            result = new ArrayList<>();
+
+            userMessage.getMessageInfo();
+            result = new MessageInfo();
+        }};
+        wsPluginMessageBuilder.fillInfoPartsForLargeFiles(submitMessage, userMessage);
+
+        new FullVerifications(wsPluginMessageBuilder) {};
     }
 
     @Test
@@ -455,7 +508,7 @@ public class WSPluginMessageBuilderTest {
     public void createSOAPMessage(@Mocked SendSuccess sendSuccess,
                                   @Mocked SOAPMessage soapMessage,
                                   @Mocked SOAPBody soapBody) throws SOAPException, JAXBException {
-        new Expectations(){{
+        new Expectations() {{
             xmlUtilExtService.getMessageFactorySoap12().createMessage();
             result = soapMessage;
 
@@ -465,7 +518,7 @@ public class WSPluginMessageBuilderTest {
 
         wsPluginMessageBuilder.createSOAPMessage(sendSuccess);
 
-        new FullVerifications(){{
+        new FullVerifications() {{
             jaxbContextWebserviceBackend.createMarshaller().marshal(sendSuccess, soapBody);
             times = 1;
 
@@ -477,9 +530,9 @@ public class WSPluginMessageBuilderTest {
 
     @Test(expected = WSPluginException.class)
     public void createSOAPMessage_exception(@Mocked SendSuccess sendSuccess,
-                                  @Mocked SOAPMessage soapMessage,
-                                  @Mocked SOAPBody soapBody) throws SOAPException {
-        new Expectations(){{
+                                            @Mocked SOAPMessage soapMessage,
+                                            @Mocked SOAPBody soapBody) throws SOAPException {
+        new Expectations() {{
             xmlUtilExtService.getMessageFactorySoap12().createMessage();
             result = soapMessage;
 
@@ -489,7 +542,8 @@ public class WSPluginMessageBuilderTest {
 
         wsPluginMessageBuilder.createSOAPMessage(sendSuccess);
 
-        new FullVerifications(){};
+        new FullVerifications() {
+        };
 
     }
 }

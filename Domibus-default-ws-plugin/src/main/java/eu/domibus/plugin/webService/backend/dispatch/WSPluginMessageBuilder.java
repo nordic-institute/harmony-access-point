@@ -12,9 +12,9 @@ import eu.domibus.plugin.webService.connector.WSPluginImpl;
 import eu.domibus.plugin.webService.exception.WSPluginException;
 import eu.domibus.plugin.webService.impl.ExtendedPartInfo;
 import eu.domibus.webservice.backend.generated.*;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -26,7 +26,6 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.StringUtils.equalsAnyIgnoreCase;
-import static org.apache.commons.lang3.StringUtils.splitByCharacterType;
 
 /**
  * @author François Gautier
@@ -105,7 +104,7 @@ public class WSPluginMessageBuilder {
 
     protected void fillInfoPartsForLargeFiles(SubmitMessage submitMessage, UserMessage userMessage) {
         if (userMessage.getPayloadInfo() == null || CollectionUtils.isEmpty(userMessage.getPayloadInfo().getPartInfo())) {
-            String messageId = "";
+            String messageId;
             if (userMessage.getMessageInfo() != null) {
                 messageId = userMessage.getMessageInfo().getMessageId();
                 LOG.info("No payload found for message [{}]", messageId);
@@ -179,7 +178,7 @@ public class WSPluginMessageBuilder {
     protected DeleteBatch getDeleteBatch(WSBackendMessageLogEntity messageLogEntity) {
         DeleteBatch deleteBatch = new ObjectFactory().createDeleteBatch();
         String[] split = StringUtils.split(messageLogEntity.getMessageId(), ";");
-        if(split == null){
+        if (split == null || split.length == 0) {
             throw new WSPluginException("DELETE_BATCH cannot be send because no message ids found");
         }
         deleteBatch.getMessageIds().addAll(Arrays.stream(split).collect(Collectors.toList()));

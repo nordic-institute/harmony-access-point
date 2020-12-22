@@ -128,10 +128,6 @@ public class WSPluginImplTest {
     @Test
     public void messageDeletedBatchEvent(@Mocked MessageDeletedBatchEvent event) {
         List<String> messageIds = new ArrayList<>();
-        new Expectations() {{
-            event.getMessageIds();
-            result = messageIds;
-        }};
 
         wsPlugin.messageDeletedBatchEvent(event);
 

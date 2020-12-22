@@ -9,6 +9,7 @@ import eu.domibus.plugin.webService.backend.reliability.WSPluginBackendReliabili
 import eu.domibus.plugin.webService.backend.rules.WSPluginDispatchRule;
 import eu.domibus.plugin.webService.backend.rules.WSPluginDispatchRulesService;
 import eu.domibus.plugin.webService.connector.WSPluginImpl;
+import eu.domibus.plugin.webService.exception.WSPluginException;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
@@ -48,6 +49,31 @@ public class WSPluginMessageSenderTest {
 
     @Injectable
     protected WSPluginImpl wsPlugin;
+
+    @Test(expected = WSPluginException.class)
+    public void sendSubmitMessage_noRule(@Mocked WSBackendMessageLogEntity wsBackendMessageLogEntity) {
+        new Expectations() {{
+
+            wsBackendMessageLogEntity.getRuleName();
+            result = RULE_NAME;
+
+            wsBackendMessageLogEntity.getType();
+            result = WSBackendMessageType.SUBMIT_MESSAGE;
+
+            wsBackendMessageLogEntity.getEntityId();
+            result = ID;
+
+            wsPluginDispatchRulesService.getRule(RULE_NAME);
+            result = null;
+        }};
+
+        wsPluginMessageSender.sendNotification(wsBackendMessageLogEntity);
+
+        new FullVerifications() {{
+            wsBackendMessageLogEntity.setMessageStatus(WSBackendMessageStatus.SEND_IN_PROGRESS);
+            times = 1;
+        }};
+    }
 
     @Test
     public void sendSubmitMessage(@Mocked WSBackendMessageLogEntity wsBackendMessageLogEntity,
