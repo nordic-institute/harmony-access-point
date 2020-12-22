@@ -13,16 +13,18 @@ import java.util.Map;
  * @author idragusa
  * @since 4.2
  */
-public class MessageSendSuccessEvent implements Serializable {
+public class MessageSendSuccessEvent implements Serializable, MessageEvent {
 
     protected String messageId;
 
-    protected Map<String, Object> properties = new HashMap<>(); //NOSONAR
+    protected Map<String, String> properties = new HashMap<>(); //NOSONAR
 
-    public MessageSendSuccessEvent(String messageId) {
+    public MessageSendSuccessEvent(String messageId, Map<String, String> properties) {
         this.messageId = messageId;
+        this.properties = properties;
     }
 
+    @Override
     public String getMessageId() {
         return messageId;
     }
@@ -31,10 +33,21 @@ public class MessageSendSuccessEvent implements Serializable {
         this.messageId = messageId;
     }
 
-    public void addProperty(String key, Object value) {
+    @Override
+    public void addProperty(String key, String value) {
         properties.put(key, value);
     }
 
+    @Override
+    public Map<String, String> getProps() {
+        return Collections.unmodifiableMap(properties);
+    }
+
+    /**
+     * Needed for backward compatibility between 4.2 and 5.0
+     * @deprecated Use instead {@link MessageEvent#getProps()}
+     */
+    @Deprecated
     public Map<String, Object> getProperties() {
         return Collections.unmodifiableMap(properties);
     }

@@ -11,6 +11,7 @@ import eu.domibus.plugin.webService.backend.WSBackendMessageLogEntity;
 import eu.domibus.plugin.webService.backend.WSBackendMessageType;
 import eu.domibus.plugin.webService.backend.reliability.queue.WSSendMessageListener;
 import eu.domibus.plugin.webService.backend.rules.WSPluginDispatchRule;
+import eu.domibus.plugin.webService.connector.WSPluginImpl;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static eu.domibus.plugin.webService.backend.reliability.queue.WSMessageListenerContainerConfiguration.WS_PLUGIN_SEND_QUEUE;
+import static java.lang.String.join;
 
 /**
  * @author Francois Gautier
@@ -37,6 +39,8 @@ public class WSPluginBackendRetryService {
     protected JMSExtService jmsExtService;
 
     protected Queue wsPluginSendQueue;
+
+    protected WSPluginImpl wsPlugin;
 
     public WSPluginBackendRetryService(WSBackendMessageLogDao wsBackendMessageLogDao,
                                        JMSExtService jmsExtService,
@@ -74,6 +78,7 @@ public class WSPluginBackendRetryService {
 
     protected void sendToQueue(WSBackendMessageLogEntity backendMessage) {
         LOG.debug("Send backendMessage [{}] to queue [{}]", backendMessage.getEntityId(), getQueueName());
+
         final JmsMessageDTO jmsMessage = JMSMessageDTOBuilder.
                 create()
                 .property(MessageConstants.MESSAGE_ID, backendMessage.getMessageId())
@@ -88,7 +93,7 @@ public class WSPluginBackendRetryService {
         try {
             return wsPluginSendQueue.getQueueName();
         } catch (JMSException e) {
-            LOG.trace("wsPluginSendQueue name not found", e);
+            LOG.warn("wsPluginSendQueue name not found", e);
             return null;
         }
     }
@@ -96,16 +101,17 @@ public class WSPluginBackendRetryService {
     @Transactional
     public void send(String messageId, String finalRecipient, String originalSender, WSPluginDispatchRule rule, WSBackendMessageType messageType) {
         WSBackendMessageLogEntity backendMessage = getWsBackendMessageLogEntity(messageId, messageType, finalRecipient, originalSender, rule);
-        WSBackendMessageLogEntity persistedBackendMessage = wsBackendMessageLogDao.createEntity(backendMessage);
-        sendToQueue(persistedBackendMessage);
+        wsBackendMessageLogDao.create(backendMessage);
+        sendToQueue(backendMessage);
     }
 
     @Transactional
     public void send(List<String> messageIds, String finalRecipient, WSPluginDispatchRule rule, WSBackendMessageType messageType) {
-        WSBackendMessageLogEntity backendMessage = getWsBackendMessageLogEntity(null, messageType, finalRecipient, null, rule);
-        WSBackendMessageLogEntity persistedBackendMessage = wsBackendMessageLogDao.createEntity(backendMessage);
-        LOG.info("[{}] backend message id [{}] for [{}] messagesIds [{}]", messageType, persistedBackendMessage.getEntityId(), messageIds.size(), messageIds);
-        sendToQueue(persistedBackendMessage);
+        WSBackendMessageLogEntity backendMessage = getWsBackendMessageLogEntity(
+                join(";", messageIds), messageType, finalRecipient, null, rule);
+        wsBackendMessageLogDao.create(backendMessage);
+        LOG.info("[{}] backend message id [{}] for [{}] messagesIds [{}]", messageType, backendMessage.getEntityId(), messageIds.size(), messageIds);
+        sendToQueue(backendMessage);
     }
 
     protected WSBackendMessageLogEntity getWsBackendMessageLogEntity(

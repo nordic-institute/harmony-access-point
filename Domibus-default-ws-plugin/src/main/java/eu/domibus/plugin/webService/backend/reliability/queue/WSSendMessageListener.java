@@ -18,6 +18,7 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
 
+import static eu.domibus.plugin.webService.backend.WSBackendMessageType.DELETED_BATCH;
 import static eu.domibus.plugin.webService.backend.reliability.queue.WSSendMessageListener.WS_SEND_MESSAGE_LISTENER;
 
 /**
@@ -68,17 +69,18 @@ public class WSSendMessageListener implements MessageListener {
             return;
         }
 
-        LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
-        domainContextExtService.setCurrentDomain(new DomainDTO(domain, domain));
-
-        LOG.debug("received message on wsPluginSendQueue for domain: [{}], backend message id [{}] and type [{}]", domain, id, type);
-
         WSBackendMessageLogEntity backendMessage = wsBackendMessageLogDao.getById(id);
 
         if (backendMessage == null) {
             LOG.error("Error while consuming JMS message: [{}] entity not found.", id);
             return;
         }
+
+        putMDCDomibusId(backendMessage, messageId);
+
+        domainContextExtService.setCurrentDomain(new DomainDTO(domain, domain));
+        LOG.debug("received message on wsPluginSendQueue for domain: [{}], backend message id [{}] and type [{}]", domain, id, type);
+
 
         if (!StringUtils.equalsAnyIgnoreCase(messageId, backendMessage.getMessageId())) {
             LOG.error("Error while consuming JMS message: domibus message id incoherent [{}] =/= [{}]", messageId, backendMessage.getMessageId());
@@ -92,6 +94,14 @@ public class WSSendMessageListener implements MessageListener {
 
         wsPluginMessageSender.sendNotification(backendMessage);
         backendMessage.setScheduled(false);
+    }
+
+    private void putMDCDomibusId(WSBackendMessageLogEntity backendMessage, String messageId) {
+        if(backendMessage.getType() == DELETED_BATCH){
+            LOG.info("messageId: [{}]", messageId);
+            return;
+        }
+        LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
     }
 
 }

@@ -14,6 +14,7 @@ import eu.domibus.plugin.webService.impl.ExtendedPartInfo;
 import eu.domibus.webservice.backend.generated.*;
 import org.springframework.util.CollectionUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -21,8 +22,11 @@ import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.StringUtils.equalsAnyIgnoreCase;
+import static org.apache.commons.lang3.StringUtils.splitByCharacterType;
 
 /**
  * @author François Gautier
@@ -71,7 +75,10 @@ public class WSPluginMessageBuilder {
                 return getReceiveFailure(messageLogEntity);
             case SUBMIT_MESSAGE:
                 return getSubmitMessage(messageLogEntity);
+            case DELETED_BATCH:
+                return getDeleteBatch(messageLogEntity);
             case DELETED:
+                return getDelete(messageLogEntity);
             case MESSAGE_STATUS_CHANGE:
             default:
                 throw new IllegalArgumentException("Unexpected value: " + messageLogEntity.getType());
@@ -161,6 +168,22 @@ public class WSPluginMessageBuilder {
         SendSuccess sendSuccess = new ObjectFactory().createSendSuccess();
         sendSuccess.setMessageID(messageLogEntity.getMessageId());
         return sendSuccess;
+    }
+
+    protected Delete getDelete(WSBackendMessageLogEntity messageLogEntity) {
+        Delete delete = new ObjectFactory().createDelete();
+        delete.setMessageID(messageLogEntity.getMessageId());
+        return delete;
+    }
+
+    protected DeleteBatch getDeleteBatch(WSBackendMessageLogEntity messageLogEntity) {
+        DeleteBatch deleteBatch = new ObjectFactory().createDeleteBatch();
+        String[] split = StringUtils.split(messageLogEntity.getMessageId(), ";");
+        if(split == null){
+            throw new WSPluginException("DELETE_BATCH cannot be send because no message ids found");
+        }
+        deleteBatch.getMessageIds().addAll(Arrays.stream(split).collect(Collectors.toList()));
+        return deleteBatch;
     }
 
     public String getXML(SOAPMessage message) {

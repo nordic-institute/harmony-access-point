@@ -117,7 +117,7 @@ public class BackendWebservice implements BackendInterface {
 
     @Override
     public void deleteBatch(DeleteBatch deleteBatch) throws DeleteBatchFault {
-        List<String> messageIDs = deleteBatch.getMessageID();
+        List<String> messageIDs = deleteBatch.getMessageIds();
         LOG.info("delete received for ids [{}]", messageIDs);
         if (messageIDs.stream().anyMatch(s ->  StringUtils.containsIgnoreCase(s, "err"))) {
             throw new DeleteBatchFault(getErrorMessage(Arrays.toString(messageIDs.toArray())), getDefaultFaultDetail());

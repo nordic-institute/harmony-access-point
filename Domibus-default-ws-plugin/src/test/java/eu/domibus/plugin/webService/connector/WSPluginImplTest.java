@@ -72,7 +72,7 @@ public class WSPluginImplTest {
             wsMessageLogDao.create(withAny(wsMessageLogEntity));
             times = 1;
 
-            wsPluginBackendService.send(MESSAGE_ID, SUBMIT_MESSAGE, RECEIVE_SUCCESS);
+            //wsPluginBackendService.send(MESSAGE_ID, wsPluginBackendService.userMessageExtService.getFinalRecipient(MESSAGE_ID), wsPluginBackendService.userMessageExtService.getOriginalSender(MESSAGE_ID), SUBMIT_MESSAGE, RECEIVE_SUCCESS);
             times = 1;
         }};
     }
@@ -83,7 +83,7 @@ public class WSPluginImplTest {
             event.getMessageId();
             result = MESSAGE_ID;
 
-            wsPluginBackendService.send(MESSAGE_ID, WSBackendMessageType.SEND_SUCCESS);
+            wsPluginBackendService.send(event, WSBackendMessageType.SEND_SUCCESS);
             times = 1;
         }};
         wsPlugin.messageSendSuccess(event);
@@ -94,45 +94,33 @@ public class WSPluginImplTest {
 
     @Test
     public void messageReceiveFailed(@Mocked MessageReceiveFailureEvent event) {
-        new Expectations() {{
-            event.getMessageId();
-            result = MESSAGE_ID;
-        }};
 
         wsPlugin.messageReceiveFailed(event);
 
         new Verifications() {{
-            wsPluginBackendService.send(MESSAGE_ID, RECEIVE_FAIL);
+            wsPluginBackendService.send(event, RECEIVE_FAIL);
             times = 1;
         }};
     }
 
     @Test
     public void messageSendFailed(@Mocked MessageSendFailedEvent event) {
-        new Expectations() {{
-            event.getMessageId();
-            result = MESSAGE_ID;
-        }};
 
         wsPlugin.messageSendFailed(event);
 
         new Verifications() {{
-            wsPluginBackendService.send(MESSAGE_ID, SEND_FAILURE);
+            wsPluginBackendService.send(event, SEND_FAILURE);
             times = 1;
         }};
     }
 
     @Test
     public void messageStatusChanged(@Mocked MessageStatusChangeEvent event) {
-        new Expectations() {{
-            event.getMessageId();
-            result = MESSAGE_ID;
-        }};
 
         wsPlugin.messageStatusChanged(event);
 
         new Verifications() {{
-            wsPluginBackendService.send(MESSAGE_ID, MESSAGE_STATUS_CHANGE);
+            wsPluginBackendService.send(event, MESSAGE_STATUS_CHANGE);
             times = 1;
         }};
     }
@@ -151,7 +139,7 @@ public class WSPluginImplTest {
             wsMessageLogDao.deleteByMessageIds(messageIds);
             times = 1;
 
-            wsPluginBackendService.send(messageIds, DELETED_BATCH);
+            wsPluginBackendService.send(event, DELETED_BATCH);
             times = 1;
         }};
     }
@@ -166,7 +154,7 @@ public class WSPluginImplTest {
         wsPlugin.messageDeletedEvent(event);
 
         new Verifications() {{
-            wsPluginBackendService.send(MESSAGE_ID, DELETED);
+            wsPluginBackendService.send(event, DELETED);
             times = 1;
         }};
     }

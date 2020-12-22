@@ -5,6 +5,7 @@ import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.webService.backend.WSBackendMessageLogDao;
 import eu.domibus.plugin.webService.backend.WSBackendMessageLogEntity;
+import eu.domibus.plugin.webService.backend.WSBackendMessageType;
 import eu.domibus.plugin.webService.backend.dispatch.WSPluginMessageSender;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -68,20 +69,16 @@ public class WSSendMessageListenerTest {
             message.getStringProperty(WSSendMessageListener.TYPE);
             result = SUBMIT_MESSAGE.name();
 
-             wsBackendMessageLogDao.getById(ID);
-             result = null;
+            wsBackendMessageLogDao.getById(ID);
+            result = null;
 
         }};
+
         wsSendMessageListener.onMessage(message);
 
-        new FullVerifications() {{
-            DomainDTO domain;
-            domainContextExtService.setCurrentDomain(domain = withCapture());
-
-            Assert.assertEquals(MessageConstants.DOMAIN, domain.getCode());
-            Assert.assertEquals(MessageConstants.DOMAIN, domain.getName());
-        }};
+        new FullVerifications() {};
     }
+
     @Test
     public void onMessage_wrongId() throws JMSException {
         new Expectations() {{
@@ -97,11 +94,14 @@ public class WSSendMessageListenerTest {
             message.getStringProperty(WSSendMessageListener.TYPE);
             result = SUBMIT_MESSAGE.name();
 
-             wsBackendMessageLogDao.getById(ID);
-             result = backendMessage;
+            wsBackendMessageLogDao.getById(ID);
+            result = backendMessage;
 
             backendMessage.getMessageId();
             result = "nope";
+
+            backendMessage.getType();
+            result = WSBackendMessageType.DELETED_BATCH;
         }};
         wsSendMessageListener.onMessage(message);
 
@@ -113,6 +113,7 @@ public class WSSendMessageListenerTest {
             Assert.assertEquals(MessageConstants.DOMAIN, domain.getName());
         }};
     }
+
     @Test
     public void onMessage_wrongType() throws JMSException {
         new Expectations() {{
@@ -128,8 +129,8 @@ public class WSSendMessageListenerTest {
             message.getStringProperty(WSSendMessageListener.TYPE);
             result = SUBMIT_MESSAGE.name();
 
-             wsBackendMessageLogDao.getById(ID);
-             result = backendMessage;
+            wsBackendMessageLogDao.getById(ID);
+            result = backendMessage;
 
             backendMessage.getMessageId();
             result = MessageConstants.MESSAGE_ID;
@@ -163,8 +164,8 @@ public class WSSendMessageListenerTest {
             message.getStringProperty(WSSendMessageListener.TYPE);
             result = SUBMIT_MESSAGE.name();
 
-             wsBackendMessageLogDao.getById(ID);
-             result = backendMessage;
+            wsBackendMessageLogDao.getById(ID);
+            result = backendMessage;
 
             backendMessage.getMessageId();
             result = MessageConstants.MESSAGE_ID;

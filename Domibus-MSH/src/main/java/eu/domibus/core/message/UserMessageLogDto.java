@@ -1,12 +1,8 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.message.MessageSubtype;
-import eu.domibus.ebms3.common.model.MessageInfo;
-import eu.domibus.ebms3.common.model.MessageType;
-import org.apache.commons.lang3.BooleanUtils;
 
-import javax.persistence.*;
-import java.util.Date;
+import java.util.Map;
 
 /**
  * @author idragusa
@@ -19,6 +15,8 @@ public class UserMessageLogDto {
     protected MessageSubtype messageSubtype;
 
     protected String backend;
+
+    private Map<String, String> properties;
 
     public UserMessageLogDto(String messageId, MessageSubtype messageSubtype, String backend) {
         this.messageId = messageId;
@@ -55,5 +53,13 @@ public class UserMessageLogDto {
             return true;
         }
         return false;
+    }
+
+    public void setProperties(Map<String, String> properties) {
+        this.properties = properties;
+    }
+
+    public Map<String, String> getProperties() {
+        return properties;
     }
 }

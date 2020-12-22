@@ -65,6 +65,7 @@ public class WSPluginDispatchRulesService {
 
         List<String> nestedProperties = domibusPropertyExtService.getNestedProperties(PUSH_RULE_BASE);
         if (CollectionUtils.isEmpty(nestedProperties)) {
+            LOG.info("No properties with base [{}]", PUSH_RULE_BASE);
             return result;
         }
 

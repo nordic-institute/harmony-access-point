@@ -5,6 +5,7 @@ import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._
 import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.AbstractBackendConnector;
 import eu.domibus.plugin.handler.MessageRetriever;
 import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
@@ -15,6 +16,8 @@ import eu.domibus.plugin.webService.entity.WSMessageLogEntity;
 import eu.domibus.plugin.webService.impl.StubDtoTransformer;
 
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static eu.domibus.plugin.webService.backend.WSBackendMessageType.*;
 
@@ -50,48 +53,53 @@ public class WSPluginImpl extends AbstractBackendConnector<Messaging, UserMessag
     @Override
     public void deliverMessage(final DeliverMessageEvent event) {
         LOG.info("Deliver message: [{}]", event);
-        WSMessageLogEntity wsMessageLogEntity = new WSMessageLogEntity(event.getMessageId(), event.getFinalRecipient(), new Date());
+        WSMessageLogEntity wsMessageLogEntity = new WSMessageLogEntity(
+                event.getMessageId(),
+                event.getProps().get(MessageConstants.FINAL_RECIPIENT),
+                new Date());
         wsMessageLogDao.create(wsMessageLogEntity);
 
-        wsPluginBackendService.send(event.getMessageId(), SUBMIT_MESSAGE, RECEIVE_SUCCESS);
+        wsPluginBackendService.send(event, RECEIVE_SUCCESS);
+        wsPluginBackendService.send(event, SUBMIT_MESSAGE);
     }
 
     @Override
     public void messageReceiveFailed(final MessageReceiveFailureEvent event) {
         LOG.info("Message receive failed [{}]", event);
-        wsPluginBackendService.send(event.getMessageId(), RECEIVE_FAIL);
+        wsPluginBackendService.send(event, RECEIVE_FAIL);
     }
 
     @Override
     public void messageStatusChanged(final MessageStatusChangeEvent event) {
         LOG.info("Message status changed [{}]", event);
-        wsPluginBackendService.send(event.getMessageId(), MESSAGE_STATUS_CHANGE);
+        wsPluginBackendService.send(event, MESSAGE_STATUS_CHANGE);
     }
 
     @Override
     public void messageSendFailed(final MessageSendFailedEvent event) {
         LOG.info("Message send failed [{}]", event);
-        wsPluginBackendService.send(event.getMessageId(), SEND_FAILURE);
+        wsPluginBackendService.send(event, SEND_FAILURE);
     }
 
     @Override
     public void messageDeletedBatchEvent(final MessageDeletedBatchEvent event) {
-        LOG.info("Message delete batch event [{}]", event.getMessageIds());
-        wsMessageLogDao.deleteByMessageIds(event.getMessageIds());
-        wsPluginBackendService.send(event.getMessageIds(), DELETED_BATCH);
+        List<String> messageIds = event.getMessageDeletedEvents().stream().map(MessageDeletedEvent::getMessageId).collect(Collectors.toList());
+        LOG.info("Message delete batch event [{}]", messageIds);
+        wsMessageLogDao.deleteByMessageIds(messageIds);
+        wsPluginBackendService.send(event, DELETED_BATCH);
     }
 
     @Override
     public void messageDeletedEvent(final MessageDeletedEvent event) {
         LOG.info("Message delete event [{}]", event.getMessageId());
         wsMessageLogDao.deleteByMessageId(event.getMessageId());
-        wsPluginBackendService.send(event.getMessageId(), DELETED);
+        wsPluginBackendService.send(event, DELETED);
     }
 
     @Override
     public void messageSendSuccess(final MessageSendSuccessEvent event) {
         LOG.info("Message send success [{}]", event.getMessageId());
-        wsPluginBackendService.send(event.getMessageId(), SEND_SUCCESS);
+        wsPluginBackendService.send(event, SEND_SUCCESS);
     }
 
     @Override

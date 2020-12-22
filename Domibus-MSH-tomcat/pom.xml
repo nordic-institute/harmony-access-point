@@ -352,14 +352,14 @@
                     <exclude>${filesToExclude}</exclude>
                 </excludes>
             </resource>
-            <resource>
-                <directory>src/main/conf/domibus/internal</directory>
-                <targetPath>internal</targetPath>
-            </resource>
         </resources>
         <testResources>
             <testResource>
                 <directory>src/test/resources</directory>
+            </testResource>
+            <testResource>
+                <directory>src/main/conf/domibus/internal</directory>
+                <targetPath>internal</targetPath>
             </testResource>
         </testResources>
         <plugins>

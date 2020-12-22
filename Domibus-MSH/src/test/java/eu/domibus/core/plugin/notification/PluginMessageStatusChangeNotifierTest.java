@@ -6,9 +6,9 @@ import eu.domibus.common.NotificationType;
 import eu.domibus.core.plugin.delegate.BackendConnectorDelegate;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.BackendConnector;
+import mockit.FullVerifications;
 import mockit.Injectable;
 import mockit.Tested;
-import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,14 +38,18 @@ public class PluginMessageStatusChangeNotifierTest {
     }
 
     @Test
-    public void notifyPlugin(@Injectable BackendConnector backendConnector) {
+    public void notifyPlugin(@Injectable BackendConnector<?,?> backendConnector) {
         String messageId = "123";
         Map<String, String> properties = new HashMap<>();
 
+        String finalRecipient = "finalRecipient";
+        String originalSender = "originalSender";
         String service = "myservice";
         String endpoint = "myendpoint";
         String action = "myaction";
         String serviceType = "servicetype";
+        properties.put(MessageConstants.FINAL_RECIPIENT, finalRecipient);
+        properties.put(MessageConstants.ORIGINAL_SENDER, originalSender);
         properties.put(MessageConstants.SERVICE, service);
         properties.put(MessageConstants.SERVICE_TYPE, serviceType);
         properties.put(MessageConstants.ACTION, action);
@@ -55,11 +59,14 @@ public class PluginMessageStatusChangeNotifierTest {
 
         pluginMessageStatusChangeNotifier.notifyPlugin(backendConnector, messageId, properties);
 
-        new Verifications() {{
-            MessageStatusChangeEvent event = null;
+        new FullVerifications() {{
+            MessageStatusChangeEvent event;
             backendConnectorDelegate.messageStatusChanged(backendConnector, event = withCapture());
-            assertEquals(service, event.getProperties().get(MessageConstants.SERVICE));
-            assertEquals(serviceType, event.getProperties().get(MessageConstants.SERVICE_TYPE));
+            assertEquals(service, event.getProps().get(MessageConstants.SERVICE));
+            assertEquals(serviceType, event.getProps().get(MessageConstants.SERVICE_TYPE));
+            assertEquals(action, event.getProps().get(MessageConstants.ACTION));
+            assertEquals(finalRecipient, event.getProps().get(MessageConstants.FINAL_RECIPIENT));
+            assertEquals(originalSender, event.getProps().get(MessageConstants.ORIGINAL_SENDER));
         }};
     }
 }

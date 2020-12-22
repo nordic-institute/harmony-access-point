@@ -1,19 +1,25 @@
 package eu.domibus.plugin.webService.backend.dispatch;
 
+import eu.domibus.common.MessageDeletedBatchEvent;
+import eu.domibus.common.MessageDeletedEvent;
+import eu.domibus.common.MessageSendSuccessEvent;
 import eu.domibus.ext.services.UserMessageExtService;
+import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.webService.backend.WSBackendMessageType;
-import eu.domibus.plugin.webService.backend.dispatch.WSPluginBackendService;
 import eu.domibus.plugin.webService.backend.reliability.retry.WSPluginBackendRetryService;
 import eu.domibus.plugin.webService.backend.rules.WSPluginDispatchRule;
 import eu.domibus.plugin.webService.backend.rules.WSPluginDispatchRulesService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
+import org.apache.commons.lang3.StringUtils;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static eu.domibus.plugin.webService.backend.WSBackendMessageType.DELETED_BATCH;
 
@@ -31,6 +37,7 @@ public class WSPluginBackendServiceTest {
     public static final String ORIGINAL_SENDER = "originalSender";
     public static final String MESSAGE_ID = "messageId";
     public static final String RULE_NAME = "ruleName";
+
     @Tested
     private WSPluginBackendService wsPluginBackendService;
 
@@ -45,13 +52,8 @@ public class WSPluginBackendServiceTest {
 
     @Test
     public void sendSuccess(@Mocked WSPluginDispatchRule wsPluginDispatchRule) {
+        MessageSendSuccessEvent messageSendSuccessEvent = getMessageSendSuccessEvent(FINAL_RECIPIENT);
         new Expectations() {{
-            userMessageExtService.getFinalRecipient(MESSAGE_ID);
-            times = 1;
-            result = FINAL_RECIPIENT;
-            userMessageExtService.getOriginalSender(MESSAGE_ID);
-            times = 1;
-            result = ORIGINAL_SENDER;
 
             wsBackendRulesService.getRulesByRecipient(FINAL_RECIPIENT);
             times = 1;
@@ -65,7 +67,7 @@ public class WSPluginBackendServiceTest {
             result = RULE_NAME;
         }};
 
-        wsPluginBackendService.send(MESSAGE_ID, WSBackendMessageType.SEND_SUCCESS);
+        wsPluginBackendService.send(messageSendSuccessEvent, WSBackendMessageType.SEND_SUCCESS);
 
         new FullVerifications() {{
             retryService.send(MESSAGE_ID, FINAL_RECIPIENT, ORIGINAL_SENDER, wsPluginDispatchRule, WSBackendMessageType.SEND_SUCCESS);
@@ -73,15 +75,20 @@ public class WSPluginBackendServiceTest {
         }};
     }
 
-    @Test
-    public void sendSuccess_noRecipient(@Mocked WSPluginDispatchRule wsPluginDispatchRule) {
-        new Expectations() {{
-            userMessageExtService.getFinalRecipient(MESSAGE_ID);
-            times = 1;
-            result = null;
-        }};
+    private MessageSendSuccessEvent getMessageSendSuccessEvent(String finalRecipient) {
+        HashMap<String, String> properties = new HashMap<>();
+        if (StringUtils.isNotBlank(finalRecipient)) {
+            properties.put(MessageConstants.FINAL_RECIPIENT, finalRecipient);
+        }
+        properties.put(MessageConstants.ORIGINAL_SENDER, ORIGINAL_SENDER);
+        MessageSendSuccessEvent messageSendSuccessEvent = new MessageSendSuccessEvent(MESSAGE_ID, properties);
+        return messageSendSuccessEvent;
+    }
 
-        wsPluginBackendService.send(MESSAGE_ID, WSBackendMessageType.SEND_SUCCESS);
+    @Test
+    public void sendSuccess_noRecipient() {
+
+        wsPluginBackendService.send(getMessageSendSuccessEvent(""), WSBackendMessageType.SEND_SUCCESS);
 
         new FullVerifications() {
         };
@@ -90,17 +97,12 @@ public class WSPluginBackendServiceTest {
     @Test
     public void noRules() {
         new Expectations() {{
-
-            userMessageExtService.getFinalRecipient(MESSAGE_ID);
-            times = 1;
-            result = FINAL_RECIPIENT;
-
             wsBackendRulesService.getRulesByRecipient(FINAL_RECIPIENT);
             times = 1;
             result = new ArrayList<>();
         }};
 
-        wsPluginBackendService.send(MESSAGE_ID, WSBackendMessageType.SEND_SUCCESS);
+        wsPluginBackendService.send(getMessageSendSuccessEvent(FINAL_RECIPIENT), WSBackendMessageType.SEND_SUCCESS);
 
         new FullVerifications() {
         };
@@ -199,20 +201,15 @@ public class WSPluginBackendServiceTest {
 
     @Test
     public void sortMessageIdsPerFinalRecipients() {
-        List<String> messageIdsPerRecipient = Arrays.asList("1", "2", "3");
+        MessageDeletedBatchEvent messageDeletedBatchEvent = new MessageDeletedBatchEvent();
+        List<MessageDeletedEvent> messageIdsPerRecipient = Stream
+                .of("1", "2")
+                .map(s -> getMessageDeletedEvent(s, FINAL_RECIPIENT))
+                .collect(Collectors.toList());
+        messageIdsPerRecipient.add(getMessageDeletedEvent("3", FINAL_RECIPIENT2));
+        messageDeletedBatchEvent.setMessageDeletedEvents(messageIdsPerRecipient);
 
-        new Expectations() {{
-            userMessageExtService.getFinalRecipient("1");
-            result = FINAL_RECIPIENT;
-
-            userMessageExtService.getFinalRecipient("2");
-            result = FINAL_RECIPIENT;
-
-            userMessageExtService.getFinalRecipient("3");
-            result = FINAL_RECIPIENT2;
-
-        }};
-        Map<String, List<String>> stringListMap = wsPluginBackendService.sortMessageIdsPerFinalRecipients(messageIdsPerRecipient);
+        Map<String, List<String>> stringListMap = wsPluginBackendService.sortMessageIdsPerFinalRecipients(messageDeletedBatchEvent);
 
         Assert.assertThat(stringListMap.get(FINAL_RECIPIENT), CoreMatchers.hasItems("1", "2"));
         Assert.assertEquals(2, stringListMap.get(FINAL_RECIPIENT).size());
@@ -222,43 +219,47 @@ public class WSPluginBackendServiceTest {
         };
     }
 
+    private MessageDeletedEvent getMessageDeletedEvent(String s, String finalRecipient) {
+        MessageDeletedEvent messageDeletedEvent = new MessageDeletedEvent();
+        messageDeletedEvent.setMessageId(s);
+        messageDeletedEvent.addProperty(MessageConstants.FINAL_RECIPIENT, finalRecipient);
+        return messageDeletedEvent;
+    }
+
     @Test
     public void addMessageIdToMap() {
         HashMap<String, List<String>> messageIdGroupedByRecipient = new HashMap<>();
-        new Expectations() {{
-            userMessageExtService.getFinalRecipient(MESSAGE_ID);
-            result = FINAL_RECIPIENT;
-        }};
-        wsPluginBackendService.addMessageIdToMap(MESSAGE_ID, messageIdGroupedByRecipient);
+
+        wsPluginBackendService.addMessageIdToMap(getMessageDeletedEvent(MESSAGE_ID, FINAL_RECIPIENT), messageIdGroupedByRecipient);
 
         Assert.assertEquals(1, messageIdGroupedByRecipient.size());
         Assert.assertEquals(1, messageIdGroupedByRecipient.get(FINAL_RECIPIENT).size());
         Assert.assertEquals(MESSAGE_ID, messageIdGroupedByRecipient.get(FINAL_RECIPIENT).get(0));
 
-        new FullVerifications() {
-        };
     }
 
     @Test
     public void addMessageIdToMap_emptyRecipient() {
         HashMap<String, List<String>> messageIdGroupedByRecipient = new HashMap<>();
-        new Expectations() {{
-            userMessageExtService.getFinalRecipient(MESSAGE_ID);
-            result = "";
-        }};
-        wsPluginBackendService.addMessageIdToMap(MESSAGE_ID, messageIdGroupedByRecipient);
+
+        wsPluginBackendService.addMessageIdToMap(new MessageDeletedEvent(), messageIdGroupedByRecipient);
 
         Assert.assertEquals(0, messageIdGroupedByRecipient.size());
-
-        new FullVerifications() {
-        };
     }
 
     @Test
     public void send(@Mocked WSPluginDispatchRule rule1,
                      @Mocked WSPluginDispatchRule rule2,
                      @Mocked WSPluginDispatchRule rule3) {
-        ArrayList<String> messageIds = new ArrayList<>();
+        MessageDeletedBatchEvent messageDeletedBatchEvent = new MessageDeletedBatchEvent();
+        Stream<String> stringStream = Stream
+                .of("1", "2", "3");
+        List<MessageDeletedEvent> messageIdsPerRecipient = stringStream
+                .map(s -> getMessageDeletedEvent(s, FINAL_RECIPIENT))
+                .collect(Collectors.toList());
+        messageDeletedBatchEvent.setMessageDeletedEvents(messageIdsPerRecipient);
+
+        List<String> messageIds = new ArrayList<>();
         Map<String, List<String>> sorted = new HashMap<>();
         List<String> msgRecipient1 = Arrays.asList("1", "2");
         List<String> msgRecipient2 = Arrays.asList("1", "2");
@@ -271,7 +272,7 @@ public class WSPluginBackendServiceTest {
         rules.put(FINAL_RECIPIENT2, rulesRecipient2);
 
         new Expectations(wsPluginBackendService) {{
-            wsPluginBackendService.sortMessageIdsPerFinalRecipients(messageIds);
+            wsPluginBackendService.sortMessageIdsPerFinalRecipients(messageDeletedBatchEvent);
             result = sorted;
 
             wsPluginBackendService.getRulesForFinalRecipients(sorted);
@@ -282,8 +283,9 @@ public class WSPluginBackendServiceTest {
             wsPluginBackendService.sendNotificationsForOneRecipient(FINAL_RECIPIENT2, msgRecipient2, rulesRecipient2, DELETED_BATCH);
             times = 1;
         }};
-        wsPluginBackendService.send(messageIds, DELETED_BATCH);
+        wsPluginBackendService.send(messageDeletedBatchEvent, DELETED_BATCH);
 
-        new FullVerifications(){};
+        new FullVerifications() {
+        };
     }
 }

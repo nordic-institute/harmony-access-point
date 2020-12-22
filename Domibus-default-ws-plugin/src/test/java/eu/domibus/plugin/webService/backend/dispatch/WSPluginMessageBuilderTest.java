@@ -145,6 +145,28 @@ public class WSPluginMessageBuilderTest {
         new FullVerifications() {
         };
     }
+    @Test
+    public void getSDelete(@Mocked WSBackendMessageLogEntity messageLogEntity) {
+        new Expectations() {{
+            messageLogEntity.getMessageId();
+            result = MESSAGE_ID;
+        }};
+        Delete delete = wsPluginMessageBuilder.getDelete(messageLogEntity);
+        assertEquals(MESSAGE_ID, delete.getMessageID());
+        new FullVerifications() {
+        };
+    }
+    @Test
+    public void getDeleteBatch(@Mocked WSBackendMessageLogEntity messageLogEntity) {
+        new Expectations() {{
+            messageLogEntity.getMessageId();
+            result = MESSAGE_ID;
+        }};
+        DeleteBatch sendSuccess = wsPluginMessageBuilder.getDeleteBatch(messageLogEntity);
+        assertEquals(MESSAGE_ID, sendSuccess.getMessageIds().get(0));
+        new FullVerifications() {
+        };
+    }
 
     @Test
     public void getSendFailure(@Mocked WSBackendMessageLogEntity messageLogEntity) {

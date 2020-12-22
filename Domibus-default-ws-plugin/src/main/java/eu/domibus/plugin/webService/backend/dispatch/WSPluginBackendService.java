@@ -1,8 +1,12 @@
 package eu.domibus.plugin.webService.backend.dispatch;
 
+import eu.domibus.common.MessageDeletedBatchEvent;
+import eu.domibus.common.MessageDeletedEvent;
+import eu.domibus.common.MessageEvent;
 import eu.domibus.ext.services.UserMessageExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.webService.backend.WSBackendMessageType;
 import eu.domibus.plugin.webService.backend.reliability.retry.WSPluginBackendRetryService;
 import eu.domibus.plugin.webService.backend.rules.WSPluginDispatchRule;
@@ -35,10 +39,12 @@ public class WSPluginBackendService {
         this.userMessageExtService = userMessageExtService;
     }
 
-    public void send(String messageId, WSBackendMessageType... messageTypes) {
-        String finalRecipient = userMessageExtService.getFinalRecipient(messageId);
+    public void send(MessageEvent messageEvent, WSBackendMessageType messageType) {
+        String messageId = messageEvent.getMessageId();
+        String finalRecipient = messageEvent.getProps().get(MessageConstants.FINAL_RECIPIENT);
+        String originalSender = messageEvent.getProps().get(MessageConstants.ORIGINAL_SENDER);
         if (StringUtils.isBlank(finalRecipient)) {
-            LOG.warn("No recipient found for messageId: [{}]", messageId);
+            LOG.warn("No recipient found for messageId: [{}]", messageEvent.getMessageId());
             return;
         }
 
@@ -48,22 +54,18 @@ public class WSPluginBackendService {
             return;
         }
 
-        String originalSender = userMessageExtService.getOriginalSender(messageId);
-
-        for (WSBackendMessageType messageType : messageTypes) {
-            for (WSPluginDispatchRule rule : rules) {
-                if (rule.getTypes().contains(messageType)) {
-                    LOG.debug("Rule [{}] found for recipient [{}]", rule.getRuleName(), finalRecipient);
-                    retryService.send(messageId, finalRecipient, originalSender, rule, messageType);
-                }
+        for (WSPluginDispatchRule rule : rules) {
+            if (rule.getTypes().contains(messageType)) {
+                LOG.debug("Rule [{}] found for recipient [{}]", rule.getRuleName(), finalRecipient);
+                retryService.send(messageId, finalRecipient, originalSender, rule, messageType);
             }
         }
 
     }
 
-    public void send(List<String> messageIds, WSBackendMessageType messageType) {
+    public void send(MessageDeletedBatchEvent batchEvents, WSBackendMessageType messageType) {
 
-        Map<String, List<String>> messageIdsPerRecipient = sortMessageIdsPerFinalRecipients(messageIds);
+        Map<String, List<String>> messageIdsPerRecipient = sortMessageIdsPerFinalRecipients(batchEvents);
 
         Set<Map.Entry<String, List<WSPluginDispatchRule>>> rulesForRecipients =
                 getRulesForFinalRecipients(messageIdsPerRecipient).entrySet();
@@ -75,10 +77,10 @@ public class WSPluginBackendService {
         }
     }
 
-    protected Map<String, List<String>> sortMessageIdsPerFinalRecipients(List<String> messageIds) {
+    protected Map<String, List<String>> sortMessageIdsPerFinalRecipients(MessageDeletedBatchEvent batchEvents) {
         Map<String, List<String>> messageIdsPerRecipient = new HashMap<>();
-        for (String messageId : messageIds) {
-            addMessageIdToMap(messageId, messageIdsPerRecipient);
+        for (MessageDeletedEvent deleteEvent : batchEvents.getMessageDeletedEvents()) {
+            addMessageIdToMap(deleteEvent, messageIdsPerRecipient);
         }
         return messageIdsPerRecipient;
     }
@@ -113,18 +115,18 @@ public class WSPluginBackendService {
         }
     }
 
-    protected void addMessageIdToMap(String messageId, Map<String, List<String>> messageIdGroupedByRecipient) {
-        String finalRecipient = userMessageExtService.getFinalRecipient(messageId);
+    protected void addMessageIdToMap(MessageDeletedEvent batchEvent, Map<String, List<String>> messageIdGroupedByRecipient) {
+        String finalRecipient = batchEvent.getProps().get(MessageConstants.FINAL_RECIPIENT);
 
         if (StringUtils.isBlank(finalRecipient)) {
-            LOG.warn("No recipient found for messageId: [{}]", messageId);
+            LOG.warn("No recipient found for batchEvent: [{}]", batchEvent);
             return;
         }
         List<String> messageIdsPerFinalRecipient = messageIdGroupedByRecipient.get(finalRecipient);
         if (isEmpty(messageIdsPerFinalRecipient)) {
             messageIdsPerFinalRecipient = new ArrayList<>();
         }
-        messageIdsPerFinalRecipient.add(messageId);
+        messageIdsPerFinalRecipient.add(batchEvent.getMessageId());
         messageIdGroupedByRecipient.put(finalRecipient, messageIdsPerFinalRecipient);
     }
 }

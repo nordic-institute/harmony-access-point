@@ -543,7 +543,7 @@ public class UserMessageDefaultService implements UserMessageService {
         if (failedMessages == null) {
             return null;
         }
-        LOG.debug("Found failed messages [{}] using start date [{}], end date [{}] and final recipient", failedMessages, start, end, finalRecipient);
+        LOG.debug("Found failed messages [{}] using start date [{}], end date [{}] and final recipient [{}]", failedMessages, start, end, finalRecipient);
 
         final List<String> restoredMessages = new ArrayList<>();
         for (String messageId : failedMessages) {
@@ -555,7 +555,7 @@ public class UserMessageDefaultService implements UserMessageService {
             }
         }
 
-        LOG.debug("Restored messages [{}] using start date [{}], end date [{}] and final recipient", restoredMessages, start, end, finalRecipient);
+        LOG.debug("Restored messages [{}] using start date [{}], end date [{}] and final recipient [{}]", restoredMessages, start, end, finalRecipient);
 
         return restoredMessages;
     }
@@ -608,7 +608,10 @@ public class UserMessageDefaultService implements UserMessageService {
     @Transactional(propagation = Propagation.REQUIRED)
     public void deleteMessages(List<UserMessageLogDto> userMessageLogs) {
 
-        List<String> userMessageIds = userMessageLogs.stream().map(userMessageLog -> userMessageLog.getMessageId()).collect(Collectors.toList());
+        List<String> userMessageIds = userMessageLogs
+                .stream()
+                .map(UserMessageLogDto::getMessageId)
+                .collect(Collectors.toList());
 
         LOG.debug("Deleting [{}] user messages", userMessageIds.size());
         LOG.trace("Deleting user messages [{}]", userMessageIds);
