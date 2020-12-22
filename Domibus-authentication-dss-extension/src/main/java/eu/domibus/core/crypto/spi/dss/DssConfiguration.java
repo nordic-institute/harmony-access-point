@@ -118,9 +118,6 @@ public class DssConfiguration {
     @Autowired
     protected ObjectProvider<CertificateVerifier> certificateVerifierObjectProvider;
 
-    @Autowired
-    private CommandExtService commandExtService;
-
     @Bean
     public TrustedListsCertificateSource trustedListSource() {
         return new TrustedListsCertificateSource();

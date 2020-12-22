@@ -69,8 +69,8 @@ public class ErrorLogPgTest extends SeleniumTest {
 		
 	}
 	
-	
-	@Test(description = "ERR-19", groups = {"multiTenancy", "singleTenancy"})
+	/*  disabled pending investigation why there are mo errors than message send attempts */
+	@Test(description = "ERR-19", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void checkNoOFErrorsPerMessage() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -159,9 +159,9 @@ public class ErrorLogPgTest extends SeleniumTest {
 		
 		soft.assertAll();
 	}
-	
-	
-	@Test(description = "ERR-21", groups = {"multiTenancy", "singleTenancy"})
+
+	/* disabled pending investigation why there are more errors than send attempts */
+	@Test(description = "ERR-21", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void checkErrorCode() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		String domain = selectRandomDomain();

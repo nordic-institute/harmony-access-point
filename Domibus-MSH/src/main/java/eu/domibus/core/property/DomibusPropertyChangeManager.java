@@ -10,6 +10,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.core.env.MutablePropertySources;
 import org.springframework.stereotype.Service;
 
 /**
@@ -71,7 +72,7 @@ public class DomibusPropertyChangeManager {
         }
 
         //set the value
-        domibusPropertyProvider.setValueInDomibusPropertySource(propertyKey, propertyValue);
+        setValueInDomibusPropertySource(propertyKey, propertyValue);
     }
 
     protected void signalPropertyValueChanged(Domain domain, String propertyName, String propertyValue, boolean broadcast, DomibusPropertyMetadata propMeta, String oldValue) {
@@ -128,5 +129,14 @@ public class DomibusPropertyChangeManager {
             throw new DomibusPropertyException(error);
         }
         return propertyKey;
+    }
+
+    protected void setValueInDomibusPropertySource(String propertyKey, String propertyValue) {
+        MutablePropertySources propertySources = domibusPropertyProvider.getEnvironment().getPropertySources();
+        DomibusPropertiesPropertySource domibusPropertiesPropertySource = (DomibusPropertiesPropertySource) propertySources.get(DomibusPropertiesPropertySource.NAME);
+        domibusPropertiesPropertySource.setProperty(propertyKey, propertyValue);
+
+        DomibusPropertiesPropertySource updatedDomibusPropertiesSource = (DomibusPropertiesPropertySource) propertySources.get(DomibusPropertiesPropertySource.UPDATED_PROPERTIES_NAME);
+        updatedDomibusPropertiesSource.setProperty(propertyKey, propertyValue);
     }
 }

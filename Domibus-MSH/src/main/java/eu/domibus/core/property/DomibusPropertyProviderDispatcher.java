@@ -2,6 +2,7 @@ package eu.domibus.core.property;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.util.ClassUtil;
@@ -27,25 +28,32 @@ public class DomibusPropertyProviderDispatcher {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusPropertyProviderDispatcher.class);
 
-    private static final String CACHE_KEY_EXPRESSION = "(#domain != null ? #domain : #domainContextProvider?.getCurrentDomain()) + #propertyName";
+    // it is possible for getCurrentDomainCode() to return null for the first stages of bootstrap process
+    // for global properties but it is acceptable since they are not going to mess with super properties
+    private static final String CACHE_KEY_EXPRESSION = "(#domain != null ? #domain.getCode() : " +
+            "(#root.target.getCurrentDomainCode()) == null ? \"global\" : #root.target.getCurrentDomainCode()) + ':' + #propertyName";
 
     @Autowired
     ClassUtil classUtil;
 
     @Autowired
-    protected DomainContextProvider domainContextProvider;
+    public DomainContextProvider domainContextProvider;
 
     @Autowired
     GlobalPropertyMetadataManager globalPropertyMetadataManager;
 
     @Autowired
-    private DomibusPropertyProviderImpl domibusPropertyProvider;
+    DomibusPropertyProviderImpl domibusPropertyProvider;
 
     @Autowired
     DomibusPropertyChangeManager domibusPropertyChangeManager;
 
+    @Autowired
+    protected DomainService domainService;
+
     @Cacheable(value = DomibusCacheService.DOMIBUS_PROPERTY_CACHE, key = CACHE_KEY_EXPRESSION)
     public String getInternalOrExternalProperty(String propertyName, Domain domain) throws DomibusPropertyException {
+
         DomibusPropertyMetadata propMeta = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
         if (propMeta.isStoredGlobally()) {
             return getInternalPropertyValue(domain, propertyName);
@@ -59,7 +67,7 @@ public class DomibusPropertyProviderDispatcher {
         return getExternalPropertyValue(propertyName, domain, manager);
     }
 
-    @CacheEvict(value = DomibusCacheService.DOMIBUS_PROPERTY_CACHE, key = CACHE_KEY_EXPRESSION)
+    @CacheEvict(value = DomibusCacheService.DOMIBUS_PROPERTY_CACHE, key = CACHE_KEY_EXPRESSION, beforeInvocation = true)
     public void setInternalOrExternalProperty(Domain domain, String propertyName, String propertyValue, boolean broadcast) throws DomibusPropertyException {
         Integer maxLength = domibusPropertyProvider.getIntegerProperty(DOMIBUS_PROPERTY_LENGTH_MAX);
         if (maxLength > 0 && propertyValue != null && propertyValue.length() > maxLength) {
@@ -102,7 +110,7 @@ public class DomibusPropertyProviderDispatcher {
     protected void setInternalPropertyValue(Domain domain, String propertyName, String propertyValue, boolean broadcast) {
         if (domain == null) {
             LOG.debug("Setting internal property [{}] with value [{}] without domain.", propertyName, propertyValue);
-            domain = domainContextProvider.getCurrentDomainSafely();
+            domain = getCurrentDomain();
         }
         LOG.debug("Setting internal property [{}] on domain [{}] with value [{}].", propertyName, domain, propertyValue);
         domibusPropertyChangeManager.setPropertyValue(domain, propertyName, propertyValue, broadcast);
@@ -122,9 +130,9 @@ public class DomibusPropertyProviderDispatcher {
             LOG.trace("Calling getKnownPropertyValue(propertyName) method");
             return propertyManager.getKnownPropertyValue(propertyName);
         }
-        Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
-        LOG.trace("Going to call getKnownPropertyValue for current domain [{}] as property manager [{}] doesn't have the method without domain defined", currentDomain, propertyManager);
-        return propertyManager.getKnownPropertyValue(currentDomain.getCode(), propertyName);
+        String currentDomainCode = getCurrentDomainCode();
+        LOG.trace("Going to call getKnownPropertyValue for current domain [{}] as property manager [{}] doesn't have the method without domain defined", currentDomainCode, propertyManager);
+        return propertyManager.getKnownPropertyValue(currentDomainCode, propertyName);
     }
 
     protected void setExternalModulePropertyValue(DomibusPropertyManagerExt propertyManager, String name, String value) {
@@ -134,7 +142,25 @@ public class DomibusPropertyProviderDispatcher {
             return;
         }
         LOG.debug("Calling deprecated setKnownPropertyValue method");
-        Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
-        propertyManager.setKnownPropertyValue(currentDomain.getCode(), name, value);
+        String currentDomainCode = getCurrentDomainCode();
+        propertyManager.setKnownPropertyValue(currentDomainCode, name, value);
+    }
+
+    // duplicated part of the code from context provider so that we can brake the circular dependency
+    // need to be public to be called from cache expression
+    public String getCurrentDomainCode() {
+        if (!domibusPropertyProvider.isMultiTenantAware()) {
+            LOG.debug("No multi-tenancy aware: returning the default domain");
+            return DomainService.DEFAULT_DOMAIN.getCode();
+        }
+
+        String domainCode = LOG.getMDC(DomibusLogger.MDC_DOMAIN);
+        LOG.debug("Multi-tenancy aware: returning the domain [{}]", domainCode);
+
+        return domainCode;
+    }
+
+    private Domain getCurrentDomain() {
+        return domainService.getDomain(getCurrentDomainCode());
     }
 }
