@@ -34,6 +34,7 @@ import static org.apache.wss4j.common.ext.WSSecurityException.ErrorCode.SECURITY
 
 /**
  * @author Thomas Dussart
+ * @author Ion Perpegel
  * @since 4.0
  */
 @RunWith(JMockit.class)

@@ -44,8 +44,6 @@ public class TruststoreResource extends BaseResource {
 
     public static final String ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD = "Failed to upload the truststoreFile file since its password was empty."; //NOSONAR
 
-//    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TruststoreResource.class);
-
     private MultiDomainCryptoServiceImpl multiDomainCertificateProvider;
 
     private TLSMultiDomainCryptoServiceImpl tlsMultiDomainCertificateProvider;
@@ -142,13 +140,13 @@ public class TruststoreResource extends BaseResource {
 
         tlsMultiDomainCertificateProvider.addCertificate(domainProvider.getCurrentDomain(), cert, alias, true);
 
-        return "TLS certificate file has been successfully added.";
+        return "Certificate [" + alias + "] has been successfully added to the TLS truststore.";
     }
 
     @DeleteMapping(value = "/tlstruststore/entries/{alias:.+}")
     public String removeTLSCertificate(@PathVariable String alias) throws RequestValidationException {
         tlsMultiDomainCertificateProvider.removeCertificate(domainProvider.getCurrentDomain(), alias);
-        return "TLS certificate file has been successfully deleted.";
+        return "Certificate [" + alias + "] has been successfully removed from the TLS truststore.";
     }
 
     protected void replaceTruststore(MultiDomainCryptoService certificateProvider, MultipartFile truststoreFile, String password) {

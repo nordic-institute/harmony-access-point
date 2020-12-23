@@ -15,7 +15,7 @@ import {FileUploadValidatorService} from '../common/file-upload-validator.servic
   templateUrl: './base-truststore.component.html',
   providers: [TrustStoreService]
 })
-@ComponentName('TrustStore')
+@ComponentName('Domain TrustStore')
 export class TruststoreComponent extends BaseTruststoreComponent implements OnInit {
 
   constructor(applicationService: ApplicationContextService, http: HttpClient, trustStoreService: TrustStoreService,

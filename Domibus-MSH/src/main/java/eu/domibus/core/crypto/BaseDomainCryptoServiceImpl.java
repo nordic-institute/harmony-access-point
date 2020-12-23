@@ -40,15 +40,17 @@ public abstract class BaseDomainCryptoServiceImpl implements DomainCryptoService
         this.domain = domain;
     }
 
+    protected abstract void init();
+
+    @Override
+    public abstract String getTrustStoreType();
+
     protected void init(DomainCryptoServiceSpi iamProvider) {
         iamProvider.setDomain(new DomainSpi(domain.getCode(), domain.getName()));
         iamProvider.init();
 
         this.iamProvider = iamProvider;
     }
-
-    @Override
-    public abstract String getTrustStoreType();
 
     @Override
     public X509Certificate getCertificateFromKeyStore(String alias) throws KeyStoreException {
@@ -91,7 +93,8 @@ public abstract class BaseDomainCryptoServiceImpl implements DomainCryptoService
     }
 
     @Override
-    public void verifyTrust(X509Certificate[] certs, boolean enableRevocation, Collection<Pattern> subjectCertConstraints, Collection<Pattern> issuerCertConstraints) throws WSSecurityException {
+    public void verifyTrust(X509Certificate[] certs, boolean enableRevocation, Collection<Pattern> subjectCertConstraints, Collection<Pattern> issuerCertConstraints)
+            throws WSSecurityException {
         iamProvider.verifyTrust(certs, enableRevocation, subjectCertConstraints, issuerCertConstraints);
     }
 
@@ -152,8 +155,6 @@ public abstract class BaseDomainCryptoServiceImpl implements DomainCryptoService
     public void removeCertificate(List<String> aliases) {
         iamProvider.removeCertificate(aliases);
     }
-
-    protected abstract void init();
 
     @Override
     public void reset() {

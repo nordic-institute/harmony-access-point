@@ -41,7 +41,7 @@ export class BaseTruststoreComponent extends mix(BaseListComponent).with(ClientP
 
   constructor(private applicationService: ApplicationContextService, private http: HttpClient, private trustStoreService: TrustStoreService,
               public dialog: MatDialog, public alertService: AlertService, private changeDetector: ChangeDetectorRef,
-              private fileUploadValidatorService: FileUploadValidatorService, private truststoreService: TrustStoreService) {
+              private fileUploadValidatorService: FileUploadValidatorService, protected truststoreService: TrustStoreService) {
     super();
   }
 
@@ -135,41 +135,18 @@ export class BaseTruststoreComponent extends mix(BaseListComponent).with(ClientP
   }
 
   canDownload(): boolean {
-    return (this.rows.length > 0) && !this.isBusy();
+    return this.rows && this.rows.length > 0 && !this.isBusy();
   }
 
   canUpload() {
     return !this.isBusy();
   }
 
-  async uploadCertificate() {
-    const comp: ComponentType<unknown> = CertificateUploadComponent;
-    this.uploadFile(comp, this.ADD_CERTIFICATE_URL);
-  }
-
-  async removeCertificate() {
-    const cert = this.selected[0];
-    if (!cert) {
-      return;
-    }
-    try {
-      super.isLoading = true;
-      let res = await this.truststoreService.removeCertificate(this.REMOVE_CERTIFICATE_URL, cert);
-      this.alertService.success(res);
-
-      await this.getTrustStoreEntries();
-    } catch (err) {
-      this.alertService.exception(`Error removing the certificate (${cert.name}) from truststore.`, err);
-    } finally {
-      super.isLoading = false;
-    }
-  }
-
   public showCertificateOperations() {
     return this.canHandleCertificates;
   }
 
-  private async uploadFile(comp: ComponentType<unknown>, url: string) {
+  protected async uploadFile(comp: ComponentType<unknown>, url: string) {
     let params = await this.dialog.open(comp).afterClosed().toPromise();
     if (params != null) {
       try {
@@ -187,4 +164,5 @@ export class BaseTruststoreComponent extends mix(BaseListComponent).with(ClientP
       }
     }
   }
+
 }

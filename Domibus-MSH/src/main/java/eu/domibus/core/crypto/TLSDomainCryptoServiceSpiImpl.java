@@ -21,8 +21,6 @@ import java.util.Properties;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class TLSDomainCryptoServiceSpiImpl extends BaseDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi {
 
-//    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TLSDomainCryptoServiceSpiImpl.class);
-
     @Autowired
     private TLSReaderService tlsReader;
 

@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
  * @since 5.0
  */
 @Service
-public class TLSMultiDomainCryptoServiceImpl extends MultiDomainCryptoServiceImpl {
+public class TLSMultiDomainCryptoServiceImpl extends BaseMultiDomainCryptoServiceImpl {
 
     @Autowired
     protected ObjectProvider<TLSDomainCryptoServiceImpl> objectProvider;

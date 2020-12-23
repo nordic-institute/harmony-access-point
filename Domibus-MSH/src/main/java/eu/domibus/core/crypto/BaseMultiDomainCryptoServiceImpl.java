@@ -28,6 +28,8 @@ public abstract class BaseMultiDomainCryptoServiceImpl implements MultiDomainCry
 
     protected volatile Map<Domain, DomainCryptoService> domainCertificateProviderMap = new HashMap<>();
 
+    protected abstract DomainCryptoService createForDomain(Domain domain);
+
     @Override
     public X509Certificate[] getX509Certificates(Domain domain, CryptoType cryptoType) throws WSSecurityException {
         LOG.debug("Get certificates for domain [{}] and cryptoType [{}]", domain, cryptoType);
@@ -180,8 +182,6 @@ public abstract class BaseMultiDomainCryptoServiceImpl implements MultiDomainCry
         }
         return domainCertificateProviderMap.get(domain);
     }
-
-    protected abstract DomainCryptoService createForDomain(Domain domain);
 
     @Override
     public void reset() {

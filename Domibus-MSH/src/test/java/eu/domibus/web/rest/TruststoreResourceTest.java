@@ -6,17 +6,14 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.pki.CertificateService;
-import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.core.audit.AuditService;
-import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.crypto.MultiDomainCryptoServiceImpl;
 import eu.domibus.core.crypto.TLSMultiDomainCryptoServiceImpl;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import eu.domibus.core.csv.CsvServiceImpl;
-import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.TrustStoreRO;
 import mockit.*;
@@ -54,7 +51,7 @@ public class TruststoreResourceTest {
     TruststoreResource truststoreResource;
 
     @Injectable
-    protected MultiDomainCryptoService multiDomainCertificateProvider;
+    MultiDomainCryptoService multiDomainCertificateProvider;
 
     @Injectable
     MultiDomainCryptoServiceImpl multiDomainCryptoService;
@@ -66,22 +63,16 @@ public class TruststoreResourceTest {
     protected DomainContextProvider domainProvider;
 
     @Injectable
-    DomibusCacheService domibusCacheService;
-
-    @Injectable
     CertificateService certificateService;
 
     @Injectable
     DomainCoreConverter domainConverter;
 
     @Injectable
-    private CsvServiceImpl csvServiceImpl;
+    CsvServiceImpl csvServiceImpl;
 
     @Injectable
     ErrorHandlerService errorHandlerService;
-
-    @Injectable
-    private DomibusPropertyProvider domibusPropertyProvider;
 
     @Injectable
     MultiPartFileUtil multiPartFileUtil;
@@ -90,7 +81,7 @@ public class TruststoreResourceTest {
     private AuditService auditService;
 
     @Test
-    public void testUploadTruststoreFileSuccess() throws IOException {
+    public void testUploadTruststoreFileSuccess() {
         // Given
         MultipartFile multiPartFile = new MockMultipartFile("filename", new byte[]{1, 0, 1});
 
@@ -103,7 +94,7 @@ public class TruststoreResourceTest {
     }
 
     @Test
-    public void testUploadTruststoreEmpty() throws IOException {
+    public void testUploadTruststoreEmpty() {
         // Given
         MultipartFile emptyFile = new MockMultipartFile("truststore", new byte[]{});
 
@@ -195,7 +186,7 @@ public class TruststoreResourceTest {
     }
 
     @Test
-    public void testGetCsv(@Injectable MultiDomainCryptoService cryptoService, @Mocked String moduleName) throws EbMS3Exception {
+    public void testGetCsv(@Injectable MultiDomainCryptoService cryptoService, @Mocked String moduleName) {
         // Given
         Date date = new Date();
         List<TrustStoreRO> trustStoreROList = getTestTrustStoreROList(date);
@@ -272,6 +263,68 @@ public class TruststoreResourceTest {
             auditMethod.run();
         }};
 
+    }
+
+    @Test
+    public void replaceTruststore(@Injectable MultiDomainCryptoService multiDomainCertificateProvider, @Mocked Domain domain) {
+        final byte[] fileContent = new byte[]{1, 0, 1};
+        MultipartFile multiPartFile = new MockMultipartFile("filename", fileContent);
+
+        new Expectations() {{
+            multiPartFileUtil.validateAndGetFileContent(multiPartFile);
+            result = fileContent;
+            domainProvider.getCurrentDomain();
+            result = domain;
+        }};
+
+        // When
+        truststoreResource.replaceTruststore(multiDomainCertificateProvider, multiPartFile, "pass");
+
+        new Verifications() {{
+            multiPartFileUtil.validateAndGetFileContent(multiPartFile);
+            multiDomainCertificateProvider.replaceTrustStore(domain, multiPartFile.getOriginalFilename(), fileContent, "pass");
+        }};
+
+    }
+
+    @Test
+    public void getTrustStoreEntries(@Injectable MultiDomainCryptoService multiDomainCertificateProvider, @Mocked Domain domain,
+                                     @Mocked KeyStore store, @Mocked List<TrustStoreEntry> trustStoreEntries, @Mocked List<TrustStoreRO> entries) {
+
+        new Expectations() {{
+            domainProvider.getCurrentDomain();
+            result = domain;
+            multiDomainCertificateProvider.getTrustStore(domain);
+            result = store;
+            certificateService.getTrustStoreEntries(store);
+            result = trustStoreEntries;
+            domainConverter.convert(trustStoreEntries, TrustStoreRO.class);
+            result = entries;
+        }};
+
+        List<TrustStoreRO> res = truststoreResource.getTrustStoreEntries(multiDomainCertificateProvider);
+
+        Assert.assertEquals(entries, res);
+    }
+
+    @Test
+    public void uploadTruststoreFile(@Injectable MultiDomainCryptoServiceImpl multiDomainCertificateProvider, @Mocked Domain domain) {
+        String pass = "pass";
+        MultipartFile truststoreFile = new MockMultipartFile("filename", new byte[]{1, 0, 1});
+        new Expectations(truststoreResource) {{
+            domainProvider.getCurrentDomain();
+            result = domain;
+            truststoreResource.replaceTruststore(multiDomainCertificateProvider, truststoreFile, pass);
+            certificateService.saveCertificateAndLogRevocation(domain);
+        }};
+
+        String response = truststoreResource.uploadTruststoreFile(truststoreFile, pass);
+
+        new Verifications() {{
+            certificateService.saveCertificateAndLogRevocation(domain);
+        }};
+
+        Assert.assertEquals("Truststore file has been successfully replaced.", response);
     }
 
     private void validateResponseEntity(ResponseEntity<? extends Resource> responseEntity, HttpStatus httpStatus) {

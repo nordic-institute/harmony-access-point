@@ -6,10 +6,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.util.backup.BackupService;
-import mockit.Expectations;
-import mockit.Injectable;
-import mockit.Mocked;
-import mockit.Tested;
+import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.cxf.configuration.security.TLSClientParametersType;
 import org.junit.Assert;
@@ -44,6 +41,21 @@ public class TLSDomainCryptoServiceSpiImplTest {
     TLSClientParametersType params;
 
     @Test
+    public void init(@Mocked BaseDomainCryptoServiceSpiImpl baseDomainCryptoServiceSpi) {
+        new Expectations() {{
+            tlsReader.getTlsClientParametersType(anyString);
+            result = params;
+        }};
+
+        tlsDomainCryptoServiceSpi.init();
+
+        new Verifications() {{
+            tlsReader.getTlsClientParametersType(domain.getCode());
+            baseDomainCryptoServiceSpi.init();
+        }};
+    }
+
+    @Test
     public void getTrustStoreLocation() {
         final String truststoreLocation = "TruststoreLocation";
 
@@ -59,7 +71,7 @@ public class TLSDomainCryptoServiceSpiImplTest {
 
     @Test
     public void getTrustStorePassword() {
-        final String truststorePassword = "TruststoreLocation";
+        final String truststorePassword = "pass";
 
         new Expectations(tlsDomainCryptoServiceSpi) {{
             params.getTrustManagers().getKeyStore().getPassword();
@@ -73,7 +85,7 @@ public class TLSDomainCryptoServiceSpiImplTest {
 
     @Test
     public void getTrustStoreType() {
-        final String truststoreType = "TruststoreLocation";
+        final String truststoreType = "type";
 
         new Expectations(tlsDomainCryptoServiceSpi) {{
             params.getTrustManagers().getKeyStore().getType();
@@ -83,5 +95,47 @@ public class TLSDomainCryptoServiceSpiImplTest {
         String result = tlsDomainCryptoServiceSpi.getTrustStoreType();
 
         Assert.assertEquals(truststoreType, result);
+    }
+
+    @Test
+    public void getKeystoreLocation() {
+        final String location = "TruststoreLocation";
+
+        new Expectations(tlsDomainCryptoServiceSpi) {{
+            params.getKeyManagers().getKeyStore().getFile();
+            result = location;
+        }};
+
+        String result = tlsDomainCryptoServiceSpi.getKeystoreLocation();
+
+        Assert.assertEquals(location, result);
+    }
+
+    @Test
+    public void getKeystorePassword() {
+        final String pass = "pass";
+
+        new Expectations(tlsDomainCryptoServiceSpi) {{
+            params.getKeyManagers().getKeyStore().getPassword();
+            result = pass;
+        }};
+
+        String result = tlsDomainCryptoServiceSpi.getKeystorePassword();
+
+        Assert.assertEquals(pass, result);
+    }
+
+    @Test
+    public void getKeystoreType() {
+        final String type = "TruststoreLocation";
+
+        new Expectations(tlsDomainCryptoServiceSpi) {{
+            params.getKeyManagers().getKeyStore().getType();
+            result = type;
+        }};
+
+        String result = tlsDomainCryptoServiceSpi.getKeystoreType();
+
+        Assert.assertEquals(type, result);
     }
 }
