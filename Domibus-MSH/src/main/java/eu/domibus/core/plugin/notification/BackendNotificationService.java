@@ -170,6 +170,7 @@ public class BackendNotificationService {
         List<String> backends = userMessageLogsToNotify
                 .stream()
                 .map(UserMessageLogDto::getBackend)
+                .filter(StringUtils::isNotEmpty)
                 .distinct()
                 .collect(toList());
 
@@ -181,7 +182,11 @@ public class BackendNotificationService {
         }
 
         backends.forEach(backend ->
-                createMessageDeleteBatchEvent(backend, getAllMessageIdsForBackend(userMessageLogsToNotify, backend)));
+        {
+            List<MessageDeletedEvent> allMessageIdsForBackend =
+                    getAllMessageIdsForBackend(backend, userMessageLogsToNotify);
+            createMessageDeleteBatchEvent(backend, allMessageIdsForBackend);
+        });
     }
 
     protected void createMessageDeleteBatchEvent(String backend, List<MessageDeletedEvent> messageDeletedEvents) {
@@ -192,7 +197,7 @@ public class BackendNotificationService {
     }
 
 
-    protected List<MessageDeletedEvent> getAllMessageIdsForBackend(final List<UserMessageLogDto> userMessageLogs, String backend) {
+    protected List<MessageDeletedEvent> getAllMessageIdsForBackend(String backend, final List<UserMessageLogDto> userMessageLogs) {
         List<MessageDeletedEvent> messageIds = userMessageLogs
                 .stream()
                 .filter(userMessageLog -> userMessageLog.getBackend().equals(backend))
@@ -202,11 +207,11 @@ public class BackendNotificationService {
         return messageIds;
     }
 
-    private MessageDeletedEvent getMessageDeletedEvent(UserMessageLogDto userMessageLogDto) {
+    protected MessageDeletedEvent getMessageDeletedEvent(UserMessageLogDto userMessageLogDto) {
         return getMessageDeletedEvent(userMessageLogDto.getMessageId(), userMessageLogDto.getProperties());
     }
 
-    private MessageDeletedEvent getMessageDeletedEvent(String messageId, Map<String, String> properties) {
+    protected MessageDeletedEvent getMessageDeletedEvent(String messageId, Map<String, String> properties) {
         MessageDeletedEvent messageDeletedEvent = new MessageDeletedEvent();
         messageDeletedEvent.setMessageId(messageId);
         messageDeletedEvent.addProperty(FINAL_RECIPIENT, properties.get(FINAL_RECIPIENT));
@@ -229,11 +234,14 @@ public class BackendNotificationService {
             return;
         }
 
+        UserMessage userMessage = messagingDao.findUserMessageByMessageId(userMessageLog.getMessageId());
+        Map<String, String> properties = userMessageServiceHelper.getProperties(userMessage);
+        MessageDeletedEvent messageDeletedEvent = getMessageDeletedEvent(
+                userMessageLog.getMessageId(),
+                properties);
         backendConnectorDelegate.messageDeletedEvent(
                 backend,
-                getMessageDeletedEvent(
-                        userMessageLog.getMessageId(),
-                        userMessageServiceHelper.getProperties(messagingDao.findUserMessageByMessageId(userMessageLog.getMessageId()))));
+                messageDeletedEvent);
     }
 
     public void notifyPayloadSubmitted(final UserMessage userMessage, String originalFilename, PartInfo partInfo, String backendName) {

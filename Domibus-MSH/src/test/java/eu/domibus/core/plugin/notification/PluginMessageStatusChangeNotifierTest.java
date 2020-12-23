@@ -54,6 +54,7 @@ public class PluginMessageStatusChangeNotifierTest {
         properties.put(MessageConstants.SERVICE_TYPE, serviceType);
         properties.put(MessageConstants.ACTION, action);
         properties.put(MessageConstants.ENDPOINT, endpoint);
+        properties.put(MessageConstants.STATUS_FROM,  MessageStatus.DOWNLOADED.toString());
         properties.put(MessageConstants.STATUS_TO, MessageStatus.ACKNOWLEDGED.toString());
         properties.put(MessageConstants.CHANGE_TIMESTAMP, String.valueOf(System.currentTimeMillis()));
 
