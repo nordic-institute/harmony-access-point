@@ -122,6 +122,4 @@ public interface CertificateService {
      * @throws CertificateException if the base64 string cannot be converted to a certificate entry
      */
     TrustStoreEntry convertCertificateContent(String certificateContent);
-
-//    public byte[] getTruststoreContent() throws IOException;
 }
