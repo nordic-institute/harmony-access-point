@@ -25,16 +25,10 @@ public class DomibusPropertyChangeManager {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusPropertyChangeManager.class);
 
     @Autowired
-    protected DomainContextProvider domainContextProvider;
-
-    @Autowired
     GlobalPropertyMetadataManager globalPropertyMetadataManager;
 
     @Autowired
     private DomibusPropertyProviderImpl domibusPropertyProvider;
-
-    @Autowired
-    protected DomibusConfigurationService domibusConfigurationService;
 
     @Lazy
     @Autowired
@@ -63,7 +57,7 @@ public class DomibusPropertyChangeManager {
     protected void doSetPropertyValue(Domain domain, String propertyName, String propertyValue) {
         String propertyKey;
         //calculate property key
-        if (domibusConfigurationService.isMultiTenantAware()) {
+        if (domibusPropertyProvider.isMultiTenantAware()) {
             // in multi-tenancy mode - some properties will be prefixed (depends on usage)
             propertyKey = computePropertyKeyInMultiTenancy(domain, propertyName);
         } else {

@@ -37,9 +37,6 @@ public class DomibusPropertyProviderDispatcher {
     ClassUtil classUtil;
 
     @Autowired
-    public DomainContextProvider domainContextProvider;
-
-    @Autowired
     GlobalPropertyMetadataManager globalPropertyMetadataManager;
 
     @Autowired
