@@ -160,7 +160,7 @@ public class DomibusPropertyProviderDispatcher {
         return domainCode;
     }
 
-    private Domain getCurrentDomain() {
+    protected Domain getCurrentDomain() {
         return domainService.getDomain(getCurrentDomainCode());
     }
 }
