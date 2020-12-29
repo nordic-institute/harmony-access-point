@@ -1,7 +1,6 @@
 package eu.domibus.core.property;
 
 import eu.domibus.api.multitenancy.Domain;
-import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
@@ -33,20 +32,21 @@ public class DomibusPropertyProviderDispatcher {
     private static final String CACHE_KEY_EXPRESSION = "(#domain != null ? #domain.getCode() : " +
             "(#root.target.getCurrentDomainCode()) == null ? \"global\" : #root.target.getCurrentDomainCode()) + ':' + #propertyName";
 
-    @Autowired
-    ClassUtil classUtil;
+    private final ClassUtil classUtil;
 
-    @Autowired
-    GlobalPropertyMetadataManager globalPropertyMetadataManager;
+    private final GlobalPropertyMetadataManager globalPropertyMetadataManager;
 
-    @Autowired
-    DomibusPropertyProviderImpl domibusPropertyProvider;
+    private final DomibusPropertyProviderImpl domibusPropertyProvider;
 
-    @Autowired
-    DomibusPropertyChangeManager domibusPropertyChangeManager;
+    private final DomibusPropertyChangeManager domibusPropertyChangeManager;
 
-    @Autowired
-    protected DomainService domainService;
+    public DomibusPropertyProviderDispatcher(GlobalPropertyMetadataManager globalPropertyMetadataManager, DomibusPropertyProviderImpl domibusPropertyProvider,
+                                             DomibusPropertyChangeManager domibusPropertyChangeManager, ClassUtil classUtil) {
+        this.globalPropertyMetadataManager = globalPropertyMetadataManager;
+        this.domibusPropertyProvider = domibusPropertyProvider;
+        this.domibusPropertyChangeManager = domibusPropertyChangeManager;
+        this.classUtil = classUtil;
+    }
 
     @Cacheable(value = DomibusCacheService.DOMIBUS_PROPERTY_CACHE, key = CACHE_KEY_EXPRESSION)
     public String getInternalOrExternalProperty(String propertyName, Domain domain) throws DomibusPropertyException {
@@ -158,6 +158,8 @@ public class DomibusPropertyProviderDispatcher {
     }
 
     protected Domain getCurrentDomain() {
-        return domainService.getDomain(getCurrentDomainCode());
+        // we do not care for the domain name at all in property management
+        String currentDomainCode = getCurrentDomainCode();
+        return new Domain(currentDomainCode, currentDomainCode);
     }
 }

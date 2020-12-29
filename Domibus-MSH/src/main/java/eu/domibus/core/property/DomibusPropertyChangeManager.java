@@ -6,7 +6,6 @@ import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.stereotype.Service;
@@ -22,14 +21,14 @@ public class DomibusPropertyChangeManager {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusPropertyChangeManager.class);
 
-    private GlobalPropertyMetadataManager globalPropertyMetadataManager;
+    private final GlobalPropertyMetadataManager globalPropertyMetadataManager;
 
-    private DomibusPropertyProviderImpl domibusPropertyProvider;
+    private final DomibusPropertyProviderImpl domibusPropertyProvider;
 
-    private DomibusPropertyChangeNotifier propertyChangeNotifier;
+    private final DomibusPropertyChangeNotifier propertyChangeNotifier;
 
     public DomibusPropertyChangeManager(GlobalPropertyMetadataManager globalPropertyMetadataManager, DomibusPropertyProviderImpl domibusPropertyProvider,
-                                        @Lazy @Autowired DomibusPropertyChangeNotifier propertyChangeNotifier) {
+                                        @Lazy DomibusPropertyChangeNotifier propertyChangeNotifier) {
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.globalPropertyMetadataManager = globalPropertyMetadataManager;
         this.propertyChangeNotifier = propertyChangeNotifier;
