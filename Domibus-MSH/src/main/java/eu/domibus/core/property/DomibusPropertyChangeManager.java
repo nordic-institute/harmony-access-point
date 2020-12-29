@@ -1,8 +1,6 @@
 package eu.domibus.core.property;
 
 import eu.domibus.api.multitenancy.Domain;
-import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyChangeNotifier;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
@@ -24,15 +22,18 @@ public class DomibusPropertyChangeManager {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusPropertyChangeManager.class);
 
-    @Autowired
-    GlobalPropertyMetadataManager globalPropertyMetadataManager;
+    private GlobalPropertyMetadataManager globalPropertyMetadataManager;
 
-    @Autowired
     private DomibusPropertyProviderImpl domibusPropertyProvider;
 
-    @Lazy
-    @Autowired
     private DomibusPropertyChangeNotifier propertyChangeNotifier;
+
+    public DomibusPropertyChangeManager(GlobalPropertyMetadataManager globalPropertyMetadataManager, DomibusPropertyProviderImpl domibusPropertyProvider,
+                                        @Lazy @Autowired DomibusPropertyChangeNotifier propertyChangeNotifier) {
+        this.domibusPropertyProvider = domibusPropertyProvider;
+        this.globalPropertyMetadataManager = globalPropertyMetadataManager;
+        this.propertyChangeNotifier = propertyChangeNotifier;
+    }
 
     protected void setPropertyValue(Domain domain, String propertyName, String propertyValue, boolean broadcast) throws DomibusPropertyException {
         DomibusPropertyMetadata propMeta = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
