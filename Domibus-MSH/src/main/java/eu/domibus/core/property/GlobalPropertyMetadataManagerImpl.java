@@ -11,7 +11,6 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -31,24 +30,30 @@ import static eu.domibus.api.property.DomibusPropertyMetadata.NAME_SEPARATOR;
 public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadataManager {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(GlobalPropertyMetadataManagerImpl.class);
 
-    @Autowired
-    protected List<DomibusPropertyMetadataManagerSPI> propertyMetadataManagers;
-
-    @Autowired(required = false)
-    protected List<DomibusPropertyManagerExt> extPropertyManagers;
-
-    @Autowired
-    protected DomainCoreConverter domainConverter;
-
-    @Autowired
-    protected DomibusPropertyProvider domibusPropertyProvider;
-
     protected Map<String, DomibusPropertyMetadata> allPropertyMetadataMap;
+
     protected Map<String, DomibusPropertyMetadata> internalPropertyMetadataMap;
 
     private volatile boolean internalPropertiesLoaded = false;
     private volatile boolean externalPropertiesLoaded = false;
     private final Object propertyMetadataMapLock = new Object();
+
+    private final List<DomibusPropertyMetadataManagerSPI> propertyMetadataManagers;
+
+    private final List<DomibusPropertyManagerExt> extPropertyManagers;
+
+    private final DomainCoreConverter domainConverter;
+
+    private final DomibusPropertyProvider domibusPropertyProvider;
+
+    public GlobalPropertyMetadataManagerImpl(List<DomibusPropertyMetadataManagerSPI> propertyMetadataManagers,
+                                             @Autowired(required = false) List<DomibusPropertyManagerExt> extPropertyManagers,
+                                             DomainCoreConverter domainConverter, DomibusPropertyProvider domibusPropertyProvider) {
+        this.propertyMetadataManagers = propertyMetadataManagers;
+        this.extPropertyManagers = extPropertyManagers;
+        this.domainConverter = domainConverter;
+        this.domibusPropertyProvider = domibusPropertyProvider;
+    }
 
     @Override
     public Map<String, DomibusPropertyMetadata> getAllProperties() {
