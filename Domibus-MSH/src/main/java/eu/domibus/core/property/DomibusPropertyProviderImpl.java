@@ -293,10 +293,10 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
      * @param propertyName the property name
      * @return The value of the property as found in the system properties, the Domibus properties or inside the default Domibus properties.
      */
-    protected String getPropertyValue(String propertyName, Domain domain, boolean decrypt) {
+    protected String getPropertyValue(String propertyName, Domain domain, boolean isEncrypted) {
         String result = getEnvironment().getProperty(propertyName);
 
-        if (decrypt && passwordEncryptionService.isValueEncrypted(result)) {
+        if (isEncrypted && passwordEncryptionService.isValueEncrypted(result)) {
             LOG.debug("Decrypting property [{}]", propertyName);
             result = passwordEncryptionService.decryptProperty(domain, propertyName, result);
         }
