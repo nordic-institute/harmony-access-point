@@ -1,11 +1,10 @@
 import {Constructable} from './base-list.component';
 import {OnInit} from '@angular/core';
-import {instanceOfModifiableList, instanceOfPageableList} from './type.utils';
+import {instanceOfPageableList} from './type.utils';
 import {IFilterableList} from './ifilterable-list';
 import {HttpParams} from '@angular/common/http';
 import {PaginationType} from './ipageable-list';
-import {NgForm} from '@angular/forms';
-import {PropertiesService} from '../../properties/support/properties.service';
+import {AbstractControl, NgForm} from '@angular/forms';
 import {SecurityService} from '../../security/security.service';
 
 /**
@@ -47,6 +46,7 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
   public async tryFilter(userInitiated = true): Promise<boolean> {
     if (userInitiated) {
       this.alertService.clearAlert();
+      this.trimFields();
     }
 
     const canFilter = await this.canProceedToFilter();
@@ -138,6 +138,15 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
 
   canSearch(): boolean | Promise<boolean> {
     return !super.isBusy();
+  }
+
+  private trimFields() {
+    for (const field in this.filterForm.controls) {
+      const control: AbstractControl = this.filterForm.controls[field];
+      if (control.value) {
+        control.setValue(String.prototype.trim.apply(control.value));
+      }
+    }
   }
 };
 export default FilterableListMixin;
