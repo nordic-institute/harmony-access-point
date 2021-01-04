@@ -18,32 +18,26 @@
               <ng-container>
                 <mat-checkbox id="includeSuperProperties_id" name="includeSuperProperties"
                               [(ngModel)]="filter.showDomain">
-                  Show Domain Properties
+                  Domain
                 </mat-checkbox>
               </ng-container>
             </span>
 
             <span style="margin-right: 30px;">
               <tri-state-checkbox name="filterIsWritable"
-                                  [(ngModel)]="filter.writable">Is Writable</tri-state-checkbox>
+                                  [(ngModel)]="filter.writable">Writable</tri-state-checkbox>
             </span>
 
             <span *ngIf="advancedSearch">
-              <mat-form-field>
+              <mat-form-field style="width: 200px;">
                 <input matInput id="filterPropertyType_id" name="type" [(ngModel)]="filter.type"
                        placeholder="Property Type..." advanced-filter-behaviour [parent]="this">
               </mat-form-field>
-            </span>
-
-            <span *ngIf="advancedSearch">
-              <mat-form-field>
+              <mat-form-field style="width: 200px;">
                 <input matInput id="filterPropertyModule_id" name="module" [(ngModel)]="filter.module"
                        placeholder="Property Module..." advanced-filter-behaviour [parent]="this">
               </mat-form-field>
-            </span>
-
-            <span *ngIf="advancedSearch">
-              <mat-form-field>
+              <mat-form-field style="width: 500px;">
                 <input matInput id="filterPropertyValue_id" name="value" [(ngModel)]="filter.value"
                        placeholder="Property Value..." advanced-filter-behaviour [parent]="this">
               </mat-form-field>
