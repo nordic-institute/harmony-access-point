@@ -44,7 +44,7 @@ public class WSPluginRetryStrategyConstantTest {
     }
 
     @Test
-    @Ignore
+    @Ignore //TODO EDELIVERY-7636
     public void calculateNextAttempt_CONSTANT_ok() {
         ZonedDateTime received = of(2020, 12, 31, 12, 0).atZone(systemDefault());
         Date expected = from(received.plusMinutes(1).toInstant());
