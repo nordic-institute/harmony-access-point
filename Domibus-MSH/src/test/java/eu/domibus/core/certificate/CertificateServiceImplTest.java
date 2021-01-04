@@ -328,7 +328,8 @@ public class CertificateServiceImplTest {
             result = trustStore;
         }};
 
-        certificateService.saveCertificateAndLogRevocation(currentDomain);
+        certificateService.saveCertificateAndLogRevocation(trustStore, keyStore);
+
         new Verifications() {{
             certificateService.saveCertificateData(trustStore, keyStore);
             times = 1;

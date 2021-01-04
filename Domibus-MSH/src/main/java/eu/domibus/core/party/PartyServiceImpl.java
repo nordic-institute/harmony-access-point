@@ -30,6 +30,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.security.KeyStore;
 import java.security.cert.X509Certificate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -527,8 +528,11 @@ public class PartyServiceImpl implements PartyService {
 
         addPartyCertificate(partyToCertificateMap);
 
-        // triger update certificate table
-        certificateService.saveCertificateAndLogRevocation(domainProvider.getCurrentDomain());
+        // trigger update certificate table
+        Domain currentDomain = domainProvider.getCurrentDomain();
+        final KeyStore trustStore = multiDomainCertificateProvider.getTrustStore(currentDomain);
+        final KeyStore keyStore = multiDomainCertificateProvider.getKeyStore(currentDomain);
+        certificateService.saveCertificateAndLogRevocation(trustStore, keyStore);
     }
 
     /**

@@ -3,6 +3,7 @@ package eu.domibus.web.rest;
 import com.google.common.collect.ImmutableMap;
 import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.exceptions.RequestValidationException;
+import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.security.TrustStoreEntry;
@@ -85,7 +86,10 @@ public class TruststoreResource extends BaseResource {
         replaceTruststore(multiDomainCertificateProvider, truststoreFile, password);
 
         // trigger update certificate table
-        certificateService.saveCertificateAndLogRevocation(domainProvider.getCurrentDomain());
+        Domain currentDomain = domainProvider.getCurrentDomain();
+        final KeyStore trustStore = multiDomainCertificateProvider.getTrustStore(currentDomain);
+        final KeyStore keyStore = multiDomainCertificateProvider.getKeyStore(currentDomain);
+        certificateService.saveCertificateAndLogRevocation(trustStore, keyStore);
 
         return "Truststore file has been successfully replaced.";
     }

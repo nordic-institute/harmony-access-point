@@ -315,14 +315,13 @@ public class TruststoreResourceTest {
             domainProvider.getCurrentDomain();
             result = domain;
             truststoreResource.replaceTruststore(multiDomainCertificateProvider, truststoreFile, pass);
-            certificateService.saveCertificateAndLogRevocation(domain);
+            Domain currentDomain = domainProvider.getCurrentDomain();
+            final KeyStore trustStore = multiDomainCertificateProvider.getTrustStore(currentDomain);
+            final KeyStore keyStore = multiDomainCertificateProvider.getKeyStore(currentDomain);
+            certificateService.saveCertificateAndLogRevocation(trustStore, keyStore);
         }};
 
         String response = truststoreResource.uploadTruststoreFile(truststoreFile, pass);
-
-        new Verifications() {{
-            certificateService.saveCertificateAndLogRevocation(domain);
-        }};
 
         Assert.assertEquals("Truststore file has been successfully replaced.", response);
     }

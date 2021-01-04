@@ -201,9 +201,7 @@ public class CertificateServiceImpl implements CertificateService {
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void saveCertificateAndLogRevocation(final Domain currentDomain) {
-        final KeyStore trustStore = multiDomainCertificateProvider.getTrustStore(currentDomain);
-        final KeyStore keyStore = multiDomainCertificateProvider.getKeyStore(currentDomain);
+    public void saveCertificateAndLogRevocation(final KeyStore trustStore, final KeyStore keyStore) {
         saveCertificateData(trustStore, keyStore);
         logCertificateRevocationWarning();
     }

@@ -35,6 +35,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
+import java.security.KeyStore;
 import java.security.cert.X509Certificate;
 import java.util.*;
 
@@ -1160,7 +1161,11 @@ public class PartyServiceImplTest {
             List<String> aliases;
             multiDomainCertificateProvider.removeCertificate(currentDomain, aliases = withCapture());
             multiDomainCertificateProvider.addCertificate(currentDomain, certificates = withCapture(), true);
-            certificateService.saveCertificateAndLogRevocation(domainProvider.getCurrentDomain());
+
+            final KeyStore trustStore = multiDomainCertificateProvider.getTrustStore(domainProvider.getCurrentDomain());
+            final KeyStore keyStore = multiDomainCertificateProvider.getKeyStore(domainProvider.getCurrentDomain());
+            certificateService.saveCertificateAndLogRevocation(trustStore, keyStore);
+
             Assert.assertTrue("Should update party truststore when removing certificates of the parties",
                     aliases.size() == 1
                             && "party_blue".equals(aliases.get(0).toString()));

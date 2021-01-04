@@ -46,7 +46,7 @@ public interface CertificateService {
      *
      * @param domain the current domain
      */
-    void saveCertificateAndLogRevocation(Domain domain);
+    void saveCertificateAndLogRevocation(final KeyStore trustStore, final KeyStore keyStore);
 
     /**
      * Validates that the bytes represent a valid truststore
