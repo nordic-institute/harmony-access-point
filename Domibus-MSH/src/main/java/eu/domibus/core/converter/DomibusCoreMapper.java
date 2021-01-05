@@ -22,7 +22,7 @@ import eu.domibus.core.message.signal.SignalMessageLog;
 import eu.domibus.core.message.UserMessageLog;
 import eu.domibus.core.alerts.model.mapper.EventMapper;
 import eu.domibus.core.alerts.model.persist.Alert;
-import eu.domibus.core.crypto.api.CertificateEntry;
+import eu.domibus.api.pki.CertificateEntry;
 import eu.domibus.core.crypto.spi.CertificateEntrySpi;
 import eu.domibus.core.crypto.spi.DomainSpi;
 import eu.domibus.core.logging.LoggingEntry;
@@ -41,7 +41,6 @@ import eu.domibus.web.rest.ro.*;
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.Mappings;
 
 /**
  * @author Ioana Dragusanu (idragusa)

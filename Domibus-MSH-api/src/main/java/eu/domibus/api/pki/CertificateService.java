@@ -78,7 +78,7 @@ public interface CertificateService {
      * @return a certificate entry
      * @throws KeyStoreException if the trust store was not initialized
      */
-    TrustStoreEntry getPartyCertificateFromTruststore(String alias) throws KeyStoreException;
+    TrustStoreEntry createTrustStoreEntry(X509Certificate cert, String alias) throws KeyStoreException;
 
     /**
      * Returns the certificate entry from the trust store given an alias
@@ -87,7 +87,7 @@ public interface CertificateService {
      * @return an X509Certificate
      * @throws KeyStoreException if the trust store was not initialized
      */
-    X509Certificate getPartyX509CertificateFromTruststore(String alias) throws KeyStoreException;
+//    X509Certificate getPartyX509CertificateFromTruststore(String alias) throws KeyStoreException;
 
     /**
      * Given a list of certificates, returns a string containing the certificates in a 64 base encoded format and

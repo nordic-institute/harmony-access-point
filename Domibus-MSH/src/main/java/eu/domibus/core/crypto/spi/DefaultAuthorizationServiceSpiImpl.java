@@ -4,6 +4,7 @@ import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.CertificateService;
+import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.RegexUtil;
 import eu.domibus.core.ebms3.EbMS3Exception;
@@ -42,8 +43,8 @@ public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceS
 
     protected static final String DEFAULT_IAM_AUTHORIZATION_IDENTIFIER = "DEFAULT_AUTHORIZATION_SPI";
 
-    @Autowired
-    private CertificateService certificateService;
+//    @Autowired
+//    private CertificateService certificateService;
 
     @Autowired
     private MessageExchangeService messageExchangeService;
@@ -59,6 +60,12 @@ public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceS
 
     @Autowired
     private RegexUtil regexUtil;
+
+    @Autowired
+    MultiDomainCryptoService multiDomainCertificateProvider;
+
+    @Autowired
+    DomainContextProvider domainProvider;
 
     /**
      * {@inheritDoc}
@@ -131,7 +138,8 @@ public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceS
         }
         LOG.debug("Signing certificate: [%s]", signingCertificate);
         try {
-            X509Certificate cert = certificateService.getPartyX509CertificateFromTruststore(alias);
+//            X509Certificate cert = certificateService.getPartyX509CertificateFromTruststore(alias);
+            X509Certificate cert = multiDomainCertificateProvider.getCertificateFromTruststore(domainProvider.getCurrentDomain(), alias);
             if (cert == null) {
                 LOG.warn("Failed to get the certificate based on the partyName [{}]. No further authorization against truststore is performed.", alias);
                 return;

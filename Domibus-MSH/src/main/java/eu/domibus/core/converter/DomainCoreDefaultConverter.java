@@ -21,7 +21,7 @@ import eu.domibus.core.alerts.model.persist.Event;
 import eu.domibus.core.audit.model.Audit;
 import eu.domibus.core.audit.model.mapper.AuditMapper;
 import eu.domibus.core.clustering.CommandEntity;
-import eu.domibus.core.crypto.api.CertificateEntry;
+import eu.domibus.api.pki.CertificateEntry;
 import eu.domibus.core.crypto.spi.CertificateEntrySpi;
 import eu.domibus.core.crypto.spi.DomainSpi;
 import eu.domibus.core.error.ErrorLogEntry;
