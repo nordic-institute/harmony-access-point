@@ -71,6 +71,9 @@ public class DMessages {
 
 	public static final String SESSION_EXPIRED_MESSAGE = "You have been logged out because of inactivity or missing access permissions.";
 
+
+	public static final String PROPERTIES_UPDATE_ERROR_TYPE = "Could not update property: Value '%s' for property '%s' is not of type '%s'";
+
 	
 	
 	

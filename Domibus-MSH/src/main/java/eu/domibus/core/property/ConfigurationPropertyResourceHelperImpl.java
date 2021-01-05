@@ -75,9 +75,7 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
             return new ArrayList();
         }
 
-        List<DomibusProperty> properties;
-
-        properties = new RetrieveProcess()
+        List<DomibusProperty> properties = new RetrieveProcess()
                 .getByDomain(filter, propertiesMetadata)
                 .filterByValue(filter.getValue())
                 .sort(filter.getOrderBy(), filter.getAsc())

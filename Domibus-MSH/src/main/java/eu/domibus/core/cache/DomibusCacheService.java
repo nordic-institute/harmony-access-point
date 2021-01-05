@@ -19,4 +19,6 @@ public interface DomibusCacheService {
 
     void clearCache(String refreshCacheName);
 
+    void clearAllCaches();
+
 }
