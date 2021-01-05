@@ -130,6 +130,7 @@ public class SignalServiceImpl implements SignalService {
         sendMessage(commandProperties);
     }
 
+    @Override
     public void signalClearCaches() {
         String domainCode = domainContextProvider.getCurrentDomain().getCode();
 
