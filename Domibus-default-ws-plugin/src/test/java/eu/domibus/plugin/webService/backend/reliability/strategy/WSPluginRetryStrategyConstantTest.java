@@ -43,7 +43,6 @@ public class WSPluginRetryStrategyConstantTest {
         assertNull(nextAttempt);
     }
 
-    @Ignore
     @Test
     @Ignore //TODO EDELIVERY-7636
     public void calculateNextAttempt_CONSTANT_ok() {
