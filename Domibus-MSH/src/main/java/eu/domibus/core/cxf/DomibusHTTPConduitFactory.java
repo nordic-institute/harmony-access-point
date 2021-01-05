@@ -1,5 +1,6 @@
 package eu.domibus.core.cxf;
 
+import eu.domibus.api.property.DomibusPropertyProvider;
 import org.apache.cxf.Bus;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.http.HTTPConduit;
@@ -13,9 +14,6 @@ import org.springframework.stereotype.Component;
 /**
  * A Domibus factory providing the creation of custom {@code DomibusURLConnectionHTTPConduit} objects.
  *
- * <p>Note: this factory should only be used when offloading the SSL to another responsible application (e.g. a forward
- * SSL proxy).</p>
- *
  * @author Sestian-Ion TINCU
  * @since 5.0
  */
@@ -26,15 +24,21 @@ public class DomibusHTTPConduitFactory implements HTTPConduitFactory {
 
     private final ObjectProvider<DomibusURLConnectionHTTPConduit> domibusURLConnectionHTTPConduitProvider;
 
+    private final DomibusPropertyProvider domibusPropertyProvider;
+
     public DomibusHTTPConduitFactory(DomibusHttpsURLConnectionFactory domibusHttpsURLConnectionFactory,
-                                     ObjectProvider<DomibusURLConnectionHTTPConduit> domibusURLConnectionHTTPConduitProvider) {
+                                     ObjectProvider<DomibusURLConnectionHTTPConduit> domibusURLConnectionHTTPConduitProvider,
+                                     DomibusPropertyProvider domibusPropertyProvider) {
         this.domibusHttpsURLConnectionFactory = domibusHttpsURLConnectionFactory;
         this.domibusURLConnectionHTTPConduitProvider = domibusURLConnectionHTTPConduitProvider;
+        this.domibusPropertyProvider = domibusPropertyProvider;
     }
 
     @Override
-    public HTTPConduit createConduit(HTTPTransportFactory httpTransportFactory, @Qualifier(Bus.DEFAULT_BUS_ID) Bus bus,
-                                     EndpointInfo endpointInfo, EndpointReferenceType target) {
-         return domibusURLConnectionHTTPConduitProvider.getObject(domibusHttpsURLConnectionFactory, bus, endpointInfo, target);
+    public HTTPConduit createConduit(HTTPTransportFactory httpTransportFactory,
+                                     @Qualifier(Bus.DEFAULT_BUS_ID) Bus bus, // Pointing to the DomibusBus but keeping it as Bus for the method overriding
+                                     EndpointInfo endpointInfo,
+                                     EndpointReferenceType target) {
+         return domibusURLConnectionHTTPConduitProvider.getObject(domibusHttpsURLConnectionFactory, domibusPropertyProvider, bus, endpointInfo, target);
     }
 }

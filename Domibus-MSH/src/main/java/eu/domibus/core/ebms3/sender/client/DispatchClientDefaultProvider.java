@@ -105,18 +105,14 @@ public class DispatchClientDefaultProvider implements DispatchClientProvider {
         dispatch.getRequestContext().put(ASYMMETRIC_SIG_ALGO_PROPERTY, algorithm);
         dispatch.getRequestContext().put(PMODE_KEY_CONTEXT_PROPERTY, pModeKey);
         final Client client = ((DispatchImpl<SOAPMessage>) dispatch).getClient();
-        Boolean sslOffload = domibusPropertyProvider.getBooleanProperty(DOMIBUS_CONNECTION_CXF_SSL_OFFLOAD_ENABLE);
-        if(BooleanUtils.isTrue(sslOffload)) {
-            LOG.debug("Configure the SSL offloading HTTP conduit factory for endpoint [{}]", endpoint);
-            client.getEndpoint().getEndpointInfo().setProperty(HTTPConduitFactory.class.getName(), domibusHTTPConduitFactory);
-        }
+        client.getEndpoint().getEndpointInfo().setProperty(HTTPConduitFactory.class.getName(), domibusHTTPConduitFactory);
         final HTTPConduit httpConduit = (HTTPConduit) client.getConduit();
         final HTTPClientPolicy httpClientPolicy = httpConduit.getClient();
 
         httpConduit.setClient(httpClientPolicy);
         setHttpClientPolicy(httpClientPolicy);
 
-        if (endpoint.startsWith("https://") && BooleanUtils.isFalse(sslOffload)) {
+        if (endpoint.startsWith("https://")) {
             final TLSClientParameters params = tlsReader.getTlsClientParameters(domain);
             if (params != null) {
                 httpConduit.setTlsClientParameters(params);

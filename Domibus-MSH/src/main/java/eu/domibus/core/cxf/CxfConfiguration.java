@@ -1,5 +1,6 @@
 package eu.domibus.core.cxf;
 
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.ebms3.ws.attachment.AttachmentCleanupInterceptor;
 import org.apache.cxf.Bus;
 import org.apache.cxf.bus.spring.BusExtensionPostProcessor;
@@ -49,9 +50,10 @@ public class CxfConfiguration {
     @Bean
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public DomibusURLConnectionHTTPConduit domibusURLConnectionHTTPConduit(DomibusHttpsURLConnectionFactory domibusHttpsURLConnectionFactory,
+                                                                           DomibusPropertyProvider domibusPropertyProvider,
                                                                            DomibusBus bus,
                                                                            EndpointInfo endpointInfo,
                                                                            EndpointReferenceType target) throws IOException {
-        return new DomibusURLConnectionHTTPConduit(domibusHttpsURLConnectionFactory, bus, endpointInfo, target);
+        return new DomibusURLConnectionHTTPConduit(domibusHttpsURLConnectionFactory, domibusPropertyProvider, bus, endpointInfo, target);
     }
 }
