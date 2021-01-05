@@ -11,6 +11,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.EnumerablePropertySource;
 import org.springframework.core.env.MutablePropertySources;
@@ -43,6 +44,8 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     @Autowired
     protected DomainContextProvider domainContextProvider;
 
+    //EDELIVERY-7410 to revert when circular dependency is fixed in development
+    @Lazy
     @Autowired
     protected PasswordEncryptionService passwordEncryptionService;
 
@@ -52,6 +55,8 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     @Autowired
     protected GlobalPropertyMetadataManager globalPropertyMetadataManager;
 
+    //EDELIVERY-7410 to revert when circular dependency is fixed in development
+    @Lazy
     @Autowired
     protected DomibusPropertyProviderDispatcher domibusPropertyProviderDispatcher;
 

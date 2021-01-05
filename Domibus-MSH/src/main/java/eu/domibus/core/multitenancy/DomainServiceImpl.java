@@ -10,6 +10,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -39,6 +40,8 @@ public class DomainServiceImpl implements DomainService {
     @Autowired
     protected DomainDao domainDao;
 
+    //EDELIVERY-7410 to revert when circular dependency is fixed in development
+    @Lazy
     @Autowired
     private DomibusCacheService domibusCacheService;
 

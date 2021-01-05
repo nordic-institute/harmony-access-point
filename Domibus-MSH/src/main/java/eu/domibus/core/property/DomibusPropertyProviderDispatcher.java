@@ -13,6 +13,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PROPERTY_LENGTH_MAX;
@@ -48,6 +49,8 @@ public class DomibusPropertyProviderDispatcher {
     @Autowired
     DomibusPropertyChangeManager domibusPropertyChangeManager;
 
+    //EDELIVERY-7410 to revert when circular dependency is fixed in development
+    @Lazy
     @Autowired
     protected DomainService domainService;
 

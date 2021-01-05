@@ -9,6 +9,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 /**
@@ -20,6 +21,8 @@ public class DomainContextProviderImpl implements DomainContextProvider {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainContextProviderImpl.class);
 
+    //EDELIVERY-7410 to revert when circular dependency is fixed in development
+    @Lazy
     @Autowired
     protected DomainService domainService;
 

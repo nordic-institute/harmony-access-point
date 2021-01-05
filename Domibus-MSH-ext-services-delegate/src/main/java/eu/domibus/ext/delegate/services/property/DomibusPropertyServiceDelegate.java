@@ -12,6 +12,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -33,6 +34,8 @@ public class DomibusPropertyServiceDelegate implements DomibusPropertyExtService
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
 
+    //EDELIVERY-7410 to revert when circular dependency is fixed in development
+    @Lazy
     @Autowired
     protected DomainService domainService;
 
