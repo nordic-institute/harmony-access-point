@@ -27,7 +27,10 @@ public class DomibusPropertyChangeManager {
 
     private final DomibusPropertyChangeNotifier propertyChangeNotifier;
 
-    public DomibusPropertyChangeManager(GlobalPropertyMetadataManager globalPropertyMetadataManager, DomibusPropertyProviderImpl domibusPropertyProvider,
+    public DomibusPropertyChangeManager(GlobalPropertyMetadataManager globalPropertyMetadataManager,
+                                        DomibusPropertyProviderImpl domibusPropertyProvider,
+                                        // needs to be lazy because we do have a conceptual cyclic dependency:
+                                        // BeanX->PropertyProvider->PropertyChangeManager->PropertyChangeNotifier->PropertyChangeListenerX->BeanX
                                         @Lazy DomibusPropertyChangeNotifier propertyChangeNotifier) {
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.globalPropertyMetadataManager = globalPropertyMetadataManager;

@@ -11,6 +11,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -47,7 +48,10 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
     private final DomibusPropertyProvider domibusPropertyProvider;
 
     public GlobalPropertyMetadataManagerImpl(List<DomibusPropertyMetadataManagerSPI> propertyMetadataManagers,
-                                             @Autowired(required = false) List<DomibusPropertyManagerExt> extPropertyManagers,
+                                             // needs to be lazy because we do have a conceptual cyclic dependency(and we do not control external modules):
+                                             // PropertyProvider->GlobalPropertyMetadataManager->DomibusPropertyManagerExtX
+                                             // ->DomibusPropertyExtServiceDelegateAbstract-DomibusPropertyServiceDelegate->DomibusPropertyProvider
+                                             @Autowired(required = false) @Lazy List<DomibusPropertyManagerExt> extPropertyManagers,
                                              DomainCoreConverter domainConverter, DomibusPropertyProvider domibusPropertyProvider) {
         this.propertyMetadataManagers = propertyMetadataManagers;
         this.extPropertyManagers = extPropertyManagers;
