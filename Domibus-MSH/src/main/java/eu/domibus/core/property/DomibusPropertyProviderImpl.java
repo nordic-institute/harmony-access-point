@@ -129,6 +129,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
             Domain currentDomain = domain;
 
             if (currentDomain == null) {
+                // we do not use domainContextProvider.getCurrentDomain() to avoid cyclic dependency
                 currentDomain = domibusPropertyProviderDispatcher.getCurrentDomain();
                 LOG.trace("Using current domain [{}]", currentDomain);
             }
@@ -215,6 +216,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
         //multi-tenancy mode
         //domain or super property or a combination of 2
+        // we do not use domainContextProvider.getCurrentDomain() to avoid cyclic dependency
         Domain currentDomain = domibusPropertyProviderDispatcher.getCurrentDomain();
         //we have a domain in context so try a domain property
         if (currentDomain != null) {
