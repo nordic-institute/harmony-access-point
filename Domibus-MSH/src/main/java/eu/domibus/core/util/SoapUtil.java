@@ -4,13 +4,13 @@ import com.google.common.io.CharStreams;
 import eu.domibus.api.ebms3.model.ObjectFactory;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.xml.XMLUtil;
-import eu.domibus.core.util.xml.XMLUtilImpl;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.IOUtils;
 import org.apache.cxf.message.Attachment;
 import org.apache.cxf.message.MessageImpl;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -120,7 +120,7 @@ public class SoapUtil {
         return getRawXmlFromNode(node);
     }
 
-    protected String getRawXMLMessage(Node node) throws TransformerException {
+    protected String getRawXmlFromNode(Node node) throws TransformerException {
         final StringWriter rawXmlMessageWriter = new StringWriter();
 
         TransformerFactory transformerFactory = xmlUtil.getTransformerFactory();

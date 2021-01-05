@@ -1,12 +1,9 @@
 package eu.domibus.core.message.nonrepudiation;
 
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
-import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
-import eu.domibus.ebms3.common.model.MessageType;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.cxf.binding.soap.SoapMessage;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 

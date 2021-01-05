@@ -18,7 +18,6 @@ public interface NonRepudiationService {
     void saveRequest(SOAPMessage request, UserMessage userMessage);
 
     void saveResponse(SOAPMessage response, SignalMessage signalMessage);
-    void saveResponse(SOAPMessage response, SignalMessage signalMessage);
 
     void saveResponse(SOAPMessage response, String userMessageId);
 

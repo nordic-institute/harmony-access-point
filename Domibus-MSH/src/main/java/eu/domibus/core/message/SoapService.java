@@ -5,6 +5,7 @@ import eu.domibus.core.ebms3.EbMS3Exception;
 import org.apache.cxf.binding.soap.SoapMessage;
 
 import javax.xml.bind.JAXBException;
+import javax.xml.transform.TransformerException;
 import java.io.IOException;
 
 /**

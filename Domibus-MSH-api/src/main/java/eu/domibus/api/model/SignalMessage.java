@@ -68,4 +68,8 @@ public class SignalMessage extends AbstractBaseEntity {
         }
         return this.error;
     }
+
+    public RawEnvelopeLog getRawEnvelopeLog() {
+        return rawEnvelopeLog;
+    }
 }

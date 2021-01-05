@@ -1,8 +1,8 @@
 package eu.domibus.core.error;
 
 
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.ErrorCode;
-import eu.domibus.common.MSHRole;
 import eu.domibus.core.dao.InMemoryDatabaseMshConfig;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;

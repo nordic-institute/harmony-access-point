@@ -1,15 +1,14 @@
 package eu.domibus.core.plugin.handler;
 
+import eu.domibus.api.model.*;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.ErrorCode;
-import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.Role;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.UserMessageLogDao;
-import eu.domibus.ebms3.common.model.*;
 import eu.domibus.messaging.DuplicateMessageException;
 import mockit.Expectations;
 import mockit.Injectable;

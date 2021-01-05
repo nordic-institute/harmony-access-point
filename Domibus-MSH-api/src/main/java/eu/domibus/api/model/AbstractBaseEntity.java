@@ -7,6 +7,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.persistence.*;
+import javax.xml.bind.annotation.XmlTransient;
 import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
@@ -16,27 +17,33 @@ import java.util.Date;
  *
  * For convenience we are using the same base entity as domibus core
  */
+@XmlTransient
 @MappedSuperclass
 public abstract class AbstractBaseEntity implements Serializable {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AbstractBaseEntity.class);
 
+    @XmlTransient
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "ID_PK")
     private long entityId;
 
+    @XmlTransient
     @Column(name = "CREATION_TIME", updatable = false, nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date creationTime;
 
+    @XmlTransient
     @Column(name = "MODIFICATION_TIME")
     @Temporal(TemporalType.TIMESTAMP)
     private Date modificationTime;
 
+    @XmlTransient
     @Column(name = "CREATED_BY", nullable = false, updatable = false)
     private String createdBy;
 
+    @XmlTransient
     @Column(name = "MODIFIED_BY")
     private String modifiedBy;
 
