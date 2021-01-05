@@ -147,7 +147,6 @@ public class DomibusPropertyProviderImplTest {
             domibusPropertyProvider.getGlobalProperty(global);
             times = 1;
             domibusPropertyProvider.isMultiTenantAware();
-            ;
             times = 0;
         }};
     }
@@ -161,7 +160,6 @@ public class DomibusPropertyProviderImplTest {
             result = prop;
 
             domibusPropertyProvider.isMultiTenantAware();
-            ;
             result = false;
 
             domibusPropertyProvider.getGlobalProperty(prop);
@@ -175,7 +173,6 @@ public class DomibusPropertyProviderImplTest {
             domibusPropertyProvider.getGlobalProperty(prop);
             times = 1;
             domibusPropertyProvider.isMultiTenantAware();
-            ;
             times = 1;
         }};
     }
@@ -189,7 +186,6 @@ public class DomibusPropertyProviderImplTest {
             result = prop;
 
             domibusPropertyProvider.isMultiTenantAware();
-            ;
             result = true;
 
             domainContextProvider.getCurrentDomainSafely();
@@ -206,7 +202,7 @@ public class DomibusPropertyProviderImplTest {
             domibusPropertyProvider.getGlobalProperty(prop);
             times = 0;
             domibusPropertyProvider.isMultiTenantAware();
-            ;
+
             times = 1;
             domibusPropertyProvider.getDomainOrDefaultValue(prop, domain);
             times = 1;
@@ -222,7 +218,6 @@ public class DomibusPropertyProviderImplTest {
             result = prop;
 
             domibusPropertyProvider.isMultiTenantAware();
-            ;
             result = true;
 
             domainContextProvider.getCurrentDomainSafely();
@@ -236,7 +231,6 @@ public class DomibusPropertyProviderImplTest {
             domibusPropertyProvider.getGlobalProperty(prop);
             times = 0;
             domibusPropertyProvider.isMultiTenantAware();
-            ;
             times = 1;
             domibusPropertyProvider.getDomainOrDefaultValue(prop, domain);
             times = 0;
@@ -252,7 +246,6 @@ public class DomibusPropertyProviderImplTest {
             result = prop;
 
             domibusPropertyProvider.isMultiTenantAware();
-            ;
             result = true;
 
             domainContextProvider.getCurrentDomainSafely();
@@ -269,7 +262,6 @@ public class DomibusPropertyProviderImplTest {
             domibusPropertyProvider.getGlobalProperty(prop);
             times = 1;
             domibusPropertyProvider.isMultiTenantAware();
-            ;
             times = 1;
             domibusPropertyProvider.getDomainOrDefaultValue(prop, domain);
             times = 0;
@@ -285,7 +277,6 @@ public class DomibusPropertyProviderImplTest {
             result = prop;
 
             domibusPropertyProvider.isMultiTenantAware();
-            ;
             result = true;
 
             domainContextProvider.getCurrentDomainSafely();
@@ -302,7 +293,6 @@ public class DomibusPropertyProviderImplTest {
             domibusPropertyProvider.getGlobalProperty(prop);
             times = 0;
             domibusPropertyProvider.isMultiTenantAware();
-            ;
             times = 1;
             domibusPropertyProvider.getSuperOrDefaultValue(prop);
             times = 1;
@@ -318,7 +308,6 @@ public class DomibusPropertyProviderImplTest {
             result = prop;
 
             domibusPropertyProvider.isMultiTenantAware();
-            ;
             result = true;
 
             domainContextProvider.getCurrentDomainSafely();
@@ -332,7 +321,6 @@ public class DomibusPropertyProviderImplTest {
             domibusPropertyProvider.getGlobalProperty(prop);
             times = 0;
             domibusPropertyProvider.isMultiTenantAware();
-            ;
             times = 1;
             domibusPropertyProvider.getSuperOrDefaultValue(prop);
             times = 0;
@@ -358,7 +346,6 @@ public class DomibusPropertyProviderImplTest {
             result = prop;
 
             domibusPropertyProvider.isMultiTenantAware();
-            ;
             result = false;
 
             domibusPropertyProvider.getGlobalProperty(prop);
@@ -372,7 +359,6 @@ public class DomibusPropertyProviderImplTest {
             domibusPropertyProvider.getGlobalProperty(prop);
             times = 1;
             domibusPropertyProvider.isMultiTenantAware();
-            ;
             times = 1;
         }};
     }
@@ -386,7 +372,6 @@ public class DomibusPropertyProviderImplTest {
             result = prop;
 
             domibusPropertyProvider.isMultiTenantAware();
-            ;
             result = true;
         }};
 
@@ -394,7 +379,7 @@ public class DomibusPropertyProviderImplTest {
 
         new Verifications() {{
             domibusPropertyProvider.isMultiTenantAware();
-            ;
+
             times = 1;
             domibusPropertyProvider.getGlobalProperty(prop);
             times = 0;

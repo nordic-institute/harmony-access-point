@@ -114,7 +114,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         List<String> result = new ArrayList<>();
 
         if (StringUtils.isEmpty(propertyPrefix)) {
-            LOG.debug("Null prefix, exiting");
+            LOG.debug("Empty prefix, exiting");
             return result;
         }
 
