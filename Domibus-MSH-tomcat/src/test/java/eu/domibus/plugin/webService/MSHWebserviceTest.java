@@ -21,6 +21,7 @@ public class MSHWebserviceTest extends MSHWebservice {
     @Autowired
     MessageUtil messageUtil;
 
+    @Autowired
     Ebms3Converter ebms3Converter;
 
     @Override
@@ -34,7 +35,7 @@ public class MSHWebserviceTest extends MSHWebservice {
             Ebms3Messaging ebms3Messaging = messageUtil.getMessaging(request);
             messaging = ebms3Converter.convertFromEbms3(ebms3Messaging);
         } catch (Exception e) {
-            throw new WebServiceException("Error getting Messaging");
+            throw new WebServiceException("Error getting Messaging", e);
         }
         return super.invoke(request);
     }
