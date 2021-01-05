@@ -1,6 +1,7 @@
 package eu.domibus.core.cache;
 
 import com.google.common.collect.Lists;
+import eu.domibus.api.cluster.SignalService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
@@ -25,6 +26,9 @@ public class DomibusCacheServiceImplTest {
 
     @Mocked
     private Cache cache;
+
+    @Injectable
+    SignalService signalService;
 
     @Test
     public void doesNotRefreshTheCacheWhenTheCacheManagerContainsNoCaches() {
@@ -95,6 +99,9 @@ public class DomibusCacheServiceImplTest {
 
         new Verifications() {{
             cacheManager.getCache(cacheName).clear();
+            times = 1;
+            signalService.signalClearCaches();
+            times = 1;
         }};
     }
 }
