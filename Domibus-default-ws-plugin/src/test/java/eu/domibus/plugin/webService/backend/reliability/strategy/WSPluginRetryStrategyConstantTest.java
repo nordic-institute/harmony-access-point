@@ -3,6 +3,7 @@ package eu.domibus.plugin.webService.backend.reliability.strategy;
 import eu.domibus.plugin.webService.backend.reliability.strategy.WSPluginRetryStrategyConstant;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -42,6 +43,7 @@ public class WSPluginRetryStrategyConstantTest {
         assertNull(nextAttempt);
     }
 
+    @Ignore
     @Test
     public void calculateNextAttempt_CONSTANT_ok() {
         ZonedDateTime received = of(2020, 12, 31, 12, 0).atZone(systemDefault());
