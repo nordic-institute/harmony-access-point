@@ -2,12 +2,12 @@ package eu.domibus.core.clustering;
 
 import eu.domibus.api.cluster.Command;
 import eu.domibus.api.cluster.CommandProperty;
-import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JMSMessageBuilder;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.messaging.MessageConstants;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -159,6 +159,23 @@ public class SignalEbms3ServiceImplTest {
             signalService.sendMessage(commandPropertiesActual = withCapture());
             Assert.assertNotNull(commandPropertiesActual);
             Assert.assertEquals(Command.MESSAGE_FILTER_UPDATE, commandPropertiesActual.get(Command.COMMAND));
+        }};
+    }
+
+    @Test
+    public void signalClearCaches() {
+        new Expectations(signalService) {{
+            domainContextProvider.getCurrentDomain().getCode();
+            result = "default";
+        }};
+
+        signalService.signalClearCaches();
+
+        new Verifications() {{
+            Map<String, String> commandPropertiesActual;
+            signalService.sendMessage(commandPropertiesActual = withCapture());
+            Assert.assertNotNull(commandPropertiesActual);
+            Assert.assertEquals(Command.EVICT_CACHES, commandPropertiesActual.get(Command.COMMAND));
         }};
     }
 }
