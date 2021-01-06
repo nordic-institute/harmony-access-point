@@ -5,7 +5,6 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.EnumerablePropertySource;
 import org.springframework.core.env.PropertySource;
@@ -14,6 +13,8 @@ import org.springframework.stereotype.Service;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Predicate;
+
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DATABASE_GENERAL_SCHEMA;
 
 /**
  * Helper service containing commonly used methods
@@ -27,16 +28,16 @@ public class DomibusPropertyProviderHelper {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusPropertyProviderHelper.class);
 
     private volatile Boolean isMultiTenantAware;
-    private Object isMultiTenantAwareLock;
+
+    private final Object isMultiTenantAwareLock;
 
     private final ConfigurableEnvironment environment;
 
-    private String generalSchema;
+    private final String generalSchema;
 
-    public DomibusPropertyProviderHelper(ConfigurableEnvironment environment,
-                                         @Value("${domibus.database.general.schema}") String generalSchema) {
+    public DomibusPropertyProviderHelper(ConfigurableEnvironment environment) {
         this.environment = environment;
-        this.generalSchema = generalSchema;
+        this.generalSchema = environment.getProperty(DOMIBUS_DATABASE_GENERAL_SCHEMA);
 
         isMultiTenantAwareLock = new Object();
         isMultiTenantAware = null;
