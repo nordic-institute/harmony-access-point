@@ -37,6 +37,14 @@ public class DomibusPropertyProviderHelper {
     @Value("${domibus.database.general.schema}")
     private String generalSchema;
 
+    protected String getPropertyKeyForSuper(String propertyName) {
+        return "super." + propertyName;
+    }
+
+    protected String getPropertyKeyForDomain(Domain domain, String propertyName) {
+        return domain.getCode() + "." + propertyName;
+    }
+
     // duplicated part of the code from context provider so that we can brake the circular dependency
     protected String getCurrentDomainCode() {
         if (!isMultiTenantAware()) {

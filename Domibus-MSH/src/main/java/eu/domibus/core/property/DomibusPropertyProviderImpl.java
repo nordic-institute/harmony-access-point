@@ -2,6 +2,7 @@ package eu.domibus.core.property;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyException;
+import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.ConfigurableEnvironment;
@@ -21,6 +22,9 @@ import java.util.function.Predicate;
 public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
     @Autowired
+    GlobalPropertyMetadataManager globalPropertyMetadataManager;
+
+    @Autowired
     protected DomibusPropertyProviderDispatcher domibusPropertyProviderDispatcher;
 
     @Autowired
@@ -30,10 +34,13 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     DomibusPropertyRetrieveManager domibusPropertyRetrieveManager;
 
     @Autowired
-    NestedPropertiesManager filterPropertyNames;
+    NestedPropertiesManager nestedPropertiesManager;
 
     @Autowired
     protected ConfigurableEnvironment environment;
+
+    @Autowired
+    DomibusPropertyProviderHelper domibusPropertyProviderHelper;
 
     @Override
     public String getProperty(String propertyName) throws DomibusPropertyException {
@@ -74,12 +81,13 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
     @Override
     public Set<String> filterPropertiesName(Predicate<String> predicate) {
-        return filterPropertyNames.filterPropertyNames(predicate);
+        return nestedPropertiesManager.filterPropertyNames(predicate);
     }
 
     @Override
     public List<String> getNestedProperties(Domain domain, String prefix) {
-        return filterPropertyNames.getNestedProperties(domain, prefix);
+        DomibusPropertyMetadata propertyMetadata = globalPropertyMetadataManager.getPropertyMetadata(prefix);
+        return nestedPropertiesManager.getNestedProperties(domain, propertyMetadata);
     }
 
     @Override
@@ -89,7 +97,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
     @Override
     public boolean containsDomainPropertyKey(Domain domain, String propertyName) {
-        final String domainPropertyName = domibusPropertyRetrieveManager.getPropertyKeyForDomain(domain, propertyName);
+        final String domainPropertyName = domibusPropertyProviderHelper.getPropertyKeyForDomain(domain, propertyName);
         boolean domainPropertyKeyFound = environment.containsProperty(domainPropertyName);
         if (!domainPropertyKeyFound) {
             domainPropertyKeyFound = environment.containsProperty(propertyName);
@@ -116,4 +124,5 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     public void setProperty(Domain domain, String propertyName, String propertyValue) throws DomibusPropertyException {
         setProperty(domain, propertyName, propertyValue, true);
     }
+
 }

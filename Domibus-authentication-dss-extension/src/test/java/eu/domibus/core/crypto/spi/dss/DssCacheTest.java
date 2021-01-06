@@ -4,9 +4,9 @@ import mockit.Expectations;
 import mockit.Mocked;
 import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
-import org.ehcache.Cache;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.cache.Cache;
 
 import static org.junit.Assert.*;
 

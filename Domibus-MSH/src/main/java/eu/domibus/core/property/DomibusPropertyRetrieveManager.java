@@ -120,12 +120,12 @@ public class DomibusPropertyRetrieveManager {
     }
 
     protected String getDomainOrDefaultValue(DomibusPropertyMetadata prop, Domain domain) {
-        String propertyKey = getPropertyKeyForDomain(domain, prop.getName());
+        String propertyKey = domibusPropertyProviderHelper.getPropertyKeyForDomain(domain, prop.getName());
         return getPropValueOrDefault(propertyKey, prop, domain);
     }
 
     protected String getSuperOrDefaultValue(DomibusPropertyMetadata prop) {
-        String propertyKey = getPropertyKeyForSuper(prop.getName());
+        String propertyKey = domibusPropertyProviderHelper.getPropertyKeyForSuper(prop.getName());
         return getPropValueOrDefault(propertyKey, prop, null);
     }
 
@@ -148,13 +148,5 @@ public class DomibusPropertyRetrieveManager {
         }
         LOG.debug("Could not find a value for property [{}] on domain [{}].", prop.getName(), domain);
         return null;
-    }
-
-    protected String getPropertyKeyForSuper(String propertyName) {
-        return "super." + propertyName;
-    }
-
-    protected String getPropertyKeyForDomain(Domain domain, String propertyName) {
-        return domain.getCode() + "." + propertyName;
     }
 }
