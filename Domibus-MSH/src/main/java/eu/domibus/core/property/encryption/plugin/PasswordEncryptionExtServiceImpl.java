@@ -13,6 +13,7 @@ import eu.domibus.ext.services.PasswordEncryptionExtService;
 import eu.domibus.ext.services.PluginPasswordEncryptionContext;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 /**
@@ -33,8 +34,8 @@ public class PasswordEncryptionExtServiceImpl implements PasswordEncryptionExtSe
     protected final DomainCoreConverter domainCoreConverter;
 
     public PasswordEncryptionExtServiceImpl(
-            PasswordEncryptionService passwordEncryptionService,
-            PasswordEncryptionContextFactory passwordEncryptionContextFactory,
+            @Lazy PasswordEncryptionService passwordEncryptionService,
+            @Lazy PasswordEncryptionContextFactory passwordEncryptionContextFactory,
             PasswordDecryptionService passwordDecryptionService,
             DomainCoreConverter domainCoreConverter) {
         this.passwordEncryptionService = passwordEncryptionService;
