@@ -18,7 +18,6 @@ Domibus 5.0 (from 4.2)
                     - [WebLogic only]
                        o execute the WLST API script(from "/conf/domibus/scripts/upgrades") 4.2-to-5.0-WeblogicSingleServer.properties for single server deployment or 4.2-to-5.0-WeblogicCluster.properties for cluster deployment
                     - [Wildfly only]
-                       o in case the probe URL is used, the new probe URL is /domibus/services/msh
                        o in file "cef_edelivery_path/domibus/standalone/configuration/standalone-full.xml":
                             - add the following queues
                                 .............................

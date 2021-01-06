@@ -168,7 +168,7 @@ public class WSPluginBackendScheduleRetryServiceTest {
     public void send(@Mocked WSPluginDispatchRule rule,
                      @Mocked WSBackendMessageLogEntity backendMessage) {
         new Expectations(retryService) {{
-            retryService.getWsBackendMessageLogEntity("1;2", WSBackendMessageType.DELETED_BATCH, FINAL_RECIPIENT, null, rule);
+            retryService.createWsBackendMessageLogEntity("1;2", WSBackendMessageType.DELETED_BATCH, FINAL_RECIPIENT, null, rule);
             result = backendMessage;
 
             backendMessage.getEntityId();

@@ -66,7 +66,6 @@ public class WSPluginMessageSender {
                 backendMessage.getEntityId());
         WSPluginDispatchRule dispatchRule = null;
         try {
-            backendMessage.setMessageStatus(WSBackendMessageStatus.SEND_IN_PROGRESS); // to be deleted
             dispatchRule = rulesService.getRule(backendMessage.getRuleName());
             String endpoint = dispatchRule.getEndpoint();
             LOG.debug("Endpoint identified: [{}]", endpoint);

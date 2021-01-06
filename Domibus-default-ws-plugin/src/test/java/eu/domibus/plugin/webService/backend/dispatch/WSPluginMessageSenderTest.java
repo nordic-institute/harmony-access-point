@@ -70,8 +70,6 @@ public class WSPluginMessageSenderTest {
         wsPluginMessageSender.sendNotification(wsBackendMessageLogEntity);
 
         new FullVerifications() {{
-            wsBackendMessageLogEntity.setMessageStatus(WSBackendMessageStatus.SEND_IN_PROGRESS);
-            times = 1;
         }};
     }
 
@@ -110,8 +108,6 @@ public class WSPluginMessageSenderTest {
         wsPluginMessageSender.sendNotification(wsBackendMessageLogEntity);
 
         new FullVerifications() {{
-            wsBackendMessageLogEntity.setMessageStatus(WSBackendMessageStatus.SEND_IN_PROGRESS);
-            times = 1;
             wsBackendMessageLogEntity.setMessageStatus(WSBackendMessageStatus.SENT);
             times = 1;
             wsPlugin.downloadMessage(MESSAGE_ID, null);
@@ -155,8 +151,6 @@ public class WSPluginMessageSenderTest {
         wsPluginMessageSender.sendNotification(wsBackendMessageLogEntity);
 
         new FullVerifications() {{
-            wsBackendMessageLogEntity.setMessageStatus(WSBackendMessageStatus.SEND_IN_PROGRESS);
-            times = 1;
             wsBackendMessageLogEntity.setMessageStatus(WSBackendMessageStatus.SENT);
             times = 1;
         }};
@@ -195,8 +189,6 @@ public class WSPluginMessageSenderTest {
         wsPluginMessageSender.sendNotification(wsBackendMessageLogEntity);
 
         new FullVerifications() {{
-            wsBackendMessageLogEntity.setMessageStatus(WSBackendMessageStatus.SEND_IN_PROGRESS);
-            times = 1;
             reliabilityService.handleReliability(wsBackendMessageLogEntity, wsPluginDispatchRule);
             times = 1;
         }};

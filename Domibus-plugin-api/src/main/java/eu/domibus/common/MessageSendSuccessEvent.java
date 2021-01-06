@@ -19,6 +19,10 @@ public class MessageSendSuccessEvent implements Serializable, MessageEvent {
 
     protected Map<String, String> properties = new HashMap<>(); //NOSONAR
 
+    public MessageSendSuccessEvent(String messageId) {
+        this.messageId = messageId;
+    }
+
     public MessageSendSuccessEvent(String messageId, Map<String, String> properties) {
         this.messageId = messageId;
         this.properties = properties;

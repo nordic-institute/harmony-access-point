@@ -1,5 +1,6 @@
 package eu.domibus.plugin.webService.backend.dispatch;
 
+import eu.domibus.common.DeliverMessageEvent;
 import eu.domibus.common.MessageDeletedBatchEvent;
 import eu.domibus.common.MessageDeletedEvent;
 import eu.domibus.common.MessageEvent;
@@ -39,28 +40,30 @@ public class WSPluginBackendService {
         this.userMessageExtService = userMessageExtService;
     }
 
-    public void send(MessageEvent messageEvent, WSBackendMessageType messageType) {
+    public boolean send(MessageEvent messageEvent, WSBackendMessageType messageType) {
         String messageId = messageEvent.getMessageId();
         String finalRecipient = messageEvent.getProps().get(MessageConstants.FINAL_RECIPIENT);
         String originalSender = messageEvent.getProps().get(MessageConstants.ORIGINAL_SENDER);
         if (StringUtils.isBlank(finalRecipient)) {
             LOG.warn("No recipient found for messageId: [{}]", messageEvent.getMessageId());
-            return;
+            return false;
         }
 
         List<WSPluginDispatchRule> rules = wsBackendRulesService.getRulesByRecipient(finalRecipient);
         if (isEmpty(rules)) {
             LOG.warn("No rule found for recipient: [{}]", finalRecipient);
-            return;
+            return false;
         }
 
         for (WSPluginDispatchRule rule : rules) {
             if (rule.getTypes().contains(messageType)) {
-                LOG.debug("Rule [{}] found for recipient [{}]", rule.getRuleName(), finalRecipient);
+                LOG.debug("Rule [{}] found for recipient [{}] and messageType [{}]", rule.getRuleName(), finalRecipient, messageType);
                 scheduleService.schedule(messageId, finalRecipient, originalSender, rule, messageType);
+                return true;
             }
         }
 
+        return false;
     }
 
     public void send(MessageDeletedBatchEvent batchEvents, WSBackendMessageType messageType) {

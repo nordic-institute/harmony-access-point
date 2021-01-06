@@ -20,6 +20,11 @@ public class DeliverMessageEvent implements Serializable, MessageEvent {
 
     protected Map<String, String> properties = new HashMap<>(); //NOSONAR
 
+    public DeliverMessageEvent(String messageId, String finalRecipient) {
+        this.messageId = messageId;
+        this.finalRecipient = finalRecipient;
+    }
+
     public DeliverMessageEvent(String messageId, String finalRecipient, Map<String, String> properties) {
         this.messageId = messageId;
         this.finalRecipient = finalRecipient;

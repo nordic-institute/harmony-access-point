@@ -100,21 +100,21 @@ public class WSPluginBackendScheduleRetryService {
 
     @Transactional
     public void schedule(String messageId, String finalRecipient, String originalSender, WSPluginDispatchRule rule, WSBackendMessageType messageType) {
-        WSBackendMessageLogEntity backendMessage = getWsBackendMessageLogEntity(messageId, messageType, finalRecipient, originalSender, rule);
+        WSBackendMessageLogEntity backendMessage = createWsBackendMessageLogEntity(messageId, messageType, finalRecipient, originalSender, rule);
         wsBackendMessageLogDao.create(backendMessage);
         scheduleBackendMessage(backendMessage);
     }
 
     @Transactional
     public void schedule(List<String> messageIds, String finalRecipient, WSPluginDispatchRule rule, WSBackendMessageType messageType) {
-        WSBackendMessageLogEntity backendMessage = getWsBackendMessageLogEntity(
+        WSBackendMessageLogEntity backendMessage = createWsBackendMessageLogEntity(
                 join(";", messageIds), messageType, finalRecipient, null, rule);
         wsBackendMessageLogDao.create(backendMessage);
-        LOG.info("[{}] backend message id [{}] for [{}] messagesIds [{}]", messageType, backendMessage.getEntityId(), messageIds.size(), messageIds);
+        LOG.info("Schedule [{}] backend message id [{}] for [{}] messagesIds [{}]", messageType, backendMessage.getEntityId(), messageIds.size(), messageIds);
         scheduleBackendMessage(backendMessage);
     }
 
-    protected WSBackendMessageLogEntity getWsBackendMessageLogEntity(
+    protected WSBackendMessageLogEntity createWsBackendMessageLogEntity(
             String messageId,
             WSBackendMessageType messageType,
             String finalRecipient,

@@ -14,6 +14,7 @@ import eu.domibus.plugin.webService.backend.dispatch.WSPluginBackendService;
 import eu.domibus.plugin.webService.dao.WSMessageLogDao;
 import eu.domibus.plugin.webService.entity.WSMessageLogEntity;
 import eu.domibus.plugin.webService.impl.StubDtoTransformer;
+import org.apache.commons.lang3.BooleanUtils;
 
 import java.util.Date;
 import java.util.List;
@@ -59,8 +60,10 @@ public class WSPluginImpl extends AbstractBackendConnector<Messaging, UserMessag
                 new Date());
         wsMessageLogDao.create(wsMessageLogEntity);
 
-        wsPluginBackendService.send(event, RECEIVE_SUCCESS); //do not send the 2 notifications
-        wsPluginBackendService.send(event, SUBMIT_MESSAGE);
+       boolean submitMessageSent =  wsPluginBackendService.send(event, SUBMIT_MESSAGE);
+       if(BooleanUtils.isNotTrue(submitMessageSent)) {
+           wsPluginBackendService.send(event, RECEIVE_SUCCESS);
+       }
     }
 
     @Override
