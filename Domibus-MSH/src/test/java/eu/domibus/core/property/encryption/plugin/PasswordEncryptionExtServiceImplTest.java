@@ -54,33 +54,33 @@ public class PasswordEncryptionExtServiceImplTest {
         }};
     }
 
-    @Test
-    public void isValueEncrypted() {
-        String propertyValue = "";
+//    @Test
+//    public void isValueEncrypted() {
+//        String propertyValue = "";
+//
+//        passwordEncryptionExtService.isValueEncrypted(propertyValue);
+//
+//        new FullVerifications() {{
+//            passwordEncryptionService.isValueEncrypted(propertyValue);
+//        }};
+//    }
 
-        passwordEncryptionExtService.isValueEncrypted(propertyValue);
-
-        new FullVerifications() {{
-            passwordEncryptionService.isValueEncrypted(propertyValue);
-        }};
-    }
-
-    @Test
-    public void decryptProperty(@Injectable DomainDTO domainDTO,
-                                @Injectable String propertyName,
-                                @Injectable String encryptedFormatValue,
-                                @Injectable Domain domain) {
-        new Expectations() {{
-            domainCoreConverter.convert(domainDTO, Domain.class);
-            result = domain;
-        }};
-
-        passwordEncryptionExtService.decryptProperty(domainDTO, propertyName, encryptedFormatValue);
-
-        new FullVerifications() {{
-            passwordEncryptionService.decryptProperty(domain, propertyName, encryptedFormatValue);
-        }};
-    }
+//    @Test
+//    public void decryptProperty(@Injectable DomainDTO domainDTO,
+//                                @Injectable String propertyName,
+//                                @Injectable String encryptedFormatValue,
+//                                @Injectable Domain domain) {
+//        new Expectations() {{
+//            domainCoreConverter.convert(domainDTO, Domain.class);
+//            result = domain;
+//        }};
+//
+//        passwordEncryptionExtService.decryptProperty(domainDTO, propertyName, encryptedFormatValue);
+//
+//        new FullVerifications() {{
+//            passwordEncryptionService.decryptProperty(domain, propertyName, encryptedFormatValue);
+//        }};
+//    }
 
     @Test
     public void encryptProperty(@Injectable DomainDTO domainDTO,

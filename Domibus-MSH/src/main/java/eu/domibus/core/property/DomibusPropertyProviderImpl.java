@@ -4,7 +4,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.api.property.encryption.PasswordEncryptionService;
+import eu.domibus.api.property.encryption.PasswordDecryptionService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.CollectionUtils;
@@ -40,9 +40,6 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     private Object isMultiTenantAwareLock = new Object();
 
     @Autowired
-    protected PasswordEncryptionService passwordEncryptionService;
-
-    @Autowired
     protected ConfigurableEnvironment environment;
 
     @Autowired
@@ -53,6 +50,9 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
     @Autowired
     protected PrimitivePropertyTypesManager primitivePropertyTypesManager;
+
+    @Autowired
+    protected PasswordDecryptionService passwordDecryptionService;
 
     @Override
     public String getProperty(String propertyName) throws DomibusPropertyException {
@@ -295,12 +295,12 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
      * @param propertyName the property name
      * @return The value of the property as found in the system properties, the Domibus properties or inside the default Domibus properties.
      */
-    protected String getPropertyValue(String propertyName, Domain domain, boolean isEncrypted) {
+    protected String getPropertyValue(String propertyName, Domain domain, boolean encrypted) {
         String result = getEnvironment().getProperty(propertyName);
 
-        if (isEncrypted && passwordEncryptionService.isValueEncrypted(result)) {
+        if (encrypted && passwordDecryptionService.isValueEncrypted(result)) {
             LOG.debug("Decrypting property [{}]", propertyName);
-            result = passwordEncryptionService.decryptProperty(domain, propertyName, result);
+            result = passwordDecryptionService.decryptProperty(domain, propertyName, result);
         }
 
         return result;

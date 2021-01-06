@@ -51,6 +51,9 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
     public static final String PROPERTY_VALUE_DELIMITER = "=";
 
     @Autowired
+    protected PasswordDecryptionServiceImpl passwordDecryptionService;
+
+    @Autowired
     protected DomainService domainService;
 
     @Autowired
@@ -76,6 +79,11 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
 
     @Autowired
     protected DomainContextProvider domainContextProvider;
+
+    @Override
+    public boolean isValueEncrypted(String propertyValue) {
+        return passwordDecryptionService.isValueEncrypted(propertyValue);
+    }
 
     @Override
     public void encryptPasswords() {
@@ -136,16 +144,6 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
         LOG.debug("Finished creating the encryption key");
     }
 
-    @Override
-    public boolean isValueEncrypted(final String propertyValue) {
-        if (isBlank(propertyValue)) {
-            return false;
-        }
-
-        return trim(propertyValue).startsWith(ENC_START);
-    }
-
-
     protected List<PasswordEncryptionResult> encryptProperties(PasswordEncryptionContext passwordEncryptionContext, List<String> propertiesToEncrypt, SecretKey secretKey, GCMParameterSpec secretKeySpec) {
         List<PasswordEncryptionResult> result = new ArrayList<>();
 
@@ -161,32 +159,6 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
         }
 
         return result;
-    }
-
-    @Override
-    public String decryptProperty(Domain domain, String propertyName, String encryptedFormatValue) {
-        final PasswordEncryptionContext passwordEncryptionContext = passwordEncryptionContextFactory.getPasswordEncryptionContext(domain);
-        final File encryptedKeyFile = passwordEncryptionContext.getEncryptedKeyFile();
-        return decryptProperty(encryptedKeyFile, propertyName, encryptedFormatValue);
-    }
-
-    protected String decryptProperty(final File encryptedKeyFile, String propertyName, String encryptedFormatValue) {
-        final boolean valueEncrypted = isValueEncrypted(encryptedFormatValue);
-        if (!valueEncrypted) {
-            LOG.trace("Property [{}] is not encrypted: skipping decrypting value", propertyName);
-            return encryptedFormatValue;
-        }
-
-        PasswordEncryptionSecret secret = passwordEncryptionDao.getSecret(encryptedKeyFile);
-        LOG.debug("Using encrypted key file for decryption [{}]", encryptedKeyFile);
-
-        final SecretKey secretKey = encryptionUtil.getSecretKey(secret.getSecretKey());
-        final GCMParameterSpec secretKeySpec = encryptionUtil.getSecretKeySpec(secret.getInitVector());
-
-        String base64EncryptedValue = extractValueFromEncryptedFormat(encryptedFormatValue);
-        final byte[] encryptedValue = Base64.decodeBase64(base64EncryptedValue);
-
-        return encryptionUtil.decrypt(encryptedValue, secretKey, secretKeySpec);
     }
 
     @Override
@@ -219,7 +191,7 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
     }
 
     protected PasswordEncryptionResult encryptProperty(SecretKey secretKey, GCMParameterSpec secretKeySpec, String propertyName, String propertyValue) {
-        if (isValueEncrypted(propertyValue)) {
+        if (passwordDecryptionService.isValueEncrypted(propertyValue)) {
             LOG.debug("Property [{}] is already encrypted", propertyName);
             return null;
         }
@@ -234,7 +206,6 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
         passwordEncryptionResult.setFormattedBase64EncryptedValue(formatEncryptedValue(base64EncryptedValue));
         return passwordEncryptionResult;
     }
-
 
     protected String formatEncryptedValue(String value) {
         return String.format(ENC_START + "%s" + ENC_END, value);

@@ -558,23 +558,23 @@ public class DomibusPropertyProviderImplTest {
         }};
     }
 
-    @Test
-    public void getPropertyValue() {
-
-        new Expectations(domibusPropertyProvider) {{
-            environment.getProperty(propertyName);
-            result = propertyValue;
-            passwordEncryptionService.isValueEncrypted(anyString);
-            result = true;
-        }};
-
-        domibusPropertyProvider.getPropertyValue(propertyName, domain, true);
-
-        new Verifications() {{
-            passwordEncryptionService.decryptProperty(domain, propertyName, propertyValue);
-        }};
-
-    }
+//    @Test
+//    public void getPropertyValue() {
+//
+//        new Expectations(domibusPropertyProvider) {{
+//            environment.getProperty(propertyName);
+//            result = propertyValue;
+//            passwordEncryptionService.isValueEncrypted(anyString);
+//            result = true;
+//        }};
+//
+//        domibusPropertyProvider.getPropertyValue(propertyName, domain, true);
+//
+//        new Verifications() {{
+//            passwordEncryptionService.decryptProperty(domain, propertyName, propertyValue);
+//        }};
+//
+//    }
 
     @Test
     public void testGetNestedProperties() {
