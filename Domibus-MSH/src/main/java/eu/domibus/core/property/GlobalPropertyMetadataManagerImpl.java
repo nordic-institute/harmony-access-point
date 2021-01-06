@@ -3,7 +3,6 @@ package eu.domibus.core.property;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
-import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
@@ -45,18 +44,18 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
 
     private final DomainCoreConverter domainConverter;
 
-    private final DomibusPropertyProvider domibusPropertyProvider;
+    @Autowired
+    NestedPropertiesManager nestedPropertiesManager;
 
     public GlobalPropertyMetadataManagerImpl(List<DomibusPropertyMetadataManagerSPI> propertyMetadataManagers,
                                              // needs to be lazy because we do have a conceptual cyclic dependency(and we do not control external modules):
                                              // PropertyProvider->GlobalPropertyMetadataManager->DomibusPropertyManagerExtX
                                              // ->DomibusPropertyExtServiceDelegateAbstract-DomibusPropertyServiceDelegate->DomibusPropertyProvider
                                              @Autowired(required = false) @Lazy List<DomibusPropertyManagerExt> extPropertyManagers,
-                                             DomainCoreConverter domainConverter, DomibusPropertyProvider domibusPropertyProvider) {
+                                             DomainCoreConverter domainConverter) {
         this.propertyMetadataManagers = propertyMetadataManagers;
         this.extPropertyManagers = extPropertyManagers;
         this.domainConverter = domainConverter;
-        this.domibusPropertyProvider = domibusPropertyProvider;
     }
 
     @Override
@@ -143,7 +142,7 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
                 LOG.trace("Could not find composable property metadata for [{}].", propertyName);
                 return false;
             }
-            List<String> props = domibusPropertyProvider.getNestedProperties(propMeta.getName());
+            List<String> props = nestedPropertiesManager.getNestedProperties(null, propMeta.getName());
             if (CollectionUtils.isEmpty(props)) {
                 LOG.trace("Could not find any nested properties for [{}].", propMeta.getName());
                 return false;

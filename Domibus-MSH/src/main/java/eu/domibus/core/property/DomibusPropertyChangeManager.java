@@ -6,7 +6,9 @@ import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.stereotype.Service;
 
@@ -23,16 +25,22 @@ public class DomibusPropertyChangeManager {
 
     private final GlobalPropertyMetadataManager globalPropertyMetadataManager;
 
-    private final DomibusPropertyProviderImpl domibusPropertyProvider;
+    private final DomibusPropertyRetrieveManager domibusPropertyRetrieveManager;
 
     private final DomibusPropertyChangeNotifier propertyChangeNotifier;
 
+    @Autowired
+    DomibusPropertyProviderHelper domibusPropertyProviderHelper;
+
+    @Autowired
+    protected ConfigurableEnvironment environment;
+
     public DomibusPropertyChangeManager(GlobalPropertyMetadataManager globalPropertyMetadataManager,
-                                        DomibusPropertyProviderImpl domibusPropertyProvider,
+                                        DomibusPropertyRetrieveManager domibusPropertyRetrieveManager,
                                         // needs to be lazy because we do have a conceptual cyclic dependency:
                                         // BeanX->PropertyProvider->PropertyChangeManager->PropertyChangeNotifier->PropertyChangeListenerX->BeanX
                                         @Lazy DomibusPropertyChangeNotifier propertyChangeNotifier) {
-        this.domibusPropertyProvider = domibusPropertyProvider;
+        this.domibusPropertyRetrieveManager = domibusPropertyRetrieveManager;
         this.globalPropertyMetadataManager = globalPropertyMetadataManager;
         this.propertyChangeNotifier = propertyChangeNotifier;
     }
@@ -52,15 +60,15 @@ public class DomibusPropertyChangeManager {
 
     private String getInternalPropertyValue(Domain domain, String propertyName) {
         if (domain == null) {
-            return domibusPropertyProvider.getInternalProperty(propertyName);
+            return domibusPropertyRetrieveManager.getInternalProperty(propertyName);
         }
-        return domibusPropertyProvider.getInternalProperty(domain, propertyName);
+        return domibusPropertyRetrieveManager.getInternalProperty(domain, propertyName);
     }
 
     protected void doSetPropertyValue(Domain domain, String propertyName, String propertyValue) {
         String propertyKey;
         //calculate property key
-        if (domibusPropertyProvider.isMultiTenantAware()) {
+        if (domibusPropertyProviderHelper.isMultiTenantAware()) {
             // in multi-tenancy mode - some properties will be prefixed (depends on usage)
             propertyKey = computePropertyKeyInMultiTenancy(domain, propertyName);
         } else {
@@ -107,7 +115,7 @@ public class DomibusPropertyChangeManager {
     private String computePropertyKeyWithoutDomain(String propertyName, DomibusPropertyMetadata prop) {
         String propertyKey = propertyName;
         if (prop.isSuper()) {
-            propertyKey = domibusPropertyProvider.getPropertyKeyForSuper(propertyName);
+            propertyKey = domibusPropertyRetrieveManager.getPropertyKeyForSuper(propertyName);
         } else {
             if (!prop.isGlobal()) {
                 String error = String.format("Property %s is not applicable for global usage so it cannot be set.", propertyName);
@@ -120,7 +128,7 @@ public class DomibusPropertyChangeManager {
     private String computePropertyKeyForDomain(Domain domain, String propertyName, DomibusPropertyMetadata prop) {
         String propertyKey;
         if (prop.isDomain()) {
-            propertyKey = domibusPropertyProvider.getPropertyKeyForDomain(domain, propertyName);
+            propertyKey = domibusPropertyRetrieveManager.getPropertyKeyForDomain(domain, propertyName);
         } else {
             String error = String.format("Property %s is not applicable for a specific domain so it cannot be set.", propertyName);
             throw new DomibusPropertyException(error);
@@ -129,7 +137,7 @@ public class DomibusPropertyChangeManager {
     }
 
     protected void setValueInDomibusPropertySource(String propertyKey, String propertyValue) {
-        MutablePropertySources propertySources = domibusPropertyProvider.getEnvironment().getPropertySources();
+        MutablePropertySources propertySources = environment.getPropertySources();
         DomibusPropertiesPropertySource domibusPropertiesPropertySource = (DomibusPropertiesPropertySource) propertySources.get(DomibusPropertiesPropertySource.NAME);
         domibusPropertiesPropertySource.setProperty(propertyKey, propertyValue);
 
