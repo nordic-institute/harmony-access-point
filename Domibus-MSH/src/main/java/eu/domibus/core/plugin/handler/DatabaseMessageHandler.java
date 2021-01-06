@@ -1,12 +1,11 @@
 package eu.domibus.core.plugin.handler;
 
+import eu.domibus.api.model.*;
 import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.ErrorResult;
-import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.ErrorResultImpl;
-import eu.domibus.common.MessageStatus;
 import eu.domibus.common.model.configuration.Identifier;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Mpc;
@@ -33,9 +32,6 @@ import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.pmode.validation.validators.MessagePropertyValidator;
 import eu.domibus.core.pmode.validation.validators.PropertyProfileValidator;
 import eu.domibus.core.replication.UIReplicationSignalService;
-import eu.domibus.api.model.MessageInfo;
-import eu.domibus.api.model.Messaging;
-import eu.domibus.api.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -258,9 +254,10 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     }
 
     @Override
-    public MessageStatus getStatus(final String messageId) {
+    public eu.domibus.common.MessageStatus getStatus(final String messageId) {
         validateAccessToStatusAndErrors(messageId);
-        return userMessageLogDao.getMessageStatus(messageId);
+        MessageStatus messageStatus = userMessageLogDao.getMessageStatus(messageId);
+        return eu.domibus.common.MessageStatus.valueOf(messageStatus.name());
     }
 
     @Override

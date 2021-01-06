@@ -10,7 +10,7 @@ import eu.domibus.core.message.MessageLogInfo;
 import eu.domibus.core.message.MessagesLogService;
 import eu.domibus.core.message.testservice.TestService;
 import eu.domibus.core.message.testservice.TestServiceException;
-import eu.domibus.core.plugin.notification.NotificationStatus;
+import eu.domibus.api.model.NotificationStatus;
 import eu.domibus.core.replication.UIMessageService;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.api.model.MessageType;

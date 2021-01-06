@@ -1,8 +1,8 @@
 package eu.domibus.core.alerts.service;
 
+import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.model.MSHRole;
-import eu.domibus.common.MessageStatus;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.alerts.dao.EventDao;
 import eu.domibus.core.alerts.model.common.*;

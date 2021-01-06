@@ -2,7 +2,7 @@ package eu.domibus.core.message.reliability;
 
 import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.common.model.configuration.LegConfiguration;
-import eu.domibus.core.message.UserMessageLog;
+import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.api.model.Messaging;
 import eu.domibus.core.ebms3.sender.ResponseResult;
 

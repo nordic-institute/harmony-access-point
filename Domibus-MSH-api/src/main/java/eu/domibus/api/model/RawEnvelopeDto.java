@@ -1,4 +1,4 @@
-package eu.domibus.core.message.nonrepudiation;
+package eu.domibus.api.model;
 
 /**
  * @author Thomas Dussart

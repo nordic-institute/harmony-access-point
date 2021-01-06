@@ -1,9 +1,9 @@
 package eu.domibus;
 
+import eu.domibus.api.model.MessageStatus;
 import com.thoughtworks.xstream.XStream;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.common.MessageStatus;
 import eu.domibus.common.NotificationType;
 import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;

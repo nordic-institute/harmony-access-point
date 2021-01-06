@@ -1,12 +1,9 @@
 package eu.domibus.core.message;
 
+import eu.domibus.api.model.*;
 import com.google.common.collect.Maps;
-import eu.domibus.api.model.MSHRole;
-import eu.domibus.common.MessageStatus;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
-import eu.domibus.core.plugin.notification.NotificationStatus;
-import eu.domibus.api.model.MessageType;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;

@@ -2,14 +2,15 @@
 package eu.domibus.plugin.jms;
 
 
+import eu.domibus.api.model.MessageStatus;
 import eu.domibus.AbstractBackendJMSIT;
 import eu.domibus.api.model.Messaging;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.message.MessagingService;
-import eu.domibus.core.message.UserMessageLog;
+import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.core.message.UserMessageLogDefaultService;
-import eu.domibus.core.plugin.notification.NotificationStatus;
+import eu.domibus.api.model.NotificationStatus;
 import eu.domibus.api.model.MessageType;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.messaging.XmlProcessingException;
@@ -96,7 +97,7 @@ public class DownloadMessageJMSIT extends AbstractBackendJMSIT {
         messagingService.storeMessage(messaging, MSHRole.RECEIVING, legConfiguration, "backendWebservice");
 
         UserMessageLog userMessageLog = new UserMessageLog();
-        userMessageLog.setMessageStatus(eu.domibus.common.MessageStatus.RECEIVED);
+        userMessageLog.setMessageStatus(MessageStatus.RECEIVED);
         userMessageLog.setMessageId(messageId);
         userMessageLog.setMessageType(MessageType.USER_MESSAGE);
         userMessageLog.setMshRole(MSHRole.RECEIVING);

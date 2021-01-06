@@ -2,14 +2,13 @@ package eu.domibus.core.message.retention;
 
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
-import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.JsonUtil;
 import eu.domibus.core.message.MessagingDao;
-import eu.domibus.core.message.UserMessageLog;
+import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.core.message.UserMessageLogDao;
-import eu.domibus.core.message.UserMessageLogDto;
+import eu.domibus.api.model.UserMessageLogDto;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.messaging.MessageConstants;

@@ -1,4 +1,4 @@
-package eu.domibus.core.message;
+package eu.domibus.api.model;
 
 import eu.domibus.api.message.MessageSubtype;
 

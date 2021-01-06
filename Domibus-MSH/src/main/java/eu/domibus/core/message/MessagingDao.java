@@ -1,6 +1,6 @@
 package eu.domibus.core.message;
 
-import eu.domibus.common.MessageStatus;
+import eu.domibus.api.model.MessageStatus;
 import eu.domibus.core.dao.BasicDao;
 import eu.domibus.core.message.pull.MessagePullDto;
 import eu.domibus.api.model.Messaging;

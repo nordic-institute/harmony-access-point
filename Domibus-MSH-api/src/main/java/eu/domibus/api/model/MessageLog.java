@@ -1,11 +1,7 @@
-package eu.domibus.core.message;
+package eu.domibus.api.model;
 
 import eu.domibus.api.message.MessageSubtype;
-import eu.domibus.api.model.MSHRole;
-import eu.domibus.common.MessageStatus;
-import eu.domibus.core.plugin.notification.NotificationStatus;
-import eu.domibus.api.model.AbstractBaseEntity;
-import eu.domibus.api.model.MessageType;
+import eu.domibus.api.model.*;
 
 import javax.persistence.*;
 import java.util.Date;

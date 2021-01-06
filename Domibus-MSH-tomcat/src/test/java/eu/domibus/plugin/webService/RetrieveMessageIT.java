@@ -1,5 +1,6 @@
 package eu.domibus.plugin.webService;
 
+import eu.domibus.api.model.MessageStatus;
 import eu.domibus.AbstractBackendWSIT;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
@@ -8,9 +9,9 @@ import eu.domibus.common.NotificationType;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging;
 import eu.domibus.core.message.MessagingService;
-import eu.domibus.core.message.UserMessageLog;
+import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.core.message.UserMessageLogDefaultService;
-import eu.domibus.core.plugin.notification.NotificationStatus;
+import eu.domibus.api.model.NotificationStatus;
 import eu.domibus.core.plugin.notification.NotifyMessageCreator;
 import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.api.model.MessageType;
@@ -128,7 +129,7 @@ public class RetrieveMessageIT extends AbstractBackendWSIT {
         messagingService.storeMessage(messaging, MSHRole.RECEIVING, legConfiguration, "backendWebservice");
 
         UserMessageLog userMessageLog = new UserMessageLog();
-        userMessageLog.setMessageStatus(eu.domibus.common.MessageStatus.RECEIVED);
+        userMessageLog.setMessageStatus(MessageStatus.RECEIVED);
         userMessageLog.setMessageId(sanitazedMessageId);
         userMessageLog.setMessageType(MessageType.USER_MESSAGE);
         userMessageLog.setMshRole(MSHRole.RECEIVING);

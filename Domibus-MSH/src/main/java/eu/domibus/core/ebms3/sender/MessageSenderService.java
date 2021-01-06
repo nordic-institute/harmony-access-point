@@ -1,9 +1,9 @@
 package eu.domibus.core.ebms3.sender;
 
-import eu.domibus.common.MessageStatus;
+import eu.domibus.api.model.MessageStatus;
 import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.UserMessageLogDao;
-import eu.domibus.core.message.UserMessageLog;
+import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.core.message.reliability.ReliabilityService;
 import eu.domibus.core.message.UserMessageHandlerService;
 import eu.domibus.core.message.UserMessageDefaultService;

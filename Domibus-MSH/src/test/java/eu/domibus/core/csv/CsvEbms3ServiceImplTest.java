@@ -10,7 +10,7 @@ import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.core.csv.serializer.*;
 import eu.domibus.core.message.MessageLogInfo;
-import eu.domibus.core.plugin.notification.NotificationStatus;
+import eu.domibus.api.model.NotificationStatus;
 import eu.domibus.api.model.MessageType;
 import eu.domibus.web.rest.ro.ErrorLogRO;
 import mockit.Expectations;

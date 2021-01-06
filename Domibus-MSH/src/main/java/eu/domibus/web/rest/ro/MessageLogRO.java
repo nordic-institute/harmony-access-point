@@ -3,7 +3,7 @@ package eu.domibus.web.rest.ro;
 import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.MessageStatus;
-import eu.domibus.core.plugin.notification.NotificationStatus;
+import eu.domibus.api.model.NotificationStatus;
 import eu.domibus.api.model.MessageType;
 
 import java.io.Serializable;

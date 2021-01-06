@@ -1,9 +1,9 @@
 package eu.domibus.common.dao;
 
+import eu.domibus.api.model.MessageStatus;
 import eu.domibus.AbstractIT;
 import eu.domibus.api.model.*;
 import eu.domibus.api.model.MSHRole;
-import eu.domibus.common.MessageStatus;
 import eu.domibus.common.model.configuration.Identifier;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.PartyIdType;

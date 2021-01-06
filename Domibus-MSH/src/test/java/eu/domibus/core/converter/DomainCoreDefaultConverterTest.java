@@ -27,7 +27,7 @@ import eu.domibus.core.crypto.spi.DomainSpi;
 import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.logging.LoggingEntry;
 import eu.domibus.core.message.MessageLogInfo;
-import eu.domibus.core.message.UserMessageLog;
+import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.core.message.attempt.MessageAttemptEntity;
 import eu.domibus.core.message.signal.SignalMessageLog;
 import eu.domibus.core.party.PartyResponseRo;

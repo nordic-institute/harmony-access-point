@@ -1,9 +1,9 @@
 package eu.domibus.core.alerts.service;
 
+import eu.domibus.api.model.MessageStatus;
 import com.google.common.collect.Lists;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.model.MSHRole;
-import eu.domibus.common.MessageStatus;
 import eu.domibus.core.alerts.configuration.password.PasswordExpirationAlertModuleConfiguration;
 import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.error.ErrorLogDao;

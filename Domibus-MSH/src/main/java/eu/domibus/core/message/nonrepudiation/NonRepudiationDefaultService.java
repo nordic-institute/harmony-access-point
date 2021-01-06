@@ -1,6 +1,7 @@
 package eu.domibus.core.message.nonrepudiation;
 
 import eu.domibus.api.messaging.MessageNotFoundException;
+import eu.domibus.api.model.RawEnvelopeDto;
 import eu.domibus.api.model.RawEnvelopeLog;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.audit.AuditService;

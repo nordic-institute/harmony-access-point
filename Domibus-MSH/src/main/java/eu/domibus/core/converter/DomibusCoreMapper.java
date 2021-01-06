@@ -20,7 +20,7 @@ import eu.domibus.common.model.configuration.Process;
 import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.message.MessageLogInfo;
 import eu.domibus.core.message.signal.SignalMessageLog;
-import eu.domibus.core.message.UserMessageLog;
+import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.core.alerts.model.mapper.EventMapper;
 import eu.domibus.core.alerts.model.persist.Alert;
 import eu.domibus.core.crypto.api.CertificateEntry;
