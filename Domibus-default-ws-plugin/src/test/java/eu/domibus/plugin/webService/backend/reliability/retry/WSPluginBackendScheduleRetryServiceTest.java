@@ -10,10 +10,8 @@ import eu.domibus.plugin.webService.backend.reliability.queue.WSSendMessageListe
 import eu.domibus.plugin.webService.backend.rules.WSPluginDispatchRule;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.jms.JMSException;
 import javax.jms.Queue;
@@ -30,7 +28,7 @@ import static org.junit.Assert.*;
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(JMockit.class)
-public class WSPluginBackendRetryServiceTest {
+public class WSPluginBackendScheduleRetryServiceTest {
     public static final String FINAL_RECIPIENT = "finalRecipient";
     public static final String ORIGINAL_SENDER = "originalSender";
     public static final String MESSAGE_ID = "messageId";
@@ -41,7 +39,7 @@ public class WSPluginBackendRetryServiceTest {
     public static final String MESSAGE_ID_2 = "messageId2";
 
     @Tested
-    private WSPluginBackendRetryService retryService;
+    private WSPluginBackendScheduleRetryService retryService;
 
     @Injectable
     private WSBackendMessageLogDao wsBackendMessageLogDao;
@@ -91,7 +89,7 @@ public class WSPluginBackendRetryServiceTest {
             times = 1;
         }};
 
-        retryService.send(MESSAGE_ID, FINAL_RECIPIENT, ORIGINAL_SENDER, rule, WSBackendMessageType.SEND_SUCCESS);
+        retryService.schedule(MESSAGE_ID, FINAL_RECIPIENT, ORIGINAL_SENDER, rule, WSBackendMessageType.SEND_SUCCESS);
 
         new Verifications() {{
             WSBackendMessageLogEntity wsBackendMessageLogEntity;
@@ -145,7 +143,7 @@ public class WSPluginBackendRetryServiceTest {
             result = "queueName";
         }};
 
-        retryService.sendWaitingForRetry();
+        retryService.scheduleWaitingForRetry();
 
         new FullVerifications() {{
 
@@ -176,11 +174,11 @@ public class WSPluginBackendRetryServiceTest {
             backendMessage.getEntityId();
             result = 1L;
 
-            retryService.sendToQueue(backendMessage);
+            retryService.scheduleBackendMessage(backendMessage);
             times = 1;
         }};
 
-        retryService.send(Arrays.asList("1", "2"), FINAL_RECIPIENT, rule, WSBackendMessageType.DELETED_BATCH);
+        retryService.schedule(Arrays.asList("1", "2"), FINAL_RECIPIENT, rule, WSBackendMessageType.DELETED_BATCH);
 
         new FullVerifications() {{
             wsBackendMessageLogDao.create(backendMessage);

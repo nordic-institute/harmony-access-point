@@ -30,9 +30,9 @@ import static java.lang.String.join;
  * @since 5.0
  */
 @Service
-public class WSPluginBackendRetryService {
+public class WSPluginBackendScheduleRetryService {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginBackendRetryService.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginBackendScheduleRetryService.class);
 
     private final WSBackendMessageLogDao wsBackendMessageLogDao;
 
@@ -42,9 +42,9 @@ public class WSPluginBackendRetryService {
 
     protected WSPluginImpl wsPlugin;
 
-    public WSPluginBackendRetryService(WSBackendMessageLogDao wsBackendMessageLogDao,
-                                       JMSExtService jmsExtService,
-                                       @Qualifier(WS_PLUGIN_SEND_QUEUE) Queue wsPluginSendQueue) {
+    public WSPluginBackendScheduleRetryService(WSBackendMessageLogDao wsBackendMessageLogDao,
+                                               JMSExtService jmsExtService,
+                                               @Qualifier(WS_PLUGIN_SEND_QUEUE) Queue wsPluginSendQueue) {
         this.wsBackendMessageLogDao = wsBackendMessageLogDao;
         this.jmsExtService = jmsExtService;
         this.wsPluginSendQueue = wsPluginSendQueue;
@@ -64,19 +64,19 @@ public class WSPluginBackendRetryService {
     }
 
     @Transactional
-    public void sendWaitingForRetry() {
+    public void scheduleWaitingForRetry() {
         try {
             final List<WSBackendMessageLogEntity> messagesNotAlreadyQueued = getMessagesNotAlreadyScheduled();
 
             for (final WSBackendMessageLogEntity backendMessage : messagesNotAlreadyQueued) {
-                sendToQueue(backendMessage);
+                scheduleBackendMessage(backendMessage);
             }
         } catch (Exception e) {
             LOG.error("Error while sending notifications.", e);
         }
     }
 
-    protected void sendToQueue(WSBackendMessageLogEntity backendMessage) {
+    protected void scheduleBackendMessage(WSBackendMessageLogEntity backendMessage) {
         LOG.debug("Send backendMessage [{}] to queue [{}]", backendMessage.getEntityId(), getQueueName());
 
         final JmsMessageDTO jmsMessage = JMSMessageDTOBuilder.
@@ -99,19 +99,19 @@ public class WSPluginBackendRetryService {
     }
 
     @Transactional
-    public void send(String messageId, String finalRecipient, String originalSender, WSPluginDispatchRule rule, WSBackendMessageType messageType) {
+    public void schedule(String messageId, String finalRecipient, String originalSender, WSPluginDispatchRule rule, WSBackendMessageType messageType) {
         WSBackendMessageLogEntity backendMessage = getWsBackendMessageLogEntity(messageId, messageType, finalRecipient, originalSender, rule);
         wsBackendMessageLogDao.create(backendMessage);
-        sendToQueue(backendMessage);
+        scheduleBackendMessage(backendMessage);
     }
 
     @Transactional
-    public void send(List<String> messageIds, String finalRecipient, WSPluginDispatchRule rule, WSBackendMessageType messageType) {
+    public void schedule(List<String> messageIds, String finalRecipient, WSPluginDispatchRule rule, WSBackendMessageType messageType) {
         WSBackendMessageLogEntity backendMessage = getWsBackendMessageLogEntity(
                 join(";", messageIds), messageType, finalRecipient, null, rule);
         wsBackendMessageLogDao.create(backendMessage);
         LOG.info("[{}] backend message id [{}] for [{}] messagesIds [{}]", messageType, backendMessage.getEntityId(), messageIds.size(), messageIds);
-        sendToQueue(backendMessage);
+        scheduleBackendMessage(backendMessage);
     }
 
     protected WSBackendMessageLogEntity getWsBackendMessageLogEntity(

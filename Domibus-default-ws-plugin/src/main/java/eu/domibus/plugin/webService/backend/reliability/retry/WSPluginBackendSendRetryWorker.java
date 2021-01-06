@@ -19,10 +19,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class WSPluginBackendSendRetryWorker extends DomibusQuartzJobExtBean {
 
     @Autowired
-    protected WSPluginBackendRetryService retryService;
+    protected WSPluginBackendScheduleRetryService retryService;
 
     @Override
     protected void executeJob(final JobExecutionContext context, DomainDTO domain) {
-        retryService.sendWaitingForRetry();
+        retryService.scheduleWaitingForRetry();
     }
 }

@@ -59,7 +59,7 @@ public class WSPluginImpl extends AbstractBackendConnector<Messaging, UserMessag
                 new Date());
         wsMessageLogDao.create(wsMessageLogEntity);
 
-        wsPluginBackendService.send(event, RECEIVE_SUCCESS);
+        wsPluginBackendService.send(event, RECEIVE_SUCCESS); //do not send the 2 notifications
         wsPluginBackendService.send(event, SUBMIT_MESSAGE);
     }
 

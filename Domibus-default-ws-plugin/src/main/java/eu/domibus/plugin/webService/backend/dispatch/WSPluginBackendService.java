@@ -8,7 +8,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.webService.backend.WSBackendMessageType;
-import eu.domibus.plugin.webService.backend.reliability.retry.WSPluginBackendRetryService;
+import eu.domibus.plugin.webService.backend.reliability.retry.WSPluginBackendScheduleRetryService;
 import eu.domibus.plugin.webService.backend.rules.WSPluginDispatchRule;
 import eu.domibus.plugin.webService.backend.rules.WSPluginDispatchRulesService;
 import org.apache.commons.lang3.StringUtils;
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 
-import static org.springframework.util.CollectionUtils.isEmpty;
+import static org.apache.cxf.common.util.CollectionUtils.isEmpty;
 
 /**
  * @author François Gautier
@@ -26,15 +26,15 @@ import static org.springframework.util.CollectionUtils.isEmpty;
 public class WSPluginBackendService {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginBackendService.class);
 
-    final WSPluginBackendRetryService retryService;
+    final WSPluginBackendScheduleRetryService scheduleService;
     final WSPluginDispatchRulesService wsBackendRulesService;
 
     final UserMessageExtService userMessageExtService;
 
-    public WSPluginBackendService(WSPluginBackendRetryService retryService,
+    public WSPluginBackendService(WSPluginBackendScheduleRetryService scheduleService,
                                   WSPluginDispatchRulesService wsBackendRulesService,
                                   UserMessageExtService userMessageExtService) {
-        this.retryService = retryService;
+        this.scheduleService = scheduleService;
         this.wsBackendRulesService = wsBackendRulesService;
         this.userMessageExtService = userMessageExtService;
     }
@@ -57,7 +57,7 @@ public class WSPluginBackendService {
         for (WSPluginDispatchRule rule : rules) {
             if (rule.getTypes().contains(messageType)) {
                 LOG.debug("Rule [{}] found for recipient [{}]", rule.getRuleName(), finalRecipient);
-                retryService.send(messageId, finalRecipient, originalSender, rule, messageType);
+                scheduleService.schedule(messageId, finalRecipient, originalSender, rule, messageType);
             }
         }
 
@@ -67,12 +67,12 @@ public class WSPluginBackendService {
 
         Map<String, List<String>> messageIdsPerRecipient = sortMessageIdsPerFinalRecipients(batchEvents);
 
-        Set<Map.Entry<String, List<WSPluginDispatchRule>>> rulesForRecipients =
-                getRulesForFinalRecipients(messageIdsPerRecipient).entrySet();
-        for (Map.Entry<String, List<WSPluginDispatchRule>> rulesForOneRecipient : rulesForRecipients) {
-            String finalRecipient = rulesForOneRecipient.getKey();
-            List<String> messagesIdsForRecipient = messageIdsPerRecipient.get(rulesForOneRecipient.getKey());
-            List<WSPluginDispatchRule> rulesForRecipient = rulesForOneRecipient.getValue();
+        List<RulesPerRecipient> rulesForRecipients =
+                getRulesForFinalRecipients(messageIdsPerRecipient);
+        for (RulesPerRecipient rulesForOneRecipient : rulesForRecipients) {
+            String finalRecipient = rulesForOneRecipient.getFinalRecipient();
+            List<String> messagesIdsForRecipient = messageIdsPerRecipient.get(finalRecipient);
+            List<WSPluginDispatchRule> rulesForRecipient = rulesForOneRecipient.getRules();
             sendNotificationsForOneRecipient(finalRecipient, messagesIdsForRecipient, rulesForRecipient, messageType);
         }
     }
@@ -85,14 +85,14 @@ public class WSPluginBackendService {
         return messageIdsPerRecipient;
     }
 
-    protected Map<String, List<WSPluginDispatchRule>> getRulesForFinalRecipients(Map<String, List<String>> messageIdsPerRecipient) {
-        Map<String, List<WSPluginDispatchRule>> rulesPerRecipient = new HashMap<>();
+    protected List<RulesPerRecipient> getRulesForFinalRecipients(Map<String, List<String>> messageIdsPerRecipient) {
+        List<RulesPerRecipient> rulesPerRecipient = new ArrayList<>();
         for (String finalRecipient : messageIdsPerRecipient.keySet()) {
             List<WSPluginDispatchRule> rules = wsBackendRulesService.getRulesByRecipient(finalRecipient);
             if (isEmpty(rules)) {
                 LOG.warn("No rule found for recipient: [{}]", finalRecipient);
             }
-            rulesPerRecipient.put(finalRecipient, rules);
+            rulesPerRecipient.add(new RulesPerRecipient(finalRecipient, rules));
         }
         return rulesPerRecipient;
     }
@@ -100,9 +100,9 @@ public class WSPluginBackendService {
     protected void sendNotificationsForOneRecipient(
             String finalRecipient,
             List<String> messageIds,
-            List<WSPluginDispatchRule> value,
+            List<WSPluginDispatchRule> rules,
             WSBackendMessageType messageType) {
-        for (WSPluginDispatchRule wsPluginDispatchRule : value) {
+        for (WSPluginDispatchRule wsPluginDispatchRule : rules) {
             sendNotificationsForOneRule(finalRecipient, messageIds, messageType, wsPluginDispatchRule);
         }
     }
@@ -110,7 +110,7 @@ public class WSPluginBackendService {
     protected void sendNotificationsForOneRule(String finalRecipient, List<String> messageIds, WSBackendMessageType messageType, WSPluginDispatchRule wsPluginDispatchRule) {
         for (WSBackendMessageType type : wsPluginDispatchRule.getTypes()) {
             if (type == messageType) {
-                retryService.send(messageIds, finalRecipient, wsPluginDispatchRule, messageType);
+                scheduleService.schedule(messageIds, finalRecipient, wsPluginDispatchRule, messageType);
             }
         }
     }

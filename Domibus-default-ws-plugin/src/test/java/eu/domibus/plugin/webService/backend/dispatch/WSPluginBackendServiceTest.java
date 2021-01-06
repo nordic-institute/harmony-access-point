@@ -6,7 +6,7 @@ import eu.domibus.common.MessageSendSuccessEvent;
 import eu.domibus.ext.services.UserMessageExtService;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.webService.backend.WSBackendMessageType;
-import eu.domibus.plugin.webService.backend.reliability.retry.WSPluginBackendRetryService;
+import eu.domibus.plugin.webService.backend.reliability.retry.WSPluginBackendScheduleRetryService;
 import eu.domibus.plugin.webService.backend.rules.WSPluginDispatchRule;
 import eu.domibus.plugin.webService.backend.rules.WSPluginDispatchRulesService;
 import mockit.*;
@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static eu.domibus.plugin.webService.backend.WSBackendMessageType.DELETED_BATCH;
+import static org.apache.commons.lang3.StringUtils.equalsAnyIgnoreCase;
 
 /**
  * @author François Gautier
@@ -42,7 +43,7 @@ public class WSPluginBackendServiceTest {
     private WSPluginBackendService wsPluginBackendService;
 
     @Injectable
-    private WSPluginBackendRetryService retryService;
+    private WSPluginBackendScheduleRetryService retryService;
 
     @Injectable
     private WSPluginDispatchRulesService wsBackendRulesService;
@@ -70,7 +71,7 @@ public class WSPluginBackendServiceTest {
         wsPluginBackendService.send(messageSendSuccessEvent, WSBackendMessageType.SEND_SUCCESS);
 
         new FullVerifications() {{
-            retryService.send(MESSAGE_ID, FINAL_RECIPIENT, ORIGINAL_SENDER, wsPluginDispatchRule, WSBackendMessageType.SEND_SUCCESS);
+            retryService.schedule(MESSAGE_ID, FINAL_RECIPIENT, ORIGINAL_SENDER, wsPluginDispatchRule, WSBackendMessageType.SEND_SUCCESS);
             times = 1;
         }};
     }
@@ -143,7 +144,7 @@ public class WSPluginBackendServiceTest {
                 wsPluginDispatchRule);
 
         new FullVerifications() {{
-            retryService.send(messageIds, FINAL_RECIPIENT, wsPluginDispatchRule, DELETED_BATCH);
+            retryService.schedule(messageIds, FINAL_RECIPIENT, wsPluginDispatchRule, DELETED_BATCH);
             times = 1;
         }};
     }
@@ -187,16 +188,25 @@ public class WSPluginBackendServiceTest {
             this.result = new ArrayList<>();
         }};
 
-        Map<String, List<WSPluginDispatchRule>> rulesForFinalRecipients =
+        List<RulesPerRecipient> rulesForFinalRecipients =
                 wsPluginBackendService.getRulesForFinalRecipients(messageIdsPerRecipient);
 
         new FullVerifications() {
         };
 
         Assert.assertEquals(3, rulesForFinalRecipients.size());
-        Assert.assertEquals(rulesRecipient, rulesForFinalRecipients.get(FINAL_RECIPIENT));
-        Assert.assertEquals(rulesRecipient2, rulesForFinalRecipients.get(FINAL_RECIPIENT2));
-        Assert.assertEquals(0, rulesForFinalRecipients.get(FINAL_RECIPIENT3).size());
+
+        Assert.assertEquals(rulesRecipient, getRules(rulesForFinalRecipients, FINAL_RECIPIENT));
+        Assert.assertEquals(rulesRecipient2, getRules(rulesForFinalRecipients, FINAL_RECIPIENT2));
+        Assert.assertEquals(0, getRules(rulesForFinalRecipients, FINAL_RECIPIENT3).size());
+    }
+
+    private List<WSPluginDispatchRule> getRules(List<RulesPerRecipient> rulesForFinalRecipients, String finalRecipient) {
+        return rulesForFinalRecipients.stream()
+                .filter(rulesPerRecipient -> equalsAnyIgnoreCase(rulesPerRecipient.getFinalRecipient(), finalRecipient))
+                .findAny()
+                .map(RulesPerRecipient::getRules)
+                .orElse(null);
     }
 
     @Test
@@ -265,11 +275,11 @@ public class WSPluginBackendServiceTest {
         List<String> msgRecipient2 = Arrays.asList("1", "2");
         sorted.put(FINAL_RECIPIENT, msgRecipient1);
         sorted.put(FINAL_RECIPIENT2, msgRecipient2);
-        Map<String, List<WSPluginDispatchRule>> rules = new HashMap<>();
+        List<RulesPerRecipient> rules = new ArrayList<>();
         List<WSPluginDispatchRule> rulesRecipient = Arrays.asList(rule1, rule2);
         List<WSPluginDispatchRule> rulesRecipient2 = Arrays.asList(rule3, rule2);
-        rules.put(FINAL_RECIPIENT, rulesRecipient);
-        rules.put(FINAL_RECIPIENT2, rulesRecipient2);
+        rules.add(new RulesPerRecipient(FINAL_RECIPIENT, rulesRecipient));
+        rules.add(new RulesPerRecipient(FINAL_RECIPIENT2, rulesRecipient2));
 
         new Expectations(wsPluginBackendService) {{
             wsPluginBackendService.sortMessageIdsPerFinalRecipients(messageDeletedBatchEvent);
