@@ -6,7 +6,6 @@ import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MutablePropertySources;
@@ -29,19 +28,21 @@ public class DomibusPropertyChangeManager {
 
     private final DomibusPropertyChangeNotifier propertyChangeNotifier;
 
-    @Autowired
-    DomibusPropertyProviderHelper domibusPropertyProviderHelper;
+    private final DomibusPropertyProviderHelper domibusPropertyProviderHelper;
 
-    @Autowired
-    protected ConfigurableEnvironment environment;
+    private final ConfigurableEnvironment environment;
 
     public DomibusPropertyChangeManager(GlobalPropertyMetadataManager globalPropertyMetadataManager,
                                         DomibusPropertyRetrieveManager domibusPropertyRetrieveManager,
+                                        DomibusPropertyProviderHelper domibusPropertyProviderHelper,
+                                        ConfigurableEnvironment environment,
                                         // needs to be lazy because we do have a conceptual cyclic dependency:
                                         // BeanX->PropertyProvider->PropertyChangeManager->PropertyChangeNotifier->PropertyChangeListenerX->BeanX
                                         @Lazy DomibusPropertyChangeNotifier propertyChangeNotifier) {
         this.domibusPropertyRetrieveManager = domibusPropertyRetrieveManager;
         this.globalPropertyMetadataManager = globalPropertyMetadataManager;
+        this.domibusPropertyProviderHelper = domibusPropertyProviderHelper;
+        this.environment = environment;
         this.propertyChangeNotifier = propertyChangeNotifier;
     }
 

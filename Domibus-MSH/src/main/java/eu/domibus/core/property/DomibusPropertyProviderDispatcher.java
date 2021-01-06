@@ -8,7 +8,6 @@ import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -36,19 +35,21 @@ public class DomibusPropertyProviderDispatcher {
 
     private final DomibusPropertyChangeManager domibusPropertyChangeManager;
 
-    @Autowired
-    protected PrimitivePropertyTypesManager primitivePropertyTypesManager;
+    private final PrimitivePropertyTypesManager primitivePropertyTypesManager;
 
-    @Autowired
-    DomibusPropertyProviderHelper domibusPropertyProviderHelper;
+    private final DomibusPropertyProviderHelper domibusPropertyProviderHelper;
 
     public DomibusPropertyProviderDispatcher(GlobalPropertyMetadataManager globalPropertyMetadataManager,
                                              DomibusPropertyRetrieveManager domibusPropertyRetrieveManager,
-                                             DomibusPropertyChangeManager domibusPropertyChangeManager, ClassUtil classUtil) {
+                                             DomibusPropertyChangeManager domibusPropertyChangeManager, ClassUtil classUtil,
+                                             PrimitivePropertyTypesManager primitivePropertyTypesManager,
+                                             DomibusPropertyProviderHelper domibusPropertyProviderHelper) {
         this.globalPropertyMetadataManager = globalPropertyMetadataManager;
         this.domibusPropertyRetrieveManager = domibusPropertyRetrieveManager;
         this.domibusPropertyChangeManager = domibusPropertyChangeManager;
         this.classUtil = classUtil;
+        this.primitivePropertyTypesManager = primitivePropertyTypesManager;
+        this.domibusPropertyProviderHelper = domibusPropertyProviderHelper;
     }
 
     @Cacheable(value = DomibusCacheService.DOMIBUS_PROPERTY_CACHE, key = CACHE_KEY_EXPRESSION)

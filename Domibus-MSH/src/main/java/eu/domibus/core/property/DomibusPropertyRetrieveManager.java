@@ -6,7 +6,6 @@ import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.encryption.PasswordDecryptionService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.stereotype.Service;
 
@@ -21,17 +20,21 @@ public class DomibusPropertyRetrieveManager {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusPropertyRetrieveManager.class);
 
-    @Autowired
-    protected ConfigurableEnvironment environment;
+    private final ConfigurableEnvironment environment;
 
-    @Autowired
-    protected GlobalPropertyMetadataManager globalPropertyMetadataManager;
+    private final GlobalPropertyMetadataManager globalPropertyMetadataManager;
 
-    @Autowired
-    protected PasswordDecryptionService passwordDecryptionService;
+    private final PasswordDecryptionService passwordDecryptionService;
 
-    @Autowired
-    DomibusPropertyProviderHelper domibusPropertyProviderHelper;
+    private final DomibusPropertyProviderHelper domibusPropertyProviderHelper;
+
+    public DomibusPropertyRetrieveManager(ConfigurableEnvironment environment, GlobalPropertyMetadataManager globalPropertyMetadataManager,
+                                          PasswordDecryptionService passwordDecryptionService, DomibusPropertyProviderHelper domibusPropertyProviderHelper) {
+        this.environment = environment;
+        this.globalPropertyMetadataManager = globalPropertyMetadataManager;
+        this.passwordDecryptionService = passwordDecryptionService;
+        this.domibusPropertyProviderHelper = domibusPropertyProviderHelper;
+    }
 
     protected String getInternalProperty(String propertyName) {
         DomibusPropertyMetadata prop = globalPropertyMetadataManager.getPropertyMetadata(propertyName);

@@ -6,22 +6,19 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.ConfigurableEnvironment;
-import org.springframework.core.env.EnumerablePropertySource;
-import org.springframework.core.env.PropertySource;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadata.NAME_SEPARATOR;
 
 /**
+ * Responsible with nested properties management
+ *
  * @author Ion Perpegel
  * @since 5.0
  */
@@ -29,11 +26,14 @@ import static eu.domibus.api.property.DomibusPropertyMetadata.NAME_SEPARATOR;
 public class DomibusNestedPropertiesManager {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusNestedPropertiesManager.class);
 
-    @Autowired
     protected ConfigurableEnvironment environment;
 
-    @Autowired
     DomibusPropertyProviderHelper domibusPropertyProviderHelper;
+
+    public DomibusNestedPropertiesManager(ConfigurableEnvironment environment, DomibusPropertyProviderHelper domibusPropertyProviderHelper) {
+        this.environment = environment;
+        this.domibusPropertyProviderHelper = domibusPropertyProviderHelper;
+    }
 
     public List<String> getNestedProperties(DomibusPropertyMetadata propMeta) {
         return getNestedProperties(null, propMeta);
@@ -79,8 +79,6 @@ public class DomibusNestedPropertiesManager {
      * @return
      */
     protected String computePropertyPrefix(Domain domain, DomibusPropertyMetadata propertyMetadata) {
-//        DomibusPropertyMetadata propertyMetadata = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
-
         String propertyName = propertyMetadata.getName();
         //prop is only global so the current domain doesn't matter
         if (propertyMetadata.isOnlyGlobal()) {
