@@ -4,7 +4,6 @@ import eu.domibus.api.model.*;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.ErrorCode;
-import eu.domibus.common.MessageStatus;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.Role;
 import eu.domibus.core.ebms3.EbMS3Exception;

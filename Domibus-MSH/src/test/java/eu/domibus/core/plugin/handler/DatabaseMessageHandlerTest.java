@@ -1037,7 +1037,7 @@ public class DatabaseMessageHandlerTest {
         // Then
         new Verifications() {{
             authUtils.hasUserOrAdminRole();
-            Assert.assertEquals(MessageStatus.ACKNOWLEDGED, status);
+            Assert.assertEquals(eu.domibus.common.MessageStatus.ACKNOWLEDGED, status);
         }};
     }
 
