@@ -10,7 +10,6 @@ import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.ErrorResult;
-import eu.domibus.common.MessageStatus;
 import eu.domibus.common.model.configuration.*;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.error.ErrorLogDao;
@@ -1033,7 +1032,7 @@ public class DatabaseMessageHandlerTest {
         }};
 
         // When
-        final MessageStatus status = databaseMessageHandler.getStatus(MESS_ID);
+        final eu.domibus.common.MessageStatus status = databaseMessageHandler.getStatus(MESS_ID);
 
         // Then
         new Verifications() {{
@@ -1054,13 +1053,13 @@ public class DatabaseMessageHandlerTest {
         }};
 
         // When
-        MessageStatus status = null;
+        eu.domibus.common.MessageStatus status = null;
         try {
             status = databaseMessageHandler.getStatus(MESS_ID);
             Assert.fail("It should throw " + AccessDeniedException.class.getCanonicalName());
         } catch (AccessDeniedException ex) {
             // Then
-            MessageStatus finalStatus = status;
+            eu.domibus.common.MessageStatus finalStatus = status;
             new Verifications() {{
                 authUtils.hasUserOrAdminRole();
                 Assert.assertNull(finalStatus);
