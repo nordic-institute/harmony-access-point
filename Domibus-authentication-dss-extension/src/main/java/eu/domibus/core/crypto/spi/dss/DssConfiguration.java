@@ -19,7 +19,6 @@ import eu.europa.esig.dss.validation.CertificateVerifier;
 import eu.europa.esig.dss.validation.CommonCertificateVerifier;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wss4j.dom.engine.WSSConfig;
-import org.ehcache.Cache;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -388,7 +387,7 @@ public class DssConfiguration {
         if (cache == null) {
             throw new IllegalArgumentException(String.format("Cache named:[%s] not found, please configure it.", cacheName));
         }
-        return new DssCache((Cache) cache.getNativeCache());
+        return new DssCache(cache);
     }
 
     @Bean
