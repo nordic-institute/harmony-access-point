@@ -1,14 +1,14 @@
 package eu.domibus.core.cache;
 
+import eu.domibus.api.cluster.SignalService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 
@@ -25,6 +25,10 @@ public class DomibusCacheServiceImpl implements DomibusCacheService {
     @Autowired
     private CacheManager cacheManager;
 
+    @Autowired
+    @Lazy
+    protected SignalService signalService;
+
     @Override
     public void clearCache(String refreshCacheName) {
         Collection<String> cacheNames = cacheManager.getCacheNames();
@@ -37,5 +41,15 @@ public class DomibusCacheServiceImpl implements DomibusCacheService {
                 }
             }
         }
+    }
+
+    @Override
+    public void clearAllCaches(){
+        LOG.debug("clearing all caches from the cacheManager");
+        Collection<String> cacheNames = cacheManager.getCacheNames();
+        for (String cacheName : cacheNames) {
+            cacheManager.getCache(cacheName).clear();
+        }
+        signalService.signalClearCaches();
     }
 }

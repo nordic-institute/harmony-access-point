@@ -31,25 +31,33 @@ import static eu.domibus.api.property.DomibusPropertyMetadata.NAME_SEPARATOR;
 public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadataManager {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(GlobalPropertyMetadataManagerImpl.class);
 
-    @Autowired
-    protected List<DomibusPropertyMetadataManagerSPI> propertyMetadataManagers;
-
-    @Autowired(required = false)
-    @Lazy
-    protected List<DomibusPropertyManagerExt> extPropertyManagers;
-
-    @Autowired
-    protected DomainCoreConverter domainConverter;
-
-    @Autowired
-    protected DomibusPropertyProvider domibusPropertyProvider;
-
     protected Map<String, DomibusPropertyMetadata> allPropertyMetadataMap;
+
     protected Map<String, DomibusPropertyMetadata> internalPropertyMetadataMap;
 
     private volatile boolean internalPropertiesLoaded = false;
     private volatile boolean externalPropertiesLoaded = false;
     private final Object propertyMetadataMapLock = new Object();
+
+    private final List<DomibusPropertyMetadataManagerSPI> propertyMetadataManagers;
+
+    private final List<DomibusPropertyManagerExt> extPropertyManagers;
+
+    private final DomainCoreConverter domainConverter;
+
+    private final DomibusPropertyProvider domibusPropertyProvider;
+
+    public GlobalPropertyMetadataManagerImpl(List<DomibusPropertyMetadataManagerSPI> propertyMetadataManagers,
+                                             // needs to be lazy because we do have a conceptual cyclic dependency(and we do not control external modules):
+                                             // PropertyProvider->GlobalPropertyMetadataManager->DomibusPropertyManagerExtX
+                                             // ->DomibusPropertyExtServiceDelegateAbstract-DomibusPropertyServiceDelegate->DomibusPropertyProvider
+                                             @Autowired(required = false) @Lazy List<DomibusPropertyManagerExt> extPropertyManagers,
+                                             DomainCoreConverter domainConverter, DomibusPropertyProvider domibusPropertyProvider) {
+        this.propertyMetadataManagers = propertyMetadataManagers;
+        this.extPropertyManagers = extPropertyManagers;
+        this.domainConverter = domainConverter;
+        this.domibusPropertyProvider = domibusPropertyProvider;
+    }
 
     @Override
     public Map<String, DomibusPropertyMetadata> getAllProperties() {
