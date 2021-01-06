@@ -46,9 +46,6 @@ public class DomibusPropertyProviderImplTest {
     protected Properties domibusDefaultProperties;
 
     @Injectable
-    protected DomainContextProvider domainContextProvider;
-
-    @Injectable
     protected PasswordEncryptionService passwordEncryptionService;
 
     @Injectable
@@ -190,7 +187,7 @@ public class DomibusPropertyProviderImplTest {
             domibusPropertyProvider.isMultiTenantAware();;
             result = true;
 
-            domainContextProvider.getCurrentDomainSafely();
+            domibusPropertyProviderDispatcher.getCurrentDomain();
             result = domain;
 
             domibusPropertyProvider.getDomainOrDefaultValue(prop, domain);
@@ -221,7 +218,7 @@ public class DomibusPropertyProviderImplTest {
             domibusPropertyProvider.isMultiTenantAware();;
             result = true;
 
-            domainContextProvider.getCurrentDomainSafely();
+            domibusPropertyProviderDispatcher.getCurrentDomain();
             result = domain;
         }};
 
@@ -249,7 +246,7 @@ public class DomibusPropertyProviderImplTest {
             domibusPropertyProvider.isMultiTenantAware();;
             result = true;
 
-            domainContextProvider.getCurrentDomainSafely();
+            domibusPropertyProviderDispatcher.getCurrentDomain();
             result = null;
 
             domibusPropertyProvider.getGlobalProperty(prop);
@@ -280,7 +277,7 @@ public class DomibusPropertyProviderImplTest {
             domibusPropertyProvider.isMultiTenantAware();;
             result = true;
 
-            domainContextProvider.getCurrentDomainSafely();
+            domibusPropertyProviderDispatcher.getCurrentDomain();
             result = null;
 
             domibusPropertyProvider.getSuperOrDefaultValue(prop);
@@ -311,7 +308,7 @@ public class DomibusPropertyProviderImplTest {
             domibusPropertyProvider.isMultiTenantAware();;
             result = true;
 
-            domainContextProvider.getCurrentDomainSafely();
+            domibusPropertyProviderDispatcher.getCurrentDomain();
             result = null;
         }};
 

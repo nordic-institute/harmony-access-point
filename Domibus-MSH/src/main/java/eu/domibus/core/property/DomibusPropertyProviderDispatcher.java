@@ -1,7 +1,6 @@
 package eu.domibus.core.property;
 
 import eu.domibus.api.multitenancy.Domain;
-import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
@@ -10,7 +9,6 @@ import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -28,28 +26,23 @@ public class DomibusPropertyProviderDispatcher {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusPropertyProviderDispatcher.class);
 
-    // it is possible for getCurrentDomainCode() to return null for the first stages of bootstrap process
-    // for global properties but it is acceptable since they are not going to mess with super properties
-    private static final String CACHE_KEY_EXPRESSION = "(#domain != null ? #domain.getCode() : " +
-            "(#root.target.getCurrentDomainCode()) == null ? \"global\" : #root.target.getCurrentDomainCode()) + ':' + #propertyName";
+    private static final String CACHE_KEY_EXPRESSION = "#root.target.getCacheKeyValue(#domain, #propertyName)";
 
-    @Autowired
-    ClassUtil classUtil;
+    private final ClassUtil classUtil;
 
-    @Autowired
-    public DomainContextProvider domainContextProvider;
+    private final GlobalPropertyMetadataManager globalPropertyMetadataManager;
 
-    @Autowired
-    GlobalPropertyMetadataManager globalPropertyMetadataManager;
+    private final DomibusPropertyProviderImpl domibusPropertyProvider;
 
-    @Autowired
-    DomibusPropertyProviderImpl domibusPropertyProvider;
+    private final DomibusPropertyChangeManager domibusPropertyChangeManager;
 
-    @Autowired
-    DomibusPropertyChangeManager domibusPropertyChangeManager;
-
-    @Autowired
-    protected DomainService domainService;
+    public DomibusPropertyProviderDispatcher(GlobalPropertyMetadataManager globalPropertyMetadataManager, DomibusPropertyProviderImpl domibusPropertyProvider,
+                                             DomibusPropertyChangeManager domibusPropertyChangeManager, ClassUtil classUtil) {
+        this.globalPropertyMetadataManager = globalPropertyMetadataManager;
+        this.domibusPropertyProvider = domibusPropertyProvider;
+        this.domibusPropertyChangeManager = domibusPropertyChangeManager;
+        this.classUtil = classUtil;
+    }
 
     @Cacheable(value = DomibusCacheService.DOMIBUS_PROPERTY_CACHE, key = CACHE_KEY_EXPRESSION)
     public String getInternalOrExternalProperty(String propertyName, Domain domain) throws DomibusPropertyException {
@@ -147,8 +140,7 @@ public class DomibusPropertyProviderDispatcher {
     }
 
     // duplicated part of the code from context provider so that we can brake the circular dependency
-    // need to be public to be called from cache expression
-    public String getCurrentDomainCode() {
+    protected String getCurrentDomainCode() {
         if (!domibusPropertyProvider.isMultiTenantAware()) {
             LOG.debug("No multi-tenancy aware: returning the default domain");
             return DomainService.DEFAULT_DOMAIN.getCode();
@@ -160,7 +152,20 @@ public class DomibusPropertyProviderDispatcher {
         return domainCode;
     }
 
-    private Domain getCurrentDomain() {
-        return domainService.getDomain(getCurrentDomainCode());
+    protected Domain getCurrentDomain() {
+        String currentDomainCode = getCurrentDomainCode();
+        //the domain is created like this in order to avoid the dependency on DomainService ( which creates a cycle)
+        // we do not care for the domain name at all in property management, just the domain code
+        return new Domain(currentDomainCode, currentDomainCode);
     }
+
+    //this method needs to be public for the ehCache to be able to call it
+    public String getCacheKeyValue(Domain domain, String propertyName) {
+        // it is possible for getCurrentDomainCode() to return null for the first stages of bootstrap process
+        // for global properties but it is acceptable since they are not going to mess with super properties
+        String domainCode = domain != null ? domain.getCode()
+                : getCurrentDomainCode() == null ? "global" : getCurrentDomainCode();
+        return domainCode + ':' + propertyName;
+    }
+
 }
