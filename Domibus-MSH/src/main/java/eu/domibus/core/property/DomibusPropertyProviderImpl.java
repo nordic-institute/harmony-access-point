@@ -1,7 +1,6 @@
 package eu.domibus.core.property;
 
 import eu.domibus.api.multitenancy.Domain;
-import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -39,9 +38,6 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
     private volatile Boolean isMultiTenantAware = null;
     private Object isMultiTenantAwareLock = new Object();
-
-    @Autowired
-    protected DomainContextProvider domainContextProvider;
 
     @Autowired
     protected PasswordEncryptionService passwordEncryptionService;
@@ -133,7 +129,8 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
             Domain currentDomain = domain;
 
             if (currentDomain == null) {
-                currentDomain = domainContextProvider.getCurrentDomain();
+                // we do not use domainContextProvider.getCurrentDomain() to avoid cyclic dependency
+                currentDomain = domibusPropertyProviderDispatcher.getCurrentDomain();
                 LOG.trace("Using current domain [{}]", currentDomain);
             }
 
@@ -218,8 +215,9 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         }
 
         //multi-tenancy mode
-        //domain or super property or a combination of 2 
-        Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
+        //domain or super property or a combination of 2
+        // we do not use domainContextProvider.getCurrentDomain() to avoid cyclic dependency
+        Domain currentDomain = domibusPropertyProviderDispatcher.getCurrentDomain();
         //we have a domain in context so try a domain property
         if (currentDomain != null) {
             if (prop.isDomain()) {
@@ -297,10 +295,10 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
      * @param propertyName the property name
      * @return The value of the property as found in the system properties, the Domibus properties or inside the default Domibus properties.
      */
-    protected String getPropertyValue(String propertyName, Domain domain, boolean decrypt) {
+    protected String getPropertyValue(String propertyName, Domain domain, boolean isEncrypted) {
         String result = getEnvironment().getProperty(propertyName);
 
-        if (decrypt && passwordEncryptionService.isValueEncrypted(result)) {
+        if (isEncrypted && passwordEncryptionService.isValueEncrypted(result)) {
             LOG.debug("Decrypting property [{}]", propertyName);
             result = passwordEncryptionService.decryptProperty(domain, propertyName, result);
         }

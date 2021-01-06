@@ -1,0 +1,72 @@
+{
+  "title": "Properties",
+  "grid": {
+	"columnsControls": true,
+	"rowsControls": true,
+	"exportCSV": true,
+	"defaultSort": "",
+	"columns": [
+	  {
+		"name": "Property Name",
+		"type": "text",
+		"sortable": true,
+		"visibleByDefault": true
+	  },{
+		"name": "Type",
+		"type": "text",
+		"sortable": true,
+		"visibleByDefault": true
+	  },{
+		"name": "Description",
+		"type": "text",
+		"sortable": true,
+		"visibleByDefault": false
+	  },{
+		"name": "Module",
+		"type": "text",
+		"sortable": true,
+		"visibleByDefault": false
+	  },{
+		"name": "Section",
+		"type": "text",
+		"sortable": true,
+		"visibleByDefault": false
+	  },{
+		"name": "Usage",
+		"type": "text",
+		"sortable": true,
+		"visibleByDefault": true
+	  },{
+		"name": "With Fallback",
+		"type": "boolean",
+		"sortable": true,
+		"visibleByDefault": false
+	  },{
+		"name": "Is Writable",
+		"type": "boolean",
+		"sortable": true,
+		"visibleByDefault": false
+	  },{
+		"name": "Is Encrypted",
+		"type": "boolean",
+		"sortable": true,
+		"visibleByDefault": false
+	  },{
+		"name": "Is Composable",
+		"type": "boolean",
+		"sortable": true,
+		"visibleByDefault": false
+	  },{
+		"name": "Property Value",
+		"type": "boolean",
+		"sortable": true,
+		"visibleByDefault": true
+	  }
+	],
+	"pagination": {
+	  "showSelectedNo": false,
+	  "showTotalNo": true,
+	  "showPageControls": true
+	}
+  }
+}
