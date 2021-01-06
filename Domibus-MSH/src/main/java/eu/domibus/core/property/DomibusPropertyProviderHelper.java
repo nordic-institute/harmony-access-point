@@ -34,6 +34,9 @@ public class DomibusPropertyProviderHelper {
     private volatile Boolean isMultiTenantAware = null;
     private Object isMultiTenantAwareLock = new Object();
 
+    @Autowired
+    protected ConfigurableEnvironment environment;
+
     @Value("${domibus.database.general.schema}")
     private String generalSchema;
 
@@ -45,6 +48,33 @@ public class DomibusPropertyProviderHelper {
         return domain.getCode() + "." + propertyName;
     }
 
+    protected Set<String> filterPropertyNames(Predicate<String> predicate) {
+        Set<String> result = new HashSet<>();
+        for (PropertySource propertySource : environment.getPropertySources()) {
+            Set<String> propertySourceNames = filterPropertySource(predicate, propertySource);
+            result.addAll(propertySourceNames);
+        }
+        return result;
+    }
+
+    protected Set<String> filterPropertySource(Predicate<String> predicate, PropertySource propertySource) {
+        Set<String> filteredPropertyNames = new HashSet<>();
+        if (!(propertySource instanceof EnumerablePropertySource)) {
+            LOG.trace("PropertySource [{}] has been skipped", propertySource.getName());
+            return filteredPropertyNames;
+        }
+        LOG.trace("Filtering properties from propertySource [{}]", propertySource.getName());
+
+        EnumerablePropertySource enumerablePropertySource = (EnumerablePropertySource) propertySource;
+        for (String propertyName : enumerablePropertySource.getPropertyNames()) {
+            if (predicate.test(propertyName)) {
+                LOG.trace("Predicate matched property [{}]", propertyName);
+                filteredPropertyNames.add(propertyName);
+            }
+        }
+        return filteredPropertyNames;
+    }
+    
     // duplicated part of the code from context provider so that we can brake the circular dependency
     protected String getCurrentDomainCode() {
         if (!isMultiTenantAware()) {

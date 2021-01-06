@@ -26,8 +26,8 @@ import static eu.domibus.api.property.DomibusPropertyMetadata.NAME_SEPARATOR;
  * @since 5.0
  */
 @Service
-public class NestedPropertiesManager {
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(NestedPropertiesManager.class);
+public class DomibusNestedPropertiesManager {
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusNestedPropertiesManager.class);
 
     @Autowired
     protected ConfigurableEnvironment environment;
@@ -44,7 +44,7 @@ public class NestedPropertiesManager {
         LOG.debug("Getting nested properties for prefix [{}]", propertyPrefix);
 
         List<String> result = new ArrayList<>();
-        Set<String> propertiesStartingWithPrefix = filterPropertyNames(property -> StringUtils.startsWith(property, propertyPrefix));
+        Set<String> propertiesStartingWithPrefix = domibusPropertyProviderHelper.filterPropertyNames(property -> StringUtils.startsWith(property, propertyPrefix));
         if (CollectionUtils.isEmpty(propertiesStartingWithPrefix)) {
             LOG.debug("No properties found starting with prefix [{}]", propertyPrefix);
             return result;
@@ -59,33 +59,6 @@ public class NestedPropertiesManager {
         }
         LOG.debug("Found first level properties [{}] starting with prefix [{}]", firstLevelProperties, propertyPrefix);
         return firstLevelProperties;
-    }
-
-    protected Set<String> filterPropertyNames(Predicate<String> predicate) {
-        Set<String> result = new HashSet<>();
-        for (PropertySource propertySource : environment.getPropertySources()) {
-            Set<String> propertySourceNames = filterPropertySource(predicate, propertySource);
-            result.addAll(propertySourceNames);
-        }
-        return result;
-    }
-
-    protected Set<String> filterPropertySource(Predicate<String> predicate, PropertySource propertySource) {
-        Set<String> filteredPropertyNames = new HashSet<>();
-        if (!(propertySource instanceof EnumerablePropertySource)) {
-            LOG.trace("PropertySource [{}] has been skipped", propertySource.getName());
-            return filteredPropertyNames;
-        }
-        LOG.trace("Filtering properties from propertySource [{}]", propertySource.getName());
-
-        EnumerablePropertySource enumerablePropertySource = (EnumerablePropertySource) propertySource;
-        for (String propertyName : enumerablePropertySource.getPropertyNames()) {
-            if (predicate.test(propertyName)) {
-                LOG.trace("Predicate matched property [{}]", propertyName);
-                filteredPropertyNames.add(propertyName);
-            }
-        }
-        return filteredPropertyNames;
     }
 
     protected String getPropertyPrefix(Domain domain, DomibusPropertyMetadata propertyMetadata) {

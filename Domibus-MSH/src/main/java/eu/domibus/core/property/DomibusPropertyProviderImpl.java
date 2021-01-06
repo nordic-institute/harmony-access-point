@@ -31,10 +31,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     protected PrimitivePropertyTypesManager primitivePropertyTypesManager;
 
     @Autowired
-    DomibusPropertyRetrieveManager domibusPropertyRetrieveManager;
-
-    @Autowired
-    NestedPropertiesManager nestedPropertiesManager;
+    DomibusNestedPropertiesManager domibusNestedPropertiesManager;
 
     @Autowired
     protected ConfigurableEnvironment environment;
@@ -81,13 +78,13 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
     @Override
     public Set<String> filterPropertiesName(Predicate<String> predicate) {
-        return nestedPropertiesManager.filterPropertyNames(predicate);
+        return domibusPropertyProviderHelper.filterPropertyNames(predicate);
     }
 
     @Override
     public List<String> getNestedProperties(Domain domain, String prefix) {
         DomibusPropertyMetadata propertyMetadata = globalPropertyMetadataManager.getPropertyMetadata(prefix);
-        return nestedPropertiesManager.getNestedProperties(domain, propertyMetadata);
+        return domibusNestedPropertiesManager.getNestedProperties(domain, propertyMetadata);
     }
 
     @Override
