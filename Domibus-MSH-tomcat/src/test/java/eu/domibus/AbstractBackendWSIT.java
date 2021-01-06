@@ -151,11 +151,9 @@ public abstract class AbstractBackendWSIT extends AbstractIT {
     protected void waitForMessage(String messageId) {
         try {
             with().pollInterval(200, TimeUnit.MILLISECONDS).await().atMost(2, TimeUnit.SECONDS).until(findByMessageIdReturnMessage(messageId));
-        } catch (ConditionTimeoutException e) {
-            //workaround as awaitility has no (yet) implemented a callable for onTimeout()
+        } catch (ConditionTimeoutException e) { //workaround as awaitility has no (yet) implemented a callable for onTimeout()
             LOG.debug("ConditionTimeoutException: ", e);
         }
-
     }
 
     protected Callable<Boolean> findByMessageIdReturnMessage(String messageId) {
