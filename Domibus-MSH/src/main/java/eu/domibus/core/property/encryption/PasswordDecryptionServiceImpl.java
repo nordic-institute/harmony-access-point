@@ -16,6 +16,8 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
 import java.io.File;
 
+import static eu.domibus.core.property.encryption.PasswordEncryptionServiceImpl.ENC_END;
+import static eu.domibus.core.property.encryption.PasswordEncryptionServiceImpl.ENC_START;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.trim;
 
@@ -28,9 +30,6 @@ public class PasswordDecryptionServiceImpl implements PasswordDecryptionService 
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PasswordDecryptionServiceImpl.class);
 
-    public static final String ENC_START = "ENC(";
-    public static final String ENC_END = ")";
-
     @Autowired
     protected PasswordEncryptionDao passwordEncryptionDao;
 
@@ -38,7 +37,7 @@ public class PasswordDecryptionServiceImpl implements PasswordDecryptionService 
     protected EncryptionUtil encryptionUtil;
 
     @Autowired
-    protected PasswordDecryptionContextFactory passwordEncryptionContextFactory;
+    protected PasswordDecryptionContextFactory passwordDecryptionContextFactory;
 
     @Override
     public boolean isValueEncrypted(final String propertyValue) {
@@ -51,7 +50,7 @@ public class PasswordDecryptionServiceImpl implements PasswordDecryptionService 
 
     @Override
     public String decryptProperty(Domain domain, String propertyName, String encryptedFormatValue) {
-        final PasswordDecryptionContext passwordEncryptionContext = passwordEncryptionContextFactory.getContext(domain);
+        final PasswordDecryptionContext passwordEncryptionContext = passwordDecryptionContextFactory.getContext(domain);
         final File encryptedKeyFile = passwordEncryptionContext.getEncryptedKeyFile();
         return decryptProperty(encryptedKeyFile, propertyName, encryptedFormatValue);
     }

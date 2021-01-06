@@ -11,8 +11,8 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 
 /**
- * @author Cosmin Baciu
- * @since 4.1.1
+ * @author Ion perpegel
+ * @since 5.0
  */
 public class PasswordDecryptionContextDomain extends PasswordDecryptionContextAbstract {
 
@@ -20,11 +20,11 @@ public class PasswordDecryptionContextDomain extends PasswordDecryptionContextAb
 
     protected Domain domain;
 
-    public PasswordDecryptionContextDomain(PasswordDecryptionService passwordEncryptionService,
+    public PasswordDecryptionContextDomain(PasswordDecryptionService passwordDecryptionService,
                                            DomibusPropertyProvider domibusPropertyProvider,
                                            DomibusConfigurationService domibusConfigurationService,
                                            Domain domain) {
-        super(passwordEncryptionService, domibusConfigurationService);
+        super(passwordDecryptionService, domibusConfigurationService);
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.domibusConfigurationService = domibusConfigurationService;
         this.domain = domain;

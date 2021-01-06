@@ -12,8 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
- * @author Cosmin Baciu
- * @since 4.1.1
+ * @author Ion perpegel
+ * @since 5.0
  */
 @Service
 public class PasswordDecryptionContextFactory {
@@ -33,10 +33,10 @@ public class PasswordDecryptionContextFactory {
         PasswordDecryptionContext result;
         if (domain != null) {
             result = new PasswordDecryptionContextDomain(passwordDecryptionService, domibusPropertyProvider, domibusConfigurationService, domain);
-            LOG.trace("Using PasswordEncryptionContextDomain with domain [{}]", domain);
+            LOG.trace("Using PasswordDecryptionContextDomain with domain [{}]", domain);
         } else {
             result = new PasswordDecryptionContextDefault(passwordDecryptionService, domibusPropertyProvider, domibusConfigurationService);
-            LOG.trace("Using PasswordEncryptionContextDefault");
+            LOG.trace("Using PasswordDecryptionContextDefault");
         }
         return result;
     }
