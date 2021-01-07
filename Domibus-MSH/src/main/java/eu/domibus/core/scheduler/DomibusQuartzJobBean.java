@@ -3,6 +3,7 @@ package eu.domibus.core.scheduler;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.security.AuthUtils;
 import eu.domibus.core.util.DatabaseUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -20,6 +21,9 @@ public abstract class DomibusQuartzJobBean extends QuartzJobBean {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusQuartzJobBean.class);
 
+    private static final String DOMIBUS_QUARTZ_USER = "domibus-quartz";
+    private static final String DOMIBUS_QUARTZ_PASSWORD = "domibus-quartz";
+
     @Autowired
     protected DomainService domainService;
 
@@ -29,18 +33,27 @@ public abstract class DomibusQuartzJobBean extends QuartzJobBean {
     @Autowired
     protected DatabaseUtil databaseUtil;
 
+    @Autowired
+    protected AuthUtils authUtils;
+
     @Override
     protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
         try {
             LOG.clearCustomKeys();
             final Domain currentDomain = getDomain(context);
             domainContextProvider.setCurrentDomain(currentDomain);
+            setSecurityContext();
             LOG.putMDC(DomibusLogger.MDC_USER, databaseUtil.getDatabaseUserName());
             executeJob(context, currentDomain);
         } finally {
             domainContextProvider.clearCurrentDomain();
             LOG.clearCustomKeys();
+            authUtils.clearSecurityContext();
         }
+    }
+
+    protected void setSecurityContext() {
+        authUtils.setAuthenticationToSecurityContext(DOMIBUS_QUARTZ_USER, DOMIBUS_QUARTZ_PASSWORD);
     }
 
     protected Domain getDomain(JobExecutionContext context) throws JobExecutionException {
