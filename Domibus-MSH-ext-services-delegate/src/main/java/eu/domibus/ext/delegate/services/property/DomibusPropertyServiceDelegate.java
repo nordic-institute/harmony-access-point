@@ -98,7 +98,7 @@ public class DomibusPropertyServiceDelegate implements DomibusPropertyExtService
         try {
             return NotificationType.valueOf(trimmedValue);
         } catch (IllegalArgumentException e) {
-            LOG.warn("Unrecognized notification type [{}]", trimmedValue, e);
+            LOG.warn("Unrecognized notification type [{}]", trimmedValue);
             return null;
         }
     }
