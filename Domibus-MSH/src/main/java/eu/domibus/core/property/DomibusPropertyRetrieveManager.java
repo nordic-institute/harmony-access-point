@@ -10,7 +10,7 @@ import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.stereotype.Service;
 
 /**
- * Single entry point for getting and setting internal and external domibus properties
+ * Responsible for retrieving the values for the internal properties
  *
  * @author Ion Perpegel
  * @since 5.0

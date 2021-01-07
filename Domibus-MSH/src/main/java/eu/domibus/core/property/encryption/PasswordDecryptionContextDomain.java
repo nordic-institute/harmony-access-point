@@ -4,11 +4,6 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.property.encryption.PasswordDecryptionContextAbstract;
-import eu.domibus.api.property.encryption.PasswordDecryptionService;
-import eu.domibus.api.property.encryption.PasswordEncryptionContextAbstract;
-import eu.domibus.api.property.encryption.PasswordEncryptionService;
-import eu.domibus.logging.DomibusLogger;
-import eu.domibus.logging.DomibusLoggerFactory;
 
 /**
  * @author Ion perpegel

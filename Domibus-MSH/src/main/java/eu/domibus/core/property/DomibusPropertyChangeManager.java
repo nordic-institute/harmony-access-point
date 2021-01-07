@@ -12,7 +12,7 @@ import org.springframework.core.env.MutablePropertySources;
 import org.springframework.stereotype.Service;
 
 /**
- * Helper class involved in changing of domibus properties at runtime
+ * Responsible for changing the values of domibus properties
  *
  * @author Ion Perpegel
  * @since 4.2
