@@ -52,8 +52,7 @@ public class FSPluginPropertiesIT extends AbstractIT {
     FSPluginProperties fsPluginProperties;
 
     @Configuration
-    //@PropertySource(value = "file:${domibus.config.location}/dataset/fsplugin/fs-plugin.properties")
-    @PropertySource(value = "classpath:/dataset/fsplugin/fs-plugin.properties")
+    @PropertySource(value = "file:${domibus.config.location}/dataset/fsplugin/fs-plugin.properties")
     static class ContextConfiguration {
 
         @Bean
