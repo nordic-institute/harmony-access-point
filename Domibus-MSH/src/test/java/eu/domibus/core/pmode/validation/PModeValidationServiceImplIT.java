@@ -73,6 +73,16 @@ public class PModeValidationServiceImplIT {
             return Mockito.mock(GlobalPropertyMetadataManagerImpl.class);
         }
 
+        @Bean
+        public DomibusNestedPropertiesManager domibusNestedPropertiesManager() {
+            return Mockito.mock(DomibusNestedPropertiesManager.class);
+        }
+
+        @Bean
+        public DomibusPropertyProviderHelper domibusPropertyProviderHelper() {
+            return Mockito.mock(DomibusPropertyProviderHelper.class);
+        }
+
         @Bean(name = "domibusDefaultProperties")
         public Properties domibusDefaultProperties() {
             return Mockito.mock(Properties.class);

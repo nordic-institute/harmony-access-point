@@ -17,13 +17,9 @@ public abstract class PasswordDecryptionContextAbstract implements PasswordDecry
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PasswordDecryptionContextAbstract.class);
 
-    protected PasswordDecryptionService passwordDecryptionService;
-
     protected DomibusConfigurationService domibusConfigurationService;
 
-    public PasswordDecryptionContextAbstract(PasswordDecryptionService passwordDecryptionService,
-                                             DomibusConfigurationService domibusConfigurationService) {
-        this.passwordDecryptionService = passwordDecryptionService;
+    public PasswordDecryptionContextAbstract(DomibusConfigurationService domibusConfigurationService) {
         this.domibusConfigurationService = domibusConfigurationService;
     }
 

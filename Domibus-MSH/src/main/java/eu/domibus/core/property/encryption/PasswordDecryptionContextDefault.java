@@ -3,7 +3,6 @@ package eu.domibus.core.property.encryption;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.property.encryption.PasswordDecryptionContextAbstract;
-import eu.domibus.api.property.encryption.PasswordDecryptionService;
 
 /**
  * @author Ion perpegel
@@ -13,10 +12,9 @@ public class PasswordDecryptionContextDefault extends PasswordDecryptionContextA
 
     protected DomibusPropertyProvider domibusPropertyProvider;
 
-    public PasswordDecryptionContextDefault(PasswordDecryptionService passwordDecryptionService,
-                                            DomibusPropertyProvider domibusPropertyProvider,
+    public PasswordDecryptionContextDefault(DomibusPropertyProvider domibusPropertyProvider,
                                             DomibusConfigurationService domibusConfigurationService) {
-        super(passwordDecryptionService, domibusConfigurationService);
+        super(domibusConfigurationService);
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.domibusConfigurationService = domibusConfigurationService;
     }

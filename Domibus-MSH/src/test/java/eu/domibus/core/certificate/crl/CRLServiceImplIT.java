@@ -90,6 +90,16 @@ public class CRLServiceImplIT {
         public PrimitivePropertyTypesManager primitivePropertyTypesManager() {
             return Mockito.mock(PrimitivePropertyTypesManager.class);
         }
+
+        @Bean
+        public DomibusNestedPropertiesManager domibusNestedPropertiesManager() {
+            return Mockito.mock(DomibusNestedPropertiesManager.class);
+        }
+
+        @Bean
+        public DomibusPropertyProviderHelper domibusPropertyProviderHelper() {
+            return Mockito.mock(DomibusPropertyProviderHelper.class);
+        }
     }
 
     @Autowired

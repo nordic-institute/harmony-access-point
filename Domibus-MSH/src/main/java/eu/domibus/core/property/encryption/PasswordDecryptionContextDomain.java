@@ -20,11 +20,10 @@ public class PasswordDecryptionContextDomain extends PasswordDecryptionContextAb
 
     protected Domain domain;
 
-    public PasswordDecryptionContextDomain(PasswordDecryptionService passwordDecryptionService,
-                                           DomibusPropertyProvider domibusPropertyProvider,
+    public PasswordDecryptionContextDomain(DomibusPropertyProvider domibusPropertyProvider,
                                            DomibusConfigurationService domibusConfigurationService,
                                            Domain domain) {
-        super(passwordDecryptionService, domibusConfigurationService);
+        super(domibusConfigurationService);
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.domibusConfigurationService = domibusConfigurationService;
         this.domain = domain;

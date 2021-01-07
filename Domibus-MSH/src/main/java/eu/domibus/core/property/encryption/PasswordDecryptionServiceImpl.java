@@ -9,7 +9,6 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
@@ -30,14 +29,18 @@ public class PasswordDecryptionServiceImpl implements PasswordDecryptionService 
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PasswordDecryptionServiceImpl.class);
 
-    @Autowired
     protected PasswordEncryptionDao passwordEncryptionDao;
 
-    @Autowired
     protected EncryptionUtil encryptionUtil;
 
-    @Autowired
     protected PasswordDecryptionContextFactory passwordDecryptionContextFactory;
+
+    public PasswordDecryptionServiceImpl(PasswordEncryptionDao passwordEncryptionDao, EncryptionUtil encryptionUtil,
+                                         PasswordDecryptionContextFactory passwordDecryptionContextFactory) {
+        this.passwordEncryptionDao = passwordEncryptionDao;
+        this.encryptionUtil = encryptionUtil;
+        this.passwordDecryptionContextFactory = passwordDecryptionContextFactory;
+    }
 
     @Override
     public boolean isValueEncrypted(final String propertyValue) {
