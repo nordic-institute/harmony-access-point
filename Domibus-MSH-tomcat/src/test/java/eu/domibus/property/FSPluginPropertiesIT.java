@@ -53,6 +53,7 @@ public class FSPluginPropertiesIT extends AbstractIT {
 
     @Configuration
     @PropertySource(value = "file:${domibus.config.location}/dataset/fsplugin/fs-plugin.properties")
+    //fs-plugin-default.properties is take precedence here so we will test both files values
     static class ContextConfiguration {
 
         @Bean
