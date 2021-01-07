@@ -40,8 +40,6 @@ public class DomainServiceImpl implements DomainService {
     @Autowired
     protected DomainDao domainDao;
 
-    //EDELIVERY-7410 to revert when circular dependency is fixed in development
-    @Lazy
     @Autowired
     private DomibusCacheService domibusCacheService;
 

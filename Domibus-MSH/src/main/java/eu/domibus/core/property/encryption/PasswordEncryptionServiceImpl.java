@@ -69,8 +69,6 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
     @Autowired
     protected BackupService backupService;
 
-    //EDELIVERY-7410 to revert when circular dependency is fixed in development
-    @Lazy
     @Autowired
     protected DomibusPropertyEncryptionNotifier domibusPropertyEncryptionListenerDelegate;
 

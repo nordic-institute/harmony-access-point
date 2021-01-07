@@ -21,8 +21,6 @@ public class DomainContextProviderImpl implements DomainContextProvider {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainContextProviderImpl.class);
 
-    //EDELIVERY-7410 to revert when circular dependency is fixed in development
-    @Lazy
     @Autowired
     protected DomainService domainService;
 

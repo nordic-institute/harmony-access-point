@@ -34,8 +34,6 @@ public class DomibusPropertyServiceDelegate implements DomibusPropertyExtService
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
 
-    //EDELIVERY-7410 to revert when circular dependency is fixed in development
-    @Lazy
     @Autowired
     protected DomainService domainService;
 
