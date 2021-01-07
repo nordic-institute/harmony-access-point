@@ -1,14 +1,11 @@
 package eu.domibus.core.property;
 
 import eu.domibus.api.multitenancy.Domain;
-import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyChangeNotifier;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.stereotype.Service;
@@ -24,21 +21,21 @@ public class DomibusPropertyChangeManager {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusPropertyChangeManager.class);
 
-    @Autowired
-    protected DomainContextProvider domainContextProvider;
+    private final GlobalPropertyMetadataManager globalPropertyMetadataManager;
 
-    @Autowired
-    GlobalPropertyMetadataManager globalPropertyMetadataManager;
+    private final DomibusPropertyProviderImpl domibusPropertyProvider;
 
-    @Autowired
-    private DomibusPropertyProviderImpl domibusPropertyProvider;
+    private final DomibusPropertyChangeNotifier propertyChangeNotifier;
 
-    @Autowired
-    protected DomibusConfigurationService domibusConfigurationService;
-
-    @Lazy
-    @Autowired
-    private DomibusPropertyChangeNotifier propertyChangeNotifier;
+    public DomibusPropertyChangeManager(GlobalPropertyMetadataManager globalPropertyMetadataManager,
+                                        DomibusPropertyProviderImpl domibusPropertyProvider,
+                                        // needs to be lazy because we do have a conceptual cyclic dependency:
+                                        // BeanX->PropertyProvider->PropertyChangeManager->PropertyChangeNotifier->PropertyChangeListenerX->BeanX
+                                        @Lazy DomibusPropertyChangeNotifier propertyChangeNotifier) {
+        this.domibusPropertyProvider = domibusPropertyProvider;
+        this.globalPropertyMetadataManager = globalPropertyMetadataManager;
+        this.propertyChangeNotifier = propertyChangeNotifier;
+    }
 
     protected void setPropertyValue(Domain domain, String propertyName, String propertyValue, boolean broadcast) throws DomibusPropertyException {
         DomibusPropertyMetadata propMeta = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
@@ -63,7 +60,7 @@ public class DomibusPropertyChangeManager {
     protected void doSetPropertyValue(Domain domain, String propertyName, String propertyValue) {
         String propertyKey;
         //calculate property key
-        if (domibusConfigurationService.isMultiTenantAware()) {
+        if (domibusPropertyProvider.isMultiTenantAware()) {
             // in multi-tenancy mode - some properties will be prefixed (depends on usage)
             propertyKey = computePropertyKeyInMultiTenancy(domain, propertyName);
         } else {

@@ -4,9 +4,9 @@ import mockit.Expectations;
 import mockit.Mocked;
 import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
-import org.ehcache.Cache;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.cache.Cache;
 
 import static org.junit.Assert.*;
 
@@ -36,12 +36,13 @@ public class DssCacheTest {
     }
 
     @Test
-    public void isChainValidTrue(@Mocked Cache cache) {
+    public void isChainValidTrue(@Mocked Cache cache, @Mocked Cache.ValueWrapper valueWrapper) {
         DssCache dssCache = new DssCache(cache);
         String key = "key";
+
         new Expectations() {{
             cache.get(key);
-            result = key;
+            result = valueWrapper;
         }};
         assertTrue(dssCache.isChainValid(key));
     }

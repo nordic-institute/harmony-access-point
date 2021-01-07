@@ -6,12 +6,12 @@ import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.webService.dao.WSMessageLogDao;
-import eu.domibus.plugin.webService.entity.WSMessageLogEntity;
 import eu.domibus.plugin.webService.generated.BackendInterface;
 import eu.domibus.plugin.webService.generated.LargePayloadType;
 import eu.domibus.plugin.webService.generated.SubmitRequest;
 import eu.domibus.plugin.webService.generated.SubmitResponse;
 import org.apache.commons.codec.binary.Base64;
+import org.awaitility.core.ConditionTimeoutException;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,9 +20,12 @@ import javax.activation.DataHandler;
 import javax.mail.util.ByteArrayDataSource;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static org.awaitility.Awaitility.with;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -138,28 +141,22 @@ public abstract class AbstractBackendWSIT extends AbstractIT {
     }
 
     protected void waitForMessages(int count) {
-        List<WSMessageLogEntity> pending;
-        int retries = 0;
-        do {
-            try {
-                Thread.sleep(200);
-            } catch (InterruptedException e) {
-                LOG.error("Interrupted exception: ", e);
-            }
-            pending = wsMessageLogDao.findAll();
-        } while (pending.size() < count && retries++ < 10);
+        with().pollInterval(200, TimeUnit.MILLISECONDS).await().atMost(2, TimeUnit.SECONDS).until(findAllHasCount(count));
+    }
+
+    protected Callable<Boolean> findAllHasCount(int count) {
+        return () -> wsMessageLogDao.findAll().size() == count;
     }
 
     protected void waitForMessage(String messageId) {
-        WSMessageLogEntity wsMessageLogEntity;
-        int retries = 0;
-        do {
-            try {
-                Thread.sleep(200);
-            } catch (InterruptedException e) {
-                LOG.error("Interrupted exception: ", e);
-            }
-            wsMessageLogEntity = wsMessageLogDao.findByMessageId(messageId);
-        } while (wsMessageLogEntity == null && retries++ < 10);
+        try {
+            with().pollInterval(200, TimeUnit.MILLISECONDS).await().atMost(2, TimeUnit.SECONDS).until(findByMessageIdReturnMessage(messageId));
+        } catch (ConditionTimeoutException e) { //workaround as awaitility has no (yet) implemented a callable for onTimeout()
+            LOG.debug("ConditionTimeoutException: ", e);
+        }
+    }
+
+    protected Callable<Boolean> findByMessageIdReturnMessage(String messageId) {
+        return () -> wsMessageLogDao.findByMessageId(messageId) == null;
     }
 }
