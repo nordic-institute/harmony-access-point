@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.PropertySource;
 
 import static eu.domibus.plugin.fs.worker.FSSendMessagesService.DEFAULT_DOMAIN;
 import static org.mockito.Mockito.when;
@@ -51,6 +52,10 @@ public class FSPluginPropertiesIT extends AbstractIT {
     FSPluginProperties fsPluginProperties;
 
     @Configuration
+    @PropertySource(value = "file:${domibus.config.location}/dataset/fsplugin/fs-plugin.properties")
+    // as this test file is added last to property sources and
+    // contrary to implemented properties mechanism which allow to override values from the default file
+    // fs-plugin-default.properties takes precedence here so we will test both files values
     static class ContextConfiguration {
 
         @Bean
@@ -104,7 +109,7 @@ public class FSPluginPropertiesIT extends AbstractIT {
 
     @Test
     public void testGetFailedAction() {
-        Assert.assertEquals(FSPluginProperties.ACTION_ARCHIVE, fsPluginProperties.getFailedAction(DEFAULT_DOMAIN));
+        Assert.assertEquals(FSPluginProperties.ACTION_DELETE, fsPluginProperties.getFailedAction(DEFAULT_DOMAIN));
     }
 
     @Test
@@ -114,7 +119,7 @@ public class FSPluginPropertiesIT extends AbstractIT {
 
     @Test
     public void testGetFailedPurgeExpired() {
-        Assert.assertEquals((Integer) 0, fsPluginProperties.getFailedPurgeExpired(DEFAULT_DOMAIN));
+        Assert.assertEquals(Integer.valueOf(600), fsPluginProperties.getFailedPurgeExpired(DEFAULT_DOMAIN));
     }
 
     @Test
