@@ -64,8 +64,11 @@ public class NestedPropertiesManager {
     protected String getPropertyPrefix(Domain domain, DomibusPropertyMetadata propertyMetadata) {
         String propPrefix = computePropertyPrefix(domain, propertyMetadata);
         if (propPrefix != null) {
-            return propPrefix + NAME_SEPARATOR;
+            String result = propPrefix + NAME_SEPARATOR;
+            LOG.debug("Calculated the property prefix as [{}] for domain [{}] and property [{}].", result, domain, propertyMetadata.getName());
+            return result;
         }
+        LOG.debug("Calculated the property prefix as null for domain [{}] and property [{}].", domain, propertyMetadata.getName());
         return null;
     }
 

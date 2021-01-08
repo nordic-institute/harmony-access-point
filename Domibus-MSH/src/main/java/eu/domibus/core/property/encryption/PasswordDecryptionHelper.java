@@ -19,6 +19,7 @@ public class PasswordDecryptionHelper {
 
     public boolean isValueEncrypted(final String propertyValue) {
         if (isBlank(propertyValue)) {
+            LOG.trace("[{}] is blalnk, returning false", propertyValue);
             return false;
         }
 

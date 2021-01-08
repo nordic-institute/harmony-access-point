@@ -9,6 +9,8 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
 
 /**
+ * Creates the proper data context for decryption based on domain being null or not
+ *
  * @author Ion perpegel
  * @since 5.0
  */

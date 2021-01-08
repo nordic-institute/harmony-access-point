@@ -6,6 +6,8 @@ import eu.domibus.api.property.encryption.PasswordDecryptionContextAbstract;
 import eu.domibus.core.property.PropertyRetrieveManager;
 
 /**
+ * Data context for decrypting properties when domain is not null(each domain properties)
+ *
  * @author Ion perpegel
  * @since 5.0
  */

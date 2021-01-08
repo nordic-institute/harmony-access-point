@@ -19,6 +19,8 @@ import static eu.domibus.core.property.encryption.PasswordEncryptionServiceImpl.
 import static eu.domibus.core.property.encryption.PasswordEncryptionServiceImpl.ENC_START;
 
 /**
+ * Responsible for decrypting encrypted passwords(split from encryption service to avoid cyclic dependencies)
+ *
  * @author Ion Perpegel
  * @since 5.0
  */

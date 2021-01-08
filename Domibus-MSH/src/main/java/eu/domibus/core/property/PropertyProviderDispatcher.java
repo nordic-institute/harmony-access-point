@@ -16,6 +16,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 
 /**
  * Helper class involved in dispatching the calls of the domibus property provider to the core or external property managers
+ * Responsible also for caching the values
  *
  * @author Ion Perpegel
  * @since 4.2
@@ -70,7 +71,7 @@ public class PropertyProviderDispatcher {
 
     @CacheEvict(value = DomibusCacheService.DOMIBUS_PROPERTY_CACHE, key = CACHE_KEY_EXPRESSION, beforeInvocation = true)
     public void setInternalOrExternalProperty(Domain domain, String propertyName, String propertyValue, boolean broadcast) throws DomibusPropertyException {
-        validateMaxLenght(propertyValue);
+        validateMaxLength(propertyValue);
 
         DomibusPropertyMetadata propMeta = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
         if (propMeta.isStoredGlobally()) {
@@ -144,7 +145,7 @@ public class PropertyProviderDispatcher {
         propertyManager.setKnownPropertyValue(currentDomainCode, name, value);
     }
 
-    protected void validateMaxLenght(String propertyValue) {
+    protected void validateMaxLength(String propertyValue) {
         String propVal = getInternalPropertyValue(null, DOMIBUS_PROPERTY_LENGTH_MAX);
         Integer maxLength = primitivePropertyTypesManager.getIntegerInternal(DOMIBUS_PROPERTY_LENGTH_MAX, propVal);
         if (maxLength > 0 && propertyValue != null && propertyValue.length() > maxLength) {
