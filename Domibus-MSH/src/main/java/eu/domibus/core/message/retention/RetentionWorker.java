@@ -34,4 +34,9 @@ public class RetentionWorker extends DomibusQuartzJobBean {
             messageRetentionService.deleteExpiredMessages();
         }
     }
+
+    @Override
+    protected void setQuartzJobSecurityContext() {
+        authUtils.setAuthenticationToSecurityContext("retention_user", "retention_password");
+    }
 }

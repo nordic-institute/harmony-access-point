@@ -44,4 +44,10 @@ public class SendRetryWorker extends DomibusQuartzJobBean {
             LOG.error("Error while enqueueing messages.", e);
         }
     }
+
+    @Override
+    protected void setQuartzJobSecurityContext() {
+        authUtils.setAuthenticationToSecurityContext("retry_user", "retry_password");
+    }
+
 }

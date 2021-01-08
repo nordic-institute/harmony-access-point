@@ -29,7 +29,6 @@ public class SaveCertificateAndLogRevocationJob extends DomibusQuartzJobBean {
     @Override
     protected void executeJob(JobExecutionContext context, Domain domain) {
         LOG.info("Checking certificate expiration");
-        LOG.info("On checking certificate expiration");
         try {
             certificateService.saveCertificateAndLogRevocation(domain);
             certificateService.sendCertificateAlerts();

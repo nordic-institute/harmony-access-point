@@ -36,6 +36,4 @@ public class ConnectionMonitoringJob extends DomibusQuartzJobBean {
         connectionMonitoringService.sendTestMessages();
         LOG.debug("ConnectionMonitoringJob ended on [{}] domain", domain);
     }
-
-
 }
