@@ -45,7 +45,7 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
     private final DomainCoreConverter domainConverter;
 
     @Autowired
-    DomibusNestedPropertiesManager domibusNestedPropertiesManager;
+    NestedPropertiesManager nestedPropertiesManager;
 
     public GlobalPropertyMetadataManagerImpl(List<DomibusPropertyMetadataManagerSPI> propertyMetadataManagers,
                                              // needs to be lazy because we do have a conceptual cyclic dependency(and we do not control external modules):
@@ -142,7 +142,7 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
                 LOG.trace("Could not find composable property metadata for [{}].", propertyName);
                 return false;
             }
-            List<String> props = domibusNestedPropertiesManager.getNestedProperties(propMeta);
+            List<String> props = nestedPropertiesManager.getNestedProperties(propMeta);
             if (CollectionUtils.isEmpty(props)) {
                 LOG.trace("Could not find any nested properties for [{}].", propMeta.getName());
                 return false;

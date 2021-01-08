@@ -18,30 +18,30 @@ import org.springframework.stereotype.Service;
  * @since 4.2
  */
 @Service
-public class DomibusPropertyChangeManager {
+public class PropertyChangeManager {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusPropertyChangeManager.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PropertyChangeManager.class);
 
     private final GlobalPropertyMetadataManager globalPropertyMetadataManager;
 
-    private final DomibusPropertyRetrieveManager domibusPropertyRetrieveManager;
+    private final PropertyRetrieveManager propertyRetrieveManager;
 
     private final DomibusPropertyChangeNotifier propertyChangeNotifier;
 
-    private final DomibusPropertyProviderHelper domibusPropertyProviderHelper;
+    private final PropertyProviderHelper propertyProviderHelper;
 
     private final ConfigurableEnvironment environment;
 
-    public DomibusPropertyChangeManager(GlobalPropertyMetadataManager globalPropertyMetadataManager,
-                                        DomibusPropertyRetrieveManager domibusPropertyRetrieveManager,
-                                        DomibusPropertyProviderHelper domibusPropertyProviderHelper,
-                                        ConfigurableEnvironment environment,
-                                        // needs to be lazy because we do have a conceptual cyclic dependency:
-                                        // BeanX->PropertyProvider->PropertyChangeManager->PropertyChangeNotifier->PropertyChangeListenerX->BeanX
-                                        @Lazy DomibusPropertyChangeNotifier propertyChangeNotifier) {
-        this.domibusPropertyRetrieveManager = domibusPropertyRetrieveManager;
+    public PropertyChangeManager(GlobalPropertyMetadataManager globalPropertyMetadataManager,
+                                 PropertyRetrieveManager propertyRetrieveManager,
+                                 PropertyProviderHelper propertyProviderHelper,
+                                 ConfigurableEnvironment environment,
+                                 // needs to be lazy because we do have a conceptual cyclic dependency:
+                                 // BeanX->PropertyProvider->PropertyChangeManager->PropertyChangeNotifier->PropertyChangeListenerX->BeanX
+                                 @Lazy DomibusPropertyChangeNotifier propertyChangeNotifier) {
+        this.propertyRetrieveManager = propertyRetrieveManager;
         this.globalPropertyMetadataManager = globalPropertyMetadataManager;
-        this.domibusPropertyProviderHelper = domibusPropertyProviderHelper;
+        this.propertyProviderHelper = propertyProviderHelper;
         this.environment = environment;
         this.propertyChangeNotifier = propertyChangeNotifier;
     }
@@ -61,15 +61,15 @@ public class DomibusPropertyChangeManager {
 
     private String getInternalPropertyValue(Domain domain, String propertyName) {
         if (domain == null) {
-            return domibusPropertyRetrieveManager.getInternalProperty(propertyName);
+            return propertyRetrieveManager.getInternalProperty(propertyName);
         }
-        return domibusPropertyRetrieveManager.getInternalProperty(domain, propertyName);
+        return propertyRetrieveManager.getInternalProperty(domain, propertyName);
     }
 
     protected void doSetPropertyValue(Domain domain, String propertyName, String propertyValue) {
         String propertyKey;
         //calculate property key
-        if (domibusPropertyProviderHelper.isMultiTenantAware()) {
+        if (propertyProviderHelper.isMultiTenantAware()) {
             // in multi-tenancy mode - some properties will be prefixed (depends on usage)
             propertyKey = computePropertyKeyInMultiTenancy(domain, propertyName);
         } else {
@@ -116,7 +116,7 @@ public class DomibusPropertyChangeManager {
     private String computePropertyKeyWithoutDomain(String propertyName, DomibusPropertyMetadata prop) {
         String propertyKey = propertyName;
         if (prop.isSuper()) {
-            propertyKey = domibusPropertyProviderHelper.getPropertyKeyForSuper(propertyName);
+            propertyKey = propertyProviderHelper.getPropertyKeyForSuper(propertyName);
         } else {
             if (!prop.isGlobal()) {
                 String error = String.format("Property %s is not applicable for global usage so it cannot be set.", propertyName);
@@ -129,7 +129,7 @@ public class DomibusPropertyChangeManager {
     private String computePropertyKeyForDomain(Domain domain, String propertyName, DomibusPropertyMetadata prop) {
         String propertyKey;
         if (prop.isDomain()) {
-            propertyKey = domibusPropertyProviderHelper.getPropertyKeyForDomain(domain, propertyName);
+            propertyKey = propertyProviderHelper.getPropertyKeyForDomain(domain, propertyName);
         } else {
             String error = String.format("Property %s is not applicable for a specific domain so it cannot be set.", propertyName);
             throw new DomibusPropertyException(error);

@@ -74,13 +74,13 @@ public class PModeValidationServiceImplIT {
         }
 
         @Bean
-        public DomibusNestedPropertiesManager domibusNestedPropertiesManager() {
-            return Mockito.mock(DomibusNestedPropertiesManager.class);
+        public NestedPropertiesManager domibusNestedPropertiesManager() {
+            return Mockito.mock(NestedPropertiesManager.class);
         }
 
         @Bean
-        public DomibusPropertyProviderHelper domibusPropertyProviderHelper() {
-            return Mockito.mock(DomibusPropertyProviderHelper.class);
+        public PropertyProviderHelper domibusPropertyProviderHelper() {
+            return Mockito.mock(PropertyProviderHelper.class);
         }
 
         @Bean(name = "domibusDefaultProperties")
@@ -144,8 +144,8 @@ public class PModeValidationServiceImplIT {
         }
 
         @Bean
-        public DomibusPropertyProviderDispatcher domibusPropertyProviderDispatcher() {
-            return Mockito.mock(DomibusPropertyProviderDispatcher.class);
+        public PropertyProviderDispatcher domibusPropertyProviderDispatcher() {
+            return Mockito.mock(PropertyProviderDispatcher.class);
         }
 
         @Bean
@@ -154,8 +154,8 @@ public class PModeValidationServiceImplIT {
         }
 
         @Bean
-        public DomibusPropertyChangeManager domibusPropertyChangeManager() {
-            return Mockito.mock(DomibusPropertyChangeManager.class);
+        public PropertyChangeManager domibusPropertyChangeManager() {
+            return Mockito.mock(PropertyChangeManager.class);
         }
 
         @Bean

@@ -15,21 +15,21 @@ import org.springframework.stereotype.Service;
  * @since 5.0
  */
 @Service
-public class DomibusPropertyRetrieveManager {
+public class PropertyRetrieveManager {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusPropertyRetrieveManager.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PropertyRetrieveManager.class);
 
     private final ConfigurableEnvironment environment;
 
     private final GlobalPropertyMetadataManager globalPropertyMetadataManager;
 
-    private final DomibusPropertyProviderHelper domibusPropertyProviderHelper;
+    private final PropertyProviderHelper propertyProviderHelper;
 
-    public DomibusPropertyRetrieveManager(ConfigurableEnvironment environment, GlobalPropertyMetadataManager globalPropertyMetadataManager,
-                                          DomibusPropertyProviderHelper domibusPropertyProviderHelper) {
+    public PropertyRetrieveManager(ConfigurableEnvironment environment, GlobalPropertyMetadataManager globalPropertyMetadataManager,
+                                   PropertyProviderHelper propertyProviderHelper) {
         this.environment = environment;
         this.globalPropertyMetadataManager = globalPropertyMetadataManager;
-        this.domibusPropertyProviderHelper = domibusPropertyProviderHelper;
+        this.propertyProviderHelper = propertyProviderHelper;
     }
 
     public String getInternalProperty(String propertyName) {
@@ -43,7 +43,7 @@ public class DomibusPropertyRetrieveManager {
 
         //single-tenancy mode
         // using internal method to avoid cyclic dependency
-        if (!domibusPropertyProviderHelper.isMultiTenantAware()) {
+        if (!propertyProviderHelper.isMultiTenantAware()) {
             LOG.trace("Single tenancy mode: thus retrieving the global value for property [{}]", propertyName);
             return getGlobalProperty(prop);
         }
@@ -51,7 +51,7 @@ public class DomibusPropertyRetrieveManager {
         //multi-tenancy mode
         //domain or super property or a combination of 2
         // we do not use domainContextProvider.getCurrentDomain() to avoid cyclic dependency
-        Domain currentDomain = domibusPropertyProviderHelper.getCurrentDomain();
+        Domain currentDomain = propertyProviderHelper.getCurrentDomain();
         //we have a domain in context so try a domain property
         if (currentDomain != null) {
             if (prop.isDomain()) {
@@ -81,7 +81,7 @@ public class DomibusPropertyRetrieveManager {
         DomibusPropertyMetadata prop = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
         //single-tenancy mode
         // using internal method to avoid cyclic dependency
-        if (!domibusPropertyProviderHelper.isMultiTenantAware()) {
+        if (!propertyProviderHelper.isMultiTenantAware()) {
             LOG.trace("In single-tenancy mode, retrieving global value for property [{}] on domain [{}].", propertyName, domain);
             return getGlobalProperty(prop);
         }
@@ -102,12 +102,12 @@ public class DomibusPropertyRetrieveManager {
     }
 
     protected String getDomainOrDefaultValue(DomibusPropertyMetadata prop, Domain domain) {
-        String propertyKey = domibusPropertyProviderHelper.getPropertyKeyForDomain(domain, prop.getName());
+        String propertyKey = propertyProviderHelper.getPropertyKeyForDomain(domain, prop.getName());
         return getPropValueOrDefault(propertyKey, prop, domain);
     }
 
     protected String getSuperOrDefaultValue(DomibusPropertyMetadata prop) {
-        String propertyKey = domibusPropertyProviderHelper.getPropertyKeyForSuper(prop.getName());
+        String propertyKey = propertyProviderHelper.getPropertyKeyForSuper(prop.getName());
         return getPropValueOrDefault(propertyKey, prop, null);
     }
 

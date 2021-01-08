@@ -9,7 +9,6 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
@@ -30,21 +29,27 @@ public class DefaultDomibusConfigurationService implements DomibusConfigurationS
 
     private DataBaseEngine dataBaseEngine;
 
-    @Autowired
-    protected DomibusPropertyRetrieveManager domibusPropertyRetrieveManager;
+    // this is intentionally not domibusPropertyProvider: to cut the cyclic dependency
+    private final PropertyRetrieveManager propertyRetrieveManager;
 
-    @Autowired
-    PrimitivePropertyTypesManager primitivePropertyTypesManager;
+    // this is intentionally not domibusPropertyProvider: to cut the cyclic dependency
+    private final PrimitivePropertyTypesManager primitivePropertyTypesManager;
+
+    public DefaultDomibusConfigurationService(PropertyRetrieveManager propertyRetrieveManager,
+                                              PrimitivePropertyTypesManager primitivePropertyTypesManager) {
+        this.propertyRetrieveManager = propertyRetrieveManager;
+        this.primitivePropertyTypesManager = primitivePropertyTypesManager;
+    }
 
     @Override
     public String getConfigLocation() {
-        return domibusPropertyRetrieveManager.getInternalProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_CONFIG_LOCATION);
+        return propertyRetrieveManager.getInternalProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_CONFIG_LOCATION);
     }
 
     @Cacheable("multitenantCache")
     @Override
     public boolean isMultiTenantAware() {
-        return StringUtils.isNotBlank(domibusPropertyRetrieveManager.getInternalProperty(DomainService.GENERAL_SCHEMA_PROPERTY));
+        return StringUtils.isNotBlank(propertyRetrieveManager.getInternalProperty(DomainService.GENERAL_SCHEMA_PROPERTY));
     }
 
     @Override
@@ -60,7 +65,7 @@ public class DefaultDomibusConfigurationService implements DomibusConfigurationS
     @Override
     public DataBaseEngine getDataBaseEngine() {
         if (dataBaseEngine == null) {
-            final String property = domibusPropertyRetrieveManager.getInternalProperty(DATABASE_DIALECT);
+            final String property = propertyRetrieveManager.getInternalProperty(DATABASE_DIALECT);
             if (property == null) {
                 throw new IllegalStateException("Database dialect not configured, please set property: domibus.entityManagerFactory.jpaProperty.hibernate.dialect");
             }
@@ -127,12 +132,12 @@ public class DefaultDomibusConfigurationService implements DomibusConfigurationS
     }
 
     private Boolean getBooleanProperty(Domain domain, String propertyName) {
-        String domainValue = domibusPropertyRetrieveManager.getInternalProperty(domain, propertyName);
+        String domainValue = propertyRetrieveManager.getInternalProperty(domain, propertyName);
         return primitivePropertyTypesManager.getBooleanInternal(propertyName, domainValue);
     }
 
     public Boolean getBooleanProperty(String propertyName) {
-        String value = domibusPropertyRetrieveManager.getInternalProperty(propertyName);
+        String value = propertyRetrieveManager.getInternalProperty(propertyName);
         return primitivePropertyTypesManager.getBooleanInternal(propertyName, value);
     }
 }

@@ -15,9 +15,11 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 /**
- * Single entry point for getting and setting internal and external domibus properties
+ * The single entry point for getting and setting internal and external domibus properties;
+ * It acts also like an aggregator of services like decryption, dispatching to external modules, etc
  *
- * @author Cosmin Baciu, Ion Perpegel
+ * @author Cosmin Baciu
+ * @author Ion Perpegel
  * @since 4.0
  */
 @Service
@@ -27,28 +29,28 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
     private final GlobalPropertyMetadataManager globalPropertyMetadataManager;
 
-    private final DomibusPropertyProviderDispatcher domibusPropertyProviderDispatcher;
+    private final PropertyProviderDispatcher propertyProviderDispatcher;
 
     private final PrimitivePropertyTypesManager primitivePropertyTypesManager;
 
-    private final DomibusNestedPropertiesManager domibusNestedPropertiesManager;
+    private final NestedPropertiesManager nestedPropertiesManager;
 
     private final ConfigurableEnvironment environment;
 
-    private final DomibusPropertyProviderHelper domibusPropertyProviderHelper;
+    private final PropertyProviderHelper propertyProviderHelper;
 
     private final PasswordDecryptionService passwordDecryptionService;
 
-    public DomibusPropertyProviderImpl(GlobalPropertyMetadataManager globalPropertyMetadataManager, DomibusPropertyProviderDispatcher domibusPropertyProviderDispatcher,
-                                       PrimitivePropertyTypesManager primitivePropertyTypesManager, DomibusNestedPropertiesManager domibusNestedPropertiesManager,
-                                       ConfigurableEnvironment environment, DomibusPropertyProviderHelper domibusPropertyProviderHelper,
+    public DomibusPropertyProviderImpl(GlobalPropertyMetadataManager globalPropertyMetadataManager, PropertyProviderDispatcher propertyProviderDispatcher,
+                                       PrimitivePropertyTypesManager primitivePropertyTypesManager, NestedPropertiesManager nestedPropertiesManager,
+                                       ConfigurableEnvironment environment, PropertyProviderHelper propertyProviderHelper,
                                        PasswordDecryptionService passwordDecryptionService) {
         this.globalPropertyMetadataManager = globalPropertyMetadataManager;
-        this.domibusPropertyProviderDispatcher = domibusPropertyProviderDispatcher;
+        this.propertyProviderDispatcher = propertyProviderDispatcher;
         this.primitivePropertyTypesManager = primitivePropertyTypesManager;
-        this.domibusNestedPropertiesManager = domibusNestedPropertiesManager;
+        this.nestedPropertiesManager = nestedPropertiesManager;
         this.environment = environment;
-        this.domibusPropertyProviderHelper = domibusPropertyProviderHelper;
+        this.propertyProviderHelper = propertyProviderHelper;
         this.passwordDecryptionService = passwordDecryptionService;
     }
 
@@ -92,13 +94,13 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
     @Override
     public Set<String> filterPropertiesName(Predicate<String> predicate) {
-        return domibusPropertyProviderHelper.filterPropertyNames(predicate);
+        return propertyProviderHelper.filterPropertyNames(predicate);
     }
 
     @Override
     public List<String> getNestedProperties(Domain domain, String prefix) {
         DomibusPropertyMetadata propertyMetadata = globalPropertyMetadataManager.getPropertyMetadata(prefix);
-        return domibusNestedPropertiesManager.getNestedProperties(domain, propertyMetadata);
+        return nestedPropertiesManager.getNestedProperties(domain, propertyMetadata);
     }
 
     @Override
@@ -108,7 +110,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
     @Override
     public boolean containsDomainPropertyKey(Domain domain, String propertyName) {
-        final String domainPropertyName = domibusPropertyProviderHelper.getPropertyKeyForDomain(domain, propertyName);
+        final String domainPropertyName = propertyProviderHelper.getPropertyKeyForDomain(domain, propertyName);
         boolean domainPropertyKeyFound = environment.containsProperty(domainPropertyName);
         if (!domainPropertyKeyFound) {
             domainPropertyKeyFound = environment.containsProperty(propertyName);
@@ -123,12 +125,12 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
     @Override
     public void setProperty(Domain domain, String propertyName, String propertyValue, boolean broadcast) throws DomibusPropertyException {
-        domibusPropertyProviderDispatcher.setInternalOrExternalProperty(domain, propertyName, propertyValue, broadcast);
+        propertyProviderDispatcher.setInternalOrExternalProperty(domain, propertyName, propertyValue, broadcast);
     }
 
     @Override
     public void setProperty(String propertyName, String propertyValue) throws DomibusPropertyException {
-        domibusPropertyProviderDispatcher.setInternalOrExternalProperty(null, propertyName, propertyValue, true);
+        propertyProviderDispatcher.setInternalOrExternalProperty(null, propertyName, propertyValue, true);
     }
 
     @Override
@@ -137,7 +139,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     }
 
     protected String getPropertyValue(String propertyName, Domain domain) {
-        String result = domibusPropertyProviderDispatcher.getInternalOrExternalProperty(propertyName, domain);
+        String result = propertyProviderDispatcher.getInternalOrExternalProperty(propertyName, domain);
 
         DomibusPropertyMetadata meta = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
         if (meta.isEncrypted() && passwordDecryptionService.isValueEncrypted(result)) {

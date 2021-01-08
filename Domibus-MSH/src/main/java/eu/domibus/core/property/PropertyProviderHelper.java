@@ -23,9 +23,9 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  * @since 5.0
  */
 @Service
-public class DomibusPropertyProviderHelper {
+public class PropertyProviderHelper {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusPropertyProviderHelper.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PropertyProviderHelper.class);
 
     private volatile Boolean isMultiTenantAware;
 
@@ -35,7 +35,7 @@ public class DomibusPropertyProviderHelper {
 
     private final String generalSchema;
 
-    public DomibusPropertyProviderHelper(ConfigurableEnvironment environment) {
+    public PropertyProviderHelper(ConfigurableEnvironment environment) {
         this.environment = environment;
         this.generalSchema = environment.getProperty(DOMIBUS_DATABASE_GENERAL_SCHEMA);
 

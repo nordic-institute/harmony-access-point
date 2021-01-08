@@ -23,16 +23,16 @@ import static eu.domibus.api.property.DomibusPropertyMetadata.NAME_SEPARATOR;
  * @since 5.0
  */
 @Service
-public class DomibusNestedPropertiesManager {
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusNestedPropertiesManager.class);
+public class NestedPropertiesManager {
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(NestedPropertiesManager.class);
 
     protected ConfigurableEnvironment environment;
 
-    DomibusPropertyProviderHelper domibusPropertyProviderHelper;
+    PropertyProviderHelper propertyProviderHelper;
 
-    public DomibusNestedPropertiesManager(ConfigurableEnvironment environment, DomibusPropertyProviderHelper domibusPropertyProviderHelper) {
+    public NestedPropertiesManager(ConfigurableEnvironment environment, PropertyProviderHelper propertyProviderHelper) {
         this.environment = environment;
-        this.domibusPropertyProviderHelper = domibusPropertyProviderHelper;
+        this.propertyProviderHelper = propertyProviderHelper;
     }
 
     public List<String> getNestedProperties(DomibusPropertyMetadata propMeta) {
@@ -44,7 +44,7 @@ public class DomibusNestedPropertiesManager {
         LOG.debug("Getting nested properties for prefix [{}]", propertyPrefix);
 
         List<String> result = new ArrayList<>();
-        Set<String> propertiesStartingWithPrefix = domibusPropertyProviderHelper.filterPropertyNames(property -> StringUtils.startsWith(property, propertyPrefix));
+        Set<String> propertiesStartingWithPrefix = propertyProviderHelper.filterPropertyNames(property -> StringUtils.startsWith(property, propertyPrefix));
         if (CollectionUtils.isEmpty(propertiesStartingWithPrefix)) {
             LOG.debug("No properties found starting with prefix [{}]", propertyPrefix);
             return result;
@@ -87,19 +87,19 @@ public class DomibusNestedPropertiesManager {
         }
 
         //single-tenancy mode
-        if (!domibusPropertyProviderHelper.isMultiTenantAware()) {
+        if (!propertyProviderHelper.isMultiTenantAware()) {
             LOG.trace("Single tenancy mode: thus returning the original name for property [{}]", propertyName);
             return propertyName;
         }
 
         //multi-tenancy mode
         //domain or super property or a combination of 2
-        Domain currentDomain = domain != null ? domain : domibusPropertyProviderHelper.getCurrentDomain();
+        Domain currentDomain = domain != null ? domain : propertyProviderHelper.getCurrentDomain();
         //we have a domain in context so try a domain property
         if (currentDomain != null) {
             if (propertyMetadata.isDomain()) {
                 LOG.trace("In multi-tenancy mode, property [{}] has domain usage, thus returning the property key for domain [{}].", propertyName, currentDomain);
-                return domibusPropertyProviderHelper.getPropertyKeyForDomain(currentDomain, propertyName);
+                return propertyProviderHelper.getPropertyKeyForDomain(currentDomain, propertyName);
             }
             LOG.error("Property [{}] is not applicable for a specific domain so null was returned.", propertyName);
             return null;
@@ -111,7 +111,7 @@ public class DomibusNestedPropertiesManager {
         }
         if (propertyMetadata.isSuper()) {
             LOG.trace("In multi-tenancy mode, property [{}] has super usage, thus returning the property key for super.", propertyName);
-            return domibusPropertyProviderHelper.getPropertyKeyForSuper(propertyName);
+            return propertyProviderHelper.getPropertyKeyForSuper(propertyName);
         }
         LOG.error("Property [{}] is not applicable for super users so null was returned.", propertyName);
         return null;

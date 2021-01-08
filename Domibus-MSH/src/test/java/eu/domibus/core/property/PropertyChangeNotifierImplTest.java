@@ -12,20 +12,15 @@ import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Spy;
-import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @RunWith(JMockit.class)
-public class DomibusPropertyChangeNotifierImplTest {
+public class PropertyChangeNotifierImplTest {
 
     @Tested
-    DomibusPropertyChangeNotifierImpl domibusPropertyChangeNotifier;
+    PropertyChangeNotifierImpl domibusPropertyChangeNotifier;
 
     @Injectable
     List<DomibusPropertyChangeListener> propertyChangeListeners;
