@@ -2,8 +2,8 @@ package eu.domibus.core.property.encryption;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusConfigurationService;
-import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.property.encryption.PasswordDecryptionContextAbstract;
+import eu.domibus.core.property.DomibusPropertyRetrieveManager;
 
 /**
  * @author Ion perpegel
@@ -11,22 +11,22 @@ import eu.domibus.api.property.encryption.PasswordDecryptionContextAbstract;
  */
 public class PasswordDecryptionContextDomain extends PasswordDecryptionContextAbstract {
 
-    protected DomibusPropertyProvider domibusPropertyProvider;
+    protected DomibusPropertyRetrieveManager domibusPropertyRetrieveManager;
 
     protected Domain domain;
 
-    public PasswordDecryptionContextDomain(DomibusPropertyProvider domibusPropertyProvider,
+    public PasswordDecryptionContextDomain(DomibusPropertyRetrieveManager domibusPropertyRetrieveManager,
                                            DomibusConfigurationService domibusConfigurationService,
                                            Domain domain) {
         super(domibusConfigurationService);
-        this.domibusPropertyProvider = domibusPropertyProvider;
+        this.domibusPropertyRetrieveManager = domibusPropertyRetrieveManager;
         this.domibusConfigurationService = domibusConfigurationService;
         this.domain = domain;
     }
 
     @Override
     public String getProperty(String propertyName) {
-        return domibusPropertyProvider.getProperty(domain, propertyName);
+        return domibusPropertyRetrieveManager.getInternalProperty(domain, propertyName);
     }
 
     @Override

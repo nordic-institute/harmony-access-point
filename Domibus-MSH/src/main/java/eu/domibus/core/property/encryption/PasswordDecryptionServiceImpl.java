@@ -17,8 +17,6 @@ import java.io.File;
 
 import static eu.domibus.core.property.encryption.PasswordEncryptionServiceImpl.ENC_END;
 import static eu.domibus.core.property.encryption.PasswordEncryptionServiceImpl.ENC_START;
-import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.apache.commons.lang3.StringUtils.trim;
 
 /**
  * @author Ion Perpegel
@@ -29,26 +27,26 @@ public class PasswordDecryptionServiceImpl implements PasswordDecryptionService 
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PasswordDecryptionServiceImpl.class);
 
-    protected PasswordEncryptionDao passwordEncryptionDao;
+    private final PasswordEncryptionDao passwordEncryptionDao;
 
-    protected EncryptionUtil encryptionUtil;
+    private final EncryptionUtil encryptionUtil;
 
-    protected PasswordDecryptionContextFactory passwordDecryptionContextFactory;
+    private final PasswordDecryptionContextFactory passwordDecryptionContextFactory;
+
+    private final PasswordDecryptionHelper passwordDecryptionHelper;
 
     public PasswordDecryptionServiceImpl(PasswordEncryptionDao passwordEncryptionDao, EncryptionUtil encryptionUtil,
-                                         PasswordDecryptionContextFactory passwordDecryptionContextFactory) {
+                                         PasswordDecryptionContextFactory passwordDecryptionContextFactory,
+                                         PasswordDecryptionHelper passwordDecryptionHelper) {
         this.passwordEncryptionDao = passwordEncryptionDao;
         this.encryptionUtil = encryptionUtil;
         this.passwordDecryptionContextFactory = passwordDecryptionContextFactory;
+        this.passwordDecryptionHelper = passwordDecryptionHelper;
     }
 
     @Override
     public boolean isValueEncrypted(final String propertyValue) {
-        if (isBlank(propertyValue)) {
-            return false;
-        }
-
-        return trim(propertyValue).startsWith(ENC_START);
+        return passwordDecryptionHelper.isValueEncrypted(propertyValue);
     }
 
     @Override

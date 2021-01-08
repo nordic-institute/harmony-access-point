@@ -2,8 +2,8 @@ package eu.domibus.core.property.encryption;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusConfigurationService;
-import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.property.encryption.PasswordDecryptionContext;
+import eu.domibus.core.property.DomibusPropertyRetrieveManager;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,15 +22,15 @@ public class PasswordDecryptionContextFactory {
     protected DomibusConfigurationService domibusConfigurationService;
 
     @Autowired
-    protected DomibusPropertyProvider domibusPropertyProvider;
+    protected DomibusPropertyRetrieveManager domibusPropertyRetrieveManager;
 
     public PasswordDecryptionContext getContext(Domain domain) {
         PasswordDecryptionContext result;
         if (domain != null) {
-            result = new PasswordDecryptionContextDomain(domibusPropertyProvider, domibusConfigurationService, domain);
+            result = new PasswordDecryptionContextDomain(domibusPropertyRetrieveManager, domibusConfigurationService, domain);
             LOG.trace("Using PasswordDecryptionContextDomain with domain [{}]", domain);
         } else {
-            result = new PasswordDecryptionContextDefault(domibusPropertyProvider, domibusConfigurationService);
+            result = new PasswordDecryptionContextDefault(domibusPropertyRetrieveManager, domibusConfigurationService);
             LOG.trace("Using PasswordDecryptionContextDefault");
         }
         return result;

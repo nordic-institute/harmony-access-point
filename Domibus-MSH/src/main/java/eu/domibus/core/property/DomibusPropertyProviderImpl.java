@@ -4,7 +4,9 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import org.springframework.beans.factory.annotation.Autowired;
+import eu.domibus.api.property.encryption.PasswordDecryptionService;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.stereotype.Service;
 
@@ -21,27 +23,38 @@ import java.util.function.Predicate;
 @Service
 public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
-    @Autowired
-    GlobalPropertyMetadataManager globalPropertyMetadataManager;
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusPropertyProviderImpl.class);
 
-    @Autowired
-    protected DomibusPropertyProviderDispatcher domibusPropertyProviderDispatcher;
+    private final GlobalPropertyMetadataManager globalPropertyMetadataManager;
 
-    @Autowired
-    protected PrimitivePropertyTypesManager primitivePropertyTypesManager;
+    private final DomibusPropertyProviderDispatcher domibusPropertyProviderDispatcher;
 
-    @Autowired
-    DomibusNestedPropertiesManager domibusNestedPropertiesManager;
+    private final PrimitivePropertyTypesManager primitivePropertyTypesManager;
 
-    @Autowired
-    protected ConfigurableEnvironment environment;
+    private final DomibusNestedPropertiesManager domibusNestedPropertiesManager;
 
-    @Autowired
-    DomibusPropertyProviderHelper domibusPropertyProviderHelper;
+    private final ConfigurableEnvironment environment;
+
+    private final DomibusPropertyProviderHelper domibusPropertyProviderHelper;
+
+    private final PasswordDecryptionService passwordDecryptionService;
+
+    public DomibusPropertyProviderImpl(GlobalPropertyMetadataManager globalPropertyMetadataManager, DomibusPropertyProviderDispatcher domibusPropertyProviderDispatcher,
+                                       PrimitivePropertyTypesManager primitivePropertyTypesManager, DomibusNestedPropertiesManager domibusNestedPropertiesManager,
+                                       ConfigurableEnvironment environment, DomibusPropertyProviderHelper domibusPropertyProviderHelper,
+                                       PasswordDecryptionService passwordDecryptionService) {
+        this.globalPropertyMetadataManager = globalPropertyMetadataManager;
+        this.domibusPropertyProviderDispatcher = domibusPropertyProviderDispatcher;
+        this.primitivePropertyTypesManager = primitivePropertyTypesManager;
+        this.domibusNestedPropertiesManager = domibusNestedPropertiesManager;
+        this.environment = environment;
+        this.domibusPropertyProviderHelper = domibusPropertyProviderHelper;
+        this.passwordDecryptionService = passwordDecryptionService;
+    }
 
     @Override
     public String getProperty(String propertyName) throws DomibusPropertyException {
-        return domibusPropertyProviderDispatcher.getInternalOrExternalProperty(propertyName, null);
+        return getPropertyValue(propertyName, null);
     }
 
     @Override
@@ -49,7 +62,8 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         if (domain == null) {
             throw new DomibusPropertyException("Property " + propertyName + " cannot be retrieved without a domain");
         }
-        return domibusPropertyProviderDispatcher.getInternalOrExternalProperty(propertyName, domain);
+
+        return getPropertyValue(propertyName, domain);
     }
 
     @Override
@@ -122,4 +136,15 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         setProperty(domain, propertyName, propertyValue, true);
     }
 
+    protected String getPropertyValue(String propertyName, Domain domain) {
+        String result = domibusPropertyProviderDispatcher.getInternalOrExternalProperty(propertyName, domain);
+
+        DomibusPropertyMetadata meta = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
+        if (meta.isEncrypted() && passwordDecryptionService.isValueEncrypted(result)) {
+            LOG.debug("Decrypting property [{}]", propertyName);
+            result = passwordDecryptionService.decryptProperty(domain, propertyName, result);
+        }
+
+        return result;
+    }
 }

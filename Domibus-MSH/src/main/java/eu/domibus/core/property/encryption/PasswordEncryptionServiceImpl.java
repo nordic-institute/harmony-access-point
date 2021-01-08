@@ -51,9 +51,6 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
     public static final String PROPERTY_VALUE_DELIMITER = "=";
 
     @Autowired
-    protected PasswordDecryptionServiceImpl passwordDecryptionService;
-
-    @Autowired
     protected DomainService domainService;
 
     @Autowired
@@ -80,9 +77,12 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
     @Autowired
     protected DomainContextProvider domainContextProvider;
 
+    @Autowired
+    protected PasswordDecryptionHelper passwordDecryptionHelper;
+
     @Override
     public boolean isValueEncrypted(String propertyValue) {
-        return passwordDecryptionService.isValueEncrypted(propertyValue);
+        return passwordDecryptionHelper.isValueEncrypted(propertyValue);
     }
 
     @Override
@@ -191,7 +191,7 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
     }
 
     protected PasswordEncryptionResult encryptProperty(SecretKey secretKey, GCMParameterSpec secretKeySpec, String propertyName, String propertyValue) {
-        if (passwordDecryptionService.isValueEncrypted(propertyValue)) {
+        if (passwordDecryptionHelper.isValueEncrypted(propertyValue)) {
             LOG.debug("Property [{}] is already encrypted", propertyName);
             return null;
         }

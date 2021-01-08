@@ -3,7 +3,6 @@ package eu.domibus.core.property;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
-import eu.domibus.api.property.encryption.PasswordDecryptionService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.core.env.ConfigurableEnvironment;
@@ -24,19 +23,16 @@ public class DomibusPropertyRetrieveManager {
 
     private final GlobalPropertyMetadataManager globalPropertyMetadataManager;
 
-    private final PasswordDecryptionService passwordDecryptionService;
-
     private final DomibusPropertyProviderHelper domibusPropertyProviderHelper;
 
     public DomibusPropertyRetrieveManager(ConfigurableEnvironment environment, GlobalPropertyMetadataManager globalPropertyMetadataManager,
-                                          PasswordDecryptionService passwordDecryptionService, DomibusPropertyProviderHelper domibusPropertyProviderHelper) {
+                                          DomibusPropertyProviderHelper domibusPropertyProviderHelper) {
         this.environment = environment;
         this.globalPropertyMetadataManager = globalPropertyMetadataManager;
-        this.passwordDecryptionService = passwordDecryptionService;
         this.domibusPropertyProviderHelper = domibusPropertyProviderHelper;
     }
 
-    protected String getInternalProperty(String propertyName) {
+    public String getInternalProperty(String propertyName) {
         DomibusPropertyMetadata prop = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
 
         //prop is only global so the current domain doesn't matter
@@ -79,7 +75,7 @@ public class DomibusPropertyRetrieveManager {
 
     }
 
-    protected String getInternalProperty(Domain domain, String propertyName) {
+    public String getInternalProperty(Domain domain, String propertyName) {
         LOG.trace("Retrieving value for property [{}] on domain [{}].", propertyName, domain);
 
         DomibusPropertyMetadata prop = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
@@ -97,29 +93,12 @@ public class DomibusPropertyRetrieveManager {
         return getDomainOrDefaultValue(prop, domain);
     }
 
-    /**
-     * First try to get the value from the collection of property values updated at runtime;
-     * if not found, get the value from the system environment properties;
-     * if not found, get the value from the system properties;
-     * if not found, get the value from Domibus properties;
-     * if still not found, look inside the Domibus default properties.
-     *
-     * @param propertyName the property name
-     * @return The value of the property as found in the system properties, the Domibus properties or inside the default Domibus properties.
-     */
-    protected String getPropertyValue(String propertyName, Domain domain, boolean encrypted) {
-        String result = environment.getProperty(propertyName);
-
-        if (encrypted && passwordDecryptionService.isValueEncrypted(result)) {
-            LOG.debug("Decrypting property [{}]", propertyName);
-            result = passwordDecryptionService.decryptProperty(domain, propertyName, result);
-        }
-
-        return result;
+    protected String getPropertyValue(String propertyName) {
+        return environment.getProperty(propertyName);
     }
 
     protected String getGlobalProperty(DomibusPropertyMetadata prop) {
-        return getPropertyValue(prop.getName(), null, prop.isEncrypted());
+        return getPropertyValue(prop.getName());
     }
 
     protected String getDomainOrDefaultValue(DomibusPropertyMetadata prop, Domain domain) {
@@ -133,7 +112,7 @@ public class DomibusPropertyRetrieveManager {
     }
 
     protected String getPropValueOrDefault(String propertyKey, DomibusPropertyMetadata prop, Domain domain) {
-        String propValue = getPropertyValue(propertyKey, domain, prop.isEncrypted());
+        String propValue = getPropertyValue(propertyKey);
         if (propValue != null) {
             // found a value->return it
             LOG.trace("Returned specific value for property [{}] on domain [{}].", prop.getName(), domain);
@@ -142,7 +121,7 @@ public class DomibusPropertyRetrieveManager {
         // didn't find a domain-specific value, try to fallback if acceptable
         if (prop.isWithFallback()) {
             // fall-back to the default value from global properties file
-            propValue = getPropertyValue(prop.getName(), domain, prop.isEncrypted());
+            propValue = getPropertyValue(prop.getName());
             if (propValue != null) {
                 // found a value->return it
                 LOG.trace("Returned fallback value for property [{}] on domain [{}].", prop.getName(), domain);
