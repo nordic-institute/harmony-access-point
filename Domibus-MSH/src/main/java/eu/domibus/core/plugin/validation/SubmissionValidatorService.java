@@ -2,7 +2,7 @@ package eu.domibus.core.plugin.validation;
 
 import eu.domibus.common.NotificationType;
 import eu.domibus.core.plugin.transformer.SubmissionAS4Transformer;
-import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.Submission;

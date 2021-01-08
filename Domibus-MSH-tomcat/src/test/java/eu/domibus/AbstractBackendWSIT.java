@@ -1,7 +1,7 @@
 package eu.domibus;
 
+import eu.domibus.api.model.MessageStatus;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
-import eu.domibus.common.MessageStatus;
 import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;

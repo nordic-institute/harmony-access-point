@@ -1,7 +1,6 @@
 package eu.domibus.web.rest.ro;
 
-import eu.domibus.common.MessageStatus;
-
+import eu.domibus.api.model.MessageStatus;
 import java.util.Date;
 
 /**

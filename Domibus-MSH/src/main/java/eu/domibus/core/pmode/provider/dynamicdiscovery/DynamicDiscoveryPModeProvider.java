@@ -3,18 +3,17 @@ package eu.domibus.core.pmode.provider.dynamicdiscovery;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.CertificateService;
-import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.ErrorCode;
-import eu.domibus.common.MSHRole;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.*;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.MessageExchangeConfiguration;
 import eu.domibus.core.pmode.provider.CachingPModeProvider;
-import eu.domibus.ebms3.common.model.PartyId;
-import eu.domibus.ebms3.common.model.Property;
-import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.api.model.PartyId;
+import eu.domibus.api.model.Property;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
@@ -442,7 +441,7 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
             return null;
         }
 
-        for (final eu.domibus.ebms3.common.model.Property p : userMessage.getMessageProperties().getProperty()) {
+        for (final eu.domibus.api.model.Property p : userMessage.getMessageProperties().getProperty()) {
             if (p.getName() != null && StringUtils.equalsIgnoreCase(p.getName(), MessageConstants.FINAL_RECIPIENT)) {
                 return p;
             }

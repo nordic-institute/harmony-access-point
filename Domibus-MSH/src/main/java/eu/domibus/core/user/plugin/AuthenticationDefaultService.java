@@ -4,7 +4,7 @@ import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.security.*;
-import eu.domibus.core.util.DatabaseUtil;
+import eu.domibus.api.util.DatabaseUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -101,7 +101,7 @@ public class AuthenticationDefaultService implements AuthenticationService {
             String password = basicAuthCredentials.substring(index + 1);
             LOG.securityInfo(DomibusMessageCode.SEC_CONNECTION_ATTEMPT, httpRequest.getRemoteHost(), httpRequest.getRequestURL());
             Authentication authenticationResult = basicAuthenticate(user, password);
-            if(authenticationResult.isAuthenticated()) {
+            if (authenticationResult.isAuthenticated()) {
                 LOG.securityInfo(DomibusMessageCode.SEC_AUTHORIZED_ACCESS, httpRequest.getRemoteHost(), httpRequest.getRequestURL(), authenticationResult.getAuthorities());
             } else {
                 LOG.securityInfo(DomibusMessageCode.SEC_UNAUTHORIZED_ACCESS, httpRequest.getRemoteHost(), httpRequest.getRequestURL());
@@ -116,11 +116,11 @@ public class AuthenticationDefaultService implements AuthenticationService {
             LOG.securityInfo(DomibusMessageCode.SEC_X509CERTIFICATE_AUTHENTICATION_USE);
             final X509Certificate[] certificates = (X509Certificate[]) certificateAttribute;
             Authentication authentication = new X509CertificateAuthentication(certificates);
-            String user = ((X509CertificateAuthentication)authentication).getCertificateId();
+            String user = ((X509CertificateAuthentication) authentication).getCertificateId();
             final String domainForUser = userDomainService.getDomainForUser(user);
             domainContextProvider.setCurrentDomain(domainForUser);
             Authentication authenticationResult = authenticate(authentication);
-            if(authenticationResult.isAuthenticated()) {
+            if (authenticationResult.isAuthenticated()) {
                 LOG.securityInfo(DomibusMessageCode.SEC_AUTHORIZED_ACCESS, httpRequest.getRemoteHost(), httpRequest.getRequestURL(), authenticationResult.getAuthorities());
             } else {
                 LOG.securityInfo(DomibusMessageCode.SEC_UNAUTHORIZED_ACCESS, httpRequest.getRemoteHost(), httpRequest.getRequestURL());
@@ -131,11 +131,11 @@ public class AuthenticationDefaultService implements AuthenticationService {
             }
             LOG.securityInfo(DomibusMessageCode.SEC_BLUE_COAT_AUTHENTICATION_USE);
             Authentication authentication = new BlueCoatClientCertificateAuthentication(certHeaderValue);
-            String user = ((BlueCoatClientCertificateAuthentication)authentication).getCertificateId();
+            String user = ((BlueCoatClientCertificateAuthentication) authentication).getCertificateId();
             final String domainForUser = userDomainService.getDomainForUser(user);
             domainContextProvider.setCurrentDomain(domainForUser);
             Authentication authenticationResult = authenticate(authentication);
-            if(authenticationResult.isAuthenticated()) {
+            if (authenticationResult.isAuthenticated()) {
                 LOG.securityInfo(DomibusMessageCode.SEC_AUTHORIZED_ACCESS, httpRequest.getRemoteHost(), httpRequest.getRequestURL(), authenticationResult.getAuthorities());
             } else {
                 LOG.securityInfo(DomibusMessageCode.SEC_UNAUTHORIZED_ACCESS, httpRequest.getRemoteHost(), httpRequest.getRequestURL());

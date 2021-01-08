@@ -1,12 +1,12 @@
 package eu.domibus.core.message;
 
-import eu.domibus.common.MessageStatus;
+import eu.domibus.api.model.MessageStatus;
 import eu.domibus.core.dao.BasicDao;
 import eu.domibus.core.message.pull.MessagePullDto;
-import eu.domibus.ebms3.common.model.Messaging;
-import eu.domibus.ebms3.common.model.PartInfo;
-import eu.domibus.ebms3.common.model.SignalMessage;
-import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.api.model.Messaging;
+import eu.domibus.api.model.PartInfo;
+import eu.domibus.api.model.SignalMessage;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;

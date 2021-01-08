@@ -1,8 +1,8 @@
 package eu.domibus.core.ebms3.receiver.leg;
 
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
-import eu.domibus.ebms3.common.model.MessageInfo;
-import eu.domibus.ebms3.common.model.Messaging;
+import eu.domibus.api.model.MessageInfo;
+import eu.domibus.api.model.Messaging;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.binding.soap.SoapMessage;

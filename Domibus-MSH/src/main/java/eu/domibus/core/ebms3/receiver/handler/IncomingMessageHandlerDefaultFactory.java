@@ -2,16 +2,14 @@ package eu.domibus.core.ebms3.receiver.handler;
 
 import eu.domibus.core.message.pull.IncomingPullReceiptHandler;
 import eu.domibus.core.message.pull.IncomingPullRequestHandler;
-import eu.domibus.ebms3.common.model.Messaging;
-import eu.domibus.ebms3.common.model.SignalMessage;
+import eu.domibus.api.model.Messaging;
+import eu.domibus.api.model.SignalMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.xml.soap.SOAPMessage;
 

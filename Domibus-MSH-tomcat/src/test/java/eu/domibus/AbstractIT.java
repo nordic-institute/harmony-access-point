@@ -1,9 +1,9 @@
 package eu.domibus;
 
+import eu.domibus.api.model.MessageStatus;
 import com.thoughtworks.xstream.XStream;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.common.MessageStatus;
 import eu.domibus.common.NotificationType;
 import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
@@ -13,7 +13,7 @@ import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.proxy.DomibusProxyService;
 import eu.domibus.core.spring.DomibusRootConfiguration;
-import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;

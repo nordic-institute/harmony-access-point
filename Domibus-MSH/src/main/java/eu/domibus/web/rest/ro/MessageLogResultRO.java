@@ -1,9 +1,9 @@
 package eu.domibus.web.rest.ro;
 
-import eu.domibus.common.MSHRole;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.MessageStatus;
-import eu.domibus.core.plugin.notification.NotificationStatus;
-import eu.domibus.ebms3.common.model.MessageType;
+import eu.domibus.api.model.NotificationStatus;
+import eu.domibus.api.model.MessageType;
 
 import java.io.Serializable;
 import java.util.List;
