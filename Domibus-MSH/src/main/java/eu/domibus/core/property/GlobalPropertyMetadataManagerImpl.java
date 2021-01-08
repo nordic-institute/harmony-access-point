@@ -44,18 +44,18 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
 
     private final DomainCoreConverter domainConverter;
 
-    @Autowired
-    NestedPropertiesManager nestedPropertiesManager;
+    private final NestedPropertiesManager nestedPropertiesManager;
 
     public GlobalPropertyMetadataManagerImpl(List<DomibusPropertyMetadataManagerSPI> propertyMetadataManagers,
                                              // needs to be lazy because we do have a conceptual cyclic dependency(and we do not control external modules):
                                              // PropertyProvider->GlobalPropertyMetadataManager->DomibusPropertyManagerExtX
                                              // ->DomibusPropertyExtServiceDelegateAbstract-DomibusPropertyServiceDelegate->DomibusPropertyProvider
                                              @Autowired(required = false) @Lazy List<DomibusPropertyManagerExt> extPropertyManagers,
-                                             DomainCoreConverter domainConverter) {
+                                             DomainCoreConverter domainConverter, NestedPropertiesManager nestedPropertiesManager) {
         this.propertyMetadataManagers = propertyMetadataManagers;
         this.extPropertyManagers = extPropertyManagers;
         this.domainConverter = domainConverter;
+        this.nestedPropertiesManager=nestedPropertiesManager;
     }
 
     @Override
