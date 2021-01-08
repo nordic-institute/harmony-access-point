@@ -1,12 +1,10 @@
-package eu.domibus.core.user.plugin.job;
+package eu.domibus.core.message.pull;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
-import eu.domibus.core.user.UserService;
-import eu.domibus.core.user.plugin.PluginUserServiceImpl;
+import eu.domibus.core.ebms3.sender.retry.RetryService;
 import eu.domibus.core.util.DatabaseUtil;
 import mockit.FullVerifications;
 import mockit.Injectable;
@@ -19,50 +17,50 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
 /**
- * @author François Gautier
+ * @author Soumya Chandran
  * @since 5.0
  */
 @RunWith(JMockit.class)
-public class ActivateSuspendedPluginUsersJobTest {
+public class PullRetryWorkerTest {
 
     @Tested
-    ActivateSuspendedPluginUsersJob activateSuspendedPluginUsersJob;
+    PullRetryWorker pullRetryWorker;
 
     @Injectable
-    private PluginUserServiceImpl pluginUserService;
+    private RetryService retryService;
 
     @Injectable
-    private UserService userManagementService;
+    private AuthUtils authUtils;
 
     @Injectable
     private DomainService domainService;
 
     @Injectable
-    private DatabaseUtil databaseUtil;
-
-    @Injectable
     private DomainContextProvider domainContextProvider;
 
     @Injectable
-    protected AuthUtils authUtils;
+    private DatabaseUtil databaseUtil;
+
 
     @Test
     public void executeJob(@Mocked JobExecutionContext context, @Mocked Domain domain) throws JobExecutionException {
 
-        activateSuspendedPluginUsersJob.executeJob(context, domain);
+        pullRetryWorker.executeJob(context, domain);
 
         new FullVerifications() {{
-            pluginUserService.reactivateSuspendedUsers();
+            retryService.bulkExpirePullMessages();
+            retryService.resetWaitingForReceiptPullMessages();
+            retryService.bulkDeletePullMessages();
         }};
     }
 
     @Test
     public void setQuartzJobSecurityContext() {
 
-        activateSuspendedPluginUsersJob.setQuartzJobSecurityContext();
+        pullRetryWorker.setQuartzJobSecurityContext();
 
         new FullVerifications() {{
-            authUtils.setAuthenticationToSecurityContext("domibus-quartz", "domibus-quartz", AuthRole.ROLE_AP_ADMIN);
+            authUtils.setAuthenticationToSecurityContext("retry_user", "retry_password");
         }};
     }
 }
