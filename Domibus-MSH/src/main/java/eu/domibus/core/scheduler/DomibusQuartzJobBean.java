@@ -21,9 +21,9 @@ public abstract class DomibusQuartzJobBean extends QuartzJobBean {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusQuartzJobBean.class);
 
-    private static final String DOMIBUS_QUARTZ_USER = "domibus-quartz";
+    protected static final String DOMIBUS_QUARTZ_USER = "domibus-quartz";
 
-    private static final String DOMIBUS_QUARTZ_PASSWORD = "domibus-quartz";
+    protected static final String DOMIBUS_QUARTZ_PASSWORD = "domibus-quartz";
 
     @Autowired
     protected DomainService domainService;
@@ -43,7 +43,7 @@ public abstract class DomibusQuartzJobBean extends QuartzJobBean {
             LOG.clearCustomKeys();
             final Domain currentDomain = getDomain(context);
             domainContextProvider.setCurrentDomain(currentDomain);
-            setDefaultQuartzJobSecurityContext();
+            setQuartzJobSecurityContext();
             LOG.putMDC(DomibusLogger.MDC_USER, databaseUtil.getDatabaseUserName());
             executeJob(context, currentDomain);
         } finally {
@@ -53,7 +53,7 @@ public abstract class DomibusQuartzJobBean extends QuartzJobBean {
         }
     }
 
-    protected void setDefaultQuartzJobSecurityContext() {
+    protected void setQuartzJobSecurityContext() {
         authUtils.setAuthenticationToSecurityContext(DOMIBUS_QUARTZ_USER, DOMIBUS_QUARTZ_PASSWORD);
     }
 
