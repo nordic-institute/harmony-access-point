@@ -11,6 +11,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+
 /**
  * @author Soumya Chandran
  * @since 5.0
@@ -34,7 +35,6 @@ public class ConnectionMonitoringJobTest {
 
     @Injectable
     private DatabaseUtil databaseUtil;
-
 
     @Test
     public void executeJob(@Mocked JobExecutionContext context, @Mocked Domain domain) throws JobExecutionException {
