@@ -11,7 +11,7 @@ import java.util.List;
  * <p>
  * Service used by ConfigurationPropertyResource, responsible with getting and setting of domibus props that can be changed at runtime
  */
-public interface ConfigurationPropertyResourceHelper {
+public interface DomibusPropertyResourceHelper {
 
     /**
      * Retrieves all properties from MSH and plugins filtered by the parameters

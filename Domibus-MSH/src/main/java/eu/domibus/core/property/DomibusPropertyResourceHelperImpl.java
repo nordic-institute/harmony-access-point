@@ -26,9 +26,9 @@ import static eu.domibus.api.property.DomibusPropertyMetadata.NAME_SEPARATOR;
  * @since 4.1.1
  */
 @Service
-public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPropertyResourceHelper {
+public class DomibusPropertyResourceHelperImpl implements DomibusPropertyResourceHelper {
 
-    private static final Logger LOG = DomibusLoggerFactory.getLogger(ConfigurationPropertyResourceHelperImpl.class);
+    private static final Logger LOG = DomibusLoggerFactory.getLogger(DomibusPropertyResourceHelperImpl.class);
 
     public static final String ACCEPTED_CHARACTERS_IN_PROPERTY_NAMES = NAME_SEPARATOR;
 
@@ -48,13 +48,13 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
 
     private Map<SortMapKey, Comparator<DomibusProperty>> sortingComparatorsMap = new HashMap<>();
 
-    public ConfigurationPropertyResourceHelperImpl(DomibusConfigurationService domibusConfigurationService,
-                                                   DomibusPropertyProvider domibusPropertyProvider,
-                                                   AuthUtils authUtils,
-                                                   DomainTaskExecutor domainTaskExecutor,
-                                                   GlobalPropertyMetadataManager globalPropertyMetadataManager,
-                                                   DomibusPropertyValueValidator domibusPropertyValueValidator,
-                                                   FieldBlacklistValidator propertyNameBlacklistValidator) {
+    public DomibusPropertyResourceHelperImpl(DomibusConfigurationService domibusConfigurationService,
+                                             DomibusPropertyProvider domibusPropertyProvider,
+                                             AuthUtils authUtils,
+                                             DomainTaskExecutor domainTaskExecutor,
+                                             GlobalPropertyMetadataManager globalPropertyMetadataManager,
+                                             DomibusPropertyValueValidator domibusPropertyValueValidator,
+                                             FieldBlacklistValidator propertyNameBlacklistValidator) {
         this.domibusConfigurationService = domibusConfigurationService;
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.authUtils = authUtils;
