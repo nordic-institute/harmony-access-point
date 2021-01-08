@@ -114,7 +114,6 @@ public class MessageAcknowledgementDaoTestIT extends AbstractIT {
         ebms3Messaging.getUserMessage().setMessageInfo(signalMessage.getMessageInfo());
 
         Messaging messaging = ebms3Converter.convertFromEbms3(ebms3Messaging);
-//        signalMessageDao.create(messaging.getSignalMessage());
         messagingDao.create(messaging);
 
         // Builds the signal message log

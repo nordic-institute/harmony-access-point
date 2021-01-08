@@ -10,6 +10,10 @@ import eu.domibus.core.ebms3.mapper.signal.Ebms3SignalMapper;
 import eu.domibus.core.ebms3.mapper.usermessage.Ebms3UserMessageMapper;
 import org.springframework.stereotype.Service;
 
+/**
+ * @author Cosmin Baciu
+ * @since 5.0
+ */
 @Service
 public class Ebms3Converter {
 

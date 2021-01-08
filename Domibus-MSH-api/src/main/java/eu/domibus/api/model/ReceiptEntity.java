@@ -11,9 +11,9 @@ import java.util.List;
 @Entity
 @Table(name = "TB_RECEIPT")
 @NamedQueries({
-        @NamedQuery(name = "Receipt.deleteReceipts", query = "delete from  Receipt where entityId in :RECEIPTIDS"),
+        @NamedQuery(name = "Receipt.deleteReceipts", query = "delete from  ReceiptEntity where entityId in :RECEIPTIDS"),
 })
-public class Receipt extends AbstractBaseEntity {
+public class ReceiptEntity extends AbstractBaseEntity {
     @SuppressWarnings("JpaAttributeTypeInspection")
     @ElementCollection
     @Lob

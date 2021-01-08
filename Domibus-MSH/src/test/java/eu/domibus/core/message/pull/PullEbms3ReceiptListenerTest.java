@@ -1,5 +1,6 @@
 package eu.domibus.core.message.pull;
 
+import eu.domibus.api.model.ReceiptEntity;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.core.ebms3.EbMS3Exception;
@@ -7,7 +8,6 @@ import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.message.UserMessageHandlerService;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.api.model.Receipt;
 import eu.domibus.api.model.SignalMessage;
 import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.messaging.MessageConstants;
@@ -102,7 +102,7 @@ public class PullEbms3ReceiptListenerTest {
     private List<SignalMessage> createSignalMessages() {
         List<SignalMessage> signalMessages = new ArrayList<>();
         SignalMessage signalMessage = new SignalMessage();
-        Receipt receipt = new Receipt();
+        ReceiptEntity receipt = new ReceiptEntity();
         List<String> anyReceipt = new ArrayList<>();
         anyReceipt.add("some content for the receipt");
         receipt.setAny(anyReceipt);

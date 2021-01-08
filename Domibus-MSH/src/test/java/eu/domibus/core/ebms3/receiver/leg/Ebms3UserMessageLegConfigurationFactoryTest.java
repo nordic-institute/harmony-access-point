@@ -62,7 +62,7 @@ public class Ebms3UserMessageLegConfigurationFactoryTest {
         Messaging messaging = new Messaging();
         SoapMessage soapMessage = new SoapMessage(new MessageImpl());
         SignalMessage signalMessage = new SignalMessage();
-        signalMessage.setReceipt(new Receipt());
+        signalMessage.setReceipt(new ReceiptEntity());
         messaging.setSignalMessage(signalMessage);
         UserMessageLegConfigurationFactory userMessageLegConfigurationFactory = new UserMessageLegConfigurationFactory();
         MessageLegConfigurationVisitor mock = Mockito.mock(MessageLegConfigurationVisitor.class);

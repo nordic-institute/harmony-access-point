@@ -2,7 +2,6 @@ package eu.domibus.api.model;
 
 import javax.persistence.*;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -29,7 +28,7 @@ public class SignalMessage extends AbstractBaseEntity {
     protected PullRequest pullRequest; //NOSONAR
 
     @OneToOne(cascade = CascadeType.ALL)
-    protected Receipt receipt;
+    protected ReceiptEntity receipt;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "SIGNALMESSAGE_ID")
@@ -54,11 +53,11 @@ public class SignalMessage extends AbstractBaseEntity {
         this.pullRequest = value;
     }
 
-    public Receipt getReceipt() {
+    public ReceiptEntity getReceipt() {
         return this.receipt;
     }
 
-    public void setReceipt(final Receipt value) {
+    public void setReceipt(final ReceiptEntity value) {
         this.receipt = value;
     }
 

@@ -8,6 +8,10 @@ import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+/**
+ * @author Cosmin Baciu
+ * @since 5.0
+ */
 @Mapper(config = Ebms3CentralMapperConfig.class,
         uses = {
                 Ebms3MessageInfoMapper.class,
