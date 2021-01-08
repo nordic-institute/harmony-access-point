@@ -3,8 +3,8 @@ package eu.domibus.core.message.pull;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.core.ebms3.sender.retry.RetryService;
-import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.core.scheduler.DomibusQuartzJobBean;
+import eu.domibus.logging.DomibusLoggerFactory;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -28,11 +28,6 @@ public class PullRetryWorker extends DomibusQuartzJobBean {
 
     @Override
     protected void executeJob(JobExecutionContext context, Domain domain) throws JobExecutionException {
-        authUtils.runWithSecurityContext(this::executeJob,
-                    "retry_user", "retry_password");
-    }
-
-    protected void executeJob(){
         try {
             retryService.bulkExpirePullMessages();
         } catch (Exception e) {
@@ -51,4 +46,5 @@ public class PullRetryWorker extends DomibusQuartzJobBean {
             LOG.error("Error while bulk deleting messages.", e);
         }
     }
+
 }

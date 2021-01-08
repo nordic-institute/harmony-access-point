@@ -31,10 +31,14 @@ public class MessagePullerJob extends DomibusQuartzJobBean {
     @Override
     protected void executeJob(JobExecutionContext context, Domain domain) throws JobExecutionException {
         try {
-            authUtils.runWithSecurityContext(messageExchangeService::initiatePullRequest,
-                    "retry_user", "retry_password", AuthRole.ROLE_AP_ADMIN);
+            messageExchangeService.initiatePullRequest();
         } catch (PModeException e) {
             LOG.warn("Invalid pmode configuration for pull request " + e.getMessage(), e);
         }
+    }
+
+    @Override
+    protected void setQuartzJobSecurityContext() {
+        authUtils.setAuthenticationToSecurityContext(DOMIBUS_QUARTZ_USER, DOMIBUS_QUARTZ_PASSWORD, AuthRole.ROLE_AP_ADMIN);
     }
 }
