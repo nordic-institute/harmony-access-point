@@ -2,9 +2,7 @@ package eu.domibus.core.util;
 
 import com.google.gson.reflect.TypeToken;
 import eu.domibus.api.message.MessageSubtype;
-import eu.domibus.api.util.JsonUtil;
-import eu.domibus.core.message.UserMessageLog;
-import eu.domibus.core.message.UserMessageLogDto;
+import eu.domibus.api.model.UserMessageLogDto;
 import org.junit.Assert;
 import org.junit.Test;
 

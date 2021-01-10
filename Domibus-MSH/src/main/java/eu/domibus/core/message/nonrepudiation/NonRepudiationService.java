@@ -1,7 +1,7 @@
 package eu.domibus.core.message.nonrepudiation;
 
-import eu.domibus.ebms3.common.model.SignalMessage;
-import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.api.model.SignalMessage;
+import eu.domibus.api.model.UserMessage;
 
 import javax.xml.soap.SOAPMessage;
 import java.io.InputStream;

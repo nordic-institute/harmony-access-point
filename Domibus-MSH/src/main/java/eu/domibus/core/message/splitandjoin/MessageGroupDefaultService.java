@@ -1,5 +1,6 @@
 package eu.domibus.core.message.splitandjoin;
 
+import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

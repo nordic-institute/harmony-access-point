@@ -2,7 +2,7 @@ package eu.domibus.core.message.acknowledge;
 
 import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.UserMessageServiceHelper;
-import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.security.AuthUtils;
 import mockit.Expectations;
 import mockit.Injectable;

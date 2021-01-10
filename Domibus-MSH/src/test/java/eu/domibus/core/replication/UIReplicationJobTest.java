@@ -3,7 +3,7 @@ package eu.domibus.core.replication;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.core.util.DatabaseUtil;
+import eu.domibus.api.util.DatabaseUtil;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;

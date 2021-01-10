@@ -3,15 +3,10 @@ package eu.domibus.plugin.jms;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import eu.domibus.AbstractBackendJMSIT;
-import eu.domibus.common.MSHRole;
+import eu.domibus.api.model.*;
 import eu.domibus.core.message.MessagingService;
-import eu.domibus.core.message.UserMessageLog;
+import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.core.message.UserMessageLogDefaultService;
-import eu.domibus.core.plugin.notification.NotificationStatus;
-import eu.domibus.ebms3.common.model.MessageType;
-import eu.domibus.ebms3.common.model.PartInfo;
-import eu.domibus.ebms3.common.model.Property;
-import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.webService.generated.MshRole;
 import org.apache.activemq.command.ActiveMQMapMessage;
@@ -110,12 +105,12 @@ public class ReceiveDeliverMessageJMSIT extends AbstractBackendJMSIT {
 
         partInfo.setPayloadDatahandler(new DataHandler(new ByteArrayDataSource(messagePayload.getBytes(), "text/xml")));
         userMessage.getMessageInfo().setMessageId(messageId);
-        eu.domibus.ebms3.common.model.Messaging messaging = new eu.domibus.ebms3.common.model.Messaging();
+        Messaging messaging = new Messaging();
         messaging.setUserMessage(userMessage);
         messagingService.storeMessage(messaging, MSHRole.RECEIVING, null, "backendWebservice");
 
         UserMessageLog userMessageLog = new UserMessageLog();
-        userMessageLog.setMessageStatus(eu.domibus.common.MessageStatus.RECEIVED);
+        userMessageLog.setMessageStatus(MessageStatus.RECEIVED);
         userMessageLog.setMessageId(messageId);
         userMessageLog.setMessageType(MessageType.USER_MESSAGE);
         userMessageLog.setMshRole(MSHRole.RECEIVING);

@@ -1,6 +1,6 @@
 package eu.domibus.core.user;
 
-import eu.domibus.ebms3.common.model.AbstractBaseEntity;
+import eu.domibus.api.model.AbstractBaseEntity;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 

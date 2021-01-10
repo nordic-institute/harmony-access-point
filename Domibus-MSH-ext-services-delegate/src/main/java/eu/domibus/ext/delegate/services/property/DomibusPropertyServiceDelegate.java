@@ -12,6 +12,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -98,7 +99,8 @@ public class DomibusPropertyServiceDelegate implements DomibusPropertyExtService
         try {
             return NotificationType.valueOf(trimmedValue);
         } catch (IllegalArgumentException e) {
-            LOG.warn("Unrecognized notification type [{}]", trimmedValue, e);
+            LOG.warn("Unrecognized notification type [{}]", trimmedValue);
+            LOG.trace("Invalid notification type [{}] throws exception", trimmedValue, e);
             return null;
         }
     }

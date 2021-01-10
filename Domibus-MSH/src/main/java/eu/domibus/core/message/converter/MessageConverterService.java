@@ -1,6 +1,6 @@
 package eu.domibus.core.message.converter;
 
-import eu.domibus.ebms3.common.model.Messaging;
+import eu.domibus.api.model.Messaging;
 
 /**
  * Created by musatmi on 11/05/2017.

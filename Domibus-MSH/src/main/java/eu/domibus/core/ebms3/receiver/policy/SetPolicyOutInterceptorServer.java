@@ -2,7 +2,7 @@ package eu.domibus.core.ebms3.receiver.policy;
 
 import eu.domibus.core.ebms3.sender.interceptor.SetPolicyOutInterceptor;
 import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
-import eu.domibus.ebms3.common.model.MessageType;
+import eu.domibus.api.model.MessageType;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.interceptor.Fault;
 import org.springframework.stereotype.Service;

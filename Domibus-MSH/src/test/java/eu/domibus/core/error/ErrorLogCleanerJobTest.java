@@ -3,7 +3,7 @@ package eu.domibus.core.error;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.core.util.DatabaseUtil;
+import eu.domibus.api.util.DatabaseUtil;
 import mockit.FullVerifications;
 import mockit.Injectable;
 import mockit.Tested;
