@@ -1,4 +1,4 @@
-package eu.domibus.core.message.splitandjoin;
+package eu.domibus.core.message.retention;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
@@ -11,19 +11,20 @@ import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
 
 /**
- * @author Cosmin Baciu
- * @since 4.1
+ * @author Soumya Chandran
+ * @since 5.0
  */
 @RunWith(JMockit.class)
-public class SplitAndJoinExpirationWorkerTest {
+public class RetentionWorkerTest {
 
     @Tested
-    SplitAndJoinExpirationWorker splitAndJoinExpirationWorker;
+    RetentionWorker retentionWorker;
 
     @Injectable
-    protected SplitAndJoinService splitAndJoinService;
+    private MessageRetentionService messageRetentionService;
 
     @Injectable
     private ConfigurationDAO configurationDAO;
@@ -32,35 +33,37 @@ public class SplitAndJoinExpirationWorkerTest {
     private AuthUtils authUtils;
 
     @Injectable
-    protected DomainService domainService;
+    private DomainService domainService;
 
     @Injectable
-    protected DomainContextProvider domainContextProvider;
+    private DomainContextProvider domainContextProvider;
 
     @Injectable
     private DatabaseUtil databaseUtil;
 
+
     @Test
-    public void executeJob(@Injectable JobExecutionContext context, @Injectable Domain domain) {
+    public void executeJob(@Mocked JobExecutionContext context, @Mocked Domain domain) throws JobExecutionException {
+
         new Expectations() {{
             configurationDAO.configurationExists();
             result = true;
         }};
 
-        splitAndJoinExpirationWorker.executeJob(context, domain);
+        retentionWorker.executeJob(context, domain);
 
-        new Verifications() {{
-            splitAndJoinService.handleExpiredGroups();
+        new FullVerifications() {{
+            messageRetentionService.deleteExpiredMessages();
         }};
     }
 
     @Test
     public void setQuartzJobSecurityContext() {
 
-        splitAndJoinExpirationWorker.setQuartzJobSecurityContext();
+        retentionWorker.setQuartzJobSecurityContext();
 
         new FullVerifications() {{
-            authUtils.setAuthenticationToSecurityContext("splitAndJoinExpiration_user", "splitAndJoinExpiration_password");
+            authUtils.setAuthenticationToSecurityContext("retention_user", "retention_password");
         }};
     }
 }
