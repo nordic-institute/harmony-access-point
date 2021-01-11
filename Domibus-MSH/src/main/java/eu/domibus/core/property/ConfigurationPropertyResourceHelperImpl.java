@@ -32,6 +32,7 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
     private static final Logger LOG = DomibusLoggerFactory.getLogger(ConfigurationPropertyResourceHelperImpl.class);
 
     public static final String ACCEPTED_CHARACTERS_IN_PROPERTY_NAMES = NAME_SEPARATOR;
+//    private static final List<String> EXCEPTED_PROPERTIES = Arrays.asList(DOMIBUS_USER_INPUT_BLACK_LIST, DOMIBUS_USER_INPUT_WHITE_LIST);
 
     private DomibusConfigurationService domibusConfigurationService;
 
@@ -152,9 +153,9 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
     protected void validatePropertyValue(String propertyName, String propertyValue) {
         validateMaxLength(propertyName, propertyValue);
 
-        propertyNameBlacklistValidator.validate(propertyName, ACCEPTED_CHARACTERS_IN_PROPERTY_NAMES);
-
         DomibusPropertyMetadata propMeta = getPropertyMetadata(propertyName);
+
+        validatePropertyName(propMeta, propertyName);
 
         if (propMeta == null) {
             throw new DomibusPropertyException("Cannot set property [" + propertyName + "] because it does not exist.");
@@ -169,9 +170,20 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
         }
 
         DomibusProperty prop = createProperty(propMeta, propertyValue);
-
         prop.setValue(propertyValue);
         domibusPropertyValueValidator.validate(prop);
+    }
+
+    protected void validatePropertyName(DomibusPropertyMetadata propMeta, String propertyName) {
+        // we can actually skip the property name validation for all properties except nested ones since the property name cannot be changed
+        if(!propMeta.isComposable()) {
+            return;
+        }
+        // do not validate property name for some properties ( like blacklist related)
+//        if (EXCEPTED_PROPERTIES.stream().anyMatch(prop -> StringUtils.equals(prop, propertyName))) {
+//            return;
+//        }
+        propertyNameBlacklistValidator.validate(propertyName, ACCEPTED_CHARACTERS_IN_PROPERTY_NAMES);
     }
 
     protected void validateMaxLength(String propertyName, String propertyValue) {
