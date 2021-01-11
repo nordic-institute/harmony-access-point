@@ -151,6 +151,17 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
 
     protected void validatePropertyValue(String propertyName, String propertyValue) {
         DomibusPropertyMetadata propMeta = getPropertyMetadata(propertyName);
+
+        validatePropertyMetadata(propertyName, propMeta);
+
+        validatePropertyName(propMeta, propertyName);
+
+        validatePropertyLength(propertyName, propertyValue);
+
+        validatePropertyValue(propertyValue, propMeta);
+    }
+
+    protected void validatePropertyMetadata(String propertyName, DomibusPropertyMetadata propMeta) {
         if (propMeta == null) {
             throw new DomibusPropertyException("Cannot set property [" + propertyName + "] because it does not exist.");
         }
@@ -162,15 +173,9 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
         if (StringUtils.equals(propMeta.getName(), propertyName) && propMeta.isComposable()) {
             throw new DomibusPropertyException("Cannot set composable property [" + propertyName + "] directly. You can only set its nested properties.");
         }
-
-        validatePropertyLength(propertyName, propertyValue);
-
-        validatePropertyName(propMeta, propertyName);
-
-        validatePropertyValue(propertyValue, propMeta);
     }
 
-    private void validatePropertyValue(String propertyValue, DomibusPropertyMetadata propMeta) {
+    protected void validatePropertyValue(String propertyValue, DomibusPropertyMetadata propMeta) {
         DomibusProperty prop = createProperty(propMeta, propertyValue);
         prop.setValue(propertyValue);
         domibusPropertyValueValidator.validate(prop);
