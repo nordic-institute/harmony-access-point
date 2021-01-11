@@ -18,6 +18,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadata.NAME_SEPARATOR;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PROPERTY_LENGTH_MAX;
 
 /**
  * Responsible with getting the domibus properties that can be changed at runtime, getting and setting their values
@@ -149,6 +150,8 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
     }
 
     protected void validatePropertyValue(String propertyName, String propertyValue) {
+        validateMaxLength(propertyName, propertyValue);
+
         propertyNameBlacklistValidator.validate(propertyName, ACCEPTED_CHARACTERS_IN_PROPERTY_NAMES);
 
         DomibusPropertyMetadata propMeta = getPropertyMetadata(propertyName);
@@ -169,6 +172,23 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
 
         prop.setValue(propertyValue);
         domibusPropertyValueValidator.validate(prop);
+    }
+
+    protected void validateMaxLength(String propertyName, String propertyValue) {
+        // do not validate against itself
+        if (StringUtils.equals(propertyName, DOMIBUS_PROPERTY_LENGTH_MAX)) {
+            return;
+        }
+
+        Integer maxLength = domibusPropertyProvider.getIntegerProperty(DOMIBUS_PROPERTY_LENGTH_MAX);
+        if (maxLength <= 0 && propertyValue == null) {
+            return;
+        }
+
+        if (propertyValue.length() > maxLength) {
+            throw new DomibusPropertyException("Invalid property value [" + propertyValue + "] for property [" + propertyName + "]. " +
+                    "Maximum accepted length is: " + maxLength);
+        }
     }
 
     protected DomibusPropertyMetadata getPropertyMetadata(String propertyName) {

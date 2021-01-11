@@ -62,11 +62,6 @@ public class DomibusPropertyProviderDispatcher {
 
     @CacheEvict(value = DomibusCacheService.DOMIBUS_PROPERTY_CACHE, key = CACHE_KEY_EXPRESSION, beforeInvocation = true)
     public void setInternalOrExternalProperty(Domain domain, String propertyName, String propertyValue, boolean broadcast) throws DomibusPropertyException {
-        Integer maxLength = domibusPropertyProvider.getIntegerProperty(DOMIBUS_PROPERTY_LENGTH_MAX);
-        if (maxLength > 0 && propertyValue != null && propertyValue.length() > maxLength) {
-            throw new IllegalArgumentException("Invalid property value. Maximum accepted length is: " + maxLength);
-        }
-
         DomibusPropertyMetadata propMeta = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
         if (propMeta.isStoredGlobally()) {
             setInternalPropertyValue(domain, propertyName, propertyValue, broadcast);
@@ -156,7 +151,7 @@ public class DomibusPropertyProviderDispatcher {
         String currentDomainCode = getCurrentDomainCode();
         //the domain is created like this in order to avoid the dependency on DomainService ( which creates a cycle)
         // we do not care for the domain name at all in property management, just the domain code
-        return new Domain(currentDomainCode, currentDomainCode);
+        return currentDomainCode == null ? null : new Domain(currentDomainCode, currentDomainCode);
     }
 
     //this method needs to be public for the ehCache to be able to call it
