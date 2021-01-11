@@ -155,19 +155,6 @@ public class MessageRetentionServiceTest {
     }
 
     @Test
-    public void testBatchDeleteExpiredMessagesSeparator() {
-        List<UserMessageLogDto> batchMessages = new ArrayList<>();
-        batchMessages.add(new UserMessageLogDto("", null, ""));
-        batchMessages.add(new UserMessageLogDto("", null, ""));
-
-        messageRetentionService.scheduleDeleteBatchMessages(batchMessages);
-
-        new Verifications() {{
-            jmsManager.sendMessageToQueue((JmsMessage) any, retentionMessageQueue);
-        }};
-    }
-
-    @Test
     public void testBatchDeleteExpiredDownloadedMessages() {
 
         new Expectations(messageRetentionService) {{

@@ -6,10 +6,7 @@ import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.JsonUtil;
-import eu.domibus.core.message.MessagingDao;
-import eu.domibus.core.message.UserMessageLog;
-import eu.domibus.core.message.UserMessageLogDao;
-import eu.domibus.core.message.UserMessageLogDto;
+import eu.domibus.core.message.*;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.pmode.provider.PModeProvider;
@@ -69,6 +66,9 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
 
     @Autowired
     private JsonUtil jsonUtil;
+
+    @Autowired
+    private UserMessageDefaultService userMessageDefaultService;
 
     /**
      * {@inheritDoc}
@@ -267,20 +267,9 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
             List<UserMessageLogDto> userMessageLogsBatch = userMessageLogsToDelete.stream().limit(currentBatch).collect(Collectors.toList());
             userMessageLogsToDelete.removeAll(userMessageLogsBatch);
             LOG.debug("After removal messageIds size is [{}]", userMessageLogsToDelete.size());
-            scheduleDeleteBatchMessages(userMessageLogsBatch);
+            userMessageDefaultService.deleteMessages(userMessageLogsBatch);
         }
     }
-
-    protected void scheduleDeleteBatchMessages(List<UserMessageLogDto> userMessageLogsBatch) {
-        LOG.debug("Scheduling to delete [{}] messages", userMessageLogsBatch.size());
-
-        JmsMessage message = JMSMessageBuilder.create()
-                .property(DELETE_TYPE, MessageDeleteType.MULTI.name())
-                .property(MESSAGE_LOGS, jsonUtil.listToJson(userMessageLogsBatch))
-                .build();
-        jmsManager.sendMessageToQueue(message, retentionMessageQueue);
-    }
-
 
     protected Integer getRetentionValue(String propertyName) {
         return domibusPropertyProvider.getIntegerProperty(propertyName);
