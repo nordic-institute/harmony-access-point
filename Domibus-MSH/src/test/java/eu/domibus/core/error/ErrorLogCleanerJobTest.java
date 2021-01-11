@@ -38,7 +38,6 @@ public class ErrorLogCleanerJobTest {
     @Injectable
     private AuthUtils authUtils;
 
-
     @Test
     public void executeJob(@Injectable JobExecutionContext context, @Injectable Domain domain) throws  Exception {
 
