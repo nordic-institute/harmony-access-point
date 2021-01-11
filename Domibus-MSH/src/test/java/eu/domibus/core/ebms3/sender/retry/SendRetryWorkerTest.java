@@ -4,14 +4,12 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.security.AuthUtils;
-import eu.domibus.api.security.functions.AuthenticatedProcedure;
 import eu.domibus.api.util.DatabaseUtil;
 import mockit.Expectations;
 import mockit.FullVerifications;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.quartz.JobExecutionContext;
@@ -50,45 +48,33 @@ public class SendRetryWorkerTest {
     @Injectable
     DatabaseUtil databaseUtil;
 
-    @Test
-    public void test_executeJob_wrapSecurityContext(final @Injectable JobExecutionContext jobExecutionContext,
-                                final @Injectable Domain domain) throws Exception {
-
-        new Expectations() {{
-            authUtils.runWithSecurityContext((AuthenticatedProcedure)any, anyString, anyString);
-        }};
-
-        sendRetryWorker.executeJob(jobExecutionContext, domain);
-
-        new FullVerifications() {{
-            AuthenticatedProcedure function;
-            String username;
-            String password;
-            authUtils.runWithSecurityContext(function = withCapture(),
-                    username=withCapture(), password=withCapture());
-            Assert.assertNotNull(function);
-            Assert.assertEquals("retry_user",username);
-            Assert.assertEquals("retry_password",password);
-        }};
-    }
 
     @Test
-    public void test_executeJob_private() throws Exception {
+    public void executeJob(@Injectable JobExecutionContext context, @Injectable Domain domain) throws Exception {
 
         new Expectations(sendRetryWorker) {{
-
             retryService.getMessagesNotAlreadyScheduled();
             result = QUEUED_MESSAGEIDS;
 
             retryService.enqueueMessage(anyString);
         }};
 
-        sendRetryWorker.executeJob();
+        sendRetryWorker.executeJob(context, domain);
 
         new FullVerifications() {{
             retryService.enqueueMessage(MESSAGE_ID_1);
             retryService.enqueueMessage(MESSAGE_ID_2);
             retryService.enqueueMessage(MESSAGE_ID_3);
+        }};
+    }
+
+    @Test
+    public void setQuartzJobSecurityContext() {
+
+        sendRetryWorker.setQuartzJobSecurityContext();
+
+        new FullVerifications() {{
+            authUtils.setAuthenticationToSecurityContext("retry_user", "retry_password");
         }};
     }
 }
