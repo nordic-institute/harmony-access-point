@@ -71,25 +71,6 @@ public class RetentionListenerTest {
         }};
     }
 
-    @Test
-    public void onMessage_deletesMessageMulti(@Mocked DomibusLogger domibusLogger, @Mocked List<UserMessageLog> userMessageLogs) throws JMSException {
-
-        String userMessageLogsStr = "someUserMessageLogs";
-        new Expectations() {{
-            message.getStringProperty(MessageRetentionDefaultService.DELETE_TYPE); result = MessageDeleteType.MULTI.name();
-            message.getStringProperty(MessageRetentionDefaultService.MESSAGE_LOGS); result = userMessageLogsStr;
-        }};
-
-        // When
-        retentionListener.onMessagePrivate(message);
-
-        // Then
-        new Verifications() {{
-            jsonUtil.jsonToList(anyString, (Type) any);
-            userMessageDefaultService.deleteMessages((List<UserMessageLogDto>)any);
-        }};
-    }
-
     @Test(expected = IllegalArgumentException.class)
     public void onMessage_invalidDeleteType(@Mocked DomibusLogger domibusLogger) throws JMSException {
 
@@ -101,7 +82,6 @@ public class RetentionListenerTest {
         retentionListener.onMessagePrivate(message);
 
     }
-
 
     @Test
     public void onMessage_addsAuthentication(@Mocked DomibusLogger domibusLogger)  throws JMSException {

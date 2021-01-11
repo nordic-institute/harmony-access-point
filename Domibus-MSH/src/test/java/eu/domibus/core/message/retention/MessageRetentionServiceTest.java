@@ -6,10 +6,7 @@ import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.JsonUtil;
-import eu.domibus.core.message.MessagingDao;
-import eu.domibus.core.message.UserMessageLog;
-import eu.domibus.core.message.UserMessageLogDao;
-import eu.domibus.core.message.UserMessageLogDto;
+import eu.domibus.core.message.*;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.ebms3.common.model.MessageInfo;
 import eu.domibus.ebms3.common.model.UserMessage;
@@ -64,6 +61,9 @@ public class MessageRetentionServiceTest {
 
     @Injectable
     private JsonUtil jsonUtil;
+
+    @Injectable
+    private UserMessageDefaultService userMessageDefaultService;
 
     @Tested
     MessageRetentionDefaultService messageRetentionService;
