@@ -100,7 +100,7 @@ public class MessageRetentionServiceTest {
             pModeProvider.getRetentionMaxBatchByMpcURI(mpc1, domibusPropertyProvider.getIntegerProperty(DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_BATCH_DELETE));
             result = maxBatch;
 
-            messageRetentionService.scheduleDeleteMessagesByMessageLog(expiredMessages, maxBatch);
+            messageRetentionService.deleteMessages(expiredMessages, maxBatch);
         }};
 
         messageRetentionService.scheduleDeleteMessages(expiredMessages, mpc1);
