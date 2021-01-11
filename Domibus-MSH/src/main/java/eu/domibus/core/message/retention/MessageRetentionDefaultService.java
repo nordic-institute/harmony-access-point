@@ -6,10 +6,7 @@ import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.JsonUtil;
-import eu.domibus.core.message.MessagingDao;
-import eu.domibus.core.message.UserMessageLog;
-import eu.domibus.core.message.UserMessageLogDao;
-import eu.domibus.core.message.UserMessageLogDto;
+import eu.domibus.core.message.*;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.pmode.provider.PModeProvider;
@@ -69,6 +66,9 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
 
     @Autowired
     private JsonUtil jsonUtil;
+
+    @Autowired
+    private UserMessageDefaultService userMessageDefaultService;
 
     /**
      * {@inheritDoc}
@@ -180,7 +180,7 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
         if (isDeleteMessageMetadata) { // schedule delete in batch
             final int maxBatch = pModeProvider.getRetentionMaxBatchByMpcURI(mpc, domibusPropertyProvider.getIntegerProperty(DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_BATCH_DELETE));
             LOG.debug("Schedule bulk delete messages, maxBatch [{}]", maxBatch);
-            scheduleDeleteMessagesByMessageLog(userMessageLogs, maxBatch);
+            deleteMessages(userMessageLogs, maxBatch);
             return;
         }
         // schedule delete one by one
@@ -249,7 +249,7 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
     }
 
     @Override
-    public void scheduleDeleteMessagesByMessageLog(List<UserMessageLogDto> userMessageLogs, int maxBatch) {
+    public void deleteMessages(List<UserMessageLogDto> userMessageLogs, int maxBatch) {
         if (CollectionUtils.isEmpty(userMessageLogs)) {
             LOG.debug("No message to be scheduled for deletion");
             return;
@@ -267,20 +267,9 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
             List<UserMessageLogDto> userMessageLogsBatch = userMessageLogsToDelete.stream().limit(currentBatch).collect(Collectors.toList());
             userMessageLogsToDelete.removeAll(userMessageLogsBatch);
             LOG.debug("After removal messageIds size is [{}]", userMessageLogsToDelete.size());
-            scheduleDeleteBatchMessages(userMessageLogsBatch);
+            userMessageDefaultService.deleteMessages(userMessageLogsBatch);
         }
     }
-
-    protected void scheduleDeleteBatchMessages(List<UserMessageLogDto> userMessageLogsBatch) {
-        LOG.debug("Scheduling to delete [{}] messages", userMessageLogsBatch.size());
-
-        JmsMessage message = JMSMessageBuilder.create()
-                .property(DELETE_TYPE, MessageDeleteType.MULTI.name())
-                .property(MESSAGE_LOGS, jsonUtil.listToJson(userMessageLogsBatch))
-                .build();
-        jmsManager.sendMessageToQueue(message, retentionMessageQueue);
-    }
-
 
     protected Integer getRetentionValue(String propertyName) {
         return domibusPropertyProvider.getIntegerProperty(propertyName);

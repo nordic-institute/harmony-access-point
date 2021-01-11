@@ -100,7 +100,7 @@ public class MessageRetentionServiceTest {
             pModeProvider.getRetentionMaxBatchByMpcURI(mpc1, domibusPropertyProvider.getIntegerProperty(DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_BATCH_DELETE));
             result = maxBatch;
 
-            messageRetentionService.scheduleDeleteMessagesByMessageLog(expiredMessages, maxBatch);
+            messageRetentionService.deleteMessages(expiredMessages, maxBatch);
         }};
 
         messageRetentionService.scheduleDeleteMessages(expiredMessages, mpc1);
@@ -151,19 +151,6 @@ public class MessageRetentionServiceTest {
 
         new Verifications() {{
             jmsManager.sendMessageToQueue((JmsMessage) any, retentionMessageQueue); times = 2;
-        }};
-    }
-
-    @Test
-    public void testBatchDeleteExpiredMessagesSeparator() {
-        List<UserMessageLogDto> batchMessages = new ArrayList<>();
-        batchMessages.add(new UserMessageLogDto("", null, ""));
-        batchMessages.add(new UserMessageLogDto("", null, ""));
-
-        messageRetentionService.scheduleDeleteBatchMessages(batchMessages);
-
-        new Verifications() {{
-            jmsManager.sendMessageToQueue((JmsMessage) any, retentionMessageQueue);
         }};
     }
 

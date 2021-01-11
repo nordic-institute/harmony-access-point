@@ -579,6 +579,11 @@ public class UserMessageDefaultService implements UserMessageService {
         }
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId);
 
+        if(userMessageLog == null) {
+            LOG.debug("Trying to delete a non-existent message [{}]", messageId);
+            return;
+        }
+
         backendNotificationService.notifyMessageDeleted(messageId, userMessageLog);
 
         Messaging messaging = messagingDao.findMessageByMessageId(messageId);
