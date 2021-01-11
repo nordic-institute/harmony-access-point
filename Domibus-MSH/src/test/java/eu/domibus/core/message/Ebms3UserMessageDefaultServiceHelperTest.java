@@ -1,16 +1,12 @@
 package eu.domibus.core.message;
 
-import eu.domibus.api.model.MessageInfo;
-import eu.domibus.api.model.MessageProperties;
-import eu.domibus.api.model.PartyId;
-import eu.domibus.api.model.PartyInfo;
-import eu.domibus.api.model.Property;
-import eu.domibus.api.model.To;
-import eu.domibus.api.model.UserMessage;
+import eu.domibus.api.model.*;
 import eu.domibus.messaging.MessageConstants;
-import mockit.*;
+import mockit.Expectations;
+import mockit.FullVerifications;
+import mockit.Mocked;
+import mockit.Tested;
 import mockit.integration.junit4.JMockit;
-import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,6 +18,7 @@ import java.util.Map;
 import static eu.domibus.core.message.Ebms3UserMessageDefaultServiceHelperTest.PartyIdBuilder.aPartyId;
 import static eu.domibus.core.message.Ebms3UserMessageDefaultServiceHelperTest.PropertyBuilder.aProperty;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * @author Sebastian-Ion TINCU

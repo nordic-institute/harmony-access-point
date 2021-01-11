@@ -1,7 +1,7 @@
 package eu.domibus.core.message;
 
+import eu.domibus.api.model.MessageInfo;
 import eu.domibus.api.model.MessageType;
-import eu.domibus.api.model.Messaging;
 import eu.domibus.core.dao.BasicDao;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;

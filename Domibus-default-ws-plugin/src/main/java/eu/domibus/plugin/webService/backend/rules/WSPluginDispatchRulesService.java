@@ -39,7 +39,7 @@ public class WSPluginDispatchRulesService {
     public static final String PUSH_RULE_TYPE = ".type";
 
     private final DomibusPropertyExtService domibusPropertyExtService;
-    private volatile Map<String, List<WSPluginDispatchRule>> rules = new HashMap<>();
+    private final Map<String, List<WSPluginDispatchRule>> rules = new HashMap<>();
 
     public WSPluginDispatchRulesService(DomibusPropertyExtService domibusPropertyExtService) {
         this.domibusPropertyExtService = domibusPropertyExtService;
@@ -57,7 +57,7 @@ public class WSPluginDispatchRulesService {
                 }
             }
         }
-        return domainRules;
+        return rules.get(domain);
     }
 
     protected List<WSPluginDispatchRule> generateRules() {

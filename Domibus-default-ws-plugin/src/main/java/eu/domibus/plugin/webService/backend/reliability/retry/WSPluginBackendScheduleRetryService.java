@@ -110,7 +110,7 @@ public class WSPluginBackendScheduleRetryService {
         WSBackendMessageLogEntity backendMessage = createWsBackendMessageLogEntity(
                 join(";", messageIds), messageType, finalRecipient, null, rule);
         wsBackendMessageLogDao.create(backendMessage);
-        LOG.info("Schedule [{}] backend message id [{}] for [{}] messagesIds [{}]", messageType, backendMessage.getEntityId(), messageIds.size(), messageIds);
+        LOG.info("Scheduling messageType: [{}] backend message id [{}] for [{}] domibus messagesIds [{}] to be sent", messageType, backendMessage.getEntityId(), messageIds.size(), messageIds);
         scheduleBackendMessage(backendMessage);
     }
 

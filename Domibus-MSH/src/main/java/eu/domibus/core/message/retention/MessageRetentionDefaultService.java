@@ -9,6 +9,7 @@ import eu.domibus.core.message.MessagingDao;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.api.model.UserMessageLogDto;
+import eu.domibus.core.message.UserMessageServiceHelper;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.pmode.provider.PModeProvider;
