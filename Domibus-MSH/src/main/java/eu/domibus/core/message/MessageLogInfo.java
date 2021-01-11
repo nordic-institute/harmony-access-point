@@ -2,7 +2,7 @@ package eu.domibus.core.message;
 
 import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.api.model.MSHRole;
-import eu.domibus.common.MessageStatus;
+import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.NotificationStatus;
 import eu.domibus.api.model.MessageType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
