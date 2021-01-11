@@ -87,7 +87,7 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
 
     @Override
     public void setPropertyValue(String propertyName, boolean isDomain, String propertyValue) throws DomibusPropertyException {
-        validatePropertyValue(propertyName, propertyValue);
+        validateProperty(propertyName, propertyValue);
 
         if (isDomain) {
             LOG.debug("Setting the value [{}] for the domain property [{}] in the current domain.", propertyValue, propertyName);
@@ -149,7 +149,7 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
         return result;
     }
 
-    protected void validatePropertyValue(String propertyName, String propertyValue) {
+    protected void validateProperty(String propertyName, String propertyValue) {
         DomibusPropertyMetadata propMeta = getPropertyMetadata(propertyName);
 
         validatePropertyMetadata(propertyName, propMeta);
@@ -183,7 +183,7 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
 
     protected void validatePropertyName(DomibusPropertyMetadata propMeta, String propertyName) {
         // we can skip the property name validation for all properties except nested ones since the property name cannot be changed (or a new one added)
-        if(!propMeta.isComposable()) {
+        if (!propMeta.isComposable()) {
             return;
         }
         propertyNameBlacklistValidator.validate(propertyName, ACCEPTED_CHARACTERS_IN_PROPERTY_NAMES);
@@ -194,9 +194,11 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
         if (StringUtils.equals(propertyName, DOMIBUS_PROPERTY_LENGTH_MAX)) {
             return;
         }
-
+        if (propertyValue == null) {
+            return;
+        }
         Integer maxLength = domibusPropertyProvider.getIntegerProperty(DOMIBUS_PROPERTY_LENGTH_MAX);
-        if (maxLength <= 0 && propertyValue == null) {
+        if (maxLength <= 0) {
             return;
         }
 
