@@ -3,6 +3,7 @@ package eu.domibus.core.error;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.util.DatabaseUtil;
 import mockit.FullVerifications;
 import mockit.Injectable;
@@ -33,6 +34,10 @@ public class ErrorLogCleanerJobTest {
 
     @Injectable
     private DomainContextProvider domainContextProvider;
+
+    @Injectable
+    private AuthUtils authUtils;
+
 
     @Test
     public void executeJob(@Injectable JobExecutionContext context, @Injectable Domain domain) throws  Exception {
