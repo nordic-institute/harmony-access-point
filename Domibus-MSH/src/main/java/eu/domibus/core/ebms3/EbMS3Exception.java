@@ -1,9 +1,9 @@
 package eu.domibus.core.ebms3;
 
 import eu.domibus.common.ErrorCode;
-import eu.domibus.common.MSHRole;
-import eu.domibus.ebms3.common.model.Description;
-import eu.domibus.ebms3.common.model.Error;
+import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.Description;
+import eu.domibus.api.model.Error;
 import org.apache.commons.lang3.StringUtils;
 import org.dom4j.dom.DOMDocument;
 import org.w3c.dom.Document;

@@ -2,7 +2,7 @@ package eu.domibus.core.replication;
 
 import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.core.dao.ListDao;
-import eu.domibus.core.message.UserMessageLog;
+import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;

@@ -4,7 +4,7 @@ import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.common.ErrorCode;
-import eu.domibus.common.MSHRole;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.receiver.policy.SetPolicyInInterceptor;
 import eu.domibus.core.multitenancy.DomainContextProviderImpl;

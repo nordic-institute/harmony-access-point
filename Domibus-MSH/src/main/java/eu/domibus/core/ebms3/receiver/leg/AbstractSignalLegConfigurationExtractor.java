@@ -3,8 +3,8 @@ package eu.domibus.core.ebms3.receiver.leg;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
-import eu.domibus.ebms3.common.model.MessageType;
-import eu.domibus.ebms3.common.model.Messaging;
+import eu.domibus.api.model.MessageType;
+import eu.domibus.api.model.Messaging;
 import org.apache.cxf.binding.soap.SoapMessage;
 
 /**

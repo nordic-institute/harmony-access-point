@@ -1,11 +1,11 @@
 package eu.domibus.core.alerts.listener;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.util.DatabaseUtil;
 import eu.domibus.core.alerts.model.service.Alert;
 import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.core.alerts.service.AlertService;
 import eu.domibus.core.alerts.service.EventService;
-import eu.domibus.core.util.DatabaseUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,10 +1,15 @@
 package eu.domibus.core.ebms3.sender;
 
+import eu.domibus.api.ebms3.model.Ebms3Error;
+import eu.domibus.api.ebms3.model.Ebms3Messaging;
+import eu.domibus.api.ebms3.model.Ebms3SignalMessage;
 import eu.domibus.api.exceptions.DomibusDateTimeException;
+import eu.domibus.api.model.Error;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.ErrorCode;
-import eu.domibus.common.MSHRole;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
+import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.message.MessagingDao;
@@ -13,9 +18,6 @@ import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDefaultService;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.core.util.MessageUtil;
-import eu.domibus.ebms3.common.model.Error;
-import eu.domibus.ebms3.common.model.Messaging;
-import eu.domibus.ebms3.common.model.SignalMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
@@ -39,6 +41,7 @@ public class ResponseHandler {
     protected final MessageUtil messageUtil;
     private final MessagingDao messagingDao;
     private final ErrorLogDao errorLogDao;
+    protected Ebms3Converter ebms3Converter;
 
     public ResponseHandler(SignalMessageLogDefaultService signalMessageLogDefaultService,
                            UIReplicationSignalService uiReplicationSignalService,
@@ -46,7 +49,8 @@ public class ResponseHandler {
                            SignalMessageDao signalMessageDao,
                            MessageUtil messageUtil,
                            MessagingDao messagingDao,
-                           ErrorLogDao errorLogDao) {
+                           ErrorLogDao errorLogDao,
+                           Ebms3Converter ebms3Converter) {
         this.signalMessageLogDefaultService = signalMessageLogDefaultService;
         this.uiReplicationSignalService = uiReplicationSignalService;
         this.nonRepudiationService = nonRepudiationService;
@@ -54,6 +58,7 @@ public class ResponseHandler {
         this.messageUtil = messageUtil;
         this.messagingDao = messagingDao;
         this.errorLogDao = errorLogDao;
+        this.ebms3Converter = ebms3Converter;
     }
 
     public ResponseResult verifyResponse(final SOAPMessage response, String messageId) throws EbMS3Exception {
@@ -61,10 +66,10 @@ public class ResponseHandler {
 
         ResponseResult result = new ResponseResult();
 
-        final Messaging messaging;
+        final Ebms3Messaging ebms3Messaging;
         try {
-            messaging = messageUtil.getMessagingWithDom(response);
-            result.setResponseMessaging(messaging);
+            ebms3Messaging = messageUtil.getMessagingWithDom(response);
+            result.setResponseMessaging(ebms3Messaging);
         } catch (SOAPException | DomibusDateTimeException ex) {
             throw EbMS3ExceptionBuilder
                     .getInstance()
@@ -76,15 +81,17 @@ public class ResponseHandler {
                     .build();
         }
 
-        final SignalMessage signalMessage = messaging.getSignalMessage();
-        final ResponseStatus responseStatus = getResponseStatus(signalMessage);
+        final Ebms3SignalMessage ebms3SignalMessage = ebms3Messaging.getSignalMessage();
+        final ResponseStatus responseStatus = getResponseStatus(ebms3SignalMessage);
         result.setResponseStatus(responseStatus);
 
         return result;
     }
 
-    public void saveResponse(final SOAPMessage response, final Messaging sentMessage, final Messaging messagingResponse) {
-        final SignalMessage signalMessage = messagingResponse.getSignalMessage();
+    public void saveResponse(final SOAPMessage response, final eu.domibus.api.model.Messaging sentMessage, final Ebms3Messaging ebms3MessagingResponse) {
+        eu.domibus.api.model.Messaging convertedMessagingResponse = ebms3Converter.convertFromEbms3(ebms3MessagingResponse);
+
+        final eu.domibus.api.model.SignalMessage signalMessage = convertedMessagingResponse.getSignalMessage();
         nonRepudiationService.saveResponse(response, signalMessage);
 
         // Stores the signal message
@@ -106,7 +113,7 @@ public class ResponseHandler {
         uiReplicationSignalService.signalMessageReceived(signalMessage.getMessageInfo().getMessageId());
     }
 
-    protected void createWarningEntries(SignalMessage signalMessage) {
+    protected void createWarningEntries(eu.domibus.api.model.SignalMessage signalMessage) {
         if (signalMessage.getError() == null || signalMessage.getError().isEmpty()) {
             LOGGER.debug("No warning entries to create");
             return;
@@ -129,18 +136,18 @@ public class ResponseHandler {
         }
     }
 
-    protected ResponseStatus getResponseStatus(SignalMessage signalMessage) throws EbMS3Exception {
+    protected ResponseStatus getResponseStatus(Ebms3SignalMessage ebms3SignalMessage) throws EbMS3Exception {
         LOGGER.debug("Getting response status");
 
         // Checks if the signal message is Ok
-        if (signalMessage.getError() == null || signalMessage.getError().isEmpty()) {
+        if (ebms3SignalMessage.getError() == null || ebms3SignalMessage.getError().isEmpty()) {
             LOGGER.debug("Response message contains no errors");
             return ResponseStatus.OK;
         }
 
-        for (final Error error : signalMessage.getError()) {
-            if (ErrorCode.SEVERITY_FAILURE.equalsIgnoreCase(error.getSeverity())) {
-                EbMS3Exception ebMS3Ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.findErrorCodeBy(error.getErrorCode()), error.getErrorDetail(), error.getRefToMessageInError(), null);
+        for (final Ebms3Error ebms3Error : ebms3SignalMessage.getError()) {
+            if (ErrorCode.SEVERITY_FAILURE.equalsIgnoreCase(ebms3Error.getSeverity())) {
+                EbMS3Exception ebMS3Ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.findErrorCodeBy(ebms3Error.getErrorCode()), ebms3Error.getErrorDetail(), ebms3Error.getRefToMessageInError(), null);
                 ebMS3Ex.setMshRole(MSHRole.SENDING);
                 throw ebMS3Ex;
             }

@@ -7,7 +7,7 @@ import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.UserMessageServiceHelper;
-import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

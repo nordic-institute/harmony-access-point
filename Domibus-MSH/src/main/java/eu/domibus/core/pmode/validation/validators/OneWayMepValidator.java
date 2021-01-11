@@ -4,7 +4,7 @@ import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.common.model.configuration.Binding;
 import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.core.pmode.validation.PModeValidator;
-import eu.domibus.ebms3.common.model.MessageExchangePattern;
+import eu.domibus.api.ebms3.MessageExchangePattern;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -13,7 +13,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static eu.domibus.core.ebms3.Ebms3Constants.ONEWAY_MEP_VALUE;
+import static eu.domibus.api.ebms3.Ebms3Constants.ONEWAY_MEP_VALUE;
 
 /**
  * @author Ion Perpegel

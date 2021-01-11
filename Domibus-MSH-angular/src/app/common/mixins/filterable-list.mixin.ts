@@ -141,10 +141,15 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
   }
 
   private trimFields() {
+    if (!this.filterForm) {
+      console.warn('filterForm is null! exiting.');
+      return;
+    }
     for (const field in this.filterForm.controls) {
       const control: AbstractControl = this.filterForm.controls[field];
-      if (control.value) {
-        control.setValue(String.prototype.trim.apply(control.value));
+      if (control.value && typeof  control.value == 'string') {
+        const val = String.prototype.trim.apply(control.value);
+        control.setValue(val);
       }
     }
   }

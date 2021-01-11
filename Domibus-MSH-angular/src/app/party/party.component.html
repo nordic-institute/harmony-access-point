@@ -26,12 +26,8 @@
               <mat-option [value]="'(IR)'">IR</mat-option>
             </mat-select>
 
-            <div class="searchArea">
-              <button mat-raised-button color="primary" id="searchbutton_id" button-click-behaviour>
-                <mat-icon>search</mat-icon>
-                <span>Search</span>
-              </button>
-            </div>
+            <filter-area-footer [parent]="this" [form]="filterForm" [isAdvancedVisible]="false"></filter-area-footer>
+
           </div>
         </form>
       </mat-card-content>

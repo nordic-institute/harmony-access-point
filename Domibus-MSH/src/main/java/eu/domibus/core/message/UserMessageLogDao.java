@@ -1,19 +1,14 @@
 package eu.domibus.core.message;
 
+import eu.domibus.api.model.*;
 import com.google.common.collect.Maps;
-import eu.domibus.common.MSHRole;
-import eu.domibus.common.MessageStatus;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
-import eu.domibus.core.plugin.notification.NotificationStatus;
-import eu.domibus.ebms3.common.model.MessageType;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.NoResultException;
 import javax.persistence.Query;

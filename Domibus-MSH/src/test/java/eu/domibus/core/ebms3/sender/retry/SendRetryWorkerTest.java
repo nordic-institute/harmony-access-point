@@ -5,7 +5,7 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.security.functions.AuthenticatedProcedure;
-import eu.domibus.core.util.DatabaseUtil;
+import eu.domibus.api.util.DatabaseUtil;
 import mockit.Expectations;
 import mockit.FullVerifications;
 import mockit.Injectable;

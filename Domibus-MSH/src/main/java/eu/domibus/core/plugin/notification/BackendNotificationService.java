@@ -1,6 +1,8 @@
 package eu.domibus.core.plugin.notification;
 
 import eu.domibus.api.jms.JMSManager;
+import eu.domibus.api.model.*;
+import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.usermessage.UserMessageService;
@@ -15,9 +17,6 @@ import eu.domibus.core.plugin.delegate.BackendConnectorDelegate;
 import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.core.plugin.validation.SubmissionValidatorService;
 import eu.domibus.core.replication.UIReplicationSignalService;
-import eu.domibus.ebms3.common.model.CollaborationInfo;
-import eu.domibus.ebms3.common.model.PartInfo;
-import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;

@@ -1,20 +1,21 @@
 package eu.domibus.plugin.webService;
 
+import eu.domibus.api.model.MessageStatus;
 import eu.domibus.AbstractBackendWSIT;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
-import eu.domibus.common.MSHRole;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.NotificationType;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging;
 import eu.domibus.core.message.MessagingService;
-import eu.domibus.core.message.UserMessageLog;
+import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.core.message.UserMessageLogDefaultService;
-import eu.domibus.core.plugin.notification.NotificationStatus;
+import eu.domibus.api.model.NotificationStatus;
 import eu.domibus.core.plugin.notification.NotifyMessageCreator;
 import eu.domibus.core.pmode.ConfigurationDAO;
-import eu.domibus.ebms3.common.model.MessageType;
-import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.api.model.MessageType;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.handler.MessageRetriever;
 import eu.domibus.plugin.webService.generated.*;
@@ -123,12 +124,12 @@ public class RetrieveMessageIT extends AbstractBackendWSIT {
         userMessage.getPayloadInfo().getPartInfo().iterator().next().setBinaryData(messagePayload.getBytes());
         userMessage.getPayloadInfo().getPartInfo().iterator().next().setPayloadDatahandler(new DataHandler(new ByteArrayDataSource(messagePayload.getBytes(), "text/xml")));
         userMessage.getMessageInfo().setMessageId(sanitazedMessageId);
-        eu.domibus.ebms3.common.model.Messaging messaging = new eu.domibus.ebms3.common.model.Messaging();
+        eu.domibus.api.model.Messaging messaging = new eu.domibus.api.model.Messaging();
         messaging.setUserMessage(userMessage);
         messagingService.storeMessage(messaging, MSHRole.RECEIVING, legConfiguration, "backendWebservice");
 
         UserMessageLog userMessageLog = new UserMessageLog();
-        userMessageLog.setMessageStatus(eu.domibus.common.MessageStatus.RECEIVED);
+        userMessageLog.setMessageStatus(MessageStatus.RECEIVED);
         userMessageLog.setMessageId(sanitazedMessageId);
         userMessageLog.setMessageType(MessageType.USER_MESSAGE);
         userMessageLog.setMshRole(MSHRole.RECEIVING);

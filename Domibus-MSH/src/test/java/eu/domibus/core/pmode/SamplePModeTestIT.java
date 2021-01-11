@@ -29,6 +29,7 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SCHEMAFACTORY;
 import static org.junit.Assert.*;
 
 /**
@@ -62,6 +63,9 @@ public class SamplePModeTestIT {
 
     @Autowired
     JAXBContext jaxbContext;
+
+    @Autowired
+    DomibusPropertyProvider domibusPropertyProvider;
 
     @Test
     public void testRetentionValuesForBluePmode() throws Exception {
@@ -99,6 +103,7 @@ public class SamplePModeTestIT {
 
     @Test
     public void testMarshalling() throws Exception {
+        Mockito.when(domibusPropertyProvider.getProperty(DOMIBUS_SCHEMAFACTORY)).thenReturn("com.sun.org.apache.xerces.internal.jaxp.validation.XMLSchemaFactory");
 
         InputStream xsdStream = getClass().getClassLoader().getResourceAsStream(SCHEMAS_DIR + DOMIBUS_PMODE_XSD);
         InputStream xsdStream2 = getClass().getClassLoader().getResourceAsStream(SCHEMAS_DIR + DOMIBUS_PMODE_XSD);

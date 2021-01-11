@@ -4,7 +4,7 @@ import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
 import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
 import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.core.util.SoapUtil;
-import eu.domibus.ebms3.common.model.MessageType;
+import eu.domibus.api.model.MessageType;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.binding.soap.SoapMessage;

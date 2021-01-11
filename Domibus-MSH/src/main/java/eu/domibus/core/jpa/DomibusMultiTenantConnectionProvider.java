@@ -8,7 +8,7 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DataBaseEngine;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.util.DatabaseUtil;
+import eu.domibus.api.util.DatabaseUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;

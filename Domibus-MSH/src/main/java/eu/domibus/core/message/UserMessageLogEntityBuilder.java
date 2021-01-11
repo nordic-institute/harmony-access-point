@@ -1,8 +1,9 @@
 package eu.domibus.core.message;
 
-import eu.domibus.common.MSHRole;
-import eu.domibus.common.MessageStatus;
-import eu.domibus.core.plugin.notification.NotificationStatus;
+import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.NotificationStatus;
+import eu.domibus.api.model.MessageStatus;
+import eu.domibus.api.model.UserMessageLog;
 
 /**
  * @author Federico Martini

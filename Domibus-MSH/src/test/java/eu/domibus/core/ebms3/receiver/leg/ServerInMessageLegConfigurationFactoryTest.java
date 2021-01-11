@@ -1,8 +1,8 @@
 package eu.domibus.core.ebms3.receiver.leg;
 
 import eu.domibus.core.message.pull.PullRequestLegConfigurationFactory;
-import eu.domibus.ebms3.common.model.Messaging;
-import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.api.model.Messaging;
+import eu.domibus.api.model.UserMessage;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.message.MessageImpl;
 import org.junit.Test;

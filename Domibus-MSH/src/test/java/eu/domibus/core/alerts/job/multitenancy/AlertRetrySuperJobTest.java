@@ -2,8 +2,8 @@ package eu.domibus.core.alerts.job.multitenancy;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.util.DatabaseUtil;
 import eu.domibus.core.alerts.service.AlertService;
-import eu.domibus.core.util.DatabaseUtil;
 import mockit.FullVerifications;
 import mockit.Injectable;
 import mockit.Tested;

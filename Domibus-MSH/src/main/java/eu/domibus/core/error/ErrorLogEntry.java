@@ -1,12 +1,12 @@
 package eu.domibus.core.error;
 
+import eu.domibus.api.model.AbstractBaseEntity;
+import eu.domibus.api.model.Error;
+import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.Messaging;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.ErrorResult;
-import eu.domibus.common.MSHRole;
 import eu.domibus.core.ebms3.EbMS3Exception;
-import eu.domibus.ebms3.common.model.AbstractBaseEntity;
-import eu.domibus.ebms3.common.model.Error;
-import eu.domibus.ebms3.common.model.Messaging;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -28,27 +28,35 @@ import java.util.Date;
 @NamedQuery(name = "ErrorLogEntry.deleteByMessageIdsInError", query = "delete from ErrorLogEntry e where messageInErrorId IN :MESSAGEIDS")
 @NamedQuery(name = "ErrorLogEntry.findErrorsWithoutMessageIds", query = "select e.entityId from ErrorLogEntry e where e.messageInErrorId is null and e.timestamp<:DELETION_DATE")
 @NamedQuery(name = "ErrorLogEntry.deleteErrorsWithoutMessageIds", query = "delete from ErrorLogEntry e where e.entityId IN :ENTITY_IDS")
-public class ErrorLogEntry extends AbstractBaseEntity implements ErrorResult {
+public class ErrorLogEntry extends AbstractBaseEntity {
     @Column(name = "ERROR_SIGNAL_MESSAGE_ID")
     private String errorSignalMessageId;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "MSH_ROLE")
     private MSHRole mshRole;
+
     @Column(name = "MESSAGE_IN_ERROR_ID")
     private String messageInErrorId;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "ERROR_CODE")
     private ErrorCode errorCode;
+
     @Column(name = "ERROR_DETAIL")
     private String errorDetail;
+
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "TIME_STAMP")
     private Date timestamp;
+
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "NOTIFIED")
     private Date notified;
+
     public ErrorLogEntry() {
     }
+
     /**
      * @param ebms3Exception The Exception to be logged
      */
@@ -145,7 +153,6 @@ public class ErrorLogEntry extends AbstractBaseEntity implements ErrorResult {
         this.errorSignalMessageId = messageId;
     }
 
-    @Override
     public MSHRole getMshRole() {
         return this.mshRole;
     }
@@ -154,7 +161,6 @@ public class ErrorLogEntry extends AbstractBaseEntity implements ErrorResult {
         this.mshRole = mshRole;
     }
 
-    @Override
     public String getMessageInErrorId() {
         return this.messageInErrorId;
     }
@@ -163,7 +169,6 @@ public class ErrorLogEntry extends AbstractBaseEntity implements ErrorResult {
         this.messageInErrorId = refToMessageId;
     }
 
-    @Override
     public ErrorCode getErrorCode() {
         return this.errorCode;
     }
@@ -172,7 +177,6 @@ public class ErrorLogEntry extends AbstractBaseEntity implements ErrorResult {
         this.errorCode = errorCode;
     }
 
-    @Override
     public String getErrorDetail() {
         return this.errorDetail;
     }
@@ -181,7 +185,6 @@ public class ErrorLogEntry extends AbstractBaseEntity implements ErrorResult {
         this.errorDetail = errorDetail;
     }
 
-    @Override
     public Date getTimestamp() {
         return this.timestamp;
     }
@@ -190,7 +193,6 @@ public class ErrorLogEntry extends AbstractBaseEntity implements ErrorResult {
         this.timestamp = timestamp;
     }
 
-    @Override
     public Date getNotified() {
         return this.notified;
     }

@@ -2,18 +2,15 @@ package eu.domibus.core.alerts.listener;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.util.DatabaseUtil;
 import eu.domibus.core.alerts.model.service.Alert;
 import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.core.alerts.service.AlertService;
 import eu.domibus.core.alerts.service.EventService;
-import eu.domibus.core.util.DatabaseUtil;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import static org.junit.Assert.*;
 
 /**
  * @author Thomas Dussart

@@ -1,6 +1,7 @@
 package eu.domibus.core.message.splitandjoin;
 
-import eu.domibus.common.MSHRole;
+import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.core.dao.BasicDao;
 import eu.domibus.logging.DomibusLogger;
