@@ -25,7 +25,7 @@ public interface MessageRetentionService {
 
     void scheduleDeleteMessagesByMessageLog(List<UserMessageLogDto> userMessageLogs);
 
-    void scheduleDeleteMessagesByMessageLog(List<UserMessageLogDto> userMessageLogs, int maxBatch);
+    void deleteMessages(List<UserMessageLogDto> userMessageLogs, int maxBatch);
 
     void deletePayloadOnSendSuccess(UserMessage userMessage, UserMessageLog userMessageLog);
 

@@ -180,7 +180,7 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
         if (isDeleteMessageMetadata) { // schedule delete in batch
             final int maxBatch = pModeProvider.getRetentionMaxBatchByMpcURI(mpc, domibusPropertyProvider.getIntegerProperty(DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_BATCH_DELETE));
             LOG.debug("Schedule bulk delete messages, maxBatch [{}]", maxBatch);
-            scheduleDeleteMessagesByMessageLog(userMessageLogs, maxBatch);
+            deleteMessages(userMessageLogs, maxBatch);
             return;
         }
         // schedule delete one by one
@@ -249,7 +249,7 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
     }
 
     @Override
-    public void scheduleDeleteMessagesByMessageLog(List<UserMessageLogDto> userMessageLogs, int maxBatch) {
+    public void deleteMessages(List<UserMessageLogDto> userMessageLogs, int maxBatch) {
         if (CollectionUtils.isEmpty(userMessageLogs)) {
             LOG.debug("No message to be scheduled for deletion");
             return;

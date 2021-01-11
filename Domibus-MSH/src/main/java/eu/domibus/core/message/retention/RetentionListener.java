@@ -71,15 +71,6 @@ public class RetentionListener implements MessageListener {
                 return;
             }
 
-            if (MessageDeleteType.MULTI == deleteType) {
-                String userMessageLogsStr = message.getStringProperty(MessageRetentionDefaultService.MESSAGE_LOGS);
-                Type type = new TypeToken<ArrayList<UserMessageLogDto>>() {}.getType();
-                List<UserMessageLogDto> userMessageLogs = jsonUtil.jsonToList(userMessageLogsStr, type);
-                LOG.info("There are [{}] messages to delete in batch", userMessageLogs.size());
-                userMessageDefaultService.deleteMessages(userMessageLogs);
-                return;
-            }
-
             LOG.warn("Unknown message type [{}], JMS message will be ignored.", deleteType);
         } catch (final JMSException e) {
             LOG.error("Error processing JMS message", e);
