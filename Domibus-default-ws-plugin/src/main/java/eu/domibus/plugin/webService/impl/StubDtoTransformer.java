@@ -1,7 +1,6 @@
 package eu.domibus.plugin.webService.impl;
 
 
-import eu.domibus.common.ErrorResult;
 import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.*;
 import eu.domibus.ext.services.FileUtilExtService;
 import eu.domibus.logging.DomibusLogger;
@@ -10,16 +9,13 @@ import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
 import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
-import eu.domibus.plugin.webService.generated.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import static org.apache.commons.lang3.StringUtils.trim;
 
@@ -256,32 +252,4 @@ public class StubDtoTransformer implements MessageSubmissionTransformer<Messagin
             result.addPayload(extPartInfo.getHref(), extPartInfo.getPayloadDatahandler(), properties, extPartInfo.isInBody(), null, null);
         }
     }
-
-    public MessageStatus transformFromMessageStatus(eu.domibus.common.MessageStatus messageStatus) {
-        return MessageStatus.fromValue(messageStatus.name());
-    }
-
-    public ErrorResultImplArray transformFromErrorResults(List<? extends ErrorResult> errors) {
-        ErrorResultImplArray errorList = new ErrorResultImplArray();
-        for (ErrorResult errorResult : errors) {
-            ErrorResultImpl errorResultImpl = new ErrorResultImpl();
-            errorResultImpl.setErrorCode(ErrorCode.fromValue(errorResult.getErrorCode().name()));
-            errorResultImpl.setErrorDetail(errorResult.getErrorDetail());
-            errorResultImpl.setMshRole(MshRole.fromValue(errorResult.getMshRole().name()));
-            errorResultImpl.setMessageInErrorId(errorResult.getMessageInErrorId());
-            LocalDateTime dateTime = LocalDateTime.now();
-
-            if (errorResult.getNotified() != null) {
-                dateTime = errorResult.getNotified().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-            }
-            errorResultImpl.setNotified(dateTime);
-            if (errorResult.getTimestamp() != null) {
-                dateTime = errorResult.getTimestamp().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-            }
-            errorResultImpl.setTimestamp(dateTime);
-            errorList.getItem().add(errorResultImpl);
-        }
-        return errorList;
-    }
-
 }

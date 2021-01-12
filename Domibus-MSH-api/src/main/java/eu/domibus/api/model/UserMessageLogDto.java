@@ -2,6 +2,8 @@ package eu.domibus.api.model;
 
 import eu.domibus.api.message.MessageSubtype;
 
+import java.util.Map;
+
 /**
  * @author idragusa
  * @since 4.2
@@ -13,6 +15,8 @@ public class UserMessageLogDto {
     protected MessageSubtype messageSubtype;
 
     protected String backend;
+
+    private Map<String, String> properties;
 
     public UserMessageLogDto(String messageId, MessageSubtype messageSubtype, String backend) {
         this.messageId = messageId;
@@ -49,5 +53,13 @@ public class UserMessageLogDto {
             return true;
         }
         return false;
+    }
+
+    public void setProperties(Map<String, String> properties) {
+        this.properties = properties;
+    }
+
+    public Map<String, String> getProperties() {
+        return properties;
     }
 }

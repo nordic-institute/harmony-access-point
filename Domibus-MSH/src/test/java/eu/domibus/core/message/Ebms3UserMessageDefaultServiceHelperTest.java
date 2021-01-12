@@ -1,15 +1,10 @@
 package eu.domibus.core.message;
 
-import eu.domibus.api.model.MessageInfo;
-import eu.domibus.api.model.MessageProperties;
-import eu.domibus.api.model.PartyId;
-import eu.domibus.api.model.PartyInfo;
-import eu.domibus.api.model.Property;
-import eu.domibus.api.model.To;
-import eu.domibus.api.model.UserMessage;
+import eu.domibus.api.model.*;
 import eu.domibus.messaging.MessageConstants;
 import mockit.Expectations;
-import mockit.Injectable;
+import mockit.FullVerifications;
+import mockit.Mocked;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
@@ -18,16 +13,23 @@ import org.junit.runner.RunWith;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Map;
 
 import static eu.domibus.core.message.Ebms3UserMessageDefaultServiceHelperTest.PartyIdBuilder.aPartyId;
 import static eu.domibus.core.message.Ebms3UserMessageDefaultServiceHelperTest.PropertyBuilder.aProperty;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * @author Sebastian-Ion TINCU
  */
+@SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(JMockit.class)
 public class Ebms3UserMessageDefaultServiceHelperTest {
+
+    public static final String ORIGINAL_SENDER = "sender";
+
+    public static final String FINAL_RECIPIENT = "receiver";
 
     @Tested
     private UserMessageDefaultServiceHelper userMessageDefaultServiceHelper;
@@ -45,6 +47,61 @@ public class Ebms3UserMessageDefaultServiceHelperTest {
     private boolean sameOriginalSender;
 
     private boolean sameFinalRecipient;
+
+    @Test
+    public void getProperties_noMsgProps() {
+        givenUserMessage();
+
+        Map<String, String> properties = userMessageDefaultServiceHelper.getProperties(userMessage);
+
+        new FullVerifications(){};
+
+        assertEquals( 0, properties.size());
+    }
+
+    @Test
+    public void getProperties_noMsgProps2() {
+        givenUserMessage();
+        givenMessageProperties();
+
+        Map<String, String> properties = userMessageDefaultServiceHelper.getProperties(userMessage);
+
+        new FullVerifications(){};
+
+        assertEquals( 0, properties.size());
+    }
+
+    @Test
+    public void getProperties_null() {
+        givenNullUserMessage();
+
+        Map<String, String> properties = userMessageDefaultServiceHelper.getProperties(userMessage);
+
+        new FullVerifications(){};
+
+        assertEquals( 0, properties.size());
+    }
+
+    @Test
+    public void getProperties() {
+        givenUserMessage();
+        givenMessageProperties();
+        givenProperties(
+                aProperty().withName("dummy").withValue("dummy").build(),
+                aProperty().withName(MessageConstants.FINAL_RECIPIENT).withValue("recipient").build(),
+                aProperty().withName(MessageConstants.ORIGINAL_SENDER).withValue(ORIGINAL_SENDER).build(),
+                aProperty().withName("another_dummy").withValue("another_dummy").build()
+        );
+
+        Map<String, String> properties = userMessageDefaultServiceHelper.getProperties(userMessage);
+
+        new FullVerifications(){};
+
+        assertEquals( "dummy", properties.get("dummy"));
+        assertEquals( "recipient", properties.get(MessageConstants.FINAL_RECIPIENT));
+        assertEquals( ORIGINAL_SENDER, properties.get(MessageConstants.ORIGINAL_SENDER));
+        assertEquals( "another_dummy", properties.get("another_dummy"));
+    }
 
     @Test
     public void returnsNullWhenRetrievingTheOriginalSenderAndTheUserMessageIsNull() {
@@ -72,13 +129,13 @@ public class Ebms3UserMessageDefaultServiceHelperTest {
         givenProperties(
                 aProperty().withName("dummy").withValue("dummy").build(),
                 aProperty().withName(MessageConstants.FINAL_RECIPIENT).withValue("recipient").build(),
-                aProperty().withName(MessageConstants.ORIGINAL_SENDER).withValue("sender").build(),
+                aProperty().withName(MessageConstants.ORIGINAL_SENDER).withValue(ORIGINAL_SENDER).build(),
                 aProperty().withName("another_dummy").withValue("another_dummy").build()
         );
 
         whenRetrievingTheOriginalSender();
 
-        thenOriginalSenderIsEqualTo("sender", "The original sender should have been correctly set when the user message contains the original sender property");
+        thenOriginalSenderIsEqualTo(ORIGINAL_SENDER, "The original sender should have been correctly set when the user message contains the original sender property");
     }
 
     @Test
@@ -106,7 +163,7 @@ public class Ebms3UserMessageDefaultServiceHelperTest {
         givenMessageProperties();
         givenProperties(
                 aProperty().withName("dummy").withValue("dummy").build(),
-                aProperty().withName(MessageConstants.ORIGINAL_SENDER).withValue("sender").build(),
+                aProperty().withName(MessageConstants.ORIGINAL_SENDER).withValue(ORIGINAL_SENDER).build(),
                 aProperty().withName(MessageConstants.FINAL_RECIPIENT).withValue("recipient").build(),
                 aProperty().withName("another_dummy").withValue("another_dummy").build()
         );
@@ -123,7 +180,7 @@ public class Ebms3UserMessageDefaultServiceHelperTest {
 
         whenRetrievingTheToParty();
 
-        thenPartyToIsNull("The receiving party should have been null when the user message has no party identifiers for the receiving party");
+        assertNull("The receiving party should have been null when the user message has no party identifiers for the receiving party", partyTo);
     }
 
     @Test
@@ -134,7 +191,7 @@ public class Ebms3UserMessageDefaultServiceHelperTest {
 
         whenRetrievingTheToParty();
 
-        thenPartyToIsEqualTo("first", "The receiving party should have been found when the user message has party identifiers for the receiving party");
+        assertEquals("The receiving party should have been found when the user message has party identifiers for the receiving party", "first", partyTo);
     }
 
     @Test
@@ -144,32 +201,29 @@ public class Ebms3UserMessageDefaultServiceHelperTest {
 
         whenCheckingTheUserMessageForContainingTheOriginalSender();
 
-        thenTheProvidedOriginalSenderIsNotTheSameAsTheOneContainedInsideTheUserMessage(
-                "Should have returned false when checking if an empty original sender is contained inside the user message");
+        Assert.assertFalse("Should have returned false when checking if an empty original sender is contained inside the user message", sameOriginalSender);
     }
 
     @Test
     public void returnsFalseIfTheProvidedOriginalSenderDoesNotMatchTheOneContainedInTheUserMessageWhenCheckingWhetherTheUserMessageContainsTheOriginalSender() {
         givenUserMessageHavingMessageInfo();
         givenOriginalSender("notMatchingSender");
-        givenUserMessageOriginalSender("sender");
+        givenUserMessageOriginalSender();
 
         whenCheckingTheUserMessageForContainingTheOriginalSender();
 
-        thenTheProvidedOriginalSenderIsNotTheSameAsTheOneContainedInsideTheUserMessage(
-                "Should have returned false when checking if a non-matching original sender is contained inside the user message");
+        Assert.assertFalse("Should have returned false when checking if a non-matching original sender is contained inside the user message", sameOriginalSender);
     }
 
     @Test
     public void returnsTrueIfTheProvidedOriginalSenderMatchesTheOneContainedInTheUserMessageWhenCheckingWhetherTheUserMessageContainsTheOriginalSender() {
         givenUserMessageHavingMessageInfo();
-        givenOriginalSender("sender");
-        givenUserMessageOriginalSender("sender");
+        givenOriginalSender(ORIGINAL_SENDER);
+        givenUserMessageOriginalSender();
 
         whenCheckingTheUserMessageForContainingTheOriginalSender();
 
-        thenTheProvidedOriginalSenderIsTheSameAsTheOneContainedInsideTheUserMessage(
-                "Should have returned true when checking if a matching original sender is contained inside the user message");
+        Assert.assertTrue("Should have returned true when checking if a matching original sender is contained inside the user message", sameOriginalSender);
     }
 
     @Test
@@ -179,50 +233,43 @@ public class Ebms3UserMessageDefaultServiceHelperTest {
 
         whenCheckingTheUserMessageForContainingTheFinalRecipient();
 
-        thenTheProvidedFinalRecipientIsNotTheSameAsTheOneContainedInsideTheUserMessage(
-                "Should have returned false when checking if an empty final recipient is contained inside the user message");
+        Assert.assertFalse("Should have returned false when checking if an empty final recipient is contained inside the user message", sameFinalRecipient);
     }
 
     @Test
     public void returnsFalseIfTheProvidedFinalRecipientDoesNotMatchTheOneContainedInTheUserMessageWhenCheckingWhetherTheUserMessageContainsTheFinalRecipient() {
         givenUserMessageHavingMessageInfo();
         givenFinalRecipient("notMatchingReceiver");
-        givenUserMessageFinalRecipient("receiver");
+        givenUserMessageFinalRecipient();
 
         whenCheckingTheUserMessageForContainingTheFinalRecipient();
 
-        thenTheProvidedFinalRecipientIsNotTheSameAsTheOneContainedInsideTheUserMessage(
-                "Should have returned false when checking if a non-matching final recipient is contained inside the user message");
+        Assert.assertFalse("Should have returned false when checking if a non-matching final recipient is contained inside the user message", sameFinalRecipient);
     }
 
     @Test
     public void returnsTrueIfTheProvidedFinalRecipientMatchesTheOneContainedInTheUserMessageWhenCheckingWhetherTheUserMessageContainsTheFinalRecipient() {
         givenUserMessageHavingMessageInfo();
-        givenFinalRecipient("receiver");
-        givenUserMessageFinalRecipient("receiver");
+        givenFinalRecipient(FINAL_RECIPIENT);
+        givenUserMessageFinalRecipient();
 
         whenCheckingTheUserMessageForContainingTheFinalRecipient();
 
-        thenTheProvidedFinalRecipientIsTheSameAsTheOneContainedInsideTheUserMessage(
-                "Should have returned true when checking if a matching final recipient is contained inside the user message");
+        Assert.assertTrue("Should have returned true when checking if a matching final recipient is contained inside the user message", sameFinalRecipient);
     }
 
     private void givenNullUserMessage() {
-        givenUserMessage(null);
-    }
-
-    private void givenUserMessage(UserMessage userMessage) {
-        this.userMessage = userMessage;
+        this.userMessage = null;
     }
 
     private void givenUserMessage() {
-        givenUserMessage(new UserMessage());
+        this.userMessage = new UserMessage();
     }
 
     private void givenUserMessageHavingMessageInfo() {
         UserMessage userMessage = new UserMessage();
         userMessage.setMessageInfo(new MessageInfo());
-        givenUserMessage(userMessage);
+        this.userMessage = userMessage;
     }
 
     private void givenNullMessageProperties() {
@@ -270,9 +317,9 @@ public class Ebms3UserMessageDefaultServiceHelperTest {
         this.originalSender = originalSender;
     }
 
-    private void givenUserMessageOriginalSender(String originalSender) {
+    private void givenUserMessageOriginalSender() {
         new Expectations(userMessageDefaultServiceHelper) {{
-            userMessageDefaultServiceHelper.getOriginalSender(userMessage); result = originalSender;
+            userMessageDefaultServiceHelper.getOriginalSender(userMessage); result = ORIGINAL_SENDER;
         }};
     }
 
@@ -284,9 +331,9 @@ public class Ebms3UserMessageDefaultServiceHelperTest {
         this.finalRecipient = finalRecipient;
     }
 
-    private void givenUserMessageFinalRecipient(String finalRecipient) {
+    private void givenUserMessageFinalRecipient() {
         new Expectations(userMessageDefaultServiceHelper) {{
-            userMessageDefaultServiceHelper.getFinalRecipient(userMessage); result = finalRecipient;
+            userMessageDefaultServiceHelper.getFinalRecipient(userMessage); result = FINAL_RECIPIENT;
         }};
     }
 
@@ -326,32 +373,8 @@ public class Ebms3UserMessageDefaultServiceHelperTest {
         assertEquals(message, expected, finalRecipient);
     }
 
-    private void thenPartyToIsNull(String message) {
-        thenPartyToIsEqualTo(null, message);
-    }
-
-    private void thenPartyToIsEqualTo(String expected, String message) {
-        assertEquals(message, expected, partyTo);
-    }
-
-    private void thenTheProvidedOriginalSenderIsTheSameAsTheOneContainedInsideTheUserMessage(String message) {
-        Assert.assertTrue(message, sameOriginalSender);
-    }
-
-    private void thenTheProvidedOriginalSenderIsNotTheSameAsTheOneContainedInsideTheUserMessage(String message) {
-        Assert.assertFalse(message, sameOriginalSender);
-    }
-
-    private void thenTheProvidedFinalRecipientIsTheSameAsTheOneContainedInsideTheUserMessage(String message) {
-        Assert.assertTrue(message, sameFinalRecipient);
-    }
-
-    private void thenTheProvidedFinalRecipientIsNotTheSameAsTheOneContainedInsideTheUserMessage(String message) {
-        Assert.assertFalse(message, sameFinalRecipient);
-    }
-
     @Test
-    public void getService(@Injectable UserMessage userMessage) {
+    public void getService(@Mocked UserMessage userMessage) {
         String service = "my service";
 
         new Expectations() {{
@@ -364,7 +387,7 @@ public class Ebms3UserMessageDefaultServiceHelperTest {
     }
 
     @Test
-    public void getAction(@Injectable UserMessage userMessage) {
+    public void getAction(@Mocked UserMessage userMessage) {
         String action = "my action";
 
         new Expectations() {{
@@ -399,11 +422,6 @@ public class Ebms3UserMessageDefaultServiceHelperTest {
             return this;
         }
 
-        public PropertyBuilder withType(String type) {
-            this.type = type;
-            return this;
-        }
-
         public Property build() {
             Property property = new Property();
             property.setValue(value);
@@ -429,11 +447,6 @@ public class Ebms3UserMessageDefaultServiceHelperTest {
             return this;
         }
 
-        public PartyIdBuilder withType(String type) {
-            this.type = type;
-            return this;
-        }
-
         public PartyId build() {
             PartyId partyId = new PartyId();
             partyId.setValue(value);
@@ -441,4 +454,5 @@ public class Ebms3UserMessageDefaultServiceHelperTest {
             return partyId;
         }
     }
+
 }

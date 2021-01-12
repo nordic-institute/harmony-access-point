@@ -74,6 +74,10 @@
             <queue id="fsPluginSendQueue"
                    physicalName="${fsplugin.send.queue:domibus.fsplugin.send.queue}"/>
 
+            <!-- WSPlugin queues -->
+            <queue id="wsPluginSendQueue"
+                   physicalName="${wsplugin.send.queue:domibus.wsplugin.send.queue}"/>
+
             <!-- Internal queues of JMS backend plugin -->
             <queue id="jmsPluginToBackendQueue"
                        physicalName="domibus.backend.jms.replyQueue"/>
@@ -144,12 +148,13 @@
                             <redeliveryPolicy queue="domibus.internal.alert.queue" maximumRedeliveries="0"/>
                             <redeliveryPolicy queue="domibus.internal.ui.replication.queue" maximumRedeliveries="1" redeliveryDelay="10000"/>
                             <redeliveryPolicy queue="${fsplugin.send.queue:domibus.fsplugin.send.queue}" maximumRedeliveries="0"/>
+                            <redeliveryPolicy queue="${wsplugin.send.queue:domibus.wsplugin.send.queue}" maximumRedeliveries="0"/>
                         </redeliveryPolicyEntries>
                     </redeliveryPolicyMap>
                 </redeliveryPolicyMap>
             </redeliveryPlugin>
 
-            <discardingDLQBrokerPlugin dropAll="false" dropOnly="domibus.internal.dispatch.queue domibus.internal.pull.queue domibus.internal.alert.queue domibus.internal.largeMessage.queue domibus.internal.retentionMessage.queue ${fsplugin.send.queue:domibus.fsplugin.send.queue}" reportInterval="10000"/>
+            <discardingDLQBrokerPlugin dropAll="false" dropOnly="domibus.internal.dispatch.queue domibus.internal.pull.queue domibus.internal.alert.queue domibus.internal.largeMessage.queue domibus.internal.retentionMessage.queue ${fsplugin.send.queue:domibus.fsplugin.send.queue} ${wsplugin.send.queue:domibus.wsplugin.send.queue}" reportInterval="10000"/>
         </plugins>
     </broker>
 

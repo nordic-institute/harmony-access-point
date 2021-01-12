@@ -13,5 +13,5 @@ public interface PluginEventNotifier {
 
     boolean canHandle(NotificationType notificationType);
 
-    void notifyPlugin(BackendConnector backendConnector, String messageId, Map<String, String> properties);
+    void notifyPlugin(BackendConnector<?,?> backendConnector, String messageId, Map<String, String> properties);
 }

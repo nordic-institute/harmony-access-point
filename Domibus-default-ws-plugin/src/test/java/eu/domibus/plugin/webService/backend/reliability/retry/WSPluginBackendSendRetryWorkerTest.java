@@ -17,7 +17,7 @@ import org.junit.runner.RunWith;
 public class WSPluginBackendSendRetryWorkerTest {
 
     @Injectable
-    protected WSPluginBackendRetryService retryService;
+    protected WSPluginBackendScheduleRetryService retryService;
 
     @Injectable
     protected WSPluginMessageSender wsPluginMessageSender;
@@ -38,7 +38,7 @@ public class WSPluginBackendSendRetryWorkerTest {
         retryWorker.executeJob(null, null);
 
         new FullVerifications() {{
-            retryService.sendNotifications();
+            retryService.scheduleWaitingForRetry();
             times = 1;
         }};
     }

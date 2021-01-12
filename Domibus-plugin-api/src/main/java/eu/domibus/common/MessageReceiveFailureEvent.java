@@ -1,12 +1,16 @@
 package eu.domibus.common;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
- *  This event is used to transfer information on the failure to received message event, from the core to the plugins implementing PUSH methods.
+ * This event is used to transfer information on the failure to received message event, from the core to the plugins implementing PUSH methods.
  *
  * @author Cosmin Baciu
  * @since 3.2.2
  */
-public class MessageReceiveFailureEvent {
+public class MessageReceiveFailureEvent implements MessageEvent {
 
     protected String messageId;
     protected String endpoint;
@@ -14,6 +18,18 @@ public class MessageReceiveFailureEvent {
     protected String serviceType;
     protected String action;
     protected ErrorResult errorResult;
+
+    protected Map<String, String> properties = new HashMap<>(); //NOSONAR
+
+    @Override
+    public Map<String, String> getProps() {
+        return Collections.unmodifiableMap(properties);
+    }
+
+    @Override
+    public void addProperty(String key, String value) {
+        properties.put(key, value);
+    }
 
     public String getMessageId() {
         return messageId;
