@@ -336,6 +336,8 @@ public class PropertyRetrieveManagerTest {
 
         String propertyKey = domain.getCode() + "." + propertyName;
         new Expectations(propertyRetrieveManager) {{
+            propertyProviderHelper.getPropertyKeyForDomain(domain, prop.getName());
+            result=propertyKey;
             propertyRetrieveManager.getPropertyValue(propertyKey);
             result = propertyValue;
         }};
@@ -356,6 +358,8 @@ public class PropertyRetrieveManagerTest {
 
         String propertyKey = domain.getCode() + "." + propertyName;
         new Expectations(propertyRetrieveManager) {{
+            propertyProviderHelper.getPropertyKeyForDomain(domain, prop.getName());
+            result=propertyKey;
             propertyRetrieveManager.getPropertyValue(propertyKey);
             result = null;
             propertyRetrieveManager.getPropertyValue(prop.getName());
@@ -378,6 +382,8 @@ public class PropertyRetrieveManagerTest {
 
         String propertyKey = domain.getCode() + "." + propertyName;
         new Expectations(propertyRetrieveManager) {{
+            propertyProviderHelper.getPropertyKeyForDomain(domain, prop.getName());
+            result=propertyKey;
             propertyRetrieveManager.getPropertyValue(propertyKey);
             result = null;
         }};

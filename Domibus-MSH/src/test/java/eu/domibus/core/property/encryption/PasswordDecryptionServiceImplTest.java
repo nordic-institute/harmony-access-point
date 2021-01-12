@@ -5,6 +5,7 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.property.encryption.PasswordDecryptionContext;
 import eu.domibus.api.property.encryption.PasswordEncryptionContext;
 import eu.domibus.api.property.encryption.PasswordEncryptionSecret;
 import eu.domibus.api.util.EncryptionUtil;
@@ -50,12 +51,6 @@ public class PasswordDecryptionServiceImplTest {
     protected BackupService backupService;
 
     @Injectable
-    protected DomibusPropertyEncryptionNotifier domibusPropertyEncryptionListenerDelegate;
-
-    @Injectable
-    protected PasswordEncryptionContextFactory passwordEncryptionContextFactory;
-
-    @Injectable
     PasswordDecryptionContextFactory passwordDecryptionContextFactory;
 
     @Injectable
@@ -73,17 +68,12 @@ public class PasswordDecryptionServiceImplTest {
     }
 
     @Test
-    public void isValueEncryptedWithEncryptedValue() {
-        Assert.assertTrue(passwordDecryptorService.isValueEncrypted("ENC(nonEncrypted)"));
-    }
-
-    @Test
     public void isValueEncrypted_blank() {
         assertFalse(passwordDecryptorService.isValueEncrypted(""));
     }
 
     @Test
-    public void decryptProperty(@Injectable PasswordEncryptionContext passwordEncryptionContext,
+    public void decryptProperty(@Injectable PasswordDecryptionContext passwordDecryptionContext,
                                 @Injectable File encryptedKeyFile,
                                 @Injectable PasswordEncryptionSecret secret,
                                 @Injectable SecretKey secretKey,
@@ -94,10 +84,10 @@ public class PasswordDecryptionServiceImplTest {
         String encryptedFormatValue = PasswordEncryptionServiceImpl.ENC_START + "myValue" + PasswordEncryptionServiceImpl.ENC_END;
 
         new Expectations(passwordDecryptorService) {{
-            passwordEncryptionContextFactory.getPasswordEncryptionContext(domain);
-            result = passwordEncryptionContext;
+            passwordDecryptionContextFactory.getContext(domain);
+            result = passwordDecryptionContext;
 
-            passwordEncryptionContext.getEncryptedKeyFile();
+            passwordDecryptionContext.getEncryptedKeyFile();
             result = encryptedKeyFile;
 
             passwordDecryptorService.decryptProperty(encryptedKeyFile, propertyName, encryptedFormatValue);

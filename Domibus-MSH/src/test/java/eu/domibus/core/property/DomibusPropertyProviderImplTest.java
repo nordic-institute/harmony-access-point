@@ -2,11 +2,9 @@ package eu.domibus.core.property;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyException;
+import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.encryption.PasswordDecryptionService;
-import mockit.Expectations;
-import mockit.Injectable;
-import mockit.Tested;
-import mockit.Verifications;
+import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -197,11 +195,13 @@ public class DomibusPropertyProviderImplTest {
     }
 
     @Test
-    public void getPropertyValue() {
+    public void getPropertyValue(@Mocked DomibusPropertyMetadata meta) {
 
         new Expectations() {{
-            environment.getProperty(propertyName);
+            propertyProviderDispatcher.getInternalOrExternalProperty(propertyName, domain);
             result = propertyValue;
+            meta.isEncrypted();
+            result=true;
             passwordDecryptionService.isValueEncrypted(anyString);
             result = true;
         }};
