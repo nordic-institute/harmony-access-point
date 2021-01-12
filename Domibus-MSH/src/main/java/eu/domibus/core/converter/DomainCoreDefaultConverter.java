@@ -29,7 +29,7 @@ import eu.domibus.core.logging.LoggingEntry;
 import eu.domibus.core.message.MessageLogInfo;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.core.message.attempt.MessageAttemptEntity;
-import eu.domibus.core.message.signal.SignalMessageLog;
+import eu.domibus.api.model.SignalMessageLog;
 import eu.domibus.core.party.PartyResponseRo;
 import eu.domibus.core.party.ProcessRo;
 import eu.domibus.core.plugin.routing.BackendFilterEntity;

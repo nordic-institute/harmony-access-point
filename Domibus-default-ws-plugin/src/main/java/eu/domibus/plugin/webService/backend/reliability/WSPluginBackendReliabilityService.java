@@ -11,6 +11,8 @@ import eu.domibus.plugin.webService.backend.reliability.strategy.WSPluginRetrySt
 import eu.domibus.plugin.webService.backend.rules.WSPluginDispatchRule;
 import eu.domibus.plugin.webService.exception.WSPluginException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 
@@ -39,6 +41,7 @@ public class WSPluginBackendReliabilityService {
         this.wsPluginRetryStrategyProvider = wsPluginRetryStrategyProvider;
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void handleReliability(WSBackendMessageLogEntity backendMessage, WSPluginDispatchRule rule) {
         backendMessage.setSendAttempts(backendMessage.getSendAttempts() + 1);
         backendMessage.setNextAttempt(backendMessage.getCreationTime());

@@ -34,5 +34,15 @@ public enum WSBackendMessageType {
     /**
      * Submit domibus message to C4
      */
-    SUBMIT_MESSAGE
+    SUBMIT_MESSAGE,
+
+    /**
+     * Notify C1 of a domibus message deleted
+     */
+    DELETED,
+
+    /**
+     * Notify C1 of a domibus messages deleted by batch
+     */
+    DELETED_BATCH
 }
