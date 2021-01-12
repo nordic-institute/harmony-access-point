@@ -92,14 +92,9 @@ public class PropertyProviderHelper {
     }
 
     protected Domain getCurrentDomain() {
-        String currentDomainCode = getCurrentDomainCode();
-        //the domain is created like this in order to avoid the dependency on DomainService ( which creates a cycle)
-        // we do not care for the domain name at all in property management, just the domain code
-        if(currentDomainCode == null) {
-            return null;
-        } else {
-            return new Domain(currentDomainCode, currentDomainCode);
-        }
+        String domainCode = getCurrentDomainCode();
+        // the domain is created like this in order to avoid the dependency on DomainService ( which creates a cycle)
+        return (domainCode == null) ? null : new Domain(domainCode, domainCode);
     }
 
     // duplicated part of the code from context provider so that we can brake the circular dependency
