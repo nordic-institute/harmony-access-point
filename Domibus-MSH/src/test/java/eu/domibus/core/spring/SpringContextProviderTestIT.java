@@ -1,5 +1,6 @@
 package eu.domibus.core.spring;
 
+import eu.domibus.api.spring.SpringContextProvider;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

@@ -1,7 +1,7 @@
 package eu.domibus.core.plugin.routing;
 
-import eu.domibus.ebms3.common.model.PartyId;
-import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.api.model.PartyId;
+import eu.domibus.api.model.UserMessage;
 import org.springframework.stereotype.Service;
 
 /**

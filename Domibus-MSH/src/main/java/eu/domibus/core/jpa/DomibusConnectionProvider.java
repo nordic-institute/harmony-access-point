@@ -1,6 +1,6 @@
 package eu.domibus.core.jpa;
 
-import eu.domibus.core.util.DatabaseUtil;
+import eu.domibus.api.util.DatabaseUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;

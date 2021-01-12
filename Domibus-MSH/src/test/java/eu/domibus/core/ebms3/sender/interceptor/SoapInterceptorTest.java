@@ -1,11 +1,12 @@
 package eu.domibus.core.ebms3.sender.interceptor;
 
+import eu.domibus.api.ebms3.model.ObjectFactory;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
 import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
 import eu.domibus.core.util.SoapUtil;
-import eu.domibus.ebms3.common.model.MessageType;
-import eu.domibus.ebms3.common.model.ObjectFactory;
+import eu.domibus.api.model.MessageType;
+import eu.domibus.core.util.xml.XMLUtilImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.Injectable;
@@ -72,7 +73,7 @@ public class SoapInterceptorTest {
         }
 
         final String soapEnvelopeString = IOUtils.toString(messageImpl.getContent(InputStream.class), StandardCharsets.UTF_8);
-        final SOAPMessage soapMessage = new SoapUtil().createSOAPMessage(soapEnvelopeString);
+        final SOAPMessage soapMessage = new SoapUtil(null, new XMLUtilImpl(null)).createSOAPMessage(soapEnvelopeString);
         final SOAPElement next = (SOAPElement) soapMessage.getSOAPHeader().getChildElements(ObjectFactory._Messaging_QNAME).next();
         message.getSOAPHeader().addChildElement(next);
 

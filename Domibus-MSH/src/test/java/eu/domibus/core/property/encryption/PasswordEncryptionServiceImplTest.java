@@ -66,6 +66,9 @@ public class PasswordEncryptionServiceImplTest {
     protected PasswordEncryptionContextFactory passwordEncryptionContextFactory;
 
     @Injectable
+    PasswordDecryptionHelper passwordDecryptionHelper;
+
+    @Injectable
     DomainContextProvider domainContextProvider;
 
     @Tested

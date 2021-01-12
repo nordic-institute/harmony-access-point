@@ -1,11 +1,11 @@
 package eu.domibus.core.message.signal;
 
+import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.api.message.SignalMessageLogService;
-import eu.domibus.common.MSHRole;
-import eu.domibus.common.MessageStatus;
-import eu.domibus.core.ebms3.Ebms3Constants;
-import eu.domibus.core.plugin.notification.NotificationStatus;
+import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.ebms3.Ebms3Constants;
+import eu.domibus.api.model.NotificationStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

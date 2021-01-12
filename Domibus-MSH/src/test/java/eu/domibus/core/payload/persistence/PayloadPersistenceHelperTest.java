@@ -3,7 +3,7 @@ package eu.domibus.core.payload.persistence;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.common.model.configuration.LegConfiguration;
-import eu.domibus.ebms3.common.model.PartInfo;
+import eu.domibus.api.model.PartInfo;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Mocked;

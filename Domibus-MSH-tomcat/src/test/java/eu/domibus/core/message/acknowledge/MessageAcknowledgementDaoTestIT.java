@@ -1,29 +1,27 @@
 package eu.domibus.core.message.acknowledge;
 
+import eu.domibus.api.model.MessageStatus;
 import eu.domibus.AbstractIT;
-import eu.domibus.common.MSHRole;
-import eu.domibus.common.MessageStatus;
+import eu.domibus.api.ebms3.model.Ebms3Messaging;
+import eu.domibus.api.ebms3.model.Ebms3SignalMessage;
+import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.Messaging;
+import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.message.MessageLogInfo;
 import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogBuilder;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
-import eu.domibus.core.plugin.notification.NotificationStatus;
-import eu.domibus.ebms3.common.model.Messaging;
-import eu.domibus.ebms3.common.model.SignalMessage;
+import eu.domibus.api.model.NotificationStatus;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.test.ebms3.Ebms3MessagingDocumentParser;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.File;
+import java.io.InputStream;
 import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.List;
@@ -57,6 +55,11 @@ public class MessageAcknowledgementDaoTestIT extends AbstractIT {
     @Autowired
     private SignalMessageDao signalMessageDao;
 
+    @Autowired
+    Ebms3MessagingDocumentParser ebms3MessagingDocumentParser;
+
+    @Autowired
+    Ebms3Converter ebms3Converter;
 
     @Before
     public void setup() {
@@ -100,21 +103,22 @@ public class MessageAcknowledgementDaoTestIT extends AbstractIT {
         assertEquals(entity.getCreationTime().getTime(), entity.getModificationTime().getTime());
     }
 
-    //@Test
-    //@Transactional
+    //    @Test
+//    @Transactional
     public void testMessaging() throws Exception {
         //TODO: Check why Party From and To are not working
-        SignalMessage signalMessage = getSignalMessage();
-        signalMessageDao.create(signalMessage);
+        Ebms3SignalMessage signalMessage = getSignalMessage();
 
-        Messaging messaging = getMessaging();
-        messaging.setSignalMessage(signalMessage);
-        messaging.getUserMessage().setMessageInfo(signalMessage.getMessageInfo());
+        Ebms3Messaging ebms3Messaging = getMessaging();
+        ebms3Messaging.setSignalMessage(signalMessage);
+        ebms3Messaging.getUserMessage().setMessageInfo(signalMessage.getMessageInfo());
+
+        Messaging messaging = ebms3Converter.convertFromEbms3(ebms3Messaging);
         messagingDao.create(messaging);
 
         // Builds the signal message log
         SignalMessageLogBuilder smlBuilder = SignalMessageLogBuilder.create()
-                .setMessageId(messaging.getSignalMessage().getMessageInfo().getMessageId())
+                .setMessageId(ebms3Messaging.getSignalMessage().getMessageInfo().getMessageId())
                 .setMessageStatus(MessageStatus.SEND_IN_PROGRESS)
                 .setMshRole(MSHRole.SENDING)
                 .setNotificationStatus(NotificationStatus.NOT_REQUIRED);
@@ -125,27 +129,18 @@ public class MessageAcknowledgementDaoTestIT extends AbstractIT {
         System.out.println("results:" + allInfoPaged);
     }
 
-    protected SignalMessage getSignalMessage() throws Exception {
-        String TEST_RESOURCES_DIR = "./src/test/resources";
-
-        File validAS4ResponseFile = new File(TEST_RESOURCES_DIR + "/dataset/as4/validAS4Response.xml");
-        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-        documentBuilderFactory.setNamespaceAware(true);
-        DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-        Document responseFileDocument = documentBuilder.parse(validAS4ResponseFile);
-        Node messagingNode = responseFileDocument.getElementsByTagName("eb3:Messaging").item(0);
-        return JAXBContext.newInstance(Messaging.class).createUnmarshaller().unmarshal(messagingNode, Messaging.class).getValue().getSignalMessage();
+    protected Ebms3SignalMessage getSignalMessage() throws Exception {
+        String resource = "dataset/as4/validAS4Response.xml";
+        InputStream is = getClass().getClassLoader().getResourceAsStream(resource);
+        Ebms3Messaging ebms3Messaging = ebms3MessagingDocumentParser.parseMessaging(is, "eb3");
+        return ebms3Messaging.getSignalMessage();
     }
 
-    protected Messaging getMessaging() throws Exception {
-        String TEST_RESOURCES_DIR = "./src/test/resources";
-        File validRequestFile = new File(TEST_RESOURCES_DIR + "/dataset/as4/blue2redGoodMessage.xml");
-        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-        documentBuilderFactory.setNamespaceAware(true);
-        DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-        Document responseFileDocument = documentBuilder.parse(validRequestFile);
-        final Node messagingNode = responseFileDocument.getElementsByTagName("ns:Messaging").item(0);
-        return JAXBContext.newInstance(Messaging.class).createUnmarshaller().unmarshal(messagingNode, Messaging.class).getValue();
+    protected Ebms3Messaging getMessaging() throws Exception {
+        String resource = "dataset/as4/blue2redGoodMessage.xml";
+
+        InputStream is = getClass().getClassLoader().getResourceAsStream(resource);
+        return ebms3MessagingDocumentParser.parseMessaging(is, "ns");
     }
 
 }

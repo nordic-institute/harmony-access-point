@@ -3,12 +3,15 @@ package eu.domibus.core.security;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.security.*;
+import eu.domibus.api.util.DatabaseUtil;
 import eu.domibus.core.certificate.CertificateServiceImpl;
 import eu.domibus.core.user.plugin.AuthenticationDefaultService;
-import eu.domibus.core.util.DatabaseUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import mockit.*;
+import mockit.Expectations;
+import mockit.Injectable;
+import mockit.Tested;
+import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
@@ -27,9 +30,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import static eu.domibus.core.certificate.CertificateTestUtils.loadCertificateFromJKSFile;
 import static org.junit.Assert.assertNotNull;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.x509;
-import static eu.domibus.core.certificate.CertificateTestUtils.loadCertificateFromJKSFile;
 
 /**
  * @author idragusa
