@@ -119,7 +119,7 @@ public abstract class AbstractIT {
         int activeMQConnectorPort = SocketUtils.findAvailableTcpPort(2000, 3100);
         int activeMQBrokerPort = SocketUtils.findAvailableTcpPort(61616, 62690);
         System.setProperty(ACTIVE_MQ_CONNECTOR_PORT, String.valueOf(activeMQConnectorPort));
-        System.setProperty(ACTIVE_MQ_TRANSPORT_CONNECTOR_URI, "vm://localhost:" + activeMQBrokerPort + "?broker.persistent=false&create=false");
+        System.setProperty(ACTIVE_MQ_TRANSPORT_CONNECTOR_URI, "vm://localhost:" + activeMQBrokerPort + "?broker.persistent=false");
         LOG.info("activeMQ.connectorPort=[{}]", activeMQConnectorPort);
         LOG.info("activeMQBrokerPort=[{}]", activeMQBrokerPort);
 
