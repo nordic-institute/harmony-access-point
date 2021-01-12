@@ -32,7 +32,7 @@ public class WSPluginDispatcherTestConfiguration extends WSPluginDispatchConfigu
 
     @Bean
     public WSPluginMessageBuilder wsPluginMessageBuilder(XMLUtilExtService xmlUtilExtService, JAXBContext jaxbContextWebserviceBackend) {
-        return new WSPluginMessageBuilder(xmlUtilExtService, jaxbContextWebserviceBackend);
+        return new WSPluginMessageBuilder(xmlUtilExtService, jaxbContextWebserviceBackend, null);
     }
 
     @Bean

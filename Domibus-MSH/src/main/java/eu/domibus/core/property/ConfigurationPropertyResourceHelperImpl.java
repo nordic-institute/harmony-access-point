@@ -18,6 +18,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadata.NAME_SEPARATOR;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PROPERTY_LENGTH_MAX;
 
 /**
  * Responsible with getting the domibus properties that can be changed at runtime, getting and setting their values
@@ -86,7 +87,7 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
 
     @Override
     public void setPropertyValue(String propertyName, boolean isDomain, String propertyValue) throws DomibusPropertyException {
-        validatePropertyValue(propertyName, propertyValue);
+        validateProperty(propertyName, propertyValue);
 
         if (isDomain) {
             LOG.debug("Setting the value [{}] for the domain property [{}] in the current domain.", propertyValue, propertyName);
@@ -148,11 +149,19 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
         return result;
     }
 
-    protected void validatePropertyValue(String propertyName, String propertyValue) {
-        propertyNameBlacklistValidator.validate(propertyName, ACCEPTED_CHARACTERS_IN_PROPERTY_NAMES);
-
+    protected void validateProperty(String propertyName, String propertyValue) {
         DomibusPropertyMetadata propMeta = getPropertyMetadata(propertyName);
 
+        validatePropertyMetadata(propertyName, propMeta);
+
+        validatePropertyName(propMeta, propertyName);
+
+        validatePropertyLength(propertyName, propertyValue);
+
+        validatePropertyValue(propertyValue, propMeta);
+    }
+
+    protected void validatePropertyMetadata(String propertyName, DomibusPropertyMetadata propMeta) {
         if (propMeta == null) {
             throw new DomibusPropertyException("Cannot set property [" + propertyName + "] because it does not exist.");
         }
@@ -164,11 +173,43 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
         if (StringUtils.equals(propMeta.getName(), propertyName) && propMeta.isComposable()) {
             throw new DomibusPropertyException("Cannot set composable property [" + propertyName + "] directly. You can only set its nested properties.");
         }
+    }
 
+    protected void validatePropertyValue(String propertyValue, DomibusPropertyMetadata propMeta) {
         DomibusProperty prop = createProperty(propMeta, propertyValue);
-
         prop.setValue(propertyValue);
         domibusPropertyValueValidator.validate(prop);
+    }
+
+    protected void validatePropertyName(DomibusPropertyMetadata propMeta, String propertyName) {
+        // we can skip the property name validation for all properties except nested ones since the property name cannot be changed (or a new one added)
+        if (!propMeta.isComposable()) {
+            LOG.trace("Validated property [{}] is not composable, exiting.", propertyName);
+            return;
+        }
+        propertyNameBlacklistValidator.validate(propertyName, ACCEPTED_CHARACTERS_IN_PROPERTY_NAMES);
+    }
+
+    protected void validatePropertyLength(String propertyName, String propertyValue) {
+        // do not validate against itself
+        if (StringUtils.equals(propertyName, DOMIBUS_PROPERTY_LENGTH_MAX)) {
+            LOG.trace("Validated property is [{}], exiting.", propertyName);
+            return;
+        }
+        if (propertyValue == null) {
+            LOG.debug("Validated property value [{}] is null, exiting.", propertyName);
+            return;
+        }
+        Integer maxLength = domibusPropertyProvider.getIntegerProperty(DOMIBUS_PROPERTY_LENGTH_MAX);
+        if (maxLength <= 0) {
+            LOG.debug("Property max length value is [{}] not positive, exiting.", maxLength);
+            return;
+        }
+
+        if (propertyValue.length() > maxLength) {
+            throw new DomibusPropertyException("Invalid property value [" + propertyValue + "] for property [" + propertyName + "]. " +
+                    "Maximum accepted length is: " + maxLength);
+        }
     }
 
     protected DomibusPropertyMetadata getPropertyMetadata(String propertyName) {

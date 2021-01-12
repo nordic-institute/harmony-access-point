@@ -42,6 +42,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PLUGIN_NOTIFICATION_ACTIVE;
+import static eu.domibus.messaging.MessageConstants.FINAL_RECIPIENT;
+import static eu.domibus.messaging.MessageConstants.ORIGINAL_SENDER;
+import static java.util.stream.Collectors.toList;
 
 /**
  * @author Christian Koch, Stefan Mueller
@@ -134,8 +137,8 @@ public class BackendNotificationService {
         notifyOfIncoming(userMessage, notificationType, properties);
     }
 
-    @Timer(clazz = BackendNotificationService.class,value = "notifyMessageReceived")
-    @Counter(clazz = BackendNotificationService.class,value = "notifyMessageReceived")
+    @Timer(clazz = BackendNotificationService.class, value = "notifyMessageReceived")
+    @Counter(clazz = BackendNotificationService.class, value = "notifyMessageReceived")
     public void notifyMessageReceived(final BackendFilter matchingBackendFilter, final UserMessage userMessage) {
         if (isPluginNotificationDisabled()) {
             return;
@@ -154,13 +157,21 @@ public class BackendNotificationService {
             return;
         }
 
-        final List<UserMessageLogDto> userMessageLogsToNotify = userMessageLogs.stream().filter(userMessageLog -> !userMessageLog.isTestMessage()).collect(Collectors.toList());
+        final List<UserMessageLogDto> userMessageLogsToNotify = userMessageLogs
+                .stream()
+                .filter(userMessageLog -> !userMessageLog.isTestMessage())
+                .collect(toList());
 
-        if(CollectionUtils.isEmpty(userMessageLogsToNotify)) {
+        if (CollectionUtils.isEmpty(userMessageLogsToNotify)) {
             LOG.info("No more delete message notifications.");
             return;
         }
-        List<String> backends = userMessageLogsToNotify.stream().map(userMessageLog -> userMessageLog.getBackend()).distinct().collect(Collectors.toList());
+        List<String> backends = userMessageLogsToNotify
+                .stream()
+                .map(UserMessageLogDto::getBackend)
+                .filter(StringUtils::isNotEmpty)
+                .distinct()
+                .collect(toList());
 
         LOG.debug("Following backends will be notified with message delete events [{}]", backends);
 
@@ -169,20 +180,42 @@ public class BackendNotificationService {
             return;
         }
 
-        backends.stream().forEach(backend -> createMessageDeleteBatchEvent(backend, getAllMessageIdsForBackend(userMessageLogsToNotify, backend)));
+        backends.forEach(backend ->
+        {
+            List<MessageDeletedEvent> allMessageIdsForBackend =
+                    getAllMessageIdsForBackend(backend, userMessageLogsToNotify);
+            createMessageDeleteBatchEvent(backend, allMessageIdsForBackend);
+        });
     }
 
-    protected void createMessageDeleteBatchEvent(String backend, List<String> messageIds) {
+    protected void createMessageDeleteBatchEvent(String backend, List<MessageDeletedEvent> messageDeletedEvents) {
         MessageDeletedBatchEvent messageDeletedBatchEvent = new MessageDeletedBatchEvent();
-        messageDeletedBatchEvent.setMessageIds(messageIds);
+        messageDeletedBatchEvent.setMessageIds(messageDeletedEvents.stream().map(MessageDeletedEvent::getMessageId).collect(toList()));
+        messageDeletedBatchEvent.setMessageDeletedEvents(messageDeletedEvents);
         backendConnectorDelegate.messageDeletedBatchEvent(backend, messageDeletedBatchEvent);
     }
 
 
-    protected List<String> getAllMessageIdsForBackend (final List<UserMessageLogDto> userMessageLogs, String backend){
-        List<String> messageIds = userMessageLogs.stream().filter(userMessageLog -> userMessageLog.getBackend().equals(backend)).map(userMessageLog -> userMessageLog.getMessageId()).collect(Collectors.toList());
+    protected List<MessageDeletedEvent> getAllMessageIdsForBackend(String backend, final List<UserMessageLogDto> userMessageLogs) {
+        List<MessageDeletedEvent> messageIds = userMessageLogs
+                .stream()
+                .filter(userMessageLog -> userMessageLog.getBackend().equals(backend))
+                .map(this::getMessageDeletedEvent)
+                .collect(toList());
         LOG.debug("There are [{}] delete messages to notify for backend [{}]", messageIds.size(), backend);
         return messageIds;
+    }
+
+    protected MessageDeletedEvent getMessageDeletedEvent(UserMessageLogDto userMessageLogDto) {
+        return getMessageDeletedEvent(userMessageLogDto.getMessageId(), userMessageLogDto.getProperties());
+    }
+
+    protected MessageDeletedEvent getMessageDeletedEvent(String messageId, Map<String, String> properties) {
+        MessageDeletedEvent messageDeletedEvent = new MessageDeletedEvent();
+        messageDeletedEvent.setMessageId(messageId);
+        messageDeletedEvent.addProperty(FINAL_RECIPIENT, properties.get(FINAL_RECIPIENT));
+        messageDeletedEvent.addProperty(ORIGINAL_SENDER, properties.get(ORIGINAL_SENDER));
+        return messageDeletedEvent;
     }
 
     public void notifyMessageDeleted(String messageId, UserMessageLog userMessageLog) {
@@ -200,13 +233,18 @@ public class BackendNotificationService {
             return;
         }
 
-        MessageDeletedEvent messageDeletedEvent = new MessageDeletedEvent();
-        messageDeletedEvent.setMessageId(messageId);
-        backendConnectorDelegate.messageDeletedEvent(backend, messageDeletedEvent);
+        UserMessage userMessage = messagingDao.findUserMessageByMessageId(userMessageLog.getMessageId());
+        Map<String, String> properties = userMessageServiceHelper.getProperties(userMessage);
+        MessageDeletedEvent messageDeletedEvent = getMessageDeletedEvent(
+                userMessageLog.getMessageId(),
+                properties);
+        backendConnectorDelegate.messageDeletedEvent(
+                backend,
+                messageDeletedEvent);
     }
 
     public void notifyPayloadSubmitted(final UserMessage userMessage, String originalFilename, PartInfo partInfo, String backendName) {
-        if (userMessageHandlerService.checkTestMessage(userMessage)) {
+        if (BooleanUtils.isTrue(userMessageHandlerService.checkTestMessage(userMessage))) {
             LOG.debug("Payload submitted notifications are not enabled for test messages [{}]", userMessage);
             return;
         }
@@ -221,7 +259,7 @@ public class BackendNotificationService {
     }
 
     public void notifyPayloadProcessed(final UserMessage userMessage, String originalFilename, PartInfo partInfo, String backendName) {
-        if (userMessageHandlerService.checkTestMessage(userMessage)) {
+        if (BooleanUtils.isTrue(userMessageHandlerService.checkTestMessage(userMessage))) {
             LOG.debug("Payload processed notifications are not enabled for test messages [{}]", userMessage);
             return;
         }
@@ -236,10 +274,12 @@ public class BackendNotificationService {
     }
 
     protected void notifyOfIncoming(final BackendFilter matchingBackendFilter, final UserMessage userMessage, final NotificationType notificationType, Map<String, String> properties) {
+        Map<String, String> props = userMessageServiceHelper.getProperties(userMessage);
+        properties.put(FINAL_RECIPIENT, props.get(FINAL_RECIPIENT));
+        properties.put(ORIGINAL_SENDER, props.get(ORIGINAL_SENDER));
+
         if (matchingBackendFilter == null) {
             LOG.error("No backend responsible for message [{}] found. Sending notification to [{}]", userMessage.getMessageInfo().getMessageId(), unknownReceiverQueue);
-            String finalRecipient = userMessageServiceHelper.getFinalRecipient(userMessage);
-            properties.put(MessageConstants.FINAL_RECIPIENT, finalRecipient);
             jmsManager.sendMessageToQueue(new NotifyMessageCreator(userMessage.getMessageInfo().getMessageId(), notificationType, properties).createMessage(), unknownReceiverQueue);
             return;
         }
@@ -256,15 +296,13 @@ public class BackendNotificationService {
         LOG.info("Notifying backend [{}] of message [{}] and notification type [{}]", backendName, userMessage.getMessageInfo().getMessageId(), notificationType);
 
         submissionValidatorService.validateSubmission(userMessage, backendName, notificationType);
-        String finalRecipient = userMessageServiceHelper.getFinalRecipient(userMessage);
-        if (properties != null) {
-            properties.put(MessageConstants.FINAL_RECIPIENT, finalRecipient);
-        }
+
         notify(userMessage.getMessageInfo().getMessageId(), backendName, notificationType, properties);
     }
 
     protected void notify(String messageId, String backendName, NotificationType notificationType) {
-        notify(messageId, backendName, notificationType, null);
+        UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
+        notify(messageId, backendName, notificationType, userMessageServiceHelper.getProperties(userMessage));
     }
 
     protected void notify(String messageId, String backendName, NotificationType notificationType, Map<String, String> properties) {
@@ -282,7 +320,7 @@ public class BackendNotificationService {
         }
 
         if (properties != null) {
-            String finalRecipient = (String) properties.get(MessageConstants.FINAL_RECIPIENT);
+            String finalRecipient = properties.get(FINAL_RECIPIENT);
             LOG.info("Notifying plugin [{}] for message [{}] with notificationType [{}] and finalRecipient [{}]", backendName, messageId, notificationType, finalRecipient);
         } else {
             LOG.info("Notifying plugin [{}] for message [{}] with notificationType [{}]", backendName, messageId, notificationType);
@@ -324,8 +362,8 @@ public class BackendNotificationService {
         //for backward compatibility
         if (backendConnectorService.isInstanceOfNotificationListener(asyncNotificationConfiguration)) {
             NotificationListener notificationListener = (NotificationListener) asyncNotificationConfiguration;
-            Map<String,Object> newProperties = properties.entrySet().stream()
-                    .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue()));
+            Map<String, Object> newProperties = properties.entrySet().stream()
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
             notificationListener.notify(messageId, notificationType, newProperties);
         }
@@ -366,7 +404,8 @@ public class BackendNotificationService {
 
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     public void notifyOfMessageStatusChange(UserMessageLog messageLog, MessageStatus newStatus, Timestamp changeTimestamp) {
-        notifyOfMessageStatusChange(null, messageLog, newStatus, changeTimestamp);
+        UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageLog.getMessageId());
+        notifyOfMessageStatusChange(userMessage, messageLog, newStatus, changeTimestamp);
     }
 
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
@@ -388,12 +427,6 @@ public class BackendNotificationService {
             return;
         }
         LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_STATUS_CHANGED, messageLog.getMessageStatus(), newStatus);
-
-        //TODO check if it is needed
-        if (userMessage == null) {
-            LOG.debug("Getting UserMessage with id [{}]", messageId);
-            userMessage = messagingDao.findUserMessageByMessageId(messageId);
-        }
 
         final Map<String, String> messageProperties = getMessageProperties(messageLog, userMessage, newStatus, changeTimestamp);
         NotificationType notificationType = NotificationType.MESSAGE_STATUS_CHANGE;
@@ -418,6 +451,10 @@ public class BackendNotificationService {
             properties.put(MessageConstants.SERVICE, userMessage.getCollaborationInfo().getService().getValue());
             properties.put(MessageConstants.SERVICE_TYPE, userMessage.getCollaborationInfo().getService().getType());
             properties.put(MessageConstants.ACTION, userMessage.getCollaborationInfo().getAction());
+
+            Map<String, String> props = userMessageServiceHelper.getProperties(userMessage);
+            properties.put(FINAL_RECIPIENT, props.get(FINAL_RECIPIENT));
+            properties.put(ORIGINAL_SENDER, props.get(ORIGINAL_SENDER));
         }
         return properties;
     }
