@@ -184,6 +184,7 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
     protected void validatePropertyName(DomibusPropertyMetadata propMeta, String propertyName) {
         // we can skip the property name validation for all properties except nested ones since the property name cannot be changed (or a new one added)
         if (!propMeta.isComposable()) {
+            LOG.trace("Validated property [{}] is not composable, exiting.", propertyName);
             return;
         }
         propertyNameBlacklistValidator.validate(propertyName, ACCEPTED_CHARACTERS_IN_PROPERTY_NAMES);
@@ -192,13 +193,16 @@ public class ConfigurationPropertyResourceHelperImpl implements ConfigurationPro
     protected void validatePropertyLength(String propertyName, String propertyValue) {
         // do not validate against itself
         if (StringUtils.equals(propertyName, DOMIBUS_PROPERTY_LENGTH_MAX)) {
+            LOG.trace("Validated property is [{}], exiting.", propertyName);
             return;
         }
         if (propertyValue == null) {
+            LOG.debug("Validated property value [{}] is null, exiting.", propertyName);
             return;
         }
         Integer maxLength = domibusPropertyProvider.getIntegerProperty(DOMIBUS_PROPERTY_LENGTH_MAX);
         if (maxLength <= 0) {
+            LOG.debug("Property max length value is [{}] not positive, exiting.", maxLength);
             return;
         }
 

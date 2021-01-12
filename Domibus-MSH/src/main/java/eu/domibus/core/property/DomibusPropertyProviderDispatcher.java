@@ -150,7 +150,7 @@ public class DomibusPropertyProviderDispatcher {
     protected Domain getCurrentDomain() {
         String currentDomainCode = getCurrentDomainCode();
         //the domain is created like this in order to avoid the dependency on DomainService ( which creates a cycle)
-        // we do not care for the domain name at all in property management, just the domain code
+        // null domain code means null domain object
         return currentDomainCode == null ? null : new Domain(currentDomainCode, currentDomainCode);
     }
 
