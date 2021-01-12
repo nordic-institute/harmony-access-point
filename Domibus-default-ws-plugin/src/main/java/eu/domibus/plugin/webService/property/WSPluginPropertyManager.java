@@ -30,7 +30,7 @@ public class WSPluginPropertyManager extends DomibusPropertyExtServiceDelegateAb
     public static final String PROP_LIST_PENDING_MESSAGES_MAXCOUNT = "wsplugin.messages.pending.list.max";
     public static final String MESSAGE_NOTIFICATIONS = "wsplugin.messages.notifications";
 
-    public static final String RETRY_ENABLED = "wsplugin.retry.enabled";
+    public static final String RETRY_ENABLED = "wsplugin.push.enabled";
     public static final String DISPATCHER_CONNECTION_TIMEOUT = "wsplugin.dispatcher.connectionTimeout";
     public static final String DISPATCHER_RECEIVE_TIMEOUT = "wsplugin.dispatcher.receiveTimeout";
     public static final String DISPATCHER_ALLOW_CHUNKING = "wsplugin.dispatcher.allowChunking";
