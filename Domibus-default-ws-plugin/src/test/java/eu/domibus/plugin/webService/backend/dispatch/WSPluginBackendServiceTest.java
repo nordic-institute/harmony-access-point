@@ -24,7 +24,7 @@ import java.util.stream.Stream;
 
 import static eu.domibus.plugin.webService.backend.WSBackendMessageType.DELETED_BATCH;
 import static eu.domibus.plugin.webService.backend.WSBackendMessageType.SEND_SUCCESS;
-import static eu.domibus.plugin.webService.property.WSPluginPropertyManager.RETRY_ENABLED;
+import static eu.domibus.plugin.webService.property.WSPluginPropertyManager.PUSH_ENABLED;
 import static org.apache.commons.lang3.StringUtils.equalsAnyIgnoreCase;
 
 /**
@@ -61,7 +61,7 @@ public class WSPluginBackendServiceTest {
     public void sendSuccess(@Mocked WSPluginDispatchRule wsPluginDispatchRule) {
         MessageSendSuccessEvent messageSendSuccessEvent = getMessageSendSuccessEvent(FINAL_RECIPIENT);
         new Expectations() {{
-            wsPluginPropertyManager.getKnownPropertyValue(RETRY_ENABLED);
+            wsPluginPropertyManager.getKnownPropertyValue(PUSH_ENABLED);
             result = "true";
 
             wsBackendRulesService.getRulesByRecipient(FINAL_RECIPIENT);
@@ -97,7 +97,7 @@ public class WSPluginBackendServiceTest {
     @Test
     public void sendSuccess_noRecipient() {
         new Expectations() {{
-            wsPluginPropertyManager.getKnownPropertyValue(RETRY_ENABLED);
+            wsPluginPropertyManager.getKnownPropertyValue(PUSH_ENABLED);
             result = "true";
         }};
         wsPluginBackendService.send(getMessageSendSuccessEvent(""), SEND_SUCCESS);
@@ -109,7 +109,7 @@ public class WSPluginBackendServiceTest {
     @Test
     public void sendSuccess_disabled_wrongValue() {
         new Expectations() {{
-            wsPluginPropertyManager.getKnownPropertyValue(RETRY_ENABLED);
+            wsPluginPropertyManager.getKnownPropertyValue(PUSH_ENABLED);
             result = "x";
         }};
         wsPluginBackendService.send(getMessageSendSuccessEvent(""), SEND_SUCCESS);
@@ -121,7 +121,7 @@ public class WSPluginBackendServiceTest {
     @Test
     public void sendSuccess_disabled() {
         new Expectations() {{
-            wsPluginPropertyManager.getKnownPropertyValue(RETRY_ENABLED);
+            wsPluginPropertyManager.getKnownPropertyValue(PUSH_ENABLED);
             result = "false";
         }};
         wsPluginBackendService.send(getMessageSendSuccessEvent(""), SEND_SUCCESS);
@@ -133,7 +133,7 @@ public class WSPluginBackendServiceTest {
     @Test
     public void noRules() {
         new Expectations() {{
-            wsPluginPropertyManager.getKnownPropertyValue(RETRY_ENABLED);
+            wsPluginPropertyManager.getKnownPropertyValue(PUSH_ENABLED);
             result = "true";
 
             wsBackendRulesService.getRulesByRecipient(FINAL_RECIPIENT);

@@ -30,7 +30,7 @@ public class WSPluginPropertyManager extends DomibusPropertyExtServiceDelegateAb
     public static final String PROP_LIST_PENDING_MESSAGES_MAXCOUNT = "wsplugin.messages.pending.list.max";
     public static final String MESSAGE_NOTIFICATIONS = "wsplugin.messages.notifications";
 
-    public static final String RETRY_ENABLED = "wsplugin.push.enabled";
+    public static final String PUSH_ENABLED = "wsplugin.push.enabled";
     public static final String DISPATCHER_CONNECTION_TIMEOUT = "wsplugin.dispatcher.connectionTimeout";
     public static final String DISPATCHER_RECEIVE_TIMEOUT = "wsplugin.dispatcher.receiveTimeout";
     public static final String DISPATCHER_ALLOW_CHUNKING = "wsplugin.dispatcher.allowChunking";
@@ -49,7 +49,7 @@ public class WSPluginPropertyManager extends DomibusPropertyExtServiceDelegateAb
                 new DomibusPropertyMetadataDTO(PROP_LIST_PENDING_MESSAGES_MAXCOUNT, Type.NUMERIC, Module.WS_PLUGIN, Usage.GLOBAL),
                 new DomibusPropertyMetadataDTO(MESSAGE_NOTIFICATIONS, Type.COMMA_SEPARATED_LIST, Module.WS_PLUGIN, Usage.GLOBAL),
 
-                new DomibusPropertyMetadataDTO(RETRY_ENABLED, Type.BOOLEAN, Module.WS_PLUGIN, Usage.GLOBAL),
+                new DomibusPropertyMetadataDTO(PUSH_ENABLED, Type.BOOLEAN, Module.WS_PLUGIN, Usage.GLOBAL),
 
                 new DomibusPropertyMetadataDTO(DISPATCHER_CONNECTION_TIMEOUT, Type.NUMERIC, Module.WS_PLUGIN, Usage.GLOBAL),
                 new DomibusPropertyMetadataDTO(DISPATCHER_RECEIVE_TIMEOUT, Type.NUMERIC, Module.WS_PLUGIN, Usage.GLOBAL),

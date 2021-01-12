@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static eu.domibus.plugin.webService.property.WSPluginPropertyManager.RETRY_ENABLED;
+import static eu.domibus.plugin.webService.property.WSPluginPropertyManager.PUSH_ENABLED;
 import static org.apache.commons.lang3.BooleanUtils.toBoolean;
 import static org.apache.cxf.common.util.CollectionUtils.isEmpty;
 
@@ -49,7 +49,7 @@ public class WSPluginBackendService {
     }
 
     public boolean send(MessageEvent messageEvent, WSBackendMessageType messageType) {
-        String pushEnabled = wsPluginPropertyManager.getKnownPropertyValue(RETRY_ENABLED);
+        String pushEnabled = wsPluginPropertyManager.getKnownPropertyValue(PUSH_ENABLED);
         LOG.debug("Push to backend is: [{}]", pushEnabled);
         if (toBoolean(pushEnabled)) {
             String messageId = messageEvent.getMessageId();
