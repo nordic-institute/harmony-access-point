@@ -44,6 +44,8 @@ public class NestedPropertiesManagerTest {
         propertiesStartingWithPrefix.add("routing.rule1.service");
 
         new Expectations() {{
+            prop.getName();
+            result = prefix;
             propertyProviderHelper.filterPropertyNames((Predicate) any);
             result = propertiesStartingWithPrefix;
         }};
@@ -89,14 +91,24 @@ public class NestedPropertiesManagerTest {
     public void computePropertyPrefixForDefaultDomain(@Mocked DomibusPropertyMetadata prop) {
         String propPrefix = "rule1";
         new Expectations() {{
+            prop.getName();
+            result = propPrefix;
+
+            prop.isOnlyGlobal();
+            result=false;
+
             prop.isDomain();
             result = true;
 
             propertyProviderHelper.isMultiTenantAware();
             result = true;
+
+            propertyProviderHelper.getPropertyKeyForDomain(DomainService.DEFAULT_DOMAIN, propPrefix);
+            result = DomainService.DEFAULT_DOMAIN.getCode() + NAME_SEPARATOR + propPrefix;
         }};
 
         String value = nestedPropertiesManager.computePropertyPrefix(DomainService.DEFAULT_DOMAIN, prop);
+
         Assert.assertEquals(DomainService.DEFAULT_DOMAIN.getCode() + NAME_SEPARATOR + propPrefix, value);
     }
 
@@ -106,17 +118,24 @@ public class NestedPropertiesManagerTest {
         String propPrefix = "propPrefix";
 
         new Expectations(nestedPropertiesManager) {{
+            prop.getName();
+            result = propPrefix;
+
+            prop.isOnlyGlobal();
+            result=false;
+
             prop.isDomain();
             result = true;
 
             propertyProviderHelper.isMultiTenantAware();
             result = true;
 
-            domain.getCode();
-            result = domainCode;
+            propertyProviderHelper.getPropertyKeyForDomain(domain, propPrefix);
+            result = domainCode + NAME_SEPARATOR + propPrefix;
         }};
 
         String value = nestedPropertiesManager.computePropertyPrefix(domain, prop);
+
         Assert.assertEquals(domainCode + NAME_SEPARATOR + propPrefix, value);
     }
 }

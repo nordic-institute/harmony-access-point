@@ -137,11 +137,6 @@ public class PasswordEncryptionServiceImplTest {
     }
 
     @Test
-    public void isValueEncryptedWithEncryptedValue() {
-        Assert.assertTrue(passwordEncryptionService.isValueEncrypted("ENC(nonEncrypted)"));
-    }
-
-    @Test
     public void isValueEncrypted_blank() {
         assertFalse(passwordEncryptionService.isValueEncrypted(""));
     }
@@ -347,7 +342,7 @@ public class PasswordEncryptionServiceImplTest {
             passwordEncryptionContext.getProperty(propertyName);
             result = propertyValue;
 
-            passwordEncryptionService.isValueEncrypted(propertyValue);
+            passwordDecryptionHelper.isValueEncrypted(propertyValue);
             result = false;
 
             encryptionUtil.encrypt((byte[]) any, secretKey, secretKeySpec);
@@ -769,6 +764,11 @@ public class PasswordEncryptionServiceImplTest {
 
     @Test
     public void encryptProperty_blankProperty() {
+        new Expectations() {{
+            passwordDecryptionHelper.isValueEncrypted(anyString);
+            result = true;
+        }};
+
         assertNull(passwordEncryptionService.encryptProperty(null, null, "", "ENC(alreadyEncoded)"));
     }
 

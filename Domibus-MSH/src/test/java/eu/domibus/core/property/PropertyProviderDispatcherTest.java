@@ -28,13 +28,7 @@ public class PropertyProviderDispatcherTest {
     ClassUtil classUtil;
 
     @Injectable
-    protected DomainContextProvider domainContextProvider;
-
-    @Injectable
     GlobalPropertyMetadataManager globalPropertyMetadataManager;
-
-    @Injectable
-    private DomibusPropertyProviderImpl domibusPropertyProvider;
 
     @Injectable
     PropertyChangeManager propertyChangeManager;
@@ -51,9 +45,9 @@ public class PropertyProviderDispatcherTest {
     @Mocked
     DomibusPropertyMetadata propMeta;
 
-    private String propertyName = "domibus.property.name";
-    private String propertyValue = "domibus.property.value";
-    private Domain domain = new Domain("domain1", "Domain 1");
+    private final String propertyName = "domibus.property.name";
+    private final String propertyValue = "domibus.property.value";
+    private final Domain domain = new Domain("domain1", "Domain 1");
 
     @Test()
     public void getInternalOrExternalProperty_internal() {
@@ -187,8 +181,8 @@ public class PropertyProviderDispatcherTest {
         new Expectations(propertyProviderDispatcher) {{
             classUtil.isMethodDefined(propertyManager, "getKnownPropertyValue", new Class[]{String.class});
             returns(true, false);
-//            propertyProviderDispatcher.getCurrentDomainCode();
-//            result = "default";
+            propertyProviderHelper.getCurrentDomainCode();
+            result = "default";
         }};
 
         propertyProviderDispatcher.getExternalModulePropertyValue(propertyManager, propertyName);
@@ -198,8 +192,8 @@ public class PropertyProviderDispatcherTest {
 
         propertyProviderDispatcher.getExternalModulePropertyValue(propertyManager, propertyName);
         new Verifications() {{
-//            propertyProviderDispatcher.getCurrentDomainCode();
-//            propertyManager.getKnownPropertyValue("default", propertyName);
+            propertyProviderHelper.getCurrentDomainCode();
+            propertyManager.getKnownPropertyValue("default", propertyName);
         }};
     }
 
@@ -210,8 +204,8 @@ public class PropertyProviderDispatcherTest {
         new Expectations(propertyProviderDispatcher) {{
             classUtil.isMethodDefined(propertyManager, "setKnownPropertyValue", new Class[]{String.class, String.class});
             returns(true, false);
-//            propertyProviderDispatcher.getCurrentDomainCode();
-//            result = "default";
+            propertyProviderHelper.getCurrentDomainCode();
+            result = "default";
         }};
 
         propertyProviderDispatcher.setExternalModulePropertyValue(propertyManager, propertyName, proertyValue);
@@ -221,25 +215,9 @@ public class PropertyProviderDispatcherTest {
 
         propertyProviderDispatcher.setExternalModulePropertyValue(propertyManager, propertyName, proertyValue);
         new Verifications() {{
-//            propertyProviderDispatcher.getCurrentDomainCode();
-//            propertyManager.setKnownPropertyValue("default", propertyName, proertyValue);
+            propertyProviderHelper.getCurrentDomainCode();
+            propertyManager.setKnownPropertyValue("default", propertyName, proertyValue);
         }};
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void setPropertyValue_tooLong() {
-        int limit = 100;
-        String limitStr = limit + "";
-        String propertyToTest = DOMIBUS_UI_TITLE_NAME;
-        String longValue = StringUtils.repeat("A", limit + 1);
-        new Expectations() {{
-            propertyRetrieveManager.getInternalProperty(DOMIBUS_PROPERTY_LENGTH_MAX);
-            result = limitStr;
-            primitivePropertyTypesManager.getIntegerInternal(DOMIBUS_PROPERTY_LENGTH_MAX, limitStr);
-            result = limit;
-        }};
-
-        propertyProviderDispatcher.setInternalOrExternalProperty(null, propertyToTest, longValue, false);
     }
 
     @Test

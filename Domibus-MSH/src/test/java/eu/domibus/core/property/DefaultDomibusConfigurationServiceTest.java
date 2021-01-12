@@ -42,8 +42,8 @@ public class DefaultDomibusConfigurationServiceTest {
 
     @Test
     public void isPasswordEncryptionActive() {
-        new Expectations() {{
-            domibusPropertyProvider.getBooleanProperty(PASSWORD_ENCRYPTION_ACTIVE_PROPERTY);
+        new Expectations(defaultDomibusConfigurationService) {{
+            defaultDomibusConfigurationService.getBooleanProperty(PASSWORD_ENCRYPTION_ACTIVE_PROPERTY);
             result = true;
         }};
 
@@ -53,8 +53,8 @@ public class DefaultDomibusConfigurationServiceTest {
 
     @Test
     public void isPasswordEncryptionActive1(@Injectable Domain domain) {
-        new Expectations() {{
-            domibusPropertyProvider.getBooleanProperty(domain, PASSWORD_ENCRYPTION_ACTIVE_PROPERTY);
+        new Expectations(defaultDomibusConfigurationService) {{
+            defaultDomibusConfigurationService.getBooleanProperty(domain, PASSWORD_ENCRYPTION_ACTIVE_PROPERTY);
             result = true;
         }};
 

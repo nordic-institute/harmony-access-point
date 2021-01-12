@@ -131,12 +131,12 @@ public class DefaultDomibusConfigurationService implements DomibusConfigurationS
         return domain.getCode() + "-" + DomibusPropertyProvider.DOMIBUS_PROPERTY_FILE;
     }
 
-    private Boolean getBooleanProperty(Domain domain, String propertyName) {
+    protected Boolean getBooleanProperty(Domain domain, String propertyName) {
         String domainValue = propertyRetrieveManager.getInternalProperty(domain, propertyName);
         return primitivePropertyTypesManager.getBooleanInternal(propertyName, domainValue);
     }
 
-    public Boolean getBooleanProperty(String propertyName) {
+    protected Boolean getBooleanProperty(String propertyName) {
         String value = propertyRetrieveManager.getInternalProperty(propertyName);
         return primitivePropertyTypesManager.getBooleanInternal(propertyName, value);
     }
