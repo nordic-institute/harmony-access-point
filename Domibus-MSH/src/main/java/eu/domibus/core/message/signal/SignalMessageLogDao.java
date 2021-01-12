@@ -1,12 +1,15 @@
 package eu.domibus.core.message.signal;
 
+import eu.domibus.api.model.MessageStatus;
 import com.google.common.collect.Maps;
-import eu.domibus.common.MSHRole;
-import eu.domibus.common.MessageStatus;
+import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.SignalMessageLog;
 import eu.domibus.core.message.MessageLogDao;
 import eu.domibus.core.message.MessageLogInfo;
 import eu.domibus.core.message.MessageLogInfoFilter;
-import eu.domibus.ebms3.common.model.MessageType;
+import eu.domibus.api.model.MessageType;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,6 +89,8 @@ public class SignalMessageLogDao extends MessageLogDao<SignalMessageLog> {
         return queryParameterized.getResultList();
     }
 
+    @Timer(clazz = SignalMessageLogDao.class,value = "deleteMessages.deleteMessageLogs")
+    @Counter(clazz = SignalMessageLogDao.class,value = "deleteMessages.deleteMessageLogs")
     public int deleteMessageLogs(List<String> messageIds) {
         final Query deleteQuery = em.createNamedQuery("SignalMessageLog.deleteMessageLogs");
         deleteQuery.setParameter("MESSAGEIDS", messageIds);

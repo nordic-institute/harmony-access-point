@@ -2,8 +2,8 @@ package eu.domibus.core.payload.persistence;
 
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
-import eu.domibus.ebms3.common.model.PartInfo;
-import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.api.model.PartInfo;
+import eu.domibus.api.model.UserMessage;
 
 import java.io.IOException;
 

@@ -119,4 +119,26 @@ public class SignalServiceImpl implements SignalService {
 
         sendMessage(commandProperties);
     }
+
+    @Override
+    public void signalSessionInvalidation(String userName) {
+        LOG.debug("Signaling user session invalidation for user", userName);
+        Map<String, String> commandProperties = new HashMap<>();
+        commandProperties.put(Command.COMMAND, Command.USER_SESSION_INVALIDATION);
+        commandProperties.put(CommandProperty.USER_NAME, userName);
+
+        sendMessage(commandProperties);
+    }
+
+    @Override
+    public void signalClearCaches() {
+        String domainCode = domainContextProvider.getCurrentDomain().getCode();
+
+        LOG.debug("Signaling clearing caches [{}] domain", domainCode);
+
+        Map<String, String> commandProperties = new HashMap<>();
+        commandProperties.put(Command.COMMAND, Command.EVICT_CACHES);
+        commandProperties.put(MessageConstants.DOMAIN, domainCode);
+        sendMessage(commandProperties);
+    }
 }

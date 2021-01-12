@@ -1,0 +1,43 @@
+<h2 mat-dialog-title *ngIf="useFileSelector">Upload File</h2>
+<h2 mat-dialog-title *ngIf="!useFileSelector">Save PMode changes</h2>
+
+<mat-dialog-content style="width:450px">
+
+  <form #editForm="ngForm" (submit)="submit()">
+    <mat-card>
+      <mat-card-content>
+        <div *ngIf="useFileSelector">
+          <label class="custom-file-upload">
+            <input name="file" #fileInput type="file" id="pmode" accept=".xml" (change)="selectFile()"
+                   style="display: none;">
+            <span class="custom-file-upload-inner">Choose File </span>
+          </label>
+          {{selectedFileName}}
+        </div>
+        <div>
+          <mat-form-field class="form-field">
+            <textarea matInput name="desc" #desc="ngModel" rows="5" [(ngModel)]="description" id="description_id"
+                      maxlength="254" required
+                      placeholder="Description" class="custom-text-area"></textarea>
+            <span class="help-block" *ngIf="shouldShowErrors(desc)">
+            <div *ngIf="desc.errors?.required" class="error-style">Description is required</div>
+          </span>
+          </mat-form-field>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <div class="buttonsRow">
+      <button id="editbuttonok_id" type="submit" mat-raised-button color="primary"
+              style="margin-top:10px;margin-right: 10px;" [disabled]="!canUpload()">
+        <mat-icon>check_circle</mat-icon>
+        <span>OK</span>
+      </button>
+      <button id="editbuttoncancel_id" type="reset" mat-raised-button color="primary" (click)="cancel()"
+              style="margin-top:10px">
+        <mat-icon>cancel</mat-icon>
+        <span>Cancel</span>
+      </button>
+    </div>
+  </form>
+</mat-dialog-content>

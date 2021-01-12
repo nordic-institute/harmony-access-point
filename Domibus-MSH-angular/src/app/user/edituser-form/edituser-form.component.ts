@@ -69,7 +69,7 @@ export class EditUserComponent implements OnInit {
         disabled: !this.isNewUser()
       }, [Validators.required, Validators.maxLength(255), Validators.minLength(4), Validators.pattern(UserValidatorService.USER_NAME_PATTERN)]),
       'email': new FormControl(this.user.email, [Validators.pattern(this.emailPattern), Validators.maxLength(255)]),
-      'roles': new FormControl(this.user.roles, Validators.required),
+      'roles': new FormControl({value: this.user.roles, disabled: this.isCurrentUser()}, Validators.required),
       'domain': new FormControl({value: this.user.domain, disabled: this.isDomainDisabled()}, Validators.required),
       'password': new FormControl(this.user.password),
       'confirmation': new FormControl(this.confirmation),

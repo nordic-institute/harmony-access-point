@@ -21,7 +21,7 @@ import eu.domibus.core.crypto.api.CertificateEntry;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
-import eu.domibus.ebms3.common.model.MessageExchangePattern;
+import eu.domibus.api.ebms3.MessageExchangePattern;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.XmlProcessingException;
@@ -449,6 +449,8 @@ public class PartyServiceImpl implements PartyService {
     @Override
     public List<ValidationIssue> updateParties(List<Party> partyList, Map<String, String> partyToCertificateMap) throws PModeValidationException {
 
+        sanitizeParties(partyList);
+
         validatePartyCertificates(partyToCertificateMap);
 
         final PModeArchiveInfo currentPmode = pModeProvider.getCurrentPmode();
@@ -811,9 +813,9 @@ public class PartyServiceImpl implements PartyService {
         responderPartyList.removeIf(x -> x.getName().equalsIgnoreCase(party.getName()));
     }
 
-
     @Override
     public void updateParty(Party party, String certificateContent) throws PModeException {
+        sanitizeParty(party);
 
         final String partyName = party.getName();
         checkPartyInUse(partyName);
@@ -910,4 +912,20 @@ public class PartyServiceImpl implements PartyService {
         }
     }
 
+    protected void sanitizeParties(List<Party> parties) {
+        parties.stream().forEach(party -> {
+            sanitizeParty(party);
+        });
+    }
+
+    protected void sanitizeParty(Party party) {
+        party.setName(StringUtils.trim(party.getName()));
+        party.getIdentifiers().stream().forEach(id -> {
+            id.setPartyId(StringUtils.trim(id.getPartyId()));
+            eu.domibus.api.party.PartyIdType partyIdType = id.getPartyIdType();
+            if (partyIdType != null) {
+                partyIdType.setName(StringUtils.trim(partyIdType.getName()));
+            }
+        });
+    }
 }

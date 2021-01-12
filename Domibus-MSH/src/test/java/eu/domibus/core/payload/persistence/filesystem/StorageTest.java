@@ -2,7 +2,6 @@ package eu.domibus.core.payload.persistence.filesystem;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorage;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -34,7 +33,7 @@ public class StorageTest {
     private DomibusPropertyProvider domibusPropertyProvider;
 
     @Test
-    public void testMissingPayloadFolder() throws IOException {
+    public void testMissingPayloadFolder(@Injectable Domain domain) throws IOException {
         String folderName = String.valueOf(System.currentTimeMillis());
         Path tempPath = Paths.get("src", "test", "resources", folderName).toAbsolutePath();
         Assert.assertTrue(Files.notExists(tempPath));
@@ -44,7 +43,7 @@ public class StorageTest {
             result = tempPath.toString();
         }};
 
-        storage.initFileSystemStorage();
+        storage.init();
 
         Assert.assertTrue(Files.exists(tempPath));
         File storageDirectory = (File) ReflectionTestUtils.getField(storage, "storageDirectory");
@@ -53,14 +52,14 @@ public class StorageTest {
     }
 
     @Test
-    public void testWrongPayloadFolder() throws Exception {
+    public void testWrongPayloadFolder(@Injectable Domain domain) throws Exception {
         Path tempPath = Paths.get("src", "test", "resources");
         new Expectations(storage) {{
             domibusPropertyProvider.getProperty( (Domain)any, PayloadFileStorage.ATTACHMENT_STORAGE_LOCATION);
             result = isWindowsOS() ? getWindowsFileSystemIncorrectPath(tempPath.toString()) : getLinuxFileSystemIncorrectPath(tempPath.toString());
         }};
 
-        storage.initFileSystemStorage();
+        storage.init();
 
         File storageDirectory = (File) ReflectionTestUtils.getField(storage, "storageDirectory");
         Assert.assertEquals(Paths.get(System.getProperty("java.io.tmpdir")).toString(), storageDirectory.toString());

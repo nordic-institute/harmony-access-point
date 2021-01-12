@@ -1,6 +1,6 @@
 package eu.domibus.plugin.webService.impl;
 
-import eu.domibus.common.*;
+import eu.domibus.common.ErrorResult;
 import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.ObjectFactory;
 import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.*;
 import eu.domibus.ext.domain.DomainDTO;
@@ -13,14 +13,11 @@ import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.messaging.MessagingProcessingException;
-import eu.domibus.plugin.AbstractBackendConnector;
-import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
-import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
+import eu.domibus.plugin.webService.connector.WSPluginImpl;
 import eu.domibus.plugin.webService.dao.WSMessageLogDao;
 import eu.domibus.plugin.webService.entity.WSMessageLogEntity;
+import eu.domibus.plugin.webService.exception.WSPluginException;
 import eu.domibus.plugin.webService.generated.*;
-import eu.domibus.plugin.webService.generated.ErrorCode;
-import eu.domibus.plugin.webService.generated.MessageStatus;
 import eu.domibus.plugin.webService.property.WSPluginPropertyManager;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.common.util.CollectionUtils;
@@ -33,7 +30,11 @@ import javax.xml.ws.Holder;
 import javax.xml.ws.soap.SOAPBinding;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("ValidExternallyBoundObject")
@@ -43,9 +44,7 @@ import java.util.stream.Collectors;
         targetNamespace = "http://org.ecodex.backend/1_1/",
         endpointInterface = "eu.domibus.plugin.webService.generated.BackendInterface")
 @BindingType(SOAPBinding.SOAP12HTTP_BINDING)
-public class WebServicePluginImpl extends AbstractBackendConnector<Messaging, UserMessage> implements BackendInterface {
-
-    public static final String PLUGIN_NAME = "backendWebservice";
+public class WebServicePluginImpl implements BackendInterface {
 
     public static final String MESSAGE_SUBMISSION_FAILED = "Message submission failed";
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WebServicePluginImpl.class);
@@ -61,9 +60,6 @@ public class WebServicePluginImpl extends AbstractBackendConnector<Messaging, Us
     private static final String MESSAGE_NOT_FOUND_ID = "Message not found, id [";
 
     @Autowired
-    private StubDtoTransformer defaultTransformer;
-
-    @Autowired
     private MessageAcknowledgeExtService messageAcknowledgeExtService;
 
     @Autowired
@@ -73,19 +69,36 @@ public class WebServicePluginImpl extends AbstractBackendConnector<Messaging, Us
     protected WSMessageLogDao wsMessageLogDao;
 
     @Autowired
-    protected DomainExtService domainExtService;
-
-    @Autowired
     private DomainContextExtService domainContextExtService;
 
     @Autowired
     protected WSPluginPropertyManager wsPluginPropertyManager;
 
     @Autowired
-    AuthenticationExtService authenticationExtService;
+    private AuthenticationExtService authenticationExtService;
 
-    public WebServicePluginImpl() {
-        super(PLUGIN_NAME);
+    @Autowired
+    protected MessageExtService messageExtService;
+
+    @Autowired
+    private WSPluginImpl wsPlugin;
+
+    public WebServicePluginImpl(MessageAcknowledgeExtService messageAcknowledgeExtService,
+                                WebServicePluginExceptionFactory webServicePluginExceptionFactory,
+                                WSMessageLogDao wsMessageLogDao,
+                                DomainContextExtService domainContextExtService,
+                                WSPluginPropertyManager wsPluginPropertyManager,
+                                AuthenticationExtService authenticationExtService,
+                                MessageExtService messageExtService,
+                                WSPluginImpl wsPlugin) {
+        this.messageAcknowledgeExtService = messageAcknowledgeExtService;
+        this.webServicePluginExceptionFactory = webServicePluginExceptionFactory;
+        this.wsMessageLogDao = wsMessageLogDao;
+        this.domainContextExtService = domainContextExtService;
+        this.wsPluginPropertyManager = wsPluginPropertyManager;
+        this.authenticationExtService = authenticationExtService;
+        this.messageExtService = messageExtService;
+        this.wsPlugin = wsPlugin;
     }
 
     /**
@@ -119,7 +132,7 @@ public class WebServicePluginImpl extends AbstractBackendConnector<Messaging, Us
 
         final String messageId;
         try {
-            messageId = this.submit(ebMSHeaderInfo);
+            messageId = wsPlugin.submit(ebMSHeaderInfo);
         } catch (final MessagingProcessingException mpEx) {
             LOG.error(MESSAGE_SUBMISSION_FAILED, mpEx);
             throw new SubmitMessageFault(MESSAGE_SUBMISSION_FAILED, generateFaultDetail(mpEx));
@@ -130,31 +143,18 @@ public class WebServicePluginImpl extends AbstractBackendConnector<Messaging, Us
         return response;
     }
 
-    @Override
-    public void deliverMessage(final DeliverMessageEvent event) {
-        LOG.info("Deliver message: [{}]", event);
-        WSMessageLogEntity wsMessageLogEntity = new WSMessageLogEntity(event.getMessageId(), event.getFinalRecipient(), new Date());
-        wsMessageLogDao.create(wsMessageLogEntity);
-    }
+    public UserMessage getUserMessage(String messageId) {
+        UserMessage userMessage;
+        try {
+            userMessage = wsPlugin.downloadMessage(messageId, null);
+        } catch (final MessageNotFoundException mnfEx) {
+            throw new WSPluginException(MESSAGE_NOT_FOUND_ID + messageId + "]");
+        }
 
-    @Override
-    public void messageReceiveFailed(final MessageReceiveFailureEvent event) {
-        LOG.info("Message receive failed [{}]", event);
-    }
-
-    @Override
-    public void messageStatusChanged(final MessageStatusChangeEvent event) {
-        LOG.info("Message status changed [{}]", event);
-    }
-
-    @Override
-    public void messageSendFailed(final MessageSendFailedEvent event) {
-        LOG.info("Message send failed [{}]", event);
-    }
-
-    @Override
-    public void messageSendSuccess(final MessageSendSuccessEvent event) {
-        LOG.info("Message send success [{}]", event.getMessageId());
+        if (userMessage == null) {
+            throw new WSPluginException(MESSAGE_NOT_FOUND_ID + messageId + "]");
+        }
+        return userMessage;
     }
 
     private void addPartInfos(SubmitRequest submitRequest, Messaging ebMSHeaderInfo) throws SubmitMessageFault {
@@ -173,39 +173,47 @@ public class WebServicePluginImpl extends AbstractBackendConnector<Messaging, Us
             partInfosToAdd.add(extendedPartInfo);
             i.remove();
 
-            boolean foundPayload = false;
-            final String href = extendedPartInfo.getHref();
-            LOG.debug("Looking for payload: {}", href);
-            for (final LargePayloadType payload : submitRequest.getPayload()) {
-                LOG.debug("comparing with payload id: " + payload.getPayloadId());
-                if (StringUtils.equalsIgnoreCase(payload.getPayloadId(), href)) {
-                    this.copyPartProperties(payload.getContentType(), extendedPartInfo);
-                    extendedPartInfo.setInBody(false);
-                    LOG.debug("sendMessage - payload Content Type: " + payload.getContentType());
-                    extendedPartInfo.setPayloadDatahandler(payload.getValue());
-                    foundPayload = true;
-                    break;
-                }
-            }
-
-            if (!foundPayload) {
-                final LargePayloadType bodyload = submitRequest.getBodyload();
-                if (bodyload == null) {
-                    // in this case the payload referenced in the partInfo was neither an external payload nor a bodyload
-                    throw new SubmitMessageFault("No Payload or Bodyload found for PartInfo with href: " + extendedPartInfo.getHref(), generateDefaultFaultDetail(extendedPartInfo.getHref()));
-                }
-                // It can only be in body load, href MAY be null!
-                if (href == null && bodyload.getPayloadId() == null || href != null && StringUtils.equalsIgnoreCase(href, bodyload.getPayloadId())) {
-                    this.copyPartProperties(bodyload.getContentType(), extendedPartInfo);
-                    extendedPartInfo.setInBody(true);
-                    LOG.debug("sendMessage - bodyload Content Type: " + bodyload.getContentType());
-                    extendedPartInfo.setPayloadDatahandler(bodyload.getValue());
-                } else {
-                    throw new SubmitMessageFault("No payload found for PartInfo with href: " + extendedPartInfo.getHref(), generateDefaultFaultDetail(extendedPartInfo.getHref()));
-                }
-            }
+            initPartInfoPayLoad(submitRequest, extendedPartInfo);
         }
         partInfoList.addAll(partInfosToAdd);
+    }
+
+    private void initPartInfoPayLoad(SubmitRequest submitRequest, ExtendedPartInfo extendedPartInfo) throws SubmitMessageFault {
+        boolean foundPayload = false;
+        final String href = extendedPartInfo.getHref();
+        LOG.debug("Looking for payload: {}", href);
+        for (final LargePayloadType payload : submitRequest.getPayload()) {
+            LOG.debug("comparing with payload id: " + payload.getPayloadId());
+            if (StringUtils.equalsIgnoreCase(payload.getPayloadId(), href)) {
+                this.copyPartProperties(payload.getContentType(), extendedPartInfo);
+                extendedPartInfo.setInBody(false);
+                LOG.debug("sendMessage - payload Content Type: " + payload.getContentType());
+                extendedPartInfo.setPayloadDatahandler(payload.getValue());
+                foundPayload = true;
+                break;
+            }
+        }
+
+        if (!foundPayload) {
+            initPayloadInBody(submitRequest, extendedPartInfo, href);
+        }
+    }
+
+    private void initPayloadInBody(SubmitRequest submitRequest, ExtendedPartInfo extendedPartInfo, String href) throws SubmitMessageFault {
+        final LargePayloadType bodyload = submitRequest.getBodyload();
+        if (bodyload == null) {
+            // in this case the payload referenced in the partInfo was neither an external payload nor a bodyload
+            throw new SubmitMessageFault("No Payload or Bodyload found for PartInfo with href: " + extendedPartInfo.getHref(), generateDefaultFaultDetail(extendedPartInfo.getHref()));
+        }
+        // It can only be in body load, href MAY be null!
+        if (href == null && bodyload.getPayloadId() == null || href != null && StringUtils.equalsIgnoreCase(href, bodyload.getPayloadId())) {
+            this.copyPartProperties(bodyload.getContentType(), extendedPartInfo);
+            extendedPartInfo.setInBody(true);
+            LOG.debug("sendMessage - bodyload Content Type: " + bodyload.getContentType());
+            extendedPartInfo.setPayloadDatahandler(bodyload.getValue());
+        } else {
+            throw new SubmitMessageFault("No payload found for PartInfo with href: " + extendedPartInfo.getHref(), generateDefaultFaultDetail(extendedPartInfo.getHref()));
+        }
     }
 
     protected void validateSubmitRequest(SubmitRequest submitRequest, Messaging ebMSHeaderInfo) throws SubmitMessageFault {
@@ -306,7 +314,8 @@ public class WebServicePluginImpl extends AbstractBackendConnector<Messaging, Us
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 300, rollbackFor = RetrieveMessageFault.class)
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
-    public void retrieveMessage(RetrieveMessageRequest retrieveMessageRequest, Holder<RetrieveMessageResponse> retrieveMessageResponse,
+    public void retrieveMessage(RetrieveMessageRequest retrieveMessageRequest,
+                                Holder<RetrieveMessageResponse> retrieveMessageResponse,
                                 Holder<Messaging> ebMSHeaderInfo) throws RetrieveMessageFault {
         UserMessage userMessage;
         boolean isMessageIdNotEmpty = StringUtils.isNotEmpty(retrieveMessageRequest.getMessageID());
@@ -323,20 +332,7 @@ public class WebServicePluginImpl extends AbstractBackendConnector<Messaging, Us
             throw new RetrieveMessageFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", webServicePluginExceptionFactory.createFault("No message with id [" + trimmedMessageId + "] pending for download"));
         }
 
-        try {
-            userMessage = downloadMessage(trimmedMessageId, null);
-        } catch (final MessageNotFoundException mnfEx) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(MESSAGE_NOT_FOUND_ID + retrieveMessageRequest.getMessageID() + "]", mnfEx);
-            }
-            LOG.error(MESSAGE_NOT_FOUND_ID + retrieveMessageRequest.getMessageID() + "]");
-            throw new RetrieveMessageFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", webServicePluginExceptionFactory.createDownloadMessageFault(mnfEx));
-        }
-
-        if (userMessage == null) {
-            LOG.error(MESSAGE_NOT_FOUND_ID + retrieveMessageRequest.getMessageID() + "]");
-            throw new RetrieveMessageFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", webServicePluginExceptionFactory.createFault("UserMessage not found"));
-        }
+        userMessage = getUserMessage(retrieveMessageRequest, trimmedMessageId);
 
         // To avoid blocking errors during the Header's response validation
         if (StringUtils.isEmpty(userMessage.getCollaborationInfo().getAgreementRef().getValue())) {
@@ -360,6 +356,25 @@ public class WebServicePluginImpl extends AbstractBackendConnector<Messaging, Us
         wsMessageLogDao.delete(wsMessageLogEntity);
     }
 
+    private UserMessage getUserMessage(RetrieveMessageRequest retrieveMessageRequest, String trimmedMessageId) throws RetrieveMessageFault {
+        UserMessage userMessage;
+        try {
+            userMessage = wsPlugin.downloadMessage(trimmedMessageId, null);
+        } catch (final MessageNotFoundException mnfEx) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(MESSAGE_NOT_FOUND_ID + retrieveMessageRequest.getMessageID() + "]", mnfEx);
+            }
+            LOG.error(MESSAGE_NOT_FOUND_ID + retrieveMessageRequest.getMessageID() + "]");
+            throw new RetrieveMessageFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", webServicePluginExceptionFactory.createDownloadMessageFault(mnfEx));
+        }
+
+        if (userMessage == null) {
+            LOG.error(MESSAGE_NOT_FOUND_ID + retrieveMessageRequest.getMessageID() + "]");
+            throw new RetrieveMessageFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", webServicePluginExceptionFactory.createFault("UserMessage not found"));
+        }
+        return userMessage;
+    }
+
     private void fillInfoPartsForLargeFiles(Holder<RetrieveMessageResponse> retrieveMessageResponse, Messaging messaging) {
         if (getPayloadInfo(messaging) == null || CollectionUtils.isEmpty(getPartInfo(messaging))) {
             LOG.info("No payload found for message [{}]", messaging.getUserMessage().getMessageInfo().getMessageId());
@@ -370,7 +385,7 @@ public class WebServicePluginImpl extends AbstractBackendConnector<Messaging, Us
             ExtendedPartInfo extPartInfo = (ExtendedPartInfo) partInfo;
             LargePayloadType payloadType = WEBSERVICE_OF.createLargePayloadType();
             if (extPartInfo.getPayloadDatahandler() != null) {
-                LOG.debug("payloadDatahandler Content Type: " + extPartInfo.getPayloadDatahandler().getContentType());
+                LOG.debug("payloadDatahandler Content Type: [{}]", extPartInfo.getPayloadDatahandler().getContentType());
                 payloadType.setValue(extPartInfo.getPayloadDatahandler());
             }
             if (extPartInfo.isInBody()) {
@@ -407,22 +422,34 @@ public class WebServicePluginImpl extends AbstractBackendConnector<Messaging, Us
             throw new StatusFault(MESSAGE_ID_EMPTY, webServicePluginExceptionFactory.createFault("MessageId is empty"));
         }
         String trimmedMessageId = messageExtService.cleanMessageIdentifier(statusRequest.getMessageID());
-        return defaultTransformer.transformFromMessageStatus(messageRetriever.getStatus(trimmedMessageId));
+        return MessageStatus.fromValue(wsPlugin.getMessageRetriever().getStatus(trimmedMessageId).name());
     }
 
     @Override
     public ErrorResultImplArray getMessageErrors(final GetErrorsRequest messageErrorsRequest) {
-        return defaultTransformer.transformFromErrorResults(messageRetriever.getErrorsForMessage(messageErrorsRequest.getMessageID()));
+        return transformFromErrorResults(wsPlugin.getMessageRetriever().getErrorsForMessage(messageErrorsRequest.getMessageID()));
     }
 
-    @Override
-    public MessageSubmissionTransformer<Messaging> getMessageSubmissionTransformer() {
-        return this.defaultTransformer;
-    }
+    public ErrorResultImplArray transformFromErrorResults(List<? extends ErrorResult> errors) {
+        ErrorResultImplArray errorList = new ErrorResultImplArray();
+        for (ErrorResult errorResult : errors) {
+            ErrorResultImpl errorResultImpl = new ErrorResultImpl();
+            errorResultImpl.setErrorCode(ErrorCode.fromValue(errorResult.getErrorCode().name()));
+            errorResultImpl.setErrorDetail(errorResult.getErrorDetail());
+            errorResultImpl.setMshRole(MshRole.fromValue(errorResult.getMshRole().name()));
+            errorResultImpl.setMessageInErrorId(errorResult.getMessageInErrorId());
+            LocalDateTime dateTime = LocalDateTime.now();
 
-    @Override
-    public MessageRetrievalTransformer<UserMessage> getMessageRetrievalTransformer() {
-        return this.defaultTransformer;
+            if (errorResult.getNotified() != null) {
+                dateTime = errorResult.getNotified().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+            }
+            errorResultImpl.setNotified(dateTime);
+            if (errorResult.getTimestamp() != null) {
+                dateTime = errorResult.getTimestamp().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+            }
+            errorResultImpl.setTimestamp(dateTime);
+            errorList.getItem().add(errorResultImpl);
+        }
+        return errorList;
     }
-
 }

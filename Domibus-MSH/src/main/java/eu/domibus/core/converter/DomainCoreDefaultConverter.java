@@ -27,19 +27,20 @@ import eu.domibus.core.crypto.spi.DomainSpi;
 import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.logging.LoggingEntry;
 import eu.domibus.core.message.MessageLogInfo;
-import eu.domibus.core.message.UserMessageLog;
+import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.core.message.attempt.MessageAttemptEntity;
-import eu.domibus.core.message.signal.SignalMessageLog;
+import eu.domibus.api.model.SignalMessageLog;
 import eu.domibus.core.party.PartyResponseRo;
 import eu.domibus.core.party.ProcessRo;
 import eu.domibus.core.plugin.routing.BackendFilterEntity;
 import eu.domibus.core.plugin.routing.RoutingCriteriaEntity;
+import eu.domibus.core.property.DomibusPropertiesFilter;
 import eu.domibus.core.replication.UIMessageDiffEntity;
 import eu.domibus.core.replication.UIMessageEntity;
 import eu.domibus.core.user.plugin.AuthenticationEntity;
-import eu.domibus.ebms3.common.model.PartProperties;
-import eu.domibus.ebms3.common.model.PullRequest;
-import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.api.model.PartProperties;
+import eu.domibus.api.model.PullRequest;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.ext.domain.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -393,6 +394,11 @@ public class DomainCoreDefaultConverter implements DomainCoreConverter {
         if (typeOfT == DomibusPropertyMetadata.class && source.getClass() == DomibusPropertyMetadata.class) {
             LOG.trace("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
             return (T) domibusCoreMapper.propertyMetadataTopropertyMetadata((DomibusPropertyMetadata) source);
+        }
+
+        if (typeOfT == DomibusPropertiesFilter.class && source.getClass() == PropertyFilterRequestRO.class) {
+            LOG.trace("Type converted: T=[{}] U=[{}]", typeOfT, source.getClass());
+            return (T) domibusCoreMapper.domibusPropertyFilterRequestTOdomibusPropertiesFilter((PropertyFilterRequestRO) source);
         }
 
         String errorMsg = String.format("Type not converted: T=[%s] U=[%s]", typeOfT, source.getClass());

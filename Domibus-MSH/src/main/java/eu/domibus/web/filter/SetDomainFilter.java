@@ -1,10 +1,10 @@
 package eu.domibus.web.filter;
 
-import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.web.security.UserDetail;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.web.security.UserDetail;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -33,22 +33,31 @@ public class SetDomainFilter extends GenericFilterBean {
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication != null && authentication.isAuthenticated() && (authentication.getPrincipal() instanceof UserDetail)) {
-            UserDetail securityUser = (UserDetail) authentication.getPrincipal();
-            domainContextProvider.setCurrentDomain(getCurrentDomain(securityUser));
-
+        UserDetail loggedUser = getAuthenticatedUser();
+        if (loggedUser != null) {
+            String domain = getDomain(loggedUser);
+            LOG.debug("Found authenticated user [{}]; setting its domain [{}] on the context.", loggedUser.getUsername(), domain);
+            domainContextProvider.setCurrentDomain(domain);
         }
+        LOG.debug("No authenticated user found so no domain to set.");
+
         chain.doFilter(request, response);
     }
 
-    protected String getCurrentDomain(UserDetail securityUser) {
-        final boolean multiTenantAware = domibusConfigurationService.isMultiTenantAware();
-        String result = DomainService.DEFAULT_DOMAIN.getCode();
-        if (multiTenantAware) {
-            result = securityUser.getDomain();
+    //TODO: replace with an already existing method from AuthenticationServiceBase (or move it in AuthUtils) and reuse everywhere
+    // EDELIVERY-7610
+    protected UserDetail getAuthenticatedUser() {
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated() && (authentication.getPrincipal() instanceof UserDetail)) {
+            return (UserDetail) authentication.getPrincipal();
         }
-        return result;
+        return null;
+    }
+
+    protected String getDomain(UserDetail user) {
+        if (domibusConfigurationService.isMultiTenantAware()) {
+            return user.getDomain();
+        }
+        return DomainService.DEFAULT_DOMAIN.getCode();
     }
 }

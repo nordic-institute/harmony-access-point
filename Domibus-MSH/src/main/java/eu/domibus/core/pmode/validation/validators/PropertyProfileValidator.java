@@ -1,5 +1,6 @@
 package eu.domibus.core.pmode.validation.validators;
 
+import eu.domibus.api.model.MessageProperties;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.LegConfiguration;
@@ -8,8 +9,7 @@ import eu.domibus.common.model.configuration.PropertySet;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.UserMessageServiceHelper;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.ebms3.common.model.MessageProperties;
-import eu.domibus.ebms3.common.model.Messaging;
+import eu.domibus.api.model.Messaging;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -53,13 +53,13 @@ public class PropertyProfileValidator {
         final Set<Property> profile = propSet.getProperties();
 
         modifiablePropertyList.addAll(profile);
-        eu.domibus.ebms3.common.model.MessageProperties messageProperties = new MessageProperties();
+        MessageProperties messageProperties = new MessageProperties();
         if (messaging.getUserMessage().getMessageProperties() != null) {
             messageProperties = messaging.getUserMessage().getMessageProperties();
             checkDuplicateMessageProperties(modifiablePropertyList, messageProperties);
         }
 
-        for (final eu.domibus.ebms3.common.model.Property property : messageProperties.getProperty()) {
+        for (final eu.domibus.api.model.Property property : messageProperties.getProperty()) {
             Property profiled = null;
             for (final Property profiledProperty : modifiablePropertyList) {
                 if (profiledProperty.getKey().equalsIgnoreCase(property.getName())) {

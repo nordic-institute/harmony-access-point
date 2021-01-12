@@ -39,7 +39,11 @@ export class EditPopupBaseComponent {
 
     this.onSubmitForm();
 
-    this.dialogRef.close(true);
+    this.dialogRef.close(this.getDialogResult());
+  }
+
+  protected getDialogResult(): any {
+    return true;
   }
 
   public shouldShowErrors(field: NgControl | NgForm | AbstractControl): boolean {

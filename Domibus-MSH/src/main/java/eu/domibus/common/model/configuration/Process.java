@@ -1,6 +1,6 @@
 package eu.domibus.common.model.configuration;
 
-import eu.domibus.ebms3.common.model.AbstractBaseEntity;
+import eu.domibus.api.model.AbstractBaseEntity;
 
 import javax.persistence.*;
 import javax.xml.bind.annotation.*;
@@ -189,6 +189,25 @@ public class Process extends AbstractBaseEntity {
 
     public Set<Party> getResponderParties() {
         return this.responderParties;
+    }
+
+    /**
+     * Method changes Set from internal hibernate PersistentSet to HashSet. Due to
+     * hibernate session state, the PersistentSet.contain function return false even-thought the object is in a list
+     * and values which contributes to hash have the same value. This issue will be tackled in Domibus 5.0
+     * in a general manner
+     */
+    public void detachParties(){
+
+        Set<Party> initiatorPartiesNew = new HashSet<>();
+        initiatorPartiesNew.addAll(initiatorParties);
+        initiatorParties.clear();
+        initiatorParties = initiatorPartiesNew;
+
+        Set<Party> responderPartiesNew = new HashSet<>();
+        responderPartiesNew.addAll(responderParties);
+        responderParties.clear();
+        responderParties = responderPartiesNew;
     }
 
     @Override

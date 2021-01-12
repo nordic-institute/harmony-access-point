@@ -3,8 +3,8 @@ package eu.domibus.core.message;
 import eu.domibus.common.ErrorResult;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
-import eu.domibus.ebms3.common.model.Messaging;
-import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.api.model.Messaging;
+import eu.domibus.api.model.UserMessage;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.soap.SOAPException;

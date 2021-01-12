@@ -9,7 +9,6 @@ import java.util.Map;
  * @since 4.1.1
  */
 public interface DomibusPropertyMetadataManagerSPI {
-
     /**
      * Get all the properties metadata that support changing at runtime
      *
@@ -114,8 +113,8 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_DOWNLOADED_MAX_DELETE = "domibus.retentionWorker.message.retention.downloaded.max.delete";
     String DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_NOT_DOWNLOADED_MAX_DELETE = "domibus.retentionWorker.message.retention.not_downloaded.max.delete";
     String DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_SENT_MAX_DELETE = "domibus.retentionWorker.message.retention.sent.max.delete";
+    String DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_PAYLOAD_DELETED_MAX_DELETE = "domibus.retentionWorker.message.retention.payload_deleted.max.delete";
     String DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_BATCH_DELETE = "domibus.retentionWorker.message.retention.batch.delete";
-    String DOMIBUS_RETENTION_WORKER_MESSAGE_ID_LIST_SEPARATOR = "domibus.retentionWorker.message.id.list.separator";
     String DOMIBUS_RETENTION_JMS_CONCURRENCY = "domibus.retention.jms.concurrency";
     String DOMIBUS_DISPATCH_EBMS_ERROR_UNRECOVERABLE_RETRY = "domibus.dispatch.ebms.error.unrecoverable.retry";
     String DOMIBUS_PROXY_ENABLED = DOMIBUS_PROXY_PREFIX + "enabled";
@@ -135,6 +134,7 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_LOGGING_METADATA_PRINT = "domibus.logging.metadata.print";
     String DOMIBUS_LOGGING_EBMS3_ERROR_PRINT = "domibus.logging.ebms3.error.print";
     String DOMIBUS_LOGGING_CXF_LIMIT = "domibus.logging.cxf.limit";
+    String DOMIBUS_CONNECTION_CXF_SSL_OFFLOAD_ENABLE = "domibus.connection.cxf.ssl.offload.enable";
     String DOMIBUS_ATTACHMENT_TEMP_STORAGE_LOCATION = "domibus.attachment.temp.storage.location";
     String DOMIBUS_DISPATCHER_SPLIT_AND_JOIN_CONCURRENCY = "domibus.dispatcher.splitAndJoin.concurrency";
     String DOMIBUS_DISPATCHER_SPLIT_AND_JOIN_PAYLOADS_SCHEDULE_THRESHOLD = "domibus.dispatcher.splitAndJoin.payloads.schedule.threshold";
@@ -284,6 +284,7 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_JMS_XACONNECTION_FACTORY_MAX_POOL_SIZE = "domibus.jms.XAConnectionFactory.maxPoolSize";
     String DOMIBUS_JMS_QUEUE_ALERT = "domibus.jms.queue.alert";
     String DOMIBUS_TASK_EXECUTOR_THREAD_COUNT = "domibus.taskExecutor.threadCount";
+    String DOMIBUS_MSH_TASK_EXECUTOR_THREAD_COUNT = "domibus.mshTaskExecutor.threadCount";
     String COM_ATOMIKOS_ICATCH_OUTPUT_DIR = "com.atomikos.icatch.output_dir";
     String COM_ATOMIKOS_ICATCH_LOG_BASE_DIR = "com.atomikos.icatch.log_base_dir";
     String COM_ATOMIKOS_ICATCH_DEFAULT_JTA_TIMEOUT = "com.atomikos.icatch.default_jta_timeout";
@@ -327,5 +328,12 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_METRICS_MONITOR_JMS_QUEUES_SHOW_DLQ_ONLY = "domibus.metrics.monitor.jms.queues.show.dlq.only";
     String DOMIBUS_SCHEMAFACTORY = "domibus.javax.xml.validation.SchemaFactory";
     String DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES = "domibus.ui.resend.action.enabled.received.minutes";
+    String DOMIBUS_UI_SESSION_SECURE = "domibus.ui.session.secure";
+    String DOMIBUS_DISPATCHER_TIMEOUT = "domibus.dispatcher.timeout";
+    String DOMIBUS_UI_SESSION_TIMEOUT = "domibus.ui.session.timeout";
+
+    String DOMIBUS_ERRORLOG_CLEANER_CRON = "domibus.errorlog.cleaner.cron";
+    String DOMIBUS_ERRORLOG_CLEANER_OLDER_DAYS = "domibus.errorlog.cleaner.older.days";
+    String DOMIBUS_ERRORLOG_CLEANER_BATCH_SIZE = "domibus.errorlog.cleaner.batch.size";
 
 }

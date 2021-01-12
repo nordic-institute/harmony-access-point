@@ -1,8 +1,9 @@
 package eu.domibus.core.monitoring;
 
 import eu.domibus.api.multitenancy.Domain;
-import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.api.security.AuthUtils;
 import eu.domibus.core.scheduler.DomibusQuartzJobBean;
+import eu.domibus.logging.DomibusLoggerFactory;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -21,6 +22,9 @@ public class ConnectionMonitoringJob extends DomibusQuartzJobBean {
 
     @Autowired
     protected ConnectionMonitoringService connectionMonitoringService;
+
+    @Autowired
+    protected AuthUtils authUtils;
 
     @Override
     protected void executeJob(JobExecutionContext context, Domain domain) throws JobExecutionException {

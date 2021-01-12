@@ -8,13 +8,19 @@
     <parent>
         <groupId>eu.domibus</groupId>
         <artifactId>domibus</artifactId>
-        <version>4.2-SNAPSHOT</version>
+        <version>5.0-SNAPSHOT</version>
     </parent>
     <artifactId>domibus-default-ws-plugin</artifactId>
     <packaging>jar</packaging>
     <name>Domibus MSH Default WS Plugin</name>
 
     <dependencies>
+
+        <dependency>
+            <groupId>com.sun.xml.messaging.saaj</groupId>
+            <artifactId>saaj-impl</artifactId>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>org.apache.activemq</groupId>
             <artifactId>activemq-client</artifactId>
@@ -25,6 +31,12 @@
             <artifactId>slf4j-api</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.quartz-scheduler</groupId>
+            <artifactId>quartz</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <!--        CXF -->
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-frontend-jaxws</artifactId>
@@ -46,6 +58,16 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-transports-http</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-transports-local</artifactId>
+        </dependency>
+        <!--        CXF END-->
+        <!--        Domibus Start     -->
+        <dependency>
             <groupId>eu.domibus</groupId>
             <artifactId>domibus-plugin-api</artifactId>
             <version>${project.version}</version>
@@ -65,7 +87,25 @@
         </dependency>
         <dependency>
             <groupId>eu.domibus</groupId>
+            <artifactId>domibus-default-ws-plugin-stubs</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>eu.domibus</groupId>
+            <artifactId>domibus-default-ws-plugin-backend-ws-stubs</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>eu.domibus</groupId>
             <artifactId>domibus-logging</artifactId>
+        </dependency>
+        <!--       Domibus End      -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -108,6 +148,16 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context-support</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jms</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>javax</groupId>
             <artifactId>javaee-api</artifactId>
             <scope>provided</scope>
@@ -117,7 +167,18 @@
             <artifactId>commons-io</artifactId>
             <scope>provided</scope>
         </dependency>
-        <!-- Tests -->
+        <dependency>
+            <groupId>org.ehcache</groupId>
+            <artifactId>ehcache</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <!--        START TEST        -->
+        <dependency>
+            <groupId>eu.domibus</groupId>
+            <artifactId>domibus-test</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -128,9 +189,25 @@
             <artifactId>jmockit</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>eu.domibus</groupId>
+            <artifactId>domibus-default-ws-plugin-backend-ws-test</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <!--        END TEST        -->
     </dependencies>
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>

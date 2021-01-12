@@ -1,10 +1,10 @@
 package eu.domibus.core.message;
 
-import eu.domibus.core.datasource.AutoCloseFileDataSource;
-import eu.domibus.core.message.splitandjoin.MessageFragmentEntity;
-import eu.domibus.core.message.splitandjoin.MessageGroupEntity;
+import eu.domibus.api.model.*;
+import eu.domibus.api.datasource.AutoCloseFileDataSource;
+import eu.domibus.api.model.splitandjoin.MessageFragmentEntity;
+import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinDefaultService;
-import eu.domibus.ebms3.common.model.*;
 import org.springframework.stereotype.Service;
 
 import javax.activation.DataHandler;
@@ -92,7 +92,7 @@ public class UserMessageDefaultFactory implements UserMessageFactory {
             collaborationInfo.setAgreementRef(agreementRef);
         }
 
-        final eu.domibus.ebms3.common.model.Service service = new eu.domibus.ebms3.common.model.Service();
+        final eu.domibus.api.model.Service service = new eu.domibus.api.model.Service();
         service.setValue(source.getService().getValue());
         service.setType(source.getService().getType());
         collaborationInfo.setService(service);

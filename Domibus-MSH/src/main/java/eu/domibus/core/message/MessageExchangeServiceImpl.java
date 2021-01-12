@@ -1,5 +1,6 @@
 package eu.domibus.core.message;
 
+import eu.domibus.api.model.MessageStatus;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import eu.domibus.api.crypto.CryptoException;
@@ -13,20 +14,19 @@ import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.reliability.ReliabilityException;
 import eu.domibus.api.security.ChainCertificateInvalidException;
-import eu.domibus.common.MSHRole;
-import eu.domibus.common.MessageStatus;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.ws.policy.PolicyService;
-import eu.domibus.core.message.nonrepudiation.RawEnvelopeDto;
-import eu.domibus.core.message.nonrepudiation.RawEnvelopeLog;
+import eu.domibus.api.model.RawEnvelopeDto;
+import eu.domibus.api.model.RawEnvelopeLog;
 import eu.domibus.core.message.nonrepudiation.RawEnvelopeLogDao;
 import eu.domibus.core.message.pull.*;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections.CollectionUtils;
@@ -51,8 +51,6 @@ import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RECEIVER_CERTIFICATE_VALIDATION_ONSENDING;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONSENDING;
-import static eu.domibus.common.MessageStatus.READY_TO_PULL;
-import static eu.domibus.common.MessageStatus.SEND_ENQUEUED;
 import static eu.domibus.core.message.pull.PullContext.MPC;
 import static eu.domibus.core.message.pull.PullContext.PMODE_KEY;
 
@@ -118,13 +116,12 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
      * {@inheritDoc}
      */
     @Override
-    @Transactional(readOnly = true)
     public MessageStatus getMessageStatus(final MessageExchangeConfiguration messageExchangeConfiguration) {
-        MessageStatus messageStatus = SEND_ENQUEUED;
+        MessageStatus messageStatus = MessageStatus.SEND_ENQUEUED;
         List<Process> processes = pModeProvider.findPullProcessesByMessageContext(messageExchangeConfiguration);
         if (!processes.isEmpty()) {
             processValidator.validatePullProcess(Lists.newArrayList(processes));
-            messageStatus = READY_TO_PULL;
+            messageStatus = MessageStatus.READY_TO_PULL;
         } else {
             LOG.debug("No pull process found for message configuration");
         }
@@ -140,7 +137,7 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
         final UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
         try {
             if (forcePullOnMpc(userMessage)) {
-                return READY_TO_PULL;
+                return MessageStatus.READY_TO_PULL;
             }
             MessageExchangeConfiguration userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
             return getMessageStatus(userMessageExchangeConfiguration);

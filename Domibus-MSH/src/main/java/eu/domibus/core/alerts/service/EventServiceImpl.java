@@ -1,8 +1,8 @@
 package eu.domibus.core.alerts.service;
 
+import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.jms.JMSManager;
-import eu.domibus.common.MSHRole;
-import eu.domibus.common.MessageStatus;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.alerts.dao.EventDao;
 import eu.domibus.core.alerts.model.common.*;
@@ -17,7 +17,7 @@ import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.pull.MpcService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.user.UserEntityBase;
-import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;

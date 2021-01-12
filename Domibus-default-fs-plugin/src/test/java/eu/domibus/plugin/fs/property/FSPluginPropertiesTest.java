@@ -3,7 +3,7 @@ package eu.domibus.plugin.fs.property;
 import eu.domibus.ext.exceptions.DomibusPropertyExtException;
 import eu.domibus.ext.services.*;
 import eu.domibus.plugin.fs.worker.FSSendMessagesService;
-import eu.domibus.plugin.property.PluginPropertyChangeNotifier;
+import mockit.Deencapsulation;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -12,7 +12,9 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 
@@ -36,9 +38,6 @@ public class FSPluginPropertiesTest {
     protected DomibusConfigurationExtService domibusConfigurationExtService;
 
     @Injectable
-    PluginPropertyChangeNotifier pluginPropertyChangeNotifier;
-
-    @Injectable
     DomainContextExtService domainContextExtService;
 
     @Tested
@@ -52,18 +51,8 @@ public class FSPluginPropertiesTest {
     FSPluginProperties fsPluginProperties;
 
     @Test
-    public void testReadDomains() {
-        Set<String> domains = new HashSet<>();
-        domains.add("fsplugin.domains.domain1");
-        domains.add("fsplugin.domains.domain2");
-        domains.add("fsplugin.domains.domain3");
-
-        new Expectations(Collections.class) {{
-            properties.stringPropertyNames();
-            result = domains;
-
-            Collections.sort((List) any, (Comparator) any);
-        }};
+    public void test_readDomains() {
+        Deencapsulation.setField(fsPluginProperties, "fsPluginDomainsList", "DOMAIN1,DOMAIN2,DOMAIN3");
 
         final List<String> domainsList = fsPluginProperties.readDomains();
         Assert.assertEquals(4, domainsList.size());
@@ -71,16 +60,26 @@ public class FSPluginPropertiesTest {
     }
 
     @Test
+    public void test_readDomains_BlankValue() {
+        Deencapsulation.setField(fsPluginProperties, "fsPluginDomainsList", "   ");
+
+        final List<String> domainsList = fsPluginProperties.readDomains();
+        Assert.assertEquals(1, domainsList.size());
+        Assert.assertTrue(domainsList.contains(FSSendMessagesService.DEFAULT_DOMAIN));
+    }
+
+
+    @Test
     public void testHasKnownProperty() {
         final String propertyName = "fsplugin.messages.location";
 
-        new Expectations(Collections.class) {{
+        new Expectations() {{
             domibusConfigurationExtService.isMultiTenantAware();
             result = true;
         }};
 
         final Boolean isKnownProperty = fsPluginPropertiesMetadataManager.hasKnownProperty(propertyName);
-        Assert.assertEquals(false, isKnownProperty);
+        Assert.assertEquals(true, isKnownProperty);
 
         final Boolean isKnownFSProperty = fsPluginProperties.hasKnownProperty(propertyName);
         Assert.assertEquals(true, isKnownFSProperty);

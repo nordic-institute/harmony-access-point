@@ -27,6 +27,8 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 public class AuthUtilsImpl implements AuthUtils {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AuthUtilsImpl.class);
+    private static final String DOMIBUS_USER = "domibus";
+    private static final String DOMIBUS_PASSWORD = "domibus";
 
     protected final DomibusPropertyProvider domibusPropertyProvider;
 
@@ -189,7 +191,12 @@ public class AuthUtilsImpl implements AuthUtils {
 
     @Override
     public <R> R runFunctionWithSecurityContext(AuthenticatedFunction function, String user, String password, AuthRole authRole) {
-        if (isUnsecureLoginAllowed()) {
+        return runFunctionWithSecurityContext(function, user, password, authRole, false);
+    }
+
+    @Override
+    public <R> R runFunctionWithSecurityContext(AuthenticatedFunction function, String user, String password, AuthRole authRole, boolean forceSecurityContext) {
+        if (isUnsecureLoginAllowed() && !forceSecurityContext) {
             LOG.debug("Unsecure login is allowed: not Spring security is set before executing the method.");
             return (R) function.invoke();
         }
@@ -200,6 +207,21 @@ public class AuthUtilsImpl implements AuthUtils {
         } finally {
             clearSecurityContext();
         }
+    }
+
+    @Override
+    public void runWithDomibusSecurityContext(AuthenticatedProcedure method, AuthRole authRole) {
+        runWithDomibusSecurityContext(method, authRole, false);
+    }
+
+    @Override
+    public void runWithDomibusSecurityContext(AuthenticatedProcedure method, AuthRole authRole, boolean forceSecurityContext) {
+        runWithSecurityContext(method, DOMIBUS_USER, DOMIBUS_PASSWORD, authRole, forceSecurityContext);
+    }
+    
+    @Override
+    public <R> R runFunctionWithDomibusSecurityContext(AuthenticatedFunction function, AuthRole authRole, boolean forceSecurityContext) {
+        return runFunctionWithSecurityContext(function, DOMIBUS_USER, DOMIBUS_PASSWORD, authRole, forceSecurityContext);
     }
 
     @Override

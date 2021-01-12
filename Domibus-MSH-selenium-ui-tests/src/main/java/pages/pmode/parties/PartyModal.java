@@ -152,10 +152,6 @@ public class PartyModal extends EditModal {
 			weToCheckbox(respChk).set(responder);
 			
 		}
-		
-		
-		log.info("Click on Ok button");
-		getOkBtn().click();
 	}
 	
 	

@@ -1,10 +1,10 @@
 package eu.domibus.core.audit;
 
+import eu.domibus.api.spring.SpringContextProvider;
+import eu.domibus.api.util.DatabaseUtil;
 import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.core.audit.envers.ModificationType;
 import eu.domibus.core.audit.envers.RevisionLog;
-import eu.domibus.core.spring.SpringContextProvider;
-import eu.domibus.core.util.DatabaseUtil;
 import mockit.Expectations;
 import mockit.Mocked;
 import mockit.Tested;

@@ -9,7 +9,9 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Authorization;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -47,5 +49,38 @@ public class UserMessageExtResource {
     public UserMessageDTO getUserMessage(@PathVariable(value = "messageId") String messageId) {
         LOG.debug("Getting User Message with id = '{}", messageId);
         return userMessageExtService.getMessage(messageId);
+    }
+
+    @ApiOperation(value = "Get user message envelope", notes = "Retrieve the user message envelope with the specified message id",
+            authorizations = @Authorization(value = "basicAuth"), tags = "envelope")
+    @GetMapping(path = "/{messageId:.+}/envelope")
+    public ResponseEntity<String> downloadUserMessageEnvelope(@PathVariable(value = "messageId") String messageId) {
+        LOG.debug("Getting User Message Envelope with id = [{}]", messageId);
+
+        String result = userMessageExtService.getUserMessageEnvelope(messageId);
+
+        return buildResponse(result, "user_message_envelope_" + messageId + ".xml");
+    }
+
+    @ApiOperation(value = "Get signal message envelope", notes = "Retrieve the signal message envelope with the specified user message id",
+            authorizations = @Authorization(value = "basicAuth"), tags = "signalEnvelope")
+    @GetMapping(path = "/{messageId:.+}/signalEnvelope")
+    public ResponseEntity<String> downloadSignalMessageEnvelope(@PathVariable(value = "messageId") String messageId) {
+        LOG.debug("Getting Signal Message Envelope with id = [{}]", messageId);
+
+        String result = userMessageExtService.getSignalMessageEnvelope(messageId);
+
+        return buildResponse(result, "signal_message_envelope_" + messageId + ".xml");
+    }
+
+    private ResponseEntity<String> buildResponse(String result, String fileName) {
+        if (StringUtils.isBlank(result)) {
+            return ResponseEntity.noContent().build();
+        }
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(MediaType.APPLICATION_XML_VALUE))
+                .header("content-disposition", "attachment; filename=" + fileName)
+                .body(result);
     }
 }

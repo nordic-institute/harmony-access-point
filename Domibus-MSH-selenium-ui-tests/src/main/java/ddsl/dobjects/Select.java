@@ -104,6 +104,7 @@ public class Select extends DComponent {
 		List<DObject> optionObj = getOptionElements();
 		if (optionObj.size() == 0) {
 			log.warn("select has no options - " + text);
+
 		}
 		
 		wait.forElementToHaveText(optionObj.get(optionObj.size() - 1).element);
@@ -138,5 +139,14 @@ public class Select extends DComponent {
 		contract();
 		return texts;
 	}
-	
+
+	public boolean isEnabled() {
+//		aria-disabled="true"
+		boolean isEnabled = true;
+		try {
+			isEnabled = !Boolean.valueOf(weToDobject(selectContainer).getAttribute("aria-disabled"));
+		}catch (Exception e){}
+
+		return isEnabled;
+	}
 }

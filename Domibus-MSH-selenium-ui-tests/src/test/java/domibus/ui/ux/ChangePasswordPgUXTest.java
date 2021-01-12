@@ -138,7 +138,6 @@ public class ChangePasswordPgUXTest extends SeleniumTest {
 		cpage.setPassFields(data.defaultPass(), data.defaultPass(), data.getNewTestPass());
 		
 		log.info("press tab key");
-//		cpage.getConfirmationField().pressTABKey();
 		cpage.pressTABKey();
 		
 		log.info("Validation message appears");
@@ -196,8 +195,8 @@ public class ChangePasswordPgUXTest extends SeleniumTest {
 		cpage.setPassFields(data.defaultPass(), "INVALID_PASS_1", "invalid_pass_2");
 		
 		log.info("press tab key");
-//		cpage.getConfirmationField().pressTABKey();
 		cpage.pressTABKey();
+		page.wait.forXMillis(2000);
 		
 		log.info("Validation message for password policy under new password field");
 		soft.assertTrue(cpage.isValidationMsgPresent(cpage.newPasswordFieldLabel), "Message is displayed");

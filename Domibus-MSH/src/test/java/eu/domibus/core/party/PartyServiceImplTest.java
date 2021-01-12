@@ -21,10 +21,10 @@ import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.crypto.api.CertificateEntry;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import eu.domibus.core.ebms3.EbMS3Exception;
-import eu.domibus.core.ebms3.Ebms3Constants;
+import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
-import eu.domibus.ebms3.common.model.MessageExchangePattern;
+import eu.domibus.api.ebms3.MessageExchangePattern;
 import eu.domibus.messaging.XmlProcessingException;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -1753,5 +1753,32 @@ public class PartyServiceImplTest {
         } catch (PModeValidationException ex) {
             Assert.fail();
         }
+    }
+
+    @Test
+    public void testSanitize() {
+        String partyIdTypeName = "partyIdTypeName";
+        String partyIdId = "blue";
+        String partyName = "domibus-blue";
+
+        eu.domibus.api.party.PartyIdType pIdType = new eu.domibus.api.party.PartyIdType();
+        pIdType.setName(partyIdTypeName + "  ");
+        pIdType.setValue("partyIdTypeValue");
+        Identifier partyId = new Identifier();
+        partyId.setPartyId("  " + partyIdId);
+        partyId.setPartyIdType(pIdType);
+
+        Party party = new Party();
+        party.setName(" " + partyName + "  ");
+        party.setIdentifiers(Arrays.asList(partyId));
+
+        List<Party> parties = Arrays.asList(party);
+
+        partyService.sanitizeParties(parties);
+
+        Assert.assertEquals(partyName, parties.get(0).getName());
+        Identifier id1 = parties.get(0).getIdentifiers().stream().findFirst().get();
+        Assert.assertEquals(partyIdId, id1.getPartyId());
+        Assert.assertEquals(partyIdTypeName, id1.getPartyIdType().getName());
     }
 }

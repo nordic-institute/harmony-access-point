@@ -198,8 +198,9 @@ public class PluginUserServiceImpl implements PluginUserService {
 
         if (StringUtils.isBlank(existing.getCertificateId())) {
             // locking policy is only applicable to Basic auth plugin users
-            userSecurityPolicyManager.applyLockingPolicyOnUpdate(modified);
+            userSecurityPolicyManager.applyLockingPolicyOnUpdate(modified, existing);
         }
+        existing.setActive(modified.isActive());
 
         if (!StringUtils.isEmpty(modified.getPassword())) {
             changePassword(existing, modified.getPassword());

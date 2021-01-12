@@ -7,9 +7,11 @@ import ddsl.enums.PAGES;
 import domibus.ui.SeleniumTest;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
+import pages.errorLog.ErrorLogPage;
 import pages.users.UserModal;
 import pages.users.UsersPage;
 import rest.RestServicePaths;
@@ -393,6 +395,30 @@ public class UsersPgUXTest extends SeleniumTest {
 		
 		log.info("checking info in grid against the file");
 		page.getUsersGrid().checkCSVvsGridInfo(fileName, soft);
+		soft.assertAll();
+	}
+
+
+	/*EDELIVERY-5209 - USR-36 - Check sorting on the basis of Headers of Grid*/
+	@Test(description = "USR-36", groups = {"multiTenancy", "singleTenancy"})
+	public void checkSorting() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		JSONArray colDescs = descriptorObj.getJSONObject("grid").getJSONArray("columns");
+
+		UsersPage page = new UsersPage(driver);
+		page.getSidebar().goToPage(PAGES.USERS);
+
+		DGrid grid = page.grid();
+		grid.getPagination().getPageSizeSelect().selectOptionByText("25");
+
+		for (int i = 0; i < colDescs.length(); i++) {
+			JSONObject colDesc = colDescs.getJSONObject(i);
+			if (grid.getColumnNames().contains(colDesc.getString("name"))) {
+				TestUtils.testSortingForColumn(soft, grid, colDesc);
+			}
+		}
+
 		soft.assertAll();
 	}
 	

@@ -84,18 +84,25 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
             LOG.debug("Certificate with cache key:[{}] validated from dss cache", dssCache);
             return;
         }
-        final X509Certificate leafCertificate = getX509LeafCertificate(certs);
-        //add signing certificate to DSS.
-        final CertificateVerifier certificateVerifier = certificateVerifierService.getCertificateVerifier();
-        CertificateSource adjunctCertSource = prepareCertificateSource(certs, leafCertificate);
-        certificateVerifier.setAdjunctCertSource(adjunctCertSource);
-        LOG.debug("Leaf certificate:[{}] to be validated by dss", leafCertificate.getSubjectDN().getName());
-        //add leaf certificate to DSS
-        CertificateValidator certificateValidator = prepareCertificateValidator(leafCertificate, certificateVerifier);
-        //Validate.
-        validate(certificateValidator);
-        dssCache.addToCache(cacheKey, true);
-        LOG.debug("Certificate:[{}] passed DSS trust validation:", leafCertificate.getSubjectDN());
+        synchronized (DomibusDssCryptoSpi.class) {
+            if (dssCache.isChainValid(cacheKey)) {
+                LOG.trace("Certificate has been added to the DSS cache by another thread.");
+                return;
+            }
+            final X509Certificate leafCertificate = getX509LeafCertificate(certs);
+            //add signing certificate to DSS.
+            final CertificateVerifier certificateVerifier = certificateVerifierService.getCertificateVerifier();
+            CertificateSource adjunctCertSource = prepareCertificateSource(certs, leafCertificate);
+            certificateVerifier.setAdjunctCertSource(adjunctCertSource);
+            LOG.debug("Leaf certificate:[{}] to be validated by dss", leafCertificate.getSubjectDN().getName());
+            //add leaf certificate to DSS
+            CertificateValidator certificateValidator = prepareCertificateValidator(leafCertificate, certificateVerifier);
+            //Validate.
+            validate(certificateValidator);
+            dssCache.addToCache(cacheKey, true);
+            LOG.debug("Certificate:[{}] passed DSS trust validation:", leafCertificate.getSubjectDN());
+        }
+
     }
 
     protected void validate(CertificateValidator certificateValidator) throws WSSecurityException {

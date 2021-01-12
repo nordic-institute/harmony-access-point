@@ -5,7 +5,10 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.security.functions.AuthenticatedProcedure;
+import eu.domibus.api.util.JsonUtil;
 import eu.domibus.core.message.UserMessageDefaultService;
+import eu.domibus.api.model.UserMessageLog;
+import eu.domibus.api.model.UserMessageLogDto;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.messaging.MessageConstants;
 import mockit.*;
@@ -16,11 +19,9 @@ import org.junit.runner.RunWith;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
-import java.util.Arrays;
+import java.lang.reflect.Type;
 import java.util.List;
 
-
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RETENTION_WORKER_MESSAGE_ID_LIST_SEPARATOR;
 
 /**
  * @author Sebastian-Ion TINCU
@@ -43,6 +44,9 @@ public class RetentionListenerTest {
 
     @Injectable
     DomibusPropertyProvider domibusPropertyProvider;
+
+    @Injectable
+    JsonUtil jsonUtil;
 
     @Mocked
     private Message message;
@@ -68,15 +72,12 @@ public class RetentionListenerTest {
     }
 
     @Test
-    public void onMessage_deletesMessageMulti(@Mocked DomibusLogger domibusLogger) throws JMSException {
-        // Given
-        List<String> messageIds = Arrays.asList("messageId1", "messageId2");
+    public void onMessage_deletesMessageMulti(@Mocked DomibusLogger domibusLogger, @Mocked List<UserMessageLog> userMessageLogs) throws JMSException {
 
+        String userMessageLogsStr = "someUserMessageLogs";
         new Expectations() {{
             message.getStringProperty(MessageRetentionDefaultService.DELETE_TYPE); result = MessageDeleteType.MULTI.name();
-            message.getStringProperty(MessageRetentionDefaultService.MESSAGE_IDS); result = "messageId1,messageId2";
-            domibusPropertyProvider.getProperty(DOMIBUS_RETENTION_WORKER_MESSAGE_ID_LIST_SEPARATOR);
-            result = ",";
+            message.getStringProperty(MessageRetentionDefaultService.MESSAGE_LOGS); result = userMessageLogsStr;
         }};
 
         // When
@@ -84,8 +85,8 @@ public class RetentionListenerTest {
 
         // Then
         new Verifications() {{
-            domainContextProvider.setCurrentDomain(anyString);
-            userMessageDefaultService.deleteMessages(messageIds);
+            jsonUtil.jsonToList(anyString, (Type) any);
+            userMessageDefaultService.deleteMessages((List<UserMessageLogDto>)any);
         }};
     }
 

@@ -1,10 +1,11 @@
 import {Constructable} from './base-list.component';
 import {OnInit} from '@angular/core';
-import {instanceOfModifiableList, instanceOfPageableList} from './type.utils';
+import {instanceOfPageableList} from './type.utils';
 import {IFilterableList} from './ifilterable-list';
 import {HttpParams} from '@angular/common/http';
 import {PaginationType} from './ipageable-list';
-import {NgForm} from '@angular/forms';
+import {AbstractControl, NgForm} from '@angular/forms';
+import {SecurityService} from '../../security/security.service';
 
 /**
  * @author Ion Perpegel
@@ -42,7 +43,12 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
   /**
    * The method is trying to call the search if the component doesn't have unsaved changes, otherwise raises a popup to the client
    */
-  public async tryFilter(): Promise<boolean> {
+  public async tryFilter(userInitiated = true): Promise<boolean> {
+    if (userInitiated) {
+      this.alertService.clearAlert();
+      this.trimFields();
+    }
+
     const canFilter = await this.canProceedToFilter();
     if (canFilter) {
       this.setActiveFilter();
@@ -60,7 +66,6 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
    * The method is supposed to be overridden in derived classes to implement actual search
    */
   public filterData(): Promise<any> {
-    setTimeout(() => this.alertService.clearAlert(), 3000);
 
     this.setActiveFilter();
 
@@ -126,15 +131,27 @@ let FilterableListMixin = (superclass: Constructable) => class extends superclas
     Object.assign(this.filter, this.activeFilter);
   }
 
-  protected canProceedToFilter(): Promise<boolean> {
-    if (instanceOfModifiableList(this) && this.isDirty()) {
-      return this.dialogsService.openCancelDialog();
-    }
-    return Promise.resolve(true);
+  protected async canProceedToFilter(): Promise<boolean> {
+    let securityService = this.applicationService.injector.get(SecurityService);
+    return securityService.canAbandonUnsavedChanges(this);
   }
 
   canSearch(): boolean | Promise<boolean> {
     return !super.isBusy();
+  }
+
+  private trimFields() {
+    if (!this.filterForm) {
+      console.warn('filterForm is null! exiting.');
+      return;
+    }
+    for (const field in this.filterForm.controls) {
+      const control: AbstractControl = this.filterForm.controls[field];
+      if (control.value && typeof  control.value == 'string') {
+        const val = String.prototype.trim.apply(control.value);
+        control.setValue(val);
+      }
+    }
   }
 };
 export default FilterableListMixin;

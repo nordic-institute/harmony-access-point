@@ -8,14 +8,12 @@ import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.routing.RoutingCriteria;
-import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
-import eu.domibus.api.security.functions.AuthenticatedProcedure;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.core.plugin.routing.dao.BackendFilterDao;
-import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.plugin.BackendConnector;
 import eu.domibus.plugin.NotificationListener;
 import eu.domibus.plugin.notification.AsyncNotificationConfiguration;
@@ -45,9 +43,6 @@ public class RoutingServiceTest {
 
     public static final int MAX_INDEX = 10;
     public static final String MESSAGE_ID = "MessageId";
-
-//    @Tested
-//    RoutingService routingService;
 
     @Injectable
     protected BackendConnectorProvider backendConnectorProvider;
@@ -540,236 +535,6 @@ public class RoutingServiceTest {
     }
 
     @Test
-    public void testInitWithOutEmptyBackendFilter(@Injectable CriteriaFactory criteriaFactory,
-                                                  @Injectable IRoutingCriteria iRoutingCriteria,
-                                                  @Injectable BackendConnector backendConnector,
-                                                  @Injectable BackendConnectorProvider backendConnectorProvider,
-                                                  @Injectable AuthUtils authUtils) {
-        RoutingService routingService = new RoutingService();
-
-        List<CriteriaFactory> routingCriteriaFactories = new ArrayList<>();
-        routingCriteriaFactories.add(criteriaFactory);
-        routingService.routingCriteriaFactories = routingCriteriaFactories;
-        routingService.domibusConfigurationService = domibusConfigurationService;
-        routingService.domainService = domainService;
-        routingService.domainTaskExecutor = domainTaskExecutor;
-        routingService.backendConnectorProvider = backendConnectorProvider;
-        routingService.authUtils = authUtils;
-
-        List<BackendConnector> backendConnectors = new ArrayList<>();
-        backendConnectors.add(backendConnector);
-
-        new Expectations(routingService) {{
-            backendConnectorProvider.getBackendConnectors();
-            result = backendConnectors;
-
-            domibusConfigurationService.isSingleTenantAware();
-            result = true;
-
-            criteriaFactory.getName();
-            result = "Name criteriaFactory";
-
-            criteriaFactory.getInstance();
-            result = iRoutingCriteria;
-
-            authUtils.runWithSecurityContext((AuthenticatedProcedure)any, anyString, anyString, (AuthRole)any, anyBoolean);
-            times = 1;
-        }};
-
-        routingService.init();
-
-        new FullVerifications() {{
-            AuthenticatedProcedure function;
-            String username;
-            String password;
-            AuthRole role;
-            boolean forceContext;
-            authUtils.runWithSecurityContext(function = withCapture(),
-                    username=withCapture(), password=withCapture(), role=withCapture(), forceContext=withCapture());
-            Assert.assertNotNull(function);
-            Assert.assertEquals("domibus",username);
-            Assert.assertEquals("domibus",password);
-            Assert.assertEquals(AuthRole.ROLE_AP_ADMIN,role);
-            Assert.assertTrue(forceContext); // always true - audit reason
-        }};
-    }
-
-    @Test
-    public void testInitWithBackendFilterInMultitenancyEnv(@Injectable CriteriaFactory routingCriteriaFactory,
-                                                           @Injectable Domain domain,
-                                                           @Injectable IRoutingCriteria iRoutingCriteria,
-                                                           @Injectable BackendConnectorProvider backendConnectorProvider,
-                                                           @Injectable BackendConnector backendConnector) {
-        RoutingService routingService = new RoutingService();
-
-        List<CriteriaFactory> routingCriteriaFactories = new ArrayList<>();
-        routingCriteriaFactories.add(routingCriteriaFactory);
-        routingService.routingCriteriaFactories = routingCriteriaFactories;
-        List<Domain> domains = new ArrayList<>();
-        domains.add(domain);
-
-        routingService.routingCriteriaFactories = routingCriteriaFactories;
-        routingService.domibusConfigurationService = domibusConfigurationService;
-        routingService.domainService = domainService;
-        routingService.domainTaskExecutor = domainTaskExecutor;
-        routingService.backendConnectorProvider = backendConnectorProvider;
-
-        List<BackendConnector> backendConnectors = new ArrayList<>();
-        backendConnectors.add(backendConnector);
-
-        new Expectations(routingService) {{
-            backendConnectorProvider.getBackendConnectors();
-            result = backendConnectors;
-
-            domibusConfigurationService.isSingleTenantAware();
-            result = false;
-
-            domainService.getDomains();
-            result = domains;
-
-            routingCriteriaFactory.getName();
-            result = anyString;
-
-            routingCriteriaFactory.getInstance();
-            result = iRoutingCriteria;
-        }};
-
-        routingService.init();
-
-        new FullVerifications() {{
-            domainTaskExecutor.submit((Runnable) any, domain);
-            minTimes = 1;
-        }};
-
-    }
-
-    @Test
-    public void testInit_noNotificationListenerBeanMap(@Injectable BackendConnectorProvider backendConnectorProvider,
-                                                       @Injectable CriteriaFactory routingCriteriaFactory,
-                                                       @Injectable BackendFilterEntity backendFilterEntity) {
-
-        RoutingService routingService = new RoutingService();
-        routingService.backendConnectorProvider = backendConnectorProvider;
-
-        new Expectations(routingService) {{
-        }};
-
-        thrown.expect(ConfigurationException.class);
-        routingService.init();
-
-        new FullVerifications() {
-        };
-    }
-
-    @Test
-    public void testInitMultiAware(@Injectable CriteriaFactory routingCriteriaFactory,
-                                   @Injectable Domain domain,
-                                   @Injectable IRoutingCriteria iRoutingCriteria,
-                                   @Injectable BackendConnector backendConnector,
-                                   @Injectable BackendConnectorProvider backendConnectorProvider) {
-        RoutingService routingService = new RoutingService();
-
-        List<CriteriaFactory> routingCriteriaFactories = new ArrayList<>();
-        routingCriteriaFactories.add(routingCriteriaFactory);
-        routingService.routingCriteriaFactories = routingCriteriaFactories;
-        List<Domain> domains = new ArrayList<>();
-        domains.add(domain);
-
-        routingService.routingCriteriaFactories = routingCriteriaFactories;
-        routingService.domibusConfigurationService = domibusConfigurationService;
-        routingService.domainService = domainService;
-        routingService.domainTaskExecutor = domainTaskExecutor;
-        routingService.backendConnectorProvider = backendConnectorProvider;
-
-        List<BackendConnector> backendConnectors = new ArrayList<>();
-        backendConnectors.add(backendConnector);
-
-
-        new Expectations(routingService) {{
-            backendConnectorProvider.getBackendConnectors();
-            result = backendConnectors;
-
-            domibusConfigurationService.isSingleTenantAware();
-            result = false;
-
-            domainService.getDomains();
-            result = Collections.singletonList(domain);
-
-            routingCriteriaFactory.getName();
-            result = "routingCriteriaFactory";
-
-            routingCriteriaFactory.getInstance();
-            result = null;
-        }};
-
-        routingService.init();
-
-        new FullVerifications() {{
-            domainTaskExecutor.submit((Runnable) any, domain);
-            times = 1;
-        }};
-    }
-
-    @Test
-    public void testInit_NonMultiTenancy(@Injectable CriteriaFactory routingCriteriaFactory,
-                                         @Injectable Domain domain,
-                                         @Injectable IRoutingCriteria iRoutingCriteria,
-                                         @Injectable BackendConnector backendConnector,
-                                         @Injectable BackendConnectorProvider backendConnectorProvider,
-                                         @Injectable AuthUtils authUtils) {
-        RoutingService routingService = new RoutingService();
-
-        List<CriteriaFactory> routingCriteriaFactories = new ArrayList<>();
-        routingCriteriaFactories.add(routingCriteriaFactory);
-        routingService.routingCriteriaFactories = routingCriteriaFactories;
-        List<Domain> domains = new ArrayList<>();
-        domains.add(domain);
-
-        routingService.routingCriteriaFactories = routingCriteriaFactories;
-        routingService.domibusConfigurationService = domibusConfigurationService;
-        routingService.domainService = domainService;
-        routingService.domainTaskExecutor = domainTaskExecutor;
-        routingService.backendConnectorProvider = backendConnectorProvider;
-        routingService.authUtils = authUtils;
-
-        List<BackendConnector> backendConnectors = new ArrayList<>();
-        backendConnectors.add(backendConnector);
-
-        new Expectations(routingService) {{
-            backendConnectorProvider.getBackendConnectors();
-            result = backendConnectors;
-
-            domibusConfigurationService.isSingleTenantAware();
-            result = true;
-
-            routingCriteriaFactory.getName();
-            result = "routingCriteriaFactory";
-
-            routingCriteriaFactory.getInstance();
-            result = null;
-
-            authUtils.runWithSecurityContext((AuthenticatedProcedure)any, anyString, anyString, (AuthRole)any, anyBoolean);
-        }};
-
-        routingService.init();
-
-        new FullVerifications(authUtils) {{
-            AuthenticatedProcedure function;
-            String username;
-            String password;
-            AuthRole role;
-            boolean forceSetContext;
-            authUtils.runWithSecurityContext(function = withCapture(),
-                    username=withCapture(), password=withCapture(), role=withCapture(), forceSetContext=withCapture());
-            Assert.assertNotNull(function);
-            Assert.assertEquals("domibus",username);
-            Assert.assertEquals("domibus",password);
-            Assert.assertEquals(AuthRole.ROLE_AP_ADMIN,role);
-            Assert.assertTrue(forceSetContext); // always true for audit reasons
-        }};
-    }
-
-    @Test
     public void testCreateBackendFiltersBasedOnExistingUserPriority(@Injectable BackendFilterEntity backendFilterEntity,
                                                                     @Injectable AsyncNotificationConfiguration notificationListener,
                                                                     @Injectable BackendConnector backendConnector) {
@@ -784,7 +549,7 @@ public class RoutingServiceTest {
         RoutingService routingService = new RoutingService();
 
 
-        List<BackendFilterEntity> backendFilterEntities = routingService.createBackendFilterEntities(notificationListenerPluginsList, 1);
+        List<BackendFilterEntity> backendFilterEntities = routingService.buildBackendFilterEntities(notificationListenerPluginsList, 1);
         assertEquals(backendFilterEntities.size(), 2);
 
         new FullVerifications() {
@@ -795,7 +560,7 @@ public class RoutingServiceTest {
     public void createBackendFilterEntity_empty(@Injectable BackendFilterEntity backendFilterEntity) {
         RoutingService routingService = new RoutingService();
 
-        List<BackendFilterEntity> backendFilters = routingService.createBackendFilterEntities(null, 1);
+        List<BackendFilterEntity> backendFilters = routingService.buildBackendFilterEntities(null, 1);
         assertEquals(0, backendFilters.size());
     }
 
@@ -812,7 +577,7 @@ public class RoutingServiceTest {
         pluginList.add(WS_PLUGIN.getPluginName());
         pluginList.add("TEST3");
 
-        List<BackendFilterEntity> backendFilters = routingService.createBackendFilterEntities(pluginList, priority);
+        List<BackendFilterEntity> backendFilters = routingService.buildBackendFilterEntities(pluginList, priority);
 
         assertEquals("TEST2", backendFilters.get(0).getBackendName());
         assertEquals(4, backendFilters.get(0).getIndex());
@@ -839,7 +604,7 @@ public class RoutingServiceTest {
                 JMS_PLUGIN.getPluginName(),
                 WS_PLUGIN.getPluginName());
 
-        List<BackendFilterEntity> allBackendFilters = routingService.createBackendFilterEntities(pluginToAdd, 0);
+        List<BackendFilterEntity> allBackendFilters = routingService.buildBackendFilterEntities(pluginToAdd, 0);
 
         assertThat(allBackendFilters.size(), is(3));
         assertThat(allBackendFilters.get(2).getBackendName(), is(FS_PLUGIN.getPluginName()));
@@ -857,7 +622,6 @@ public class RoutingServiceTest {
         RoutingService routingService = new RoutingService();
         routingService.backendFilterDao = backendFilterDao;
         routingService.backendConnectorProvider = backendConnectorProvider;
-        routingService.authUtils = authUtils;
 
         List<BackendFilterEntity> entitiesInDb = new ArrayList<>();
 
@@ -878,7 +642,7 @@ public class RoutingServiceTest {
             routingService.getMaxIndex(entitiesInDb);
             result = 0;
 
-            routingService.createBackendFilterEntities(withCapture(pluginsToAdd), 1);
+            routingService.buildBackendFilterEntities(withCapture(pluginsToAdd), 1);
             result = backendFilterEntities;
         }};
 
@@ -1080,7 +844,6 @@ public class RoutingServiceTest {
         RoutingService routingService = new RoutingService();
         routingService.backendFilterDao = backendFilterDao;
         routingService.backendConnectorProvider = backendConnectorProvider;
-        routingService.authUtils = authUtils;
 
         List<BackendFilterEntity> entitiesInDb = new ArrayList<>();
         entitiesInDb.add(dbBackendFilterEntity);
@@ -1105,12 +868,6 @@ public class RoutingServiceTest {
 
             backendConnector.getName();
             result = JMS_PLUGIN.getPluginName();
-
-            routingService.getMaxIndex(backendFilterEntities);
-            result = 1;
-
-            routingService.createBackendFilterEntities(withCapture(pluginsToAdd), 2);
-            result = entitiesInDb;
         }};
 
         routingService.createBackendFilters();
@@ -1132,7 +889,6 @@ public class RoutingServiceTest {
         RoutingService routingService = new RoutingService();
         routingService.backendFilterDao = backendFilterDao;
         routingService.backendConnectorProvider = backendConnectorProvider;
-        routingService.authUtils = authUtils;
         routingService.signalService = signalService;
         routingService.coreConverter = coreConverter;
 

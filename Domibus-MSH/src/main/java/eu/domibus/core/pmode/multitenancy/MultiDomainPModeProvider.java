@@ -1,20 +1,21 @@
 package eu.domibus.core.pmode.multitenancy;
 
+import eu.domibus.api.ebms3.MessageExchangePattern;
+import eu.domibus.api.model.*;
+import eu.domibus.api.model.Service;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pmode.PModeArchiveInfo;
 import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.api.util.xml.UnmarshallerResult;
-import eu.domibus.common.MSHRole;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.*;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.pmode.provider.PModeProviderFactoryImpl;
 import eu.domibus.core.message.MessageExchangeConfiguration;
-import eu.domibus.ebms3.common.model.*;
-import eu.domibus.ebms3.common.model.Service;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.XmlProcessingException;
@@ -269,7 +270,7 @@ public class MultiDomainPModeProvider extends PModeProvider {
     }
 
     @Override
-    public String getAgreementRef(String serviceValue) {
+    public Agreement getAgreementRef(String serviceValue) {
         return getCurrentPModeProvider().getAgreementRef(serviceValue);
     }
 

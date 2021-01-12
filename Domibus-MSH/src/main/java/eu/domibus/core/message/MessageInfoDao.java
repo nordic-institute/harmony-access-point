@@ -1,29 +1,17 @@
 package eu.domibus.core.message;
 
-import eu.domibus.common.MessageStatus;
+import eu.domibus.api.model.MessageInfo;
+import eu.domibus.api.model.MessageType;
 import eu.domibus.core.dao.BasicDao;
-import eu.domibus.core.message.pull.MessagePullDto;
-import eu.domibus.ebms3.common.model.*;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.logging.DomibusMessageCode;
-import eu.domibus.logging.MDCKey;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.List;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
  * @author idragusa
@@ -31,35 +19,33 @@ import java.util.stream.Collectors;
  */
 
 @Repository
-public class MessageInfoDao extends BasicDao<Messaging> {
+public class MessageInfoDao extends BasicDao<MessageInfo> {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessagesLogServiceImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageInfoDao.class);
 
     public MessageInfoDao() {
-        super(Messaging.class);
+        super(MessageInfo.class);
     }
 
-    public List<String> findUserMessageIds(List<String> userMessageIds) {
-        final TypedQuery<String> query = em.createNamedQuery("MessageInfo.findUserMessageIds", String.class);
-        query.setParameter("MESSAGEIDS", userMessageIds);
-        List<String> messageIds = query.getResultList();
-        LOG.trace("Found ids [{}]", messageIds);
-        return messageIds;
-    }
-
+    @Timer(clazz = MessageInfoDao.class,value = "findSignalMessageIds")
+    @Counter(clazz = MessageInfoDao.class,value = "findSignalMessageIds")
     public List<String> findSignalMessageIds(List<String> userMessageIds) {
-        final TypedQuery<String> query = em.createNamedQuery("MessageInfo.findSignalMessageIds", String.class);
+        final TypedQuery<String> query = em.createNamedQuery("MessageInfo.findMessageIdsWithRefToMessageIds", String.class);
         query.setParameter("MESSAGEIDS", userMessageIds);
+        query.setParameter("MESSAGE_TYPE", MessageType.SIGNAL_MESSAGE);
         List<String> messageIds = query.getResultList();
-        LOG.trace("Found ids [{}]", messageIds);
+        LOG.debug("Found ids [{}]", messageIds);
         return messageIds;
     }
 
+    @Timer(clazz = MessageInfoDao.class,value = "deleteMessages")
+    @Counter(clazz = MessageInfoDao.class,value = "deleteMessages")
     public int deleteMessages(List<String> messageIds) {
+        LOG.debug("deleteMessages [{}]", messageIds.size());
         final Query deleteQuery = em.createNamedQuery("MessageInfo.deleteMessages");
         deleteQuery.setParameter("MESSAGEIDS", messageIds);
         int result  = deleteQuery.executeUpdate();
-        LOG.trace("deleteMessages result [{}]", result);
+        LOG.debug("deleteMessages result [{}]", result);
         return result;
     }
 }

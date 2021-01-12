@@ -1,20 +1,20 @@
-<eu.domibus.ebms3.common.model.UserMessage>
+<eu.domibus.api.model.UserMessage>
     <partyInfo>
         <from>
             <partyId>
-                <eu.domibus.ebms3.common.model.PartyId>
+                <eu.domibus.api.model.PartyId>
                     <value>domibus-blue</value>
                     <type>urn:oasis:names:tc:ebcore:partyid-type:unregistered</type>
-                </eu.domibus.ebms3.common.model.PartyId>
+                </eu.domibus.api.model.PartyId>
             </partyId>
             <role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</role>
         </from>
         <to>
             <partyId>
-                <eu.domibus.ebms3.common.model.PartyId>
+                <eu.domibus.api.model.PartyId>
                     <value>domibus-red</value>
                     <type>urn:oasis:names:tc:ebcore:partyid-type:unregistered</type>
-                </eu.domibus.ebms3.common.model.PartyId>
+                </eu.domibus.api.model.PartyId>
             </partyId>
             <role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</role>
         </to>
@@ -29,28 +29,28 @@
     </collaborationInfo>
     <messageProperties>
         <property>
-            <eu.domibus.ebms3.common.model.Property>
+            <eu.domibus.api.model.Property>
                 <value>urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4</value>
                 <name>finalRecipient</name>
                 <type>string</type>
-            </eu.domibus.ebms3.common.model.Property>
-            <eu.domibus.ebms3.common.model.Property>
+            </eu.domibus.api.model.Property>
+            <eu.domibus.api.model.Property>
                 <value>urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1</value>
                 <name>originalSender</name>
                 <type>string</type>
-            </eu.domibus.ebms3.common.model.Property>
+            </eu.domibus.api.model.Property>
         </property>
     </messageProperties>
     <payloadInfo>
         <partInfo>
-            <eu.domibus.ebms3.common.model.PartInfo>
+            <eu.domibus.api.model.PartInfo>
                 <partProperties>
                     <property>
-                        <eu.domibus.ebms3.common.model.Property>
+                        <eu.domibus.api.model.Property>
                             <value>MimeType</value>
                             <name>text/xml</name>
                             <type>string</type>
-                        </eu.domibus.ebms3.common.model.Property>
+                        </eu.domibus.api.model.Property>
                     </property>
                 </partProperties>
                 <href>cid:message</href>
@@ -63,8 +63,8 @@
                     </dataSource>
                     <transferFlavors/>
                 </payloadDatahandler>-->
-            </eu.domibus.ebms3.common.model.PartInfo>
+            </eu.domibus.api.model.PartInfo>
         </partInfo>
     </payloadInfo>
     <mpc>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPC</mpc>
-</eu.domibus.ebms3.common.model.UserMessage>
+</eu.domibus.api.model.UserMessage>

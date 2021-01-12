@@ -1,5 +1,6 @@
 package eu.domibus.web.security;
 
+import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.user.User;
 import eu.domibus.api.user.UserState;
 import eu.domibus.core.security.UserSessionsServiceImpl;
@@ -23,6 +24,9 @@ public class UserSessionsServiceImplTest {
 
     @Injectable
     SessionRegistry sessionRegistry;
+
+    @Injectable
+    SignalService signalService;
 
     @Test
     public void invalidateSessions() {

@@ -13,9 +13,9 @@ import eu.domibus.core.message.MessageExchangeConfiguration;
 import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.pmode.ProcessPartyExtractorProvider;
 import eu.domibus.core.pmode.ProcessTypePartyExtractor;
-import eu.domibus.ebms3.common.model.AgreementRef;
-import eu.domibus.ebms3.common.model.MessageExchangePattern;
-import eu.domibus.ebms3.common.model.PartyId;
+import eu.domibus.api.model.AgreementRef;
+import eu.domibus.api.ebms3.MessageExchangePattern;
+import eu.domibus.api.model.PartyId;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED;
 import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 /**
  * @author Cosmin Baciu, Thomas Dussart, Ioana Dragusanu
@@ -441,7 +442,7 @@ public class CachingPModeProvider extends PModeProvider {
     }
 
     @Override
-    public String findServiceName(final eu.domibus.ebms3.common.model.Service service) throws EbMS3Exception {
+    public String findServiceName(final eu.domibus.api.model.Service service) throws EbMS3Exception {
         if (service == null) {
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "Service is not found in the message", null, null);
         }
@@ -468,7 +469,7 @@ public class CachingPModeProvider extends PModeProvider {
                     partyIdValue = id.getValue();
                     String identifierPartyIdType = getIdentifierPartyIdType(identifier);
                     LOG.debug("Find party with type:[{}] and identifier:[{}] by comparing with pmode id type:[{}] and pmode identifier:[{}]", partyIdType, id.getValue(), identifierPartyIdType, identifier.getPartyId());
-                    if (equalsIgnoreCase(partyIdType, identifierPartyIdType) && equalsIgnoreCase(id.getValue(), identifier.getPartyId())) {
+                    if (isPartyIdTypeMatching(partyIdType, identifierPartyIdType) && equalsIgnoreCase(id.getValue(), identifier.getPartyId())) {
                         LOG.trace("Party with type:[{}] and identifier:[{}] matched", partyIdType, id.getValue());
                         return party.getName();
                     }
@@ -476,6 +477,17 @@ public class CachingPModeProvider extends PModeProvider {
             }
         }
         throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "No matching party found for type [" + partyIdType + "] and value [" + partyIdValue + "]", null, null);
+    }
+
+    /**
+     * PartyIdType can be null or empty string
+     *
+     * @param partyIdType
+     * @param identifierPartyIdType
+     * @return
+     */
+    protected boolean isPartyIdTypeMatching(String partyIdType, String identifierPartyIdType) {
+        return (isEmpty(partyIdType) && isEmpty(identifierPartyIdType)) || equalsIgnoreCase(partyIdType, identifierPartyIdType);
     }
 
     protected String getIdentifierPartyIdType(Identifier identifier) {
@@ -686,7 +698,7 @@ public class CachingPModeProvider extends PModeProvider {
             if (equalsIgnoreCase(mpc1.getQualifiedName(), mpcURI)) {
                 int maxBatch = mpc1.getMaxBatchDelete();
                 LOG.debug("Found MPC with name [{}] and maxBatchDelete [{}]", mpc1.getName(), maxBatch);
-                if (maxBatch == -1 || maxBatch > maxValue) {
+                if (maxBatch <= 0 || maxBatch > maxValue) {
                     LOG.debug("Using default maxBatch value [{}]", maxValue);
                     return maxValue;
                 }
@@ -1001,11 +1013,11 @@ public class CachingPModeProvider extends PModeProvider {
      * @return the agreement value
      */
     @Override
-    public String getAgreementRef(String serviceValue) {
+    public Agreement getAgreementRef(String serviceValue) {
         for (Process found : getProcessFromService(serviceValue)) {
-            String agreementRefHandleProcess = getAgreementRefHandleProcess(found);
-            if (agreementRefHandleProcess != null) {
-                return agreementRefHandleProcess;
+            Agreement agreement = getAgreementRefHandleProcess(found);
+            if (agreement != null) {
+                return agreement;
             }
         }
         return null;
@@ -1021,12 +1033,12 @@ public class CachingPModeProvider extends PModeProvider {
     }
 
     @Nullable
-    private String getAgreementRefHandleProcess(Process found) {
+    private Agreement getAgreementRefHandleProcess(Process found) {
         for (Process process : getConfiguration().getBusinessProcesses().getProcesses()) {
             if (equalsIgnoreCase(process.getName(), found.getName())) {
                 Agreement agreement = process.getAgreement();
                 if (agreement != null) {
-                    return agreement.getValue();
+                    return agreement;
                 }
             }
         }

@@ -1,12 +1,12 @@
 package eu.domibus.core.message;
 
-import eu.domibus.common.MessageStatus;
+import eu.domibus.api.model.MessageStatus;
 import eu.domibus.core.dao.BasicDao;
 import eu.domibus.core.message.pull.MessagePullDto;
-import eu.domibus.ebms3.common.model.Messaging;
-import eu.domibus.ebms3.common.model.PartInfo;
-import eu.domibus.ebms3.common.model.SignalMessage;
-import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.api.model.Messaging;
+import eu.domibus.api.model.PartInfo;
+import eu.domibus.api.model.SignalMessage;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.*;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.function.Predicate;
@@ -66,6 +67,13 @@ public class MessagingDao extends BasicDao<Messaging> {
         return DataAccessUtils.singleResult(query.getResultList());
     }
 
+    public SignalMessage findSignalMessageByUserMessageId(final String messageId) {
+        final TypedQuery<SignalMessage> query = this.em.createNamedQuery("Messaging.findSignalMessageByUserMessageId", SignalMessage.class);
+        query.setParameter(MESSAGE_ID, messageId);
+
+        return DataAccessUtils.singleResult(query.getResultList());
+    }
+
     public Messaging findMessageByMessageId(final String messageId) {
         try {
             final TypedQuery<Messaging> query = em.createNamedQuery("Messaging.findMessageByMessageId", Messaging.class);
@@ -98,6 +106,12 @@ public class MessagingDao extends BasicDao<Messaging> {
         LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_DATA_CLEARED, messageId);
     }
 
+    public List<String> findFileSystemPayloadFilenames(List<String> messageIds) {
+        TypedQuery<String> query = em.createNamedQuery("PartInfo.findFilenames", String.class);
+        query.setParameter("MESSAGEIDS", messageIds);
+        return query.getResultList();
+    }
+
     /**
      * Deletes the payloads saved on the file system
      *
@@ -111,12 +125,38 @@ public class MessagingDao extends BasicDao<Messaging> {
         }
 
         for (PartInfo result : fileSystemPayloads) {
-            try {
-                Files.delete(Paths.get(result.getFileName()));
-            } catch (IOException e) {
-                LOG.debug("Problem deleting payload data files", e);
-            }
+            deletePayloadFile(result.getFileName());
+        }
+    }
 
+    public void deletePayloadFiles(List<String> filenames) {
+        if(CollectionUtils.isEmpty(filenames)) {
+            LOG.debug("No payload data file to delete from the filesystem");
+            return;
+        }
+
+        LOG.debug("Thre are [{}] payloads on filesystem to delete: [{}] ", filenames.size() );
+        for(String filename : filenames) {
+            LOG.debug("Deleting payload data file: [{}]", filename);
+            deletePayloadFile(filename);
+        }
+    }
+
+    public void deletePayloadFile(String filename) {
+        if(StringUtils.isAllBlank(filename)) {
+            LOG.warn("Empty filename used to delete payload on filesystem!");
+            return;
+        }
+
+        try {
+            Path path = Paths.get(filename);
+            if(path == null) {
+                LOG.warn("Trying to delete an empty path, filename [{}]", filename);
+                return;
+            }
+            Files.delete(path);
+        } catch (IOException e) {
+            LOG.debug("Problem deleting payload data files", e);
         }
     }
 

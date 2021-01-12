@@ -1,7 +1,7 @@
 package eu.domibus.web.rest.ro;
 
 import eu.domibus.common.ErrorCode;
-import eu.domibus.common.MSHRole;
+import eu.domibus.api.model.MSHRole;
 
 import java.io.Serializable;
 import java.util.List;

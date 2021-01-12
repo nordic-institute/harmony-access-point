@@ -6,43 +6,44 @@
       <mat-card-content>
         <div class="panel">
           <form name="filterForm" #filterForm="ngForm" (submit)="tryFilter()">
+
             <span>
-              <mat-form-field>
+              <mat-form-field class="large-search-field">
                 <input matInput id="filterPropertyName_id" name="filterPropertyName" [(ngModel)]="filter.name"
                        placeholder="Property Name...">
               </mat-form-field>
             </span>
 
-            <span>
-              <mat-form-field>
-                <input matInput id="filterPropertyType_id" name="filterPropertyType" [(ngModel)]="filter.type"
-                       placeholder="Property Type...">
-              </mat-form-field>
-            </span>
-
-            <span>
-              <mat-form-field>
-                <input matInput id="filterPropertyModule_id" name="filterPropertyModule" [(ngModel)]="filter.module"
-                       placeholder="Property Module...">
-              </mat-form-field>
-            </span>
-
-            <span>
-              <mat-form-field>
-                <input matInput id="filterPropertyValue_id" name="filterPropertyValue" [(ngModel)]="filter.value"
-                       placeholder="Property Value...">
-              </mat-form-field>
-            </span>
-
-            <span>
-              <ng-container *ngIf="showGlobalPropertiesControl">
-                <mat-checkbox id="includeSuperProperties_id" name="includeSuperProperties" [(ngModel)]="filter.showDomain">
-                  Show Domain Properties
+            <span *ngIf="showGlobalPropertiesControl" class="field-spacing">
+              <ng-container>
+                <mat-checkbox id="includeSuperProperties_id" name="includeSuperProperties"
+                              [(ngModel)]="filter.showDomain">
+                  Domain
                 </mat-checkbox>
               </ng-container>
             </span>
 
-            <filter-area-footer [parent]="this" [isAdvancedVisible]="false" [form]="filterForm"></filter-area-footer>
+            <span class="field-spacing">
+              <tri-state-checkbox name="filterIsWritable"
+                                  [(ngModel)]="filter.writable">Writable</tri-state-checkbox>
+            </span>
+
+            <span *ngIf="advancedSearch">
+              <mat-form-field class="small-search-field">
+                <input matInput id="filterPropertyType_id" name="type" [(ngModel)]="filter.type"
+                       placeholder="Property Type..." advanced-filter-behaviour [parent]="this">
+              </mat-form-field>
+              <mat-form-field class="small-search-field">
+                <input matInput id="filterPropertyModule_id" name="module" [(ngModel)]="filter.module"
+                       placeholder="Property Module..." advanced-filter-behaviour [parent]="this">
+              </mat-form-field>
+              <mat-form-field class="large-search-field">
+                <input matInput id="filterPropertyValue_id" name="value" [(ngModel)]="filter.value"
+                       placeholder="Property Value..." advanced-filter-behaviour [parent]="this">
+              </mat-form-field>
+            </span>
+
+            <filter-area-footer [parent]="this" [form]="filterForm"></filter-area-footer>
 
           </form>
         </div>
@@ -55,17 +56,26 @@
       <grid-header [parent]="this"></grid-header>
 
       <div style="height: calc(100% - 70px); overflow-y: auto; overflow-x: hidden;">
-        <page-grid [parent]="this"></page-grid>
+        <page-grid [parent]="this"  [sortedColumns]="[{prop: 'name', dir: 'asc'}]"></page-grid>
       </div>
 
       <ng-template #propertyValueTpl let-row="row" let-value="value" ngx-datatable-cell-template>
-        <div class="input-group property-edit">
+        <div class="input-group property-view" *ngIf="row.composable">
+          <button mat-icon-button [disabled]="!row.writable" (click)="addNewNestedProperty(row)" button-click-behaviour style="float: right;">
+            <mat-icon mat-tooltip="New" mdTooltipPosition="above">note_add</mat-icon>
+          </button>
+        </div>
+        <div class="input-group property-view" *ngIf="!row.writable">
+          {{row.value}}
+        </div>
+        <div class="input-group property-edit" *ngIf="canWriteProperty(row)">
           <input matInput type="text" autocomplete="off" class="form-control property-value"
                  [(ngModel)]="row.value"
                  (focus)="onPropertyValueFocus(row)"
                  (blur)="onPropertyValueBlur(row)"
                  (keydown.enter)="updateProperty(row)"
-                 (keydown.escape)="revertProperty(row)">
+                 (keydown.escape)="revertProperty(row)"
+          >
 
           <span class="property-edit-buttons input-group-addon">
               <button mat-icon-button (click)="updateProperty(row)" [disabled]="!canUpdate(row)" button-click-behaviour>
@@ -77,10 +87,6 @@
             </span>
         </div>
 
-      </ng-template>
-
-      <ng-template #propertyUsageTpl let-row="row" let-value="value" ngx-datatable-cell-template>
-        <span>{{row.usageText}}</span>
       </ng-template>
 
     </div>

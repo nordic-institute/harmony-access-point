@@ -48,4 +48,14 @@ public interface SignalService {
      * Signals the update of the Message Filters
      */
     void signalMessageFiltersUpdated();
+
+    /**
+     * Signals the session invalidation for the specified user
+     */
+    void signalSessionInvalidation(String userName);
+
+    /**
+     * Signals the clearing of the Caches
+     */
+    void signalClearCaches();
 }

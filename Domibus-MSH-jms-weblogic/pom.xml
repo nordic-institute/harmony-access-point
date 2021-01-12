@@ -8,12 +8,12 @@
     <parent>
         <groupId>eu.domibus</groupId>
         <artifactId>domibus</artifactId>
-        <version>4.2-SNAPSHOT</version>
+        <version>5.0-SNAPSHOT</version>
     </parent>
     <artifactId>domibus-jms-weblogic</artifactId>
     <packaging>jar</packaging>
 	<name>Domibus MSH JMS WebLogic</name>
- 
+
 
     <build>
         <plugins>
@@ -43,11 +43,6 @@
         <dependency>
             <groupId>eu.domibus</groupId>
             <artifactId>domibus-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-plugin-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

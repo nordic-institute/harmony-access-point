@@ -1,8 +1,6 @@
 package eu.domibus.core.property;
 
 import eu.domibus.api.multitenancy.Domain;
-import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -25,6 +23,9 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import static eu.domibus.api.property.DomibusPropertyMetadata.NAME_SEPARATOR;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DATABASE_GENERAL_SCHEMA;
+
 /**
  * Single entry point for getting and setting internal and external domibus properties
  *
@@ -36,14 +37,11 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusPropertyProviderImpl.class);
 
-    @Autowired
-    protected DomainContextProvider domainContextProvider;
+    private volatile Boolean isMultiTenantAware = null;
+    private Object isMultiTenantAwareLock = new Object();
 
     @Autowired
     protected PasswordEncryptionService passwordEncryptionService;
-
-    @Autowired
-    protected DomibusConfigurationService domibusConfigurationService;
 
     @Autowired
     protected ConfigurableEnvironment environment;
@@ -97,50 +95,11 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     @Override
     public Set<String> filterPropertiesName(Predicate<String> predicate) {
         Set<String> result = new HashSet<>();
-        for (PropertySource propertySource : environment.getPropertySources()) {
+        for (PropertySource propertySource : getEnvironment().getPropertySources()) {
             Set<String> propertySourceNames = filterPropertySource(predicate, propertySource);
             result.addAll(propertySourceNames);
         }
         return result;
-    }
-
-    /**
-     * Composes the property name based on the domain and queue prefix
-     * <p>
-     * Eg. Given domain code = digit and queue prefix = jmsplugin.queue.reply.routing it will return digit.jmsplugin.queue.reply.routing
-     *
-     * @param domain         The domain for which the property
-     * @param propertyPrefix
-     * @return
-     */
-    protected String computePropertyPrefix(Domain domain, String propertyPrefix) {
-        String result = domain.getCode() + "." + propertyPrefix;
-        LOG.debug("Compute queue prefix [{}]", result);
-        return result;
-    }
-
-    /**
-     * Gets the property prefix taking into account the current domain
-     *
-     * @param prefix The initial property prefix
-     * @return The computed property prefix
-     */
-    protected String getPropertyPrefix(Domain domain, String prefix) {
-        String propertyPrefix = prefix;
-
-        if (domibusConfigurationService.isMultiTenantAware()) {
-            Domain currentDomain = domain;
-
-            if (currentDomain == null) {
-                currentDomain = domainContextProvider.getCurrentDomain();
-                LOG.trace("Using current domain [{}]", currentDomain);
-            }
-
-            LOG.trace("Multi tenancy mode: getting prefix taking into account domain [{}]", domain);
-            propertyPrefix = computePropertyPrefix(currentDomain, prefix);
-        }
-        propertyPrefix = propertyPrefix + ".";
-        return propertyPrefix;
     }
 
     @Override
@@ -149,15 +108,22 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         LOG.debug("Getting nested properties for prefix [{}]", propertyPrefix);
 
         List<String> result = new ArrayList<>();
+
+        if (StringUtils.isEmpty(propertyPrefix)) {
+            LOG.debug("Empty prefix, exiting");
+            return result;
+        }
+
         Set<String> propertiesStartingWithPrefix = filterPropertiesName(property -> StringUtils.startsWith(property, propertyPrefix));
         if (CollectionUtils.isEmpty(propertiesStartingWithPrefix)) {
             LOG.debug("No properties found starting with prefix [{}]", propertyPrefix);
             return result;
         }
+
         LOG.debug("Found properties [{}] starting with prefix [{}]", propertiesStartingWithPrefix, propertyPrefix);
         List<String> firstLevelProperties = propertiesStartingWithPrefix.stream()
                 .map(property -> StringUtils.substringAfter(property, propertyPrefix))
-                .filter(property -> StringUtils.containsNone(property, ".")).collect(Collectors.toList());
+                .filter(property -> StringUtils.containsNone(property, NAME_SEPARATOR)).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(firstLevelProperties)) {
             LOG.debug("No first level properties found starting with prefix [{}]", propertyPrefix);
             return result;
@@ -174,16 +140,16 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     @Override
     public boolean containsDomainPropertyKey(Domain domain, String propertyName) {
         final String domainPropertyName = getPropertyKeyForDomain(domain, propertyName);
-        boolean domainPropertyKeyFound = environment.containsProperty(domainPropertyName);
+        boolean domainPropertyKeyFound = getEnvironment().containsProperty(domainPropertyName);
         if (!domainPropertyKeyFound) {
-            domainPropertyKeyFound = environment.containsProperty(propertyName);
+            domainPropertyKeyFound = getEnvironment().containsProperty(propertyName);
         }
         return domainPropertyKeyFound;
     }
 
     @Override
     public boolean containsPropertyKey(String propertyName) {
-        return environment.containsProperty(propertyName);
+        return getEnvironment().containsProperty(propertyName);
     }
 
     @Override
@@ -211,14 +177,15 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         }
 
         //single-tenancy mode
-        if (!domibusConfigurationService.isMultiTenantAware()) {
+        if (!isMultiTenantAware()) {
             LOG.trace("Single tenancy mode: thus retrieving the global value for property [{}]", propertyName);
             return getGlobalProperty(prop);
         }
 
         //multi-tenancy mode
-        //domain or super property or a combination of 2 
-        Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
+        //domain or super property or a combination of 2
+        // we do not use domainContextProvider.getCurrentDomain() to avoid cyclic dependency
+        Domain currentDomain = domibusPropertyProviderDispatcher.getCurrentDomain();
         //we have a domain in context so try a domain property
         if (currentDomain != null) {
             if (prop.isDomain()) {
@@ -239,7 +206,6 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         }
         LOG.error("Property [{}] is not applicable for super users so null was returned.", propertyName);
         return null;
-
     }
 
     protected String getInternalProperty(Domain domain, String propertyName) {
@@ -247,7 +213,7 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
         DomibusPropertyMetadata prop = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
         //single-tenancy mode
-        if (!domibusConfigurationService.isMultiTenantAware()) {
+        if (!isMultiTenantAware()) {
             LOG.trace("In single-tenancy mode, retrieving global value for property [{}] on domain [{}].", propertyName, domain);
             return getGlobalProperty(prop);
         }
@@ -296,10 +262,10 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
      * @param propertyName the property name
      * @return The value of the property as found in the system properties, the Domibus properties or inside the default Domibus properties.
      */
-    protected String getPropertyValue(String propertyName, Domain domain, boolean decrypt) {
-        String result = environment.getProperty(propertyName);
+    protected String getPropertyValue(String propertyName, Domain domain, boolean isEncrypted) {
+        String result = getEnvironment().getProperty(propertyName);
 
-        if (decrypt && passwordEncryptionService.isValueEncrypted(result)) {
+        if (isEncrypted && passwordEncryptionService.isValueEncrypted(result)) {
             LOG.debug("Decrypting property [{}]", propertyName);
             result = passwordEncryptionService.decryptProperty(domain, propertyName, result);
         }
@@ -347,7 +313,86 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
     }
 
     protected String getPropertyKeyForDomain(Domain domain, String propertyName) {
-        return domain.getCode() + "." + propertyName;
+        return domain.getCode() + NAME_SEPARATOR + propertyName;
     }
 
+    // duplicated part of the code from context provider so that we can brake the circular dependency
+    protected boolean isMultiTenantAware() {
+        if (isMultiTenantAware == null) {
+            synchronized (isMultiTenantAwareLock) {
+                if (isMultiTenantAware == null) {
+                    String propValue = getPropertyValue(DOMIBUS_DATABASE_GENERAL_SCHEMA, null, false);
+                    isMultiTenantAware = StringUtils.isNotBlank(propValue);
+                }
+            }
+        }
+        return isMultiTenantAware;
+    }
+
+    protected ConfigurableEnvironment getEnvironment() {
+        return environment;
+    }
+
+    /**
+     * Gets the property prefix taking into account the current domain
+     *
+     * @param propertyName The initial property prefix
+     * @return The computed property prefix
+     */
+    protected String getPropertyPrefix(Domain domain, String propertyName) {
+        String propPrefix = computePropertyPrefix(domain, propertyName);
+        if (propPrefix != null) {
+            return propPrefix + NAME_SEPARATOR;
+        }
+        return null;
+    }
+
+    /**
+     * Composes the property name based on the property usage, domain and name itself
+     * <p>
+     * Eg. Given domain code = digit and property prefix = jmsplugin.queue.reply.routing it will return digit.jmsplugin.queue.reply.routing
+     *
+     * @param domain       The domain for which the property
+     * @param propertyName
+     * @return
+     */
+    protected String computePropertyPrefix(Domain domain, String propertyName) {
+        DomibusPropertyMetadata prop = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
+
+        //prop is only global so the current domain doesn't matter
+        if (prop.isOnlyGlobal()) {
+            LOG.trace("Property [{}] is only global (so the current domain doesn't matter) thus returning the original name.", propertyName);
+            return propertyName;
+        }
+
+        //single-tenancy mode
+        if (!isMultiTenantAware()) {
+            LOG.trace("Single tenancy mode: thus returning the original name for property [{}]", propertyName);
+            return propertyName;
+        }
+
+        //multi-tenancy mode
+        //domain or super property or a combination of 2
+        Domain currentDomain = domain != null ? domain : domibusPropertyProviderDispatcher.getCurrentDomain();
+        //we have a domain in context so try a domain property
+        if (currentDomain != null) {
+            if (prop.isDomain()) {
+                LOG.trace("In multi-tenancy mode, property [{}] has domain usage, thus returning the property key for domain [{}].", propertyName, currentDomain);
+                return getPropertyKeyForDomain(currentDomain, propertyName);
+            }
+            LOG.error("Property [{}] is not applicable for a specific domain so null was returned.", propertyName);
+            return null;
+        }
+        //current domain being null, it is super or global property (but not both)
+        if (prop.isGlobal()) {
+            LOG.trace("In multi-tenancy mode, property [{}] has global usage, thus thus returning the original name.", propertyName);
+            return propertyName;
+        }
+        if (prop.isSuper()) {
+            LOG.trace("In multi-tenancy mode, property [{}] has super usage, thus returning the property key for super.", propertyName);
+            return getPropertyKeyForSuper(propertyName);
+        }
+        LOG.error("Property [{}] is not applicable for super users so null was returned.", propertyName);
+        return null;
+    }
 }

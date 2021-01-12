@@ -17,6 +17,8 @@ import java.util.stream.Collectors;
  *
  * The plugin api equivalent of DomibusPropertyChangeNotifierImpl
  * Handles the change of a domibus plugin property: notifies all listeners for custom actions and broadcasts to all nodes in the cluster
+ *
+ * Currently this class is not used since all default plugins delegate to domibus property provider notification mechanism
  */
 @Service
 public class PluginPropertyChangeNotifierImpl implements PluginPropertyChangeNotifier {

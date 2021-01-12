@@ -1,22 +1,24 @@
 package eu.domibus.core.message;
 
+import eu.domibus.api.model.*;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
-import eu.domibus.common.MSHRole;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.compression.CompressionException;
 import eu.domibus.core.message.compression.CompressionService;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.payload.persistence.PayloadPersistence;
 import eu.domibus.core.payload.persistence.PayloadPersistenceHelper;
 import eu.domibus.core.payload.persistence.PayloadPersistenceProvider;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
-import eu.domibus.ebms3.common.model.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -79,6 +81,8 @@ public class MessagingServiceImpl implements MessagingService {
     protected PayloadPersistenceHelper payloadPersistenceHelper;
 
     @Override
+    @Timer(clazz = MessagingServiceImpl.class, value = "storeMessage")
+    @Counter(clazz = MessagingServiceImpl.class, value = "storeMessage")
     public void storeMessage(Messaging messaging, MSHRole mshRole, final LegConfiguration legConfiguration, String backendName) throws CompressionException {
         if (messaging == null || messaging.getUserMessage() == null) {
             return;
@@ -147,7 +151,6 @@ public class MessagingServiceImpl implements MessagingService {
 
     protected void storeSourceMessagePayloads(Messaging messaging, MSHRole mshRole, LegConfiguration legConfiguration, String backendName) {
         LOG.debug("Saving the SourceMessage payloads");
-
         storePayloads(messaging, mshRole, legConfiguration, backendName);
 
         final String messageId = messaging.getUserMessage().getMessageInfo().getMessageId();
@@ -165,6 +168,8 @@ public class MessagingServiceImpl implements MessagingService {
     }
 
     @Override
+    @Timer(clazz = MessagingServiceImpl.class, value = "storePayloads")
+    @Counter(clazz = MessagingServiceImpl.class, value = "storePayloads")
     public void storePayloads(Messaging messaging, MSHRole mshRole, LegConfiguration legConfiguration, String backendName) {
         if (messaging.getUserMessage().getPayloadInfo() == null || messaging.getUserMessage().getPayloadInfo().getPartInfo() == null) {
             LOG.debug("No payloads to store");

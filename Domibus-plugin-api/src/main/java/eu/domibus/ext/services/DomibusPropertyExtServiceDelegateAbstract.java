@@ -30,34 +30,29 @@ public abstract class DomibusPropertyExtServiceDelegateAbstract implements Domib
 
     @Override
     public String getKnownPropertyValue(String propertyName) {
-        checkPropertyExists(propertyName);
-
-        DomibusPropertyMetadataDTO propMeta = getKnownProperties().get(propertyName);
+        DomibusPropertyMetadataDTO propMeta = getPropertyMetadataIfExists(propertyName);
         if (propMeta.isStoredGlobally()) {
             return domibusPropertyExtService.getProperty(propertyName);
         }
 
         LOG.trace("Property [{}] is not stored globally so onGetLocalPropertyValue is called.", propertyName);
-        return onGetLocalPropertyValue(propertyName, propMeta);
+        return onGetLocalPropertyValue(propertyName);
     }
 
     /**
      * Method called for a locally stored property; should be overridden by derived classes for all locally stored properties
      *
      * @param propertyName the name of the property
-     * @param propMeta     the property metadata
      * @return the property value
      */
-    protected String onGetLocalPropertyValue(String propertyName, DomibusPropertyMetadataDTO propMeta) {
+    protected String onGetLocalPropertyValue(String propertyName) {
         LOG.warn("Property [{}] is not stored globally and not handled locally so null was returned.", propertyName);
         return null;
     }
 
     @Override
     public Integer getKnownIntegerPropertyValue(String propertyName) {
-        checkPropertyExists(propertyName);
-
-        DomibusPropertyMetadataDTO propMeta = getKnownProperties().get(propertyName);
+        DomibusPropertyMetadataDTO propMeta = getPropertyMetadataIfExists(propertyName);
         if (propMeta.isStoredGlobally()) {
             return domibusPropertyExtService.getIntegerProperty(propertyName);
         }
@@ -80,17 +75,34 @@ public abstract class DomibusPropertyExtServiceDelegateAbstract implements Domib
 
     @Override
     public String getKnownPropertyValue(String domainCode, String propertyName) {
-        return getKnownPropertyValue(propertyName);
+        DomibusPropertyMetadataDTO propMeta = getPropertyMetadataIfExists(propertyName);
+        if (propMeta.isStoredGlobally()) {
+            final DomainDTO domain = domainExtService.getDomain(domainCode);
+            return domibusPropertyExtService.getProperty(domain, propertyName);
+        }
+
+        LOG.trace("Property [{}] is not stored globally so onGetLocalPropertyValue is called.", propertyName);
+        return onGetLocalPropertyValue(domainCode, propertyName);
+    }
+
+    /**
+     * Method called for a locally stored property; should be overridden by derived classes for all locally stored properties
+     *
+     * @param domainCode   the name of the domain
+     * @param propertyName the name of the property
+     * @return the property value
+     */
+    protected String onGetLocalPropertyValue(String domainCode, String propertyName) {
+        LOG.warn("Property [{}] is not stored globally and not handled locally for domain [{}] so null was returned.", propertyName, domainCode);
+        return null;
     }
 
     @Override
     public void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue, boolean broadcast) {
-        checkPropertyExists(propertyName);
-
-        DomibusPropertyMetadataDTO propMeta = getKnownProperties().get(propertyName);
+        DomibusPropertyMetadataDTO propMeta = getPropertyMetadataIfExists(propertyName);
         if (propMeta.isStoredGlobally()) {
             final DomainDTO domain = domainExtService.getDomain(domainCode);
-            domibusPropertyExtService.setDomainProperty(domain, propertyName, propertyValue);
+            domibusPropertyExtService.setProperty(domain, propertyName, propertyValue, broadcast);
         }
 
         LOG.debug("Property [{}] is not stored globally so onSetLocalPropertyValue is called.", propertyName);
@@ -110,9 +122,7 @@ public abstract class DomibusPropertyExtServiceDelegateAbstract implements Domib
 
     @Override
     public void setKnownPropertyValue(String propertyName, String propertyValue) {
-        checkPropertyExists(propertyName);
-
-        DomibusPropertyMetadataDTO propMeta = getKnownProperties().get(propertyName);
+        DomibusPropertyMetadataDTO propMeta = getPropertyMetadataIfExists(propertyName);
         if (propMeta.isStoredGlobally()) {
             domibusPropertyExtService.setProperty(propertyName, propertyValue);
         }
@@ -143,9 +153,15 @@ public abstract class DomibusPropertyExtServiceDelegateAbstract implements Domib
         return getKnownProperties().containsKey(name);
     }
 
+    protected DomibusPropertyMetadataDTO getPropertyMetadataIfExists(String propertyName) {
+        checkPropertyExists(propertyName);
+        return getKnownProperties().get(propertyName);
+    }
+
     protected void checkPropertyExists(String propertyName) {
         if (!hasKnownProperty(propertyName)) {
             throw new DomibusPropertyExtException("Unknown property: " + propertyName);
         }
     }
+
 }

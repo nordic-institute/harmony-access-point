@@ -1,8 +1,10 @@
 package eu.domibus.core.ebms3.receiver;
 
+import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.common.ErrorCode;
-import eu.domibus.common.MSHRole;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.core.ebms3.ws.handler.AbstractFaultHandler;
 import eu.domibus.core.error.ErrorLogEntry;
@@ -10,7 +12,7 @@ import eu.domibus.core.error.ErrorService;
 import eu.domibus.core.message.UserMessageHandlerService;
 import eu.domibus.core.pmode.NoMatchingPModeFoundException;
 import eu.domibus.core.util.SoapUtil;
-import eu.domibus.ebms3.common.model.Messaging;
+import eu.domibus.api.model.Messaging;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -48,6 +50,9 @@ public class FaultInHandler extends AbstractFaultHandler {
 
     @Autowired
     SoapUtil soapUtil;
+
+    @Autowired
+    protected Ebms3Converter ebms3Converter;
 
     @Override
     public Set<QName> getHeaders() {
@@ -137,14 +142,16 @@ public class FaultInHandler extends AbstractFaultHandler {
         }
         context.setMessage(soapMessageWithEbMS3Error);
 
-        final Messaging messaging = this.extractMessaging(soapMessageWithEbMS3Error);
+        final Ebms3Messaging ebms3Messaging = this.extractMessaging(soapMessageWithEbMS3Error);
+        Messaging messaging = ebms3Converter.convertFromEbms3(ebms3Messaging);
+
         final String senderParty = LOG.getMDC(DomibusLogger.MDC_FROM);
         final String receiverParty = LOG.getMDC(DomibusLogger.MDC_TO);
         final String service = LOG.getMDC(DomibusLogger.MDC_SERVICE);
         final String action = LOG.getMDC(DomibusLogger.MDC_ACTION);
 
         final Boolean testMessage = userMessageHandlerService.checkTestMessage(service, action);
-        LOG.businessError(testMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_RECEIVE_FAILED : DomibusMessageCode.BUS_MESSAGE_RECEIVE_FAILED, ebMS3Exception, senderParty, receiverParty, messaging.getSignalMessage().getMessageInfo().getMessageId());
+        LOG.businessError(testMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_RECEIVE_FAILED : DomibusMessageCode.BUS_MESSAGE_RECEIVE_FAILED, ebMS3Exception, senderParty, receiverParty, ebms3Messaging.getSignalMessage().getMessageInfo().getMessageId());
 
         //log the raw xml Signal message
         soapUtil.logRawXmlMessageWhenEbMS3Error(soapMessageWithEbMS3Error);

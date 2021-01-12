@@ -42,7 +42,7 @@ import {MessageFilterComponent} from './messagefilter/messagefilter.component';
 import {MessageLogComponent} from './messagelog/messagelog.component';
 import {UserComponent} from './user/user.component';
 import {TruststoreComponent} from './truststore/truststore.component';
-import {PmodeUploadComponent} from './pmode/pmode-upload/pmode-upload.component';
+import {PmodeUploadComponent} from './pmode/upload/pmode-upload.component';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {JmsComponent} from './jms/jms.component';
 import {RowLimiterComponent} from './common/row-limiter/row-limiter.component';
@@ -78,7 +78,7 @@ import {PartyIdentifierDetailsComponent} from './party/party-identifier-details/
 import {GlobalErrorHandler} from './common/global.error-handler';
 import {UserService} from './user/support/user.service';
 import {UserValidatorService} from './user/support/uservalidator.service';
-import {DefaultPasswordGuard} from './security/defaultPassword.guard';
+import {DefaultPasswordGuard} from './common/guards/defaultPassword.guard';
 import {SanitizeHtmlPipe} from './common/sanitizeHtml.pipe';
 import {LoggingComponent} from './logging/logging.component';
 import {ChangePasswordComponent} from './security/change-password/change-password.component';
@@ -106,6 +106,7 @@ import {ApplicationContextService} from './common/application-context.service';
 import {SessionExpiredDialogComponent} from './security/session-expired-dialog/session-expired-dialog.component';
 import {SessionService} from './security/session.service';
 import {AuthInternalProviderGuard} from './common/guards/auth-internal-provider.guard';
+import {AddNestedPropertyDialogComponent} from './properties/support/add-nested-property-dialog/add-nested-property-dialog.component';
 
 @NgModule({
   declarations: [
@@ -168,6 +169,7 @@ import {AuthInternalProviderGuard} from './common/guards/auth-internal-provider.
     ConnectionsComponent,
     ConnectionDetailsComponent,
     SessionExpiredDialogComponent,
+    AddNestedPropertyDialogComponent
   ],
   entryComponents: [
     AppComponent,
@@ -195,6 +197,7 @@ import {AuthInternalProviderGuard} from './common/guards/auth-internal-provider.
     ConnectionDetailsComponent,
     AlertComponent,
     SessionExpiredDialogComponent,
+    AddNestedPropertyDialogComponent
   ],
   imports: [
     BrowserModule,

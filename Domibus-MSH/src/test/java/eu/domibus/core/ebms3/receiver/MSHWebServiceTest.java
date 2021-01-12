@@ -1,11 +1,12 @@
 package eu.domibus.core.ebms3.receiver;
 
+import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.receiver.handler.IncomingMessageHandler;
 import eu.domibus.core.ebms3.receiver.handler.IncomingMessageHandlerFactory;
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
 import eu.domibus.core.util.MessageUtil;
-import eu.domibus.ebms3.common.model.Messaging;
+import eu.domibus.api.model.Messaging;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.*;
@@ -37,6 +38,9 @@ public class MSHWebServiceTest {
 
     @Injectable
     IncomingMessageHandlerFactory incomingMessageHandlerFactory;
+
+    @Injectable
+    DomainContextProvider domainContextProvider;
 
     @Test
     public void testInvokeHappyFlow(@Injectable SOAPMessage request,

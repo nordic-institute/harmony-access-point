@@ -6,13 +6,12 @@ import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.pmode.provider.CachingPModeProvider;
-import eu.domibus.ebms3.common.model.PartyId;
+import eu.domibus.api.model.PartyId;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.RandomUtils;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.test.util.ReflectionTestUtils;
 

@@ -1,7 +1,7 @@
 package eu.domibus.core.payload.persistence;
 
-import eu.domibus.ebms3.common.model.PartInfo;
-import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.api.model.PartInfo;
+import eu.domibus.api.model.UserMessage;
 
 /**
  * @author Cosmin Baciu

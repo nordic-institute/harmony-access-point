@@ -1,10 +1,12 @@
 package eu.domibus.core.pmode.validation.validators;
 
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.ErrorCode;
-import eu.domibus.common.MSHRole;
 import eu.domibus.core.ebms3.EbMS3Exception;
-import eu.domibus.ebms3.common.model.Messaging;
-import eu.domibus.ebms3.common.model.Property;
+import eu.domibus.api.model.Messaging;
+import eu.domibus.api.model.Property;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -22,6 +24,8 @@ public class MessagePropertyValidator {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessagePropertyValidator.class);
 
 
+    @Timer(clazz = MessagePropertyValidator.class, value = "validate")
+    @Counter(clazz = MessagePropertyValidator.class, value = "validate")
     public void validate(final Messaging messaging, MSHRole mshRole) throws EbMS3Exception {
         final String messageId = messaging.getUserMessage().getMessageInfo().getMessageId();
         LOG.debug("Checking properties size for message [{}]", messageId);

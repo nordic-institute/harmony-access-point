@@ -1,8 +1,8 @@
 package eu.domibus.core.plugin.routing;
 
 import eu.domibus.core.audit.envers.RevisionLogicalName;
-import eu.domibus.ebms3.common.model.AbstractBaseEntity;
-import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.api.model.AbstractBaseEntity;
+import eu.domibus.api.model.UserMessage;
 import org.hibernate.envers.Audited;
 
 import javax.persistence.Column;

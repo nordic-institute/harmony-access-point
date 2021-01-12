@@ -1,9 +1,9 @@
 package eu.domibus.core.replication;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.util.DatabaseUtil;
 import eu.domibus.common.MessageStatus;
-import eu.domibus.core.plugin.notification.NotificationStatus;
-import eu.domibus.core.util.DatabaseUtil;
+import eu.domibus.api.model.NotificationStatus;
 import eu.domibus.messaging.MessageConstants;
 import mockit.*;
 import mockit.integration.junit4.JMockit;

@@ -1159,7 +1159,7 @@ def findNumberOfDomain(String inputSite) {
         log.info "  changeDomibusProperties  [][]  Property file [${pathToPropertyFile}] amended"
     }
 //---------------------------------------------------------------------------------------------------------------------------------
-    // Restor Domibus configuration file
+    // Restore Domibus configuration file
     static void  restoreDomibusPropertiesFromBackup(color, log, context, testRunner) {
         debugLog("  ====  Calling \"restoreDomibusPropertiesFromBackup\".", log)
         // Restore from backup file domibus.properties file
@@ -1345,7 +1345,7 @@ def findNumberOfDomain(String inputSite) {
                          "-H", "X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
                          "-v"]
         def commandResult = runCommandInShell(commandString, log)
-        assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*204.*/)||(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/)),"Error:isFourCornerEnabled: Error in the isFourCornerEnabled response."
+        assert((commandResult[1] ==~ /(?s).*HTTP\/\d.\d\s*204.*/)||(commandResult[1] ==~ /(?s).*HTTP\/\d.\d\s*200.*/)),"Error:isFourCornerEnabled: Error in the isFourCornerEnabled response."
         debugLog("  ====  END \"isFourCornerEnabled\".", log)
         return commandResult[0].substring(5).trim() == "true"
     }
@@ -1394,27 +1394,28 @@ def findNumberOfDomain(String inputSite) {
         def jsonSlurper = new JsonSlurper()
 
         // If multitenancy is on no need to continue
-        if(!getMultitenancyFromSide(side, context, log)){
+        if (!getMultitenancyFromSide(side, context, log)) {
             debugLog("  getDomain  [][]  Singletenancy deployment: Return \"default\" value.", log)
             return "default"
         }
 
         def commandString = ["curl", urlToDomibus(side, log, context) + "/rest/security/user/domain",
-                         "--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
-                         "-H", "Content-Type: application/json",
-                         "-H", "X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, userLogin, passwordLogin),
-                         "-v"]
+                             "--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
+                             "-H", "Content-Type: application/json",
+                             "-H", "X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, userLogin, passwordLogin),
+                             "-v"]
         def commandResult = runCommandInShell(commandString, log)
-        assert((commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*204.*/)||(commandResult[1]==~ /(?s).*HTTP\/\d.\d\s*200.*/)),"Error:getDomain: Error in the getDomain response."
+        assert ((commandResult[1] ==~ /(?s).*HTTP\/\d.\d\s*204.*/) || (commandResult[1] ==~ /(?s).*HTTP\/\d.\d\s*200.*/)), "Error:getDomain: Error in the getDomain response."
         debugLog("  ====  END \"getDomain\".", log)
         def responseOutput = commandResult[0].substring(5)
         def dataMap = jsonSlurper.parseText(responseOutput)
-        if(infoType == "code"){
+        if (infoType == "code") {
             return dataMap.code
-        }else{
+        } else {
             return dataMap.name
         }
     }
+
 //---------------------------------------------------------------------------------------------------------------------------------
     static def setDomain(String side, context, log, String domainValue, String userLogin = SUPER_USER, String passwordLogin = SUPER_USER_PWD){
         debugLog("  ====  Calling \"setDomain\".", log)
@@ -2891,6 +2892,7 @@ def findNumberOfDomain(String inputSite) {
             assert(!(commandResult[0]==~ /(?s).*Forbidden character.*detected.*/)),"Error:userInputCheck_POST: Forbidden character detected."
             log.info "  userInputCheck_POST  [][]  No forbidden characters detected in value \"$userLogin\"."
         }
+
     }
     
 //---------------------------------------------------------------------------------------------------------------------------------

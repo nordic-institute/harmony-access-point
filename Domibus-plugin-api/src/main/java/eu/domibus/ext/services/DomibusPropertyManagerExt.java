@@ -15,7 +15,9 @@ public interface DomibusPropertyManagerExt extends DomibusPropertyMetadataManage
      * @param propertyName the property name whose value is requested
      * @return the current property value
      */
-    String getKnownPropertyValue(String propertyName);
+    default String getKnownPropertyValue(String propertyName) {
+        return null;
+    }
 
     /**
      * Returns the current property value for the current domain
@@ -23,7 +25,9 @@ public interface DomibusPropertyManagerExt extends DomibusPropertyMetadataManage
      * @param propertyName the property name whose value is requested
      * @return the current property value as Integer
      */
-    Integer getKnownIntegerPropertyValue(String propertyName);
+    default Integer getKnownIntegerPropertyValue(String propertyName) {
+        return null;
+    }
 
     /**
      * Replaces/Sets the current property value in the current domain
@@ -31,10 +35,11 @@ public interface DomibusPropertyManagerExt extends DomibusPropertyMetadataManage
      * @param propertyName  the property name whose value is set
      * @param propertyValue the new property value
      */
-    void setKnownPropertyValue(String propertyName, String propertyValue);
+    default void setKnownPropertyValue(String propertyName, String propertyValue) {
+    }
 
     /**
-     * Replaces/Sets the current property value
+     * Replaces/Sets the current property value on the specified domain
      *
      * @param domainCode    the domain on which the property value is set
      * @param propertyName  the property name whose value is set
@@ -44,20 +49,16 @@ public interface DomibusPropertyManagerExt extends DomibusPropertyMetadataManage
     void setKnownPropertyValue(String domainCode, String propertyName, String propertyValue, boolean broadcast);
 
     /**
-     * Returns the current property value
+     * Returns the current property value for the specified domain
      *
      * @param domainCode   the domain on which the property value is requested
      * @param propertyName the property name whose value is requested
      * @return the current property value
      */
-    /**
-     * @deprecated Use instead {@link eu.domibus.ext.services.DomibusPropertyManagerExt#getKnownPropertyValue(java.lang.String) }
-     */
-    @Deprecated
     String getKnownPropertyValue(String domainCode, String propertyName);
 
     /**
-     * Replaces/Sets the current property value
+     * Replaces/Sets the current property value on the specified domain
      *
      * @param domainCode    the domain on which the property value is set
      * @param propertyName  the property name whose value is set

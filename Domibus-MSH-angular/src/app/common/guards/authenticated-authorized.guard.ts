@@ -4,6 +4,7 @@ import {SecurityService} from '../../security/security.service';
 import {DomibusInfoService} from '../appinfo/domibusinfo.service';
 import {SessionService} from '../../security/session.service';
 import {SessionState} from '../../security/SessionState';
+import {DomainService} from '../../security/domain.service';
 
 /**
  * It will handle for each route where is defined:
@@ -15,7 +16,8 @@ export class AuthenticatedAuthorizedGuard implements CanActivate {
 
   constructor(private router: Router, private securityService: SecurityService,
               private domibusInfoService: DomibusInfoService,
-              private sessionService: SessionService) {
+              private sessionService: SessionService,
+              private domainService: DomainService) {
   }
 
   async canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
@@ -25,7 +27,9 @@ export class AuthenticatedAuthorizedGuard implements CanActivate {
       return this.getNotAuthenticatedRoute(state);
     }
 
-    // check also authorization
+    // make sure the app is properly initialized before checking anything else
+    await this.securityService.isAppInitialized();
+
     const isAuthorized = await this.isAuthorized(route);
     if (!isAuthorized) {
       return this.getNotAuthorizedRoute();
@@ -52,9 +56,10 @@ export class AuthenticatedAuthorizedGuard implements CanActivate {
 
   private handleNotAuthenticated() {
     // if previously connected then the session went expired
-    if (this.securityService.getCurrentUser()) { // todo add date condition
+    if (this.securityService.isClientConnected()) {
       this.sessionService.setExpiredSession(SessionState.EXPIRED_INACTIVITY_OR_ERROR);
       this.securityService.clearSession();
+      this.domainService.resetDomain();
     }
   }
 

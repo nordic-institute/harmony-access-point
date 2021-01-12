@@ -2,14 +2,16 @@ package eu.domibus.api.security;
 
 import eu.domibus.api.security.functions.AuthenticatedFunction;
 import eu.domibus.api.security.functions.AuthenticatedProcedure;
+
 /**
  * @author Cosmin Baciu
  * @since 3.3
  */
 public interface AuthUtils {
-    /** Returns the original user passed via the security context OR
-    *   null when the user has the role ROLE_ADMIN or unsecured authorizations is allowed
-    */
+    /**
+     * Returns the original user passed via the security context OR
+     * null when the user has the role ROLE_ADMIN or unsecured authorizations is allowed
+     */
     String getOriginalUserFromSecurityContext() throws AuthenticationException;
 
     String getAuthenticatedUser();
@@ -44,7 +46,7 @@ public interface AuthUtils {
      * After the method is executed the security context is removed.
      *
      * @param function - method to wrap
-     * @param user - Authentication: username
+     * @param user     - Authentication: username
      * @param password - Authentication: username
      */
     void runWithSecurityContext(AuthenticatedProcedure function, String user, String password);
@@ -56,12 +58,11 @@ public interface AuthUtils {
      * After the method is executed the security context is removed.
      *
      * @param function - method to wrap
-     * @param user - Authentication: username
+     * @param user     - Authentication: username
      * @param password - Authentication: username
      * @param authRole - Authentication: role
      */
     void runWithSecurityContext(AuthenticatedProcedure function, String user, String password, AuthRole authRole);
-
 
     /**
      * Method execute function given in function parameter.
@@ -69,11 +70,11 @@ public interface AuthUtils {
      * the spring security context with user Authentication and role 'authRole; is set before invoking the function.
      * After the method is executed the security context is removed.
      *
-     * @param function - method to wrap
-     * @param user - Authentication: username
-     * @param password - Authentication: username
-     * @param authRole - Authentication: role
-     *  @param authRole  - forceSecurityContext:
+     * @param function             - method to wrap
+     * @param user                 - Authentication: username
+     * @param password             - Authentication: username
+     * @param authRole             - Authentication: role
+     * @param forceSecurityContext - force security context even if unsecured login is allowed
      */
     void runWithSecurityContext(AuthenticatedProcedure function, String user, String password, AuthRole authRole, boolean forceSecurityContext);
 
@@ -84,11 +85,33 @@ public interface AuthUtils {
      * After the method is executed the security context is removed.
      *
      * @param function - method to wrap
-     * @param user - Authentication: username
+     * @param user     - Authentication: username
      * @param password - Authentication: username
      * @param authRole - Authentication: role
-     * return function result
+     *                 return function result
      */
     <R> R runFunctionWithSecurityContext(AuthenticatedFunction function, String user, String password, AuthRole authRole);
 
+    /**
+     * Method execute function given in function parameter.
+     * If method isUnsecureLoginAllowed returns false, then
+     * the spring security context with user Authentication and role 'authRole; is set before invoking the function.
+     * After the method is executed the security context is removed.
+     *
+     * @param function             - method to wrap
+     * @param user                 - Authentication: username
+     * @param password             - Authentication: username
+     * @param authRole             - Authentication: role
+     * @param forceSecurityContext - force security context even if unsecured login is allowed
+     *                             return function result
+     */
+    <R> R runFunctionWithSecurityContext(AuthenticatedFunction function, String user, String password, AuthRole authRole, boolean forceSecurityContext);
+
+    void runWithDomibusSecurityContext(AuthenticatedProcedure method, AuthRole authRole);
+
+    void runWithDomibusSecurityContext(AuthenticatedProcedure method, AuthRole authRole, boolean forceSecurityContext);
+
+    <R> R runFunctionWithDomibusSecurityContext(AuthenticatedFunction function, AuthRole authRole, boolean forceSecurityContext);
+
 }
+
