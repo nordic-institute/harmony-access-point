@@ -55,9 +55,28 @@
    file name: guava-29.0-jre.jar
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/com\.google\.guava/guava@.*$</packageUrl>
-        <!-- we don't use com.google.common.io.Files.createTempDir()
+        <!-- we don't use com.google.common.io.Files.createTempDir() and we use jdk > 7 (8 and 11)
         and upgrading to 30.0-jre will cause issues on Wildfly 20.x (EDELIVERY-7423)
         -->
         <cve>CVE-2020-8908</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: dss-utils-google-guava-5.5.jar
+   ]]></notes>
+        <!--
+        dss library is using same version of Google guava considered safe above
+         -->
+        <packageUrl regex="true">^pkg:maven/eu\.europa\.ec\.joinup\.sd\-dss/dss\-utils\-google\-guava@.*$</packageUrl>
+        <cpe>cpe:/a:google:guava</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-session-jdbc-2.3.1.RELEASE.jar
+   ]]></notes>
+        <!-- we are using spring-core and spring-security .x versions while spring-session is 2.x
+        -->
+        <packageUrl regex="true">^pkg:maven/org\.springframework\.session/spring\-session\-jdbc@.*$</packageUrl>
+        <cpe>cpe:/a:pivotal_software:spring_security</cpe>
     </suppress>
 </suppressions>
