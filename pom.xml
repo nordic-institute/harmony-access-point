@@ -43,7 +43,7 @@
         <commons-collections4.version>4.4</commons-collections4.version>
         <commons-beanutils.version>1.9.4</commons-beanutils.version>
         <commons-codec.version>1.15</commons-codec.version>
-        <bouncycastle.version>1.66</bouncycastle.version>
+        <bouncycastle.version>1.67</bouncycastle.version>
         <quartz.version>2.3.2</quartz.version>
         <c3p0.version>0.9.5.5</c3p0.version>
         <org.mapstruct.version>1.4.1.Final</org.mapstruct.version>
