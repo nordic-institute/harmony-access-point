@@ -45,9 +45,6 @@ public class RetentionListenerTest {
     @Injectable
     DomibusPropertyProvider domibusPropertyProvider;
 
-    @Injectable
-    JsonUtil jsonUtil;
-
     @Mocked
     private Message message;
 

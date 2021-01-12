@@ -74,8 +74,8 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
      * {@inheritDoc}
      */
     @Override
-    @Timer(clazz = MessageRetentionDefaultService.class,value = "schedule_deleteExpiredMessages")
-    @Counter(clazz = MessageRetentionDefaultService.class,value = "schedule_deleteExpiredMessages")
+    @Timer(clazz = MessageRetentionDefaultService.class,value = "retention_deleteExpiredMessages")
+    @Counter(clazz = MessageRetentionDefaultService.class,value = "retention_deleteExpiredMessages")
     public void deleteExpiredMessages() {
         final List<String> mpcs = pModeProvider.getMpcURIList();
         final Integer expiredDownloadedMessagesLimit = getRetentionValue(DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_DOWNLOADED_MAX_DELETE);
@@ -112,14 +112,14 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
             }
             final int deleted = downloadedMessages.size();
             LOG.debug("Found [{}] downloaded messages to delete", deleted);
-            scheduleDeleteMessages(downloadedMessages, mpc);
-            LOG.debug("Scheduled [{}] downloaded messages", deleted);
+            deleteMessages(downloadedMessages, mpc);
+            LOG.debug("Deleted [{}] downloaded messages", deleted);
         }
     }
 
     protected void deleteExpiredPayloadDeletedMessages(String mpc, Integer expiredPayloadDeletedMessagesLimit) {
         final boolean isDeleteMessageMetadata = pModeProvider.isDeleteMessageMetadataByMpcURI(mpc);
-        if (!isDeleteMessageMetadata) { // only schedule delete of entire messages if delete metadata is true
+        if (!isDeleteMessageMetadata) { // only delete of entire messages if delete metadata is true
             return;
         }
 
@@ -132,8 +132,8 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
         }
         final int deleted = deletedMessages.size();
         LOG.debug("Found [{}] payload deleted messages to delete", deleted);
-        scheduleDeleteMessages(deletedMessages, mpc);
-        LOG.debug("Scheduled [{}] payload deleted messages", deleted);
+        deleteMessages(deletedMessages, mpc);
+        LOG.debug("Deleted [{}] payload deleted messages", deleted);
     }
 
     protected void deleteExpiredNotDownloadedMessages(String mpc, Integer expiredNotDownloadedMessagesLimit) {
@@ -148,8 +148,8 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
             }
             final int deleted = notDownloadedMessages.size();
             LOG.debug("Found [{}] not-downloaded messages to delete", deleted);
-            scheduleDeleteMessages(notDownloadedMessages, mpc);
-            LOG.debug("Scheduled [{}] not-downloaded messages", deleted);
+            deleteMessages(notDownloadedMessages, mpc);
+            LOG.debug("Deleted [{}] not-downloaded messages", deleted);
         }
     }
 
@@ -169,17 +169,17 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
             }
             final int deleted = sentMessages.size();
             LOG.debug("Found [{}] sent messages to delete", deleted);
-            scheduleDeleteMessages(sentMessages, mpc);
-            LOG.debug("Scheduled [{}] sent messages", deleted);
+            deleteMessages(sentMessages, mpc);
+            LOG.debug("Deleted [{}] sent messages", deleted);
         }
     }
 
-    public void scheduleDeleteMessages(List<UserMessageLogDto> userMessageLogs, String mpc) {
+    public void deleteMessages(List<UserMessageLogDto> userMessageLogs, String mpc) {
         final boolean isDeleteMessageMetadata = pModeProvider.isDeleteMessageMetadataByMpcURI(mpc);
         LOG.trace("isDeleteMessageMetadata [{}]", isDeleteMessageMetadata);
-        if (isDeleteMessageMetadata) { // schedule delete in batch
+        if (isDeleteMessageMetadata) { // delete in batch
             final int maxBatch = pModeProvider.getRetentionMaxBatchByMpcURI(mpc, domibusPropertyProvider.getIntegerProperty(DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_BATCH_DELETE));
-            LOG.debug("Schedule bulk delete messages, maxBatch [{}]", maxBatch);
+            LOG.debug("Bulk delete messages, maxBatch [{}]", maxBatch);
             deleteMessages(userMessageLogs, maxBatch);
             return;
         }
@@ -251,7 +251,7 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
     @Override
     public void deleteMessages(List<UserMessageLogDto> userMessageLogs, int maxBatch) {
         if (CollectionUtils.isEmpty(userMessageLogs)) {
-            LOG.debug("No message to be scheduled for deletion");
+            LOG.debug("No message to be deleted");
             return;
         }
 

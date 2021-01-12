@@ -47,9 +47,6 @@ public class RetentionListener implements MessageListener {
     @Autowired
     DomibusPropertyProvider domibusPropertyProvider;
 
-    @Autowired
-    private JsonUtil jsonUtil;
-
     @Timer(clazz = RetentionListener.class,value = "onMessage.deleteMessages")
     @Counter(clazz = RetentionListener.class,value = "onMessage.deleteMessages")
     public void onMessage(final Message message) {
