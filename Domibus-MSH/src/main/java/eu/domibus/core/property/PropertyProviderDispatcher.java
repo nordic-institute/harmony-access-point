@@ -71,8 +71,6 @@ public class PropertyProviderDispatcher {
 
     @CacheEvict(value = DomibusCacheService.DOMIBUS_PROPERTY_CACHE, key = CACHE_KEY_EXPRESSION, beforeInvocation = true)
     public void setInternalOrExternalProperty(Domain domain, String propertyName, String propertyValue, boolean broadcast) throws DomibusPropertyException {
-        validateMaxLength(propertyValue);
-
         DomibusPropertyMetadata propMeta = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
         if (propMeta.isStoredGlobally()) {
             setInternalPropertyValue(domain, propertyName, propertyValue, broadcast);
@@ -143,14 +141,6 @@ public class PropertyProviderDispatcher {
         LOG.debug("Calling deprecated setKnownPropertyValue method");
         String currentDomainCode = propertyProviderHelper.getCurrentDomainCode();
         propertyManager.setKnownPropertyValue(currentDomainCode, name, value);
-    }
-
-    protected void validateMaxLength(String propertyValue) {
-        String propVal = getInternalPropertyValue(null, DOMIBUS_PROPERTY_LENGTH_MAX);
-        Integer maxLength = primitivePropertyTypesManager.getIntegerInternal(DOMIBUS_PROPERTY_LENGTH_MAX, propVal);
-        if (maxLength > 0 && propertyValue != null && propertyValue.length() > maxLength) {
-            throw new IllegalArgumentException("Invalid property value. Maximum accepted length is: " + maxLength);
-        }
     }
 
     //this method needs to be public for the ehCache to be able to call it
