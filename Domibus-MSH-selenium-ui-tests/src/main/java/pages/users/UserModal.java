@@ -33,6 +33,8 @@ public class UserModal extends EditModal {
 	WebElement rolesSelectContainer;
 	@FindBy(css = "edituser-form form #active_id")
 	WebElement activeChk;
+	@FindBy(css="edituser-form form #active_id-input")
+	WebElement chkBoxIp;
 	@FindBy(css = "edituser-form form #username_id + span")
 	private WebElement usernameErrMess;
 	@FindBy(css = "edituser-form form #email_id + span")
@@ -74,6 +76,10 @@ public class UserModal extends EditModal {
 	public Checkbox getActiveChk() {
 		return new Checkbox(driver, activeChk);
 	}
+	public Checkbox getInputChkBox() {
+		return new Checkbox(driver, chkBoxIp);
+	}
+
 
 	public void fillData(String user, String email, String role, String password, String confirmation) throws Exception {
 		getUserNameInput().fill(user);
