@@ -1846,7 +1846,7 @@ test.waitForStatus("ACKNOWLEDGED","DOWNLOADED","-DomJMS014-");
 test.finalize();</script></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
 test.cleanDBMessageID("-DomJMS014-");
 test.finalize();
-ExcelReporting.reportTestCase(testRunner, log)
+Domibus.reportTestCaseCsv(testRunner, log)
 </con:tearDownScript><con:properties/>
         <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS015-Submit Message-serviceType-Mandatory-service typed" searchProperties="true" id="c5c6a274-e863-40bc-8f8f-55a3318f3747">
             <con:settings/>
@@ -2233,7 +2233,7 @@ test.waitForStatus("ACKNOWLEDGED","DOWNLOADED","-DomJMS020-2-");
 test.finalize();</script></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
 test.cleanDBMessageIDStartsWith("-DomJMS020-");
 test.finalize();
-ExcelReporting.reportTestCase(testRunner, log);
+Domibus.reportTestCaseCsv(testRunner, log);
 </con:tearDownScript><con:properties/>
         <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS023-Submit Message-agreementRefType-Optional" searchProperties="true" id="de36ad75-1ec7-4785-ac14-768e2e952ea7">
             <con:settings/>
@@ -2327,7 +2327,7 @@ test.waitForStatus("ACKNOWLEDGED","DELETED","-DomJMS023-2-");
 test.finalize();</script></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
 test.cleanDBMessageIDStartsWith("-DomJMS023-");
 test.finalize();
-ExcelReporting.reportTestCase(testRunner, log)
+Domibus.reportTestCaseCsv(testRunner, log)
 </con:tearDownScript><con:properties/>
         <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS024-Submit Message-fromRole-Mandatory" searchProperties="true" id="77af1480-b898-4567-9e74-30f72e1ebcad">
             <con:settings/>
@@ -3029,7 +3029,7 @@ test.waitForStatus("ACKNOWLEDGED","DOWNLOADED","-DomJMS040-2-")
 test.finalize()</script></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
 test.cleanDBMessageIDStartsWith("-DomJMS040-");
 test.finalize();
-ExcelReporting.reportTestCase(testRunner, log)
+Domibus.reportTestCaseCsv(testRunner, log)
 </con:tearDownScript><con:properties/>
         <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS041-Submit Message-originalSender-FinalReceiver-Optional" searchProperties="true" id="43bebce7-dae9-4a06-a381-0cda0f02edb1">
             <con:settings/>
@@ -3084,7 +3084,7 @@ test.finalize();</script></con:config></con:testStep><con:tearDownScript>def tes
 test.cleanDBMessageID("-DomJMS041-");
 test.finalize();
 
-ExcelReporting.reportTestCase(testRunner, log)
+Domibus.reportTestCaseCsv(testRunner, log)
 </con:tearDownScript><con:properties/>
         <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS043-Submit Message-protocol-Optional" searchProperties="true" id="37685858-6f00-400e-8248-383a479560bd">
             <con:settings/>
@@ -3176,7 +3176,7 @@ test.finalize();</script></con:config></con:testStep><con:tearDownScript>def tes
 test.cleanDBMessageIDStartsWith("-DomJMS043-");
 test.finalize();
 
-ExcelReporting.reportTestCase(testRunner, log);
+Domibus.reportTestCaseCsv(testRunner, log);
 </con:tearDownScript><con:properties/>
         <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS044-Submit Message-totalNumberOfPayloads-Mandatory" searchProperties="true" id="4a96f22c-fca2-42da-ae0a-6aed0710055d">
             <con:settings/>
@@ -3352,7 +3352,7 @@ test.finalize();</script></con:config></con:testStep><con:tearDownScript>def tes
 test.cleanDBMessageIDStartsWith("-DomJMS045-");
 test.finalize();
 
-ExcelReporting.reportTestCase(testRunner, log);</con:tearDownScript><con:properties/>
+Domibus.reportTestCaseCsv(testRunner, log);</con:tearDownScript><con:properties/>
         <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS048-Submit Message-payload_contentId" searchProperties="true" id="54f6fee5-5c15-4cfe-a15a-9563cc36350e">
             <con:settings/>
             
@@ -3564,7 +3564,7 @@ test.waitForStatus("ACKNOWLEDGED","DOWNLOADED","-DomJMS049-2-");
 test.finalize();</script></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
 test.cleanDBMessageIDStartsWith("-DomJMS049-");
 test.finalize();
-ExcelReporting.reportTestCase(testRunner, log)
+Domibus.reportTestCaseCsv(testRunner, log)
 </con:tearDownScript><con:properties/>
         <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>79d16b81-f2af-42dc-bac7-9f612c89790c</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>6164c7d4-d54a-4386-a077-9c8ecc7be02b</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase id="2f1193e0-c579-43f3-af5a-d29ceb8f3ba7" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS050-Test Experience-Several payloads" searchProperties="true"><con:settings/><con:testStep type="groovy" name="Submit Message" id="bc0c6b20-3447-4719-a2d2-b67f44da361d"><con:settings/><con:config><script>import javax.jms.*
 import eu.domibus.test.jms.DomibusJMSPlugin
@@ -4601,7 +4601,7 @@ test.finalize();</script></con:config></con:testStep><con:testStep type="delay" 
 Domibus.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner);</script></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
 test.cleanDBMessageIDStartsWith("-DomJMS064-");
 test.finalize();
-ExcelReporting.reportTestCase(testRunner, log);
+Domibus.reportTestCaseCsv(testRunner, log);
 </con:tearDownScript><con:properties><con:property><con:name>skipNumberOfLines</con:name><con:value>908</con:value></con:property></con:properties>
         <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS065-Submit message-Exceptional flow-Data-AgreementRefId-Maximum Length" searchProperties="true" id="5897e2cc-8915-44f7-b070-901513dfabd2">
             <con:settings/>
@@ -4697,7 +4697,7 @@ test.finalize();</script></con:config></con:testStep><con:testStep type="delay" 
 Domibus.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner);</script></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
 test.cleanDBMessageIDStartsWith("-DomJMS065-");
 test.finalize();
-ExcelReporting.reportTestCase(testRunner, log);
+Domibus.reportTestCaseCsv(testRunner, log);
 </con:tearDownScript><con:properties><con:property><con:name>skipNumberOfLines</con:name><con:value>908</con:value></con:property></con:properties>
         <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS066-Submit message-Exceptional flow-Data-ConversationId-Maximum Length" searchProperties="true" id="7fbeabab-f7aa-40de-b371-b91c12ed611f">
             <con:settings/>
@@ -4754,7 +4754,7 @@ test.finalize();</script></con:config></con:testStep><con:testStep type="delay" 
 Domibus.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner);</script></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
 test.cleanDBMessageIDStartsWith("-DomJMS066-");
 test.finalize();
-ExcelReporting.reportTestCase(testRunner, log);
+Domibus.reportTestCaseCsv(testRunner, log);
 </con:tearDownScript><con:properties><con:property><con:name>skipNumberOfLines</con:name><con:value>1045</con:value></con:property></con:properties>
         <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS067-Submit message-Exceptional flow-Data-Original Sender-Maximum length" searchProperties="true" id="48ef22df-157b-4a4c-b6f7-8c8b4ccb3e3a">
             <con:settings/>
@@ -4810,7 +4810,7 @@ test.finalize();</script></con:config></con:testStep><con:testStep type="delay" 
 Domibus.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner);</script></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
 test.cleanDBMessageIDStartsWith("-DomJMS067-");
 test.finalize();
-ExcelReporting.reportTestCase(testRunner, log);
+Domibus.reportTestCaseCsv(testRunner, log);
 </con:tearDownScript><con:properties><con:property><con:name>skipNumberOfLines</con:name><con:value>1859</con:value></con:property></con:properties>
         <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS068-Submit message-Exceptional flow-Data-Final Receiver-Maximum length" searchProperties="true" id="0266ad61-7ba6-4d2a-895b-89e7b1e08ef1">
             <con:settings/>
@@ -4867,7 +4867,7 @@ test.finalize();</script></con:config></con:testStep><con:testStep type="delay" 
 Domibus.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner);</script></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
 test.cleanDBMessageIDStartsWith("-DomJMS068-");
 test.finalize();
-ExcelReporting.reportTestCase(testRunner, log);
+Domibus.reportTestCaseCsv(testRunner, log);
 </con:tearDownScript><con:properties><con:property><con:name>skipNumberOfLines</con:name><con:value>2666</con:value></con:property></con:properties>
         <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:properties/><con:reportParameters/></con:testSuite><con:testSuite id="56622746-a47f-4bf8-af90-c884725e3fb1" name="JMS-oneway Push-Manual test cases"><con:settings/><con:runType>SEQUENTIAL</con:runType><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS055-Manual-EDELIVERY-1706-JMS Monitoring: empty messages are not displayed" searchProperties="true" id="afb24ea2-e853-4fc2-9790-e18c1c36617c">
             <con:settings/>
