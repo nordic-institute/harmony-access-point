@@ -13,7 +13,7 @@ import eu.domibus.api.model.MessageLog;
 import eu.domibus.core.message.MessageLogInfo;
 import eu.domibus.core.message.MessagesLogService;
 import eu.domibus.api.model.UserMessageLog;
-import eu.domibus.core.message.signal.SignalMessageLog;
+import eu.domibus.api.model.SignalMessageLog;
 import eu.domibus.core.message.testservice.TestService;
 import eu.domibus.core.message.testservice.TestServiceException;
 import eu.domibus.core.party.PartyDao;
