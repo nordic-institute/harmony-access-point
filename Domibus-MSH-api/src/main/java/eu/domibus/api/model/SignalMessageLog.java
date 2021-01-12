@@ -1,7 +1,4 @@
-package eu.domibus.core.message.signal;
-
-import eu.domibus.api.model.MessageLog;
-import eu.domibus.api.model.MessageType;
+package eu.domibus.api.model;
 
 import javax.persistence.*;
 import java.util.Date;
