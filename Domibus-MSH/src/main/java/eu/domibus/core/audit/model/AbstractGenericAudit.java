@@ -1,7 +1,7 @@
 package eu.domibus.core.audit.model;
 
 import eu.domibus.core.audit.envers.ModificationType;
-import eu.domibus.ebms3.common.model.AbstractBaseEntity;
+import eu.domibus.api.model.AbstractBaseEntity;
 
 import javax.persistence.*;
 import java.util.Date;

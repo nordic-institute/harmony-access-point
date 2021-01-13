@@ -3,17 +3,17 @@ package eu.domibus.core.message.retention;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JMSMessageBuilder;
 import eu.domibus.api.jms.JmsMessage;
-import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.JsonUtil;
 import eu.domibus.core.message.MessagingDao;
-import eu.domibus.core.message.UserMessageLog;
+import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.core.message.UserMessageLogDao;
-import eu.domibus.core.message.UserMessageLogDto;
+import eu.domibus.api.model.UserMessageLogDto;
+import eu.domibus.core.message.UserMessageServiceHelper;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
@@ -25,7 +25,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import javax.jms.Queue;
-import java.lang.reflect.Type;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -49,9 +48,6 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
     protected DomibusPropertyProvider domibusPropertyProvider;
 
     @Autowired
-    private DomainContextProvider domainContextProvider;
-
-    @Autowired
     private PModeProvider pModeProvider;
 
     @Autowired
@@ -70,12 +66,15 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
     @Autowired
     private JsonUtil jsonUtil;
 
+    @Autowired
+    private UserMessageServiceHelper userMessageServiceHelper;
+
     /**
      * {@inheritDoc}
      */
     @Override
-    @Timer(clazz = MessageRetentionDefaultService.class,value = "schedule_deleteExpiredMessages")
-    @Counter(clazz = MessageRetentionDefaultService.class,value = "schedule_deleteExpiredMessages")
+    @Timer(clazz = MessageRetentionDefaultService.class, value = "schedule_deleteExpiredMessages")
+    @Counter(clazz = MessageRetentionDefaultService.class, value = "schedule_deleteExpiredMessages")
     public void deleteExpiredMessages() {
         final List<String> mpcs = pModeProvider.getMpcURIList();
         final Integer expiredDownloadedMessagesLimit = getRetentionValue(DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_DOWNLOADED_MAX_DELETE);
@@ -190,8 +189,9 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
 
     @Override
     public void scheduleDeleteMessagesByMessageLog(List<UserMessageLogDto> userMessageLogs) {
-        List<String> messageIds = userMessageLogs.stream().map(userMessageLog ->
-                userMessageLog.getMessageId()).collect(Collectors.toList());
+        List<String> messageIds = userMessageLogs.stream()
+                .map(UserMessageLogDto::getMessageId)
+                .collect(Collectors.toList());
         scheduleDeleteMessages(messageIds);
     }
 
@@ -204,9 +204,13 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
 
         LOG.debug("Scheduling delete messages [{}]", messageIds);
         messageIds.forEach(messageId -> {
+            Map<String, String> properties = userMessageServiceHelper.getProperties(messagingDao.findUserMessageByMessageId(messageId));
+
             JmsMessage message = JMSMessageBuilder.create()
                     .property(DELETE_TYPE, MessageDeleteType.SINGLE.name())
                     .property(MessageConstants.MESSAGE_ID, messageId)
+                    .property(MessageConstants.FINAL_RECIPIENT, properties.get(MessageConstants.FINAL_RECIPIENT))
+                    .property(MessageConstants.ORIGINAL_SENDER, properties.get(MessageConstants.ORIGINAL_SENDER))
                     .build();
             jmsManager.sendMessageToQueue(message, retentionMessageQueue);
         });
@@ -257,17 +261,31 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
 
         List<UserMessageLogDto> userMessageLogsToDelete = new ArrayList<>(userMessageLogs);
 
-        while (userMessageLogsToDelete.size() > 0) {
+        while (CollectionUtils.isNotEmpty(userMessageLogsToDelete)) {
             LOG.debug("messageIds size is [{}]", userMessageLogsToDelete.size());
             int currentBatch = userMessageLogsToDelete.size();
             if (currentBatch > maxBatch) {
                 LOG.debug("currentBatch [{}] is higher than maxBatch [{}]", currentBatch, maxBatch);
                 currentBatch = maxBatch;
             }
-            List<UserMessageLogDto> userMessageLogsBatch = userMessageLogsToDelete.stream().limit(currentBatch).collect(Collectors.toList());
+            List<UserMessageLogDto> userMessageLogsBatch = userMessageLogsToDelete
+                    .stream()
+                    .limit(currentBatch)
+                    .collect(Collectors.toList());
             userMessageLogsToDelete.removeAll(userMessageLogsBatch);
+
+            initProperties(userMessageLogsBatch);
+
             LOG.debug("After removal messageIds size is [{}]", userMessageLogsToDelete.size());
             scheduleDeleteBatchMessages(userMessageLogsBatch);
+        }
+    }
+
+    protected void initProperties(List<UserMessageLogDto> userMessageLogsBatch) {
+        for (UserMessageLogDto userMessageLogDto : userMessageLogsBatch) {
+            Map<String, String> properties = userMessageServiceHelper.getProperties(messagingDao.findUserMessageByMessageId(userMessageLogDto.getMessageId()));
+
+            userMessageLogDto.setProperties(properties);
         }
     }
 

@@ -13,9 +13,9 @@ import eu.domibus.core.message.MessageExchangeConfiguration;
 import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.pmode.ProcessPartyExtractorProvider;
 import eu.domibus.core.pmode.ProcessTypePartyExtractor;
-import eu.domibus.ebms3.common.model.AgreementRef;
-import eu.domibus.ebms3.common.model.MessageExchangePattern;
-import eu.domibus.ebms3.common.model.PartyId;
+import eu.domibus.api.model.AgreementRef;
+import eu.domibus.api.ebms3.MessageExchangePattern;
+import eu.domibus.api.model.PartyId;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -442,7 +442,7 @@ public class CachingPModeProvider extends PModeProvider {
     }
 
     @Override
-    public String findServiceName(final eu.domibus.ebms3.common.model.Service service) throws EbMS3Exception {
+    public String findServiceName(final eu.domibus.api.model.Service service) throws EbMS3Exception {
         if (service == null) {
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "Service is not found in the message", null, null);
         }

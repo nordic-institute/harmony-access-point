@@ -1,7 +1,7 @@
 package eu.domibus.core.message;
 
-import eu.domibus.core.message.splitandjoin.MessageGroupEntity;
-import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
+import eu.domibus.api.model.UserMessage;
 
 /**
  * Defines the contract for creating UserMessages or UserMessageFragments

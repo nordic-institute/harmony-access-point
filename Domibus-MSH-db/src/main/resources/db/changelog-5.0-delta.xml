@@ -33,12 +33,15 @@
                 <constraints nullable="false"/>
             </column>
             <column name="FINAL_RECIPIENT" type="VARCHAR(255)" remarks="Final recipient of the domibus message"/>
+            <column name="ORIGINAL_SENDER" type="VARCHAR(255)" remarks="Original sender of the domibus message"/>
 
             <column name="BACKEND_MESSAGE_STATUS" type="VARCHAR(255)" remarks="The status describing the state of the backend message"/>
             <column name="BACKEND_MESSAGE_TYPE" type="VARCHAR(255)" remarks="The type describing the kind backend message"/>
 
             <column name="RULE_NAME" type="VARCHAR(255)" remarks="Name of the rule used for dispatching"/>
-            <column name="SENT" type="DATETIME" remarks="DateTime when the message had been dispatched"/>
+            <column name="SENT" type="DATETIME" remarks="DateTime when the message had been dispatched">
+                <constraints nullable="false"/>
+            </column>
             <column name="FAILED" type="DATETIME" remarks="DateTime when the message had failed"/>
 
             <column name="SEND_ATTEMPTS" type="INT" remarks="Number of attempts sent"/>

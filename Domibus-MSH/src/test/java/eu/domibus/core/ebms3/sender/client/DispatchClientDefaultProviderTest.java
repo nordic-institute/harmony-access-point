@@ -1,6 +1,7 @@
 package eu.domibus.core.ebms3.sender.client;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.core.cxf.DomibusHTTPConduitFactory;
 import eu.domibus.core.proxy.DomibusProxy;
 import eu.domibus.core.proxy.DomibusProxyService;
 import eu.domibus.core.proxy.ProxyCxfUtil;
@@ -8,8 +9,11 @@ import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.endpoint.Client;
+import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.jaxws.DispatchImpl;
+import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.http.HTTPConduit;
+import org.apache.cxf.transport.http.HTTPConduitFactory;
 import org.apache.cxf.transports.http.configuration.ConnectionType;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.apache.cxf.ws.policy.PolicyConstants;
@@ -44,8 +48,12 @@ public class DispatchClientDefaultProviderTest {
 
     @Injectable
     protected DomibusProxyService domibusProxyService;
+
     @Injectable
     protected ProxyCxfUtil proxyUtil;
+
+    @Injectable
+    protected DomibusHTTPConduitFactory domibusHTTPConduitFactory;
 
     @Tested
     DispatchClientDefaultProvider dispatchClientDefaultProvider;
@@ -96,6 +104,8 @@ public class DispatchClientDefaultProviderTest {
                               @Mocked TLSClientParameters tlsClientParameters,
                               @Mocked DispatchImpl<SOAPMessage> dispatch,
                               @Mocked Client client,
+                              @Mocked Endpoint clientEndpoint,
+                              @Injectable EndpointInfo clientEndpointInfo,
                               @Mocked HTTPConduit httpConduit,
                               @Mocked HTTPClientPolicy httpClientPolicy) {
 
@@ -127,6 +137,14 @@ public class DispatchClientDefaultProviderTest {
             times = 1;
             result = client;
 
+            client.getEndpoint();
+            times = 1;
+            result = clientEndpoint;
+
+            clientEndpoint.getEndpointInfo();
+            times = 1;
+            result = clientEndpointInfo;
+
             client.getConduit();
             times = 1;
             result = httpConduit;
@@ -147,6 +165,9 @@ public class DispatchClientDefaultProviderTest {
         Dispatch<SOAPMessage> result = dispatchClientDefaultProvider.getClient(domain, endpoint, algorithm, policy, pModeKey, false).get();
 
         new FullVerifications() {{
+
+            clientEndpointInfo.setProperty(HTTPConduitFactory.class.getName(), domibusHTTPConduitFactory);
+            times = 1;
 
             httpConduit.setClient(httpClientPolicy);
             times = 1;

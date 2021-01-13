@@ -1,6 +1,6 @@
 package eu.domibus.core.scheduler;
 
-import eu.domibus.core.spring.SpringContextProvider;
+import eu.domibus.api.spring.SpringContextProvider;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;

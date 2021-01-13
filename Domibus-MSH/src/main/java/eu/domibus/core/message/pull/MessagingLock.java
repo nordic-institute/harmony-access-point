@@ -1,7 +1,7 @@
 package eu.domibus.core.message.pull;
 
-import eu.domibus.ebms3.common.model.AbstractBaseEntity;
-import eu.domibus.ebms3.common.model.MessageState;
+import eu.domibus.api.model.AbstractBaseEntity;
+import eu.domibus.api.model.MessageState;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -9,7 +9,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
 
-import static eu.domibus.ebms3.common.model.MessageState.READY;
+import static eu.domibus.api.model.MessageState.READY;
 
 /**
  * @author Thomas Dussart

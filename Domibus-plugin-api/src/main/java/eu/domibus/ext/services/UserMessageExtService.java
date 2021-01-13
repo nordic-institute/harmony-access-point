@@ -30,4 +30,11 @@ public interface UserMessageExtService {
      * @return {@code finalRecipient} or {@code null} if message not found
      */
     String getFinalRecipient(String messageId);
+
+    /**
+     * Gets the original sender from the properties of the domibus message
+     * @param messageId if the domibus message
+     * @return {@code originalSender} or {@code null} if message not found
+     */
+    String getOriginalSender(String messageId);
 }

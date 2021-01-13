@@ -1,16 +1,19 @@
 package eu.domibus.core.message.splitandjoin;
 
+import eu.domibus.api.ebms3.model.Ebms3Messaging;
+import eu.domibus.api.model.*;
+import eu.domibus.api.model.Error;
+import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.ErrorCode;
-import eu.domibus.common.MSHRole;
-import eu.domibus.common.MessageStatus;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.Splitting;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.ebms3.receiver.handler.IncomingSourceMessageHandler;
 import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
@@ -26,10 +29,6 @@ import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
-import eu.domibus.ebms3.common.model.Error;
-import eu.domibus.ebms3.common.model.Messaging;
-import eu.domibus.ebms3.common.model.PartInfo;
-import eu.domibus.ebms3.common.model.UserMessage;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.io.FileUtils;
@@ -140,6 +139,9 @@ public class SplitAndJoinDefaultServiceTest {
     @Injectable
     protected ErrorService errorService;
 
+    @Injectable
+    Ebms3Converter ebms3Converter;
+
     @Rule
     public TemporaryFolder testFolder = new TemporaryFolder();
 
@@ -209,6 +211,7 @@ public class SplitAndJoinDefaultServiceTest {
 
     @Test
     public void rejoinSourceMessage(@Injectable final SOAPMessage sourceRequest,
+                                    @Injectable final Ebms3Messaging ebms3Messaging,
                                     @Injectable final Messaging messaging,
                                     @Injectable MessageExchangeConfiguration userMessageExchangeConfiguration,
                                     @Injectable LegConfiguration legConfiguration
@@ -225,7 +228,7 @@ public class SplitAndJoinDefaultServiceTest {
             result = sourceRequest;
 
             messageUtil.getMessage(sourceRequest);
-            result = messaging;
+            result = ebms3Messaging;
 
             pModeProvider.findUserMessageExchangeContext(messaging.getUserMessage(), MSHRole.RECEIVING);
             result = userMessageExchangeConfiguration;

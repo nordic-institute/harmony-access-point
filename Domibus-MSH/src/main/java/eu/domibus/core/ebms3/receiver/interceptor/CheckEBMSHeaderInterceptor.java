@@ -1,6 +1,6 @@
 package eu.domibus.core.ebms3.receiver.interceptor;
 
-import eu.domibus.ebms3.common.model.ObjectFactory;
+import eu.domibus.api.ebms3.model.ObjectFactory;
 import org.apache.cxf.binding.soap.HeaderUtil;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.interceptor.AbstractSoapInterceptor;
@@ -33,7 +33,7 @@ public class CheckEBMSHeaderInterceptor extends AbstractSoapInterceptor {
     public Set<QName> getUnderstoodHeaders() {
         final Set<QName> understood = new HashSet<>();
         understood.add(ObjectFactory._Messaging_QNAME);
-        understood.add(eu.domibus.ebms3.common.model.mf.ObjectFactory._MessageFragment_QNAME);
+        understood.add(eu.domibus.api.ebms3.model.mf.ObjectFactory._MessageFragment_QNAME);
         return understood;
     }
 }

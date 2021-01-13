@@ -12,11 +12,6 @@ public enum WSBackendMessageStatus {
     SEND_ENQUEUED,
 
     /**
-     * the message is being transferred to another MSH.
-     */
-    SEND_IN_PROGRESS,
-
-    /**
      * The final send attempt of the message has failed and there will be no more retries
      */
     SEND_FAILURE,

@@ -3,13 +3,14 @@ package eu.domibus.core.ebms3.receiver.policy;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.ebms3.receiver.leg.ServerInMessageLegConfigurationFactory;
 import eu.domibus.core.ebms3.ws.policy.PolicyService;
 import eu.domibus.core.message.SoapService;
 import eu.domibus.core.message.UserMessageHandlerService;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.property.DomibusVersionService;
-import eu.domibus.ebms3.common.model.Messaging;
+import eu.domibus.api.model.Messaging;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.cxf.binding.soap.SoapMessage;
@@ -40,6 +41,9 @@ public class SetPolicyInServerInterceptorTest {
 
     @Injectable
     SoapService soapService;
+
+    @Injectable
+    Ebms3Converter ebms3Converter;
 
     @Injectable
     protected PolicyService policyService;

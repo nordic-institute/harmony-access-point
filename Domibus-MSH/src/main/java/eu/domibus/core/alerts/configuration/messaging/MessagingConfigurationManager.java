@@ -1,9 +1,9 @@
 package eu.domibus.core.alerts.configuration.messaging;
 
+import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.common.MessageStatus;
 import eu.domibus.core.alerts.configuration.AlertConfigurationManager;
 import eu.domibus.core.alerts.configuration.ReaderMethodAlertConfigurationManager;
 import eu.domibus.core.alerts.model.common.AlertLevel;
