@@ -21,7 +21,8 @@ public class DMessages {
 	public static final String USER_EMAIL_INVALID = "You should type a valid email";
 
 	public static final String USER_USERNAME_NO_EMPTY = "You should type an username";
-	public static final String USER_USERNAME_VALIDATION = "Username can only contain alphanumeric characters (letters A-Z, numbers 0-9) and must have from 4 to 32 characters";
+	public static final String USER_USERNAME_VALIDATION_SHORT = "You should type at least 4 characters";
+	public static final String USER_USERNAME_VALIDATION_SPECIAL_CHR = "You should not use special characters";
 	public static final String USER_DELETE_LOGGED_IN_USER = "You cannot delete the logged in user: %s";
 
 	public static final String PLUGIN_USER_ORIGINAL_USER_INVALID = "You should follow the rule: urn:oasis:names:tc:ebcore:partyid-type:[unregistered]:[corner]";

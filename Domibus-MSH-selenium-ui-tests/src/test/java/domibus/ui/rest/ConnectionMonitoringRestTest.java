@@ -67,7 +67,7 @@ public class ConnectionMonitoringRestTest extends RestTest {
 	}
 	
 	
-	@Test(description = "TS-x", dataProvider = "readInvalidStrings", enabled = false)
+	@Test(description = "TS-x", dataProvider = "readInvalidStrings")
 	public void enableMonitoringNegativeTest(String evilStr) throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
