@@ -3,6 +3,7 @@ package eu.domibus.core.message.signal;
 import eu.domibus.api.model.MessageStatus;
 import com.google.common.collect.Maps;
 import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.SignalMessageLog;
 import eu.domibus.core.message.MessageLogDao;
 import eu.domibus.core.message.MessageLogInfo;
 import eu.domibus.core.message.MessageLogInfoFilter;

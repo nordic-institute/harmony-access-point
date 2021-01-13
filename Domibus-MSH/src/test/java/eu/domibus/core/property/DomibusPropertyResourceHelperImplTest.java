@@ -25,13 +25,13 @@ import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
-import static eu.domibus.core.property.ConfigurationPropertyResourceHelperImpl.ACCEPTED_CHARACTERS_IN_PROPERTY_NAMES;
+import static eu.domibus.core.property.DomibusPropertyResourceHelperImpl.ACCEPTED_CHARACTERS_IN_PROPERTY_NAMES;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ConfigurationEbms3PropertyResourceHelperImplTest {
+public class DomibusPropertyResourceHelperImplTest {
 
     @Tested
-    ConfigurationPropertyResourceHelperImpl configurationPropertyResourceHelper;
+    DomibusPropertyResourceHelperImpl configurationPropertyResourceHelper;
 
     @Injectable
     protected DomainContextProvider domainContextProvider;

@@ -1,7 +1,7 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.model.*;
-import eu.domibus.core.message.signal.SignalMessageLog;
+import eu.domibus.api.model.SignalMessageLog;
 import eu.domibus.core.message.signal.SignalMessageLogBuilder;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
