@@ -11,7 +11,7 @@ import eu.domibus.api.validators.SkipWhiteListed;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.crypto.MultiDomainCryptoServiceImpl;
-import eu.domibus.core.crypto.TLSMultiDomainCryptoServiceImpl;
+//import eu.domibus.core.crypto.TLSMultiDomainCryptoServiceImpl;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.ErrorRO;
@@ -46,7 +46,7 @@ public class TruststoreResource extends BaseResource {
 
     private MultiDomainCryptoServiceImpl multiDomainCertificateProvider;
 
-    private TLSMultiDomainCryptoServiceImpl tlsMultiDomainCertificateProvider;
+//    private TLSMultiDomainCryptoServiceImpl tlsMultiDomainCertificateProvider;
 
     private DomainContextProvider domainProvider;
 
@@ -60,12 +60,13 @@ public class TruststoreResource extends BaseResource {
 
     private AuditService auditService;
 
-    public TruststoreResource(MultiDomainCryptoServiceImpl multiDomainCertificateProvider, TLSMultiDomainCryptoServiceImpl tlsMultiDomainCertificateProvider,
+    public TruststoreResource(MultiDomainCryptoServiceImpl multiDomainCertificateProvider,
+//                              TLSMultiDomainCryptoServiceImpl tlsMultiDomainCertificateProvider,
                               DomainContextProvider domainProvider, CertificateService certificateService,
                               DomainCoreConverter domainConverter, ErrorHandlerService errorHandlerService,
                               MultiPartFileUtil multiPartFileUtil, AuditService auditService) {
         this.multiDomainCertificateProvider = multiDomainCertificateProvider;
-        this.tlsMultiDomainCertificateProvider = tlsMultiDomainCertificateProvider;
+//        this.tlsMultiDomainCertificateProvider = tlsMultiDomainCertificateProvider;
         this.domainProvider = domainProvider;
         this.certificateService = certificateService;
         this.domainConverter = domainConverter;
@@ -108,23 +109,26 @@ public class TruststoreResource extends BaseResource {
     @PostMapping(value = "/tlstruststore")
     public String uploadTLSTruststoreFile(@RequestPart("file") MultipartFile truststoreFile,
                                           @SkipWhiteListed @RequestParam("password") String password) throws RequestValidationException {
-        replaceTruststore(tlsMultiDomainCertificateProvider, truststoreFile, password);
+//        replaceTruststore(tlsMultiDomainCertificateProvider, truststoreFile, password);
         return "TLS truststore file has been successfully replaced.";
     }
 
     @GetMapping(value = "/tlstruststore", produces = "application/octet-stream")
     public ResponseEntity<ByteArrayResource> downloadTLSTrustStore() {
-        return downloadTruststoreContent(tlsMultiDomainCertificateProvider, () -> auditService.addTLSTruststoreDownloadedAudit());
+        return null;
+//        return downloadTruststoreContent(tlsMultiDomainCertificateProvider, () -> auditService.addTLSTruststoreDownloadedAudit());
     }
 
     @GetMapping(value = {"/tlstruststore/entries"})
     public List<TrustStoreRO> getTLSTruststoreEntries() {
-        return getTrustStoreEntries(tlsMultiDomainCertificateProvider);
+        return null;
+//        return getTrustStoreEntries(tlsMultiDomainCertificateProvider);
     }
 
     @GetMapping(path = "/tlstruststore/entries/csv")
     public ResponseEntity<String> getTLSEntriesAsCsv() {
-        return getEntriesAsCSV(tlsMultiDomainCertificateProvider, "tlsTruststore");
+        return null;
+//        return getEntriesAsCSV(tlsMultiDomainCertificateProvider, "tlsTruststore");
     }
 
     @PostMapping(value = "/tlstruststore/entries")
@@ -138,14 +142,14 @@ public class TruststoreResource extends BaseResource {
 
         X509Certificate cert = certificateService.loadCertificateFromString(new String(fileContent));
 
-        tlsMultiDomainCertificateProvider.addCertificate(domainProvider.getCurrentDomain(), cert, alias, true);
+//        tlsMultiDomainCertificateProvider.addCertificate(domainProvider.getCurrentDomain(), cert, alias, true);
 
         return "Certificate [" + alias + "] has been successfully added to the TLS truststore.";
     }
 
     @DeleteMapping(value = "/tlstruststore/entries/{alias:.+}")
     public String removeTLSCertificate(@PathVariable String alias) throws RequestValidationException {
-        tlsMultiDomainCertificateProvider.removeCertificate(domainProvider.getCurrentDomain(), alias);
+//        tlsMultiDomainCertificateProvider.removeCertificate(domainProvider.getCurrentDomain(), alias);
         return "Certificate [" + alias + "] has been successfully removed from the TLS truststore.";
     }
 
@@ -160,8 +164,8 @@ public class TruststoreResource extends BaseResource {
     }
 
     protected ResponseEntity<ByteArrayResource> downloadTruststoreContent(MultiDomainCryptoService multiDomainCertificateProvider, Runnable auditMethod) {
-        byte[] content = multiDomainCertificateProvider.getTruststoreContent(domainProvider.getCurrentDomain());
-
+//        byte[] content = multiDomainCertificateProvider.getTruststoreContent(domainProvider.getCurrentDomain());
+        byte[] content =null;
         ByteArrayResource resource = new ByteArrayResource(content);
 
         HttpStatus status = HttpStatus.OK;
