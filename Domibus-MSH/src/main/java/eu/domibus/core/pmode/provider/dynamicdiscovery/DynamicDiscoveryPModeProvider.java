@@ -371,10 +371,8 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
         }
 
         LOG.debug("Add public certificate to the truststore");
-        //add certificate to Truststore
         multiDomainCertificateProvider.addCertificate(domainProvider.getCurrentDomain(), certificate, cn, true);
         LOG.debug("Certificate added");
-
     }
 
     protected EndpointInfo lookupByFinalRecipient(UserMessage userMessage) throws EbMS3Exception {
