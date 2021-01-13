@@ -4,7 +4,7 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusProperty;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.csv.CsvServiceImpl;
-import eu.domibus.core.property.ConfigurationPropertyResourceHelper;
+import eu.domibus.core.property.DomibusPropertyResourceHelper;
 import eu.domibus.core.property.DomibusPropertiesFilter;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.DomibusPropertyRO;
@@ -28,13 +28,13 @@ import java.util.List;
  * @since 4.0
  */
 @RunWith(JMockit.class)
-public class ConfigurationPropertyResourceTest {
+public class DomibusPropertyResourceTest {
 
     @Tested
-    ConfigurationPropertyResource configurationPropertyResource;
+    DomibusPropertyResource domibusPropertyResource;
 
     @Injectable
-    private ConfigurationPropertyResourceHelper configurationPropertyResourceHelper;
+    private DomibusPropertyResourceHelper domibusPropertyResourceHelper;
 
     @Injectable
     private ErrorHandlerService errorHandlerService;
@@ -54,13 +54,13 @@ public class ConfigurationPropertyResourceTest {
     @Test
     public void getProperty(@Mocked DomibusProperty prop, @Mocked DomibusPropertyRO convertedProp) {
         new Expectations() {{
-            configurationPropertyResourceHelper.getProperty("propertyName");
+            domibusPropertyResourceHelper.getProperty("propertyName");
             result = prop;
             domainConverter.convert(prop, DomibusPropertyRO.class);
             result = convertedProp;
         }};
 
-        DomibusPropertyRO res = configurationPropertyResource.getProperty("propertyName");
+        DomibusPropertyRO res = domibusPropertyResource.getProperty("propertyName");
 
         Assert.assertEquals(convertedProp, res);
     }
@@ -78,13 +78,13 @@ public class ConfigurationPropertyResourceTest {
         new Expectations() {{
             domainConverter.convert(request, DomibusPropertiesFilter.class);
             result = filter;
-            configurationPropertyResourceHelper.getAllProperties(filter);
+            domibusPropertyResourceHelper.getAllProperties(filter);
             result = items;
             domainConverter.convert(items, DomibusPropertyRO.class);
             result = convertedItems;
         }};
 
-        ResponseEntity<String> res = configurationPropertyResource.getCsv(request);
+        ResponseEntity<String> res = domibusPropertyResource.getCsv(request);
 
         Assert.assertEquals(HttpStatus.OK, res.getStatusCode());
     }

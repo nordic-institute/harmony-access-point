@@ -21,15 +21,15 @@ import java.util.stream.Collectors;
  * @since 4.1.1
  */
 @Service
-public class DomibusPropertyChangeNotifierImpl implements DomibusPropertyChangeNotifier {
+public class PropertyChangeNotifierImpl implements DomibusPropertyChangeNotifier {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusPropertyChangeNotifierImpl.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PropertyChangeNotifierImpl.class);
 
     protected List<DomibusPropertyChangeListener> allPropertyChangeListeners;
 
     private final SignalService signalService;
 
-    public DomibusPropertyChangeNotifierImpl(
+    public PropertyChangeNotifierImpl(
             List<DomibusPropertyChangeListener> propertyChangeListeners,
             List<PluginPropertyChangeListener> pluginPropertyChangeListeners,
             SignalService signalService) {
