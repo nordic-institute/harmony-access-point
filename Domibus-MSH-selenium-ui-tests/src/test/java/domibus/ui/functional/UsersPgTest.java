@@ -1,5 +1,6 @@
 package domibus.ui.functional;
 
+import com.sun.prism.shader.DrawRoundRect_LinearGradient_PAD_AlphaTest_Loader;
 import com.sun.xml.internal.fastinfoset.util.StringArray;
 import ddsl.dcomponents.DomibusPage;
 import ddsl.dcomponents.popups.Dialog;
@@ -748,29 +749,34 @@ public class UsersPgTest extends SeleniumTest {
 	}
 
 	// This Test Case verifies error while deleting/deactivating logged in admin user but same successful action  for all other admin users.
-	@Test(description = "USR-52", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "USR-52", groups = {"singleTenancy"})
 	public void adminDeleteAll() throws Exception {
 		SoftAssert soft = new SoftAssert();
-		DomibusPage page = new DomibusPage(driver);
+		UsersPage userPage = new UsersPage(driver);
+		userPage.getSidebar().goToPage(PAGES.USERS);
+		userPage.grid().waitForRowsToLoad();
+
+		String loggedInUser = userPage.getSandwichMenu().getCurrentUserID();
+		userPage.clickVoidSpace();
 
 		log.info("Get all users");
-		JSONArray userArray = rest.users().getUsers(page.getDomainFromTitle());
-
+		JSONArray userArray = rest.users().getUsers(userPage.getDomainFromTitle());
 		int userCount = userArray.length();
-		String loggedInUser = page.getSandwichMenu().getCurrentUserID();
 
-		page.refreshPage();
-		page.waitForPageTitle();
-
-		page.getSidebar().goToPage(PAGES.USERS);
-		UsersPage userPage = new UsersPage(driver);
-
+		log.info("Get all active admin users");
+		JSONArray activeUserArray=new JSONArray();
 		for (int i = 0; i < userCount; i++) {
-			String userName = userArray.getJSONObject(i).get("userName").toString();
-			String userRole = userArray.getJSONObject(i).get("roles").toString();
 			Boolean isDeleted = userArray.getJSONObject(i).getBoolean("deleted");
+			String userRole = userArray.getJSONObject(i).get("roles").toString();
 
-			if (isDeleted == false && userRole.equalsIgnoreCase(DRoles.ADMIN)) {
+			if (!isDeleted && userRole.equalsIgnoreCase(DRoles.ADMIN)) {
+				activeUserArray.put(userArray.get(i));
+			}
+		}
+		int activeUserCount=activeUserArray.length();
+
+		for (int i = 0; i < activeUserCount; i++) {
+			String userName = activeUserArray.getJSONObject(i).get("userName").toString();
 
 				if (userName.equals(loggedInUser)) {
 
@@ -789,15 +795,13 @@ public class UsersPgTest extends SeleniumTest {
 
 				} else {
 
-					rest.users().deactivate(userName, page.getDomainFromTitle());
+					rest.users().deactivate(userName, userPage.getDomainFromTitle());
 					log.info("Deactivated user : " + userName);
-					rest.users().deleteUser(userName, page.getDomainFromTitle());
+					rest.users().deleteUser(userName, userPage.getDomainFromTitle());
 					log.info("Deleting user :" + userName);
 				}
-
-			}
-			userPage.refreshPage();
-			userPage.waitForPageTitle();
+				userPage.refreshPage();
+			    userPage.waitForPageTitle();
 
 		}
 		soft.assertAll();
@@ -808,26 +812,31 @@ public class UsersPgTest extends SeleniumTest {
 	@Test(description = "USR-51", groups = {"multiTenancy"})
 	public void superDeleteAll() throws Exception {
 		SoftAssert soft = new SoftAssert();
-		DomibusPage page = new DomibusPage(driver);
+		UsersPage userPage = new UsersPage(driver);
+		userPage.getSidebar().goToPage(PAGES.USERS);
+		userPage.grid().waitForRowsToLoad();
+
+		String loggedInUser = userPage.getSandwichMenu().getCurrentUserID();
+		userPage.clickVoidSpace();
 
 		log.info("Get all users");
-		JSONArray userArray = rest.users().getUsers(page.getDomainFromTitle());
-
+		JSONArray userArray = rest.users().getUsers(userPage.getDomainFromTitle());
 		int userCount = userArray.length();
-		String loggedInUser = page.getSandwichMenu().getCurrentUserID();
 
-		page.refreshPage();
-		page.waitForPageTitle();
-
-		page.getSidebar().goToPage(PAGES.USERS);
-		UsersPage userPage = new UsersPage(driver);
-
+		JSONArray activeUserArray=new JSONArray();
 		for (int i = 0; i < userCount; i++) {
-			String userName = userArray.getJSONObject(i).get("userName").toString();
-			String userRole = userArray.getJSONObject(i).get("roles").toString();
 			Boolean isDeleted = userArray.getJSONObject(i).getBoolean("deleted");
+			String userRole = userArray.getJSONObject(i).get("roles").toString();
 
-			if (isDeleted == false && userRole.equalsIgnoreCase(DRoles.SUPER)) {
+			if (!isDeleted && userRole.equalsIgnoreCase(DRoles.SUPER)) {
+				activeUserArray.put(userArray.get(i));
+			}
+		}
+		int activeUserCount=activeUserArray.length();
+		log.info("Active super user count"+ activeUserCount);
+
+		for (int i = 0; i < activeUserCount; i++) {
+			String userName = activeUserArray.getJSONObject(i).get("userName").toString();
 
 				if (userName.equals(loggedInUser)) {
 
@@ -846,13 +855,12 @@ public class UsersPgTest extends SeleniumTest {
 
 				} else {
 
-					rest.users().deactivate(userName, page.getDomainFromTitle());
+					rest.users().deactivate(userName, userPage.getDomainFromTitle());
 					log.info("Deactivated user : " + userName);
-					rest.users().deleteUser(userName, page.getDomainFromTitle());
+					rest.users().deleteUser(userName, userPage.getDomainFromTitle());
 					log.info("Deleting user :" + userName);
 				}
 
-			}
 			userPage.refreshPage();
 			userPage.waitForPageTitle();
 
@@ -888,14 +896,14 @@ public class UsersPgTest extends SeleniumTest {
 		logout();
 		for (int j = 0; j < 5; j++) {
 			login(newUser, data.defaultPass());
-			soft.assertTrue(page.getAlertArea().getAlertMessage().equals(DMessages.LOGIN_INVALID_CREDENTIALS),"Error on login with wrong credentials");
+			soft.assertTrue(page.getAlertArea().getAlertMessage().equals(DMessages.LOGIN_INVALID_CREDENTIALS), "Error on login with wrong credentials");
 		}
 
 		login(data.getAdminUser());
 		userPage.newUser(Gen.randomAlphaNumeric(10), "tuser@bnc.com", DRoles.USER, data.defaultPass(), data.defaultPass());
 		userPage.grid().waitForRowsToLoad();
 		userPage.saveAndConfirm();
-		soft.assertTrue(userPage.getAlertArea().getAlertMessage().equals(DMessages.Users.ONLY_ADMINUSER_DEACTIVATE),"Error while adding user when no admin user exists");
+		soft.assertTrue(userPage.getAlertArea().getAlertMessage().equals(DMessages.Users.ONLY_ADMINUSER_DEACTIVATE), "Error while adding user when no admin user exists");
 		soft.assertAll();
 
 	}
@@ -903,45 +911,138 @@ public class UsersPgTest extends SeleniumTest {
 	@Test(description = "USR-49", groups = {"multiTenancy"})
 	public void deactivateAllAdmin() throws Exception {
 		SoftAssert soft = new SoftAssert();
-		DomibusPage page = new DomibusPage(driver);
+		UsersPage userPage = new UsersPage(driver);
 
 		String newUser = Gen.randomAlphaNumeric(10);
-		rest.users().createUser(newUser, DRoles.ADMIN, data.getNewTestPass(), page.getDomainFromTitle());
-		log.info(newUser);
+		rest.users().createUser(newUser, DRoles.ADMIN, data.getNewTestPass(), userPage.getDomainFromTitle());
+
+		userPage.getSidebar().goToPage(PAGES.USERS);
+		userPage.grid().waitForRowsToLoad();
 
 		log.info("Get all users");
-		JSONArray userArray = rest.users().getUsers(page.getDomainFromTitle());
+		JSONArray userArray = rest.users().getUsers(userPage.getDomainFromTitle());
 		int userCount = userArray.length();
-		page.refreshPage();
-		page.waitForPageTitle();
 
-		page.getSidebar().goToPage(PAGES.USERS);
-		UsersPage userPage = new UsersPage(driver);
+		JSONArray activeUserArray=new JSONArray();
+		log.info("Get all active admin users");
 		for (int i = 0; i < userCount; i++) {
-			String userName = userArray.getJSONObject(i).get("userName").toString();
-			String userRole = userArray.getJSONObject(i).get("roles").toString();
 			Boolean isDeleted = userArray.getJSONObject(i).getBoolean("deleted");
+			String userRole = userArray.getJSONObject(i).get("roles").toString();
 
-			if (isDeleted == false && userRole.equalsIgnoreCase(DRoles.ADMIN) ) {
-				if(!userName.equals(newUser)){
-				rest.users().deactivate(userName, page.getDomainFromTitle());
-				log.info("Deactivated admin user : " + userName);
-			}
-			else  {
-				userPage.grid().scrollToAndSelect("Username", newUser);
-				userPage.getEditBtn().click();
-				UserModal modal = new UserModal(driver);
-				modal.getActiveChk().click();
-				modal.getOkBtn().click();
-				userPage.getSaveBtn().click();
-				new Dialog(driver).confirm();
-				soft.assertTrue(userPage.getAlertArea().getAlertMessage().contains(DMessages.Users.ONLY_ADMINUSER_DEACTIVATE),
-						"Error while deactivating only active admin user");
-				userPage.refreshPage();
-				userPage.waitForPageTitle();
+			if (!isDeleted && userRole.equalsIgnoreCase(DRoles.ADMIN)) {
+				activeUserArray.put(userArray.get(i));
 			}
 		}
+		int activeUserCount=activeUserArray.length();
+
+		for (int i = 0; i < activeUserCount; i++) {
+			String userName = activeUserArray.getJSONObject(i).get("userName").toString();
+
+				if (!userName.equals(newUser)) {
+					rest.users().deactivate(userName, userPage.getDomainFromTitle());
+					log.info("Deactivated admin user : " + userName);
+				} else {
+					userPage.grid().scrollToAndSelect("Username", newUser);
+					userPage.getEditBtn().click();
+					UserModal modal = new UserModal(driver);
+					modal.getActiveChk().click();
+					modal.clickOK();
+					userPage.saveAndConfirm();
+					soft.assertTrue(userPage.getAlertArea().getAlertMessage().contains(DMessages.Users.ONLY_ADMINUSER_DEACTIVATE),
+							"Error while deactivating only active admin user");
+					userPage.refreshPage();
+					userPage.waitForPageTitle();
+				}
 		}
 		soft.assertAll();
+	}
+
+	@Test(description = "USR-48", groups = {"multiTenancy"})
+	public void deleteAllAdmin() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		UsersPage userPage = new UsersPage(driver);
+
+		String newUser = Gen.randomAlphaNumeric(10);
+		rest.users().createUser(newUser, DRoles.ADMIN, data.getNewTestPass(), userPage.getDomainFromTitle());
+		userPage.getSidebar().goToPage(PAGES.USERS);
+		userPage.grid().waitForRowsToLoad();
+
+		log.info("Get all users");
+		JSONArray userArray = rest.users().getUsers(userPage.getDomainFromTitle());
+
+		int userCount = userArray.length();
+
+		JSONArray activeUserArray=new JSONArray();
+		log.info("Get all active admin users");
+		for (int i = 0; i < userCount; i++) {
+			Boolean isDeleted = userArray.getJSONObject(i).getBoolean("deleted");
+			String userRole = userArray.getJSONObject(i).get("roles").toString();
+
+			if (!isDeleted && userRole.equalsIgnoreCase(DRoles.ADMIN)) {
+				activeUserArray.put(userArray.get(i));
+			}
+		}
+		int activeUserCount=activeUserArray.length();
+
+		for (int i = 0; i < activeUserCount; i++) {
+			String userName = activeUserArray.getJSONObject(i).get("userName").toString();
+
+				if (!userName.equals(newUser)) {
+					rest.users().deleteUser(userName, userPage.getDomainFromTitle());
+					log.info("Deleted admin user : " + userName);
+				} else {
+					userPage.grid().scrollToAndSelect("Username", newUser);
+					userPage.getDeleteBtn().click();
+					userPage.saveAndConfirm();
+
+					soft.assertTrue(userPage.getAlertArea().getAlertMessage().contains(DMessages.Users.ONLY_ADMINUSER_DEACTIVATE),
+							"Error while deleting only active admin user");
+					userPage.refreshPage();
+					userPage.waitForPageTitle();
+				}
+		}
+		soft.assertAll();
+	}
+
+	@Test(description = "USR-46", groups = {"multiTenancy"})
+	public void duplicateUser() throws Exception {
+		String deletedUsername = rest.getUser(null, DRoles.USER, false, true, false).getString("userName");
+
+		SoftAssert soft = new SoftAssert();
+		UsersPage userPage = new UsersPage(driver);
+		userPage.getSidebar().goToPage(PAGES.USERS);
+		userPage.grid().waitForRowsToLoad();
+
+		int index = userPage.grid().scrollTo("Username", deletedUsername);
+		soft.assertEquals(index, -1, "User is not visible in the grid");
+
+		userPage.newUser(deletedUsername, "tuser@bnc.com", DRoles.USER, data.defaultPass(), data.defaultPass());
+		userPage.grid().waitForRowsToLoad();
+		userPage.saveAndConfirm();
+		soft.assertEquals(userPage.getAlertArea().getAlertMessage(), String.format(DMessages.Users.DUPLICATE_USERNAME_SAMEDOMAIN_ERROR, deletedUsername), "Correct message is displayed");
+
+		soft.assertAll();
+
+
+	}
+
+	@Test(description = "USR-47", groups = {"multiTenancy"})
+	public void userAddition() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		UsersPage userPage = new UsersPage(driver);
+		userPage.getSidebar().goToPage(PAGES.USERS);
+		userPage.grid().waitForRowsToLoad();
+
+		String userName= Gen.randomAlphaNumeric(9);
+
+		userPage.newUser(userName, "tuser@bnc.com", DRoles.USER, data.defaultPass(), data.defaultPass());
+		userPage.grid().waitForRowsToLoad();
+		userPage.saveAndConfirm();
+		soft.assertTrue(userPage.getAlertArea().getAlertMessage().contains(DMessages.Users.ONLY_ADMINUSER_DEACTIVATE),
+				"Error while deleting only active admin user");
+		soft.assertAll();
+
+
+
 	}
 }
