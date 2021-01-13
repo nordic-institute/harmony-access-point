@@ -1,10 +1,8 @@
 package eu.domibus.plugin.webService.backend.reliability.queue;
 
 import eu.domibus.common.JMSConstants;
-import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.webService.property.WSPluginPropertyManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -56,14 +54,12 @@ public class WSMessageListenerContainerConfiguration {
 
     @Bean(name = WS_PLUGIN_OUT_CONTAINER)
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-    public DefaultMessageListenerContainer createDefaultMessageListenerContainer(DomainDTO domain) {
+    public DefaultMessageListenerContainer createDefaultMessageListenerContainer() {
         DefaultMessageListenerContainer messageListenerContainer = new DefaultMessageListenerContainer();
 
-        final String messageSelector = MessageConstants.DOMAIN + "='" + domain.getCode() + "'";
-        final String queueConcurrency = wsPluginPropertyManager.getKnownPropertyValue(domain.getCode(), DISPATCHER_SEND_QUEUE_CONCURRENCY);
+        final String queueConcurrency = wsPluginPropertyManager.getKnownPropertyValue(DISPATCHER_SEND_QUEUE_CONCURRENCY);
         LOG.debug("wsPluginSendQueue concurrency set to: {}", queueConcurrency);
 
-        messageListenerContainer.setMessageSelector(messageSelector);
         messageListenerContainer.setConnectionFactory(connectionFactory);
         messageListenerContainer.setDestination(wsPluginSendQueue);
         messageListenerContainer.setMessageListener(wsSendMessageListener);
