@@ -1,26 +1,44 @@
 .panel mat-input-container, .panel mat-select, .panel md2-datepicker, .panel mat-select {
   width: 100% !important;
 }
+
 .property-value {
   border: solid 1px transparent;
   padding: 0 4px;
   width: calc(100% - 84px);
 }
+
 .property-value:focus, .property-value:hover {
   background-color: white;
   border-color: cornflowerblue;
 }
+
 .property-edit {
   position: relative;
 }
+
 .property-view {
   position: relative;
 }
+
 .property-edit-buttons {
   position: absolute;
   top: -6px;
   right: 0;
 }
+
 .property-edit-buttons.disabled button {
   color: silver;
+}
+
+.large-search-field {
+  width: 500px;
+}
+
+.small-search-field {
+  width: 500px;
+}
+
+.field-spacing {
+  margin-right: 30px;
 }

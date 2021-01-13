@@ -38,13 +38,13 @@ public class GlobalPropertyMetadataManagerImplTest {
     List<DomibusPropertyMetadataManagerSPI> propertyMetadataManagers;
 
     @Injectable
-    List<DomibusPropertyManagerExt> domibusPropertyManagerExts;
-
-    @Injectable
     DomainCoreConverter domainConverter;
 
     @Injectable
     private List<DomibusPropertyManagerExt> extPropertyManagers;
+
+    @Injectable
+    private NestedPropertiesManager nestedPropertiesManager;
 
     @Mocked
     @Spy
@@ -329,7 +329,7 @@ public class GlobalPropertyMetadataManagerImplTest {
             result = propMeta;
             propMeta.getName();
             result = compPropertyName;
-            domibusPropertyProvider.getNestedProperties(compPropertyName);
+            nestedPropertiesManager.getNestedProperties(propMeta);
             result = nestedProps;
         }};
 
@@ -364,7 +364,7 @@ public class GlobalPropertyMetadataManagerImplTest {
             result = propMeta;
             propMeta.getName();
             result = compPropertyName;
-            domibusPropertyProvider.getNestedProperties(compPropertyName);
+            nestedPropertiesManager.getNestedProperties(propMeta);
             result = nestedProps;
         }};
 

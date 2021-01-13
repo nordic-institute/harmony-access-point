@@ -77,7 +77,7 @@ public class SpringTestConfiguration {
 
     @Bean
     DomibusPropertyProvider domibusPropertyProvider() {
-        return new DomibusPropertyProviderImpl();
+        return Mockito.mock(DomibusPropertyProviderImpl.class);
     }
 
     @Bean

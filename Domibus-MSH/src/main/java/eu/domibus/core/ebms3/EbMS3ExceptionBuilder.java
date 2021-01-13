@@ -1,7 +1,7 @@
 package eu.domibus.core.ebms3;
 
 import eu.domibus.common.ErrorCode;
-import eu.domibus.common.MSHRole;
+import eu.domibus.api.model.MSHRole;
 
 import static eu.domibus.core.ebms3.EbMS3Exception.DEFAULT_RECOVERABLE;
 

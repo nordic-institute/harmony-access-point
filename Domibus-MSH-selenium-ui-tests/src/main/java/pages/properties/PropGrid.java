@@ -1,6 +1,7 @@
 package pages.properties;
 
 import ddsl.dcomponents.grid.DGrid;
+import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -38,6 +39,22 @@ public class PropGrid extends DGrid {
 		return info;
 	}
 
+	public void setPropertyValue(String propName, String propValue) throws Exception {
+		log.info("setting property " + propName + " to value " + propValue);
+		int index = scrollTo("Property Name", propName);
+		if (index<0){
+			throw new Exception("Could not find property");
+		}
+
+		String currentValue = getPropRowValue(index);
+		if(StringUtils.equalsIgnoreCase(currentValue, propValue)){
+			return;
+		}
+
+		setPropRowValueAndSave(index, propValue);
+
+	}
+
 	public void pressSave(int rowNumber) throws Exception {
 		if (!getColumnNames().contains(valKey)) return;
 
@@ -54,5 +71,55 @@ public class PropGrid extends DGrid {
 		wait.forElementToBeDisabled(undoElement);
 	}
 
+	public String getPropRowValue(int rowNumber) throws Exception {
+		if (!getColumnNames().contains(valKey)){
+			throw new Exception(valKey + " column is not visible");
+		}
 
+		WebElement inputElement = getRowElement(rowNumber).findElement(rowInput);
+		return weToDInput(inputElement).getText();
+	}
+
+	public void setPropRowValue(int rowNumber, String value) throws Exception {
+		if (!getColumnNames().contains(valKey)) return;
+
+		WebElement inputElement = getRowElement(rowNumber).findElement(rowInput);
+		weToDInput(inputElement).fill(value);
+	}
+	public void setPropRowValueAndSave(int rowNumber, String value) throws Exception {
+		if (!getColumnNames().contains(valKey)) return;
+
+		WebElement rowElement = getRowElement(rowNumber);
+		WebElement inputElement = rowElement.findElement(rowInput);
+		weToDInput(inputElement).fill(value);
+
+		WebElement saveElem = rowElement.findElement(rowSave);
+		weToDButton(saveElem).click();
+		wait.forElementToBeDisabled(saveElem);
+	}
+
+	public void setPropRowValueAndRevert(int rowNumber, String value) throws Exception {
+		if (!getColumnNames().contains(valKey)) return;
+
+		WebElement rowElement = getRowElement(rowNumber);
+		WebElement inputElement = rowElement.findElement(rowInput);
+		weToDInput(inputElement).fill(value);
+
+		WebElement undoElem = rowElement.findElement(rowUndo);
+
+		wait.forXMillis(1000);
+
+		weToDButton(undoElem).click();
+		wait.forElementToBeDisabled(undoElem);
+	}
+
+
+	public String getPropertyValue(String propName) throws Exception {
+		log.info("getting value for property " + propName);
+		int index = scrollTo("Property Name", propName);
+		if (index<0){
+			throw new Exception("Could not find property");
+		}
+		return getPropRowValue(index);
+	}
 }

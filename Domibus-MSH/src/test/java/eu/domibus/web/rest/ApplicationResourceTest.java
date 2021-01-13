@@ -1,20 +1,22 @@
 package eu.domibus.web.rest;
 
-import eu.domibus.api.multitenancy.DomainTaskExecutor;
-import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.multitenancy.DomainTaskExecutor;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
-import eu.domibus.core.property.DomibusVersionService;
+import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.property.DomibusVersionService;
 import eu.domibus.web.rest.ro.DomainRO;
 import eu.domibus.web.rest.ro.DomibusInfoRO;
 import eu.domibus.web.rest.ro.SupportTeamInfoRO;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
+import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
@@ -59,6 +61,9 @@ public class ApplicationResourceTest {
 
     @Injectable
     DomainTaskExecutor domainTaskExecutor;
+
+    @Injectable
+    DomibusCacheService domibusCacheService;
 
     @Test
     public void testGetDomibusInfo() throws Exception {
@@ -173,5 +178,39 @@ public class ApplicationResourceTest {
         Assert.assertNotNull(supportTeamInfoRO);
         Assert.assertEquals(supportTeamName, supportTeamInfoRO.getName());
         Assert.assertEquals(supportTeamEmail, supportTeamInfoRO.getEmail());
+    }
+
+    @Test
+    public void evictCachesInSingleTenancy() {
+
+        new Expectations() {{
+            domibusConfigurationService.isSingleTenantAware();
+            result = true;
+        }};
+
+        applicationResource.evictCaches();
+
+        new Verifications() {{
+            domibusCacheService.clearAllCaches();
+        }};
+    }
+
+    @Test
+    public void evictCachesInMultiTenancy() {
+
+        new Expectations() {{
+            domibusConfigurationService.isSingleTenantAware();
+            result = false;
+            domibusConfigurationService.isMultiTenantAware();
+            result = true;
+            authUtils.isSuperAdmin();
+            result = true;
+        }};
+
+        applicationResource.evictCaches();
+
+        new Verifications() {{
+            domibusCacheService.clearAllCaches();
+        }};
     }
 }

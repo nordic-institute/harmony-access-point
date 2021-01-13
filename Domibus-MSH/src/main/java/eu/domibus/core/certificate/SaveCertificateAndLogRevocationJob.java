@@ -35,12 +35,6 @@ public class SaveCertificateAndLogRevocationJob extends DomibusQuartzJobBean {
     @Override
     protected void executeJob(JobExecutionContext context, Domain domain) {
         LOG.info("Checking certificate expiration");
-        // add authentication for audit user_name logging. Check also the filterPlugin function
-        authUtils.runWithDomibusSecurityContext(() -> onExecuteJob(context, domain), AuthRole.ROLE_AP_ADMIN, true);
-    }
-
-    protected void onExecuteJob(JobExecutionContext context, Domain domain) {
-        LOG.info("On checking certificate expiration");
         try {
             final KeyStore trustStore = multiDomainCertificateProvider.getTrustStore(domain);
             final KeyStore keyStore = multiDomainCertificateProvider.getKeyStore(domain);
@@ -50,5 +44,10 @@ public class SaveCertificateAndLogRevocationJob extends DomibusQuartzJobBean {
         } catch (eu.domibus.api.security.CertificateException ex) {
             LOG.warn("An problem occurred while loading keystore:[{}]", ex.getMessage(), ex);
         }
+    }
+
+    @Override
+    protected void setQuartzJobSecurityContext() {
+        authUtils.setAuthenticationToSecurityContext(DOMIBUS_QUARTZ_USER, DOMIBUS_QUARTZ_PASSWORD, AuthRole.ROLE_AP_ADMIN);
     }
 }

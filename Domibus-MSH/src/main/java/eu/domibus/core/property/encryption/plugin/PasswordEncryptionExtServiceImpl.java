@@ -1,6 +1,7 @@
 package eu.domibus.core.property.encryption.plugin;
 
 import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.property.encryption.PasswordDecryptionService;
 import eu.domibus.api.property.encryption.PasswordEncryptionContext;
 import eu.domibus.api.property.encryption.PasswordEncryptionResult;
 import eu.domibus.api.property.encryption.PasswordEncryptionService;
@@ -12,6 +13,7 @@ import eu.domibus.ext.services.PasswordEncryptionExtService;
 import eu.domibus.ext.services.PluginPasswordEncryptionContext;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 /**
@@ -25,6 +27,8 @@ public class PasswordEncryptionExtServiceImpl implements PasswordEncryptionExtSe
 
     protected final PasswordEncryptionService passwordEncryptionService;
 
+    protected final PasswordDecryptionService passwordDecryptionService;
+
     protected final PasswordEncryptionContextFactory passwordEncryptionContextFactory;
 
     protected final DomainCoreConverter domainCoreConverter;
@@ -32,8 +36,10 @@ public class PasswordEncryptionExtServiceImpl implements PasswordEncryptionExtSe
     public PasswordEncryptionExtServiceImpl(
             PasswordEncryptionService passwordEncryptionService,
             PasswordEncryptionContextFactory passwordEncryptionContextFactory,
+            PasswordDecryptionService passwordDecryptionService,
             DomainCoreConverter domainCoreConverter) {
         this.passwordEncryptionService = passwordEncryptionService;
+        this.passwordDecryptionService = passwordDecryptionService;
         this.passwordEncryptionContextFactory = passwordEncryptionContextFactory;
         this.domainCoreConverter = domainCoreConverter;
     }
@@ -60,7 +66,7 @@ public class PasswordEncryptionExtServiceImpl implements PasswordEncryptionExtSe
         LOG.debug("Decrypting property [{}] for domain [{}]", propertyName, domainDTO);
 
         final Domain domain = domainCoreConverter.convert(domainDTO, Domain.class);
-        return passwordEncryptionService.decryptProperty(domain, propertyName, encryptedFormatValue);
+        return passwordDecryptionService.decryptProperty(domain, propertyName, encryptedFormatValue);
     }
 
     @Override

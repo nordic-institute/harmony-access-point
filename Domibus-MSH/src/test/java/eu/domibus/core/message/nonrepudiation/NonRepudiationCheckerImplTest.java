@@ -2,6 +2,7 @@ package eu.domibus.core.message.nonrepudiation;
 
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.util.SoapUtil;
+import eu.domibus.core.util.xml.XMLUtilImpl;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.io.IOUtils;
 import org.apache.wss4j.dom.WSConstants;
@@ -89,13 +90,17 @@ public class NonRepudiationCheckerImplTest {
     }
 
     protected List<String> getNonRepudiationNodeListFromRequest(String path) throws Exception {
-        SOAPMessage request = new SoapUtil().createSOAPMessage(IOUtils.toString(new ClassPathResource(path).getInputStream()));
+        SOAPMessage request = getSoapUtil().createSOAPMessage(IOUtils.toString(new ClassPathResource(path).getInputStream()));
         return nonRepudiationChecker.getNonRepudiationDetailsFromSecurityInfoNode(request.getSOAPHeader().getElementsByTagNameNS(WSConstants.SIG_NS, WSConstants.SIG_INFO_LN).item(0));
     }
 
     protected List<String> getNonRepudiationListFromResponse(String path) throws Exception {
-        SOAPMessage response = new SoapUtil().createSOAPMessage(IOUtils.toString(new ClassPathResource(path).getInputStream(), StandardCharsets.UTF_8));
+        SOAPMessage response = getSoapUtil().createSOAPMessage(IOUtils.toString(new ClassPathResource(path).getInputStream(), StandardCharsets.UTF_8));
         return nonRepudiationChecker.getNonRepudiationDetailsFromReceipt(response.getSOAPHeader().getElementsByTagNameNS(NonRepudiationConstants.NS_NRR, NonRepudiationConstants.NRR_LN).item(0));
+    }
+
+    protected SoapUtil getSoapUtil() {
+        return new SoapUtil(null, new XMLUtilImpl(null));
     }
 
 }

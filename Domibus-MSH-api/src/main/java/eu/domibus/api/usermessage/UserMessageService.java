@@ -35,6 +35,8 @@ public interface UserMessageService {
 
     String getFinalRecipient(final String messageId);
 
+    String getOriginalSender(String messageId);
+
     List<String> getFailedMessages(String finalRecipient);
 
     Long getFailedMessageElapsedTime(String messageId);

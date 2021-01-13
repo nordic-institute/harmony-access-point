@@ -3,7 +3,7 @@ package eu.domibus.plugin.webService;
 
 import eu.domibus.AbstractBackendWSIT;
 import eu.domibus.common.ErrorCode;
-import eu.domibus.common.MSHRole;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.plugin.webService.generated.ErrorResultImplArray;

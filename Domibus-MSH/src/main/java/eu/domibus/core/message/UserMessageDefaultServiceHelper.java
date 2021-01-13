@@ -1,13 +1,15 @@
 package eu.domibus.core.message;
 
+import eu.domibus.api.model.*;
 import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
-import eu.domibus.ebms3.common.model.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -17,8 +19,7 @@ import java.util.Set;
 @Component
 public class UserMessageDefaultServiceHelper implements UserMessageServiceHelper {
 
-
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DatabaseMessageHandler.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageDefaultServiceHelper.class);
 
     @Override
     public String getOriginalSender(UserMessage userMessage) {
@@ -115,5 +116,23 @@ public class UserMessageDefaultServiceHelper implements UserMessageServiceHelper
             return null;
         }
         return collaborationInfo.getAction();
+    }
+
+    @Override
+    public Map<String, String> getProperties(UserMessage userMessage) {
+        Map<String, String> result = new HashMap<>();
+        if (userMessage == null) {
+            LOG.trace("UserMessage not present");
+            return result;
+        }
+        if (userMessage.getMessageProperties() == null ||
+                userMessage.getMessageProperties().getProperty() == null) {
+            LOG.debug("No properties found for UserMessage [{}]", userMessage.getEntityId());
+            return result;
+        }
+        for (Property property : userMessage.getMessageProperties().getProperty()) {
+            result.put(property.getName(), property.getValue());
+        }
+        return result;
     }
 }

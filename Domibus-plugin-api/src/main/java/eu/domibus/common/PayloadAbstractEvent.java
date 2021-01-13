@@ -9,7 +9,7 @@ import java.util.Map;
  * @author Cosmin Baciu
  * @since 4.1
  */
-public abstract class PayloadAbstractEvent implements Serializable {
+public abstract class PayloadAbstractEvent implements Serializable, MessageEvent {
 
     protected String messageId;
 
@@ -19,8 +19,9 @@ public abstract class PayloadAbstractEvent implements Serializable {
 
     protected String fileName;
 
-    protected Map<String, Object> properties = new HashMap<>(); //NOSONAR
+    protected Map<String, String> properties = new HashMap<>(); //NOSONAR
 
+    @Override
     public String getMessageId() {
         return messageId;
     }
@@ -29,10 +30,21 @@ public abstract class PayloadAbstractEvent implements Serializable {
         this.messageId = messageId;
     }
 
-    public void addProperty(String key, Object value) {
+    @Override
+    public void addProperty(String key, String value) {
         properties.put(key, value);
     }
 
+    @Override
+    public Map<String, String> getProps() {
+        return Collections.unmodifiableMap(properties);
+    }
+
+    /**
+     * Needed for backward compatibility between 4.2 and 5.0
+     * @deprecated Use instead {@link MessageEvent#getProps()}
+     */
+    @Deprecated
     public Map<String, Object> getProperties() {
         return Collections.unmodifiableMap(properties);
     }

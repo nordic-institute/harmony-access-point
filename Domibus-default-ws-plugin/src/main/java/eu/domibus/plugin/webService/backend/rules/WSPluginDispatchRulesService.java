@@ -8,7 +8,8 @@ import eu.domibus.plugin.webService.backend.reliability.strategy.WSPluginRetrySt
 import eu.domibus.plugin.webService.exception.WSPluginException;
 import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.cxf.common.util.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
+
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -56,17 +57,23 @@ public class WSPluginDispatchRulesService {
                 }
             }
         }
-        return domainRules;
+        return rules.get(domain);
     }
 
     protected List<WSPluginDispatchRule> generateRules() {
+        List<WSPluginDispatchRule> result = new ArrayList<>();
+
         List<String> nestedProperties = domibusPropertyExtService.getNestedProperties(PUSH_RULE_BASE);
+        if (CollectionUtils.isEmpty(nestedProperties)) {
+            LOG.info("No properties with base [{}]", PUSH_RULE_BASE);
+            return result;
+        }
+
         List<WSPluginDispatchRuleBuilder> builderSortedByIndex = nestedProperties
                 .stream()
                 .map(WSPluginDispatchRuleBuilder::new)
                 .collect(toList());
 
-        List<WSPluginDispatchRule> result = new ArrayList<>();
         for (WSPluginDispatchRuleBuilder ruleBuilder : builderSortedByIndex) {
             ruleBuilder.withDescription(domibusPropertyExtService.getProperty(PUSH_RULE_PREFIX + ruleBuilder.getRuleName()));
             ruleBuilder.withRecipient(domibusPropertyExtService.getProperty(PUSH_RULE_PREFIX + ruleBuilder.getRuleName() + PUSH_RULE_RECIPIENT));

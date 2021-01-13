@@ -1,16 +1,17 @@
 package eu.domibus.core.plugin.handler;
 
+import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.jms.JMSManager;
+import eu.domibus.api.model.Property;
+import eu.domibus.api.model.Service;
+import eu.domibus.api.model.*;
 import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.ErrorResult;
-import eu.domibus.common.MSHRole;
-import eu.domibus.common.MessageStatus;
 import eu.domibus.common.model.configuration.*;
 import eu.domibus.core.ebms3.EbMS3Exception;
-import eu.domibus.core.ebms3.Ebms3Constants;
 import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.generator.id.MessageIdGenerator;
@@ -29,10 +30,6 @@ import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.pmode.validation.validators.MessagePropertyValidator;
 import eu.domibus.core.pmode.validation.validators.PropertyProfileValidator;
 import eu.domibus.core.replication.UIReplicationSignalService;
-import eu.domibus.ebms3.common.model.ObjectFactory;
-import eu.domibus.ebms3.common.model.Property;
-import eu.domibus.ebms3.common.model.Service;
-import eu.domibus.ebms3.common.model.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.*;
@@ -992,14 +989,18 @@ public class DatabaseMessageHandlerTest {
 
     @Test
     public void testGetErrorsForMessageOk() throws Exception {
-        new Expectations() {{
 
+
+
+        new Expectations() {{
             authUtils.isUnsecureLoginAllowed();
             result = false;
 
             EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0008, "MessageId value is too long (over 255 characters)", MESS_ID, null);
-            List<ErrorResult> list = new ArrayList<>();
-            list.add(new ErrorLogEntry(ex));
+            List<ErrorLogEntry> list = new ArrayList<>();
+            ErrorLogEntry errorLogEntry = new ErrorLogEntry(ex);
+            errorLogEntry.setMshRole(MSHRole.RECEIVING);
+            list.add(errorLogEntry);
 
             errorLogDao.getErrorsForMessage(MESS_ID);
             result = list;
@@ -1031,12 +1032,12 @@ public class DatabaseMessageHandlerTest {
         }};
 
         // When
-        final MessageStatus status = databaseMessageHandler.getStatus(MESS_ID);
+        final eu.domibus.common.MessageStatus status = databaseMessageHandler.getStatus(MESS_ID);
 
         // Then
         new Verifications() {{
             authUtils.hasUserOrAdminRole();
-            Assert.assertEquals(MessageStatus.ACKNOWLEDGED, status);
+            Assert.assertEquals(eu.domibus.common.MessageStatus.ACKNOWLEDGED, status);
         }};
     }
 
@@ -1052,13 +1053,13 @@ public class DatabaseMessageHandlerTest {
         }};
 
         // When
-        MessageStatus status = null;
+        eu.domibus.common.MessageStatus status = null;
         try {
             status = databaseMessageHandler.getStatus(MESS_ID);
             Assert.fail("It should throw " + AccessDeniedException.class.getCanonicalName());
         } catch (AccessDeniedException ex) {
             // Then
-            MessageStatus finalStatus = status;
+            eu.domibus.common.MessageStatus finalStatus = status;
             new Verifications() {{
                 authUtils.hasUserOrAdminRole();
                 Assert.assertNull(finalStatus);

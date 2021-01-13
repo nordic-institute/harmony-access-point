@@ -60,10 +60,6 @@ public class WSBackendMessageLogDao extends WSBasicDao<WSBackendMessageLogEntity
         return query.getResultList();
     }
 
-    public WSBackendMessageLogEntity createEntity(WSBackendMessageLogEntity backendMessage) {
-        return em.merge(backendMessage);
-    }
-
     public WSBackendMessageLogEntity getById(long backendMessageEntityId) {
         return em.find(typeOfT, backendMessageEntityId);
     }

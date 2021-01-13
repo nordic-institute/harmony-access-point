@@ -53,7 +53,7 @@ public class FSSendMessageListener implements MessageListener {
             fileName = message.getStringProperty(MessageConstants.FILE_NAME);
             LOG.debug("received message on fsPluginSendQueue for domain={} and fileName={}", domain, fileName);
         } catch (JMSException e) {
-            LOG.error("Unable to extract domainCode or fileName from JMS message");
+            LOG.error("Unable to extract domainCode or fileName from JMS message", e);
             return;
         }
 

@@ -1,9 +1,10 @@
 package eu.domibus;
 
 import com.thoughtworks.xstream.XStream;
+import eu.domibus.api.model.MessageStatus;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.common.MessageStatus;
 import eu.domibus.common.NotificationType;
 import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
@@ -13,7 +14,6 @@ import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.proxy.DomibusProxyService;
 import eu.domibus.core.spring.DomibusRootConfiguration;
-import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
@@ -119,7 +119,7 @@ public abstract class AbstractIT {
         int activeMQConnectorPort = SocketUtils.findAvailableTcpPort(2000, 3100);
         int activeMQBrokerPort = SocketUtils.findAvailableTcpPort(61616, 62690);
         System.setProperty(ACTIVE_MQ_CONNECTOR_PORT, String.valueOf(activeMQConnectorPort));
-        System.setProperty(ACTIVE_MQ_TRANSPORT_CONNECTOR_URI, "vm://localhost:" + activeMQBrokerPort + "?broker.persistent=false");
+        System.setProperty(ACTIVE_MQ_TRANSPORT_CONNECTOR_URI, "vm://localhost:" + activeMQBrokerPort + "?broker.persistent=false&create=false");
         LOG.info("activeMQ.connectorPort=[{}]", activeMQConnectorPort);
         LOG.info("activeMQBrokerPort=[{}]", activeMQBrokerPort);
 
