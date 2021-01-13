@@ -224,7 +224,7 @@ public class PropertiesPgTest extends SeleniumTest {
 		page.propGrid().setPropertyValue("domain.title", page.getDomainFromTitle());
 
 		String firstValue = page.propGrid().getPropertyValue("domain.title");
-		log.info("got property value "  + firstValue);
+		log.info("got property value " + firstValue);
 
 		log.info("changing domain");
 		page.getDomainSelector().selectAnotherDomain();
@@ -266,9 +266,9 @@ public class PropertiesPgTest extends SeleniumTest {
 		page.refreshPage();
 
 		String value = page.propGrid().getPropertyValue("domain.title");
-		log.info("got property value "  + value);
+		log.info("got property value " + value);
 
-		soft.assertEquals(value , domainTitleVal , "Set value is saved properly");
+		soft.assertEquals(value, domainTitleVal, "Set value is saved properly");
 
 		log.info("resetting value");
 		rest.properties().updateDomibusProperty("domain.title", "", null);
@@ -304,10 +304,10 @@ public class PropertiesPgTest extends SeleniumTest {
 		page.propGrid().setPropRowValueAndSave(0, toSetValue);
 
 		log.info("checking for error message");
-		soft.assertTrue( page.getAlertArea().isError(), "Error message is shown");
+		soft.assertTrue(page.getAlertArea().isError(), "Error message is shown");
 
 		log.info("check correct message is shown");
-		soft.assertEquals( page.getAlertArea().getAlertMessage(),
+		soft.assertEquals(page.getAlertArea().getAlertMessage(),
 				String.format(DMessages.PROPERTIES_UPDATE_ERROR_TYPE, toSetValue, info.get("Property Name"), "BOOLEAN"),
 				"Correct error message is shown");
 
@@ -315,9 +315,9 @@ public class PropertiesPgTest extends SeleniumTest {
 		page.propGrid().waitForRowsToLoad();
 
 		String value = page.propGrid().getPropertyValue(info.get("Property Name"));
-		log.info("getting value after refresh: " +value);
+		log.info("getting value after refresh: " + value);
 
-		soft.assertEquals(value , info.get("Property Value") , "Set value was not saved");
+		soft.assertEquals(value, info.get("Property Value"), "Set value was not saved");
 
 		soft.assertAll();
 	}
@@ -343,9 +343,9 @@ public class PropertiesPgTest extends SeleniumTest {
 		page.propGrid().setPropRowValueAndRevert(0, toSetValue);
 
 		String value = page.propGrid().getPropertyValue(info.get("Property Name"));
-		log.info("getting value after refresh: " +value);
+		log.info("getting value after refresh: " + value);
 
-		soft.assertEquals(value , info.get("Property Value") , "Set value was not saved");
+		soft.assertEquals(value, info.get("Property Value"), "Set value was not saved");
 
 		soft.assertAll();
 	}
@@ -375,9 +375,9 @@ public class PropertiesPgTest extends SeleniumTest {
 		page.wait.forXMillis(3000);
 
 		String value = page.propGrid().getPropertyValue(info.get("Property Name"));
-		log.info("getting value after refresh: " +value);
+		log.info("getting value after refresh: " + value);
 
-		soft.assertEquals(value , info.get("Property Value") , "Set value was not saved");
+		soft.assertEquals(value, info.get("Property Value"), "Set value was not saved");
 
 		soft.assertAll();
 	}
@@ -407,15 +407,15 @@ public class PropertiesPgTest extends SeleniumTest {
 		page.grid().getPagination().goToNextPage();
 
 		String value = page.propGrid().getPropertyValue(info.get("Property Name"));
-		log.info("getting value after refresh: " +value);
+		log.info("getting value after refresh: " + value);
 
-		soft.assertEquals(value , info.get("Property Value") , "Set value was not saved");
+		soft.assertEquals(value, info.get("Property Value"), "Set value was not saved");
 
 		soft.assertAll();
 	}
 
 	/* EDELIVERY-7316 - PROP-14 - Export to CSV   */
-	@Test(description = "PROP-14", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "PROP-14", groups = {"multiTenancy", "singleTenancy"})
 	public void exportCSV() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
@@ -462,7 +462,7 @@ public class PropertiesPgTest extends SeleniumTest {
 		boolean userBlocked = false;
 		int attempts = 0;
 
-		while (!userBlocked && attempts<10) {
+		while (!userBlocked && attempts < 10) {
 			log.info("attempting login with wring pass and user " + username);
 			ClientResponse response = rest.callLogin(username, "wrong password");
 			attempts++;
@@ -502,7 +502,7 @@ public class PropertiesPgTest extends SeleniumTest {
 		boolean userBlocked = false;
 		int attempts = 0;
 
-		while (!userBlocked && attempts<10) {
+		while (!userBlocked && attempts < 10) {
 			log.info("attempting login with wring pass and user " + username);
 			ClientResponse response = rest.callLogin(username, "wrong password");
 			attempts++;
@@ -514,7 +514,7 @@ public class PropertiesPgTest extends SeleniumTest {
 
 		page.wait.forXMillis(60000);
 		ClientResponse response = rest.callLogin(username, data.defaultPass());
-		soft.assertEquals( response.getStatus(), 200, "Login response is success");
+		soft.assertEquals(response.getStatus(), 200, "Login response is success");
 
 		soft.assertAll();
 	}
@@ -546,13 +546,41 @@ public class PropertiesPgTest extends SeleniumTest {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		soft.assertTrue(StringUtils.containsIgnoreCase(response.getEntity(String.class),"Maximum upload size of 100 bytes exceeded" ), "error message contains mention of file size exceeded");
+		soft.assertTrue(StringUtils.containsIgnoreCase(response.getEntity(String.class), "Maximum upload size of 100 bytes exceeded"), "error message contains mention of file size exceeded");
 
 		rest.properties().updateGlobalProperty("domibus.file.upload.maxSize", "1000000");
 		soft.assertAll();
 	}
 
 
+	/* EDELIVERY-7325 - PROP-20 - Update property domibus.passwordPolicy.checkDefaultPassword  */
+	@Test(description = "PROP-20", groups = {"multiTenancy", "singleTenancy"})
+	public void checkDefaultPassword() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		log.info("going to properties page");
+		PropertiesPage page = new PropertiesPage(driver);
+		page.getSidebar().goToPage(PAGES.PROPERTIES);
+
+		log.info("waiting for grid to load");
+		page.propGrid().waitForRowsToLoad();
+
+		page.filters().filterBy("domibus.passwordPolicy.checkDefaultPassword", null, null, null, false);
+
+		PropGrid grid = page.propGrid();
+		grid.waitForRowsToLoad();
+
+		grid.setPropertyValue("domibus.passwordPolicy.checkDefaultPassword", "true");
+
+		logout();
+
+		login(data.getAdminUser());
+
+
+
+		rest.properties().updateGlobalProperty("domibus.passwordPolicy.checkDefaultPassword", "false");
+		soft.assertAll();
+	}
 
 
 }

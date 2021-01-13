@@ -59,7 +59,7 @@ public class PmodePartiesPgUXTest extends SeleniumTest {
 		soft.assertAll();
 	}
 	
-	@Test(description = "PMP-3", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "PMP-3", groups = {"multiTenancy", "singleTenancy"})
 	public void downloadFilteredPartiesList() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -83,7 +83,7 @@ public class PmodePartiesPgUXTest extends SeleniumTest {
 		soft.assertAll();
 	}
 	
-	@Test(description = "PMP-16", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "PMP-16", groups = {"multiTenancy", "singleTenancy"})
 	public void downloadAllParties() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
