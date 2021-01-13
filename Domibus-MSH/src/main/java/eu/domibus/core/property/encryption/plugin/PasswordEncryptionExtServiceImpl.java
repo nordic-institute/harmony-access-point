@@ -34,8 +34,8 @@ public class PasswordEncryptionExtServiceImpl implements PasswordEncryptionExtSe
     protected final DomainCoreConverter domainCoreConverter;
 
     public PasswordEncryptionExtServiceImpl(
-            @Lazy PasswordEncryptionService passwordEncryptionService,
-            @Lazy PasswordEncryptionContextFactory passwordEncryptionContextFactory,
+            PasswordEncryptionService passwordEncryptionService,
+            PasswordEncryptionContextFactory passwordEncryptionContextFactory,
             PasswordDecryptionService passwordDecryptionService,
             DomainCoreConverter domainCoreConverter) {
         this.passwordEncryptionService = passwordEncryptionService;

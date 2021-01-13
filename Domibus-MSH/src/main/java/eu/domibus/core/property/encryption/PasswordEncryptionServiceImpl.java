@@ -19,6 +19,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
@@ -68,7 +69,10 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
     @Autowired
     protected BackupService backupService;
 
+    // we need Lazy here to avoid circular dependency
+    // passwordEncryptionExtService->passwordEncryptionContextFactory->domibusPropertyEncryptionNotifier->FSPluginPropertyEncryptionListener
     @Autowired
+    @Lazy
     protected DomibusPropertyEncryptionNotifier domibusPropertyEncryptionListenerDelegate;
 
     @Autowired
