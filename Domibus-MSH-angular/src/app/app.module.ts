@@ -41,7 +41,7 @@ import {DomibusInfoService} from './common/appinfo/domibusinfo.service';
 import {MessageFilterComponent} from './messagefilter/messagefilter.component';
 import {MessageLogComponent} from './messagelog/messagelog.component';
 import {UserComponent} from './user/user.component';
-import {TruststoreComponent} from './truststore/truststore.component';
+import {BaseTruststoreComponent} from './truststore/base-truststore.component';
 import {PmodeUploadComponent} from './pmode/upload/pmode-upload.component';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {JmsComponent} from './jms/jms.component';
@@ -107,6 +107,9 @@ import {SessionExpiredDialogComponent} from './security/session-expired-dialog/s
 import {SessionService} from './security/session.service';
 import {AuthInternalProviderGuard} from './common/guards/auth-internal-provider.guard';
 import {AddNestedPropertyDialogComponent} from './properties/support/add-nested-property-dialog/add-nested-property-dialog.component';
+import {TLSTruststoreComponent} from './truststore/tls.truststore.component';
+import {TruststoreComponent} from './truststore/truststore.component';
+import {CertificateUploadComponent} from './truststore/certificate-upload/certificate-upload.component';
 
 @NgModule({
   declarations: [
@@ -120,6 +123,8 @@ import {AddNestedPropertyDialogComponent} from './properties/support/add-nested-
     FooterComponent,
     CurrentPModeComponent,
     PModeArchiveComponent,
+    BaseTruststoreComponent,
+    TLSTruststoreComponent,
     TruststoreComponent,
     PmodeUploadComponent,
     PmodeViewComponent,
@@ -139,7 +144,7 @@ import {AddNestedPropertyDialogComponent} from './properties/support/add-nested-
     TruststoreDialogComponent,
     TrustStoreUploadComponent,
     ColumnPickerComponent,
-    TrustStoreUploadComponent,
+    CertificateUploadComponent,
     PageHelperComponent,
     ActionDirtyDialogComponent,
     AuditComponent,
@@ -185,6 +190,7 @@ import {AddNestedPropertyDialogComponent} from './properties/support/add-nested-
     EditUserComponent,
     TruststoreDialogComponent,
     TrustStoreUploadComponent,
+    CertificateUploadComponent,
     ActionDirtyDialogComponent,
     PartyDetailsComponent,
     EditPluginUserFormBaseComponent,
