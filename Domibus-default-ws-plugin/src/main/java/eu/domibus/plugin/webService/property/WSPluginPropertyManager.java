@@ -56,7 +56,7 @@ public class WSPluginPropertyManager extends DomibusPropertyExtServiceDelegateAb
                 new DomibusPropertyMetadataDTO(DISPATCHER_ALLOW_CHUNKING, Type.BOOLEAN, Module.WS_PLUGIN, Usage.GLOBAL),
                 new DomibusPropertyMetadataDTO(DISPATCHER_CHUNKING_THRESHOLD, Type.NUMERIC, Module.WS_PLUGIN, Usage.GLOBAL),
                 new DomibusPropertyMetadataDTO(DISPATCHER_CONNECTION_KEEP_ALIVE, Type.BOOLEAN, Module.WS_PLUGIN, Usage.GLOBAL),
-                new DomibusPropertyMetadataDTO(DISPATCHER_CRON_EXPRESSION, Type.STRING, Module.WS_PLUGIN, Usage.GLOBAL),
+                new DomibusPropertyMetadataDTO(DISPATCHER_CRON_EXPRESSION, Type.REGEXP, Module.WS_PLUGIN, Usage.GLOBAL),
                 new DomibusPropertyMetadataDTO(DISPATCHER_SEND_QUEUE_NAME, Type.STRING, Module.WS_PLUGIN, Usage.GLOBAL),
                 new DomibusPropertyMetadataDTO(DISPATCHER_SEND_QUEUE_CONCURRENCY, Type.STRING, Module.WS_PLUGIN, Usage.GLOBAL)
         );
