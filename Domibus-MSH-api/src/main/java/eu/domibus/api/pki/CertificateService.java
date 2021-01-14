@@ -125,5 +125,8 @@ public interface CertificateService {
 
     byte[] getTruststoreContent() throws IOException;
 
-    void replaceTrustStore(String fileName, byte[] content, String password, String type, String location) throws CryptoException;
+    void replaceTrustStore(String fileName, byte[] fileContent, String filePassword,
+                           String trustType, String trustLocation, String trustPassword) throws CryptoException;
+
+    KeyStore getTrustStore(String trustStoreLocation, String trustStorePassword);
 }

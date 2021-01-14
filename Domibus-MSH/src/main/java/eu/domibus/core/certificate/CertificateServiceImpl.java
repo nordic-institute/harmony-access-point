@@ -2,6 +2,8 @@ package eu.domibus.core.certificate;
 
 import com.google.common.collect.Lists;
 import eu.domibus.api.crypto.CryptoException;
+import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.DomibusCertificateException;
@@ -569,29 +571,31 @@ public class CertificateServiceImpl implements CertificateService {
         return digestHex.toLowerCase();
     }
 
-    public synchronized void replaceTrustStore(String fileName, byte[] content, String password, String type, String location) throws CryptoSpiException {
-        LOG.debug("Replacing the existing trust store file [{}] with the provided one.", location);
+    @Override
+    public synchronized void replaceTrustStore(String fileName, byte[] fileContent, String filePassword,
+                                               String trustType, String trustLocation, String trustPassword) {
+        LOG.debug("Replacing the existing trust store file [{}] with the provided one.", trustLocation);
 
-        validateTruststoreType(type, fileName);
+        validateTruststoreType(trustType, fileName);
 
-        KeyStore truststore = loadTrust(content, password);
+        KeyStore truststore = loadTrustStore(fileContent, filePassword);
         ByteArrayOutputStream oldTrustStoreBytes = new ByteArrayOutputStream();
         try {
-            truststore.store(oldTrustStoreBytes, password.toCharArray());
+            truststore.store(oldTrustStoreBytes, trustPassword.toCharArray());
         } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException exc) {
             closeStream(oldTrustStoreBytes);
             throw new CryptoSpiException("Could not replace truststore", exc);
         }
-        try (ByteArrayInputStream newTrustStoreBytes = new ByteArrayInputStream(content)) {
-            validateLoadOperation(newTrustStoreBytes, password, type);
-            truststore.load(newTrustStoreBytes, password.toCharArray());
+        try (ByteArrayInputStream newTrustStoreBytes = new ByteArrayInputStream(fileContent)) {
+            validateLoadOperation(newTrustStoreBytes, filePassword, trustType);
+            truststore.load(newTrustStoreBytes, filePassword.toCharArray());
             LOG.debug("Truststore successfully loaded");
-            persistTrustStore(truststore, password, location);
+            persistTrustStore(truststore, trustPassword, trustLocation);
             LOG.debug("Truststore successfully persisted");
         } catch (CertificateException | NoSuchAlgorithmException | IOException | CryptoException e) {
             LOG.error("Could not replace truststore", e);
             try {
-                truststore.load(oldTrustStoreBytes.toInputStream(), password.toCharArray());
+                truststore.load(oldTrustStoreBytes.toInputStream(), trustPassword.toCharArray());
                 signalTrustStoreUpdate();
             } catch (CertificateException | NoSuchAlgorithmException | IOException exc) {
                 throw new CryptoSpiException("Could not replace truststore and old truststore was not reverted properly. Please correct the error before continuing.", exc);
@@ -599,6 +603,16 @@ public class CertificateServiceImpl implements CertificateService {
             throw new CryptoSpiException(e);
         } finally {
             closeStream(oldTrustStoreBytes);
+        }
+    }
+
+    @Override
+    public KeyStore getTrustStore(String trustStoreLocation, String trustStorePassword) {
+        try {
+            InputStream contentStream = Files.newInputStream(Paths.get(trustStoreLocation));
+            return loadTrustStore(contentStream, trustStorePassword);
+        } catch (Exception ex) {
+            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Exception loading truststore.", ex);
         }
     }
 
@@ -617,22 +631,27 @@ public class CertificateServiceImpl implements CertificateService {
         throw new InvalidParameterException("Store file type (" + fileType + ") should match the configured truststore type (" + storeType + ").");
     }
 
-    private KeyStore loadTrust(byte[] content, String password) {
-        KeyStore truststore = null;
+    protected KeyStore loadTrustStore(byte[] content, String password) {
         try {
             InputStream contentStream = new ByteArrayInputStream(content);
-            try {
-                truststore = KeyStore.getInstance(KeyStore.getDefaultType());
-                truststore.load(contentStream, password.toCharArray());
-            } finally {
-                if (contentStream != null) {
-                    closeStream(contentStream);
-                }
-            }
-        } catch (Exception var13) {
-            LOG.warn("CA certs could not be loaded: " + var13.getMessage());
+            return loadTrustStore(contentStream, password);
+        } catch (Exception ex) {
+            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Exception loading truststore.", ex);
         }
+    }
 
+    protected KeyStore loadTrustStore(InputStream contentStream, String password) {
+        KeyStore truststore = null;
+        try {
+            truststore = KeyStore.getInstance(KeyStore.getDefaultType());
+            truststore.load(contentStream, password.toCharArray());
+        } catch (Exception ex) {
+            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Exception loading truststore.", ex);
+        } finally {
+            if (contentStream != null) {
+                closeStream(contentStream);
+            }
+        }
         return truststore;
     }
 
@@ -666,9 +685,6 @@ public class CertificateServiceImpl implements CertificateService {
         signalTrustStoreUpdate();
     }
 
-    protected void signalTrustStoreUpdate() {
-    }
-
     protected void backupTrustStore(File trustStoreFile) throws CryptoException {
         if (trustStoreFile == null || StringUtils.isEmpty(trustStoreFile.getAbsolutePath())) {
             LOG.warn("Truststore file was null, nothing to backup!");
@@ -694,6 +710,10 @@ public class CertificateServiceImpl implements CertificateService {
             LOG.error("Could not close [{}]", stream, e);
         }
     }
+
+    protected void signalTrustStoreUpdate() {
+    }
+
 }
 
 

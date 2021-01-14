@@ -88,8 +88,7 @@ public class TLSTruststoreResource extends BaseResource {
 
     @GetMapping(value = {"/tlstruststore/entries"})
     public List<TrustStoreRO> getTLSTruststoreEntries() {
-        return null;
-//        return getTrustStoreEntries(tlsMultiDomainCertificateProvider);
+        return getTrustStoreEntries(tlsCertificateManager);
     }
 
     @GetMapping(path = "/tlstruststore/entries/csv")
@@ -148,14 +147,15 @@ public class TLSTruststoreResource extends BaseResource {
                 .body(resource);
     }
 
-    protected List<TrustStoreRO> getTrustStoreEntries(MultiDomainCryptoService multiDomainCertificateProvider) {
-        final KeyStore store = multiDomainCertificateProvider.getTrustStore(domainProvider.getCurrentDomain());
-        List<TrustStoreEntry> trustStoreEntries = certificateService.getTrustStoreEntries(store);
+    protected List<TrustStoreRO> getTrustStoreEntries(TLSCertificateManager tlsCertificateManager) {
+//        final KeyStore store = multiDomainCertificateProvider.getTrustStore(domainProvider.getCurrentDomain());
+        List<TrustStoreEntry> trustStoreEntries = tlsCertificateManager.getTrustStoreEntries();
         return domainConverter.convert(trustStoreEntries, TrustStoreRO.class);
     }
 
     protected ResponseEntity<String> getEntriesAsCSV(MultiDomainCryptoService cryptoService, String moduleName) {
-        final List<TrustStoreRO> entries = getTrustStoreEntries(cryptoService);
+//        final List<TrustStoreRO> entries = getTrustStoreEntries(cryptoService);
+        final List<TrustStoreRO> entries = null;
         getCsvService().validateMaxRows(entries.size());
 
         return exportToCSV(entries,

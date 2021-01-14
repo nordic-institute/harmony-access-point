@@ -17,7 +17,7 @@ public interface TLSCertificateManager {
 
     void replaceTrustStore(String trustFileName, byte[] trustContent, String password) throws CryptoException;
 
-    List<TrustStoreEntry> getTrustStoreEntries(final KeyStore trustStore);
+    List<TrustStoreEntry> getTrustStoreEntries();
 
     byte[] getTruststoreContent() throws IOException;
 
