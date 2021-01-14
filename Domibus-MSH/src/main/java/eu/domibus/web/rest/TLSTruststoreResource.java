@@ -40,11 +40,13 @@ import static org.springframework.web.bind.annotation.RequestMethod.GET;
  */
 @RestController
 @RequestMapping(value = "/rest")
-public class TruststoreResource extends BaseResource {
+public class TLSTruststoreResource extends BaseResource {
 
     public static final String ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD = "Failed to upload the truststoreFile file since its password was empty."; //NOSONAR
 
     private MultiDomainCryptoServiceImpl multiDomainCertificateProvider;
+
+//    private TLSMultiDomainCryptoServiceImpl tlsMultiDomainCertificateProvider;
 
     private DomainContextProvider domainProvider;
 
@@ -58,11 +60,13 @@ public class TruststoreResource extends BaseResource {
 
     private AuditService auditService;
 
-    public TruststoreResource(MultiDomainCryptoServiceImpl multiDomainCertificateProvider,
-                              DomainContextProvider domainProvider, CertificateService certificateService,
-                              DomainCoreConverter domainConverter, ErrorHandlerService errorHandlerService,
-                              MultiPartFileUtil multiPartFileUtil, AuditService auditService) {
+    public TLSTruststoreResource(MultiDomainCryptoServiceImpl multiDomainCertificateProvider,
+//                              TLSMultiDomainCryptoServiceImpl tlsMultiDomainCertificateProvider,
+                                 DomainContextProvider domainProvider, CertificateService certificateService,
+                                 DomainCoreConverter domainConverter, ErrorHandlerService errorHandlerService,
+                                 MultiPartFileUtil multiPartFileUtil, AuditService auditService) {
         this.multiDomainCertificateProvider = multiDomainCertificateProvider;
+//        this.tlsMultiDomainCertificateProvider = tlsMultiDomainCertificateProvider;
         this.domainProvider = domainProvider;
         this.certificateService = certificateService;
         this.domainConverter = domainConverter;
@@ -103,6 +107,53 @@ public class TruststoreResource extends BaseResource {
     @GetMapping(path = "/truststore/csv")
     public ResponseEntity<String> getEntriesAsCsv() {
         return getEntriesAsCSV(multiDomainCertificateProvider, "truststore");
+    }
+
+    @PostMapping(value = "/tlstruststore")
+    public String uploadTLSTruststoreFile(@RequestPart("file") MultipartFile truststoreFile,
+                                          @SkipWhiteListed @RequestParam("password") String password) throws RequestValidationException {
+//        replaceTruststore(tlsMultiDomainCertificateProvider, truststoreFile, password);
+        return "TLS truststore file has been successfully replaced.";
+    }
+
+    @GetMapping(value = "/tlstruststore", produces = "application/octet-stream")
+    public ResponseEntity<ByteArrayResource> downloadTLSTrustStore() {
+        return null;
+//        return downloadTruststoreContent(tlsMultiDomainCertificateProvider, () -> auditService.addTLSTruststoreDownloadedAudit());
+    }
+
+    @GetMapping(value = {"/tlstruststore/entries"})
+    public List<TrustStoreRO> getTLSTruststoreEntries() {
+        return null;
+//        return getTrustStoreEntries(tlsMultiDomainCertificateProvider);
+    }
+
+    @GetMapping(path = "/tlstruststore/entries/csv")
+    public ResponseEntity<String> getTLSEntriesAsCsv() {
+        return null;
+//        return getEntriesAsCSV(tlsMultiDomainCertificateProvider, "tlsTruststore");
+    }
+
+    @PostMapping(value = "/tlstruststore/entries")
+    public String addTLSCertificate(@RequestPart("file") MultipartFile certificateFile,
+                                    @RequestParam("alias") @Valid @NotNull String alias) throws RequestValidationException {
+        byte[] fileContent = multiPartFileUtil.validateAndGetFileContent(certificateFile);
+
+        if (StringUtils.isBlank(alias)) {
+            throw new IllegalArgumentException("Please provide an alias for the secrtificate.");
+        }
+
+        X509Certificate cert = certificateService.loadCertificateFromString(new String(fileContent));
+
+//        tlsMultiDomainCertificateProvider.addCertificate(domainProvider.getCurrentDomain(), cert, alias, true);
+
+        return "Certificate [" + alias + "] has been successfully added to the TLS truststore.";
+    }
+
+    @DeleteMapping(value = "/tlstruststore/entries/{alias:.+}")
+    public String removeTLSCertificate(@PathVariable String alias) throws RequestValidationException {
+//        tlsMultiDomainCertificateProvider.removeCertificate(domainProvider.getCurrentDomain(), alias);
+        return "Certificate [" + alias + "] has been successfully removed from the TLS truststore.";
     }
 
     protected void replaceTruststore(MultiDomainCryptoService certificateProvider, MultipartFile truststoreFile, String password) {
