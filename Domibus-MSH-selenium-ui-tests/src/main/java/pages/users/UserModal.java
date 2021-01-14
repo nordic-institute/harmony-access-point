@@ -33,11 +33,11 @@ public class UserModal extends EditModal {
 	WebElement rolesSelectContainer;
 	@FindBy(css = "edituser-form form #active_id")
 	WebElement activeChk;
-	@FindBy(css = "edituser-form form #username_id + span")
+	@FindBy(css = "edituser-form form #username_id + span>div")
 	private WebElement usernameErrMess;
-	@FindBy(css = "edituser-form form #email_id + span")
+	@FindBy(css = "edituser-form form #email_id + span>div")
 	private WebElement emailErrMess;
-	@FindBy(css = "edituser-form form #password_id + span")
+	@FindBy(css = "edituser-form form #password_id + span>div")
 	private WebElement passErrMess;
 	@FindBy(css = "edituser-form form #confirmation_id + span")
 	private WebElement confirmationErrMess;
@@ -96,18 +96,22 @@ public class UserModal extends EditModal {
 	}
 
 	public DObject getUsernameErrMess() {
+		wait.forXMillis(700);
 		return new DObject(driver, usernameErrMess);
 	}
 
 	public DObject getEmailErrMess() {
+		wait.forXMillis(700);
 		return new DObject(driver, emailErrMess);
 	}
 
 	public DObject getPassErrMess() {
+		wait.forXMillis(700);
 		return new DObject(driver, passErrMess);
 	}
 
 	public DObject getConfirmationErrMess() {
+		wait.forXMillis(700);
 		return new DObject(driver, confirmationErrMess);
 	}
 }
