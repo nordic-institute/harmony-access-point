@@ -42,7 +42,7 @@ import java.util.List;
  */
 
 @RunWith(JMockit.class)
-public class Ebms3MessagingServiceImplTest {
+public class MessagingServiceImplTest {
 
     @Tested
     MessagingServiceImpl messagingService;

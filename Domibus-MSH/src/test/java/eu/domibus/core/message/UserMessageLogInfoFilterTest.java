@@ -17,7 +17,7 @@ import java.util.HashMap;
  * @since 3.3
  */
 @RunWith(JMockit.class)
-public class Ebms3UserMessageLogInfoFilterTest {
+public class UserMessageLogInfoFilterTest {
 
     private static final String QUERY = "select new eu.domibus.core.message.MessageLogInfo(log, message.collaborationInfo.conversationId, partyFrom.value, partyTo.value, propsFrom.value, propsTo.value, info.refToMessageId) from UserMessageLog log, " +
             "UserMessage message " +

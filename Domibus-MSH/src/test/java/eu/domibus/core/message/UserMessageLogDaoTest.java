@@ -25,7 +25,7 @@ import static eu.domibus.core.message.UserMessageLogDao.STR_MESSAGE_ID;
  * @author Sebastian-Ion TINCU
  */
 @RunWith(JMockit.class)
-public class Ebms3UserMessageLogDaoTest {
+public class UserMessageLogDaoTest {
 
     @Tested
     private UserMessageLogDao userMessageLogDao;
