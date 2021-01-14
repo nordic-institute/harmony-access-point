@@ -188,7 +188,7 @@ public class PmodePartiesPgTest extends SeleniumTest {
 		soft.assertAll();
 	}
 	
-	@Test(description = "PMP-7", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "PMP-7", groups = {"multiTenancy", "singleTenancy"})
 	public void editParty() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		

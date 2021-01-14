@@ -411,9 +411,8 @@ public class UsersPgTest extends SeleniumTest {
 		soft.assertAll();
 	}
 	
-	//	username validations bug reported and not fixed
 	/*USR-16 - Admin tries to create new user with username less than 3 letters long*/
-	@Test(description = "USR-16", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "USR-16", groups = {"multiTenancy", "singleTenancy"})
 	public void userNameValidations() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		UsersPage page = new UsersPage(driver);
@@ -426,15 +425,15 @@ public class UsersPgTest extends SeleniumTest {
 		UserModal modal = new UserModal(driver);
 		log.info("checking with only one letter");
 		modal.getUserNameInput().fill("t");
-		soft.assertEquals(modal.getUsernameErrMess().getText(), DMessages.USER_USERNAME_VALIDATION, "Correct error message shown (1)");
+		soft.assertEquals(modal.getUsernameErrMess().getText(), DMessages.USER_USERNAME_VALIDATION_SHORT, "Correct error message shown (1)");
 		
 		log.info("checking with only two letters");
 		modal.getUserNameInput().fill("te");
-		soft.assertEquals(modal.getUsernameErrMess().getText(), DMessages.USER_USERNAME_VALIDATION, "Correct error message shown (2)");
+		soft.assertEquals(modal.getUsernameErrMess().getText(), DMessages.USER_USERNAME_VALIDATION_SHORT, "Correct error message shown (2)");
 		
 		log.info("checking with only two letters and special characters");
 		modal.getUserNameInput().fill("te$%^*");
-		soft.assertEquals(modal.getUsernameErrMess().getText(), DMessages.USER_USERNAME_VALIDATION, "Correct error message shown (3)");
+		soft.assertEquals(modal.getUsernameErrMess().getText(), DMessages.USER_USERNAME_VALIDATION_SPECIAL_CHR, "Correct error message shown (3)");
 		
 		log.info("checking with valid username");
 		modal.getUserNameInput().fill("testUser");

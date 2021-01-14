@@ -28,8 +28,8 @@ import java.util.stream.Collectors;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 @RunWith(JMockit.class)
-public class GlobalEbms3PropertyMetadataManagerImplTest {
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(GlobalEbms3PropertyMetadataManagerImplTest.class);
+public class GlobalPropertyMetadataManagerImplTest {
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(GlobalPropertyMetadataManagerImplTest.class);
 
     @Tested
     GlobalPropertyMetadataManagerImpl globalPropertyMetadataManager;
@@ -38,13 +38,13 @@ public class GlobalEbms3PropertyMetadataManagerImplTest {
     List<DomibusPropertyMetadataManagerSPI> propertyMetadataManagers;
 
     @Injectable
-    List<DomibusPropertyManagerExt> domibusPropertyManagerExts;
-
-    @Injectable
     DomainCoreConverter domainConverter;
 
     @Injectable
     private List<DomibusPropertyManagerExt> extPropertyManagers;
+
+    @Injectable
+    private NestedPropertiesManager nestedPropertiesManager;
 
     @Mocked
     @Spy
@@ -329,7 +329,7 @@ public class GlobalEbms3PropertyMetadataManagerImplTest {
             result = propMeta;
             propMeta.getName();
             result = compPropertyName;
-            domibusPropertyProvider.getNestedProperties(compPropertyName);
+            nestedPropertiesManager.getNestedProperties(propMeta);
             result = nestedProps;
         }};
 
@@ -364,7 +364,7 @@ public class GlobalEbms3PropertyMetadataManagerImplTest {
             result = propMeta;
             propMeta.getName();
             result = compPropertyName;
-            domibusPropertyProvider.getNestedProperties(compPropertyName);
+            nestedPropertiesManager.getNestedProperties(propMeta);
             result = nestedProps;
         }};
 

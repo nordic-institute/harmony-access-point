@@ -9,6 +9,7 @@ import eu.domibus.plugin.webService.backend.WSBackendMessageType;
 import eu.domibus.plugin.webService.backend.reliability.retry.WSPluginBackendScheduleRetryService;
 import eu.domibus.plugin.webService.backend.rules.WSPluginDispatchRule;
 import eu.domibus.plugin.webService.backend.rules.WSPluginDispatchRulesService;
+import eu.domibus.plugin.webService.property.WSPluginPropertyManager;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.lang3.StringUtils;
@@ -22,6 +23,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static eu.domibus.plugin.webService.backend.WSBackendMessageType.DELETED_BATCH;
+import static eu.domibus.plugin.webService.backend.WSBackendMessageType.SEND_SUCCESS;
+import static eu.domibus.plugin.webService.property.WSPluginPropertyManager.PUSH_ENABLED;
 import static org.apache.commons.lang3.StringUtils.equalsAnyIgnoreCase;
 
 /**
@@ -51,10 +54,15 @@ public class WSPluginBackendServiceTest {
     @Injectable
     private UserMessageExtService userMessageExtService;
 
+    @Injectable
+    private WSPluginPropertyManager wsPluginPropertyManager;
+
     @Test
     public void sendSuccess(@Mocked WSPluginDispatchRule wsPluginDispatchRule) {
         MessageSendSuccessEvent messageSendSuccessEvent = getMessageSendSuccessEvent(FINAL_RECIPIENT);
         new Expectations() {{
+            wsPluginPropertyManager.getKnownPropertyValue(PUSH_ENABLED);
+            result = "true";
 
             wsBackendRulesService.getRulesByRecipient(FINAL_RECIPIENT);
             times = 1;
@@ -62,16 +70,16 @@ public class WSPluginBackendServiceTest {
 
 
             wsPluginDispatchRule.getTypes();
-            result = Arrays.asList(WSBackendMessageType.SEND_SUCCESS, WSBackendMessageType.MESSAGE_STATUS_CHANGE);
+            result = Arrays.asList(SEND_SUCCESS, WSBackendMessageType.MESSAGE_STATUS_CHANGE);
 
             wsPluginDispatchRule.getRuleName();
             result = RULE_NAME;
         }};
 
-        wsPluginBackendService.send(messageSendSuccessEvent, WSBackendMessageType.SEND_SUCCESS);
+        wsPluginBackendService.send(messageSendSuccessEvent, SEND_SUCCESS);
 
         new FullVerifications() {{
-            retryService.schedule(MESSAGE_ID, FINAL_RECIPIENT, ORIGINAL_SENDER, wsPluginDispatchRule, WSBackendMessageType.SEND_SUCCESS);
+            retryService.schedule(MESSAGE_ID, FINAL_RECIPIENT, ORIGINAL_SENDER, wsPluginDispatchRule, SEND_SUCCESS);
             times = 1;
         }};
     }
@@ -88,8 +96,35 @@ public class WSPluginBackendServiceTest {
 
     @Test
     public void sendSuccess_noRecipient() {
+        new Expectations() {{
+            wsPluginPropertyManager.getKnownPropertyValue(PUSH_ENABLED);
+            result = "true";
+        }};
+        wsPluginBackendService.send(getMessageSendSuccessEvent(""), SEND_SUCCESS);
 
-        wsPluginBackendService.send(getMessageSendSuccessEvent(""), WSBackendMessageType.SEND_SUCCESS);
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void sendSuccess_disabled_wrongValue() {
+        new Expectations() {{
+            wsPluginPropertyManager.getKnownPropertyValue(PUSH_ENABLED);
+            result = "x";
+        }};
+        wsPluginBackendService.send(getMessageSendSuccessEvent(""), SEND_SUCCESS);
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void sendSuccess_disabled() {
+        new Expectations() {{
+            wsPluginPropertyManager.getKnownPropertyValue(PUSH_ENABLED);
+            result = "false";
+        }};
+        wsPluginBackendService.send(getMessageSendSuccessEvent(""), SEND_SUCCESS);
 
         new FullVerifications() {
         };
@@ -98,12 +133,15 @@ public class WSPluginBackendServiceTest {
     @Test
     public void noRules() {
         new Expectations() {{
+            wsPluginPropertyManager.getKnownPropertyValue(PUSH_ENABLED);
+            result = "true";
+
             wsBackendRulesService.getRulesByRecipient(FINAL_RECIPIENT);
             times = 1;
             result = new ArrayList<>();
         }};
 
-        wsPluginBackendService.send(getMessageSendSuccessEvent(FINAL_RECIPIENT), WSBackendMessageType.SEND_SUCCESS);
+        wsPluginBackendService.send(getMessageSendSuccessEvent(FINAL_RECIPIENT), SEND_SUCCESS);
 
         new FullVerifications() {
         };

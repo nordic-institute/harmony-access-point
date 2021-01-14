@@ -13,7 +13,7 @@ import org.junit.runner.RunWith;
  * @since 4.1.1
  */
 @RunWith(JMockit.class)
-public class DomibusEbms3PropertyEncryptionNotifierImplTest {
+public class DomibusPropertyEncryptionNotifierImplTest {
 
     @Tested
     protected DomibusPropertyEncryptionNotifierImpl domibusPropertyEncryptionNotifier;

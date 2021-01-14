@@ -6,7 +6,7 @@ import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.validators.SkipWhiteListed;
 import eu.domibus.core.converter.DomainCoreConverter;
-import eu.domibus.core.property.ConfigurationPropertyResourceHelper;
+import eu.domibus.core.property.DomibusPropertyResourceHelper;
 import eu.domibus.core.property.DomibusPropertiesFilter;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.error.ErrorHandlerService;
@@ -33,19 +33,19 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping(value = "/rest/configuration/properties")
 @Validated
-public class ConfigurationPropertyResource extends BaseResource {
-    private static final Logger LOG = DomibusLoggerFactory.getLogger(ConfigurationPropertyResource.class);
+public class DomibusPropertyResource extends BaseResource {
+    private static final Logger LOG = DomibusLoggerFactory.getLogger(DomibusPropertyResource.class);
 
-    private ConfigurationPropertyResourceHelper configurationPropertyResourceHelper;
+    private DomibusPropertyResourceHelper domibusPropertyResourceHelper;
 
     private DomainCoreConverter domainConverter;
 
     private ErrorHandlerService errorHandlerService;
 
-    public ConfigurationPropertyResource(ConfigurationPropertyResourceHelper configurationPropertyResourceHelper,
-                                         DomainCoreConverter domainConverter,
-                                         ErrorHandlerService errorHandlerService) {
-        this.configurationPropertyResourceHelper = configurationPropertyResourceHelper;
+    public DomibusPropertyResource(DomibusPropertyResourceHelper domibusPropertyResourceHelper,
+                                   DomainCoreConverter domainConverter,
+                                   ErrorHandlerService errorHandlerService) {
+        this.domibusPropertyResourceHelper = domibusPropertyResourceHelper;
         this.domainConverter = domainConverter;
         this.errorHandlerService = errorHandlerService;
     }
@@ -62,7 +62,7 @@ public class ConfigurationPropertyResource extends BaseResource {
         PropertyResponseRO response = new PropertyResponseRO();
 
         DomibusPropertiesFilter filter = domainConverter.convert(request, DomibusPropertiesFilter.class);
-        List<DomibusProperty> items = configurationPropertyResourceHelper.getAllProperties(filter);
+        List<DomibusProperty> items = domibusPropertyResourceHelper.getAllProperties(filter);
 
         response.setCount(items.size());
         items = items.stream()
@@ -94,7 +94,7 @@ public class ConfigurationPropertyResource extends BaseResource {
         // sanitize empty body sent by various clients
         propertyValue = StringUtils.trimToEmpty(propertyValue);
 
-        configurationPropertyResourceHelper.setPropertyValue(propertyName, isDomain, propertyValue);
+        domibusPropertyResourceHelper.setPropertyValue(propertyName, isDomain, propertyValue);
     }
 
     /**
@@ -103,7 +103,7 @@ public class ConfigurationPropertyResource extends BaseResource {
     @GetMapping(path = "/csv")
     public ResponseEntity<String> getCsv(@Valid PropertyFilterRequestRO request) {
         DomibusPropertiesFilter filter = domainConverter.convert(request, DomibusPropertiesFilter.class);
-        List<DomibusProperty> items = configurationPropertyResourceHelper.getAllProperties(filter);
+        List<DomibusProperty> items = domibusPropertyResourceHelper.getAllProperties(filter);
 
         getCsvService().validateMaxRows(items.size());
 
@@ -138,7 +138,7 @@ public class ConfigurationPropertyResource extends BaseResource {
      */
     @GetMapping(path = "/{propertyName:.+}")
     public DomibusPropertyRO getProperty(@Valid @PathVariable String propertyName) {
-        DomibusProperty prop = configurationPropertyResourceHelper.getProperty(propertyName);
+        DomibusProperty prop = domibusPropertyResourceHelper.getProperty(propertyName);
         DomibusPropertyRO convertedProp = domainConverter.convert(prop, DomibusPropertyRO.class);
         return convertedProp;
     }

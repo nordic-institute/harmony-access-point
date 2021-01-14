@@ -180,7 +180,7 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 	}
 	
 	
-	@Test(description = "PU-11-1", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "PU-11-1", groups = {"multiTenancy", "singleTenancy"})
 	public void createPluginUserFieldValidations() throws Exception {
 		String username = Gen.randomAlphaNumeric(10);
 		SoftAssert soft = new SoftAssert();
@@ -501,7 +501,7 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 
 
 	/* EDELIVERY-5237 - PU-27 - Download all lists of users  */
-	@Test(description = "PU-27", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "PU-27", groups = {"multiTenancy", "singleTenancy"})
 	public void downloadAsCSV() throws Exception {
 		JSONArray colDescs = descriptorObj.getJSONObject("grid").getJSONArray("columns");
 
@@ -546,7 +546,7 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 /* EDELIVERY-5237 - PU-27 - Download all lists of users  */
 
 
-	@Test(description = "PU-30", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "PU-30", groups = {"multiTenancy", "singleTenancy"})
 	public void verifyCSVHeaders() throws Exception {
 		JSONArray colDescs = descriptorObj.getJSONObject("grid").getJSONArray("columns");
 

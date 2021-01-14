@@ -11,7 +11,7 @@ import org.junit.runner.RunWith;
 import java.util.Arrays;
 
 @RunWith(JMockit.class)
-public class PluginEbms3PropertyChangeNotifierImplTest {
+public class PluginPropertyChangeNotifierImplTest {
 
     @Injectable
     private SignalService signalService;
