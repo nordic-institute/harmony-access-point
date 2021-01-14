@@ -159,6 +159,7 @@ public class LoginPgTest extends SeleniumTest {
 				log.info("Verifying LOGIN_ACCOUNT_SUSPENDED error message is displayed");
 				soft.assertEquals(page.getAlertArea().getAlertMessage(), DMessages.LOGIN_ACCOUNT_SUSPENDED, "Account blocked message displayed as expected");
 			}
+			page.getAlertArea().closeAlert();
 		}
 
 		log.info(String.format("Trying to login with user=%s and pass=%s", username, data.defaultPass()));
@@ -224,7 +225,6 @@ public class LoginPgTest extends SeleniumTest {
 
 		soft.assertAll();
 	}
-
 
 	/* LGN-6 - Login with locked account */
 	@Test(description = "LGN-6", groups = {"multiTenancy", "singleTenancy"})
@@ -307,7 +307,7 @@ public class LoginPgTest extends SeleniumTest {
 		String username = "TestSupDel_" + Gen.randomAlphaNumeric(3);
 		rest.users().createUser(username, DRoles.SUPER, data.defaultPass(), null);
 		rest.users().deleteUser(username, null);
-		log.info(String.format("Created user and deleted %s with role %s", username,  DRoles.SUPER));
+		log.info(String.format("Created user and deleted %s with role %s", username, DRoles.SUPER));
 
 		LoginPage page = new LoginPage(driver);
 
@@ -331,7 +331,7 @@ public class LoginPgTest extends SeleniumTest {
 		rest.users().createUser(username, DRoles.SUPER, data.defaultPass(), null);
 		rest.users().deactivate(username, null);
 
-		log.info(String.format("Created user and deactivated %s with role %s", username,  DRoles.SUPER));
+		log.info(String.format("Created user and deactivated %s with role %s", username, DRoles.SUPER));
 
 		LoginPage page = new LoginPage(driver);
 
@@ -468,7 +468,7 @@ public class LoginPgTest extends SeleniumTest {
 	}
 
 
-	private void blockUserByRest(String username, SoftAssert soft){
+	private void blockUserByRest(String username, SoftAssert soft) {
 		for (int i = 0; i < 10; i++) {
 			ClientResponse response = rest.callLogin(username, "invalidPass");
 			if (response.getStatus() == 200) {
@@ -483,7 +483,6 @@ public class LoginPgTest extends SeleniumTest {
 	}
 
 }
-
 
 
 //	You have been logged out because of inactivity or missing access permissions.

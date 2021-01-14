@@ -4,7 +4,7 @@ import eu.domibus.AbstractIT;
 import eu.domibus.api.property.DomibusProperty;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
-import eu.domibus.core.property.ConfigurationPropertyResourceHelperImpl;
+import eu.domibus.core.property.DomibusPropertyResourceHelperImpl;
 import eu.domibus.core.property.DomibusPropertiesFilter;
 import eu.domibus.core.property.GlobalPropertyMetadataManager;
 import org.junit.Assert;
@@ -22,10 +22,10 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  * @since 5.0
  */
 @Service
-public class ConfigurationPropertyResourceHelperIT extends AbstractIT {
+public class DomibusPropertyResourceHelperIT extends AbstractIT {
 
     @Autowired
-    ConfigurationPropertyResourceHelperImpl configurationPropertyResourceHelper;
+    DomibusPropertyResourceHelperImpl configurationPropertyResourceHelper;
 
     @Autowired
     private GlobalPropertyMetadataManager globalPropertyMetadataManager;

@@ -1,7 +1,6 @@
 package eu.domibus.core.property;
 
 import eu.domibus.api.multitenancy.Domain;
-import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.util.ClassUtil;
@@ -17,14 +16,15 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 
 /**
  * Helper class involved in dispatching the calls of the domibus property provider to the core or external property managers
+ * Responsible also for caching the values
  *
  * @author Ion Perpegel
  * @since 4.2
  */
 @Service
-public class DomibusPropertyProviderDispatcher {
+public class PropertyProviderDispatcher {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusPropertyProviderDispatcher.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PropertyProviderDispatcher.class);
 
     private static final String CACHE_KEY_EXPRESSION = "#root.target.getCacheKeyValue(#domain, #propertyName)";
 
@@ -32,16 +32,25 @@ public class DomibusPropertyProviderDispatcher {
 
     private final GlobalPropertyMetadataManager globalPropertyMetadataManager;
 
-    private final DomibusPropertyProviderImpl domibusPropertyProvider;
+    private final PropertyRetrieveManager propertyRetrieveManager;
 
-    private final DomibusPropertyChangeManager domibusPropertyChangeManager;
+    private final PropertyChangeManager propertyChangeManager;
 
-    public DomibusPropertyProviderDispatcher(GlobalPropertyMetadataManager globalPropertyMetadataManager, DomibusPropertyProviderImpl domibusPropertyProvider,
-                                             DomibusPropertyChangeManager domibusPropertyChangeManager, ClassUtil classUtil) {
+    private final PrimitivePropertyTypesManager primitivePropertyTypesManager;
+
+    private final PropertyProviderHelper propertyProviderHelper;
+
+    public PropertyProviderDispatcher(GlobalPropertyMetadataManager globalPropertyMetadataManager,
+                                      PropertyRetrieveManager propertyRetrieveManager,
+                                      PropertyChangeManager propertyChangeManager, ClassUtil classUtil,
+                                      PrimitivePropertyTypesManager primitivePropertyTypesManager,
+                                      PropertyProviderHelper propertyProviderHelper) {
         this.globalPropertyMetadataManager = globalPropertyMetadataManager;
-        this.domibusPropertyProvider = domibusPropertyProvider;
-        this.domibusPropertyChangeManager = domibusPropertyChangeManager;
+        this.propertyRetrieveManager = propertyRetrieveManager;
+        this.propertyChangeManager = propertyChangeManager;
         this.classUtil = classUtil;
+        this.primitivePropertyTypesManager = primitivePropertyTypesManager;
+        this.propertyProviderHelper = propertyProviderHelper;
     }
 
     @Cacheable(value = DomibusCacheService.DOMIBUS_PROPERTY_CACHE, key = CACHE_KEY_EXPRESSION)
@@ -62,11 +71,6 @@ public class DomibusPropertyProviderDispatcher {
 
     @CacheEvict(value = DomibusCacheService.DOMIBUS_PROPERTY_CACHE, key = CACHE_KEY_EXPRESSION, beforeInvocation = true)
     public void setInternalOrExternalProperty(Domain domain, String propertyName, String propertyValue, boolean broadcast) throws DomibusPropertyException {
-        Integer maxLength = domibusPropertyProvider.getIntegerProperty(DOMIBUS_PROPERTY_LENGTH_MAX);
-        if (maxLength > 0 && propertyValue != null && propertyValue.length() > maxLength) {
-            throw new IllegalArgumentException("Invalid property value. Maximum accepted length is: " + maxLength);
-        }
-
         DomibusPropertyMetadata propMeta = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
         if (propMeta.isStoredGlobally()) {
             setInternalPropertyValue(domain, propertyName, propertyValue, broadcast);
@@ -103,19 +107,19 @@ public class DomibusPropertyProviderDispatcher {
     protected void setInternalPropertyValue(Domain domain, String propertyName, String propertyValue, boolean broadcast) {
         if (domain == null) {
             LOG.debug("Setting internal property [{}] with value [{}] without domain.", propertyName, propertyValue);
-            domain = getCurrentDomain();
+            domain = propertyProviderHelper.getCurrentDomain();
         }
         LOG.debug("Setting internal property [{}] on domain [{}] with value [{}].", propertyName, domain, propertyValue);
-        domibusPropertyChangeManager.setPropertyValue(domain, propertyName, propertyValue, broadcast);
+        propertyChangeManager.setPropertyValue(domain, propertyName, propertyValue, broadcast);
     }
 
     protected String getInternalPropertyValue(Domain domain, String propertyName) {
         if (domain == null) {
             LOG.trace("Getting internal property [{}] without domain.", propertyName);
-            return domibusPropertyProvider.getInternalProperty(propertyName);
+            return propertyRetrieveManager.getInternalProperty(propertyName);
         }
         LOG.trace("Getting internal property [{}] on domain [{}].", propertyName, domain);
-        return domibusPropertyProvider.getInternalProperty(domain, propertyName);
+        return propertyRetrieveManager.getInternalProperty(domain, propertyName);
     }
 
     protected String getExternalModulePropertyValue(DomibusPropertyManagerExt propertyManager, String propertyName) {
@@ -123,7 +127,7 @@ public class DomibusPropertyProviderDispatcher {
             LOG.trace("Calling getKnownPropertyValue(propertyName) method");
             return propertyManager.getKnownPropertyValue(propertyName);
         }
-        String currentDomainCode = getCurrentDomainCode();
+        String currentDomainCode = propertyProviderHelper.getCurrentDomainCode();
         LOG.trace("Going to call getKnownPropertyValue for current domain [{}] as property manager [{}] doesn't have the method without domain defined", currentDomainCode, propertyManager);
         return propertyManager.getKnownPropertyValue(currentDomainCode, propertyName);
     }
@@ -135,28 +139,8 @@ public class DomibusPropertyProviderDispatcher {
             return;
         }
         LOG.debug("Calling deprecated setKnownPropertyValue method");
-        String currentDomainCode = getCurrentDomainCode();
+        String currentDomainCode = propertyProviderHelper.getCurrentDomainCode();
         propertyManager.setKnownPropertyValue(currentDomainCode, name, value);
-    }
-
-    // duplicated part of the code from context provider so that we can brake the circular dependency
-    protected String getCurrentDomainCode() {
-        if (!domibusPropertyProvider.isMultiTenantAware()) {
-            LOG.debug("No multi-tenancy aware: returning the default domain");
-            return DomainService.DEFAULT_DOMAIN.getCode();
-        }
-
-        String domainCode = LOG.getMDC(DomibusLogger.MDC_DOMAIN);
-        LOG.debug("Multi-tenancy aware: returning the domain [{}]", domainCode);
-
-        return domainCode;
-    }
-
-    protected Domain getCurrentDomain() {
-        String currentDomainCode = getCurrentDomainCode();
-        //the domain is created like this in order to avoid the dependency on DomainService ( which creates a cycle)
-        // we do not care for the domain name at all in property management, just the domain code
-        return new Domain(currentDomainCode, currentDomainCode);
     }
 
     //this method needs to be public for the ehCache to be able to call it
@@ -164,8 +148,7 @@ public class DomibusPropertyProviderDispatcher {
         // it is possible for getCurrentDomainCode() to return null for the first stages of bootstrap process
         // for global properties but it is acceptable since they are not going to mess with super properties
         String domainCode = domain != null ? domain.getCode()
-                : getCurrentDomainCode() == null ? "global" : getCurrentDomainCode();
+                : propertyProviderHelper.getCurrentDomainCode() == null ? "global" : propertyProviderHelper.getCurrentDomainCode();
         return domainCode + ':' + propertyName;
     }
-
 }

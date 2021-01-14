@@ -7,14 +7,12 @@ import eu.domibus.api.multitenancy.Domain;
  * @since 4.1.1
  */
 public interface PasswordEncryptionService {
+    boolean isValueEncrypted(final String propertyValue);
 
     void encryptPasswords();
 
     void encryptPasswords(PasswordEncryptionContext passwordEncryptionContext);
 
-    String decryptProperty(Domain domain, String propertyName, String encryptedFormatValue);
-
     PasswordEncryptionResult encryptProperty(Domain domain, String propertyName, String propertyValue);
 
-    boolean isValueEncrypted(final String propertyValue);
 }

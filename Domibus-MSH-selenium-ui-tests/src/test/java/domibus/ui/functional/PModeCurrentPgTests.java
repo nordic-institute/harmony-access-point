@@ -147,7 +147,7 @@ public class PModeCurrentPgTests extends SeleniumTest {
 	}
 	
 	/*  This method will verify error message while uploading invalid pmode  or wrong  format file */
-	@Test(description = "PMC-4", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "PMC-4", groups = {"multiTenancy", "singleTenancy"})
 	public void uploadInvalidPmode() throws Exception {
 		SoftAssert soft = new SoftAssert();
 

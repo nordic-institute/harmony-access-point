@@ -10,7 +10,6 @@ import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.core.message.MessageLogInfo;
 import eu.domibus.core.message.MessagesLogService;
-import eu.domibus.core.message.signal.SignalMessageLog;
 import eu.domibus.core.message.testservice.TestService;
 import eu.domibus.core.message.testservice.TestServiceException;
 import eu.domibus.core.party.PartyDao;

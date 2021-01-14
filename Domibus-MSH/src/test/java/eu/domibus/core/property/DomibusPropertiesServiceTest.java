@@ -17,9 +17,9 @@ import static org.junit.Assert.*;
  * @author Federico Martini
  */
 @RunWith(JMockit.class)
-public class DomibusPropertiesEbms3ServiceTest {
+public class DomibusPropertiesServiceTest {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusPropertiesEbms3ServiceTest.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusPropertiesServiceTest.class);
 
     @Tested
     DomibusVersionService service;

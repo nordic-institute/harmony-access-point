@@ -3,7 +3,7 @@ package eu.domibus.rest;
 import eu.domibus.AbstractIT;
 import eu.domibus.api.property.DomibusProperty;
 import eu.domibus.api.property.DomibusPropertyException;
-import eu.domibus.core.property.ConfigurationPropertyResourceHelper;
+import eu.domibus.core.property.DomibusPropertyResourceHelper;
 import eu.domibus.core.property.DomibusPropertiesFilter;
 import org.junit.Assert;
 import org.junit.Test;
@@ -14,10 +14,10 @@ import java.util.List;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 
-public class ConfigurationEbms3PropertyResourceIT extends AbstractIT {
+public class DomibusPropertyResourceIT extends AbstractIT {
 
     @Autowired
-    ConfigurationPropertyResourceHelper configurationPropertyResourceHelper;
+    DomibusPropertyResourceHelper domibusPropertyResourceHelper;
 
     @Test
     public void testFind() {
@@ -26,11 +26,11 @@ public class ConfigurationEbms3PropertyResourceIT extends AbstractIT {
         filter.setShowDomain(true);
         filter.setWritable(true);
 
-        List<DomibusProperty> list = configurationPropertyResourceHelper.getAllProperties(filter);
+        List<DomibusProperty> list = domibusPropertyResourceHelper.getAllProperties(filter);
         Assert.assertTrue(list.size() > 0);
 
         filter.setName("domibus.ui.title.name");
-        List<DomibusProperty> list2 = configurationPropertyResourceHelper.getAllProperties(filter);
+        List<DomibusProperty> list2 = domibusPropertyResourceHelper.getAllProperties(filter);
         Assert.assertEquals(1, list2.size());
     }
 
@@ -44,15 +44,15 @@ public class ConfigurationEbms3PropertyResourceIT extends AbstractIT {
         filter.setShowDomain(true);
         filter.setWritable(true);
 
-        List<DomibusProperty> list = configurationPropertyResourceHelper.getAllProperties(filter);
+        List<DomibusProperty> list = domibusPropertyResourceHelper.getAllProperties(filter);
         Assert.assertEquals(1, list.size());
 
         String originalValue = list.get(0).getValue();
         String newValue = originalValue + "MODIFIED";
 
-        configurationPropertyResourceHelper.setPropertyValue(name, true, newValue);
+        domibusPropertyResourceHelper.setPropertyValue(name, true, newValue);
 
-        list = configurationPropertyResourceHelper.getAllProperties(filter);
+        list = domibusPropertyResourceHelper.getAllProperties(filter);
         Assert.assertEquals(1, list.size());
 
         String actualValue = list.get(0).getValue();
@@ -70,9 +70,9 @@ public class ConfigurationEbms3PropertyResourceIT extends AbstractIT {
         filter.setShowDomain(true);
         filter.setWritable(true);
 
-        configurationPropertyResourceHelper.setPropertyValue(name, true, newValue);
+        domibusPropertyResourceHelper.setPropertyValue(name, true, newValue);
 
-        List<DomibusProperty> list = configurationPropertyResourceHelper.getAllProperties(filter);
+        List<DomibusProperty> list = domibusPropertyResourceHelper.getAllProperties(filter);
         Assert.assertEquals(1, list.size());
 
         String actualValue = list.get(0).getValue();
@@ -90,22 +90,22 @@ public class ConfigurationEbms3PropertyResourceIT extends AbstractIT {
 
         String newValue = "1-1";
 
-        configurationPropertyResourceHelper.setPropertyValue(name, true, newValue);
+        domibusPropertyResourceHelper.setPropertyValue(name, true, newValue);
 
-        List<DomibusProperty> list = configurationPropertyResourceHelper.getAllProperties(filter);
+        List<DomibusProperty> list = domibusPropertyResourceHelper.getAllProperties(filter);
         Assert.assertEquals(1, list.size());
         String actualValue = list.get(0).getValue();
         Assert.assertEquals(newValue, actualValue);
 
         //wrong value
-        list = configurationPropertyResourceHelper.getAllProperties(filter);
+        list = domibusPropertyResourceHelper.getAllProperties(filter);
         String oldValue = list.get(0).getValue();
         String wrongValue = "1-1-";
 
         try {
-            configurationPropertyResourceHelper.setPropertyValue(name, true, wrongValue);
+            domibusPropertyResourceHelper.setPropertyValue(name, true, wrongValue);
         } catch (DomibusPropertyException ex) {
-            list = configurationPropertyResourceHelper.getAllProperties(filter);
+            list = domibusPropertyResourceHelper.getAllProperties(filter);
             Assert.assertEquals(1, list.size());
             actualValue = list.get(0).getValue();
             Assert.assertEquals(oldValue, actualValue);
@@ -124,22 +124,22 @@ public class ConfigurationEbms3PropertyResourceIT extends AbstractIT {
         //correct value
         String newValue = "-15";
 
-        configurationPropertyResourceHelper.setPropertyValue(name, true, newValue);
+        domibusPropertyResourceHelper.setPropertyValue(name, true, newValue);
 
-        List<DomibusProperty> list = configurationPropertyResourceHelper.getAllProperties(filter);
+        List<DomibusProperty> list = domibusPropertyResourceHelper.getAllProperties(filter);
         Assert.assertEquals(1, list.size());
         String actualValue = list.get(0).getValue();
         Assert.assertEquals(newValue, actualValue);
 
         //wrong value
-        list = configurationPropertyResourceHelper.getAllProperties(filter);
+        list = domibusPropertyResourceHelper.getAllProperties(filter);
         String oldValue = list.get(0).getValue();
         String wrongValue = "11q";
 
         try {
-            configurationPropertyResourceHelper.setPropertyValue(name, true, wrongValue);
+            domibusPropertyResourceHelper.setPropertyValue(name, true, wrongValue);
         } catch (DomibusPropertyException ex) {
-            list = configurationPropertyResourceHelper.getAllProperties(filter);
+            list = domibusPropertyResourceHelper.getAllProperties(filter);
             Assert.assertEquals(1, list.size());
             actualValue = list.get(0).getValue();
             Assert.assertEquals(oldValue, actualValue);
@@ -148,7 +148,7 @@ public class ConfigurationEbms3PropertyResourceIT extends AbstractIT {
 
     @Test
     public void testGetProperty() {
-        DomibusProperty prop = configurationPropertyResourceHelper.getProperty(DOMIBUS_UI_TITLE_NAME);
+        DomibusProperty prop = domibusPropertyResourceHelper.getProperty(DOMIBUS_UI_TITLE_NAME);
         Assert.assertNotNull(prop);
         Assert.assertEquals(DOMIBUS_UI_TITLE_NAME, prop.getMetadata().getName());
     }

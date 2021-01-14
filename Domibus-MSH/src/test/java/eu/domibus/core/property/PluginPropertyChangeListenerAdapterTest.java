@@ -11,7 +11,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(JMockit.class)
-public class PluginEbms3PropertyChangeListenerAdapterTest extends TestCase {
+public class PluginPropertyChangeListenerAdapterTest extends TestCase {
 
     @Tested
     PluginPropertyChangeListenerAdapter pluginPropertyChangeListenerAdapter;
