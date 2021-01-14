@@ -51,27 +51,28 @@ public class WSPluginBackendService {
     public boolean send(MessageEvent messageEvent, WSBackendMessageType messageType) {
         String pushEnabled = wsPluginPropertyManager.getKnownPropertyValue(PUSH_ENABLED);
         LOG.debug("Push to backend is: [{}]", pushEnabled);
-        if (toBoolean(pushEnabled)) {
-            String messageId = messageEvent.getMessageId();
-            String finalRecipient = messageEvent.getProps().get(MessageConstants.FINAL_RECIPIENT);
-            String originalSender = messageEvent.getProps().get(MessageConstants.ORIGINAL_SENDER);
-            if (StringUtils.isBlank(finalRecipient)) {
-                LOG.warn("No recipient found for messageId: [{}]", messageEvent.getMessageId());
-                return false;
-            }
+        if (!toBoolean(pushEnabled)) {
+            return false;
+        }
+        String messageId = messageEvent.getMessageId();
+        String finalRecipient = messageEvent.getProps().get(MessageConstants.FINAL_RECIPIENT);
+        String originalSender = messageEvent.getProps().get(MessageConstants.ORIGINAL_SENDER);
+        if (StringUtils.isBlank(finalRecipient)) {
+            LOG.warn("No recipient found for messageId: [{}]", messageEvent.getMessageId());
+            return false;
+        }
 
-            List<WSPluginDispatchRule> rules = wsBackendRulesService.getRulesByRecipient(finalRecipient);
-            if (isEmpty(rules)) {
-                LOG.warn("No rule found for recipient: [{}]", finalRecipient);
-                return false;
-            }
+        List<WSPluginDispatchRule> rules = wsBackendRulesService.getRulesByRecipient(finalRecipient);
+        if (isEmpty(rules)) {
+            LOG.warn("No rule found for recipient: [{}]", finalRecipient);
+            return false;
+        }
 
-            for (WSPluginDispatchRule rule : rules) {
-                if (rule.getTypes().contains(messageType)) {
-                    LOG.debug("Rule [{}] found for recipient [{}] and messageType [{}]", rule.getRuleName(), finalRecipient, messageType);
-                    scheduleService.schedule(messageId, finalRecipient, originalSender, rule, messageType);
-                    return true;
-                }
+        for (WSPluginDispatchRule rule : rules) {
+            if (rule.getTypes().contains(messageType)) {
+                LOG.debug("Rule [{}] found for recipient [{}] and messageType [{}]", rule.getRuleName(), finalRecipient, messageType);
+                scheduleService.schedule(messageId, finalRecipient, originalSender, rule, messageType);
+                return true;
             }
         }
 
