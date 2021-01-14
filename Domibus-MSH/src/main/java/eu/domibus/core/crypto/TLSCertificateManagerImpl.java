@@ -2,9 +2,13 @@ package eu.domibus.core.crypto;
 
 import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.cxf.TLSReaderService;
+import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.core.crypto.api.TLSCertificateManager;
+import org.apache.cxf.configuration.security.TLSClientParametersType;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
@@ -19,9 +23,15 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
     @Autowired
     CertificateService certificateService;
 
-    @Override
-    public void replaceTrustStore(byte[] store, String password) throws CryptoException {
+    @Autowired
+    DomainContextProvider domainProvider;
 
+    @Override
+    public void replaceTrustStore(String fileName, byte[] content, String password) throws CryptoException {
+        Domain domain = domainProvider.getCurrentDomain();
+        TLSClientParametersType params = tlsReaderService.getTlsClientParametersType(domain.getCode());
+
+//        certificateService.replaceTrustStore(fileName, content, password, type, location);
     }
 
     @Override

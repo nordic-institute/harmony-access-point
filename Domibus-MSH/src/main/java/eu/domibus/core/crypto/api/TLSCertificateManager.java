@@ -15,7 +15,7 @@ import java.util.List;
  */
 public interface TLSCertificateManager {
 
-    void replaceTrustStore(byte[] store, String password) throws CryptoException;
+    void replaceTrustStore(String trustFileName, byte[] trustContent, String password) throws CryptoException;
 
     List<TrustStoreEntry> getTrustStoreEntries(final KeyStore trustStore);
 

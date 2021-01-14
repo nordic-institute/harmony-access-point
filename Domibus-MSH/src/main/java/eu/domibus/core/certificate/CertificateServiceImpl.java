@@ -20,6 +20,7 @@ import eu.domibus.core.util.backup.BackupService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -43,10 +44,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.security.*;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
@@ -571,10 +569,12 @@ public class CertificateServiceImpl implements CertificateService {
         return digestHex.toLowerCase();
     }
 
-    public synchronized void replaceTrustStore(byte[] store, String password, String trustType, String trustLocation) throws CryptoSpiException {
-        LOG.debug("Replacing the existing trust store file [{}] with the provided one.", trustLocation);
+    public synchronized void replaceTrustStore(String fileName, byte[] content, String password, String type, String location) throws CryptoSpiException {
+        LOG.debug("Replacing the existing trust store file [{}] with the provided one.", location);
 
-        KeyStore truststore = loadTrust(store, password);
+        validateTruststoreType(type, fileName);
+
+        KeyStore truststore = loadTrust(content, password);
         ByteArrayOutputStream oldTrustStoreBytes = new ByteArrayOutputStream();
         try {
             truststore.store(oldTrustStoreBytes, password.toCharArray());
@@ -582,11 +582,11 @@ public class CertificateServiceImpl implements CertificateService {
             closeStream(oldTrustStoreBytes);
             throw new CryptoSpiException("Could not replace truststore", exc);
         }
-        try (ByteArrayInputStream newTrustStoreBytes = new ByteArrayInputStream(store)) {
-            validateLoadOperation(newTrustStoreBytes, password, trustType);
+        try (ByteArrayInputStream newTrustStoreBytes = new ByteArrayInputStream(content)) {
+            validateLoadOperation(newTrustStoreBytes, password, type);
             truststore.load(newTrustStoreBytes, password.toCharArray());
             LOG.debug("Truststore successfully loaded");
-            persistTrustStore(truststore, password, trustLocation);
+            persistTrustStore(truststore, password, location);
             LOG.debug("Truststore successfully persisted");
         } catch (CertificateException | NoSuchAlgorithmException | IOException | CryptoException e) {
             LOG.error("Could not replace truststore", e);
@@ -600,6 +600,21 @@ public class CertificateServiceImpl implements CertificateService {
         } finally {
             closeStream(oldTrustStoreBytes);
         }
+    }
+
+    protected void validateTruststoreType(String storeType, String storeFileName) {
+        String fileType = FilenameUtils.getExtension(storeFileName).toLowerCase();
+        switch (storeType.toLowerCase()) {
+            case "pkcs12":
+                if (Arrays.asList("p12", "pfx").contains(fileType)) {
+                    return;
+                }
+            case "jks":
+                if (Arrays.asList("jks").contains(fileType)) {
+                    return;
+                }
+        }
+        throw new InvalidParameterException("Store file type (" + fileType + ") should match the configured truststore type (" + storeType + ").");
     }
 
     private KeyStore loadTrust(byte[] content, String password) {

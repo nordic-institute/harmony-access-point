@@ -3,7 +3,6 @@ package eu.domibus.web.rest;
 import com.google.common.collect.ImmutableMap;
 import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.exceptions.RequestValidationException;
-import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.MultiDomainCryptoService;
@@ -12,7 +11,7 @@ import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.api.validators.SkipWhiteListed;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.converter.DomainCoreConverter;
-import eu.domibus.core.crypto.MultiDomainCryptoServiceImpl;
+import eu.domibus.core.crypto.api.TLSCertificateManager;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.ErrorRO;
 import eu.domibus.web.rest.ro.TrustStoreRO;
@@ -31,8 +30,6 @@ import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.springframework.web.bind.annotation.RequestMethod.GET;
-
 /**
  * @author Mircea Musat
  * @author Ion Perpegel
@@ -44,8 +41,7 @@ public class TLSTruststoreResource extends BaseResource {
 
     public static final String ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD = "Failed to upload the truststoreFile file since its password was empty."; //NOSONAR
 
-
-//    private TLSMultiDomainCryptoServiceImpl tlsMultiDomainCertificateProvider;
+    private TLSCertificateManager tlsCertificateManager;
 
     private DomainContextProvider domainProvider;
 
@@ -59,12 +55,11 @@ public class TLSTruststoreResource extends BaseResource {
 
     private AuditService auditService;
 
-    public TLSTruststoreResource(
-//                              TLSMultiDomainCryptoServiceImpl tlsMultiDomainCertificateProvider,
+    public TLSTruststoreResource(TLSCertificateManager tlsCertificateManager,
                                  DomainContextProvider domainProvider, CertificateService certificateService,
                                  DomainCoreConverter domainConverter, ErrorHandlerService errorHandlerService,
                                  MultiPartFileUtil multiPartFileUtil, AuditService auditService) {
-//        this.tlsMultiDomainCertificateProvider = tlsMultiDomainCertificateProvider;
+        this.tlsCertificateManager = tlsCertificateManager;
         this.domainProvider = domainProvider;
         this.certificateService = certificateService;
         this.domainConverter = domainConverter;
@@ -81,7 +76,7 @@ public class TLSTruststoreResource extends BaseResource {
     @PostMapping(value = "/tlstruststore")
     public String uploadTLSTruststoreFile(@RequestPart("file") MultipartFile truststoreFile,
                                           @SkipWhiteListed @RequestParam("password") String password) throws RequestValidationException {
-//        replaceTruststore(tlsMultiDomainCertificateProvider, truststoreFile, password);
+        replaceTruststore(tlsCertificateManager, truststoreFile, password);
         return "TLS truststore file has been successfully replaced.";
     }
 
@@ -125,14 +120,14 @@ public class TLSTruststoreResource extends BaseResource {
         return "Certificate [" + alias + "] has been successfully removed from the TLS truststore.";
     }
 
-    protected void replaceTruststore(MultiDomainCryptoService certificateProvider, MultipartFile truststoreFile, String password) {
+    protected void replaceTruststore(TLSCertificateManager tlsCertificateManager, MultipartFile truststoreFile, String password) {
         byte[] truststoreFileContent = multiPartFileUtil.validateAndGetFileContent(truststoreFile);
 
         if (StringUtils.isBlank(password)) {
             throw new IllegalArgumentException(ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD);
         }
 
-        certificateProvider.replaceTrustStore(domainProvider.getCurrentDomain(), truststoreFile.getOriginalFilename(), truststoreFileContent, password);
+        tlsCertificateManager.replaceTrustStore(truststoreFile.getOriginalFilename(), truststoreFileContent, password);
     }
 
     protected ResponseEntity<ByteArrayResource> downloadTruststoreContent(MultiDomainCryptoService multiDomainCertificateProvider, Runnable auditMethod) {
