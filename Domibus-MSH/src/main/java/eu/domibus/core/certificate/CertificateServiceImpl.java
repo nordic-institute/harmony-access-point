@@ -1,9 +1,11 @@
 package eu.domibus.core.certificate;
 
 import com.google.common.collect.Lists;
+import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.DomibusCertificateException;
+import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.core.alerts.configuration.certificate.expired.ExpiredCertificateConfigurationManager;
@@ -12,11 +14,13 @@ import eu.domibus.core.alerts.configuration.certificate.imminent.ImminentExpirat
 import eu.domibus.core.alerts.configuration.certificate.imminent.ImminentExpirationCertificateModuleConfiguration;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.certificate.crl.CRLService;
-import eu.domibus.api.pki.MultiDomainCryptoService;
+import eu.domibus.core.crypto.spi.CryptoSpiException;
 import eu.domibus.core.pmode.provider.PModeProvider;
+import eu.domibus.core.util.backup.BackupService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.core.certificate.crl.CRLService;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.openssl.jcajce.JcaMiscPEMGenerator;
@@ -43,7 +47,10 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.cert.*;
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.util.*;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_CERTIFICATE_REVOCATION_OFFSET;
@@ -101,6 +108,9 @@ public class CertificateServiceImpl implements CertificateService {
         }
         return true;
     }
+
+    @Autowired
+    private BackupService backupService;
 
     @Override
     public boolean isCertificateChainValid(KeyStore trustStore, String alias) throws DomibusCertificateException {
@@ -507,6 +517,7 @@ public class CertificateServiceImpl implements CertificateService {
         return null;
     }
 
+    //  todo: it is not generic, depends on location
     @Override
     public byte[] getTruststoreContent() throws IOException {
         String location = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_LOCATION);
@@ -524,12 +535,6 @@ public class CertificateServiceImpl implements CertificateService {
         LOG.debug("Create TrustStore Entry for [{}] = [{}] ", alias, cert);
         return createTrustStoreEntry(alias, cert);
     }
-
-//    public X509Certificate getPartyX509CertificateFromTruststore(String partyName) throws KeyStoreException {
-//        X509Certificate cert = multiDomainCertificateProvider.getCertificateFromTruststore(domainProvider.getCurrentDomain(), partyName);
-//        LOG.debug("get certificate from truststore for [{}] = [{}] ", partyName, cert);
-//        return cert;
-//    }
 
     private TrustStoreEntry createTrustStoreEntry(String alias, final X509Certificate certificate) {
         if (certificate == null)
@@ -566,6 +571,114 @@ public class CertificateServiceImpl implements CertificateService {
         return digestHex.toLowerCase();
     }
 
+    public synchronized void replaceTrustStore(byte[] store, String password, String trustType, String trustLocation) throws CryptoSpiException {
+        LOG.debug("Replacing the existing trust store file [{}] with the provided one.", trustLocation);
+
+        KeyStore truststore = loadTrust(store, password);
+        ByteArrayOutputStream oldTrustStoreBytes = new ByteArrayOutputStream();
+        try {
+            truststore.store(oldTrustStoreBytes, password.toCharArray());
+        } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException exc) {
+            closeStream(oldTrustStoreBytes);
+            throw new CryptoSpiException("Could not replace truststore", exc);
+        }
+        try (ByteArrayInputStream newTrustStoreBytes = new ByteArrayInputStream(store)) {
+            validateLoadOperation(newTrustStoreBytes, password, trustType);
+            truststore.load(newTrustStoreBytes, password.toCharArray());
+            LOG.debug("Truststore successfully loaded");
+            persistTrustStore(truststore, password, trustLocation);
+            LOG.debug("Truststore successfully persisted");
+        } catch (CertificateException | NoSuchAlgorithmException | IOException | CryptoException e) {
+            LOG.error("Could not replace truststore", e);
+            try {
+                truststore.load(oldTrustStoreBytes.toInputStream(), password.toCharArray());
+                signalTrustStoreUpdate();
+            } catch (CertificateException | NoSuchAlgorithmException | IOException exc) {
+                throw new CryptoSpiException("Could not replace truststore and old truststore was not reverted properly. Please correct the error before continuing.", exc);
+            }
+            throw new CryptoSpiException(e);
+        } finally {
+            closeStream(oldTrustStoreBytes);
+        }
+    }
+
+    private KeyStore loadTrust(byte[] content, String password) {
+        KeyStore truststore = null;
+        try {
+            InputStream contentStream = new ByteArrayInputStream(content);
+            try {
+                truststore = KeyStore.getInstance(KeyStore.getDefaultType());
+                truststore.load(contentStream, password.toCharArray());
+            } finally {
+                if (contentStream != null) {
+                    closeStream(contentStream);
+                }
+            }
+        } catch (Exception var13) {
+            LOG.warn("CA certs could not be loaded: " + var13.getMessage());
+        }
+
+        return truststore;
+    }
+
+    private synchronized void persistTrustStore(KeyStore truststore, String password, String trustStoreLocation) throws CryptoException {
+        String trustStoreFileValue = trustStoreLocation;
+        LOG.debug("TrustStoreLocation is: [{}]", trustStoreFileValue);
+        File trustStoreFile = new File(trustStoreFileValue);
+        if (!trustStoreFile.getParentFile().exists()) {
+            LOG.debug("Creating directory [" + trustStoreFile.getParentFile() + "]");
+            try {
+                FileUtils.forceMkdir(trustStoreFile.getParentFile());
+            } catch (IOException e) {
+                throw new CryptoException("Could not create parent directory for truststore", e);
+            }
+        }
+        // keep old truststore in case it needs to be restored, truststore_name.backup-yyyy-MM-dd_HH_mm_ss.SSS
+        backupTrustStore(trustStoreFile);
+
+        LOG.debug("TrustStoreFile is: [{}]", trustStoreFile.getAbsolutePath());
+        try (FileOutputStream fileOutputStream = new FileOutputStream(trustStoreFile)) {
+            truststore.store(fileOutputStream, password.toCharArray());
+        } catch (FileNotFoundException ex) {
+            LOG.error("Could not persist truststore:", ex);
+            //we address this exception separately
+            //we swallow it here because it contains information we do not want to display to the client: the full internal file path of the truststore.
+            throw new CryptoException("Could not persist truststore: Is the truststore readonly?");
+        } catch (NoSuchAlgorithmException | IOException | CertificateException | KeyStoreException e) {
+            throw new CryptoException("Could not persist truststore:", e);
+        }
+
+        signalTrustStoreUpdate();
+    }
+
+    protected void signalTrustStoreUpdate() {
+    }
+
+    protected void backupTrustStore(File trustStoreFile) throws CryptoException {
+        if (trustStoreFile == null || StringUtils.isEmpty(trustStoreFile.getAbsolutePath())) {
+            LOG.warn("Truststore file was null, nothing to backup!");
+            return;
+        }
+        if (!trustStoreFile.exists()) {
+            LOG.warn("Truststore file [{}] does not exist, nothing to backup!", trustStoreFile);
+            return;
+        }
+
+        try {
+            backupService.backupFile(trustStoreFile);
+        } catch (IOException e) {
+            throw new CryptoException("Could not create backup file for truststore", e);
+        }
+    }
+
+    private void closeStream(Closeable stream) {
+        try {
+            LOG.debug("Closing output stream [{}].", stream);
+            stream.close();
+        } catch (IOException e) {
+            LOG.error("Could not close [{}]", stream, e);
+        }
+    }
 }
 
 
