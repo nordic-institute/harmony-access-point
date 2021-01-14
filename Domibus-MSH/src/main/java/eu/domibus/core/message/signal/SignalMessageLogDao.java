@@ -27,7 +27,7 @@ import java.util.Map;
 @Repository
 public class SignalMessageLogDao extends MessageLogDao<SignalMessageLog> {
 
-    @Autowired
+   // @Autowired
     private SignalMessageLogInfoFilter signalMessageLogInfoFilter;
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SignalMessageLogDao.class);

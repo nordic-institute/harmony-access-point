@@ -30,7 +30,7 @@ import java.util.Map;
 @Repository
 public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
-    @Autowired
+   // @Autowired
     private UserMessageLogInfoFilter userMessageLogInfoFilter;
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageLogDao.class);
