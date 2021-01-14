@@ -12,7 +12,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import java.util.function.Predicate;
 
-public class Ebms3MessagingDaoTest {
+public class MessagingDaoTest {
 
     @Tested
     private MessagingDao messagingDao;

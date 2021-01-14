@@ -17,7 +17,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 import static org.junit.Assert.*;
 
 @RunWith(JMockit.class)
-public class Ebms3MessagingConfigurationManagerTest {
+public class MessagingConfigurationManagerTest {
 
     @Tested
     MessagingConfigurationManager configurationManager;

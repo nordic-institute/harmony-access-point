@@ -15,8 +15,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 
-import static eu.domibus.core.message.Ebms3UserMessageDefaultServiceHelperTest.PartyIdBuilder.aPartyId;
-import static eu.domibus.core.message.Ebms3UserMessageDefaultServiceHelperTest.PropertyBuilder.aProperty;
+import static eu.domibus.core.message.UserMessageDefaultServiceHelperTest.PartyIdBuilder.aPartyId;
+import static eu.domibus.core.message.UserMessageDefaultServiceHelperTest.PropertyBuilder.aProperty;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
@@ -25,7 +25,7 @@ import static org.junit.Assert.assertNull;
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(JMockit.class)
-public class Ebms3UserMessageDefaultServiceHelperTest {
+public class UserMessageDefaultServiceHelperTest {
 
     public static final String ORIGINAL_SENDER = "sender";
 

@@ -29,7 +29,7 @@ import static org.junit.Assert.assertNotNull;
  * @author Thomas Dussart
  * @since 3.3
  */
-public class Ebms3MessagingDaoTestIT extends AbstractIT {
+public class MessagingDaoTestIT extends AbstractIT {
 
     @Autowired
     private MessagingDao messagingDao;
