@@ -2,7 +2,6 @@ package eu.domibus.web.rest;
 
 import com.google.common.collect.ImmutableMap;
 import eu.domibus.api.crypto.CryptoException;
-import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.CertificateService;
@@ -24,10 +23,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
+import java.io.IOException;
 import java.security.KeyStore;
-import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.List;
 
@@ -44,7 +41,7 @@ public class TruststoreResource extends BaseResource {
 
     public static final String ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD = "Failed to upload the truststoreFile file since its password was empty."; //NOSONAR
 
-    private MultiDomainCryptoServiceImpl multiDomainCertificateProvider;
+    private MultiDomainCryptoService multiDomainCertificateProvider;
 
     private DomainContextProvider domainProvider;
 
@@ -58,7 +55,7 @@ public class TruststoreResource extends BaseResource {
 
     private AuditService auditService;
 
-    public TruststoreResource(MultiDomainCryptoServiceImpl multiDomainCertificateProvider,
+    public TruststoreResource(MultiDomainCryptoService multiDomainCertificateProvider,
                               DomainContextProvider domainProvider, CertificateService certificateService,
                               DomainCoreConverter domainConverter, ErrorHandlerService errorHandlerService,
                               MultiPartFileUtil multiPartFileUtil, AuditService auditService) {
@@ -91,8 +88,8 @@ public class TruststoreResource extends BaseResource {
     }
 
     @GetMapping(value = "/truststore/download", produces = "application/octet-stream")
-    public ResponseEntity<ByteArrayResource> downloadTrustStore() {
-        return downloadTruststoreContent(multiDomainCertificateProvider, () -> auditService.addTruststoreDownloadedAudit());
+    public ResponseEntity<ByteArrayResource> downloadTrustStore() throws IOException {
+        return downloadTruststoreContent(() -> auditService.addTruststoreDownloadedAudit());
     }
 
     @RequestMapping(value = {"/truststore/list"}, method = GET)
@@ -115,9 +112,8 @@ public class TruststoreResource extends BaseResource {
         certificateProvider.replaceTrustStore(domainProvider.getCurrentDomain(), truststoreFile.getOriginalFilename(), truststoreFileContent, password);
     }
 
-    protected ResponseEntity<ByteArrayResource> downloadTruststoreContent(MultiDomainCryptoService multiDomainCertificateProvider, Runnable auditMethod) {
-//        byte[] content = certificateService.getTruststoreContent(domainProvider.getCurrentDomain());
-        byte[] content = null;
+    protected ResponseEntity<ByteArrayResource> downloadTruststoreContent(Runnable auditMethod) throws IOException {
+        byte[] content = certificateService.getTruststoreContent();
         ByteArrayResource resource = new ByteArrayResource(content);
 
         HttpStatus status = HttpStatus.OK;

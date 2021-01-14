@@ -44,7 +44,6 @@ public class TLSTruststoreResource extends BaseResource {
 
     public static final String ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD = "Failed to upload the truststoreFile file since its password was empty."; //NOSONAR
 
-    private MultiDomainCryptoServiceImpl multiDomainCertificateProvider;
 
 //    private TLSMultiDomainCryptoServiceImpl tlsMultiDomainCertificateProvider;
 
@@ -60,12 +59,11 @@ public class TLSTruststoreResource extends BaseResource {
 
     private AuditService auditService;
 
-    public TLSTruststoreResource(MultiDomainCryptoServiceImpl multiDomainCertificateProvider,
+    public TLSTruststoreResource(
 //                              TLSMultiDomainCryptoServiceImpl tlsMultiDomainCertificateProvider,
                                  DomainContextProvider domainProvider, CertificateService certificateService,
                                  DomainCoreConverter domainConverter, ErrorHandlerService errorHandlerService,
                                  MultiPartFileUtil multiPartFileUtil, AuditService auditService) {
-        this.multiDomainCertificateProvider = multiDomainCertificateProvider;
 //        this.tlsMultiDomainCertificateProvider = tlsMultiDomainCertificateProvider;
         this.domainProvider = domainProvider;
         this.certificateService = certificateService;
@@ -78,35 +76,6 @@ public class TLSTruststoreResource extends BaseResource {
     @ExceptionHandler({CryptoException.class})
     public ResponseEntity<ErrorRO> handleCryptoException(CryptoException ex) {
         return errorHandlerService.createResponse(ex, HttpStatus.BAD_REQUEST);
-    }
-
-    @PostMapping(value = "/truststore/save")
-    public String uploadTruststoreFile(@RequestPart("file") MultipartFile truststoreFile,
-                                       @SkipWhiteListed @RequestParam("password") String password) throws IllegalArgumentException {
-        replaceTruststore(multiDomainCertificateProvider, truststoreFile, password);
-
-        // trigger update certificate table
-        Domain currentDomain = domainProvider.getCurrentDomain();
-        final KeyStore trustStore = multiDomainCertificateProvider.getTrustStore(currentDomain);
-        final KeyStore keyStore = multiDomainCertificateProvider.getKeyStore(currentDomain);
-        certificateService.saveCertificateAndLogRevocation(trustStore, keyStore);
-
-        return "Truststore file has been successfully replaced.";
-    }
-
-    @GetMapping(value = "/truststore/download", produces = "application/octet-stream")
-    public ResponseEntity<ByteArrayResource> downloadTrustStore() {
-        return downloadTruststoreContent(multiDomainCertificateProvider, () -> auditService.addTruststoreDownloadedAudit());
-    }
-
-    @RequestMapping(value = {"/truststore/list"}, method = GET)
-    public List<TrustStoreRO> trustStoreEntries() {
-        return getTrustStoreEntries(multiDomainCertificateProvider);
-    }
-
-    @GetMapping(path = "/truststore/csv")
-    public ResponseEntity<String> getEntriesAsCsv() {
-        return getEntriesAsCSV(multiDomainCertificateProvider, "truststore");
     }
 
     @PostMapping(value = "/tlstruststore")

@@ -123,5 +123,5 @@ public interface CertificateService {
      */
     TrustStoreEntry convertCertificateContent(String certificateContent);
 
-    public byte[] getTruststoreContent() throws IOException;
+    byte[] getTruststoreContent() throws IOException;
 }
