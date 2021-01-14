@@ -76,15 +76,15 @@ public class MessageRetentionServiceTest {
     final Integer expiredNotDownloadedMessagesLimit = 20;
     final Integer expiredSentMessagesLimit = 30;
     final Integer expiredPayloadDeletedMessagesLimit = 30;
-    List<UserMessageLogDto> expiredMessages;
+    List<MessageDto> expiredMessages;
     final List<String> mpcs = Arrays.asList(new String[]{mpc1, mpc2});
 
     @Before
     public void init() {
         expiredMessages = new ArrayList<>();
-        UserMessageLogDto uml1 = new UserMessageLogDto("abc", null, "ws");
+        MessageDto uml1 = new MessageDto("abc", "sss", new Long(2), null, "ws");
 
-        UserMessageLogDto uml2 = new UserMessageLogDto("def", null, "ws");
+        MessageDto uml2 = new MessageDto("def", "dss", new Long(3), null, "ws");
 
         expiredMessages.add(uml1);
         expiredMessages.add(uml2);
@@ -164,7 +164,7 @@ public class MessageRetentionServiceTest {
             userMessageLogDao.getDownloadedUserMessagesOlderThan((Date)any, mpc1, expiredDownloadedMessagesLimit);
             result = expiredMessages;
 
-            messageRetentionService.deleteMessages((List<UserMessageLogDto>)any, mpc1); times = 1;
+            messageRetentionService.deleteMessages((List<MessageDto>)any, mpc1); times = 1;
 
         }};
 
@@ -182,7 +182,7 @@ public class MessageRetentionServiceTest {
             userMessageLogDao.getUndownloadedUserMessagesOlderThan((Date)any, mpc1, expiredNotDownloadedMessagesLimit);
             result = expiredMessages;
 
-            messageRetentionService.deleteMessages((List<UserMessageLogDto>)any, mpc1); times = 1;
+            messageRetentionService.deleteMessages((List<MessageDto>)any, mpc1); times = 1;
         }};
 
         messageRetentionService.deleteExpiredNotDownloadedMessages(mpc1, expiredNotDownloadedMessagesLimit);
@@ -201,7 +201,7 @@ public class MessageRetentionServiceTest {
             userMessageLogDao.getSentUserMessagesOlderThan((Date)any, mpc1, expiredSentMessagesLimit, true);
             result = expiredMessages;
 
-            messageRetentionService.deleteMessages((List<UserMessageLogDto>)any, mpc1); times = 1;
+            messageRetentionService.deleteMessages((List<MessageDto>)any, mpc1); times = 1;
         }};
 
         messageRetentionService.deleteExpiredSentMessages(mpc1, expiredSentMessagesLimit);
@@ -409,7 +409,7 @@ public class MessageRetentionServiceTest {
         new Verifications() {{
             List<JmsMessage> jmsMessages = new ArrayList<>();
             jmsManager.sendMessageToQueue(withCapture(jmsMessages), retentionMessageQueue); times = 2;
-            assertEquals("Should have scheduled expiredMessages downloaded messages for deletion", expiredMessages.stream().map(message ->message.getMessageId()).collect(Collectors.toList()),
+            assertEquals("Should have scheduled expiredMessages downloaded messages for deletion", expiredMessages.stream().map(message ->message.getUserMessageId()).collect(Collectors.toList()),
                     jmsMessages.stream().map(jmsMessage -> jmsMessage.getStringProperty(MessageConstants.MESSAGE_ID)).collect(Collectors.toList()));
         }};
     }
@@ -431,7 +431,7 @@ public class MessageRetentionServiceTest {
         new Verifications() {{
             List<JmsMessage> jmsMessages = new ArrayList<>();
             jmsManager.sendMessageToQueue(withCapture(jmsMessages), retentionMessageQueue); times = 2;
-            assertEquals("Should have scheduled expiredMessages not downloaded messages for deletion", expiredMessages.stream().map(message ->message.getMessageId()).collect(Collectors.toList()),
+            assertEquals("Should have scheduled expiredMessages not downloaded messages for deletion", expiredMessages.stream().map(message ->message.getUserMessageId()).collect(Collectors.toList()),
                     jmsMessages.stream().map(jmsMessage -> jmsMessage.getStringProperty(MessageConstants.MESSAGE_ID)).collect(Collectors.toList()));
         }};
     }

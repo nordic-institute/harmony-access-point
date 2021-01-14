@@ -558,15 +558,15 @@ public class BackendNotificationServiceTest {
     }
 
     @Test
-    public void getAllMessageIdsForBackendTest(@Injectable UserMessageLogDto uml1, @Injectable UserMessageLogDto uml2) {
+    public void getAllMessageIdsForBackendTest(@Injectable MessageDto uml1, @Injectable MessageDto uml2) {
 
         String backend = "ws";
-        List<UserMessageLogDto> userMessageLogDtos = Arrays.asList(uml1, uml2);
+        List<MessageDto> userMessageLogDtos = Arrays.asList(uml1, uml2);
         List<String> messageIds = Arrays.asList("abc", "def");
 
         new Expectations(backendNotificationService) {{
-            uml1.getMessageId(); result = "abc";
-            uml2.getMessageId(); result = "def";
+            uml1.getUserMessageId(); result = "abc";
+            uml2.getUserMessageId(); result = "def";
             uml1.getBackend(); result = backend;
             uml2.getBackend(); result = backend;
 
@@ -580,11 +580,11 @@ public class BackendNotificationServiceTest {
     }
 
     @Test
-    public void testNotifyMessageDeletedRemoveTestMessages(@Injectable UserMessageLogDto uml1, @Injectable UserMessageLogDto uml2) {
+    public void testNotifyMessageDeletedRemoveTestMessages(@Injectable MessageDto uml1, @Injectable MessageDto uml2) {
 
         String backend = "ws";
-        List<UserMessageLogDto> userMessageLogDtos = Arrays.asList(uml1, uml2);
-        List<UserMessageLogDto> userMessageLogDtosNoTest = Arrays.asList(uml1);
+        List<MessageDto> userMessageLogDtos = Arrays.asList(uml1, uml2);
+        List<MessageDto> userMessageLogDtosNoTest = Arrays.asList(uml1);
 
         new Expectations(backendNotificationService) {{
             uml1.getBackend(); result = backend;
@@ -603,10 +603,10 @@ public class BackendNotificationServiceTest {
     }
 
     @Test
-    public void testNotifyMessageDeletedEmptyList(@Injectable UserMessageLogDto uml1, @Injectable UserMessageLogDto uml2) {
+    public void testNotifyMessageDeletedEmptyList(@Injectable MessageDto uml1, @Injectable MessageDto uml2) {
 
         String backend = "ws";
-        List<UserMessageLogDto> userMessageLogDtos = Arrays.asList();
+        List<MessageDto> userMessageLogDtos = Arrays.asList();
 
         new Expectations(backendNotificationService) {{
             uml1.getBackend(); times = 0;
@@ -624,10 +624,10 @@ public class BackendNotificationServiceTest {
     }
 
     @Test
-    public void testNotifyMessageDeleted(@Injectable UserMessageLogDto uml1, @Injectable UserMessageLogDto uml2) {
+    public void testNotifyMessageDeleted(@Injectable MessageDto uml1, @Injectable MessageDto uml2) {
 
         String backend = "ws";
-        List<UserMessageLogDto> userMessageLogDtos = Arrays.asList(uml1, uml2);
+        List<MessageDto> userMessageLogDtos = Arrays.asList(uml1, uml2);
         List<String> messageIds = Arrays.asList("abc", "def");
 
         new Expectations(backendNotificationService) {{

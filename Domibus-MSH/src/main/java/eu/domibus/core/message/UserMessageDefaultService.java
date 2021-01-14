@@ -602,9 +602,9 @@ public class UserMessageDefaultService implements UserMessageService {
     @Transactional(propagation = Propagation.REQUIRED, timeout = 120)
     @Timer(clazz = DatabaseMessageHandler.class, value = "deleteMessages_oneBatch")
     @Counter(clazz = DatabaseMessageHandler.class, value = "deleteMessages_oneBatch")
-    public void deleteMessages(List<UserMessageLogDto> userMessageLogs) {
+    public void deleteMessages(List<MessageDto> userMessageLogs) {
 
-        List<String> userMessageIds = userMessageLogs.stream().map(userMessageLog -> userMessageLog.getMessageId()).collect(Collectors.toList());
+        List<String> userMessageIds = userMessageLogs.stream().map(userMessageLog -> userMessageLog.getUserMessageId()).collect(Collectors.toList());
 
         LOG.info("Deleting [{}] user messages", userMessageIds.size());
         LOG.trace("Deleting user messages [{}]", userMessageIds);

@@ -606,13 +606,13 @@ public class UserMessageDefaultServiceTest {
     }
 
     @Test
-    public void testDeleteMessages(@Injectable UserMessageLogDto uml1, @Injectable UserMessageLogDto uml2) {
-        List<UserMessageLogDto> userMessageLogDtos = Arrays.asList(uml1, uml2);
+    public void testDeleteMessages(@Injectable MessageDto uml1, @Injectable MessageDto uml2) {
+        List<MessageDto> userMessageLogDtos = Arrays.asList(uml1, uml2);
 
         userMessageDefaultService.deleteMessages(userMessageLogDtos);
 
         new Verifications() {{
-            backendNotificationService.notifyMessageDeleted((List<UserMessageLogDto>) any);
+            backendNotificationService.notifyMessageDeleted((List<MessageDto>) any);
         }};
     }
 

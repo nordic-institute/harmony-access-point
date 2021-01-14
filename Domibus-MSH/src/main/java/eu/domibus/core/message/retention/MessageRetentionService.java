@@ -1,5 +1,6 @@
 package eu.domibus.core.message.retention;
 
+import eu.domibus.core.message.MessageDto;
 import eu.domibus.core.message.UserMessageLog;
 import eu.domibus.core.message.UserMessageLogDto;
 import eu.domibus.ebms3.common.model.UserMessage;
@@ -23,9 +24,9 @@ public interface MessageRetentionService {
 
     void scheduleDeleteMessages(List<String> messageIds);
 
-    void scheduleDeleteMessagesByMessageLog(List<UserMessageLogDto> userMessageLogs);
+    void scheduleDeleteMessagesByMessageLog(List<MessageDto> userMessageLogs);
 
-    void deleteMessages(List<UserMessageLogDto> userMessageLogs, int maxBatch);
+    void deleteMessages(List<MessageDto> userMessageLogs, int maxBatch);
 
     void deletePayloadOnSendSuccess(UserMessage userMessage, UserMessageLog userMessageLog);
 

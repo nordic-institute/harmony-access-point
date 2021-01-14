@@ -151,13 +151,13 @@ public class BackendNotificationService {
         notifyOfIncoming(matchingBackendFilter, userMessage, notificationType, new HashMap<>());
     }
 
-    public void notifyMessageDeleted(List<UserMessageLogDto> userMessageLogs) {
+    public void notifyMessageDeleted(List<MessageDto> userMessageLogs) {
         if (CollectionUtils.isEmpty(userMessageLogs)) {
             LOG.warn("Empty notification list of userMessageLogs");
             return;
         }
 
-        final List<UserMessageLogDto> userMessageLogsToNotify = userMessageLogs.stream().filter(userMessageLog -> !userMessageLog.isTestMessage()).collect(Collectors.toList());
+        final List<MessageDto> userMessageLogsToNotify = userMessageLogs.stream().filter(userMessageLog -> !userMessageLog.isTestMessage()).collect(Collectors.toList());
 
         if(CollectionUtils.isEmpty(userMessageLogsToNotify)) {
             LOG.info("No more delete message notifications.");
@@ -182,8 +182,8 @@ public class BackendNotificationService {
     }
 
 
-    protected List<String> getAllMessageIdsForBackend (final List<UserMessageLogDto> userMessageLogs, String backend){
-        List<String> messageIds = userMessageLogs.stream().filter(userMessageLog -> userMessageLog.getBackend().equals(backend)).map(userMessageLog -> userMessageLog.getMessageId()).collect(Collectors.toList());
+    protected List<String> getAllMessageIdsForBackend (final List<MessageDto> userMessageLogs, String backend){
+        List<String> messageIds = userMessageLogs.stream().filter(userMessageLog -> userMessageLog.getBackend().equals(backend)).map(userMessageLog -> userMessageLog.getUserMessageId()).collect(Collectors.toList());
         LOG.debug("There are [{}] delete messages to notify for backend [{}]", messageIds.size(), backend);
         return messageIds;
     }

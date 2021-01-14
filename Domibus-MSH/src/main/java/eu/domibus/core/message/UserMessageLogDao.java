@@ -125,19 +125,19 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         }
     }
 
-    public List<UserMessageLogDto> getDeletedUserMessagesOlderThan(Date date, String mpc, Integer expiredDeletedMessagesLimit) {
+    public List<MessageDto> getDeletedUserMessagesOlderThan(Date date, String mpc, Integer expiredDeletedMessagesLimit) {
         return getMessagesOlderThan(date, mpc, expiredDeletedMessagesLimit, "UserMessageLog.findDeletedUserMessagesOlderThan");
     }
 
-    public List<UserMessageLogDto> getUndownloadedUserMessagesOlderThan(Date date, String mpc, Integer expiredNotDownloadedMessagesLimit) {
+    public List<MessageDto> getUndownloadedUserMessagesOlderThan(Date date, String mpc, Integer expiredNotDownloadedMessagesLimit) {
         return getMessagesOlderThan(date, mpc, expiredNotDownloadedMessagesLimit, "UserMessageLog.findUndownloadedUserMessagesOlderThan");
     }
 
-    public List<UserMessageLogDto> getDownloadedUserMessagesOlderThan(Date date, String mpc, Integer expiredDownloadedMessagesLimit) {
+    public List<MessageDto> getDownloadedUserMessagesOlderThan(Date date, String mpc, Integer expiredDownloadedMessagesLimit) {
         return getMessagesOlderThan(date, mpc, expiredDownloadedMessagesLimit, "UserMessageLog.findDownloadedUserMessagesOlderThan");
     }
 
-    public List<UserMessageLogDto> getSentUserMessagesOlderThan(Date date, String mpc, Integer expiredSentMessagesLimit, boolean isDeleteMessageMetadata) {
+    public List<MessageDto> getSentUserMessagesOlderThan(Date date, String mpc, Integer expiredSentMessagesLimit, boolean isDeleteMessageMetadata) {
         if(isDeleteMessageMetadata) {
             return getMessagesOlderThan(date, mpc, expiredSentMessagesLimit, "UserMessageLog.findSentUserMessagesOlderThan");
         }
@@ -145,12 +145,12 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         return getSentUserMessagesWithPayloadNotClearedOlderThan(date, mpc, expiredSentMessagesLimit);
     }
 
-    protected List<UserMessageLogDto> getSentUserMessagesWithPayloadNotClearedOlderThan(Date date, String mpc, Integer expiredSentMessagesLimit) {
+    protected List<MessageDto> getSentUserMessagesWithPayloadNotClearedOlderThan(Date date, String mpc, Integer expiredSentMessagesLimit) {
         return getMessagesOlderThan(date, mpc, expiredSentMessagesLimit, "UserMessageLog.findSentUserMessagesWithPayloadNotClearedOlderThan");
     }
 
-    private List<UserMessageLogDto> getMessagesOlderThan(Date startDate, String mpc, Integer expiredMessagesLimit, String queryName) {
-        TypedQuery<UserMessageLogDto> query = em.createNamedQuery(queryName, UserMessageLogDto.class);
+    private List<MessageDto> getMessagesOlderThan(Date startDate, String mpc, Integer expiredMessagesLimit, String queryName) {
+        TypedQuery<MessageDto> query = em.createNamedQuery(queryName, MessageDto.class);
         query.setParameter("DATE", startDate);
         query.setParameter("MPC", mpc);
         query.setMaxResults(expiredMessagesLimit);
@@ -240,6 +240,25 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     @Override
     public String findLastTestMessageId(String party) {
         return super.findLastTestMessageId(party, MessageType.USER_MESSAGE, MSHRole.SENDING);
+    }
+
+    public List<MessageDto> getExpired(Date date, String mpc, Integer expiredLimit) {
+
+        return getExpiredMessages(date, mpc, expiredLimit, "UserMessageLog.findExpired");
+    }
+
+    private List<MessageDto> getExpiredMessages(Date startDate, String mpc, Integer expiredMessagesLimit, String queryName) {
+        TypedQuery<MessageDto> query = em.createNamedQuery(queryName, MessageDto.class);
+        query.setParameter("DATE", startDate);
+        query.setParameter("MPC", mpc);
+        query.setMaxResults(expiredMessagesLimit);
+
+        try {
+            return query.getResultList();
+        } catch (NoResultException nrEx) {
+            LOG.debug("Query [{}] did not find any result for startDate [{}] startDate and MPC [{}]", queryName, startDate, mpc);
+            return Collections.emptyList();
+        }
     }
 
 }

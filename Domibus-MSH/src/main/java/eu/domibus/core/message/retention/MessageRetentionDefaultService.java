@@ -84,9 +84,29 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
         final Integer expiredPayloadDeletedMessagesLimit = getRetentionValue(DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_PAYLOAD_DELETED_MAX_DELETE);
 
         for (final String mpc : mpcs) {
-            deleteExpiredMessages(mpc, expiredDownloadedMessagesLimit, expiredNotDownloadedMessagesLimit, expiredSentMessagesLimit, expiredPayloadDeletedMessagesLimit);
+            //deleteExpiredMessages(mpc, expiredDownloadedMessagesLimit, expiredNotDownloadedMessagesLimit, expiredSentMessagesLimit, expiredPayloadDeletedMessagesLimit);
+            deleteExpired(mpc, expiredSentMessagesLimit);
         }
     }
+
+    protected void deleteExpired(String mpc, Integer expiredLimit) {
+        LOG.debug("Deleting expired sent messages for MPC [{}] using expiredSentMessagesLimit [{}]", mpc, expiredLimit);
+        final int messageRetentionSent = pModeProvider.getRetentionSentByMpcURI(mpc);
+
+        if (messageRetentionSent > -1) { // if -1 the messages will be kept indefinitely
+            LOG.trace("messageRetentionSent [{}]", messageRetentionSent);
+            final boolean isDeleteMessageMetadata = pModeProvider.isDeleteMessageMetadataByMpcURI(mpc);
+            List<MessageDto> expiredMessages = userMessageLogDao.getExpired(DateUtils.addMinutes(new Date(), messageRetentionSent * -1),
+                    mpc, expiredLimit);
+
+            if (CollectionUtils.isEmpty(expiredMessages)) {
+                LOG.debug("There are no expired sent messages.");
+                return;
+            }
+            expiredMessages.stream().forEach(messageDto -> LOG.info("[{}], [{}], [{}], [{}]", messageDto.getUserMessageId(), messageDto.getSignalMessageId(), messageDto.getReceiptId(), messageDto.getBackend()));
+        }
+    }
+
 
     @Override
     public void deleteExpiredMessages(String mpc, Integer expiredDownloadedMessagesLimit, Integer expiredNotDownloadedMessagesLimit, Integer expiredSentMessagesLimit, Integer expiredPayloadDeletedMessagesLimit) {
@@ -104,7 +124,7 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
         String fileLocation = domibusPropertyProvider.getProperty(DOMIBUS_ATTACHMENT_STORAGE_LOCATION);
         // If messageRetentionDownloaded is equal to -1, the messages will be kept indefinitely and, if 0 and no file system storage was used, they have already been deleted during download operation.
         if (messageRetentionDownloaded > 0 || (StringUtils.isNotEmpty(fileLocation) && messageRetentionDownloaded >= 0)) {
-            List<UserMessageLogDto> downloadedMessages = userMessageLogDao.getDownloadedUserMessagesOlderThan(DateUtils.addMinutes(new Date(), messageRetentionDownloaded * -1),
+            List<MessageDto> downloadedMessages = userMessageLogDao.getDownloadedUserMessagesOlderThan(DateUtils.addMinutes(new Date(), messageRetentionDownloaded * -1),
                     mpc, expiredDownloadedMessagesLimit);
             if (CollectionUtils.isEmpty(downloadedMessages)) {
                 LOG.debug("There are no expired downloaded messages.");
@@ -124,7 +144,7 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
         }
 
         LOG.debug("Deleting expired payload deleted messages for MPC [{}] using expiredPayloadDeletedMessagesLimit [{}]", mpc, expiredPayloadDeletedMessagesLimit);
-        final List<UserMessageLogDto> deletedMessages = userMessageLogDao.getDeletedUserMessagesOlderThan(DateUtils.addMinutes(new Date(), 1), // give 1 minute for the previous state
+        final List<MessageDto> deletedMessages = userMessageLogDao.getDeletedUserMessagesOlderThan(DateUtils.addMinutes(new Date(), 1), // give 1 minute for the previous state
                 mpc, expiredPayloadDeletedMessagesLimit);
         if (CollectionUtils.isEmpty(deletedMessages)) {
             LOG.debug("There are no expired payload deleted messages.");
@@ -140,7 +160,7 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
         LOG.debug("Deleting expired not-downloaded messages for MPC [{}] using expiredNotDownloadedMessagesLimit [{}]", mpc, expiredNotDownloadedMessagesLimit);
         final int messageRetentionNotDownloaded = pModeProvider.getRetentionUndownloadedByMpcURI(mpc);
         if (messageRetentionNotDownloaded > -1) { // if -1 the messages will be kept indefinitely and if 0, although it makes no sense, is legal
-            final List<UserMessageLogDto> notDownloadedMessages = userMessageLogDao.getUndownloadedUserMessagesOlderThan(DateUtils.addMinutes(new Date(), messageRetentionNotDownloaded * -1),
+            final List<MessageDto> notDownloadedMessages = userMessageLogDao.getUndownloadedUserMessagesOlderThan(DateUtils.addMinutes(new Date(), messageRetentionNotDownloaded * -1),
                     mpc, expiredNotDownloadedMessagesLimit);
             if (CollectionUtils.isEmpty(notDownloadedMessages)) {
                 LOG.debug("There are no expired not-downloaded messages.");
@@ -160,7 +180,7 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
         if (messageRetentionSent > -1) { // if -1 the messages will be kept indefinitely
             LOG.trace("messageRetentionSent [{}]", messageRetentionSent);
             final boolean isDeleteMessageMetadata = pModeProvider.isDeleteMessageMetadataByMpcURI(mpc);
-            List<UserMessageLogDto> sentMessages = userMessageLogDao.getSentUserMessagesOlderThan(DateUtils.addMinutes(new Date(), messageRetentionSent * -1),
+            List<MessageDto> sentMessages = userMessageLogDao.getSentUserMessagesOlderThan(DateUtils.addMinutes(new Date(), messageRetentionSent * -1),
                     mpc, expiredSentMessagesLimit, isDeleteMessageMetadata);
 
             if (CollectionUtils.isEmpty(sentMessages)) {
@@ -174,7 +194,7 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
         }
     }
 
-    public void deleteMessages(List<UserMessageLogDto> userMessageLogs, String mpc) {
+    public void deleteMessages(List<MessageDto> userMessageLogs, String mpc) {
         final boolean isDeleteMessageMetadata = pModeProvider.isDeleteMessageMetadataByMpcURI(mpc);
         LOG.trace("isDeleteMessageMetadata [{}]", isDeleteMessageMetadata);
         if (isDeleteMessageMetadata) { // delete in batch
@@ -189,9 +209,9 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
     }
 
     @Override
-    public void scheduleDeleteMessagesByMessageLog(List<UserMessageLogDto> userMessageLogs) {
+    public void scheduleDeleteMessagesByMessageLog(List<MessageDto> userMessageLogs) {
         List<String> messageIds = userMessageLogs.stream().map(userMessageLog ->
-                userMessageLog.getMessageId()).collect(Collectors.toList());
+                userMessageLog.getUserMessageId()).collect(Collectors.toList());
         scheduleDeleteMessages(messageIds);
     }
 
@@ -249,13 +269,13 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
     }
 
     @Override
-    public void deleteMessages(List<UserMessageLogDto> userMessageLogs, int maxBatch) {
+    public void deleteMessages(List<MessageDto> userMessageLogs, int maxBatch) {
         if (CollectionUtils.isEmpty(userMessageLogs)) {
             LOG.debug("No message to be deleted");
             return;
         }
 
-        List<UserMessageLogDto> userMessageLogsToDelete = new ArrayList<>(userMessageLogs);
+        List<MessageDto> userMessageLogsToDelete = new ArrayList<>(userMessageLogs);
 
         while (userMessageLogsToDelete.size() > 0) {
             LOG.debug("messageIds size is [{}]", userMessageLogsToDelete.size());
@@ -264,7 +284,7 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
                 LOG.debug("currentBatch [{}] is higher than maxBatch [{}]", currentBatch, maxBatch);
                 currentBatch = maxBatch;
             }
-            List<UserMessageLogDto> userMessageLogsBatch = userMessageLogsToDelete.stream().limit(currentBatch).collect(Collectors.toList());
+            List<MessageDto> userMessageLogsBatch = userMessageLogsToDelete.stream().limit(currentBatch).collect(Collectors.toList());
             userMessageLogsToDelete.removeAll(userMessageLogsBatch);
             LOG.debug("After removal messageIds size is [{}]", userMessageLogsToDelete.size());
             userMessageDefaultService.deleteMessages(userMessageLogsBatch);

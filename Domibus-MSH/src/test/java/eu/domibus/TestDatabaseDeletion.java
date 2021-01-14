@@ -65,10 +65,10 @@ public class TestDatabaseDeletion {
         @DependsOn("userTransactionService")
         public AtomikosDataSourceBean domibusXADatasource() throws SQLException {
             MysqlXADataSource mysqlXaDataSource = new MysqlXADataSource();
-            mysqlXaDataSource.setUrl("jdbc:mysql://localhost:3306/?pinGlobalTxToPhysicalConnection=true");
+            mysqlXaDataSource.setUrl("jdbc:mysql://localhost:3306/domibus_dev_c2?pinGlobalTxToPhysicalConnection=true");
             mysqlXaDataSource.setPinGlobalTxToPhysicalConnection(true);
-            mysqlXaDataSource.setPassword("domibus_dev_trader3");
-            mysqlXaDataSource.setUser("domibus_dev_trader3");
+            mysqlXaDataSource.setPassword("edelivery");
+            mysqlXaDataSource.setUser("edelivery");
 
 
             AtomikosDataSourceBean dataSource = new AtomikosDataSourceBean();
@@ -170,6 +170,7 @@ public class TestDatabaseDeletion {
         ApplicationContext ctx = new AnnotationConfigApplicationContext(TestDatabaseDeletionConfiguration.class,TomcatConfiguration.class);
         MessageDeletionService bean = ctx.getBean(MessageDeletionService.class);
 
+        //bean.deleteMessages();
 
        /* HelloWorld helloWorld = ctx.getBean(HelloWorld.class);
         helloWorld.setMessage("Hello World!");
