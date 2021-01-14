@@ -119,7 +119,7 @@ public class AuditPgTest extends SeleniumTest {
 		SoftAssert soft = new SoftAssert();
 		
 		String messID = rest.getMessageIDsWithStatus(null, "SEND_FAILURE").get(0);
-		log.info("Download message");
+		log.info("Download message " + messID);
 		rest.messages().downloadMessage(messID, null);
 		
 		

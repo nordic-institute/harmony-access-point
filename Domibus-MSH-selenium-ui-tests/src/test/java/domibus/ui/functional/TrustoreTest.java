@@ -128,7 +128,7 @@ public class TrustoreTest extends SeleniumTest {
 	}
 	
 	/*  This method will verify no uploading in case of expired truststore certificate  */
-	@Test(description = "TRST-15", groups = {"multiTenancy", "singleTenancy"} , enabled = false)
+	@Test(description = "TRST-15", groups = {"multiTenancy", "singleTenancy"} )
 	public void expiredCertificate() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
