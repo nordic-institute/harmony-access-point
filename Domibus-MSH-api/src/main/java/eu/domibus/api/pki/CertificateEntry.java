@@ -1,4 +1,4 @@
-package eu.domibus.core.crypto.api;
+package eu.domibus.api.pki;
 
 import java.security.cert.X509Certificate;
 

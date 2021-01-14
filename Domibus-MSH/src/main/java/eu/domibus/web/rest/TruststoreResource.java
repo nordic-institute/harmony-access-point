@@ -3,16 +3,16 @@ package eu.domibus.web.rest;
 import com.google.common.collect.ImmutableMap;
 import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.exceptions.RequestValidationException;
+import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.CertificateService;
+import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.api.validators.SkipWhiteListed;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.crypto.MultiDomainCryptoServiceImpl;
-//import eu.domibus.core.crypto.TLSMultiDomainCryptoServiceImpl;
-import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.ErrorRO;
 import eu.domibus.web.rest.ro.TrustStoreRO;
@@ -86,7 +86,10 @@ public class TruststoreResource extends BaseResource {
         replaceTruststore(multiDomainCertificateProvider, truststoreFile, password);
 
         // trigger update certificate table
-        certificateService.saveCertificateAndLogRevocation(domainProvider.getCurrentDomain());
+        Domain currentDomain = domainProvider.getCurrentDomain();
+        final KeyStore trustStore = multiDomainCertificateProvider.getTrustStore(currentDomain);
+        final KeyStore keyStore = multiDomainCertificateProvider.getKeyStore(currentDomain);
+        certificateService.saveCertificateAndLogRevocation(trustStore, keyStore);
 
         return "Truststore file has been successfully replaced.";
     }
@@ -164,8 +167,8 @@ public class TruststoreResource extends BaseResource {
     }
 
     protected ResponseEntity<ByteArrayResource> downloadTruststoreContent(MultiDomainCryptoService multiDomainCertificateProvider, Runnable auditMethod) {
-//        byte[] content = multiDomainCertificateProvider.getTruststoreContent(domainProvider.getCurrentDomain());
-        byte[] content =null;
+//        byte[] content = certificateService.getTruststoreContent(domainProvider.getCurrentDomain());
+        byte[] content = null;
         ByteArrayResource resource = new ByteArrayResource(content);
 
         HttpStatus status = HttpStatus.OK;

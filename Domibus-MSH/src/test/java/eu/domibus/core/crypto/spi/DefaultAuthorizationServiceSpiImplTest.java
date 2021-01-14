@@ -214,46 +214,46 @@ public class DefaultAuthorizationServiceSpiImplTest {
     }
 
 
-    @Test
-    public void authorizeAgainstTruststoreAliasTestOK() throws KeyStoreException {
-        X509Certificate signingCertificate = loadCertificateFromJKSFile(RESOURCE_PATH + TEST_KEYSTORE, ALIAS_CN_AVAILABLE, TEST_KEYSTORE_PASSWORD);
-        new Expectations() {{
-            domibusPropertyProvider.getBooleanProperty(DOMIBUS_SENDER_TRUST_VALIDATION_TRUSTSTORE_ALIAS);
-            result = true;
-            certificateService.getPartyX509CertificateFromTruststore(ALIAS_CN_AVAILABLE);
-            result = loadCertificateFromJKSFile(RESOURCE_PATH + TEST_TRUSTSTORE, ALIAS_CN_AVAILABLE, TEST_KEYSTORE_PASSWORD);
-        }};
-
-        defaultAuthorizationServiceSpi.authorizeAgainstTruststoreAlias(signingCertificate, ALIAS_CN_AVAILABLE);
-    }
-
-
-    @Test
-    public void authorizeAgainstTruststoreAliasTestNullTruststore() throws KeyStoreException {
-        X509Certificate signingCertificate = loadCertificateFromJKSFile(RESOURCE_PATH + TEST_KEYSTORE, ALIAS_CN_AVAILABLE, TEST_KEYSTORE_PASSWORD);
-        new Expectations() {{
-            domibusPropertyProvider.getBooleanProperty(DOMIBUS_SENDER_TRUST_VALIDATION_TRUSTSTORE_ALIAS);
-            result = true;
-            certificateService.getPartyX509CertificateFromTruststore(ALIAS_CN_AVAILABLE);
-            result = null;
-        }};
-
-        defaultAuthorizationServiceSpi.authorizeAgainstTruststoreAlias(signingCertificate, ALIAS_CN_AVAILABLE);
-    }
+//    @Test
+//    public void authorizeAgainstTruststoreAliasTestOK() throws KeyStoreException {
+//        X509Certificate signingCertificate = loadCertificateFromJKSFile(RESOURCE_PATH + TEST_KEYSTORE, ALIAS_CN_AVAILABLE, TEST_KEYSTORE_PASSWORD);
+//        new Expectations() {{
+//            domibusPropertyProvider.getBooleanProperty(DOMIBUS_SENDER_TRUST_VALIDATION_TRUSTSTORE_ALIAS);
+//            result = true;
+//            certificateService.getPartyX509CertificateFromTruststore(ALIAS_CN_AVAILABLE);
+//            result = loadCertificateFromJKSFile(RESOURCE_PATH + TEST_TRUSTSTORE, ALIAS_CN_AVAILABLE, TEST_KEYSTORE_PASSWORD);
+//        }};
+//
+//        defaultAuthorizationServiceSpi.authorizeAgainstTruststoreAlias(signingCertificate, ALIAS_CN_AVAILABLE);
+//    }
 
 
-    @Test(expected = AuthorizationException.class)
-    public void authorizeAgainstTruststoreAliasTestNotOK() throws KeyStoreException {
-        X509Certificate signingCertificate = loadCertificateFromJKSFile(RESOURCE_PATH + TEST_KEYSTORE, ALIAS_TEST_AUTH, TEST_KEYSTORE_PASSWORD);
-        new Expectations() {{
-            domibusPropertyProvider.getBooleanProperty(DOMIBUS_SENDER_TRUST_VALIDATION_TRUSTSTORE_ALIAS);
-            result = true;
-            certificateService.getPartyX509CertificateFromTruststore(ALIAS_CN_AVAILABLE);
-            result = loadCertificateFromJKSFile(RESOURCE_PATH + TEST_TRUSTSTORE, ALIAS_CN_AVAILABLE, TEST_KEYSTORE_PASSWORD);
-        }};
-
-        defaultAuthorizationServiceSpi.authorizeAgainstTruststoreAlias(signingCertificate, ALIAS_CN_AVAILABLE);
-    }
+//    @Test
+//    public void authorizeAgainstTruststoreAliasTestNullTruststore() throws KeyStoreException {
+//        X509Certificate signingCertificate = loadCertificateFromJKSFile(RESOURCE_PATH + TEST_KEYSTORE, ALIAS_CN_AVAILABLE, TEST_KEYSTORE_PASSWORD);
+//        new Expectations() {{
+//            domibusPropertyProvider.getBooleanProperty(DOMIBUS_SENDER_TRUST_VALIDATION_TRUSTSTORE_ALIAS);
+//            result = true;
+//            certificateService.getPartyX509CertificateFromTruststore(ALIAS_CN_AVAILABLE);
+//            result = null;
+//        }};
+//
+//        defaultAuthorizationServiceSpi.authorizeAgainstTruststoreAlias(signingCertificate, ALIAS_CN_AVAILABLE);
+//    }
+//
+//
+//    @Test(expected = AuthorizationException.class)
+//    public void authorizeAgainstTruststoreAliasTestNotOK() throws KeyStoreException {
+//        X509Certificate signingCertificate = loadCertificateFromJKSFile(RESOURCE_PATH + TEST_KEYSTORE, ALIAS_TEST_AUTH, TEST_KEYSTORE_PASSWORD);
+//        new Expectations() {{
+//            domibusPropertyProvider.getBooleanProperty(DOMIBUS_SENDER_TRUST_VALIDATION_TRUSTSTORE_ALIAS);
+//            result = true;
+//            certificateService.getPartyX509CertificateFromTruststore(ALIAS_CN_AVAILABLE);
+//            result = loadCertificateFromJKSFile(RESOURCE_PATH + TEST_TRUSTSTORE, ALIAS_CN_AVAILABLE, TEST_KEYSTORE_PASSWORD);
+//        }};
+//
+//        defaultAuthorizationServiceSpi.authorizeAgainstTruststoreAlias(signingCertificate, ALIAS_CN_AVAILABLE);
+//    }
 
     @Test
     public void doAuthorizeTest() throws KeyStoreException {

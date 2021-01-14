@@ -1,7 +1,6 @@
 package eu.domibus.core.certificate;
 
 import com.google.common.collect.Lists;
-import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.DomibusCertificateException;
@@ -12,8 +11,8 @@ import eu.domibus.core.alerts.configuration.certificate.expired.ExpiredCertifica
 import eu.domibus.core.alerts.configuration.certificate.imminent.ImminentExpirationCertificateConfigurationManager;
 import eu.domibus.core.alerts.configuration.certificate.imminent.ImminentExpirationCertificateModuleConfiguration;
 import eu.domibus.core.alerts.service.EventService;
-import eu.domibus.core.alerts.service.AlertConfigurationService;
-import eu.domibus.core.crypto.api.MultiDomainCryptoService;
+import eu.domibus.core.certificate.crl.CRLService;
+import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -77,9 +76,6 @@ public class CertificateServiceImpl implements CertificateService {
 
     @Autowired
     private CertificateDao certificateDao;
-
-    @Autowired
-    private AlertConfigurationService alertConfigurationService;
 
     @Autowired
     private EventService eventService;
@@ -206,9 +202,7 @@ public class CertificateServiceImpl implements CertificateService {
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void saveCertificateAndLogRevocation(final Domain currentDomain) {
-        final KeyStore trustStore = multiDomainCertificateProvider.getTrustStore(currentDomain);
-        final KeyStore keyStore = multiDomainCertificateProvider.getKeyStore(currentDomain);
+    public void saveCertificateAndLogRevocation(final KeyStore trustStore, final KeyStore keyStore) {
         saveCertificateData(trustStore, keyStore);
         logCertificateRevocationWarning();
     }
@@ -526,17 +520,16 @@ public class CertificateServiceImpl implements CertificateService {
         return createTrustStoreEntry(null, cert);
     }
 
-    public TrustStoreEntry getPartyCertificateFromTruststore(String partyName) throws KeyStoreException {
-        X509Certificate cert = multiDomainCertificateProvider.getCertificateFromTruststore(domainProvider.getCurrentDomain(), partyName);
-        LOG.debug("get certificate from truststore for [{}] = [{}] ", partyName, cert);
-        return createTrustStoreEntry(partyName, cert);
+    public TrustStoreEntry createTrustStoreEntry(X509Certificate cert, String alias) throws KeyStoreException {
+        LOG.debug("Create TrustStore Entry for [{}] = [{}] ", alias, cert);
+        return createTrustStoreEntry(alias, cert);
     }
 
-    public X509Certificate getPartyX509CertificateFromTruststore(String partyName) throws KeyStoreException {
-        X509Certificate cert = multiDomainCertificateProvider.getCertificateFromTruststore(domainProvider.getCurrentDomain(), partyName);
-        LOG.debug("get certificate from truststore for [{}] = [{}] ", partyName, cert);
-        return cert;
-    }
+//    public X509Certificate getPartyX509CertificateFromTruststore(String partyName) throws KeyStoreException {
+//        X509Certificate cert = multiDomainCertificateProvider.getCertificateFromTruststore(domainProvider.getCurrentDomain(), partyName);
+//        LOG.debug("get certificate from truststore for [{}] = [{}] ", partyName, cert);
+//        return cert;
+//    }
 
     private TrustStoreEntry createTrustStoreEntry(String alias, final X509Certificate certificate) {
         if (certificate == null)

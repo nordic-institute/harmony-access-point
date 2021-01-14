@@ -41,16 +41,16 @@ public class SaveCertificateAndLogRevocationJobTest {
     private DatabaseUtil databaseUtil;
 
 
-    @Test
-    public void executeJob(@Mocked JobExecutionContext context, @Mocked Domain domain) {
-
-        saveCertificateAndLogRevocationJob.executeJob(context, domain);
-
-        new FullVerifications() {{
-            certificateService.saveCertificateAndLogRevocation(domain);
-            certificateService.sendCertificateAlerts();
-        }};
-    }
+//    @Test
+//    public void executeJob(@Mocked JobExecutionContext context, @Mocked Domain domain) {
+//
+//        saveCertificateAndLogRevocationJob.executeJob(context, domain);
+//
+//        new FullVerifications() {{
+//            certificateService.saveCertificateAndLogRevocation(domain);
+//            certificateService.sendCertificateAlerts();
+//        }};
+//    }
 
     @Test
     public void setQuartzJobSecurityContext() {

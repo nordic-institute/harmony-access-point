@@ -12,7 +12,7 @@ import eu.domibus.core.alerts.configuration.certificate.imminent.ImminentExpirat
 import eu.domibus.core.alerts.configuration.certificate.imminent.ImminentExpirationCertificateModuleConfiguration;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.alerts.service.AlertConfigurationService;
-import eu.domibus.core.crypto.api.MultiDomainCryptoService;
+import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.core.certificate.crl.CRLService;
@@ -328,7 +328,8 @@ public class CertificateServiceImplTest {
             result = trustStore;
         }};
 
-        certificateService.saveCertificateAndLogRevocation(currentDomain);
+        certificateService.saveCertificateAndLogRevocation(trustStore, keyStore);
+
         new Verifications() {{
             certificateService.saveCertificateData(trustStore, keyStore);
             times = 1;

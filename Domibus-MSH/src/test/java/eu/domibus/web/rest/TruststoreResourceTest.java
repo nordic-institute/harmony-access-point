@@ -6,13 +6,12 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.pki.CertificateService;
+import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.crypto.MultiDomainCryptoServiceImpl;
-//import eu.domibus.core.crypto.TLSMultiDomainCryptoServiceImpl;
-import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.TrustStoreRO;
@@ -21,7 +20,6 @@ import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -315,14 +313,13 @@ public class TruststoreResourceTest {
             domainProvider.getCurrentDomain();
             result = domain;
             truststoreResource.replaceTruststore(multiDomainCertificateProvider, truststoreFile, pass);
-            certificateService.saveCertificateAndLogRevocation(domain);
+            Domain currentDomain = domainProvider.getCurrentDomain();
+            final KeyStore trustStore = multiDomainCertificateProvider.getTrustStore(currentDomain);
+            final KeyStore keyStore = multiDomainCertificateProvider.getKeyStore(currentDomain);
+            certificateService.saveCertificateAndLogRevocation(trustStore, keyStore);
         }};
 
         String response = truststoreResource.uploadTruststoreFile(truststoreFile, pass);
-
-        new Verifications() {{
-            certificateService.saveCertificateAndLogRevocation(domain);
-        }};
 
         Assert.assertEquals("Truststore file has been successfully replaced.", response);
     }

@@ -2,10 +2,12 @@ package eu.domibus.web.rest;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.party.Party;
 import eu.domibus.api.party.PartyService;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.DomibusCertificateException;
+import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.core.converter.DomainCoreConverter;
@@ -17,12 +19,14 @@ import eu.domibus.web.rest.ro.PartyFilterRequestRO;
 import eu.domibus.web.rest.ro.TrustStoreRO;
 import eu.domibus.web.rest.ro.ValidationResponseRO;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.security.KeyStoreException;
+import java.security.cert.X509Certificate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -45,13 +49,21 @@ public class PartyResource extends BaseResource {
 
     private CertificateService certificateService;
 
-    PModeValidationHelper pModeValidationHelper;
+    private PModeValidationHelper pModeValidationHelper;
 
-    public PartyResource(DomainCoreConverter domainConverter, PartyService partyService, CertificateService certificateService, PModeValidationHelper pModeValidationHelper) {
+    private MultiDomainCryptoService multiDomainCertificateProvider;
+
+    private DomainContextProvider domainProvider;
+
+    public PartyResource(DomainCoreConverter domainConverter, PartyService partyService, CertificateService certificateService,
+                         PModeValidationHelper pModeValidationHelper, MultiDomainCryptoService multiDomainCertificateProvider,
+                         DomainContextProvider domainProvider) {
         this.domainConverter = domainConverter;
         this.partyService = partyService;
         this.certificateService = certificateService;
         this.pModeValidationHelper = pModeValidationHelper;
+        this.multiDomainCertificateProvider = multiDomainCertificateProvider;
+        this.domainProvider = domainProvider;
     }
 
     @GetMapping(value = {"/list"})
@@ -227,11 +239,12 @@ public class PartyResource extends BaseResource {
     @GetMapping(value = "/{partyName}/certificate")
     public ResponseEntity<TrustStoreRO> getCertificateForParty(@PathVariable(name = "partyName") String partyName) {
         try {
-            TrustStoreEntry cert = certificateService.getPartyCertificateFromTruststore(partyName);
-            if (cert == null) {
+            X509Certificate cert = multiDomainCertificateProvider.getCertificateFromTruststore(domainProvider.getCurrentDomain(), partyName);
+            TrustStoreEntry entry = certificateService.createTrustStoreEntry(cert, partyName);
+            if (entry == null) {
                 return ResponseEntity.notFound().build();
             }
-            TrustStoreRO res = domainConverter.convert(cert, TrustStoreRO.class);
+            TrustStoreRO res = domainConverter.convert(entry, TrustStoreRO.class);
             return ResponseEntity.ok(res);
         } catch (KeyStoreException e) {
             LOG.error("Failed to get certificate from truststore", e);
