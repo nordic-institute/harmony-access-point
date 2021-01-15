@@ -9,6 +9,7 @@ import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
 import eu.domibus.core.replication.UIMessageDao;
+import eu.domibus.ebms3.common.model.MessageInfo;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.hibernate.*;
@@ -140,10 +141,18 @@ public class MessageDeletionService {
             ScrollableResults results = query.scroll(ScrollMode.FORWARD_ONLY);
             Query deleteQuery = statelessSession.createQuery("delete from MessageInfo mi where mi.messageId=:MESSAGEID");
 
+            Query selectQuery = statelessSession.createQuery("select messageInfo from MessageInfo messageInfo where messageInfo.messageId=:MESSAGEID");
+
             while (results.next()) {
 
-                deleteQuery.setParameter( "MESSAGEID", ((MessageDto)results.get(0)).getUserMessageId() )
-                .executeUpdate();
+                MessageInfo mi = (MessageInfo)selectQuery.setParameter( "MESSAGEID", ((MessageDto)results.get(0)).getUserMessageId() )
+                        .getSingleResult();
+                LOG.info("messageInfo [{}]", mi.getMessageId());
+
+                statelessSession.delete(mi);
+
+//                deleteQuery.setParameter( "MESSAGEID", ((MessageDto)results.get(0)).getUserMessageId() )
+//                .executeUpdate();
             }
             txn.commit();
             LOG.info("Execution time: [{}]", System.currentTimeMillis()-start);
