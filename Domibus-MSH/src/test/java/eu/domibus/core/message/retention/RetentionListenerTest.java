@@ -45,9 +45,6 @@ public class RetentionListenerTest {
     @Injectable
     DomibusPropertyProvider domibusPropertyProvider;
 
-    @Injectable
-    JsonUtil jsonUtil;
-
     @Mocked
     private Message message;
 
@@ -68,25 +65,6 @@ public class RetentionListenerTest {
         new Verifications() {{
             domainContextProvider.setCurrentDomain(anyString);
             userMessageDefaultService.deleteMessage(messageId);
-        }};
-    }
-
-    @Test
-    public void onMessage_deletesMessageMulti(@Mocked DomibusLogger domibusLogger, @Mocked List<UserMessageLog> userMessageLogs) throws JMSException {
-
-        String userMessageLogsStr = "someUserMessageLogs";
-        new Expectations() {{
-            message.getStringProperty(MessageRetentionDefaultService.DELETE_TYPE); result = MessageDeleteType.MULTI.name();
-            message.getStringProperty(MessageRetentionDefaultService.MESSAGE_LOGS); result = userMessageLogsStr;
-        }};
-
-        // When
-        retentionListener.onMessagePrivate(message);
-
-        // Then
-        new Verifications() {{
-            jsonUtil.jsonToList(anyString, (Type) any);
-            userMessageDefaultService.deleteMessages((List<UserMessageLogDto>)any);
         }};
     }
 

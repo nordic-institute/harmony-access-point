@@ -2,28 +2,20 @@ package eu.domibus.core.message.retention;
 
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
-import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.JsonUtil;
-import eu.domibus.core.message.MessagingDao;
-import eu.domibus.core.message.UserMessageLog;
-import eu.domibus.core.message.UserMessageLogDao;
-import eu.domibus.core.message.UserMessageLogDto;
+import eu.domibus.core.message.*;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.ebms3.common.model.MessageInfo;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.messaging.MessageConstants;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
-import org.apache.commons.collections.CollectionUtils;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import javax.jms.MapMessage;
 import javax.jms.Queue;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -65,6 +57,9 @@ public class MessageRetentionServiceTest {
     @Injectable
     private JsonUtil jsonUtil;
 
+    @Injectable
+    private UserMessageDefaultService userMessageDefaultService;
+
     @Tested
     MessageRetentionDefaultService messageRetentionService;
 
@@ -103,7 +98,7 @@ public class MessageRetentionServiceTest {
             messageRetentionService.deleteMessages(expiredMessages, maxBatch);
         }};
 
-        messageRetentionService.scheduleDeleteMessages(expiredMessages, mpc1);
+        messageRetentionService.deleteMessages(expiredMessages, mpc1);
     }
 
     @Test
@@ -115,7 +110,7 @@ public class MessageRetentionServiceTest {
             messageRetentionService.scheduleDeleteMessagesByMessageLog(expiredMessages);
         }};
 
-        messageRetentionService.scheduleDeleteMessages(expiredMessages, mpc1);
+        messageRetentionService.deleteMessages(expiredMessages, mpc1);
     }
 
     @Test
@@ -164,7 +159,7 @@ public class MessageRetentionServiceTest {
             userMessageLogDao.getDownloadedUserMessagesOlderThan((Date)any, mpc1, expiredDownloadedMessagesLimit);
             result = expiredMessages;
 
-            messageRetentionService.scheduleDeleteMessages((List<UserMessageLogDto>)any, mpc1); times = 1;
+            messageRetentionService.deleteMessages((List<UserMessageLogDto>)any, mpc1); times = 1;
 
         }};
 
@@ -182,7 +177,7 @@ public class MessageRetentionServiceTest {
             userMessageLogDao.getUndownloadedUserMessagesOlderThan((Date)any, mpc1, expiredNotDownloadedMessagesLimit);
             result = expiredMessages;
 
-            messageRetentionService.scheduleDeleteMessages((List<UserMessageLogDto>)any, mpc1); times = 1;
+            messageRetentionService.deleteMessages((List<UserMessageLogDto>)any, mpc1); times = 1;
         }};
 
         messageRetentionService.deleteExpiredNotDownloadedMessages(mpc1, expiredNotDownloadedMessagesLimit);
@@ -201,7 +196,7 @@ public class MessageRetentionServiceTest {
             userMessageLogDao.getSentUserMessagesOlderThan((Date)any, mpc1, expiredSentMessagesLimit, true);
             result = expiredMessages;
 
-            messageRetentionService.scheduleDeleteMessages((List<UserMessageLogDto>)any, mpc1); times = 1;
+            messageRetentionService.deleteMessages((List<UserMessageLogDto>)any, mpc1); times = 1;
         }};
 
         messageRetentionService.deleteExpiredSentMessages(mpc1, expiredSentMessagesLimit);
@@ -367,7 +362,7 @@ public class MessageRetentionServiceTest {
             result = expiredMessages;
             pModeProvider.isDeleteMessageMetadataByMpcURI(anyString);
             result = true;
-            messageRetentionService.scheduleDeleteMessages(expiredMessages, mpc1); times = 1;
+            messageRetentionService.deleteMessages(expiredMessages, mpc1); times = 1;
         }};
 
         messageRetentionService.deleteExpiredPayloadDeletedMessages(mpc1, messagesDeleteLimit);
@@ -383,7 +378,7 @@ public class MessageRetentionServiceTest {
         new Expectations(messageRetentionService) {{
             pModeProvider.isDeleteMessageMetadataByMpcURI(anyString);
             result = false;
-            messageRetentionService.scheduleDeleteMessages(expiredMessages, mpc1); times = 0;
+            messageRetentionService.deleteMessages(expiredMessages, mpc1); times = 0;
         }};
 
         messageRetentionService.deleteExpiredPayloadDeletedMessages(mpc1, messagesDeleteLimit);

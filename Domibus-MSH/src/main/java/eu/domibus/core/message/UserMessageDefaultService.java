@@ -599,7 +599,9 @@ public class UserMessageDefaultService implements UserMessageService {
         userMessageLogService.setSignalMessageAsDeleted(messaging.getSignalMessage());
     }
 
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(propagation = Propagation.REQUIRED, timeout = 120)
+    @Timer(clazz = DatabaseMessageHandler.class, value = "deleteMessages_oneBatch")
+    @Counter(clazz = DatabaseMessageHandler.class, value = "deleteMessages_oneBatch")
     public void deleteMessages(List<UserMessageLogDto> userMessageLogs) {
 
         List<String> userMessageIds = userMessageLogs.stream().map(userMessageLog -> userMessageLog.getMessageId()).collect(Collectors.toList());
