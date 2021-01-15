@@ -115,7 +115,7 @@ public class TestDatabaseDeletion {
              */
 
             LocalContainerEntityManagerFactoryBean localContainerEntityManagerFactoryBean = new LocalContainerEntityManagerFactoryBean();
-            localContainerEntityManagerFactoryBean.setPackagesToScan("eu.domibus");
+            //localContainerEntityManagerFactoryBean.setPackagesToScan("eu.domibus");
             localContainerEntityManagerFactoryBean.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
             localContainerEntityManagerFactoryBean.setJpaProperties(jpaProperties);
             localContainerEntityManagerFactoryBean.setDataSource(domibusXADatasource());
