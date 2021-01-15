@@ -3,6 +3,7 @@ package eu.domibus.core.crypto;
 import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.pki.CertificateEntry;
+import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.core.cache.DomibusCacheService;
@@ -39,6 +40,9 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
 
     @Autowired
     private DomibusCacheService domibusCacheService;
+
+    @Autowired
+    protected CertificateService certificateService;
 
     @Override
     public X509Certificate[] getX509Certificates(Domain domain, CryptoType cryptoType) throws WSSecurityException {
@@ -104,27 +108,25 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     @Override
     public void replaceTrustStore(Domain domain, String storeFileName, byte[] store, String password) throws CryptoException {
         final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
-
-        validateTruststoreType(domainCertificateProvider.getTrustStoreType(), storeFileName);
-
+        certificateService.validateTruststoreType(domainCertificateProvider.getTrustStoreType(), storeFileName);
         domainCertificateProvider.replaceTrustStore(store, password);
         domibusCacheService.clearCache("certValidationByAlias");
     }
 
-    protected void validateTruststoreType(String storeType, String storeFileName) {
-        String fileType = FilenameUtils.getExtension(storeFileName).toLowerCase();
-        switch (storeType.toLowerCase()) {
-            case "pkcs12":
-                if (Arrays.asList("p12", "pfx").contains(fileType)) {
-                    return;
-                }
-            case "jks":
-                if (Arrays.asList("jks").contains(fileType)) {
-                    return;
-                }
-        }
-        throw new InvalidParameterException("Store file type (" + fileType + ") should match the configured truststore type (" + storeType + ").");
-    }
+//    protected void validateTruststoreType(String storeType, String storeFileName) {
+//        String fileType = FilenameUtils.getExtension(storeFileName).toLowerCase();
+//        switch (storeType.toLowerCase()) {
+//            case "pkcs12":
+//                if (Arrays.asList("p12", "pfx").contains(fileType)) {
+//                    return;
+//                }
+//            case "jks":
+//                if (Arrays.asList("jks").contains(fileType)) {
+//                    return;
+//                }
+//        }
+//        throw new InvalidParameterException("Store file type (" + fileType + ") should match the configured truststore type (" + storeType + ").");
+//    }
 
     @Override
     public KeyStore getKeyStore(Domain domain) {

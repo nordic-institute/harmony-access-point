@@ -2,6 +2,7 @@ package eu.domibus.web.rest;
 
 import com.google.common.collect.ImmutableMap;
 import eu.domibus.api.crypto.CryptoException;
+import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.CertificateService;
@@ -74,7 +75,7 @@ public class TruststoreResource extends BaseResource {
     @PostMapping(value = "/save")
     public String uploadTruststoreFile(@RequestPart("file") MultipartFile truststoreFile,
                                        @SkipWhiteListed @RequestParam("password") String password) throws IllegalArgumentException {
-        replaceTruststore(multiDomainCertificateProvider, truststoreFile, password);
+        replaceTruststore(truststoreFile, password);
 
         // trigger update certificate table
         Domain currentDomain = domainProvider.getCurrentDomain();
@@ -100,14 +101,14 @@ public class TruststoreResource extends BaseResource {
         return getEntriesAsCSV("truststore");
     }
 
-    protected void replaceTruststore(MultiDomainCryptoService certificateProvider, MultipartFile truststoreFile, String password) {
+    protected void replaceTruststore(MultipartFile truststoreFile, String password) {
         byte[] truststoreFileContent = multiPartFileUtil.validateAndGetFileContent(truststoreFile);
 
         if (StringUtils.isBlank(password)) {
-            throw new IllegalArgumentException(ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD);
+            throw new RequestValidationException(ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD);
         }
 
-        certificateProvider.replaceTrustStore(domainProvider.getCurrentDomain(), truststoreFile.getOriginalFilename(), truststoreFileContent, password);
+        multiDomainCertificateProvider.replaceTrustStore(domainProvider.getCurrentDomain(), truststoreFile.getOriginalFilename(), truststoreFileContent, password);
     }
 
     protected ResponseEntity<ByteArrayResource> downloadTruststoreContent(Runnable auditMethod) {

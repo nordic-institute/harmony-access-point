@@ -127,12 +127,20 @@ public interface CertificateService {
     void replaceTrustStore(String fileName, byte[] fileContent, String filePassword,
                            String trustType, String trustLocation, String trustPassword) throws CryptoException;
 
+    void replaceTrustStore(byte[] fileContent, String filePassword,
+                           String trustType, String trustLocation, String trustPassword) throws CryptoException;
+
     KeyStore getTrustStore(String trustStoreLocation, String trustStorePassword);
 
     List<TrustStoreEntry> getTrustStoreEntries(String trustStoreLocation, String trustStorePassword);
 
     boolean addCertificate(String password, String trustStoreLocation, byte[] certificateContent, String alias, boolean overwrite);
 
+    boolean addCertificate(String password, String trustStoreLocation, X509Certificate certificate, String alias, boolean overwrite);
+
     boolean removeCertificate(String password, String trustStoreLocation, String alias);
 
+    void validateTruststoreType(String trustStoreType, String storeFileName);
+
+    void persistTrustStore(KeyStore truststore, String password, String trustStoreLocation) throws CryptoException;
 }

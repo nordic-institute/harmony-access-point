@@ -547,9 +547,13 @@ public class CertificateServiceImpl implements CertificateService {
     @Override
     public synchronized void replaceTrustStore(String fileName, byte[] fileContent, String filePassword,
                                                String trustType, String trustLocation, String trustPassword) {
-        LOG.debug("Replacing the existing trust store file [{}] with the provided one.", trustLocation);
-
         validateTruststoreType(trustType, fileName);
+        replaceTrustStore(fileContent, filePassword, trustType, trustLocation, trustPassword);
+    }
+
+    @Override
+    public void replaceTrustStore(byte[] fileContent, String filePassword, String trustType, String trustLocation, String trustPassword) throws CryptoException {
+        LOG.debug("Replacing the existing trust store file [{}] with the provided one.", trustLocation);
 
         KeyStore truststore = loadTrustStore(fileContent, filePassword);
         ByteArrayOutputStream oldTrustStoreBytes = new ByteArrayOutputStream();
@@ -599,6 +603,11 @@ public class CertificateServiceImpl implements CertificateService {
     @Override
     public synchronized boolean addCertificate(String password, String trustStoreLocation, byte[] certificateContent, String alias, boolean overwrite) {
         X509Certificate certificate = loadCertificateFromString(new String(certificateContent));
+        return addCertificate(password, trustStoreLocation, certificate, alias, overwrite);
+    }
+
+    @Override
+    public boolean addCertificate(String password, String trustStoreLocation, X509Certificate certificate, String alias, boolean overwrite) {
         KeyStore truststore = getTrustStore(trustStoreLocation, password);
         boolean added = doAddCertificate(truststore, certificate, alias, overwrite);
         if (added) {
@@ -656,7 +665,7 @@ public class CertificateServiceImpl implements CertificateService {
         }
     }
 
-    protected void validateTruststoreType(String storeType, String storeFileName) {
+    public void validateTruststoreType(String storeType, String storeFileName) {
         String fileType = FilenameUtils.getExtension(storeFileName).toLowerCase();
         switch (storeType.toLowerCase()) {
             case "pkcs12":
@@ -695,7 +704,7 @@ public class CertificateServiceImpl implements CertificateService {
         return truststore;
     }
 
-    private synchronized void persistTrustStore(KeyStore truststore, String password, String trustStoreLocation) throws CryptoException {
+    public synchronized void persistTrustStore(KeyStore truststore, String password, String trustStoreLocation) throws CryptoException {
         String trustStoreFileValue = trustStoreLocation;
         LOG.debug("TrustStoreLocation is: [{}]", trustStoreFileValue);
         File trustStoreFile = new File(trustStoreFileValue);

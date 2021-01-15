@@ -107,7 +107,7 @@ public class TLSTruststoreResource extends BaseResource {
         byte[] truststoreFileContent = multiPartFileUtil.validateAndGetFileContent(truststoreFile);
 
         if (StringUtils.isBlank(password)) {
-            throw new IllegalArgumentException(ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD);
+            throw new RequestValidationException(ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD);
         }
 
         tlsCertificateManager.replaceTrustStore(truststoreFile.getOriginalFilename(), truststoreFileContent, password);
