@@ -88,7 +88,7 @@ public class TruststoreResource extends BaseResource {
     }
 
     @GetMapping(value = "/truststore/download", produces = "application/octet-stream")
-    public ResponseEntity<ByteArrayResource> downloadTrustStore() throws IOException {
+    public ResponseEntity<ByteArrayResource> downloadTrustStore() {
         return downloadTruststoreContent(() -> auditService.addTruststoreDownloadedAudit());
     }
 
@@ -113,8 +113,8 @@ public class TruststoreResource extends BaseResource {
     }
 
     protected ResponseEntity<ByteArrayResource> downloadTruststoreContent(Runnable auditMethod) {
-//        byte[] content = multiDomainCertificateProvider.getTruststoreContent
-        byte[] content = null;
+        Domain currentDomain = domainProvider.getCurrentDomain();
+        byte[] content = multiDomainCertificateProvider.getTruststoreContent(currentDomain);
         ByteArrayResource resource = new ByteArrayResource(content);
 
         HttpStatus status = HttpStatus.OK;

@@ -213,4 +213,10 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
 
         domainCertificateProvider.reset();
     }
+
+    @Override
+    public byte[] getTruststoreContent(Domain domain) {
+        final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
+        return domainCertificateProvider.getTruststoreContent();
+    }
 }
