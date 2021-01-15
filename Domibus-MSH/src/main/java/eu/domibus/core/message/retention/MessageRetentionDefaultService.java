@@ -84,8 +84,8 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
         final Integer expiredPayloadDeletedMessagesLimit = getRetentionValue(DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_PAYLOAD_DELETED_MAX_DELETE);
 
         for (final String mpc : mpcs) {
-            //deleteExpiredMessages(mpc, expiredDownloadedMessagesLimit, expiredNotDownloadedMessagesLimit, expiredSentMessagesLimit, expiredPayloadDeletedMessagesLimit);
-            deleteExpired(mpc, expiredSentMessagesLimit);
+            deleteExpiredMessages(mpc, expiredDownloadedMessagesLimit, expiredNotDownloadedMessagesLimit, expiredSentMessagesLimit, expiredPayloadDeletedMessagesLimit);
+            //deleteExpired(mpc, expiredSentMessagesLimit);
         }
     }
 

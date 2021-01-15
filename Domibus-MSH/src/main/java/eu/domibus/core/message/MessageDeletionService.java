@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -112,6 +113,12 @@ public class MessageDeletionService {
        // backendNotificationService.notifyMessageDeleted(userMessageLogs);
     }
     public void execute() {
+
+        Date startDate = new Date(System.currentTimeMillis());
+        String mpc = "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPC";
+        Integer expiredDownloadedMessagesLimit = 10000;
+
+
         StatelessSession statelessSession = null;
         Transaction txn = null;
         ScrollableResults scrollableResults = null;
@@ -120,17 +127,26 @@ public class MessageDeletionService {
             statelessSession = sessionFactory.openStatelessSession();
             statelessSession.setJdbcBatchSize(100);
             txn = statelessSession.getTransaction();
+            long start = System.currentTimeMillis();
             txn.begin();
             Query query = statelessSession
-                    .createNamedQuery("SELECT a FROM Address a WHERE .... ORDER BY a.id");
+                    .createNamedQuery("UserMessageLog.findSentUserMessagesOlderThan");
+            query.setParameter("DATE", startDate);
+            query.setParameter("MPC", mpc);
+            query.setMaxResults(expiredDownloadedMessagesLimit);
             query.setFetchSize(1000);
             query.setReadOnly(true);
             query.setLockMode("a", LockMode.NONE);
             ScrollableResults results = query.scroll(ScrollMode.FORWARD_ONLY);
+            Query deleteQuery = statelessSession.createQuery("delete from MessageInfo mi where mi.messageId=:MESSAGEID");
+
             while (results.next()) {
 
-                // Do stuff
+                deleteQuery.setParameter( "MESSAGEID", ((MessageDto)results.get(0)).getUserMessageId() )
+                .executeUpdate();
             }
+            txn.commit();
+            LOG.info("Execution time: [{}]", System.currentTimeMillis()-start);
 
 
         } catch (RuntimeException e) {

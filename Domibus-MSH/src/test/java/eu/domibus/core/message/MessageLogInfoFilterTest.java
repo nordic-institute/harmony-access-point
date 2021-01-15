@@ -119,9 +119,9 @@ public class MessageLogInfoFilterTest {
         Assert.assertTrue(filterQueryString.contains("log.messageStatus asc"));
     }
 
-    @Test
-    public void testApplyParameters() {
-        TypedQuery<MessageLogInfo> typedQuery = spy(TypedQuery.class);
-        TypedQuery<MessageLogInfo> messageLogInfoTypedQuery = messageLogInfoFilter.applyParameters(typedQuery, returnFilters());
-    }
+//    @Test
+//    public void testApplyParameters() {
+//        TypedQuery<MessageLogInfo> typedQuery = spy(TypedQuery.class);
+//        TypedQuery<MessageLogInfo> messageLogInfoTypedQuery = messageLogInfoFilter.applyParameters(typedQuery, returnFilters());
+//    }
 }

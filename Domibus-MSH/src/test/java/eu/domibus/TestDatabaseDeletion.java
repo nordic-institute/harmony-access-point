@@ -11,12 +11,19 @@ import eu.domibus.core.jpa.DomibusJPAConfiguration;
 import eu.domibus.core.message.*;
 import eu.domibus.core.message.acknowledge.MessageAcknowledgementDao;
 import eu.domibus.core.message.attempt.MessageAttemptDao;
+import eu.domibus.core.message.retention.MessageRetentionDefaultService;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.replication.UIMessageDao;
 import eu.domibus.core.replication.UIMessageDaoImpl;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
+import net.ttddyy.dsproxy.listener.logging.SLF4JLogLevel;
+import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
 import org.hibernate.cfg.Environment;
 import org.mockito.Mockito;
+import org.springframework.cglib.proxy.MethodInterceptor;
+import org.springframework.cglib.proxy.MethodProxy;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -25,7 +32,12 @@ import org.springframework.context.annotation.DependsOn;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 
+import javax.sql.DataSource;
+import javax.sql.XADataSource;
+import java.lang.reflect.Method;
 import java.sql.SQLException;
+import java.util.Date;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -33,6 +45,8 @@ import java.util.Properties;
  * @since 4.2
  */
 public class TestDatabaseDeletion {
+
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TestDatabaseDeletion.class);
 
     @Configuration
     public static class TomcatConfiguration{
@@ -61,11 +75,11 @@ public class TestDatabaseDeletion {
 
 
 
-        @Bean(name = DomibusJPAConfiguration.DOMIBUS_JDBC_XA_DATA_SOURCE, initMethod = "init", destroyMethod = "close")
+        @Bean(name = DomibusJPAConfiguration.DOMIBUS_JDBC_XA_DATA_SOURCE)
         @DependsOn("userTransactionService")
-        public AtomikosDataSourceBean domibusXADatasource() throws SQLException {
+        public DataSource domibusXADatasource() throws SQLException {
             MysqlXADataSource mysqlXaDataSource = new MysqlXADataSource();
-            mysqlXaDataSource.setUrl("jdbc:mysql://localhost:3306/domibus_dev_c2?pinGlobalTxToPhysicalConnection=true");
+            mysqlXaDataSource.setUrl("jdbc:mysql://localhost:3306/domibus_dev_c2t?pinGlobalTxToPhysicalConnection=true");
             mysqlXaDataSource.setPinGlobalTxToPhysicalConnection(true);
             mysqlXaDataSource.setPassword("edelivery");
             mysqlXaDataSource.setUser("edelivery");
@@ -74,14 +88,14 @@ public class TestDatabaseDeletion {
             AtomikosDataSourceBean dataSource = new AtomikosDataSourceBean();
             dataSource.setUniqueResourceName("domibusJDBC-XA");
             dataSource.setXaDataSource(mysqlXaDataSource);
-            return dataSource;
+            return ProxyDataSourceBuilder.create(dataSource).logQueryBySlf4j(SLF4JLogLevel.INFO).build();
         }
 
 
         @Bean
         public LocalContainerEntityManagerFactoryBean domibusJTA() throws SQLException {
             Properties jpaProperties = new Properties();
-            jpaProperties.put("hibernate.hbm2ddl.auto","update");
+            //jpaProperties.put("hibernate.hbm2ddl.auto","update");
             jpaProperties.put("hibernate.show_sql","true");
             jpaProperties.put("hibernate.format_sql","true");
             jpaProperties.put("hibernate.id.new_generator_mappings","false");
@@ -169,6 +183,23 @@ public class TestDatabaseDeletion {
     public static void main(String[] args) {
         ApplicationContext ctx = new AnnotationConfigApplicationContext(TestDatabaseDeletionConfiguration.class,TomcatConfiguration.class);
         MessageDeletionService bean = ctx.getBean(MessageDeletionService.class);
+        bean.execute();
+
+
+
+//        UserMessageLogDao userMessageLogDao = ctx.getBean(UserMessageLogDao.class);
+//
+//        Date currentDate = new Date(System.currentTimeMillis());
+//        String mpc = "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPC";
+//        Integer expiredDownloadedMessagesLimit = 10000;
+//
+//        long now = System.currentTimeMillis();
+//        List<MessageDto> expiredMessages = userMessageLogDao.getSentUserMessagesOlderThan(currentDate, mpc, expiredDownloadedMessagesLimit, true);
+//        long delay = System.currentTimeMillis() - now;
+//
+//        LOG.info("getDownloadedUserMessagesOlderThan [{}]", delay);
+//
+//        expiredMessages.stream().forEach(messageDto -> LOG.info("[{}], [{}], [{}], [{}]", messageDto.getUserMessageId(), messageDto.getSignalMessageId(), messageDto.getReceiptId(), messageDto.getBackend()));
 
         //bean.deleteMessages();
 
@@ -176,4 +207,18 @@ public class TestDatabaseDeletion {
         helloWorld.setMessage("Hello World!");
         helloWorld.getMessage();*/
     }
+
+//    private static class ProxyDataSourceInterceptor implements MethodInterceptor {
+//        private final DataSource dataSource;
+//        public ProxyDataSourceInterceptor(final DataSource dataSource) {
+//            this.dataSource = ProxyDataSourceBuilder.create(dataSource)
+//                    .name("Batch-Insert-Logger")
+//                    .asJson().countQuery().logQueryToSysOut().build();
+//        }
+//
+//        Object intercept(Object var1, Method var2, Object[] var3, MethodProxy var4) throws Throwable {
+//
+//        };
+//        // Other methods...
+//    }
 }
