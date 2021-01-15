@@ -26,7 +26,7 @@ import static org.junit.Assert.assertTrue;
  * @since 4.2
  */
 @RunWith(JMockit.class)
-public class Ebms3UserMessagePriorityEbms3ServiceImplTest {
+public class UserMessagePriorityEbms3ServiceImplTest {
 
     @Tested
     UserMessagePriorityServiceImpl userMessagePriorityService;

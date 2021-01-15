@@ -22,7 +22,7 @@ import static org.junit.Assert.assertTrue;
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(JMockit.class)
-public class Ebms3UserMessageLogDefaultServiceTest {
+public class UserMessageLogDefaultServiceTest {
 
     @Tested
     UserMessageLogDefaultService userMessageLogDefaultService;

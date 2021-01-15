@@ -16,7 +16,6 @@ import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.ErrorCode;
-import eu.domibus.common.MessageStatus;
 import eu.domibus.common.model.configuration.*;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.generator.id.MessageIdGenerator;
@@ -81,7 +80,7 @@ import static org.junit.Assert.*;
  */
 @SuppressWarnings({"ResultOfMethodCallIgnored", "ConstantConditions"})
 @RunWith(JMockit.class)
-public class Ebms3UserMessageHandlerServiceImplTest {
+public class UserMessageHandlerServiceImplTest {
 
     @Tested
     UserMessageHandlerServiceImpl userMessageHandlerService;
@@ -202,7 +201,7 @@ public class Ebms3UserMessageHandlerServiceImplTest {
         Property aProperty = new Property();
         aProperty.setValue(value);
         aProperty.setName(name);
-        aProperty.setType(Ebms3UserMessageHandlerServiceImplTest.STRING_TYPE);
+        aProperty.setType(UserMessageHandlerServiceImplTest.STRING_TYPE);
         return aProperty;
     }
 

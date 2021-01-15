@@ -2,10 +2,10 @@ package eu.domibus.core.alerts.service;
 
 import com.google.common.collect.Lists;
 import eu.domibus.api.jms.JMSManager;
+import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.server.ServerInfoService;
 import eu.domibus.api.util.DateUtil;
-import eu.domibus.common.MessageStatus;
 import eu.domibus.core.alerts.configuration.AlertModuleConfiguration;
 import eu.domibus.core.alerts.configuration.common.CommonConfigurationManager;
 import eu.domibus.core.alerts.dao.AlertDao;

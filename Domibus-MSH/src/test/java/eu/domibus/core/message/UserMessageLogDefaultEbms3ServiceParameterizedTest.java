@@ -26,7 +26,7 @@ import java.util.Collection;
  * @since 4.0
  */
 @RunWith(Parameterized.class)
-public class Ebms3UserMessageLogDefaultEbms3ServiceParameterizedTest {
+public class UserMessageLogDefaultEbms3ServiceParameterizedTest {
 
     @Tested
     private UserMessageLogDefaultService userMessageLogDefaultService;

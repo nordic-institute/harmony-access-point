@@ -55,7 +55,7 @@ import static org.junit.Assert.assertNotNull;
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(JMockit.class)
-public class Ebms3UserMessageDefaultEbms3ServiceTest {
+public class UserMessageDefaultServiceTest {
 
     private static final long SYSTEM_DATE = new Date().getTime();
     public static final String MESSAGE_ID = "1000";

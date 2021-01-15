@@ -17,7 +17,7 @@ import static eu.domibus.core.message.pull.MessagingLockDaoImpl.LOCK_BY_ID_QUERY
 import static org.junit.Assert.*;
 
 @RunWith(JMockit.class)
-public class Ebms3MessagingLockDaoImplTest {
+public class MessagingLockDaoImplTest {
 
 
     @Injectable

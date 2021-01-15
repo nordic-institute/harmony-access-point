@@ -14,7 +14,7 @@ import org.junit.runner.RunWith;
  * @since 3.3
  */
 @RunWith(JMockit.class)
-public class Ebms3UserMessageSecurityDefaultServiceTest {
+public class UserMessageSecurityDefaultServiceTest {
 
     @Tested
     UserMessageSecurityDefaultService userMessageSecurityDefaultService;

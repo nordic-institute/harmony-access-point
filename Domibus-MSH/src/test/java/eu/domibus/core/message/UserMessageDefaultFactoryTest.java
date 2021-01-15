@@ -17,7 +17,7 @@ import java.util.Set;
 import java.util.UUID;
 
 @RunWith(JMockit.class)
-public class Ebms3UserMessageDefaultFactoryTest {
+public class UserMessageDefaultFactoryTest {
 
     @Tested
     UserMessageDefaultFactory userMessageDefaultFactory;
