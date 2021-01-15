@@ -3,9 +3,6 @@ package eu.domibus.web.rest;
 import com.google.common.collect.ImmutableMap;
 import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.exceptions.RequestValidationException;
-import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.api.pki.CertificateService;
-import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.api.validators.SkipWhiteListed;
@@ -34,32 +31,25 @@ import java.util.List;
  * @since 3.3
  */
 @RestController
-@RequestMapping(value = "/rest")
+@RequestMapping(value = "/rest/tlstruststore")
 public class TLSTruststoreResource extends BaseResource {
 
     public static final String ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD = "Failed to upload the truststoreFile file since its password was empty."; //NOSONAR
 
-    private TLSCertificateManager tlsCertificateManager;
+    private final TLSCertificateManager tlsCertificateManager;
 
-    private DomainContextProvider domainProvider;
+    private final DomainCoreConverter domainConverter;
 
-    private CertificateService certificateService;
+    private final ErrorHandlerService errorHandlerService;
 
-    private DomainCoreConverter domainConverter;
+    private final MultiPartFileUtil multiPartFileUtil;
 
-    private ErrorHandlerService errorHandlerService;
-
-    private MultiPartFileUtil multiPartFileUtil;
-
-    private AuditService auditService;
+    private final AuditService auditService;
 
     public TLSTruststoreResource(TLSCertificateManager tlsCertificateManager,
-                                 DomainContextProvider domainProvider, CertificateService certificateService,
                                  DomainCoreConverter domainConverter, ErrorHandlerService errorHandlerService,
                                  MultiPartFileUtil multiPartFileUtil, AuditService auditService) {
         this.tlsCertificateManager = tlsCertificateManager;
-        this.domainProvider = domainProvider;
-        this.certificateService = certificateService;
         this.domainConverter = domainConverter;
         this.errorHandlerService = errorHandlerService;
         this.multiPartFileUtil = multiPartFileUtil;
@@ -71,31 +61,29 @@ public class TLSTruststoreResource extends BaseResource {
         return errorHandlerService.createResponse(ex, HttpStatus.BAD_REQUEST);
     }
 
-    @PostMapping(value = "/tlstruststore")
+    @PostMapping(value = "")
     public String uploadTLSTruststoreFile(@RequestPart("file") MultipartFile truststoreFile,
                                           @SkipWhiteListed @RequestParam("password") String password) throws RequestValidationException {
         replaceTruststore(tlsCertificateManager, truststoreFile, password);
         return "TLS truststore file has been successfully replaced.";
     }
 
-    @GetMapping(value = "/tlstruststore", produces = "application/octet-stream")
+    @GetMapping(value = "", produces = "application/octet-stream")
     public ResponseEntity<ByteArrayResource> downloadTLSTrustStore() {
-        return null;
-//        return downloadTruststoreContent(tlsMultiDomainCertificateProvider, () -> auditService.addTLSTruststoreDownloadedAudit());
+        return downloadTruststoreContent(() -> auditService.addTLSTruststoreDownloadedAudit());
     }
 
-    @GetMapping(value = {"/tlstruststore/entries"})
+    @GetMapping(value = {"/entries"})
     public List<TrustStoreRO> getTLSTruststoreEntries() {
-        return getTrustStoreEntries(tlsCertificateManager);
+        return getTrustStoreEntries();
     }
 
-    @GetMapping(path = "/tlstruststore/entries/csv")
+    @GetMapping(path = "/entries/csv")
     public ResponseEntity<String> getTLSEntriesAsCsv() {
-        return null;
-//        return getEntriesAsCSV(tlsMultiDomainCertificateProvider, "tlsTruststore");
+        return getEntriesAsCSV("tlsTruststore");
     }
 
-    @PostMapping(value = "/tlstruststore/entries")
+    @PostMapping(value = "/entries")
     public String addTLSCertificate(@RequestPart("file") MultipartFile certificateFile,
                                     @RequestParam("alias") @Valid @NotNull String alias) throws RequestValidationException {
         byte[] fileContent = multiPartFileUtil.validateAndGetFileContent(certificateFile);
@@ -109,7 +97,7 @@ public class TLSTruststoreResource extends BaseResource {
         return "Certificate [" + alias + "] has been successfully added to the TLS truststore.";
     }
 
-    @DeleteMapping(value = "/tlstruststore/entries/{alias:.+}")
+    @DeleteMapping(value = "/entries/{alias:.+}")
     public String removeTLSCertificate(@PathVariable String alias) throws RequestValidationException {
         tlsCertificateManager.removeCertificate(alias);
         return "Certificate [" + alias + "] has been successfully removed from the TLS truststore.";
@@ -142,14 +130,13 @@ public class TLSTruststoreResource extends BaseResource {
                 .body(resource);
     }
 
-    protected List<TrustStoreRO> getTrustStoreEntries(TLSCertificateManager tlsCertificateManager) {
+    protected List<TrustStoreRO> getTrustStoreEntries() {
         List<TrustStoreEntry> trustStoreEntries = tlsCertificateManager.getTrustStoreEntries();
         return domainConverter.convert(trustStoreEntries, TrustStoreRO.class);
     }
 
-    protected ResponseEntity<String> getEntriesAsCSV(MultiDomainCryptoService cryptoService, String moduleName) {
-//        final List<TrustStoreRO> entries = getTrustStoreEntries(cryptoService);
-        final List<TrustStoreRO> entries = null;
+    protected ResponseEntity<String> getEntriesAsCSV(String moduleName) {
+        final List<TrustStoreRO> entries = getTrustStoreEntries();
         getCsvService().validateMaxRows(entries.size());
 
         return exportToCSV(entries,

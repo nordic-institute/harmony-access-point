@@ -602,7 +602,7 @@ public class CertificateServiceImpl implements CertificateService {
         KeyStore truststore = getTrustStore(trustStoreLocation, password);
         boolean added = doAddCertificate(truststore, certificate, alias, overwrite);
         if (added) {
-            persistTrustStore(truststore, trustStoreLocation, password);
+            persistTrustStore(truststore, password, trustStoreLocation);
         }
         return added;
     }

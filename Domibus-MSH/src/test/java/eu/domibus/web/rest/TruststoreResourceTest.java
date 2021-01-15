@@ -184,12 +184,12 @@ public class TruststoreResourceTest {
     }
 
     @Test
-    public void testGetCsv(@Injectable MultiDomainCryptoService cryptoService, @Mocked String moduleName) {
+    public void testGetCsv(@Mocked String moduleName) {
         // Given
         Date date = new Date();
         List<TrustStoreRO> trustStoreROList = getTestTrustStoreROList(date);
         new Expectations(truststoreResource) {{
-            truststoreResource.getTrustStoreEntries(cryptoService);
+            truststoreResource.getTrustStoreEntries();
             result = trustStoreROList;
 
             csvServiceImpl.exportToCSV(trustStoreROList, null, (Map<String, String>) any, (List<String>) any);
@@ -198,7 +198,7 @@ public class TruststoreResourceTest {
         }};
 
         // When
-        final ResponseEntity<String> csv = truststoreResource.getEntriesAsCSV(cryptoService, moduleName);
+        final ResponseEntity<String> csv = truststoreResource.getEntriesAsCSV(moduleName);
 
         // Then
         Assert.assertEquals(HttpStatus.OK, csv.getStatusCode());
@@ -208,19 +208,19 @@ public class TruststoreResourceTest {
     }
 
     @Test(expected = RequestValidationException.class)
-    public void testGetCsv_validationExeption(@Injectable MultiDomainCryptoService cryptoService) {
+    public void testGetCsv_validationExeption() {
         // Given
         Date date = new Date();
         List<TrustStoreRO> trustStoreROList = getTestTrustStoreROList2(date);
         new Expectations(truststoreResource) {{
-            truststoreResource.getTrustStoreEntries(cryptoService);
+            truststoreResource.getTrustStoreEntries();
             result = trustStoreROList;
             csvServiceImpl.validateMaxRows(trustStoreROList.size());
             result = new RequestValidationException("");
         }};
 
         // When
-        final ResponseEntity<String> csv = truststoreResource.getEntriesAsCSV(cryptoService, "truststore");
+        final ResponseEntity<String> csv = truststoreResource.getEntriesAsCSV("truststore");
     }
 
     @Test
@@ -300,7 +300,7 @@ public class TruststoreResourceTest {
             result = entries;
         }};
 
-        List<TrustStoreRO> res = truststoreResource.getTrustStoreEntries(multiDomainCertificateProvider);
+        List<TrustStoreRO> res = truststoreResource.getTrustStoreEntries();
 
         Assert.assertEquals(entries, res);
     }
