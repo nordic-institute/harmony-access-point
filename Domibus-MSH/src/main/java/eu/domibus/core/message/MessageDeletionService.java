@@ -138,13 +138,11 @@ public class MessageDeletionService {
             query.setReadOnly(true);
             query.setLockMode("a", LockMode.NONE);
             ScrollableResults results = query.scroll(ScrollMode.FORWARD_ONLY);
-            //Query deleteQuery = statelessSession.createQuery("delete from MessageInfo mi where mi.messageId=:MESSAGEID");
-
-            final javax.persistence.Query delQuery = em.createQuery("delete from MessageInfo mi where mi.messageId=:MESSAGEID");
+            Query deleteQuery = statelessSession.createQuery("delete from MessageInfo mi where mi.messageId=:MESSAGEID");
 
             while (results.next()) {
 
-                delQuery.setParameter( "MESSAGEID", ((MessageDto)results.get(0)).getUserMessageId() )
+                deleteQuery.setParameter( "MESSAGEID", ((MessageDto)results.get(0)).getUserMessageId() )
                 .executeUpdate();
             }
             txn.commit();
