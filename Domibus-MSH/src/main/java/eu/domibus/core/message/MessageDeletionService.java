@@ -11,10 +11,15 @@ import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
 import eu.domibus.core.replication.UIMessageDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.hibernate.*;
+import org.hibernate.query.Query;
+import org.hibernate.resource.transaction.spi.TransactionStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -52,6 +57,9 @@ public class MessageDeletionService {
 
     @Autowired
     private MessageAcknowledgementDao messageAcknowledgementDao;
+
+    @PersistenceContext(unitName = "domibusJTA")
+    protected EntityManager em;
 
     @Transactional(propagation = Propagation.REQUIRED, timeout = 120)
     @Timer(clazz = DatabaseMessageHandler.class, value = "deleteMessages_oneBatch")
@@ -103,4 +111,39 @@ public class MessageDeletionService {
 
        // backendNotificationService.notifyMessageDeleted(userMessageLogs);
     }
+    public void execute() {
+        StatelessSession statelessSession = null;
+        Transaction txn = null;
+        ScrollableResults scrollableResults = null;
+        try {
+            SessionFactory sessionFactory = ((Session) em.getDelegate()).getSessionFactory();
+            statelessSession = sessionFactory.openStatelessSession();
+            statelessSession.setJdbcBatchSize(100);
+            txn = statelessSession.getTransaction();
+            txn.begin();
+            Query query = statelessSession
+                    .createNamedQuery("SELECT a FROM Address a WHERE .... ORDER BY a.id");
+            query.setFetchSize(1000);
+            query.setReadOnly(true);
+            query.setLockMode("a", LockMode.NONE);
+            ScrollableResults results = query.scroll(ScrollMode.FORWARD_ONLY);
+            while (results.next()) {
+
+                // Do stuff
+            }
+
+
+        } catch (RuntimeException e) {
+            if (txn != null && txn.getStatus() == TransactionStatus.ACTIVE) txn.rollback();
+            throw e;
+        } finally {
+            if (scrollableResults != null) {
+                scrollableResults.close();
+            }
+            if (statelessSession != null) {
+                statelessSession.close();
+            }
+        }
+    }
+
 }
