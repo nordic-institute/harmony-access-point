@@ -54,7 +54,6 @@ import java.security.cert.X509Certificate;
 import java.util.*;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_CERTIFICATE_REVOCATION_OFFSET;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SECURITY_TRUSTSTORE_LOCATION;
 import static eu.domibus.logging.DomibusMessageCode.SEC_CERTIFICATE_REVOKED;
 import static eu.domibus.logging.DomibusMessageCode.SEC_CERTIFICATE_SOON_REVOKED;
 
@@ -519,11 +518,18 @@ public class CertificateServiceImpl implements CertificateService {
 
     //  todo: it is not generic, depends on location
     @Override
-    public byte[] getTruststoreContent() throws IOException {
-        String location = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_LOCATION);
-        File file = new File(location);
+    public byte[] getTruststoreContent(String location) {
+        File file = createFileWithLocation(location);
         Path path = Paths.get(file.getAbsolutePath());
-        return Files.readAllBytes(path);
+        try {
+            return Files.readAllBytes(path);
+        } catch (IOException e) {
+            throw new DomibusCertificateException("Could not read truststore from [" + location + "]");
+        }
+    }
+
+    protected File createFileWithLocation(String location) {
+        return new File(location);
     }
 
     @Override

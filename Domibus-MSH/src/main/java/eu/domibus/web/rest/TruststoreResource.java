@@ -112,8 +112,9 @@ public class TruststoreResource extends BaseResource {
         certificateProvider.replaceTrustStore(domainProvider.getCurrentDomain(), truststoreFile.getOriginalFilename(), truststoreFileContent, password);
     }
 
-    protected ResponseEntity<ByteArrayResource> downloadTruststoreContent(Runnable auditMethod) throws IOException {
-        byte[] content = certificateService.getTruststoreContent();
+    protected ResponseEntity<ByteArrayResource> downloadTruststoreContent(Runnable auditMethod) {
+//        byte[] content = multiDomainCertificateProvider.getTruststoreContent
+        byte[] content = null;
         ByteArrayResource resource = new ByteArrayResource(content);
 
         HttpStatus status = HttpStatus.OK;

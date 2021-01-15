@@ -125,7 +125,7 @@ public class TLSTruststoreResource extends BaseResource {
         tlsCertificateManager.replaceTrustStore(truststoreFile.getOriginalFilename(), truststoreFileContent, password);
     }
 
-    protected ResponseEntity<ByteArrayResource> downloadTruststoreContent(MultiDomainCryptoService multiDomainCertificateProvider, Runnable auditMethod) {
+    protected ResponseEntity<ByteArrayResource> downloadTruststoreContent(Runnable auditMethod) {
         byte[] content = tlsCertificateManager.getTruststoreContent();
         ByteArrayResource resource = new ByteArrayResource(content);
 

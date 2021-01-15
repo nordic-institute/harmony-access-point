@@ -5,7 +5,6 @@ import eu.domibus.api.security.TrustStoreEntry;
 
 import javax.naming.InvalidNameException;
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.cert.Certificate;
@@ -123,7 +122,7 @@ public interface CertificateService {
      */
     TrustStoreEntry convertCertificateContent(String certificateContent);
 
-    byte[] getTruststoreContent() throws IOException;
+    byte[] getTruststoreContent(String location);
 
     void replaceTrustStore(String fileName, byte[] fileContent, String filePassword,
                            String trustType, String trustLocation, String trustPassword) throws CryptoException;

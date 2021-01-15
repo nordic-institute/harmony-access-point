@@ -12,7 +12,6 @@ import org.apache.cxf.configuration.security.TLSClientParametersType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.List;
 
 @Service
@@ -48,7 +47,9 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
 
     @Override
     public byte[] getTruststoreContent() {
-        return new byte[0];
+        KeyStoreType trustParams = getTruststoreParams();
+        String trustStoreLocation = trustParams.getFile();
+        return certificateService.getTruststoreContent(trustStoreLocation);
     }
 
     @Override
