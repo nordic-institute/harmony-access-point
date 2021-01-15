@@ -80,6 +80,7 @@ public class RetentionListenerTest {
 
     }
 
+
     @Test
     public void onMessage_addsAuthentication(@Mocked DomibusLogger domibusLogger)  throws JMSException {
         // Given

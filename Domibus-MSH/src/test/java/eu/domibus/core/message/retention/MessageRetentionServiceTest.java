@@ -2,25 +2,20 @@ package eu.domibus.core.message.retention;
 
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
-import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.JsonUtil;
 import eu.domibus.core.message.*;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.ebms3.common.model.MessageInfo;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.messaging.MessageConstants;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
-import org.apache.commons.collections.CollectionUtils;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import javax.jms.MapMessage;
 import javax.jms.Queue;
 import java.util.ArrayList;
 import java.util.Arrays;
