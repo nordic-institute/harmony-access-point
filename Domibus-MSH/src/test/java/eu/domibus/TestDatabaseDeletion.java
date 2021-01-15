@@ -105,14 +105,7 @@ public class TestDatabaseDeletion {
             jpaProperties.put("hibernate.order_updates","true");
             jpaProperties.put("hibernate.jdbc.batch_versioned_data","true");
             jpaProperties.put("hibernate.jdbc.batch_size","25");
-            /**
-             * #Connector/J 8.0.x
-             * #domibus.entityManagerFactory.jpaProperty.hibernate.connection.driver_class=com.mysql.cj.jdbc.MysqlXADataSource
-             * #Connector/J 5.4.x (deprecated)
-             * #domibus.entityManagerFactory.jpaProperty.hibernate.connection.driver_class=com.mysql.jdbc.jdbc2.optional.MysqlXADataSource
-             * #domibus.entityManagerFactory.jpaProperty.hibernate.dialect=org.hibernate.dialect.MySQL5InnoDBDialect
-             * #domibus.entityManagerFactory.jpaProperty.hibernate.id.new_generator_mappings=false
-             */
+
 
             LocalContainerEntityManagerFactoryBean localContainerEntityManagerFactoryBean = new LocalContainerEntityManagerFactoryBean();
             localContainerEntityManagerFactoryBean.setPackagesToScan("eu.domibus");

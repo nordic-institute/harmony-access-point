@@ -119,12 +119,12 @@ public class MessageDeletionService {
         Integer expiredDownloadedMessagesLimit = 10000;
 
 
-        StatelessSession statelessSession = null;
+        Session statelessSession = null;
         Transaction txn = null;
         ScrollableResults scrollableResults = null;
         try {
             SessionFactory sessionFactory = ((Session) em.getDelegate()).getSessionFactory();
-            statelessSession = sessionFactory.openStatelessSession();
+            statelessSession = sessionFactory.openSession();
             //statelessSession.setJdbcBatchSize(100);
             txn = statelessSession.getTransaction();
             long start = System.currentTimeMillis();
