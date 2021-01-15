@@ -19,7 +19,7 @@ public interface TLSCertificateManager {
 
     List<TrustStoreEntry> getTrustStoreEntries();
 
-    byte[] getTruststoreContent() throws IOException;
+    byte[] getTruststoreContent() ;
 
     boolean addCertificate(byte[] certificateData, final String alias);
 

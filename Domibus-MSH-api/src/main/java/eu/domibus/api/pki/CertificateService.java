@@ -129,4 +129,11 @@ public interface CertificateService {
                            String trustType, String trustLocation, String trustPassword) throws CryptoException;
 
     KeyStore getTrustStore(String trustStoreLocation, String trustStorePassword);
+
+    List<TrustStoreEntry> getTrustStoreEntries(String trustStoreLocation, String trustStorePassword);
+
+    boolean addCertificate(String password, String trustStoreLocation, byte[] certificateContent, String alias, boolean overwrite);
+
+    boolean removeCertificate(String password, String trustStoreLocation, String alias);
+
 }

@@ -16,7 +16,7 @@ import eu.domibus.core.alerts.configuration.certificate.imminent.ImminentExpirat
 import eu.domibus.core.alerts.configuration.certificate.imminent.ImminentExpirationCertificateModuleConfiguration;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.certificate.crl.CRLService;
-import eu.domibus.core.crypto.spi.CryptoSpiException;
+import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.util.backup.BackupService;
 import eu.domibus.logging.DomibusLogger;
@@ -526,49 +526,16 @@ public class CertificateServiceImpl implements CertificateService {
         return Files.readAllBytes(path);
     }
 
+    @Override
     public TrustStoreEntry convertCertificateContent(String certificateContent) {
         X509Certificate cert = loadCertificateFromString(certificateContent);
         return createTrustStoreEntry(null, cert);
     }
 
+    @Override
     public TrustStoreEntry createTrustStoreEntry(X509Certificate cert, String alias) throws KeyStoreException {
         LOG.debug("Create TrustStore Entry for [{}] = [{}] ", alias, cert);
         return createTrustStoreEntry(alias, cert);
-    }
-
-    private TrustStoreEntry createTrustStoreEntry(String alias, final X509Certificate certificate) {
-        if (certificate == null)
-            return null;
-        TrustStoreEntry entry = new TrustStoreEntry(
-                alias,
-                certificate.getSubjectDN().getName(),
-                certificate.getIssuerDN().getName(),
-                certificate.getNotBefore(),
-                certificate.getNotAfter());
-        entry.setFingerprints(extractFingerprints(certificate));
-        return entry;
-    }
-
-    private String extractFingerprints(final X509Certificate certificate) {
-        if (certificate == null)
-            return null;
-
-        MessageDigest md;
-        try {
-            md = MessageDigest.getInstance("SHA-1");
-        } catch (NoSuchAlgorithmException e) {
-            throw new DomibusCertificateException("Could not initialize MessageDigest", e);
-        }
-        byte[] der;
-        try {
-            der = certificate.getEncoded();
-        } catch (CertificateEncodingException e) {
-            throw new DomibusCertificateException("Could not encode certificate", e);
-        }
-        md.update(der);
-        byte[] digest = md.digest();
-        String digestHex = DatatypeConverter.printHexBinary(digest);
-        return digestHex.toLowerCase();
     }
 
     @Override
@@ -584,7 +551,7 @@ public class CertificateServiceImpl implements CertificateService {
             truststore.store(oldTrustStoreBytes, trustPassword.toCharArray());
         } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException exc) {
             closeStream(oldTrustStoreBytes);
-            throw new CryptoSpiException("Could not replace truststore", exc);
+            throw new CryptoException("Could not replace truststore", exc);
         }
         try (ByteArrayInputStream newTrustStoreBytes = new ByteArrayInputStream(fileContent)) {
             validateLoadOperation(newTrustStoreBytes, filePassword, trustType);
@@ -596,11 +563,12 @@ public class CertificateServiceImpl implements CertificateService {
             LOG.error("Could not replace truststore", e);
             try {
                 truststore.load(oldTrustStoreBytes.toInputStream(), trustPassword.toCharArray());
+                //best to move outside of the method, on success
                 signalTrustStoreUpdate();
             } catch (CertificateException | NoSuchAlgorithmException | IOException exc) {
-                throw new CryptoSpiException("Could not replace truststore and old truststore was not reverted properly. Please correct the error before continuing.", exc);
+                throw new CryptoException("Could not replace truststore and old truststore was not reverted properly. Please correct the error before continuing.", exc);
             }
-            throw new CryptoSpiException(e);
+            throw new CryptoException(e);
         } finally {
             closeStream(oldTrustStoreBytes);
         }
@@ -612,7 +580,73 @@ public class CertificateServiceImpl implements CertificateService {
             InputStream contentStream = Files.newInputStream(Paths.get(trustStoreLocation));
             return loadTrustStore(contentStream, trustStorePassword);
         } catch (Exception ex) {
-            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Exception loading truststore.", ex);
+            throw new CryptoException("Exception loading truststore.", ex);
+        }
+    }
+
+    @Override
+    public List<TrustStoreEntry> getTrustStoreEntries(String trustStoreLocation, String trustStorePassword) {
+        final KeyStore store = getTrustStore(trustStoreLocation, trustStorePassword);
+        return getTrustStoreEntries(store);
+    }
+
+    @Override
+    public synchronized boolean addCertificate(String password, String trustStoreLocation, byte[] certificateContent, String alias, boolean overwrite) {
+        X509Certificate certificate = loadCertificateFromString(new String(certificateContent));
+        KeyStore truststore = getTrustStore(trustStoreLocation, password);
+        boolean added = doAddCertificate(truststore, certificate, alias, overwrite);
+        if (added) {
+            persistTrustStore(truststore, trustStoreLocation, password);
+        }
+        return added;
+    }
+
+    @Override
+    public boolean removeCertificate(String password, String trustStoreLocation, String alias) {
+        KeyStore truststore = getTrustStore(trustStoreLocation, password);
+        boolean removed = doRemoveCertificate(truststore, alias);
+        if (removed) {
+            persistTrustStore(truststore, password, trustStoreLocation);
+        }
+        return removed;
+    }
+
+    private synchronized boolean doRemoveCertificate(KeyStore truststore, String alias) {
+        boolean containsAlias;
+        try {
+            containsAlias = truststore.containsAlias(alias);
+        } catch (final KeyStoreException e) {
+            throw new CryptoException("Error while trying to get the alias from the truststore. This should never happen", e);
+        }
+        if (!containsAlias) {
+            return false;
+        }
+        try {
+            truststore.deleteEntry(alias);
+            return true;
+        } catch (final KeyStoreException e) {
+            throw new ConfigurationException(e);
+        }
+    }
+
+    private boolean doAddCertificate(KeyStore truststore, X509Certificate certificate, String alias, boolean overwrite) {
+        boolean containsAlias;
+        try {
+            containsAlias = truststore.containsAlias(alias);
+        } catch (final KeyStoreException e) {
+            throw new CryptoException("Error while trying to get the alias from the truststore. This should never happen", e);
+        }
+        if (containsAlias && !overwrite) {
+            return false;
+        }
+        try {
+            if (containsAlias) {
+                truststore.deleteEntry(alias);
+            }
+            truststore.setCertificateEntry(alias, certificate);
+            return true;
+        } catch (final KeyStoreException e) {
+            throw new ConfigurationException(e);
         }
     }
 
@@ -714,6 +748,40 @@ public class CertificateServiceImpl implements CertificateService {
     protected void signalTrustStoreUpdate() {
     }
 
+    private TrustStoreEntry createTrustStoreEntry(String alias, final X509Certificate certificate) {
+        if (certificate == null)
+            return null;
+        TrustStoreEntry entry = new TrustStoreEntry(
+                alias,
+                certificate.getSubjectDN().getName(),
+                certificate.getIssuerDN().getName(),
+                certificate.getNotBefore(),
+                certificate.getNotAfter());
+        entry.setFingerprints(extractFingerprints(certificate));
+        return entry;
+    }
+
+    private String extractFingerprints(final X509Certificate certificate) {
+        if (certificate == null)
+            return null;
+
+        MessageDigest md;
+        try {
+            md = MessageDigest.getInstance("SHA-1");
+        } catch (NoSuchAlgorithmException e) {
+            throw new DomibusCertificateException("Could not initialize MessageDigest", e);
+        }
+        byte[] der;
+        try {
+            der = certificate.getEncoded();
+        } catch (CertificateEncodingException e) {
+            throw new DomibusCertificateException("Could not encode certificate", e);
+        }
+        md.update(der);
+        byte[] digest = md.digest();
+        String digestHex = DatatypeConverter.printHexBinary(digest);
+        return digestHex.toLowerCase();
+    }
 }
 
 

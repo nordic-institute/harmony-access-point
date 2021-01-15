@@ -25,8 +25,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.security.KeyStore;
-import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.List;
 
@@ -103,19 +101,17 @@ public class TLSTruststoreResource extends BaseResource {
         byte[] fileContent = multiPartFileUtil.validateAndGetFileContent(certificateFile);
 
         if (StringUtils.isBlank(alias)) {
-            throw new IllegalArgumentException("Please provide an alias for the secrtificate.");
+            throw new IllegalArgumentException("Please provide an alias for the certificate.");
         }
 
-        X509Certificate cert = certificateService.loadCertificateFromString(new String(fileContent));
-
-//        tlsMultiDomainCertificateProvider.addCertificate(domainProvider.getCurrentDomain(), cert, alias, true);
+        tlsCertificateManager.addCertificate(fileContent, alias);
 
         return "Certificate [" + alias + "] has been successfully added to the TLS truststore.";
     }
 
     @DeleteMapping(value = "/tlstruststore/entries/{alias:.+}")
     public String removeTLSCertificate(@PathVariable String alias) throws RequestValidationException {
-//        tlsMultiDomainCertificateProvider.removeCertificate(domainProvider.getCurrentDomain(), alias);
+        tlsCertificateManager.removeCertificate(alias);
         return "Certificate [" + alias + "] has been successfully removed from the TLS truststore.";
     }
 
@@ -130,8 +126,7 @@ public class TLSTruststoreResource extends BaseResource {
     }
 
     protected ResponseEntity<ByteArrayResource> downloadTruststoreContent(MultiDomainCryptoService multiDomainCertificateProvider, Runnable auditMethod) {
-//        byte[] content = certificateService.getTruststoreContent(domainProvider.getCurrentDomain());
-        byte[] content = null;
+        byte[] content = tlsCertificateManager.getTruststoreContent();
         ByteArrayResource resource = new ByteArrayResource(content);
 
         HttpStatus status = HttpStatus.OK;
@@ -148,7 +143,6 @@ public class TLSTruststoreResource extends BaseResource {
     }
 
     protected List<TrustStoreRO> getTrustStoreEntries(TLSCertificateManager tlsCertificateManager) {
-//        final KeyStore store = multiDomainCertificateProvider.getTrustStore(domainProvider.getCurrentDomain());
         List<TrustStoreEntry> trustStoreEntries = tlsCertificateManager.getTrustStoreEntries();
         return domainConverter.convert(trustStoreEntries, TrustStoreRO.class);
     }
