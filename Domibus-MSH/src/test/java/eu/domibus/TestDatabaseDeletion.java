@@ -101,6 +101,10 @@ public class TestDatabaseDeletion {
             jpaProperties.put("hibernate.id.new_generator_mappings","false");
             jpaProperties.put("hibernate.connection.driver_class","com.mysql.cj.jdbc.MysqlXADataSource");
             jpaProperties.put("hibernate.dialect","org.hibernate.dialect.MySQL5InnoDBDialect");
+            jpaProperties.put("hibernate.order_inserts","true");
+            jpaProperties.put("hibernate.order_updates","true");
+            jpaProperties.put("hibernate.jdbc.batch_versioned_data","true");
+            jpaProperties.put("hibernate.jdbc.batch_size","25");
             /**
              * #Connector/J 8.0.x
              * #domibus.entityManagerFactory.jpaProperty.hibernate.connection.driver_class=com.mysql.cj.jdbc.MysqlXADataSource

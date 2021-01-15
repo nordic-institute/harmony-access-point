@@ -125,7 +125,7 @@ public class MessageDeletionService {
         try {
             SessionFactory sessionFactory = ((Session) em.getDelegate()).getSessionFactory();
             statelessSession = sessionFactory.openStatelessSession();
-            statelessSession.setJdbcBatchSize(100);
+            //statelessSession.setJdbcBatchSize(100);
             txn = statelessSession.getTransaction();
             long start = System.currentTimeMillis();
             txn.begin();
@@ -138,11 +138,13 @@ public class MessageDeletionService {
             query.setReadOnly(true);
             query.setLockMode("a", LockMode.NONE);
             ScrollableResults results = query.scroll(ScrollMode.FORWARD_ONLY);
-            Query deleteQuery = statelessSession.createQuery("delete from MessageInfo mi where mi.messageId=:MESSAGEID");
+            //Query deleteQuery = statelessSession.createQuery("delete from MessageInfo mi where mi.messageId=:MESSAGEID");
+
+            final javax.persistence.Query delQuery = em.createQuery("delete from MessageInfo mi where mi.messageId=:MESSAGEID");
 
             while (results.next()) {
 
-                deleteQuery.setParameter( "MESSAGEID", ((MessageDto)results.get(0)).getUserMessageId() )
+                delQuery.setParameter( "MESSAGEID", ((MessageDto)results.get(0)).getUserMessageId() )
                 .executeUpdate();
             }
             txn.commit();
