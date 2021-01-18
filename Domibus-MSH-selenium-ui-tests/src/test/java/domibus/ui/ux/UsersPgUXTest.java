@@ -508,5 +508,30 @@ public class UsersPgUXTest extends SeleniumTest {
 		soft.assertAll();
 
 	}
+
+	//This test case verifies presence of domain column in downloaded csv
+	@Test(description = "USR-38", groups = {"multiTenancy"})
+	public void domainColPresenceInCsv() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		UsersPage page = new UsersPage(driver);
+		page.getSidebar().goToPage(PAGES.USERS);
+		page.grid().waitForRowsToLoad();
+		String fileName = rest.csv().downloadGrid(RestServicePaths.USERS_CSV, null, page.getDomainFromTitle());
+		log.info("downloaded file with name " + fileName);
+
+		List<String>  headers= page.grid().getCsvHeader(fileName);
+		soft.assertTrue(headers.contains("Domain"),"Csv header has domain column present");
+
+		page.grid().getGridCtrl().showCtrls();
+		page.grid().getGridCtrl().getAllLnk().click();
+
+		log.info("Verifying info in CSV file against grid rows");
+		page.grid().checkCSVvsGridHeaders(fileName, soft);
+
+		soft.assertAll();
+
+
+	}
+
 }
 

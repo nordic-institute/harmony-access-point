@@ -518,7 +518,6 @@ public class UsersPgTest extends SeleniumTest {
 
 		log.info("checking error message");
 		soft.assertTrue(page.getAlertArea().isError(), "Error message displayed");
-		//soft.assertEquals(page.getAlertArea().getAlertMessage(), String.format(DMessages.Users.DUPLICATE_USERNAME_SAMEDOMAIN_ERROR, username + ", " + deleted_username), "Correct message displayed");
 		soft.assertEquals(page.getAlertArea().getAlertMessage(), String.format(DMessages.Users.DUPLICATE_USERNAME_SAMEDOMAIN_ERROR, deleted_username + ", " + username), "Correct message displayed");
 
 		soft.assertAll();

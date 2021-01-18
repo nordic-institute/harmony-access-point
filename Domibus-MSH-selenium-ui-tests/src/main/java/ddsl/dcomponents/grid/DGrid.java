@@ -20,6 +20,7 @@ import utils.Gen;
 import utils.Order;
 import utils.TestRunData;
 
+import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -655,6 +656,20 @@ public class DGrid extends DComponent {
 			soft.assertTrue(element.get(j).getAttribute("class").contains("user-deleted"),
 					"is strike through");
 		}
+
+	}
+
+	public List<String> getCsvHeader(String filename) throws IOException {
+		log.info("Checking csv file vs grid content");
+
+		Reader reader = Files.newBufferedReader(Paths.get(filename));
+		CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreHeaderCase()
+				.withTrim());
+		List<String> csvFileHeaders = new ArrayList<>();
+		csvFileHeaders.addAll(csvParser.getHeaderMap().keySet());
+		log.info("removing $jacoco Data from the list of CSV file headers columns");
+		csvFileHeaders.remove("$jacoco Data");
+		return csvFileHeaders;
 
 	}
 	
