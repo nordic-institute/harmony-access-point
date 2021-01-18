@@ -79,9 +79,9 @@ public class MessageRetentionEbms3ServiceTest {
     @Before
     public void init() {
         expiredMessages = new ArrayList<>();
-        UserMessageLogDto uml1 = new UserMessageLogDto("abc", null, "ws");
+        UserMessageLogDto uml1 = new UserMessageLogDto("abc", null, "ws", null);
 
-        UserMessageLogDto uml2 = new UserMessageLogDto("def", null, "ws");
+        UserMessageLogDto uml2 = new UserMessageLogDto("def", null, "ws", null);
 
         expiredMessages.add(uml1);
         expiredMessages.add(uml2);
@@ -163,8 +163,8 @@ public class MessageRetentionEbms3ServiceTest {
     @Test
     public void batchDeleteExpiredMessagesSeparator() {
         List<UserMessageLogDto> batchMessages = new ArrayList<>();
-        batchMessages.add(new UserMessageLogDto("", null, ""));
-        batchMessages.add(new UserMessageLogDto("", null, ""));
+        batchMessages.add(new UserMessageLogDto("", null, "", null));
+        batchMessages.add(new UserMessageLogDto("", null, "", null));
 
         messageRetentionService.scheduleDeleteBatchMessages(batchMessages);
 
