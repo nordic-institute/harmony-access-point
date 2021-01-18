@@ -3978,7 +3978,13 @@ def superPassword=context.expand('${#Project#superAdminPassword}')
 Domibus.setMessageFilters("C2","Jms",context,log)
 // Select message filters for C3
 Domibus.setMessageFilters("C3","Jms",context,log)
-</con:setupScript><con:tearDownScript>def inputList = [ "DomJMS057", "DomJMS058", "DomJMS059"]
+
+log.info "====================================================="
+log.info "Start waiting after setting Jms plugin for C2 and C3."
+log.info "..."
+sleep(90000)
+log.info "End waiting after setting Jms plugin for C2 and C3."
+log.info "====================================================="</con:setupScript><con:tearDownScript>def inputList = [ "DomJMS057", "DomJMS058", "DomJMS059"]
 	
 inputList.each { tcName ->
 		def tcList = testSuite.testCaseList.findAll {it.name =~ /${tcName}/ }
