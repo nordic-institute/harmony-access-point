@@ -1,15 +1,11 @@
 package domibus.ui.functional;
 
-import com.sun.prism.shader.DrawRoundRect_LinearGradient_PAD_AlphaTest_Loader;
-import com.sun.xml.internal.fastinfoset.util.StringArray;
 import ddsl.dcomponents.DomibusPage;
-import ddsl.dcomponents.popups.Dialog;
 import ddsl.enums.DMessages;
 import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
 import domibus.ui.SeleniumTest;
 import org.json.JSONArray;
-import org.json.JSONObject;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.users.UserModal;
@@ -21,8 +17,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 
 /**
@@ -524,7 +518,8 @@ public class UsersPgTest extends SeleniumTest {
 
 		log.info("checking error message");
 		soft.assertTrue(page.getAlertArea().isError(), "Error message displayed");
-		soft.assertEquals(page.getAlertArea().getAlertMessage(), String.format(DMessages.Users.DUPLICATE_USERNAME_SAMEDOMAIN_ERROR, username + ", " + deleted_username), "Correct message displayed");
+		//soft.assertEquals(page.getAlertArea().getAlertMessage(), String.format(DMessages.Users.DUPLICATE_USERNAME_SAMEDOMAIN_ERROR, username + ", " + deleted_username), "Correct message displayed");
+		soft.assertEquals(page.getAlertArea().getAlertMessage(), String.format(DMessages.Users.DUPLICATE_USERNAME_SAMEDOMAIN_ERROR, deleted_username + ", " + username), "Correct message displayed");
 
 		soft.assertAll();
 	}
@@ -869,7 +864,7 @@ public class UsersPgTest extends SeleniumTest {
 	}
 
 	// This test case verifies error while adding new user with role ROLE_USER in absence of domain admin
-	@Test(description = "USR-50", groups = {"multiTenancy"}, enabled = false)
+	@Test(description = "USR-50", groups = {"multiTenancy"})
 	public void addUserWithNoAdmin() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		DomibusPage page = new DomibusPage(driver);
@@ -899,7 +894,8 @@ public class UsersPgTest extends SeleniumTest {
 			soft.assertTrue(page.getAlertArea().getAlertMessage().equals(DMessages.LOGIN_INVALID_CREDENTIALS), "Error on login with wrong credentials");
 		}
 
-		login(data.getAdminUser());
+		//login(data.getAdminUser());
+		loginAndGoToUsersPage(data.getAdminUser());
 		userPage.newUser(Gen.randomAlphaNumeric(10), "tuser@bnc.com", DRoles.USER, data.defaultPass(), data.defaultPass());
 		userPage.grid().waitForRowsToLoad();
 		userPage.saveAndConfirm();
@@ -907,7 +903,7 @@ public class UsersPgTest extends SeleniumTest {
 		soft.assertAll();
 
 	}
-
+	//This test cases verifies error while deactivating all admin users
 	@Test(description = "USR-49", groups = {"multiTenancy"})
 	public void deactivateAllAdmin() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -956,7 +952,7 @@ public class UsersPgTest extends SeleniumTest {
 		}
 		soft.assertAll();
 	}
-
+	// This test case verifies error while deleting all admin users
 	@Test(description = "USR-48", groups = {"multiTenancy"})
 	public void deleteAllAdmin() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -1003,7 +999,7 @@ public class UsersPgTest extends SeleniumTest {
 		}
 		soft.assertAll();
 	}
-
+	//This test cases verifies error while adding new user with username same as deleted user
 	@Test(description = "USR-46", groups = {"multiTenancy"})
 	public void duplicateUser() throws Exception {
 		String deletedUsername = rest.getUser(null, DRoles.USER, false, true, false).getString("userName");
@@ -1025,23 +1021,60 @@ public class UsersPgTest extends SeleniumTest {
 
 
 	}
-
+	// This test case verifies error while adding new user without presence of any domain admin user
 	@Test(description = "USR-47", groups = {"multiTenancy"})
 	public void userAddition() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		UsersPage userPage = new UsersPage(driver);
+
+
 		userPage.getSidebar().goToPage(PAGES.USERS);
 		userPage.grid().waitForRowsToLoad();
 
-		String userName= Gen.randomAlphaNumeric(9);
+		String newUser = Gen.randomAlphaNumeric(10);
+		rest.users().createUser(newUser, DRoles.ADMIN, data.getNewTestPass(), userPage.getDomainFromTitle());
+		log.info("newUser"+ newUser);
 
-		userPage.newUser(userName, "tuser@bnc.com", DRoles.USER, data.defaultPass(), data.defaultPass());
+
+		log.info("Get all users");
+		JSONArray userArray = rest.users().getUsers(userPage.getDomainFromTitle());
+		int userCount = userArray.length();
+		String loggedInUser=userPage.getSandwichMenu().getCurrentUserID();
+
+		JSONArray activeUserArray=new JSONArray();
+		log.info("Get all active admin users");
+		for (int i = 0; i < userCount; i++) {
+			Boolean isDeleted = userArray.getJSONObject(i).getBoolean("deleted");
+			String userRole = userArray.getJSONObject(i).get("roles").toString();
+
+			if (!isDeleted && userRole.equalsIgnoreCase(DRoles.ADMIN)) {
+				activeUserArray.put(userArray.get(i));
+			}
+		}
+		int activeUserCount=activeUserArray.length();
+
+		for (int i = 0; i < activeUserCount; i++) {
+			String userName = activeUserArray.getJSONObject(i).get("userName").toString();
+
+			if (!userName.equals(newUser) && !userName.equals(loggedInUser)) {
+				rest.users().deleteUser(userName, userPage.getDomainFromTitle());
+				log.info("Deleted admin user : " + userName);
+			}
+		}
+		logout();
+		for (int j = 0; j < 5; j++) {
+			login(newUser, data.defaultPass());
+			soft.assertTrue(userPage.getAlertArea().getAlertMessage().equals(DMessages.LOGIN_INVALID_CREDENTIALS), "Error on login with wrong credentials");
+		}
+
+		loginAndGoToUsersPage(data.getAdminUser());
+		String userName1= Gen.randomAlphaNumeric(9);
+		userPage.newUser(userName1, "tuser@bnc.com", DRoles.USER, data.defaultPass(), data.defaultPass());
 		userPage.grid().waitForRowsToLoad();
 		userPage.saveAndConfirm();
 		soft.assertTrue(userPage.getAlertArea().getAlertMessage().contains(DMessages.Users.ONLY_ADMINUSER_DEACTIVATE),
 				"Error while deleting only active admin user");
 		soft.assertAll();
-
 
 
 	}
