@@ -36,6 +36,64 @@ public class UsersClient extends BaseRestClient {
 		}
 		return null;
 	}
+
+	public JSONObject getUser(String domain, String username) throws Exception {
+		log.info("getting user " + username);
+		JSONArray users = getUsers(domain);
+
+		for (int i = 0; i < users.length(); i++) {
+			JSONObject user = users.getJSONObject(i);
+			String curUsername = user.getString("userName");
+
+			if(StringUtils.equalsIgnoreCase(username, curUsername)){
+				log.info("found and returned: " + user.toString());
+				return user;
+			}
+		}
+
+		log.info("could not find user " + username);
+		return null;
+	}
+
+	public void changePassForUser(String domain, String username, String newPass) throws Exception {
+		log.info("getting user " + username);
+		JSONArray users = getUsers(domain);
+		JSONObject user = null;
+
+		for (int i = 0; i < users.length(); i++) {
+			JSONObject u = users.getJSONObject(i);
+			String curUsername = u.getString("userName");
+
+			if(StringUtils.equalsIgnoreCase(username, curUsername)){
+				log.info("found and returned: " + u.toString());
+				user = u;
+				break;
+			}
+		}
+
+		if(null == user) {
+			log.info("could not find user " + username);
+			return;
+		}
+
+		user.put("password", newPass);
+		user.put("status", "UPDATED");
+		user.put("domainName", domain);
+
+		JSONArray toUpdate = new JSONArray();
+		toUpdate.put(user);
+
+		switchDomain(domain);
+		ClientResponse response = putUser(toUpdate, domain);
+		if(response.getStatus() < 300){
+			log.info("change saved");
+		}else {
+			throw new DomibusRestException("Updating user password failed!!!", response);
+		}
+
+	}
+
+
 	
 	public List<String> getUsernameList(String domain) throws Exception {
 		List<String> usernameList = new ArrayList<>();
