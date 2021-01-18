@@ -15,20 +15,29 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * @author Ion Perpegel
+ * @since 5.0
+ */
 @Service
 public class TLSCertificateManagerImpl implements TLSCertificateManager {
 
-    @Autowired
-    TLSReaderService tlsReaderService;
+    private final TLSReaderService tlsReaderService;
 
-    @Autowired
-    CertificateService certificateService;
+    private final CertificateService certificateService;
 
-    @Autowired
-    DomainContextProvider domainProvider;
+    private final DomainContextProvider domainProvider;
 
-    @Autowired
-    protected SignalService signalService;
+    private final SignalService signalService;
+
+    public TLSCertificateManagerImpl(TLSReaderService tlsReaderService, CertificateService certificateService,
+                                     DomainContextProvider domainProvider, SignalService signalService) {
+
+        this.tlsReaderService = tlsReaderService;
+        this.certificateService = certificateService;
+        this.domainProvider = domainProvider;
+        this.signalService = signalService;
+    }
 
     @Override
     public void replaceTrustStore(String fileName, byte[] fileContent, String filePassword) throws CryptoException {

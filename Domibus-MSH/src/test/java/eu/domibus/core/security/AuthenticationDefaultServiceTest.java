@@ -53,7 +53,8 @@ public class AuthenticationDefaultServiceTest{
 
     private MockHttpServletRequest request;
 
-    private CertificateServiceImpl certificateService = new CertificateServiceImpl();
+    @Injectable
+    private CertificateServiceImpl certificateService;// = new CertificateServiceImpl();
 
     @Injectable
     private AuthUtils authUtils;

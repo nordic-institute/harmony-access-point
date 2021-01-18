@@ -7,7 +7,6 @@ import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.DomibusCertificateException;
-import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.core.alerts.configuration.certificate.expired.ExpiredCertificateConfigurationManager;
@@ -68,32 +67,35 @@ public class CertificateServiceImpl implements CertificateService {
 
     public static final String REVOCATION_TRIGGER_OFFSET_PROPERTY = DOMIBUS_CERTIFICATE_REVOCATION_OFFSET;
 
-    @Autowired
     CRLService crlService;
 
-    @Autowired
-    MultiDomainCryptoService multiDomainCertificateProvider;
+    private final DomibusPropertyProvider domibusPropertyProvider;
 
-    @Autowired
-    DomainContextProvider domainProvider;
+    private final CertificateDao certificateDao;
 
-    @Autowired
-    protected DomibusPropertyProvider domibusPropertyProvider;
+    private final EventService eventService;
 
-    @Autowired
-    private CertificateDao certificateDao;
+    private final PModeProvider pModeProvider;
 
-    @Autowired
-    private EventService eventService;
+    private final ImminentExpirationCertificateConfigurationManager imminentExpirationCertificateConfigurationManager;
 
-    @Autowired
-    private PModeProvider pModeProvider;
+    private final ExpiredCertificateConfigurationManager expiredCertificateConfigurationManager;
 
-    @Autowired
-    private ImminentExpirationCertificateConfigurationManager imminentExpirationCertificateConfigurationManager;
+    private final BackupService backupService;
 
-    @Autowired
-    private ExpiredCertificateConfigurationManager expiredCertificateConfigurationManager;
+    public CertificateServiceImpl(CRLService crlService, DomibusPropertyProvider domibusPropertyProvider,
+                                  CertificateDao certificateDao, EventService eventService, PModeProvider pModeProvider,
+                                  ImminentExpirationCertificateConfigurationManager imminentExpirationCertificateConfigurationManager,
+                                  ExpiredCertificateConfigurationManager expiredCertificateConfigurationManager, BackupService backupService) {
+        this.crlService = crlService;
+        this.domibusPropertyProvider = domibusPropertyProvider;
+        this.certificateDao = certificateDao;
+        this.eventService = eventService;
+        this.pModeProvider = pModeProvider;
+        this.imminentExpirationCertificateConfigurationManager = imminentExpirationCertificateConfigurationManager;
+        this.expiredCertificateConfigurationManager = expiredCertificateConfigurationManager;
+        this.backupService = backupService;
+    }
 
     @Override
     public boolean isCertificateChainValid(List<? extends java.security.cert.Certificate> certificateChain) {
@@ -107,9 +109,6 @@ public class CertificateServiceImpl implements CertificateService {
         }
         return true;
     }
-
-    @Autowired
-    private BackupService backupService;
 
     @Override
     public boolean isCertificateChainValid(KeyStore trustStore, String alias) throws DomibusCertificateException {

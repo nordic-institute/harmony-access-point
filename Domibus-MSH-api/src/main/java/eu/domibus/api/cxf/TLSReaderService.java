@@ -5,6 +5,7 @@ import org.apache.cxf.configuration.security.TLSClientParametersType;
 
 /**
  * @author François Gautier
+ * @author Ion Perpegel
  * @since 5.0
  */
 public interface TLSReaderService {

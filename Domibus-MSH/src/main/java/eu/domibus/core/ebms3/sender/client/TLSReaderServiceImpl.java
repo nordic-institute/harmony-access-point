@@ -14,7 +14,6 @@ import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.configuration.jsse.TLSClientParametersConfig;
 import org.apache.cxf.configuration.security.TLSClientParametersType;
 import org.apache.cxf.staxutils.StaxUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -47,8 +46,11 @@ public class TLSReaderServiceImpl implements TLSReaderService {
     private Set<Class<?>> classes;
     private JAXBContext context;
 
-    @Autowired
-    private DomibusConfigurationService domibusConfigurationService;
+    private final DomibusConfigurationService domibusConfigurationService;
+
+    public TLSReaderServiceImpl(DomibusConfigurationService domibusConfigurationService) {
+        this.domibusConfigurationService = domibusConfigurationService;
+    }
 
     @Cacheable(value = TLS_CACHE, key = "#domainCode")
     @Override
@@ -70,8 +72,7 @@ public class TLSReaderServiceImpl implements TLSReaderService {
     @Override
     @CacheEvict(value = TLS_CACHE, key = "#domainCode")
     public void reset(String domainCode) {
-        int i =1;
-        // just reset cache for now
+        // just reset the cache for now
     }
 
     @Override
