@@ -26,17 +26,17 @@
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <cxf.version>3.2.13</cxf.version>
+        <cxf.version>3.3.8</cxf.version>
         <spring.version>4.3.29.RELEASE</spring.version>
         <spring.security.version>4.2.16.RELEASE</spring.security.version>
-        <hibernate.version>5.2.12.Final</hibernate.version>
+        <hibernate.version>5.4.27.Final</hibernate.version>
         <hibernate.validator.version>5.1.2.Final</hibernate.validator.version>
         <activemq.version>5.15.13</activemq.version>
         <aspectj.version>1.8.13</aspectj.version>
         <slf4j.version>1.7.25</slf4j.version>
         <logback.version>1.2.3</logback.version>
         <logback.elasticsearch.appender.version>1.6</logback.elasticsearch.appender.version>
-        <httpclient.version>4.5.3</httpclient.version>
+        <httpclient.version>4.5.13</httpclient.version>
         <commons-configuration.version>1.10</commons-configuration.version>
         <commons-lang3.version>3.7</commons-lang3.version>
         <commons-io.version>2.6</commons-io.version>
@@ -45,15 +45,15 @@
         <commons-collections.version>3.2.2</commons-collections.version>
         <commons-beanutils.version>1.9.4</commons-beanutils.version>
         <commons-codec.version>1.9</commons-codec.version>
-        <bouncycastle.version>1.58</bouncycastle.version>
+        <bouncycastle.version>1.64</bouncycastle.version>
         <quartz.version>2.3.2</quartz.version>
         <c3p0.version>0.9.5.3</c3p0.version>
         <org.mapstruct.version>1.3.0.Final</org.mapstruct.version>
         <jackson.version>2.9.10</jackson.version>
         <!-- see project-check-exclude.xml file -->
-        <jackson-databind.version>2.9.10.6</jackson-databind.version>
+        <jackson-databind.version>2.9.10.8</jackson-databind.version>
         <commons-test.version>4.2</commons-test.version>
-        <xstream.version>1.4.11</xstream.version>
+        <xstream.version>1.4.15</xstream.version>
         <freemarker.version>2.3.23</freemarker.version>
         <mail.version>1.6.1</mail.version>
         <jaxb.version>2.3.0</jaxb.version>
