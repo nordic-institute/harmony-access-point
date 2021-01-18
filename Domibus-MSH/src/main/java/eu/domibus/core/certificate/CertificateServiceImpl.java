@@ -133,17 +133,6 @@ public class CertificateServiceImpl implements CertificateService {
         return true;
     }
 
-    protected X509Certificate[] getCertificateChain(KeyStore trustStore, String alias) throws KeyStoreException {
-        //TODO get the certificate chain manually based on the issued by info from the original certificate
-        final java.security.cert.Certificate[] certificateChain = trustStore.getCertificateChain(alias);
-        if (certificateChain == null) {
-            X509Certificate certificate = (X509Certificate) trustStore.getCertificate(alias);
-            return new X509Certificate[]{certificate};
-        }
-        return Arrays.copyOf(certificateChain, certificateChain.length, X509Certificate[].class);
-
-    }
-
     @Override
     public boolean isCertificateValid(X509Certificate cert) throws DomibusCertificateException {
         boolean isValid = checkValidity(cert);
@@ -156,18 +145,6 @@ public class CertificateServiceImpl implements CertificateService {
         } catch (Exception e) {
             throw new DomibusCertificateException(e);
         }
-    }
-
-    protected boolean checkValidity(X509Certificate cert) {
-        boolean result = false;
-        try {
-            cert.checkValidity();
-            result = true;
-        } catch (Exception e) {
-            LOG.warn("Certificate is not valid " + cert, e);
-        }
-
-        return result;
     }
 
     @Override
@@ -234,65 +211,352 @@ public class CertificateServiceImpl implements CertificateService {
         sendCertificateExpiredAlerts();
     }
 
-    protected void sendCertificateImminentExpirationAlerts() {
-        final ImminentExpirationCertificateModuleConfiguration configuration = imminentExpirationCertificateConfigurationManager.getConfiguration();
-        final Boolean activeModule = configuration.isActive();
-        LOG.debug("Certificate Imminent expiration alert module activated:[{}]", activeModule);
-        if (BooleanUtils.isNotTrue(activeModule)) {
+    @Override
+    public X509Certificate loadCertificateFromString(String content) {
+        if (content == null) {
+            throw new DomibusCertificateException("Certificate content cannot be null.");
+        }
+
+        CertificateFactory certFactory = null;
+        X509Certificate cert = null;
+        try {
+            certFactory = CertificateFactory.getInstance("X.509");
+        } catch (CertificateException e) {
+            throw new DomibusCertificateException("Could not initialize certificate factory", e);
+        }
+
+        InputStream in = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8));
+        if (!isPemFormat(content)) {
+            in = Base64.getMimeDecoder().wrap(in);
+        }
+
+        try {
+            cert = (X509Certificate) certFactory.generateCertificate(in);
+        } catch (CertificateException e) {
+            throw new DomibusCertificateException("Could not generate certificate", e);
+        }
+        return cert;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String serializeCertificateChainIntoPemFormat(List<? extends java.security.cert.Certificate> certificates) {
+        StringWriter sw = new StringWriter();
+        for (java.security.cert.Certificate certificate : certificates) {
+            try (PemWriter pw = new PemWriter(sw)) {
+                PemObjectGenerator gen = new JcaMiscPEMGenerator(certificate);
+                pw.writeObject(gen);
+            } catch (IOException e) {
+                throw new IllegalArgumentException(String.format("Error while serializing certificates:[%s]", certificate.getType()), e);
+            }
+        }
+        final String certificateChainValue = sw.toString();
+        LOG.debug("Serialized certificates:[{}]", certificateChainValue);
+        return certificateChainValue;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<X509Certificate> deserializeCertificateChainFromPemFormat(String chain) {
+        List<X509Certificate> certificates = new ArrayList<>();
+        try (PemReader reader = new PemReader(new StringReader(chain))) {
+            CertificateFactory cf = CertificateFactory.getInstance("X509");
+            PemObject o;
+            while ((o = reader.readPemObject()) != null) {
+                if (o.getType().equals("CERTIFICATE")) {
+                    java.security.cert.Certificate c = cf.generateCertificate(new ByteArrayInputStream(o.getContent()));
+                    final X509Certificate certificate = (X509Certificate) c;
+                    LOG.debug("Deserialized certificate:[{}]", certificate.getSubjectDN());
+                    certificates.add(certificate);
+                } else {
+                    throw new IllegalArgumentException("Unknown type " + o.getType());
+                }
+            }
+
+        } catch (IOException | CertificateException e) {
+            LOG.error("Error while instantiating certificates from pem", e);
+        }
+        return certificates;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public java.security.cert.Certificate extractLeafCertificateFromChain(List<? extends java.security.cert.Certificate> certificates) {
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("Extracting leaf certificate from chain");
+            for (java.security.cert.Certificate certificate : certificates) {
+                LOG.trace("Certificate:[{}]", certificate);
+            }
+        }
+        Set<String> issuerSet = new HashSet<>();
+        Map<String, X509Certificate> subjectMap = new HashMap<>();
+        for (java.security.cert.Certificate certificate : certificates) {
+            X509Certificate x509Certificate = (X509Certificate) certificate;
+            final String subjectName = x509Certificate.getSubjectDN().getName();
+            subjectMap.put(subjectName, x509Certificate);
+            final String issuerName = x509Certificate.getIssuerDN().getName();
+            issuerSet.add(issuerName);
+            LOG.debug("Certificate subject:[{}] issuer:[{}]", subjectName, issuerName);
+        }
+
+        final Set<String> allSubject = subjectMap.keySet();
+        //There should always be one more subject more than issuers. Indeed the root CA has the same value as issuer and subject.
+        allSubject.removeAll(issuerSet);
+        //the unique entry in the set is the leaf.
+        if (allSubject.size() == 1) {
+            final String leafSubjet = allSubject.iterator().next();
+            LOG.debug("Not an issuer:[{}]", leafSubjet);
+            return subjectMap.get(leafSubjet);
+        }
+        //In case of unique self-signed certificate, the issuer and the subject are the same.
+        if (certificates.size() == 1) {
+            return certificates.get(0);
+        }
+        LOG.error("Certificate exchange type is X_509_PKIPATHV_1 but no leaf certificate has been found");
+        return null;
+    }
+
+    @Override
+    public byte[] getTruststoreContent(String location) {
+        File file = createFileWithLocation(location);
+        Path path = Paths.get(file.getAbsolutePath());
+        try {
+            return Files.readAllBytes(path);
+        } catch (IOException e) {
+            throw new DomibusCertificateException("Could not read truststore from [" + location + "]");
+        }
+    }
+
+    @Override
+    public TrustStoreEntry convertCertificateContent(String certificateContent) {
+        X509Certificate cert = loadCertificateFromString(certificateContent);
+        return createTrustStoreEntry(null, cert);
+    }
+
+    @Override
+    public TrustStoreEntry createTrustStoreEntry(X509Certificate cert, String alias) throws KeyStoreException {
+        LOG.debug("Create TrustStore Entry for [{}] = [{}] ", alias, cert);
+        return createTrustStoreEntry(alias, cert);
+    }
+
+    @Override
+    public synchronized void replaceTrustStore(String fileName, byte[] fileContent, String filePassword,
+                                               String trustType, String trustLocation, String trustPassword) {
+        validateTruststoreType(trustType, fileName);
+        replaceTrustStore(fileContent, filePassword, trustType, trustLocation, trustPassword);
+    }
+
+    @Override
+    public void replaceTrustStore(byte[] fileContent, String filePassword, String trustType, String trustLocation, String trustPassword) throws CryptoException {
+        LOG.debug("Replacing the existing trust store file [{}] with the provided one.", trustLocation);
+
+        KeyStore truststore = loadTrustStore(fileContent, filePassword);
+        ByteArrayOutputStream oldTrustStoreBytes = new ByteArrayOutputStream();
+        try {
+            truststore.store(oldTrustStoreBytes, trustPassword.toCharArray());
+        } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException exc) {
+            closeStream(oldTrustStoreBytes);
+            throw new CryptoException("Could not replace truststore", exc);
+        }
+        try (ByteArrayInputStream newTrustStoreBytes = new ByteArrayInputStream(fileContent)) {
+            validateLoadOperation(newTrustStoreBytes, filePassword, trustType);
+            truststore.load(newTrustStoreBytes, filePassword.toCharArray());
+            LOG.debug("Truststore successfully loaded");
+            persistTrustStore(truststore, trustPassword, trustLocation);
+            LOG.debug("Truststore successfully persisted");
+        } catch (CertificateException | NoSuchAlgorithmException | IOException | CryptoException e) {
+            LOG.error("Could not replace truststore", e);
+            try {
+                truststore.load(oldTrustStoreBytes.toInputStream(), trustPassword.toCharArray());
+            } catch (CertificateException | NoSuchAlgorithmException | IOException exc) {
+                throw new CryptoException("Could not replace truststore and old truststore was not reverted properly. Please correct the error before continuing.", exc);
+            }
+            throw new CryptoException(e);
+        } finally {
+            closeStream(oldTrustStoreBytes);
+        }
+    }
+
+    @Override
+    public KeyStore getTrustStore(String trustStoreLocation, String trustStorePassword) {
+        try {
+            InputStream contentStream = Files.newInputStream(Paths.get(trustStoreLocation));
+            return loadTrustStore(contentStream, trustStorePassword);
+        } catch (Exception ex) {
+            throw new CryptoException("Exception loading truststore.", ex);
+        }
+    }
+
+    @Override
+    public List<TrustStoreEntry> getTrustStoreEntries(String trustStoreLocation, String trustStorePassword) {
+        final KeyStore store = getTrustStore(trustStoreLocation, trustStorePassword);
+        return getTrustStoreEntries(store);
+    }
+
+    @Override
+    public synchronized boolean addCertificate(String password, String trustStoreLocation, byte[] certificateContent, String alias, boolean overwrite) {
+        X509Certificate certificate = loadCertificateFromString(new String(certificateContent));
+        return addCertificate(password, trustStoreLocation, certificate, alias, overwrite, true);
+    }
+
+    @Override
+    public boolean addCertificate(String password, String trustStoreLocation, X509Certificate certificate, String alias, boolean overwrite, boolean persist) {
+        KeyStore truststore = getTrustStore(trustStoreLocation, password);
+        boolean added = doAddCertificate(truststore, certificate, alias, overwrite);
+        if (added && persist) {
+            persistTrustStore(truststore, password, trustStoreLocation);
+        }
+        return added;
+    }
+
+    @Override
+    public boolean removeCertificate(String password, String trustStoreLocation, String alias, boolean persist) {
+        KeyStore truststore = getTrustStore(trustStoreLocation, password);
+        boolean removed = doRemoveCertificate(truststore, alias);
+        if (removed && persist) {
+            persistTrustStore(truststore, password, trustStoreLocation);
+        }
+        return removed;
+    }
+
+    @Override
+    public void validateTruststoreType(String storeType, String storeFileName) {
+        String fileType = FilenameUtils.getExtension(storeFileName).toLowerCase();
+        switch (storeType.toLowerCase()) {
+            case "pkcs12":
+                if (Arrays.asList("p12", "pfx").contains(fileType)) {
+                    return;
+                }
+            case "jks":
+                if (Arrays.asList("jks").contains(fileType)) {
+                    return;
+                }
+        }
+        throw new InvalidParameterException("Store file type (" + fileType + ") should match the configured truststore type (" + storeType + ").");
+    }
+
+    private synchronized boolean doRemoveCertificate(KeyStore truststore, String alias) {
+        boolean containsAlias;
+        try {
+            containsAlias = truststore.containsAlias(alias);
+        } catch (final KeyStoreException e) {
+            throw new CryptoException("Error while trying to get the alias from the truststore. This should never happen", e);
+        }
+        if (!containsAlias) {
+            return false;
+        }
+        try {
+            truststore.deleteEntry(alias);
+            return true;
+        } catch (final KeyStoreException e) {
+            throw new ConfigurationException(e);
+        }
+    }
+
+    private boolean doAddCertificate(KeyStore truststore, X509Certificate certificate, String alias, boolean overwrite) {
+        boolean containsAlias;
+        try {
+            containsAlias = truststore.containsAlias(alias);
+        } catch (final KeyStoreException e) {
+            throw new CryptoException("Error while trying to get the alias from the truststore. This should never happen", e);
+        }
+        if (containsAlias && !overwrite) {
+            return false;
+        }
+        try {
+            if (containsAlias) {
+                truststore.deleteEntry(alias);
+            }
+            truststore.setCertificateEntry(alias, certificate);
+            return true;
+        } catch (final KeyStoreException e) {
+            throw new ConfigurationException(e);
+        }
+    }
+
+    protected KeyStore loadTrustStore(byte[] content, String password) {
+        try {
+            InputStream contentStream = new ByteArrayInputStream(content);
+            return loadTrustStore(contentStream, password);
+        } catch (Exception ex) {
+            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Exception loading truststore.", ex);
+        }
+    }
+
+    protected KeyStore loadTrustStore(InputStream contentStream, String password) {
+        KeyStore truststore = null;
+        try {
+            truststore = KeyStore.getInstance(KeyStore.getDefaultType());
+            truststore.load(contentStream, password.toCharArray());
+        } catch (Exception ex) {
+            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Exception loading truststore.", ex);
+        } finally {
+            if (contentStream != null) {
+                closeStream(contentStream);
+            }
+        }
+        return truststore;
+    }
+
+    public synchronized void persistTrustStore(KeyStore truststore, String password, String trustStoreLocation) throws CryptoException {
+        String trustStoreFileValue = trustStoreLocation;
+        LOG.debug("TrustStoreLocation is: [{}]", trustStoreFileValue);
+        File trustStoreFile = new File(trustStoreFileValue);
+        if (!trustStoreFile.getParentFile().exists()) {
+            LOG.debug("Creating directory [" + trustStoreFile.getParentFile() + "]");
+            try {
+                FileUtils.forceMkdir(trustStoreFile.getParentFile());
+            } catch (IOException e) {
+                throw new CryptoException("Could not create parent directory for truststore", e);
+            }
+        }
+        // keep old truststore in case it needs to be restored, truststore_name.backup-yyyy-MM-dd_HH_mm_ss.SSS
+        backupTrustStore(trustStoreFile);
+
+        LOG.debug("TrustStoreFile is: [{}]", trustStoreFile.getAbsolutePath());
+        try (FileOutputStream fileOutputStream = new FileOutputStream(trustStoreFile)) {
+            truststore.store(fileOutputStream, password.toCharArray());
+        } catch (FileNotFoundException ex) {
+            LOG.error("Could not persist truststore:", ex);
+            //we address this exception separately
+            //we swallow it here because it contains information we do not want to display to the client: the full internal file path of the truststore.
+            throw new CryptoException("Could not persist truststore: Is the truststore readonly?");
+        } catch (NoSuchAlgorithmException | IOException | CertificateException | KeyStoreException e) {
+            throw new CryptoException("Could not persist truststore:", e);
+        }
+    }
+
+    protected void backupTrustStore(File trustStoreFile) throws CryptoException {
+        if (trustStoreFile == null || StringUtils.isEmpty(trustStoreFile.getAbsolutePath())) {
+            LOG.warn("Truststore file was null, nothing to backup!");
             return;
         }
-        final String accessPoint = getAccessPointName();
-        final Integer imminentExpirationDelay = configuration.getImminentExpirationDelay();
-        final Integer imminentExpirationFrequency = configuration.getImminentExpirationFrequency();
-
-        final Date today = LocalDateTime.now().withTime(0, 0, 0, 0).toDate();
-        final Date maxDate = LocalDateTime.now().plusDays(imminentExpirationDelay).toDate();
-        final Date notificationDate = LocalDateTime.now().minusDays(imminentExpirationFrequency).toDate();
-
-        LOG.debug("Searching for certificate about to expire with notification date smaller than:[{}] and expiration date between current date and current date + offset[{}]->[{}]",
-                notificationDate, imminentExpirationDelay, maxDate);
-        certificateDao.findImminentExpirationToNotifyAsAlert(notificationDate, today, maxDate).forEach(certificate -> {
-            certificate.setAlertImminentNotificationDate(today);
-            certificateDao.saveOrUpdate(certificate);
-            final String alias = certificate.getAlias();
-            final String accessPointOrAlias = accessPoint == null ? alias : accessPoint;
-            eventService.enqueueImminentCertificateExpirationEvent(accessPointOrAlias, alias, certificate.getNotAfter());
-        });
-    }
-
-
-    protected void sendCertificateExpiredAlerts() {
-        final ExpiredCertificateModuleConfiguration configuration = expiredCertificateConfigurationManager.getConfiguration();
-        final boolean activeModule = configuration.isActive();
-        LOG.debug("Certificate expired alert module activated:[{}]", activeModule);
-        if (!activeModule) {
+        if (!trustStoreFile.exists()) {
+            LOG.warn("Truststore file [{}] does not exist, nothing to backup!", trustStoreFile);
             return;
         }
-        final String accessPoint = getAccessPointName();
-        final Integer revokedDuration = configuration.getExpiredDuration();
-        final Integer revokedFrequency = configuration.getExpiredFrequency();
 
-        Date endNotification = LocalDateTime.now().minusDays(revokedDuration).toDate();
-        Date notificationDate = LocalDateTime.now().minusDays(revokedFrequency).toDate();
-
-        LOG.debug("Searching for expired certificate with notification date smaller than:[{}] and expiration date > current date - offset[{}]->[{}]", notificationDate, revokedDuration, endNotification);
-        certificateDao.findExpiredToNotifyAsAlert(notificationDate, endNotification).forEach(certificate -> {
-            certificate.setAlertExpiredNotificationDate(LocalDateTime.now().withTime(0, 0, 0, 0).toDate());
-            certificateDao.saveOrUpdate(certificate);
-            final String alias = certificate.getAlias();
-            final String accessPointOrAlias = accessPoint == null ? alias : accessPoint;
-            eventService.enqueueCertificateExpiredEvent(accessPointOrAlias, alias, certificate.getNotAfter());
-        });
-    }
-
-    private String getAccessPointName() {
-        String partyName = null;
-        if (pModeProvider.isConfigurationLoaded()) {
-            partyName = pModeProvider.getGatewayParty().getName();
+        try {
+            backupService.backupFile(trustStoreFile);
+        } catch (IOException e) {
+            throw new CryptoException("Could not create backup file for truststore", e);
         }
-        return partyName;
     }
 
+    private void closeStream(Closeable stream) {
+        try {
+            LOG.debug("Closing output stream [{}].", stream);
+            stream.close();
+        } catch (IOException e) {
+            LOG.error("Could not close [{}]", stream, e);
+        }
+    }
 
     /**
      * Create or update all keystore certificates in the db.
@@ -401,366 +665,93 @@ public class CertificateServiceImpl implements CertificateService {
         return Collections.unmodifiableList(certificates);
     }
 
-
-    public X509Certificate loadCertificateFromString(String content) {
-        if (content == null) {
-            throw new DomibusCertificateException("Certificate content cannot be null.");
+    protected void sendCertificateExpiredAlerts() {
+        final ExpiredCertificateModuleConfiguration configuration = expiredCertificateConfigurationManager.getConfiguration();
+        final boolean activeModule = configuration.isActive();
+        LOG.debug("Certificate expired alert module activated:[{}]", activeModule);
+        if (!activeModule) {
+            return;
         }
+        final String accessPoint = getAccessPointName();
+        final Integer revokedDuration = configuration.getExpiredDuration();
+        final Integer revokedFrequency = configuration.getExpiredFrequency();
 
-        CertificateFactory certFactory = null;
-        X509Certificate cert = null;
+        Date endNotification = LocalDateTime.now().minusDays(revokedDuration).toDate();
+        Date notificationDate = LocalDateTime.now().minusDays(revokedFrequency).toDate();
+
+        LOG.debug("Searching for expired certificate with notification date smaller than:[{}] and expiration date > current date - offset[{}]->[{}]", notificationDate, revokedDuration, endNotification);
+        certificateDao.findExpiredToNotifyAsAlert(notificationDate, endNotification).forEach(certificate -> {
+            certificate.setAlertExpiredNotificationDate(LocalDateTime.now().withTime(0, 0, 0, 0).toDate());
+            certificateDao.saveOrUpdate(certificate);
+            final String alias = certificate.getAlias();
+            final String accessPointOrAlias = accessPoint == null ? alias : accessPoint;
+            eventService.enqueueCertificateExpiredEvent(accessPointOrAlias, alias, certificate.getNotAfter());
+        });
+    }
+
+    private String getAccessPointName() {
+        String partyName = null;
+        if (pModeProvider.isConfigurationLoaded()) {
+            partyName = pModeProvider.getGatewayParty().getName();
+        }
+        return partyName;
+    }
+
+    protected boolean checkValidity(X509Certificate cert) {
+        boolean result = false;
         try {
-            certFactory = CertificateFactory.getInstance("X.509");
-        } catch (CertificateException e) {
-            throw new DomibusCertificateException("Could not initialize certificate factory", e);
+            cert.checkValidity();
+            result = true;
+        } catch (Exception e) {
+            LOG.warn("Certificate is not valid " + cert, e);
         }
 
-        InputStream in = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8));
-        if (!isPemFormat(content)) {
-            in = Base64.getMimeDecoder().wrap(in);
-        }
-
-        try {
-            cert = (X509Certificate) certFactory.generateCertificate(in);
-        } catch (CertificateException e) {
-            throw new DomibusCertificateException("Could not generate certificate", e);
-        }
-        return cert;
+        return result;
     }
 
-    protected boolean isPemFormat(String content) {
-        return content.startsWith("-----BEGIN CERTIFICATE-----");
+    protected void sendCertificateImminentExpirationAlerts() {
+        final ImminentExpirationCertificateModuleConfiguration configuration = imminentExpirationCertificateConfigurationManager.getConfiguration();
+        final Boolean activeModule = configuration.isActive();
+        LOG.debug("Certificate Imminent expiration alert module activated:[{}]", activeModule);
+        if (BooleanUtils.isNotTrue(activeModule)) {
+            return;
+        }
+        final String accessPoint = getAccessPointName();
+        final Integer imminentExpirationDelay = configuration.getImminentExpirationDelay();
+        final Integer imminentExpirationFrequency = configuration.getImminentExpirationFrequency();
+
+        final Date today = LocalDateTime.now().withTime(0, 0, 0, 0).toDate();
+        final Date maxDate = LocalDateTime.now().plusDays(imminentExpirationDelay).toDate();
+        final Date notificationDate = LocalDateTime.now().minusDays(imminentExpirationFrequency).toDate();
+
+        LOG.debug("Searching for certificate about to expire with notification date smaller than:[{}] and expiration date between current date and current date + offset[{}]->[{}]",
+                notificationDate, imminentExpirationDelay, maxDate);
+        certificateDao.findImminentExpirationToNotifyAsAlert(notificationDate, today, maxDate).forEach(certificate -> {
+            certificate.setAlertImminentNotificationDate(today);
+            certificateDao.saveOrUpdate(certificate);
+            final String alias = certificate.getAlias();
+            final String accessPointOrAlias = accessPoint == null ? alias : accessPoint;
+            eventService.enqueueImminentCertificateExpirationEvent(accessPointOrAlias, alias, certificate.getNotAfter());
+        });
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String serializeCertificateChainIntoPemFormat(List<? extends java.security.cert.Certificate> certificates) {
-        StringWriter sw = new StringWriter();
-        for (java.security.cert.Certificate certificate : certificates) {
-            try (PemWriter pw = new PemWriter(sw)) {
-                PemObjectGenerator gen = new JcaMiscPEMGenerator(certificate);
-                pw.writeObject(gen);
-            } catch (IOException e) {
-                throw new IllegalArgumentException(String.format("Error while serializing certificates:[%s]", certificate.getType()), e);
-            }
+    protected X509Certificate[] getCertificateChain(KeyStore trustStore, String alias) throws KeyStoreException {
+        //TODO get the certificate chain manually based on the issued by info from the original certificate
+        final java.security.cert.Certificate[] certificateChain = trustStore.getCertificateChain(alias);
+        if (certificateChain == null) {
+            X509Certificate certificate = (X509Certificate) trustStore.getCertificate(alias);
+            return new X509Certificate[]{certificate};
         }
-        final String certificateChainValue = sw.toString();
-        LOG.debug("Serialized certificates:[{}]", certificateChainValue);
-        return certificateChainValue;
-    }
+        return Arrays.copyOf(certificateChain, certificateChain.length, X509Certificate[].class);
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<X509Certificate> deserializeCertificateChainFromPemFormat(String chain) {
-        List<X509Certificate> certificates = new ArrayList<>();
-        try (PemReader reader = new PemReader(new StringReader(chain))) {
-            CertificateFactory cf = CertificateFactory.getInstance("X509");
-            PemObject o;
-            while ((o = reader.readPemObject()) != null) {
-                if (o.getType().equals("CERTIFICATE")) {
-                    java.security.cert.Certificate c = cf.generateCertificate(new ByteArrayInputStream(o.getContent()));
-                    final X509Certificate certificate = (X509Certificate) c;
-                    LOG.debug("Deserialized certificate:[{}]", certificate.getSubjectDN());
-                    certificates.add(certificate);
-                } else {
-                    throw new IllegalArgumentException("Unknown type " + o.getType());
-                }
-            }
-
-        } catch (IOException | CertificateException e) {
-            LOG.error("Error while instantiating certificates from pem", e);
-        }
-        return certificates;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public java.security.cert.Certificate extractLeafCertificateFromChain(List<? extends java.security.cert.Certificate> certificates) {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Extracting leaf certificate from chain");
-            for (java.security.cert.Certificate certificate : certificates) {
-                LOG.trace("Certificate:[{}]", certificate);
-            }
-        }
-        Set<String> issuerSet = new HashSet<>();
-        Map<String, X509Certificate> subjectMap = new HashMap<>();
-        for (java.security.cert.Certificate certificate : certificates) {
-            X509Certificate x509Certificate = (X509Certificate) certificate;
-            final String subjectName = x509Certificate.getSubjectDN().getName();
-            subjectMap.put(subjectName, x509Certificate);
-            final String issuerName = x509Certificate.getIssuerDN().getName();
-            issuerSet.add(issuerName);
-            LOG.debug("Certificate subject:[{}] issuer:[{}]", subjectName, issuerName);
-        }
-
-        final Set<String> allSubject = subjectMap.keySet();
-        //There should always be one more subject more than issuers. Indeed the root CA has the same value as issuer and subject.
-        allSubject.removeAll(issuerSet);
-        //the unique entry in the set is the leaf.
-        if (allSubject.size() == 1) {
-            final String leafSubjet = allSubject.iterator().next();
-            LOG.debug("Not an issuer:[{}]", leafSubjet);
-            return subjectMap.get(leafSubjet);
-        }
-        //In case of unique self-signed certificate, the issuer and the subject are the same.
-        if (certificates.size() == 1) {
-            return certificates.get(0);
-        }
-        LOG.error("Certificate exchange type is X_509_PKIPATHV_1 but no leaf certificate has been found");
-        return null;
-    }
-
-    //  todo: it is not generic, depends on location
-    @Override
-    public byte[] getTruststoreContent(String location) {
-        File file = createFileWithLocation(location);
-        Path path = Paths.get(file.getAbsolutePath());
-        try {
-            return Files.readAllBytes(path);
-        } catch (IOException e) {
-            throw new DomibusCertificateException("Could not read truststore from [" + location + "]");
-        }
     }
 
     protected File createFileWithLocation(String location) {
         return new File(location);
     }
 
-    @Override
-    public TrustStoreEntry convertCertificateContent(String certificateContent) {
-        X509Certificate cert = loadCertificateFromString(certificateContent);
-        return createTrustStoreEntry(null, cert);
-    }
-
-    @Override
-    public TrustStoreEntry createTrustStoreEntry(X509Certificate cert, String alias) throws KeyStoreException {
-        LOG.debug("Create TrustStore Entry for [{}] = [{}] ", alias, cert);
-        return createTrustStoreEntry(alias, cert);
-    }
-
-    @Override
-    public synchronized void replaceTrustStore(String fileName, byte[] fileContent, String filePassword,
-                                               String trustType, String trustLocation, String trustPassword) {
-        validateTruststoreType(trustType, fileName);
-        replaceTrustStore(fileContent, filePassword, trustType, trustLocation, trustPassword);
-    }
-
-    @Override
-    public void replaceTrustStore(byte[] fileContent, String filePassword, String trustType, String trustLocation, String trustPassword) throws CryptoException {
-        LOG.debug("Replacing the existing trust store file [{}] with the provided one.", trustLocation);
-
-        KeyStore truststore = loadTrustStore(fileContent, filePassword);
-        ByteArrayOutputStream oldTrustStoreBytes = new ByteArrayOutputStream();
-        try {
-            truststore.store(oldTrustStoreBytes, trustPassword.toCharArray());
-        } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException exc) {
-            closeStream(oldTrustStoreBytes);
-            throw new CryptoException("Could not replace truststore", exc);
-        }
-        try (ByteArrayInputStream newTrustStoreBytes = new ByteArrayInputStream(fileContent)) {
-            validateLoadOperation(newTrustStoreBytes, filePassword, trustType);
-            truststore.load(newTrustStoreBytes, filePassword.toCharArray());
-            LOG.debug("Truststore successfully loaded");
-            persistTrustStore(truststore, trustPassword, trustLocation);
-            LOG.debug("Truststore successfully persisted");
-        } catch (CertificateException | NoSuchAlgorithmException | IOException | CryptoException e) {
-            LOG.error("Could not replace truststore", e);
-            try {
-                truststore.load(oldTrustStoreBytes.toInputStream(), trustPassword.toCharArray());
-                //best to move outside of the method, on success
-                signalTrustStoreUpdate();
-            } catch (CertificateException | NoSuchAlgorithmException | IOException exc) {
-                throw new CryptoException("Could not replace truststore and old truststore was not reverted properly. Please correct the error before continuing.", exc);
-            }
-            throw new CryptoException(e);
-        } finally {
-            closeStream(oldTrustStoreBytes);
-        }
-    }
-
-    @Override
-    public KeyStore getTrustStore(String trustStoreLocation, String trustStorePassword) {
-        try {
-            InputStream contentStream = Files.newInputStream(Paths.get(trustStoreLocation));
-            return loadTrustStore(contentStream, trustStorePassword);
-        } catch (Exception ex) {
-            throw new CryptoException("Exception loading truststore.", ex);
-        }
-    }
-
-    @Override
-    public List<TrustStoreEntry> getTrustStoreEntries(String trustStoreLocation, String trustStorePassword) {
-        final KeyStore store = getTrustStore(trustStoreLocation, trustStorePassword);
-        return getTrustStoreEntries(store);
-    }
-
-    @Override
-    public synchronized boolean addCertificate(String password, String trustStoreLocation, byte[] certificateContent, String alias, boolean overwrite) {
-        X509Certificate certificate = loadCertificateFromString(new String(certificateContent));
-        return addCertificate(password, trustStoreLocation, certificate, alias, overwrite);
-    }
-
-    @Override
-    public boolean addCertificate(String password, String trustStoreLocation, X509Certificate certificate, String alias, boolean overwrite) {
-        KeyStore truststore = getTrustStore(trustStoreLocation, password);
-        boolean added = doAddCertificate(truststore, certificate, alias, overwrite);
-        if (added) {
-            persistTrustStore(truststore, password, trustStoreLocation);
-        }
-        return added;
-    }
-
-    @Override
-    public boolean removeCertificate(String password, String trustStoreLocation, String alias) {
-        KeyStore truststore = getTrustStore(trustStoreLocation, password);
-        boolean removed = doRemoveCertificate(truststore, alias);
-        if (removed) {
-            persistTrustStore(truststore, password, trustStoreLocation);
-        }
-        return removed;
-    }
-
-    private synchronized boolean doRemoveCertificate(KeyStore truststore, String alias) {
-        boolean containsAlias;
-        try {
-            containsAlias = truststore.containsAlias(alias);
-        } catch (final KeyStoreException e) {
-            throw new CryptoException("Error while trying to get the alias from the truststore. This should never happen", e);
-        }
-        if (!containsAlias) {
-            return false;
-        }
-        try {
-            truststore.deleteEntry(alias);
-            return true;
-        } catch (final KeyStoreException e) {
-            throw new ConfigurationException(e);
-        }
-    }
-
-    private boolean doAddCertificate(KeyStore truststore, X509Certificate certificate, String alias, boolean overwrite) {
-        boolean containsAlias;
-        try {
-            containsAlias = truststore.containsAlias(alias);
-        } catch (final KeyStoreException e) {
-            throw new CryptoException("Error while trying to get the alias from the truststore. This should never happen", e);
-        }
-        if (containsAlias && !overwrite) {
-            return false;
-        }
-        try {
-            if (containsAlias) {
-                truststore.deleteEntry(alias);
-            }
-            truststore.setCertificateEntry(alias, certificate);
-            return true;
-        } catch (final KeyStoreException e) {
-            throw new ConfigurationException(e);
-        }
-    }
-
-    public void validateTruststoreType(String storeType, String storeFileName) {
-        String fileType = FilenameUtils.getExtension(storeFileName).toLowerCase();
-        switch (storeType.toLowerCase()) {
-            case "pkcs12":
-                if (Arrays.asList("p12", "pfx").contains(fileType)) {
-                    return;
-                }
-            case "jks":
-                if (Arrays.asList("jks").contains(fileType)) {
-                    return;
-                }
-        }
-        throw new InvalidParameterException("Store file type (" + fileType + ") should match the configured truststore type (" + storeType + ").");
-    }
-
-    protected KeyStore loadTrustStore(byte[] content, String password) {
-        try {
-            InputStream contentStream = new ByteArrayInputStream(content);
-            return loadTrustStore(contentStream, password);
-        } catch (Exception ex) {
-            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Exception loading truststore.", ex);
-        }
-    }
-
-    protected KeyStore loadTrustStore(InputStream contentStream, String password) {
-        KeyStore truststore = null;
-        try {
-            truststore = KeyStore.getInstance(KeyStore.getDefaultType());
-            truststore.load(contentStream, password.toCharArray());
-        } catch (Exception ex) {
-            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Exception loading truststore.", ex);
-        } finally {
-            if (contentStream != null) {
-                closeStream(contentStream);
-            }
-        }
-        return truststore;
-    }
-
-    public synchronized void persistTrustStore(KeyStore truststore, String password, String trustStoreLocation) throws CryptoException {
-        String trustStoreFileValue = trustStoreLocation;
-        LOG.debug("TrustStoreLocation is: [{}]", trustStoreFileValue);
-        File trustStoreFile = new File(trustStoreFileValue);
-        if (!trustStoreFile.getParentFile().exists()) {
-            LOG.debug("Creating directory [" + trustStoreFile.getParentFile() + "]");
-            try {
-                FileUtils.forceMkdir(trustStoreFile.getParentFile());
-            } catch (IOException e) {
-                throw new CryptoException("Could not create parent directory for truststore", e);
-            }
-        }
-        // keep old truststore in case it needs to be restored, truststore_name.backup-yyyy-MM-dd_HH_mm_ss.SSS
-        backupTrustStore(trustStoreFile);
-
-        LOG.debug("TrustStoreFile is: [{}]", trustStoreFile.getAbsolutePath());
-        try (FileOutputStream fileOutputStream = new FileOutputStream(trustStoreFile)) {
-            truststore.store(fileOutputStream, password.toCharArray());
-        } catch (FileNotFoundException ex) {
-            LOG.error("Could not persist truststore:", ex);
-            //we address this exception separately
-            //we swallow it here because it contains information we do not want to display to the client: the full internal file path of the truststore.
-            throw new CryptoException("Could not persist truststore: Is the truststore readonly?");
-        } catch (NoSuchAlgorithmException | IOException | CertificateException | KeyStoreException e) {
-            throw new CryptoException("Could not persist truststore:", e);
-        }
-
-        signalTrustStoreUpdate();
-    }
-
-    protected void backupTrustStore(File trustStoreFile) throws CryptoException {
-        if (trustStoreFile == null || StringUtils.isEmpty(trustStoreFile.getAbsolutePath())) {
-            LOG.warn("Truststore file was null, nothing to backup!");
-            return;
-        }
-        if (!trustStoreFile.exists()) {
-            LOG.warn("Truststore file [{}] does not exist, nothing to backup!", trustStoreFile);
-            return;
-        }
-
-        try {
-            backupService.backupFile(trustStoreFile);
-        } catch (IOException e) {
-            throw new CryptoException("Could not create backup file for truststore", e);
-        }
-    }
-
-    private void closeStream(Closeable stream) {
-        try {
-            LOG.debug("Closing output stream [{}].", stream);
-            stream.close();
-        } catch (IOException e) {
-            LOG.error("Could not close [{}]", stream, e);
-        }
-    }
-
-    protected void signalTrustStoreUpdate() {
+    protected boolean isPemFormat(String content) {
+        return content.startsWith("-----BEGIN CERTIFICATE-----");
     }
 
     private TrustStoreEntry createTrustStoreEntry(String alias, final X509Certificate certificate) {

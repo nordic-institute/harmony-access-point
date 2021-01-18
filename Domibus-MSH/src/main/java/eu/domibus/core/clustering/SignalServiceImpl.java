@@ -141,4 +141,13 @@ public class SignalServiceImpl implements SignalService {
         commandProperties.put(MessageConstants.DOMAIN, domainCode);
         sendMessage(commandProperties);
     }
+
+    @Override
+    public void signalTLSTrustStoreUpdate(Domain domain) {
+        Map<String, String> commandProperties = new HashMap<>();
+        commandProperties.put(Command.COMMAND, Command.RELOAD_TLS_TRUSTSTORE);
+        commandProperties.put(MessageConstants.DOMAIN, domain.getCode());
+
+        sendMessage(commandProperties);
+    }
 }

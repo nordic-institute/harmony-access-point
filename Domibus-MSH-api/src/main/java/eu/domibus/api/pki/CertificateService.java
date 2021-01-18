@@ -136,9 +136,9 @@ public interface CertificateService {
 
     boolean addCertificate(String password, String trustStoreLocation, byte[] certificateContent, String alias, boolean overwrite);
 
-    boolean addCertificate(String password, String trustStoreLocation, X509Certificate certificate, String alias, boolean overwrite);
+    boolean addCertificate(String password, String trustStoreLocation, X509Certificate certificate, String alias, boolean overwrite, boolean persist);
 
-    boolean removeCertificate(String password, String trustStoreLocation, String alias);
+    boolean removeCertificate(String password, String trustStoreLocation, String alias, boolean persist);
 
     void validateTruststoreType(String trustStoreType, String storeFileName);
 

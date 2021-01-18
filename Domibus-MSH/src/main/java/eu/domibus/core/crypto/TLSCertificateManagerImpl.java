@@ -1,5 +1,6 @@
 package eu.domibus.core.crypto;
 
+import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.cxf.TLSReaderService;
 import eu.domibus.api.multitenancy.Domain;
@@ -26,6 +27,9 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
     @Autowired
     DomainContextProvider domainProvider;
 
+    @Autowired
+    protected SignalService signalService;
+
     @Override
     public void replaceTrustStore(String fileName, byte[] fileContent, String filePassword) throws CryptoException {
         KeyStoreType trustParams = getTruststoreParams();
@@ -34,6 +38,10 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
         String trustStoreType = trustParams.getType();
 
         certificateService.replaceTrustStore(fileName, fileContent, filePassword, trustStoreType, trustStoreLocation, trustStorePassword);
+
+        Domain currentDomain = domainProvider.getCurrentDomain();
+        tlsReaderService.reset(currentDomain.getCode()); // needed really?
+        signalService.signalTLSTrustStoreUpdate(currentDomain);
     }
 
     @Override
@@ -67,7 +75,7 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
         String trustStoreLocation = trustParams.getFile();
         String trustStorePassword = trustParams.getPassword();
 
-        return certificateService.removeCertificate(trustStorePassword, trustStoreLocation, alias);
+        return certificateService.removeCertificate(trustStorePassword, trustStoreLocation, alias, true);
     }
 
     protected KeyStoreType getTruststoreParams() {

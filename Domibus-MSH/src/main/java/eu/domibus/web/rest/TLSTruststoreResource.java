@@ -26,15 +26,12 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * @author Mircea Musat
  * @author Ion Perpegel
- * @since 3.3
+ * @since 5.0
  */
 @RestController
 @RequestMapping(value = "/rest/tlstruststore")
 public class TLSTruststoreResource extends BaseResource {
-
-    public static final String ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD = "Failed to upload the truststoreFile file since its password was empty."; //NOSONAR
 
     private final TLSCertificateManager tlsCertificateManager;
 
@@ -64,7 +61,7 @@ public class TLSTruststoreResource extends BaseResource {
     @PostMapping(value = "")
     public String uploadTLSTruststoreFile(@RequestPart("file") MultipartFile truststoreFile,
                                           @SkipWhiteListed @RequestParam("password") String password) throws RequestValidationException {
-        replaceTruststore(tlsCertificateManager, truststoreFile, password);
+        replaceTruststore(truststoreFile, password);
         return "TLS truststore file has been successfully replaced.";
     }
 
@@ -103,11 +100,11 @@ public class TLSTruststoreResource extends BaseResource {
         return "Certificate [" + alias + "] has been successfully removed from the TLS truststore.";
     }
 
-    protected void replaceTruststore(TLSCertificateManager tlsCertificateManager, MultipartFile truststoreFile, String password) {
+    protected void replaceTruststore(MultipartFile truststoreFile, String password) {
         byte[] truststoreFileContent = multiPartFileUtil.validateAndGetFileContent(truststoreFile);
 
         if (StringUtils.isBlank(password)) {
-            throw new RequestValidationException(ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD);
+            throw new RequestValidationException("Failed to upload the tls truststore file file since its password was empty.");
         }
 
         tlsCertificateManager.replaceTrustStore(truststoreFile.getOriginalFilename(), truststoreFileContent, password);

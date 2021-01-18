@@ -101,6 +101,8 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
     public synchronized void replaceTrustStore(byte[] store, String password) throws CryptoSpiException {
         certificateService.replaceTrustStore(store, password, getTrustStoreType(), getTrustStoreLocation(), getTrustStorePassword());
 
+        signalService.signalTrustStoreUpdate(domain);
+
 //        LOG.debug("Replacing the existing trust store file [{}] with the provided one", getTrustStoreLocation());
 //
 //        ByteArrayOutputStream oldTrustStoreBytes = new ByteArrayOutputStream();
@@ -197,7 +199,7 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
 
     @Override
     public synchronized boolean addCertificate(X509Certificate certificate, String alias, boolean overwrite) {
-        return certificateService.addCertificate(getTrustStorePassword(), getTrustStoreLocation(), certificate, alias, overwrite);
+        return certificateService.addCertificate(getTrustStorePassword(), getTrustStoreLocation(), certificate, alias, overwrite, true);
 
 //        boolean added = doAddCertificate(certificate, alias, overwrite);
 //        if (added) {
@@ -209,7 +211,7 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
     @Override
     public synchronized void addCertificate(List<CertificateEntrySpi> certificates, boolean overwrite) {
         certificates.forEach(certEntry ->
-                certificateService.addCertificate(getTrustStorePassword(), getTrustStoreLocation(), certEntry.getCertificate(), certEntry.getAlias(), overwrite));
+                certificateService.addCertificate(getTrustStorePassword(), getTrustStoreLocation(), certEntry.getCertificate(), certEntry.getAlias(), overwrite, false));
 
 //        certificates.forEach(certEntry ->
 //                doAddCertificate(certEntry.getCertificate(), certEntry.getAlias(), overwrite));
@@ -328,14 +330,14 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
         return domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_TYPE);
     }
 
-    protected void signalTrustStoreUpdate() {
-        // Sends a signal to all the servers from the cluster in order to trigger the refresh of the trust store
-        signalService.signalTrustStoreUpdate(domain);
-    }
+//    protected void signalTrustStoreUpdate() {
+//        // Sends a signal to all the servers from the cluster in order to trigger the refresh of the trust store
+//        signalService.signalTrustStoreUpdate(domain);
+//    }
 
     @Override
     public boolean removeCertificate(String alias) {
-        return certificateService.removeCertificate(getTrustStorePassword(), getTrustStoreLocation(), alias);
+        return certificateService.removeCertificate(getTrustStorePassword(), getTrustStoreLocation(), alias, true);
 
 //        boolean removed = doRemoveCertificate(alias);
 //        if (removed) {
@@ -346,7 +348,7 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
 
     @Override
     public void removeCertificate(List<String> aliases) {
-        aliases.forEach(alias -> certificateService.removeCertificate(getTrustStorePassword(), getTrustStoreLocation(), alias));
+        aliases.forEach(alias -> certificateService.removeCertificate(getTrustStorePassword(), getTrustStoreLocation(), alias, false));
 //        aliases.forEach(this::doRemoveCertificate);
         persistTrustStore();
     }
