@@ -1,5 +1,8 @@
 package eu.domibus.core.util.backup;
 
+import eu.domibus.api.crypto.CryptoException;
+import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -10,6 +13,9 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.IOException;
 import java.time.format.DateTimeFormatter;
+
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SECURITY_TRUSTSTORE_BACKUP_LOCATION;
+
 
 /**
  * @author Ion Perpegel
@@ -28,6 +34,12 @@ public class BackupServiceImpl implements BackupService {
     @Autowired
     protected DateUtil dateUtil;
 
+    @Autowired
+    protected DomibusPropertyProvider domibusPropertyProvider;
+
+    @Autowired
+    protected DomainContextProvider domainProvider;
+
     /**
      * {@inheritDoc}
      */
@@ -44,8 +56,23 @@ public class BackupServiceImpl implements BackupService {
     }
 
     protected File getBackupFile(File originalFile) {
-        String backupFileName = originalFile.getName() + BACKUP_EXT + dateUtil.getCurrentTime(BACKUP_FILE_FORMATTER);
+        String trustStoreFileValue = getTrustStoreBackUpLocation();
+        LOG.debug("TrustStoreLocation is: [{}]", trustStoreFileValue);
+        File trustStoreFile = new File(trustStoreFileValue);
+        if (!trustStoreFile.getParentFile().exists()) {
+            LOG.debug("Creating directory [" + trustStoreFile.getParentFile() + "]");
+            try {
+                FileUtils.forceMkdir(trustStoreFile.getParentFile());
+            } catch (IOException e) {
+                throw new CryptoException("Could not create parent directory for truststore", e);
+            }
+        }
+        String backupFileName = trustStoreFile.getName() + BACKUP_EXT + dateUtil.getCurrentTime(BACKUP_FILE_FORMATTER);
         return new File(originalFile.getParent(), backupFileName);
+    }
+
+    protected String getTrustStoreBackUpLocation() {
+        return domibusPropertyProvider.getProperty(domainProvider.getCurrentDomain(), DOMIBUS_SECURITY_TRUSTSTORE_BACKUP_LOCATION);
     }
 
 }
