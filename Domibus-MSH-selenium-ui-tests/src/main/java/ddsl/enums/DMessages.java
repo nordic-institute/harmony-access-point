@@ -13,6 +13,7 @@ public class DMessages {
 	public static final String LOGIN_INVALID_CREDENTIALS = "The username/password combination you provided is not valid. Please try again or contact your administrator.";
 	public static final String LOGIN_ACCOUNT_SUSPENDED = "Too many invalid attempts to log in. Access has been temporarily suspended. Please try again later with the right credentials.";
 	public static final String LOGIN_ACCOUNT_SUSPENDED_1 = "The user is suspended. Please try again later or contact your administrator.";
+	public static final String LOGIN_DEFAULT_PASS = "You are using the default password. Please change it now in order to be able to use the console.";
 	public static final String LOGIN_USER_INACTIVE = "The user is inactive. Please contact your administrator.";
 
 	public static final String DIALOG_CANCEL_ALL = "Do you want to cancel all unsaved operations?";

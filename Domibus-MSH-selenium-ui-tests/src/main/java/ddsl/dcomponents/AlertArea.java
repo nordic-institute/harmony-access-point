@@ -28,6 +28,13 @@ public class AlertArea extends DComponent {
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
 	}
 
+	public void waitForAlert(){
+		try {
+			wait.forElementToBeVisible(alertContainer);
+		} catch (Exception e) {
+		}
+	}
+
 	public void closeAlert() throws Exception{
 		weToDobject(closeButton).click();
 	}
