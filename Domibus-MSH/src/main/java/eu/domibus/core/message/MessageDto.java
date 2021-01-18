@@ -10,14 +10,29 @@ public class MessageDto {
 
     protected String userMessageId;
     protected String signalMessageId;
-    protected Long receiptId;
+    protected Long umlEntityId;
+    protected Long smiEntityId;
+    protected Long umiEntityId;
+    protected Long receiptEntityId;
     protected MessageSubtype messageSubtype;
     protected String backend;
 
     public MessageDto(String userMessageId, String signalMessageId, Long receiptId, MessageSubtype messageSubtype, String backend) {
         this.userMessageId = userMessageId;
         this.signalMessageId = signalMessageId;
-        this.receiptId = receiptId;
+
+        this.receiptEntityId = receiptId;
+        this.messageSubtype = messageSubtype;
+        this.backend = backend;
+    }
+
+    public MessageDto(String userMessageId, String signalMessageId, Long umlEntityId, Long smiEntityId, Long umiEntityId, Long receiptEntityId, MessageSubtype messageSubtype, String backend) {
+        this.userMessageId = userMessageId;
+        this.signalMessageId = signalMessageId;
+        this.umlEntityId = umlEntityId;
+        this.smiEntityId = smiEntityId;
+        this.umiEntityId = umiEntityId;
+        this.receiptEntityId = receiptEntityId;
         this.messageSubtype = messageSubtype;
         this.backend = backend;
     }
@@ -38,12 +53,36 @@ public class MessageDto {
         this.signalMessageId = signalMessageId;
     }
 
-    public Long getReceiptId() {
-        return receiptId;
+    public Long getUmlEntityId() {
+        return umlEntityId;
     }
 
-    public void setReceiptId(Long receiptId) {
-        this.receiptId = receiptId;
+    public void setUmlEntityId(Long umlEntityId) {
+        this.umlEntityId = umlEntityId;
+    }
+
+    public Long getSmiEntityId() {
+        return smiEntityId;
+    }
+
+    public void setSmiEntityId(Long smiEntityId) {
+        this.smiEntityId = smiEntityId;
+    }
+
+    public Long getUmiEntityId() {
+        return umiEntityId;
+    }
+
+    public void setUmiEntityId(Long umiEntityId) {
+        this.umiEntityId = umiEntityId;
+    }
+
+    public Long getReceiptEntityId() {
+        return receiptEntityId;
+    }
+
+    public void setReceiptEntityId(Long receiptEntityId) {
+        this.receiptEntityId = receiptEntityId;
     }
 
     public MessageSubtype getMessageSubtype() {

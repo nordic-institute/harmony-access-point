@@ -184,7 +184,6 @@ public class TestDatabaseDeletion {
         bean.execute();
 
 
-
 //        UserMessageLogDao userMessageLogDao = ctx.getBean(UserMessageLogDao.class);
 //
 //        Date currentDate = new Date(System.currentTimeMillis());

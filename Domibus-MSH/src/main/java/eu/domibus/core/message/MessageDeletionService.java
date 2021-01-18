@@ -1,15 +1,20 @@
 package eu.domibus.core.message;
 
 import eu.domibus.core.error.ErrorLogDao;
+import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.message.acknowledge.MessageAcknowledgementDao;
+import eu.domibus.core.message.acknowledge.MessageAcknowledgementEntity;
 import eu.domibus.core.message.attempt.MessageAttemptDao;
 import eu.domibus.core.message.signal.SignalMessageDao;
+import eu.domibus.core.message.signal.SignalMessageLog;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
 import eu.domibus.core.replication.UIMessageDao;
+import eu.domibus.core.replication.UIMessageEntity;
 import eu.domibus.ebms3.common.model.MessageInfo;
+import eu.domibus.ebms3.common.model.Receipt;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.hibernate.*;
@@ -120,18 +125,20 @@ public class MessageDeletionService {
         Integer expiredDownloadedMessagesLimit = 10000;
 
 
-        Session statelessSession = null;
+        Session session = null;
         Transaction txn = null;
         ScrollableResults scrollableResults = null;
         try {
             SessionFactory sessionFactory = ((Session) em.getDelegate()).getSessionFactory();
-            statelessSession = sessionFactory.openSession();
-            //statelessSession.setJdbcBatchSize(100);
-            txn = statelessSession.getTransaction();
+            session = sessionFactory.openSession();
+            session.setJdbcBatchSize(100);
+            txn = session.getTransaction();
             long start = System.currentTimeMillis();
             txn.begin();
-            Query query = statelessSession
+            Query query = session
                     .createNamedQuery("UserMessageLog.findSentUserMessagesOlderThan");
+                    //.createNamedQuery("UserMessageLog.findUndownloadedUserMessagesOlderThan");
+
             query.setParameter("DATE", startDate);
             query.setParameter("MPC", mpc);
             query.setMaxResults(expiredDownloadedMessagesLimit);
@@ -139,20 +146,53 @@ public class MessageDeletionService {
             query.setReadOnly(true);
             query.setLockMode("a", LockMode.NONE);
             ScrollableResults results = query.scroll(ScrollMode.FORWARD_ONLY);
-            Query deleteQuery = statelessSession.createQuery("delete from MessageInfo mi where mi.messageId=:MESSAGEID");
+            Query deleteSMLQuery = session.createQuery("delete from SignalMessageLog sml where sml.messageId=:MESSAGEID");
+            Query deleteAttemptQuery = session.createQuery("delete from MessageAttemptEntity attempt where attempt.messageId=:MESSAGEID");
+            Query deleteErrorLogQuery = session.createQuery("delete from ErrorLogEntry e where messageInErrorId=:MESSAGEID");
+            Query deleteUIMessageQuery = session.createQuery("delete from UIMessageEntity uiMessageEntity where uiMessageEntity.messageId=:MESSAGEID");
+            Query deleteAckQuery = session.createQuery("delete from MessageAcknowledgementEntity messageAcknowledge where messageAcknowledge.messageId=:MESSAGEID");
 
-            Query selectQuery = statelessSession.createQuery("select messageInfo from MessageInfo messageInfo where messageInfo.messageId=:MESSAGEID");
 
+            LOG.info("Iterate results");
             while (results.next()) {
+                LOG.info("Results [{}]", ((MessageDto)results.get(0)).getUserMessageId());
 
-                MessageInfo mi = (MessageInfo)selectQuery.setParameter( "MESSAGEID", ((MessageDto)results.get(0)).getUserMessageId() )
-                        .getSingleResult();
-                LOG.info("messageInfo [{}]", mi.getMessageId());
+                MessageInfo umi = session.getReference(MessageInfo.class, ((MessageDto)results.get(0)).getUmiEntityId());
+                MessageInfo smi = session.getReference(MessageInfo.class, ((MessageDto)results.get(0)).getSmiEntityId());
+                session.delete(umi);
+                session.delete(smi);
 
-                statelessSession.delete(mi);
+                UserMessageLog uml = session.getReference(UserMessageLog.class, ((MessageDto)results.get(0)).getUmlEntityId());
+                session.delete(uml);
 
-//                deleteQuery.setParameter( "MESSAGEID", ((MessageDto)results.get(0)).getUserMessageId() )
-//                .executeUpdate();
+                Receipt receipt = session.getReference(Receipt.class, ((MessageDto)results.get(0)).getReceiptEntityId());
+                session.remove(receipt);
+
+                deleteSMLQuery.setParameter( "MESSAGEID", ((MessageDto)results.get(0)).getSignalMessageId() )
+                .executeUpdate();
+
+                deleteAttemptQuery.setParameter( "MESSAGEID", ((MessageDto)results.get(0)).getUserMessageId() )
+                        .executeUpdate();
+
+                deleteErrorLogQuery.setParameter( "MESSAGEID", ((MessageDto)results.get(0)).getUserMessageId() )
+                        .executeUpdate();
+
+                deleteUIMessageQuery.setParameter( "MESSAGEID", ((MessageDto)results.get(0)).getUserMessageId() )
+                        .executeUpdate();
+
+                deleteUIMessageQuery.setParameter( "MESSAGEID", ((MessageDto)results.get(0)).getSignalMessageId() )
+                        .executeUpdate();
+
+                deleteAckQuery.setParameter( "MESSAGEID", ((MessageDto)results.get(0)).getUserMessageId() )
+                        .executeUpdate();
+
+
+//                SignalMessageLog sml = (SignalMessageLog) selectQuery.setParameter( "MESSAGEID", ((MessageDto)results.get(0)).getUserMessageId() )
+//                        .getSingleResult();
+//                LOG.info("messageInfo [{}]", mi.getMessageId());
+//
+//                session.delete(mi);
+
             }
             txn.commit();
             LOG.info("Execution time: [{}]", System.currentTimeMillis()-start);
@@ -165,8 +205,8 @@ public class MessageDeletionService {
             if (scrollableResults != null) {
                 scrollableResults.close();
             }
-            if (statelessSession != null) {
-                statelessSession.close();
+            if (session != null) {
+                session.close();
             }
         }
     }

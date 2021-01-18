@@ -103,7 +103,7 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
                 LOG.debug("There are no expired sent messages.");
                 return;
             }
-            expiredMessages.stream().forEach(messageDto -> LOG.info("[{}], [{}], [{}], [{}]", messageDto.getUserMessageId(), messageDto.getSignalMessageId(), messageDto.getReceiptId(), messageDto.getBackend()));
+            expiredMessages.stream().forEach(messageDto -> LOG.info("[{}], [{}], [{}], [{}]", messageDto.getUserMessageId(), messageDto.getSignalMessageId(), messageDto.getReceiptEntityId(), messageDto.getBackend()));
         }
     }
 
