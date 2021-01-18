@@ -15,6 +15,7 @@ import org.apache.cxf.configuration.jsse.TLSClientParametersConfig;
 import org.apache.cxf.configuration.security.TLSClientParametersType;
 import org.apache.cxf.staxutils.StaxUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -41,6 +42,7 @@ public class TLSReaderServiceImpl implements TLSReaderService {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TLSReaderServiceImpl.class);
 
     public static final String REGEX_DOMIBUS_CONFIG_LOCATION = "\\Q${domibus.config.location}\\E";
+    private static final String TLS_CACHE = "tlsCache";
 
     private Set<Class<?>> classes;
     private JAXBContext context;
@@ -48,7 +50,7 @@ public class TLSReaderServiceImpl implements TLSReaderService {
     @Autowired
     private DomibusConfigurationService domibusConfigurationService;
 
-    @Cacheable("tlsCache")
+    @Cacheable(value = TLS_CACHE, key = "#domainCode")
     @Override
     public TLSClientParameters getTlsClientParameters(String domainCode) {
         Optional<Path> path = getClientAuthenticationPath(domainCode);
@@ -63,6 +65,13 @@ public class TLSReaderServiceImpl implements TLSReaderService {
             LOG.trace("", e);
             return null;
         }
+    }
+
+    @Override
+    @CacheEvict(value = TLS_CACHE, key = "#domainCode")
+    public void reset(String domainCode) {
+        int i =1;
+        // just reset cache for now
     }
 
     @Override

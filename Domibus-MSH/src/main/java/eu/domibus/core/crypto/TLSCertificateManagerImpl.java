@@ -32,55 +32,56 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
 
     @Override
     public void replaceTrustStore(String fileName, byte[] fileContent, String filePassword) throws CryptoException {
-        KeyStoreType trustParams = getTruststoreParams();
-        String trustStoreLocation = trustParams.getFile();
-        String trustStorePassword = trustParams.getPassword();
-        String trustStoreType = trustParams.getType();
+        KeyStoreType trustStore = getTruststoreParams();
 
-        certificateService.replaceTrustStore(fileName, fileContent, filePassword, trustStoreType, trustStoreLocation, trustStorePassword);
+        certificateService.replaceTrustStore(fileName, fileContent, filePassword,
+                trustStore.getType(), trustStore.getFile(), trustStore.getPassword());
 
-        Domain currentDomain = domainProvider.getCurrentDomain();
-        tlsReaderService.reset(currentDomain.getCode()); // needed really?
-        signalService.signalTLSTrustStoreUpdate(currentDomain);
+        resetTLSTruststore();
     }
 
     @Override
     public List<TrustStoreEntry> getTrustStoreEntries() {
-        KeyStoreType trustParams = getTruststoreParams();
-        String trustStoreLocation = trustParams.getFile();
-        String trustStorePassword = trustParams.getPassword();
+        KeyStoreType trustStore = getTruststoreParams();
 
-        return certificateService.getTrustStoreEntries(trustStoreLocation, trustStorePassword);
+        return certificateService.getTrustStoreEntries(trustStore.getFile(), trustStore.getPassword());
     }
 
     @Override
     public byte[] getTruststoreContent() {
-        KeyStoreType trustParams = getTruststoreParams();
-        String trustStoreLocation = trustParams.getFile();
-        return certificateService.getTruststoreContent(trustStoreLocation);
+        KeyStoreType trustStore = getTruststoreParams();
+        return certificateService.getTruststoreContent(trustStore.getFile());
     }
 
     @Override
     public boolean addCertificate(byte[] certificateData, String alias) {
-        KeyStoreType trustParams = getTruststoreParams();
-        String trustStoreLocation = trustParams.getFile();
-        String trustStorePassword = trustParams.getPassword();
+        KeyStoreType trustStore = getTruststoreParams();
+        boolean result = certificateService.addCertificate(trustStore.getPassword(), trustStore.getFile(), certificateData, alias, true);
 
-        return certificateService.addCertificate(trustStorePassword, trustStoreLocation, certificateData, alias, true);
+        resetTLSTruststore();
+        return result;
     }
 
     @Override
     public boolean removeCertificate(String alias) {
-        KeyStoreType trustParams = getTruststoreParams();
-        String trustStoreLocation = trustParams.getFile();
-        String trustStorePassword = trustParams.getPassword();
+        KeyStoreType trustStore = getTruststoreParams();
+        boolean result = certificateService.removeCertificate(trustStore.getPassword(), trustStore.getFile(), alias, true);
 
-        return certificateService.removeCertificate(trustStorePassword, trustStoreLocation, alias, true);
+        resetTLSTruststore();
+        return result;
     }
 
     protected KeyStoreType getTruststoreParams() {
         Domain domain = domainProvider.getCurrentDomain();
-        TLSClientParametersType params = tlsReaderService.getTlsClientParametersType(domain.getCode());
+        String domainCode = domain != null ? domain.getCode() : null;
+        TLSClientParametersType params = tlsReaderService.getTlsClientParametersType(domainCode);
         return params.getTrustManagers().getKeyStore();
+    }
+
+    protected void resetTLSTruststore() {
+        Domain domain = domainProvider.getCurrentDomain();
+        String domainCode = domain != null ? domain.getCode() : null;
+        tlsReaderService.reset(domainCode);
+        signalService.signalTLSTrustStoreUpdate(domain);
     }
 }

@@ -101,6 +101,7 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
     public synchronized void replaceTrustStore(byte[] store, String password) throws CryptoSpiException {
         certificateService.replaceTrustStore(store, password, getTrustStoreType(), getTrustStoreLocation(), getTrustStorePassword());
 
+        refreshTrustStore();
         signalService.signalTrustStoreUpdate(domain);
 
 //        LOG.debug("Replacing the existing trust store file [{}] with the provided one", getTrustStoreLocation());
@@ -143,6 +144,9 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
 
     private synchronized void persistTrustStore() throws CryptoException {
         certificateService.persistTrustStore(getTrustStore(), getTrustStorePassword(), getTrustStoreLocation());
+
+        refreshTrustStore();
+        signalService.signalTrustStoreUpdate(domain);
 
 //        String trustStoreFileValue = getTrustStoreLocation();
 //        LOG.debug("TrustStoreLocation is: [{}]", trustStoreFileValue);

@@ -10,4 +10,6 @@ import org.apache.cxf.configuration.security.TLSClientParametersType;
 public interface TLSReaderService {
     TLSClientParameters getTlsClientParameters(String domainCode);
     TLSClientParametersType getTlsClientParametersType(String domainCode);
+
+    void reset(String domainCode);
 }

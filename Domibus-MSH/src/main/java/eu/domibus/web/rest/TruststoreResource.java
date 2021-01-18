@@ -88,7 +88,7 @@ public class TruststoreResource extends BaseResource {
 
     @GetMapping(value = "/download", produces = "application/octet-stream")
     public ResponseEntity<ByteArrayResource> downloadTrustStore() {
-        return downloadTruststoreContent(() -> auditService.addTruststoreDownloadedAudit());
+        return downloadTruststoreContent(auditService::addTruststoreDownloadedAudit);
     }
 
     @RequestMapping(value = {"/list"}, method = GET)
