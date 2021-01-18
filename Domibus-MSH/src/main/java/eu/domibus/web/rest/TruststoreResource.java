@@ -1,5 +1,6 @@
 package eu.domibus.web.rest;
 
+import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.CertificateService;
@@ -30,8 +31,6 @@ import static org.springframework.web.bind.annotation.RequestMethod.GET;
 @RequestMapping(value = "/rest/truststore")
 public class TruststoreResource extends TruststoreResourceBase {
 
-    public static final String ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD = "Failed to upload the truststoreFile file since its password was empty."; //NOSONAR
-
     private final MultiDomainCryptoService multiDomainCertificateProvider;
 
     private final DomainContextProvider domainProvider;
@@ -51,7 +50,7 @@ public class TruststoreResource extends TruststoreResourceBase {
 
     @PostMapping(value = "/save")
     public String uploadTruststoreFile(@RequestPart("file") MultipartFile truststoreFile,
-                                       @SkipWhiteListed @RequestParam("password") String password) throws IllegalArgumentException {
+                                       @SkipWhiteListed @RequestParam("password") String password) throws RequestValidationException {
         replaceTruststore(truststoreFile, password);
 
         return "Truststore file has been successfully replaced.";

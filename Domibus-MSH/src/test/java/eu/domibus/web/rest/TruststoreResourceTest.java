@@ -1,6 +1,5 @@
 package eu.domibus.web.rest;
 
-import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
@@ -20,6 +19,7 @@ import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,9 +28,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -49,13 +46,7 @@ public class TruststoreResourceTest {
     TruststoreResource truststoreResource;
 
     @Injectable
-    MultiDomainCryptoService multiDomainCertificateProvider;
-
-    @Injectable
-    MultiDomainCryptoServiceImpl multiDomainCryptoService;
-
-//    @Injectable
-//    TLSMultiDomainCryptoServiceImpl tlsMultiDomainCryptoService;
+    MultiDomainCryptoService multiDomainCryptoService;
 
     @Injectable
     protected DomainContextProvider domainProvider;
@@ -169,7 +160,8 @@ public class TruststoreResourceTest {
         new Expectations() {{
             domainProvider.getCurrentDomain();
             result = domain;
-
+            multiDomainCryptoService.getTrustStore(domain);
+            result = trustStore;
             certificateService.getTrustStoreEntries(trustStore);
             result = trustStoreEntryList;
             domainConverter.convert(trustStoreEntryList, TrustStoreRO.class);
@@ -232,36 +224,36 @@ public class TruststoreResourceTest {
         try {
             String response = truststoreResource.uploadTruststoreFile(multipartFile, emptyPassword);
             Assert.fail();
-        } catch (Exception ex) {
-            Assert.assertTrue("Should have returned the correct error message", ex.getMessage().contentEquals(ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD));
+        } catch (RequestValidationException ex) {
+            Assert.assertTrue("Should have returned the correct error message", ex.getMessage().contains(ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD));
         }
     }
 
-//    @Test
-//    public void testDownload(@Injectable MultiDomainCryptoService multiDomainCertificateProvider,
-//                             @Mocked Runnable auditMethod, @Mocked Domain domain) throws IOException {
-//
-//        final byte[] fileContent = new byte[]{1, 0, 1};
-//        // Given
-//        new Expectations() {{
-//            domainProvider.getCurrentDomain();
-//            result = domain;
-//
-//            multiDomainCertificateProvider.getTruststoreContent(domain);
-//            result = fileContent;
-//        }};
-//
-//        // When
-//        ResponseEntity<ByteArrayResource> responseEntity = truststoreResource.downloadTruststoreContent(multiDomainCertificateProvider, auditMethod);
-//
-//        // Then
-//        validateResponseEntity(responseEntity, HttpStatus.OK);
-//
-//        new Verifications() {{
-//            auditMethod.run();
-//        }};
-//
-//    }
+    @Test
+    public void testDownload(@Injectable MultiDomainCryptoService multiDomainCertificateProvider,
+                             @Mocked Runnable auditMethod, @Mocked Domain domain) throws IOException {
+
+        final byte[] fileContent = new byte[]{1, 0, 1};
+        // Given
+        new Expectations() {{
+            domainProvider.getCurrentDomain();
+            result = domain;
+
+            multiDomainCertificateProvider.getTruststoreContent(domain);
+            result = fileContent;
+        }};
+
+        // When
+        ResponseEntity<ByteArrayResource> responseEntity = truststoreResource.downloadTruststoreContent();
+
+        // Then
+        validateResponseEntity(responseEntity, HttpStatus.OK);
+
+        new Verifications() {{
+            auditMethod.run();
+        }};
+
+    }
 
 //    @Test
 //    public void replaceTruststore(@Injectable MultiDomainCryptoService multiDomainCertificateProvider, @Mocked Domain domain) {
@@ -273,16 +265,17 @@ public class TruststoreResourceTest {
 //            result = fileContent;
 //            domainProvider.getCurrentDomain();
 //            result = domain;
+//            multiPartFile.getOriginalFilename();
+//            result="file1";
 //        }};
 //
 //        // When
-//        truststoreResource.replaceTruststore(multiDomainCertificateProvider, multiPartFile, "pass");
+//        truststoreResource.replaceTruststore(multiPartFile, "pass");
 //
 //        new Verifications() {{
 //            multiPartFileUtil.validateAndGetFileContent(multiPartFile);
-//            multiDomainCertificateProvider.replaceTrustStore(domain, multiPartFile.getOriginalFilename(), fileContent, "pass");
+//            multiDomainCertificateProvider.replaceTrustStore(domain, "file1", fileContent, "pass");
 //        }};
-//
 //    }
 
     @Test
@@ -305,24 +298,24 @@ public class TruststoreResourceTest {
         Assert.assertEquals(entries, res);
     }
 
-//    @Test
-//    public void uploadTruststoreFile(@Injectable MultiDomainCryptoServiceImpl multiDomainCertificateProvider, @Mocked Domain domain) {
-//        String pass = "pass";
-//        MultipartFile truststoreFile = new MockMultipartFile("filename", new byte[]{1, 0, 1});
-//        new Expectations(truststoreResource) {{
-//            domainProvider.getCurrentDomain();
-//            result = domain;
-//            truststoreResource.replaceTruststore(multiDomainCertificateProvider, truststoreFile, pass);
-//            Domain currentDomain = domainProvider.getCurrentDomain();
-//            final KeyStore trustStore = multiDomainCertificateProvider.getTrustStore(currentDomain);
-//            final KeyStore keyStore = multiDomainCertificateProvider.getKeyStore(currentDomain);
-//            certificateService.saveCertificateAndLogRevocation(trustStore, keyStore);
-//        }};
-//
-//        String response = truststoreResource.uploadTruststoreFile(truststoreFile, pass);
-//
-//        Assert.assertEquals("Truststore file has been successfully replaced.", response);
-//    }
+    @Test
+    public void uploadTruststoreFile(@Injectable MultiDomainCryptoServiceImpl multiDomainCertificateProvider, @Mocked Domain domain) {
+        String pass = "pass";
+        MultipartFile truststoreFile = new MockMultipartFile("filename", new byte[]{1, 0, 1});
+        new Expectations(truststoreResource) {{
+            domainProvider.getCurrentDomain();
+            result = domain;
+            truststoreResource.replaceTruststore(truststoreFile, pass);
+            Domain currentDomain = domainProvider.getCurrentDomain();
+            final KeyStore trustStore = multiDomainCertificateProvider.getTrustStore(currentDomain);
+            final KeyStore keyStore = multiDomainCertificateProvider.getKeyStore(currentDomain);
+            certificateService.saveCertificateAndLogRevocation(trustStore, keyStore);
+        }};
+
+        String response = truststoreResource.uploadTruststoreFile(truststoreFile, pass);
+
+        Assert.assertEquals("Truststore file has been successfully replaced.", response);
+    }
 
     private void validateResponseEntity(ResponseEntity<? extends Resource> responseEntity, HttpStatus httpStatus) {
         Assert.assertNotNull(responseEntity);
