@@ -742,7 +742,7 @@ public class UsersPgTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-	// This Test Case verifies error while deleting/deactivating logged in admin user but same successful action  for all other admin users.
+	// This Test Case verifies error while deleting/deactivating logged in admin user
 	@Test(description = "USR-52", groups = {"singleTenancy"})
 	public void adminDeleteAll() throws Exception {
 		SoftAssert soft = new SoftAssert();
@@ -801,8 +801,7 @@ public class UsersPgTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-	// This Test Case verifies error while deleting/deactivating logged in Super admin user but same successful action
-	// for all other super admin users.
+	// This Test Case verifies error while deleting/deactivating logged in Super admin user.
 	@Test(description = "USR-51", groups = {"multiTenancy"})
 	public void superDeleteAll() throws Exception {
 		SoftAssert soft = new SoftAssert();
