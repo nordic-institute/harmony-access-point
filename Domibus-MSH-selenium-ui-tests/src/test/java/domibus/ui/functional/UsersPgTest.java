@@ -801,8 +801,6 @@ public class UsersPgTest extends SeleniumTest {
 				rest.users().deleteUser(userName, userPage.getDomainFromTitle());
 				log.info("Deleting user :" + userName);
 			}
-			userPage.refreshPage();
-			userPage.waitForPageTitle();
 
 		}
 		soft.assertAll();
