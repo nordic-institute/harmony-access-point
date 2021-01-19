@@ -456,7 +456,7 @@ public class CertificateServiceImpl implements CertificateService {
         }
     }
 
-    private boolean doAddCertificate(KeyStore truststore, X509Certificate certificate, String alias, boolean overwrite) {
+    protected boolean doAddCertificate(KeyStore truststore, X509Certificate certificate, String alias, boolean overwrite) {
         boolean containsAlias;
         try {
             containsAlias = truststore.containsAlias(alias);

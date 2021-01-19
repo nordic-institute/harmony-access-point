@@ -13,6 +13,7 @@ import eu.domibus.core.alerts.configuration.certificate.imminent.ImminentExpirat
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.certificate.crl.CRLService;
 import eu.domibus.core.crypto.DefaultDomainCryptoServiceSpiImpl;
+import eu.domibus.core.crypto.spi.CryptoSpiException;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.pki.PKIUtil;
 import eu.domibus.core.pmode.provider.PModeProvider;
@@ -34,10 +35,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
+import java.io.*;
 import java.math.BigInteger;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -838,4 +836,196 @@ public class CertificateServiceImplTest {
         certificateService.removeCertificate("pass", "location", "alias", true);
     }
 
+    @Test
+    public void throwsExceptionWhenFailingToOverwriteExistingCertificateIntoTheTrustStore(@Injectable X509Certificate certificate,
+                                                                                          @Injectable KeyStore trustStore) throws KeyStoreException {
+        thrown.expect(ConfigurationException.class);
+
+        new Expectations() {{
+            trustStore.containsAlias("alias");
+            result = true;
+            trustStore.deleteEntry("alias");
+            result = new KeyStoreException();
+        }};
+
+        // When
+        certificateService.doAddCertificate(trustStore, certificate, "alias", true);
+    }
+
+    @Test
+    public void throwsExceptionWhenFailingToBackupTheCurrentTrustStore_NoSuchAlgorithmException(@Mocked ByteArrayOutputStream oldTrustStoreBytes,
+                                                                                                @Injectable KeyStore trustStore) throws Exception {
+        thrown.expect(CryptoException.class);
+        thrown.expectMessage("Could not replace truststore");
+
+        new Expectations(certificateService) {{
+            certificateService.loadTrustStore((byte[]) any, anyString);
+            result = trustStore;
+            new ByteArrayOutputStream();
+            result = oldTrustStoreBytes;
+            trustStore.store(oldTrustStoreBytes, (char[]) any);
+            result = new NoSuchAlgorithmException();
+        }};
+
+        // When
+        certificateService.replaceTrustStore(new byte[]{}, "pass", "type", "location", "pass2");
+
+        new Verifications() {{
+            oldTrustStoreBytes.close();
+        }};
+    }
+
+    @Test
+    public void throwsExceptionWhenFailingToBackupTheCurrentTrustStore_CertificateException(@Mocked ByteArrayOutputStream oldTrustStoreBytes,
+                                                                                            @Injectable KeyStore trustStore) throws Exception {
+        thrown.expect(CryptoException.class);
+        thrown.expectMessage("Could not replace truststore");
+
+        new Expectations(certificateService) {{
+            certificateService.loadTrustStore((byte[]) any, anyString);
+            result = trustStore;
+            new ByteArrayOutputStream();
+            result = oldTrustStoreBytes;
+            trustStore.store(oldTrustStoreBytes, (char[]) any);
+            result = new CertificateException();
+        }};
+
+        // When
+        certificateService.replaceTrustStore(new byte[]{}, "pass", "type", "location", "pass2");
+
+        new Verifications() {{
+            oldTrustStoreBytes.close();
+        }};
+    }
+
+    public static final String PRIVATE_KEY_PASSWORD = "privateKeyPassword";
+
+    public static final String TRUST_STORE_PASSWORD = "trustStorePassword";
+
+    public static final String TRUST_STORE_TYPE = "trustStoreType";
+
+    public static final String TRUST_STORE_LOCATION = "trustStoreLocation";
+
+//    @Test
+//    public void verifiesTheNewTruststoreCanBeLoadedUsingTheProvidedPasswordBeforeReplacingTheOldTruststore(@Mocked ByteArrayInputStream newTrustStoreBytes,
+//                                                                                                           @Injectable KeyStore trustStore) {
+//        // Given
+//        byte[] store = {1, 2, 3};
+//        new MockUp<CertificateServiceImpl>() {
+//            @Mock
+//            void persistTrustStore(KeyStore truststore, String password, String trustStoreLocation) {/* ignore */}
+//
+//            @Mock
+//            void closeStream(Closeable stream) {/* ignore */}
+//        };
+//
+//        new Expectations(certificateService) {{
+//            certificateService.loadTrustStore((byte[]) any, anyString);
+//            result = trustStore;
+//            new ByteArrayInputStream(store);
+//            result = newTrustStoreBytes;
+//            certificateService.validateLoadOperation(newTrustStoreBytes, PRIVATE_KEY_PASSWORD, TRUST_STORE_TYPE);
+//        }};
+//
+//        // When
+//        certificateService.replaceTrustStore(store, PRIVATE_KEY_PASSWORD, TRUST_STORE_TYPE, TRUST_STORE_LOCATION, TRUST_STORE_PASSWORD);
+//
+//        new Verifications() {{
+//            certificateService.validateLoadOperation(newTrustStoreBytes, PRIVATE_KEY_PASSWORD, TRUST_STORE_TYPE);
+//        }};
+//    }
+
+    @Test
+    public void throwsExceptionWhenFailingToLoadTheNewTrustStore_IOException(@Mocked ByteArrayInputStream newTrustStoreBytes,
+                                                                             @Injectable KeyStore trustStore) throws CertificateException, NoSuchAlgorithmException, IOException {
+        // Given
+        byte[] store = {1, 2, 3};
+
+        thrown.expect(CryptoException.class);
+        thrown.expectMessage("originalMessage");
+
+        new Expectations(certificateService) {{
+            certificateService.loadTrustStore(store, anyString);
+            result = trustStore;
+            new ByteArrayInputStream(store);
+            result = newTrustStoreBytes;
+            certificateService.validateLoadOperation(newTrustStoreBytes, anyString, anyString);
+            trustStore.load(newTrustStoreBytes, (char[]) any);
+            result = new IOException("originalMessage");
+        }};
+
+        // When
+        certificateService.replaceTrustStore(store, TRUST_STORE_PASSWORD, TRUST_STORE_TYPE, TRUST_STORE_LOCATION, TRUST_STORE_PASSWORD);
+    }
+
+    @Test
+    public void throwsExceptionWhenFailingToLoadTheNewTrustStore_NoSuchAlgorithmException(@Mocked ByteArrayInputStream newTrustStoreBytes,
+                                                                                          @Injectable KeyStore trustStore) throws Exception {
+        // Given
+        byte[] store = {1, 2, 3};
+
+        thrown.expect(CryptoException.class);
+        thrown.expectMessage("originalMessage");
+
+        new Expectations(certificateService) {{
+            certificateService.loadTrustStore(store, anyString);
+            result = trustStore;
+            new ByteArrayInputStream(store);
+            result = newTrustStoreBytes;
+            certificateService.validateLoadOperation(newTrustStoreBytes, anyString, anyString);
+            trustStore.load(newTrustStoreBytes, (char[]) any);
+            result = new NoSuchAlgorithmException("originalMessage");
+        }};
+
+        // When
+        certificateService.replaceTrustStore(store, TRUST_STORE_PASSWORD, TRUST_STORE_TYPE, TRUST_STORE_LOCATION, TRUST_STORE_PASSWORD);
+    }
+
+    @Test
+    public void throwsExceptionWhenFailingToLoadTheNewTrustStore_CertificateException(@Mocked ByteArrayInputStream newTrustStoreBytes,
+                                                                                      @Injectable KeyStore trustStore) throws Exception {
+        // Given
+        byte[] store = {1, 2, 3};
+
+        thrown.expect(CryptoException.class);
+        thrown.expectMessage("originalMessage");
+
+        new Expectations(certificateService) {{
+            certificateService.loadTrustStore(store, anyString);
+            result = trustStore;
+            new ByteArrayInputStream(store);
+            result = newTrustStoreBytes;
+            certificateService.validateLoadOperation(newTrustStoreBytes, anyString, anyString);
+            trustStore.load(newTrustStoreBytes, (char[]) any);
+            result = new CertificateException("originalMessage");
+        }};
+
+        // When
+        certificateService.replaceTrustStore(store, TRUST_STORE_PASSWORD, TRUST_STORE_TYPE, TRUST_STORE_LOCATION, TRUST_STORE_PASSWORD);
+    }
+
+    @Test
+    public void throwsExceptionWhenPersistTheTrustStore_CryptoException(@Mocked ByteArrayInputStream newTrustStoreBytes) throws Exception {
+        // Given
+        byte[] store = {1, 2, 3};
+        Deencapsulation.setField(domainCryptoService, "truststore", trustStore);
+
+        thrown.expect(CryptoSpiException.class);
+        thrown.expectMessage("originalMessage");
+
+        new MockUp<DefaultDomainCryptoServiceSpiImpl>() {
+            @Mock
+            void persistTrustStore() {
+                throw new CryptoException("originalMessage");
+            }
+        };
+        new Expectations() {{
+            new ByteArrayInputStream(store);
+            result = newTrustStoreBytes;
+        }};
+
+        // When
+        domainCryptoService.replaceTrustStore(store, "");
+    }
+    
 }
