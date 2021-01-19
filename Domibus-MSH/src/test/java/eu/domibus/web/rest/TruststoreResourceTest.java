@@ -1,9 +1,7 @@
 package eu.domibus.web.rest;
 
-import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.security.TrustStoreEntry;
@@ -19,21 +17,16 @@ import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.security.KeyStore;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
-
-import static eu.domibus.web.rest.TruststoreResource.ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD;
 
 /**
  * @author Tiago Miguel
@@ -46,7 +39,7 @@ public class TruststoreResourceTest {
     TruststoreResource truststoreResource;
 
     @Injectable
-    MultiDomainCryptoService multiDomainCryptoService;
+    MultiDomainCryptoService multiDomainCertificateProvider;
 
     @Injectable
     protected DomainContextProvider domainProvider;
@@ -70,217 +63,31 @@ public class TruststoreResourceTest {
     private AuditService auditService;
 
     @Test
-    public void testUploadTruststoreFileSuccess() {
-        // Given
-        MultipartFile multiPartFile = new MockMultipartFile("filename", new byte[]{1, 0, 1});
-
-        // When
-        String response = truststoreResource.uploadTruststoreFile(multiPartFile, "pass");
-
-        // Then
-        Assert.assertNotNull(response);
-        Assert.assertEquals("Truststore file has been successfully replaced.", response);
-    }
-
-    @Test
-    public void testUploadTruststoreEmpty() {
-        // Given
-        MultipartFile emptyFile = new MockMultipartFile("truststore", new byte[]{});
-
-        new Expectations() {{
-            multiPartFileUtil.validateAndGetFileContent(emptyFile);
-            result = new IllegalArgumentException("Failed to upload the truststore file since it was empty.");
-        }};
-
-        // When
-        try {
-            String responseEntity = truststoreResource.uploadTruststoreFile(emptyFile, "pass");
-        } catch (IllegalArgumentException ex) {
-            // Then
-            Assert.assertEquals("Failed to upload the truststore file since it was empty.", ex.getMessage());
-        }
-    }
-
-//    @Test(expected = CryptoException.class)
-//    public void testUploadTruststoreException(@Injectable MultiDomainCryptoService certificateProvider) throws CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException {
-//        // Given
-//        MultipartFile multiPartFile = new MockMultipartFile("filename", new byte[]{1, 0, 1});
-//
-//        final Domain domain = DomainService.DEFAULT_DOMAIN;
-//
-//        new Expectations() {{
-//            multiPartFileUtil.validateAndGetFileContent(multiPartFile);
-//            result = new byte[]{1, 0, 1};
-//
-//            domainProvider.getCurrentDomain();
-//            result = domain;
-//
-//            certificateProvider.replaceTrustStore(domain, anyString, (byte[]) any, anyString);
-//            result = new CryptoException("Password is incorrect");
-//        }};
-//
-//        // When
-//        truststoreResource.replaceTruststore(certificateProvider, multiPartFile, "pass");
-//    }
-
-    private List<TrustStoreRO> getTestTrustStoreROList(Date date) {
-        List<TrustStoreRO> trustStoreROList = new ArrayList<>();
-        TrustStoreRO trustStoreRO = new TrustStoreRO();
-        trustStoreRO.setName("Name");
-        trustStoreRO.setSubject("Subject");
-        trustStoreRO.setIssuer("Issuer");
-        trustStoreRO.setValidFrom(date);
-        trustStoreRO.setValidUntil(date);
-        trustStoreROList.add(trustStoreRO);
-        return trustStoreROList;
-    }
-
-    private List<TrustStoreRO> getTestTrustStoreROList2(Date date) {
-        List<TrustStoreRO> trustStoreROList = getTestTrustStoreROList(date);
-        TrustStoreRO trustStoreRO = new TrustStoreRO();
-        trustStoreRO.setName("Name2");
-        trustStoreRO.setSubject("Subject2");
-        trustStoreRO.setIssuer("Issuer2");
-        trustStoreRO.setValidFrom(date);
-        trustStoreRO.setValidUntil(date);
-        trustStoreROList.add(trustStoreRO);
-        return trustStoreROList;
-    }
-
-    @Test
-    public void testTrustStoreEntries(@Mocked KeyStore trustStore) {
-        // Given
-        Date date = new Date();
-        List<TrustStoreEntry> trustStoreEntryList = new ArrayList<>();
-        TrustStoreEntry trustStoreEntry = new TrustStoreEntry("Name", "Subject", "Issuer", date, date);
-        trustStoreEntryList.add(trustStoreEntry);
-
-        final Domain domain = DomainService.DEFAULT_DOMAIN;
-
-        new Expectations() {{
-            domainProvider.getCurrentDomain();
-            result = domain;
-            multiDomainCryptoService.getTrustStore(domain);
-            result = trustStore;
-            certificateService.getTrustStoreEntries(trustStore);
-            result = trustStoreEntryList;
-            domainConverter.convert(trustStoreEntryList, TrustStoreRO.class);
-            result = getTestTrustStoreROList(date);
-        }};
-
-        // When
-        final List<TrustStoreRO> trustStoreROList = truststoreResource.trustStoreEntries();
-
-        // Then
-        Assert.assertEquals(getTestTrustStoreROList(date), trustStoreROList);
-    }
-
-    @Test
-    public void testGetCsv(@Mocked String moduleName) {
-        // Given
-        Date date = new Date();
-        List<TrustStoreRO> trustStoreROList = getTestTrustStoreROList(date);
-        new Expectations(truststoreResource) {{
-            truststoreResource.getTrustStoreEntries();
-            result = trustStoreROList;
-
-            csvServiceImpl.exportToCSV(trustStoreROList, null, (Map<String, String>) any, (List<String>) any);
-            result = "Name, Subject, Issuer, Valid From, Valid Until" + System.lineSeparator() +
-                    "Name, Subject, Issuer, " + date + ", " + date + System.lineSeparator();
-        }};
-
-        // When
-        final ResponseEntity<String> csv = truststoreResource.getEntriesAsCSV(moduleName);
-
-        // Then
-        Assert.assertEquals(HttpStatus.OK, csv.getStatusCode());
-        Assert.assertEquals("Name, Subject, Issuer, Valid From, Valid Until" + System.lineSeparator() +
-                        "Name, Subject, Issuer, " + date + ", " + date + System.lineSeparator(),
-                csv.getBody());
-    }
-
-    @Test(expected = RequestValidationException.class)
-    public void testGetCsv_validationExeption() {
-        // Given
-        Date date = new Date();
-        List<TrustStoreRO> trustStoreROList = getTestTrustStoreROList2(date);
-        new Expectations(truststoreResource) {{
-            truststoreResource.getTrustStoreEntries();
-            result = trustStoreROList;
-            csvServiceImpl.validateMaxRows(trustStoreROList.size());
-            result = new RequestValidationException("");
-        }};
-
-        // When
-        final ResponseEntity<String> csv = truststoreResource.getEntriesAsCSV("truststore");
-    }
-
-    @Test
-    public void uploadTruststoreFile_rejectsWhenNoPasswordProvided(@Injectable MultipartFile multipartFile) throws Exception {
-        // GIVEN
-        final String emptyPassword = "";
-
-        // WHEN
-        try {
-            String response = truststoreResource.uploadTruststoreFile(multipartFile, emptyPassword);
-            Assert.fail();
-        } catch (RequestValidationException ex) {
-            Assert.assertTrue("Should have returned the correct error message", ex.getMessage().contains(ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD));
-        }
-    }
-
-    @Test
-    public void testDownload(@Injectable MultiDomainCryptoService multiDomainCertificateProvider,
-                             @Mocked Runnable auditMethod, @Mocked Domain domain) throws IOException {
-
+    public void replaceTruststore(@Mocked Domain domain, @Mocked KeyStore trustStore, @Mocked KeyStore keyStore) {
         final byte[] fileContent = new byte[]{1, 0, 1};
-        // Given
+        String filename = "filename";
+
         new Expectations() {{
             domainProvider.getCurrentDomain();
             result = domain;
-
-            multiDomainCertificateProvider.getTruststoreContent(domain);
-            result = fileContent;
+            multiDomainCertificateProvider.getTrustStore(domain);
+            result = trustStore;
+            multiDomainCertificateProvider.getKeyStore(domain);
+            result = keyStore;
         }};
 
         // When
-        ResponseEntity<ByteArrayResource> responseEntity = truststoreResource.downloadTruststoreContent();
-
-        // Then
-        validateResponseEntity(responseEntity, HttpStatus.OK);
+        String pass = "pass";
+        truststoreResource.doReplaceTrustStore(fileContent, filename, pass);
 
         new Verifications() {{
-            auditMethod.run();
+            multiDomainCertificateProvider.replaceTrustStore(domainProvider.getCurrentDomain(), filename, fileContent, pass);
+            certificateService.saveCertificateAndLogRevocation(trustStore, keyStore);
         }};
-
     }
 
-//    @Test
-//    public void replaceTruststore(@Injectable MultiDomainCryptoService multiDomainCertificateProvider, @Mocked Domain domain) {
-//        final byte[] fileContent = new byte[]{1, 0, 1};
-//        MultipartFile multiPartFile = new MockMultipartFile("filename", fileContent);
-//
-//        new Expectations() {{
-//            multiPartFileUtil.validateAndGetFileContent(multiPartFile);
-//            result = fileContent;
-//            domainProvider.getCurrentDomain();
-//            result = domain;
-//            multiPartFile.getOriginalFilename();
-//            result="file1";
-//        }};
-//
-//        // When
-//        truststoreResource.replaceTruststore(multiPartFile, "pass");
-//
-//        new Verifications() {{
-//            multiPartFileUtil.validateAndGetFileContent(multiPartFile);
-//            multiDomainCertificateProvider.replaceTrustStore(domain, "file1", fileContent, "pass");
-//        }};
-//    }
-
     @Test
-    public void getTrustStoreEntries(@Injectable MultiDomainCryptoService multiDomainCertificateProvider, @Mocked Domain domain,
-                                     @Mocked KeyStore store, @Mocked List<TrustStoreEntry> trustStoreEntries, @Mocked List<TrustStoreRO> entries) {
+    public void getTrustStoreEntries(@Mocked Domain domain, @Mocked KeyStore store, @Mocked List<TrustStoreEntry> trustStoreEntries) {
 
         new Expectations() {{
             domainProvider.getCurrentDomain();
@@ -289,38 +96,11 @@ public class TruststoreResourceTest {
             result = store;
             certificateService.getTrustStoreEntries(store);
             result = trustStoreEntries;
-            domainConverter.convert(trustStoreEntries, TrustStoreRO.class);
-            result = entries;
         }};
 
-        List<TrustStoreRO> res = truststoreResource.getTrustStoreEntries();
+        List<TrustStoreEntry> res = truststoreResource.doGetTrustStoreEntries();
 
-        Assert.assertEquals(entries, res);
+        Assert.assertEquals(trustStoreEntries, res);
     }
 
-    @Test
-    public void uploadTruststoreFile(@Injectable MultiDomainCryptoServiceImpl multiDomainCertificateProvider, @Mocked Domain domain) {
-        String pass = "pass";
-        MultipartFile truststoreFile = new MockMultipartFile("filename", new byte[]{1, 0, 1});
-        new Expectations(truststoreResource) {{
-            domainProvider.getCurrentDomain();
-            result = domain;
-            truststoreResource.replaceTruststore(truststoreFile, pass);
-            Domain currentDomain = domainProvider.getCurrentDomain();
-            final KeyStore trustStore = multiDomainCertificateProvider.getTrustStore(currentDomain);
-            final KeyStore keyStore = multiDomainCertificateProvider.getKeyStore(currentDomain);
-            certificateService.saveCertificateAndLogRevocation(trustStore, keyStore);
-        }};
-
-        String response = truststoreResource.uploadTruststoreFile(truststoreFile, pass);
-
-        Assert.assertEquals("Truststore file has been successfully replaced.", response);
-    }
-
-    private void validateResponseEntity(ResponseEntity<? extends Resource> responseEntity, HttpStatus httpStatus) {
-        Assert.assertNotNull(responseEntity);
-        Assert.assertEquals(httpStatus, responseEntity.getStatusCode());
-        Assert.assertEquals("attachment; filename=TrustStore.jks", responseEntity.getHeaders().get("content-disposition").get(0));
-        Assert.assertEquals("Byte array resource [resource loaded from byte array]", responseEntity.getBody().getDescription());
-    }
 }

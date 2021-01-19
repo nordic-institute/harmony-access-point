@@ -73,10 +73,11 @@ public class TruststoreResource extends TruststoreResourceBase {
 
     @Override
     protected void doReplaceTrustStore(byte[] truststoreFileContent, String fileName, String password) {
-        multiDomainCertificateProvider.replaceTrustStore(domainProvider.getCurrentDomain(), fileName, truststoreFileContent, password);
+        Domain currentDomain = domainProvider.getCurrentDomain();
+
+        multiDomainCertificateProvider.replaceTrustStore(currentDomain, fileName, truststoreFileContent, password);
 
         // trigger update certificate table
-        Domain currentDomain = domainProvider.getCurrentDomain();
         final KeyStore trustStore = multiDomainCertificateProvider.getTrustStore(currentDomain);
         final KeyStore keyStore = multiDomainCertificateProvider.getKeyStore(currentDomain);
         certificateService.saveCertificateAndLogRevocation(trustStore, keyStore);
