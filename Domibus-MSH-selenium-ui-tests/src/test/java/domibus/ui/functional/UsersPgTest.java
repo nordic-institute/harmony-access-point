@@ -893,7 +893,6 @@ public class UsersPgTest extends SeleniumTest {
 			soft.assertTrue(page.getAlertArea().getAlertMessage().equals(DMessages.LOGIN_INVALID_CREDENTIALS), "Error on login with wrong credentials");
 		}
 
-		//login(data.getAdminUser());
 		loginAndGoToUsersPage(data.getAdminUser());
 		userPage.newUser(Gen.randomAlphaNumeric(10), "tuser@bnc.com", DRoles.USER, data.defaultPass(), data.defaultPass());
 		userPage.grid().waitForRowsToLoad();
