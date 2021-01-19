@@ -16,7 +16,6 @@ import java.time.format.DateTimeFormatter;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SECURITY_TRUSTSTORE_BACKUP_LOCATION;
 
-
 /**
  * @author Ion Perpegel
  * @since 4.1.1
@@ -46,7 +45,6 @@ public class BackupServiceImpl implements BackupService {
     @Override
     public void backupFile(File originalFile) throws IOException {
         final File backupFile = getBackupFile(originalFile);
-
         copyBackUpFile(originalFile, backupFile);
     }
 
@@ -67,7 +65,6 @@ public class BackupServiceImpl implements BackupService {
     @Override
     public void backupTrustStoreFile(File originalFile) throws IOException {
         final File backupFile = getTrustStoreBackupFile();
-
         copyBackUpFile(originalFile, backupFile);
     }
 
