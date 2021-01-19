@@ -462,7 +462,8 @@ public class UsersPgUXTest extends SeleniumTest {
 			soft.assertFalse(index < 0, "User is  visible in the grid");
 
 			if (isDeleted.booleanValue()) {
-				page.grid().checkStrikeThrough(index, soft, 2);
+				//page.grid().checkStrikeThrough(index, soft, 2);
+				page.getUsersGrid().isDeleted(userName);
 			}
 		}
 		soft.assertAll();

@@ -679,8 +679,8 @@ public class UsersPgTest extends SeleniumTest {
 		int userCount = userArray.length();
 		
 		for (int i = 0; i < userCount; i++) {
-			String userName = userArray.getJSONObject(i).get("userName").toString();
-			String role = userArray.getJSONObject(i).get("roles").toString();
+			String userName = userArray.getJSONObject(i).getString("userName");
+			String role = userArray.getJSONObject(i).getString("roles");
 			if (role.equals("ROLE_AP_ADMIN") && !userName.equals("super")) {
 				rest.users().deleteUser(userName, null);
 			}
@@ -691,7 +691,7 @@ public class UsersPgTest extends SeleniumTest {
 		
 		page.grid().scrollToAndSelect("Username", "super");
 		page.getDeleteBtn().click();
-		soft.assertTrue(page.getAlertArea().getAlertMessage().equals("You cannot delete the logged in user: super"));
+		soft.assertTrue(page.getAlertArea().getAlertMessage().equals(DMessages.Users.LOGGEDINUSER_DELETE+": super"));
 		log.info("Super user can't be deleted as no other super user exists");
 		
 		page.grid().scrollToAndSelect("Username", "super");
@@ -743,12 +743,19 @@ public class UsersPgTest extends SeleniumTest {
 	}
 
 	// This Test Case verifies error while deleting/deactivating logged in admin user
-	@Test(description = "USR-52", groups = {"singleTenancy"})
+	@Test(description = "USR-52", groups = {"singleTenancy","multiTenancy"})
 	public void adminDeleteAll() throws Exception {
 		SoftAssert soft = new SoftAssert();
-		UsersPage userPage = new UsersPage(driver);
-		userPage.getSidebar().goToPage(PAGES.USERS);
-		userPage.grid().waitForRowsToLoad();
+
+		String username = rest.getUser(null, DRoles.ADMIN, true, false, true).getString("userName");
+		log.info("created user " + username);
+		UsersPage userPage =new UsersPage(driver);
+		if(data.isMultiDomain()) {
+			loginAndGoToUsersPage(username, data.defaultPass());
+		}
+		else{
+			loginAndGoToUsersPage(data.getAdminUser());
+		}
 
 		String loggedInUser = userPage.getSandwichMenu().getCurrentUserID();
 		userPage.clickVoidSpace();
@@ -761,7 +768,7 @@ public class UsersPgTest extends SeleniumTest {
 		JSONArray activeUserArray = new JSONArray();
 		for (int i = 0; i < userCount; i++) {
 			Boolean isDeleted = userArray.getJSONObject(i).getBoolean("deleted");
-			String userRole = userArray.getJSONObject(i).get("roles").toString();
+			String userRole = userArray.getJSONObject(i).getString("roles");
 
 			if (!isDeleted && userRole.equalsIgnoreCase(DRoles.ADMIN)) {
 				activeUserArray.put(userArray.get(i));
@@ -770,7 +777,7 @@ public class UsersPgTest extends SeleniumTest {
 		int activeUserCount = activeUserArray.length();
 
 		for (int i = 0; i < activeUserCount; i++) {
-			String userName = activeUserArray.getJSONObject(i).get("userName").toString();
+			String userName = activeUserArray.getJSONObject(i).getString("userName");
 
 			if (userName.equals(loggedInUser)) {
 
@@ -778,12 +785,12 @@ public class UsersPgTest extends SeleniumTest {
 				userPage.grid().scrollToAndSelect("Username", loggedInUser);
 				userPage.getEditBtn().click();
 				UserModal modal = new UserModal(driver);
-				soft.assertTrue(modal.getInputChkBox().isDisabled(), "Active check box is disabled");
+				soft.assertTrue( modal.getActiveChk().getAttribute("class").contains("disabled"),"Active checkbox is disabled");
 				modal.getCancelBtn().click();
 
 				log.info("try deleting logged in user");
 				userPage.getDeleteBtn().click();
-				soft.assertTrue(userPage.getAlertArea().getAlertMessage().contains("You cannot delete the logged in user"), "correct error message is shown");
+				soft.assertTrue(userPage.getAlertArea().getAlertMessage().contains(DMessages.Users.LOGGEDINUSER_DELETE), "correct error message is shown");
 				userPage.refreshPage();
 				userPage.waitForPageTitle();
 
@@ -819,7 +826,7 @@ public class UsersPgTest extends SeleniumTest {
 		JSONArray activeUserArray = new JSONArray();
 		for (int i = 0; i < userCount; i++) {
 			Boolean isDeleted = userArray.getJSONObject(i).getBoolean("deleted");
-			String userRole = userArray.getJSONObject(i).get("roles").toString();
+			String userRole = userArray.getJSONObject(i).getString("roles");
 
 			if (!isDeleted && userRole.equalsIgnoreCase(DRoles.SUPER)) {
 				activeUserArray.put(userArray.get(i));
@@ -829,7 +836,7 @@ public class UsersPgTest extends SeleniumTest {
 		log.info("Active super user count" + activeUserCount);
 
 		for (int i = 0; i < activeUserCount; i++) {
-			String userName = activeUserArray.getJSONObject(i).get("userName").toString();
+			String userName = activeUserArray.getJSONObject(i).getString("userName");
 
 			if (userName.equals(loggedInUser)) {
 
@@ -837,12 +844,12 @@ public class UsersPgTest extends SeleniumTest {
 				userPage.grid().scrollToAndSelect("Username", loggedInUser);
 				userPage.getEditBtn().click();
 				UserModal modal = new UserModal(driver);
-				soft.assertTrue(modal.getInputChkBox().isDisabled(), "Active check box is disabled");
+				soft.assertTrue( modal.getActiveChk().getAttribute("class").contains("disabled"),"Active checkbox is disabled");
 				modal.getCancelBtn().click();
 
 				log.info("try deleting logged in user");
 				userPage.getDeleteBtn().click();
-				soft.assertTrue(userPage.getAlertArea().getAlertMessage().contains("You cannot delete the logged in user"), "Error while deleting logged in user");
+				soft.assertTrue(userPage.getAlertArea().getAlertMessage().contains(DMessages.Users.LOGGEDINUSER_DELETE), "Error while deleting logged in user");
 				userPage.refreshPage();
 				userPage.waitForPageTitle();
 
@@ -879,8 +886,8 @@ public class UsersPgTest extends SeleniumTest {
 		page.getSidebar().goToPage(PAGES.USERS);
 		UsersPage userPage = new UsersPage(driver);
 		for (int i = 0; i < userCount; i++) {
-			String userName = userArray.getJSONObject(i).get("userName").toString();
-			String userRole = userArray.getJSONObject(i).get("roles").toString();
+			String userName = userArray.getJSONObject(i).getString("userName");
+			String userRole = userArray.getJSONObject(i).getString("roles");
 
 			if (userRole.equalsIgnoreCase(DRoles.ADMIN) && !userName.equals(newUser)) {
 				rest.users().deactivate(userName, page.getDomainFromTitle());
@@ -921,7 +928,7 @@ public class UsersPgTest extends SeleniumTest {
 		log.info("Get all active admin users");
 		for (int i = 0; i < userCount; i++) {
 			Boolean isDeleted = userArray.getJSONObject(i).getBoolean("deleted");
-			String userRole = userArray.getJSONObject(i).get("roles").toString();
+			String userRole = userArray.getJSONObject(i).getString("roles");
 
 			if (!isDeleted && userRole.equalsIgnoreCase(DRoles.ADMIN)) {
 				activeUserArray.put(userArray.get(i));
@@ -930,7 +937,7 @@ public class UsersPgTest extends SeleniumTest {
 		int activeUserCount = activeUserArray.length();
 
 		for (int i = 0; i < activeUserCount; i++) {
-			String userName = activeUserArray.getJSONObject(i).get("userName").toString();
+			String userName = activeUserArray.getJSONObject(i).getString("userName");
 
 			if (!userName.equals(newUser)) {
 				rest.users().deactivate(userName, userPage.getDomainFromTitle());
@@ -971,7 +978,7 @@ public class UsersPgTest extends SeleniumTest {
 		log.info("Get all active admin users");
 		for (int i = 0; i < userCount; i++) {
 			Boolean isDeleted = userArray.getJSONObject(i).getBoolean("deleted");
-			String userRole = userArray.getJSONObject(i).get("roles").toString();
+			String userRole = userArray.getJSONObject(i).getString("roles");
 
 			if (!isDeleted && userRole.equalsIgnoreCase(DRoles.ADMIN)) {
 				activeUserArray.put(userArray.get(i));
@@ -980,7 +987,7 @@ public class UsersPgTest extends SeleniumTest {
 		int activeUserCount = activeUserArray.length();
 
 		for (int i = 0; i < activeUserCount; i++) {
-			String userName = activeUserArray.getJSONObject(i).get("userName").toString();
+			String userName = activeUserArray.getJSONObject(i).getString("userName");
 
 			if (!userName.equals(newUser)) {
 				rest.users().deleteUser(userName, userPage.getDomainFromTitle());
@@ -1028,7 +1035,6 @@ public class UsersPgTest extends SeleniumTest {
 		SoftAssert soft = new SoftAssert();
 		UsersPage userPage = new UsersPage(driver);
 
-
 		userPage.getSidebar().goToPage(PAGES.USERS);
 		userPage.grid().waitForRowsToLoad();
 
@@ -1046,7 +1052,7 @@ public class UsersPgTest extends SeleniumTest {
 		log.info("Get all active admin users");
 		for (int i = 0; i < userCount; i++) {
 			Boolean isDeleted = userArray.getJSONObject(i).getBoolean("deleted");
-			String userRole = userArray.getJSONObject(i).get("roles").toString();
+			String userRole = userArray.getJSONObject(i).getString("roles");
 
 			if (!isDeleted && userRole.equalsIgnoreCase(DRoles.ADMIN)) {
 				activeUserArray.put(userArray.get(i));
@@ -1055,7 +1061,7 @@ public class UsersPgTest extends SeleniumTest {
 		int activeUserCount = activeUserArray.length();
 
 		for (int i = 0; i < activeUserCount; i++) {
-			String userName = activeUserArray.getJSONObject(i).get("userName").toString();
+			String userName = activeUserArray.getJSONObject(i).getString("userName");
 
 			if (!userName.equals(newUser) && !userName.equals(loggedInUser)) {
 				rest.users().deleteUser(userName, userPage.getDomainFromTitle());

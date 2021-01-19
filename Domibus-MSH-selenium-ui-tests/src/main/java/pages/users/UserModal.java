@@ -41,8 +41,7 @@ public class UserModal extends EditModal {
 	private WebElement passErrMess;
 	@FindBy(css = "edituser-form form #confirmation_id + span")
 	private WebElement confirmationErrMess;
-	@FindBy(css="edituser-form form #active_id-input")
-	WebElement chkBoxIp;
+
 	public UserModal(WebDriver driver) {
 		super(driver);
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
@@ -115,8 +114,5 @@ public class UserModal extends EditModal {
 	public DObject getConfirmationErrMess() {
 		wait.forXMillis(700);
 		return new DObject(driver, confirmationErrMess);
-	}
-	public Checkbox getInputChkBox() {
-		return new Checkbox(driver, chkBoxIp);
 	}
 }
