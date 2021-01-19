@@ -210,7 +210,7 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
             return null;
         }
 
-        return StringUtils.getParts(pmodeKey, MessageExchangeConfiguration.PMODEKEY_SEPARATOR);
+        return Arrays.asList(org.apache.commons.lang3.StringUtils.splitByWholeSeparator(pmodeKey, MessageExchangeConfiguration.PMODEKEY_SEPARATOR));
     }
 
     protected List<? extends Certificate> getSenderCertificateChain(SoapMessage msg) {
