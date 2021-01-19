@@ -10,7 +10,6 @@ import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.core.crypto.api.TLSCertificateManager;
 import org.apache.cxf.configuration.security.KeyStoreType;
 import org.apache.cxf.configuration.security.TLSClientParametersType;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -65,19 +64,21 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
     @Override
     public boolean addCertificate(byte[] certificateData, String alias) {
         KeyStoreType trustStore = getTruststoreParams();
-        boolean result = certificateService.addCertificate(trustStore.getPassword(), trustStore.getFile(), certificateData, alias, true);
-
-        resetTLSTruststore();
-        return result;
+        boolean added = certificateService.addCertificate(trustStore.getPassword(), trustStore.getFile(), certificateData, alias, true);
+        if (added) {
+            resetTLSTruststore();
+        }
+        return added;
     }
 
     @Override
     public boolean removeCertificate(String alias) {
         KeyStoreType trustStore = getTruststoreParams();
-        boolean result = certificateService.removeCertificate(trustStore.getPassword(), trustStore.getFile(), alias, true);
-
-        resetTLSTruststore();
-        return result;
+        boolean deleted = certificateService.removeCertificate(trustStore.getPassword(), trustStore.getFile(), alias, true);
+        if (deleted) {
+            resetTLSTruststore();
+        }
+        return deleted;
     }
 
     protected KeyStoreType getTruststoreParams() {
