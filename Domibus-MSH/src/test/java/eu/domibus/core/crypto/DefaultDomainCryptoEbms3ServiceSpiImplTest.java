@@ -173,7 +173,7 @@ public class DefaultDomainCryptoEbms3ServiceSpiImplTest {
         domainCryptoService.backupTrustStore(testFile);
 
         new Verifications() {{
-            backupService.backupFile(testFile);
+            backupService.backupTrustStoreFile(testFile);
             times = 1;
         }};
     }

@@ -181,12 +181,11 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
         }
 
         try {
-            backupService.backupFile(trustStoreFile);
+            backupService.backupTrustStoreFile(trustStoreFile);
         } catch (IOException e) {
             throw new CryptoException("Could not create backup file for truststore", e);
         }
     }
-
 
     @Override
     public boolean isCertificateChainValid(String alias) throws DomibusCertificateSpiException {

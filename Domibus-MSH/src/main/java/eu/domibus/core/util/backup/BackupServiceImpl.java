@@ -47,6 +47,10 @@ public class BackupServiceImpl implements BackupService {
     public void backupFile(File originalFile) throws IOException {
         final File backupFile = getBackupFile(originalFile);
 
+        copyBackUpFile(originalFile, backupFile);
+    }
+
+    protected void copyBackUpFile(File originalFile, File backupFile) throws IOException {
         LOG.debug("Backing up file [{}] to file [{}]", originalFile, backupFile);
         try {
             FileUtils.copyFile(originalFile, backupFile);
@@ -56,23 +60,33 @@ public class BackupServiceImpl implements BackupService {
     }
 
     protected File getBackupFile(File originalFile) {
-        String trustStoreFileValue = getTrustStoreBackUpLocation();
-        LOG.debug("TrustStoreLocation is: [{}]", trustStoreFileValue);
-        File trustStoreFile = new File(trustStoreFileValue);
+        String backupFileName = originalFile.getName() + BACKUP_EXT + dateUtil.getCurrentTime(BACKUP_FILE_FORMATTER);
+        return new File(originalFile.getParent(), backupFileName);
+    }
+
+    @Override
+    public void backupTrustStoreFile(File originalFile) throws IOException {
+        final File backupFile = getTrustStoreBackupFile();
+
+        copyBackUpFile(originalFile, backupFile);
+    }
+
+    protected File getTrustStoreBackupFile() {
+        String trustStoreBackupFileValue = getTrustStoreBackUpLocation();
+        LOG.debug("TrustStore backup location is: [{}]", trustStoreBackupFileValue);
+        File trustStoreFile = new File(trustStoreBackupFileValue);
         if (!trustStoreFile.getParentFile().exists()) {
-            LOG.debug("Creating directory [" + trustStoreFile.getParentFile() + "]");
+            LOG.debug("Creating backup directory for truststore [{}]", trustStoreFile.getParentFile());
             try {
                 FileUtils.forceMkdir(trustStoreFile.getParentFile());
             } catch (IOException e) {
                 throw new CryptoException("Could not create parent directory for truststore", e);
             }
         }
-        String backupFileName = trustStoreFile.getName() + BACKUP_EXT + dateUtil.getCurrentTime(BACKUP_FILE_FORMATTER);
-        return new File(originalFile.getParent(), backupFileName);
+        return getBackupFile(trustStoreFile);
     }
 
     protected String getTrustStoreBackUpLocation() {
         return domibusPropertyProvider.getProperty(domainProvider.getCurrentDomain(), DOMIBUS_SECURITY_TRUSTSTORE_BACKUP_LOCATION);
     }
-
 }
