@@ -11,12 +11,13 @@ import org.springframework.cache.CacheManager;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * @author Sebastian-Ion TINCU
  */
 @RunWith(JMockit.class)
-public class DomibusCacheEbms3ServiceImplTest {
+public class DomibusCacheServiceImplTest {
 
     @Tested
     private DomibusCacheServiceImpl domibusCacheService;
@@ -29,6 +30,9 @@ public class DomibusCacheEbms3ServiceImplTest {
 
     @Injectable
     SignalService signalService;
+
+    @Injectable
+    List<DomibusCacheServiceNotifier> domibusCacheServiceNotifiers;
 
     @Test
     public void doesNotRefreshTheCacheWhenTheCacheManagerContainsNoCaches() {
@@ -85,22 +89,22 @@ public class DomibusCacheEbms3ServiceImplTest {
     }
 
     @Test
-    public void clearAllCaches() {
+    public void clearAllCaches(@Injectable DomibusCacheServiceNotifier domibusCacheServiceNotifier) {
         Collection<String> cacheNames = new ArrayList<>();
         String cacheName = "cache1";
         cacheNames.add(cacheName);
 
-        new Expectations() {{
+        new Expectations(domibusCacheService) {{
             cacheManager.getCacheNames();
             result = cacheNames;
+
+            domibusCacheService.notifyClearAllCaches();
         }};
 
         domibusCacheService.clearAllCaches();
 
         new Verifications() {{
             cacheManager.getCache(cacheName).clear();
-            times = 1;
-            signalService.signalClearCaches();
             times = 1;
         }};
     }
