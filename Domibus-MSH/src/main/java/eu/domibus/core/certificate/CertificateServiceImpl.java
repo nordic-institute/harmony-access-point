@@ -438,7 +438,7 @@ public class CertificateServiceImpl implements CertificateService {
         throw new InvalidParameterException("Store file type (" + fileType + ") should match the configured truststore type (" + storeType + ").");
     }
 
-    private synchronized boolean doRemoveCertificate(KeyStore truststore, String alias) {
+    protected synchronized boolean doRemoveCertificate(KeyStore truststore, String alias) {
         boolean containsAlias;
         try {
             containsAlias = truststore.containsAlias(alias);
@@ -502,9 +502,8 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     public synchronized void persistTrustStore(KeyStore truststore, String password, String trustStoreLocation) throws CryptoException {
-        String trustStoreFileValue = trustStoreLocation;
-        LOG.debug("TrustStoreLocation is: [{}]", trustStoreFileValue);
-        File trustStoreFile = new File(trustStoreFileValue);
+        LOG.debug("TrustStoreLocation is: [{}]", trustStoreLocation);
+        File trustStoreFile = createFileWithLocation(trustStoreLocation);
         if (!trustStoreFile.getParentFile().exists()) {
             LOG.debug("Creating directory [" + trustStoreFile.getParentFile() + "]");
             try {
