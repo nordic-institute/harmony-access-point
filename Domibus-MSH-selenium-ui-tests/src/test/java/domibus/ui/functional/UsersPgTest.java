@@ -691,7 +691,7 @@ public class UsersPgTest extends SeleniumTest {
 		
 		page.grid().scrollToAndSelect("Username", "super");
 		page.getDeleteBtn().click();
-		soft.assertTrue(page.getAlertArea().getAlertMessage().equals(DMessages.Users.LOGGEDINUSER_DELETE+": super"));
+		soft.assertTrue(page.getAlertArea().getAlertMessage().equals(DMessages.Users.LOGGEDINUSER_DELETE_ERROR+": super"));
 		log.info("Super user can't be deleted as no other super user exists");
 		
 		page.grid().scrollToAndSelect("Username", "super");
@@ -790,7 +790,7 @@ public class UsersPgTest extends SeleniumTest {
 
 				log.info("try deleting logged in user");
 				userPage.getDeleteBtn().click();
-				soft.assertTrue(userPage.getAlertArea().getAlertMessage().contains(DMessages.Users.LOGGEDINUSER_DELETE), "correct error message is shown");
+				soft.assertTrue(userPage.getAlertArea().getAlertMessage().contains(DMessages.Users.LOGGEDINUSER_DELETE_ERROR), "correct error message is shown");
 				userPage.refreshPage();
 				userPage.waitForPageTitle();
 
@@ -849,7 +849,7 @@ public class UsersPgTest extends SeleniumTest {
 
 				log.info("try deleting logged in user");
 				userPage.getDeleteBtn().click();
-				soft.assertTrue(userPage.getAlertArea().getAlertMessage().contains(DMessages.Users.LOGGEDINUSER_DELETE), "Error while deleting logged in user");
+				soft.assertTrue(userPage.getAlertArea().getAlertMessage().contains(DMessages.Users.LOGGEDINUSER_DELETE_ERROR), "Error while deleting logged in user");
 				userPage.refreshPage();
 				userPage.waitForPageTitle();
 
@@ -903,7 +903,7 @@ public class UsersPgTest extends SeleniumTest {
 		userPage.newUser(Gen.randomAlphaNumeric(10), "tuser@bnc.com", DRoles.USER, data.defaultPass(), data.defaultPass());
 		userPage.grid().waitForRowsToLoad();
 		userPage.saveAndConfirm();
-		soft.assertTrue(userPage.getAlertArea().getAlertMessage().equals(DMessages.Users.ONLY_ADMINUSER_DEACTIVATE), "Error while adding user when no admin user exists");
+		soft.assertTrue(userPage.getAlertArea().getAlertMessage().equals(DMessages.Users.ONLY_ADMINUSER_DEACTIVATE_ERROR), "Error while adding user when no admin user exists");
 		soft.assertAll();
 
 	}
@@ -949,7 +949,7 @@ public class UsersPgTest extends SeleniumTest {
 				modal.getActiveChk().click();
 				modal.clickOK();
 				userPage.saveAndConfirm();
-				soft.assertTrue(userPage.getAlertArea().getAlertMessage().contains(DMessages.Users.ONLY_ADMINUSER_DEACTIVATE),
+				soft.assertTrue(userPage.getAlertArea().getAlertMessage().contains(DMessages.Users.ONLY_ADMINUSER_DEACTIVATE_ERROR),
 						"Error while deactivating only active admin user");
 				userPage.refreshPage();
 				userPage.waitForPageTitle();
@@ -997,7 +997,7 @@ public class UsersPgTest extends SeleniumTest {
 				userPage.getDeleteBtn().click();
 				userPage.saveAndConfirm();
 
-				soft.assertTrue(userPage.getAlertArea().getAlertMessage().contains(DMessages.Users.ONLY_ADMINUSER_DEACTIVATE),
+				soft.assertTrue(userPage.getAlertArea().getAlertMessage().contains(DMessages.Users.ONLY_ADMINUSER_DEACTIVATE_ERROR),
 						"Error while deleting only active admin user");
 				userPage.refreshPage();
 				userPage.waitForPageTitle();
@@ -1079,7 +1079,7 @@ public class UsersPgTest extends SeleniumTest {
 		userPage.newUser(userName1, "tuser@bnc.com", DRoles.USER, data.defaultPass(), data.defaultPass());
 		userPage.grid().waitForRowsToLoad();
 		userPage.saveAndConfirm();
-		soft.assertTrue(userPage.getAlertArea().getAlertMessage().contains(DMessages.Users.ONLY_ADMINUSER_DEACTIVATE),
+		soft.assertTrue(userPage.getAlertArea().getAlertMessage().contains(DMessages.Users.ONLY_ADMINUSER_DEACTIVATE_ERROR),
 				"Error while deleting only active admin user");
 		soft.assertAll();
 
