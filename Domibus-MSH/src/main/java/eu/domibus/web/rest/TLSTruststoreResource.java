@@ -62,11 +62,11 @@ public class TLSTruststoreResource extends TruststoreResourceBase {
     @PostMapping(value = "/entries")
     public String addTLSCertificate(@RequestPart("file") MultipartFile certificateFile,
                                     @RequestParam("alias") @Valid @NotNull String alias) throws RequestValidationException {
-        byte[] fileContent = multiPartFileUtil.validateAndGetFileContent(certificateFile);
-
         if (StringUtils.isBlank(alias)) {
             throw new RequestValidationException("Please provide an alias for the certificate.");
         }
+
+        byte[] fileContent = multiPartFileUtil.validateAndGetFileContent(certificateFile);
 
         tlsCertificateManager.addCertificate(fileContent, alias);
 

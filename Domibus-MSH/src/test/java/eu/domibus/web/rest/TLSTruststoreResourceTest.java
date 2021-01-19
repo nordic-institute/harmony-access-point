@@ -1,5 +1,6 @@
 package eu.domibus.web.rest;
 
+import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.core.audit.AuditService;
@@ -12,6 +13,8 @@ import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -23,7 +26,7 @@ import java.util.List;
 public class TLSTruststoreResourceTest {
 
     @Tested
-    TLSTruststoreResource truststoreResource;
+    TLSTruststoreResource tlsTruststoreResource;
 
     @Injectable
     TLSCertificateManager tlsCertificateManager;
@@ -53,7 +56,7 @@ public class TLSTruststoreResourceTest {
 
         // When
         String pass = "pass";
-        truststoreResource.doReplaceTrustStore(fileContent, filename, pass);
+        tlsTruststoreResource.doReplaceTrustStore(fileContent, filename, pass);
 
         new Verifications() {{
             tlsCertificateManager.replaceTrustStore(filename, fileContent, pass);
@@ -61,14 +64,34 @@ public class TLSTruststoreResourceTest {
     }
 
     @Test
-    public void getTrustStoreEntries(@Mocked List<TrustStoreEntry> trustStoreEntries) {
+    public void addTLSCertificateOK() {
+        byte[] content = {1, 0, 1};
+        String filename = "filename", alias="blue_gw";
+        MultipartFile multiPartFile = new MockMultipartFile("name", filename, "octetstream", content);
 
         new Expectations() {{
+            multiPartFileUtil.validateAndGetFileContent(multiPartFile);
+            result = content;
+            tlsCertificateManager.addCertificate(content, alias);
         }};
 
-        List<TrustStoreEntry> res = truststoreResource.doGetTrustStoreEntries();
+        String outcome= tlsTruststoreResource.addTLSCertificate(multiPartFile, alias);
 
-        Assert.assertEquals(trustStoreEntries, res);
+        Assert.assertTrue(outcome.contains("Certificate [" + alias + "] has been successfully added to the TLS truststore."));
+
+        new Verifications() {{
+            tlsCertificateManager.addCertificate(content, alias);
+        }};
     }
 
+    @Test
+    public void addTLSCertificaEmpty() {
+        MultipartFile multiPartFile = new MockMultipartFile("cert", new byte[]{});
+
+        try {
+            String outcome= tlsTruststoreResource.addTLSCertificate(multiPartFile, "");
+        } catch (RequestValidationException ex) {
+            Assert.assertTrue(ex.getMessage().contains("Please provide an alias for the certificate."));
+        }
+    }
 }
