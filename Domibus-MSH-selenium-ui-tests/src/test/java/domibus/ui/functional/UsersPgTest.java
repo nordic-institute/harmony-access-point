@@ -760,20 +760,7 @@ public class UsersPgTest extends SeleniumTest {
 		String loggedInUser = userPage.getSandwichMenu().getCurrentUserID();
 		userPage.clickVoidSpace();
 
-		log.info("Get all users");
-		JSONArray userArray = rest.users().getUsers(userPage.getDomainFromTitle());
-		int userCount = userArray.length();
-
-		log.info("Get all active admin users");
-		JSONArray activeUserArray = new JSONArray();
-		for (int i = 0; i < userCount; i++) {
-			Boolean isDeleted = userArray.getJSONObject(i).getBoolean("deleted");
-			String userRole = userArray.getJSONObject(i).getString("roles");
-
-			if (!isDeleted && userRole.equalsIgnoreCase(DRoles.ADMIN)) {
-				activeUserArray.put(userArray.get(i));
-			}
-		}
+		JSONArray activeUserArray = rest.users().getSpecificRoleActiveUser(userPage.getDomainFromTitle(),DRoles.ADMIN);
 		int activeUserCount = activeUserArray.length();
 
 		for (int i = 0; i < activeUserCount; i++) {
@@ -817,19 +804,7 @@ public class UsersPgTest extends SeleniumTest {
 		String loggedInUser = userPage.getSandwichMenu().getCurrentUserID();
 		userPage.clickVoidSpace();
 
-		log.info("Get all users");
-		JSONArray userArray = rest.users().getUsers(userPage.getDomainFromTitle());
-		int userCount = userArray.length();
-
-		JSONArray activeUserArray = new JSONArray();
-		for (int i = 0; i < userCount; i++) {
-			Boolean isDeleted = userArray.getJSONObject(i).getBoolean("deleted");
-			String userRole = userArray.getJSONObject(i).getString("roles");
-
-			if (!isDeleted && userRole.equalsIgnoreCase(DRoles.SUPER)) {
-				activeUserArray.put(userArray.get(i));
-			}
-		}
+		JSONArray activeUserArray= rest.users().getSpecificRoleActiveUser(userPage.getDomainFromTitle(), DRoles.SUPER);
 		int activeUserCount = activeUserArray.length();
 		log.info("Active super user count" + activeUserCount);
 
@@ -918,20 +893,7 @@ public class UsersPgTest extends SeleniumTest {
 		userPage.getSidebar().goToPage(PAGES.USERS);
 		userPage.grid().waitForRowsToLoad();
 
-		log.info("Get all users");
-		JSONArray userArray = rest.users().getUsers(userPage.getDomainFromTitle());
-		int userCount = userArray.length();
-
-		JSONArray activeUserArray = new JSONArray();
-		log.info("Get all active admin users");
-		for (int i = 0; i < userCount; i++) {
-			Boolean isDeleted = userArray.getJSONObject(i).getBoolean("deleted");
-			String userRole = userArray.getJSONObject(i).getString("roles");
-
-			if (!isDeleted && userRole.equalsIgnoreCase(DRoles.ADMIN)) {
-				activeUserArray.put(userArray.get(i));
-			}
-		}
+		JSONArray activeUserArray= rest.users().getSpecificRoleActiveUser(userPage.getDomainFromTitle(), DRoles.ADMIN);
 		int activeUserCount = activeUserArray.length();
 
 		for (int i = 0; i < activeUserCount; i++) {
@@ -967,21 +929,7 @@ public class UsersPgTest extends SeleniumTest {
 		userPage.getSidebar().goToPage(PAGES.USERS);
 		userPage.grid().waitForRowsToLoad();
 
-		log.info("Get all users");
-		JSONArray userArray = rest.users().getUsers(userPage.getDomainFromTitle());
-
-		int userCount = userArray.length();
-
-		JSONArray activeUserArray = new JSONArray();
-		log.info("Get all active admin users");
-		for (int i = 0; i < userCount; i++) {
-			Boolean isDeleted = userArray.getJSONObject(i).getBoolean("deleted");
-			String userRole = userArray.getJSONObject(i).getString("roles");
-
-			if (!isDeleted && userRole.equalsIgnoreCase(DRoles.ADMIN)) {
-				activeUserArray.put(userArray.get(i));
-			}
-		}
+		JSONArray activeUserArray=rest.users().getSpecificRoleActiveUser(userPage.getDomainFromTitle(), DRoles.ADMIN);
 		int activeUserCount = activeUserArray.length();
 
 		for (int i = 0; i < activeUserCount; i++) {
@@ -1038,24 +986,9 @@ public class UsersPgTest extends SeleniumTest {
 
 		String newUser = Gen.randomAlphaNumeric(10);
 		rest.users().createUser(newUser, DRoles.ADMIN, data.getNewTestPass(), userPage.getDomainFromTitle());
-		log.info("newUser" + newUser);
-
-
-		log.info("Get all users");
-		JSONArray userArray = rest.users().getUsers(userPage.getDomainFromTitle());
-		int userCount = userArray.length();
 		String loggedInUser = userPage.getSandwichMenu().getCurrentUserID();
 
-		JSONArray activeUserArray = new JSONArray();
-		log.info("Get all active admin users");
-		for (int i = 0; i < userCount; i++) {
-			Boolean isDeleted = userArray.getJSONObject(i).getBoolean("deleted");
-			String userRole = userArray.getJSONObject(i).getString("roles");
-
-			if (!isDeleted && userRole.equalsIgnoreCase(DRoles.ADMIN)) {
-				activeUserArray.put(userArray.get(i));
-			}
-		}
+		JSONArray activeUserArray = rest.users().getSpecificRoleActiveUser(userPage.getDomainFromTitle(),DRoles.ADMIN);
 		int activeUserCount = activeUserArray.length();
 
 		for (int i = 0; i < activeUserCount; i++) {

@@ -22,12 +22,12 @@ public class UsersClient extends BaseRestClient {
 	public JSONArray getUsers(String domain) throws Exception {
 		
 		switchDomain(domain);
-		
+
 		ClientResponse response = requestGET(resource.path(RestServicePaths.USERS), null);
 		if (response.getStatus() != 200) {
 			throw new DomibusRestException("Could not get users ", response);
 		}
-		
+
 		try {
 			String rawResp = response.getEntity(String.class);
 			return new JSONArray(sanitizeResponse(rawResp));
@@ -214,5 +214,24 @@ public class UsersClient extends BaseRestClient {
 		switchDomain(domain);
 		return jsonPUT(resource.path(RestServicePaths.USERS), toUpdate.toString());
 	}
+
+	public JSONArray getSpecificRoleActiveUser(String domain, String role) throws Exception {
+
+		JSONArray userArray = getUsers(domain);
+		int userCount = userArray.length();
+
+		log.info("Get all active admin users");
+		JSONArray activeUserArray = new JSONArray();
+		for (int i = 0; i < userCount; i++) {
+			Boolean isDeleted = userArray.getJSONObject(i).getBoolean("deleted");
+			String userRole = userArray.getJSONObject(i).getString("roles");
+
+			if (!isDeleted && userRole.equalsIgnoreCase(role)) {
+				activeUserArray.put(userArray.get(i));
+			}
+		}
+		return activeUserArray;
+	}
+
 }
 
