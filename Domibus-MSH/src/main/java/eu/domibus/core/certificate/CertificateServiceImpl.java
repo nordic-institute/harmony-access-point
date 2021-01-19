@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
-import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -31,7 +30,6 @@ import org.bouncycastle.util.io.pem.PemObjectGenerator;
 import org.bouncycastle.util.io.pem.PemReader;
 import org.bouncycastle.util.io.pem.PemWriter;
 import org.joda.time.LocalDateTime;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -484,7 +482,7 @@ public class CertificateServiceImpl implements CertificateService {
             InputStream contentStream = new ByteArrayInputStream(content);
             return loadTrustStore(contentStream, password);
         } catch (Exception ex) {
-            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Exception loading truststore.", ex);
+            throw new ConfigurationException("Exception loading truststore.", ex);
         }
     }
 
