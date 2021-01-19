@@ -20,6 +20,7 @@ import utils.Gen;
 import utils.Order;
 import utils.TestRunData;
 
+import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -647,9 +648,30 @@ public class DGrid extends DComponent {
 			soft.assertTrue(found, "Row has been identified in CSV file");
 		}
 	}
-	
-	
+	public void checkStrikeThrough(int rowNum, SoftAssert soft, int columnNum) {
+
+		List<WebElement> element = gridRows.get(rowNum).findElements(By.cssSelector("datatable-body-cell >div >span"));
+
+		for (int j = 0; j < columnNum; j++) {
+			soft.assertTrue(element.get(j).getAttribute("class").contains("user-deleted"),
+					"is strike through");
+		}
+
+	}
+
+	public List<String> getCsvHeader(String filename) throws IOException {
+		log.info("Checking csv file vs grid content");
+
+		Reader reader = Files.newBufferedReader(Paths.get(filename));
+		CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreHeaderCase()
+				.withTrim());
+		List<String> csvFileHeaders = new ArrayList<>();
+		csvFileHeaders.addAll(csvParser.getHeaderMap().keySet());
+		log.info("removing $jacoco Data from the list of CSV file headers columns");
+		csvFileHeaders.remove("$jacoco Data");
+		return csvFileHeaders;
+
+	}
+
+
 }
-
-
-
