@@ -529,9 +529,33 @@ public class UsersPgUXTest extends SeleniumTest {
 		page.grid().checkCSVvsGridHeaders(fileName, soft);
 
 		soft.assertAll();
-
-
 	}
+
+	// This test case verifies user name in edit pop up opened after sorting data by username
+	@Test(description = "USR-42", groups = {"multiTenancy", "singleTenancy"})
+	public void checkUserName() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		UsersPage page = new UsersPage(driver);
+		page.getSidebar().goToPage(PAGES.USERS);
+		JSONArray colDescs = descriptorObj.getJSONObject("grid").getJSONArray("columns");
+		for (int i = 0; i < colDescs.length(); i++) {
+			JSONObject colDesc = colDescs.getJSONObject(i);
+			if (page.grid().getColumnNames().contains(colDesc.getString("name"))) {
+				TestUtils.testSortingForColumn(soft, page.grid(), colDesc);
+			}
+		}
+		log.info("get username for top row");
+		page.grid().getRowSpecificColumnVal(1, "Username");
+		String userName = page.grid().getRowSpecificColumnVal(1, "Username");
+		log.info("double click on top row");
+		page.grid().doubleClickRow(1);
+		UserModal modal = new UserModal(driver);
+
+		soft.assertTrue(userName.equals(modal.getUserNameInput().getText()), "Top row username is same as username from edit user pop up");
+		soft.assertAll();
+	}
+
 
 }
 
