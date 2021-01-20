@@ -59,6 +59,7 @@ public class TLSReaderServiceImpl implements TLSReaderService {
     public TLSClientParameters getTlsClientParameters(String domainCode) {
         Optional<Path> path = getClientAuthenticationPath(domainCode);
         if (!path.isPresent()) {
+            LOG.warn("Could not load TLS Client parameters for domain [{}] since theere is no clientauthentication.xml file", domainCode);
             return null;
         }
         try {
@@ -74,7 +75,7 @@ public class TLSReaderServiceImpl implements TLSReaderService {
     @Override
     @CacheEvict(value = TLS_CACHE, key = "#domainCode")
     public void reset(String domainCode) {
-        // just reset the cache for now
+        LOG.trace("Evicting the TLS cache.");
     }
 
     @Override
@@ -128,7 +129,6 @@ public class TLSReaderServiceImpl implements TLSReaderService {
         return Optional.empty();
     }
 
-    //todo: try to simplify the code
     private TLSClientParametersType getTLSParameters(String s) throws XMLStreamException, JAXBException {
         StringReader reader = new StringReader(s);
         XMLStreamReader data = StaxUtils.createXMLStreamReader(reader);

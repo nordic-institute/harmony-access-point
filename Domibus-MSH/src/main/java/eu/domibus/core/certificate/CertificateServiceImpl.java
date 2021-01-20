@@ -212,22 +212,21 @@ public class CertificateServiceImpl implements CertificateService {
             throw new DomibusCertificateException("Certificate content cannot be null.");
         }
 
-        CertificateFactory certFactory = null;
-        X509Certificate cert = null;
+        CertificateFactory certFactory;
+        X509Certificate cert;
         try {
             certFactory = CertificateFactory.getInstance("X.509");
         } catch (CertificateException e) {
             throw new DomibusCertificateException("Could not initialize certificate factory", e);
         }
 
-        InputStream in = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8));
-        if (!isPemFormat(content)) {
-            in = Base64.getMimeDecoder().wrap(in);
-        }
-
-        try {
-            cert = (X509Certificate) certFactory.generateCertificate(in);
-        } catch (CertificateException e) {
+        try (InputStream contentStream = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8))) {
+            InputStream resultStream = contentStream;
+            if (!isPemFormat(content)) {
+                resultStream = Base64.getMimeDecoder().wrap(resultStream);
+            }
+            cert = (X509Certificate) certFactory.generateCertificate(resultStream);
+        } catch (IOException | CertificateException e) {
             throw new DomibusCertificateException("Could not generate certificate", e);
         }
         return cert;
@@ -244,7 +243,7 @@ public class CertificateServiceImpl implements CertificateService {
                 PemObjectGenerator gen = new JcaMiscPEMGenerator(certificate);
                 pw.writeObject(gen);
             } catch (IOException e) {
-                throw new IllegalArgumentException(String.format("Error while serializing certificates:[%s]", certificate.getType()), e);
+                throw new DomibusCertificateException(String.format("Error while serializing certificates:[%s]", certificate.getType()), e);
             }
         }
         final String certificateChainValue = sw.toString();
@@ -260,20 +259,20 @@ public class CertificateServiceImpl implements CertificateService {
         List<X509Certificate> certificates = new ArrayList<>();
         try (PemReader reader = new PemReader(new StringReader(chain))) {
             CertificateFactory cf = CertificateFactory.getInstance("X509");
-            PemObject o;
-            while ((o = reader.readPemObject()) != null) {
-                if (o.getType().equals("CERTIFICATE")) {
-                    java.security.cert.Certificate c = cf.generateCertificate(new ByteArrayInputStream(o.getContent()));
+            PemObject pemObject;
+            while ((pemObject = reader.readPemObject()) != null) {
+                if (pemObject.getType().equals("CERTIFICATE")) {
+                    java.security.cert.Certificate c = cf.generateCertificate(new ByteArrayInputStream(pemObject.getContent()));
                     final X509Certificate certificate = (X509Certificate) c;
                     LOG.debug("Deserialized certificate:[{}]", certificate.getSubjectDN());
                     certificates.add(certificate);
                 } else {
-                    throw new IllegalArgumentException("Unknown type " + o.getType());
+                    throw new DomibusCertificateException("Unknown type " + pemObject.getType());
                 }
             }
 
         } catch (IOException | CertificateException e) {
-            LOG.error("Error while instantiating certificates from pem", e);
+            throw new DomibusCertificateException("Error while instantiating certificates from pem", e);
         }
         return certificates;
     }
@@ -309,8 +308,8 @@ public class CertificateServiceImpl implements CertificateService {
             LOG.debug("Not an issuer:[{}]", leafSubjet);
             return subjectMap.get(leafSubjet);
         }
-        //In case of unique self-signed certificate, the issuer and the subject are the same.
         if (certificates.size() == 1) {
+            LOG.trace("In case of unique self-signed certificate, the issuer and the subject are the same: returning it.");
             return certificates.get(0);
         }
         LOG.error("Certificate exchange type is X_509_PKIPATHV_1 but no leaf certificate has been found");
@@ -658,6 +657,7 @@ public class CertificateServiceImpl implements CertificateService {
         final boolean activeModule = configuration.isActive();
         LOG.debug("Certificate expired alert module activated:[{}]", activeModule);
         if (!activeModule) {
+            LOG.info("Certificate Expired Module is not active; returning.");
             return;
         }
         final String accessPoint = getAccessPointName();
@@ -702,6 +702,7 @@ public class CertificateServiceImpl implements CertificateService {
         final Boolean activeModule = configuration.isActive();
         LOG.debug("Certificate Imminent expiration alert module activated:[{}]", activeModule);
         if (BooleanUtils.isNotTrue(activeModule)) {
+            LOG.info("Imminent Expiration Certificate Module is not active; returning.");
             return;
         }
         final String accessPoint = getAccessPointName();
@@ -739,7 +740,7 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     protected boolean isPemFormat(String content) {
-        return StringUtils.startsWith(content, "-----BEGIN CERTIFICATE-----");
+        return StringUtils.startsWith(StringUtils.trim(content), "-----BEGIN CERTIFICATE-----");
     }
 
     private TrustStoreEntry createTrustStoreEntry(String alias, final X509Certificate certificate) {
