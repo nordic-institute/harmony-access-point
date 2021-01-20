@@ -116,6 +116,7 @@ public class FileSystemPayloadPersistenceTest {
             times = 1;
 
             partInfo.setFileName(path);
+            partInfo.loadBinaray();
         }};
     }
 
