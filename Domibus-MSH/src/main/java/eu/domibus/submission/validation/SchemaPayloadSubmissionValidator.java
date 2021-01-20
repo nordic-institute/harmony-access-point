@@ -14,6 +14,7 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
+import java.io.InputStream;
 import java.util.Set;
 
 /**
@@ -42,14 +43,14 @@ public class SchemaPayloadSubmissionValidator implements SubmissionValidator {
 
     protected void validatePayload(Submission.Payload payload) {
         XmlValidationEventHandler jaxbValidationEventHandler = new XmlValidationEventHandler();
-        try {
+        try (InputStream payloadInputStream = payload.getPayloadDatahandler().getInputStream()) {
             SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
             StreamSource xsdSource = new StreamSource(schema.getInputStream());
             Schema schema = sf.newSchema(xsdSource);
             Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
             unmarshaller.setSchema(schema);
             unmarshaller.setEventHandler(jaxbValidationEventHandler);
-            unmarshaller.unmarshal(payload.getPayloadDatahandler().getInputStream());
+            unmarshaller.unmarshal(payloadInputStream);
             if (jaxbValidationEventHandler.hasErrors()) {
                 throw new SubmissionValidationException("Error validating payload [" + payload.getContentId() + "]:" + jaxbValidationEventHandler.getErrorMessage());
             }

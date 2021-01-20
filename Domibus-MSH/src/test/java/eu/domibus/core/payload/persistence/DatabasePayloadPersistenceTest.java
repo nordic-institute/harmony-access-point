@@ -85,6 +85,7 @@ public class DatabasePayloadPersistenceTest {
             partInfo.setLength(binaryData.length);
             partInfo.setFileName(null);
             partInfo.setEncrypted(true);
+            partInfo.loadBinaray();
         }};
     }
 

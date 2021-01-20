@@ -76,6 +76,9 @@ public class DatabasePayloadPersistence implements PayloadPersistence {
         partInfo.setBinaryData(binaryData);
         partInfo.setLength(binaryData.length);
         partInfo.setFileName(null);
+
+        //initialize the payloadDatahandler with the binaryData in order to avoid that the payload is decompressed again
+        partInfo.loadBinaray();
         LOG.debug("Finished saving incoming payload [{}] to database", partInfo.getHref());
     }
 
