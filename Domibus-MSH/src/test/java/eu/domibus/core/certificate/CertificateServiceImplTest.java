@@ -37,10 +37,7 @@ import org.junit.runner.RunWith;
 
 import java.io.*;
 import java.math.BigInteger;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.Security;
+import java.security.*;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -63,6 +60,12 @@ public class CertificateServiceImplTest {
     private static final String TEST_CERTIFICATE_CONTENT_PEM = "-----BEGIN CERTIFICATE-----\n" +
             TEST_CERTIFICATE_CONTENT + "\n" +
             "-----END CERTIFICATE-----";
+
+    public static final String TRUST_STORE_PASSWORD = "trustStorePassword";
+
+    public static final String TRUST_STORE_TYPE = "trustStoreType";
+
+    public static final String TRUST_STORE_LOCATION = "trustStoreLocation";
 
     @Tested
     CertificateServiceImpl certificateService;
@@ -873,43 +876,6 @@ public class CertificateServiceImplTest {
         }};
     }
 
-    public static final String PRIVATE_KEY_PASSWORD = "privateKeyPassword";
-
-    public static final String TRUST_STORE_PASSWORD = "trustStorePassword";
-
-    public static final String TRUST_STORE_TYPE = "trustStoreType";
-
-    public static final String TRUST_STORE_LOCATION = "trustStoreLocation";
-
-//    @Test
-//    public void verifiesTheNewTruststoreCanBeLoadedUsingTheProvidedPasswordBeforeReplacingTheOldTruststore(@Mocked ByteArrayInputStream newTrustStoreBytes,
-//                                                                                                           @Injectable KeyStore trustStore) {
-//        // Given
-//        byte[] store = {1, 2, 3};
-//        new MockUp<CertificateServiceImpl>() {
-//            @Mock
-//            void persistTrustStore(KeyStore truststore, String password, String trustStoreLocation) {/* ignore */}
-//
-//            @Mock
-//            void closeStream(Closeable stream) {/* ignore */}
-//        };
-//
-//        new Expectations(certificateService) {{
-//            certificateService.loadTrustStore((byte[]) any, anyString);
-//            result = trustStore;
-//            new ByteArrayInputStream(store);
-//            result = newTrustStoreBytes;
-//            certificateService.validateLoadOperation(newTrustStoreBytes, PRIVATE_KEY_PASSWORD, TRUST_STORE_TYPE);
-//        }};
-//
-//        // When
-//        certificateService.replaceTrustStore(store, PRIVATE_KEY_PASSWORD, TRUST_STORE_TYPE, TRUST_STORE_LOCATION, TRUST_STORE_PASSWORD);
-//
-//        new Verifications() {{
-//            certificateService.validateLoadOperation(newTrustStoreBytes, PRIVATE_KEY_PASSWORD, TRUST_STORE_TYPE);
-//        }};
-//    }
-
     @Test
     public void throwsExceptionWhenFailingToLoadTheNewTrustStore_IOException(@Mocked ByteArrayInputStream newTrustStoreBytes,
                                                                              @Injectable KeyStore trustStore) throws CertificateException, NoSuchAlgorithmException, IOException {
@@ -1542,5 +1508,92 @@ public class CertificateServiceImplTest {
         new Verifications() {{
             trustStore.deleteEntry("alias");
         }};
+    }
+
+    @Test
+    public void throwsExceptionWhenAddingCertificateIntoTheTrustStoreButFailingToCheckThePresenceOfItsAlias(@Injectable X509Certificate certificate,
+                                                                                                            @Injectable KeyStore trustStore) throws KeyStoreException {
+        thrown.expect(CryptoException.class);
+        thrown.expectMessage("Error while trying to get the alias from the truststore. This should never happen");
+
+        new Expectations() {{
+            trustStore.containsAlias("alias");
+            result = new KeyStoreException();
+        }};
+
+        // When
+        certificateService.doAddCertificate(trustStore, certificate, "alias", true);
+    }
+
+    @Test
+    public void returnsFalseWhenAddingExistingCertificateIntoTheTrustStoreWithoutIntentionOfOverwritingIt(@Injectable X509Certificate certificate,
+                                                                                                          @Injectable KeyStore trustStore) throws KeyStoreException {
+        new Expectations() {{
+            trustStore.containsAlias("alias");
+            result = true;
+        }};
+
+        // When
+        boolean result = certificateService.doAddCertificate(trustStore, certificate, "alias", false);
+
+        // Then
+        Assert.assertFalse("Should have returned false when adding an existing certificate to the trust store without the intention of overwriting it", result);
+    }
+
+    @Test
+    public void throwsExceptionWhenFailingToBackupTheCurrentTrustStore_IOException(@Mocked ByteArrayOutputStream oldTrustStoreBytes,
+                                                                                   @Injectable KeyStore trustStore) throws Exception {
+        byte[] store = {1, 2, 3};
+
+        thrown.expect(CryptoException.class);
+        thrown.expectMessage("Could not replace truststore");
+
+        new Expectations(certificateService) {{
+            certificateService.loadTrustStore(store, anyString);
+            result = trustStore;
+            new ByteArrayOutputStream();
+            result = oldTrustStoreBytes;
+            trustStore.store(oldTrustStoreBytes, (char[]) any);
+            result = new IOException();
+        }};
+
+        // When
+        certificateService.replaceTrustStore(store, TRUST_STORE_PASSWORD, TRUST_STORE_TYPE, TRUST_STORE_LOCATION, TRUST_STORE_PASSWORD);
+
+        new Verifications() {{
+            oldTrustStoreBytes.close();
+        }};
+    }
+
+    @Test
+    public void checkTruststoreTypeValidation() {
+
+        // happy flow :
+        certificateService.validateTruststoreType("jks", "test.jks");
+        certificateService.validateTruststoreType("jks", "test.JKS");
+        certificateService.validateTruststoreType("pkcs12", "test_filename.pfx");
+        certificateService.validateTruststoreType("pkcs12", "test_filename.p12");
+
+        // negative flow :
+        try {
+            certificateService.validateTruststoreType("jks", "test_filename_wrong_extension.p12");
+            Assert.fail("Expected exception was not raised!");
+        } catch (InvalidParameterException e) {
+            assertEquals(true, e.getMessage().contains("jks"));
+        }
+
+        try {
+            certificateService.validateTruststoreType("jks", "test_filename_no_extension");
+            Assert.fail("Expected exception was not raised!");
+        } catch (InvalidParameterException e) {
+            assertEquals(true, e.getMessage().contains("jks"));
+        }
+
+        try {
+            certificateService.validateTruststoreType("pkcs12", "test_filename_unknown_extension.txt");
+            Assert.fail("Expected exception was not raised!");
+        } catch (InvalidParameterException e) {
+            assertEquals(true, e.getMessage().contains("pkcs12"));
+        }
     }
 }

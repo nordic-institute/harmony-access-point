@@ -3,6 +3,7 @@ package eu.domibus.core.crypto;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.pki.CertificateEntry;
+import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.crypto.api.DomainCryptoService;
@@ -37,6 +38,9 @@ public class MultiDomainCryptoEbms3ServiceImplTest {
 
     @Injectable
     private DomibusPropertyProvider domibusPropertyProvider;
+
+    @Injectable
+    CertificateService certificateService;
 
 //    @Test
 //    public void checkTruststoreTypeValidation() {
@@ -84,10 +88,10 @@ public class MultiDomainCryptoEbms3ServiceImplTest {
         }};
 
         DomainCryptoService res = mdCryptoService.getDomainCertificateProvider(domain);
-        Assert.assertEquals(cryptoService, res);
+        assertEquals(cryptoService, res);
 
         DomainCryptoService res2 = mdCryptoService.getDomainCertificateProvider(domain);
-        Assert.assertEquals(cryptoService, res2);
+        assertEquals(cryptoService, res2);
 
         new Verifications() {{
         }};

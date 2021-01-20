@@ -110,31 +110,6 @@ public class DefaultDomainCryptoEbms3ServiceSpiImplNonInitializedTest {
     }
 
     @Test
-    public void throwsExceptionWhenFailingToBackupTheCurrentTrustStore_IOException(@Mocked ByteArrayOutputStream oldTrustStoreBytes) throws Exception {
-        // Given
-        Deencapsulation.setField(domainCryptoService, "truststore", trustStore);
-
-        thrown.expect(CryptoSpiException.class);
-        thrown.expectMessage("Could not replace truststore");
-
-        new Expectations() {{
-            new ByteArrayOutputStream();
-            result = oldTrustStoreBytes;
-            trustStore.store(oldTrustStoreBytes, (char[]) any);
-            result = new IOException();
-        }};
-
-        // When
-        domainCryptoService.replaceTrustStore(new byte[]{}, "");
-
-        new Verifications() {{
-            oldTrustStoreBytes.close();
-        }};
-    }
-
-
-
-    @Test
     public void returnsTheCorrectValidityOfTheCertificateChain() {
         // Given
         Deencapsulation.setField(domainCryptoService, "truststore", trustStore);
@@ -149,45 +124,6 @@ public class DefaultDomainCryptoEbms3ServiceSpiImplNonInitializedTest {
 
         // Then
         Assert.assertTrue("Should have correctly returned the validity of the certificate chain", valid);
-    }
-
-    @Test
-    public void throwsExceptionWhenAddingCertificateIntoTheTrustStoreButFailingToCheckThePresenceOfItsAlias(@Injectable X509Certificate certificate) throws KeyStoreException {
-        // Given
-        Deencapsulation.setField(domainCryptoService, "truststore", trustStore);
-
-        thrown.expect(CryptoException.class);
-        thrown.expectMessage("Error while trying to get the alias from the truststore. This should never happen");
-
-        new Expectations() {{
-            trustStore.containsAlias("alias");
-            result = new KeyStoreException();
-        }};
-
-        // When
-        domainCryptoService.addCertificate(certificate, "alias", true);
-    }
-
-    @Test
-    public void returnsFalseWhenAddingExistingCertificateIntoTheTrustStoreWithoutIntentionOfOverwritingIt(@Injectable X509Certificate certificate) throws KeyStoreException {
-        // Given
-        Deencapsulation.setField(domainCryptoService, "truststore", trustStore);
-
-        new MockUp<DefaultDomainCryptoServiceSpiImpl>() {
-            @Mock
-            void persistTrustStore() { /* ignore */ }
-        };
-
-        new Expectations() {{
-            trustStore.containsAlias("alias");
-            result = true;
-        }};
-
-        // When
-        boolean result = domainCryptoService.addCertificate(certificate, "alias", false);
-
-        // Then
-        Assert.assertFalse("Should have returned false when adding an existing certificate to the trust store without the intention of overwriting it", result);
     }
 
     @Test
