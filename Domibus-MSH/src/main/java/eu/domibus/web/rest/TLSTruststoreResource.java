@@ -37,14 +37,14 @@ public class TLSTruststoreResource extends TruststoreResourceBase {
         this.tlsCertificateManager = tlsCertificateManager;
     }
 
-    @PostMapping(value = "")
+    @PostMapping()
     public String uploadTLSTruststoreFile(@RequestPart("file") MultipartFile truststoreFile,
                                           @SkipWhiteListed @RequestParam("password") String password) throws RequestValidationException {
         replaceTruststore(truststoreFile, password);
         return "TLS truststore file has been successfully replaced.";
     }
 
-    @GetMapping(value = "", produces = "application/octet-stream")
+    @GetMapping(produces = "application/octet-stream")
     public ResponseEntity<ByteArrayResource> downloadTLSTrustStore() {
         return downloadTruststoreContent();
     }

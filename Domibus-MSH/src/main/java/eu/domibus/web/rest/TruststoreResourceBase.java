@@ -22,6 +22,8 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
+ * Base class for TrustStore resources common functionality
+ *
  * @author Ion Perpegel
  * @since 5.0
  */

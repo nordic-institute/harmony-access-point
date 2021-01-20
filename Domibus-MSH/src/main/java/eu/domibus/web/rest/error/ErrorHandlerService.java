@@ -63,7 +63,12 @@ public class ErrorHandlerService {
         LOG.error(ex.getMessage(), ex);
 
         //unwrap the domain task exception for the root error
-        if (ex instanceof DomainTaskException || ex instanceof BeanCreationException) {
+        if (ex instanceof DomainTaskException) {
+            Throwable rootCause = ExceptionUtils.getRootCause(ex);
+            ex = rootCause == null ? ex : rootCause;
+        }
+
+        if (ex instanceof BeanCreationException) {
             Throwable rootCause = ExceptionUtils.getRootCause(ex);
             ex = rootCause == null ? ex : rootCause;
         }

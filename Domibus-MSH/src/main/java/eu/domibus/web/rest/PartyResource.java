@@ -242,6 +242,7 @@ public class PartyResource extends BaseResource {
             X509Certificate cert = multiDomainCertificateProvider.getCertificateFromTruststore(domainProvider.getCurrentDomain(), partyName);
             TrustStoreEntry entry = certificateService.createTrustStoreEntry(cert, partyName);
             if (entry == null) {
+                LOG.debug("Certificate entry not found for party name [{}].", partyName);
                 return ResponseEntity.notFound().build();
             }
             TrustStoreRO res = domainConverter.convert(entry, TrustStoreRO.class);

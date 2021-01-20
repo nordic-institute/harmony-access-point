@@ -8,6 +8,8 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.core.crypto.api.TLSCertificateManager;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.configuration.security.KeyStoreType;
 import org.apache.cxf.configuration.security.TLSClientParametersType;
 import org.springframework.stereotype.Service;
@@ -20,6 +22,7 @@ import java.util.List;
  */
 @Service
 public class TLSCertificateManagerImpl implements TLSCertificateManager {
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TLSCertificateManagerImpl.class);
 
     private final TLSReaderService tlsReaderService;
 
@@ -66,6 +69,7 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
         KeyStoreType trustStore = getTruststoreParams();
         boolean added = certificateService.addCertificate(trustStore.getPassword(), trustStore.getFile(), certificateData, alias, true);
         if (added) {
+            LOG.debug("Added certificate [{}] to the tls truststore; reseting it.", alias);
             resetTLSTruststore();
         }
         return added;
@@ -76,6 +80,7 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
         KeyStoreType trustStore = getTruststoreParams();
         boolean deleted = certificateService.removeCertificate(trustStore.getPassword(), trustStore.getFile(), alias, true);
         if (deleted) {
+            LOG.debug("Removed certificate [{}] from the tls truststore; reseting it.", alias);
             resetTLSTruststore();
         }
         return deleted;
@@ -85,7 +90,9 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
         Domain domain = domainProvider.getCurrentDomain();
         String domainCode = domain != null ? domain.getCode() : null;
         TLSClientParametersType params = tlsReaderService.getTlsClientParametersType(domainCode);
-        return params.getTrustManagers().getKeyStore();
+        KeyStoreType result = params.getTrustManagers().getKeyStore();
+        LOG.debug("TLS parameters for domain [{}] are [{}]", domainCode, result);
+        return result;
     }
 
     protected void resetTLSTruststore() {

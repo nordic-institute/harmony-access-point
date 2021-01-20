@@ -41,9 +41,11 @@ public class TLSReaderServiceImpl implements TLSReaderService {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TLSReaderServiceImpl.class);
 
     public static final String REGEX_DOMIBUS_CONFIG_LOCATION = "\\Q${domibus.config.location}\\E";
+
     private static final String TLS_CACHE = "tlsCache";
 
     private Set<Class<?>> classes;
+
     private JAXBContext context;
 
     private final DomibusConfigurationService domibusConfigurationService;
