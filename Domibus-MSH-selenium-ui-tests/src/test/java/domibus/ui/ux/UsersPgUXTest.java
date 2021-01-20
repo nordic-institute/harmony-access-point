@@ -421,6 +421,147 @@ public class UsersPgUXTest extends SeleniumTest {
 
 		soft.assertAll();
 	}
-	
-	
+
+	// This test case verifies presence of deleted checkbox in enabled status on users page
+	@Test(description = "USR-43", groups = {"multiTenancy", "singleTenancy"})
+	public void deletedCheckbox() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		UsersPage page = new UsersPage(driver);
+		page.getSidebar().goToPage(PAGES.USERS);
+		page.grid().waitForRowsToLoad();
+		soft.assertTrue(page.getDeletedChk().isPresent(), "Deleted checkbox is present");
+		soft.assertFalse(page.getDeletedChk().isChecked(), "Checkbox is not checked by default");
+		soft.assertFalse(page.getDeletedChk().isDisabled(), "Check box is enabled state");
+		soft.assertAll();
+
+	}
+
+	// This test case verifies search functionality for active and deleted both users
+	@Test(description = "USR-45", groups = {"multiTenancy", "singleTenancy"})
+	public void searchAllUsers() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		UsersPage page = new UsersPage(driver);
+		page.getSidebar().goToPage(PAGES.USERS);
+		page.grid().waitForRowsToLoad();
+
+		log.info("Get all users");
+		JSONArray userArray = rest.users().getUsers(page.getDomainFromTitle());
+		int userCount = userArray.length();
+
+		page.includeDeletedUsers();
+		page.grid().waitForRowsToLoad();
+
+		soft.assertTrue(userCount == page.grid().getPagination().getTotalItems(), "Grid count is same as total active and deleted user");
+
+		for (int i = 0; i < userCount; i++) {
+			Boolean isDeleted = userArray.getJSONObject(i).getBoolean("deleted");
+			String userName = userArray.getJSONObject(i).getString("userName");
+			String role = userArray.getJSONObject(i).getString("roles");
+
+			int index = page.grid().scrollTo("Username", userName);
+			soft.assertFalse(index < 0, "User is  visible in the grid");
+
+			if (isDeleted.booleanValue()) {
+				soft.assertTrue(page.getUsersGrid().isDeleted(userName,"Username"), "Username field value is strike through");
+				soft.assertTrue(page.getUsersGrid().isDeleted(userName,"Role"),"Role field value is striked through");
+			}
+		}
+		soft.assertAll();
+
+	}
+
+	//This test case verifies the functionality of single click on deleted checkbox
+	@Test(description = "USR-44", groups = {"multiTenancy", "singleTenancy"})
+	public void searchDeletedUsers() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		UsersPage page = new UsersPage(driver);
+		page.getSidebar().goToPage(PAGES.USERS);
+		page.grid().waitForRowsToLoad();
+
+		log.info("Get all users");
+		JSONArray userArray = rest.users().getUsers(page.getDomainFromTitle());
+		int userCount = userArray.length();
+
+		JSONArray deletedUserArray = new JSONArray();
+
+		for (int i = 0; i < userCount; i++) {
+			Boolean isDeleted = userArray.getJSONObject(i).getBoolean("deleted");
+
+			if (isDeleted) {
+				deletedUserArray.put(userArray.get(i));
+			}
+		}
+		int deleteUserCount = deletedUserArray.length();
+
+		page.getDeletedChk().click();
+		page.getSearchBtn().click();
+		page.grid().waitForRowsToLoad();
+		soft.assertTrue(deleteUserCount == page.grid().getPagination().getTotalItems(), "Grid count is same as deleted user count");
+
+		for (int i = 0; i < deleteUserCount; i++) {
+			String userName = deletedUserArray.getJSONObject(i).get("userName").toString();
+			Boolean isDeleted = userArray.getJSONObject(i).getBoolean("deleted");
+
+			int index = page.grid().scrollTo("Username", userName);
+			soft.assertFalse(index < 0, "User is  visible in the grid");
+
+			if (isDeleted.booleanValue()) {
+				soft.assertTrue(page.getUsersGrid().isDeleted(userName,"Username"), "Username field value is strike through");
+				soft.assertTrue(page.getUsersGrid().isDeleted(userName,"Role"),"Role field value is striked through");
+			}
+		}
+		soft.assertAll();
+
+	}
+
+	//This test case verifies presence of domain column in downloaded csv
+	@Test(description = "USR-38", groups = {"multiTenancy"})
+	public void domainColPresenceInCsv() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		UsersPage page = new UsersPage(driver);
+		page.getSidebar().goToPage(PAGES.USERS);
+		page.grid().waitForRowsToLoad();
+		String fileName = rest.csv().downloadGrid(RestServicePaths.USERS_CSV, null, page.getDomainFromTitle());
+		log.info("downloaded file with name " + fileName);
+
+		List<String> headers = page.grid().getCsvHeader(fileName);
+		soft.assertTrue(headers.contains("Domain"), "Csv header has domain column present");
+
+		page.grid().getGridCtrl().showCtrls();
+		page.grid().getGridCtrl().getAllLnk().click();
+
+		log.info("Verifying info in CSV file against grid rows");
+		page.grid().checkCSVvsGridHeaders(fileName, soft);
+
+		soft.assertAll();
+	}
+
+	// This test case verifies user name in edit pop up opened after sorting data by username
+	@Test(description = "USR-42", groups = {"multiTenancy", "singleTenancy"})
+	public void checkUserName() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		UsersPage page = new UsersPage(driver);
+		page.getSidebar().goToPage(PAGES.USERS);
+		JSONArray colDescs = descriptorObj.getJSONObject("grid").getJSONArray("columns");
+		for (int i = 0; i < colDescs.length(); i++) {
+			JSONObject colDesc = colDescs.getJSONObject(i);
+			if (page.grid().getColumnNames().contains(colDesc.getString("name"))) {
+				TestUtils.testSortingForColumn(soft, page.grid(), colDesc);
+			}
+		}
+		log.info("get username for top row");
+		page.grid().getRowSpecificColumnVal(1, "Username");
+		String userName = page.grid().getRowSpecificColumnVal(1, "Username");
+		log.info("double click on top row");
+		page.grid().doubleClickRow(1);
+		UserModal modal = new UserModal(driver);
+
+		soft.assertTrue(userName.equals(modal.getUserNameInput().getText()), "Top row username is same as username from edit user pop up");
+		soft.assertAll();
+	}
+
+
 }
+
