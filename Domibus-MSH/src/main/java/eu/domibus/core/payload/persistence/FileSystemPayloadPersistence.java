@@ -72,7 +72,7 @@ public class FileSystemPayloadPersistence implements PayloadPersistence {
             partInfo.setLength(fileLength);
             partInfo.setEncrypted(encryptionActive);
 
-            //initialize the payloadDatahandler with the binaryData
+            //initialize the payloadDatahandler with the binaryData in order to avoid that the payload is decompressed again
             partInfo.loadBinaray();
         }
 
