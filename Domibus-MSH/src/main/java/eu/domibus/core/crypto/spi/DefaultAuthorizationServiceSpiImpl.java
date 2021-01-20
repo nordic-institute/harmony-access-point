@@ -43,9 +43,6 @@ public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceS
 
     protected static final String DEFAULT_IAM_AUTHORIZATION_IDENTIFIER = "DEFAULT_AUTHORIZATION_SPI";
 
-//    @Autowired
-//    private CertificateService certificateService;
-
     @Autowired
     private MessageExchangeService messageExchangeService;
 
@@ -54,9 +51,6 @@ public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceS
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
-
-    @Autowired
-    private DomainContextProvider domainContextProvider;
 
     @Autowired
     private RegexUtil regexUtil;
@@ -138,7 +132,6 @@ public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceS
         }
         LOG.debug("Signing certificate: [%s]", signingCertificate);
         try {
-//            X509Certificate cert = certificateService.getPartyX509CertificateFromTruststore(alias);
             X509Certificate cert = multiDomainCertificateProvider.getCertificateFromTruststore(domainProvider.getCurrentDomain(), alias);
             if (cert == null) {
                 LOG.warn("Failed to get the certificate based on the partyName [{}]. No further authorization against truststore is performed.", alias);

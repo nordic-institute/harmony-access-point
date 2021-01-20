@@ -113,21 +113,6 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
         domibusCacheService.clearCache("certValidationByAlias");
     }
 
-//    protected void validateTruststoreType(String storeType, String storeFileName) {
-//        String fileType = FilenameUtils.getExtension(storeFileName).toLowerCase();
-//        switch (storeType.toLowerCase()) {
-//            case "pkcs12":
-//                if (Arrays.asList("p12", "pfx").contains(fileType)) {
-//                    return;
-//                }
-//            case "jks":
-//                if (Arrays.asList("jks").contains(fileType)) {
-//                    return;
-//                }
-//        }
-//        throw new InvalidParameterException("Store file type (" + fileType + ") should match the configured truststore type (" + storeType + ").");
-//    }
-
     @Override
     public KeyStore getKeyStore(Domain domain) {
         final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);

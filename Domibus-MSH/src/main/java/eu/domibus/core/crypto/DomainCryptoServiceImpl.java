@@ -60,9 +60,6 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
     @Autowired
     protected CertificateService certificateService;
 
-    public DomainCryptoServiceImpl() {
-    }
-
     public DomainCryptoServiceImpl(Domain domain) {
         this.domain = domain;
     }
