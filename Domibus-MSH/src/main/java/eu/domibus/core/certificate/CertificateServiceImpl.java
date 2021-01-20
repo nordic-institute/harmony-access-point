@@ -354,36 +354,31 @@ public class CertificateServiceImpl implements CertificateService {
         LOG.debug("Replacing the existing trust store file [{}] with the provided one.", trustLocation);
 
         KeyStore truststore = loadTrustStore(fileContent, filePassword);
-        ByteArrayOutputStream oldTrustStoreBytes = new ByteArrayOutputStream();
-        try {
+        try (ByteArrayOutputStream oldTrustStoreBytes = new ByteArrayOutputStream()) {
             truststore.store(oldTrustStoreBytes, trustPassword.toCharArray());
-        } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException exc) {
-            closeStream(oldTrustStoreBytes);
-            throw new CryptoException("Could not replace truststore", exc);
-        }
-        try (ByteArrayInputStream newTrustStoreBytes = new ByteArrayInputStream(fileContent)) {
-            validateLoadOperation(newTrustStoreBytes, filePassword, trustType);
-            truststore.load(newTrustStoreBytes, filePassword.toCharArray());
-            LOG.debug("Truststore successfully loaded");
-            persistTrustStore(truststore, trustPassword, trustLocation);
-            LOG.debug("Truststore successfully persisted");
-        } catch (CertificateException | NoSuchAlgorithmException | IOException | CryptoException e) {
-            LOG.error("Could not replace truststore", e);
-            try {
-                truststore.load(oldTrustStoreBytes.toInputStream(), trustPassword.toCharArray());
-            } catch (CertificateException | NoSuchAlgorithmException | IOException exc) {
-                throw new CryptoException("Could not replace truststore and old truststore was not reverted properly. Please correct the error before continuing.", exc);
+            try (ByteArrayInputStream newTrustStoreBytes = new ByteArrayInputStream(fileContent)) {
+                validateLoadOperation(newTrustStoreBytes, filePassword, trustType);
+                truststore.load(newTrustStoreBytes, filePassword.toCharArray());
+                LOG.debug("Truststore successfully loaded");
+                persistTrustStore(truststore, trustPassword, trustLocation);
+                LOG.debug("Truststore successfully persisted");
+            } catch (CertificateException | NoSuchAlgorithmException | IOException | CryptoException e) {
+                LOG.error("Could not replace truststore", e);
+                try {
+                    truststore.load(oldTrustStoreBytes.toInputStream(), trustPassword.toCharArray());
+                } catch (CertificateException | NoSuchAlgorithmException | IOException exc) {
+                    throw new CryptoException("Could not replace truststore and old truststore was not reverted properly. Please correct the error before continuing.", exc);
+                }
+                throw new CryptoException(e);
             }
-            throw new CryptoException(e);
-        } finally {
-            closeStream(oldTrustStoreBytes);
+        } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException exc) {
+            throw new CryptoException("Could not replace truststore", exc);
         }
     }
 
     @Override
     public KeyStore getTrustStore(String trustStoreLocation, String trustStorePassword) {
-        try {
-            InputStream contentStream = Files.newInputStream(Paths.get(trustStoreLocation));
+        try (InputStream contentStream = Files.newInputStream(Paths.get(trustStoreLocation))) {
             return loadTrustStore(contentStream, trustStorePassword);
         } catch (Exception ex) {
             throw new CryptoException("Exception loading truststore.", ex);
@@ -478,8 +473,7 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     protected KeyStore loadTrustStore(byte[] content, String password) {
-        try {
-            InputStream contentStream = new ByteArrayInputStream(content);
+        try (InputStream contentStream = new ByteArrayInputStream(content)) {
             return loadTrustStore(contentStream, password);
         } catch (Exception ex) {
             throw new ConfigurationException("Exception loading truststore.", ex);
@@ -747,7 +741,7 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     protected boolean isPemFormat(String content) {
-        return content.startsWith("-----BEGIN CERTIFICATE-----");
+        return StringUtils.startsWith(content, "-----BEGIN CERTIFICATE-----");
     }
 
     private TrustStoreEntry createTrustStoreEntry(String alias, final X509Certificate certificate) {
