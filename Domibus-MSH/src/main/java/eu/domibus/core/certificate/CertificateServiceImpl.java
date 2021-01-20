@@ -2,8 +2,6 @@ package eu.domibus.core.certificate;
 
 import com.google.common.collect.Lists;
 import eu.domibus.api.crypto.CryptoException;
-import eu.domibus.api.exceptions.DomibusCoreErrorCode;
-import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -486,7 +484,7 @@ public class CertificateServiceImpl implements CertificateService {
             truststore = KeyStore.getInstance(KeyStore.getDefaultType());
             truststore.load(contentStream, password.toCharArray());
         } catch (Exception ex) {
-            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Exception loading truststore.", ex);
+            throw new ConfigurationException("Exception loading truststore.", ex);
         } finally {
             if (contentStream != null) {
                 closeStream(contentStream);
@@ -539,7 +537,7 @@ public class CertificateServiceImpl implements CertificateService {
         }
     }
 
-    private void closeStream(Closeable stream) {
+    protected void closeStream(Closeable stream) {
         try {
             LOG.debug("Closing output stream [{}].", stream);
             stream.close();

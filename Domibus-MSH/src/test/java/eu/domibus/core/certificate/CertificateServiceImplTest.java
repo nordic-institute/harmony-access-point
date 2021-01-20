@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.core.alerts.configuration.certificate.expired.ExpiredCertificateConfigurationManager;
@@ -37,6 +38,8 @@ import org.junit.runner.RunWith;
 
 import java.io.*;
 import java.math.BigInteger;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.*;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
@@ -1567,7 +1570,6 @@ public class CertificateServiceImplTest {
 
     @Test
     public void checkTruststoreTypeValidation() {
-
         // happy flow :
         certificateService.validateTruststoreType("jks", "test.jks");
         certificateService.validateTruststoreType("jks", "test.JKS");
@@ -1596,4 +1598,79 @@ public class CertificateServiceImplTest {
             assertEquals(true, e.getMessage().contains("pkcs12"));
         }
     }
+
+    @Test
+    public void loadTrustStoreFromContent(@Mocked InputStream contentStream) {
+        byte[] content = {1, 2, 3};
+
+        thrown.expect(ConfigurationException.class);
+        thrown.expectMessage("Exception loading truststore.");
+
+        new Expectations(certificateService) {{
+            certificateService.loadTrustStore(contentStream, TRUST_STORE_PASSWORD);
+            result = new IOException();
+        }};
+
+        // When
+        certificateService.loadTrustStore(content, TRUST_STORE_PASSWORD);
+    }
+
+    @Test
+    public void loadTrustStoreFromStream(@Mocked InputStream contentStream, @Mocked KeyStore truststore) throws KeyStoreException, CertificateException, NoSuchAlgorithmException, IOException {
+
+        thrown.expect(ConfigurationException.class);
+        thrown.expectMessage("Exception loading truststore.");
+
+        new Expectations() {{
+            KeyStore.getInstance(KeyStore.getDefaultType());
+            result = truststore;
+            truststore.load(contentStream, TRUST_STORE_PASSWORD.toCharArray());
+            result = new KeyStoreException();
+        }};
+
+        // When
+        certificateService.loadTrustStore(contentStream, TRUST_STORE_PASSWORD);
+
+        new Verifications() {{
+            certificateService.closeStream(contentStream);
+        }};
+    }
+
+    @Test
+    public void getTruststoreContent(@Injectable File file, @Injectable Path path) throws IOException {
+
+        String absolutePath = "path";
+
+        thrown.expect(DomibusCertificateException.class);
+        thrown.expectMessage("Could not read truststore from ");
+
+        new Expectations(certificateService) {{
+            certificateService.createFileWithLocation(TRUST_STORE_LOCATION);
+            result = file;
+            file.getAbsolutePath();
+            result = absolutePath;
+            Files.readAllBytes(path);
+            result = new IOException();
+        }};
+
+        // When
+        certificateService.getTruststoreContent(TRUST_STORE_PASSWORD);
+    }
+
+    @Test
+    public void replaceTrustStore(@Mocked String fileName, @Mocked byte[] fileContent) {
+
+        new Expectations(certificateService) {{
+            certificateService.validateTruststoreType(TRUST_STORE_TYPE, fileName);
+            certificateService.replaceTrustStore(fileContent, TRUST_STORE_PASSWORD, TRUST_STORE_TYPE, TRUST_STORE_LOCATION, TRUST_STORE_PASSWORD);
+        }};
+
+        certificateService.replaceTrustStore(fileName, fileContent, TRUST_STORE_PASSWORD, TRUST_STORE_TYPE, TRUST_STORE_LOCATION, TRUST_STORE_PASSWORD);
+
+        new Verifications() {{
+            certificateService.validateTruststoreType(TRUST_STORE_TYPE, fileName);
+            certificateService.replaceTrustStore(fileContent, TRUST_STORE_PASSWORD, TRUST_STORE_TYPE, TRUST_STORE_LOCATION, TRUST_STORE_PASSWORD);
+        }};
+    }
+
 }
