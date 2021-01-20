@@ -147,7 +147,6 @@
         <javax.xml.soap-api.version>1.4.0</javax.xml.soap-api.version>
         <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
         <javax.persistence-api.version>2.2</javax.persistence-api.version>
-        <commons-httpclient.version>3.1</commons-httpclient.version>
 
         <jdk.version>8</jdk.version>
         <maven.compiler.source>${jdk.version}</maven.compiler.source>
