@@ -846,24 +846,22 @@ public class UsersPgTest extends SeleniumTest {
 	public void addUserWithNoAdmin() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		DomibusPage page = new DomibusPage(driver);
+		page.getSidebar().goToPage(PAGES.USERS);
+		UsersPage userPage = new UsersPage(driver);
 		String newUser = Gen.randomAlphaNumeric(10);
 		rest.users().createUser(newUser, DRoles.ADMIN, data.getNewTestPass(), page.getDomainFromTitle());
+		JSONArray activeAdminArray = rest.users().getSpecificRoleActiveUser(page.getDomainFromTitle(),DRoles.ADMIN);
+		int userCount=activeAdminArray.length();
 
-		log.info("Get all users");
-		JSONArray userArray = rest.users().getUsers(page.getDomainFromTitle());
-
-		int userCount = userArray.length();
 		page.refreshPage();
 		page.waitForPageTitle();
 
-		page.getSidebar().goToPage(PAGES.USERS);
-		UsersPage userPage = new UsersPage(driver);
 		for (int i = 0; i < userCount; i++) {
-			String userName = userArray.getJSONObject(i).getString("userName");
-			String userRole = userArray.getJSONObject(i).getString("roles");
+			String userName = activeAdminArray.getJSONObject(i).getString("userName");
 
-			if (userRole.equalsIgnoreCase(DRoles.ADMIN) && !userName.equals(newUser)) {
-				rest.users().deactivate(userName, page.getDomainFromTitle());
+				if (!userName.equals(newUser)) {
+
+					rest.users().deactivate(userName, page.getDomainFromTitle());
 			}
 		}
 		logout();

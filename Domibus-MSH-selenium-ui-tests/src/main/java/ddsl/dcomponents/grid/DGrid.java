@@ -648,16 +648,6 @@ public class DGrid extends DComponent {
 			soft.assertTrue(found, "Row has been identified in CSV file");
 		}
 	}
-	public void checkStrikeThrough(int rowNum, SoftAssert soft, int columnNum) {
-
-		List<WebElement> element = gridRows.get(rowNum).findElements(By.cssSelector("datatable-body-cell >div >span"));
-
-		for (int j = 0; j < columnNum; j++) {
-			soft.assertTrue(element.get(j).getAttribute("class").contains("user-deleted"),
-					"is strike through");
-		}
-
-	}
 
 	public List<String> getCsvHeader(String filename) throws IOException {
 		log.info("Checking csv file vs grid content");

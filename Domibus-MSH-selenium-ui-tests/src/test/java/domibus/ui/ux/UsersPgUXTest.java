@@ -456,14 +456,15 @@ public class UsersPgUXTest extends SeleniumTest {
 
 		for (int i = 0; i < userCount; i++) {
 			Boolean isDeleted = userArray.getJSONObject(i).getBoolean("deleted");
-			String userName = userArray.getJSONObject(i).get("userName").toString();
+			String userName = userArray.getJSONObject(i).getString("userName");
+			String role = userArray.getJSONObject(i).getString("roles");
 
 			int index = page.grid().scrollTo("Username", userName);
 			soft.assertFalse(index < 0, "User is  visible in the grid");
 
 			if (isDeleted.booleanValue()) {
-				//page.grid().checkStrikeThrough(index, soft, 2);
-				page.getUsersGrid().isDeleted(userName);
+				soft.assertTrue(page.getUsersGrid().isDeleted(userName,"Username"), "Username field value is strike through");
+				soft.assertTrue(page.getUsersGrid().isDeleted(userName,"Role"),"Role field value is striked through");
 			}
 		}
 		soft.assertAll();
@@ -506,7 +507,8 @@ public class UsersPgUXTest extends SeleniumTest {
 			soft.assertFalse(index < 0, "User is  visible in the grid");
 
 			if (isDeleted.booleanValue()) {
-				page.grid().checkStrikeThrough(index, soft, 2);
+				soft.assertTrue(page.getUsersGrid().isDeleted(userName,"Username"), "Username field value is strike through");
+				soft.assertTrue(page.getUsersGrid().isDeleted(userName,"Role"),"Role field value is striked through");
 			}
 		}
 		soft.assertAll();
