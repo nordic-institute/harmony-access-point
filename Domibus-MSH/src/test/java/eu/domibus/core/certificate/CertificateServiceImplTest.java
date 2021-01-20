@@ -697,7 +697,7 @@ public class CertificateServiceImplTest {
         Assert.assertEquals(fingerprint, entry.getFingerprints());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = DomibusCertificateException.class)
     public void serializeCertificateChainIntoPemFormatTest(@Injectable java.security.cert.Certificate certificate,
                                                            @Injectable PemWriter pw,
                                                            @Injectable StringWriter sw,
@@ -1670,6 +1670,34 @@ public class CertificateServiceImplTest {
         new Verifications() {{
             certificateService.validateTruststoreType(TRUST_STORE_TYPE, fileName);
             certificateService.replaceTrustStore(fileContent, TRUST_STORE_PASSWORD, TRUST_STORE_TYPE, TRUST_STORE_LOCATION, TRUST_STORE_PASSWORD);
+        }};
+    }
+
+    @Test
+    public void testBackupTruststore() throws IOException {
+        String RESOURCE_PATH = "src/test/resources/eu/domibus/ebms3/common/dao/DynamicDiscoveryPModeProviderTest/";
+        String TEST_KEYSTORE = "testkeystore.jks";
+        File testFile = new File(RESOURCE_PATH + TEST_KEYSTORE);
+
+        certificateService.backupTrustStore(testFile);
+
+        new Verifications() {{
+            backupService.backupFile(testFile);
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void testBackupTruststore_shouldNotBackupMissingFile() throws IOException {
+        String RESOURCE_PATH = "src/test/resources/eu/domibus/ebms3/common/dao/DynamicDiscoveryPModeProviderTest/";
+        String TEST_KEYSTORE = "inexistent_testkeystore.jks";
+        File testFile = new File(RESOURCE_PATH + TEST_KEYSTORE);
+
+        certificateService.backupTrustStore(testFile);
+
+        new Verifications() {{
+            backupService.backupFile((File) any);
+            times = 0;
         }};
     }
 
