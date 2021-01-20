@@ -1,23 +1,20 @@
 package eu.domibus.core.message.testservice;
 
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.security.ExplicitTypePermission;
-import com.thoughtworks.xstream.security.NoTypePermission;
-import com.thoughtworks.xstream.security.PrimitiveTypePermission;
+import com.google.gson.Gson;
+import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.model.Messaging;
+import eu.domibus.api.model.SignalMessage;
+import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.common.model.configuration.Agreement;
 import eu.domibus.common.model.configuration.Party;
-import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.message.MessagingDao;
-import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.api.model.Messaging;
-import eu.domibus.api.model.SignalMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessagingProcessingException;
@@ -28,11 +25,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
+import org.springframework.util.FileCopyUtils;
 
 import javax.activation.DataHandler;
 import javax.mail.util.ByteArrayDataSource;
 import javax.persistence.NoResultException;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -104,13 +103,10 @@ public class TestService {
     }
 
     protected Submission createSubmission(String sender) throws IOException {
-        Resource testServiceFile = new ClassPathResource("messages/testservice/testservicemessage.xml");
-        XStream xstream = new XStream();
-        xstream.addPermission(NoTypePermission.NONE);
-        xstream.addPermission(PrimitiveTypePermission.PRIMITIVES);
-        xstream.addPermission(new ExplicitTypePermission(new Class[]{List.class, Submission.class, Submission.TypedProperty.class, Submission.Party.class}));
+        Resource testServiceFile = new ClassPathResource("messages/testservice/testservicemessage.json");
+        String jsonStr = new String(FileCopyUtils.copyToByteArray(testServiceFile.getInputStream()), StandardCharsets.UTF_8);
+        Submission submission = new Gson().fromJson(jsonStr, Submission.class);
 
-        Submission submission = (Submission) xstream.fromXML(testServiceFile.getInputStream());
         DataHandler payLoadDataHandler = new DataHandler(new ByteArrayDataSource(TEST_PAYLOAD.getBytes(), "text/xml"));
         Submission.TypedProperty objTypedProperty = new Submission.TypedProperty("MimeType", "text/xml");
         Collection<Submission.TypedProperty> listTypedProperty = new ArrayList<>();
