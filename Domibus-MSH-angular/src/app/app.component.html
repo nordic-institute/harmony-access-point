@@ -62,7 +62,7 @@
       <div class="sideNavSubmenu">
         <button mat-raised-button class="sideNavButton" [routerLink]="['/truststore']" *ngIf="isAdmin()" id="truststore_id">
           <mat-icon mat-tooltip="Truststore">vpn_key</mat-icon>
-          <span>Domain</span>
+          <span>Domibus</span>
         </button>
         <button mat-raised-button class="sideNavButton" [routerLink]="['/tlstruststore']" *ngIf="isAdmin()" id="tls_truststore_id">
           <mat-icon mat-tooltip="TLS Truststore">vpn_key</mat-icon>
@@ -101,7 +101,7 @@
     </button>
     <button mat-raised-button class="sideNavButton" [routerLink]="['/properties']" *ngIf="isAdmin()" id="properties_id">
       <mat-icon mat-tooltip="View or Set Domibus Properties">settings</mat-icon>
-      <span>Domibus Properties</span>
+      <span>Properties</span>
     </button>
 
     <div class="collapse-button">

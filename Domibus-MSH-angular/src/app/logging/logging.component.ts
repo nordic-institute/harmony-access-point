@@ -45,10 +45,6 @@ export class LoggingComponent extends mix(BaseListComponent)
     this.filterData();
   }
 
-  // public get name(): string {
-  //   return 'Logging';
-  // }
-
   ngAfterViewInit() {
     this.columnPicker.allColumns = [
       {
