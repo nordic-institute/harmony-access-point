@@ -65,19 +65,22 @@ public class CertificateServiceImpl implements CertificateService {
 
     CRLService crlService;
 
-    private final DomibusPropertyProvider domibusPropertyProvider;
+    private DomibusPropertyProvider domibusPropertyProvider;
 
-    private final CertificateDao certificateDao;
+    private CertificateDao certificateDao;
 
-    private final EventService eventService;
+    private EventService eventService;
 
-    private final PModeProvider pModeProvider;
+    private PModeProvider pModeProvider;
 
-    private final ImminentExpirationCertificateConfigurationManager imminentExpirationCertificateConfigurationManager;
+    private ImminentExpirationCertificateConfigurationManager imminentExpirationCertificateConfigurationManager;
 
-    private final ExpiredCertificateConfigurationManager expiredCertificateConfigurationManager;
+    private ExpiredCertificateConfigurationManager expiredCertificateConfigurationManager;
 
-    private final BackupService backupService;
+    private BackupService backupService;
+
+    //needed for DynamicDiscoveryPModeProviderTest
+    public CertificateServiceImpl(){}
 
     public CertificateServiceImpl(CRLService crlService, DomibusPropertyProvider domibusPropertyProvider,
                                   CertificateDao certificateDao, EventService eventService, PModeProvider pModeProvider,
