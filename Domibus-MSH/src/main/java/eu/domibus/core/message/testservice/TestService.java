@@ -20,12 +20,12 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.Submission;
 import eu.domibus.web.rest.ro.TestServiceMessageInfoRO;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
-import org.springframework.util.FileCopyUtils;
 
 import javax.activation.DataHandler;
 import javax.mail.util.ByteArrayDataSource;
@@ -104,7 +104,8 @@ public class TestService {
 
     protected Submission createSubmission(String sender) throws IOException {
         Resource testServiceFile = new ClassPathResource("messages/testservice/testservicemessage.json");
-        String jsonStr = new String(FileCopyUtils.copyToByteArray(testServiceFile.getInputStream()), StandardCharsets.UTF_8);
+        String jsonStr = new String(IOUtils.toByteArray(testServiceFile.getInputStream()), StandardCharsets.UTF_8);
+
         Submission submission = new Gson().fromJson(jsonStr, Submission.class);
 
         DataHandler payLoadDataHandler = new DataHandler(new ByteArrayDataSource(TEST_PAYLOAD.getBytes(), "text/xml"));

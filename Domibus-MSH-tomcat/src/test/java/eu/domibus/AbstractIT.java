@@ -50,7 +50,6 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
-import org.springframework.util.FileCopyUtils;
 import org.springframework.util.SocketUtils;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -169,7 +168,7 @@ public abstract class AbstractIT {
 
     protected UserMessage getUserMessageTemplate() throws IOException {
         Resource userMessageTemplate = new ClassPathResource("dataset/messages/UserMessageTemplate.json");
-        String jsonStr = new String(FileCopyUtils.copyToByteArray(userMessageTemplate.getInputStream()), StandardCharsets.UTF_8);
+        String jsonStr = new String(IOUtils.toByteArray(userMessageTemplate.getInputStream()), StandardCharsets.UTF_8);
         UserMessage userMessage = new Gson().fromJson(jsonStr, UserMessage.class);
         return userMessage;
     }
