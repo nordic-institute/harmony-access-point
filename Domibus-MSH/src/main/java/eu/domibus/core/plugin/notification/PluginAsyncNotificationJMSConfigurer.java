@@ -5,6 +5,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.BackendConnector;
 import eu.domibus.plugin.notification.AsyncNotificationConfiguration;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -44,6 +45,11 @@ public class PluginAsyncNotificationJMSConfigurer implements JmsListenerConfigur
     public void configureJmsListeners(final JmsListenerEndpointRegistrar registrar) {
         LOG.info("Initializing services of type AsyncNotificationListenerService");
 
+        if (CollectionUtils.isEmpty(asyncNotificationConfigurations)) {
+            LOG.info("No service of type AsyncNotificationListenerService detected");
+            return;
+        }
+
         for (AsyncNotificationConfiguration asyncNotificationConfiguration : asyncNotificationConfigurations) {
             initializeAsyncNotificationLister(registrar, asyncNotificationConfiguration);
         }
@@ -52,7 +58,7 @@ public class PluginAsyncNotificationJMSConfigurer implements JmsListenerConfigur
     protected void initializeAsyncNotificationLister(JmsListenerEndpointRegistrar registrar,
                                                      AsyncNotificationConfiguration asyncNotificationConfiguration) {
         BackendConnector backendConnector = asyncNotificationConfiguration.getBackendConnector();
-        if(backendConnector == null) {
+        if (backendConnector == null) {
             LOG.error("No connector configured for async notification listener");
             return;
         }
@@ -67,7 +73,7 @@ public class PluginAsyncNotificationJMSConfigurer implements JmsListenerConfigur
         }
 
         SimpleJmsListenerEndpoint endpoint = createJMSListener(asyncNotificationConfiguration);
-        if(endpoint != null) {
+        if (endpoint != null) {
             registrar.registerEndpoint(endpoint, jmsListenerContainerFactory);
             LOG.info("Instantiated AsyncNotificationListenerService for backend [{}]", backendConnector.getName());
         }

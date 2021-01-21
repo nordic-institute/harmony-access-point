@@ -8,10 +8,7 @@ import eu.domibus.core.plugin.notification.PluginEventNotifierProvider;
 import eu.domibus.plugin.BackendConnector;
 import eu.domibus.plugin.NotificationListenerService;
 import eu.domibus.plugin.notification.AsyncNotificationConfiguration;
-import mockit.Expectations;
-import mockit.Injectable;
-import mockit.Tested;
-import mockit.Verifications;
+import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
@@ -69,6 +66,21 @@ public class PluginAsyncNotificationJMSConfigurerTest {
 
         new Verifications() {{
             pluginAsyncNotificationJMSConfigurer.initializeAsyncNotificationLister(registrar, notificationListenerService1);
+        }};
+    }
+
+    @Test
+    public void configureJmsListenersWithNoAsyncPlugins(@Injectable JmsListenerEndpointRegistrar registrar) throws JMSException {
+        pluginAsyncNotificationJMSConfigurer.asyncNotificationConfigurations = null;
+
+        new Expectations(pluginAsyncNotificationJMSConfigurer) {{
+            pluginAsyncNotificationJMSConfigurer.initializeAsyncNotificationLister(registrar, (AsyncNotificationConfiguration) any);
+            times = 0;
+        }};
+
+        pluginAsyncNotificationJMSConfigurer.configureJmsListeners(registrar);
+
+        new FullVerifications() {{
         }};
     }
 
