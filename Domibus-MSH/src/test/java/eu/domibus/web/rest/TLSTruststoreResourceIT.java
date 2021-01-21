@@ -3,6 +3,7 @@ package eu.domibus.web.rest;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.core.audit.AuditService;
@@ -15,6 +16,7 @@ import eu.domibus.web.rest.ro.TrustStoreRO;
 import mockit.Expectations;
 import mockit.FullVerifications;
 import mockit.Mocked;
+import mockit.Verifications;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,6 +24,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -37,6 +40,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
@@ -154,15 +158,52 @@ public class TLSTruststoreResourceIT {
 
     }
 
-    public static byte[] convertObjectToJsonBytes(Object object)
-            throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+    @Test(expected = NestedServletException.class)
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    public void replaceTrust_OK() throws Exception {
+        byte[] content = {1, 0, 1};
+        String filename = "file";
+        MockMultipartFile truststoreFile = new MockMultipartFile("file", filename, "octetstream", content);
+        String password = "password";
+        CryptoException ex = new CryptoException("Replace error");
 
-        JavaTimeModule module = new JavaTimeModule();
-        mapper.registerModule(module);
+        new Expectations() {{
+            multiPartFileUtil.validateAndGetFileContent(truststoreFile);
+            result = content;
+            times = 1;
+            tlsCertificateManager.replaceTrustStore(filename, content, password);
+            result = ex;
+        }};
 
-        return mapper.writeValueAsBytes(object);
+        mockMvc.perform(multipart("/rest/tlstruststore")
+                .file(truststoreFile)
+                .param("password", password)
+        )
+                .andDo(print());
+
+        new Verifications(){{
+            errorHandlerService.createResponse(ex, HttpStatus.BAD_REQUEST);
+        }};
+
     }
 
+    @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    public void downloadTrust() throws Exception {
+        byte[] content = {1, 0, 1};
+        new Expectations() {{
+            tlsCertificateManager.getTruststoreContent();
+            result = content;
+            times = 1;
+        }};
+
+        mockMvc.perform(get("/rest/tlstruststore"))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().bytes(content))
+        ;
+
+        new Verifications() {{
+            auditService.addTLSTruststoreDownloadedAudit();
+        }};
+    }
 }
