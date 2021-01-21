@@ -2,9 +2,11 @@ package eu.domibus.core.message.testservice;
 
 import com.google.gson.Gson;
 import eu.domibus.api.ebms3.Ebms3Constants;
+import eu.domibus.api.model.Messaging;
 import eu.domibus.api.model.SignalMessage;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.common.model.configuration.Agreement;
+import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.UserMessageLogDao;
@@ -24,7 +26,6 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
 import javax.activation.DataSource;
-import java.util.Date;
 
 /**
  * @author Sebastian-Ion TINCU
@@ -101,11 +102,11 @@ public class TestServiceTest {
     @Before
     public void setUp() {
         new Expectations() {{
-//            new XStream();
-//            result = xStream;
-//
-//            xStream.fromXML((InputStream) any);
-//            result = submission;
+            new Gson();
+            result = gson;
+
+            gson.fromJson(anyString, Submission.class);
+            result = submission;
         }};
     }
 
@@ -376,114 +377,113 @@ public class TestServiceTest {
     }
 
     @Test
-    public void testGetLastTestSent(final @Mocked TestServiceMessageInfoRO testServiceMessageInfoRO) {
-        final Date dateReceived = new Date();
-        new Expectations(testService) {{
-
-            testService.getLastTestSent(partyId);
-            result = testServiceMessageInfoRO;
-
-            testServiceMessageInfoRO.getTimeReceived();
-            result = dateReceived;
-
+    public void testGetLastTestSent() {
+        new Expectations() {{
+            new Gson();
+            times = 0;
+            gson.fromJson(anyString, Submission.class);
+            times = 0;
+            userMessageLogDao.findLastTestMessageId(partyId);
+            result = userMessageId;
+            userMessageLogDao.findByMessageId(userMessageId);
+            result = userMessageLog;
         }};
-
-        //tested method
-        testService.getLastTestSentWithErrors(partyId);
-
-        new FullVerifications() {{
-        }};
+        TestServiceMessageInfoRO lastTestSent = testService.getLastTestSentWithErrors(partyId);
+        Assert.assertEquals(partyId, lastTestSent.getPartyId());
     }
 
     @Test(expected = TestServiceException.class)
     public void testGetLastTestSent_NotFound() throws TestServiceException {
-        new Expectations(testService) {{
-
-            testService.getLastTestSent(partyId);
+        // Given
+        new Expectations() {{
+            new Gson();
+            times = 0;
+            gson.fromJson(anyString, Submission.class);
+            times = 0;
+            userMessageLogDao.findLastTestMessageId(anyString);
+            result = userMessageId;
+            userMessageLogDao.findByMessageId(userMessageId);
             result = null;
         }};
 
-        //tested method
+        // When
         testService.getLastTestSentWithErrors(partyId);
-
-        new FullVerifications() {{
-        }};
     }
 
-//    @Test
-//    public void testGetLastTestReceivedWithUserMessageId(@Injectable Messaging messaging, @Injectable Party party) throws TestServiceException {
-//        // Given
-//        new Expectations() {{
-//            party.getEndpoint();
-//            result = "testEndpoint";
-//            new XStream();
-//            times = 0;
-//            xStream.fromXML((InputStream) any);
-//            times = 0;
-//            messagingDao.findMessageByMessageId(anyString);
-//            result = messaging;
-//            messaging.getSignalMessage();
-//            result = signalMessage;
-//            pModeProvider.getPartyByIdentifier(partyId);
-//            result = party;
-//        }};
-//
-//        // When
-//        TestServiceMessageInfoRO lastTestReceived = testService.getLastTestReceivedWithErrors(partyId, userMessageId);
-//
-//        // Then
-//        TestServiceMessageInfoRO testServiceMessageInfoRO = lastTestReceived;
-//        Assert.assertEquals(testServiceMessageInfoRO.getMessageId(), signalMessage.getMessageInfo().getMessageId());
-//        Assert.assertEquals(testServiceMessageInfoRO.getPartyId(), partyId);
-//        Assert.assertEquals(testServiceMessageInfoRO.getTimeReceived(), signalMessage.getMessageInfo().getTimestamp());
-//        Assert.assertEquals(testServiceMessageInfoRO.getAccessPoint(), party.getEndpoint());
-//    }
+    @Test
+    public void testGetLastTestReceivedWithUserMessageId(@Injectable Messaging messaging, @Injectable Party party) throws TestServiceException {
+        // Given
+        new Expectations() {{
+            party.getEndpoint();
+            result = "testEndpoint";
+            new Gson();
+            times = 0;
+            gson.fromJson(anyString, Submission.class);
+            times = 0;
+            messagingDao.findMessageByMessageId(anyString);
+            result = messaging;
+            messaging.getSignalMessage();
+            result = signalMessage;
+            pModeProvider.getPartyByIdentifier(partyId);
+            result = party;
+        }};
 
-//    @Test(expected = Exception.class)
-//    public void testGetLastTestReceived_NotFound(@Injectable Messaging messaging) throws Exception {
-//        // Given
-//        new Expectations() {{
-//            new XStream();
-//            times = 0;
-//            xStream.fromXML((InputStream) any);
-//            times = 0;
-//            messagingDao.findMessageByMessageId(anyString);
-//            result = messaging;
-//            messaging.getSignalMessage();
-//            result = null;
-//        }};
-//
-//        testService.getLastTestReceivedWithErrors(partyId, userMessageId);
-//    }
+        // When
+        TestServiceMessageInfoRO lastTestReceived = testService.getLastTestReceivedWithErrors(partyId, userMessageId);
 
-//    @Test
-//    public void testGetLastTestReceived(@Injectable Party party) throws TestServiceException {
-//        // Given
-//        new Expectations() {{
-//            party.getEndpoint();
-//            result = "testEndpoint";
-//            new XStream();
-//            times = 0;
-//            xStream.fromXML((InputStream) any);
-//            times = 0;
-//            signalMessageLogDao.findLastTestMessageId(partyId);
-//            result = "signalMessageId";
-//            messagingDao.findSignalMessageByMessageId("signalMessageId");
-//            result = signalMessage;
-//            pModeProvider.getPartyByIdentifier(partyId);
-//            result = party;
-//        }};
-//
-//        // When
-//        TestServiceMessageInfoRO lastTestReceived = testService.getLastTestReceived(partyId, null);
-//
-//        // Then
-//        TestServiceMessageInfoRO testServiceMessageInfoRO = lastTestReceived;
-//        Assert.assertEquals(testServiceMessageInfoRO.getMessageId(), signalMessage.getMessageInfo().getMessageId());
-//        Assert.assertEquals(testServiceMessageInfoRO.getPartyId(), partyId);
-//        Assert.assertEquals(testServiceMessageInfoRO.getTimeReceived(), signalMessage.getMessageInfo().getTimestamp());
-//        Assert.assertEquals(testServiceMessageInfoRO.getAccessPoint(), party.getEndpoint());
-//    }
+        // Then
+        TestServiceMessageInfoRO testServiceMessageInfoRO = lastTestReceived;
+        Assert.assertEquals(testServiceMessageInfoRO.getMessageId(), signalMessage.getMessageInfo().getMessageId());
+        Assert.assertEquals(testServiceMessageInfoRO.getPartyId(), partyId);
+        Assert.assertEquals(testServiceMessageInfoRO.getTimeReceived(), signalMessage.getMessageInfo().getTimestamp());
+        Assert.assertEquals(testServiceMessageInfoRO.getAccessPoint(), party.getEndpoint());
+    }
+
+    @Test(expected = Exception.class)
+    public void testGetLastTestReceived_NotFound(@Injectable Messaging messaging) throws Exception {
+        // Given
+        new Expectations() {{
+            new Gson();
+            times = 0;
+            gson.fromJson(anyString, Submission.class);
+            times = 0;
+            messagingDao.findMessageByMessageId(anyString);
+            result = messaging;
+            messaging.getSignalMessage();
+            result = null;
+        }};
+
+        testService.getLastTestReceivedWithErrors(partyId, userMessageId);
+    }
+
+    @Test
+    public void testGetLastTestReceived(@Injectable Party party) throws TestServiceException {
+        // Given
+        new Expectations() {{
+            party.getEndpoint();
+            result = "testEndpoint";
+            new Gson();
+            times = 0;
+            gson.fromJson(anyString, Submission.class);
+            times = 0;
+            signalMessageLogDao.findLastTestMessageId(partyId);
+            result = "signalMessageId";
+            messagingDao.findSignalMessageByMessageId("signalMessageId");
+            result = signalMessage;
+            pModeProvider.getPartyByIdentifier(partyId);
+            result = party;
+        }};
+
+        // When
+        TestServiceMessageInfoRO lastTestReceived = testService.getLastTestReceived(partyId, null);
+
+        // Then
+        TestServiceMessageInfoRO testServiceMessageInfoRO = lastTestReceived;
+        Assert.assertEquals(testServiceMessageInfoRO.getMessageId(), signalMessage.getMessageInfo().getMessageId());
+        Assert.assertEquals(testServiceMessageInfoRO.getPartyId(), partyId);
+        Assert.assertEquals(testServiceMessageInfoRO.getTimeReceived(), signalMessage.getMessageInfo().getTimestamp());
+        Assert.assertEquals(testServiceMessageInfoRO.getAccessPoint(), party.getEndpoint());
+    }
 
     protected void testGetErrorsDetails() {
         String userMessageId = "mess_id_1", errorDetails = "DOM005-Cannot find party";
