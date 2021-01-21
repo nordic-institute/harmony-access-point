@@ -83,7 +83,7 @@ public class MessageResourceTest {
             result = new byte[]{0, 1, 2};
         }};
 
-        ResponseEntity<ByteArrayResource> responseEntity = null;
+        ResponseEntity<Object> responseEntity = null;
         try {
             // When
             responseEntity = messageResource.downloadUserMessage("messageId");

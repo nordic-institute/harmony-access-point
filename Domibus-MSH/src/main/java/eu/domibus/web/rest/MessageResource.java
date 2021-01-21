@@ -2,6 +2,7 @@ package eu.domibus.web.rest;
 
 import eu.domibus.api.messaging.MessageNotFoundException;
 import eu.domibus.api.messaging.MessagingException;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.core.message.MessagesLogService;
 import eu.domibus.logging.DomibusLogger;
@@ -18,6 +19,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE;
 
 /**
  * Created by musatmi on 10/05/2017.
@@ -36,6 +39,9 @@ public class MessageResource {
 
     @Autowired
     private ErrorHandlerService errorHandlerService;
+
+    @Autowired
+    protected DomibusPropertyProvider domibusPropertyProvider;
 
     @ExceptionHandler({MessagingException.class})
     public ResponseEntity<ErrorRO> handleMessagingException(MessagingException ex) {
@@ -65,10 +71,16 @@ public class MessageResource {
     }
 
     @RequestMapping(value = "/download")
-    public ResponseEntity<ByteArrayResource> downloadUserMessage(@RequestParam(value = "messageId", required = true) String messageId)
+    public ResponseEntity<Object> downloadUserMessage(@RequestParam(value = "messageId", required = true) String messageId)
             throws MessageNotFoundException, IOException {
-
+        int maxDownLoadSize = domibusPropertyProvider.getIntegerProperty(DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE);
         byte[] zip = userMessageService.getMessageWithAttachmentsAsZip(messageId);
+        if(zip.length>maxDownLoadSize)        {
+            LOG.error("Couldn't download the message. The message size exceeds maximum download size limit:"+ maxDownLoadSize);
+            return  ResponseEntity.status(HttpStatus.FORBIDDEN).body("Couldn't download the message. The message size exceeds maximum download size limit!");
+                    //ResponseEntity.ok("Couldn't download the message. The message size exceeds maximum download size limit").build(null);
+            //throw new MessagingException("Couldn't download the message. The message size exceeds maximum download size limit:"+ maxDownLoadSize, null);
+        }
 
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType("application/zip"))
