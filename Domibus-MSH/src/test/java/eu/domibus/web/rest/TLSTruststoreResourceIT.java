@@ -22,6 +22,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
@@ -30,6 +31,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.util.NestedServletException;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -37,6 +39,8 @@ import java.util.List;
 
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 /**
  * @author Ion Perpegel
@@ -127,6 +131,27 @@ public class TLSTruststoreResourceIT {
 
         new FullVerifications() {
         };
+    }
+
+    @Test(expected = NestedServletException.class)
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    public void replaceTrust_EmptyPass() throws Exception {
+        byte[] content = {1, 0, 1};
+        String filename = "file";
+        MockMultipartFile truststoreFile = new MockMultipartFile("file", filename, "octetstream", content);
+
+        new Expectations() {{
+            multiPartFileUtil.validateAndGetFileContent(truststoreFile);
+            result = content;
+            times = 1;
+        }};
+
+        mockMvc.perform(multipart("/rest/tlstruststore")
+                .file(truststoreFile)
+                .param("password", " ")
+        )
+                .andDo(print());
+
     }
 
     public static byte[] convertObjectToJsonBytes(Object object)
