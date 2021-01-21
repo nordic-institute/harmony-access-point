@@ -15,6 +15,7 @@
     <name>Domibus MSH Default WS Plugin</name>
 
     <dependencies>
+
         <dependency>
             <groupId>com.sun.xml.messaging.saaj</groupId>
             <artifactId>saaj-impl</artifactId>
@@ -103,6 +104,11 @@
         <!--       Domibus End      -->
         <dependency>
             <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <scope>provided</scope>
         </dependency>
@@ -144,6 +150,11 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context-support</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jms</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>

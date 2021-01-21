@@ -6,6 +6,7 @@ import eu.domibus.api.message.SignalMessageLogService;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.model.NotificationStatus;
+import eu.domibus.api.model.SignalMessageLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

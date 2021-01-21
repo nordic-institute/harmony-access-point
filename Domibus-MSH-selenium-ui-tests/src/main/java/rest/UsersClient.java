@@ -22,12 +22,12 @@ public class UsersClient extends BaseRestClient {
 	public JSONArray getUsers(String domain) throws Exception {
 		
 		switchDomain(domain);
-		
+
 		ClientResponse response = requestGET(resource.path(RestServicePaths.USERS), null);
 		if (response.getStatus() != 200) {
 			throw new DomibusRestException("Could not get users ", response);
 		}
-		
+
 		try {
 			String rawResp = response.getEntity(String.class);
 			return new JSONArray(sanitizeResponse(rawResp));
@@ -36,6 +36,64 @@ public class UsersClient extends BaseRestClient {
 		}
 		return null;
 	}
+
+	public JSONObject getUser(String domain, String username) throws Exception {
+		log.info("getting user " + username);
+		JSONArray users = getUsers(domain);
+
+		for (int i = 0; i < users.length(); i++) {
+			JSONObject user = users.getJSONObject(i);
+			String curUsername = user.getString("userName");
+
+			if(StringUtils.equalsIgnoreCase(username, curUsername)){
+				log.info("found and returned: " + user.toString());
+				return user;
+			}
+		}
+
+		log.info("could not find user " + username);
+		return null;
+	}
+
+	public void changePassForUser(String domain, String username, String newPass) throws Exception {
+		log.info("getting user " + username);
+		JSONArray users = getUsers(domain);
+		JSONObject user = null;
+
+		for (int i = 0; i < users.length(); i++) {
+			JSONObject u = users.getJSONObject(i);
+			String curUsername = u.getString("userName");
+
+			if(StringUtils.equalsIgnoreCase(username, curUsername)){
+				log.info("found and returned: " + u.toString());
+				user = u;
+				break;
+			}
+		}
+
+		if(null == user) {
+			log.info("could not find user " + username);
+			return;
+		}
+
+		user.put("password", newPass);
+		user.put("status", "UPDATED");
+		user.put("domainName", domain);
+
+		JSONArray toUpdate = new JSONArray();
+		toUpdate.put(user);
+
+		switchDomain(domain);
+		ClientResponse response = putUser(toUpdate, domain);
+		if(response.getStatus() < 300){
+			log.info("change saved");
+		}else {
+			throw new DomibusRestException("Updating user password failed!!!", response);
+		}
+
+	}
+
+
 	
 	public List<String> getUsernameList(String domain) throws Exception {
 		List<String> usernameList = new ArrayList<>();
@@ -156,5 +214,24 @@ public class UsersClient extends BaseRestClient {
 		switchDomain(domain);
 		return jsonPUT(resource.path(RestServicePaths.USERS), toUpdate.toString());
 	}
+
+	public JSONArray getSpecificRoleActiveUser(String domain, String role) throws Exception {
+
+		JSONArray userArray = getUsers(domain);
+		int userCount = userArray.length();
+
+		log.info("Get all active admin users");
+		JSONArray activeUserArray = new JSONArray();
+		for (int i = 0; i < userCount; i++) {
+			Boolean isDeleted = userArray.getJSONObject(i).getBoolean("deleted");
+			String userRole = userArray.getJSONObject(i).getString("roles");
+
+			if (!isDeleted && userRole.equalsIgnoreCase(role)) {
+				activeUserArray.put(userArray.get(i));
+			}
+		}
+		return activeUserArray;
+	}
+
 }
 

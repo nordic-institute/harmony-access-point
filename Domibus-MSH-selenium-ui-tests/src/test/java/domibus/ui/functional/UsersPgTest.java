@@ -411,9 +411,8 @@ public class UsersPgTest extends SeleniumTest {
 		soft.assertAll();
 	}
 	
-	//	username validations bug reported and not fixed
 	/*USR-16 - Admin tries to create new user with username less than 3 letters long*/
-	@Test(description = "USR-16", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "USR-16", groups = {"multiTenancy", "singleTenancy"})
 	public void userNameValidations() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		UsersPage page = new UsersPage(driver);
@@ -426,15 +425,15 @@ public class UsersPgTest extends SeleniumTest {
 		UserModal modal = new UserModal(driver);
 		log.info("checking with only one letter");
 		modal.getUserNameInput().fill("t");
-		soft.assertEquals(modal.getUsernameErrMess().getText(), DMessages.USER_USERNAME_VALIDATION, "Correct error message shown (1)");
+		soft.assertEquals(modal.getUsernameErrMess().getText(), DMessages.USER_USERNAME_VALIDATION_SHORT, "Correct error message shown (1)");
 		
 		log.info("checking with only two letters");
 		modal.getUserNameInput().fill("te");
-		soft.assertEquals(modal.getUsernameErrMess().getText(), DMessages.USER_USERNAME_VALIDATION, "Correct error message shown (2)");
+		soft.assertEquals(modal.getUsernameErrMess().getText(), DMessages.USER_USERNAME_VALIDATION_SHORT, "Correct error message shown (2)");
 		
 		log.info("checking with only two letters and special characters");
 		modal.getUserNameInput().fill("te$%^*");
-		soft.assertEquals(modal.getUsernameErrMess().getText(), DMessages.USER_USERNAME_VALIDATION, "Correct error message shown (3)");
+		soft.assertEquals(modal.getUsernameErrMess().getText(), DMessages.USER_USERNAME_VALIDATION_SPECIAL_CHR, "Correct error message shown (3)");
 		
 		log.info("checking with valid username");
 		modal.getUserNameInput().fill("testUser");
@@ -680,8 +679,8 @@ public class UsersPgTest extends SeleniumTest {
 		int userCount = userArray.length();
 		
 		for (int i = 0; i < userCount; i++) {
-			String userName = userArray.getJSONObject(i).get("userName").toString();
-			String role = userArray.getJSONObject(i).get("roles").toString();
+			String userName = userArray.getJSONObject(i).getString("userName");
+			String role = userArray.getJSONObject(i).getString("roles");
 			if (role.equals("ROLE_AP_ADMIN") && !userName.equals("super")) {
 				rest.users().deleteUser(userName, null);
 			}
@@ -692,7 +691,7 @@ public class UsersPgTest extends SeleniumTest {
 		
 		page.grid().scrollToAndSelect("Username", "super");
 		page.getDeleteBtn().click();
-		soft.assertTrue(page.getAlertArea().getAlertMessage().equals("You cannot delete the logged in user: super"));
+		soft.assertTrue(page.getAlertArea().getAlertMessage().equals(DMessages.Users.LOGGEDINUSER_DELETE_ERROR+": super"));
 		log.info("Super user can't be deleted as no other super user exists");
 		
 		page.grid().scrollToAndSelect("Username", "super");
@@ -742,30 +741,278 @@ public class UsersPgTest extends SeleniumTest {
 		
 		soft.assertAll();
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+
+	// This Test Case verifies error while deleting/deactivating logged in admin user
+	@Test(description = "USR-52", groups = {"singleTenancy","multiTenancy"})
+	public void adminDeleteAll() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		String username = rest.getUser(null, DRoles.ADMIN, true, false, true).getString("userName");
+		log.info("created user " + username);
+		UsersPage userPage =new UsersPage(driver);
+		if(data.isMultiDomain()) {
+			loginAndGoToUsersPage(username, data.defaultPass());
+		}
+		else{
+			loginAndGoToUsersPage(data.getAdminUser());
+		}
+
+		String loggedInUser = userPage.getSandwichMenu().getCurrentUserID();
+		userPage.clickVoidSpace();
+
+		JSONArray activeUserArray = rest.users().getSpecificRoleActiveUser(userPage.getDomainFromTitle(),DRoles.ADMIN);
+		int activeUserCount = activeUserArray.length();
+
+		for (int i = 0; i < activeUserCount; i++) {
+			String userName = activeUserArray.getJSONObject(i).getString("userName");
+
+			if (userName.equals(loggedInUser)) {
+
+				log.info("Try deactivating logged in user");
+				userPage.grid().scrollToAndSelect("Username", loggedInUser);
+				userPage.getEditBtn().click();
+				UserModal modal = new UserModal(driver);
+				soft.assertTrue( modal.getActiveChk().getAttribute("class").contains("disabled"),"Active checkbox is disabled");
+				modal.getCancelBtn().click();
+
+				log.info("try deleting logged in user");
+				userPage.getDeleteBtn().click();
+				soft.assertTrue(userPage.getAlertArea().getAlertMessage().contains(DMessages.Users.LOGGEDINUSER_DELETE_ERROR), "correct error message is shown");
+				userPage.refreshPage();
+				userPage.waitForPageTitle();
+
+			} else {
+
+				rest.users().deactivate(userName, userPage.getDomainFromTitle());
+				log.info("Deactivated user : " + userName);
+				rest.users().deleteUser(userName, userPage.getDomainFromTitle());
+				log.info("Deleting user :" + userName);
+			}
+
+		}
+		soft.assertAll();
+	}
+
+	// This Test Case verifies error while deleting/deactivating logged in Super admin user.
+	@Test(description = "USR-51", groups = {"multiTenancy"})
+	public void superDeleteAll() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		UsersPage userPage = new UsersPage(driver);
+		userPage.getSidebar().goToPage(PAGES.USERS);
+		userPage.grid().waitForRowsToLoad();
+
+		String loggedInUser = userPage.getSandwichMenu().getCurrentUserID();
+		userPage.clickVoidSpace();
+
+		JSONArray activeUserArray= rest.users().getSpecificRoleActiveUser(userPage.getDomainFromTitle(), DRoles.SUPER);
+		int activeUserCount = activeUserArray.length();
+		log.info("Active super user count" + activeUserCount);
+
+		for (int i = 0; i < activeUserCount; i++) {
+			String userName = activeUserArray.getJSONObject(i).getString("userName");
+
+			if (userName.equals(loggedInUser)) {
+
+				log.info("Try deactivating logged in user");
+				userPage.grid().scrollToAndSelect("Username", loggedInUser);
+				userPage.getEditBtn().click();
+				UserModal modal = new UserModal(driver);
+				soft.assertTrue( modal.getActiveChk().getAttribute("class").contains("disabled"),"Active checkbox is disabled");
+				modal.getCancelBtn().click();
+
+				log.info("try deleting logged in user");
+				userPage.getDeleteBtn().click();
+				soft.assertTrue(userPage.getAlertArea().getAlertMessage().contains(DMessages.Users.LOGGEDINUSER_DELETE_ERROR), "Error while deleting logged in user");
+				userPage.refreshPage();
+				userPage.waitForPageTitle();
+
+			} else {
+
+				rest.users().deactivate(userName, userPage.getDomainFromTitle());
+				log.info("Deactivated user : " + userName);
+				rest.users().deleteUser(userName, userPage.getDomainFromTitle());
+				log.info("Deleting user :" + userName);
+			}
+
+			userPage.refreshPage();
+			userPage.waitForPageTitle();
+
+		}
+		soft.assertAll();
+	}
+
+	// This test case verifies error while adding new user with role ROLE_USER in absence of domain admin
+	@Test(description = "USR-50", groups = {"multiTenancy"})
+	public void addUserWithNoAdmin() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		DomibusPage page = new DomibusPage(driver);
+		page.getSidebar().goToPage(PAGES.USERS);
+		UsersPage userPage = new UsersPage(driver);
+		String newUser = Gen.randomAlphaNumeric(10);
+		rest.users().createUser(newUser, DRoles.ADMIN, data.getNewTestPass(), page.getDomainFromTitle());
+		JSONArray activeAdminArray = rest.users().getSpecificRoleActiveUser(page.getDomainFromTitle(),DRoles.ADMIN);
+		int userCount=activeAdminArray.length();
+
+		page.refreshPage();
+		page.waitForPageTitle();
+
+		for (int i = 0; i < userCount; i++) {
+			String userName = activeAdminArray.getJSONObject(i).getString("userName");
+
+				if (!userName.equals(newUser)) {
+
+					rest.users().deactivate(userName, page.getDomainFromTitle());
+			}
+		}
+		logout();
+		for (int j = 0; j < 5; j++) {
+			login(newUser, data.defaultPass());
+			soft.assertTrue(page.getAlertArea().getAlertMessage().equals(DMessages.LOGIN_INVALID_CREDENTIALS), "Error on login with wrong credentials");
+		}
+
+		loginAndGoToUsersPage(data.getAdminUser());
+		userPage.newUser(Gen.randomAlphaNumeric(10), "tuser@bnc.com", DRoles.USER, data.defaultPass(), data.defaultPass());
+		userPage.grid().waitForRowsToLoad();
+		userPage.saveAndConfirm();
+		soft.assertTrue(userPage.getAlertArea().getAlertMessage().equals(DMessages.Users.ONLY_ADMINUSER_DEACTIVATE_ERROR), "Error while adding user when no admin user exists");
+		soft.assertAll();
+
+	}
+
+	//This test cases verifies error while deactivating all admin users
+	@Test(description = "USR-49", groups = {"multiTenancy"})
+	public void deactivateAllAdmin() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		UsersPage userPage = new UsersPage(driver);
+
+		String newUser = Gen.randomAlphaNumeric(10);
+		rest.users().createUser(newUser, DRoles.ADMIN, data.getNewTestPass(), userPage.getDomainFromTitle());
+
+		userPage.getSidebar().goToPage(PAGES.USERS);
+		userPage.grid().waitForRowsToLoad();
+
+		JSONArray activeUserArray= rest.users().getSpecificRoleActiveUser(userPage.getDomainFromTitle(), DRoles.ADMIN);
+		int activeUserCount = activeUserArray.length();
+
+		for (int i = 0; i < activeUserCount; i++) {
+			String userName = activeUserArray.getJSONObject(i).getString("userName");
+
+			if (!userName.equals(newUser)) {
+				rest.users().deactivate(userName, userPage.getDomainFromTitle());
+				log.info("Deactivated admin user : " + userName);
+			} else {
+				userPage.grid().scrollToAndSelect("Username", newUser);
+				userPage.getEditBtn().click();
+				UserModal modal = new UserModal(driver);
+				modal.getActiveChk().click();
+				modal.clickOK();
+				userPage.saveAndConfirm();
+				soft.assertTrue(userPage.getAlertArea().getAlertMessage().contains(DMessages.Users.ONLY_ADMINUSER_DEACTIVATE_ERROR),
+						"Error while deactivating only active admin user");
+				userPage.refreshPage();
+				userPage.waitForPageTitle();
+			}
+		}
+		soft.assertAll();
+	}
+
+	// This test case verifies error while deleting all admin users
+	@Test(description = "USR-48", groups = {"multiTenancy"})
+	public void deleteAllAdmin() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		UsersPage userPage = new UsersPage(driver);
+
+		String newUser = Gen.randomAlphaNumeric(10);
+		rest.users().createUser(newUser, DRoles.ADMIN, data.getNewTestPass(), userPage.getDomainFromTitle());
+		userPage.getSidebar().goToPage(PAGES.USERS);
+		userPage.grid().waitForRowsToLoad();
+
+		JSONArray activeUserArray=rest.users().getSpecificRoleActiveUser(userPage.getDomainFromTitle(), DRoles.ADMIN);
+		int activeUserCount = activeUserArray.length();
+
+		for (int i = 0; i < activeUserCount; i++) {
+			String userName = activeUserArray.getJSONObject(i).getString("userName");
+
+			if (!userName.equals(newUser)) {
+				rest.users().deleteUser(userName, userPage.getDomainFromTitle());
+				log.info("Deleted admin user : " + userName);
+			} else {
+				userPage.grid().scrollToAndSelect("Username", newUser);
+				userPage.getDeleteBtn().click();
+				userPage.saveAndConfirm();
+
+				soft.assertTrue(userPage.getAlertArea().getAlertMessage().contains(DMessages.Users.ONLY_ADMINUSER_DEACTIVATE_ERROR),
+						"Error while deleting only active admin user");
+				userPage.refreshPage();
+				userPage.waitForPageTitle();
+			}
+		}
+		soft.assertAll();
+	}
+
+	//This test cases verifies error while adding new user with username same as deleted user
+	@Test(description = "USR-46", groups = {"multiTenancy"})
+	public void duplicateUser() throws Exception {
+		String deletedUsername = rest.getUser(null, DRoles.USER, false, true, false).getString("userName");
+
+		SoftAssert soft = new SoftAssert();
+		UsersPage userPage = new UsersPage(driver);
+		userPage.getSidebar().goToPage(PAGES.USERS);
+		userPage.grid().waitForRowsToLoad();
+
+		int index = userPage.grid().scrollTo("Username", deletedUsername);
+		soft.assertEquals(index, -1, "User is not visible in the grid");
+
+		userPage.newUser(deletedUsername, "tuser@bnc.com", DRoles.USER, data.defaultPass(), data.defaultPass());
+		userPage.grid().waitForRowsToLoad();
+		userPage.saveAndConfirm();
+		soft.assertEquals(userPage.getAlertArea().getAlertMessage(), String.format(DMessages.Users.DUPLICATE_USERNAME_SAMEDOMAIN_ERROR, deletedUsername), "Correct message is displayed");
+
+		soft.assertAll();
+
+
+	}
+
+	// This test case verifies error while adding new user without presence of any domain admin user
+	@Test(description = "USR-47", groups = {"multiTenancy"})
+	public void userAddition() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		UsersPage userPage = new UsersPage(driver);
+
+		userPage.getSidebar().goToPage(PAGES.USERS);
+		userPage.grid().waitForRowsToLoad();
+
+		String newUser = Gen.randomAlphaNumeric(10);
+		rest.users().createUser(newUser, DRoles.ADMIN, data.getNewTestPass(), userPage.getDomainFromTitle());
+		String loggedInUser = userPage.getSandwichMenu().getCurrentUserID();
+
+		JSONArray activeUserArray = rest.users().getSpecificRoleActiveUser(userPage.getDomainFromTitle(),DRoles.ADMIN);
+		int activeUserCount = activeUserArray.length();
+
+		for (int i = 0; i < activeUserCount; i++) {
+			String userName = activeUserArray.getJSONObject(i).getString("userName");
+
+			if (!userName.equals(newUser) && !userName.equals(loggedInUser)) {
+				rest.users().deleteUser(userName, userPage.getDomainFromTitle());
+				log.info("Deleted admin user : " + userName);
+			}
+		}
+		logout();
+		for (int j = 0; j < 5; j++) {
+			login(newUser, data.defaultPass());
+			soft.assertTrue(userPage.getAlertArea().getAlertMessage().equals(DMessages.LOGIN_INVALID_CREDENTIALS), "Error on login with wrong credentials");
+		}
+
+		loginAndGoToUsersPage(data.getAdminUser());
+		String userName1 = Gen.randomAlphaNumeric(9);
+		userPage.newUser(userName1, "tuser@bnc.com", DRoles.USER, data.defaultPass(), data.defaultPass());
+		userPage.grid().waitForRowsToLoad();
+		userPage.saveAndConfirm();
+		soft.assertTrue(userPage.getAlertArea().getAlertMessage().contains(DMessages.Users.ONLY_ADMINUSER_DEACTIVATE_ERROR),
+				"Error while deleting only active admin user");
+		soft.assertAll();
+
+
+	}
 }
+

@@ -72,8 +72,8 @@ public class CRLEbms3ServiceImplIT {
         }
 
         @Bean
-        public DomibusPropertyProviderDispatcher domibusPropertyProviderDispatcher() {
-            return Mockito.mock(DomibusPropertyProviderDispatcher.class);
+        public PropertyProviderDispatcher domibusPropertyProviderDispatcher() {
+            return Mockito.mock(PropertyProviderDispatcher.class);
         }
 
         @Bean
@@ -82,13 +82,23 @@ public class CRLEbms3ServiceImplIT {
         }
 
         @Bean
-        public DomibusPropertyChangeManager domibusPropertyChangeManager() {
-            return Mockito.mock(DomibusPropertyChangeManager.class);
+        public PropertyChangeManager domibusPropertyChangeManager() {
+            return Mockito.mock(PropertyChangeManager.class);
         }
 
         @Bean
         public PrimitivePropertyTypesManager primitivePropertyTypesManager() {
             return Mockito.mock(PrimitivePropertyTypesManager.class);
+        }
+
+        @Bean
+        public NestedPropertiesManager domibusNestedPropertiesManager() {
+            return Mockito.mock(NestedPropertiesManager.class);
+        }
+
+        @Bean
+        public PropertyProviderHelper domibusPropertyProviderHelper() {
+            return Mockito.mock(PropertyProviderHelper.class);
         }
     }
 

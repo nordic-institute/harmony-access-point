@@ -10,7 +10,7 @@ import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.UserMessageDefaultServiceHelper;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.core.message.UserMessageLogDao;
-import eu.domibus.core.message.signal.SignalMessageLog;
+import eu.domibus.api.model.SignalMessageLog;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.api.model.NotificationStatus;
 import eu.domibus.messaging.MessageConstants;

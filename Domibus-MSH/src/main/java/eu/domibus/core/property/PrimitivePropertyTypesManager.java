@@ -4,7 +4,6 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
@@ -14,9 +13,11 @@ import java.util.Properties;
 public class PrimitivePropertyTypesManager {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PrimitivePropertyTypesManager.class);
 
-    @Autowired
-    @Qualifier("domibusDefaultProperties")
-    protected Properties domibusDefaultProperties;
+    private final Properties domibusDefaultProperties;
+
+    public PrimitivePropertyTypesManager(@Qualifier("domibusDefaultProperties") Properties domibusDefaultProperties) {
+        this.domibusDefaultProperties = domibusDefaultProperties;
+    }
 
     protected Integer getIntegerInternal(String propertyName, String customValue) {
         if (customValue != null) {

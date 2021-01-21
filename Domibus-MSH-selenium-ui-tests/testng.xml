@@ -1,27 +1,132 @@
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
-
 <suite name="SELENIUM">
-
-
-	<groups>
-		<run>
-			<include name="multiTenancy"/>
-		</run>
-	</groups>
-
-	<test name="UX">
-		<packages>
-			<package name="domibus.ui.ux.*"/>
-		</packages>
-	</test>
-	<test name="FUNC">
-		<packages>
-			<package name="domibus.ui.functional.*"/>
-		</packages>
-	</test>
-
-	<listeners>
-		<listener class-name="utils.customReporter.ExcelReportReporter"/>
-		<listener class-name="domibus.FailListener"/>
-	</listeners>
+    <groups>
+        <run>
+            <include name="multiTenancy"/>
+        </run>
+    </groups>
+    <test name="NoData">
+        <classes>
+            <class name="domibus.ui.ux.AuditPgUXTest"/>
+            <class name="domibus.ui.ux.PModeArchiveUXTest"/>
+            <class name="domibus.ui.ux.ChangePasswordPgUXTest"/>
+            <class name="domibus.ui.ux.JMSMessPgUXTest"/>
+            <class name="domibus.ui.ux.MessagesPgUXTest">
+                <methods>
+                    <!--                    disabled due to bug EDELIVERY-7654-->
+                    <exclude name="csvFileDownload"/>
+                    <exclude name="csvFileDownloadHeaders"/>
+                    <exclude name="verifySplitAndJoinSpecificHeaders"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.ux.PluginUsersPgUXTest">
+                <methods>
+                    <exclude name="createPluginUserFieldValidations"/>
+                    <exclude name="downloadAsCSV"/>
+                    <exclude name="verifyCSVHeaders"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.ux.PmodePartiesPgUXTest">
+                <methods>
+                    <exclude name="downloadFilteredPartiesList"/>
+                    <exclude name="downloadAllParties"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.ux.TruststorePgUXTests"/>
+            <class name="domibus.ui.ux.UsersPgUXTest"/>
+            <class name="domibus.ui.ux.ErrorLogPgUXTest"/>
+            <class name="domibus.ui.functional.ErrorLogPgTest">
+                <methods>
+                    <exclude name="checkNoOFErrorsPerMessage"/>
+                    <exclude name="checkErrorCode"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.functional.LoginPgTest"/>
+            <class name="domibus.ui.functional.AllPgTest"/>
+        </classes>
+    </test>
+    <test name="LowDataReq">
+        <classes>
+            <class name="domibus.ui.functional.AuditPgTest">
+                <methods>
+                    <!--                    excluded due to bug EDELIVERY-5540-->
+                    <exclude name="deleteParty"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.functional.AlertPgTest">
+                <methods>
+                    <exclude name="downloadCsv"/>
+                    <exclude name="verifyHeaders"/>
+                    <exclude name="checkAditionalFilters"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.functional.ChangePasswordPgTest"/>
+            <class name="domibus.ui.functional.ConnectionMonitorTest"/>
+            <class name="domibus.ui.functional.JMSMessPgTest">
+                <methods>
+                    <exclude name="moveMessage"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.functional.AccessRightsTest"/>
+            <class name="domibus.ui.functional.LoggingPgTest"/>
+            <class name="domibus.ui.functional.PluginUsersPgTest">
+                <methods>
+                    <exclude name="createCertificatePluginUserSave"/>
+                    <exclude name="createCertificatePluginUserCancel"/>
+                    <exclude name="certificatePluginUserDuplicateSameDomain"/>
+                    <exclude name="newUserSaveMultipleSaves"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.functional.UsersPgTest"/>
+        </classes>
+    </test>
+    <test name="Test">
+        <classes>
+            <class name="domibus.ui.functional.MessagesPgTest">
+                <methods>
+<!--                    disabled due to bug EDELIVERY-7654-->
+                    <exclude name="downloadMsgs"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.functional.PModeCurrentPgTests">
+                <methods>
+                    <exclude name="uploadInvalidPmode"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.functional.PmodePartiesPgTest">
+                <methods>
+                    <exclude name="editParty"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.functional.MessageFilterPgTest">
+                <methods>
+                    <exclude name="editAndCancel"/>
+                    <exclude name="editAndSave"/>
+                    <exclude name="editAndChangeDomain"/>
+                    <exclude name="editToDuplicate"/>
+                    <exclude name="editWithDiffRowSelection"/>
+                </methods>
+            </class>
+        </classes>
+    </test>
+    <test name="LAST">
+        <classes>
+            <class name="domibus.ui.functional.TrustoreTest">
+                <methods>
+                    <exclude name="expiredCertificate"/>
+                </methods>
+            </class>
+            <class name="domibus.ui.functional.PropertiesPgTest">
+                <methods>
+                    <exclude name="exportCSV"/>
+                    <exclude name="checkDefaultPassword"/>
+                    <exclude name="dontReuseLastPass"/>
+                </methods>
+            </class>
+        </classes>
+    </test>
+    <listeners>
+        <listener class-name="utils.customReporter.ExcelReportReporter"/>
+        <listener class-name="domibus.FailListener"/>
+    </listeners>
 </suite>

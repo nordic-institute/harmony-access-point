@@ -14,7 +14,7 @@
     <name>Domibus MSH Backend WS Test</name>
 
     <properties>
-        <cxf-spring-boot-starter-jaxws.version>3.4.0</cxf-spring-boot-starter-jaxws.version>
+        <cxf-spring-boot-starter-jaxws.version>3.4.1</cxf-spring-boot-starter-jaxws.version>
     </properties>
 
     <dependencies>
@@ -30,6 +30,10 @@
             <version>${cxf-spring-boot-starter-jaxws.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-vfs2</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>

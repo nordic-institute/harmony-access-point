@@ -1,10 +1,8 @@
 package eu.domibus.core.property;
 
-import eu.domibus.api.property.DataBaseEngine;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.property.DefaultDomibusConfigurationService;
 import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.Expectations;
 import mockit.Injectable;
@@ -28,10 +26,13 @@ import static eu.domibus.api.property.DomibusConfigurationService.PASSWORD_ENCRY
 public class DefaultDomibusConfigurationServiceTest {
 
     @Injectable
-    private DataBaseEngine dataBaseEngine;
+    protected DomibusPropertyProvider domibusPropertyProvider;
 
     @Injectable
-    protected DomibusPropertyProvider domibusPropertyProvider;
+    PropertyRetrieveManager propertyRetrieveManager;
+
+    @Injectable
+    PrimitivePropertyTypesManager primitivePropertyTypesManager;
 
     @Mocked
     DomibusLoggerFactory domibusLoggerFactory;
@@ -41,20 +42,19 @@ public class DefaultDomibusConfigurationServiceTest {
 
     @Test
     public void isPasswordEncryptionActive() {
-        new Expectations() {{
-            domibusPropertyProvider.getBooleanProperty(PASSWORD_ENCRYPTION_ACTIVE_PROPERTY);
+        new Expectations(defaultDomibusConfigurationService) {{
+            defaultDomibusConfigurationService.getBooleanProperty(PASSWORD_ENCRYPTION_ACTIVE_PROPERTY);
             result = true;
         }};
 
         Assert.assertTrue(defaultDomibusConfigurationService.isPasswordEncryptionActive());
 
-
     }
 
     @Test
     public void isPasswordEncryptionActive1(@Injectable Domain domain) {
-        new Expectations() {{
-            domibusPropertyProvider.getBooleanProperty(domain, PASSWORD_ENCRYPTION_ACTIVE_PROPERTY);
+        new Expectations(defaultDomibusConfigurationService) {{
+            defaultDomibusConfigurationService.getBooleanProperty(domain, PASSWORD_ENCRYPTION_ACTIVE_PROPERTY);
             result = true;
         }};
 

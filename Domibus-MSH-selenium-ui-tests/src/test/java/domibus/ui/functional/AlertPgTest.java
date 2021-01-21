@@ -660,7 +660,7 @@ public class AlertPgTest extends SeleniumTest {
 	
 	//	disabled due to bug EDELIVERY-4186
 	//This method will download csv with/without show domain checkbox checked for all domains
-	@Test(description = "ALRT-10", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "ALRT-10", groups = {"multiTenancy", "singleTenancy"})
 	public void downloadCsv() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -928,7 +928,7 @@ public class AlertPgTest extends SeleniumTest {
 	}
 	
 	/* disabled because EDELIVERY-4186 */
-	@Test(description = "ALRT-20", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "ALRT-20", groups = {"multiTenancy", "singleTenancy"})
 	public void verifyHeaders() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		AlertPage page = new AlertPage(driver);
@@ -992,7 +992,7 @@ public class AlertPgTest extends SeleniumTest {
 	}
 
 	/* EDELIVERY-5471 - ALRT-23 - Check additional filters section for each alert type */
-	@Test(description = "ALRT-23", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "ALRT-23", groups = {"multiTenancy", "singleTenancy"})
 	public void checkAditionalFilters() throws Exception {
 		SoftAssert soft = new SoftAssert();
 

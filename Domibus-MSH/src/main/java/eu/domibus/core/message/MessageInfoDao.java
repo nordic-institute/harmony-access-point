@@ -1,7 +1,7 @@
 package eu.domibus.core.message;
 
+import eu.domibus.api.model.MessageInfo;
 import eu.domibus.api.model.MessageType;
-import eu.domibus.api.model.Messaging;
 import eu.domibus.core.dao.BasicDao;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
@@ -19,20 +19,12 @@ import java.util.List;
  */
 
 @Repository
-public class MessageInfoDao extends BasicDao<Messaging> {
+public class MessageInfoDao extends BasicDao<MessageInfo> {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageInfoDao.class);
 
     public MessageInfoDao() {
-        super(Messaging.class);
-    }
-
-    public List<String> findUserMessageIds(List<String> userMessageIds) {
-        final TypedQuery<String> query = em.createNamedQuery("MessageInfo.findUserMessageIds", String.class);
-        query.setParameter("MESSAGEIDS", userMessageIds);
-        List<String> messageIds = query.getResultList();
-        LOG.debug("Found ids [{}]", messageIds);
-        return messageIds;
+        super(MessageInfo.class);
     }
 
     @Timer(clazz = MessageInfoDao.class,value = "findSignalMessageIds")

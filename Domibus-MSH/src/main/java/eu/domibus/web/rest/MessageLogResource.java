@@ -2,10 +2,10 @@ package eu.domibus.web.rest;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.api.model.MSHRole;
-import eu.domibus.common.MessageStatus;
 import eu.domibus.core.message.MessageLogInfo;
 import eu.domibus.core.message.MessagesLogService;
 import eu.domibus.core.message.testservice.TestService;
