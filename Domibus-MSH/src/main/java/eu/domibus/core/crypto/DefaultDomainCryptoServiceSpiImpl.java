@@ -104,13 +104,6 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
         signalService.signalTrustStoreUpdate(domain);
     }
 
-    private synchronized void persistTrustStore() throws CryptoException {
-        certificateService.persistTrustStore(getTrustStore(), getTrustStorePassword(), getTrustStoreLocation());
-
-        refreshTrustStore();
-        signalService.signalTrustStoreUpdate(domain);
-    }
-
     @Override
     public boolean isCertificateChainValid(String alias) throws DomibusCertificateSpiException {
         LOG.debug("Checking certificate validation for [{}]", alias);
@@ -128,6 +121,13 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
         certificates.forEach(certEntry ->
                 certificateService.addCertificate(getTrustStorePassword(), getTrustStoreLocation(), certEntry.getCertificate(), certEntry.getAlias(), overwrite, false));
         persistTrustStore();
+    }
+
+    protected synchronized void persistTrustStore() throws CryptoException {
+        certificateService.persistTrustStore(getTrustStore(), getTrustStorePassword(), getTrustStoreLocation());
+
+        refreshTrustStore();
+        signalService.signalTrustStoreUpdate(domain);
     }
 
     protected KeyStore loadTrustStore() {

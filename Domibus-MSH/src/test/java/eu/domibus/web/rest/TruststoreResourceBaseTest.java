@@ -89,6 +89,7 @@ public class TruststoreResourceBaseTest {
 
         try {
             truststoreResourceBase.replaceTruststore(emptyFile, "pass");
+            Assert.fail();
         } catch (RequestValidationException ex) {
             Assert.assertTrue(ex.getMessage().contains("Failed to upload the truststore file since it was empty."));
         }

@@ -1,22 +1,22 @@
 package eu.domibus.web.rest;
 
 import eu.domibus.api.exceptions.RequestValidationException;
-import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.crypto.api.TLSCertificateManager;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.web.rest.error.ErrorHandlerService;
-import mockit.*;
+import mockit.Expectations;
+import mockit.Injectable;
+import mockit.Tested;
+import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
 
 /**
  * @author Ion Perpegel
@@ -66,7 +66,7 @@ public class TLSTruststoreResourceTest {
     @Test
     public void addTLSCertificateOK() {
         byte[] content = {1, 0, 1};
-        String filename = "filename", alias="blue_gw";
+        String filename = "filename", alias = "blue_gw";
         MultipartFile multiPartFile = new MockMultipartFile("name", filename, "octetstream", content);
 
         new Expectations() {{
@@ -75,7 +75,7 @@ public class TLSTruststoreResourceTest {
             tlsCertificateManager.addCertificate(content, alias);
         }};
 
-        String outcome= tlsTruststoreResource.addTLSCertificate(multiPartFile, alias);
+        String outcome = tlsTruststoreResource.addTLSCertificate(multiPartFile, alias);
 
         Assert.assertTrue(outcome.contains("Certificate [" + alias + "] has been successfully added to the TLS truststore."));
 
@@ -89,7 +89,8 @@ public class TLSTruststoreResourceTest {
         MultipartFile multiPartFile = new MockMultipartFile("cert", new byte[]{});
 
         try {
-            String outcome= tlsTruststoreResource.addTLSCertificate(multiPartFile, "");
+            tlsTruststoreResource.addTLSCertificate(multiPartFile, "");
+            Assert.fail();
         } catch (RequestValidationException ex) {
             Assert.assertTrue(ex.getMessage().contains("Please provide an alias for the certificate."));
         }

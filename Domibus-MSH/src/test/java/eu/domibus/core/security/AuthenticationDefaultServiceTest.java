@@ -40,7 +40,6 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
  */
 @RunWith(JMockit.class)
 public class AuthenticationDefaultServiceTest{
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AuthenticationDefaultServiceTest.class);
 
     private static final String DOMIBUS_URL = "https://localhost:8080/domibus/services/backend";
     private static final String RESOURCE_PATH = "src/test/resources/eu/domibus/ebms3/common/dao/DynamicDiscoveryPModeProviderTest/";
@@ -54,7 +53,7 @@ public class AuthenticationDefaultServiceTest{
     private MockHttpServletRequest request;
 
     @Injectable
-    private CertificateServiceImpl certificateService;// = new CertificateServiceImpl();
+    private CertificateServiceImpl certificateService;
 
     @Injectable
     private AuthUtils authUtils;
