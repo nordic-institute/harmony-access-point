@@ -94,6 +94,7 @@ public class PropertiesPgTest extends SeleniumTest {
 
 		log.info("checking page elements are visible");
 		soft.assertTrue(page.filters().getNameInput().isVisible(), "Name input is displayed");
+		page.filters().expandArea();
 		soft.assertTrue(page.filters().getTypeInput().isVisible(), "Type input is displayed");
 		soft.assertTrue(page.filters().getModuleInput().isVisible(), "Module input is displayed");
 		soft.assertTrue(page.filters().getValueInput().isVisible(), "Value input is displayed");
@@ -126,6 +127,7 @@ public class PropertiesPgTest extends SeleniumTest {
 
 		log.info("checking page elements are visible");
 		soft.assertTrue(page.filters().getNameInput().isVisible(), "Name input is displayed");
+		page.filters().expandArea();
 		soft.assertTrue(page.filters().getTypeInput().isVisible(), "Type input is displayed");
 		soft.assertTrue(page.filters().getModuleInput().isVisible(), "Module input is displayed");
 		soft.assertTrue(page.filters().getValueInput().isVisible(), "Value input is displayed");
