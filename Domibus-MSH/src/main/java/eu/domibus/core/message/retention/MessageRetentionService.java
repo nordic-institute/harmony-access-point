@@ -21,7 +21,7 @@ public interface MessageRetentionService {
 
     void deleteExpiredMessages(String mpc, Integer expiredDownloadedMessagesLimit, Integer expiredNotDownloadedMessagesLimit, Integer expiredSentMessagesLimit, Integer expiredPayloadDeletedMessagesLimit);
 
-    void scheduleDeleteMessages(List<String> messageIds);
+    void scheduleDeleteMessages(List<UserMessage> messageIds);
 
     void scheduleDeleteMessagesByMessageLog(List<UserMessageLogDto> userMessageLogs);
 

@@ -6,6 +6,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import java.util.regex.Pattern;
 
@@ -16,6 +17,10 @@ import java.util.regex.Pattern;
  */
 @Entity
 @Table(name = "TB_PROPERTY")
+@NamedQuery(name = "Property.findPropertiesByMessageId",
+        query = "select new eu.domibus.api.model.MessagePropertiesDto(userMessage) " +
+                "from UserMessage userMessage join userMessage.messageInfo msgInfo " +
+                "where msgInfo.messageId = :MSG_ID ")
 public class Property extends AbstractBaseEntity implements Comparable<Property> {
 
     public static final String MIME_TYPE = "MimeType";

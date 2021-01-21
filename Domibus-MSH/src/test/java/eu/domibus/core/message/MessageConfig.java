@@ -20,6 +20,11 @@ public class MessageConfig {
     }
 
     @Bean
+    public PropertyDao propertyDao() {
+        return new PropertyDao();
+    }
+
+    @Bean
     public UserMessageLogInfoFilter userMessageLogInfoFilter() {
         return new UserMessageLogInfoFilter();
     }

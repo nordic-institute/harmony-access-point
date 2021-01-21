@@ -206,17 +206,17 @@ public class UserMessageLogDaoIT {
 
         MessageInfo messageInfo1 = getMessageInfo(noProperties);
         createUserMessageLog(noProperties, status, now, messageInfo1);
-        createUserMessage(null, messageInfo1);
+        createUserMessageWithProperties(null, messageInfo1, em);
 
         MessageInfo messageInfo2 = getMessageInfo(withProperties);
         createUserMessageLog(withProperties, status, now, messageInfo2);
-        createUserMessage(Arrays.asList(
+        createUserMessageWithProperties(Arrays.asList(
                 getProperty("prop1", "value1"),
                 getProperty("prop2", "value2")),
-                messageInfo2);
+                messageInfo2, em);
     }
 
-    private void createUserMessage(List<Property> properties, MessageInfo messageInfo) {
+    private void createUserMessageWithProperties(List<Property> properties, MessageInfo messageInfo, EntityManager em) {
         UserMessage userMessage = new UserMessage();
         userMessage.setMessageInfo(messageInfo);
         CollaborationInfo collaborationInfo = new CollaborationInfo();

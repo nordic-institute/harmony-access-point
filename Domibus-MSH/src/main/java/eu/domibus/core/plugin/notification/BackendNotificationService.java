@@ -75,6 +75,9 @@ public class BackendNotificationService {
     protected MessagingDao messagingDao;
 
     @Autowired
+    protected PropertyDao propertyDao;
+
+    @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
 
     @Autowired
@@ -233,8 +236,7 @@ public class BackendNotificationService {
             return;
         }
 
-        UserMessage userMessage = messagingDao.findUserMessageByMessageId(userMessageLog.getMessageId());
-        Map<String, String> properties = userMessageServiceHelper.getProperties(userMessage);
+        Map<String, String> properties = propertyDao.findMessagePropertiesForMessageId(userMessageLog.getMessageId()).getProperties();
         MessageDeletedEvent messageDeletedEvent = getMessageDeletedEvent(
                 userMessageLog.getMessageId(),
                 properties);
@@ -301,8 +303,8 @@ public class BackendNotificationService {
     }
 
     protected void notify(String messageId, String backendName, NotificationType notificationType) {
-        UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
-        notify(messageId, backendName, notificationType, userMessageServiceHelper.getProperties(userMessage));
+        Map<String, String> properties = propertyDao.findMessagePropertiesForMessageId(messageId).getProperties();
+        notify(messageId, backendName, notificationType, properties);
     }
 
     protected void notify(String messageId, String backendName, NotificationType notificationType, Map<String, String> properties) {
