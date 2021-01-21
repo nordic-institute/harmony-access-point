@@ -1,13 +1,14 @@
 package eu.domibus.core.message.testservice;
 
+import eu.domibus.api.ebms3.Ebms3Constants;
+import eu.domibus.api.util.JsonUtil;
 import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.message.MessagingDao;
-import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.message.UserMessageLogDao;
-import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.api.ebms3.Ebms3Constants;
-import eu.domibus.plugin.Submission;
+import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
+import eu.domibus.core.pmode.provider.PModeProvider;
+import eu.domibus.plugin.Submission;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -45,6 +46,9 @@ public class TestServiceIT {
     @Injectable
     private ErrorLogDao errorLogDao;
 
+    @Injectable
+    private JsonUtil jsonUtil;
+
     @Test
     public void createSubmission() throws IOException {
         // GIVEN
@@ -59,7 +63,7 @@ public class TestServiceIT {
         Submission submission = testService.createSubmission("sender");
 
         // THEN
-        Assert.assertTrue("Should have correctly read the submission data from the test service XML file",
+        Assert.assertTrue("Should have correctly read the submission data from the test service Json file",
                 submission != null
                         && "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test".equals(submission.getAction())
                         && "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service".equals(submission.getService())
