@@ -142,8 +142,9 @@ public class TrustoreTest extends SeleniumTest {
 		
 		page.uploadFile(path, "test123", soft);
 		log.info(page.getAlertArea().getAlertMessage());
-		soft.assertTrue(page.getAlertArea().getAlertMessage().contains("Error"), "Error while uploading expired certificate");
-		
+
+		soft.assertFalse(page.getAlertArea().isError(), "Success message is shown");
+
 		soft.assertAll();
 		
 	}
