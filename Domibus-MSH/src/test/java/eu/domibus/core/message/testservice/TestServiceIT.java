@@ -63,7 +63,7 @@ public class TestServiceIT {
         Submission submission = testService.createSubmission("sender");
 
         // THEN
-        Assert.assertTrue("Should have correctly read the submission data from the test service XML file",
+        Assert.assertTrue("Should have correctly read the submission data from the test service Json file",
                 submission != null
                         && "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test".equals(submission.getAction())
                         && "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service".equals(submission.getService())
