@@ -181,7 +181,9 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
         }
 
         try {
-            backupService.backupTrustStoreFile(trustStoreFile);
+            final String trustStoreBackupLocation = getTrustStoreBackupLocation();
+            LOG.debug("TrustStore backup location is: [{}]", trustStoreBackupLocation);
+            backupService.backupFileInLocation(trustStoreFile, trustStoreBackupLocation);
         } catch (IOException e) {
             throw new CryptoException("Could not create backup file for truststore", e);
         }
@@ -320,6 +322,10 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
 
     public String getTrustStoreType() {
         return domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_TYPE);
+    }
+
+    protected String getTrustStoreBackupLocation() {
+        return domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_BACKUP_LOCATION);
     }
 
     protected void signalTrustStoreUpdate() {

@@ -26,6 +26,7 @@ import java.util.Properties;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 import static org.apache.wss4j.common.ext.WSSecurityException.ErrorCode.SECURITY_ERROR;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Thomas Dussart
@@ -161,21 +162,42 @@ public class DefaultDomainCryptoEbms3ServiceSpiImplTest {
         String privateKeyPassword = domainCryptoService.getPrivateKeyPassword(alias);
 
         // Then
-        Assert.assertEquals("Should have returned the correct private key password", PRIVATE_KEY_PASSWORD, privateKeyPassword);
+        assertEquals("Should have returned the correct private key password", PRIVATE_KEY_PASSWORD, privateKeyPassword);
     }
 
     @Test
     public void testBackupTruststore() throws IOException {
         String RESOURCE_PATH = "src/test/resources/eu/domibus/ebms3/common/dao/DynamicDiscoveryPModeProviderTest/";
         String TEST_KEYSTORE = "testkeystore.jks";
+        String trustStoreBackupLocation = "/domibus/conf/domibus/keystores/backup/";
         File testFile = new File(RESOURCE_PATH + TEST_KEYSTORE);
+
+        new Expectations(domainCryptoService) {{
+            domainCryptoService.getTrustStoreBackupLocation();
+            result = trustStoreBackupLocation;
+        }};
 
         domainCryptoService.backupTrustStore(testFile);
 
         new Verifications() {{
-            backupService.backupTrustStoreFile(testFile);
+            domainCryptoService.getTrustStoreBackupLocation();
+            times = 1;
+            backupService.backupFileInLocation(testFile, trustStoreBackupLocation);
             times = 1;
         }};
+    }
+
+    @Test
+    public void getTrustStoreBackUpLocation() {
+        final String trustStoreBackupLocation = "backupTrustStore";
+
+        new Expectations() {{
+            domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_BACKUP_LOCATION);
+            result = trustStoreBackupLocation;
+        }};
+
+        String location = domainCryptoService.getTrustStoreBackupLocation();
+        assertEquals(location, trustStoreBackupLocation);
     }
 
     @Test

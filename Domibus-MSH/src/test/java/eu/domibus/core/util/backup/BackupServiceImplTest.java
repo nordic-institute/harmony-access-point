@@ -4,7 +4,10 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.core.util.DateUtilImpl;
-import mockit.*;
+import mockit.Expectations;
+import mockit.Injectable;
+import mockit.Tested;
+import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
@@ -12,9 +15,10 @@ import org.junit.runner.RunWith;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SECURITY_TRUSTSTORE_BACKUP_LOCATION;
 import static eu.domibus.core.util.backup.BackupServiceImpl.BACKUP_EXT;
 import static eu.domibus.core.util.backup.BackupServiceImpl.BACKUP_FILE_FORMATTER;
 import static org.junit.Assert.*;
@@ -92,21 +96,21 @@ public class BackupServiceImplTest {
     }
 
     @Test
-    public void backupTrustStoreFile() throws IOException {
+    public void backupFileInLocation() throws IOException {
         File originalFile = new File("testfile");
-        File backupFile = new File("backup_testfile");
+        String backupLocation = "backup_testfile";
+        File backupFile = new File(backupLocation);
 
         new Expectations(FileUtils.class, backupService) {{
-            backupService.getTrustStoreBackupFile();
+            backupService.createBackupFileInLocation(originalFile, backupLocation);
             result = backupFile;
             FileUtils.copyFile((File) any, (File) any);
         }};
 
-        backupService.backupTrustStoreFile(originalFile);
+        backupService.backupFileInLocation(originalFile, backupLocation);
 
         new Verifications() {{
             File backupFile;
-            backupService.backupTrustStoreFile(originalFile);
             FileUtils.copyFile(originalFile, backupFile = withCapture());
             assertFalse(backupFile.getName().equalsIgnoreCase(originalFile.getName()));
             assertTrue(backupFile.getName().contains(originalFile.getName()));
@@ -114,39 +118,35 @@ public class BackupServiceImplTest {
     }
 
     @Test
-    public void getTrustStoreBackupFile() {
-        final String trustStoreBackupFileValue = "testBackupFile";
-        File trustStoreFile = new File(trustStoreBackupFileValue);
-
-        new MockUp<File>() {
-            @Mock
-            private File getParentFile() {
-                return trustStoreFile;
-            }
-        };
-
-        new Expectations(backupService, FileUtils.class) {{
-            backupService.getTrustStoreBackUpLocation();
-            result = trustStoreBackupFileValue;
+    public void createBackupFileInLocation() {
+        File originalFile = new File("testfile");
+        final String backupLocation = "test_backupFile";
+        File backupFile = new File(backupLocation);
+        new Expectations(backupService, Files.class) {{
+            Files.exists(Paths.get(backupLocation).normalize());
+            result = false;
         }};
 
-        backupService.getTrustStoreBackupFile();
+        backupService.createBackupFileInLocation(originalFile, backupLocation);
 
         new Verifications() {{
-            backupService.getBackupFile(trustStoreFile);
+            backupService.getBackupFile(originalFile, backupFile);
         }};
     }
 
     @Test
-    public void getTrustStoreBackUpLocation() {
-        final String trustStoreBackupLocation = "backupTrustStore";
+    public void getBackupFile() {
+        String timePart = "2019-07-15_23_01_01.111";
+        File originalFile = new File("testfile");
+        final String backupLocation = "test_backupFile";
+        File backupFile = new File(backupLocation);
 
         new Expectations() {{
-            domibusPropertyProvider.getProperty(domainProvider.getCurrentDomain(), DOMIBUS_SECURITY_TRUSTSTORE_BACKUP_LOCATION);
-            result = trustStoreBackupLocation;
+            dateUtil.getCurrentTime(BACKUP_FILE_FORMATTER);
+            result = timePart;
         }};
-
-        String location = backupService.getTrustStoreBackUpLocation();
-        assertEquals(location, trustStoreBackupLocation);
+        File newBackupFile = backupService.getBackupFile(originalFile, backupFile);
+        assertFalse(newBackupFile.getName().equalsIgnoreCase(originalFile.getName()));
+        assertTrue(newBackupFile.getName().contains(originalFile.getName()));
     }
 }

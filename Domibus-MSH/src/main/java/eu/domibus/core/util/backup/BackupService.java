@@ -21,9 +21,12 @@ public interface BackupService {
 
     /**
      * Creates a copy of the originalFile, in the backup folder.
-     * @param originalFile the file to be backed-up.
+     *
+     * @param originalFile   the file to be backed-up.
+     * @param backupLocation the file location to be backed-up.
      * @throws IOException when the backup file cannot be written.
      * @implNote The backup file is named using the following convention: original_filename.backup-yyyy-MM-dd_HH_mm_ss.SSS
      */
-    void backupTrustStoreFile(File originalFile) throws IOException;
+    void backupFileInLocation(File originalFile, String backupLocation) throws IOException;
+
 }

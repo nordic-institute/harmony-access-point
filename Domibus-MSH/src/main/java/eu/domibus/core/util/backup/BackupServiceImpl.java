@@ -12,9 +12,9 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.format.DateTimeFormatter;
-
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SECURITY_TRUSTSTORE_BACKUP_LOCATION;
 
 /**
  * @author Ion Perpegel
@@ -63,27 +63,26 @@ public class BackupServiceImpl implements BackupService {
     }
 
     @Override
-    public void backupTrustStoreFile(File originalFile) throws IOException {
-        final File backupFile = getTrustStoreBackupFile();
+    public void backupFileInLocation(File originalFile, String backupLocation) throws IOException {
+        final File backupFile = createBackupFileInLocation(originalFile, backupLocation);
         copyBackUpFile(originalFile, backupFile);
     }
 
-    protected File getTrustStoreBackupFile() {
-        String trustStoreBackupFileValue = getTrustStoreBackUpLocation();
-        LOG.debug("TrustStore backup location is: [{}]", trustStoreBackupFileValue);
-        File trustStoreFile = new File(trustStoreBackupFileValue);
-        if (!trustStoreFile.getParentFile().exists()) {
-            LOG.debug("Creating backup directory for truststore [{}]", trustStoreFile.getParentFile());
+    protected File createBackupFileInLocation(File originalFile, String backupLocation) {
+        File backupFile = new File(backupLocation);
+        if (!Files.exists(Paths.get(backupLocation).normalize())) {
+            LOG.debug("Creating backup directory [{}]", backupLocation);
             try {
-                FileUtils.forceMkdir(trustStoreFile.getParentFile());
+                FileUtils.forceMkdir(backupFile);
             } catch (IOException e) {
-                throw new CryptoException("Could not create parent directory for truststore", e);
+                throw new CryptoException("Could not create backup directory", e);
             }
         }
-        return getBackupFile(trustStoreFile);
+        return getBackupFile(originalFile, backupFile);
     }
 
-    protected String getTrustStoreBackUpLocation() {
-        return domibusPropertyProvider.getProperty(domainProvider.getCurrentDomain(), DOMIBUS_SECURITY_TRUSTSTORE_BACKUP_LOCATION);
+    protected File getBackupFile(File originalFile, File backupFile) {
+        String backupFileName = originalFile.getName() + BACKUP_EXT + dateUtil.getCurrentTime(BACKUP_FILE_FORMATTER);
+        return new File(backupFile, backupFileName);
     }
 }
