@@ -18,6 +18,7 @@ import org.junit.runner.RunWith;
 import javax.xml.soap.SOAPMessage;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
@@ -89,12 +90,16 @@ public class NonRepudiationDefaultServiceTest {
     @Test
     public void saveResponse_ok(@Mocked SOAPMessage response, @Mocked SignalMessage signalMessage) {
         String userMessageId = "msgid";
+        List<SignalMessage> signalMessages = Arrays.asList(signalMessage);
         new Expectations(nonRepudiationService) {{
             nonRepudiationService.isNonRepudiationAuditDisabled();
             result = false;
 
             signalMessageDao.findSignalMessagesByRefMessageId(userMessageId);
-            result = Arrays.asList(signalMessage);
+            result = signalMessages;
+
+            signalMessages.stream().findFirst();
+            result = null;
         }};
 
         nonRepudiationService.saveResponse(response, userMessageId);
