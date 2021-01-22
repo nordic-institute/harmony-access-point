@@ -93,7 +93,7 @@ public class PluginUserResource extends BaseResource {
         return exportToCSV(result.getEntries(),
                 PluginUserRO.class,
                 ImmutableMap.of(
-                        "UserName".toUpperCase(), "Username",
+                        "UserName".toUpperCase(), "User Name",
                         "authRoles".toUpperCase(), "Role"
                 ),
                 Arrays.asList("entityId", "status", "password", "domain"),
