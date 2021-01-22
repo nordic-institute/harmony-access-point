@@ -23,7 +23,7 @@ public abstract class DomibusQuartzJobBean extends QuartzJobBean {
 
     protected static final String DOMIBUS_QUARTZ_USER = "domibus-quartz";
 
-    protected static final String DOMIBUS_QUARTZ_PASSWORD = "domibus-quartz";
+    protected static final String DOMIBUS_QUARTZ_PASSWORD = "domibus-quartz"; //NOSONAR
 
     @Autowired
     protected DomainService domainService;
