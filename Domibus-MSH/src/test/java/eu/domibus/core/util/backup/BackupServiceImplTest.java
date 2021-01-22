@@ -118,7 +118,7 @@ public class BackupServiceImplTest {
     }
 
     @Test
-    public void createBackupFileInLocation() {
+    public void createBackupFileInLocation() throws IOException {
         File originalFile = new File("testfile");
         final String backupLocation = "test_backupFile";
         File backupFile = new File(backupLocation);

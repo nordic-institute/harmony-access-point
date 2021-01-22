@@ -1,6 +1,5 @@
 package eu.domibus.core.util.backup;
 
-import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DateUtil;
@@ -68,14 +67,14 @@ public class BackupServiceImpl implements BackupService {
         copyBackUpFile(originalFile, backupFile);
     }
 
-    protected File createBackupFileInLocation(File originalFile, String backupLocation) {
+    protected File createBackupFileInLocation(File originalFile, String backupLocation) throws IOException {
         File backupFile = new File(backupLocation);
         if (!Files.exists(Paths.get(backupLocation).normalize())) {
             LOG.debug("Creating backup directory [{}]", backupLocation);
             try {
                 FileUtils.forceMkdir(backupFile);
             } catch (IOException e) {
-                throw new CryptoException("Could not create backup directory", e);
+                throw new IOException("Could not create backup directory", e);
             }
         }
         return getBackupFile(originalFile, backupFile);
