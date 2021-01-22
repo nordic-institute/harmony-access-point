@@ -58,5 +58,8 @@ public interface SignalService {
      */
     void signalClearCaches();
 
+    /**
+     * Signals the change of the TLS truststore
+     */
     void signalTLSTrustStoreUpdate(Domain currentDomain);
 }
