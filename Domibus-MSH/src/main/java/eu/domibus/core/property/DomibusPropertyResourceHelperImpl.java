@@ -47,7 +47,7 @@ public class DomibusPropertyResourceHelperImpl implements DomibusPropertyResourc
 
     private FieldBlacklistValidator propertyNameBlacklistValidator;
 
-    private Map<SortMapKey, Comparator<DomibusProperty>> sortingComparatorsMap = new HashMap<>();
+    protected Map<SortMapKey, Comparator<DomibusProperty>> sortingComparatorsMap = new HashMap<>();
 
     public DomibusPropertyResourceHelperImpl(DomibusConfigurationService domibusConfigurationService,
                                              DomibusPropertyProvider domibusPropertyProvider,
