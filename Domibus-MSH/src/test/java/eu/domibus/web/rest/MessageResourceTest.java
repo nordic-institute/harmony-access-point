@@ -113,7 +113,7 @@ public class MessageResourceTest {
     }
 
     @Test
-    public void test_checkMessageContentExists() {
+    public void test_checkMessageContentExists() throws IOException {
         MessageLogRO deletedMessage = new MessageLogRO() {{
             setDeleted(new Date());
         }};

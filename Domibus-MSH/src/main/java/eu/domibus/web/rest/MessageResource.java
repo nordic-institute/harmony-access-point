@@ -9,6 +9,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.ErrorRO;
+import eu.domibus.web.rest.ro.MessageDownloadRO;
 import eu.domibus.web.rest.ro.MessageLogRO;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,16 +74,8 @@ public class MessageResource {
     @RequestMapping(value = "/download")
     public ResponseEntity<ByteArrayResource> downloadUserMessage(@RequestParam(value = "messageId", required = true) String messageId)
             throws MessageNotFoundException, IOException {
-        int maxDownLoadSize = domibusPropertyProvider.getIntegerProperty(DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE);
+
         byte[] zip = userMessageService.getMessageWithAttachmentsAsZip(messageId);
-        if(zip.length>maxDownLoadSize)        {
-            LOG.warn("Couldn't download the message. The message size exceeds maximum download size limit:"+ maxDownLoadSize);
-          // return ResponseEntity.ok("User does not have privilege to clear caches.");
-            //return ResponseEntity.badRequest().build();
-            //return  ResponseEntity.ok().contentType(MediaType.parseMediaType("text/plain")).body("Couldn't download the message. The message size exceeds maximum download size limit!");
-                    //ResponseEntity.ok("Couldn't download the message. The message size exceeds maximum download size limit").build(null);
-            throw new MessageNotFoundException("Couldn't download the message. The message size exceeds maximum download size limit:"+ maxDownLoadSize, null);
-        }
 
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType("application/zip"))
@@ -91,17 +84,29 @@ public class MessageResource {
     }
 
     @RequestMapping(value = "/exists", method = RequestMethod.GET)
-    public boolean checkMessageContentExists(@RequestParam(value = "messageId", required = true) String messageId) {
-        MessageLogRO message = messagesLogService.findUserMessageById(messageId);
+    public MessageDownloadRO checkMessageContentExists(@RequestParam(value = "messageId", required = true) String messageId) throws IOException {
 
+        MessageDownloadRO messageDownloadRO = new MessageDownloadRO();
+        MessageLogRO message = messagesLogService.findUserMessageById(messageId);
+        int maxDownLoadSize = domibusPropertyProvider.getIntegerProperty(DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE);
         if (message == null) {
-            return false;
+            messageDownloadRO.setCanDownload(false);
+            return messageDownloadRO;
         }
         if (message.getDeleted() != null) {
             LOG.info("Could not find message content for message: [{}]", messageId);
-            return false;
+            messageDownloadRO.setCanDownload(false);
+            return messageDownloadRO;
         }
-        return true;
+        byte[] zip = userMessageService.getMessageWithAttachmentsAsZip(messageId);
+        if (zip.length > maxDownLoadSize) {
+            LOG.warn("Couldn't download the message. The message size exceeds maximum download size limit:" + maxDownLoadSize);
+          //  throw new MessagingException("Couldn't download the message. The message size exceeds maximum download size limit:" + maxDownLoadSize, null);
+            messageDownloadRO.setCanDownload(false);
+            messageDownloadRO.setResponse("Couldn't download the message. The message size exceeds maximum download size limit");
+            return messageDownloadRO;
+        }
+        return messageDownloadRO;
     }
 
     @GetMapping(value = "/{messageId:.+}/envelopes")
