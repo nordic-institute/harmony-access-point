@@ -68,11 +68,6 @@ public class ErrorHandlerService {
             ex = rootCause == null ? ex : rootCause;
         }
 
-        if (ex instanceof BeanCreationException) {
-            Throwable rootCause = ExceptionUtils.getRootCause(ex);
-            ex = rootCause == null ? ex : rootCause;
-        }
-
         return createResponseEntity(ex.getMessage(), status);
     }
 
