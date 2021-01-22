@@ -107,7 +107,7 @@ public class PartyResource extends BaseResource {
                         "Name".toUpperCase(), "Party name",
                         "EndPoint".toUpperCase(), "End point",
                         "JoinedIdentifiers".toUpperCase(), "Party id",
-                        "JoinedProcesses".toUpperCase(), "Process"
+                        "JoinedProcesses".toUpperCase(), "Process(I=Initiator, R= Responder, IR=Both)"
                 ),
                 Arrays.asList("entityId", "identifiers", "userName", "processesWithPartyAsInitiator", "processesWithPartyAsResponder", "certificateContent"),
                 "pmodeparties");
