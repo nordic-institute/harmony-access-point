@@ -98,7 +98,7 @@ public class BackupServiceImplTest {
     @Test
     public void backupFileInLocation() throws IOException {
         File originalFile = new File("testfile");
-        String backupLocation = "backup_testfile";
+        String backupLocation = "testfile_backup";
         File backupFile = new File(backupLocation);
 
         new Expectations(FileUtils.class, backupService) {{
@@ -112,8 +112,7 @@ public class BackupServiceImplTest {
         new Verifications() {{
             File backupFile;
             FileUtils.copyFile(originalFile, backupFile = withCapture());
-            assertFalse(backupFile.getName().equalsIgnoreCase(originalFile.getName()));
-            assertTrue(backupFile.getName().contains(originalFile.getName()));
+            assertTrue(backupFile.getName().startsWith(originalFile.getName()));
         }};
     }
 
@@ -137,7 +136,7 @@ public class BackupServiceImplTest {
     @Test
     public void getBackupFile() {
         String timePart = "2019-07-15_23_01_01.111";
-        File originalFile = new File("testfile");
+        File originalFile = new File("test_file");
         final String backupLocation = "test_backupFile";
         File backupFile = new File(backupLocation);
 
@@ -146,7 +145,6 @@ public class BackupServiceImplTest {
             result = timePart;
         }};
         File newBackupFile = backupService.getBackupFile(originalFile, backupFile);
-        assertFalse(newBackupFile.getName().equalsIgnoreCase(originalFile.getName()));
-        assertTrue(newBackupFile.getName().contains(originalFile.getName()));
+        assertTrue(newBackupFile.getName().startsWith(originalFile.getName()));
     }
 }
