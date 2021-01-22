@@ -120,28 +120,41 @@ public class MessageResourceTest {
     }
 
     @Test
-    public void test_checkCanDownload() {
-        MessageLogRO deletedMessage = new MessageLogRO() {{
-            setDeleted(new Date());
-        }};
-        MessageLogRO existingMessage = new MessageLogRO() {{
-            setDeleted(null);
-        }};
-
-        // Given
+    public void test_checkCanDownloadWithDeletedMessage(@Injectable MessageLogRO deletedMessage) {
         new Expectations() {{
             messagesLogService.findUserMessageById(anyString);
-            returns(null, deletedMessage, existingMessage);
+            result = deletedMessage;
+            deletedMessage.getDeleted();
+            result = new Date();
+
+        }};
+
+        boolean result2 = messageResource.checkCanDownload("messageId");
+        Assert.assertFalse(result2);
+    }
+
+    @Test
+    public void test_checkCanDownloadWhenNoMessage() {
+        new Expectations() {{
+            messagesLogService.findUserMessageById(anyString);
+            result = null;
         }};
 
         boolean result1 = messageResource.checkCanDownload("messageId");
-        Assert.assertEquals(false, result1);
+        Assert.assertFalse(result1);
+    }
 
-        boolean result2 = messageResource.checkCanDownload("messageId");
-        Assert.assertEquals(false, result2);
+    @Test
+    public void test_checkCanDownloadWithExistingMessage(@Injectable MessageLogRO existingMessage) {
+        new Expectations() {{
+            messagesLogService.findUserMessageById(anyString);
+            result = existingMessage;
+            existingMessage.getDeleted();
+            result = null;
+        }};
 
         boolean result3 = messageResource.checkCanDownload("messageId");
-        Assert.assertEquals(true, result3);
+        Assert.assertTrue(result3);
     }
 
     @Test
