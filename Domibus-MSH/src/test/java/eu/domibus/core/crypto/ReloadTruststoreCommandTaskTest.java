@@ -3,7 +3,7 @@ package eu.domibus.core.crypto;
 import eu.domibus.api.cluster.Command;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.core.crypto.api.MultiDomainCryptoService;
+import eu.domibus.api.pki.MultiDomainCryptoService;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;

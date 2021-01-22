@@ -7,14 +7,14 @@ import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.util.DatabaseUtil;
-import mockit.FullVerifications;
-import mockit.Injectable;
-import mockit.Mocked;
-import mockit.Tested;
+import eu.domibus.core.crypto.MultiDomainCryptoServiceImpl;
+import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.quartz.JobExecutionContext;
+
+import java.security.KeyStore;
 
 /**
  * @author Soumya Chandran
@@ -40,14 +40,22 @@ public class SaveCertificateAndLogRevocationJobTest {
     @Injectable
     private DatabaseUtil databaseUtil;
 
+    @Injectable
+    private MultiDomainCryptoServiceImpl multiDomainCertificateProvider;
 
     @Test
-    public void executeJob(@Mocked JobExecutionContext context, @Mocked Domain domain) {
+    public void executeJob(@Mocked JobExecutionContext context, @Mocked Domain domain, @Mocked KeyStore trustStore, @Mocked KeyStore keyStore) {
 
+        new Expectations() {{
+            multiDomainCertificateProvider.getTrustStore(domain);
+            result = trustStore;
+            multiDomainCertificateProvider.getKeyStore(domain);
+            result = keyStore;
+        }};
         saveCertificateAndLogRevocationJob.executeJob(context, domain);
 
         new FullVerifications() {{
-            certificateService.saveCertificateAndLogRevocation(domain);
+            certificateService.saveCertificateAndLogRevocation(trustStore, keyStore);
             certificateService.sendCertificateAlerts();
         }};
     }

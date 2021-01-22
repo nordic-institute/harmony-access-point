@@ -1,8 +1,10 @@
 package eu.domibus.ext.delegate.services.party;
 
+import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.party.Party;
 import eu.domibus.api.party.PartyService;
 import eu.domibus.api.pki.CertificateService;
+import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.process.Process;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.ext.delegate.converter.DomainExtConverter;
@@ -17,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.security.KeyStoreException;
+import java.security.cert.X509Certificate;
 import java.util.List;
 
 /**
@@ -38,6 +41,12 @@ public class PartyServiceDelegate implements PartyExtService {
 
     @Autowired
     DomainExtConverter domainConverter;
+
+    @Autowired
+    MultiDomainCryptoService multiDomainCertificateProvider;
+
+    @Autowired
+    DomainContextProvider domainProvider;
 
     /**
      * {@inheritDoc}
@@ -90,7 +99,8 @@ public class PartyServiceDelegate implements PartyExtService {
 
         TrustStoreEntry trustStoreEntry;
         try {
-            trustStoreEntry = certificateService.getPartyCertificateFromTruststore(partyName);
+            X509Certificate cert = multiDomainCertificateProvider.getCertificateFromTruststore(domainProvider.getCurrentDomain(), partyName);
+            trustStoreEntry = certificateService.createTrustStoreEntry(cert, partyName);
         } catch (KeyStoreException e) {
             LOG.error("getPartyCertificateFromTruststore returned exception", e);
             throw new PartyExtServiceException(e);

@@ -23,7 +23,7 @@ import eu.domibus.core.alerts.model.service.ConfigurationLoader;
 import eu.domibus.core.alerts.service.AlertConfigurationService;
 import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.certificate.crl.CRLService;
-import eu.domibus.core.crypto.api.MultiDomainCryptoService;
+import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.core.jms.MessageListenerContainerInitializer;
 import eu.domibus.core.message.pull.PullFrequencyHelper;
 import eu.domibus.api.payload.encryption.PayloadEncryptionService;

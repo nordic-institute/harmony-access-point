@@ -18,8 +18,8 @@ import eu.domibus.api.process.Process;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.model.configuration.*;
 import eu.domibus.core.converter.DomainCoreConverter;
-import eu.domibus.core.crypto.api.CertificateEntry;
-import eu.domibus.core.crypto.api.MultiDomainCryptoService;
+import eu.domibus.api.pki.CertificateEntry;
+import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.core.pmode.provider.PModeProvider;
@@ -35,6 +35,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
+import java.security.KeyStore;
 import java.security.cert.X509Certificate;
 import java.util.*;
 
@@ -1160,7 +1161,11 @@ public class PartyServiceImplTest {
             List<String> aliases;
             multiDomainCertificateProvider.removeCertificate(currentDomain, aliases = withCapture());
             multiDomainCertificateProvider.addCertificate(currentDomain, certificates = withCapture(), true);
-            certificateService.saveCertificateAndLogRevocation(domainProvider.getCurrentDomain());
+
+            final KeyStore trustStore = multiDomainCertificateProvider.getTrustStore(domainProvider.getCurrentDomain());
+            final KeyStore keyStore = multiDomainCertificateProvider.getKeyStore(domainProvider.getCurrentDomain());
+            certificateService.saveCertificateAndLogRevocation(trustStore, keyStore);
+
             Assert.assertTrue("Should update party truststore when removing certificates of the parties",
                     aliases.size() == 1
                             && "party_blue".equals(aliases.get(0).toString()));
