@@ -18,7 +18,7 @@ public interface Ebms3PropertyMapper {
     @Mapping(source = "value", target = "value")
     @Mapping(source = "name", target = "name")
     @Mapping(source = "type", target = "type")
-    @BeanMapping(ignoreUnmappedSourceProperties = {"entityId", "creationTime", "modificationTime", "createdBy", "modifiedBy"})
+    @BeanMapping(ignoreUnmappedSourceProperties = {"entityId", "creationTime", "modificationTime", "createdBy", "modifiedBy", "userMessage"})
     Ebms3Property propertyEntityToEbms3(Property property);
 
     @Mapping(target = "entityId", ignore = true)
@@ -26,6 +26,7 @@ public interface Ebms3PropertyMapper {
     @Mapping(target = "modificationTime", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "modifiedBy", ignore = true)
+    @Mapping(target = "userMessage", ignore = true)
     @InheritInverseConfiguration
     Property propertyEbms3ToEntity(Ebms3Property ebms3Property);
 }

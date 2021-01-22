@@ -44,18 +44,22 @@ public class PropertyDaoIT {
     @Before
     public void setUp() {
         msgId = randomUUID().toString();
+        Property property = getProperty("prop1", "value1");
+        Property property1 = getProperty("prop2", "value2");
         createUserMessageWithProperties(Arrays.asList(
-                getProperty("prop1", "value1"),
-                getProperty("prop2", "value2")),
+                property,
+                property1),
                 getMessageInfo(msgId));
     }
 
     @Test
     public void findUserMessageByGroupId() {
-        MessagePropertiesDto userMessageByGroupId = propertyDao.findMessagePropertiesForMessageId(msgId);
-        assertEquals(2, userMessageByGroupId.getProperties().size());
-        assertEquals("value1", userMessageByGroupId.getProperties().get("prop1"));
-        assertEquals("value2", userMessageByGroupId.getProperties().get("prop2"));
+        List<Property> messagePropertiesForMessageId = propertyDao.findMessagePropertiesForMessageId(msgId);
+        assertEquals(2, messagePropertiesForMessageId.size());
+        assertEquals("prop1", messagePropertiesForMessageId.get(1).getName());
+        assertEquals("value1", messagePropertiesForMessageId.get(1).getValue());
+        assertEquals("prop2", messagePropertiesForMessageId.get(0).getName());
+        assertEquals("value2", messagePropertiesForMessageId.get(0).getValue());
     }
 
     private void createUserMessageWithProperties(List<Property> properties, MessageInfo messageInfo) {
@@ -65,6 +69,7 @@ public class PropertyDaoIT {
         collaborationInfo.setConversationId(randomUUID().toString());
         userMessage.setCollaborationInfo(collaborationInfo);
         if (properties != null) {
+            properties.forEach(property -> property.setUserMessage(userMessage));
             MessageProperties value = new MessageProperties();
             value.getProperty().addAll(properties);
             userMessage.setMessageProperties(value);

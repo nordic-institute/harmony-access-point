@@ -75,9 +75,6 @@ public class BackendNotificationServiceTest {
     private MessagingDao messagingDao;
 
     @Injectable
-    private PropertyDao propertyDao;
-
-    @Injectable
     RoutingService routingService;
 
     @Injectable
@@ -184,7 +181,7 @@ public class BackendNotificationServiceTest {
         Map<String, String> props = new HashMap<>();
 
         new Expectations(backendNotificationService) {{
-            propertyDao.findMessagePropertiesForMessageId(MESSAGE_ID).getProperties();
+            userMessageService.getProperties(MESSAGE_ID);
             result = props;
 
             backendNotificationService.notify(MESSAGE_ID, BACKEND_NAME, notificationType, props);
@@ -1398,7 +1395,7 @@ public class BackendNotificationServiceTest {
             userMessageLog.getMessageId();
             result = MESSAGE_ID;
 
-            propertyDao.findMessagePropertiesForMessageId(userMessageLog.getMessageId()).getProperties();
+            userMessageService.getProperties(MESSAGE_ID);
             result = props;
 
             backendConnectorDelegate.messageDeletedEvent(

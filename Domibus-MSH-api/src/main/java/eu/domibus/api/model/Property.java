@@ -4,23 +4,20 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.NamedQuery;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.regex.Pattern;
 
 /**
- *
  * @author Cosmin Baciu
  * @since 5.0
  */
 @Entity
 @Table(name = "TB_PROPERTY")
 @NamedQuery(name = "Property.findPropertiesByMessageId",
-        query = "select new eu.domibus.api.model.MessagePropertiesDto(userMessage) " +
-                "from UserMessage userMessage join userMessage.messageInfo msgInfo " +
-                "where msgInfo.messageId = :MSG_ID ")
+        query = "select property                                           " +
+                "from UserMessage userMessage, Property property           " +
+                "where userMessage.messageInfo.messageId = :MSG_ID         " +
+                " AND userMessage.entityId = property.userMessage.entityId ")
 public class Property extends AbstractBaseEntity implements Comparable<Property> {
 
     public static final String MIME_TYPE = "MimeType";
@@ -36,6 +33,10 @@ public class Property extends AbstractBaseEntity implements Comparable<Property>
 
     @Column(name = "TYPE", nullable = true)
     protected String type;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "MESSAGEPROPERTIES_ID")
+    protected UserMessage userMessage;
 
     /**
      * Gets the value of the value property.
@@ -110,6 +111,15 @@ public class Property extends AbstractBaseEntity implements Comparable<Property>
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public UserMessage getUserMessage() {
+        return userMessage;
+    }
+
+    public Property setUserMessage(UserMessage userMessage) {
+        this.userMessage = userMessage;
+        return this;
     }
 
     @Override

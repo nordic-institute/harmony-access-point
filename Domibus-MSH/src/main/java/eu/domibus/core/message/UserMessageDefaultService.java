@@ -109,6 +109,9 @@ public class UserMessageDefaultService implements UserMessageService {
     private SignalMessageDao signalMessageDao;
 
     @Autowired
+    private PropertyDao propertyDao;
+
+    @Autowired
     private MessageAttemptDao messageAttemptDao;
 
     @Autowired
@@ -763,5 +766,13 @@ public class UserMessageDefaultService implements UserMessageService {
             zipOutputStream.flush();
             return byteArrayOutputStream.toByteArray();
         }
+    }
+
+    @Override
+    public Map<String,String> getProperties(String messageId) {
+        HashMap<String, String> properties = new HashMap<>();
+        List<Property> propertiesForMessageId = propertyDao.findMessagePropertiesForMessageId(messageId);
+        propertiesForMessageId.forEach(property -> properties.put(property.getName(), property.getValue()));
+        return properties;
     }
 }
