@@ -1,6 +1,6 @@
 package eu.domibus.test.utils
 
-import groovy.json.JsonSlurper;
+import groovy.json.JsonSlurper
 
 /**
  * This is utility class for parsing and validation the

@@ -1,0 +1,43 @@
+<div style="height: calc(100% - 15px);">
+  <page-header id="truststoreheader_id">{{name}}</page-header>
+
+  <div class="panel" style="height: calc(100% - 40px);">
+    <grid-header [parent]="this"></grid-header>
+
+    <div style="height: calc(100% - 100px); overflow-y: auto; overflow-x: hidden;">
+      <page-grid [parent]="this" [selectionType]="'single'" [rowClassFn]="getRowClass"
+                 [sortedColumns]="[{prop: 'alias', dir: 'desc'}]"></page-grid>
+    </div>
+
+    <ng-template #rowWithDateFormatTpl let-row="row" let-value="value" ngx-datatable-cell-template>
+      <span class="text-select">{{value | domibusDate}}</span>
+    </ng-template>
+
+    <div class="group-action-button">
+      <button mat-raised-button color="primary" (click)="uploadTrustStore()" id="uploadbutton_id"
+              [disabled]="!canUpload()" button-click-behaviour>
+        <mat-icon>file_upload</mat-icon>
+        <span>Upload</span>
+      </button>
+      <button mat-raised-button color="primary" (click)="downloadCurrentTrustStore()"
+              [disabled]="!canDownload()" id="downloadbutton_id"
+              button-click-behaviour>
+        <mat-icon>file_download</mat-icon>
+        <span>Download</span>
+      </button>
+
+      <span *ngIf="showCertificateOperations()">
+        <button mat-raised-button color="primary" (click)="addCertificate()"
+                [disabled]="!canAddCertificate()" id="addCertificate_id" button-click-behaviour>
+          <mat-icon>add</mat-icon>
+          <span>Add Certificate</span>
+        </button>
+        <button mat-raised-button color="primary" (click)="removeCertificate()"
+                [disabled]="!canRemoveCertificate()" id="removeCertificate_id" button-click-behaviour>
+          <mat-icon>remove</mat-icon>
+          <span>Remove Certificate</span>
+        </button>
+      </span>
+    </div>
+  </div>
+</div>

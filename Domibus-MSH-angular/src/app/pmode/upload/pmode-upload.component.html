@@ -20,8 +20,8 @@
                       maxlength="254" required
                       placeholder="Description" class="custom-text-area"></textarea>
             <span class="help-block" *ngIf="shouldShowErrors(desc)">
-            <div *ngIf="desc.errors?.required" class="error-style">Description is required</div>
-          </span>
+              <div *ngIf="desc.errors?.required" class="error-style">Description is required</div>
+            </span>
           </mat-form-field>
         </div>
       </mat-card-content>

@@ -9,11 +9,8 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.crypto.spi.*;
 import eu.domibus.core.exception.ConfigurationException;
-import eu.domibus.core.util.backup.BackupService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wss4j.common.crypto.Merlin;
 import org.apache.wss4j.common.ext.WSSecurityException;
@@ -24,11 +21,10 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.Properties;
@@ -61,9 +57,6 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
 
     @Autowired
     private DomainCoreConverter domainCoreConverter;
-
-    @Autowired
-    private BackupService backupService;
 
     public void init() {
         LOG.debug("Initializing the certificate provider");
@@ -102,91 +95,13 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
     @Override
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_AP_ADMIN')")
     public synchronized void replaceTrustStore(byte[] store, String password) throws CryptoSpiException {
-        LOG.debug("Replacing the existing trust store file [{}] with the provided one", getTrustStoreLocation());
-
-        ByteArrayOutputStream oldTrustStoreBytes = new ByteArrayOutputStream();
         try {
-            truststore.store(oldTrustStoreBytes, getTrustStorePassword().toCharArray());
-        } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException exc) {
-            closeOutputStream(oldTrustStoreBytes);
-            throw new CryptoSpiException("Could not replace truststore", exc);
+            certificateService.replaceTrustStore(store, password, getTrustStoreType(), getTrustStoreLocation(), getTrustStorePassword());
+        } catch (CryptoException ex) {
+            throw new CryptoSpiException(ex);
         }
-        try (ByteArrayInputStream newTrustStoreBytes = new ByteArrayInputStream(store)) {
-            certificateService.validateLoadOperation(newTrustStoreBytes, password, getTrustStoreType());
-            truststore.load(newTrustStoreBytes, password.toCharArray());
-            LOG.debug("Truststore successfully loaded");
-            persistTrustStore();
-            LOG.debug("Truststore successfully persisted");
-        } catch (CertificateException | NoSuchAlgorithmException | IOException | CryptoException e) {
-            LOG.error("Could not replace truststore", e);
-            try {
-                truststore.load(oldTrustStoreBytes.toInputStream(), getTrustStorePassword().toCharArray());
-                signalTrustStoreUpdate();
-            } catch (CertificateException | NoSuchAlgorithmException | IOException exc) {
-                throw new CryptoSpiException("Could not replace truststore and old truststore was not reverted properly. Please correct the error before continuing.", exc);
-            }
-            throw new CryptoSpiException(e);
-        } finally {
-            closeOutputStream(oldTrustStoreBytes);
-        }
-    }
-
-    private void closeOutputStream(ByteArrayOutputStream outputStream) {
-        try {
-            LOG.debug("Closing output stream [{}].", outputStream);
-            outputStream.close();
-        } catch (IOException e) {
-            LOG.error("Could not close [{}]", outputStream, e);
-        }
-    }
-
-    private synchronized void persistTrustStore() throws CryptoException {
-        String trustStoreFileValue = getTrustStoreLocation();
-        LOG.debug("TrustStoreLocation is: [{}]", trustStoreFileValue);
-        File trustStoreFile = new File(trustStoreFileValue);
-        if (!trustStoreFile.getParentFile().exists()) {
-            LOG.debug("Creating directory [" + trustStoreFile.getParentFile() + "]");
-            try {
-                FileUtils.forceMkdir(trustStoreFile.getParentFile());
-            } catch (IOException e) {
-                throw new CryptoException("Could not create parent directory for truststore", e);
-            }
-        }
-        // keep old truststore in case it needs to be restored, truststore_name.backup-yyyy-MM-dd_HH_mm_ss.SSS
-        backupTrustStore(trustStoreFile);
-
-        LOG.debug("TrustStoreFile is: [{}]", trustStoreFile.getAbsolutePath());
-        try (FileOutputStream fileOutputStream = new FileOutputStream(trustStoreFile)) {
-            truststore.store(fileOutputStream, getTrustStorePassword().toCharArray());
-        } catch (FileNotFoundException ex) {
-            LOG.error("Could not persist truststore:", ex);
-            //we address this exception separately
-            //we swallow it here because it contains information we do not want to display to the client: the full internal file path of the truststore.
-            throw new CryptoException("Could not persist truststore: Is the truststore readonly?");
-        } catch (NoSuchAlgorithmException | IOException | CertificateException | KeyStoreException e) {
-            throw new CryptoException("Could not persist truststore:", e);
-        }
-
-        signalTrustStoreUpdate();
-    }
-
-    protected void backupTrustStore(File trustStoreFile) throws CryptoException {
-        if (trustStoreFile == null || StringUtils.isEmpty(trustStoreFile.getAbsolutePath())) {
-            LOG.warn("Truststore file was null, nothing to backup!");
-            return;
-        }
-        if (!trustStoreFile.exists()) {
-            LOG.warn("Truststore file [{}] does not exist, nothing to backup!", trustStoreFile);
-            return;
-        }
-
-        try {
-            final String trustStoreBackupLocation = getTrustStoreBackupLocation();
-            LOG.debug("TrustStore backup location is: [{}]", trustStoreBackupLocation);
-            backupService.backupFileInLocation(trustStoreFile, trustStoreBackupLocation);
-        } catch (IOException e) {
-            throw new CryptoException("Could not create backup file for truststore", e);
-        }
+        refreshTrustStore();
+        signalService.signalTrustStoreUpdate(domain);
     }
 
     @Override
@@ -198,40 +113,21 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
 
     @Override
     public synchronized boolean addCertificate(X509Certificate certificate, String alias, boolean overwrite) {
-        boolean added = doAddCertificate(certificate, alias, overwrite);
-        if (added) {
-            persistTrustStore();
-        }
-        return added;
+        return certificateService.addCertificate(getTrustStorePassword(), getTrustStoreLocation(), certificate, alias, overwrite, true);
     }
 
     @Override
     public synchronized void addCertificate(List<CertificateEntrySpi> certificates, boolean overwrite) {
         certificates.forEach(certEntry ->
-                doAddCertificate(certEntry.getCertificate(), certEntry.getAlias(), overwrite));
+                certificateService.addCertificate(getTrustStorePassword(), getTrustStoreLocation(), certEntry.getCertificate(), certEntry.getAlias(), overwrite, false));
         persistTrustStore();
     }
 
-    private boolean doAddCertificate(X509Certificate certificate, String alias, boolean overwrite) {
-        boolean containsAlias;
-        try {
-            containsAlias = getTrustStore().containsAlias(alias);
-        } catch (final KeyStoreException e) {
-            throw new CryptoException("Error while trying to get the alias from the truststore. This should never happen", e);
-        }
-        if (containsAlias && !overwrite) {
-            return false;
-        }
-        try {
-            if (containsAlias) {
-                getTrustStore().deleteEntry(alias);
-            }
-            getTrustStore().setCertificateEntry(alias, certificate);
+    protected synchronized void persistTrustStore() throws CryptoException {
+        certificateService.persistTrustStore(getTrustStore(), getTrustStorePassword(), getTrustStoreLocation());
 
-            return true;
-        } catch (final KeyStoreException e) {
-            throw new ConfigurationException(e);
-        }
+        refreshTrustStore();
+        signalService.signalTrustStoreUpdate(domain);
     }
 
     protected KeyStore loadTrustStore() {
@@ -265,7 +161,7 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
         final String privateKeyAlias = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS);
         final String keystoreLocation = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEYSTORE_LOCATION);
 
-        if(StringUtils.isAnyEmpty(keystoreType, keystorePassword, privateKeyAlias, keystoreLocation)) {
+        if (StringUtils.isAnyEmpty(keystoreType, keystorePassword, privateKeyAlias, keystoreLocation)) {
             LOG.error("One of the keystore property values is null for domain [{}]: keystoreType=[{}], keystorePassword, privateKeyAlias=[{}], keystoreLocation=[{}]",
                     domain, keystoreType, privateKeyAlias, keystoreLocation);
             throw new ConfigurationException("Error while trying to load the keystore properties for domain " + domain);
@@ -291,7 +187,7 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
         final String trustStorePassword = getTrustStorePassword();
         final String trustStoreLocation = getTrustStoreLocation();
 
-        if(StringUtils.isAnyEmpty(trustStoreType, trustStorePassword, trustStoreLocation)) {
+        if (StringUtils.isAnyEmpty(trustStoreType, trustStorePassword, trustStoreLocation)) {
             LOG.error("One of the truststore property values is null for domain [{}]: trustStoreType=[{}], trustStorePassword, trustStoreLocation=[{}]",
                     domain, trustStoreType, trustStoreLocation);
             throw new ConfigurationException("Error while trying to load the truststore properties for domain " + domain);
@@ -324,27 +220,14 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
         return domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_TYPE);
     }
 
-    protected String getTrustStoreBackupLocation() {
-        return domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_BACKUP_LOCATION);
-    }
-
-    protected void signalTrustStoreUpdate() {
-        // Sends a signal to all the servers from the cluster in order to trigger the refresh of the trust store
-        signalService.signalTrustStoreUpdate(domain);
-    }
-
     @Override
     public boolean removeCertificate(String alias) {
-        boolean removed = doRemoveCertificate(alias);
-        if (removed) {
-            persistTrustStore();
-        }
-        return removed;
+        return certificateService.removeCertificate(getTrustStorePassword(), getTrustStoreLocation(), alias, true);
     }
 
     @Override
     public void removeCertificate(List<String> aliases) {
-        aliases.forEach(this::doRemoveCertificate);
+        aliases.forEach(alias -> certificateService.removeCertificate(getTrustStorePassword(), getTrustStoreLocation(), alias, false));
         persistTrustStore();
     }
 
@@ -358,21 +241,4 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
         this.domain = domainCoreConverter.convert(domain, Domain.class);
     }
 
-    private synchronized boolean doRemoveCertificate(String alias) {
-        boolean containsAlias;
-        try {
-            containsAlias = getTrustStore().containsAlias(alias);
-        } catch (final KeyStoreException e) {
-            throw new CryptoException("Error while trying to get the alias from the truststore. This should never happen", e);
-        }
-        if (!containsAlias) {
-            return false;
-        }
-        try {
-            getTrustStore().deleteEntry(alias);
-            return true;
-        } catch (final KeyStoreException e) {
-            throw new ConfigurationException(e);
-        }
-    }
 }

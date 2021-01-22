@@ -1,4 +1,4 @@
-package eu.domibus.test.utils;
+package eu.domibus.test.utils
 
 /**
  * This is utility class for Logging
@@ -6,7 +6,7 @@ package eu.domibus.test.utils;
  */
 class LogUtils {
 
-    static def final DEFAULT_LOG_LEVEL = 0;
+    static def final DEFAULT_LOG_LEVEL = 0
 
     /**
      * Method check the log level and logs the message
@@ -14,7 +14,7 @@ class LogUtils {
      * @param log  - logger objects
      * @param logLevel - if log level is 1 or true, then message is logged with info level, else message is ignored
      */
-    static def void debugLog(logMsg, log,  logLevel = DEFAULT_LOG_LEVEL) {
+    static void debugLog(logMsg, log,  logLevel = DEFAULT_LOG_LEVEL) {
         if (logLevel.toString() == "1" || logLevel.toString() == "true") log.info(logMsg)
     }
 }

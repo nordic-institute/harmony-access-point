@@ -518,6 +518,17 @@ public class DomibusPropertyResourceHelperImplTest {
         configurationPropertyResourceHelper.getProperty(propName);
     }
 
+    @Test
+    public void initSortMap() {
+        configurationPropertyResourceHelper.initSortMap();
+
+        Assert.assertEquals(configurationPropertyResourceHelper.sortingComparatorsMap.size(), 8);
+        Assert.assertTrue(configurationPropertyResourceHelper.sortingComparatorsMap.containsKey(new DomibusPropertyResourceHelperImpl.SortMapKey("name", true)));
+        Assert.assertTrue(configurationPropertyResourceHelper.sortingComparatorsMap.containsKey(new DomibusPropertyResourceHelperImpl.SortMapKey("type", true)));
+        Assert.assertTrue(configurationPropertyResourceHelper.sortingComparatorsMap.containsKey(new DomibusPropertyResourceHelperImpl.SortMapKey("module", true)));
+        Assert.assertTrue(configurationPropertyResourceHelper.sortingComparatorsMap.containsKey(new DomibusPropertyResourceHelperImpl.SortMapKey("usageText", true)));
+    }
+
     private <T> T mockExecutorSubmit() throws Exception {
         Mockito.verify(domainTaskExecutor).submit((Callable) argCaptor.capture());
         Callable<T> callable = (Callable<T>) argCaptor.getValue();
