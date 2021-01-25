@@ -533,7 +533,7 @@ public class CertificateServiceImpl implements CertificateService {
         }
 
         try {
-            backupService.backupFile(trustStoreFile);
+            backupService.backupFileInLocation(trustStoreFile);
         } catch (IOException e) {
             throw new CryptoException("Could not create backup file for truststore", e);
         }

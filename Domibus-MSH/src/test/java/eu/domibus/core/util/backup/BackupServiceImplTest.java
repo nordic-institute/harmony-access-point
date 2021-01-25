@@ -1,5 +1,6 @@
 package eu.domibus.core.util.backup;
 
+import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DateUtil;
@@ -96,18 +97,20 @@ public class BackupServiceImplTest {
     }
 
     @Test
-    public void backupFileInLocation() throws IOException {
+    public void backupFileInLocation(@Injectable Domain currentDomain) throws IOException {
         File originalFile = new File("testfile");
         String backupLocation = "testfile_backup";
         File backupFile = new File(backupLocation);
 
         new Expectations(FileUtils.class, backupService) {{
+            domibusPropertyProvider.getProperty(currentDomain,backupService.TRUSTSTORE_BACKUP_LOCATION);
+            result = backupLocation;
             backupService.createBackupFileInLocation(originalFile, backupLocation);
             result = backupFile;
             FileUtils.copyFile((File) any, (File) any);
         }};
 
-        backupService.backupFileInLocation(originalFile, backupLocation);
+        backupService.backupFileInLocation(originalFile);
 
         new Verifications() {{
             File backupFile;

@@ -15,6 +15,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.format.DateTimeFormatter;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SECURITY_TRUSTSTORE_BACKUP_LOCATION;
+
 /**
  * @author Ion Perpegel
  * @since 4.1.1
@@ -28,6 +30,7 @@ public class BackupServiceImpl implements BackupService {
 
     protected static final String BACKUP_EXT = ".backup-";
     protected static final DateTimeFormatter BACKUP_FILE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH_mm_ss.SSS");
+    protected static final String TRUSTSTORE_BACKUP_LOCATION = DOMIBUS_SECURITY_TRUSTSTORE_BACKUP_LOCATION;
 
     @Autowired
     protected DateUtil dateUtil;
@@ -62,8 +65,10 @@ public class BackupServiceImpl implements BackupService {
     }
 
     @Override
-    public void backupFileInLocation(File originalFile, String backupLocation) throws IOException {
-        final File backupFile = createBackupFileInLocation(originalFile, backupLocation);
+    public void backupFileInLocation(File originalFile) throws IOException {
+        String trustStoreBackupLocation = domibusPropertyProvider.getProperty(domainProvider.getCurrentDomain(), TRUSTSTORE_BACKUP_LOCATION);
+        LOG.debug("TrustStore backup location is: [{}]", trustStoreBackupLocation);
+        final File backupFile = createBackupFileInLocation(originalFile, trustStoreBackupLocation);
         copyBackUpFile(originalFile, backupFile);
     }
 
