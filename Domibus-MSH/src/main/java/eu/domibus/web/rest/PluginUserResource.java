@@ -1,7 +1,7 @@
 package eu.domibus.web.rest;
 
-import com.google.common.collect.ImmutableMap;
 import eu.domibus.api.multitenancy.UserDomainService;
+import eu.domibus.api.security.AuthType;
 import eu.domibus.api.user.UserManagementException;
 import eu.domibus.api.user.UserState;
 import eu.domibus.core.converter.DomainCoreConverter;
@@ -21,8 +21,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -87,17 +86,31 @@ public class PluginUserResource extends BaseResource {
         request.setPageStart(0);
         request.setPageSize(getCsvService().getPageSizeForExport());
         final PluginUserResultRO result = retrieveAndPackageUsers(request);
+        AuthType authType = request.getAuthType();
         getCsvService().validateMaxRows(result.getEntries().size(),
-                () -> pluginUserService.countUsers(request.getAuthType(), request.getAuthRole(), request.getOriginalUser(), request.getUserName()));
+                () -> pluginUserService.countUsers(authType, request.getAuthRole(), request.getOriginalUser(), request.getUserName()));
 
-        return exportToCSV(result.getEntries(),
-                PluginUserRO.class,
-                ImmutableMap.of(
-                        "UserName".toUpperCase(), "User Name",
-                        "authRoles".toUpperCase(), "Role"
-                ),
-                Arrays.asList("entityId", "status", "password", "domain"),
-                "pluginusers");
+        return exportToCSV(result.getEntries(), PluginUserRO.class, getCustomColumnNames(authType), getExcludedColumns(authType), "pluginusers");
+    }
+
+    protected List<String> getExcludedColumns(AuthType type) {
+        List<String> excludedColumns = new ArrayList<>();
+        excludedColumns.addAll(Arrays.asList("authenticationType", "entityId", "status", "password", "domain"));
+        if (type == AuthType.BASIC) {
+            excludedColumns.add("certificateId");
+        } else {
+            excludedColumns.addAll(Arrays.asList("userName", "expirationDate", "active", "suspended"));
+        }
+        return excludedColumns;
+    }
+
+    protected Map<String, String> getCustomColumnNames(AuthType type) {
+        Map<String, String> customColumnNames = new HashMap<>();
+        customColumnNames.put("authRoles".toUpperCase(), "Role");
+        if (type == AuthType.BASIC) {
+            customColumnNames.put("UserName".toUpperCase(), "User Name");
+        }
+        return customColumnNames;
     }
 
     protected PluginUserResultRO retrieveAndPackageUsers(PluginUserFilterRequestRO request) {
