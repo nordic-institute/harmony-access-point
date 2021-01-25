@@ -6,6 +6,10 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.environment.DomibusEnvironmentUtil;
 import eu.domibus.plugin.notification.PluginAsyncNotificationConfiguration;
+import eu.domibus.plugin.validation.DefaultSubmissionValidatorList;
+import eu.domibus.plugin.validation.OnePayloadSubmissionValidator;
+import eu.domibus.plugin.validation.SchemaPayloadSubmissionValidator;
+import eu.domibus.plugin.validation.SubmissionValidator;
 import eu.domibus.plugin.webService.impl.ClearAuthenticationMDCInterceptor;
 import eu.domibus.plugin.webService.impl.CustomAuthenticationInterceptor;
 import eu.domibus.plugin.webService.impl.WSPluginFaultOutInterceptor;
@@ -19,8 +23,11 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
+import org.springframework.core.io.ClassPathResource;
 
 import javax.jms.Queue;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
 import javax.xml.ws.Endpoint;
 import java.util.*;
 
@@ -110,6 +117,33 @@ public class WSPluginConfiguration {
         return loggingFeature;
     }
 
+    @Bean("backendWebserviceJaxbContextAS4Payload")
+    public JAXBContext jaxbContext() throws JAXBException {
+        JAXBContext jaxbContext = JAXBContext.newInstance("eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704");
+        return jaxbContext;
+    }
+
+    @Bean("backendWebservicePayloadSchemaValidator")
+    public SchemaPayloadSubmissionValidator backendWebservicePayloadSchemaValidator(@Qualifier("backendWebserviceJaxbContextAS4Payload") JAXBContext jaxbContext) {
+        SchemaPayloadSubmissionValidator result = new SchemaPayloadSubmissionValidator();
+        result.setJaxbContext(jaxbContext);
+        ClassPathResource classPathResource = new ClassPathResource("schemas/domibus-header.xsd");
+        result.setSchema(classPathResource);
+        return result;
+    }
+
+
+    @Bean("backendWebserviceSubmissionValidators")
+    public DefaultSubmissionValidatorList backendWebserviceSubmissionValidators(OnePayloadSubmissionValidator onePayloadSubmissionValidator,
+                                                                                @Qualifier("backendWebservicePayloadSchemaValidator") SchemaPayloadSubmissionValidator schemaPayloadSubmissionValidator) {
+        DefaultSubmissionValidatorList result = new DefaultSubmissionValidatorList();
+        List<SubmissionValidator> validators = new ArrayList<>();
+        validators.add(onePayloadSubmissionValidator);
+        validators.add(schemaPayloadSubmissionValidator);
+        result.setSubmissionValidators(validators);
+        return result;
+    }
+
 
     private List<String> getSchemaLocations() {
         return Arrays.asList(
@@ -132,4 +166,6 @@ public class WSPluginConfiguration {
         properties.put("mtom-enabled", mtomEnabled);
         return properties;
     }
+
+
 }
