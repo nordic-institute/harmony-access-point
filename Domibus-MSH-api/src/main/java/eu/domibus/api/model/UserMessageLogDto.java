@@ -11,24 +11,33 @@ import java.util.Map;
  */
 public class UserMessageLogDto {
 
+    public static final String MESSAGE_ID = "m_id";
+    public static final String MESSAGE_SUBTYPE = "m_subtype";
+    public static final String MESSAGE_BACKEND = "m_backend";
+    public static final String PROP_VALUE = "p_value";
+    public static final String PROP_NAME = "p_name";
+
     protected String messageId;
 
     protected MessageSubtype messageSubtype;
 
     protected String backend;
 
-    private Map<String, String> properties;
+    private Map<String, String> properties = new HashMap<>();
 
-    public UserMessageLogDto(String messageId, MessageSubtype messageSubtype, String backend, UserMessage userMessage) {
+    public UserMessageLogDto(String messageId, MessageSubtype messageSubtype, String backend) {
         this.messageId = messageId;
         this.messageSubtype = messageSubtype;
         this.backend = backend;
-        this.properties = new HashMap<>();
-        if (userMessage != null && userMessage.messageProperties != null && userMessage.messageProperties.getProperty() != null) {
-            for (Property property : userMessage.messageProperties.getProperty()) {
-                this.properties.put(property.getName(), property.getValue());
-            }
+    }
+
+    public UserMessageLogDto(Object[] tuple, Map<String, Integer> aliasToIndexMap) {
+        this.messageId = (String) tuple[aliasToIndexMap.get(MESSAGE_ID)];
+        Object o = tuple[aliasToIndexMap.get(MESSAGE_SUBTYPE)];
+        if(o != null) {
+            this.messageSubtype = MessageSubtype.valueOf((String) o);
         }
+        this.backend = (String) tuple[aliasToIndexMap.get(MESSAGE_BACKEND)];
     }
 
     public String getMessageId() {

@@ -4,7 +4,7 @@ import eu.domibus.api.model.Property;
 import eu.domibus.core.dao.BasicDao;
 import org.springframework.stereotype.Repository;
 
-import javax.persistence.TypedQuery;
+import javax.persistence.Query;
 import java.util.List;
 
 /**
@@ -21,7 +21,7 @@ public class PropertyDao extends BasicDao<Property> {
     }
 
     public List<Property> findMessagePropertiesForMessageId(final String messageId) {
-        final TypedQuery<Property> query = this.em.createNamedQuery("Property.findPropertiesByMessageId", Property.class);
+        final Query query = this.em.createNamedQuery("Property.findPropertiesByMessageId");
         query.setParameter(MSG_ID, messageId);
         return query.getResultList();
     }

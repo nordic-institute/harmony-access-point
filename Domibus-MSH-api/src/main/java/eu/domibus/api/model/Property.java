@@ -14,10 +14,7 @@ import java.util.regex.Pattern;
 @Entity
 @Table(name = "TB_PROPERTY")
 @NamedQuery(name = "Property.findPropertiesByMessageId",
-        query = "select property                                           " +
-                "from UserMessage userMessage, Property property           " +
-                "where userMessage.messageInfo.messageId = :MSG_ID         " +
-                " AND userMessage.entityId = property.userMessage.entityId ")
+        query = "select um.messageProperties.property from UserMessage um where um.messageInfo.messageId = :MSG_ID")
 public class Property extends AbstractBaseEntity implements Comparable<Property> {
 
     public static final String MIME_TYPE = "MimeType";
@@ -33,10 +30,6 @@ public class Property extends AbstractBaseEntity implements Comparable<Property>
 
     @Column(name = "TYPE", nullable = true)
     protected String type;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "MESSAGEPROPERTIES_ID")
-    protected UserMessage userMessage;
 
     /**
      * Gets the value of the value property.
@@ -111,15 +104,6 @@ public class Property extends AbstractBaseEntity implements Comparable<Property>
 
     public void setType(String type) {
         this.type = type;
-    }
-
-    public UserMessage getUserMessage() {
-        return userMessage;
-    }
-
-    public Property setUserMessage(UserMessage userMessage) {
-        this.userMessage = userMessage;
-        return this;
     }
 
     @Override

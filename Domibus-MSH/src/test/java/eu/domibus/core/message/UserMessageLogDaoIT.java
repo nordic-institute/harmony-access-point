@@ -55,18 +55,14 @@ public class UserMessageLogDaoIT {
     private Date before;
     private Date now;
     private Date after;
-    private final String deletedNoUserMessage = randomUUID().toString();
     private final String deletedNoProperties = randomUUID().toString();
     private final String deletedWithProperties = randomUUID().toString();
-    private final String receivedNoUserMessage = randomUUID().toString();
     private final String receivedNoProperties = randomUUID().toString();
     private final String receivedWithProperties = randomUUID().toString();
-    private final String downloadedNoUserMessage = randomUUID().toString();
     private final String downloadedNoProperties = randomUUID().toString();
     private final String downloadedWithProperties = randomUUID().toString();
-    private final String sendFailureNoUserMessage = "sendFailureNoUserMessage";
-    private final String sendFailureNoProperties = "sendFailureNoProperties";
-    private final String sendFailureWithProperties = "sendFailureWithProperties";
+    private final String sendFailureNoProperties = randomUUID().toString();
+    private final String sendFailureWithProperties = randomUUID().toString();
 
     @Before
     public void setUp() {
@@ -75,10 +71,10 @@ public class UserMessageLogDaoIT {
         now = dateUtil.fromString("2020-01-01T12:00:00Z");
         after = dateUtil.fromString("2021-01-01T12:00:00Z");
 
-        createEntities(MessageStatus.DELETED, deletedNoUserMessage, deletedNoProperties, deletedWithProperties);
-        createEntities(MessageStatus.RECEIVED, receivedNoUserMessage, receivedNoProperties, receivedWithProperties);
-        createEntities(MessageStatus.DOWNLOADED, downloadedNoUserMessage, downloadedNoProperties, downloadedWithProperties);
-        createEntities(MessageStatus.SEND_FAILURE, sendFailureNoUserMessage, sendFailureNoProperties, sendFailureWithProperties);
+        createEntities(MessageStatus.DELETED, deletedNoProperties, deletedWithProperties);
+        createEntities(MessageStatus.RECEIVED, receivedNoProperties, receivedWithProperties);
+        createEntities(MessageStatus.DOWNLOADED, downloadedNoProperties, downloadedWithProperties);
+        createEntities(MessageStatus.SEND_FAILURE, sendFailureNoProperties, sendFailureWithProperties);
 
         LOG.putMDC(DomibusLogger.MDC_USER, "test_user");
     }
@@ -88,12 +84,11 @@ public class UserMessageLogDaoIT {
     public void getSentUserMessagesWithPayloadNotClearedOlderThan_found() {
         List<UserMessageLogDto> downloadedUserMessagesOlderThan =
                 userMessageLogDao.getSentUserMessagesWithPayloadNotClearedOlderThan(dateUtil.fromString(LocalDate.now().getYear() + 2 + "-01-01T12:00:00Z"), MPC, 10);
-        Assert.assertEquals(3, downloadedUserMessagesOlderThan.size());
+        Assert.assertEquals(2, downloadedUserMessagesOlderThan.size());
         Assert.assertThat(downloadedUserMessagesOlderThan
                 .stream()
                 .map(UserMessageLogDto::getMessageId)
-                .collect(Collectors.toList()), hasItems(sendFailureNoUserMessage, sendFailureNoProperties, sendFailureWithProperties));
-        Assert.assertEquals(0, getProperties(downloadedUserMessagesOlderThan, sendFailureNoUserMessage).size());
+                .collect(Collectors.toList()), hasItems(sendFailureNoProperties, sendFailureWithProperties));
         Assert.assertEquals(0, getProperties(downloadedUserMessagesOlderThan, sendFailureNoProperties).size());
         Assert.assertEquals(2, getProperties(downloadedUserMessagesOlderThan, sendFailureWithProperties).size());
     }
@@ -110,12 +105,11 @@ public class UserMessageLogDaoIT {
     public void getSentUserMessagesOlderThan_found() {
         List<UserMessageLogDto> downloadedUserMessagesOlderThan =
                 userMessageLogDao.getSentUserMessagesOlderThan(dateUtil.fromString(LocalDate.now().getYear() + 2 + "-01-01T12:00:00Z"), MPC, 10, true);
-        Assert.assertEquals(3, downloadedUserMessagesOlderThan.size());
+        Assert.assertEquals(2, downloadedUserMessagesOlderThan.size());
         Assert.assertThat(downloadedUserMessagesOlderThan
                 .stream()
                 .map(UserMessageLogDto::getMessageId)
-                .collect(Collectors.toList()), hasItems(sendFailureNoUserMessage, sendFailureNoProperties, sendFailureWithProperties));
-        Assert.assertEquals(0, getProperties(downloadedUserMessagesOlderThan, sendFailureNoUserMessage).size());
+                .collect(Collectors.toList()), hasItems(sendFailureNoProperties, sendFailureWithProperties));
         Assert.assertEquals(0, getProperties(downloadedUserMessagesOlderThan, sendFailureNoProperties).size());
         Assert.assertEquals(2, getProperties(downloadedUserMessagesOlderThan, sendFailureWithProperties).size());
     }
@@ -132,12 +126,11 @@ public class UserMessageLogDaoIT {
     public void getDownloadedUserMessagesOlderThan_found() {
         List<UserMessageLogDto> downloadedUserMessagesOlderThan =
                 userMessageLogDao.getDownloadedUserMessagesOlderThan(after, MPC, 10);
-        Assert.assertEquals(3, downloadedUserMessagesOlderThan.size());
+        Assert.assertEquals(2, downloadedUserMessagesOlderThan.size());
         Assert.assertThat(downloadedUserMessagesOlderThan
                 .stream()
                 .map(UserMessageLogDto::getMessageId)
-                .collect(Collectors.toList()), hasItems(downloadedNoUserMessage, downloadedNoProperties, downloadedWithProperties));
-        Assert.assertEquals(0, getProperties(downloadedUserMessagesOlderThan, downloadedNoUserMessage).size());
+                .collect(Collectors.toList()), hasItems(downloadedNoProperties, downloadedWithProperties));
         Assert.assertEquals(0, getProperties(downloadedUserMessagesOlderThan, downloadedNoProperties).size());
         Assert.assertEquals(2, getProperties(downloadedUserMessagesOlderThan, downloadedWithProperties).size());
     }
@@ -154,12 +147,11 @@ public class UserMessageLogDaoIT {
     public void getUndownloadedUserMessagesOlderThan_found() {
         List<UserMessageLogDto> undownloadedUserMessagesOlderThan =
                 userMessageLogDao.getUndownloadedUserMessagesOlderThan(after, MPC, 10);
-        Assert.assertEquals(3, undownloadedUserMessagesOlderThan.size());
+        Assert.assertEquals(2, undownloadedUserMessagesOlderThan.size());
         Assert.assertThat(undownloadedUserMessagesOlderThan
                 .stream()
                 .map(UserMessageLogDto::getMessageId)
-                .collect(Collectors.toList()), hasItems(receivedNoUserMessage, receivedNoProperties, receivedWithProperties));
-        Assert.assertEquals(0, getProperties(undownloadedUserMessagesOlderThan, receivedNoUserMessage).size());
+                .collect(Collectors.toList()), hasItems(receivedNoProperties, receivedWithProperties));
         Assert.assertEquals(0, getProperties(undownloadedUserMessagesOlderThan, receivedNoProperties).size());
         Assert.assertEquals(2, getProperties(undownloadedUserMessagesOlderThan, receivedWithProperties).size());
     }
@@ -176,12 +168,11 @@ public class UserMessageLogDaoIT {
     public void getDeletedUserMessagesOlderThan_found() {
         List<UserMessageLogDto> deletedUserMessagesOlderThan =
                 userMessageLogDao.getDeletedUserMessagesOlderThan(after, MPC, 10);
-        Assert.assertEquals(3, deletedUserMessagesOlderThan.size());
+        Assert.assertEquals(2, deletedUserMessagesOlderThan.size());
         Assert.assertThat(deletedUserMessagesOlderThan
                 .stream()
                 .map(UserMessageLogDto::getMessageId)
-                .collect(Collectors.toList()), hasItems(deletedNoUserMessage, deletedNoProperties, deletedWithProperties));
-        Assert.assertEquals(0, getProperties(deletedUserMessagesOlderThan, deletedNoUserMessage).size());
+                .collect(Collectors.toList()), hasItems(deletedNoProperties, deletedWithProperties));
         Assert.assertEquals(0, getProperties(deletedUserMessagesOlderThan, deletedNoProperties).size());
         Assert.assertEquals(2, getProperties(deletedUserMessagesOlderThan, deletedWithProperties).size());
     }
@@ -201,9 +192,7 @@ public class UserMessageLogDaoIT {
         Assert.assertEquals(0, deletedUserMessagesOlderThan.size());
     }
 
-    private void createEntities(MessageStatus status, String noUserMessage, String noProperties, String withProperties) {
-        createUserMessageLog(noUserMessage, status, now, getMessageInfo(noUserMessage));
-
+    private void createEntities(MessageStatus status, String noProperties, String withProperties) {
         MessageInfo messageInfo1 = getMessageInfo(noProperties);
         createUserMessageLog(noProperties, status, now, messageInfo1);
         createUserMessageWithProperties(null, messageInfo1, em);

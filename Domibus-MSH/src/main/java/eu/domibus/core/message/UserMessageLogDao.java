@@ -133,7 +133,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     }
 
     public List<UserMessageLogDto> getSentUserMessagesOlderThan(Date date, String mpc, Integer expiredSentMessagesLimit, boolean isDeleteMessageMetadata) {
-        if(isDeleteMessageMetadata) {
+        if (isDeleteMessageMetadata) {
             return getMessagesOlderThan(date, mpc, expiredSentMessagesLimit, "UserMessageLog.findSentUserMessagesOlderThan");
         }
         // return only messages with payload not already cleared
@@ -144,8 +144,14 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         return getMessagesOlderThan(date, mpc, expiredSentMessagesLimit, "UserMessageLog.findSentUserMessagesWithPayloadNotClearedOlderThan");
     }
 
+    /**
+     * https://discourse.hibernate.org/t/hibernate-resulttransformer-is-deprecated-what-to-use-instead/232/5
+     */
     private List<UserMessageLogDto> getMessagesOlderThan(Date startDate, String mpc, Integer expiredMessagesLimit, String queryName) {
-        TypedQuery<UserMessageLogDto> query = em.createNamedQuery(queryName, UserMessageLogDto.class);
+        Query query = em.createNamedQuery(queryName);
+
+        query.unwrap(org.hibernate.query.Query.class)
+                .setResultTransformer(new UserMessageLogDtoResultTransformer());
         query.setParameter("DATE", startDate);
         query.setParameter("MPC", mpc);
         query.setMaxResults(expiredMessagesLimit);
@@ -217,12 +223,12 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         return resultList;
     }
 
-    @Timer(clazz = UserMessageLogDao.class,value = "deleteMessages.deleteMessageLogs")
-    @Counter(clazz = UserMessageLogDao.class,value = "deleteMessages.deleteMessageLogs")
+    @Timer(clazz = UserMessageLogDao.class, value = "deleteMessages.deleteMessageLogs")
+    @Counter(clazz = UserMessageLogDao.class, value = "deleteMessages.deleteMessageLogs")
     public int deleteMessageLogs(List<String> messageIds) {
         final Query deleteQuery = em.createNamedQuery("UserMessageLog.deleteMessageLogs");
         deleteQuery.setParameter("MESSAGEIDS", messageIds);
-        int result  = deleteQuery.executeUpdate();
+        int result = deleteQuery.executeUpdate();
         LOG.trace("deleteUserMessageLogs result [{}]", result);
         return result;
     }

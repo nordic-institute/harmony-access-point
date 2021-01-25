@@ -44,8 +44,8 @@ public class JsonUtilTest {
         String id1 = "id1";
         String id2 = "id2";
         String backend = "ws";
-        UserMessageLogDto uml1 = new UserMessageLogDto(id1, MessageSubtype.TEST, backend, null);
-        UserMessageLogDto uml2 = new UserMessageLogDto(id2, MessageSubtype.TEST, backend, null);
+        UserMessageLogDto uml1 = new UserMessageLogDto(id1, MessageSubtype.TEST, backend);
+        UserMessageLogDto uml2 = new UserMessageLogDto(id2, MessageSubtype.TEST, backend);
         List<UserMessageLogDto> umls = Arrays.asList(uml1, uml2);
         String json = jsonUtil.listToJson(umls);
 
