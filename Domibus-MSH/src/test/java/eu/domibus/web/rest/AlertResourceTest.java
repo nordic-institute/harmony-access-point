@@ -407,15 +407,15 @@ public class AlertResourceTest {
         List<String> excludedCert = alertResource.getExcludedColumns(true);
         assertEquals(excludedCert.size(), 2);
         Set<String> set1 = new HashSet<>(Arrays.asList("alertDescription", "superAdmin"));
-        boolean containsAll = set1.isEmpty() || excludedCert.stream().map(Object::toString)
+        boolean containsAll = excludedCert.stream().map(Object::toString)
                 .anyMatch(s -> set1.remove(s) && set1.isEmpty());
-        assertTrue(containsAll);
+        assertTrue("Checking excluded columns in ST mode:", containsAll);
 
         excludedCert = alertResource.getExcludedColumns(false);
         assertEquals(excludedCert.size(), 1);
         Set<String> set2 = new HashSet<>(Arrays.asList("superAdmin"));
-        containsAll = set2.isEmpty() || excludedCert.stream().map(Object::toString)
+        containsAll = excludedCert.stream().map(Object::toString)
                 .anyMatch(s -> set2.remove(s) && set2.isEmpty());
-        assertFalse(containsAll);
+        assertFalse("Checking excluded columns in MT mode:", containsAll);
     }
 }
