@@ -79,9 +79,6 @@ public class CertificateServiceImpl implements CertificateService {
 
     private BackupService backupService;
 
-    //needed for DynamicDiscoveryPModeProviderTest
-    public CertificateServiceImpl(){}
-
     public CertificateServiceImpl(CRLService crlService, DomibusPropertyProvider domibusPropertyProvider,
                                   CertificateDao certificateDao, EventService eventService, PModeProvider pModeProvider,
                                   ImminentExpirationCertificateConfigurationManager imminentExpirationCertificateConfigurationManager,
