@@ -86,11 +86,11 @@ public class PluginUserResource extends BaseResource {
         request.setPageStart(0);
         request.setPageSize(getCsvService().getPageSizeForExport());
         final PluginUserResultRO result = retrieveAndPackageUsers(request);
+        AuthType authType = request.getAuthType();
         getCsvService().validateMaxRows(result.getEntries().size(),
-                () -> pluginUserService.countUsers(request.getAuthType(), request.getAuthRole(), request.getOriginalUser(), request.getUserName()));
+                () -> pluginUserService.countUsers(authType, request.getAuthRole(), request.getOriginalUser(), request.getUserName()));
 
-        return exportToCSV(result.getEntries(), PluginUserRO.class, getCustomColumnNames(request.getAuthType()),
-                getExcludedColumns(request.getAuthType()), "pluginusers");
+        return exportToCSV(result.getEntries(), PluginUserRO.class, getCustomColumnNames(authType), getExcludedColumns(authType), "pluginusers");
     }
 
     protected List<String> getExcludedColumns(AuthType type) {

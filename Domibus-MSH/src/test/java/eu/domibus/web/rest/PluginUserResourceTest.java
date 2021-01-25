@@ -19,9 +19,7 @@ import mockit.Verifications;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -113,8 +111,17 @@ public class PluginUserResourceTest {
     public void getExcludedColumns() {
         List<String> excludedCert = userResource.getExcludedColumns(AuthType.CERTIFICATE);
         assertEquals(excludedCert.size(), 9);
+        Set<String> set1 = new HashSet<>(Arrays.asList("userName", "expirationDate", "active", "suspended"));
+        boolean containsAll = set1.isEmpty() || excludedCert.stream().map(Object::toString)
+                .anyMatch(s -> set1.remove(s) && set1.isEmpty());
+        assertTrue(containsAll);
+
         List<String> excludedBasic = userResource.getExcludedColumns(AuthType.BASIC);
         assertEquals(excludedBasic.size(), 6);
+        Set<String> set2 = new HashSet<>(Arrays.asList("certificateId", "authenticationType", "entityId", "status", "password", "domain"));
+        containsAll = set2.isEmpty() || excludedBasic.stream().map(Object::toString)
+                .anyMatch(s -> set2.remove(s) && set2.isEmpty());
+        assertTrue(containsAll);
     }
 
     @Test
