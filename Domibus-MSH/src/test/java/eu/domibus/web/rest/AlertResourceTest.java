@@ -3,6 +3,7 @@ package eu.domibus.web.rest;
 import com.google.common.collect.Lists;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.property.DomibusConfigurationService;
+import eu.domibus.api.security.AuthType;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.core.alerts.model.common.AlertCriteria;
@@ -399,5 +400,22 @@ public class AlertResourceTest {
         List<String> alertTypesAsStrings = alertResource.getAlertTypesAsStrings();
         assertEquals(8, alertTypesAsStrings.size());
         assertFalse(alertTypesAsStrings.containsAll(AlertResource.forbiddenAlertTypesExtAuthProvider.stream().map(alertType -> alertType.name()).collect(Collectors.toSet())));
+    }
+
+    @Test
+    public void getExcludedColumns() {
+        List<String> excludedCert = alertResource.getExcludedColumns(true);
+        assertEquals(excludedCert.size(), 2);
+        Set<String> set1 = new HashSet<>(Arrays.asList("alertDescription", "superAdmin"));
+        boolean containsAll = set1.isEmpty() || excludedCert.stream().map(Object::toString)
+                .anyMatch(s -> set1.remove(s) && set1.isEmpty());
+        assertTrue(containsAll);
+
+        excludedCert = alertResource.getExcludedColumns(false);
+        assertEquals(excludedCert.size(), 1);
+        Set<String> set2 = new HashSet<>(Arrays.asList("superAdmin"));
+        containsAll = set2.isEmpty() || excludedCert.stream().map(Object::toString)
+                .anyMatch(s -> set2.remove(s) && set2.isEmpty());
+        assertFalse(containsAll);
     }
 }
