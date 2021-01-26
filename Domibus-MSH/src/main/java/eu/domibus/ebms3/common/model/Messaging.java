@@ -42,6 +42,8 @@ import java.util.Map;
         @NamedQuery(name = "Messaging.findPartInfosForMessage", query = "select m.userMessage.payloadInfo.partInfo from Messaging m where m.userMessage.messageInfo.messageId = :MESSAGE_ID"),
         @NamedQuery(name = "Messaging.emptyPayloads", query = "update PartInfo p set p.binaryData = null where p in :PARTINFOS"),
         @NamedQuery(name = "Messaging.deleteMessages", query = "delete from Messaging mi where mi.id in :MESSAGEIDS"),
+        @NamedQuery(name = "Messaging.find",
+                query = "select messaging from Messaging messaging where messaging.userMessage.messageInfo.messageId IN :MESSAGEIDS"),
 })
 public class Messaging extends AbstractBaseEntity {
 

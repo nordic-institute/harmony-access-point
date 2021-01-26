@@ -33,6 +33,8 @@ import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.message.splitandjoin.MessageGroupDao;
 import eu.domibus.core.message.splitandjoin.MessageGroupEntity;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinException;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
@@ -40,10 +42,7 @@ import eu.domibus.core.replication.UIMessageDao;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.PartInfo;
-import eu.domibus.ebms3.common.model.SignalMessage;
 import eu.domibus.ebms3.common.model.UserMessage;
-import eu.domibus.core.metrics.Counter;
-import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.MDCKey;
@@ -622,21 +621,14 @@ public class UserMessageDefaultService implements UserMessageService {
         List<String> filenames = messagingDao.findFileSystemPayloadFilenames(userMessageIds);
         messagingDao.deletePayloadFiles(filenames);
 
-        List<String> signalMessageId=new ArrayList<>();
+        List<String> signalMessageId = new ArrayList<>();
 
-        List<SignalMessage> signalMessages = signalMessageDao.findSignalMessages(userMessageIds);
-        LOG.debug("Deleting [{}] signal messages", signalMessages.size());
-        for (SignalMessage signalMessage : signalMessages) {
-            LOG.debug("Deleting signal message [{}]", signalMessage);
-            signalMessageId.add(signalMessage.getMessageInfo().getMessageId());
-            em.remove(signalMessage);
-        }
-        em.flush();
-
-        List<UserMessage> userMessages = userMessageDao.findUserMessages(userMessageIds);
-        for (UserMessage userMessage : userMessages) {
-//            userMessage.getPayloadInfo().getPartInfo().forEach(partInfo -> em.remove(partInfo));
-            em.remove(userMessage);
+        List<Messaging> messagings = messagingDao.findMessagings(userMessageIds);
+        LOG.debug("Deleting [{}] messagings", messagings.size());
+        for (Messaging messaging : messagings) {
+            LOG.trace("Deleting messaging [{}]", messaging.getUserMessage().getMessageInfo().getMessageId());
+            signalMessageId.add(messaging.getSignalMessage().getMessageInfo().getMessageId());
+            em.remove(messaging);
         }
         em.flush();
         int deleteResult = userMessageLogDao.deleteMessageLogs(userMessageIds);
