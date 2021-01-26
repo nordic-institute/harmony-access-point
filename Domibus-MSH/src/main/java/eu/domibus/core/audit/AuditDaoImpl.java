@@ -4,7 +4,6 @@ import eu.domibus.core.audit.model.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,23 +44,7 @@ public class AuditDaoImpl implements AuditDao {
                 buildAuditListCriteria(auditTargets, actions, users, from, to));
         query.setFirstResult(start);
         query.setMaxResults(max);
-        return customSortAudit(query.getResultList());
-    }
-
-    protected List<Audit> customSortAudit(List<Audit> list) {
-        list.sort((a1, a2) -> {
-            int result = a2.getChanged().compareTo(a1.getChanged());
-            if (result != 0) {
-                return result;
-            }
-
-            if (NumberUtils.isDigits(a2.getId()) && NumberUtils.isDigits(a1.getId())) {
-                return NumberUtils.createLong(a2.getId()).compareTo(NumberUtils.createLong(a1.getId()));
-            }
-
-            return a2.getId().compareTo(a1.getId());
-        });
-        return list;
+        return query.getResultList();
     }
 
     protected CriteriaQuery<Audit> buildAuditListCriteria(final Set<String> auditTargets,
