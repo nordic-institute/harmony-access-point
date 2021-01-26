@@ -48,20 +48,6 @@ public class AuditDaoImpl implements AuditDao {
         return customSortAudit(query.getResultList());
     }
 
-    protected List<Audit> customSortAudit(List<Audit> list) {
-        list.sort((a1, a2) -> {
-            int result = a2.getChanged().compareTo(a1.getChanged());
-            if (result != 0) {
-                return result;
-            }
-            if (NumberUtils.isDigits(a2.getId()) && NumberUtils.isDigits(a1.getId())) {
-                return NumberUtils.createLong(a2.getId()).compareTo(NumberUtils.createLong(a1.getId()));
-            }
-            return a2.getId().compareTo(a1.getId());
-        });
-        return list;
-    }
-
     protected CriteriaQuery<Audit> buildAuditListCriteria(final Set<String> auditTargets,
                                                           final Set<String> actions,
                                                           final Set<String> users,
@@ -194,5 +180,21 @@ public class AuditDaoImpl implements AuditDao {
     @Transactional
     public void saveTruststoreAudit(TruststoreAudit audit) {
         entityManager.persist(audit);
+    }
+
+    // fix the sorting for when the id is actually an integer and not a string
+    protected List<Audit> customSortAudit(List<Audit> list) {
+        list.sort((element1, element2) -> {
+            int result = element2.getChanged().compareTo(element1.getChanged());
+            if (result != 0) {
+                return result;
+            }
+            // fix it only when numeric
+            if (NumberUtils.isDigits(element2.getId()) && NumberUtils.isDigits(element1.getId())) {
+                return NumberUtils.createLong(element2.getId()).compareTo(NumberUtils.createLong(element1.getId()));
+            }
+            return element2.getId().compareTo(element1.getId());
+        });
+        return list;
     }
 }
