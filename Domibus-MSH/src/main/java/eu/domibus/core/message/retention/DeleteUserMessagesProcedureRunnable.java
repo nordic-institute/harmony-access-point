@@ -13,9 +13,9 @@ import java.util.Date;
  * @since 4.2.1
  */
 
-public class StoredProcRunnable implements Runnable {
+public class DeleteUserMessagesProcedureRunnable implements Runnable {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(StoredProcRunnable.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DeleteUserMessagesProcedureRunnable.class);
 
     protected UserMessageLogDao userMessageLogDao;
     protected Date startDate;
@@ -23,7 +23,7 @@ public class StoredProcRunnable implements Runnable {
     protected Integer maxCount;
     protected String queryName;
 
-    public StoredProcRunnable(UserMessageLogDao userMessageLogDao, Date startDate, String mpc, Integer maxCount, String queryName) {
+    public DeleteUserMessagesProcedureRunnable(UserMessageLogDao userMessageLogDao, Date startDate, String mpc, Integer maxCount, String queryName) {
         this.userMessageLogDao = userMessageLogDao;
         this.startDate = startDate;
         this.mpc = mpc;
@@ -34,6 +34,6 @@ public class StoredProcRunnable implements Runnable {
     @Override
     public void run() {
         LOG.debug("Deleting expired messages: startDate [{}], mpc [{}], maxCount [{}], using the stored procedure [{}] ", startDate, mpc, maxCount, queryName);
-        userMessageLogDao.deleteExpiredMessagesStoredProc(startDate, mpc, maxCount, queryName);
+        userMessageLogDao.deleteExpiredMessagesStoredProcedure(startDate, mpc, maxCount, queryName);
     }
 }

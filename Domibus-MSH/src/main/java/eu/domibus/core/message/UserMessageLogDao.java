@@ -135,14 +135,14 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     }
 
     public List<UserMessageLogDto> getSentUserMessagesOlderThan(Date date, String mpc, Integer expiredSentMessagesLimit, boolean isDeleteMessageMetadata) {
-        if(isDeleteMessageMetadata) {
+        if (isDeleteMessageMetadata) {
             return getMessagesOlderThan(date, mpc, expiredSentMessagesLimit, "UserMessageLog.findSentUserMessagesOlderThan");
         }
         // return only messages with payload not already cleared
         return getSentUserMessagesWithPayloadNotClearedOlderThan(date, mpc, expiredSentMessagesLimit);
     }
 
-    public void deleteExpiredMessagesStoredProc(Date startDate, String mpc, Integer expiredMessagesLimit, String queryName) {
+    public void deleteExpiredMessagesStoredProcedure(Date startDate, String mpc, Integer expiredMessagesLimit, String queryName) {
 
         String queryStr = "CALL " + queryName;
 
@@ -169,8 +169,12 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         try {
             query.execute();
         } finally {
-            query.unwrap(ProcedureOutputs.class).release();
-
+            try {
+                query.unwrap(ProcedureOutputs.class).release();
+                LOG.debug("Finished releasing delete procedure");
+            } catch (Exception ex) {
+                LOG.error("Finally exception when using the stored procedure to delete", ex);
+            }
         }
     }
 
@@ -251,12 +255,12 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         return resultList;
     }
 
-    @Timer(clazz = UserMessageLogDao.class,value = "deleteMessages.deleteMessageLogs")
-    @Counter(clazz = UserMessageLogDao.class,value = "deleteMessages.deleteMessageLogs")
+    @Timer(clazz = UserMessageLogDao.class, value = "deleteMessages.deleteMessageLogs")
+    @Counter(clazz = UserMessageLogDao.class, value = "deleteMessages.deleteMessageLogs")
     public int deleteMessageLogs(List<String> messageIds) {
         final Query deleteQuery = em.createNamedQuery("UserMessageLog.deleteMessageLogs");
         deleteQuery.setParameter("MESSAGEIDS", messageIds);
-        int result  = deleteQuery.executeUpdate();
+        int result = deleteQuery.executeUpdate();
         LOG.trace("deleteUserMessageLogs result [{}]", result);
         return result;
     }
