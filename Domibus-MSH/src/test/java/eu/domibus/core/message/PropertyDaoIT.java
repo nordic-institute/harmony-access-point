@@ -19,6 +19,7 @@ import java.util.Date;
 import java.util.List;
 
 import static java.util.UUID.randomUUID;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author François Gautier
@@ -54,12 +55,12 @@ public class PropertyDaoIT {
     @Test
     public void findUserMessageByGroupId() {
         List<Property> messagePropertiesForMessageId = propertyDao.findMessagePropertiesForMessageId(msgId);
-        System.out.println(messagePropertiesForMessageId);
-       /* assertEquals(2, messagePropertiesForMessageId.size());
+
+        assertEquals(2, messagePropertiesForMessageId.size());
         assertEquals("prop1", messagePropertiesForMessageId.get(1).getName());
         assertEquals("value1", messagePropertiesForMessageId.get(1).getValue());
         assertEquals("prop2", messagePropertiesForMessageId.get(0).getName());
-        assertEquals("value2", messagePropertiesForMessageId.get(0).getValue());*/
+        assertEquals("value2", messagePropertiesForMessageId.get(0).getValue());
     }
 
     private void createUserMessageWithProperties(List<Property> properties, MessageInfo messageInfo) {
