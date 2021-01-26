@@ -4,6 +4,7 @@ import eu.domibus.core.audit.model.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -191,9 +192,9 @@ public class AuditDaoImpl implements AuditDao {
             }
             // fix it only when numeric
             if (NumberUtils.isDigits(element2.getId()) && NumberUtils.isDigits(element1.getId())) {
-                return NumberUtils.createLong(element2.getId()).compareTo(NumberUtils.createLong(element1.getId()));
+                return ObjectUtils.compare(NumberUtils.createLong(element2.getId()), NumberUtils.createLong(element1.getId()));
             }
-            return element2.getId().compareTo(element1.getId());
+            return ObjectUtils.compare(element2.getId(), element1.getId());
         });
         return list;
     }
