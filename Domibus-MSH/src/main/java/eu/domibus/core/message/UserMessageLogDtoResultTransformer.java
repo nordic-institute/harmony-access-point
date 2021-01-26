@@ -44,8 +44,7 @@ public class UserMessageLogDtoResultTransformer implements ResultTransformer {
         return new ArrayList<>(postDTOMap.values());
     }
 
-    public Map<String, Integer> aliasToIndexMap(
-            String[] aliases) {
+    public Map<String, Integer> aliasToIndexMap(String[] aliases) {
 
         Map<String, Integer> aliasToIndexMap = new LinkedHashMap<>();
 

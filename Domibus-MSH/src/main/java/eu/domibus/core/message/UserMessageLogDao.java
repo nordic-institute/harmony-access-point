@@ -145,7 +145,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     }
 
     /**
-     * https://discourse.hibernate.org/t/hibernate-resulttransformer-is-deprecated-what-to-use-instead/232/5
+     * EDELIVERY-7772 Hibernate setResultTransformer deprecated
      */
     private List<UserMessageLogDto> getMessagesOlderThan(Date startDate, String mpc, Integer expiredMessagesLimit, String queryName) {
         Query query = em.createNamedQuery(queryName);

@@ -33,9 +33,9 @@ public class UserMessageLogDto {
 
     public UserMessageLogDto(Object[] tuple, Map<String, Integer> aliasToIndexMap) {
         this.messageId = (String) tuple[aliasToIndexMap.get(MESSAGE_ID)];
-        Object o = tuple[aliasToIndexMap.get(MESSAGE_SUBTYPE)];
-        if(o != null) {
-            this.messageSubtype = MessageSubtype.valueOf((String) o);
+        Object subtype = tuple[aliasToIndexMap.get(MESSAGE_SUBTYPE)];
+        if(subtype != null) {
+            this.messageSubtype = MessageSubtype.valueOf((String) subtype);
         }
         this.backend = (String) tuple[aliasToIndexMap.get(MESSAGE_BACKEND)];
     }
