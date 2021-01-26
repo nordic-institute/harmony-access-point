@@ -53,7 +53,7 @@ import javax.xml.bind.annotation.*;
 public class UserMessage extends AbstractBaseEntity {
 
     @XmlElement(name = "MessageInfo", required = true)
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     protected MessageInfo messageInfo;
 
     @XmlElement(name = "PartyInfo", required = true)
@@ -86,7 +86,7 @@ public class UserMessage extends AbstractBaseEntity {
     @OneToOne(cascade = CascadeType.ALL)
     protected MessageFragmentEntity messageFragment;
 
-    @OneToOne(mappedBy = "userMessage", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "userMessage", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @XmlTransient
     private RawEnvelopeLog rawEnvelopeLog;
 

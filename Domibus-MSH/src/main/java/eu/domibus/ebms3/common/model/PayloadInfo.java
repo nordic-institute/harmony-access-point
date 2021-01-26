@@ -27,7 +27,7 @@ import java.util.*;
 public class PayloadInfo {
 
     @XmlElement(name = "PartInfo", required = true)
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     @JoinColumn(name = "PAYLOADINFO_ID")
     @OrderColumn(name="PART_ORDER")
     protected List<PartInfo> partInfo;

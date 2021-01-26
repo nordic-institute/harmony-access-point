@@ -156,6 +156,7 @@
             <column name="MESSAGE_TYPE"/>
         </createIndex>
 
+        <dropNotNullConstraint tableName="TB_PART_INFO" columnName="PART_ORDER" columnDataType="INT"/>
     </changeSet>
 
 </databaseChangeLog>

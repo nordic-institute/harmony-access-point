@@ -23,7 +23,7 @@ public class From {
     public static final String DEFAULT_ROLE = "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultRole";
 
     @XmlElement(name = "PartyId", required = true)
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     @JoinColumn(name = "FROM_ID")
     protected Set<PartyId> partyId;
     @XmlElement(name = "Role", required = true, defaultValue = From.DEFAULT_ROLE)

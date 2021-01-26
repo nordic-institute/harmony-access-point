@@ -83,6 +83,7 @@ public class UserMessageDefaultService implements UserMessageService {
     public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageDefaultService.class);
     static final String MESSAGE = "Message [";
     static final String DOES_NOT_EXIST = "] does not exist";
+    public static final int BATCH_SIZE = 100;
 
     @Autowired
     @Qualifier("sendMessageQueue")
@@ -610,8 +611,9 @@ public class UserMessageDefaultService implements UserMessageService {
     @Timer(clazz = DatabaseMessageHandler.class, value = "deleteMessages_oneBatch")
     @Counter(clazz = DatabaseMessageHandler.class, value = "deleteMessages_oneBatch")
     public void deleteMessages(List<UserMessageLogDto> userMessageLogs) {
+
         em.unwrap(Session.class)
-                .setJdbcBatchSize(100);
+                .setJdbcBatchSize(BATCH_SIZE);
         List<String> userMessageIds = userMessageLogs.stream().map(userMessageLog -> userMessageLog.getMessageId()).collect(Collectors.toList());
 
         LOG.debug("Deleting [{}] user messages", userMessageIds.size());
@@ -625,6 +627,7 @@ public class UserMessageDefaultService implements UserMessageService {
         List<SignalMessage> signalMessages = signalMessageDao.findSignalMessages(userMessageIds);
         LOG.debug("Deleting [{}] signal messages", signalMessages.size());
         for (SignalMessage signalMessage : signalMessages) {
+            LOG.debug("Deleting signal message [{}]", signalMessage);
             signalMessageId.add(signalMessage.getMessageInfo().getMessageId());
             em.remove(signalMessage);
         }
@@ -632,6 +635,7 @@ public class UserMessageDefaultService implements UserMessageService {
 
         List<UserMessage> userMessages = userMessageDao.findUserMessages(userMessageIds);
         for (UserMessage userMessage : userMessages) {
+//            userMessage.getPayloadInfo().getPartInfo().forEach(partInfo -> em.remove(partInfo));
             em.remove(userMessage);
         }
         em.flush();

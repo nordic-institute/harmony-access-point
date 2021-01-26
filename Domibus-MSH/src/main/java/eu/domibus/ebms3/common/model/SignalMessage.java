@@ -40,16 +40,16 @@ import java.util.Set;
 public class SignalMessage extends AbstractBaseEntity {
 
     @XmlElement(name = "MessageInfo", required = true)
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     protected MessageInfo messageInfo;
     @XmlElement(name = "PullRequest")
     @Embedded
     protected PullRequest pullRequest; //NOSONAR
     @XmlElement(name = "Receipt")
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     protected Receipt receipt;
     @XmlElement(name = "Error")
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     @JoinColumn(name = "SIGNALMESSAGE_ID")
     protected Set<Error> error; //NOSONAR
     @XmlAnyElement(lax = true)
@@ -57,7 +57,7 @@ public class SignalMessage extends AbstractBaseEntity {
     //According to how we read the spec those attributes serve no purpose in the AS4 profile, therefore they are discarded
     protected List<Object> any; //NOSONAR
 
-    @OneToOne(mappedBy = "signalMessage", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "signalMessage", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @XmlTransient
     private RawEnvelopeLog rawEnvelopeLog;
 

@@ -23,7 +23,7 @@ public class To {
 
     public static final String DEFAULT_ROLE = From.DEFAULT_ROLE;
     @XmlElement(name = "PartyId", required = true)
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     @JoinColumn(name = "TO_ID")
     protected Set<PartyId> partyId;
     @XmlElement(name = "Role", required = true, defaultValue = To.DEFAULT_ROLE)

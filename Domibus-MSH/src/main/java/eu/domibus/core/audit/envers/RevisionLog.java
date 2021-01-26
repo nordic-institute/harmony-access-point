@@ -48,7 +48,7 @@ public class RevisionLog {
      * Different entities can be modified during the same transaction update/create/delete.
      * This field reflect the list of entities.
      */
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @JoinColumn(name = "REV")
     @Fetch(FetchMode.JOIN)
     private Set<EnversAudit> revisionTypes = new HashSet<>();

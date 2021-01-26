@@ -1143,9 +1143,7 @@
             <column name="MIME" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueNumeric="0" name="PART_ORDER" type="INT">
-                <constraints nullable="false"/>
-            </column>
+            <column defaultValueNumeric="0" name="PART_ORDER" type="INT"/>
             <column defaultValueBoolean="false" name="ENCRYPTED" type="BOOLEAN"/>
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
