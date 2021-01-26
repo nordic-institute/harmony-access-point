@@ -4,6 +4,8 @@ import eu.domibus.core.audit.model.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,7 +46,7 @@ public class AuditDaoImpl implements AuditDao {
                 buildAuditListCriteria(auditTargets, actions, users, from, to));
         query.setFirstResult(start);
         query.setMaxResults(max);
-        return query.getResultList();
+        return customSortAudit(query.getResultList());
     }
 
     protected CriteriaQuery<Audit> buildAuditListCriteria(final Set<String> auditTargets,
@@ -179,5 +181,21 @@ public class AuditDaoImpl implements AuditDao {
     @Transactional
     public void saveTruststoreAudit(TruststoreAudit audit) {
         entityManager.persist(audit);
+    }
+
+    // fix the sorting for when the id is actually an integer and not a string
+    protected List<Audit> customSortAudit(List<Audit> list) {
+        list.sort((element1, element2) -> {
+            int result = element2.getChanged().compareTo(element1.getChanged());
+            if (result != 0) {
+                return result;
+            }
+            // fix it only when numeric
+            if (NumberUtils.isDigits(element2.getId()) && NumberUtils.isDigits(element1.getId())) {
+                return ObjectUtils.compare(NumberUtils.createLong(element2.getId()), NumberUtils.createLong(element1.getId()));
+            }
+            return ObjectUtils.compare(element2.getId(), element1.getId());
+        });
+        return list;
     }
 }
