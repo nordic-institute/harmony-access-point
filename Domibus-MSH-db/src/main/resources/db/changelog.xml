@@ -1756,8 +1756,13 @@
         <addUniqueConstraint columnNames="ROLE_NAME" constraintName="UQ_ROLE_NAME" tableName="TB_USER_ROLE"/>
 
         <addUniqueConstraint columnNames="USER_NAME" constraintName="USER_NAME" tableName="TB_USER"/>
+    </changeSet>
 
-        <addUniqueConstraint columnNames="USERNAME,CERTIFICATE_ID" constraintName="UQ_PLUGIN_USER"
+    <changeSet author="ion perpegel" id="EDELIVERY-7472">
+        <comment>add one constraints for each unique column(mysql behaves badly having just one with 2 columns)</comment>
+        <addUniqueConstraint columnNames="USERNAME" constraintName="UQ_PLUGIN_USER_NAME"
+                             tableName="TB_AUTHENTICATION_ENTRY"/>
+        <addUniqueConstraint columnNames="CERTIFICATE_ID" constraintName="UQ_PLUGIN_USER_CERT"
                              tableName="TB_AUTHENTICATION_ENTRY"/>
     </changeSet>
 

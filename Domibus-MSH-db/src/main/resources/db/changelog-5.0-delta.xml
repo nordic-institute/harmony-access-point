@@ -52,4 +52,15 @@
         </createTable>
     </changeSet>
 
+    <changeSet author="Ion Perpegel" id="EDELIVERY-7472">
+        <comment>split plugin user unique constraints in 2</comment>
+        <dropUniqueConstraint uniqueColumns="USERNAME,CERTIFICATE_ID" constraintName="UQ_PLUGIN_USER"
+                             tableName="TB_AUTHENTICATION_ENTRY"/>
+        <addUniqueConstraint columnNames="USERNAME" constraintName="UQ_PLUGIN_USER_NAME"
+                             tableName="TB_AUTHENTICATION_ENTRY"/>
+        <addUniqueConstraint columnNames="CERTIFICATE_ID" constraintName="UQ_PLUGIN_USER_CERT"
+                             tableName="TB_AUTHENTICATION_ENTRY"/>
+
+    </changeSet>
+
 </databaseChangeLog>
