@@ -1,10 +1,11 @@
 package eu.domibus.plugin.webService.property.listeners;
 
 import mockit.Expectations;
-import mockit.Injectable;
-import mockit.Tested;
+import mockit.FullVerifications;
+import mockit.Mocked;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -18,22 +19,26 @@ import java.util.HashMap;
 @RunWith(JMockit.class)
 public class SchemaValidationEnabledChangeListenerTest {
 
-    @Injectable
-    Endpoint backendInterfaceEndpoint;
+    @Mocked
+    private Endpoint backendInterfaceEndpoint;
 
-    @Tested
-    SchemaValidationEnabledChangeListener listener = new SchemaValidationEnabledChangeListener(backendInterfaceEndpoint);
+    private SchemaValidationEnabledChangeListener listener;
+
+    @Before
+    public void setUp()  {
+        listener = new SchemaValidationEnabledChangeListener(backendInterfaceEndpoint);
+    }
 
     @Test
     public void handlesProperty_true() {
         boolean result = listener.handlesProperty("wsplugin.schema.validation.enabled");
-        Assert.assertEquals(true, result);
+        Assert.assertTrue(result);
     }
 
     @Test
     public void handlesProperty_false() {
         boolean result = listener.handlesProperty("wsplugin.mtom.enabled");
-        Assert.assertEquals(false, result);
+        Assert.assertFalse(result);
     }
 
     @Test
@@ -47,5 +52,7 @@ public class SchemaValidationEnabledChangeListenerTest {
         listener.propertyValueChanged("default", "wsplugin.schema.validation.enabled", "true");
 
         Assert.assertEquals("true", propBag.get("schema-validation-enabled"));
+
+        new FullVerifications(){};
     }
 }

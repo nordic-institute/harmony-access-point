@@ -6,6 +6,8 @@ package eu.domibus.plugin.property;
  *
  * The plugin api equivalent of DomibusPropertyChangeNotifier
  * This notifies the custom action listeners and the other nodes in a cluster environment.
+ *
+ *  Currently this interface is not used since all default plugins delegate to domibus property provider notification mechanism
  */
 public interface PluginPropertyChangeNotifier {
 

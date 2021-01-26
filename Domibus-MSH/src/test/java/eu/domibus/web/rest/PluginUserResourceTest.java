@@ -4,10 +4,10 @@ import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthType;
 import eu.domibus.api.user.UserState;
-import eu.domibus.core.user.plugin.PluginUserService;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.core.user.plugin.AuthenticationEntity;
+import eu.domibus.core.user.plugin.PluginUserService;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.PluginUserFilterRequestRO;
 import eu.domibus.web.rest.ro.PluginUserRO;
@@ -19,10 +19,10 @@ import mockit.Verifications;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class PluginUserResourceTest {
 
@@ -107,4 +107,30 @@ public class PluginUserResourceTest {
         }};
     }
 
+    @Test
+    public void getExcludedColumns() {
+        List<String> excludedCert = userResource.getExcludedColumns(AuthType.CERTIFICATE);
+        assertEquals(excludedCert.size(), 9);
+        Set<String> set1 = new HashSet<>(Arrays.asList("userName", "expirationDate", "active", "suspended"));
+        boolean containsAll = set1.isEmpty() || excludedCert.stream().map(Object::toString)
+                .anyMatch(s -> set1.remove(s) && set1.isEmpty());
+        assertTrue(containsAll);
+
+        List<String> excludedBasic = userResource.getExcludedColumns(AuthType.BASIC);
+        assertEquals(excludedBasic.size(), 6);
+        Set<String> set2 = new HashSet<>(Arrays.asList("certificateId", "authenticationType", "entityId", "status", "password", "domain"));
+        containsAll = set2.isEmpty() || excludedBasic.stream().map(Object::toString)
+                .anyMatch(s -> set2.remove(s) && set2.isEmpty());
+        assertTrue(containsAll);
+    }
+
+    @Test
+    public void getCustomColumnNames() {
+        Map<String, String> customCert = userResource.getCustomColumnNames(AuthType.CERTIFICATE);
+        assertEquals(customCert.size(), 1);
+        assertTrue(customCert.get("authRoles".toUpperCase()).equals("Role"));
+        Map<String, String> customBasic = userResource.getCustomColumnNames(AuthType.BASIC);
+        assertEquals(customBasic.size(), 2);
+        assertTrue(customBasic.get("UserName".toUpperCase()).equals("User Name"));
+    }
 }

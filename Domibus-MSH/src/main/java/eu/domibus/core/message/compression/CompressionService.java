@@ -1,20 +1,18 @@
 package eu.domibus.core.message.compression;
 
 import eu.domibus.common.ErrorCode;
-import eu.domibus.common.MSHRole;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
-import eu.domibus.ebms3.common.model.PartInfo;
-import eu.domibus.ebms3.common.model.Property;
-import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.api.model.PartInfo;
+import eu.domibus.api.model.Property;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
@@ -41,7 +39,7 @@ public class CompressionService {
     protected SplitAndJoinService splitAndJoinService;
 
     /**
-     * This method is responsible for compression of payloads in a ebMS3 AS4 conformant way in case of {@link eu.domibus.common.MSHRole#SENDING}
+     * This method is responsible for compression of payloads in a ebMS3 AS4 conformant way in case of {@link eu.domibus.api.model.MSHRole#SENDING}
      *
      * @param messageId           the sending {@link UserMessage} with all payloads
      * @param partInfo            the sending {@link UserMessage} with all payloads
@@ -111,7 +109,7 @@ public class CompressionService {
     }
 
     /**
-     * This method handles decompression of payloads for messages in case of {@link eu.domibus.common.MSHRole#RECEIVING}
+     * This method handles decompression of payloads for messages in case of {@link eu.domibus.api.model.MSHRole#RECEIVING}
      *
      * @param ebmsMessage         the receving {@link UserMessage} with all payloads
      * @param legConfigForMessage processing information for the message

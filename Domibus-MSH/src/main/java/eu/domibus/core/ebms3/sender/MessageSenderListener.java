@@ -21,6 +21,11 @@ import javax.jms.Message;
 public class MessageSenderListener extends AbstractMessageSenderListener {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageSenderListener.class);
 
+    /**
+     * Method called when dealing with outgoing messages
+     * There is a timeout configured on the dispatch queue by the domibus property domibus.dispatcher.timeout=300
+     * @param message the message to send
+     */
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     @Override
     @Timer(clazz = MessageSenderListener.class,value="onMessage")

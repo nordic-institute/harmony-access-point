@@ -4,7 +4,7 @@ import eu.domibus.core.alerts.model.common.*;
 import eu.domibus.core.alerts.model.persist.Alert;
 import eu.domibus.core.alerts.model.persist.Event;
 import eu.domibus.core.alerts.model.persist.StringEventProperty;
-import eu.domibus.core.dao.InMemoryDataBaseConfig;
+import eu.domibus.core.dao.InMemoryDatabaseMshConfig;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.junit.Before;
@@ -16,16 +16,20 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 /**
  * @author Thomas Dussart
  * @since 4.0
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {InMemoryDataBaseConfig.class, AlertDaoConfig.class})
+@ContextConfiguration(classes = {InMemoryDatabaseMshConfig.class, AlertDaoConfig.class})
 @ActiveProfiles("IN_MEMORY_DATABASE")
 public class AlertDaoIT {
 
@@ -111,10 +115,10 @@ public class AlertDaoIT {
 
     @Test
     public void findRetryAlertsOnPartyAndReportingTime() {
-        final org.joda.time.LocalDateTime now = org.joda.time.LocalDateTime.now();
-        final Date reportingDate = now.minusMinutes(15).toDate();
-        final Date reportingFrom = now.minusMinutes(16).toDate();
-        final Date reportingTo = now.minusMinutes(14).toDate();
+        final LocalDateTime now = LocalDateTime.now();
+        final Date reportingDate = asDate(now.minusMinutes(15));
+        final Date reportingFrom = asDate(now.minusMinutes(16));
+        final Date reportingTo = asDate(now.minusMinutes(14));
         createAlert("blue_gw","red_gw",true,reportingDate);
         final AlertCriteria alertCriteria = new AlertCriteria();
         alertCriteria.getParameters().put("FROM_PARTY","blue_gw");
@@ -126,14 +130,19 @@ public class AlertDaoIT {
         alertCriteria.setPageSize(10);
         final List<Alert> alerts = alertDao.filterAlerts(alertCriteria);
         assertEquals(1,alerts.size());
+        Alert alert = alerts.get(0);
+        assertNotNull(alert.getCreationTime());
+        assertNotNull(alert.getModificationTime());
+
+        assertEquals(alert.getCreationTime(), alert.getModificationTime());
     }
 
     @Test
     public void countAlerts() {
-        final org.joda.time.LocalDateTime now = org.joda.time.LocalDateTime.now();
-        final Date reportingDate = now.minusMinutes(25).toDate();
-        final Date reportingFrom = now.minusMinutes(26).toDate();
-        final Date reportingTo = now.minusMinutes(24).toDate();
+        final LocalDateTime now = LocalDateTime.now();
+        final Date reportingDate = asDate(now.minusMinutes(25));
+        final Date reportingFrom = asDate(now.minusMinutes(26));
+        final Date reportingTo = asDate(now.minusMinutes(24));
         createAlert("blue_gw","red_gw",true,reportingDate);
         final AlertCriteria alertCriteria = new AlertCriteria();
         alertCriteria.getParameters().put("FROM_PARTY","blue_gw");
@@ -143,5 +152,9 @@ public class AlertDaoIT {
         alertCriteria.setProcessed(true);
         final Long count = alertDao.countAlerts(alertCriteria);
         assertEquals(1,count.intValue());
+    }
+
+    public static Date asDate(LocalDateTime localDate) {
+        return Date.from(localDate.atZone(ZoneId.systemDefault()).toInstant());
     }
 }

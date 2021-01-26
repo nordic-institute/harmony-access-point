@@ -8,7 +8,7 @@
     <parent>
         <groupId>eu.domibus</groupId>
         <artifactId>domibus</artifactId>
-        <version>4.2-SNAPSHOT</version>
+        <version>5.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>domibus-swagger</artifactId>
@@ -38,7 +38,7 @@
                     <dependency>
                         <groupId>javax.xml.bind</groupId>
                         <artifactId>jaxb-api</artifactId>
-                        <version>${jaxb.version}</version>
+                        <version>${jaxb-api.version}</version>
                     </dependency>
                 </dependencies>
                 <configuration>

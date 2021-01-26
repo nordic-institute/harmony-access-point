@@ -11,6 +11,7 @@ import eu.domibus.core.ebms3.receiver.policy.SetPolicyOutInterceptorServer;
 import eu.domibus.core.ebms3.sender.interceptor.HttpHeaderInInterceptor;
 import eu.domibus.core.ebms3.sender.interceptor.HttpHeaderOutInterceptor;
 import eu.domibus.core.logging.cxf.DomibusLoggingEventSender;
+import eu.domibus.core.message.nonrepudiation.SaveRawEnvelopeInterceptor;
 import eu.domibus.core.message.pull.SaveRawPulledMessageInterceptor;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -24,6 +25,7 @@ import org.springframework.context.annotation.Configuration;
 
 import javax.xml.ws.Endpoint;
 import java.util.*;
+import java.util.concurrent.Executor;
 
 /**
  * @author Cosmin Baciu
@@ -39,6 +41,7 @@ public class MSHWebserviceConfiguration {
                         MSHWebservice mshWebservice,
                         @Qualifier("loggingFeature") LoggingFeature loggingFeature,
                         @Qualifier("ehCacheTokenStore") EHCacheTokenStore ehCacheTokenStore,
+                        @Qualifier("taskExecutor") Executor executor,
                         SimpleKeystorePasswordCallback simpleKeystorePasswordCallback,
                         Wss4JMultiDomainCryptoProvider wss4JMultiDomainCryptoProvider,
                         DomibusReadyInterceptor domibusReadyInterceptor,
@@ -50,6 +53,7 @@ public class MSHWebserviceConfiguration {
                         ClearMDCInterceptor clearMDCInterceptor,
                         SetPolicyOutInterceptorServer setPolicyOutInterceptorServer,
                         SaveRawPulledMessageInterceptor saveRawPulledMessageInterceptor,
+                        SaveRawEnvelopeInterceptor saveRawEnvelopeInterceptor,
                         HttpHeaderOutInterceptor httpHeaderOutInterceptor,
                         @Qualifier("domibusSetCodeValueFaultOutInterceptor") SetCodeValueFaultOutInterceptor setCodeValueFaultOutInterceptor,
                         FaultInHandler faultInHandler) {
@@ -57,10 +61,12 @@ public class MSHWebserviceConfiguration {
         Map<String, Object> endpointProperties = getEndpointProperties(ehCacheTokenStore, simpleKeystorePasswordCallback, wss4JMultiDomainCryptoProvider);
         endpoint.setProperties(endpointProperties);
         endpoint.setInInterceptors(Arrays.asList(domibusReadyInterceptor, setDomainInInterceptor, trustSenderInterceptor, setPolicyInServerInterceptor, propertyValueExchangeInterceptor, httpHeaderInInterceptor));
-        endpoint.setOutInterceptors(Arrays.asList(clearMDCInterceptor, setPolicyOutInterceptorServer, saveRawPulledMessageInterceptor, httpHeaderOutInterceptor));
+        endpoint.setOutInterceptors(Arrays.asList(clearMDCInterceptor, setPolicyOutInterceptorServer, saveRawPulledMessageInterceptor, httpHeaderOutInterceptor, saveRawEnvelopeInterceptor));
         endpoint.setOutFaultInterceptors(Arrays.asList(setCodeValueFaultOutInterceptor, clearMDCInterceptor));
         endpoint.setFeatures(Arrays.asList(loggingFeature));
         endpoint.setHandlers(Arrays.asList(faultInHandler));
+        LOG.info("Configuring MSH task executor on /msh endpoint.");
+        endpoint.setExecutor(executor);
 
         endpoint.publish("/msh");
         return endpoint;
@@ -103,7 +109,11 @@ public class MSHWebserviceConfiguration {
         DomibusLoggingEventSender result = new DomibusLoggingEventSender();
         Boolean printPayload = domibusPropertyProvider.getBooleanProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_LOGGING_PAYLOAD_PRINT);
         LOG.debug("Print payload activated [{}] ?", printPayload);
+        Boolean printMetadata = domibusPropertyProvider.getBooleanProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_LOGGING_METADATA_PRINT);
+        LOG.debug("Print metadata activated [{}] ?", printMetadata);
+
         result.setPrintPayload(printPayload);
+        result.setPrintMetadata(printMetadata);
         return result;
     }
 

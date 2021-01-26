@@ -1,16 +1,10 @@
 package eu.domibus.core.message;
 
-import eu.domibus.common.MSHRole;
-import eu.domibus.common.MessageStatus;
-import eu.domibus.core.message.signal.SignalMessageLog;
+import eu.domibus.api.model.*;
+import eu.domibus.api.model.SignalMessageLog;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
-import eu.domibus.core.plugin.notification.NotificationStatus;
 import eu.domibus.core.replication.UIReplicationSignalService;
-import eu.domibus.ebms3.common.model.MessageInfo;
-import eu.domibus.ebms3.common.model.MessageType;
-import eu.domibus.ebms3.common.model.SignalMessage;
-import eu.domibus.ebms3.common.model.UserMessage;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;

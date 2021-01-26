@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static org.apache.commons.lang3.BooleanUtils.isTrue;
+
 /**
  * @author Ion Perpegel
  * @since 4.1
@@ -57,9 +59,6 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
     @Autowired
     protected DomibusConfigurationService domibusConfigurationService;
 
-    @Autowired
-    UserSessionsService userSessionsService;
-
     protected abstract String getPasswordComplexityPatternProperty();
 
     public abstract String getPasswordHistoryPolicyProperty();
@@ -70,9 +69,9 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
 
     protected abstract String getWarningDaysBeforeExpirationProperty();
 
-    protected abstract UserPasswordHistoryDao getUserHistoryDao();
+    protected abstract UserPasswordHistoryDao<U> getUserHistoryDao();
 
-    protected abstract UserDaoBase getUserDao();
+    protected abstract UserDaoBase<U> getUserDao();
 
     protected abstract int getMaxAttemptAmount(UserEntityBase user);
 
@@ -106,7 +105,7 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
             return;
         }
 
-        UserEntityBase user = getUserDao().findByUserName(userName);
+        U user = getUserDao().findByUserName(userName);
         List<UserPasswordHistory> oldPasswords = getUserHistoryDao().getPasswordHistory(user, oldPasswordsToCheck);
         if (oldPasswords.stream().anyMatch(userHistoryEntry -> bCryptEncoder.matches(password, userHistoryEntry.getPasswordHash()))) {
             String errorMessage = "The password of " + userName + " user cannot be the same as the last " + oldPasswordsToCheck;
@@ -188,7 +187,7 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
         user.setDefaultPassword(false);
     }
 
-    private void savePasswordHistory(U user) {
+    protected void savePasswordHistory(U user) {
         int passwordsToKeep = domibusPropertyProvider.getIntegerProperty(getPasswordHistoryPolicyProperty());
         if (passwordsToKeep <= 0) {
             return;
@@ -201,7 +200,7 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void handleCorrectAuthentication(final String userName) {
-        UserEntityBase user = getUserDao().findByUserName(userName);
+        U user = getUserDao().findByUserName(userName);
         LOG.debug("handleCorrectAuthentication for user [{}]", userName);
         if (user.getAttemptCount() > 0) {
             LOG.debug("user [{}] has [{}] attempts. Resetting to 0. ", userName, user.getAttemptCount());
@@ -210,9 +209,9 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
         }
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public UserLoginErrorReason handleWrongAuthentication(final String userName) {
-        UserEntityBase user = getUserDao().findByUserName(userName);
+        U user = getUserDao().findByUserName(userName);
 
         UserLoginErrorReason userLoginErrorReason = getLoginFailureReason(userName, user);
 
@@ -224,7 +223,7 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
         return userLoginErrorReason;
     }
 
-    protected UserLoginErrorReason getLoginFailureReason(String userName, UserEntityBase user) {
+    protected UserLoginErrorReason getLoginFailureReason(String userName, U user) {
         if (user == null) {
             LOG.securityInfo(DomibusMessageCode.SEC_CONSOLE_LOGIN_UNKNOWN_USER, userName);
             return UserLoginErrorReason.UNKNOWN;
@@ -243,36 +242,44 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
         return UserLoginErrorReason.BAD_CREDENTIALS;
     }
 
-    protected void applyLockingPolicyOnLogin(UserEntityBase user) {
+    protected void applyLockingPolicyOnLogin(U user) {
         int maxAttemptAmount = getMaxAttemptAmount(user);
 
         user.setAttemptCount(user.getAttemptCount() + 1);
+        LOG.debug("setAttemptCount [{}] out of [{}] for user [{}]", user.getAttemptCount(), maxAttemptAmount, user.getUserName());
 
         if (user.getAttemptCount() >= maxAttemptAmount) {
-            LOG.debug("Applying account locking policy, max number of attempt ([{}]) reached for user [{}]", maxAttemptAmount, user.getUserName());
-            user.setActive(false);
-            user.setSuspensionDate(new Date(System.currentTimeMillis()));
-            LOG.securityWarn(DomibusMessageCode.SEC_CONSOLE_LOGIN_LOCKED_USER, user.getUserName(), maxAttemptAmount);
-            userSessionsService.invalidateSessions(user);
-            getUserAlertsService().triggerDisabledEvent(user);
+            onSuspendUser(user, maxAttemptAmount);
         }
 
         getUserDao().update(user, true);
     }
 
-    public UserEntityBase applyLockingPolicyOnUpdate(UserBase user) {
-        UserEntityBase userEntity = getUserDao().findByUserName(user.getUserName());
+    protected void onSuspendUser(U user, int maxAttemptAmount) {
+        LOG.debug("Applying account locking policy, max number of attempt ([{}]) reached for user [{}]", maxAttemptAmount, user.getUserName());
+        user.setActive(false);
+        user.setSuspensionDate(new Date(System.currentTimeMillis()));
+        LOG.securityWarn(DomibusMessageCode.SEC_CONSOLE_LOGIN_LOCKED_USER, user.getUserName(), maxAttemptAmount);
+        getUserAlertsService().triggerDisabledEvent(user);
+    }
+
+    public void applyLockingPolicyOnUpdate(UserBase user, UserEntityBase userEntity) {
         if (!userEntity.isActive() && user.isActive()) {
-            userEntity.setSuspensionDate(null);
-            userEntity.setAttemptCount(0);
-            getUserAlertsService().triggerEnabledEvent(user);
+            onActivateUser(user, userEntity);
         } else if (!user.isActive() && userEntity.isActive()) {
-            LOG.debug("User:[{}] is being disabled, invalidating session.", user.getUserName());
-            userSessionsService.invalidateSessions(user);
-            getUserAlertsService().triggerDisabledEvent(user);
+            onInactivateUser(user);
         }
-        userEntity.setActive(user.isActive());
-        return userEntity;
+    }
+
+    protected void onInactivateUser(UserBase user) {
+        LOG.debug("User:[{}] is being disabled, invalidating session.", user.getUserName());
+        getUserAlertsService().triggerDisabledEvent(user);
+    }
+
+    protected void onActivateUser(UserBase user, UserEntityBase userEntity) {
+        userEntity.setSuspensionDate(null);
+        userEntity.setAttemptCount(0);
+        getUserAlertsService().triggerEnabledEvent(user);
     }
 
     @Transactional
@@ -287,7 +294,7 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
 
         Date currentTimeMinusSuspensionInterval = new Date(System.currentTimeMillis() - (suspensionInterval * 1000));
 
-        List<UserEntityBase> users = getUserDao().getSuspendedUsers(currentTimeMinusSuspensionInterval);
+        List<U> users = getUserDao().getSuspendedUsers(currentTimeMinusSuspensionInterval);
         for (UserEntityBase user : users) {
             LOG.debug("Suspended user [{}] of type [{}] is going to be reactivated.", user.getUserName(), user.getType().getName());
 
@@ -327,7 +334,7 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
 
     @Nullable
     public LocalDateTime getExpirationDate(U userEntity) {
-        String expirationProperty = userEntity.hasDefaultPassword()
+        String expirationProperty = isTrue(userEntity.hasDefaultPassword())
                 ? getMaximumDefaultPasswordAgeProperty() : getMaximumPasswordAgeProperty();
         int maxPasswordAgeInDays = domibusPropertyProvider.getIntegerProperty(expirationProperty);
 

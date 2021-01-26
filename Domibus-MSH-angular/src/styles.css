@@ -405,3 +405,17 @@ html, body, app-root, ng-component {
   height: 100%;
   overflow-y: hidden;
 }
+
+.custom-file-upload {
+  border: 1px solid #ccc;
+  display: inline-block;
+  padding: 6px 12px;
+  cursor: pointer;
+  background-color: #2196f3;
+}
+
+.custom-file-upload-inner {
+  color: white;
+  cursor: pointer;
+  background-color: #2196f3;
+}

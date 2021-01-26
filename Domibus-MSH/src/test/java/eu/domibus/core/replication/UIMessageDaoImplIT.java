@@ -1,11 +1,11 @@
 package eu.domibus.core.replication;
 
 import eu.domibus.api.message.MessageSubtype;
-import eu.domibus.common.MSHRole;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.MessageStatus;
-import eu.domibus.core.plugin.notification.NotificationStatus;
-import eu.domibus.core.dao.InMemoryDataBaseConfig;
-import eu.domibus.ebms3.common.model.MessageType;
+import eu.domibus.api.model.NotificationStatus;
+import eu.domibus.api.model.MessageType;
+import eu.domibus.core.dao.InMemoryDatabaseMshConfig;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.junit.Assert;
@@ -28,7 +28,7 @@ import java.util.*;
  * @since 4.1
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {InMemoryDataBaseConfig.class, UIMessageDaoImplIT.UIReplicationConfig.class})
+@ContextConfiguration(classes = {InMemoryDatabaseMshConfig.class, UIMessageDaoImplIT.UIReplicationConfig.class})
 @ActiveProfiles("IN_MEMORY_DATABASE")
 @Transactional
 public class UIMessageDaoImplIT {
@@ -58,7 +58,7 @@ public class UIMessageDaoImplIT {
 
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         uiMessageEntity1 = createUIMessageEntity(messageId1, "domibus-blue", "domibus-red", MSHRole.SENDING);
         uiMessageEntity2 = createUIMessageEntity(messageId2, "domibus-blue", "domibus-red", MSHRole.SENDING);
         uiMessageEntity3 = createUIMessageEntity(messageId3, "domibus-red", "domibus-blue", MSHRole.RECEIVING);
@@ -155,7 +155,15 @@ public class UIMessageDaoImplIT {
         //update
         uiMessageEntity3.setSendAttempts(3);
         uiMessageDao.saveOrUpdate(uiMessageEntity3);
-        Assert.assertEquals(3, uiMessageDao.findUIMessageByMessageId(messageId3).getSendAttempts());
+        UIMessageEntity uiMessageByMessageId = uiMessageDao.findUIMessageByMessageId(messageId3);
+        Assert.assertEquals(3, uiMessageByMessageId.getSendAttempts());
+
+        Assert.assertNotNull(uiMessageByMessageId.getCreatedBy());
+        Assert.assertNotNull(uiMessageByMessageId.getCreationTime());
+        Assert.assertNotNull(uiMessageByMessageId.getModifiedBy());
+        Assert.assertNotNull(uiMessageByMessageId.getModificationTime());
+
+        Assert.assertNotEquals(uiMessageByMessageId.getCreationTime(), uiMessageByMessageId.getModificationTime());
     }
 
 }

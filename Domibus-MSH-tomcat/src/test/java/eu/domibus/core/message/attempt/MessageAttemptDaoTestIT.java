@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.Timestamp;
 import java.util.List;
 
+import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -35,7 +36,7 @@ public class MessageAttemptDaoTestIT extends AbstractIT {
 
     @Test
     @Transactional
-    public void testSaveMessageAcknowledge() throws Exception {
+    public void testSaveMessageAcknowledge() {
         MessageAttemptEntity entity = new MessageAttemptEntity();
         entity.setStartDate(new Timestamp(System.currentTimeMillis()));
         entity.setEndDate(new Timestamp(System.currentTimeMillis()));
@@ -46,8 +47,16 @@ public class MessageAttemptDaoTestIT extends AbstractIT {
         assertTrue(entity.getEntityId() > 0);
 
         final List<MessageAttemptEntity> entities = messageAttemptDao.findByMessageId("123");
-        assertTrue(entities.size() == 1);
-        assertEquals(entity, entities.iterator().next());
+        assertEquals(1, entities.size());
+        MessageAttemptEntity next = entities.iterator().next();
+        assertEquals(entity, next);
+        assertNotNull(next.getCreationTime());
+        assertNotNull(next.getModificationTime());
+        assertNotNull(next.getCreatedBy());
+        assertNotNull(next.getModifiedBy());
+
+        assertEquals(next.getCreationTime(), next.getModificationTime());
+
     }
 }
 

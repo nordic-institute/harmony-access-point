@@ -5,7 +5,7 @@ import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.ErrorCode;
-import eu.domibus.common.MSHRole;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.core.certificate.CertificateExchangeType;
 import eu.domibus.core.crypto.Wss4JMultiDomainCryptoProvider;
 import eu.domibus.core.ebms3.EbMS3Exception;
@@ -15,8 +15,8 @@ import eu.domibus.core.ebms3.receiver.token.TokenReferenceExtractor;
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
 import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
 import eu.domibus.core.message.MessageExchangeConfiguration;
-import eu.domibus.ebms3.common.model.MessageInfo;
-import eu.domibus.ebms3.common.model.MessageType;
+import eu.domibus.api.model.MessageInfo;
+import eu.domibus.api.model.MessageType;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.codec.binary.Base64;
@@ -40,6 +40,7 @@ import org.apache.wss4j.dom.str.EncryptedKeySTRParser;
 import org.apache.wss4j.dom.str.STRParserParameters;
 import org.apache.wss4j.dom.str.STRParserResult;
 import org.apache.wss4j.dom.util.WSSecurityUtil;
+import org.apache.xml.security.c14n.InvalidCanonicalizerException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Element;
@@ -230,9 +231,14 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
         }
 
         requestData.setWssConfig(config);
-        requestData.setEncryptionSerializer(new StaxSerializer());
-
         SoapVersion version = msg.getVersion();
+        try {
+            requestData.setEncryptionSerializer(new StaxSerializer());
+        } catch (InvalidCanonicalizerException invalidCanonicalizerEx) {
+            throw new SoapFault("InvalidCanonicalizerException", invalidCanonicalizerEx, version.getSender());
+        }
+
+
         SAAJInInterceptor.INSTANCE.handleMessage(msg);
         try {
             requestData.setMsgContext(msg);

@@ -29,7 +29,7 @@ public class FSPluginTomcatConfiguration {
 
     @Bean("fsPluginSendQueue")
     public ActiveMQQueue fsPluginSendQueue(FSPluginProperties fsPluginProperties) {
-        String queueName = fsPluginProperties.getKnownPropertyValue(FSPluginPropertiesMetadataManagerImpl.PROPERTY_PREFIX + FSPluginPropertiesMetadataManagerImpl.OUT_QUEUE);
+        String queueName = fsPluginProperties.getKnownPropertyValue(FSPluginPropertiesMetadataManagerImpl.OUT_QUEUE);
         LOG.debug("Using fs plugin send queue name [{}]", queueName);
         return new ActiveMQQueue(queueName);
     }

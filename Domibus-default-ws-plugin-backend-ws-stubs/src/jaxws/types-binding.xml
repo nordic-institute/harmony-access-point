@@ -1,0 +1,15 @@
+<jaxb:bindings version="2.0"
+               xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+               xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+               xmlns:xs="http://www.w3.org/2001/XMLSchema"
+               xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
+               jaxb:extensionBindingPrefixes="xjc">
+
+    <!-- XSD types packages customization -->
+    <jaxb:bindings schemaLocation="../main/resources/schemas/BackendService.xsd" node="/xsd:schema">
+        <jaxb:schemaBindings>
+            <jaxb:package name="eu.domibus.webservice.backend.generated"/>
+        </jaxb:schemaBindings>
+    </jaxb:bindings>
+
+</jaxb:bindings>

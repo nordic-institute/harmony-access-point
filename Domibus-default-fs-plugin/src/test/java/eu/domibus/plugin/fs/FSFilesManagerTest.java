@@ -4,6 +4,7 @@ import eu.domibus.plugin.fs.exception.FSSetUpException;
 import eu.domibus.plugin.fs.property.FSPluginProperties;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.*;
 import org.junit.After;
 import org.junit.Assert;
@@ -175,6 +176,24 @@ public class FSFilesManagerTest {
         Assert.assertNotNull(result);
         Assert.assertTrue(result.exists());
         Assert.assertEquals("ram:///FSFilesManagerTest/samplefolder", result.getName().getURI());
+    }
+
+    @Test
+    public void testSetUpFileSystem_NoLocation() throws Exception {
+        new Expectations(instance) {{
+            fsPluginProperties.getLocation("DOMAIN1");
+            result = StringUtils.EMPTY;
+        }};
+
+        try {
+            instance.setUpFileSystem("DOMAIN1");
+            Assert.fail("Exception expected");
+        } catch (FSSetUpException e) {
+            Assert.assertTrue(e.getMessage().contains("Location folder is not set for domain"));
+        }
+
+        new FullVerifications() {{
+        }};
     }
 
     @Test

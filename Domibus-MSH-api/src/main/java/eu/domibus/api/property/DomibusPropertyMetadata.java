@@ -7,6 +7,8 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+import java.util.Arrays;
+
 /**
  * @author Ion Perpegel
  * @since 4.1.1
@@ -14,20 +16,22 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
  */
 public class DomibusPropertyMetadata {
 
+    public static final String NAME_SEPARATOR = ".";
+
     public boolean isOnlyGlobal() {
-        return getUsage() == Usage.GLOBAL;
+        return usage == Usage.GLOBAL;
     }
 
     public boolean isGlobal() {
-        return (getUsage() & Usage.GLOBAL) == Usage.GLOBAL;
+        return (usage.getValue() & Usage.GLOBAL.getValue()) == Usage.GLOBAL.getValue();
     }
 
     public boolean isSuper() {
-        return (getUsage() & Usage.SUPER) == Usage.SUPER;
+        return (usage.getValue() & Usage.SUPER.getValue()) == Usage.SUPER.getValue();
     }
 
     public boolean isDomain() {
-        return (getUsage() & Usage.DOMAIN) == Usage.DOMAIN;
+        return (usage.getValue() & Usage.DOMAIN.getValue()) == Usage.DOMAIN.getValue();
     }
 
     /**
@@ -47,7 +51,7 @@ public class DomibusPropertyMetadata {
      * In single tenancy mode, a global property can be changed by regular admins.
      * In multi tenancy mode, a global property can be changed only by AP admins.
      */
-    private int usage;
+    private Usage usage;
 
     /**
      * If it can be suffixed with different sufixes
@@ -94,6 +98,7 @@ public class DomibusPropertyMetadata {
     public static DomibusPropertyMetadata getOnTheFlyProperty(String propertyName) {
         DomibusPropertyMetadata res = new DomibusPropertyMetadata(propertyName, Usage.ANY, true);
         res.setModule(Module.UNKNOWN);
+        res.setWritable(false);
         return res;
     }
 
@@ -132,11 +137,11 @@ public class DomibusPropertyMetadata {
     public DomibusPropertyMetadata() {
     }
 
-    public DomibusPropertyMetadata(String name, String module, boolean writable, int usage, boolean withFallback, boolean clusterAware, boolean encrypted, boolean isComposable) {
+    public DomibusPropertyMetadata(String name, String module, boolean writable, Usage usage, boolean withFallback, boolean clusterAware, boolean encrypted, boolean isComposable) {
         this(name, Type.STRING, module, writable, usage, withFallback, clusterAware, encrypted, isComposable);
     }
 
-    public DomibusPropertyMetadata(String name, Type type, String module, boolean writable, int usage, boolean withFallback, boolean clusterAware, boolean encrypted, boolean isComposable) {
+    public DomibusPropertyMetadata(String name, Type type, String module, boolean writable, Usage usage, boolean withFallback, boolean clusterAware, boolean encrypted, boolean isComposable) {
         this.name = name;
         this.type = type.name();
         this.writable = writable;
@@ -148,27 +153,27 @@ public class DomibusPropertyMetadata {
         this.isComposable = isComposable;
     }
 
-    public DomibusPropertyMetadata(String name, Type type, int usage, boolean withFallback) {
+    public DomibusPropertyMetadata(String name, Type type, Usage usage, boolean withFallback) {
         this(name, type, Module.MSH, true, usage, withFallback, true, false, false);
     }
 
-    public DomibusPropertyMetadata(String name, int usage, boolean withFallback) {
+    public DomibusPropertyMetadata(String name, Usage usage, boolean withFallback) {
         this(name, Module.MSH, true, usage, withFallback, true, false, false);
     }
 
-    public DomibusPropertyMetadata(String name, Type type, boolean writable, int usage, boolean withFallback) {
+    public DomibusPropertyMetadata(String name, Type type, boolean writable, Usage usage, boolean withFallback) {
         this(name, type, Module.MSH, writable, usage, withFallback, true, false, false);
     }
 
-    public DomibusPropertyMetadata(String name, boolean writable, int usage, boolean withFallback) {
+    public DomibusPropertyMetadata(String name, boolean writable, Usage usage, boolean withFallback) {
         this(name, Module.MSH, writable, usage, withFallback, true, false, false);
     }
 
-    public DomibusPropertyMetadata(String name, boolean writable, int usage, boolean withFallback, boolean encrypted) {
+    public DomibusPropertyMetadata(String name, boolean writable, Usage usage, boolean withFallback, boolean encrypted) {
         this(name, Module.MSH, writable, usage, withFallback, true, encrypted, false);
     }
 
-    public DomibusPropertyMetadata(String name, Type type, boolean writable, int usage, boolean withFallback, boolean encrypted) {
+    public DomibusPropertyMetadata(String name, Type type, boolean writable, Usage usage, boolean withFallback, boolean encrypted) {
         this(name, type, Module.MSH, writable, usage, withFallback, true, encrypted, false);
     }
 
@@ -193,11 +198,14 @@ public class DomibusPropertyMetadata {
     }
 
     public int getUsage() {
-        return usage;
+        return usage.getValue();
     }
 
     public void setUsage(int usage) {
-        this.usage = usage;
+        Usage val = Arrays.stream(Usage.values())
+                .filter(el -> el.getValue() == usage).findFirst()
+                .orElseThrow(() -> new DomibusPropertyException("Invalid domibus property usage: " + usage));
+        this.usage = val;
     }
 
     public boolean isComposable() {
@@ -273,20 +281,7 @@ public class DomibusPropertyMetadata {
     }
 
     public String getUsageText() {
-        switch (usage) {
-            case 1:
-                return "Global";
-            case 2:
-                return "Domain";
-            case 3:
-                return "Global and Domain";
-            case 4:
-                return "Super";
-            case 6:
-                return "Domain and Super";
-            default:
-                return null;
-        }
+        return usage.getText();
     }
 
     @Override
@@ -327,13 +322,29 @@ public class DomibusPropertyMetadata {
     /**
      * States if a property is used as a global, domain, super or a valid combination of them
      */
-    public class Usage {
-        public static final int GLOBAL = 1;
-        public static final int DOMAIN = 2;
-        public static final int SUPER = 4;
-        public static final int GLOBAL_AND_DOMAIN = GLOBAL | DOMAIN;
-        public static final int DOMAIN_AND_SUPER = DOMAIN | SUPER;
-        public static final int ANY = GLOBAL | DOMAIN | SUPER;
+    public enum Usage {
+        GLOBAL(1, "Global"),
+        DOMAIN(2, "Domain"),
+        SUPER(4, "Super"),
+        GLOBAL_AND_DOMAIN(GLOBAL.getValue() | DOMAIN.getValue(), GLOBAL.getText() + " and " + DOMAIN.getText()),
+        DOMAIN_AND_SUPER(DOMAIN.getValue() | SUPER.getValue(), DOMAIN.getText() + " and " + SUPER.getText()),
+        ANY(GLOBAL.getValue() | DOMAIN.getValue() | SUPER.getValue(), GLOBAL.getText() + " and " + DOMAIN.getText() + " and " + SUPER.getText());
+
+        private int value;
+        private String text;
+
+        Usage(int value, String text) {
+            this.value = value;
+            this.text = text;
+        }
+
+        public int getValue() {
+            return value;
+        }
+
+        public String getText() {
+            return text;
+        }
     }
 
     /**

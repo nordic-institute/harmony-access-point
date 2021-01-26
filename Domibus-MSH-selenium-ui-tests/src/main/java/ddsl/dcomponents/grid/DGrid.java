@@ -20,6 +20,7 @@ import utils.Gen;
 import utils.Order;
 import utils.TestRunData;
 
+import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -174,6 +175,7 @@ public class DGrid extends DComponent {
 	}
 	
 	public int scrollToAndSelect(String columnName, String value) throws Exception {
+		waitForRowsToLoad();
 		int index = scrollTo(columnName, value);
 		if (index < 0) {
 			throw new Exception("Cannot select row because it doesn't seem to be in grid");
@@ -610,21 +612,21 @@ public class DGrid extends DComponent {
 		List<CSVRecord> records = csvParser.getRecords();
 		
 		log.info("Checking csv file vs grid order");
-		
-		String column = getSortedColumnName();
-		Order order = getSortOrder();
-		
-		if (!csvParser.getHeaderMap().containsKey(column)) {
-			throw new Exception(column + " not present in CSV file");
-		}
-		
-		int colIndex = csvParser.getHeaderMap().get(column);
-		List<String> colContent = new ArrayList<>();
-		
-		for (int i = 0; i < records.size(); i++) {
-			colContent.add(records.get(i).get(colIndex));
-		}
 
+		/* Disabled sort order check because in some pages we don't support sorting and causes this segment to throw exception. Needs fix and refactoring */
+//		String column = getSortedColumnName();
+//		Order order = getSortOrder();
+//
+//		if (!csvParser.getHeaderMap().containsKey(column)) {
+//			throw new Exception(column + " not present in CSV file");
+//		}
+//
+//		int colIndex = csvParser.getHeaderMap().get(column);
+//		List<String> colContent = new ArrayList<>();
+//
+//		for (int i = 0; i < records.size(); i++) {
+//			colContent.add(records.get(i).get(colIndex));
+//		}
 //		TestUtils.checkSortOrder(soft, column, sortedColumnDataType, order, colContent);
 		
 		
@@ -646,9 +648,20 @@ public class DGrid extends DComponent {
 			soft.assertTrue(found, "Row has been identified in CSV file");
 		}
 	}
-	
-	
+
+	public List<String> getCsvHeader(String filename) throws IOException {
+		log.info("Checking csv file vs grid content");
+
+		Reader reader = Files.newBufferedReader(Paths.get(filename));
+		CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreHeaderCase()
+				.withTrim());
+		List<String> csvFileHeaders = new ArrayList<>();
+		csvFileHeaders.addAll(csvParser.getHeaderMap().keySet());
+		log.info("removing $jacoco Data from the list of CSV file headers columns");
+		csvFileHeaders.remove("$jacoco Data");
+		return csvFileHeaders;
+
+	}
+
+
 }
-
-
-

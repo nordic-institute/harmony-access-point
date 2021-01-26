@@ -2,6 +2,7 @@ package eu.domibus.pmode;
 
 import eu.domibus.AbstractIT;
 import eu.domibus.api.pmode.PModeValidationException;
+import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.util.xml.UnmarshallerResult;
 import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.model.configuration.*;
@@ -13,10 +14,14 @@ import eu.domibus.web.rest.PModeResource;
 import eu.domibus.web.rest.ro.ValidationResponseRO;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.Validate;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
@@ -71,6 +76,15 @@ public class UploadPModeIT extends AbstractIT {
 
     @Autowired
     ConfigurationRawDAO configurationRawDAO;
+
+    @Before
+    public void setUp() {
+        SecurityContextHolder.getContext()
+                .setAuthentication(new UsernamePasswordAuthenticationToken(
+                        "domibus",
+                        "domibus",
+                        Collections.singleton(new SimpleGrantedAuthority(AuthRole.ROLE_ADMIN.name()))));
+    }
 
     /**
      * Tests that the PMODE is correctly saved in the DB.

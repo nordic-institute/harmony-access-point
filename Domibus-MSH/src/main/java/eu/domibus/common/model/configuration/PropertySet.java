@@ -1,6 +1,6 @@
 package eu.domibus.common.model.configuration;
 
-import eu.domibus.ebms3.common.model.AbstractBaseEntity;
+import eu.domibus.api.model.AbstractBaseEntity;
 
 import javax.persistence.*;
 import javax.xml.bind.annotation.*;
@@ -85,5 +85,9 @@ public class PropertySet extends AbstractBaseEntity {
 
     public Set<Property> getProperties() {
         return this.properties;
+    }
+
+    public List<PropertyRef> getPropertyRef() {
+        return this.propertyRef;
     }
 }

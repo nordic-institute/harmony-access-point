@@ -65,5 +65,15 @@ public class UsersGrid extends DGrid {
 		return String.valueOf(new Checkbox(driver, cells.get(chkIndex).findElement(By.cssSelector("input[type=checkbox]"))).isChecked());
 	}
 
+	public boolean isDeleted(String username, String columnName) throws Exception {
+		int index = scrollTo("Username", username);
+		WebElement row = gridRows.get(index);
+		int colIndex = getColumnNames().indexOf(columnName);
+		WebElement cell = row.findElements(cellSelector).get(colIndex);
+		String classes = cell.findElement(By.tagName("span")).getAttribute("class");
+
+		return classes.contains("user-deleted");
+	}
+
 
 }

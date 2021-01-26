@@ -1,38 +1,40 @@
 package eu.domibus.core.message.receipt;
 
+import eu.domibus.api.model.MessageStatus;
+import eu.domibus.api.ebms3.model.Ebms3Messaging;
+import eu.domibus.api.ebms3.model.ObjectFactory;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.api.message.UserMessageException;
 import eu.domibus.api.usermessage.UserMessageService;
+import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.ErrorCode;
-import eu.domibus.common.MSHRole;
-import eu.domibus.common.MessageStatus;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.model.configuration.ReplyPattern;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.generator.id.MessageIdGenerator;
 import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.UserMessageHandlerService;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationConstants;
-import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
-import eu.domibus.core.message.nonrepudiation.RawEnvelopeDto;
+import eu.domibus.api.model.RawEnvelopeDto;
 import eu.domibus.core.message.nonrepudiation.RawEnvelopeLogDao;
 import eu.domibus.core.message.signal.SignalMessageDao;
-import eu.domibus.core.message.signal.SignalMessageLog;
+import eu.domibus.api.model.SignalMessageLog;
 import eu.domibus.core.message.signal.SignalMessageLogBuilder;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.message.splitandjoin.MessageGroupDao;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
-import eu.domibus.core.plugin.notification.NotificationStatus;
+import eu.domibus.api.model.NotificationStatus;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.core.util.TimestampDateFormatter;
 import eu.domibus.core.util.xml.XMLUtilImpl;
-import eu.domibus.ebms3.common.model.Messaging;
-import eu.domibus.ebms3.common.model.ObjectFactory;
-import eu.domibus.ebms3.common.model.SignalMessage;
-import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.api.model.Messaging;
+import eu.domibus.api.model.SignalMessage;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -72,7 +74,6 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
     protected final UIReplicationSignalService uiReplicationSignalService;
     protected final UserMessageHandlerService userMessageHandlerService;
     private final TimestampDateFormatter timestampDateFormatter;
-    protected final NonRepudiationService nonRepudiationService;
     private final SignalMessageLogDao signalMessageLogDao;
     protected final UserMessageService userMessageService;
     private final MessageIdGenerator messageIdGenerator;
@@ -82,11 +83,12 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
     private final MessagingDao messagingDao;
     protected final MessageUtil messageUtil;
     protected final SoapUtil soapUtil;
+    protected XMLUtil xmlUtil;
+    protected Ebms3Converter ebms3Converter;
 
     public AS4ReceiptServiceImpl(UIReplicationSignalService uiReplicationSignalService,
                                  UserMessageHandlerService userMessageHandlerService,
                                  TimestampDateFormatter timestampDateFormatter,
-                                 NonRepudiationService nonRepudiationService,
                                  SignalMessageLogDao signalMessageLogDao,
                                  UserMessageService userMessageService,
                                  MessageIdGenerator messageIdGenerator,
@@ -95,11 +97,12 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
                                  MessageGroupDao messageGroupDao,
                                  MessagingDao messagingDao,
                                  MessageUtil messageUtil,
-                                 SoapUtil soapUtil) {
+                                 SoapUtil soapUtil,
+                                 XMLUtil xmlUtil,
+                                 Ebms3Converter ebms3Converter) {
         this.uiReplicationSignalService = uiReplicationSignalService;
         this.userMessageHandlerService = userMessageHandlerService;
         this.timestampDateFormatter = timestampDateFormatter;
-        this.nonRepudiationService = nonRepudiationService;
         this.signalMessageLogDao = signalMessageLogDao;
         this.userMessageService = userMessageService;
         this.messageIdGenerator = messageIdGenerator;
@@ -109,6 +112,8 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
         this.messagingDao = messagingDao;
         this.messageUtil = messageUtil;
         this.soapUtil = soapUtil;
+        this.xmlUtil = xmlUtil;
+        this.ebms3Converter = ebms3Converter;
     }
 
     @Override
@@ -130,8 +135,8 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
 
 
     @Override
-    @Timer(clazz = AS4ReceiptServiceImpl.class,value = "generateReceipt")
-    @Counter(clazz = AS4ReceiptServiceImpl.class,value = "generateReceipt")
+    @Timer(clazz = AS4ReceiptServiceImpl.class, value = "generateReceipt")
+    @Counter(clazz = AS4ReceiptServiceImpl.class, value = "generateReceipt")
     public SOAPMessage generateReceipt(final SOAPMessage request,
                                        final Messaging messaging,
                                        final ReplyPattern replyPattern,
@@ -144,7 +149,7 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
         if (ReplyPattern.RESPONSE.equals(replyPattern)) {
             LOG.debug("Generating receipt for incoming message");
             try {
-                responseMessage = XMLUtilImpl.getMessageFactory().createMessage();
+                responseMessage = xmlUtil.getMessageFactorySoap12().createMessage();
 
 
                 String messageId;
@@ -202,8 +207,8 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
     protected void saveResponse(final SOAPMessage responseMessage, boolean selfSendingFlag) throws EbMS3Exception, SOAPException {
         LOG.debug("Saving response, self sending  [{}]", selfSendingFlag);
 
-        Messaging messaging = messageUtil.getMessagingWithDom(responseMessage);
-        final SignalMessage signalMessage = messaging.getSignalMessage();
+        Ebms3Messaging ebms3Messaging = messageUtil.getMessagingWithDom(responseMessage);
+        final SignalMessage signalMessage = ebms3Converter.convertFromEbms3(ebms3Messaging.getSignalMessage());
 
         if (selfSendingFlag) {
                 /*we add a defined suffix in order to assure DB integrity - messageId unicity
@@ -216,7 +221,7 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
         // Stores the signal message
         signalMessageDao.create(signalMessage);
         // Updating the reference to the signal message
-        Messaging sentMessage = messagingDao.findMessageByMessageId(messaging.getSignalMessage().getMessageInfo().getRefToMessageId());
+        Messaging sentMessage = messagingDao.findMessageByMessageId(ebms3Messaging.getSignalMessage().getMessageInfo().getRefToMessageId());
         MessageSubtype messageSubtype = null;
         if (sentMessage != null) {
             LOG.debug("Updating the reference to the signal message [{}]", sentMessage.getUserMessage().getMessageInfo().getMessageId());
@@ -228,7 +233,7 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
         }
         // Builds the signal message log
         SignalMessageLogBuilder smlBuilder = SignalMessageLogBuilder.create()
-                .setMessageId(messaging.getSignalMessage().getMessageInfo().getMessageId())
+                .setMessageId(ebms3Messaging.getSignalMessage().getMessageInfo().getMessageId())
                 .setMessageStatus(MessageStatus.ACKNOWLEDGED)
                 .setMshRole(MSHRole.SENDING)
                 .setNotificationStatus(NotificationStatus.NOT_REQUIRED);

@@ -1,8 +1,9 @@
 package eu.domibus;
 
+import com.atomikos.jdbc.AtomikosDataSourceBean;
+import com.atomikos.jdbc.nonxa.AtomikosNonXADataSourceBean;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.jpa.DomibusJPAConfiguration;
-
 import org.h2.jdbcx.JdbcDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -11,16 +12,7 @@ import org.springframework.context.annotation.Primary;
 
 import javax.sql.DataSource;
 
-import com.atomikos.jdbc.AtomikosDataSourceBean;
-import com.atomikos.jdbc.nonxa.AtomikosNonXADataSourceBean;
-
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DATASOURCE_XA_BORROW_CONNECTION_TIMEOUT;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DATASOURCE_XA_MAINTENANCE_INTERVAL;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DATASOURCE_XA_MAX_IDLE_TIME;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DATASOURCE_XA_MAX_LIFETIME;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DATASOURCE_XA_MAX_POOL_SIZE;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DATASOURCE_XA_MIN_POOL_SIZE;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DATASOURCE_XA_REAP_TIMEOUT;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 /**
  * @author Cosmin Baciu

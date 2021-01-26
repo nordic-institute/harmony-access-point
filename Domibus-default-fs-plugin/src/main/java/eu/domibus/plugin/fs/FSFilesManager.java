@@ -163,6 +163,7 @@ public class FSFilesManager {
     public boolean deleteLockFile(FileObject file) throws FileSystemException {
         final FileObject lockFile = resolveSibling(file, fsFileNameHelper.getLockFilename(file));
         if (lockFile.exists()) {
+            lockFile.close();
             LOG.debug("Deleting lock file for [{}]", file.getName().getBaseName());
             return lockFile.delete();
         } else {
@@ -176,6 +177,8 @@ public class FSFilesManager {
         LOG.debug("Renaming file [{}] to [{}]", file.getName().getPath(), newFileName);
 
         FileObject newFile = resolveSibling(file, newFileName);
+        //Close open handles on the file before rename.
+        file.close();
         file.moveTo(newFile);
 
         forceLastModifiedTimeIfSupported(newFile);
@@ -184,6 +187,8 @@ public class FSFilesManager {
     }
 
     public void moveFile(FileObject file, FileObject targetFile) throws FileSystemException {
+        //Close open handles on the file before rename.
+        file.close();
         file.moveTo(targetFile);
 
         forceLastModifiedTimeIfSupported(targetFile);
@@ -200,16 +205,22 @@ public class FSFilesManager {
     }
 
     public boolean deleteFile(FileObject file) throws FileSystemException {
+        file.close();
         return file.delete();
     }
 
     public boolean deleteFolder(FileObject file) throws FileSystemException {
+        file.close();
         return (file.deleteAll() > 0L);
     }
 
     public FileObject setUpFileSystem(String domain) throws FileSystemException {
         // Domain or default location
         String location = fsPluginProperties.getLocation(domain);
+        if (StringUtils.isBlank(location)) {
+            throw new FSSetUpException("Location folder is not set for domain=[" + domain + "].");
+        }
+
         String authDomain = null;
         String user = fsPluginProperties.getUser(domain);
         String password = fsPluginProperties.getPassword(domain);

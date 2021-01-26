@@ -1,13 +1,8 @@
 package eu.domibus.core.multitenancy;
 
-import eu.domibus.api.property.DomibusConfigurationService;
-import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.multitenancy.UserDomainService;
-import eu.domibus.core.user.ui.converters.UserConverter;
-import eu.domibus.core.user.ui.UserDao;
 import eu.domibus.core.cache.DomibusCacheService;
-import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.multitenancy.dao.UserDomainDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -15,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 
 /**
- * @author Ion Perpegel(nperpion)
+ * @author Ion Perpegel
  * @since 4.0
  */
 public class UserDomainServiceMultiDomainImpl implements UserDomainService {
@@ -26,25 +21,10 @@ public class UserDomainServiceMultiDomainImpl implements UserDomainService {
     protected DomainTaskExecutor domainTaskExecutor;
 
     @Autowired
-    protected DomibusConfigurationService domibusConfigurationService;
-
-    @Autowired
     protected UserDomainDao userDomainDao;
 
     @Autowired
-    protected UserDao userDao;
-
-    @Autowired
-    protected UserConverter userConverter;
-
-    @Autowired
-    protected DomainContextProvider domainContextProvider;
-
-    @Autowired
     protected DomibusCacheService domibusCacheService;
-
-    @Autowired
-    protected DomainCoreConverter domainCoreConverter;
 
     /**
      * Get the domain associated to the provided user from the general schema. <br>

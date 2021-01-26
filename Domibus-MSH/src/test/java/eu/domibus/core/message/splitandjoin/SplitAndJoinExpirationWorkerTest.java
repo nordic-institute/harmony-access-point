@@ -4,12 +4,9 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.security.AuthUtils;
+import eu.domibus.api.util.DatabaseUtil;
 import eu.domibus.core.pmode.ConfigurationDAO;
-import eu.domibus.core.util.DatabaseUtil;
-import mockit.Expectations;
-import mockit.Injectable;
-import mockit.Tested;
-import mockit.Verifications;
+import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -46,9 +43,6 @@ public class SplitAndJoinExpirationWorkerTest {
     @Test
     public void executeJob(@Injectable JobExecutionContext context, @Injectable Domain domain) {
         new Expectations() {{
-            authUtils.isUnsecureLoginAllowed();
-            result = false;
-
             configurationDAO.configurationExists();
             result = true;
         }};
@@ -56,8 +50,17 @@ public class SplitAndJoinExpirationWorkerTest {
         splitAndJoinExpirationWorker.executeJob(context, domain);
 
         new Verifications() {{
-            authUtils.setAuthenticationToSecurityContext("splitAndJoinExpiration_user", "splitAndJoinExpiration_password");
             splitAndJoinService.handleExpiredGroups();
+        }};
+    }
+
+    @Test
+    public void setQuartzJobSecurityContext() {
+
+        splitAndJoinExpirationWorker.setQuartzJobSecurityContext();
+
+        new FullVerifications() {{
+            authUtils.setAuthenticationToSecurityContext("splitAndJoinExpiration_user", "splitAndJoinExpiration_password");
         }};
     }
 }

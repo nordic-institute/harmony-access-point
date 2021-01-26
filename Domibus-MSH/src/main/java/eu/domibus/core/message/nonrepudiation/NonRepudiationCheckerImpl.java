@@ -1,7 +1,7 @@
 package eu.domibus.core.message.nonrepudiation;
 
 import eu.domibus.common.ErrorCode;
-import eu.domibus.common.MSHRole;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -59,8 +59,14 @@ public class NonRepudiationCheckerImpl implements NonRepudiationChecker {
 
     @Override
     public List<String> getNonRepudiationDetailsFromReceipt(Node nonRepudiationInformation) throws EbMS3Exception {
-        List<String> result = new ArrayList<>();
 
+         if (nonRepudiationInformation == null) {
+            EbMS3Exception e = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0302, "Not found NonRepudiationDetails element.", null, null);
+            e.setMshRole(MSHRole.SENDING);
+            throw e;
+        }
+
+        List<String> result = new ArrayList<>();
         final NodeList childNodes = nonRepudiationInformation.getChildNodes();
         if (childNodes == null || childNodes.getLength() == 0) {
             EbMS3Exception e = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0302, "No Reference Data found in NonRepudiationInformation node", null, null);

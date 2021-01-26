@@ -147,7 +147,7 @@ public class PModeCurrentPgTests extends SeleniumTest {
 	}
 	
 	/*  This method will verify error message while uploading invalid pmode  or wrong  format file */
-	@Test(description = "PMC-4", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "PMC-4", groups = {"multiTenancy", "singleTenancy"})
 	public void uploadInvalidPmode() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
@@ -163,7 +163,7 @@ public class PModeCurrentPgTests extends SeleniumTest {
 		PModeCofirmationModal modal = new PModeCofirmationModal(driver);
 		
 		log.info("Upload invalid xml file");
-		String path = DFileUtils.getAbsolutePath("pmodes/invalidPmode.xml");
+		String path = DFileUtils.getAbsolutePath("src/main/resources/pmodes/invalidPmode.xml");
 		modal.uploadPmodeFile(path, "invalidPmodeUpload");
 		
 		log.info("Message shown " + page.getAlertArea().getAlertMessage());
@@ -174,18 +174,7 @@ public class PModeCurrentPgTests extends SeleniumTest {
 		page.refreshPage();
 		log.info("Wait for page title");
 		page.waitForPageTitle();
-		
-		soft.assertTrue(page.getUploadBtn().isEnabled(), "Upload button is enabled");
-		log.info("Click on upload button");
-		page.getUploadBtn().click();
-		
-		log.info("Try to upload invalid file with format other than xml");
-		String randomFilePath = DFileUtils.getAbsolutePath("truststore/expired.jks");
-		
-		modal.uploadPmodeFile(randomFilePath, "invalidFileUpload");
-		log.info("Message shown " + page.getAlertArea().getAlertMessage());
-		soft.assertTrue(page.getAlertArea().getAlertMessage().contains("Error"), "Error message is shown");
-		page.refreshPage();
+
 		soft.assertAll();
 	}
 }

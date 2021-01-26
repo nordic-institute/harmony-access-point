@@ -1,5 +1,7 @@
 package eu.europa.esig.dss.tsl.service;
 
+import eu.domibus.core.crypto.spi.dss.CertificateVerifierService;
+import eu.domibus.core.crypto.spi.dss.CustomTrustedLists;
 import eu.domibus.core.crypto.spi.dss.DomibusTSLValidator;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -11,8 +13,7 @@ import eu.europa.esig.dss.spi.client.http.DataLoader;
 import eu.europa.esig.dss.spi.x509.KeyStoreCertificateSource;
 import eu.europa.esig.dss.tsl.*;
 import eu.europa.esig.dss.utils.Utils;
-import eu.europa.esig.dss.validation.CertificateVerifier;
-import org.springframework.cglib.core.internal.Function;
+import org.springframework.beans.factory.ObjectProvider;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,29 +34,38 @@ public class DomibusTSLValidationJob {
     private ExecutorService executorService = Executors.newCachedThreadPool();
 
     private DataLoader dataLoader;
+
     private DomibusTSLRepository repository;
+
     private String lotlCode;
+
     private String lotlUrl;
 
     /*
      * Official journal URL where the allowed certificates can be found. This URL is present in the LOTL
      */
     private String ojUrl;
+
     private String ojDomainName;
 
     private KeyStoreCertificateSource ojContentKeyStore;
 
     private boolean checkLOTLSignature = true;
+
     private boolean checkTSLSignatures = true;
+
     private List<String> filterTerritories;
 
     private List<OtherTrustedList> otherTrustedLists;
 
-    private Function<Void
-            , CertificateVerifier> certificateVerifierFactory;
+    private CertificateVerifierService certificateVerifierService;
 
-    public DomibusTSLValidationJob(Function<Void, CertificateVerifier> certificateVerifierFactory) {
-        this.certificateVerifierFactory = certificateVerifierFactory;
+    private ObjectProvider<CustomTrustedLists> otherTrustedListObjectProvider;
+
+
+    public DomibusTSLValidationJob(CertificateVerifierService certificateVerifierService, ObjectProvider<CustomTrustedLists> otherTrustedListObjectProvider) {
+        this.certificateVerifierService = certificateVerifierService;
+        this.otherTrustedListObjectProvider = otherTrustedListObjectProvider;
     }
 
     public void setExecutorService(ExecutorService executorService) {
@@ -71,6 +81,10 @@ public class DomibusTSLValidationJob {
 
     public void setRepository(DomibusTSLRepository repository) {
         this.repository = repository;
+    }
+
+    public String getCacheDirectoryPath(){
+        return this.repository.getCacheDirectoryPath();
     }
 
     public void clearRepository(){
@@ -145,16 +159,8 @@ public class DomibusTSLValidationJob {
         this.filterTerritories = filterTerritories;
     }
 
-    /**
-     * This parameter allows to add non EU trusted lists.
-     *
-     * @param otherTrustedLists a list of additional trusted lists to be supported
-     */
-    public void setOtherTrustedLists(List<OtherTrustedList> otherTrustedLists) {
-        this.otherTrustedLists = otherTrustedLists;
-    }
-
     public void initRepository() {
+        refreshCustomTrustedList();
         LOG.info("Initialization of the TSL repository ...");
         int loadedTSL = 0;
         List<File> cachedFiles = repository.getStoredFiles();
@@ -205,7 +211,8 @@ public class DomibusTSLValidationJob {
                         } else {
                             potentialSigners = getPotentialSigners(lotlPointers, countryCode);
                         }
-                        DomibusTSLValidator tslValidator = new DomibusTSLValidator(new FileDocument(countryModel.getFilepath()), countryCode, potentialSigners, certificateVerifierFactory.apply(null));
+                        LOG.info("Validating TLS for:[{}]",countryModel.getFilepath());
+                        DomibusTSLValidator tslValidator = new DomibusTSLValidator(new FileDocument(countryModel.getFilepath()), countryCode, potentialSigners, certificateVerifierService.getCertificateVerifier());
                         futureValidationResults.add(executorService.submit(tslValidator));
                     }
                 }
@@ -229,8 +236,13 @@ public class DomibusTSLValidationJob {
         return null;
     }
 
+    public void refreshCustomTrustedList() {
+        this.otherTrustedLists = otherTrustedListObjectProvider.getObject().getOtherTrustedLists();
+    }
+
     public void refresh() {
         LOG.debug("TSL Validation Job is starting ...");
+        refreshCustomTrustedList();
 
         analyzeLOTLBasedModel();
 
@@ -354,7 +366,7 @@ public class DomibusTSLValidationJob {
 
                     TSLValidationResult pivotValidationResult = pivotModel.getValidationResult();
                     if (checkLOTLSignature && (pivotValidationResult == null)) {
-                        DomibusTSLValidator tslValidator = new DomibusTSLValidator(trustedList, loaderResult.getCountryCode(), allowedLotlSigners, certificateVerifierFactory.apply(null));
+                        DomibusTSLValidator tslValidator = new DomibusTSLValidator(trustedList, loaderResult.getCountryCode(), allowedLotlSigners, certificateVerifierService.getCertificateVerifier());
                         Future<TSLValidationResult> pivotValidationFuture = executorService.submit(tslValidator);
                         pivotValidationResult = pivotValidationFuture.get();
                     }
@@ -463,7 +475,7 @@ public class DomibusTSLValidationJob {
 
                     if (checkTSLSignatures && (countryModel.getValidationResult() == null || newLotl)) {
                         DomibusTSLValidator tslValidator = new DomibusTSLValidator(trustedList, loaderResult.getCountryCode(),
-                                getPotentialSigners(pointers, loaderResult.getCountryCode()), certificateVerifierFactory.apply(null));
+                                getPotentialSigners(pointers, loaderResult.getCountryCode()), certificateVerifierService.getCertificateVerifier());
                         futureValidationResults.add(executorService.submit(tslValidator));
                     }
                 }
@@ -525,7 +537,7 @@ public class DomibusTSLValidationJob {
 
     private TSLValidationResult validateLOTL(TSLValidationModel validationModel, List<CertificateToken> allowedSigners) throws Exception {
         validationModel.setLotl(true);
-        DomibusTSLValidator tslValidator = new DomibusTSLValidator(new FileDocument(validationModel.getFilepath()), lotlCode, allowedSigners, certificateVerifierFactory.apply(null));
+        DomibusTSLValidator tslValidator = new DomibusTSLValidator(new FileDocument(validationModel.getFilepath()), lotlCode, allowedSigners, certificateVerifierService.getCertificateVerifier());
         Future<TSLValidationResult> future = executorService.submit(tslValidator);
         return future.get();
     }

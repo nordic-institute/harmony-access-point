@@ -1,5 +1,7 @@
 package eu.domibus.core.audit;
 
+import eu.domibus.api.spring.SpringContextProvider;
+import eu.domibus.api.util.DatabaseUtil;
 import eu.domibus.core.audit.envers.ModificationType;
 import eu.domibus.core.audit.envers.RevisionLog;
 import eu.domibus.core.audit.envers.RevisionLogicalName;
@@ -8,6 +10,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.hibernate.envers.EntityTrackingRevisionListener;
 import org.hibernate.envers.RevisionType;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -41,9 +44,13 @@ public class CustomRevisionEntityListener implements EntityTrackingRevisionListe
         RevisionLog revisionLog = (RevisionLog) revision;
         revisionLog.setRevisionDate(new Date(System.currentTimeMillis()));
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null) {
+        if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
             revisionLog.setUserName(authentication.getName());
+            return;
         }
+        String databaseUserName = getDataBaseUser();
+        LOG.trace("No authentication in application security context. Set DataBase username: [{}] to audit log.", databaseUserName);
+        revisionLog.setUserName(databaseUserName);
     }
 
     /**
@@ -84,6 +91,20 @@ public class CustomRevisionEntityListener implements EntityTrackingRevisionListe
                 LOG.error(msg);
                 throw new IllegalArgumentException(msg);
         }
+    }
+
+    /**
+     * Retrieve database user from Spring application context!
+     *
+     * @return database username.
+     */
+    protected String getDataBaseUser() {
+        if (SpringContextProvider.getApplicationContext() == null) {
+            return null;
+        }
+
+        final DatabaseUtil databaseUtil = SpringContextProvider.getApplicationContext().getBean(DatabaseUtil.DATABASE_USER, DatabaseUtil.class);
+        return databaseUtil != null ? databaseUtil.getDatabaseUserName() : null;
     }
 
 

@@ -1,18 +1,18 @@
 package eu.domibus.core.replication;
 
+import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.message.MessageSubtype;
+import eu.domibus.api.model.*;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.common.MSHRole;
-import eu.domibus.common.MessageStatus;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.UserMessageDefaultServiceHelper;
-import eu.domibus.core.message.UserMessageLog;
+import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.core.message.UserMessageLogDao;
-import eu.domibus.core.message.signal.SignalMessageLog;
+import eu.domibus.api.model.SignalMessageLog;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
-import eu.domibus.core.plugin.notification.NotificationStatus;
-import eu.domibus.ebms3.common.model.*;
+import eu.domibus.api.model.NotificationStatus;
 import eu.domibus.messaging.MessageConstants;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -61,7 +61,6 @@ public class UIReplicationDataServiceImplTest {
     @Injectable
     private DomainCoreConverter domainConverter;
 
-    private ObjectFactory ebmsObjectFactory = new ObjectFactory();
     private final String messageId = UUID.randomUUID().toString();
     private final MessageStatus messageStatus = MessageStatus.SEND_ENQUEUED;
     private final NotificationStatus notificationStatus = NotificationStatus.REQUIRED;
@@ -368,11 +367,11 @@ public class UIReplicationDataServiceImplTest {
     }
 
     private UserMessage createUserMessage() {
-        UserMessage userMessage = ebmsObjectFactory.createUserMessage();
-        MessageInfo messageInfo = ebmsObjectFactory.createMessageInfo();
+        UserMessage userMessage = new UserMessage();
+        MessageInfo messageInfo = new MessageInfo();
         messageInfo.setMessageId(messageId);
         messageInfo.setRefToMessageId(refToMessageId);
-        CollaborationInfo collaborationInfo = ebmsObjectFactory.createCollaborationInfo();
+        CollaborationInfo collaborationInfo = new CollaborationInfo();
         collaborationInfo.setConversationId(conversationId);
 
         userMessage.setMessageInfo(messageInfo);
@@ -384,8 +383,8 @@ public class UIReplicationDataServiceImplTest {
     }
 
     private SignalMessage createSignalMessage() {
-        SignalMessage signalMessage = ebmsObjectFactory.createSignalMessage();
-        MessageInfo messageInfo = ebmsObjectFactory.createMessageInfo();
+        SignalMessage signalMessage = new SignalMessage();
+        MessageInfo messageInfo = new MessageInfo();
         messageInfo.setMessageId(messageId);
         messageInfo.setRefToMessageId(refToMessageId);
         signalMessage.setMessageInfo(messageInfo);
@@ -394,21 +393,21 @@ public class UIReplicationDataServiceImplTest {
     }
 
     private PartyInfo createPartyInfo() {
-        PartyInfo partyInfo = ebmsObjectFactory.createPartyInfo();
+        PartyInfo partyInfo = new PartyInfo();
 
-        PartyId partyId = ebmsObjectFactory.createPartyId();
+        PartyId partyId = new PartyId();
         partyId.setValue(toPartyId);
         partyId.setType((toPartyIdType));
 
-        To to = ebmsObjectFactory.createTo();
+        To to = new To();
         to.getPartyId().add(partyId);
         partyInfo.setTo(to);
 
-        partyId = ebmsObjectFactory.createPartyId();
+        partyId = new PartyId();
         partyId.setValue(fromPartyId);
         partyId.setType((fromPartyIdType));
 
-        From from = ebmsObjectFactory.createFrom();
+        From from = new From();
         from.getPartyId().add(partyId);
         partyInfo.setFrom(from);
 

@@ -193,7 +193,7 @@ public class PmodePartiesPgTest extends SeleniumTest {
 		SoftAssert soft = new SoftAssert();
 		
 		log.info("upload pmode");
-		String filepath = "pmodes/multipleParties.xml";
+		String filepath = "pmodes/Edelivery-blue.xml";
 		rest.pmode().uploadPMode(filepath, null);
 		
 		File file = new File(getClass().getClassLoader().getResource(filepath).getFile());
@@ -202,27 +202,19 @@ public class PmodePartiesPgTest extends SeleniumTest {
 		
 		log.info("Login and navigate to pmode parties page");
 		PModePartiesPage page = navigateToPage();
+
+		String newEndpoint = "http://" + Gen.randomAlphaNumeric(10).toLowerCase() + ".com";
+
 		
-		int index = page.grid().scrollTo(partyName, currentParty);
-		String newPartyName = Gen.randomAlphaNumeric(5);
-		int toEditIndex = 0;
-		if (toEditIndex == index) {
-			toEditIndex = 1;
-		}
-		
-		
-		log.info("select row " + toEditIndex);
-		page.grid().selectRow(toEditIndex);
+		log.info("select row for current system party" );
+		page.grid().scrollToAndSelect("Party Name", currentParty);
 		
 		log.info("Click edit button");
 		page.getEditButton().click();
 		PartyModal modal = new PartyModal(driver);
-		
-		log.info("Fill new party info");
-		modal.getNameInput().fill(newPartyName);
-		
+
 		log.info("Fill endpoint value");
-		modal.getEndpointInput().fill("http://" + newPartyName.toLowerCase() + ".com");
+		modal.getEndpointInput().fill(newEndpoint);
 		
 		log.info("Click ok button");
 		modal.clickOK();
@@ -233,9 +225,8 @@ public class PmodePartiesPgTest extends SeleniumTest {
 		log.info("Validate presence of success message");
 		soft.assertTrue(!page.getAlertArea().isError(), "Success message is shown");
 		
-		log.info("Validate visibility of new party: " + newPartyName);
-		soft.assertTrue(page.grid().scrollTo(partyName, newPartyName) >= 0, "New name is visible in grid.");
-		soft.assertTrue(page.grid().scrollTo(endpoint, "http://" + newPartyName + ".com") >= 0, "New endpoint is visible in grid.");
+		log.info("Validate visibility of new party endpoint");
+		soft.assertTrue(page.grid().scrollTo(endpoint, newEndpoint) >= 0, "New endpoint is visible in grid.");
 		soft.assertAll();
 	}
 	
@@ -260,6 +251,7 @@ public class PmodePartiesPgTest extends SeleniumTest {
 		modal.getNameInput().fill(newPartyName);
 		log.info("fill end point ");
 		modal.getEndpointInput().fill("http://" + newPartyName.toLowerCase() + ".com");
+
 		log.info("click ok button");
 		modal.clickOK();
 		
@@ -412,7 +404,6 @@ public class PmodePartiesPgTest extends SeleniumTest {
 		page.getSaveButton().click();
 		new Dialog(driver).confirm();
 		
-		page.wait.forXMillis(5000);
 		log.info("Validate Success Message");
 		soft.assertTrue(!page.getAlertArea().isError(), "page shows success message");
 		
@@ -420,10 +411,11 @@ public class PmodePartiesPgTest extends SeleniumTest {
 		soft.assertTrue(page.grid().scrollTo(partyName, newPatyName) >= 0, "party is shown in grid");
 		
 		log.info("Navigate to Pmode current page");
-		
+
+		page.getSidebar().goToPage(PAGES.PMODE_CURRENT);
+
 		PModeCurrentPage pModeCurrentPage = new PModeCurrentPage(driver);
-		pModeCurrentPage.getSidebar().goToPage(PAGES.PMODE_CURRENT);
-		
+
 		soft.assertTrue(pModeCurrentPage.getTextArea().isPresent(), "Current pmode is available");
 		String UpdatedPmode = pModeCurrentPage.getTextArea().getText();
 		log.info("Current Pmode is :" + UpdatedPmode);
@@ -487,12 +479,17 @@ public class PmodePartiesPgTest extends SeleniumTest {
 		page.getEditButton().click();
 		
 		PartyModal modal = new PartyModal((driver));
-		log.info("Validate Ok button is enabled");
-		soft.assertTrue(modal.getOkBtn().isEnabled());
-		
+
 		log.info("Uncheck Initiator & Responder checkbox");
 		modal.participationInProcess("tc1Process", false, false);
-		
+
+		log.info("Validate Ok button is enabled");
+		soft.assertTrue(modal.getOkBtn().isEnabled(), "Modal OK button is enabled");
+
+		log.info("Click on Ok button");
+		modal.getOkBtn().click();
+
+
 		log.info("Click on Save button");
 		page.getSaveButton().click();
 		new Dialog(driver).confirm();
@@ -623,7 +620,9 @@ public class PmodePartiesPgTest extends SeleniumTest {
 		rest.pmode().uploadPMode("pmodes/Edelivery-blue.xml", null);
 		
 		PModePartiesPage page = navigateToPage();
-		
+
+		page.grid().getGridCtrl().showOnlyColumn("Party Name");
+
 		page.grid().scrollToAndDoubleClick("Party Name", "red_gw");
 		
 		PPartyModal modal = new PPartyModal(driver);
@@ -777,7 +776,8 @@ public class PmodePartiesPgTest extends SeleniumTest {
 		PModePartiesPage page = new PModePartiesPage(driver);
 		if (page.getTitle().contains("Parties")) {
 			page.refreshPage();
-		} else {
+		}
+		if (!page.getTitle().contains("Parties")) {
 			page.getSidebar().goToPage(PAGES.PMODE_PARTIES);
 		}
 		page.grid().waitForRowsToLoad();

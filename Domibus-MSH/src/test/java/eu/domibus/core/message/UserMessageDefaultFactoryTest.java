@@ -1,9 +1,9 @@
 package eu.domibus.core.message;
 
-import eu.domibus.core.datasource.AutoCloseFileDataSource;
-import eu.domibus.core.message.splitandjoin.MessageFragmentEntity;
-import eu.domibus.core.message.splitandjoin.MessageGroupEntity;
-import eu.domibus.ebms3.common.model.*;
+import eu.domibus.api.model.*;
+import eu.domibus.api.datasource.AutoCloseFileDataSource;
+import eu.domibus.api.model.splitandjoin.MessageFragmentEntity;
+import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
@@ -120,7 +120,7 @@ public class UserMessageDefaultFactoryTest {
     public void createCollaborationInfoTest(@Injectable CollaborationInfo source,
                                             @Injectable AgreementRef agreementRef,
                                             @Injectable CollaborationInfo collaborationInfo,
-                                            @Injectable eu.domibus.ebms3.common.model.Service service) {
+                                            @Injectable Service service) {
         String action = "action";
         String conversationId = "conversationId";
 

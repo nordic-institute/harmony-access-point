@@ -14,7 +14,7 @@
       <div>
         <mat-form-field [style.width]="'100%'">
           <input matInput placeholder="From" name="from" id="from_id" [(ngModel)]="criteria.from" input-debounce #from="ngModel"
-                 pattern="partyPattern" [maxLength]="textMaxLength">
+                 [pattern]="partyPattern" [maxLength]="textMaxLength">
           <span class="help-block" *ngIf="shouldShowErrors(from)">
             <div *ngIf="from.errors?.pattern" style="color:red; font-size: 70%">{{partyPatternMessage}}</div>
           </span>
@@ -24,7 +24,7 @@
       <div>
         <mat-form-field [style.width]="'100%'">
           <input matInput placeholder="To" name="to" id="to_id" [(ngModel)]="criteria.to" input-debounce #to="ngModel"
-                 pattern="partyPattern" [maxLength]="textMaxLength">
+                 [pattern]="partyPattern" [maxLength]="textMaxLength">
           <span class="help-block" *ngIf="shouldShowErrors(to)">
             <div *ngIf="to.errors?.pattern" style="color:red; font-size: 70%">{{partyPatternMessage}}</div>
           </span>
@@ -34,7 +34,7 @@
       <div>
         <mat-form-field [style.width]="'100%'">
           <input matInput placeholder="Action" name="action" id="action_id" [(ngModel)]="criteria.action" input-debounce #action="ngModel"
-                 pattern="actionPattern" [maxLength]="textMaxLength">
+                 [pattern]="actionPattern" [maxLength]="textMaxLength">
           <span class="help-block" *ngIf="shouldShowErrors(action)">
             <div *ngIf="action.errors?.pattern" style="color:red; font-size: 70%">{{actionPatternMessage}}</div>
           </span>
@@ -44,9 +44,9 @@
       <div>
         <mat-form-field [style.width]="'100%'">
           <input matInput placeholder="Service" name="service" id="service_id" [(ngModel)]="criteria.service" input-debounce #service="ngModel"
-                 pattern="[a-zA-Z0-9_:\\./-]+:[a-zA-Z0-9_:-]+" [maxLength]="textMaxLength">
+                 [pattern]="servicePattern" [maxLength]="textMaxLength">
           <span class="help-block" *ngIf="shouldShowErrors(service)">
-            <div *ngIf="service.errors?.pattern" style="color:red; font-size: 70%">You should follow the rule: [serviceName]:[serviceType]</div>
+            <div *ngIf="service.errors?.pattern" style="color:red; font-size: 70%">{{servicePatternMessage}}</div>
           </span>
         </mat-form-field>
       </div>

@@ -39,6 +39,45 @@
         </createTable>
     </changeSet>
 
+    <changeSet author="Francois Gautier" id="EDELIVERY-2427">
+        <comment>WS Plugin specific tables for backend dispatch</comment>
+        <createTable tableName="WS_PLUGIN_TB_BACKEND_MESSAGE_LOG">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true" remarks="Primary key identifying the record of the table">
+                <constraints primaryKey="true" primaryKeyName="PK_WS_PLUGIN_TB_BACKEND_MESSAGE_LOG"/>
+            </column>
+
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+
+            <column name="MESSAGE_ID" type="VARCHAR(255)" remarks="ID of the domibus message log">
+                <constraints nullable="false"/>
+            </column>
+            <column name="FINAL_RECIPIENT" type="VARCHAR(255)" remarks="Final recipient of the domibus message"/>
+            <column name="ORIGINAL_SENDER" type="VARCHAR(255)" remarks="Original sender of the domibus message"/>
+
+            <column name="BACKEND_MESSAGE_STATUS" type="VARCHAR(255)" remarks="The status describing the state of the backend message"/>
+            <column name="BACKEND_MESSAGE_TYPE" type="VARCHAR(255)" remarks="The type describing the kind backend message"/>
+
+            <column name="RULE_NAME" type="VARCHAR(255)" remarks="Name of the rule used for dispatching"/>
+            <column name="SENT" type="DATETIME" remarks="DateTime when the message had been dispatched">
+                <constraints nullable="false"/>
+            </column>
+            <column name="FAILED" type="DATETIME" remarks="DateTime when the message had failed"/>
+
+            <column name="SEND_ATTEMPTS" type="INT" remarks="Number of attempts sent"/>
+            <column name="SEND_ATTEMPTS_MAX" type="INT" remarks="Number of attempts maximal"/>
+            <column name="NEXT_ATTEMPT" type="DATETIME" remarks="DateTime for the next attempt"/>
+
+            <column name="SCHEDULED" type="BOOLEAN" remarks="true if the backend message is already scheduled to be sent"/>
+        </createTable>
+    </changeSet>
+
     <!-- Domibus tables -->
     <changeSet author="Catalin Enache" id="1564477107969-13">
         <comment>create Domibus tables</comment>
@@ -274,6 +313,24 @@
             </column>
             <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+        </createTable>
+
+        <createTable tableName="TB_CERTIFICATE_AUD">
+            <column name="ID_PK" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_CERTIFICATE_AUD"/>
+            </column>
+            <column name="REV" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_CERTIFICATE_AUD"/>
+            </column>
+            <column name="REVTYPE" type="TINYINT"/>
+            <column name="CERTIFICATE_ALIAS" type="VARCHAR(255)" />
+            <column name="NOT_VALID_BEFORE_DATE" type="DATETIME" />
+            <column name="NOT_VALID_AFTER_DATE" type="DATETIME" />
+            <column name="REVOKE_NOTIFICATION_DATE" type="TIMESTAMP"/>
+            <column name="ALERT_IMM_NOTIFICATION_DATE" type="TIMESTAMP"/>
+            <column name="ALERT_EXP_NOTIFICATION_DATE" type="TIMESTAMP"/>
+            <column name="CERTIFICATE_STATUS" type="VARCHAR(255)" />
+            <column name="CERTIFICATE_TYPE" type="VARCHAR(255)" />
         </createTable>
 
         <createTable tableName="TB_COMMAND" remarks="Stores commands to be executed by different nodes in clustered environments">
@@ -1790,6 +1847,10 @@
             <column name="REV"/>
         </createIndex>
 
+        <createIndex indexName="IDX_FK_CERTIFICATE_AUD_REV" tableName="TB_CERTIFICATE_AUD">
+            <column name="REV"/>
+        </createIndex>
+
         <createIndex indexName="FK_BE4XC1069QYW2KLHVM3XMG26S" tableName="TB_USER_MESSAGE">
             <column name="MESSAGEINFO_ID_PK"/>
         </createIndex>
@@ -2180,10 +2241,6 @@
             <column name="MESSAGE_IN_ERROR_ID"/>
         </createIndex>
 
-        <createIndex indexName="IDX_MSG_UI_MESSAGE_ID" tableName="TB_MESSAGE_UI">
-            <column name="MESSAGE_ID"/>
-        </createIndex>
-
         <createIndex indexName="IDX_MSG_ACKNW_MESSAGE_ID" tableName="TB_MESSAGE_ACKNW">
             <column name="MESSAGE_ID"/>
         </createIndex>
@@ -2331,6 +2388,11 @@
                                  constraintName="FK_CONFIGURATION_RAW_AUD" deferrable="false" initiallyDeferred="false"
                                  onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID"
                                  referencedTableName="TB_REV_INFO"/>
+
+        <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_CERTIFICATE_AUD"
+                                 constraintName="FK_CERTIFICATE_AUD_REV" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID" referencedTableName="TB_REV_INFO"/>
 
         <addForeignKeyConstraint baseColumnNames="PARTPROPERTIES_ID" baseTableName="TB_PROPERTY"
                                  constraintName="FK_CWYLVG6ERNWBA61MO3YAGMKG8" deferrable="false"

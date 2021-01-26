@@ -1,125 +1,102 @@
 package eu.domibus.web.rest;
 
-import com.google.common.collect.ImmutableMap;
-import eu.domibus.api.crypto.CryptoException;
+import eu.domibus.api.exceptions.RequestValidationException;
+import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.CertificateService;
+import eu.domibus.api.pki.MultiDomainCryptoService;
+import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.api.validators.SkipWhiteListed;
+import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.converter.DomainCoreConverter;
-import eu.domibus.core.crypto.api.MultiDomainCryptoService;
-import eu.domibus.logging.DomibusLogger;
-import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.error.ErrorHandlerService;
-import eu.domibus.web.rest.ro.ErrorRO;
 import eu.domibus.web.rest.ro.TrustStoreRO;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.security.KeyStore;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
 /**
  * @author Mircea Musat
+ * @author Ion Perpegel
  * @since 3.3
  */
 @RestController
 @RequestMapping(value = "/rest/truststore")
-public class TruststoreResource extends BaseResource {
+public class TruststoreResource extends TruststoreResourceBase {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TruststoreResource.class);
+    private final MultiDomainCryptoService multiDomainCertificateProvider;
 
-    public static final String ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD = "Failed to upload the truststoreFile file since its password was empty."; //NOSONAR
+    private final DomainContextProvider domainProvider;
 
-    @Autowired
-    protected MultiDomainCryptoService multiDomainCertificateProvider;
+    private final CertificateService certificateService;
 
-    @Autowired
-    protected DomainContextProvider domainProvider;
+    public TruststoreResource(MultiDomainCryptoService multiDomainCertificateProvider,
+                              DomainContextProvider domainProvider, CertificateService certificateService,
+                              DomainCoreConverter domainConverter, ErrorHandlerService errorHandlerService,
+                              MultiPartFileUtil multiPartFileUtil, AuditService auditService) {
+        super(domainConverter, errorHandlerService, multiPartFileUtil, auditService);
 
-    @Autowired
-    private CertificateService certificateService;
-
-    @Autowired
-    private DomainCoreConverter domainConverter;
-
-    @Autowired
-    private ErrorHandlerService errorHandlerService;
-
-    @Autowired
-    MultiPartFileUtil multiPartFileUtil;
-
-    @ExceptionHandler({CryptoException.class})
-    public ResponseEntity<ErrorRO> handleCryptoException(CryptoException ex) {
-        Throwable rootCause = ExceptionUtils.getRootCause(ex);
-        rootCause = rootCause == null ? ex : rootCause;
-        return errorHandlerService.createResponse(rootCause, HttpStatus.BAD_REQUEST);
+        this.multiDomainCertificateProvider = multiDomainCertificateProvider;
+        this.domainProvider = domainProvider;
+        this.certificateService = certificateService;
     }
 
     @PostMapping(value = "/save")
-    public String uploadTruststoreFile(@RequestPart("truststore") MultipartFile truststoreFile,
-                                       @SkipWhiteListed @RequestParam("password") String password) throws IllegalArgumentException {
-        byte[] truststoreFileContent = multiPartFileUtil.validateAndGetFileContent(truststoreFile);
+    public String uploadTruststoreFile(@RequestPart("file") MultipartFile truststoreFile,
+                                       @SkipWhiteListed @RequestParam("password") String password) throws RequestValidationException {
+        replaceTruststore(truststoreFile, password);
 
-        if (StringUtils.isBlank(password)) {
-            throw new IllegalArgumentException(ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD);
-        }
-
-        multiDomainCertificateProvider.replaceTrustStore(domainProvider.getCurrentDomain(), truststoreFile.getOriginalFilename(), truststoreFileContent, password);
         return "Truststore file has been successfully replaced.";
     }
 
-    @RequestMapping(value = "/download", method = RequestMethod.GET, produces = "application/octet-stream")
-    public ResponseEntity<ByteArrayResource> downloadTrustStore() throws IOException {
-        byte[] content = certificateService.getTruststoreContent();
-        ByteArrayResource resource = new ByteArrayResource(content);
-
-        HttpStatus status = HttpStatus.OK;
-        if (resource.getByteArray().length == 0) {
-            status = HttpStatus.NO_CONTENT;
-        }
-
-        return ResponseEntity.status(status)
-                .contentType(MediaType.parseMediaType("application/octet-stream"))
-                .header("content-disposition", "attachment; filename=TrustStore.jks")
-                .body(resource);
+    @GetMapping(value = "/download", produces = "application/octet-stream")
+    public ResponseEntity<ByteArrayResource> downloadTrustStore() {
+        return downloadTruststoreContent();
     }
 
     @RequestMapping(value = {"/list"}, method = GET)
     public List<TrustStoreRO> trustStoreEntries() {
-        final KeyStore trustStore = multiDomainCertificateProvider.getTrustStore(domainProvider.getCurrentDomain());
-        return domainConverter.convert(certificateService.getTrustStoreEntries(trustStore), TrustStoreRO.class);
+        return getTrustStoreEntries();
     }
 
-    /**
-     * This method returns a CSV file with the contents of Truststore table
-     *
-     * @return CSV file with the contents of Truststore table
-     */
     @GetMapping(path = "/csv")
-    public ResponseEntity<String> getCsv() {
-        final List<TrustStoreRO> entries = trustStoreEntries();
-        getCsvService().validateMaxRows(entries.size());
+    public ResponseEntity<String> getEntriesAsCsv() {
+        return getEntriesAsCSV("truststore");
+    }
 
-        return exportToCSV(entries,
-                TrustStoreRO.class,
-                ImmutableMap.of(
-                        "ValidFrom".toUpperCase(), "Valid from",
-                        "ValidUntil".toUpperCase(), "Valid until"
-                ),
-                Arrays.asList("fingerprints"),
-                "truststore");
+    @Override
+    protected void doReplaceTrustStore(byte[] truststoreFileContent, String fileName, String password) {
+        Domain currentDomain = domainProvider.getCurrentDomain();
+
+        multiDomainCertificateProvider.replaceTrustStore(currentDomain, fileName, truststoreFileContent, password);
+
+        // trigger update certificate table
+        final KeyStore trustStore = multiDomainCertificateProvider.getTrustStore(currentDomain);
+        final KeyStore keyStore = multiDomainCertificateProvider.getKeyStore(currentDomain);
+        certificateService.saveCertificateAndLogRevocation(trustStore, keyStore);
+    }
+
+    @Override
+    protected void auditDownload() {
+        auditService.addTruststoreDownloadedAudit();
+    }
+
+    @Override
+    protected byte[] getTrustStoreContent() {
+        return multiDomainCertificateProvider.getTruststoreContent(domainProvider.getCurrentDomain());
+    }
+
+    @Override
+    protected List<TrustStoreEntry> doGetTrustStoreEntries() {
+        final KeyStore store = multiDomainCertificateProvider.getTrustStore(domainProvider.getCurrentDomain());
+        return certificateService.getTrustStoreEntries(store);
     }
 
 }

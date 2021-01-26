@@ -1,7 +1,7 @@
 package eu.domibus.core.alerts.model.persist;
 
 import eu.domibus.core.alerts.model.common.EventType;
-import eu.domibus.ebms3.common.model.AbstractBaseEntity;
+import eu.domibus.api.model.AbstractBaseEntity;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.slf4j.Logger;
 

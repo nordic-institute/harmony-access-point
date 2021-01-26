@@ -12,7 +12,7 @@ import org.springframework.core.env.Environment;
  */
 public class DomibusEnvironmentUtil {
 
-    public static DomibusEnvironmentUtil INSTANCE = new DomibusEnvironmentUtil();
+    public static final DomibusEnvironmentUtil INSTANCE = new DomibusEnvironmentUtil();
 
     private DomibusEnvironmentUtil() {
     }

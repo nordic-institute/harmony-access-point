@@ -5,6 +5,12 @@
          xmlns="http://java.sun.com/xml/ns/javaee"
          xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
 
+    <resource-ref id="MshWorkManager">
+        <res-ref-name>MshWorkManager</res-ref-name>
+        <res-type>commonj.work.WorkManager</res-type>
+        <res-auth>Container</res-auth>
+        <res-sharing-scope>Unshareable</res-sharing-scope>
+    </resource-ref>
     <resource-ref id="DomibusWorkManager">
         <res-ref-name>DomibusWorkManager</res-ref-name>
         <res-type>commonj.work.WorkManager</res-type>
@@ -26,22 +32,22 @@
             <web-resource-name>Domibus</web-resource-name>
             <description>Require users to authenticate</description>
             <url-pattern>/index.html</url-pattern>
+            <url-pattern>/messagelog</url-pattern>
+            <url-pattern>/messagefilter</url-pattern>
+            <url-pattern>/errorlog</url-pattern>
             <url-pattern>/pmode-current</url-pattern>
             <url-pattern>/pmode-archive</url-pattern>
             <url-pattern>/pmode-party</url-pattern>
             <url-pattern>/jms</url-pattern>
-            <url-pattern>/messagefilter</url-pattern>
             <url-pattern>/truststore</url-pattern>
-            <url-pattern>/messagelog</url-pattern>
-            <url-pattern>/user</url-pattern>
             <url-pattern>/pluginuser</url-pattern>
-            <url-pattern>/errorlog</url-pattern>
             <url-pattern>/audit</url-pattern>
             <url-pattern>/alerts</url-pattern>
-            <url-pattern>/errorlog</url-pattern>
-            <url-pattern>/testservice</url-pattern>
-            <url-pattern>/changePassword</url-pattern>
+            <url-pattern>/connections</url-pattern>
             <url-pattern>/logging</url-pattern>
+            <url-pattern>/properties</url-pattern>
+            <url-pattern>/user</url-pattern>
+            <url-pattern>/changePassword</url-pattern>
             <url-pattern>/login</url-pattern>
         </web-resource-collection>
         <auth-constraint>

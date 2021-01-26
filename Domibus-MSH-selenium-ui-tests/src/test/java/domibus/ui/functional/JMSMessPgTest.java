@@ -77,7 +77,7 @@ public class JMSMessPgTest extends SeleniumTest {
 		soft.assertAll();
 	}
 	
-	//	This cannot run reliable because messages are pulled from the queues as the tests run
+	//	Disabled because functionality change and it needs to be updated
 	/*JMS-8 - Move message*/
 	@Test(description = "JMS-8", groups = {"multiTenancy", "singleTenancy"})
 	public void moveMessage() throws Exception {
@@ -242,11 +242,12 @@ public class JMSMessPgTest extends SeleniumTest {
 		JMSMonitoringPage page = new JMSMonitoringPage(driver);
 		log.info("Login into application and navigate to JMS Monitoring page");
 		page.getSidebar().goToPage(PAGES.JMS_MONITORING);
+		page.grid().waitForRowsToLoad();
 		
 		log.info("Choose domain name from page title");
 		String domain = selectRandomDomain();
 		
-		page.filters().getJmsQueueSelect().selectOptionByText(q);
+		page.filters().getJmsQueueSelect().selectQueueByName(q);
 		
 		log.info("select any message queue having some messages");
 		log.info("wait for grid row to load");
@@ -285,6 +286,7 @@ public class JMSMessPgTest extends SeleniumTest {
 		SoftAssert soft = new SoftAssert();
 		
 		String q = rest.jms().getRandomQNameWithMessages();
+		log.debug("found queue: {}", q);
 		if (StringUtils.isEmpty(q)) {
 			throw new SkipException("no queue has messages");
 		}
@@ -292,10 +294,12 @@ public class JMSMessPgTest extends SeleniumTest {
 		JMSMonitoringPage page = new JMSMonitoringPage(driver);
 		log.info("Login into application and navigate to JMS Monitoring page");
 		page.getSidebar().goToPage(PAGES.JMS_MONITORING);
+		page.grid().waitForRowsToLoad();
 		
 		String domain = page.getDomainFromTitle();
 		
-		page.filters().getJmsQueueSelect().selectOptionByText(q);
+//		page.filters().getJmsQueueSelect().selectOptionByText(q);
+		page.filters().getJmsQueueSelect().selectQueueByName(q);
 		
 		log.info("select any message queue having some messages");
 		log.info("wait for grid row to load");
@@ -320,6 +324,67 @@ public class JMSMessPgTest extends SeleniumTest {
 		soft.assertAll();
 	}
 	
+	
+	/* This method will verify scenario of jms message deletion on domain change*/
+	@Test(description = "JMS-12", groups = {"multiTenancy"})
+	public void jmsMsgDelOnDomainChange() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		
+		String q = rest.jms().getRandomQNameWithMessages();
+		if (StringUtils.isEmpty(q)) {
+			throw new SkipException("no queue has messages");
+		}
+		
+		JMSMonitoringPage page = new JMSMonitoringPage(driver);
+		log.info("Login into application and navigate to JMS Monitoring page");
+		page.getSidebar().goToPage(PAGES.JMS_MONITORING);
+		
+		String domain = page.getDomainFromTitle();
+		page.grid().waitForRowsToLoad();
+		page.filters().getJmsQueueSelect().selectQueueByName(q);
+		
+		log.info("select any message queue having some messages");
+		log.info("wait for grid row to load");
+		page.grid().waitForRowsToLoad();
+		page.grid().selectRow(0);
+		
+		log.info("Verify status of Move button and Delete button");
+		soft.assertTrue(page.getMoveButton().isEnabled(), "Move button is enabled on selection");
+		soft.assertTrue(page.getDeleteButton().isEnabled(), "Delete button is enabled on selection");
+		
+		String otherDomain = page.getDomainSelector().selectAnotherDomain();
+		
+		log.info("Check message count in queue");
+		page.grid().waitForRowsToLoad();
+		
+		page.filters().getJmsQueueSelect().selectQueueByName(q);
+		
+		log.info("After domain chenge select any message queue having some messages");
+		log.info("wait for grid row to load");
+		page.grid().waitForRowsToLoad();
+		
+		int totalCount = page.grid().getPagination().getTotalItems();
+		log.info("Current message count is " + totalCount);
+		
+		log.info("Select first row");
+		page.grid().selectRow(0);
+		
+		log.info("Click on delete button");
+		page.getDeleteButton().click();
+		
+		log.info("Click on save button");
+		page.getSaveButton().click();
+		new Dialog(driver).confirm();
+		
+		log.info("Check presence of success message on deletion");
+		soft.assertTrue(page.getAlertArea().getAlertMessage().contains("success"), "Success message is shown on deletion");
+		
+		log.info("Verify queue message count as 1 less than before");
+		soft.assertTrue(page.grid().getPagination().getTotalItems() == totalCount - 1, "Queue message count is 1 less");
+		
+		soft.assertAll();
+	}
+	
 	/* This method will verify data of Received Upto field*/
 	@Test(description = "JMS-21", groups = {"multiTenancy", "singleTenancy"})
 	public void checkReceivedUpTo() throws Exception {
@@ -329,6 +394,7 @@ public class JMSMessPgTest extends SeleniumTest {
 		
 		JMSMonitoringPage page = new JMSMonitoringPage(driver);
 		page.getSidebar().goToPage(PAGES.JMS_MONITORING);
+		page.grid().waitForRowsToLoad();
 		
 		log.info("getting expectyed date");
 		Calendar cal = Calendar.getInstance();
@@ -348,64 +414,6 @@ public class JMSMessPgTest extends SeleniumTest {
 		
 	}
 	
-	/* This method will verify scenario of jms message deletion on domain change*/
-	@Test(description = "JMS-12", groups = {"multiTenancy"})
-	public void jmsMsgDelOnDomainChange() throws Exception {
-		SoftAssert soft = new SoftAssert();
-		
-		String q = rest.jms().getRandomQNameWithMessages();
-		if (StringUtils.isEmpty(q)) {
-			throw new SkipException("no queue has messages");
-		}
-		
-		JMSMonitoringPage page = new JMSMonitoringPage(driver);
-		log.info("Login into application and navigate to JMS Monitoring page");
-		page.getSidebar().goToPage(PAGES.JMS_MONITORING);
-		
-		String domain = page.getDomainFromTitle();
-		
-		page.filters().getJmsQueueSelect().selectOptionByText(q);
-		
-		log.info("select any message queue having some messages");
-		log.info("wait for grid row to load");
-		page.grid().waitForRowsToLoad();
-		page.grid().selectRow(0);
-		
-		log.info("Verify status of Move button and Delete button");
-		soft.assertTrue(page.getMoveButton().isEnabled(), "Move button is enabled on selection");
-		soft.assertTrue(page.getDeleteButton().isEnabled(), "Delete button is enabled on selection");
-		
-		String otherDomain = page.getDomainSelector().selectAnotherDomain();
-		
-		log.info("Check message count in queue");
-		page.grid().waitForRowsToLoad();
-		
-		page.filters().getJmsQueueSelect().selectOptionByText(q);
-		
-		log.info("After domain chenge select any message queue having some messages");
-		log.info("wait for grid row to load");
-		page.grid().waitForRowsToLoad();
-		
-		int totalCount = page.grid().getPagination().getTotalItems();
-		log.info("Current message count is " + totalCount);
-		
-		log.info("Select first row");
-		page.grid().selectRow(0);
-		
-		log.info("Click on delete button");
-		page.getDeleteButton().click();
-		
-		log.info("Click on save button");
-		page.getSaveButton().click();
-		
-		log.info("Check presence of success message on deletion");
-		soft.assertTrue(page.getAlertArea().getAlertMessage().contains("success"), "Success message is shown on deletion");
-		
-		log.info("Verify queue message count as 1 less than before");
-		soft.assertTrue(page.grid().getPagination().getTotalItems() == totalCount - 1, "Queue message count is 1 less");
-		
-		soft.assertAll();
-	}
 	
 	/* This method will verify jms message queue count on Input filter*/
 	@Test(description = "JMS-23", groups = {"multiTenancy", "singleTenancy"})
@@ -452,7 +460,7 @@ public class JMSMessPgTest extends SeleniumTest {
 		
 		log.info("selecting queue with name " + q);
 		page.grid().waitForRowsToLoad();
-		page.filters().getJmsQueueSelect().selectOptionByText(q);
+		page.filters().getJmsQueueSelect().selectQueueByName(q);
 		
 		log.info("Selecting row 0");
 		page.grid().selectRow(0);
@@ -472,12 +480,11 @@ public class JMSMessPgTest extends SeleniumTest {
 			
 			log.info("Login into application with domain admin and navigate to JMS Monitoring page");
 			login(user, data.defaultPass());
-			log.info("uploading pmode");
 			page.getSidebar().goToPage(PAGES.JMS_MONITORING);
 			
 			log.info("selecting queue with name " + q);
 			page.grid().waitForRowsToLoad();
-			page.filters().getJmsQueueSelect().selectOptionByText(q);
+			page.filters().getJmsQueueSelect().selectQueueByName(q);
 			
 			log.info("Selecting row 0");
 			page.grid().selectRow(0);
@@ -490,11 +497,7 @@ public class JMSMessPgTest extends SeleniumTest {
 			
 			verifyQueueHasMessageCount(queues, false, soft);
 		}
-		
-		
 		soft.assertAll();
-		
-		
 	}
 	
 	/* This method will verify jms message count on queue in case of super admin*/
@@ -535,7 +538,7 @@ public class JMSMessPgTest extends SeleniumTest {
 		
 		log.info("selecting queue with name " + q);
 		page.grid().waitForRowsToLoad();
-		page.filters().getJmsQueueSelect().selectOptionByText(q);
+		page.filters().getJmsQueueSelect().selectQueueByName(q);
 		page.grid().waitForRowsToLoad();
 		
 		log.info("Selecting row 0");

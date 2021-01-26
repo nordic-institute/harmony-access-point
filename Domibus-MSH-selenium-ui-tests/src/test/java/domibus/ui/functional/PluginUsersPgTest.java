@@ -157,6 +157,7 @@ public class PluginUsersPgTest extends SeleniumTest {
 		page.getSidebar().goToPage(PAGES.PLUGIN_USERS);
 		
 		DGrid grid = page.grid();
+		grid.waitForRowsToLoad();
 		log.info("selecting user " + username);
 		grid.scrollToAndSelect("User Name", username);
 		page.getEditBtn().click();
@@ -167,7 +168,7 @@ public class PluginUsersPgTest extends SeleniumTest {
 		pum.getOriginalUserInput().fill("testEdit");
 		pum.changeFocus();
 		log.info("check error message");
-		soft.assertTrue(!pum.getOkBtn().isEnabled(), "Invalid value cannot be saved in the Original User field");
+		soft.assertEquals(pum.getOriginalUserErrMess().getText(), DMessages.PLUGIN_USER_ORIGINAL_USER_INVALID,  "Invalid value cannot be saved in the Original User field");
 		
 		log.info("fill Original User input with valid string");
 		pum.getOriginalUserInput().fill(toAdd);
@@ -194,17 +195,19 @@ public class PluginUsersPgTest extends SeleniumTest {
 	/* PU-7 - Admin edits an existing user and presses Save */
 	@Test(description = "PU-7", groups = {"multiTenancy", "singleTenancy"})
 	public void editAndSave() throws Exception {
-		String toAdd = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C7";
+		SoftAssert soft = new SoftAssert();
+
+		String toAdd = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:G" + Gen.randomNumber(100);
 		String username = rest.getPluginUser(null, DRoles.USER, true, false).getString("userName");
 		log.info("editing user " + username);
-		
-		SoftAssert soft = new SoftAssert();
+
 //		login with Admin and go to plugin users page
-		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PLUGIN_USERS);
-		
+
 		PluginUsersPage page = new PluginUsersPage(driver);
-		
+		page.getSidebar().goToPage(PAGES.PLUGIN_USERS);
+
 		DGrid grid = page.grid();
+
 		log.info("selecting user " + username);
 		grid.scrollToAndSelect("User Name", username);
 		page.getEditBtn().click();
@@ -214,14 +217,17 @@ public class PluginUsersPgTest extends SeleniumTest {
 		log.info("fill Original User input with invalid string");
 		pum.getOriginalUserInput().fill("testEdit");
 		pum.changeFocus();
+
 		log.info("check error message");
+		soft.assertEquals(pum.getOriginalUserErrMess().getText(), DMessages.PLUGINUSER_MODAL_ORIGINAL_USER_ERR, "Correct error message is shown when wrong original user is entered");
 		soft.assertTrue(!pum.getOkBtn().isEnabled(), "Invalid value cannot be saved in the Original User field");
 		
 		log.info("fill Original User input with valid string");
 		pum.getOriginalUserInput().fill(toAdd);
 		pum.changeFocus();
 		pum.clickOK();
-		
+
+		page.grid().waitForRowsToLoad();
 		
 		log.info("check grid for updated info");
 		soft.assertTrue(grid.scrollTo("Original User", toAdd) > -1, "Edited value is visible in the grid");
@@ -296,7 +302,8 @@ public class PluginUsersPgTest extends SeleniumTest {
 		
 		soft.assertAll();
 	}
-	
+
+
 	/*PU-13 - Create a certificate plugin userand press save*/
 	@Test(description = "PU-13", groups = {"multiTenancy", "singleTenancy"})
 	public void createCertificatePluginUserSave() throws Exception {
@@ -305,9 +312,10 @@ public class PluginUsersPgTest extends SeleniumTest {
 		log.info("creating plugin user with certificate " + certId);
 		
 		SoftAssert soft = new SoftAssert();
-		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PLUGIN_USERS);
 		PluginUsersPage page = new PluginUsersPage(driver);
-		
+		page.getSidebar().goToPage(PAGES.PLUGIN_USERS);
+		page.grid().waitForRowsToLoad();
+
 		log.info("switching to auth type certificate");
 		page.filters.getAuthTypeSelect().selectOptionByText("CERTIFICATE");
 		page.grid().waitForRowsToLoad();
@@ -330,7 +338,7 @@ public class PluginUsersPgTest extends SeleniumTest {
 		
 		soft.assertAll();
 	}
-	
+
 	/*PU-14 - Create a certificate plugin userand press cancel*/
 	@Test(description = "PU-14", groups = {"multiTenancy", "singleTenancy"})
 	public void createCertificatePluginUserCancel() throws Exception {
@@ -339,9 +347,12 @@ public class PluginUsersPgTest extends SeleniumTest {
 		log.info("creating plugin user with certificate " + certId);
 		
 		SoftAssert soft = new SoftAssert();
-		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PLUGIN_USERS);
-		
+
 		PluginUsersPage page = new PluginUsersPage(driver);
+		page.getSidebar().goToPage(PAGES.PLUGIN_USERS);
+		page.grid().waitForRowsToLoad();
+
+
 		log.info("switching to auth type certificate");
 		page.filters.getAuthTypeSelect().selectOptionByText("CERTIFICATE");
 		page.grid().waitForRowsToLoad();
@@ -453,7 +464,7 @@ public class PluginUsersPgTest extends SeleniumTest {
 		
 		soft.assertAll();
 	}
-	
+
 	/* PU-31 - Check duplicate user addition with same certificate id  */
 	@Test(description = "PU-31", groups = {"multiTenancy", "singleTenancy"})
 	public void certificatePluginUserDuplicateSameDomain() throws Exception {
@@ -465,6 +476,7 @@ public class PluginUsersPgTest extends SeleniumTest {
 		
 		PluginUsersPage page = new PluginUsersPage(driver);
 		page.getSidebar().goToPage(PAGES.PLUGIN_USERS);
+		page.grid().waitForRowsToLoad();
 		
 		page.filters.getAuthTypeSelect().selectOptionByText("CERTIFICATE");
 		page.grid().waitForRowsToLoad();
@@ -552,7 +564,7 @@ public class PluginUsersPgTest extends SeleniumTest {
 		soft.assertAll();
 	}
 	
-	
+
 	/*	PU-32 - Create duplicate plugin users by smashing the save button multiple times 	*/
 	@Test(description = "PU-32", groups = {"multiTenancy", "singleTenancy"})
 	public void newUserSaveMultipleSaves() throws Exception {

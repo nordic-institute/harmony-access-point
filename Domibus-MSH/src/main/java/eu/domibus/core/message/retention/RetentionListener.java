@@ -1,26 +1,27 @@
 package eu.domibus.core.message.retention;
 
+import com.google.gson.reflect.TypeToken;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
+import eu.domibus.api.util.JsonUtil;
 import eu.domibus.core.message.UserMessageDefaultService;
+import eu.domibus.api.model.UserMessageLogDto;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
-import java.util.Arrays;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
-
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RETENTION_WORKER_MESSAGE_ID_LIST_SEPARATOR;
 
 /**
  * Listeners that deletes messages by their identifiers.
@@ -45,11 +46,16 @@ public class RetentionListener implements MessageListener {
     @Autowired
     DomibusPropertyProvider domibusPropertyProvider;
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Autowired
+    private JsonUtil jsonUtil;
+
+    @Timer(clazz = RetentionListener.class,value = "onMessage.deleteMessages")
+    @Counter(clazz = RetentionListener.class,value = "onMessage.deleteMessages")
     public void onMessage(final Message message) {
-        if (!authUtils.isUnsecureLoginAllowed()) {
-            authUtils.setAuthenticationToSecurityContext("retention", "retention", AuthRole.ROLE_ADMIN);
-        }
+        authUtils.runWithSecurityContext(() -> onMessagePrivate(message), "retention", "retention", AuthRole.ROLE_ADMIN);
+    }
+
+    protected void onMessagePrivate(final Message message) {
 
         try {
             final String domainCode = message.getStringProperty(MessageConstants.DOMAIN);
@@ -65,10 +71,11 @@ public class RetentionListener implements MessageListener {
             }
 
             if (MessageDeleteType.MULTI == deleteType) {
-                final String separator = domibusPropertyProvider.getProperty(DOMIBUS_RETENTION_WORKER_MESSAGE_ID_LIST_SEPARATOR);
-                List<String> messageIds = Arrays.asList(StringUtils.splitByWholeSeparator(message.getStringProperty(MessageRetentionDefaultService.MESSAGE_IDS), separator));
-                LOG.debug("There are [{}] messages to delete [{}] in batch", messageIds.size(), messageIds);
-                userMessageDefaultService.deleteMessages(messageIds);
+                String userMessageLogsStr = message.getStringProperty(MessageRetentionDefaultService.MESSAGE_LOGS);
+                Type type = new TypeToken<ArrayList<UserMessageLogDto>>() {}.getType();
+                List<UserMessageLogDto> userMessageLogs = jsonUtil.jsonToList(userMessageLogsStr, type);
+                LOG.info("There are [{}] messages to delete in batch", userMessageLogs.size());
+                userMessageDefaultService.deleteMessages(userMessageLogs);
                 return;
             }
 

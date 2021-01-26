@@ -250,6 +250,7 @@ public class JMSMessPgUXTest extends SeleniumTest {
 			
 			JMSMonitoringPage page = new JMSMonitoringPage(driver);
 			page.getSidebar().goToPage(PAGES.JMS_MONITORING);
+			page.grid().waitForRowsToLoad();
 			
 			int noOfMessages = page.filters().getJmsQueueSelect().selectQueueWithMessages();
 			page.grid().waitForRowsToLoad();
@@ -291,12 +292,10 @@ public class JMSMessPgUXTest extends SeleniumTest {
 			int noOfMessages = page.filters().getJmsQueueSelect().selectQueueWithMessages();
 			page.grid().waitForRowsToLoad();
 			
-			String qName = page.filters().getJmsQueueSelect().getSelectedValue().replace("[internal]", "").replaceAll("\\(\\d+\\)", "").trim();
+			String qName = page.filters().getJmsQueueSelect().getSelectedValue();
 			log.info("verifying for queue " + qName);
-			HashMap<String, String> params = new HashMap<>();
-			params.put("source", qName);
 			
-			String fileName = rest.csv().downloadGrid(RestServicePaths.JMS_MESSAGES_CSV, params, null);
+			String fileName = page.pressSaveCsvAndSaveFile();
 			log.info("downloaded file " + fileName);
 			
 			page.grid().getGridCtrl().showCtrls();
@@ -533,19 +532,13 @@ public class JMSMessPgUXTest extends SeleniumTest {
 	
 	private String getSelector(HashMap<String, String> messInfo) throws JSONException {
 		
-		String jmsProp = messInfo.get("JMS prop");
-		String jmsMessageID = new JSONObject(jmsProp).getString("JMSMessageID");
+		JSONObject customProp = new JSONObject(messInfo.get("Custom prop"));
 		
-		String custProp = messInfo.get("Custom prop");
-		if (custProp.contains("MESSAGE_ID")) {
-			String selectorTemplate = "MESSAGE_ID='%s' AND JMSMessageID='%s'";
-			String messageId = new JSONObject(custProp).getString("MESSAGE_ID");
-			return String.format(selectorTemplate, messageId, jmsMessageID);
-		} else {
-			// some legit jms messages don't contain the MESSAGE_ID prop
-			String selectorTemplate = "JMSMessageID='%s'";
-			return String.format(selectorTemplate, jmsMessageID);
-		}
+		String messageId = customProp.getString("messageId");
+		String fromPartyId = customProp.getString("fromPartyId");
+		
+		String selector = String.format("messageId='%s' AND fromPartyId='%s'", messageId, fromPartyId);
+		return selector;
 	}
 	
 	

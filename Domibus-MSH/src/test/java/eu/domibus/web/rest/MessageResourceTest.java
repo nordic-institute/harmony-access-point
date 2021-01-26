@@ -2,10 +2,10 @@ package eu.domibus.web.rest;
 
 import eu.domibus.api.messaging.MessageNotFoundException;
 import eu.domibus.api.usermessage.UserMessageService;
+import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.message.MessagesLogService;
 import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.UserMessageLogDao;
-import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.message.converter.MessageConverterService;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.MessageLogRO;
@@ -135,6 +135,33 @@ public class MessageResourceTest {
 
         boolean result3 = messageResource.checkMessageContentExists("messageId");
         Assert.assertEquals(true, result3);
+    }
+
+    @Test
+    public void getByteArrayResourceResponseEntity_empty() {
+        String messageId = "messageId";
+        new Expectations() {{
+            userMessageService.getMessageEnvelopesAsZip(messageId);
+            result = new byte[]{};
+        }};
+
+        ResponseEntity<ByteArrayResource> result = messageResource.getByteArrayResourceResponseEntity(messageId);
+        Assert.assertEquals(HttpStatus.NO_CONTENT, result.getStatusCode());
+    }
+
+    @Test
+    public void getByteArrayResourceResponseEntity() {
+        String messageId = "messageId";
+        byte[] content = {1, 2, 3, 4};
+        new Expectations() {{
+            userMessageService.getMessageEnvelopesAsZip(messageId);
+            this.result = content;
+        }};
+
+        ResponseEntity<ByteArrayResource> result = messageResource.getByteArrayResourceResponseEntity(messageId);
+        Assert.assertEquals(HttpStatus.OK, result.getStatusCode());
+        Assert.assertEquals(content, result.getBody().getByteArray());
+        Assert.assertEquals("application/zip", result.getHeaders().get("Content-Type").get(0));
     }
 
 }

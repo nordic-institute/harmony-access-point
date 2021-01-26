@@ -28,6 +28,7 @@ import {PropertiesService} from '../properties/support/properties.service';
 import * as moment from 'moment';
 import {SecurityService} from '../security/security.service';
 import {ComponentName} from '../common/component-name-decorator';
+import {MessageLogEntry} from './support/messagelogentry';
 
 @Component({
   moduleId: module.id,
@@ -44,6 +45,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
   static readonly DOWNLOAD_MESSAGE_URL: string = 'rest/message/download?messageId=${messageId}';
   static readonly CAN_DOWNLOAD_MESSAGE_URL: string = 'rest/message/exists?messageId=${messageId}';
   static readonly MESSAGE_LOG_URL: string = 'rest/messagelog';
+  static readonly DOWNLOAD_ENVELOPE_URL: string = 'rest/message/envelopes?messageId=${messageId}';
 
   @ViewChild('rowWithDateFormatTpl', {static: false}) public rowWithDateFormatTpl: TemplateRef<any>;
   @ViewChild('nextAttemptInfoTpl', {static: false}) public nextAttemptInfoTpl: TemplateRef<any>;
@@ -337,6 +339,29 @@ export class MessageLogComponent extends mix(BaseListComponent)
       }
     } catch (err) {
       this.alertService.exception(`Could not download message content for id ${messageId}.`, err);
+    }
+  }
+
+  downloadEnvelopeAction(row: MessageLogEntry) {
+    if (row.messageType == 'USER_MESSAGE') {
+      this.downloadEnvelopesForUserMessage(row.messageId);
+    } else {
+      this.downloadEnvelopesForSignalMessage(row);
+    }
+  }
+
+  private downloadEnvelopesForSignalMessage(row) {
+    this.downloadEnvelopesForUserMessage(row.refToMessageId);
+  }
+
+  private downloadEnvelopesForUserMessage(messageId) {
+    try {
+      const downloadUrl = MessageLogComponent.DOWNLOAD_ENVELOPE_URL
+        .replace('${messageId}', encodeURIComponent(messageId));
+
+      DownloadService.downloadNative(downloadUrl);
+    } catch (err) {
+      this.alertService.exception(`Could not download message envelopes for id ${messageId}.`, err);
     }
   }
 

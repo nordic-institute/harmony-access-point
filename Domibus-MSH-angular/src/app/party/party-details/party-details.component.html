@@ -19,10 +19,9 @@
                   <input matInput placeholder="End Point" name="endPoint" id="endPoint_id_detail" [(ngModel)]="party.endpoint" input-debounce
                          #party_endPoint="ngModel" required [maxlength]="255" [pattern]="endpointPattern">
                   <span class="help-block" *ngIf="shouldShowErrors(party_endPoint)">
-                  <div *ngIf="party_endPoint.errors?.pattern" style="color:red; font-size: 70%">
-                    Endpoint should follow the URL pattern<br>
-                  </div>
-                </span>
+                    <div *ngIf="party_endPoint.errors?.required" style="color:red; font-size: 70%">You should type an endpoint</div>
+                    <div *ngIf="party_endPoint.errors?.pattern" style="color:red; font-size: 70%">Endpoint should follow the URL pattern<br></div>
+                  </span>
                 </mat-form-field>
               </div>
             </mat-card-content>
@@ -53,9 +52,9 @@
                     <input matInput placeholder="Fingerprints" name="fingerPrint" value="{{party.certificate?.fingerprints}}" id="fingerPrint_id">
                   </mat-form-field>
                 </fieldset>
-                <label class="custom-file-upload">
+                <label [ngClass]="{'custom-file-upload': party.name, 'custom-file-upload-disabled': !party.name }" (click)="onImportClicked($event)">
                   <input #fileInput type="file" id="custom-file-upload" accept=".cer" (change)="uploadCertificate()">
-                  <span class="custom-file-upload-inner">Import</span>
+                  <span [ngClass]="{'custom-file-upload-inner': party.name, 'custom-file-upload-inner-disabled': !party.name }">Import</span>
                 </label>
               </div>
             </mat-card-content>
@@ -136,7 +135,7 @@
                       Initiator
                     </ng-template>
                     <ng-template ngx-datatable-cell-template let-row="row" let-value="row.isInitiator">
-                      <mat-checkbox [checked]="row.isInitiator" (change)="row.isInitiator = !row.isInitiator"></mat-checkbox>
+                      <mat-checkbox [checked]="row.isInitiator" (change)="checkInitiator(row)"></mat-checkbox>
                     </ng-template>
                   </ngx-datatable-column>
 
@@ -145,7 +144,7 @@
                       Responder
                     </ng-template>
                     <ng-template ngx-datatable-cell-template let-row="row" let-value="value">
-                      <mat-checkbox [checked]="row.isResponder" (change)="row.isResponder = !row.isResponder"></mat-checkbox>
+                      <mat-checkbox [checked]="row.isResponder" (change)="checkResponder(row)"></mat-checkbox>
                     </ng-template>
                   </ngx-datatable-column>
                 </ngx-datatable>

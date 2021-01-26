@@ -3,9 +3,9 @@ package eu.domibus.core.message.retention;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.core.pmode.ConfigurationDAO;
+import eu.domibus.core.scheduler.DomibusQuartzJobBean;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.core.scheduler.DomibusQuartzJobBean;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,13 +30,13 @@ public class RetentionWorker extends DomibusQuartzJobBean {
 
     @Override
     protected void executeJob(JobExecutionContext context, Domain domain) {
-        LOG.debug("RetentionWorker executed");
-        if(!authUtils.isUnsecureLoginAllowed()) {
-            authUtils.setAuthenticationToSecurityContext("retention_user", "retention_password");
-        }
-
         if (configurationDAO.configurationExists()) {
             messageRetentionService.deleteExpiredMessages();
         }
+    }
+
+    @Override
+    protected void setQuartzJobSecurityContext() {
+        authUtils.setAuthenticationToSecurityContext("retention_user", "retention_password");
     }
 }

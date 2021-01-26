@@ -1,17 +1,14 @@
 package eu.domibus.core.message;
 
+import eu.domibus.api.model.*;
 import com.google.common.collect.Maps;
-import eu.domibus.common.MSHRole;
-import eu.domibus.common.MessageStatus;
-import eu.domibus.core.plugin.notification.NotificationStatus;
-import eu.domibus.ebms3.common.model.MessageType;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
@@ -123,20 +120,32 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         }
     }
 
-    public List<String> getUndownloadedUserMessagesOlderThan(Date date, String mpc, Integer expiredNotDownloadedMessagesLimit) {
+    public List<UserMessageLogDto> getDeletedUserMessagesOlderThan(Date date, String mpc, Integer expiredDeletedMessagesLimit) {
+        return getMessagesOlderThan(date, mpc, expiredDeletedMessagesLimit, "UserMessageLog.findDeletedUserMessagesOlderThan");
+    }
+
+    public List<UserMessageLogDto> getUndownloadedUserMessagesOlderThan(Date date, String mpc, Integer expiredNotDownloadedMessagesLimit) {
         return getMessagesOlderThan(date, mpc, expiredNotDownloadedMessagesLimit, "UserMessageLog.findUndownloadedUserMessagesOlderThan");
     }
 
-    public List<String> getDownloadedUserMessagesOlderThan(Date date, String mpc, Integer expiredDownloadedMessagesLimit) {
+    public List<UserMessageLogDto> getDownloadedUserMessagesOlderThan(Date date, String mpc, Integer expiredDownloadedMessagesLimit) {
         return getMessagesOlderThan(date, mpc, expiredDownloadedMessagesLimit, "UserMessageLog.findDownloadedUserMessagesOlderThan");
     }
 
-    public List<String> getSentUserMessagesOlderThan(Date date, String mpc, Integer expiredSentMessagesLimit) {
-        return getMessagesOlderThan(date, mpc, expiredSentMessagesLimit, "UserMessageLog.findSentUserMessagesOlderThan");
+    public List<UserMessageLogDto> getSentUserMessagesOlderThan(Date date, String mpc, Integer expiredSentMessagesLimit, boolean isDeleteMessageMetadata) {
+        if(isDeleteMessageMetadata) {
+            return getMessagesOlderThan(date, mpc, expiredSentMessagesLimit, "UserMessageLog.findSentUserMessagesOlderThan");
+        }
+        // return only messages with payload not already cleared
+        return getSentUserMessagesWithPayloadNotClearedOlderThan(date, mpc, expiredSentMessagesLimit);
     }
 
-    private List<String> getMessagesOlderThan(Date startDate, String mpc, Integer expiredMessagesLimit, String queryName) {
-        TypedQuery<String> query = em.createNamedQuery(queryName, String.class);
+    protected List<UserMessageLogDto> getSentUserMessagesWithPayloadNotClearedOlderThan(Date date, String mpc, Integer expiredSentMessagesLimit) {
+        return getMessagesOlderThan(date, mpc, expiredSentMessagesLimit, "UserMessageLog.findSentUserMessagesWithPayloadNotClearedOlderThan");
+    }
+
+    private List<UserMessageLogDto> getMessagesOlderThan(Date startDate, String mpc, Integer expiredMessagesLimit, String queryName) {
+        TypedQuery<UserMessageLogDto> query = em.createNamedQuery(queryName, UserMessageLogDto.class);
         query.setParameter("DATE", startDate);
         query.setParameter("MPC", mpc);
         query.setMaxResults(expiredMessagesLimit);
@@ -208,6 +217,8 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         return resultList;
     }
 
+    @Timer(clazz = UserMessageLogDao.class,value = "deleteMessages.deleteMessageLogs")
+    @Counter(clazz = UserMessageLogDao.class,value = "deleteMessages.deleteMessageLogs")
     public int deleteMessageLogs(List<String> messageIds) {
         final Query deleteQuery = em.createNamedQuery("UserMessageLog.deleteMessageLogs");
         deleteQuery.setParameter("MESSAGEIDS", messageIds);

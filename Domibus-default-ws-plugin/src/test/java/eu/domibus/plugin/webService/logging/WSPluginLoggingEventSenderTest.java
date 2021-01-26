@@ -2,7 +2,6 @@ package eu.domibus.plugin.webService.logging;
 
 import mockit.*;
 import mockit.integration.junit4.JMockit;
-import org.apache.cxf.ext.logging.event.EventType;
 import org.apache.cxf.ext.logging.event.LogEvent;
 import org.junit.Assert;
 import org.junit.Test;
@@ -26,14 +25,11 @@ public class WSPluginLoggingEventSenderTest {
     @Test
     public void test_getLogMessage_StripHeadersPayload(final @Mocked LogEvent logEvent) {
         new Expectations(wsPluginLoggingEventSender) {{
-            wsPluginLoggingEventSender.checkIfApacheCxfLoggingInfoEnabled();
+            wsPluginLoggingEventSender.isCxfLoggingInfoEnabled();
             result = true;
 
             wsPluginLoggingEventSender.checkIfStripPayloadPossible();
             result = true;
-
-            logEvent.getType();
-            result = EventType.REQ_IN;
         }};
 
         //tested method
@@ -59,7 +55,7 @@ public class WSPluginLoggingEventSenderTest {
         }};
 
         //tested method
-        Assert.assertTrue(wsPluginLoggingEventSender.checkIfApacheCxfLoggingInfoEnabled());
+        Assert.assertTrue(wsPluginLoggingEventSender.isCxfLoggingInfoEnabled());
     }
 
     @Test

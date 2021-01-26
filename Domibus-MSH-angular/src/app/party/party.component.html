@@ -20,18 +20,14 @@
             </mat-form-field>
             <mat-select placeholder="Process Role" [(ngModel)]="filter.process_role" name="process_role"
                         id="process_role_id" style="width:120px;margin-right: 0;">
-              <mat-option [value]="''"></mat-option>
+              <mat-option [value]=""></mat-option>
               <mat-option [value]="'(I)'">I</mat-option>
               <mat-option [value]="'(R)'">R</mat-option>
               <mat-option [value]="'(IR)'">IR</mat-option>
             </mat-select>
 
-            <div class="searchArea">
-              <button mat-raised-button color="primary" id="searchbutton_id" button-click-behaviour>
-                <mat-icon>search</mat-icon>
-                <span>Search</span>
-              </button>
-            </div>
+            <filter-area-footer [parent]="this" [form]="filterForm" [isAdvancedVisible]="false"></filter-area-footer>
+
           </div>
         </form>
       </mat-card-content>

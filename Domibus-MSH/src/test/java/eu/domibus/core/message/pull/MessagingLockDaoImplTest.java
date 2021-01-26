@@ -1,6 +1,6 @@
 package eu.domibus.core.message.pull;
 
-import eu.domibus.ebms3.common.model.MessageState;
+import eu.domibus.api.model.MessageState;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Before;

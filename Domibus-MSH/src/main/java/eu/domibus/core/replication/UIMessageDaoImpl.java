@@ -2,7 +2,9 @@ package eu.domibus.core.replication;
 
 import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.core.dao.ListDao;
-import eu.domibus.core.message.UserMessageLog;
+import eu.domibus.api.model.UserMessageLog;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -203,6 +205,8 @@ public class UIMessageDaoImpl extends ListDao<UIMessageEntity> implements UIMess
     }
 
     @Override
+    @Timer(clazz = UIMessageDaoImpl.class,value = "deleteMessages.deleteUIMessagesByMessageIds")
+    @Counter(clazz = UIMessageDaoImpl.class,value = "deleteMessages.deleteUIMessagesByMessageIds")
     public int deleteUIMessagesByMessageIds(List<String> messageIds) {
         final Query deleteQuery = em.createNamedQuery("UIMessageEntity.deleteUIMessagesByMessageIds");
         deleteQuery.setParameter("MESSAGEIDS", messageIds);

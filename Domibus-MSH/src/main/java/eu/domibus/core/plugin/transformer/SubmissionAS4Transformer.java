@@ -1,7 +1,7 @@
 package eu.domibus.core.plugin.transformer;
 
+import eu.domibus.api.model.*;
 import eu.domibus.core.generator.id.MessageIdGenerator;
-import eu.domibus.ebms3.common.model.*;
 import eu.domibus.plugin.Submission;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,11 +22,11 @@ public class SubmissionAS4Transformer {
     public UserMessage transformFromSubmission(final Submission submission) {
         final UserMessage result = new UserMessage();
         result.setMpc(submission.getMpc());
-        this.generateCollaborationInfo(submission, result);
         this.generateMessageInfo(submission, result);
         this.generatePartyInfo(submission, result);
-        this.generatePayload(submission, result);
+        this.generateCollaborationInfo(submission, result);
         this.generateMessageProperties(submission, result);
+        this.generatePayload(submission, result);
 
         return result;
     }

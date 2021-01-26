@@ -1,6 +1,6 @@
 package eu.domibus.core.alerts.configuration.messaging;
 
-import eu.domibus.common.MessageStatus;
+import eu.domibus.api.model.MessageStatus;
 import eu.domibus.core.alerts.configuration.AlertModuleConfigurationBase;
 import eu.domibus.core.alerts.model.common.AlertLevel;
 import eu.domibus.core.alerts.model.common.AlertType;
@@ -21,7 +21,7 @@ public class MessagingModuleConfiguration extends AlertModuleConfigurationBase {
 
     private static final Logger LOG = DomibusLoggerFactory.getLogger(MessagingModuleConfiguration.class);
 
-    private Map<MessageStatus, AlertLevel> messageStatusLevels = new EnumMap<>(MessageStatus.class);
+    protected Map<MessageStatus, AlertLevel> messageStatusLevels = new EnumMap<>(MessageStatus.class);
 
     public MessagingModuleConfiguration(final String mailSubject) {
         super(AlertType.MSG_STATUS_CHANGED, mailSubject);

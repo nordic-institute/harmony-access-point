@@ -40,7 +40,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  * @author Sebastian-Ion TINCU
  * @since 3.2
  */
-@Component
+@Component(XMLUtil.BEAN_NAME)
 public class XMLUtilImpl implements XMLUtil {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(XMLUtilImpl.class);
@@ -51,10 +51,8 @@ public class XMLUtilImpl implements XMLUtil {
         this.domibusPropertyProvider = domibusPropertyProvider;
     }
 
-    private static final ThreadLocal<DocumentBuilderFactory> documentBuilderFactoryThreadLocal = ThreadLocal.withInitial(() -> {
-        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-        return documentBuilderFactory;
-    });
+    private static final ThreadLocal<DocumentBuilderFactory> documentBuilderFactoryThreadLocal =
+            ThreadLocal.withInitial(DocumentBuilderFactory::newInstance);
 
     private static final ThreadLocal<DocumentBuilderFactory> documentBuilderFactoryNamespaceAwareThreadLocal = ThreadLocal.withInitial(() -> {
         DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -62,9 +60,8 @@ public class XMLUtilImpl implements XMLUtil {
         return documentBuilderFactory;
     });
 
-    private static final ThreadLocal<TransformerFactory> transformerFactoryThreadLocal = ThreadLocal.withInitial(() -> {
-        return createTransformerFactory();
-    });
+    private static final ThreadLocal<TransformerFactory> transformerFactoryThreadLocal =
+            ThreadLocal.withInitial(XMLUtilImpl::createTransformerFactory);
 
     private static final ThreadLocal<MessageFactory> messageFactoryThreadLocal = ThreadLocal.withInitial(() -> {
         try {
@@ -74,11 +71,11 @@ public class XMLUtilImpl implements XMLUtil {
         }
     });
 
-    public static DocumentBuilderFactory getDocumentBuilderFactory() {
+    public DocumentBuilderFactory getDocumentBuilderFactory() {
         return documentBuilderFactoryThreadLocal.get();
     }
 
-    public static DocumentBuilderFactory getDocumentBuilderFactoryNamespaceAware() {
+    public DocumentBuilderFactory getDocumentBuilderFactoryNamespaceAware() {
         return documentBuilderFactoryNamespaceAwareThreadLocal.get();
     }
 
@@ -92,11 +89,15 @@ public class XMLUtilImpl implements XMLUtil {
         return transformerFactory;
     }
 
-    public static MessageFactory getMessageFactory() {
+
+
+    @Override
+    public MessageFactory getMessageFactorySoap12() {
         return messageFactoryThreadLocal.get();
     }
 
-    public static TransformerFactory getTransformerFactory() {
+    @Override
+    public TransformerFactory getTransformerFactory() {
         return transformerFactoryThreadLocal.get();
     }
 

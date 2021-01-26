@@ -10,7 +10,7 @@ import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.util.MessageUtil;
-import eu.domibus.ebms3.common.model.Messaging;
+import eu.domibus.api.model.Messaging;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;

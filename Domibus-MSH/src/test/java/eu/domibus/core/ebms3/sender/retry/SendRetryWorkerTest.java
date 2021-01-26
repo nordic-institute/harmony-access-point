@@ -4,7 +4,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.security.AuthUtils;
-import eu.domibus.core.util.DatabaseUtil;
+import eu.domibus.api.util.DatabaseUtil;
 import mockit.Expectations;
 import mockit.FullVerifications;
 import mockit.Injectable;
@@ -48,26 +48,33 @@ public class SendRetryWorkerTest {
     @Injectable
     DatabaseUtil databaseUtil;
 
+
     @Test
-    public void test_executeJob(final @Injectable JobExecutionContext jobExecutionContext,
-                                final @Injectable Domain domain) throws Exception {
+    public void executeJob(@Injectable JobExecutionContext context, @Injectable Domain domain) throws Exception {
 
         new Expectations(sendRetryWorker) {{
-            authUtils.isUnsecureLoginAllowed();
-            result = true;
-
             retryService.getMessagesNotAlreadyScheduled();
             result = QUEUED_MESSAGEIDS;
 
             retryService.enqueueMessage(anyString);
         }};
 
-        sendRetryWorker.executeJob(jobExecutionContext, domain);
+        sendRetryWorker.executeJob(context, domain);
 
         new FullVerifications() {{
             retryService.enqueueMessage(MESSAGE_ID_1);
             retryService.enqueueMessage(MESSAGE_ID_2);
             retryService.enqueueMessage(MESSAGE_ID_3);
+        }};
+    }
+
+    @Test
+    public void setQuartzJobSecurityContext() {
+
+        sendRetryWorker.setQuartzJobSecurityContext();
+
+        new FullVerifications() {{
+            authUtils.setAuthenticationToSecurityContext("retry_user", "retry_password");
         }};
     }
 }

@@ -9,7 +9,7 @@
     <parent>
         <groupId>eu.domibus</groupId>
         <artifactId>domibus</artifactId>
-        <version>4.2-SNAPSHOT</version>
+        <version>5.0-SNAPSHOT</version>
     </parent>
     <artifactId>domibus-plugin-api</artifactId>
     <packaging>jar</packaging>
@@ -89,15 +89,28 @@
             <artifactId>spring-web</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-        </dependency>
-        <dependency>
             <groupId>javax.activation</groupId>
             <artifactId>activation</artifactId>
             <scope>provided</scope>
         </dependency>
 
+        <!-- Start Apache -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-core</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-transports-http</artifactId>
+        </dependency>
+        <!-- End Apache -->
+
+        <!-- Start Test -->
         <dependency>
             <groupId>org.jmockit</groupId>
             <artifactId>jmockit</artifactId>
@@ -108,6 +121,7 @@
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- End Test -->
     </dependencies>
 
     <profiles>

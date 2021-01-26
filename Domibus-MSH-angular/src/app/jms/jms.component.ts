@@ -93,7 +93,7 @@ export class JmsComponent extends mix(BaseListComponent)
     });
 
     this.defaultQueueSet.subscribe(oldVal => {
-      super.tryFilter().then(done => {
+      super.tryFilter(false).then(done => {
         if (!done) {
           //revert the drop-down value to the old one
           this._selectedSource = oldVal;
@@ -118,11 +118,6 @@ export class JmsComponent extends mix(BaseListComponent)
         name: 'Time',
         prop: 'timestamp',
         width: 80
-      },
-      {
-        cellTemplate: this.rawTextTpl,
-        name: 'Content',
-        prop: 'content'
       },
       {
         name: 'Custom prop',
@@ -277,21 +272,26 @@ export class JmsComponent extends mix(BaseListComponent)
       const message = messages[0];
       originalQueueName = this.getOriginalQueueName(message);
     }
+    console.log(`Original queue name for the message is [${this.selectedSource.name}].`);
 
-    let result: any[];
+    let allowedQueues: any[];
     if (originalQueueName) {
-      result = this.queues.filter(queue => queue.name.includes(originalQueueName));
+      allowedQueues = this.queues.filter(queue => queue.name.includes(originalQueueName));
+      if (allowedQueues.length == 0) {
+        throw new Error(`Cannot move the selected messages because the original queue [${originalQueueName}] cannot be found.`);
+      }
     } else {
-      console.warn('Unable to determine the original/destination queue for the selected message');
-      result = this.queues;
+      console.warn(`Could not find the original queue [${originalQueueName}] for the selected message; returning all as allowed destination queues.`);
+      allowedQueues = this.queues;
     }
 
     // exclude source queue
-    result = result.filter(el => el.name != this.selectedSource.name);
-    if (result.length == 0) {
-      throw new Error('Cannot move the messages because the original/destination queue is the same as current queue');
+    console.log(`Excluding the current queue [${this.selectedSource.name}] from the allowed destination queues.`);
+    allowedQueues = allowedQueues.filter(el => el.name != this.selectedSource.name);
+    if (allowedQueues.length == 0) {
+      throw new Error(`Cannot move the selected messages because the original queue [${originalQueueName}] is the same as the current queue.`);
     }
-    return result;
+    return allowedQueues;
   }
 
   getCommonOriginalQueueName(messages: any[]): any {

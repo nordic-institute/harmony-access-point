@@ -1,8 +1,9 @@
 package eu.domibus.common.dao;
 
+import eu.domibus.api.model.MessageStatus;
 import eu.domibus.AbstractIT;
-import eu.domibus.common.MSHRole;
-import eu.domibus.common.MessageStatus;
+import eu.domibus.api.model.*;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.model.configuration.Identifier;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.PartyIdType;
@@ -10,7 +11,6 @@ import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.UserMessageLogEntityBuilder;
 import eu.domibus.core.message.pull.MessagePullDto;
 import eu.domibus.core.party.PartyDao;
-import eu.domibus.ebms3.common.model.*;
 import eu.domibus.test.util.PojoInstaciatorUtil;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Thomas Dussart
@@ -42,10 +43,10 @@ public class MessagingDaoTestIT extends AbstractIT {
     @Test
     @Transactional
     @Rollback
-    public void findMessagingOnStatusReceiverAndMpc() throws Exception {
+    public void findMessagingOnStatusReceiverAndMpc() {
 
         List<Identifier> identifiers = new ArrayList<>();
-        Identifier identifier= new Identifier();
+        Identifier identifier = new Identifier();
         identifier.setPartyId("domibus-blue");
         PartyIdType partyIdType1 = new PartyIdType();
         partyIdType1.setName("partyIdTypeUrn1");
@@ -94,6 +95,13 @@ public class MessagingDaoTestIT extends AbstractIT {
         List<MessagePullDto> testParty = messagingDao.findMessagingOnStatusReceiverAndMpc("RED_MSH", MessageStatus.READY_TO_PULL, "http://mpc");
         assertEquals(1, testParty.size());
         assertEquals("123456", testParty.get(0).getMessageId());
+
+        Messaging messageByMessageId = messagingDao.findMessageByMessageId("123456");
+        assertNotNull(messageByMessageId.getCreatedBy());
+        assertNotNull(messageByMessageId.getCreationTime());
+        assertNotNull(messageByMessageId.getModifiedBy());
+        assertNotNull(messageByMessageId.getModificationTime());
+        assertEquals(messageByMessageId.getCreationTime(), messageByMessageId.getModificationTime());
     }
 
 }

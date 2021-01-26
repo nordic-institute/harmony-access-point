@@ -3,6 +3,7 @@ package eu.domibus.core.converter;
 import eu.domibus.api.audit.AuditLog;
 import eu.domibus.api.cluster.Command;
 import eu.domibus.api.message.attempt.MessageAttempt;
+import eu.domibus.api.model.*;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.party.Party;
 import eu.domibus.api.pmode.PModeArchiveInfo;
@@ -18,21 +19,21 @@ import eu.domibus.core.audit.model.Audit;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.message.MessageLogInfo;
-import eu.domibus.core.message.signal.SignalMessageLog;
-import eu.domibus.core.message.UserMessageLog;
+import eu.domibus.api.model.SignalMessageLog;
+import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.core.alerts.model.mapper.EventMapper;
 import eu.domibus.core.alerts.model.persist.Alert;
-import eu.domibus.core.crypto.api.CertificateEntry;
+import eu.domibus.api.pki.CertificateEntry;
 import eu.domibus.core.crypto.spi.CertificateEntrySpi;
 import eu.domibus.core.crypto.spi.DomainSpi;
 import eu.domibus.core.logging.LoggingEntry;
 import eu.domibus.core.message.attempt.MessageAttemptEntity;
 import eu.domibus.core.party.PartyResponseRo;
 import eu.domibus.core.party.ProcessRo;
+import eu.domibus.core.property.DomibusPropertiesFilter;
 import eu.domibus.core.replication.UIMessageDiffEntity;
 import eu.domibus.core.replication.UIMessageEntity;
 import eu.domibus.core.user.plugin.AuthenticationEntity;
-import eu.domibus.ebms3.common.model.*;
 import eu.domibus.ext.domain.*;
 import eu.domibus.core.plugin.routing.BackendFilterEntity;
 import eu.domibus.core.plugin.routing.RoutingCriteriaEntity;
@@ -40,7 +41,6 @@ import eu.domibus.web.rest.ro.*;
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.Mappings;
 
 /**
  * @author Ioana Dragusanu (idragusa)
@@ -137,7 +137,6 @@ public interface DomibusCoreMapper {
     @InheritInverseConfiguration
     PullRequestDTO pullRequestToPullRequestDTO(PullRequest pullRequest);
 
-    @Mapping(target = "otherAttributes", ignore = true)
     PullRequest pullRequestDTOToPullRequest(PullRequestDTO pullRequestDTO);
 
     @Mapping(target = "authenticationType", ignore = true)
@@ -277,4 +276,6 @@ public interface DomibusCoreMapper {
     DomibusPropertyMetadata propertyMetadataDTOTopropertyMetadata(DomibusPropertyMetadataDTO src);
 
     DomibusPropertyMetadata propertyMetadataTopropertyMetadata(DomibusPropertyMetadata src);
+
+    DomibusPropertiesFilter domibusPropertyFilterRequestTOdomibusPropertiesFilter(PropertyFilterRequestRO source);
 }

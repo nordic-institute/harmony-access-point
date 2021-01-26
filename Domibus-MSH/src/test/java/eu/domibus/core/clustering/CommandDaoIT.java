@@ -1,6 +1,6 @@
 package eu.domibus.core.clustering;
 
-import eu.domibus.core.dao.InMemoryDataBaseConfig;
+import eu.domibus.core.dao.InMemoryDatabaseMshConfig;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.junit.Assert;
@@ -21,12 +21,15 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertNotNull;
+
 /**
  * @author Cosmin Baciu
  * @since 4.0.1
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {InMemoryDataBaseConfig.class, CommandDaoConfig.class})
+@ContextConfiguration(classes = {InMemoryDatabaseMshConfig.class, CommandDaoConfig.class})
 @ActiveProfiles("IN_MEMORY_DATABASE")
 public class CommandDaoIT {
 
@@ -54,11 +57,21 @@ public class CommandDaoIT {
         entity.setCommandName("command1");
 
         commandDao.create(entity);
+
+        List<CommandEntity> ms1 = commandDao.findCommandsByServerName("ms1");
+        assertEquals(1, ms1.size());
+        CommandEntity commandEntity = ms1.get(0);
+        assertNotNull(commandEntity.getCreationTime());
+        assertNotNull(commandEntity.getModificationTime());
+        assertNotNull(commandEntity.getCreatedBy());
+        assertNotNull(commandEntity.getModifiedBy());
+
+        assertEquals(commandEntity.getCreationTime(), commandEntity.getModificationTime());
     }
 
     @Test
     @Transactional
-    @Ignore // TODO: François Gautier 11-09-20 Fix the test
+    @Ignore("François Gautier 11-09-20 Fix the test")
     public void deleteCommandAndProperties() {
         CommandEntity entity = new CommandEntity();
         entity.setCreationTime(new Date());

@@ -3,7 +3,7 @@ package eu.domibus.common.model.configuration;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.core.ebms3.sender.retry.RetryStrategy;
-import eu.domibus.ebms3.common.model.AbstractBaseEntity;
+import eu.domibus.api.model.AbstractBaseEntity;
 
 import javax.persistence.*;
 import javax.xml.bind.annotation.*;

@@ -107,4 +107,47 @@ public class SignalServiceImpl implements SignalService {
         jmsManager.sendMessageToTopic(jmsMessage, clusterCommandTopic, true);
     }
 
+    @Override
+    public void signalMessageFiltersUpdated() {
+        String domainCode = domainContextProvider.getCurrentDomain().getCode();
+
+        LOG.debug("Signaling message filters change [{}] domain", domainCode);
+
+        Map<String, String> commandProperties = new HashMap<>();
+        commandProperties.put(Command.COMMAND, Command.MESSAGE_FILTER_UPDATE);
+        commandProperties.put(MessageConstants.DOMAIN, domainCode);
+
+        sendMessage(commandProperties);
+    }
+
+    @Override
+    public void signalSessionInvalidation(String userName) {
+        LOG.debug("Signaling user session invalidation for user", userName);
+        Map<String, String> commandProperties = new HashMap<>();
+        commandProperties.put(Command.COMMAND, Command.USER_SESSION_INVALIDATION);
+        commandProperties.put(CommandProperty.USER_NAME, userName);
+
+        sendMessage(commandProperties);
+    }
+
+    @Override
+    public void signalClearCaches() {
+        String domainCode = domainContextProvider.getCurrentDomain().getCode();
+
+        LOG.debug("Signaling clearing caches [{}] domain", domainCode);
+
+        Map<String, String> commandProperties = new HashMap<>();
+        commandProperties.put(Command.COMMAND, Command.EVICT_CACHES);
+        commandProperties.put(MessageConstants.DOMAIN, domainCode);
+        sendMessage(commandProperties);
+    }
+
+    @Override
+    public void signalTLSTrustStoreUpdate(Domain domain) {
+        Map<String, String> commandProperties = new HashMap<>();
+        commandProperties.put(Command.COMMAND, Command.RELOAD_TLS_TRUSTSTORE);
+        commandProperties.put(MessageConstants.DOMAIN, domain.getCode());
+
+        sendMessage(commandProperties);
+    }
 }

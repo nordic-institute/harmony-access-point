@@ -1,9 +1,11 @@
 package eu.domibus.core.message;
 
+import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.message.UserMessageException;
 import eu.domibus.api.messaging.MessageNotFoundException;
+import eu.domibus.api.model.*;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pmode.PModeService;
 import eu.domibus.api.pmode.PModeServiceHelper;
@@ -11,17 +13,17 @@ import eu.domibus.api.pmode.domain.LegConfiguration;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.api.util.DateUtil;
-import eu.domibus.common.MessageStatus;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.jms.DelayedDispatchMessageCreator;
 import eu.domibus.core.jms.DispatchMessageCreator;
 import eu.domibus.core.message.converter.MessageConverterService;
+import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.message.splitandjoin.MessageGroupDao;
-import eu.domibus.core.message.splitandjoin.MessageGroupEntity;
+import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
 import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
 import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.message.acknowledge.MessageAcknowledgementDao;
@@ -31,7 +33,6 @@ import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.replication.UIReplicationSignalService;
-import eu.domibus.ebms3.common.model.*;
 import eu.domibus.messaging.MessagingProcessingException;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -42,10 +43,7 @@ import org.junit.runner.RunWith;
 
 import javax.jms.Queue;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES;
 import static org.junit.Assert.assertEquals;
@@ -169,6 +167,9 @@ public class UserMessageDefaultServiceTest {
 
     @Injectable
     private MessageAcknowledgementDao messageAcknowledgementDao;
+
+    @Injectable
+    NonRepudiationService nonRepudiationService;
 
     @Test
     public void createMessagingForFragment(@Injectable UserMessage sourceMessage,
@@ -608,63 +609,16 @@ public class UserMessageDefaultServiceTest {
         }};
     }
 
-    /*@Test
-    public void testDeleteMessagePluginCallback(@Injectable final NotificationListener notificationListener1,
-                                                @Injectable UserMessageLog userMessageLog) {
-        final String messageId = "1";
-        final String backend = "myPlugin";
-        final List<NotificationListener> notificationListeners = new ArrayList<>();
-        notificationListeners.add(notificationListener1);
-
-        new Expectations(userMessageDefaultService) {{
-            routingService.getNotificationListeners();
-            result = notificationListeners;
-
-            userMessageLog.getBackend();
-            result = backend;
-
-            routingService.getNotificationListener(backend);
-            result = notificationListener1;
-
-        }};
-
-        userMessageDefaultService.notifyMessageDeleted(messageId, userMessageLog);
-
-        new Verifications() {{
-            notificationListener1.deleteMessageCallback(messageId);
-        }};
-    }*/
-/*
     @Test
-    public void deleteMessagePluginCallbackForTestMessage(@Injectable final NotificationListener notificationListener1,
-                                                          @Injectable UserMessageLog userMessageLog) {
-        final String messageId = "1";
-        final List<NotificationListener> notificationListeners = new ArrayList<>();
-        notificationListeners.add(notificationListener1);
+    public void testDeleteMessages(@Injectable UserMessageLogDto uml1, @Injectable UserMessageLogDto uml2) {
+        List<UserMessageLogDto> userMessageLogDtos = Arrays.asList(uml1, uml2);
 
-        new Expectations(userMessageDefaultService) {{
-            routingService.getNotificationListeners();
-            result = notificationListeners;
-
-            userMessageLog.isTestMessage();
-            result = true;
-
-        }};
-
-        userMessageDefaultService.deleteMessagePluginCallback(messageId, userMessageLog);
+        userMessageDefaultService.deleteMessages(userMessageLogDtos);
 
         new Verifications() {{
-            userMessageLog.getBackend();
-            times = 0;
-
-            routingService.getNotificationListener(anyString);
-            times = 0;
-
-            notificationListener1.deleteMessageCallback(messageId);
-            times = 0;
-
+            backendNotificationService.notifyMessageDeleted((List<UserMessageLogDto>) any);
         }};
-    }*/
+    }
 
     @Test
     public void marksTheUserMessageAsDeleted(@Injectable Messaging messaging,
@@ -692,6 +646,7 @@ public class UserMessageDefaultServiceTest {
 
         new FullVerifications() {{
             messagingDao.clearPayloadData(userMessage);
+            userMessageLog.setDeleted((Date)any);
             userMessageLogService.setMessageAsDeleted(userMessage, userMessageLog);
             userMessageLogService.setSignalMessageAsDeleted(signalMessage);
             userMessageLog.getMessageStatus();
@@ -724,6 +679,7 @@ public class UserMessageDefaultServiceTest {
 
         new FullVerifications() {{
             messagingDao.clearPayloadData(userMessage);
+            userMessageLog.setDeleted((Date)any);
             userMessageLogService.setMessageAsDeleted(userMessage, userMessageLog);
             userMessageLogService.setSignalMessageAsDeleted((SignalMessage) null);
             userMessageLog.getMessageStatus();

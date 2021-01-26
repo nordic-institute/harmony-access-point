@@ -1,17 +1,12 @@
 package eu.domibus.api.multitenancy;
 
-import eu.domibus.logging.DomibusLogger;
-import eu.domibus.logging.DomibusLoggerFactory;
-
 /**
  * Wrapper for the Runnable class to be executed. Clear first the domain set on the thread before execution.
  *
  * @author Cosmin Baciu
  * @since 4.0.1
  */
-public class ClearDomainRunnable implements Runnable{
-
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ClearDomainRunnable.class);
+public class ClearDomainRunnable implements Runnable {
 
     protected DomainContextProvider domainContextProvider;
     protected Runnable runnable;

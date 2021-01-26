@@ -1,14 +1,16 @@
 package eu.domibus.core.message.nonrepudiation;
 
-import eu.domibus.core.message.nonrepudiation.NonRepudiationCheckerImpl;
+import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.util.SoapUtil;
-import eu.domibus.core.message.nonrepudiation.NonRepudiationConstants;
+import eu.domibus.core.util.xml.XMLUtilImpl;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.io.IOUtils;
 import org.apache.wss4j.dom.WSConstants;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.springframework.core.io.ClassPathResource;
 
@@ -31,6 +33,9 @@ public class NonRepudiationCheckerImplTest {
     NonRepudiationCheckerImpl nonRepudiationChecker = new NonRepudiationCheckerImpl();
 
     static MessageFactory messageFactory = null;
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
     @BeforeClass
     public static void init() throws SOAPException {
@@ -70,6 +75,13 @@ public class NonRepudiationCheckerImplTest {
     }
 
     @Test
+    public void getNonRepudiationDetailsFromReceiptWithNullArgument() throws Exception {
+        thrown.expect(EbMS3Exception.class);
+        thrown.expectMessage("Not found NonRepudiationDetails element.");
+        nonRepudiationChecker.getNonRepudiationDetailsFromReceipt(null);
+    }
+
+    @Test
     public void compareUnorderedReferenceNodeListsSignOnly() throws Exception {
         final List<String> referencesFromSecurityHeader = getNonRepudiationNodeListFromRequest("dataset/as4/MSHAS4Request-signOnly.xml");
         final List<String> referencesFromNonRepudiationInformation = getNonRepudiationListFromResponse("dataset/as4/MSHAS4Response-signOnly.xml");
@@ -78,13 +90,17 @@ public class NonRepudiationCheckerImplTest {
     }
 
     protected List<String> getNonRepudiationNodeListFromRequest(String path) throws Exception {
-        SOAPMessage request = new SoapUtil().createSOAPMessage(IOUtils.toString(new ClassPathResource(path).getInputStream()));
+        SOAPMessage request = getSoapUtil().createSOAPMessage(IOUtils.toString(new ClassPathResource(path).getInputStream()));
         return nonRepudiationChecker.getNonRepudiationDetailsFromSecurityInfoNode(request.getSOAPHeader().getElementsByTagNameNS(WSConstants.SIG_NS, WSConstants.SIG_INFO_LN).item(0));
     }
 
     protected List<String> getNonRepudiationListFromResponse(String path) throws Exception {
-        SOAPMessage response = new SoapUtil().createSOAPMessage(IOUtils.toString(new ClassPathResource(path).getInputStream(), StandardCharsets.UTF_8));
+        SOAPMessage response = getSoapUtil().createSOAPMessage(IOUtils.toString(new ClassPathResource(path).getInputStream(), StandardCharsets.UTF_8));
         return nonRepudiationChecker.getNonRepudiationDetailsFromReceipt(response.getSOAPHeader().getElementsByTagNameNS(NonRepudiationConstants.NS_NRR, NonRepudiationConstants.NRR_LN).item(0));
+    }
+
+    protected SoapUtil getSoapUtil() {
+        return new SoapUtil(null, new XMLUtilImpl(null));
     }
 
 }

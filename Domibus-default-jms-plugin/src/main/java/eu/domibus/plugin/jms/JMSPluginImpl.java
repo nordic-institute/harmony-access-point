@@ -120,7 +120,6 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
 
             LOG.info("Submitted message with messageId [{}], jmsCorrelationID [{}}]", messageID, jmsCorrelationID);
         } catch (Exception e) {
-            LOG.error("Exception occurred while receiving message [" + map + "]", e);
             throw new DefaultJmsPluginException("Exception occurred while receiving message [" + map + "]", e);
         }
     }
@@ -172,6 +171,16 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
         LOG.debug("Handling messageSendSuccess");
         final JmsMessageDTO jmsMessageDTO = new SignalMessageCreator(event.getMessageId(), NotificationType.MESSAGE_SEND_SUCCESS).createMessage();
         sendJmsMessage(jmsMessageDTO, event.getMessageId(), JMSPLUGIN_QUEUE_REPLY, JMSPLUGIN_QUEUE_REPLY_ROUTING);
+    }
+
+    @Override
+    public void messageDeletedBatchEvent(final MessageDeletedBatchEvent event) {
+        LOG.info("Message delete batch event [{}]", event.getMessageIds());
+    }
+
+    @Override
+    public void messageDeletedEvent(final MessageDeletedEvent event) {
+        LOG.info("Message delete event [{}]", event.getMessageId());
     }
 
     protected void sendJmsMessage(JmsMessageDTO message, String messageId, String defaultQueueProperty, String routingQueuePrefixProperty) {

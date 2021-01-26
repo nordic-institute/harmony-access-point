@@ -7,10 +7,10 @@ import eu.domibus.api.party.Party;
 import eu.domibus.api.party.PartyService;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.security.TrustStoreEntry;
-import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.converter.DomainCoreConverter;
-import eu.domibus.core.crypto.api.MultiDomainCryptoService;
+import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.core.csv.CsvServiceImpl;
+import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.party.CertificateContentRo;
 import eu.domibus.core.party.IdentifierRo;
 import eu.domibus.core.party.PartyResponseRo;
@@ -30,6 +30,7 @@ import org.junit.runner.RunWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.security.cert.X509Certificate;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
@@ -193,7 +194,7 @@ public class PartyResourceTest {
         partyResource.getCertificateForParty(partyName);
 
         new Verifications() {{
-            certificateService.getPartyCertificateFromTruststore(partyName);
+            certificateService.createTrustStoreEntry((X509Certificate)any, partyName);
             times = 1;
         }};
     }
@@ -227,11 +228,6 @@ public class PartyResourceTest {
         TrustStoreRO res = partyResource.convertCertificateContent(partyName, cert);
 
         assertEquals(res, tr);
-
-//        new Verifications() {{
-//            certificateService.convertCertificateContent(certContent);
-//            times = 1;
-//        }};
     }
 
 
@@ -269,8 +265,10 @@ public class PartyResourceTest {
     public void testUpdateParties() {
         // Given
         PartyResponseRo partyResponseRo = new PartyResponseRo();
+        partyResponseRo.setIdentifiers(new HashSet<>());
         List<PartyResponseRo> partiesRo = Arrays.asList(partyResponseRo);
         Party party = new Party();
+
         List<Party> partyList = Arrays.asList(party);
 
         new Expectations(partyResource) {{
@@ -286,4 +284,5 @@ public class PartyResourceTest {
         // Then
         Assert.assertEquals(0, response.getIssues().size());
     }
+
 }

@@ -12,6 +12,7 @@ import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
@@ -35,7 +36,8 @@ import static org.junit.Assert.assertNotNull;
 @RunWith(JMockit.class)
 public class CustomAuthenticationProviderTest {
 
-    private CertificateServiceImpl certificateService = new CertificateServiceImpl();
+    @Injectable
+    private CertificateServiceImpl certificateService;
 
     private static final String RESOURCE_PATH = "src/test/resources/eu/domibus/ebms3/common/dao/DynamicDiscoveryPModeProviderTest/";
     private static final String TEST_KEYSTORE = "testkeystore.jks";
@@ -59,6 +61,9 @@ public class CustomAuthenticationProviderTest {
 
     @Injectable
     PluginUserSecurityPolicyManager passwordValidator;
+
+    @Injectable
+    protected AuthUtils authUtils;
 
     @Tested
     CustomAuthenticationProvider securityCustomAuthenticationProvider;

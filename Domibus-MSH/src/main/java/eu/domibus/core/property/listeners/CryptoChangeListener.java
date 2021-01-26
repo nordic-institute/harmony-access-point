@@ -3,7 +3,7 @@ package eu.domibus.core.property.listeners;
 import eu.domibus.api.property.DomibusPropertyChangeListener;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.core.property.GatewayConfigurationValidator;
-import eu.domibus.core.crypto.api.MultiDomainCryptoService;
+import eu.domibus.api.pki.MultiDomainCryptoService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;

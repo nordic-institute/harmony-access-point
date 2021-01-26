@@ -1,0 +1,251 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<wsdl:definitions
+        xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+        xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/"
+        xmlns:tns="eu.domibus"
+        name="backendService"
+        targetNamespace="eu.domibus">
+
+    <wsdl:types>
+
+        <schema xmlns="http://www.w3.org/2001/XMLSchema">
+            <import namespace="eu.domibus" schemaLocation="BackendService.xsd"/>
+        </schema>
+    </wsdl:types>
+
+    <wsdl:message name="submitMessage">
+        <wsdl:part element="tns:submitMessage" name="submitMessage"/>
+    </wsdl:message>
+    <wsdl:message name="submitMessageResponse"/>
+    <wsdl:message name="submitMessageFault">
+        <wsdl:part element="tns:BackendFaultDetail" name="submitMessageFault"/>
+    </wsdl:message>
+
+    <wsdl:message name="sendSuccess">
+        <wsdl:part element="tns:sendSuccess" name="sendSuccess"/>
+    </wsdl:message>
+    <wsdl:message name="sendSuccessResponse"/>
+    <wsdl:message name="sendSuccessFault">
+        <wsdl:part element="tns:BackendFaultDetail" name="sendSuccessFault"/>
+    </wsdl:message>
+
+    <wsdl:message name="sendFailure">
+        <wsdl:part element="tns:sendFailure" name="sendFailure"/>
+    </wsdl:message>
+    <wsdl:message name="sendFailureResponse"/>
+    <wsdl:message name="sendFailureFault">
+        <wsdl:part element="tns:BackendFaultDetail" name="sendFailureFault"/>
+    </wsdl:message>
+    <wsdl:message name="receiveSuccess">
+        <wsdl:part element="tns:receiveSuccess" name="receiveSuccess"/>
+    </wsdl:message>
+    <wsdl:message name="receiveSuccessResponse"/>
+    <wsdl:message name="receiveSuccessFault">
+        <wsdl:part element="tns:BackendFaultDetail" name="receiveSuccessFault"/>
+    </wsdl:message>
+
+    <wsdl:message name="receiveFailure">
+        <wsdl:part element="tns:receiveFailure" name="receiveFailure"/>
+    </wsdl:message>
+    <wsdl:message name="receiveFailureResponse"/>
+    <wsdl:message name="receiveFailureFault">
+        <wsdl:part element="tns:BackendFaultDetail" name="receiveFailureFault"/>
+    </wsdl:message>
+
+    <wsdl:message name="delete">
+        <wsdl:part element="tns:delete" name="delete"/>
+    </wsdl:message>
+    <wsdl:message name="deleteResponse"/>
+    <wsdl:message name="deleteFault">
+        <wsdl:part element="tns:BackendFaultDetail" name="deleteFault"/>
+    </wsdl:message>
+
+    <wsdl:message name="deleteBatch">
+        <wsdl:part element="tns:deleteBatch" name="deleteBatch"/>
+    </wsdl:message>
+    <wsdl:message name="deleteBatchResponse"/>
+    <wsdl:message name="deleteBatchFault">
+        <wsdl:part element="tns:BackendFaultDetail" name="deleteBatchFault"/>
+    </wsdl:message>
+
+    <wsdl:message name="messageStatusChange">
+        <wsdl:part element="tns:messageStatusChange" name="messageStatusChange"/>
+    </wsdl:message>
+    <wsdl:message name="messageStatusChangeResponse"/>
+    <wsdl:message name="messageStatusChangeFault">
+        <wsdl:part element="tns:BackendFaultDetail" name="messageStatusChangeFault"/>
+    </wsdl:message>
+
+    <wsdl:portType name="BackendInterface">
+        <wsdl:operation name="submitMessage">
+            <wsdl:input message="tns:submitMessage" name="submitMessage">
+            </wsdl:input>
+            <wsdl:output message="tns:submitMessageResponse" name="submitMessageResponse">
+            </wsdl:output>
+            <wsdl:fault message="tns:submitMessageFault" name="submitMessageFault">
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="sendSuccess">
+            <wsdl:input message="tns:sendSuccess" name="sendSuccess">
+            </wsdl:input>
+            <wsdl:output message="tns:sendSuccessResponse" name="sendSuccessResponse">
+            </wsdl:output>
+            <wsdl:fault message="tns:sendSuccessFault" name="sendSuccessFault">
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="sendFailure">
+            <wsdl:input message="tns:sendFailure" name="sendFailure">
+            </wsdl:input>
+            <wsdl:output message="tns:sendFailureResponse" name="sendFailureResponse">
+            </wsdl:output>
+            <wsdl:fault message="tns:sendFailureFault" name="sendFailureFault">
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="receiveSuccess">
+            <wsdl:input message="tns:receiveSuccess" name="receiveSuccess">
+            </wsdl:input>
+            <wsdl:output message="tns:receiveSuccessResponse" name="receiveSuccessResponse">
+            </wsdl:output>
+            <wsdl:fault message="tns:receiveSuccessFault" name="receiveSuccessFault">
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="receiveFailure">
+            <wsdl:input message="tns:receiveFailure" name="receiveFailure">
+            </wsdl:input>
+            <wsdl:output message="tns:receiveFailureResponse" name="receiveFailureResponse">
+            </wsdl:output>
+            <wsdl:fault message="tns:receiveFailureFault" name="receiveFailureFault">
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="delete">
+            <wsdl:input message="tns:delete" name="delete">
+            </wsdl:input>
+            <wsdl:output message="tns:deleteResponse" name="deleteResponse">
+            </wsdl:output>
+            <wsdl:fault message="tns:deleteFault" name="deleteFault">
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="deleteBatch">
+            <wsdl:input message="tns:deleteBatch" name="deleteBatch">
+            </wsdl:input>
+            <wsdl:output message="tns:deleteBatchResponse" name="deleteBatchResponse">
+            </wsdl:output>
+            <wsdl:fault message="tns:deleteBatchFault" name="deleteBatchFault">
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="messageStatusChange">
+            <wsdl:input message="tns:messageStatusChange" name="messageStatusChange">
+            </wsdl:input>
+            <wsdl:output message="tns:messageStatusChangeResponse" name="messageStatusChangeResponse">
+            </wsdl:output>
+            <wsdl:fault message="tns:messageStatusChangeFault" name="messageStatusChangeFault">
+            </wsdl:fault>
+        </wsdl:operation>
+    </wsdl:portType>
+
+    <wsdl:binding name="BackendServiceSoapBinding" type="tns:BackendInterface">
+        <soap12:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="submitMessage">
+            <soap12:operation soapAction="" style="document"/>
+            <wsdl:input name="submitMessage">
+                <soap12:body parts="submitMessage" use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="submitMessageResponse">
+                <soap12:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="submitMessageFault">
+                <soap12:fault name="submitMessageFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="sendSuccess">
+            <soap12:operation soapAction="" style="document"/>
+            <wsdl:input name="sendSuccess">
+                <soap12:body parts="sendSuccess" use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="sendSuccessResponse">
+                <soap12:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="sendSuccessFault">
+                <soap12:fault name="sendSuccessFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="sendFailure">
+            <soap12:operation soapAction="" style="document"/>
+            <wsdl:input name="sendFailure">
+                <soap12:body parts="sendFailure" use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="sendFailureResponse">
+                <soap12:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="sendFailureFault">
+                <soap12:fault name="sendFailureFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="receiveSuccess">
+            <soap12:operation soapAction="" style="document"/>
+            <wsdl:input name="receiveSuccess">
+                <soap12:body parts="receiveSuccess" use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="receiveSuccessResponse">
+                <soap12:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="receiveSuccessFault">
+                <soap12:fault name="receiveSuccessFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="receiveFailure">
+            <soap12:operation soapAction="" style="document"/>
+            <wsdl:input name="receiveFailure">
+                <soap12:body parts="receiveFailure" use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="receiveFailureResponse">
+                <soap12:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="receiveFailureFault">
+                <soap12:fault name="receiveFailureFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="delete">
+            <soap12:operation soapAction="" style="document"/>
+            <wsdl:input name="delete">
+                <soap12:body parts="delete" use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="deleteResponse">
+                <soap12:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="deleteFault">
+                <soap12:fault name="deleteFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="deleteBatch">
+            <soap12:operation soapAction="" style="document"/>
+            <wsdl:input name="deleteBatch">
+                <soap12:body parts="deleteBatch" use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="deleteBatchResponse">
+                <soap12:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="deleteBatchFault">
+                <soap12:fault name="deleteBatchFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="messageStatusChange">
+            <soap12:operation soapAction="" style="document"/>
+            <wsdl:input name="messageStatusChange">
+                <soap12:body parts="messageStatusChange" use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="messageStatusChangeResponse">
+                <soap12:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="messageStatusChangeFault">
+                <soap12:fault name="messageStatusChangeFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+    </wsdl:binding>
+
+    <wsdl:service name="BackendService">
+        <wsdl:port binding="tns:BackendServiceSoapBinding" name="BACKEND_PORT">
+            <soap12:address location="http://localhost:8080/backend"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>

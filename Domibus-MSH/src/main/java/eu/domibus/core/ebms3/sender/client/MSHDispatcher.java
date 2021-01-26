@@ -5,10 +5,10 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.ErrorCode;
-import eu.domibus.common.MSHRole;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
-import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import org.apache.cxf.message.Message;
@@ -39,7 +39,7 @@ public class MSHDispatcher {
     public static final String LOCAL_MSH_ENDPOINT = "local://localMSH";
     public static final String HEADER_DOMIBUS_MESSAGE_ID = "DOMIBUS-MESSAGE_ID";
     public static final String HEADER_DOMIBUS_SPLITTING_COMPRESSION = "DOMIBUS-SPLITTING-COMPRESSION";
-    public static final String HEADER_DOMIBUS_DOMAIN = "DOMIBUS-DOMAIN";
+
 
     @Autowired
     private DispatchClientProvider dispatchClientProvider;
@@ -81,7 +81,7 @@ public class MSHDispatcher {
 
         Map<String, List<String>> headers = new HashMap<>();
         headers.put(HEADER_DOMIBUS_MESSAGE_ID, Arrays.asList(userMessage.getMessageInfo().getMessageId()));
-        headers.put(HEADER_DOMIBUS_DOMAIN, Arrays.asList(domain.getCode()));
+        headers.put(DomainContextProvider.HEADER_DOMIBUS_DOMAIN, Arrays.asList(domain.getCode()));
         if(legConfiguration.getSplitting() != null && legConfiguration.getSplitting().getCompression()) {
             headers.put(HEADER_DOMIBUS_SPLITTING_COMPRESSION, Arrays.asList("true"));
 

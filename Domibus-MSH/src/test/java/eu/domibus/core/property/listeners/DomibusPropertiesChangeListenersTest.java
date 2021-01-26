@@ -23,10 +23,10 @@ import eu.domibus.core.alerts.model.service.ConfigurationLoader;
 import eu.domibus.core.alerts.service.AlertConfigurationService;
 import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.certificate.crl.CRLService;
-import eu.domibus.core.crypto.api.MultiDomainCryptoService;
+import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.core.jms.MessageListenerContainerInitializer;
 import eu.domibus.core.message.pull.PullFrequencyHelper;
-import eu.domibus.core.payload.encryption.PayloadEncryptionService;
+import eu.domibus.api.payload.encryption.PayloadEncryptionService;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorage;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.pmode.provider.PModeProvider;
@@ -180,7 +180,7 @@ public class DomibusPropertiesChangeListenersTest {
     DomibusScheduler domibusScheduler;
 
     @Mocked
-    PayloadFileStorage mockStorage = new PayloadFileStorage();
+    PayloadFileStorage mockStorage = new PayloadFileStorage(null);
 
     @Injectable
     private MailSender mailSender;
@@ -231,7 +231,7 @@ public class DomibusPropertiesChangeListenersTest {
     CRLService crlService;
 
     @Test
-    public void testPropertyChangeListeners() throws Exception {
+    public void testPropertyChangeListeners() {
         DomibusPropertyChangeListener[] domibusPropertyChangeListeners = new DomibusPropertyChangeListener[]{
                 blacklistChangeListener,
                 concurrencyChangeListener,
@@ -282,7 +282,6 @@ public class DomibusPropertiesChangeListenersTest {
         }
 
         new Verifications() {{
-            mockStorage.initFileSystemStorage();
             pullFrequencyHelper.reset();
             payloadEncryptionService.createPayloadEncryptionKeyIfNotExists((Domain) any);
             cryptoService.reset();

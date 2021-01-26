@@ -1,10 +1,10 @@
 package eu.domibus.core.message;
 
 
-import eu.domibus.common.MSHRole;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.core.message.compression.CompressionException;
 import eu.domibus.common.model.configuration.LegConfiguration;
-import eu.domibus.ebms3.common.model.Messaging;
+import eu.domibus.api.model.Messaging;
 
 
 /**
