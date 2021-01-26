@@ -3,6 +3,8 @@ package eu.domibus.core.message.retention;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.multitenancy.DomainTaskExecutor;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.JsonUtil;
 import eu.domibus.core.message.*;
@@ -59,6 +61,12 @@ public class MessageRetentionServiceTest {
 
     @Injectable
     private UserMessageDefaultService userMessageDefaultService;
+
+    @Injectable
+    DomibusConfigurationService domibusConfigurationService;
+
+    @Injectable
+    DomainTaskExecutor domainTaskExecutor;
 
     @Tested
     MessageRetentionDefaultService messageRetentionService;

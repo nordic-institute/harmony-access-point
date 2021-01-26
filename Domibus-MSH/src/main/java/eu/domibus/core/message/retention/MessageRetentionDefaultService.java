@@ -4,12 +4,16 @@ import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JMSMessageBuilder;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.multitenancy.DomainTaskExecutor;
+import eu.domibus.api.property.DataBaseEngine;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.JsonUtil;
 import eu.domibus.core.message.*;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.pmode.provider.PModeProvider;
+import eu.domibus.core.util.WarningUtil;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -22,8 +26,13 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import javax.jms.Queue;
-import java.lang.reflect.Type;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
@@ -70,6 +79,14 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
     @Autowired
     private UserMessageDefaultService userMessageDefaultService;
 
+    @Autowired
+    private DomibusConfigurationService domibusConfigurationService;
+
+    @Autowired
+    DomainTaskExecutor domainTaskExecutor;
+
+    private List<Future<?>> futures = new ArrayList<>();
+
     /**
      * {@inheritDoc}
      */
@@ -77,6 +94,7 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
     @Timer(clazz = MessageRetentionDefaultService.class,value = "retention_deleteExpiredMessages")
     @Counter(clazz = MessageRetentionDefaultService.class,value = "retention_deleteExpiredMessages")
     public void deleteExpiredMessages() {
+        futures.clear();
         final List<String> mpcs = pModeProvider.getMpcURIList();
         final Integer expiredDownloadedMessagesLimit = getRetentionValue(DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_DOWNLOADED_MAX_DELETE);
         final Integer expiredNotDownloadedMessagesLimit = getRetentionValue(DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_NOT_DOWNLOADED_MAX_DELETE);
@@ -86,6 +104,20 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
         for (final String mpc : mpcs) {
             deleteExpiredMessages(mpc, expiredDownloadedMessagesLimit, expiredNotDownloadedMessagesLimit, expiredSentMessagesLimit, expiredPayloadDeletedMessagesLimit);
         }
+
+        Integer timeout = domibusPropertyProvider.getIntegerProperty(DOMIBUS_RETENTION_WORKER_STORED_PROCEDURE_TIMEOUT);
+
+        LOG.info("Waiting for deletion procedures to execute");
+        futures.forEach(future -> {
+            try {
+                Long startDate = System.currentTimeMillis();
+                future.get(timeout.longValue(), TimeUnit.SECONDS);
+                LOG.info("Deletion procedure ended [{}]", System.currentTimeMillis()-startDate);
+            } catch(ExecutionException | InterruptedException | TimeoutException e) {
+                LOG.warn(WarningUtil.warnOutput("Error executing deletion!"), e);
+                future.cancel(true);
+            }
+        });
     }
 
     @Override
@@ -99,27 +131,102 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
     }
 
     protected void deleteExpiredDownloadedMessages(String mpc, Integer expiredDownloadedMessagesLimit) {
-        LOG.debug("Deleting expired downloaded messages for MPC [{}] using expiredDownloadedMessagesLimit [{}]", mpc, expiredDownloadedMessagesLimit);
         final int messageRetentionDownloaded = pModeProvider.getRetentionDownloadedByMpcURI(mpc);
         String fileLocation = domibusPropertyProvider.getProperty(DOMIBUS_ATTACHMENT_STORAGE_LOCATION);
         // If messageRetentionDownloaded is equal to -1, the messages will be kept indefinitely and, if 0 and no file system storage was used, they have already been deleted during download operation.
-        if (messageRetentionDownloaded > 0 || (StringUtils.isNotEmpty(fileLocation) && messageRetentionDownloaded >= 0)) {
-            List<UserMessageLogDto> downloadedMessages = userMessageLogDao.getDownloadedUserMessagesOlderThan(DateUtils.addMinutes(new Date(), messageRetentionDownloaded * -1),
-                    mpc, expiredDownloadedMessagesLimit);
-            if (CollectionUtils.isEmpty(downloadedMessages)) {
-                LOG.debug("There are no expired downloaded messages.");
-                return;
-            }
-            final int deleted = downloadedMessages.size();
-            LOG.debug("Found [{}] downloaded messages to delete", deleted);
-            deleteMessages(downloadedMessages, mpc);
-            LOG.debug("Deleted [{}] downloaded messages", deleted);
+        if (messageRetentionDownloaded < 0 || (messageRetentionDownloaded == 0 && StringUtils.isEmpty(fileLocation))) {
+            LOG.trace("Retention of downloaded messages is not active.");
+            return;
         }
+
+        if(storedProcEnabled()) {
+            StoredProcRunnable storedProcRunnable = new StoredProcRunnable(userMessageLogDao, DateUtils.addMinutes(new Date(), messageRetentionDownloaded * -1), mpc, expiredDownloadedMessagesLimit, "DeleteExpiredDownloadedMessages");
+            Future<?> future = domainTaskExecutor.submit(storedProcRunnable, false);
+            futures.add(future);
+            return;
+        }
+
+        LOG.debug("Deleting expired downloaded messages for MPC [{}] using expiredDownloadedMessagesLimit [{}]", mpc, expiredDownloadedMessagesLimit);
+        List<UserMessageLogDto> downloadedMessages = userMessageLogDao.getDownloadedUserMessagesOlderThan(DateUtils.addMinutes(new Date(), messageRetentionDownloaded * -1),
+                mpc, expiredDownloadedMessagesLimit);
+        if (CollectionUtils.isEmpty(downloadedMessages)) {
+            LOG.debug("There are no expired downloaded messages.");
+            return;
+        }
+        final int deleted = downloadedMessages.size();
+        LOG.debug("Found [{}] downloaded messages to delete", deleted);
+        deleteMessages(downloadedMessages, mpc);
+        LOG.debug("Deleted [{}] downloaded messages", deleted);
+    }
+
+    protected void deleteExpiredNotDownloadedMessages(String mpc, Integer expiredNotDownloadedMessagesLimit) {
+        final int messageRetentionNotDownloaded = pModeProvider.getRetentionUndownloadedByMpcURI(mpc);
+        if (messageRetentionNotDownloaded < 0) {// if -1 the messages will be kept indefinitely and if 0, although it makes no sense, is legal
+            LOG.trace("Retention of not downloaded messages is not active.");
+            return;
+        }
+
+        if(storedProcEnabled()) {
+            StoredProcRunnable storedProcRunnable = new StoredProcRunnable(userMessageLogDao, DateUtils.addMinutes(new Date(), messageRetentionNotDownloaded * -1), mpc, expiredNotDownloadedMessagesLimit, "DeleteExpiredNotDownloadedMessages");
+            Future<?> future = domainTaskExecutor.submit(storedProcRunnable, false);
+            futures.add(future);
+            return;
+        }
+
+        LOG.debug("Deleting expired not-downloaded messages for MPC [{}] using expiredNotDownloadedMessagesLimit [{}]", mpc, expiredNotDownloadedMessagesLimit);
+        final List<UserMessageLogDto> notDownloadedMessages = userMessageLogDao.getUndownloadedUserMessagesOlderThan(DateUtils.addMinutes(new Date(), messageRetentionNotDownloaded * -1),
+                mpc, expiredNotDownloadedMessagesLimit);
+        if (CollectionUtils.isEmpty(notDownloadedMessages)) {
+            LOG.debug("There are no expired not-downloaded messages.");
+            return;
+        }
+        final int deleted = notDownloadedMessages.size();
+        LOG.debug("Found [{}] not-downloaded messages to delete", deleted);
+        deleteMessages(notDownloadedMessages, mpc);
+        LOG.debug("Deleted [{}] not-downloaded messages", deleted);
+    }
+
+    protected void deleteExpiredSentMessages(String mpc, Integer expiredSentMessagesLimit) {
+        final int messageRetentionSent = pModeProvider.getRetentionSentByMpcURI(mpc);
+
+        if (messageRetentionSent < 0) { // if -1 the messages will be kept indefinitely
+            LOG.trace("Retention of sent messages is not active.");
+            return;
+        }
+
+        if(storedProcEnabled()) {
+            StoredProcRunnable storedProcRunnable = new StoredProcRunnable(userMessageLogDao, DateUtils.addMinutes(new Date(), messageRetentionSent * -1), mpc, expiredSentMessagesLimit, "DeleteExpiredSentMessages");
+            Future<?> future = domainTaskExecutor.submit(storedProcRunnable, false);
+            futures.add(future);
+            return;
+        }
+
+        LOG.debug("Deleting expired sent messages for MPC [{}] using expiredSentMessagesLimit [{}]", mpc, expiredSentMessagesLimit);
+        final boolean isDeleteMessageMetadata = pModeProvider.isDeleteMessageMetadataByMpcURI(mpc);
+        List<UserMessageLogDto> sentMessages = userMessageLogDao.getSentUserMessagesOlderThan(DateUtils.addMinutes(new Date(), messageRetentionSent * -1),
+                mpc, expiredSentMessagesLimit, isDeleteMessageMetadata);
+
+        if (CollectionUtils.isEmpty(sentMessages)) {
+            LOG.debug("There are no expired sent messages.");
+            return;
+        }
+        final int deleted = sentMessages.size();
+        LOG.debug("Found [{}] sent messages to delete", deleted);
+        deleteMessages(sentMessages, mpc);
+        LOG.debug("Deleted [{}] sent messages", deleted);
     }
 
     protected void deleteExpiredPayloadDeletedMessages(String mpc, Integer expiredPayloadDeletedMessagesLimit) {
         final boolean isDeleteMessageMetadata = pModeProvider.isDeleteMessageMetadataByMpcURI(mpc);
-        if (!isDeleteMessageMetadata) { // only delete of entire messages if delete metadata is true
+        if (!isDeleteMessageMetadata || expiredPayloadDeletedMessagesLimit < 0) { // only delete of entire messages if delete metadata is true
+            LOG.trace("Retention of payload deleted messages is not active.");
+            return;
+        }
+
+        if(storedProcEnabled()) {
+            StoredProcRunnable storedProcRunnable = new StoredProcRunnable(userMessageLogDao, new Date(), mpc, expiredPayloadDeletedMessagesLimit, "deleteExpiredPayloadDeletedMessages");
+            Future<?> future = domainTaskExecutor.submit(storedProcRunnable, false);
+            futures.add(future);
             return;
         }
 
@@ -134,44 +241,6 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
         LOG.debug("Found [{}] payload deleted messages to delete", deleted);
         deleteMessages(deletedMessages, mpc);
         LOG.debug("Deleted [{}] payload deleted messages", deleted);
-    }
-
-    protected void deleteExpiredNotDownloadedMessages(String mpc, Integer expiredNotDownloadedMessagesLimit) {
-        LOG.debug("Deleting expired not-downloaded messages for MPC [{}] using expiredNotDownloadedMessagesLimit [{}]", mpc, expiredNotDownloadedMessagesLimit);
-        final int messageRetentionNotDownloaded = pModeProvider.getRetentionUndownloadedByMpcURI(mpc);
-        if (messageRetentionNotDownloaded > -1) { // if -1 the messages will be kept indefinitely and if 0, although it makes no sense, is legal
-            final List<UserMessageLogDto> notDownloadedMessages = userMessageLogDao.getUndownloadedUserMessagesOlderThan(DateUtils.addMinutes(new Date(), messageRetentionNotDownloaded * -1),
-                    mpc, expiredNotDownloadedMessagesLimit);
-            if (CollectionUtils.isEmpty(notDownloadedMessages)) {
-                LOG.debug("There are no expired not-downloaded messages.");
-                return;
-            }
-            final int deleted = notDownloadedMessages.size();
-            LOG.debug("Found [{}] not-downloaded messages to delete", deleted);
-            deleteMessages(notDownloadedMessages, mpc);
-            LOG.debug("Deleted [{}] not-downloaded messages", deleted);
-        }
-    }
-
-    protected void deleteExpiredSentMessages(String mpc, Integer expiredSentMessagesLimit) {
-        LOG.debug("Deleting expired sent messages for MPC [{}] using expiredSentMessagesLimit [{}]", mpc, expiredSentMessagesLimit);
-        final int messageRetentionSent = pModeProvider.getRetentionSentByMpcURI(mpc);
-
-        if (messageRetentionSent > -1) { // if -1 the messages will be kept indefinitely
-            LOG.trace("messageRetentionSent [{}]", messageRetentionSent);
-            final boolean isDeleteMessageMetadata = pModeProvider.isDeleteMessageMetadataByMpcURI(mpc);
-            List<UserMessageLogDto> sentMessages = userMessageLogDao.getSentUserMessagesOlderThan(DateUtils.addMinutes(new Date(), messageRetentionSent * -1),
-                    mpc, expiredSentMessagesLimit, isDeleteMessageMetadata);
-
-            if (CollectionUtils.isEmpty(sentMessages)) {
-                LOG.debug("There are no expired sent messages.");
-                return;
-            }
-            final int deleted = sentMessages.size();
-            LOG.debug("Found [{}] sent messages to delete", deleted);
-            deleteMessages(sentMessages, mpc);
-            LOG.debug("Deleted [{}] sent messages", deleted);
-        }
     }
 
     public void deleteMessages(List<UserMessageLogDto> userMessageLogs, String mpc) {
@@ -275,4 +344,20 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
         return domibusPropertyProvider.getIntegerProperty(propertyName);
     }
 
+    protected boolean storedProcEnabled() {
+
+        if(!domibusPropertyProvider.getBooleanProperty(DOMIBUS_RETENTION_WORKER_STORED_PROCEDURE_ENABLED)) {
+            LOG.trace("Stored procedure disabled");
+            return false;
+        }
+
+        LOG.debug("Stored procedure enabled");
+        final DataBaseEngine dataBaseEngine = domibusConfigurationService.getDataBaseEngine();
+//        if (DataBaseEngine.ORACLE != dataBaseEngine) {
+//            LOG.warn("Deleting expired messages with the stored procedure is only available for ORACLE db.");
+//            return false;
+//        }
+
+        return true;
+    }
 }
