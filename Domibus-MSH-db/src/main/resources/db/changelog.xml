@@ -1764,6 +1764,8 @@
         <addUniqueConstraint columnNames="ROLE_NAME" constraintName="UQ_ROLE_NAME" tableName="TB_USER_ROLE"/>
 
         <addUniqueConstraint columnNames="USER_NAME" constraintName="USER_NAME" tableName="TB_USER"/>
+
+        <addUniqueConstraint columnNames="VERSION" tableName="TB_VERSION" constraintName="UQ_VERSION" />
     </changeSet>
 
     <changeSet author="ion perpegel" id="EDELIVERY-7472">
@@ -2990,9 +2992,10 @@
     <changeSet id="EDELIVERY-7768"  author="Catalin Enache" dbms="oracle">
         <sql>
             MERGE INTO TB_VERSION USING dual ON ( VERSION = '${DomibusVersion}' )
-            WHEN MATCHED THEN UPDATE SET BUILD_TIME = '${DomibusBuildTime}', CREATION_TIME = ${now}
-            WHEN NOT MATCHED THEN INSERT
-            VALUES VALUES ('${DomibusVersion}', '${DomibusBuildTime}');
+            WHEN MATCHED
+                THEN UPDATE SET BUILD_TIME = '${DomibusBuildTime}', CREATION_TIME = ${now}
+            WHEN NOT MATCHED
+                THEN INSERT VALUES ('${DomibusVersion}', '${DomibusBuildTime}', ${now});
         </sql>
     </changeSet>
     <changeSet id="EDELIVERY-7768"  author="Catalin Enache" dbms="mysql">
