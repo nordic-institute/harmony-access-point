@@ -1732,6 +1732,14 @@
             <column name="NAME_MOD" type="BOOLEAN"/>
             <column name="USERS_MOD" type="BOOLEAN"/>
         </createTable>
+
+        <createTable tableName="TB_VERSION" remarks="Stores Domibus version">
+            <column name="VERSION" type="VARCHAR(30)" remarks="Domibus version"/>
+            <column name="BUILD_TIME" type="VARCHAR(30)" remarks="Domibus Buildtime"/>
+            <column name="CREATION_TIME" type="TIMESTAMP" defaultValueComputed="${now}" remarks="The date and time when this record was created">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
     </changeSet>
 
     <changeSet author="Catalin Enache" id="1564477107969-95">
@@ -2976,5 +2984,21 @@
             <column name="ID_PK" value="2" type="INT"/>
             <column name="ROLE_NAME" value="ROLE_USER"/>
         </insert>
+    </changeSet>
+    <!-- Domibus and BuildTime version -->
+    <!-- don't move this to changelog-data.xml as will not be executed for MT -->
+    <changeSet id="EDELIVERY-7768"  author="Catalin Enache" dbms="oracle">
+        <sql>
+            MERGE INTO TB_VERSION USING dual ON ( VERSION = '${DomibusVersion}' )
+            WHEN MATCHED THEN UPDATE SET BUILD_TIME = '${DomibusBuildTime}', CREATION_TIME = ${now}
+            WHEN NOT MATCHED THEN INSERT
+            VALUES VALUES ('${DomibusVersion}', '${DomibusBuildTime}');
+        </sql>
+    </changeSet>
+    <changeSet id="EDELIVERY-7768"  author="Catalin Enache" dbms="mysql">
+        <sql>
+            INSERT INTO TB_VERSION (VERSION, BUILD_TIME) VALUES ('${DomibusVersion}', '${DomibusBuildTime}')
+            ON DUPLICATE KEY UPDATE BUILD_TIME='${DomibusBuildTime}', CREATION_TIME = ${now};
+        </sql>
     </changeSet>
 </databaseChangeLog>
