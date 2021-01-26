@@ -6,6 +6,13 @@ import eu.domibus.logging.DomibusLoggerFactory;
 
 import java.util.Date;
 
+/**
+ * Class used to call a stored procedure in a new thread
+ *
+ * @author idragusa
+ * @since 4.2.1
+ */
+
 public class StoredProcRunnable implements Runnable {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(StoredProcRunnable.class);
