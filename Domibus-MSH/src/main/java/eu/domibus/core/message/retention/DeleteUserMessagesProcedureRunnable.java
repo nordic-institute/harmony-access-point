@@ -7,7 +7,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import java.util.Date;
 
 /**
- * Class used to call a stored procedure in a new thread
+ * Class used to delete UserMessages in a new thread
  *
  * @author idragusa
  * @since 4.2.1
@@ -34,6 +34,6 @@ public class DeleteUserMessagesProcedureRunnable implements Runnable {
     @Override
     public void run() {
         LOG.debug("Deleting expired messages: startDate [{}], mpc [{}], maxCount [{}], using the stored procedure [{}] ", startDate, mpc, maxCount, queryName);
-        userMessageLogDao.deleteExpiredMessagesStoredProcedure(startDate, mpc, maxCount, queryName);
+        userMessageLogDao.deleteExpiredMessages(startDate, mpc, maxCount, queryName);
     }
 }

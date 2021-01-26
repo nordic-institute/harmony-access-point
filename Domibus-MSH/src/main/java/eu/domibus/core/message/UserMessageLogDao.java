@@ -142,7 +142,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         return getSentUserMessagesWithPayloadNotClearedOlderThan(date, mpc, expiredSentMessagesLimit);
     }
 
-    public void deleteExpiredMessagesStoredProcedure(Date startDate, String mpc, Integer expiredMessagesLimit, String queryName) {
+    public void deleteExpiredMessages(Date startDate, String mpc, Integer expiredMessagesLimit, String queryName) {
 
         String queryStr = "CALL " + queryName;
 
