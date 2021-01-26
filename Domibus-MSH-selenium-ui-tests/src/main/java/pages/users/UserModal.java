@@ -41,6 +41,7 @@ public class UserModal extends EditModal {
 	private WebElement passErrMess;
 	@FindBy(css = "edituser-form form #confirmation_id + span")
 	private WebElement confirmationErrMess;
+
 	public UserModal(WebDriver driver) {
 		super(driver);
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);

@@ -169,14 +169,6 @@ export class MessageLogComponent extends mix(BaseListComponent)
         cellTemplate: this.rowWithDateFormatTpl,
         name: 'Deleted',
         width: 155
-      },
-      {
-        name: 'Message Fragment',
-        prop: 'messageFragment'
-      },
-      {
-        name: 'Source Message',
-        prop: 'sourceMessage'
       }
     ];
 

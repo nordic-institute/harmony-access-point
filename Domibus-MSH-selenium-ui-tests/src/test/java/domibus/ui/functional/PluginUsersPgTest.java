@@ -304,7 +304,6 @@ public class PluginUsersPgTest extends SeleniumTest {
 	}
 
 
-	/* disabled due to bug EDELIVERY-7596 */
 	/*PU-13 - Create a certificate plugin userand press save*/
 	@Test(description = "PU-13", groups = {"multiTenancy", "singleTenancy"})
 	public void createCertificatePluginUserSave() throws Exception {
@@ -340,7 +339,6 @@ public class PluginUsersPgTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-	/* disabled due to bug EDELIVERY-7596 */
 	/*PU-14 - Create a certificate plugin userand press cancel*/
 	@Test(description = "PU-14", groups = {"multiTenancy", "singleTenancy"})
 	public void createCertificatePluginUserCancel() throws Exception {
@@ -467,7 +465,6 @@ public class PluginUsersPgTest extends SeleniumTest {
 		soft.assertAll();
 	}
 
-	/* disabled due to bug EDELIVERY-7596 */
 	/* PU-31 - Check duplicate user addition with same certificate id  */
 	@Test(description = "PU-31", groups = {"multiTenancy", "singleTenancy"})
 	public void certificatePluginUserDuplicateSameDomain() throws Exception {
@@ -568,7 +565,6 @@ public class PluginUsersPgTest extends SeleniumTest {
 	}
 	
 
-	/* Disabled due to existing bug EDELIVERY-7472 */
 	/*	PU-32 - Create duplicate plugin users by smashing the save button multiple times 	*/
 	@Test(description = "PU-32", groups = {"multiTenancy", "singleTenancy"})
 	public void newUserSaveMultipleSaves() throws Exception {

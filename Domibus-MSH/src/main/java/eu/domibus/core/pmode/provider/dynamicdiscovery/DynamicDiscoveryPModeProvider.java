@@ -7,7 +7,7 @@ import eu.domibus.common.ErrorCode;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.*;
-import eu.domibus.core.crypto.api.MultiDomainCryptoService;
+import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.MessageExchangeConfiguration;
 import eu.domibus.core.pmode.provider.CachingPModeProvider;
@@ -371,10 +371,8 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
         }
 
         LOG.debug("Add public certificate to the truststore");
-        //add certificate to Truststore
         multiDomainCertificateProvider.addCertificate(domainProvider.getCurrentDomain(), certificate, cn, true);
         LOG.debug("Certificate added");
-
     }
 
     protected EndpointInfo lookupByFinalRecipient(UserMessage userMessage) throws EbMS3Exception {

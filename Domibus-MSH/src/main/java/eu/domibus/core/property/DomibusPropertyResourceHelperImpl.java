@@ -47,7 +47,7 @@ public class DomibusPropertyResourceHelperImpl implements DomibusPropertyResourc
 
     private FieldBlacklistValidator propertyNameBlacklistValidator;
 
-    private Map<SortMapKey, Comparator<DomibusProperty>> sortingComparatorsMap = new HashMap<>();
+    protected Map<SortMapKey, Comparator<DomibusProperty>> sortingComparatorsMap = new HashMap<>();
 
     public DomibusPropertyResourceHelperImpl(DomibusConfigurationService domibusConfigurationService,
                                              DomibusPropertyProvider domibusPropertyProvider,
@@ -268,7 +268,7 @@ public class DomibusPropertyResourceHelperImpl implements DomibusPropertyResourc
         addPropertyComparator("name", domibusProperty -> domibusProperty.getMetadata().getName());
         addPropertyComparator("type", domibusProperty -> domibusProperty.getMetadata().getType());
         addPropertyComparator("module", domibusProperty -> domibusProperty.getMetadata().getModule());
-        addPropertyComparator("usage", domibusProperty -> domibusProperty.getMetadata().getUsageText());
+        addPropertyComparator("usageText", domibusProperty -> domibusProperty.getMetadata().getUsageText());
     }
 
     protected void addPropertyComparator(String propertyName, Function<DomibusProperty, String> comparatorFunction) {

@@ -37,6 +37,8 @@ public class PropFilters extends FilterArea {
 
 		log.info("Filtering properties by name {}, type {}, module {}, value {}, showDomain {}", name, type, module, value, showDomain);
 
+		expandArea();
+
 		if (StringUtils.isNotEmpty(name)) {
 			weToDInput(nameInputLct).fill(name);
 		}

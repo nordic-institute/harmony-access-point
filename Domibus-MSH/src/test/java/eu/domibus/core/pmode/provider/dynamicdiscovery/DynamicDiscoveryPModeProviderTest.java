@@ -1,23 +1,29 @@
 package eu.domibus.core.pmode.provider.dynamicdiscovery;
 
-import eu.domibus.api.model.*;
 import eu.domibus.api.model.Property;
 import eu.domibus.api.model.Service;
+import eu.domibus.api.model.*;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.util.xml.UnmarshallerResult;
 import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.ErrorCode;
-import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.*;
+import eu.domibus.core.alerts.configuration.certificate.expired.ExpiredCertificateConfigurationManager;
+import eu.domibus.core.alerts.configuration.certificate.imminent.ImminentExpirationCertificateConfigurationManager;
+import eu.domibus.core.alerts.service.EventServiceImpl;
+import eu.domibus.core.certificate.CertificateDaoImpl;
 import eu.domibus.core.certificate.CertificateServiceImpl;
-import eu.domibus.core.crypto.api.MultiDomainCryptoService;
+import eu.domibus.core.certificate.crl.CRLServiceImpl;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.pmode.PModeBeanConfiguration;
+import eu.domibus.core.pmode.multitenancy.MultiDomainPModeProvider;
 import eu.domibus.core.property.DomibusPropertyProviderImpl;
+import eu.domibus.core.util.backup.BackupServiceImpl;
 import eu.domibus.core.util.xml.XMLUtilImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -33,10 +39,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.mockito.Spy;
+import org.mockito.*;
 import org.mockito.internal.util.reflection.Whitebox;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -105,7 +108,7 @@ public class DynamicDiscoveryPModeProviderTest {
     public ExpectedException thrown = ExpectedException.none();
 
     @Spy
-    private CertificateServiceImpl certificateService;
+    private CertificateServiceImpl certificateService = initCertificateService();
 
     @InjectMocks
     private DynamicDiscoveryPModeProvider dynamicDiscoveryPModeProvider;
@@ -125,6 +128,18 @@ public class DynamicDiscoveryPModeProviderTest {
     @Before
     public void initMocks() {
         MockitoAnnotations.initMocks(this);
+    }
+
+    private CertificateServiceImpl initCertificateService() {
+        return new CertificateServiceImpl(
+                Mockito.spy(CRLServiceImpl.class),
+                Mockito.mock(DomibusPropertyProviderImpl.class),
+                Mockito.spy(CertificateDaoImpl.class),
+                Mockito.spy(EventServiceImpl.class),
+                Mockito.spy(MultiDomainPModeProvider.class),
+                Mockito.spy(ImminentExpirationCertificateConfigurationManager.class),
+                Mockito.spy(ExpiredCertificateConfigurationManager.class),
+                Mockito.spy(BackupServiceImpl.class));
     }
 
     private Configuration initializeConfiguration(String resourceXML) throws Exception {
@@ -263,7 +278,7 @@ public class DynamicDiscoveryPModeProviderTest {
         doReturn("false").when(domibusPropertyProvider).getProperty(eq(DynamicDiscoveryService.USE_DYNAMIC_DISCOVERY));
         doReturn(false).when(domibusPropertyProvider).getBooleanProperty(eq(DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED));
         try {
-            partyId= userMessage.getPartyInfo().getFrom().getPartyId();
+            partyId = userMessage.getPartyInfo().getFrom().getPartyId();
             classUnderTest.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
             fail();
         } catch (EbMS3Exception ex) {
@@ -408,7 +423,6 @@ public class DynamicDiscoveryPModeProviderTest {
 
     /**
      * Build UserMessage for testing. Only the fields that are mandatory for the testing doDynamicThings are filled.
-     *
      */
     private UserMessage buildUserMessageForDoDynamicThingsWithArguments(String action, String serviceValue, String serviceType, String toPartyId, String toPartyIdType, String fromPartyId, String fromPartyIdType, String messageId) {
 

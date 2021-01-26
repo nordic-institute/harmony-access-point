@@ -1,11 +1,10 @@
 package eu.domibus.api.pki;
 
-import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.security.TrustStoreEntry;
 
 import javax.naming.InvalidNameException;
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.cert.Certificate;
@@ -44,16 +43,17 @@ public interface CertificateService {
     /**
      * Save certificate data in the database, and use this data to display a revocation warning when needed.
      *
-     * @param domain the current domain
+     * @param trustStore trustStore entries
+     * @param keyStore keyStore entries
      */
-    void saveCertificateAndLogRevocation(Domain domain);
+    void saveCertificateAndLogRevocation(final KeyStore trustStore, final KeyStore keyStore);
 
     /**
      * Validates that the bytes represent a valid truststore
      *
      * @param newTrustStoreBytes the content
-     * @param password the password to open the truststore
-     * @param type the type of the truststore: jks, PKCS12
+     * @param password           the password to open the truststore
+     * @param type               the type of the truststore: jks, PKCS12
      */
     void validateLoadOperation(ByteArrayInputStream newTrustStoreBytes, String password, String type);
 
@@ -72,22 +72,14 @@ public interface CertificateService {
     X509Certificate loadCertificateFromString(String content);
 
     /**
-     * Returns the certificate entry from the trust store given an alias
+     * Returns the certificate entry from the trust store given a certificate and an alias
      *
+     * @param cert the certificate itself
      * @param alias the certificate alias
      * @return a certificate entry
      * @throws KeyStoreException if the trust store was not initialized
      */
-    TrustStoreEntry getPartyCertificateFromTruststore(String alias) throws KeyStoreException;
-
-    /**
-     * Returns the certificate entry from the trust store given an alias
-     *
-     * @param alias the certificate alias
-     * @return an X509Certificate
-     * @throws KeyStoreException if the trust store was not initialized
-     */
-    X509Certificate getPartyX509CertificateFromTruststore(String alias) throws KeyStoreException;
+    TrustStoreEntry createTrustStoreEntry(X509Certificate cert, String alias) throws KeyStoreException;
 
     /**
      * Given a list of certificates, returns a string containing the certificates in a 64 base encoded format and
@@ -123,5 +115,100 @@ public interface CertificateService {
      */
     TrustStoreEntry convertCertificateContent(String certificateContent);
 
-    public byte[] getTruststoreContent() throws IOException;
+    /**
+     * Get the truststore content from the location as byte array
+     * @param location
+     * @return
+     */
+    byte[] getTruststoreContent(String location);
+
+    /**
+     * Replaces the truststore pointed by the location/password parameters with the one provided as parameters
+     * @param fileName
+     * @param fileContent
+     * @param filePassword
+     * @param trustType
+     * @param trustLocation
+     * @param trustPassword
+     * @throws CryptoException
+     */
+    void replaceTrustStore(String fileName, byte[] fileContent, String filePassword,
+                           String trustType, String trustLocation, String trustPassword) throws CryptoException;
+
+    /**
+     * Replaces the truststore pointed by the location/password parameters with the one provided as parameters
+     * @param fileContent
+     * @param filePassword
+     * @param trustType
+     * @param trustLocation
+     * @param trustPassword
+     * @throws CryptoException
+     */
+    void replaceTrustStore(byte[] fileContent, String filePassword,
+                           String trustType, String trustLocation, String trustPassword) throws CryptoException;
+
+    /**
+     * Returns the truststore pointed by the location/password parameters
+     * @param trustStoreLocation
+     * @param trustStorePassword
+     * @return
+     */
+    KeyStore getTrustStore(String trustStoreLocation, String trustStorePassword);
+
+    /**
+     * Returns the truststore pointed by the location/password parameters as a list of certificate entries
+     * @param trustStoreLocation
+     * @param trustStorePassword
+     * @return
+     */
+    List<TrustStoreEntry> getTrustStoreEntries(String trustStoreLocation, String trustStorePassword);
+
+    /**
+     * Adds the specified certificate to the truststore pointed by the parameters
+     * @param password
+     * @param trustStoreLocation
+     * @param certificateContent
+     * @param alias
+     * @param overwrite
+     * @return
+     */
+    boolean addCertificate(String password, String trustStoreLocation, byte[] certificateContent, String alias, boolean overwrite);
+
+    /**
+     * Adds the specified certificate to the truststore pointed by the parameters
+     * @param password
+     * @param trustStoreLocation
+     * @param certificate
+     * @param alias
+     * @param overwrite
+     * @param persist
+     * @return
+     */
+    boolean addCertificate(String password, String trustStoreLocation, X509Certificate certificate, String alias, boolean overwrite, boolean persist);
+
+    /**
+     * Removes the specified certificate to the truststore pointed by the parameters
+     * @param password
+     * @param trustStoreLocation
+     * @param alias
+     * @param persist
+     * @return
+     */
+    boolean removeCertificate(String password, String trustStoreLocation, String alias, boolean persist);
+
+    /**
+     * Validates the truststore type with the file extension
+     * @param trustStoreType
+     * @param storeFileName
+     */
+    void validateTruststoreType(String trustStoreType, String storeFileName);
+
+    /**
+     * Save the specified truststore to the specified location
+     * @param truststore
+     * @param password
+     * @param trustStoreLocation
+     * @throws CryptoException
+     */
+    void persistTrustStore(KeyStore truststore, String password, String trustStoreLocation) throws CryptoException;
 }

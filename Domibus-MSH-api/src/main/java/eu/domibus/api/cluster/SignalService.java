@@ -36,7 +36,6 @@ public interface SignalService {
      */
     void signalLoggingReset();
 
-
     /**
      * signals domibus property changed to other servers in the cluster
      */
@@ -58,4 +57,9 @@ public interface SignalService {
      * Signals the clearing of the Caches
      */
     void signalClearCaches();
+
+    /**
+     * Signals the change of the TLS truststore
+     */
+    void signalTLSTrustStoreUpdate(Domain currentDomain);
 }

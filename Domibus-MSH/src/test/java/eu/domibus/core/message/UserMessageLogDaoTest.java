@@ -5,6 +5,7 @@ import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.api.model.*;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
+import org.hibernate.transform.ResultTransformer;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,8 +41,10 @@ public class UserMessageLogDaoTest {
     public void testFindRetryMessages(@Injectable TypedQuery<String> query, @Injectable List<String> retryMessages) {
         // GIVEN
         new Expectations() {{
-            em.createNamedQuery("UserMessageLog.findRetryMessages", String.class); result = query;
-            query.getResultList(); result = retryMessages;
+            em.createNamedQuery("UserMessageLog.findRetryMessages", String.class);
+            result = query;
+            query.getResultList();
+            result = retryMessages;
         }};
 
         // WHEN
@@ -55,7 +58,8 @@ public class UserMessageLogDaoTest {
     public void testFindRetryMessages_finalRecipient(@Injectable TypedQuery<String> query) {
         // GIVEN
         new Expectations() {{
-            em.createNamedQuery("UserMessageLog.findRetryMessages", String.class); result = query;
+            em.createNamedQuery("UserMessageLog.findRetryMessages", String.class);
+            result = query;
         }};
 
         // WHEN
@@ -71,8 +75,10 @@ public class UserMessageLogDaoTest {
     public void testFindFailedMessages(@Injectable TypedQuery<String> query, @Injectable List<String> failedMessages) {
         // GIVEN
         new Expectations() {{
-            em.createQuery(anyString, String.class); result = query;
-            query.getResultList(); result = failedMessages;
+            em.createQuery(anyString, String.class);
+            result = query;
+            query.getResultList();
+            result = failedMessages;
         }};
 
         // WHEN
@@ -88,7 +94,8 @@ public class UserMessageLogDaoTest {
         String finalRecipient = "receiver";
 
         new Expectations() {{
-            em.createQuery(withSubstring(" and p.name = 'finalRecipient' and p.value = :FINAL_RECIPIENT"), String.class); result = query;
+            em.createQuery(withSubstring(" and p.name = 'finalRecipient' and p.value = :FINAL_RECIPIENT"), String.class);
+            result = query;
         }};
 
         // WHEN
@@ -104,7 +111,8 @@ public class UserMessageLogDaoTest {
     public void testFindFailedMessages_failedStartDate(@Injectable TypedQuery<String> query, @Injectable Date failedStartDate) {
         // GIVEN
         new Expectations() {{
-            em.createQuery(withSubstring(" and ml.failed >= :START_DATE"), String.class); result = query;
+            em.createQuery(withSubstring(" and ml.failed >= :START_DATE"), String.class);
+            result = query;
         }};
 
         // WHEN
@@ -120,7 +128,8 @@ public class UserMessageLogDaoTest {
     public void testFindFailedMessages_failedEndDate(@Injectable TypedQuery<String> query, @Injectable Date failedEndDate) {
         // GIVEN
         new Expectations() {{
-            em.createQuery(withSubstring(" and ml.failed <= :END_DATE"), String.class); result = query;
+            em.createQuery(withSubstring(" and ml.failed <= :END_DATE"), String.class);
+            result = query;
         }};
 
         // WHEN
@@ -137,7 +146,8 @@ public class UserMessageLogDaoTest {
         // GIVEN
         final String messageId = "messageId";
         new Expectations(userMessageLogDao) {{
-            userMessageLogDao.findByMessageId(messageId); result = userMessageLog;
+            userMessageLogDao.findByMessageId(messageId);
+            result = userMessageLog;
         }};
 
         // WHEN
@@ -152,7 +162,8 @@ public class UserMessageLogDaoTest {
         // GIVEN
         final String messageId = "messageId";
         new Expectations(userMessageLogDao) {{
-            userMessageLogDao.findByMessageId(messageId); result = new NoResultException();
+            userMessageLogDao.findByMessageId(messageId);
+            result = new NoResultException();
         }};
 
         // WHEN
@@ -166,8 +177,10 @@ public class UserMessageLogDaoTest {
     public void testFindByMessageId(@Injectable TypedQuery<UserMessageLog> query, @Injectable UserMessageLog userMessageLog) {
         // GIVEN
         new Expectations() {{
-            em.createNamedQuery("UserMessageLog.findByMessageId", UserMessageLog.class); result = query;
-            query.getSingleResult(); result = userMessageLog;
+            em.createNamedQuery("UserMessageLog.findByMessageId", UserMessageLog.class);
+            result = query;
+            query.getSingleResult();
+            result = userMessageLog;
         }};
 
         // WHEN
@@ -184,7 +197,8 @@ public class UserMessageLogDaoTest {
         // GIVEN
         final String messageId = "messageId";
         new Expectations() {{
-            em.createNamedQuery("UserMessageLog.findByMessageId", UserMessageLog.class); result = query;
+            em.createNamedQuery("UserMessageLog.findByMessageId", UserMessageLog.class);
+            result = query;
         }};
 
         // WHEN
@@ -200,8 +214,10 @@ public class UserMessageLogDaoTest {
     public void testFindByMessageIdAndMshRole(@Injectable TypedQuery<UserMessageLog> query, @Injectable UserMessageLog userMessageLog) {
         // GIVEN
         new Expectations() {{
-            em.createNamedQuery("UserMessageLog.findByMessageIdAndRole", UserMessageLog.class); result = query;
-            query.getSingleResult(); result = userMessageLog;
+            em.createNamedQuery("UserMessageLog.findByMessageIdAndRole", UserMessageLog.class);
+            result = query;
+            query.getSingleResult();
+            result = userMessageLog;
         }};
 
         // WHEN
@@ -218,7 +234,8 @@ public class UserMessageLogDaoTest {
         // GIVEN
         final String messageId = "messageId";
         new Expectations() {{
-            em.createNamedQuery("UserMessageLog.findByMessageIdAndRole", UserMessageLog.class); result = query;
+            em.createNamedQuery("UserMessageLog.findByMessageIdAndRole", UserMessageLog.class);
+            result = query;
         }};
 
         // WHEN
@@ -235,7 +252,8 @@ public class UserMessageLogDaoTest {
         // GIVEN
         final String messageId = "messageId";
         new Expectations() {{
-            em.createNamedQuery("UserMessageLog.findByMessageIdAndRole", UserMessageLog.class); result = query;
+            em.createNamedQuery("UserMessageLog.findByMessageIdAndRole", UserMessageLog.class);
+            result = query;
         }};
 
         // WHEN
@@ -251,8 +269,10 @@ public class UserMessageLogDaoTest {
     public void testFindByMessageIdAndMshRole_returnsNullWhenNoResultsFound(@Injectable TypedQuery<UserMessageLog> query) {
         // GIVEN
         new Expectations() {{
-            em.createNamedQuery("UserMessageLog.findByMessageIdAndRole", UserMessageLog.class); result = query;
-            query.getSingleResult(); result = new NoResultException();
+            em.createNamedQuery("UserMessageLog.findByMessageIdAndRole", UserMessageLog.class);
+            result = query;
+            query.getSingleResult();
+            result = new NoResultException();
         }};
 
         // WHEN
@@ -264,23 +284,31 @@ public class UserMessageLogDaoTest {
 
     @Test
     public void testCountMessages(@Injectable Map<String, Object> filters,
-                                     @Injectable CriteriaBuilder criteriaBuilder,
-                                     @Injectable CriteriaQuery<Long> criteriaQuery,
-                                     @Injectable Root<UserMessageLog> root,
-                                     @Injectable Path<Long> countPath,
-                                     @Injectable Predicate predicate,
-                                     @Injectable Predicate conjunction,
-                                     @Injectable TypedQuery<Long> query) {
+                                  @Injectable CriteriaBuilder criteriaBuilder,
+                                  @Injectable CriteriaQuery<Long> criteriaQuery,
+                                  @Injectable Root<UserMessageLog> root,
+                                  @Injectable Path<Long> countPath,
+                                  @Injectable Predicate predicate,
+                                  @Injectable Predicate conjunction,
+                                  @Injectable TypedQuery<Long> query) {
         // GIVEN
         new Expectations(userMessageLogDao) {{
-            em.getCriteriaBuilder(); result = criteriaBuilder;
-            criteriaBuilder.createQuery(Long.class); result = criteriaQuery;
-            criteriaQuery.from(UserMessageLog.class); result = root;
-            criteriaBuilder.count(root); result = countPath;
-            userMessageLogDao.getPredicates(filters, criteriaBuilder, root); result = Lists.newArrayList(predicate);
-            criteriaBuilder.and(new Predicate[] { predicate }); result = conjunction;
-            em.createQuery(criteriaQuery); result = query;
-            query.getSingleResult(); result = 42;
+            em.getCriteriaBuilder();
+            result = criteriaBuilder;
+            criteriaBuilder.createQuery(Long.class);
+            result = criteriaQuery;
+            criteriaQuery.from(UserMessageLog.class);
+            result = root;
+            criteriaBuilder.count(root);
+            result = countPath;
+            userMessageLogDao.getPredicates(filters, criteriaBuilder, root);
+            result = Lists.newArrayList(predicate);
+            criteriaBuilder.and(new Predicate[]{predicate});
+            result = conjunction;
+            em.createQuery(criteriaQuery);
+            result = query;
+            query.getSingleResult();
+            result = 42;
         }};
 
         // WHEN
@@ -307,15 +335,24 @@ public class UserMessageLogDaoTest {
                                         @Injectable List<UserMessageLog> userMessages) {
         // GIVEN
         new Expectations(userMessageLogDao) {{
-            em.getCriteriaBuilder(); result = criteriaBuilder;
-            criteriaBuilder.createQuery(UserMessageLog.class); result = criteriaQuery;
-            criteriaQuery.from(UserMessageLog.class); result = root;
-            userMessageLogDao.getPredicates(filters, criteriaBuilder, root); result = Lists.newArrayList(predicate);
-            criteriaBuilder.and(new Predicate[] { predicate }); result = conjunction;
-            root.get("messageId"); result = path;
-            criteriaBuilder.asc(path); result = order;
-            em.createQuery(criteriaQuery); result = query;
-            query.getResultList(); result = userMessages;
+            em.getCriteriaBuilder();
+            result = criteriaBuilder;
+            criteriaBuilder.createQuery(UserMessageLog.class);
+            result = criteriaQuery;
+            criteriaQuery.from(UserMessageLog.class);
+            result = root;
+            userMessageLogDao.getPredicates(filters, criteriaBuilder, root);
+            result = Lists.newArrayList(predicate);
+            criteriaBuilder.and(new Predicate[]{predicate});
+            result = conjunction;
+            root.get("messageId");
+            result = path;
+            criteriaBuilder.asc(path);
+            result = order;
+            em.createQuery(criteriaQuery);
+            result = query;
+            query.getResultList();
+            result = userMessages;
         }};
 
         // WHEN
@@ -335,26 +372,35 @@ public class UserMessageLogDaoTest {
 
     @Test
     public void testFindPaged_Descending(@Injectable Map<String, Object> filters,
-                                        @Injectable CriteriaBuilder criteriaBuilder,
-                                        @Injectable CriteriaQuery<UserMessageLog> criteriaQuery,
-                                        @Injectable Root<UserMessageLog> root,
-                                        @Injectable Path<String> path,
-                                        @Injectable Predicate predicate,
-                                        @Injectable Predicate conjunction,
-                                        @Injectable Order order,
-                                        @Injectable TypedQuery<UserMessageLog> query,
-                                        @Injectable List<UserMessageLog> userMessages) {
+                                         @Injectable CriteriaBuilder criteriaBuilder,
+                                         @Injectable CriteriaQuery<UserMessageLog> criteriaQuery,
+                                         @Injectable Root<UserMessageLog> root,
+                                         @Injectable Path<String> path,
+                                         @Injectable Predicate predicate,
+                                         @Injectable Predicate conjunction,
+                                         @Injectable Order order,
+                                         @Injectable TypedQuery<UserMessageLog> query,
+                                         @Injectable List<UserMessageLog> userMessages) {
         // GIVEN
         new Expectations(userMessageLogDao) {{
-            em.getCriteriaBuilder(); result = criteriaBuilder;
-            criteriaBuilder.createQuery(UserMessageLog.class); result = criteriaQuery;
-            criteriaQuery.from(UserMessageLog.class); result = root;
-            userMessageLogDao.getPredicates(filters, criteriaBuilder, root); result = Lists.newArrayList(predicate);
-            criteriaBuilder.and(new Predicate[] { predicate }); result = conjunction;
-            root.get("messageId"); result = path;
-            criteriaBuilder.desc(path); result = order;
-            em.createQuery(criteriaQuery); result = query;
-            query.getResultList(); result = userMessages;
+            em.getCriteriaBuilder();
+            result = criteriaBuilder;
+            criteriaBuilder.createQuery(UserMessageLog.class);
+            result = criteriaQuery;
+            criteriaQuery.from(UserMessageLog.class);
+            result = root;
+            userMessageLogDao.getPredicates(filters, criteriaBuilder, root);
+            result = Lists.newArrayList(predicate);
+            criteriaBuilder.and(new Predicate[]{predicate});
+            result = conjunction;
+            root.get("messageId");
+            result = path;
+            criteriaBuilder.desc(path);
+            result = order;
+            em.createQuery(criteriaQuery);
+            result = query;
+            query.getResultList();
+            result = userMessages;
         }};
 
         // WHEN
@@ -373,11 +419,19 @@ public class UserMessageLogDaoTest {
     }
 
     @Test
-    public void testGetUndownloadedUserMessagesOlderThan(@Injectable TypedQuery<String> query, @Injectable List<String> list) {
+    public void testGetUndownloadedUserMessagesOlderThan(@Injectable javax.persistence.Query query,
+                                                         @Injectable org.hibernate.query.Query<?> baseQuery,
+                                                         @Injectable List<UserMessageLogDto> list) {
         // GIVEN
         new Expectations() {{
-            em.createNamedQuery("UserMessageLog.findUndownloadedUserMessagesOlderThan", UserMessageLogDto.class); result = query;
-            query.getResultList(); result = list;
+            em.createNamedQuery("UserMessageLog.findUndownloadedUserMessagesOlderThan");
+            result = query;
+
+            query.unwrap(org.hibernate.query.Query.class);
+            result = baseQuery;
+
+            query.getResultList();
+            result = list;
         }};
 
         // WHEN
@@ -388,11 +442,18 @@ public class UserMessageLogDaoTest {
     }
 
     @Test
-    public void testGetSentUserMessagesOlderThan(@Injectable TypedQuery<String> query, @Injectable List<String> list) {
+    public void testGetSentUserMessagesOlderThan(@Injectable List<UserMessageLogDto> list, @Injectable javax.persistence.Query query,
+                                                 @Injectable org.hibernate.query.Query<?> baseQuery) {
         // GIVEN
         new Expectations() {{
-            em.createNamedQuery("UserMessageLog.findSentUserMessagesOlderThan", UserMessageLogDto.class); result = query;
-            query.getResultList(); result = list;
+            em.createNamedQuery("UserMessageLog.findSentUserMessagesOlderThan");
+            result = query;
+
+            query.unwrap(org.hibernate.query.Query.class);
+            result = baseQuery;
+
+            query.getResultList();
+            result = list;
         }};
 
         // WHEN
@@ -403,11 +464,18 @@ public class UserMessageLogDaoTest {
     }
 
     @Test
-    public void testGetSentUserMessagesWithPayloadNotClearedOlderThan(@Injectable TypedQuery<String> query, @Injectable List<String> list) {
+    public void testGetSentUserMessagesWithPayloadNotClearedOlderThan(@Injectable List<UserMessageLogDto> list, @Injectable javax.persistence.Query query,
+                                                                      @Injectable org.hibernate.query.Query<?> baseQuery) {
         // GIVEN
         new Expectations() {{
-            em.createNamedQuery("UserMessageLog.findSentUserMessagesWithPayloadNotClearedOlderThan", UserMessageLogDto.class); result = query;
-            query.getResultList(); result = list;
+            em.createNamedQuery("UserMessageLog.findSentUserMessagesWithPayloadNotClearedOlderThan");
+            result = query;
+
+            query.unwrap(org.hibernate.query.Query.class);
+            result = baseQuery;
+
+            query.getResultList();
+            result = list;
         }};
 
         // WHEN
@@ -419,11 +487,18 @@ public class UserMessageLogDaoTest {
 
 
     @Test
-    public void testGetDeletedUserMessagesOlderThan(@Injectable TypedQuery<String> query, @Injectable List<String> list) {
+    public void testGetDeletedUserMessagesOlderThan(@Injectable List<UserMessageLogDto> list, @Injectable javax.persistence.Query query,
+                                                    @Injectable org.hibernate.query.Query<?> baseQuery) {
         // GIVEN
         new Expectations() {{
-            em.createNamedQuery("UserMessageLog.findDeletedUserMessagesOlderThan", UserMessageLogDto.class); result = query;
-            query.getResultList(); result = list;
+            em.createNamedQuery("UserMessageLog.findDeletedUserMessagesOlderThan");
+            result = query;
+
+            query.unwrap(org.hibernate.query.Query.class);
+            result = baseQuery;
+
+            query.getResultList();
+            result = list;
         }};
 
         // WHEN
@@ -434,11 +509,18 @@ public class UserMessageLogDaoTest {
     }
 
     @Test
-    public void testGetUndownloadedUserMessagesOlderThan_returnsEmptyListWhenNoMessagesFound(@Injectable TypedQuery<String> query) {
+    public void testGetUndownloadedUserMessagesOlderThan_returnsEmptyListWhenNoMessagesFound(@Injectable javax.persistence.Query query,
+                                                                                             @Injectable org.hibernate.query.Query<?> baseQuery) {
         // GIVEN
         new Expectations() {{
-            em.createNamedQuery("UserMessageLog.findUndownloadedUserMessagesOlderThan", UserMessageLogDto.class); result = query;
-            query.getResultList(); result = new NoResultException();
+            em.createNamedQuery("UserMessageLog.findUndownloadedUserMessagesOlderThan");
+            result = query;
+
+            query.unwrap(org.hibernate.query.Query.class);
+            result = baseQuery;
+
+            query.getResultList();
+            result = new NoResultException();
         }};
 
         // WHEN
@@ -449,11 +531,18 @@ public class UserMessageLogDaoTest {
     }
 
     @Test
-    public void testGetDeletedUserMessagesOlderThan_returnsEmptyListWhenNoMessagesFound(@Injectable TypedQuery<String> query) {
+    public void testGetDeletedUserMessagesOlderThan_returnsEmptyListWhenNoMessagesFound(@Injectable javax.persistence.Query query,
+                                                                                        @Injectable org.hibernate.query.Query<?> baseQuery) {
         // GIVEN
         new Expectations() {{
-            em.createNamedQuery("UserMessageLog.findDeletedUserMessagesOlderThan", UserMessageLogDto.class); result = query;
-            query.getResultList(); result = new NoResultException();
+            em.createNamedQuery("UserMessageLog.findDeletedUserMessagesOlderThan");
+            result = query;
+
+            query.unwrap(org.hibernate.query.Query.class);
+            result = baseQuery;
+
+            query.getResultList();
+            result = new NoResultException();
         }};
 
         // WHEN
@@ -464,10 +553,15 @@ public class UserMessageLogDaoTest {
     }
 
     @Test
-    public void testGetUndownloadedUserMessagesOlderThan_Date(@Injectable Date startDate, @Injectable TypedQuery<String> query) {
+    public void testGetUndownloadedUserMessagesOlderThan_Date(@Injectable Date startDate, @Injectable javax.persistence.Query query,
+                                                              @Injectable org.hibernate.query.Query<?> baseQuery) {
         // GIVEN
         new Expectations() {{
-            em.createNamedQuery("UserMessageLog.findUndownloadedUserMessagesOlderThan", UserMessageLogDto.class); result = query;
+            em.createNamedQuery("UserMessageLog.findUndownloadedUserMessagesOlderThan");
+            result = query;
+
+            query.unwrap(org.hibernate.query.Query.class);
+            result = baseQuery;
         }};
 
         // WHEN
@@ -480,10 +574,15 @@ public class UserMessageLogDaoTest {
     }
 
     @Test
-    public void testGetDeletedUserMessagesOlderThan_Date(@Injectable Date startDate, @Injectable TypedQuery<String> query) {
+    public void testGetDeletedUserMessagesOlderThan_Date(@Injectable Date startDate, @Injectable javax.persistence.Query query,
+                                                         @Injectable org.hibernate.query.Query<?> baseQuery) {
         // GIVEN
         new Expectations() {{
-            em.createNamedQuery("UserMessageLog.findDeletedUserMessagesOlderThan", UserMessageLogDto.class); result = query;
+            em.createNamedQuery("UserMessageLog.findDeletedUserMessagesOlderThan");
+            result = query;
+
+            query.unwrap(org.hibernate.query.Query.class);
+            result = baseQuery;
         }};
 
         // WHEN
@@ -496,12 +595,16 @@ public class UserMessageLogDaoTest {
     }
 
     @Test
-    public void testGetUndownloadedUserMessagesOlderThan_Mpc(@Injectable TypedQuery<String> query) {
+    public void testGetUndownloadedUserMessagesOlderThan_Mpc(@Injectable javax.persistence.Query query,
+                                                             @Injectable org.hibernate.query.Query<?> baseQuery) {
         // GIVEN
         new Expectations() {{
-            em.createNamedQuery("UserMessageLog.findUndownloadedUserMessagesOlderThan", UserMessageLogDto.class); result = query;
-        }};
+            em.createNamedQuery("UserMessageLog.findUndownloadedUserMessagesOlderThan");
+            result = query;
 
+            query.unwrap(org.hibernate.query.Query.class);
+            result = baseQuery;
+        }};
         // WHEN
         userMessageLogDao.getUndownloadedUserMessagesOlderThan(null, "mpc", 1);
 
@@ -512,10 +615,15 @@ public class UserMessageLogDaoTest {
     }
 
     @Test
-    public void testGetUndownloadedUserMessagesOlderThan_ExpiredNotDownloadedMessagesLimit(@Injectable TypedQuery<String> query) {
+    public void testGetUndownloadedUserMessagesOlderThan_ExpiredNotDownloadedMessagesLimit(@Injectable javax.persistence.Query query,
+                                                                                           @Injectable org.hibernate.query.Query<?> baseQuery) {
         // GIVEN
         new Expectations() {{
-            em.createNamedQuery("UserMessageLog.findUndownloadedUserMessagesOlderThan", UserMessageLogDto.class); result = query;
+            em.createNamedQuery("UserMessageLog.findUndownloadedUserMessagesOlderThan");
+            result = query;
+
+            query.unwrap(org.hibernate.query.Query.class);
+            result = baseQuery;
         }};
 
         // WHEN
@@ -528,10 +636,15 @@ public class UserMessageLogDaoTest {
     }
 
     @Test
-    public void testGetDeletedUserMessagesOlderThan_ExpiredDeletedMessagesLimit(@Injectable TypedQuery<String> query) {
+    public void testGetDeletedUserMessagesOlderThan_ExpiredDeletedMessagesLimit(@Injectable javax.persistence.Query query,
+                                                                                @Injectable org.hibernate.query.Query<?> baseQuery) {
         // GIVEN
         new Expectations() {{
-            em.createNamedQuery("UserMessageLog.findDeletedUserMessagesOlderThan", UserMessageLogDto.class); result = query;
+            em.createNamedQuery("UserMessageLog.findDeletedUserMessagesOlderThan");
+            result = query;
+
+            query.unwrap(org.hibernate.query.Query.class);
+            result = baseQuery;
         }};
 
         // WHEN
@@ -544,11 +657,19 @@ public class UserMessageLogDaoTest {
     }
 
     @Test
-    public void testGetDownloadedUserMessagesOlderThan(@Injectable TypedQuery<String> query, @Injectable List<String> list) {
+    public void testGetDownloadedUserMessagesOlderThan(@Injectable javax.persistence.Query query,
+                                                       @Injectable org.hibernate.query.Query<?> baseQuery,
+                                                       @Injectable List<UserMessageLogDto> list) {
         // GIVEN
         new Expectations() {{
-            em.createNamedQuery("UserMessageLog.findDownloadedUserMessagesOlderThan", UserMessageLogDto.class); result = query;
-            query.getResultList(); result = list;
+            em.createNamedQuery("UserMessageLog.findDownloadedUserMessagesOlderThan");
+            result = query;
+
+            query.unwrap(org.hibernate.query.Query.class);
+            result = baseQuery;
+
+            query.getResultList();
+            result = list;
         }};
 
         // WHEN
@@ -559,11 +680,18 @@ public class UserMessageLogDaoTest {
     }
 
     @Test
-    public void testGetDownloadedUserMessagesOlderThan_returnsEmptyListWhenNoMessagesFound(@Injectable TypedQuery<String> query) {
+    public void testGetDownloadedUserMessagesOlderThan_returnsEmptyListWhenNoMessagesFound(@Injectable javax.persistence.Query query,
+                                                                                           @Injectable org.hibernate.query.Query<?> baseQuery) {
         // GIVEN
         new Expectations() {{
-            em.createNamedQuery("UserMessageLog.findDownloadedUserMessagesOlderThan", UserMessageLogDto.class); result = query;
-            query.getResultList(); result = new NoResultException();
+            em.createNamedQuery("UserMessageLog.findDownloadedUserMessagesOlderThan");
+            result = query;
+
+            query.unwrap(org.hibernate.query.Query.class);
+            result = baseQuery;
+
+            query.getResultList();
+            result = new NoResultException();
         }};
 
         // WHEN
@@ -574,10 +702,15 @@ public class UserMessageLogDaoTest {
     }
 
     @Test
-    public void testGetDownloadedUserMessagesOlderThan_Date(@Injectable Date startDate, @Injectable TypedQuery<String> query) {
+    public void testGetDownloadedUserMessagesOlderThan_Date(@Injectable Date startDate, @Injectable javax.persistence.Query query,
+                                                            @Injectable org.hibernate.query.Query<?> baseQuery) {
         // GIVEN
         new Expectations() {{
-            em.createNamedQuery("UserMessageLog.findDownloadedUserMessagesOlderThan", UserMessageLogDto.class); result = query;
+            em.createNamedQuery("UserMessageLog.findDownloadedUserMessagesOlderThan");
+            result = query;
+
+            query.unwrap(org.hibernate.query.Query.class);
+            result = baseQuery;
         }};
 
         // WHEN
@@ -590,10 +723,15 @@ public class UserMessageLogDaoTest {
     }
 
     @Test
-    public void testGetDownloadedUserMessagesOlderThan_Mpc(@Injectable TypedQuery<String> query) {
+    public void testGetDownloadedUserMessagesOlderThan_Mpc(@Injectable javax.persistence.Query typedQuery,
+                                                           @Injectable org.hibernate.query.Query<?> query) {
         // GIVEN
         new Expectations() {{
-            em.createNamedQuery("UserMessageLog.findDownloadedUserMessagesOlderThan", UserMessageLogDto.class); result = query;
+            em.createNamedQuery("UserMessageLog.findDownloadedUserMessagesOlderThan");
+            result = typedQuery;
+
+            typedQuery.unwrap(org.hibernate.query.Query.class);
+            result = query;
         }};
 
         // WHEN
@@ -601,17 +739,23 @@ public class UserMessageLogDaoTest {
 
         // THEN
         new Verifications() {{
-            query.setParameter("MPC", "mpc");
+            query.setResultTransformer((ResultTransformer) any);
+
+            typedQuery.setParameter("MPC", "mpc");
         }};
     }
 
     @Test
-    public void testGetDownloadedUserMessagesOlderThan_ExpiredDownloadedMessagesLimit(@Injectable TypedQuery<String> query) {
+    public void testGetDownloadedUserMessagesOlderThan_ExpiredDownloadedMessagesLimit(@Injectable javax.persistence.Query query,
+                                                                                      @Injectable org.hibernate.query.Query<?> baseQuery) {
         // GIVEN
         new Expectations() {{
-            em.createNamedQuery("UserMessageLog.findDownloadedUserMessagesOlderThan", UserMessageLogDto.class); result = query;
-        }};
+            em.createNamedQuery("UserMessageLog.findDownloadedUserMessagesOlderThan");
+            result = query;
 
+            query.unwrap(org.hibernate.query.Query.class);
+            result = baseQuery;
+        }};
         // WHEN
         userMessageLogDao.getDownloadedUserMessagesOlderThan(null, null, 13);
 
@@ -625,8 +769,10 @@ public class UserMessageLogDaoTest {
     public void testFindBackendForMessageId(@Injectable TypedQuery<String> query) {
         // GIVEN
         new Expectations() {{
-            em.createNamedQuery("UserMessageLog.findBackendForMessage", String.class); result = query;
-            query.getSingleResult(); result = "backend";
+            em.createNamedQuery("UserMessageLog.findBackendForMessage", String.class);
+            result = query;
+            query.getSingleResult();
+            result = "backend";
         }};
 
         // WHEN
@@ -658,9 +804,12 @@ public class UserMessageLogDaoTest {
 
         new Expectations(userMessageLogDao) {{
             userMessageLogInfoFilter.countUserMessageLogQuery(anyBoolean, filters);
-            em.createQuery(anyString, Number.class); result = query;
-            userMessageLogInfoFilter.applyParameters(query, filters); result = query;
-            query.getSingleResult(); result = Integer.valueOf(4);
+            em.createQuery(anyString, Number.class);
+            result = query;
+            userMessageLogInfoFilter.applyParameters(query, filters);
+            result = query;
+            query.getSingleResult();
+            result = Integer.valueOf(4);
         }};
 
         // WHEN
@@ -674,7 +823,8 @@ public class UserMessageLogDaoTest {
     public void testCountAllInfo_returnsAllWhenNoFilters() {
         // GIVEN
         new Expectations(userMessageLogDao) {{
-            userMessageLogDao.countAll(); result = 7;
+            userMessageLogDao.countAll();
+            result = 7;
         }};
 
         // WHEN
@@ -688,8 +838,10 @@ public class UserMessageLogDaoTest {
     public void testCountAll(@Injectable Query query) {
         // GIVEN
         new Expectations() {{
-            em.createNativeQuery("SELECT count(um.ID_PK) FROM  TB_USER_MESSAGE um"); result = query;
-            query.getSingleResult(); result = 10;
+            em.createNativeQuery("SELECT count(um.ID_PK) FROM  TB_USER_MESSAGE um");
+            result = query;
+            query.getSingleResult();
+            result = 10;
         }};
 
         // WHEN
@@ -705,9 +857,12 @@ public class UserMessageLogDaoTest {
                                      @Injectable List<MessageLogInfo> information) {
         new Expectations() {{
             userMessageLogInfoFilter.filterMessageLogQuery("messageId", true, filters);
-            em.createQuery(anyString, MessageLogInfo.class); result = query;
-            userMessageLogInfoFilter.applyParameters(query, filters); result = query;
-            query.getResultList(); result = information;
+            em.createQuery(anyString, MessageLogInfo.class);
+            result = query;
+            userMessageLogInfoFilter.applyParameters(query, filters);
+            result = query;
+            query.getResultList();
+            result = information;
         }};
 
         // WHEN
@@ -732,10 +887,14 @@ public class UserMessageLogDaoTest {
 
         new Expectations() {{
             userMessageLogInfoFilter.filterMessageLogQuery("received", false, withEqual(filters));
-            em.createQuery(anyString, MessageLogInfo.class); result = query;
-            userMessageLogInfoFilter.applyParameters(query, filters); result = query;
-            query.getResultList(); result = Lists.newArrayList(messageLogInfo);
-            messageLogInfo.getMessageId(); result = "messageId";
+            em.createQuery(anyString, MessageLogInfo.class);
+            result = query;
+            userMessageLogInfoFilter.applyParameters(query, filters);
+            result = query;
+            query.getResultList();
+            result = Lists.newArrayList(messageLogInfo);
+            messageLogInfo.getMessageId();
+            result = "messageId";
         }};
 
         // WHEN
@@ -754,9 +913,12 @@ public class UserMessageLogDaoTest {
         // GIVEN
         new Expectations() {{
             userMessageLogInfoFilter.filterMessageLogQuery("received", false, (Map<String, Object>) any);
-            em.createQuery(anyString, MessageLogInfo.class); result = query;
-            userMessageLogInfoFilter.applyParameters(query, (Map<String, Object>) any); result = query;
-            query.getResultList(); result = Lists.newArrayList();
+            em.createQuery(anyString, MessageLogInfo.class);
+            result = query;
+            userMessageLogInfoFilter.applyParameters(query, (Map<String, Object>) any);
+            result = query;
+            query.getResultList();
+            result = Lists.newArrayList();
         }};
 
         // WHEN

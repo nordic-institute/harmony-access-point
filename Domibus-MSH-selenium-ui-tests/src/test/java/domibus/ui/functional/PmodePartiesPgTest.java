@@ -203,7 +203,6 @@ public class PmodePartiesPgTest extends SeleniumTest {
 		log.info("Login and navigate to pmode parties page");
 		PModePartiesPage page = navigateToPage();
 
-//		String newPartyName = Gen.randomAlphaNumeric(5);
 		String newEndpoint = "http://" + Gen.randomAlphaNumeric(10).toLowerCase() + ".com";
 
 		

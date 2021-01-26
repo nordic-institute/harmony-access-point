@@ -14,9 +14,9 @@ class DomibusJMSPlugin {
     static def defaultPluginAdminC2Default = "pluginAdminC2Default"
     static def defaultAdminDefaultPassword = "adminDefaultPassword"
 
-    def allJMSProperties;
-    def log;
-    def context;
+    def allJMSProperties
+    def log
+    def context
 
     //START: JMS communication - specific properties
     def jmsSender = null
@@ -25,7 +25,7 @@ class DomibusJMSPlugin {
 
     /**
      * Constructor set the logger and groovy context.
-     * From the groovy the parameter  allJMSDomainsProperties is parset
+     * From the groovy the parameter  allJMSDomainsProperties is parsed
      *
      * @param log - the logger
      * @param context - the soapui parameter with allJMSDomainsProperties
@@ -59,43 +59,43 @@ class DomibusJMSPlugin {
     }
 
     static InitialContext getInitialContext(String providerUrl, String userName, String password, String initialContextFactory) throws Exception {
-        InitialContext ic;
+        InitialContext ic
         if (providerUrl != null) {
-            Hashtable<String, String> env = new Hashtable<String, String>();
-            env.put(Context.PROVIDER_URL, providerUrl);
-            env.put(Context.INITIAL_CONTEXT_FACTORY, initialContextFactory);
+            Hashtable<String, String> env = new Hashtable<String, String>()
+            env.put(Context.PROVIDER_URL, providerUrl)
+            env.put(Context.INITIAL_CONTEXT_FACTORY, initialContextFactory)
             if (userName != null) {
-                env.put(Context.SECURITY_PRINCIPAL, userName);
+                env.put(Context.SECURITY_PRINCIPAL, userName)
             }
             if (password != null) {
-                env.put(Context.SECURITY_CREDENTIALS, password);
+                env.put(Context.SECURITY_CREDENTIALS, password)
             }
-            ic = new InitialContext(env);
+            ic = new InitialContext(env)
         } else {
-            ic = new InitialContext();
+            ic = new InitialContext()
         }
-        return ic;
+        return ic
     }
 
     def connectUsingJMSApi(String PROVIDER_URL, String USER, String PASSWORD, String CONNECTION_FACTORY_JNDI, String QUEUE, String initialContextFactory) {
 
         MapMessage messageMap = null
         try {
-            jmsConnectionHandler = getInitialContext(PROVIDER_URL, USER, PASSWORD, initialContextFactory);
+            jmsConnectionHandler = getInitialContext(PROVIDER_URL, USER, PASSWORD, initialContextFactory)
 
-            QueueConnectionFactory cf = (QueueConnectionFactory)jmsConnectionHandler.lookup(CONNECTION_FACTORY_JNDI);
-            QueueConnection qc = cf.createQueueConnection(USER, PASSWORD);
-            QueueSession session = (QueueSession)qc.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
+            QueueConnectionFactory cf = (QueueConnectionFactory)jmsConnectionHandler.lookup(CONNECTION_FACTORY_JNDI)
+            QueueConnection qc = cf.createQueueConnection(USER, PASSWORD)
+            QueueSession session = (QueueSession)qc.createQueueSession(false, Session.AUTO_ACKNOWLEDGE)
 
-            Queue queue = (Queue)jmsConnectionHandler.lookup(QUEUE);
-            jmsSender = session.createSender(queue);
+            Queue queue = (Queue)jmsConnectionHandler.lookup(QUEUE)
+            jmsSender = session.createSender(queue)
 
-            messageMap = session.createMapMessage();
+            messageMap = session.createMapMessage()
         } catch (Exception ex) {
             log.error "jmsConnectionHandlerInitialize    [][]  Connection to JMS queue in Weblogic deployment failed. " +
                     "PROVIDER_URL: $PROVIDER_URL | USER: $USER | PASSWORD: $PASSWORD | " +
                     "CONNECTION_FACTORY_JNDI: $CONNECTION_FACTORY_JNDI | QUEUE: $QUEUE"
-            assert 0, "Exception occurred when trying to connect: " + ex;
+            assert 0, "Exception occurred when trying to connect: " + ex
         }
         return messageMap
     }
@@ -106,7 +106,7 @@ class DomibusJMSPlugin {
             ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(FACTORY_URL)
             jmsConnectionHandler = (Connection) connectionFactory.createConnection(USER, PASSWORD)
             //username and password of the default JMS broker
-            QueueSession session = jmsConnectionHandler.createSession(false, Session.AUTO_ACKNOWLEDGE)
+            QueueSession session = jmsConnectionHandler.createSession(false, Session.AUTO_ACKNOWLEDGE) as QueueSession
             Destination destination = session.createQueue(QUEUE)
             jmsSender = (MessageProducer) session.createProducer(destination)
             jmsSender.setDeliveryMode(DeliveryMode.NON_PERSISTENT)
@@ -115,7 +115,7 @@ class DomibusJMSPlugin {
             log.error "jmsConnectionHandlerInitialize    [][]  Connection to JMS queue in Tomcat deployment failed. " +
                     "FACTORY_URL: $FACTORY_URL | USER: $USER | PASSWORD: $PASSWORD | " +
                     "QUEUE: $QUEUE"
-            assert 0, "Exception occurred when trying to connect: " + ex;
+            assert 0, "Exception occurred when trying to connect: " + ex
         }
         return messageMap
     }
@@ -130,19 +130,19 @@ class DomibusJMSPlugin {
 
 
     def getJMSDomainProperty(String domain, String property){
-        return SoapUIPropertyUtils.getDomainProperty(this.context, this.allJMSProperties, domain, property, this.log);
+        return SoapUIPropertyUtils.getDomainProperty(this.context, this.allJMSProperties, domain, property, this.log)
     }
 
     def jmsConnectionHandlerInitialize(String domain) {
         MapMessage messageMap = null
 
         log.info "Starting JMS message sending"
-        String jmsClientType = getJMSDomainProperty(domain,DomibusSoapUIConstants.JSON_JMS_TYPE);
-        String jmsURL = getJMSDomainProperty(domain,DomibusSoapUIConstants.JSON_JMS_URL);
-        String serverUser =  getJMSDomainProperty(domain,DomibusSoapUIConstants.JSON_JMS_SRV_USERNAME);
-        String serverPassword =  getJMSDomainProperty(domain,DomibusSoapUIConstants.JSON_JMS_SRV_PASSWORD);
-        String jmsConnectionFactory =  getJMSDomainProperty(domain,DomibusSoapUIConstants.JSON_JMS_CF_JNDI);
-        String queue =  getJMSDomainProperty(domain,DomibusSoapUIConstants.JSON_JMS_QUEUE);
+        String jmsClientType = getJMSDomainProperty(domain,DomibusSoapUIConstants.JSON_JMS_TYPE)
+        String jmsURL = getJMSDomainProperty(domain,DomibusSoapUIConstants.JSON_JMS_URL)
+        String serverUser =  getJMSDomainProperty(domain,DomibusSoapUIConstants.JSON_JMS_SRV_USERNAME)
+        String serverPassword =  getJMSDomainProperty(domain,DomibusSoapUIConstants.JSON_JMS_SRV_PASSWORD)
+        String jmsConnectionFactory =  getJMSDomainProperty(domain,DomibusSoapUIConstants.JSON_JMS_CF_JNDI)
+        String queue =  getJMSDomainProperty(domain,DomibusSoapUIConstants.JSON_JMS_QUEUE)
 
         switch (jmsClientType) {
             case "weblogic":
@@ -158,7 +158,7 @@ class DomibusJMSPlugin {
                 break
 
             default:
-                log.error("Incorrect or not supported jms server type, jmsServer=" + jmsClientType);
+                log.error("Incorrect or not supported jms server type, jmsServer=" + jmsClientType)
                 assert 0, "Properties value error, check jmsServer value."
                 break
         }
@@ -169,11 +169,11 @@ class DomibusJMSPlugin {
 
         log.info "sending message"
         try {
-            jmsSender.send(messageMap);
-            jmsConnectionHandler.close();
+            jmsSender.send(messageMap)
+            jmsConnectionHandler.close()
         } catch (Exception ex) {
             log.error "sendMessageAndClean    [][]  Sending and closing connection  to JMS queue"
-            assert 0, "Exception occurred when trying to connect: " + ex;
+            assert 0, "Exception occurred when trying to connect: " + ex
         }
         log.info "message sent"
     }

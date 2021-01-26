@@ -48,7 +48,7 @@ import static org.junit.Assert.*;
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(JMockit.class)
-public class BackendNotificationEbms3ServiceTest {
+public class BackendNotificationServiceTest {
 
     public static final String FINAL_RECIPIENT = "finalRecipient";
     public static final String ORIGINAL_SENDER = "originalSender";
@@ -181,10 +181,7 @@ public class BackendNotificationEbms3ServiceTest {
         Map<String, String> props = new HashMap<>();
 
         new Expectations(backendNotificationService) {{
-            messagingDao.findUserMessageByMessageId(MESSAGE_ID);
-            result = userMessage;
-
-            userMessageServiceHelper.getProperties(userMessage);
+            userMessageService.getProperties(MESSAGE_ID);
             result = props;
 
             backendNotificationService.notify(MESSAGE_ID, BACKEND_NAME, notificationType, props);
@@ -1398,10 +1395,7 @@ public class BackendNotificationEbms3ServiceTest {
             userMessageLog.getMessageId();
             result = MESSAGE_ID;
 
-            messagingDao.findUserMessageByMessageId(userMessageLog.getMessageId());
-            result = userMessage;
-
-            userMessageServiceHelper.getProperties(userMessage);
+            userMessageService.getProperties(MESSAGE_ID);
             result = props;
 
             backendConnectorDelegate.messageDeletedEvent(
