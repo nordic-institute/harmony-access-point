@@ -1,29 +1,22 @@
 package eu.domibus.core.property;
 
 import eu.domibus.api.multitenancy.Domain;
-import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
-import eu.domibus.api.property.encryption.PasswordEncryptionService;
-import mockit.*;
+import mockit.Expectations;
+import mockit.Injectable;
+import mockit.Tested;
+import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.env.ConfigurableEnvironment;
-import org.springframework.core.env.MutablePropertySources;
-import org.springframework.core.env.PropertySource;
 
-import java.util.HashSet;
-import java.util.List;
 import java.util.Properties;
-import java.util.Set;
-import java.util.function.Predicate;
 
-import static eu.domibus.api.property.DomibusPropertyMetadata.NAME_SEPARATOR;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * @author Ion Perpegel
@@ -153,7 +146,7 @@ public class PropertyRetrieveManagerTest {
         }};
 
         String result = propertyRetrieveManager.getInternalProperty(propertyName);
-        assertEquals(null, result);
+        assertNull(result);
 
         new Verifications() {{
             propertyRetrieveManager.getGlobalProperty(prop);
@@ -243,7 +236,7 @@ public class PropertyRetrieveManagerTest {
         }};
 
         String result = propertyRetrieveManager.getInternalProperty(propertyName);
-        assertEquals(null, result);
+        assertNull(result);
 
         new Verifications() {{
             propertyRetrieveManager.getGlobalProperty(prop);
@@ -272,7 +265,6 @@ public class PropertyRetrieveManagerTest {
 
         String result = propertyRetrieveManager.getInternalProperty(domain, propertyName);
         assertEquals(propertyValue, result);
-
         new Verifications() {{
             propertyRetrieveManager.getGlobalProperty(prop);
             times = 1;
@@ -390,7 +382,7 @@ public class PropertyRetrieveManagerTest {
 
         String res = propertyRetrieveManager.getDomainOrDefaultValue(prop, domain);
 
-        assertEquals(null, res);
+        assertNull(res);
 
         new Verifications() {{
             propertyRetrieveManager.getPropertyValue(prop.getName());
