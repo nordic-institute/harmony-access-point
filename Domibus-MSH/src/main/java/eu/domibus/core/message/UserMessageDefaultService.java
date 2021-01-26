@@ -40,6 +40,7 @@ import eu.domibus.core.replication.UIMessageDao;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.PartInfo;
+import eu.domibus.ebms3.common.model.SignalMessage;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
@@ -52,6 +53,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.cxf.common.util.CollectionUtils;
+import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -59,17 +61,16 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.jms.Queue;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.io.*;
 import java.sql.Timestamp;
 import java.util.*;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SEND_MESSAGE_SUCCESS_DELETE_PAYLOAD;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 /**
@@ -185,6 +186,12 @@ public class UserMessageDefaultService implements UserMessageService {
 
     @Autowired
     DateUtil dateUtil;
+
+    @Autowired
+    private UserMessageDao userMessageDao;
+
+    @PersistenceContext(unitName = "domibusJTA")
+    protected EntityManager em;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 1200) // 20 minutes
     public void createMessageFragments(UserMessage sourceMessage, MessageGroupEntity messageGroupEntity, List<String> fragmentFiles) {
@@ -603,7 +610,8 @@ public class UserMessageDefaultService implements UserMessageService {
     @Timer(clazz = DatabaseMessageHandler.class, value = "deleteMessages_oneBatch")
     @Counter(clazz = DatabaseMessageHandler.class, value = "deleteMessages_oneBatch")
     public void deleteMessages(List<UserMessageLogDto> userMessageLogs) {
-
+        em.unwrap(Session.class)
+                .setJdbcBatchSize(100);
         List<String> userMessageIds = userMessageLogs.stream().map(userMessageLog -> userMessageLog.getMessageId()).collect(Collectors.toList());
 
         LOG.debug("Deleting [{}] user messages", userMessageIds.size());
@@ -612,19 +620,24 @@ public class UserMessageDefaultService implements UserMessageService {
         List<String> filenames = messagingDao.findFileSystemPayloadFilenames(userMessageIds);
         messagingDao.deletePayloadFiles(filenames);
 
-        List<String> signalMessageIds = messageInfoDao.findSignalMessageIds(userMessageIds);
-        LOG.debug("Deleting [{}] signal messages", signalMessageIds.size());
-        LOG.trace("Deleting signal messages [{}]", signalMessageIds);
-        List<Long> receiptIds = signalMessageDao.findReceiptIdsByMessageIds(signalMessageIds);
-        int deleteResult = messageInfoDao.deleteMessages(userMessageIds);
-        LOG.debug("Deleted [{}] messageInfo for userMessage.", deleteResult);
-        deleteResult = messageInfoDao.deleteMessages(signalMessageIds);
-        LOG.debug("Deleted [{}] messageInfo for signalMessage.", deleteResult);
-        deleteResult = signalMessageDao.deleteReceipts(receiptIds);
-        LOG.debug("Deleted [{}] receipts.", deleteResult);
-        deleteResult = userMessageLogDao.deleteMessageLogs(userMessageIds);
+        List<String> signalMessageId=new ArrayList<>();
+
+        List<SignalMessage> signalMessages = signalMessageDao.findSignalMessages(userMessageIds);
+        LOG.debug("Deleting [{}] signal messages", signalMessages.size());
+        for (SignalMessage signalMessage : signalMessages) {
+            signalMessageId.add(signalMessage.getMessageInfo().getMessageId());
+            em.remove(signalMessage);
+        }
+        em.flush();
+
+        List<UserMessage> userMessages = userMessageDao.findUserMessages(userMessageIds);
+        for (UserMessage userMessage : userMessages) {
+            em.remove(userMessage);
+        }
+        em.flush();
+        int deleteResult = userMessageLogDao.deleteMessageLogs(userMessageIds);
         LOG.debug("Deleted [{}] userMessageLogs.", deleteResult);
-        deleteResult = signalMessageLogDao.deleteMessageLogs(signalMessageIds);
+        deleteResult = signalMessageLogDao.deleteMessageLogs(signalMessageId);
         LOG.debug("Deleted [{}] signalMessageLogs.", deleteResult);
         deleteResult = messageAttemptDao.deleteAttemptsByMessageIds(userMessageIds);
         LOG.debug("Deleted [{}] messageSendAttempts.", deleteResult);
@@ -632,12 +645,13 @@ public class UserMessageDefaultService implements UserMessageService {
         LOG.debug("Deleted [{}] deleteErrorLogsByMessageIdInError.", deleteResult);
         deleteResult = uiMessageDao.deleteUIMessagesByMessageIds(userMessageIds);
         LOG.debug("Deleted [{}] deleteUIMessagesByMessageIds for userMessages.", deleteResult);
-        deleteResult = uiMessageDao.deleteUIMessagesByMessageIds(signalMessageIds);
+        deleteResult = uiMessageDao.deleteUIMessagesByMessageIds(signalMessageId);
         LOG.debug("Deleted [{}] deleteUIMessagesByMessageIds for signalMessages.", deleteResult);
         deleteResult = messageAcknowledgementDao.deleteMessageAcknowledgementsByMessageIds(userMessageIds);
         LOG.debug("Deleted [{}] deleteMessageAcknowledgementsByMessageIds.", deleteResult);
 
         backendNotificationService.notifyMessageDeleted(userMessageLogs);
+        em.flush();
     }
 
     @Override

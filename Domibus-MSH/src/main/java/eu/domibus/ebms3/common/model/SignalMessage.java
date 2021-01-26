@@ -34,6 +34,8 @@ import java.util.Set;
                 query = "select signalMessage from SignalMessage signalMessage where signalMessage.messageInfo.refToMessageId = :ORI_MESSAGE_ID"),
         @NamedQuery(name = "SignalMessage.findReceiptIdsByMessageIds",
                 query = "select signalMessage.receipt.entityId from SignalMessage signalMessage where signalMessage.messageInfo.messageId IN :MESSAGEIDS"),
+        @NamedQuery(name = "SignalMessage.find",
+                query = "select signalMessage from SignalMessage signalMessage where signalMessage.messageInfo.refToMessageId IN :MESSAGEIDS"),
 })
 public class SignalMessage extends AbstractBaseEntity {
 

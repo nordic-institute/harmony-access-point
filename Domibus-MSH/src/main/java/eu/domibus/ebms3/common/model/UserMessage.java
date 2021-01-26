@@ -46,6 +46,10 @@ import javax.xml.bind.annotation.*;
         propOrder = {"messageInfo", "partyInfo", "collaborationInfo", "messageProperties", "payloadInfo"})
 @Entity
 @Table(name = "TB_USER_MESSAGE")
+@NamedQueries({
+        @NamedQuery(name = "UserMessage.find",
+                query = "select userMessage from UserMessage userMessage where userMessage.messageInfo.messageId IN :MESSAGEIDS")
+})
 public class UserMessage extends AbstractBaseEntity {
 
     @XmlElement(name = "MessageInfo", required = true)
