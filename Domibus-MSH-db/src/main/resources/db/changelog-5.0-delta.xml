@@ -63,4 +63,18 @@
 
     </changeSet>
 
+    <changeSet id="EDELIVERY-7668"  author="Catalin Enache">
+        <createTable tableName="TB_VERSION" remarks="Stores Domibus version">
+            <column name="VERSION" type="VARCHAR(30)" remarks="Domibus Version"/>
+            <column name="BUILD_TIME" type="VARCHAR(30)" remarks="Domibus BuildTime"/>
+            <column name="CREATION_TIME" type="TIMESTAMP" defaultValueComputed="${now}" remarks="The date and time when this record was created">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint columnNames="VERSION" tableName="TB_VERSION" constraintName="UQ_VERSION" />
+    </changeSet>
+
+    <!-- this file must be included in every future changelog-xx-delta.xml -->
+    <include file="changelog-version-inserts.xml" relativeToChangelogFile="true"/>
+
 </databaseChangeLog>
