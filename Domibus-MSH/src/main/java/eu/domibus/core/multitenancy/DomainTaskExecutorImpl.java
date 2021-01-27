@@ -50,6 +50,12 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
         submitRunnable(schedulingTaskExecutor, clearDomainRunnable, true, DEFAULT_WAIT_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
     }
 
+    @Override
+    public Future<?> submit(Runnable task, boolean waitForTask) {
+        LOG.trace("Submitting task, waitForTask [{}]", waitForTask);
+        final ClearDomainRunnable clearDomainRunnable = new ClearDomainRunnable(domainContextProvider, task);
+        return submitRunnable(schedulingTaskExecutor, clearDomainRunnable, waitForTask, DEFAULT_WAIT_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
+    }
 
     @Override
     public void submit(Runnable task, Runnable errorHandler, File lockFile) {
@@ -82,16 +88,18 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
         submit(schedulingLongTaskExecutor, new SetMDCContextTaskRunnable(task, errorHandler), domain, false, null, null);
     }
 
-    protected void submit(SchedulingTaskExecutor taskExecutor, Runnable task, Domain domain, boolean waitForTask, Long timeout, TimeUnit timeUnit) {
+    protected Future<?> submit(SchedulingTaskExecutor taskExecutor, Runnable task, Domain domain, boolean waitForTask, Long timeout, TimeUnit timeUnit) {
         LOG.trace("Submitting task for domain [{}]", domain);
 
         final DomainRunnable domainRunnable = new DomainRunnable(domainContextProvider, domain, task);
-        submitRunnable(taskExecutor, domainRunnable, waitForTask, timeout, timeUnit);
+        Future<?> utrFuture = submitRunnable(taskExecutor, domainRunnable, waitForTask, timeout, timeUnit);
 
         LOG.trace("Completed task for domain [{}]", domain);
+
+        return utrFuture;
     }
 
-    protected void submitRunnable(SchedulingTaskExecutor taskExecutor, Runnable task, boolean waitForTask, Long timeout, TimeUnit timeUnit) {
+    protected Future<?> submitRunnable(SchedulingTaskExecutor taskExecutor, Runnable task, boolean waitForTask, Long timeout, TimeUnit timeUnit) {
         final Future<?> utrFuture = taskExecutor.submit(task);
 
         if (waitForTask) {
@@ -106,5 +114,6 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
                 throw new DomainTaskException("Could not execute task", e);
             }
         }
+        return utrFuture;
     }
 }

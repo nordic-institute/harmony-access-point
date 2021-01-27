@@ -110,6 +110,8 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_DISPATCHER_CACHEABLE = "domibus.dispatcher.cacheable";
     String DOMIBUS_DISPATCHER_CONNECTION_KEEP_ALIVE = "domibus.dispatcher.connection.keepAlive";
     String DOMIBUS_DISPATCHER_PRIORITY = "domibus.dispatcher.priority";
+    String DOMIBUS_RETENTION_WORKER_STORED_PROCEDURE_ENABLED = "domibus.retentionWorker.storedProcedure.enabled";
+    String DOMIBUS_RETENTION_WORKER_STORED_PROCEDURE_TIMEOUT = "domibus.retentionWorker.storedProcedure.timeout";
     String DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_DOWNLOADED_MAX_DELETE = "domibus.retentionWorker.message.retention.downloaded.max.delete";
     String DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_NOT_DOWNLOADED_MAX_DELETE = "domibus.retentionWorker.message.retention.not_downloaded.max.delete";
     String DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_SENT_MAX_DELETE = "domibus.retentionWorker.message.retention.sent.max.delete";
