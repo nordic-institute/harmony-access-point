@@ -145,11 +145,16 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
         final int messageRetentionDownloaded = pModeProvider.getRetentionDownloadedByMpcURI(mpc);
         String fileLocation = domibusPropertyProvider.getProperty(DOMIBUS_ATTACHMENT_STORAGE_LOCATION);
         // If messageRetentionDownloaded is equal to -1, the messages will be kept indefinitely and, if 0 and no file system storage was used, they have already been deleted during download operation.
-        if (messageRetentionDownloaded < 0 || (messageRetentionDownloaded == 0 && StringUtils.isEmpty(fileLocation))) {
+        if (messageRetentionDownloaded < 0) {
             LOG.trace("Retention of downloaded messages is not active.");
             return;
         }
 
+        final boolean isDeleteMessageMetadata = pModeProvider.isDeleteMessageMetadataByMpcURI(mpc);
+        if( !isDeleteMessageMetadata && (messageRetentionDownloaded == 0 && StringUtils.isEmpty(fileLocation))){
+            LOG.trace("Retention of downloaded messages performed immediately after download.");
+            return;
+        }
         if (storedProcedureEnabled()) {
             deleteUserMessagesUsingStoredProcedure(DateUtils.addMinutes(new Date(), messageRetentionDownloaded * -1), mpc, expiredDownloadedMessagesLimit, "DeleteExpiredDownloadedMessages");
             return;
