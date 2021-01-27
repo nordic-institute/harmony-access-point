@@ -3,6 +3,8 @@ package eu.domibus.core.message;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.core.dao.BasicDao;
 import eu.domibus.core.message.pull.MessagePullDto;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.ebms3.common.model.PartInfo;
 import eu.domibus.ebms3.common.model.SignalMessage;
@@ -18,7 +20,9 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.*;
+import javax.persistence.NoResultException;
+import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -204,5 +208,16 @@ public class MessagingDao extends BasicDao<Messaging> {
         processQuery.setParameter(MPC, mpc);
         return processQuery.getResultList();
     }
+
+    @Timer(clazz = MessagingDao.class,value = "findMessaging")
+    @Counter(clazz = MessagingDao.class,value = "findMessaging")
+    public List<Messaging> findMessagings(List<String> userMessageIds) {
+        final TypedQuery<Messaging> query = em.createNamedQuery("Messaging.find", Messaging.class);
+        query.setParameter("MESSAGEIDS", userMessageIds);
+        List<Messaging> messagings = query.getResultList();
+        LOG.debug("Number of messagings found is [{}]", messagings.size());
+        return messagings;
+    }
+
 }
 

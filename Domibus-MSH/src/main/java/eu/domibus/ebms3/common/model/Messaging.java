@@ -40,8 +40,10 @@ import java.util.Map;
                 query = "select messaging.signalMessage from Messaging messaging where messaging.signalMessage.messageInfo.messageId = :MESSAGE_ID"),
 
         @NamedQuery(name = "Messaging.findPartInfosForMessage", query = "select m.userMessage.payloadInfo.partInfo from Messaging m where m.userMessage.messageInfo.messageId = :MESSAGE_ID"),
-
         @NamedQuery(name = "Messaging.emptyPayloads", query = "update PartInfo p set p.binaryData = null where p in :PARTINFOS"),
+        @NamedQuery(name = "Messaging.deleteMessages", query = "delete from Messaging mi where mi.id in :MESSAGEIDS"),
+        @NamedQuery(name = "Messaging.find",
+                query = "select messaging from Messaging messaging where messaging.userMessage.messageInfo.messageId IN :MESSAGEIDS"),
 })
 public class Messaging extends AbstractBaseEntity {
 
@@ -55,12 +57,12 @@ public class Messaging extends AbstractBaseEntity {
 
     @XmlElement(name = "SignalMessage")
     @JoinColumn(name = "SIGNAL_MESSAGE_ID")
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     protected SignalMessage signalMessage;
 
     @XmlElement(name = "UserMessage")
     @JoinColumn(name = "USER_MESSAGE_ID")
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     protected UserMessage userMessage;
 
     /*    @XmlAttribute(name = "mustUnderstand", namespace = "http://schemas.xmlsoap.org/soap/envelope/")

@@ -46,10 +46,14 @@ import javax.xml.bind.annotation.*;
         propOrder = {"messageInfo", "partyInfo", "collaborationInfo", "messageProperties", "payloadInfo"})
 @Entity
 @Table(name = "TB_USER_MESSAGE")
+@NamedQueries({
+        @NamedQuery(name = "UserMessage.find",
+                query = "select userMessage from UserMessage userMessage where userMessage.messageInfo.messageId IN :MESSAGEIDS")
+})
 public class UserMessage extends AbstractBaseEntity {
 
     @XmlElement(name = "MessageInfo", required = true)
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     protected MessageInfo messageInfo;
 
     @XmlElement(name = "PartyInfo", required = true)
@@ -82,7 +86,7 @@ public class UserMessage extends AbstractBaseEntity {
     @OneToOne(cascade = CascadeType.ALL)
     protected MessageFragmentEntity messageFragment;
 
-    @OneToOne(mappedBy = "userMessage", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "userMessage", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @XmlTransient
     private RawEnvelopeLog rawEnvelopeLog;
 
