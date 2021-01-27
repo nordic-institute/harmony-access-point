@@ -34,7 +34,7 @@ public class Configuration extends AbstractBaseEntity {
     @Transient
     private Mpcs mpcsXml; //NOSONAR
     @XmlTransient
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @JoinColumn(name = "FK_CONFIGURATION")
     @NotAudited
     private Set<Mpc> mpcs;

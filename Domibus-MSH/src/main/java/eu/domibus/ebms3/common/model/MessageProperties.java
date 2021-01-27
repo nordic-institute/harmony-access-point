@@ -25,7 +25,7 @@ import java.util.Set;
 public class MessageProperties {
 
     @XmlElement(name = "Property", required = true)
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     @JoinColumn(name = "MESSAGEPROPERTIES_ID")
     protected Set<Property> property;
 

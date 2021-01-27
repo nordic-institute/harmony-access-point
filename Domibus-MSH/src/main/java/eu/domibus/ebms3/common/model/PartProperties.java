@@ -31,7 +31,7 @@ import java.util.Set;
 public class PartProperties {
 
     @XmlElement(name = "Property", required = true)
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     @JoinColumn(name = "PARTPROPERTIES_ID")
     protected Set<Property> property;
 
