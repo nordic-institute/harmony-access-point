@@ -30,7 +30,7 @@ import java.util.Arrays;
 public class SecurityBaseConfiguration {
 
     @Bean
-    public CsrfTokenRepository tokenRepository(){
+    public CsrfTokenRepository tokenRepository() {
         CookieCsrfTokenRepository csrfTokenRepository = new CookieCsrfTokenRepository();
         csrfTokenRepository.setCookieHttpOnly(false);
         return csrfTokenRepository;

@@ -13,9 +13,13 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collection;
 
+import static eu.domibus.core.spring.DomibusSessionConfiguration.SAME_SITE_VALUE;
+
 /**
- * @author Cosmin Baciu
- * @since 4.0
+ * Setting the correct value for SameSite attribute for cookies other than the session cookie(XSRF-TOKEN)
+ *
+ * @author Ion Perpegel
+ * @since 5.0
  */
 public class CoockieFilter extends GenericFilterBean {
 
@@ -25,17 +29,20 @@ public class CoockieFilter extends GenericFilterBean {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletResponse resp = (HttpServletResponse) response;
 
-        Collection<String> headers = resp.getHeaders(HttpHeaders.SET_COOKIE);
+        Collection<String> cookieHeaders = resp.getHeaders(HttpHeaders.SET_COOKIE);
         boolean firstHeader = true;
-        for (String header : headers) { // there can be multiple Set-Cookie attributes
+        for (String cookieHeader : cookieHeaders) {
+            String cookieValue = String.format("%s; %s", cookieHeader, " SameSite=" + SAME_SITE_VALUE);
             if (firstHeader) {
-                resp.setHeader(HttpHeaders.SET_COOKIE, String.format("%s; %s", header, " SameSite=None; Secure"));
+                resp.setHeader(HttpHeaders.SET_COOKIE, cookieValue);
+                LOG.debug("Setting cookie header [{}]", cookieValue);
                 firstHeader = false;
                 continue;
             }
-            resp.addHeader(HttpHeaders.SET_COOKIE, String.format("%s; %s", header, " SameSite=None; Secure"));
+            resp.addHeader(HttpHeaders.SET_COOKIE, cookieValue);
+            LOG.debug("Adding cookie header [{}]", cookieValue);
         }
-        
+
         chain.doFilter(request, response);
     }
 
