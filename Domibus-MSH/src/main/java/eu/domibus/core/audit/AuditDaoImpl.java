@@ -186,7 +186,7 @@ public class AuditDaoImpl implements AuditDao {
     // fix the sorting for when the id is actually an integer and not a string
     protected List<Audit> customSortAudit(List<Audit> list) {
         list.sort((element1, element2) -> {
-            int result = element2.getChanged().compareTo(element1.getChanged());
+            int result = ObjectUtils.compare(element2.getChanged(), element1.getChanged());
             if (result != 0) {
                 return result;
             }

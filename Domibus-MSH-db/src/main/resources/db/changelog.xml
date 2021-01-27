@@ -1769,7 +1769,7 @@
     </changeSet>
 
     <changeSet author="ion perpegel" id="EDELIVERY-7472">
-        <comment>add one constraints for each unique column(mysql behaves badly having just one with 2 columns)</comment>
+        <comment>add one constraints for each unique column</comment>
         <addUniqueConstraint columnNames="USERNAME" constraintName="UQ_PLUGIN_USER_NAME"
                              tableName="TB_AUTHENTICATION_ENTRY"/>
         <addUniqueConstraint columnNames="CERTIFICATE_ID" constraintName="UQ_PLUGIN_USER_CERT"
