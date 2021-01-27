@@ -19,7 +19,7 @@
     </changeSet>
     <changeSet id="EDELIVERY-7668"  author="Catalin Enache" dbms="mysql">
         <sql>
-            INSERT INTO TB_VERSION (VERSION, BUILD_TIME) VALUES ('${DomibusVersion}', '${DomibusBuildTime}')
+            INSERT INTO TB_VERSION (VERSION, BUILD_TIME, CREATION_TIME) VALUES ('${DomibusVersion}', '${DomibusBuildTime}', ${now})
             ON DUPLICATE KEY UPDATE BUILD_TIME='${DomibusBuildTime}', CREATION_TIME = ${now};
         </sql>
     </changeSet>
