@@ -85,7 +85,6 @@
                 <version>${liquibase.version}</version>
                 <configuration>
                     <outputFileEncoding>UTF-8</outputFileEncoding>
-                    <verbose>true</verbose>
                     <expressionVars>
                         <property>
                             <name>DomibusVersion</name>

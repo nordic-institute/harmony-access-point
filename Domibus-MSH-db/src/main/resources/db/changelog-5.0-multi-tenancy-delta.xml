@@ -13,7 +13,7 @@
     tables. Either way this value will most probably never be used since a value will always be provided at runtime.-->
     <property name="current_db_user" value="'DOMIBUS'" dbms="mysql"/>
 
-    <changeSet id="EDELIVERY-7668"  author="Catalin Enache" dbms="oracle">
+    <changeSet id="EDELIVERY-7668"  author="Catalin Enache">
         <createTable tableName="TB_VERSION" remarks="Stores Domibus version">
             <column name="VERSION" type="VARCHAR(30)" remarks="Domibus Version"/>
             <column name="BUILD_TIME" type="VARCHAR(30)" remarks="Domibus BuildTime"/>
