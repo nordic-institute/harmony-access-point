@@ -40,7 +40,15 @@
         </xsd:complexType>
     </xsd:element>
 
-    <xsd:element name="listPendingMessagesRequest" type="xsd:anyType" nillable="false"/>
+    <xsd:element name="listPendingMessagesRequest">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="messageID" type="tns:max255-non-empty-string" minOccurs="0"/>
+                <xsd:element name="messageStatus" type="tns:messageStatus" minOccurs="0"/>
+                <xsd:element name="mshRole" type="tns:mshRole" minOccurs="0"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
 
     <xsd:element name="listPendingMessagesResponse">
         <xsd:complexType>

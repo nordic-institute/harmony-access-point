@@ -276,7 +276,7 @@ public class WebServicePluginImpl implements BackendInterface {
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 300) // 5 minutes
-    public ListPendingMessagesResponse listPendingMessages(final Object listPendingMessagesRequest) {
+    public ListPendingMessagesResponse listPendingMessages(ListPendingMessagesRequest listPendingMessagesRequest) {
         DomainDTO domainDTO = domainContextExtService.getCurrentDomainSafely();
         LOG.info("ListPendingMessages for domain [{}]", domainDTO);
 

@@ -5,6 +5,7 @@ import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.common.NotificationType;
 import eu.domibus.core.plugin.notification.NotifyMessageCreator;
+import eu.domibus.plugin.webService.generated.ListPendingMessagesRequest;
 import eu.domibus.plugin.webService.generated.ListPendingMessagesResponse;
 import org.junit.Assert;
 import org.junit.Test;
@@ -42,7 +43,9 @@ public class PendingMessagesListIT extends AbstractBackendWSIT {
         }
 
         waitForMessages(3);
-        String request = new String("<listPendingMessagesRequest></listPendingMessagesRequest>");
+        //TODO
+        //String request = new String("<listPendingMessagesRequest></listPendingMessagesRequest>");
+        ListPendingMessagesRequest request = new ListPendingMessagesRequest();
         ListPendingMessagesResponse response = backendWebService.listPendingMessages(request);
 
 
@@ -56,7 +59,9 @@ public class PendingMessagesListIT extends AbstractBackendWSIT {
     @Test
     public void testListPendingMessagesNOk() throws Exception {
 
-        String request = new String("<listPendingMessagesRequest>1</listPendingMessagesRequest>");
+        //TODO
+        //String request = new String("<listPendingMessagesRequest>1</listPendingMessagesRequest>");
+        ListPendingMessagesRequest request = new ListPendingMessagesRequest();
         ListPendingMessagesResponse response = backendWebService.listPendingMessages(request);
 
         // Verifies the response
