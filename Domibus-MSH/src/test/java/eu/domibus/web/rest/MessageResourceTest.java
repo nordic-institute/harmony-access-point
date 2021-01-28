@@ -183,7 +183,7 @@ public class MessageResourceTest {
             messageResource.checkCanDownload("messageId");
             Assert.fail();
         } catch( MessagingException ex){
-            Assert.assertEquals(ex.getMessage(), "[DOM_001]:Couldn't download the message. The message size exceeds maximum download size limit: 1");
+            Assert.assertEquals(ex.getMessage(), "[DOM_001]:The message size exceeds maximum download size limit: 1");
         }
     }
 

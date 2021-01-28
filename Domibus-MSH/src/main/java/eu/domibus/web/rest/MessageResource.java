@@ -96,7 +96,7 @@ public class MessageResource {
         byte[] content = userMessageService.getMessageAsBytes(messageId);
         if (content.length > maxDownLoadSize) {
             LOG.warn("Couldn't download the message. The message size exceeds maximum download size limit: " + maxDownLoadSize);
-            throw new MessagingException("Couldn't download the message. The message size exceeds maximum download size limit: " + maxDownLoadSize, null);
+            throw new MessagingException("The message size exceeds maximum download size limit: " + maxDownLoadSize, null);
         }
     }
 
