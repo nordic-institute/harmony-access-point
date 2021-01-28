@@ -16,8 +16,7 @@ import org.springframework.session.jdbc.config.annotation.web.http.EnableJdbcHtt
 import org.springframework.session.web.http.CookieSerializer;
 import org.springframework.session.web.http.DefaultCookieSerializer;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_UI_SESSION_SECURE;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_UI_SESSION_TIMEOUT;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 /**
  * Beans and configuration needed by Spring Session
@@ -33,7 +32,6 @@ public class DomibusSessionConfiguration {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusSessionConfiguration.class);
 
     public static final String SESSION_COOKIE_NAME = "JSESSIONID";
-    public static final String SAME_SITE_VALUE = "Strict";
 
     @Autowired
     protected DomibusPropertyProviderImpl domibusPropertyProvider;
@@ -60,7 +58,8 @@ public class DomibusSessionConfiguration {
     }
 
     private void setSameSite(DefaultCookieSerializer serializer) {
-        serializer.setSameSite(SAME_SITE_VALUE);
+        String propertyValue = domibusPropertyProvider.getProperty(DOMIBUS_UI_SESSION_SAME_SITE);
+        serializer.setSameSite(propertyValue);
     }
 
     private void setName(DefaultCookieSerializer serializer) {
