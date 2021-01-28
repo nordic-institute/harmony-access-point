@@ -6,8 +6,8 @@ import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.validators.SkipWhiteListed;
 import eu.domibus.core.converter.DomainCoreConverter;
-import eu.domibus.core.property.DomibusPropertyResourceHelper;
 import eu.domibus.core.property.DomibusPropertiesFilter;
+import eu.domibus.core.property.DomibusPropertyResourceHelper;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.*;
@@ -110,7 +110,11 @@ public class DomibusPropertyResource extends BaseResource {
         List<DomibusPropertyRO> convertedItems = domainConverter.convert(items, DomibusPropertyRO.class);
 
         return exportToCSV(convertedItems, DomibusPropertyRO.class,
-                ImmutableMap.of("name".toUpperCase(), "Property Name"),
+                ImmutableMap.of("name".toUpperCase(), "Property Name",
+                        "usageText".toUpperCase(), "Usage",
+                        "writable".toUpperCase(), "Is Writable",
+                        "encrypted".toUpperCase(), "Is Encrypted",
+                        "value".toUpperCase(), "Property Value"),
                 Arrays.asList("clusterAware"),
                 "domibusProperties");
     }
