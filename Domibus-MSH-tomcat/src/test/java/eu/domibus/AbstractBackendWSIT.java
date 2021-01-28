@@ -1,15 +1,15 @@
 package eu.domibus;
 
-import eu.domibus.api.model.MessageStatus;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import eu.domibus.api.model.MessageStatus;
 import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.plugin.webService.dao.WSMessageLogDao;
 import eu.domibus.plugin.webService.generated.BackendInterface;
 import eu.domibus.plugin.webService.generated.LargePayloadType;
 import eu.domibus.plugin.webService.generated.SubmitRequest;
 import eu.domibus.plugin.webService.generated.SubmitResponse;
+import eu.domibus.plugin.ws.dao.WSMessageLogDao;
 import org.apache.commons.codec.binary.Base64;
 import org.awaitility.core.ConditionTimeoutException;
 import org.junit.Assert;
@@ -18,7 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.activation.DataHandler;
 import javax.mail.util.ByteArrayDataSource;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
@@ -26,8 +25,8 @@ import java.util.concurrent.TimeUnit;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.awaitility.Awaitility.with;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Created by draguio on 18/02/2016.
@@ -50,11 +49,11 @@ public abstract class AbstractBackendWSIT extends AbstractIT {
     @Autowired
     WSMessageLogDao wsMessageLogDao;
 
-    protected void verifySendMessageAck(SubmitResponse response) throws InterruptedException, SQLException {
+    protected void verifySendMessageAck(SubmitResponse response) {
         final List<String> messageID = response.getMessageID();
         assertNotNull(response);
         assertNotNull(messageID);
-        assertTrue(messageID.size() == 1);
+        assertEquals(1, messageID.size());
         final String messageId = messageID.iterator().next();
 
         waitUntilMessageIsAcknowledged(messageId);

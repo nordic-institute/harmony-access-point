@@ -1,7 +1,7 @@
 package eu.domibus.plugin.webService;
 
-import eu.domibus.plugin.webService.backend.WSBackendMessageLogDao;
-import eu.domibus.plugin.webService.dao.WSMessageLogDao;
+import eu.domibus.plugin.ws.backend.WSBackendMessageLogDao;
+import eu.domibus.plugin.ws.dao.WSMessageLogDao;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

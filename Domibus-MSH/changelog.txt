@@ -605,7 +605,7 @@ Domibus 3.3
 - Add the possibility to pull messages
 - Expose the DOWNLOADED message status in the plugin API and the default ws plugin
 - Deprecated the methods eu.domibus.plugin.AbstractBackendConnector.getMessageStatus(String messageId) and eu.domibus.plugin.handler.MessageRetriever.getMessageStatus(String messageId) which converts the DOWNLOADED status to RECEIVED. Use the new getStatus(String messageId) method instead.
-- Deprecated the following methods from eu.domibus.plugin.webService.impl.BackendWebServiceImpl in the Default WS Plugin:
+- Deprecated the following methods from eu.domibus.plugin.ws.impl.BackendWebServiceImpl in the Default WS Plugin:
     o sendMessage(SubmitRequest, Messaging). Use submitMessage(SubmitRequest, Messaging) which add support for large files.
     o downloadMessage(RetrieveMessageRequest, Holder, Holder). Use retrieveMessage(RetrieveMessageRequest, Holder, Holder) which add support for large files.
     o getMessageStatus(StatusRequest). Use getStatus(StatusRequest) which converts the DOWNLOADED status to RECEIVED.
