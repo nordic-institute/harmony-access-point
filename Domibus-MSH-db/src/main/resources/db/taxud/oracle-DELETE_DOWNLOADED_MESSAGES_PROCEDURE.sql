@@ -1,7 +1,7 @@
 create or replace PROCEDURE DeleteExpiredDownloadedMessages (
     mpc         VARCHAR2,
     startdate   DATE,
-    maxcount    IN NUMBER DEFAULT 10
+    maxcount    IN NUMBER DEFAULT 1000
 ) AS
 BEGIN
     INSERT INTO DOWNLOADED_temp_message_id
