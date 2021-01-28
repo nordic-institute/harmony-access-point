@@ -44,8 +44,9 @@
         <xsd:complexType>
             <xsd:sequence>
                 <xsd:element name="messageID" type="tns:max255-non-empty-string" minOccurs="0"/>
-                <xsd:element name="messageStatus" type="tns:messageStatus" minOccurs="0"/>
-                <xsd:element name="mshRole" type="tns:mshRole" minOccurs="0"/>
+                <xsd:element name="finalRecipient" type="tns:max255-non-empty-string" minOccurs="0"/>
+                <xsd:element name="originalSender" type="tns:max255-non-empty-string" minOccurs="0"/>
+                <xsd:element name="receivedUpTo" type="xsd:dateTime" minOccurs="0"/>
             </xsd:sequence>
         </xsd:complexType>
     </xsd:element>

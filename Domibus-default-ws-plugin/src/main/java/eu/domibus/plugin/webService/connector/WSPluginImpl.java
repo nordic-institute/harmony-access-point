@@ -11,9 +11,9 @@ import eu.domibus.plugin.handler.MessageRetriever;
 import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
 import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
 import eu.domibus.plugin.webService.backend.dispatch.WSPluginBackendService;
-import eu.domibus.plugin.webService.dao.WSMessageLogDao;
 import eu.domibus.plugin.webService.entity.WSMessageLogEntity;
 import eu.domibus.plugin.webService.impl.StubDtoTransformer;
+import eu.domibus.plugin.webService.impl.WSMessageLogService;
 import org.apache.commons.lang3.BooleanUtils;
 
 import java.util.Date;
@@ -38,16 +38,16 @@ public class WSPluginImpl extends AbstractBackendConnector<Messaging, UserMessag
 
     private final StubDtoTransformer defaultTransformer;
 
-    protected WSMessageLogDao wsMessageLogDao;
+    protected WSMessageLogService wsMessageLogService;
 
     private final WSPluginBackendService wsPluginBackendService;
 
     public WSPluginImpl(StubDtoTransformer defaultTransformer,
-                        WSMessageLogDao wsMessageLogDao,
+                        WSMessageLogService wsMessageLogService,
                         WSPluginBackendService wsPluginBackendService) {
         super(PLUGIN_NAME);
         this.defaultTransformer = defaultTransformer;
-        this.wsMessageLogDao = wsMessageLogDao;
+        this.wsMessageLogService = wsMessageLogService;
         this.wsPluginBackendService = wsPluginBackendService;
     }
 
@@ -57,8 +57,10 @@ public class WSPluginImpl extends AbstractBackendConnector<Messaging, UserMessag
         WSMessageLogEntity wsMessageLogEntity = new WSMessageLogEntity(
                 event.getMessageId(),
                 event.getProps().get(MessageConstants.FINAL_RECIPIENT),
+                event.getProps().get(MessageConstants.ORIGINAL_SENDER),
                 new Date());
-        wsMessageLogDao.create(wsMessageLogEntity);
+
+        wsMessageLogService.create(wsMessageLogEntity);
 
        boolean submitMessageSent =  wsPluginBackendService.send(event, SUBMIT_MESSAGE);
        if(BooleanUtils.isNotTrue(submitMessageSent)) {
@@ -88,14 +90,14 @@ public class WSPluginImpl extends AbstractBackendConnector<Messaging, UserMessag
     public void messageDeletedBatchEvent(final MessageDeletedBatchEvent event) {
         List<String> messageIds = event.getMessageDeletedEvents().stream().map(MessageDeletedEvent::getMessageId).collect(Collectors.toList());
         LOG.info("Message delete batch event [{}]", messageIds);
-        wsMessageLogDao.deleteByMessageIds(messageIds);
+        wsMessageLogService.deleteByMessageIds(messageIds);
         wsPluginBackendService.send(event, DELETED_BATCH);
     }
 
     @Override
     public void messageDeletedEvent(final MessageDeletedEvent event) {
         LOG.info("Message delete event [{}]", event.getMessageId());
-        wsMessageLogDao.deleteByMessageId(event.getMessageId());
+        wsMessageLogService.deleteByMessageId(event.getMessageId());
         wsPluginBackendService.send(event, DELETED);
     }
 

@@ -32,6 +32,9 @@ public class WSMessageLogEntity {
     @Column(name = "FINAL_RECIPIENT")
     private String finalRecipient;
 
+    @Column(name = "ORIGINAL_SENDER")
+    private String originalSender;
+
     @Column(name = "RECEIVED")
     @Temporal(TemporalType.TIMESTAMP)
     private Date received;
@@ -39,9 +42,10 @@ public class WSMessageLogEntity {
     public WSMessageLogEntity() {
     }
 
-    public WSMessageLogEntity(String messageId, String finalRecipient, Date received) {
+    public WSMessageLogEntity(String messageId, String finalRecipient, String originalSender, Date received) {
         this.messageId = messageId;
         this.finalRecipient = finalRecipient;
+        this.originalSender = originalSender;
         this.received = received;
     }
 
@@ -67,6 +71,14 @@ public class WSMessageLogEntity {
 
     public void setFinalRecipient(String finalRecipient) {
         this.finalRecipient = finalRecipient;
+    }
+
+    public String getOriginalSender() {
+        return originalSender;
+    }
+
+    public void setOriginalSender(String originalSender) {
+        this.originalSender = originalSender;
     }
 
     public Date getReceived() {

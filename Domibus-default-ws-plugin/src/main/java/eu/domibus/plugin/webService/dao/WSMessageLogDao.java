@@ -1,11 +1,20 @@
 package eu.domibus.plugin.webService.dao;
 
 import eu.domibus.plugin.webService.entity.WSMessageLogEntity;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -18,6 +27,8 @@ public class WSMessageLogDao extends WSBasicDao<WSMessageLogEntity> {
     private static final String MESSAGE_ID = "MESSAGE_ID";
     private static final String MESSAGE_IDS = "MESSAGE_IDS";
     private static final String FINAL_RECIPIENT= "FINAL_RECIPIENT";
+    private static final String RECEIVED= "RECEIVED";
+
 
     public WSMessageLogDao() {
         super(WSMessageLogEntity.class);
@@ -70,6 +81,60 @@ public class WSMessageLogDao extends WSBasicDao<WSMessageLogEntity> {
         TypedQuery<WSMessageLogEntity> query = em.createNamedQuery("WSMessageLogEntity.findAll", WSMessageLogEntity.class);
         return query.getResultList();
     }
+
+    /**
+     * find all entries in plugin table based on criteria
+     *
+     * @param messageId
+     * @param fromPartyId
+     * @param conversationId
+     * @param referenceMessageId
+     * @param originalSender
+     * @param finalRecipient
+     * @param sendFrom
+     * @param receivedUpTo
+     * @param maxPendingMessagesRetrieveCount
+     * @return List<WSMessageLogEntity>
+     */
+    public List<WSMessageLogEntity> findAllWithFilter(String messageId, String fromPartyId, String conversationId, String referenceMessageId,
+                                                      String originalSender, String finalRecipient, Date sendFrom, LocalDateTime receivedUpTo,
+                                                      int maxPendingMessagesRetrieveCount) {
+        TypedQuery<WSMessageLogEntity> query = em.createQuery(
+                buildWSMessageLogListCriteria(messageId, fromPartyId,conversationId, referenceMessageId,
+                        originalSender, finalRecipient, sendFrom, receivedUpTo));
+
+        query.setMaxResults(maxPendingMessagesRetrieveCount);
+        return query.getResultList();
+
+    }
+
+
+    protected CriteriaQuery<WSMessageLogEntity> buildWSMessageLogListCriteria(String messageId, String fromPartyId, String conversationId,
+                                                                              String referenceMessageId, String originalSender, String finalRecipient,
+                                                                              Date sendFrom, LocalDateTime receivedUpTo) {
+        CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
+        CriteriaQuery<WSMessageLogEntity> criteriaQuery = criteriaBuilder.createQuery(WSMessageLogEntity.class);
+        Root<WSMessageLogEntity> root = criteriaQuery.from(WSMessageLogEntity.class);
+        criteriaQuery.select(root);
+        List<Predicate> predicates = new ArrayList<>();
+
+        if (StringUtils.isNotBlank(messageId)) {
+            predicates.add(criteriaBuilder.equal(root.get(MESSAGE_ID), messageId));
+        }
+        if (StringUtils.isNotBlank(finalRecipient)) {
+            predicates.add(criteriaBuilder.equal(root.get(FINAL_RECIPIENT), messageId));
+        }
+        if (receivedUpTo != null) {
+            predicates.add(criteriaBuilder.lessThanOrEqualTo(root.<LocalDateTime>get(RECEIVED), receivedUpTo));
+        }
+
+        if (CollectionUtils.isNotEmpty(predicates)) {
+            criteriaQuery.where(predicates.toArray(new Predicate[]{}));
+        }
+        return criteriaQuery;
+    }
+
+
 
     /**
      * Delete the entry related to a given MessageId.

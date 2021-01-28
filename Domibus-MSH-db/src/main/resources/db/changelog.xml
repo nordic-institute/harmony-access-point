@@ -33,7 +33,8 @@
             <column name="MESSAGE_ID" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="FINAL_RECIPIENT" type="VARCHAR(255)"/>
+            <column name="FINAL_RECIPIENT" type="VARCHAR(255)" remarks="Final recipient of the Domibus message"/>
+            <column name="ORIGINAL_SENDER" type="VARCHAR(255)" remarks="Original sender of the Domibus message"/>
             <column name="RECEIVED" type="TIMESTAMP" defaultValueComputed="${now}">
                 <constraints nullable="false"/>
             </column>
