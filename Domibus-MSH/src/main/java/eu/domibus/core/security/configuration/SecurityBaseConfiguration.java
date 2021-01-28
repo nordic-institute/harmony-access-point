@@ -1,5 +1,6 @@
 package eu.domibus.core.security.configuration;
 
+import eu.domibus.web.filter.CookieFilter;
 import eu.domibus.web.filter.SetDomainFilter;
 import eu.domibus.web.matcher.URLCsrfMatcher;
 import org.springframework.context.annotation.Bean;
@@ -29,7 +30,7 @@ import java.util.Arrays;
 public class SecurityBaseConfiguration {
 
     @Bean
-    public CsrfTokenRepository tokenRepository(){
+    public CsrfTokenRepository tokenRepository() {
         CookieCsrfTokenRepository csrfTokenRepository = new CookieCsrfTokenRepository();
         csrfTokenRepository.setCookieHttpOnly(false);
         return csrfTokenRepository;
@@ -45,6 +46,11 @@ public class SecurityBaseConfiguration {
     @Bean
     public SetDomainFilter setDomainFilter() {
         return new SetDomainFilter();
+    }
+
+    @Bean
+    public CookieFilter coockieFilter() {
+        return new CookieFilter();
     }
 
     @Bean
