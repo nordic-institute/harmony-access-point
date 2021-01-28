@@ -21,9 +21,7 @@ import static eu.domibus.core.spring.DomibusSessionConfiguration.SAME_SITE_VALUE
  * @author Ion Perpegel
  * @since 5.0
  */
-public class CoockieFilter extends GenericFilterBean {
-
-    private static final Logger LOG = DomibusLoggerFactory.getLogger(CoockieFilter.class);
+public class CookieFilter extends GenericFilterBean {
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
@@ -35,12 +33,10 @@ public class CoockieFilter extends GenericFilterBean {
             String cookieValue = String.format("%s; %s", cookieHeader, " SameSite=" + SAME_SITE_VALUE);
             if (firstHeader) {
                 resp.setHeader(HttpHeaders.SET_COOKIE, cookieValue);
-                LOG.debug("Setting cookie header [{}]", cookieValue);
                 firstHeader = false;
                 continue;
             }
             resp.addHeader(HttpHeaders.SET_COOKIE, cookieValue);
-            LOG.debug("Adding cookie header [{}]", cookieValue);
         }
 
         chain.doFilter(request, response);
