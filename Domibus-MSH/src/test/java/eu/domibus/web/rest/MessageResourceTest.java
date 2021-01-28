@@ -128,9 +128,12 @@ public class MessageResourceTest {
             result = new Date();
 
         }};
-
-        boolean result2 = messageResource.checkCanDownload("messageId");
-        Assert.assertFalse(result2);
+        try {
+            messageResource.checkCanDownload("messageId");
+            Assert.fail();
+        }catch(MessagingException ex){
+            Assert.assertTrue(ex.getMessage().contains("[DOM_001]:Message content is no longer available for message id:"));
+        }
     }
 
     @Test
@@ -140,8 +143,12 @@ public class MessageResourceTest {
             result = null;
         }};
 
-        boolean result1 = messageResource.checkCanDownload("messageId");
-        Assert.assertFalse(result1);
+        try {
+            messageResource.checkCanDownload("messageId");
+            Assert.fail();
+        }catch(MessagingException ex){
+            Assert.assertEquals(ex.getMessage(),"[DOM_001]:No message found for message id: messageId");
+        }
     }
 
     @Test
@@ -153,8 +160,7 @@ public class MessageResourceTest {
             result = null;
         }};
 
-        boolean result3 = messageResource.checkCanDownload("messageId");
-        Assert.assertTrue(result3);
+      messageResource.checkCanDownload("messageId");
     }
 
     @Test

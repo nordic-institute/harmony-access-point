@@ -83,23 +83,21 @@ public class MessageResource {
     }
 
     @RequestMapping(value = "/exists", method = RequestMethod.GET)
-    public boolean checkCanDownload(@RequestParam(value = "messageId", required = true) String messageId) {
+    public void checkCanDownload(@RequestParam(value = "messageId", required = true) String messageId) {
         MessageLogRO message = messagesLogService.findUserMessageById(messageId);
         int maxDownLoadSize = domibusPropertyProvider.getIntegerProperty(DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE);
         if (message == null) {
-            return false;
+            throw new MessagingException("No message found for message id: " + messageId, null);
         }
         if (message.getDeleted() != null) {
             LOG.info("Could not find message content for message: [{}]", messageId);
-            return false;
+            throw new MessagingException("Message content is no longer available for message id: " + messageId, null);
         }
         byte[] content = userMessageService.getMessageAsBytes(messageId);
         if (content.length > maxDownLoadSize) {
             LOG.warn("Couldn't download the message. The message size exceeds maximum download size limit: " + maxDownLoadSize);
             throw new MessagingException("Couldn't download the message. The message size exceeds maximum download size limit: " + maxDownLoadSize, null);
-
         }
-        return true;
     }
 
     @GetMapping(value = "/{messageId:.+}/envelopes")
