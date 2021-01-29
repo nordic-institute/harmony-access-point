@@ -16,7 +16,7 @@ import eu.domibus.plugin.ws.webservice.WebServiceExceptionFactory;
 import eu.domibus.plugin.ws.webservice.WebServiceImpl;
 import eu.domibus.plugin.ws.webservice.interceptor.ClearAuthenticationMDCInterceptor;
 import eu.domibus.plugin.ws.webservice.interceptor.CustomAuthenticationInterceptor;
-import eu.domibus.plugin.ws.webservice.interceptor.WSPluginFaultOutInterceptor;
+import eu.domibus.plugin.ws.webservice.interceptor.WebServiceFaultOutInterceptor;
 import org.apache.cxf.Bus;
 import org.apache.cxf.ext.logging.LoggingFeature;
 import org.apache.cxf.jaxws.EndpointImpl;
@@ -109,7 +109,7 @@ public class WebServiceConfiguration {
                                              WSPluginPropertyManager wsPluginPropertyManager,
                                              CustomAuthenticationInterceptor customAuthenticationInterceptor,
                                              ClearAuthenticationMDCInterceptor clearAuthenticationMDCInterceptor,
-                                             WSPluginFaultOutInterceptor wsPluginFaultOutInterceptor,
+                                             WebServiceFaultOutInterceptor wsPluginFaultOutInterceptor,
                                              @Qualifier("wsLoggingFeature") LoggingFeature wsLoggingFeature) {
         EndpointImpl endpoint = new EndpointImpl(bus, backendWebService); //NOSONAR
         Map<String, Object> endpointProperties = getEndpointProperties(wsPluginPropertyManager);

@@ -4,6 +4,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.webService.generated.RetrieveMessageFault;
 import eu.domibus.plugin.ws.webservice.WebServiceOperation;
+import eu.domibus.plugin.ws.webservice.interceptor.WebServiceFaultOutInterceptor;
 import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.interceptor.AbstractSoapInterceptor;
@@ -26,7 +27,7 @@ import static org.apache.commons.lang3.StringUtils.equalsAnyIgnoreCase;
 /**
  * @author Cosmin Baciu
  * @since 4.1.4
- * @deprecated since 5.0 Use instead {@link eu.domibus.plugin.ws.webservice.interceptor.WSPluginFaultOutInterceptor}
+ * @deprecated since 5.0 Use instead {@link WebServiceFaultOutInterceptor}
  */
 @Deprecated
 @Component("wsPluginFaultOutInterceptorDeprecated")

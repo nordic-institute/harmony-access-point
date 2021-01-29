@@ -29,9 +29,9 @@ import static org.apache.commons.lang3.StringUtils.equalsAnyIgnoreCase;
  * @since 4.1.4
  */
 @Component("wsPluginFaultOutInterceptor")
-public class WSPluginFaultOutInterceptor extends AbstractSoapInterceptor {
+public class WebServiceFaultOutInterceptor extends AbstractSoapInterceptor {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginFaultOutInterceptor.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WebServiceFaultOutInterceptor.class);
     protected static final CharSequence[] SOAP_FAULT_FORBIDDEN_CODES = {
             "XML_STREAM_EXC",
             "XML_WRITE_EXC"
@@ -40,7 +40,7 @@ public class WSPluginFaultOutInterceptor extends AbstractSoapInterceptor {
     @Autowired
     protected WebServiceExceptionFactory webServiceExceptionFactory;
 
-    public WSPluginFaultOutInterceptor() {
+    public WebServiceFaultOutInterceptor() {
         super(Phase.PRE_STREAM);
         addBefore(Arrays.asList(StaxOutInterceptor.class.getName(), AttachmentOutInterceptor.class.getName()));
     }

@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Configuration;
  */
 @Conditional(TomcatCondition.class)
 @Configuration
-public class WSPluginTomcatConfiguration {
+public class WebServiceTomcatConfiguration {
 
     @Bean("notifyBackendWebServiceQueue")
     public ActiveMQQueue notifyBackendFSQueue() {

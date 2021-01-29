@@ -32,7 +32,7 @@ import static org.junit.Assert.assertTrue;
 public class WSPluginFaultOutInterceptorTest {
 
     @Tested
-    private WSPluginFaultOutInterceptor wsPluginFaultOutInterceptor;
+    private WebServiceFaultOutInterceptor wsPluginFaultOutInterceptor;
 
     @Injectable
     private WebServiceExceptionFactory webServicePluginExceptionFactory;
