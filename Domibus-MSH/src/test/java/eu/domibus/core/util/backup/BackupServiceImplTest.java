@@ -103,14 +103,12 @@ public class BackupServiceImplTest {
         File backupFile = new File(backupLocation);
 
         new Expectations(FileUtils.class, backupService) {{
-            domibusPropertyProvider.getProperty(currentDomain,backupService.TRUSTSTORE_BACKUP_LOCATION);
-            result = backupLocation;
             backupService.createBackupFileInLocation(originalFile, backupLocation);
             result = backupFile;
             FileUtils.copyFile((File) any, (File) any);
         }};
 
-        backupService.backupFileInLocation(originalFile);
+        backupService.backupFileInLocation(originalFile, backupLocation);
 
         new Verifications() {{
             File backupFile;

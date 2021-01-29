@@ -96,7 +96,8 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_AP_ADMIN')")
     public synchronized void replaceTrustStore(byte[] store, String password) throws CryptoSpiException {
         try {
-            certificateService.replaceTrustStore(store, password, getTrustStoreType(), getTrustStoreLocation(), getTrustStorePassword());
+            LOG.debug("Truststore Backup location : [{}]", getTrustStoreBackUpLocation());
+            certificateService.replaceTrustStore(store, password, getTrustStoreType(), getTrustStoreLocation(), getTrustStorePassword(), getTrustStoreBackUpLocation());
         } catch (CryptoException ex) {
             throw new CryptoSpiException(ex);
         }
@@ -113,18 +114,18 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
 
     @Override
     public synchronized boolean addCertificate(X509Certificate certificate, String alias, boolean overwrite) {
-        return certificateService.addCertificate(getTrustStorePassword(), getTrustStoreLocation(), certificate, alias, overwrite, true);
+        return certificateService.addCertificate(getTrustStorePassword(), getTrustStoreLocation(), certificate, alias, overwrite, true, getTrustStoreBackUpLocation());
     }
 
     @Override
     public synchronized void addCertificate(List<CertificateEntrySpi> certificates, boolean overwrite) {
         certificates.forEach(certEntry ->
-                certificateService.addCertificate(getTrustStorePassword(), getTrustStoreLocation(), certEntry.getCertificate(), certEntry.getAlias(), overwrite, false));
+                certificateService.addCertificate(getTrustStorePassword(), getTrustStoreLocation(), certEntry.getCertificate(), certEntry.getAlias(), overwrite, false, getTrustStoreBackUpLocation()));
         persistTrustStore();
     }
 
     protected synchronized void persistTrustStore() throws CryptoException {
-        certificateService.persistTrustStore(getTrustStore(), getTrustStorePassword(), getTrustStoreLocation());
+        certificateService.persistTrustStore(getTrustStore(), getTrustStorePassword(), getTrustStoreLocation(), getTrustStoreBackUpLocation());
 
         refreshTrustStore();
         signalService.signalTrustStoreUpdate(domain);
@@ -219,15 +220,18 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
     public String getTrustStoreType() {
         return domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_TYPE);
     }
+    protected String getTrustStoreBackUpLocation() {
+        return domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_BACKUP_LOCATION);
+    }
 
     @Override
     public boolean removeCertificate(String alias) {
-        return certificateService.removeCertificate(getTrustStorePassword(), getTrustStoreLocation(), alias, true);
+        return certificateService.removeCertificate(getTrustStorePassword(), getTrustStoreLocation(), alias, true, getTrustStoreBackUpLocation());
     }
 
     @Override
     public void removeCertificate(List<String> aliases) {
-        aliases.forEach(alias -> certificateService.removeCertificate(getTrustStorePassword(), getTrustStoreLocation(), alias, false));
+        aliases.forEach(alias -> certificateService.removeCertificate(getTrustStorePassword(), getTrustStoreLocation(), alias, false, getTrustStoreBackUpLocation()));
         persistTrustStore();
     }
 

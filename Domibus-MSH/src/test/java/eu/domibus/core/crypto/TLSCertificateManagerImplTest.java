@@ -39,17 +39,17 @@ public class TLSCertificateManagerImplTest {
     private SignalService signalService;
 
     @Test
-    public void replaceTrustStore(@Mocked KeyStoreType trustStore, @Mocked String fileName, @Mocked byte[] fileContent, @Mocked String filePassword) {
+    public void replaceTrustStore(@Mocked KeyStoreType trustStore, @Mocked String fileName, @Mocked byte[] fileContent, @Mocked String filePassword, @Mocked String backupLocation) {
         new Expectations(tlsCertificateManager) {{
             tlsCertificateManager.getTruststoreParams();
             result = trustStore;
         }};
 
-        tlsCertificateManager.replaceTrustStore(fileName, fileContent, filePassword);
+        tlsCertificateManager.replaceTrustStore(fileName, fileContent, filePassword, backupLocation);
 
         new Verifications() {{
             certificateService.replaceTrustStore(fileName, fileContent, filePassword,
-                    trustStore.getType(), trustStore.getFile(), trustStore.getPassword());
+                    trustStore.getType(), trustStore.getFile(), trustStore.getPassword(), backupLocation);
             tlsCertificateManager.resetTLSTruststore();
         }};
     }
@@ -89,37 +89,37 @@ public class TLSCertificateManagerImplTest {
     }
 
     @Test
-    public void addCertificate(@Mocked KeyStoreType trustStore, @Mocked byte[] certificateData, @Mocked String alias) {
+    public void addCertificate(@Mocked KeyStoreType trustStore, @Mocked byte[] certificateData, @Mocked String alias, @Mocked String backupLocation) {
         new Expectations(tlsCertificateManager) {{
             tlsCertificateManager.getTruststoreParams();
             result = trustStore;
-            certificateService.addCertificate(trustStore.getPassword(), trustStore.getFile(), certificateData, alias, true);
+            certificateService.addCertificate(trustStore.getPassword(), trustStore.getFile(), certificateData, alias, true, backupLocation);
             result = true;
         }};
 
-        boolean result = tlsCertificateManager.addCertificate(certificateData, alias);
+        boolean result = tlsCertificateManager.addCertificate(certificateData, alias, backupLocation);
 
         Assert.assertTrue(result);
         new Verifications() {{
-            certificateService.addCertificate(trustStore.getPassword(), trustStore.getFile(), certificateData, alias, true);
+            certificateService.addCertificate(trustStore.getPassword(), trustStore.getFile(), certificateData, alias, true, backupLocation);
             tlsCertificateManager.resetTLSTruststore();
         }};
     }
 
     @Test
-    public void removeCertificate(@Mocked KeyStoreType trustStore, @Mocked String alias) {
+    public void removeCertificate(@Mocked KeyStoreType trustStore, @Mocked String alias, @Mocked String backupLocation) {
         new Expectations(tlsCertificateManager) {{
             tlsCertificateManager.getTruststoreParams();
             result = trustStore;
-            certificateService.removeCertificate(trustStore.getPassword(), trustStore.getFile(), alias, true);
+            certificateService.removeCertificate(trustStore.getPassword(), trustStore.getFile(), alias, true, backupLocation);
             result = true;
         }};
 
-        boolean result = tlsCertificateManager.removeCertificate(alias);
+        boolean result = tlsCertificateManager.removeCertificate(alias, backupLocation);
 
         Assert.assertTrue(result);
         new Verifications() {{
-            certificateService.removeCertificate(trustStore.getPassword(), trustStore.getFile(), alias, true);
+            certificateService.removeCertificate(trustStore.getPassword(), trustStore.getFile(), alias, true, backupLocation);
             tlsCertificateManager.resetTLSTruststore();
         }};
     }

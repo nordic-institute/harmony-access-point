@@ -42,11 +42,11 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
     }
 
     @Override
-    public void replaceTrustStore(String fileName, byte[] fileContent, String filePassword) throws CryptoException {
+    public void replaceTrustStore(String fileName, byte[] fileContent, String filePassword, String trustStoreBackupLocation) throws CryptoException {
         KeyStoreType trustStore = getTruststoreParams();
 
         certificateService.replaceTrustStore(fileName, fileContent, filePassword,
-                trustStore.getType(), trustStore.getFile(), trustStore.getPassword());
+                trustStore.getType(), trustStore.getFile(), trustStore.getPassword(), trustStoreBackupLocation);
 
         resetTLSTruststore();
     }
@@ -65,9 +65,9 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
     }
 
     @Override
-    public boolean addCertificate(byte[] certificateData, String alias) {
+    public boolean addCertificate(byte[] certificateData, String alias, String trustStoreBackupLocation) {
         KeyStoreType trustStore = getTruststoreParams();
-        boolean added = certificateService.addCertificate(trustStore.getPassword(), trustStore.getFile(), certificateData, alias, true);
+        boolean added = certificateService.addCertificate(trustStore.getPassword(), trustStore.getFile(), certificateData, alias, true, trustStoreBackupLocation);
         if (added) {
             LOG.debug("Added certificate [{}] to the tls truststore; reseting it.", alias);
             resetTLSTruststore();
@@ -76,9 +76,9 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
     }
 
     @Override
-    public boolean removeCertificate(String alias) {
+    public boolean removeCertificate(String alias, String trustStoreBackupLocation) {
         KeyStoreType trustStore = getTruststoreParams();
-        boolean deleted = certificateService.removeCertificate(trustStore.getPassword(), trustStore.getFile(), alias, true);
+        boolean deleted = certificateService.removeCertificate(trustStore.getPassword(), trustStore.getFile(), alias, true, trustStoreBackupLocation);
         if (deleted) {
             LOG.debug("Removed certificate [{}] from the tls truststore; reseting it.", alias);
             resetTLSTruststore();

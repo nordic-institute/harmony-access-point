@@ -1,7 +1,5 @@
 package eu.domibus.core.util.backup;
 
-import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -15,7 +13,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.format.DateTimeFormatter;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SECURITY_TRUSTSTORE_BACKUP_LOCATION;
 
 /**
  * @author Ion Perpegel
@@ -30,16 +27,9 @@ public class BackupServiceImpl implements BackupService {
 
     protected static final String BACKUP_EXT = ".backup-";
     protected static final DateTimeFormatter BACKUP_FILE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH_mm_ss.SSS");
-    protected static final String TRUSTSTORE_BACKUP_LOCATION = DOMIBUS_SECURITY_TRUSTSTORE_BACKUP_LOCATION;
 
     @Autowired
     protected DateUtil dateUtil;
-
-    @Autowired
-    protected DomibusPropertyProvider domibusPropertyProvider;
-
-    @Autowired
-    protected DomainContextProvider domainProvider;
 
     /**
      * {@inheritDoc}
@@ -50,6 +40,11 @@ public class BackupServiceImpl implements BackupService {
         copyBackUpFile(originalFile, backupFile);
     }
 
+    @Override
+    public void backupFileInLocation(File originalFile, String trustStoreBackupLocation) throws IOException {
+        final File backupFile = createBackupFileInLocation(originalFile, trustStoreBackupLocation);
+        copyBackUpFile(originalFile, backupFile);
+    }
     protected void copyBackUpFile(File originalFile, File backupFile) throws IOException {
         LOG.debug("Backing up file [{}] to file [{}]", originalFile, backupFile);
         try {
@@ -62,14 +57,6 @@ public class BackupServiceImpl implements BackupService {
     protected File getBackupFile(File originalFile) {
         String backupFileName = originalFile.getName() + BACKUP_EXT + dateUtil.getCurrentTime(BACKUP_FILE_FORMATTER);
         return new File(originalFile.getParent(), backupFileName);
-    }
-
-    @Override
-    public void backupFileInLocation(File originalFile) throws IOException {
-        String trustStoreBackupLocation = domibusPropertyProvider.getProperty(domainProvider.getCurrentDomain(), TRUSTSTORE_BACKUP_LOCATION);
-        LOG.debug("TrustStore backup location is: [{}]", trustStoreBackupLocation);
-        final File backupFile = createBackupFileInLocation(originalFile, trustStoreBackupLocation);
-        copyBackUpFile(originalFile, backupFile);
     }
 
     protected File createBackupFileInLocation(File originalFile, String backupLocation) throws IOException {

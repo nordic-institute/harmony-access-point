@@ -163,7 +163,7 @@ public class DefaultDomainCryptoEbms3ServiceSpiImplTest {
     }
 
     @Test
-    public void replaceTrustStore(@Mocked byte[] store, @Mocked String password, @Mocked String type, @Mocked String location) throws Exception {
+    public void replaceTrustStore(@Mocked byte[] store, @Mocked String password, @Mocked String type, @Mocked String location, @Mocked String backupLocation) throws Exception {
         // Given
         new Expectations(domainCryptoService) {{
             domainCryptoService.getTrustStoreType();
@@ -172,7 +172,7 @@ public class DefaultDomainCryptoEbms3ServiceSpiImplTest {
             result = location;
             domainCryptoService.getTrustStorePassword();
             result = password;
-            certificateService.replaceTrustStore(store, password, type, location, password);
+            certificateService.replaceTrustStore(store, password, type, location, password, backupLocation);
             domainCryptoService.refreshTrustStore();
             signalService.signalTrustStoreUpdate(domain);
         }};
@@ -182,14 +182,14 @@ public class DefaultDomainCryptoEbms3ServiceSpiImplTest {
 
         // Then
         new Verifications() {{
-            certificateService.replaceTrustStore(store, password, type, location, password);
+            certificateService.replaceTrustStore(store, password, type, location, password, backupLocation);
             domainCryptoService.refreshTrustStore();
             signalService.signalTrustStoreUpdate(domain);
         }};
     }
 
     @Test
-    public void persistTrustStore(@Mocked KeyStore trust, @Mocked String password, @Mocked String location) {
+    public void persistTrustStore(@Mocked KeyStore trust, @Mocked String password, @Mocked String location, @Mocked String backupLocation) {
         // Given
         new Expectations(domainCryptoService) {{
             domainCryptoService.getTrustStoreLocation();
@@ -198,7 +198,9 @@ public class DefaultDomainCryptoEbms3ServiceSpiImplTest {
             result = password;
             domainCryptoService.getTrustStore();
             result = trust;
-            certificateService.persistTrustStore(trust, password, location);
+            domainCryptoService.getTrustStoreBackUpLocation();
+            result = backupLocation;
+            certificateService.persistTrustStore(trust, password, location, backupLocation);
             domainCryptoService.refreshTrustStore();
             signalService.signalTrustStoreUpdate(domain);
         }};
@@ -208,7 +210,7 @@ public class DefaultDomainCryptoEbms3ServiceSpiImplTest {
 
         // Then
         new Verifications() {{
-            certificateService.persistTrustStore(trust, password, location);
+            certificateService.persistTrustStore(trust, password, location, backupLocation);
             domainCryptoService.refreshTrustStore();
             signalService.signalTrustStoreUpdate(domain);
         }};

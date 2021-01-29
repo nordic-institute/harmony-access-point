@@ -133,7 +133,7 @@ public interface CertificateService {
      * @throws CryptoException
      */
     void replaceTrustStore(String fileName, byte[] fileContent, String filePassword,
-                           String trustType, String trustLocation, String trustPassword) throws CryptoException;
+                           String trustType, String trustLocation, String trustPassword,String trustStoreBackupLocation) throws CryptoException;
 
     /**
      * Replaces the truststore pointed by the location/password parameters with the one provided as parameters
@@ -145,7 +145,7 @@ public interface CertificateService {
      * @throws CryptoException
      */
     void replaceTrustStore(byte[] fileContent, String filePassword,
-                           String trustType, String trustLocation, String trustPassword) throws CryptoException;
+                           String trustType, String trustLocation, String trustPassword,String trustStoreBackupLocation) throws CryptoException;
 
     /**
      * Returns the truststore pointed by the location/password parameters
@@ -172,7 +172,7 @@ public interface CertificateService {
      * @param overwrite
      * @return
      */
-    boolean addCertificate(String password, String trustStoreLocation, byte[] certificateContent, String alias, boolean overwrite);
+    boolean addCertificate(String password, String trustStoreLocation, byte[] certificateContent, String alias, boolean overwrite, String trustStoreBackupLocation);
 
     /**
      * Adds the specified certificate to the truststore pointed by the parameters
@@ -184,7 +184,7 @@ public interface CertificateService {
      * @param persist
      * @return
      */
-    boolean addCertificate(String password, String trustStoreLocation, X509Certificate certificate, String alias, boolean overwrite, boolean persist);
+    boolean addCertificate(String password, String trustStoreLocation, X509Certificate certificate, String alias, boolean overwrite, boolean persist, String trustStoreBackupLocation);
 
     /**
      * Removes the specified certificate to the truststore pointed by the parameters
@@ -194,7 +194,7 @@ public interface CertificateService {
      * @param persist
      * @return
      */
-    boolean removeCertificate(String password, String trustStoreLocation, String alias, boolean persist);
+    boolean removeCertificate(String password, String trustStoreLocation, String alias, boolean persist, String trustStoreBackupLocation);
 
     /**
      * Validates the truststore type with the file extension
@@ -210,5 +210,5 @@ public interface CertificateService {
      * @param trustStoreLocation
      * @throws CryptoException
      */
-    void persistTrustStore(KeyStore truststore, String password, String trustStoreLocation) throws CryptoException;
+    void persistTrustStore(KeyStore truststore, String password, String trustStoreLocation, String trustStoreBackupLocation) throws CryptoException;
 }

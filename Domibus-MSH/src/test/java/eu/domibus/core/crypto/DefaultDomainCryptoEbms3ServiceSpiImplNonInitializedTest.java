@@ -4,18 +4,13 @@ import com.google.common.collect.Lists;
 import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.multitenancy.Domain;
-import eu.domibus.api.pki.CertificateEntry;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.converter.DomainCoreConverter;
-import eu.domibus.core.crypto.spi.CertificateEntrySpi;
-import eu.domibus.core.crypto.spi.CryptoSpiException;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.util.backup.BackupService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.wss4j.common.crypto.PasswordEncryptor;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.junit.Assert;
@@ -25,11 +20,9 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
 import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.List;
 
@@ -144,10 +137,10 @@ public class DefaultDomainCryptoEbms3ServiceSpiImplNonInitializedTest {
         };
 
         new Expectations() {{
-            certificateService.removeCertificate(anyString, anyString, "first", false);
+            certificateService.removeCertificate(anyString, anyString, "first", false, anyString);
             resultList.add("first");
             result = true;
-            certificateService.removeCertificate(anyString, anyString, "second", false);
+            certificateService.removeCertificate(anyString, anyString, "second", false, anyString);
             resultList.add("second");
             result = true;
         }};
@@ -175,7 +168,7 @@ public class DefaultDomainCryptoEbms3ServiceSpiImplNonInitializedTest {
         };
 
         new Expectations() {{
-            certificateService.removeCertificate(anyString, anyString, "first", false);
+            certificateService.removeCertificate(anyString, anyString, "first", false, anyString);
             result = true;
         }};
 

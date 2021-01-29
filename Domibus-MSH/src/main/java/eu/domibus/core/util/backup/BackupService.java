@@ -26,6 +26,6 @@ public interface BackupService {
      * @throws IOException when the backup file cannot be written.
      * @implNote The backup file is named using the following convention: original_filename.backup-yyyy-MM-dd_HH_mm_ss.SSS
      */
-    void backupFileInLocation(File originalFile) throws IOException;
+    void backupFileInLocation(File originalFile, String trustStoreBackupLocation) throws IOException;
 
 }
