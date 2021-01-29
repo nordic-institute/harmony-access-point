@@ -41,7 +41,9 @@ public class DomibusConnectionProvider implements ConnectionProvider {
             LOG.putMDC(DomibusLogger.MDC_USER, userName);
         }
 
-        return dataSource.getConnection();
+        Connection connection = dataSource.getConnection();
+        connection.setAutoCommit(false);
+        return connection;
    }
 
     @Override

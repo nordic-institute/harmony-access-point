@@ -66,7 +66,9 @@ public class DomibusMultiTenantConnectionProvider implements MultiTenantConnecti
             LOG.putMDC(DomibusLogger.MDC_USER, userName);
         }
 
-        return dataSource.getConnection();
+        Connection connection = dataSource.getConnection();
+        connection.setAutoCommit(false);
+        return connection;
     }
 
     @Override
