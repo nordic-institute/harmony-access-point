@@ -4,6 +4,7 @@ import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.pki.CertificateEntry;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.converter.DomainCoreConverter;
@@ -26,8 +27,10 @@ import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.cert.X509Certificate;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
@@ -113,21 +116,40 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
 
     @Override
     public synchronized boolean addCertificate(X509Certificate certificate, String alias, boolean overwrite) {
-        return certificateService.addCertificate(getTrustStorePassword(), getTrustStoreLocation(), certificate, alias, overwrite, true);
+        List<CertificateEntry> certificates = Arrays.asList(new CertificateEntry(alias, certificate));
+        boolean added = certificateService.addCertificates(getTrustStore(), getTrustStorePassword(), getTrustStoreLocation(), certificates, overwrite);
+        signalService.signalTrustStoreUpdate(domain);
+        return added;
     }
 
     @Override
     public synchronized void addCertificate(List<CertificateEntrySpi> certificates, boolean overwrite) {
-        certificates.forEach(certEntry ->
-                certificateService.addCertificate(getTrustStorePassword(), getTrustStoreLocation(), certEntry.getCertificate(), certEntry.getAlias(), overwrite, false));
-        persistTrustStore();
+        List<CertificateEntry> certificates2 = certificates.stream().map(el -> new CertificateEntry(el.getAlias(), el.getCertificate())).collect(Collectors.toList());
+        certificateService.addCertificates(getTrustStore(), getTrustStorePassword(), getTrustStoreLocation(), certificates2, overwrite);
+        signalService.signalTrustStoreUpdate(domain);
     }
 
-    protected synchronized void persistTrustStore() throws CryptoException {
-        certificateService.persistTrustStore(getTrustStore(), getTrustStorePassword(), getTrustStoreLocation());
-
-        refreshTrustStore();
+    @Override
+    public boolean removeCertificate(String alias) {
+        boolean removed = certificateService.removeCertificates(getTrustStore(), getTrustStorePassword(), getTrustStoreLocation(), Arrays.asList(alias));
         signalService.signalTrustStoreUpdate(domain);
+        return removed;
+    }
+
+    @Override
+    public void removeCertificate(List<String> aliases) {
+        certificateService.removeCertificates(getTrustStore(), getTrustStorePassword(), getTrustStoreLocation(), aliases);
+        signalService.signalTrustStoreUpdate(domain);
+    }
+
+    @Override
+    public String getIdentifier() {
+        return AbstractCryptoServiceSpi.DEFAULT_AUTHENTICATION_SPI;
+    }
+
+    @Override
+    public void setDomain(DomainSpi domain) {
+        this.domain = domainCoreConverter.convert(domain, Domain.class);
     }
 
     protected KeyStore loadTrustStore() {
@@ -216,29 +238,8 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
         return domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD);
     }
 
-    public String getTrustStoreType() {
+    protected String getTrustStoreType() {
         return domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_TYPE);
-    }
-
-    @Override
-    public boolean removeCertificate(String alias) {
-        return certificateService.removeCertificate(getTrustStorePassword(), getTrustStoreLocation(), alias, true);
-    }
-
-    @Override
-    public void removeCertificate(List<String> aliases) {
-        aliases.forEach(alias -> certificateService.removeCertificate(getTrustStorePassword(), getTrustStoreLocation(), alias, false));
-        persistTrustStore();
-    }
-
-    @Override
-    public String getIdentifier() {
-        return AbstractCryptoServiceSpi.DEFAULT_AUTHENTICATION_SPI;
-    }
-
-    @Override
-    public void setDomain(DomainSpi domain) {
-        this.domain = domainCoreConverter.convert(domain, Domain.class);
     }
 
 }

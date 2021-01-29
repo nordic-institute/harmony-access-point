@@ -78,7 +78,7 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
     @Override
     public boolean removeCertificate(String alias) {
         KeyStoreType trustStore = getTruststoreParams();
-        boolean deleted = certificateService.removeCertificate(trustStore.getPassword(), trustStore.getFile(), alias, true);
+        boolean deleted = certificateService.removeCertificate(trustStore.getPassword(), trustStore.getFile(), alias);
         if (deleted) {
             LOG.debug("Removed certificate [{}] from the tls truststore; reseting it.", alias);
             resetTLSTruststore();

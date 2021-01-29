@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.pki.CertificateEntry;
 import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.TrustStoreEntry;
@@ -13,7 +14,6 @@ import eu.domibus.core.alerts.configuration.certificate.imminent.ImminentExpirat
 import eu.domibus.core.alerts.configuration.certificate.imminent.ImminentExpirationCertificateModuleConfiguration;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.certificate.crl.CRLService;
-import eu.domibus.core.crypto.DefaultDomainCryptoServiceSpiImpl;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.pki.PKIUtil;
 import eu.domibus.core.pmode.provider.PModeProvider;
@@ -741,11 +741,6 @@ public class CertificateServiceImplTest {
 
         thrown.expect(ConfigurationException.class);
 
-        new MockUp<DefaultDomainCryptoServiceSpiImpl>() {
-            @Mock
-            void persistTrustStore() { /* ignore */ }
-        };
-
         new Expectations(certificateService) {{
             certificateService.getTrustStore(anyString, anyString);
             result = trustStore;
@@ -756,7 +751,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.removeCertificate("pass", "location", "alias", true);
+        certificateService.removeCertificate("pass", "location", "alias");
     }
 
     @Test
@@ -766,7 +761,7 @@ public class CertificateServiceImplTest {
             int count = 0;
 
             @Mock
-            boolean removeCertificate(Invocation invocation, String password, String trustStoreLocation, String alias, boolean persist) {
+            boolean removeCertificate(Invocation invocation, String password, String trustStoreLocation, String alias) {
                 invocation.proceed();
                 Assert.assertEquals("Should have persisted the trust store after removing certificates", 1, count);
                 return true;
@@ -789,7 +784,7 @@ public class CertificateServiceImplTest {
         };
 
         // When
-        certificateService.removeCertificate("pass", "location", "alias", true);
+        certificateService.removeCertificate("pass", "location", "alias");
     }
 
     @Test
@@ -814,7 +809,7 @@ public class CertificateServiceImplTest {
         };
 
         // When
-        certificateService.removeCertificate("pass", "location", "alias", true);
+        certificateService.removeCertificate("pass", "location", "alias");
     }
 
     @Test
@@ -1352,15 +1347,10 @@ public class CertificateServiceImplTest {
     }
 
     @Test
-    public void doesNotPersistTheTrustStoreWhenAddingCertificateThatDoesNotAlterItsContent(@Injectable X509Certificate certificate,
+    public void doesNotPersistTheTrustStoreWhenAddingCertificateThatDoesNotAlterItsContent(@Injectable List<CertificateEntry> certificates,
                                                                                            @Injectable KeyStore truststore) {
         // Given
         new MockUp<CertificateServiceImpl>() {
-            @Mock
-            KeyStore getTrustStore(String trustStoreLocation, String password) {
-                return truststore;
-            }
-
             @Mock
             boolean doAddCertificate(KeyStore truststore, X509Certificate certificate, String alias, boolean overwrite) {
                 return false;
@@ -1373,7 +1363,7 @@ public class CertificateServiceImplTest {
         };
 
         // When
-        certificateService.addCertificate("pass", "location", certificate, "alias", false, true);
+        certificateService.doAddCertificates(truststore, "pass", "location", certificates, false);
     }
 
     @Test
@@ -1432,39 +1422,6 @@ public class CertificateServiceImplTest {
 
         // When
         certificateService.doAddCertificate(trustStore, certificate, "alias", true);
-    }
-
-    @Test
-    public void persistsTheTrustStoreAfterAddingCertificate(@Injectable X509Certificate certificate, @Injectable KeyStore trustStore) {
-        // Given
-        new MockUp<CertificateServiceImpl>() {
-            int count = 0;
-
-            @Mock
-            boolean addCertificate(Invocation invocation, String password, String trustStoreLocation, X509Certificate certificate, String alias, boolean overwrite, boolean persist) {
-                invocation.proceed();
-                Assert.assertEquals("Should have persisted the trust store after adding or replacing certificates", 1, count);
-                return true;
-            }
-
-            @Mock
-            KeyStore getTrustStore(String trustStoreLocation, String trustStorePassword) {
-                return trustStore;
-            }
-
-            @Mock
-            boolean doAddCertificate(KeyStore truststore, X509Certificate certificate, String alias, boolean overwrite) {
-                return true;
-            }
-
-            @Mock
-            void persistTrustStore(Invocation invocation, KeyStore truststore, String password, String trustStoreLocation) {
-                count = invocation.getInvocationCount();
-            }
-        };
-
-        // When
-        certificateService.addCertificate(TRUST_STORE_PASSWORD, TRUST_STORE_LOCATION, certificate, "alias", true, true);
     }
 
     @Test

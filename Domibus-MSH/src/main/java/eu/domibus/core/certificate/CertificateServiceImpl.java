@@ -2,6 +2,7 @@ package eu.domibus.core.certificate;
 
 import com.google.common.collect.Lists;
 import eu.domibus.api.crypto.CryptoException;
+import eu.domibus.api.pki.CertificateEntry;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -63,21 +64,21 @@ public class CertificateServiceImpl implements CertificateService {
 
     public static final String REVOCATION_TRIGGER_OFFSET_PROPERTY = DOMIBUS_CERTIFICATE_REVOCATION_OFFSET;
 
-    CRLService crlService;
+    private final CRLService crlService;
 
-    private DomibusPropertyProvider domibusPropertyProvider;
+    private final DomibusPropertyProvider domibusPropertyProvider;
 
-    private CertificateDao certificateDao;
+    private final CertificateDao certificateDao;
 
-    private EventService eventService;
+    private final EventService eventService;
 
-    private PModeProvider pModeProvider;
+    private final PModeProvider pModeProvider;
 
-    private ImminentExpirationCertificateConfigurationManager imminentExpirationCertificateConfigurationManager;
+    private final ImminentExpirationCertificateConfigurationManager imminentExpirationCertificateConfigurationManager;
 
-    private ExpiredCertificateConfigurationManager expiredCertificateConfigurationManager;
+    private final ExpiredCertificateConfigurationManager expiredCertificateConfigurationManager;
 
-    private BackupService backupService;
+    private final BackupService backupService;
 
     public CertificateServiceImpl(CRLService crlService, DomibusPropertyProvider domibusPropertyProvider,
                                   CertificateDao certificateDao, EventService eventService, PModeProvider pModeProvider,
@@ -389,29 +390,30 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
-    public synchronized boolean addCertificate(String password, String trustStoreLocation, byte[] certificateContent, String alias, boolean overwrite) {
+    public synchronized boolean addCertificate(String trustStorePassword, String trustStoreLocation, byte[] certificateContent, String alias, boolean overwrite) {
         X509Certificate certificate = loadCertificateFromString(new String(certificateContent));
-        return addCertificate(password, trustStoreLocation, certificate, alias, overwrite, true);
+        List<CertificateEntry> certificates = Arrays.asList(new CertificateEntry(alias, certificate));
+
+        KeyStore trustStore = getTrustStore(trustStoreLocation, trustStorePassword);
+
+        return doAddCertificates(trustStore, trustStorePassword, trustStoreLocation, certificates, overwrite);
     }
 
     @Override
-    public boolean addCertificate(String password, String trustStoreLocation, X509Certificate certificate, String alias, boolean overwrite, boolean persist) {
-        KeyStore truststore = getTrustStore(trustStoreLocation, password);
-        boolean added = doAddCertificate(truststore, certificate, alias, overwrite);
-        if (added && persist) {
-            persistTrustStore(truststore, password, trustStoreLocation);
-        }
-        return added;
+    public boolean addCertificates(KeyStore trustStore, String trustStorePassword, String trustStoreLocation, List<CertificateEntry> certificates, boolean overwrite) {
+        return doAddCertificates(trustStore, trustStorePassword, trustStoreLocation, certificates, overwrite);
     }
 
     @Override
-    public boolean removeCertificate(String password, String trustStoreLocation, String alias, boolean persist) {
-        KeyStore truststore = getTrustStore(trustStoreLocation, password);
-        boolean removed = doRemoveCertificate(truststore, alias);
-        if (removed && persist) {
-            persistTrustStore(truststore, password, trustStoreLocation);
-        }
-        return removed;
+    public boolean removeCertificate(String trustStorePassword, String trustStoreLocation, String alias) {
+        KeyStore trustStore = getTrustStore(trustStoreLocation, trustStorePassword);
+        List<String> aliases = Arrays.asList(alias);
+        return doRemoveCertificates(trustStore, trustStorePassword, trustStoreLocation, aliases);
+    }
+
+    @Override
+    public boolean removeCertificates(KeyStore trustStore, String trustStorePassword, String trustStoreLocation, List<String> aliases) {
+        return doRemoveCertificates(trustStore, trustStorePassword, trustStoreLocation, aliases);
     }
 
     @Override
@@ -430,22 +432,29 @@ public class CertificateServiceImpl implements CertificateService {
         throw new InvalidParameterException("Store file type (" + fileType + ") should match the configured truststore type (" + storeType + ").");
     }
 
-    protected synchronized boolean doRemoveCertificate(KeyStore truststore, String alias) {
-        boolean containsAlias;
-        try {
-            containsAlias = truststore.containsAlias(alias);
-        } catch (final KeyStoreException e) {
-            throw new CryptoException("Error while trying to get the alias from the truststore. This should never happen", e);
+    protected boolean doAddCertificates(KeyStore trustStore, String trustStorePassword, String trustStoreLocation,
+                                        List<CertificateEntry> certificates, boolean overwrite) {
+        boolean addedAtLeastOne = false;
+        for (CertificateEntry certificateEntry : certificates) {
+            boolean added = doAddCertificate(trustStore, certificateEntry.getCertificate(), certificateEntry.getAlias(), overwrite);
+            addedAtLeastOne = addedAtLeastOne || added;
         }
-        if (!containsAlias) {
-            return false;
+        if (addedAtLeastOne) {
+            persistTrustStore(trustStore, trustStorePassword, trustStoreLocation);
         }
-        try {
-            truststore.deleteEntry(alias);
-            return true;
-        } catch (final KeyStoreException e) {
-            throw new ConfigurationException(e);
+        return addedAtLeastOne;
+    }
+
+    private boolean doRemoveCertificates(KeyStore trustStore, String trustStorePassword, String trustStoreLocation, List<String> aliases) {
+        boolean removedAtLeastOne = false;
+        for (String alias : aliases) {
+            boolean removed = doRemoveCertificate(trustStore, alias);
+            removedAtLeastOne = removedAtLeastOne || removed;
         }
+        if (removedAtLeastOne) {
+            persistTrustStore(trustStore, trustStorePassword, trustStoreLocation);
+        }
+        return removedAtLeastOne;
     }
 
     protected boolean doAddCertificate(KeyStore truststore, X509Certificate certificate, String alias, boolean overwrite) {
@@ -463,6 +472,24 @@ public class CertificateServiceImpl implements CertificateService {
                 truststore.deleteEntry(alias);
             }
             truststore.setCertificateEntry(alias, certificate);
+            return true;
+        } catch (final KeyStoreException e) {
+            throw new ConfigurationException(e);
+        }
+    }
+
+    protected synchronized boolean doRemoveCertificate(KeyStore truststore, String alias) {
+        boolean containsAlias;
+        try {
+            containsAlias = truststore.containsAlias(alias);
+        } catch (final KeyStoreException e) {
+            throw new CryptoException("Error while trying to get the alias from the truststore. This should never happen", e);
+        }
+        if (!containsAlias) {
+            return false;
+        }
+        try {
+            truststore.deleteEntry(alias);
             return true;
         } catch (final KeyStoreException e) {
             throw new ConfigurationException(e);
@@ -492,7 +519,7 @@ public class CertificateServiceImpl implements CertificateService {
         return truststore;
     }
 
-    public synchronized void persistTrustStore(KeyStore truststore, String password, String trustStoreLocation) throws CryptoException {
+    protected synchronized void persistTrustStore(KeyStore truststore, String password, String trustStoreLocation) throws CryptoException {
         LOG.debug("TrustStoreLocation is: [{}]", trustStoreLocation);
         File trustStoreFile = createFileWithLocation(trustStoreLocation);
         if (!trustStoreFile.getParentFile().exists()) {

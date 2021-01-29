@@ -165,36 +165,27 @@ public interface CertificateService {
 
     /**
      * Adds the specified certificate to the truststore pointed by the parameters
-     * @param password
+     * @param trustStorePassword
      * @param trustStoreLocation
      * @param certificateContent
      * @param alias
      * @param overwrite
      * @return
      */
-    boolean addCertificate(String password, String trustStoreLocation, byte[] certificateContent, String alias, boolean overwrite);
+    boolean addCertificate(String trustStorePassword, String trustStoreLocation, byte[] certificateContent, String alias, boolean overwrite);
 
-    /**
-     * Adds the specified certificate to the truststore pointed by the parameters
-     * @param password
-     * @param trustStoreLocation
-     * @param certificate
-     * @param alias
-     * @param overwrite
-     * @param persist
-     * @return
-     */
-    boolean addCertificate(String password, String trustStoreLocation, X509Certificate certificate, String alias, boolean overwrite, boolean persist);
+    boolean addCertificates(KeyStore trustStore, String trustStorePassword, String trustStoreLocation, List<CertificateEntry> certificates, boolean overwrite);
 
     /**
      * Removes the specified certificate to the truststore pointed by the parameters
      * @param password
      * @param trustStoreLocation
      * @param alias
-     * @param persist
      * @return
      */
-    boolean removeCertificate(String password, String trustStoreLocation, String alias, boolean persist);
+    boolean removeCertificate(String password, String trustStoreLocation, String alias);
+
+    boolean removeCertificates(KeyStore trustStore, String trustStorePassword, String trustStoreLocation, List<String> aliases);
 
     /**
      * Validates the truststore type with the file extension
@@ -202,13 +193,4 @@ public interface CertificateService {
      * @param storeFileName
      */
     void validateTruststoreType(String trustStoreType, String storeFileName);
-
-    /**
-     * Save the specified truststore to the specified location
-     * @param truststore
-     * @param password
-     * @param trustStoreLocation
-     * @throws CryptoException
-     */
-    void persistTrustStore(KeyStore truststore, String password, String trustStoreLocation) throws CryptoException;
 }

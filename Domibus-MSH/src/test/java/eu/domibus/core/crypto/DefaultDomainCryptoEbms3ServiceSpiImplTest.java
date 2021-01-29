@@ -188,29 +188,4 @@ public class DefaultDomainCryptoEbms3ServiceSpiImplTest {
         }};
     }
 
-    @Test
-    public void persistTrustStore(@Mocked KeyStore trust, @Mocked String password, @Mocked String location) {
-        // Given
-        new Expectations(domainCryptoService) {{
-            domainCryptoService.getTrustStoreLocation();
-            result = location;
-            domainCryptoService.getTrustStorePassword();
-            result = password;
-            domainCryptoService.getTrustStore();
-            result = trust;
-            certificateService.persistTrustStore(trust, password, location);
-            domainCryptoService.refreshTrustStore();
-            signalService.signalTrustStoreUpdate(domain);
-        }};
-
-        // When
-        domainCryptoService.persistTrustStore();
-
-        // Then
-        new Verifications() {{
-            certificateService.persistTrustStore(trust, password, location);
-            domainCryptoService.refreshTrustStore();
-            signalService.signalTrustStoreUpdate(domain);
-        }};
-    }
 }
