@@ -6,6 +6,7 @@ import eu.domibus.api.usermessage.domain.UserMessage;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Cosmin Baciu
@@ -34,6 +35,8 @@ public interface UserMessageService {
     String PULL_RECEIPT_REF_TO_MESSAGE_ID = "pullReceiptRefToMessageId";
 
     String getFinalRecipient(final String messageId);
+
+    Map<String,String> getProperties(String messageId);
 
     String getOriginalSender(String messageId);
 

@@ -1079,7 +1079,7 @@ class Domibus{
                                  "--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
                                  "-H","X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
                                  "-F", "password=" + tsPassword,
-                                 "-F", "truststore=@" + truststoreFile,
+                                 "-F", "file=@" + truststoreFile,
                                  "-v"]
             def commandResult = runCommandInShell(commandString, log)
 

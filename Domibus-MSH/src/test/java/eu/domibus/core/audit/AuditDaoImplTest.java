@@ -12,10 +12,7 @@ import org.junit.runner.RunWith;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
@@ -244,6 +241,48 @@ public class AuditDaoImplTest {
             entityManager.persist(messageAudit);
             times = 1;
         }};
+    }
+
+    @Test
+    public void customSortAuditNumeric() {
+        Date changed = new Date();
+        String auditTargetName = "auditTargetName";
+        String revisionId = "revisionId";
+
+        AuditId auditId1 = new AuditId("9", revisionId, auditTargetName, "Deleted", changed);
+        Audit el1 = new Audit();
+        el1.setUser("user1");
+        el1.setId(auditId1);
+
+        AuditId auditId2 = new AuditId("10", revisionId, auditTargetName, "Created", changed);
+        Audit el2 = new Audit();
+        el2.setUser("user1");
+        el2.setId(auditId2);
+
+        List<Audit> list = Arrays.asList(el1, el2);
+        List<Audit> result = auditDao.customSortAudit(list);
+        assertEquals(result.get(0).getId(), "10");
+    }
+
+    @Test
+    public void customSortAuditString() {
+        Date changed = new Date();
+        String auditTargetName = "auditTargetName";
+        String revisionId = "revisionId";
+
+        AuditId auditId1 = new AuditId("id9", revisionId, auditTargetName, "Deleted", changed);
+        Audit el1 = new Audit();
+        el1.setUser("user1");
+        el1.setId(auditId1);
+
+        AuditId auditId2 = new AuditId("id10", revisionId, auditTargetName, "Created", changed);
+        Audit el2 = new Audit();
+        el2.setUser("user1");
+        el2.setId(auditId2);
+
+        List<Audit> list = Arrays.asList(el1, el2);
+        List<Audit> result = auditDao.customSortAudit(list);
+        assertEquals(result.get(0).getId(), "id9");
     }
 
 }

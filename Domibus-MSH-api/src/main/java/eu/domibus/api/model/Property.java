@@ -4,18 +4,17 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.regex.Pattern;
 
 /**
- *
  * @author Cosmin Baciu
  * @since 5.0
  */
 @Entity
 @Table(name = "TB_PROPERTY")
+@NamedQuery(name = "Property.findPropertiesByMessageId",
+        query = "select um.messageProperties.property from UserMessage um where um.messageInfo.messageId = :MSG_ID")
 public class Property extends AbstractBaseEntity implements Comparable<Property> {
 
     public static final String MIME_TYPE = "MimeType";

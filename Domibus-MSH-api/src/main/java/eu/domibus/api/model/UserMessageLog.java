@@ -28,18 +28,69 @@ import java.util.Date;
         @NamedQuery(name = "UserMessageLog.findByMessageIdAndRole", query = "select userMessageLog from UserMessageLog userMessageLog where userMessageLog.messageId=:MESSAGE_ID and userMessageLog.mshRole=:MSH_ROLE"),
         @NamedQuery(name = "UserMessageLog.findBackendForMessage", query = "select userMessageLog.backend from UserMessageLog userMessageLog where userMessageLog.messageId=:MESSAGE_ID"),
         @NamedQuery(name = "UserMessageLog.findEntries", query = "select userMessageLog from UserMessageLog userMessageLog"),
-        @NamedQuery(name = "UserMessageLog.findDeletedUserMessagesOlderThan", query = "select new eu.domibus.api.model.UserMessageLogDto(uml.messageInfo.messageId, uml.messageSubtype, uml.backend) from UserMessageLog uml where uml.messageStatus = eu.domibus.api.model.MessageStatus.DELETED and uml.deleted is not null and uml.mpc = :MPC and uml.deleted < :DATE"),
-        @NamedQuery(name = "UserMessageLog.findUndownloadedUserMessagesOlderThan", query = "select new eu.domibus.api.model.UserMessageLogDto(uml.messageInfo.messageId, uml.messageSubtype, uml.backend) from UserMessageLog uml where (uml.messageStatus = eu.domibus.api.model.MessageStatus.RECEIVED or uml.messageStatus = eu.domibus.api.model.MessageStatus.RECEIVED_WITH_WARNINGS) and uml.deleted is null and uml.mpc = :MPC and uml.received < :DATE"),
-        @NamedQuery(name = "UserMessageLog.findDownloadedUserMessagesOlderThan", query = "select new eu.domibus.api.model.UserMessageLogDto(uml.messageInfo.messageId, uml.messageSubtype, uml.backend) from UserMessageLog uml where (uml.messageStatus = eu.domibus.api.model.MessageStatus.DOWNLOADED) and uml.mpc = :MPC and uml.downloaded is not null and uml.downloaded < :DATE"),
-        @NamedQuery(name = "UserMessageLog.findSentUserMessagesWithPayloadNotClearedOlderThan", query = "select new eu.domibus.api.model.UserMessageLogDto(uml.messageInfo.messageId, uml.messageSubtype, uml.backend) from UserMessageLog uml where (uml.messageStatus = eu.domibus.api.model.MessageStatus.ACKNOWLEDGED or uml.messageStatus = eu.domibus.api.model.MessageStatus.SEND_FAILURE) and uml.deleted is null and uml.mpc = :MPC and uml.modificationTime is not null and uml.modificationTime < :DATE"),
-        @NamedQuery(name = "UserMessageLog.findSentUserMessagesOlderThan", query = "select new eu.domibus.api.model.UserMessageLogDto(uml.messageInfo.messageId, uml.messageSubtype, uml.backend) from UserMessageLog uml where (uml.messageStatus = eu.domibus.api.model.MessageStatus.ACKNOWLEDGED or uml.messageStatus = eu.domibus.api.model.MessageStatus.SEND_FAILURE) and uml.mpc = :MPC and uml.modificationTime is not null and uml.modificationTime < :DATE"),
+        @NamedQuery(name = "UserMessageLog.findDeletedUserMessagesOlderThan",
+                query = "SELECT uml.messageInfo.messageId   as " + UserMessageLogDto.MESSAGE_ID + "           ,                            " +
+                        "       uml.messageSubtype          as " + UserMessageLogDto.MESSAGE_SUBTYPE + "      ,                            " +
+                        "       uml.backend                 as " + UserMessageLogDto.MESSAGE_BACKEND + "      ,                            " +
+                        "       p.value                     as " + UserMessageLogDto.PROP_VALUE + "           ,                            " +
+                        "       p.name                      as " + UserMessageLogDto.PROP_NAME + "                                         " +
+                        "FROM UserMessageLog uml                                                                                           " +
+                        "JOIN UserMessage um on um.messageInfo =  uml.messageInfo.entityId                                                 " +
+                        "left join um.messageProperties.property p                                                                         " +
+                        "WHERE uml.messageStatus = eu.domibus.api.model.MessageStatus.DELETED                                              " +
+                        "AND uml.deleted IS NOT NULL AND uml.mpc = :MPC AND uml.deleted < :DATE                                            "),
+        @NamedQuery(name = "UserMessageLog.findUndownloadedUserMessagesOlderThan",
+                query = "SELECT uml.messageInfo.messageId   as " + UserMessageLogDto.MESSAGE_ID + "           ,                            " +
+                        "       uml.messageSubtype          as " + UserMessageLogDto.MESSAGE_SUBTYPE + "      ,                            " +
+                        "       uml.backend                 as " + UserMessageLogDto.MESSAGE_BACKEND + "      ,                            " +
+                        "       p.value                     as " + UserMessageLogDto.PROP_VALUE + "           ,                            " +
+                        "       p.name                      as " + UserMessageLogDto.PROP_NAME + "                                         " +
+                        "from UserMessageLog uml                                                                                           " +
+                        "JOIN UserMessage um on um.messageInfo =  uml.messageInfo.entityId                                                 " +
+                        "left join um.messageProperties.property p                                                                         " +
+                        "where (uml.messageStatus = eu.domibus.api.model.MessageStatus.RECEIVED                                            " +
+                        "or uml.messageStatus = eu.domibus.api.model.MessageStatus.RECEIVED_WITH_WARNINGS)                                 " +
+                        "and uml.deleted is null and uml.mpc = :MPC and uml.received < :DATE                                               "),
+        @NamedQuery(name = "UserMessageLog.findDownloadedUserMessagesOlderThan",
+                query ="SELECT uml.messageInfo.messageId   as " + UserMessageLogDto.MESSAGE_ID + "           ,                            " +
+                        "       uml.messageSubtype          as " + UserMessageLogDto.MESSAGE_SUBTYPE + "      ,                            " +
+                        "       uml.backend                 as " + UserMessageLogDto.MESSAGE_BACKEND + "      ,                            " +
+                        "       p.value                     as " + UserMessageLogDto.PROP_VALUE + "           ,                            " +
+                        "       p.name                      as " + UserMessageLogDto.PROP_NAME + "                                         " +
+                        "FROM UserMessageLog uml                                                                                           " +
+                        "JOIN UserMessage um on um.messageInfo =  uml.messageInfo.entityId                                                 " +
+                        "left join um.messageProperties.property p                                                                         " +
+                        "where (uml.messageStatus = eu.domibus.api.model.MessageStatus.DOWNLOADED)                                         " +
+                        "and uml.mpc = :MPC and uml.downloaded is not null and uml.downloaded < :DATE                                      "),
+        @NamedQuery(name = "UserMessageLog.findSentUserMessagesWithPayloadNotClearedOlderThan",
+                query = "SELECT uml.messageInfo.messageId   as " + UserMessageLogDto.MESSAGE_ID + "           ,                            " +
+                        "       uml.messageSubtype          as " + UserMessageLogDto.MESSAGE_SUBTYPE + "      ,                            " +
+                        "       uml.backend                 as " + UserMessageLogDto.MESSAGE_BACKEND + "      ,                            " +
+                        "       p.value                     as " + UserMessageLogDto.PROP_VALUE + "           ,                            " +
+                        "       p.name                      as " + UserMessageLogDto.PROP_NAME + "                                         " +
+                        "FROM UserMessageLog uml                                                                                           " +
+                        "JOIN UserMessage um on um.messageInfo =  uml.messageInfo.entityId                                                 " +
+                        "left join um.messageProperties.property p                                                                         " +
+                        "where (uml.messageStatus = eu.domibus.api.model.MessageStatus.ACKNOWLEDGED or uml.messageStatus = eu.domibus.api.model.MessageStatus.SEND_FAILURE) " +
+                        "and uml.deleted is null and uml.mpc = :MPC and uml.modificationTime is not null and uml.modificationTime < :DATE  "),
+        @NamedQuery(name = "UserMessageLog.findSentUserMessagesOlderThan",
+                query = "SELECT uml.messageInfo.messageId   as " + UserMessageLogDto.MESSAGE_ID + "           ,                            " +
+                        "       uml.messageSubtype          as " + UserMessageLogDto.MESSAGE_SUBTYPE + "      ,                            " +
+                        "       uml.backend                 as " + UserMessageLogDto.MESSAGE_BACKEND + "      ,                            " +
+                        "       p.value                     as " + UserMessageLogDto.PROP_VALUE + "           ,                            " +
+                        "       p.name                      as " + UserMessageLogDto.PROP_NAME + "                                         " +
+                        "FROM UserMessageLog uml                                                                                           " +
+                        "JOIN UserMessage um on um.messageInfo =  uml.messageInfo.entityId                                                 " +
+                        "left join um.messageProperties.property p                                                                         " +
+                        "where (uml.messageStatus = eu.domibus.api.model.MessageStatus.ACKNOWLEDGED or uml.messageStatus = eu.domibus.api.model.MessageStatus.SEND_FAILURE) " +
+                        "and uml.mpc = :MPC and uml.modificationTime is not null and uml.modificationTime < :DATE                          "
+        ),
         @NamedQuery(name = "UserMessageLog.setNotificationStatus", query = "update UserMessageLog userMessageLog set userMessageLog.notificationStatus=:NOTIFICATION_STATUS where userMessageLog.messageId=:MESSAGE_ID"),
         @NamedQuery(name = "UserMessageLog.countEntries", query = "select count(userMessageLog.messageId) from UserMessageLog userMessageLog"),
         @NamedQuery(name = "UserMessageLog.setMessageStatusAndNotificationStatus",
                 query = "update UserMessageLog userMessageLog set userMessageLog.deleted=:TIMESTAMP, userMessageLog.messageStatus=:MESSAGE_STATUS, userMessageLog.notificationStatus=:NOTIFICATION_STATUS where userMessageLog.messageId=:MESSAGE_ID"),
         @NamedQuery(name = "UserMessageLog.findAllInfo", query = "select userMessageLog from UserMessageLog userMessageLog"),
         @NamedQuery(name = "UserMessageLog.deleteMessageLogs", query = "delete from UserMessageLog uml where uml.messageId in :MESSAGEIDS"),
-
 })
 public class UserMessageLog extends MessageLog {
 

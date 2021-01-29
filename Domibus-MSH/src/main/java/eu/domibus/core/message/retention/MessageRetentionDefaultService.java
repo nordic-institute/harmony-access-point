@@ -3,20 +3,19 @@ package eu.domibus.core.message.retention;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JMSMessageBuilder;
 import eu.domibus.api.jms.JmsMessage;
+import eu.domibus.api.model.UserMessage;
+import eu.domibus.api.model.UserMessageLog;
+import eu.domibus.api.model.UserMessageLogDto;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.JsonUtil;
 import eu.domibus.core.message.MessagingDao;
-import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.core.message.UserMessageLogDao;
-import eu.domibus.api.model.UserMessageLogDto;
 import eu.domibus.core.message.UserMessageServiceHelper;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.api.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -25,10 +24,14 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import javax.jms.Queue;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
+import static eu.domibus.messaging.MessageConstants.*;
 
 /**
  * This service class is responsible for the retention and clean up of Domibus messages, including signal messages.
@@ -43,6 +46,7 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
     public static final String DELETE_TYPE = "DELETE_TYPE";
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageRetentionDefaultService.class);
+    public static final String NO_MESSAGE_TO_BE_SCHEDULED_FOR_DELETION = "No message to be scheduled for deletion";
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
@@ -188,29 +192,40 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
     }
 
     @Override
-    public void scheduleDeleteMessagesByMessageLog(List<UserMessageLogDto> userMessageLogs) {
-        List<String> messageIds = userMessageLogs.stream()
-                .map(UserMessageLogDto::getMessageId)
-                .collect(Collectors.toList());
-        scheduleDeleteMessages(messageIds);
-    }
-
-    @Override
-    public void scheduleDeleteMessages(List<String> messageIds) {
-        if (CollectionUtils.isEmpty(messageIds)) {
-            LOG.debug("No message to be scheduled for deletion");
+    public void scheduleDeleteMessagesByMessageLog(List<UserMessageLogDto> userMessageLogDtos) {
+        if (CollectionUtils.isEmpty(userMessageLogDtos)) {
+            LOG.debug(NO_MESSAGE_TO_BE_SCHEDULED_FOR_DELETION);
             return;
         }
 
-        LOG.debug("Scheduling delete messages [{}]", messageIds);
-        messageIds.forEach(messageId -> {
-            Map<String, String> properties = userMessageServiceHelper.getProperties(messagingDao.findUserMessageByMessageId(messageId));
+        LOG.debug("Scheduling delete messages [{}]", userMessageLogDtos);
+        userMessageLogDtos.forEach(messageLogDto -> {
+            JmsMessage message = JMSMessageBuilder.create()
+                    .property(DELETE_TYPE, MessageDeleteType.SINGLE.name())
+                    .property(MESSAGE_ID, messageLogDto.getMessageId())
+                    .property(FINAL_RECIPIENT, messageLogDto.getProperties().get(FINAL_RECIPIENT))
+                    .property(ORIGINAL_SENDER, messageLogDto.getProperties().get(ORIGINAL_SENDER))
+                    .build();
+            jmsManager.sendMessageToQueue(message, retentionMessageQueue);
+        });
+    }
+
+    @Override
+    public void scheduleDeleteMessages(List<UserMessage> userMessages) {
+        if (CollectionUtils.isEmpty(userMessages)) {
+            LOG.debug(NO_MESSAGE_TO_BE_SCHEDULED_FOR_DELETION);
+            return;
+        }
+
+        LOG.debug("Scheduling delete messages [{}]", userMessages);
+        userMessages.forEach(userMessage -> {
+            Map<String, String> properties = userMessageServiceHelper.getProperties(userMessage);
 
             JmsMessage message = JMSMessageBuilder.create()
                     .property(DELETE_TYPE, MessageDeleteType.SINGLE.name())
-                    .property(MessageConstants.MESSAGE_ID, messageId)
-                    .property(MessageConstants.FINAL_RECIPIENT, properties.get(MessageConstants.FINAL_RECIPIENT))
-                    .property(MessageConstants.ORIGINAL_SENDER, properties.get(MessageConstants.ORIGINAL_SENDER))
+                    .property(MESSAGE_ID, userMessage.getMessageInfo().getMessageId())
+                    .property(FINAL_RECIPIENT, properties.get(FINAL_RECIPIENT))
+                    .property(ORIGINAL_SENDER, properties.get(ORIGINAL_SENDER))
                     .build();
             jmsManager.sendMessageToQueue(message, retentionMessageQueue);
         });
@@ -255,7 +270,7 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
     @Override
     public void scheduleDeleteMessagesByMessageLog(List<UserMessageLogDto> userMessageLogs, int maxBatch) {
         if (CollectionUtils.isEmpty(userMessageLogs)) {
-            LOG.debug("No message to be scheduled for deletion");
+            LOG.debug(NO_MESSAGE_TO_BE_SCHEDULED_FOR_DELETION);
             return;
         }
 
@@ -274,18 +289,8 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
                     .collect(Collectors.toList());
             userMessageLogsToDelete.removeAll(userMessageLogsBatch);
 
-            initProperties(userMessageLogsBatch);
-
             LOG.debug("After removal messageIds size is [{}]", userMessageLogsToDelete.size());
             scheduleDeleteBatchMessages(userMessageLogsBatch);
-        }
-    }
-
-    protected void initProperties(List<UserMessageLogDto> userMessageLogsBatch) {
-        for (UserMessageLogDto userMessageLogDto : userMessageLogsBatch) {
-            Map<String, String> properties = userMessageServiceHelper.getProperties(messagingDao.findUserMessageByMessageId(userMessageLogDto.getMessageId()));
-
-            userMessageLogDto.setProperties(properties);
         }
     }
 

@@ -52,4 +52,29 @@
         </createTable>
     </changeSet>
 
+    <changeSet author="Ion Perpegel" id="EDELIVERY-7472">
+        <comment>split plugin user unique constraints in 2</comment>
+        <dropUniqueConstraint uniqueColumns="USERNAME,CERTIFICATE_ID" constraintName="UQ_PLUGIN_USER"
+                             tableName="TB_AUTHENTICATION_ENTRY"/>
+        <addUniqueConstraint columnNames="USERNAME" constraintName="UQ_PLUGIN_USER_NAME"
+                             tableName="TB_AUTHENTICATION_ENTRY"/>
+        <addUniqueConstraint columnNames="CERTIFICATE_ID" constraintName="UQ_PLUGIN_USER_CERT"
+                             tableName="TB_AUTHENTICATION_ENTRY"/>
+
+    </changeSet>
+
+    <changeSet id="EDELIVERY-7668"  author="Catalin Enache">
+        <createTable tableName="TB_VERSION" remarks="Stores Domibus version">
+            <column name="VERSION" type="VARCHAR(30)" remarks="Domibus Version"/>
+            <column name="BUILD_TIME" type="VARCHAR(30)" remarks="Domibus BuildTime"/>
+            <column name="CREATION_TIME" type="TIMESTAMP" defaultValueComputed="${now}" remarks="The date and time when this record was created">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint columnNames="VERSION" tableName="TB_VERSION" constraintName="UQ_VERSION" />
+    </changeSet>
+
+    <!-- this file must be included in every future changelog-xx-delta.xml -->
+    <include file="changelog-version-inserts.xml" relativeToChangelogFile="true"/>
+
 </databaseChangeLog>

@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.property.DomibusConfigurationService;
+import eu.domibus.api.security.AuthType;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.core.alerts.model.common.*;
@@ -21,11 +22,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.util.*;
 import java.util.AbstractMap.SimpleImmutableEntry;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -176,10 +174,19 @@ public class AlertResource extends BaseResource {
             alertRoList = domainTaskExecutor.submit(() -> fetchAndTransformAlerts(alertCriteria, true));
         }
 
-        return exportToCSV(alertRoList,
-                AlertRo.class,
+        return exportToCSV(alertRoList, AlertRo.class,
                 ImmutableMap.of("entityId".toUpperCase(), "Alert Id"),
+                getExcludedColumns(domibusConfigurationService.isSingleTenantAware()),
                 "alerts");
+    }
+
+    protected List<String> getExcludedColumns(boolean singleTenancy) {
+        List<String> excludedColumns = new ArrayList<>();
+        excludedColumns.addAll(Arrays.asList("alertDescription"));
+        if (singleTenancy) {
+            excludedColumns.add("superAdmin");
+        }
+        return excludedColumns;
     }
 
     protected AlertResult retrieveAlerts(AlertCriteria alertCriteria, boolean isSuperAdmin) {
