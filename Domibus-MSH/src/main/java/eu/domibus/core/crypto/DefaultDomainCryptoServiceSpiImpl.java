@@ -130,14 +130,14 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
     }
 
     @Override
-    public boolean removeCertificate(String alias) {
+    public synchronized boolean removeCertificate(String alias) {
         boolean removed = certificateService.removeCertificates(getTrustStore(), getTrustStorePassword(), getTrustStoreLocation(), Arrays.asList(alias));
         signalService.signalTrustStoreUpdate(domain);
         return removed;
     }
 
     @Override
-    public void removeCertificate(List<String> aliases) {
+    public synchronized void removeCertificate(List<String> aliases) {
         certificateService.removeCertificates(getTrustStore(), getTrustStorePassword(), getTrustStoreLocation(), aliases);
         signalService.signalTrustStoreUpdate(domain);
     }

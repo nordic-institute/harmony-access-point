@@ -42,7 +42,7 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
     }
 
     @Override
-    public void replaceTrustStore(String fileName, byte[] fileContent, String filePassword) throws CryptoException {
+    public synchronized void replaceTrustStore(String fileName, byte[] fileContent, String filePassword) throws CryptoException {
         KeyStoreType trustStore = getTruststoreParams();
 
         certificateService.replaceTrustStore(fileName, fileContent, filePassword,
@@ -65,7 +65,7 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
     }
 
     @Override
-    public boolean addCertificate(byte[] certificateData, String alias) {
+    public synchronized boolean addCertificate(byte[] certificateData, String alias) {
         KeyStoreType trustStore = getTruststoreParams();
         boolean added = certificateService.addCertificate(trustStore.getPassword(), trustStore.getFile(), certificateData, alias, true);
         if (added) {
@@ -76,7 +76,7 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
     }
 
     @Override
-    public boolean removeCertificate(String alias) {
+    public synchronized boolean removeCertificate(String alias) {
         KeyStoreType trustStore = getTruststoreParams();
         boolean deleted = certificateService.removeCertificate(trustStore.getPassword(), trustStore.getFile(), alias);
         if (deleted) {

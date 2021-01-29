@@ -341,8 +341,8 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
-    public synchronized void replaceTrustStore(String fileName, byte[] fileContent, String filePassword,
-                                               String trustType, String trustLocation, String trustPassword) {
+    public void replaceTrustStore(String fileName, byte[] fileContent, String filePassword,
+                                  String trustType, String trustLocation, String trustPassword) {
         validateTruststoreType(trustType, fileName);
         replaceTrustStore(fileContent, filePassword, trustType, trustLocation, trustPassword);
     }
@@ -390,7 +390,7 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
-    public synchronized boolean addCertificate(String trustStorePassword, String trustStoreLocation, byte[] certificateContent, String alias, boolean overwrite) {
+    public boolean addCertificate(String trustStorePassword, String trustStoreLocation, byte[] certificateContent, String alias, boolean overwrite) {
         X509Certificate certificate = loadCertificateFromString(new String(certificateContent));
         List<CertificateEntry> certificates = Arrays.asList(new CertificateEntry(alias, certificate));
 
@@ -478,7 +478,7 @@ public class CertificateServiceImpl implements CertificateService {
         }
     }
 
-    protected synchronized boolean doRemoveCertificate(KeyStore truststore, String alias) {
+    protected boolean doRemoveCertificate(KeyStore truststore, String alias) {
         boolean containsAlias;
         try {
             containsAlias = truststore.containsAlias(alias);
@@ -519,7 +519,7 @@ public class CertificateServiceImpl implements CertificateService {
         return truststore;
     }
 
-    protected synchronized void persistTrustStore(KeyStore truststore, String password, String trustStoreLocation) throws CryptoException {
+    protected void persistTrustStore(KeyStore truststore, String password, String trustStoreLocation) throws CryptoException {
         LOG.debug("TrustStoreLocation is: [{}]", trustStoreLocation);
         File trustStoreFile = createFileWithLocation(trustStoreLocation);
         if (!trustStoreFile.getParentFile().exists()) {
