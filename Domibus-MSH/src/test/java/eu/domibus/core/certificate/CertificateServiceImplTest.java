@@ -19,6 +19,7 @@ import eu.domibus.core.pki.PKIUtil;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.util.backup.BackupService;
 import eu.domibus.logging.DomibusLogger;
+import liquibase.pro.packaged.S;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.codec.binary.Base64;
@@ -1675,5 +1676,79 @@ public class CertificateServiceImplTest {
         } catch (InvalidParameterException e) {
             assertEquals(true, e.getMessage().contains("pkcs12"));
         }
+    }
+
+    @Test
+    public void doAddCertificates(@Mocked KeyStore trustStore, @Mocked String trustStorePassword, @Mocked String trustStoreLocation,
+                                  @Injectable CertificateEntry cert1, @Injectable CertificateEntry cert2) {
+
+        List<CertificateEntry> certificates = Arrays.asList(cert1, cert2);
+        boolean overwrite = true;
+
+        new Expectations(certificateService) {{
+            certificateService.doAddCertificate(trustStore, (X509Certificate) any, anyString, overwrite);
+            result = true;
+            certificateService.persistTrustStore(trustStore, trustStorePassword, trustStoreLocation);
+        }};
+
+        boolean result = certificateService.doAddCertificates(trustStore, trustStorePassword, trustStoreLocation, certificates, overwrite);
+
+        assertTrue(result);
+        new Verifications() {{
+            certificateService.persistTrustStore(trustStore, trustStorePassword, trustStoreLocation);
+        }};
+    }
+
+    @Test
+    public void doAddCertificatesNotAdded(@Mocked KeyStore trustStore, @Mocked String trustStorePassword, @Mocked String trustStoreLocation,
+                                           @Injectable CertificateEntry cert1, @Injectable CertificateEntry cert2) {
+
+        List<CertificateEntry> certificates = Arrays.asList(cert1, cert2);
+        boolean overwrite = true;
+
+        new Expectations(certificateService) {{
+            certificateService.doAddCertificate(trustStore, (X509Certificate) any, anyString, overwrite);
+            result = false;
+        }};
+
+        boolean result = certificateService.doAddCertificates(trustStore, trustStorePassword, trustStoreLocation, certificates, overwrite);
+
+        assertFalse(result);
+    }
+
+    @Test
+    public void doRemoveCertificates(@Mocked KeyStore trustStore, @Mocked String trustStorePassword, @Mocked String trustStoreLocation,
+                                  @Mocked String alias1, @Mocked String alias2) {
+
+        List<String> certificates = Arrays.asList(alias1, alias2);
+
+        new Expectations(certificateService) {{
+            certificateService.doRemoveCertificate(trustStore, anyString);
+            result = true;
+            certificateService.persistTrustStore(trustStore, trustStorePassword, trustStoreLocation);
+        }};
+
+        boolean result = certificateService.doRemoveCertificates(trustStore, trustStorePassword, trustStoreLocation, certificates);
+
+        assertTrue(result);
+        new Verifications() {{
+            certificateService.persistTrustStore(trustStore, trustStorePassword, trustStoreLocation);
+        }};
+    }
+
+    @Test
+    public void doRemoveCertificatesNotRemoved(@Mocked KeyStore trustStore, @Mocked String trustStorePassword, @Mocked String trustStoreLocation,
+                                     @Mocked String alias1, @Mocked String alias2) {
+
+        List<String> certificates = Arrays.asList(alias1, alias2);
+
+        new Expectations(certificateService) {{
+            certificateService.doRemoveCertificate(trustStore, anyString);
+            result = false;
+        }};
+
+        boolean result = certificateService.doRemoveCertificates(trustStore, trustStorePassword, trustStoreLocation, certificates);
+
+        assertFalse(result);
     }
 }
