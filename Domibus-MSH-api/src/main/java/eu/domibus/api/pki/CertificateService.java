@@ -44,7 +44,7 @@ public interface CertificateService {
      * Save certificate data in the database, and use this data to display a revocation warning when needed.
      *
      * @param trustStore trustStore entries
-     * @param keyStore keyStore entries
+     * @param keyStore   keyStore entries
      */
     void saveCertificateAndLogRevocation(final KeyStore trustStore, final KeyStore keyStore);
 
@@ -74,7 +74,7 @@ public interface CertificateService {
     /**
      * Returns the certificate entry from the trust store given a certificate and an alias
      *
-     * @param cert the certificate itself
+     * @param cert  the certificate itself
      * @param alias the certificate alias
      * @return a certificate entry
      * @throws KeyStoreException if the trust store was not initialized
@@ -117,6 +117,7 @@ public interface CertificateService {
 
     /**
      * Get the truststore content from the location as byte array
+     *
      * @param location
      * @return
      */
@@ -124,6 +125,7 @@ public interface CertificateService {
 
     /**
      * Replaces the truststore pointed by the location/password parameters with the one provided as parameters
+     *
      * @param fileName
      * @param fileContent
      * @param filePassword
@@ -137,6 +139,7 @@ public interface CertificateService {
 
     /**
      * Replaces the truststore pointed by the location/password parameters with the one provided as parameters
+     *
      * @param fileContent
      * @param filePassword
      * @param trustType
@@ -149,6 +152,7 @@ public interface CertificateService {
 
     /**
      * Returns the truststore pointed by the location/password parameters
+     *
      * @param trustStoreLocation
      * @param trustStorePassword
      * @return
@@ -157,6 +161,7 @@ public interface CertificateService {
 
     /**
      * Returns the truststore pointed by the location/password parameters as a list of certificate entries
+     *
      * @param trustStoreLocation
      * @param trustStorePassword
      * @return
@@ -165,6 +170,7 @@ public interface CertificateService {
 
     /**
      * Adds the specified certificate to the truststore pointed by the parameters
+     *
      * @param trustStorePassword
      * @param trustStoreLocation
      * @param certificateContent
@@ -174,21 +180,42 @@ public interface CertificateService {
      */
     boolean addCertificate(String trustStorePassword, String trustStoreLocation, byte[] certificateContent, String alias, boolean overwrite);
 
+    /**
+     * Adds the specified certificates to the truststore pointed by the parameters
+     *
+     * @param trustStore
+     * @param trustStorePassword
+     * @param trustStoreLocation
+     * @param certificates
+     * @param overwrite
+     * @return true if at least one was added
+     */
     boolean addCertificates(KeyStore trustStore, String trustStorePassword, String trustStoreLocation, List<CertificateEntry> certificates, boolean overwrite);
 
     /**
-     * Removes the specified certificate to the truststore pointed by the parameters
-     * @param password
+     * Removes the specified certificate from the truststore pointed by the parameters
+     *
+     * @param trustStorePassword
      * @param trustStoreLocation
      * @param alias
      * @return
      */
-    boolean removeCertificate(String password, String trustStoreLocation, String alias);
+    boolean removeCertificate(String trustStorePassword, String trustStoreLocation, String alias);
 
+    /**
+     * Removes the specified certificates from the truststore pointed by the parameters
+     *
+     * @param trustStore
+     * @param trustStorePassword
+     * @param trustStoreLocation
+     * @param aliases
+     * @return true is at least one was deleted
+     */
     boolean removeCertificates(KeyStore trustStore, String trustStorePassword, String trustStoreLocation, List<String> aliases);
 
     /**
      * Validates the truststore type with the file extension
+     *
      * @param trustStoreType
      * @param storeFileName
      */
