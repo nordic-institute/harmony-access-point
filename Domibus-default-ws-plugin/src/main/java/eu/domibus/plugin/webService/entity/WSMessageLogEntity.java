@@ -13,8 +13,6 @@ import java.util.Date;
         query = "select wsMessageLogEntity from WSMessageLogEntity wsMessageLogEntity where wsMessageLogEntity.messageId=:MESSAGE_ID")
 @NamedQuery(name = "WSMessageLogEntity.findAll",
         query = "select wsMessageLogEntity from WSMessageLogEntity wsMessageLogEntity order by wsMessageLogEntity.received asc")
-@NamedQuery(name = "WSMessageLogEntity.findAllByFinalRecipient",
-        query = "select wsMessageLogEntity from WSMessageLogEntity wsMessageLogEntity where wsMessageLogEntity.finalRecipient=:FINAL_RECIPIENT order by wsMessageLogEntity.received asc")
 @NamedQuery(name = "WSMessageLogEntity.deleteByMessageId",
         query = "DELETE FROM WSMessageLogEntity wsMessageLogEntity where wsMessageLogEntity.messageId=:MESSAGE_ID")
 @NamedQuery(name = "WSMessageLogEntity.deleteByMessageIds",
@@ -29,6 +27,15 @@ public class WSMessageLogEntity {
     @Column(name = "MESSAGE_ID")
     private String messageId;
 
+    @Column(name = "CONVERSATION_ID")
+    private String conversationId;
+
+    @Column(name = "REF_TO_MESSAGE_ID")
+    private String refToMessageId;
+
+    @Column(name = "FROM_PARTY_ID")
+    private String fromPartyId;
+
     @Column(name = "FINAL_RECIPIENT")
     private String finalRecipient;
 
@@ -42,8 +49,12 @@ public class WSMessageLogEntity {
     public WSMessageLogEntity() {
     }
 
-    public WSMessageLogEntity(String messageId, String finalRecipient, String originalSender, Date received) {
+    public WSMessageLogEntity(String messageId, String conversationId, String refToMessageId, String fromPartyId,
+                              String finalRecipient, String originalSender, Date received) {
         this.messageId = messageId;
+        this.conversationId = conversationId;
+        this.refToMessageId = refToMessageId;
+        this.fromPartyId = fromPartyId;
         this.finalRecipient = finalRecipient;
         this.originalSender = originalSender;
         this.received = received;
@@ -63,6 +74,30 @@ public class WSMessageLogEntity {
 
     public void setMessageId(String messageId) {
         this.messageId = messageId;
+    }
+
+    public String getFromPartyId() {
+        return fromPartyId;
+    }
+
+    public void setFromPartyId(String fromPartyId) {
+        this.fromPartyId = fromPartyId;
+    }
+
+    public String getConversationId() {
+        return conversationId;
+    }
+
+    public void setConversationId(String conversationId) {
+        this.conversationId = conversationId;
+    }
+
+    public String getRefToMessageId() {
+        return refToMessageId;
+    }
+
+    public void setRefToMessageId(String refToMessageId) {
+        this.refToMessageId = refToMessageId;
     }
 
     public String getFinalRecipient() {

@@ -296,10 +296,10 @@ public class WebServicePluginImpl implements BackendInterface {
         LOG.info("Final Recipient is [{}]", finalRecipient);
 
         List<WSMessageLogEntity> pending = wsMessageLogService.findAllWithFilter(
-                listPendingMessagesRequest.getMessageID(),
-                null,
-                null,
-                null,
+                listPendingMessagesRequest.getMessageId(),
+                listPendingMessagesRequest.getFromPartyId(),
+                listPendingMessagesRequest.getConversationId(),
+                listPendingMessagesRequest.getRefToMessageId(),
                 listPendingMessagesRequest.getOriginalSender(),
                 finalRecipient,
                 listPendingMessagesRequest.getReceivedFrom(),

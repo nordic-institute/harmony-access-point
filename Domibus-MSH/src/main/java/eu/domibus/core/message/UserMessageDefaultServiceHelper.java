@@ -140,4 +140,19 @@ public class UserMessageDefaultServiceHelper implements UserMessageServiceHelper
         }
         return result;
     }
+
+    @Override
+    public String getConversationId(UserMessage userMessage){
+        CollaborationInfo collaborationInfo = userMessage.getCollaborationInfo();
+        if (collaborationInfo == null) {
+            LOG.trace("Collaboration info is null");
+            return null;
+        }
+        return collaborationInfo.getConversationId();
+    }
+
+    @Override
+    public String getRefToMessageId (UserMessage userMessage) {
+        return userMessage.getMessageInfo().getRefToMessageId();
+    }
 }

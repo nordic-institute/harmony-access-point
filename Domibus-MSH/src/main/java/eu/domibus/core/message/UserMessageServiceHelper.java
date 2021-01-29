@@ -29,4 +29,8 @@ public interface UserMessageServiceHelper {
     String getAction(UserMessage userMessage);
 
     Map<String, String> getProperties(UserMessage userMessage);
+
+    String getConversationId(UserMessage userMessage);
+
+    String getRefToMessageId(UserMessage userMessage);
 }

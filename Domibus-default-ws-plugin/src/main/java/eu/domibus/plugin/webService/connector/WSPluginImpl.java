@@ -56,6 +56,9 @@ public class WSPluginImpl extends AbstractBackendConnector<Messaging, UserMessag
         LOG.info("Deliver message: [{}]", event);
         WSMessageLogEntity wsMessageLogEntity = new WSMessageLogEntity(
                 event.getMessageId(),
+                event.getProps().get(MessageConstants.CONVERSATION_ID),
+                event.getProps().get(MessageConstants.REF_TO_MESSAGE_ID),
+                event.getProps().get(MessageConstants.FROM_PARTY_ID),
                 event.getProps().get(MessageConstants.FINAL_RECIPIENT),
                 event.getProps().get(MessageConstants.ORIGINAL_SENDER),
                 new Date());

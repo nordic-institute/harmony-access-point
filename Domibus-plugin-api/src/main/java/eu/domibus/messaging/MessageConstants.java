@@ -25,6 +25,9 @@ public class MessageConstants {
     public static final String SERVICE = "service";
     public static final String SERVICE_TYPE = "serviceType";
     public static final String ACTION = "action";
+    public static final String CONVERSATION_ID = "conversationId";
+    public static final String REF_TO_MESSAGE_ID = "refToMessageId";
+    public static final String FROM_PARTY_ID = "fromPartyId";
 
 
     /**

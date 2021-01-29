@@ -32,6 +32,9 @@ public class WSMessageLogDao extends WSBasicDao<WSMessageLogEntity> {
     private static final String CRIT_RECEIVED= "received";
     private static final String CRIT_ORIGINAL_SENDER = "originalSender";
     private static final String CRIT_MESSAGE_ID = "messageId";
+    private static final String CRIT_CONVERSATION_ID = "conversationId";
+    private static final String CRIT_REF_TO_MESSAGE_ID = "refToMessageId";
+    private static final String CRIT_FROM_PARTY_ID = "fromPartyId";
 
 
     public WSMessageLogDao() {
@@ -93,7 +96,7 @@ public class WSMessageLogDao extends WSBasicDao<WSMessageLogEntity> {
                                                       String originalSender, String finalRecipient, LocalDateTime receivedFrom, LocalDateTime receivedTo,
                                                       int maxPendingMessagesRetrieveCount) {
         TypedQuery<WSMessageLogEntity> query = em.createQuery(
-                buildWSMessageLogListCriteria(messageId, fromPartyId,conversationId, referenceMessageId,
+                buildWSMessageLogListCriteria(messageId, conversationId, referenceMessageId, fromPartyId,
                         originalSender, finalRecipient, receivedFrom, receivedTo));
 
         if (maxPendingMessagesRetrieveCount > 0) {
@@ -104,8 +107,8 @@ public class WSMessageLogDao extends WSBasicDao<WSMessageLogEntity> {
     }
 
 
-    protected CriteriaQuery<WSMessageLogEntity> buildWSMessageLogListCriteria(String messageId, String fromPartyId, String conversationId,
-                                                                              String referenceMessageId, String originalSender, String finalRecipient,
+    protected CriteriaQuery<WSMessageLogEntity> buildWSMessageLogListCriteria(String messageId, String conversationId, String refToMessageId, String fromPartyId,
+                                                                              String originalSender, String finalRecipient,
                                                                               LocalDateTime receivedFrom, LocalDateTime receivedTo) {
         CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
         CriteriaQuery<WSMessageLogEntity> criteriaQuery = criteriaBuilder.createQuery(WSMessageLogEntity.class);
@@ -115,6 +118,15 @@ public class WSMessageLogDao extends WSBasicDao<WSMessageLogEntity> {
 
         if (StringUtils.isNotBlank(messageId)) {
             predicates.add(criteriaBuilder.equal(root.get(CRIT_MESSAGE_ID), messageId));
+        }
+        if (StringUtils.isNotBlank(conversationId)) {
+            predicates.add(criteriaBuilder.equal(root.get(CRIT_CONVERSATION_ID), conversationId));
+        }
+        if (StringUtils.isNotBlank(refToMessageId)) {
+            predicates.add(criteriaBuilder.equal(root.get(CRIT_REF_TO_MESSAGE_ID), refToMessageId));
+        }
+        if (StringUtils.isNotBlank(fromPartyId)) {
+            predicates.add(criteriaBuilder.equal(root.get(CRIT_FROM_PARTY_ID), fromPartyId));
         }
         if (StringUtils.isNotBlank(finalRecipient)) {
             predicates.add(criteriaBuilder.equal(root.get(CRIT_FINAL_RECIPIENT), finalRecipient));
@@ -133,6 +145,7 @@ public class WSMessageLogDao extends WSBasicDao<WSMessageLogEntity> {
         if (CollectionUtils.isNotEmpty(predicates)) {
             criteriaQuery.where(predicates.toArray(new Predicate[]{}));
         }
+        criteriaQuery.orderBy(criteriaBuilder.asc(root.get(CRIT_RECEIVED)));
         return criteriaQuery;
     }
 
