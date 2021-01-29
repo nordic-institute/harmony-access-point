@@ -3,6 +3,7 @@ package eu.domibus.plugin.ws.webservice.deprecated;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.webService.generated.RetrieveMessageFault;
+import eu.domibus.plugin.ws.webservice.WebServiceOperation;
 import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.interceptor.AbstractSoapInterceptor;
@@ -25,8 +26,10 @@ import static org.apache.commons.lang3.StringUtils.equalsAnyIgnoreCase;
 /**
  * @author Cosmin Baciu
  * @since 4.1.4
+ * @deprecated since 5.0 Use instead {@link eu.domibus.plugin.ws.webservice.interceptor.WSPluginFaultOutInterceptor}
  */
-@Component("wsPluginFaultOutInterceptor")
+@Deprecated
+@Component("wsPluginFaultOutInterceptorDeprecated")
 public class WSPluginFaultOutInterceptor extends AbstractSoapInterceptor {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginFaultOutInterceptor.class);
@@ -56,7 +59,7 @@ public class WSPluginFaultOutInterceptor extends AbstractSoapInterceptor {
         }
 
         String methodName = getMethodName(message);
-        if (WebServicePluginOperation.RETRIEVE_MESSAGE.equals(methodName)) {
+        if (WebServiceOperation.RETRIEVE_MESSAGE.equals(methodName)) {
             handleRetrieveMessage(message, exception);
         }
     }
@@ -71,7 +74,7 @@ public class WSPluginFaultOutInterceptor extends AbstractSoapInterceptor {
     }
 
     protected void handleRetrieveMessage(SoapMessage message, Exception exception) {
-        LOG.trace("Handling error in [{}] operation", WebServicePluginOperation.RETRIEVE_MESSAGE);
+        LOG.trace("Handling error in [{}] operation", WebServiceOperation.RETRIEVE_MESSAGE);
 
         Throwable cause = exception.getCause();
         if (cause instanceof UnexpectedRollbackException) {

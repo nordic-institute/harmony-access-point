@@ -24,7 +24,9 @@ import javax.xml.bind.annotation.XmlTransient;
  * @author Christian Koch, Martini Federico
  * @version 2.0
  * @since 3.0
+ * @deprecated since 5.0 Use instead {@link eu.domibus.plugin.ws.webservice.ExtendedPartInfo}
  */
+@Deprecated
 public class ExtendedPartInfo extends PartInfo {
 
     @XmlTransient

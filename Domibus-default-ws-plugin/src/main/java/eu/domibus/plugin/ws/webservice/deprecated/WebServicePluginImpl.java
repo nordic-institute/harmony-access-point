@@ -13,9 +13,8 @@ import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.messaging.MessagingProcessingException;
-import eu.domibus.plugin.ws.connector.WSPluginImpl;
-import eu.domibus.plugin.ws.dao.WSMessageLogDao;
-import eu.domibus.plugin.ws.entity.WSMessageLogEntity;
+import eu.domibus.plugin.ws.webservice.WSMessageLogDao;
+import eu.domibus.plugin.ws.webservice.WSMessageLogEntity;
 import eu.domibus.plugin.ws.exception.WSPluginException;
 import eu.domibus.plugin.webService.generated.*;
 import eu.domibus.plugin.ws.property.WSPluginPropertyManager;
@@ -37,7 +36,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ *  @deprecated since 5.0 Use instead {@link eu.domibus.plugin.ws.webservice.WebServiceImpl}
+ */
 @SuppressWarnings("ValidExternallyBoundObject")
+@Deprecated
 @javax.jws.WebService(
         serviceName = "BackendService_1_1",
         portName = "BACKEND_PORT",

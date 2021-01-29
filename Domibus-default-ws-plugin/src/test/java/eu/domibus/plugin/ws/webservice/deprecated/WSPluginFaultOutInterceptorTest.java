@@ -1,6 +1,7 @@
 package eu.domibus.plugin.ws.webservice.deprecated;
 
 import eu.domibus.plugin.webService.generated.RetrieveMessageFault;
+import eu.domibus.plugin.ws.webservice.WebServiceOperation;
 import mockit.Expectations;
 import mockit.FullVerifications;
 import mockit.Injectable;
@@ -113,7 +114,7 @@ public class WSPluginFaultOutInterceptorTest {
             times = 1;
 
             wsPluginFaultOutInterceptor.getMethodName(message);
-            result = WebServicePluginOperation.RETRIEVE_MESSAGE;
+            result = WebServiceOperation.RETRIEVE_MESSAGE;
             times = 1;
 
             wsPluginFaultOutInterceptor.handleRetrieveMessage(message, soapFault);

@@ -1,6 +1,6 @@
 package eu.domibus.plugin.ws.backend;
 
-import eu.domibus.plugin.ws.dao.WSBasicDao;
+import eu.domibus.plugin.ws.util.WSBasicDao;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.NoResultException;

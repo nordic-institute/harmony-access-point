@@ -23,8 +23,10 @@ import static org.apache.commons.lang3.StringUtils.trim;
  * Converter class for Submission <-> UserMessage objects.
  *
  * @author Federico Martini
+ * @deprecated since 5.0 Use instead {@link eu.domibus.plugin.ws.webservice.StubDtoTransformer}
  */
-@Component
+@Deprecated
+@Component(value = "StubDtoTransformerDeprecated")
 public class StubDtoTransformer implements MessageSubmissionTransformer<Messaging>, MessageRetrievalTransformer<UserMessage> {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(StubDtoTransformer.class);

@@ -5,11 +5,10 @@ import eu.domibus.ext.services.MessageExtService;
 import eu.domibus.plugin.handler.MessagePuller;
 import eu.domibus.plugin.handler.MessageRetriever;
 import eu.domibus.plugin.handler.MessageSubmitter;
-import eu.domibus.plugin.ws.backend.WSBackendMessageType;
 import eu.domibus.plugin.ws.backend.dispatch.WSPluginBackendService;
-import eu.domibus.plugin.ws.dao.WSMessageLogDao;
-import eu.domibus.plugin.ws.entity.WSMessageLogEntity;
-import eu.domibus.plugin.ws.webservice.deprecated.StubDtoTransformer;
+import eu.domibus.plugin.ws.webservice.WSMessageLogEntity;
+import eu.domibus.plugin.ws.webservice.StubDtoTransformer;
+import eu.domibus.plugin.ws.webservice.WSMessageLogDao;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
@@ -59,8 +58,8 @@ public class WSPluginImplTest {
     protected MessageExtService messageExtService;
 
     @Test
-    public void deliverMessage(@Mocked DeliverMessageEvent deliverMessageEvent,
-                               @Mocked WSMessageLogEntity wsMessageLogEntity) {
+    public void deliverMessage(@Injectable DeliverMessageEvent deliverMessageEvent,
+                               @Injectable WSMessageLogEntity wsMessageLogEntity) {
         new Expectations() {{
             deliverMessageEvent.getMessageId();
             result = MESSAGE_ID;
@@ -78,22 +77,21 @@ public class WSPluginImplTest {
     }
 
     @Test
-    public void sendSuccess(@Mocked MessageSendSuccessEvent event) {
+    public void sendSuccess(@Injectable MessageSendSuccessEvent event) {
         new Expectations() {{
             event.getMessageId();
             result = MESSAGE_ID;
-
-            wsPluginBackendService.send(event, WSBackendMessageType.SEND_SUCCESS);
-            times = 1;
         }};
         wsPlugin.messageSendSuccess(event);
 
-        new FullVerifications() {
-        };
+        new FullVerifications() {{
+            wsPluginBackendService.send(event, SEND_SUCCESS);
+            times = 1;
+        }};
     }
 
     @Test
-    public void messageReceiveFailed(@Mocked MessageReceiveFailureEvent event) {
+    public void messageReceiveFailed(@Injectable MessageReceiveFailureEvent event) {
 
         wsPlugin.messageReceiveFailed(event);
 
@@ -104,7 +102,7 @@ public class WSPluginImplTest {
     }
 
     @Test
-    public void messageSendFailed(@Mocked MessageSendFailedEvent event) {
+    public void messageSendFailed(@Injectable MessageSendFailedEvent event) {
 
         wsPlugin.messageSendFailed(event);
 
@@ -115,7 +113,7 @@ public class WSPluginImplTest {
     }
 
     @Test
-    public void messageStatusChanged(@Mocked MessageStatusChangeEvent event) {
+    public void messageStatusChanged(@Injectable MessageStatusChangeEvent event) {
 
         wsPlugin.messageStatusChanged(event);
 
@@ -126,7 +124,7 @@ public class WSPluginImplTest {
     }
 
     @Test
-    public void messageDeletedBatchEvent(@Mocked MessageDeletedBatchEvent event) {
+    public void messageDeletedBatchEvent(@Injectable MessageDeletedBatchEvent event) {
         List<String> messageIds = new ArrayList<>();
 
         wsPlugin.messageDeletedBatchEvent(event);
@@ -141,7 +139,7 @@ public class WSPluginImplTest {
     }
 
     @Test
-    public void messageDeletedEvent(@Mocked MessageDeletedEvent event) {
+    public void messageDeletedEvent(@Injectable MessageDeletedEvent event) {
         new Expectations() {{
             event.getMessageId();
             result = MESSAGE_ID;
@@ -149,7 +147,10 @@ public class WSPluginImplTest {
 
         wsPlugin.messageDeletedEvent(event);
 
-        new Verifications() {{
+        new FullVerifications() {{
+            wsMessageLogDao.deleteByMessageId(MESSAGE_ID);
+            times = 1;
+
             wsPluginBackendService.send(event, DELETED);
             times = 1;
         }};

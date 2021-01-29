@@ -1,6 +1,6 @@
 package eu.domibus.plugin.ws.logging;
 
-import eu.domibus.plugin.ws.webservice.deprecated.WebServicePluginOperation;
+import eu.domibus.plugin.ws.webservice.WebServiceOperation;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.lang3.StringUtils;
@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Map;
 
+@SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(JMockit.class)
 public class WSPluginLoggingEventHelperImplTest {
     private static final Logger LOG = LoggerFactory.getLogger(WSPluginLoggingEventHelperImplTest.class);
@@ -40,7 +41,7 @@ public class WSPluginLoggingEventHelperImplTest {
             result = EventType.REQ_IN;
 
             logEvent.getOperationName();
-            result = WebServicePluginOperation.SUBMIT_MESSAGE;
+            result = WebServiceOperation.SUBMIT_MESSAGE;
 
             logEvent.getPayload();
             result = payload;
@@ -69,7 +70,7 @@ public class WSPluginLoggingEventHelperImplTest {
             result = EventType.REQ_IN;
 
             logEvent.getOperationName();
-            result = WebServicePluginOperation.SUBMIT_MESSAGE;
+            result = WebServiceOperation.SUBMIT_MESSAGE;
 
             logEvent.isMultipartContent();
             result = false;
@@ -102,7 +103,7 @@ public class WSPluginLoggingEventHelperImplTest {
             result = EventType.REQ_IN;
 
             logEvent.getOperationName();
-            result = WebServicePluginOperation.SUBMIT_MESSAGE;
+            result = WebServiceOperation.SUBMIT_MESSAGE;
 
             logEvent.isMultipartContent();
             result = true;
@@ -138,7 +139,7 @@ public class WSPluginLoggingEventHelperImplTest {
             result = EventType.RESP_OUT;
 
             logEvent.getOperationName();
-            result = WebServicePluginOperation.RETRIEVE_MESSAGE;
+            result = WebServiceOperation.RETRIEVE_MESSAGE;
 
             logEvent.getPayload();
             result = payload;
@@ -168,7 +169,7 @@ public class WSPluginLoggingEventHelperImplTest {
             result = EventType.RESP_OUT;
 
             logEvent.getOperationName();
-            result = WebServicePluginOperation.RETRIEVE_MESSAGE;
+            result = WebServiceOperation.RETRIEVE_MESSAGE;
 
             logEvent.isMultipartContent();
             result = false;
@@ -201,7 +202,7 @@ public class WSPluginLoggingEventHelperImplTest {
             result = EventType.REQ_IN;
 
             logEvent.getOperationName();
-            result = WebServicePluginOperation.SUBMIT_MESSAGE;
+            result = WebServiceOperation.SUBMIT_MESSAGE;
 
             logEvent.isMultipartContent();
             result = false;
@@ -233,8 +234,8 @@ public class WSPluginLoggingEventHelperImplTest {
             result = EventType.RESP_OUT;
 
             logEvent.getOperationName();
-            result = WebServicePluginOperation.SUBMIT_MESSAGE;
-            result = WebServicePluginOperation.RETRIEVE_MESSAGE;
+            result = WebServiceOperation.SUBMIT_MESSAGE;
+            result = WebServiceOperation.RETRIEVE_MESSAGE;
         }};
 
 

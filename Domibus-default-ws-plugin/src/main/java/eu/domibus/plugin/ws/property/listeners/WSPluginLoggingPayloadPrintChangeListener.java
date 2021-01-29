@@ -4,15 +4,16 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.property.PluginPropertyChangeListener;
 import eu.domibus.plugin.ws.logging.WSPluginLoggingEventSender;
+import eu.domibus.plugin.ws.webservice.configuration.WebServiceConfiguration;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import static eu.domibus.plugin.ws.configuration.WSPluginConfiguration.DOMIBUS_LOGGING_PAYLOAD_PRINT;
+import static eu.domibus.plugin.ws.webservice.configuration.WebServiceConfiguration.DOMIBUS_LOGGING_PAYLOAD_PRINT;
 
 /**
- * Handles the change of {@value eu.domibus.plugin.ws.configuration.WSPluginConfiguration#DOMIBUS_LOGGING_PAYLOAD_PRINT}
+ * Handles the change of {@value WebServiceConfiguration#DOMIBUS_LOGGING_PAYLOAD_PRINT}
  * property of backendInterfaceEndpoint
  *
  * @author François Gautier

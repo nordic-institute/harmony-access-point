@@ -5,7 +5,6 @@ import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.plugin.ws.configuration.WSPluginDispatchConfiguration;
 import eu.domibus.plugin.ws.property.WSPluginPropertyManager;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.springframework.beans.factory.annotation.Qualifier;

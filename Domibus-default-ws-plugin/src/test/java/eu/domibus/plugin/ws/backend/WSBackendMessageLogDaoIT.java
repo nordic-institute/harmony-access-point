@@ -1,6 +1,6 @@
 package eu.domibus.plugin.ws.backend;
 
-import eu.domibus.plugin.webService.WSPluginDaoTestConfig;
+import eu.domibus.plugin.ws.WSPluginDaoTestConfig;
 import eu.domibus.test.dao.InMemoryDataBaseConfig;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;

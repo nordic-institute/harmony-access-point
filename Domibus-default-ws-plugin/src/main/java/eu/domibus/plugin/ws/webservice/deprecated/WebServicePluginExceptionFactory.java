@@ -7,7 +7,9 @@ import org.springframework.stereotype.Service;
 /**
  * @author Cosmin Baciu
  * @since 4.1.4
+ * @deprecated since 5.0 Use instead {@link eu.domibus.plugin.ws.webservice.WebServiceExceptionFactory}
  */
+@Deprecated
 @Service
 public class WebServicePluginExceptionFactory {
 

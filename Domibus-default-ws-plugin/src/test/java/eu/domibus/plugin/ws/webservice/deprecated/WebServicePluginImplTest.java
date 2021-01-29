@@ -6,13 +6,11 @@ import eu.domibus.ext.services.AuthenticationExtService;
 import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.MessageAcknowledgeExtService;
 import eu.domibus.ext.services.MessageExtService;
-import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.plugin.MessageLister;
 import eu.domibus.plugin.handler.MessageRetriever;
-import eu.domibus.plugin.ws.connector.WSPluginImpl;
-import eu.domibus.plugin.ws.dao.WSMessageLogDao;
 import eu.domibus.plugin.webService.generated.*;
 import eu.domibus.plugin.ws.property.WSPluginPropertyManager;
+import eu.domibus.plugin.ws.webservice.WSMessageLogDao;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
@@ -148,7 +146,7 @@ public class WebServicePluginImplTest {
     public void cleansTheMessageIdentifierBeforeRetrievingTheMessageByItsIdentifier(@Injectable RetrieveMessageRequest retrieveMessageRequest,
                                                                                     @Injectable RetrieveMessageResponse retrieveMessageResponse,
                                                                                     @Injectable Messaging ebMSHeaderInfo,
-                                                                                    @Injectable MessageLister lister) throws RetrieveMessageFault, MessageNotFoundException {
+                                                                                    @Injectable MessageLister lister) throws RetrieveMessageFault {
         new Expectations(webServicePlugin) {{
             retrieveMessageRequest.getMessageID();
             result = "-Dom137--";

@@ -9,7 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static eu.domibus.plugin.ws.configuration.WSPluginConfiguration.DOMIBUS_LOGGING_METADATA_PRINT;
+import static eu.domibus.plugin.ws.webservice.configuration.WebServiceConfiguration.DOMIBUS_LOGGING_METADATA_PRINT;
 
 /**
  * @author François Gautier

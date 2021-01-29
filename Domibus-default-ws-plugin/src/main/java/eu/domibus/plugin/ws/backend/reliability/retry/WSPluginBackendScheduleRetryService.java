@@ -11,7 +11,6 @@ import eu.domibus.plugin.ws.backend.WSBackendMessageLogEntity;
 import eu.domibus.plugin.ws.backend.WSBackendMessageType;
 import eu.domibus.plugin.ws.backend.reliability.queue.WSSendMessageListener;
 import eu.domibus.plugin.ws.backend.rules.WSPluginDispatchRule;
-import eu.domibus.plugin.ws.connector.WSPluginImpl;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,8 +38,6 @@ public class WSPluginBackendScheduleRetryService {
     protected JMSExtService jmsExtService;
 
     protected Queue wsPluginSendQueue;
-
-    protected WSPluginImpl wsPlugin;
 
     public WSPluginBackendScheduleRetryService(WSBackendMessageLogDao wsBackendMessageLogDao,
                                                JMSExtService jmsExtService,
