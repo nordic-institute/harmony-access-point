@@ -322,6 +322,7 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_CLUSTER_COMMAND_CRON_EXPRESSION = "domibus.cluster.command.cronExpression";
     String DOMIBUS_PULL_REQUEST_SEND_PER_JOB_CYCLE_PER_MPC = "domibus.pull.request.send.per.job.cycle.per.mpc";
     String DOMIBUS_FILE_UPLOAD_MAX_SIZE = "domibus.file.upload.maxSize";
+    String DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE = "domibus.message.download.maxSize";
     String DOMIBUS_JDBC_DATASOURCE_JNDI_NAME = "domibus.jdbc.datasource.jndi.name";
     String DOMIBUS_JDBC_DATASOURCE_QUARTZ_JNDI_NAME = "domibus.jdbc.datasource.quartz.jndi.name";
     String DOMIBUS_METRICS_MONITOR_JMS_QUEUES_REFRESH_PERIOD = "domibus.metrics.monitor.jms.queues.refresh.period";
@@ -331,6 +332,7 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_UI_SESSION_SECURE = "domibus.ui.session.secure";
     String DOMIBUS_DISPATCHER_TIMEOUT = "domibus.dispatcher.timeout";
     String DOMIBUS_UI_SESSION_TIMEOUT = "domibus.ui.session.timeout";
+    String DOMIBUS_UI_SESSION_SAME_SITE = "domibus.ui.session.sameSite";
 
     String DOMIBUS_ERRORLOG_CLEANER_CRON = "domibus.errorlog.cleaner.cron";
     String DOMIBUS_ERRORLOG_CLEANER_OLDER_DAYS = "domibus.errorlog.cleaner.older.days";
