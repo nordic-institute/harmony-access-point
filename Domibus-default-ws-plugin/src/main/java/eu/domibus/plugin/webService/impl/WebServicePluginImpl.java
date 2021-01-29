@@ -302,8 +302,8 @@ public class WebServicePluginImpl implements BackendInterface {
                 null,
                 listPendingMessagesRequest.getOriginalSender(),
                 finalRecipient,
-                null,
-                listPendingMessagesRequest.getReceivedUpTo(),
+                listPendingMessagesRequest.getReceivedFrom(),
+                listPendingMessagesRequest.getReceivedTo(),
                 intMaxPendingMessagesRetrieveCount);
 
         final Collection<String> ids = pending.stream()

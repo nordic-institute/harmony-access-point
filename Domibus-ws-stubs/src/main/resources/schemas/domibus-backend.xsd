@@ -46,7 +46,8 @@
                 <xsd:element name="messageID" type="tns:max255-non-empty-string" minOccurs="0"/>
                 <xsd:element name="finalRecipient" type="tns:max255-non-empty-string" minOccurs="0"/>
                 <xsd:element name="originalSender" type="tns:max255-non-empty-string" minOccurs="0"/>
-                <xsd:element name="receivedUpTo" type="xsd:dateTime" minOccurs="0"/>
+                <xsd:element name="receivedFrom" type="xsd:dateTime" minOccurs="0"/>
+                <xsd:element name="receivedTo" type="xsd:dateTime" minOccurs="0"/>
             </xsd:sequence>
         </xsd:complexType>
     </xsd:element>

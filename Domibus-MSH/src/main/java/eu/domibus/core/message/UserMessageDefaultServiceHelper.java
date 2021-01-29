@@ -1,7 +1,6 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.model.*;
-import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
@@ -41,6 +40,12 @@ public class UserMessageDefaultServiceHelper implements UserMessageServiceHelper
         // TODO maybe use To#getFirstPartyId() instead
         return partyId.iterator().next().getValue();
     }
+
+    @Override
+    public String getPartyFrom(UserMessage userMessage) {
+        return userMessage.getPartyInfo().getFrom().getFirstPartyId();
+    }
+
 
     @Override
     public boolean isSameOriginalSender(UserMessage userMessage, String providedOriginalSender) {

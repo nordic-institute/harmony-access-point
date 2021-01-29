@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 
 
@@ -47,9 +46,9 @@ public class WSMessageLogServiceImpl implements WSMessageLogService {
     }
 
     @Override
-    public List<WSMessageLogEntity> findAllWithFilter(String messageId, String fromPartyId, String conversationId, String referenceMessageId, String originalSender, String finalRecipient, Date sendFrom, LocalDateTime receivedUpTo, int maxPendingMessagesRetrieveCount) {
+    public List<WSMessageLogEntity> findAllWithFilter(String messageId, String fromPartyId, String conversationId, String referenceMessageId, String originalSender, String finalRecipient, LocalDateTime receivedFrom, LocalDateTime receivedTo, int maxPendingMessagesRetrieveCount) {
         return wsMessageLogDao.findAllWithFilter(messageId, fromPartyId, conversationId, referenceMessageId, originalSender,
-                finalRecipient, sendFrom, receivedUpTo, maxPendingMessagesRetrieveCount);
+                finalRecipient, receivedFrom, receivedTo, maxPendingMessagesRetrieveCount);
     }
 
 }

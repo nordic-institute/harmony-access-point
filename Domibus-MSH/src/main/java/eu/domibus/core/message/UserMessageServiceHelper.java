@@ -16,6 +16,8 @@ public interface UserMessageServiceHelper {
 
     String getPartyTo(UserMessage userMessage);
 
+    String getPartyFrom(UserMessage userMessage);
+
     boolean isSameOriginalSender(UserMessage userMessage, String originalSender);
 
     boolean isSameFinalRecipient(UserMessage userMessage, String originalSender);

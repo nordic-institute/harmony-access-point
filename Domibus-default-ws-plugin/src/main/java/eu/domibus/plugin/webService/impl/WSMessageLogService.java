@@ -3,7 +3,6 @@ package eu.domibus.plugin.webService.impl;
 import eu.domibus.plugin.webService.entity.WSMessageLogEntity;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -24,6 +23,6 @@ public interface WSMessageLogService {
 
     List<WSMessageLogEntity> findAllWithFilter(final String messageId, final String fromPartyId,
                                                final String conversationId, final String referenceMessageId, final String originalSender,
-                                               final String finalRecipient, Date sendFrom, LocalDateTime receivedUpTo, int maxPendingMessagesRetrieveCount);
+                                               final String finalRecipient, LocalDateTime receivedFrom, LocalDateTime receivedTo, int maxPendingMessagesRetrieveCount);
 }
 
