@@ -31,7 +31,7 @@ import static org.apache.wss4j.common.ext.WSSecurityException.ErrorCode.SECURITY
  * @since 4.0
  */
 @RunWith(JMockit.class)
-public class DefaultDomainCryptoEbms3ServiceSpiImplTest {
+public class DefaultDomainCryptoServiceSpiImplTest {
     public static final String PRIVATE_KEY_PASSWORD = "privateKeyPassword";
 
     @Tested

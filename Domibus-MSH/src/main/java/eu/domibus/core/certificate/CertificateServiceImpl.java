@@ -434,27 +434,37 @@ public class CertificateServiceImpl implements CertificateService {
 
     protected boolean doAddCertificates(KeyStore trustStore, String trustStorePassword, String trustStoreLocation,
                                         List<CertificateEntry> certificates, boolean overwrite) {
-        boolean addedAtLeastOne = false;
+        int addedNr = 0;
         for (CertificateEntry certificateEntry : certificates) {
             boolean added = doAddCertificate(trustStore, certificateEntry.getCertificate(), certificateEntry.getAlias(), overwrite);
-            addedAtLeastOne = addedAtLeastOne || added;
+            if (added) {
+                addedNr++;
+            }
         }
-        if (addedAtLeastOne) {
+        if (addedNr > 0) {
+            LOG.trace("Added [{}] certificates so persisting the truststore.");
             persistTrustStore(trustStore, trustStorePassword, trustStoreLocation);
+            return true;
         }
-        return addedAtLeastOne;
+        LOG.trace("Added 0 certificates so exiting without persisting the truststore.");
+        return false;
     }
 
-    private boolean doRemoveCertificates(KeyStore trustStore, String trustStorePassword, String trustStoreLocation, List<String> aliases) {
-        boolean removedAtLeastOne = false;
+    protected boolean doRemoveCertificates(KeyStore trustStore, String trustStorePassword, String trustStoreLocation, List<String> aliases) {
+        int removedNr = 0;
         for (String alias : aliases) {
             boolean removed = doRemoveCertificate(trustStore, alias);
-            removedAtLeastOne = removedAtLeastOne || removed;
+            if (removed) {
+                removedNr++;
+            }
         }
-        if (removedAtLeastOne) {
+        if (removedNr > 0) {
+            LOG.trace("Removed [{}] certificates so persisting the truststore.");
             persistTrustStore(trustStore, trustStorePassword, trustStoreLocation);
+            return true;
         }
-        return removedAtLeastOne;
+        LOG.trace("Removed 0 certificates so exiting without persisting the truststore.");
+        return false;
     }
 
     protected boolean doAddCertificate(KeyStore truststore, X509Certificate certificate, String alias, boolean overwrite) {
@@ -465,6 +475,7 @@ public class CertificateServiceImpl implements CertificateService {
             throw new CryptoException("Error while trying to get the alias from the truststore. This should never happen", e);
         }
         if (containsAlias && !overwrite) {
+            LOG.trace("The truststore already contains alias [{}] and the overwrite is false so returning false.", alias);
             return false;
         }
         try {
@@ -486,6 +497,7 @@ public class CertificateServiceImpl implements CertificateService {
             throw new CryptoException("Error while trying to get the alias from the truststore. This should never happen", e);
         }
         if (!containsAlias) {
+            LOG.trace("The truststore does not contai alias [{}] so returning false.", alias);
             return false;
         }
         try {

@@ -33,7 +33,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
  * @author Sebastian-Ion TINCU
  */
 @RunWith(JMockit.class)
-public class DefaultDomainCryptoEbms3ServiceSpiImplNonInitializedTest {
+public class DefaultDomainCryptoServiceSpiImplNonInitializedTest {
 
     public static final String PRIVATE_KEY_PASSWORD = "privateKeyPassword";
 
