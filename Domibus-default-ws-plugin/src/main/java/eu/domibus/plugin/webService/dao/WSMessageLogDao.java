@@ -13,6 +13,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -26,8 +27,11 @@ public class WSMessageLogDao extends WSBasicDao<WSMessageLogEntity> {
 
     private static final String MESSAGE_ID = "MESSAGE_ID";
     private static final String MESSAGE_IDS = "MESSAGE_IDS";
-    private static final String FINAL_RECIPIENT= "FINAL_RECIPIENT";
-    private static final String RECEIVED= "RECEIVED";
+
+    private static final String CRIT_FINAL_RECIPIENT= "finalRecipient";
+    private static final String CRIT_RECEIVED= "received";
+    private static final String CRIT_ORIGINAL_SENDER = "originalSender";
+    private static final String CRIT_MESSAGE_ID = "messageId";
 
 
     public WSMessageLogDao() {
@@ -62,17 +66,6 @@ public class WSMessageLogDao extends WSBasicDao<WSMessageLogEntity> {
         return query.getResultList();
     }
 
-    /**
-     * Fins all entries in the plugin table, for finalRecipient, limited to maxCount. When maxCount is 0, return all.
-     */
-    public List<WSMessageLogEntity> findAllByFinalRecipient(int maxCount, String finalRecipient) {
-        TypedQuery<WSMessageLogEntity> query = em.createNamedQuery("WSMessageLogEntity.findAllByFinalRecipient", WSMessageLogEntity.class);
-        query.setParameter(FINAL_RECIPIENT, finalRecipient);
-        if(maxCount > 0) {
-            return query.setMaxResults(maxCount).getResultList();
-        }
-        return query.getResultList();
-    }
 
     /**
      * Find all entries in the plugin table.
@@ -103,7 +96,9 @@ public class WSMessageLogDao extends WSBasicDao<WSMessageLogEntity> {
                 buildWSMessageLogListCriteria(messageId, fromPartyId,conversationId, referenceMessageId,
                         originalSender, finalRecipient, sendFrom, receivedUpTo));
 
-        query.setMaxResults(maxPendingMessagesRetrieveCount);
+        if (maxPendingMessagesRetrieveCount > 0) {
+            query.setMaxResults(maxPendingMessagesRetrieveCount);
+        }
         return query.getResultList();
 
     }
@@ -119,13 +114,17 @@ public class WSMessageLogDao extends WSBasicDao<WSMessageLogEntity> {
         List<Predicate> predicates = new ArrayList<>();
 
         if (StringUtils.isNotBlank(messageId)) {
-            predicates.add(criteriaBuilder.equal(root.get(MESSAGE_ID), messageId));
+            predicates.add(criteriaBuilder.equal(root.get(CRIT_MESSAGE_ID), messageId));
         }
         if (StringUtils.isNotBlank(finalRecipient)) {
-            predicates.add(criteriaBuilder.equal(root.get(FINAL_RECIPIENT), messageId));
+            predicates.add(criteriaBuilder.equal(root.get(CRIT_FINAL_RECIPIENT), finalRecipient));
+        }
+        if (StringUtils.isNotBlank(originalSender)) {
+            predicates.add(criteriaBuilder.equal(root.get(CRIT_ORIGINAL_SENDER), originalSender));
         }
         if (receivedUpTo != null) {
-            predicates.add(criteriaBuilder.lessThanOrEqualTo(root.<LocalDateTime>get(RECEIVED), receivedUpTo));
+            Date receivedUpToDate = Date.from(receivedUpTo.atZone(ZoneId.systemDefault()).toInstant());
+            predicates.add(criteriaBuilder.lessThanOrEqualTo(root.<Date>get(CRIT_RECEIVED), receivedUpToDate));
         }
 
         if (CollectionUtils.isNotEmpty(predicates)) {
