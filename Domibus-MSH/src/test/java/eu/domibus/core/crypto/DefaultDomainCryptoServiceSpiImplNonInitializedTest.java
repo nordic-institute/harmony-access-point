@@ -20,8 +20,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
 import java.util.List;
@@ -34,7 +33,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
  * @author Sebastian-Ion TINCU
  */
 @RunWith(JMockit.class)
-public class DefaultDomainCryptoEbms3ServiceSpiImplNonInitializedTest {
+public class DefaultDomainCryptoServiceSpiImplNonInitializedTest {
 
     public static final String PRIVATE_KEY_PASSWORD = "privateKeyPassword";
 
@@ -117,63 +116,6 @@ public class DefaultDomainCryptoEbms3ServiceSpiImplNonInitializedTest {
 
         // Then
         Assert.assertTrue("Should have correctly returned the validity of the certificate chain", valid);
-    }
-
-    @Test
-    public void removeMultipleCertificatesIntoTheTrustStore() {
-        List<String> resultList = Lists.newArrayList();
-        // Given
-        new MockUp<DefaultDomainCryptoServiceSpiImpl>() {
-            @Mock
-            boolean removeCertificate(Invocation invocation, List<String> aliases) {
-                invocation.proceed();
-                Assert.assertTrue("Should have removed all certificates from the trust store",
-                        resultList.size() == 2 && resultList.containsAll(Lists.newArrayList("first", "second")));
-                return true;
-            }
-
-            @Mock
-            void persistTrustStore(Invocation invocation) { /* ignore */}
-        };
-
-        new Expectations() {{
-            certificateService.removeCertificate(anyString, anyString, "first", false, anyString);
-            resultList.add("first");
-            result = true;
-            certificateService.removeCertificate(anyString, anyString, "second", false, anyString);
-            resultList.add("second");
-            result = true;
-        }};
-        // When
-        domainCryptoService.removeCertificate(Lists.newArrayList("first", "second"));
-    }
-
-    @Test
-    public void persistsTheTrustStoreAfterRemovingMultipleCertificates() {
-        // Given
-        new MockUp<DefaultDomainCryptoServiceSpiImpl>() {
-            int count = 0;
-
-            @Mock
-            boolean removeCertificate(Invocation invocation, List<String> aliases) {
-                invocation.proceed();
-                Assert.assertEquals("Should have persisted the trust store after removing multiple certificates", 1, count);
-                return true;
-            }
-
-            @Mock
-            void persistTrustStore(Invocation invocation) {
-                count = invocation.getInvocationCount();
-            }
-        };
-
-        new Expectations() {{
-            certificateService.removeCertificate(anyString, anyString, "first", false, anyString);
-            result = true;
-        }};
-
-        // When
-        domainCryptoService.removeCertificate(Lists.newArrayList("first", "second"));
     }
 
     @Test
