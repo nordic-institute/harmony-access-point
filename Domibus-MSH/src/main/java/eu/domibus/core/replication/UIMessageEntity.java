@@ -109,6 +109,15 @@ public class UIMessageEntity extends AbstractBaseEntity {
     @Column(name = "LAST_MODIFIED", nullable = false)
     private Date lastModified;
 
+    @Column(name = "ACTION")
+    private String action;
+
+    @Column(name = "SERVICE_TYPE")
+    private String serviceType;
+
+    @Column(name = "SERVICE_VALUE")
+    private String serviceValue;
+
     public String getMessageId() {
         return messageId;
     }
@@ -269,6 +278,30 @@ public class UIMessageEntity extends AbstractBaseEntity {
         this.lastModified = version;
     }
 
+    public String getAction() {
+        return action;
+    }
+
+    public void setAction(String action) {
+        this.action = action;
+    }
+
+    public String getServiceType() {
+        return serviceType;
+    }
+
+    public void setServiceType(String serviceType) {
+        this.serviceType = serviceType;
+    }
+
+    public String getServiceValue() {
+        return serviceValue;
+    }
+
+    public void setServiceValue(String serviceValue) {
+        this.serviceValue = serviceValue;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -298,6 +331,9 @@ public class UIMessageEntity extends AbstractBaseEntity {
                 .append(toId, that.toId)
                 .append(toScheme, that.toScheme)
                 .append(refToMessageId, that.refToMessageId)
+                .append(action, this.action)
+                .append(serviceType, this.serviceType)
+                .append(serviceValue, this.serviceValue)
                 .isEquals();
     }
 
@@ -324,6 +360,9 @@ public class UIMessageEntity extends AbstractBaseEntity {
                 .append(toId)
                 .append(toScheme)
                 .append(refToMessageId)
+                .append(action)
+                .append(serviceType)
+                .append(serviceValue)
                 .toHashCode();
     }
 }

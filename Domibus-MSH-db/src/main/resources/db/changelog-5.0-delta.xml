@@ -63,4 +63,12 @@
 
     </changeSet>
 
+    <changeSet author="Ion Perpegel" id="EDELIVERY-7677">
+        <comment>adding columns for action and service</comment>
+        <addColumn tableName="TB_MESSAGE_UI">
+            <column name="ACTION" type="VARCHAR(255)" remarks="The action"/>
+            <column name="SERVICE_TYPE" type="VARCHAR(255)" remarks="The service type"/>
+            <column name="SERVICE_VALUE" type="VARCHAR(255)" remarks="The service value"/>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

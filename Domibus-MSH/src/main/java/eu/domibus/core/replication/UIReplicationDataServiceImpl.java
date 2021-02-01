@@ -204,7 +204,9 @@ public class UIReplicationDataServiceImpl implements UIReplicationDataService {
         entity.setFromScheme(userMessageDefaultServiceHelper.getOriginalSender(userMessage));
         entity.setToScheme(userMessageDefaultServiceHelper.getFinalRecipient(userMessage));
         entity.setLastModified(new Date(jmsTimestamp));
-
+        entity.setAction(userMessage.getCollaborationInfo().getAction());
+        entity.setServiceType(userMessage.getCollaborationInfo().getService().getType());
+        entity.setServiceValue(userMessage.getCollaborationInfo().getService().getValue());
         return entity;
     }
 
