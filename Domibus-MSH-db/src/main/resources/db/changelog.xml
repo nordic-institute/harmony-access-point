@@ -2,6 +2,7 @@
 <databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
     <!-- IMPORTANT: this is the full script, add your changes inside in the right section -->
 
     <!-- properties - to be used in column definitions -->
@@ -1735,6 +1736,14 @@
             <column name="NAME_MOD" type="BOOLEAN"/>
             <column name="USERS_MOD" type="BOOLEAN"/>
         </createTable>
+
+        <createTable tableName="TB_VERSION" remarks="Stores Domibus version">
+            <column name="VERSION" type="VARCHAR(30)" remarks="Domibus Version"/>
+            <column name="BUILD_TIME" type="VARCHAR(30)" remarks="Domibus BuildTime"/>
+            <column name="CREATION_TIME" type="TIMESTAMP" defaultValueComputed="${now}" remarks="The date and time when this record was created">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
     </changeSet>
 
     <changeSet author="Catalin Enache" id="1564477107969-95">
@@ -1759,6 +1768,8 @@
         <addUniqueConstraint columnNames="ROLE_NAME" constraintName="UQ_ROLE_NAME" tableName="TB_USER_ROLE"/>
 
         <addUniqueConstraint columnNames="USER_NAME" constraintName="USER_NAME" tableName="TB_USER"/>
+
+        <addUniqueConstraint columnNames="VERSION" tableName="TB_VERSION" constraintName="UQ_VERSION" />
     </changeSet>
 
     <changeSet author="ion perpegel" id="EDELIVERY-7472">
@@ -2980,4 +2991,9 @@
             <column name="ROLE_NAME" value="ROLE_USER"/>
         </insert>
     </changeSet>
+
+
+    <!-- this file must be included in every future changelog.xml or changelog-multi-tenancy.xml -->
+    <include file="changelog-version-inserts.xml" relativeToChangelogFile="true"/>
+
 </databaseChangeLog>
