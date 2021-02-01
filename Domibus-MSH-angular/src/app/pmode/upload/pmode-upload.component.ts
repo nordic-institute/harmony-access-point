@@ -82,7 +82,7 @@ export class PmodeUploadComponent implements OnInit {
   }
 
   canUpload() {
-    return this.hasFile() && this.description.length !== 0 && !this.submitInProgress;
+    return this.hasFile() && this.description && this.description.length !== 0 && !this.submitInProgress;
   }
 
   public shouldShowErrors(field: NgControl | NgForm | AbstractControl): boolean {
