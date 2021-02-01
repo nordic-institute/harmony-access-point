@@ -7,16 +7,12 @@ import com.codahale.metrics.servlets.AdminServlet;
 import com.fasterxml.uuid.EthernetAddress;
 import com.fasterxml.uuid.Generators;
 import com.fasterxml.uuid.NoArgGenerator;
-import eu.domibus.plugin.webService.generated.BackendInterface;
-import eu.domibus.plugin.webService.generated.BackendService11;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Scope;
 import org.springframework.jms.annotation.EnableJms;
 import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
 import org.springframework.jms.connection.CachingConnectionFactory;
@@ -29,12 +25,6 @@ import org.springframework.scheduling.annotation.EnableAsync;
 
 import javax.jms.QueueConnectionFactory;
 import javax.naming.NamingException;
-import javax.xml.namespace.QName;
-import javax.xml.ws.BindingProvider;
-import javax.xml.ws.handler.Handler;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -62,6 +52,9 @@ public class Configuration {
 
     @Value("${jms.in.queue}")
     private String jmsInDestination;
+
+    @Value("${jms.reply.queue}")
+    private String jmsReplyDestination;
 
     // Number of consumers in the application
     @Value("${jms.concurrentConsumers}")
@@ -152,6 +145,11 @@ public class Configuration {
     @Bean
     public JmsListener jmsListener(SenderService senderService) {
         return new JmsListener(senderService, metricRegistry());
+    }
+
+    @Bean
+    public JmsListenerReplyQueue jmsListenerReplyQueue() {
+        return new JmsListenerReplyQueue();
     }
 
     @Bean
