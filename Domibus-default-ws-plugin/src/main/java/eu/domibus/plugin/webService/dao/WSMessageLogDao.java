@@ -28,13 +28,13 @@ public class WSMessageLogDao extends WSBasicDao<WSMessageLogEntity> {
     private static final String MESSAGE_ID = "MESSAGE_ID";
     private static final String MESSAGE_IDS = "MESSAGE_IDS";
 
-    private static final String CRIT_FINAL_RECIPIENT= "finalRecipient";
-    private static final String CRIT_RECEIVED= "received";
-    private static final String CRIT_ORIGINAL_SENDER = "originalSender";
     private static final String CRIT_MESSAGE_ID = "messageId";
     private static final String CRIT_CONVERSATION_ID = "conversationId";
     private static final String CRIT_REF_TO_MESSAGE_ID = "refToMessageId";
     private static final String CRIT_FROM_PARTY_ID = "fromPartyId";
+    private static final String CRIT_FINAL_RECIPIENT= "finalRecipient";
+    private static final String CRIT_RECEIVED= "received";
+    private static final String CRIT_ORIGINAL_SENDER = "originalSender";
 
 
     public WSMessageLogDao() {
@@ -79,7 +79,8 @@ public class WSMessageLogDao extends WSBasicDao<WSMessageLogEntity> {
     }
 
     /**
-     * find all entries in plugin table based on criteria
+     * Find all entries in plugin table based on criteria and limited to maxCount
+     * When maxCount is 0, return all.
      *
      * @param messageId
      * @param fromPartyId

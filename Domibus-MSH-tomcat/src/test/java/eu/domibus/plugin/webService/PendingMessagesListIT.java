@@ -43,11 +43,9 @@ public class PendingMessagesListIT extends AbstractBackendWSIT {
         }
 
         waitForMessages(3);
-        //TODO
-        //String request = new String("<listPendingMessagesRequest></listPendingMessagesRequest>");
+
         ListPendingMessagesRequest request = new ListPendingMessagesRequest();
         ListPendingMessagesResponse response = backendWebService.listPendingMessages(request);
-
 
         // Verifies the response
         Assert.assertNotNull(response);
@@ -59,8 +57,6 @@ public class PendingMessagesListIT extends AbstractBackendWSIT {
     @Test
     public void testListPendingMessagesNOk() throws Exception {
 
-        //TODO
-        //String request = new String("<listPendingMessagesRequest>1</listPendingMessagesRequest>");
         ListPendingMessagesRequest request = new ListPendingMessagesRequest();
         ListPendingMessagesResponse response = backendWebService.listPendingMessages(request);
 
