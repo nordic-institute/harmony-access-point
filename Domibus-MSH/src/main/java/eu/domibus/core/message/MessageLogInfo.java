@@ -3,8 +3,8 @@ package eu.domibus.core.message;
 import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
-import eu.domibus.api.model.NotificationStatus;
 import eu.domibus.api.model.MessageType;
+import eu.domibus.api.model.NotificationStatus;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -58,6 +58,12 @@ public class MessageLogInfo {
     private Boolean messageFragment;
 
     private Boolean sourceMessage;
+
+    private String action;
+
+    private String serviceType;
+
+    private String serviceValue;
 
     public MessageLogInfo() {
     }
@@ -125,13 +131,20 @@ public class MessageLogInfo {
                           final Date restored,
                           final MessageSubtype messageSubtype,
                           final Boolean messageFragment,
-                          final Boolean sourceMessage) {
+                          final Boolean sourceMessage,
+                          final String action,
+                          final String serviceType,
+                          final String serviceValue
+    ) {
         this(messageId, messageStatus, notificationStatus, mshRole, messageType, deleted, received,
                 sendAttempts, sendAttemptsMax, nextAttempt, conversationId, fromPartyId, toPartyId,
                 originalSender, finalRecipient, refToMessageId, failed, restored, messageSubtype);
 
         this.messageFragment = messageFragment;
         this.sourceMessage = sourceMessage;
+        this.action = action;
+        this.serviceType = serviceType;
+        this.serviceValue = serviceValue;
     }
 
     public void setMessageId(String messageId) {
@@ -302,6 +315,30 @@ public class MessageLogInfo {
         this.sourceMessage = sourceMessage;
     }
 
+    public String getAction() {
+        return action;
+    }
+
+    public String getServiceType() {
+        return serviceType;
+    }
+
+    public String getServiceValue() {
+        return serviceValue;
+    }
+
+    public void setAction(String action) {
+        this.action = action;
+    }
+
+    public void setServiceType(String serviceType) {
+        this.serviceType = serviceType;
+    }
+
+    public void setServiceValue(String serviceValue) {
+        this.serviceValue = serviceValue;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -331,6 +368,9 @@ public class MessageLogInfo {
                 .append(failed, that.failed)
                 .append(restored, that.restored)
                 .append(messageFragment, this.messageFragment)
+                .append(action, this.action)
+                .append(serviceType, this.serviceType)
+                .append(serviceValue, this.serviceValue)
                 .isEquals();
     }
 
@@ -357,6 +397,9 @@ public class MessageLogInfo {
                 .append(restored)
                 .append(messageSubtype)
                 .append(messageFragment)
+                .append(action)
+                .append(serviceType)
+                .append(serviceValue)
                 .toHashCode();
     }
 }
