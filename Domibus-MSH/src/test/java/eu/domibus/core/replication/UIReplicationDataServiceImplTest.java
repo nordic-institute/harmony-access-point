@@ -249,6 +249,10 @@ public class UIReplicationDataServiceImplTest {
 
             uiMessageEntity.setLastModified(withAny(new java.util.Date()));
 
+            uiMessageEntity.setAction("action");
+            uiMessageEntity.setServiceType("serviceType");
+            uiMessageEntity.setServiceValue("serviceValue");
+
             final UIMessageEntity entityActual;
             uiMessageDao.create(entityActual = withCapture());
             Assert.assertNotNull(entityActual);
@@ -321,6 +325,10 @@ public class UIReplicationDataServiceImplTest {
 
             uiMessageEntity.setLastModified(withAny(new java.util.Date()));
 
+            uiMessageEntity.setAction("action");
+            uiMessageEntity.setServiceType("serviceType");
+            uiMessageEntity.setServiceValue("serviceValue");
+
             final UIMessageEntity entityActual;
             uiMessageDao.create(entityActual = withCapture());
             Assert.assertNotNull(entityActual);
@@ -373,6 +381,11 @@ public class UIReplicationDataServiceImplTest {
         messageInfo.setRefToMessageId(refToMessageId);
         CollaborationInfo collaborationInfo = new CollaborationInfo();
         collaborationInfo.setConversationId(conversationId);
+        collaborationInfo.setAction("action");
+        Service serv = new Service();
+        serv.setType("serviceType");
+        serv.setValue("serviceValue");
+        collaborationInfo.setService(serv);
 
         userMessage.setMessageInfo(messageInfo);
         userMessage.setCollaborationInfo(collaborationInfo);

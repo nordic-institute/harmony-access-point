@@ -134,7 +134,7 @@ public class CsvEbms3ServiceImplTest {
         MessageLogInfo messageLog = new MessageLogInfo("messageId", MessageStatus.ACKNOWLEDGED,
                 NotificationStatus.NOTIFIED, MSHRole.RECEIVING, MessageType.USER_MESSAGE, date, date, 1, 5, date,
                 "conversationId", "fromPartyId", "toPartyId", "originalSender", "finalRecipient",
-                "refToMessageId", date, date, messageSubtype, false, false);
+                "refToMessageId", date, date, messageSubtype, false, false, "action", "serviceType", "serviceValue");
         result.add(messageLog);
         return result;
     }
