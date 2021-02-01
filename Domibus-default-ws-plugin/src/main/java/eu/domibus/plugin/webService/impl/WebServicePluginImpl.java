@@ -69,7 +69,6 @@ public class WebServicePluginImpl implements BackendInterface {
 
     @Autowired
     protected WSMessageLogService wsMessageLogService;
-//    protected WSMessageLogDao wsMessageLogDao;
 
     @Autowired
     private DomainContextExtService domainContextExtService;
@@ -335,7 +334,7 @@ public class WebServicePluginImpl implements BackendInterface {
         }
 
         String trimmedMessageId = messageExtService.cleanMessageIdentifier(retrieveMessageRequest.getMessageID());
-        WSMessageLogEntity wsMessageLogEntity =  wsMessageLogService.findByMessageId(trimmedMessageId);//  wsMessageLogDao.findByMessageId(trimmedMessageId);
+        WSMessageLogEntity wsMessageLogEntity =  wsMessageLogService.findByMessageId(trimmedMessageId);
         if (wsMessageLogEntity == null) {
             LOG.businessError(DomibusMessageCode.BUS_MSG_NOT_FOUND, trimmedMessageId);
             throw new RetrieveMessageFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", webServicePluginExceptionFactory.createFault("No message with id [" + trimmedMessageId + "] pending for download"));
