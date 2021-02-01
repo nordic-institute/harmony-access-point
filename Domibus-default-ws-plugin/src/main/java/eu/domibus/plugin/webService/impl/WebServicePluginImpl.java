@@ -286,11 +286,13 @@ public class WebServicePluginImpl implements BackendInterface {
         final int intMaxPendingMessagesRetrieveCount = wsPluginPropertyManager.getKnownIntegerPropertyValue(WSPluginPropertyManager.PROP_LIST_PENDING_MESSAGES_MAXCOUNT);
         LOG.debug("maxPendingMessagesRetrieveCount [{}]", intMaxPendingMessagesRetrieveCount);
 
-        String finalRecipient = null;
+        String finalRecipient =  listPendingMessagesRequest.getFinalRecipient();
         if (!authenticationExtService.isUnsecureLoginAllowed()) {
-            finalRecipient = authenticationExtService.getOriginalUser();
-        } else {
-            finalRecipient = listPendingMessagesRequest.getFinalRecipient();
+            String originalUser = authenticationExtService.getOriginalUser();
+            if (StringUtils.isNotEmpty(finalRecipient)) {
+                LOG.warn("finalRecipient [{}] provided in listPendingMessagesRequest is overridden by authenticated user [{}]", finalRecipient, originalUser);
+            }
+            finalRecipient = originalUser;
         }
         LOG.info("Final Recipient is [{}]", finalRecipient);
 
