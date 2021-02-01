@@ -163,7 +163,7 @@ public class AuditPgUXTest extends SeleniumTest {
 
 		soft.assertTrue(page.grid().getRowsNo() >= 1, "At least the source event matches filters");
 
-		List<HashMap<String, String>> info = page.grid().getListedRowInfo();
+		ArrayList<HashMap<String, String>> info = page.grid().getListedRowInfo();
 
 		for (HashMap<String, String> map : info) {
 			soft.assertEquals(map.get("Table"), event.getString("auditTargetName"), "Table - value corresponds to filter value");
