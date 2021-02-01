@@ -89,21 +89,20 @@ public class WSMessageLogDao extends WSBasicDao<WSMessageLogEntity> {
      * @param finalRecipient
      * @param receivedFrom
      * @param receivedTo
-     * @param maxPendingMessagesRetrieveCount
+     * @param maxCount
      * @return List<WSMessageLogEntity>
      */
     public List<WSMessageLogEntity> findAllWithFilter(String messageId, String fromPartyId, String conversationId, String referenceMessageId,
                                                       String originalSender, String finalRecipient, LocalDateTime receivedFrom, LocalDateTime receivedTo,
-                                                      int maxPendingMessagesRetrieveCount) {
+                                                      int maxCount) {
         TypedQuery<WSMessageLogEntity> query = em.createQuery(
                 buildWSMessageLogListCriteria(messageId, conversationId, referenceMessageId, fromPartyId,
                         originalSender, finalRecipient, receivedFrom, receivedTo));
 
-        if (maxPendingMessagesRetrieveCount > 0) {
-            query.setMaxResults(maxPendingMessagesRetrieveCount);
+        if (maxCount > 0) {
+            query.setMaxResults(maxCount);
         }
         return query.getResultList();
-
     }
 
 
@@ -140,8 +139,6 @@ public class WSMessageLogDao extends WSBasicDao<WSMessageLogEntity> {
         if (receivedTo != null) {
             predicates.add(criteriaBuilder.lessThanOrEqualTo(root.<Date>get(CRIT_RECEIVED), asDate(receivedTo)));
         }
-
-
         if (CollectionUtils.isNotEmpty(predicates)) {
             criteriaQuery.where(predicates.toArray(new Predicate[]{}));
         }
