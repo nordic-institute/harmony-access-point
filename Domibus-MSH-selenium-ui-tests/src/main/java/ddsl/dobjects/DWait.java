@@ -20,6 +20,7 @@ public class DWait {
 	
 	public final WebDriverWait defaultWait;
 	public final WebDriverWait longWait;
+	public final WebDriverWait shortWait;
 	private TestRunData data = new TestRunData();
 	
 	protected final Logger log = LoggerFactory.getLogger(this.getClass().getName());
@@ -30,6 +31,7 @@ public class DWait {
 	public DWait(WebDriver driver) {
 		this.defaultWait = new WebDriverWait(driver, data.getTIMEOUT());
 		this.longWait = new WebDriverWait(driver, data.getLongWait());
+		this.shortWait = new WebDriverWait(driver, 5);
 		this.driver = driver;
 	}
 	
@@ -94,7 +96,18 @@ public class DWait {
 		});
 		
 	}
-	
+
+	public void shortWaitForElementToBe(WebElement element) {
+
+		shortWait.until(new ExpectedCondition<Boolean>() {
+			@Override
+			public Boolean apply(WebDriver driver) {
+				return element.getLocation() != null;
+			}
+		});
+
+	}
+
 	public void forAttributeToContain(WebElement element, String attributeName, String value) {
 		defaultWait.until(ExpectedConditions.attributeContains(element, attributeName, value));
 	}

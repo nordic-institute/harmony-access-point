@@ -750,7 +750,7 @@ public class AuditPgTest extends SeleniumTest {
 		int defaultDomainGridCount = page.grid().getPagination().getTotalItems();
 		
 		log.info("Extract row info ");
-		List<HashMap<String, String>> defaultDomainData = page.grid().getListedRowInfo();
+		ArrayList<HashMap<String, String>> defaultDomainData = page.grid().getListedRowInfo();
 		
 		log.info("Change domain");
 		page.getDomainSelector().selectOptionByIndex(1);
@@ -760,7 +760,7 @@ public class AuditPgTest extends SeleniumTest {
 		int secondGridCount = page.grid().getPagination().getTotalItems();
 		
 		log.info("Extract  row infos");
-		List<HashMap<String, String>> secDomainData = page.grid().getListedRowInfo();
+		ArrayList<HashMap<String, String>> secDomainData = page.grid().getListedRowInfo();
 		
 		
 		log.info("Verify grid row data for both domains");
