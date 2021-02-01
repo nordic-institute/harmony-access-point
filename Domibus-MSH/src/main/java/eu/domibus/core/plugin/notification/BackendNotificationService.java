@@ -1,8 +1,8 @@
 package eu.domibus.core.plugin.notification;
 
 import eu.domibus.api.jms.JMSManager;
-import eu.domibus.api.model.*;
 import eu.domibus.api.model.MessageStatus;
+import eu.domibus.api.model.*;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.usermessage.UserMessageService;
@@ -10,15 +10,18 @@ import eu.domibus.common.*;
 import eu.domibus.core.alerts.configuration.messaging.MessagingConfigurationManager;
 import eu.domibus.core.alerts.configuration.messaging.MessagingModuleConfiguration;
 import eu.domibus.core.alerts.service.EventService;
-import eu.domibus.core.message.*;
+import eu.domibus.core.message.MessagingDao;
+import eu.domibus.core.message.UserMessageHandlerService;
+import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.message.UserMessageServiceHelper;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.core.plugin.BackendConnectorService;
 import eu.domibus.core.plugin.delegate.BackendConnectorDelegate;
 import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.core.plugin.validation.SubmissionValidatorService;
 import eu.domibus.core.replication.UIReplicationSignalService;
-import eu.domibus.core.metrics.Counter;
-import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -38,12 +41,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.jms.Queue;
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PLUGIN_NOTIFICATION_ACTIVE;
-import static eu.domibus.messaging.MessageConstants.FINAL_RECIPIENT;
-import static eu.domibus.messaging.MessageConstants.ORIGINAL_SENDER;
+import static eu.domibus.messaging.MessageConstants.*;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -276,6 +280,10 @@ public class BackendNotificationService {
         Map<String, String> props = userMessageServiceHelper.getProperties(userMessage);
         properties.put(FINAL_RECIPIENT, props.get(FINAL_RECIPIENT));
         properties.put(ORIGINAL_SENDER, props.get(ORIGINAL_SENDER));
+
+        properties.put(REF_TO_MESSAGE_ID, userMessageServiceHelper.getRefToMessageId(userMessage));
+        properties.put(CONVERSATION_ID, userMessageServiceHelper.getConversationId(userMessage));
+        properties.put(FROM_PARTY_ID, userMessageServiceHelper.getPartyFrom(userMessage));
 
         if (matchingBackendFilter == null) {
             LOG.error("No backend responsible for message [{}] found. Sending notification to [{}]", userMessage.getMessageInfo().getMessageId(), unknownReceiverQueue);

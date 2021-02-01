@@ -8,7 +8,6 @@ import eu.domibus.plugin.environment.DomibusEnvironmentUtil;
 import eu.domibus.plugin.notification.PluginAsyncNotificationConfiguration;
 import eu.domibus.plugin.webService.backend.dispatch.WSPluginBackendService;
 import eu.domibus.plugin.webService.connector.WSPluginImpl;
-import eu.domibus.plugin.webService.dao.WSMessageLogDao;
 import eu.domibus.plugin.webService.impl.*;
 import eu.domibus.plugin.webService.logging.WSPluginLoggingEventSender;
 import eu.domibus.plugin.webService.property.WSPluginPropertyManager;
@@ -43,11 +42,11 @@ public class WSPluginConfiguration {
     @Bean(WSPluginImpl.PLUGIN_NAME)
     public WSPluginImpl createBackendJMSImpl(DomibusPropertyExtService domibusPropertyExtService,
                                              StubDtoTransformer defaultTransformer,
-                                             WSMessageLogDao wsMessageLogDao,
+                                             WSMessageLogService wsMessageLogService,
                                              WSPluginBackendService wsPluginBackendService) {
         List<NotificationType> messageNotifications = domibusPropertyExtService.getConfiguredNotifications(WSPluginPropertyManager.MESSAGE_NOTIFICATIONS);
         LOG.debug("Using the following message notifications [{}]", messageNotifications);
-        WSPluginImpl jmsPlugin = new WSPluginImpl(defaultTransformer, wsMessageLogDao, wsPluginBackendService);
+        WSPluginImpl jmsPlugin = new WSPluginImpl(defaultTransformer, wsMessageLogService, wsPluginBackendService);
         jmsPlugin.setRequiredNotifications(messageNotifications);
         return jmsPlugin;
     }
@@ -55,7 +54,7 @@ public class WSPluginConfiguration {
     @Bean("backendWebservice")
     public WebServicePluginImpl createWSPlugin(MessageAcknowledgeExtService messageAcknowledgeExtService,
                                                WebServicePluginExceptionFactory webServicePluginExceptionFactory,
-                                               WSMessageLogDao wsMessageLogDao,
+                                               WSMessageLogService wsMessageLogService,
                                                DomainContextExtService domainContextExtService,
                                                WSPluginPropertyManager wsPluginPropertyManager,
                                                AuthenticationExtService authenticationExtService,
@@ -63,7 +62,7 @@ public class WSPluginConfiguration {
                                                WSPluginImpl wsPlugin) {
         return new WebServicePluginImpl(messageAcknowledgeExtService,
                 webServicePluginExceptionFactory,
-                wsMessageLogDao,
+                wsMessageLogService,
                 domainContextExtService,
                 wsPluginPropertyManager,
                 authenticationExtService,
