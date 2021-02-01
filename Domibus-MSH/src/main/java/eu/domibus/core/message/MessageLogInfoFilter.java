@@ -33,6 +33,12 @@ public class MessageLogInfoFilter {
     private static final String LOG_FAILED = "log.failed";
     private static final String LOG_RESTORED = "log.restored";
     private static final String LOG_MESSAGE_SUBTYPE = "log.messageSubtype";
+    public static final String MESSAGE_ACTION = "action";
+    public static final String MESSAGE_SERVICE_TYPE = "serviceType";
+    public static final String MESSAGE_SERVICE_VALUE = "serviceValue";
+    public static final String MESSAGE_COLLABORATION_INFO_ACTION = "message.collaborationInfo.action";
+    public static final String MESSAGE_COLLABORATION_INFO_SERVICE_TYPE = "message.collaborationInfo.service.type";
+    public static final String MESSAGE_COLLABORATION_INFO_SERVICE_VALUE = "message.collaborationInfo.service.value";
 
     @Autowired
     private DomibusPropertyProvider domibusPropertyProvider;
@@ -77,6 +83,12 @@ public class MessageLogInfoFilter {
                 return LOG_RESTORED;
             case "messageSubtype":
                 return LOG_MESSAGE_SUBTYPE;
+            case MESSAGE_ACTION:
+                return MESSAGE_COLLABORATION_INFO_ACTION;
+            case MESSAGE_SERVICE_TYPE:
+                return MESSAGE_COLLABORATION_INFO_SERVICE_TYPE;
+            case MESSAGE_SERVICE_VALUE:
+                return MESSAGE_COLLABORATION_INFO_SERVICE_VALUE;
             default:
                 return "";
         }

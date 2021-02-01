@@ -31,6 +31,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import static eu.domibus.core.message.MessageLogInfoFilter.*;
+
 /**
  * @author Tiago Miguel, Catalin Enache
  * @since 3.3
@@ -230,6 +232,9 @@ public class MessageLogResource extends BaseResource {
         filters.put(PROPERTY_ORIGINAL_SENDER, request.getOriginalSender());
         filters.put(PROPERTY_FINAL_RECIPIENT, request.getFinalRecipient());
         filters.put(PROPERTY_MESSAGE_SUBTYPE, request.getMessageSubtype());
+        filters.put(MESSAGE_ACTION, request.getAction());
+        filters.put(MESSAGE_SERVICE_TYPE, request.getServiceType());
+        filters.put(MESSAGE_SERVICE_VALUE, request.getServiceValue());
         return filters;
     }
 
