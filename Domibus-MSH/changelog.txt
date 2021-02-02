@@ -1,6 +1,7 @@
 Domibus 5.0
 - Update all libraries to the latest version: Apache CXF 3.4.0, Ehcache 3.8.1, Hibernate Validator 6.1.5.Final, ActiveMQ 5.16.0, etc
 - Added a new property domibus.connection.cxf.ssl.offload.enable to allow support for offloading the SSL onto a forward SSL proxy
+- WS Plugin listPendingMessages Request will accept following optional parameters in order to filter the pending messages: messageId, conversationId, refToMessageId, fromPartyId, finalRecipient, originalSender, receivedFrom and receivedTo
 Domibus 4.2
 - Added a new property domibus.logging.metadata.print - prints the AS4 metadata in the logs when org.apache.cxf is set to at least INFO in logback.xml. Defaults to true.
 - Deprecated the following classes/methods:

@@ -7,9 +7,9 @@ import eu.domibus.plugin.handler.MessageRetriever;
 import eu.domibus.plugin.handler.MessageSubmitter;
 import eu.domibus.plugin.webService.backend.WSBackendMessageType;
 import eu.domibus.plugin.webService.backend.dispatch.WSPluginBackendService;
-import eu.domibus.plugin.webService.dao.WSMessageLogDao;
 import eu.domibus.plugin.webService.entity.WSMessageLogEntity;
 import eu.domibus.plugin.webService.impl.StubDtoTransformer;
+import eu.domibus.plugin.webService.impl.WSMessageLogService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
@@ -38,7 +38,7 @@ public class WSPluginImplTest {
     private StubDtoTransformer defaultTransformer;
 
     @Injectable
-    private WSMessageLogDao wsMessageLogDao;
+    private WSMessageLogService wsMessageLogService;
 
     @Injectable
     private WSPluginBackendService wsPluginBackendService;
@@ -69,7 +69,7 @@ public class WSPluginImplTest {
         wsPlugin.deliverMessage(deliverMessageEvent);
 
         new Verifications() {{
-            wsMessageLogDao.create(withAny(wsMessageLogEntity));
+            wsMessageLogService.create(withAny(wsMessageLogEntity));
             times = 1;
 
             //wsPluginBackendService.send(MESSAGE_ID, wsPluginBackendService.userMessageExtService.getFinalRecipient(MESSAGE_ID), wsPluginBackendService.userMessageExtService.getOriginalSender(MESSAGE_ID), SUBMIT_MESSAGE, RECEIVE_SUCCESS);
@@ -132,7 +132,7 @@ public class WSPluginImplTest {
         wsPlugin.messageDeletedBatchEvent(event);
 
         new Verifications() {{
-            wsMessageLogDao.deleteByMessageIds(messageIds);
+            wsMessageLogService.deleteByMessageIds(messageIds);
             times = 1;
 
             wsPluginBackendService.send(event, DELETED_BATCH);

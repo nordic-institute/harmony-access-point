@@ -1,6 +1,5 @@
 package domibus.ui.functional;
 
-import ddsl.dcomponents.DomibusPage;
 import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
 import domibus.ui.SeleniumTest;
@@ -9,9 +8,7 @@ import org.testng.asserts.SoftAssert;
 import pages.truststore.TruststorePage;
 import utils.DFileUtils;
 
-import java.io.File;
-
-public class TrustoreTest extends SeleniumTest {
+public class TruststoreTest extends SeleniumTest {
 	
 	
 	/*  This method wil verify Presence of error in case of random/file with wrong format */
@@ -24,7 +21,7 @@ public class TrustoreTest extends SeleniumTest {
 		selectRandomDomain();
 		
 		TruststorePage page = new TruststorePage(driver);
-		page.getSidebar().goToPage(PAGES.TRUSTSTORE);
+		page.getSidebar().goToPage(PAGES.TRUSTSTORES);
 		
 		log.info("Try to upload random file ");
 		String path = DFileUtils.getAbsolutePath("./src/main/resources/truststore/rnd.xlsx");
@@ -45,7 +42,7 @@ public class TrustoreTest extends SeleniumTest {
 		
 		log.info("Login into application and navigate to Truststore page");
 		TruststorePage page = new TruststorePage(driver);
-		page.getSidebar().goToPage(PAGES.TRUSTSTORE);
+		page.getSidebar().goToPage(PAGES.TRUSTSTORES);
 		
 		log.info("Try uploading correct truststore file");
 		String path = DFileUtils.getAbsolutePath("./src/main/resources/truststore/gateway_truststore.jks");
@@ -68,7 +65,7 @@ public class TrustoreTest extends SeleniumTest {
 		log.info("Login into application and navigate to truststore page");
 		
 		TruststorePage page = new TruststorePage(driver);
-		page.getSidebar().goToPage(PAGES.TRUSTSTORE);
+		page.getSidebar().goToPage(PAGES.TRUSTSTORES);
 		
 		log.info("Try uploading truststore with no password for alias");
 		String path = DFileUtils.getAbsolutePath("./src/main/resources/truststore/noAliasPass.jks");
@@ -91,7 +88,7 @@ public class TrustoreTest extends SeleniumTest {
 		log.info("Login into application and navigate to Truststore page ");
 
 		TruststorePage page = new TruststorePage(driver);
-		login(data.getAdminUser()).getSidebar().goToPage(PAGES.TRUSTSTORE);
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.TRUSTSTORES);
 		
 		log.info("Try uploading truststore with password protected alias");
 		String path = DFileUtils.getAbsolutePath("./src/main/resources/truststore/PassProAlias.jks");
@@ -114,7 +111,7 @@ public class TrustoreTest extends SeleniumTest {
 		log.info("Login into application and navigate to truststore");
 
 		TruststorePage page = new TruststorePage(driver);
-		login(data.getAdminUser()).getSidebar().goToPage(PAGES.TRUSTSTORE);
+		login(data.getAdminUser()).getSidebar().goToPage(PAGES.TRUSTSTORES);
 		log.info("try uploading valid file without any password");
 		String path = DFileUtils.getAbsolutePath("./src/main/resources/truststore/gateway_truststore.jks");
 		
@@ -135,7 +132,7 @@ public class TrustoreTest extends SeleniumTest {
 		log.info("Login into application and navigate to truststore");
 		
 		TruststorePage page = new TruststorePage(driver);
-		page.getSidebar().goToPage(PAGES.TRUSTSTORE);
+		page.getSidebar().goToPage(PAGES.TRUSTSTORES);
 		
 		log.info("Try uploading expired certificate");
 		String path = DFileUtils.getAbsolutePath("./src/main/resources/truststore/expired.jks");
@@ -156,7 +153,7 @@ public class TrustoreTest extends SeleniumTest {
 		
 		log.info("Login into application and navigate to Truststore page");
 		TruststorePage page = new TruststorePage(driver);
-		page.getSidebar().goToPage(PAGES.TRUSTSTORE);
+		page.getSidebar().goToPage(PAGES.TRUSTSTORES);
 		
 		String filePath = DFileUtils.getAbsolutePath("./src/main/resources/truststore/àøýßĉæãäħ.jks");
 		

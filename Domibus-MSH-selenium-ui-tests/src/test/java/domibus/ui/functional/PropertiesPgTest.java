@@ -494,7 +494,7 @@ public class PropertiesPgTest extends SeleniumTest {
 		int attempts = 0;
 
 		while (!userBlocked && attempts < 10) {
-			log.info("attempting login with wring pass and user " + username);
+			log.info("attempting login with wrong pass and user " + username);
 			ClientResponse response = rest.callLogin(username, "wrong password");
 			attempts++;
 
@@ -534,7 +534,7 @@ public class PropertiesPgTest extends SeleniumTest {
 		int attempts = 0;
 
 		while (!userBlocked && attempts < 10) {
-			log.info("attempting login with wring pass and user " + username);
+			log.info("attempting login with wrong pass and user " + username);
 			ClientResponse response = rest.callLogin(username, "wrong password");
 			attempts++;
 

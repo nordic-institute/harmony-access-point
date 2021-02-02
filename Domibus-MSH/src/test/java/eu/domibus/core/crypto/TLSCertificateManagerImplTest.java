@@ -111,7 +111,7 @@ public class TLSCertificateManagerImplTest {
         new Expectations(tlsCertificateManager) {{
             tlsCertificateManager.getTruststoreParams();
             result = trustStore;
-            certificateService.removeCertificate(trustStore.getPassword(), trustStore.getFile(), alias, true);
+            certificateService.removeCertificate(trustStore.getPassword(), trustStore.getFile(), alias);
             result = true;
         }};
 
@@ -119,7 +119,7 @@ public class TLSCertificateManagerImplTest {
 
         Assert.assertTrue(result);
         new Verifications() {{
-            certificateService.removeCertificate(trustStore.getPassword(), trustStore.getFile(), alias, true);
+            certificateService.removeCertificate(trustStore.getPassword(), trustStore.getFile(), alias);
             tlsCertificateManager.resetTLSTruststore();
         }};
     }
