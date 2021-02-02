@@ -6,12 +6,7 @@
     <!-- IMPORTANT: this is the full script, add your changes inside in the right section -->
 
     <!-- properties - to be used in column definitions -->
-    <property name="now" value="sysdate" dbms="oracle"/>
-    <property name="now" value="now()" dbms="mysql"/>
-    <property name="current_db_user" value="user" dbms="oracle"/>
-    <!-- MySQL cannot handle functions as DEFAULT values and the alternative would be to add a trigger for all these
-    tables. Either way this value will most probably never be used since a value will always be provided at runtime.-->
-    <property name="current_db_user" value="'DOMIBUS'" dbms="mysql"/>
+    <include file="common/changelog-properties.xml" relativeToChangelogFile="true"/>
 
     <!-- sequences -->
     <changeSet dbms="oracle" author="martifp" id="changelog-3.2-delta-1">
@@ -2995,6 +2990,6 @@
 
 
     <!-- this file must be included in every future changelog.xml or changelog-multi-tenancy.xml -->
-    <include file="changelog-version-inserts.xml" relativeToChangelogFile="true"/>
+    <include file="common/changelog-version-inserts.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>
