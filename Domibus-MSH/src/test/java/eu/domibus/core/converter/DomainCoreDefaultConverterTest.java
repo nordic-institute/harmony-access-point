@@ -350,6 +350,9 @@ public class DomainCoreDefaultConverterTest {
         final UIMessageEntity convertedBack = domainCoreConverter.convert(converted, UIMessageEntity.class);
         convertedBack.setLastModified(toConvert.getLastModified());
         convertedBack.setEntityId(toConvert.getEntityId());
+        convertedBack.setAction(toConvert.getAction());
+        convertedBack.setServiceType(toConvert.getServiceType());
+        convertedBack.setServiceValue(toConvert.getServiceValue());
         objectService.assertObjects(convertedBack, toConvert);
     }
 
