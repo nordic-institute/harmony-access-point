@@ -325,10 +325,6 @@ public class UIReplicationDataServiceImplTest {
 
             uiMessageEntity.setLastModified(withAny(new java.util.Date()));
 
-            uiMessageEntity.setAction("action");
-            uiMessageEntity.setServiceType("serviceType");
-            uiMessageEntity.setServiceValue("serviceValue");
-
             final UIMessageEntity entityActual;
             uiMessageDao.create(entityActual = withCapture());
             Assert.assertNotNull(entityActual);

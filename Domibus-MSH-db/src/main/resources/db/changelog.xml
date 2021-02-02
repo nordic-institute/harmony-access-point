@@ -972,6 +972,9 @@
             <column name="FAILED" type="TIMESTAMP"/>
             <column name="RESTORED" type="TIMESTAMP"/>
             <column name="MESSAGE_SUBTYPE" type="VARCHAR(255)"/>
+            <column name="ACTION" type="VARCHAR(255)"/>
+            <column name="SERVICE_TYPE" type="VARCHAR(255)"/>
+            <column name="SERVICE_VALUE" type="VARCHAR(255)"/>
             <column defaultValueComputed="${now}" name="LAST_MODIFIED" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
@@ -983,9 +986,6 @@
             </column>
             <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
-            <column name="ACTION" type="VARCHAR(255)"/>
-            <column name="SERVICE_TYPE" type="VARCHAR(255)"/>
-            <column name="SERVICE_VALUE" type="VARCHAR(255)"/>
         </createTable>
 
         <createTable tableName="TB_MESSAGING">
@@ -2200,6 +2200,18 @@
             <column name="MESSAGE_TYPE"/>
             <column name="MESSAGE_SUBTYPE"/>
             <column name="RECEIVED"/>
+        </createIndex>
+
+        <createIndex indexName="IDX_MSG_UI_ACTION" tableName="TB_MESSAGE_UI">
+            <column name="ACTION"/>
+        </createIndex>
+
+        <createIndex indexName="IDX_MSG_UI_SRV_TYPE" tableName="TB_MESSAGE_UI">
+            <column name="SERVICE_TYPE"/>
+        </createIndex>
+
+        <createIndex indexName="IDX_MSG_UI_SRV_VAL" tableName="TB_MESSAGE_UI">
+            <column name="SERVICE_VALUE"/>
         </createIndex>
 
         <createIndex indexName="IDX_PARTY_ID_VALUE" tableName="TB_PARTY_ID">

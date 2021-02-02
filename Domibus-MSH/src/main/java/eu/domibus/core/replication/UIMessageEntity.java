@@ -105,10 +105,6 @@ public class UIMessageEntity extends AbstractBaseEntity {
     @Column(name = "REF_TO_MESSAGE_ID")
     private String refToMessageId;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "LAST_MODIFIED", nullable = false)
-    private Date lastModified;
-
     @Column(name = "ACTION")
     private String action;
 
@@ -117,6 +113,10 @@ public class UIMessageEntity extends AbstractBaseEntity {
 
     @Column(name = "SERVICE_VALUE")
     private String serviceValue;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "LAST_MODIFIED", nullable = false)
+    private Date lastModified;
 
     public String getMessageId() {
         return messageId;

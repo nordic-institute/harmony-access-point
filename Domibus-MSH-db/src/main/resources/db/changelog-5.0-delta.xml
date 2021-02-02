@@ -75,10 +75,22 @@
     <changeSet author="Ion Perpegel" id="EDELIVERY-7677">
         <comment>adding columns for action and service</comment>
         <addColumn tableName="TB_MESSAGE_UI">
-            <column name="ACTION" type="VARCHAR(255)" remarks="The action"/>
-            <column name="SERVICE_TYPE" type="VARCHAR(255)" remarks="The service type"/>
-            <column name="SERVICE_VALUE" type="VARCHAR(255)" remarks="The service value"/>
+            <column name="ACTION" type="VARCHAR(255)" remarks="The action of the collaboration of the message"/>
+            <column name="SERVICE_TYPE" type="VARCHAR(255)" remarks="The service type of the collaboration of the message"/>
+            <column name="SERVICE_VALUE" type="VARCHAR(255)" remarks="The service value of the collaboration of the message"/>
         </addColumn>
+
+        <createIndex indexName="IDX_MSG_UI_ACTION" tableName="TB_MESSAGE_UI">
+            <column name="ACTION"/>
+        </createIndex>
+
+        <createIndex indexName="IDX_MSG_UI_SRV_TYPE" tableName="TB_MESSAGE_UI">
+            <column name="SERVICE_TYPE"/>
+        </createIndex>
+
+        <createIndex indexName="IDX_MSG_UI_SRV_VAL" tableName="TB_MESSAGE_UI">
+            <column name="SERVICE_VALUE"/>
+        </createIndex>
     </changeSet>
 
     <changeSet id="EDELIVERY-7668"  author="Catalin Enache">
