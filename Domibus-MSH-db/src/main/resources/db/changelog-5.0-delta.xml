@@ -51,6 +51,15 @@
             <column name="SCHEDULED" type="BOOLEAN" remarks="true if the backend message is already scheduled to be sent"/>
         </createTable>
     </changeSet>
+    
+    <changeSet id="EDELIVERY-4808" author="Catalin Enache">
+        <addColumn tableName="WS_PLUGIN_TB_MESSAGE_LOG">
+            <column name="CONVERSATION_ID" type="VARCHAR(255)" remarks="Conversation ID of the Domibus message"/>
+            <column name="REF_TO_MESSAGE_ID" type="VARCHAR(255)" remarks="Reference to Message ID of the Domibus message"/>
+            <column name="FROM_PARTY_ID" type="VARCHAR(255)" remarks="From Party ID of the Domibus message"/>
+            <column name="ORIGINAL_SENDER" type="VARCHAR(255)" remarks="Original sender of the Domibus message"/>
+        </addColumn>
+    </changeSet>
 
     <changeSet author="Ion Perpegel" id="EDELIVERY-7472">
         <comment>split plugin user unique constraints in 2</comment>

@@ -778,7 +778,7 @@ public class AlertPgTest extends SeleniumTest {
 		
 		List<String> superList = rest.users().getSuperUsernames();
 		log.debug("Super user list: " + superList);
-		List<HashMap<String, String>> pageInfo = page.grid().getListedRowInfo();
+		ArrayList<HashMap<String, String>> pageInfo = page.grid().getListedRowInfo();
 		
 		for (int j = 0; j < pageInfo.size(); j++) {
 			

@@ -34,7 +34,7 @@
                     <exclude name="downloadAllParties"/>
                 </methods>
             </class>
-            <class name="domibus.ui.ux.TruststorePgUXTests"/>
+<!--            <class name="domibus.ui.ux.TruststorePgUXTests"/>-->
             <class name="domibus.ui.ux.UsersPgUXTest"/>
             <class name="domibus.ui.ux.ErrorLogPgUXTest"/>
             <class name="domibus.ui.functional.ErrorLogPgTest">
@@ -108,10 +108,7 @@
     </test>
     <test name="LAST">
         <classes>
-            <class name="domibus.ui.functional.TrustoreTest">
-                <methods>
-                </methods>
-            </class>
+<!--            <class name="domibus.ui.functional.TruststoreTest"></class>-->
             <class name="domibus.ui.functional.PropertiesPgTest">
                 <methods>
 <!--               bug EDELIVERY-7689     -->

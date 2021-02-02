@@ -1,7 +1,6 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.model.*;
-import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
@@ -41,6 +40,12 @@ public class UserMessageDefaultServiceHelper implements UserMessageServiceHelper
         // TODO maybe use To#getFirstPartyId() instead
         return partyId.iterator().next().getValue();
     }
+
+    @Override
+    public String getPartyFrom(UserMessage userMessage) {
+        return userMessage.getPartyInfo().getFrom().getFirstPartyId();
+    }
+
 
     @Override
     public boolean isSameOriginalSender(UserMessage userMessage, String providedOriginalSender) {
@@ -134,5 +139,20 @@ public class UserMessageDefaultServiceHelper implements UserMessageServiceHelper
             result.put(property.getName(), property.getValue());
         }
         return result;
+    }
+
+    @Override
+    public String getConversationId(UserMessage userMessage){
+        CollaborationInfo collaborationInfo = userMessage.getCollaborationInfo();
+        if (collaborationInfo == null) {
+            LOG.trace("Collaboration info is null");
+            return null;
+        }
+        return collaborationInfo.getConversationId();
+    }
+
+    @Override
+    public String getRefToMessageId (UserMessage userMessage) {
+        return userMessage.getMessageInfo().getRefToMessageId();
     }
 }

@@ -6,7 +6,10 @@ import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.exceptions.AuthenticationExtException;
 import eu.domibus.ext.exceptions.MessageAcknowledgeExtException;
-import eu.domibus.ext.services.*;
+import eu.domibus.ext.services.AuthenticationExtService;
+import eu.domibus.ext.services.DomainContextExtService;
+import eu.domibus.ext.services.MessageAcknowledgeExtService;
+import eu.domibus.ext.services.MessageExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -14,7 +17,6 @@ import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.webService.connector.WSPluginImpl;
-import eu.domibus.plugin.webService.dao.WSMessageLogDao;
 import eu.domibus.plugin.webService.entity.WSMessageLogEntity;
 import eu.domibus.plugin.webService.exception.WSPluginException;
 import eu.domibus.plugin.webService.generated.*;
@@ -66,7 +68,7 @@ public class WebServicePluginImpl implements BackendInterface {
     protected WebServicePluginExceptionFactory webServicePluginExceptionFactory;
 
     @Autowired
-    protected WSMessageLogDao wsMessageLogDao;
+    protected WSMessageLogService wsMessageLogService;
 
     @Autowired
     private DomainContextExtService domainContextExtService;
@@ -85,7 +87,7 @@ public class WebServicePluginImpl implements BackendInterface {
 
     public WebServicePluginImpl(MessageAcknowledgeExtService messageAcknowledgeExtService,
                                 WebServicePluginExceptionFactory webServicePluginExceptionFactory,
-                                WSMessageLogDao wsMessageLogDao,
+                                WSMessageLogService wsMessageLogService,
                                 DomainContextExtService domainContextExtService,
                                 WSPluginPropertyManager wsPluginPropertyManager,
                                 AuthenticationExtService authenticationExtService,
@@ -93,7 +95,7 @@ public class WebServicePluginImpl implements BackendInterface {
                                 WSPluginImpl wsPlugin) {
         this.messageAcknowledgeExtService = messageAcknowledgeExtService;
         this.webServicePluginExceptionFactory = webServicePluginExceptionFactory;
-        this.wsMessageLogDao = wsMessageLogDao;
+        this.wsMessageLogService = wsMessageLogService;
         this.domainContextExtService = domainContextExtService;
         this.wsPluginPropertyManager = wsPluginPropertyManager;
         this.authenticationExtService = authenticationExtService;
@@ -276,7 +278,7 @@ public class WebServicePluginImpl implements BackendInterface {
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 300) // 5 minutes
-    public ListPendingMessagesResponse listPendingMessages(final Object listPendingMessagesRequest) {
+    public ListPendingMessagesResponse listPendingMessages(ListPendingMessagesRequest listPendingMessagesRequest) {
         DomainDTO domainDTO = domainContextExtService.getCurrentDomainSafely();
         LOG.info("ListPendingMessages for domain [{}]", domainDTO);
 
@@ -284,18 +286,26 @@ public class WebServicePluginImpl implements BackendInterface {
         final int intMaxPendingMessagesRetrieveCount = wsPluginPropertyManager.getKnownIntegerPropertyValue(WSPluginPropertyManager.PROP_LIST_PENDING_MESSAGES_MAXCOUNT);
         LOG.debug("maxPendingMessagesRetrieveCount [{}]", intMaxPendingMessagesRetrieveCount);
 
-        String originalUser = null;
+        String finalRecipient =  listPendingMessagesRequest.getFinalRecipient();
         if (!authenticationExtService.isUnsecureLoginAllowed()) {
-            originalUser = authenticationExtService.getOriginalUser();
-            LOG.info("Original user is [{}]", originalUser);
+            String originalUser = authenticationExtService.getOriginalUser();
+            if (StringUtils.isNotEmpty(finalRecipient)) {
+                LOG.warn("finalRecipient [{}] provided in listPendingMessagesRequest is overridden by authenticated user [{}]", finalRecipient, originalUser);
+            }
+            finalRecipient = originalUser;
         }
+        LOG.info("Final Recipient is [{}]", finalRecipient);
 
-        List<WSMessageLogEntity> pending;
-        if (originalUser != null) {
-            pending = wsMessageLogDao.findAllByFinalRecipient(intMaxPendingMessagesRetrieveCount, originalUser);
-        } else {
-            pending = wsMessageLogDao.findAll(intMaxPendingMessagesRetrieveCount);
-        }
+        List<WSMessageLogEntity> pending = wsMessageLogService.findAllWithFilter(
+                listPendingMessagesRequest.getMessageId(),
+                listPendingMessagesRequest.getFromPartyId(),
+                listPendingMessagesRequest.getConversationId(),
+                listPendingMessagesRequest.getRefToMessageId(),
+                listPendingMessagesRequest.getOriginalSender(),
+                finalRecipient,
+                listPendingMessagesRequest.getReceivedFrom(),
+                listPendingMessagesRequest.getReceivedTo(),
+                intMaxPendingMessagesRetrieveCount);
 
         final Collection<String> ids = pending.stream()
                 .map(WSMessageLogEntity::getMessageId).collect(Collectors.toList());
@@ -326,7 +336,7 @@ public class WebServicePluginImpl implements BackendInterface {
         }
 
         String trimmedMessageId = messageExtService.cleanMessageIdentifier(retrieveMessageRequest.getMessageID());
-        WSMessageLogEntity wsMessageLogEntity = wsMessageLogDao.findByMessageId(trimmedMessageId);
+        WSMessageLogEntity wsMessageLogEntity =  wsMessageLogService.findByMessageId(trimmedMessageId);
         if (wsMessageLogEntity == null) {
             LOG.businessError(DomibusMessageCode.BUS_MSG_NOT_FOUND, trimmedMessageId);
             throw new RetrieveMessageFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", webServicePluginExceptionFactory.createFault("No message with id [" + trimmedMessageId + "] pending for download"));
@@ -353,7 +363,7 @@ public class WebServicePluginImpl implements BackendInterface {
         }
 
         // remove downloaded message from the plugin table containing the pending messages
-        wsMessageLogDao.delete(wsMessageLogEntity);
+        wsMessageLogService.delete(wsMessageLogEntity);
     }
 
     private UserMessage getUserMessage(RetrieveMessageRequest retrieveMessageRequest, String trimmedMessageId) throws RetrieveMessageFault {

@@ -10,7 +10,6 @@ import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.plugin.MessageLister;
 import eu.domibus.plugin.handler.MessageRetriever;
 import eu.domibus.plugin.webService.connector.WSPluginImpl;
-import eu.domibus.plugin.webService.dao.WSMessageLogDao;
 import eu.domibus.plugin.webService.generated.*;
 import eu.domibus.plugin.webService.property.WSPluginPropertyManager;
 import mockit.*;
@@ -44,7 +43,7 @@ public class WebServicePluginImplTest {
     protected WebServicePluginExceptionFactory webServicePluginExceptionFactory;
 
     @Injectable
-    protected WSMessageLogDao wsMessageLogDao;
+    protected WSMessageLogService wsMessageLogService;
 
     @Injectable
     private DomainContextExtService domainContextExtService;
