@@ -99,7 +99,7 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_AP_ADMIN')")
     public synchronized void replaceTrustStore(byte[] store, String password) throws CryptoSpiException {
         try {
-            certificateService.replaceTrustStore(store, password, getTrustStoreType(), getTrustStoreLocation(), getTrustStorePassword());
+            certificateService.replaceTrustStore(store, password, getTrustStoreType(), getTrustStoreLocation(), getTrustStorePassword(),getTrustStoreBackUpLocation());
         } catch (CryptoException ex) {
             throw new CryptoSpiException(ex);
         }
@@ -117,7 +117,7 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
     @Override
     public synchronized boolean addCertificate(X509Certificate certificate, String alias, boolean overwrite) {
         List<CertificateEntry> certificates = Arrays.asList(new CertificateEntry(alias, certificate));
-        boolean added = certificateService.addCertificates(getTrustStore(), getTrustStorePassword(), getTrustStoreLocation(), certificates, overwrite);
+        boolean added = certificateService.addCertificates(getTrustStore(), getTrustStorePassword(), getTrustStoreLocation(), certificates, overwrite, getTrustStoreBackUpLocation());
         signalService.signalTrustStoreUpdate(domain);
         return added;
     }
@@ -125,20 +125,20 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
     @Override
     public synchronized void addCertificate(List<CertificateEntrySpi> certificates, boolean overwrite) {
         List<CertificateEntry> certificates2 = certificates.stream().map(el -> new CertificateEntry(el.getAlias(), el.getCertificate())).collect(Collectors.toList());
-        certificateService.addCertificates(getTrustStore(), getTrustStorePassword(), getTrustStoreLocation(), certificates2, overwrite);
+        certificateService.addCertificates(getTrustStore(), getTrustStorePassword(), getTrustStoreLocation(), certificates2, overwrite, getTrustStoreBackUpLocation());
         signalService.signalTrustStoreUpdate(domain);
     }
 
     @Override
     public synchronized boolean removeCertificate(String alias) {
-        boolean removed = certificateService.removeCertificates(getTrustStore(), getTrustStorePassword(), getTrustStoreLocation(), Arrays.asList(alias));
+        boolean removed = certificateService.removeCertificates(getTrustStore(), getTrustStorePassword(), getTrustStoreLocation(), Arrays.asList(alias), getTrustStoreBackUpLocation());
         signalService.signalTrustStoreUpdate(domain);
         return removed;
     }
 
     @Override
     public synchronized void removeCertificate(List<String> aliases) {
-        certificateService.removeCertificates(getTrustStore(), getTrustStorePassword(), getTrustStoreLocation(), aliases);
+        certificateService.removeCertificates(getTrustStore(), getTrustStorePassword(), getTrustStoreLocation(), aliases, getTrustStoreBackUpLocation());
         signalService.signalTrustStoreUpdate(domain);
     }
 
@@ -240,6 +240,9 @@ public class DefaultDomainCryptoServiceSpiImpl extends Merlin implements DomainC
 
     protected String getTrustStoreType() {
         return domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_TYPE);
+    }
+    protected String getTrustStoreBackUpLocation() {
+        return domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_BACKUP_LOCATION);
     }
 
 }

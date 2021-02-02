@@ -81,6 +81,8 @@ public class DefaultDomainCryptoServiceSpiImplTest {
             result = "trustStorePassword";
             domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_TYPE);
             result = "trustStoreType";
+            domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_BACKUP_LOCATION);
+            result = "trustStoreBackupLocation";
         }};
     }
 
@@ -163,7 +165,7 @@ public class DefaultDomainCryptoServiceSpiImplTest {
     }
 
     @Test
-    public void replaceTrustStore(@Mocked byte[] store, @Mocked String password, @Mocked String type, @Mocked String location) throws Exception {
+    public void replaceTrustStore(@Mocked byte[] store, @Mocked String password, @Mocked String type, @Mocked String location, @Mocked String backupLocation) throws Exception {
         // Given
         new Expectations(domainCryptoService) {{
             domainCryptoService.getTrustStoreType();
@@ -172,7 +174,9 @@ public class DefaultDomainCryptoServiceSpiImplTest {
             result = location;
             domainCryptoService.getTrustStorePassword();
             result = password;
-            certificateService.replaceTrustStore(store, password, type, location, password);
+            domainCryptoService.getTrustStoreBackUpLocation();
+            result = backupLocation;
+            certificateService.replaceTrustStore(store, password, type, location, password, backupLocation);
             domainCryptoService.refreshTrustStore();
             signalService.signalTrustStoreUpdate(domain);
         }};
@@ -182,7 +186,7 @@ public class DefaultDomainCryptoServiceSpiImplTest {
 
         // Then
         new Verifications() {{
-            certificateService.replaceTrustStore(store, password, type, location, password);
+            certificateService.replaceTrustStore(store, password, type, location, password, backupLocation);
             domainCryptoService.refreshTrustStore();
             signalService.signalTrustStoreUpdate(domain);
         }};
