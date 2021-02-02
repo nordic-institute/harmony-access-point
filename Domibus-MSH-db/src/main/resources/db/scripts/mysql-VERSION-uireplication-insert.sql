@@ -95,7 +95,10 @@ SELECT * FROM (
                   message_info2.REF_TO_MESSAGE_ID ,
                   message_log.FAILED ,
                   message_log.RESTORED,
-                  message_log.MESSAGE_SUBTYPE
+                  message_log.MESSAGE_SUBTYPE,
+                  NULL AS ACTION,
+                  NULL AS SERVICE_TYPE,
+                  NULL AS SERVICE_VALUE
                 FROM
                   TB_MESSAGE_LOG message_log CROSS
                                                JOIN

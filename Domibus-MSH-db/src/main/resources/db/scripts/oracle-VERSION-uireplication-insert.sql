@@ -113,7 +113,10 @@ FROM
           message_info.ref_to_message_id,
           message_log.failed,
           message_log.restored,
-          message_log.message_subtype
+          message_log.message_subtype,
+          null as action,
+          null as service_type,
+          null as service_value
         FROM
           tb_message_log message_log
             CROSS JOIN tb_messaging messaging

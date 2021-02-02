@@ -2873,7 +2873,10 @@
             ref_to_message_id,
             failed,
             restored,
-            message_subtype
+            message_subtype,
+            action,
+            service_type,
+            service_value
             FROM
             TB_MESSAGE_UI WHERE
             received BETWEEN systimestamp - INTERVAL '48' HOUR AND systimestamp + INTERVAL '1' HOUR
