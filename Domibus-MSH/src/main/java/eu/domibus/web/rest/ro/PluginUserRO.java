@@ -2,6 +2,7 @@ package eu.domibus.web.rest.ro;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import eu.domibus.api.security.AuthType;
 import eu.domibus.api.validators.CustomWhiteListed;
 import eu.domibus.api.validators.SkipWhiteListed;
 import eu.domibus.web.rest.validators.SizeIfPresent;
@@ -52,7 +53,7 @@ public class PluginUserRO {
     }
 
     public String getUserName() {
-        return userName;
+        return AuthType.BASIC.name().equals(authenticationType) ? userName : null;
     }
 
     public void setUserName(String username) {
@@ -68,7 +69,7 @@ public class PluginUserRO {
     }
 
     public String getCertificateId() {
-        return certificateId;
+        return AuthType.CERTIFICATE.name().equals(authenticationType) ? certificateId : null;
     }
 
     public void setCertificateId(String certificateId) {
