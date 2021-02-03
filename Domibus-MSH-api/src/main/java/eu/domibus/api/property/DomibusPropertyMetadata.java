@@ -111,6 +111,7 @@ public class DomibusPropertyMetadata {
         res.setType(type.name());
         return res;
     }
+
     public static DomibusPropertyMetadata getGlobalProperty(String name, Type type, boolean encrypted) {
         DomibusPropertyMetadata res = new DomibusPropertyMetadata(name, Usage.GLOBAL, false, encrypted);
         res.setType(type.name());
