@@ -388,6 +388,9 @@ public class DomainCoreDefaultConverterTest {
         convertedBack.setFromScheme(toConvert.getFromScheme());
         convertedBack.setToScheme(toConvert.getToScheme());
         convertedBack.setLastModified(toConvert.getLastModified());
+        convertedBack.setServiceType(toConvert.getServiceType());
+        convertedBack.setServiceValue(toConvert.getServiceValue());
+        convertedBack.setAction(toConvert.getAction());
         objectService.assertObjects(convertedBack, toConvert);
     }
 
