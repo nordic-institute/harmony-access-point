@@ -31,7 +31,7 @@ import static org.apache.wss4j.common.ext.WSSecurityException.ErrorCode.SECURITY
  * @since 4.0
  */
 @RunWith(JMockit.class)
-public class DefaultDomainCryptoEbms3ServiceSpiImplTest {
+public class DefaultDomainCryptoServiceSpiImplTest {
     public static final String PRIVATE_KEY_PASSWORD = "privateKeyPassword";
 
     @Tested
@@ -81,6 +81,8 @@ public class DefaultDomainCryptoEbms3ServiceSpiImplTest {
             result = "trustStorePassword";
             domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_TYPE);
             result = "trustStoreType";
+            domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_BACKUP_LOCATION);
+            result = "trustStoreBackupLocation";
         }};
     }
 
@@ -163,7 +165,7 @@ public class DefaultDomainCryptoEbms3ServiceSpiImplTest {
     }
 
     @Test
-    public void replaceTrustStore(@Mocked byte[] store, @Mocked String password, @Mocked String type, @Mocked String location) throws Exception {
+    public void replaceTrustStore(@Mocked byte[] store, @Mocked String password, @Mocked String type, @Mocked String location, @Mocked String backupLocation) throws Exception {
         // Given
         new Expectations(domainCryptoService) {{
             domainCryptoService.getTrustStoreType();
@@ -172,7 +174,9 @@ public class DefaultDomainCryptoEbms3ServiceSpiImplTest {
             result = location;
             domainCryptoService.getTrustStorePassword();
             result = password;
-            certificateService.replaceTrustStore(store, password, type, location, password);
+            domainCryptoService.getTrustStoreBackUpLocation();
+            result = backupLocation;
+            certificateService.replaceTrustStore(store, password, type, location, password, backupLocation);
             domainCryptoService.refreshTrustStore();
             signalService.signalTrustStoreUpdate(domain);
         }};
@@ -182,35 +186,10 @@ public class DefaultDomainCryptoEbms3ServiceSpiImplTest {
 
         // Then
         new Verifications() {{
-            certificateService.replaceTrustStore(store, password, type, location, password);
+            certificateService.replaceTrustStore(store, password, type, location, password, backupLocation);
             domainCryptoService.refreshTrustStore();
             signalService.signalTrustStoreUpdate(domain);
         }};
     }
 
-    @Test
-    public void persistTrustStore(@Mocked KeyStore trust, @Mocked String password, @Mocked String location) {
-        // Given
-        new Expectations(domainCryptoService) {{
-            domainCryptoService.getTrustStoreLocation();
-            result = location;
-            domainCryptoService.getTrustStorePassword();
-            result = password;
-            domainCryptoService.getTrustStore();
-            result = trust;
-            certificateService.persistTrustStore(trust, password, location);
-            domainCryptoService.refreshTrustStore();
-            signalService.signalTrustStoreUpdate(domain);
-        }};
-
-        // When
-        domainCryptoService.persistTrustStore();
-
-        // Then
-        new Verifications() {{
-            certificateService.persistTrustStore(trust, password, location);
-            domainCryptoService.refreshTrustStore();
-            signalService.signalTrustStoreUpdate(domain);
-        }};
-    }
 }

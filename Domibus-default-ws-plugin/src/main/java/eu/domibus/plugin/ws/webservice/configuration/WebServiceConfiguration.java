@@ -45,27 +45,27 @@ public class WebServiceConfiguration {
     @Bean(WSPluginImpl.PLUGIN_NAME)
     public WSPluginImpl createBackendJMSImpl(DomibusPropertyExtService domibusPropertyExtService,
                                              StubDtoTransformer defaultTransformer,
-                                             WSMessageLogDao wsMessageLogDao,
+                                             WSMessageLogService wsMessageLogService,
                                              WSPluginBackendService wsPluginBackendService) {
         List<NotificationType> messageNotifications = domibusPropertyExtService.getConfiguredNotifications(WSPluginPropertyManager.MESSAGE_NOTIFICATIONS);
         LOG.debug("Using the following message notifications [{}]", messageNotifications);
-        WSPluginImpl jmsPlugin = new WSPluginImpl(defaultTransformer, wsMessageLogDao, wsPluginBackendService);
+        WSPluginImpl jmsPlugin = new WSPluginImpl(defaultTransformer, wsMessageLogService, wsPluginBackendService);
         jmsPlugin.setRequiredNotifications(messageNotifications);
         return jmsPlugin;
     }
 
     @Bean("backendWebservice")
     public WebServiceImpl createWSPlugin(MessageAcknowledgeExtService messageAcknowledgeExtService,
-                                         WebServiceExceptionFactory webServicePluginExceptionFactory,
-                                         WSMessageLogDao wsMessageLogDao,
-                                         DomainContextExtService domainContextExtService,
-                                         WSPluginPropertyManager wsPluginPropertyManager,
-                                         AuthenticationExtService authenticationExtService,
-                                         MessageExtService messageExtService,
-                                         WSPluginImpl wsPlugin) {
+                                               WebServiceExceptionFactory webServicePluginExceptionFactory,
+                                               WSMessageLogService wsMessageLogService,
+                                               DomainContextExtService domainContextExtService,
+                                               WSPluginPropertyManager wsPluginPropertyManager,
+                                               AuthenticationExtService authenticationExtService,
+                                               MessageExtService messageExtService,
+                                               WSPluginImpl wsPlugin) {
         return new WebServiceImpl(messageAcknowledgeExtService,
                 webServicePluginExceptionFactory,
-                wsMessageLogDao,
+                wsMessageLogService,
                 domainContextExtService,
                 wsPluginPropertyManager,
                 authenticationExtService,

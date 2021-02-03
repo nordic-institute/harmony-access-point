@@ -1,10 +1,10 @@
 package eu.domibus.core.plugin.notification;
 
-import eu.domibus.api.model.*;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
+import eu.domibus.api.model.*;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusConfigurationService;
@@ -1172,6 +1172,16 @@ public class BackendNotificationServiceTest {
 
             userMessageServiceHelper.getProperties(userMessage);
             result = new HashMap<>();
+
+            userMessageServiceHelper.getRefToMessageId(userMessage);
+            result = "refToMessageId";
+
+            userMessageServiceHelper.getConversationId(userMessage);
+            result = "conversationId";
+
+            userMessageServiceHelper.getPartyFrom(userMessage);
+            result = "domibus-blue";
+
 
             backendNotificationService.validateAndNotify(userMessage, BACKEND_NAME, notificationType, properties);
             times = 1;

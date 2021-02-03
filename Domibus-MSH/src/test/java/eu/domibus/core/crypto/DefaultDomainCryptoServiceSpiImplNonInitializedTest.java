@@ -4,18 +4,13 @@ import com.google.common.collect.Lists;
 import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.multitenancy.Domain;
-import eu.domibus.api.pki.CertificateEntry;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.converter.DomainCoreConverter;
-import eu.domibus.core.crypto.spi.CertificateEntrySpi;
-import eu.domibus.core.crypto.spi.CryptoSpiException;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.util.backup.BackupService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.wss4j.common.crypto.PasswordEncryptor;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.junit.Assert;
@@ -27,9 +22,6 @@ import org.junit.runner.RunWith;
 
 import java.io.*;
 import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.List;
 
@@ -41,7 +33,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
  * @author Sebastian-Ion TINCU
  */
 @RunWith(JMockit.class)
-public class DefaultDomainCryptoEbms3ServiceSpiImplNonInitializedTest {
+public class DefaultDomainCryptoServiceSpiImplNonInitializedTest {
 
     public static final String PRIVATE_KEY_PASSWORD = "privateKeyPassword";
 
@@ -124,63 +116,6 @@ public class DefaultDomainCryptoEbms3ServiceSpiImplNonInitializedTest {
 
         // Then
         Assert.assertTrue("Should have correctly returned the validity of the certificate chain", valid);
-    }
-
-    @Test
-    public void removeMultipleCertificatesIntoTheTrustStore() {
-        List<String> resultList = Lists.newArrayList();
-        // Given
-        new MockUp<DefaultDomainCryptoServiceSpiImpl>() {
-            @Mock
-            boolean removeCertificate(Invocation invocation, List<String> aliases) {
-                invocation.proceed();
-                Assert.assertTrue("Should have removed all certificates from the trust store",
-                        resultList.size() == 2 && resultList.containsAll(Lists.newArrayList("first", "second")));
-                return true;
-            }
-
-            @Mock
-            void persistTrustStore(Invocation invocation) { /* ignore */}
-        };
-
-        new Expectations() {{
-            certificateService.removeCertificate(anyString, anyString, "first", false);
-            resultList.add("first");
-            result = true;
-            certificateService.removeCertificate(anyString, anyString, "second", false);
-            resultList.add("second");
-            result = true;
-        }};
-        // When
-        domainCryptoService.removeCertificate(Lists.newArrayList("first", "second"));
-    }
-
-    @Test
-    public void persistsTheTrustStoreAfterRemovingMultipleCertificates() {
-        // Given
-        new MockUp<DefaultDomainCryptoServiceSpiImpl>() {
-            int count = 0;
-
-            @Mock
-            boolean removeCertificate(Invocation invocation, List<String> aliases) {
-                invocation.proceed();
-                Assert.assertEquals("Should have persisted the trust store after removing multiple certificates", 1, count);
-                return true;
-            }
-
-            @Mock
-            void persistTrustStore(Invocation invocation) {
-                count = invocation.getInvocationCount();
-            }
-        };
-
-        new Expectations() {{
-            certificateService.removeCertificate(anyString, anyString, "first", false);
-            result = true;
-        }};
-
-        // When
-        domainCryptoService.removeCertificate(Lists.newArrayList("first", "second"));
     }
 
     @Test

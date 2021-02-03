@@ -33,40 +33,41 @@ import java.util.*;
  * @version 4.1
  */
 public class DGrid extends DComponent {
-	
+
 	@FindBy(tagName = "datatable-header-cell")
 	protected List<WebElement> gridHeaders;
 	@FindBy(css = "datatable-row-wrapper > datatable-body-row")
 	protected List<WebElement> gridRows;
-	
+
 	protected By cellSelector = By.tagName("datatable-body-cell");
-	
+
 	@FindBy(id = "saveascsvbutton_id")
 	protected WebElement downloadCSVButton;
+
 	@FindBy(tagName = "datatable-progress")
 	protected WebElement progressBar;
-	
+
 	protected WebElement container;
-	
+
 	public DGrid(WebDriver driver, WebElement container) {
 		super(driver);
 		log.debug("init grid ...");
 		PageFactory.initElements(new AjaxElementLocatorFactory(container, data.getTIMEOUT()), this);
-		
+
 		this.container = container;
 	}
-	
+
 	//	------------------------------------------------
 	public Pagination getPagination() {
 		return new Pagination(driver);
 	}
-	
+
 	public GridControls getGridCtrl() {
 		return new GridControls(driver);
 	}
-	
+
 	public boolean isPresent() {
-		
+
 		boolean isPresent = false;
 		try {
 			isPresent = getColumnNames().size() >= 0;
@@ -75,22 +76,27 @@ public class DGrid extends DComponent {
 		}
 		return isPresent;
 	}
-	
+
+
 	public ArrayList<String> getColumnNames() throws Exception {
-		ArrayList<String> columnNames = new ArrayList<>();
-		for (int i = 0; i < gridHeaders.size(); i++) {
-			columnNames.add(new DObject(driver, gridHeaders.get(i)).getText());
-		}
-		return columnNames;
+		JavascriptExecutor js = (JavascriptExecutor) driver;
+		ArrayList<String> result = (ArrayList<String>) js.executeScript("var grid=document.querySelector(\"#pageGridId\")\n" +
+				"var header=document.querySelector(\"#pageGridId datatable-header\")\n" +
+				"var headers=header.innerText.split(\"\\n\")\n" +
+				"return headers");
+
+		result.removeIf(str -> (StringUtils.isEmpty(str)));
+
+		return result;
 	}
-	
+
 	public WebElement getRowElement(int index) {
 		if (index > gridRows.size() - 1) {
 			return null;
 		}
 		return gridRows.get(index);
 	}
-	
+
 	public void selectRow(int rowNumber) throws Exception {
 		log.debug("selecting row with number ... " + rowNumber);
 		if (rowNumber < gridRows.size()) {
@@ -98,9 +104,9 @@ public class DGrid extends DComponent {
 			wait.forAttributeToContain(gridRows.get(rowNumber), "class", "active");
 		}
 	}
-	
+
 	public void doubleClickRow(int rowNumber) throws Exception {
-		
+
 		log.debug("double clicking row ... " + rowNumber);
 		if (rowNumber < 0) {
 			throw new Exception("Row number too low " + rowNumber);
@@ -108,7 +114,7 @@ public class DGrid extends DComponent {
 		if (rowNumber >= gridRows.size()) {
 			throw new Exception("Row number too high " + rowNumber);
 		}
-		
+
 		this.wait.forXMillis(200);
 		Actions action = new Actions(driver);
 		WebElement element = gridRows.get(rowNumber).findElement(By.cssSelector("datatable-body-cell:first-of-type"));
@@ -117,14 +123,14 @@ public class DGrid extends DComponent {
 		// ngx-datatable has an issue when double-clicking "between" cells;
 		// so we're trying to click inside the first cell of the row.
 	}
-	
+
 	public int getRowsNo() {
 		return gridRows.size();
 	}
-	
+
 	public void waitForRowsToLoad() {
 		try {
-			wait.forElementToBe(progressBar);
+			wait.shortWaitForElementToBe(progressBar);
 			int bars = 1;
 			int waits = 0;
 			while (bars > 0 && waits < 30) {
@@ -135,9 +141,10 @@ public class DGrid extends DComponent {
 			}
 			log.debug("waited for rows to load for ms = 500*" + waits);
 			wait.forXMillis(500);
-		} catch (Exception e) {	}
+		} catch (Exception e) {
+		}
 	}
-	
+
 	public int getIndexOf(Integer columnIndex, String value) throws Exception {
 		for (int i = 0; i < gridRows.size(); i++) {
 			WebElement rowContainer = gridRows.get(i);
@@ -148,32 +155,32 @@ public class DGrid extends DComponent {
 		}
 		return -1;
 	}
-	
+
 	public int scrollTo(String columnName, String value) throws Exception {
 		ArrayList<String> columnNames = getColumnNames();
 		if (!columnNames.contains(columnName)) {
 			throw new Exception("Selected column name '" + columnName + "' is not visible in the present grid");
 		}
-		
+
 		int columnIndex = -1;
 		for (int i = 0; i < columnNames.size(); i++) {
 			if (StringUtils.equalsIgnoreCase(columnNames.get(i), columnName)) {
 				columnIndex = i;
 			}
 		}
-		
+
 		Pagination pagination = getPagination();
 		pagination.skipToFirstPage();
 		int index = getIndexOf(columnIndex, value);
-		
+
 		while (index < 0 && pagination.hasNextPage()) {
 			pagination.goToNextPage();
 			index = getIndexOf(columnIndex, value);
 		}
-		
+
 		return index;
 	}
-	
+
 	public int scrollToAndSelect(String columnName, String value) throws Exception {
 		waitForRowsToLoad();
 		int index = scrollTo(columnName, value);
@@ -183,7 +190,7 @@ public class DGrid extends DComponent {
 		selectRow(index);
 		return index;
 	}
-	
+
 	public HashMap<String, String> getRowInfo(int rowNumber) throws Exception {
 		if (rowNumber < 0) {
 			throw new Exception("Row number too low " + rowNumber);
@@ -192,21 +199,21 @@ public class DGrid extends DComponent {
 			throw new Exception("Row number too high " + rowNumber);
 		}
 		HashMap<String, String> info = new HashMap<>();
-		
+
 		List<String> columns = getColumnNames();
 		List<WebElement> cells = gridRows.get(rowNumber).findElements(cellSelector);
-		
+
 		for (int i = 0; i < columns.size(); i++) {
 			info.put(columns.get(i), new DObject(driver, cells.get(i)).getText());
 		}
 		return info;
 	}
-	
+
 	public HashMap<String, String> getRowInfo(String columnName, String value) throws Exception {
 		int index = scrollTo(columnName, value);
 		return getRowInfo(index);
 	}
-	
+
 	public void sortBy(String columnName) throws Exception {
 		log.debug("column = " + columnName);
 		for (int i = 0; i < gridHeaders.size(); i++) {
@@ -225,7 +232,7 @@ public class DGrid extends DComponent {
 		}
 		throw new Exception("Column name not present in the grid " + columnName);
 	}
-	
+
 	public int scrollToAndDoubleClick(String columnName, String value) throws Exception {
 		int index = scrollTo(columnName, value);
 		doubleClickRow(index);
@@ -235,13 +242,13 @@ public class DGrid extends DComponent {
 		wait.forXMillis(1000);
 		return index;
 	}
-	
+
 	public List<HashMap<String, String>> getAllRowInfo() throws Exception {
 		List<HashMap<String, String>> allRowInfo = new ArrayList<>();
-		
+
 		Pagination pagination = getPagination();
 		pagination.skipToFirstPage();
-		
+
 		do {
 			for (int i = 0; i < getRowsNo(); i++) {
 				allRowInfo.add(getRowInfo(i));
@@ -254,17 +261,44 @@ public class DGrid extends DComponent {
 		} while (true);
 		return allRowInfo;
 	}
-	
-	public List<HashMap<String, String>> getListedRowInfo() throws Exception {
-		List<HashMap<String, String>> listedRowInfo = new ArrayList<>();
-		
-		for (int i = 0; i < getRowsNo(); i++) {
-			listedRowInfo.add(getRowInfo(i));
+
+
+
+	public ArrayList<HashMap<String, String>> getListedRowInfo() throws Exception {
+
+		ArrayList<HashMap<String, String>> listedRowInfo = new ArrayList<>();
+
+		JavascriptExecutor js = (JavascriptExecutor) driver;
+		ArrayList<Map<String, Object>> result = (ArrayList<Map<String, Object>>) js.executeScript("var grid=document.querySelector(\"#pageGridId\")\n" +
+				"var header=document.querySelector(\"#pageGridId datatable-header\")\n" +
+				"var body=document.querySelector(\"#pageGridId datatable-body\")\n" +
+				"var headers=header.innerText.split(\"\\n\")\n" +
+				"var rows=body.querySelectorAll(\"datatable-body-row\")\n" +
+				"result=[]\n" +
+				"for(var i=0;i<rows.length;i++){resultRow={}\n" +
+				"myRow=rows[i]\n" +
+				"cells=myRow.querySelectorAll('datatable-body-cell')\n" +
+				"for(var j=0;j<headers.length;j++){var curCell=cells[j];if(curCell.querySelector('mat-checkbox')){resultRow[headers[j]]=curCell.querySelector('mat-checkbox input').getAttribute('aria-checked')}\n" +
+				"else if(curCell.querySelector('div > div > input')){resultRow[headers[j]]=curCell.querySelector('div > div > input').value}\n" +
+				"else if(curCell.querySelector('mat-button-toggle-group mat-button-toggle button[aria-pressed = \"true\"]')){resultRow[headers[j]]=curCell.querySelector('mat-button-toggle-group mat-button-toggle button[aria-pressed = \"true\"]').innerText}\n" +
+				"else{resultRow[headers[j]]=cells[j].innerText}}\n" +
+				"result[i]=resultRow}\n" +
+				"return result;");
+
+		for (Map<String, Object> objectHashMap : result) {
+			HashMap<String, String> rowInfo = new HashMap<>();
+
+			for (Map.Entry<String, Object> stringObjectEntry : objectHashMap.entrySet()) {
+				rowInfo.put(stringObjectEntry.getKey(), stringObjectEntry.getValue().toString());
+			}
+
+			listedRowInfo.add(rowInfo);
 		}
-		
+
+
 		return listedRowInfo;
 	}
-	
+
 	public int getSelectedRowIndex() throws Exception {
 		for (int i = 0; i < gridRows.size(); i++) {
 			String classStr = new DObject(driver, gridRows.get(i)).getAttribute("class");
@@ -277,39 +311,39 @@ public class DGrid extends DComponent {
 		}
 		return -1;
 	}
-	
+
 	public boolean columnsVsCheckboxes() throws Exception {
-		
+
 		HashMap<String, Boolean> columnStatus = getGridCtrl().getAllCheckboxStatuses();
 		ArrayList<String> visibleColumns = getColumnNames();
-		
+
 		List<String> checkedColumns = new ArrayList<>();
 		for (String k : columnStatus.keySet()) {
 			if (columnStatus.get(k) == true) {
 				checkedColumns.add(k);
 			}
 		}
-		
+
 		if (visibleColumns.size() != checkedColumns.size()) {
 			return false;
 		}
-		
+
 		Collections.sort(visibleColumns);
 		Collections.sort(checkedColumns);
-		
+
 		for (int i = 0; i < visibleColumns.size(); i++) {
 			if (!StringUtils.equalsIgnoreCase(visibleColumns.get(i), checkedColumns.get(i))) {
 				return false;
 			}
 		}
-		
+
 		return true;
 	}
-	
+
 	public List<String> getValuesOnColumn(String columnName) throws Exception {
 		List<HashMap<String, String>> allInfo = getAllRowInfo();
 		List<String> values = new ArrayList<>();
-		
+
 		for (int i = 0; i < allInfo.size(); i++) {
 			String val = allInfo.get(i).get(columnName);
 			if (null != val) {
@@ -318,11 +352,11 @@ public class DGrid extends DComponent {
 		}
 		return values;
 	}
-	
+
 	public List<String> getListedValuesOnColumn(String columnName) throws Exception {
-		List<HashMap<String, String>> allInfo = getListedRowInfo();
+		ArrayList<HashMap<String, String>> allInfo = getListedRowInfo();
 		List<String> values = new ArrayList<>();
-		
+
 		for (int i = 0; i < allInfo.size(); i++) {
 			String val = allInfo.get(i).get(columnName);
 			if (null != val) {
@@ -331,10 +365,10 @@ public class DGrid extends DComponent {
 		}
 		return values;
 	}
-	
+
 	public void resetGridScroll() {
 		log.info("reseting grid scroll");
-		
+
 		try {
 			((JavascriptExecutor) driver).executeScript("arguments[0].querySelector('datatable-body').scrollLeft =0;", container);
 		} catch (Exception e) {
@@ -371,13 +405,13 @@ public class DGrid extends DComponent {
 	}
 
 //-------------------------------------------------------------------------------------------------
-	
+
 	public void checkShowLink(SoftAssert soft) throws Exception {
 		//-----------Show
 		getGridCtrl().showCtrls();
 		soft.assertTrue(columnsVsCheckboxes(), "Columns and checkboxes are in sync");
 	}
-	
+
 	public void checkHideLink(SoftAssert soft) throws Exception {
 		//-----------Hide
 		getGridCtrl().hideCtrls();
@@ -385,118 +419,122 @@ public class DGrid extends DComponent {
 	}
 
 	public void checkModifyVisibleColumns(SoftAssert soft) throws Exception {
-		
+
 		List<String> chkOptions = getGridCtrl().getAllCheckboxLabels();
-		
+
 		//-----------Show - Modify - Hide
 		for (int i = 0; i < 3; i++) {
-			String colName = chkOptions.get(Gen.randomNumber(chkOptions.size()-1));
+			String colName = chkOptions.get(Gen.randomNumber(chkOptions.size() - 1));
 			log.info("checking checkbox for " + colName);
 			getGridCtrl().showCtrls();
 			getGridCtrl().checkBoxWithLabel(colName);
 			soft.assertTrue(columnsVsCheckboxes());
-			
+
 			getGridCtrl().uncheckBoxWithLabel(colName);
 			soft.assertTrue(columnsVsCheckboxes());
 		}
 	}
-	
+
 	public void checkAllLink(SoftAssert soft) throws Exception {
 		//-----------All link
 		getGridCtrl().showCtrls();
 		log.info("clicking All link");
 		getGridCtrl().getAllLnk().click();
 		getGridCtrl().hideCtrls();
-		
+
+		waitForRowsToLoad();
+
 		List<String> visibleColumns = getColumnNames();
 		soft.assertTrue(CollectionUtils.isEqualCollection(visibleColumns, getGridCtrl().getAllCheckboxLabels()), "All the desired columns are visible");
 	}
-	
+
 	public void checkNoneLink(SoftAssert soft) throws Exception {
 		//-----------None link
 		getGridCtrl().showCtrls();
 		log.info("clicking None link");
 		getGridCtrl().getNoneLnk().click();
 		getGridCtrl().hideCtrls();
-		
+
+		waitForRowsToLoad();
+
 		List<String> noneColumns = getColumnNames();
 		soft.assertTrue(noneColumns.size() == 0, "All the desired columns are visible");
 	}
-	
+
 	public void checkChangeNumberOfRows(SoftAssert soft) throws Exception {
 		log.info("checking changing number of rows displayed");
 		//----------Rows
-		
+
 		int rows = getPagination().getTotalItems();
 		log.info("changing number of rows to 25");
 		getPagination().getPageSizeSelect().selectOptionByText("25");
 		waitForRowsToLoad();
-		
+
 		log.info("checking pagination reset to 1");
 		soft.assertTrue(getPagination().getActivePage() == 1, "pagination is reset to 1 after changing number of items per page");
-		
+
 		log.info("check listed number of rows");
 		if (rows > 10) {
 			soft.assertTrue(getRowsNo() > 10, "Number of rows is bigger than 10");
 			soft.assertTrue(getRowsNo() <= 25, "Number of rows is less or equal to 25");
 		}
-		
+
 		log.info("check pagination");
 		if (rows > 25) {
 			soft.assertTrue(getPagination().hasNextPage(), "If there are more than 25 items there are more than one pages");
 		}
 	}
-	
+
 	public void checkCSVvsGridInfo(String filename, SoftAssert soft) throws Exception {
-		
-			log.info("Checking csv file vs grid content");
-			
-			Reader reader = Files.newBufferedReader(Paths.get(filename));
-			CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreHeaderCase()
-					.withTrim());
-			List<CSVRecord> records = csvParser.getRecords();
-			List<HashMap<String, String>> gridInfo = getAllRowInfo();
-			
-			log.info("comparing number of items (" + gridInfo.size() + " vs " + records.size() + ")");
-			soft.assertEquals(gridInfo.size(), records.size(), "Same number of records is listed in the page and in the file");
-			
-			log.info("checking listed data");
-			for (int i = 0; i < gridInfo.size(); i++) {
-				HashMap<String, String> gridRecord = gridInfo.get(i);
-				CSVRecord record = records.get(i);
-				soft.assertTrue(csvRowVsGridRow(record, gridRecord), "compared rows " + i);
-			}
-		
-	}
-	
-	public void checkCSVvsGridHeaders(String filename, SoftAssert soft) throws Exception {
+
 		log.info("Checking csv file vs grid content");
-		
+
 		Reader reader = Files.newBufferedReader(Paths.get(filename));
 		CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreHeaderCase()
 				.withTrim());
-		
+		List<CSVRecord> records = csvParser.getRecords();
+		List<HashMap<String, String>> gridInfo = getAllRowInfo();
+
+		log.info("comparing number of items (" + gridInfo.size() + " vs " + records.size() + ")");
+		soft.assertEquals(gridInfo.size(), records.size(), "Same number of records is listed in the page and in the file");
+
+		log.info("checking listed data");
+		for (int i = 0; i < gridInfo.size(); i++) {
+			HashMap<String, String> gridRecord = gridInfo.get(i);
+			CSVRecord record = records.get(i);
+			soft.assertTrue(csvRowVsGridRow(record, gridRecord), "compared rows " + i);
+		}
+
+	}
+
+	public void checkCSVvsGridHeaders(String filename, SoftAssert soft) throws Exception {
+		log.info("Checking csv file vs grid content");
+
+		Reader reader = Files.newBufferedReader(Paths.get(filename));
+		CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreHeaderCase()
+				.withTrim());
+
 		log.info("removing Actions from the list of columns");
 		List<String> columnNames = getColumnNames();
 		columnNames.remove("Actions");
-		
+
 		List<String> csvFileHeaders = new ArrayList<>();
 		csvFileHeaders.addAll(csvParser.getHeaderMap().keySet());
 		log.info("removing $jacoco Data from the list of CSV file headers columns");
 		csvFileHeaders.remove("$jacoco Data");
-		
+
 		log.info("checking file headers against column names");
-		
+
 		soft.assertTrue(CollectionUtils.isEqualCollection(columnNames, csvFileHeaders), "Headers between grid and CSV file match");
-		
+
 	}
-	
+
 	public boolean csvRowVsGridRow(CSVRecord record, HashMap<String, String> gridRow) throws Exception {
 		for (String key : gridRow.keySet()) {
 			if (StringUtils.equalsIgnoreCase(key, "Actions")) {
 				continue;
 			}
-			
+
 			if (isUIDate(gridRow.get(key))) {
 				if (!csvVsUIDate(record.get(key), gridRow.get(key))) {
 					log.debug("csvVsUIDate field compare issue: " + gridRow.get(key));
@@ -524,20 +562,20 @@ public class DGrid extends DComponent {
 		}
 		return true;
 	}
-	
+
 	public boolean csvVsUIDate(String csvDateStr, String uiDateStr) throws Exception {
 		Date csvDate = null;
 		Date uiDate = null;
-		
-		if(StringUtils.isEmpty(csvDateStr) && StringUtils.isEmpty(uiDateStr)){
+
+		if (StringUtils.isEmpty(csvDateStr) && StringUtils.isEmpty(uiDateStr)) {
 			return true;
 		}
-		
-		if((StringUtils.isEmpty(csvDateStr) || StringUtils.isEmpty(uiDateStr)) && !StringUtils.isEmpty(csvDateStr + uiDateStr) ){
+
+		if ((StringUtils.isEmpty(csvDateStr) || StringUtils.isEmpty(uiDateStr)) && !StringUtils.isEmpty(csvDateStr + uiDateStr)) {
 			return false;
 		}
-		
-		
+
+
 		try {
 			csvDate = TestRunData.CSV_DATE_FORMAT2.parse(csvDateStr);
 			uiDate = TestRunData.UI_DATE_FORMAT.parse(uiDateStr);
@@ -548,7 +586,7 @@ public class DGrid extends DComponent {
 		}
 		return csvDate.equals(uiDate);
 	}
-	
+
 	public boolean isUIDate(String string) {
 		Date uiDate = null;
 		try {
@@ -558,7 +596,7 @@ public class DGrid extends DComponent {
 		}
 		return true;
 	}
-	
+
 	public String getSortedColumnName() throws Exception {
 		String sortClassName = "sort-active";
 		for (WebElement gridHeader : gridHeaders) {
@@ -570,7 +608,7 @@ public class DGrid extends DComponent {
 		}
 		return null;
 	}
-	
+
 	public Order getSortOrder() throws Exception {
 		String sortIndicatorDesc = "sort-desc";
 		String sortIndicatorAsc = "sort-asc";
@@ -578,7 +616,7 @@ public class DGrid extends DComponent {
 		if (null == columnName) {
 			return null;
 		}
-		
+
 		for (WebElement gridHeader : gridHeaders) {
 			DObject headerObj = weToDobject(gridHeader);
 			if (StringUtils.equalsIgnoreCase(headerObj.getText(), columnName)) {
@@ -590,11 +628,11 @@ public class DGrid extends DComponent {
 					return Order.ASC;
 				}
 			}
-			
+
 		}
 		throw new Exception("Sort order cannot be determined");
 	}
-	
+
 	public String getRowSpecificColumnVal(int rowNumber, String columnName) throws Exception {
 		HashMap<String, String> gridInfo = getRowInfo(rowNumber);
 		String colName = columnName;
@@ -604,13 +642,13 @@ public class DGrid extends DComponent {
 		}
 		return "";
 	}
-	
+
 	public void relaxCheckCSVvsGridInfo(String filename, SoftAssert soft, String sortedColumnDataType) throws Exception {
 		Reader reader = Files.newBufferedReader(Paths.get(filename));
 		CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreHeaderCase()
 				.withTrim());
 		List<CSVRecord> records = csvParser.getRecords();
-		
+
 		log.info("Checking csv file vs grid order");
 
 		/* Disabled sort order check because in some pages we don't support sorting and causes this segment to throw exception. Needs fix and refactoring */
@@ -628,14 +666,14 @@ public class DGrid extends DComponent {
 //			colContent.add(records.get(i).get(colIndex));
 //		}
 //		TestUtils.checkSortOrder(soft, column, sortedColumnDataType, order, colContent);
-		
-		
+
+
 		log.info("checking number of records");
-		
+
 		List<HashMap<String, String>> gridInfo = getAllRowInfo();
 		soft.assertEquals(gridInfo.size(), records.size(), "Same number of rows present in grid and CSV file");
-		
-		
+
+
 		log.info("checking individual records");
 		for (HashMap<String, String> gridRow : gridInfo) {
 			boolean found = false;

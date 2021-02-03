@@ -37,7 +37,7 @@ public class WSPluginImplTest {
     private StubDtoTransformer defaultTransformer;
 
     @Injectable
-    private WSMessageLogDao wsMessageLogDao;
+    private WSMessageLogService wsMessageLogService;
 
     @Injectable
     private WSPluginBackendService wsPluginBackendService;
@@ -68,7 +68,7 @@ public class WSPluginImplTest {
         wsPlugin.deliverMessage(deliverMessageEvent);
 
         new Verifications() {{
-            wsMessageLogDao.create(withAny(wsMessageLogEntity));
+            wsMessageLogService.create(withAny(wsMessageLogEntity));
             times = 1;
 
             //wsPluginBackendService.send(MESSAGE_ID, wsPluginBackendService.userMessageExtService.getFinalRecipient(MESSAGE_ID), wsPluginBackendService.userMessageExtService.getOriginalSender(MESSAGE_ID), SUBMIT_MESSAGE, RECEIVE_SUCCESS);
@@ -130,7 +130,7 @@ public class WSPluginImplTest {
         wsPlugin.messageDeletedBatchEvent(event);
 
         new Verifications() {{
-            wsMessageLogDao.deleteByMessageIds(messageIds);
+            wsMessageLogService.deleteByMessageIds(messageIds);
             times = 1;
 
             wsPluginBackendService.send(event, DELETED_BATCH);
@@ -148,7 +148,7 @@ public class WSPluginImplTest {
         wsPlugin.messageDeletedEvent(event);
 
         new FullVerifications() {{
-            wsMessageLogDao.deleteByMessageId(MESSAGE_ID);
+            wsMessageLogService.deleteByMessageId(MESSAGE_ID);
             times = 1;
 
             wsPluginBackendService.send(event, DELETED);

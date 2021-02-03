@@ -18,4 +18,14 @@ public interface BackupService {
      * @implNote The backup file is named using the following convention: original_filename.backup-yyyy-MM-dd_HH_mm_ss.SSS
      */
     void backupFile(File originalFile) throws IOException;
+
+    /**
+     * Creates a copy of the originalFile, in the backup folder.
+     *
+     * @param originalFile   the file to be backed-up.
+     * @throws IOException when the backup file cannot be written.
+     * @implNote The backup file is named using the following convention: original_filename.backup-yyyy-MM-dd_HH_mm_ss.SSS
+     */
+    void backupFileInLocation(File originalFile, String trustStoreBackupLocation) throws IOException;
+
 }
