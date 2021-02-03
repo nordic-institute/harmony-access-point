@@ -61,7 +61,7 @@ public class CorePropertyMetadataManagerImplTest {
         DomibusPropertyMetadata actual = props.get(DOMIBUS_PROXY_PASSWORD);
 
         Assert.assertEquals(DOMIBUS_PROXY_PASSWORD, actual.getName());
-        Assert.assertEquals(actual.getType(), "PASSWORD");
+        Assert.assertEquals("PASSWORD", actual.getType());
         Assert.assertTrue(actual.isEncrypted());
     }
 }
