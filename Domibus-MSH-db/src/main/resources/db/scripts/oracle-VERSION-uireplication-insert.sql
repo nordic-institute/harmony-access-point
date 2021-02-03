@@ -80,8 +80,8 @@ FROM
           message_log.restored,
           message_log.message_subtype,
           user_message.collaboration_info_action AS action,
-          user_message.service_type AS service_type,
-          user_message.service_value AS service_value
+          user_message.service_type,
+          user_message.service_value
         FROM
           tb_message_log message_log
             LEFT OUTER JOIN tb_message_info message_info ON message_log.message_id = message_info.message_id,tb_user_message user_message
