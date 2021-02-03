@@ -31,7 +31,7 @@
   } ],
   "schemes" : [ "http", "https" ],
   "paths" : {
-    "/ext/application" : {
+    "/ext/application/evict/cache" : {
       "delete" : {
         "tags" : [ "cache" ],
         "summary" : "Delete all Caches",
