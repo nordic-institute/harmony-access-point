@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
  * @author Soumya Chandran
  * @since 5.0
  */
-
 @Service
 public class CacheDefaultService implements CacheService {
 

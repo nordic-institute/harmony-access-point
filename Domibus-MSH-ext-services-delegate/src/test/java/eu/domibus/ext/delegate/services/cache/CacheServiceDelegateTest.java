@@ -48,6 +48,7 @@ public class CacheServiceDelegateTest {
         //tested method
         try {
             cacheServiceDelegate.evictCaches();
+            Assert.fail("Exception expected");
         } catch (Exception e) {
             Assert.assertTrue(e instanceof CacheExtServiceException);
         }

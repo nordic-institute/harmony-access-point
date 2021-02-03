@@ -50,6 +50,7 @@ public class CacheExtResourceTest {
         //tested method
         try {
             cacheExtResource.evictCaches();
+            Assert.fail("Exception expected");
         } catch (Exception e) {
             Assert.assertTrue(e instanceof CacheExtServiceException);
         }

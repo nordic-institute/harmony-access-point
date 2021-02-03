@@ -46,6 +46,7 @@ public class CacheDefaultServiceTest {
         //tested method
         try {
             cacheDefaultService.evictCaches();
+            Assert.fail("Exception expected");
         } catch (Exception e) {
             Assert.assertTrue(e instanceof DomibusCoreException);
         }
