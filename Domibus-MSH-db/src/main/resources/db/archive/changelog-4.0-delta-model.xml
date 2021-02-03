@@ -239,7 +239,7 @@
         <createView
                 replaceIfExists="true"
                 viewName="V_AUDIT_DETAIL">
-            -- Changeset src/main/resources/db/changelog-4.0-delta-model.xml::EDELIVERY-3170::rodrfla
+            -- Changeset src/main/resources/db/archive/changelog-4.0-delta-model.xml::EDELIVERY-3170::rodrfla
             SELECT
             DISTINCT rc.GROUP_NAME as AUDIT_TYPE ,
             rc.MODIFICATION_TYPE as ACTION_TYPE,
