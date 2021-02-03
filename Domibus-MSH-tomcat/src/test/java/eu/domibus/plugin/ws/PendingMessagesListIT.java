@@ -1,11 +1,12 @@
-package eu.domibus.plugin.webService;
+package eu.domibus.plugin.ws;
 
 import eu.domibus.AbstractBackendWSIT;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.common.NotificationType;
 import eu.domibus.core.plugin.notification.NotifyMessageCreator;
-import eu.domibus.plugin.webService.generated.ListPendingMessagesResponse;
+import eu.domibus.plugin.ws.generated.body.ListPendingMessagesRequest;
+import eu.domibus.plugin.ws.generated.body.ListPendingMessagesResponse;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,11 +21,9 @@ import java.util.List;
  * This JUNIT implements the Test cases List Pending Messages-01 and List Pending Messages-02.
  *
  * @author martifp
- * @deprecated to be removed when deprecated endpoint /backend is removed
  */
 @DirtiesContext
 @Rollback
-@Deprecated
 public class PendingMessagesListIT extends AbstractBackendWSIT {
 
     @Autowired
@@ -44,9 +43,9 @@ public class PendingMessagesListIT extends AbstractBackendWSIT {
         }
 
         waitForMessages(3);
-        String request = "<listPendingMessagesRequest></listPendingMessagesRequest>";
-        ListPendingMessagesResponse response = backendWebService.listPendingMessages(request);
 
+        ListPendingMessagesRequest request = new ListPendingMessagesRequest();
+        ListPendingMessagesResponse response = webServicePluginInterface.listPendingMessages(request);
 
         // Verifies the response
         Assert.assertNotNull(response);
@@ -58,8 +57,8 @@ public class PendingMessagesListIT extends AbstractBackendWSIT {
     @Test
     public void testListPendingMessagesNOk() {
 
-        String request = "<listPendingMessagesRequest>1</listPendingMessagesRequest>";
-        ListPendingMessagesResponse response = backendWebService.listPendingMessages(request);
+        ListPendingMessagesRequest request = new ListPendingMessagesRequest();
+        ListPendingMessagesResponse response = webServicePluginInterface.listPendingMessages(request);
 
         // Verifies the response
         Assert.assertNotNull(response);

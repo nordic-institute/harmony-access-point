@@ -1,4 +1,4 @@
-package eu.domibus.plugin.webService;
+package eu.domibus.plugin;
 
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.model.Messaging;

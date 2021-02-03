@@ -27,6 +27,7 @@ public class WSMessageLogDao extends WSBasicDao<WSMessageLogEntity> {
 
     private static final String MESSAGE_ID = "MESSAGE_ID";
     private static final String MESSAGE_IDS = "MESSAGE_IDS";
+    private static final String FINAL_RECIPIENT= "FINAL_RECIPIENT";
 
     private static final String CRIT_MESSAGE_ID = "messageId";
     private static final String CRIT_CONVERSATION_ID = "conversationId";
@@ -69,6 +70,20 @@ public class WSMessageLogDao extends WSBasicDao<WSMessageLogEntity> {
         return query.getResultList();
     }
 
+    /**
+     * Find all entries in the plugin table, for finalRecipient, limited to maxCount. When maxCount is 0, return all.
+     * 
+     * @deprecated to be removed when the deprecated package is removed
+     */
+    @Deprecated
+    public List<WSMessageLogEntity> findAllByFinalRecipient(int maxCount, String finalRecipient) {
+        TypedQuery<WSMessageLogEntity> query = em.createNamedQuery("WSMessageLogEntity.findAllByFinalRecipient", WSMessageLogEntity.class);
+        query.setParameter(FINAL_RECIPIENT, finalRecipient);
+        if(maxCount > 0) {
+            return query.setMaxResults(maxCount).getResultList();
+        }
+        return query.getResultList();
+    }
 
     /**
      * Find all entries in the plugin table.

@@ -1,13 +1,13 @@
-package eu.domibus.plugin.webService;
+package eu.domibus.plugin.ws;
 
 import eu.domibus.AbstractBackendWSIT;
-import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationChecker;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
 import eu.domibus.messaging.XmlProcessingException;
-import eu.domibus.plugin.webService.generated.SubmitMessageFault;
-import eu.domibus.plugin.webService.generated.SubmitRequest;
-import eu.domibus.plugin.webService.generated.SubmitResponse;
+import eu.domibus.plugin.ws.generated.SubmitMessageFault;
+import eu.domibus.plugin.ws.generated.body.SubmitRequest;
+import eu.domibus.plugin.ws.generated.body.SubmitResponse;
+import eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,16 +18,13 @@ import java.io.IOException;
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Created by draguio on 17/02/2016.
- * @deprecated to be removed when deprecated endpoint /backend is removed
  */
 @DirtiesContext
 @Rollback
-@Deprecated
 public class SubmitMessageSignOnlyIT extends AbstractBackendWSIT {
 
     @Autowired
@@ -44,24 +41,21 @@ public class SubmitMessageSignOnlyIT extends AbstractBackendWSIT {
 
     /**
      * Test for the backend sendMessage service with payload profile enabled
-     *
-     * @throws SubmitMessageFault
-     * @throws InterruptedException
      */
     @Test
-    public void testSubmitMessageValid() throws SubmitMessageFault, InterruptedException {
+    public void testSubmitMessageValid() throws SubmitMessageFault {
         String payloadHref = "cid:message";
-        SubmitRequest submitRequest = createSubmitRequest(payloadHref);
-        Messaging ebMSHeaderInfo = createMessageHeader(payloadHref);
+        SubmitRequest submitRequest = createSubmitRequestWs(payloadHref);
+        Messaging ebMSHeaderInfo = createMessageHeaderWs(payloadHref);
         ebMSHeaderInfo.getUserMessage().getCollaborationInfo().setAction("TC4Leg1");
 
         super.prepareSendMessage("validAS4Response.xml");
-        SubmitResponse response = backendWebService.submitMessage(submitRequest, ebMSHeaderInfo);
+        SubmitResponse response = webServicePluginInterface.submitMessage(submitRequest, ebMSHeaderInfo);
 
         final List<String> messageID = response.getMessageID();
         assertNotNull(response);
         assertNotNull(messageID);
-        assertTrue(messageID.size() == 1);
+        assertEquals(1, messageID.size());
         final String messageId = messageID.iterator().next();
 
         //message will fail as the response message does not contain the right security details(signature, etc)

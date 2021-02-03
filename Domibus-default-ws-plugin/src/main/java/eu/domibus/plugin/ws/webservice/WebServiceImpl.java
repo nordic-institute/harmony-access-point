@@ -55,7 +55,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
 
     public static final eu.domibus.plugin.ws.generated.body.ObjectFactory WEBSERVICE_OF = new eu.domibus.plugin.ws.generated.body.ObjectFactory();
 
-    private static final ObjectFactory EBMS_OBJECT_FACTORY = new ObjectFactory();
+    public static final ObjectFactory EBMS_OBJECT_FACTORY = new ObjectFactory();
 
     private static final String MIME_TYPE = "MimeType";
 

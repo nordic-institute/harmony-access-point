@@ -1,6 +1,4 @@
-package eu.domibus.plugin.webService.impl;
-
-import eu.domibus.plugin.webService.entity.WSMessageLogEntity;
+package eu.domibus.plugin.ws.webservice;
 
 import java.time.LocalDateTime;
 import java.util.List;

@@ -10,7 +10,6 @@ import eu.domibus.plugin.ws.connector.WSPluginImpl;
 import eu.domibus.plugin.ws.property.WSPluginPropertyManager;
 import eu.domibus.plugin.ws.webservice.WSMessageLogDao;
 import eu.domibus.plugin.ws.webservice.deprecated.mapper.WSPluginMessagingMapper;
-import eu.domibus.plugin.ws.webservice.deprecated.mapper.WSPluginUserMessageMapper;
 import eu.domibus.plugin.ws.webservice.interceptor.ClearAuthenticationMDCInterceptor;
 import eu.domibus.plugin.ws.webservice.interceptor.CustomAuthenticationInterceptor;
 import eu.domibus.plugin.ws.webservice.interceptor.WebServiceFaultOutInterceptor;
@@ -46,8 +45,7 @@ public class WSPluginConfiguration {
                                                AuthenticationExtService authenticationExtService,
                                                MessageExtService messageExtService,
                                                WSPluginImpl wsPlugin,
-                                               WSPluginMessagingMapper messagingMapper,
-                                               WSPluginUserMessageMapper userMessageMapper) {
+                                               WSPluginMessagingMapper messagingMapper) {
         return new WebServicePluginImpl(messageAcknowledgeExtService,
                 webServicePluginExceptionFactory,
                 wsMessageLogDao,
@@ -56,8 +54,7 @@ public class WSPluginConfiguration {
                 authenticationExtService,
                 messageExtService,
                 wsPlugin,
-                messagingMapper,
-                userMessageMapper);
+                messagingMapper);
     }
 
     @Bean("backendInterfaceEndpointDeprecated")

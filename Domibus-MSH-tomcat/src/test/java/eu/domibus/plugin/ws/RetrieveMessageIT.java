@@ -1,24 +1,23 @@
-package eu.domibus.plugin.webService;
+package eu.domibus.plugin.ws;
 
-import eu.domibus.api.model.MessageStatus;
 import eu.domibus.AbstractBackendWSIT;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
-import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.MessageStatus;
+import eu.domibus.api.model.*;
 import eu.domibus.common.NotificationType;
 import eu.domibus.common.model.configuration.LegConfiguration;
-import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging;
 import eu.domibus.core.message.MessagingService;
-import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.core.message.UserMessageLogDefaultService;
-import eu.domibus.api.model.NotificationStatus;
 import eu.domibus.core.plugin.notification.NotifyMessageCreator;
 import eu.domibus.core.pmode.ConfigurationDAO;
-import eu.domibus.api.model.MessageType;
-import eu.domibus.api.model.UserMessage;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.handler.MessageRetriever;
-import eu.domibus.plugin.webService.generated.*;
+import eu.domibus.plugin.ws.generated.RetrieveMessageFault;
+import eu.domibus.plugin.ws.generated.body.LargePayloadType;
+import eu.domibus.plugin.ws.generated.body.MshRole;
+import eu.domibus.plugin.ws.generated.body.RetrieveMessageRequest;
+import eu.domibus.plugin.ws.generated.body.RetrieveMessageResponse;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
@@ -36,12 +35,8 @@ import java.nio.charset.Charset;
 import java.util.Date;
 import java.util.HashMap;
 
-/**
- * @deprecated to be removed when deprecated endpoint /backend is removed
- */
 @DirtiesContext
 @Rollback
-@Deprecated
 public class RetrieveMessageIT extends AbstractBackendWSIT {
 
     @Autowired
@@ -105,10 +100,10 @@ public class RetrieveMessageIT extends AbstractBackendWSIT {
         RetrieveMessageRequest retrieveMessageRequest = createRetrieveMessageRequest(messageId);
 
         Holder<RetrieveMessageResponse> retrieveMessageResponse = new Holder<>();
-        Holder<Messaging> ebMSHeaderInfo = new Holder<>();
+        Holder<eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging> ebMSHeaderInfo = new Holder<>();
 
         try {
-            backendWebService.retrieveMessage(retrieveMessageRequest, retrieveMessageResponse, ebMSHeaderInfo);
+            webServicePluginInterface.retrieveMessage(retrieveMessageRequest, retrieveMessageResponse, ebMSHeaderInfo);
         } catch (RetrieveMessageFault re) {
             Assert.assertEquals(errorMessage, re.getMessage());
             throw re;
@@ -122,23 +117,23 @@ public class RetrieveMessageIT extends AbstractBackendWSIT {
         final LegConfiguration legConfiguration = pModeProvider.getLegConfiguration(pModeKey);
 
 
-        final String sanitazedMessageId = StringUtils.trim(messageId).replace("\t", "");
+        final String sanitizedMessageId = StringUtils.trim(messageId).replace("\t", "");
         final UserMessage userMessage = getUserMessageTemplate();
         String messagePayload = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + "<hello>world</hello>";
         userMessage.getPayloadInfo().getPartInfo().iterator().next().setBinaryData(messagePayload.getBytes());
         userMessage.getPayloadInfo().getPartInfo().iterator().next().setPayloadDatahandler(new DataHandler(new ByteArrayDataSource(messagePayload.getBytes(), "text/xml")));
-        userMessage.getMessageInfo().setMessageId(sanitazedMessageId);
+        userMessage.getMessageInfo().setMessageId(sanitizedMessageId);
         eu.domibus.api.model.Messaging messaging = new eu.domibus.api.model.Messaging();
         messaging.setUserMessage(userMessage);
         messagingService.storeMessage(messaging, MSHRole.RECEIVING, legConfiguration, "backendWebservice");
 
         UserMessageLog userMessageLog = new UserMessageLog();
         userMessageLog.setMessageStatus(MessageStatus.RECEIVED);
-        userMessageLog.setMessageId(sanitazedMessageId);
+        userMessageLog.setMessageId(sanitizedMessageId);
         userMessageLog.setMessageType(MessageType.USER_MESSAGE);
         userMessageLog.setMshRole(MSHRole.RECEIVING);
         userMessageLog.setReceived(new Date());
-        userMessageLogService.save(sanitazedMessageId,
+        userMessageLogService.save(sanitizedMessageId,
                 eu.domibus.common.MessageStatus.RECEIVED.name(),
                 NotificationStatus.REQUIRED.name(),
                 MshRole.RECEIVING.name(),
@@ -151,16 +146,16 @@ public class RetrieveMessageIT extends AbstractBackendWSIT {
                 null,
                 null);
 
-        final JmsMessage jmsMessage = new NotifyMessageCreator(sanitazedMessageId, NotificationType.MESSAGE_RECEIVED, new HashMap<>()).createMessage();
+        final JmsMessage jmsMessage = new NotifyMessageCreator(sanitizedMessageId, NotificationType.MESSAGE_RECEIVED, new HashMap<>()).createMessage();
         jmsManager.sendMessageToQueue(jmsMessage, WS_NOT_QUEUE);
         // requires a time to consume messages from the notification queue
         waitForMessage(messageId);
         RetrieveMessageRequest retrieveMessageRequest = createRetrieveMessageRequest(messageId);
         Holder<RetrieveMessageResponse> retrieveMessageResponse = new Holder<>();
-        Holder<Messaging> ebMSHeaderInfo = new Holder<>();
+        Holder<eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging> ebMSHeaderInfo = new Holder<>();
 
         try {
-            backendWebService.retrieveMessage(retrieveMessageRequest, retrieveMessageResponse, ebMSHeaderInfo);
+            webServicePluginInterface.retrieveMessage(retrieveMessageRequest, retrieveMessageResponse, ebMSHeaderInfo);
         } catch (RetrieveMessageFault dmf) {
             String message = "Downloading message failed";
             Assert.assertEquals(message, dmf.getMessage());

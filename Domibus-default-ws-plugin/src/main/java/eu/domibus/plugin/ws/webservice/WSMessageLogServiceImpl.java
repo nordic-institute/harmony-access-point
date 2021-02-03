@@ -1,7 +1,5 @@
-package eu.domibus.plugin.webService.impl;
+package eu.domibus.plugin.ws.webservice;
 
-import eu.domibus.plugin.webService.dao.WSMessageLogDao;
-import eu.domibus.plugin.webService.entity.WSMessageLogEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

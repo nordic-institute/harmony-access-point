@@ -1,14 +1,12 @@
-package eu.domibus.plugin.webService;
+package eu.domibus.plugin;
 
 import eu.domibus.AbstractBackendWSIT;
 import eu.domibus.messaging.XmlProcessingException;
-import org.apache.cxf.message.Message;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.Rollback;
-import org.springframework.transaction.annotation.Transactional;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -16,7 +14,6 @@ import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.Provider;
 import java.io.IOException;
-import java.sql.SQLException;
 
 
 /**
@@ -32,8 +29,6 @@ public class ReceiveMessageIT extends AbstractBackendWSIT {
     @Autowired
     Provider<SOAPMessage> mshWebserviceTest;
 
-    private static final ThreadLocal<Message> CURRENT_MESSAGE = new ThreadLocal<Message>();
-
     @Before
     public void before() throws IOException, XmlProcessingException {
         uploadPmode(wireMockRule.port());
@@ -48,7 +43,7 @@ public class ReceiveMessageIT extends AbstractBackendWSIT {
      *                        ref: Receive Message-01
      */
     @Test
-    public void testReceiveMessage() throws SOAPException, IOException, SQLException, ParserConfigurationException, SAXException {
+    public void testReceiveMessage() throws SOAPException, IOException, ParserConfigurationException, SAXException {
         String filename = "SOAPMessage2.xml";
         String messageId = "43bb6883-77d2-4a41-bac4-52a485d50084@domibus.eu";
         SOAPMessage soapMessage = createSOAPMessage(filename);

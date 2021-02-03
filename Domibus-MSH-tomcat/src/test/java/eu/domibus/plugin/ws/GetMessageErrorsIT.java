@@ -1,13 +1,13 @@
 
-package eu.domibus.plugin.webService;
+package eu.domibus.plugin.ws;
 
 import eu.domibus.AbstractBackendWSIT;
-import eu.domibus.common.ErrorCode;
 import eu.domibus.api.model.MSHRole;
+import eu.domibus.common.ErrorCode;
 import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.error.ErrorLogEntry;
-import eu.domibus.plugin.webService.generated.ErrorResultImplArray;
-import eu.domibus.plugin.webService.generated.GetErrorsRequest;
+import eu.domibus.plugin.ws.generated.body.ErrorResultImplArray;
+import eu.domibus.plugin.ws.generated.body.GetErrorsRequest;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,11 +21,9 @@ import java.util.Date;
  * This JUNIT implements the Test cases Get Message Errors-01 and Get Message Errors-02.
  *
  * @author martifp
- * @deprecated to be removed when deprecated endpoint /backend is removed
  */
 @DirtiesContext
 @Rollback
-@Deprecated
 public class GetMessageErrorsIT extends AbstractBackendWSIT {
 
     @Autowired
@@ -45,7 +43,7 @@ public class GetMessageErrorsIT extends AbstractBackendWSIT {
         errorLogDao.create(logEntry);
 
         GetErrorsRequest errorsRequest = createMessageErrorsRequest(messageId);
-        ErrorResultImplArray response = backendWebService.getMessageErrors(errorsRequest);
+        ErrorResultImplArray response = webServicePluginInterface.getMessageErrors(errorsRequest);
         Assert.assertFalse(response.getItem().isEmpty());
     }
 
@@ -57,7 +55,7 @@ public class GetMessageErrorsIT extends AbstractBackendWSIT {
 
         String messageId = "2809cef6-240f-4792-bec1-7cb300a34679@domibus.eu";
         GetErrorsRequest errorsRequest = createMessageErrorsRequest(messageId);
-        ErrorResultImplArray response = backendWebService.getMessageErrors(errorsRequest);
+        ErrorResultImplArray response = webServicePluginInterface.getMessageErrors(errorsRequest);
         Assert.assertTrue(response.getItem().isEmpty());
     }
 

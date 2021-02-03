@@ -45,7 +45,7 @@ public class WebServicePluginImplTest {
     protected WebServiceExceptionFactory webServicePluginExceptionFactory;
 
     @Injectable
-    protected WSMessageLogDao wsMessageLogDao;
+    protected WSMessageLogService wsMessageLogService;
 
     @Injectable
     private DomainContextExtService domainContextExtService;

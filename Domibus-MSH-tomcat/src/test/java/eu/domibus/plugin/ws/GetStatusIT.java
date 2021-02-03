@@ -1,11 +1,11 @@
-package eu.domibus.plugin.webService;
+package eu.domibus.plugin.ws;
 
 import eu.domibus.AbstractBackendWSIT;
 import eu.domibus.core.message.MessagingService;
 import eu.domibus.messaging.XmlProcessingException;
-import eu.domibus.plugin.webService.generated.MessageStatus;
-import eu.domibus.plugin.webService.generated.StatusFault;
-import eu.domibus.plugin.webService.generated.StatusRequest;
+import eu.domibus.plugin.ws.generated.StatusFault;
+import eu.domibus.plugin.ws.generated.body.MessageStatus;
+import eu.domibus.plugin.ws.generated.body.StatusRequest;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,12 +20,8 @@ import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.Provider;
 import java.io.IOException;
 
-/**
- * @deprecated to be removed when deprecated endpoint /backend is removed
- */
 @DirtiesContext
 @Rollback
-@Deprecated
 public class GetStatusIT extends AbstractBackendWSIT {
 
     @Autowired
@@ -49,7 +45,7 @@ public class GetStatusIT extends AbstractBackendWSIT {
         waitUntilMessageIsReceived(messageId);
 
         StatusRequest messageStatusRequest = createMessageStatusRequest(messageId);
-        MessageStatus response = backendWebService.getStatus(messageStatusRequest);
+        MessageStatus response = webServicePluginInterface.getStatus(messageStatusRequest);
         Assert.assertEquals(MessageStatus.RECEIVED, response);
     }
 
@@ -57,20 +53,20 @@ public class GetStatusIT extends AbstractBackendWSIT {
     public void testGetStatusInvalidId() throws StatusFault {
         String invalidMessageId = "invalid";
         StatusRequest messageStatusRequest = createMessageStatusRequest(invalidMessageId);
-        MessageStatus response = backendWebService.getStatus(messageStatusRequest);
+        MessageStatus response = webServicePluginInterface.getStatus(messageStatusRequest);
         Assert.assertEquals(MessageStatus.NOT_FOUND, response);
     }
 
-    @Test(expected = StatusFault.class)
-    public void testGetStatusEmptyMessageId() throws StatusFault {
+    @Test
+    public void testGetStatusEmptyMessageId() {
         String emptyMessageId = "";
         StatusRequest messageStatusRequest = createMessageStatusRequest(emptyMessageId);
         try {
-            backendWebService.getStatus(messageStatusRequest);
+            webServicePluginInterface.getStatus(messageStatusRequest);
+            Assert.fail();
         } catch (StatusFault statusFault) {
             String message = "Message ID is empty";
             Assert.assertEquals(message, statusFault.getMessage());
-            throw statusFault;
         }
     }
 

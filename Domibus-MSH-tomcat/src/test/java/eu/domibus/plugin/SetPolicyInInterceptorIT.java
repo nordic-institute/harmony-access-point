@@ -1,4 +1,4 @@
-package eu.domibus.plugin.webService;
+package eu.domibus.plugin;
 
 import eu.domibus.AbstractBackendWSIT;
 import eu.domibus.core.ebms3.receiver.leg.MessageLegConfigurationFactory;

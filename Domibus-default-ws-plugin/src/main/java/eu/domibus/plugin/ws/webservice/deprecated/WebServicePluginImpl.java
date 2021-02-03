@@ -1,8 +1,9 @@
 package eu.domibus.plugin.ws.webservice.deprecated;
 
 import eu.domibus.common.ErrorResult;
-import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.ObjectFactory;
-import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.*;
+import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.MessageInfo;
+import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging;
+import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.PayloadInfo;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.exceptions.AuthenticationExtException;
 import eu.domibus.ext.exceptions.MessageAcknowledgeExtException;
@@ -21,8 +22,8 @@ import eu.domibus.plugin.ws.connector.WSPluginImpl;
 import eu.domibus.plugin.ws.property.WSPluginPropertyManager;
 import eu.domibus.plugin.ws.webservice.WSMessageLogDao;
 import eu.domibus.plugin.ws.webservice.WSMessageLogEntity;
+import eu.domibus.plugin.ws.webservice.WebServiceImpl;
 import eu.domibus.plugin.ws.webservice.deprecated.mapper.WSPluginMessagingMapper;
-import eu.domibus.plugin.ws.webservice.deprecated.mapper.WSPluginUserMessageMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.common.util.CollectionUtils;
 import org.springframework.transaction.annotation.Propagation;
@@ -58,8 +59,6 @@ public class WebServicePluginImpl implements BackendInterface {
 
     public static final eu.domibus.plugin.webService.generated.ObjectFactory WEBSERVICE_OF = new eu.domibus.plugin.webService.generated.ObjectFactory();
 
-    private static final ObjectFactory EBMS_OBJECT_FACTORY = new ObjectFactory();
-
     private static final String MIME_TYPE = "MimeType";
 
     private static final String MESSAGE_ID_EMPTY = "Message ID is empty";
@@ -82,8 +81,6 @@ public class WebServicePluginImpl implements BackendInterface {
 
     private WSPluginImpl wsPlugin;
     private WSPluginMessagingMapper messagingMapper;
-    private WSPluginUserMessageMapper userMessageMapper;
-
     public WebServicePluginImpl(MessageAcknowledgeExtService messageAcknowledgeExtService,
                                 WebServicePluginExceptionFactory webServicePluginExceptionFactory,
                                 WSMessageLogDao wsMessageLogDao,
@@ -92,8 +89,7 @@ public class WebServicePluginImpl implements BackendInterface {
                                 AuthenticationExtService authenticationExtService,
                                 MessageExtService messageExtService,
                                 WSPluginImpl wsPlugin,
-                                WSPluginMessagingMapper messagingMapper,
-                                WSPluginUserMessageMapper userMessageMapper) {
+                                WSPluginMessagingMapper messagingMapper) {
         this.messageAcknowledgeExtService = messageAcknowledgeExtService;
         this.webServicePluginExceptionFactory = webServicePluginExceptionFactory;
         this.wsMessageLogDao = wsMessageLogDao;
@@ -103,7 +99,6 @@ public class WebServicePluginImpl implements BackendInterface {
         this.messageExtService = messageExtService;
         this.wsPlugin = wsPlugin;
         this.messagingMapper = messagingMapper;
-        this.userMessageMapper = userMessageMapper;
     }
 
     /**
@@ -119,7 +114,6 @@ public class WebServicePluginImpl implements BackendInterface {
     @Transactional(propagation = Propagation.REQUIRED, timeout = 1200) // 20 minutes
     public SubmitResponse submitMessage(SubmitRequest submitRequest, Messaging ebMSHeaderInfo) throws SubmitMessageFault {
         LOG.debug("Received message");
-
 
 
         if (ebMSHeaderInfo.getUserMessage().getMessageInfo() == null) {
@@ -312,7 +306,6 @@ public class WebServicePluginImpl implements BackendInterface {
     public void retrieveMessage(RetrieveMessageRequest retrieveMessageRequest,
                                 Holder<RetrieveMessageResponse> retrieveMessageResponse,
                                 Holder<Messaging> ebMSHeaderInfo) throws RetrieveMessageFault {
-        UserMessage userMessage;
         boolean isMessageIdNotEmpty = StringUtils.isNotEmpty(retrieveMessageRequest.getMessageID());
 
         if (!isMessageIdNotEmpty) {
@@ -327,18 +320,18 @@ public class WebServicePluginImpl implements BackendInterface {
             throw new RetrieveMessageFault(MESSAGE_NOT_FOUND_ID + trimmedMessageId + "]", webServicePluginExceptionFactory.createFault("No message with id [" + trimmedMessageId + "] pending for download"));
         }
 
-        userMessage = getUserMessage(retrieveMessageRequest, trimmedMessageId);
-
+        eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.UserMessage userMessage =
+                getUserMessage(retrieveMessageRequest, trimmedMessageId);
+        eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging messagingWs =
+                WebServiceImpl.EBMS_OBJECT_FACTORY.createMessaging();
+        messagingWs.setUserMessage(userMessage);
+        retrieveMessageResponse.value = WEBSERVICE_OF.createRetrieveMessageResponse();
+        fillInfoPartsForLargeFilesWs(retrieveMessageResponse, messagingWs);
         // To avoid blocking errors during the Header's response validation
         if (StringUtils.isEmpty(userMessage.getCollaborationInfo().getAgreementRef().getValue())) {
             userMessage.getCollaborationInfo().setAgreementRef(null);
         }
-        Messaging messaging = EBMS_OBJECT_FACTORY.createMessaging();
-        messaging.setUserMessage(userMessage);
-        ebMSHeaderInfo.value = messaging;
-        retrieveMessageResponse.value = WEBSERVICE_OF.createRetrieveMessageResponse();
-
-        fillInfoPartsForLargeFiles(retrieveMessageResponse, messaging);
+        ebMSHeaderInfo.value = messagingMapper.messagingFromEntity(messagingWs);
 
         try {
             messageAcknowledgeExtService.acknowledgeMessageDelivered(trimmedMessageId, new Timestamp(System.currentTimeMillis()));
@@ -351,10 +344,10 @@ public class WebServicePluginImpl implements BackendInterface {
         wsMessageLogDao.delete(wsMessageLogEntity);
     }
 
-    private UserMessage getUserMessage(RetrieveMessageRequest retrieveMessageRequest, String trimmedMessageId) throws RetrieveMessageFault {
-        UserMessage userMessage;
+    private eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.UserMessage getUserMessage(RetrieveMessageRequest retrieveMessageRequest, String trimmedMessageId) throws RetrieveMessageFault {
+        eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.UserMessage userMessage;
         try {
-            userMessage = userMessageMapper.userMessageEntityTo(wsPlugin.downloadMessage(trimmedMessageId, null));
+            userMessage = wsPlugin.downloadMessage(trimmedMessageId, null);
         } catch (final MessageNotFoundException mnfEx) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug(MESSAGE_NOT_FOUND_ID + retrieveMessageRequest.getMessageID() + "]", mnfEx);
@@ -370,14 +363,14 @@ public class WebServicePluginImpl implements BackendInterface {
         return userMessage;
     }
 
-    private void fillInfoPartsForLargeFiles(Holder<RetrieveMessageResponse> retrieveMessageResponse, Messaging messaging) {
+    private void fillInfoPartsForLargeFilesWs(Holder<RetrieveMessageResponse> retrieveMessageResponse, eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging messaging) {
         if (getPayloadInfo(messaging) == null || CollectionUtils.isEmpty(getPartInfo(messaging))) {
             LOG.info("No payload found for message [{}]", messaging.getUserMessage().getMessageInfo().getMessageId());
             return;
         }
 
-        for (final PartInfo partInfo : getPartInfo(messaging)) {
-            ExtendedPartInfo extPartInfo = (ExtendedPartInfo) partInfo;
+        for (final eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.PartInfo partInfo : getPartInfo(messaging)) {
+            eu.domibus.plugin.ws.webservice.ExtendedPartInfo extPartInfo = (eu.domibus.plugin.ws.webservice.ExtendedPartInfo) partInfo;
             LargePayloadType payloadType = WEBSERVICE_OF.createLargePayloadType();
             if (extPartInfo.getPayloadDatahandler() != null) {
                 LOG.debug("payloadDatahandler Content Type: [{}]", extPartInfo.getPayloadDatahandler().getContentType());
@@ -398,6 +391,7 @@ public class WebServicePluginImpl implements BackendInterface {
         }
         return messaging.getUserMessage().getPayloadInfo();
     }
+
     private PayloadInfo getPayloadInfo(Messaging messaging) {
         if (messaging.getUserMessage() == null) {
             return null;
@@ -407,13 +401,6 @@ public class WebServicePluginImpl implements BackendInterface {
 
     private List<eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.PartInfo> getPartInfo(eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging messaging) {
         eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.PayloadInfo payloadInfo = getPayloadInfo(messaging);
-        if (payloadInfo == null) {
-            return new ArrayList<>();
-        }
-        return payloadInfo.getPartInfo();
-    }
-    private List<PartInfo> getPartInfo(Messaging messaging) {
-        PayloadInfo payloadInfo = getPayloadInfo(messaging);
         if (payloadInfo == null) {
             return new ArrayList<>();
         }
