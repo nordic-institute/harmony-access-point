@@ -6,13 +6,7 @@
     <!-- IMPORTANT: this is the full script, add your changes inside in the right section -->
 
     <!-- properties - to be used in column definitions -->
-    <property name="now" value="sysdate" dbms="oracle"/>
-    <property name="now" value="now()" dbms="mysql"/>
-    <property name="current_db_user" value="user" dbms="oracle"/>
-    <!-- MySQL cannot handle functions as DEFAULT values and the alternative would be to add a trigger for all these
-    tables. Either way this value will most probably never be used (i.e. used only in the initial inserts below)
-    since a value will always be provided at runtime.-->
-    <property name="current_db_user" value="'DOMIBUS'" dbms="mysql"/>
+    <include file="common/changelog-properties.xml" relativeToChangelogFile="true"/>
 
     <!-- sequences -->
     <changeSet dbms="oracle" author="Cosmin Baciu" id="hibernate_sequence_multi_tenancy">
@@ -21,7 +15,7 @@
     </changeSet>
 
     <!-- Quartz tables -->
-    <include file="changelog-4.0-quartz.xml" relativeToChangelogFile="true"/>
+    <include file="archive/changelog-4.0-quartz.xml" relativeToChangelogFile="true"/>
 
     <!-- Domibus tables-->
     <changeSet author="Catalin Enache" id="1564496480476-13">

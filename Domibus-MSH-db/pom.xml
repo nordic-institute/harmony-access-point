@@ -554,7 +554,7 @@
                        </goals>
                        <configuration>
                            <changeLogFile>
-                               src/main/resources/db/changelog-4.0.1-multi-tenancy-delta.xml
+                               src/main/resources/db/archive/changelog-4.0.1-multi-tenancy-delta.xml
                            </changeLogFile>
                            <url>
                                offline:mysql?changeLogFile=${project.build.directory}/liquibase/changelog-4.0.1-multi-tenancy-delta.mysql
@@ -572,7 +572,7 @@
                        </goals>
                        <configuration>
                            <changeLogFile>
-                               src/main/resources/db/changelog-4.0.1-multi-tenancy-delta.xml
+                               src/main/resources/db/archive/changelog-4.0.1-multi-tenancy-delta.xml
                            </changeLogFile>
                            <url>
                                offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-4.0.1-multi-tenancy-delta.oracle
@@ -590,7 +590,7 @@
                        </goals>
                        <configuration>
                            <changeLogFile>
-                               src/main/resources/db/changelog-4.0.1-delta.xml
+                               src/main/resources/db/archive/changelog-4.0.1-delta.xml
                            </changeLogFile>
                            <url>
                                offline:mysql?changeLogFile=${project.build.directory}/liquibase/changelog-4.0.1-delta.mysql
@@ -608,7 +608,7 @@
                        </goals>
                        <configuration>
                            <changeLogFile>
-                               src/main/resources/db/changelog-4.0.1-delta.xml
+                               src/main/resources/db/archive/changelog-4.0.1-delta.xml
                            </changeLogFile>
                            <url>
                                offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-4.0.1-delta.oracle
@@ -626,7 +626,7 @@
                        </goals>
                        <configuration>
                            <changeLogFile>
-                               src/main/resources/db/changelog-4.0-delta.xml
+                               src/main/resources/db/archive/changelog-4.0-delta.xml
                            </changeLogFile>
                            <url>
                                offline:mysql?changeLogFile=${project.build.directory}/liquibase/changelog-4.0-delta.mysql
@@ -644,7 +644,7 @@
                        </goals>
                        <configuration>
                            <changeLogFile>
-                               src/main/resources/db/changelog-4.0-delta.xml
+                               src/main/resources/db/archive/changelog-4.0-delta.xml
                            </changeLogFile>
                            <url>
                                offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-4.0-delta.oracle

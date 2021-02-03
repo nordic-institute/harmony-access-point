@@ -16,7 +16,7 @@
     </changeSet>
 
     <!-- Quartz tables -->
-    <include file="changelog-4.0-quartz.xml" relativeToChangelogFile="true"/>
+    <include file="archive/changelog-4.0-quartz.xml" relativeToChangelogFile="true"/>
 
     <!-- Plugin specific tables -->
     <changeSet author="idragusa" id="EDELIVERY-4740">
