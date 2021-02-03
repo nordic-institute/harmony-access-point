@@ -112,6 +112,12 @@ public class DomibusPropertyMetadata {
         return res;
     }
 
+    public static DomibusPropertyMetadata getGlobalProperty(String name, Type type, boolean encrypted) {
+        DomibusPropertyMetadata res = new DomibusPropertyMetadata(name, Usage.GLOBAL, false, encrypted);
+        res.setType(type.name());
+        return res;
+    }
+
     public static DomibusPropertyMetadata getReadOnlyGlobalProperty(String name) {
         return getReadOnlyGlobalProperty(name, Type.STRING);
     }
@@ -159,6 +165,10 @@ public class DomibusPropertyMetadata {
 
     public DomibusPropertyMetadata(String name, Usage usage, boolean withFallback) {
         this(name, Module.MSH, true, usage, withFallback, true, false, false);
+    }
+
+    public DomibusPropertyMetadata(String name, Usage usage, boolean withFallback, boolean encrypted) {
+        this(name, Module.MSH, true, usage, withFallback, true, encrypted, false);
     }
 
     public DomibusPropertyMetadata(String name, Type type, boolean writable, Usage usage, boolean withFallback) {
