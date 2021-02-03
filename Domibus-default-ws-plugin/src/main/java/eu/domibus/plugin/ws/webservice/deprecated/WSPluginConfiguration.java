@@ -1,11 +1,16 @@
 package eu.domibus.plugin.ws.webservice.deprecated;
 
-import eu.domibus.common.NotificationType;
-import eu.domibus.ext.services.*;
+import eu.domibus.ext.services.AuthenticationExtService;
+import eu.domibus.ext.services.DomainContextExtService;
+import eu.domibus.ext.services.MessageAcknowledgeExtService;
+import eu.domibus.ext.services.MessageExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.plugin.ws.connector.WSPluginImpl;
 import eu.domibus.plugin.ws.property.WSPluginPropertyManager;
 import eu.domibus.plugin.ws.webservice.WSMessageLogDao;
+import eu.domibus.plugin.ws.webservice.deprecated.mapper.WSPluginMessagingMapper;
+import eu.domibus.plugin.ws.webservice.deprecated.mapper.WSPluginUserMessageMapper;
 import eu.domibus.plugin.ws.webservice.interceptor.ClearAuthenticationMDCInterceptor;
 import eu.domibus.plugin.ws.webservice.interceptor.CustomAuthenticationInterceptor;
 import eu.domibus.plugin.ws.webservice.interceptor.WebServiceFaultOutInterceptor;
@@ -32,19 +37,6 @@ public class WSPluginConfiguration {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginConfiguration.class);
 
-    @Bean(WSPluginImpl.DEPRECATED_PLUGIN_NAME)
-    public WSPluginImpl createBackendJMSDeprecatedImpl(
-            DomibusPropertyExtService domibusPropertyExtService,
-            StubDtoTransformer defaultTransformer,
-            WSMessageLogDao wsMessageLogDao) {
-        List<NotificationType> messageNotifications = domibusPropertyExtService.getConfiguredNotifications(WSPluginPropertyManager.MESSAGE_NOTIFICATIONS);
-        LOG.debug("Using the following message notifications [{}]", messageNotifications);
-        WSPluginImpl jmsPlugin =
-                new WSPluginImpl(defaultTransformer, wsMessageLogDao);
-        jmsPlugin.setRequiredNotifications(messageNotifications);
-        return jmsPlugin;
-    }
-
     @Bean("backendWebserviceDeprecated")
     public WebServicePluginImpl createWSPlugin(MessageAcknowledgeExtService messageAcknowledgeExtService,
                                                WebServicePluginExceptionFactory webServicePluginExceptionFactory,
@@ -53,7 +45,9 @@ public class WSPluginConfiguration {
                                                WSPluginPropertyManager wsPluginPropertyManager,
                                                AuthenticationExtService authenticationExtService,
                                                MessageExtService messageExtService,
-                                               WSPluginImpl wsPlugin) {
+                                               WSPluginImpl wsPlugin,
+                                               WSPluginMessagingMapper messagingMapper,
+                                               WSPluginUserMessageMapper userMessageMapper) {
         return new WebServicePluginImpl(messageAcknowledgeExtService,
                 webServicePluginExceptionFactory,
                 wsMessageLogDao,
@@ -61,17 +55,19 @@ public class WSPluginConfiguration {
                 wsPluginPropertyManager,
                 authenticationExtService,
                 messageExtService,
-                wsPlugin);
+                wsPlugin,
+                messagingMapper,
+                userMessageMapper);
     }
 
     @Bean("backendInterfaceEndpointDeprecated")
     public Endpoint backendInterfaceEndpointDeprecated(@Qualifier(Bus.DEFAULT_BUS_ID) Bus bus,
-                                             WebServicePluginImpl backendWebService,
-                                             WSPluginPropertyManager wsPluginPropertyManager,
-                                             CustomAuthenticationInterceptor customAuthenticationInterceptor,
-                                             ClearAuthenticationMDCInterceptor clearAuthenticationMDCInterceptor,
-                                             WebServiceFaultOutInterceptor wsPluginFaultOutInterceptor,
-                                             @Qualifier("wsLoggingFeature") LoggingFeature wsLoggingFeature) {
+                                                       WebServicePluginImpl backendWebService,
+                                                       WSPluginPropertyManager wsPluginPropertyManager,
+                                                       CustomAuthenticationInterceptor customAuthenticationInterceptor,
+                                                       ClearAuthenticationMDCInterceptor clearAuthenticationMDCInterceptor,
+                                                       WebServiceFaultOutInterceptor wsPluginFaultOutInterceptor,
+                                                       @Qualifier("wsLoggingFeature") LoggingFeature wsLoggingFeature) {
         LOG.warn("This endpoint is deprecated, please use the new end point /wsPlugin");
         EndpointImpl endpoint = new EndpointImpl(bus, backendWebService); //NOSONAR
         Map<String, Object> endpointProperties = getEndpointProperties(wsPluginPropertyManager);

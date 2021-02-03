@@ -6,21 +6,25 @@ import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.exceptions.AuthenticationExtException;
 import eu.domibus.ext.exceptions.MessageAcknowledgeExtException;
-import eu.domibus.ext.services.*;
+import eu.domibus.ext.services.AuthenticationExtService;
+import eu.domibus.ext.services.DomainContextExtService;
+import eu.domibus.ext.services.MessageAcknowledgeExtService;
+import eu.domibus.ext.services.MessageExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.messaging.MessagingProcessingException;
+import eu.domibus.plugin.webService.generated.*;
+import eu.domibus.plugin.ws.connector.WSPluginImpl;
+import eu.domibus.plugin.ws.property.WSPluginPropertyManager;
 import eu.domibus.plugin.ws.webservice.WSMessageLogDao;
 import eu.domibus.plugin.ws.webservice.WSMessageLogEntity;
-import eu.domibus.plugin.ws.exception.WSPluginException;
-import eu.domibus.plugin.webService.generated.*;
-import eu.domibus.plugin.ws.property.WSPluginPropertyManager;
+import eu.domibus.plugin.ws.webservice.deprecated.mapper.WSPluginMessagingMapper;
+import eu.domibus.plugin.ws.webservice.deprecated.mapper.WSPluginUserMessageMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.common.util.CollectionUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,7 +41,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- *  @deprecated since 5.0 Use instead {@link eu.domibus.plugin.ws.webservice.WebServiceImpl}
+ * @deprecated since 5.0 Use instead {@link eu.domibus.plugin.ws.webservice.WebServiceImpl}
  */
 @SuppressWarnings("ValidExternallyBoundObject")
 @Deprecated
@@ -62,29 +66,23 @@ public class WebServicePluginImpl implements BackendInterface {
 
     private static final String MESSAGE_NOT_FOUND_ID = "Message not found, id [";
 
-    @Autowired
     private MessageAcknowledgeExtService messageAcknowledgeExtService;
 
-    @Autowired
     protected WebServicePluginExceptionFactory webServicePluginExceptionFactory;
 
-    @Autowired
     protected WSMessageLogDao wsMessageLogDao;
 
-    @Autowired
     private DomainContextExtService domainContextExtService;
 
-    @Autowired
     protected WSPluginPropertyManager wsPluginPropertyManager;
 
-    @Autowired
     private AuthenticationExtService authenticationExtService;
 
-    @Autowired
     protected MessageExtService messageExtService;
 
-    @Autowired
     private WSPluginImpl wsPlugin;
+    private WSPluginMessagingMapper messagingMapper;
+    private WSPluginUserMessageMapper userMessageMapper;
 
     public WebServicePluginImpl(MessageAcknowledgeExtService messageAcknowledgeExtService,
                                 WebServicePluginExceptionFactory webServicePluginExceptionFactory,
@@ -93,7 +91,9 @@ public class WebServicePluginImpl implements BackendInterface {
                                 WSPluginPropertyManager wsPluginPropertyManager,
                                 AuthenticationExtService authenticationExtService,
                                 MessageExtService messageExtService,
-                                WSPluginImpl wsPlugin) {
+                                WSPluginImpl wsPlugin,
+                                WSPluginMessagingMapper messagingMapper,
+                                WSPluginUserMessageMapper userMessageMapper) {
         this.messageAcknowledgeExtService = messageAcknowledgeExtService;
         this.webServicePluginExceptionFactory = webServicePluginExceptionFactory;
         this.wsMessageLogDao = wsMessageLogDao;
@@ -102,6 +102,8 @@ public class WebServicePluginImpl implements BackendInterface {
         this.authenticationExtService = authenticationExtService;
         this.messageExtService = messageExtService;
         this.wsPlugin = wsPlugin;
+        this.messagingMapper = messagingMapper;
+        this.userMessageMapper = userMessageMapper;
     }
 
     /**
@@ -118,7 +120,8 @@ public class WebServicePluginImpl implements BackendInterface {
     public SubmitResponse submitMessage(SubmitRequest submitRequest, Messaging ebMSHeaderInfo) throws SubmitMessageFault {
         LOG.debug("Received message");
 
-        addPartInfos(submitRequest, ebMSHeaderInfo);
+
+
         if (ebMSHeaderInfo.getUserMessage().getMessageInfo() == null) {
             MessageInfo messageInfo = new MessageInfo();
             messageInfo.setTimestamp(LocalDateTime.now());
@@ -132,10 +135,13 @@ public class WebServicePluginImpl implements BackendInterface {
                 ebMSHeaderInfo.getUserMessage().getMessageInfo().setMessageId(trimmedMessageId);
             }
         }
+        eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging message = messagingMapper.messagingToEntity(ebMSHeaderInfo);
+
+        addPartInfos(submitRequest, message);
 
         final String messageId;
         try {
-            messageId = wsPlugin.submit(ebMSHeaderInfo);
+            messageId = wsPlugin.submit(message);
         } catch (final MessagingProcessingException mpEx) {
             LOG.error(MESSAGE_SUBMISSION_FAILED, mpEx);
             throw new SubmitMessageFault(MESSAGE_SUBMISSION_FAILED, generateFaultDetail(mpEx));
@@ -146,21 +152,7 @@ public class WebServicePluginImpl implements BackendInterface {
         return response;
     }
 
-    public UserMessage getUserMessage(String messageId) {
-        UserMessage userMessage;
-        try {
-            userMessage = wsPlugin.downloadMessage(messageId, null);
-        } catch (final MessageNotFoundException mnfEx) {
-            throw new WSPluginException(MESSAGE_NOT_FOUND_ID + messageId + "]");
-        }
-
-        if (userMessage == null) {
-            throw new WSPluginException(MESSAGE_NOT_FOUND_ID + messageId + "]");
-        }
-        return userMessage;
-    }
-
-    private void addPartInfos(SubmitRequest submitRequest, Messaging ebMSHeaderInfo) throws SubmitMessageFault {
+    private void addPartInfos(SubmitRequest submitRequest, eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging ebMSHeaderInfo) throws SubmitMessageFault {
 
         if (getPayloadInfo(ebMSHeaderInfo) == null) {
             return;
@@ -168,11 +160,11 @@ public class WebServicePluginImpl implements BackendInterface {
 
         validateSubmitRequest(submitRequest);
 
-        List<PartInfo> partInfoList = getPartInfo(ebMSHeaderInfo);
-        List<ExtendedPartInfo> partInfosToAdd = new ArrayList<>();
+        List<eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.PartInfo> partInfoList = getPartInfo(ebMSHeaderInfo);
+        List<eu.domibus.plugin.ws.webservice.ExtendedPartInfo> partInfosToAdd = new ArrayList<>();
 
-        for (Iterator<PartInfo> i = partInfoList.iterator(); i.hasNext(); ) {
-            ExtendedPartInfo extendedPartInfo = new ExtendedPartInfo(i.next());
+        for (Iterator<eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.PartInfo> i = partInfoList.iterator(); i.hasNext(); ) {
+            eu.domibus.plugin.ws.webservice.ExtendedPartInfo extendedPartInfo = new eu.domibus.plugin.ws.webservice.ExtendedPartInfo(i.next());
             partInfosToAdd.add(extendedPartInfo);
             i.remove();
 
@@ -181,7 +173,7 @@ public class WebServicePluginImpl implements BackendInterface {
         partInfoList.addAll(partInfosToAdd);
     }
 
-    private void initPartInfoPayLoad(SubmitRequest submitRequest, ExtendedPartInfo extendedPartInfo) throws SubmitMessageFault {
+    private void initPartInfoPayLoad(SubmitRequest submitRequest, eu.domibus.plugin.ws.webservice.ExtendedPartInfo extendedPartInfo) throws SubmitMessageFault {
         boolean foundPayload = false;
         final String href = extendedPartInfo.getHref();
         LOG.debug("Looking for payload: {}", href);
@@ -202,7 +194,7 @@ public class WebServicePluginImpl implements BackendInterface {
         }
     }
 
-    private void initPayloadInBody(SubmitRequest submitRequest, ExtendedPartInfo extendedPartInfo, String href) throws SubmitMessageFault {
+    private void initPayloadInBody(SubmitRequest submitRequest, eu.domibus.plugin.ws.webservice.ExtendedPartInfo extendedPartInfo, String href) throws SubmitMessageFault {
         final LargePayloadType bodyload = submitRequest.getBodyload();
         if (bodyload == null) {
             // in this case the payload referenced in the partInfo was neither an external payload nor a bodyload
@@ -245,14 +237,14 @@ public class WebServicePluginImpl implements BackendInterface {
         return fd;
     }
 
-    private void copyPartProperties(final String payloadContentType, final ExtendedPartInfo partInfo) {
-        final PartProperties partProperties = new PartProperties();
-        Property prop;
+    private void copyPartProperties(final String payloadContentType, final eu.domibus.plugin.ws.webservice.ExtendedPartInfo partInfo) {
+        final eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.PartProperties partProperties = new eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.PartProperties();
+        eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Property prop;
 
         // add all partproperties WEBSERVICE_OF the backend message
         if (partInfo.getPartProperties() != null) {
-            for (final Property property : partInfo.getPartProperties().getProperty()) {
-                prop = new Property();
+            for (final eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Property property : partInfo.getPartProperties().getProperty()) {
+                prop = new eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Property();
 
                 prop.setName(property.getName());
                 prop.setValue(property.getValue());
@@ -261,7 +253,7 @@ public class WebServicePluginImpl implements BackendInterface {
         }
 
         boolean mimeTypePropFound = false;
-        for (final Property property : partProperties.getProperty()) {
+        for (final eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Property property : partProperties.getProperty()) {
             if (MIME_TYPE.equals(property.getName())) {
                 mimeTypePropFound = true;
                 break;
@@ -269,7 +261,7 @@ public class WebServicePluginImpl implements BackendInterface {
         }
         // in case there was no property with name {@value Property.MIME_TYPE} and xmime:contentType attribute was set noinspection SuspiciousMethodCalls
         if (!mimeTypePropFound && payloadContentType != null) {
-            prop = new Property();
+            prop = new eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Property();
             prop.setName(MIME_TYPE);
             prop.setValue(payloadContentType);
             partProperties.getProperty().add(prop);
@@ -362,7 +354,7 @@ public class WebServicePluginImpl implements BackendInterface {
     private UserMessage getUserMessage(RetrieveMessageRequest retrieveMessageRequest, String trimmedMessageId) throws RetrieveMessageFault {
         UserMessage userMessage;
         try {
-            userMessage = wsPlugin.downloadMessage(trimmedMessageId, null);
+            userMessage = userMessageMapper.userMessageEntityTo(wsPlugin.downloadMessage(trimmedMessageId, null));
         } catch (final MessageNotFoundException mnfEx) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug(MESSAGE_NOT_FOUND_ID + retrieveMessageRequest.getMessageID() + "]", mnfEx);
@@ -400,6 +392,12 @@ public class WebServicePluginImpl implements BackendInterface {
         }
     }
 
+    private eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.PayloadInfo getPayloadInfo(eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging messaging) {
+        if (messaging.getUserMessage() == null) {
+            return null;
+        }
+        return messaging.getUserMessage().getPayloadInfo();
+    }
     private PayloadInfo getPayloadInfo(Messaging messaging) {
         if (messaging.getUserMessage() == null) {
             return null;
@@ -407,6 +405,13 @@ public class WebServicePluginImpl implements BackendInterface {
         return messaging.getUserMessage().getPayloadInfo();
     }
 
+    private List<eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.PartInfo> getPartInfo(eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging messaging) {
+        eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.PayloadInfo payloadInfo = getPayloadInfo(messaging);
+        if (payloadInfo == null) {
+            return new ArrayList<>();
+        }
+        return payloadInfo.getPartInfo();
+    }
     private List<PartInfo> getPartInfo(Messaging messaging) {
         PayloadInfo payloadInfo = getPayloadInfo(messaging);
         if (payloadInfo == null) {

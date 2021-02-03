@@ -21,9 +21,9 @@ import static eu.domibus.plugin.ws.backend.reliability.queue.WSMessageListenerCo
  */
 @Conditional(ApplicationServerCondition.class)
 @Configuration
-public class WSbackendApplicationServerConfiguration {
+public class WSBackendApplicationServerConfiguration {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSbackendApplicationServerConfiguration.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSBackendApplicationServerConfiguration.class);
 
     @Bean(WS_PLUGIN_SEND_QUEUE)
     public JndiObjectFactoryBean sendMessageQueue(WSPluginPropertyManager wsPluginPropertyManager) {

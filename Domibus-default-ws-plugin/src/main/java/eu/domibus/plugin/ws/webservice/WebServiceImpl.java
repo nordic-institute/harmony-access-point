@@ -26,7 +26,6 @@ import eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.eb
 import eu.domibus.plugin.ws.property.WSPluginPropertyManager;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.common.util.CollectionUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -64,28 +63,20 @@ public class WebServiceImpl implements WebServicePluginInterface {
 
     private static final String MESSAGE_NOT_FOUND_ID = "Message not found, id [";
 
-    @Autowired
     private MessageAcknowledgeExtService messageAcknowledgeExtService;
 
-    @Autowired
     protected WebServiceExceptionFactory webServicePluginExceptionFactory;
 
-    @Autowired
     protected WSMessageLogDao wsMessageLogDao;
 
-    @Autowired
     private DomainContextExtService domainContextExtService;
 
-    @Autowired
     protected WSPluginPropertyManager wsPluginPropertyManager;
 
-    @Autowired
     private AuthenticationExtService authenticationExtService;
 
-    @Autowired
     protected MessageExtService messageExtService;
 
-    @Autowired
     private WSPluginImpl wsPlugin;
 
     public WebServiceImpl(MessageAcknowledgeExtService messageAcknowledgeExtService,

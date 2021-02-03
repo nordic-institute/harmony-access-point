@@ -9,8 +9,11 @@ import eu.domibus.ext.services.MessageExtService;
 import eu.domibus.plugin.MessageLister;
 import eu.domibus.plugin.handler.MessageRetriever;
 import eu.domibus.plugin.webService.generated.*;
+import eu.domibus.plugin.ws.connector.WSPluginImpl;
 import eu.domibus.plugin.ws.property.WSPluginPropertyManager;
 import eu.domibus.plugin.ws.webservice.WSMessageLogDao;
+import eu.domibus.plugin.ws.webservice.deprecated.mapper.WSPluginMessagingMapper;
+import eu.domibus.plugin.ws.webservice.deprecated.mapper.WSPluginUserMessageMapper;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
@@ -58,6 +61,10 @@ public class WebServicePluginImplTest {
 
     @Injectable
     private WSPluginImpl wsPlugin;
+    @Injectable
+    private WSPluginMessagingMapper messagingMapper;
+    @Injectable
+    private WSPluginUserMessageMapper userMessageMapper;
 
 
     @Test(expected = SubmitMessageFault.class)

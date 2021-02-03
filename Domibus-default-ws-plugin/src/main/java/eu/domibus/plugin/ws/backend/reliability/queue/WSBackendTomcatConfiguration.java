@@ -24,7 +24,6 @@ public class WSBackendTomcatConfiguration {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSBackendTomcatConfiguration.class);
 
     @Bean(WS_PLUGIN_SEND_QUEUE)
-    @Conditional(TomcatCondition.class)
     public ActiveMQQueue wsPluginSendQueue(WSPluginPropertyManager wsPluginPropertyManager) {
         String queueName = wsPluginPropertyManager.getKnownPropertyValue(WSPluginPropertyManager.DISPATCHER_SEND_QUEUE_NAME);
         LOG.debug("Using ws plugin send queue name [{}]", queueName);
