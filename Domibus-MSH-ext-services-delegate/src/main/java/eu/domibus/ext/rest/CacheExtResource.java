@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @since 5.0
  */
 @RestController
-@RequestMapping(value = "/ext/application/evict")
+@RequestMapping(value = "/ext/cache")
 public class CacheExtResource {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CacheExtResource.class);
 
@@ -42,7 +42,7 @@ public class CacheExtResource {
     @ApiOperation(value = "Delete all Caches",
             notes = "Clear all caches from the cacheManager",
             authorizations = @Authorization(value = "basicAuth"), tags = "cache")
-    @DeleteMapping(path = "cache")
+    @DeleteMapping
     public void evictCaches() {
         LOG.debug("External API call to Clear all caches..");
         cacheExtService.evictCaches();
