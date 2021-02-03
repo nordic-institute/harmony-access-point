@@ -90,6 +90,18 @@
                             advanced-filter-behaviour [parent]="this">
             </md2-datepicker>
             <ng-container *ngIf="advancedSearch">
+              <mat-form-field>
+                <input matInput placeholder="Action" name="action" [(ngModel)]="filter.action"
+                       #action="ngModel" id="action_id" advanced-filter-behaviour [parent]="this">
+              </mat-form-field>
+              <mat-form-field>
+                <input matInput placeholder="Service Type" name="serviceType" [(ngModel)]="filter.serviceType"
+                       #serviceType="ngModel" id="serviceType_id" advanced-filter-behaviour [parent]="this">
+              </mat-form-field>
+              <mat-form-field>
+                <input matInput placeholder="Service Value" name="serviceValue" [(ngModel)]="filter.serviceValue"
+                       #serviceValue="ngModel" id="serviceValue_id" advanced-filter-behaviour [parent]="this">
+              </mat-form-field>
               <mat-checkbox name="isTestMessage" id="showTestMessages_id" [(ngModel)]="filter.isTestMessage"
                             advanced-filter-behaviour [parent]="this">
                 Show Only Test Messages
@@ -125,9 +137,9 @@
       <span class="text-select">{{showNextAttemptInfo(row) ? (value | domibusDate) : ''}}</span>
     </ng-template>
 
-  <ng-template #rawTextTpl let-row="row" let-value="value" ngx-datatable-cell-template>
-    <span class="text-select">{{value}}</span>
-  </ng-template>
+    <ng-template #rawTextTpl let-row="row" let-value="value" ngx-datatable-cell-template>
+      <span class="text-select">{{value}}</span>
+    </ng-template>
 
     <ng-template #rowActions let-row="row" let-value="value" ngx-datatable-cell-template>
       <button mat-icon-button color="primary" [disabled]="!isDownloadButtonEnabledAction(row)" button-click-behaviour
@@ -135,10 +147,12 @@
         <mat-icon>file_download</mat-icon>
       </button>
       <button mat-icon-button color="primary" button-click-behaviour
-              (click)="downloadEnvelopeAction(row)" id="downloadEnvelopesButtonRow{{rows.indexOf(row)}}_id" tooltip="Download Envelopes">
+              (click)="downloadEnvelopeAction(row)" id="downloadEnvelopesButtonRow{{rows.indexOf(row)}}_id"
+              tooltip="Download Envelopes">
         <mat-icon>local_post_office</mat-icon>
       </button>
-      <button mat-icon-button color="primary" *ngIf="isCurrentUserAdmin()" [disabled]="!isResendButtonEnabledAction(row)" (click)="resendDialog()"
+      <button mat-icon-button color="primary" *ngIf="isCurrentUserAdmin()"
+              [disabled]="!isResendButtonEnabledAction(row)" (click)="resendDialog()"
               id="resendButtonRow{{rows.indexOf(row)}}_id" tooltip="Resend" button-click-behaviour>
         <mat-icon>send</mat-icon>
       </button>
@@ -150,7 +164,8 @@
         <mat-icon>file_download</mat-icon>
         <span>Download</span>
       </button>
-      <button mat-raised-button color="primary" *ngIf="isCurrentUserAdmin()" [disabled]="!isResendButtonEnabled()" (click)="resendDialog()"
+      <button mat-raised-button color="primary" *ngIf="isCurrentUserAdmin()" [disabled]="!isResendButtonEnabled()"
+              (click)="resendDialog()"
               id="resendbutton_id" button-click-behaviour>
         <mat-icon>send</mat-icon>
         <span>Resend</span>

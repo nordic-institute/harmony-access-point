@@ -350,6 +350,9 @@ public class DomainCoreDefaultConverterTest {
         final UIMessageEntity convertedBack = domainCoreConverter.convert(converted, UIMessageEntity.class);
         convertedBack.setLastModified(toConvert.getLastModified());
         convertedBack.setEntityId(toConvert.getEntityId());
+        convertedBack.setAction(toConvert.getAction());
+        convertedBack.setServiceType(toConvert.getServiceType());
+        convertedBack.setServiceValue(toConvert.getServiceValue());
         objectService.assertObjects(convertedBack, toConvert);
     }
 
@@ -385,6 +388,9 @@ public class DomainCoreDefaultConverterTest {
         convertedBack.setFromScheme(toConvert.getFromScheme());
         convertedBack.setToScheme(toConvert.getToScheme());
         convertedBack.setLastModified(toConvert.getLastModified());
+        convertedBack.setServiceType(toConvert.getServiceType());
+        convertedBack.setServiceValue(toConvert.getServiceValue());
+        convertedBack.setAction(toConvert.getAction());
         objectService.assertObjects(convertedBack, toConvert);
     }
 
@@ -399,6 +405,9 @@ public class DomainCoreDefaultConverterTest {
         convertedBack.setFromScheme(toConvert.getFromScheme());
         convertedBack.setToScheme(toConvert.getToScheme());
         convertedBack.setLastModified(toConvert.getLastModified());
+        convertedBack.setAction(toConvert.getAction());
+        convertedBack.setServiceType(toConvert.getServiceType());
+        convertedBack.setServiceValue(toConvert.getServiceValue());
         objectService.assertObjects(convertedBack, toConvert);
     }
 

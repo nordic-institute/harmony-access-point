@@ -967,6 +967,9 @@
             <column name="FAILED" type="TIMESTAMP"/>
             <column name="RESTORED" type="TIMESTAMP"/>
             <column name="MESSAGE_SUBTYPE" type="VARCHAR(255)"/>
+            <column name="ACTION" type="VARCHAR(255)"/>
+            <column name="SERVICE_TYPE" type="VARCHAR(255)"/>
+            <column name="SERVICE_VALUE" type="VARCHAR(255)"/>
             <column defaultValueComputed="${now}" name="LAST_MODIFIED" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
@@ -2194,6 +2197,18 @@
             <column name="RECEIVED"/>
         </createIndex>
 
+        <createIndex indexName="IDX_MSG_UI_ACTION" tableName="TB_MESSAGE_UI">
+            <column name="ACTION"/>
+        </createIndex>
+
+        <createIndex indexName="IDX_MSG_UI_SRV_TYPE" tableName="TB_MESSAGE_UI">
+            <column name="SERVICE_TYPE"/>
+        </createIndex>
+
+        <createIndex indexName="IDX_MSG_UI_SRV_VAL" tableName="TB_MESSAGE_UI">
+            <column name="SERVICE_VALUE"/>
+        </createIndex>
+
         <createIndex indexName="IDX_PARTY_ID_VALUE" tableName="TB_PARTY_ID">
             <column name="VALUE"/>
         </createIndex>
@@ -2752,7 +2767,10 @@
             ref_to_message_id,
             failed,
             restored,
-            message_subtype
+            message_subtype,
+            action,
+            service_type,
+            service_value
             FROM
             (
             SELECT
@@ -2774,7 +2792,10 @@
             message_info.ref_to_message_id,
             message_log.failed,
             message_log.restored,
-            message_log.message_subtype
+            message_log.message_subtype,
+            user_message.collaboration_info_action AS action,
+            user_message.service_type,
+            user_message.service_value
             FROM
             tb_message_log message_log
             LEFT OUTER JOIN tb_message_info message_info ON message_log.message_id =
@@ -2807,7 +2828,10 @@
             message_info.ref_to_message_id,
             message_log.failed,
             message_log.restored,
-            message_log.message_subtype
+            message_log.message_subtype,
+            null as action,
+            null as service_type,
+            null as service_value
             FROM
             tb_message_log message_log
             CROSS JOIN tb_messaging messaging
@@ -2847,7 +2871,10 @@
             ref_to_message_id,
             failed,
             restored,
-            message_subtype
+            message_subtype,
+            action,
+            service_type,
+            service_value
             FROM
             TB_MESSAGE_UI WHERE
             received BETWEEN systimestamp - INTERVAL '48' HOUR AND systimestamp + INTERVAL '1' HOUR
@@ -2876,7 +2903,10 @@
             message_info.REF_TO_MESSAGE_ID,
             message_log.FAILED,
             message_log.RESTORED,
-            message_log.MESSAGE_SUBTYPE
+            message_log.MESSAGE_SUBTYPE,
+            user_message.COLLABORATION_INFO_ACTION AS ACTION,
+            user_message.SERVICE_TYPE,
+            user_message.SERVICE_VALUE
             FROM
             TB_MESSAGE_LOG message_log
             LEFT OUTER JOIN TB_MESSAGE_INFO message_info ON message_log.MESSAGE_ID = message_info.MESSAGE_ID
@@ -2905,6 +2935,9 @@
             AND message_log.FAILED &lt;=&gt; flat_table.FAILED
             AND message_log.RESTORED &lt;=&gt; flat_table.RESTORED
             AND message_log.MESSAGE_SUBTYPE &lt;=&gt; flat_table.MESSAGE_SUBTYPE
+            AND user_message.COLLABORATION_INFO_ACTION &lt;=&gt; flat_table.ACTION
+            AND user_message.SERVICE_TYPE &lt;=&gt; flat_table.SERVICE_TYPE
+            AND user_message.SERVICE_VALUE &lt;=&gt; flat_table.SERVICE_VALUE
             WHERE
             user_message.messageInfo_ID_PK = message_info.ID_PK
             AND property3_.NAME = 'originalSender'
@@ -2933,7 +2966,10 @@
             messageinf4_.REF_TO_MESSAGE_ID,
             message_log.FAILED,
             message_log.RESTORED,
-            message_log.MESSAGE_SUBTYPE
+            message_log.MESSAGE_SUBTYPE,
+            NULL AS ACTION,
+            NULL AS SERVICE_TYPE,
+            NULL AS SERVICE_VALUE
             FROM
             TB_MESSAGE_LOG message_log
             CROSS JOIN TB_MESSAGING messaging

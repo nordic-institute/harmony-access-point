@@ -41,7 +41,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  */
 
 @RunWith(JMockit.class)
-public class CsvEbms3ServiceImplTest {
+public class CsvServiceImplTest {
 
     public static final LocalDateTime LOCAL_DATE_TIME = LocalDateTime.of(2020, 1, 1, 12, 59);
     private static final String MESSAGE_FILTER_HEADER = "Plugin,From,To,Action,Service,Persisted";
@@ -134,7 +134,7 @@ public class CsvEbms3ServiceImplTest {
         MessageLogInfo messageLog = new MessageLogInfo("messageId", MessageStatus.ACKNOWLEDGED,
                 NotificationStatus.NOTIFIED, MSHRole.RECEIVING, MessageType.USER_MESSAGE, date, date, 1, 5, date,
                 "conversationId", "fromPartyId", "toPartyId", "originalSender", "finalRecipient",
-                "refToMessageId", date, date, messageSubtype, false, false);
+                "refToMessageId", date, date, messageSubtype, false, false, "action", "serviceType", "serviceValue");
         result.add(messageLog);
         return result;
     }
