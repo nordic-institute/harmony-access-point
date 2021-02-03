@@ -9,7 +9,10 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.format.DateTimeFormatter;
+
 
 /**
  * @author Ion Perpegel
@@ -34,7 +37,15 @@ public class BackupServiceImpl implements BackupService {
     @Override
     public void backupFile(File originalFile) throws IOException {
         final File backupFile = getBackupFile(originalFile);
+        copyBackUpFile(originalFile, backupFile);
+    }
 
+    @Override
+    public void backupFileInLocation(File originalFile, String trustStoreBackupLocation) throws IOException {
+        final File backupFile = createBackupFileInLocation(originalFile, trustStoreBackupLocation);
+        copyBackUpFile(originalFile, backupFile);
+    }
+    protected void copyBackUpFile(File originalFile, File backupFile) throws IOException {
         LOG.debug("Backing up file [{}] to file [{}]", originalFile, backupFile);
         try {
             FileUtils.copyFile(originalFile, backupFile);
@@ -48,4 +59,21 @@ public class BackupServiceImpl implements BackupService {
         return new File(originalFile.getParent(), backupFileName);
     }
 
+    protected File createBackupFileInLocation(File originalFile, String backupLocation) throws IOException {
+        File backupFile = new File(backupLocation);
+        if (!Files.exists(Paths.get(backupLocation).normalize())) {
+            LOG.debug("Creating backup directory [{}]", backupLocation);
+            try {
+                FileUtils.forceMkdir(backupFile);
+            } catch (IOException e) {
+                throw new IOException("Could not create backup directory", e);
+            }
+        }
+        return getBackupFile(originalFile, backupFile);
+    }
+
+    protected File getBackupFile(File originalFile, File backupFile) {
+        String backupFileName = originalFile.getName() + BACKUP_EXT + dateUtil.getCurrentTime(BACKUP_FILE_FORMATTER);
+        return new File(backupFile, backupFileName);
+    }
 }

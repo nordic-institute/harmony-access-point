@@ -19,7 +19,6 @@ import eu.domibus.core.pki.PKIUtil;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.util.backup.BackupService;
 import eu.domibus.logging.DomibusLogger;
-import liquibase.pro.packaged.S;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.codec.binary.Base64;
@@ -70,6 +69,8 @@ public class CertificateServiceImplTest {
     public static final String TRUST_STORE_TYPE = "trustStoreType";
 
     public static final String TRUST_STORE_LOCATION = "trustStoreLocation";
+
+    public static final String TRUST_STORE_BACKUP_LOCATION = "trustStoreBackupLocation";
 
     @Tested
     CertificateServiceImpl certificateService;
@@ -730,7 +731,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.replaceTrustStore(new byte[]{}, "pass", "type", "location", "pass2");
+        certificateService.replaceTrustStore(new byte[]{}, "pass", "type", "location", "pass2", TRUST_STORE_BACKUP_LOCATION);
 
         new Verifications() {{
             oldTrustStoreBytes.close();
@@ -752,7 +753,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.removeCertificate("pass", "location", "alias");
+        certificateService.removeCertificate("pass", "location", "alias", TRUST_STORE_BACKUP_LOCATION);
     }
 
     @Test
@@ -762,7 +763,7 @@ public class CertificateServiceImplTest {
             int count = 0;
 
             @Mock
-            boolean removeCertificate(Invocation invocation, String password, String trustStoreLocation, String alias) {
+            boolean removeCertificate(Invocation invocation, String password, String trustStoreLocation, String alias, String trustStoreBackupLocation) {
                 invocation.proceed();
                 Assert.assertEquals("Should have persisted the trust store after removing certificates", 1, count);
                 return true;
@@ -779,13 +780,13 @@ public class CertificateServiceImplTest {
             }
 
             @Mock
-            void persistTrustStore(Invocation invocation, KeyStore truststore, String password, String trustStoreLocation) {
+            void persistTrustStore(Invocation invocation, KeyStore truststore, String password, String trustStoreLocation, String trustStoreBackupLocation) {
                 count = invocation.getInvocationCount();
             }
         };
 
         // When
-        certificateService.removeCertificate("pass", "location", "alias");
+        certificateService.removeCertificate("pass", "location", "alias", TRUST_STORE_BACKUP_LOCATION);
     }
 
     @Test
@@ -804,13 +805,13 @@ public class CertificateServiceImplTest {
             }
 
             @Mock
-            void persistTrustStore(KeyStore truststore, String password, String trustStoreLocation) {
+            void persistTrustStore(KeyStore truststore, String password, String trustStoreLocation, String trustStoreBackupLocation) {
                 Assert.fail("Should have not persisted the trust store if not removing certificates inside");
             }
         };
 
         // When
-        certificateService.removeCertificate("pass", "location", "alias");
+        certificateService.removeCertificate("pass", "location", "alias", TRUST_STORE_BACKUP_LOCATION);
     }
 
     @Test
@@ -845,7 +846,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.replaceTrustStore(new byte[]{}, "pass", "type", "location", "pass2");
+        certificateService.replaceTrustStore(new byte[]{}, "pass", "type", "location", "pass2", TRUST_STORE_BACKUP_LOCATION);
 
         new Verifications() {{
             oldTrustStoreBytes.close();
@@ -868,7 +869,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.replaceTrustStore(new byte[]{}, "pass", "type", "location", "pass2");
+        certificateService.replaceTrustStore(new byte[]{}, "pass", "type", "location", "pass2", TRUST_STORE_BACKUP_LOCATION);
 
         new Verifications() {{
             oldTrustStoreBytes.close();
@@ -895,7 +896,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.replaceTrustStore(store, TRUST_STORE_PASSWORD, TRUST_STORE_TYPE, TRUST_STORE_LOCATION, TRUST_STORE_PASSWORD);
+        certificateService.replaceTrustStore(store, TRUST_STORE_PASSWORD, TRUST_STORE_TYPE, TRUST_STORE_LOCATION, TRUST_STORE_PASSWORD, TRUST_STORE_BACKUP_LOCATION);
     }
 
     @Test
@@ -918,7 +919,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.replaceTrustStore(store, TRUST_STORE_PASSWORD, TRUST_STORE_TYPE, TRUST_STORE_LOCATION, TRUST_STORE_PASSWORD);
+        certificateService.replaceTrustStore(store, TRUST_STORE_PASSWORD, TRUST_STORE_TYPE, TRUST_STORE_LOCATION, TRUST_STORE_PASSWORD, TRUST_STORE_BACKUP_LOCATION);
     }
 
     @Test
@@ -941,7 +942,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.replaceTrustStore(store, TRUST_STORE_PASSWORD, TRUST_STORE_TYPE, TRUST_STORE_LOCATION, TRUST_STORE_PASSWORD);
+        certificateService.replaceTrustStore(store, TRUST_STORE_PASSWORD, TRUST_STORE_TYPE, TRUST_STORE_LOCATION, TRUST_STORE_PASSWORD, TRUST_STORE_BACKUP_LOCATION);
     }
 
     @Test
@@ -960,12 +961,12 @@ public class CertificateServiceImplTest {
             result = newTrustStoreBytes;
             certificateService.validateLoadOperation(newTrustStoreBytes, anyString, anyString);
             trustStore.load(newTrustStoreBytes, (char[]) any);
-            certificateService.persistTrustStore(trustStore, TRUST_STORE_PASSWORD, TRUST_STORE_LOCATION);
+            certificateService.persistTrustStore(trustStore, TRUST_STORE_PASSWORD, TRUST_STORE_LOCATION, TRUST_STORE_BACKUP_LOCATION);
             result = new CryptoException("originalMessage");
         }};
 
         // When
-        certificateService.replaceTrustStore(store, TRUST_STORE_PASSWORD, TRUST_STORE_TYPE, TRUST_STORE_LOCATION, TRUST_STORE_PASSWORD);
+        certificateService.replaceTrustStore(store, TRUST_STORE_PASSWORD, TRUST_STORE_TYPE, TRUST_STORE_LOCATION, TRUST_STORE_PASSWORD, TRUST_STORE_BACKUP_LOCATION);
     }
 
     @Test
@@ -995,7 +996,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.replaceTrustStore(store, TRUST_STORE_PASSWORD, TRUST_STORE_TYPE, TRUST_STORE_LOCATION, TRUST_STORE_PASSWORD);
+        certificateService.replaceTrustStore(store, TRUST_STORE_PASSWORD, TRUST_STORE_TYPE, TRUST_STORE_LOCATION, TRUST_STORE_PASSWORD, TRUST_STORE_BACKUP_LOCATION);
     }
 
     @Test
@@ -1025,7 +1026,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.replaceTrustStore(store, TRUST_STORE_PASSWORD, TRUST_STORE_TYPE, TRUST_STORE_LOCATION, TRUST_STORE_PASSWORD);
+        certificateService.replaceTrustStore(store, TRUST_STORE_PASSWORD, TRUST_STORE_TYPE, TRUST_STORE_LOCATION, TRUST_STORE_PASSWORD, TRUST_STORE_BACKUP_LOCATION);
     }
 
     @Test
@@ -1055,7 +1056,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.replaceTrustStore(store, TRUST_STORE_PASSWORD, TRUST_STORE_TYPE, TRUST_STORE_LOCATION, TRUST_STORE_PASSWORD);
+        certificateService.replaceTrustStore(store, TRUST_STORE_PASSWORD, TRUST_STORE_TYPE, TRUST_STORE_LOCATION, TRUST_STORE_PASSWORD, TRUST_STORE_BACKUP_LOCATION);
     }
 
     @Test(expected = CryptoException.class) // ignore the CryptoException being initially thrown
@@ -1081,7 +1082,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.replaceTrustStore(store, TRUST_STORE_PASSWORD, TRUST_STORE_TYPE, TRUST_STORE_LOCATION, TRUST_STORE_PASSWORD);
+        certificateService.replaceTrustStore(store, TRUST_STORE_PASSWORD, TRUST_STORE_TYPE, TRUST_STORE_LOCATION, TRUST_STORE_PASSWORD, TRUST_STORE_BACKUP_LOCATION);
 
         // Then
         new Verifications() {{
@@ -1111,7 +1112,7 @@ public class CertificateServiceImplTest {
             result = false;
         }};
 
-        certificateService.persistTrustStore(trustStore, TRUST_STORE_PASSWORD, TRUST_STORE_LOCATION);
+        certificateService.persistTrustStore(trustStore, TRUST_STORE_PASSWORD, TRUST_STORE_LOCATION, TRUST_STORE_BACKUP_LOCATION);
     }
 
     @Test
@@ -1138,7 +1139,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.persistTrustStore(trustStore, TRUST_STORE_PASSWORD, TRUST_STORE_LOCATION);
+        certificateService.persistTrustStore(trustStore, TRUST_STORE_PASSWORD, TRUST_STORE_LOCATION, TRUST_STORE_BACKUP_LOCATION);
 
         // Then
         new Verifications() {{
@@ -1177,7 +1178,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.persistTrustStore(trustStore, TRUST_STORE_PASSWORD, TRUST_STORE_LOCATION);
+        certificateService.persistTrustStore(trustStore, TRUST_STORE_PASSWORD, TRUST_STORE_LOCATION, TRUST_STORE_BACKUP_LOCATION);
 
         // Then
         new Verifications() {{
@@ -1214,7 +1215,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.persistTrustStore(trustStore, TRUST_STORE_PASSWORD, TRUST_STORE_LOCATION);
+        certificateService.persistTrustStore(trustStore, TRUST_STORE_PASSWORD, TRUST_STORE_LOCATION, TRUST_STORE_BACKUP_LOCATION);
     }
 
     @Test
@@ -1247,7 +1248,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.persistTrustStore(trustStore, TRUST_STORE_PASSWORD, TRUST_STORE_LOCATION);
+        certificateService.persistTrustStore(trustStore, TRUST_STORE_PASSWORD, TRUST_STORE_LOCATION, TRUST_STORE_BACKUP_LOCATION);
     }
 
     @Test
@@ -1280,7 +1281,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.persistTrustStore(trustStore, TRUST_STORE_PASSWORD, TRUST_STORE_LOCATION);
+        certificateService.persistTrustStore(trustStore, TRUST_STORE_PASSWORD, TRUST_STORE_LOCATION, TRUST_STORE_BACKUP_LOCATION);
     }
 
     @Test
@@ -1312,7 +1313,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.persistTrustStore(trustStore, TRUST_STORE_PASSWORD, TRUST_STORE_LOCATION);
+        certificateService.persistTrustStore(trustStore, TRUST_STORE_PASSWORD, TRUST_STORE_LOCATION, TRUST_STORE_BACKUP_LOCATION);
     }
 
     @Test
@@ -1339,7 +1340,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.persistTrustStore(trustStore, TRUST_STORE_PASSWORD, TRUST_STORE_LOCATION);
+        certificateService.persistTrustStore(trustStore, TRUST_STORE_PASSWORD, TRUST_STORE_LOCATION, TRUST_STORE_BACKUP_LOCATION);
 
         // Then
         new Verifications() {{
@@ -1358,13 +1359,13 @@ public class CertificateServiceImplTest {
             }
 
             @Mock
-            void persistTrustStore(KeyStore truststore, String password, String trustStoreLocation) {
+            void persistTrustStore(KeyStore truststore, String password, String trustStoreLocation, String trustStoreBackupLocation) {
                 Assert.fail("Should have not persisted the trust store if not adding nor replacing certificates inside");
             }
         };
 
         // When
-        certificateService.doAddCertificates(truststore, "pass", "location", certificates, false);
+        certificateService.doAddCertificates(truststore, "pass", "location", certificates, false, TRUST_STORE_BACKUP_LOCATION);
     }
 
     @Test
@@ -1519,7 +1520,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        certificateService.replaceTrustStore(store, TRUST_STORE_PASSWORD, TRUST_STORE_TYPE, TRUST_STORE_LOCATION, TRUST_STORE_PASSWORD);
+        certificateService.replaceTrustStore(store, TRUST_STORE_PASSWORD, TRUST_STORE_TYPE, TRUST_STORE_LOCATION, TRUST_STORE_PASSWORD, TRUST_STORE_BACKUP_LOCATION);
 
         new Verifications() {{
             oldTrustStoreBytes.close();
@@ -1589,14 +1590,14 @@ public class CertificateServiceImplTest {
 
         new Expectations(certificateService) {{
             certificateService.validateTruststoreType(TRUST_STORE_TYPE, fileName);
-            certificateService.replaceTrustStore(fileContent, TRUST_STORE_PASSWORD, TRUST_STORE_TYPE, TRUST_STORE_LOCATION, TRUST_STORE_PASSWORD);
+            certificateService.replaceTrustStore(fileContent, TRUST_STORE_PASSWORD, TRUST_STORE_TYPE, TRUST_STORE_LOCATION, TRUST_STORE_PASSWORD, TRUST_STORE_BACKUP_LOCATION);
         }};
 
-        certificateService.replaceTrustStore(fileName, fileContent, TRUST_STORE_PASSWORD, TRUST_STORE_TYPE, TRUST_STORE_LOCATION, TRUST_STORE_PASSWORD);
+        certificateService.replaceTrustStore(fileName, fileContent, TRUST_STORE_PASSWORD, TRUST_STORE_TYPE, TRUST_STORE_LOCATION, TRUST_STORE_PASSWORD, TRUST_STORE_BACKUP_LOCATION);
 
         new Verifications() {{
             certificateService.validateTruststoreType(TRUST_STORE_TYPE, fileName);
-            certificateService.replaceTrustStore(fileContent, TRUST_STORE_PASSWORD, TRUST_STORE_TYPE, TRUST_STORE_LOCATION, TRUST_STORE_PASSWORD);
+            certificateService.replaceTrustStore(fileContent, TRUST_STORE_PASSWORD, TRUST_STORE_TYPE, TRUST_STORE_LOCATION, TRUST_STORE_PASSWORD, TRUST_STORE_BACKUP_LOCATION);
         }};
     }
 
@@ -1606,10 +1607,10 @@ public class CertificateServiceImplTest {
         String TEST_KEYSTORE = "testkeystore.jks";
         File testFile = new File(RESOURCE_PATH + TEST_KEYSTORE);
 
-        certificateService.backupTrustStore(testFile);
+        certificateService.backupTrustStore(testFile, TRUST_STORE_BACKUP_LOCATION);
 
         new Verifications() {{
-            backupService.backupFile(testFile);
+            backupService.backupFileInLocation(testFile, TRUST_STORE_BACKUP_LOCATION);
             times = 1;
         }};
     }
@@ -1620,7 +1621,7 @@ public class CertificateServiceImplTest {
         String TEST_KEYSTORE = "inexistent_testkeystore.jks";
         File testFile = new File(RESOURCE_PATH + TEST_KEYSTORE);
 
-        certificateService.backupTrustStore(testFile);
+        certificateService.backupTrustStore(testFile, TRUST_STORE_BACKUP_LOCATION);
 
         new Verifications() {{
             backupService.backupFile((File) any);
@@ -1688,14 +1689,14 @@ public class CertificateServiceImplTest {
         new Expectations(certificateService) {{
             certificateService.doAddCertificate(trustStore, (X509Certificate) any, anyString, overwrite);
             result = true;
-            certificateService.persistTrustStore(trustStore, trustStorePassword, trustStoreLocation);
+            certificateService.persistTrustStore(trustStore, trustStorePassword, trustStoreLocation, TRUST_STORE_BACKUP_LOCATION);
         }};
 
-        boolean result = certificateService.doAddCertificates(trustStore, trustStorePassword, trustStoreLocation, certificates, overwrite);
+        boolean result = certificateService.doAddCertificates(trustStore, trustStorePassword, trustStoreLocation, certificates, overwrite, TRUST_STORE_BACKUP_LOCATION);
 
         assertTrue(result);
         new Verifications() {{
-            certificateService.persistTrustStore(trustStore, trustStorePassword, trustStoreLocation);
+            certificateService.persistTrustStore(trustStore, trustStorePassword, trustStoreLocation, TRUST_STORE_BACKUP_LOCATION);
         }};
     }
 
@@ -1711,7 +1712,7 @@ public class CertificateServiceImplTest {
             result = false;
         }};
 
-        boolean result = certificateService.doAddCertificates(trustStore, trustStorePassword, trustStoreLocation, certificates, overwrite);
+        boolean result = certificateService.doAddCertificates(trustStore, trustStorePassword, trustStoreLocation, certificates, overwrite, TRUST_STORE_BACKUP_LOCATION);
 
         assertFalse(result);
     }
@@ -1725,14 +1726,14 @@ public class CertificateServiceImplTest {
         new Expectations(certificateService) {{
             certificateService.doRemoveCertificate(trustStore, anyString);
             result = true;
-            certificateService.persistTrustStore(trustStore, trustStorePassword, trustStoreLocation);
+            certificateService.persistTrustStore(trustStore, trustStorePassword, trustStoreLocation, TRUST_STORE_BACKUP_LOCATION);
         }};
 
-        boolean result = certificateService.doRemoveCertificates(trustStore, trustStorePassword, trustStoreLocation, certificates);
+        boolean result = certificateService.doRemoveCertificates(trustStore, trustStorePassword, trustStoreLocation, certificates, TRUST_STORE_BACKUP_LOCATION);
 
         assertTrue(result);
         new Verifications() {{
-            certificateService.persistTrustStore(trustStore, trustStorePassword, trustStoreLocation);
+            certificateService.persistTrustStore(trustStore, trustStorePassword, trustStoreLocation, TRUST_STORE_BACKUP_LOCATION);
         }};
     }
 
@@ -1747,7 +1748,7 @@ public class CertificateServiceImplTest {
             result = false;
         }};
 
-        boolean result = certificateService.doRemoveCertificates(trustStore, trustStorePassword, trustStoreLocation, certificates);
+        boolean result = certificateService.doRemoveCertificates(trustStore, trustStorePassword, trustStoreLocation, certificates, TRUST_STORE_BACKUP_LOCATION);
 
         assertFalse(result);
     }
