@@ -6,12 +6,7 @@
     <!-- IMPORTANT: this is the full script, add your changes inside in the right section -->
 
     <!-- properties - to be used in column definitions -->
-    <property name="now" value="sysdate" dbms="oracle"/>
-    <property name="now" value="now()" dbms="mysql"/>
-    <property name="current_db_user" value="user" dbms="oracle"/>
-    <!-- MySQL cannot handle functions as DEFAULT values and the alternative would be to add a trigger for all these
-    tables. Either way this value will most probably never be used since a value will always be provided at runtime.-->
-    <property name="current_db_user" value="'DOMIBUS'" dbms="mysql"/>
+    <include file="common/changelog-properties.xml" relativeToChangelogFile="true"/>
 
     <!-- sequences -->
     <changeSet dbms="oracle" author="martifp" id="changelog-3.2-delta-1">
@@ -21,7 +16,7 @@
     </changeSet>
 
     <!-- Quartz tables -->
-    <include file="changelog-4.0-quartz.xml" relativeToChangelogFile="true"/>
+    <include file="archive/changelog-4.0-quartz.xml" relativeToChangelogFile="true"/>
 
     <!-- Plugin specific tables -->
     <changeSet author="idragusa" id="EDELIVERY-4740">
@@ -1750,6 +1745,7 @@
         </createTable>
     </changeSet>
 
+    <!-- unique constraint -->
     <changeSet author="Catalin Enache" id="1564477107969-95">
         <comment>create unique constraints</comment>
 
@@ -1774,16 +1770,15 @@
         <addUniqueConstraint columnNames="USER_NAME" constraintName="USER_NAME" tableName="TB_USER"/>
 
         <addUniqueConstraint columnNames="VERSION" tableName="TB_VERSION" constraintName="UQ_VERSION" />
-    </changeSet>
 
-    <changeSet author="ion perpegel" id="EDELIVERY-7472">
-        <comment>add one constraints for each unique column</comment>
         <addUniqueConstraint columnNames="USERNAME" constraintName="UQ_PLUGIN_USER_NAME"
                              tableName="TB_AUTHENTICATION_ENTRY"/>
         <addUniqueConstraint columnNames="CERTIFICATE_ID" constraintName="UQ_PLUGIN_USER_CERT"
                              tableName="TB_AUTHENTICATION_ENTRY"/>
     </changeSet>
 
+
+    <!-- indexes start here -->
     <changeSet author="Catalin Enache" id="1564477107969-104">
         <comment>create indexes - part 1</comment>
         <createIndex indexName="IDX_MESSAGE_LOCK_UNIQUE_ID" tableName="TB_MESSAGING_LOCK" unique="true">
@@ -2279,8 +2274,8 @@
         <createIndex indexName="IDX_MSG_ACKNW_MESSAGE_ID" tableName="TB_MESSAGE_ACKNW">
             <column name="MESSAGE_ID"/>
         </createIndex>
-
     </changeSet>
+
 
     <!-- foreign keys -->
     <changeSet author="Catalin Enache" id="1564477107969-234">
@@ -3031,6 +3026,6 @@
 
 
     <!-- this file must be included in every future changelog.xml or changelog-multi-tenancy.xml -->
-    <include file="changelog-version-inserts.xml" relativeToChangelogFile="true"/>
+    <include file="common/changelog-version-inserts.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>
