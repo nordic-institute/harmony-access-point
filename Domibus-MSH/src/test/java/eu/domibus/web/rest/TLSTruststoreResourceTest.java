@@ -59,7 +59,7 @@ public class TLSTruststoreResourceTest {
         tlsTruststoreResource.doReplaceTrustStore(fileContent, filename, pass);
 
         new Verifications() {{
-            tlsCertificateManager.replaceTrustStore(filename, fileContent, pass);
+            tlsCertificateManager.replaceTrustStore(filename, fileContent, pass, anyString);
         }};
     }
 
@@ -68,11 +68,10 @@ public class TLSTruststoreResourceTest {
         byte[] content = {1, 0, 1};
         String filename = "filename", alias = "blue_gw";
         MultipartFile multiPartFile = new MockMultipartFile("name", filename, "octetstream", content);
-
         new Expectations() {{
             multiPartFileUtil.validateAndGetFileContent(multiPartFile);
             result = content;
-            tlsCertificateManager.addCertificate(content, alias);
+            tlsCertificateManager.addCertificate(content, alias, anyString);
         }};
 
         String outcome = tlsTruststoreResource.addTLSCertificate(multiPartFile, alias);
@@ -80,7 +79,7 @@ public class TLSTruststoreResourceTest {
         Assert.assertTrue(outcome.contains("Certificate [" + alias + "] has been successfully added to the TLS truststore."));
 
         new Verifications() {{
-            tlsCertificateManager.addCertificate(content, alias);
+            tlsCertificateManager.addCertificate(content, alias, anyString);
         }};
     }
 

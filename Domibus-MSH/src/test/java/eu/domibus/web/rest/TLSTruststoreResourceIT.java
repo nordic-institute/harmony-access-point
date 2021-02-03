@@ -166,7 +166,7 @@ public class TLSTruststoreResourceIT {
             multiPartFileUtil.validateAndGetFileContent(truststoreFile);
             result = content;
             times = 1;
-            tlsCertificateManager.replaceTrustStore(filename, content, password);
+            tlsCertificateManager.replaceTrustStore(filename, content, password, anyString);
             result = ex;
         }};
 

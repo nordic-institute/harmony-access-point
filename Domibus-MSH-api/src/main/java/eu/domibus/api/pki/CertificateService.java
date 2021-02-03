@@ -132,10 +132,11 @@ public interface CertificateService {
      * @param trustType the type of the trust
      * @param trustLocation the location of the trust on disc
      * @param trustPassword the password of the trust file
+     * @param trustStoreBackupLocation the location of the truststore backup on disc
      * @throws CryptoException
      */
     void replaceTrustStore(String fileName, byte[] fileContent, String filePassword,
-                           String trustType, String trustLocation, String trustPassword) throws CryptoException;
+                           String trustType, String trustLocation, String trustPassword, String trustStoreBackupLocation) throws CryptoException;
 
     /**
      * Replaces the truststore pointed by the location/password parameters with the one provided as parameters
@@ -145,10 +146,11 @@ public interface CertificateService {
      * @param trustType the type of the trust
      * @param trustLocation the location of the trust on disc
      * @param trustPassword the password of the trust file
+     * @param trustStoreBackupLocation the location of the truststore backup on disc
      * @throws CryptoException
      */
     void replaceTrustStore(byte[] fileContent, String filePassword,
-                           String trustType, String trustLocation, String trustPassword) throws CryptoException;
+                           String trustType, String trustLocation, String trustPassword, String trustStoreBackupLocation) throws CryptoException;
 
     /**
      * Returns the truststore pointed by the location/password parameters
@@ -176,9 +178,10 @@ public interface CertificateService {
      * @param certificateContent the content of the certificate
      * @param alias the name of the certificate
      * @param overwrite if overwrite an existing certificate
+     * @param trustStoreBackupLocation the location of the truststore backup on disc
      * @return
      */
-    boolean addCertificate(String trustStorePassword, String trustStoreLocation, byte[] certificateContent, String alias, boolean overwrite);
+    boolean addCertificate(String trustStorePassword, String trustStoreLocation, byte[] certificateContent, String alias, boolean overwrite, String trustStoreBackupLocation);
 
     /**
      * Adds the specified certificates to the truststore pointed by the parameters
@@ -188,9 +191,10 @@ public interface CertificateService {
      * @param trustStoreLocation the location of the trust on disc
      * @param certificates the list of certificate entries( name and value)
      * @param overwrite if overwrite an existing certificate
+     * @param trustStoreBackupLocation the location of the truststore backup on disc
      * @return true if at least one was added
      */
-    boolean addCertificates(KeyStore trustStore, String trustStorePassword, String trustStoreLocation, List<CertificateEntry> certificates, boolean overwrite);
+    boolean addCertificates(KeyStore trustStore, String trustStorePassword, String trustStoreLocation, List<CertificateEntry> certificates, boolean overwrite, String trustStoreBackupLocation);
 
     /**
      * Removes the specified certificate from the truststore pointed by the parameters
@@ -198,9 +202,10 @@ public interface CertificateService {
      * @param trustStorePassword the password of the trust file
      * @param trustStoreLocation the location of the trust on disc
      * @param alias the certificate name
+     * @param trustStoreBackupLocation the location of the truststore backup on disc
      * @return true is at least one was deleted
      */
-    boolean removeCertificate(String trustStorePassword, String trustStoreLocation, String alias);
+    boolean removeCertificate(String trustStorePassword, String trustStoreLocation, String alias, String trustStoreBackupLocation);
 
     /**
      * Removes the specified certificates from the truststore pointed by the parameters
@@ -209,9 +214,10 @@ public interface CertificateService {
      * @param trustStorePassword the password of the trust file
      * @param trustStoreLocation the location of the trust on disc
      * @param aliases the list of certificate names
+     * @param trustStoreBackupLocation the location of the truststore backup on disc
      * @return true is at least one was deleted
      */
-    boolean removeCertificates(KeyStore trustStore, String trustStorePassword, String trustStoreLocation, List<String> aliases);
+    boolean removeCertificates(KeyStore trustStore, String trustStorePassword, String trustStoreLocation, List<String> aliases, String trustStoreBackupLocation);
 
     /**
      * Validates the truststore type with the file extension

@@ -1,5 +1,8 @@
 package eu.domibus.core.util.backup;
 
+import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.core.util.DateUtilImpl;
 import mockit.Expectations;
@@ -13,6 +16,8 @@ import org.junit.runner.RunWith;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 
 import static eu.domibus.core.util.backup.BackupServiceImpl.BACKUP_EXT;
@@ -34,6 +39,12 @@ public class BackupServiceImplTest {
 
     @Tested
     DateUtilImpl dateUtilImpl;
+
+    @Injectable
+    DomibusPropertyProvider domibusPropertyProvider;
+
+    @Injectable
+    DomainContextProvider domainProvider;
 
     @Test
     public void testBackupFile() throws IOException {
@@ -83,5 +94,58 @@ public class BackupServiceImplTest {
 
         String value = dateUtilImpl.getCurrentTime(BACKUP_FILE_FORMATTER);
         assertEquals(expectedValue, value);
+    }
+
+    @Test
+    public void backupFileInLocation(@Injectable Domain currentDomain) throws IOException {
+        File originalFile = new File("testfile");
+        String backupLocation = "testfile_backup";
+        File backupFile = new File(backupLocation);
+
+        new Expectations(FileUtils.class, backupService) {{
+            backupService.createBackupFileInLocation(originalFile, backupLocation);
+            result = backupFile;
+            FileUtils.copyFile((File) any, (File) any);
+        }};
+
+        backupService.backupFileInLocation(originalFile, backupLocation);
+
+        new Verifications() {{
+            File backupFile;
+            FileUtils.copyFile(originalFile, backupFile = withCapture());
+            assertTrue(backupFile.getName().startsWith(originalFile.getName()));
+        }};
+    }
+
+    @Test
+    public void createBackupFileInLocation() throws IOException {
+        File originalFile = new File("testfile");
+        final String backupLocation = "test_backupFile";
+        File backupFile = new File(backupLocation);
+        new Expectations(backupService, Files.class) {{
+            Files.exists(Paths.get(backupLocation).normalize());
+            result = false;
+        }};
+
+        backupService.createBackupFileInLocation(originalFile, backupLocation);
+
+        new Verifications() {{
+            backupService.getBackupFile(originalFile, backupFile);
+        }};
+    }
+
+    @Test
+    public void getBackupFile() {
+        String timePart = "2019-07-15_23_01_01.111";
+        File originalFile = new File("test_file");
+        final String backupLocation = "test_backupFile";
+        File backupFile = new File(backupLocation);
+
+        new Expectations() {{
+            dateUtil.getCurrentTime(BACKUP_FILE_FORMATTER);
+            result = timePart;
+        }};
+        File newBackupFile = backupService.getBackupFile(originalFile, backupFile);
+        assertTrue(newBackupFile.getName().startsWith(originalFile.getName()));
     }
 }

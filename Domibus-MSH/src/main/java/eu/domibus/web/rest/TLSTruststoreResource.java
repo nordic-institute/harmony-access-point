@@ -19,6 +19,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SECURITY_TRUSTSTORE_BACKUP_LOCATION;
 /**
  * @author Ion Perpegel
  * @since 5.0
@@ -28,6 +29,8 @@ import java.util.List;
 public class TLSTruststoreResource extends TruststoreResourceBase {
 
     private final TLSCertificateManager tlsCertificateManager;
+
+    protected static final String TRUSTSTORE_BACKUP_LOCATION = DOMIBUS_SECURITY_TRUSTSTORE_BACKUP_LOCATION;
 
     public TLSTruststoreResource(TLSCertificateManager tlsCertificateManager,
                                  DomainCoreConverter domainConverter, ErrorHandlerService errorHandlerService,
@@ -68,20 +71,20 @@ public class TLSTruststoreResource extends TruststoreResourceBase {
 
         byte[] fileContent = multiPartFileUtil.validateAndGetFileContent(certificateFile);
 
-        tlsCertificateManager.addCertificate(fileContent, alias);
+        tlsCertificateManager.addCertificate(fileContent, alias, TRUSTSTORE_BACKUP_LOCATION);
 
         return "Certificate [" + alias + "] has been successfully added to the TLS truststore.";
     }
 
     @DeleteMapping(value = "/entries/{alias:.+}")
     public String removeTLSCertificate(@PathVariable String alias) throws RequestValidationException {
-        tlsCertificateManager.removeCertificate(alias);
+        tlsCertificateManager.removeCertificate(alias, TRUSTSTORE_BACKUP_LOCATION);
         return "Certificate [" + alias + "] has been successfully removed from the TLS truststore.";
     }
 
     @Override
     protected void doReplaceTrustStore(byte[] truststoreFileContent, String fileName, String password) {
-        tlsCertificateManager.replaceTrustStore(fileName, truststoreFileContent, password);
+        tlsCertificateManager.replaceTrustStore(fileName, truststoreFileContent, password, TRUSTSTORE_BACKUP_LOCATION);
     }
 
     @Override
