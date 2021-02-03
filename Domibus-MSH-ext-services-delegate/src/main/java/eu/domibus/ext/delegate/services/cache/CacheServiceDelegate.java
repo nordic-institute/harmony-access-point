@@ -1,18 +1,26 @@
 package eu.domibus.ext.delegate.services.cache;
 
+import eu.domibus.api.cache.CacheService;
+import eu.domibus.ext.exceptions.CacheExtServiceException;
 import eu.domibus.ext.services.CacheExtService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+/**
+ * Delegate external Cache service to core
+ *
+ * @author Soumya Chandran
+ * @since 5.0
+ */
 @Service
 public class CacheServiceDelegate implements CacheExtService {
 
-    @Autowired
-    eu.domibus.api.cache.CacheService cacheService;
+    private final CacheService cacheService;
 
-    @Override
-    public void evictCaches() {
-        cacheService.evictCaches();
+    public CacheServiceDelegate(CacheService cacheService) {
+        this.cacheService = cacheService;
     }
 
+    public void evictCaches() throws CacheExtServiceException {
+        cacheService.evictCaches();
+    }
 }

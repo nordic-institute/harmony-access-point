@@ -1,5 +1,6 @@
 package eu.domibus.core.cache;
 
+import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -45,7 +46,7 @@ public class DomibusCacheServiceImpl implements DomibusCacheService {
     }
 
     @Override
-    public void clearAllCaches() {
+    public void clearAllCaches() throws DomibusCoreException {
         LOG.debug("Clearing all caches from the cacheManager");
         Collection<String> cacheNames = cacheManager.getCacheNames();
         for (String cacheName : cacheNames) {

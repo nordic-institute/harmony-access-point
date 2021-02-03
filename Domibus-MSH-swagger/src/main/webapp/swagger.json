@@ -13,11 +13,17 @@
   "tags" : [ {
     "name" : "acknowledgement"
   }, {
+    "name" : "cache"
+  }, {
+    "name" : "envelope"
+  }, {
     "name" : "monitoring"
   }, {
     "name" : "party"
   }, {
     "name" : "pmode"
+  }, {
+    "name" : "signalEnvelope"
   }, {
     "name" : "status"
   }, {
@@ -25,6 +31,22 @@
   } ],
   "schemes" : [ "http", "https" ],
   "paths" : {
+    "/ext/application" : {
+      "delete" : {
+        "tags" : [ "cache" ],
+        "summary" : "Delete all Caches",
+        "description" : "Clear all caches from the cacheManager",
+        "operationId" : "evictCaches",
+        "responses" : {
+          "default" : {
+            "description" : "successful operation"
+          }
+        },
+        "security" : [ {
+          "basicAuth" : [ ]
+        } ]
+      }
+    },
     "/ext/messages/acknowledgments/delivered" : {
       "post" : {
         "tags" : [ "acknowledgement" ],
@@ -126,6 +148,58 @@
             "description" : "successful operation",
             "schema" : {
               "$ref" : "#/definitions/UserMessageDTO"
+            }
+          }
+        },
+        "security" : [ {
+          "basicAuth" : [ ]
+        } ]
+      }
+    },
+    "/ext/messages/usermessages/{messageId}/envelope" : {
+      "get" : {
+        "tags" : [ "envelope" ],
+        "summary" : "Get user message envelope",
+        "description" : "Retrieve the user message envelope with the specified message id",
+        "operationId" : "downloadUserMessageEnvelope",
+        "parameters" : [ {
+          "name" : "messageId",
+          "in" : "path",
+          "required" : true,
+          "type" : "string",
+          "pattern" : ".+"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "type" : "string"
+            }
+          }
+        },
+        "security" : [ {
+          "basicAuth" : [ ]
+        } ]
+      }
+    },
+    "/ext/messages/usermessages/{messageId}/signalEnvelope" : {
+      "get" : {
+        "tags" : [ "signalEnvelope" ],
+        "summary" : "Get signal message envelope",
+        "description" : "Retrieve the signal message envelope with the specified user message id",
+        "operationId" : "downloadSignalMessageEnvelope",
+        "parameters" : [ {
+          "name" : "messageId",
+          "in" : "path",
+          "required" : true,
+          "type" : "string",
+          "pattern" : ".+"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "type" : "string"
             }
           }
         },
@@ -605,16 +679,6 @@
         "inputStream" : {
           "$ref" : "#/definitions/InputStream"
         },
-        "readable" : {
-          "type" : "boolean"
-        },
-        "uri" : {
-          "type" : "string",
-          "format" : "uri"
-        },
-        "filename" : {
-          "type" : "string"
-        },
         "url" : {
           "type" : "string",
           "format" : "url"
@@ -624,6 +688,16 @@
         },
         "open" : {
           "type" : "boolean"
+        },
+        "uri" : {
+          "type" : "string",
+          "format" : "uri"
+        },
+        "readable" : {
+          "type" : "boolean"
+        },
+        "filename" : {
+          "type" : "string"
         }
       }
     },
@@ -868,7 +942,6 @@
         },
         "identifiers" : {
           "type" : "array",
-          "uniqueItems" : true,
           "items" : {
             "$ref" : "#/definitions/PartyIdentifierDTO"
           }
