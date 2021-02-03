@@ -5,6 +5,7 @@ import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.MessageType;
 import eu.domibus.api.model.NotificationStatus;
+import eu.domibus.api.validators.CustomWhiteListed;
 
 import java.io.Serializable;
 
@@ -50,10 +51,12 @@ public class MessageLogFilterRequestRO implements Serializable {
 
     private MessageSubtype messageSubtype;
 
+    @CustomWhiteListed(permitted = ":/-.")
     private String action;
 
     private String serviceType;
 
+    @CustomWhiteListed(permitted = ":/-.")
     private String serviceValue;
 
     public int getPage() {
