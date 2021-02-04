@@ -40,9 +40,6 @@ public class StubDtoTransformer implements MessageSubmissionTransformer<Messagin
 
     /**
      * Used to convert from the Domibus DTO object to the UserMessage stub object.
-     *
-     * @param submission
-     * @return
      */
     public UserMessage transformFromSubmission(final Submission submission) {
         final UserMessage result = new UserMessage();

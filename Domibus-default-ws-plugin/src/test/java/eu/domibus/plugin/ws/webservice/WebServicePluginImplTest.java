@@ -13,6 +13,7 @@ import eu.domibus.plugin.ws.generated.StatusFault;
 import eu.domibus.plugin.ws.generated.SubmitMessageFault;
 import eu.domibus.plugin.ws.generated.body.*;
 import eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging;
+import eu.domibus.plugin.ws.message.WSMessageLogService;
 import eu.domibus.plugin.ws.property.WSPluginPropertyManager;
 import mockit.*;
 import mockit.integration.junit4.JMockit;

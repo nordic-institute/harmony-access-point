@@ -1,4 +1,4 @@
-package eu.domibus.plugin.ws.webservice;
+package eu.domibus.plugin.ws.message;
 
 import java.time.LocalDateTime;
 import java.util.List;

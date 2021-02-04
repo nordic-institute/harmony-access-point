@@ -9,6 +9,7 @@ import eu.domibus.plugin.notification.PluginAsyncNotificationConfiguration;
 import eu.domibus.plugin.ws.backend.dispatch.WSPluginBackendService;
 import eu.domibus.plugin.ws.connector.WSPluginImpl;
 import eu.domibus.plugin.ws.logging.WSPluginLoggingEventSender;
+import eu.domibus.plugin.ws.message.WSMessageLogService;
 import eu.domibus.plugin.ws.property.WSPluginPropertyManager;
 import eu.domibus.plugin.ws.webservice.*;
 import eu.domibus.plugin.ws.webservice.interceptor.ClearAuthenticationMDCInterceptor;

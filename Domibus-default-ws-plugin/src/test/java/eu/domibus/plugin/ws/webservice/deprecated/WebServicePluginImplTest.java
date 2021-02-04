@@ -11,7 +11,7 @@ import eu.domibus.plugin.handler.MessageRetriever;
 import eu.domibus.plugin.webService.generated.*;
 import eu.domibus.plugin.ws.connector.WSPluginImpl;
 import eu.domibus.plugin.ws.property.WSPluginPropertyManager;
-import eu.domibus.plugin.ws.webservice.WSMessageLogDao;
+import eu.domibus.plugin.ws.message.WSMessageLogDao;
 import eu.domibus.plugin.ws.webservice.deprecated.mapper.WSPluginMessagingMapper;
 import mockit.*;
 import mockit.integration.junit4.JMockit;

@@ -1,4 +1,4 @@
-package eu.domibus.plugin.ws.webservice;
+package eu.domibus.plugin.ws.message;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

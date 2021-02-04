@@ -3,7 +3,6 @@ package eu.domibus.plugin.ws.webservice.deprecated;
 import eu.domibus.common.ErrorResult;
 import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.MessageInfo;
 import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging;
-import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.PayloadInfo;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.exceptions.AuthenticationExtException;
 import eu.domibus.ext.exceptions.MessageAcknowledgeExtException;
@@ -20,8 +19,8 @@ import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.webService.generated.*;
 import eu.domibus.plugin.ws.connector.WSPluginImpl;
 import eu.domibus.plugin.ws.property.WSPluginPropertyManager;
-import eu.domibus.plugin.ws.webservice.WSMessageLogDao;
-import eu.domibus.plugin.ws.webservice.WSMessageLogEntity;
+import eu.domibus.plugin.ws.message.WSMessageLogDao;
+import eu.domibus.plugin.ws.message.WSMessageLogEntity;
 import eu.domibus.plugin.ws.webservice.WebServiceImpl;
 import eu.domibus.plugin.ws.webservice.deprecated.mapper.WSPluginMessagingMapper;
 import org.apache.commons.lang3.StringUtils;
@@ -386,13 +385,6 @@ public class WebServicePluginImpl implements BackendInterface {
     }
 
     private eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.PayloadInfo getPayloadInfo(eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging messaging) {
-        if (messaging.getUserMessage() == null) {
-            return null;
-        }
-        return messaging.getUserMessage().getPayloadInfo();
-    }
-
-    private PayloadInfo getPayloadInfo(Messaging messaging) {
         if (messaging.getUserMessage() == null) {
             return null;
         }

@@ -1,4 +1,4 @@
-package eu.domibus.plugin.ws.webservice;
+package eu.domibus.plugin.ws.message;
 
 import eu.domibus.plugin.ws.WSPluginDaoTestConfig;
 import eu.domibus.test.dao.InMemoryDataBaseConfig;

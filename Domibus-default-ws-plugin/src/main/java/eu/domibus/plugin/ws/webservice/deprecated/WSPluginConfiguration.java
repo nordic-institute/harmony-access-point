@@ -8,7 +8,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.ws.connector.WSPluginImpl;
 import eu.domibus.plugin.ws.property.WSPluginPropertyManager;
-import eu.domibus.plugin.ws.webservice.WSMessageLogDao;
+import eu.domibus.plugin.ws.message.WSMessageLogDao;
 import eu.domibus.plugin.ws.webservice.deprecated.mapper.WSPluginMessagingMapper;
 import eu.domibus.plugin.ws.webservice.interceptor.ClearAuthenticationMDCInterceptor;
 import eu.domibus.plugin.ws.webservice.interceptor.CustomAuthenticationInterceptor;

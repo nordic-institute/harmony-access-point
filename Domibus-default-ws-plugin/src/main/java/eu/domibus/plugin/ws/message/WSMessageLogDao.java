@@ -1,4 +1,4 @@
-package eu.domibus.plugin.ws.webservice;
+package eu.domibus.plugin.ws.message;
 
 import eu.domibus.plugin.ws.util.WSBasicDao;
 import org.apache.commons.collections4.CollectionUtils;

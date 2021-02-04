@@ -10,7 +10,7 @@ import eu.domibus.plugin.webService.generated.LargePayloadType;
 import eu.domibus.plugin.webService.generated.SubmitRequest;
 import eu.domibus.plugin.webService.generated.SubmitResponse;
 import eu.domibus.plugin.ws.generated.WebServicePluginInterface;
-import eu.domibus.plugin.ws.webservice.WSMessageLogDao;
+import eu.domibus.plugin.ws.message.WSMessageLogDao;
 import org.apache.commons.codec.binary.Base64;
 import org.awaitility.core.ConditionTimeoutException;
 import org.junit.Assert;
