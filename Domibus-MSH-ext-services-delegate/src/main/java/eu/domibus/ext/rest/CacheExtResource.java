@@ -44,7 +44,7 @@ public class CacheExtResource {
             authorizations = @Authorization(value = "basicAuth"), tags = "cache")
     @DeleteMapping
     public void evictCaches() {
-        LOG.debug("External API call to Clear all caches..");
+        LOG.info("External API call to Clear all caches..");
         cacheExtService.evictCaches();
     }
 }
