@@ -649,6 +649,8 @@
                 <artifactId>wss4j-ws-security-dom</artifactId>
                 <version>${wss4j-ws-security.version}</version>
                 <exclusions>
+                    <!-- starting with version 1.65 BouncyCastle is multi-release so we exclude it and use
+                     bcprov-jdk15to18 version instead -->
                     <exclusion>
                         <groupId>org.bouncycastle</groupId>
                         <artifactId>bcprov-jdk15on</artifactId>
@@ -674,6 +676,8 @@
                 <artifactId>cxf-rt-security</artifactId>
                 <version>${cxf.version}</version>
                 <exclusions>
+                    <!-- starting with version 1.65 BouncyCastle is multi-release so we exclude it and use
+                    bcprov-jdk15to18 version instead -->
                     <exclusion>
                         <groupId>org.bouncycastle</groupId>
                         <artifactId>bcprov-jdk15on</artifactId>
