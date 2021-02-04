@@ -96,10 +96,10 @@ public class DomibusPropertyMetadata {
     private boolean storedGlobally = true;
 
     public static DomibusPropertyMetadata getOnTheFlyProperty(String propertyName) {
-        DomibusPropertyMetadata res = new DomibusPropertyMetadata(propertyName, Usage.ANY, true);
-        res.setModule(Module.UNKNOWN);
-        res.setWritable(false);
-        return res;
+        DomibusPropertyMetadata  domibusPropertyMetadata= new DomibusPropertyMetadata(propertyName, Usage.ANY, true);
+        domibusPropertyMetadata.setModule(Module.UNKNOWN);
+        domibusPropertyMetadata.setWritable(false);
+        return domibusPropertyMetadata;
     }
 
     public static DomibusPropertyMetadata getGlobalProperty(String name) {
@@ -107,15 +107,15 @@ public class DomibusPropertyMetadata {
     }
 
     public static DomibusPropertyMetadata getGlobalProperty(String name, Type type) {
-        DomibusPropertyMetadata res = new DomibusPropertyMetadata(name, Usage.GLOBAL, false);
-        res.setType(type.name());
-        return res;
+        DomibusPropertyMetadata domibusPropertyMetadata = new DomibusPropertyMetadata(name, Usage.GLOBAL, false);
+        domibusPropertyMetadata.setType(type.name());
+        return domibusPropertyMetadata;
     }
 
     public static DomibusPropertyMetadata getGlobalProperty(String name, Type type, boolean encrypted) {
-        DomibusPropertyMetadata res = new DomibusPropertyMetadata(name, Usage.GLOBAL, false, encrypted);
-        res.setType(type.name());
-        return res;
+        DomibusPropertyMetadata domibusPropertyMetadata = new DomibusPropertyMetadata(name, Usage.GLOBAL, false, encrypted);
+        domibusPropertyMetadata.setType(type.name());
+        return domibusPropertyMetadata;
     }
 
     public static DomibusPropertyMetadata getReadOnlyGlobalProperty(String name) {
@@ -123,9 +123,9 @@ public class DomibusPropertyMetadata {
     }
 
     public static DomibusPropertyMetadata getReadOnlyGlobalProperty(String name, Type type) {
-        DomibusPropertyMetadata res = new DomibusPropertyMetadata(name, Module.MSH, false, Usage.GLOBAL, false, false, false, false);
-        res.setType(type.name());
-        return res;
+        DomibusPropertyMetadata domibusPropertyMetadata = new DomibusPropertyMetadata(name, Module.MSH, false, Usage.GLOBAL, false, false, false, false);
+        domibusPropertyMetadata.setType(type.name());
+        return domibusPropertyMetadata;
     }
 
     public static DomibusPropertyMetadata getReadOnlyGlobalProperty(String name, Type type, boolean encrypted) {
