@@ -53,8 +53,11 @@ public class PluginUserRO {
         this.entityId = entityId;
     }
 
+    /**
+     * Returns the name of the user but only for basic type of users
+     * @return the name
+     */
     public String getUserName() {
-        // no user name for certificate users
         return StringUtils.equals(AuthType.BASIC.name(), authenticationType) ? userName : null;
     }
 
@@ -70,8 +73,11 @@ public class PluginUserRO {
         this.password = password;
     }
 
+    /**
+     * Returns the id of the certificate of the user but only for certificate type of users
+     * @return the certificate id
+     */
     public String getCertificateId() {
-        // no certificate id for basic users
         return StringUtils.equals(AuthType.CERTIFICATE.name(), authenticationType) ? certificateId : null;
     }
 
