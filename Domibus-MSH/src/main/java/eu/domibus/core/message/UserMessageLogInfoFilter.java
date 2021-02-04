@@ -41,19 +41,20 @@ public class UserMessageLogInfoFilter extends MessageLogInfoFilter {
         return result.toString();
     }
 
-    public String countUserMessageLogQuery(Map<String, Object> filters) {
-        String query = "select count(message.id)" + getQueryBody();
-
-        StringBuilder result = filterQuery(query, null, false, filters);
-        return result.toString();
-    }
+//    public String countUserMessageLogQuery(Map<String, Object> filters) {
+//        String query = "select count(message.id)" + getQueryBody();
+//
+//        StringBuilder result = filterQuery(query, null, false, filters);
+//        return result.toString();
+//    }
 
     /**
      * Constructs the query body based on different conditions
      *
      * @return String query body
      */
-    private String getQueryBody() {
+    @Override
+    public String getQueryBody() {
         return
                 " from UserMessageLog log, " +
                         "UserMessage message " +
@@ -70,10 +71,4 @@ public class UserMessageLogInfoFilter extends MessageLogInfoFilter {
 
     }
 
-    //can be moved in base class
-    public String getCountUserMessageLogQuery(Map<String, Object> filters) {
-        String query = "select message.id " + getQueryBody();
-        StringBuilder result = filterQuery(query, null, false, filters);
-        return result.toString();
-    }
 }

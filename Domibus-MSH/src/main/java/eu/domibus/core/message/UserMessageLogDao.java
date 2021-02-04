@@ -206,29 +206,30 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         messageLog.setNotificationStatus(NotificationStatus.NOTIFIED);
     }
 
-    @Override
-    public int countAllInfo(Map<String, Object> filters) {
-        LOG.debug("Count all");
-        final Map<String, Object> filteredEntries = Maps.filterEntries(filters, input -> input.getValue() != null);
-        // the filters are never empty so this is a dead code
-        if (filteredEntries.size() == 0) {
-            LOG.debug("Filter empty");
-            return countAll();
-        }
-        String filteredUserMessageLogQuery = userMessageLogInfoFilter.countUserMessageLogQuery(filters);
-        TypedQuery<Number> countQuery = em.createQuery(filteredUserMessageLogQuery, Number.class);
-        countQuery = userMessageLogInfoFilter.applyParameters(countQuery, filters);
-        final Number count = countQuery.getSingleResult();
-        return count.intValue();
-    }
+//    @Override
+//    public int countAllInfo(Map<String, Object> filters) {
+//        LOG.debug("Count all");
+//        final Map<String, Object> filteredEntries = Maps.filterEntries(filters, input -> input.getValue() != null);
+//        // the filters are never empty so this is a dead code
+//        if (filteredEntries.size() == 0) {
+//            LOG.debug("Filter empty");
+//            return countAll();
+//        }
+//        String filteredUserMessageLogQuery = getMessageLogInfoFilter().getCountMessageLogQuery(filters);
+//        TypedQuery<Number> countQuery = em.createQuery(filteredUserMessageLogQuery, Number.class);
+//        countQuery = getMessageLogInfoFilter().applyParameters(countQuery, filters);
+//        final Number count = countQuery.getSingleResult();
+//        return count.intValue();
+//    }
 
-    protected Integer countAll() {
+    public Integer countAll() {
         LOG.debug("Executing native query");
         final Query nativeQuery = em.createNativeQuery("SELECT count(um.ID_PK) FROM  TB_USER_MESSAGE um");
         final Number singleResult = (Number) nativeQuery.getSingleResult();
         return singleResult.intValue();
     }
 
+    @Override
     public List<MessageLogInfo> findAllInfoPaged(int from, int max, String column, boolean asc, Map<String, Object> filters) {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Retrieving messages for parameters from [{}] max [{}] column [{}] asc [{}]", from, max, column, asc);
@@ -277,14 +278,4 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         return super.findLastTestMessageId(party, MessageType.USER_MESSAGE, MSHRole.SENDING);
     }
 
-    @Override
-    public boolean isElementAtPosition(Map<String, Object> filters, int position) {
-        String query = userMessageLogInfoFilter.getCountUserMessageLogQuery(filters);
-        TypedQuery<Number> countQuery = em.createQuery(query, Number.class);
-        countQuery = userMessageLogInfoFilter.applyParameters(countQuery, filters);
-        countQuery.setFirstResult(position);
-        countQuery.setMaxResults(1);
-        final List<Number> records = countQuery.getResultList();
-        return records.size() == 1;
-    }
 }

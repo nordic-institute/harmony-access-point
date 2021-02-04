@@ -40,13 +40,8 @@ public class MessagesLogServiceImpl implements MessagesLogService {
 
     @Override
     public long countMessages(MessageType messageType, Map<String, Object> filters) {
-        long numberOfMessageLogs = 0;
-        if (messageType == MessageType.SIGNAL_MESSAGE) {
-            numberOfMessageLogs = signalMessageLogDao.countAllInfo(filters);
-        } else if (messageType == MessageType.USER_MESSAGE) {
-            numberOfMessageLogs = userMessageLogDao.countAllInfo(filters);
-        }
-        return numberOfMessageLogs;
+        MessageLogDao dao = (messageType == MessageType.SIGNAL_MESSAGE) ? signalMessageLogDao : userMessageLogDao;
+        return dao.countAllInfo(filters);
     }
 
     /**
@@ -56,19 +51,9 @@ public class MessagesLogServiceImpl implements MessagesLogService {
     public MessageLogResultRO countAndFindPaged(MessageType messageType, int from, int max, String column, boolean asc, Map<String, Object> filters) {
         MessageLogResultRO result = new MessageLogResultRO();
 
-        List<MessageLogInfo> resultList = new ArrayList<>();
-        if (messageType == MessageType.SIGNAL_MESSAGE) {
-            long number = getNumberOfMessages(signalMessageLogDao, filters, result);
-            if (number > 0) {
-                resultList = signalMessageLogDao.findAllInfoPaged(from, max, column, asc, filters);
-            }
+        MessageLogDao dao = (messageType == MessageType.SIGNAL_MESSAGE) ? signalMessageLogDao : userMessageLogDao;
+        List<MessageLogInfo> resultList = countAndFilter(dao, from, max, column, asc, filters, result);
 
-        } else if (messageType == MessageType.USER_MESSAGE) {
-            long number = getNumberOfMessages(userMessageLogDao, filters, result);
-            if (number > 0) {
-                resultList = userMessageLogDao.findAllInfoPaged(from, max, column, asc, filters);
-            }
-        }
         result.setMessageLogEntries(resultList
                 .stream()
                 .map(messageLogInfo -> convertMessageLogInfo(messageLogInfo))
@@ -76,11 +61,20 @@ public class MessagesLogServiceImpl implements MessagesLogService {
         return result;
     }
 
+    protected List<MessageLogInfo> countAndFilter(MessageLogDao dao, int from, int max, String column, boolean asc, Map<String, Object> filters, MessageLogResultRO result) {
+        List<MessageLogInfo> resultList = new ArrayList<>();
+        long number = getNumberOfMessages(dao, filters, result);
+        if (number > 0) {
+            resultList = dao.findAllInfoPaged(from, max, column, asc, filters);
+        }
+        return resultList;
+    }
+
     protected long getNumberOfMessages(MessageLogDao dao, Map<String, Object> filters, MessageLogResultRO result) {
         long count;
         boolean isEstimated;
-        Integer limit = domibusPropertyProvider.getIntegerProperty("domibus.console.messageLogs.countLimit");
-        if (limit > 0 && dao.isElementAtPosition(filters, limit + 1)) {
+        Integer limit = domibusPropertyProvider.getIntegerProperty("domibus.UI.messageLogs.countLimit");
+        if (limit > 0 && dao.isElementAtPosition(filters, limit)) {
             count = limit;
             isEstimated = true;
         } else {

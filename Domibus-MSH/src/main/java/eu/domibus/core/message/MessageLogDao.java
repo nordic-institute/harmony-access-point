@@ -1,5 +1,6 @@
 package eu.domibus.core.message;
 
+import com.google.common.collect.Maps;
 import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
@@ -11,7 +12,6 @@ import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.logging.MDCKey;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
@@ -134,7 +134,32 @@ public abstract class MessageLogDao<F extends MessageLog> extends ListDao<F> {
         return resultList.isEmpty() ? null : resultList.get(0).getMessageId();
     }
 
-    public abstract int countAllInfo(Map<String, Object> filters);
+    public int countAllInfo(Map<String, Object> filters){
+        LOG.debug("Count all");
+        final Map<String, Object> filteredEntries = Maps.filterEntries(filters, input -> input.getValue() != null);
+        // the filters are never empty so this is a dead code
+        if (filteredEntries.size() == 0) {
+            LOG.debug("Filter empty");
+            return countAll();
+        }
+        String filteredUserMessageLogQuery = getMessageLogInfoFilter().getCountMessageLogQuery(filters);
+        TypedQuery<Number> countQuery = em.createQuery(filteredUserMessageLogQuery, Number.class);
+        countQuery = getMessageLogInfoFilter().applyParameters(countQuery, filters);
+        final Number count = countQuery.getSingleResult();
+        return count.intValue();
+    }
 
-    public abstract boolean isElementAtPosition(Map<String, Object> filters, int position);
+    public abstract Integer countAll();
+
+    public boolean isElementAtPosition(Map<String, Object> filters, int position){
+        String query = getMessageLogInfoFilter().getMessageLogIdQuery(filters);
+        TypedQuery<Number> countQuery = em.createQuery(query, Number.class);
+        countQuery = getMessageLogInfoFilter().applyParameters(countQuery, filters);
+        countQuery.setFirstResult(position);
+        countQuery.setMaxResults(1);
+        final List<Number> records = countQuery.getResultList();
+        return records.size() == 1;
+    }
+
+    public abstract List<MessageLogInfo> findAllInfoPaged(int from, int max, String column, boolean asc, Map<String, Object> filters);
 }

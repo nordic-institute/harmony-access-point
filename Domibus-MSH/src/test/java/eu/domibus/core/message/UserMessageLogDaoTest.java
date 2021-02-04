@@ -659,7 +659,7 @@ public class UserMessageLogDaoTest {
         filters.put("attribute", new Object());
 
         new Expectations(userMessageLogDao) {{
-            userMessageLogInfoFilter.countUserMessageLogQuery(filters);
+            userMessageLogInfoFilter.getCountMessageLogQuery(filters);
             em.createQuery(anyString, Number.class); result = query;
             userMessageLogInfoFilter.applyParameters(query, filters); result = query;
             query.getSingleResult(); result = Integer.valueOf(4);

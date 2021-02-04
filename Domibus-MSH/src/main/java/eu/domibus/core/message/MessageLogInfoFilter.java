@@ -12,7 +12,7 @@ import java.util.Map;
  * @author Tiago Miguel
  * @since 3.3
  */
-public class MessageLogInfoFilter {
+public abstract class MessageLogInfoFilter {
 
     private static final String LOG_MESSAGE_ID = "log.messageId";
     private static final String LOG_MSH_ROLE = "log.mshRole";
@@ -147,5 +147,20 @@ public class MessageLogInfoFilter {
 
     public String filterMessageLogQuery(String column, boolean asc, Map<String, Object> filters) {
         return null;
+    }
+
+    public abstract String getQueryBody();
+
+    public String getCountMessageLogQuery(Map<String, Object> filters) {
+        String query = "select count(message.id)" + getQueryBody();
+
+        StringBuilder result = filterQuery(query, null, false, filters);
+        return result.toString();
+    }
+
+    public String getMessageLogIdQuery(Map<String, Object> filters) {
+        String query = "select message.id" + getQueryBody();
+        StringBuilder result = filterQuery(query, null, false, filters);
+        return result.toString();
     }
 }
