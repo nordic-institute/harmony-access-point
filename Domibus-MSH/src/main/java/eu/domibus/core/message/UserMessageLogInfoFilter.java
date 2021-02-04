@@ -35,7 +35,10 @@ public class UserMessageLogInfoFilter extends MessageLogInfoFilter {
                 "log.restored," +
                 "log.messageSubtype," +
                 "log.messageFragment," +
-                "log.sourceMessage" +
+                "log.sourceMessage," +
+                MESSAGE_COLLABORATION_INFO_ACTION + "," +
+                MESSAGE_COLLABORATION_INFO_SERVICE_TYPE + "," +
+                MESSAGE_COLLABORATION_INFO_SERVICE_VALUE +
                 ")" + getQueryBody();
         StringBuilder result = filterQuery(query, column, asc, filters);
         return result.toString();

@@ -13,6 +13,8 @@
   "tags" : [ {
     "name" : "acknowledgement"
   }, {
+    "name" : "cache"
+  }, {
     "name" : "monitoring"
   }, {
     "name" : "party"
@@ -25,6 +27,22 @@
   } ],
   "schemes" : [ "http", "https" ],
   "paths" : {
+    "/ext/cache" : {
+      "delete" : {
+        "tags" : [ "cache" ],
+        "summary" : "Delete all Caches",
+        "description" : "Clear all caches from the cacheManager",
+        "operationId" : "evictCaches",
+        "responses" : {
+          "default" : {
+            "description" : "successful operation"
+          }
+        },
+        "security" : [ {
+          "basicAuth" : [ ]
+        } ]
+      }
+    },
     "/ext/messages/acknowledgments/delivered" : {
       "post" : {
         "tags" : [ "acknowledgement" ],

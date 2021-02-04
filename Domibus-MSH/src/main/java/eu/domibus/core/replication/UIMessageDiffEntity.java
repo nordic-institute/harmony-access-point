@@ -109,6 +109,15 @@ public class UIMessageDiffEntity {
     @Column(name = "TO_SCHEME")
     private String toScheme;
 
+    @Column(name = "ACTION")
+    private String action;
+
+    @Column(name = "SERVICE_TYPE")
+    private String serviceType;
+
+    @Column(name = "SERVICE_VALUE")
+    private String serviceValue;
+
     public void setMessageId(String messageId) {
         this.messageId = messageId;
     }
@@ -262,6 +271,30 @@ public class UIMessageDiffEntity {
 
     public String getRefToMessageId() {
         return refToMessageId;
+    }
+
+    public String getAction() {
+        return action;
+    }
+
+    public void setAction(String action) {
+        this.action = action;
+    }
+
+    public String getServiceType() {
+        return serviceType;
+    }
+
+    public void setServiceType(String serviceType) {
+        this.serviceType = serviceType;
+    }
+
+    public String getServiceValue() {
+        return serviceValue;
+    }
+
+    public void setServiceValue(String serviceValue) {
+        this.serviceValue = serviceValue;
     }
 
     @Override

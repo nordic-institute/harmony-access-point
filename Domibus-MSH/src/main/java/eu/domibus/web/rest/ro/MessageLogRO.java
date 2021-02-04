@@ -16,26 +16,52 @@ import java.util.Date;
 public class MessageLogRO implements Serializable {
 
     private String messageId;
+
     private String conversationId;
+
     private String fromPartyId;
+
     private String toPartyId;
+
     private MessageStatus messageStatus;
+
     private NotificationStatus notificationStatus;
+
     private MSHRole mshRole;
+
     private MessageType messageType;
+
     private Date deleted;
+
     private Date received;
+
     private int sendAttempts;
+
     private int sendAttemptsMax;
+
     private Date nextAttempt;
+
     private String originalSender;
+
     private String finalRecipient;
+
     private String refToMessageId;
+
     private Date failed;
+
     private Date restored;
+
     private MessageSubtype messageSubtype;
+
     private boolean messageFragment;
+
     private boolean sourceMessage;
+
+    private String action;
+
+    private String serviceType;
+
+    private String serviceValue;
 
     public String getMessageId() {
         return messageId;
@@ -203,6 +229,30 @@ public class MessageLogRO implements Serializable {
 
     public void setSourceMessage(boolean sourceMessage) {
         this.sourceMessage = sourceMessage;
+    }
+
+    public String getAction() {
+        return action;
+    }
+
+    public String getServiceType() {
+        return serviceType;
+    }
+
+    public String getServiceValue() {
+        return serviceValue;
+    }
+
+    public void setAction(String action) {
+        this.action = action;
+    }
+
+    public void setServiceType(String serviceType) {
+        this.serviceType = serviceType;
+    }
+
+    public void setServiceValue(String serviceValue) {
+        this.serviceValue = serviceValue;
     }
 
 }

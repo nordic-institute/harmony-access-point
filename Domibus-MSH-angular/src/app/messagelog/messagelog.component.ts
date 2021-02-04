@@ -169,6 +169,18 @@ export class MessageLogComponent extends mix(BaseListComponent)
         cellTemplate: this.rowWithDateFormatTpl,
         name: 'Deleted',
         width: 155
+      },
+      {
+        name: 'Action',
+        prop: 'action'
+      },
+      {
+        name: 'Service Type',
+        prop: 'serviceType'
+      },
+      {
+        name: 'Service Value',
+        prop: 'serviceValue'
       }
     ];
 

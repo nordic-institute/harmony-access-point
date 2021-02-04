@@ -23,7 +23,10 @@ INSERT INTO TB_MESSAGE_UI (
   ref_to_message_id,
   failed,
   restored,
-  message_subtype
+  message_subtype,
+  action,
+  service_type,
+  service_value
 )
 SELECT * FROM (
                 SELECT
@@ -45,7 +48,10 @@ SELECT * FROM (
                   message_info.REF_TO_MESSAGE_ID,
                   message_log.FAILED ,
                   message_log.RESTORED ,
-                  message_log.MESSAGE_SUBTYPE
+                  message_log.MESSAGE_SUBTYPE,
+                  user_message.COLLABORATION_INFO_ACTION AS ACTION,
+                  user_message.SERVICE_TYPE AS SERVICE_TYPE,
+                  user_message.SERVICE_VALUE AS SERVICE_VALUE
                 FROM
                   TB_MESSAGE_LOG message_log
                     LEFT OUTER JOIN
@@ -89,7 +95,10 @@ SELECT * FROM (
                   message_info2.REF_TO_MESSAGE_ID ,
                   message_log.FAILED ,
                   message_log.RESTORED,
-                  message_log.MESSAGE_SUBTYPE
+                  message_log.MESSAGE_SUBTYPE,
+                  NULL AS ACTION,
+                  NULL AS SERVICE_TYPE,
+                  NULL AS SERVICE_VALUE
                 FROM
                   TB_MESSAGE_LOG message_log CROSS
                                                JOIN

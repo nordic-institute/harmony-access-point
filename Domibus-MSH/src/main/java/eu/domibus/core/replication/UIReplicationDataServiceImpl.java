@@ -165,6 +165,9 @@ public class UIReplicationDataServiceImpl implements UIReplicationDataService {
         UIMessageEntity entity = createUIMessageEntity(messageId, jmsTimestamp, userMessageLog, userMessage);
         entity.setRefToMessageId(userMessage.getMessageInfo().getRefToMessageId());
         entity.setConversationId(userMessage.getCollaborationInfo().getConversationId());
+        entity.setAction(userMessage.getCollaborationInfo().getAction());
+        entity.setServiceType(userMessage.getCollaborationInfo().getService().getType());
+        entity.setServiceValue(userMessage.getCollaborationInfo().getService().getValue());
 
         uiMessageDao.create(entity);
 
@@ -204,7 +207,6 @@ public class UIReplicationDataServiceImpl implements UIReplicationDataService {
         entity.setFromScheme(userMessageDefaultServiceHelper.getOriginalSender(userMessage));
         entity.setToScheme(userMessageDefaultServiceHelper.getFinalRecipient(userMessage));
         entity.setLastModified(new Date(jmsTimestamp));
-
         return entity;
     }
 
