@@ -760,7 +760,7 @@ public class UsersPgTest extends SeleniumTest {
 		String loggedInUser = userPage.getSandwichMenu().getCurrentUserID();
 		userPage.clickVoidSpace();
 
-		JSONArray activeUserArray = rest.users().getSpecificRoleActiveUser(userPage.getDomainFromTitle(),DRoles.ADMIN);
+		JSONArray activeUserArray = rest.users().getActiveUsersWithRole(userPage.getDomainFromTitle(),DRoles.ADMIN);
 		int activeUserCount = activeUserArray.length();
 
 		for (int i = 0; i < activeUserCount; i++) {
@@ -804,7 +804,7 @@ public class UsersPgTest extends SeleniumTest {
 		String loggedInUser = userPage.getSandwichMenu().getCurrentUserID();
 		userPage.clickVoidSpace();
 
-		JSONArray activeUserArray= rest.users().getSpecificRoleActiveUser(userPage.getDomainFromTitle(), DRoles.SUPER);
+		JSONArray activeUserArray= rest.users().getActiveUsersWithRole(userPage.getDomainFromTitle(), DRoles.SUPER);
 		int activeUserCount = activeUserArray.length();
 		log.info("Active super user count" + activeUserCount);
 
@@ -850,7 +850,7 @@ public class UsersPgTest extends SeleniumTest {
 		UsersPage userPage = new UsersPage(driver);
 		String newUser = Gen.randomAlphaNumeric(10);
 		rest.users().createUser(newUser, DRoles.ADMIN, data.getNewTestPass(), page.getDomainFromTitle());
-		JSONArray activeAdminArray = rest.users().getSpecificRoleActiveUser(page.getDomainFromTitle(),DRoles.ADMIN);
+		JSONArray activeAdminArray = rest.users().getActiveUsersWithRole(page.getDomainFromTitle(),DRoles.ADMIN);
 		int userCount=activeAdminArray.length();
 
 		page.refreshPage();
@@ -891,7 +891,7 @@ public class UsersPgTest extends SeleniumTest {
 		userPage.getSidebar().goToPage(PAGES.USERS);
 		userPage.grid().waitForRowsToLoad();
 
-		JSONArray activeUserArray= rest.users().getSpecificRoleActiveUser(userPage.getDomainFromTitle(), DRoles.ADMIN);
+		JSONArray activeUserArray= rest.users().getActiveUsersWithRole(userPage.getDomainFromTitle(), DRoles.ADMIN);
 		int activeUserCount = activeUserArray.length();
 
 		for (int i = 0; i < activeUserCount; i++) {
@@ -927,7 +927,7 @@ public class UsersPgTest extends SeleniumTest {
 		userPage.getSidebar().goToPage(PAGES.USERS);
 		userPage.grid().waitForRowsToLoad();
 
-		JSONArray activeUserArray=rest.users().getSpecificRoleActiveUser(userPage.getDomainFromTitle(), DRoles.ADMIN);
+		JSONArray activeUserArray=rest.users().getActiveUsersWithRole(userPage.getDomainFromTitle(), DRoles.ADMIN);
 		int activeUserCount = activeUserArray.length();
 
 		for (int i = 0; i < activeUserCount; i++) {
@@ -986,7 +986,7 @@ public class UsersPgTest extends SeleniumTest {
 		rest.users().createUser(newUser, DRoles.ADMIN, data.getNewTestPass(), userPage.getDomainFromTitle());
 		String loggedInUser = userPage.getSandwichMenu().getCurrentUserID();
 
-		JSONArray activeUserArray = rest.users().getSpecificRoleActiveUser(userPage.getDomainFromTitle(),DRoles.ADMIN);
+		JSONArray activeUserArray = rest.users().getActiveUsersWithRole(userPage.getDomainFromTitle(),DRoles.ADMIN);
 		int activeUserCount = activeUserArray.length();
 
 		for (int i = 0; i < activeUserCount; i++) {

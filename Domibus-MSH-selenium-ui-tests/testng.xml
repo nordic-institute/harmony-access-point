@@ -22,9 +22,14 @@
             <class name="domibus.ui.ux.PluginUsersPgUXTest">
                 <methods>
                     <exclude name="createPluginUserFieldValidations"/>
+
+<!--                    bug EDELIVERY-7780 -->
+                    <exclude name="verifyConfPopUp"/>
+
 <!--                    EDELIVERY-4579 - 2 tests-->
                     <exclude name="downloadAsCSV"/>
                     <exclude name="verifyCSVHeaders"/>
+
                 </methods>
             </class>
             <class name="domibus.ui.ux.PmodePartiesPgUXTest">
@@ -98,6 +103,10 @@
             </class>
             <class name="domibus.ui.functional.PmodePartiesPgTest">
                 <methods>
+<!--                    excluded due to problem in extracting data from table in modal-->
+                    <exclude name="doubleClickRow"/>
+                    <exclude name="IRRemovalCurrentPmode"/>
+                    <exclude name="responderInitiatorRemovalFromPartiesPage"/>
                 </methods>
             </class>
             <class name="domibus.ui.functional.MessageFilterPgTest">
