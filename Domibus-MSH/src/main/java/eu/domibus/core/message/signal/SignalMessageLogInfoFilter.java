@@ -59,9 +59,9 @@ public class SignalMessageLogInfoFilter extends MessageLogInfoFilter {
         return result.toString();
     }
 
-    public String countSignalMessageLogQuery(boolean asc, Map<String, Object> filters) {
+    public String countSignalMessageLogQuery(Map<String, Object> filters) {
         String query = "select count(message.id)" + getQueryBody(filters);
-        StringBuilder result = filterQuery(query, null, asc, filters);
+        StringBuilder result = filterQuery(query, null, false, filters);
         return result.toString();
     }
 
@@ -77,5 +77,12 @@ public class SignalMessageLogInfoFilter extends MessageLogInfoFilter {
                         "left join message.partyInfo.to.partyId partyTo " +
                         "where signal.messageInfo.messageId=log.messageId and signal.messageInfo.refToMessageId=message.messageInfo.messageId " +
                         (isFourCornerModel() ? "and propsFrom.name = 'originalSender' and propsTo.name = 'finalRecipient' " : StringUtils.EMPTY);
+    }
+
+    //can be moved in base class
+    public String getCountUserMessageLogQuery(Map<String, Object> filters) {
+        String query = "select count(message.id)" + getQueryBody(filters);
+        StringBuilder result = filterQuery(query, null, false, filters);
+        return result.toString();
     }
 }

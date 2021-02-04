@@ -659,14 +659,14 @@ public class UserMessageLogDaoTest {
         filters.put("attribute", new Object());
 
         new Expectations(userMessageLogDao) {{
-            userMessageLogInfoFilter.countUserMessageLogQuery(anyBoolean, filters);
+            userMessageLogInfoFilter.countUserMessageLogQuery(filters);
             em.createQuery(anyString, Number.class); result = query;
             userMessageLogInfoFilter.applyParameters(query, filters); result = query;
             query.getSingleResult(); result = Integer.valueOf(4);
         }};
 
         // WHEN
-        int result = userMessageLogDao.countAllInfo(true, filters);
+        int result = userMessageLogDao.countAllInfo(filters);
 
         // THEN
         Assert.assertEquals("Should have returned the correct count when filters provided", 4, result);
@@ -680,7 +680,7 @@ public class UserMessageLogDaoTest {
         }};
 
         // WHEN
-        int result = userMessageLogDao.countAllInfo(true, new HashMap<>());
+        int result = userMessageLogDao.countAllInfo(new HashMap<>());
 
         // THEN
         Assert.assertEquals("Should have returned the total count when no filters provided", 7, result);

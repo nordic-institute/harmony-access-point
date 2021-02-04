@@ -133,4 +133,8 @@ public abstract class MessageLogDao<F extends MessageLog> extends ListDao<F> {
         }
         return resultList.isEmpty() ? null : resultList.get(0).getMessageId();
     }
+
+    public abstract int countAllInfo(Map<String, Object> filters);
+
+    public abstract boolean isElementAtPosition(Map<String, Object> filters, int position);
 }

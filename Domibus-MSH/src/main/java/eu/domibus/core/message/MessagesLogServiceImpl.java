@@ -1,5 +1,6 @@
 package eu.domibus.core.message;
 
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.ebms3.common.model.MessageType;
@@ -34,13 +35,16 @@ public class MessagesLogServiceImpl implements MessagesLogService {
     @Autowired
     private DomainCoreConverter domainConverter;
 
+    @Autowired
+    DomibusPropertyProvider domibusPropertyProvider;
+
     @Override
     public long countMessages(MessageType messageType, Map<String, Object> filters) {
         long numberOfMessageLogs = 0;
         if (messageType == MessageType.SIGNAL_MESSAGE) {
-            numberOfMessageLogs = signalMessageLogDao.countAllInfo(true, filters);
+            numberOfMessageLogs = signalMessageLogDao.countAllInfo(filters);
         } else if (messageType == MessageType.USER_MESSAGE) {
-            numberOfMessageLogs = userMessageLogDao.countAllInfo(true, filters);
+            numberOfMessageLogs = userMessageLogDao.countAllInfo(filters);
         }
         return numberOfMessageLogs;
     }
@@ -54,18 +58,14 @@ public class MessagesLogServiceImpl implements MessagesLogService {
 
         List<MessageLogInfo> resultList = new ArrayList<>();
         if (messageType == MessageType.SIGNAL_MESSAGE) {
-            long numberOfSignalMessageLogs = signalMessageLogDao.countAllInfo(asc, filters);
-            LOG.debug("count Signal Messages Logs [{}]", numberOfSignalMessageLogs);
-            result.setCount(numberOfSignalMessageLogs);
-            if (numberOfSignalMessageLogs > 0) {
+            long number = getNumberOfMessages(signalMessageLogDao, filters, result);
+            if (number > 0) {
                 resultList = signalMessageLogDao.findAllInfoPaged(from, max, column, asc, filters);
             }
 
         } else if (messageType == MessageType.USER_MESSAGE) {
-            long numberOfUserMessageLogs = userMessageLogDao.countAllInfo(asc, filters);
-            LOG.debug("count User Messages Logs [{}]", numberOfUserMessageLogs);
-            result.setCount(numberOfUserMessageLogs);
-            if (numberOfUserMessageLogs > 0) {
+            long number = getNumberOfMessages(userMessageLogDao, filters, result);
+            if (number > 0) {
                 resultList = userMessageLogDao.findAllInfoPaged(from, max, column, asc, filters);
             }
         }
@@ -74,6 +74,23 @@ public class MessagesLogServiceImpl implements MessagesLogService {
                 .map(messageLogInfo -> convertMessageLogInfo(messageLogInfo))
                 .collect(Collectors.toList()));
         return result;
+    }
+
+    protected long getNumberOfMessages(MessageLogDao dao, Map<String, Object> filters, MessageLogResultRO result) {
+        long count;
+        boolean isEstimated;
+        Integer limit = domibusPropertyProvider.getIntegerProperty("domibus.console.messageLogs.countLimit");
+        if (limit > 0 && dao.isElementAtPosition(filters, limit + 1)) {
+            count = limit;
+            isEstimated = true;
+        } else {
+            count = dao.countAllInfo(filters);
+            isEstimated = false;
+        }
+        LOG.debug("count User Messages Logs [{}]; is estimated [{}]", count, isEstimated);
+        result.setEstimatedCount(isEstimated);
+        result.setCount(count);
+        return count;
     }
 
     @Override

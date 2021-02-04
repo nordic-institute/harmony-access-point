@@ -67,12 +67,14 @@ public class SignalMessageLogDao extends MessageLogDao<SignalMessageLog> {
         }
     }
 
-    public int countAllInfo(boolean asc, Map<String, Object> filters) {
+    @Override
+    public int countAllInfo(Map<String, Object> filters) {
         final Map<String, Object> filteredEntries = Maps.filterEntries(filters, input -> input.getValue() != null);
+        // the filters are never empty so this is a dead code
         if (filteredEntries.size() == 0) {
             return countAll();
         }
-        String filteredSignalMessageLogQuery = signalMessageLogInfoFilter.countSignalMessageLogQuery(asc, filters);
+        String filteredSignalMessageLogQuery = signalMessageLogInfoFilter.countSignalMessageLogQuery(filters);
         TypedQuery<Number> countQuery = em.createQuery(filteredSignalMessageLogQuery, Number.class);
         countQuery = signalMessageLogInfoFilter.applyParameters(countQuery, filters);
         final Number count = countQuery.getSingleResult();
@@ -115,4 +117,14 @@ public class SignalMessageLogDao extends MessageLogDao<SignalMessageLog> {
         return super.findLastTestMessageId(party, MessageType.SIGNAL_MESSAGE, MSHRole.RECEIVING);
     }
 
+    @Override
+    public boolean isElementAtPosition(Map<String, Object> filters, int position) {
+        String query = signalMessageLogInfoFilter.getCountUserMessageLogQuery(filters);
+        TypedQuery<Number> countQuery = em.createQuery(query, Number.class);
+        countQuery = signalMessageLogInfoFilter.applyParameters(countQuery, filters);
+        countQuery.setFirstResult(position);
+        countQuery.setMaxResults(1);
+        final List<Number> records = countQuery.getResultList();
+        return records.size() == 1;
+    }
 }

@@ -43,7 +43,7 @@ public class MessagesLogServiceImplTest {
         List<MessageLogInfo> resultList = Arrays.asList(item1);
 
         new Expectations() {{
-            userMessageLogDao.countAllInfo(asc, filters);
+            userMessageLogDao.countAllInfo(filters);
             result = numberOfUserMessageLogs;
             userMessageLogDao.findAllInfoPaged(from, max, column, asc, filters);
             result = resultList;
@@ -52,7 +52,7 @@ public class MessagesLogServiceImplTest {
         MessageLogResultRO res = messagesLogServiceImpl.countAndFindPaged(messageType, from, max, column, asc, filters);
 
         new Verifications() {{
-            userMessageLogDao.countAllInfo(asc, filters);
+            userMessageLogDao.countAllInfo(filters);
             times = 1;
             userMessageLogDao.findAllInfoPaged(from, max, column, asc, filters);
             times = 1;
@@ -73,7 +73,7 @@ public class MessagesLogServiceImplTest {
         List<MessageLogInfo> resultList = Arrays.asList(item1);
 
         new Expectations() {{
-            signalMessageLogDao.countAllInfo(asc, filters);
+            signalMessageLogDao.countAllInfo(filters);
             result = numberOfLogs;
             signalMessageLogDao.findAllInfoPaged(from, max, column, asc, filters);
             result = resultList;
@@ -82,7 +82,7 @@ public class MessagesLogServiceImplTest {
         MessageLogResultRO res = messagesLogServiceImpl.countAndFindPaged(messageType, from, max, column, asc, filters);
 
         new Verifications() {{
-            signalMessageLogDao.countAllInfo(asc, filters);
+            signalMessageLogDao.countAllInfo(filters);
             times = 1;
             signalMessageLogDao.findAllInfoPaged(from, max, column, asc, filters);
             times = 1;
@@ -109,7 +109,7 @@ public class MessagesLogServiceImplTest {
         List<MessageLogInfo> resultList = Arrays.asList(item1);
 
         new Expectations() {{
-            userMessageLogDao.countAllInfo(asc, filters);
+            userMessageLogDao.countAllInfo(filters);
             result = numberOfLogs;
             userMessageLogDao.findAllInfoPaged(from, max, column, asc, filters);
             result = resultList;
