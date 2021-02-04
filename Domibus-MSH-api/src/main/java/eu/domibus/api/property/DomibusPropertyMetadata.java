@@ -96,7 +96,7 @@ public class DomibusPropertyMetadata {
     private boolean storedGlobally = true;
 
     public static DomibusPropertyMetadata getOnTheFlyProperty(String propertyName) {
-        DomibusPropertyMetadata  domibusPropertyMetadata= new DomibusPropertyMetadata(propertyName, Usage.ANY, true);
+        DomibusPropertyMetadata domibusPropertyMetadata = new DomibusPropertyMetadata(propertyName, Usage.ANY, true);
         domibusPropertyMetadata.setModule(Module.UNKNOWN);
         domibusPropertyMetadata.setWritable(false);
         return domibusPropertyMetadata;
