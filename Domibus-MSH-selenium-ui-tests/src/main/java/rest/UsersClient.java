@@ -6,6 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import utils.Gen;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -136,9 +137,30 @@ public class UsersClient extends BaseRestClient {
 			domain = "default";
 		}
 		
-		String payload = provider.createUserObj(username, role, pass, domain);
-		
-		ClientResponse response = jsonPUT(resource.path(RestServicePaths.USERS), payload);
+//		String payload = provider.createUserObj(username, role, pass, domain);
+		JSONObject usrObj = new JSONObject();
+		usrObj.put("roles", role);
+		usrObj.put("domain", domain);
+		usrObj.put("domainName", domain);
+		usrObj.put("userName", username);
+		usrObj.put("email", "");
+		usrObj.put("status", "NEW");
+		usrObj.put("active", true);
+		usrObj.put("suspended", false);
+		usrObj.put("deleted", false);
+		usrObj.put("authorities", new JSONArray());
+		usrObj.put("expirationDate", JSONObject.NULL);
+		usrObj.put("password", pass);
+
+		JSONArray payload = new JSONArray();
+		payload.put(usrObj);
+
+		if(!StringUtils.equalsIgnoreCase(role, DRoles.ADMIN) && getActiveUsersWithRole(domain, DRoles.ADMIN).length() == 0){
+			createUser(Gen.randomAlphaNumeric(10), DRoles.ADMIN, data.defaultPass(), domain);
+		}
+
+
+		ClientResponse response = jsonPUT(resource.path(RestServicePaths.USERS), payload.toString());
 		if (response.getStatus() != 200) {
 			throw new DomibusRestException("Could not create user", response);
 		}
@@ -215,23 +237,27 @@ public class UsersClient extends BaseRestClient {
 		return jsonPUT(resource.path(RestServicePaths.USERS), toUpdate.toString());
 	}
 
-	public JSONArray getSpecificRoleActiveUser(String domain, String role) throws Exception {
+	public JSONArray getActiveUsersWithRole(String domain, String role) throws Exception {
 
 		JSONArray userArray = getUsers(domain);
 		int userCount = userArray.length();
 
-		log.info("Get all active admin users");
+		log.info("Get all active users");
 		JSONArray activeUserArray = new JSONArray();
 		for (int i = 0; i < userCount; i++) {
 			Boolean isDeleted = userArray.getJSONObject(i).getBoolean("deleted");
+			Boolean isSuspended = userArray.getJSONObject(i).getBoolean("suspended");
+			Boolean isActive = userArray.getJSONObject(i).getBoolean("active");
+
 			String userRole = userArray.getJSONObject(i).getString("roles");
 
-			if (!isDeleted && userRole.equalsIgnoreCase(role)) {
+			if (!isDeleted && !isSuspended && isActive && StringUtils.equalsIgnoreCase(userRole, role)) {
 				activeUserArray.put(userArray.get(i));
 			}
 		}
 		return activeUserArray;
 	}
+
 
 }
 

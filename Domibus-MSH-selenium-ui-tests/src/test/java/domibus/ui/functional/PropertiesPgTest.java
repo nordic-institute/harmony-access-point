@@ -585,7 +585,7 @@ public class PropertiesPgTest extends SeleniumTest {
 
 
 	/* EDELIVERY-7325 - PROP-20 - Update property domibus.passwordPolicy.checkDefaultPassword  */
-	@Test(description = "PROP-20", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "PROP-20", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void checkDefaultPassword() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
@@ -710,7 +710,7 @@ public class PropertiesPgTest extends SeleniumTest {
 
 
 	/* EDELIVERY-7331 - PROP-22 - Update property domibus.passwordPolicy.dontReuseLast */
-	@Test(description = "PROP-22", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "PROP-22", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void dontReuseLastPass() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
