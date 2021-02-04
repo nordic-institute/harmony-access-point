@@ -63,14 +63,6 @@ BEGIN
              DELETE FROM tb_message_info
             WHERE
                 id_pk = signal_mess_rec.minfo_pk;
-
-           -- DBMS_OUTPUT.PUT_LINE('Receipt id:'||receipt_mess_rec .id_pk);
-
-           -- DELETE FROM tb_message_log where message_id=signal_mess_rec.message_id;
-         --   DELETE FROM tb_message_info where message_id=signal_mess_rec.message_id;
-           -- DELETE FROM tb_message_ui where message_id=signal_mess_rec.message_id;
-            --DBMS_OUTPUT.PUT_LINE('Signal message id:'||signal_mess_rec.message_id);
-
         END LOOP;
 
         FOR inner_user_mess_rec IN (
