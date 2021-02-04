@@ -1,7 +1,7 @@
 create or replace PROCEDURE DeleteExpiredDownloadedMessages (
     message_number_to_delete   IN NUMBER DEFAULT 1000,
     mpc                        VARCHAR2,
-    start_date                   DATE,
+    start_date                 DATE,
     end_date                   DATE
 ) AS
 BEGIN
@@ -139,4 +139,4 @@ BEGIN
     END LOOP;
 
     COMMIT;
-END delete_received_messages;
+END DeleteExpiredDownloadedMessages;
