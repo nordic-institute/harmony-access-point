@@ -215,6 +215,11 @@ public class UIMessageDaoImpl extends ListDao<UIMessageEntity> implements UIMess
         return result;
     }
 
+    @Override
+    public long countEntriesWithLimit(Map<String, Object> filters, int limit) {
+        return super.countEntries(filters, limit);
+    }
+
     private void addStringPredicates(CriteriaBuilder cb, Root<?> ume, List<Predicate> predicates, Map.Entry<String, Object> filter, String filterKey, Object filterValue) {
         if (StringUtils.isNotBlank(filterKey) && !filter.getValue().toString().isEmpty()) {
 

@@ -666,7 +666,7 @@ public class UserMessageLogDaoTest {
         }};
 
         // WHEN
-        int result = userMessageLogDao.countAllInfo(filters);
+        int result = userMessageLogDao.countEntries(filters);
 
         // THEN
         Assert.assertEquals("Should have returned the correct count when filters provided", 4, result);
@@ -680,7 +680,7 @@ public class UserMessageLogDaoTest {
         }};
 
         // WHEN
-        int result = userMessageLogDao.countAllInfo(new HashMap<>());
+        int result = userMessageLogDao.countEntries(new HashMap<>());
 
         // THEN
         Assert.assertEquals("Should have returned the total count when no filters provided", 7, result);

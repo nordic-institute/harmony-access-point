@@ -25,7 +25,7 @@ import java.util.*;
  * @author Federico Martini
  * @since 3.2
  */
-public abstract class MessageLogDao<F extends MessageLog> extends ListDao<F> {
+public abstract class MessageLogDao<F extends MessageLog> extends ListDao<F> implements MessageLogDaoBase {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageLog.class);
 
@@ -134,8 +134,7 @@ public abstract class MessageLogDao<F extends MessageLog> extends ListDao<F> {
         return resultList.isEmpty() ? null : resultList.get(0).getMessageId();
     }
 
-    public int countAllInfo(Map<String, Object> filters) {
-        LOG.debug("Count all");
+    public long countEntries(Map<String, Object> filters) {
         final Map<String, Object> filteredEntries = Maps.filterEntries(filters, input -> input.getValue() != null);
         // the filters are never empty so this is a dead code
         if (filteredEntries.size() == 0) {
@@ -145,7 +144,7 @@ public abstract class MessageLogDao<F extends MessageLog> extends ListDao<F> {
         return countRecords(filters, 0);
     }
 
-    public int countWithLimit(Map<String, Object> filters, int limit) {
+    public long countEntriesWithLimit(Map<String, Object> filters, int limit) {
         return countRecords(filters, limit);
     }
 

@@ -1,6 +1,5 @@
 package eu.domibus.core.message;
 
-import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.ebms3.common.model.MessageType;
@@ -36,12 +35,12 @@ public class MessagesLogServiceImpl implements MessagesLogService {
     private DomainCoreConverter domainConverter;
 
     @Autowired
-    DomibusPropertyProvider domibusPropertyProvider;
+    MessagesLogServiceHelper messagesLogServiceHelper;
 
     @Override
     public long countMessages(MessageType messageType, Map<String, Object> filters) {
         MessageLogDao dao = getMessageLogDao(messageType);
-        return dao.countAllInfo(filters);
+        return dao.countEntries(filters);
     }
 
     /**
@@ -64,28 +63,11 @@ public class MessagesLogServiceImpl implements MessagesLogService {
 
     protected List<MessageLogInfo> countAndFilter(MessageLogDao dao, int from, int max, String column, boolean asc, Map<String, Object> filters, MessageLogResultRO result) {
         List<MessageLogInfo> resultList = new ArrayList<>();
-        long number = getNumberOfMessages(dao, filters, result);
+        long number = messagesLogServiceHelper.calculateNumberOfMessages(dao, filters, result);
         if (number > 0) {
             resultList = dao.findAllInfoPaged(from, max, column, asc, filters);
         }
         return resultList;
-    }
-
-    protected long getNumberOfMessages(MessageLogDao dao, Map<String, Object> filters, MessageLogResultRO result) {
-        long count;
-        boolean isEstimated;
-        Integer limit = domibusPropertyProvider.getIntegerProperty("domibus.UI.messageLogs.countLimit");
-        if (limit > 0 && dao.countWithLimit(filters, limit + 1) >= limit) {
-            count = limit;
-            isEstimated = true;
-        } else {
-            count = dao.countAllInfo(filters);
-            isEstimated = false;
-        }
-        LOG.debug("count User Messages Logs [{}]; is estimated [{}]", count, isEstimated);
-        result.setEstimatedCount(isEstimated);
-        result.setCount(count);
-        return count;
     }
 
     @Override
