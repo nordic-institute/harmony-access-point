@@ -16,6 +16,12 @@ export class PageGridComponent implements AfterViewChecked {
   @ViewChild(DatatableComponent, {static: false}) table: DatatableComponent;
   private currentComponentWidth;
 
+  messages = {
+    emptyMessage: 'No data to display',
+    selectedMessage: 'selected',
+    totalMessage: 'total'
+  }
+
   constructor(private changeDetector: ChangeDetectorRef) {
   }
 
@@ -31,7 +37,11 @@ export class PageGridComponent implements AfterViewChecked {
   @Input()
   rowClassFn: Function;
 
+  @Input()
+  totalMessage = 'total';
+
   // ugly hack but otherwise the ng-datatable doesn't resize when collapsing the menu
+
   ngAfterViewChecked() {
     // Check if the table size has changed,
     if (this.table && this.table.recalculate && (this.tableWrapper.nativeElement.clientWidth !== this.currentComponentWidth)) {

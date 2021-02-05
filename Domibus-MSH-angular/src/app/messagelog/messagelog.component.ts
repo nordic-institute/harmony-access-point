@@ -70,6 +70,8 @@ export class MessageLogComponent extends mix(BaseListComponent)
   resendReceivedMinutes: number;
 
   additionalPages = 0;
+  totalRowsMessage: string;
+  estimatedCount = false;
 
   constructor(private applicationService: ApplicationContextService, private http: HttpClient, private alertService: AlertService,
               private domibusInfoService: DomibusInfoService, public dialog: MatDialog, public dialogsService: DialogsService,
@@ -252,14 +254,23 @@ export class MessageLogComponent extends mix(BaseListComponent)
   }
 
   private calculateCount(result: MessageLogResult) {
+    this.estimatedCount = result.estimatedCount;
     if (result.estimatedCount) {
       if (result.messageLogEntries.length < this.rowLimiter.pageSize) {
         this.additionalPages--;
       }
       super.count = result.count + this.additionalPages * this.rowLimiter.pageSize;
+      this.totalRowsMessage = 'more than';
     } else {
       super.count = result.count;
     }
+  }
+
+  public async onPage(event) {
+    if (this.estimatedCount && ((event.offset + 1) * this.rowLimiter.pageSize > this.count)) {
+      this.additionalPages++;
+    }
+    super.onPage(event);
   }
 
   resendDialog() {
@@ -410,10 +421,4 @@ export class MessageLogComponent extends mix(BaseListComponent)
     return this.securityService.isCurrentUserAdmin();
   }
 
-  public async onPage(event) {
-    if ((event.offset + 1) * this.rowLimiter.pageSize > this.count) {
-      this.additionalPages++;
-    }
-    super.onPage(event);
-  }
 }
