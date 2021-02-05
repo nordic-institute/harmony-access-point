@@ -40,7 +40,7 @@ public class MessagesLogServiceImpl implements MessagesLogService {
 
     @Override
     public long countMessages(MessageType messageType, Map<String, Object> filters) {
-        MessageLogDao dao = (messageType == MessageType.SIGNAL_MESSAGE) ? signalMessageLogDao : userMessageLogDao;
+        MessageLogDao dao = getMessageLogDao(messageType);
         return dao.countAllInfo(filters);
     }
 
@@ -51,13 +51,14 @@ public class MessagesLogServiceImpl implements MessagesLogService {
     public MessageLogResultRO countAndFindPaged(MessageType messageType, int from, int max, String column, boolean asc, Map<String, Object> filters) {
         MessageLogResultRO result = new MessageLogResultRO();
 
-        MessageLogDao dao = (messageType == MessageType.SIGNAL_MESSAGE) ? signalMessageLogDao : userMessageLogDao;
+        MessageLogDao dao = getMessageLogDao(messageType);
         List<MessageLogInfo> resultList = countAndFilter(dao, from, max, column, asc, filters, result);
 
-        result.setMessageLogEntries(resultList
-                .stream()
+        List<MessageLogRO> convertedList = resultList.stream()
                 .map(messageLogInfo -> convertMessageLogInfo(messageLogInfo))
-                .collect(Collectors.toList()));
+                .collect(Collectors.toList());
+        result.setMessageLogEntries(convertedList);
+        
         return result;
     }
 
@@ -89,10 +90,8 @@ public class MessagesLogServiceImpl implements MessagesLogService {
 
     @Override
     public List<MessageLogInfo> findAllInfoCSV(MessageType messageType, int max, String orderByColumn, boolean asc, Map<String, Object> filters) {
-
-        return (messageType == MessageType.SIGNAL_MESSAGE ?
-                signalMessageLogDao.findAllInfoPaged(0, max, orderByColumn, asc, filters) :
-                userMessageLogDao.findAllInfoPaged(0, max, orderByColumn, asc, filters));
+        MessageLogDao dao = getMessageLogDao(messageType);
+        return dao.findAllInfoPaged(0, max, orderByColumn, asc, filters);
     }
 
     /**
@@ -125,5 +124,9 @@ public class MessagesLogServiceImpl implements MessagesLogService {
             LOG.warn("Found more than one message log entry for id [{}].", messageId);
         }
         return messages.get(0);
+    }
+
+    private MessageLogDao getMessageLogDao(MessageType messageType) {
+        return (messageType == MessageType.SIGNAL_MESSAGE) ? signalMessageLogDao : userMessageLogDao;
     }
 }

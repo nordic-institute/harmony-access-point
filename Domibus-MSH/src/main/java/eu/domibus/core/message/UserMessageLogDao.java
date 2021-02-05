@@ -1,6 +1,5 @@
 package eu.domibus.core.message;
 
-import com.google.common.collect.Maps;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.core.metrics.Counter;
@@ -205,22 +204,6 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     public void setAsNotified(final UserMessageLog messageLog) {
         messageLog.setNotificationStatus(NotificationStatus.NOTIFIED);
     }
-
-//    @Override
-//    public int countAllInfo(Map<String, Object> filters) {
-//        LOG.debug("Count all");
-//        final Map<String, Object> filteredEntries = Maps.filterEntries(filters, input -> input.getValue() != null);
-//        // the filters are never empty so this is a dead code
-//        if (filteredEntries.size() == 0) {
-//            LOG.debug("Filter empty");
-//            return countAll();
-//        }
-//        String filteredUserMessageLogQuery = getMessageLogInfoFilter().getCountMessageLogQuery(filters);
-//        TypedQuery<Number> countQuery = em.createQuery(filteredUserMessageLogQuery, Number.class);
-//        countQuery = getMessageLogInfoFilter().applyParameters(countQuery, filters);
-//        final Number count = countQuery.getSingleResult();
-//        return count.intValue();
-//    }
 
     public Integer countAll() {
         LOG.debug("Executing native query");

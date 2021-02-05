@@ -69,6 +69,8 @@ export class MessageLogComponent extends mix(BaseListComponent)
   conversationIdValue: String;
   resendReceivedMinutes: number;
 
+  additionalPages = 0;
+
   constructor(private applicationService: ApplicationContextService, private http: HttpClient, private alertService: AlertService,
               private domibusInfoService: DomibusInfoService, public dialog: MatDialog, public dialogsService: DialogsService,
               private elementRef: ElementRef, private changeDetector: ChangeDetectorRef, private propertiesService: PropertiesService,
@@ -231,7 +233,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
   }
 
   public setServerResults(result: MessageLogResult) {
-    super.count = result.count;
+    this.calculateCount(result);
     super.rows = result.messageLogEntries;
 
     if (result.filter.receivedFrom) {
@@ -247,6 +249,17 @@ export class MessageLogComponent extends mix(BaseListComponent)
     this.msgTypes = result.msgTypes;
     this.msgStatuses = result.msgStatus.sort();
     this.notifStatus = result.notifStatus;
+  }
+
+  private calculateCount(result: MessageLogResult) {
+    if (result.estimatedCount) {
+      if (result.messageLogEntries.length < this.rowLimiter.pageSize) {
+        this.additionalPages--;
+      }
+      super.count = result.count + this.additionalPages * this.rowLimiter.pageSize;
+    } else {
+      super.count = result.count;
+    }
   }
 
   resendDialog() {
@@ -395,5 +408,12 @@ export class MessageLogComponent extends mix(BaseListComponent)
 
   isCurrentUserAdmin(): boolean {
     return this.securityService.isCurrentUserAdmin();
+  }
+
+  public async onPage(event) {
+    if ((event.offset + 1) * this.rowLimiter.pageSize > this.count) {
+      this.additionalPages++;
+    }
+    super.onPage(event);
   }
 }

@@ -1,6 +1,5 @@
 package eu.domibus.core.message.signal;
 
-import com.google.common.collect.Maps;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.core.message.MessageLogDao;
@@ -67,20 +66,6 @@ public class SignalMessageLogDao extends MessageLogDao<SignalMessageLog> {
         }
     }
 
-//    @Override
-//    public int countAllInfo(Map<String, Object> filters) {
-//        final Map<String, Object> filteredEntries = Maps.filterEntries(filters, input -> input.getValue() != null);
-//        // the filters are never empty so this is a dead code
-//        if (filteredEntries.size() == 0) {
-//            return countAll();
-//        }
-//        String filteredSignalMessageLogQuery = signalMessageLogInfoFilter.getCountMessageLogQuery(filters);
-//        TypedQuery<Number> countQuery = em.createQuery(filteredSignalMessageLogQuery, Number.class);
-//        countQuery = signalMessageLogInfoFilter.applyParameters(countQuery, filters);
-//        final Number count = countQuery.getSingleResult();
-//        return count.intValue();
-//    }
-
     @Override
     public List<MessageLogInfo> findAllInfoPaged(int from, int max, String column, boolean asc, Map<String, Object> filters) {
         String filteredSignalMessageLogQuery = signalMessageLogInfoFilter.filterMessageLogQuery(column, asc, filters);
@@ -91,12 +76,12 @@ public class SignalMessageLogDao extends MessageLogDao<SignalMessageLog> {
         return queryParameterized.getResultList();
     }
 
-    @Timer(clazz = SignalMessageLogDao.class,value = "deleteMessages.deleteMessageLogs")
-    @Counter(clazz = SignalMessageLogDao.class,value = "deleteMessages.deleteMessageLogs")
+    @Timer(clazz = SignalMessageLogDao.class, value = "deleteMessages.deleteMessageLogs")
+    @Counter(clazz = SignalMessageLogDao.class, value = "deleteMessages.deleteMessageLogs")
     public int deleteMessageLogs(List<String> messageIds) {
         final Query deleteQuery = em.createNamedQuery("SignalMessageLog.deleteMessageLogs");
         deleteQuery.setParameter("MESSAGEIDS", messageIds);
-        int result  = deleteQuery.executeUpdate();
+        int result = deleteQuery.executeUpdate();
         LOG.trace("deleteSignalMessageLogs result [{}]", result);
         return result;
     }
