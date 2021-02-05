@@ -158,4 +158,9 @@ public abstract class MessageLogInfoFilter {
         return result.toString();
     }
 
+    public String getMessageLogIdQuery(Map<String, Object> filters) {
+        String query = "select message.id" + getQueryBody();
+        StringBuilder result = filterQuery(query, null, false, filters);
+        return result.toString();
+    }
 }

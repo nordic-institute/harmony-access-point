@@ -134,7 +134,7 @@ public abstract class MessageLogDao<F extends MessageLog> extends ListDao<F> {
         return resultList.isEmpty() ? null : resultList.get(0).getMessageId();
     }
 
-    public int countAllInfo(Map<String, Object> filters) {
+    public int countAllInfo(Map<String, Object> filters){
         LOG.debug("Count all");
         final Map<String, Object> filteredEntries = Maps.filterEntries(filters, input -> input.getValue() != null);
         // the filters are never empty so this is a dead code
@@ -142,25 +142,24 @@ public abstract class MessageLogDao<F extends MessageLog> extends ListDao<F> {
             LOG.debug("Filter empty");
             return countAll();
         }
-        return countRecords(filters, 0);
-    }
-
-    public int countWithLimit(Map<String, Object> filters, int limit) {
-        return countRecords(filters, limit);
+        String filteredUserMessageLogQuery = getMessageLogInfoFilter().getCountMessageLogQuery(filters);
+        TypedQuery<Number> countQuery = em.createQuery(filteredUserMessageLogQuery, Number.class);
+        countQuery = getMessageLogInfoFilter().applyParameters(countQuery, filters);
+        final Number count = countQuery.getSingleResult();
+        return count.intValue();
     }
 
     public abstract Integer countAll();
 
-    public abstract List<MessageLogInfo> findAllInfoPaged(int from, int max, String column, boolean asc, Map<String, Object> filters);
-
-    protected int countRecords(Map<String, Object> filters, int limit) {
-        String filteredUserMessageLogQuery = getMessageLogInfoFilter().getCountMessageLogQuery(filters);
-        TypedQuery<Number> countQuery = em.createQuery(filteredUserMessageLogQuery, Number.class);
+    public boolean isElementAtPosition(Map<String, Object> filters, int position){
+        String query = getMessageLogInfoFilter().getMessageLogIdQuery(filters);
+        TypedQuery<Number> countQuery = em.createQuery(query, Number.class);
         countQuery = getMessageLogInfoFilter().applyParameters(countQuery, filters);
-        if (limit > 0) {
-            countQuery.setMaxResults(limit);
-        }
-        final Number count = countQuery.getSingleResult();
-        return count.intValue();
+        countQuery.setFirstResult(position);
+        countQuery.setMaxResults(1);
+        final List<Number> records = countQuery.getResultList();
+        return records.size() == 1;
     }
+
+    public abstract List<MessageLogInfo> findAllInfoPaged(int from, int max, String column, boolean asc, Map<String, Object> filters);
 }
