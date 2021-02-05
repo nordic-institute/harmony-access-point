@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_UI_MESSAGE_LOGS_COUNT_LIMIT;
+
 /**
  * @author Ion Perpegel
  * @since 4.2.1
@@ -17,14 +19,14 @@ import java.util.Map;
 public class MessagesLogServiceHelperImpl implements MessagesLogServiceHelper {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessagesLogServiceHelperImpl.class);
-
+    
     @Autowired
     DomibusPropertyProvider domibusPropertyProvider;
 
     public long calculateNumberOfMessages(MessageLogDaoBase dao, Map<String, Object> filters, MessageLogResultRO result) {
         long count;
         boolean isEstimated;
-        Integer limit = domibusPropertyProvider.getIntegerProperty("domibus.UI.messageLogs.countLimit");
+        Integer limit = domibusPropertyProvider.getIntegerProperty(DOMIBUS_UI_MESSAGE_LOGS_COUNT_LIMIT);
         if (limit > 0 && dao.countEntriesWithLimit(filters, limit + 1) >= limit) {
             count = limit;
             isEstimated = true;
