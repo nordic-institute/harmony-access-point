@@ -58,7 +58,7 @@ public class MessagesLogServiceImpl implements MessagesLogService {
                 .map(messageLogInfo -> convertMessageLogInfo(messageLogInfo))
                 .collect(Collectors.toList());
         result.setMessageLogEntries(convertedList);
-        
+
         return result;
     }
 
