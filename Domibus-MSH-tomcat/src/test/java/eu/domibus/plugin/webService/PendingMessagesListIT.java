@@ -5,7 +5,6 @@ import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.common.NotificationType;
 import eu.domibus.core.plugin.notification.NotifyMessageCreator;
-import eu.domibus.plugin.webService.generated.ListPendingMessagesRequest;
 import eu.domibus.plugin.webService.generated.ListPendingMessagesResponse;
 import org.junit.Assert;
 import org.junit.Test;
@@ -21,9 +20,11 @@ import java.util.List;
  * This JUNIT implements the Test cases List Pending Messages-01 and List Pending Messages-02.
  *
  * @author martifp
+ * @deprecated to be removed when deprecated endpoint /backend is removed
  */
 @DirtiesContext
 @Rollback
+@Deprecated
 public class PendingMessagesListIT extends AbstractBackendWSIT {
 
     @Autowired
@@ -31,7 +32,7 @@ public class PendingMessagesListIT extends AbstractBackendWSIT {
 
 
     @Test
-    public void testListPendingMessagesOk() throws Exception {
+    public void testListPendingMessagesOk() {
         List<String> messageIds = new ArrayList<>();
         messageIds.add("2809cef6-240f-4792-bec1-7cb300a34679@domibus.eu");
         messageIds.add("78a1d578-0cc7-41fb-9f35-86a5b2769a14@domibus.eu");
@@ -43,9 +44,9 @@ public class PendingMessagesListIT extends AbstractBackendWSIT {
         }
 
         waitForMessages(3);
-
-        ListPendingMessagesRequest request = new ListPendingMessagesRequest();
+        String request = "<listPendingMessagesRequest></listPendingMessagesRequest>";
         ListPendingMessagesResponse response = backendWebService.listPendingMessages(request);
+
 
         // Verifies the response
         Assert.assertNotNull(response);
@@ -55,9 +56,9 @@ public class PendingMessagesListIT extends AbstractBackendWSIT {
     }
 
     @Test
-    public void testListPendingMessagesNOk() throws Exception {
+    public void testListPendingMessagesNOk() {
 
-        ListPendingMessagesRequest request = new ListPendingMessagesRequest();
+        String request = "<listPendingMessagesRequest>1</listPendingMessagesRequest>";
         ListPendingMessagesResponse response = backendWebService.listPendingMessages(request);
 
         // Verifies the response

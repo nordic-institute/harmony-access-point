@@ -727,7 +727,7 @@ Domibus 3.2 (from 3.1.1):
                                 </amq:xaConnectionFactory>
 
                 - [Tomcat only] in file conf/domibus/persistence.xml, add to the <persistence-unit> tag:
-                                <class>eu.domibus.plugin.webService.entity.AuthenticationEntry</class>
+                                <class>eu.domibus.plugin.ws.entity.AuthenticationEntry</class>
 
                 If you are using samples keystores, please update them since they are expiring on the 26th of October 2016.
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -736,7 +736,7 @@ Domibus 3.2 (from RC1):
                   Replace domibus.war and the plugin(s) jar(s) into /domibus/conf/domibus/plugins/lib"
                   Update the configuration file following these steps:
                   -   in file "/domibus/conf/domibus/plugins/config/ws-plugin.xml":
-                          o   remove <bean id="defaultTransformer" class="eu.domibus.plugin.webService.impl.StubDtoTransformer"/>
+                          o   remove <bean id="defaultTransformer" class="eu.domibus.plugin.ws.webservice.deprecated.StubDtoTransformer"/>
                           o   replace
                                <jaxws:endpoint id="backendInterfaceEndpoint" implementor="#backendWebservice" address="/backend">
                                .......
@@ -794,14 +794,14 @@ Domibus 3.2 (from RC1):
                                  <sec:global-method-security pre-post-annotations="enabled"/>
 
                   - [Tomcat only] in file conf/domibus/persistence.xml, add to the <persistence-unit> tag:
-                                  <class>eu.domibus.plugin.webService.entity.AuthenticationEntry</class>
+                                  <class>eu.domibus.plugin.ws.entity.AuthenticationEntry</class>
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 Domibus 3.2 RC1:   Run the appropriate DB migration script.
                     Replace domibus.war and the plugin(s) jar(s) into /domibus/conf/domibus/plugins/lib"
                     For Tomcat installations only, the activemq.xml file has to be replaced and re-configured according to your environment (transportConnector uri, authenticationUser, redeliveryPolicy).
                     Update the configuration file following these steps:
                     -   in file "/domibus/conf/domibus/plugins/config/ws-plugin.xml":
-                            o   add <bean id="defaultTransformer" class="eu.domibus.plugin.webService.impl.StubDtoTransformer"/> (as an element in the node beans)
+                            o   add <bean id="defaultTransformer" class="eu.domibus.plugin.ws.webservice.deprecated.StubDtoTransformer"/> (as an element in the node beans)
                             o   replace
                                  <jaxws:endpoint id="backendInterfaceEndpoint" implementor="#backendWebservice" address="/backend">
                                  .......

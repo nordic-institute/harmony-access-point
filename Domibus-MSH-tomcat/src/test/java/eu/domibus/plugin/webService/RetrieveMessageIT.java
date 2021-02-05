@@ -36,8 +36,12 @@ import java.nio.charset.Charset;
 import java.util.Date;
 import java.util.HashMap;
 
+/**
+ * @deprecated to be removed when deprecated endpoint /backend is removed
+ */
 @DirtiesContext
 @Rollback
+@Deprecated
 public class RetrieveMessageIT extends AbstractBackendWSIT {
 
     @Autowired

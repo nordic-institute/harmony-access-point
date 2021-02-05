@@ -12,8 +12,6 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.Rollback;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -22,8 +20,12 @@ import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.Provider;
 import java.io.IOException;
 
+/**
+ * @deprecated to be removed when deprecated endpoint /backend is removed
+ */
 @DirtiesContext
 @Rollback
+@Deprecated
 public class GetStatusIT extends AbstractBackendWSIT {
 
     @Autowired

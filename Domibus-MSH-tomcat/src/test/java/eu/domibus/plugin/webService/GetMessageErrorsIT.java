@@ -21,9 +21,11 @@ import java.util.Date;
  * This JUNIT implements the Test cases Get Message Errors-01 and Get Message Errors-02.
  *
  * @author martifp
+ * @deprecated to be removed when deprecated endpoint /backend is removed
  */
 @DirtiesContext
 @Rollback
+@Deprecated
 public class GetMessageErrorsIT extends AbstractBackendWSIT {
 
     @Autowired

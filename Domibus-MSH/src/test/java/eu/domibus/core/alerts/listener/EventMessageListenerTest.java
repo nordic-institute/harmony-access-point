@@ -34,7 +34,7 @@ public class EventMessageListenerTest {
     private DatabaseUtil databaseUtil;
 
     @Test
-    public void onMessageEvent(@Mocked final Event event, @Mocked final Alert alert) {
+    public void onMessageEvent(@Injectable final Event event, @Injectable final Alert alert) {
         final String domain = "domain";
         new Expectations(){{
             alertService.createAlertOnEvent(event);
