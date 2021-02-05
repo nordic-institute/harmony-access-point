@@ -60,9 +60,14 @@ BEGIN
             WHERE
                 id_pk = signal_mess_rec.receipt_id_pk;
 
-             DELETE FROM tb_message_info
+            DELETE FROM tb_message_info
             WHERE
                 id_pk = signal_mess_rec.minfo_pk;
+
+            DELETE FROM tb_message_log
+            WHERE
+            	message_id=signal_mess_rec.message_id;
+
         END LOOP;
 
         FOR inner_user_mess_rec IN (
