@@ -41,13 +41,6 @@ public class UserMessageLogInfoFilter extends MessageLogInfoFilter {
         return result.toString();
     }
 
-//    public String countUserMessageLogQuery(Map<String, Object> filters) {
-//        String query = "select count(message.id)" + getQueryBody();
-//
-//        StringBuilder result = filterQuery(query, null, false, filters);
-//        return result.toString();
-//    }
-
     /**
      * Constructs the query body based on different conditions
      *

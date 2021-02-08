@@ -34,15 +34,10 @@ export class PageGridComponent implements AfterViewChecked {
   rowClassFn: Function;
 
   @Input()
-  totalMessage = 'total';
+  totalMessage = `$1 total`;
 
   // ugly hack but otherwise the ng-datatable doesn't resize when collapsing the menu
   ngAfterViewChecked() {
-    this.messages = {
-      emptyMessage: 'No data to display',
-      selectedMessage: 'selected',
-      totalMessage: this.totalMessage
-    };
     // Check if the table size has changed,
     if (this.table && this.table.recalculate && (this.tableWrapper.nativeElement.clientWidth !== this.currentComponentWidth)) {
       this.currentComponentWidth = this.tableWrapper.nativeElement.clientWidth;

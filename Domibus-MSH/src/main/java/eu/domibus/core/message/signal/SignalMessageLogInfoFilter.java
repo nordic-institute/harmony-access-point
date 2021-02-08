@@ -59,12 +59,6 @@ public class SignalMessageLogInfoFilter extends MessageLogInfoFilter {
         return result.toString();
     }
 
-//    public String countSignalMessageLogQuery(Map<String, Object> filters) {
-//        String query = "select count(message.id)" + getQueryBody();
-//        StringBuilder result = filterQuery(query, null, false, filters);
-//        return result.toString();
-//    }
-
     @Override
     public String getQueryBody() {
         return

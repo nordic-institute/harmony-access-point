@@ -19,7 +19,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 public class MessagesLogServiceHelperImpl implements MessagesLogServiceHelper {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessagesLogServiceHelperImpl.class);
-    
+
     @Autowired
     DomibusPropertyProvider domibusPropertyProvider;
 

@@ -260,7 +260,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
         this.additionalPages--;
       }
       super.count = result.count + this.additionalPages * this.rowLimiter.pageSize;
-      this.totalRowsMessage = 'more than';
+      this.totalRowsMessage = 'more than $1';
     } else {
       super.count = result.count;
     }
