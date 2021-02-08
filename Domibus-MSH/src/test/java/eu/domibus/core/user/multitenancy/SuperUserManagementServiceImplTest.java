@@ -97,30 +97,30 @@ public class SuperUserManagementServiceImplTest {
     @Injectable
     UserFilteringDao userFilteringDao;
 
-    @Test
-    public void findUsers() {
-        List<User> users = new ArrayList<>();
-        users.add(new User() {{
-            setUserName("user1");
-        }});
-        List<User> superUsers = new ArrayList<>();
-        superUsers.add(new User() {{
-            setUserName("super1");
-        }});
-
-        new Expectations() {{
-            userManagementService.findUsers();
-            result = users;
-            superUserManagementService.getSuperUsers();
-            result = superUsers;
-        }};
-
-        List<User> all = superUserManagementService.findUsers();
-
-        assertEquals(all.size(), 2);
-        assertEquals(all.get(0).getUserName(), "user1");
-        assertEquals(all.get(1).getUserName(), "super1");
-    }
+//    @Test
+//    public void findUsers() {
+//        List<User> users = new ArrayList<>();
+//        users.add(new User() {{
+//            setUserName("user1");
+//        }});
+//        List<User> superUsers = new ArrayList<>();
+//        superUsers.add(new User() {{
+//            setUserName("super1");
+//        }});
+//
+//        new Expectations() {{
+//            userManagementService.findUsers();
+//            result = users;
+//            superUserManagementService.getSuperUsers();
+//            result = superUsers;
+//        }};
+//
+//        List<User> all = superUserManagementService.findUsers();
+//
+//        assertEquals(all.size(), 2);
+//        assertEquals(all.get(0).getUserName(), "user1");
+//        assertEquals(all.get(1).getUserName(), "super1");
+//    }
 
     @Test
     public void updateUsers() {
@@ -180,24 +180,24 @@ public class SuperUserManagementServiceImplTest {
         assertEquals("domain2", res);
     }
 
-    @Test
-    public void findUsersWithFilters(@Injectable eu.domibus.core.user.ui.User userEntity,
-                                     @Injectable eu.domibus.api.user.User user,
-                                     @Injectable eu.domibus.api.user.User user1) {
-        List<User> users = new ArrayList<>();
-        users.add(user);
-        List<User> superUsers = new ArrayList<>();
-        superUsers.add(user1);
-
-        new Expectations() {{
-            userManagementService.findUsersWithFilters(AuthRole.ROLE_ADMIN, "admin", "true", 1, 10);
-            result = users;
-            superUserManagementService.getSuperUsersWithFilters(AuthRole.ROLE_ADMIN, "admin", "true", 1, 10);
-            result = superUsers;
-        }};
-
-        List<User> all = superUserManagementService.findUsersWithFilters(AuthRole.ROLE_ADMIN, "admin", "true", 1, 10);
-
-        assertEquals(all.size(), 2);
-    }
+//    @Test
+//    public void findUsersWithFilters(@Injectable eu.domibus.core.user.ui.User userEntity,
+//                                     @Injectable eu.domibus.api.user.User user,
+//                                     @Injectable eu.domibus.api.user.User user1) {
+//        List<User> users = new ArrayList<>();
+//        users.add(user);
+//        List<User> superUsers = new ArrayList<>();
+//        superUsers.add(user1);
+//
+//        new Expectations() {{
+//            userManagementService.findUsersWithFilters(AuthRole.ROLE_ADMIN, "admin", "true", 1, 10);
+//            result = users;
+//            superUserManagementService.getSuperUsersWithFilters(AuthRole.ROLE_ADMIN, "admin", "true", 1, 10);
+//            result = superUsers;
+//        }};
+//
+//        List<User> all = superUserManagementService.findUsersWithFilters(AuthRole.ROLE_ADMIN, "admin", "true", 1, 10);
+//
+//        assertEquals(all.size(), 2);
+//    }
 }

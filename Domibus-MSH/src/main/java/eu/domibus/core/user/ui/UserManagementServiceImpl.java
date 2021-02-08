@@ -118,8 +118,17 @@ public class UserManagementServiceImpl implements UserService {
     @Override
     @Transactional
     public void updateUsers(List<eu.domibus.api.user.User> users) {
-        userPersistenceService.updateUsers(users);
-        ensureAtLeastOneActiveAdmin();
+        try {
+            userPersistenceService.updateUsers(users);
+            ensureAtLeastOneActiveAdmin();
+        } catch (AtLeastOneAdminException ex) {
+            // clear user-domain mapping only for this error
+            LOG.info("Remove domain association for new users.");
+            users.stream()
+                    .filter(user -> user.isNew())
+                    .forEach(user -> userDomainService.deleteDomainForUser(user.getUserName()));
+            throw ex;
+        }
     }
 
     /**

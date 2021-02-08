@@ -6,6 +6,7 @@ import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.user.UserService;
+import eu.domibus.core.user.multitenancy.AllUserManagementServiceImpl;
 import eu.domibus.core.user.multitenancy.SuperUserManagementServiceImpl;
 import eu.domibus.core.user.ui.UserManagementServiceImpl;
 import eu.domibus.core.util.WarningUtil;
@@ -72,8 +73,8 @@ public class AuthenticationResource {
 
     @Autowired
     @Lazy
-    @Qualifier(SuperUserManagementServiceImpl.BEAN_NAME)
-    private UserService superUserManagementService;
+    @Qualifier(AllUserManagementServiceImpl.BEAN_NAME)
+    private UserService allUserManagementService;
 
     @Autowired
     @Lazy
@@ -201,7 +202,7 @@ public class AuthenticationResource {
 
     UserService getUserService() {
         if (authUtils.isSuperAdmin()) {
-            return superUserManagementService;
+            return allUserManagementService;
         } else {
             return userManagementService;
         }
