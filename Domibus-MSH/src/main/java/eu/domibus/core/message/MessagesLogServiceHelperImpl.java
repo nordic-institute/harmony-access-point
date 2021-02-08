@@ -4,7 +4,6 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.ro.MessageLogResultRO;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -20,9 +19,13 @@ public class MessagesLogServiceHelperImpl implements MessagesLogServiceHelper {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessagesLogServiceHelperImpl.class);
 
-    @Autowired
-    DomibusPropertyProvider domibusPropertyProvider;
+    private final DomibusPropertyProvider domibusPropertyProvider;
 
+    public MessagesLogServiceHelperImpl(DomibusPropertyProvider domibusPropertyProvider) {
+        this.domibusPropertyProvider = domibusPropertyProvider;
+    }
+
+    @Override
     public long calculateNumberOfMessages(MessageLogDaoBase dao, Map<String, Object> filters, MessageLogResultRO result) {
         long count;
         boolean isEstimated;
@@ -34,7 +37,7 @@ public class MessagesLogServiceHelperImpl implements MessagesLogServiceHelper {
             count = dao.countEntries(filters);
             isEstimated = false;
         }
-        LOG.debug("count User Messages Logs [{}]; is estimated [{}]", count, isEstimated);
+        LOG.debug("counting [{}] records: [{}]; is estimated [{}]; limit is:[{}].", dao.getClass().getName(), count, isEstimated, limit);
         result.setEstimatedCount(isEstimated);
         result.setCount(count);
         return count;

@@ -61,15 +61,6 @@ public class MessagesLogServiceImpl implements MessagesLogService {
         return result;
     }
 
-    protected List<MessageLogInfo> countAndFilter(MessageLogDao dao, int from, int max, String column, boolean asc, Map<String, Object> filters, MessageLogResultRO result) {
-        List<MessageLogInfo> resultList = new ArrayList<>();
-        long number = messagesLogServiceHelper.calculateNumberOfMessages(dao, filters, result);
-        if (number > 0) {
-            resultList = dao.findAllInfoPaged(from, max, column, asc, filters);
-        }
-        return resultList;
-    }
-
     @Override
     public List<MessageLogInfo> findAllInfoCSV(MessageType messageType, int max, String orderByColumn, boolean asc, Map<String, Object> filters) {
         MessageLogDao dao = getMessageLogDao(messageType);
@@ -108,7 +99,16 @@ public class MessagesLogServiceImpl implements MessagesLogService {
         return messages.get(0);
     }
 
-    private MessageLogDao getMessageLogDao(MessageType messageType) {
+    protected List<MessageLogInfo> countAndFilter(MessageLogDao dao, int from, int max, String column, boolean asc, Map<String, Object> filters, MessageLogResultRO result) {
+        List<MessageLogInfo> resultList = new ArrayList<>();
+        long number = messagesLogServiceHelper.calculateNumberOfMessages(dao, filters, result);
+        if (number > 0) {
+            resultList = dao.findAllInfoPaged(from, max, column, asc, filters);
+        }
+        return resultList;
+    }
+
+    protected MessageLogDao getMessageLogDao(MessageType messageType) {
         return (messageType == MessageType.SIGNAL_MESSAGE) ? signalMessageLogDao : userMessageLogDao;
     }
 }
