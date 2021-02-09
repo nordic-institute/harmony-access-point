@@ -1,21 +1,12 @@
 package eu.domibus.core.user.multitenancy;
 
-import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.security.AuthRole;
-import eu.domibus.api.user.AtLeastOneAdminException;
 import eu.domibus.api.user.User;
-import eu.domibus.core.multitenancy.dao.UserDomainDao;
-import eu.domibus.core.multitenancy.dao.UserDomainEntity;
 import eu.domibus.core.user.UserService;
 import eu.domibus.core.user.ui.UserManagementServiceImpl;
-import eu.domibus.logging.DomibusLogger;
-import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,8 +20,8 @@ import java.util.stream.Collectors;
  * @author Ion Perpegel
  * @since 4.0
  */
-@Service(AllUserManagementServiceImpl.BEAN_NAME)
-public class AllUserManagementServiceImpl extends UserManagementServiceImpl {
+@Service(AllUsersManagementServiceImpl.BEAN_NAME)
+public class AllUsersManagementServiceImpl extends UserManagementServiceImpl {
 
     public static final String BEAN_NAME = "allUserManagementService";
 
@@ -106,12 +97,17 @@ public class AllUserManagementServiceImpl extends UserManagementServiceImpl {
     @Override
     @Transactional
     public void changePassword(String username, String currentPassword, String newPassword) {
-        String domain = userDomainService.getDomainForUser(username);
-        if(domain == null) {
+        boolean isSuper = isSuperUser(username);
+        if (isSuper) {
             superUserManagementService.changePassword(username, currentPassword, newPassword);
         } else {
             userManagementService.changePassword(username, currentPassword, newPassword);
         }
+    }
+
+    protected boolean isSuperUser(String username) {
+        String domain = userDomainService.getDomainForUser(username);
+        return domain == null;
     }
 
 }

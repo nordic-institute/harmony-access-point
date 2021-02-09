@@ -33,16 +33,10 @@ public class SuperUserManagementServiceImpl extends UserManagementServiceImpl {
     public static final String BEAN_NAME = "superUserManagementService";
 
     @Autowired
-    protected UserDomainService userDomainService;
-
-    @Autowired
     protected DomainTaskExecutor domainTaskExecutor;
 
     @Autowired
     protected UserDomainDao userDomainDao;
-
-    @Autowired
-    protected UserManagementServiceImpl userManagementService;
 
     /**
      * Get all super users from the general schema. <br>
