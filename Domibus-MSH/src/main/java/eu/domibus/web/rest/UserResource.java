@@ -14,7 +14,7 @@ import eu.domibus.api.user.UserRole;
 import eu.domibus.api.user.UserState;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.user.UserService;
-import eu.domibus.core.user.multitenancy.SuperUserManagementServiceImpl;
+import eu.domibus.core.user.multitenancy.AllUsersManagementServiceImpl;
 import eu.domibus.core.user.ui.UserManagementServiceImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -51,8 +51,8 @@ public class UserResource extends BaseResource {
 
     @Autowired
     @Lazy
-    @Qualifier(SuperUserManagementServiceImpl.BEAN_NAME)
-    private UserService superUserManagementService;
+    @Qualifier(AllUsersManagementServiceImpl.BEAN_NAME)
+    private UserService allUserManagementService;
 
     @Autowired
     @Lazy
@@ -152,7 +152,7 @@ public class UserResource extends BaseResource {
 
     private UserService getUserService() {
         if (authUtils.isSuperAdmin()) {
-            return superUserManagementService;
+            return allUserManagementService;
         } else {
             return userManagementService;
         }
