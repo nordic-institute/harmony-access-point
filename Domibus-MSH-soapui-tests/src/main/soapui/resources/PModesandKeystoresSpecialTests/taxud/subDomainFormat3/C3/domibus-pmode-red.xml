@@ -1,0 +1,1146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- PMode configuration for the Customs(sti-taxud) in the context of TAPAS project -->
+<db:configuration xmlns:db="http://domibus.eu/configuration" party="sti-taxud">
+    <mpcs>
+        <mpc name="MPC_eu_ics2_c2t"
+             qualifiedName="urn:fdc:ec.europa.eu:2019:eu_ics2_c2t"
+             enabled="true"
+             default="true"
+             retention_downloaded="600"
+             retention_undownloaded="600"/>
+        <mpc name="MPC_eu_ics2_t2c"
+             qualifiedName="urn:fdc:ec.europa.eu:2019:eu_ics2_t2c"
+             enabled="true"
+             default="true"
+             retention_downloaded="600"
+             retention_undownloaded="600"/>
+
+    </mpcs>
+    <businessProcesses>
+        <roles>
+            <role name="traderRole" value="Trader"/>
+            <role name="customsRole" value="Customs"/>
+        </roles>
+        <parties>
+            <partyIdTypes>
+                <partyIdType name="authorityType"
+                             value="urn:oasis:names:tc:ebcore:partyid-type:unregistered:eu-customs:authority"/>
+                <partyIdType name="EORIType"
+                             value="urn:oasis:names:tc:ebcore:partyid-type:unregistered:eu-customs:EORI"/>
+            </partyIdTypes>
+
+            <party name="sti-taxud" endpoint="http://localhost:8070/domibus/services/msh"
+                   allowChunking="false">
+                <identifier partyId="sti-taxud" partyIdType="authorityType"/>
+            </party>
+            <party name="BE00000001" endpoint="http://localhost:8181/domibus/services/msh" allowChunking="false">
+                <identifier partyId="SYSTEM@BE00000001@FR" partyIdType="EORIType"/>
+            </party>
+        </parties>
+        <meps>
+            <mep name="oneway" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/oneWay"/>
+            <binding name="push" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/push"/>
+            <binding name="pull" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/pull"/>
+        </meps>
+        <properties>
+            <property name="originalSenderProperty" key="originalSender" datatype="string" required="false"/>
+            <property name="finalRecipientProperty" key="finalRecipient" datatype="string" required="false"/>
+            <propertySet name="eDeliveryPropertySet">
+                <propertyRef property="finalRecipientProperty"/>
+                <propertyRef property="originalSenderProperty"/>
+            </propertySet>
+        </properties>
+        <payloadProfiles>
+            <payload name="businessContentPayload" cid="cid:message" required="true" mimeType="text/xml"/>
+            <payload name="businessContentPDFAttachment" cid="cid:pdfattachment" required="false"
+                     mimeType="application/pdf"/>
+            <payload name="businessContentImageAttachment" cid="cid:imageattachment" required="false"
+                     mimeType="image/jpeg"/>
+            <payloadProfile name="MessageProfile" maxSize="40894464">
+                <attachment name="businessContentPayload"/>
+                <attachment name="businessContentPDFAttachment"/>
+                <attachment name="businessContentImageAttachment"/>
+            </payloadProfile>
+        </payloadProfiles>
+        <securities>
+            <security name="eDeliveryAS4Policy_BST_PKIP" policy="eDeliveryAS4Policy_BST_PKIP_signOnly.xml"
+                      signatureMethod="RSA_SHA256"/>
+        </securities>
+        <errorHandlings>
+            <errorHandling name="demoErrorHandling" errorAsResponse="true" businessErrorNotifyProducer="false"
+                           businessErrorNotifyConsumer="false" deliveryFailureNotifyProducer="false"/>
+        </errorHandlings>
+        <agreements>
+            <agreement name="agreementV1.0" value="EU-ICS2-TI-V1.0" type=""/>
+        </agreements>
+        <services>
+            <service name="t2c" value="eu_ics2_t2c" type="eu-customs-service-types"/>
+            <service name="c2t" value="eu_ics2_c2t" type="eu-customs-service-types"/>
+            <service name="testService" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service"/>
+        </services>
+        <actions>
+            <action name="testAction" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test"/>
+            <!--TRADER TO CUSTOM -->
+            <!-- Sea and inland waterways -->
+            <action name="IE3F10" value="IE3F10"/>
+            <action name="IE3F11" value="IE3F11"/>
+            <action name="IE3F12" value="IE3F12"/>
+            <action name="IE3F13" value="IE3F13"/>
+            <action name="IE3F14" value="IE3F14"/>
+            <action name="IE3F15" value="IE3F15"/>
+            <action name="IE3F16" value="IE3F16"/>
+            <action name="IE3F17" value="IE3F17"/>
+            <!-- Air cargo -->
+            <action name="IE3F20" value="IE3F20"/>
+            <action name="IE3F21" value="IE3F21"/>
+            <action name="IE3F22" value="IE3F22"/>
+            <action name="IE3F23" value="IE3F23"/>
+            <action name="IE3F24" value="IE3F24"/>
+            <action name="IE3F25" value="IE3F25"/>
+            <action name="IE3F26" value="IE3F26"/>
+            <action name="IE3F27" value="IE3F27"/>
+            <action name="IE3F28" value="IE3F28"/>
+            <action name="IE3F29" value="IE3F29"/>
+            <!-- Express consignments -->
+            <action name="IE3F30" value="IE3F30"/>
+            <action name="IE3F32" value="IE3F32"/>
+            <!-- Postal consignments -->
+            <action name="IE3F42" value="IE3F42"/>
+            <action name="IE3F43" value="IE3F43"/>
+            <action name="IE3F44" value="IE3F44"/>
+            <!-- Road -->
+            <action name="IE3F50" value="IE3F50"/>
+            <!-- Rail -->
+            <action name="IE3F51" value="IE3F51"/>
+            <action name="IE3A10" value="IE3A10"/>
+            <action name="IE3A11" value="IE3A11"/>
+            <action name="IE3A12" value="IE3A12"/>
+            <action name="IE3A13" value="IE3A13"/>
+            <action name="IE3A14" value="IE3A14"/>
+            <action name="IE3A15" value="IE3A15"/>
+            <action name="IE3A16" value="IE3A16"/>
+            <action name="IE3A20" value="IE3A20"/>
+            <action name="IE3A21" value="IE3A21"/>
+            <action name="IE3A22" value="IE3A22"/>
+            <action name="IE3A23" value="IE3A23"/>
+            <action name="IE3A24" value="IE3A24"/>
+            <action name="IE3A26" value="IE3A26"/>
+            <action name="IE3A27" value="IE3A27"/>
+            <action name="IE3A28" value="IE3A28"/>
+            <action name="IE3A29" value="IE3A29"/>
+            <action name="IE3A30" value="IE3A30"/>
+            <action name="IE3A32" value="IE3A32"/>
+            <action name="IE3A42" value="IE3A42"/>
+            <action name="IE3A43" value="IE3A43"/>
+            <action name="IE3A44" value="IE3A44"/>
+            <action name="IE3A50" value="IE3A50"/>
+            <action name="IE3A51" value="IE3A51"/>
+
+            <action name="IE3Q04" value="IE3Q04"/>
+            <action name="IE3N06" value="IE3N06"/>
+            <action name="IE3R02" value="IE3R02"/>
+            <action name="IE3R03" value="IE3R03"/>
+
+            <!--CUSTOM TO TRADER -->
+            <action name="IE3R01" value="IE3R01"/>
+            <action name="IE3N10" value="IE3N10"/>
+            <action name="IE3R07" value="IE3R07"/>
+            <action name="IE3R04" value="IE3R04"/>
+            <action name="IE3Q02" value="IE3Q02"/>
+            <action name="IE3Q03" value="IE3Q03"/>
+            <action name="IE3Q01" value="IE3Q01"/>
+            <action name="IE3N04" value="IE3N04"/>
+            <action name="IE3N05" value="IE3N05"/>
+            <action name="IE3N03" value="IE3N03"/>
+            <action name="IE3N08" value="IE3N08"/>
+            <action name="IE3N09" value="IE3N09"/>
+            <action name="IE3N07" value="IE3N07"/>
+            <action name="IE3N01" value="IE3N01"/>
+            <action name="IE3N99" value="IE3N99"/>
+            <action name="IE3N11" value="IE3N11"/>
+        </actions>
+        <as4>
+            <receptionAwareness name="receptionAwareness" retry="60;60;CONSTANT" duplicateDetection="true"/>
+            <reliability name="AS4Reliability" nonRepudiation="true" replyPattern="response"/>
+        </as4>
+        <legConfigurations>
+            <!--TRADER TO CUSTOM Leg configuration -->
+            <!-- Sea and inland waterways -->
+            <legConfiguration
+                    name="t2c_IE3F10"
+                    service="t2c"
+                    action="IE3F10"
+                    defaultMpc="MPC_eu_ics2_t2c"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <legConfiguration
+                    name="t2c_IE3F11"
+                    service="t2c"
+                    action="IE3F11"
+                    defaultMpc="MPC_eu_ics2_t2c"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <legConfiguration
+                    name="t2c_IE3F12"
+                    service="t2c"
+                    action="IE3F12"
+                    defaultMpc="MPC_eu_ics2_t2c"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <legConfiguration
+                    name="t2c_IE3F13"
+                    service="t2c"
+                    action="IE3F13"
+                    defaultMpc="MPC_eu_ics2_t2c"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <legConfiguration
+                    name="t2c_IE3F14"
+                    service="t2c"
+                    action="IE3F14"
+                    defaultMpc="MPC_eu_ics2_t2c"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <legConfiguration
+                    name="t2c_IE3F15"
+                    service="t2c"
+                    action="IE3F15"
+                    defaultMpc="MPC_eu_ics2_t2c"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <legConfiguration
+                    name="t2c_IE3F16"
+                    service="t2c"
+                    action="IE3F16"
+                    defaultMpc="MPC_eu_ics2_t2c"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <legConfiguration
+                    name="t2c_IE3F17"
+                    service="t2c"
+                    action="IE3F17"
+                    defaultMpc="MPC_eu_ics2_t2c"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <!-- Please add more leg configuration containintg the remaining actions related to Sea and inland waterways (LNA: Added above) -->
+
+            <!-- Air cargo -->
+            <legConfiguration
+                    name="t2c_IE3F20"
+                    service="t2c"
+                    action="IE3F20"
+                    defaultMpc="MPC_eu_ics2_t2c"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <legConfiguration
+                    name="t2c_IE3F21"
+                    service="t2c"
+                    action="IE3F21"
+                    defaultMpc="MPC_eu_ics2_t2c"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <legConfiguration
+                    name="t2c_IE3F22"
+                    service="t2c"
+                    action="IE3F22"
+                    defaultMpc="MPC_eu_ics2_t2c"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <legConfiguration
+                    name="t2c_IE3F23"
+                    service="t2c"
+                    action="IE3F23"
+                    defaultMpc="MPC_eu_ics2_t2c"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <legConfiguration
+                    name="t2c_IE3F24"
+                    service="t2c"
+                    action="IE3F24"
+                    defaultMpc="MPC_eu_ics2_t2c"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <legConfiguration
+                    name="t2c_IE3F25"
+                    service="t2c"
+                    action="IE3F25"
+                    defaultMpc="MPC_eu_ics2_t2c"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <legConfiguration
+                    name="t2c_IE3F26"
+                    service="t2c"
+                    action="IE3F26"
+                    defaultMpc="MPC_eu_ics2_t2c"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <legConfiguration
+                    name="t2c_IE3F27"
+                    service="t2c"
+                    action="IE3F27"
+                    defaultMpc="MPC_eu_ics2_t2c"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <legConfiguration
+                    name="t2c_IE3F28"
+                    service="t2c"
+                    action="IE3F28"
+                    defaultMpc="MPC_eu_ics2_t2c"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <legConfiguration
+                    name="t2c_IE3F29"
+                    service="t2c"
+                    action="IE3F29"
+                    defaultMpc="MPC_eu_ics2_t2c"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <!-- Please add more leg configuration containintg the remaining actions related to Air cargo (LNA: Added above) -->
+
+            <!-- Express consignments -->
+            <legConfiguration
+                    name="t2c_IE3F30"
+                    service="t2c"
+                    action="IE3F30"
+                    defaultMpc="MPC_eu_ics2_t2c"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <legConfiguration
+                    name="t2c_IE3F32"
+                    service="t2c"
+                    action="IE3F32"
+                    defaultMpc="MPC_eu_ics2_t2c"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+
+            <!-- Postal consignments -->
+            <legConfiguration
+                    name="t2c_IE3F42"
+                    service="t2c"
+                    action="IE3F42"
+                    defaultMpc="MPC_eu_ics2_t2c"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <legConfiguration
+                    name="t2c_IE3F43"
+                    service="t2c"
+                    action="IE3F43"
+                    defaultMpc="MPC_eu_ics2_t2c"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <legConfiguration
+                    name="t2c_IE3F44"
+                    service="t2c"
+                    action="IE3F44"
+                    defaultMpc="MPC_eu_ics2_t2c"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <!-- Please add more leg configuration containintg the remaining actions related to Postal consignments (LNA: Added above) -->
+
+            <!-- Road -->
+            <legConfiguration
+                    name="t2c_IE3F50"
+                    service="t2c"
+                    action="IE3F50"
+                    defaultMpc="MPC_eu_ics2_t2c"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+
+            <!-- Rail -->
+            <legConfiguration
+                    name="t2c_IE3F51"
+                    service="t2c"
+                    action="IE3F51"
+                    defaultMpc="MPC_eu_ics2_t2c"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <legConfiguration
+                    name="t2c_IE3A10"
+                    service="t2c"
+                    action="IE3A10"
+                    defaultMpc="MPC_eu_ics2_t2c"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <legConfiguration
+                    name="t2c_IE3A11"
+                    service="t2c"
+                    action="IE3A11"
+                    defaultMpc="MPC_eu_ics2_t2c"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <legConfiguration
+                    name="t2c_IE3A12"
+                    service="t2c"
+                    action="IE3A12"
+                    defaultMpc="MPC_eu_ics2_t2c"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <legConfiguration
+                    name="t2c_IE3A13"
+                    service="t2c"
+                    action="IE3A13"
+                    defaultMpc="MPC_eu_ics2_t2c"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <legConfiguration
+                    name="t2c_IE3A14"
+                    service="t2c"
+                    action="IE3A14"
+                    defaultMpc="MPC_eu_ics2_t2c"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <legConfiguration
+                    name="t2c_IE3A15"
+                    service="t2c"
+                    action="IE3A15"
+                    defaultMpc="MPC_eu_ics2_t2c"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <legConfiguration
+                    name="t2c_IE3A16"
+                    service="t2c"
+                    action="IE3A16"
+                    defaultMpc="MPC_eu_ics2_t2c"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <legConfiguration
+                    name="t2c_IE3A20"
+                    service="t2c"
+                    action="IE3A20"
+                    defaultMpc="MPC_eu_ics2_t2c"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <legConfiguration
+                    name="t2c_IE3A21"
+                    service="t2c"
+                    action="IE3A21"
+                    defaultMpc="MPC_eu_ics2_t2c"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <legConfiguration
+                    name="t2c_IE3A22"
+                    service="t2c"
+                    action="IE3A22"
+                    defaultMpc="MPC_eu_ics2_t2c"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <legConfiguration
+                    name="t2c_IE3A23"
+                    service="t2c"
+                    action="IE3A23"
+                    defaultMpc="MPC_eu_ics2_t2c"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <legConfiguration
+                    name="t2c_IE3A24"
+                    service="t2c"
+                    action="IE3A24"
+                    defaultMpc="MPC_eu_ics2_t2c"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <legConfiguration
+                    name="t2c_IE3A26"
+                    service="t2c"
+                    action="IE3A26"
+                    defaultMpc="MPC_eu_ics2_t2c"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <legConfiguration
+                    name="t2c_IE3A27"
+                    service="t2c"
+                    action="IE3A27"
+                    defaultMpc="MPC_eu_ics2_t2c"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <legConfiguration
+                    name="t2c_IE3A28"
+                    service="t2c"
+                    action="IE3A28"
+                    defaultMpc="MPC_eu_ics2_t2c"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <legConfiguration
+                    name="t2c_IE3A29"
+                    service="t2c"
+                    action="IE3A29"
+                    defaultMpc="MPC_eu_ics2_t2c"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <legConfiguration
+                    name="t2c_IE3A30"
+                    service="t2c"
+                    action="IE3A30"
+                    defaultMpc="MPC_eu_ics2_t2c"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <legConfiguration
+                    name="t2c_IE3A32"
+                    service="t2c"
+                    action="IE3A32"
+                    defaultMpc="MPC_eu_ics2_t2c"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <legConfiguration
+                    name="t2c_IE3A42"
+                    service="t2c"
+                    action="IE3A42"
+                    defaultMpc="MPC_eu_ics2_t2c"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <legConfiguration
+                    name="t2c_IE3A43"
+                    service="t2c"
+                    action="IE3A43"
+                    defaultMpc="MPC_eu_ics2_t2c"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <legConfiguration
+                    name="t2c_IE3A44"
+                    service="t2c"
+                    action="IE3A44"
+                    defaultMpc="MPC_eu_ics2_t2c"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <legConfiguration
+                    name="t2c_IE3A50"
+                    service="t2c"
+                    action="IE3A50"
+                    defaultMpc="MPC_eu_ics2_t2c"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <legConfiguration
+                    name="t2c_IE3A51"
+                    service="t2c"
+                    action="IE3A51"
+                    defaultMpc="MPC_eu_ics2_t2c"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <legConfiguration
+                    name="t2c_IE3Q04"
+                    service="t2c"
+                    action="IE3Q04"
+                    defaultMpc="MPC_eu_ics2_t2c"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <legConfiguration
+                    name="t2c_IE3N06"
+                    service="t2c"
+                    action="IE3N06"
+                    defaultMpc="MPC_eu_ics2_t2c"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <legConfiguration
+                    name="t2c_IE3R02"
+                    service="t2c"
+                    action="IE3R02"
+                    defaultMpc="MPC_eu_ics2_t2c"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <legConfiguration
+                    name="t2c_IE3R03"
+                    service="t2c"
+                    action="IE3R03"
+                    defaultMpc="MPC_eu_ics2_t2c"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <!-- Please add more leg configuration containintg the remaining actions related to Rail (LNA: Added above) -->
+
+            <!--CUSTOMS TO TRADER Leg configuration -->
+            <legConfiguration
+                    name="c2t_IE3R01"
+                    service="c2t"
+                    action="IE3R01"
+                    defaultMpc="MPC_eu_ics2_c2t"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <legConfiguration
+                    name="c2t_IE3N10"
+                    service="c2t"
+                    action="IE3N10"
+                    defaultMpc="MPC_eu_ics2_c2t"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <legConfiguration
+                    name="c2t_IE3N99"
+                    service="c2t"
+                    action="IE3N99"
+                    defaultMpc="MPC_eu_ics2_c2t"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <legConfiguration
+                    name="c2t_IE3R07"
+                    service="c2t"
+                    action="IE3R07"
+                    defaultMpc="MPC_eu_ics2_c2t"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <legConfiguration
+                    name="c2t_IE3R04"
+                    service="c2t"
+                    action="IE3R04"
+                    defaultMpc="MPC_eu_ics2_c2t"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <legConfiguration
+                    name="c2t_IE3Q02"
+                    service="c2t"
+                    action="IE3Q02"
+                    defaultMpc="MPC_eu_ics2_c2t"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <legConfiguration
+                    name="c2t_IE3Q03"
+                    service="c2t"
+                    action="IE3Q03"
+                    defaultMpc="MPC_eu_ics2_c2t"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <legConfiguration
+                    name="c2t_IE3Q01"
+                    service="c2t"
+                    action="IE3Q01"
+                    defaultMpc="MPC_eu_ics2_c2t"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <legConfiguration
+                    name="c2t_IE3N04"
+                    service="c2t"
+                    action="IE3N04"
+                    defaultMpc="MPC_eu_ics2_c2t"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <legConfiguration
+                    name="c2t_IE3N05"
+                    service="c2t"
+                    action="IE3N05"
+                    defaultMpc="MPC_eu_ics2_c2t"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <legConfiguration
+                    name="c2t_IE3N03"
+                    service="c2t"
+                    action="IE3N03"
+                    defaultMpc="MPC_eu_ics2_c2t"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <legConfiguration
+                    name="c2t_IE3N08"
+                    service="c2t"
+                    action="IE3N08"
+                    defaultMpc="MPC_eu_ics2_c2t"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <legConfiguration
+                    name="c2t_IE3N09"
+                    service="c2t"
+                    action="IE3N09"
+                    defaultMpc="MPC_eu_ics2_c2t"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <legConfiguration
+                    name="c2t_IE3N07"
+                    service="c2t"
+                    action="IE3N07"
+                    defaultMpc="MPC_eu_ics2_c2t"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <legConfiguration
+                    name="c2t_IE3N01"
+                    service="c2t"
+                    action="IE3N01"
+                    defaultMpc="MPC_eu_ics2_c2t"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <legConfiguration
+                    name="c2t_IE3N11"
+                    service="c2t"
+                    action="IE3N11"
+                    defaultMpc="MPC_eu_ics2_c2t"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+            <!-- Please add more leg configuration containintg the remaining actions related to CUSTOMS TO TRADER (LNA: Added above) -->
+<legConfiguration
+                    name="testServiceCase"
+                    service="testService"
+                    action="testAction"
+                    defaultMpc="MPC_eu_ics2_c2t"
+                    reliability="AS4Reliability"
+                    security="eDeliveryAS4Policy_BST_PKIP"
+                    receptionAwareness="receptionAwareness"
+                    propertySet="eDeliveryPropertySet"
+                    payloadProfile="MessageProfile"
+                    errorHandling="demoErrorHandling"
+                    compressPayloads="true"/>
+
+       
+
+        </legConfigurations>
+
+        <!-- Process to push from TRADER to CUSTOMS -->
+        <process name="pushT2CProcess" agreement="agreementV1.0" mep="oneway" binding="push" initiatorRole="traderRole"
+                 responderRole="customsRole">
+            <responderParties>
+                <responderParty name="sti-taxud"/>
+            </responderParties>
+            <legs>
+                <!-- Sea and inland waterways -->
+                <leg name="t2c_IE3F10"/>
+                <leg name="t2c_IE3F11"/>
+                <leg name="t2c_IE3F12"/>
+                <leg name="t2c_IE3F13"/>
+                <leg name="t2c_IE3F14"/>
+                <leg name="t2c_IE3F15"/>
+                <leg name="t2c_IE3F16"/>
+                <leg name="t2c_IE3F17"/>
+                <!-- Air cargo -->
+                <leg name="t2c_IE3F20"/>
+                <leg name="t2c_IE3F21"/>
+                <leg name="t2c_IE3F22"/>
+                <leg name="t2c_IE3F23"/>
+                <leg name="t2c_IE3F24"/>
+                <leg name="t2c_IE3F25"/>
+                <leg name="t2c_IE3F26"/>
+                <leg name="t2c_IE3F27"/>
+                <leg name="t2c_IE3F28"/>
+                <leg name="t2c_IE3F29"/>
+                <!-- Express consignments -->
+                <leg name="t2c_IE3F30"/>
+                <leg name="t2c_IE3F32"/>
+                <!-- Postal consignments -->
+                <leg name="t2c_IE3F42"/>
+                <leg name="t2c_IE3F43"/>
+                <leg name="t2c_IE3F44"/>
+                <!-- Road -->
+                <leg name="t2c_IE3F50"/>
+                <!-- Rail -->
+                <leg name="t2c_IE3F51"/>
+                <leg name="t2c_IE3A10"/>
+                <leg name="t2c_IE3A11"/>
+                <leg name="t2c_IE3A12"/>
+                <leg name="t2c_IE3A13"/>
+                <leg name="t2c_IE3A14"/>
+                <leg name="t2c_IE3A15"/>
+                <leg name="t2c_IE3A16"/>
+                <leg name="t2c_IE3A20"/>
+                <leg name="t2c_IE3A21"/>
+                <leg name="t2c_IE3A22"/>
+                <leg name="t2c_IE3A23"/>
+                <leg name="t2c_IE3A24"/>
+                <leg name="t2c_IE3A26"/>
+                <leg name="t2c_IE3A27"/>
+                <leg name="t2c_IE3A28"/>
+                <leg name="t2c_IE3A29"/>
+                <leg name="t2c_IE3A30"/>
+                <leg name="t2c_IE3A32"/>
+                <leg name="t2c_IE3A42"/>
+                <leg name="t2c_IE3A43"/>
+                <leg name="t2c_IE3A44"/>
+                <leg name="t2c_IE3A50"/>
+                <leg name="t2c_IE3A51"/>
+                <leg name="t2c_IE3Q04"/>
+                <leg name="t2c_IE3N06"/>
+                <leg name="t2c_IE3R02"/>
+                <leg name="t2c_IE3R03"/>
+                <!-- Please all the legs related to TRADER to CUSTOMS (LNA: Added above) -->
+            </legs>
+        </process>
+        <!-- Process to push from CUSTOM to TRADER -->
+        <process name="pushC2TProcess" agreement="agreementV1.0" mep="oneway" binding="push" initiatorRole="customsRole"
+                 responderRole="traderRole">
+            <initiatorParties>
+                <initiatorParty name="sti-taxud"/>
+            </initiatorParties>
+            <responderParties>
+                <responderParty name="BE00000001"/>
+            </responderParties>
+            <legs>
+<leg name="testServiceCase"/>
+
+                <leg name="c2t_IE3R01"/>
+                <leg name="c2t_IE3N10"/>
+                <leg name="c2t_IE3R07"/>
+                <leg name="c2t_IE3R04"/>
+                <leg name="c2t_IE3Q02"/>
+                <leg name="c2t_IE3Q03"/>
+                <leg name="c2t_IE3Q01"/>
+                <leg name="c2t_IE3N04"/>
+                <leg name="c2t_IE3N05"/>
+                <leg name="c2t_IE3N03"/>
+                <leg name="c2t_IE3N08"/>
+                <leg name="c2t_IE3N09"/>
+                <leg name="c2t_IE3N07"/>
+                <leg name="c2t_IE3N01"/>
+                <leg name="c2t_IE3N99"/>
+                <leg name="c2t_IE3N11"/>
+                <!-- Please all the legs related to CUSTOMS to TRADER (LNA: Added above) -->
+            </legs>
+        </process>
+        <!-- Process to pull from CUSTOMS to TRADER -->
+        <process name="pullC2TProcess" agreement="agreementV1.0" mep="oneway" binding="pull"
+                 initiatorRole="customsRole" responderRole="traderRole">
+            <responderParties>
+                <responderParty name="sti-taxud"/>
+            </responderParties>
+            <legs>
+                <leg name="c2t_IE3R01"/>
+                <leg name="c2t_IE3N10"/>
+                <leg name="c2t_IE3R07"/>
+                <leg name="c2t_IE3R04"/>
+                <leg name="c2t_IE3Q02"/>
+                <leg name="c2t_IE3Q03"/>
+                <leg name="c2t_IE3Q01"/>
+                <leg name="c2t_IE3N04"/>
+                <leg name="c2t_IE3N05"/>
+                <leg name="c2t_IE3N03"/>
+                <leg name="c2t_IE3N08"/>
+                <leg name="c2t_IE3N09"/>
+                <leg name="c2t_IE3N07"/>
+                <leg name="c2t_IE3N01"/>
+                <leg name="c2t_IE3N99"/>
+                <leg name="c2t_IE3N11"/>
+                <!-- Please all the legs related to CUSTOMS to TRADER (LNA: Added above) -->
+            </legs>
+        </process>
+
+    </businessProcesses>
+</db:configuration>
