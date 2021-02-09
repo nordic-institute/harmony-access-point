@@ -5,7 +5,6 @@ import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.user.User;
 import eu.domibus.core.user.UserService;
 import eu.domibus.core.user.ui.UserManagementServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,16 +24,19 @@ public class AllUsersManagementServiceImpl extends UserManagementServiceImpl {
 
     public static final String BEAN_NAME = "allUserManagementService";
 
-    @Autowired
-    @Qualifier(SuperUserManagementServiceImpl.BEAN_NAME)
-    private UserService superUserManagementService;
+    private final UserService superUserManagementService;
 
-    @Autowired
-    @Qualifier(UserManagementServiceImpl.BEAN_NAME)
-    private UserService userManagementService;
+    private final UserService userManagementService;
 
-    @Autowired
-    protected UserDomainService userDomainService;
+    private final UserDomainService userDomainService;
+
+    public AllUsersManagementServiceImpl(@Qualifier(SuperUserManagementServiceImpl.BEAN_NAME) UserService superUserManagementService,
+                                         @Qualifier(UserManagementServiceImpl.BEAN_NAME) UserService userManagementService,
+                                         UserDomainService userDomainService) {
+        this.superUserManagementService = superUserManagementService;
+        this.userManagementService = userManagementService;
+        this.userDomainService = userDomainService;
+    }
 
     /**
      * {@inheritDoc}
