@@ -171,10 +171,13 @@ public class DGrid extends DComponent {
 
 		Pagination pagination = getPagination();
 		pagination.skipToFirstPage();
+		waitForRowsToLoad();
+
 		int index = getIndexOf(columnIndex, value);
 
 		while (index < 0 && pagination.hasNextPage()) {
 			pagination.goToNextPage();
+			waitForRowsToLoad();
 			index = getIndexOf(columnIndex, value);
 		}
 
@@ -248,6 +251,7 @@ public class DGrid extends DComponent {
 
 		Pagination pagination = getPagination();
 		pagination.skipToFirstPage();
+		waitForRowsToLoad();
 
 		do {
 			for (int i = 0; i < getRowsNo(); i++) {
@@ -255,6 +259,7 @@ public class DGrid extends DComponent {
 			}
 			if (pagination.hasNextPage()) {
 				pagination.goToNextPage();
+				waitForRowsToLoad();
 			} else {
 				break;
 			}
