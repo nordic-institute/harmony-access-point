@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Management of all users ( domain and super users), used when a super-user logs in in MT mode
+ * Management of super-users, used when a super-user logs in in MT mode
  *
  * @author Ion Perpegel
  * @since 4.0

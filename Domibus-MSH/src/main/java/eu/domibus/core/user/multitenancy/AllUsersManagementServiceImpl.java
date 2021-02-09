@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
  * Management of all users ( domain and super users), used when a super-user logs in in MT mode
  *
  * @author Ion Perpegel
- * @since 4.0
+ * @since 5.0
  */
 @Service(AllUsersManagementServiceImpl.BEAN_NAME)
 public class AllUsersManagementServiceImpl extends UserManagementServiceImpl {

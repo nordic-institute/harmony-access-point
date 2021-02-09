@@ -39,7 +39,7 @@ public class UserResourceTest {
     UserResource userResource;
 
     @Injectable
-    private UserService superUserManagementService;
+    private UserService allUserManagementService;
 
     @Injectable
     private UserService userManagementService;
@@ -131,7 +131,7 @@ public class UserResourceTest {
         new Expectations() {{
             authUtils.isSuperAdmin();
             result = true;
-            superUserManagementService.findUserRoles();
+            allUserManagementService.findUserRoles();
             result = userRoles;
         }};
 
