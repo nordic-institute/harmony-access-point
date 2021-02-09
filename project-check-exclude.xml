@@ -49,4 +49,24 @@
         <!-- Transitive dependency from OpenCSV - Export CSV feature is only available to logged in users -->
         <vulnerabilityName>Remote code execution</vulnerabilityName>
     </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: guava-28.0-jre.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.google\.guava/guava@.*$</packageUrl>
+        <!-- we don't use com.google.common.io.Files.createTempDir() and we use jdk > 7 (8 and 11)
+        while upgrading to 30.0-jre will cause issues on Wildfly 20.x (EDELIVERY-7423)
+        -->
+        <cve>CVE-2020-8908</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: dss-utils-google-guava-5.5.jar
+   ]]></notes>
+        <!--
+        dss library is using same version of Google guava considered safe above
+         -->
+        <packageUrl regex="true">^pkg:maven/eu\.europa\.ec\.joinup\.sd\-dss/dss\-utils\-google\-guava@.*$</packageUrl>
+        <cpe>cpe:/a:google:guava</cpe>
+    </suppress>
 </suppressions>
