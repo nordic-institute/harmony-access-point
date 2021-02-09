@@ -86,12 +86,12 @@ public class AllUsersManagementServiceImpl extends UserManagementServiceImpl {
     @Transactional
     public void updateUsers(List<User> users) {
         List<eu.domibus.api.user.User> regularUsers = users.stream()
-                .filter(u -> !u.getAuthorities().contains(AuthRole.ROLE_AP_ADMIN.name()))
+                .filter(user -> !user.isSuperAdmin())
                 .collect(Collectors.toList());
         userManagementService.updateUsers(regularUsers);
 
         List<eu.domibus.api.user.User> superUsers = users.stream()
-                .filter(u -> u.getAuthorities().contains(AuthRole.ROLE_AP_ADMIN.name()))
+                .filter(user -> user.isSuperAdmin())
                 .collect(Collectors.toList());
         superUserManagementService.updateUsers(superUsers);
     }
