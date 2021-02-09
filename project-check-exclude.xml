@@ -85,7 +85,8 @@
    ]]></notes>
         <!-- we are using this in a test module -->
         <packageUrl regex="true">^pkg:maven/org\.apache\.tomcat\.embed/tomcat\-embed\-core@.*$</packageUrl>
-        <vulnerabilityName>CVE-2020-17527</vulnerabilityName>
+        <cve>CVE-2020-17527</cve>
+        <cve>CVE-2021-24122</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
@@ -94,7 +95,6 @@
         <!-- we are using this in a test module -->
         <packageUrl regex="true">^pkg:maven/org\.apache\.tomcat\.embed/tomcat\-embed\-websocket@.*$</packageUrl>
         <cve>CVE-2020-17527</cve>
+        <cve>CVE-2021-24122</cve>
     </suppress>
-
-
 </suppressions>
