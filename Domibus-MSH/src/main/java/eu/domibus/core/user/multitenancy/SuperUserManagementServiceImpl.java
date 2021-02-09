@@ -1,23 +1,18 @@
 package eu.domibus.core.user.multitenancy;
 
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
-import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.security.AuthRole;
-import eu.domibus.api.user.AtLeastOneAdminException;
-import eu.domibus.api.user.User;
 import eu.domibus.core.multitenancy.dao.UserDomainDao;
 import eu.domibus.core.multitenancy.dao.UserDomainEntity;
 import eu.domibus.core.user.ui.UserManagementServiceImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Management of super-users, used when a super-user logs in in MT mode
@@ -25,18 +20,21 @@ import java.util.stream.Collectors;
  * @author Ion Perpegel
  * @since 4.0
  */
-@Service (SuperUserManagementServiceImpl.BEAN_NAME)
+@Service(SuperUserManagementServiceImpl.BEAN_NAME)
 public class SuperUserManagementServiceImpl extends UserManagementServiceImpl {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SuperUserManagementServiceImpl.class);
 
     public static final String BEAN_NAME = "superUserManagementService";
 
-    @Autowired
-    protected DomainTaskExecutor domainTaskExecutor;
+    private final DomainTaskExecutor domainTaskExecutor;
 
-    @Autowired
-    protected UserDomainDao userDomainDao;
+    private final UserDomainDao userDomainDao;
+
+    public SuperUserManagementServiceImpl(DomainTaskExecutor domainTaskExecutor, UserDomainDao userDomainDao) {
+        this.domainTaskExecutor = domainTaskExecutor;
+        this.userDomainDao = userDomainDao;
+    }
 
     /**
      * Get all super users from the general schema. <br>
