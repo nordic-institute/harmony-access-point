@@ -31,7 +31,7 @@
         <spring.session.core.version>2.3.1.RELEASE</spring.session.core.version>
         <spring.session.jdbc.version>2.3.1.RELEASE</spring.session.jdbc.version>
         <hibernate.version>5.4.27.Final</hibernate.version>
-        <activemq.version>5.16.0</activemq.version>
+        <activemq.version>5.16.1</activemq.version>
         <aspectj.version>1.9.4</aspectj.version>
         <slf4j.version>1.7.30</slf4j.version>
         <logback.version>1.2.3</logback.version>
@@ -759,6 +759,23 @@
                 <groupId>no.difi.vefa</groupId>
                 <artifactId>peppol-lookup</artifactId>
                 <version>${peppol.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.difi.vefa</groupId>
+                <artifactId>peppol-security</artifactId>
+                <version>${peppol.version}</version>
+                <exclusions>
+                    <!-- we are excluding these in order to pickup bcprov-jdk15to18 and bcpkix-jdk15to18
+                    latest version instead -->
+                    <exclusion>
+                        <groupId>org.bouncycastle</groupId>
+                        <artifactId>bcprov-jdk15on</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.bouncycastle</groupId>
+                        <artifactId>bcpkix-jdk15on</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <!-- End Difi libraries -->
 
