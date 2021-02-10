@@ -327,8 +327,8 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES, Type.NUMERIC),
 
             new DomibusPropertyMetadata(DOMIBUS_ERRORLOG_CLEANER_CRON, Type.CRON, Usage.DOMAIN, true),
-            DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_ERRORLOG_CLEANER_OLDER_DAYS, Type.NUMERIC),
-            DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_ERRORLOG_CLEANER_BATCH_SIZE, Type.NUMERIC)
+            new DomibusPropertyMetadata(DOMIBUS_ERRORLOG_CLEANER_OLDER_DAYS, Type.NUMERIC, Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_ERRORLOG_CLEANER_BATCH_SIZE, Type.NUMERIC, Usage.DOMAIN, true)
     }).collect(Collectors.toMap(x -> x.getName(), x -> x));
 
     /**
