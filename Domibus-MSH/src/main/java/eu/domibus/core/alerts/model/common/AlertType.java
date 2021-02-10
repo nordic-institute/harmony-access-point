@@ -11,7 +11,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
  * @since 4.0
  */
 public enum AlertType {
-    MSG_STATUS_CHANGED("message.ftl"),
+    MSG_STATUS_CHANGED("message.ftl", "Message status changed"),
     CERT_IMMINENT_EXPIRATION("cert_imminent_expiration.ftl"),
     CERT_EXPIRED("cert_expired.ftl"),
     USER_LOGIN_FAILURE("login_failure.ftl"),
@@ -38,6 +38,10 @@ public enum AlertType {
 
     AlertType(String template) {
         this(template, null, null);
+    }
+
+    AlertType(String template, String title) {
+        this(template, null, title);
     }
 
     //in the future an alert will not have one to one mapping.

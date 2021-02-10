@@ -172,7 +172,7 @@ public class AlertEbms3ServiceImplTest {
         assertEquals(MessageStatus.SEND_ENQUEUED.name(), model.get(OLD_STATUS.name()));
         assertEquals(alertLevel.name(), model.get(ALERT_LEVEL));
         assertNotNull(DateUtil.DEFAULT_FORMATTER.parse(model.get(REPORTING_TIME)));
-
+        assertEquals(alertType.getTitle(), model.get(DESCRIPTION));
     }
 
     @Test

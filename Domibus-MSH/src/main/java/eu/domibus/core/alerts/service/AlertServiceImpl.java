@@ -50,6 +50,8 @@ public class AlertServiceImpl implements AlertService {
     /** server name on which Domibus is running */
     static final String SERVER_NAME = "SERVER_NAME";
 
+    public static final String DESCRIPTION = "DESCRIPTION";
+
     static final String ALERT_SELECTOR = "alert";
 
     @Autowired
@@ -139,6 +141,7 @@ public class AlertServiceImpl implements AlertService {
         next.getProperties().forEach((key, value) -> mailModel.put(key, StringEscapeUtils.escapeHtml4(value.getValue().toString())));
         mailModel.put(ALERT_LEVEL, alertEntity.getAlertLevel().name());
         mailModel.put(REPORTING_TIME, DateUtil.DEFAULT_FORMATTER.withZone(ZoneId.systemDefault()).format(alertEntity.getReportingTime().toInstant()));
+        mailModel.put(DESCRIPTION, alertEntity.getAlertType().getTitle());
         mailModel.put(SERVER_NAME, serverInfoService.getServerName());
         if (LOG.isDebugEnabled()) {
             mailModel.forEach((key, value) -> LOG.debug("Mail template key[{}] value[{}]", key, value));
