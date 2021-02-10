@@ -30,7 +30,7 @@ public class MessagesLogServiceHelperImpl implements MessagesLogServiceHelper {
         long count;
         boolean isEstimated;
         Integer limit = domibusPropertyProvider.getIntegerProperty(DOMIBUS_UI_MESSAGE_LOGS_COUNT_LIMIT);
-        if (limit > 0 && dao.countEntriesWithLimit(filters, limit + 1) >= limit) {
+        if (limit > 0 && dao.countEntriesWithLimit(filters, limit) >= limit) {
             count = limit;
             isEstimated = true;
         } else {
