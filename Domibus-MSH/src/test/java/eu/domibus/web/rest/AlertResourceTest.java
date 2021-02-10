@@ -3,7 +3,6 @@ package eu.domibus.web.rest;
 import com.google.common.collect.Lists;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.property.DomibusConfigurationService;
-import eu.domibus.api.security.AuthType;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.core.alerts.model.common.AlertCriteria;
@@ -405,14 +404,14 @@ public class AlertResourceTest {
     @Test
     public void getExcludedColumns() {
         List<String> excludedCert = alertResource.getExcludedColumns(true);
-        assertEquals(excludedCert.size(), 2);
-        Set<String> set1 = new HashSet<>(Arrays.asList("alertDescription", "superAdmin"));
+        assertEquals(excludedCert.size(), 3);
+        Set<String> set1 = new HashSet<>(Arrays.asList("alertDescription", "deleted", "superAdmin"));
         boolean containsAll = excludedCert.stream().map(Object::toString)
                 .anyMatch(s -> set1.remove(s) && set1.isEmpty());
         assertTrue("Checking excluded columns in ST mode:", containsAll);
 
         excludedCert = alertResource.getExcludedColumns(false);
-        assertEquals(excludedCert.size(), 1);
+        assertEquals(excludedCert.size(), 2);
         Set<String> set2 = new HashSet<>(Arrays.asList("superAdmin"));
         containsAll = excludedCert.stream().map(Object::toString)
                 .anyMatch(s -> set2.remove(s) && set2.isEmpty());
