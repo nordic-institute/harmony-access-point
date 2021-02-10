@@ -2,7 +2,7 @@ package eu.domibus.core.ebms3.sender.interceptor;
 
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.core.spring.SpringContextProvider;
+import eu.domibus.api.spring.SpringContextProvider;
 import mockit.Mocked;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;

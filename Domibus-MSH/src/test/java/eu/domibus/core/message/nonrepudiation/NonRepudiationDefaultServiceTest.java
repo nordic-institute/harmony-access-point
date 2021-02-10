@@ -1,13 +1,15 @@
 package eu.domibus.core.message.nonrepudiation;
 
+import eu.domibus.api.model.RawEnvelopeDto;
+import eu.domibus.api.model.RawEnvelopeLog;
+import eu.domibus.api.model.SignalMessage;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.audit.envers.ModificationType;
 import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.util.SoapUtil;
-import eu.domibus.ebms3.common.model.SignalMessage;
-import eu.domibus.ebms3.common.model.UserMessage;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
@@ -16,6 +18,7 @@ import org.junit.runner.RunWith;
 import javax.xml.soap.SOAPMessage;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
@@ -87,12 +90,16 @@ public class NonRepudiationDefaultServiceTest {
     @Test
     public void saveResponse_ok(@Mocked SOAPMessage response, @Mocked SignalMessage signalMessage) {
         String userMessageId = "msgid";
+        List<SignalMessage> signalMessages = Arrays.asList(signalMessage);
         new Expectations(nonRepudiationService) {{
             nonRepudiationService.isNonRepudiationAuditDisabled();
             result = false;
 
             signalMessageDao.findSignalMessagesByRefMessageId(userMessageId);
-            result = Arrays.asList(signalMessage);
+            result = signalMessages;
+
+            signalMessages.stream().findFirst();
+            result = null;
         }};
 
         nonRepudiationService.saveResponse(response, userMessageId);

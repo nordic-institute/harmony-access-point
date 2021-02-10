@@ -39,7 +39,7 @@ export class PropertiesComponent extends mix(BaseListComponent)
   async ngOnInit() {
     super.ngOnInit();
 
-    super.filter = {propertyName: '', showDomain: true, type: null, module: null, value: null, isWritable: true};
+    super.filter = {propertyName: '', showDomain: true, type: null, module: null, value: null, writable: true};
     this.showGlobalPropertiesControl = this.securityService.isCurrentUserSuperAdmin();
 
     this.propertiesService.loadPropertyTypes();

@@ -1,12 +1,15 @@
 package eu.domibus.core.ebms3.receiver;
 
-import eu.domibus.ebms3.common.model.*;
+import eu.domibus.api.model.*;
 import org.apache.cxf.staxutils.StaxUtils;
 import org.w3c.dom.Document;
 
+import javax.activation.DataHandler;
+import javax.mail.util.ByteArrayDataSource;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 import java.io.InputStream;
+import java.util.Date;
 
 /**
  * @author Thomas Dussart
@@ -28,12 +31,21 @@ public class MessageTestUtility {
     public UserMessage createSampleUserMessage() {
         UserMessage userMessage = new UserMessage();
         final MessageInfo messageInfo = new MessageInfo();
+        messageInfo.setTimestamp(new Date());
+        messageInfo.setRefToMessageId("321");
+        messageInfo.setEntityId(1);
+        messageInfo.setCreationTime(new Date());
+        messageInfo.setModificationTime(new Date());
+        messageInfo.setModifiedBy("baciuco");
+        messageInfo.setCreatedBy("baciuco");
         messageInfo.setMessageId("id123456");
         userMessage.setMessageInfo(messageInfo);
         CollaborationInfo collaborationInfo = new CollaborationInfo();
+        collaborationInfo.setConversationId("123");
         collaborationInfo.setAction("TC1Leg1");
         AgreementRef agreementRef = new AgreementRef();
-        agreementRef.setValue("");
+        agreementRef.setValue("agreement1");
+        agreementRef.setType("agreementType");
         collaborationInfo.setAgreementRef(agreementRef);
         Service service = new Service();
         service.setValue("bdx:noprocess");
@@ -70,6 +82,12 @@ public class MessageTestUtility {
         PayloadInfo payloadInfo = new PayloadInfo();
         PartInfo partInfo = new PartInfo();
         partInfo.setHref("cid:message");
+        partInfo.setBinaryData("test".getBytes());
+        partInfo.setFileName("myFilename");
+        partInfo.setInBody(true);
+        partInfo.setPayloadDatahandler(new DataHandler(new ByteArrayDataSource("test".getBytes(), "text/xml")));
+        partInfo.setMime("application/gzip");
+        partInfo.setPartOrder(3);
 
         PartProperties partProperties = new PartProperties();
         partProperties.getProperties().add(createProperty("text/xml", "MimeType", STRING_TYPE));

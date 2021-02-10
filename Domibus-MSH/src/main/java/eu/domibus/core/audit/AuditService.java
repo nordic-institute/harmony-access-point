@@ -116,6 +116,11 @@ public interface AuditService {
     void addTruststoreDownloadedAudit();
 
     /**
+     * Add TLS truststore downloaded
+     **/
+    void addTLSTruststoreDownloadedAudit();
+
+    /**
      * Add download audit for am envelope of user or signal messages
      *
      * @param messageId the id of the message.

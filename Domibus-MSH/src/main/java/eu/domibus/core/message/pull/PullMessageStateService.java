@@ -1,6 +1,6 @@
 package eu.domibus.core.message.pull;
 
-import eu.domibus.core.message.UserMessageLog;
+import eu.domibus.api.model.UserMessageLog;
 
 /**
  * @author Thomas Dussart

@@ -23,9 +23,11 @@ import static org.junit.Assert.assertTrue;
 
 /**
  * Created by draguio on 17/02/2016.
+ * @deprecated to be removed when deprecated endpoint /backend is removed
  */
 @DirtiesContext
 @Rollback
+@Deprecated
 public class SubmitMessageSignOnlyIT extends AbstractBackendWSIT {
 
     @Autowired

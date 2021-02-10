@@ -3,7 +3,6 @@ package eu.domibus.core.property;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
-import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
@@ -31,25 +30,33 @@ import static eu.domibus.api.property.DomibusPropertyMetadata.NAME_SEPARATOR;
 public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadataManager {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(GlobalPropertyMetadataManagerImpl.class);
 
-    @Autowired
-    protected List<DomibusPropertyMetadataManagerSPI> propertyMetadataManagers;
-
-    @Autowired(required = false)
-    @Lazy
-    protected List<DomibusPropertyManagerExt> extPropertyManagers;
-
-    @Autowired
-    protected DomainCoreConverter domainConverter;
-
-    @Autowired
-    protected DomibusPropertyProvider domibusPropertyProvider;
-
     protected Map<String, DomibusPropertyMetadata> allPropertyMetadataMap;
+
     protected Map<String, DomibusPropertyMetadata> internalPropertyMetadataMap;
 
     private volatile boolean internalPropertiesLoaded = false;
     private volatile boolean externalPropertiesLoaded = false;
     private final Object propertyMetadataMapLock = new Object();
+
+    private final List<DomibusPropertyMetadataManagerSPI> propertyMetadataManagers;
+
+    private final List<DomibusPropertyManagerExt> extPropertyManagers;
+
+    private final DomainCoreConverter domainConverter;
+
+    private final NestedPropertiesManager nestedPropertiesManager;
+
+    public GlobalPropertyMetadataManagerImpl(List<DomibusPropertyMetadataManagerSPI> propertyMetadataManagers,
+                                             // needs to be lazy because we do have a conceptual cyclic dependency(and we do not control external modules):
+                                             // PropertyProvider->GlobalPropertyMetadataManager->DomibusPropertyManagerExtX
+                                             // ->DomibusPropertyExtServiceDelegateAbstract-DomibusPropertyServiceDelegate->DomibusPropertyProvider
+                                             @Autowired(required = false) @Lazy List<DomibusPropertyManagerExt> extPropertyManagers,
+                                             DomainCoreConverter domainConverter, NestedPropertiesManager nestedPropertiesManager) {
+        this.propertyMetadataManagers = propertyMetadataManagers;
+        this.extPropertyManagers = extPropertyManagers;
+        this.domainConverter = domainConverter;
+        this.nestedPropertiesManager=nestedPropertiesManager;
+    }
 
     @Override
     public Map<String, DomibusPropertyMetadata> getAllProperties() {
@@ -135,7 +142,7 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
                 LOG.trace("Could not find composable property metadata for [{}].", propertyName);
                 return false;
             }
-            List<String> props = domibusPropertyProvider.getNestedProperties(propMeta.getName());
+            List<String> props = nestedPropertiesManager.getNestedProperties(propMeta);
             if (CollectionUtils.isEmpty(props)) {
                 LOG.trace("Could not find any nested properties for [{}].", propMeta.getName());
                 return false;

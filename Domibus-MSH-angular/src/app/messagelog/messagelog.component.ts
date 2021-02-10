@@ -171,12 +171,16 @@ export class MessageLogComponent extends mix(BaseListComponent)
         width: 155
       },
       {
-        name: 'Message Fragment',
-        prop: 'messageFragment'
+        name: 'Action',
+        prop: 'action'
       },
       {
-        name: 'Source Message',
-        prop: 'sourceMessage'
+        name: 'Service Type',
+        prop: 'serviceType'
+      },
+      {
+        name: 'Service Value',
+        prop: 'serviceValue'
       }
     ];
 
@@ -335,19 +339,17 @@ export class MessageLogComponent extends mix(BaseListComponent)
 
   private async downloadMessage(row) {
     const messageId = row.messageId;
-    const canDownloadUrl = MessageLogComponent.CAN_DOWNLOAD_MESSAGE_URL.replace('${messageId}', encodeURIComponent(messageId));
-    try {
-      const canDownload = await this.http.get(canDownloadUrl).toPromise();
-      if (canDownload) {
-        const downloadUrl = MessageLogComponent.DOWNLOAD_MESSAGE_URL.replace('${messageId}', encodeURIComponent(messageId));
-        DownloadService.downloadNative(downloadUrl);
-      } else {
-        this.alertService.error(`Message content is no longer available for id ${messageId}.`);
+    let canDownloadUrl = MessageLogComponent.CAN_DOWNLOAD_MESSAGE_URL.replace('${messageId}', encodeURIComponent(messageId));
+    this.http.get(canDownloadUrl).subscribe(res => {
+
+      const downloadUrl = MessageLogComponent.DOWNLOAD_MESSAGE_URL.replace('${messageId}', encodeURIComponent(messageId));
+      DownloadService.downloadNative(downloadUrl);
+    }, err => {
+      if (err.error.message.includes("Message content is no longer available for message id")) {
         row.deleted = true;
       }
-    } catch (err) {
-      this.alertService.exception(`Could not download message content for id ${messageId}.`, err);
-    }
+      this.alertService.exception(`Could not download message.`, err);
+    });
   }
 
   downloadEnvelopeAction(row: MessageLogEntry) {

@@ -2,15 +2,11 @@
 <databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
     <!-- IMPORTANT: this is the full script, add your changes inside in the right section -->
 
     <!-- properties - to be used in column definitions -->
-    <property name="now" value="sysdate" dbms="oracle"/>
-    <property name="now" value="now()" dbms="mysql"/>
-    <property name="current_db_user" value="user" dbms="oracle"/>
-    <!-- MySQL cannot handle functions as DEFAULT values and the alternative would be to add a trigger for all these
-    tables. Either way this value will most probably never be used since a value will always be provided at runtime.-->
-    <property name="current_db_user" value="'DOMIBUS'" dbms="mysql"/>
+    <include file="common/changelog-properties.xml" relativeToChangelogFile="true"/>
 
     <!-- sequences -->
     <changeSet dbms="oracle" author="martifp" id="changelog-3.2-delta-1">
@@ -20,7 +16,7 @@
     </changeSet>
 
     <!-- Quartz tables -->
-    <include file="changelog-4.0-quartz.xml" relativeToChangelogFile="true"/>
+    <include file="archive/changelog-4.0-quartz.xml" relativeToChangelogFile="true"/>
 
     <!-- Plugin specific tables -->
     <changeSet author="idragusa" id="EDELIVERY-4740">
@@ -29,10 +25,14 @@
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_WS_PLUGIN_TB_MESSAGE_LOG"/>
             </column>
-            <column name="MESSAGE_ID" type="VARCHAR(255)">
+            <column name="MESSAGE_ID" type="VARCHAR(255)" remarks="Message ID of the Domibus message">
                 <constraints nullable="false"/>
             </column>
-            <column name="FINAL_RECIPIENT" type="VARCHAR(255)"/>
+            <column name="CONVERSATION_ID" type="VARCHAR(255)" remarks="Conversation ID of the Domibus message"/>
+            <column name="REF_TO_MESSAGE_ID" type="VARCHAR(255)" remarks="Reference to Message ID of the Domibus message"/>
+            <column name="FROM_PARTY_ID" type="VARCHAR(255)" remarks="From Party ID of the Domibus message"/>
+            <column name="FINAL_RECIPIENT" type="VARCHAR(255)" remarks="Final recipient of the Domibus message"/>
+            <column name="ORIGINAL_SENDER" type="VARCHAR(255)" remarks="Original sender of the Domibus message"/>
             <column name="RECEIVED" type="TIMESTAMP" defaultValueComputed="${now}">
                 <constraints nullable="false"/>
             </column>
@@ -59,6 +59,7 @@
                 <constraints nullable="false"/>
             </column>
             <column name="FINAL_RECIPIENT" type="VARCHAR(255)" remarks="Final recipient of the domibus message"/>
+            <column name="ORIGINAL_SENDER" type="VARCHAR(255)" remarks="Original sender of the domibus message"/>
 
             <column name="BACKEND_MESSAGE_STATUS" type="VARCHAR(255)" remarks="The status describing the state of the backend message"/>
             <column name="BACKEND_MESSAGE_TYPE" type="VARCHAR(255)" remarks="The type describing the kind backend message"/>
@@ -966,6 +967,9 @@
             <column name="FAILED" type="TIMESTAMP"/>
             <column name="RESTORED" type="TIMESTAMP"/>
             <column name="MESSAGE_SUBTYPE" type="VARCHAR(255)"/>
+            <column name="ACTION" type="VARCHAR(255)"/>
+            <column name="SERVICE_TYPE" type="VARCHAR(255)"/>
+            <column name="SERVICE_VALUE" type="VARCHAR(255)"/>
             <column defaultValueComputed="${now}" name="LAST_MODIFIED" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
@@ -1731,8 +1735,17 @@
             <column name="NAME_MOD" type="BOOLEAN"/>
             <column name="USERS_MOD" type="BOOLEAN"/>
         </createTable>
+
+        <createTable tableName="TB_VERSION" remarks="Stores Domibus version">
+            <column name="VERSION" type="VARCHAR(30)" remarks="Domibus Version"/>
+            <column name="BUILD_TIME" type="VARCHAR(30)" remarks="Domibus BuildTime"/>
+            <column name="CREATION_TIME" type="TIMESTAMP" defaultValueComputed="${now}" remarks="The date and time when this record was created">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
     </changeSet>
 
+    <!-- unique constraint -->
     <changeSet author="Catalin Enache" id="1564477107969-95">
         <comment>create unique constraints</comment>
 
@@ -1756,10 +1769,16 @@
 
         <addUniqueConstraint columnNames="USER_NAME" constraintName="USER_NAME" tableName="TB_USER"/>
 
-        <addUniqueConstraint columnNames="USERNAME,CERTIFICATE_ID" constraintName="UQ_PLUGIN_USER"
+        <addUniqueConstraint columnNames="VERSION" tableName="TB_VERSION" constraintName="UQ_VERSION" />
+
+        <addUniqueConstraint columnNames="USERNAME" constraintName="UQ_PLUGIN_USER_NAME"
+                             tableName="TB_AUTHENTICATION_ENTRY"/>
+        <addUniqueConstraint columnNames="CERTIFICATE_ID" constraintName="UQ_PLUGIN_USER_CERT"
                              tableName="TB_AUTHENTICATION_ENTRY"/>
     </changeSet>
 
+
+    <!-- indexes start here -->
     <changeSet author="Catalin Enache" id="1564477107969-104">
         <comment>create indexes - part 1</comment>
         <createIndex indexName="IDX_MESSAGE_LOCK_UNIQUE_ID" tableName="TB_MESSAGING_LOCK" unique="true">
@@ -2178,6 +2197,18 @@
             <column name="RECEIVED"/>
         </createIndex>
 
+        <createIndex indexName="IDX_MSG_UI_ACTION" tableName="TB_MESSAGE_UI">
+            <column name="ACTION"/>
+        </createIndex>
+
+        <createIndex indexName="IDX_MSG_UI_SRV_TYPE" tableName="TB_MESSAGE_UI">
+            <column name="SERVICE_TYPE"/>
+        </createIndex>
+
+        <createIndex indexName="IDX_MSG_UI_SRV_VAL" tableName="TB_MESSAGE_UI">
+            <column name="SERVICE_VALUE"/>
+        </createIndex>
+
         <createIndex indexName="IDX_PARTY_ID_VALUE" tableName="TB_PARTY_ID">
             <column name="VALUE"/>
         </createIndex>
@@ -2243,8 +2274,8 @@
         <createIndex indexName="IDX_MSG_ACKNW_MESSAGE_ID" tableName="TB_MESSAGE_ACKNW">
             <column name="MESSAGE_ID"/>
         </createIndex>
-
     </changeSet>
+
 
     <!-- foreign keys -->
     <changeSet author="Catalin Enache" id="1564477107969-234">
@@ -2736,7 +2767,10 @@
             ref_to_message_id,
             failed,
             restored,
-            message_subtype
+            message_subtype,
+            action,
+            service_type,
+            service_value
             FROM
             (
             SELECT
@@ -2758,7 +2792,10 @@
             message_info.ref_to_message_id,
             message_log.failed,
             message_log.restored,
-            message_log.message_subtype
+            message_log.message_subtype,
+            user_message.collaboration_info_action AS action,
+            user_message.service_type,
+            user_message.service_value
             FROM
             tb_message_log message_log
             LEFT OUTER JOIN tb_message_info message_info ON message_log.message_id =
@@ -2791,7 +2828,10 @@
             message_info.ref_to_message_id,
             message_log.failed,
             message_log.restored,
-            message_log.message_subtype
+            message_log.message_subtype,
+            null as action,
+            null as service_type,
+            null as service_value
             FROM
             tb_message_log message_log
             CROSS JOIN tb_messaging messaging
@@ -2831,7 +2871,10 @@
             ref_to_message_id,
             failed,
             restored,
-            message_subtype
+            message_subtype,
+            action,
+            service_type,
+            service_value
             FROM
             TB_MESSAGE_UI WHERE
             received BETWEEN systimestamp - INTERVAL '48' HOUR AND systimestamp + INTERVAL '1' HOUR
@@ -2860,7 +2903,10 @@
             message_info.REF_TO_MESSAGE_ID,
             message_log.FAILED,
             message_log.RESTORED,
-            message_log.MESSAGE_SUBTYPE
+            message_log.MESSAGE_SUBTYPE,
+            user_message.COLLABORATION_INFO_ACTION AS ACTION,
+            user_message.SERVICE_TYPE,
+            user_message.SERVICE_VALUE
             FROM
             TB_MESSAGE_LOG message_log
             LEFT OUTER JOIN TB_MESSAGE_INFO message_info ON message_log.MESSAGE_ID = message_info.MESSAGE_ID
@@ -2889,6 +2935,9 @@
             AND message_log.FAILED &lt;=&gt; flat_table.FAILED
             AND message_log.RESTORED &lt;=&gt; flat_table.RESTORED
             AND message_log.MESSAGE_SUBTYPE &lt;=&gt; flat_table.MESSAGE_SUBTYPE
+            AND user_message.COLLABORATION_INFO_ACTION &lt;=&gt; flat_table.ACTION
+            AND user_message.SERVICE_TYPE &lt;=&gt; flat_table.SERVICE_TYPE
+            AND user_message.SERVICE_VALUE &lt;=&gt; flat_table.SERVICE_VALUE
             WHERE
             user_message.messageInfo_ID_PK = message_info.ID_PK
             AND property3_.NAME = 'originalSender'
@@ -2917,7 +2966,10 @@
             messageinf4_.REF_TO_MESSAGE_ID,
             message_log.FAILED,
             message_log.RESTORED,
-            message_log.MESSAGE_SUBTYPE
+            message_log.MESSAGE_SUBTYPE,
+            NULL AS ACTION,
+            NULL AS SERVICE_TYPE,
+            NULL AS SERVICE_VALUE
             FROM
             TB_MESSAGE_LOG message_log
             CROSS JOIN TB_MESSAGING messaging
@@ -2971,4 +3023,9 @@
             <column name="ROLE_NAME" value="ROLE_USER"/>
         </insert>
     </changeSet>
+
+
+    <!-- this file must be included in every future changelog.xml or changelog-multi-tenancy.xml -->
+    <include file="common/changelog-version-inserts.xml" relativeToChangelogFile="true"/>
+
 </databaseChangeLog>

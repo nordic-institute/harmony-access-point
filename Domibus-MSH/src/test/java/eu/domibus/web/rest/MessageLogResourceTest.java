@@ -2,28 +2,21 @@ package eu.domibus.web.rest;
 
 import eu.domibus.api.csv.CsvException;
 import eu.domibus.api.message.MessageSubtype;
+import eu.domibus.api.model.*;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DateUtil;
-import eu.domibus.common.MSHRole;
-import eu.domibus.common.MessageStatus;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.csv.CsvServiceImpl;
-import eu.domibus.core.message.MessageLog;
 import eu.domibus.core.message.MessageLogInfo;
 import eu.domibus.core.message.MessagesLogService;
-import eu.domibus.core.message.UserMessageLog;
-import eu.domibus.core.message.signal.SignalMessageLog;
 import eu.domibus.core.message.testservice.TestService;
 import eu.domibus.core.message.testservice.TestServiceException;
 import eu.domibus.core.party.PartyDao;
-import eu.domibus.core.plugin.notification.NotificationStatus;
 import eu.domibus.core.replication.UIMessageDao;
 import eu.domibus.core.replication.UIMessageService;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.core.rest.validators.FieldBlacklistValidator;
-import eu.domibus.ebms3.common.model.MessageType;
-import eu.domibus.ebms3.common.model.SignalMessage;
 import eu.domibus.web.rest.ro.*;
 import mockit.Expectations;
 import mockit.Injectable;
@@ -306,7 +299,7 @@ public class MessageLogResourceTest {
         MessageLogInfo messageLog = new MessageLogInfo("messageId", MessageStatus.ACKNOWLEDGED,
                 NotificationStatus.NOTIFIED, MSHRole.RECEIVING, messageType, date, date, 1, 5, date,
                 "conversationId", "fromPartyId", "toPartyId", "originalSender", "finalRecipient",
-                "refToMessageId", date, date, messageSubtype, false, false);
+                "refToMessageId", date, date, messageSubtype, false, false, "action", "serviceType", "serviceValue");
         result.add(messageLog);
         return result;
     }

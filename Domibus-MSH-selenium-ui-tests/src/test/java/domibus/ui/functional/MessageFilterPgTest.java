@@ -361,7 +361,7 @@ public class MessageFilterPgTest extends SeleniumTest {
 	}
 	
 	/*User selects a filter and chooses to edit it then presses Cancel*/
-	@Test(description = "MSGF-12", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "MSGF-12", groups = {"multiTenancy", "singleTenancy"})
 	public void editAndCancel() throws Exception {
 		log.info("Create a filter to edit");
 		String actionName = Gen.randomAlphaNumeric(5);
@@ -399,7 +399,7 @@ public class MessageFilterPgTest extends SeleniumTest {
 	}
 	
 	/* User selects a filter and chooses to edit it then press save */
-	@Test(description = "MSGF-14", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "MSGF-14", groups = {"multiTenancy", "singleTenancy"})
 	public void editAndSave() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -552,7 +552,7 @@ public class MessageFilterPgTest extends SeleniumTest {
 	}
 	
 	/* Operate a change in the list of filters and don't press Save or Cancel Change domain */
-	@Test(description = "MSGF-19", groups = {"multiTenancy"}, enabled = false)
+	@Test(description = "MSGF-19", groups = {"multiTenancy"})
 	public void editAndChangeDomain() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -840,7 +840,7 @@ public class MessageFilterPgTest extends SeleniumTest {
 	
 	
 	/* Create a duplicate by editing another filter */
-	@Test(description = "MSGF-28", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "MSGF-28", groups = {"multiTenancy", "singleTenancy"})
 	public void editToDuplicate() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -976,7 +976,7 @@ public class MessageFilterPgTest extends SeleniumTest {
 	}
 
 //
-	@Test(description = "MSGF-22", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "MSGF-22", groups = {"multiTenancy", "singleTenancy"})
 	public void editWithDiffRowSelection() throws Exception {
 		SoftAssert soft = new SoftAssert();
 

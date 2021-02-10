@@ -1,5 +1,7 @@
 package eu.domibus.core.cache;
 
+import eu.domibus.api.exceptions.DomibusCoreException;
+
 /**
  * @author Thomas Dussart
  * @since 3.3
@@ -18,5 +20,7 @@ public interface DomibusCacheService {
     String DOMIBUS_PROPERTY_CACHE = "domibusProperties";
 
     void clearCache(String refreshCacheName);
+
+    void clearAllCaches() throws DomibusCoreException;
 
 }

@@ -13,6 +13,7 @@ public class DMessages {
 	public static final String LOGIN_INVALID_CREDENTIALS = "The username/password combination you provided is not valid. Please try again or contact your administrator.";
 	public static final String LOGIN_ACCOUNT_SUSPENDED = "Too many invalid attempts to log in. Access has been temporarily suspended. Please try again later with the right credentials.";
 	public static final String LOGIN_ACCOUNT_SUSPENDED_1 = "The user is suspended. Please try again later or contact your administrator.";
+	public static final String LOGIN_DEFAULT_PASS = "You are using the default password. Please change it now in order to be able to use the console.";
 	public static final String LOGIN_USER_INACTIVE = "The user is inactive. Please contact your administrator.";
 
 	public static final String DIALOG_CANCEL_ALL = "Do you want to cancel all unsaved operations?";
@@ -21,7 +22,8 @@ public class DMessages {
 	public static final String USER_EMAIL_INVALID = "You should type a valid email";
 
 	public static final String USER_USERNAME_NO_EMPTY = "You should type an username";
-	public static final String USER_USERNAME_VALIDATION = "Username can only contain alphanumeric characters (letters A-Z, numbers 0-9) and must have from 4 to 32 characters";
+	public static final String USER_USERNAME_VALIDATION_SHORT = "You should type at least 4 characters";
+	public static final String USER_USERNAME_VALIDATION_SPECIAL_CHR = "You should not use special characters";
 	public static final String USER_DELETE_LOGGED_IN_USER = "You cannot delete the logged in user: %s";
 
 	public static final String PLUGIN_USER_ORIGINAL_USER_INVALID = "You should follow the rule: urn:oasis:names:tc:ebcore:partyid-type:[unregistered]:[corner]";
@@ -71,6 +73,9 @@ public class DMessages {
 
 	public static final String SESSION_EXPIRED_MESSAGE = "You have been logged out because of inactivity or missing access permissions.";
 
+
+	public static final String PROPERTIES_UPDATE_ERROR_TYPE = "Could not update property: Value '%s' for property '%s' is not of type '%s'";
+
 	
 	
 	
@@ -78,6 +83,8 @@ public class DMessages {
 	public class Users {
 		public static final String DUPLICATE_USERNAME_ERROR = "The operation 'update users' did not complete successfully. [DOM_001]:Cannot add user %s because it already exists in the %s domain.";
 		public static final String DUPLICATE_USERNAME_SAMEDOMAIN_ERROR = "The operation 'update users' did not complete successfully. Duplicate user name for users: %s";
+		public static final String ONLY_ADMINUSER_DEACTIVATE_ERROR="The operation 'update users' did not complete successfully. [DOM_001]:There must always be at least one active Domain Admin for each Domain.";
+		public static final String LOGGEDINUSER_DELETE_ERROR="You cannot delete the logged in user";
 	}
 
 }

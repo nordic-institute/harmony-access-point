@@ -1,19 +1,14 @@
 package eu.domibus.core.message;
 
+import eu.domibus.api.model.*;
 import com.google.common.collect.Maps;
-import eu.domibus.common.MSHRole;
-import eu.domibus.common.MessageStatus;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
-import eu.domibus.core.plugin.notification.NotificationStatus;
-import eu.domibus.ebms3.common.model.MessageType;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
@@ -138,7 +133,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
     }
 
     public List<UserMessageLogDto> getSentUserMessagesOlderThan(Date date, String mpc, Integer expiredSentMessagesLimit, boolean isDeleteMessageMetadata) {
-        if(isDeleteMessageMetadata) {
+        if (isDeleteMessageMetadata) {
             return getMessagesOlderThan(date, mpc, expiredSentMessagesLimit, "UserMessageLog.findSentUserMessagesOlderThan");
         }
         // return only messages with payload not already cleared
@@ -149,8 +144,14 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         return getMessagesOlderThan(date, mpc, expiredSentMessagesLimit, "UserMessageLog.findSentUserMessagesWithPayloadNotClearedOlderThan");
     }
 
+    /**
+     * EDELIVERY-7772 Hibernate setResultTransformer deprecated
+     */
     private List<UserMessageLogDto> getMessagesOlderThan(Date startDate, String mpc, Integer expiredMessagesLimit, String queryName) {
-        TypedQuery<UserMessageLogDto> query = em.createNamedQuery(queryName, UserMessageLogDto.class);
+        Query query = em.createNamedQuery(queryName);
+
+        query.unwrap(org.hibernate.query.Query.class)
+                .setResultTransformer(new UserMessageLogDtoResultTransformer());
         query.setParameter("DATE", startDate);
         query.setParameter("MPC", mpc);
         query.setMaxResults(expiredMessagesLimit);
@@ -222,12 +223,12 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         return resultList;
     }
 
-    @Timer(clazz = UserMessageLogDao.class,value = "deleteMessages.deleteMessageLogs")
-    @Counter(clazz = UserMessageLogDao.class,value = "deleteMessages.deleteMessageLogs")
+    @Timer(clazz = UserMessageLogDao.class, value = "deleteMessages.deleteMessageLogs")
+    @Counter(clazz = UserMessageLogDao.class, value = "deleteMessages.deleteMessageLogs")
     public int deleteMessageLogs(List<String> messageIds) {
         final Query deleteQuery = em.createNamedQuery("UserMessageLog.deleteMessageLogs");
         deleteQuery.setParameter("MESSAGEIDS", messageIds);
-        int result  = deleteQuery.executeUpdate();
+        int result = deleteQuery.executeUpdate();
         LOG.trace("deleteUserMessageLogs result [{}]", result);
         return result;
     }

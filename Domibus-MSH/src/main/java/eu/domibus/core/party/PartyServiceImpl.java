@@ -17,11 +17,11 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.*;
 import eu.domibus.core.converter.DomainCoreConverter;
-import eu.domibus.core.crypto.api.CertificateEntry;
-import eu.domibus.core.crypto.api.MultiDomainCryptoService;
+import eu.domibus.api.pki.CertificateEntry;
+import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
-import eu.domibus.ebms3.common.model.MessageExchangePattern;
+import eu.domibus.api.ebms3.MessageExchangePattern;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.XmlProcessingException;
@@ -30,6 +30,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.security.KeyStore;
 import java.security.cert.X509Certificate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -527,8 +528,11 @@ public class PartyServiceImpl implements PartyService {
 
         addPartyCertificate(partyToCertificateMap);
 
-        // triger update certificate table
-        certificateService.saveCertificateAndLogRevocation(domainProvider.getCurrentDomain());
+        // trigger update certificate table
+        Domain currentDomain = domainProvider.getCurrentDomain();
+        final KeyStore trustStore = multiDomainCertificateProvider.getTrustStore(currentDomain);
+        final KeyStore keyStore = multiDomainCertificateProvider.getKeyStore(currentDomain);
+        certificateService.saveCertificateAndLogRevocation(trustStore, keyStore);
     }
 
     /**

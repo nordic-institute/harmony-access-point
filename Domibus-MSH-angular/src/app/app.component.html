@@ -50,10 +50,28 @@
       <mat-icon mat-tooltip="JMS Monitoring">computer</mat-icon>
       <span>JMS Monitoring</span>
     </button>
-    <button mat-raised-button class="sideNavButton" [routerLink]="['/truststore']" *ngIf="isAdmin()" id="truststore_id">
-      <mat-icon mat-tooltip="Truststore">vpn_key</mat-icon>
-      <span>Truststore</span>
-    </button>
+
+    <mat-expansion-panel *ngIf="isAdmin()">
+      <mat-expansion-panel-header>
+        <button mat-raised-button class="sideNavButton" id="truststores_id">
+          <mat-icon mat-tooltip="Truststores">vpn_key</mat-icon>
+          <span *ngIf="fullMenu">Truststores</span>
+        </button>
+      </mat-expansion-panel-header>
+
+      <div class="sideNavSubmenu">
+        <button mat-raised-button class="sideNavButton" [routerLink]="['/truststore']" *ngIf="isAdmin()" id="truststore_id">
+          <mat-icon mat-tooltip="Truststore">vpn_key</mat-icon>
+          <span>Domibus</span>
+        </button>
+        <button mat-raised-button class="sideNavButton" [routerLink]="['/tlstruststore']" *ngIf="isAdmin()" id="tls_truststore_id">
+          <mat-icon mat-tooltip="TLS Truststore">vpn_key</mat-icon>
+          <span>TLS</span>
+        </button>
+      </div>
+    </mat-expansion-panel>
+
+
     <button mat-raised-button class="sideNavButton" [routerLink]="['/user']"
             *ngIf="isAdmin() && !isExtAuthProviderEnabled()" id="user_id">
       <mat-icon mat-tooltip="Users">people</mat-icon>
@@ -83,7 +101,7 @@
     </button>
     <button mat-raised-button class="sideNavButton" [routerLink]="['/properties']" *ngIf="isAdmin()" id="properties_id">
       <mat-icon mat-tooltip="View or Set Domibus Properties">settings</mat-icon>
-      <span>Domibus Properties</span>
+      <span>Properties</span>
     </button>
 
     <div class="collapse-button">

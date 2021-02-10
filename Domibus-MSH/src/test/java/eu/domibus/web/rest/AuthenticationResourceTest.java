@@ -28,7 +28,6 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.AccountStatusException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.CookieClearingLogoutHandler;
@@ -37,8 +36,6 @@ import org.springframework.security.web.authentication.session.CompositeSessionA
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.HashSet;
-import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 
@@ -77,7 +74,7 @@ public class AuthenticationResourceTest {
     protected UserPersistenceService userPersistenceService;
 
     @Injectable
-    private UserService superUserManagementService;
+    private UserService allUserManagementService;
 
     @Injectable
     private UserService userManagementService;
@@ -87,6 +84,7 @@ public class AuthenticationResourceTest {
 
     @Injectable
     CompositeSessionAuthenticationStrategy compositeSessionAuthenticationStrategy;
+
 
     @Mocked
     Logger LOG;
@@ -168,7 +166,7 @@ public class AuthenticationResourceTest {
         new Verifications() {{
             userManagementService.changePassword(loggedUser.getUsername(), changePasswordRO.getCurrentPassword(), changePasswordRO.getNewPassword());
             times = 1;
-            superUserManagementService.changePassword(loggedUser.getUsername(), changePasswordRO.getCurrentPassword(), changePasswordRO.getNewPassword());
+            allUserManagementService.changePassword(loggedUser.getUsername(), changePasswordRO.getCurrentPassword(), changePasswordRO.getNewPassword());
             times = 0;
         }};
 

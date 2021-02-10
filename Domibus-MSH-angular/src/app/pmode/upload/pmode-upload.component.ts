@@ -63,7 +63,7 @@ export class PmodeUploadComponent implements OnInit {
 
       const res = await this.http.post<string>(this.url, input).toPromise();
 
-      this.alertService.success(res, 0);
+      this.alertService.success(res, 10000);
       this.dialogRef.close({done: true});
       this.submitInProgress = false;
     } catch (err) {
@@ -82,7 +82,7 @@ export class PmodeUploadComponent implements OnInit {
   }
 
   canUpload() {
-    return this.hasFile() && this.description.length !== 0 && !this.submitInProgress;
+    return this.hasFile() && this.description && this.description.length !== 0 && !this.submitInProgress;
   }
 
   public shouldShowErrors(field: NgControl | NgForm | AbstractControl): boolean {

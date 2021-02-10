@@ -302,7 +302,8 @@ public class PluginUsersPgTest extends SeleniumTest {
 		
 		soft.assertAll();
 	}
-	
+
+
 	/*PU-13 - Create a certificate plugin userand press save*/
 	@Test(description = "PU-13", groups = {"multiTenancy", "singleTenancy"})
 	public void createCertificatePluginUserSave() throws Exception {
@@ -311,9 +312,10 @@ public class PluginUsersPgTest extends SeleniumTest {
 		log.info("creating plugin user with certificate " + certId);
 		
 		SoftAssert soft = new SoftAssert();
-		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PLUGIN_USERS);
 		PluginUsersPage page = new PluginUsersPage(driver);
-		
+		page.getSidebar().goToPage(PAGES.PLUGIN_USERS);
+		page.grid().waitForRowsToLoad();
+
 		log.info("switching to auth type certificate");
 		page.filters.getAuthTypeSelect().selectOptionByText("CERTIFICATE");
 		page.grid().waitForRowsToLoad();
@@ -336,7 +338,7 @@ public class PluginUsersPgTest extends SeleniumTest {
 		
 		soft.assertAll();
 	}
-	
+
 	/*PU-14 - Create a certificate plugin userand press cancel*/
 	@Test(description = "PU-14", groups = {"multiTenancy", "singleTenancy"})
 	public void createCertificatePluginUserCancel() throws Exception {
@@ -345,9 +347,12 @@ public class PluginUsersPgTest extends SeleniumTest {
 		log.info("creating plugin user with certificate " + certId);
 		
 		SoftAssert soft = new SoftAssert();
-		login(data.getAdminUser()).getSidebar().goToPage(PAGES.PLUGIN_USERS);
-		
+
 		PluginUsersPage page = new PluginUsersPage(driver);
+		page.getSidebar().goToPage(PAGES.PLUGIN_USERS);
+		page.grid().waitForRowsToLoad();
+
+
 		log.info("switching to auth type certificate");
 		page.filters.getAuthTypeSelect().selectOptionByText("CERTIFICATE");
 		page.grid().waitForRowsToLoad();
@@ -459,7 +464,7 @@ public class PluginUsersPgTest extends SeleniumTest {
 		
 		soft.assertAll();
 	}
-	
+
 	/* PU-31 - Check duplicate user addition with same certificate id  */
 	@Test(description = "PU-31", groups = {"multiTenancy", "singleTenancy"})
 	public void certificatePluginUserDuplicateSameDomain() throws Exception {
@@ -471,6 +476,7 @@ public class PluginUsersPgTest extends SeleniumTest {
 		
 		PluginUsersPage page = new PluginUsersPage(driver);
 		page.getSidebar().goToPage(PAGES.PLUGIN_USERS);
+		page.grid().waitForRowsToLoad();
 		
 		page.filters.getAuthTypeSelect().selectOptionByText("CERTIFICATE");
 		page.grid().waitForRowsToLoad();
@@ -559,9 +565,8 @@ public class PluginUsersPgTest extends SeleniumTest {
 	}
 	
 
-	/* Disabled due to existing bug EDELIVERY-7472 */
 	/*	PU-32 - Create duplicate plugin users by smashing the save button multiple times 	*/
-	@Test(description = "PU-32", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "PU-32", groups = {"multiTenancy", "singleTenancy"})
 	public void newUserSaveMultipleSaves() throws Exception {
 		
 		String username = Gen.randomAlphaNumeric(9);

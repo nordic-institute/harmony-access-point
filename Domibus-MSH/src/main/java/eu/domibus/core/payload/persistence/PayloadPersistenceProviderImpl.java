@@ -1,8 +1,8 @@
 package eu.domibus.core.payload.persistence;
 
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
-import eu.domibus.ebms3.common.model.PartInfo;
-import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.api.model.PartInfo;
+import eu.domibus.api.model.UserMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

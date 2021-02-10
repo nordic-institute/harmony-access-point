@@ -1,16 +1,19 @@
 package eu.domibus.core.message.splitandjoin;
 
+import eu.domibus.api.ebms3.model.Ebms3Messaging;
+import eu.domibus.api.model.Error;
+import eu.domibus.api.model.*;
+import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.ErrorCode;
-import eu.domibus.common.MSHRole;
-import eu.domibus.common.MessageStatus;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.Splitting;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.ebms3.receiver.handler.IncomingSourceMessageHandler;
 import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
@@ -26,13 +29,10 @@ import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
-import eu.domibus.ebms3.common.model.Error;
-import eu.domibus.ebms3.common.model.Messaging;
-import eu.domibus.ebms3.common.model.PartInfo;
-import eu.domibus.ebms3.common.model.UserMessage;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.neethi.Policy;
 import org.junit.Assert;
@@ -40,9 +40,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.TransformerException;
@@ -58,13 +56,14 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static eu.domibus.core.message.splitandjoin.SplitAndJoinDefaultService.ERROR_GENERATING_THE_SIGNAL_SOAPMESSAGE_FOR_SOURCE_MESSAGE;
+import static org.junit.Assert.*;
 
 /**
  * @author Cosmin Baciu, Soumya
  * @since 4.1
  */
+@SuppressWarnings({"ResultOfMethodCallIgnored", "unchecked"})
 @RunWith(JMockit.class)
 public class SplitAndJoinDefaultServiceTest {
 
@@ -140,6 +139,9 @@ public class SplitAndJoinDefaultServiceTest {
     @Injectable
     protected ErrorService errorService;
 
+    @Injectable
+    Ebms3Converter ebms3Converter;
+
     @Rule
     public TemporaryFolder testFolder = new TemporaryFolder();
 
@@ -155,7 +157,6 @@ public class SplitAndJoinDefaultServiceTest {
         boolean compression = false;
         String pModeKey = "mykey";
         String sourceMessageId = "123";
-        String groupId = sourceMessageId;
 
 
         List<String> fragmentFiles = new ArrayList<>();
@@ -164,7 +165,7 @@ public class SplitAndJoinDefaultServiceTest {
 
         new Expectations(splitAndJoinDefaultService) {{
             userMessage.getMessageInfo().getMessageId();
-            result = groupId;
+            result = sourceMessageId;
 
             userMessage.getMessageInfo().getMessageId();
             result = sourceMessageId;
@@ -195,13 +196,13 @@ public class SplitAndJoinDefaultServiceTest {
         splitAndJoinDefaultService.createUserFragmentsFromSourceFile(sourceMessageFileName, sourceMessageRequest, userMessage, contentTypeString, compression);
 
         new Verifications() {{
-            MessageGroupEntity messageGroupEntity = null;
+            MessageGroupEntity messageGroupEntity;
             userMessageDefaultService.createMessageFragments(userMessage, messageGroupEntity = withCapture(), fragmentFiles);
 
-            Assert.assertEquals(messageGroupEntity.getFragmentCount().longValue(), 2L);
-            Assert.assertEquals(messageGroupEntity.getSourceMessageId(), sourceMessageId);
-            Assert.assertEquals(messageGroupEntity.getGroupId(), groupId);
-            Assert.assertEquals(messageGroupEntity.getMessageSize(), BigInteger.valueOf(sourceMessageFileLength));
+            Assert.assertEquals(2L, messageGroupEntity.getFragmentCount().longValue());
+            Assert.assertEquals(sourceMessageId, messageGroupEntity.getSourceMessageId());
+            Assert.assertEquals(sourceMessageId, messageGroupEntity.getGroupId());
+            Assert.assertEquals(BigInteger.valueOf(sourceMessageFileLength), messageGroupEntity.getMessageSize());
 
             attachmentCleanupService.cleanAttachments(sourceMessageRequest);
         }};
@@ -209,23 +210,23 @@ public class SplitAndJoinDefaultServiceTest {
 
     @Test
     public void rejoinSourceMessage(@Injectable final SOAPMessage sourceRequest,
+                                    @Injectable final Ebms3Messaging ebms3Messaging,
                                     @Injectable final Messaging messaging,
                                     @Injectable MessageExchangeConfiguration userMessageExchangeConfiguration,
                                     @Injectable LegConfiguration legConfiguration
     ) throws EbMS3Exception, TransformerException, SOAPException {
         String sourceMessageId = "123";
-        String groupId = sourceMessageId;
         String sourceMessageFile = "invoice.pdf";
         String backendName = "mybackend";
         String pModeKey = "mykey";
         String reversePModeKey = "reversemykey";
 
         new Expectations(splitAndJoinDefaultService) {{
-            splitAndJoinDefaultService.rejoinSourceMessage(groupId, (File) any);
+            splitAndJoinDefaultService.rejoinSourceMessage(sourceMessageId, (File) any);
             result = sourceRequest;
 
             messageUtil.getMessage(sourceRequest);
-            result = messaging;
+            result = ebms3Messaging;
 
             pModeProvider.findUserMessageExchangeContext(messaging.getUserMessage(), MSHRole.RECEIVING);
             result = userMessageExchangeConfiguration;
@@ -243,12 +244,12 @@ public class SplitAndJoinDefaultServiceTest {
             result = reversePModeKey;
         }};
 
-        splitAndJoinDefaultService.rejoinSourceMessage(groupId, sourceMessageFile, backendName);
+        splitAndJoinDefaultService.rejoinSourceMessage(sourceMessageId, sourceMessageFile, backendName);
 
         new Verifications() {{
             userMessageHandlerService.handlePayloads(sourceRequest, messaging.getUserMessage());
             messagingService.storePayloads(messaging, MSHRole.RECEIVING, legConfiguration, backendName);
-            messageGroupService.setSourceMessageId(sourceMessageId, groupId);
+            messageGroupService.setSourceMessageId(sourceMessageId, sourceMessageId);
             incomingSourceMessageHandler.processMessage(sourceRequest, messaging);
             userMessageService.scheduleSourceMessageReceipt(sourceMessageId, reversePModeKey);
         }};
@@ -258,12 +259,11 @@ public class SplitAndJoinDefaultServiceTest {
     public void rejoinSourceMessage1(@Injectable File sourceMessageFile,
                                      @Injectable MessageGroupEntity messageGroupEntity) {
         String sourceMessageId = "123";
-        String groupId = sourceMessageId;
         String contentType = "application/xml";
 
 
         new Expectations(splitAndJoinDefaultService) {{
-            messageGroupDao.findByGroupId(groupId);
+            messageGroupDao.findByGroupId(sourceMessageId);
             result = messageGroupEntity;
 
             splitAndJoinDefaultService.createContentType(anyString, anyString);
@@ -272,10 +272,10 @@ public class SplitAndJoinDefaultServiceTest {
             splitAndJoinDefaultService.getUserMessage(sourceMessageFile, contentType);
         }};
 
-        splitAndJoinDefaultService.rejoinSourceMessage(groupId, sourceMessageFile);
+        splitAndJoinDefaultService.rejoinSourceMessage(sourceMessageId, sourceMessageFile);
 
         new Verifications() {{
-            messageGroupDao.findByGroupId(groupId);
+            messageGroupDao.findByGroupId(sourceMessageId);
             times = 1;
 
             splitAndJoinDefaultService.getUserMessage(sourceMessageFile, contentType);
@@ -317,7 +317,7 @@ public class SplitAndJoinDefaultServiceTest {
         splitAndJoinDefaultService.sendSignalError(messageId, ebMS3ErrorCode, errorDetail, pModeKey);
 
         new Verifications() {{
-            Error error = null;
+            Error error;
             messageBuilder.buildSOAPFaultMessage(error = withCapture());
 
             Assert.assertEquals(error.getErrorCode(), ebMS3ErrorCode);
@@ -381,17 +381,13 @@ public class SplitAndJoinDefaultServiceTest {
         final String generateSourceFileName = splitAndJoinDefaultService.generateSourceFileName(directory);
 
         Assert.assertEquals(generateSourceFileName, directory + "/" + uuidValue);
-        ;
     }
 
     @Test
     public void rejoinMessageFragments(@Injectable MessageGroupEntity messageGroupEntity,
                                        @Mocked UserMessage userMessage1,
-                                       @Injectable PartInfo partInfo
-
-    ) {
-        String sourceMessageId = "123";
-        String groupId = sourceMessageId;
+                                       @Injectable PartInfo partInfo) {
+        String groupId = "123";
         String fileName = "invoice.pdf";
 
         List<UserMessage> userMessageFragments = new ArrayList<>();
@@ -422,11 +418,11 @@ public class SplitAndJoinDefaultServiceTest {
         splitAndJoinDefaultService.rejoinMessageFragments(groupId);
 
         new Verifications() {{
-            List<File> fragmentFilesInOrder = null;
+            List<File> fragmentFilesInOrder;
 
             splitAndJoinDefaultService.mergeSourceFile(fragmentFilesInOrder = withCapture(), messageGroupEntity);
 
-            Assert.assertEquals(fragmentFilesInOrder.size(), 1);
+            Assert.assertEquals(1, fragmentFilesInOrder.size());
         }};
     }
 
@@ -479,7 +475,7 @@ public class SplitAndJoinDefaultServiceTest {
 
             messageLog.getMessageStatus();
             result = MessageStatus.ACKNOWLEDGED;
-            ;
+
         }};
 
         splitAndJoinDefaultService.setUserMessageFragmentAsFailed(messageId);
@@ -502,7 +498,7 @@ public class SplitAndJoinDefaultServiceTest {
 
             messageLog.getMessageStatus();
             result = messageStatus;
-            ;
+
         }};
 
         splitAndJoinDefaultService.setUserMessageFragmentAsFailed(messageId);
@@ -644,7 +640,7 @@ public class SplitAndJoinDefaultServiceTest {
 
         final List<MessageGroupEntity> expiredGroups = splitAndJoinDefaultService.getReceivedExpiredGroups(messageGroupEntities);
         assertNotNull(expiredGroups);
-        assertEquals(expiredGroups.size(), 1);
+        assertEquals(1, expiredGroups.size());
         assertEquals(expiredGroups.iterator().next(), group1);
 
 
@@ -653,9 +649,7 @@ public class SplitAndJoinDefaultServiceTest {
     @Test
     public void isReceivedGroupExpired(@Injectable MessageGroupEntity group,
                                        @Injectable UserMessage userMessageFragment) {
-        String sourceMessageId = "123";
-        String groupId = sourceMessageId;
-        String firstFragmentMessageId = "456";
+        String groupId = "123";
 
         final List<UserMessage> fragments = new ArrayList<>();
         fragments.add(userMessageFragment);
@@ -681,13 +675,12 @@ public class SplitAndJoinDefaultServiceTest {
 
     @Test
     public void isSendGroupExpired(@Injectable MessageGroupEntity group,
-                                   @Injectable final UserMessage sourceUserMessage) throws EbMS3Exception {
+                                   @Injectable final UserMessage sourceUserMessage) {
         String sourceMessageId = "123";
-        String groupId = sourceMessageId;
 
         new Expectations(splitAndJoinDefaultService) {{
             group.getGroupId();
-            result = groupId;
+            result = sourceMessageId;
 
             group.getSourceMessageId();
             result = sourceMessageId;
@@ -703,7 +696,7 @@ public class SplitAndJoinDefaultServiceTest {
         Assert.assertTrue(groupExpired);
 
         new Verifications() {{
-            splitAndJoinDefaultService.isGroupExpired(sourceUserMessage, groupId);
+            splitAndJoinDefaultService.isGroupExpired(sourceUserMessage, sourceMessageId);
         }};
 
 
@@ -716,12 +709,11 @@ public class SplitAndJoinDefaultServiceTest {
                                @Mocked Timestamp timestamp,
                                @Injectable UserMessageLog userMessageLog) throws EbMS3Exception {
         String userMessageId = "123";
-        String groupId = userMessageId;
         String pmodeKey = "pModeKey";
 
 
-        final LocalDateTime now = LocalDateTime.of(2019, 01, 01, 12, 10);
-        final LocalDateTime messageTime = LocalDateTime.of(2019, 01, 01, 12, 5);
+        final LocalDateTime now = LocalDateTime.of(2019, 1, 1, 12, 10);
+        final LocalDateTime messageTime = LocalDateTime.of(2019, 1, 1, 12, 5);
 
         new Expectations(LocalDateTime.class) {{
             LocalDateTime.now();
@@ -752,15 +744,14 @@ public class SplitAndJoinDefaultServiceTest {
             result = messageTime;
         }};
 
-        final boolean groupExpired = splitAndJoinDefaultService.isGroupExpired(userMessage, groupId);
+        final boolean groupExpired = splitAndJoinDefaultService.isGroupExpired(userMessage, userMessageId);
         Assert.assertTrue(groupExpired);
 
     }
 
     @Test
     public void messageFragmentSendFailed(@Injectable UserMessage userMessage) {
-        String sourceMessageId = "123";
-        String groupId = sourceMessageId;
+        String groupId = "123";
 
         final List<UserMessage> fragments = new ArrayList<>();
         fragments.add(userMessage);
@@ -782,8 +773,7 @@ public class SplitAndJoinDefaultServiceTest {
     @Test
     public void sendSplitAndJoinFailed(@Injectable UserMessage userMessage,
                                        @Injectable MessageGroupEntity messageGroupEntity) {
-        String sourceMessageId = "123";
-        String groupId = sourceMessageId;
+        String groupId = "123";
 
         new Expectations() {{
             messageGroupDao.findByGroupId(groupId);
@@ -807,11 +797,97 @@ public class SplitAndJoinDefaultServiceTest {
     }
 
     @Test
+    public void splitAndJoinReceiveFailed_messageGroupEntity_null() {
+        String groupId = "123";
+        final String ebMS3ErrorCode = "004";
+        final String errorDetail = "Random error";
+
+        new Expectations() {{
+            messageGroupDao.findByGroupId(groupId);
+            result = null;
+        }};
+
+        splitAndJoinDefaultService.splitAndJoinReceiveFailed(groupId, groupId, ebMS3ErrorCode, errorDetail);
+
+        new FullVerifications() {
+        };
+    }
+
+    @Test
+    public void splitAndJoinReceiveFailed_noUserMessages(@Injectable MessageGroupEntity messageGroupEntity) {
+        String groupId = "123";
+        final String ebMS3ErrorCode = "004";
+        final String errorDetail = "Random error";
+
+        new Expectations() {{
+            messageGroupDao.findByGroupId(groupId);
+            result = messageGroupEntity;
+
+            messagingDao.findUserMessageByGroupId(groupId);
+            result = null;
+        }};
+
+        try {
+            splitAndJoinDefaultService.splitAndJoinReceiveFailed(groupId, groupId, ebMS3ErrorCode, errorDetail);
+            fail();
+        } catch (SplitAndJoinException e) {
+            assertTrue(StringUtils.containsIgnoreCase(e.getMessage(), ERROR_GENERATING_THE_SIGNAL_SOAPMESSAGE_FOR_SOURCE_MESSAGE));
+        }
+
+        new FullVerifications() {{
+            messageGroupEntity.setRejected(true);
+            messageGroupDao.update(messageGroupEntity);
+        }};
+    }
+
+    @Test
+    public void splitAndJoinReceiveFailed_exception(
+            @Injectable UserMessage fragment,
+            @Injectable MessageGroupEntity messageGroupEntity,
+            @Injectable MessageExchangeConfiguration userMessageExchangeContext,
+            @Injectable LegConfiguration legConfiguration,
+            @Injectable EbMS3Exception exception) throws EbMS3Exception {
+        String groupId = "123";
+        final String ebMS3ErrorCode = "004";
+        final String errorDetail = "Random error";
+
+        final List<UserMessage> fragments = new ArrayList<>();
+        fragments.add(fragment);
+
+        new Expectations() {{
+            messageGroupDao.findByGroupId(groupId);
+            result = messageGroupEntity;
+
+            messagingDao.findUserMessageByGroupId(groupId);
+            result = fragments;
+
+            pModeProvider.findUserMessageExchangeContext(fragment, MSHRole.RECEIVING);
+            result = exception;
+        }};
+
+
+        try {
+            splitAndJoinDefaultService.splitAndJoinReceiveFailed(groupId, groupId, ebMS3ErrorCode, errorDetail);
+            fail();
+        } catch (SplitAndJoinException e) {
+            assertTrue(StringUtils.containsIgnoreCase(e.getMessage(), ERROR_GENERATING_THE_SIGNAL_SOAPMESSAGE_FOR_SOURCE_MESSAGE));
+        }
+
+        new FullVerifications() {{
+            messageGroupEntity.setRejected(true);
+            messageGroupDao.update(messageGroupEntity);
+
+            List<UserMessage> messageIds;
+            messageRetentionService.scheduleDeleteMessages(messageIds = withCapture());
+            assertEquals(1, messageIds.size());
+        }};
+    }
+
+    @Test
     public void splitAndJoinReceiveFailed(@Injectable UserMessage fragment,
                                           @Injectable MessageGroupEntity messageGroupEntity,
                                           @Injectable MessageExchangeConfiguration userMessageExchangeContext,
                                           @Injectable LegConfiguration legConfiguration) throws EbMS3Exception {
-        String fragmentId = "456";
         String groupId = "123";
         final String ebMS3ErrorCode = "004";
         final String errorDetail = "Random error";
@@ -827,9 +903,6 @@ public class SplitAndJoinDefaultServiceTest {
             messagingDao.findUserMessageByGroupId(groupId);
             result = fragments;
 
-            fragment.getMessageInfo().getMessageId();
-            result = fragmentId;
-
             pModeProvider.findUserMessageExchangeContext(fragment, MSHRole.RECEIVING);
             result = userMessageExchangeContext;
 
@@ -840,13 +913,13 @@ public class SplitAndJoinDefaultServiceTest {
 
         splitAndJoinDefaultService.splitAndJoinReceiveFailed(groupId, groupId, ebMS3ErrorCode, errorDetail);
 
-        new Verifications() {{
+        new FullVerifications() {{
             messageGroupEntity.setRejected(true);
             messageGroupDao.update(messageGroupEntity);
 
-            List<String> messageIds = null;
+            List<UserMessage> messageIds;
             messageRetentionService.scheduleDeleteMessages(messageIds = withCapture());
-            Assert.assertTrue(messageIds.contains(fragmentId));
+            assertEquals(1, messageIds.size());
 
             userMessageDefaultService.scheduleSendingSignalError(groupId, ebMS3ErrorCode, errorDetail, reversePmodeKey);
         }};
@@ -933,7 +1006,7 @@ public class SplitAndJoinDefaultServiceTest {
         FileUtils.writeByteArrayToFile(tempFile, b);
 
         final List<String> fragmentFiles = splitAndJoinDefaultService.splitSourceMessage(tempFile, 1);
-        Assert.assertEquals(fragmentFiles.size(), 2);
+        Assert.assertEquals(2, fragmentFiles.size());
         Assert.assertTrue(fragmentFiles.stream().anyMatch(s -> s.contains("file.txt_1")));
         Assert.assertTrue(fragmentFiles.stream().anyMatch(s -> s.contains("file.txt_2")));
     }
@@ -980,8 +1053,10 @@ public class SplitAndJoinDefaultServiceTest {
         }};
 
         final File result = splitAndJoinDefaultService.mergeSourceFile(fragmentFilesInOrder, messageGroupEntity);
+
+        assertNotNull(result);
         new Verifications() {{
-            OutputStream outputStream = null;
+            OutputStream outputStream;
             splitAndJoinDefaultService.mergeFiles(fragmentFilesInOrder, outputStream = withCapture());
             Assert.assertTrue(outputStream instanceof FileOutputStream);
         }};
@@ -1015,7 +1090,7 @@ public class SplitAndJoinDefaultServiceTest {
                                @Injectable InputStream inputStream,
                                @Injectable MessageImpl messageImpl,
                                @Injectable MessageGroupEntity messageGroupEntity,
-                               @Injectable final SOAPMessage soapMessage) throws IOException, SAXException, ParserConfigurationException, SOAPException, TransformerException {
+                               @Injectable final SOAPMessage soapMessage) throws IOException {
         File sourceMessageFileName = testFolder.newFile("file1.txt");
         final String text1 = "text1";
         FileUtils.writeStringToFile(sourceMessageFileName, text1, Charset.defaultCharset());
@@ -1031,6 +1106,7 @@ public class SplitAndJoinDefaultServiceTest {
     }
 
 
+    @SuppressWarnings("AccessStaticViaInstance")
     @Test
     public void mergeFilesTest(@Mocked File file1,
                                @Mocked File file2,

@@ -4,7 +4,7 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.PayloadProfile;
-import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

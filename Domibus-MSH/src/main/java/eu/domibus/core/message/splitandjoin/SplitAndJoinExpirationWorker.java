@@ -32,17 +32,15 @@ public class SplitAndJoinExpirationWorker extends DomibusQuartzJobBean {
 
     @Override
     protected void executeJob(JobExecutionContext context, Domain domain) {
-        LOG.debug("SplitAndJoinExpirationWorker executed");
-
-        authUtils.runWithSecurityContext(this::executeJob,
-                "splitAndJoinExpiration_user", "splitAndJoinExpiration_password");
-    }
-
-    protected void executeJob() {
         if (!configurationDAO.configurationExists()) {
             LOG.debug("Could not checked for expired SplitAndJoin messages: PMode is not configured");
             return;
         }
         splitAndJoinService.handleExpiredGroups();
+    }
+
+    @Override
+    protected void setQuartzJobSecurityContext() {
+        authUtils.setAuthenticationToSecurityContext("splitAndJoinExpiration_user", "splitAndJoinExpiration_password");
     }
 }

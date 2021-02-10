@@ -9,7 +9,6 @@ import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusConfigurationService;
-import eu.domibus.api.user.UserBase;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
@@ -127,6 +126,27 @@ public class SignalServiceImpl implements SignalService {
         Map<String, String> commandProperties = new HashMap<>();
         commandProperties.put(Command.COMMAND, Command.USER_SESSION_INVALIDATION);
         commandProperties.put(CommandProperty.USER_NAME, userName);
+
+        sendMessage(commandProperties);
+    }
+
+    @Override
+    public void signalClearCaches() {
+        String domainCode = domainContextProvider.getCurrentDomain().getCode();
+
+        LOG.debug("Signaling clearing caches [{}] domain", domainCode);
+
+        Map<String, String> commandProperties = new HashMap<>();
+        commandProperties.put(Command.COMMAND, Command.EVICT_CACHES);
+        commandProperties.put(MessageConstants.DOMAIN, domainCode);
+        sendMessage(commandProperties);
+    }
+
+    @Override
+    public void signalTLSTrustStoreUpdate(Domain domain) {
+        Map<String, String> commandProperties = new HashMap<>();
+        commandProperties.put(Command.COMMAND, Command.RELOAD_TLS_TRUSTSTORE);
+        commandProperties.put(MessageConstants.DOMAIN, domain.getCode());
 
         sendMessage(commandProperties);
     }

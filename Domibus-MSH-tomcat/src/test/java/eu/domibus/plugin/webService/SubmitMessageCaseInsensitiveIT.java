@@ -19,9 +19,11 @@ import java.sql.SQLException;
 /**
  * @author venugar
  * @since 3.3
+ * @deprecated to be removed when deprecated endpoint /backend is removed
  */
 @DirtiesContext
 @Rollback
+@Deprecated
 public class SubmitMessageCaseInsensitiveIT extends AbstractBackendWSIT {
 
 

@@ -3,7 +3,7 @@ package eu.domibus.plugin.webService;
 
 import eu.domibus.AbstractBackendWSIT;
 import eu.domibus.common.ErrorCode;
-import eu.domibus.common.MSHRole;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.plugin.webService.generated.ErrorResultImplArray;
@@ -21,9 +21,11 @@ import java.util.Date;
  * This JUNIT implements the Test cases Get Message Errors-01 and Get Message Errors-02.
  *
  * @author martifp
+ * @deprecated to be removed when deprecated endpoint /backend is removed
  */
 @DirtiesContext
 @Rollback
+@Deprecated
 public class GetMessageErrorsIT extends AbstractBackendWSIT {
 
     @Autowired

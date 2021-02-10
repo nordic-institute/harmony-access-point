@@ -1,5 +1,6 @@
 package eu.domibus.core.converter;
 
+import com.google.gson.Gson;
 import eu.domibus.api.audit.AuditLog;
 import eu.domibus.api.cluster.Command;
 import eu.domibus.api.converter.ConverterException;
@@ -10,6 +11,7 @@ import eu.domibus.api.pmode.PModeArchiveInfo;
 import eu.domibus.api.process.Process;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.routing.RoutingCriteria;
+import eu.domibus.api.security.AuthType;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.user.User;
 import eu.domibus.api.usermessage.domain.CollaborationInfo;
@@ -21,15 +23,15 @@ import eu.domibus.core.audit.model.Audit;
 import eu.domibus.core.audit.model.mapper.AuditMapper;
 import eu.domibus.core.audit.model.mapper.AuditMapperImpl;
 import eu.domibus.core.clustering.CommandEntity;
-import eu.domibus.core.crypto.api.CertificateEntry;
+import eu.domibus.api.pki.CertificateEntry;
 import eu.domibus.core.crypto.spi.CertificateEntrySpi;
 import eu.domibus.core.crypto.spi.DomainSpi;
 import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.logging.LoggingEntry;
 import eu.domibus.core.message.MessageLogInfo;
-import eu.domibus.core.message.UserMessageLog;
+import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.core.message.attempt.MessageAttemptEntity;
-import eu.domibus.core.message.signal.SignalMessageLog;
+import eu.domibus.api.model.SignalMessageLog;
 import eu.domibus.core.party.PartyResponseRo;
 import eu.domibus.core.party.ProcessRo;
 import eu.domibus.core.plugin.routing.BackendFilterEntity;
@@ -38,13 +40,14 @@ import eu.domibus.core.replication.UIMessageDiffEntity;
 import eu.domibus.core.replication.UIMessageEntity;
 import eu.domibus.core.user.plugin.AuthenticationEntity;
 import eu.domibus.core.util.DateUtilImpl;
-import eu.domibus.ebms3.common.model.PartProperties;
-import eu.domibus.ebms3.common.model.Property;
-import eu.domibus.ebms3.common.model.PullRequest;
-import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.api.model.PartProperties;
+import eu.domibus.api.model.Property;
+import eu.domibus.api.model.PullRequest;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.ext.domain.*;
 import eu.domibus.web.rest.ro.*;
 import eu.europa.ec.digit.commons.test.api.ObjectService;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -213,13 +216,17 @@ public class DomainCoreDefaultConverterTest {
     @Test
     public void testConvertPluginUserRO() throws Exception {
         PluginUserRO toConvert = (PluginUserRO) objectService.createInstance(PluginUserRO.class);
+        toConvert.setCertificateId(null);
+        toConvert.setAuthenticationType(AuthType.BASIC.name());
         final AuthenticationEntity converted = domainCoreConverter.convert(toConvert, AuthenticationEntity.class);
         final PluginUserRO convertedBack = domainCoreConverter.convert(converted, PluginUserRO.class);
         convertedBack.setSuspended(true);
         convertedBack.setStatus("status");
-        convertedBack.setAuthenticationType("authenticationType");
+        convertedBack.setAuthenticationType(AuthType.BASIC.name());
         convertedBack.setDomain("domain");
-        objectService.assertObjects(convertedBack, toConvert);
+
+        Gson gson = new Gson();
+        Assert.assertEquals(gson.toJson(toConvert), gson.toJson(convertedBack));
     }
 
     @Test
@@ -350,6 +357,9 @@ public class DomainCoreDefaultConverterTest {
         final UIMessageEntity convertedBack = domainCoreConverter.convert(converted, UIMessageEntity.class);
         convertedBack.setLastModified(toConvert.getLastModified());
         convertedBack.setEntityId(toConvert.getEntityId());
+        convertedBack.setAction(toConvert.getAction());
+        convertedBack.setServiceType(toConvert.getServiceType());
+        convertedBack.setServiceValue(toConvert.getServiceValue());
         objectService.assertObjects(convertedBack, toConvert);
     }
 
@@ -385,6 +395,9 @@ public class DomainCoreDefaultConverterTest {
         convertedBack.setFromScheme(toConvert.getFromScheme());
         convertedBack.setToScheme(toConvert.getToScheme());
         convertedBack.setLastModified(toConvert.getLastModified());
+        convertedBack.setServiceType(toConvert.getServiceType());
+        convertedBack.setServiceValue(toConvert.getServiceValue());
+        convertedBack.setAction(toConvert.getAction());
         objectService.assertObjects(convertedBack, toConvert);
     }
 
@@ -399,6 +412,9 @@ public class DomainCoreDefaultConverterTest {
         convertedBack.setFromScheme(toConvert.getFromScheme());
         convertedBack.setToScheme(toConvert.getToScheme());
         convertedBack.setLastModified(toConvert.getLastModified());
+        convertedBack.setAction(toConvert.getAction());
+        convertedBack.setServiceType(toConvert.getServiceType());
+        convertedBack.setServiceValue(toConvert.getServiceValue());
         objectService.assertObjects(convertedBack, toConvert);
     }
 

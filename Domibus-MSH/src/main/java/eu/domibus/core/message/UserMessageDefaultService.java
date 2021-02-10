@@ -1,5 +1,6 @@
 package eu.domibus.core.message;
 
+import eu.domibus.api.model.*;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JMSMessageBuilder;
@@ -7,6 +8,7 @@ import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.message.UserMessageException;
 import eu.domibus.api.messaging.MessageNotFoundException;
 import eu.domibus.api.messaging.MessagingException;
+import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pmode.PModeService;
 import eu.domibus.api.pmode.PModeServiceHelper;
@@ -14,8 +16,6 @@ import eu.domibus.api.pmode.domain.LegConfiguration;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.api.util.DateUtil;
-import eu.domibus.common.MSHRole;
-import eu.domibus.common.MessageStatus;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.converter.DomainCoreConverter;
@@ -32,7 +32,6 @@ import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.message.splitandjoin.MessageGroupDao;
-import eu.domibus.core.message.splitandjoin.MessageGroupEntity;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinException;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
@@ -41,9 +40,6 @@ import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.replication.UIMessageDao;
 import eu.domibus.core.replication.UIReplicationSignalService;
-import eu.domibus.ebms3.common.model.Messaging;
-import eu.domibus.ebms3.common.model.PartInfo;
-import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.MDCKey;
@@ -63,9 +59,7 @@ import javax.jms.Queue;
 import java.io.*;
 import java.sql.Timestamp;
 import java.util.*;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -113,6 +107,9 @@ public class UserMessageDefaultService implements UserMessageService {
 
     @Autowired
     private SignalMessageDao signalMessageDao;
+
+    @Autowired
+    private PropertyDao propertyDao;
 
     @Autowired
     private MessageAttemptDao messageAttemptDao;
@@ -217,6 +214,16 @@ public class UserMessageDefaultService implements UserMessageService {
             return null;
         }
         return userMessageServiceHelper.getFinalRecipient(userMessage);
+    }
+
+    @Override
+    public String getOriginalSender(String messageId) {
+        final UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
+        if (userMessage == null) {
+            LOG.debug("Message [{}] does not exist", messageId);
+            return null;
+        }
+        return userMessageServiceHelper.getOriginalSender(userMessage);
     }
 
     @Override
@@ -535,7 +542,7 @@ public class UserMessageDefaultService implements UserMessageService {
         if (failedMessages == null) {
             return null;
         }
-        LOG.debug("Found failed messages [{}] using start date [{}], end date [{}] and final recipient", failedMessages, start, end, finalRecipient);
+        LOG.debug("Found failed messages [{}] using start date [{}], end date [{}] and final recipient [{}]", failedMessages, start, end, finalRecipient);
 
         final List<String> restoredMessages = new ArrayList<>();
         for (String messageId : failedMessages) {
@@ -547,7 +554,7 @@ public class UserMessageDefaultService implements UserMessageService {
             }
         }
 
-        LOG.debug("Restored messages [{}] using start date [{}], end date [{}] and final recipient", restoredMessages, start, end, finalRecipient);
+        LOG.debug("Restored messages [{}] using start date [{}], end date [{}] and final recipient [{}]", restoredMessages, start, end, finalRecipient);
 
         return restoredMessages;
     }
@@ -600,7 +607,10 @@ public class UserMessageDefaultService implements UserMessageService {
     @Transactional(propagation = Propagation.REQUIRED)
     public void deleteMessages(List<UserMessageLogDto> userMessageLogs) {
 
-        List<String> userMessageIds = userMessageLogs.stream().map(userMessageLog -> userMessageLog.getMessageId()).collect(Collectors.toList());
+        List<String> userMessageIds = userMessageLogs
+                .stream()
+                .map(UserMessageLogDto::getMessageId)
+                .collect(Collectors.toList());
 
         LOG.debug("Deleting [{}] user messages", userMessageIds.size());
         LOG.trace("Deleting user messages [{}]", userMessageIds);
@@ -756,5 +766,13 @@ public class UserMessageDefaultService implements UserMessageService {
             zipOutputStream.flush();
             return byteArrayOutputStream.toByteArray();
         }
+    }
+
+    @Override
+    public Map<String,String> getProperties(String messageId) {
+        HashMap<String, String> properties = new HashMap<>();
+        List<Property> propertiesForMessageId = propertyDao.findMessagePropertiesForMessageId(messageId);
+        propertiesForMessageId.forEach(property -> properties.put(property.getName(), property.getValue()));
+        return properties;
     }
 }

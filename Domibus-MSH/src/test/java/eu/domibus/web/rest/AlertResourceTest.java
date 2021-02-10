@@ -378,22 +378,6 @@ public class AlertResourceTest {
     }
 
     @Test
-    public void transform(@Injectable Alert alert,@Injectable AlertRo alertRo) {
-        new Expectations(alertResource) {{
-            alert.getAlertType().name();
-            result = AlertType.USER_LOGIN_FAILURE;
-        }};
-
-        alertRo = alertResource.transform(alert);
-
-        AlertRo finalAlertRo = alertRo;
-        new Verifications(1) {{
-            assertNotNull(finalAlertRo);
-            assertEquals("USER_LOGIN_FAILURE", finalAlertRo.getAlertType());
-        }};
-    }
-
-    @Test
     public void test_getAlertTypesAsStrings() {
         new Expectations() {{
             domibusConfigurationService.isExtAuthProviderEnabled();
@@ -415,5 +399,22 @@ public class AlertResourceTest {
         List<String> alertTypesAsStrings = alertResource.getAlertTypesAsStrings();
         assertEquals(8, alertTypesAsStrings.size());
         assertFalse(alertTypesAsStrings.containsAll(AlertResource.forbiddenAlertTypesExtAuthProvider.stream().map(alertType -> alertType.name()).collect(Collectors.toSet())));
+    }
+
+    @Test
+    public void getExcludedColumns() {
+        List<String> excludedCert = alertResource.getExcludedColumns(true);
+        assertEquals(excludedCert.size(), 3);
+        Set<String> set1 = new HashSet<>(Arrays.asList("alertDescription", "deleted", "superAdmin"));
+        boolean containsAll = excludedCert.stream().map(Object::toString)
+                .anyMatch(s -> set1.remove(s) && set1.isEmpty());
+        assertTrue("Checking excluded columns in ST mode:", containsAll);
+
+        excludedCert = alertResource.getExcludedColumns(false);
+        assertEquals(excludedCert.size(), 2);
+        Set<String> set2 = new HashSet<>(Arrays.asList("superAdmin"));
+        containsAll = excludedCert.stream().map(Object::toString)
+                .anyMatch(s -> set2.remove(s) && set2.isEmpty());
+        assertFalse("Checking excluded columns in MT mode:", containsAll);
     }
 }

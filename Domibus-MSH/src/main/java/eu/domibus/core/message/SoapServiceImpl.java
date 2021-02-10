@@ -1,11 +1,11 @@
 package eu.domibus.core.message;
 
+import eu.domibus.api.ebms3.model.Ebms3Messaging;
+import eu.domibus.api.ebms3.model.ObjectFactory;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
-import eu.domibus.ebms3.common.model.Messaging;
-import eu.domibus.ebms3.common.model.ObjectFactory;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.binding.soap.SoapMessage;
@@ -44,7 +44,7 @@ public class SoapServiceImpl implements SoapService {
     protected SoapUtil soapUtil;
 
 
-    public Messaging getMessage(final SoapMessage message) throws IOException, EbMS3Exception {
+    public Ebms3Messaging getMessage(final SoapMessage message) throws IOException, EbMS3Exception {
         final Node messagingNode = getMessagingNode(message);
         if (messagingNode == null) {
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Messaging header is empty!", null, null);
@@ -57,6 +57,7 @@ public class SoapServiceImpl implements SoapService {
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Messaging header is empty!", null, e);
         }
     }
+
     public String getMessagingAsRAWXml(final SoapMessage message) throws IOException, EbMS3Exception, TransformerException {
         final Node messagingNode = getMessagingNode(message);
 
@@ -80,8 +81,6 @@ public class SoapServiceImpl implements SoapService {
         message.setContent(InputStream.class, new ByteArrayInputStream(data));
         return soapEnvelope.getElementsByTagNameNS(ObjectFactory._Messaging_QNAME.getNamespaceURI(), ObjectFactory._Messaging_QNAME.getLocalPart()).item(0);
     }
-
-
 }
 
 

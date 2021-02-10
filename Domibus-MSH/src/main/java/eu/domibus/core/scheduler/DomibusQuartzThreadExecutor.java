@@ -2,7 +2,7 @@ package eu.domibus.core.scheduler;
 
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.core.spring.SpringContextProvider;
+import eu.domibus.api.spring.SpringContextProvider;
 import org.quartz.spi.ThreadExecutor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;

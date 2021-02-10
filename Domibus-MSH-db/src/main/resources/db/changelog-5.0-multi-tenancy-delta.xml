@@ -6,11 +6,20 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
 
     <!-- properties - to be used in column definitions -->
-    <property name="now" value="sysdate" dbms="oracle"/>
-    <property name="now" value="now()" dbms="mysql"/>
-    <property name="current_db_user" value="user" dbms="oracle"/>
-    <!-- MySQL cannot handle functions as DEFAULT values and the alternative would be to add a trigger for all these
-    tables. Either way this value will most probably never be used since a value will always be provided at runtime.-->
-    <property name="current_db_user" value="'DOMIBUS'" dbms="mysql"/>
+    <include file="common/changelog-properties.xml" relativeToChangelogFile="true"/>
+
+    <changeSet id="EDELIVERY-7668"  author="Catalin Enache">
+        <createTable tableName="TB_VERSION" remarks="Stores Domibus version">
+            <column name="VERSION" type="VARCHAR(30)" remarks="Domibus Version"/>
+            <column name="BUILD_TIME" type="VARCHAR(30)" remarks="Domibus BuildTime"/>
+            <column name="CREATION_TIME" type="TIMESTAMP" defaultValueComputed="${now}" remarks="The date and time when this record was created">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint columnNames="VERSION" tableName="TB_VERSION" constraintName="UQ_VERSION" />
+    </changeSet>
+
+    <!-- this file must be included in every future changelog-xx-delta.xml -->
+    <include file="common/changelog-version-inserts.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>

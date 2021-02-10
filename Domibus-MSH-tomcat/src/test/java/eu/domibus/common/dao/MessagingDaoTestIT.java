@@ -1,8 +1,9 @@
 package eu.domibus.common.dao;
 
+import eu.domibus.api.model.MessageStatus;
 import eu.domibus.AbstractIT;
-import eu.domibus.common.MSHRole;
-import eu.domibus.common.MessageStatus;
+import eu.domibus.api.model.*;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.model.configuration.Identifier;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.PartyIdType;
@@ -10,7 +11,6 @@ import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.UserMessageLogEntityBuilder;
 import eu.domibus.core.message.pull.MessagePullDto;
 import eu.domibus.core.party.PartyDao;
-import eu.domibus.ebms3.common.model.*;
 import eu.domibus.test.util.PojoInstaciatorUtil;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;

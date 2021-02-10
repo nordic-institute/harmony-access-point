@@ -66,6 +66,9 @@ public class PasswordEncryptionServiceImplTest {
     protected PasswordEncryptionContextFactory passwordEncryptionContextFactory;
 
     @Injectable
+    PasswordDecryptionHelper passwordDecryptionHelper;
+
+    @Injectable
     DomainContextProvider domainContextProvider;
 
     @Tested
@@ -131,11 +134,6 @@ public class PasswordEncryptionServiceImplTest {
     @Test
     public void isValueEncryptedWithNonEncryptedValue() {
         Assert.assertFalse(passwordEncryptionService.isValueEncrypted("nonEncrypted"));
-    }
-
-    @Test
-    public void isValueEncryptedWithEncryptedValue() {
-        Assert.assertTrue(passwordEncryptionService.isValueEncrypted("ENC(nonEncrypted)"));
     }
 
     @Test
@@ -329,107 +327,6 @@ public class PasswordEncryptionServiceImplTest {
     }
 
     @Test
-    public void decryptProperty(@Injectable PasswordEncryptionContext passwordEncryptionContext,
-                                @Injectable File encryptedKeyFile,
-                                @Injectable PasswordEncryptionSecret secret,
-                                @Injectable SecretKey secretKey,
-                                @Injectable GCMParameterSpec secretKeySpec,
-                                @Mocked Base64 base64,
-                                @Injectable Domain domain) {
-        String propertyName = "myProperty";
-        String encryptedFormatValue = PasswordEncryptionServiceImpl.ENC_START + "myValue" + PasswordEncryptionServiceImpl.ENC_END;
-
-        new Expectations(passwordEncryptionService) {{
-            passwordEncryptionContextFactory.getPasswordEncryptionContext(domain);
-            result = passwordEncryptionContext;
-
-            passwordEncryptionContext.getEncryptedKeyFile();
-            result = encryptedKeyFile;
-
-            passwordEncryptionService.decryptProperty(encryptedKeyFile, propertyName, encryptedFormatValue);
-        }};
-
-        passwordEncryptionService.decryptProperty(domain, propertyName, encryptedFormatValue);
-
-        new FullVerifications() {{
-            passwordEncryptionService.decryptProperty(encryptedKeyFile, propertyName, encryptedFormatValue);
-            times = 1;
-        }};
-    }
-
-    @Test
-    public void decryptProperty1(@Injectable PasswordEncryptionContext passwordEncryptionContext,
-                                 @Injectable File encryptedKeyFile,
-                                 @Injectable PasswordEncryptionSecret secret,
-                                 @Injectable SecretKey secretKey,
-                                 @Injectable GCMParameterSpec secretKeySpec,
-                                 @Mocked Base64 base64) {
-        String propertyName = "myProperty";
-        String encryptedFormatValue = PasswordEncryptionServiceImpl.ENC_START + "myValue" + PasswordEncryptionServiceImpl.ENC_END;
-        byte[] encryptedValue = new byte[2];
-
-        new Expectations(passwordEncryptionService) {{
-            passwordEncryptionService.isValueEncrypted(encryptedFormatValue);
-            result = true;
-
-            passwordEncryptionDao.getSecret(encryptedKeyFile);
-            result = secret;
-
-            secret.getSecretKey();
-            result = "".getBytes();
-
-            secret.getInitVector();
-            result = "".getBytes();
-
-            encryptionUtil.getSecretKey((byte[]) any);
-            result = secretKey;
-
-            encryptionUtil.getSecretKeySpec((byte[]) any);
-            result = secretKeySpec;
-
-            passwordEncryptionService.extractValueFromEncryptedFormat(encryptedFormatValue);
-            result = "base64Value";
-
-            Base64.decodeBase64("base64Value");
-            result = encryptedValue;
-
-            encryptionUtil.decrypt(encryptedValue, secretKey, secretKeySpec);
-            result = "result";
-        }};
-
-        String actual = passwordEncryptionService.decryptProperty(encryptedKeyFile, propertyName, encryptedFormatValue);
-
-        assertEquals("result", actual);
-
-        new FullVerifications() {
-        };
-    }
-
-    @Test
-    public void decryptProperty_notEncrypted(@Injectable PasswordEncryptionContext passwordEncryptionContext,
-                                             @Injectable File encryptedKeyFile,
-                                             @Injectable PasswordEncryptionSecret secret,
-                                             @Injectable SecretKey secretKey,
-                                             @Injectable GCMParameterSpec secretKeySpec,
-                                             @Mocked Base64 base64) {
-        String propertyName = "myProperty";
-        String encryptedFormatValue = PasswordEncryptionServiceImpl.ENC_START + "myValue" + PasswordEncryptionServiceImpl.ENC_END;
-        byte[] encryptedValue = new byte[2];
-
-        new Expectations(passwordEncryptionService) {{
-            passwordEncryptionService.isValueEncrypted(encryptedFormatValue);
-            result = false;
-        }};
-
-        String actual = passwordEncryptionService.decryptProperty(encryptedKeyFile, propertyName, encryptedFormatValue);
-
-        assertEquals(encryptedFormatValue, actual);
-
-        new FullVerifications() {
-        };
-    }
-
-    @Test
     public void encryptProperty(@Injectable PasswordEncryptionContext passwordEncryptionContext,
                                 @Injectable File encryptedKeyFile,
                                 @Injectable PasswordEncryptionSecret secret,
@@ -445,7 +342,7 @@ public class PasswordEncryptionServiceImplTest {
             passwordEncryptionContext.getProperty(propertyName);
             result = propertyValue;
 
-            passwordEncryptionService.isValueEncrypted(propertyValue);
+            passwordDecryptionHelper.isValueEncrypted(propertyValue);
             result = false;
 
             encryptionUtil.encrypt((byte[]) any, secretKey, secretKeySpec);
@@ -867,6 +764,11 @@ public class PasswordEncryptionServiceImplTest {
 
     @Test
     public void encryptProperty_blankProperty() {
+        new Expectations() {{
+            passwordDecryptionHelper.isValueEncrypted(anyString);
+            result = true;
+        }};
+
         assertNull(passwordEncryptionService.encryptProperty(null, null, "", "ENC(alreadyEncoded)"));
     }
 

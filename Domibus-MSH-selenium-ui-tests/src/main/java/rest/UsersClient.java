@@ -6,6 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import utils.Gen;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,12 +23,12 @@ public class UsersClient extends BaseRestClient {
 	public JSONArray getUsers(String domain) throws Exception {
 		
 		switchDomain(domain);
-		
+
 		ClientResponse response = requestGET(resource.path(RestServicePaths.USERS), null);
 		if (response.getStatus() != 200) {
 			throw new DomibusRestException("Could not get users ", response);
 		}
-		
+
 		try {
 			String rawResp = response.getEntity(String.class);
 			return new JSONArray(sanitizeResponse(rawResp));
@@ -36,6 +37,64 @@ public class UsersClient extends BaseRestClient {
 		}
 		return null;
 	}
+
+	public JSONObject getUser(String domain, String username) throws Exception {
+		log.info("getting user " + username);
+		JSONArray users = getUsers(domain);
+
+		for (int i = 0; i < users.length(); i++) {
+			JSONObject user = users.getJSONObject(i);
+			String curUsername = user.getString("userName");
+
+			if(StringUtils.equalsIgnoreCase(username, curUsername)){
+				log.info("found and returned: " + user.toString());
+				return user;
+			}
+		}
+
+		log.info("could not find user " + username);
+		return null;
+	}
+
+	public void changePassForUser(String domain, String username, String newPass) throws Exception {
+		log.info("getting user " + username);
+		JSONArray users = getUsers(domain);
+		JSONObject user = null;
+
+		for (int i = 0; i < users.length(); i++) {
+			JSONObject u = users.getJSONObject(i);
+			String curUsername = u.getString("userName");
+
+			if(StringUtils.equalsIgnoreCase(username, curUsername)){
+				log.info("found and returned: " + u.toString());
+				user = u;
+				break;
+			}
+		}
+
+		if(null == user) {
+			log.info("could not find user " + username);
+			return;
+		}
+
+		user.put("password", newPass);
+		user.put("status", "UPDATED");
+		user.put("domainName", domain);
+
+		JSONArray toUpdate = new JSONArray();
+		toUpdate.put(user);
+
+		switchDomain(domain);
+		ClientResponse response = putUser(toUpdate, domain);
+		if(response.getStatus() < 300){
+			log.info("change saved");
+		}else {
+			throw new DomibusRestException("Updating user password failed!!!", response);
+		}
+
+	}
+
+
 	
 	public List<String> getUsernameList(String domain) throws Exception {
 		List<String> usernameList = new ArrayList<>();
@@ -78,9 +137,30 @@ public class UsersClient extends BaseRestClient {
 			domain = "default";
 		}
 		
-		String payload = provider.createUserObj(username, role, pass, domain);
-		
-		ClientResponse response = jsonPUT(resource.path(RestServicePaths.USERS), payload);
+//		String payload = provider.createUserObj(username, role, pass, domain);
+		JSONObject usrObj = new JSONObject();
+		usrObj.put("roles", role);
+		usrObj.put("domain", domain);
+		usrObj.put("domainName", domain);
+		usrObj.put("userName", username);
+		usrObj.put("email", "");
+		usrObj.put("status", "NEW");
+		usrObj.put("active", true);
+		usrObj.put("suspended", false);
+		usrObj.put("deleted", false);
+		usrObj.put("authorities", new JSONArray());
+		usrObj.put("expirationDate", JSONObject.NULL);
+		usrObj.put("password", pass);
+
+		JSONArray payload = new JSONArray();
+		payload.put(usrObj);
+
+		if(!StringUtils.equalsIgnoreCase(role, DRoles.ADMIN) && getActiveUsersWithRole(domain, DRoles.ADMIN).length() == 0){
+			createUser(Gen.randomAlphaNumeric(10), DRoles.ADMIN, data.defaultPass(), domain);
+		}
+
+
+		ClientResponse response = jsonPUT(resource.path(RestServicePaths.USERS), payload.toString());
 		if (response.getStatus() != 200) {
 			throw new DomibusRestException("Could not create user", response);
 		}
@@ -156,5 +236,28 @@ public class UsersClient extends BaseRestClient {
 		switchDomain(domain);
 		return jsonPUT(resource.path(RestServicePaths.USERS), toUpdate.toString());
 	}
+
+	public JSONArray getActiveUsersWithRole(String domain, String role) throws Exception {
+
+		JSONArray userArray = getUsers(domain);
+		int userCount = userArray.length();
+
+		log.info("Get all active users");
+		JSONArray activeUserArray = new JSONArray();
+		for (int i = 0; i < userCount; i++) {
+			Boolean isDeleted = userArray.getJSONObject(i).getBoolean("deleted");
+			Boolean isSuspended = userArray.getJSONObject(i).getBoolean("suspended");
+			Boolean isActive = userArray.getJSONObject(i).getBoolean("active");
+
+			String userRole = userArray.getJSONObject(i).getString("roles");
+
+			if (!isDeleted && !isSuspended && isActive && StringUtils.equalsIgnoreCase(userRole, role)) {
+				activeUserArray.put(userArray.get(i));
+			}
+		}
+		return activeUserArray;
+	}
+
+
 }
 

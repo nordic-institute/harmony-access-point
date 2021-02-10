@@ -122,7 +122,7 @@ public class FSPluginImplTest {
     private final String location = "ram:///BackendFSImplTest";
     private final String messageId = "3c5558e4-7b6d-11e7-bb31-be2e44b06b34@domibus.eu";
     private final String finalRecipientFolder = "urn_oasis_names_tc_ebcore_partyid-type_unregistered_C4";
-    private final DeliverMessageEvent messageEvent = new DeliverMessageEvent(messageId, finalRecipientFolder);
+    private final DeliverMessageEvent messageEvent = new DeliverMessageEvent(messageId, finalRecipientFolder, new HashMap<>());
     private final String messageIdFolder = messageId;
 
     @Before
@@ -521,7 +521,7 @@ public class FSPluginImplTest {
         properties.put("action", action);
 
         new Expectations(1, backendFS) {{
-            event.getProperties();
+            event.getProps();
             result = properties;
 
             fsDomainService.getFSPluginDomain(service, action);

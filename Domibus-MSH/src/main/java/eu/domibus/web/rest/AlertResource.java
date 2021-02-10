@@ -22,10 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.AbstractMap.SimpleImmutableEntry;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -176,12 +173,20 @@ public class AlertResource extends BaseResource {
             alertRoList = domainTaskExecutor.submit(() -> fetchAndTransformAlerts(alertCriteria, true));
         }
 
-        return exportToCSV(alertRoList,
-                AlertRo.class,
+        return exportToCSV(alertRoList, AlertRo.class,
                 ImmutableMap.of("entityId".toUpperCase(), "Alert Id",
                         "attempts".toUpperCase(), "Sent Attempts"),
-                Arrays.asList("deleted", "alertDescription", "superAdmin"),
+                getExcludedColumns(domibusConfigurationService.isSingleTenantAware()),
                 "alerts");
+    }
+
+    protected List<String> getExcludedColumns(boolean singleTenancy) {
+        List<String> excludedColumns = new ArrayList<>();
+        excludedColumns.addAll(Arrays.asList("alertDescription", "deleted"));
+        if (singleTenancy) {
+            excludedColumns.add("superAdmin");
+        }
+        return excludedColumns;
     }
 
     protected AlertResult retrieveAlerts(AlertCriteria alertCriteria, boolean isSuperAdmin) {
@@ -280,7 +285,7 @@ public class AlertResource extends BaseResource {
 
     }
 
-    protected AlertRo transform(Alert alert) {
+    private AlertRo transform(Alert alert) {
         AlertRo alertRo = new AlertRo();
         alertRo.setProcessed(alert.isProcessed());
         alertRo.setEntityId(alert.getEntityId());
@@ -295,12 +300,13 @@ public class AlertResource extends BaseResource {
         alertRo.setNextAttempt(alert.getNextAttempt());
 
         final List<String> alertParameterNames = getAlertParameters(alert.getAlertType().name());
-        final List<String> alertParameterValues = alertParameterNames
-                .stream()
-                .flatMap(paramName -> alert.getEvents().stream().map(event -> event.findOptionalProperty(paramName).orElse(null)))
-                .filter(Objects::nonNull)
-                .map(this::manageMaxLength)
-                .collect(Collectors.toList());
+        final List<String> alertParameterValues = alertParameterNames.
+                stream().
+                map(paramName -> alert.getEvents().iterator().next().findOptionalProperty(paramName)).
+                filter(Optional::isPresent).
+                map(Optional::get).
+                map(this::manageMaxLength).
+                collect(Collectors.toList());
         alertRo.setParameters(alertParameterValues);
         return alertRo;
     }

@@ -1,34 +1,25 @@
 package eu.domibus.core.property;
 
 import eu.domibus.api.multitenancy.Domain;
-import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.api.property.encryption.PasswordEncryptionService;
+import eu.domibus.api.property.encryption.PasswordDecryptionService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.ConfigurableEnvironment;
-import org.springframework.core.env.EnumerablePropertySource;
-import org.springframework.core.env.MutablePropertySources;
-import org.springframework.core.env.PropertySource;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
- * Single entry point for getting and setting internal and external domibus properties
+ * The single entry point for getting and setting internal and external domibus properties;
+ * It acts also like an aggregator of services like decryption, dispatching to external modules, etc
  *
- * @author Cosmin Baciu, Ion Perpegel
+ * @author Cosmin Baciu
+ * @author Ion Perpegel
  * @since 4.0
  */
 @Service
@@ -36,30 +27,36 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusPropertyProviderImpl.class);
 
-    @Autowired
-    protected DomainContextProvider domainContextProvider;
+    private final GlobalPropertyMetadataManager globalPropertyMetadataManager;
 
-    @Autowired
-    protected PasswordEncryptionService passwordEncryptionService;
+    private final PropertyProviderDispatcher propertyProviderDispatcher;
 
-    @Autowired
-    protected DomibusConfigurationService domibusConfigurationService;
+    private final PrimitivePropertyTypesManager primitivePropertyTypesManager;
 
-    @Autowired
-    protected ConfigurableEnvironment environment;
+    private final NestedPropertiesManager nestedPropertiesManager;
 
-    @Autowired
-    protected GlobalPropertyMetadataManager globalPropertyMetadataManager;
+    private final ConfigurableEnvironment environment;
 
-    @Autowired
-    protected DomibusPropertyProviderDispatcher domibusPropertyProviderDispatcher;
+    private final PropertyProviderHelper propertyProviderHelper;
 
-    @Autowired
-    protected PrimitivePropertyTypesManager primitivePropertyTypesManager;
+    private final PasswordDecryptionService passwordDecryptionService;
+
+    public DomibusPropertyProviderImpl(GlobalPropertyMetadataManager globalPropertyMetadataManager, PropertyProviderDispatcher propertyProviderDispatcher,
+                                       PrimitivePropertyTypesManager primitivePropertyTypesManager, NestedPropertiesManager nestedPropertiesManager,
+                                       ConfigurableEnvironment environment, PropertyProviderHelper propertyProviderHelper,
+                                       PasswordDecryptionService passwordDecryptionService) {
+        this.globalPropertyMetadataManager = globalPropertyMetadataManager;
+        this.propertyProviderDispatcher = propertyProviderDispatcher;
+        this.primitivePropertyTypesManager = primitivePropertyTypesManager;
+        this.nestedPropertiesManager = nestedPropertiesManager;
+        this.environment = environment;
+        this.propertyProviderHelper = propertyProviderHelper;
+        this.passwordDecryptionService = passwordDecryptionService;
+    }
 
     @Override
     public String getProperty(String propertyName) throws DomibusPropertyException {
-        return domibusPropertyProviderDispatcher.getInternalOrExternalProperty(propertyName, null);
+        return getPropertyValue(propertyName, null);
     }
 
     @Override
@@ -67,7 +64,8 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         if (domain == null) {
             throw new DomibusPropertyException("Property " + propertyName + " cannot be retrieved without a domain");
         }
-        return domibusPropertyProviderDispatcher.getInternalOrExternalProperty(propertyName, domain);
+
+        return getPropertyValue(propertyName, domain);
     }
 
     @Override
@@ -96,74 +94,13 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
     @Override
     public Set<String> filterPropertiesName(Predicate<String> predicate) {
-        Set<String> result = new HashSet<>();
-        for (PropertySource propertySource : getEnvironment().getPropertySources()) {
-            Set<String> propertySourceNames = filterPropertySource(predicate, propertySource);
-            result.addAll(propertySourceNames);
-        }
-        return result;
-    }
-
-    /**
-     * Composes the property name based on the domain and queue prefix
-     * <p>
-     * Eg. Given domain code = digit and queue prefix = jmsplugin.queue.reply.routing it will return digit.jmsplugin.queue.reply.routing
-     *
-     * @param domain         The domain for which the property
-     * @param propertyPrefix
-     * @return
-     */
-    protected String computePropertyPrefix(Domain domain, String propertyPrefix) {
-        String result = domain.getCode() + "." + propertyPrefix;
-        LOG.debug("Compute queue prefix [{}]", result);
-        return result;
-    }
-
-    /**
-     * Gets the property prefix taking into account the current domain
-     *
-     * @param prefix The initial property prefix
-     * @return The computed property prefix
-     */
-    protected String getPropertyPrefix(Domain domain, String prefix) {
-        String propertyPrefix = prefix;
-
-        if (domibusConfigurationService.isMultiTenantAware()) {
-            Domain currentDomain = domain;
-
-            if (currentDomain == null) {
-                currentDomain = domainContextProvider.getCurrentDomain();
-                LOG.trace("Using current domain [{}]", currentDomain);
-            }
-
-            LOG.trace("Multi tenancy mode: getting prefix taking into account domain [{}]", domain);
-            propertyPrefix = computePropertyPrefix(currentDomain, prefix);
-        }
-        propertyPrefix = propertyPrefix + ".";
-        return propertyPrefix;
+        return propertyProviderHelper.filterPropertyNames(predicate);
     }
 
     @Override
     public List<String> getNestedProperties(Domain domain, String prefix) {
-        String propertyPrefix = getPropertyPrefix(domain, prefix);
-        LOG.debug("Getting nested properties for prefix [{}]", propertyPrefix);
-
-        List<String> result = new ArrayList<>();
-        Set<String> propertiesStartingWithPrefix = filterPropertiesName(property -> StringUtils.startsWith(property, propertyPrefix));
-        if (CollectionUtils.isEmpty(propertiesStartingWithPrefix)) {
-            LOG.debug("No properties found starting with prefix [{}]", propertyPrefix);
-            return result;
-        }
-        LOG.debug("Found properties [{}] starting with prefix [{}]", propertiesStartingWithPrefix, propertyPrefix);
-        List<String> firstLevelProperties = propertiesStartingWithPrefix.stream()
-                .map(property -> StringUtils.substringAfter(property, propertyPrefix))
-                .filter(property -> StringUtils.containsNone(property, ".")).collect(Collectors.toList());
-        if (CollectionUtils.isEmpty(firstLevelProperties)) {
-            LOG.debug("No first level properties found starting with prefix [{}]", propertyPrefix);
-            return result;
-        }
-        LOG.debug("Found first level properties [{}] starting with prefix [{}]", firstLevelProperties, propertyPrefix);
-        return firstLevelProperties;
+        DomibusPropertyMetadata propertyMetadata = globalPropertyMetadataManager.getPropertyMetadata(prefix);
+        return nestedPropertiesManager.getNestedProperties(domain, propertyMetadata);
     }
 
     @Override
@@ -173,27 +110,27 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
     @Override
     public boolean containsDomainPropertyKey(Domain domain, String propertyName) {
-        final String domainPropertyName = getPropertyKeyForDomain(domain, propertyName);
-        boolean domainPropertyKeyFound = getEnvironment().containsProperty(domainPropertyName);
+        final String domainPropertyName = propertyProviderHelper.getPropertyKeyForDomain(domain, propertyName);
+        boolean domainPropertyKeyFound = environment.containsProperty(domainPropertyName);
         if (!domainPropertyKeyFound) {
-            domainPropertyKeyFound = getEnvironment().containsProperty(propertyName);
+            domainPropertyKeyFound = environment.containsProperty(propertyName);
         }
         return domainPropertyKeyFound;
     }
 
     @Override
     public boolean containsPropertyKey(String propertyName) {
-        return getEnvironment().containsProperty(propertyName);
+        return environment.containsProperty(propertyName);
     }
 
     @Override
     public void setProperty(Domain domain, String propertyName, String propertyValue, boolean broadcast) throws DomibusPropertyException {
-        domibusPropertyProviderDispatcher.setInternalOrExternalProperty(domain, propertyName, propertyValue, broadcast);
+        propertyProviderDispatcher.setInternalOrExternalProperty(domain, propertyName, propertyValue, broadcast);
     }
 
     @Override
     public void setProperty(String propertyName, String propertyValue) throws DomibusPropertyException {
-        domibusPropertyProviderDispatcher.setInternalOrExternalProperty(null, propertyName, propertyValue, true);
+        propertyProviderDispatcher.setInternalOrExternalProperty(null, propertyName, propertyValue, true);
     }
 
     @Override
@@ -201,147 +138,15 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         setProperty(domain, propertyName, propertyValue, true);
     }
 
-    protected String getInternalProperty(String propertyName) {
-        DomibusPropertyMetadata prop = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
+    protected String getPropertyValue(String propertyName, Domain domain) {
+        String result = propertyProviderDispatcher.getInternalOrExternalProperty(propertyName, domain);
 
-        //prop is only global so the current domain doesn't matter
-        if (prop.isOnlyGlobal()) {
-            LOG.trace("Property [{}] is only global (so the current domain doesn't matter) thus retrieving the global value", propertyName);
-            return getGlobalProperty(prop);
-        }
-
-        //single-tenancy mode
-        if (!domibusConfigurationService.isMultiTenantAware()) {
-            LOG.trace("Single tenancy mode: thus retrieving the global value for property [{}]", propertyName);
-            return getGlobalProperty(prop);
-        }
-
-        //multi-tenancy mode
-        //domain or super property or a combination of 2 
-        Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
-        //we have a domain in context so try a domain property
-        if (currentDomain != null) {
-            if (prop.isDomain()) {
-                LOG.trace("In multi-tenancy mode, property [{}] has domain usage, thus retrieving the domain value.", propertyName);
-                return getDomainOrDefaultValue(prop, currentDomain);
-            }
-            LOG.error("Property [{}] is not applicable for a specific domain so null was returned.", propertyName);
-            return null;
-        }
-        //current domain being null, it is super or global property (but not both)
-        if (prop.isGlobal()) {
-            LOG.trace("In multi-tenancy mode, property [{}] has global usage, thus retrieving the global value.", propertyName);
-            return getGlobalProperty(prop);
-        }
-        if (prop.isSuper()) {
-            LOG.trace("In multi-tenancy mode, property [{}] has super usage, thus retrieving the super value.", propertyName);
-            return getSuperOrDefaultValue(prop);
-        }
-        LOG.error("Property [{}] is not applicable for super users so null was returned.", propertyName);
-        return null;
-
-    }
-
-    protected String getInternalProperty(Domain domain, String propertyName) {
-        LOG.trace("Retrieving value for property [{}] on domain [{}].", propertyName, domain);
-
-        DomibusPropertyMetadata prop = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
-        //single-tenancy mode
-        if (!domibusConfigurationService.isMultiTenantAware()) {
-            LOG.trace("In single-tenancy mode, retrieving global value for property [{}] on domain [{}].", propertyName, domain);
-            return getGlobalProperty(prop);
-        }
-
-        if (!prop.isDomain()) {
-            throw new DomibusPropertyException("Property " + propertyName + " is not domain specific so it cannot be retrieved for domain " + domain);
-        }
-
-        return getDomainOrDefaultValue(prop, domain);
-    }
-
-    protected Set<String> filterPropertySource(Predicate<String> predicate, PropertySource propertySource) {
-        Set<String> filteredPropertyNames = new HashSet<>();
-        if (!(propertySource instanceof EnumerablePropertySource)) {
-            LOG.trace("PropertySource [{}] has been skipped", propertySource.getName());
-            return filteredPropertyNames;
-        }
-        LOG.trace("Filtering properties from propertySource [{}]", propertySource.getName());
-
-        EnumerablePropertySource enumerablePropertySource = (EnumerablePropertySource) propertySource;
-        for (String propertyName : enumerablePropertySource.getPropertyNames()) {
-            if (predicate.test(propertyName)) {
-                LOG.trace("Predicate matched property [{}]", propertyName);
-                filteredPropertyNames.add(propertyName);
-            }
-        }
-        return filteredPropertyNames;
-    }
-
-    /**
-     * First try to get the value from the collection of property values updated at runtime;
-     * if not found, get the value from the system environment properties;
-     * if not found, get the value from the system properties;
-     * if not found, get the value from Domibus properties;
-     * if still not found, look inside the Domibus default properties.
-     *
-     * @param propertyName the property name
-     * @return The value of the property as found in the system properties, the Domibus properties or inside the default Domibus properties.
-     */
-    protected String getPropertyValue(String propertyName, Domain domain, boolean decrypt) {
-        String result = getEnvironment().getProperty(propertyName);
-
-        if (decrypt && passwordEncryptionService.isValueEncrypted(result)) {
+        DomibusPropertyMetadata meta = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
+        if (meta.isEncrypted() && passwordDecryptionService.isValueEncrypted(result)) {
             LOG.debug("Decrypting property [{}]", propertyName);
-            result = passwordEncryptionService.decryptProperty(domain, propertyName, result);
+            result = passwordDecryptionService.decryptProperty(domain, propertyName, result);
         }
 
         return result;
-    }
-
-    protected String getGlobalProperty(DomibusPropertyMetadata prop) {
-        return getPropertyValue(prop.getName(), null, prop.isEncrypted());
-    }
-
-    protected String getDomainOrDefaultValue(DomibusPropertyMetadata prop, Domain domain) {
-        String propertyKey = getPropertyKeyForDomain(domain, prop.getName());
-        return getPropValueOrDefault(propertyKey, prop, domain);
-    }
-
-    protected String getSuperOrDefaultValue(DomibusPropertyMetadata prop) {
-        String propertyKey = getPropertyKeyForSuper(prop.getName());
-        return getPropValueOrDefault(propertyKey, prop, null);
-    }
-
-    protected String getPropValueOrDefault(String propertyKey, DomibusPropertyMetadata prop, Domain domain) {
-        String propValue = getPropertyValue(propertyKey, domain, prop.isEncrypted());
-        if (propValue != null) {
-            // found a value->return it
-            LOG.trace("Returned specific value for property [{}] on domain [{}].", prop.getName(), domain);
-            return propValue;
-        }
-        // didn't find a domain-specific value, try to fallback if acceptable
-        if (prop.isWithFallback()) {
-            // fall-back to the default value from global properties file
-            propValue = getPropertyValue(prop.getName(), domain, prop.isEncrypted());
-            if (propValue != null) {
-                // found a value->return it
-                LOG.trace("Returned fallback value for property [{}] on domain [{}].", prop.getName(), domain);
-                return propValue;
-            }
-        }
-        LOG.debug("Could not find a value for property [{}] on domain [{}].", prop.getName(), domain);
-        return null;
-    }
-
-    protected String getPropertyKeyForSuper(String propertyName) {
-        return "super." + propertyName;
-    }
-
-    protected String getPropertyKeyForDomain(Domain domain, String propertyName) {
-        return domain.getCode() + "." + propertyName;
-    }
-
-    protected ConfigurableEnvironment getEnvironment() {
-        return environment;
     }
 }

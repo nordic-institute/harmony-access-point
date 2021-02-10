@@ -1,7 +1,7 @@
 package eu.domibus.core.replication;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.core.util.DatabaseUtil;
+import eu.domibus.api.util.DatabaseUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;

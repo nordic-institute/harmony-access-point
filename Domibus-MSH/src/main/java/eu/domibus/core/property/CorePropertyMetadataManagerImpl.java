@@ -89,6 +89,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_SCHEMAFACTORY, Type.CLASS),
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_UI_SESSION_SECURE, Type.BOOLEAN),
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_UI_SESSION_TIMEOUT, Type.NUMERIC),
+            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_UI_SESSION_SAME_SITE),
 
             new DomibusPropertyMetadata(DOMIBUS_DISPATCHER_TIMEOUT, Type.NUMERIC, false, Usage.DOMAIN, true),
 
@@ -105,6 +106,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS, Usage.DOMAIN, false),
 
             new DomibusPropertyMetadata(DOMIBUS_SECURITY_TRUSTSTORE_LOCATION, Type.URI, Usage.DOMAIN, false),
+            new DomibusPropertyMetadata(DOMIBUS_SECURITY_TRUSTSTORE_BACKUP_LOCATION, Type.URI, Usage.DOMAIN, false),
             new DomibusPropertyMetadata(DOMIBUS_SECURITY_TRUSTSTORE_TYPE, Type.STRING, false, Usage.DOMAIN, false),
             new DomibusPropertyMetadata(DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD, Type.PASSWORD, false, Usage.DOMAIN, false, true),
 
@@ -184,7 +186,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PROXY_HTTP_HOST, Type.URI),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PROXY_HTTP_PORT, Type.NUMERIC),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PROXY_USER),
-            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_PROXY_PASSWORD, Type.PASSWORD, true),
+            DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PROXY_PASSWORD, Type.PASSWORD, true),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PROXY_NON_PROXY_HOSTS),
 
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_JDBC_DATASOURCE_JNDI_NAME, Type.JNDI),
@@ -319,6 +321,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_INSTANCE_NAME),
 
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_FILE_UPLOAD_MAX_SIZE, Type.NUMERIC),
+            DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE, Type.NUMERIC),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_CERTIFICATE_CRL_EXCLUDED_PROTOCOLS, Type.COMMA_SEPARATED_LIST),
 
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES, Type.NUMERIC),

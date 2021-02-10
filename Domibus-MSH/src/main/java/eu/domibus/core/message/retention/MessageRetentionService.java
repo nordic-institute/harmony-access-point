@@ -1,8 +1,8 @@
 package eu.domibus.core.message.retention;
 
-import eu.domibus.core.message.UserMessageLog;
-import eu.domibus.core.message.UserMessageLogDto;
-import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.api.model.UserMessageLog;
+import eu.domibus.api.model.UserMessage;
+import eu.domibus.api.model.UserMessageLogDto;
 
 import java.util.List;
 
@@ -21,7 +21,7 @@ public interface MessageRetentionService {
 
     void deleteExpiredMessages(String mpc, Integer expiredDownloadedMessagesLimit, Integer expiredNotDownloadedMessagesLimit, Integer expiredSentMessagesLimit, Integer expiredPayloadDeletedMessagesLimit);
 
-    void scheduleDeleteMessages(List<String> messageIds);
+    void scheduleDeleteMessages(List<UserMessage> messageIds);
 
     void scheduleDeleteMessagesByMessageLog(List<UserMessageLogDto> userMessageLogs);
 

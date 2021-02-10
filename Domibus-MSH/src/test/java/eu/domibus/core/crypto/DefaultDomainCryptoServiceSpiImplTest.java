@@ -18,7 +18,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
-import java.io.File;
 import java.io.IOException;
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
@@ -82,6 +81,8 @@ public class DefaultDomainCryptoServiceSpiImplTest {
             result = "trustStorePassword";
             domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_TYPE);
             result = "trustStoreType";
+            domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_BACKUP_LOCATION);
+            result = "trustStoreBackupLocation";
         }};
     }
 
@@ -133,7 +134,6 @@ public class DefaultDomainCryptoServiceSpiImplTest {
         Assert.assertNotNull("Should have returned the keystore certificate from Merlin", certificateFromKeyStore);
     }
 
-
     @Test
     public void returnsTrustStoreCertificateFromMerlin(@Mocked Merlin merlin, @Injectable KeyStore trustStore) throws Exception {
         // Given
@@ -165,33 +165,31 @@ public class DefaultDomainCryptoServiceSpiImplTest {
     }
 
     @Test
-    public void testBackupTruststore() throws IOException {
-        String RESOURCE_PATH = "src/test/resources/eu/domibus/ebms3/common/dao/DynamicDiscoveryPModeProviderTest/";
-        String TEST_KEYSTORE = "testkeystore.jks";
-        File testFile = new File(RESOURCE_PATH + TEST_KEYSTORE);
+    public void replaceTrustStore(@Mocked byte[] store, @Mocked String password, @Mocked String type, @Mocked String location, @Mocked String backupLocation) throws Exception {
+        // Given
+        new Expectations(domainCryptoService) {{
+            domainCryptoService.getTrustStoreType();
+            result = type;
+            domainCryptoService.getTrustStoreLocation();
+            result = location;
+            domainCryptoService.getTrustStorePassword();
+            result = password;
+            domainCryptoService.getTrustStoreBackUpLocation();
+            result = backupLocation;
+            certificateService.replaceTrustStore(store, password, type, location, password, backupLocation);
+            domainCryptoService.refreshTrustStore();
+            signalService.signalTrustStoreUpdate(domain);
+        }};
 
-        domainCryptoService.backupTrustStore(testFile);
+        // When
+        domainCryptoService.replaceTrustStore(store, password);
 
+        // Then
         new Verifications() {{
-            backupService.backupFile(testFile);
-            times = 1;
+            certificateService.replaceTrustStore(store, password, type, location, password, backupLocation);
+            domainCryptoService.refreshTrustStore();
+            signalService.signalTrustStoreUpdate(domain);
         }};
     }
-
-    @Test
-    public void testBackupTruststore_shouldNotBackupMissingFile() throws IOException {
-        String RESOURCE_PATH = "src/test/resources/eu/domibus/ebms3/common/dao/DynamicDiscoveryPModeProviderTest/";
-        String TEST_KEYSTORE = "inexistent_testkeystore.jks";
-        File testFile = new File(RESOURCE_PATH + TEST_KEYSTORE);
-
-        domainCryptoService.backupTrustStore(testFile);
-
-        new Verifications() {{
-            backupService.backupFile((File) any);
-            times = 0;
-        }};
-    }
-
-
 
 }

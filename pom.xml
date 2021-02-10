@@ -25,13 +25,13 @@
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <cxf.version>3.4.0</cxf.version>
+        <cxf.version>3.4.2</cxf.version>
         <spring.version>5.2.9.RELEASE</spring.version>
         <spring.security.version>5.4.1</spring.security.version>
         <spring.session.core.version>2.3.1.RELEASE</spring.session.core.version>
         <spring.session.jdbc.version>2.3.1.RELEASE</spring.session.jdbc.version>
-        <hibernate.version>5.4.22.Final</hibernate.version>
-        <activemq.version>5.16.0</activemq.version>
+        <hibernate.version>5.4.27.Final</hibernate.version>
+        <activemq.version>5.16.1</activemq.version>
         <aspectj.version>1.9.4</aspectj.version>
         <slf4j.version>1.7.30</slf4j.version>
         <logback.version>1.2.3</logback.version>
@@ -43,15 +43,14 @@
         <commons-collections4.version>4.4</commons-collections4.version>
         <commons-beanutils.version>1.9.4</commons-beanutils.version>
         <commons-codec.version>1.15</commons-codec.version>
-        <bouncycastle.version>1.66</bouncycastle.version>
+        <bouncycastle.version>1.67</bouncycastle.version>
         <quartz.version>2.3.2</quartz.version>
         <c3p0.version>0.9.5.5</c3p0.version>
         <org.mapstruct.version>1.4.1.Final</org.mapstruct.version>
         <jackson.version>2.9.10</jackson.version>
         <!-- see project-check-exclude.xml file -->
-        <jackson-databind.version>2.9.10.6</jackson-databind.version>
+        <jackson-databind.version>2.9.10.8</jackson-databind.version>
         <commons-test.version>4.3</commons-test.version>
-        <xstream.version>1.4.13</xstream.version>
         <freemarker.version>2.3.30</freemarker.version>
         <mail.version>1.6.2</mail.version>
         <jaxb-api.version>2.3.1</jaxb-api.version>
@@ -70,7 +69,7 @@
         <mysql.connector.java.version>8.0.22</mysql.connector.java.version>
         <wiremock.version>2.26.2</wiremock.version>
         <dropwizard.metrics.version>4.1.13</dropwizard.metrics.version>
-        <dependency.check.version>6.0.2</dependency.check.version>
+        <dependency.check.version>6.0.5</dependency.check.version>
         <maven-dependency-plugin.version>3.1.2</maven-dependency-plugin.version>
 
         <!-- Sonar properties -->
@@ -323,12 +322,12 @@
             <!-- BouncyCastle -->
             <dependency>
                 <groupId>org.bouncycastle</groupId>
-                <artifactId>bcprov-jdk15on</artifactId>
+                <artifactId>bcprov-jdk15to18</artifactId>
                 <version>${bouncycastle.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.bouncycastle</groupId>
-                <artifactId>bcpkix-jdk15on</artifactId>
+                <artifactId>bcpkix-jdk15to18</artifactId>
                 <version>${bouncycastle.version}</version>
             </dependency>
             <!-- End BouncyCastle -->
@@ -649,6 +648,14 @@
                 <groupId>org.apache.wss4j</groupId>
                 <artifactId>wss4j-ws-security-dom</artifactId>
                 <version>${wss4j-ws-security.version}</version>
+                <exclusions>
+                    <!-- starting with version 1.65 BouncyCastle is multi-release so we exclude it and use
+                     bcprov-jdk15to18 version instead -->
+                    <exclusion>
+                        <groupId>org.bouncycastle</groupId>
+                        <artifactId>bcprov-jdk15on</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.apache.wss4j</groupId>
@@ -668,6 +675,14 @@
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-security</artifactId>
                 <version>${cxf.version}</version>
+                <exclusions>
+                    <!-- starting with version 1.65 BouncyCastle is multi-release so we exclude it and use
+                    bcprov-jdk15to18 version instead -->
+                    <exclusion>
+                        <groupId>org.bouncycastle</groupId>
+                        <artifactId>bcprov-jdk15on</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.apache.cxf</groupId>
@@ -745,6 +760,23 @@
                 <artifactId>peppol-lookup</artifactId>
                 <version>${peppol.version}</version>
             </dependency>
+            <dependency>
+                <groupId>no.difi.vefa</groupId>
+                <artifactId>peppol-security</artifactId>
+                <version>${peppol.version}</version>
+                <exclusions>
+                    <!-- we are excluding these in order to pickup bcprov-jdk15to18 and bcpkix-jdk15to18
+                    latest version instead -->
+                    <exclusion>
+                        <groupId>org.bouncycastle</groupId>
+                        <artifactId>bcprov-jdk15on</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.bouncycastle</groupId>
+                        <artifactId>bcpkix-jdk15on</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
             <!-- End Difi libraries -->
 
             <!-- eDelivery SMP profile  -->
@@ -777,13 +809,6 @@
                 <groupId>javax.cache</groupId>
                 <artifactId>cache-api</artifactId>
                 <version>${cache-api.version}</version>
-            </dependency>
-
-            <!-- XStream -->
-            <dependency>
-                <groupId>com.thoughtworks.xstream</groupId>
-                <artifactId>xstream</artifactId>
-                <version>${xstream.version}</version>
             </dependency>
 
             <!-- FreeMarker-->

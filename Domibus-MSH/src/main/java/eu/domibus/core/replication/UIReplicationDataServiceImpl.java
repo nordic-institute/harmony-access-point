@@ -4,13 +4,13 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.message.UserMessageLogDao;
-import eu.domibus.core.message.MessageLog;
-import eu.domibus.core.message.UserMessageLog;
+import eu.domibus.api.model.MessageLog;
+import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.message.UserMessageDefaultServiceHelper;
-import eu.domibus.ebms3.common.model.Messaging;
-import eu.domibus.ebms3.common.model.SignalMessage;
-import eu.domibus.ebms3.common.model.UserMessage;
+import eu.domibus.api.model.Messaging;
+import eu.domibus.api.model.SignalMessage;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -165,6 +165,9 @@ public class UIReplicationDataServiceImpl implements UIReplicationDataService {
         UIMessageEntity entity = createUIMessageEntity(messageId, jmsTimestamp, userMessageLog, userMessage);
         entity.setRefToMessageId(userMessage.getMessageInfo().getRefToMessageId());
         entity.setConversationId(userMessage.getCollaborationInfo().getConversationId());
+        entity.setAction(userMessage.getCollaborationInfo().getAction());
+        entity.setServiceType(userMessage.getCollaborationInfo().getService().getType());
+        entity.setServiceValue(userMessage.getCollaborationInfo().getService().getValue());
 
         uiMessageDao.create(entity);
 
@@ -204,7 +207,6 @@ public class UIReplicationDataServiceImpl implements UIReplicationDataService {
         entity.setFromScheme(userMessageDefaultServiceHelper.getOriginalSender(userMessage));
         entity.setToScheme(userMessageDefaultServiceHelper.getFinalRecipient(userMessage));
         entity.setLastModified(new Date(jmsTimestamp));
-
         return entity;
     }
 

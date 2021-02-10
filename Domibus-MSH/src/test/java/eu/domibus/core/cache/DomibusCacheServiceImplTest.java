@@ -1,21 +1,17 @@
 package eu.domibus.core.cache;
 
 import com.google.common.collect.Lists;
-import mockit.Expectations;
-import mockit.FullVerifications;
-import mockit.Injectable;
-import mockit.Mocked;
-import mockit.Tested;
-import mockit.Verifications;
+import eu.domibus.api.cluster.SignalService;
+import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
-import org.springframework.cache.caffeine.CaffeineCache;
-import org.springframework.cache.support.NoOpCache;
 
-import static org.junit.Assert.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * @author Sebastian-Ion TINCU
@@ -31,6 +27,12 @@ public class DomibusCacheServiceImplTest {
 
     @Mocked
     private Cache cache;
+
+    @Injectable
+    SignalService signalService;
+
+    @Injectable
+    List<DomibusCacheServiceNotifier> domibusCacheServiceNotifiers;
 
     @Test
     public void doesNotRefreshTheCacheWhenTheCacheManagerContainsNoCaches() {
@@ -83,6 +85,27 @@ public class DomibusCacheServiceImplTest {
 
         new Verifications() {{
             cache.clear(); times = 1;
+        }};
+    }
+
+    @Test
+    public void clearAllCaches(@Injectable DomibusCacheServiceNotifier domibusCacheServiceNotifier) {
+        Collection<String> cacheNames = new ArrayList<>();
+        String cacheName = "cache1";
+        cacheNames.add(cacheName);
+
+        new Expectations(domibusCacheService) {{
+            cacheManager.getCacheNames();
+            result = cacheNames;
+
+            domibusCacheService.notifyClearAllCaches();
+        }};
+
+        domibusCacheService.clearAllCaches();
+
+        new Verifications() {{
+            cacheManager.getCache(cacheName).clear();
+            times = 1;
         }};
     }
 }

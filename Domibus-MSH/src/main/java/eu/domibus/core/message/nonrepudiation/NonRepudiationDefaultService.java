@@ -1,17 +1,19 @@
 package eu.domibus.core.message.nonrepudiation;
 
 import eu.domibus.api.messaging.MessageNotFoundException;
+import eu.domibus.api.model.RawEnvelopeDto;
+import eu.domibus.api.model.RawEnvelopeLog;
+import eu.domibus.api.model.SignalMessage;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.audit.envers.ModificationType;
 import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.util.SoapUtil;
-import eu.domibus.ebms3.common.model.SignalMessage;
-import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.apache.cxf.common.util.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -109,7 +111,7 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
         }
 
         // in case we will save the signal messages for unsuccessful operations, this code will take the one corresponding to the successful one
-        SignalMessage signalMessage = signalMessages.stream().findFirst().get();
+        SignalMessage signalMessage = signalMessages.stream().findFirst().orElse(null);
 
         saveResponse(response, signalMessage);
     }

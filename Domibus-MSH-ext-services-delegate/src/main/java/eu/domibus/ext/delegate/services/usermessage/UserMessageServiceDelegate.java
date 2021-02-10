@@ -64,6 +64,13 @@ public class UserMessageServiceDelegate implements UserMessageExtService {
 
         return userMessageCoreService.getFinalRecipient(messageId);
     }
+    @Override
+    public String getOriginalSender(String messageId) {
+        LOG.debug("Getting message final recipient with messageId [{}].", messageId);
+        userMessageSecurityService.checkMessageAuthorization(messageId);
+
+        return userMessageCoreService.getOriginalSender(messageId);
+    }
 
 
 }

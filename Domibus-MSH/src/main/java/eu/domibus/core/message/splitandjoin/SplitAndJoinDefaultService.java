@@ -1,17 +1,21 @@
 package eu.domibus.core.message.splitandjoin;
 
+import eu.domibus.api.model.*;
+import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
+import eu.domibus.api.model.Error;
+import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
+import eu.domibus.api.model.splitandjoin.MessageHeaderEntity;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.ErrorCode;
-import eu.domibus.common.MSHRole;
-import eu.domibus.common.MessageStatus;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.Splitting;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.ebms3.receiver.handler.IncomingSourceMessageHandler;
 import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
@@ -31,14 +35,11 @@ import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
-import eu.domibus.ebms3.common.model.Error;
-import eu.domibus.ebms3.common.model.Messaging;
-import eu.domibus.ebms3.common.model.PartInfo;
-import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.attachment.AttachmentDeserializer;
 import org.apache.cxf.interceptor.Fault;
@@ -79,6 +80,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
 
     public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SplitAndJoinDefaultService.class);
     public static final String ERROR_MESSAGE_GROUP_HAS_EXPIRED = "Group has expired";
+    public static final String ERROR_GENERATING_THE_SIGNAL_SOAPMESSAGE_FOR_SOURCE_MESSAGE = "Error generating the Signal SOAPMessage for SourceMessage [";
 
     @Autowired
     protected DomainContextProvider domainContextProvider;
@@ -149,6 +151,9 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
     @Autowired
     protected ErrorService errorService;
 
+    @Autowired
+    protected Ebms3Converter ebms3Converter;
+
     @Override
     public void createUserFragmentsFromSourceFile(String sourceMessageFileName, SOAPMessage sourceMessageRequest, UserMessage userMessage, String contentTypeString, boolean compression) {
         MessageGroupEntity messageGroupEntity = new MessageGroupEntity();
@@ -173,8 +178,8 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
         messageGroupEntity.setSoapAction(StringUtils.EMPTY);
         messageGroupEntity.setSourceMessageId(userMessage.getMessageInfo().getMessageId());
 
-        MessageExchangeConfiguration userMessageExchangeConfiguration = null;
-        LegConfiguration legConfiguration = null;
+        MessageExchangeConfiguration userMessageExchangeConfiguration;
+        LegConfiguration legConfiguration;
         try {
             userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
             String pModeKey = userMessageExchangeConfiguration.getPmodeKey();
@@ -183,7 +188,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
             throw new SplitAndJoinException("Could not get LegConfiguration", e);
         }
 
-        List<String> fragmentFiles = null;
+        List<String> fragmentFiles;
         try {
             fragmentFiles = splitSourceMessage(sourceMessageFile, legConfiguration.getSplitting().getFragmentSize());
         } catch (IOException e) {
@@ -216,11 +221,12 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
         LOG.debug("Rejoining SourceMessage for group [{}]", groupId);
 
         final SOAPMessage sourceRequest = rejoinSourceMessage(groupId, new File(sourceMessageFile));
-        Messaging sourceMessaging = messageUtil.getMessage(sourceRequest);
+        Ebms3Messaging ebms3Messaging = messageUtil.getMessage(sourceRequest);
+        Messaging sourceMessaging = ebms3Converter.convertFromEbms3(ebms3Messaging);
         sourceMessaging.getUserMessage().setSplitAndJoin(true);
 
-        MessageExchangeConfiguration userMessageExchangeContext = null;
-        LegConfiguration legConfiguration = null;
+        MessageExchangeConfiguration userMessageExchangeContext;
+        LegConfiguration legConfiguration;
         try {
             userMessageExchangeContext = pModeProvider.findUserMessageExchangeContext(sourceMessaging.getUserMessage(), MSHRole.RECEIVING);
             String sourcePmodeKey = userMessageExchangeContext.getPmodeKey();
@@ -249,7 +255,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
 
     @Override
     public void sendSourceMessageReceipt(String sourceMessageId, String pModeKey) {
-        SOAPMessage receiptMessage = null;
+        SOAPMessage receiptMessage ;
         try {
             receiptMessage = as4ReceiptService.generateReceipt(sourceMessageId, false);
         } catch (EbMS3Exception e) {
@@ -265,11 +271,11 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
 
         EbMS3Exception ebMS3Exception = new EbMS3Exception(errorCode, errorDetail, messageId, null);
         ebMS3Exception.setMshRole(MSHRole.RECEIVING);
-        SOAPMessage soapMessage = null;
+        SOAPMessage soapMessage ;
         try {
             soapMessage = messageBuilder.buildSOAPFaultMessage(ebMS3Exception.getFaultInfoError());
         } catch (EbMS3Exception e) {
-            throw new SplitAndJoinException("Error generating the Signal SOAPMessage for SourceMessage [" + messageId + "]", e);
+            throw new SplitAndJoinException(ERROR_GENERATING_THE_SIGNAL_SOAPMESSAGE_FOR_SOURCE_MESSAGE + messageId + "]", e);
         }
         sendSignalMessage(soapMessage, pmodeKey);
     }
@@ -429,13 +435,13 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
             return;
         }
         LOG.debug("Found send expired groups [{}]", sendExpiredGroups);
-        sendExpiredGroups.stream().forEach(messageGroupEntity -> setSendGroupAsExpired(messageGroupEntity));
+        sendExpiredGroups.forEach(this::setSendGroupAsExpired);
 
         LOG.trace("Finished handling expired send groups");
     }
 
     protected List<MessageGroupEntity> getSendExpiredGroups(final List<MessageGroupEntity> sendNonExpiredOrRejected) {
-        return sendNonExpiredOrRejected.stream().filter(messageGroupEntity -> isSendGroupExpired(messageGroupEntity)).collect(Collectors.toList());
+        return sendNonExpiredOrRejected.stream().filter(this::isSendGroupExpired).collect(Collectors.toList());
     }
 
     protected void setSendGroupAsExpired(MessageGroupEntity messageGroupEntity) {
@@ -457,7 +463,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
             return;
         }
         LOG.debug("Found received expired groups [{}]", receivedExpiredGroups);
-        receivedExpiredGroups.stream().forEach(messageGroupEntity -> setReceivedGroupAsExpired(messageGroupEntity));
+        receivedExpiredGroups.forEach(this::setReceivedGroupAsExpired);
 
         LOG.trace("Finished handling expired received groups");
     }
@@ -470,7 +476,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
     }
 
     protected List<MessageGroupEntity> getReceivedExpiredGroups(final List<MessageGroupEntity> receivedNonExpiredOrRejected) {
-        return receivedNonExpiredOrRejected.stream().filter(messageGroupEntity -> isReceivedGroupExpired(messageGroupEntity)).collect(Collectors.toList());
+        return receivedNonExpiredOrRejected.stream().filter(this::isReceivedGroupExpired).collect(Collectors.toList());
     }
 
     protected boolean isSendGroupExpired(MessageGroupEntity messageGroupEntity) {
@@ -479,7 +485,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
     }
 
     protected boolean isGroupExpired(final UserMessage userMessage, String groupId) {
-        LegConfiguration legConfiguration = null;
+        LegConfiguration legConfiguration ;
         try {
             MessageExchangeConfiguration userMessageExchangeContext = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
             String sourcePmodeKey = userMessageExchangeContext.getPmodeKey();
@@ -536,7 +542,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
         sendSplitAndJoinFailed(groupId);
 
         final List<UserMessage> groupUserMessages = messagingDao.findUserMessageByGroupId(groupId);
-        groupUserMessages.stream().forEach(userMessage -> userMessageService.scheduleSetUserMessageFragmentAsFailed(userMessage.getMessageInfo().getMessageId()));
+        groupUserMessages.forEach(userMessage -> userMessageService.scheduleSetUserMessageFragmentAsFailed(userMessage.getMessageInfo().getMessageId()));
 
         createLogEntry(groupId, errorDetail);
     }
@@ -549,7 +555,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
             return;
         }
 
-        if (messageGroupEntity.getRejected()) {
+        if (BooleanUtils.isTrue(messageGroupEntity.getRejected())) {
             LOG.debug("The group [{}] is already marked as rejected", groupId);
             return;
         }
@@ -585,21 +591,20 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
 
         final List<UserMessage> userMessageFragments = messagingDao.findUserMessageByGroupId(groupId);
         if (userMessageFragments == null || userMessageFragments.isEmpty()) {
-            throw new SplitAndJoinException("Error generating the Signal SOAPMessage for SourceMessage [" + sourceMessageId + "]: no message fragments found");
+            throw new SplitAndJoinException(ERROR_GENERATING_THE_SIGNAL_SOAPMESSAGE_FOR_SOURCE_MESSAGE + sourceMessageId + "]: no message fragments found");
         }
 
-        final List<String> userMessageIds = userMessageFragments.stream().map(userMessage -> userMessage.getMessageInfo().getMessageId()).collect(Collectors.toList());
-        messageRetentionService.scheduleDeleteMessages(userMessageIds);
+        messageRetentionService.scheduleDeleteMessages(userMessageFragments);
 
         if (StringUtils.isNotEmpty(sourceMessageId)) {
             LOG.debug("Scheduling sending the Signal error for SourceMessage [{}]", sourceMessageId);
 
             final UserMessage messageFragment = userMessageFragments.iterator().next();
-            MessageExchangeConfiguration userMessageExchangeContext = null;
+            MessageExchangeConfiguration userMessageExchangeContext;
             try {
                 userMessageExchangeContext = pModeProvider.findUserMessageExchangeContext(messageFragment, MSHRole.RECEIVING);
             } catch (EbMS3Exception e) {
-                throw new SplitAndJoinException("Error generating the Signal SOAPMessage for SourceMessage [" + sourceMessageId + "]: could not get the MessageExchangeConfiguration", e);
+                throw new SplitAndJoinException(ERROR_GENERATING_THE_SIGNAL_SOAPMESSAGE_FOR_SOURCE_MESSAGE + sourceMessageId + "]: could not get the MessageExchangeConfiguration", e);
             }
             userMessageDefaultService.scheduleSendingSignalError(sourceMessageId, ebMS3ErrorCode, errorDetail, userMessageExchangeContext.getReversePmodeKey());
         }

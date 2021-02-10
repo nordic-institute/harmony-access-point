@@ -12,13 +12,27 @@
     </parent>
     <artifactId>domibus-api</artifactId>
     <packaging>jar</packaging>
-	<name>Domibus MSH API</name>
+    <name>Domibus MSH API</name>
 
     <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.hibernate</groupId>
+                            <artifactId>hibernate-jpamodelgen</artifactId>
+                            <version>${hibernate.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                    <compilerArgs>
+                        <compilerArg>
+                            -Amapstruct.defaultComponentModel=spring
+                        </compilerArg>
+                    </compilerArgs>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -95,6 +109,10 @@
 
         <!-- Start Apache -->
         <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
         </dependency>
@@ -115,6 +133,11 @@
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-transports-http</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.apache.wss4j</groupId>
+            <artifactId>wss4j-ws-security-common</artifactId>
+            <scope>provided</scope>
+        </dependency>
         <!-- End CXF -->
 
         <!-- Test dependencies -->
@@ -128,12 +151,5 @@
             <artifactId>jmockit</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>commons-httpclient</groupId>
-            <artifactId>commons-httpclient</artifactId>
-            <version>3.1</version>
-            <scope>compile</scope>
-        </dependency>
-
     </dependencies>
 </project>

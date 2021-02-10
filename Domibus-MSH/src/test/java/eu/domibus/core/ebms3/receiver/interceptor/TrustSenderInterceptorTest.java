@@ -9,7 +9,7 @@ import eu.domibus.core.ebms3.sender.interceptor.SoapInterceptorTest;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.core.pki.PKIUtil;
-import eu.domibus.core.spring.SpringContextProvider;
+import eu.domibus.api.spring.SpringContextProvider;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.cxf.binding.soap.SoapMessage;

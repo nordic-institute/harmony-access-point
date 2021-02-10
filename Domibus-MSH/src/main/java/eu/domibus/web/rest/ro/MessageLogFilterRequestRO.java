@@ -1,10 +1,11 @@
 package eu.domibus.web.rest.ro;
 
 import eu.domibus.api.message.MessageSubtype;
-import eu.domibus.common.MSHRole;
-import eu.domibus.common.MessageStatus;
-import eu.domibus.core.plugin.notification.NotificationStatus;
-import eu.domibus.ebms3.common.model.MessageType;
+import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.MessageStatus;
+import eu.domibus.api.model.MessageType;
+import eu.domibus.api.model.NotificationStatus;
+import eu.domibus.api.validators.CustomWhiteListed;
 
 import java.io.Serializable;
 
@@ -15,23 +16,48 @@ import java.io.Serializable;
 
 public class MessageLogFilterRequestRO implements Serializable {
     private int page = 0;
+
     private int pageSize = 10;
+
     private Boolean asc = true;
+
     private String orderBy;
+
     private String messageId;
+
     private String conversationId;
+
     private MSHRole mshRole;
+
     private MessageType messageType = MessageType.USER_MESSAGE;
+
     private MessageStatus messageStatus;
+
     private NotificationStatus notificationStatus;
+
     private String fromPartyId;
+
     private String toPartyId;
+
     private String refToMessageId;
+
     private String originalSender;
+
     private String finalRecipient;
+
     private String receivedFrom;
+
     private String receivedTo;
+
     private MessageSubtype messageSubtype;
+
+    @CustomWhiteListed(permitted = ":/-.")
+    private String action;
+
+    private String serviceType;
+
+    @CustomWhiteListed(permitted = ":/-.")
+    private String serviceValue;
 
     public int getPage() {
         return page;
@@ -175,5 +201,29 @@ public class MessageLogFilterRequestRO implements Serializable {
 
     public void setReceivedTo(String receivedTo) {
         this.receivedTo = receivedTo;
+    }
+
+    public String getAction() {
+        return action;
+    }
+
+    public String getServiceType() {
+        return serviceType;
+    }
+
+    public String getServiceValue() {
+        return serviceValue;
+    }
+
+    public void setAction(String action) {
+        this.action = action;
+    }
+
+    public void setServiceType(String serviceType) {
+        this.serviceType = serviceType;
+    }
+
+    public void setServiceValue(String serviceValue) {
+        this.serviceValue = serviceValue;
     }
 }

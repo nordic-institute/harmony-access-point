@@ -1,0 +1,44 @@
+<h2 mat-dialog-title>Upload Certificate</h2>
+
+<mat-dialog-content style="width:450px;">
+
+  <form [formGroup]="truststoreForm">
+    <mat-card>
+      <mat-card-content>
+
+        <label class="custom-file-upload">
+          <input #fileInput type="file" id="truststore" accept=".cer" (change)="selectFile()" style="display: none;">
+          <span class="custom-file-upload-inner">Choose File </span>
+        </label>
+        {{selectedFileName}}
+
+        <mat-form-field class="password" style="margin-top: 20px;">
+          <input matInput placeholder="Alias" id="alias_id" name="alias" type="text"
+                 [formControl]="truststoreForm.controls['alias']" required="true">
+          <span class="help-block" *ngIf="shouldShowErrors(truststoreForm.controls['alias'])">
+              <div *ngIf="truststoreForm.controls['alias'].errors?.required" class="error">Certificate alias is required</div>
+          </span>
+        </mat-form-field>
+
+      </mat-card-content>
+    </mat-card>
+
+    <div class="buttonsRow">
+      <button id="okbuttonupload_id" class="button" mat-raised-button color="primary" (click)="submit()"
+              [disabled]="!isFormValid()">
+        <mat-icon>check_circle</mat-icon>
+        <span>OK</span>
+      </button>
+      <button id="cancelbuttonupload_id" class="button" mat-raised-button color="primary" (click)="dialogRef.close(null)">
+        <mat-icon>cancel</mat-icon>
+        <span>Cancel</span>
+      </button>
+    </div>
+
+    <div class="legend">* required fields</div>
+  </form>
+</mat-dialog-content>
+
+
+
+

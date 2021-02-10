@@ -188,7 +188,7 @@ public class PmodePartiesPgTest extends SeleniumTest {
 		soft.assertAll();
 	}
 	
-	@Test(description = "PMP-7", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "PMP-7", groups = {"multiTenancy", "singleTenancy"})
 	public void editParty() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
@@ -203,7 +203,6 @@ public class PmodePartiesPgTest extends SeleniumTest {
 		log.info("Login and navigate to pmode parties page");
 		PModePartiesPage page = navigateToPage();
 
-//		String newPartyName = Gen.randomAlphaNumeric(5);
 		String newEndpoint = "http://" + Gen.randomAlphaNumeric(10).toLowerCase() + ".com";
 
 		

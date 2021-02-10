@@ -1,10 +1,10 @@
 package eu.domibus.core.replication;
 
 import eu.domibus.api.message.MessageSubtype;
-import eu.domibus.common.MSHRole;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.MessageStatus;
-import eu.domibus.core.plugin.notification.NotificationStatus;
-import eu.domibus.ebms3.common.model.MessageType;
+import eu.domibus.api.model.NotificationStatus;
+import eu.domibus.api.model.MessageType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.hibernate.annotations.Immutable;
@@ -108,6 +108,15 @@ public class UIMessageDiffEntity {
 
     @Column(name = "TO_SCHEME")
     private String toScheme;
+
+    @Column(name = "ACTION")
+    private String action;
+
+    @Column(name = "SERVICE_TYPE")
+    private String serviceType;
+
+    @Column(name = "SERVICE_VALUE")
+    private String serviceValue;
 
     public void setMessageId(String messageId) {
         this.messageId = messageId;
@@ -262,6 +271,30 @@ public class UIMessageDiffEntity {
 
     public String getRefToMessageId() {
         return refToMessageId;
+    }
+
+    public String getAction() {
+        return action;
+    }
+
+    public void setAction(String action) {
+        this.action = action;
+    }
+
+    public String getServiceType() {
+        return serviceType;
+    }
+
+    public void setServiceType(String serviceType) {
+        this.serviceType = serviceType;
+    }
+
+    public String getServiceValue() {
+        return serviceValue;
+    }
+
+    public void setServiceValue(String serviceValue) {
+        this.serviceValue = serviceValue;
     }
 
     @Override

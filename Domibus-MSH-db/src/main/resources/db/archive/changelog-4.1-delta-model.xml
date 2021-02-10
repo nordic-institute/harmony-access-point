@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+
+<databaseChangeLog xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <!-- properties - to be used in column definitions -->
+    <include file="../common/changelog-properties.xml" relativeToChangelogFile="true"/>
+
+    <changeSet author="nperpion" id="EDELIVERY-3651">
+        <addColumn tableName="TB_USER">
+            <column name="PASSWORD_CHANGE_DATE" type="TIMESTAMP" defaultValueComputed="${now}">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <addColumn tableName="TB_USER">
+            <column name="DEFAULT_PASSWORD" type="BOOLEAN" defaultValueBoolean="false" />
+        </addColumn>
+        <addColumn tableName="TB_USER_AUD">
+            <column name="PASSWORD_CHANGE_DATE" type="TIMESTAMP"></column>
+        </addColumn>
+        <addColumn tableName="TB_USER_AUD">
+            <column name="PASSWORDCHANGEDATE_MOD" type="BOOLEAN"></column>
+        </addColumn>
+        <addColumn tableName="TB_USER_AUD">
+            <column name="DEFAULT_PASSWORD" type="BOOLEAN"></column>
+        </addColumn>
+        <addColumn tableName="TB_USER_AUD">
+            <column name="DEFAULTPASSWORD_MOD" type="BOOLEAN"></column>
+        </addColumn>
+
+        <createTable tableName="TB_USER_PASSWORD_HISTORY">
+            <column autoIncrement="true" name="ID_PK" type="INT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="USER_ID" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="USER_PASSWORD" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="PASSWORD_CHANGE_DATE" type="TIMESTAMP"/>
+        </createTable>
+
+        <createIndex indexName="IDX_UPH_USER_ID" tableName="TB_USER_PASSWORD_HISTORY">
+            <column name="USER_ID"/>
+        </createIndex>
+
+        <addForeignKeyConstraint baseColumnNames="USER_ID" baseTableName="TB_USER_PASSWORD_HISTORY"
+                                 constraintName="FK_USER_PASSWORD_HISTORY" deferrable="false" initiallyDeferred="false"
+                                 onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_USER"/>
+
+        <addColumn tableName="TB_EVENT">
+            <column name="LAST_ALERT_DATE" type="TIMESTAMP"/>
+        </addColumn>
+
+    </changeSet>
+
+    <changeSet id="EDELIVERY-1206" author="CatalinEnache">
+        <createTable tableName="TB_COMMAND_PROPERTY">
+            <column name="PROPERTY_NAME" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="PROPERTY_VALUE" type="VARCHAR(255)"/>
+            <column name="FK_COMMAND" type="INT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint columnNames="FK_COMMAND, PROPERTY_NAME" constraintName="UNI_COMMAND_PROP_NAME"
+                             tableName="TB_COMMAND_PROPERTY"/>
+    </changeSet>
+    <changeSet id="EDELIVERY-4088" author="Cosmin Baciu">
+        <createTable tableName="TB_SPLITTING" remarks="Stores the configuration of the SplitAndJoin parameters configured in the PMode ">
+            <column autoIncrement="true" name="ID_PK" type="INT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="NAME" type="VARCHAR(255)" remarks="Splitting configuration name"/>
+            <column name="FRAGMENT_SIZE" type="INT" remarks="The fragment size"/>
+            <column name="COMPRESSION" type="BOOLEAN" remarks="True if compression will be used"/>
+            <column name="COMPRESSION_ALGORITHM" type="VARCHAR(255)" remarks="Compression algorithm to use for compressing the SourceMessage"/>
+            <column name="JOIN_INTERVAL" type="INT" remarks="The join interval"/>
+            <column name="FK_BUSINESSPROCESS" type="INT" remarks="Foreign key to the business process"/>
+        </createTable>
+
+        <addColumn tableName="TB_LEG">
+            <column name="FK_SPLITTING" type="INT"/>
+        </addColumn>
+        <createIndex indexName="FK_LEG_SPLT" tableName="TB_LEG">
+            <column name="FK_SPLITTING"/>
+        </createIndex>
+        <createIndex indexName="FK_SPLT_BP" tableName="TB_SPLITTING">
+            <column name="FK_BUSINESSPROCESS"/>
+        </createIndex>
+        <addForeignKeyConstraint baseColumnNames="FK_SPLITTING" baseTableName="TB_LEG"
+                                 constraintName="UK_LEG_SPLT" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_SPLITTING"/>
+
+
+        <createTable tableName="TB_MESSAGE_HEADER" remarks="Stores the message header details for SplitAndJoin">
+            <column autoIncrement="true" name="ID_PK" type="INT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="BOUNDARY" type="VARCHAR(255)" remarks="The multipart boundary value"/>
+            <column name="START" type="VARCHAR(255)" remarks="The multipart start value"/>
+        </createTable>
+
+        <createTable tableName="TB_MESSAGE_GROUP" remarks="Stores information about the message group for SplitAndJoin">
+            <column autoIncrement="true" name="ID_PK" type="INT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="GROUP_ID" type="VARCHAR(255)" remarks="The group id">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MSH_ROLE" type="VARCHAR(255)" remarks="The role of the MSH"/>
+            <column name="SOURCE_MESSAGE_ID" type="VARCHAR(255)" remarks="The SourceMessage id"/>
+            <column name="MESSAGE_SIZE" type="BIGINT" remarks="The message size before compression"/>
+            <column name="FRAGMENT_COUNT" type="INT" remarks="The message fragment count"/>
+            <column name="SENT_FRAGMENTS" type="INT" remarks="Stores how many fragments have been sent"/>
+            <column name="RECEIVED_FRAGMENTS" type="INT" remarks="Stores how many fragments have been received"/>
+            <column name="COMPRESSION_ALGORITHM" type="VARCHAR(255)" remarks="Compression algorithm used for the SourceMessage"/>
+            <column name="COMPRESSED_MESSAGE_SIZE" type="BIGINT" remarks="The size of the message after compression"/>
+            <column name="SOAP_ACTION" type="VARCHAR(255)" remarks="The Soap action value"/>
+            <column name="FK_MESSAGE_HEADER_ID" type="INT" remarks="Foreign key to the TB_MESSAGE_HEADER"/>
+            <column name="REJECTED" type="BOOLEAN" remarks="True if the message group has been rejected"/>
+            <column name="EXPIRED" type="BOOLEAN" remarks="True if the message group has expired"/>
+        </createTable>
+        <createIndex indexName="FK_MG_MH" tableName="TB_MESSAGE_GROUP">
+            <column name="FK_MESSAGE_HEADER_ID"/>
+        </createIndex>
+
+        <addColumn tableName="TB_USER_MESSAGE">
+            <column name="FK_MESSAGE_FRAGMENT_ID" type="INT"/>
+            <column name="SPLIT_AND_JOIN" type="BOOLEAN"/>
+        </addColumn>
+        <createIndex indexName="FK_UM_MF" tableName="TB_USER_MESSAGE">
+            <column name="FK_MESSAGE_FRAGMENT_ID"/>
+        </createIndex>
+
+        <addColumn tableName="TB_MESSAGE_LOG">
+            <column name="SOURCE_MESSAGE" type="BOOLEAN" remarks="true if the message is a SourceMessage"/>
+            <column name="MESSAGE_FRAGMENT" type="BOOLEAN" remarks="true if the message is a message fragment"/>
+        </addColumn>
+
+        <createTable tableName="TB_MESSAGE_FRAGMENT">
+            <column autoIncrement="true" name="ID_PK" type="INT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="GROUP_ID" type="VARCHAR(255)"/>
+            <column name="FRAGMENT_NUMBER" type="INT"/>
+        </createTable>
+        <createIndex indexName="IDX_MF_GRP_ID" tableName="TB_MESSAGE_FRAGMENT">
+            <column name="GROUP_ID"/>
+        </createIndex>
+    </changeSet>
+
+
+    <changeSet author="nperpion" id="EDELIVERY-3979">
+
+        <addColumn tableName="TB_AUTHENTICATION_ENTRY">
+            <column name="PASSWORD_CHANGE_DATE" type="TIMESTAMP"/>
+        </addColumn>
+        <addColumn tableName="TB_AUTHENTICATION_ENTRY">
+            <column name="DEFAULT_PASSWORD" type="BOOLEAN" defaultValueBoolean="false" />
+        </addColumn>
+
+        <createTable tableName="TB_PLUGIN_USER_PASSWD_HISTORY">
+            <column autoIncrement="true" name="ID_PK" type="INT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="USER_ID" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="USER_PASSWORD" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="PASSWORD_CHANGE_DATE" type="TIMESTAMP"/>
+        </createTable>
+
+        <createIndex indexName="IDX_PLUGIN_USER_ID" tableName="TB_PLUGIN_USER_PASSWD_HISTORY">
+            <column name="USER_ID"/>
+        </createIndex>
+
+        <addForeignKeyConstraint baseColumnNames="USER_ID" baseTableName="TB_PLUGIN_USER_PASSWD_HISTORY"
+                                 constraintName="FK_PLUGIN_USER_PASSWD_HISTORY" deferrable="false" initiallyDeferred="false"
+                                 onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_AUTHENTICATION_ENTRY"/>
+
+    </changeSet>
+
+    <changeSet author="nperpion" id="EDELIVERY-4210">
+        <addColumn tableName="TB_AUTHENTICATION_ENTRY">
+            <column name="ATTEMPT_COUNT" type="int" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <addColumn tableName="TB_AUTHENTICATION_ENTRY">
+            <column name="SUSPENSION_DATE" type="timestamp"/>
+        </addColumn>
+        <addColumn tableName="TB_AUTHENTICATION_ENTRY">
+            <column name="USER_ENABLED" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <changeSet author="nperpion" id="EDELIVERY-3811">
+
+        <createTable tableName="TB_AUTHENTICATION_ENTRY_AUD">
+            <column name="ID_PK" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="REV" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="REVTYPE" type="TINYINT"/>
+            <column name="CERTIFICATE_ID" type="VARCHAR(255)"/>
+            <column name="CERTIFICATEID_MOD" type="BOOLEAN"/>
+            <column name="USERNAME" type="VARCHAR(255)"/>
+            <column name="USERNAME_MOD" type="BOOLEAN"/>
+            <column name="PASSWD" type="VARCHAR(255)"/>
+            <column name="PASSWORD_MOD" type="BOOLEAN"/>
+            <column name="AUTH_ROLES" type="VARCHAR(255)"/>
+            <column name="AUTHROLES_MOD" type="BOOLEAN"/>
+            <column name="ORIGINAL_USER" type="VARCHAR(255)"/>
+            <column name="ORIGINALUSER_MOD" type="BOOLEAN"/>
+            <column name="BACKEND" type="VARCHAR(255)"/>
+            <column name="BACKEND_MOD" type="BOOLEAN"/>
+            <column name="USER_ENABLED" type="BOOLEAN"/>
+            <column name="ACTIVE_MOD" type="BOOLEAN"/>
+            <column name="PASSWORD_CHANGE_DATE" type="TIMESTAMP"></column>
+            <column name="PASSWORDCHANGEDATE_MOD" type="BOOLEAN"></column>
+            <column name="DEFAULT_PASSWORD" type="BOOLEAN"></column>
+            <column name="DEFAULTPASSWORD_MOD" type="BOOLEAN"></column>
+        </createTable>
+
+        <addPrimaryKey columnNames="ID_PK, REV" constraintName="PK_AUTHENTICATION_ENTRY_AUD" tableName="TB_AUTHENTICATION_ENTRY_AUD"/>
+
+        <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_AUTHENTICATION_ENTRY_AUD"
+                                 constraintName="FK_AUTH_ENTRY_AUD_REV" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID" referencedTableName="TB_REV_INFO"/>
+
+        <createIndex indexName="IDX_FK_AUTH_ENTRY_AUD_REV" tableName="TB_AUTHENTICATION_ENTRY_AUD">
+            <column name="REV"/>
+        </createIndex>
+
+    </changeSet>
+    <changeSet author="Cosmin Baciu" id="EDELIVERY-4399">
+        <addColumn tableName="TB_MESSAGE_LOG">
+            <column name="SCHEDULED" type="BOOLEAN" remarks="true if the message is already scheduled to be sent"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet author="Catalin Enache" id="EDELIVERY-4410">
+        <dropIndex tableName="TB_MESSAGE_LOG" indexName="IDX_MESSAGE_LOG_M_STATUS"/>
+        <createIndex indexName="IDX_MSG_LOG_M_STATUS_SEND_ATT" tableName="TB_MESSAGE_LOG">
+            <column name="MESSAGE_STATUS"/>
+            <column name="SEND_ATTEMPTS" />
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="EDELIVERY-4741" author="Ion Perpegel" dbms="mysql">
+        <modifyDataType tableName="TB_CERTIFICATE" newDataType="DATETIME" columnName="NOT_VALID_BEFORE_DATE"/>
+        <modifyDataType tableName="TB_CERTIFICATE" newDataType="DATETIME" columnName="NOT_VALID_AFTER_DATE"/>
+    </changeSet>
+
+    <changeSet author="Catalin Enache" id="EDELIVERY-5390">
+        <sql dbms="mysql">
+            SET @OLD_SQL_NOTES = @@SQL_NOTES;
+            SET SQL_NOTES = 0;
+
+            CREATE TABLE IF NOT EXISTS TB_COMMAND (ID_PK INT AUTO_INCREMENT NOT NULL, SERVER_NAME VARCHAR(255) NOT NULL, COMMAND_NAME VARCHAR(255) NOT NULL, DOMAIN VARCHAR(255) NOT NULL, CREATION_TIME timestamp NULL, CONSTRAINT PK_TB_COMMAND PRIMARY KEY (ID_PK));
+
+            SET SQL_NOTES = @OLD_SQL_NOTES;
+        </sql>
+        <sql dbms="oracle" endDelimiter="\n/">
+            DECLARE
+            ncount   NUMBER;
+            v_sql    LONG;
+            BEGIN
+            SELECT
+            COUNT(*)
+            INTO ncount
+            FROM
+            user_tables
+            WHERE
+            table_name = 'TB_COMMAND';
+
+            IF ( ncount &lt;= 0 ) THEN
+            v_sql :=
+                'CREATE TABLE TB_COMMAND (ID_PK INTEGER NOT NULL, SERVER_NAME VARCHAR2(255) NOT NULL,
+                COMMAND_NAME VARCHAR2(255) NOT NULL, DOMAIN VARCHAR2(255) NOT NULL, CREATION_TIME TIMESTAMP,
+                CONSTRAINT PK_TB_COMMAND PRIMARY KEY (ID_PK)) ';
+            EXECUTE IMMEDIATE v_sql;
+            END IF;
+            END;
+        </sql>
+    </changeSet>
+</databaseChangeLog>

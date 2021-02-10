@@ -22,6 +22,7 @@ public class Command {
     public static final String DOMIBUS_PROPERTY_CHANGE = "DOMIBUS_PROPERTY_CHANGE";
     public static final String MESSAGE_FILTER_UPDATE = "MESSAGE_FILTER_UPDATE";
     public static final String USER_SESSION_INVALIDATION = "USER_SESSION_INVALIDATION";
+    public static final String RELOAD_TLS_TRUSTSTORE = "RELOAD_TLS_TRUSTSTORE";
 
     private int entityId;
     protected String commandName;

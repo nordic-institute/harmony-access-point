@@ -335,11 +335,11 @@
         <!-- BouncyCastle: In order to enable gcm algorithms it was necessary to use a more recent version of bouncy castle (at least 1.49) -->
         <dependency>
             <groupId>org.bouncycastle</groupId>
-            <artifactId>bcprov-jdk15on</artifactId>
+            <artifactId>bcprov-jdk15to18</artifactId>
         </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>
-            <artifactId>bcpkix-jdk15on</artifactId>
+            <artifactId>bcpkix-jdk15to18</artifactId>
         </dependency>
         <!-- End BouncyCastle -->
 
@@ -392,11 +392,6 @@
             <groupId>javax</groupId>
             <artifactId>javaee-api</artifactId>
             <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.thoughtworks.xstream</groupId>
-            <artifactId>xstream</artifactId>
         </dependency>
 
         <dependency>
@@ -555,7 +550,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>${maven-compiler-plugin.version}</version>
                 <configuration>
                     <annotationProcessorPaths>
                         <path>
