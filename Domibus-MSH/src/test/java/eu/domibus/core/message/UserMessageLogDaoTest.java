@@ -672,35 +672,6 @@ public class UserMessageLogDaoTest {
         Assert.assertEquals("Should have returned the correct count when filters provided", 4, result);
     }
 
-//    @Test
-//    public void testCountAllInfo_returnsAllWhenNoFilters() {
-//        // GIVEN
-//        new Expectations(userMessageLogDao) {{
-//            userMessageLogDao.countAll(); result = 7;
-//        }};
-//
-//        // WHEN
-//        long result = userMessageLogDao.countEntries(new HashMap<>());
-//
-//        // THEN
-//        Assert.assertEquals("Should have returned the total count when no filters provided", 7, result);
-//    }
-
-//    @Test
-//    public void testCountAll(@Injectable Query query) {
-//        // GIVEN
-//        new Expectations() {{
-//            em.createNativeQuery("SELECT count(um.ID_PK) FROM  TB_USER_MESSAGE um"); result = query;
-//            query.getSingleResult(); result = 10;
-//        }};
-//
-//        // WHEN
-//        Integer result = userMessageLogDao.countAll();
-//
-//        // THEN
-//        Assert.assertEquals("Should have returned the correct total count", Integer.valueOf(10), result);
-//    }
-
     @Test
     public void testFindAllInfoPaged(@Injectable Map<String, Object> filters,
                                      @Injectable TypedQuery<MessageLogInfo> query,

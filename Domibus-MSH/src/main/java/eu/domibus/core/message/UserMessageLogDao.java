@@ -205,13 +205,6 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         messageLog.setNotificationStatus(NotificationStatus.NOTIFIED);
     }
 
-//    public Integer countAll() {
-//        LOG.debug("Executing native query");
-//        final Query nativeQuery = em.createNativeQuery("SELECT count(um.ID_PK) FROM  TB_USER_MESSAGE um");
-//        final Number singleResult = (Number) nativeQuery.getSingleResult();
-//        return singleResult.intValue();
-//    }
-
     @Override
     public List<MessageLogInfo> findAllInfoPaged(int from, int max, String column, boolean asc, Map<String, Object> filters) {
         if (LOG.isDebugEnabled()) {

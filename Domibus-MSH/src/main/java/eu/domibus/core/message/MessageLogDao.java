@@ -136,12 +136,6 @@ public abstract class MessageLogDao<F extends MessageLog> extends ListDao<F> imp
 
     @Override
     public long countEntries(Map<String, Object> filters) {
-//        final Map<String, Object> filteredEntries = Maps.filterEntries(filters, input -> input.getValue() != null);
-//        // the filters are never empty so this is a dead code
-//        if (filteredEntries.size() == 0) {
-//            LOG.debug("Filter empty");
-//            return countAll();
-//        }
         return countRecords(filters, 0);
     }
 
@@ -149,8 +143,6 @@ public abstract class MessageLogDao<F extends MessageLog> extends ListDao<F> imp
     public long countEntriesWithLimit(Map<String, Object> filters, int limit) {
         return countRecords(filters, limit);
     }
-
-//    public abstract Integer countAll();
 
     public abstract List<MessageLogInfo> findAllInfoPaged(int from, int max, String column, boolean asc, Map<String, Object> filters);
 
