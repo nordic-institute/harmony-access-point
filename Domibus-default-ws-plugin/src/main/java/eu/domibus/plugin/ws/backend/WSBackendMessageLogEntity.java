@@ -1,5 +1,6 @@
 package eu.domibus.plugin.ws.backend;
 
+import eu.domibus.common.MessageStatus;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -12,7 +13,7 @@ import java.util.Date;
  * @since 5.0
  */
 @Entity
-@Table(name = "WS_PLUGIN_TB_BACKEND_MESSAGE_LOG")
+@Table(name = "WS_PLUGIN_TB_BACKEND_MSG_LOG")
 @NamedQuery(name = "WSBackendMessageLogEntity.findByMessageId",
         query = "select wsBackendMessageLogEntity " +
                 "from WSBackendMessageLogEntity wsBackendMessageLogEntity " +
@@ -59,7 +60,11 @@ public class WSBackendMessageLogEntity {
 
     @Column(name = "BACKEND_MESSAGE_STATUS")
     @Enumerated(EnumType.STRING)
-    private WSBackendMessageStatus messageStatus;
+    private WSBackendMessageStatus backendMessageStatus;
+
+    @Column(name = "MESSAGE_STATUS")
+    @Enumerated(EnumType.STRING)
+    private MessageStatus messageStatus;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "BACKEND_MESSAGE_TYPE")
@@ -166,11 +171,19 @@ public class WSBackendMessageLogEntity {
         return this;
     }
 
-    public WSBackendMessageStatus getMessageStatus() {
+    public WSBackendMessageStatus getBackendMessageStatus() {
+        return backendMessageStatus;
+    }
+
+    public void setBackendMessageStatus(WSBackendMessageStatus backendMessageStatus) {
+        this.backendMessageStatus = backendMessageStatus;
+    }
+
+    public MessageStatus getMessageStatus() {
         return messageStatus;
     }
 
-    public void setMessageStatus(WSBackendMessageStatus messageStatus) {
+    public void setMessageStatus(MessageStatus messageStatus) {
         this.messageStatus = messageStatus;
     }
 

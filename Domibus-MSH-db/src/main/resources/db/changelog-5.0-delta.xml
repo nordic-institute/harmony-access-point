@@ -10,9 +10,9 @@
 
     <changeSet author="Francois Gautier" id="EDELIVERY-2427">
         <comment>WS Plugin specific tables for backend dispatch</comment>
-        <createTable tableName="WS_PLUGIN_TB_BACKEND_MESSAGE_LOG">
+        <createTable tableName="WS_PLUGIN_TB_BACKEND_MSG_LOG">
             <column name="ID_PK" type="BIGINT" autoIncrement="true" remarks="Primary key identifying the record of the table">
-                <constraints primaryKey="true" primaryKeyName="PK_WS_PLUGIN_TB_BACKEND_MESSAGE_LOG"/>
+                <constraints primaryKey="true" primaryKeyName="PK_WS_PLUGIN_TB_BACKEND_MSG_LOG"/>
             </column>
 
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
@@ -31,6 +31,7 @@
             <column name="ORIGINAL_SENDER" type="VARCHAR(255)" remarks="Original sender of the domibus message"/>
 
             <column name="BACKEND_MESSAGE_STATUS" type="VARCHAR(255)" remarks="The status describing the state of the backend message"/>
+            <column name="MESSAGE_STATUS" type="VARCHAR(255)" remarks="The status describing the state of the domibus message"/>
             <column name="BACKEND_MESSAGE_TYPE" type="VARCHAR(255)" remarks="The type describing the kind backend message"/>
 
             <column name="RULE_NAME" type="VARCHAR(255)" remarks="Name of the rule used for dispatching"/>

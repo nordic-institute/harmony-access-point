@@ -43,7 +43,7 @@ public class WSBackendMessageLogDao extends WSBasicDao<WSBackendMessageLogEntity
     /**
      * Find the backend messages with:
      * <p>
-     * {@link WSBackendMessageLogEntity#getMessageStatus()} ()} = {@code WSBackendMessageStatus.WAITING_FOR_RETRY}
+     * {@link WSBackendMessageLogEntity#getBackendMessageStatus()} ()} = {@code WSBackendMessageStatus.WAITING_FOR_RETRY}
      * {@link WSBackendMessageLogEntity#getNextAttempt()} < {@code CURRENT_TIMESTAMP}
      * 0 < {@link WSBackendMessageLogEntity#getSendAttempts()} < {@link WSBackendMessageLogEntity#getSendAttemptsMax()}
      * {@link WSBackendMessageLogEntity#getScheduled()} is {@code false} or {@code null}

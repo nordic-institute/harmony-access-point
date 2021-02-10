@@ -1,5 +1,6 @@
 package eu.domibus.plugin.ws.backend.reliability.retry;
 
+import eu.domibus.common.MessageStatus;
 import eu.domibus.ext.domain.JMSMessageDTOBuilder;
 import eu.domibus.ext.domain.JmsMessageDTO;
 import eu.domibus.ext.services.JMSExtService;
@@ -20,6 +21,7 @@ import javax.jms.JMSException;
 import javax.jms.Queue;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static eu.domibus.plugin.ws.backend.reliability.queue.WSMessageListenerContainerConfiguration.WS_PLUGIN_SEND_QUEUE;
 import static java.lang.String.join;
@@ -96,8 +98,8 @@ public class WSPluginBackendScheduleRetryService {
     }
 
     @Transactional
-    public void schedule(String messageId, String finalRecipient, String originalSender, WSPluginDispatchRule rule, WSBackendMessageType messageType) {
-        WSBackendMessageLogEntity backendMessage = createWsBackendMessageLogEntity(messageId, messageType, finalRecipient, originalSender, rule);
+    public void schedule(String messageId, Map<String, String> props, WSPluginDispatchRule rule, WSBackendMessageType messageType) {
+        WSBackendMessageLogEntity backendMessage = createWsBackendMessageLogEntity(messageId, messageType, props, rule);
         wsBackendMessageLogDao.create(backendMessage);
         scheduleBackendMessage(backendMessage);
     }
@@ -105,7 +107,7 @@ public class WSPluginBackendScheduleRetryService {
     @Transactional
     public void schedule(List<String> messageIds, String finalRecipient, WSPluginDispatchRule rule, WSBackendMessageType messageType) {
         WSBackendMessageLogEntity backendMessage = createWsBackendMessageLogEntity(
-                join(";", messageIds), messageType, finalRecipient, null, rule);
+                join(";", messageIds), messageType, finalRecipient, rule);
         wsBackendMessageLogDao.create(backendMessage);
         LOG.info("Scheduling messageType: [{}] backend message id [{}] for [{}] domibus messagesIds [{}] to be sent", messageType, backendMessage.getEntityId(), messageIds.size(), messageIds);
         scheduleBackendMessage(backendMessage);
@@ -115,16 +117,27 @@ public class WSPluginBackendScheduleRetryService {
             String messageId,
             WSBackendMessageType messageType,
             String finalRecipient,
-            String originalSender,
             WSPluginDispatchRule rule) {
         WSBackendMessageLogEntity wsBackendMessageLogEntity = new WSBackendMessageLogEntity();
         wsBackendMessageLogEntity.setMessageId(messageId);
         wsBackendMessageLogEntity.setRuleName(rule.getRuleName());
         wsBackendMessageLogEntity.setFinalRecipient(finalRecipient);
-        wsBackendMessageLogEntity.setOriginalSender(originalSender);
         wsBackendMessageLogEntity.setType(messageType);
         wsBackendMessageLogEntity.setSendAttempts(0);
         wsBackendMessageLogEntity.setSendAttemptsMax(rule.getRetryCount());
+        return wsBackendMessageLogEntity;
+    }
+    protected WSBackendMessageLogEntity createWsBackendMessageLogEntity(
+            String messageId,
+            WSBackendMessageType messageType,
+            Map<String, String> props,
+            WSPluginDispatchRule rule) {
+        WSBackendMessageLogEntity wsBackendMessageLogEntity = createWsBackendMessageLogEntity(messageId, messageType,props.get(MessageConstants.FINAL_RECIPIENT) , rule);
+        wsBackendMessageLogEntity.setOriginalSender(props.get(MessageConstants.ORIGINAL_SENDER));
+        props.computeIfPresent(MessageConstants.STATUS_TO, (key, value) -> {
+            wsBackendMessageLogEntity.setMessageStatus(MessageStatus.valueOf(value));
+            return value;
+        });
         return wsBackendMessageLogEntity;
     }
 }

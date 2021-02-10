@@ -70,7 +70,7 @@ public class WSPluginMessageSender {
             String endpoint = dispatchRule.getEndpoint();
             LOG.debug("Endpoint identified: [{}]", endpoint);
             dispatcher.dispatch(messageBuilder.buildSOAPMessage(backendMessage), endpoint);
-            backendMessage.setMessageStatus(WSBackendMessageStatus.SENT);
+            backendMessage.setBackendMessageStatus(WSBackendMessageStatus.SENT);
             LOG.info("Backend notification [{}] for domibus id [{}] sent to [{}] successfully",
                     backendMessage.getType(),
                     backendMessage.getMessageId(),

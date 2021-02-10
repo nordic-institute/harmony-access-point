@@ -15,10 +15,7 @@ import org.junit.runner.RunWith;
 
 import javax.jms.JMSException;
 import javax.jms.Queue;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.Assert.*;
 
@@ -89,7 +86,10 @@ public class WSPluginBackendScheduleRetryServiceTest {
             times = 1;
         }};
 
-        retryService.schedule(MESSAGE_ID, FINAL_RECIPIENT, ORIGINAL_SENDER, rule, WSBackendMessageType.SEND_SUCCESS);
+        HashMap<String, String> props = new HashMap<>();
+        props.put(FINAL_RECIPIENT, FINAL_RECIPIENT);
+        props.put(ORIGINAL_SENDER, ORIGINAL_SENDER);
+        retryService.schedule(MESSAGE_ID, props, rule, WSBackendMessageType.SEND_SUCCESS);
 
         new Verifications() {{
             WSBackendMessageLogEntity wsBackendMessageLogEntity;
@@ -168,7 +168,7 @@ public class WSPluginBackendScheduleRetryServiceTest {
     public void send(@Mocked WSPluginDispatchRule rule,
                      @Mocked WSBackendMessageLogEntity backendMessage) {
         new Expectations(retryService) {{
-            retryService.createWsBackendMessageLogEntity("1;2", WSBackendMessageType.DELETED_BATCH, FINAL_RECIPIENT, null, rule);
+            retryService.createWsBackendMessageLogEntity("1;2", WSBackendMessageType.DELETED_BATCH, FINAL_RECIPIENT, rule);
             result = backendMessage;
 
             backendMessage.getEntityId();

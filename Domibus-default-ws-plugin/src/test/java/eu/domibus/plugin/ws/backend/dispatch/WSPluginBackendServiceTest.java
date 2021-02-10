@@ -79,7 +79,7 @@ public class WSPluginBackendServiceTest {
         wsPluginBackendService.send(messageSendSuccessEvent, SEND_SUCCESS);
 
         new FullVerifications() {{
-            retryService.schedule(MESSAGE_ID, FINAL_RECIPIENT, ORIGINAL_SENDER, wsPluginDispatchRule, SEND_SUCCESS);
+            retryService.schedule(MESSAGE_ID, messageSendSuccessEvent.getProps(), wsPluginDispatchRule, SEND_SUCCESS);
             times = 1;
         }};
     }
@@ -90,8 +90,7 @@ public class WSPluginBackendServiceTest {
             properties.put(MessageConstants.FINAL_RECIPIENT, finalRecipient);
         }
         properties.put(MessageConstants.ORIGINAL_SENDER, ORIGINAL_SENDER);
-        MessageSendSuccessEvent messageSendSuccessEvent = new MessageSendSuccessEvent(MESSAGE_ID, properties);
-        return messageSendSuccessEvent;
+        return new MessageSendSuccessEvent(MESSAGE_ID, properties);
     }
 
     private void testSend(String knownProperty) {
@@ -297,7 +296,6 @@ public class WSPluginBackendServiceTest {
                 .collect(Collectors.toList());
         messageDeletedBatchEvent.setMessageDeletedEvents(messageIdsPerRecipient);
 
-        List<String> messageIds = new ArrayList<>();
         Map<String, List<String>> sorted = new HashMap<>();
         List<String> msgRecipient1 = Arrays.asList("1", "2");
         List<String> msgRecipient2 = Arrays.asList("1", "2");
