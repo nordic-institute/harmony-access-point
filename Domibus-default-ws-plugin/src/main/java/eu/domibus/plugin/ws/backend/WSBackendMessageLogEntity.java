@@ -21,7 +21,7 @@ import java.util.Date;
 @NamedQuery(name = "WSBackendMessageLogEntity.findRetryMessages",
         query = "select backendMessage " +
                 "from WSBackendMessageLogEntity backendMessage " +
-                "where backendMessage.messageStatus = :MESSAGE_STATUS " +
+                "where backendMessage.backendMessageStatus = :BACKEND_MESSAGE_STATUS " +
                 "and backendMessage.nextAttempt < :CURRENT_TIMESTAMP " +
                 "and 1 <= backendMessage.sendAttempts " +
                 "and backendMessage.sendAttempts <= backendMessage.sendAttemptsMax " +
