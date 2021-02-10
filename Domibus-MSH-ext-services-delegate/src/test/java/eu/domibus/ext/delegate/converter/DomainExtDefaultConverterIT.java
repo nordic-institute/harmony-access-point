@@ -27,7 +27,7 @@ import java.util.List;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(loader = AnnotationConfigContextLoader.class)
-public class DomainExtDefaultConverterTest {
+public class DomainExtDefaultConverterIT {
 
     @Configuration
     @ComponentScan(basePackageClasses = {MessageAcknowledgement.class, MessageAcknowledgementDTO.class, DomainExtDefaultConverter.class,  MonitoringMapperDecorator.class})
