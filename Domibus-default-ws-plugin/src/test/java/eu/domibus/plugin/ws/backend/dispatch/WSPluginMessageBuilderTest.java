@@ -58,6 +58,21 @@ public class WSPluginMessageBuilderTest {
     private WSPluginImpl wsPlugin;
 
     @Test
+    public void getJaxbElement_MessageStatusChange(@Mocked WSBackendMessageLogEntity messageLogEntity) {
+        new Expectations(wsPluginMessageBuilder) {{
+            messageLogEntity.getType();
+            result = WSBackendMessageType.MESSAGE_STATUS_CHANGE;
+
+            wsPluginMessageBuilder.getChangeStatus(messageLogEntity);
+            result = new MessageStatusChange();
+        }};
+        Object jaxbElement = wsPluginMessageBuilder.getJaxbElement(messageLogEntity);
+        assertEquals(MessageStatusChange.class, jaxbElement.getClass());
+        new FullVerifications() {
+        };
+    }
+
+    @Test
     public void getJaxbElement_sendSuccess(@Mocked WSBackendMessageLogEntity messageLogEntity) {
         new Expectations(wsPluginMessageBuilder) {{
             messageLogEntity.getType();

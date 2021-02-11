@@ -17,6 +17,7 @@ import javax.jms.JMSException;
 import javax.jms.Queue;
 import java.util.*;
 
+import static eu.domibus.common.MessageStatus.ACKNOWLEDGED;
 import static org.junit.Assert.*;
 
 /**
@@ -89,6 +90,7 @@ public class WSPluginBackendScheduleRetryServiceTest {
         HashMap<String, String> props = new HashMap<>();
         props.put(FINAL_RECIPIENT, FINAL_RECIPIENT);
         props.put(ORIGINAL_SENDER, ORIGINAL_SENDER);
+        props.put(MessageConstants.STATUS_TO, ACKNOWLEDGED.name());
         retryService.schedule(MESSAGE_ID, props, rule, WSBackendMessageType.SEND_SUCCESS);
 
         new Verifications() {{
@@ -98,6 +100,7 @@ public class WSPluginBackendScheduleRetryServiceTest {
 
             assertEquals(MESSAGE_ID, wsBackendMessageLogEntity.getMessageId());
             assertEquals(RULE_NAME, wsBackendMessageLogEntity.getRuleName());
+            assertEquals(ACKNOWLEDGED, wsBackendMessageLogEntity.getMessageStatus());
             assertEquals(FINAL_RECIPIENT, wsBackendMessageLogEntity.getFinalRecipient());
             assertEquals(ORIGINAL_SENDER, wsBackendMessageLogEntity.getOriginalSender());
             assertEquals(WSBackendMessageType.SEND_SUCCESS, wsBackendMessageLogEntity.getType());

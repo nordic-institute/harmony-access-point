@@ -85,10 +85,10 @@ public class WSPluginMessageBuilder {
         }
     }
 
-    private MessageStatusChange getChangeStatus(WSBackendMessageLogEntity messageLogEntity) {
+    protected MessageStatusChange getChangeStatus(WSBackendMessageLogEntity messageLogEntity) {
         MessageStatusChange messageStatusChange = new ObjectFactory().createMessageStatusChange();
         messageStatusChange.setMessageID(messageLogEntity.getMessageId());
-        messageStatusChange.setMessageStatus(MessageStatus.valueOf(messageLogEntity.getBackendMessageStatus().name()));
+        messageStatusChange.setMessageStatus(MessageStatus.valueOf(messageLogEntity.getMessageStatus().name()));
         return messageStatusChange;
     }
 

@@ -12,6 +12,7 @@ import eu.domibus.plugin.ws.backend.WSBackendMessageLogEntity;
 import eu.domibus.plugin.ws.backend.WSBackendMessageType;
 import eu.domibus.plugin.ws.backend.reliability.queue.WSSendMessageListener;
 import eu.domibus.plugin.ws.backend.rules.WSPluginDispatchRule;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -127,17 +128,18 @@ public class WSPluginBackendScheduleRetryService {
         wsBackendMessageLogEntity.setSendAttemptsMax(rule.getRetryCount());
         return wsBackendMessageLogEntity;
     }
+
     protected WSBackendMessageLogEntity createWsBackendMessageLogEntity(
             String messageId,
             WSBackendMessageType messageType,
             Map<String, String> props,
             WSPluginDispatchRule rule) {
-        WSBackendMessageLogEntity wsBackendMessageLogEntity = createWsBackendMessageLogEntity(messageId, messageType,props.get(MessageConstants.FINAL_RECIPIENT) , rule);
+        WSBackendMessageLogEntity wsBackendMessageLogEntity = createWsBackendMessageLogEntity(messageId, messageType, props.get(MessageConstants.FINAL_RECIPIENT), rule);
         wsBackendMessageLogEntity.setOriginalSender(props.get(MessageConstants.ORIGINAL_SENDER));
-        props.computeIfPresent(MessageConstants.STATUS_TO, (key, value) -> {
-            wsBackendMessageLogEntity.setMessageStatus(MessageStatus.valueOf(value));
-            return value;
-        });
+        String messageStatus = props.get(MessageConstants.STATUS_TO);
+        if (StringUtils.isNotBlank(messageStatus)) {
+            wsBackendMessageLogEntity.setMessageStatus(MessageStatus.valueOf(messageStatus));
+        }
         return wsBackendMessageLogEntity;
     }
 }
