@@ -70,7 +70,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
   resendReceivedMinutes: number;
 
   additionalPages = 0;
-  totalRowsMessage: string;
+  totalRowsMessage = '$1 total';
   estimatedCount = false;
 
   constructor(private applicationService: ApplicationContextService, private http: HttpClient, private alertService: AlertService,
