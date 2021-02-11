@@ -51,10 +51,11 @@ public class PayloadProfilesValidatorTest {
             payloadProfilesValidator.validatePayloadProfile(payloadProfile, validPayloads);
         }};
     }
+
     @Test
     public void test_validateEmptyPayloadProfile(final @Injectable Configuration configuration,
-                              final @Injectable PayloadProfile payloadProfile,
-                              final @Injectable Set<Payload> validPayloads) {
+                                                 final @Injectable PayloadProfile payloadProfile,
+                                                 final @Injectable Set<Payload> validPayloads) {
 
 
         new Expectations(payloadProfilesValidator) {{
