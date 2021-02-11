@@ -5,10 +5,7 @@ import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.common.model.configuration.Payload;
 import eu.domibus.common.model.configuration.PayloadProfile;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
-import mockit.Expectations;
-import mockit.FullVerifications;
-import mockit.Injectable;
-import mockit.Tested;
+import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -49,6 +46,29 @@ public class PayloadProfilesValidatorTest {
 
         new FullVerifications() {{
             payloadProfilesValidator.validatePayloadProfile(payloadProfile, validPayloads);
+        }};
+    }
+    @Test
+    public void test_validateEmptyPayloadProfile(final @Injectable Configuration configuration,
+                              final @Injectable PayloadProfile payloadProfile,
+                              final @Injectable Set<Payload> validPayloads) {
+
+
+
+        new Expectations(payloadProfilesValidator) {{
+            configuration.getBusinessProcesses().getPayloadProfiles();
+            result = null;
+
+            configuration.getBusinessProcesses().getPayloads();
+            result = validPayloads;
+        }};
+
+
+        payloadProfilesValidator.validate(configuration);
+
+        new Verifications() {{
+            payloadProfilesValidator.validatePayloadProfile(payloadProfile, validPayloads);
+            times=0;
         }};
     }
 
