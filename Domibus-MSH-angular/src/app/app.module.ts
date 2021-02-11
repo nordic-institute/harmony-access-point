@@ -1,19 +1,23 @@
 import {BrowserModule} from '@angular/platform-browser';
 import {ErrorHandler, NgModule} from '@angular/core';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {HTTP_INTERCEPTORS} from '@angular/common/http';
+import {HTTP_INTERCEPTORS, HttpClientModule} from '@angular/common/http';
 import {
   MatButtonModule,
-  MatButtonToggleModule, MatCardModule,
+  MatButtonToggleModule,
+  MatCardModule,
   MatCheckboxModule,
   MatDialogModule,
   MatExpansionModule,
   MatIconModule,
   MatInputModule,
   MatListModule,
-  MatMenuModule, MatProgressSpinnerModule,
+  MatMenuModule,
+  MatProgressSpinnerModule,
   MatSelectModule,
-  MatSidenavModule, MatSlideToggleModule, MatSnackBarModule,
+  MatSidenavModule,
+  MatSlideToggleModule,
+  MatSnackBarModule,
   MatTooltipModule
 } from '@angular/material';
 import 'hammerjs';
@@ -87,8 +91,7 @@ import {LogoutAuthExtProviderComponent} from './security/logout/logout.component
 import {RedirectHomeGuard} from './common/guards/redirect-home.guard';
 import {NotAuthorizedComponent} from './security/not-authorized/not-authorized.components';
 import {PropertiesComponent} from './properties/properties.component';
-import {HttpClientModule} from '@angular/common/http';
-import { CommonModule } from '@angular/common';
+import {CommonModule} from '@angular/common';
 import {DialogsService} from './common/dialogs/dialogs.service';
 import {GridHeaderComponent} from './common/grid-header/grid-header.component';
 import {FilterAreaFooterComponent} from './common/filter-area-footer/filter-area-footer.component';
@@ -110,6 +113,7 @@ import {AddNestedPropertyDialogComponent} from './properties/support/add-nested-
 import {TLSTruststoreComponent} from './truststore/tls.truststore.component';
 import {TruststoreComponent} from './truststore/truststore.component';
 import {CertificateUploadComponent} from './truststore/certificate-upload/certificate-upload.component';
+import {PluginUserValidatorService} from "./pluginuser/support/pluginuservalidator.service";
 
 @NgModule({
   declarations: [
@@ -255,6 +259,7 @@ import {CertificateUploadComponent} from './truststore/certificate-upload/certif
     },
     UserService,
     UserValidatorService,
+    PluginUserValidatorService,
     DialogsService,
     PropertiesService,
     FileUploadValidatorService,

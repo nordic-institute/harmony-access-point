@@ -59,6 +59,22 @@ export class PluginUserService {
     }
   }
 
+  validatePluginUsers(users: PluginUserRO[]) {
+    this.checkUserNameDuplication(users);
+  }
+
+  private checkUserNameDuplication(allPluginUsers: PluginUserRO[]) {
+    let seen = new Object();
+   // allPluginUsers = allPluginUsers.filter(user => user.userName === UserState[UserState.PERSISTED]);
+    allPluginUsers.filter(user => {
+      seen[user.userName] = seen[user.userName] == null ? 1 : seen[user.userName] + 1;
+    });
+    const list = Object.keys(seen).filter(key => seen[key] > 1);
+    if (list.length > 0) {
+      throw new Error('Duplicate plugin user name for users: ' + list.join(', '));
+    }
+  }
+
 }
 
 export class PluginUserSearchCriteria {

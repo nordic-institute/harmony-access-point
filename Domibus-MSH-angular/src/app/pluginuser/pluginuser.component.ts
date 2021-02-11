@@ -1,4 +1,12 @@
-import {AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {
+  AfterViewChecked,
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  OnInit,
+  TemplateRef,
+  ViewChild
+} from '@angular/core';
 import {ColumnPickerBase} from 'app/common/column-picker/column-picker-base';
 import {AlertService} from '../common/alert/alert.service';
 import {PluginUserSearchCriteria, PluginUserService} from './support/pluginuser.service';
@@ -18,6 +26,7 @@ import {HttpClient, HttpParams} from '@angular/common/http';
 import {ClientSortableListMixin} from '../common/mixins/sortable-list.mixin';
 import {ApplicationContextService} from '../common/application-context.service';
 import {ComponentName} from '../common/component-name-decorator';
+import {PluginUserValidatorService} from "./support/pluginuservalidator.service";
 
 @Component({
   templateUrl: './pluginuser.component.html',
@@ -41,10 +50,11 @@ export class PluginUserComponent extends mix(BaseListComponent)
   columnPicker: ColumnPickerBase = new ColumnPickerBase();
 
   userRoles: Array<String>;
+  //allPluginUsers: PluginUserRO[];
 
   constructor(private applicationService: ApplicationContextService, private alertService: AlertService,
               private pluginUserService: PluginUserService, public dialog: MatDialog, private dialogsService: DialogsService,
-              private changeDetector: ChangeDetectorRef, private http: HttpClient) {
+              private changeDetector: ChangeDetectorRef, private http: HttpClient, private pluginUserValidatorService: PluginUserValidatorService) {
     super();
   }
 
@@ -222,8 +232,14 @@ export class PluginUserComponent extends mix(BaseListComponent)
     }).afterClosed().toPromise();
   }
 
-  async doSave(): Promise<any> {
-    return this.pluginUserService.saveUsers(this.rows).then(() => this.filterData());
+  async doSave(users: PluginUserRO[]): Promise<any> {
+    try {
+      await this.pluginUserService.validatePluginUsers(users);
+      return this.pluginUserService.saveUsers(this.rows).then(() => this.filterData());
+    } catch (ex) {
+      this.alertService.exception('Cannot save users:', ex);
+      return Promise.reject(ex);
+    }
   }
 
   setIsDirty() {
