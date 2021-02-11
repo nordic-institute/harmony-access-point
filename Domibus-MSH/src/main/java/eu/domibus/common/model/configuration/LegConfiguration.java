@@ -294,7 +294,7 @@ public class LegConfiguration extends AbstractBaseEntity {
                 break;
             }
         }
-        if(configuration.getBusinessProcesses().getPayloadProfiles() !=null) {
+        if (configuration.getBusinessProcesses().getPayloadProfiles() != null) {
             for (final PayloadProfile pp : configuration.getBusinessProcesses().getPayloadProfiles()) {
                 if (pp.getName().equalsIgnoreCase(this.payloadProfileXml)) {
                     this.payloadProfile = pp;

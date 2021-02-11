@@ -5,7 +5,10 @@ import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.common.model.configuration.Payload;
 import eu.domibus.common.model.configuration.PayloadProfile;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
-import mockit.*;
+import mockit.Expectations;
+import mockit.FullVerifications;
+import mockit.Injectable;
+import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -66,7 +69,7 @@ public class PayloadProfilesValidatorTest {
 
         payloadProfilesValidator.validate(configuration);
 
-        new Verifications() {{
+        new FullVerifications(payloadProfilesValidator) {{
             payloadProfilesValidator.validatePayloadProfile(payloadProfile, validPayloads);
             times=0;
         }};
