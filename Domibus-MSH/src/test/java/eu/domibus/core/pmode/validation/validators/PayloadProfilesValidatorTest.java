@@ -57,7 +57,6 @@ public class PayloadProfilesValidatorTest {
                               final @Injectable Set<Payload> validPayloads) {
 
 
-
         new Expectations(payloadProfilesValidator) {{
             configuration.getBusinessProcesses().getPayloadProfiles();
             result = null;

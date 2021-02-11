@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<db:configuration xmlns:db="http://domibus.eu/configuration" party="dynceftest1party60gw">
+    <mpcs>
+        <mpc name="defaultMpc" qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPC"
+             enabled="true" default="true" retention_downloaded="0" retention_undownloaded="60"/>
+    </mpcs>
+    <businessProcesses>
+        <roles>
+            <role name="defaultInitiatorRole"
+                  value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator"/>
+            <role name="defaultResponderRole"
+                  value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder"/>
+        </roles>
+        <parties>
+            <partyIdTypes>
+                <partyIdType name="unregisteredParty" value="urn:oasis:names:tc:ebcore:partyid-type:unregistered"/>
+            </partyIdTypes>
+            <party name="dynceftest1party60gw" endpoint="http://10.2.0.51:13000/domibus/services/msh"
+                   allowChunking="false">
+                <identifier partyId="dynceftest1party60gw" partyIdType="unregisteredParty"/>
+            </party>
+        </parties>
+        <meps>
+            <mep name="oneway" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/oneWay"/>
+            <mep name="twoway" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/twoWay"/>
+            <binding name="push" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/push"/>
+            <binding name="pushAndPush"
+                     value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/push-and-push"/>
+        </meps>
+        <properties>
+            <property name="originalSenderProperty" key="originalSender" datatype="string" required="true"/>
+            <property name="finalRecipientProperty" key="finalRecipient" datatype="string" required="true"/>
+            <propertySet name="edeliveryPropertySet">
+                <propertyRef property="finalRecipientProperty"/>
+                <propertyRef property="originalSenderProperty"/>
+            </propertySet>
+        </properties>
+
+        <securities>
+            <security name="eDeliveryAS4Policy_BST" policy="eDeliveryAS4Policy_BST.xml" signatureMethod="RSA_SHA256"/>
+        </securities>
+        <errorHandlings>
+            <errorHandling name="demoErrorHandling" errorAsResponse="true" businessErrorNotifyProducer="false"
+                           businessErrorNotifyConsumer="false" deliveryFailureNotifyProducer="false"/>
+        </errorHandlings>
+        <agreements>
+            <agreement name="agreementEmpty" value="" type=""/>
+        </agreements>
+        <services>
+            <service name="connectivityServiceDYN1" value="urn:www.cenbii.eu:profile:bii04:ver1.0"
+                     type="connectivity-procid-qns"/>
+        </services>
+        <actions>
+            <action name="connectivityActionDYN1" value="connectivity-docid-qns::doc_id1"/>
+        </actions>
+        <as4>
+            <receptionAwareness name="receptionAwareness" retry="12;4;CONSTANT" duplicateDetection="true"/>
+            <reliability name="AS4Reliability" nonRepudiation="true" replyPattern="response"/>
+            <reliability name="noReliability" nonRepudiation="false" replyPattern="response"/>
+        </as4>
+        <legConfigurations>
+            <legConfiguration name="legConfigurationDYN1" service="connectivityServiceDYN1"
+                              action="connectivityActionDYN1" defaultMpc="defaultMpc" reliability="AS4Reliability"
+                              security="eDeliveryAS4Policy_BST" receptionAwareness="receptionAwareness"
+                              propertySet="edeliveryPropertySet" errorHandling="demoErrorHandling"
+                              compressPayloads="true"/>
+        </legConfigurations>
+        <process name="ProcessDYN1" agreement="agreementEmpty" mep="oneway" binding="push"
+                 initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
+            <responderParties>
+                <responderParty name="dynceftest1party60gw"/>
+            </responderParties>
+            <legs>
+                <leg name="legConfigurationDYN1"/>
+            </legs>
+        </process>
+        <process name="ProcessDYN2" agreement="agreementEmpty" mep="oneway" binding="push"
+                 initiatorRole="defaultInitiatorRole" responderRole="defaultResponderRole">
+            <initiatorParties>
+                <initiatorParty name="dynceftest1party60gw"/>
+            </initiatorParties>
+            <legs>
+                <leg name="legConfigurationDYN1"/>
+            </legs>
+        </process>
+    </businessProcesses>
+</db:configuration>
