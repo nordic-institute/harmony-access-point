@@ -155,7 +155,7 @@ public class PModeResource extends BaseResource {
 
     @GetMapping(value = {"/list"})
     public List<PModeResponseRO> pmodeList() {
-        return domainConverter.convert(pModeProvider.getRawConfigurationList(), PModeResponseRO.class);
+        return coreMapper.pModeArchiveInfoListToPModeResponseROList(pModeProvider.getRawConfigurationList());
     }
 
     /**

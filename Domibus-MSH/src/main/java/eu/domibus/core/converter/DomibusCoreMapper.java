@@ -284,6 +284,8 @@ public interface DomibusCoreMapper {
     PasswordEncryptionResultDTO passwordEncryptionResultToPasswordEncryptionResultDTO(PasswordEncryptionResult passwordEncryptionResult);
 
     //list mappings
+    List<Command> commandEntityListToCommandList(List<CommandEntity> commandEntityList);
+
 
     List<MessageAttempt> messageAttemptEntityListToMessageAttemptList(List<MessageAttemptEntity> messageAttemptEntityList);
     List<MessageAttemptEntity> messageAttemptListToMessageAttemptEntityList(List<MessageAttempt> messageAttemptList);
@@ -304,4 +306,10 @@ public interface DomibusCoreMapper {
 
     List<User> userResponseROListToUserList(List<UserResponseRO> userResponseROList);
     List<UserResponseRO> userListToUserResponseROList(List<User> userList);
+
+    List<AuthenticationEntity> pluginUserROListToAuthenticationEntityList(List<PluginUserRO> pluginUserROList);
+
+    List<PModeResponseRO> pModeArchiveInfoListToPModeResponseROList(List<PModeArchiveInfo> pModeArchiveInfoList);
+
+    List<TrustStoreRO> trustStoreEntryListToTrustStoreROList(List<TrustStoreEntry> trustStoreEntryList);
 }

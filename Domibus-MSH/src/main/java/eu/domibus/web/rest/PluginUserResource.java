@@ -69,9 +69,9 @@ public class PluginUserResource extends BaseResource {
         List<PluginUserRO> updatedUsersRO = userROs.stream().filter(u -> UserState.UPDATED.name().equals(u.getStatus())).collect(Collectors.toList());
         List<PluginUserRO> removedUsersRO = userROs.stream().filter(u -> UserState.REMOVED.name().equals(u.getStatus())).collect(Collectors.toList());
 
-        List<AuthenticationEntity> addedUsers = coreMapper.pluginUserROToAuthenticationEntity(addedUsersRO, AuthenticationEntity.class);
-        List<AuthenticationEntity> updatedUsers = domainConverter.convert(updatedUsersRO, AuthenticationEntity.class);
-        List<AuthenticationEntity> removedUsers = domainConverter.convert(removedUsersRO, AuthenticationEntity.class);
+        List<AuthenticationEntity> addedUsers = coreMapper.pluginUserROListToAuthenticationEntityList(addedUsersRO);
+        List<AuthenticationEntity> updatedUsers = coreMapper.pluginUserROListToAuthenticationEntityList(updatedUsersRO);
+        List<AuthenticationEntity> removedUsers = coreMapper.pluginUserROListToAuthenticationEntityList(removedUsersRO);
 
         pluginUserService.updateUsers(addedUsers, updatedUsers, removedUsers);
     }
