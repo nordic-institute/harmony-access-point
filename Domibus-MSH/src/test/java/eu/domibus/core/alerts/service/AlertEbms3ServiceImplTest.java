@@ -15,7 +15,6 @@ import eu.domibus.core.alerts.model.persist.StringEventProperty;
 import eu.domibus.core.alerts.model.service.Alert;
 import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.core.alerts.model.service.MailModel;
-import eu.domibus.core.converter.DomainCoreConverter;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
@@ -58,7 +57,7 @@ public class AlertEbms3ServiceImplTest {
     private DomibusPropertyProvider domibusPropertyProvider;
 
     @Injectable
-    private DomainCoreConverter domainConverter;
+    private DomibusCoreMapper coreMapper;
 
     @Injectable
     private JMSManager jmsManager;

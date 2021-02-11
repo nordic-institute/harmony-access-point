@@ -4,7 +4,7 @@ import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.security.AuthType;
 import eu.domibus.api.user.UserManagementException;
 import eu.domibus.api.user.UserState;
-import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.user.plugin.AuthenticationEntity;
 import eu.domibus.core.user.plugin.PluginUserService;
 import eu.domibus.logging.DomibusLogger;
@@ -39,7 +39,7 @@ public class PluginUserResource extends BaseResource {
     private PluginUserService pluginUserService;
 
     @Autowired
-    private DomainCoreConverter domainConverter;
+    private DomibusCoreMapper coreMapper;
 
     @Autowired
     private ErrorHandlerService errorHandlerService;
@@ -69,7 +69,7 @@ public class PluginUserResource extends BaseResource {
         List<PluginUserRO> updatedUsersRO = userROs.stream().filter(u -> UserState.UPDATED.name().equals(u.getStatus())).collect(Collectors.toList());
         List<PluginUserRO> removedUsersRO = userROs.stream().filter(u -> UserState.REMOVED.name().equals(u.getStatus())).collect(Collectors.toList());
 
-        List<AuthenticationEntity> addedUsers = domainConverter.convert(addedUsersRO, AuthenticationEntity.class);
+        List<AuthenticationEntity> addedUsers = coreMapper.pluginUserROToAuthenticationEntity(addedUsersRO, AuthenticationEntity.class);
         List<AuthenticationEntity> updatedUsers = domainConverter.convert(updatedUsersRO, AuthenticationEntity.class);
         List<AuthenticationEntity> removedUsers = domainConverter.convert(removedUsersRO, AuthenticationEntity.class);
 

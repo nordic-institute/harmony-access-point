@@ -1,7 +1,6 @@
 package eu.domibus.core.replication;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.converter.DomainCoreConverter;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
@@ -30,7 +29,7 @@ public class UIMessageDiffEbms3ServiceImplTest {
     DomibusPropertyProvider domibusPropertyProvider;
 
     @Injectable
-    private DomainCoreConverter domainConverter;
+    private DomibusCoreMapper coreMapper;
 
     @Injectable
     UIMessageService uiMessageService;

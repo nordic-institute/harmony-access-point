@@ -1,7 +1,6 @@
 package eu.domibus.core.clustering;
 
 import eu.domibus.api.server.ServerInfoService;
-import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.ext.services.CommandExtTask;
 import mockit.Injectable;
 import mockit.Tested;
@@ -28,7 +27,7 @@ public class CommandEbms3ServiceImplTest {
     protected CommandDao commandDao;
 
     @Injectable
-    protected DomainCoreConverter domainConverter;
+    protected DomibusCoreMapper coreMapper;
 
     @Injectable
     protected ServerInfoService serverInfoService;

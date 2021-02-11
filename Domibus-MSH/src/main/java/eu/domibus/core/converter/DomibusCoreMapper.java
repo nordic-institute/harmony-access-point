@@ -6,41 +6,42 @@ import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.model.*;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.party.Party;
+import eu.domibus.api.pki.CertificateEntry;
 import eu.domibus.api.pmode.PModeArchiveInfo;
 import eu.domibus.api.property.DomibusProperty;
 import eu.domibus.api.property.DomibusPropertyMetadata;
+import eu.domibus.api.property.encryption.PasswordEncryptionResult;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.routing.RoutingCriteria;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.user.User;
-import eu.domibus.core.audit.model.mapper.AuditMapper;
-import eu.domibus.core.clustering.CommandEntity;
-import eu.domibus.core.audit.model.Audit;
 import eu.domibus.common.model.configuration.Process;
-import eu.domibus.core.error.ErrorLogEntry;
-import eu.domibus.core.message.MessageLogInfo;
-import eu.domibus.api.model.SignalMessageLog;
-import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.core.alerts.model.mapper.EventMapper;
 import eu.domibus.core.alerts.model.persist.Alert;
-import eu.domibus.api.pki.CertificateEntry;
+import eu.domibus.core.audit.model.Audit;
+import eu.domibus.core.audit.model.mapper.AuditMapper;
+import eu.domibus.core.clustering.CommandEntity;
 import eu.domibus.core.crypto.spi.CertificateEntrySpi;
 import eu.domibus.core.crypto.spi.DomainSpi;
+import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.logging.LoggingEntry;
+import eu.domibus.core.message.MessageLogInfo;
 import eu.domibus.core.message.attempt.MessageAttemptEntity;
 import eu.domibus.core.party.PartyResponseRo;
 import eu.domibus.core.party.ProcessRo;
+import eu.domibus.core.plugin.routing.BackendFilterEntity;
+import eu.domibus.core.plugin.routing.RoutingCriteriaEntity;
 import eu.domibus.core.property.DomibusPropertiesFilter;
 import eu.domibus.core.replication.UIMessageDiffEntity;
 import eu.domibus.core.replication.UIMessageEntity;
 import eu.domibus.core.user.plugin.AuthenticationEntity;
 import eu.domibus.ext.domain.*;
-import eu.domibus.core.plugin.routing.BackendFilterEntity;
-import eu.domibus.core.plugin.routing.RoutingCriteriaEntity;
 import eu.domibus.web.rest.ro.*;
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+
+import java.util.List;
 
 /**
  * @author Ioana Dragusanu (idragusa)
@@ -278,4 +279,29 @@ public interface DomibusCoreMapper {
     DomibusPropertyMetadata propertyMetadataTopropertyMetadata(DomibusPropertyMetadata src);
 
     DomibusPropertiesFilter domibusPropertyFilterRequestTOdomibusPropertiesFilter(PropertyFilterRequestRO source);
+
+    //TODO check why this mapping exists as well in DomibusExtMapper
+    PasswordEncryptionResultDTO passwordEncryptionResultToPasswordEncryptionResultDTO(PasswordEncryptionResult passwordEncryptionResult);
+
+    //list mappings
+
+    List<MessageAttempt> messageAttemptEntityListToMessageAttemptList(List<MessageAttemptEntity> messageAttemptEntityList);
+    List<MessageAttemptEntity> messageAttemptListToMessageAttemptEntityList(List<MessageAttempt> messageAttemptList);
+
+    List<BackendFilterEntity> backendFilterListToBackendFilterEntityList(List<BackendFilter> backendFilterList);
+    List<BackendFilter> backendFilterEntityListToBackendFilterList(List<BackendFilterEntity> backendFilterEntityList);
+
+    List<AuditLog> auditLogListToAuditList(List<Audit> auditList);
+
+    List<DomainRO> domainListToDomainROList(List<Domain> domainList);
+
+    List<Party> configurationPartyListToPartyList(List<eu.domibus.common.model.configuration.Party> configurationPartyList);
+    List<eu.domibus.common.model.configuration.Party> partyListToConfigurationPartyList(List<Party> partyList);
+
+    List<eu.domibus.api.process.Process> processListToProcessAPIList(List<Process> processList);
+
+    List<DomibusPropertyRO> domibusPropertyROListToDomibusProperty(List<DomibusProperty> domibusPropertyList);
+
+    List<User> userResponseROListToUserList(List<UserResponseRO> userResponseROList);
+    List<UserResponseRO> userListToUserResponseROList(List<User> userList);
 }

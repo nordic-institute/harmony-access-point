@@ -6,7 +6,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.audit.envers.ModificationType;
-import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.ro.AuditFilterRequestRO;
@@ -42,7 +42,7 @@ public class AuditResource extends BaseResource {
     protected DomibusPropertyProvider domibusPropertyProvider;
 
     @Autowired
-    private DomainCoreConverter domainConverter;
+    private DomibusCoreMapper coreMapper;
 
     @Autowired
     private AuditService auditService;
@@ -72,7 +72,7 @@ public class AuditResource extends BaseResource {
                 auditCriteria.getStart(),
                 auditCriteria.getMax());
 
-        List<AuditResponseRo> list = domainConverter.convert(sourceList, AuditResponseRo.class);
+        List<AuditResponseRo> list = coreMapper.auditLogListToAuditList(sourceList, AuditResponseRo.class);
         list.forEach(entry -> entry.setAction(getActionTypeLabelFromCode(entry.getAction())));
         return list;
     }

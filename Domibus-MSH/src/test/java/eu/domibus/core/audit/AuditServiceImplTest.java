@@ -2,22 +2,23 @@ package eu.domibus.core.audit;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import eu.domibus.api.audit.AuditLog;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.core.audit.envers.ModificationType;
-import eu.domibus.core.audit.model.*;
-import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.audit.model.Audit;
+import eu.domibus.core.audit.model.MessageAudit;
+import eu.domibus.core.audit.model.PModeArchiveAudit;
+import eu.domibus.core.audit.model.PModeAudit;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.util.AnnotationsUtil;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.*;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -36,7 +37,7 @@ public class AuditServiceImplTest {
     private AnnotationsUtil annotationsUtil;
 
     @Mock
-    private DomainCoreConverter domainCoreConverter;
+    private DomibusCoreMapper coreMapper;
 
     @Mock
     private AuditDao auditDao;
@@ -115,7 +116,7 @@ public class AuditServiceImplTest {
                 from,
                 0,
                 10);
-        verify(domainCoreConverter, times(1)).convert(eq(audits), eq(AuditLog.class));
+        verify(coreMapper, times(1)).auditLogListToAuditList(eq(audits));
 
     }
 

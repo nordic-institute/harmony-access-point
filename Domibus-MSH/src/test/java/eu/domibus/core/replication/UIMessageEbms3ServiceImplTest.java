@@ -1,7 +1,6 @@
 package eu.domibus.core.replication;
 
 import eu.domibus.core.message.MessageLogInfo;
-import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.web.rest.ro.MessageLogRO;
 import eu.domibus.web.rest.ro.MessageLogResultRO;
 import mockit.Expectations;
@@ -26,7 +25,7 @@ public class UIMessageEbms3ServiceImplTest {
     private UIMessageDao uiMessageDao;
 
     @Injectable
-    private DomainCoreConverter domainConverter;
+    private DomibusCoreMapper coreMapper;
 
     @Tested
     UIMessageServiceImpl uiMessageService;

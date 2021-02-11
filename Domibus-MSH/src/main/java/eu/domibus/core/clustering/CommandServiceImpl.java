@@ -26,7 +26,7 @@ public class CommandServiceImpl implements CommandService {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CommandServiceImpl.class);
 
     protected CommandDao commandDao;
-    protected DomainCoreConverter domainConverter;
+    protected DomibusCoreMapper coreMapper;
     protected ServerInfoService serverInfoService;
 
 

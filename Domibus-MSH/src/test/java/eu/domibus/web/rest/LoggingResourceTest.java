@@ -1,6 +1,5 @@
 package eu.domibus.web.rest;
 
-import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.logging.LoggingEntry;
 import eu.domibus.core.logging.LoggingException;
 import eu.domibus.core.logging.LoggingService;
@@ -35,7 +34,7 @@ public class LoggingResourceTest {
     LoggingResource loggingResource;
 
     @Injectable
-    private DomainCoreConverter domainConverter;
+    private DomibusCoreMapper coreMapper;
 
     @Injectable
     private LoggingService loggingService;

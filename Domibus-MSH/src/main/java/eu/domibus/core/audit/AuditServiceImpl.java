@@ -11,7 +11,7 @@ import eu.domibus.common.model.configuration.PartyIdType;
 import eu.domibus.core.audit.envers.ModificationType;
 import eu.domibus.core.audit.envers.RevisionLogicalName;
 import eu.domibus.core.audit.model.*;
-import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.user.ui.User;
 import eu.domibus.core.user.ui.UserRole;
 import eu.domibus.core.util.AnnotationsUtil;
@@ -46,7 +46,7 @@ public class AuditServiceImpl implements AuditService {
     private AuditDao auditDao;
 
     @Autowired
-    private DomainCoreConverter domainCoreConverter;
+    private DomibusCoreMapper coreMapper;
 
     @Autowired
     private AnnotationsUtil annotationsUtil;
@@ -76,7 +76,7 @@ public class AuditServiceImpl implements AuditService {
             final Date to,
             final int start,
             final int max) {
-        return domainCoreConverter.convert(
+        return coreMapper.auditLogListToAuditList(
                 auditDao.listAudit(
                         auditTargets,
                         actions,
@@ -84,7 +84,7 @@ public class AuditServiceImpl implements AuditService {
                         from,
                         to,
                         start,
-                        max), AuditLog.class);
+                        max));
     }
 
     /**

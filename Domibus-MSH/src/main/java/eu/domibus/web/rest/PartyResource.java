@@ -11,6 +11,7 @@ import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.party.*;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
 import eu.domibus.logging.DomibusLogger;
@@ -19,7 +20,6 @@ import eu.domibus.web.rest.ro.PartyFilterRequestRO;
 import eu.domibus.web.rest.ro.TrustStoreRO;
 import eu.domibus.web.rest.ro.ValidationResponseRO;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -43,7 +43,7 @@ public class PartyResource extends BaseResource {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PartyResource.class);
     private static final String DELIMITER = ", ";
 
-    private DomainCoreConverter domainConverter;
+    private DomibusCoreMapper coreMapper;
 
     private PartyService partyService;
 
@@ -57,8 +57,8 @@ public class PartyResource extends BaseResource {
 
     public PartyResource(DomainCoreConverter domainConverter, PartyService partyService, CertificateService certificateService,
                          PModeValidationHelper pModeValidationHelper, MultiDomainCryptoService multiDomainCertificateProvider,
-                         DomainContextProvider domainProvider) {
-        this.domainConverter = domainConverter;
+                         DomibusCoreMapper coreMapper) {
+        this.coreMapper = coreMapper;
         this.partyService = partyService;
         this.certificateService = certificateService;
         this.pModeValidationHelper = pModeValidationHelper;
@@ -78,7 +78,7 @@ public class PartyResource extends BaseResource {
         LOG.debug("Searching party with parameters name [{}], endPoint [{}], partyId [{}], processName [{}], pageStart [{}], pageSize [{}]",
                 request.getName(), request.getEndPoint(), request.getPartyId(), request.getProcess(), request.getPageStart(), request.getPageSize());
 
-        List<PartyResponseRo> partyResponseRos = domainConverter.convert(
+        List<PartyResponseRo> partyResponseRos = coreMapper.party(
                 partyService.getParties(request.getName(), request.getEndPoint(), request.getPartyId(), request.getProcess(), request.getPageStart(), request.getPageSize()),
                 PartyResponseRo.class);
 

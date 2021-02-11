@@ -1,16 +1,12 @@
 package eu.domibus.core.replication;
 
+import eu.domibus.api.model.*;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.message.MessagingDao;
-import eu.domibus.core.message.signal.SignalMessageLogDao;
-import eu.domibus.core.message.UserMessageLogDao;
-import eu.domibus.api.model.MessageLog;
-import eu.domibus.api.model.UserMessageLog;
-import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.message.UserMessageDefaultServiceHelper;
-import eu.domibus.api.model.Messaging;
-import eu.domibus.api.model.SignalMessage;
-import eu.domibus.api.model.UserMessage;
+import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -53,7 +49,7 @@ public class UIReplicationDataServiceImpl implements UIReplicationDataService {
     private UserMessageDefaultServiceHelper userMessageDefaultServiceHelper;
 
     @Autowired
-    private DomainCoreConverter domainConverter;
+    private DomibusCoreMapper coreMapper;
 
     @Autowired
     private DomibusPropertyProvider domibusPropertyProvider;
@@ -197,7 +193,7 @@ public class UIReplicationDataServiceImpl implements UIReplicationDataService {
 
     private UIMessageEntity createUIMessageEntity(String messageId, long jmsTimestamp, MessageLog messageLog, UserMessage userMessage) {
         //domain converter
-        UIMessageEntity entity = domainConverter.convert(messageLog, UIMessageEntity.class);
+        UIMessageEntity entity = coreMapper.messageLogToUIMessageEntity(messageLog);
 
         entity.setEntityId(0); //be sure isn't set to null
         entity.setMessageId(messageId);

@@ -4,7 +4,6 @@ import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.monitoring.domain.*;
 import eu.domibus.api.scheduler.DomibusScheduler;
 import eu.domibus.core.user.UserService;
-import eu.domibus.core.converter.DomainCoreConverter;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -34,7 +33,7 @@ public class DomibusMonitoringDefaultEbms3ServiceTest {
     DomibusScheduler domibusQuartzScheduler;
 
     @Injectable
-    DomainCoreConverter domainCoreConverter;
+    DomibusCoreMapper coreMapper;
 
     private static final String DB_STATUS_FILTER = "db";
 

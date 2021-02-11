@@ -15,7 +15,7 @@ import eu.domibus.core.alerts.model.persist.Alert;
 import eu.domibus.core.alerts.model.persist.Event;
 import eu.domibus.core.alerts.model.service.DefaultMailModel;
 import eu.domibus.core.alerts.model.service.MailModel;
-import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.Logger;
@@ -64,7 +64,7 @@ public class AlertServiceImpl implements AlertService {
     private DomibusPropertyProvider domibusPropertyProvider;
 
     @Autowired
-    private DomainCoreConverter domainConverter;
+    private DomibusCoreMapper coreMapper;
 
     @Autowired
     private JMSManager jmsManager;

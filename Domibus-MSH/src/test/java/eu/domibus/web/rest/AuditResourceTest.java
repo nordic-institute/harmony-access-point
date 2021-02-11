@@ -3,9 +3,8 @@ package eu.domibus.web.rest;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import eu.domibus.api.audit.AuditLog;
-import eu.domibus.core.audit.envers.ModificationType;
 import eu.domibus.core.audit.AuditService;
-import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.audit.envers.ModificationType;
 import eu.domibus.web.rest.ro.AuditFilterRequestRO;
 import eu.domibus.web.rest.ro.AuditResponseRo;
 import org.junit.Test;
@@ -32,7 +31,7 @@ public class AuditResourceTest {
     private AuditService auditService;
 
     @Mock
-    private DomainCoreConverter domainConverter;
+    private DomibusCoreMapper coreMapper;
 
     @InjectMocks
     private AuditResource auditResource;

@@ -1,21 +1,19 @@
 package eu.domibus.core.security;
 
 import com.google.common.collect.Lists;
+import eu.domibus.api.model.PullRequest;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.ebms3.EbMS3Exception;
-import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.certificate.CertificateExchangeType;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.crypto.spi.AuthorizationServiceSpi;
 import eu.domibus.core.crypto.spi.PullRequestPmodeData;
 import eu.domibus.core.crypto.spi.model.AuthorizationError;
 import eu.domibus.core.crypto.spi.model.AuthorizationException;
 import eu.domibus.core.crypto.spi.model.UserMessagePmodeData;
+import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.api.model.PullRequest;
-import eu.domibus.api.model.UserMessage;
-import eu.domibus.core.certificate.CertificateExchangeType;
-import eu.domibus.ext.domain.PullRequestDTO;
-import eu.domibus.ext.domain.UserMessageDTO;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,7 +52,7 @@ public class AuthorizationService {
     protected DomibusPropertyProvider domibusPropertyProvider;
 
     @Autowired
-    private DomainCoreConverter domainCoreConverter;
+    private DomibusCoreMapper coreMapper;
 
     @Autowired
     private PModeProvider pModeProvider;
@@ -91,7 +89,7 @@ public class AuthorizationService {
             throw new AuthorizationException(e);
         }
         getAuthorizationService().authorize(certificateTrust.getTrustChain(), certificateTrust.getSigningCertificate(),
-                domainCoreConverter.convert(pullRequest, PullRequestDTO.class), pullRequestPmodeData);
+                coreMapper.pullRequestToPullRequestDTO(pullRequest), pullRequestPmodeData);
     }
 
     public void authorizeUserMessage(SOAPMessage request, UserMessage userMessage) throws EbMS3Exception {
@@ -102,7 +100,7 @@ public class AuthorizationService {
         final UserMessagePmodeData userMessagePmodeData= pModeProvider.getUserMessagePmodeData(userMessage);
 
         getAuthorizationService().authorize(certificateTrust.getTrustChain(), certificateTrust.getSigningCertificate(),
-                domainCoreConverter.convert(userMessage, UserMessageDTO.class), userMessagePmodeData);
+                coreMapper.userMessageToUserMessageDTO(userMessage), userMessagePmodeData);
 
     }
 

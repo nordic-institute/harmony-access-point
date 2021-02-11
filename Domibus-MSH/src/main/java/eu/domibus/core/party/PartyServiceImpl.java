@@ -2,13 +2,16 @@ package eu.domibus.core.party;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import eu.domibus.api.ebms3.MessageExchangePattern;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.party.Party;
 import eu.domibus.api.party.PartyService;
+import eu.domibus.api.pki.CertificateEntry;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.DomibusCertificateException;
+import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.pmode.PModeArchiveInfo;
 import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.pmode.PModeValidationException;
@@ -16,12 +19,9 @@ import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.*;
-import eu.domibus.core.converter.DomainCoreConverter;
-import eu.domibus.api.pki.CertificateEntry;
-import eu.domibus.api.pki.MultiDomainCryptoService;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
-import eu.domibus.api.ebms3.MessageExchangePattern;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.XmlProcessingException;
@@ -57,7 +57,7 @@ public class PartyServiceImpl implements PartyService {
     public static final String EXCEPTION_CANNOT_DELETE_PARTY_CURRENT_SYSTEM = "Cannot delete the party describing the current system.";
 
     @Autowired
-    private DomainCoreConverter domainCoreConverter;
+    private DomibusCoreMapper coreMapper;
 
     @Autowired
     private PModeProvider pModeProvider;
@@ -157,7 +157,7 @@ public class PartyServiceImpl implements PartyService {
         }
 
         //create a new Party to live outside the service per existing party entity in the pmode.
-        List<Party> parties = domainCoreConverter.convert(allParties, Party.class);
+        List<Party> parties = coreMapper.configurationPartyListToPartyList(allParties);
 
         //transform parties to map for convenience.
         final Map<String, Party> partyMapByName =
@@ -208,9 +208,8 @@ public class PartyServiceImpl implements PartyService {
                     //loop process initiators.
                     processEntity.getInitiatorParties().forEach(partyEntity -> {
                                 Party party = partyMapByName.get(partyEntity.getName());
-                                eu.domibus.api.process.Process process = domainCoreConverter.convert(
-                                        processEntity,
-                                        eu.domibus.api.process.Process.class);
+                                eu.domibus.api.process.Process process = coreMapper.processToProcessAPI(
+                                        processEntity);
                                 //add the processes for which this party is initiator.
                                 party.addProcessesWithPartyAsInitiator(process);
                             }
@@ -225,9 +224,8 @@ public class PartyServiceImpl implements PartyService {
                     //loop process responder.
                     processEntity.getResponderParties().forEach(partyEntity -> {
                                 Party party = partyMapByName.get(partyEntity.getName());
-                                eu.domibus.api.process.Process process = domainCoreConverter.convert(
-                                        processEntity,
-                                        eu.domibus.api.process.Process.class);
+                                eu.domibus.api.process.Process process = coreMapper.processToProcessAPI(
+                                        processEntity);
                                 //add the processes for which this party is responder.
                                 party.addprocessesWithPartyAsResponder(process);
                             }
@@ -341,7 +339,7 @@ public class PartyServiceImpl implements PartyService {
     }
 
     protected ReplacementResult replaceParties(List<Party> partyList, Configuration configuration) {
-        List<eu.domibus.common.model.configuration.Party> newParties = domainCoreConverter.convert(partyList, eu.domibus.common.model.configuration.Party.class);
+        List<eu.domibus.common.model.configuration.Party> newParties = coreMapper.partyListToConfigurationPartyList(partyList);
 
         List<eu.domibus.common.model.configuration.Party> removedParties = updateConfigurationParties(newParties, configuration);
 
@@ -584,7 +582,7 @@ public class PartyServiceImpl implements PartyService {
         } catch (IllegalStateException e) {
             return new ArrayList<>();
         }
-        List<eu.domibus.api.process.Process> processes = domainCoreConverter.convert(allProcesses, eu.domibus.api.process.Process.class);
+        List<eu.domibus.api.process.Process> processes = coreMapper.processListToProcessAPIList(allProcesses);
         return processes;
     }
 
@@ -608,7 +606,7 @@ public class PartyServiceImpl implements PartyService {
             throw new PModeException(DomibusCoreErrorCode.DOM_003, "Party with partyName=[" + partyName + "] already exists!");
         }
 
-        eu.domibus.common.model.configuration.Party configParty = domainCoreConverter.convert(party, eu.domibus.common.model.configuration.Party.class);
+        eu.domibus.common.model.configuration.Party configParty = coreMapper.partyToConfigurationParty(party);
         List<eu.domibus.common.model.configuration.Party> configParties = Collections.singletonList(configParty);
 
         //add new party to configuration
@@ -797,7 +795,7 @@ public class PartyServiceImpl implements PartyService {
     protected void removeProcessConfiguration(eu.domibus.common.model.configuration.Party configParty, Configuration configuration) {
         BusinessProcesses businessProcesses = configuration.getBusinessProcesses();
         List<Process> processes = businessProcesses.getProcesses();
-        Party party = domainCoreConverter.convert(configParty, Party.class);
+        Party party = coreMapper.configurationPartyToParty(configParty);
 
         processes.forEach(process -> removeProcessConfigurationInitiatorResponderParties(party, process));
     }

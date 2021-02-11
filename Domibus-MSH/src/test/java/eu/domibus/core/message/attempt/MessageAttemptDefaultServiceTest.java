@@ -2,7 +2,7 @@ package eu.domibus.core.message.attempt;
 
 import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -30,7 +30,7 @@ public class MessageAttemptDefaultServiceTest {
     MessageAttemptDao messageAttemptDao;
 
     @Injectable
-    DomainCoreConverter domainCoreConverter;
+    DomibusCoreMapper coreMapper;
 
     @Test
     public void testGetAttemptsHistory(@Injectable final List<MessageAttemptEntity> entities) throws Exception {
@@ -44,7 +44,7 @@ public class MessageAttemptDefaultServiceTest {
         messageAttemptDefaultService.getAttemptsHistory(messageId);
 
         new Verifications() {{
-            domainCoreConverter.convert(entities, MessageAttempt.class);
+            coreMapper.messageAttemptEntityListToMessageAttemptList(entities);
         }};
     }
 
@@ -54,7 +54,7 @@ public class MessageAttemptDefaultServiceTest {
             messageAttemptDefaultService.isMessageAttemptAuditDisabled();
             result = false;
 
-            domainCoreConverter.convert(attempt, MessageAttemptEntity.class);
+            coreMapper.messageAttemptToMessageAttemptEntity(attempt);
             result = entity;
 
         }};

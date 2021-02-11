@@ -3,9 +3,10 @@ package eu.domibus.web.rest;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusProperty;
 import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.csv.CsvServiceImpl;
-import eu.domibus.core.property.DomibusPropertyResourceHelper;
 import eu.domibus.core.property.DomibusPropertiesFilter;
+import eu.domibus.core.property.DomibusPropertyResourceHelper;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.DomibusPropertyRO;
 import eu.domibus.web.rest.ro.PropertyFilterRequestRO;
@@ -43,7 +44,7 @@ public class DomibusPropertyResourceTest {
     private DomainContextProvider domainContextProvider;
 
     @Injectable
-    private DomainCoreConverter domainConverter;
+    private DomibusCoreMapper coreMapper;
 
     @Injectable
     protected DomainCoreConverter domainCoreConverter;
@@ -56,7 +57,7 @@ public class DomibusPropertyResourceTest {
         new Expectations() {{
             domibusPropertyResourceHelper.getProperty("propertyName");
             result = prop;
-            domainConverter.convert(prop, DomibusPropertyRO.class);
+            coreMapper.propertyApiToPropertyRO(prop);
             result = convertedProp;
         }};
 
@@ -76,11 +77,11 @@ public class DomibusPropertyResourceTest {
         items.add(prop);
 
         new Expectations() {{
-            domainConverter.convert(request, DomibusPropertiesFilter.class);
+            coreMapper.domibusPropertyFilterRequestTOdomibusPropertiesFilter(request);
             result = filter;
             domibusPropertyResourceHelper.getAllProperties(filter);
             result = items;
-            domainConverter.convert(items, DomibusPropertyRO.class);
+            coreMapper.domibusPropertyROListToDomibusProperty(items);
             result = convertedItems;
         }};
 

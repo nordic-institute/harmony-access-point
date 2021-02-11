@@ -6,6 +6,7 @@ import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.validators.SkipWhiteListed;
 import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.property.DomibusPropertiesFilter;
 import eu.domibus.core.property.DomibusPropertyResourceHelper;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -38,7 +39,7 @@ public class DomibusPropertyResource extends BaseResource {
 
     private DomibusPropertyResourceHelper domibusPropertyResourceHelper;
 
-    private DomainCoreConverter domainConverter;
+    private DomibusCoreMapper coreMapper;
 
     private ErrorHandlerService errorHandlerService;
 

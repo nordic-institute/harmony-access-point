@@ -6,9 +6,8 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.party.Party;
 import eu.domibus.api.party.PartyService;
 import eu.domibus.api.pki.CertificateService;
-import eu.domibus.api.security.TrustStoreEntry;
-import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.api.pki.MultiDomainCryptoService;
+import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.party.CertificateContentRo;
@@ -43,7 +42,7 @@ import static org.junit.Assert.assertEquals;
 public class PartyResourceTest {
 
     @Injectable
-    private DomainCoreConverter domainConverter;
+    private DomibusCoreMapper coreMapper;
 
     @Injectable
     private PartyService partyService;

@@ -4,7 +4,6 @@ import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.core.audit.AuditService;
-import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.crypto.api.TLSCertificateManager;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.core.security.AuthUtilsImpl;
@@ -56,7 +55,7 @@ public class TLSTruststoreResourceIT {
     private TLSCertificateManager tlsCertificateManager;
 
     @Mocked
-    protected DomainCoreConverter domainConverter;
+    protected DomibusCoreMapper coreMapper;
 
     @Mocked
     protected ErrorHandlerService errorHandlerService;

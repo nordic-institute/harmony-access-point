@@ -1,8 +1,8 @@
 package eu.domibus.core.replication;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.util.WarningUtil;
-import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -29,7 +29,7 @@ public class UIMessageDiffServiceImpl implements UIMessageDiffService {
     private DomibusPropertyProvider domibusPropertyProvider;
 
     @Autowired
-    private DomainCoreConverter domainConverter;
+    private DomibusCoreMapper coreMapper;
 
     @Autowired
     private UIMessageService uiMessageService;
@@ -153,6 +153,6 @@ public class UIMessageDiffServiceImpl implements UIMessageDiffService {
             return null;
         }
 
-        return domainConverter.convert(diffEntity, UIMessageEntity.class);
+        return coreMapper.uiMessageDiffEntityToUIMessageEntity(diffEntity);
     }
 }
