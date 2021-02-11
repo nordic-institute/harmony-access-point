@@ -68,9 +68,7 @@ public class PayloadProfilesValidatorTest {
 
         payloadProfilesValidator.validate(configuration);
 
-        new FullVerifications(payloadProfilesValidator) {{
-            payloadProfilesValidator.validatePayloadProfile(payloadProfile, validPayloads);
-            times=0;
+        new FullVerifications() {{
         }};
     }
 
