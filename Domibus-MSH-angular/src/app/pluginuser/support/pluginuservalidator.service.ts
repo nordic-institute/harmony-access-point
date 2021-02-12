@@ -9,18 +9,21 @@ import {PluginUserRO} from "./pluginuser";
 export class PluginUserValidatorService {
 
   validatePluginUsers(users: PluginUserRO[]) {
-    this.checkUserNameDuplicates(users);
+    this.checkPluginUserNameDuplication(users);
   }
 
-  private checkUserNameDuplicates(allUsers: PluginUserRO[]) {
-    let seen = new Object();
-    //allUsers = allUsers.filter(user => user.userName === UserState[UserState.PERSISTED]);
-    allUsers.filter(user => {
-      seen[user.userName] = seen[user.userName] == null ? 1 : seen[user.userName] + 1;
-    });
-    const list = Object.keys(seen).filter(key => seen[key] > 1);
-    if (list.length > 0) {
-      throw new Error('Duplicate plugin user name for users: ' + list.join(', '));
+  private checkPluginUserNameDuplication(allPluginUsers: PluginUserRO[]) {
+    let uniq_values = []
+    let dup_values = []
+    for (let x of allPluginUsers) {
+      if (uniq_values.indexOf(x.userName) != -1) {
+        dup_values.push(x.userName)
+      } else {
+        uniq_values.push(x.userName)
+      }
+    }
+    if (dup_values.length > 0) {
+      throw new Error('Duplicate user name for plugin users: ' + dup_values);
     }
   }
 }

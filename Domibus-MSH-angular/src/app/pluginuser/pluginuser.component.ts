@@ -232,9 +232,9 @@ export class PluginUserComponent extends mix(BaseListComponent)
     }).afterClosed().toPromise();
   }
 
-  async doSave(users: PluginUserRO[]): Promise<any> {
+  async doSave(): Promise<any> {
     try {
-      await this.pluginUserService.validatePluginUsers(users);
+      await this.pluginUserValidatorService.validatePluginUsers(this.rows);
       return this.pluginUserService.saveUsers(this.rows).then(() => this.filterData());
     } catch (ex) {
       this.alertService.exception('Cannot save users:', ex);
