@@ -81,7 +81,7 @@ public class ErrorLogResource extends BaseResource {
                 request.getOrderBy(), request.getAsc(), filters);
         getCsvService().validateMaxRows(entries.size(), () -> errorLogDao.countEntries(filters));
 
-        final List<ErrorLogRO> errorLogROList = domainConverter.convert(entries, ErrorLogRO.class);
+        final List<ErrorLogRO> errorLogROList = coreMapper.errorLogEntryListToErrorLogROList(entries);
 
         return exportToCSV(errorLogROList,
                 ErrorLogRO.class,

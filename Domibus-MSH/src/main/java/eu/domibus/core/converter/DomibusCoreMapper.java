@@ -284,7 +284,12 @@ public interface DomibusCoreMapper {
     PasswordEncryptionResultDTO passwordEncryptionResultToPasswordEncryptionResultDTO(PasswordEncryptionResult passwordEncryptionResult);
 
     //list mappings
+    List<eu.domibus.core.alerts.model.service.Alert> alertPersistListToAlertServiceList(List<Alert> alertList);
+
+
     List<Command> commandEntityListToCommandList(List<CommandEntity> commandEntityList);
+
+    List<ErrorLogRO> errorLogEntryListToErrorLogROList(List<ErrorLogEntry> errorLogEntryList);
 
 
     List<MessageAttempt> messageAttemptEntityListToMessageAttemptList(List<MessageAttemptEntity> messageAttemptEntityList);
@@ -300,9 +305,18 @@ public interface DomibusCoreMapper {
     List<Party> configurationPartyListToPartyList(List<eu.domibus.common.model.configuration.Party> configurationPartyList);
     List<eu.domibus.common.model.configuration.Party> partyListToConfigurationPartyList(List<Party> partyList);
 
+    List<PartyResponseRo> partyListToPartyResponseRoList(List<Party> partyList);
+    List<Party> partyResponseRoListToPartyList(List<PartyResponseRo> partyResponseRoList);
+
     List<eu.domibus.api.process.Process> processListToProcessAPIList(List<Process> processList);
 
-    List<DomibusPropertyRO> domibusPropertyROListToDomibusProperty(List<DomibusProperty> domibusPropertyList);
+    List<eu.domibus.api.process.Process> processRoListToProcessAPIList(List<ProcessRo> processRoList);
+    List<ProcessRo> processAPIListToProcessRoList(List<eu.domibus.api.process.Process> processList);
+
+    List<DomibusProperty> domibusPropertyROListToDomibusPropertyList(List<DomibusPropertyRO> domibusPropertyROList);
+    List<DomibusPropertyRO> domibusPropertyListToDomibusPropertyROList(List<DomibusProperty> domibusPropertyList);
+
+    List<DomibusPropertyTypeRO> domibusPropertyMetadataTypeListToDomibusPropertyTypeROList(List<DomibusPropertyMetadata.Type> domibusPropertyMetadataTypeList);
 
     List<User> userResponseROListToUserList(List<UserResponseRO> userResponseROList);
     List<UserResponseRO> userListToUserResponseROList(List<User> userList);
@@ -312,4 +326,11 @@ public interface DomibusCoreMapper {
     List<PModeResponseRO> pModeArchiveInfoListToPModeResponseROList(List<PModeArchiveInfo> pModeArchiveInfoList);
 
     List<TrustStoreRO> trustStoreEntryListToTrustStoreROList(List<TrustStoreEntry> trustStoreEntryList);
+
+    List<BackendFilter> messageFilterROListToBackendFilterList(List<MessageFilterRO> messageFilterROList);
+    List<MessageFilterRO> backendFilterListToMessageFilterROList(List<BackendFilter> backendFilterList);
+
+    List<LoggingLevelRO> loggingEntryListToLoggingLevelROList(List<LoggingEntry> loggingEntryList);
+
+
 }

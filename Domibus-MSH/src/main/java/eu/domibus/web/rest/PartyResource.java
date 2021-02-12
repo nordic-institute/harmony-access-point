@@ -78,9 +78,8 @@ public class PartyResource extends BaseResource {
         LOG.debug("Searching party with parameters name [{}], endPoint [{}], partyId [{}], processName [{}], pageStart [{}], pageSize [{}]",
                 request.getName(), request.getEndPoint(), request.getPartyId(), request.getProcess(), request.getPageStart(), request.getPageSize());
 
-        List<PartyResponseRo> partyResponseRos = coreMapper.party(
-                partyService.getParties(request.getName(), request.getEndPoint(), request.getPartyId(), request.getProcess(), request.getPageStart(), request.getPageSize()),
-                PartyResponseRo.class);
+        List<PartyResponseRo> partyResponseRos = coreMapper.partyListToPartyResponseRoList(
+                partyService.getParties(request.getName(), request.getEndPoint(), request.getPartyId(), request.getProcess(), request.getPageStart(), request.getPageSize()));
 
         flattenIdentifiers(partyResponseRos);
 
@@ -129,7 +128,7 @@ public class PartyResource extends BaseResource {
     public ValidationResponseRO updateParties(@RequestBody List<PartyResponseRo> partiesRo) {
         LOG.debug("Updating parties [{}]", Arrays.toString(partiesRo.toArray()));
 
-        List<Party> partyList = domainConverter.convert(partiesRo, Party.class);
+        List<Party> partyList = coreMapper.partyResponseRoListToPartyList(partiesRo);
         LOG.debug("Updating partyList [{}]", partyList.toArray());
 
         Map<String, String> certificates = partiesRo.stream()
@@ -233,7 +232,7 @@ public class PartyResource extends BaseResource {
 
     @GetMapping(value = {"/processes"})
     public List<ProcessRo> listProcesses() {
-        return domainConverter.convert(partyService.getAllProcesses(), ProcessRo.class);
+        return coreMapper.processAPIListToProcessRoList(partyService.getAllProcesses());
     }
 
     @GetMapping(value = "/{partyName}/certificate")
@@ -245,7 +244,7 @@ public class PartyResource extends BaseResource {
                 LOG.debug("Certificate entry not found for party name [{}].", partyName);
                 return ResponseEntity.notFound().build();
             }
-            TrustStoreRO res = domainConverter.convert(entry, TrustStoreRO.class);
+            TrustStoreRO res = coreMapper.trustStoreEntryToTrustStoreRO(entry);
             return ResponseEntity.ok(res);
         } catch (KeyStoreException e) {
             LOG.error("Failed to get certificate from truststore", e);
@@ -273,7 +272,7 @@ public class PartyResource extends BaseResource {
             throw new IllegalArgumentException("Certificate could not be parsed");
         }
 
-        return domainConverter.convert(cert, TrustStoreRO.class);
+        return coreMapper.trustStoreEntryToTrustStoreRO(cert);
     }
 
 }

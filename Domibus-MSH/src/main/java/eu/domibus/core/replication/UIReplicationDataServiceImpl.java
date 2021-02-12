@@ -193,7 +193,7 @@ public class UIReplicationDataServiceImpl implements UIReplicationDataService {
 
     private UIMessageEntity createUIMessageEntity(String messageId, long jmsTimestamp, MessageLog messageLog, UserMessage userMessage) {
         //domain converter
-        UIMessageEntity entity = coreMapper.messageLogToUIMessageEntity(messageLog);
+        UIMessageEntity entity = coreMapper.userMessageLogToUIMessageEntity(messageLog);
 
         entity.setEntityId(0); //be sure isn't set to null
         entity.setMessageId(messageId);

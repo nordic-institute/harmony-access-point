@@ -81,7 +81,7 @@ public class DomibusPropertyResourceTest {
             result = filter;
             domibusPropertyResourceHelper.getAllProperties(filter);
             result = items;
-            coreMapper.domibusPropertyROListToDomibusProperty(items);
+            coreMapper.domibusPropertyListToDomibusPropertyROList(items);
             result = convertedItems;
         }};
 

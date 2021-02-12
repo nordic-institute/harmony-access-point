@@ -11,8 +11,8 @@ import eu.domibus.core.alerts.model.common.AccountEventKey;
 import eu.domibus.core.alerts.model.common.CertificateEvent;
 import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.model.common.PasswordExpirationEventProperties;
+import eu.domibus.core.alerts.model.mapper.EventMapper;
 import eu.domibus.core.alerts.model.service.Event;
-import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.error.ErrorLogEntry;
@@ -78,7 +78,7 @@ public class EventServiceImpl implements EventService {
     private ErrorLogDao errorLogDao;
 
     @Autowired
-    private DomibusCoreMapper coreMapper;
+    private EventMapper eventMapper;
 
     @Autowired
     private JMSManager jmsManager;
@@ -176,7 +176,7 @@ public class EventServiceImpl implements EventService {
      */
     @Override
     public eu.domibus.core.alerts.model.persist.Event persistEvent(final Event event) {
-        final eu.domibus.core.alerts.model.persist.Event eventEntity = domainConverter.convert(event, eu.domibus.core.alerts.model.persist.Event.class);
+        final eu.domibus.core.alerts.model.persist.Event eventEntity = eventMapper.eventServiceToEventPersist (event);
         LOG.debug("Converting jms event [{}] to persistent event [{}]", event, eventEntity);
         eventEntity.enrichProperties();
         eventDao.create(eventEntity);

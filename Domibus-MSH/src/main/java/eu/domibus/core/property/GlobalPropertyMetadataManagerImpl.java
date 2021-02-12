@@ -42,7 +42,7 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
 
     private final List<DomibusPropertyManagerExt> extPropertyManagers;
 
-    private final DomainCoreConverter domainConverter;
+    private final DomibusCoreMapper coreMapper;
 
     private final NestedPropertiesManager nestedPropertiesManager;
 
