@@ -13,17 +13,17 @@ export class PluginUserValidatorService {
   }
 
   private checkPluginUserNameDuplication(allPluginUsers: PluginUserRO[]) {
-    let uniq_values = []
-    let dup_values = []
-    for (let x of allPluginUsers) {
-      if (uniq_values.indexOf(x.userName) != -1) {
-        dup_values.push(x.userName)
+    let uniqValues = []
+    let dupValues = []
+    for (let user of allPluginUsers) {
+      if (uniqValues.indexOf(user.userName) != -1) {
+        dupValues.push(user.userName)
       } else {
-        uniq_values.push(x.userName)
+        uniqValues.push(user.userName)
       }
     }
-    if (dup_values.length > 0) {
-      throw new Error('Duplicate user name for plugin users: ' + dup_values);
+    if (dupValues.length > 0) {
+      throw new Error('Duplicate user name for plugin users: ' + dupValues);
     }
   }
 }
