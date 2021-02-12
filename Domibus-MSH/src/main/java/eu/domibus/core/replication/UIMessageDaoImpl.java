@@ -17,6 +17,7 @@ import javax.persistence.Query;
 import javax.persistence.TemporalType;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.*;
@@ -205,19 +206,29 @@ public class UIMessageDaoImpl extends ListDao<UIMessageEntity> implements UIMess
     }
 
     @Override
-    @Timer(clazz = UIMessageDaoImpl.class,value = "deleteMessages.deleteUIMessagesByMessageIds")
-    @Counter(clazz = UIMessageDaoImpl.class,value = "deleteMessages.deleteUIMessagesByMessageIds")
+    @Timer(clazz = UIMessageDaoImpl.class, value = "deleteMessages.deleteUIMessagesByMessageIds")
+    @Counter(clazz = UIMessageDaoImpl.class, value = "deleteMessages.deleteUIMessagesByMessageIds")
     public int deleteUIMessagesByMessageIds(List<String> messageIds) {
         final Query deleteQuery = em.createNamedQuery("UIMessageEntity.deleteUIMessagesByMessageIds");
         deleteQuery.setParameter("MESSAGEIDS", messageIds);
-        int result  = deleteQuery.executeUpdate();
+        int result = deleteQuery.executeUpdate();
         LOG.trace("deleteUIMessagesByMessageIds result [{}]", result);
         return result;
     }
 
     @Override
-    public long countEntriesWithLimit(Map<String, Object> filters, int limit) {
-        return super.countEntries(filters, limit);
+    public boolean hasMoreEntriesThan(Map<String, Object> filters, int limit) {
+        CriteriaBuilder cb = this.em.getCriteriaBuilder();
+        CriteriaQuery<Number> cq = cb.createQuery(Number.class);
+        Root<UIMessageEntity> mle = cq.from(typeOfT);
+        cq.select(mle.get(UIMessageEntity_.MESSAGE_ID));
+        List<Predicate> predicates = getPredicates(filters, cb, mle);
+        cq.where(cb.and(predicates.toArray(new Predicate[predicates.size()])));
+        TypedQuery<Number> query = em.createQuery(cq);
+        query.setMaxResults(1);
+        query.setFirstResult(limit + 1);
+        final List<Number> results = query.getResultList();
+        return results.size() > 0;
     }
 
     private void addStringPredicates(CriteriaBuilder cb, Root<?> ume, List<Predicate> predicates, Map.Entry<String, Object> filter, String filterKey, Object filterValue) {

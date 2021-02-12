@@ -27,5 +27,5 @@ public interface MessageLogDaoBase {
      * @param limit if positive, the result can be maximum the limit
      * @return number of messages
      */
-    long countEntriesWithLimit(Map<String, Object> filters, int limit);
+    boolean hasMoreEntriesThan(Map<String, Object> filters, int limit);
 }

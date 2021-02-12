@@ -41,12 +41,12 @@ public class MessagesLogServiceHelperImplTest extends TestCase {
         long result = messagesLogServiceHelper.calculateNumberOfMessages(dao, filters, resultRO);
 
         new Verifications() {{
-            dao.countEntriesWithLimit(filters, anyInt);
+            dao.hasMoreEntriesThan(filters, anyInt);
             times = 0;
         }};
 
         Assert.assertEquals(count, result);
-        Assert.assertEquals(count, (long)resultRO.getCount());
+        Assert.assertEquals(count, (long) resultRO.getCount());
         Assert.assertEquals(false, resultRO.isEstimatedCount());
     }
 
@@ -59,8 +59,8 @@ public class MessagesLogServiceHelperImplTest extends TestCase {
         new Expectations() {{
             domibusPropertyProvider.getIntegerProperty(DOMIBUS_UI_MESSAGE_LOGS_COUNT_LIMIT);
             this.result = limit;
-            dao.countEntriesWithLimit(filters, anyInt);
-            result=limit;
+            dao.hasMoreEntriesThan(filters, anyInt);
+            result = true;
         }};
 
         long result = messagesLogServiceHelper.calculateNumberOfMessages(dao, filters, resultRO);
@@ -71,7 +71,7 @@ public class MessagesLogServiceHelperImplTest extends TestCase {
         }};
 
         Assert.assertEquals(limit, result);
-        Assert.assertEquals(limit, (long)resultRO.getCount());
+        Assert.assertEquals(limit, (long) resultRO.getCount());
         Assert.assertEquals(true, resultRO.isEstimatedCount());
     }
 }

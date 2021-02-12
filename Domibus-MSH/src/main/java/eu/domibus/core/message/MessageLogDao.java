@@ -1,6 +1,5 @@
 package eu.domibus.core.message;
 
-import com.google.common.collect.Maps;
 import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
@@ -136,24 +135,25 @@ public abstract class MessageLogDao<F extends MessageLog> extends ListDao<F> imp
 
     @Override
     public long countEntries(Map<String, Object> filters) {
-        return countRecords(filters, 0);
+        MessageLogInfoFilter filterService = getMessageLogInfoFilter();
+        String queryString = filterService.getCountMessageLogQuery(filters);
+        TypedQuery<Number> query = em.createQuery(queryString, Number.class);
+        query = filterService.applyParameters(query, filters);
+        final Number count = query.getSingleResult();
+        return count.intValue();
     }
 
     @Override
-    public long countEntriesWithLimit(Map<String, Object> filters, int limit) {
-        return countRecords(filters, limit);
+    public boolean hasMoreEntriesThan(Map<String, Object> filters, int limit) {
+        MessageLogInfoFilter filterService = getMessageLogInfoFilter();
+        String queryString = filterService.getMessageLogIdQuery(filters);
+        TypedQuery<Number> query = em.createQuery(queryString, Number.class);
+        query = filterService.applyParameters(query, filters);
+        query.setMaxResults(1);
+        query.setFirstResult(limit + 1);
+        final List<Number> results = query.getResultList();
+        return results.size() > 0;
     }
 
     public abstract List<MessageLogInfo> findAllInfoPaged(int from, int max, String column, boolean asc, Map<String, Object> filters);
-
-    protected int countRecords(Map<String, Object> filters, int limit) {
-        String filteredUserMessageLogQuery = getMessageLogInfoFilter().getCountMessageLogQuery(filters);
-        TypedQuery<Number> countQuery = em.createQuery(filteredUserMessageLogQuery, Number.class);
-        countQuery = getMessageLogInfoFilter().applyParameters(countQuery, filters);
-        if (limit > 0) {
-            countQuery.setMaxResults(limit);
-        }
-        final Number count = countQuery.getSingleResult();
-        return count.intValue();
-    }
 }

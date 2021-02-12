@@ -38,10 +38,6 @@ public abstract class ListDao<T extends AbstractBaseEntity> extends BasicDao<T> 
     }
 
     public long countEntries(Map<String, Object> filters) {
-        return countEntries(filters, 0);
-    }
-
-    public long countEntries(Map<String, Object> filters, int limit) {
         CriteriaBuilder cb = this.em.getCriteriaBuilder();
         CriteriaQuery<Long> cq = cb.createQuery(Long.class);
         Root<T> mle = cq.from(typeOfT);
@@ -49,9 +45,6 @@ public abstract class ListDao<T extends AbstractBaseEntity> extends BasicDao<T> 
         List<Predicate> predicates = getPredicates(filters, cb, mle);
         cq.where(cb.and(predicates.toArray(new Predicate[predicates.size()])));
         TypedQuery<Long> query = em.createQuery(cq);
-        if (limit > 0) {
-            query.setMaxResults(limit);
-        }
         return query.getSingleResult();
     }
 

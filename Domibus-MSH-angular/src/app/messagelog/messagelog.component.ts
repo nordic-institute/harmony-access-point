@@ -69,9 +69,9 @@ export class MessageLogComponent extends mix(BaseListComponent)
   conversationIdValue: String;
   resendReceivedMinutes: number;
 
-  additionalPages = 0;
-  totalRowsMessage = '$1 total';
-  estimatedCount = false;
+  additionalPages: number;
+  totalRowsMessage: string;
+  estimatedCount: boolean;
 
   constructor(private applicationService: ApplicationContextService, private http: HttpClient, private alertService: AlertService,
               private domibusInfoService: DomibusInfoService, public dialog: MatDialog, public dialogsService: DialogsService,
@@ -89,6 +89,10 @@ export class MessageLogComponent extends mix(BaseListComponent)
 
     super.orderBy = 'received';
     super.asc = false;
+
+    this.additionalPages = 0;
+    this.totalRowsMessage = '$1 total';
+    this.estimatedCount = false;
 
     this.messageResent = new EventEmitter(false);
 
