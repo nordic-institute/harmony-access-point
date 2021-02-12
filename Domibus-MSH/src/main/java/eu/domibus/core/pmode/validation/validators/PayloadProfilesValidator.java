@@ -36,10 +36,10 @@ public class PayloadProfilesValidator implements PModeValidator {
 
         Set<PayloadProfile> payloadProfiles = pMode.getBusinessProcesses().getPayloadProfiles();
         Set<Payload> validPayloads = pMode.getBusinessProcesses().getPayloads();
-
-        payloadProfiles.forEach(
-                payloadProfile -> issues.addAll(validatePayloadProfile(payloadProfile, validPayloads)));
-
+        if (payloadProfiles != null) {
+            payloadProfiles.forEach(
+                    payloadProfile -> issues.addAll(validatePayloadProfile(payloadProfile, validPayloads)));
+        }
         return issues;
     }
 
