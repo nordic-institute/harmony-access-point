@@ -53,15 +53,16 @@ public class UserMessageLogInfoFilter extends MessageLogInfoFilter {
                         "UserMessage message " +
                         "left join log.messageInfo info " +
                         (isFourCornerModel() ?
-                                "left join message.messageProperties.property propsFrom "  +
-                                "left join message.messageProperties.property propsTo " : StringUtils.EMPTY) +
+                                "left join message.messageProperties.property propsFrom " +
+                                        "left join message.messageProperties.property propsTo "
+                                : StringUtils.EMPTY) +
                         "left join message.partyInfo.from.partyId partyFrom " +
                         "left join message.partyInfo.to.partyId partyTo " +
                         "where message.messageInfo = info " +
                         (isFourCornerModel() ?
-                                "and propsFrom.name = 'originalSender' "  +
-                                "and propsTo.name = 'finalRecipient' " : StringUtils.EMPTY);
-
+                                "and propsFrom.name = 'originalSender' " +
+                                        "and propsTo.name = 'finalRecipient' "
+                                : StringUtils.EMPTY);
     }
 
 }

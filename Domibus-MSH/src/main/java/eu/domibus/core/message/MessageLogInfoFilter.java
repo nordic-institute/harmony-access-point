@@ -152,14 +152,12 @@ public abstract class MessageLogInfoFilter {
     public abstract String getQueryBody();
 
     public String getCountMessageLogQuery(Map<String, Object> filters) {
-        String expression = "select count(message.id)";
-
+        String expression = "select count(log.id)";
         return getQuery(filters, expression);
     }
 
     public String getMessageLogIdQuery(Map<String, Object> filters) {
-        String expression = "select message.id ";
-
+        String expression = "select log.id ";
         return getQuery(filters, expression);
     }
 
