@@ -50,7 +50,6 @@ export class PluginUserComponent extends mix(BaseListComponent)
   columnPicker: ColumnPickerBase = new ColumnPickerBase();
 
   userRoles: Array<String>;
-  //allPluginUsers: PluginUserRO[];
 
   constructor(private applicationService: ApplicationContextService, private alertService: AlertService,
               private pluginUserService: PluginUserService, public dialog: MatDialog, private dialogsService: DialogsService,
