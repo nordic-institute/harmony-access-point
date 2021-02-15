@@ -60,7 +60,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * IT test for DomibusCoreMapper, AuditMapper and EventMapper
  * @since 5.0
+ * @author Ioana Dragusanu
  * @author Catalin Enache
  */
 @RunWith(SpringJUnit4ClassRunner.class)

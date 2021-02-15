@@ -94,7 +94,7 @@ public class TLSTruststoreResourceIT {
         mockMvc = MockMvcBuilders.standaloneSetup(tlsTruststoreResource).build();
 
         ReflectionTestUtils.setField(tlsTruststoreResource, "tlsCertificateManager", tlsCertificateManager);
-        ReflectionTestUtils.setField(tlsTruststoreResource, "domainConverter", coreMapper);
+        ReflectionTestUtils.setField(tlsTruststoreResource, "coreMapper", coreMapper);
         ReflectionTestUtils.setField(tlsTruststoreResource, "errorHandlerService", errorHandlerService);
         ReflectionTestUtils.setField(tlsTruststoreResource, "multiPartFileUtil", multiPartFileUtil);
         ReflectionTestUtils.setField(tlsTruststoreResource, "auditService", auditService);
