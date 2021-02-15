@@ -11,6 +11,7 @@ import java.util.*;
 
 /**
  * @author Tiago Miguel
+ * @author Ion Perpegel
  * @since 3.3
  */
 public abstract class MessageLogInfoFilter {
@@ -179,6 +180,35 @@ public abstract class MessageLogInfoFilter {
     public String getCountQueryBody(Map<String, Object> allFilters) {
         final Map<String, Object> filters = Maps.filterEntries(allFilters, input -> input.getValue() != null);
 
+        StringBuilder fromQuery = createFromClause(filters);
+
+        StringBuilder whereQuery = whereQuery(fromQuery);
+
+        if (StringUtils.isBlank(whereQuery.toString())) {
+            return fromQuery.toString();
+        }
+        return fromQuery.append(" where ").append(whereQuery).toString();
+    }
+
+    protected StringBuilder whereQuery(StringBuilder fromQuery) {
+        Map<String, List<String>> whereMappings = createWhereMappings();
+        StringBuilder query = new StringBuilder();
+        Set<String> added = new HashSet<>();
+        whereMappings.keySet().stream().forEach(table -> {
+            if (added.add(table)) {
+                if (fromQuery.indexOf(table) >= 0) {
+                    whereMappings.get(table).forEach(el -> {
+                        if (query.indexOf(el) < 0) {
+                            query.append(el);
+                        }
+                    });
+                }
+            }
+        });
+        return query;
+    }
+
+    protected StringBuilder createFromClause(Map<String, Object> filters) {
         Map<String, List<String>> fromMappings = createFromMappings();
         StringBuilder query = new StringBuilder(" from " + getMainTable());
         Set<String> added = new HashSet<>();
@@ -201,26 +231,7 @@ public abstract class MessageLogInfoFilter {
             }
         });
 
-        Map<String, List<String>> whereMappings = createWhereMappings();
-        StringBuilder query2 = new StringBuilder();
-        Set<String> added2 = new HashSet<>();
-        whereMappings.keySet().stream().forEach(table -> {
-            if (added2.add(table)) {
-                if (query.indexOf(table) >= 0) {
-                    whereMappings.get(table).forEach(el -> {
-                        if (query2.indexOf(el) < 0) {
-                            query2.append(el);
-                        }
-                    });
-                }
-            }
-        });
-
-        if (StringUtils.isBlank(query2.toString())) {
-            return query.toString();
-        } else {
-            return query.append(" where ").append(query2).toString();
-        }
+        return query;
     }
 
     protected abstract String getMainTable();

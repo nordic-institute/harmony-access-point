@@ -1,13 +1,16 @@
 package eu.domibus.core.message;
 
-import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Tiago Miguel
+ * @author Ion Perpegel
  * @since 3.3
  */
 @Service(value = "userMessageLogInfoFilter")

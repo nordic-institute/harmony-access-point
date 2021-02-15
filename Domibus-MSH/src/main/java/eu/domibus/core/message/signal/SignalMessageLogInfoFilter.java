@@ -11,6 +11,7 @@ import java.util.Map;
 
 /**
  * @author Tiago Miguel
+ * @author Ion Perpegel
  * @since 3.3
  */
 @Service(value = "signalMessageLogInfoFilter")
