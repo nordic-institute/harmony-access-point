@@ -339,6 +339,7 @@ public class DomibusPropertyMetadata implements Cloneable {
                     this.isWithFallback(), this.isClusterAware(), this.isEncrypted(), this.isComposable());
             domibusPropertyMetadata.setSection(this.getSection());
             domibusPropertyMetadata.setDescription(this.getDescription());
+            domibusPropertyMetadata.setStoredGlobally(this.isStoredGlobally());
         }
         return domibusPropertyMetadata;
     }
