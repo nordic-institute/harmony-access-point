@@ -1,12 +1,13 @@
 package eu.domibus.core.message;
 
+import com.google.common.collect.Maps;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.persistence.TypedQuery;
-import java.util.Date;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Tiago Miguel
@@ -175,5 +176,56 @@ public abstract class MessageLogInfoFilter {
         return result.toString();
     }
 
-    protected abstract String getCountQueryBody(Map<String, Object> filters);
+    public String getCountQueryBody(Map<String, Object> allFilters) {
+        final Map<String, Object> filters = Maps.filterEntries(allFilters, input -> input.getValue() != null);
+
+        Map<String, List<String>> fromMappings = createFromMappings();
+        StringBuilder query = new StringBuilder(" from " + getMainTable());
+        Set<String> added = new HashSet<>();
+
+        filters.keySet().stream().forEach(param -> {
+            String hqlKey = getHQLKey(param);
+            if (StringUtils.isEmpty(hqlKey)) {
+                return;
+            }
+            String table = hqlKey.substring(0, hqlKey.indexOf("."));
+
+            if (added.add(table)) {
+                if (fromMappings.containsKey(table)) {
+                    fromMappings.get(table).forEach(el -> {
+                        if (query.indexOf(el) < 0) {
+                            query.append(el);
+                        }
+                    });
+                }
+            }
+        });
+
+        Map<String, List<String>> whereMappings = createWhereMappings();
+        StringBuilder query2 = new StringBuilder();
+        Set<String> added2 = new HashSet<>();
+        whereMappings.keySet().stream().forEach(table -> {
+            if (added2.add(table)) {
+                if (query.indexOf(table) >= 0) {
+                    whereMappings.get(table).forEach(el -> {
+                        if (query2.indexOf(el) < 0) {
+                            query2.append(el);
+                        }
+                    });
+                }
+            }
+        });
+
+        if (StringUtils.isBlank(query2.toString())) {
+            return query.toString();
+        } else {
+            return query.append(" where ").append(query2).toString();
+        }
+    }
+
+    protected abstract String getMainTable();
+
+    protected abstract Map<String, List<String>> createFromMappings();
+
+    protected abstract Map<String, List<String>> createWhereMappings();
 }
