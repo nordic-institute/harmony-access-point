@@ -59,9 +59,13 @@ import sun.security.x509.X509CertImpl;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @since 5.0
+ * @author Catalin Enache
+ */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(loader = AnnotationConfigContextLoader.class)
-public class DomibusCoreMapperIT {
+public class DomibusCoreAuditEventMapperIT {
 
     @Configuration
     @ImportResource({
@@ -87,12 +91,6 @@ public class DomibusCoreMapperIT {
             AuditMapperImpl auditMapper = new AuditMapperImpl();
             return auditMapper;
         }
-//
-//        @Bean
-//        public DomainCoreConverter domainCoreConverter() {
-//            DomainCoreConverter domainCoreConverter = new DomainCoreDefaultConverter();
-//            return domainCoreConverter;
-//        }
 
         @Bean
         public DomibusCoreMapper domibusCoreMapper() {

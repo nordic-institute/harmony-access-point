@@ -374,7 +374,7 @@ public class AlertEbms3ServiceImplTest {
     }
 
     @Test
-    public void testFindAlerts(final @Mocked  AlertCriteria alertCriteria,final @Mocked  List<Alert> alerts){
+    public void testFindAlerts(final @Mocked  AlertCriteria alertCriteria,final @Mocked  List<eu.domibus.core.alerts.model.persist.Alert> alerts){
         new Expectations(){{
             alertDao.filterAlerts(alertCriteria);
             result=alerts;
@@ -383,7 +383,7 @@ public class AlertEbms3ServiceImplTest {
         new Verifications(){{
             alertDao.filterAlerts(alertCriteria);
             times=1;
-            coreMapper.alertServiceListToAlertPersistList(alerts);
+            coreMapper.alertPersistListToAlertServiceList(alerts);
         }};
     }
 }
