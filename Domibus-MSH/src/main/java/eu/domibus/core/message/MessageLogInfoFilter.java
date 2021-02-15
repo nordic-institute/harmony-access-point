@@ -171,14 +171,14 @@ public abstract class MessageLogInfoFilter {
         return getQuery(filters, expression);
     }
 
-    protected String getQuery(Map<String, Object> filters, String expression) {
-        String query = expression + getCountQueryBody(filters);
+    protected String getQuery(Map<String, Object> filters, String selectExpression) {
+        String query = selectExpression + getCountQueryBody(filters);
         StringBuilder result = filterQuery(query, null, false, filters);
         return result.toString();
     }
 
     public String getCountQueryBody(Map<String, Object> allFilters) {
-        final Map<String, Object> filters = Maps.filterEntries(allFilters, input -> input.getValue() != null);
+        final Map<String, Object> filters = getNonEmptyParams(allFilters);
 
         StringBuilder fromQuery = createFromClause(filters);
 
@@ -188,6 +188,11 @@ public abstract class MessageLogInfoFilter {
             return fromQuery.toString();
         }
         return fromQuery.append(" where ").append(whereQuery).toString();
+    }
+
+    protected Map<String, Object> getNonEmptyParams(Map<String, Object> allFilters) {
+        final Map<String, Object> filters = Maps.filterEntries(allFilters, input -> input.getValue() != null);
+        return filters;
     }
 
     protected StringBuilder createFromClause(Map<String, Object> filters) {
