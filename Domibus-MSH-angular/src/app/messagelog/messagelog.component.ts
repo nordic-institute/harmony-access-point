@@ -267,6 +267,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
       this.totalRowsMessage = 'more than $1';
     } else {
       super.count = result.count;
+      this.totalRowsMessage = '$1 total';
     }
   }
 
