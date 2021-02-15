@@ -1,6 +1,7 @@
 package eu.domibus.core.clustering;
 
 import eu.domibus.api.server.ServerInfoService;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.ext.services.CommandExtTask;
 import mockit.Injectable;
 import mockit.Tested;

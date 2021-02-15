@@ -4,6 +4,7 @@ import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.api.model.*;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.UserMessageDefaultServiceHelper;
 import eu.domibus.core.message.UserMessageLogDao;
@@ -202,7 +203,7 @@ public class UIReplicationDataServiceImplTest {
             messagingDao.findUserMessageByMessageId(messageId);
             result = userMessage;
 
-            domainConverter.convert(userMessageLog, UIMessageEntity.class);
+            coreMapper.userMessageLogToUIMessageEntity(userMessageLog);
             result = uiMessageEntity;
 
             userMessageDefaultServiceHelper.getFinalRecipient(userMessage);
@@ -278,7 +279,7 @@ public class UIReplicationDataServiceImplTest {
             messaging.getUserMessage();
             result = userMessage;
 
-            domainConverter.convert(signalMessageLog, UIMessageEntity.class);
+            coreMapper.signalMessageLogToUIMessageEntity(signalMessageLog);
             result = uiMessageEntity;
 
             userMessageDefaultServiceHelper.getFinalRecipient(userMessage);

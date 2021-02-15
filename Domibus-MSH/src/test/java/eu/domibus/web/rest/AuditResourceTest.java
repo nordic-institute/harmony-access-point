@@ -5,8 +5,8 @@ import com.google.common.collect.Sets;
 import eu.domibus.api.audit.AuditLog;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.audit.envers.ModificationType;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.web.rest.ro.AuditFilterRequestRO;
-import eu.domibus.web.rest.ro.AuditResponseRo;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -57,7 +57,7 @@ public class AuditResourceTest {
                 auditCriteria.getTo(),
                 auditCriteria.getStart(),
                 auditCriteria.getMax());
-        verify(domainConverter, times(1)).convert(eq(result), eq(AuditResponseRo.class));
+        verify(coreMapper, times(1)).auditLogListToAuditResponseRoList(eq(result));
     }
 
     @Test

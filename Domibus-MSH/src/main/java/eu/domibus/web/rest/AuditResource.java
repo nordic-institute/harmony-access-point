@@ -72,7 +72,7 @@ public class AuditResource extends BaseResource {
                 auditCriteria.getStart(),
                 auditCriteria.getMax());
 
-        List<AuditResponseRo> list = coreMapper.auditLogListToAuditList(sourceList, AuditResponseRo.class);
+        List<AuditResponseRo> list = coreMapper.auditLogListToAuditResponseRoList(sourceList);
         list.forEach(entry -> entry.setAction(getActionTypeLabelFromCode(entry.getAction())));
         return list;
     }

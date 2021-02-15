@@ -41,15 +41,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
-//@WebAppConfiguration
 public class LoggingResourceIT {
 
     @Mocked
     private DomibusCoreMapper coreMapper;
+
     @Mocked
     private LoggingService loggingService;
+
     @Autowired
     private LoggingResource loggingResource;
+
     private MockMvc mockMvc;
 
     @Configuration
@@ -135,7 +137,7 @@ public class LoggingResourceIT {
             result = loggingEntryList;
             times = 1;
 
-            coreMapper.loggingEntryToLoggingLevelRO(loggingEntryList, LoggingLevelRO.class);
+            coreMapper.loggingEntryListToLoggingLevelROList(loggingEntryList);
             result = loggingLevelROList;
             times = 1;
         }};

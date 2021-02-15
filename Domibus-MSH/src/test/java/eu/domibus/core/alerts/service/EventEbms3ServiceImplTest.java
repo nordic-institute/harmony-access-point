@@ -8,6 +8,7 @@ import eu.domibus.api.model.UserMessage;
 import eu.domibus.core.alerts.configuration.password.PasswordExpirationAlertModuleConfiguration;
 import eu.domibus.core.alerts.dao.EventDao;
 import eu.domibus.core.alerts.model.common.EventType;
+import eu.domibus.core.alerts.model.mapper.EventMapper;
 import eu.domibus.core.alerts.model.persist.AbstractEventProperty;
 import eu.domibus.core.alerts.model.persist.StringEventProperty;
 import eu.domibus.core.alerts.model.service.Event;
@@ -61,7 +62,7 @@ public class EventEbms3ServiceImplTest {
     private ErrorLogDao errorLogDao;
 
     @Injectable
-    private DomibusCoreMapper coreMapper;
+    private EventMapper eventMapper;
 
     @Injectable
     private JMSManager jmsManager;
@@ -189,9 +190,8 @@ public class EventEbms3ServiceImplTest {
         persistedEvent.getProperties().put(key, stringEventProperty);
 
         new Expectations() {{
-            domainConverter.convert(event, eu.domibus.core.alerts.model.persist.Event.class);
+            eventMapper.eventServiceToEventPersist(event) ;
             result = persistedEvent;
-
         }};
         eventService.persistEvent(event);
         new Verifications() {{
@@ -267,7 +267,7 @@ public class EventEbms3ServiceImplTest {
         new Expectations() {{
             eventDao.findWithTypeAndPropertyValue((EventType) any, anyString, anyString);
             result = null;
-            domainConverter.convert(any, eu.domibus.core.alerts.model.persist.Event.class);
+            eventMapper.eventServiceToEventPersist((Event) any);
             result = persistedEvent;
         }};
 

@@ -1,6 +1,6 @@
 package eu.domibus.core.replication;
 
-import eu.domibus.core.message.MessageLogInfo;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.web.rest.ro.MessageLogRO;
 import eu.domibus.web.rest.ro.MessageLogResultRO;
 import mockit.Expectations;
@@ -96,7 +96,7 @@ public class UIMessageEbms3ServiceImplTest {
         final MessageLogRO messageLogRO = uiMessageService.convertUIMessageEntity(uiMessageEntity);
 
         new Verifications() {{
-            domainConverter.convert(uiMessageEntity, MessageLogRO.class);
+            coreMapper.uiMessageEntityToMessageLogRO(uiMessageEntity);
         }};
     }
 
@@ -107,7 +107,7 @@ public class UIMessageEbms3ServiceImplTest {
         uiMessageService.convertToMessageLogInfo(uiMessageEntity);
 
         new Verifications() {{
-            domainConverter.convert(uiMessageEntity, MessageLogInfo.class);
+            coreMapper.uiMessageEntityToMessageLogInfo(uiMessageEntity);
         }};
     }
 

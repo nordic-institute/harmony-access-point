@@ -276,7 +276,8 @@ public interface DomibusCoreMapper {
     @InheritInverseConfiguration
     DomibusPropertyMetadata propertyMetadataDTOTopropertyMetadata(DomibusPropertyMetadataDTO src);
 
-    DomibusPropertyMetadata propertyMetadataTopropertyMetadata(DomibusPropertyMetadata src);
+    //TODO cloning?
+    DomibusPropertyMetadata propertyMetadataToPropertyMetadata(DomibusPropertyMetadata src);
 
     DomibusPropertiesFilter domibusPropertyFilterRequestTOdomibusPropertiesFilter(PropertyFilterRequestRO source);
 
@@ -284,23 +285,33 @@ public interface DomibusCoreMapper {
     PasswordEncryptionResultDTO passwordEncryptionResultToPasswordEncryptionResultDTO(PasswordEncryptionResult passwordEncryptionResult);
 
     //list mappings
+    List<AuditResponseRo> auditLogListToAuditResponseRoList(List<AuditLog> auditLogList);
+    List<AuditLog> auditLogListToAuditList(List<Audit> auditList);
+
     List<eu.domibus.core.alerts.model.service.Alert> alertPersistListToAlertServiceList(List<Alert> alertList);
+    List<Alert> alertServiceListToAlertPersistList(List<eu.domibus.core.alerts.model.service.Alert> alertList);
 
-
-    List<Command> commandEntityListToCommandList(List<CommandEntity> commandEntityList);
-
-    List<ErrorLogRO> errorLogEntryListToErrorLogROList(List<ErrorLogEntry> errorLogEntryList);
-
-
-    List<MessageAttempt> messageAttemptEntityListToMessageAttemptList(List<MessageAttemptEntity> messageAttemptEntityList);
-    List<MessageAttemptEntity> messageAttemptListToMessageAttemptEntityList(List<MessageAttempt> messageAttemptList);
+    List<AuthenticationEntity> pluginUserROListToAuthenticationEntityList(List<PluginUserRO> pluginUserROList);
 
     List<BackendFilterEntity> backendFilterListToBackendFilterEntityList(List<BackendFilter> backendFilterList);
     List<BackendFilter> backendFilterEntityListToBackendFilterList(List<BackendFilterEntity> backendFilterEntityList);
 
-    List<AuditLog> auditLogListToAuditList(List<Audit> auditList);
+    List<BackendFilter> messageFilterROListToBackendFilterList(List<MessageFilterRO> messageFilterROList);
+    List<MessageFilterRO> backendFilterListToMessageFilterROList(List<BackendFilter> backendFilterList);
+
+    List<Command> commandEntityListToCommandList(List<CommandEntity> commandEntityList);
 
     List<DomainRO> domainListToDomainROList(List<Domain> domainList);
+
+//    List<DomibusProperty> domibusPropertyROListToDomibusPropertyList(List<DomibusPropertyRO> domibusPropertyROList);
+    List<DomibusPropertyRO> domibusPropertyListToDomibusPropertyROList(List<DomibusProperty> domibusPropertyList);
+
+    List<DomibusPropertyTypeRO> domibusPropertyMetadataTypeListToDomibusPropertyTypeROList(List<DomibusPropertyMetadata.Type> domibusPropertyMetadataTypeList);
+
+    List<ErrorLogRO> errorLogEntryListToErrorLogROList(List<ErrorLogEntry> errorLogEntryList);
+
+    List<MessageAttempt> messageAttemptEntityListToMessageAttemptList(List<MessageAttemptEntity> messageAttemptEntityList);
+    List<MessageAttemptEntity> messageAttemptListToMessageAttemptEntityList(List<MessageAttempt> messageAttemptList);
 
     List<Party> configurationPartyListToPartyList(List<eu.domibus.common.model.configuration.Party> configurationPartyList);
     List<eu.domibus.common.model.configuration.Party> partyListToConfigurationPartyList(List<Party> partyList);
@@ -313,22 +324,12 @@ public interface DomibusCoreMapper {
     List<eu.domibus.api.process.Process> processRoListToProcessAPIList(List<ProcessRo> processRoList);
     List<ProcessRo> processAPIListToProcessRoList(List<eu.domibus.api.process.Process> processList);
 
-    List<DomibusProperty> domibusPropertyROListToDomibusPropertyList(List<DomibusPropertyRO> domibusPropertyROList);
-    List<DomibusPropertyRO> domibusPropertyListToDomibusPropertyROList(List<DomibusProperty> domibusPropertyList);
-
-    List<DomibusPropertyTypeRO> domibusPropertyMetadataTypeListToDomibusPropertyTypeROList(List<DomibusPropertyMetadata.Type> domibusPropertyMetadataTypeList);
-
     List<User> userResponseROListToUserList(List<UserResponseRO> userResponseROList);
     List<UserResponseRO> userListToUserResponseROList(List<User> userList);
-
-    List<AuthenticationEntity> pluginUserROListToAuthenticationEntityList(List<PluginUserRO> pluginUserROList);
 
     List<PModeResponseRO> pModeArchiveInfoListToPModeResponseROList(List<PModeArchiveInfo> pModeArchiveInfoList);
 
     List<TrustStoreRO> trustStoreEntryListToTrustStoreROList(List<TrustStoreEntry> trustStoreEntryList);
-
-    List<BackendFilter> messageFilterROListToBackendFilterList(List<MessageFilterRO> messageFilterROList);
-    List<MessageFilterRO> backendFilterListToMessageFilterROList(List<BackendFilter> backendFilterList);
 
     List<LoggingLevelRO> loggingEntryListToLoggingLevelROList(List<LoggingEntry> loggingEntryList);
 

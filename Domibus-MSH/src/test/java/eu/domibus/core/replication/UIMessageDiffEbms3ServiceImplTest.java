@@ -1,6 +1,7 @@
 package eu.domibus.core.replication;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
@@ -159,16 +160,16 @@ public class UIMessageDiffEbms3ServiceImplTest {
 
         new Verifications() {{
             //just test the call to converter
-            domainConverter.convert(uiMessageDiffEntity, UIMessageEntity.class);
+            coreMapper.uiMessageDiffEntityToUIMessageEntity(uiMessageDiffEntity);
             times = 1;
         }};
     }
 
     @Test
-    public void testConvertToUIMessageEntity_EntityNull_ResultNull(final @Mocked UIMessageDiffEntity uiMessageDiffEntity) {
+    public void testConvertToUIMessageEntity_EntityNull_ResultNull() {
 
         //tested method
-        final UIMessageEntity uiMessageEntity = uiMessageDiffService.convertToUIMessageEntity(uiMessageDiffEntity);
+        final UIMessageEntity uiMessageEntity = uiMessageDiffService.convertToUIMessageEntity(null);
         Assert.assertNull(uiMessageEntity);
     }
 

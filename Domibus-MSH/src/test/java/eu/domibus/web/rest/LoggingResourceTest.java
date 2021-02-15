@@ -1,5 +1,6 @@
 package eu.domibus.web.rest;
 
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.logging.LoggingEntry;
 import eu.domibus.core.logging.LoggingException;
 import eu.domibus.core.logging.LoggingService;
@@ -44,7 +45,7 @@ public class LoggingResourceTest {
 
     @Before
     public void setUp() {
-        loggingResource = new LoggingResource(domainConverter, loggingService, errorHandlerService);
+        loggingResource = new LoggingResource(coreMapper, loggingService, errorHandlerService);
     }
 
     @Test
@@ -96,7 +97,7 @@ public class LoggingResourceTest {
             loggingService.getLoggingLevel(name, showClasses);
             result = loggingEntryList;
 
-            domainConverter.convert(loggingEntryList, LoggingLevelRO.class);
+            coreMapper.loggingEntryListToLoggingLevelROList(loggingEntryList);
             result = loggingLevelROList;
 
         }};

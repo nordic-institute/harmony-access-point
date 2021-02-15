@@ -10,7 +10,6 @@ import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.api.security.TrustStoreEntry;
-import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.party.*;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
@@ -55,9 +54,9 @@ public class PartyResource extends BaseResource {
 
     private DomainContextProvider domainProvider;
 
-    public PartyResource(DomainCoreConverter domainConverter, PartyService partyService, CertificateService certificateService,
+    public PartyResource(DomibusCoreMapper coreMapper, PartyService partyService, CertificateService certificateService,
                          PModeValidationHelper pModeValidationHelper, MultiDomainCryptoService multiDomainCertificateProvider,
-                         DomibusCoreMapper coreMapper) {
+                         DomainContextProvider domainProvider) {
         this.coreMapper = coreMapper;
         this.partyService = partyService;
         this.certificateService = certificateService;

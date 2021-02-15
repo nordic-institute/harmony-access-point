@@ -9,6 +9,7 @@ import eu.domibus.api.user.UserManagementException;
 import eu.domibus.api.user.UserState;
 import eu.domibus.core.alerts.service.AlertConfigurationService;
 import eu.domibus.core.alerts.service.EventService;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.user.ui.User;
 import eu.domibus.core.user.ui.UserDao;
 import eu.domibus.core.user.ui.UserRole;
@@ -106,7 +107,7 @@ public class UserPersistenceServiceImplTest {
         List<eu.domibus.api.user.User> users = Arrays.asList(addedUser, modifiedUser, deletedUser);
 
         new Expectations() {{
-            domainConverter.convert(addedUser, User.class);
+            coreMapper.userApiToUserSecurity(addedUser);
             returns(addedUserUntity);
         }};
 
@@ -133,7 +134,7 @@ public class UserPersistenceServiceImplTest {
         List<eu.domibus.api.user.User> addedUsers = Arrays.asList(addedUser);
 
         new Expectations() {{
-            domainConverter.convert(addedUser, User.class);
+            coreMapper.userApiToUserSecurity(addedUser);
             result = addedUserUntity;
         }};
 

@@ -11,6 +11,7 @@ import eu.domibus.api.security.AuthType;
 import eu.domibus.api.user.UserManagementException;
 import eu.domibus.api.user.UserState;
 import eu.domibus.core.alerts.service.PluginUserAlertsServiceImpl;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.user.plugin.security.PluginUserSecurityPolicyManager;
 import eu.domibus.core.user.plugin.security.password.PluginUserPasswordHistoryDao;
 import eu.domibus.web.rest.ro.PluginUserRO;
@@ -282,7 +283,7 @@ public class PluginUserEbms3ServiceImplTest {
         LocalDateTime expDate = LocalDateTime.now().plusDays(30);
 
         new Expectations() {{
-            domainConverter.convert(user, PluginUserRO.class);
+            coreMapper.authenticationEntityToPluginUserRO(user);
             result = userRO;
             userSecurityPolicyManager.getExpirationDate(user);
             result = expDate;
