@@ -238,7 +238,7 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
 
     protected DomibusPropertyMetadata clonePropertyMetadata(String propertyName, DomibusPropertyMetadata propMeta) {
         // make a clone and then add it to the map
-        DomibusPropertyMetadata newPropMeta = coreMapper.propertyMetadataToPropertyMetadata(propMeta);
+        DomibusPropertyMetadata newPropMeta = (DomibusPropertyMetadata) propMeta.clone();
         // metadata name may be just the prefix, not be the concrete propertyName,
         // so we set the whole property name here to be correctly used down the stream. Not beautiful
         newPropMeta.setName(propertyName);

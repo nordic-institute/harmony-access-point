@@ -276,12 +276,8 @@ public interface DomibusCoreMapper {
     @InheritInverseConfiguration
     DomibusPropertyMetadata propertyMetadataDTOTopropertyMetadata(DomibusPropertyMetadataDTO src);
 
-    //TODO cloning?
-    DomibusPropertyMetadata propertyMetadataToPropertyMetadata(DomibusPropertyMetadata src);
-
     DomibusPropertiesFilter domibusPropertyFilterRequestTOdomibusPropertiesFilter(PropertyFilterRequestRO source);
 
-    //TODO check why this mapping exists as well in DomibusExtMapper
     PasswordEncryptionResultDTO passwordEncryptionResultToPasswordEncryptionResultDTO(PasswordEncryptionResult passwordEncryptionResult);
 
     //list mappings
@@ -289,7 +285,6 @@ public interface DomibusCoreMapper {
     List<AuditLog> auditLogListToAuditList(List<Audit> auditList);
 
     List<eu.domibus.core.alerts.model.service.Alert> alertPersistListToAlertServiceList(List<Alert> alertList);
-    List<Alert> alertServiceListToAlertPersistList(List<eu.domibus.core.alerts.model.service.Alert> alertList);
 
     List<AuthenticationEntity> pluginUserROListToAuthenticationEntityList(List<PluginUserRO> pluginUserROList);
 
@@ -303,7 +298,6 @@ public interface DomibusCoreMapper {
 
     List<DomainRO> domainListToDomainROList(List<Domain> domainList);
 
-//    List<DomibusProperty> domibusPropertyROListToDomibusPropertyList(List<DomibusPropertyRO> domibusPropertyROList);
     List<DomibusPropertyRO> domibusPropertyListToDomibusPropertyROList(List<DomibusProperty> domibusPropertyList);
 
     List<DomibusPropertyTypeRO> domibusPropertyMetadataTypeListToDomibusPropertyTypeROList(List<DomibusPropertyMetadata.Type> domibusPropertyMetadataTypeList);
@@ -312,6 +306,8 @@ public interface DomibusCoreMapper {
 
     List<MessageAttempt> messageAttemptEntityListToMessageAttemptList(List<MessageAttemptEntity> messageAttemptEntityList);
     List<MessageAttemptEntity> messageAttemptListToMessageAttemptEntityList(List<MessageAttempt> messageAttemptList);
+
+    List<LoggingLevelRO> loggingEntryListToLoggingLevelROList(List<LoggingEntry> loggingEntryList);
 
     List<Party> configurationPartyListToPartyList(List<eu.domibus.common.model.configuration.Party> configurationPartyList);
     List<eu.domibus.common.model.configuration.Party> partyListToConfigurationPartyList(List<Party> partyList);
@@ -330,8 +326,5 @@ public interface DomibusCoreMapper {
     List<PModeResponseRO> pModeArchiveInfoListToPModeResponseROList(List<PModeArchiveInfo> pModeArchiveInfoList);
 
     List<TrustStoreRO> trustStoreEntryListToTrustStoreROList(List<TrustStoreEntry> trustStoreEntryList);
-
-    List<LoggingLevelRO> loggingEntryListToLoggingLevelROList(List<LoggingEntry> loggingEntryList);
-
 
 }

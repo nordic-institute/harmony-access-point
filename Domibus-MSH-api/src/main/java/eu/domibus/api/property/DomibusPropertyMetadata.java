@@ -14,7 +14,7 @@ import java.util.Arrays;
  * @since 4.1.1
  * Class that encapsulates the properties of a domibus configuration property;
  */
-public class DomibusPropertyMetadata {
+public class DomibusPropertyMetadata implements Cloneable {
 
     public static final String NAME_SEPARATOR = ".";
 
@@ -327,6 +327,20 @@ public class DomibusPropertyMetadata {
                 .append("clusterAware", this.clusterAware)
                 .append("writable", this.writable)
                 .toString();
+    }
+
+    @Override
+    public Object clone() {
+        DomibusPropertyMetadata domibusPropertyMetadata;
+        try {
+            domibusPropertyMetadata = (DomibusPropertyMetadata) super.clone();
+        } catch (CloneNotSupportedException e) {
+            domibusPropertyMetadata = new DomibusPropertyMetadata(this.getName(), this.getTypeAsEnum(), this.getModule(), this.isWritable(), Usage.valueOf(this.getUsageText()),
+                    this.isWithFallback(), this.isClusterAware(), this.isEncrypted(), this.isComposable());
+            domibusPropertyMetadata.setSection(this.getSection());
+            domibusPropertyMetadata.setDescription(this.getDescription());
+        }
+        return domibusPropertyMetadata;
     }
 
     /**
