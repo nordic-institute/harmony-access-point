@@ -54,24 +54,29 @@ public class SignalMessageLogInfoFilter extends MessageLogInfoFilter {
                 "log.failed," +
                 "log.restored," +
                 "log.messageSubtype" +
-                ")" + getQueryBody();
+                ")" + getQueryBody(filters);
         StringBuilder result = filterQuery(query, column, asc, filters);
         return result.toString();
     }
 
     @Override
-    public String getQueryBody() {
+    public String getQueryBody(Map<String, Object> filters) {
         return
                 " from SignalMessageLog log, " +
                         "Messaging messaging inner join messaging.signalMessage signal " +
                         "inner join messaging.userMessage message " +
                         "left join signal.messageInfo info " +
                         (isFourCornerModel() ? "left join message.messageProperties.property propsFrom " +
-                        "left join message.messageProperties.property propsTo " : StringUtils.EMPTY) +
+                                "left join message.messageProperties.property propsTo " : StringUtils.EMPTY) +
                         "left join message.partyInfo.from.partyId partyFrom " +
                         "left join message.partyInfo.to.partyId partyTo " +
                         "where signal.messageInfo.messageId=log.messageId and signal.messageInfo.refToMessageId=message.messageInfo.messageId " +
                         (isFourCornerModel() ? "and propsFrom.name = 'originalSender' and propsTo.name = 'finalRecipient' " : StringUtils.EMPTY);
+    }
+
+    @Override
+    protected String getCountQueryBody(Map<String, Object> filters) {
+        return null;
     }
 
 }

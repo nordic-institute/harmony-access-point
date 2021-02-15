@@ -85,7 +85,7 @@ public abstract class MessageLogInfoFilter {
     protected StringBuilder filterQuery(String query, String column, boolean asc, Map<String, Object> filters) {
         StringBuilder result = new StringBuilder(query);
         for (Map.Entry<String, Object> filter : filters.entrySet()) {
-            handleFilter(result, filter);
+            handleFilter(result, query, filter);
         }
 
         if (column != null) {
@@ -100,9 +100,9 @@ public abstract class MessageLogInfoFilter {
         return result;
     }
 
-    private void handleFilter(StringBuilder result, Map.Entry<String, Object> filter) {
+    private void handleFilter(StringBuilder result, String query, Map.Entry<String, Object> filter) {
         if (filter.getValue() != null) {
-            result.append(" and ");
+            setSeparator(query, result);
             if (!(filter.getValue() instanceof Date)) {
                 if (!(filter.getValue().toString().isEmpty())) {
                     String tableName = getHQLKey(filter.getKey());
@@ -120,10 +120,18 @@ public abstract class MessageLogInfoFilter {
             }
         } else {
             if (filter.getKey().equals("messageSubtype")) {
-                result.append(" and ");
+                setSeparator(query, result);
                 String tableName = getHQLKey(filter.getKey());
                 result.append(tableName).append(" is null");
             }
+        }
+    }
+
+    private void setSeparator(String query, StringBuilder result) {
+        if (query.contains("where") || result.toString().contains("where")) {
+            result.append(" and ");
+        } else {
+            result.append(" where ");
         }
     }
 
@@ -149,7 +157,7 @@ public abstract class MessageLogInfoFilter {
         return null;
     }
 
-    public abstract String getQueryBody();
+    public abstract String getQueryBody(Map<String, Object> filters);
 
     public String getCountMessageLogQuery(Map<String, Object> filters) {
         String expression = "select count(log.id)";
@@ -162,8 +170,10 @@ public abstract class MessageLogInfoFilter {
     }
 
     protected String getQuery(Map<String, Object> filters, String expression) {
-        String query = expression + getQueryBody();
+        String query = expression + getCountQueryBody(filters);
         StringBuilder result = filterQuery(query, null, false, filters);
         return result.toString();
     }
+
+    protected abstract String getCountQueryBody(Map<String, Object> filters);
 }
