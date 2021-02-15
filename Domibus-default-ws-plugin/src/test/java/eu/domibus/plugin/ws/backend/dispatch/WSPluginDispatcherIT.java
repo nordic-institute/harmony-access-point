@@ -19,7 +19,7 @@ import java.util.UUID;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = {WSPluginDispatcherTestConfiguration.class})
-public class WSPluginDispatcherTest {
+public class WSPluginDispatcherIT {
 
     private int backendPort;
     @Autowired
