@@ -117,6 +117,7 @@ public class SenderService {
         messageMap.setStringProperty("refToMessageId", messageId);
 
         messageMap.setStringProperty("service", "eu_ics2_c2t");
+        messageMap.setStringProperty("serviceType", "eu-customs-service-type");
         messageMap.setStringProperty("agreementRef", "EU-ICS2-TI-V1.0");
 
 
