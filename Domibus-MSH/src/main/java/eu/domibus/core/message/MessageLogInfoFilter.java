@@ -182,7 +182,7 @@ public abstract class MessageLogInfoFilter {
 
         StringBuilder fromQuery = createFromClause(filters);
 
-        StringBuilder whereQuery = whereQuery(fromQuery);
+        StringBuilder whereQuery = createWhereQuery(fromQuery);
 
         if (StringUtils.isBlank(whereQuery.toString())) {
             return fromQuery.toString();
@@ -190,31 +190,13 @@ public abstract class MessageLogInfoFilter {
         return fromQuery.append(" where ").append(whereQuery).toString();
     }
 
-    protected StringBuilder whereQuery(StringBuilder fromQuery) {
-        Map<String, List<String>> whereMappings = createWhereMappings();
-        StringBuilder query = new StringBuilder();
-        Set<String> added = new HashSet<>();
-        whereMappings.keySet().stream().forEach(table -> {
-            if (added.add(table)) {
-                if (fromQuery.indexOf(table) >= 0) {
-                    whereMappings.get(table).forEach(el -> {
-                        if (query.indexOf(el) < 0) {
-                            query.append(el);
-                        }
-                    });
-                }
-            }
-        });
-        return query;
-    }
-
     protected StringBuilder createFromClause(Map<String, Object> filters) {
         Map<String, List<String>> fromMappings = createFromMappings();
         StringBuilder query = new StringBuilder(" from " + getMainTable());
         Set<String> added = new HashSet<>();
 
-        filters.keySet().stream().forEach(param -> {
-            String hqlKey = getHQLKey(param);
+        filters.keySet().stream().forEach(filterParam -> {
+            String hqlKey = getHQLKey(filterParam);
             if (StringUtils.isEmpty(hqlKey)) {
                 return;
             }
@@ -222,15 +204,33 @@ public abstract class MessageLogInfoFilter {
 
             if (added.add(table)) {
                 if (fromMappings.containsKey(table)) {
-                    fromMappings.get(table).forEach(el -> {
-                        if (query.indexOf(el) < 0) {
-                            query.append(el);
+                    fromMappings.get(table).forEach(mapping -> {
+                        if (query.indexOf(mapping) < 0) {
+                            query.append(mapping);
                         }
                     });
                 }
             }
         });
 
+        return query;
+    }
+
+    protected StringBuilder createWhereQuery(StringBuilder fromQuery) {
+        Map<String, List<String>> whereMappings = createWhereMappings();
+        StringBuilder query = new StringBuilder();
+        Set<String> added = new HashSet<>();
+        whereMappings.keySet().stream().forEach(table -> {
+            if (added.add(table)) {
+                if (fromQuery.indexOf(table) >= 0) {
+                    whereMappings.get(table).forEach(mapping -> {
+                        if (query.indexOf(mapping) < 0) {
+                            query.append(mapping);
+                        }
+                    });
+                }
+            }
+        });
         return query;
     }
 
