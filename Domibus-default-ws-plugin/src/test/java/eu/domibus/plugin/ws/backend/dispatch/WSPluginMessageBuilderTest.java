@@ -66,8 +66,11 @@ public class WSPluginMessageBuilderTest {
             wsPluginMessageBuilder.getChangeStatus(messageLogEntity);
             result = new MessageStatusChange();
         }};
+
         Object jaxbElement = wsPluginMessageBuilder.getJaxbElement(messageLogEntity);
+
         assertEquals(MessageStatusChange.class, jaxbElement.getClass());
+
         new FullVerifications() {
         };
     }
@@ -81,8 +84,11 @@ public class WSPluginMessageBuilderTest {
             wsPluginMessageBuilder.getSendSuccess(messageLogEntity);
             result = new SendSuccess();
         }};
+
         Object jaxbElement = wsPluginMessageBuilder.getJaxbElement(messageLogEntity);
+
         assertEquals(SendSuccess.class, jaxbElement.getClass());
+
         new FullVerifications() {
         };
     }
@@ -96,8 +102,11 @@ public class WSPluginMessageBuilderTest {
             wsPluginMessageBuilder.getDeleteBatch(messageLogEntity);
             result = new DeleteBatch();
         }};
+
         Object jaxbElement = wsPluginMessageBuilder.getJaxbElement(messageLogEntity);
+
         assertEquals(DeleteBatch.class, jaxbElement.getClass());
+
         new FullVerifications() {
         };
     }
@@ -110,8 +119,11 @@ public class WSPluginMessageBuilderTest {
             wsPluginMessageBuilder.getDelete(messageLogEntity);
             result = new Delete();
         }};
+
         Object jaxbElement = wsPluginMessageBuilder.getJaxbElement(messageLogEntity);
+
         assertEquals(Delete.class, jaxbElement.getClass());
+
         new FullVerifications() {
         };
     }
@@ -125,8 +137,11 @@ public class WSPluginMessageBuilderTest {
             wsPluginMessageBuilder.getReceiveSuccess(messageLogEntity);
             result = new ReceiveSuccess();
         }};
+
         Object jaxbElement = wsPluginMessageBuilder.getJaxbElement(messageLogEntity);
+
         assertEquals(ReceiveSuccess.class, jaxbElement.getClass());
+
         new FullVerifications() {
         };
     }
@@ -140,8 +155,11 @@ public class WSPluginMessageBuilderTest {
             wsPluginMessageBuilder.getReceiveFailure(messageLogEntity);
             result = new ReceiveFailure();
         }};
+
         Object jaxbElement = wsPluginMessageBuilder.getJaxbElement(messageLogEntity);
+
         assertEquals(ReceiveFailure.class, jaxbElement.getClass());
+
         new FullVerifications() {
         };
     }
@@ -155,9 +173,11 @@ public class WSPluginMessageBuilderTest {
             wsPluginMessageBuilder.getSubmitMessage(messageLogEntity);
             result = new SubmitMessage();
         }};
+
         Object jaxbElement = wsPluginMessageBuilder.getJaxbElement(messageLogEntity);
 
         assertEquals(SubmitMessage.class, jaxbElement.getClass());
+
         new FullVerifications() {
         };
     }
@@ -171,6 +191,7 @@ public class WSPluginMessageBuilderTest {
             wsPluginMessageBuilder.getSendFailure(messageLogEntity);
             result = new SendFailure();
         }};
+
         Object jaxbElement = wsPluginMessageBuilder.getJaxbElement(messageLogEntity);
 
         assertEquals(SendFailure.class, jaxbElement.getClass());
