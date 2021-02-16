@@ -1,7 +1,5 @@
 package eu.domibus.api.alerts;
 
-import java.util.Map;
-
 /**
  * Interface for the creation of plugin events
  *
@@ -10,6 +8,6 @@ import java.util.Map;
  */
 public interface PluginEventService {
 
-    void enqueueMessageEvent(Map<String, String> properties);
+    void enqueueMessageEvent(AlertEvent alertEvent);
 
 }

@@ -1,5 +1,6 @@
 package eu.domibus.core.alerts.service;
 
+import eu.domibus.api.alerts.AlertEvent;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.model.service.Event;
@@ -12,7 +13,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.jms.Queue;
-import java.util.HashMap;
 
 /**
  * @author François Gautier
@@ -33,12 +33,12 @@ public class PluginEventServiceImplTest {
 
     @Test
     public void enqueueMessageEvent() {
-        eventService.enqueueMessageEvent(new HashMap<>());
+        eventService.enqueueMessageEvent(new AlertEvent());
         new Verifications() {{
             Event event;
-            jmsManager.convertAndSendToQueue(event = withCapture(), alertMessageQueue, EventType.PLUGIN_DEFAULT.getQueueSelector());
+            jmsManager.convertAndSendToQueue(event = withCapture(), alertMessageQueue, EventType.PLUGIN.getQueueSelector());
             times = 1;
-            Assert.assertEquals(EventType.PLUGIN_DEFAULT, event.getType());
+            Assert.assertEquals(EventType.PLUGIN, event.getType());
         }};
     }
 }
