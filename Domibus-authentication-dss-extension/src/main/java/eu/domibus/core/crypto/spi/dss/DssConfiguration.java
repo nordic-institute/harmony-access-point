@@ -4,6 +4,7 @@ import eu.domibus.core.crypto.spi.DomainCryptoServiceSpi;
 import eu.domibus.core.crypto.spi.dss.listeners.CertificateVerifierListener;
 import eu.domibus.core.crypto.spi.dss.listeners.NetworkConfigurationListener;
 import eu.domibus.core.crypto.spi.dss.listeners.TriggerChangeListener;
+import eu.domibus.core.crypto.spi.dss.listeners.encryption.DssPropertyEncryptionListener;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
 import eu.domibus.ext.domain.Module;
@@ -438,10 +439,16 @@ public class DssConfiguration extends DomibusPropertyExtServiceDelegateAbstract{
         return new TriggerChangeListener(domibusSchedulerExtService);
     }
 
+   /* @Bean
+    public DssPropertyEncryptionListener dssPropertyEncryptionListener(@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") DomibusSchedulerExtService domibusSchedulerExtService) {
+        return new DssPropertyEncryptionListener(domibusSchedulerExtService);
+    }*/
+
     /**
      * @return True if password encryption is active
      */
     public boolean isPasswordEncryptionActive() {
+        LOG.debug(" In DssConfiguration isPasswordEncryptionActive  [{}]", isEncryptionActive);
         final String passwordEncryptionActive = getDomainProperty(DEFAULT_DOMAIN, isEncryptionActive);
         return BooleanUtils.toBoolean(passwordEncryptionActive);
     }
@@ -463,7 +470,7 @@ public class DssConfiguration extends DomibusPropertyExtServiceDelegateAbstract{
     }
 
     protected String getDomainPropertyST(String domain, String propertyName) {
-
+        LOG.debug(" In DssConfiguration getDomainPropertyST  domain: [{}] and propertyName: [{}]", domain, propertyName);
         //default domain
         if (DEFAULT_DOMAIN.equalsIgnoreCase(domain)) {
             LOG.debug("Retrieving property [{}] for default domain", propertyName);

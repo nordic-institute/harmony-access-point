@@ -28,6 +28,7 @@ public class DomibusPropertyEncryptionNotifierImpl implements DomibusPropertyEnc
 
         for (PluginPropertyEncryptionListener pluginPropertyEncryptionListener : pluginPropertyEncryptionListeners) {
             try {
+                LOG.debug("Found pluginPropertyEncryptionListeners registered: [{}] ", pluginPropertyEncryptionListener);
                 pluginPropertyEncryptionListener.encryptPasswords();
             } catch (Exception e) {
                 LOG.error("Error while notifying pluginPropertyEncryptionListeners", e);

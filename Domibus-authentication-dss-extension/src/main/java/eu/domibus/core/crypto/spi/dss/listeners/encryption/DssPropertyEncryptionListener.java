@@ -35,6 +35,7 @@ public class DssPropertyEncryptionListener implements PluginPropertyEncryptionLi
 
     @Override
     public void encryptPasswords() {
+        LOG.debug("In DssPropertyEncryptionListener encryptPasswords. ");
         final boolean passwordEncryptionActive = dssConfiguration.isPasswordEncryptionActive();
         LOG.debug("Encrypting passwords is active in the FS Plugin? [{}]", passwordEncryptionActive);
 
