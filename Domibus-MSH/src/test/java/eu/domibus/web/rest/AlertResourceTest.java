@@ -6,7 +6,7 @@ import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.core.alerts.model.common.AlertCriteria;
-import eu.domibus.core.alerts.model.common.AlertLevel;
+import eu.domibus.api.alerts.AlertLevel;
 import eu.domibus.core.alerts.model.common.AlertStatus;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.service.Alert;

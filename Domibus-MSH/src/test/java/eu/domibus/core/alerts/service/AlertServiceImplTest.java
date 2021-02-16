@@ -1,6 +1,7 @@
 package eu.domibus.core.alerts.service;
 
 import com.google.common.collect.Lists;
+import eu.domibus.api.alerts.AlertLevel;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -144,7 +145,7 @@ public class AlertServiceImplTest {
             eu.domibus.core.alerts.model.persist.Alert alert;
             alertDao.create(alert = withCapture());
             times = 1;
-            assertEquals(AlertType.PLUGIN_DEFAULT, alert.getAlertType());
+            assertEquals(AlertType.PLUGIN, alert.getAlertType());
             assertEquals(0, alert.getAttempts(), 0);
             assertEquals(5, alert.getMaxAttempts(), 0);
             assertEquals(AlertStatus.SEND_ENQUEUED, alert.getAlertStatus());

@@ -1,5 +1,6 @@
 package eu.domibus.core.alerts.dao;
 
+import eu.domibus.api.alerts.AlertLevel;
 import eu.domibus.core.alerts.model.common.*;
 import eu.domibus.core.alerts.model.persist.Alert;
 import eu.domibus.core.alerts.model.persist.Event;

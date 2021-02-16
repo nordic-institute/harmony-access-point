@@ -32,7 +32,7 @@ public enum EventType {
             DomibusMessageCode.SEC_PASSWORD_EXPIRED),
     PLUGIN_PASSWORD_IMMINENT_EXPIRATION(AlertType.PLUGIN_PASSWORD_IMMINENT_EXPIRATION, "PASSWORD_EXPIRATION", PasswordExpirationEventProperties.class,
             DomibusMessageCode.SEC_PASSWORD_IMMINENT_EXPIRATION),
-    PLUGIN_DEFAULT(AlertType.PLUGIN_DEFAULT, "PLUGIN_EVENT", null,
+    PLUGIN(AlertType.PLUGIN, "PLUGIN_EVENT", null,
             DomibusMessageCode.PLUGIN_DEFAULT);
 
 

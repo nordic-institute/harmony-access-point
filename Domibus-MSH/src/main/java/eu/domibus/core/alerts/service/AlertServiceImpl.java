@@ -1,5 +1,6 @@
 package eu.domibus.core.alerts.service;
 
+import eu.domibus.api.alerts.AlertLevel;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.server.ServerInfoService;
@@ -9,7 +10,6 @@ import eu.domibus.core.alerts.configuration.common.CommonConfigurationManager;
 import eu.domibus.core.alerts.dao.AlertDao;
 import eu.domibus.core.alerts.dao.EventDao;
 import eu.domibus.core.alerts.model.common.AlertCriteria;
-import eu.domibus.core.alerts.model.common.AlertLevel;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.model.persist.Alert;
 import eu.domibus.core.alerts.model.persist.Event;
@@ -47,7 +47,9 @@ public class AlertServiceImpl implements AlertService {
 
     static final String REPORTING_TIME = "REPORTING_TIME";
 
-    /** server name on which Domibus is running */
+    /**
+     * server name on which Domibus is running
+     */
     static final String SERVER_NAME = "SERVER_NAME";
 
     public static final String DESCRIPTION = "DESCRIPTION";
@@ -136,15 +138,16 @@ public class AlertServiceImpl implements AlertService {
 //            LOG.debug("Alert of type [{}] currently disabled for this event: [{}]", alertType, event);
 //            return null;
 //        }
-
         Alert alert = new Alert();
+        event.findStringProperty(ALERT_LEVEL)
+                .ifPresent(alertLevelName -> alert.setAlertLevel(AlertLevel.valueOf(alertLevelName)));
+
         alert.addEvent(eventEntity);
-        alert.setAlertType(AlertType.PLUGIN_DEFAULT);//TODO: François Gautier 16-02-21   fetch in properties
+        alert.setAlertType(AlertType.PLUGIN);//TODO: François Gautier 16-02-21   fetch in properties
         alert.setAttempts(0);
         alert.setMaxAttempts(domibusPropertyProvider.getIntegerProperty(DOMIBUS_ALERT_RETRY_MAX_ATTEMPTS));
         alert.setAlertStatus(SEND_ENQUEUED);
         alert.setCreationTime(new Date());
-        alert.setAlertLevel(AlertLevel.MEDIUM);//TODO: François Gautier 16-02-21   fetch in properties
         alertDao.create(alert);
         LOG.info("New alert saved: [{}]", alert);
         return domainConverter.convert(alert, eu.domibus.core.alerts.model.service.Alert.class);

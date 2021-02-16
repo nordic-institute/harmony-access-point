@@ -24,7 +24,7 @@ public enum AlertType {
     PASSWORD_EXPIRED("password_expired.ftl", DOMIBUS_ALERT_PASSWORD_EXPIRED_PREFIX, "Password expired"),
     PLUGIN_PASSWORD_IMMINENT_EXPIRATION("password_imminent_expiration.ftl", DOMIBUS_ALERT_PLUGIN_PASSWORD_IMMINENT_EXPIRATION_PREFIX, "Plugin password imminent expiration"),
     PLUGIN_PASSWORD_EXPIRED("password_expired.ftl", DOMIBUS_ALERT_PLUGIN_PASSWORD_EXPIRED_PREFIX, "Plugin password expired"),
-    PLUGIN_DEFAULT("todo", "todo", "Plugin default");//TODO: François Gautier 16-02-21
+    PLUGIN("todo", "todo", "Plugin Alert");//TODO: François Gautier 16-02-21
 
 
     private final String template;

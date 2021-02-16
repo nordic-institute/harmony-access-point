@@ -1,10 +1,11 @@
 package eu.domibus.ext.delegate.services.alerts;
 
+import eu.domibus.api.alerts.AlertEvent;
 import eu.domibus.api.alerts.PluginEventService;
+import eu.domibus.ext.delegate.converter.DomainExtConverter;
+import eu.domibus.ext.domain.AlertEventDTO;
 import eu.domibus.ext.services.PluginEventExtService;
 import org.springframework.stereotype.Service;
-
-import java.util.Map;
 
 /**
  * {@inheritDoc}
@@ -16,12 +17,15 @@ import java.util.Map;
 public class PluginEventServiceDelegate implements PluginEventExtService {
 
     private final PluginEventService pluginEventService;
+    private final DomainExtConverter domainExtConverter;
 
-    public PluginEventServiceDelegate(PluginEventService pluginEventService) {
+    public PluginEventServiceDelegate(PluginEventService pluginEventService, DomainExtConverter domainExtConverter) {
+        this.domainExtConverter = domainExtConverter;
         this.pluginEventService = pluginEventService;
     }
 
-    public void enqueueMessageEvent(Map<String, String> properties) {
-        pluginEventService.enqueueMessageEvent(properties);
+    public void enqueueMessageEvent(AlertEventDTO alertEventDTO) {
+        final AlertEvent alertEvent = domainExtConverter.convert(alertEventDTO, AlertEvent.class);
+        pluginEventService.enqueueMessageEvent(alertEvent);
     }
 }

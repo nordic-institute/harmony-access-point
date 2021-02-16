@@ -5,15 +5,12 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.alerts.configuration.AlertConfigurationReader;
 import eu.domibus.core.alerts.configuration.UserAuthenticationConfiguration;
-import eu.domibus.core.alerts.configuration.login.LoginFailureModuleConfiguration;
-import eu.domibus.core.alerts.model.common.AlertLevel;
+import eu.domibus.api.alerts.AlertLevel;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.service.AlertConfigurationService;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ALERT_ACTIVE;
 
 /**
  * Base code for reading of console and plugin password expiration alert configuration

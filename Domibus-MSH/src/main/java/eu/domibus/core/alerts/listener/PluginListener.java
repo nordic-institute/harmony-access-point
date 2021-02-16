@@ -9,7 +9,6 @@ import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
@@ -26,22 +25,28 @@ public class PluginListener {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PluginListener.class);
 
-    @Autowired
-    private EventService eventService;
+    private final EventService eventService;
 
-    @Autowired
-    private AlertService alertService;
+    private final AlertService alertService;
 
-    @Autowired
-    private DomainContextProvider domainContextProvider;
+    private final DomainContextProvider domainContextProvider;
 
-    @Autowired
-    private DatabaseUtil databaseUtil;
+    private final DatabaseUtil databaseUtil;
+
+    public PluginListener(EventService eventService,
+                          AlertService alertService,
+                          DomainContextProvider domainContextProvider,
+                          DatabaseUtil databaseUtil) {
+        this.eventService = eventService;
+        this.alertService = alertService;
+        this.domainContextProvider = domainContextProvider;
+        this.databaseUtil = databaseUtil;
+    }
 
     @JmsListener(containerFactory = "alertJmsListenerContainerFactory", destination = "${domibus.jms.queue.alert}",
             selector = "selector = 'PLUGIN_EVENT'")
     @Transactional
-    public void onLoginFailure(final Event event, final @Header(name = "DOMAIN", required = false) String domain) {
+    public void onPluginEvent(final Event event, final @Header(name = "DOMAIN", required = false) String domain) {
         saveEventAndTriggerAlert(event, domain);
     }
 

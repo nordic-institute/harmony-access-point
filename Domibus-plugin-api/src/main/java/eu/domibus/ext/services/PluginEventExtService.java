@@ -1,6 +1,6 @@
 package eu.domibus.ext.services;
 
-import java.util.Map;
+import eu.domibus.ext.domain.AlertEventDTO;
 
 /**
  * Service used for creating event and alert from plugins.
@@ -10,6 +10,6 @@ import java.util.Map;
  */
 public interface PluginEventExtService {
 
-    void enqueueMessageEvent(Map<String, String> properties);
+    void enqueueMessageEvent(AlertEventDTO alertEvent);
 
 }
