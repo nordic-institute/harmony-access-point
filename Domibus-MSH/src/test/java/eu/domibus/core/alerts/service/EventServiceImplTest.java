@@ -44,7 +44,7 @@ import static eu.domibus.core.alerts.service.EventServiceImpl.MESSAGE_EVENT_SELE
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(JMockit.class)
-public class EventEbms3ServiceImplTest {
+public class EventServiceImplTest {
 
     @Tested
     private EventServiceImpl eventService;

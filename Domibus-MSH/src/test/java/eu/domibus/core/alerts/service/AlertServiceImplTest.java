@@ -42,7 +42,7 @@ import static org.junit.Assert.*;
  */
 @SuppressWarnings({"ResultOfMethodCallIgnored", "AccessStaticViaInstance"})
 @RunWith(JMockit.class)
-public class AlertEbms3ServiceImplTest {
+public class AlertServiceImplTest {
 
 
     @Tested
@@ -110,6 +110,47 @@ public class AlertEbms3ServiceImplTest {
             assertNotNull(alert.getCreationTime());
             assertNull(alert.getReportingTime());
             assertEquals(AlertLevel.HIGH, alert.getAlertLevel());
+            assertTrue(alert.getEvents().contains(eventEntity));
+            domainConverter.convert(alert, eu.domibus.core.alerts.model.service.Alert.class);
+            times = 1;
+        }};
+    }
+
+    @Test
+    public void createAlertOnPluginEvent(@Mocked AlertModuleConfiguration config) {
+        final Event event = new Event();
+        event.setEntityId(1);
+        event.setType(EventType.MSG_STATUS_CHANGED);
+
+        final eu.domibus.core.alerts.model.persist.Event eventEntity = new eu.domibus.core.alerts.model.persist.Event();
+        new Expectations() {{
+            eventDao.read(event.getEntityId());
+            result = eventEntity;
+
+            domibusPropertyProvider.getIntegerProperty(DOMIBUS_ALERT_RETRY_MAX_ATTEMPTS);
+            result = 5;
+
+//            alertConfigurationService.getModuleConfiguration(AlertType.MSG_STATUS_CHANGED);
+//            result = config;
+//
+//            config.isActive();
+//            result = true;
+//
+//            config.getAlertLevel(event);
+//            result = AlertLevel.HIGH;
+        }};
+        alertService.createAlertOnPluginEvent(event);
+        new VerificationsInOrder() {{
+            eu.domibus.core.alerts.model.persist.Alert alert;
+            alertDao.create(alert = withCapture());
+            times = 1;
+            assertEquals(AlertType.PLUGIN_DEFAULT, alert.getAlertType());
+            assertEquals(0, alert.getAttempts(), 0);
+            assertEquals(5, alert.getMaxAttempts(), 0);
+            assertEquals(AlertStatus.SEND_ENQUEUED, alert.getAlertStatus());
+            assertNotNull(alert.getCreationTime());
+            assertNull(alert.getReportingTime());
+            assertEquals(AlertLevel.MEDIUM, alert.getAlertLevel());
             assertTrue(alert.getEvents().contains(eventEntity));
             domainConverter.convert(alert, eu.domibus.core.alerts.model.service.Alert.class);
             times = 1;
