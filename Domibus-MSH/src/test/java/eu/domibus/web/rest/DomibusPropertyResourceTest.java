@@ -2,7 +2,6 @@ package eu.domibus.web.rest;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusProperty;
-import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.core.property.DomibusPropertiesFilter;
@@ -45,9 +44,6 @@ public class DomibusPropertyResourceTest {
 
     @Injectable
     private DomibusCoreMapper coreMapper;
-
-    @Injectable
-    protected DomainCoreConverter domainCoreConverter;
 
     @Injectable
     CsvServiceImpl csvService;

@@ -3,7 +3,6 @@ package eu.domibus.core.replication;
 import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.api.model.*;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.UserMessageDefaultServiceHelper;
@@ -86,7 +85,7 @@ public class UIReplicationDataServiceImplTest {
 
 
     @Test
-    public void testMessageReceived(final @Mocked UIMessageEntity uiMessageEntity, final @Injectable DomainCoreConverter domainCoreConverter) {
+    public void testMessageReceived(final @Mocked UIMessageEntity uiMessageEntity, final @Injectable DomibusCoreMapper coreMapper) {
 
         new Expectations(uiReplicationDataService) {{
             uiReplicationDataService.createUIMessageFromUserMessageLog(anyString, jmsTime.getTime());
