@@ -21,6 +21,14 @@ public interface AlertService {
      */
     Alert createAlertOnEvent(Event event);
 
+    /***
+     * Decides whether or not an alert should be created based on an event from a plugin.
+     * @param event the event.
+     * @return the created alert with {@link eu.domibus.core.alerts.model.common.AlertType#PLUGIN_DEFAULT}
+     * and {@link eu.domibus.core.alerts.model.common.AlertLevel#MEDIUM}
+     */
+    Alert createAlertOnPluginEvent(Event event);
+
     /**
      * Add alert to the alert/event monitoring queue.
      * @param alert the alert to be added.

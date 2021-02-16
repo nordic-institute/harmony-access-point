@@ -120,6 +120,40 @@ public class AlertServiceImpl implements AlertService {
      * {@inheritDoc}
      */
     @Override
+    @Transactional
+    public eu.domibus.core.alerts.model.service.Alert createAlertOnPluginEvent(eu.domibus.core.alerts.model.service.Event event) {
+        final Event eventEntity = readEvent(event);
+        //TODO: François Gautier 16-02-21   fetch in properties
+//        final AlertType alertType = AlertType.getByEventType(event.getType());
+
+//        final AlertModuleConfiguration config = alertConfigurationService.getModuleConfiguration(alertType);
+//        if (!config.isActive()) {
+//            LOG.debug("Alerts of type [{}] are currently disabled", alertType);
+//            return null;
+//        }
+//        final AlertLevel alertLevel = config.getAlertLevel(event);
+//        if (alertLevel == null) {
+//            LOG.debug("Alert of type [{}] currently disabled for this event: [{}]", alertType, event);
+//            return null;
+//        }
+
+        Alert alert = new Alert();
+        alert.addEvent(eventEntity);
+        alert.setAlertType(AlertType.PLUGIN_DEFAULT);//TODO: François Gautier 16-02-21   fetch in properties
+        alert.setAttempts(0);
+        alert.setMaxAttempts(domibusPropertyProvider.getIntegerProperty(DOMIBUS_ALERT_RETRY_MAX_ATTEMPTS));
+        alert.setAlertStatus(SEND_ENQUEUED);
+        alert.setCreationTime(new Date());
+        alert.setAlertLevel(AlertLevel.MEDIUM);//TODO: François Gautier 16-02-21   fetch in properties
+        alertDao.create(alert);
+        LOG.info("New alert saved: [{}]", alert);
+        return domainConverter.convert(alert, eu.domibus.core.alerts.model.service.Alert.class);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void enqueueAlert(eu.domibus.core.alerts.model.service.Alert alert) {
         if (alert == null) {
             LOG.debug("Alert not enqueued");
