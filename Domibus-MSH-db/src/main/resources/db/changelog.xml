@@ -1270,7 +1270,7 @@
     </changeSet>
     <!-- End Backend Filter Tables -->
 
-    <!-- Start User Tables -->
+    <!-- Start User/Plugin User Tables -->
     <changeSet author="Cosmin Baciu" id="EDELIVERY-7803">
         <createTable tableName="TB_AUTHENTICATION_ENTRY">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
@@ -1302,6 +1302,10 @@
             <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
+        <addUniqueConstraint columnNames="USERNAME" constraintName="UQ_PLUGIN_USER_NAME"
+                             tableName="TB_AUTHENTICATION_ENTRY"/>
+        <addUniqueConstraint columnNames="CERTIFICATE_ID" constraintName="UQ_PLUGIN_USER_CERT"
+                             tableName="TB_AUTHENTICATION_ENTRY"/>
 
         <createTable tableName="TB_AUTHENTICATION_ENTRY_AUD">
             <column name="ID_PK" type="BIGINT">
@@ -1399,6 +1403,7 @@
             <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
+        <addUniqueConstraint columnNames="USER_NAME" constraintName="USER_NAME" tableName="TB_USER"/>
 
         <createTable tableName="TB_USER_AUD">
             <column name="ID_PK" type="BIGINT">
@@ -1642,133 +1647,38 @@
             <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
+        <createIndex indexName="IDX_D_MSH_ROLE" tableName="TB_D_MSH_ROLE">
+            <column name="ROLE"/>
+        </createIndex>
+        <addUniqueConstraint columnNames="ROLE" constraintName="UK_D_MSH_ROLE" tableName="TB_D_MSH_ROLE"/>
+
+        <createTable tableName="TB_D_MESSAGE_PROPERTY">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_TB_PROPERTY"/>
+            </column>
+            <column name="NAME" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="VALUE" type="VARCHAR(1024)"/>
+            <column name="TYPE" type="VARCHAR(255)"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+        </createTable>
+        <createIndex indexName="IDX_MSG_PROP_NAME" tableName="TB_D_MESSAGE_PROPERTY">
+            <column name="NAME"/>
+        </createIndex>
+        <addUniqueConstraint columnNames="NAME" constraintName="UK_D_MSG_PROP_NAME" tableName="TB_D_MESSAGE_PROPERTY"/>
     </changeSet>
     <!-- End Dictionary Tables -->
 
-    <changeSet author="Catalin Enache" id="1564477107969-13">
-        <comment>create Domibus tables</comment>
-
-        <createTable tableName="TB_CERTIFICATE">
-            <column name="ID_PK" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_TB_CERTIFICATE"/>
-            </column>
-            <column name="CERTIFICATE_ALIAS" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="NOT_VALID_BEFORE_DATE" type="DATETIME"/>
-            <column name="NOT_VALID_AFTER_DATE" type="DATETIME"/>
-            <column name="REVOKE_NOTIFICATION_DATE" type="TIMESTAMP"/>
-            <column name="ALERT_IMM_NOTIFICATION_DATE" type="TIMESTAMP"/>
-            <column name="ALERT_EXP_NOTIFICATION_DATE" type="TIMESTAMP"/>
-            <column name="CERTIFICATE_STATUS" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="CERTIFICATE_TYPE" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
-                <constraints nullable="false"/>
-            </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
-        </createTable>
-        <addUniqueConstraint columnNames="CERTIFICATE_ALIAS, CERTIFICATE_TYPE" constraintName="CERTIFICATE_ALIAS"
-                             tableName="TB_CERTIFICATE"/>
-
-        <createTable tableName="TB_CERTIFICATE_AUD">
-            <column name="ID_PK" type="BIGINT">
-                <constraints primaryKey="true" primaryKeyName="PK_CERTIFICATE_AUD"/>
-            </column>
-            <column name="REV" type="BIGINT">
-                <constraints primaryKey="true" primaryKeyName="PK_CERTIFICATE_AUD"/>
-            </column>
-            <column name="REVTYPE" type="TINYINT"/>
-            <column name="CERTIFICATE_ALIAS" type="VARCHAR(255)" />
-            <column name="NOT_VALID_BEFORE_DATE" type="DATETIME" />
-            <column name="NOT_VALID_AFTER_DATE" type="DATETIME" />
-            <column name="REVOKE_NOTIFICATION_DATE" type="TIMESTAMP"/>
-            <column name="ALERT_IMM_NOTIFICATION_DATE" type="TIMESTAMP"/>
-            <column name="ALERT_EXP_NOTIFICATION_DATE" type="TIMESTAMP"/>
-            <column name="CERTIFICATE_STATUS" type="VARCHAR(255)" />
-            <column name="CERTIFICATE_TYPE" type="VARCHAR(255)" />
-        </createTable>
-        <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_CERTIFICATE_AUD"
-                                 constraintName="FK_CERTIFICATE_AUD_REV" deferrable="false"
-                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID" referencedTableName="TB_REV_INFO"/>
-        <createIndex indexName="IDX_FK_CERTIFICATE_AUD_REV" tableName="TB_CERTIFICATE_AUD">
-            <column name="REV"/>
-        </createIndex>
-
-        <createTable tableName="TB_COMMAND" remarks="Stores commands to be executed by different nodes in clustered environments">
-            <column name="ID_PK" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_TB_COMMAND"/>
-            </column>
-            <column name="SERVER_NAME" type="VARCHAR(255)" remarks="The target server name">
-                <constraints nullable="false"/>
-            </column>
-            <column name="COMMAND_NAME" type="VARCHAR(255)" remarks="The command name">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
-                <constraints nullable="false"/>
-            </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
-        </createTable>
-
-        <createTable tableName="TB_COMMAND_PROPERTY" remarks="Stores properties/parameters of the commands to be executed by different nodes in clustered environments">
-            <column name="PROPERTY_NAME" type="VARCHAR(50)" remarks="The property name">
-                <constraints nullable="false"/>
-            </column>
-            <column name="PROPERTY_VALUE" type="VARCHAR(255)" remarks="The property value"/>
-            <column name="FK_COMMAND" type="BIGINT" remarks="Reference to the parent command">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
-                <constraints nullable="false"/>
-            </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
-        </createTable>
-        <addForeignKeyConstraint baseColumnNames="FK_COMMAND" baseTableName="TB_COMMAND_PROPERTY"
-                                 constraintName="FK_COMMAND_PROPERTY_ID" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_COMMAND"/>
-        <addUniqueConstraint columnNames="FK_COMMAND, PROPERTY_NAME" constraintName="UNI_COMMAND_PROP_NAME"
-                             tableName="TB_COMMAND_PROPERTY"/>
-
-        <createTable tableName="TB_ENCRYPTION_KEY">
-            <column name="ID_PK" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_TB_ENCRYPTION_KEY"/>
-            </column>
-            <column name="KEY_USAGE" type="VARCHAR(255)"/>
-            <column name="SECRET_KEY" type="BLOB">
-                <constraints nullable="false"/>
-            </column>
-            <column name="INIT_VECTOR" type="BLOB">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
-                <constraints nullable="false"/>
-            </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
-        </createTable>
-        <addUniqueConstraint columnNames="KEY_USAGE" constraintName="UQ_KEY_USAGE" tableName="TB_ENCRYPTION_KEY"/>
-
+    <!--Start UserMessage Tables -->
+    <changeSet author="Cosmin Baciu" id="EDELIVERY-7803">
         <createTable tableName="TB_ERROR">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_ERROR"/>
@@ -1798,30 +1708,6 @@
                                  referencedColumnNames="ID_PK" referencedTableName="TB_SIGNAL_MESSAGE"/>
         <createIndex indexName="FK_PRRCMI4GRM4TXHFSFNFHGQ1K1" tableName="TB_ERROR">
             <column name="SIGNALMESSAGE_ID"/>
-        </createIndex>
-
-        <createTable tableName="TB_ERROR_LOG">
-            <column name="ID_PK" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_TB_ERROR_LOG"/>
-            </column>
-            <column name="ERROR_CODE" type="VARCHAR(255)"/>
-            <column name="ERROR_DETAIL" type="VARCHAR(255)"/>
-            <column name="ERROR_SIGNAL_MESSAGE_ID" type="VARCHAR(255)"/>
-            <column name="MESSAGE_IN_ERROR_ID" type="VARCHAR(255)"/>
-            <column name="MSH_ROLE" type="BIGINT"/>
-            <column name="NOTIFIED" type="TIMESTAMP"/>
-            <column name="TIME_STAMP" type="TIMESTAMP"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
-                <constraints nullable="false"/>
-            </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
-        </createTable>
-        <createIndex indexName="IDX_MESSAGE_IN_ERROR_ID" tableName="TB_ERROR_LOG">
-            <column name="MESSAGE_IN_ERROR_ID"/>
         </createIndex>
 
         <createTable tableName="TB_MESSAGE_ACKNW">
@@ -2026,104 +1912,6 @@
             <column name="MESSAGE_ID"/>
         </createIndex>
 
-
-
-        <createTable tableName="TB_MESSAGE_UI">
-            <column name="ID_PK" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_TB_MESSAGE_UI"/>
-            </column>
-            <column name="MESSAGE_ID" type="VARCHAR(255)"/>
-            <column name="MESSAGE_STATUS" type="VARCHAR(255)"/>
-            <column name="NOTIFICATION_STATUS" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="MSH_ROLE" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="MESSAGE_TYPE" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="DELETED" type="TIMESTAMP"/>
-            <column name="RECEIVED" type="TIMESTAMP"/>
-            <column name="SEND_ATTEMPTS" type="INT"/>
-            <column name="SEND_ATTEMPTS_MAX" type="INT"/>
-            <column name="NEXT_ATTEMPT" type="TIMESTAMP"/>
-            <column name="CONVERSATION_ID" type="VARCHAR(255)"/>
-            <column name="FROM_ID" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="TO_ID" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="FROM_SCHEME" type="VARCHAR(255)"/>
-            <column name="TO_SCHEME" type="VARCHAR(255)"/>
-            <column name="REF_TO_MESSAGE_ID" type="VARCHAR(255)"/>
-            <column name="FAILED" type="TIMESTAMP"/>
-            <column name="RESTORED" type="TIMESTAMP"/>
-            <column name="MESSAGE_SUBTYPE" type="VARCHAR(255)"/>
-            <column name="ACTION" type="VARCHAR(255)"/>
-            <column name="SERVICE_TYPE" type="VARCHAR(255)"/>
-            <column name="SERVICE_VALUE" type="VARCHAR(255)"/>
-            <column defaultValueComputed="${now}" name="LAST_MODIFIED" type="TIMESTAMP">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
-                <constraints nullable="false"/>
-            </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
-        </createTable>
-        <createIndex indexName="IDX_MSG_UI_CONV_ID" tableName="TB_MESSAGE_UI">
-            <column name="CONVERSATION_ID"/>
-        </createIndex>
-
-        <createIndex indexName="IDX_MSG_UI_FROM_ID" tableName="TB_MESSAGE_UI">
-            <column name="FROM_ID"/>
-        </createIndex>
-        <createIndex indexName="IDX_MSG_UI_FROM_SCHEME" tableName="TB_MESSAGE_UI">
-            <column name="FROM_SCHEME"/>
-        </createIndex>
-        <createIndex indexName="IDX_MSG_UI_MSH_ROLE" tableName="TB_MESSAGE_UI">
-            <column name="MSH_ROLE"/>
-        </createIndex>
-        <createIndex indexName="IDX_MSG_UI_REF_MSG_ID" tableName="TB_MESSAGE_UI">
-            <column name="REF_TO_MESSAGE_ID"/>
-        </createIndex>
-        <createIndex indexName="IDX_MSG_UI_STS_TYPE_STYPE_RCV" tableName="TB_MESSAGE_UI">
-            <column name="MESSAGE_STATUS"/>
-            <column name="MESSAGE_TYPE"/>
-            <column name="MESSAGE_SUBTYPE"/>
-            <column name="RECEIVED"/>
-        </createIndex>
-        <createIndex indexName="IDX_MSG_UI_TO_ID" tableName="TB_MESSAGE_UI">
-            <column name="TO_ID"/>
-        </createIndex>
-        <createIndex indexName="IDX_MSG_UI_TO_SCHEME" tableName="TB_MESSAGE_UI">
-            <column name="TO_SCHEME"/>
-        </createIndex>
-        <createIndex indexName="IDX_MSG_UI_TYPE_RCV" tableName="TB_MESSAGE_UI">
-            <column name="MESSAGE_TYPE"/>
-            <column name="RECEIVED"/>
-        </createIndex>
-        <createIndex indexName="IDX_MSG_UI_TYPE_STYPE_RCV" tableName="TB_MESSAGE_UI">
-            <column name="MESSAGE_TYPE"/>
-            <column name="MESSAGE_SUBTYPE"/>
-            <column name="RECEIVED"/>
-        </createIndex>
-        <createIndex indexName="IDX_MSG_UI_ACTION" tableName="TB_MESSAGE_UI">
-            <column name="ACTION"/>
-        </createIndex>
-        <createIndex indexName="IDX_MSG_UI_SRV_TYPE" tableName="TB_MESSAGE_UI">
-            <column name="SERVICE_TYPE"/>
-        </createIndex>
-        <createIndex indexName="IDX_MSG_UI_SRV_VAL" tableName="TB_MESSAGE_UI">
-            <column name="SERVICE_VALUE"/>
-        </createIndex>
-        <addUniqueConstraint columnNames="MESSAGE_ID" constraintName="UNI_MSG_UI_MSG_ID" tableName="TB_MESSAGE_UI"/>
-
         <createTable tableName="TB_MESSAGING_LOCK">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_TB_MESSAGING_LOCK"/>
@@ -2258,28 +2046,7 @@
         <addUniqueConstraint columnNames="MESSAGE_ID_FK,MESSAGE_PROPERTY_FK" constraintName="UK_MSG_PROPS_FKS" tableName="TB_MESSAGE_PROPERTIES"/>
 
 
-        <createTable tableName="TB_D_MESSAGE_PROPERTY">
-            <column name="ID_PK" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_TB_PROPERTY"/>
-            </column>
-            <column name="NAME" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="VALUE" type="VARCHAR(1024)"/>
-            <column name="TYPE" type="VARCHAR(255)"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
-                <constraints nullable="false"/>
-            </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
-        </createTable>
-        <createIndex indexName="IDX_MSG_PROP_NAME" tableName="TB_D_MESSAGE_PROPERTY">
-            <column name="NAME"/>
-        </createIndex>
-        <addUniqueConstraint columnNames="NAME" constraintName="UK_MSG_PROP_NAME" tableName="TB_D_MESSAGE_PROPERTY"/>
+
 
         <createTable tableName="TB_USER_MESSAGE_RAW">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
@@ -2335,76 +2102,6 @@
         <createIndex indexName="FK_8NCCAE214MVS1KH5SGCJ3Y5OY" tableName="TB_RECEIPT_DATA">
             <column name="RECEIPT_ID"/>
         </createIndex>
-
-
-
-        <createTable tableName="TB_REV_CHANGES">
-            <column name="ID_PK" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_TB_REV_CHANGES"/>
-            </column>
-            <column name="REV" type="BIGINT"/>
-            <column name="AUDIT_ORDER" type="INT"/>
-            <column name="ENTIY_NAME" type="VARCHAR(255)"/>
-            <column name="GROUP_NAME" type="VARCHAR(255)"/>
-            <column name="ENTITY_ID" type="VARCHAR(255)"/>
-            <column name="MODIFICATION_TYPE" type="VARCHAR(255)"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
-                <constraints nullable="false"/>
-            </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
-        </createTable>
-        <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_REV_CHANGES"
-                                 constraintName="FK_REV_CHANGES_REV" deferrable="false" initiallyDeferred="false"
-                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID"
-                                 referencedTableName="TB_REV_INFO"/>
-        <createIndex indexName="FK_REV_CHANGES_REV" tableName="TB_REV_CHANGES">
-            <column name="REV"/>
-        </createIndex>
-
-        <createTable tableName="TB_REV_INFO">
-            <column name="ID" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_TB_REV_INFO"/>
-            </column>
-            <column name="TIMESTAMP" type="BIGINT"/>
-            <column name="REVISION_DATE" type="TIMESTAMP"/>
-            <column name="USER_NAME" type="VARCHAR(255)"/>
-        </createTable>
-
-        <createTable tableName="TB_SEND_ATTEMPT">
-            <column name="ID_PK" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_TB_SEND_ATTEMPT"/>
-            </column>
-            <column name="MESSAGE_ID" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="START_DATE" type="DATETIME">
-                <constraints nullable="false"/>
-            </column>
-            <column name="END_DATE" type="DATETIME">
-                <constraints nullable="false"/>
-            </column>
-            <column name="STATUS" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="ERROR" type="VARCHAR(255)"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
-                <constraints nullable="false"/>
-            </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
-        </createTable>
-        <createIndex indexName="IDX_SEND_ATTEMPT_MESSAGE_ID" tableName="TB_SEND_ATTEMPT">
-            <column name="MESSAGE_ID"/>
-        </createIndex>
-
-
 
         <createTable tableName="TB_SIGNAL_MESSAGE">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
@@ -2531,6 +2228,221 @@
             <column name="MESSAGE_SUBTYPE_ID_FK"/>
         </createIndex>
 
+        <createTable tableName="TB_SEND_ATTEMPT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_TB_SEND_ATTEMPT"/>
+            </column>
+            <column name="MESSAGE_ID" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="START_DATE" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="END_DATE" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="STATUS" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ERROR" type="VARCHAR(255)"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+        </createTable>
+        <createIndex indexName="IDX_SEND_ATTEMPT_MESSAGE_ID" tableName="TB_SEND_ATTEMPT">
+            <column name="MESSAGE_ID"/>
+        </createIndex>
+    </changeSet>
+    <!--End UserMessage Tables -->
+
+    <!-- Start Miscellaneous Tables -->
+    <changeSet author="Cosmin Baciu" id="EDELIVERY-7803">
+        <createTable tableName="TB_CERTIFICATE">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_TB_CERTIFICATE"/>
+            </column>
+            <column name="CERTIFICATE_ALIAS" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="NOT_VALID_BEFORE_DATE" type="DATETIME"/>
+            <column name="NOT_VALID_AFTER_DATE" type="DATETIME"/>
+            <column name="REVOKE_NOTIFICATION_DATE" type="TIMESTAMP"/>
+            <column name="ALERT_IMM_NOTIFICATION_DATE" type="TIMESTAMP"/>
+            <column name="ALERT_EXP_NOTIFICATION_DATE" type="TIMESTAMP"/>
+            <column name="CERTIFICATE_STATUS" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CERTIFICATE_TYPE" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+        </createTable>
+        <addUniqueConstraint columnNames="CERTIFICATE_ALIAS, CERTIFICATE_TYPE" constraintName="CERTIFICATE_ALIAS"
+                             tableName="TB_CERTIFICATE"/>
+
+        <createTable tableName="TB_CERTIFICATE_AUD">
+            <column name="ID_PK" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_CERTIFICATE_AUD"/>
+            </column>
+            <column name="REV" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_CERTIFICATE_AUD"/>
+            </column>
+            <column name="REVTYPE" type="TINYINT"/>
+            <column name="CERTIFICATE_ALIAS" type="VARCHAR(255)" />
+            <column name="NOT_VALID_BEFORE_DATE" type="DATETIME" />
+            <column name="NOT_VALID_AFTER_DATE" type="DATETIME" />
+            <column name="REVOKE_NOTIFICATION_DATE" type="TIMESTAMP"/>
+            <column name="ALERT_IMM_NOTIFICATION_DATE" type="TIMESTAMP"/>
+            <column name="ALERT_EXP_NOTIFICATION_DATE" type="TIMESTAMP"/>
+            <column name="CERTIFICATE_STATUS" type="VARCHAR(255)" />
+            <column name="CERTIFICATE_TYPE" type="VARCHAR(255)" />
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_CERTIFICATE_AUD"
+                                 constraintName="FK_CERTIFICATE_AUD_REV" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID" referencedTableName="TB_REV_INFO"/>
+        <createIndex indexName="IDX_FK_CERTIFICATE_AUD_REV" tableName="TB_CERTIFICATE_AUD">
+            <column name="REV"/>
+        </createIndex>
+
+        <createTable tableName="TB_COMMAND" remarks="Stores commands to be executed by different nodes in clustered environments">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_TB_COMMAND"/>
+            </column>
+            <column name="SERVER_NAME" type="VARCHAR(255)" remarks="The target server name">
+                <constraints nullable="false"/>
+            </column>
+            <column name="COMMAND_NAME" type="VARCHAR(255)" remarks="The command name">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+        </createTable>
+
+        <createTable tableName="TB_COMMAND_PROPERTY" remarks="Stores properties/parameters of the commands to be executed by different nodes in clustered environments">
+            <column name="PROPERTY_NAME" type="VARCHAR(50)" remarks="The property name">
+                <constraints nullable="false"/>
+            </column>
+            <column name="PROPERTY_VALUE" type="VARCHAR(255)" remarks="The property value"/>
+            <column name="FK_COMMAND" type="BIGINT" remarks="Reference to the parent command">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="FK_COMMAND" baseTableName="TB_COMMAND_PROPERTY"
+                                 constraintName="FK_COMMAND_PROPERTY_ID" deferrable="false"
+                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_COMMAND"/>
+        <addUniqueConstraint columnNames="FK_COMMAND, PROPERTY_NAME" constraintName="UNI_COMMAND_PROP_NAME"
+                             tableName="TB_COMMAND_PROPERTY"/>
+
+        <createTable tableName="TB_ENCRYPTION_KEY">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_TB_ENCRYPTION_KEY"/>
+            </column>
+            <column name="KEY_USAGE" type="VARCHAR(255)"/>
+            <column name="SECRET_KEY" type="BLOB">
+                <constraints nullable="false"/>
+            </column>
+            <column name="INIT_VECTOR" type="BLOB">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+        </createTable>
+        <addUniqueConstraint columnNames="KEY_USAGE" constraintName="UQ_KEY_USAGE" tableName="TB_ENCRYPTION_KEY"/>
+
+        <createTable tableName="TB_ERROR_LOG">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_TB_ERROR_LOG"/>
+            </column>
+            <column name="ERROR_CODE" type="VARCHAR(255)"/>
+            <column name="ERROR_DETAIL" type="VARCHAR(255)"/>
+            <column name="ERROR_SIGNAL_MESSAGE_ID" type="VARCHAR(255)"/>
+            <column name="MESSAGE_IN_ERROR_ID" type="VARCHAR(255)"/>
+            <column name="MSH_ROLE" type="BIGINT"/>
+            <column name="NOTIFIED" type="TIMESTAMP"/>
+            <column name="TIME_STAMP" type="TIMESTAMP"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+        </createTable>
+        <createIndex indexName="IDX_MESSAGE_IN_ERROR_ID" tableName="TB_ERROR_LOG">
+            <column name="MESSAGE_IN_ERROR_ID"/>
+        </createIndex>
+
+        <createTable tableName="TB_REV_CHANGES">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_TB_REV_CHANGES"/>
+            </column>
+            <column name="REV" type="BIGINT"/>
+            <column name="AUDIT_ORDER" type="INT"/>
+            <column name="ENTIY_NAME" type="VARCHAR(255)"/>
+            <column name="GROUP_NAME" type="VARCHAR(255)"/>
+            <column name="ENTITY_ID" type="VARCHAR(255)"/>
+            <column name="MODIFICATION_TYPE" type="VARCHAR(255)"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_REV_CHANGES"
+                                 constraintName="FK_REV_CHANGES_REV" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID"
+                                 referencedTableName="TB_REV_INFO"/>
+        <createIndex indexName="FK_REV_CHANGES_REV" tableName="TB_REV_CHANGES">
+            <column name="REV"/>
+        </createIndex>
+
+        <createTable tableName="TB_REV_INFO">
+            <column name="ID" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_TB_REV_INFO"/>
+            </column>
+            <column name="TIMESTAMP" type="BIGINT"/>
+            <column name="REVISION_DATE" type="TIMESTAMP"/>
+            <column name="USER_NAME" type="VARCHAR(255)"/>
+        </createTable>
+
 
 
         <createTable tableName="TB_VERSION" remarks="Stores Domibus version">
@@ -2540,31 +2452,108 @@
                 <constraints nullable="false"/>
             </column>
         </createTable>
-    </changeSet>
-
-    <!-- unique constraint -->
-    <changeSet author="Catalin Enache" id="1564477107969-95">
-        <comment>create unique constraints</comment>
-
-
-
-
-
-
-
-        <addUniqueConstraint columnNames="USER_NAME" constraintName="USER_NAME" tableName="TB_USER"/>
-
         <addUniqueConstraint columnNames="VERSION" tableName="TB_VERSION" constraintName="UQ_VERSION" />
-
-        <addUniqueConstraint columnNames="USERNAME" constraintName="UQ_PLUGIN_USER_NAME"
-                             tableName="TB_AUTHENTICATION_ENTRY"/>
-        <addUniqueConstraint columnNames="CERTIFICATE_ID" constraintName="UQ_PLUGIN_USER_CERT"
-                             tableName="TB_AUTHENTICATION_ENTRY"/>
     </changeSet>
 
     <!-- Start UI Replication Tables -->
     <changeSet author="Catalin Enache" id="1564477107969-325">
         <comment>create AUDIT views</comment>
+
+        <createTable tableName="TB_MESSAGE_UI">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_TB_MESSAGE_UI"/>
+            </column>
+            <column name="MESSAGE_ID" type="VARCHAR(255)"/>
+            <column name="MESSAGE_STATUS" type="VARCHAR(255)"/>
+            <column name="NOTIFICATION_STATUS" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MSH_ROLE" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MESSAGE_TYPE" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="DELETED" type="TIMESTAMP"/>
+            <column name="RECEIVED" type="TIMESTAMP"/>
+            <column name="SEND_ATTEMPTS" type="INT"/>
+            <column name="SEND_ATTEMPTS_MAX" type="INT"/>
+            <column name="NEXT_ATTEMPT" type="TIMESTAMP"/>
+            <column name="CONVERSATION_ID" type="VARCHAR(255)"/>
+            <column name="FROM_ID" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="TO_ID" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="FROM_SCHEME" type="VARCHAR(255)"/>
+            <column name="TO_SCHEME" type="VARCHAR(255)"/>
+            <column name="REF_TO_MESSAGE_ID" type="VARCHAR(255)"/>
+            <column name="FAILED" type="TIMESTAMP"/>
+            <column name="RESTORED" type="TIMESTAMP"/>
+            <column name="MESSAGE_SUBTYPE" type="VARCHAR(255)"/>
+            <column name="ACTION" type="VARCHAR(255)"/>
+            <column name="SERVICE_TYPE" type="VARCHAR(255)"/>
+            <column name="SERVICE_VALUE" type="VARCHAR(255)"/>
+            <column defaultValueComputed="${now}" name="LAST_MODIFIED" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+        </createTable>
+        <createIndex indexName="IDX_MSG_UI_CONV_ID" tableName="TB_MESSAGE_UI">
+            <column name="CONVERSATION_ID"/>
+        </createIndex>
+
+        <createIndex indexName="IDX_MSG_UI_FROM_ID" tableName="TB_MESSAGE_UI">
+            <column name="FROM_ID"/>
+        </createIndex>
+        <createIndex indexName="IDX_MSG_UI_FROM_SCHEME" tableName="TB_MESSAGE_UI">
+            <column name="FROM_SCHEME"/>
+        </createIndex>
+        <createIndex indexName="IDX_MSG_UI_MSH_ROLE" tableName="TB_MESSAGE_UI">
+            <column name="MSH_ROLE"/>
+        </createIndex>
+        <createIndex indexName="IDX_MSG_UI_REF_MSG_ID" tableName="TB_MESSAGE_UI">
+            <column name="REF_TO_MESSAGE_ID"/>
+        </createIndex>
+        <createIndex indexName="IDX_MSG_UI_STS_TYPE_STYPE_RCV" tableName="TB_MESSAGE_UI">
+            <column name="MESSAGE_STATUS"/>
+            <column name="MESSAGE_TYPE"/>
+            <column name="MESSAGE_SUBTYPE"/>
+            <column name="RECEIVED"/>
+        </createIndex>
+        <createIndex indexName="IDX_MSG_UI_TO_ID" tableName="TB_MESSAGE_UI">
+            <column name="TO_ID"/>
+        </createIndex>
+        <createIndex indexName="IDX_MSG_UI_TO_SCHEME" tableName="TB_MESSAGE_UI">
+            <column name="TO_SCHEME"/>
+        </createIndex>
+        <createIndex indexName="IDX_MSG_UI_TYPE_RCV" tableName="TB_MESSAGE_UI">
+            <column name="MESSAGE_TYPE"/>
+            <column name="RECEIVED"/>
+        </createIndex>
+        <createIndex indexName="IDX_MSG_UI_TYPE_STYPE_RCV" tableName="TB_MESSAGE_UI">
+            <column name="MESSAGE_TYPE"/>
+            <column name="MESSAGE_SUBTYPE"/>
+            <column name="RECEIVED"/>
+        </createIndex>
+        <createIndex indexName="IDX_MSG_UI_ACTION" tableName="TB_MESSAGE_UI">
+            <column name="ACTION"/>
+        </createIndex>
+        <createIndex indexName="IDX_MSG_UI_SRV_TYPE" tableName="TB_MESSAGE_UI">
+            <column name="SERVICE_TYPE"/>
+        </createIndex>
+        <createIndex indexName="IDX_MSG_UI_SRV_VAL" tableName="TB_MESSAGE_UI">
+            <column name="SERVICE_VALUE"/>
+        </createIndex>
+        <addUniqueConstraint columnNames="MESSAGE_ID" constraintName="UNI_MSG_UI_MSG_ID" tableName="TB_MESSAGE_UI"/>
         <createView
                 replaceIfExists="true"
                 viewName="V_AUDIT_DETAIL">
