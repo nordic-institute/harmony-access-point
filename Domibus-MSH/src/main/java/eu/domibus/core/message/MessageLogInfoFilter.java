@@ -1,18 +1,20 @@
 package eu.domibus.core.message;
 
+import com.google.common.collect.Maps;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.persistence.TypedQuery;
-import java.util.Date;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Tiago Miguel
+ * @author Ion Perpegel
  * @since 3.3
  */
-public class MessageLogInfoFilter {
+public abstract class MessageLogInfoFilter {
 
     private static final String LOG_MESSAGE_ID = "log.messageId";
     private static final String LOG_MSH_ROLE = "log.mshRole";
@@ -85,7 +87,7 @@ public class MessageLogInfoFilter {
     protected StringBuilder filterQuery(String query, String column, boolean asc, Map<String, Object> filters) {
         StringBuilder result = new StringBuilder(query);
         for (Map.Entry<String, Object> filter : filters.entrySet()) {
-            handleFilter(result, filter);
+            handleFilter(result, query, filter);
         }
 
         if (column != null) {
@@ -100,9 +102,9 @@ public class MessageLogInfoFilter {
         return result;
     }
 
-    private void handleFilter(StringBuilder result, Map.Entry<String, Object> filter) {
+    private void handleFilter(StringBuilder result, String query, Map.Entry<String, Object> filter) {
         if (filter.getValue() != null) {
-            result.append(" and ");
+            setSeparator(query, result);
             if (!(filter.getValue() instanceof Date)) {
                 if (!(filter.getValue().toString().isEmpty())) {
                     String tableName = getHQLKey(filter.getKey());
@@ -120,10 +122,18 @@ public class MessageLogInfoFilter {
             }
         } else {
             if (filter.getKey().equals("messageSubtype")) {
-                result.append(" and ");
+                setSeparator(query, result);
                 String tableName = getHQLKey(filter.getKey());
                 result.append(tableName).append(" is null");
             }
+        }
+    }
+
+    private void setSeparator(String query, StringBuilder result) {
+        if (query.contains("where") || result.toString().contains("where")) {
+            result.append(" and ");
+        } else {
+            result.append(" where ");
         }
     }
 
@@ -148,4 +158,90 @@ public class MessageLogInfoFilter {
     public String filterMessageLogQuery(String column, boolean asc, Map<String, Object> filters) {
         return null;
     }
+
+    public abstract String getQueryBody(Map<String, Object> filters);
+
+    public String getCountMessageLogQuery(Map<String, Object> filters) {
+        String expression = "select count(log.id)";
+        return getQuery(filters, expression);
+    }
+
+    public String getMessageLogIdQuery(Map<String, Object> filters) {
+        String expression = "select log.id ";
+        return getQuery(filters, expression);
+    }
+
+    protected String getQuery(Map<String, Object> filters, String selectExpression) {
+        String query = selectExpression + getCountQueryBody(filters);
+        StringBuilder result = filterQuery(query, null, false, filters);
+        return result.toString();
+    }
+
+    public String getCountQueryBody(Map<String, Object> allFilters) {
+        final Map<String, Object> filters = getNonEmptyParams(allFilters);
+
+        StringBuilder fromQuery = createFromClause(filters);
+
+        StringBuilder whereQuery = createWhereQuery(fromQuery);
+
+        if (StringUtils.isBlank(whereQuery.toString())) {
+            return fromQuery.toString();
+        }
+        return fromQuery.append(" where ").append(whereQuery).toString();
+    }
+
+    protected Map<String, Object> getNonEmptyParams(Map<String, Object> allFilters) {
+        final Map<String, Object> filters = Maps.filterEntries(allFilters, input -> input.getValue() != null);
+        return filters;
+    }
+
+    protected StringBuilder createFromClause(Map<String, Object> filters) {
+        Map<String, List<String>> fromMappings = createFromMappings();
+        StringBuilder query = new StringBuilder(" from " + getMainTable());
+        Set<String> added = new HashSet<>();
+
+        filters.keySet().stream().forEach(filterParam -> {
+            String hqlKey = getHQLKey(filterParam);
+            if (StringUtils.isEmpty(hqlKey)) {
+                return;
+            }
+            String table = hqlKey.substring(0, hqlKey.indexOf("."));
+
+            if (added.add(table)) {
+                if (fromMappings.containsKey(table)) {
+                    fromMappings.get(table).forEach(mapping -> {
+                        if (query.indexOf(mapping) < 0) {
+                            query.append(mapping);
+                        }
+                    });
+                }
+            }
+        });
+
+        return query;
+    }
+
+    protected StringBuilder createWhereQuery(StringBuilder fromQuery) {
+        Map<String, List<String>> whereMappings = createWhereMappings();
+        StringBuilder query = new StringBuilder();
+        Set<String> added = new HashSet<>();
+        whereMappings.keySet().stream().forEach(table -> {
+            if (added.add(table)) {
+                if (fromQuery.indexOf(table) >= 0) {
+                    whereMappings.get(table).forEach(mapping -> {
+                        if (query.indexOf(mapping) < 0) {
+                            query.append(mapping);
+                        }
+                    });
+                }
+            }
+        });
+        return query;
+    }
+
+    protected abstract String getMainTable();
+
+    protected abstract Map<String, List<String>> createFromMappings();
+
+    protected abstract Map<String, List<String>> createWhereMappings();
 }

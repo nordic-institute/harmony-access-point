@@ -22,7 +22,31 @@
                  [selected]="parent.selected"
                  (select)="parent.onSelect($event)"
                  (activate)="parent.onActivate($event)"
-                 [rowClass]="rowClassFn"
-  >
+                 [rowClass]="rowClassFn">
+
+    <ngx-datatable-footer>
+      <ng-template ngx-datatable-footer-template
+                   let-rowCount="rowCount"
+                   let-pageSize="pageSize"
+                   let-selectedCount="selectedCount"
+                   let-curPage="curPage">
+        <div class="page-count">
+          {{selectedCount.toLocaleString()}} {{table.messages.selectedMessage}} /
+          {{totalMessage?.replace('$1', rowCount.toLocaleString())}}
+        </div>
+        <datatable-pager
+          [pagerLeftArrowIcon]="'datatable-icon-left'"
+          [pagerRightArrowIcon]="'datatable-icon-right'"
+          [pagerPreviousIcon]="'datatable-icon-prev'"
+          [pagerNextIcon]="'datatable-icon-skip'"
+          [page]="curPage"
+          [size]="pageSize"
+          [count]="rowCount"
+          [hidden]="!((rowCount / pageSize) > 1)"
+          (change)="table.onFooterPage($event)">
+        </datatable-pager>
+      </ng-template>
+    </ngx-datatable-footer>
+
   </ngx-datatable>
 </div>

@@ -11,7 +11,6 @@ import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.logging.MDCKey;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
@@ -25,7 +24,7 @@ import java.util.*;
  * @author Federico Martini
  * @since 3.2
  */
-public abstract class MessageLogDao<F extends MessageLog> extends ListDao<F> {
+public abstract class MessageLogDao<F extends MessageLog> extends ListDao<F> implements MessageLogDaoBase {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageLog.class);
 
@@ -133,4 +132,28 @@ public abstract class MessageLogDao<F extends MessageLog> extends ListDao<F> {
         }
         return resultList.isEmpty() ? null : resultList.get(0).getMessageId();
     }
+
+    @Override
+    public long countEntries(Map<String, Object> filters) {
+        MessageLogInfoFilter filterService = getMessageLogInfoFilter();
+        String queryString = filterService.getCountMessageLogQuery(filters);
+        TypedQuery<Number> query = em.createQuery(queryString, Number.class);
+        query = filterService.applyParameters(query, filters);
+        final Number count = query.getSingleResult();
+        return count.intValue();
+    }
+
+    @Override
+    public boolean hasMoreEntriesThan(Map<String, Object> filters, int limit) {
+        MessageLogInfoFilter filterService = getMessageLogInfoFilter();
+        String queryString = filterService.getMessageLogIdQuery(filters);
+        TypedQuery<Number> query = em.createQuery(queryString, Number.class);
+        query = filterService.applyParameters(query, filters);
+        query.setMaxResults(1);
+        query.setFirstResult(limit + 1);
+        final List<Number> results = query.getResultList();
+        return results.size() > 0;
+    }
+
+    public abstract List<MessageLogInfo> findAllInfoPaged(int from, int max, String column, boolean asc, Map<String, Object> filters);
 }
