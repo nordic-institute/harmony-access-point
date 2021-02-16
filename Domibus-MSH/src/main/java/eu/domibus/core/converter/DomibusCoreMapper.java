@@ -280,6 +280,9 @@ public interface DomibusCoreMapper {
 
     PasswordEncryptionResultDTO passwordEncryptionResultToPasswordEncryptionResultDTO(PasswordEncryptionResult passwordEncryptionResult);
 
+    //cloning mappings
+    DomibusPropertyMetadata clonePropertyMetadata(DomibusPropertyMetadata src);
+
     //list mappings
     List<AuditResponseRo> auditLogListToAuditResponseRoList(List<AuditLog> auditLogList);
     List<AuditLog> auditLogListToAuditList(List<Audit> auditList);

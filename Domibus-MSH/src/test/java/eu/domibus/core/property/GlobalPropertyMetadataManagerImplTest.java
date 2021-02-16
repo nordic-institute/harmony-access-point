@@ -113,7 +113,7 @@ public class GlobalPropertyMetadataManagerImplTest {
             result = null;
             globalPropertyMetadataManager.getComposablePropertyMetadata(allPropertyMetadataMap, propertyName);
             result = propMeta;
-            propMeta.clone();
+            coreMapper.clonePropertyMetadata(propMeta);
             result = propMeta;
         }};
         DomibusPropertyMetadata meta = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
@@ -285,7 +285,11 @@ public class GlobalPropertyMetadataManagerImplTest {
     }
 
     @Test
-    public void testSynchronizedBlocksWhenAddingPropertiesOnTheFly(@Injectable DomibusPropertyMetadata propMeta) {
+    public void testSynchronizedBlocksWhenAddingPropertiesOnTheFly() {
+        new Expectations(globalPropertyMetadataManager) {{
+            coreMapper.clonePropertyMetadata((DomibusPropertyMetadata)any);
+            result = DomibusPropertyMetadata.getReadOnlyGlobalProperty("dummy");
+        }};
 
         // When multiple properties are added to the properties map at the same time,
         // concurrent access to the map may result in ConcurrentModificationException.
