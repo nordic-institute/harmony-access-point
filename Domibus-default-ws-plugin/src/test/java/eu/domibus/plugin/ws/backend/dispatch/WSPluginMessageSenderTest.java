@@ -108,7 +108,7 @@ public class WSPluginMessageSenderTest {
         wsPluginMessageSender.sendNotification(wsBackendMessageLogEntity);
 
         new FullVerifications() {{
-            wsBackendMessageLogEntity.setMessageStatus(WSBackendMessageStatus.SENT);
+            wsBackendMessageLogEntity.setBackendMessageStatus(WSBackendMessageStatus.SENT);
             times = 1;
             wsPlugin.downloadMessage(MESSAGE_ID, null);
             times = 1;
@@ -151,7 +151,7 @@ public class WSPluginMessageSenderTest {
         wsPluginMessageSender.sendNotification(wsBackendMessageLogEntity);
 
         new FullVerifications() {{
-            wsBackendMessageLogEntity.setMessageStatus(WSBackendMessageStatus.SENT);
+            wsBackendMessageLogEntity.setBackendMessageStatus(WSBackendMessageStatus.SENT);
             times = 1;
         }};
     }

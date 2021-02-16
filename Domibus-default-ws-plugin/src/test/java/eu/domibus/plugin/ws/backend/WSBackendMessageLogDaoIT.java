@@ -1,5 +1,6 @@
 package eu.domibus.plugin.ws.backend;
 
+import eu.domibus.common.MessageStatus;
 import eu.domibus.plugin.ws.WSPluginDaoTestConfig;
 import eu.domibus.test.dao.InMemoryDataBaseConfig;
 import org.hamcrest.CoreMatchers;
@@ -80,7 +81,8 @@ public class WSBackendMessageLogDaoIT {
     private WSBackendMessageLogEntity create(WSBackendMessageStatus status) {
         WSBackendMessageLogEntity entity = new WSBackendMessageLogEntity();
         entity.setMessageId(UUID.randomUUID().toString());
-        entity.setMessageStatus(status);
+        entity.setMessageStatus(MessageStatus.WAITING_FOR_RETRY);
+        entity.setBackendMessageStatus(status);
         entity.setSendAttempts(1);
         entity.setSendAttemptsMax(3);
         entity.setNextAttempt(yesterday());
