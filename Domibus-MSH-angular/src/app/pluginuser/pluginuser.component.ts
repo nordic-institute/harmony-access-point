@@ -18,6 +18,7 @@ import {HttpClient, HttpParams} from '@angular/common/http';
 import {ClientSortableListMixin} from '../common/mixins/sortable-list.mixin';
 import {ApplicationContextService} from '../common/application-context.service';
 import {ComponentName} from '../common/component-name-decorator';
+import {PluginUserValidatorService} from "./support/pluginuservalidator.service";
 
 @Component({
   templateUrl: './pluginuser.component.html',
@@ -44,7 +45,7 @@ export class PluginUserComponent extends mix(BaseListComponent)
 
   constructor(private applicationService: ApplicationContextService, private alertService: AlertService,
               private pluginUserService: PluginUserService, public dialog: MatDialog, private dialogsService: DialogsService,
-              private changeDetector: ChangeDetectorRef, private http: HttpClient) {
+              private changeDetector: ChangeDetectorRef, private http: HttpClient, private pluginUserValidatorService: PluginUserValidatorService) {
     super();
   }
 
@@ -223,7 +224,13 @@ export class PluginUserComponent extends mix(BaseListComponent)
   }
 
   async doSave(): Promise<any> {
-    return this.pluginUserService.saveUsers(this.rows).then(() => this.filterData());
+    try {
+      await this.pluginUserValidatorService.validatePluginUsers(this.rows);
+      return this.pluginUserService.saveUsers(this.rows).then(() => this.filterData());
+    } catch (ex) {
+      this.alertService.exception('Cannot save users:', ex);
+      return Promise.reject(ex);
+    }
   }
 
   setIsDirty() {
