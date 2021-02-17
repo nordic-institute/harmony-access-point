@@ -1,3 +1,6 @@
+Domibus 4.1.7
+- Error while validating payload xml file
+- Upgrade library version for CXF, Spring and BouncyCastle
 Domibus 4.1.6
 - fixed an issue in the FSPlugin when PayloadName property is missing
 - updated spring, activemq and jackson libraries
