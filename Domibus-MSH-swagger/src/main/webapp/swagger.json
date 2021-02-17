@@ -430,6 +430,10 @@
         "filename" : {
           "type" : "string"
         },
+        "uri" : {
+          "type" : "string",
+          "format" : "uri"
+        },
         "readable" : {
           "type" : "boolean"
         },
@@ -442,10 +446,6 @@
         },
         "open" : {
           "type" : "boolean"
-        },
-        "uri" : {
-          "type" : "string",
-          "format" : "uri"
         }
       }
     },
