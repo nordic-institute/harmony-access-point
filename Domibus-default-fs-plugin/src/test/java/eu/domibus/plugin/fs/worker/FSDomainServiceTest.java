@@ -20,7 +20,7 @@ import static eu.domibus.plugin.fs.worker.FSSendMessagesService.DEFAULT_DOMAIN;
 
 /**
  * @author Cosmin Baciu
- * @since 4, 1
+ * @since 4.1
  */
 @RunWith(JMockit.class)
 public class FSDomainServiceTest {
@@ -85,12 +85,14 @@ public class FSDomainServiceTest {
 
     @Test
     public void testGetFSPluginDomainNonMultitenanncy(@Injectable FSMessage fsMessage) {
-        String service = "myservice";
-        String action = "myaction";
+//        String service = "myservice";
+//        String action = "myaction";
 
         new Expectations(fsDomainService) {{
-            domibusConfigurationExtService.isMultiTenantAware();
-            result = false;
+//            domibusConfigurationExtService.isMultiTenantAware();
+//            result = false;
+            domainContextExtService.getCurrentDomain().getCode();
+            result = DEFAULT_DOMAIN;
         }};
 
         final String fsPluginDomain = fsDomainService.getFSPluginDomain();
@@ -100,12 +102,12 @@ public class FSDomainServiceTest {
     @Test
     public void testGetFSPluginDomainMultitenanncy(@Injectable FSMessage fsMessage) {
         final String mydomain = "mydomain";
-        String service = "myservice";
-        String action = "myaction";
+//        String service = "myservice";
+//        String action = "myaction";
 
         new Expectations() {{
-            domibusConfigurationExtService.isMultiTenantAware();
-            result = true;
+//            domibusConfigurationExtService.isMultiTenantAware();
+//            result = true;
 
             domainContextExtService.getCurrentDomain().getCode();
             result = mydomain;
@@ -115,9 +117,9 @@ public class FSDomainServiceTest {
         Assert.assertEquals(mydomain, fsPluginDomain);
     }
 
-    @Test
-    public void getDomainPattern() {
-    }
+//    @Test
+//    public void getDomainPattern() {
+//    }
 
 //    @Test
 //    public void testResolveDomain_1() {

@@ -11,7 +11,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.Collections;
-import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 
@@ -22,8 +21,8 @@ import static org.junit.Assert.assertEquals;
 @RunWith(JMockit.class)
 public class FSPluginPropertiesTest {
 
-    @Injectable("fsPluginProperties")
-    Properties properties;
+//    @Injectable("fsPluginProperties")
+//    Properties properties;
 
     @Injectable
     protected PasswordEncryptionExtService pluginPasswordEncryptionService;

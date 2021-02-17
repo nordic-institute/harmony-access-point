@@ -162,32 +162,32 @@ public class FSPluginPropertiesIT extends AbstractIT {
         Assert.assertEquals("", fsPluginProperties.getPassword(DOMAIN2));
     }
 
-    @Test
-    public void testGetExpression_Domain1() {
-        Assert.assertEquals("bdx:noprocess#TC1Leg1", fsPluginProperties.getExpression(DOMAIN1));
-    }
+//    @Test
+//    public void testGetExpression_Domain1() {
+//        Assert.assertEquals("bdx:noprocess#TC1Leg1", fsPluginProperties.getExpression(DOMAIN1));
+//    }
 
-    @Test
-    public void testGetExpression_Domain2() {
-        Assert.assertEquals("bdx:noprocess#TC2Leg1", fsPluginProperties.getExpression(DOMAIN2));
-    }
+//    @Test
+//    public void testGetExpression_Domain2() {
+//        Assert.assertEquals("bdx:noprocess#TC2Leg1", fsPluginProperties.getExpression(DOMAIN2));
+//    }
 
-    @Test
-    public void testGetDomains_Ordered() {
-        Assert.assertEquals(DOMAIN1, fsPluginProperties.getDomainsOrdered().get(0));
-        Assert.assertEquals(DOMAIN2, fsPluginProperties.getDomainsOrdered().get(1));
-        Assert.assertEquals(ODR, fsPluginProperties.getDomainsOrdered().get(2));
-        Assert.assertEquals(BRIS, fsPluginProperties.getDomainsOrdered().get(3));
-    }
+//    @Test
+//    public void testGetDomains_Ordered() {
+//        Assert.assertEquals(DOMAIN1, fsPluginProperties.getDomainsOrdered().get(0));
+//        Assert.assertEquals(DOMAIN2, fsPluginProperties.getDomainsOrdered().get(1));
+//        Assert.assertEquals(ODR, fsPluginProperties.getDomainsOrdered().get(2));
+//        Assert.assertEquals(BRIS, fsPluginProperties.getDomainsOrdered().get(3));
+//    }
 
-    @Test
-    public void testGetDomains_UnOrdered() {
-        int unorderedA = fsPluginProperties.getDomainsOrdered().indexOf(UNORDEREDA);
-        int unorderedB = fsPluginProperties.getDomainsOrdered().indexOf(UNORDEREDB);
-
-        Assert.assertTrue(unorderedA == 4 || unorderedA == 5);
-        Assert.assertTrue(unorderedB == 4 || unorderedB == 5);
-    }
+//    @Test
+//    public void testGetDomains_UnOrdered() {
+//        int unorderedA = fsPluginProperties.getDomainsOrdered().indexOf(UNORDEREDA);
+//        int unorderedB = fsPluginProperties.getDomainsOrdered().indexOf(UNORDEREDB);
+//
+//        Assert.assertTrue(unorderedA == 4 || unorderedA == 5);
+//        Assert.assertTrue(unorderedB == 4 || unorderedB == 5);
+//    }
 
     @Test
     public void testKnownPropertyValue_singleTenancy() {
