@@ -11,7 +11,7 @@ import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.message.*;
 import eu.domibus.core.message.nonrepudiation.RawEnvelopeLogDao;
-import eu.domibus.core.message.retention.MessageRetentionService;
+import eu.domibus.core.message.retention.MessageRetentionDefaultService;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.plugin.notification.NotificationStatus;
 import eu.domibus.core.pmode.provider.PModeProvider;
@@ -30,7 +30,6 @@ import java.sql.Timestamp;
 import java.util.Date;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MSH_RETRY_MESSAGE_EXPIRATION_DELAY;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SEND_MESSAGE_FAILURE_DELETE_PAYLOAD;
 
 /**
  * @author Cosmin Baciu
@@ -74,7 +73,7 @@ public class UpdateRetryLoggingService {
     protected PModeProvider pModeProvider;
 
     @Autowired
-    MessageRetentionService messageRetentionService;
+    MessageRetentionDefaultService messageRetentionService;
 
 
     /**

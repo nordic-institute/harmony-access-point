@@ -11,7 +11,6 @@ import eu.domibus.core.message.*;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.core.util.WarningUtil;
 import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -27,10 +26,6 @@ import javax.jms.Queue;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
@@ -80,7 +75,13 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
     @Autowired
     DomainTaskExecutor domainTaskExecutor;
 
-    private List<DeleteUserMessagesDetails> deleteUserMessagesDetails = new ArrayList<>();
+    @Override
+    public boolean handlesDeletionStrategy(String retentionStrategy) {
+        if(DeletionStrategy.DEFAULT.compareTo(DeletionStrategy.valueOf(retentionStrategy))== 0) {
+            return true;
+        }
+        return false;
+    }
 
     /**
      * {@inheritDoc}
@@ -89,9 +90,8 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
     @Timer(clazz = MessageRetentionDefaultService.class, value = "retention_deleteExpiredMessages")
     @Counter(clazz = MessageRetentionDefaultService.class, value = "retention_deleteExpiredMessages")
     public void deleteExpiredMessages() {
-        if (storedProcedureEnabled()) {
-            deleteUserMessagesDetails.clear();
-        }
+
+        LOG.info("Calling MessageRetentionDefaultService.deleteExpiredMessages");
         final List<String> mpcs = pModeProvider.getMpcURIList();
         final Integer expiredDownloadedMessagesLimit = getRetentionValue(DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_DOWNLOADED_MAX_DELETE);
         final Integer expiredNotDownloadedMessagesLimit = getRetentionValue(DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_NOT_DOWNLOADED_MAX_DELETE);
@@ -101,29 +101,8 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
         for (final String mpc : mpcs) {
             deleteExpiredMessages(mpc, expiredDownloadedMessagesLimit, expiredNotDownloadedMessagesLimit, expiredSentMessagesLimit, expiredPayloadDeletedMessagesLimit);
         }
-
-        Integer timeout = domibusPropertyProvider.getIntegerProperty(DOMIBUS_RETENTION_WORKER_STORED_PROCEDURE_TIMEOUT);
-
-        if (!storedProcedureEnabled()) {
-            return;
-        }
-
-        LOG.debug("Waiting for delete procedures to execute");
-        deleteUserMessagesDetails.forEach(detail -> {
-            try {
-                detail.getDeleteExpiredFuture().get(timeout.longValue(), TimeUnit.SECONDS);
-                LOG.debug("Delete procedure [{}] for mpc [{}] ended in [{}] millis", detail.getQueryName(), detail.getMpc(), System.currentTimeMillis() - detail.getStartTime());
-            } catch (ExecutionException | InterruptedException | TimeoutException e) {
-                LOG.warn(WarningUtil.warnOutput("Error in retention!"), e);
-                LOG.warn("Error executing delete procedure [{}] for mpc [{}], time [{}] millis", detail.getQueryName(), detail.getMpc(), System.currentTimeMillis() - detail.getStartTime(), e);
-                detail.getDeleteExpiredFuture().cancel(true);
-            } catch (Exception ex) {
-                LOG.error("Exception when canceling the job executing the delete stored procedure", ex);
-            }
-        });
     }
 
-    @Override
     public void deleteExpiredMessages(String mpc, Integer expiredDownloadedMessagesLimit, Integer expiredNotDownloadedMessagesLimit, Integer expiredSentMessagesLimit, Integer expiredPayloadDeletedMessagesLimit) {
         LOG.debug("Deleting expired messages for MPC [{}] using expiredDownloadedMessagesLimit [{}]" +
                 " and expiredNotDownloadedMessagesLimit [{}]", mpc, expiredDownloadedMessagesLimit, expiredNotDownloadedMessagesLimit);
@@ -133,13 +112,6 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
         deleteExpiredPayloadDeletedMessages(mpc, expiredPayloadDeletedMessagesLimit);
     }
 
-    protected void deleteUserMessagesUsingStoredProcedure(Date startDate, String mpc, Integer maxCount, String queryName) {
-        DeleteUserMessagesProcedureRunnable deleteUserMessagesProcedureRunnable = new DeleteUserMessagesProcedureRunnable(userMessageLogDao, startDate, mpc, maxCount, queryName);
-
-        Future<?> future = domainTaskExecutor.submit(deleteUserMessagesProcedureRunnable, false);
-        DeleteUserMessagesDetails detail = new DeleteUserMessagesDetails(future, queryName, mpc, System.currentTimeMillis());
-        deleteUserMessagesDetails.add(detail);
-    }
 
     protected void deleteExpiredDownloadedMessages(String mpc, Integer expiredDownloadedMessagesLimit) {
         final int messageRetentionDownloaded = pModeProvider.getRetentionDownloadedByMpcURI(mpc);
@@ -153,10 +125,6 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
         final boolean isDeleteMessageMetadata = pModeProvider.isDeleteMessageMetadataByMpcURI(mpc);
         if( !isDeleteMessageMetadata && (messageRetentionDownloaded == 0 && StringUtils.isEmpty(fileLocation))){
             LOG.trace("Retention of downloaded messages performed immediately after download.");
-            return;
-        }
-        if (storedProcedureEnabled()) {
-            deleteUserMessagesUsingStoredProcedure(DateUtils.addMinutes(new Date(), messageRetentionDownloaded * -1), mpc, expiredDownloadedMessagesLimit, "DeleteExpiredDownloadedMessages");
             return;
         }
 
@@ -180,10 +148,6 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
             return;
         }
 
-        if (storedProcedureEnabled()) {
-            deleteUserMessagesUsingStoredProcedure(DateUtils.addMinutes(new Date(), messageRetentionNotDownloaded * -1), mpc, expiredNotDownloadedMessagesLimit, "DeleteExpiredNotDownloadedMessages");
-            return;
-        }
 
         LOG.debug("Deleting expired not-downloaded messages for MPC [{}] using expiredNotDownloadedMessagesLimit [{}]", mpc, expiredNotDownloadedMessagesLimit);
         final List<UserMessageLogDto> notDownloadedMessages = userMessageLogDao.getUndownloadedUserMessagesOlderThan(DateUtils.addMinutes(new Date(), messageRetentionNotDownloaded * -1),
@@ -206,11 +170,6 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
             return;
         }
 
-        if (storedProcedureEnabled()) {
-            deleteUserMessagesUsingStoredProcedure(DateUtils.addMinutes(new Date(), messageRetentionSent * -1), mpc, expiredSentMessagesLimit, "DeleteExpiredSentMessages");
-            return;
-        }
-
         LOG.debug("Deleting expired sent messages for MPC [{}] using expiredSentMessagesLimit [{}]", mpc, expiredSentMessagesLimit);
         final boolean isDeleteMessageMetadata = pModeProvider.isDeleteMessageMetadataByMpcURI(mpc);
         List<UserMessageLogDto> sentMessages = userMessageLogDao.getSentUserMessagesOlderThan(DateUtils.addMinutes(new Date(), messageRetentionSent * -1),
@@ -230,11 +189,6 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
         final boolean isDeleteMessageMetadata = pModeProvider.isDeleteMessageMetadataByMpcURI(mpc);
         if (!isDeleteMessageMetadata || expiredPayloadDeletedMessagesLimit < 0) { // only delete of entire messages if delete metadata is true
             LOG.trace("Retention of payload deleted messages is not active.");
-            return;
-        }
-
-        if (storedProcedureEnabled()) {
-            deleteUserMessagesUsingStoredProcedure(new Date(), mpc, expiredPayloadDeletedMessagesLimit, "deleteExpiredPayloadDeletedMessages");
             return;
         }
 
@@ -265,14 +219,14 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
         scheduleDeleteMessagesByMessageLog(userMessageLogs);
     }
 
-    @Override
+
     public void scheduleDeleteMessagesByMessageLog(List<UserMessageLogDto> userMessageLogs) {
         List<String> messageIds = userMessageLogs.stream().map(userMessageLog ->
                 userMessageLog.getMessageId()).collect(Collectors.toList());
         scheduleDeleteMessages(messageIds);
     }
 
-    @Override
+
     public void scheduleDeleteMessages(List<String> messageIds) {
         if (CollectionUtils.isEmpty(messageIds)) {
             LOG.debug("No message to be scheduled for deletion");
@@ -289,7 +243,7 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
         });
     }
 
-    @Override
+
     public void deletePayloadOnSendSuccess(UserMessage userMessage, UserMessageLog userMessageLog) {
         if (shouldDeletePayloadOnSendSuccess()) {
             LOG.trace("Message payload cleared on send success.");
@@ -299,7 +253,7 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
         LOG.trace("Message payload not cleared on send success");
     }
 
-    @Override
+
     public void deletePayloadOnSendFailure(UserMessage userMessage, UserMessageLog userMessageLog) {
         if (shouldDeletePayloadOnSendFailure(userMessage)) {
             LOG.trace("Message payload cleared on send failure.");
@@ -325,7 +279,7 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
         return domibusPropertyProvider.getBooleanProperty(DOMIBUS_SEND_MESSAGE_FAILURE_DELETE_PAYLOAD);
     }
 
-    @Override
+
     public void deleteMessages(List<UserMessageLogDto> userMessageLogs, int maxBatch) {
         if (CollectionUtils.isEmpty(userMessageLogs)) {
             LOG.debug("No message to be deleted");
@@ -350,16 +304,5 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
 
     protected Integer getRetentionValue(String propertyName) {
         return domibusPropertyProvider.getIntegerProperty(propertyName);
-    }
-
-    protected boolean storedProcedureEnabled() {
-
-        if (!domibusPropertyProvider.getBooleanProperty(DOMIBUS_RETENTION_WORKER_STORED_PROCEDURE_ENABLED)) {
-            LOG.trace("Stored procedure disabled");
-            return false;
-        }
-
-        LOG.debug("Stored procedure enabled");
-        return true;
     }
 }

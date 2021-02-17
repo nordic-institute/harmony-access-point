@@ -24,7 +24,7 @@ import eu.domibus.core.error.ErrorService;
 import eu.domibus.core.message.*;
 import eu.domibus.core.message.compression.CompressionService;
 import eu.domibus.core.message.receipt.AS4ReceiptService;
-import eu.domibus.core.message.retention.MessageRetentionService;
+import eu.domibus.core.message.retention.MessageRetentionDefaultService;
 import eu.domibus.core.payload.persistence.PayloadPersistence;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorage;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
@@ -141,7 +141,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
     protected EbMS3MessageBuilder messageBuilder;
 
     @Autowired
-    protected MessageRetentionService messageRetentionService;
+    protected MessageRetentionDefaultService messageRetentionService;
 
     @Autowired
     protected MessageGroupService messageGroupService;
