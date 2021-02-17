@@ -221,7 +221,7 @@ public class FSPluginImplTest {
             fsFilesManager.setUpFileSystem(domain);
             result = rootDir;
 
-            fsDomainService.getFSPluginDomain((FSMessage) any);
+            fsDomainService.getFSPluginDomain();
             result = FSSendMessagesService.DEFAULT_DOMAIN;
 
             fsFilesManager.getEnsureChildFolder(rootDir, FSFilesManager.INCOMING_FOLDER);
@@ -390,7 +390,7 @@ public class FSPluginImplTest {
             backendFS.browseMessage(messageId, null);
             result = new FSMessage(fsPayloads, userMessage);
 
-            fsDomainService.getFSPluginDomain((FSMessage) any);
+            fsDomainService.getFSPluginDomain();
             result = FSSendMessagesService.DEFAULT_DOMAIN;
 
             fsFilesManager.setUpFileSystem(FSSendMessagesService.DEFAULT_DOMAIN);
@@ -414,7 +414,7 @@ public class FSPluginImplTest {
             backendFS.browseMessage(messageId, null);
             result = new FSMessage(fsPayloads, userMessage);
 
-            fsDomainService.getFSPluginDomain((FSMessage) any);
+            fsDomainService.getFSPluginDomain();
             result = FSSendMessagesService.DEFAULT_DOMAIN;
 
             fsFilesManager.setUpFileSystem(FSSendMessagesService.DEFAULT_DOMAIN);
@@ -524,7 +524,7 @@ public class FSPluginImplTest {
             event.getProps();
             result = properties;
 
-            fsDomainService.getFSPluginDomain(service, action);
+            fsDomainService.getFSPluginDomain();
             result = domain;
 
             event.getMessageId();

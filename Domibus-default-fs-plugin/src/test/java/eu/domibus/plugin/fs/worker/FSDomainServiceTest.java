@@ -16,9 +16,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import static eu.domibus.plugin.fs.worker.FSSendMessagesService.DEFAULT_DOMAIN;
 
 /**
@@ -96,7 +93,7 @@ public class FSDomainServiceTest {
             result = false;
         }};
 
-        final String fsPluginDomain = fsDomainService.getFSPluginDomain(service, action);
+        final String fsPluginDomain = fsDomainService.getFSPluginDomain();
         Assert.assertEquals(FSSendMessagesService.DEFAULT_DOMAIN, fsPluginDomain);
     }
 
@@ -114,7 +111,7 @@ public class FSDomainServiceTest {
             result = mydomain;
         }};
 
-        final String fsPluginDomain = fsDomainService.getFSPluginDomain(service, action);
+        final String fsPluginDomain = fsDomainService.getFSPluginDomain();
         Assert.assertEquals(mydomain, fsPluginDomain);
     }
 
@@ -122,103 +119,103 @@ public class FSDomainServiceTest {
     public void getDomainPattern() {
     }
 
-    @Test
-    public void testResolveDomain_1() {
-        String serviceDomain1 = "ODRDocumentInvoiceService123";
-        String actionDomain1 = "PrintA";
+//    @Test
+//    public void testResolveDomain_1() {
+//        String serviceDomain1 = "ODRDocumentInvoiceService123";
+//        String actionDomain1 = "PrintA";
+//
+//        final List<String> domains = new ArrayList<>();
+//        domains.add("DOMAIN1");
+//
+//        new Expectations(1, fsDomainService) {{
+//            fsPluginProperties.getDomainsOrdered();
+//            result = domains;
+//
+//            fsPluginProperties.getExpression("DOMAIN1");
+//            result = "ODRDocumentInvoiceService.*#Print.?";
+//        }};
+//
+//        String result = fsDomainService.resolveFSPluginDomain(serviceDomain1, actionDomain1);
+//        Assert.assertEquals("DOMAIN1", result);
+//    }
 
-        final List<String> domains = new ArrayList<>();
-        domains.add("DOMAIN1");
+//    @Test
+//    public void testResolveDomain_2() {
+//        String serviceDomain2 = "BRISReceptionService";
+//        String actionDomain2 = "SendEmailAction";
+//        String actionDomain2a = "ReceiveBillAction";
+//
+//        final List<String> domains = new ArrayList<>();
+//        domains.add("DOMAIN1");
+//        domains.add("DOMAIN2");
+//
+//        new Expectations(1, fsDomainService) {{
+//            fsPluginProperties.getDomainsOrdered();
+//            result = domains;
+//
+//            fsPluginProperties.getExpression("DOMAIN2");
+//            result = "BRISReceptionService#.*";
+//        }};
+//
+//        String result = fsDomainService.resolveFSPluginDomain(serviceDomain2, actionDomain2);
+//        Assert.assertEquals("DOMAIN2", result);
+//
+//        result = fsDomainService.resolveFSPluginDomain(serviceDomain2, actionDomain2a);
+//        Assert.assertEquals("DOMAIN2", result);
+//    }
 
-        new Expectations(1, fsDomainService) {{
-            fsPluginProperties.getDomainsOrdered();
-            result = domains;
+//    @Test
+//    public void testResolveDomain_WithoutMatch() {
+//        String serviceDomain1 = "ODRDocumentInvoiceService123";
+//        String actionDomain1 = "PrintA";
+//
+//        String serviceWithoutMatch = "FSService123";
+//        String actionWithoutMatch = "SomeAction";
+//
+//        final List<String> domains = new ArrayList<>();
+//        domains.add("DOMAIN1");
+//        domains.add("DOMAIN2");
+//
+//        new Expectations(1, fsDomainService) {{
+//            fsPluginProperties.getDomainsOrdered();
+//            result = domains;
+//
+//            fsPluginProperties.getExpression("DOMAIN1");
+//            result = "ODRDocumentInvoiceService.*#Print.?";
+//
+//            fsPluginProperties.getExpression("DOMAIN2");
+//            result = "BRISReceptionService#.*";
+//        }};
+//
+//        String result = fsDomainService.resolveFSPluginDomain(serviceWithoutMatch, actionWithoutMatch);
+//        Assert.assertNull(result);
+//
+//        result = fsDomainService.resolveFSPluginDomain(serviceDomain1, actionWithoutMatch);
+//        Assert.assertNull(result);
+//
+//        result = fsDomainService.resolveFSPluginDomain(serviceWithoutMatch, actionDomain1);
+//        Assert.assertNull(result);
+//    }
 
-            fsPluginProperties.getExpression("DOMAIN1");
-            result = "ODRDocumentInvoiceService.*#Print.?";
-        }};
-
-        String result = fsDomainService.resolveFSPluginDomain(serviceDomain1, actionDomain1);
-        Assert.assertEquals("DOMAIN1", result);
-    }
-
-    @Test
-    public void testResolveDomain_2() {
-        String serviceDomain2 = "BRISReceptionService";
-        String actionDomain2 = "SendEmailAction";
-        String actionDomain2a = "ReceiveBillAction";
-
-        final List<String> domains = new ArrayList<>();
-        domains.add("DOMAIN1");
-        domains.add("DOMAIN2");
-
-        new Expectations(1, fsDomainService) {{
-            fsPluginProperties.getDomainsOrdered();
-            result = domains;
-
-            fsPluginProperties.getExpression("DOMAIN2");
-            result = "BRISReceptionService#.*";
-        }};
-
-        String result = fsDomainService.resolveFSPluginDomain(serviceDomain2, actionDomain2);
-        Assert.assertEquals("DOMAIN2", result);
-
-        result = fsDomainService.resolveFSPluginDomain(serviceDomain2, actionDomain2a);
-        Assert.assertEquals("DOMAIN2", result);
-    }
-
-    @Test
-    public void testResolveDomain_WithoutMatch() {
-        String serviceDomain1 = "ODRDocumentInvoiceService123";
-        String actionDomain1 = "PrintA";
-
-        String serviceWithoutMatch = "FSService123";
-        String actionWithoutMatch = "SomeAction";
-
-        final List<String> domains = new ArrayList<>();
-        domains.add("DOMAIN1");
-        domains.add("DOMAIN2");
-
-        new Expectations(1, fsDomainService) {{
-            fsPluginProperties.getDomainsOrdered();
-            result = domains;
-
-            fsPluginProperties.getExpression("DOMAIN1");
-            result = "ODRDocumentInvoiceService.*#Print.?";
-
-            fsPluginProperties.getExpression("DOMAIN2");
-            result = "BRISReceptionService#.*";
-        }};
-
-        String result = fsDomainService.resolveFSPluginDomain(serviceWithoutMatch, actionWithoutMatch);
-        Assert.assertNull(result);
-
-        result = fsDomainService.resolveFSPluginDomain(serviceDomain1, actionWithoutMatch);
-        Assert.assertNull(result);
-
-        result = fsDomainService.resolveFSPluginDomain(serviceWithoutMatch, actionDomain1);
-        Assert.assertNull(result);
-    }
-
-    @Test
-    public void testResolveDomain_bdxNoprocessTC1Leg1() {
-        String service = "bdx:noprocess";
-        String action = "TC1Leg1";
-
-        final List<String> domains = new ArrayList<>();
-        domains.add("DOMAIN1");
-
-        new Expectations(1, fsDomainService) {{
-            fsPluginProperties.getDomainsOrdered();
-            result = domains;
-
-            fsPluginProperties.getExpression("DOMAIN1");
-            result = "bdx:noprocess#TC1Leg1";
-        }};
-
-        String result = fsDomainService.resolveFSPluginDomain(service, action);
-        Assert.assertEquals("DOMAIN1", result);
-    }
+//    @Test
+//    public void testResolveDomain_bdxNoprocessTC1Leg1() {
+//        String service = "bdx:noprocess";
+//        String action = "TC1Leg1";
+//
+//        final List<String> domains = new ArrayList<>();
+//        domains.add("DOMAIN1");
+//
+//        new Expectations(1, fsDomainService) {{
+//            fsPluginProperties.getDomainsOrdered();
+//            result = domains;
+//
+//            fsPluginProperties.getExpression("DOMAIN1");
+//            result = "bdx:noprocess#TC1Leg1";
+//        }};
+//
+//        String result = fsDomainService.resolveFSPluginDomain(service, action);
+//        Assert.assertEquals("DOMAIN1", result);
+//    }
 
     @Test
     public void fsDomainToDomibusDomainNonMultitenancyMode() {

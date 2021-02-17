@@ -152,7 +152,7 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
         final String messageIdFolder = sanitizeFileName(messageId);
 
 
-        String fsPluginDomain = fsDomainService.getFSPluginDomain(fsMessage);
+        String fsPluginDomain = fsDomainService.getFSPluginDomain();
         LOG.debug("Using FS Plugin domain [{}]", fsPluginDomain);
 
         // Persist message
@@ -436,10 +436,10 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
     public void messageStatusChanged(MessageStatusChangeEvent event) {
         LOG.debug("Handling messageStatusChanged event");
 
-        Map<String, String> properties = event.getProps();
-        String service = properties.get("service");
-        String action = properties.get("action");
-        String domain = fsDomainService.getFSPluginDomain(service, action);
+//        Map<String, String> properties = event.getProps();
+//        String service = properties.get("service");
+//        String action = properties.get("action");
+        String domain = fsDomainService.getFSPluginDomain();
 
         String messageId = event.getMessageId();
         LOG.debug("Message [{}] changed status from [{}] to [{}] in domain [{}]", messageId, event.getFromStatus(), event.getToStatus(), domain);
