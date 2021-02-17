@@ -79,6 +79,1414 @@
     </changeSet>
     <!-- End WS Plugin specific tables -->
 
+    <!--Start UserMessage Tables -->
+    <changeSet author="Cosmin Baciu" id="EDELIVERY-7803">
+        <createTable tableName="TB_MESSAGE_ACKNW">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_TB_MESSAGE_ACKNW"/>
+            </column>
+            <column name="FROM_VALUE" type="VARCHAR(255)"/>
+            <column name="TO_VALUE" type="VARCHAR(255)"/>
+            <column name="ACKNOWLEDGE_DATE" type="TIMESTAMP"/>
+            <column name="MESSAGE_ID_FK" type="BIGINT"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="MESSAGE_ID_FK" baseTableName="TB_MESSAGE_ACKNW"
+                                 constraintName="FK_MSG_ACK_USER_MSG" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_USER_MESSAGE"/>
+        <createIndex indexName="IDX_MSG_ACKNW_MESSAGE_ID_FK" tableName="TB_MESSAGE_ACKNW">
+            <column name="MESSAGE_ID_FK"/>
+        </createIndex>
+
+        <createTable tableName="TB_MESSAGE_ACKNW_PROP">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_TB_MESSAGE_ACKNW_PROP"/>
+            </column>
+            <column name="PROPERTY_NAME" type="VARCHAR(255)"/>
+            <column name="PROPERTY_VALUE" type="VARCHAR(255)"/>
+            <column name="FK_MSG_ACKNOWLEDGE" type="BIGINT"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="FK_MSG_ACKNOWLEDGE" baseTableName="TB_MESSAGE_ACKNW_PROP"
+                                 constraintName="FK_MSG_ACK_PROP_MSG_ACK" deferrable="false" initiallyDeferred="false"
+                                 onDelete="CASCADE" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_MESSAGE_ACKNW"/>
+        <createIndex indexName="FK_MSG_ACK_PROP_MSG_ACK" tableName="TB_MESSAGE_ACKNW_PROP">
+            <column name="FK_MSG_ACKNOWLEDGE"/>
+        </createIndex>
+
+        <createTable tableName="TB_SJ_MESSAGE_FRAGMENT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_TB_MESSAGE_FRAGMENT"/>
+            </column>
+            <column name="FRAGMENT_NUMBER" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="GROUP_ID_FK" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="GROUP_ID_FK" baseTableName="TB_SJ_MESSAGE_FRAGMENT"
+                                 constraintName="FK_SJ_MSG_FG_GROUP" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_SJ_MESSAGE_GROUP"/>
+        <createIndex indexName="IDX_FK_SJ_MSG_FG_GROUP" tableName="TB_SJ_MESSAGE_FRAGMENT">
+            <column name="GROUP_ID_FK"/>
+        </createIndex>
+
+        <createTable tableName="TB_SJ_MESSAGE_GROUP" remarks="Stores information about the message group for SplitAndJoin" >
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_TB_SJ_MESSAGE_GROUP"/>
+            </column>
+            <column name="GROUP_ID" remarks="The group id" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="MESSAGE_SIZE" remarks="The message size before compression" type="BIGINT"/>
+            <column name="FRAGMENT_COUNT" remarks="The message fragment count" type="INT"/>
+            <column name="SENT_FRAGMENTS" remarks="Stores how many fragments have been sent" type="INT"/>
+            <column name="RECEIVED_FRAGMENTS" remarks="Stores how many fragments have been received" type="INT"/>
+            <column name="COMPRESSION_ALGORITHM" remarks="Compression algorithm used for the SourceMessage"
+                    type="VARCHAR(255)"/>
+            <column name="COMPRESSED_MESSAGE_SIZE" remarks="The size of the message after compression" type="BIGINT"/>
+            <column name="SOAP_ACTION" remarks="The Soap action value" type="VARCHAR(255)"/>
+            <column name="REJECTED" remarks="True if the message group has been rejected" type="BOOLEAN"/>
+            <column name="EXPIRED" remarks="True if the message group has expired" type="BOOLEAN"/>
+            <column name="MSH_ROLE_FK" remarks="The role of the MSH" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="SOURCE_MESSAGE_ID_FK" remarks="The SourceMessage id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+        </createTable>
+
+        <addForeignKeyConstraint baseColumnNames="MSH_ROLE_FK" baseTableName="TB_SJ_MESSAGE_GROUP"
+                                 constraintName="FK_MSG_FG_GROUP_MSH_ROLE" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_MSH_ROLE"/>
+        <addForeignKeyConstraint baseColumnNames="SOURCE_MESSAGE_ID_FK" baseTableName="TB_SJ_MESSAGE_GROUP"
+                                 constraintName="FK_MSG_FG_GROUP_UM" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_USER_MESSAGE"/>
+        <addForeignKeyConstraint baseColumnNames="ID_PK" baseTableName="TB_SJ_MESSAGE_GROUP"
+                                 constraintName="FK_MSG_FG_GROUP_MH" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_SJ_MESSAGE_HEADER"/>
+        <createIndex indexName="IDX_SJ_MG_SM_ID_FK" tableName="TB_SJ_MESSAGE_GROUP">
+            <column name="SOURCE_MESSAGE_ID_FK"/>
+        </createIndex>
+        <createIndex indexName="IDX_SJ_MG_ROLE_FK" tableName="TB_SJ_MESSAGE_GROUP">
+            <column name="MSH_ROLE_FK"/>
+        </createIndex>
+
+        <createTable tableName="TB_SJ_MESSAGE_HEADER" remarks="Stores the message header details for SplitAndJoin">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_TB_SJ_MESSAGE_HEADER"/>
+            </column>
+            <column name="BOUNDARY" remarks="The multipart boundary value" type="VARCHAR(255)"/>
+            <column name="START" remarks="The multipart start value" type="VARCHAR(255)"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+        </createTable>
+
+        <createTable tableName="TB_MESSAGE_LOG">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_TB_MESSAGE_LOG"/>
+            </column>
+            <column name="BACKEND" type="VARCHAR(255)"/>
+            <column name="RECEIVED" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="DOWNLOADED" type="TIMESTAMP"/>
+            <column name="FAILED" type="TIMESTAMP"/>
+            <column name="RESTORED" type="TIMESTAMP"/>
+            <column name="DELETED" type="TIMESTAMP"/>
+            <column name="NEXT_ATTEMPT" type="TIMESTAMP"/>
+            <column name="SEND_ATTEMPTS" type="INT"/>
+            <column name="SEND_ATTEMPTS_MAX" type="INT"/>
+            <column name="SCHEDULED" remarks="true if the message is already scheduled to be sent" type="BOOLEAN"/>
+            <column name="VERSION" remarks="Used for optimistic locking mechanism" type="INT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MESSAGE_STATUS_ID_FK" type="BIGINT"/>
+            <column name="MSH_ROLE_ID_FK" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="NOTIFICATION_STATUS_ID_FK" type="BIGINT"/>
+
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="MESSAGE_STATUS_ID_FK" baseTableName="TB_MESSAGE_LOG"
+                                 constraintName="FK_MSG_LOG_MSG_STATUS" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_MESSAGE_STATUS"/>
+        <addForeignKeyConstraint baseColumnNames="MSH_ROLE_ID_FK" baseTableName="TB_MESSAGE_LOG"
+                                 constraintName="FK_MSG_LOG_MSH_ROLE" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_MSH_ROLE"/>
+        <addForeignKeyConstraint baseColumnNames="NOTIFICATION_STATUS_ID_FK" baseTableName="TB_MESSAGE_LOG"
+                                 constraintName="FK_MSG_LOG_NOTIF_STATUS" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_NOTIFICATION_STATUS"/>
+
+        <createIndex indexName="IDX_MESSAGE_LOG_RECEIVED" tableName="TB_MESSAGE_LOG">
+            <column name="RECEIVED"/>
+        </createIndex>
+
+        <createTable tableName="TB_MESSAGING_LOCK">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_TB_MESSAGING_LOCK"/>
+            </column>
+            <column name="MESSAGE_TYPE" type="VARCHAR(10)"/>
+            <column name="MESSAGE_RECEIVED" type="TIMESTAMP"/>
+            <column name="MESSAGE_STATE" type="VARCHAR(10)"/>
+            <column name="MESSAGE_ID" type="VARCHAR(255)"/>
+            <column name="INITIATOR" type="VARCHAR(255)"/>
+            <column name="MPC" type="VARCHAR(255)"/>
+            <column name="SEND_ATTEMPTS" type="INT"/>
+            <column name="SEND_ATTEMPTS_MAX" type="INT"/>
+            <column name="NEXT_ATTEMPT" type="TIMESTAMP"/>
+            <column name="MESSAGE_STALED" type="TIMESTAMP"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+        </createTable>
+        <createIndex indexName="IDX_MESSAGE_LOCK_SEARCH" tableName="TB_MESSAGING_LOCK">
+            <column name="MESSAGE_TYPE"/>
+            <column name="MESSAGE_STATE"/>
+            <column name="INITIATOR"/>
+            <column name="MPC"/>
+            <column name="NEXT_ATTEMPT"/>
+        </createIndex>
+        <createIndex indexName="IDX_MESSAGE_LOCK_UNIQUE_ID" tableName="TB_MESSAGING_LOCK" unique="true">
+            <column name="MESSAGE_ID"/>
+        </createIndex>
+
+        <createTable tableName="TB_PART_INFO">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_TB_PART_INFO"/>
+            </column>
+            <column name="BINARY_DATA" type="LONGBLOB"/>
+            <column name="DESCRIPTION_LANG" type="VARCHAR(255)"/>
+            <column name="DESCRIPTION_VALUE" type="VARCHAR(255)"/>
+            <column name="HREF" type="VARCHAR(255)"/>
+            <column name="IN_BODY" type="BOOLEAN"/>
+            <column name="FILENAME" type="VARCHAR(255)"/>
+            <column name="MIME" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="USER_MESSAGE_ID_FK" type="BIGINT"/>
+            <column defaultValueNumeric="0" name="PART_ORDER" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueBoolean="false" name="ENCRYPTED" type="BOOLEAN"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="USER_MESSAGE_ID_FK" baseTableName="TB_PART_INFO"
+                                 constraintName="FK_PART_INFO_USER_MSG" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_USER_MESSAGE"/>
+        <createIndex indexName="FK_USER_MESSAGE_ID" tableName="TB_PART_INFO">
+            <column name="USER_MESSAGE_ID_FK"/>
+        </createIndex>
+
+        <createTable tableName="TB_PART_PROPERTIES">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_TB_PROPERTY"/>
+            </column>
+            <column name="PART_INFO_ID_FK" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="PART_INFO_PROPERTY_FK" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="PART_INFO_ID_FK" baseTableName="TB_PART_PROPERTIES"
+                                 constraintName="FK_PART_PROPS_PART_INFO" deferrable="false"
+                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_PART_INFO"/>
+        <addForeignKeyConstraint baseColumnNames="PART_INFO_PROPERTY_FK" baseTableName="TB_PART_PROPERTIES"
+                                 constraintName="FK_PART_PROPS_PART_PROP" deferrable="false"
+                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_D_PART_PROPERTY"/>
+        <createIndex indexName="IDX_PART_PROPS_PART_INFO" tableName="TB_PART_PROPERTIES">
+            <column name="PART_INFO_ID_FK"/>
+        </createIndex>
+        <createIndex indexName="IDX_PART_PROPS_PART_PROP" tableName="TB_PART_PROPERTIES">
+            <column name="PART_INFO_PROPERTY_FK"/>
+        </createIndex>
+        <addUniqueConstraint columnNames="PART_INFO_ID_FK,PART_INFO_PROPERTY_FK" constraintName="UK_PART_PROPS_FKS" tableName="TB_PART_PROPERTIES"/>
+
+        <createTable tableName="TB_MESSAGE_PROPERTIES">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_TB_PROPERTY"/>
+            </column>
+            <column name="MESSAGE_ID_FK" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MESSAGE_PROPERTY_FK" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="MESSAGE_ID_FK" baseTableName="TB_MESSAGE_PROPERTIES"
+                                 constraintName="FK_MSG_PROPS_USER_MSG" deferrable="false"
+                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_USER_MESSAGE"/>
+        <addForeignKeyConstraint baseColumnNames="MESSAGE_PROPERTY_FK" baseTableName="TB_MESSAGE_PROPERTIES"
+                                 constraintName="FK_MSG_PROPS_MSG_PROP" deferrable="false"
+                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_D_MESSAGE_PROPERTY"/>
+        <createIndex indexName="IDX_MSG_PROPS_MSG_PROP" tableName="TB_MESSAGE_PROPERTIES">
+            <column name="MESSAGE_ID_FK"/>
+        </createIndex>
+        <createIndex indexName="IDX_MSG_PROPS_MSG_PROP" tableName="TB_MESSAGE_PROPERTIES">
+            <column name="MESSAGE_PROPERTY_FK"/>
+        </createIndex>
+        <addUniqueConstraint columnNames="MESSAGE_ID_FK,MESSAGE_PROPERTY_FK" constraintName="UK_MSG_PROPS_FKS" tableName="TB_MESSAGE_PROPERTIES"/>
+
+        <createTable tableName="TB_USER_MESSAGE_RAW">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_TB_RAWENVELOPE_LOG"/>
+            </column>
+            <column name="RAW_XML" type="CLOB"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="ID_PK" baseTableName="TB_USER_MESSAGE_RAW"
+                                 constraintName="FK_MSG_RAW_USER_MSG" deferrable="false"
+                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_USER_MESSAGE"/>
+
+        <createTable tableName="TB_SIGNAL_MESSAGE">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_TB_SIGNAL_MESSAGE"/>
+            </column>
+            <column name="MESSAGE_ID" type="VARCHAR(255)"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="ID_PK" baseTableName="TB_SIGNAL_MESSAGE"
+                                 constraintName="FK_TB_SIGNAL_USER_MSG" deferrable="false"
+                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_USER_MESSAGE"/>
+
+        <createTable tableName="TB_RECEIPT">
+            <column name="ID_PK" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="RAW_XML" type="BLOB"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="ID_PK" baseTableName="TB_RECEIPT"
+                                 constraintName="FK_TB_RECEIPT_SIGNAL_MSG" deferrable="false"
+                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_SIGNAL_MESSAGE"/>
+
+        <createTable tableName="TB_USER_MESSAGE">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_TB_USER_MESSAGE"/>
+            </column>
+            <column name="MESSAGE_ID" type="VARCHAR(255)"/>
+            <column name="REF_TO_MESSAGE_ID" type="VARCHAR(255)"/>
+            <column name="CONVERSATION_ID" type="VARCHAR(255)"/>
+            <column name="SPLIT_AND_JOIN" type="BOOLEAN"/>
+            <column name="SOURCE_MESSAGE" remarks="true if the message is a SourceMessage" type="BOOLEAN"/>
+            <column name="MESSAGE_FRAGMENT" remarks="true if the message is a message fragment" type="BOOLEAN"/>
+            <column name="ACTION_ID_FK" type="BIGINT"/>
+            <column name="AGREEMENT_ID_FK" type="BIGINT"/>
+            <column name="SERVICE_ID_FK" type="BIGINT"/>
+            <column name="MPC_ID_FK" type="BIGINT"/>
+            <column name="FROM_PARTY_ID_FK" type="BIGINT"/>
+            <column name="FROM_ROLE_ID_FK" type="BIGINT"/>
+            <column name="TO_PARTY_ID_FK" type="BIGINT"/>
+            <column name="TO_ROLE_ID_FK" type="BIGINT"/>
+            <column name="MESSAGE_SUBTYPE_ID_FK" type="BIGINT"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+        </createTable>
+
+        <addForeignKeyConstraint baseColumnNames="ACTION_ID_FK" baseTableName="TB_USER_MESSAGE"
+                                 constraintName="FK_USER_MSG_ACTION_ID" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_ACTION"/>
+        <addForeignKeyConstraint baseColumnNames="AGREEMENT_ID_FK" baseTableName="TB_USER_MESSAGE"
+                                 constraintName="FK_USER_MSG_AGREEMENT_ID" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_AGREEMENT"/>
+        <addForeignKeyConstraint baseColumnNames="SERVICE_ID_FK" baseTableName="TB_USER_MESSAGE"
+                                 constraintName="FK_USER_MSG_SERVICE_ID" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_SERVICE"/>
+        <addForeignKeyConstraint baseColumnNames="MPC_ID_FK" baseTableName="TB_USER_MESSAGE"
+                                 constraintName="FK_USER_MSG_MPC_ID" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_MPC"/>
+        <addForeignKeyConstraint baseColumnNames="FROM_PARTY_ID_FK" baseTableName="TB_USER_MESSAGE"
+                                 constraintName="FK_USER_MSG_FROM_PARTY_ID" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_PARTY"/>
+        <addForeignKeyConstraint baseColumnNames="FROM_ROLE_ID_FK" baseTableName="TB_USER_MESSAGE"
+                                 constraintName="FK_USER_MSG_FROM_ROLE_ID" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_ROLE"/>
+        <addForeignKeyConstraint baseColumnNames="TO_PARTY_ID_FK" baseTableName="TB_USER_MESSAGE"
+                                 constraintName="FK_USER_MSG_TO_PARTY_ID" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_PARTY"/>
+        <addForeignKeyConstraint baseColumnNames="TO_ROLE_ID_FK" baseTableName="TB_USER_MESSAGE"
+                                 constraintName="FK_USER_MSG_TO_ROLE_ID" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_ROLE"/>
+        <addForeignKeyConstraint baseColumnNames="MESSAGE_SUBTYPE_ID_FK" baseTableName="TB_USER_MESSAGE"
+                                 constraintName="FK_USER_MSG_SUBTYPE_ID" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_MESSAGE_SUBTYPE"/>
+
+        <createIndex indexName="IDX_USER_MSG_ACTION_ID" tableName="TB_USER_MESSAGE">
+            <column name="ACTION_ID_FK"/>
+        </createIndex>
+        <createIndex indexName="IDX_USER_MSG_AGREEMENT_ID" tableName="TB_USER_MESSAGE">
+            <column name="AGREEMENT_ID_FK"/>
+        </createIndex>
+        <createIndex indexName="IDX_USER_MSG_SERVICE_ID" tableName="TB_USER_MESSAGE">
+            <column name="SERVICE_ID_FK"/>
+        </createIndex>
+        <createIndex indexName="IDX_USER_MSG_MPC_ID" tableName="TB_USER_MESSAGE">
+            <column name="MPC_ID_FK"/>
+        </createIndex>
+        <createIndex indexName="IDX_USER_MSG_FROM_PARTY_ID" tableName="TB_USER_MESSAGE">
+            <column name="FROM_PARTY_ID_FK"/>
+        </createIndex>
+        <createIndex indexName="IDX_FROM_ROLE_ID" tableName="TB_USER_MESSAGE">
+            <column name="FROM_ROLE_ID_FK"/>
+        </createIndex>
+        <createIndex indexName="IDX_USER_MSG_TO_PARTY_ID" tableName="TB_USER_MESSAGE">
+            <column name="TO_PARTY_ID_FK"/>
+        </createIndex>
+        <createIndex indexName="IDX_TO_ROLE_ID" tableName="TB_USER_MESSAGE">
+            <column name="TO_ROLE_ID_FK"/>
+        </createIndex>
+        <createIndex indexName="IDX_MESSAGE_SUBTYPE_ID" tableName="TB_USER_MESSAGE">
+            <column name="MESSAGE_SUBTYPE_ID_FK"/>
+        </createIndex>
+
+        <createTable tableName="TB_SEND_ATTEMPT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_TB_SEND_ATTEMPT"/>
+            </column>
+            <column name="START_DATE" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="END_DATE" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="STATUS" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ERROR" type="VARCHAR(255)"/>
+            <column name="MESSAGE_ID_FK" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_TB_SEND_ATTEMPT"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="MESSAGE_ID_FK" baseTableName="TB_SEND_ATTEMPT"
+                                 constraintName="FK_SEND_ATTEMPT_USER_MSG" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_MESSAGE_SUBTYPE"/>
+        <createIndex indexName="IDX_MESSAGE_ID_FK" tableName="TB_SEND_ATTEMPT">
+            <column name="MESSAGE_ID_FK"/>
+        </createIndex>
+
+        <!-- This table is always empty. Domibus does not save Signal messages containing errors -->
+        <createTable tableName="TB_ERROR">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_TB_ERROR"/>
+            </column>
+            <column name="CATEGORY" type="VARCHAR(255)"/>
+            <column name="DESCRIPTION_LANG" type="VARCHAR(255)"/>
+            <column name="DESCRIPTION_VALUE" type="VARCHAR(255)"/>
+            <column name="ERROR_CODE" type="VARCHAR(255)"/>
+            <column name="ERROR_DETAIL" type="CLOB"/>
+            <column name="ORIGIN" type="VARCHAR(255)"/>
+            <column name="REF_TO_MESSAGE_ID" type="VARCHAR(255)"/>
+            <column name="SEVERITY" type="VARCHAR(255)"/>
+            <column name="SHORT_DESCRIPTION" type="VARCHAR(255)"/>
+            <column name="SIGNALMESSAGE_ID" type="BIGINT"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="SIGNALMESSAGE_ID" baseTableName="TB_ERROR"
+                                 constraintName="FK_ERROR_SIGNAL_MSG" deferrable="false"
+                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_SIGNAL_MESSAGE"/>
+        <createIndex indexName="FK_ERROR_SIGNAL_MSG" tableName="TB_ERROR">
+            <column name="SIGNALMESSAGE_ID"/>
+        </createIndex>
+    </changeSet>
+    <!--End UserMessage Tables -->
+
+    <!-- Start Dictionary Tables -->
+    <changeSet author="Cosmin Baciu" id="EDELIVERY-7803">
+        <createTable tableName="TB_D_MSH_ROLE">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_D_MSH_ROLE"/>
+            </column>
+            <column name="ROLE" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+        </createTable>
+        <createIndex indexName="IDX_D_MSH_ROLE" tableName="TB_D_MSH_ROLE">
+            <column name="ROLE"/>
+        </createIndex>
+        <addUniqueConstraint columnNames="ROLE" constraintName="UK_D_MSH_ROLE" tableName="TB_D_MSH_ROLE"/>
+
+        <createTable tableName="TB_D_MESSAGE_PROPERTY">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_TB_PROPERTY"/>
+            </column>
+            <column name="NAME" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="VALUE" type="VARCHAR(1024)"/>
+            <column name="TYPE" type="VARCHAR(255)"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+        </createTable>
+        <createIndex indexName="IDX_D_MSG_PROP_NAME" tableName="TB_D_MESSAGE_PROPERTY">
+            <column name="NAME"/>
+        </createIndex>
+        <addUniqueConstraint columnNames="NAME" constraintName="UK_D_MSG_PROP_NAME" tableName="TB_D_MESSAGE_PROPERTY"/>
+
+        <createTable tableName="TB_D_PART_PROPERTY">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_TB_PROPERTY"/>
+            </column>
+            <column name="NAME" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="VALUE" type="VARCHAR(1024)"/>
+            <column name="TYPE" type="VARCHAR(255)"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+        </createTable>
+        <createIndex indexName="IDX_D_PART_PROP_NAME" tableName="TB_D_PART_PROPERTY">
+            <column name="NAME"/>
+        </createIndex>
+        <addUniqueConstraint columnNames="NAME" constraintName="UK_D_PART_PROP_NAME" tableName="TB_D_PART_PROPERTY"/>
+
+        <createTable tableName="TB_D_MPC">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_TB_PROPERTY"/>
+            </column>
+            <column name="VALUE" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+        </createTable>
+        <createIndex indexName="IDX_D_MPC_VALUE" tableName="TB_D_MPC">
+            <column name="VALUE"/>
+        </createIndex>
+        <addUniqueConstraint columnNames="VALUE" constraintName="UK_D_MPC" tableName="TB_D_MPC"/>
+
+        <createTable tableName="TB_D_SERVICE">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_TB_PROPERTY"/>
+            </column>
+            <column name="VALUE" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="TYPE" type="VARCHAR(255)"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+        </createTable>
+        <createIndex indexName="IDX_D_MPC_VALUE" tableName="TB_D_MPC">
+            <column name="VALUE"/>
+        </createIndex>
+        <addUniqueConstraint columnNames="VALUE" constraintName="UK_D_MPC" tableName="TB_D_MPC"/>
+
+        <createTable tableName="TB_D_PARTY">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_TB_PROPERTY"/>
+            </column>
+            <column name="VALUE" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="TYPE" type="VARCHAR(255)"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+        </createTable>
+        <createIndex indexName="IDX_D_PARTY_VALUE" tableName="TB_D_PARTY">
+            <column name="VALUE"/>
+        </createIndex>
+        <addUniqueConstraint columnNames="VALUE" constraintName="UK_D_PARTY_VALUE" tableName="TB_D_PARTY"/>
+
+        <createTable tableName="TB_D_ACTION">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_TB_PROPERTY"/>
+            </column>
+            <column name="ACTION" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+        </createTable>
+        <createIndex indexName="IDX_D_ACTION" tableName="TB_D_ACTION">
+            <column name="ACTION"/>
+        </createIndex>
+        <addUniqueConstraint columnNames="ACTION" constraintName="UK_D_PARTY_ACTION" tableName="TB_D_ACTION"/>
+
+        <createTable tableName="TB_D_AGREEMENT">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_TB_PROPERTY"/>
+            </column>
+            <column name="VALUE" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="TYPE" type="VARCHAR(255)"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+        </createTable>
+        <createIndex indexName="IDX_D_AGREEMENT_VALUE" tableName="TB_D_AGREEMENT">
+            <column name="VALUE"/>
+        </createIndex>
+        <addUniqueConstraint columnNames="VALUE" constraintName="UK_D_AGREEMENT_VALUE" tableName="TB_D_AGREEMENT"/>
+
+        <createTable tableName="TB_D_ROLE">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_TB_PROPERTY"/>
+            </column>
+            <column name="ROLE" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+        </createTable>
+        <createIndex indexName="IDX_D_ROLE" tableName="TB_D_ROLE">
+            <column name="ROLE"/>
+        </createIndex>
+        <addUniqueConstraint columnNames="ROLE" constraintName="UK_D_ROLE_VALUE" tableName="TB_D_ROLE"/>
+
+        <createTable tableName="TB_D_NOTIFICATION_STATUS">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_TB_PROPERTY"/>
+            </column>
+            <column name="STATUS" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+        </createTable>
+        <createIndex indexName="IDX_D_NOTIF_STATUS" tableName="TB_D_NOTIFICATION_STATUS">
+            <column name="STATUS"/>
+        </createIndex>
+        <addUniqueConstraint columnNames="STATUS" constraintName="UK_D_NOTIF_STATUS" tableName="TB_D_NOTIFICATION_STATUS"/>
+
+        <createTable tableName="TB_D_MESSAGE_STATUS">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_TB_PROPERTY"/>
+            </column>
+            <column name="STATUS" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+        </createTable>
+        <createIndex indexName="IDX_D_MESSAGE_STATUS" tableName="TB_D_MESSAGE_STATUS">
+            <column name="STATUS"/>
+        </createIndex>
+        <addUniqueConstraint columnNames="STATUS" constraintName="UK_D_MESSAGE_STATUS" tableName="TB_D_MESSAGE_STATUS"/>
+
+        <createTable tableName="TB_D_MESSAGE_SUBTYPE">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_TB_PROPERTY"/>
+            </column>
+            <column name="SUBTYPE" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+        </createTable>
+        <createIndex indexName="IDX_D_MESSAGE_SUBTYPE" tableName="TB_D_MESSAGE_SUBTYPE">
+            <column name="SUBTYPE"/>
+        </createIndex>
+        <addUniqueConstraint columnNames="SUBTYPE" constraintName="UK_D_MESSAGE_SUBTYPE" tableName="TB_D_MESSAGE_SUBTYPE"/>
+    </changeSet>
+    <!-- End Dictionary Tables -->
+
+    <!-- Start Miscellaneous Tables -->
+    <changeSet author="Cosmin Baciu" id="EDELIVERY-7803">
+        <createTable tableName="TB_CERTIFICATE">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_TB_CERTIFICATE"/>
+            </column>
+            <column name="CERTIFICATE_ALIAS" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="NOT_VALID_BEFORE_DATE" type="DATETIME"/>
+            <column name="NOT_VALID_AFTER_DATE" type="DATETIME"/>
+            <column name="REVOKE_NOTIFICATION_DATE" type="TIMESTAMP"/>
+            <column name="ALERT_IMM_NOTIFICATION_DATE" type="TIMESTAMP"/>
+            <column name="ALERT_EXP_NOTIFICATION_DATE" type="TIMESTAMP"/>
+            <column name="CERTIFICATE_STATUS" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CERTIFICATE_TYPE" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+        </createTable>
+        <addUniqueConstraint columnNames="CERTIFICATE_ALIAS, CERTIFICATE_TYPE" constraintName="CERTIFICATE_ALIAS"
+                             tableName="TB_CERTIFICATE"/>
+
+        <createTable tableName="TB_CERTIFICATE_AUD">
+            <column name="ID_PK" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_CERTIFICATE_AUD"/>
+            </column>
+            <column name="REV" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_CERTIFICATE_AUD"/>
+            </column>
+            <column name="REVTYPE" type="TINYINT"/>
+            <column name="CERTIFICATE_ALIAS" type="VARCHAR(255)" />
+            <column name="NOT_VALID_BEFORE_DATE" type="DATETIME" />
+            <column name="NOT_VALID_AFTER_DATE" type="DATETIME" />
+            <column name="REVOKE_NOTIFICATION_DATE" type="TIMESTAMP"/>
+            <column name="ALERT_IMM_NOTIFICATION_DATE" type="TIMESTAMP"/>
+            <column name="ALERT_EXP_NOTIFICATION_DATE" type="TIMESTAMP"/>
+            <column name="CERTIFICATE_STATUS" type="VARCHAR(255)" />
+            <column name="CERTIFICATE_TYPE" type="VARCHAR(255)" />
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_CERTIFICATE_AUD"
+                                 constraintName="FK_CERTIFICATE_AUD_REV" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID" referencedTableName="TB_REV_INFO"/>
+        <createIndex indexName="IDX_FK_CERTIFICATE_AUD_REV" tableName="TB_CERTIFICATE_AUD">
+            <column name="REV"/>
+        </createIndex>
+
+        <createTable tableName="TB_COMMAND" remarks="Stores commands to be executed by different nodes in clustered environments">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_TB_COMMAND"/>
+            </column>
+            <column name="SERVER_NAME" type="VARCHAR(255)" remarks="The target server name">
+                <constraints nullable="false"/>
+            </column>
+            <column name="COMMAND_NAME" type="VARCHAR(255)" remarks="The command name">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+        </createTable>
+
+        <createTable tableName="TB_COMMAND_PROPERTY" remarks="Stores properties/parameters of the commands to be executed by different nodes in clustered environments">
+            <column name="PROPERTY_NAME" type="VARCHAR(50)" remarks="The property name">
+                <constraints nullable="false"/>
+            </column>
+            <column name="PROPERTY_VALUE" type="VARCHAR(255)" remarks="The property value"/>
+            <column name="FK_COMMAND" type="BIGINT" remarks="Reference to the parent command">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="FK_COMMAND" baseTableName="TB_COMMAND_PROPERTY"
+                                 constraintName="FK_COMMAND_PROPERTY_ID" deferrable="false"
+                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_COMMAND"/>
+        <createIndex indexName="IDX_COMMAND_PROP_COMMAND_ID" tableName="TB_COMMAND_PROPERTY">
+            <column name="FK_COMMAND"/>
+        </createIndex>
+        <addUniqueConstraint columnNames="FK_COMMAND, PROPERTY_NAME" constraintName="UNI_COMMAND_PROP_NAME"
+                             tableName="TB_COMMAND_PROPERTY"/>
+
+        <createTable tableName="TB_ENCRYPTION_KEY">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_TB_ENCRYPTION_KEY"/>
+            </column>
+            <column name="KEY_USAGE" type="VARCHAR(255)"/>
+            <column name="SECRET_KEY" type="BLOB">
+                <constraints nullable="false"/>
+            </column>
+            <column name="INIT_VECTOR" type="BLOB">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+        </createTable>
+        <addUniqueConstraint columnNames="KEY_USAGE" constraintName="UQ_KEY_USAGE" tableName="TB_ENCRYPTION_KEY"/>
+
+        <createTable tableName="TB_ERROR_LOG">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_TB_ERROR_LOG"/>
+            </column>
+            <column name="ERROR_CODE" type="VARCHAR(255)"/>
+            <column name="ERROR_DETAIL" type="VARCHAR(255)"/>
+            <column name="ERROR_SIGNAL_MESSAGE_ID" type="VARCHAR(255)"/>
+            <column name="MESSAGE_IN_ERROR_ID" type="VARCHAR(255)"/>
+            <column name="MSH_ROLE" type="BIGINT"/>
+            <column name="NOTIFIED" type="TIMESTAMP"/>
+            <column name="TIME_STAMP" type="TIMESTAMP"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+        </createTable>
+        <createIndex indexName="IDX_MESSAGE_IN_ERROR_ID" tableName="TB_ERROR_LOG">
+            <column name="MESSAGE_IN_ERROR_ID"/>
+        </createIndex>
+
+        <createTable tableName="TB_REV_CHANGES">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_TB_REV_CHANGES"/>
+            </column>
+            <column name="REV" type="BIGINT"/>
+            <column name="AUDIT_ORDER" type="INT"/>
+            <column name="ENTIY_NAME" type="VARCHAR(255)"/>
+            <column name="GROUP_NAME" type="VARCHAR(255)"/>
+            <column name="ENTITY_ID" type="VARCHAR(255)"/>
+            <column name="MODIFICATION_TYPE" type="VARCHAR(255)"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_REV_CHANGES"
+                                 constraintName="FK_REV_CHANGES_REV" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID"
+                                 referencedTableName="TB_REV_INFO"/>
+        <createIndex indexName="FK_REV_CHANGES_REV" tableName="TB_REV_CHANGES">
+            <column name="REV"/>
+        </createIndex>
+
+        <createTable tableName="TB_REV_INFO">
+            <column name="ID" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_TB_REV_INFO"/>
+            </column>
+            <column name="TIMESTAMP" type="BIGINT"/>
+            <column name="REVISION_DATE" type="TIMESTAMP"/>
+            <column name="USER_NAME" type="VARCHAR(255)"/>
+        </createTable>
+
+        <createTable tableName="TB_VERSION" remarks="Stores Domibus version">
+            <column name="VERSION" type="VARCHAR(30)" remarks="Domibus Version"/>
+            <column name="BUILD_TIME" type="VARCHAR(30)" remarks="Domibus BuildTime"/>
+            <column name="CREATION_TIME" type="TIMESTAMP" defaultValueComputed="${now}" remarks="The date and time when this record was created">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint columnNames="VERSION" tableName="TB_VERSION" constraintName="UQ_VERSION" />
+    </changeSet>
+
+    <!-- Start UI Replication Tables -->
+    <changeSet author="Catalin Enache" id="1564477107969-325">
+        <comment>create AUDIT views</comment>
+
+        <createTable tableName="TB_MESSAGE_UI">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_TB_MESSAGE_UI"/>
+            </column>
+            <column name="MESSAGE_ID" type="VARCHAR(255)"/>
+            <column name="MESSAGE_STATUS" type="VARCHAR(255)"/>
+            <column name="NOTIFICATION_STATUS" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MSH_ROLE" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MESSAGE_TYPE" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="DELETED" type="TIMESTAMP"/>
+            <column name="RECEIVED" type="TIMESTAMP"/>
+            <column name="SEND_ATTEMPTS" type="INT"/>
+            <column name="SEND_ATTEMPTS_MAX" type="INT"/>
+            <column name="NEXT_ATTEMPT" type="TIMESTAMP"/>
+            <column name="CONVERSATION_ID" type="VARCHAR(255)"/>
+            <column name="FROM_ID" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="TO_ID" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="FROM_SCHEME" type="VARCHAR(255)"/>
+            <column name="TO_SCHEME" type="VARCHAR(255)"/>
+            <column name="REF_TO_MESSAGE_ID" type="VARCHAR(255)"/>
+            <column name="FAILED" type="TIMESTAMP"/>
+            <column name="RESTORED" type="TIMESTAMP"/>
+            <column name="MESSAGE_SUBTYPE" type="VARCHAR(255)"/>
+            <column name="ACTION" type="VARCHAR(255)"/>
+            <column name="SERVICE_TYPE" type="VARCHAR(255)"/>
+            <column name="SERVICE_VALUE" type="VARCHAR(255)"/>
+            <column defaultValueComputed="${now}" name="LAST_MODIFIED" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+        </createTable>
+        <createIndex indexName="IDX_MSG_UI_CONV_ID" tableName="TB_MESSAGE_UI">
+            <column name="CONVERSATION_ID"/>
+        </createIndex>
+
+        <createIndex indexName="IDX_MSG_UI_FROM_ID" tableName="TB_MESSAGE_UI">
+            <column name="FROM_ID"/>
+        </createIndex>
+        <createIndex indexName="IDX_MSG_UI_FROM_SCHEME" tableName="TB_MESSAGE_UI">
+            <column name="FROM_SCHEME"/>
+        </createIndex>
+        <createIndex indexName="IDX_MSG_UI_MSH_ROLE" tableName="TB_MESSAGE_UI">
+            <column name="MSH_ROLE"/>
+        </createIndex>
+        <createIndex indexName="IDX_MSG_UI_REF_MSG_ID" tableName="TB_MESSAGE_UI">
+            <column name="REF_TO_MESSAGE_ID"/>
+        </createIndex>
+        <createIndex indexName="IDX_MSG_UI_STS_TYPE_STYPE_RCV" tableName="TB_MESSAGE_UI">
+            <column name="MESSAGE_STATUS"/>
+            <column name="MESSAGE_TYPE"/>
+            <column name="MESSAGE_SUBTYPE"/>
+            <column name="RECEIVED"/>
+        </createIndex>
+        <createIndex indexName="IDX_MSG_UI_TO_ID" tableName="TB_MESSAGE_UI">
+            <column name="TO_ID"/>
+        </createIndex>
+        <createIndex indexName="IDX_MSG_UI_TO_SCHEME" tableName="TB_MESSAGE_UI">
+            <column name="TO_SCHEME"/>
+        </createIndex>
+        <createIndex indexName="IDX_MSG_UI_TYPE_RCV" tableName="TB_MESSAGE_UI">
+            <column name="MESSAGE_TYPE"/>
+            <column name="RECEIVED"/>
+        </createIndex>
+        <createIndex indexName="IDX_MSG_UI_TYPE_STYPE_RCV" tableName="TB_MESSAGE_UI">
+            <column name="MESSAGE_TYPE"/>
+            <column name="MESSAGE_SUBTYPE"/>
+            <column name="RECEIVED"/>
+        </createIndex>
+        <createIndex indexName="IDX_MSG_UI_ACTION" tableName="TB_MESSAGE_UI">
+            <column name="ACTION"/>
+        </createIndex>
+        <createIndex indexName="IDX_MSG_UI_SRV_TYPE" tableName="TB_MESSAGE_UI">
+            <column name="SERVICE_TYPE"/>
+        </createIndex>
+        <createIndex indexName="IDX_MSG_UI_SRV_VAL" tableName="TB_MESSAGE_UI">
+            <column name="SERVICE_VALUE"/>
+        </createIndex>
+        <addUniqueConstraint columnNames="MESSAGE_ID" constraintName="UNI_MSG_UI_MSG_ID" tableName="TB_MESSAGE_UI"/>
+        <createView
+                replaceIfExists="true"
+                viewName="V_AUDIT_DETAIL">
+            SELECT
+            DISTINCT rc.GROUP_NAME as AUDIT_TYPE ,
+            rc.MODIFICATION_TYPE as ACTION_TYPE,
+            ri.USER_NAME as USER_NAME ,
+            ri.REVISION_DATE as AUDIT_DATE,
+            TRIM(CAST(rc.ENTITY_ID AS CHAR(255))) AS ID,
+            TRIM(CAST(ri.ID AS CHAR(19))) AS REV_ID
+            FROM TB_REV_INFO ri, TB_REV_CHANGES rc
+            WHERE ri.ID=rc.REV
+            UNION
+            SELECT aa.AUDIT_TYPE,aa.MODIFICATION_TYPE,aa.USER_NAME,aa.REVISION_DATE,aa.ENTITY_ID,'1' FROM
+            TB_ACTION_AUDIT aa
+        </createView>
+        <createView
+                replaceIfExists="true"
+                viewName="V_AUDIT">
+            SELECT *
+            FROM V_AUDIT_DETAIL VAD
+            ORDER BY VAD.AUDIT_DATE DESC;
+        </createView>
+    </changeSet>
+    <changeSet id="EDELIVERY-3361-1" author="CatalinEnache" dbms="oracle">
+        <comment>create UI Replication view</comment>
+        <createView
+                replaceIfExists="true"
+                viewName="V_MESSAGE_UI_DIFF">
+            SELECT
+            message_id,
+            message_status,
+            notification_status,
+            msh_role,
+            message_type,
+            deleted,
+            received,
+            send_attempts,
+            send_attempts_max,
+            next_attempt,
+            conversation_id,
+            from_id,
+            to_id,
+            from_scheme,
+            to_scheme,
+            ref_to_message_id,
+            failed,
+            restored,
+            message_subtype,
+            action,
+            service_type,
+            service_value
+            FROM
+            (
+            SELECT
+            message_log.message_id,
+            message_log.message_status,
+            message_log.notification_status,
+            message_log.msh_role,
+            message_log.message_type,
+            message_log.deleted,
+            message_log.received,
+            message_log.send_attempts,
+            message_log.send_attempts_max,
+            message_log.next_attempt,
+            user_message.coll_info_convers_id AS conversation_id,
+            partyid5_.value AS from_id,
+            partyid6_.value AS to_id,
+            property.value AS from_scheme,
+            property2.value AS to_scheme,
+            message_info.ref_to_message_id,
+            message_log.failed,
+            message_log.restored,
+            message_log.message_subtype,
+            user_message.collaboration_info_action AS action,
+            user_message.service_type,
+            user_message.service_value
+            FROM
+            tb_message_log message_log
+            LEFT OUTER JOIN tb_message_info message_info ON message_log.message_id =
+            message_info.message_id,tb_user_message user_message
+            LEFT OUTER JOIN tb_property property ON user_message.id_pk = property.messageproperties_id
+            LEFT OUTER JOIN tb_property property2 ON user_message.id_pk = property2.messageproperties_id
+            LEFT OUTER JOIN tb_party_id partyid5_ ON user_message.id_pk = partyid5_.from_id
+            LEFT OUTER JOIN tb_party_id partyid6_ ON user_message.id_pk = partyid6_.to_id
+            WHERE
+            user_message.messageinfo_id_pk = message_info.id_pk
+            AND property.name = 'originalSender'
+            AND property2.name = 'finalRecipient'
+            UNION
+            SELECT
+            message_log.message_id,
+            message_log.message_status,
+            message_log.notification_status,
+            message_log.msh_role,
+            message_log.message_type,
+            message_log.deleted,
+            message_log.received,
+            message_log.send_attempts,
+            message_log.send_attempts_max,
+            message_log.next_attempt,
+            '' AS conversation_id,
+            partyid7_.value AS from_id,
+            partyid8_.value AS to_id,
+            property.value AS from_scheme,
+            property2.value AS to_scheme,
+            message_info.ref_to_message_id,
+            message_log.failed,
+            message_log.restored,
+            message_log.message_subtype,
+            null as action,
+            null as service_type,
+            null as service_value
+            FROM
+            tb_message_log message_log
+            CROSS JOIN tb_messaging messaging
+            INNER JOIN tb_signal_message signalmess2_ ON messaging.signal_message_id = signalmess2_.id_pk
+            LEFT OUTER JOIN tb_message_info message_info ON signalmess2_.messageinfo_id_pk = message_info.id_pk
+            INNER JOIN tb_user_message user_message ON messaging.user_message_id = user_message.id_pk
+            LEFT OUTER JOIN tb_property property ON user_message.id_pk = property.messageproperties_id
+            LEFT OUTER JOIN tb_property property2 ON user_message.id_pk = property2.messageproperties_id
+            LEFT OUTER JOIN tb_party_id partyid7_ ON user_message.id_pk = partyid7_.from_id
+            LEFT OUTER JOIN tb_party_id partyid8_ ON user_message.id_pk = partyid8_.to_id
+            CROSS JOIN tb_message_info message_info2
+            WHERE
+            user_message.messageinfo_id_pk = message_info2.id_pk
+            AND message_info.message_id = message_log.message_id
+            AND message_info.ref_to_message_id = message_info2.message_id
+            AND property.name = 'originalSender'
+            AND property2.name = 'finalRecipient'
+            ) result WHERE result.received BETWEEN systimestamp - INTERVAL '48' HOUR AND systimestamp + INTERVAL '1'
+            HOUR
+            MINUS
+            SELECT
+            message_id,
+            message_status,
+            notification_status,
+            msh_role,
+            message_type,
+            deleted,
+            received,
+            send_attempts,
+            send_attempts_max,
+            next_attempt,
+            conversation_id,
+            from_id,
+            to_id,
+            from_scheme,
+            to_scheme,
+            ref_to_message_id,
+            failed,
+            restored,
+            message_subtype,
+            action,
+            service_type,
+            service_value
+            FROM
+            TB_MESSAGE_UI WHERE
+            received BETWEEN systimestamp - INTERVAL '48' HOUR AND systimestamp + INTERVAL '1' HOUR
+        </createView>
+    </changeSet>
+    <changeSet id="EDELIVERY-3361-2" author="CatalinEnache" dbms="mysql">
+        <createView
+                replaceIfExists="true"
+                viewName="V_MESSAGE_UI_DIFF">
+            SELECT
+            message_log.MESSAGE_ID,
+            message_log.MESSAGE_STATUS,
+            message_log.NOTIFICATION_STATUS,
+            message_log.MSH_ROLE,
+            message_log.MESSAGE_TYPE,
+            message_log.DELETED,
+            message_log.RECEIVED,
+            message_log.SEND_ATTEMPTS,
+            message_log.SEND_ATTEMPTS_MAX,
+            message_log.NEXT_ATTEMPT,
+            user_message.COLL_INFO_CONVERS_ID AS CONVERSATION_ID,
+            partyid5_.VALUE AS FROM_ID,
+            partyid6_.VALUE AS TO_ID,
+            property3_.VALUE AS FROM_SCHEME,
+            property4_.VALUE AS TO_SCHEME,
+            message_info.REF_TO_MESSAGE_ID,
+            message_log.FAILED,
+            message_log.RESTORED,
+            message_log.MESSAGE_SUBTYPE,
+            user_message.COLLABORATION_INFO_ACTION AS ACTION,
+            user_message.SERVICE_TYPE,
+            user_message.SERVICE_VALUE
+            FROM
+            TB_MESSAGE_LOG message_log
+            LEFT OUTER JOIN TB_MESSAGE_INFO message_info ON message_log.MESSAGE_ID = message_info.MESSAGE_ID
+            CROSS JOIN TB_USER_MESSAGE user_message
+            LEFT OUTER JOIN TB_PROPERTY property3_ ON user_message.ID_PK = property3_.MESSAGEPROPERTIES_ID
+            LEFT OUTER JOIN TB_PROPERTY property4_ ON user_message.ID_PK = property4_.MESSAGEPROPERTIES_ID
+            LEFT OUTER JOIN TB_PARTY_ID partyid5_ ON user_message.ID_PK = partyid5_.FROM_ID
+            LEFT OUTER JOIN TB_PARTY_ID partyid6_ ON user_message.ID_PK = partyid6_.TO_ID
+
+            LEFT JOIN TB_MESSAGE_UI flat_table ON message_log.message_id &lt;=&gt; flat_table.message_id
+            AND message_log.message_Status &lt;=&gt; flat_table.message_status
+            AND message_log.NOTIFICATION_STATUS &lt;=&gt; flat_table.NOTIFICATION_STATUS
+            AND message_log.MSH_ROLE &lt;=&gt; flat_table.MSH_ROLE
+            AND message_log.MESSAGE_TYPE &lt;=&gt; flat_table.MESSAGE_TYPE
+            AND message_log.DELETED &lt;=&gt; flat_table.DELETED
+            AND message_log.RECEIVED &lt;=&gt; flat_table.RECEIVED
+            AND message_log.SEND_ATTEMPTS &lt;=&gt; flat_table.SEND_ATTEMPTS
+            AND message_log.SEND_ATTEMPTS_MAX &lt;=&gt; flat_table.SEND_ATTEMPTS_MAX
+            AND message_log.NEXT_ATTEMPT &lt;=&gt; flat_table.NEXT_ATTEMPT
+            AND user_message.COLL_INFO_CONVERS_ID &lt;=&gt; flat_table.CONVERSATION_ID
+            AND partyid5_.VALUE &lt;=&gt; flat_table.FROM_ID
+            AND partyid6_.VALUE &lt;=&gt; flat_table.TO_ID
+            AND property3_.VALUE &lt;=&gt; flat_table.FROM_SCHEME
+            AND property4_.VALUE &lt;=&gt; flat_table.TO_SCHEME
+            AND message_info.REF_TO_MESSAGE_ID &lt;=&gt; flat_table.REF_TO_MESSAGE_ID
+            AND message_log.FAILED &lt;=&gt; flat_table.FAILED
+            AND message_log.RESTORED &lt;=&gt; flat_table.RESTORED
+            AND message_log.MESSAGE_SUBTYPE &lt;=&gt; flat_table.MESSAGE_SUBTYPE
+            AND user_message.COLLABORATION_INFO_ACTION &lt;=&gt; flat_table.ACTION
+            AND user_message.SERVICE_TYPE &lt;=&gt; flat_table.SERVICE_TYPE
+            AND user_message.SERVICE_VALUE &lt;=&gt; flat_table.SERVICE_VALUE
+            WHERE
+            user_message.messageInfo_ID_PK = message_info.ID_PK
+            AND property3_.NAME = 'originalSender'
+            AND property4_.NAME = 'finalRecipient'
+            AND message_log.received BETWEEN DATE_SUB(NOW(), INTERVAL 48 HOUR) AND DATE_ADD(NOW(), INTERVAL 1 HOUR)
+            AND flat_table.message_id IS NULL
+
+            UNION
+
+            SELECT
+            message_log.MESSAGE_ID,
+            message_log.MESSAGE_STATUS,
+            message_log.NOTIFICATION_STATUS,
+            message_log.MSH_ROLE,
+            message_log.MESSAGE_TYPE,
+            message_log.DELETED,
+            message_log.RECEIVED,
+            message_log.SEND_ATTEMPTS,
+            message_log.SEND_ATTEMPTS_MAX,
+            message_log.NEXT_ATTEMPT,
+            '' AS CONVERSATION_ID,
+            partyid7_.VALUE AS FROM_ID,
+            partyid8_.VALUE AS TO_ID,
+            property5_.VALUE AS FROM_SCHEME,
+            property6_.VALUE AS TO_SCHEME,
+            messageinf4_.REF_TO_MESSAGE_ID,
+            message_log.FAILED,
+            message_log.RESTORED,
+            message_log.MESSAGE_SUBTYPE,
+            NULL AS ACTION,
+            NULL AS SERVICE_TYPE,
+            NULL AS SERVICE_VALUE
+            FROM
+            TB_MESSAGE_LOG message_log
+            CROSS JOIN TB_MESSAGING messaging
+            INNER JOIN TB_SIGNAL_MESSAGE signalmess2_ ON messaging.SIGNAL_MESSAGE_ID = signalmess2_.ID_PK
+            LEFT OUTER JOIN TB_MESSAGE_INFO messageinf4_ ON signalmess2_.messageInfo_ID_PK = messageinf4_.ID_PK
+            INNER JOIN TB_USER_MESSAGE usermessag3_ ON messaging.USER_MESSAGE_ID = usermessag3_.ID_PK
+            LEFT OUTER JOIN TB_PROPERTY property5_ ON usermessag3_.ID_PK = property5_.MESSAGEPROPERTIES_ID
+            LEFT OUTER JOIN TB_PROPERTY property6_ ON usermessag3_.ID_PK = property6_.MESSAGEPROPERTIES_ID
+            LEFT OUTER JOIN TB_PARTY_ID partyid7_ ON usermessag3_.ID_PK = partyid7_.FROM_ID
+            LEFT OUTER JOIN TB_PARTY_ID partyid8_ ON usermessag3_.ID_PK = partyid8_.TO_ID
+            CROSS JOIN TB_MESSAGE_INFO messageinf11_
+
+            LEFT JOIN TB_MESSAGE_UI flat_table ON message_log.message_id &lt;=&gt; flat_table.message_id
+            AND message_log.message_Status &lt;=&gt; flat_table.message_status
+            AND message_log.NOTIFICATION_STATUS &lt;=&gt; flat_table.NOTIFICATION_STATUS
+            AND message_log.MSH_ROLE &lt;=&gt; flat_table.MSH_ROLE
+            AND message_log.MESSAGE_TYPE &lt;=&gt; flat_table.MESSAGE_TYPE
+            AND message_log.DELETED &lt;=&gt; flat_table.DELETED
+            AND message_log.RECEIVED &lt;=&gt; flat_table.RECEIVED
+            AND message_log.SEND_ATTEMPTS &lt;=&gt; flat_table.SEND_ATTEMPTS
+            AND message_log.SEND_ATTEMPTS_MAX &lt;=&gt; flat_table.SEND_ATTEMPTS_MAX
+            AND message_log.NEXT_ATTEMPT &lt;=&gt; flat_table.NEXT_ATTEMPT
+            AND '' &lt;=&gt; flat_table.CONVERSATION_ID
+            AND partyid7_.VALUE &lt;=&gt; flat_table.FROM_ID
+            AND partyid8_.VALUE &lt;=&gt; flat_table.TO_ID
+            AND property5_.VALUE &lt;=&gt; flat_table.FROM_SCHEME
+            AND property6_.VALUE &lt;=&gt; flat_table.TO_SCHEME
+            AND messageinf4_.REF_TO_MESSAGE_ID &lt;=&gt; flat_table.REF_TO_MESSAGE_ID
+            AND message_log.FAILED &lt;=&gt; flat_table.FAILED
+            AND message_log.RESTORED &lt;=&gt; flat_table.RESTORED
+            AND message_log.MESSAGE_SUBTYPE &lt;=&gt; flat_table.MESSAGE_SUBTYPE
+            WHERE
+            usermessag3_.messageInfo_ID_PK = messageinf11_.ID_PK
+            AND messageinf4_.MESSAGE_ID = message_log.MESSAGE_ID
+            AND messageinf4_.REF_TO_MESSAGE_ID = messageinf11_.MESSAGE_ID
+            AND property5_.NAME = 'originalSender'
+            AND property6_.NAME = 'finalRecipient'
+            AND message_log.received BETWEEN DATE_SUB(NOW(), INTERVAL 48 HOUR) AND DATE_ADD(NOW(), INTERVAL 1 HOUR)
+            AND flat_table.message_id IS NULL;
+        </createView>
+    </changeSet>
+    <!-- End UI Replication Tables -->
+
     <!-- Start PMode tables -->
     <changeSet author="Cosmin Baciu" id="EDELIVERY-7803">
         <createTable tableName="TB_PM_ACTION">
@@ -1628,1225 +3036,6 @@
         </createIndex>
     </changeSet>
     <!-- End Alert Tables -->
-
-    <!-- Start Dictionary Tables -->
-    <changeSet author="Cosmin Baciu" id="EDELIVERY-7803">
-        <createTable tableName="TB_D_MSH_ROLE">
-            <column name="ID_PK" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_D_MSH_ROLE"/>
-            </column>
-            <column name="ROLE" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
-                <constraints nullable="false"/>
-            </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
-        </createTable>
-        <createIndex indexName="IDX_D_MSH_ROLE" tableName="TB_D_MSH_ROLE">
-            <column name="ROLE"/>
-        </createIndex>
-        <addUniqueConstraint columnNames="ROLE" constraintName="UK_D_MSH_ROLE" tableName="TB_D_MSH_ROLE"/>
-
-        <createTable tableName="TB_D_MESSAGE_PROPERTY">
-            <column name="ID_PK" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_TB_PROPERTY"/>
-            </column>
-            <column name="NAME" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="VALUE" type="VARCHAR(1024)"/>
-            <column name="TYPE" type="VARCHAR(255)"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
-                <constraints nullable="false"/>
-            </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
-        </createTable>
-        <createIndex indexName="IDX_MSG_PROP_NAME" tableName="TB_D_MESSAGE_PROPERTY">
-            <column name="NAME"/>
-        </createIndex>
-        <addUniqueConstraint columnNames="NAME" constraintName="UK_D_MSG_PROP_NAME" tableName="TB_D_MESSAGE_PROPERTY"/>
-    </changeSet>
-    <!-- End Dictionary Tables -->
-
-    <!--Start UserMessage Tables -->
-    <changeSet author="Cosmin Baciu" id="EDELIVERY-7803">
-        <createTable tableName="TB_ERROR">
-            <column name="ID_PK" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_TB_ERROR"/>
-            </column>
-            <column name="CATEGORY" type="VARCHAR(255)"/>
-            <column name="DESCRIPTION_LANG" type="VARCHAR(255)"/>
-            <column name="DESCRIPTION_VALUE" type="VARCHAR(255)"/>
-            <column name="ERROR_CODE" type="VARCHAR(255)"/>
-            <column name="ERROR_DETAIL" type="CLOB"/>
-            <column name="ORIGIN" type="VARCHAR(255)"/>
-            <column name="REF_TO_MESSAGE_ID" type="VARCHAR(255)"/>
-            <column name="SEVERITY" type="VARCHAR(255)"/>
-            <column name="SHORT_DESCRIPTION" type="VARCHAR(255)"/>
-            <column name="SIGNALMESSAGE_ID" type="BIGINT"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
-                <constraints nullable="false"/>
-            </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
-        </createTable>
-        <addForeignKeyConstraint baseColumnNames="SIGNALMESSAGE_ID" baseTableName="TB_ERROR"
-                                 constraintName="FK_PRRCMI4GRM4TXHFSFNFHGQ1K1" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_SIGNAL_MESSAGE"/>
-        <createIndex indexName="FK_PRRCMI4GRM4TXHFSFNFHGQ1K1" tableName="TB_ERROR">
-            <column name="SIGNALMESSAGE_ID"/>
-        </createIndex>
-
-        <createTable tableName="TB_MESSAGE_ACKNW">
-            <column name="ID_PK" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_TB_MESSAGE_ACKNW"/>
-            </column>
-            <column name="MESSAGE_ID" type="VARCHAR(255)"/>
-            <column name="FROM_VALUE" type="VARCHAR(255)"/>
-            <column name="TO_VALUE" type="VARCHAR(255)"/>
-            <column name="CREATE_DATE" type="TIMESTAMP"/>
-            <column name="CREATE_USER" type="VARCHAR(255)"/>
-            <column name="ACKNOWLEDGE_DATE" type="TIMESTAMP"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
-                <constraints nullable="false"/>
-            </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
-        </createTable>
-        <createIndex indexName="IDX_MSG_ACKNW_MESSAGE_ID" tableName="TB_MESSAGE_ACKNW">
-            <column name="MESSAGE_ID"/>
-        </createIndex>
-
-        <createTable tableName="TB_MESSAGE_ACKNW_PROP">
-            <column name="ID_PK" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_TB_MESSAGE_ACKNW_PROP"/>
-            </column>
-            <column name="PROPERTY_NAME" type="VARCHAR(255)"/>
-            <column name="PROPERTY_VALUE" type="VARCHAR(255)"/>
-            <column name="FK_MSG_ACKNOWLEDGE" type="BIGINT"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
-                <constraints nullable="false"/>
-            </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
-        </createTable>
-        <addForeignKeyConstraint baseColumnNames="FK_MSG_ACKNOWLEDGE" baseTableName="TB_MESSAGE_ACKNW_PROP"
-                                 constraintName="FK_MSG_ACK_PROP_MSG_ACK" deferrable="false" initiallyDeferred="false"
-                                 onDelete="CASCADE" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
-                                 referencedTableName="TB_MESSAGE_ACKNW"/>
-        <createIndex indexName="FK_MSG_ACK_PROP_MSG_ACK" tableName="TB_MESSAGE_ACKNW_PROP">
-            <column name="FK_MSG_ACKNOWLEDGE"/>
-        </createIndex>
-
-        <createTable tableName="TB_SJ_MESSAGE_FRAGMENT">
-            <column name="ID_PK" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_TB_MESSAGE_FRAGMENT"/>
-            </column>
-            <column name="FRAGMENT_NUMBER" type="INT">
-                <constraints nullable="false"/>
-            </column>
-            <column name="GROUP_ID_FK" type="BIGINT">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
-                <constraints nullable="false"/>
-            </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
-        </createTable>
-        <createIndex indexName="IDX_MF_GRP_ID" tableName="TB_SJ_MESSAGE_FRAGMENT">
-            <column name="GROUP_ID"/>
-        </createIndex>
-        <addForeignKeyConstraint baseColumnNames="GROUP_ID_FK" baseTableName="TB_SJ_MESSAGE_FRAGMENT"
-                                 constraintName="FK_SJ_MSG_FG_GROUP" deferrable="false" initiallyDeferred="false"
-                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
-                                 referencedTableName="TB_SJ_MESSAGE_GROUP"/>
-
-        <createIndex indexName="IDX_FK_SJ_MSG_FG_GROUP" tableName="TB_SJ_MESSAGE_FRAGMENT">
-            <column name="GROUP_ID_FK"/>
-        </createIndex>
-
-        <createTable tableName="TB_SJ_MESSAGE_GROUP" remarks="Stores information about the message group for SplitAndJoin" >
-            <column name="ID_PK" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_TB_SJ_MESSAGE_GROUP"/>
-            </column>
-            <column name="GROUP_ID" remarks="The group id" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-
-            <column name="MESSAGE_SIZE" remarks="The message size before compression" type="BIGINT"/>
-            <column name="FRAGMENT_COUNT" remarks="The message fragment count" type="INT"/>
-            <column name="SENT_FRAGMENTS" remarks="Stores how many fragments have been sent" type="INT"/>
-            <column name="RECEIVED_FRAGMENTS" remarks="Stores how many fragments have been received" type="INT"/>
-            <column name="COMPRESSION_ALGORITHM" remarks="Compression algorithm used for the SourceMessage"
-                    type="VARCHAR(255)"/>
-            <column name="COMPRESSED_MESSAGE_SIZE" remarks="The size of the message after compression" type="BIGINT"/>
-            <column name="SOAP_ACTION" remarks="The Soap action value" type="VARCHAR(255)"/>
-            <column name="REJECTED" remarks="True if the message group has been rejected" type="BOOLEAN"/>
-            <column name="EXPIRED" remarks="True if the message group has expired" type="BOOLEAN"/>
-            <column name="MSH_ROLE_FK" remarks="The role of the MSH" type="BIGINT">
-                <constraints nullable="false"/>
-            </column>
-            <column name="SOURCE_MESSAGE_ID_FK" remarks="The SourceMessage id" type="BIGINT">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
-                <constraints nullable="false"/>
-            </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
-        </createTable>
-
-        <addForeignKeyConstraint baseColumnNames="MSH_ROLE_FK" baseTableName="TB_SJ_MESSAGE_GROUP"
-                                 constraintName="FK_MSG_FG_GROUP_MSH_ROLE" deferrable="false" initiallyDeferred="false"
-                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
-                                 referencedTableName="TB_D_MSH_ROLE"/>
-        <addForeignKeyConstraint baseColumnNames="SOURCE_MESSAGE_ID_FK" baseTableName="TB_SJ_MESSAGE_GROUP"
-                                 constraintName="FK_MSG_FG_GROUP_UM" deferrable="false" initiallyDeferred="false"
-                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
-                                 referencedTableName="TB_USER_MESSAGE"/>
-        <addForeignKeyConstraint baseColumnNames="ID_PK" baseTableName="TB_SJ_MESSAGE_GROUP"
-                                 constraintName="FK_MSG_FG_GROUP_MH" deferrable="false" initiallyDeferred="false"
-                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
-                                 referencedTableName="TB_SJ_MESSAGE_HEADER"/>
-        <createIndex indexName="IDX_SJ_MG_SM_ID_FK" tableName="TB_SJ_MESSAGE_GROUP">
-            <column name="SOURCE_MESSAGE_ID_FK"/>
-        </createIndex>
-        <createIndex indexName="IDX_SJ_MG_ROLE_FK" tableName="TB_SJ_MESSAGE_GROUP">
-            <column name="MSH_ROLE_FK"/>
-        </createIndex>
-
-        <createTable tableName="TB_SJ_MESSAGE_HEADER" remarks="Stores the message header details for SplitAndJoin">
-            <column name="ID_PK" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_TB_SJ_MESSAGE_HEADER"/>
-            </column>
-            <column name="BOUNDARY" remarks="The multipart boundary value" type="VARCHAR(255)"/>
-            <column name="START" remarks="The multipart start value" type="VARCHAR(255)"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
-                <constraints nullable="false"/>
-            </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
-        </createTable>
-
-        <createTable tableName="TB_MESSAGE_LOG">
-            <column name="ID_PK" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_TB_MESSAGE_LOG"/>
-            </column>
-            <column name="BACKEND" type="VARCHAR(255)"/>
-            <column name="RECEIVED" type="TIMESTAMP"/>
-            <column name="DOWNLOADED" type="TIMESTAMP"/>
-            <column name="FAILED" type="TIMESTAMP"/>
-            <column name="RESTORED" type="TIMESTAMP"/>
-            <column name="DELETED" type="TIMESTAMP"/>
-            <column name="NEXT_ATTEMPT" type="TIMESTAMP"/>
-            <column name="SEND_ATTEMPTS" type="INT"/>
-            <column name="SEND_ATTEMPTS_MAX" type="INT"/>
-            <column name="SCHEDULED" remarks="true if the message is already scheduled to be sent" type="BOOLEAN"/>
-            <column name="VERSION" remarks="Used for optimistic locking mechanism" type="INT" defaultValueNumeric="0"/>
-            <column name="MESSAGE_STATUS_ID_FK" type="BIGINT"/>
-            <column name="MSH_ROLE_ID_FK" type="BIGINT"/>
-            <column name="NOTIFICATION_STATUS_ID_FK" type="BIGINT"/>
-
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
-                <constraints nullable="false"/>
-            </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
-        </createTable>
-
-
-        <addForeignKeyConstraint baseColumnNames="MESSAGE_STATUS_ID_FK" baseTableName="TB_MESSAGE_LOG"
-                                 constraintName="FK_MSG_LOG_MSG_STATUS" deferrable="false" initiallyDeferred="false"
-                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
-                                 referencedTableName="TB_D_MESSAGE_STATUS"/>
-        <addForeignKeyConstraint baseColumnNames="MSH_ROLE_ID_FK" baseTableName="TB_MESSAGE_LOG"
-                                 constraintName="FK_MSG_LOG_MSH_ROLE" deferrable="false" initiallyDeferred="false"
-                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
-                                 referencedTableName="TB_D_MSH_ROLE"/>
-        <addForeignKeyConstraint baseColumnNames="NOTIFICATION_STATUS_ID_FK" baseTableName="TB_MESSAGE_LOG"
-                                 constraintName="FK_MSG_LOG_NOTIF_STATUS" deferrable="false" initiallyDeferred="false"
-                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
-                                 referencedTableName="TB_D_NOTIFICATION_STATUS"/>
-
-        <createIndex indexName="IDX_MESSAGE_LOG_RECEIVED" tableName="TB_MESSAGE_LOG">
-            <column name="RECEIVED"/>
-        </createIndex>
-        <createIndex indexName="IDX_MSG_LOG_M_STATUS_SEND_ATT" tableName="TB_MESSAGE_LOG">
-            <column name="MESSAGE_STATUS"/>
-            <column name="SEND_ATTEMPTS"/>
-        </createIndex>
-        <createIndex indexName="IDX_MSG_LOG_RCV_MSG_ID" tableName="TB_MESSAGE_LOG">
-            <column name="RECEIVED"/>
-            <column name="MESSAGE_ID"/>
-        </createIndex>
-
-        <createTable tableName="TB_MESSAGING_LOCK">
-            <column name="ID_PK" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_TB_MESSAGING_LOCK"/>
-            </column>
-            <column name="MESSAGE_TYPE" type="VARCHAR(10)"/>
-            <column name="MESSAGE_RECEIVED" type="TIMESTAMP"/>
-            <column name="MESSAGE_STATE" type="VARCHAR(10)"/>
-            <column name="MESSAGE_ID" type="VARCHAR(255)"/>
-            <column name="INITIATOR" type="VARCHAR(255)"/>
-            <column name="MPC" type="VARCHAR(255)"/>
-            <column name="SEND_ATTEMPTS" type="INT"/>
-            <column name="SEND_ATTEMPTS_MAX" type="INT"/>
-            <column name="NEXT_ATTEMPT" type="TIMESTAMP"/>
-            <column name="MESSAGE_STALED" type="TIMESTAMP"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
-                <constraints nullable="false"/>
-            </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
-        </createTable>
-        <createIndex indexName="IDX_MESSAGE_LOCK_SEARCH" tableName="TB_MESSAGING_LOCK">
-            <column name="MESSAGE_TYPE"/>
-            <column name="MESSAGE_STATE"/>
-            <column name="INITIATOR"/>
-            <column name="MPC"/>
-            <column name="NEXT_ATTEMPT"/>
-        </createIndex>
-        <createIndex indexName="IDX_MESSAGE_LOCK_UNIQUE_ID" tableName="TB_MESSAGING_LOCK" unique="true">
-            <column name="MESSAGE_ID"/>
-        </createIndex>
-
-
-        <createTable tableName="TB_PARTY_ID">
-            <column name="ID_PK" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_TB_PARTY_ID"/>
-            </column>
-            <column name="TYPE" type="VARCHAR(255)"/>
-            <column name="VALUE" type="VARCHAR(255)"/>
-            <column name="TO_ID" type="BIGINT"/>
-            <column name="FROM_ID" type="BIGINT"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
-                <constraints nullable="false"/>
-            </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
-        </createTable>
-        <createIndex indexName="FK_YLUB8LPTGVSCH02MJ71EUUIL" tableName="TB_PARTY_ID">
-            <column name="TO_ID"/>
-        </createIndex>
-        <createIndex indexName="FK_FKFTD5ORW2ETIU4GHMN3MHX9I" tableName="TB_PARTY_ID">
-            <column name="FROM_ID"/>
-        </createIndex>
-        <createIndex indexName="IDX_PARTY_ID_VALUE" tableName="TB_PARTY_ID">
-            <column name="VALUE"/>
-        </createIndex>
-
-
-
-        <createTable tableName="TB_PART_INFO">
-            <column name="ID_PK" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_TB_PART_INFO"/>
-            </column>
-            <column name="BINARY_DATA" type="LONGBLOB"/>
-            <column name="DESCRIPTION_LANG" type="VARCHAR(255)"/>
-            <column name="DESCRIPTION_VALUE" type="VARCHAR(255)"/>
-            <column name="HREF" type="VARCHAR(255)"/>
-            <column name="IN_BODY" type="BOOLEAN"/>
-            <column name="SCHEMA_LOCATION" type="VARCHAR(255)"/>
-            <column name="SCHEMA_NAMESPACE" type="VARCHAR(255)"/>
-            <column name="SCHEMA_VERSION" type="VARCHAR(255)"/>
-            <column name="PAYLOADINFO_ID" type="BIGINT"/>
-            <column name="FILENAME" type="VARCHAR(255)"/>
-            <column name="MIME" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueNumeric="0" name="PART_ORDER" type="INT">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueBoolean="false" name="ENCRYPTED" type="BOOLEAN"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
-                <constraints nullable="false"/>
-            </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
-        </createTable>
-        <createIndex indexName="FK_TQ6LBN3MP0VSFC6QQU7WXY54G" tableName="TB_PART_INFO">
-            <column name="PAYLOADINFO_ID"/>
-        </createIndex>
-
-        <createTable tableName="TB_MESSAGE_PROPERTIES">
-            <column name="ID_PK" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_TB_PROPERTY"/>
-            </column>
-            <column name="MESSAGE_ID_FK" type="BIGINT">
-                <constraints nullable="false"/>
-            </column>
-            <column name="MESSAGE_PROPERTY_FK" type="BIGINT">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
-                <constraints nullable="false"/>
-            </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
-        </createTable>
-        <addForeignKeyConstraint baseColumnNames="MESSAGE_ID_FK" baseTableName="TB_MESSAGE_PROPERTIES"
-                                 constraintName="FK_MSG_PROPS_USER_MSG" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_USER_MESSAGE"/>
-        <addForeignKeyConstraint baseColumnNames="MESSAGE_PROPERTY_FK" baseTableName="TB_MESSAGE_PROPERTIES"
-                                 constraintName="FK_MSG_PROPS_MSG_PROP" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_D_MESSAGE_PROPERTY"/>
-        <createIndex indexName="IDX_MSG_PROPS_MSG_PROP" tableName="TB_MESSAGE_PROPERTIES">
-            <column name="MESSAGE_ID_FK"/>
-        </createIndex>
-        <createIndex indexName="IDX_MSG_PROPS_MSG_PROP" tableName="TB_MESSAGE_PROPERTIES">
-            <column name="MESSAGE_PROPERTY_FK"/>
-        </createIndex>
-        <addUniqueConstraint columnNames="MESSAGE_ID_FK,MESSAGE_PROPERTY_FK" constraintName="UK_MSG_PROPS_FKS" tableName="TB_MESSAGE_PROPERTIES"/>
-
-
-
-
-        <createTable tableName="TB_USER_MESSAGE_RAW">
-            <column name="ID_PK" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_TB_RAWENVELOPE_LOG"/>
-            </column>
-            <column name="RAW_XML" type="CLOB"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
-                <constraints nullable="false"/>
-            </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
-        </createTable>
-        <addForeignKeyConstraint baseColumnNames="ID_PK" baseTableName="TB_USER_MESSAGE_RAW"
-                                 constraintName="FK_MSG_RAW_USER_MSG" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_USER_MESSAGE"/>
-
-        <createTable tableName="TB_RECEIPT">
-            <column name="ID_PK" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_TB_RECEIPT"/>
-            </column>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
-                <constraints nullable="false"/>
-            </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
-        </createTable>
-
-        <createTable tableName="TB_RECEIPT_DATA">
-            <column name="RECEIPT_ID" type="BIGINT">
-                <constraints nullable="false"/>
-            </column>
-            <column name="RAW_XML" type="CLOB"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
-                <constraints nullable="false"/>
-            </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
-        </createTable>
-        <addForeignKeyConstraint baseColumnNames="RECEIPT_ID" baseTableName="TB_RECEIPT_DATA"
-                                 constraintName="FK_8NCCAE214MVS1KH5SGCJ3Y5OY" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_RECEIPT"/>
-        <createIndex indexName="FK_8NCCAE214MVS1KH5SGCJ3Y5OY" tableName="TB_RECEIPT_DATA">
-            <column name="RECEIPT_ID"/>
-        </createIndex>
-
-        <createTable tableName="TB_SIGNAL_MESSAGE">
-            <column name="ID_PK" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_TB_SIGNAL_MESSAGE"/>
-            </column>
-            <column name="PULL_REQUEST_MPC" type="VARCHAR(255)"/>
-            <column name="MESSAGEINFO_ID_PK" type="BIGINT"/>
-            <column name="RECEIPT_ID_PK" type="BIGINT"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
-                <constraints nullable="false"/>
-            </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
-        </createTable>
-        <addForeignKeyConstraint baseColumnNames="MESSAGEINFO_ID_PK" baseTableName="TB_SIGNAL_MESSAGE"
-                                 constraintName="FK_C08LJJWI4P9DX1RJTCDBE1SFU" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_MESSAGE_INFO"/>
-        <addForeignKeyConstraint baseColumnNames="RECEIPT_ID_PK" baseTableName="TB_SIGNAL_MESSAGE"
-                                 constraintName="FK_M6UU2Y6G9BUET3O3K1N4QXWEC" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_RECEIPT"/>
-        <createIndex indexName="FK_C08LJJWI4P9DX1RJTCDBE1SFU" tableName="TB_SIGNAL_MESSAGE">
-            <column name="MESSAGEINFO_ID_PK"/>
-        </createIndex>
-        <createIndex indexName="FK_M6UU2Y6G9BUET3O3K1N4QXWEC" tableName="TB_SIGNAL_MESSAGE">
-            <column name="RECEIPT_ID_PK"/>
-        </createIndex>
-
-        <createTable tableName="TB_USER_MESSAGE">
-            <column name="ID_PK" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_TB_USER_MESSAGE"/>
-            </column>
-            <column name="MESSAGE_ID" type="VARCHAR(255)"/>
-            <column name="REF_TO_MESSAGE_ID" type="VARCHAR(255)"/>
-            <column name="CONVERSATION_ID" type="VARCHAR(255)"/>
-            <column name="SPLIT_AND_JOIN" type="BOOLEAN"/>
-            <column name="SOURCE_MESSAGE" remarks="true if the message is a SourceMessage" type="BOOLEAN"/>
-            <column name="MESSAGE_FRAGMENT" remarks="true if the message is a message fragment" type="BOOLEAN"/>
-            <column name="ACTION_ID_FK" type="BIGINT"/>
-            <column name="AGREEMENT_ID_FK" type="BIGINT"/>
-            <column name="SERVICE_ID_FK" type="BIGINT"/>
-            <column name="MPC_ID_FK" type="BIGINT"/>
-            <column name="FROM_PARTY_ID_FK" type="BIGINT"/>
-            <column name="FROM_ROLE_ID_FK" type="BIGINT"/>
-            <column name="TO_PARTY_ID_FK" type="BIGINT"/>
-            <column name="TO_ROLE_ID_FK" type="BIGINT"/>
-            <column name="MESSAGE_SUBTYPE_ID_FK" type="BIGINT"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
-                <constraints nullable="false"/>
-            </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
-        </createTable>
-
-        <addForeignKeyConstraint baseColumnNames="ACTION_ID_FK" baseTableName="TB_USER_MESSAGE"
-                                 constraintName="FK_USER_MSG_ACTION_ID" deferrable="false" initiallyDeferred="false"
-                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
-                                 referencedTableName="TB_D_ACTION"/>
-        <addForeignKeyConstraint baseColumnNames="AGREEMENT_ID_FK" baseTableName="TB_USER_MESSAGE"
-                                 constraintName="FK_USER_MSG_AGREEMENT_ID" deferrable="false" initiallyDeferred="false"
-                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
-                                 referencedTableName="TB_D_AGREEMENT"/>
-        <addForeignKeyConstraint baseColumnNames="SERVICE_ID_FK" baseTableName="TB_USER_MESSAGE"
-                                 constraintName="FK_USER_MSG_SERVICE_ID" deferrable="false" initiallyDeferred="false"
-                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
-                                 referencedTableName="TB_D_SERVICE"/>
-        <addForeignKeyConstraint baseColumnNames="MPC_ID_FK" baseTableName="TB_USER_MESSAGE"
-                                 constraintName="FK_USER_MSG_MPC_ID" deferrable="false" initiallyDeferred="false"
-                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
-                                 referencedTableName="TB_D_MPC"/>
-        <addForeignKeyConstraint baseColumnNames="FROM_PARTY_ID_FK" baseTableName="TB_USER_MESSAGE"
-                                 constraintName="FK_USER_MSG_FROM_PARTY_ID" deferrable="false" initiallyDeferred="false"
-                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
-                                 referencedTableName="TB_D_PARTY"/>
-        <addForeignKeyConstraint baseColumnNames="FROM_ROLE_ID_FK" baseTableName="TB_USER_MESSAGE"
-                                 constraintName="FK_USER_MSG_FROM_ROLE_ID" deferrable="false" initiallyDeferred="false"
-                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
-                                 referencedTableName="TB_D_ROLE"/>
-        <addForeignKeyConstraint baseColumnNames="TO_PARTY_ID_FK" baseTableName="TB_USER_MESSAGE"
-                                 constraintName="FK_USER_MSG_TO_PARTY_ID" deferrable="false" initiallyDeferred="false"
-                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
-                                 referencedTableName="TB_D_PARTY"/>
-        <addForeignKeyConstraint baseColumnNames="TO_ROLE_ID_FK" baseTableName="TB_USER_MESSAGE"
-                                 constraintName="FK_USER_MSG_TO_ROLE_ID" deferrable="false" initiallyDeferred="false"
-                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
-                                 referencedTableName="TB_D_ROLE"/>
-        <addForeignKeyConstraint baseColumnNames="MESSAGE_SUBTYPE_ID_FK" baseTableName="TB_USER_MESSAGE"
-                                 constraintName="FK_USER_MSG_SUBTYPE_ID" deferrable="false" initiallyDeferred="false"
-                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
-                                 referencedTableName="TB_D_MESSAGE_SUBTYPE"/>
-
-        <createIndex indexName="IDX_USER_MSG_ACTION_ID" tableName="TB_USER_MESSAGE">
-            <column name="ACTION_ID_FK"/>
-        </createIndex>
-        <createIndex indexName="IDX_USER_MSG_AGREEMENT_ID" tableName="TB_USER_MESSAGE">
-            <column name="AGREEMENT_ID_FK"/>
-        </createIndex>
-        <createIndex indexName="IDX_USER_MSG_SERVICE_ID" tableName="TB_USER_MESSAGE">
-            <column name="SERVICE_ID_FK"/>
-        </createIndex>
-        <createIndex indexName="IDX_USER_MSG_MPC_ID" tableName="TB_USER_MESSAGE">
-            <column name="MPC_ID_FK"/>
-        </createIndex>
-        <createIndex indexName="IDX_USER_MSG_FROM_PARTY_ID" tableName="TB_USER_MESSAGE">
-            <column name="FROM_PARTY_ID_FK"/>
-        </createIndex>
-        <createIndex indexName="IDX_FROM_ROLE_ID" tableName="TB_USER_MESSAGE">
-            <column name="FROM_ROLE_ID_FK"/>
-        </createIndex>
-        <createIndex indexName="IDX_USER_MSG_TO_PARTY_ID" tableName="TB_USER_MESSAGE">
-            <column name="TO_PARTY_ID_FK"/>
-        </createIndex>
-        <createIndex indexName="IDX_TO_ROLE_ID" tableName="TB_USER_MESSAGE">
-            <column name="TO_ROLE_ID_FK"/>
-        </createIndex>
-        <createIndex indexName="IDX_MESSAGE_SUBTYPE_ID" tableName="TB_USER_MESSAGE">
-            <column name="MESSAGE_SUBTYPE_ID_FK"/>
-        </createIndex>
-
-        <createTable tableName="TB_SEND_ATTEMPT">
-            <column name="ID_PK" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_TB_SEND_ATTEMPT"/>
-            </column>
-            <column name="MESSAGE_ID" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="START_DATE" type="DATETIME">
-                <constraints nullable="false"/>
-            </column>
-            <column name="END_DATE" type="DATETIME">
-                <constraints nullable="false"/>
-            </column>
-            <column name="STATUS" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="ERROR" type="VARCHAR(255)"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
-                <constraints nullable="false"/>
-            </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
-        </createTable>
-        <createIndex indexName="IDX_SEND_ATTEMPT_MESSAGE_ID" tableName="TB_SEND_ATTEMPT">
-            <column name="MESSAGE_ID"/>
-        </createIndex>
-    </changeSet>
-    <!--End UserMessage Tables -->
-
-    <!-- Start Miscellaneous Tables -->
-    <changeSet author="Cosmin Baciu" id="EDELIVERY-7803">
-        <createTable tableName="TB_CERTIFICATE">
-            <column name="ID_PK" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_TB_CERTIFICATE"/>
-            </column>
-            <column name="CERTIFICATE_ALIAS" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="NOT_VALID_BEFORE_DATE" type="DATETIME"/>
-            <column name="NOT_VALID_AFTER_DATE" type="DATETIME"/>
-            <column name="REVOKE_NOTIFICATION_DATE" type="TIMESTAMP"/>
-            <column name="ALERT_IMM_NOTIFICATION_DATE" type="TIMESTAMP"/>
-            <column name="ALERT_EXP_NOTIFICATION_DATE" type="TIMESTAMP"/>
-            <column name="CERTIFICATE_STATUS" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="CERTIFICATE_TYPE" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
-                <constraints nullable="false"/>
-            </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
-        </createTable>
-        <addUniqueConstraint columnNames="CERTIFICATE_ALIAS, CERTIFICATE_TYPE" constraintName="CERTIFICATE_ALIAS"
-                             tableName="TB_CERTIFICATE"/>
-
-        <createTable tableName="TB_CERTIFICATE_AUD">
-            <column name="ID_PK" type="BIGINT">
-                <constraints primaryKey="true" primaryKeyName="PK_CERTIFICATE_AUD"/>
-            </column>
-            <column name="REV" type="BIGINT">
-                <constraints primaryKey="true" primaryKeyName="PK_CERTIFICATE_AUD"/>
-            </column>
-            <column name="REVTYPE" type="TINYINT"/>
-            <column name="CERTIFICATE_ALIAS" type="VARCHAR(255)" />
-            <column name="NOT_VALID_BEFORE_DATE" type="DATETIME" />
-            <column name="NOT_VALID_AFTER_DATE" type="DATETIME" />
-            <column name="REVOKE_NOTIFICATION_DATE" type="TIMESTAMP"/>
-            <column name="ALERT_IMM_NOTIFICATION_DATE" type="TIMESTAMP"/>
-            <column name="ALERT_EXP_NOTIFICATION_DATE" type="TIMESTAMP"/>
-            <column name="CERTIFICATE_STATUS" type="VARCHAR(255)" />
-            <column name="CERTIFICATE_TYPE" type="VARCHAR(255)" />
-        </createTable>
-        <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_CERTIFICATE_AUD"
-                                 constraintName="FK_CERTIFICATE_AUD_REV" deferrable="false"
-                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID" referencedTableName="TB_REV_INFO"/>
-        <createIndex indexName="IDX_FK_CERTIFICATE_AUD_REV" tableName="TB_CERTIFICATE_AUD">
-            <column name="REV"/>
-        </createIndex>
-
-        <createTable tableName="TB_COMMAND" remarks="Stores commands to be executed by different nodes in clustered environments">
-            <column name="ID_PK" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_TB_COMMAND"/>
-            </column>
-            <column name="SERVER_NAME" type="VARCHAR(255)" remarks="The target server name">
-                <constraints nullable="false"/>
-            </column>
-            <column name="COMMAND_NAME" type="VARCHAR(255)" remarks="The command name">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
-                <constraints nullable="false"/>
-            </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
-        </createTable>
-
-        <createTable tableName="TB_COMMAND_PROPERTY" remarks="Stores properties/parameters of the commands to be executed by different nodes in clustered environments">
-            <column name="PROPERTY_NAME" type="VARCHAR(50)" remarks="The property name">
-                <constraints nullable="false"/>
-            </column>
-            <column name="PROPERTY_VALUE" type="VARCHAR(255)" remarks="The property value"/>
-            <column name="FK_COMMAND" type="BIGINT" remarks="Reference to the parent command">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
-                <constraints nullable="false"/>
-            </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
-        </createTable>
-        <addForeignKeyConstraint baseColumnNames="FK_COMMAND" baseTableName="TB_COMMAND_PROPERTY"
-                                 constraintName="FK_COMMAND_PROPERTY_ID" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
-                                 referencedColumnNames="ID_PK" referencedTableName="TB_COMMAND"/>
-        <addUniqueConstraint columnNames="FK_COMMAND, PROPERTY_NAME" constraintName="UNI_COMMAND_PROP_NAME"
-                             tableName="TB_COMMAND_PROPERTY"/>
-
-        <createTable tableName="TB_ENCRYPTION_KEY">
-            <column name="ID_PK" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_TB_ENCRYPTION_KEY"/>
-            </column>
-            <column name="KEY_USAGE" type="VARCHAR(255)"/>
-            <column name="SECRET_KEY" type="BLOB">
-                <constraints nullable="false"/>
-            </column>
-            <column name="INIT_VECTOR" type="BLOB">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
-                <constraints nullable="false"/>
-            </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
-        </createTable>
-        <addUniqueConstraint columnNames="KEY_USAGE" constraintName="UQ_KEY_USAGE" tableName="TB_ENCRYPTION_KEY"/>
-
-        <createTable tableName="TB_ERROR_LOG">
-            <column name="ID_PK" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_TB_ERROR_LOG"/>
-            </column>
-            <column name="ERROR_CODE" type="VARCHAR(255)"/>
-            <column name="ERROR_DETAIL" type="VARCHAR(255)"/>
-            <column name="ERROR_SIGNAL_MESSAGE_ID" type="VARCHAR(255)"/>
-            <column name="MESSAGE_IN_ERROR_ID" type="VARCHAR(255)"/>
-            <column name="MSH_ROLE" type="BIGINT"/>
-            <column name="NOTIFIED" type="TIMESTAMP"/>
-            <column name="TIME_STAMP" type="TIMESTAMP"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
-                <constraints nullable="false"/>
-            </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
-        </createTable>
-        <createIndex indexName="IDX_MESSAGE_IN_ERROR_ID" tableName="TB_ERROR_LOG">
-            <column name="MESSAGE_IN_ERROR_ID"/>
-        </createIndex>
-
-        <createTable tableName="TB_REV_CHANGES">
-            <column name="ID_PK" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_TB_REV_CHANGES"/>
-            </column>
-            <column name="REV" type="BIGINT"/>
-            <column name="AUDIT_ORDER" type="INT"/>
-            <column name="ENTIY_NAME" type="VARCHAR(255)"/>
-            <column name="GROUP_NAME" type="VARCHAR(255)"/>
-            <column name="ENTITY_ID" type="VARCHAR(255)"/>
-            <column name="MODIFICATION_TYPE" type="VARCHAR(255)"/>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
-                <constraints nullable="false"/>
-            </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
-        </createTable>
-        <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_REV_CHANGES"
-                                 constraintName="FK_REV_CHANGES_REV" deferrable="false" initiallyDeferred="false"
-                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID"
-                                 referencedTableName="TB_REV_INFO"/>
-        <createIndex indexName="FK_REV_CHANGES_REV" tableName="TB_REV_CHANGES">
-            <column name="REV"/>
-        </createIndex>
-
-        <createTable tableName="TB_REV_INFO">
-            <column name="ID" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_TB_REV_INFO"/>
-            </column>
-            <column name="TIMESTAMP" type="BIGINT"/>
-            <column name="REVISION_DATE" type="TIMESTAMP"/>
-            <column name="USER_NAME" type="VARCHAR(255)"/>
-        </createTable>
-
-
-
-        <createTable tableName="TB_VERSION" remarks="Stores Domibus version">
-            <column name="VERSION" type="VARCHAR(30)" remarks="Domibus Version"/>
-            <column name="BUILD_TIME" type="VARCHAR(30)" remarks="Domibus BuildTime"/>
-            <column name="CREATION_TIME" type="TIMESTAMP" defaultValueComputed="${now}" remarks="The date and time when this record was created">
-                <constraints nullable="false"/>
-            </column>
-        </createTable>
-        <addUniqueConstraint columnNames="VERSION" tableName="TB_VERSION" constraintName="UQ_VERSION" />
-    </changeSet>
-
-    <!-- Start UI Replication Tables -->
-    <changeSet author="Catalin Enache" id="1564477107969-325">
-        <comment>create AUDIT views</comment>
-
-        <createTable tableName="TB_MESSAGE_UI">
-            <column name="ID_PK" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_TB_MESSAGE_UI"/>
-            </column>
-            <column name="MESSAGE_ID" type="VARCHAR(255)"/>
-            <column name="MESSAGE_STATUS" type="VARCHAR(255)"/>
-            <column name="NOTIFICATION_STATUS" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="MSH_ROLE" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="MESSAGE_TYPE" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="DELETED" type="TIMESTAMP"/>
-            <column name="RECEIVED" type="TIMESTAMP"/>
-            <column name="SEND_ATTEMPTS" type="INT"/>
-            <column name="SEND_ATTEMPTS_MAX" type="INT"/>
-            <column name="NEXT_ATTEMPT" type="TIMESTAMP"/>
-            <column name="CONVERSATION_ID" type="VARCHAR(255)"/>
-            <column name="FROM_ID" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="TO_ID" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="FROM_SCHEME" type="VARCHAR(255)"/>
-            <column name="TO_SCHEME" type="VARCHAR(255)"/>
-            <column name="REF_TO_MESSAGE_ID" type="VARCHAR(255)"/>
-            <column name="FAILED" type="TIMESTAMP"/>
-            <column name="RESTORED" type="TIMESTAMP"/>
-            <column name="MESSAGE_SUBTYPE" type="VARCHAR(255)"/>
-            <column name="ACTION" type="VARCHAR(255)"/>
-            <column name="SERVICE_TYPE" type="VARCHAR(255)"/>
-            <column name="SERVICE_VALUE" type="VARCHAR(255)"/>
-            <column defaultValueComputed="${now}" name="LAST_MODIFIED" type="TIMESTAMP">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
-                <constraints nullable="false"/>
-            </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
-        </createTable>
-        <createIndex indexName="IDX_MSG_UI_CONV_ID" tableName="TB_MESSAGE_UI">
-            <column name="CONVERSATION_ID"/>
-        </createIndex>
-
-        <createIndex indexName="IDX_MSG_UI_FROM_ID" tableName="TB_MESSAGE_UI">
-            <column name="FROM_ID"/>
-        </createIndex>
-        <createIndex indexName="IDX_MSG_UI_FROM_SCHEME" tableName="TB_MESSAGE_UI">
-            <column name="FROM_SCHEME"/>
-        </createIndex>
-        <createIndex indexName="IDX_MSG_UI_MSH_ROLE" tableName="TB_MESSAGE_UI">
-            <column name="MSH_ROLE"/>
-        </createIndex>
-        <createIndex indexName="IDX_MSG_UI_REF_MSG_ID" tableName="TB_MESSAGE_UI">
-            <column name="REF_TO_MESSAGE_ID"/>
-        </createIndex>
-        <createIndex indexName="IDX_MSG_UI_STS_TYPE_STYPE_RCV" tableName="TB_MESSAGE_UI">
-            <column name="MESSAGE_STATUS"/>
-            <column name="MESSAGE_TYPE"/>
-            <column name="MESSAGE_SUBTYPE"/>
-            <column name="RECEIVED"/>
-        </createIndex>
-        <createIndex indexName="IDX_MSG_UI_TO_ID" tableName="TB_MESSAGE_UI">
-            <column name="TO_ID"/>
-        </createIndex>
-        <createIndex indexName="IDX_MSG_UI_TO_SCHEME" tableName="TB_MESSAGE_UI">
-            <column name="TO_SCHEME"/>
-        </createIndex>
-        <createIndex indexName="IDX_MSG_UI_TYPE_RCV" tableName="TB_MESSAGE_UI">
-            <column name="MESSAGE_TYPE"/>
-            <column name="RECEIVED"/>
-        </createIndex>
-        <createIndex indexName="IDX_MSG_UI_TYPE_STYPE_RCV" tableName="TB_MESSAGE_UI">
-            <column name="MESSAGE_TYPE"/>
-            <column name="MESSAGE_SUBTYPE"/>
-            <column name="RECEIVED"/>
-        </createIndex>
-        <createIndex indexName="IDX_MSG_UI_ACTION" tableName="TB_MESSAGE_UI">
-            <column name="ACTION"/>
-        </createIndex>
-        <createIndex indexName="IDX_MSG_UI_SRV_TYPE" tableName="TB_MESSAGE_UI">
-            <column name="SERVICE_TYPE"/>
-        </createIndex>
-        <createIndex indexName="IDX_MSG_UI_SRV_VAL" tableName="TB_MESSAGE_UI">
-            <column name="SERVICE_VALUE"/>
-        </createIndex>
-        <addUniqueConstraint columnNames="MESSAGE_ID" constraintName="UNI_MSG_UI_MSG_ID" tableName="TB_MESSAGE_UI"/>
-        <createView
-                replaceIfExists="true"
-                viewName="V_AUDIT_DETAIL">
-            SELECT
-            DISTINCT rc.GROUP_NAME as AUDIT_TYPE ,
-            rc.MODIFICATION_TYPE as ACTION_TYPE,
-            ri.USER_NAME as USER_NAME ,
-            ri.REVISION_DATE as AUDIT_DATE,
-            TRIM(CAST(rc.ENTITY_ID AS CHAR(255))) AS ID,
-            TRIM(CAST(ri.ID AS CHAR(19))) AS REV_ID
-            FROM TB_REV_INFO ri, TB_REV_CHANGES rc
-            WHERE ri.ID=rc.REV
-            UNION
-            SELECT aa.AUDIT_TYPE,aa.MODIFICATION_TYPE,aa.USER_NAME,aa.REVISION_DATE,aa.ENTITY_ID,'1' FROM
-            TB_ACTION_AUDIT aa
-        </createView>
-        <createView
-                replaceIfExists="true"
-                viewName="V_AUDIT">
-            SELECT *
-            FROM V_AUDIT_DETAIL VAD
-            ORDER BY VAD.AUDIT_DATE DESC;
-        </createView>
-    </changeSet>
-    <changeSet id="EDELIVERY-3361-1" author="CatalinEnache" dbms="oracle">
-        <comment>create UI Replication view</comment>
-        <createView
-                replaceIfExists="true"
-                viewName="V_MESSAGE_UI_DIFF">
-            SELECT
-            message_id,
-            message_status,
-            notification_status,
-            msh_role,
-            message_type,
-            deleted,
-            received,
-            send_attempts,
-            send_attempts_max,
-            next_attempt,
-            conversation_id,
-            from_id,
-            to_id,
-            from_scheme,
-            to_scheme,
-            ref_to_message_id,
-            failed,
-            restored,
-            message_subtype,
-            action,
-            service_type,
-            service_value
-            FROM
-            (
-            SELECT
-            message_log.message_id,
-            message_log.message_status,
-            message_log.notification_status,
-            message_log.msh_role,
-            message_log.message_type,
-            message_log.deleted,
-            message_log.received,
-            message_log.send_attempts,
-            message_log.send_attempts_max,
-            message_log.next_attempt,
-            user_message.coll_info_convers_id AS conversation_id,
-            partyid5_.value AS from_id,
-            partyid6_.value AS to_id,
-            property.value AS from_scheme,
-            property2.value AS to_scheme,
-            message_info.ref_to_message_id,
-            message_log.failed,
-            message_log.restored,
-            message_log.message_subtype,
-            user_message.collaboration_info_action AS action,
-            user_message.service_type,
-            user_message.service_value
-            FROM
-            tb_message_log message_log
-            LEFT OUTER JOIN tb_message_info message_info ON message_log.message_id =
-            message_info.message_id,tb_user_message user_message
-            LEFT OUTER JOIN tb_property property ON user_message.id_pk = property.messageproperties_id
-            LEFT OUTER JOIN tb_property property2 ON user_message.id_pk = property2.messageproperties_id
-            LEFT OUTER JOIN tb_party_id partyid5_ ON user_message.id_pk = partyid5_.from_id
-            LEFT OUTER JOIN tb_party_id partyid6_ ON user_message.id_pk = partyid6_.to_id
-            WHERE
-            user_message.messageinfo_id_pk = message_info.id_pk
-            AND property.name = 'originalSender'
-            AND property2.name = 'finalRecipient'
-            UNION
-            SELECT
-            message_log.message_id,
-            message_log.message_status,
-            message_log.notification_status,
-            message_log.msh_role,
-            message_log.message_type,
-            message_log.deleted,
-            message_log.received,
-            message_log.send_attempts,
-            message_log.send_attempts_max,
-            message_log.next_attempt,
-            '' AS conversation_id,
-            partyid7_.value AS from_id,
-            partyid8_.value AS to_id,
-            property.value AS from_scheme,
-            property2.value AS to_scheme,
-            message_info.ref_to_message_id,
-            message_log.failed,
-            message_log.restored,
-            message_log.message_subtype,
-            null as action,
-            null as service_type,
-            null as service_value
-            FROM
-            tb_message_log message_log
-            CROSS JOIN tb_messaging messaging
-            INNER JOIN tb_signal_message signalmess2_ ON messaging.signal_message_id = signalmess2_.id_pk
-            LEFT OUTER JOIN tb_message_info message_info ON signalmess2_.messageinfo_id_pk = message_info.id_pk
-            INNER JOIN tb_user_message user_message ON messaging.user_message_id = user_message.id_pk
-            LEFT OUTER JOIN tb_property property ON user_message.id_pk = property.messageproperties_id
-            LEFT OUTER JOIN tb_property property2 ON user_message.id_pk = property2.messageproperties_id
-            LEFT OUTER JOIN tb_party_id partyid7_ ON user_message.id_pk = partyid7_.from_id
-            LEFT OUTER JOIN tb_party_id partyid8_ ON user_message.id_pk = partyid8_.to_id
-            CROSS JOIN tb_message_info message_info2
-            WHERE
-            user_message.messageinfo_id_pk = message_info2.id_pk
-            AND message_info.message_id = message_log.message_id
-            AND message_info.ref_to_message_id = message_info2.message_id
-            AND property.name = 'originalSender'
-            AND property2.name = 'finalRecipient'
-            ) result WHERE result.received BETWEEN systimestamp - INTERVAL '48' HOUR AND systimestamp + INTERVAL '1'
-            HOUR
-            MINUS
-            SELECT
-            message_id,
-            message_status,
-            notification_status,
-            msh_role,
-            message_type,
-            deleted,
-            received,
-            send_attempts,
-            send_attempts_max,
-            next_attempt,
-            conversation_id,
-            from_id,
-            to_id,
-            from_scheme,
-            to_scheme,
-            ref_to_message_id,
-            failed,
-            restored,
-            message_subtype,
-            action,
-            service_type,
-            service_value
-            FROM
-            TB_MESSAGE_UI WHERE
-            received BETWEEN systimestamp - INTERVAL '48' HOUR AND systimestamp + INTERVAL '1' HOUR
-        </createView>
-    </changeSet>
-    <changeSet id="EDELIVERY-3361-2" author="CatalinEnache" dbms="mysql">
-        <createView
-                replaceIfExists="true"
-                viewName="V_MESSAGE_UI_DIFF">
-            SELECT
-            message_log.MESSAGE_ID,
-            message_log.MESSAGE_STATUS,
-            message_log.NOTIFICATION_STATUS,
-            message_log.MSH_ROLE,
-            message_log.MESSAGE_TYPE,
-            message_log.DELETED,
-            message_log.RECEIVED,
-            message_log.SEND_ATTEMPTS,
-            message_log.SEND_ATTEMPTS_MAX,
-            message_log.NEXT_ATTEMPT,
-            user_message.COLL_INFO_CONVERS_ID AS CONVERSATION_ID,
-            partyid5_.VALUE AS FROM_ID,
-            partyid6_.VALUE AS TO_ID,
-            property3_.VALUE AS FROM_SCHEME,
-            property4_.VALUE AS TO_SCHEME,
-            message_info.REF_TO_MESSAGE_ID,
-            message_log.FAILED,
-            message_log.RESTORED,
-            message_log.MESSAGE_SUBTYPE,
-            user_message.COLLABORATION_INFO_ACTION AS ACTION,
-            user_message.SERVICE_TYPE,
-            user_message.SERVICE_VALUE
-            FROM
-            TB_MESSAGE_LOG message_log
-            LEFT OUTER JOIN TB_MESSAGE_INFO message_info ON message_log.MESSAGE_ID = message_info.MESSAGE_ID
-            CROSS JOIN TB_USER_MESSAGE user_message
-            LEFT OUTER JOIN TB_PROPERTY property3_ ON user_message.ID_PK = property3_.MESSAGEPROPERTIES_ID
-            LEFT OUTER JOIN TB_PROPERTY property4_ ON user_message.ID_PK = property4_.MESSAGEPROPERTIES_ID
-            LEFT OUTER JOIN TB_PARTY_ID partyid5_ ON user_message.ID_PK = partyid5_.FROM_ID
-            LEFT OUTER JOIN TB_PARTY_ID partyid6_ ON user_message.ID_PK = partyid6_.TO_ID
-
-            LEFT JOIN TB_MESSAGE_UI flat_table ON message_log.message_id &lt;=&gt; flat_table.message_id
-            AND message_log.message_Status &lt;=&gt; flat_table.message_status
-            AND message_log.NOTIFICATION_STATUS &lt;=&gt; flat_table.NOTIFICATION_STATUS
-            AND message_log.MSH_ROLE &lt;=&gt; flat_table.MSH_ROLE
-            AND message_log.MESSAGE_TYPE &lt;=&gt; flat_table.MESSAGE_TYPE
-            AND message_log.DELETED &lt;=&gt; flat_table.DELETED
-            AND message_log.RECEIVED &lt;=&gt; flat_table.RECEIVED
-            AND message_log.SEND_ATTEMPTS &lt;=&gt; flat_table.SEND_ATTEMPTS
-            AND message_log.SEND_ATTEMPTS_MAX &lt;=&gt; flat_table.SEND_ATTEMPTS_MAX
-            AND message_log.NEXT_ATTEMPT &lt;=&gt; flat_table.NEXT_ATTEMPT
-            AND user_message.COLL_INFO_CONVERS_ID &lt;=&gt; flat_table.CONVERSATION_ID
-            AND partyid5_.VALUE &lt;=&gt; flat_table.FROM_ID
-            AND partyid6_.VALUE &lt;=&gt; flat_table.TO_ID
-            AND property3_.VALUE &lt;=&gt; flat_table.FROM_SCHEME
-            AND property4_.VALUE &lt;=&gt; flat_table.TO_SCHEME
-            AND message_info.REF_TO_MESSAGE_ID &lt;=&gt; flat_table.REF_TO_MESSAGE_ID
-            AND message_log.FAILED &lt;=&gt; flat_table.FAILED
-            AND message_log.RESTORED &lt;=&gt; flat_table.RESTORED
-            AND message_log.MESSAGE_SUBTYPE &lt;=&gt; flat_table.MESSAGE_SUBTYPE
-            AND user_message.COLLABORATION_INFO_ACTION &lt;=&gt; flat_table.ACTION
-            AND user_message.SERVICE_TYPE &lt;=&gt; flat_table.SERVICE_TYPE
-            AND user_message.SERVICE_VALUE &lt;=&gt; flat_table.SERVICE_VALUE
-            WHERE
-            user_message.messageInfo_ID_PK = message_info.ID_PK
-            AND property3_.NAME = 'originalSender'
-            AND property4_.NAME = 'finalRecipient'
-            AND message_log.received BETWEEN DATE_SUB(NOW(), INTERVAL 48 HOUR) AND DATE_ADD(NOW(), INTERVAL 1 HOUR)
-            AND flat_table.message_id IS NULL
-
-            UNION
-
-            SELECT
-            message_log.MESSAGE_ID,
-            message_log.MESSAGE_STATUS,
-            message_log.NOTIFICATION_STATUS,
-            message_log.MSH_ROLE,
-            message_log.MESSAGE_TYPE,
-            message_log.DELETED,
-            message_log.RECEIVED,
-            message_log.SEND_ATTEMPTS,
-            message_log.SEND_ATTEMPTS_MAX,
-            message_log.NEXT_ATTEMPT,
-            '' AS CONVERSATION_ID,
-            partyid7_.VALUE AS FROM_ID,
-            partyid8_.VALUE AS TO_ID,
-            property5_.VALUE AS FROM_SCHEME,
-            property6_.VALUE AS TO_SCHEME,
-            messageinf4_.REF_TO_MESSAGE_ID,
-            message_log.FAILED,
-            message_log.RESTORED,
-            message_log.MESSAGE_SUBTYPE,
-            NULL AS ACTION,
-            NULL AS SERVICE_TYPE,
-            NULL AS SERVICE_VALUE
-            FROM
-            TB_MESSAGE_LOG message_log
-            CROSS JOIN TB_MESSAGING messaging
-            INNER JOIN TB_SIGNAL_MESSAGE signalmess2_ ON messaging.SIGNAL_MESSAGE_ID = signalmess2_.ID_PK
-            LEFT OUTER JOIN TB_MESSAGE_INFO messageinf4_ ON signalmess2_.messageInfo_ID_PK = messageinf4_.ID_PK
-            INNER JOIN TB_USER_MESSAGE usermessag3_ ON messaging.USER_MESSAGE_ID = usermessag3_.ID_PK
-            LEFT OUTER JOIN TB_PROPERTY property5_ ON usermessag3_.ID_PK = property5_.MESSAGEPROPERTIES_ID
-            LEFT OUTER JOIN TB_PROPERTY property6_ ON usermessag3_.ID_PK = property6_.MESSAGEPROPERTIES_ID
-            LEFT OUTER JOIN TB_PARTY_ID partyid7_ ON usermessag3_.ID_PK = partyid7_.FROM_ID
-            LEFT OUTER JOIN TB_PARTY_ID partyid8_ ON usermessag3_.ID_PK = partyid8_.TO_ID
-            CROSS JOIN TB_MESSAGE_INFO messageinf11_
-
-            LEFT JOIN TB_MESSAGE_UI flat_table ON message_log.message_id &lt;=&gt; flat_table.message_id
-            AND message_log.message_Status &lt;=&gt; flat_table.message_status
-            AND message_log.NOTIFICATION_STATUS &lt;=&gt; flat_table.NOTIFICATION_STATUS
-            AND message_log.MSH_ROLE &lt;=&gt; flat_table.MSH_ROLE
-            AND message_log.MESSAGE_TYPE &lt;=&gt; flat_table.MESSAGE_TYPE
-            AND message_log.DELETED &lt;=&gt; flat_table.DELETED
-            AND message_log.RECEIVED &lt;=&gt; flat_table.RECEIVED
-            AND message_log.SEND_ATTEMPTS &lt;=&gt; flat_table.SEND_ATTEMPTS
-            AND message_log.SEND_ATTEMPTS_MAX &lt;=&gt; flat_table.SEND_ATTEMPTS_MAX
-            AND message_log.NEXT_ATTEMPT &lt;=&gt; flat_table.NEXT_ATTEMPT
-            AND '' &lt;=&gt; flat_table.CONVERSATION_ID
-            AND partyid7_.VALUE &lt;=&gt; flat_table.FROM_ID
-            AND partyid8_.VALUE &lt;=&gt; flat_table.TO_ID
-            AND property5_.VALUE &lt;=&gt; flat_table.FROM_SCHEME
-            AND property6_.VALUE &lt;=&gt; flat_table.TO_SCHEME
-            AND messageinf4_.REF_TO_MESSAGE_ID &lt;=&gt; flat_table.REF_TO_MESSAGE_ID
-            AND message_log.FAILED &lt;=&gt; flat_table.FAILED
-            AND message_log.RESTORED &lt;=&gt; flat_table.RESTORED
-            AND message_log.MESSAGE_SUBTYPE &lt;=&gt; flat_table.MESSAGE_SUBTYPE
-            WHERE
-            usermessag3_.messageInfo_ID_PK = messageinf11_.ID_PK
-            AND messageinf4_.MESSAGE_ID = message_log.MESSAGE_ID
-            AND messageinf4_.REF_TO_MESSAGE_ID = messageinf11_.MESSAGE_ID
-            AND property5_.NAME = 'originalSender'
-            AND property6_.NAME = 'finalRecipient'
-            AND message_log.received BETWEEN DATE_SUB(NOW(), INTERVAL 48 HOUR) AND DATE_ADD(NOW(), INTERVAL 1 HOUR)
-            AND flat_table.message_id IS NULL;
-        </createView>
-    </changeSet>
-    <!-- End UI Replication Tables -->
 
 
     <!-- inserts -->
