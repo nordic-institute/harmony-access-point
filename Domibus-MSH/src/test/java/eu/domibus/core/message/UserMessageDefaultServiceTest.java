@@ -1,11 +1,11 @@
 package eu.domibus.core.message;
 
-import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.message.UserMessageException;
 import eu.domibus.api.messaging.MessageNotFoundException;
 import eu.domibus.api.model.*;
+import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pmode.PModeService;
 import eu.domibus.api.pmode.PModeServiceHelper;
@@ -14,24 +14,23 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.core.audit.AuditService;
-import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.converter.DomibusCoreMapper;
+import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.jms.DelayedDispatchMessageCreator;
 import eu.domibus.core.jms.DispatchMessageCreator;
+import eu.domibus.core.message.acknowledge.MessageAcknowledgementDao;
+import eu.domibus.core.message.attempt.MessageAttemptDao;
 import eu.domibus.core.message.converter.MessageConverterService;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.message.splitandjoin.MessageGroupDao;
-import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
 import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
-import eu.domibus.core.error.ErrorLogDao;
-import eu.domibus.core.message.acknowledge.MessageAcknowledgementDao;
-import eu.domibus.core.message.attempt.MessageAttemptDao;
-import eu.domibus.core.replication.UIMessageDao;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.core.pmode.provider.PModeProvider;
+import eu.domibus.core.replication.UIMessageDao;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.messaging.MessagingProcessingException;
 import mockit.*;
@@ -106,7 +105,7 @@ public class UserMessageDefaultServiceTest {
     private JMSManager jmsManager;
 
     @Injectable
-    DomainCoreConverter domainConverter;
+    DomibusCoreMapper coreMapper;
 
     @Injectable
     PModeService pModeService;

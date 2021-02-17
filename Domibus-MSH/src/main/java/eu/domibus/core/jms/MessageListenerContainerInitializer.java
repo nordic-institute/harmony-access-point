@@ -2,7 +2,7 @@ package eu.domibus.core.jms;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.jms.multitenancy.DomainMessageListenerContainer;
 import eu.domibus.core.jms.multitenancy.DomainMessageListenerContainerFactory;
 import eu.domibus.core.jms.multitenancy.MessageListenerContainerConfiguration;
@@ -52,7 +52,7 @@ public class MessageListenerContainerInitializer {
     protected DomainService domainService;
 
     @Autowired
-    protected DomainCoreConverter domainConverter;
+    protected DomibusCoreMapper coreMapper;
 
     @Autowired
     protected UserMessagePriorityService userMessagePriorityService;
@@ -107,7 +107,7 @@ public class MessageListenerContainerInitializer {
      * @param domain
      */
     protected void createMessageListenersForPlugins(Domain domain) {
-        DomainDTO domainDTO = domainConverter.convert(domain, DomainDTO.class);
+        DomainDTO domainDTO = coreMapper.domainToDomainDTO(domain);
 
         final Map<String, PluginMessageListenerContainer> beansOfType = applicationContext.getBeansOfType(PluginMessageListenerContainer.class);
 

@@ -1,6 +1,5 @@
 package eu.domibus.core.message;
 
-import eu.domibus.api.model.*;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JMSMessageBuilder;
@@ -8,6 +7,7 @@ import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.message.UserMessageException;
 import eu.domibus.api.messaging.MessageNotFoundException;
 import eu.domibus.api.messaging.MessagingException;
+import eu.domibus.api.model.*;
 import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pmode.PModeService;
@@ -18,7 +18,7 @@ import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.audit.AuditService;
-import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
 import eu.domibus.core.error.ErrorLogDao;
@@ -148,7 +148,7 @@ public class UserMessageDefaultService implements UserMessageService {
     private MessageExchangeService messageExchangeService;
 
     @Autowired
-    private DomainCoreConverter domainConverter;
+    private DomibusCoreMapper domibusCoreMapper;
 
     @Autowired
     protected DomainContextProvider domainContextProvider;
@@ -532,7 +532,7 @@ public class UserMessageDefaultService implements UserMessageService {
         if (userMessageByMessageId == null) {
             return null;
         }
-        return domainConverter.convert(userMessageByMessageId, eu.domibus.api.usermessage.domain.UserMessage.class);
+        return domibusCoreMapper.userMessageToUserMessageApi(userMessageByMessageId);
     }
 
     @Transactional

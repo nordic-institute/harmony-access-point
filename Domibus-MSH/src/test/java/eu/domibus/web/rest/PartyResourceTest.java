@@ -6,9 +6,9 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.party.Party;
 import eu.domibus.api.party.PartyService;
 import eu.domibus.api.pki.CertificateService;
-import eu.domibus.api.security.TrustStoreEntry;
-import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.api.pki.MultiDomainCryptoService;
+import eu.domibus.api.security.TrustStoreEntry;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.party.CertificateContentRo;
@@ -43,7 +43,7 @@ import static org.junit.Assert.assertEquals;
 public class PartyResourceTest {
 
     @Injectable
-    private DomainCoreConverter domainConverter;
+    private DomibusCoreMapper coreMapper;
 
     @Injectable
     private PartyService partyService;
@@ -83,7 +83,7 @@ public class PartyResourceTest {
         final List<PartyResponseRo> partyResponseRos = Lists.newArrayList(partyResponseRo);
         new Expectations(partyResource) {{
 
-            domainConverter.convert(withAny(new ArrayList<>()), PartyResponseRo.class);
+            coreMapper.partyListToPartyResponseRoList(withAny(new ArrayList<>()));
             result = partyResponseRos;
             times = 1;
 
@@ -160,7 +160,7 @@ public class PartyResourceTest {
         final List<ProcessRo> procs = Lists.newArrayList(proc1, proc2);
 
         new Expectations(partyResource) {{
-            domainConverter.convert(withAny(new ArrayList<>()), ProcessRo.class);
+            coreMapper.processAPIListToProcessRoList(withAny(new ArrayList<>()));
             result = procs;
             times = 1;
         }};
@@ -186,7 +186,7 @@ public class PartyResourceTest {
         final String partyName = "party1";
 
         new Expectations(partyResource) {{
-            domainConverter.convert(withAny(tre), TrustStoreRO.class);
+            coreMapper.trustStoreEntryToTrustStoreRO(withAny(tre));
             result = tr;
             times = 1;
         }};
@@ -216,7 +216,7 @@ public class PartyResourceTest {
         cert.setContent(certContent);
 
         new Expectations(partyResource) {{
-            domainConverter.convert(withAny(tre), TrustStoreRO.class);
+            coreMapper.trustStoreEntryToTrustStoreRO(withAny(tre));
             result = tr;
             times = 1;
 
@@ -272,7 +272,7 @@ public class PartyResourceTest {
         List<Party> partyList = Arrays.asList(party);
 
         new Expectations(partyResource) {{
-            domainConverter.convert(partiesRo, Party.class);
+            coreMapper.partyResponseRoListToPartyList(partiesRo);
             result = partyList;
             partyService.updateParties(partyList, (Map<String, String>) any);
             times = 1;

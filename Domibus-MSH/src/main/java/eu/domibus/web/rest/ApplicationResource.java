@@ -8,7 +8,7 @@ import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.core.cache.DomibusCacheService;
-import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.property.DomibusVersionService;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.ro.DomainRO;
@@ -55,7 +55,7 @@ public class ApplicationResource {
     protected DomainService domainService;
 
     @Autowired
-    protected DomainCoreConverter domainCoreConverter;
+    protected DomibusCoreMapper coreMapper;
 
     @Autowired
     protected DomainContextProvider domainContextProvider;
@@ -121,7 +121,7 @@ public class ApplicationResource {
     @RequestMapping(value = "domains", method = RequestMethod.GET)
     public List<DomainRO> getDomains() {
         LOG.debug("Getting domains");
-        return domainCoreConverter.convert(domainService.getDomains(), DomainRO.class);
+        return coreMapper.domainListToDomainROList(domainService.getDomains());
     }
 
     @RequestMapping(value = "fourcornerenabled", method = RequestMethod.GET)

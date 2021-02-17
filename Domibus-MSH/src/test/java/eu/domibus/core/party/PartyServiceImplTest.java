@@ -3,13 +3,17 @@ package eu.domibus.core.party;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import eu.domibus.api.ebms3.Ebms3Constants;
+import eu.domibus.api.ebms3.MessageExchangePattern;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.party.Identifier;
 import eu.domibus.api.party.Party;
+import eu.domibus.api.pki.CertificateEntry;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.DomibusCertificateException;
+import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.pmode.PModeArchiveInfo;
 import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.pmode.PModeValidationException;
@@ -17,14 +21,10 @@ import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.api.process.Process;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.model.configuration.*;
-import eu.domibus.core.converter.DomainCoreConverter;
-import eu.domibus.api.pki.CertificateEntry;
-import eu.domibus.api.pki.MultiDomainCryptoService;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.ebms3.EbMS3Exception;
-import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
-import eu.domibus.api.ebms3.MessageExchangePattern;
 import eu.domibus.messaging.XmlProcessingException;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -50,7 +50,7 @@ import static org.junit.Assert.*;
 public class PartyServiceImplTest {
 
     @Injectable
-    private DomainCoreConverter domainCoreConverter;
+    private DomibusCoreMapper coreMapper;
 
     @Injectable
     private PModeProvider pModeProvider;
@@ -156,7 +156,7 @@ public class PartyServiceImplTest {
             result = partyEntities;
             pModeProvider.findAllProcesses();
             result = processEntities;
-            domainCoreConverter.convert(partyEntities, Party.class);
+            coreMapper.configurationPartyListToPartyList(partyEntities);
             result = parties;
             partyService.linkProcessWithPartyAsInitiator(withAny(new HashMap<>()), processEntities);
             times = 1;
@@ -210,7 +210,7 @@ public class PartyServiceImplTest {
             processEntity.getInitiatorParties();
             result = responderParties;
 
-            domainCoreConverter.convert(processEntity, Process.class);
+            coreMapper.processToProcessAPI(processEntity);
             result = process;
         }};
         partyService.linkProcessWithPartyAsInitiator(partyMap, processes);
@@ -239,7 +239,7 @@ public class PartyServiceImplTest {
             processEntity.getResponderParties();
             result = responderParties;
 
-            domainCoreConverter.convert(processEntity, Process.class);
+            coreMapper.processToProcessAPI(processEntity);
             result = process;
         }};
         partyService.linkProcessWithPartyAsResponder(partyMap, processes);
@@ -422,7 +422,7 @@ public class PartyServiceImplTest {
             replacement.getName();
             result = "replacementParty"; // update the replacement party
 
-            domainCoreConverter.convert(replacements, eu.domibus.common.model.configuration.Party.class);
+            coreMapper.partyListToConfigurationPartyList(replacements);
             result = convertedForReplacement;
 
             configurationParties.getParty();
@@ -465,7 +465,7 @@ public class PartyServiceImplTest {
             converted.getIdentifiers();
             result = identifiers;
 
-            domainCoreConverter.convert(replacements, eu.domibus.common.model.configuration.Party.class);
+            coreMapper.partyListToConfigurationPartyList(replacements);
             result = convertedForReplacement;
 
             configurationParties.getParty();
@@ -522,7 +522,7 @@ public class PartyServiceImplTest {
             replacement.getProcessesWithPartyAsInitiator();
             result = Lists.newArrayList(process);
 
-            domainCoreConverter.convert(replacements, eu.domibus.common.model.configuration.Party.class);
+            coreMapper.partyListToConfigurationPartyList(replacements);
             result = convertedForReplacement;
 
             configurationParties.getParty();
@@ -573,7 +573,7 @@ public class PartyServiceImplTest {
             replacement.getProcessesWithPartyAsInitiator();
             result = Lists.newArrayList(process);
 
-            domainCoreConverter.convert(replacements, eu.domibus.common.model.configuration.Party.class);
+            coreMapper.partyListToConfigurationPartyList(replacements);
             result = convertedForReplacement;
 
             configurationParties.getParty();
@@ -629,7 +629,7 @@ public class PartyServiceImplTest {
             replacement.getProcessesWithPartyAsInitiator();
             result = Lists.newArrayList(process);
 
-            domainCoreConverter.convert(replacements, eu.domibus.common.model.configuration.Party.class);
+            coreMapper.partyListToConfigurationPartyList(replacements);
             result = convertedForReplacement;
 
             configurationParties.getParty();
@@ -668,7 +668,7 @@ public class PartyServiceImplTest {
             gatewayReplacement.getProcessesWithPartyAsInitiator();
             result = Lists.newArrayList();
 
-            domainCoreConverter.convert(replacements, eu.domibus.common.model.configuration.Party.class);
+            coreMapper.partyListToConfigurationPartyList(replacements);
             result = convertedForReplacement;
 
             configurationParties.getParty();
@@ -707,7 +707,7 @@ public class PartyServiceImplTest {
             gatewayReplacement.getProcessesWithPartyAsInitiator();
             result = Lists.newArrayList();
 
-            domainCoreConverter.convert(replacements, eu.domibus.common.model.configuration.Party.class);
+            coreMapper.partyListToConfigurationPartyList(replacements);
             result = convertedForReplacement;
 
             configurationParties.getParty();
@@ -758,7 +758,7 @@ public class PartyServiceImplTest {
             replacement.getProcessesWithPartyAsResponder();
             result = Lists.newArrayList(process);
 
-            domainCoreConverter.convert(replacements, eu.domibus.common.model.configuration.Party.class);
+            coreMapper.partyListToConfigurationPartyList(replacements);
             result = convertedForReplacement;
 
             configurationParties.getParty();
@@ -809,7 +809,7 @@ public class PartyServiceImplTest {
             replacement.getProcessesWithPartyAsResponder();
             result = Lists.newArrayList(process);
 
-            domainCoreConverter.convert(replacements, eu.domibus.common.model.configuration.Party.class);
+            coreMapper.partyListToConfigurationPartyList(replacements);
             result = convertedForReplacement;
 
             configurationParties.getParty();
@@ -865,7 +865,7 @@ public class PartyServiceImplTest {
             replacement.getProcessesWithPartyAsResponder();
             result = Lists.newArrayList(process);
 
-            domainCoreConverter.convert(replacements, eu.domibus.common.model.configuration.Party.class);
+            coreMapper.partyListToConfigurationPartyList(replacements);
             result = convertedForReplacement;
 
             configurationParties.getParty();
@@ -904,7 +904,7 @@ public class PartyServiceImplTest {
             gatewayReplacement.getProcessesWithPartyAsResponder();
             result = Lists.newArrayList();
 
-            domainCoreConverter.convert(replacements, eu.domibus.common.model.configuration.Party.class);
+            coreMapper.partyListToConfigurationPartyList(replacements);
             result = convertedForReplacement;
 
             configurationParties.getParty();
@@ -943,7 +943,7 @@ public class PartyServiceImplTest {
             gatewayReplacement.getProcessesWithPartyAsResponder();
             result = Lists.newArrayList();
 
-            domainCoreConverter.convert(replacements, eu.domibus.common.model.configuration.Party.class);
+            coreMapper.partyListToConfigurationPartyList(replacements);
             result = convertedForReplacement;
 
             configurationParties.getParty();
@@ -1351,7 +1351,7 @@ public class PartyServiceImplTest {
             parties.getParty();
             result = listParties;
 
-            domainCoreConverter.convert(party, eu.domibus.common.model.configuration.Party.class);
+            coreMapper.partyToConfigurationParty(party);
             result = configParty;
 
         }};
