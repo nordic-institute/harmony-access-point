@@ -2,10 +2,10 @@ package eu.domibus.web.rest;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.primitives.Ints;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.ErrorCode;
-import eu.domibus.api.model.MSHRole;
-import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.logging.DomibusLogger;
@@ -43,7 +43,7 @@ public class ErrorLogResource extends BaseResource {
     DateUtil dateUtil;
 
     @Autowired
-    private DomainCoreConverter domainConverter;
+    private DomibusCoreMapper coreMapper;
 
     @GetMapping
     public ErrorLogResultRO getErrorLog(@Valid ErrorLogFilterRequestRO request) {
@@ -81,7 +81,7 @@ public class ErrorLogResource extends BaseResource {
                 request.getOrderBy(), request.getAsc(), filters);
         getCsvService().validateMaxRows(entries.size(), () -> errorLogDao.countEntries(filters));
 
-        final List<ErrorLogRO> errorLogROList = domainConverter.convert(entries, ErrorLogRO.class);
+        final List<ErrorLogRO> errorLogROList = coreMapper.errorLogEntryListToErrorLogROList(entries);
 
         return exportToCSV(errorLogROList,
                 ErrorLogRO.class,

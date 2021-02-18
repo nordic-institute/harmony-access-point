@@ -43,7 +43,7 @@ public class WSBackendMessageLogDao extends WSBasicDao<WSBackendMessageLogEntity
     /**
      * Find the backend messages with:
      * <p>
-     * {@link WSBackendMessageLogEntity#getMessageStatus()} ()} = {@code WSBackendMessageStatus.WAITING_FOR_RETRY}
+     * {@link WSBackendMessageLogEntity#getBackendMessageStatus()} ()} = {@code WSBackendMessageStatus.WAITING_FOR_RETRY}
      * {@link WSBackendMessageLogEntity#getNextAttempt()} < {@code CURRENT_TIMESTAMP}
      * 0 < {@link WSBackendMessageLogEntity#getSendAttempts()} < {@link WSBackendMessageLogEntity#getSendAttemptsMax()}
      * {@link WSBackendMessageLogEntity#getScheduled()} is {@code false} or {@code null}
@@ -55,7 +55,7 @@ public class WSBackendMessageLogDao extends WSBasicDao<WSBackendMessageLogEntity
                 "WSBackendMessageLogEntity.findRetryMessages",
                 WSBackendMessageLogEntity.class);
         query.setParameter("CURRENT_TIMESTAMP", new Date(System.currentTimeMillis()));
-        query.setParameter("MESSAGE_STATUS", WSBackendMessageStatus.WAITING_FOR_RETRY);
+        query.setParameter("BACKEND_MESSAGE_STATUS", WSBackendMessageStatus.WAITING_FOR_RETRY);
 
         return query.getResultList();
     }

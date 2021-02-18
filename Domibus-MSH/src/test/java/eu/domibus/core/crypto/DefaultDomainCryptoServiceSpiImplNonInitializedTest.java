@@ -1,12 +1,11 @@
 package eu.domibus.core.crypto;
 
-import com.google.common.collect.Lists;
 import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.util.backup.BackupService;
 import mockit.*;
@@ -20,10 +19,10 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
-import java.util.List;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
@@ -65,7 +64,7 @@ public class DefaultDomainCryptoServiceSpiImplNonInitializedTest {
     private KeyStore trustStore;
 
     @Injectable
-    private DomainCoreConverter coreConverter;
+    private DomibusCoreMapper coreMapper;
 
     @Injectable
     private BackupService backupService;

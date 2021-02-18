@@ -1,16 +1,16 @@
 package eu.domibus.core.plugin.routing;
 
 import eu.domibus.api.cluster.SignalService;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.routing.RoutingCriteria;
-import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.core.plugin.notification.BackendPluginEnum;
 import eu.domibus.core.plugin.routing.dao.BackendFilterDao;
-import eu.domibus.api.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.BackendConnector;
@@ -47,7 +47,7 @@ public class RoutingService {
     protected BackendConnectorProvider backendConnectorProvider;
 
     @Autowired
-    protected DomainCoreConverter coreConverter;
+    protected DomibusCoreMapper coreMapper;
 
     @Autowired
     protected List<CriteriaFactory> routingCriteriaFactories;
@@ -185,7 +185,7 @@ public class RoutingService {
 
     public List<BackendFilter> getBackendFiltersUncached() {
         List<BackendFilterEntity> backendFilterEntities = backendFilterDao.findAll();
-        return coreConverter.convert(backendFilterEntities, BackendFilter.class);
+        return coreMapper.backendFilterEntityListToBackendFilterList(backendFilterEntities);
     }
 
     public BackendFilter getMatchingBackendFilter(final UserMessage userMessage) {
@@ -201,7 +201,7 @@ public class RoutingService {
         List<BackendFilterEntity> allBackendFilterEntities = backendFilterDao.findAll();
         backendFilterDao.delete(allBackendFilterEntities);
 
-        List<BackendFilterEntity> backendFilterEntities = coreConverter.convert(filters, BackendFilterEntity.class);
+        List<BackendFilterEntity> backendFilterEntities = coreMapper.backendFilterListToBackendFilterEntityList(filters);
         updateFilterIndices(backendFilterEntities);
         backendFilterDao.update(backendFilterEntities);
 

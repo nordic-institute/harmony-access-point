@@ -1,13 +1,13 @@
 package eu.domibus.web.rest;
 
 import eu.domibus.api.csv.CsvException;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.ErrorCode;
-import eu.domibus.api.model.MSHRole;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.error.ErrorLogEntry;
-import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.web.rest.ro.ErrorLogFilterRequestRO;
 import eu.domibus.web.rest.ro.ErrorLogRO;
 import eu.domibus.web.rest.ro.ErrorLogResultRO;
@@ -42,7 +42,7 @@ public class Ebms3ErrorLogResourceTest {
     DateUtil dateUtil;
 
     @Injectable
-    DomainCoreConverter domainConverter;
+    DomibusCoreMapper coreMapper;
 
     @Injectable
     CsvServiceImpl csvServiceImpl;
@@ -122,7 +122,7 @@ public class Ebms3ErrorLogResourceTest {
             errorLogDao.findPaged(anyInt, anyInt, anyString, anyBoolean, (HashMap<String, Object>) any);
             result = errorLogEntries;
 
-            domainConverter.convert(errorLogEntries, ErrorLogRO.class);
+            coreMapper.errorLogEntryListToErrorLogROList(errorLogEntries);
             result = errorLogROEntries;
 
             csvServiceImpl.exportToCSV(errorLogROEntries, ErrorLogRO.class, (Map<String, String>) any, (List<String>) any);

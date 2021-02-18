@@ -9,7 +9,7 @@ import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.api.validators.SkipWhiteListed;
 import eu.domibus.core.audit.AuditService;
-import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.TrustStoreRO;
 import org.springframework.core.io.ByteArrayResource;
@@ -39,9 +39,9 @@ public class TruststoreResource extends TruststoreResourceBase {
 
     public TruststoreResource(MultiDomainCryptoService multiDomainCertificateProvider,
                               DomainContextProvider domainProvider, CertificateService certificateService,
-                              DomainCoreConverter domainConverter, ErrorHandlerService errorHandlerService,
+                              DomibusCoreMapper coreMapper, ErrorHandlerService errorHandlerService,
                               MultiPartFileUtil multiPartFileUtil, AuditService auditService) {
-        super(domainConverter, errorHandlerService, multiPartFileUtil, auditService);
+        super(coreMapper, errorHandlerService, multiPartFileUtil, auditService);
 
         this.multiDomainCertificateProvider = multiDomainCertificateProvider;
         this.domainProvider = domainProvider;

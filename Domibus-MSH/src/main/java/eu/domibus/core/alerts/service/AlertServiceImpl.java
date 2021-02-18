@@ -15,7 +15,7 @@ import eu.domibus.core.alerts.model.persist.Alert;
 import eu.domibus.core.alerts.model.persist.Event;
 import eu.domibus.core.alerts.model.service.DefaultMailModel;
 import eu.domibus.core.alerts.model.service.MailModel;
-import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.Logger;
@@ -50,6 +50,8 @@ public class AlertServiceImpl implements AlertService {
     /** server name on which Domibus is running */
     static final String SERVER_NAME = "SERVER_NAME";
 
+    public static final String DESCRIPTION = "DESCRIPTION";
+
     static final String ALERT_SELECTOR = "alert";
 
     @Autowired
@@ -62,7 +64,7 @@ public class AlertServiceImpl implements AlertService {
     private DomibusPropertyProvider domibusPropertyProvider;
 
     @Autowired
-    private DomainCoreConverter domainConverter;
+    private DomibusCoreMapper coreMapper;
 
     @Autowired
     private JMSManager jmsManager;
@@ -111,7 +113,7 @@ public class AlertServiceImpl implements AlertService {
         alert.setAlertLevel(alertLevel);
         alertDao.create(alert);
         LOG.info("New alert saved: [{}]", alert);
-        return domainConverter.convert(alert, eu.domibus.core.alerts.model.service.Alert.class);
+        return coreMapper.alertPersistToAlertService(alert);
     }
 
     /**
@@ -139,6 +141,7 @@ public class AlertServiceImpl implements AlertService {
         next.getProperties().forEach((key, value) -> mailModel.put(key, StringEscapeUtils.escapeHtml4(value.getValue().toString())));
         mailModel.put(ALERT_LEVEL, alertEntity.getAlertLevel().name());
         mailModel.put(REPORTING_TIME, DateUtil.DEFAULT_FORMATTER.withZone(ZoneId.systemDefault()).format(alertEntity.getReportingTime().toInstant()));
+        mailModel.put(DESCRIPTION, alertEntity.getAlertType().getTitle());
         mailModel.put(SERVER_NAME, serverInfoService.getServerName());
         if (LOG.isDebugEnabled()) {
             mailModel.forEach((key, value) -> LOG.debug("Mail template key[{}] value[{}]", key, value));
@@ -220,7 +223,7 @@ public class AlertServiceImpl implements AlertService {
             });
 
         }
-        return domainConverter.convert(alerts, eu.domibus.core.alerts.model.service.Alert.class);
+        return coreMapper.alertPersistListToAlertServiceList(alerts);
     }
 
     /**
@@ -263,7 +266,7 @@ public class AlertServiceImpl implements AlertService {
 
     private void convertAndEnqueue(Alert alert) {
         LOG.debug("Preparing alert for retry [{}]", alert);
-        final eu.domibus.core.alerts.model.service.Alert convert = domainConverter.convert(alert, eu.domibus.core.alerts.model.service.Alert.class);
+        final eu.domibus.core.alerts.model.service.Alert convert = coreMapper.alertPersistToAlertService(alert);
         enqueueAlert(convert);
     }
 

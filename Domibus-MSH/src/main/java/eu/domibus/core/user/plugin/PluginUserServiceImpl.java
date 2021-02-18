@@ -10,7 +10,7 @@ import eu.domibus.api.user.UserBase;
 import eu.domibus.api.user.UserManagementException;
 import eu.domibus.api.user.UserState;
 import eu.domibus.core.alerts.service.PluginUserAlertsServiceImpl;
-import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.user.plugin.security.PluginUserSecurityPolicyManager;
 import eu.domibus.core.user.plugin.security.password.PluginUserPasswordHistoryDao;
 import eu.domibus.logging.DomibusLogger;
@@ -61,7 +61,7 @@ public class PluginUserServiceImpl implements PluginUserService {
     PluginUserPasswordHistoryDao pluginUserPasswordHistoryDao;
 
     @Autowired
-    private DomainCoreConverter domainConverter;
+    private DomibusCoreMapper coreMapper;
 
     @Override
     public List<PluginUserRO> findUsers(AuthType authType, AuthRole authRole, String originalUser, String userName, int page, int pageSize) {
@@ -116,7 +116,7 @@ public class PluginUserServiceImpl implements PluginUserService {
     }
 
     protected PluginUserRO convertAndPrepareUser(AuthenticationEntity userEntity) {
-        PluginUserRO user = domainConverter.convert(userEntity, PluginUserRO.class);
+        PluginUserRO user = coreMapper.authenticationEntityToPluginUserRO(userEntity);
 
         user.setStatus(UserState.PERSISTED.name());
         user.setPassword(null);

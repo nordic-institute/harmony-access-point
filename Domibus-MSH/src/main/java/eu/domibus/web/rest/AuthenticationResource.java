@@ -4,9 +4,9 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.security.AuthUtils;
-import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.user.UserService;
-import eu.domibus.core.user.multitenancy.SuperUserManagementServiceImpl;
+import eu.domibus.core.user.multitenancy.AllUsersManagementServiceImpl;
 import eu.domibus.core.user.ui.UserManagementServiceImpl;
 import eu.domibus.core.util.WarningUtil;
 import eu.domibus.logging.DomibusLogger;
@@ -65,15 +65,15 @@ public class AuthenticationResource {
     protected UserDomainService userDomainService;
 
     @Autowired
-    protected DomainCoreConverter domainCoreConverter;
+    protected DomibusCoreMapper coreMapper;
 
     @Autowired
     protected ErrorHandlerService errorHandlerService;
 
     @Autowired
     @Lazy
-    @Qualifier(SuperUserManagementServiceImpl.BEAN_NAME)
-    private UserService superUserManagementService;
+    @Qualifier(AllUsersManagementServiceImpl.BEAN_NAME)
+    private UserService allUserManagementService;
 
     @Autowired
     @Lazy
@@ -169,7 +169,7 @@ public class AuthenticationResource {
     public DomainRO getCurrentDomain() {
         LOG.debug("Getting current domain");
         Domain domain = domainContextProvider.getCurrentDomainSafely();
-        return domainCoreConverter.convert(domain, DomainRO.class);
+        return coreMapper.domainToDomainRO(domain);
     }
 
     /**
@@ -201,7 +201,7 @@ public class AuthenticationResource {
 
     UserService getUserService() {
         if (authUtils.isSuperAdmin()) {
-            return superUserManagementService;
+            return allUserManagementService;
         } else {
             return userManagementService;
         }

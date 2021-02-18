@@ -4,7 +4,7 @@ import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.core.audit.AuditService;
-import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.crypto.api.TLSCertificateManager;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.core.security.AuthUtilsImpl;
@@ -56,7 +56,7 @@ public class TLSTruststoreResourceIT {
     private TLSCertificateManager tlsCertificateManager;
 
     @Mocked
-    protected DomainCoreConverter domainConverter;
+    protected DomibusCoreMapper coreMapper;
 
     @Mocked
     protected ErrorHandlerService errorHandlerService;
@@ -94,7 +94,7 @@ public class TLSTruststoreResourceIT {
         mockMvc = MockMvcBuilders.standaloneSetup(tlsTruststoreResource).build();
 
         ReflectionTestUtils.setField(tlsTruststoreResource, "tlsCertificateManager", tlsCertificateManager);
-        ReflectionTestUtils.setField(tlsTruststoreResource, "domainConverter", domainConverter);
+        ReflectionTestUtils.setField(tlsTruststoreResource, "coreMapper", coreMapper);
         ReflectionTestUtils.setField(tlsTruststoreResource, "errorHandlerService", errorHandlerService);
         ReflectionTestUtils.setField(tlsTruststoreResource, "multiPartFileUtil", multiPartFileUtil);
         ReflectionTestUtils.setField(tlsTruststoreResource, "auditService", auditService);
@@ -116,7 +116,7 @@ public class TLSTruststoreResourceIT {
             result = entries;
             times = 1;
 
-            domainConverter.convert(entries, TrustStoreRO.class);
+            coreMapper.trustStoreEntryListToTrustStoreROList(entries);
             result = entriesRO;
             times = 1;
         }};

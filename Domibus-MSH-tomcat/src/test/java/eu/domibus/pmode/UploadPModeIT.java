@@ -358,4 +358,21 @@ public class UploadPModeIT extends AbstractIT {
             assertTrue(ex.getIssues().get(3).getMessage().contains("attribute 'endpoint' on element 'party' is not valid with respect to its type, 'max1024-anyURI"));
         }
     }
+
+    /**
+     * Tests that the PMode uploaded successfully without payload profile.
+     */
+    @Test
+    public void testUploadPmode_WithOut_PayloadProfile() throws IOException {
+        String pmodeName = "domibus-pmode-without_payloadprofile.xml";
+        InputStream is = getClass().getClassLoader().getResourceAsStream("samplePModes/" + pmodeName);
+        MultipartFile pModeContent = new MockMultipartFile("domibus-pmode-without_payloadprofile", pmodeName, "text/xml", IOUtils.toByteArray(is));
+        try {
+            ValidationResponseRO response = adminGui.uploadPMode(pModeContent, "description");
+            assertEquals(response.getMessage(), "PMode file has been successfully uploaded.");
+        } catch (PModeValidationException ex) {
+            assertEquals(0, ex.getIssues().size());
+
+        }
+    }
 }

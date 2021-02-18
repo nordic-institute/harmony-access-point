@@ -50,7 +50,11 @@ public class Pagination extends DComponent {
 	public Select getPageSizeSelect() {
 		return new Select(driver, pageSizeSelectContainer);
 	}
-	
+
+	public void setPageSize(String pageSize) throws Exception {
+		getPageSizeSelect().selectOptionByText(pageSize);
+	}
+
 	public boolean hasNextPage() {
 		
 		try {

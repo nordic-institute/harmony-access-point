@@ -1,8 +1,8 @@
 package eu.domibus.core.message;
 
-import eu.domibus.core.message.signal.SignalMessageLogDao;
-import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.api.model.MessageType;
+import eu.domibus.core.converter.DomibusCoreMapper;
+import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.web.rest.ro.MessageLogRO;
 import eu.domibus.web.rest.ro.MessageLogResultRO;
 import mockit.Expectations;
@@ -28,7 +28,7 @@ public class MessagesLogEbms3ServiceImplTest {
     private SignalMessageLogDao signalMessageLogDao;
 
     @Injectable
-    private DomainCoreConverter domainConverter;
+    private DomibusCoreMapper coreMapper;
 
 
     @Test
@@ -113,7 +113,7 @@ public class MessagesLogEbms3ServiceImplTest {
             result = numberOfLogs;
             userMessageLogDao.findAllInfoPaged(from, max, column, asc, filters);
             result = resultList;
-            domainConverter.convert(item1, MessageLogRO.class);
+            coreMapper.messageLogInfoToMessageLogRO(item1);
             result = converted;
         }};
 

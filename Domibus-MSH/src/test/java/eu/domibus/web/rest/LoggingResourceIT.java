@@ -3,10 +3,9 @@ package eu.domibus.web.rest;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.logging.LoggingEntry;
 import eu.domibus.core.logging.LoggingService;
-import eu.domibus.core.message.UserMessageSecurityDefaultService;
 import eu.domibus.core.security.AuthUtilsImpl;
 import eu.domibus.web.rest.ro.LoggingFilterRequestRO;
 import eu.domibus.web.rest.ro.LoggingLevelRO;
@@ -42,15 +41,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
-//@WebAppConfiguration
 public class LoggingResourceIT {
 
     @Mocked
-    private DomainCoreConverter domainConverter;
+    private DomibusCoreMapper coreMapper;
+
     @Mocked
     private LoggingService loggingService;
+
     @Autowired
     private LoggingResource loggingResource;
+
     private MockMvc mockMvc;
 
     @Configuration
@@ -72,7 +73,7 @@ public class LoggingResourceIT {
     @Before
     public void setUp() {
         mockMvc = MockMvcBuilders.standaloneSetup(loggingResource).build();
-        ReflectionTestUtils.setField(loggingResource, "domainConverter", domainConverter);
+        ReflectionTestUtils.setField(loggingResource, "coreMapper", coreMapper);
         ReflectionTestUtils.setField(loggingResource, "loggingService", loggingService);
     }
 
@@ -136,7 +137,7 @@ public class LoggingResourceIT {
             result = loggingEntryList;
             times = 1;
 
-            domainConverter.convert(loggingEntryList, LoggingLevelRO.class);
+            coreMapper.loggingEntryListToLoggingLevelROList(loggingEntryList);
             result = loggingLevelROList;
             times = 1;
         }};

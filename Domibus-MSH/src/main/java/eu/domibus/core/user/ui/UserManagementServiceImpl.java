@@ -1,9 +1,6 @@
 package eu.domibus.core.user.ui;
 
-import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.UserDomainService;
-import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.user.AtLeastOneAdminException;
@@ -14,7 +11,6 @@ import eu.domibus.core.user.UserPersistenceService;
 import eu.domibus.core.user.UserService;
 import eu.domibus.core.user.ui.converters.UserConverter;
 import eu.domibus.core.user.ui.security.ConsoleUserSecurityPolicyManager;
-import eu.domibus.core.user.ui.security.password.ConsoleUserPasswordHistoryDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -43,20 +39,16 @@ public class UserManagementServiceImpl implements UserService {
 
     public static final String BEAN_NAME = "userManagementService";
 
+    private static final String ALL_USERS = "all";
+    private static final String USER_NAME = "userName";
+    private static final String USER_ROLE = "userRole";
+    private static final String DELETED_USER = "deleted";
+
     @Autowired
     protected UserDao userDao;
 
     @Autowired
     private UserRoleDao userRoleDao;
-
-    @Autowired
-    protected ConsoleUserPasswordHistoryDao userPasswordHistoryDao;
-
-    @Autowired
-    protected DomibusPropertyProvider domibusPropertyProvider;
-
-    @Autowired
-    protected DomainContextProvider domainContextProvider;
 
     @Autowired
     protected UserConverter userConverter;
@@ -66,9 +58,6 @@ public class UserManagementServiceImpl implements UserService {
 
     @Autowired
     protected UserDomainService userDomainService;
-
-    @Autowired
-    protected DomainService domainService;
 
     @Autowired
     ConsoleUserSecurityPolicyManager userPasswordManager;
@@ -81,11 +70,6 @@ public class UserManagementServiceImpl implements UserService {
 
     @Autowired
     private UserFilteringDao listDao;
-
-    private static final String ALL_USERS = "all";
-    private static final String USER_NAME = "userName";
-    private static final String USER_ROLE = "userRole";
-    private static final String DELETED_USER = "deleted";
 
     /**
      * {@inheritDoc}
@@ -118,8 +102,17 @@ public class UserManagementServiceImpl implements UserService {
     @Override
     @Transactional
     public void updateUsers(List<eu.domibus.api.user.User> users) {
-        userPersistenceService.updateUsers(users);
-        ensureAtLeastOneActiveAdmin();
+        try {
+            userPersistenceService.updateUsers(users);
+            ensureAtLeastOneActiveAdmin();
+        } catch (AtLeastOneAdminException ex) {
+            // clear user-domain mapping only for this error
+            LOG.info("Remove domain association for new users.");
+            users.stream()
+                    .filter(user -> user.isNew())
+                    .forEach(user -> userDomainService.deleteDomainForUser(user.getUserName()));
+            throw ex;
+        }
     }
 
     /**

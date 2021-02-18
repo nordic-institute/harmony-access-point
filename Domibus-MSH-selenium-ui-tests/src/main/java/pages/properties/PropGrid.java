@@ -96,6 +96,7 @@ public class PropGrid extends DGrid {
 		WebElement saveElem = rowElement.findElement(rowSave);
 		weToDButton(saveElem).click();
 		wait.forElementToBeDisabled(saveElem);
+		wait.forXMillis(1000);
 	}
 
 	public void setPropRowValueAndRevert(int rowNumber, String value) throws Exception {
@@ -107,10 +108,11 @@ public class PropGrid extends DGrid {
 
 		WebElement undoElem = rowElement.findElement(rowUndo);
 
-		wait.forXMillis(1000);
+		wait.forElementToBeEnabled(undoElem);
 
 		weToDButton(undoElem).click();
 		wait.forElementToBeDisabled(undoElem);
+		wait.forXMillis(1000);
 	}
 
 

@@ -1,7 +1,7 @@
 package eu.domibus.core.replication;
 
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.message.MessageLogInfo;
-import eu.domibus.core.converter.DomainCoreConverter;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.ro.MessageLogRO;
@@ -31,7 +31,7 @@ public class UIMessageServiceImpl implements UIMessageService {
     private UIMessageDao uiMessageDao;
 
     @Autowired
-    private DomainCoreConverter domainConverter;
+    private DomibusCoreMapper coreMapper;
 
     @Override
     @Transactional(readOnly = true)
@@ -94,7 +94,7 @@ public class UIMessageServiceImpl implements UIMessageService {
             return null;
         }
 
-        return domainConverter.convert(uiMessageEntity, MessageLogRO.class);
+        return coreMapper.uiMessageEntityToMessageLogRO(uiMessageEntity);
     }
 
     /**
@@ -108,6 +108,6 @@ public class UIMessageServiceImpl implements UIMessageService {
             return null;
         }
 
-        return domainConverter.convert(uiMessageEntity, MessageLogInfo.class);
+        return coreMapper.uiMessageEntityToMessageLogInfo(uiMessageEntity);
     }
 }

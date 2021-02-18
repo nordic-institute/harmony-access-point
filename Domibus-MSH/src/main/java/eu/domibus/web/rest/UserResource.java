@@ -12,9 +12,9 @@ import eu.domibus.api.user.User;
 import eu.domibus.api.user.UserManagementException;
 import eu.domibus.api.user.UserRole;
 import eu.domibus.api.user.UserState;
-import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.user.UserService;
-import eu.domibus.core.user.multitenancy.SuperUserManagementServiceImpl;
+import eu.domibus.core.user.multitenancy.AllUsersManagementServiceImpl;
 import eu.domibus.core.user.ui.UserManagementServiceImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -51,8 +51,8 @@ public class UserResource extends BaseResource {
 
     @Autowired
     @Lazy
-    @Qualifier(SuperUserManagementServiceImpl.BEAN_NAME)
-    private UserService superUserManagementService;
+    @Qualifier(AllUsersManagementServiceImpl.BEAN_NAME)
+    private UserService allUserManagementService;
 
     @Autowired
     @Lazy
@@ -60,7 +60,7 @@ public class UserResource extends BaseResource {
     private UserService userManagementService;
 
     @Autowired
-    private DomainCoreConverter domainConverter;
+    private DomibusCoreMapper coreMapper;
 
     @Autowired
     private AuthUtils authUtils;
@@ -103,7 +103,7 @@ public class UserResource extends BaseResource {
         LOG.debug("Update Users was called: {}", userROS);
         validateUsers(userROS);
         updateUserRoles(userROS);
-        List<User> users = domainConverter.convert(userROS, User.class);
+        List<User> users = coreMapper.userResponseROListToUserList(userROS);
         getUserService().updateUsers(users);
     }
 
@@ -152,7 +152,7 @@ public class UserResource extends BaseResource {
 
     private UserService getUserService() {
         if (authUtils.isSuperAdmin()) {
-            return superUserManagementService;
+            return allUserManagementService;
         } else {
             return userManagementService;
         }
@@ -200,7 +200,7 @@ public class UserResource extends BaseResource {
      * @return a list of
      */
     protected List<UserResponseRO> prepareResponse(List<User> users) {
-        List<UserResponseRO> userResponseROS = domainConverter.convert(users, UserResponseRO.class);
+        List<UserResponseRO> userResponseROS = coreMapper.userListToUserResponseROList(users);
         for (UserResponseRO userResponseRO : userResponseROS) {
             userResponseRO.setStatus("PERSISTED");
             userResponseRO.updateRolesField();

@@ -1,26 +1,26 @@
 package eu.domibus.core.alerts.service;
 
-import eu.domibus.api.model.MessageStatus;
 import com.google.common.collect.Lists;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.MessageStatus;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.core.alerts.configuration.password.PasswordExpirationAlertModuleConfiguration;
-import eu.domibus.core.alerts.model.common.EventType;
-import eu.domibus.core.error.ErrorLogDao;
-import eu.domibus.core.message.MessagingDao;
-import eu.domibus.core.ebms3.EbMS3Exception;
-import eu.domibus.core.error.ErrorLogEntry;
-import eu.domibus.core.user.ui.User;
-import eu.domibus.core.user.UserEntityBase;
 import eu.domibus.core.alerts.dao.EventDao;
+import eu.domibus.core.alerts.model.common.EventType;
+import eu.domibus.core.alerts.model.mapper.EventMapper;
 import eu.domibus.core.alerts.model.persist.AbstractEventProperty;
 import eu.domibus.core.alerts.model.persist.StringEventProperty;
 import eu.domibus.core.alerts.model.service.Event;
-import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.error.ErrorLogDao;
+import eu.domibus.core.error.ErrorLogEntry;
+import eu.domibus.core.message.MessageExchangeConfiguration;
+import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.pull.MpcService;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.core.message.MessageExchangeConfiguration;
-import eu.domibus.api.model.UserMessage;
+import eu.domibus.core.user.UserEntityBase;
+import eu.domibus.core.user.ui.User;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
@@ -62,7 +62,7 @@ public class EventEbms3ServiceImplTest {
     private ErrorLogDao errorLogDao;
 
     @Injectable
-    private DomainCoreConverter domainConverter;
+    private EventMapper eventMapper;
 
     @Injectable
     private JMSManager jmsManager;
@@ -190,9 +190,8 @@ public class EventEbms3ServiceImplTest {
         persistedEvent.getProperties().put(key, stringEventProperty);
 
         new Expectations() {{
-            domainConverter.convert(event, eu.domibus.core.alerts.model.persist.Event.class);
+            eventMapper.eventServiceToEventPersist(event) ;
             result = persistedEvent;
-
         }};
         eventService.persistEvent(event);
         new Verifications() {{
@@ -268,7 +267,7 @@ public class EventEbms3ServiceImplTest {
         new Expectations() {{
             eventDao.findWithTypeAndPropertyValue((EventType) any, anyString, anyString);
             result = null;
-            domainConverter.convert(any, eu.domibus.core.alerts.model.persist.Event.class);
+            eventMapper.eventServiceToEventPersist((Event) any);
             result = persistedEvent;
         }};
 

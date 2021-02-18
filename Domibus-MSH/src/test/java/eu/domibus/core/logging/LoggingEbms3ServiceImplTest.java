@@ -8,7 +8,7 @@ import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.jms.JMSMessageBuilder;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.property.DomibusConfigurationService;
-import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.collections.CollectionUtils;
@@ -29,7 +29,7 @@ import java.util.List;
 public class LoggingEbms3ServiceImplTest {
 
     @Injectable
-    protected DomainCoreConverter domainConverter;
+    protected DomibusCoreMapper coreMapper;
 
     @Injectable
     protected DomibusConfigurationService domibusConfigurationService;

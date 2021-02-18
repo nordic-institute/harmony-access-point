@@ -2,7 +2,7 @@ package eu.domibus.web.rest;
 
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.routing.RoutingCriteria;
-import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.csv.MessageFilterCSV;
 import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.core.util.MessageUtil;
@@ -30,7 +30,7 @@ public class MessageFilterResource extends BaseResource {
     private RoutingService routingService;
 
     @Autowired
-    private DomainCoreConverter coreConverter;
+    private DomibusCoreMapper coreMapper;
 
     @GetMapping
     public MessageFilterResultRO getMessageFilter() {
@@ -44,7 +44,7 @@ public class MessageFilterResource extends BaseResource {
 
     @PutMapping
     public void updateMessageFilters(@RequestBody List<MessageFilterRO> messageFilterROS) {
-        List<BackendFilter> backendFilters = coreConverter.convert(messageFilterROS, BackendFilter.class);
+        List<BackendFilter> backendFilters = coreMapper.messageFilterROListToBackendFilterList(messageFilterROS);
         routingService.updateBackendFilters(backendFilters);
     }
 
@@ -63,7 +63,7 @@ public class MessageFilterResource extends BaseResource {
     protected Pair<List<MessageFilterRO>, Boolean> getBackendFiltersInformation() {
         boolean areFiltersPersisted = true;
         List<BackendFilter> backendFilters = routingService.getBackendFiltersUncached();
-        List<MessageFilterRO> messageFilterResultROS = coreConverter.convert(backendFilters, MessageFilterRO.class);
+        List<MessageFilterRO> messageFilterResultROS = coreMapper.backendFilterListToMessageFilterROList(backendFilters);
         for (MessageFilterRO messageFilter : messageFilterResultROS) {
             if (messageFilter.getEntityId() == 0) {
                 messageFilter.setPersisted(false);

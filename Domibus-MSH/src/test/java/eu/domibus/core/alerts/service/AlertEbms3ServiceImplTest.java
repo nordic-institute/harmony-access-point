@@ -15,7 +15,7 @@ import eu.domibus.core.alerts.model.persist.StringEventProperty;
 import eu.domibus.core.alerts.model.service.Alert;
 import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.core.alerts.model.service.MailModel;
-import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
@@ -58,7 +58,7 @@ public class AlertEbms3ServiceImplTest {
     private DomibusPropertyProvider domibusPropertyProvider;
 
     @Injectable
-    private DomainCoreConverter domainConverter;
+    private DomibusCoreMapper coreMapper;
 
     @Injectable
     private JMSManager jmsManager;
@@ -111,7 +111,7 @@ public class AlertEbms3ServiceImplTest {
             assertNull(alert.getReportingTime());
             assertEquals(AlertLevel.HIGH, alert.getAlertLevel());
             assertTrue(alert.getEvents().contains(eventEntity));
-            domainConverter.convert(alert, eu.domibus.core.alerts.model.service.Alert.class);
+            coreMapper.alertPersistToAlertService(alert);
             times = 1;
         }};
     }
@@ -172,7 +172,7 @@ public class AlertEbms3ServiceImplTest {
         assertEquals(MessageStatus.SEND_ENQUEUED.name(), model.get(OLD_STATUS.name()));
         assertEquals(alertLevel.name(), model.get(ALERT_LEVEL));
         assertNotNull(DateUtil.DEFAULT_FORMATTER.parse(model.get(REPORTING_TIME)));
-
+        assertEquals(alertType.getTitle(), model.get(DESCRIPTION));
     }
 
     @Test
@@ -275,20 +275,20 @@ public class AlertEbms3ServiceImplTest {
 
     @Test
     public void retrieveAndResendFailedAlerts() {
-        eu.domibus.core.alerts.model.persist.Alert firtRetryAlert = new eu.domibus.core.alerts.model.persist.Alert();
-        firtRetryAlert.setEntityId(1);
+        eu.domibus.core.alerts.model.persist.Alert firstRetryAlert = new eu.domibus.core.alerts.model.persist.Alert();
+        firstRetryAlert.setEntityId(1);
         eu.domibus.core.alerts.model.persist.Alert secondRetryAlert = new eu.domibus.core.alerts.model.persist.Alert();
-        firtRetryAlert.setEntityId(2);
-        final Alert firtsConvertedAlert = new Alert();
+        firstRetryAlert.setEntityId(2);
+        final Alert firstConvertedAlert = new Alert();
         final Alert secondConvertedAlert = new Alert();
-        final List<eu.domibus.core.alerts.model.persist.Alert> alerts = Lists.newArrayList(firtRetryAlert);
+        final List<eu.domibus.core.alerts.model.persist.Alert> alerts = Lists.newArrayList(firstRetryAlert);
         alerts.add(secondRetryAlert);
         new Expectations() {{
             alertDao.findRetryAlerts();
             result = alerts;
-            domainConverter.convert(firtRetryAlert, eu.domibus.core.alerts.model.service.Alert.class);
-            result = firtsConvertedAlert;
-            domainConverter.convert(secondRetryAlert, eu.domibus.core.alerts.model.service.Alert.class);
+            coreMapper.alertPersistToAlertService(firstRetryAlert);
+            result = firstConvertedAlert;
+            coreMapper.alertPersistToAlertService(secondRetryAlert);
             result = secondConvertedAlert;
         }};
         alertService.retrieveAndResendFailedAlerts();
@@ -309,7 +309,8 @@ public class AlertEbms3ServiceImplTest {
         }};
         alertService.findAlerts(alertCriteria);
         new Verifications(){{
-           domainConverter.convert(alerts,eu.domibus.core.alerts.model.service.Alert.class);times=1;
+           coreMapper.alertPersistListToAlertServiceList(alerts);
+           times=1;
         }};
 
     }
@@ -373,15 +374,16 @@ public class AlertEbms3ServiceImplTest {
     }
 
     @Test
-    public void testFindAlerts(final @Mocked  AlertCriteria alertCriteria,final @Mocked  List<Alert> alerts){
+    public void testFindAlerts(final @Mocked  AlertCriteria alertCriteria,final @Mocked  List<eu.domibus.core.alerts.model.persist.Alert> alerts){
         new Expectations(){{
             alertDao.filterAlerts(alertCriteria);
             result=alerts;
         }};
         alertService.findAlerts(alertCriteria);
         new Verifications(){{
-            alertDao.filterAlerts(alertCriteria);times=1;
-            domainConverter.convert(alerts, eu.domibus.core.alerts.model.service.Alert.class);
+            alertDao.filterAlerts(alertCriteria);
+            times=1;
+            coreMapper.alertPersistListToAlertServiceList(alerts);
         }};
     }
 }

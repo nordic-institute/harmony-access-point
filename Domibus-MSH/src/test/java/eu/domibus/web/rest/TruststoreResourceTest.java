@@ -7,25 +7,16 @@ import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.core.audit.AuditService;
-import eu.domibus.core.converter.DomainCoreConverter;
-import eu.domibus.core.crypto.MultiDomainCryptoServiceImpl;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.web.rest.error.ErrorHandlerService;
-import eu.domibus.web.rest.ro.TrustStoreRO;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.core.io.Resource;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.security.KeyStore;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -48,7 +39,7 @@ public class TruststoreResourceTest {
     CertificateService certificateService;
 
     @Injectable
-    DomainCoreConverter domainConverter;
+    DomibusCoreMapper coreMapper;
 
     @Injectable
     CsvServiceImpl csvServiceImpl;

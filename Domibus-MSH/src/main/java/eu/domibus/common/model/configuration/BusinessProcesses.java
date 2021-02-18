@@ -254,16 +254,19 @@ public class BusinessProcesses extends AbstractBaseEntity {
         }
         this.propertySets = new HashSet<>();
         this.propertySets.addAll(this.propertiesXml.getPropertySet());
-        for (final Payload payload : this.payloadProfilesXml.getPayload()) {
-            payload.init(configuration);
+
+        if (payloadProfilesXml != null) {
+            for (final Payload payload : this.payloadProfilesXml.getPayload()) {
+                payload.init(configuration);
+            }
+            this.payloads = new HashSet<>();
+            this.payloads.addAll(this.payloadProfilesXml.getPayload());
+            for (final PayloadProfile payloadProfile : this.payloadProfilesXml.getPayloadProfile()) {
+                payloadProfile.init(configuration);
+            }
+            this.payloadProfiles = new HashSet<>();
+            this.payloadProfiles.addAll(this.payloadProfilesXml.getPayloadProfile());
         }
-        this.payloads = new HashSet<>();
-        this.payloads.addAll(this.payloadProfilesXml.getPayload());
-        for (final PayloadProfile payloadProfile : this.payloadProfilesXml.getPayloadProfile()) {
-            payloadProfile.init(configuration);
-        }
-        this.payloadProfiles = new HashSet<>();
-        this.payloadProfiles.addAll(this.payloadProfilesXml.getPayloadProfile());
         for (final ErrorHandling errorHandling : this.errorHandlingsXml.getErrorHandling()) {
             errorHandling.init(configuration);
         }

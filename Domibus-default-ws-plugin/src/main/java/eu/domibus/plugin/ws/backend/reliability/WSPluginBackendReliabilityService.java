@@ -61,7 +61,7 @@ public class WSPluginBackendReliabilityService {
                 backendMessage.getEntityId(),
                 backendMessage.getMessageId());
         backendMessage.setFailed(new Date());
-        backendMessage.setMessageStatus(WSBackendMessageStatus.SEND_FAILURE);
+        backendMessage.setBackendMessageStatus(WSBackendMessageStatus.SEND_FAILURE);
     }
 
     /**
@@ -106,7 +106,7 @@ public class WSPluginBackendReliabilityService {
         Date newNextAttempt = strategy.calculateNextAttempt(nextAttempt, retryCount, retryTimeout);
         LOG.debug("Updating next attempt from [{}] to [{}]", nextAttempt, newNextAttempt);
         backendMessage.setNextAttempt(newNextAttempt);
-        backendMessage.setMessageStatus(WSBackendMessageStatus.WAITING_FOR_RETRY);
+        backendMessage.setBackendMessageStatus(WSBackendMessageStatus.WAITING_FOR_RETRY);
     }
 
 }
