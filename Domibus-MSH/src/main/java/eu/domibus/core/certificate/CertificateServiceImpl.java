@@ -29,6 +29,7 @@ import org.bouncycastle.util.io.pem.PemObjectGenerator;
 import org.bouncycastle.util.io.pem.PemReader;
 import org.bouncycastle.util.io.pem.PemWriter;
 import org.joda.time.LocalDateTime;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -80,7 +81,7 @@ public class CertificateServiceImpl implements CertificateService {
 
     private final BackupService backupService;
 
-    public CertificateServiceImpl(CRLService crlService, DomibusPropertyProvider domibusPropertyProvider,
+    public CertificateServiceImpl(@Lazy CRLService crlService, DomibusPropertyProvider domibusPropertyProvider,
                                   CertificateDao certificateDao, EventService eventService, PModeProvider pModeProvider,
                                   ImminentExpirationCertificateConfigurationManager imminentExpirationCertificateConfigurationManager,
                                   ExpiredCertificateConfigurationManager expiredCertificateConfigurationManager, BackupService backupService) {

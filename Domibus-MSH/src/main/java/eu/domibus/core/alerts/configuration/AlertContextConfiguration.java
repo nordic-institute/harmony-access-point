@@ -13,12 +13,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
 import org.springframework.jms.core.JmsTemplate;
-import org.springframework.jms.listener.DefaultMessageListenerContainer;
 import org.springframework.jms.support.converter.MappingJackson2MessageConverter;
 import org.springframework.jms.support.destination.JndiDestinationResolver;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.scheduling.SchedulingTaskExecutor;
-import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.ui.freemarker.FreeMarkerConfigurationFactoryBean;
 
 import javax.jms.ConnectionFactory;
@@ -73,14 +71,12 @@ public class AlertContextConfiguration {
 
     @Bean("alertJmsListenerContainerFactory")
     public DefaultJmsListenerContainerFactory alertJmsListenerContainerFactory(@Qualifier(JMSConstants.DOMIBUS_JMS_XACONNECTION_FACTORY) ConnectionFactory connectionFactory,
-                                                                               PlatformTransactionManager transactionManager,
                                                                                DomibusPropertyProvider domibusPropertyProvider,
                                                                                @Qualifier("jackson2MessageConverter") MappingJackson2MessageConverter jackson2MessageConverter,
                                                                                Optional<JndiDestinationResolver> internalDestinationResolver,
                                                                                @Qualifier("taskExecutor") SchedulingTaskExecutor schedulingTaskExecutor) {
         DefaultJmsListenerContainerFactory result = new DefaultJmsListenerContainerFactory();
         result.setConnectionFactory(connectionFactory);
-        result.setTransactionManager(transactionManager);
         result.setTaskExecutor(schedulingTaskExecutor);
 
         String concurrency = domibusPropertyProvider.getProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_ALERT_QUEUE_CONCURRENCY);

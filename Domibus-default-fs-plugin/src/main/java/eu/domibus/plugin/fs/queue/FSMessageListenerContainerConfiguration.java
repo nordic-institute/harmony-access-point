@@ -15,7 +15,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 import org.springframework.jms.listener.MessageListenerContainer;
-import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.jms.ConnectionFactory;
 import javax.jms.Queue;
@@ -45,9 +44,6 @@ public class FSMessageListenerContainerConfiguration {
     private ConnectionFactory connectionFactory;
 
     @Autowired
-    protected PlatformTransactionManager transactionManager;
-
-    @Autowired
     private FSPluginProperties fsPluginProperties;
 
     @Autowired
@@ -68,7 +64,6 @@ public class FSMessageListenerContainerConfiguration {
         messageListenerContainer.setConnectionFactory(connectionFactory);
         messageListenerContainer.setDestination(fsPluginSendQueue);
         messageListenerContainer.setMessageListener(fsSendMessageListener);
-        messageListenerContainer.setTransactionManager(transactionManager);
         messageListenerContainer.setConcurrency(queueConcurrency);
         messageListenerContainer.setSessionTransacted(true);
         messageListenerContainer.setSessionAcknowledgeMode(0);

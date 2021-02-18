@@ -10,7 +10,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 import org.springframework.jms.support.destination.JndiDestinationResolver;
-import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.jms.ConnectionFactory;
 import javax.jms.Topic;
@@ -30,14 +29,12 @@ public class ControllerListenerConfiguration {
     public DefaultMessageListenerContainer createDefaultMessageListenerContainer(@Qualifier(JMSConstants.DOMIBUS_JMS_XACONNECTION_FACTORY) ConnectionFactory connectionFactory,
                                                                                  @Qualifier("clusterCommandTopic") Topic destination,
                                                                                  ControllerListenerService messageListener,
-                                                                                 PlatformTransactionManager transactionManager,
                                                                                  Optional<JndiDestinationResolver> internalDestinationResolver,
                                                                                  DomibusPropertyProvider domibusPropertyProvider) {
         DefaultMessageListenerContainer messageListenerContainer = new DefaultMessageListenerContainer();
         messageListenerContainer.setConnectionFactory(connectionFactory);
         messageListenerContainer.setDestination(destination);
         messageListenerContainer.setMessageListener(messageListener);
-        messageListenerContainer.setTransactionManager(transactionManager);
 
         String concurrency = domibusPropertyProvider.getProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_JMS_INTERNAL_COMMAND_CONCURENCY);
         LOG.debug("Configured property [{}] with [{}]", DomibusPropertyMetadataManagerSPI.DOMIBUS_JMS_INTERNAL_COMMAND_CONCURENCY, concurrency);

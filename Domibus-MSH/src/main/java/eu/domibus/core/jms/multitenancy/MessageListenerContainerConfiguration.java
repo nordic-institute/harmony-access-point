@@ -24,7 +24,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 import org.springframework.jms.support.destination.JndiDestinationResolver;
 import org.springframework.scheduling.SchedulingTaskExecutor;
-import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageListener;
@@ -99,9 +98,6 @@ public class MessageListenerContainerConfiguration {
     private ConnectionFactory connectionFactory;
 
     @Autowired
-    protected PlatformTransactionManager transactionManager;
-
-    @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
 
     @Autowired
@@ -117,7 +113,7 @@ public class MessageListenerContainerConfiguration {
     public DefaultMessageListenerContainer createSendMessageListener(Domain domain, String selector, String concurrencyPropertyName) {
         LOG.debug("Instantiating the DefaultMessageListenerContainer for domain [{}] with selector [{}] and concurrency property [{}]", domain, selector, concurrencyPropertyName);
         return createDefaultMessageListenerContainer(domain, connectionFactory, sendMessageQueue,
-                messageSenderListener, transactionManager, concurrencyPropertyName, selector
+                messageSenderListener, concurrencyPropertyName, selector
         );
     }
 
@@ -130,7 +126,7 @@ public class MessageListenerContainerConfiguration {
         LOG.debug("Instantiating the createSendLargeMessageListenerContainer for domain [{}]", domain);
 
         return createDefaultMessageListenerContainer(domain, connectionFactory, sendLargeMessageQueue,
-                largeMessageSenderListener, transactionManager, PROPERTY_LARGE_FILES_CONCURRENCY
+                largeMessageSenderListener, PROPERTY_LARGE_FILES_CONCURRENCY
         );
     }
 
@@ -143,7 +139,7 @@ public class MessageListenerContainerConfiguration {
         LOG.debug("Instantiating the createSplitAndJoinListener for domain [{}]", domain);
 
         return createDefaultMessageListenerContainer(domain, connectionFactory, splitAndJoinQueue,
-                splitAndJoinListener, transactionManager, PROPERTY_SPLIT_AND_JOIN_CONCURRENCY
+                splitAndJoinListener, PROPERTY_SPLIT_AND_JOIN_CONCURRENCY
         );
     }
 
@@ -153,7 +149,7 @@ public class MessageListenerContainerConfiguration {
         LOG.debug("Instantiating the createPullReceiptListener for domain [{}]", domain);
 
         return createDefaultMessageListenerContainer(domain, connectionFactory, sendPullReceiptQueue,
-                pullReceiptListener, transactionManager, DOMIBUS_PULL_RECEIPT_QUEUE_CONCURRENCY
+                pullReceiptListener, DOMIBUS_PULL_RECEIPT_QUEUE_CONCURRENCY
         );
     }
 
@@ -169,7 +165,7 @@ public class MessageListenerContainerConfiguration {
         LOG.debug("Instantiating the createRetentionListener for domain [{}]", domain);
 
         return createDefaultMessageListenerContainer(domain, connectionFactory, retentionMessageQueue,
-                retentionListener, transactionManager, PROPERTY_RETENTION_JMS_CONCURRENCY);
+                retentionListener, PROPERTY_RETENTION_JMS_CONCURRENCY);
     }
 
     @Bean(name = PULL_MESSAGE_CONTAINER)
@@ -178,7 +174,7 @@ public class MessageListenerContainerConfiguration {
         LOG.debug("Instantiating the pullMessageListener for domain [{}]", domain);
 
         return createDefaultMessageListenerContainer(domain, connectionFactory, pullMessageQueue,
-                pullMessageListener::processPullRequest, transactionManager, DOMIBUS_PULL_RECEIPT_QUEUE_CONCURRENCY, true, null);
+                pullMessageListener::processPullRequest, DOMIBUS_PULL_RECEIPT_QUEUE_CONCURRENCY, true, null);
     }
 
     /**
@@ -188,23 +184,22 @@ public class MessageListenerContainerConfiguration {
      * @param connectionFactory         JMS connection factory
      * @param destination               JMS queue
      * @param messageListener           JMS message listener
-     * @param transactionManager        Transaction manager
      * @param domainPropertyConcurrency domain property key for retrieving queue concurrency value
      */
     private DefaultMessageListenerContainer createDefaultMessageListenerContainer(Domain domain, ConnectionFactory connectionFactory, Queue destination,
-                                                                                  MessageListener messageListener, PlatformTransactionManager transactionManager,
+                                                                                  MessageListener messageListener,
                                                                                   String domainPropertyConcurrency, String selector) {
-        return createDefaultMessageListenerContainer(domain, connectionFactory, destination, messageListener, transactionManager, domainPropertyConcurrency, false, selector);
+        return createDefaultMessageListenerContainer(domain, connectionFactory, destination, messageListener, domainPropertyConcurrency, false, selector);
     }
 
     private DefaultMessageListenerContainer createDefaultMessageListenerContainer(Domain domain, ConnectionFactory connectionFactory, Queue destination,
-                                                                                  MessageListener messageListener, PlatformTransactionManager transactionManager,
+                                                                                  MessageListener messageListener,
                                                                                   String domainPropertyConcurrency) {
-        return createDefaultMessageListenerContainer(domain, connectionFactory, destination, messageListener, transactionManager, domainPropertyConcurrency, false, null);
+        return createDefaultMessageListenerContainer(domain, connectionFactory, destination, messageListener, domainPropertyConcurrency, false, null);
     }
 
     private DefaultMessageListenerContainer createDefaultMessageListenerContainer(Domain domain, ConnectionFactory connectionFactory, Queue destination,
-                                                                                  MessageListener messageListener, PlatformTransactionManager transactionManager,
+                                                                                  MessageListener messageListener,
                                                                                   String domainPropertyConcurrency, boolean useInternalDestinationResolver, String selector) {
         DefaultMessageListenerContainer messageListenerContainer = new DomainMessageListenerContainer(domain);
 
@@ -219,7 +214,6 @@ public class MessageListenerContainerConfiguration {
         messageListenerContainer.setConnectionFactory(connectionFactory);
         messageListenerContainer.setDestination(destination);
         messageListenerContainer.setMessageListener(messageListener);
-        messageListenerContainer.setTransactionManager(transactionManager);
 
         final String concurrency = domibusPropertyProvider.getProperty(domain, domainPropertyConcurrency);
         if (StringUtils.isEmpty(concurrency)) {

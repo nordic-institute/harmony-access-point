@@ -12,7 +12,6 @@ import org.springframework.jms.support.converter.MappingJackson2MessageConverter
 import org.springframework.jms.support.converter.MessageConverter;
 import org.springframework.jms.support.destination.JndiDestinationResolver;
 import org.springframework.scheduling.SchedulingTaskExecutor;
-import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.jms.ConnectionFactory;
 import javax.jms.Session;
@@ -33,7 +32,6 @@ public class InternalJmsListenerContainerFactoryConfigurationTest {
 
     @Test
     public void internalJmsListenerContainerFactory(@Injectable ConnectionFactory connectionFactory,
-                                                    @Injectable PlatformTransactionManager transactionManager,
                                                     @Injectable DomibusPropertyProvider domibusPropertyProvider,
                                                     @Injectable MappingJackson2MessageConverter jackson2MessageConverter,
                                                     @Injectable Optional<JndiDestinationResolver> internalDestinationResolver,
@@ -49,7 +47,7 @@ public class InternalJmsListenerContainerFactoryConfigurationTest {
         }};
 
 
-        internalJmsListenerContainerFactoryConfiguration.internalJmsListenerContainerFactory(connectionFactory, transactionManager, domibusPropertyProvider, jackson2MessageConverter, internalDestinationResolver, schedulingTaskExecutor);
+        internalJmsListenerContainerFactoryConfiguration.internalJmsListenerContainerFactory(connectionFactory, domibusPropertyProvider, jackson2MessageConverter, internalDestinationResolver, schedulingTaskExecutor);
 
         new Verifications() {{
             MessageConverter messageConverter = null;
@@ -59,10 +57,6 @@ public class InternalJmsListenerContainerFactoryConfigurationTest {
             ConnectionFactory cf = null;
             defaultJmsListenerContainerFactory.setConnectionFactory(cf = withCapture());
             Assert.assertEquals(connectionFactory, cf);
-
-            PlatformTransactionManager tm = null;
-            defaultJmsListenerContainerFactory.setTransactionManager(tm = withCapture());
-            Assert.assertEquals(transactionManager, tm);
 
             String factoryConcurrency = null;
             defaultJmsListenerContainerFactory.setConcurrency(factoryConcurrency = withCapture());
