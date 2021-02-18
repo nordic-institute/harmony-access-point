@@ -8,7 +8,7 @@ import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.core.cache.DomibusCacheService;
-import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.property.DomibusVersionService;
 import eu.domibus.web.rest.ro.DomainRO;
 import eu.domibus.web.rest.ro.DomibusInfoRO;
@@ -51,7 +51,7 @@ public class ApplicationResourceTest {
     DomainService domainService;
 
     @Injectable
-    DomainCoreConverter domainCoreConverter;
+    DomibusCoreMapper coreMapper;
 
     @Injectable
     DomainContextProvider domainContextProvider;
@@ -118,7 +118,7 @@ public class ApplicationResourceTest {
             domainService.getDomains();
             result = domainEntries;
 
-            domainCoreConverter.convert(domainEntries, DomainRO.class);
+            coreMapper.domainListToDomainROList(domainEntries);
             result = domainROEntries;
         }};
 

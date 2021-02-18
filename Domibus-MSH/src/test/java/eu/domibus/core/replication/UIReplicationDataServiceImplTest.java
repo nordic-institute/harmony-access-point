@@ -1,18 +1,13 @@
 package eu.domibus.core.replication;
 
-import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.api.model.*;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.api.model.MSHRole;
-import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.UserMessageDefaultServiceHelper;
-import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.core.message.UserMessageLogDao;
-import eu.domibus.api.model.SignalMessageLog;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
-import eu.domibus.api.model.NotificationStatus;
 import eu.domibus.messaging.MessageConstants;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -59,7 +54,7 @@ public class UIReplicationDataServiceImplTest {
     private DomibusPropertyProvider domibusPropertyProvider;
 
     @Injectable
-    private DomainCoreConverter domainConverter;
+    private DomibusCoreMapper coreMapper;
 
     private final String messageId = UUID.randomUUID().toString();
     private final MessageStatus messageStatus = MessageStatus.SEND_ENQUEUED;
@@ -90,7 +85,7 @@ public class UIReplicationDataServiceImplTest {
 
 
     @Test
-    public void testMessageReceived(final @Mocked UIMessageEntity uiMessageEntity, final @Injectable DomainCoreConverter domainCoreConverter) {
+    public void testMessageReceived(final @Mocked UIMessageEntity uiMessageEntity, final @Injectable DomibusCoreMapper coreMapper) {
 
         new Expectations(uiReplicationDataService) {{
             uiReplicationDataService.createUIMessageFromUserMessageLog(anyString, jmsTime.getTime());
@@ -207,7 +202,7 @@ public class UIReplicationDataServiceImplTest {
             messagingDao.findUserMessageByMessageId(messageId);
             result = userMessage;
 
-            domainConverter.convert(userMessageLog, UIMessageEntity.class);
+            coreMapper.userMessageLogToUIMessageEntity(userMessageLog);
             result = uiMessageEntity;
 
             userMessageDefaultServiceHelper.getFinalRecipient(userMessage);
@@ -283,7 +278,7 @@ public class UIReplicationDataServiceImplTest {
             messaging.getUserMessage();
             result = userMessage;
 
-            domainConverter.convert(signalMessageLog, UIMessageEntity.class);
+            coreMapper.signalMessageLogToUIMessageEntity(signalMessageLog);
             result = uiMessageEntity;
 
             userMessageDefaultServiceHelper.getFinalRecipient(userMessage);

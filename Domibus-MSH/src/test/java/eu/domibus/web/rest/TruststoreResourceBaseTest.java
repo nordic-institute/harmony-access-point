@@ -3,13 +3,11 @@ package eu.domibus.web.rest;
 import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.multitenancy.Domain;
-import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.core.audit.AuditService;
-import eu.domibus.core.converter.DomainCoreConverter;
-import eu.domibus.core.crypto.MultiDomainCryptoServiceImpl;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.TrustStoreRO;
@@ -44,7 +42,7 @@ public class TruststoreResourceBaseTest {
     TruststoreResourceBase truststoreResourceBase;
 
     @Injectable
-    DomainCoreConverter domainConverter;
+    DomibusCoreMapper coreMapper;
 
     @Injectable
     CsvServiceImpl csvServiceImpl;
@@ -120,7 +118,7 @@ public class TruststoreResourceBaseTest {
         new Expectations(truststoreResourceBase) {{
             truststoreResourceBase.doGetTrustStoreEntries();
             result = trustStoreEntryList;
-            domainConverter.convert(trustStoreEntryList, TrustStoreRO.class);
+            coreMapper.trustStoreEntryListToTrustStoreROList(trustStoreEntryList);
             result = getTestTrustStoreROList(date);
         }};
 
@@ -204,7 +202,7 @@ public class TruststoreResourceBaseTest {
         new Expectations(truststoreResourceBase) {{
             truststoreResourceBase.doGetTrustStoreEntries();
             result = trustStoreEntries;
-            domainConverter.convert(trustStoreEntries, TrustStoreRO.class);
+            coreMapper.trustStoreEntryListToTrustStoreROList(trustStoreEntries);
             result = entries;
         }};
 

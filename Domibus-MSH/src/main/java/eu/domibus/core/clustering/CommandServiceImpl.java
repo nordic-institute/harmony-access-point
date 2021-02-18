@@ -3,7 +3,7 @@ package eu.domibus.core.clustering;
 import eu.domibus.api.cluster.Command;
 import eu.domibus.api.cluster.CommandService;
 import eu.domibus.api.server.ServerInfoService;
-import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
@@ -26,15 +26,15 @@ public class CommandServiceImpl implements CommandService {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CommandServiceImpl.class);
 
     protected CommandDao commandDao;
-    protected DomainCoreConverter domainConverter;
+    protected DomibusCoreMapper coreMapper;
     protected ServerInfoService serverInfoService;
 
 
     public CommandServiceImpl(CommandDao commandDao,
-                              DomainCoreConverter domainConverter,
+                              DomibusCoreMapper coreMapper,
                               ServerInfoService serverInfoService) {
         this.commandDao = commandDao;
-        this.domainConverter = domainConverter;
+        this.coreMapper = coreMapper;
         this.serverInfoService = serverInfoService;
     }
 
@@ -55,7 +55,7 @@ public class CommandServiceImpl implements CommandService {
         LOG.debug("Find commands by serverName [{}]", serverName);
         final List<CommandEntity> commands = commandDao.findCommandsByServerName(serverName);
         LOG.debug("There are [{}] commands", commands.size());
-        return domainConverter.convert(commands, Command.class);
+        return coreMapper.commandEntityListToCommandList(commands);
     }
 
     public void deleteCommand(Integer commandId) {

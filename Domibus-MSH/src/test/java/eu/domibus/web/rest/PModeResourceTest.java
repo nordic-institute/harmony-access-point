@@ -3,7 +3,7 @@ package eu.domibus.web.rest;
 import eu.domibus.api.pmode.*;
 import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.core.audit.AuditService;
-import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.pmode.provider.PModeProvider;
@@ -43,7 +43,7 @@ public class PModeResourceTest {
     private PModeProvider pModeProvider;
 
     @Injectable
-    private DomainCoreConverter domainConverter;
+    private DomibusCoreMapper coreMapper;
 
     @Injectable
     private CsvServiceImpl csvServiceImpl;
@@ -349,7 +349,7 @@ public class PModeResourceTest {
         pModeResponseROArrayList.add(pModeResponseRO);
 
         new Expectations(pModeResource) {{
-            domainConverter.convert((List<PModeArchiveInfo>) any, PModeResponseRO.class);
+            coreMapper.pModeArchiveInfoListToPModeResponseROList((List<PModeArchiveInfo>) any);
             result = pModeResponseROArrayList;
         }};
 
@@ -384,7 +384,7 @@ public class PModeResourceTest {
         new Expectations() {{
             pModeProvider.getRawConfigurationList();
             result = pModeArchiveInfoList;
-            domainConverter.convert(pModeArchiveInfoList, PModeResponseRO.class);
+            coreMapper.pModeArchiveInfoListToPModeResponseROList(pModeArchiveInfoList);
             result = pModeResponseROList;
             csvServiceImpl.exportToCSV(pModeResponseROList, PModeResponseRO.class, (Map<String, String>) any, (List<String>) any);
             result = "Configuration Date, Username, Description" + System.lineSeparator() +

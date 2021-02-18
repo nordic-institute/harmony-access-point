@@ -94,7 +94,7 @@ public class WSPluginBackendReliabilityServiceTest {
             backendMessage.setNextAttempt(NEW_DATE);
             times = 1;
 
-            backendMessage.setMessageStatus(WSBackendMessageStatus.WAITING_FOR_RETRY);
+            backendMessage.setBackendMessageStatus(WSBackendMessageStatus.WAITING_FOR_RETRY);
             times = 1;
         }};
     }
@@ -171,7 +171,7 @@ public class WSPluginBackendReliabilityServiceTest {
 
         new FullVerifications(){};
         Assert.assertNotNull(backendMessageLogEntity.getFailed());
-        Assert.assertEquals(WSBackendMessageStatus.SEND_FAILURE, backendMessageLogEntity.getMessageStatus());
+        Assert.assertEquals(WSBackendMessageStatus.SEND_FAILURE, backendMessageLogEntity.getBackendMessageStatus());
     }
 
     @Test

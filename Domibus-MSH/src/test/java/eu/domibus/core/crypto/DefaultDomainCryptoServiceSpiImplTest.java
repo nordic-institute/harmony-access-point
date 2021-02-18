@@ -5,7 +5,7 @@ import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.util.backup.BackupService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -50,7 +50,7 @@ public class DefaultDomainCryptoServiceSpiImplTest {
     private X509Certificate x509Certificate;
 
     @Injectable
-    private DomainCoreConverter coreConverter;
+    private DomibusCoreMapper coreMapper;
 
     @Injectable
     private Domain domain;

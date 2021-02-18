@@ -110,6 +110,7 @@ import {AddNestedPropertyDialogComponent} from './properties/support/add-nested-
 import {TLSTruststoreComponent} from './truststore/tls.truststore.component';
 import {TruststoreComponent} from './truststore/truststore.component';
 import {CertificateUploadComponent} from './truststore/certificate-upload/certificate-upload.component';
+import {PluginUserValidatorService} from "./pluginuser/support/pluginuservalidator.service";
 
 @NgModule({
   declarations: [
@@ -255,6 +256,7 @@ import {CertificateUploadComponent} from './truststore/certificate-upload/certif
     },
     UserService,
     UserValidatorService,
+    PluginUserValidatorService,
     DialogsService,
     PropertiesService,
     FileUploadValidatorService,

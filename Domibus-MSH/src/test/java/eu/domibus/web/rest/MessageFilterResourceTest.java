@@ -3,7 +3,7 @@ package eu.domibus.web.rest;
 import eu.domibus.api.csv.CsvException;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.routing.RoutingCriteria;
-import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.core.csv.MessageFilterCSV;
 import eu.domibus.core.plugin.routing.RoutingService;
@@ -21,7 +21,10 @@ import org.junit.runner.RunWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 
 import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -43,7 +46,7 @@ public class MessageFilterResourceTest {
     RoutingService routingService;
 
     @Injectable
-    DomainCoreConverter coreConverter;
+    DomibusCoreMapper coreMapper;
 
     @Injectable
     private CsvServiceImpl csvServiceImpl;
@@ -54,7 +57,7 @@ public class MessageFilterResourceTest {
         List<MessageFilterRO> messageFilterROS = singletonList(new MessageFilterRO());
 
         new Expectations(){{
-            coreConverter.convert(messageFilterROS, BackendFilter.class);
+            coreMapper.messageFilterROListToBackendFilterList(messageFilterROS);
             this.result = backendFilters;
             times = 1;
         }};
@@ -152,7 +155,7 @@ public class MessageFilterResourceTest {
             routingService.getBackendFiltersUncached();
             result = backendFilters;
 
-            coreConverter.convert(backendFilters, MessageFilterRO.class);
+            coreMapper.backendFilterListToMessageFilterROList(backendFilters);
             result = messageFilterROS;
         }};
 

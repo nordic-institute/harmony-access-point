@@ -1,21 +1,24 @@
 package eu.domibus.web.rest;
 
+import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.multitenancy.DomainTaskException;
+import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.property.DomibusConfigurationService;
-import eu.domibus.api.multitenancy.*;
 import eu.domibus.api.security.AuthUtils;
-import eu.domibus.core.user.ui.User;
-import eu.domibus.web.security.UserDetail;
+import eu.domibus.core.converter.DomibusCoreMapper;
+import eu.domibus.core.multitenancy.dao.UserDomainDao;
 import eu.domibus.core.user.UserPersistenceService;
 import eu.domibus.core.user.UserService;
+import eu.domibus.core.user.ui.User;
 import eu.domibus.core.util.WarningUtil;
-import eu.domibus.core.converter.DomainCoreConverter;
-import eu.domibus.core.multitenancy.dao.UserDomainDao;
-import eu.domibus.web.security.AuthenticationService;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.ChangePasswordRO;
 import eu.domibus.web.rest.ro.DomainRO;
 import eu.domibus.web.rest.ro.LoginRO;
 import eu.domibus.web.rest.ro.UserRO;
+import eu.domibus.web.security.AuthenticationService;
+import eu.domibus.web.security.UserDetail;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
@@ -65,7 +68,7 @@ public class AuthenticationResourceTest {
     protected DomibusConfigurationService domibusConfigurationService;
 
     @Injectable
-    DomainCoreConverter domainCoreConverter;
+    DomibusCoreMapper coreMapper;
 
     @Injectable
     ErrorHandlerService errorHandlerService;
@@ -126,7 +129,7 @@ public class AuthenticationResourceTest {
             domainContextProvider.getCurrentDomainSafely();
             result = DomainService.DEFAULT_DOMAIN;
 
-            domainCoreConverter.convert(DomainService.DEFAULT_DOMAIN, DomainRO.class);
+            coreMapper.domainToDomainRO(DomainService.DEFAULT_DOMAIN);
             result = domainRO;
         }};
 

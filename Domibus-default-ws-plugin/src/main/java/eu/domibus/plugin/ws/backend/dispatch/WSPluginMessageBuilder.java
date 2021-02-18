@@ -79,9 +79,17 @@ public class WSPluginMessageBuilder {
             case DELETED:
                 return getDelete(messageLogEntity);
             case MESSAGE_STATUS_CHANGE:
+                return getChangeStatus(messageLogEntity);
             default:
                 throw new IllegalArgumentException("Unexpected value: " + messageLogEntity.getType());
         }
+    }
+
+    protected MessageStatusChange getChangeStatus(WSBackendMessageLogEntity messageLogEntity) {
+        MessageStatusChange messageStatusChange = new ObjectFactory().createMessageStatusChange();
+        messageStatusChange.setMessageID(messageLogEntity.getMessageId());
+        messageStatusChange.setMessageStatus(MessageStatus.valueOf(messageLogEntity.getMessageStatus().name()));
+        return messageStatusChange;
     }
 
     protected SubmitMessage getSubmitMessage(WSBackendMessageLogEntity messageLogEntity) {

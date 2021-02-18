@@ -7,7 +7,7 @@ import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.user.UserBase;
 import eu.domibus.api.user.UserManagementException;
 import eu.domibus.api.user.UserState;
-import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.user.ui.User;
 import eu.domibus.core.user.ui.UserDao;
 import eu.domibus.core.user.ui.UserRole;
@@ -47,7 +47,7 @@ public class UserPersistenceServiceImpl implements UserPersistenceService {
     private BCryptPasswordEncoder bCryptEncoder;
 
     @Autowired
-    private DomainCoreConverter domainConverter;
+    private DomibusCoreMapper coreMapper;
 
     @Autowired
     protected UserDomainService userDomainService;
@@ -180,7 +180,7 @@ public class UserPersistenceServiceImpl implements UserPersistenceService {
         for (eu.domibus.api.user.User user : newUsers) {
             securityPolicyManager.validateComplexity(user.getUserName(), user.getPassword());
 
-            User userEntity = domainConverter.convert(user, User.class);
+            User userEntity = coreMapper.userApiToUserSecurity(user);
 
             userEntity.setPassword(bCryptEncoder.encode(userEntity.getPassword()));
             addRoleToUser(user.getAuthorities(), userEntity);
