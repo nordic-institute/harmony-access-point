@@ -20,9 +20,9 @@ import java.util.stream.Collectors;
 @Component
 public class FSPluginPropertiesMetadataManagerImpl implements DomibusPropertyMetadataManagerExt {
 
-    protected static final String LOCATION = "fsplugin.messages.location";
+    public static final String LOCATION = "fsplugin.messages.location";
 
-    protected static final String SENT_ACTION = "fsplugin.messages.sent.action";
+    public static final String SENT_ACTION = "fsplugin.messages.sent.action";
 
     public static final String SENT_PURGE_WORKER_CRONEXPRESSION = "fsplugin.messages.sent.purge.worker.cronExpression";
 
