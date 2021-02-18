@@ -2,6 +2,7 @@ package eu.domibus.core.property;
 
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
@@ -10,11 +11,9 @@ import java.util.TimeZone;
 
 /**
  * @author Federico Martini , soumya
- * <p>
- * This class is designed to retrieve the main Domibus properties defined in a file and valued using Maven resource filtering.
- * Spring will take care of the creation of this Singleton object at startup.
+ * This class is designed to retrieve Domibus version details.
  */
-@Service(value = "domibusPropertiesService")
+@Service
 public class DomibusVersionService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusVersionService.class);
@@ -26,17 +25,17 @@ public class DomibusVersionService {
     }
 
     public void init() {
-        try (InputStream is = getClass().getClassLoader().getResourceAsStream("config/application.properties")) {
-            if (is == null) {
-                LOG.warn("The 'domibus.properties' has not been found!");
+        try (InputStream inputStream = new ClassPathResource("config/version.properties").getInputStream()) {
+            if (inputStream == null) {
+                LOG.warn("The 'version.properties' has not been found!");
                 return;
             }
-            domibusProps.load(is);
+            domibusProps.load(inputStream);
             LOG.info("=========================================================================================================");
             LOG.info("|         " + getDisplayVersion() + "        |");
             LOG.info("=========================================================================================================");
         } catch (Exception ex) {
-            LOG.warn("Error loading Domibus properties", ex);
+            LOG.warn("Error loading version properties", ex);
         }
     }
 
