@@ -1,11 +1,9 @@
 package eu.domibus.ext.delegate.mapper;
 
 import eu.domibus.api.alerts.AlertEvent;
-import eu.domibus.api.alerts.AlertLevel;
 import eu.domibus.ext.domain.AlertEventDTO;
-import eu.domibus.ext.domain.AlertLevelDTO;
-import org.mapstruct.DecoratedWith;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 /**
  * Mapper to generate Monitoring Service abstract class conversion methods
@@ -13,15 +11,12 @@ import org.mapstruct.Mapper;
  * @since 4.2
  */
 @Mapper(componentModel = "spring")
-@DecoratedWith(AlertMapperDecorator.class)
 public interface AlertMapper {
 
+    @Mapping(source = "alertLevel", target = "alertLevelDTO")
     AlertEventDTO alertEventToAlertEventDTO(AlertEvent alertEvent);
 
+    @Mapping(source = "alertLevelDTO", target = "alertLevel")
     AlertEvent alertEventDTOToAlertEvent(AlertEventDTO alertEventDTO);
-
-    AlertLevelDTO alertLevelToAlertLevelDTO(AlertLevel alertLevel);
-
-    AlertLevel alertLevelDTOToAlertLevel(AlertLevelDTO alertLevelDTO);
 
 }
