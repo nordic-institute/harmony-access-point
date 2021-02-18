@@ -638,7 +638,7 @@
         <createIndex indexName="IDX_MESSAGE_LOG_MSG_ROLE_ID" tableName="TB_USER_MESSAGE_LOG">
             <column name="MSH_ROLE_ID_FK"/>
         </createIndex>
-        <createIndex indexName="IDX_MESSAGE_LOG_NOTIF_STATUS_ID" tableName="TB_USER_MESSAGE_LOG">
+        <createIndex indexName="IDX_MSG_LOG_NOTIF_STATUS_ID" tableName="TB_USER_MESSAGE_LOG">
             <column name="NOTIFICATION_STATUS_ID_FK"/>
         </createIndex>
         <createIndex indexName="IDX_MESSAGE_LOG_RECEIVED" tableName="TB_USER_MESSAGE_LOG">
@@ -845,11 +845,11 @@
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
         <addForeignKeyConstraint baseColumnNames="MESSAGE_STATUS_ID_FK" baseTableName="TB_SIGNAL_MESSAGE_LOG"
-                                 constraintName="FK_MSG_LOG_MSG_STATUS" deferrable="false" initiallyDeferred="false"
+                                 constraintName="FK_SIGNAL_LOG_MSG_STATUS" deferrable="false" initiallyDeferred="false"
                                  onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
                                  referencedTableName="TB_D_MESSAGE_STATUS"/>
         <addForeignKeyConstraint baseColumnNames="MSH_ROLE_ID_FK" baseTableName="TB_SIGNAL_MESSAGE_LOG"
-                                 constraintName="FK_MSG_LOG_MSH_ROLE" deferrable="false" initiallyDeferred="false"
+                                 constraintName="FK_SIGNAL_LOG_MSH_ROLE" deferrable="false" initiallyDeferred="false"
                                  onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
                                  referencedTableName="TB_D_MSH_ROLE"/>
         <createIndex indexName="IDX_SIGNAL_LOG_MSG_STATUS_ID" tableName="TB_SIGNAL_MESSAGE_LOG">
