@@ -66,4 +66,16 @@ public class DomibusPropertiesServiceTest {
 
         assertTrue(buildDetails.contains(artifactName));
     }
+
+    @Test
+    public void getBuiltTime(@Mocked Properties domibusProps) {
+
+        new Expectations() {{
+            domibusProps.getProperty("Build-Time");
+            result = "2021-02-18 09:47";
+        }};
+
+        String time = service.getBuiltTime();
+        assertEquals("2021-02-18 09:47|Coordinated Universal Time", time);
+    }
 }
