@@ -34,12 +34,10 @@ public class PluginListenerTest {
     private DatabaseUtil databaseUtil;
 
     @Test
-    public void onPluginEvent_noDomain(@Mocked final Event event, @Mocked final Alert alert) {
+    public void onPluginEvent_noDomain(@Injectable final Event event, @Injectable final Alert alert) {
         new Expectations(){{
             databaseUtil.getDatabaseUserName();
             result = "userName";
-            alertService.createAlertOnPluginEvent(event);
-            result=alert;
         }};
 
         pluginListener.onPluginEvent(event, null);
@@ -47,19 +45,16 @@ public class PluginListenerTest {
         new FullVerifications(){{
             domainContextProvider.clearCurrentDomain();
             eventService.persistEvent(event);
-            alertService.createAlertOnPluginEvent(event);
-            alertService.enqueueAlert(alert);
+            alertService.createAndEnqueueAlertOnPluginEvent(event);
         }};
     }
 
     @Test
-    public void onPluginEvent(@Mocked final Event event, @Mocked final Alert alert) {
+    public void onPluginEvent(@Injectable final Event event, @Injectable final Alert alert) {
         final String domain = "domain";
         new Expectations(){{
             databaseUtil.getDatabaseUserName();
             result = "userName";
-            alertService.createAlertOnPluginEvent(event);
-            result=alert;
         }};
 
         pluginListener.onPluginEvent(event, domain);
@@ -67,8 +62,7 @@ public class PluginListenerTest {
         new FullVerifications(){{
             domainContextProvider.setCurrentDomain(domain);times=1;
             eventService.persistEvent(event);
-            alertService.createAlertOnPluginEvent(event);
-            alertService.enqueueAlert(alert);
+            alertService.createAndEnqueueAlertOnPluginEvent(event);
         }};
     }
 }

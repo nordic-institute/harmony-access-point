@@ -8,9 +8,7 @@ import eu.domibus.core.alerts.model.common.AlertType;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Thomas Dussart
@@ -44,6 +42,8 @@ public class Alert {
     private AlertLevel alertLevel;
 
     private Set<Event> events = new HashSet<>();
+
+    private Map<String, String> properties = new HashMap<>();
 
     public long getEntityId() {
         return entityId;
@@ -147,6 +147,14 @@ public class Alert {
         this.nextAttempt = nextAttempt;
     }
 
+    public Map<String, String> getProperties() {
+        return properties;
+    }
+
+    public void setProperties(Map<String, String> properties) {
+        this.properties = properties;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
@@ -160,5 +168,9 @@ public class Alert {
                 .append("reportingTimeFailure", reportingTimeFailure)
                 .append("events", events)
                 .toString();
+    }
+
+    public void addProperty(String key, String value) {
+        properties.put(key, value);
     }
 }

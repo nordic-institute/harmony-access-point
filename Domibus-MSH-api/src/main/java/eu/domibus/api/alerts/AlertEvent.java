@@ -10,6 +10,10 @@ import java.util.Map;
  */
 public class AlertEvent {
     private AlertLevel alertLevel;
+    private String name;
+    private boolean active;
+    private String emailSubject;
+    private String emailBody;
     private Map<String, String> properties = new HashMap<>(); //NOSONAR
 
     public AlertLevel getAlertLevel() {
@@ -18,6 +22,38 @@ public class AlertEvent {
 
     public void setAlertLevel(AlertLevel alertLevel) {
         this.alertLevel = alertLevel;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    public String getEmailSubject() {
+        return emailSubject;
+    }
+
+    public void setEmailSubject(String emailSubject) {
+        this.emailSubject = emailSubject;
+    }
+
+    public String getEmailBody() {
+        return emailBody;
+    }
+
+    public void setEmailBody(String emailBody) {
+        this.emailBody = emailBody;
     }
 
     public Map<String, String> getProperties() {
