@@ -64,10 +64,6 @@ public class FSPluginPropertiesMetadataManagerImpl implements DomibusPropertyMet
     @SuppressWarnings("squid:S2068")
     protected static final String AUTHENTICATION_PASSWORD = "fsplugin.authentication.password";
 
-//    public static final String EXPRESSION = "fsplugin.messages.expression";
-
-//    public static final String ORDER = "fsplugin.order";
-
     protected static final String PAYLOAD_SCHEDULE_THRESHOLD = "fsplugin.messages.payload.schedule.threshold";
 
     protected static final String PASSWORD_ENCRYPTION_ACTIVE = "fsplugin.password.encryption.active"; //NOSONAR
@@ -75,8 +71,6 @@ public class FSPluginPropertiesMetadataManagerImpl implements DomibusPropertyMet
     public static final String FSPLUGIN_PASSWORD_ENCRYPTION_PROPERTIES = "fsplugin.password.encryption.properties"; //NOSONAR
 
     public static final String OUT_QUEUE = "fsplugin.send.queue";
-
-//    protected static final String DOMAINS_LIST = "fsplugin.domains.list";
 
     Map<String, DomibusPropertyMetadataDTO> knownProperties;
 
@@ -104,7 +98,6 @@ public class FSPluginPropertiesMetadataManagerImpl implements DomibusPropertyMet
                 new DomibusPropertyMetadataDTO(PASSWORD_ENCRYPTION_ACTIVE, Type.BOOLEAN, Module.FS_PLUGIN, false, Usage.DOMAIN, false, true, false, false),
                 new DomibusPropertyMetadataDTO(FSPLUGIN_PASSWORD_ENCRYPTION_PROPERTIES, Type.COMMA_SEPARATED_LIST, Module.FS_PLUGIN, false, Usage.DOMAIN, false, true, false, false),
                 new DomibusPropertyMetadataDTO(OUT_QUEUE, Type.JNDI, Module.FS_PLUGIN, false, Usage.GLOBAL, true, true, false, false),
-                //new DomibusPropertyMetadataDTO(DOMAINS_LIST, Type.COMMA_SEPARATED_LIST, Module.FS_PLUGIN, false, Usage.GLOBAL, false, true, false, false),
 
                 //writable properties
                 new DomibusPropertyMetadataDTO(SEND_WORKER_INTERVAL, Type.NUMERIC, Module.FS_PLUGIN, Usage.DOMAIN, true),
@@ -119,8 +112,6 @@ public class FSPluginPropertiesMetadataManagerImpl implements DomibusPropertyMet
                 new DomibusPropertyMetadataDTO(PASSWORD, Type.PASSWORD, Module.FS_PLUGIN, true, Usage.DOMAIN, false, true, true, false),
                 // with fallback - domain like in ST and full domain in MT
                 new DomibusPropertyMetadataDTO(LOCATION, Type.URI, Module.FS_PLUGIN, Usage.DOMAIN, false),
-                //new DomibusPropertyMetadataDTO(ORDER, Type.NUMERIC, Module.FS_PLUGIN, Usage.DOMAIN, true),
-               // new DomibusPropertyMetadataDTO(EXPRESSION, Type.REGEXP, Module.FS_PLUGIN, Usage.DOMAIN, true),
                 new DomibusPropertyMetadataDTO(SEND_DELAY, Type.NUMERIC, Module.FS_PLUGIN, Usage.DOMAIN, true),
                 new DomibusPropertyMetadataDTO(PAYLOAD_SCHEDULE_THRESHOLD, Type.NUMERIC, Module.FS_PLUGIN, Usage.GLOBAL, true),
                 new DomibusPropertyMetadataDTO(SENT_ACTION, Module.FS_PLUGIN, Usage.DOMAIN, true),

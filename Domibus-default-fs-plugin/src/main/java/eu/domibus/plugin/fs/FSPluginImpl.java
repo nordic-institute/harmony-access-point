@@ -436,9 +436,6 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
     public void messageStatusChanged(MessageStatusChangeEvent event) {
         LOG.debug("Handling messageStatusChanged event");
 
-//        Map<String, String> properties = event.getProps();
-//        String service = properties.get("service");
-//        String action = properties.get("action");
         String domain = fsDomainService.getFSPluginDomain();
 
         String messageId = event.getMessageId();

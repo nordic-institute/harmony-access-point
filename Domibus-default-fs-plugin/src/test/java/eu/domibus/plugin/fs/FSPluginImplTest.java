@@ -521,9 +521,6 @@ public class FSPluginImplTest {
         properties.put("action", action);
 
         new Expectations(1, backendFS) {{
-//            event.getProps();
-//            result = properties;
-
             fsDomainService.getFSPluginDomain();
             result = domain;
 

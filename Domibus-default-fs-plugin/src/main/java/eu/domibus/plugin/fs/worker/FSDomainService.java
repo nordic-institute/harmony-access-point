@@ -12,10 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.regex.Pattern;
 
 /**
  * @author Tiago Miguel
@@ -39,7 +36,6 @@ public class FSDomainService {
     @Autowired
     protected DomainContextExtService domainContextExtService;
 
-    private final Map<String, Pattern> domainPatternCache = new HashMap<>();
 
     /**
      * Verifies if the provided domain exists.
@@ -66,20 +62,14 @@ public class FSDomainService {
     /**
      * Returns all domains that need to be processed by various operations (sending, purging etc)
      * In multi-tenancy, this means only the current domain.
-     * In single-tenancy, all configured fsplugin domains are returned.
+     * In single-tenancy, default domain
      *
      * @return a list of domain codes
      */
     public List<String> getDomainsToProcess() {
-        if (domibusConfigurationExtService.isMultiTenantAware()) {
-            // in multi-tenancy, process only the current domain
-            LOG.trace("Multi-tenancy mode, process current domain");
-            return Arrays.asList(domainContextExtService.getCurrentDomain().getCode());
-        }
-        
-        // in single-tenancy, process default domain
-        LOG.trace("Single-tenancy mode, process default domain");
-        return Arrays.asList(FSSendMessagesService.DEFAULT_DOMAIN);
+
+        return Arrays.asList(domainContextExtService.getCurrentDomain().getCode());
+
     }
 
     /**
@@ -99,99 +89,20 @@ public class FSDomainService {
         return domainDTO;
     }
 
-//    public String getFSPluginDomain(FSMessage fsMessage) {
-////        CollaborationInfo collaborationInfo = fsMessage.getMetadata().getCollaborationInfo();
-////        String service = collaborationInfo.getService().getValue();
-////        String action = collaborationInfo.getAction();
-//        return getFSPluginDomain();
-//    }
-
     /**
-     * Gets the FS Plugin domain associated to the service and action. For multitenancy mode it always gets the domain from the Domibus core. In non multitenancy mode
-     * it resolves the domain using the FS Plugin configuration
+     * Gets the FS Plugin domain from the Domibus core:
+     * default domain in singletenancy and current domain in multitenancy mode
      *
      * @return the FS Plugin domain
      */
     public String getFSPluginDomain() {
         LOG.trace("Getting FSPluginDomain");
 
-//        // get multiTenantAware
-//        boolean multiTenantAware = domibusConfigurationExtService.isMultiTenantAware();
-//        LOG.trace("Is Domibus running in multitenancy mode? [{}]", multiTenantAware);
-
         // get domain info
-        String domain;
-//        if (multiTenantAware) {
-            domain = domainContextExtService.getCurrentDomain().getCode();
-            LOG.trace("Getting current domain [{}]", domain);
-//        } else {
-//            domain = FSSendMessagesService.DEFAULT_DOMAIN;
-////            domain = resolveFSPluginDomain(service, action);
-////            if (StringUtils.isEmpty(domain)) {
-////                LOG.debug("Using default domain: no configured domain found");
-////                domain = FSSendMessagesService.DEFAULT_DOMAIN;
-////            }
-//        }
+        String domain = domainContextExtService.getCurrentDomain().getCode();
         LOG.trace("FSPluginDomain is [{}]", domain);
 
         return domain;
     }
-
-//    /**
-//     * Resolves the FS Plugin domain using the FS Plugin configuration
-//     *
-//     * @param service The UserMessage service value
-//     * @param action  The UserMessage action value
-//     * @return the FS Plugin domain
-//     */
-//    protected String resolveFSPluginDomain(String service, String action) {
-//        LOG.debug("Resolving domain for service [{}] and action [{}]", service, action);
-//
-//        String serviceAction = service + "#" + action;
-//        List<String> domains = fsPluginProperties.getDomainsOrdered();
-//        for (String domain : domains) {
-//            Pattern domainExpressionPattern = getFSPluginDomainPattern(domain);
-//            if (domainExpressionPattern != null) {
-//                boolean domainMatches = domainExpressionPattern.matcher(serviceAction).matches();
-//                if (domainMatches) {
-//                    LOG.debug("Resolved domain [{}] for service [{}] and action [{}]", domain, service, action);
-//                    return domain;
-//                }
-//            }
-//        }
-//        LOG.debug("No domain configured for service [{}] and action [{}]", service, action);
-//        return null;
-//    }
-
-//    protected Pattern getFSPluginDomainPattern(String domain) {
-//        synchronized (domainPatternCache) {
-//            if (domainPatternCache.containsKey(domain)) {
-//                return domainPatternCache.get(domain);
-//            }
-//        }
-//
-//        String domainExpression = fsPluginProperties.getExpression(domain);
-//        LOG.debug("Getting domain pattern for domain [{}] using domain expression", domain, domainExpression);
-//
-//        Pattern domainExpressionPattern = null;
-//        if (StringUtils.isNotEmpty(domainExpression)) {
-//            try {
-//                domainExpressionPattern = Pattern.compile(domainExpression);
-//            } catch (PatternSyntaxException e) {
-//                LOG.warn("Invalid domain expression for " + domain, e);
-//            }
-//        }
-//
-//        // domainExpressionPattern may be null, we should still cache null and return it
-//        domainPatternCache.put(domain, domainExpressionPattern);
-//        return domainExpressionPattern;
-//    }
-
-//    public void resetPatterns() {
-//        LOG.debug("Clearing domain pattern cache.");
-//        synchronized (domainPatternCache) {
-//            domainPatternCache.clear();
-//        }
-//    }
 
 }
