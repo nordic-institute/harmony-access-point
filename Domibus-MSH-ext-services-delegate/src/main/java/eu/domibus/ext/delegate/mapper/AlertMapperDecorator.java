@@ -10,8 +10,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 /**
  * Monitoring Mapper Decorator is for the abstract class and override the methods of the monitoring mapper which it decorates.
  *
- * @author Soumya Chandran
- * @since 4.2
+ * @author François Gautier
+ * @since 5.0
  */
 public abstract class AlertMapperDecorator implements AlertMapper {
 

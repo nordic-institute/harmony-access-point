@@ -45,6 +45,7 @@ public class DomainExtDefaultConverter implements DomainExtConverter {
 
     @Autowired
     MonitoringMapper monitoringMapper;
+
     @Autowired
     AlertMapper alertMapper;
 

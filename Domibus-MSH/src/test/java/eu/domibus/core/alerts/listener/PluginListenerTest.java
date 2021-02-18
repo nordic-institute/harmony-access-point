@@ -19,7 +19,7 @@ import org.junit.runner.RunWith;
 public class PluginListenerTest {
 
     @Tested
-    private PluginListener pluginListener;
+    private PluginEvenListener pluginListener;
 
     @Injectable
     private EventService eventService;

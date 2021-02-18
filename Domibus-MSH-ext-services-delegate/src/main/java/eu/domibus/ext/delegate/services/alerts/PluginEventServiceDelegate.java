@@ -24,6 +24,7 @@ public class PluginEventServiceDelegate implements PluginEventExtService {
         this.pluginEventService = pluginEventService;
     }
 
+    @Override
     public void enqueueMessageEvent(AlertEventDTO alertEventDTO) {
         final AlertEvent alertEvent = domainExtConverter.convert(alertEventDTO, AlertEvent.class);
         pluginEventService.enqueueMessageEvent(alertEvent);

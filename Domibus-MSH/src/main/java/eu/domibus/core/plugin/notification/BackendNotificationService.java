@@ -47,6 +47,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PLUGIN_NOTIFICATION_ACTIVE;
+import static eu.domibus.common.JMSConstants.UNKNOWN_RECEIVER_QUEUE;
 import static eu.domibus.messaging.MessageConstants.*;
 import static java.util.stream.Collectors.toList;
 
@@ -72,7 +73,7 @@ public class BackendNotificationService {
     protected UserMessageLogDao userMessageLogDao;
 
     @Autowired
-    @Qualifier("unknownReceiverQueue")
+    @Qualifier(UNKNOWN_RECEIVER_QUEUE)
     protected Queue unknownReceiverQueue;
 
     @Autowired

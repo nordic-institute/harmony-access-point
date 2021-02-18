@@ -16,6 +16,8 @@ import javax.jms.ConnectionFactory;
 import javax.jms.Topic;
 import java.util.Optional;
 
+import static eu.domibus.common.JMSConstants.CLUSTER_COMMAND_TOPIC;
+
 /**
  * JMS listener responsible of executing internal commands
  *
@@ -28,7 +30,7 @@ public class ControllerListenerConfiguration {
 
     @Bean("controllerListener")
     public DefaultMessageListenerContainer createDefaultMessageListenerContainer(@Qualifier(JMSConstants.DOMIBUS_JMS_XACONNECTION_FACTORY) ConnectionFactory connectionFactory,
-                                                                                 @Qualifier("clusterCommandTopic") Topic destination,
+                                                                                 @Qualifier(CLUSTER_COMMAND_TOPIC) Topic destination,
                                                                                  ControllerListenerService messageListener,
                                                                                  PlatformTransactionManager transactionManager,
                                                                                  Optional<JndiDestinationResolver> internalDestinationResolver,
