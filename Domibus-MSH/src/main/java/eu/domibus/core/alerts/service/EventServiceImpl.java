@@ -35,6 +35,7 @@ import java.util.Date;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static eu.domibus.common.JMSConstants.ALERT_MESSAGE_QUEUE;
 import static eu.domibus.core.alerts.model.common.AccountEventKey.*;
 import static eu.domibus.core.alerts.model.common.MessageEvent.*;
 
@@ -85,7 +86,7 @@ public class EventServiceImpl implements EventService {
 
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     @Autowired
-    @Qualifier("alertMessageQueue")
+    @Qualifier(ALERT_MESSAGE_QUEUE)
     private Queue alertMessageQueue;
 
     @Autowired

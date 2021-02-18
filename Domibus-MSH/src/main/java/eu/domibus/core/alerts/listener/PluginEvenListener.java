@@ -20,9 +20,9 @@ import org.springframework.transaction.annotation.Transactional;
  * @since 5.0
  */
 @Component
-public class PluginListener {
+public class PluginEvenListener {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PluginListener.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PluginEvenListener.class);
 
     private final EventService eventService;
 
@@ -32,10 +32,10 @@ public class PluginListener {
 
     private final DatabaseUtil databaseUtil;
 
-    public PluginListener(EventService eventService,
-                          AlertService alertService,
-                          DomainContextProvider domainContextProvider,
-                          DatabaseUtil databaseUtil) {
+    public PluginEvenListener(EventService eventService,
+                              AlertService alertService,
+                              DomainContextProvider domainContextProvider,
+                              DatabaseUtil databaseUtil) {
         this.eventService = eventService;
         this.alertService = alertService;
         this.domainContextProvider = domainContextProvider;

@@ -5,6 +5,7 @@ import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.server.ServerInfoService;
 import eu.domibus.api.util.DateUtil;
+import eu.domibus.common.JMSConstants;
 import eu.domibus.core.alerts.configuration.AlertModuleConfiguration;
 import eu.domibus.core.alerts.configuration.common.CommonConfigurationManager;
 import eu.domibus.core.alerts.dao.AlertDao;
@@ -81,7 +82,7 @@ public class AlertServiceImpl implements AlertService {
 
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     @Autowired
-    @Qualifier("alertMessageQueue")
+    @Qualifier(JMSConstants.ALERT_MESSAGE_QUEUE)
     private Queue alertMessageQueue;
 
     @Autowired
