@@ -187,6 +187,9 @@
             <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
+        <createIndex indexName="IDX_D_SERVICE_VALUE" tableName="TB_D_SERVICE">
+            <column name="VALUE"/>
+        </createIndex>
         <addUniqueConstraint columnNames="VALUE" constraintName="UK_D_SERVICE_VALUE" tableName="TB_D_SERVICE"/>
 
         <createTable tableName="TB_D_PARTY">
@@ -407,6 +410,9 @@
                                  constraintName="FK_USER_MSG_SUBTYPE_ID" deferrable="false" initiallyDeferred="false"
                                  onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
                                  referencedTableName="TB_D_MESSAGE_SUBTYPE"/>
+        <createIndex indexName="IDX_USER_MSG_MESSAGE_ID" tableName="TB_USER_MESSAGE">
+            <column name="MESSAGE_ID"/>
+        </createIndex>
         <createIndex indexName="IDX_USER_MSG_ACTION_ID" tableName="TB_USER_MESSAGE">
             <column name="ACTION_ID_FK"/>
         </createIndex>
@@ -434,6 +440,7 @@
         <createIndex indexName="IDX_MESSAGE_SUBTYPE_ID" tableName="TB_USER_MESSAGE">
             <column name="MESSAGE_SUBTYPE_ID_FK"/>
         </createIndex>
+        <addUniqueConstraint columnNames="MESSAGE_ID" constraintName="UK_USER_MSG_MESSAGE_ID" tableName="TB_USER_MESSAGE"/>
 
         <createTable tableName="TB_MESSAGE_ACKNW">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
@@ -485,7 +492,7 @@
         </createIndex>
 
         <createTable tableName="TB_SJ_MESSAGE_HEADER" remarks="Stores the message header details for SplitAndJoin">
-            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+            <column name="ID_PK" type="BIGINT">
                 <constraints primaryKey="true" primaryKeyName="PK_SJ_MESSAGE_HEADER"/>
             </column>
             <column name="BOUNDARY" remarks="The multipart boundary value" type="VARCHAR(255)"/>
@@ -579,12 +586,8 @@
             <column name="GROUP_ID_FK"/>
         </createIndex>
 
-
-
-
-
-        <createTable tableName="TB_MESSAGE_LOG">
-            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+        <createTable tableName="TB_USER_MESSAGE_LOG">
+            <column name="ID_PK" type="BIGINT">
                 <constraints primaryKey="true" primaryKeyName="PK_MESSAGE_LOG"/>
             </column>
             <column name="BACKEND" type="VARCHAR(255)"/>
@@ -617,20 +620,28 @@
             <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
-        <addForeignKeyConstraint baseColumnNames="MESSAGE_STATUS_ID_FK" baseTableName="TB_MESSAGE_LOG"
+        <addForeignKeyConstraint baseColumnNames="MESSAGE_STATUS_ID_FK" baseTableName="TB_USER_MESSAGE_LOG"
                                  constraintName="FK_MSG_LOG_MSG_STATUS" deferrable="false" initiallyDeferred="false"
                                  onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
                                  referencedTableName="TB_D_MESSAGE_STATUS"/>
-        <addForeignKeyConstraint baseColumnNames="MSH_ROLE_ID_FK" baseTableName="TB_MESSAGE_LOG"
+        <addForeignKeyConstraint baseColumnNames="MSH_ROLE_ID_FK" baseTableName="TB_USER_MESSAGE_LOG"
                                  constraintName="FK_MSG_LOG_MSH_ROLE" deferrable="false" initiallyDeferred="false"
                                  onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
                                  referencedTableName="TB_D_MSH_ROLE"/>
-        <addForeignKeyConstraint baseColumnNames="NOTIFICATION_STATUS_ID_FK" baseTableName="TB_MESSAGE_LOG"
+        <addForeignKeyConstraint baseColumnNames="NOTIFICATION_STATUS_ID_FK" baseTableName="TB_USER_MESSAGE_LOG"
                                  constraintName="FK_MSG_LOG_NOTIF_STATUS" deferrable="false" initiallyDeferred="false"
                                  onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
                                  referencedTableName="TB_D_NOTIFICATION_STATUS"/>
-
-        <createIndex indexName="IDX_MESSAGE_LOG_RECEIVED" tableName="TB_MESSAGE_LOG">
+        <createIndex indexName="IDX_MESSAGE_LOG_MSG_STATUS_ID" tableName="TB_USER_MESSAGE_LOG">
+            <column name="MESSAGE_STATUS_ID_FK"/>
+        </createIndex>
+        <createIndex indexName="IDX_MESSAGE_LOG_MSG_ROLE_ID" tableName="TB_USER_MESSAGE_LOG">
+            <column name="MSH_ROLE_ID_FK"/>
+        </createIndex>
+        <createIndex indexName="IDX_MESSAGE_LOG_NOTIF_STATUS_ID" tableName="TB_USER_MESSAGE_LOG">
+            <column name="NOTIFICATION_STATUS_ID_FK"/>
+        </createIndex>
+        <createIndex indexName="IDX_MESSAGE_LOG_RECEIVED" tableName="TB_USER_MESSAGE_LOG">
             <column name="RECEIVED"/>
         </createIndex>
 
@@ -774,10 +785,10 @@
         <addUniqueConstraint columnNames="MESSAGE_ID_FK,MESSAGE_PROPERTY_FK" constraintName="UK_MSG_PROPS_FKS" tableName="TB_MESSAGE_PROPERTIES"/>
 
         <createTable tableName="TB_USER_MESSAGE_RAW">
-            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+            <column name="ID_PK" type="BIGINT">
                 <constraints primaryKey="true" primaryKeyName="PK_USER_MESSAGE_RAW"/>
             </column>
-            <column name="RAW_XML" type="CLOB"/>
+            <column name="RAW_XML" type="BLOB"/>
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
@@ -793,7 +804,7 @@
                                  referencedColumnNames="ID_PK" referencedTableName="TB_USER_MESSAGE"/>
 
         <createTable tableName="TB_SIGNAL_MESSAGE">
-            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+            <column name="ID_PK" type="BIGINT">
                 <constraints primaryKey="true" primaryKeyName="PK_SIGNAL_MESSAGE"/>
             </column>
             <column name="MESSAGE_ID" type="VARCHAR(255)"/>
@@ -811,6 +822,46 @@
                                  initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_USER_MESSAGE"/>
 
+        <createTable tableName="TB_SIGNAL_MESSAGE_LOG">
+            <column name="ID_PK" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_SIGNAL_LOG"/>
+            </column>
+            <column name="RECEIVED" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="DELETED" type="TIMESTAMP"/>
+            <column name="MESSAGE_STATUS_ID_FK" type="BIGINT"/>
+            <column name="MSH_ROLE_ID_FK" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="MESSAGE_STATUS_ID_FK" baseTableName="TB_SIGNAL_MESSAGE_LOG"
+                                 constraintName="FK_MSG_LOG_MSG_STATUS" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_MESSAGE_STATUS"/>
+        <addForeignKeyConstraint baseColumnNames="MSH_ROLE_ID_FK" baseTableName="TB_SIGNAL_MESSAGE_LOG"
+                                 constraintName="FK_MSG_LOG_MSH_ROLE" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_MSH_ROLE"/>
+        <createIndex indexName="IDX_SIGNAL_LOG_MSG_STATUS_ID" tableName="TB_SIGNAL_MESSAGE_LOG">
+            <column name="MESSAGE_STATUS_ID_FK"/>
+        </createIndex>
+        <createIndex indexName="IDX_SIGNAL_LOG_MSG_ROLE_ID" tableName="TB_SIGNAL_MESSAGE_LOG">
+            <column name="MSH_ROLE_ID_FK"/>
+        </createIndex>
+        <createIndex indexName="IDX_SIGNAL_LOG_RECEIVED" tableName="TB_SIGNAL_MESSAGE_LOG">
+            <column name="RECEIVED"/>
+        </createIndex>
+
         <createTable tableName="TB_RECEIPT">
             <column name="ID_PK" type="BIGINT">
                 <constraints primaryKey="true" primaryKeyName="PK_RECEIPT"/>
@@ -827,6 +878,25 @@
         </createTable>
         <addForeignKeyConstraint baseColumnNames="ID_PK" baseTableName="TB_RECEIPT"
                                  constraintName="FK_TB_RECEIPT_SIGNAL_MSG" deferrable="false"
+                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID_PK" referencedTableName="TB_SIGNAL_MESSAGE"/>
+
+        <createTable tableName="TB_SIGNAL_MESSAGE_RAW">
+            <column name="ID_PK" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_SIGNAL_MESSAGE_RAW"/>
+            </column>
+            <column name="RAW_XML" type="BLOB"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="ID_PK" baseTableName="TB_SIGNAL_MESSAGE_RAW"
+                                 constraintName="FK_SIGNAL_MSG_RAW_SIGNAL_MSG" deferrable="false"
                                  initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_SIGNAL_MESSAGE"/>
 
@@ -1273,7 +1343,7 @@
             user_message.service_type,
             user_message.service_value
             FROM
-            tb_message_log message_log
+            TB_USER_MESSAGE_LOG message_log
             LEFT OUTER JOIN tb_message_info message_info ON message_log.message_id =
             message_info.message_id,tb_user_message user_message
             LEFT OUTER JOIN tb_property property ON user_message.id_pk = property.messageproperties_id
@@ -1309,7 +1379,7 @@
             null as service_type,
             null as service_value
             FROM
-            tb_message_log message_log
+            TB_USER_MESSAGE_LOG message_log
             CROSS JOIN tb_messaging messaging
             INNER JOIN tb_signal_message signalmess2_ ON messaging.signal_message_id = signalmess2_.id_pk
             LEFT OUTER JOIN tb_message_info message_info ON signalmess2_.messageinfo_id_pk = message_info.id_pk
@@ -1384,7 +1454,7 @@
             user_message.SERVICE_TYPE,
             user_message.SERVICE_VALUE
             FROM
-            TB_MESSAGE_LOG message_log
+            TB_USER_MESSAGE_LOG message_log
             LEFT OUTER JOIN TB_MESSAGE_INFO message_info ON message_log.MESSAGE_ID = message_info.MESSAGE_ID
             CROSS JOIN TB_USER_MESSAGE user_message
             LEFT OUTER JOIN TB_PROPERTY property3_ ON user_message.ID_PK = property3_.MESSAGEPROPERTIES_ID
@@ -1447,7 +1517,7 @@
             NULL AS SERVICE_TYPE,
             NULL AS SERVICE_VALUE
             FROM
-            TB_MESSAGE_LOG message_log
+            TB_USER_MESSAGE_LOG message_log
             CROSS JOIN TB_MESSAGING messaging
             INNER JOIN TB_SIGNAL_MESSAGE signalmess2_ ON messaging.SIGNAL_MESSAGE_ID = signalmess2_.ID_PK
             LEFT OUTER JOIN TB_MESSAGE_INFO messageinf4_ ON signalmess2_.messageInfo_ID_PK = messageinf4_.ID_PK
