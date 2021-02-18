@@ -25,16 +25,14 @@ import org.junit.runner.RunWith;
 import javax.jms.Queue;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ALERT_RETRY_MAX_ATTEMPTS;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ALERT_RETRY_TIME;
 import static eu.domibus.core.alerts.model.common.MessageEvent.MESSAGE_ID;
 import static eu.domibus.core.alerts.model.common.MessageEvent.OLD_STATUS;
 import static eu.domibus.core.alerts.service.AlertServiceImpl.*;
+import static java.util.Optional.of;
 import static org.junit.Assert.*;
 
 /**
@@ -46,6 +44,7 @@ import static org.junit.Assert.*;
 public class AlertServiceImplTest {
 
 
+    public static final String ALERT_NAME1 = "Alert Name";
     @Tested
     AlertServiceImpl alertService;
 
@@ -118,30 +117,34 @@ public class AlertServiceImplTest {
     }
 
     @Test
-    public void createAlertOnPluginEvent(@Mocked AlertModuleConfiguration config) {
-        final Event event = new Event();
-        event.setEntityId(1);
-        event.setType(EventType.MSG_STATUS_CHANGED);
-
+    public void createAlertOnPluginEvent(@Injectable Event event, @Injectable Alert alert) {
         final eu.domibus.core.alerts.model.persist.Event eventEntity = new eu.domibus.core.alerts.model.persist.Event();
-        new Expectations() {{
+        new Expectations(alertService) {{
+            event.getEntityId();
+            result = 1L;
+
             eventDao.read(event.getEntityId());
             result = eventEntity;
+
+
+            event.findOptionalProperty(ALERT_NAME);
+            result = of(ALERT_NAME);
+
+            event.findOptionalProperty(ALERT_LEVEL);
+            result = of(AlertLevel.MEDIUM.name());
+
+            event.findOptionalProperty(ALERT_ACTIVE);
+            result = of(Boolean.TRUE.toString());
 
             domibusPropertyProvider.getIntegerProperty(DOMIBUS_ALERT_RETRY_MAX_ATTEMPTS);
             result = 5;
 
-//            alertConfigurationService.getModuleConfiguration(AlertType.MSG_STATUS_CHANGED);
-//            result = config;
-//
-//            config.isActive();
-//            result = true;
-//
-//            config.getAlertLevel(event);
-//            result = AlertLevel.HIGH;
+            coreMapper.alertPersistToAlertService((eu.domibus.core.alerts.model.persist.Alert) any);
+            result = alert;
+            alertService.enqueueAlert(alert);
         }};
-        alertService.createAlertOnPluginEvent(event);
-        new VerificationsInOrder() {{
+        alertService.createAndEnqueueAlertOnPluginEvent(event);
+        new FullVerifications() {{
             eu.domibus.core.alerts.model.persist.Alert alert;
             alertDao.create(alert = withCapture());
             times = 1;
@@ -153,9 +156,55 @@ public class AlertServiceImplTest {
             assertNull(alert.getReportingTime());
             assertEquals(AlertLevel.MEDIUM, alert.getAlertLevel());
             assertTrue(alert.getEvents().contains(eventEntity));
-            domainConverter.convert(alert, eu.domibus.core.alerts.model.service.Alert.class);
-            times = 1;
+
         }};
+    }
+    @Test
+    public void createAlertOnPluginEvent_notActive(@Injectable Event event) {
+        final eu.domibus.core.alerts.model.persist.Event eventEntity = new eu.domibus.core.alerts.model.persist.Event();
+        new Expectations(alertService) {{
+            event.getEntityId();
+            result = 1L;
+
+            eventDao.read(event.getEntityId());
+            result = eventEntity;
+
+
+            event.findOptionalProperty(ALERT_NAME);
+            result = of(ALERT_NAME);
+
+            event.findOptionalProperty(ALERT_LEVEL);
+            result = of(AlertLevel.MEDIUM.name());
+
+            event.findOptionalProperty(ALERT_ACTIVE);
+            result = of(Boolean.FALSE.toString());
+        }};
+        alertService.createAndEnqueueAlertOnPluginEvent(event);
+        new FullVerifications() {};
+    }
+
+    @Test
+    public void createAlertOnPluginEvent_noAlertLevel(@Injectable Event event) {
+        final eu.domibus.core.alerts.model.persist.Event eventEntity = new eu.domibus.core.alerts.model.persist.Event();
+        new Expectations(alertService) {{
+            event.getEntityId();
+            result = 1L;
+
+            eventDao.read(event.getEntityId());
+            result = eventEntity;
+
+
+            event.findOptionalProperty(ALERT_NAME);
+            result = of(ALERT_NAME);
+
+            event.findOptionalProperty(ALERT_LEVEL);
+            result = Optional.empty();
+
+            event.findOptionalProperty(ALERT_ACTIVE);
+            result = of(Boolean.TRUE.toString());
+        }};
+        alertService.createAndEnqueueAlertOnPluginEvent(event);
+        new FullVerifications() {};
     }
 
     @Test
@@ -224,16 +273,20 @@ public class AlertServiceImplTest {
         alert.setEntityId(entityId);
         alert.setAlertStatus(AlertStatus.SUCCESS);
         new Expectations() {{
-            alertDao.read(entityId);times=1;
+            alertDao.read(entityId);
+            times = 1;
             result = persistedAlert;
             persistedAlert.getAlertStatus();
-            result=AlertStatus.SUCCESS;
+            result = AlertStatus.SUCCESS;
         }};
         alertService.handleAlertStatus(alert);
         new VerificationsInOrder() {{
-            persistedAlert.setAlertStatus(AlertStatus.SUCCESS);times=1;
-            persistedAlert.setNextAttempt(null);times=1;
-            persistedAlert.setReportingTime(withAny(new Date()));times=1;
+            persistedAlert.setAlertStatus(AlertStatus.SUCCESS);
+            times = 1;
+            persistedAlert.setNextAttempt(null);
+            times = 1;
+            persistedAlert.setReportingTime(withAny(new Date()));
+            times = 1;
         }};
     }
 
@@ -249,31 +302,35 @@ public class AlertServiceImplTest {
         Date nextAttempt = parser.parse("25/10/1977 00:00:00");
 
         new Expectations() {{
-            alertDao.read(entityId);times=1;
+            alertDao.read(entityId);
+            times = 1;
             result = persistedAlert;
 
             persistedAlert.getAlertStatus();
-            result=AlertStatus.FAILED;
+            result = AlertStatus.FAILED;
 
             persistedAlert.getAttempts();
-            result=0;
+            result = 0;
 
             persistedAlert.getMaxAttempts();
-            result=2;
+            result = 2;
 
             domibusPropertyProvider.getIntegerProperty(DOMIBUS_ALERT_RETRY_TIME);
             result = nextAttemptInMinutes;
 
             dateTime.now().plusMinutes(nextAttemptInMinutes).toDate();
-            result=nextAttempt;
+            result = nextAttempt;
 
         }};
         alertService.handleAlertStatus(alert);
         new VerificationsInOrder() {{
-            persistedAlert.setAlertStatus(AlertStatus.FAILED);times=1;
+            persistedAlert.setAlertStatus(AlertStatus.FAILED);
+            times = 1;
             persistedAlert.setNextAttempt(nextAttempt);
-            persistedAlert.setAttempts(1);times=1;
-            persistedAlert.setAlertStatus(AlertStatus.RETRY);times=1;
+            persistedAlert.setAttempts(1);
+            times = 1;
+            persistedAlert.setAlertStatus(AlertStatus.RETRY);
+            times = 1;
 
         }};
     }
@@ -289,28 +346,32 @@ public class AlertServiceImplTest {
         Date failureTime = parser.parse("25/10/1977 00:00:00");
 
         new Expectations() {{
-            alertDao.read(entityId);times=1;
+            alertDao.read(entityId);
+            times = 1;
             result = persistedAlert;
 
             persistedAlert.getAttempts();
-            result=1;
+            result = 1;
 
             persistedAlert.getMaxAttempts();
-            result=2;
+            result = 2;
 
             persistedAlert.getAlertStatus();
-            result=AlertStatus.FAILED;
+            result = AlertStatus.FAILED;
 
             dateTime.now().toDate();
-            result=failureTime;
+            result = failureTime;
         }};
         alertService.handleAlertStatus(alert);
         new VerificationsInOrder() {{
-            persistedAlert.setAlertStatus(AlertStatus.FAILED);times=1;
+            persistedAlert.setAlertStatus(AlertStatus.FAILED);
+            times = 1;
             persistedAlert.setNextAttempt(null);
 
-            persistedAlert.setReportingTimeFailure(failureTime);times=1;
-            persistedAlert.setAttempts(2);times=1;
+            persistedAlert.setReportingTimeFailure(failureTime);
+            times = 1;
+            persistedAlert.setAttempts(2);
+            times = 1;
         }};
     }
 
@@ -345,14 +406,14 @@ public class AlertServiceImplTest {
     public void findAlerts() {
         final AlertCriteria alertCriteria = new AlertCriteria();
         final ArrayList<eu.domibus.core.alerts.model.persist.Alert> alerts = Lists.newArrayList(new eu.domibus.core.alerts.model.persist.Alert());
-        new Expectations(){{
+        new Expectations() {{
             alertDao.filterAlerts(alertCriteria);
             result = alerts;
         }};
         alertService.findAlerts(alertCriteria);
-        new Verifications(){{
-           coreMapper.alertPersistListToAlertServiceList(alerts);
-           times=1;
+        new Verifications() {{
+            coreMapper.alertPersistListToAlertServiceList(alerts);
+            times = 1;
         }};
 
     }
@@ -416,15 +477,15 @@ public class AlertServiceImplTest {
     }
 
     @Test
-    public void testFindAlerts(final @Mocked  AlertCriteria alertCriteria,final @Mocked  List<eu.domibus.core.alerts.model.persist.Alert> alerts){
-        new Expectations(){{
+    public void testFindAlerts(final @Mocked AlertCriteria alertCriteria, final @Mocked List<eu.domibus.core.alerts.model.persist.Alert> alerts) {
+        new Expectations() {{
             alertDao.filterAlerts(alertCriteria);
-            result=alerts;
+            result = alerts;
         }};
         alertService.findAlerts(alertCriteria);
-        new Verifications(){{
+        new Verifications() {{
             alertDao.filterAlerts(alertCriteria);
-            times=1;
+            times = 1;
             coreMapper.alertPersistListToAlertServiceList(alerts);
         }};
     }

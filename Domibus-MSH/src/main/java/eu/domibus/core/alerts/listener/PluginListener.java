@@ -2,7 +2,6 @@ package eu.domibus.core.alerts.listener;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.util.DatabaseUtil;
-import eu.domibus.core.alerts.model.service.Alert;
 import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.core.alerts.service.AlertService;
 import eu.domibus.core.alerts.service.EventService;
@@ -60,8 +59,7 @@ public class PluginListener {
         }
         LOG.putMDC(DomibusLogger.MDC_USER, databaseUtil.getDatabaseUserName());
         eventService.persistEvent(event);
-        final Alert alertOnEvent = alertService.createAlertOnPluginEvent(event);
-        alertService.enqueueAlert(alertOnEvent);
+        alertService.createAndEnqueueAlertOnPluginEvent(event);
     }
 
 }

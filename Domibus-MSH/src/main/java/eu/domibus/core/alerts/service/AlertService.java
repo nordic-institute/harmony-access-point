@@ -28,7 +28,7 @@ public interface AlertService {
      * @return the created alert with {@link eu.domibus.core.alerts.model.common.AlertType#PLUGIN}
      * and {@link AlertLevel#MEDIUM}
      */
-    Alert createAlertOnPluginEvent(Event event);
+    void createAndEnqueueAlertOnPluginEvent(Event event);
 
     /**
      * Add alert to the alert/event monitoring queue.

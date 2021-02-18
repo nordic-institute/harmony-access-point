@@ -11,12 +11,15 @@ import eu.domibus.core.alerts.dao.AlertDao;
 import eu.domibus.core.alerts.dao.EventDao;
 import eu.domibus.core.alerts.model.common.AlertCriteria;
 import eu.domibus.core.alerts.model.common.AlertType;
+import eu.domibus.core.alerts.model.persist.AbstractEventProperty;
 import eu.domibus.core.alerts.model.persist.Alert;
 import eu.domibus.core.alerts.model.persist.Event;
 import eu.domibus.core.alerts.model.service.DefaultMailModel;
 import eu.domibus.core.alerts.model.service.MailModel;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +47,9 @@ public class AlertServiceImpl implements AlertService {
     private static final Logger LOG = DomibusLoggerFactory.getLogger(AlertServiceImpl.class);
 
     static final String ALERT_LEVEL = "ALERT_LEVEL";
+    static final String ALERT_SUBJECT = "ALERT_SUBJECT";
+    static final String ALERT_ACTIVE = "ALERT_ACTIVE";
+    static final String ALERT_NAME = "ALERT_NAME";
 
     static final String REPORTING_TIME = "REPORTING_TIME";
 
@@ -55,6 +61,8 @@ public class AlertServiceImpl implements AlertService {
     public static final String DESCRIPTION = "DESCRIPTION";
 
     static final String ALERT_SELECTOR = "alert";
+    public static final String ALERT_DESCRIPTION = "ALERT_DESCRIPTION";
+    public static final String NOT_AVAILABLE = "na";
 
     @Autowired
     private EventDao eventDao;
@@ -123,34 +131,33 @@ public class AlertServiceImpl implements AlertService {
      */
     @Override
     @Transactional
-    public eu.domibus.core.alerts.model.service.Alert createAlertOnPluginEvent(eu.domibus.core.alerts.model.service.Event event) {
+    public void createAndEnqueueAlertOnPluginEvent(eu.domibus.core.alerts.model.service.Event event) {
         final Event eventEntity = readEvent(event);
-        //TODO: François Gautier 16-02-21   fetch in properties
-//        final AlertType alertType = AlertType.getByEventType(event.getType());
-
-//        final AlertModuleConfiguration config = alertConfigurationService.getModuleConfiguration(alertType);
-//        if (!config.isActive()) {
-//            LOG.debug("Alerts of type [{}] are currently disabled", alertType);
-//            return null;
-//        }
-//        final AlertLevel alertLevel = config.getAlertLevel(event);
-//        if (alertLevel == null) {
-//            LOG.debug("Alert of type [{}] currently disabled for this event: [{}]", alertType, event);
-//            return null;
-//        }
+        String alertName = event.findOptionalProperty(ALERT_NAME).orElse(NOT_AVAILABLE);
+        AlertLevel alertLevel = event.findOptionalProperty(ALERT_LEVEL)
+                .map(AlertLevel::valueOf)
+                .orElse(null);
+        if (BooleanUtils.isNotTrue(BooleanUtils.toBoolean(event.findOptionalProperty(ALERT_ACTIVE).orElse(null)))) {
+            LOG.debug("Alerts [{}] are currently disabled", alertName);
+            return;
+        }
+        if (alertLevel == null) {
+            LOG.debug("Alert [{}] currently disabled for this event: [{}]", alertName, event);
+            return;
+        }
         Alert alert = new Alert();
-        event.findStringProperty(ALERT_LEVEL)
-                .ifPresent(alertLevelName -> alert.setAlertLevel(AlertLevel.valueOf(alertLevelName)));
+
+        alert.setAlertLevel(alertLevel);
 
         alert.addEvent(eventEntity);
-        alert.setAlertType(AlertType.PLUGIN);//TODO: François Gautier 16-02-21   fetch in properties
+        alert.setAlertType(AlertType.PLUGIN);
         alert.setAttempts(0);
         alert.setMaxAttempts(domibusPropertyProvider.getIntegerProperty(DOMIBUS_ALERT_RETRY_MAX_ATTEMPTS));
         alert.setAlertStatus(SEND_ENQUEUED);
         alert.setCreationTime(new Date());
         alertDao.create(alert);
         LOG.info("New alert saved: [{}]", alert);
-        return domainConverter.convert(alert, eu.domibus.core.alerts.model.service.Alert.class);
+        enqueueAlert(coreMapper.alertPersistToAlertService(alert));
     }
 
     /**
@@ -178,19 +185,41 @@ public class AlertServiceImpl implements AlertService {
         next.getProperties().forEach((key, value) -> mailModel.put(key, StringEscapeUtils.escapeHtml4(value.getValue().toString())));
         mailModel.put(ALERT_LEVEL, alertEntity.getAlertLevel().name());
         mailModel.put(REPORTING_TIME, DateUtil.DEFAULT_FORMATTER.withZone(ZoneId.systemDefault()).format(alertEntity.getReportingTime().toInstant()));
-        mailModel.put(DESCRIPTION, alertEntity.getAlertType().getTitle());
+        mailModel.put(DESCRIPTION, getDescription(alertEntity, next));
         mailModel.put(SERVER_NAME, serverInfoService.getServerName());
+
         if (LOG.isDebugEnabled()) {
             mailModel.forEach((key, value) -> LOG.debug("Mail template key[{}] value[{}]", key, value));
         }
         final AlertType alertType = alertEntity.getAlertType();
-        String subject = alertConfigurationService.getMailSubject(alertType);
+        String subject = getSubject(alertType, next);
+        final String template = alertType.getTemplate();
+        return new DefaultMailModel<>(mailModel, template, subject);
+    }
+
+    private String getDescription(Alert alertEntity, Event next) {
+        String title = alertEntity.getAlertType().getTitle();
+        AbstractEventProperty<?> description = next.getProperties().get(ALERT_DESCRIPTION);
+        if(description != null){
+            title += description.getValue().toString();
+        }
+        return title;
+    }
+
+    private String getSubject(AlertType alertType, Event next) {
+        String subject = null;
+        AbstractEventProperty<?> alertSubject = next.getProperties().get(ALERT_SUBJECT);
+        if(alertSubject != null) {
+            subject = alertSubject.getValue().toString();
+        }
+        if (StringUtils.isBlank(subject)) {
+            subject = alertConfigurationService.getMailSubject(alertType);
+        }
 
         //always set at super level
         final String serverName = domibusPropertyProvider.getProperty(DOMIBUS_ALERT_SUPER_INSTANCE_NAME_SUBJECT);
         subject += "[" + serverName + "]";
-        final String template = alertType.getTemplate();
-        return new DefaultMailModel<>(mailModel, template, subject);
+        return subject;
     }
 
     /**
