@@ -9,10 +9,14 @@
     <include file="common/changelog-properties.xml" relativeToChangelogFile="true"/>
 
     <!-- sequences -->
-    <changeSet dbms="oracle" author="martifp" id="changelog-3.2-delta-1">
-        <comment>create sequence</comment>
-        <createSequence sequenceName="HIBERNATE_SEQUENCE" minValue="1" maxValue="9999999999999999999999999999"
-                        incrementBy="1" startValue="1" cacheSize="100" cycle="false" ordered="false"/>
+    <changeSet dbms="oracle" author="martifp,Cosmin Baciu" id="EDELIVERY-7803-oracle sequence">
+        <comment>create oracle sequence</comment>
+        <!--
+        - the sequence starts at 100 to allocate the first 100 primary keys for the initial data insert eg default users, user roles, etc
+        - maxValue is omitted meaning that the sequence has not upper boundary value
+        -->
+        <createSequence sequenceName="HIBERNATE_SEQUENCE" minValue="1"
+                        incrementBy="20" startValue="100" cacheSize="1000" cycle="false" ordered="false"/>
     </changeSet>
 
     <!-- Quartz tables -->
@@ -43,7 +47,7 @@
         <comment>WS Plugin specific tables for backend dispatch</comment>
         <createTable tableName="WS_PLUGIN_TB_BACKEND_MSG_LOG">
             <column name="ID_PK" type="BIGINT" autoIncrement="true" remarks="Primary key identifying the record of the table">
-                <constraints primaryKey="true" primaryKeyName="PK_WS_PLUGIN_TB_BACKEND_MSG_LOG"/>
+                <constraints primaryKey="true" primaryKeyName="PK_WS_PLUGIN_BACKEND_MSG_LOG"/>
             </column>
 
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
