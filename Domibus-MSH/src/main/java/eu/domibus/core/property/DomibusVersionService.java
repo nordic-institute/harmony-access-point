@@ -55,7 +55,7 @@ public class DomibusVersionService {
     }
 
     public String getBuiltTime() {
-        return domibusProps.getProperty("Build-Time") + "|" + TimeZone.getDefault().getDisplayName();
+        return domibusProps.getProperty("Build-Time") + "|" + TimeZone.getTimeZone("UTC").getDisplayName();
     }
 
     public String getDisplayVersion() {
