@@ -7,8 +7,8 @@ import org.mapstruct.Mapping;
 
 /**
  * Mapper to generate Monitoring Service abstract class conversion methods
- * @author Soumya Chandran
- * @since 4.2
+ * @author François Gautier
+ * @since 5.0
  */
 @Mapper(componentModel = "spring")
 public interface AlertMapper {
