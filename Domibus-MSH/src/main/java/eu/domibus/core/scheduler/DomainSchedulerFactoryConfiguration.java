@@ -40,7 +40,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.quartz.CronTriggerFactoryBean;
 import org.springframework.scheduling.quartz.JobDetailFactoryBean;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
-import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
 import java.util.List;
@@ -79,9 +78,6 @@ public class DomainSchedulerFactoryConfiguration {
     @Qualifier(DomibusJPAConfiguration.DOMIBUS_JDBC_NON_XA_DATA_SOURCE)
     @Autowired
     protected DataSource nonTransactionalDataSource;
-
-    @Autowired
-    protected PlatformTransactionManager transactionManager;
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
@@ -540,7 +536,6 @@ public class DomainSchedulerFactoryConfiguration {
         scheduler.setOverwriteExistingJobs(true);
         scheduler.setDataSource(dataSource);
         scheduler.setNonTransactionalDataSource(nonTransactionalDataSource);
-        scheduler.setTransactionManager(transactionManager);
         Properties properties = new Properties();
         properties.setProperty("org.quartz.jobStore.misfireThreshold", "60000");
         properties.setProperty("org.quartz.jobStore.driverDelegateClass", "org.quartz.impl.jdbcjobstore.StdJDBCDelegate");
