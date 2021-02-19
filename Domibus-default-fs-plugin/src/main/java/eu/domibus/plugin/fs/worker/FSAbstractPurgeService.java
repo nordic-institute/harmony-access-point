@@ -3,13 +3,11 @@ package eu.domibus.plugin.fs.worker;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.fs.FSFilesManager;
-import eu.domibus.plugin.fs.property.FSPluginProperties;
 import eu.domibus.plugin.fs.exception.FSSetUpException;
+import eu.domibus.plugin.fs.property.FSPluginProperties;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.List;
 
 /**
  * @author FERNANDES Henrique, GONCALVES Bruno
@@ -25,19 +23,19 @@ public abstract class FSAbstractPurgeService {
     protected FSFilesManager fsFilesManager;
 
     @Autowired
-    protected FSDomainService multiTenancyService;
+    protected FSDomainService fsDomainService;
 
     /**
      * Triggering the purge means that the message files from the target directory
      * older than X seconds will be removed
      */
     public void purgeMessages() {
-        List<String> domains = multiTenancyService.getDomainsToProcess();
-        for (String domain : domains) {
-            if (multiTenancyService.verifyDomainExists(domain)) {
-                purgeMessages(domain);
-            }
+        final String domain = fsDomainService.getFSPluginDomain();
+
+        if (fsDomainService.verifyDomainExists(domain)) {
+            purgeMessages(domain);
         }
+
     }
 
     protected void purgeMessages(String domain) {

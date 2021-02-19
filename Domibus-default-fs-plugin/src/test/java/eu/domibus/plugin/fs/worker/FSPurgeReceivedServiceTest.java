@@ -2,8 +2,8 @@ package eu.domibus.plugin.fs.worker;
 
 import eu.domibus.ext.services.DomibusConfigurationExtService;
 import eu.domibus.plugin.fs.FSFilesManager;
-import eu.domibus.plugin.fs.property.FSPluginProperties;
 import eu.domibus.plugin.fs.exception.FSSetUpException;
+import eu.domibus.plugin.fs.property.FSPluginProperties;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.vfs2.FileObject;
@@ -16,9 +16,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * @author FERNANDES Henrique, GONCALVES Bruno
@@ -90,12 +87,11 @@ public class FSPurgeReceivedServiceTest {
 
     @Test
     public void testPurgeMessages() throws FileSystemException, FSSetUpException {
-        final List<String> domains = new ArrayList<>();
-        domains.add(FSSendMessagesService.DEFAULT_DOMAIN);
+        final String domain = FSSendMessagesService.DEFAULT_DOMAIN;
 
         new Expectations(1, instance) {{
-            fsMultiTenancyService.getDomainsToProcess();
-            result = domains;
+            fsMultiTenancyService.getFSPluginDomain();
+            result = domain;
 
             fsMultiTenancyService.verifyDomainExists(FSSendMessagesService.DEFAULT_DOMAIN);
             result = true;
@@ -132,8 +128,8 @@ public class FSPurgeReceivedServiceTest {
             fsMultiTenancyService.verifyDomainExists("DOMAIN1");
             result = true;
 
-            fsMultiTenancyService.getDomainsToProcess();
-            result = Collections.singletonList("DOMAIN1");
+            fsMultiTenancyService.getFSPluginDomain();
+            result = "DOMAIN1";
 
             fsFilesManager.setUpFileSystem("DOMAIN1");
             result = new FSSetUpException("Test-forced exception");

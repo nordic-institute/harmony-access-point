@@ -125,18 +125,14 @@ public class FSSendMessagesServiceTest {
     @Test
     public void test_SendMessages_Root_Domain1() {
         final String domain0 = FSSendMessagesService.DEFAULT_DOMAIN;
-        final String domain1 = "DOMAIN1";
         new Expectations(instance) {{
             domibusConfigurationExtService.isSecuredLoginRequired();
             result = true;
 
-            fsDomainService.getDomainsToProcess();
-            result = Arrays.asList(domain0, domain1);
+            fsDomainService.getFSPluginDomain();
+            result = domain0;
 
             fsDomainService.verifyDomainExists(domain0);
-            result = true;
-
-            fsDomainService.verifyDomainExists(domain1);
             result = true;
         }};
 
@@ -145,8 +141,6 @@ public class FSSendMessagesServiceTest {
 
         new FullVerifications(instance) {{
             instance.sendMessages(domain0);
-            times = 1;
-            instance.sendMessages(domain1);
             times = 1;
         }};
     }

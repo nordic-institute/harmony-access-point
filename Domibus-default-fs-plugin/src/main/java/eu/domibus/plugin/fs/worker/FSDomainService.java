@@ -11,9 +11,6 @@ import eu.domibus.plugin.fs.property.FSPluginProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.List;
-
 /**
  * @author Tiago Miguel
  * @author Cosmin Baciu
@@ -55,21 +52,8 @@ public class FSDomainService {
             LOG.debug("Domain [{}] is configured in Domibus core", domain);
             return true;
         }
-        LOG.trace("Provided domain [{}] is configured in non multitenancy mode", domain);
+        LOG.trace("Provided domain [{}] is configured in single tenancy mode", domain);
         return true;
-    }
-
-    /**
-     * Returns all domains that need to be processed by various operations (sending, purging etc)
-     * In multi-tenancy, this means only the current domain.
-     * In single-tenancy, default domain
-     *
-     * @return a list of domain codes
-     */
-    public List<String> getDomainsToProcess() {
-
-        return Arrays.asList(domainContextExtService.getCurrentDomain().getCode());
-
     }
 
     /**
@@ -91,7 +75,7 @@ public class FSDomainService {
 
     /**
      * Gets the FS Plugin domain from the Domibus core:
-     * default domain in singletenancy and current domain in multitenancy mode
+     * default domain in single tenancy and current domain in multitenancy mode
      *
      * @return the FS Plugin domain
      */

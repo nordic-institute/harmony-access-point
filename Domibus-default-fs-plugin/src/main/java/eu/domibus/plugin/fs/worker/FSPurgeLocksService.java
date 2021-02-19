@@ -42,11 +42,9 @@ public class FSPurgeLocksService {
     public void purge() {
         LOG.debug("Purging orphan lock files....");
 
-        List<String> domains = multiTenancyService.getDomainsToProcess();
-        for (String domain : domains) {
-            if (multiTenancyService.verifyDomainExists(domain)) {
-                purgeForDomain(domain);
-            }
+        final String domain = multiTenancyService.getFSPluginDomain();
+        if (multiTenancyService.verifyDomainExists(domain)) {
+            purgeForDomain(domain);
         }
     }
 

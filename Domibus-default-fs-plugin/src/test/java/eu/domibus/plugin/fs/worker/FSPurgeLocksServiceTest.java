@@ -19,8 +19,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import static eu.domibus.plugin.fs.FSFileNameHelper.LOCK_SUFFIX;
 
@@ -75,18 +73,13 @@ public class FSPurgeLocksServiceTest {
 
     @Test
     public void testPurge() {
-        final List<String> domains = new ArrayList<>();
-        domains.add("DOMAIN1");
-        domains.add("DOMAIN2");
+        String domain = "DOMAIN1";
 
         new Expectations(1, instance) {{
-            fsMultiTenancyService.getDomainsToProcess();
-            result = domains;
+            fsMultiTenancyService.getFSPluginDomain();
+            result = domain;
 
             fsMultiTenancyService.verifyDomainExists("DOMAIN1");
-            result = true;
-
-            fsMultiTenancyService.verifyDomainExists("DOMAIN2");
             result = true;
         }};
 
@@ -94,7 +87,6 @@ public class FSPurgeLocksServiceTest {
 
         new Verifications() {{
             instance.purgeForDomain("DOMAIN1");
-            instance.purgeForDomain("DOMAIN2");
         }};
     }
 
