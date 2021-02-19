@@ -490,7 +490,7 @@
         </createIndex>
 
         <createTable tableName="TB_SJ_MESSAGE_HEADER" remarks="Stores the message header details for SplitAndJoin">
-            <column name="ID_PK" type="BIGINT">
+            <column name="ID_PK" type="BIGINT"  autoIncrement="true">
                 <constraints primaryKey="true" primaryKeyName="PK_SJ_MESSAGE_HEADER"/>
             </column>
             <column name="BOUNDARY" remarks="The multipart boundary value" type="VARCHAR(255)"/>
@@ -506,7 +506,7 @@
         </createTable>
 
         <createTable tableName="TB_SJ_MESSAGE_GROUP" remarks="Stores information about the message group for SplitAndJoin" >
-            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+            <column name="ID_PK" type="BIGINT">
                 <constraints primaryKey="true" primaryKeyName="PK_SJ_MESSAGE_GROUP"/>
             </column>
             <column name="GROUP_ID" remarks="The group id" type="VARCHAR(255)">
@@ -558,7 +558,7 @@
         </createIndex>
 
         <createTable tableName="TB_SJ_MESSAGE_FRAGMENT">
-            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+            <column name="ID_PK" type="BIGINT">
                 <constraints primaryKey="true" primaryKeyName="PK_MESSAGE_FRAGMENT"/>
             </column>
             <column name="FRAGMENT_NUMBER" type="INT">
@@ -580,6 +580,10 @@
                                  constraintName="FK_SJ_MSG_FG_GROUP" deferrable="false" initiallyDeferred="false"
                                  onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
                                  referencedTableName="TB_SJ_MESSAGE_GROUP"/>
+        <addForeignKeyConstraint baseColumnNames="ID_PK" baseTableName="TB_SJ_MESSAGE_FRAGMENT"
+                                 constraintName="FK_SJ_MSG_FG_USER_MSG" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_USER_MESSAGE"/>
         <createIndex indexName="IDX_FK_SJ_MSG_FG_GROUP" tableName="TB_SJ_MESSAGE_FRAGMENT">
             <column name="GROUP_ID_FK"/>
         </createIndex>
@@ -630,6 +634,10 @@
                                  constraintName="FK_MSG_LOG_NOTIF_STATUS" deferrable="false" initiallyDeferred="false"
                                  onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
                                  referencedTableName="TB_D_NOTIFICATION_STATUS"/>
+        <addForeignKeyConstraint baseColumnNames="ID_PK" baseTableName="TB_USER_MESSAGE_LOG"
+                                 constraintName="FK_MSG_LOG_MSG_ID" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_USER_MESSAGE"/>
         <createIndex indexName="IDX_MESSAGE_LOG_MSG_STATUS_ID" tableName="TB_USER_MESSAGE_LOG">
             <column name="MESSAGE_STATUS_ID_FK"/>
         </createIndex>
