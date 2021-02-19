@@ -37,10 +37,10 @@ public class DomibusVersionServiceTest {
     }
 
     @Test
-    public void testVersionNumber(@Mocked Properties domibusProps) throws Exception {
+    public void testVersionNumber(@Mocked Properties versionProps) throws Exception {
 
         new Expectations() {{
-            domibusProps.getProperty("Artifact-Version");
+            versionProps.getProperty("Artifact-Version");
             returns("4.1-RC1", "4.0.2");
         }};
 
@@ -68,10 +68,10 @@ public class DomibusVersionServiceTest {
     }
 
     @Test
-    public void getBuiltTime(@Mocked Properties domibusProps) {
+    public void getBuiltTime(@Mocked Properties versionProps) {
 
         new Expectations() {{
-            domibusProps.getProperty("Build-Time");
+            versionProps.getProperty("Build-Time");
             result = "2021-02-18 09:47";
         }};
 

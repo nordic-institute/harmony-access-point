@@ -2,6 +2,7 @@ package eu.domibus.core.property;
 
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
@@ -55,8 +56,7 @@ public class DomibusVersionService {
     }
 
     public String getBuiltTime() {
-        return versionProps.getProperty("Build-Time") + "|" + TimeZone.getDefault().getDisplayName();
-        return domibusProps.getProperty("Build-Time") + "|" + TimeZone.getTimeZone("UTC").getDisplayName();
+        return versionProps.getProperty("Build-Time") + "|" + TimeZone.getTimeZone("UTC").getDisplayName();
     }
 
     public String getDisplayVersion() {
