@@ -286,7 +286,7 @@ public class AlertServiceImplTest {
         assertEquals(MessageStatus.SEND_ENQUEUED.name(), model.get(OLD_STATUS.name()));
         assertEquals(alertLevel.name(), model.get(ALERT_LEVEL));
         assertNotNull(DateUtil.DEFAULT_FORMATTER.parse(model.get(REPORTING_TIME)));
-        assertEquals(alertType.getTitle(), model.get(DESCRIPTION));
+        assertEquals("[" + alertType.getTitle() + "] ", model.get(DESCRIPTION));
     }
 
     @Test
@@ -596,7 +596,7 @@ public class AlertServiceImplTest {
 
     @Test
     public void getSubject_config(@Mocked AlertType alertType,
-                           @Mocked eu.domibus.core.alerts.model.persist.Event next) {
+                                  @Mocked eu.domibus.core.alerts.model.persist.Event next) {
         Map<String, AbstractEventProperty<?>> properties = new HashMap<>();
         new Expectations() {{
             next.getProperties();
@@ -615,8 +615,8 @@ public class AlertServiceImplTest {
 
     @Test
     public void getSubject_props(@Mocked AlertType alertType,
-                           @Mocked eu.domibus.core.alerts.model.persist.Event next,
-                           @Mocked StringEventProperty stringEventProperty) {
+                                 @Mocked eu.domibus.core.alerts.model.persist.Event next,
+                                 @Mocked StringEventProperty stringEventProperty) {
         Map<String, AbstractEventProperty<?>> properties = new HashMap<>();
         properties.put(ALERT_SUBJECT, stringEventProperty);
         new Expectations() {{
@@ -652,6 +652,6 @@ public class AlertServiceImplTest {
         }};
         String finalDescription = alertService.getDescription(alert, next);
 
-        assertEquals(ALERT_DESCRIPTION_TEST + ALERT_DESCRIPTION, finalDescription);
+        assertEquals("[" + ALERT_DESCRIPTION_TEST + "] " + ALERT_DESCRIPTION, finalDescription);
     }
 }
