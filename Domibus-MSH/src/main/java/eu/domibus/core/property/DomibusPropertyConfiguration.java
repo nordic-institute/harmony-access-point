@@ -32,7 +32,6 @@ public class DomibusPropertyConfiguration {
         result.setIgnoreResourceNotFound(true);
 
         List<Resource> resources = new ArrayList<>();
-        resources.add(new ClassPathResource("config/application.properties"));
         resources.add(new ClassPathResource("config/domibus-default.properties"));
         resources.add(new ClassPathResource("config/domibus.properties"));
 
@@ -50,7 +49,6 @@ public class DomibusPropertyConfiguration {
         result.setIgnoreResourceNotFound(true);
 
         List<Resource> resources = new ArrayList<>();
-        resources.add(new ClassPathResource("config/application.properties"));
         resources.add(new ClassPathResource("config/domibus-default.properties"));
         resources.add(new ClassPathResource("config/domibus.properties"));
 

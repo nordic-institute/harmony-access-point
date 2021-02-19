@@ -29,10 +29,8 @@ public class DomibusPropertyConfigurationTest {
         new Verifications() {{
             Resource[] locations = null;
             propertiesFactoryBean.setLocations(locations = withCapture());
-
-            Assert.assertEquals("application.properties", locations[0].getFilename());
-            Assert.assertEquals("domibus-default.properties", locations[1].getFilename());
-            Assert.assertEquals("domibus.properties", locations[2].getFilename());
+            Assert.assertEquals("domibus-default.properties", locations[0].getFilename());
+            Assert.assertEquals("domibus.properties", locations[1].getFilename());
         }};
 
     }
@@ -47,10 +45,9 @@ public class DomibusPropertyConfigurationTest {
             Resource[] locations = null;
             propertiesFactoryBean.setLocations(locations = withCapture());
 
-            Assert.assertEquals("application.properties", locations[0].getFilename());
-            Assert.assertEquals("domibus-default.properties", locations[1].getFilename());
-            Assert.assertEquals("domibus.properties", locations[2].getFilename());
-            Assert.assertEquals(File.separator + domibusConfigLocation + File.separator + "domibus.properties", locations[3].getFile().getPath());
+            Assert.assertEquals("domibus-default.properties", locations[0].getFilename());
+            Assert.assertEquals("domibus.properties", locations[1].getFilename());
+            Assert.assertEquals(File.separator + domibusConfigLocation + File.separator + "domibus.properties", locations[2].getFile().getPath());
         }};
     }
 

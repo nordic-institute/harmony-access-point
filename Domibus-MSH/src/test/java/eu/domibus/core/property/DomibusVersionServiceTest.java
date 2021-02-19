@@ -17,9 +17,9 @@ import static org.junit.Assert.*;
  * @author Federico Martini
  */
 @RunWith(JMockit.class)
-public class DomibusPropertiesServiceTest {
+public class DomibusVersionServiceTest {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusPropertiesServiceTest.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusVersionServiceTest.class);
 
     @Tested
     DomibusVersionService service;
@@ -37,10 +37,10 @@ public class DomibusPropertiesServiceTest {
     }
 
     @Test
-    public void testVersionNumber(@Mocked Properties domibusProps) throws Exception {
+    public void testVersionNumber(@Mocked Properties versionProps) throws Exception {
 
         new Expectations() {{
-            domibusProps.getProperty("Artifact-Version");
+            versionProps.getProperty("Artifact-Version");
             returns("4.1-RC1", "4.0.2");
         }};
 
@@ -65,5 +65,17 @@ public class DomibusPropertiesServiceTest {
         String buildDetails = service.getBuildDetails();
 
         assertTrue(buildDetails.contains(artifactName));
+    }
+
+    @Test
+    public void getBuiltTime(@Mocked Properties versionProps) {
+
+        new Expectations() {{
+            versionProps.getProperty("Build-Time");
+            result = "2021-02-18 09:47";
+        }};
+
+        String time = service.getBuiltTime();
+        assertEquals("2021-02-18 09:47|Coordinated Universal Time", time);
     }
 }

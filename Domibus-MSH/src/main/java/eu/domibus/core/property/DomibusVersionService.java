@@ -2,6 +2,7 @@ package eu.domibus.core.property;
 
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
@@ -9,39 +10,38 @@ import java.util.Properties;
 import java.util.TimeZone;
 
 /**
- * @author Federico Martini , soumya
- * <p>
- * This class is designed to retrieve the main Domibus properties defined in a file and valued using Maven resource filtering.
- * Spring will take care of the creation of this Singleton object at startup.
+ * @author Federico Martini
+ * @author Soumya
+ * This class is designed to retrieve Domibus version details.
  */
-@Service(value = "domibusPropertiesService")
+@Service
 public class DomibusVersionService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusVersionService.class);
 
-    private static Properties domibusProps = new Properties();
+    private static Properties versionProps = new Properties();
 
     public DomibusVersionService() {
         init();
     }
 
     public void init() {
-        try (InputStream is = getClass().getClassLoader().getResourceAsStream("config/application.properties")) {
-            if (is == null) {
-                LOG.warn("The 'domibus.properties' has not been found!");
+        try (InputStream inputStream = new ClassPathResource("config/version.properties").getInputStream()) {
+            if (inputStream == null) {
+                LOG.warn("The 'version.properties' has not been found!");
                 return;
             }
-            domibusProps.load(is);
+            versionProps.load(inputStream);
             LOG.info("=========================================================================================================");
             LOG.info("|         " + getDisplayVersion() + "        |");
             LOG.info("=========================================================================================================");
         } catch (Exception ex) {
-            LOG.warn("Error loading Domibus properties", ex);
+            LOG.warn("Error loading version properties", ex);
         }
     }
 
     public String getArtifactVersion() {
-        return domibusProps.getProperty("Artifact-Version");
+        return versionProps.getProperty("Artifact-Version");
     }
 
     public String getVersionNumber() {
@@ -51,11 +51,11 @@ public class DomibusVersionService {
     }
 
     public String getArtifactName() {
-        return domibusProps.getProperty("Artifact-Name");
+        return versionProps.getProperty("Artifact-Name");
     }
 
     public String getBuiltTime() {
-        return domibusProps.getProperty("Build-Time") + "|" + TimeZone.getDefault().getDisplayName();
+        return versionProps.getProperty("Build-Time") + "|" + TimeZone.getTimeZone("UTC").getDisplayName();
     }
 
     public String getDisplayVersion() {
