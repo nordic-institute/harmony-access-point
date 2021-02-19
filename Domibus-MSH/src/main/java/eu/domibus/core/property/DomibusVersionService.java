@@ -2,7 +2,6 @@ package eu.domibus.core.property;
 
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
@@ -10,11 +9,12 @@ import java.util.Properties;
 import java.util.TimeZone;
 
 /**
- * @author Federico Martini
- * @author Soumya
- * This class is designed to retrieve Domibus version details.
+ * @author Federico Martini , soumya
+ * <p>
+ * This class is designed to retrieve the main Domibus properties defined in a file and valued using Maven resource filtering.
+ * Spring will take care of the creation of this Singleton object at startup.
  */
-@Service
+@Service(value = "domibusPropertiesService")
 public class DomibusVersionService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusVersionService.class);
@@ -56,6 +56,7 @@ public class DomibusVersionService {
 
     public String getBuiltTime() {
         return versionProps.getProperty("Build-Time") + "|" + TimeZone.getDefault().getDisplayName();
+        return domibusProps.getProperty("Build-Time") + "|" + TimeZone.getTimeZone("UTC").getDisplayName();
     }
 
     public String getDisplayVersion() {
