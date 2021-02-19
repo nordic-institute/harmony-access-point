@@ -194,7 +194,7 @@ public class AlertServiceImpl implements AlertService {
     }
 
     protected String getDescription(Alert alertEntity, Event next) {
-        String title = alertEntity.getAlertType().getTitle();
+        String title = "[" + alertEntity.getAlertType().getTitle() + "] ";
         AbstractEventProperty<?> description = next.getProperties().get(ALERT_DESCRIPTION);
         if (description != null) {
             title += description.getValue().toString();
