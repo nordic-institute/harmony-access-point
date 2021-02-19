@@ -10,12 +10,11 @@ import java.util.Properties;
 import java.util.TimeZone;
 
 /**
- * @author Federico Martini , soumya
- * <p>
- * This class is designed to retrieve the main Domibus properties defined in a file and valued using Maven resource filtering.
- * Spring will take care of the creation of this Singleton object at startup.
+ * @author Federico Martini
+ * @author Soumya
+ * This class is designed to retrieve Domibus version details.
  */
-@Service(value = "domibusPropertiesService")
+@Service
 public class DomibusVersionService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusVersionService.class);
