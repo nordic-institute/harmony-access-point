@@ -483,7 +483,7 @@
         </createTable>
         <addForeignKeyConstraint baseColumnNames="FK_MSG_ACKNOWLEDGE" baseTableName="TB_MESSAGE_ACKNW_PROP"
                                  constraintName="FK_MSG_ACK_PROP_MSG_ACK" deferrable="false" initiallyDeferred="false"
-                                 onDelete="CASCADE" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
                                  referencedTableName="TB_MESSAGE_ACKNW"/>
         <createIndex indexName="FK_MSG_ACK_PROP_MSG_ACK" tableName="TB_MESSAGE_ACKNW_PROP">
             <column name="FK_MSG_ACKNOWLEDGE"/>
@@ -523,7 +523,7 @@
             <column name="SOAP_ACTION" remarks="The Soap action value" type="VARCHAR(255)"/>
             <column name="REJECTED" remarks="True if the message group has been rejected" type="BOOLEAN"/>
             <column name="EXPIRED" remarks="True if the message group has expired" type="BOOLEAN"/>
-            <column name="MSH_ROLE_FK" remarks="The role of the MSH" type="BIGINT">
+            <column name="MSH_ROLE_ID_FK" remarks="The role of the MSH" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
             <column name="SOURCE_MESSAGE_ID_FK" remarks="The SourceMessage id" type="BIGINT">
@@ -538,7 +538,7 @@
             <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
-        <addForeignKeyConstraint baseColumnNames="MSH_ROLE_FK" baseTableName="TB_SJ_MESSAGE_GROUP"
+        <addForeignKeyConstraint baseColumnNames="MSH_ROLE_ID_FK" baseTableName="TB_SJ_MESSAGE_GROUP"
                                  constraintName="FK_MSG_FG_GROUP_MSH_ROLE" deferrable="false" initiallyDeferred="false"
                                  onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
                                  referencedTableName="TB_D_MSH_ROLE"/>
@@ -554,7 +554,7 @@
             <column name="SOURCE_MESSAGE_ID_FK"/>
         </createIndex>
         <createIndex indexName="IDX_SJ_MG_ROLE_FK" tableName="TB_SJ_MESSAGE_GROUP">
-            <column name="MSH_ROLE_FK"/>
+            <column name="MSH_ROLE_ID_FK"/>
         </createIndex>
 
         <createTable tableName="TB_SJ_MESSAGE_FRAGMENT">
@@ -603,8 +603,8 @@
             <column name="NEXT_ATTEMPT" type="TIMESTAMP"/>
             <column name="SEND_ATTEMPTS" type="INT"/>
             <column name="SEND_ATTEMPTS_MAX" type="INT"/>
-            <column name="SCHEDULED" remarks="true if the message is already scheduled to be sent" type="BOOLEAN"/>
-            <column name="VERSION" remarks="Used for optimistic locking mechanism" type="INT" defaultValueNumeric="0">
+            <column name="SCHEDULED" type="BOOLEAN" remarks="true if the message is already scheduled to be sent" />
+            <column name="VERSION" type="INT" defaultValueNumeric="0" remarks="Used for optimistic locking mechanism" >
                 <constraints nullable="false"/>
             </column>
             <column name="MESSAGE_STATUS_ID_FK" type="BIGINT"/>
@@ -741,11 +741,11 @@
         </createTable>
         <addForeignKeyConstraint baseColumnNames="PART_INFO_ID_FK" baseTableName="TB_PART_PROPERTIES"
                                  constraintName="FK_PART_PROPS_PART_INFO" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_PART_INFO"/>
         <addForeignKeyConstraint baseColumnNames="PART_INFO_PROPERTY_FK" baseTableName="TB_PART_PROPERTIES"
                                  constraintName="FK_PART_PROPS_PART_PROP" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_D_PART_PROPERTY"/>
         <createIndex indexName="IDX_PART_PROPS_PART_INFO" tableName="TB_PART_PROPERTIES">
             <column name="PART_INFO_ID_FK"/>
@@ -776,11 +776,11 @@
         </createTable>
         <addForeignKeyConstraint baseColumnNames="MESSAGE_ID_FK" baseTableName="TB_MESSAGE_PROPERTIES"
                                  constraintName="FK_MSG_PROPS_USER_MSG" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_USER_MESSAGE"/>
         <addForeignKeyConstraint baseColumnNames="MESSAGE_PROPERTY_FK" baseTableName="TB_MESSAGE_PROPERTIES"
                                  constraintName="FK_MSG_PROPS_MSG_PROP" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_D_MESSAGE_PROPERTY"/>
         <createIndex indexName="IDX_MSG_PROPS_MSG_ID" tableName="TB_MESSAGE_PROPERTIES">
             <column name="MESSAGE_ID_FK"/>
@@ -806,7 +806,7 @@
         </createTable>
         <addForeignKeyConstraint baseColumnNames="ID_PK" baseTableName="TB_USER_MESSAGE_RAW"
                                  constraintName="FK_MSG_RAW_USER_MSG" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_USER_MESSAGE"/>
 
         <createTable tableName="TB_SIGNAL_MESSAGE">
@@ -825,12 +825,12 @@
         </createTable>
         <addForeignKeyConstraint baseColumnNames="ID_PK" baseTableName="TB_SIGNAL_MESSAGE"
                                  constraintName="FK_TB_SIGNAL_USER_MSG" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_USER_MESSAGE"/>
 
         <createTable tableName="TB_SIGNAL_MESSAGE_LOG">
             <column name="ID_PK" type="BIGINT">
-                <constraints primaryKey="true" primaryKeyName="PK_SIGNAL_LOG"/>
+                <constraints primaryKey="true" primaryKeyName="PK_SIGNAL_MESSAGE_LOG"/>
             </column>
             <column name="RECEIVED" type="TIMESTAMP">
                 <constraints nullable="false"/>
@@ -850,6 +850,10 @@
             <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
+        <addForeignKeyConstraint baseColumnNames="ID_PK" baseTableName="TB_SIGNAL_MESSAGE_LOG"
+                                 constraintName="FK_SIGNAL_LOG_SIGNAL_ID" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_SIGNAL_MESSAGE"/>
         <addForeignKeyConstraint baseColumnNames="MESSAGE_STATUS_ID_FK" baseTableName="TB_SIGNAL_MESSAGE_LOG"
                                  constraintName="FK_SIGNAL_LOG_MSG_STATUS" deferrable="false" initiallyDeferred="false"
                                  onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
@@ -884,7 +888,7 @@
         </createTable>
         <addForeignKeyConstraint baseColumnNames="ID_PK" baseTableName="TB_RECEIPT"
                                  constraintName="FK_TB_RECEIPT_SIGNAL_MSG" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_SIGNAL_MESSAGE"/>
 
         <createTable tableName="TB_SIGNAL_MESSAGE_RAW">
@@ -903,7 +907,7 @@
         </createTable>
         <addForeignKeyConstraint baseColumnNames="ID_PK" baseTableName="TB_SIGNAL_MESSAGE_RAW"
                                  constraintName="FK_SIGNAL_MSG_RAW_SIGNAL_MSG" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_SIGNAL_MESSAGE"/>
 
         <createTable tableName="TB_SEND_ATTEMPT">
@@ -955,7 +959,7 @@
             <column name="REF_TO_MESSAGE_ID" type="VARCHAR(255)"/>
             <column name="SEVERITY" type="VARCHAR(255)"/>
             <column name="SHORT_DESCRIPTION" type="VARCHAR(255)"/>
-            <column name="SIGNALMESSAGE_ID" type="BIGINT"/>
+            <column name="SIGNALMESSAGE_ID_FK" type="BIGINT"/>
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
@@ -965,12 +969,12 @@
             <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
-        <addForeignKeyConstraint baseColumnNames="SIGNALMESSAGE_ID" baseTableName="TB_ERROR"
+        <addForeignKeyConstraint baseColumnNames="SIGNALMESSAGE_ID_FK" baseTableName="TB_ERROR"
                                  constraintName="FK_ERROR_SIGNAL_MSG" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_SIGNAL_MESSAGE"/>
         <createIndex indexName="FK_ERROR_SIGNAL_MSG" tableName="TB_ERROR">
-            <column name="SIGNALMESSAGE_ID"/>
+            <column name="SIGNALMESSAGE_ID_FK"/>
         </createIndex>
     </changeSet>
     <!--End UserMessage Tables -->
@@ -1106,7 +1110,7 @@
         </createTable>
         <addForeignKeyConstraint baseColumnNames="FK_COMMAND" baseTableName="TB_COMMAND_PROPERTY"
                                  constraintName="FK_COMMAND_PROPERTY_ID" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_COMMAND"/>
         <createIndex indexName="IDX_COMMAND_PROP_COMMAND_ID" tableName="TB_COMMAND_PROPERTY">
             <column name="FK_COMMAND"/>
@@ -1144,7 +1148,7 @@
             <column name="ERROR_DETAIL" type="VARCHAR(255)"/>
             <column name="ERROR_SIGNAL_MESSAGE_ID" type="VARCHAR(255)"/>
             <column name="MESSAGE_IN_ERROR_ID" type="VARCHAR(255)"/>
-            <column name="MSH_ROLE" type="BIGINT"/>
+            <column name="MSH_ROLE_ID_FK" type="BIGINT"/>
             <column name="NOTIFIED" type="TIMESTAMP"/>
             <column name="TIME_STAMP" type="TIMESTAMP"/>
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
@@ -1156,6 +1160,13 @@
             <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
+        <addForeignKeyConstraint baseColumnNames="MSH_ROLE_ID_FK" baseTableName="TB_ERROR_LOG"
+                                 constraintName="FK_ERROR_LOG_MSH_ROLE" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_MSH_ROLE"/>
+        <createIndex indexName="IDX_ERROR_LOG_MSH_ROLE_ID" tableName="TB_ERROR_LOG">
+            <column name="MSH_ROLE_ID_FK"/>
+        </createIndex>
         <createIndex indexName="IDX_MESSAGE_IN_ERROR_ID" tableName="TB_ERROR_LOG">
             <column name="MESSAGE_IN_ERROR_ID"/>
         </createIndex>
@@ -1271,29 +1282,7 @@
             <column name="SERVICE_VALUE"/>
         </createIndex>
         <addUniqueConstraint columnNames="MESSAGE_ID" constraintName="UNI_MSG_UI_MSG_ID" tableName="TB_MESSAGE_UI"/>
-        <createView
-                replaceIfExists="true"
-                viewName="V_AUDIT_DETAIL">
-            SELECT
-            DISTINCT rc.GROUP_NAME as AUDIT_TYPE ,
-            rc.MODIFICATION_TYPE as ACTION_TYPE,
-            ri.USER_NAME as USER_NAME ,
-            ri.REVISION_DATE as AUDIT_DATE,
-            TRIM(CAST(rc.ENTITY_ID AS CHAR(255))) AS ID,
-            TRIM(CAST(ri.ID AS CHAR(19))) AS REV_ID
-            FROM TB_REV_INFO ri, TB_REV_CHANGES rc
-            WHERE ri.ID=rc.REV
-            UNION
-            SELECT aa.AUDIT_TYPE,aa.MODIFICATION_TYPE,aa.USER_NAME,aa.REVISION_DATE,aa.ENTITY_ID,'1' FROM
-            TB_ACTION_AUDIT aa
-        </createView>
-        <createView
-                replaceIfExists="true"
-                viewName="V_AUDIT">
-            SELECT *
-            FROM V_AUDIT_DETAIL VAD
-            ORDER BY VAD.AUDIT_DATE DESC;
-        </createView>
+
     </changeSet>
     <changeSet id="EDELIVERY-3361-1" author="CatalinEnache" dbms="oracle">
         <comment>create UI Replication view</comment>
@@ -1627,6 +1616,29 @@
             <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
+        <createView
+                replaceIfExists="true"
+                viewName="V_AUDIT_DETAIL">
+            SELECT
+            DISTINCT rc.GROUP_NAME as AUDIT_TYPE ,
+            rc.MODIFICATION_TYPE as ACTION_TYPE,
+            ri.USER_NAME as USER_NAME ,
+            ri.REVISION_DATE as AUDIT_DATE,
+            TRIM(CAST(rc.ENTITY_ID AS CHAR(255))) AS ID,
+            TRIM(CAST(ri.ID AS CHAR(19))) AS REV_ID
+            FROM TB_REV_INFO ri, TB_REV_CHANGES rc
+            WHERE ri.ID=rc.REV
+            UNION
+            SELECT aa.AUDIT_TYPE,aa.MODIFICATION_TYPE,aa.USER_NAME,aa.REVISION_DATE,aa.ENTITY_ID,'1' FROM
+            TB_ACTION_AUDIT aa
+        </createView>
+        <createView
+                replaceIfExists="true"
+                viewName="V_AUDIT">
+            SELECT *
+            FROM V_AUDIT_DETAIL VAD
+            ORDER BY VAD.AUDIT_DATE DESC;
+        </createView>
 
         <createTable tableName="TB_PM_AGREEMENT">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
