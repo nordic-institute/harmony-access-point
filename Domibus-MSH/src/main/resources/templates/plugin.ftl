@@ -59,7 +59,7 @@
                             <!-- TITLE -->
                             <tr>
                               <td valign="top" align="left" style=" font-size: 20px; font-family: Arial, Helvetica, sans-serif; color: #000;"><br/>
-                                A message status change has triggered an alert. </td>
+                                A plugin has triggered an alert. </td>
                             </tr>
                             <!-- / TITLE --> 
                             

@@ -23,7 +23,6 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -65,34 +64,43 @@ public class AlertServiceImpl implements AlertService {
     public static final String ALERT_DESCRIPTION = "ALERT_DESCRIPTION";
     public static final String NOT_AVAILABLE = "na";
 
-    @Autowired
-    private EventDao eventDao;
+    private final EventDao eventDao;
 
-    @Autowired
-    private AlertDao alertDao;
+    private final AlertDao alertDao;
 
-    @Autowired
-    private DomibusPropertyProvider domibusPropertyProvider;
+    private final DomibusPropertyProvider domibusPropertyProvider;
 
-    @Autowired
-    private DomibusCoreMapper coreMapper;
+    private final DomibusCoreMapper coreMapper;
 
-    @Autowired
-    private JMSManager jmsManager;
+    private final JMSManager jmsManager;
 
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
-    @Autowired
-    @Qualifier(JMSConstants.ALERT_MESSAGE_QUEUE)
-    private Queue alertMessageQueue;
+    private final Queue alertMessageQueue;
 
-    @Autowired
-    private AlertConfigurationService alertConfigurationService;
+    private final AlertConfigurationService alertConfigurationService;
 
-    @Autowired
-    private ServerInfoService serverInfoService;
+    private final ServerInfoService serverInfoService;
 
-    @Autowired
-    private CommonConfigurationManager alertConfigurationManager;
+    private final CommonConfigurationManager alertConfigurationManager;
+
+    public AlertServiceImpl(EventDao eventDao,
+                            AlertDao alertDao,
+                            DomibusPropertyProvider domibusPropertyProvider,
+                            DomibusCoreMapper coreMapper, JMSManager jmsManager,
+                            @Qualifier(JMSConstants.ALERT_MESSAGE_QUEUE) Queue alertMessageQueue,
+                            AlertConfigurationService alertConfigurationService,
+                            ServerInfoService serverInfoService,
+                            CommonConfigurationManager alertConfigurationManager) {
+        this.eventDao = eventDao;
+        this.alertDao = alertDao;
+        this.domibusPropertyProvider = domibusPropertyProvider;
+        this.coreMapper = coreMapper;
+        this.jmsManager = jmsManager;
+        this.alertMessageQueue = alertMessageQueue;
+        this.alertConfigurationService = alertConfigurationService;
+        this.serverInfoService = serverInfoService;
+        this.alertConfigurationManager = alertConfigurationManager;
+    }
 
     /**
      * {@inheritDoc}
@@ -100,15 +108,17 @@ public class AlertServiceImpl implements AlertService {
     @Override
     @Transactional
     public eu.domibus.core.alerts.model.service.Alert createAlertOnEvent(eu.domibus.core.alerts.model.service.Event event) {
-        final Event eventEntity = readEvent(event);
-        final AlertType alertType = AlertType.getByEventType(event.getType());
+        AlertModuleConfiguration moduleConfiguration = alertConfigurationService.getModuleConfiguration(AlertType.getByEventType(event.getType()));
+        return createAlert(event, moduleConfiguration.getAlertLevel(event), moduleConfiguration.isActive());
+    }
 
-        final AlertModuleConfiguration config = alertConfigurationService.getModuleConfiguration(alertType);
-        if (!config.isActive()) {
+    private eu.domibus.core.alerts.model.service.Alert createAlert(eu.domibus.core.alerts.model.service.Event event, AlertLevel alertLevel, boolean active) {
+        final Event eventEntity = readEvent(event);
+        AlertType alertType = AlertType.getByEventType(event.getType());
+        if (!active) {
             LOG.debug("Alerts of type [{}] are currently disabled", alertType);
             return null;
         }
-        final AlertLevel alertLevel = config.getAlertLevel(event);
         if (alertLevel == null) {
             LOG.debug("Alert of type [{}] currently disabled for this event: [{}]", alertType, event);
             return null;
@@ -133,32 +143,17 @@ public class AlertServiceImpl implements AlertService {
     @Override
     @Transactional
     public void createAndEnqueueAlertOnPluginEvent(eu.domibus.core.alerts.model.service.Event event) {
-        final Event eventEntity = readEvent(event);
-        String alertName = event.findOptionalProperty(ALERT_NAME).orElse(NOT_AVAILABLE);
+
         AlertLevel alertLevel = event.findOptionalProperty(ALERT_LEVEL)
                 .map(AlertLevel::valueOf)
                 .orElse(null);
-        if (BooleanUtils.isNotTrue(BooleanUtils.toBoolean(event.findOptionalProperty(ALERT_ACTIVE).orElse(null)))) {
-            LOG.debug("Alerts [{}] are currently disabled", alertName);
-            return;
-        }
-        if (alertLevel == null) {
-            LOG.debug("Alert [{}] currently disabled for this event: [{}]", alertName, event);
-            return;
-        }
-        Alert alert = new Alert();
+        String alertName = event.findOptionalProperty(ALERT_NAME)
+                .orElse(null);
+        boolean active = BooleanUtils.toBoolean(event.findOptionalProperty(ALERT_ACTIVE).orElse(null));
 
-        alert.setAlertLevel(alertLevel);
-
-        alert.addEvent(eventEntity);
-        alert.setAlertType(AlertType.PLUGIN);
-        alert.setAttempts(0);
-        alert.setMaxAttempts(domibusPropertyProvider.getIntegerProperty(DOMIBUS_ALERT_RETRY_MAX_ATTEMPTS));
-        alert.setAlertStatus(SEND_ENQUEUED);
-        alert.setCreationTime(new Date());
-        alertDao.create(alert);
-        LOG.info("New alert saved: [{}]", alert);
-        enqueueAlert(coreMapper.alertPersistToAlertService(alert));
+        eu.domibus.core.alerts.model.service.Alert alert = createAlert(event, alertLevel, active);
+        LOG.debug("Alert [{}] created and queued", alertName);
+        enqueueAlert(alert);
     }
 
     /**
@@ -198,19 +193,19 @@ public class AlertServiceImpl implements AlertService {
         return new DefaultMailModel<>(mailModel, template, subject);
     }
 
-    private String getDescription(Alert alertEntity, Event next) {
+    protected String getDescription(Alert alertEntity, Event next) {
         String title = alertEntity.getAlertType().getTitle();
         AbstractEventProperty<?> description = next.getProperties().get(ALERT_DESCRIPTION);
-        if(description != null){
+        if (description != null) {
             title += description.getValue().toString();
         }
         return title;
     }
 
-    private String getSubject(AlertType alertType, Event next) {
+    protected String getSubject(AlertType alertType, Event next) {
         String subject = null;
         AbstractEventProperty<?> alertSubject = next.getProperties().get(ALERT_SUBJECT);
-        if(alertSubject != null) {
+        if (alertSubject != null) {
             subject = alertSubject.getValue().toString();
         }
         if (StringUtils.isBlank(subject)) {
@@ -359,7 +354,7 @@ public class AlertServiceImpl implements AlertService {
         return alertDao.read(alert.getEntityId());
     }
 
-    private void deleteAlert(Alert alert) {
+    protected void deleteAlert(Alert alert) {
         LOG.debug("Deleting alert by first detaching it from its events: [{}]", alert);
         alert.getEvents().forEach(event -> event.removeAlert(alert));
         alertDao.delete(alert);
