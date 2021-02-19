@@ -125,9 +125,6 @@
             <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
-        <createIndex indexName="IDX_D_MSG_PROP_NAME" tableName="TB_D_MESSAGE_PROPERTY">
-            <column name="NAME"/>
-        </createIndex>
         <addUniqueConstraint columnNames="NAME" constraintName="UK_D_MSG_PROP_NAME" tableName="TB_D_MESSAGE_PROPERTY"/>
 
         <createTable tableName="TB_D_PART_PROPERTY">
@@ -148,9 +145,6 @@
             <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
-        <createIndex indexName="IDX_D_PART_PROP_NAME" tableName="TB_D_PART_PROPERTY">
-            <column name="NAME"/>
-        </createIndex>
         <addUniqueConstraint columnNames="NAME" constraintName="UK_D_PART_PROP_NAME" tableName="TB_D_PART_PROPERTY"/>
 
         <createTable tableName="TB_D_MPC">
