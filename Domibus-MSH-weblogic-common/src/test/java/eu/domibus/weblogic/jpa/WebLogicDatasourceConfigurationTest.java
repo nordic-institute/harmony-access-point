@@ -21,24 +21,6 @@ public class WebLogicDatasourceConfigurationTest {
     WebLogicDatasourceConfiguration webLogicDatasourceConfiguration;
 
     @Test
-    public void xaDatasource(@Injectable  DomibusPropertyProvider domibusPropertyProvider,
-                             @Mocked JndiObjectFactoryBean jndiObjectFactoryBean) {
-        String jndiName = "jndi/datasource";
-
-        new Expectations() {{
-            domibusPropertyProvider.getProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_JDBC_DATASOURCE_JNDI_NAME);
-            this.result = jndiName;
-        }};
-
-        webLogicDatasourceConfiguration.xaDatasource(domibusPropertyProvider);
-
-        new Verifications() {{
-            jndiObjectFactoryBean.setExpectedType(DataSource.class);
-            jndiObjectFactoryBean.setJndiName(jndiName);
-        }};
-    }
-
-    @Test
     public void quartzDatasource(@Injectable  DomibusPropertyProvider domibusPropertyProvider,
                                  @Mocked JndiObjectFactoryBean jndiObjectFactoryBean) {
         String jndiName = "jndi/datasource";
