@@ -16,50 +16,50 @@ import java.util.List;
  * @since 4.2.1
  */
 @Service
-public class DeletionJobService {
+public class UserMessageDeletionJobService {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DeletionJobService.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageDeletionJobService.class);
 
     @Autowired
-    protected DeletionJobDao deletionJobDao;
+    protected UserMessageDeletionJobDao userMessageDeletionJobDao;
 
     @Autowired
     protected UserMessageLogDao userMessageLogDao;
 
-    protected void executeJob(DeletionJob deletionJob) {
+    protected void executeJob(UserMessageDeletionJob deletionJob) {
         setJobAsRunning(deletionJob);
         userMessageLogDao.deleteExpiredMessages(deletionJob.getStartRetentionDate(), deletionJob.getEndRetentionDate(), deletionJob.getMpc(), deletionJob.getMaxCount(), deletionJob.getProcedureName());
         setJobAsStopped(deletionJob);
     }
 
-    protected void setJobAsStopped(DeletionJob deletionJob) {
-        deletionJob.setState(DeletionJobState.STOPPED.name());
-        deletionJobDao.update(deletionJob);
+    protected void setJobAsStopped(UserMessageDeletionJob deletionJob) {
+        deletionJob.setState(UserMessageDeletionJobState.STOPPED.name());
+        userMessageDeletionJobDao.update(deletionJob);
         LOG.debug("Stopped deletion job [{}]", deletionJob);
     }
 
-    protected void setJobAsRunning(DeletionJob deletionJob) {
+    protected void setJobAsRunning(UserMessageDeletionJob deletionJob) {
         deletionJob.setActualStartDate(new Date(System.currentTimeMillis()));
-        deletionJob.setState(DeletionJobState.RUNNING.name());
-        deletionJobDao.update(deletionJob);
+        deletionJob.setState(UserMessageDeletionJobState.RUNNING.name());
+        userMessageDeletionJobDao.update(deletionJob);
         LOG.debug("Started deletion job [{}]", deletionJob);
     }
 
-    protected List<DeletionJob> findCurrentDeletionJobs() {
-        return deletionJobDao.findCurrentDeletionJobs();
+    protected List<UserMessageDeletionJob> findCurrentDeletionJobs() {
+        return userMessageDeletionJobDao.findCurrentDeletionJobs();
     }
 
-    protected void deleteJob(DeletionJob deletionJob) {
+    protected void deleteJob(UserMessageDeletionJob deletionJob) {
         LOG.debug("Deletion job removed from database [{}]", deletionJob);
-        deletionJobDao.delete(deletionJob);
+        userMessageDeletionJobDao.delete(deletionJob);
     }
 
-    protected void createJob(DeletionJob deletionJob) {
+    protected void createJob(UserMessageDeletionJob deletionJob) {
         LOG.debug("Deletion job created in the database [{}]", deletionJob);
-        deletionJobDao.create(deletionJob);
+        userMessageDeletionJobDao.create(deletionJob);
     }
 
-    protected boolean doJobsOverlap(DeletionJob currentDeletionJob, DeletionJob newDeletionJob) {
+    protected boolean doJobsOverlap(UserMessageDeletionJob currentDeletionJob, UserMessageDeletionJob newDeletionJob) {
         if(!currentDeletionJob.equals(newDeletionJob)) {
             return false;
         }

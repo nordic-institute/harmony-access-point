@@ -42,17 +42,17 @@
     <!-- Domibus tables -->
     <changeSet author="Catalin Enache" id="1564477107969-13">
         <comment>create Domibus tables</comment>
-        <createTable tableName="TB_DELETION_JOB">
+        <createTable tableName="TB_USER_MESSAGE_DELETION_JOB">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_TB_DELETION_JOB"/>
+                <constraints primaryKey="true" primaryKeyName="PK_TB_USER_MESSAGE_DELETION_JOB"/>
             </column>
-            <column name="PROCEDURE_NAME" type="VARCHAR(255)"/>
+            <column name="PROCEDURE_NAME" type="VARCHAR(255)" remarks="Name of the stored procedure in the database."/>
             <column name="MPC" type="VARCHAR(255)"/>
-            <column name="START_RETENTION_DATE" type="TIMESTAMP"/>
-            <column name="END_RETENTION_DATE" type="TIMESTAMP"/>
-            <column name="MAX_COUNT" type="INT"/>
-            <column name="STATE" type="VARCHAR(255)"/>
-            <column name="ACTUAL_START_DATE" type="TIMESTAMP"/>
+            <column name="START_RETENTION_DATE" type="TIMESTAMP" remarks="Expired user messages newer than this date will be deleted by this job"/>
+            <column name="END_RETENTION_DATE" type="TIMESTAMP" remarks="Expired user messages older than this date will be deleted by this job"/>
+            <column name="MAX_COUNT" type="INT" remarks="Maximum number of expired messages to be deleted by one call of the stored procedure"/>
+            <column name="STATE" type="VARCHAR(255)" remarks="User message deletion job state: NEW, RUNNING or STOPPED"/>
+            <column name="ACTUAL_START_DATE" type="TIMESTAMP" remarks="The actual date when this job was started."/>
 
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>

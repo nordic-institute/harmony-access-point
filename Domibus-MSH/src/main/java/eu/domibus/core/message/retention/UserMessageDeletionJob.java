@@ -15,48 +15,54 @@ import java.util.Objects;
  * @since 4.2.1
  */
 @Entity
-@Table(name = "TB_DELETION_JOB")
+@Table(name = "TB_USER_MESSAGE_DELETION_JOB")
 @NamedQueries({
-        @NamedQuery(name = "DeletionJobDao.findCurrentDeletionJobs",
-                query = "select deletionJob from DeletionJob deletionJob"),
+        @NamedQuery(name = "UserMessageDeletionJobDao.findCurrentDeletionJobs",
+                query = "select deletionJob from UserMessageDeletionJob deletionJob"),
         })
 
-public class DeletionJob extends AbstractBaseEntity {
+public class UserMessageDeletionJob extends AbstractBaseEntity {
 
     @Column(name = "MPC")
     @NotNull
     private String mpc;
+
     @Column(name = "START_RETENTION_DATE")
     @NotNull
     @Temporal(TemporalType.TIMESTAMP)
     private Date startRetentionDate;
+
     @Column(name = "END_RETENTION_DATE")
     @NotNull
     @Temporal(TemporalType.TIMESTAMP)
     private Date endRetentionDate;
+
     @Column(name = "MAX_COUNT")
     @NotNull
     private int maxCount;
+
     @Column(name = "PROCEDURE_NAME")
     @NotNull
     public String procedureName;
+
     @Column(name = "STATE")
     @NotNull
     private String state;
+
     @Column(name = "ACTUAL_START_DATE")
     @NotNull
     @Temporal(TemporalType.TIMESTAMP)
     private Date actualStartDate;
 
-    public DeletionJob () {}
+    public UserMessageDeletionJob() {}
 
-    public DeletionJob(String mpc, Date startRetentionDate, Date endRetentionDate, int maxCount, String procedureName) {
+    public UserMessageDeletionJob(String mpc, Date startRetentionDate, Date endRetentionDate, int maxCount, String procedureName) {
         this.mpc = mpc;
         this.startRetentionDate = startRetentionDate;
         this.endRetentionDate = endRetentionDate;
         this.maxCount = maxCount;
         this.procedureName = procedureName;
-        this.state = DeletionJobState.NEW.name();
+        this.state = UserMessageDeletionJobState.NEW.name();
         this.actualStartDate = new Date(System.currentTimeMillis());
     }
 
@@ -120,7 +126,7 @@ public class DeletionJob extends AbstractBaseEntity {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        DeletionJob that = (DeletionJob) o;
+        UserMessageDeletionJob that = (UserMessageDeletionJob) o;
         return maxCount == that.maxCount &&
                 Objects.equals(mpc, that.mpc) &&
                 Objects.equals(procedureName, that.procedureName);
@@ -132,7 +138,7 @@ public class DeletionJob extends AbstractBaseEntity {
     }
 
     public boolean isActive() {
-        if(DeletionJobState.RUNNING == DeletionJobState.valueOf(state)) {
+        if(UserMessageDeletionJobState.RUNNING == UserMessageDeletionJobState.valueOf(state)) {
             return true;
         }
         return false;
@@ -140,7 +146,7 @@ public class DeletionJob extends AbstractBaseEntity {
 
     @Override
     public String toString() {
-        return "DeletionJob{" +
+        return "UserMessageDeletionJob{" +
                 "mpc='" + mpc + '\'' +
                 ", startRetentionDate=" + startRetentionDate +
                 ", endRetentionDate=" + endRetentionDate +

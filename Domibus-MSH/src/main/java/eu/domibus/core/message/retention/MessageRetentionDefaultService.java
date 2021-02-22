@@ -64,10 +64,7 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
 
     @Override
     public boolean handlesDeletionStrategy(String retentionStrategy) {
-        if (DeletionStrategy.DEFAULT.compareTo(DeletionStrategy.valueOf(retentionStrategy)) == 0) {
-            return true;
-        }
-        return false;
+        return DeletionStrategy.DEFAULT == DeletionStrategy.valueOf(retentionStrategy);
     }
 
     /**
