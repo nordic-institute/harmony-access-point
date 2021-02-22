@@ -1,9 +1,11 @@
 package eu.domibus.ext.delegate.converter;
 
+import eu.domibus.api.alerts.AlertEvent;
 import eu.domibus.api.message.acknowledge.MessageAcknowledgement;
 import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.property.encryption.PasswordEncryptionResult;
 import eu.domibus.ext.delegate.mapper.MonitoringMapperDecorator;
+import eu.domibus.ext.domain.AlertEventDTO;
 import eu.domibus.ext.domain.MessageAcknowledgementDTO;
 import eu.domibus.ext.domain.MessageAttemptDTO;
 import eu.domibus.ext.domain.PasswordEncryptionResultDTO;
@@ -44,14 +46,30 @@ public class DomainExtDefaultConverterIT {
     ObjectService objectService;
 
     @Test
-    public void testConvertMessageAcknowledge() throws Exception {
+    public void testConvertMessageAcknowledge()  {
         MessageAcknowledgement toConvert = (MessageAcknowledgement) objectService.createInstance(MessageAcknowledgement.class);
         final MessageAcknowledgementDTO converted = domibusDomainConverter.convert(toConvert, MessageAcknowledgementDTO.class);
         objectService.assertObjects(converted, toConvert);
     }
 
     @Test
-    public void testConvertMessageAcknowledgeList() throws Exception {
+    public void testConvertAlertEvent()  {
+        AlertEvent toConvert = (AlertEvent) objectService.createInstance(AlertEvent.class);
+        final AlertEventDTO converted = domibusDomainConverter.convert(toConvert, AlertEventDTO.class);
+        objectService.assertObjects(converted.getAlertLevelDTO().name(), toConvert.getAlertLevel().name());
+        objectService.assertObjects(converted.getProperties(), toConvert.getProperties());
+    }
+
+    @Test
+    public void testConvertAlertEventDTO()  {
+        AlertEventDTO toConvert = (AlertEventDTO) objectService.createInstance(AlertEventDTO.class);
+        final AlertEvent converted = domibusDomainConverter.convert(toConvert, AlertEvent.class);
+        objectService.assertObjects(converted.getAlertLevel(), toConvert.getAlertLevelDTO());
+        objectService.assertObjects(converted.getProperties(), toConvert.getProperties());
+    }
+
+    @Test
+    public void testConvertMessageAcknowledgeList()  {
         MessageAcknowledgement toConvert1 = (MessageAcknowledgement) objectService.createInstance(MessageAcknowledgement.class);
         MessageAcknowledgement toConvert2 = (MessageAcknowledgement) objectService.createInstance(MessageAcknowledgement.class);
 
@@ -64,21 +82,21 @@ public class DomainExtDefaultConverterIT {
     }
 
     @Test
-    public void testConvertMessageAttempt() throws Exception {
+    public void testConvertMessageAttempt()  {
         MessageAttempt toConvert = (MessageAttempt) objectService.createInstance(MessageAttempt.class);
         final MessageAttemptDTO converted = domibusDomainConverter.convert(toConvert, MessageAttemptDTO.class);
         objectService.assertObjects(converted, toConvert);
     }
 
     @Test
-    public void testPasswordEncryptionResult() throws Exception {
+    public void testPasswordEncryptionResult()  {
         PasswordEncryptionResult toConvert = (PasswordEncryptionResult) objectService.createInstance(PasswordEncryptionResult.class);
         final PasswordEncryptionResultDTO converted = domibusDomainConverter.convert(toConvert, PasswordEncryptionResultDTO.class);
         objectService.assertObjects(converted, toConvert);
     }
 
     @Test
-    public void testtConvertMessageAttemptList() throws Exception {
+    public void testtConvertMessageAttemptList()  {
         MessageAttempt toConvert1 = (MessageAttempt) objectService.createInstance(MessageAttempt.class);
         MessageAttempt toConvert2 = (MessageAttempt) objectService.createInstance(MessageAttempt.class);
 

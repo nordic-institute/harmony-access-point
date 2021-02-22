@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import javax.jms.Queue;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_UI_REPLICATION_ENABLED;
+import static eu.domibus.common.JMSConstants.UI_REPLICATION_QUEUE;
 
 /**
  * Implementation for {@code UIReplicationSignalService}
@@ -30,7 +31,7 @@ public class UIReplicationSignalServiceImpl implements UIReplicationSignalServic
     static final String UI_REPLICATION_ENABLED = DOMIBUS_UI_REPLICATION_ENABLED;
 
     @Autowired
-    @Qualifier("uiReplicationQueue")
+    @Qualifier(UI_REPLICATION_QUEUE)
     private Queue uiReplicationQueue;
 
     @Autowired

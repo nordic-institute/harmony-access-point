@@ -1,5 +1,6 @@
 package eu.domibus.ext.delegate.converter;
 
+import eu.domibus.api.alerts.AlertEvent;
 import eu.domibus.api.converter.ConverterException;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.jms.JmsMessage;
@@ -15,6 +16,7 @@ import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.encryption.PasswordEncryptionResult;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.usermessage.domain.UserMessage;
+import eu.domibus.ext.delegate.mapper.AlertMapper;
 import eu.domibus.ext.delegate.mapper.DomibusExtMapper;
 import eu.domibus.ext.delegate.mapper.MonitoringMapper;
 import eu.domibus.ext.domain.*;
@@ -43,6 +45,9 @@ public class DomainExtDefaultConverter implements DomainExtConverter {
 
     @Autowired
     MonitoringMapper monitoringMapper;
+
+    @Autowired
+    AlertMapper alertMapper;
 
     @Override
     public <T, U> T convert(U source, final Class<T> typeOfT) {
@@ -126,6 +131,15 @@ public class DomainExtDefaultConverter implements DomainExtConverter {
         if (typeOfT == Party.class) {
             LOG.debug(debugMessage, typeOfT, source.getClass());
             return (T) domibusExtMapper.partyDTOToParty((PartyDTO) source);
+        }
+        if (typeOfT == AlertEventDTO.class) {
+            LOG.debug(debugMessage, typeOfT, source.getClass());
+            return (T) alertMapper.alertEventToAlertEventDTO((AlertEvent) source);
+        }
+
+        if (typeOfT == AlertEvent.class) {
+            LOG.debug(debugMessage, typeOfT, source.getClass());
+            return (T) alertMapper.alertEventDTOToAlertEvent((AlertEventDTO) source);
         }
 
         if (typeOfT == TrustStoreDTO.class) {

@@ -1,5 +1,6 @@
 package eu.domibus.core.alerts.model.common;
 
+import eu.domibus.api.alerts.AlertLevel;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Date;

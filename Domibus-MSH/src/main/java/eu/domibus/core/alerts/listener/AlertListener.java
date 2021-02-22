@@ -7,7 +7,6 @@ import eu.domibus.core.alerts.service.AlertDispatcherService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
@@ -21,14 +20,19 @@ public class AlertListener {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AlertListener.class);
 
-    @Autowired
-    private AlertDispatcherService alertDispatcherService;
+    private final AlertDispatcherService alertDispatcherService;
 
-    @Autowired
-    private DomainContextProvider domainContextProvider;
+    private final DomainContextProvider domainContextProvider;
 
-    @Autowired
-    private DatabaseUtil databaseUtil;
+    private final DatabaseUtil databaseUtil;
+
+    public AlertListener(AlertDispatcherService alertDispatcherService,
+                         DomainContextProvider domainContextProvider,
+                         DatabaseUtil databaseUtil) {
+        this.alertDispatcherService = alertDispatcherService;
+        this.domainContextProvider = domainContextProvider;
+        this.databaseUtil = databaseUtil;
+    }
 
     @JmsListener(containerFactory = "alertJmsListenerContainerFactory", destination = "${domibus.jms.queue.alert}",
             selector = "selector = 'alert'")
