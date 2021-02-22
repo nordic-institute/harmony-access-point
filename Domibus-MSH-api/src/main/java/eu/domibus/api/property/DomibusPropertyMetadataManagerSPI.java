@@ -251,17 +251,6 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_SECURITY_KEY_PRIVATE_PASSWORD = "domibus.security.key.private.password";//NOSONAR
     String DOMIBUS_DATABASE_GENERAL_SCHEMA = "domibus.database.general.schema";
     String DOMIBUS_DATABASE_SCHEMA = "domibus.database.schema";
-    String DOMIBUS_DATASOURCE_XA_XA_DATA_SOURCE_CLASS_NAME = "domibus.datasource.xa.xaDataSourceClassName";
-    String DOMIBUS_DATASOURCE_XA_MAX_LIFETIME = "domibus.datasource.xa.maxLifetime";
-    String DOMIBUS_DATASOURCE_XA_MIN_POOL_SIZE = "domibus.datasource.xa.minPoolSize";
-    String DOMIBUS_DATASOURCE_XA_MAX_POOL_SIZE = "domibus.datasource.xa.maxPoolSize";
-    String DOMIBUS_DATASOURCE_XA_BORROW_CONNECTION_TIMEOUT = "domibus.datasource.xa.borrowConnectionTimeout";
-    String DOMIBUS_DATASOURCE_XA_REAP_TIMEOUT = "domibus.datasource.xa.reapTimeout";
-    String DOMIBUS_DATASOURCE_XA_MAX_IDLE_TIME = "domibus.datasource.xa.maxIdleTime";
-    String DOMIBUS_DATASOURCE_XA_MAINTENANCE_INTERVAL = "domibus.datasource.xa.maintenanceInterval";
-    String DOMIBUS_DATASOURCE_XA_PROPERTY_USER = "domibus.datasource.xa.property.user";
-    String DOMIBUS_DATASOURCE_XA_PROPERTY_PASSWORD = "domibus.datasource.xa.property.password"; //NOSONAR
-    String DOMIBUS_DATASOURCE_XA_PROPERTY_URL = "domibus.datasource.xa.property.url";
     String DOMIBUS_DATASOURCE_DRIVER_CLASS_NAME = "domibus.datasource.driverClassName";
     String DOMIBUS_DATASOURCE_URL = "domibus.datasource.url";
     String DOMIBUS_DATASOURCE_USER = "domibus.datasource.user";
@@ -276,7 +265,6 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_ENTITY_MANAGER_FACTORY_JPA_PROPERTY_HIBERNATE_ID_NEW_GENERATOR_MAPPINGS = "domibus.entityManagerFactory.jpaProperty.hibernate.id.new_generator_mappings";
     String DOMIBUS_ENTITY_MANAGER_FACTORY_JPA_PROPERTY_HIBERNATE_FORMAT_SQL = "domibus.entityManagerFactory.jpaProperty.hibernate.format_sql";
     String DOMIBUS_ENTITY_MANAGER_FACTORY_JPA_PROPERTY_HIBERNATE_TRANSACTION_FACTORY_CLASS = "domibus.entityManagerFactory.jpaProperty.hibernate.transaction.factory_class";
-    String DOMIBUS_ENTITY_MANAGER_FACTORY_JPA_PROPERTY_HIBERNATE_TRANSACTION_JTA_PLATFORM = "domibus.entityManagerFactory.jpaProperty.hibernate.transaction.jta.platform";
     String DOMIBUS_PASSWORD_ENCRYPTION_ACTIVE = "domibus.password.encryption.active"; //NOSONAR
     String DOMIBUS_PASSWORD_ENCRYPTION_PROPERTIES = "domibus.password.encryption.properties"; //NOSONAR
     String DOMIBUS_PASSWORD_ENCRYPTION_KEY_LOCATION = "domibus.password.encryption.key.location";//NOSONAR
@@ -286,11 +274,6 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_JMS_QUEUE_ALERT = "domibus.jms.queue.alert";
     String DOMIBUS_TASK_EXECUTOR_THREAD_COUNT = "domibus.taskExecutor.threadCount";
     String DOMIBUS_MSH_TASK_EXECUTOR_THREAD_COUNT = "domibus.mshTaskExecutor.threadCount";
-    String COM_ATOMIKOS_ICATCH_OUTPUT_DIR = "com.atomikos.icatch.output_dir";
-    String COM_ATOMIKOS_ICATCH_LOG_BASE_DIR = "com.atomikos.icatch.log_base_dir";
-    String COM_ATOMIKOS_ICATCH_DEFAULT_JTA_TIMEOUT = "com.atomikos.icatch.default_jta_timeout";
-    String COM_ATOMIKOS_ICATCH_MAX_TIMEOUT = "com.atomikos.icatch.max_timeout";
-    String COM_ATOMIKOS_ICATCH_MAX_ACTIVES = "com.atomikos.icatch.max_actives";
     String ACTIVE_MQ_BROKER_HOST = "activeMQ.broker.host";
     String ACTIVE_MQ_BROKER_NAME = "activeMQ.brokerName";
     String ACTIVE_MQ_EMBEDDED_CONFIGURATION_FILE = "activeMQ.embedded.configurationFile";
