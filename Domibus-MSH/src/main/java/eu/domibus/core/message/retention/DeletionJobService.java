@@ -28,8 +28,18 @@ public class DeletionJobService {
 
     protected void executeJob(DeletionJob deletionJob) {
         setJobAsRunning(deletionJob);
-        userMessageLogDao.deleteExpiredMessages(deletionJob.getStartRetentionDate(), deletionJob.getEndRetentionDate(), deletionJob.getMpc(), deletionJob.getMaxCount(), deletionJob.getProcedureName());
+        //userMessageLogDao.deleteExpiredMessages(deletionJob.getStartRetentionDate(), deletionJob.getEndRetentionDate(), deletionJob.getMpc(), deletionJob.getMaxCount(), deletionJob.getProcedureName());
+        sleep(30);
         setJobAsStopped(deletionJob);
+    }
+
+
+    protected void sleep(long seconds) {
+        try {
+            Thread.sleep(seconds*1000);
+        } catch (InterruptedException e) {
+            LOG.warn("Sleep Interrupted");
+        }
     }
 
     protected void setJobAsStopped(DeletionJob deletionJob) {
