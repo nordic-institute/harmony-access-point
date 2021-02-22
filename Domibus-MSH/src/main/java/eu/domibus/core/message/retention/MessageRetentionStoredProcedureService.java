@@ -34,13 +34,13 @@ public class MessageRetentionStoredProcedureService implements MessageRetentionS
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageRetentionStoredProcedureService.class);
 
-    private DomibusPropertyProvider domibusPropertyProvider;
+    protected DomibusPropertyProvider domibusPropertyProvider;
 
-    private PModeProvider pModeProvider;
+    protected PModeProvider pModeProvider;
 
-    private UserMessageDeletionJobService userMessageDeletionJobService;
+    protected UserMessageDeletionJobService userMessageDeletionJobService;
 
-    private DomainTaskExecutor domainTaskExecutor;
+    protected DomainTaskExecutor domainTaskExecutor;
 
     final static int DELETION_JOBS_DELTA = 60; // 1 hour in minutes
 
@@ -109,28 +109,9 @@ public class MessageRetentionStoredProcedureService implements MessageRetentionS
     protected List<UserMessageDeletionJob> filterOutOverlappingJobs(List<UserMessageDeletionJob> currentDeletionJobs, List<UserMessageDeletionJob> newDeletionJobs) {
 
         List<UserMessageDeletionJob> deletionJobs = newDeletionJobs.stream()
-                .filter(deletionJob -> !isJobOverlaping(deletionJob, currentDeletionJobs)).collect(Collectors.toList());
+                .filter(deletionJob -> !userMessageDeletionJobService.isJobOverlaping(deletionJob, currentDeletionJobs)).collect(Collectors.toList());
 
         return deletionJobs;
-    }
-
-    protected boolean isJobOverlaping(UserMessageDeletionJob deletionJob, List<UserMessageDeletionJob> currentDeletionJobs) {
-        LOG.debug("Verify if new job overlaps currently running jobs.");
-        if (CollectionUtils.isEmpty(currentDeletionJobs)) {
-            LOG.debug("No overlapping, there are no current deletion jobs.");
-            return false;
-        }
-
-        List<UserMessageDeletionJob> result = currentDeletionJobs.stream().filter(currentDeletionJob -> userMessageDeletionJobService.doJobsOverlap(currentDeletionJob, deletionJob))
-                .collect(Collectors.toList());
-
-        if (result.isEmpty()) {
-            LOG.debug("Deletion job does not overlap with current deletion jobs.");
-            return false;
-        }
-
-        LOG.debug("Deletion job overlaps the following jobs currently running [{}]", result);
-        return true;
     }
 
     protected void runDeletionJobs(List<UserMessageDeletionJob> deletionJobs) {
