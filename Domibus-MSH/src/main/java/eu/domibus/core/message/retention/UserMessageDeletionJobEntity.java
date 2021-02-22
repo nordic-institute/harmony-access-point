@@ -21,7 +21,7 @@ import java.util.Objects;
                 query = "select deletionJob from UserMessageDeletionJob deletionJob"),
         })
 
-public class UserMessageDeletionJob extends AbstractBaseEntity {
+public class UserMessageDeletionJobEntity extends AbstractBaseEntity {
 
     @Column(name = "MPC")
     @NotNull
@@ -54,9 +54,9 @@ public class UserMessageDeletionJob extends AbstractBaseEntity {
     @Temporal(TemporalType.TIMESTAMP)
     private Date actualStartDate;
 
-    public UserMessageDeletionJob() {}
+    public UserMessageDeletionJobEntity() {}
 
-    public UserMessageDeletionJob(String mpc, Date startRetentionDate, Date endRetentionDate, int maxCount, String procedureName) {
+    public UserMessageDeletionJobEntity(String mpc, Date startRetentionDate, Date endRetentionDate, int maxCount, String procedureName) {
         this.mpc = mpc;
         this.startRetentionDate = startRetentionDate;
         this.endRetentionDate = endRetentionDate;
@@ -126,7 +126,7 @@ public class UserMessageDeletionJob extends AbstractBaseEntity {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        UserMessageDeletionJob that = (UserMessageDeletionJob) o;
+        UserMessageDeletionJobEntity that = (UserMessageDeletionJobEntity) o;
         return maxCount == that.maxCount &&
                 Objects.equals(mpc, that.mpc) &&
                 Objects.equals(procedureName, that.procedureName);
@@ -146,7 +146,7 @@ public class UserMessageDeletionJob extends AbstractBaseEntity {
 
     @Override
     public String toString() {
-        return "UserMessageDeletionJob{" +
+        return "UserMessageDeletionJobEntity{" +
                 "mpc='" + mpc + '\'' +
                 ", startRetentionDate=" + startRetentionDate +
                 ", endRetentionDate=" + endRetentionDate +

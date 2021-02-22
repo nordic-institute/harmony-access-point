@@ -52,7 +52,7 @@ public class MessageRetentionStoredProcedureServiceTest {
     final Integer retention = 3 * 24 * 60; // 3 days
     final List<String> mpcs = Arrays.asList(new String[]{mpc1, mpc2});
 
-    List<UserMessageDeletionJob> currentDeletionJobs = null;
+    List<UserMessageDeletionJobEntity> currentDeletionJobs = null;
 
     @Before
     public void init() {
@@ -102,7 +102,7 @@ public class MessageRetentionStoredProcedureServiceTest {
             result = 24* 60;
         }};
 
-        List<UserMessageDeletionJob> deletionJobs = new ArrayList<>();
+        List<UserMessageDeletionJobEntity> deletionJobs = new ArrayList<>();
 
         deletionJobs = messageRetentionService.addDeletionJobsToList(deletionJobs, mpc1, MessageStatus.ACKNOWLEDGED);
         Assert.assertTrue(deletionJobs.size() == 2);

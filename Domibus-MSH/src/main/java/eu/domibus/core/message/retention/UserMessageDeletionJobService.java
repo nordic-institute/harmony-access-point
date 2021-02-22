@@ -29,45 +29,44 @@ public class UserMessageDeletionJobService {
         this.userMessageLogDao = userMessageLogDao;
     }
 
-    public void executeJob(UserMessageDeletionJob deletionJob) {
+    public void executeJob(UserMessageDeletionJobEntity deletionJob) {
         setJobAsRunning(deletionJob);
         userMessageLogDao.deleteExpiredMessages(deletionJob.getStartRetentionDate(), deletionJob.getEndRetentionDate(), deletionJob.getMpc(), deletionJob.getMaxCount(), deletionJob.getProcedureName());
         setJobAsStopped(deletionJob);
     }
 
-    public void setJobAsStopped(UserMessageDeletionJob deletionJob) {
+    public void setJobAsStopped(UserMessageDeletionJobEntity deletionJob) {
         deletionJob.setState(UserMessageDeletionJobState.STOPPED.name());
         userMessageDeletionJobDao.update(deletionJob);
         LOG.debug("Stopped deletion job [{}]", deletionJob);
     }
 
-    public void setJobAsRunning(UserMessageDeletionJob deletionJob) {
+    public void setJobAsRunning(UserMessageDeletionJobEntity deletionJob) {
         deletionJob.setActualStartDate(new Date(System.currentTimeMillis()));
         deletionJob.setState(UserMessageDeletionJobState.RUNNING.name());
         userMessageDeletionJobDao.update(deletionJob);
         LOG.debug("Started deletion job [{}]", deletionJob);
     }
 
-    public List<UserMessageDeletionJob> findCurrentDeletionJobs() {
+    public List<UserMessageDeletionJobEntity> findCurrentDeletionJobs() {
         return userMessageDeletionJobDao.findCurrentDeletionJobs();
     }
 
-    public void deleteJob(UserMessageDeletionJob deletionJob) {
+    public void deleteJob(UserMessageDeletionJobEntity deletionJob) {
         LOG.debug("Deletion job removed from database [{}]", deletionJob);
         userMessageDeletionJobDao.delete(deletionJob);
     }
 
-    public void createJob(UserMessageDeletionJob deletionJob) {
+    public void createJob(UserMessageDeletionJobEntity deletionJob) {
         LOG.debug("Deletion job created in the database [{}]", deletionJob);
         userMessageDeletionJobDao.create(deletionJob);
     }
 
-    public boolean doJobsOverlap(UserMessageDeletionJob currentDeletionJob, UserMessageDeletionJob newDeletionJob) {
+    public boolean doJobsOverlap(UserMessageDeletionJobEntity currentDeletionJob, UserMessageDeletionJobEntity newDeletionJob) {
         if (!currentDeletionJob.equals(newDeletionJob)) {
             return false;
         }
-        if (newDeletionJob.getStartRetentionDate().before(currentDeletionJob.getStartRetentionDate()) &&
-                newDeletionJob.getEndRetentionDate().before(currentDeletionJob.getStartRetentionDate())) {
+        if (newDeletionJob.getEndRetentionDate().before(currentDeletionJob.getStartRetentionDate())) {
             return false;
         }
         if (newDeletionJob.getStartRetentionDate().after(currentDeletionJob.getEndRetentionDate())) {
@@ -77,14 +76,14 @@ public class UserMessageDeletionJobService {
     }
 
 
-    public boolean isJobOverlaping(UserMessageDeletionJob deletionJob, List<UserMessageDeletionJob> currentDeletionJobs) {
+    public boolean isJobOverlaping(UserMessageDeletionJobEntity deletionJob, List<UserMessageDeletionJobEntity> currentDeletionJobs) {
         LOG.debug("Verify if deletion job overlaps current deletion jobs.");
         if (CollectionUtils.isEmpty(currentDeletionJobs)) {
             LOG.debug("No overlapping, there are no current deletion jobs.");
             return false;
         }
 
-        List<UserMessageDeletionJob> result = currentDeletionJobs.stream().filter(currentDeletionJob -> doJobsOverlap(currentDeletionJob, deletionJob))
+        List<UserMessageDeletionJobEntity> result = currentDeletionJobs.stream().filter(currentDeletionJob -> doJobsOverlap(currentDeletionJob, deletionJob))
                 .collect(Collectors.toList());
 
         if (result.isEmpty()) {

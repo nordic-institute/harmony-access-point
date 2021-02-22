@@ -14,10 +14,10 @@ public class UserMessageDeletionJobRunnable implements Runnable {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageDeletionJobRunnable.class);
 
-    protected UserMessageDeletionJob deletionJob;
+    protected UserMessageDeletionJobEntity deletionJob;
     protected UserMessageDeletionJobService userMessageDeletionJobService;
 
-    public UserMessageDeletionJobRunnable(UserMessageDeletionJobService userMessageDeletionJobService, UserMessageDeletionJob deletionJob) {
+    public UserMessageDeletionJobRunnable(UserMessageDeletionJobService userMessageDeletionJobService, UserMessageDeletionJobEntity deletionJob) {
         this.userMessageDeletionJobService = userMessageDeletionJobService;
         this.deletionJob = deletionJob;
     }

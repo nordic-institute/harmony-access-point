@@ -16,7 +16,7 @@ import java.util.Date;
  * @since 4.2.1
  */
 @RunWith(JMockit.class)
-public class UserMessageDeletionJobServiceTest {
+public class UserMessageDeletionJobEntityServiceTest {
 
     @Injectable
     protected UserMessageDeletionJobDao userMessageDeletionJobDao;
@@ -31,18 +31,18 @@ public class UserMessageDeletionJobServiceTest {
     public void testJobsOverlap() {
         Date startDate = DateUtils.addMinutes(new Date(), 0);
         Date endDate = DateUtils.addMinutes(new Date(), 24*60);
-        UserMessageDeletionJob deletionJob1 = new UserMessageDeletionJob("mpc1", startDate, endDate, 5000, "procName" );
+        UserMessageDeletionJobEntity deletionJob1 = new UserMessageDeletionJobEntity("mpc1", startDate, endDate, 5000, "procName" );
         startDate = DateUtils.addMinutes(new Date(), 24*60*-1);
         endDate = DateUtils.addMinutes(new Date(), 10);
-        UserMessageDeletionJob deletionJob2 = new UserMessageDeletionJob("mpc1", startDate, endDate, 5000, "procName" );
+        UserMessageDeletionJobEntity deletionJob2 = new UserMessageDeletionJobEntity("mpc1", startDate, endDate, 5000, "procName" );
 
         Assert.assertTrue(userMessageDeletionJobService.doJobsOverlap(deletionJob1, deletionJob2));
     }
 
     @Test
     public void testDifferentJobsDoNotOverlap() {
-        UserMessageDeletionJob deletionJob1 = new UserMessageDeletionJob("mpc1", new Date(), new Date(), 5000, "procName" );
-        UserMessageDeletionJob deletionJob2 = new UserMessageDeletionJob("mpc2", new Date(), new Date(), 5000, "procName" );
+        UserMessageDeletionJobEntity deletionJob1 = new UserMessageDeletionJobEntity("mpc1", new Date(), new Date(), 5000, "procName" );
+        UserMessageDeletionJobEntity deletionJob2 = new UserMessageDeletionJobEntity("mpc2", new Date(), new Date(), 5000, "procName" );
 
         Assert.assertFalse(userMessageDeletionJobService.doJobsOverlap(deletionJob1, deletionJob2));
     }
@@ -51,10 +51,10 @@ public class UserMessageDeletionJobServiceTest {
     public void testDSameJobsDoNotOverlap() {
         Date startDate = DateUtils.addMinutes(new Date(), 0);
         Date endDate = DateUtils.addMinutes(new Date(), 24*60);
-        UserMessageDeletionJob deletionJob1 = new UserMessageDeletionJob("mpc1", startDate, endDate, 5000, "procName" );
+        UserMessageDeletionJobEntity deletionJob1 = new UserMessageDeletionJobEntity("mpc1", startDate, endDate, 5000, "procName" );
         startDate = DateUtils.addMinutes(new Date(), 24*60*-1);
         endDate = DateUtils.addMinutes(new Date(), 0);
-        UserMessageDeletionJob deletionJob2 = new UserMessageDeletionJob("mpc1", startDate, endDate, 5000, "procName" );
+        UserMessageDeletionJobEntity deletionJob2 = new UserMessageDeletionJobEntity("mpc1", startDate, endDate, 5000, "procName" );
         userMessageDeletionJobService.doJobsOverlap(deletionJob1, deletionJob2);
     }
 }

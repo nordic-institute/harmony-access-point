@@ -14,15 +14,15 @@ import java.util.List;
  * @since 4.2.1
  */
 @Repository
-public class UserMessageDeletionJobDao extends BasicDao<UserMessageDeletionJob> {
+public class UserMessageDeletionJobDao extends BasicDao<UserMessageDeletionJobEntity> {
 
 
     public UserMessageDeletionJobDao() {
-        super(UserMessageDeletionJob.class);
+        super(UserMessageDeletionJobEntity.class);
     }
 
-    public List<UserMessageDeletionJob> findCurrentDeletionJobs() {
-        final TypedQuery<UserMessageDeletionJob> query = this.em.createNamedQuery("UserMessageDeletionJobDao.findCurrentDeletionJobs", UserMessageDeletionJob.class);
+    public List<UserMessageDeletionJobEntity> findCurrentDeletionJobs() {
+        final TypedQuery<UserMessageDeletionJobEntity> query = this.em.createNamedQuery("UserMessageDeletionJobDao.findCurrentDeletionJobs", UserMessageDeletionJobEntity.class);
         return query.getResultList();
     }
 }
