@@ -1,6 +1,5 @@
 package eu.domibus.core.message;
 
-import com.google.common.collect.Maps;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.core.metrics.Counter;
@@ -209,27 +208,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         messageLog.setNotificationStatus(NotificationStatus.NOTIFIED);
     }
 
-    public int countAllInfo(boolean asc, Map<String, Object> filters) {
-        LOG.debug("Count all");
-        final Map<String, Object> filteredEntries = Maps.filterEntries(filters, input -> input.getValue() != null);
-        if (filteredEntries.size() == 0) {
-            LOG.debug("Filter empty");
-            return countAll();
-        }
-        String filteredUserMessageLogQuery = userMessageLogInfoFilter.countUserMessageLogQuery(asc, filters);
-        TypedQuery<Number> countQuery = em.createQuery(filteredUserMessageLogQuery, Number.class);
-        countQuery = userMessageLogInfoFilter.applyParameters(countQuery, filters);
-        final Number count = countQuery.getSingleResult();
-        return count.intValue();
-    }
-
-    public Integer countAll() {
-        LOG.debug("Executing native query");
-        final Query nativeQuery = em.createNativeQuery("SELECT count(um.ID_PK) FROM  TB_USER_MESSAGE um");
-        final Number singleResult = (Number) nativeQuery.getSingleResult();
-        return singleResult.intValue();
-    }
-
+    @Override
     public List<MessageLogInfo> findAllInfoPaged(int from, int max, String column, boolean asc, Map<String, Object> filters) {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Retrieving messages for parameters from [{}] max [{}] column [{}] asc [{}]", from, max, column, asc);

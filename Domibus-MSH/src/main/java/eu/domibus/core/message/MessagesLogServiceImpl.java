@@ -34,15 +34,13 @@ public class MessagesLogServiceImpl implements MessagesLogService {
     @Autowired
     private DomainCoreConverter domainConverter;
 
+    @Autowired
+    MessagesLogServiceHelper messagesLogServiceHelper;
+
     @Override
     public long countMessages(MessageType messageType, Map<String, Object> filters) {
-        long numberOfMessageLogs = 0;
-        if (messageType == MessageType.SIGNAL_MESSAGE) {
-            numberOfMessageLogs = signalMessageLogDao.countAllInfo(true, filters);
-        } else if (messageType == MessageType.USER_MESSAGE) {
-            numberOfMessageLogs = userMessageLogDao.countAllInfo(true, filters);
-        }
-        return numberOfMessageLogs;
+        MessageLogDao dao = getMessageLogDao(messageType);
+        return dao.countEntries(filters);
     }
 
     /**
@@ -52,36 +50,21 @@ public class MessagesLogServiceImpl implements MessagesLogService {
     public MessageLogResultRO countAndFindPaged(MessageType messageType, int from, int max, String column, boolean asc, Map<String, Object> filters) {
         MessageLogResultRO result = new MessageLogResultRO();
 
-        List<MessageLogInfo> resultList = new ArrayList<>();
-        if (messageType == MessageType.SIGNAL_MESSAGE) {
-            long numberOfSignalMessageLogs = signalMessageLogDao.countAllInfo(asc, filters);
-            LOG.debug("count Signal Messages Logs [{}]", numberOfSignalMessageLogs);
-            result.setCount(numberOfSignalMessageLogs);
-            if (numberOfSignalMessageLogs > 0) {
-                resultList = signalMessageLogDao.findAllInfoPaged(from, max, column, asc, filters);
-            }
+        MessageLogDao dao = getMessageLogDao(messageType);
+        List<MessageLogInfo> resultList = countAndFilter(dao, from, max, column, asc, filters, result);
 
-        } else if (messageType == MessageType.USER_MESSAGE) {
-            long numberOfUserMessageLogs = userMessageLogDao.countAllInfo(asc, filters);
-            LOG.debug("count User Messages Logs [{}]", numberOfUserMessageLogs);
-            result.setCount(numberOfUserMessageLogs);
-            if (numberOfUserMessageLogs > 0) {
-                resultList = userMessageLogDao.findAllInfoPaged(from, max, column, asc, filters);
-            }
-        }
-        result.setMessageLogEntries(resultList
-                .stream()
+        List<MessageLogRO> convertedList = resultList.stream()
                 .map(messageLogInfo -> convertMessageLogInfo(messageLogInfo))
-                .collect(Collectors.toList()));
+                .collect(Collectors.toList());
+        result.setMessageLogEntries(convertedList);
+
         return result;
     }
 
     @Override
     public List<MessageLogInfo> findAllInfoCSV(MessageType messageType, int max, String orderByColumn, boolean asc, Map<String, Object> filters) {
-
-        return (messageType == MessageType.SIGNAL_MESSAGE ?
-                signalMessageLogDao.findAllInfoPaged(0, max, orderByColumn, asc, filters) :
-                userMessageLogDao.findAllInfoPaged(0, max, orderByColumn, asc, filters));
+        MessageLogDao dao = getMessageLogDao(messageType);
+        return dao.findAllInfoPaged(0, max, orderByColumn, asc, filters);
     }
 
     /**
@@ -114,5 +97,18 @@ public class MessagesLogServiceImpl implements MessagesLogService {
             LOG.warn("Found more than one message log entry for id [{}].", messageId);
         }
         return messages.get(0);
+    }
+
+    protected List<MessageLogInfo> countAndFilter(MessageLogDao dao, int from, int max, String column, boolean asc, Map<String, Object> filters, MessageLogResultRO result) {
+        List<MessageLogInfo> resultList = new ArrayList<>();
+        long number = messagesLogServiceHelper.calculateNumberOfMessages(dao, filters, result);
+        if (number > 0) {
+            resultList = dao.findAllInfoPaged(from, max, column, asc, filters);
+        }
+        return resultList;
+    }
+
+    protected MessageLogDao getMessageLogDao(MessageType messageType) {
+        return (messageType == MessageType.SIGNAL_MESSAGE) ? signalMessageLogDao : userMessageLogDao;
     }
 }

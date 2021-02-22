@@ -25,10 +25,11 @@ public abstract class ListDao<T extends AbstractBaseEntity> extends BasicDao<T> 
         super(typeOfT);
     }
 
-    protected abstract List<Predicate> getPredicates(Map<String, Object> filters, CriteriaBuilder cb, Root<T> ele) ;
+    protected abstract List<Predicate> getPredicates(Map<String, Object> filters, CriteriaBuilder cb, Root<T> ele);
 
     /**
      * Overridden solely in UIMessageDaoImpl, otherwise returns the parameter
+     *
      * @param sortColumn
      * @return
      */
@@ -67,4 +68,6 @@ public abstract class ListDao<T extends AbstractBaseEntity> extends BasicDao<T> 
         query.setMaxResults(max);
         return query.getResultList();
     }
+
+
 }

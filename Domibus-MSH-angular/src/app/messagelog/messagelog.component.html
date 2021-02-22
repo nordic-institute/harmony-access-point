@@ -109,7 +109,7 @@
     <grid-header [parent]="this"></grid-header>
 
     <div style="height: calc(100% - 130px); overflow-y: auto; overflow-x: hidden;">
-      <page-grid [parent]="this" [selectionType]="'single'"
+      <page-grid [parent]="this" [selectionType]="'single'" [totalMessage]="totalRowsMessage"
                  [sortedColumns]="[{prop: 'received', dir: 'desc'}]"></page-grid>
     </div>
 
