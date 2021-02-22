@@ -25,7 +25,4 @@ public class DeletionJobDao extends BasicDao<DeletionJob> {
         final TypedQuery<DeletionJob> query = this.em.createNamedQuery("DeletionJobDao.findCurrentDeletionJobs", DeletionJob.class);
         return query.getResultList();
     }
-
-
-
 }
