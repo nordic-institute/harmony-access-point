@@ -6,7 +6,6 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.MessageStatus;
-import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.pmode.provider.PModeProvider;
@@ -14,12 +13,13 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
@@ -46,22 +46,22 @@ public class MessageRetentionStoredProcedureService implements MessageRetentionS
     protected PModeProvider pModeProvider;
 
     @Autowired
-    protected DeletionJobDao deletionJobDao;
+    protected DeletionJobService deletionJobService;
 
     @Autowired
     protected DomainTaskExecutor domainTaskExecutor;
-
-    @Autowired
-    protected UserMessageLogDao userMessageLogDao;
 
     protected Integer expiredDownloadedMessagesLimit;
     protected Integer expiredNotDownloadedMessagesLimit;
     protected Integer expiredSentMessagesLimit;
     protected Integer timeout;
+    protected Integer parallelDeletionJobsNo;
+    protected Integer deletionJobInterval; // in minutes
+    final static int DELETION_JOBS_DELTA = 60; // 1 hour in minutes
 
     @Override
     public boolean handlesDeletionStrategy(String retentionStrategy) {
-        if(DeletionStrategy.STORED_PROCEDURE.compareTo(DeletionStrategy.valueOf(retentionStrategy))== 0) {
+        if (DeletionStrategy.STORED_PROCEDURE.compareTo(DeletionStrategy.valueOf(retentionStrategy)) == 0) {
             checkFileLocation();
             return true;
         }
@@ -79,45 +79,40 @@ public class MessageRetentionStoredProcedureService implements MessageRetentionS
         expiredNotDownloadedMessagesLimit = getRetentionValue(DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_NOT_DOWNLOADED_MAX_DELETE);
         expiredSentMessagesLimit = getRetentionValue(DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_SENT_MAX_DELETE);
         timeout = domibusPropertyProvider.getIntegerProperty(DOMIBUS_RETENTION_WORKER_TIMEOUT);
+        parallelDeletionJobsNo = domibusPropertyProvider.getIntegerProperty(DOMIBUS_RETENTION_WORKER_STORED_PROCEDURE_PARALLELDELETIONJOBSNO);
+        deletionJobInterval = domibusPropertyProvider.getIntegerProperty(DOMIBUS_RETENTION_WORKER_STORED_PROCEDURE_DELETIONJOBINTERVAL);
 
         LOG.debug("Using MessageRetentionStoredProcedureService to deleteExpiredMessages");
 
         final List<String> mpcs = pModeProvider.getMpcURIList();
 
         List<DeletionJob> newDeletionJobs = getDeletionJobs(mpcs);
-        List<DeletionJob> currentDeletionJobs = deletionJobDao.findCurrentDeletionJobs();
-
-        if(CollectionUtils.isEmpty(currentDeletionJobs)) {
-            LOG.debug("There are no current deletion jobs stored in the database.");
-            storeDeletionJobs(newDeletionJobs);
-            runDeletionJobs(newDeletionJobs);
-            return;
+        List<DeletionJob> currentDeletionJobs = cancelAndCleanExpiredJobs(deletionJobService.findCurrentDeletionJobs());
+        if (CollectionUtils.isNotEmpty(currentDeletionJobs)) {
+            newDeletionJobs = filterOutOverlappingJobs(currentDeletionJobs, newDeletionJobs);
         }
-
-        if(sameJobs(currentDeletionJobs, newDeletionJobs)) {
-            LOG.debug("There are similar deletion jobs stored in the database.");
-            runDeletionJobs(currentDeletionJobs, newDeletionJobs);
-            return;
-        }
-
-        LOG.debug("There are different deletion jobs stored in the database.");
-        if(verifyAllJobsAreDone(currentDeletionJobs)) {
-            LOG.debug("All current jobs stored in the database ended or expired");
-            removeDeletionJobs(currentDeletionJobs);
-            storeDeletionJobs(newDeletionJobs);
-            runDeletionJobs(newDeletionJobs);
-            return;
-        }
+        runDeletionJobs(newDeletionJobs);
     }
 
-    protected void cancelExpiredJobs(List<DeletionJob> deletionJobs) {
-        LOG.debug("Cancel [{}] deletion jobs if expired.", deletionJobs.size());
+
+    protected List<DeletionJob> cancelAndCleanExpiredJobs(List<DeletionJob> deletionJobs) {
+        if (CollectionUtils.isEmpty(deletionJobs)) {
+            return null;
+        }
+        LOG.debug("Cancel deletion jobs if expired.");
         deletionJobs.stream().forEach(deletionJob -> cancelIfExpired(deletionJob));
+        LOG.debug("Remove from database the deletion jobs in state [{}]", DeletionJobState.STOPPED);
+        deletionJobs.stream().filter(deletionJob -> !deletionJob.isActive()).forEach(deletionJob -> deletionJobService.deleteJob(deletionJob));
+        LOG.debug("Remove deletion jobs from current list of deletion jobs");
+        List<DeletionJob> runningDeletionJobs = deletionJobs.stream().filter(deletionJob -> deletionJob.isActive()).collect(Collectors.toList());
+        LOG.debug("There are [{}] deletion jobs in state [{}]", DeletionJobState.RUNNING);
+        return runningDeletionJobs;
+
     }
 
     protected boolean cancelIfExpired(DeletionJob deletionJob) {
-        long expireTime = deletionJob.getActualStartDate().getTime()+timeout*1000;
-        if(System.currentTimeMillis() > expireTime) {
+        long expireTime = deletionJob.getActualStartDate().getTime() + timeout * 1000;
+        if (System.currentTimeMillis() > expireTime) {
             LOG.debug("Cancel job [{}], expireTime [{}], currentTime [{}]", deletionJob, expireTime, System.currentTimeMillis());
             deletionJob.setState(DeletionJobState.STOPPED.name());
             return true;
@@ -125,75 +120,49 @@ public class MessageRetentionStoredProcedureService implements MessageRetentionS
         return false;
     }
 
-    protected void removeDeletionJobs(List<DeletionJob> deletionJobs) {
-        LOG.debug("Remove [{}] deletion jobs", deletionJobs.size());
-        if (CollectionUtils.isNotEmpty(deletionJobs)) {
-            deletionJobs.stream().forEach(deletionJob -> deletionJobDao.delete(deletionJob));
-        }
+    protected List<DeletionJob> filterOutOverlappingJobs(List<DeletionJob> currentDeletionJobs, List<DeletionJob> newDeletionJobs) {
+
+        List<DeletionJob> deletionJobs = newDeletionJobs.stream()
+                .filter(deletionJob -> !isJobOverlaping(deletionJob, currentDeletionJobs)).collect(Collectors.toList());
+
+        return deletionJobs;
     }
 
-    protected void storeDeletionJobs(List<DeletionJob> deletionJobs) {
-        LOG.debug("Store [{}] new deletion jobs", deletionJobs.size());
-        if(CollectionUtils.isNotEmpty(deletionJobs)) {
-            deletionJobs.stream().forEach(deletionJob -> deletionJobDao.create(deletionJob));
-        }
-    }
-
-    protected void runDeletionJobs(List<DeletionJob> currentDeletionJobs, List<DeletionJob> newDeletionJobs) {
-        LOG.debug("Filter out the jobs that are already running.");
-        List<DeletionJob> deletionJobs = newDeletionJobs.stream().filter(deletionJob -> !isDeletionJobRunning(currentDeletionJobs, deletionJob)).collect(Collectors.toList());
-        runDeletionJobs(deletionJobs);
-    }
-
-    protected void runDeletionJobs(List<DeletionJob> newDeletionJobs) {
-        LOG.debug("Run [{}] deletion jobs", newDeletionJobs.size());
-        newDeletionJobs.stream().forEach(deletionJob ->runDeletionJob(deletionJob));
-    }
-
-    protected boolean isDeletionJobRunning(List<DeletionJob> currentDeletionJobs, DeletionJob deletionJob) {
-        DeletionJob currentJob = currentDeletionJobs.stream().filter(currentDeletionJob -> deletionJob.equals(currentDeletionJob)).collect(Collectors.toList()).get(0);
-        if(currentJob.isActive() && !cancelIfExpired(currentJob)) {
-            LOG.debug("Deletion job is running [{}]", deletionJob);
-            return true;
-        }
-        LOG.debug("Deletion job is not running [{}]", deletionJob);
-        return false;
-    }
-
-    protected void runDeletionJob(DeletionJob deletionJob) {
-        LOG.debug("Starting deletion job [{}]", deletionJob);
-        DeletionJobRunnable deletionJobRunnable = new DeletionJobRunnable(userMessageLogDao, deletionJobDao, deletionJob);
-        domainTaskExecutor.submit(deletionJobRunnable, false);
-        LOG.debug("Deletion job ended [{}]", deletionJob);
-    }
-
-    protected boolean verifyAllJobsAreDone(List<DeletionJob> deletionJobs) {
-        LOG.info("Verify if jobs are done [{}]", deletionJobs.size());
-        Set<DeletionJob> activeJobs = deletionJobs.stream().filter(deletionJob->deletionJob.isActive()).collect(Collectors.toSet());
-        if(CollectionUtils.isNotEmpty(activeJobs)) {
-            cancelExpiredJobs(deletionJobs);
+    protected boolean isJobOverlaping(DeletionJob deletionJob, List<DeletionJob> currentDeletionJobs) {
+        LOG.debug("Verify if new job overlaps currently running jobs.");
+        if (CollectionUtils.isEmpty(currentDeletionJobs)) {
+            LOG.debug("No overlapping, there are no current deletion jobs.");
             return false;
         }
+
+        List<DeletionJob> result = currentDeletionJobs.stream().filter(currentDeletionJob -> deletionJobService.doJobsOverlap(currentDeletionJob, deletionJob))
+                .collect(Collectors.toList());
+
+        if (result.isEmpty()) {
+            LOG.debug("Deletion job does not overlap with current deletion jobs.");
+            return false;
+        }
+
+        LOG.debug("Deletion job overlaps the following jobs currently running [{}]", result);
         return true;
     }
 
-    protected boolean sameJobs(List<DeletionJob> currentJobs, List<DeletionJob> newJobs) {
-        LOG.info("Verify if new jobs are the same with current jobs.");
-        if(currentJobs.size() != newJobs.size()) {
-            LOG.debug("The number of jobs is different.");
-            return false;
+    protected void runDeletionJobs(List<DeletionJob> deletionJobs) {
+        if (CollectionUtils.isEmpty(deletionJobs)) {
+            LOG.debug("There is no deletion job to run.");
+            return;
         }
 
-        Set<DeletionJob> result = currentJobs.stream()
-                .filter(newJobs::contains)
-                .collect(Collectors.toSet());
-        if(result.isEmpty()) {
-            LOG.info("All jobs are the same.");
-            return true;
-        }
+        LOG.debug("Run deletion jobs if not already running on same interval.");
+        deletionJobs.stream().forEach(deletionJob -> createAndRunDeletionJob(deletionJob));
+    }
 
-        LOG.info("Jobs are different.");
-        return false;
+    protected void createAndRunDeletionJob(DeletionJob deletionJob) {
+        LOG.debug("Create and run deletion job [{}]", deletionJob);
+        deletionJobService.createJob(deletionJob);
+        DeletionJobRunnable deletionJobRunnable = new DeletionJobRunnable(deletionJobService, deletionJob);
+        domainTaskExecutor.submit(deletionJobRunnable, false);
+        LOG.debug("Deletion job submitted [{}]", deletionJob);
     }
 
     protected List<DeletionJob> getDeletionJobs(List<String> mpcs) {
@@ -202,43 +171,54 @@ public class MessageRetentionStoredProcedureService implements MessageRetentionS
         for (final String mpc : mpcs) {
             LOG.debug("Create deletion jobs for mpc [{}]", mpc);
             checkMessageMetadata(mpc);
-            deletionJobs.add(getDeletionJob(mpc, MessageStatus.DOWNLOADED));
-            deletionJobs.add(getDeletionJob(mpc, MessageStatus.RECEIVED));
-            deletionJobs.add(getDeletionJob(mpc, MessageStatus.ACKNOWLEDGED));
+            addDeletionJobsToList(deletionJobs, mpc, MessageStatus.DOWNLOADED);
+            addDeletionJobsToList(deletionJobs, mpc, MessageStatus.RECEIVED);
+            addDeletionJobsToList(deletionJobs, mpc, MessageStatus.ACKNOWLEDGED);
         }
+        LOG.debug("Created [{}] deletion jobs", deletionJobs.size());
         return deletionJobs;
     }
 
-    protected DeletionJob getDeletionJob(String mpc, MessageStatus messageStatus) {
-        final int retention = getRetention(mpc, messageStatus);
-        final int limit = getLimit(messageStatus);
+    protected List<DeletionJob> addDeletionJobsToList(List<DeletionJob> deletionJobs, final String mpc, final MessageStatus messageStatus) {
+        int retention = getRetention(mpc, messageStatus);
+        final int maxCount = getMaxCount(messageStatus);
         final String procedureName = getProcedureName(messageStatus);
 
-        if(retention > 0) {
-            DeletionJob deletionJob = new DeletionJob(mpc, retention, limit, procedureName);
-            LOG.debug("Created deletion job [{}]", deletionJob);
-            return deletionJob;
+        if (retention > 0) {
+            LOG.debug("Retention value is > 0, creating deletion jobs for mpc [{}] and messageStatus [{}]", mpc, messageStatus);
+            for (int i = 0; i < parallelDeletionJobsNo; i++) {
+                retention = retention + deletionJobInterval * i;
+                Date endDate = DateUtils.addMinutes(new Date(), (retention + DELETION_JOBS_DELTA) * -1);
+                Date startDate = DateUtils.addMinutes(new Date(), (retention + deletionJobInterval) * -1);
+                if (i == parallelDeletionJobsNo - 1) { // last job
+                    startDate = new Date(deletionJobInterval * 1000);
+                }
+                DeletionJob deletionJob = new DeletionJob(mpc, startDate, endDate, maxCount, procedureName);
+                LOG.debug("Created deletion job [{}]", deletionJob);
+                deletionJobs.add(deletionJob);
+            }
+            return deletionJobs;
         }
         LOG.debug("Retention value is < 0, no deletion job created for mpc [{}] and messageStatus [{}]", mpc, messageStatus);
-        return null;
+        return deletionJobs;
     }
 
-    protected int getLimit(MessageStatus messageStatus) {
-        int limit = -1;
+    protected int getMaxCount(MessageStatus messageStatus) {
+        int maxCount = -1;
         switch (messageStatus) {
             case DOWNLOADED:
-                limit = expiredDownloadedMessagesLimit;
+                maxCount = expiredDownloadedMessagesLimit;
                 break;
             case RECEIVED:
-                limit = expiredNotDownloadedMessagesLimit;
+                maxCount = expiredNotDownloadedMessagesLimit;
                 break;
             case ACKNOWLEDGED:
             case SEND_FAILURE:
-                limit = expiredSentMessagesLimit;
+                maxCount = expiredSentMessagesLimit;
                 break;
         }
-        LOG.debug("Get limit [{}] for messageStatus [{}]", limit, messageStatus);
-        return limit;
+        LOG.debug("Get maxCount [{}] for messageStatus [{}]", maxCount, messageStatus);
+        return maxCount;
     }
 
     protected String getProcedureName(MessageStatus messageStatus) {
@@ -252,7 +232,7 @@ public class MessageRetentionStoredProcedureService implements MessageRetentionS
                 break;
             case ACKNOWLEDGED:
             case SEND_FAILURE:
-                name =  "DeleteExpiredSentMessages";
+                name = "DeleteExpiredSentMessages";
                 break;
             default:
                 throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "There is no stored procedure for this message status" + messageStatus.name());
@@ -268,7 +248,7 @@ public class MessageRetentionStoredProcedureService implements MessageRetentionS
                 retention = pModeProvider.getRetentionDownloadedByMpcURI(mpc);
                 break;
             case RECEIVED:
-                retention = pModeProvider.getRetentionUndownloadedByMpcName(mpc);
+                retention = pModeProvider.getRetentionUndownloadedByMpcURI(mpc);
                 break;
             case ACKNOWLEDGED:
             case SEND_FAILURE:
@@ -281,14 +261,14 @@ public class MessageRetentionStoredProcedureService implements MessageRetentionS
 
     protected void checkFileLocation() {
         String fileLocation = domibusPropertyProvider.getProperty(DOMIBUS_ATTACHMENT_STORAGE_LOCATION);
-        if(StringUtils.isNotEmpty(fileLocation)) {
+        if (StringUtils.isNotEmpty(fileLocation)) {
             LOG.warn("Payload is configured to be stored on the filesystem [{}]. This deletion service uses stored procedures which assume the payload is in the database.", fileLocation);
         }
     }
 
     protected void checkMessageMetadata(String mpc) {
         final boolean isDeleteMessageMetadata = pModeProvider.isDeleteMessageMetadataByMpcURI(mpc);
-        if( !isDeleteMessageMetadata ){
+        if (!isDeleteMessageMetadata) {
             LOG.warn("DeleteMessageMetadata will be ignored for mpc [{}]. This retention service considers deleteMessageMetadata always true", mpc);
             return;
         }

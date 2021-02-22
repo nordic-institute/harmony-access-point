@@ -3,10 +3,7 @@ package eu.domibus.core.message.retention;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JMSMessageBuilder;
 import eu.domibus.api.jms.JmsMessage;
-import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.api.util.JsonUtil;
 import eu.domibus.core.message.*;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
@@ -39,16 +36,12 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 @Service
 public class MessageRetentionDefaultService implements MessageRetentionService {
 
-    public static final String MESSAGE_LOGS = "MESSAGE_LOGS";
     public static final String DELETE_TYPE = "DELETE_TYPE";
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageRetentionDefaultService.class);
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
-
-    @Autowired
-    private DomainContextProvider domainContextProvider;
 
     @Autowired
     private PModeProvider pModeProvider;
@@ -67,17 +60,11 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
     private MessagingDao messagingDao;
 
     @Autowired
-    private JsonUtil jsonUtil;
-
-    @Autowired
     private UserMessageDefaultService userMessageDefaultService;
-
-    @Autowired
-    DomainTaskExecutor domainTaskExecutor;
 
     @Override
     public boolean handlesDeletionStrategy(String retentionStrategy) {
-        if(DeletionStrategy.DEFAULT.compareTo(DeletionStrategy.valueOf(retentionStrategy))== 0) {
+        if (DeletionStrategy.DEFAULT.compareTo(DeletionStrategy.valueOf(retentionStrategy)) == 0) {
             return true;
         }
         return false;
@@ -91,7 +78,7 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
     @Counter(clazz = MessageRetentionDefaultService.class, value = "retention_deleteExpiredMessages")
     public void deleteExpiredMessages() {
 
-        LOG.info("Calling MessageRetentionDefaultService.deleteExpiredMessages");
+        LOG.debug("Calling MessageRetentionDefaultService.deleteExpiredMessages");
         final List<String> mpcs = pModeProvider.getMpcURIList();
         final Integer expiredDownloadedMessagesLimit = getRetentionValue(DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_DOWNLOADED_MAX_DELETE);
         final Integer expiredNotDownloadedMessagesLimit = getRetentionValue(DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_NOT_DOWNLOADED_MAX_DELETE);
@@ -112,7 +99,6 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
         deleteExpiredPayloadDeletedMessages(mpc, expiredPayloadDeletedMessagesLimit);
     }
 
-
     protected void deleteExpiredDownloadedMessages(String mpc, Integer expiredDownloadedMessagesLimit) {
         final int messageRetentionDownloaded = pModeProvider.getRetentionDownloadedByMpcURI(mpc);
         String fileLocation = domibusPropertyProvider.getProperty(DOMIBUS_ATTACHMENT_STORAGE_LOCATION);
@@ -123,7 +109,7 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
         }
 
         final boolean isDeleteMessageMetadata = pModeProvider.isDeleteMessageMetadataByMpcURI(mpc);
-        if( !isDeleteMessageMetadata && (messageRetentionDownloaded == 0 && StringUtils.isEmpty(fileLocation))){
+        if (!isDeleteMessageMetadata && (messageRetentionDownloaded == 0 && StringUtils.isEmpty(fileLocation))) {
             LOG.trace("Retention of downloaded messages performed immediately after download.");
             return;
         }
@@ -219,13 +205,11 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
         scheduleDeleteMessagesByMessageLog(userMessageLogs);
     }
 
-
     public void scheduleDeleteMessagesByMessageLog(List<UserMessageLogDto> userMessageLogs) {
         List<String> messageIds = userMessageLogs.stream().map(userMessageLog ->
                 userMessageLog.getMessageId()).collect(Collectors.toList());
         scheduleDeleteMessages(messageIds);
     }
-
 
     public void scheduleDeleteMessages(List<String> messageIds) {
         if (CollectionUtils.isEmpty(messageIds)) {
@@ -243,7 +227,6 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
         });
     }
 
-
     public void deletePayloadOnSendSuccess(UserMessage userMessage, UserMessageLog userMessageLog) {
         if (shouldDeletePayloadOnSendSuccess()) {
             LOG.trace("Message payload cleared on send success.");
@@ -252,7 +235,6 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
         }
         LOG.trace("Message payload not cleared on send success");
     }
-
 
     public void deletePayloadOnSendFailure(UserMessage userMessage, UserMessageLog userMessageLog) {
         if (shouldDeletePayloadOnSendFailure(userMessage)) {

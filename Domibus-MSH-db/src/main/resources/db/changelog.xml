@@ -48,8 +48,9 @@
             </column>
             <column name="PROCEDURE_NAME" type="VARCHAR(255)"/>
             <column name="MPC" type="VARCHAR(255)"/>
-            <column name="RETENTION" type="INT"/>
-            <column name="LIMIT" type="INT"/>
+            <column name="START_RETENTION_DATE" type="TIMESTAMP"/>
+            <column name="END_RETENTION_DATE" type="TIMESTAMP"/>
+            <column name="MAX_COUNT" type="INT"/>
             <column name="STATE" type="VARCHAR(255)"/>
             <column name="ACTUAL_START_DATE" type="TIMESTAMP"/>
 

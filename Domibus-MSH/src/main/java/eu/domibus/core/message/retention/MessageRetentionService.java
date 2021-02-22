@@ -20,15 +20,4 @@ public interface MessageRetentionService {
      */
     boolean handlesDeletionStrategy(String retentionStrategy);
 
-//    void deleteExpiredMessages(String mpc, Integer expiredDownloadedMessagesLimit, Integer expiredNotDownloadedMessagesLimit, Integer expiredSentMessagesLimit, Integer expiredPayloadDeletedMessagesLimit);
-//
-//    void scheduleDeleteMessages(List<String> messageIds);
-//
-//    void scheduleDeleteMessagesByMessageLog(List<UserMessageLogDto> userMessageLogs);
-//
-//    void deleteMessages(List<UserMessageLogDto> userMessageLogs, int maxBatch);
-//
-//    void deletePayloadOnSendSuccess(UserMessage userMessage, UserMessageLog userMessageLog);
-//
-//    void deletePayloadOnSendFailure(UserMessage userMessage, UserMessageLog userMessageLog);
 }

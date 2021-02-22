@@ -112,6 +112,8 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_DISPATCHER_PRIORITY = "domibus.dispatcher.priority";
     String DOMIBUS_RETENTION_WORKER_DELETION_STRATEGY = "domibus.retentionWorker.deletionStrategy";
     String DOMIBUS_RETENTION_WORKER_TIMEOUT = "domibus.retentionWorker.timeout";
+    String DOMIBUS_RETENTION_WORKER_STORED_PROCEDURE_PARALLELDELETIONJOBSNO = "domibus.retentionWorker.storedProcedure.parallelDeletionJobsNo";
+    String DOMIBUS_RETENTION_WORKER_STORED_PROCEDURE_DELETIONJOBINTERVAL = "domibus.retentionWorker.storedProcedure.deletionJobInterval";
     String DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_DOWNLOADED_MAX_DELETE = "domibus.retentionWorker.message.retention.downloaded.max.delete";
     String DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_NOT_DOWNLOADED_MAX_DELETE = "domibus.retentionWorker.message.retention.not_downloaded.max.delete";
     String DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_SENT_MAX_DELETE = "domibus.retentionWorker.message.retention.sent.max.delete";

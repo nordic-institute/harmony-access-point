@@ -26,12 +26,17 @@ public class DeletionJob extends AbstractBaseEntity {
     @Column(name = "MPC")
     @NotNull
     private String mpc;
-    @Column(name = "RETENTION")
+    @Column(name = "START_RETENTION_DATE")
     @NotNull
-    private int retention;
-    @Column(name = "LIMIT")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date startRetentionDate;
+    @Column(name = "END_RETENTION_DATE")
     @NotNull
-    private int limit;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date endRetentionDate;
+    @Column(name = "MAX_COUNT")
+    @NotNull
+    private int maxCount;
     @Column(name = "PROCEDURE_NAME")
     @NotNull
     public String procedureName;
@@ -43,10 +48,13 @@ public class DeletionJob extends AbstractBaseEntity {
     @Temporal(TemporalType.TIMESTAMP)
     private Date actualStartDate;
 
-    public DeletionJob(String mpc, int retention, int limit, String procedureName) {
+    public DeletionJob () {}
+
+    public DeletionJob(String mpc, Date startRetentionDate, Date endRetentionDate, int maxCount, String procedureName) {
         this.mpc = mpc;
-        this.retention = retention;
-        this.limit = limit;
+        this.startRetentionDate = startRetentionDate;
+        this.endRetentionDate = endRetentionDate;
+        this.maxCount = maxCount;
         this.procedureName = procedureName;
         this.state = DeletionJobState.NEW.name();
         this.actualStartDate = new Date(System.currentTimeMillis());
@@ -60,20 +68,28 @@ public class DeletionJob extends AbstractBaseEntity {
         this.mpc = mpc;
     }
 
-    public long getRetention() {
-        return retention;
+    public Date getStartRetentionDate() {
+        return startRetentionDate;
     }
 
-    public void setRetention(int retention) {
-        this.retention = retention;
+    public void setStartRetentionDate(Date startRetentionDate) {
+        this.startRetentionDate = startRetentionDate;
     }
 
-    public int getLimit() {
-        return limit;
+    public Date getEndRetentionDate() {
+        return endRetentionDate;
     }
 
-    public void setLimit(int limit) {
-        this.limit = limit;
+    public void setEndRetentionDate(Date endRetentionDate) {
+        this.endRetentionDate = endRetentionDate;
+    }
+
+    public int getMaxCount() {
+        return maxCount;
+    }
+
+    public void setMaxCount(int maxCount) {
+        this.maxCount = maxCount;
     }
 
     public String getProcedureName() {
@@ -105,15 +121,14 @@ public class DeletionJob extends AbstractBaseEntity {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         DeletionJob that = (DeletionJob) o;
-        return retention == that.retention &&
-                limit == that.limit &&
+        return maxCount == that.maxCount &&
                 Objects.equals(mpc, that.mpc) &&
                 Objects.equals(procedureName, that.procedureName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mpc, retention, limit, procedureName);
+        return Objects.hash(mpc, startRetentionDate, endRetentionDate, maxCount, procedureName);
     }
 
     public boolean isActive() {
@@ -127,8 +142,9 @@ public class DeletionJob extends AbstractBaseEntity {
     public String toString() {
         return "DeletionJob{" +
                 "mpc='" + mpc + '\'' +
-                ", retention=" + retention +
-                ", limit=" + limit +
+                ", startRetentionDate=" + startRetentionDate +
+                ", endRetentionDate=" + endRetentionDate +
+                ", maxCount=" + maxCount +
                 ", procedureName='" + procedureName + '\'' +
                 ", state='" + state + '\'' +
                 ", actualStartDate=" + actualStartDate +

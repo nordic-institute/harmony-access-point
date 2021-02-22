@@ -142,10 +142,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         return getSentUserMessagesWithPayloadNotClearedOlderThan(date, mpc, expiredSentMessagesLimit);
     }
 
-    public void deleteExpiredMessages(Date startDate, String mpc, Integer expiredMessagesLimit, String queryName) {
-
-        String queryStr = "CALL " + queryName;
-
+    public void deleteExpiredMessages(Date startDate, Date endDate, String mpc, Integer expiredMessagesLimit, String queryName) {
         StoredProcedureQuery query = em.createStoredProcedureQuery(queryName)
                 .registerStoredProcedureParameter(
                         "MPC",
@@ -158,12 +155,18 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
                         ParameterMode.IN
                 )
                 .registerStoredProcedureParameter(
+                        "ENDDATE",
+                        Date.class,
+                        ParameterMode.IN
+                )
+                .registerStoredProcedureParameter(
                         "MAXCOUNT",
                         Integer.class,
                         ParameterMode.IN
                 )
                 .setParameter("MPC", mpc)
                 .setParameter("STARTDATE", startDate)
+                .setParameter("ENDDATE", endDate)
                 .setParameter("MAXCOUNT", expiredMessagesLimit);
 
         try {
