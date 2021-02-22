@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 public class FSPurgeLocksService {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FSPurgeLocksService.class);
 
-    private FSDomainService multiTenancyService;
+    private FSDomainService fsDomainService;
 
     private FSFilesManager fsFilesManager;
 
@@ -32,8 +32,8 @@ public class FSPurgeLocksService {
 
     private FSPluginProperties fsPluginProperties;
 
-    public FSPurgeLocksService(FSDomainService multiTenancyService, FSFilesManager fsFilesManager, FSFileNameHelper fsFileNameHelper, FSPluginProperties fsPluginProperties) {
-        this.multiTenancyService = multiTenancyService;
+    public FSPurgeLocksService(FSDomainService fsDomainService, FSFilesManager fsFilesManager, FSFileNameHelper fsFileNameHelper, FSPluginProperties fsPluginProperties) {
+        this.fsDomainService = fsDomainService;
         this.fsFilesManager = fsFilesManager;
         this.fsFileNameHelper = fsFileNameHelper;
         this.fsPluginProperties = fsPluginProperties;
@@ -42,10 +42,9 @@ public class FSPurgeLocksService {
     public void purge() {
         LOG.debug("Purging orphan lock files....");
 
-        final String domain = multiTenancyService.getFSPluginDomain();
-        if (multiTenancyService.verifyDomainExists(domain)) {
-            purgeForDomain(domain);
-        }
+        final String domain = fsDomainService.getFSPluginDomain();
+
+        purgeForDomain(domain);
     }
 
     protected void purgeForDomain(String domain) {

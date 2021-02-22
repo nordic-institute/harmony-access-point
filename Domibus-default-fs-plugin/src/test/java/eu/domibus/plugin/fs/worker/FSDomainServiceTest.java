@@ -4,7 +4,6 @@ import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomainExtService;
 import eu.domibus.ext.services.DomibusConfigurationExtService;
-import eu.domibus.plugin.fs.exception.FSSetUpException;
 import eu.domibus.plugin.fs.property.FSPluginProperties;
 import mockit.Expectations;
 import mockit.Injectable;
@@ -38,49 +37,6 @@ public class FSDomainServiceTest {
 
     @Tested
     FSDomainService fsDomainService;
-
-    @Test
-    public void testVerifyDomainExistsNonMultitenant() {
-        new Expectations() {{
-            domibusConfigurationExtService.isMultiTenantAware();
-            result = false;
-        }};
-
-        boolean verifyDomainExists = fsDomainService.verifyDomainExists("domain");
-
-        Assert.assertTrue(verifyDomainExists);
-    }
-
-    @Test
-    public void testVerifyDomainExistsMultitenantOk() {
-        new Expectations() {{
-            domibusConfigurationExtService.isMultiTenantAware();
-            result = true;
-            domainExtService.getDomain(DEFAULT_DOMAIN);
-            result = new DomainDTO(DEFAULT_DOMAIN, "Default");
-        }};
-
-        boolean verifyDomainExists = fsDomainService.verifyDomainExists(DEFAULT_DOMAIN);
-
-        Assert.assertTrue(verifyDomainExists);
-    }
-
-    @Test
-    public void testVerifyDomainExistsMultitenantException() {
-        new Expectations() {{
-            domibusConfigurationExtService.isMultiTenantAware();
-            result = true;
-            domainExtService.getDomain(DEFAULT_DOMAIN);
-            result = null;
-        }};
-
-        try {
-            fsDomainService.verifyDomainExists(DEFAULT_DOMAIN);
-        } catch (FSSetUpException ex) {
-            return;
-        }
-        Assert.fail();
-    }
 
     @Test
     public void testGetFSPluginDomainNonMultitenanncy() {

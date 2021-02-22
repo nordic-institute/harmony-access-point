@@ -6,7 +6,6 @@ import eu.domibus.ext.services.DomainExtService;
 import eu.domibus.ext.services.DomibusConfigurationExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.plugin.fs.exception.FSSetUpException;
 import eu.domibus.plugin.fs.property.FSPluginProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -33,28 +32,6 @@ public class FSDomainService {
     @Autowired
     protected DomainContextExtService domainContextExtService;
 
-
-    /**
-     * Verifies if the provided domain exists.
-     * For multitenancy mode it checks if the FS Plugin domain is configured in Domibus core.
-     * For non multitenancy mode it always returns true.
-     *
-     * @param domain FS Plugin domain
-     * @return true if we are in Multi Tenancy configuration and domain is configured. Otherwise it returns true.
-     */
-    public boolean verifyDomainExists(String domain) {
-        if (domibusConfigurationExtService.isMultiTenantAware()) {
-            LOG.debug("Checking if the domain [{}] is configured in Domibus core", domain);
-
-            if (domainExtService.getDomain(domain) == null) {
-                throw new FSSetUpException("Domain " + domain + " not configured in Domibus");
-            }
-            LOG.debug("Domain [{}] is configured in Domibus core", domain);
-            return true;
-        }
-        LOG.trace("Provided domain [{}] is configured in single tenancy mode", domain);
-        return true;
-    }
 
     /**
      * Resolves FS Plugin domain to Domibus core domain

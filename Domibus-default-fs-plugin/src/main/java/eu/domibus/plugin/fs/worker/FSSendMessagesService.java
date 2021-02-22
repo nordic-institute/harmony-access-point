@@ -94,12 +94,10 @@ public class FSSendMessagesService {
         LOG.debug("Sending file system messages...");
 
         final String domain = fsDomainService.getFSPluginDomain();
-        if (fsDomainService.verifyDomainExists(domain)) {
-            sendMessagesSafely(domain);
 
-            clearObservedFiles(domain);
-        }
+        sendMessagesSafely(domain);
 
+        clearObservedFiles(domain);
     }
 
     @MDCKey(DomibusLogger.MDC_DOMAIN)

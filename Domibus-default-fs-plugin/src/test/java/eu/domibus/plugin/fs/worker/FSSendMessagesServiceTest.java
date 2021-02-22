@@ -132,8 +132,6 @@ public class FSSendMessagesServiceTest {
             fsDomainService.getFSPluginDomain();
             result = domain0;
 
-            fsDomainService.verifyDomainExists(domain0);
-            result = true;
         }};
 
         //tested method

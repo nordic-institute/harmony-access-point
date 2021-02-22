@@ -32,10 +32,7 @@ public abstract class FSAbstractPurgeService {
     public void purgeMessages() {
         final String domain = fsDomainService.getFSPluginDomain();
 
-        if (fsDomainService.verifyDomainExists(domain)) {
-            purgeMessages(domain);
-        }
-
+        purgeMessages(domain);
     }
 
     protected void purgeMessages(String domain) {

@@ -78,9 +78,6 @@ public class FSPurgeLocksServiceTest {
         new Expectations(1, instance) {{
             fsMultiTenancyService.getFSPluginDomain();
             result = domain;
-
-            fsMultiTenancyService.verifyDomainExists("DOMAIN1");
-            result = true;
         }};
 
         instance.purge();

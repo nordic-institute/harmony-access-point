@@ -93,9 +93,6 @@ public class FSPurgeReceivedServiceTest {
             fsMultiTenancyService.getFSPluginDomain();
             result = domain;
 
-            fsMultiTenancyService.verifyDomainExists(FSSendMessagesService.DEFAULT_DOMAIN);
-            result = true;
-
             fsFilesManager.setUpFileSystem(FSSendMessagesService.DEFAULT_DOMAIN);
             result = rootDir;
 
@@ -125,8 +122,6 @@ public class FSPurgeReceivedServiceTest {
     @Test
     public void testPurgeMessages_Domain1_BadConfiguration() throws FileSystemException, FSSetUpException {
         new Expectations(1, instance) {{
-            fsMultiTenancyService.verifyDomainExists("DOMAIN1");
-            result = true;
 
             fsMultiTenancyService.getFSPluginDomain();
             result = "DOMAIN1";
