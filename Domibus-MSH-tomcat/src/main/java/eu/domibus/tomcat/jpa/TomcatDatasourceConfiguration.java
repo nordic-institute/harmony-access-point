@@ -25,8 +25,6 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 @Configuration
 public class TomcatDatasourceConfiguration {
 
-    private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(TomcatDatasourceConfiguration.class);
-
     @Bean(name = DomibusJPAConfiguration.DOMIBUS_JDBC_NON_XA_DATA_SOURCE, initMethod = "init", destroyMethod = "close")
     public AtomikosNonXADataSourceBean domibusNonXADatasource(DomibusPropertyProvider domibusPropertyProvider) {
         AtomikosNonXADataSourceBean dataSource = new AtomikosNonXADataSourceBean();

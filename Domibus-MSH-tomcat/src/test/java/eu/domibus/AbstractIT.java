@@ -231,7 +231,8 @@ public abstract class AbstractIT {
     protected void pushQueueMessage(String messageId, javax.jms.Connection connection, String queueName) throws Exception {
 
         // set XA mode to Session.AUTO_ACKNOWLEDGE - test does not use XA transaction
-        ((ActiveMQXAConnection)connection).setXaAckMode(Session.AUTO_ACKNOWLEDGE);
+        if (connection instanceof ActiveMQXAConnection)
+            ((ActiveMQXAConnection)connection).setXaAckMode(Session.AUTO_ACKNOWLEDGE);
         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
         Destination destination = session.createQueue(queueName);
         MessageProducer producer = session.createProducer(destination);
@@ -262,7 +263,8 @@ public abstract class AbstractIT {
     protected Message popQueueMessageWithTimeout(javax.jms.Connection connection, String queueName, long mSecs) throws Exception {
 
         // set XA mode to Session.AUTO_ACKNOWLEDGE - test does not use XA transaction
-        ((ActiveMQXAConnection)connection).setXaAckMode(Session.AUTO_ACKNOWLEDGE);
+        if (connection instanceof ActiveMQXAConnection)
+            ((ActiveMQXAConnection)connection).setXaAckMode(Session.AUTO_ACKNOWLEDGE);
         Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
         Destination destination = session.createQueue(queueName);
         MessageConsumer consumer = session.createConsumer(destination);

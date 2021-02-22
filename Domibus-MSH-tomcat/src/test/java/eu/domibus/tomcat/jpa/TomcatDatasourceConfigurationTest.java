@@ -1,27 +1,28 @@
-package eu.domibus.tomcat.jpa;
-
-import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.property.PrefixedProperties;
-import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import java.util.Collections;
-
-import static eu.domibus.tomcat.jpa.TomcatDatasourceConfiguration.*;
-
-@RunWith(JMockit.class)
-public class TomcatDatasourceConfigurationTest {
-
-    @Tested
-    private TomcatDatasourceConfiguration tomcatDatasourceConfiguration;
-
-    @Injectable
-    private DomibusPropertyProvider domibusPropertyProvider;
-
-    @Mocked
-    private PrefixedProperties prefixedProperties;
+//package eu.domibus.tomcat.jpa;
+//
+//import eu.domibus.api.property.DomibusPropertyProvider;
+//import eu.domibus.core.property.PrefixedProperties;
+//import mockit.*;
+//import mockit.integration.junit4.JMockit;
+//import org.junit.Test;
+//import org.junit.runner.RunWith;
+//
+//import java.util.Collections;
+//
+//import static eu.domibus.tomcat.jpa.TomcatDatasourceConfiguration.*;
+//
+//@RunWith(JMockit.class)
+//public class TomcatDatasourceConfigurationTest {
+//
+//    @Tested
+//    private TomcatDatasourceConfiguration tomcatDatasourceConfiguration;
+//
+//    @Injectable
+//    private DomibusPropertyProvider domibusPropertyProvider;
+//
+//    @Mocked
+//    private PrefixedProperties prefixedProperties;
+//
 //
 //    @Test
 //    public void xaProperties_switchesTheOracleUrlPropertyKeyToUppercase() {
@@ -61,5 +62,5 @@ public class TomcatDatasourceConfigurationTest {
 //            times = 0;
 //        }};
 //    }
-
-}
+//
+//}
