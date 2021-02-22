@@ -15,7 +15,7 @@
     </changeSet>
 
     <!-- Quartz tables -->
-    <include file="archive/changelog-4.0-quartz.xml" relativeToChangelogFile="true"/>
+    <include file="changelog-quartz.xml" relativeToChangelogFile="true"/>
 
     <!-- Domibus tables-->
     <changeSet author="Catalin Enache" id="1564496480476-13">
