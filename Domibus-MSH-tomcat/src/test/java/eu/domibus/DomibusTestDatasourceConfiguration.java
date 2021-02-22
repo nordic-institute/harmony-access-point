@@ -25,34 +25,6 @@ public class DomibusTestDatasourceConfiguration {
     private DomibusPropertyProvider domibusPropertyProvider;
 
     @Primary
-    @Bean(name = DomibusJPAConfiguration.DOMIBUS_JDBC_XA_DATA_SOURCE, initMethod = "init", destroyMethod = "close")
-    public DataSource xaDatasource() {
-        JdbcDataSource h2DataSource = createDatasource();
-
-        AtomikosDataSourceBean xaDataSource = new AtomikosDataSourceBean();
-        xaDataSource.setUniqueResourceName("domibusJDBC-XA");
-        xaDataSource.setXaDataSource(h2DataSource);
-
-        final Integer minPoolSize = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DATASOURCE_XA_MIN_POOL_SIZE);
-        xaDataSource.setMinPoolSize(minPoolSize);
-        final Integer maxPoolSize = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DATASOURCE_XA_MAX_POOL_SIZE);
-        xaDataSource.setMaxPoolSize(maxPoolSize);
-        final Integer maxLifeTime = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DATASOURCE_XA_MAX_LIFETIME);
-        xaDataSource.setMaxLifetime(maxLifeTime);
-
-        final Integer borrowConnectionTimeout = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DATASOURCE_XA_BORROW_CONNECTION_TIMEOUT);
-        xaDataSource.setBorrowConnectionTimeout(borrowConnectionTimeout);
-        final Integer reapTimeout = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DATASOURCE_XA_REAP_TIMEOUT);
-        xaDataSource.setReapTimeout(reapTimeout);
-        final Integer maxIdleTime = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DATASOURCE_XA_MAX_IDLE_TIME);
-        xaDataSource.setMaxIdleTime(maxIdleTime);
-        final Integer maintenanceInterval = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DATASOURCE_XA_MAINTENANCE_INTERVAL);
-        xaDataSource.setMaintenanceInterval(maintenanceInterval);
-
-        return xaDataSource;
-    }
-
-    @Primary
     @Bean(name = DomibusJPAConfiguration.DOMIBUS_JDBC_NON_XA_DATA_SOURCE, initMethod = "init", destroyMethod = "close")
     public DataSource nonXADatasource() {
         JdbcDataSource h2DataSource = createDatasource();

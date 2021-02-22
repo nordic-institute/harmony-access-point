@@ -14,7 +14,7 @@ public interface JMSConstants {
      * <p><b>Note: for performace reasons, the actual bean instance must implement caching of message producers (e.g.
      * {@link org.springframework.jms.connection.CachingConnectionFactory})<b/></p>
      */
-    String DOMIBUS_JMS_CACHING_XACONNECTION_FACTORY = "domibusJMS-CachingXAConnectionFactory";
+    String DOMIBUS_JMS_CACHING_CONNECTION_FACTORY = "domibusJMS-CachingNonXAConnectionFactory";
 
     /**
      * Bean name for the JMS connection factory that is to be used when working with Spring
@@ -24,6 +24,6 @@ public interface JMSConstants {
      * themselves and must not be used in conjunction with the
      * {@link org.springframework.jms.connection.CachingConnectionFactory} if dynamic scaling is required.<b/></p>
      */
-    String DOMIBUS_JMS_XACONNECTION_FACTORY = "domibusJMS-XAConnectionFactory";
+    String DOMIBUS_JMS_CONNECTION_FACTORY = "domibusJMS-NonXAConnectionFactory";
 
 }

@@ -29,13 +29,13 @@ public class TomcatPropertyMetadataManager implements DomibusPropertyMetadataMan
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_XA_MAX_IDLE_TIME, Type.NUMERIC, Module.TOMCAT),
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_XA_MAINTENANCE_INTERVAL, Type.NUMERIC, Module.TOMCAT),
 
-            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_JMS_XACONNECTION_FACTORY_MAX_POOL_SIZE, Type.NUMERIC, Module.TOMCAT), //move the usage from xml ?
 
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(COM_ATOMIKOS_ICATCH_OUTPUT_DIR, Type.URI, Module.TOMCAT), //move the usage from xml ?
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(COM_ATOMIKOS_ICATCH_LOG_BASE_DIR, Type.URI, Module.TOMCAT), //move the usage from xml ?
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(COM_ATOMIKOS_ICATCH_DEFAULT_JTA_TIMEOUT, Type.NUMERIC, Module.TOMCAT), //move the usage from xml ?
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(COM_ATOMIKOS_ICATCH_MAX_TIMEOUT, Type.NUMERIC, Module.TOMCAT), //move the usage from xml ?
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(COM_ATOMIKOS_ICATCH_MAX_ACTIVES, Type.NUMERIC, Module.TOMCAT),
+            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_JMS_CONNECTION_FACTORY_MAX_POOL_SIZE, Type.NUMERIC, Module.TOMCAT), //move the usage from xml ?
 
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(ACTIVE_MQ_BROKER_HOST, Module.TOMCAT), //cannot find the usage
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(ACTIVE_MQ_BROKER_NAME, Module.TOMCAT), //move the usage from xml ?

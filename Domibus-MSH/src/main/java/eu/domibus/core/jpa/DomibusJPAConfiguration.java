@@ -44,8 +44,8 @@ public class DomibusJPAConfiguration {
     }
 
     @Bean
-    @DependsOn({"transactionManager", DomibusJPAConfiguration.DOMIBUS_JDBC_XA_DATA_SOURCE})
-    public LocalContainerEntityManagerFactoryBean entityManagerFactory(@Qualifier(DOMIBUS_JDBC_XA_DATA_SOURCE) DataSource dataSource,
+    @DependsOn({DomibusJPAConfiguration.DOMIBUS_JDBC_NON_XA_DATA_SOURCE})
+    public LocalContainerEntityManagerFactoryBean entityManagerFactory(@Qualifier(DOMIBUS_JDBC_NON_XA_DATA_SOURCE) DataSource dataSource,
                                                                        DomibusPropertyProvider domibusPropertyProvider,
                                                                        @Qualifier(JPA_PROPERTIES) PrefixedProperties jpaProperties,
                                                                        Optional<ConnectionProvider> singleTenantConnectionProviderImpl,

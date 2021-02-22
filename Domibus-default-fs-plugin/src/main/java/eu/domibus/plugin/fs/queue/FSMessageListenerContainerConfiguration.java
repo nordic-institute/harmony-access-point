@@ -40,7 +40,7 @@ public class FSMessageListenerContainerConfiguration {
     private FSSendMessageListener fsSendMessageListener;
 
     @Autowired
-    @Qualifier(JMSConstants.DOMIBUS_JMS_XACONNECTION_FACTORY)
+    @Qualifier(JMSConstants.DOMIBUS_JMS_CONNECTION_FACTORY)
     private ConnectionFactory connectionFactory;
 
     @Autowired

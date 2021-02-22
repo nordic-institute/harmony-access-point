@@ -282,7 +282,7 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_PASSWORD_ENCRYPTION_KEY_LOCATION = "domibus.password.encryption.key.location";//NOSONAR
     String DOMIBUS_JMS_QUEUE_PULL = "domibus.jms.queue.pull";
     String DOMIBUS_JMS_QUEUE_UI_REPLICATION = "domibus.jms.queue.ui.replication";
-    String DOMIBUS_JMS_XACONNECTION_FACTORY_MAX_POOL_SIZE = "domibus.jms.XAConnectionFactory.maxPoolSize";
+    String DOMIBUS_JMS_CONNECTION_FACTORY_MAX_POOL_SIZE = "domibus.jms.ConnectionFactory.maxPoolSize";
     String DOMIBUS_JMS_QUEUE_ALERT = "domibus.jms.queue.alert";
     String DOMIBUS_TASK_EXECUTOR_THREAD_COUNT = "domibus.taskExecutor.threadCount";
     String DOMIBUS_MSH_TASK_EXECUTOR_THREAD_COUNT = "domibus.mshTaskExecutor.threadCount";

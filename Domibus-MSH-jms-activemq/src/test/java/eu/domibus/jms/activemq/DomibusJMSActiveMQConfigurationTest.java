@@ -39,7 +39,7 @@ public class DomibusJMSActiveMQConfigurationTest {
         int maxPoolSize = 20;
 
         new Expectations() {{
-            domibusPropertyProvider.getIntegerProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_JMS_XACONNECTION_FACTORY_MAX_POOL_SIZE);
+            domibusPropertyProvider.getIntegerProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_JMS_CONNECTION_FACTORY_MAX_POOL_SIZE);
             this.result = maxPoolSize;
         }};
 

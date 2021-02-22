@@ -44,7 +44,7 @@ public class WSMessageListenerContainerConfiguration {
     private WSSendMessageListener wsSendMessageListener;
 
     @Autowired
-    @Qualifier(JMSConstants.DOMIBUS_JMS_XACONNECTION_FACTORY)
+    @Qualifier(JMSConstants.DOMIBUS_JMS_CONNECTION_FACTORY)
     private ConnectionFactory connectionFactory;
 
     @Autowired

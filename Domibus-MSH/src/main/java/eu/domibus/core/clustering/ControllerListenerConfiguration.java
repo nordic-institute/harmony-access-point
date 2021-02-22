@@ -26,7 +26,7 @@ public class ControllerListenerConfiguration {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ControllerListenerConfiguration.class);
 
     @Bean("controllerListener")
-    public DefaultMessageListenerContainer createDefaultMessageListenerContainer(@Qualifier(JMSConstants.DOMIBUS_JMS_XACONNECTION_FACTORY) ConnectionFactory connectionFactory,
+    public DefaultMessageListenerContainer createDefaultMessageListenerContainer(@Qualifier(JMSConstants.DOMIBUS_JMS_CONNECTION_FACTORY) ConnectionFactory connectionFactory,
                                                                                  @Qualifier("clusterCommandTopic") Topic destination,
                                                                                  ControllerListenerService messageListener,
                                                                                  Optional<JndiDestinationResolver> internalDestinationResolver,

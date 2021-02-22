@@ -2,7 +2,12 @@ package eu.domibus.weblogic.transaction;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
+import org.springframework.orm.jpa.JpaTransactionManager;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.jta.WebLogicJtaTransactionManager;
+
+import javax.persistence.EntityManagerFactory;
 
 /**
  * @author Cosmin Baciu
@@ -12,7 +17,8 @@ import org.springframework.transaction.jta.WebLogicJtaTransactionManager;
 public class WebLogicTransactionConfiguration {
 
     @Bean("transactionManager")
-    public WebLogicJtaTransactionManager webLogicJtaTransactionManager() {
-        return new WebLogicJtaTransactionManager();
+    @DependsOn("entityManagerFactory")
+    public PlatformTransactionManager transactionManager(EntityManagerFactory entityManagerFactory) {
+        return new JpaTransactionManager(entityManagerFactory);
     }
 }

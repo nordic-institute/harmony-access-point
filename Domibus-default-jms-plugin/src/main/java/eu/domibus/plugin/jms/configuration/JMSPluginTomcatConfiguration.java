@@ -36,7 +36,7 @@ public class JMSPluginTomcatConfiguration {
     }
 
     @Bean("mshToBackendTemplate")
-    public JmsTemplate mshToBackendTemplate(@Qualifier(JMSConstants.DOMIBUS_JMS_CACHING_XACONNECTION_FACTORY) ConnectionFactory connectionFactory) {
+    public JmsTemplate mshToBackendTemplate(@Qualifier(JMSConstants.DOMIBUS_JMS_CACHING_CONNECTION_FACTORY) ConnectionFactory connectionFactory) {
         JmsTemplate jmsTemplate = new JmsTemplate(connectionFactory);
         jmsTemplate.setSessionTransacted(true);
         jmsTemplate.setSessionAcknowledgeMode(Session.SESSION_TRANSACTED);

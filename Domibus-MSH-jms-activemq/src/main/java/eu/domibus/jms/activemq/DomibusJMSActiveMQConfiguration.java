@@ -1,14 +1,13 @@
 package eu.domibus.jms.activemq;
 
-import com.atomikos.jms.AtomikosConnectionFactoryBean;
-import eu.domibus.common.JMSConstants;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.common.JMSConstants;
 import eu.domibus.jms.spi.helper.PriorityJmsTemplate;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.jmx.BrokerViewMBean;
-import org.apache.activemq.spring.ActiveMQXAConnectionFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -37,9 +36,9 @@ public class DomibusJMSActiveMQConfiguration {
 
     public static final String MQ_BROKER_NAME = "org.apache.activemq:type=Broker,brokerName=";
 
-    @Bean(JMSConstants.DOMIBUS_JMS_CACHING_XACONNECTION_FACTORY)
-    public ConnectionFactory cachingConnectionFactory(@Qualifier(JMSConstants.DOMIBUS_JMS_XACONNECTION_FACTORY) ConnectionFactory activemqConnectionFactory,
-                                               DomibusPropertyProvider domibusPropertyProvider) {
+    @Bean(JMSConstants.DOMIBUS_JMS_CACHING_CONNECTION_FACTORY)
+    public ConnectionFactory cachingConnectionFactory(@Qualifier(JMSConstants.DOMIBUS_JMS_CONNECTION_FACTORY) ConnectionFactory activemqConnectionFactory,
+                                                      DomibusPropertyProvider domibusPropertyProvider) {
         CachingConnectionFactory cachingConnectionFactory = new CachingConnectionFactory();
         Integer sessionCacheSize = domibusPropertyProvider.getIntegerProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_JMS_CONNECTION_FACTORY_SESSION_CACHE_SIZE);
         LOGGER.debug("Using session cache size for connection factory [{}]", sessionCacheSize);
@@ -51,17 +50,14 @@ public class DomibusJMSActiveMQConfiguration {
     }
 
     @DependsOn("brokerFactory")
-    @Bean(value = JMSConstants.DOMIBUS_JMS_XACONNECTION_FACTORY, initMethod = "init", destroyMethod = "close")
-    public AtomikosConnectionFactoryBean connectionFactory(@Qualifier("xaJmsConnectionFactory") ActiveMQXAConnectionFactory activeMQXAConnectionFactory,
-                                                                       DomibusPropertyProvider domibusPropertyProvider) {
-        AtomikosConnectionFactoryBean atomikosConnectionFactoryBean = new AtomikosConnectionFactoryBean();
-        atomikosConnectionFactoryBean.setUniqueResourceName("domibusJMS-XA");
-        atomikosConnectionFactoryBean.setXaConnectionFactory(activeMQXAConnectionFactory);
-        int maxPoolSize = domibusPropertyProvider.getIntegerProperty(DOMIBUS_JMS_XACONNECTION_FACTORY_MAX_POOL_SIZE);
-        LOGGER.debug("Configured property [{}] with [{}]", DOMIBUS_JMS_XACONNECTION_FACTORY_MAX_POOL_SIZE, maxPoolSize);
+    @Bean(value = JMSConstants.DOMIBUS_JMS_CONNECTION_FACTORY)
+    public ConnectionFactory connectionFactory(@Qualifier("jmsConnectionFactory") ActiveMQConnectionFactory activeMQConnectionFactory,
+                                               DomibusPropertyProvider domibusPropertyProvider) {
+        int maxPoolSize = domibusPropertyProvider.getIntegerProperty(DOMIBUS_JMS_CONNECTION_FACTORY_MAX_POOL_SIZE);
+        LOGGER.debug("Configured property [{}] with [{}]", DOMIBUS_JMS_CONNECTION_FACTORY_MAX_POOL_SIZE, maxPoolSize);
 
-        atomikosConnectionFactoryBean.setMaxPoolSize(maxPoolSize);
-        return atomikosConnectionFactoryBean;
+        activeMQConnectionFactory.setMaxThreadPoolSize(maxPoolSize);
+        return activeMQConnectionFactory;
     }
 
     @Bean("mbeanServerConnection")
@@ -92,7 +88,7 @@ public class DomibusJMSActiveMQConfiguration {
     }
 
     @Bean("jmsSender")
-    public JmsTemplate jmsSender(@Qualifier(JMSConstants.DOMIBUS_JMS_CACHING_XACONNECTION_FACTORY) ConnectionFactory connectionFactory) {
+    public JmsTemplate jmsSender(@Qualifier(JMSConstants.DOMIBUS_JMS_CACHING_CONNECTION_FACTORY) ConnectionFactory connectionFactory) {
         PriorityJmsTemplate result = new PriorityJmsTemplate();
         result.setSessionTransacted(true);
         result.setSessionAcknowledgeMode(Session.SESSION_TRANSACTED);

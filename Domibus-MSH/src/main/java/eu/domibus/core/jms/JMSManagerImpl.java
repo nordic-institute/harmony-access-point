@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
  * @since 3.2
  */
 @Component
-@Transactional
+//@Transactional
 public class JMSManagerImpl implements JMSManager {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(JMSManagerImpl.class);

@@ -81,7 +81,7 @@ public class JMSPluginConfiguration {
     }
 
     @Bean("backendJmsListenerContainerFactory")
-    public DefaultJmsListenerContainerFactory defaultJmsListenerContainerFactory(@Qualifier(JMSConstants.DOMIBUS_JMS_XACONNECTION_FACTORY) ConnectionFactory connectionFactory,
+    public DefaultJmsListenerContainerFactory defaultJmsListenerContainerFactory(@Qualifier(JMSConstants.DOMIBUS_JMS_CONNECTION_FACTORY) ConnectionFactory connectionFactory,
                                                                                  JmsPluginPropertyManager jmsPluginPropertyManager,
                                                                                  Optional<JndiDestinationResolver> jndiDestinationResolver) {
         DefaultJmsListenerContainerFactory result = new DefaultJmsListenerContainerFactory();
@@ -101,7 +101,7 @@ public class JMSPluginConfiguration {
     }
 
     @Bean("mshToBackendTemplate")
-    public JmsTemplate mshToBackendTemplate(@Qualifier(JMSConstants.DOMIBUS_JMS_CACHING_XACONNECTION_FACTORY) ConnectionFactory connectionFactory,
+    public JmsTemplate mshToBackendTemplate(@Qualifier(JMSConstants.DOMIBUS_JMS_CACHING_CONNECTION_FACTORY) ConnectionFactory connectionFactory,
                                             Optional<JndiDestinationResolver> jndiDestinationResolver) {
         JmsTemplate jmsTemplate = new JmsTemplate(connectionFactory);
         jmsTemplate.setSessionTransacted(true);

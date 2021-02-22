@@ -47,7 +47,7 @@ public class AlertContextConfiguration {
     }
 
     @Bean
-    public JmsTemplate jsonJmsTemplate(@Qualifier(JMSConstants.DOMIBUS_JMS_CACHING_XACONNECTION_FACTORY) ConnectionFactory connectionFactory,
+    public JmsTemplate jsonJmsTemplate(@Qualifier(JMSConstants.DOMIBUS_JMS_CACHING_CONNECTION_FACTORY) ConnectionFactory connectionFactory,
                                        MappingJackson2MessageConverter jackson2MessageConverter) {
         JmsTemplate jmsTemplate = new JmsTemplate(connectionFactory);
         jmsTemplate.setSessionTransacted(true);
@@ -70,7 +70,7 @@ public class AlertContextConfiguration {
     }
 
     @Bean("alertJmsListenerContainerFactory")
-    public DefaultJmsListenerContainerFactory alertJmsListenerContainerFactory(@Qualifier(JMSConstants.DOMIBUS_JMS_XACONNECTION_FACTORY) ConnectionFactory connectionFactory,
+    public DefaultJmsListenerContainerFactory alertJmsListenerContainerFactory(@Qualifier(JMSConstants.DOMIBUS_JMS_CONNECTION_FACTORY) ConnectionFactory connectionFactory,
                                                                                DomibusPropertyProvider domibusPropertyProvider,
                                                                                @Qualifier("jackson2MessageConverter") MappingJackson2MessageConverter jackson2MessageConverter,
                                                                                Optional<JndiDestinationResolver> internalDestinationResolver,

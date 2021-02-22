@@ -22,44 +22,44 @@ public class TomcatDatasourceConfigurationTest {
 
     @Mocked
     private PrefixedProperties prefixedProperties;
-
-    @Test
-    public void xaProperties_switchesTheOracleUrlPropertyKeyToUppercase() {
-        new Expectations() {{
-            new PrefixedProperties(domibusPropertyProvider, DOMIBUS_DATASOURCE_XA_PROPERTY);
-            result = prefixedProperties;
-
-            prefixedProperties.entrySet();
-            result = Collections.singletonMap(DOMIBUS_DATASOURCE_XA_PROPERTY_KEY_URL, "jdbc:oracle:thin:localhost:1521/XE").entrySet();
-        }};
-
-        tomcatDatasourceConfiguration.xaProperties(domibusPropertyProvider);
-
-        new VerificationsInOrder() {{
-            prefixedProperties.setProperty(DOMIBUS_DATASOURCE_XA_PROPERTY_KEY_ORACLE_URL, "jdbc:oracle:thin:localhost:1521/XE");
-            prefixedProperties.remove(DOMIBUS_DATASOURCE_XA_PROPERTY_KEY_URL);
-        }};
-    }
-
-    @Test
-    public void xaProperties_doesNotSwitchTheMySQLUrlPropertyKeyToUppercase() {
-        new Expectations() {{
-            new PrefixedProperties(domibusPropertyProvider, DOMIBUS_DATASOURCE_XA_PROPERTY);
-            result = prefixedProperties;
-
-            prefixedProperties.entrySet();
-            result = Collections.singletonMap(DOMIBUS_DATASOURCE_XA_PROPERTY_KEY_URL, "jdbc:mysql://localhost:3306/domibus?pinGlobalTxToPhysicalConnection=true").entrySet();
-        }};
-
-        tomcatDatasourceConfiguration.xaProperties(domibusPropertyProvider);
-
-        new Verifications() {{
-            prefixedProperties.remove(DOMIBUS_DATASOURCE_XA_PROPERTY_KEY_URL);
-            times = 0;
-
-            prefixedProperties.setProperty(DOMIBUS_DATASOURCE_XA_PROPERTY_KEY_ORACLE_URL, "jdbc:mysql://localhost:3306/domibus?pinGlobalTxToPhysicalConnection=true");
-            times = 0;
-        }};
-    }
+//
+//    @Test
+//    public void xaProperties_switchesTheOracleUrlPropertyKeyToUppercase() {
+//        new Expectations() {{
+//            new PrefixedProperties(domibusPropertyProvider, DOMIBUS_DATASOURCE_XA_PROPERTY);
+//            result = prefixedProperties;
+//
+//            prefixedProperties.entrySet();
+//            result = Collections.singletonMap(DOMIBUS_DATASOURCE_XA_PROPERTY_KEY_URL, "jdbc:oracle:thin:localhost:1521/XE").entrySet();
+//        }};
+//
+//        tomcatDatasourceConfiguration.xaProperties(domibusPropertyProvider);
+//
+//        new VerificationsInOrder() {{
+//            prefixedProperties.setProperty(DOMIBUS_DATASOURCE_XA_PROPERTY_KEY_ORACLE_URL, "jdbc:oracle:thin:localhost:1521/XE");
+//            prefixedProperties.remove(DOMIBUS_DATASOURCE_XA_PROPERTY_KEY_URL);
+//        }};
+//    }
+//
+//    @Test
+//    public void xaProperties_doesNotSwitchTheMySQLUrlPropertyKeyToUppercase() {
+//        new Expectations() {{
+//            new PrefixedProperties(domibusPropertyProvider, DOMIBUS_DATASOURCE_XA_PROPERTY);
+//            result = prefixedProperties;
+//
+//            prefixedProperties.entrySet();
+//            result = Collections.singletonMap(DOMIBUS_DATASOURCE_XA_PROPERTY_KEY_URL, "jdbc:mysql://localhost:3306/domibus?pinGlobalTxToPhysicalConnection=true").entrySet();
+//        }};
+//
+//        tomcatDatasourceConfiguration.xaProperties(domibusPropertyProvider);
+//
+//        new Verifications() {{
+//            prefixedProperties.remove(DOMIBUS_DATASOURCE_XA_PROPERTY_KEY_URL);
+//            times = 0;
+//
+//            prefixedProperties.setProperty(DOMIBUS_DATASOURCE_XA_PROPERTY_KEY_ORACLE_URL, "jdbc:mysql://localhost:3306/domibus?pinGlobalTxToPhysicalConnection=true");
+//            times = 0;
+//        }};
+//    }
 
 }

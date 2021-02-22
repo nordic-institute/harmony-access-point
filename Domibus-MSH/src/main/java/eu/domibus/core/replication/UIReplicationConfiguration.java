@@ -27,7 +27,7 @@ public class UIReplicationConfiguration {
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(UIReplicationConfiguration.class);
 
     @Bean("uiReplicationJmsListenerContainerFactory")
-    public DefaultJmsListenerContainerFactory uiReplicationJmsListenerContainerFactory(@Qualifier(JMSConstants.DOMIBUS_JMS_XACONNECTION_FACTORY) ConnectionFactory connectionFactory,
+    public DefaultJmsListenerContainerFactory uiReplicationJmsListenerContainerFactory(@Qualifier(JMSConstants.DOMIBUS_JMS_CONNECTION_FACTORY) ConnectionFactory connectionFactory,
                                                                                        DomibusPropertyProvider domibusPropertyProvider,
                                                                                        @Qualifier("jackson2MessageConverter") MappingJackson2MessageConverter jackson2MessageConverter,
                                                                                        Optional<JndiDestinationResolver> internalDestinationResolver,

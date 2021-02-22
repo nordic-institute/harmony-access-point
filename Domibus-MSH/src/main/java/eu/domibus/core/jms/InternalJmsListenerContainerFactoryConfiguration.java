@@ -31,7 +31,7 @@ public class InternalJmsListenerContainerFactoryConfiguration {
 
 
     @Bean("internalJmsListenerContainerFactory")
-    public DefaultJmsListenerContainerFactory internalJmsListenerContainerFactory(@Qualifier(JMSConstants.DOMIBUS_JMS_XACONNECTION_FACTORY) ConnectionFactory connectionFactory,
+    public DefaultJmsListenerContainerFactory internalJmsListenerContainerFactory(@Qualifier(JMSConstants.DOMIBUS_JMS_CONNECTION_FACTORY) ConnectionFactory connectionFactory,
                                                                                   DomibusPropertyProvider domibusPropertyProvider,
                                                                                   @Qualifier("jackson2MessageConverter") MappingJackson2MessageConverter jackson2MessageConverter,
                                                                                   Optional<JndiDestinationResolver> internalDestinationResolver,

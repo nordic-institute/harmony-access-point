@@ -25,8 +25,8 @@ public class DomibusJMSWildflyQueueConfiguration {
 
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DomibusJMSWildflyQueueConfiguration.class);
 
-    @Bean(JMSConstants.DOMIBUS_JMS_CACHING_XACONNECTION_FACTORY)
-    public ConnectionFactory cachingConnectionFactory(@Qualifier(JMSConstants.DOMIBUS_JMS_XACONNECTION_FACTORY) ConnectionFactory wildflyConnectionFactory,
+    @Bean(JMSConstants.DOMIBUS_JMS_CACHING_CONNECTION_FACTORY)
+    public ConnectionFactory cachingConnectionFactory(@Qualifier(JMSConstants.DOMIBUS_JMS_CONNECTION_FACTORY) ConnectionFactory wildflyConnectionFactory,
                                                DomibusPropertyProvider domibusPropertyProvider) {
         CachingConnectionFactory cachingConnectionFactory = new CachingConnectionFactory();
         Integer sessionCacheSize = domibusPropertyProvider.getIntegerProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_JMS_CONNECTION_FACTORY_SESSION_CACHE_SIZE);
@@ -38,7 +38,7 @@ public class DomibusJMSWildflyQueueConfiguration {
         return cachingConnectionFactory;
     }
 
-    @Bean(JMSConstants.DOMIBUS_JMS_XACONNECTION_FACTORY)
+    @Bean(JMSConstants.DOMIBUS_JMS_CONNECTION_FACTORY)
     public JndiObjectFactoryBean connectionFactory() {
         JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
         jndiObjectFactoryBean.setJndiName("jms/ConnectionFactory");
