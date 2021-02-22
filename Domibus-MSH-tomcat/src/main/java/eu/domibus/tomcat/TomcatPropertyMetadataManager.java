@@ -21,7 +21,7 @@ public class TomcatPropertyMetadataManager implements DomibusPropertyMetadataMan
 
     private Map<String, DomibusPropertyMetadata> knownProperties = Arrays.asList(
 
-            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_JMS_CONNECTION_FACTORY_MAX_POOL_SIZE, Type.NUMERIC, Module.TOMCAT), //move the usage from xml ?
+            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_JMS_CONNECTION_FACTORY_MAX_POOL_SIZE, Type.NUMERIC, Module.TOMCAT),
 
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(ACTIVE_MQ_BROKER_HOST, Module.TOMCAT), //cannot find the usage
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(ACTIVE_MQ_BROKER_NAME, Module.TOMCAT), //move the usage from xml ?

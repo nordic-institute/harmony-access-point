@@ -1,12 +1,10 @@
 package eu.domibus.jms.activemq;
 
-import com.atomikos.jms.AtomikosConnectionFactoryBean;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.activemq.broker.jmx.BrokerViewMBean;
-import org.apache.activemq.spring.ActiveMQXAConnectionFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.jms.core.JmsTemplate;
@@ -30,27 +28,6 @@ public class DomibusJMSActiveMQConfigurationTest {
 
     @Tested
     DomibusJMSActiveMQConfiguration domibusJMSActiveMQConfiguration;
-
-    @Test
-    public void atomikosConnectionFactoryBean(@Injectable ActiveMQXAConnectionFactory activeMQXAConnectionFactory,
-                                              @Injectable DomibusPropertyProvider domibusPropertyProvider,
-                                              @Mocked AtomikosConnectionFactoryBean atomikosConnectionFactoryBean) {
-
-        int maxPoolSize = 20;
-
-        new Expectations() {{
-            domibusPropertyProvider.getIntegerProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_JMS_CONNECTION_FACTORY_MAX_POOL_SIZE);
-            this.result = maxPoolSize;
-        }};
-
-        domibusJMSActiveMQConfiguration.connectionFactory(activeMQXAConnectionFactory, domibusPropertyProvider);
-
-        new Verifications() {{
-            atomikosConnectionFactoryBean.setUniqueResourceName("domibusJMS-XA");
-            atomikosConnectionFactoryBean.setXaConnectionFactory(activeMQXAConnectionFactory);
-            atomikosConnectionFactoryBean.setMaxPoolSize(maxPoolSize);
-        }};
-    }
 
     @Test
     public void mBeanServerConnectionFactoryBean(@Injectable DomibusPropertyProvider domibusPropertyProvider,

@@ -33,7 +33,7 @@ public class DomibusJPAConfiguration {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusJPAConfiguration.class);
 
-    public static final String DOMIBUS_JDBC_XA_DATA_SOURCE = "domibusJDBC-XADataSource";
+    // public static final String DOMIBUS_JDBC_XA_DATA_SOURCE = "domibusJDBC-XADataSource";
     public static final String DOMIBUS_JDBC_NON_XA_DATA_SOURCE = "domibusJDBC-nonXADataSource";
     public static final String JPA_PROPERTIES = "jpaProperties";
 
