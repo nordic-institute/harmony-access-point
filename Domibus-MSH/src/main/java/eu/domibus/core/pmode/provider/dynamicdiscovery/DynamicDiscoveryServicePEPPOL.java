@@ -18,7 +18,7 @@ import no.difi.vefa.peppol.lookup.locator.BusdoxLocator;
 import no.difi.vefa.peppol.mode.Mode;
 import no.difi.vefa.peppol.security.lang.PeppolSecurityException;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -40,34 +40,54 @@ import static eu.domibus.core.cache.DomibusCacheService.DYNAMIC_DISCOVERY_ENDPOI
 @Qualifier("dynamicDiscoveryServicePEPPOL")
 public class DynamicDiscoveryServicePEPPOL implements DynamicDiscoveryService {
 
-
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DynamicDiscoveryServicePEPPOL.class);
 
     private static final String RESPONDER_ROLE = "urn:fdc:peppol.eu:2017:roles:ap:as4";
-    private static final String PARTYID_TYPE = "urn:fdc:peppol.eu:2017:identifiers:ap";
+
+    private static final String PARTY_ID_TYPE = "urn:fdc:peppol.eu:2017:identifiers:ap";
+
     public static final String SCHEME_DELIMITER = "::";
 
-    @Autowired
-    protected DomibusPropertyProvider domibusPropertyProvider;
+    private final DomibusPropertyProvider domibusPropertyProvider;
 
-    @Autowired
-    protected MultiDomainCryptoService multiDomainCertificateProvider;
+    private final MultiDomainCryptoService multiDomainCertificateProvider;
 
-    @Autowired
-    protected DomainContextProvider domainProvider;
+    private final DomainContextProvider domainProvider;
 
-    @Autowired
-    protected ProxyUtil proxyUtil;
+    private final ProxyUtil proxyUtil;
 
-    @Autowired
-    protected CertificateService certificateService;
+    private final CertificateService certificateService;
+
+    private final DomibusRoutePlanner domibusRoutePlanner;
+
+    private final ObjectProvider<DomibusCertificateValidator> domibusCertificateValidators;
+
+    private final ObjectProvider<BusdoxLocator> busdoxLocators;
+
+    private final ObjectProvider<DomibusApacheFetcher> domibusApacheFetchers;
+
+    private final ObjectProvider<EndpointInfo> endpointInfos;
+
+    public DynamicDiscoveryServicePEPPOL(DomibusPropertyProvider domibusPropertyProvider, MultiDomainCryptoService multiDomainCertificateProvider, DomainContextProvider domainProvider, ProxyUtil proxyUtil, CertificateService certificateService, DomibusRoutePlanner domibusRoutePlanner, ObjectProvider<DomibusCertificateValidator> domibusCertificateValidators, ObjectProvider<BusdoxLocator> busdoxLocators, ObjectProvider<DomibusApacheFetcher> domibusApacheFetchers, ObjectProvider<EndpointInfo> endpointInfos) {
+        this.domibusPropertyProvider = domibusPropertyProvider;
+
+        this.multiDomainCertificateProvider = multiDomainCertificateProvider;
+        this.domainProvider = domainProvider;
+        this.proxyUtil = proxyUtil;
+        this.certificateService = certificateService;
+        this.domibusRoutePlanner = domibusRoutePlanner;
+        this.domibusCertificateValidators = domibusCertificateValidators;
+        this.busdoxLocators = busdoxLocators;
+        this.domibusApacheFetchers = domibusApacheFetchers;
+        this.endpointInfos = endpointInfos;
+    }
 
     @Cacheable(value = DYNAMIC_DISCOVERY_ENDPOINT, key = "#domain + #participantId + #participantIdScheme + #documentId + #processId + #processIdScheme")
     public EndpointInfo lookupInformation(final String domain, final String participantId, final String participantIdScheme, final String documentId, final String processId, final String processIdScheme) {
 
         LOG.info("[PEPPOL SMP] Do the lookup by: [{}] [{}] [{}] [{}] [{}]", participantId, participantIdScheme, documentId, processId, processIdScheme);
         final String smlInfo = domibusPropertyProvider.getProperty(SMLZONE_KEY);
-        if (smlInfo == null) {
+        if (StringUtils.isEmpty(smlInfo)) {
             throw new ConfigurationException("SML Zone missing. Configure in domibus-configuration.xml");
         }
         String mode = domibusPropertyProvider.getProperty(DYNAMIC_DISCOVERY_MODE);
@@ -85,11 +105,11 @@ public class DynamicDiscoveryServicePEPPOL implements DynamicDiscoveryService {
 
         try {
             // create certificate validator
-            DomibusCertificateValidator domibusSMPCertificateValidator = new DomibusCertificateValidator(certificateService, trustStore, certRegex);
+            DomibusCertificateValidator domibusSMPCertificateValidator = domibusCertificateValidators.getObject(certificateService, trustStore, certRegex);
 
             final LookupClientBuilder lookupClientBuilder = LookupClientBuilder.forMode(mode);
-            lookupClientBuilder.locator(new BusdoxLocator(smlInfo));
-            lookupClientBuilder.fetcher(new DomibusApacheFetcher(Mode.of(mode), proxyUtil));
+            lookupClientBuilder.locator(busdoxLocators.getObject(smlInfo));
+            lookupClientBuilder.fetcher(domibusApacheFetchers.getObject(Mode.of(mode), proxyUtil, domibusRoutePlanner));
             lookupClientBuilder.certificateValidator(domibusSMPCertificateValidator);
             final LookupClient smpClient = lookupClientBuilder.build();
             final ParticipantIdentifier participantIdentifier = ParticipantIdentifier.of(participantId, Scheme.of(participantIdScheme));
@@ -106,7 +126,7 @@ public class DynamicDiscoveryServicePEPPOL implements DynamicDiscoveryService {
             if (endpoint == null || endpoint.getAddress() == null) {
                 throw new ConfigurationException("Received incomplete metadata from the SMP for documentId " + documentId + " processId " + processId);
             }
-            return new EndpointInfo(endpoint.getAddress().toString(), endpoint.getCertificate());
+            return endpointInfos.getObject(endpoint.getAddress().toString(), endpoint.getCertificate());
         } catch (final PeppolParsingException | PeppolLoadingException | PeppolSecurityException | LookupException | EndpointNotFoundException | IllegalStateException e) {
             String msg = "Could not fetch metadata from SMP for documentId " + documentId + " processId " + processId;
             // log error, because cause in ConfigurationException is consumed..
@@ -146,7 +166,7 @@ public class DynamicDiscoveryServicePEPPOL implements DynamicDiscoveryService {
         // else if is empty - property is set in domibus.properties as empty string and the right value for the
         // ebMS 3.0  PartyId/@type is null value!
         if (propVal==null) {
-            propVal = PARTYID_TYPE;
+            propVal = PARTY_ID_TYPE;
         } else if (StringUtils.isEmpty(propVal)) {
             propVal = null;
         }

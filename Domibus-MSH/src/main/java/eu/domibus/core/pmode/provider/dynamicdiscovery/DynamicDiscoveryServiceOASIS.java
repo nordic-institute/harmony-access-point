@@ -22,7 +22,7 @@ import eu.europa.ec.dynamicdiscovery.exception.ConnectionException;
 import eu.europa.ec.dynamicdiscovery.exception.TechnicalException;
 import eu.europa.ec.dynamicdiscovery.model.*;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -49,28 +49,86 @@ import static eu.domibus.core.cache.DomibusCacheService.DYNAMIC_DISCOVERY_ENDPOI
 public class DynamicDiscoveryServiceOASIS implements DynamicDiscoveryService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DynamicDiscoveryServiceOASIS.class);
+
     private static final Pattern IDENTIFIER_PATTERN = Pattern.compile("^(?<scheme>.+?)::(?<value>.+)$");
+
     protected static final String URN_TYPE_VALUE = "urn:oasis:names:tc:ebcore:partyid-type:unregistered";
+
     protected static final String DEFAULT_RESPONDER_ROLE = "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder";
 
+    private final DomibusPropertyProvider domibusPropertyProvider;
 
-    @Autowired
-    protected DomibusPropertyProvider domibusPropertyProvider;
+    private final DomainContextProvider domainProvider;
 
-    @Autowired
-    protected DomainContextProvider domainProvider;
+    private final MultiDomainCryptoService multiDomainCertificateProvider;
 
-    @Autowired
-    protected MultiDomainCryptoService multiDomainCertificateProvider;
+    private final DomibusConfigurationService domibusConfigurationService;
 
-    @Autowired
-    DomibusConfigurationService domibusConfigurationService;
+    private final CertificateService certificateService;
 
-    @Autowired
-    protected CertificateService certificateService;
+    private final DomibusProxyService domibusProxyService;
 
-    @Autowired
-    DomibusProxyService domibusProxyService;
+    private final DomibusRoutePlanner domibusRoutePlanner;
+
+    private final ObjectProvider<DocumentIdentifier> documentIdentifiers;
+
+    private final ObjectProvider<ParticipantIdentifier> participantIdentifiers;
+
+    private final ObjectProvider<ProcessIdentifier> processIdentifiers;
+
+    private final ObjectProvider<TransportProfile> transportProfiles;
+
+    private final ObjectProvider<DefaultProxy> proxies;
+
+    private final ObjectProvider<DefaultBDXRLocator> bdxrLocators;
+
+    private final ObjectProvider<DomibusCertificateValidator> domibusCertificateValidators;
+
+    private final ObjectProvider<DefaultURLFetcher> urlFetchers;
+
+    private final ObjectProvider<DefaultBDXRReader> bdxrReaders;
+
+    private final ObjectProvider<DefaultSignatureValidator> signatureValidators;
+
+    private final ObjectProvider<EndpointInfo> endpointInfos;
+
+    public DynamicDiscoveryServiceOASIS(DomibusPropertyProvider domibusPropertyProvider,
+                                        DomainContextProvider domainProvider,
+                                        MultiDomainCryptoService multiDomainCertificateProvider,
+                                        DomibusConfigurationService domibusConfigurationService,
+                                        CertificateService certificateService,
+                                        DomibusProxyService domibusProxyService,
+                                        DomibusRoutePlanner domibusRoutePlanner,
+                                        ObjectProvider<DocumentIdentifier> documentIdentifiers,
+                                        ObjectProvider<ParticipantIdentifier> participantIdentifiers,
+                                        ObjectProvider<ProcessIdentifier> processIdentifiers,
+                                        ObjectProvider<TransportProfile> transportProfiles,
+                                        ObjectProvider<DefaultProxy> proxies,
+                                        ObjectProvider<DefaultBDXRLocator> bdxrLocators,
+                                        ObjectProvider<DomibusCertificateValidator> domibusCertificateValidators,
+                                        ObjectProvider<DefaultURLFetcher> urlFetchers,
+                                        ObjectProvider<DefaultBDXRReader> bdxrReaders,
+                                        ObjectProvider<DefaultSignatureValidator> signatureValidators,
+                                        ObjectProvider<EndpointInfo> endpointInfos) {
+        this.domibusPropertyProvider = domibusPropertyProvider;
+        this.domainProvider = domainProvider;
+        this.multiDomainCertificateProvider = multiDomainCertificateProvider;
+        this.domibusConfigurationService = domibusConfigurationService;
+        this.certificateService = certificateService;
+        this.domibusProxyService = domibusProxyService;
+        this.domibusRoutePlanner = domibusRoutePlanner;
+        this.documentIdentifiers = documentIdentifiers;
+        this.participantIdentifiers = participantIdentifiers;
+        this.processIdentifiers = processIdentifiers;
+        this.transportProfiles = transportProfiles;
+        this.proxies = proxies;
+        this.bdxrLocators = bdxrLocators;
+        this.domibusCertificateValidators = domibusCertificateValidators;
+        this.urlFetchers = urlFetchers;
+        this.bdxrReaders = bdxrReaders;
+        this.signatureValidators = signatureValidators;
+        this.endpointInfos = endpointInfos;
+    }
 
     @Cacheable(value = DYNAMIC_DISCOVERY_ENDPOINT, key = "#domain + #participantId + #participantIdScheme + #documentId + #processId + #processIdScheme")
     public EndpointInfo lookupInformation(final String domain,
@@ -87,22 +145,22 @@ public class DynamicDiscoveryServiceOASIS implements DynamicDiscoveryService {
             DynamicDiscovery smpClient = createDynamicDiscoveryClient();
 
             LOG.debug("Getting Request details for ServiceMetadata");
-            final ParticipantIdentifier participantIdentifier = new ParticipantIdentifier(participantId, participantIdScheme);
+            final ParticipantIdentifier participantIdentifier = participantIdentifiers.getObject(participantId, participantIdScheme);
             final DocumentIdentifier documentIdentifier = createDocumentIdentifier(documentId);
-            final ProcessIdentifier processIdentifier = new ProcessIdentifier(processId, processIdScheme);
+            final ProcessIdentifier processIdentifier = processIdentifiers.getObject(processId, processIdScheme);
             LOG.debug("ServiceMetadata request contains Participant Identifier [{}] and scheme [{}], Document Identifier [{}] and scheme [{}], Process Identifier [{}] and scheme [{}]", participantIdentifier.getIdentifier(), participantIdentifier.getScheme(), documentIdentifier.getIdentifier(), documentIdentifier.getScheme(), processIdentifier.getIdentifier(), processIdentifier.getScheme());
             ServiceMetadata serviceMetadata = smpClient.getServiceMetadata(participantIdentifier, documentIdentifier);
             LOG.debug("ServiceMetadata Response: [{}]" + serviceMetadata.getResponseBody());
             String transportProfileAS4 = domibusPropertyProvider.getProperty(DYNAMIC_DISCOVERY_TRANSPORTPROFILEAS4);
             LOG.debug("Get the endpoint for " + transportProfileAS4);
-            final Endpoint endpoint = serviceMetadata.getEndpoint(processIdentifier, new TransportProfile(transportProfileAS4));
+            final Endpoint endpoint = serviceMetadata.getEndpoint(processIdentifier, transportProfiles.getObject(transportProfileAS4));
             LOG.debug("Endpoint for transport profile -  [{}]", endpoint);
             if (endpoint == null || endpoint.getAddress() == null || endpoint.getProcessIdentifier() == null) {
                 throw new ConfigurationException("Could not fetch metadata for: " + participantId + " " + participantIdScheme + " " + documentId +
                         " " + processId + " " + processIdScheme + " using the AS4 Protocol " + transportProfileAS4);
             }
 
-            return new EndpointInfo(endpoint.getAddress(), endpoint.getCertificate());
+            return endpointInfos.getObject(endpoint.getAddress(), endpoint.getCertificate());
 
         } catch (TechnicalException exc) {
             String msg = "Could not fetch metadata from SMP for documentId " + documentId + " processId " + processId;
@@ -114,7 +172,7 @@ public class DynamicDiscoveryServiceOASIS implements DynamicDiscoveryService {
 
     protected DynamicDiscovery createDynamicDiscoveryClient() {
         final String smlInfo = domibusPropertyProvider.getProperty(SMLZONE_KEY);
-        if (smlInfo == null) {
+        if (StringUtils.isEmpty(smlInfo)) {
             throw new ConfigurationException("SML Zone missing. Configure in domibus-configuration.xml");
         }
 
@@ -127,21 +185,14 @@ public class DynamicDiscoveryServiceOASIS implements DynamicDiscoveryService {
         KeyStore trustStore = multiDomainCertificateProvider.getTrustStore(domainProvider.getCurrentDomain());
         try {
             DefaultProxy defaultProxy = getConfiguredProxy();
-            DomibusCertificateValidator domibusSMPCertificateValidator = new DomibusCertificateValidator(certificateService, trustStore, certRegex);
-
-            DynamicDiscoveryBuilder dynamicDiscoveryBuilder = DynamicDiscoveryBuilder.newInstance();
-            dynamicDiscoveryBuilder
-                    .locator(new DefaultBDXRLocator(smlInfo))
-                    .reader(new DefaultBDXRReader(new DefaultSignatureValidator(domibusSMPCertificateValidator)));
-
-            if (defaultProxy != null) {
-                dynamicDiscoveryBuilder
-                        .fetcher(new DefaultURLFetcher(defaultProxy));
-            }
+            DomibusCertificateValidator domibusSMPCertificateValidator = domibusCertificateValidators.getObject(certificateService, trustStore, certRegex);
 
             LOG.debug("Creating SMP client " + (defaultProxy != null ? "with" : "without") + " proxy.");
-
-            return dynamicDiscoveryBuilder.build();
+            return DynamicDiscoveryBuilder.newInstance()
+                    .fetcher(urlFetchers.getObject(domibusRoutePlanner, defaultProxy))
+                    .locator(bdxrLocators.getObject(smlInfo))
+                    .reader(bdxrReaders.getObject(signatureValidators.getObject(domibusSMPCertificateValidator)))
+                    .build();
         } catch (TechnicalException exc) {
             throw new ConfigurationException("Could not create smp client to fetch metadata from SMP", exc);
         }
@@ -151,10 +202,10 @@ public class DynamicDiscoveryServiceOASIS implements DynamicDiscoveryService {
         try {
             String scheme = extract(documentId, "scheme");
             String value = extract(documentId, "value");
-            return new DocumentIdentifier(value, scheme);
+            return documentIdentifiers.getObject(value, scheme);
         } catch (IllegalStateException ise) {
             LOG.debug("Could not extract @scheme and @value from [{}], DocumentIdentifier will be created with empty scheme", documentId, ise);
-            return new DocumentIdentifier(documentId);
+            return documentIdentifiers.getObject(documentId);
         }
     }
 
@@ -170,9 +221,9 @@ public class DynamicDiscoveryServiceOASIS implements DynamicDiscoveryService {
         }
         DomibusProxy domibusProxy = domibusProxyService.getDomibusProxy();
         if (StringUtils.isBlank(domibusProxy.getHttpProxyUser())) {
-            return new DefaultProxy(domibusProxy.getHttpProxyHost(), domibusProxy.getHttpProxyPort(), null, null, domibusProxy.getNonProxyHosts());
+            return proxies.getObject(domibusProxy.getHttpProxyHost(), domibusProxy.getHttpProxyPort(), null, null, domibusProxy.getNonProxyHosts());
         }
-        return new DefaultProxy(domibusProxy.getHttpProxyHost(), domibusProxy.getHttpProxyPort(), domibusProxy.getHttpProxyUser(), domibusProxy.getHttpProxyPassword(), domibusProxy.getNonProxyHosts());
+        return proxies.getObject(domibusProxy.getHttpProxyHost(), domibusProxy.getHttpProxyPort(), domibusProxy.getHttpProxyUser(), domibusProxy.getHttpProxyPassword(), domibusProxy.getNonProxyHosts());
     }
 
     @Override
