@@ -43,6 +43,7 @@ public class MessageRetentionStoredProcedureService implements MessageRetentionS
     protected DomainTaskExecutor domainTaskExecutor;
 
     final static int DELETION_JOBS_DELTA = 60; // 1 hour in minutes
+    final static int ONE_DAY = 24*60; // 1 day in minutes
 
     public MessageRetentionStoredProcedureService(DomibusPropertyProvider domibusPropertyProvider,
                                                   PModeProvider pModeProvider,
@@ -159,7 +160,7 @@ public class MessageRetentionStoredProcedureService implements MessageRetentionS
                 Date endDate = DateUtils.addMinutes(new Date(), (retention + DELETION_JOBS_DELTA) * -1);
                 Date startDate = DateUtils.addMinutes(new Date(), (retention + deletionJobInterval) * -1);
                 if (i == parallelDeletionJobsNo - 1) { // last job
-                    startDate = new Date(deletionJobInterval * 1000);
+                    startDate = new Date(ONE_DAY * 1000);
                 }
                 UserMessageDeletionJobEntity deletionJob = new UserMessageDeletionJobEntity(mpc, startDate, endDate, maxCount, procedureName);
                 LOG.debug("Created deletion job [{}]", deletionJob);
