@@ -25,6 +25,7 @@ import eu.domibus.core.cache.DomibusCacheService;
 import eu.domibus.core.certificate.crl.CRLService;
 import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import eu.domibus.core.jms.MessageListenerContainerInitializer;
+import eu.domibus.core.logging.cxf.DomibusLoggingEventSender;
 import eu.domibus.core.message.pull.PullFrequencyHelper;
 import eu.domibus.core.payload.encryption.PayloadEncryptionService;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorage;
@@ -37,6 +38,7 @@ import eu.domibus.core.rest.validators.BlacklistValidator;
 import eu.domibus.core.scheduler.DomibusQuartzStarter;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
+import org.apache.cxf.ext.logging.LoggingFeature;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.context.ApplicationContext;
@@ -132,6 +134,9 @@ public class DomibusPropertiesChangeListenersTest {
 
     @Tested
     CRLChangeListener crlChangeListener;
+
+    @Tested
+    DomibusLoggingApacheCXFChangeListener loggingApacheCXFChangeListener;
 
     @Tested
     @Injectable
@@ -230,6 +235,12 @@ public class DomibusPropertiesChangeListenersTest {
     @Injectable
     CRLService crlService;
 
+    @Injectable
+    LoggingFeature loggingFeature;
+
+    @Injectable
+    DomibusLoggingEventSender loggingSender;
+
     @Test
     public void testPropertyChangeListeners() {
         DomibusPropertyChangeListener[] domibusPropertyChangeListeners = new DomibusPropertyChangeListener[]{
@@ -246,6 +257,7 @@ public class DomibusPropertiesChangeListenersTest {
                 pullConfigurationChangeListener,
                 storageChangeListener,
                 crlChangeListener,
+                loggingApacheCXFChangeListener,
 
                 alertActiveChangeListener,
                 alertConsoleAccountDisabledConfigurationChangeListener,
@@ -281,7 +293,7 @@ public class DomibusPropertiesChangeListenersTest {
             }
         }
 
-        new Verifications() {{
+        new FullVerifications(alertPluginLoginFailureConfigurationChangeListener) {{
             pullFrequencyHelper.reset();
             payloadEncryptionService.createPayloadEncryptionKeyIfNotExists((Domain) any);
             cryptoService.reset();
@@ -293,8 +305,10 @@ public class DomibusPropertiesChangeListenersTest {
             pModeProvider.refresh();
             blacklistValidators.forEach((Consumer) any);
 
+
             mailSender.reset();
             alertConfigurationService.resetAll();
+            pluginAccountDisabledConfigurationManager.reset();
             clearConsoleAccountDisabledConfiguration.reset();
             expiredCertificateConfigurationManager.reset();
             imminentExpirationCertificateConfigurationManager.reset();
@@ -307,6 +321,10 @@ public class DomibusPropertiesChangeListenersTest {
             consolePasswordImminentExpirationAlertConfigurationManager.reset();
             pluginPasswordImminentExpirationAlertConfigurationManager.reset();
             crlService.resetCacheCrlProtocols();
+
+            loggingFeature.setLimit(anyInt);
+            loggingSender.setPrintMetadata(anyBoolean);
+            loggingSender.setPrintPayload(anyBoolean);
         }};
     }
 

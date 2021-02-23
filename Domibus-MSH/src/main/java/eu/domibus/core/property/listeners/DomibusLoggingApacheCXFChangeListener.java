@@ -8,13 +8,18 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.cxf.ext.logging.LoggingFeature;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 /**
+ * {@code DomibusPropertyChangeListener} implementation for Apache CXF Logging Feature properties
+ *
  * @since 4.2.1
  * @author Catalin Enache
  */
+@Service
 public class DomibusLoggingApacheCXFChangeListener implements DomibusPropertyChangeListener {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusLoggingApacheCXFChangeListener.class);
@@ -23,7 +28,8 @@ public class DomibusLoggingApacheCXFChangeListener implements DomibusPropertyCha
 
     DomibusLoggingEventSender loggingSender;
 
-    public DomibusLoggingApacheCXFChangeListener(LoggingFeature loggingFeature, DomibusLoggingEventSender loggingSender) {
+    public DomibusLoggingApacheCXFChangeListener(@Qualifier("loggingFeature") LoggingFeature loggingFeature,
+                                                 @Qualifier("loggingSender") DomibusLoggingEventSender loggingSender) {
         this.loggingFeature = loggingFeature;
         this.loggingSender = loggingSender;
     }
