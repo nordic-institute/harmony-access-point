@@ -305,7 +305,6 @@ public class DomibusPropertiesChangeListenersTest {
             pModeProvider.refresh();
             blacklistValidators.forEach((Consumer) any);
 
-
             mailSender.reset();
             alertConfigurationService.resetAll();
             pluginAccountDisabledConfigurationManager.reset();
