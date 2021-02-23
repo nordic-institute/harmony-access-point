@@ -17,10 +17,9 @@ import java.util.Objects;
 @Entity
 @Table(name = "TB_USER_MESSAGE_DELETION_JOB")
 @NamedQueries({
-        @NamedQuery(name = "UserMessageDeletionJobDao.findCurrentDeletionJobs",
+        @NamedQuery(name = "UserMessageDeletionJobEntity.findCurrentDeletionJobs",
                 query = "select deletionJob from UserMessageDeletionJob deletionJob"),
         })
-
 public class UserMessageDeletionJobEntity extends AbstractBaseEntity {
 
     @Column(name = "MPC")
@@ -137,10 +136,7 @@ public class UserMessageDeletionJobEntity extends AbstractBaseEntity {
     }
 
     public boolean isActive() {
-        if(UserMessageDeletionJobState.RUNNING == UserMessageDeletionJobState.valueOf(state)) {
-            return true;
-        }
-        return false;
+        return UserMessageDeletionJobState.RUNNING == UserMessageDeletionJobState.valueOf(state);
     }
 
     @Override

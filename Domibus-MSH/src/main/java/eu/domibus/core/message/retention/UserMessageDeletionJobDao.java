@@ -22,7 +22,7 @@ public class UserMessageDeletionJobDao extends BasicDao<UserMessageDeletionJobEn
     }
 
     public List<UserMessageDeletionJobEntity> findCurrentDeletionJobs() {
-        final TypedQuery<UserMessageDeletionJobEntity> query = this.em.createNamedQuery("UserMessageDeletionJobDao.findCurrentDeletionJobs", UserMessageDeletionJobEntity.class);
+        final TypedQuery<UserMessageDeletionJobEntity> query = this.em.createNamedQuery("UserMessageDeletionJobEntity.findCurrentDeletionJobs", UserMessageDeletionJobEntity.class);
         return query.getResultList();
     }
 }

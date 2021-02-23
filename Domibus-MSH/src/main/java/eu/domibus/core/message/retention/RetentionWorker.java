@@ -44,6 +44,7 @@ public class RetentionWorker extends DomibusQuartzJobBean {
 
     protected void executeJob() {
         if (!configurationDAO.configurationExists()) {
+            LOG.debug("Missing pMode configuration.");
             return;
         }
 

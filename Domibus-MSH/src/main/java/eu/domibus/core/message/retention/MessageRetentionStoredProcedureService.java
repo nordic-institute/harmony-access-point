@@ -24,7 +24,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 /**
  * This service class is responsible for the retention and clean up of Domibus messages.
- * This service uses the store procedures approach
+ * This service uses the stored procedures approach
  *
  * @author idragusa
  * @since 4.2.1
@@ -89,15 +89,16 @@ public class MessageRetentionStoredProcedureService implements MessageRetentionS
         deletionJobs.stream().filter(deletionJob -> !deletionJob.isActive()).forEach(deletionJob -> userMessageDeletionJobService.deleteJob(deletionJob));
         LOG.debug("Remove deletion jobs from current list of deletion jobs");
         List<UserMessageDeletionJobEntity> runningDeletionJobs = deletionJobs.stream().filter(deletionJob -> deletionJob.isActive()).collect(Collectors.toList());
-        LOG.debug("There are [{}] deletion jobs in state [{}]", UserMessageDeletionJobState.RUNNING);
+        LOG.debug("There are [{}] deletion jobs in state [{}]", runningDeletionJobs.size(), UserMessageDeletionJobState.RUNNING);
         return runningDeletionJobs;
     }
 
     protected boolean cancelIfExpired(UserMessageDeletionJobEntity deletionJob) {
         int timeout = domibusPropertyProvider.getIntegerProperty(DOMIBUS_RETENTION_WORKER_TIMEOUT);
         long expireTime = deletionJob.getActualStartDate().getTime() + timeout * 1000;
-        if (System.currentTimeMillis() > expireTime) {
-            LOG.debug("Cancel job [{}], expireTime [{}], currentTime [{}]", deletionJob, expireTime, System.currentTimeMillis());
+        long currentTime = System.currentTimeMillis();
+        if (currentTime > expireTime) {
+            LOG.debug("Cancel job [{}], expireTime [{}], currentTime [{}]", deletionJob, expireTime, currentTime);
             deletionJob.setState(UserMessageDeletionJobState.STOPPED.name());
             return true;
         }
@@ -154,7 +155,7 @@ public class MessageRetentionStoredProcedureService implements MessageRetentionS
         if (retention > 0) {
             LOG.debug("Retention value is > 0, creating deletion jobs for mpc [{}] and messageStatus [{}]", mpc, messageStatus);
             for (int i = 0; i < parallelDeletionJobsNo; i++) {
-                retention = retention + deletionJobInterval * i;
+                retention = retention + deletionJobInterval;
                 Date endDate = DateUtils.addMinutes(new Date(), (retention + DELETION_JOBS_DELTA) * -1);
                 Date startDate = DateUtils.addMinutes(new Date(), (retention + deletionJobInterval) * -1);
                 if (i == parallelDeletionJobsNo - 1) { // last job
@@ -175,16 +176,13 @@ public class MessageRetentionStoredProcedureService implements MessageRetentionS
         switch (messageStatus) {
             case DOWNLOADED:
                 maxCount = domibusPropertyProvider.getIntegerProperty(DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_DOWNLOADED_MAX_DELETE);
-                ;
                 break;
             case RECEIVED:
                 maxCount = domibusPropertyProvider.getIntegerProperty(DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_NOT_DOWNLOADED_MAX_DELETE);
-                ;
                 break;
             case ACKNOWLEDGED:
             case SEND_FAILURE:
                 maxCount = domibusPropertyProvider.getIntegerProperty(DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_SENT_MAX_DELETE);
-                ;
                 break;
         }
         LOG.debug("Get maxCount [{}] for messageStatus [{}]", maxCount, messageStatus);

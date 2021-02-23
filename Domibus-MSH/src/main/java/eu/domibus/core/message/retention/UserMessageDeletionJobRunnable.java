@@ -9,7 +9,6 @@ import eu.domibus.logging.DomibusLoggerFactory;
  * @author idragusa
  * @since 4.2.1
  */
-
 public class UserMessageDeletionJobRunnable implements Runnable {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageDeletionJobRunnable.class);

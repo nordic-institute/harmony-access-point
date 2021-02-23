@@ -6,7 +6,6 @@ package eu.domibus.core.message.retention;
  * @since 4.2.1
  *
  */
-
 public enum DeletionStrategy {
     DEFAULT,
     STORED_PROCEDURE,

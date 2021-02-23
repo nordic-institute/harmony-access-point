@@ -64,14 +64,18 @@ public class UserMessageDeletionJobService {
 
     public boolean doJobsOverlap(UserMessageDeletionJobEntity currentDeletionJob, UserMessageDeletionJobEntity newDeletionJob) {
         if (!currentDeletionJob.equals(newDeletionJob)) {
+            LOG.debug("Jobs are different, do not overlap");
             return false;
         }
         if (newDeletionJob.getEndRetentionDate().before(currentDeletionJob.getStartRetentionDate())) {
+            LOG.debug("Jobs do not overlap, new job interval is before current job.");
             return false;
         }
         if (newDeletionJob.getStartRetentionDate().after(currentDeletionJob.getEndRetentionDate())) {
+            LOG.debug("Jobs do not overlap, new job interval is after current job.");
             return false;
         }
+        LOG.debug("Jobs overlap.");
         return true;
     }
 
