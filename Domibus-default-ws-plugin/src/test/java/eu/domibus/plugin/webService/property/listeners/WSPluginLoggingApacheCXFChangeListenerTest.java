@@ -4,28 +4,32 @@ import eu.domibus.plugin.webService.logging.WSPluginLoggingEventSender;
 import mockit.FullVerifications;
 import mockit.Mocked;
 import mockit.integration.junit4.JMockit;
+import org.apache.cxf.ext.logging.LoggingFeature;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static eu.domibus.plugin.webService.configuration.WSPluginConfiguration.DOMIBUS_LOGGING_METADATA_PRINT;
+import static eu.domibus.plugin.webService.configuration.WSPluginConfiguration.*;
 
 /**
  * @author François Gautier
  * @since 4.2
  */
 @RunWith(JMockit.class)
-public class WSPluginLoggingMetadataPrintChangeListenerTest {
+public class WSPluginLoggingApacheCXFChangeListenerTest {
+
+    @Mocked
+    private LoggingFeature loggingFeature;
 
     @Mocked
     private WSPluginLoggingEventSender loggingSender;
 
-    protected WSPluginLoggingMetadataPrintChangeListener listener;
+    protected WSPluginLoggingApacheCXFChangeListener listener;
 
     @Before
     public void setUp() {
-        listener = new WSPluginLoggingMetadataPrintChangeListener(loggingSender);
+        listener = new WSPluginLoggingApacheCXFChangeListener(loggingFeature, loggingSender);
     }
 
     @Test
@@ -41,10 +45,13 @@ public class WSPluginLoggingMetadataPrintChangeListenerTest {
     @Test
     public void propertyValueChanged() {
         listener.propertyValueChanged("default", DOMIBUS_LOGGING_METADATA_PRINT, "true");
+        listener.propertyValueChanged("default", DOMIBUS_LOGGING_CXF_LIMIT, "20000");
+        listener.propertyValueChanged("default", DOMIBUS_LOGGING_PAYLOAD_PRINT, "false");
 
         new FullVerifications() {{
             loggingSender.setPrintMetadata(true);
-            times = 1;
+            loggingFeature.setLimit(anyInt);
+            loggingSender.setPrintPayload(false);
         }};
     }
 
