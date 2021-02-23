@@ -127,8 +127,7 @@ public class UserMessageDeletionJobEntity extends AbstractBaseEntity {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         UserMessageDeletionJobEntity that = (UserMessageDeletionJobEntity) o;
-        return maxCount == that.maxCount &&
-                Objects.equals(mpc, that.mpc) &&
+        return  Objects.equals(mpc, that.mpc) &&
                 Objects.equals(procedureName, that.procedureName);
     }
 

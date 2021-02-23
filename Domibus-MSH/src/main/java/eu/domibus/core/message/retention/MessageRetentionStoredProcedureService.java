@@ -54,11 +54,7 @@ public class MessageRetentionStoredProcedureService implements MessageRetentionS
 
     @Override
     public boolean handlesDeletionStrategy(String retentionStrategy) {
-        if (DeletionStrategy.STORED_PROCEDURE == DeletionStrategy.valueOf(retentionStrategy)) {
-            checkFileLocation();
-            return true;
-        }
-        return false;
+        return DeletionStrategy.STORED_PROCEDURE == DeletionStrategy.valueOf(retentionStrategy);
     }
 
     /**
@@ -70,6 +66,8 @@ public class MessageRetentionStoredProcedureService implements MessageRetentionS
     public void deleteExpiredMessages() {
 
         LOG.debug("Using MessageRetentionStoredProcedureService to deleteExpiredMessages");
+
+        checkFileLocation();
 
         final List<String> mpcs = pModeProvider.getMpcURIList();
 
