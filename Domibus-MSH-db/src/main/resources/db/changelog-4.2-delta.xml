@@ -14,7 +14,7 @@
     <property name="current_db_user" value="'DOMIBUS'" dbms="mysql"/>
 
     <!-- Create stored procedures used by the deletion jobs -->
-    <include file="changelog-procedures.xml" relativeToChangelogFile="true"/>
+    <include file="changelog-delete-procedures.xml" relativeToChangelogFile="true"/>
 
     <changeSet author="idragusa" id="EDELIVERY-4740">
         <comment>Plugin specific tables</comment>
