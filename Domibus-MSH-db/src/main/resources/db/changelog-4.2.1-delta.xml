@@ -13,6 +13,9 @@
     tables. Either way this value will most probably never be used since a value will always be provided at runtime.-->
     <property name="current_db_user" value="'DOMIBUS'" dbms="mysql"/>
 
+    <!-- Create stored procedures used by the deletion jobs -->
+    <include file="changelog-delete-procedures.xml" relativeToChangelogFile="true"/>
+
     <changeSet id="REMOVE_CASCADE" author="idragusa">
 
         <dropForeignKeyConstraint baseTableName="TB_PROPERTY"
