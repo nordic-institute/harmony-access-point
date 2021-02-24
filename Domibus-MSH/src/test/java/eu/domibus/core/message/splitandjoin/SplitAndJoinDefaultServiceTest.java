@@ -20,7 +20,7 @@ import eu.domibus.core.ebms3.ws.policy.PolicyService;
 import eu.domibus.core.error.ErrorService;
 import eu.domibus.core.message.*;
 import eu.domibus.core.message.receipt.AS4ReceiptService;
-import eu.domibus.core.message.retention.MessageRetentionService;
+import eu.domibus.core.message.retention.MessageRetentionDefaultService;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorage;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.pmode.provider.PModeProvider;
@@ -132,7 +132,7 @@ public class SplitAndJoinDefaultServiceTest {
     protected EbMS3MessageBuilder messageBuilder;
 
     @Injectable
-    protected MessageRetentionService messageRetentionService;
+    protected MessageRetentionDefaultService messageRetentionService;
 
     @Injectable
     protected MessageGroupService messageGroupService;

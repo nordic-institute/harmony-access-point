@@ -1,6 +1,7 @@
 package eu.domibus.core.message.retention;
 
 import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.scheduler.DomibusQuartzJobBean;
@@ -9,6 +10,10 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.List;
+
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RETENTION_WORKER_DELETION_STRATEGY;
 
 
 /**
@@ -20,13 +25,16 @@ public class RetentionWorker extends DomibusQuartzJobBean {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(RetentionWorker.class);
 
     @Autowired
-    protected MessageRetentionService messageRetentionService;
+    protected List<MessageRetentionService> messageRetentionServices;
 
     @Autowired
     private ConfigurationDAO configurationDAO;
 
     @Autowired
     private AuthUtils authUtils;
+
+    @Autowired
+    protected DomibusPropertyProvider domibusPropertyProvider;
 
     @Override
     protected void executeJob(JobExecutionContext context, Domain domain) {
@@ -35,8 +43,15 @@ public class RetentionWorker extends DomibusQuartzJobBean {
     }
 
     protected void executeJob() {
-        if (configurationDAO.configurationExists()) {
-            messageRetentionService.deleteExpiredMessages();
+        if (!configurationDAO.configurationExists()) {
+            LOG.debug("Missing pMode configuration.");
+            return;
         }
+
+        String deletionStrategy = domibusPropertyProvider.getProperty(DOMIBUS_RETENTION_WORKER_DELETION_STRATEGY);
+        LOG.debug("Deletion strategy is [{}]", deletionStrategy);
+        messageRetentionServices.stream()
+                .filter(messageRetentionService -> messageRetentionService.handlesDeletionStrategy(deletionStrategy))
+                .forEach(messageRetentionService -> messageRetentionService.deleteExpiredMessages());
     }
 }

@@ -13,7 +13,7 @@ import eu.domibus.core.ebms3.sender.retry.UpdateRetryLoggingService;
 import eu.domibus.core.message.*;
 import eu.domibus.core.message.nonrepudiation.RawEnvelopeLogDao;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
-import eu.domibus.core.message.retention.MessageRetentionService;
+import eu.domibus.core.message.retention.MessageRetentionDefaultService;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.replication.UIReplicationSignalService;
@@ -81,7 +81,7 @@ public class PullMessageServiceImpl implements PullMessageService {
     UserMessageService userMessageService;
 
     @Autowired
-    private MessageRetentionService messageRetentionService;
+    private MessageRetentionDefaultService messageRetentionService;
 
     /**
      * {@inheritDoc}
