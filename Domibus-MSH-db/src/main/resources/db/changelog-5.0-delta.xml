@@ -359,7 +359,8 @@
         </createView>
     </changeSet>
 
-    <!-- start here 4.2 to new 5.0 -->
+    <!-- Start here 4.2 to new 5.0 -->
+
     <!-- Start Dictionary Tables -->
     <changeSet author="Cosmin Baciu" id="EDELIVERY-7803-Dictionary Tables">
         <createTable tableName="TB_D_MSH_ROLE">
@@ -586,7 +587,187 @@
         <addUniqueConstraint columnNames="SUBTYPE" constraintName="UK_D_MESSAGE_SUBTYPE" tableName="TB_D_MESSAGE_SUBTYPE"/>
     </changeSet>
     <!-- End Dictionary Tables -->
-    <!-- end here -->
+
+    <!-- Start renamed tables -->
+    <changeSet  author="Catalin Enache"  id="EDELIVERY-7833">
+        <comment>rename tables</comment>
+        <renameTable oldTableName="TB_MESSAGE_HEADER" newTableName="TB_SJ_MESSAGE_HEADER" />
+
+        <!-- dropping FKs, indexes, rename the table and then recreate FK and indexes back -->
+        <dropAllForeignKeyConstraints baseTableName="TB_MESSAGE_GROUP" />
+        <dropIndex tableName="TB_MESSAGE_GROUP" indexName="FK_MG_MH" />
+        <renameTable oldTableName="TB_MESSAGE_GROUP" newTableName="TB_SJ_MESSAGE_GROUP" />
+        <addForeignKeyConstraint baseColumnNames="MSH_ROLE_ID_FK" baseTableName="TB_SJ_MESSAGE_GROUP"
+                                 constraintName="FK_MSG_FG_GROUP_MSH_ROLE" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_MSH_ROLE"/>
+        <addForeignKeyConstraint baseColumnNames="SOURCE_MESSAGE_ID_FK" baseTableName="TB_SJ_MESSAGE_GROUP"
+                                 constraintName="FK_MSG_FG_GROUP_UM" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_USER_MESSAGE"/>
+        <addForeignKeyConstraint baseColumnNames="ID_PK" baseTableName="TB_SJ_MESSAGE_GROUP"
+                                 constraintName="FK_MSG_FG_GROUP_MH" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_SJ_MESSAGE_HEADER"/>
+        <createIndex indexName="IDX_SJ_MG_SM_ID_FK" tableName="TB_SJ_MESSAGE_GROUP">
+            <column name="SOURCE_MESSAGE_ID_FK"/>
+        </createIndex>
+        <createIndex indexName="IDX_SJ_MG_ROLE_FK" tableName="TB_SJ_MESSAGE_GROUP">
+            <column name="MSH_ROLE_ID_FK"/>
+        </createIndex>
+
+        <!-- dropping FKs, indexes, rename the table and then recreate FK and indexes back -->
+        <dropAllForeignKeyConstraints baseTableName="TB_MESSAGE_FRAGMENT" />
+        <dropIndex tableName="TB_MESSAGE_FRAGMENT" indexName="IDX_MF_GRP_ID"/>
+        <renameTable oldTableName="TB_MESSAGE_FRAGMENT" newTableName="TB_SJ_MESSAGE_FRAGMENT" />
+        <addForeignKeyConstraint baseColumnNames="GROUP_ID_FK" baseTableName="TB_SJ_MESSAGE_FRAGMENT"
+                                 constraintName="FK_SJ_MSG_FG_GROUP" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_SJ_MESSAGE_GROUP"/>
+        <addForeignKeyConstraint baseColumnNames="ID_PK" baseTableName="TB_SJ_MESSAGE_FRAGMENT"
+                                 constraintName="FK_SJ_MSG_FG_USER_MSG" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_USER_MESSAGE"/>
+        <createIndex indexName="IDX_FK_SJ_MSG_FG_GROUP" tableName="TB_SJ_MESSAGE_FRAGMENT">
+            <column name="GROUP_ID_FK"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- End renamed tables -->
+
+    <!-- Start Dropped tables -->
+    <changeSet author="Catalin Enache" id="EDELIVERY-7833-drop-tables">
+        <comment>drop tables</comment>
+
+        <dropAllForeignKeyConstraints baseTableName="TB_RECEIPT_DATA"/> <!-- we need this ? -->
+        <dropTable tableName="TB_RECEIPT_DATA"/>
+
+        <dropUniqueConstraint tableName="TB_MESSAGE_INFO" constraintName="UK_ECRRAOE83O1UQQ0DN9424X7LN"/> <!-- we need this ? -->
+        <dropTable tableName="TB_MESSAGE_INFO"/>
+    </changeSet>
+    <!-- End Dropped tables -->
+
+    <!-- Start Split tables TB_MESSAGE_LOG -->
+    <changeSet author="Catalin Enache" id="EDELIVERY-7833-split-tables">
+        <!-- create TB_USER_MESSAGE_LOG -->
+        <createTable tableName="TB_USER_MESSAGE_LOG">
+            <column name="ID_PK" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_MESSAGE_LOG"/>
+            </column>
+            <column name="BACKEND" type="VARCHAR(255)"/>
+            <column name="RECEIVED" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="DOWNLOADED" type="TIMESTAMP"/>
+            <column name="FAILED" type="TIMESTAMP"/>
+            <column name="RESTORED" type="TIMESTAMP"/>
+            <column name="DELETED" type="TIMESTAMP"/>
+            <column name="NEXT_ATTEMPT" type="TIMESTAMP"/>
+            <column name="SEND_ATTEMPTS" type="INT"/>
+            <column name="SEND_ATTEMPTS_MAX" type="INT"/>
+            <column name="SCHEDULED" type="BOOLEAN" remarks="true if the message is already scheduled to be sent" />
+            <column name="VERSION" type="INT" defaultValueNumeric="0" remarks="Used for optimistic locking mechanism" >
+                <constraints nullable="false"/>
+            </column>
+            <column name="MESSAGE_STATUS_ID_FK" type="BIGINT"/>
+            <column name="MSH_ROLE_ID_FK" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="NOTIFICATION_STATUS_ID_FK" type="BIGINT"/>
+
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="MESSAGE_STATUS_ID_FK" baseTableName="TB_USER_MESSAGE_LOG"
+                                 constraintName="FK_MSG_LOG_MSG_STATUS" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_MESSAGE_STATUS"/>
+        <addForeignKeyConstraint baseColumnNames="MSH_ROLE_ID_FK" baseTableName="TB_USER_MESSAGE_LOG"
+                                 constraintName="FK_MSG_LOG_MSH_ROLE" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_MSH_ROLE"/>
+        <addForeignKeyConstraint baseColumnNames="NOTIFICATION_STATUS_ID_FK" baseTableName="TB_USER_MESSAGE_LOG"
+                                 constraintName="FK_MSG_LOG_NOTIF_STATUS" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_NOTIFICATION_STATUS"/>
+        <addForeignKeyConstraint baseColumnNames="ID_PK" baseTableName="TB_USER_MESSAGE_LOG"
+                                 constraintName="FK_MSG_LOG_MSG_ID" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_USER_MESSAGE"/>
+        <createIndex indexName="IDX_MESSAGE_LOG_MSG_STATUS_ID" tableName="TB_USER_MESSAGE_LOG">
+            <column name="MESSAGE_STATUS_ID_FK"/>
+        </createIndex>
+        <createIndex indexName="IDX_MESSAGE_LOG_MSG_ROLE_ID" tableName="TB_USER_MESSAGE_LOG">
+            <column name="MSH_ROLE_ID_FK"/>
+        </createIndex>
+        <createIndex indexName="IDX_MSG_LOG_NOTIF_STATUS_ID" tableName="TB_USER_MESSAGE_LOG">
+            <column name="NOTIFICATION_STATUS_ID_FK"/>
+        </createIndex>
+        <createIndex indexName="IDX_MESSAGE_LOG_RECEIVED" tableName="TB_USER_MESSAGE_LOG">
+            <column name="RECEIVED"/>
+        </createIndex>
+
+        <comment>create TB_SIGNAL_MESSAGE_LOG</comment>
+        <createTable tableName="TB_SIGNAL_MESSAGE_LOG">
+            <column name="ID_PK" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_SIGNAL_MESSAGE_LOG"/>
+            </column>
+            <column name="RECEIVED" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="DELETED" type="TIMESTAMP"/>
+            <column name="MESSAGE_STATUS_ID_FK" type="BIGINT"/>
+            <column name="MSH_ROLE_ID_FK" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="ID_PK" baseTableName="TB_SIGNAL_MESSAGE_LOG"
+                                 constraintName="FK_SIGNAL_LOG_SIGNAL_ID" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_SIGNAL_MESSAGE"/>
+        <addForeignKeyConstraint baseColumnNames="MESSAGE_STATUS_ID_FK" baseTableName="TB_SIGNAL_MESSAGE_LOG"
+                                 constraintName="FK_SIGNAL_LOG_MSG_STATUS" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_MESSAGE_STATUS"/>
+        <addForeignKeyConstraint baseColumnNames="MSH_ROLE_ID_FK" baseTableName="TB_SIGNAL_MESSAGE_LOG"
+                                 constraintName="FK_SIGNAL_LOG_MSH_ROLE" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_MSH_ROLE"/>
+        <createIndex indexName="IDX_SIGNAL_LOG_MSG_STATUS_ID" tableName="TB_SIGNAL_MESSAGE_LOG">
+            <column name="MESSAGE_STATUS_ID_FK"/>
+        </createIndex>
+        <createIndex indexName="IDX_SIGNAL_LOG_MSG_ROLE_ID" tableName="TB_SIGNAL_MESSAGE_LOG">
+            <column name="MSH_ROLE_ID_FK"/>
+        </createIndex>
+        <createIndex indexName="IDX_SIGNAL_LOG_RECEIVED" tableName="TB_SIGNAL_MESSAGE_LOG">
+            <column name="RECEIVED"/>
+        </createIndex>
+
+        <!-- TODO add here the data migration script -->
+
+        <!-- drop TB_MESSAGE_LOG -->
+        <dropTable tableName="TB_MESSAGE_LOG"/>
+    </changeSet>
+
+    <!-- End Split tables -->
+
+
+    <!-- End here 4.2 to new 5.0 -->
 
 
     <changeSet id="EDELIVERY-7668"  author="Catalin Enache">
