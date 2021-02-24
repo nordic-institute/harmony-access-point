@@ -48,10 +48,12 @@ public class MessageRetentionStoredProcedureService implements MessageRetentionS
 
     public MessageRetentionStoredProcedureService(DomibusPropertyProvider domibusPropertyProvider,
                                                   PModeProvider pModeProvider,
-                                                  UserMessageDeletionJobService userMessageDeletionJobService) {
+                                                  UserMessageDeletionJobService userMessageDeletionJobService,
+                                                  DomainTaskExecutor domainTaskExecutor) {
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.pModeProvider = pModeProvider;
         this.userMessageDeletionJobService = userMessageDeletionJobService;
+        this.domainTaskExecutor = domainTaskExecutor;
     }
 
     @Override
@@ -67,7 +69,7 @@ public class MessageRetentionStoredProcedureService implements MessageRetentionS
     @Counter(clazz = MessageRetentionStoredProcedureService.class, value = "retention_deleteExpiredMessages")
     public void deleteExpiredMessages() {
 
-        LOG.debug("Using MessageRetentionStoredProcedureService to deleteExpiredMessages");
+        LOG.trace("Using MessageRetentionStoredProcedureService to deleteExpiredMessages");
 
         checkFileLocation();
 
@@ -87,9 +89,9 @@ public class MessageRetentionStoredProcedureService implements MessageRetentionS
         }
         LOG.debug("Cancel deletion jobs if expired.");
         deletionJobs.stream().forEach(deletionJob -> cancelIfExpired(deletionJob));
-        LOG.debug("Remove from database the deletion jobs in state [{}]", UserMessageDeletionJobState.STOPPED);
+        LOG.debug("Remove deletion jobs in state [{}]", UserMessageDeletionJobState.STOPPED);
         deletionJobs.stream().filter(deletionJob -> !deletionJob.isActive()).forEach(deletionJob -> userMessageDeletionJobService.deleteJob(deletionJob));
-        LOG.debug("Remove deletion jobs from current list of deletion jobs");
+        LOG.trace("Remove deletion jobs from current list of deletion jobs");
         List<UserMessageDeletionJobEntity> runningDeletionJobs = deletionJobs.stream().filter(deletionJob -> deletionJob.isActive()).collect(Collectors.toList());
         LOG.debug("There are [{}] deletion jobs in state [{}]", runningDeletionJobs.size(), UserMessageDeletionJobState.RUNNING);
         return runningDeletionJobs;
@@ -100,7 +102,7 @@ public class MessageRetentionStoredProcedureService implements MessageRetentionS
         long expireTime = deletionJob.getActualStartDate().getTime() + timeout * 1000;
         long currentTime = System.currentTimeMillis();
         if (currentTime > expireTime) {
-            LOG.debug("Cancel job [{}], expireTime [{}], currentTime [{}]", deletionJob, expireTime, currentTime);
+            LOG.debug("Cancel expired job: expireTime [{}], currentTime [{}], deletion job [{}]", currentTime, expireTime, deletionJob);
             deletionJob.setState(UserMessageDeletionJobState.STOPPED.name());
             return true;
         }
@@ -108,7 +110,7 @@ public class MessageRetentionStoredProcedureService implements MessageRetentionS
     }
 
     protected List<UserMessageDeletionJobEntity> filterOutOverlappingJobs(List<UserMessageDeletionJobEntity> currentDeletionJobs, List<UserMessageDeletionJobEntity> newDeletionJobs) {
-
+        LOG.debug("Filter out deletion jobs that overlap with the currently running deletion jobs.");
         List<UserMessageDeletionJobEntity> deletionJobs = newDeletionJobs.stream()
                 .filter(deletionJob -> !userMessageDeletionJobService.isJobOverlaping(deletionJob, currentDeletionJobs)).collect(Collectors.toList());
 
@@ -121,7 +123,7 @@ public class MessageRetentionStoredProcedureService implements MessageRetentionS
             return;
         }
 
-        LOG.debug("Run deletion jobs if not already running on same interval.");
+        LOG.debug("Run [{}] deletion jobs.", deletionJobs.size());
         deletionJobs.stream().forEach(deletionJob -> createAndRunDeletionJob(deletionJob));
     }
 
@@ -164,7 +166,7 @@ public class MessageRetentionStoredProcedureService implements MessageRetentionS
                     startDate = ONE_DAY_AFTER_1970;
                 }
                 UserMessageDeletionJobEntity deletionJob = new UserMessageDeletionJobEntity(mpc, startDate, endDate, maxCount, procedureName);
-                LOG.debug("Created deletion job [{}]", deletionJob);
+                LOG.debug("Deletion job created [{}]", deletionJob);
                 deletionJobs.add(deletionJob);
             }
             return deletionJobs;
@@ -187,7 +189,7 @@ public class MessageRetentionStoredProcedureService implements MessageRetentionS
                 maxCount = domibusPropertyProvider.getIntegerProperty(DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_SENT_MAX_DELETE);
                 break;
         }
-        LOG.debug("Get maxCount [{}] for messageStatus [{}]", maxCount, messageStatus);
+        LOG.debug("Got maxCount [{}] for messageStatus [{}]", maxCount, messageStatus);
         return maxCount;
     }
 
@@ -207,7 +209,7 @@ public class MessageRetentionStoredProcedureService implements MessageRetentionS
             default:
                 throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "There is no stored procedure for this message status" + messageStatus.name());
         }
-        LOG.debug("Get procedure name [{}] for messageStatus [{}]", name, messageStatus);
+        LOG.debug("Got procedure name [{}] for messageStatus [{}]", name, messageStatus);
         return name;
     }
 
@@ -225,7 +227,7 @@ public class MessageRetentionStoredProcedureService implements MessageRetentionS
                 retention = pModeProvider.getRetentionSentByMpcURI(mpc);
                 break;
         }
-        LOG.debug("Retention value for mpc [{}] and messageStatus [{}] is [{}]", mpc, messageStatus, retention);
+        LOG.debug("Got retention value [{}] for mpc [{}] and messageStatus [{}] is [{}]", retention, mpc, messageStatus);
         return retention;
     }
 

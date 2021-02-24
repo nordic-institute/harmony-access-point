@@ -53,37 +53,37 @@ public class UserMessageDeletionJobService {
     }
 
     public void deleteJob(UserMessageDeletionJobEntity deletionJob) {
-        LOG.debug("Deletion job removed from database [{}]", deletionJob);
+        LOG.trace("Deletion job removed from database [{}]", deletionJob);
         userMessageDeletionJobDao.delete(deletionJob);
     }
 
     public void createJob(UserMessageDeletionJobEntity deletionJob) {
-        LOG.debug("Deletion job created in the database [{}]", deletionJob);
+        LOG.trace("Deletion job created in the database [{}]", deletionJob);
         userMessageDeletionJobDao.create(deletionJob);
     }
 
     public boolean doJobsOverlap(UserMessageDeletionJobEntity currentDeletionJob, UserMessageDeletionJobEntity newDeletionJob) {
         if (!currentDeletionJob.equals(newDeletionJob)) {
-            LOG.debug("Jobs are different, do not overlap");
+            LOG.trace("Jobs are different, do not overlap");
             return false;
         }
         if (newDeletionJob.getEndRetentionDate().before(currentDeletionJob.getStartRetentionDate())) {
-            LOG.debug("Jobs do not overlap, new job interval is before current job.");
+            LOG.trace("Jobs do not overlap, new job interval is before current job.");
             return false;
         }
         if (newDeletionJob.getStartRetentionDate().after(currentDeletionJob.getEndRetentionDate())) {
-            LOG.debug("Jobs do not overlap, new job interval is after current job.");
+            LOG.trace("Jobs do not overlap, new job interval is after current job.");
             return false;
         }
-        LOG.debug("Jobs overlap.");
+        LOG.trace("Jobs overlap.");
         return true;
     }
 
 
     public boolean isJobOverlaping(UserMessageDeletionJobEntity deletionJob, List<UserMessageDeletionJobEntity> currentDeletionJobs) {
-        LOG.debug("Verify if deletion job overlaps current deletion jobs.");
+        LOG.trace("Verify if deletion job overlaps current deletion jobs.");
         if (CollectionUtils.isEmpty(currentDeletionJobs)) {
-            LOG.debug("No overlapping, there are no current deletion jobs.");
+            LOG.trace("No overlapping, there are no current deletion jobs.");
             return false;
         }
 
@@ -91,7 +91,7 @@ public class UserMessageDeletionJobService {
                 .collect(Collectors.toList());
 
         if (result.isEmpty()) {
-            LOG.debug("Deletion job does not overlap with current deletion jobs.");
+            LOG.trace("Deletion job does not overlap with current deletion jobs.");
             return false;
         }
 
