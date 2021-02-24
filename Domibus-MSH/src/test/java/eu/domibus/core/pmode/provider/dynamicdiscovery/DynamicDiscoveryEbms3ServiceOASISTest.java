@@ -17,7 +17,6 @@ import eu.europa.ec.dynamicdiscovery.core.locator.impl.DefaultBDXRLocator;
 import eu.europa.ec.dynamicdiscovery.core.reader.impl.DefaultBDXRReader;
 import eu.europa.ec.dynamicdiscovery.core.security.impl.DefaultProxy;
 import eu.europa.ec.dynamicdiscovery.core.security.impl.DefaultSignatureValidator;
-import eu.europa.ec.dynamicdiscovery.exception.ConnectionException;
 import eu.europa.ec.dynamicdiscovery.model.*;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -88,7 +87,7 @@ public class DynamicDiscoveryEbms3ServiceOASISTest {
     private DomibusProxyService domibusProxyService;
 
     @Injectable
-    private DomibusRoutePlanner domibusRoutePlanner;
+    private DomibusHttpRoutePlanner domibusHttpRoutePlanner;
 
     @Injectable
     private ObjectProvider<DocumentIdentifier> documentIdentifiers;
@@ -162,7 +161,7 @@ public class DynamicDiscoveryEbms3ServiceOASISTest {
             domibusCertificateValidators.getObject(any, any, anyString);
             result = domibusCertificateValidator;
 
-            urlFetchers.getObject(domibusRoutePlanner, any);
+            urlFetchers.getObject(domibusHttpRoutePlanner, any);
             result = defaultURLFetcher;
 
             bdxrLocators.getObject(anyString);

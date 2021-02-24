@@ -78,7 +78,7 @@ public class DynamicDiscoveryEbms3ServicePEPPOLTest {
     private DomibusConfigurationService domibusConfigurationService;
 
     @Injectable
-    private DomibusRoutePlanner domibusRoutePlanner;
+    private DomibusHttpRoutePlanner domibusHttpRoutePlanner;
 
     @Injectable
     private ObjectProvider<DomibusCertificateValidator> domibusCertificateValidators;
@@ -118,7 +118,7 @@ public class DynamicDiscoveryEbms3ServicePEPPOLTest {
             busdoxLocators.getObject(anyString);
             result = busdoxLocator;
 
-            domibusApacheFetchers.getObject(any, proxyUtil, domibusRoutePlanner);
+            domibusApacheFetchers.getObject(any, proxyUtil, domibusHttpRoutePlanner);
             result = domibusApacheFetcher;
 
             endpointInfos.getObject(anyString, any);

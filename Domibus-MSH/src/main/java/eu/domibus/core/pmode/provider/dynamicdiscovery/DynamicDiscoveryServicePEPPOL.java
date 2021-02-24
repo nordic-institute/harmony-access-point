@@ -58,7 +58,7 @@ public class DynamicDiscoveryServicePEPPOL implements DynamicDiscoveryService {
 
     private final CertificateService certificateService;
 
-    private final DomibusRoutePlanner domibusRoutePlanner;
+    private final DomibusHttpRoutePlanner domibusHttpRoutePlanner;
 
     private final ObjectProvider<DomibusCertificateValidator> domibusCertificateValidators;
 
@@ -68,14 +68,23 @@ public class DynamicDiscoveryServicePEPPOL implements DynamicDiscoveryService {
 
     private final ObjectProvider<EndpointInfo> endpointInfos;
 
-    public DynamicDiscoveryServicePEPPOL(DomibusPropertyProvider domibusPropertyProvider, MultiDomainCryptoService multiDomainCertificateProvider, DomainContextProvider domainProvider, ProxyUtil proxyUtil, CertificateService certificateService, DomibusRoutePlanner domibusRoutePlanner, ObjectProvider<DomibusCertificateValidator> domibusCertificateValidators, ObjectProvider<BusdoxLocator> busdoxLocators, ObjectProvider<DomibusApacheFetcher> domibusApacheFetchers, ObjectProvider<EndpointInfo> endpointInfos) {
+    public DynamicDiscoveryServicePEPPOL(DomibusPropertyProvider domibusPropertyProvider,
+                                         MultiDomainCryptoService multiDomainCertificateProvider,
+                                         DomainContextProvider domainProvider,
+                                         ProxyUtil proxyUtil,
+                                         CertificateService certificateService,
+                                         DomibusHttpRoutePlanner domibusHttpRoutePlanner,
+                                         ObjectProvider<DomibusCertificateValidator> domibusCertificateValidators,
+                                         ObjectProvider<BusdoxLocator> busdoxLocators,
+                                         ObjectProvider<DomibusApacheFetcher> domibusApacheFetchers,
+                                         ObjectProvider<EndpointInfo> endpointInfos) {
         this.domibusPropertyProvider = domibusPropertyProvider;
 
         this.multiDomainCertificateProvider = multiDomainCertificateProvider;
         this.domainProvider = domainProvider;
         this.proxyUtil = proxyUtil;
         this.certificateService = certificateService;
-        this.domibusRoutePlanner = domibusRoutePlanner;
+        this.domibusHttpRoutePlanner = domibusHttpRoutePlanner;
         this.domibusCertificateValidators = domibusCertificateValidators;
         this.busdoxLocators = busdoxLocators;
         this.domibusApacheFetchers = domibusApacheFetchers;
@@ -87,16 +96,16 @@ public class DynamicDiscoveryServicePEPPOL implements DynamicDiscoveryService {
 
         LOG.info("[PEPPOL SMP] Do the lookup by: [{}] [{}] [{}] [{}] [{}]", participantId, participantIdScheme, documentId, processId, processIdScheme);
         final String smlInfo = domibusPropertyProvider.getProperty(SMLZONE_KEY);
-        if (StringUtils.isEmpty(smlInfo)) {
+        if (StringUtils.isBlank(smlInfo)) {
             throw new ConfigurationException("SML Zone missing. Configure in domibus-configuration.xml");
         }
         String mode = domibusPropertyProvider.getProperty(DYNAMIC_DISCOVERY_MODE);
-        if (StringUtils.isEmpty(mode)) {
+        if (StringUtils.isBlank(mode)) {
             mode = Mode.TEST;
         }
 
         final String certRegex = domibusPropertyProvider.getProperty(DYNAMIC_DISCOVERY_CERT_PEPPOL_REGEX);
-        if (StringUtils.isEmpty(certRegex)) {
+        if (StringUtils.isBlank(certRegex)) {
             LOG.warn("The value for property [{}] is empty.", DYNAMIC_DISCOVERY_CERT_PEPPOL_REGEX);
         }
 
@@ -109,7 +118,7 @@ public class DynamicDiscoveryServicePEPPOL implements DynamicDiscoveryService {
 
             final LookupClientBuilder lookupClientBuilder = LookupClientBuilder.forMode(mode);
             lookupClientBuilder.locator(busdoxLocators.getObject(smlInfo));
-            lookupClientBuilder.fetcher(domibusApacheFetchers.getObject(Mode.of(mode), proxyUtil, domibusRoutePlanner));
+            lookupClientBuilder.fetcher(domibusApacheFetchers.getObject(Mode.of(mode), proxyUtil, domibusHttpRoutePlanner));
             lookupClientBuilder.certificateValidator(domibusSMPCertificateValidator);
             final LookupClient smpClient = lookupClientBuilder.build();
             final ParticipantIdentifier participantIdentifier = ParticipantIdentifier.of(participantId, Scheme.of(participantIdScheme));

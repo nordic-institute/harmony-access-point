@@ -14,6 +14,10 @@ import java.net.URL;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_CONNECTION_CXF_SSL_OFFLOAD_ENABLE;
 
+/**
+ * @author Sebastian-Ion TINCU
+ * @since 5.0
+ */
 @RunWith(JMockit.class)
 public class SslOffloadServiceImplTest {
 

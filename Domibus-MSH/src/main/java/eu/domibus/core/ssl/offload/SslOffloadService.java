@@ -13,16 +13,6 @@ import java.net.URL;
 public interface SslOffloadService {
 
     /**
-     * Value for the HTTP scheme (URIs) or protocol (URLs).
-     */
-    String PROTOCOL_HTTP = "http";
-
-    /**
-     * Value for the HTTPS scheme (URIs) or protocol (URLs).
-     */
-    String PROTOCOL_HTTPS = "https";
-
-    /**
      * Offloads the provided address, returning a new address that will not initiate the SSL handshake.
      *
      * @param address the address for which to offload the SSL connection

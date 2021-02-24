@@ -68,7 +68,7 @@ public class DynamicDiscoveryServiceOASIS implements DynamicDiscoveryService {
 
     private final DomibusProxyService domibusProxyService;
 
-    private final DomibusRoutePlanner domibusRoutePlanner;
+    private final DomibusHttpRoutePlanner domibusHttpRoutePlanner;
 
     private final ObjectProvider<DocumentIdentifier> documentIdentifiers;
 
@@ -98,7 +98,7 @@ public class DynamicDiscoveryServiceOASIS implements DynamicDiscoveryService {
                                         DomibusConfigurationService domibusConfigurationService,
                                         CertificateService certificateService,
                                         DomibusProxyService domibusProxyService,
-                                        DomibusRoutePlanner domibusRoutePlanner,
+                                        DomibusHttpRoutePlanner domibusHttpRoutePlanner,
                                         ObjectProvider<DocumentIdentifier> documentIdentifiers,
                                         ObjectProvider<ParticipantIdentifier> participantIdentifiers,
                                         ObjectProvider<ProcessIdentifier> processIdentifiers,
@@ -116,7 +116,7 @@ public class DynamicDiscoveryServiceOASIS implements DynamicDiscoveryService {
         this.domibusConfigurationService = domibusConfigurationService;
         this.certificateService = certificateService;
         this.domibusProxyService = domibusProxyService;
-        this.domibusRoutePlanner = domibusRoutePlanner;
+        this.domibusHttpRoutePlanner = domibusHttpRoutePlanner;
         this.documentIdentifiers = documentIdentifiers;
         this.participantIdentifiers = participantIdentifiers;
         this.processIdentifiers = processIdentifiers;
@@ -172,12 +172,12 @@ public class DynamicDiscoveryServiceOASIS implements DynamicDiscoveryService {
 
     protected DynamicDiscovery createDynamicDiscoveryClient() {
         final String smlInfo = domibusPropertyProvider.getProperty(SMLZONE_KEY);
-        if (StringUtils.isEmpty(smlInfo)) {
+        if (StringUtils.isBlank(smlInfo)) {
             throw new ConfigurationException("SML Zone missing. Configure in domibus-configuration.xml");
         }
 
         final String certRegex = domibusPropertyProvider.getProperty(DYNAMIC_DISCOVERY_CERT_REGEX);
-        if (StringUtils.isEmpty(certRegex)) {
+        if (StringUtils.isBlank(certRegex)) {
             LOG.debug("The value for property domibus.dynamicdiscovery.oasisclient.regexCertificateSubjectValidation is empty.");
         }
 
@@ -189,7 +189,7 @@ public class DynamicDiscoveryServiceOASIS implements DynamicDiscoveryService {
 
             LOG.debug("Creating SMP client " + (defaultProxy != null ? "with" : "without") + " proxy.");
             return DynamicDiscoveryBuilder.newInstance()
-                    .fetcher(urlFetchers.getObject(domibusRoutePlanner, defaultProxy))
+                    .fetcher(urlFetchers.getObject(domibusHttpRoutePlanner, defaultProxy))
                     .locator(bdxrLocators.getObject(smlInfo))
                     .reader(bdxrReaders.getObject(signatureValidators.getObject(domibusSMPCertificateValidator)))
                     .build();
@@ -205,7 +205,7 @@ public class DynamicDiscoveryServiceOASIS implements DynamicDiscoveryService {
             return documentIdentifiers.getObject(value, scheme);
         } catch (IllegalStateException ise) {
             LOG.debug("Could not extract @scheme and @value from [{}], DocumentIdentifier will be created with empty scheme", documentId, ise);
-            return documentIdentifiers.getObject(documentId);
+            return documentIdentifiers.getObject(documentId, "");
         }
     }
 
@@ -221,8 +221,10 @@ public class DynamicDiscoveryServiceOASIS implements DynamicDiscoveryService {
         }
         DomibusProxy domibusProxy = domibusProxyService.getDomibusProxy();
         if (StringUtils.isBlank(domibusProxy.getHttpProxyUser())) {
+            LOG.debug("Creating a proxy without credentials using the following details: [{}]", domibusProxy);
             return proxies.getObject(domibusProxy.getHttpProxyHost(), domibusProxy.getHttpProxyPort(), null, null, domibusProxy.getNonProxyHosts());
         }
+        LOG.debug("Creating a proxy with credentials using the following details: [{}]", domibusProxy);
         return proxies.getObject(domibusProxy.getHttpProxyHost(), domibusProxy.getHttpProxyPort(), domibusProxy.getHttpProxyUser(), domibusProxy.getHttpProxyPassword(), domibusProxy.getNonProxyHosts());
     }
 

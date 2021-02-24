@@ -19,6 +19,16 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 @Service
 public class SslOffloadServiceImpl implements SslOffloadService {
 
+    /**
+     * Value for the HTTP protocol in case of {@code URL}s (scheme in case of {@code URI}s).
+     */
+    public static final String PROTOCOL_HTTP = "http";
+
+    /**
+     * Value for the HTTPS protocol in case of {@code URL}s (scheme in case of {@code URI}s).
+     */
+    public static final String PROTOCOL_HTTPS = "https";
+
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SslOffloadServiceImpl.class);
 
     private final DomibusPropertyProvider domibusPropertyProvider;

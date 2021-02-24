@@ -39,13 +39,13 @@ public class DomibusApacheFetcher extends AbstractFetcher {
 
     protected ProxyUtil proxyUtil;
 
-    protected DomibusRoutePlanner domibusRoutePlanner;
+    protected DomibusHttpRoutePlanner domibusHttpRoutePlanner;
 
-    public DomibusApacheFetcher(Mode mode, ProxyUtil proxyUtil, DomibusRoutePlanner domibusRoutePlanner) {
+    public DomibusApacheFetcher(Mode mode, ProxyUtil proxyUtil, DomibusHttpRoutePlanner domibusHttpRoutePlanner) {
         super(mode);
 
         this.proxyUtil = proxyUtil;
-        this.domibusRoutePlanner = domibusRoutePlanner;
+        this.domibusHttpRoutePlanner = domibusHttpRoutePlanner;
 
         LOG.debug("Create RequestConfig");
         RequestConfig.Builder builder = RequestConfig.custom()
@@ -95,7 +95,7 @@ public class DomibusApacheFetcher extends AbstractFetcher {
                 .setDefaultRequestConfig(requestConfig);
 
         builder.setDefaultCredentialsProvider(proxyUtil.getConfiguredCredentialsProvider());
-        builder.setRoutePlanner(domibusRoutePlanner);
+        builder.setRoutePlanner(domibusHttpRoutePlanner);
 
         return builder.build();
     }

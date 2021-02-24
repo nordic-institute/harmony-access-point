@@ -22,7 +22,7 @@ import java.net.URL;
  * @since 5.0
  */
 @RunWith(JMockit.class)
-public class DomibusRoutePlannerTest {
+public class DomibusHttpRoutePlannerTest {
 
     @Mocked
     private HttpRoute route;
@@ -40,7 +40,7 @@ public class DomibusRoutePlannerTest {
     private SslOffloadService sslOffloadService;
 
     @Tested
-    private DomibusRoutePlanner domibusRoutePlanner;
+    private DomibusHttpRoutePlanner domibusHttpRoutePlanner;
 
     @Before
     public void stubSuperCallToDetermineRoute() {
@@ -61,7 +61,7 @@ public class DomibusRoutePlannerTest {
         }};
 
         // WHEN
-        HttpRoute result = domibusRoutePlanner.determineRoute(host, request, context);
+        HttpRoute result = domibusHttpRoutePlanner.determineRoute(host, request, context);
 
         // THEN
         Assert.assertSame("Should have not replaced the initial route when SSL offloading is disabled", route, result);
@@ -76,7 +76,7 @@ public class DomibusRoutePlannerTest {
         }};
 
         // WHEN
-        HttpRoute result = domibusRoutePlanner.determineRoute(host, request, context);
+        HttpRoute result = domibusHttpRoutePlanner.determineRoute(host, request, context);
 
         // THEN
         Assert.assertSame("Should have not replaced the initial route when SSL offloading is disabled because the target URI is malformed", route, result);
@@ -93,7 +93,7 @@ public class DomibusRoutePlannerTest {
         }};
 
         // WHEN
-        HttpRoute result = domibusRoutePlanner.determineRoute(host, request, context);
+        HttpRoute result = domibusHttpRoutePlanner.determineRoute(host, request, context);
 
         // THEN
         Assert.assertNotSame("Should have replaced the initial route when SSL offloading is enabled", route, result);
@@ -113,7 +113,7 @@ public class DomibusRoutePlannerTest {
         }};
 
         // WHEN
-        domibusRoutePlanner.determineRoute(host, request, context);
+        domibusHttpRoutePlanner.determineRoute(host, request, context);
 
         // THEN
         new Verifications() {{
@@ -136,7 +136,7 @@ public class DomibusRoutePlannerTest {
         }};
 
         // WHEN
-        domibusRoutePlanner.determineRoute(host, request, context);
+        domibusHttpRoutePlanner.determineRoute(host, request, context);
 
         new Verifications() {{
             new HttpRoute(initialTargetHost, initialLocalAddress, initialProxyHost, false); times = 1;

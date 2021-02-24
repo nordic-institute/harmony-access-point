@@ -42,6 +42,7 @@ public class DomibusURLConnectionHTTPConduit extends URLConnectionHTTPConduit {
     @Override
     protected void setupConnection(Message message, Address address, HTTPClientPolicy csPolicy) throws IOException {
         if(sslOffloadService.isSslOffloadEnabled(address.getURL())) {
+            LOG.info("Switch the connection to HTTP for SSL offloading: [{}]", address.getString());
             address = sslOffloadService.offload(address);
         }
         super.setupConnection(message, address, csPolicy);

@@ -20,13 +20,13 @@ import java.net.URL;
  * @since 5.0
  */
 @Service
-public class DomibusRoutePlanner extends DefaultRoutePlanner {
+public class DomibusHttpRoutePlanner extends DefaultRoutePlanner {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusRoutePlanner.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusHttpRoutePlanner.class);
 
     private final SslOffloadService sslOffloadService;
 
-    public DomibusRoutePlanner(SslOffloadService sslOffloadService) {
+    public DomibusHttpRoutePlanner(SslOffloadService sslOffloadService) {
         super(null);
         this.sslOffloadService = sslOffloadService;
     }

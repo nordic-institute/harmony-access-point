@@ -30,8 +30,8 @@ public class DynamicDiscoveryConfig {
 
     @Bean
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-    public DomibusApacheFetcher domibusApacheFetcher(Mode mode, ProxyUtil proxyUtil, DomibusRoutePlanner domibusRoutePlanner) {
-        return new DomibusApacheFetcher(mode, proxyUtil, domibusRoutePlanner);
+    public DomibusApacheFetcher domibusApacheFetcher(Mode mode, ProxyUtil proxyUtil, DomibusHttpRoutePlanner domibusHttpRoutePlanner) {
+        return new DomibusApacheFetcher(mode, proxyUtil, domibusHttpRoutePlanner);
     }
 
     @Bean
@@ -54,8 +54,8 @@ public class DynamicDiscoveryConfig {
 
     @Bean
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-    public DefaultURLFetcher urlFetcher(DomibusRoutePlanner routePlanner, DefaultProxy proxy) {
-        return new DefaultURLFetcher(routePlanner, proxy);
+    public DefaultURLFetcher urlFetcher(DomibusHttpRoutePlanner domibusHttpRoutePlanner, DefaultProxy proxy) {
+        return new DefaultURLFetcher(domibusHttpRoutePlanner, proxy);
     }
 
     @Bean
