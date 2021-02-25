@@ -9,10 +9,10 @@
         <!-- DOWNLOADED USER MESSAGES -->
         <sql>
             create or replace PROCEDURE DeleteExpiredDownloadedMessages (
-            message_number_to_delete   IN NUMBER DEFAULT 1000,
-            mpc                        VARCHAR2,
-            start_date                 DATE,
-            end_date                   DATE
+            mpc                        IN VARCHAR2,
+            startdate                 IN DATE,
+            enddate                   IN DATE,
+            maxcount   IN NUMBER DEFAULT 1000
             ) AS
             BEGIN
             FOR user_mess_rec IN (
@@ -24,9 +24,9 @@
             usermessag0_.message_status = 'DOWNLOADED'
             AND usermessag0_.mpc = mpc
             AND ( usermessag0_.downloaded IS NOT NULL )
-            AND usermessag0_.downloaded >= start_date
-            AND usermessag0_.downloaded &lt; end_date
-            AND ROWNUM &lt;= message_number_to_delete
+            AND usermessag0_.downloaded >= startdate
+            AND usermessag0_.downloaded &lt; enddate
+            AND ROWNUM &lt;= maxcount
             ) LOOP
             FOR signal_mess_rec IN (
             SELECT
@@ -157,12 +157,12 @@
         </sql>
 
         <!-- SENT USER MESSAGES -->
-        <sql endDelimiter="\n/">
+        <sql>
             create or replace PROCEDURE DeleteExpiredSentMessages (
-            message_number_to_delete   IN NUMBER DEFAULT 1000,
-            mpc                        VARCHAR2,
-            start_date                 DATE,
-            end_date                   DATE
+            mpc IN VARCHAR2,
+            startdate IN DATE,
+            enddate IN DATE,
+            maxcount IN NUMBER DEFAULT 1000
             ) AS
             BEGIN
             FOR user_mess_rec IN (
@@ -175,9 +175,9 @@
             OR usermessag0_.message_status = 'SEND_FAILURE' )
             AND usermessag0_.mpc = mpc
             AND ( usermessag0_.modification_time IS NOT NULL )
-            AND usermessag0_.modification_time >= start_date
-            AND usermessag0_.modification_time &lt; end_date
-            AND ROWNUM &lt;= message_number_to_delete
+            AND usermessag0_.modification_time >= startdate
+            AND usermessag0_.modification_time &lt; enddate
+            AND ROWNUM &lt;= maxcount
             ) LOOP
             FOR signal_mess_rec IN (
             SELECT
