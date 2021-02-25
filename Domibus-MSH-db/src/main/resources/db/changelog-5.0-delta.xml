@@ -689,6 +689,9 @@
 
         <dropAllForeignKeyConstraints baseTableName="TB_MESSAGING"/>
         <dropTable tableName="TB_MESSAGING"/>
+
+        <dropAllForeignKeyConstraints baseTableName="TB_ERROR" /> <!-- we need this ? -->
+        <dropTable tableName="TB_ERROR"/>
     </changeSet>
     <!-- End Dropped tables -->
 
