@@ -906,6 +906,115 @@
     </changeSet>
 
     <!-- Start modified tables -->
+    <changeSet author="Catalin Enache" id="EDELIVERY-7833-tb-user-message">
+        <dropAllForeignKeyConstraints baseTableName="TB_USER_MESSAGE" />
+        <dropIndex tableName="TB_USER_MESSAGE" indexName="FK_BE4XC1069QYW2KLHVM3XMG26S"/>
+        <dropIndex tableName="TB_USER_MESSAGE" indexName="FK_UM_MF"/>
+        
+        <addColumn tableName="TB_USER_MESSAGE">
+            <column name="MESSAGE_ID" type="VARCHAR(255)"/>
+            <column name="REF_TO_MESSAGE_ID" type="VARCHAR(255)"/>
+            <column name="CONVERSATION_ID" type="VARCHAR(255)"/>
+            <column name="SOURCE_MESSAGE" remarks="true if the message is a SourceMessage" type="BOOLEAN"/>
+            <column name="MESSAGE_FRAGMENT" remarks="true if the message is a message fragment" type="BOOLEAN"/>
+            <column name="ACTION_ID_FK" type="BIGINT"/>
+            <column name="AGREEMENT_ID_FK" type="BIGINT"/>
+            <column name="SERVICE_ID_FK" type="BIGINT"/>
+            <column name="MPC_ID_FK" type="BIGINT"/>
+            <column name="FROM_PARTY_ID_FK" type="BIGINT"/>
+            <column name="FROM_ROLE_ID_FK" type="BIGINT"/>
+            <column name="TO_PARTY_ID_FK" type="BIGINT"/>
+            <column name="TO_ROLE_ID_FK" type="BIGINT"/>
+            <column name="MESSAGE_SUBTYPE_ID_FK" type="BIGINT"/>
+        </addColumn>
+
+        <!-- TODO add here migration data script -->
+        
+        <dropColumn columnName="COLLABORATION_INFO_ACTION" tableName="TB_USER_MESSAGE"/>
+        <dropColumn columnName="AGREEMENT_REF_PMODE" tableName="TB_USER_MESSAGE"/>
+        <dropColumn columnName="AGREEMENT_REF_TYPE" tableName="TB_USER_MESSAGE"/>
+        <dropColumn columnName="AGREEMENT_REF_VALUE" tableName="TB_USER_MESSAGE"/>
+        <dropColumn columnName="COLL_INFO_CONVERS_ID" tableName="TB_USER_MESSAGE"/>
+
+        <dropColumn columnName="SERVICE_TYPE" tableName="TB_USER_MESSAGE"/>
+        <dropColumn columnName="SERVICE_VALUE" tableName="TB_USER_MESSAGE"/>
+        <dropColumn columnName="MPC" tableName="TB_USER_MESSAGE"/>
+        <dropColumn columnName="FROM_ROLE" tableName="TB_USER_MESSAGE"/>
+        <dropColumn columnName="TO_ROLE" tableName="TB_USER_MESSAGE"/>
+
+        <dropColumn columnName="MESSAGEINFO_ID_PK" tableName="TB_USER_MESSAGE"/>
+        <dropColumn columnName="FK_MESSAGE_FRAGMENT_ID" tableName="TB_USER_MESSAGE"/>
+
+        <!-- put back indexes and UQs -->
+        <addForeignKeyConstraint baseColumnNames="ACTION_ID_FK" baseTableName="TB_USER_MESSAGE"
+                                 constraintName="FK_USER_MSG_ACTION_ID" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_ACTION"/>
+        <addForeignKeyConstraint baseColumnNames="AGREEMENT_ID_FK" baseTableName="TB_USER_MESSAGE"
+                                 constraintName="FK_USER_MSG_AGREEMENT_ID" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_AGREEMENT"/>
+        <addForeignKeyConstraint baseColumnNames="SERVICE_ID_FK" baseTableName="TB_USER_MESSAGE"
+                                 constraintName="FK_USER_MSG_SERVICE_ID" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_SERVICE"/>
+        <addForeignKeyConstraint baseColumnNames="MPC_ID_FK" baseTableName="TB_USER_MESSAGE"
+                                 constraintName="FK_USER_MSG_MPC_ID" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_MPC"/>
+        <addForeignKeyConstraint baseColumnNames="FROM_PARTY_ID_FK" baseTableName="TB_USER_MESSAGE"
+                                 constraintName="FK_USER_MSG_FROM_PARTY_ID" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_PARTY"/>
+        <addForeignKeyConstraint baseColumnNames="FROM_ROLE_ID_FK" baseTableName="TB_USER_MESSAGE"
+                                 constraintName="FK_USER_MSG_FROM_ROLE_ID" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_ROLE"/>
+        <addForeignKeyConstraint baseColumnNames="TO_PARTY_ID_FK" baseTableName="TB_USER_MESSAGE"
+                                 constraintName="FK_USER_MSG_TO_PARTY_ID" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_PARTY"/>
+        <addForeignKeyConstraint baseColumnNames="TO_ROLE_ID_FK" baseTableName="TB_USER_MESSAGE"
+                                 constraintName="FK_USER_MSG_TO_ROLE_ID" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_ROLE"/>
+        <addForeignKeyConstraint baseColumnNames="MESSAGE_SUBTYPE_ID_FK" baseTableName="TB_USER_MESSAGE"
+                                 constraintName="FK_USER_MSG_SUBTYPE_ID" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_MESSAGE_SUBTYPE"/>
+        <createIndex indexName="IDX_USER_MSG_MESSAGE_ID" tableName="TB_USER_MESSAGE">
+            <column name="MESSAGE_ID"/>
+        </createIndex>
+        <createIndex indexName="IDX_USER_MSG_ACTION_ID" tableName="TB_USER_MESSAGE">
+            <column name="ACTION_ID_FK"/>
+        </createIndex>
+        <createIndex indexName="IDX_USER_MSG_AGREEMENT_ID" tableName="TB_USER_MESSAGE">
+            <column name="AGREEMENT_ID_FK"/>
+        </createIndex>
+        <createIndex indexName="IDX_USER_MSG_SERVICE_ID" tableName="TB_USER_MESSAGE">
+            <column name="SERVICE_ID_FK"/>
+        </createIndex>
+        <createIndex indexName="IDX_USER_MSG_MPC_ID" tableName="TB_USER_MESSAGE">
+            <column name="MPC_ID_FK"/>
+        </createIndex>
+        <createIndex indexName="IDX_USER_MSG_FROM_PARTY_ID" tableName="TB_USER_MESSAGE">
+            <column name="FROM_PARTY_ID_FK"/>
+        </createIndex>
+        <createIndex indexName="IDX_FROM_ROLE_ID" tableName="TB_USER_MESSAGE">
+            <column name="FROM_ROLE_ID_FK"/>
+        </createIndex>
+        <createIndex indexName="IDX_USER_MSG_TO_PARTY_ID" tableName="TB_USER_MESSAGE">
+            <column name="TO_PARTY_ID_FK"/>
+        </createIndex>
+        <createIndex indexName="IDX_TO_ROLE_ID" tableName="TB_USER_MESSAGE">
+            <column name="TO_ROLE_ID_FK"/>
+        </createIndex>
+        <createIndex indexName="IDX_MESSAGE_SUBTYPE_ID" tableName="TB_USER_MESSAGE">
+            <column name="MESSAGE_SUBTYPE_ID_FK"/>
+        </createIndex>
+        <addUniqueConstraint columnNames="MESSAGE_ID" constraintName="UK_USER_MSG_MESSAGE_ID" tableName="TB_USER_MESSAGE"/>
+
+    </changeSet>
 
     <!-- End modified tables -->
 
