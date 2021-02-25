@@ -23,8 +23,8 @@ public class UserMessageDeletionJobRunnable implements Runnable {
 
     @Override
     public void run() {
-        LOG.debug("Execute deletion job [{}]", deletionJob);
+        LOG.trace("Execute deletion job [{}]", deletionJob);
         userMessageDeletionJobService.executeJob(deletionJob);
-        LOG.debug("Deletion job executed [{}]", deletionJob);
+        LOG.trace("Deletion job executed [{}]", deletionJob);
     }
 }

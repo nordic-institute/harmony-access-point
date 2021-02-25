@@ -142,19 +142,19 @@
             <column name="MPC"/>
         </createIndex>
 
-        <createIndex indexName="IDX__MESSAGE_LOG_DOWNLOADED" tableName="TB_MESSAGE_LOG">
+        <createIndex indexName="IDX_MESSAGE_LOG_DOWNLOADED" tableName="TB_MESSAGE_LOG">
             <column name="DOWNLOADED"/>
         </createIndex>
 
-        <createIndex indexName="IDX__MESSAGE_LOG_MESSAGE_STATUS" tableName="TB_MESSAGE_LOG">
+        <createIndex indexName="IDX_MESSAGE_LOG_MESSAGE_STATUS" tableName="TB_MESSAGE_LOG">
             <column name="MESSAGE_STATUS"/>
         </createIndex>
 
-        <createIndex indexName="IDX__MESSAGE_LOG_MODIFICATION_TIME" tableName="TB_MESSAGE_LOG">
+        <createIndex indexName="IDX_MESSAGE_LOG_MODIFICATION_TIME" tableName="TB_MESSAGE_LOG">
             <column name="MODIFICATION_TIME"/>
         </createIndex>
 
-        <createIndex indexName="IDX__MESSAGE_LOG_MESSAGE_TYPE" tableName="TB_MESSAGE_LOG">
+        <createIndex indexName="IDX_MESSAGE_LOG_MESSAGE_TYPE" tableName="TB_MESSAGE_LOG">
             <column name="MESSAGE_TYPE"/>
         </createIndex>
 
