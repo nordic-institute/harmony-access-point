@@ -674,8 +674,10 @@ public class AlertServiceImplTest {
 
             stringEventProperty.getValue();
             result = ALERT_DESCRIPTION;
+
             stringEventProperty1.getValue();
             result = ALERT_DESCRIPTION;
+
             stringEventProperty2.getValue();
             result = ALERT_DESCRIPTION;
         }};
