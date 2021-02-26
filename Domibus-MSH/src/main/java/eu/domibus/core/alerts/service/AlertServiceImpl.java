@@ -36,6 +36,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ALERT_RETRY_TIME;
 import static eu.domibus.core.alerts.model.common.AlertStatus.*;
 import static eu.domibus.core.alerts.service.AlertConfigurationServiceImpl.DOMIBUS_ALERT_SUPER_INSTANCE_NAME_SUBJECT;
+import static org.apache.commons.lang3.StringUtils.startsWithIgnoreCase;
 
 /**
  * @author Thomas Dussart
@@ -200,13 +201,11 @@ public class AlertServiceImpl implements AlertService {
         if (description != null) {
             result.append(description.getValue().toString());
         }
-        int i = 1;
-        while (true) {
-            AbstractEventProperty<?> desc = event.getProperties().get(ALERT_DESCRIPTION + "_" + i++);
-            if (desc == null) {
-                break;
-            }
-            result.append(desc.getValue().toString());
+        long descriptionNumber = event.getProperties().keySet().stream()
+                .filter(key -> startsWithIgnoreCase(key, ALERT_DESCRIPTION))
+                .count();
+        for (int i = 1; i < descriptionNumber; i++) {
+            result.append(event.getProperties().get(ALERT_DESCRIPTION + "_" + i).getValue().toString());
         }
         return result.toString();
     }
