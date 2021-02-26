@@ -1,7 +1,6 @@
 package eu.domibus.ext.domain;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -12,18 +11,28 @@ public class AlertEventDTO {
 
     private AlertLevelDTO alertLevelDTO;
 
-    private String name;
+    private final String name;
 
-    private boolean active;
+    private final boolean active;
 
-    private String emailSubject;
+    private final String emailSubject;
 
-    private String emailBody;
+    private final String emailBody;
 
-    private Map<String, String> properties = new HashMap<>(); //NOSONAR
+    private final Map<String, String> properties;
 
-    public AlertEventDTO(AlertLevelDTO alertLevelDTO) {
+    public AlertEventDTO(AlertLevelDTO alertLevelDTO,
+                         String name,
+                         boolean active,
+                         String emailSubject,
+                         String emailBody,
+                         Map<String, String> properties) {
         this.alertLevelDTO = alertLevelDTO;
+        this.name = name;
+        this.active = active;
+        this.emailSubject = emailSubject;
+        this.emailBody = emailBody;
+        this.properties = properties;
     }
 
     public AlertLevelDTO getAlertLevelDTO() {
@@ -34,32 +43,16 @@ public class AlertEventDTO {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public boolean isActive() {
         return active;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
     }
 
     public String getEmailSubject() {
         return emailSubject;
     }
 
-    public void setEmailSubject(String emailSubject) {
-        this.emailSubject = emailSubject;
-    }
-
     public String getEmailBody() {
         return emailBody;
-    }
-
-    public void setEmailBody(String emailBody) {
-        this.emailBody = emailBody;
     }
 
     public void setAlertLevelDTO(AlertLevelDTO alertLevelDTO) {
@@ -68,14 +61,6 @@ public class AlertEventDTO {
 
     public Map<String, String> getProperties() {
         return Collections.unmodifiableMap(properties);
-    }
-
-    public void setProperties(Map<String, String> properties) {
-        this.properties = properties;
-    }
-
-    void addProperty(String key, String value) {
-        this.properties.put(key, value);
     }
 
 }

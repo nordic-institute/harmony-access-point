@@ -194,12 +194,21 @@ public class AlertServiceImpl implements AlertService {
     }
 
     protected String getDescription(Alert alertEntity, Event next) {
-        String title = "[" + alertEntity.getAlertType().getTitle() + "] ";
+        StringBuilder result = new StringBuilder();
+        result.append("[").append(alertEntity.getAlertType().getTitle()).append("] ");
         AbstractEventProperty<?> description = next.getProperties().get(ALERT_DESCRIPTION);
         if (description != null) {
-            title += description.getValue().toString();
+            result.append(description.getValue().toString());
         }
-        return title;
+        int i = 1;
+        while (true) {
+            AbstractEventProperty<?> desc = next.getProperties().get(ALERT_DESCRIPTION + "_" + i++);
+            if (desc == null) {
+                break;
+            }
+            result.append(desc.getValue().toString());
+        }
+        return result.toString();
     }
 
     protected String getSubject(AlertType alertType, Event next) {

@@ -655,4 +655,34 @@ public class AlertServiceImplTest {
 
         assertEquals("[" + ALERT_DESCRIPTION_TEST + "] " + ALERT_DESCRIPTION, finalDescription);
     }
+
+    @Test
+    public void getDescription_3(@Mocked eu.domibus.core.alerts.model.persist.Alert alert,
+                                 @Mocked eu.domibus.core.alerts.model.persist.Event next,
+                                 @Mocked StringEventProperty stringEventProperty,
+                                 @Mocked StringEventProperty stringEventProperty1,
+                                 @Mocked StringEventProperty stringEventProperty2) {
+        Map<String, AbstractEventProperty<?>> properties = new HashMap<>();
+        properties.put(ALERT_DESCRIPTION, stringEventProperty);
+        properties.put(ALERT_DESCRIPTION + "_1", stringEventProperty1);
+        properties.put(ALERT_DESCRIPTION + "_2", stringEventProperty2);
+        new Expectations() {{
+            alert.getAlertType().getTitle();
+            result = ALERT_DESCRIPTION_TEST;
+
+            next.getProperties();
+            result = properties;
+
+            stringEventProperty.getValue();
+            result = ALERT_DESCRIPTION;
+            stringEventProperty1.getValue();
+            result = ALERT_DESCRIPTION;
+            stringEventProperty2.getValue();
+            result = ALERT_DESCRIPTION;
+        }};
+
+        String finalDescription = alertService.getDescription(alert, next);
+
+        assertEquals("[" + ALERT_DESCRIPTION_TEST + "] " + ALERT_DESCRIPTION + ALERT_DESCRIPTION + ALERT_DESCRIPTION, finalDescription);
+    }
 }
