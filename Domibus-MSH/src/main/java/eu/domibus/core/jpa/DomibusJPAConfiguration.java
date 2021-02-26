@@ -58,7 +58,7 @@ public class DomibusJPAConfiguration {
             final String[] packagesToScan = StringUtils.split(packagesToScanString, ",");
             result.setPackagesToScan(packagesToScan);
         }
-        result.setJtaDataSource(dataSource);
+        result.setDataSource(dataSource);
         result.setJpaVendorAdapter(jpaVendorAdapter());
 
         if (singleTenantConnectionProviderImpl.isPresent()) {
