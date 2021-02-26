@@ -907,6 +907,7 @@
         <dropAllForeignKeyConstraints baseTableName="TB_RAWENVELOPE_LOG" />
         <dropTable tableName="TB_RAWENVELOPE_LOG"/>
     </changeSet>
+    <!-- End tables to be migrated -->
 
     <!-- Start modified tables -->
     <changeSet author="Catalin Enache" id="EDELIVERY-7833-tb-user-message">
@@ -1018,11 +1019,27 @@
         <addUniqueConstraint columnNames="MESSAGE_ID" constraintName="UK_USER_MSG_MESSAGE_ID" tableName="TB_USER_MESSAGE"/>
 
     </changeSet>
+    <changeSet author="Catalin Enache" id="EDELIVERY-7833-tb-part-info">
+        <addColumn tableName="TB_PART_INFO">
+            <column name="USER_MESSAGE_ID_FK" type="BIGINT"/>
+        </addColumn>
+        <addNotNullConstraint columnDataType="INT" columnName="PART_ORDER" tableName="TB_PART_INFO" />
+        <addForeignKeyConstraint baseColumnNames="USER_MESSAGE_ID_FK" baseTableName="TB_PART_INFO"
+                                 constraintName="FK_PART_INFO_USER_MSG" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_USER_MESSAGE"/>
+        <createIndex indexName="FK_USER_MESSAGE_ID" tableName="TB_PART_INFO">
+            <column name="USER_MESSAGE_ID_FK"/>
+        </createIndex>
+
+        <dropForeignKeyConstraint baseTableName="TB_PART_INFO" constraintName="FK_TQ6LBN3MP0VSFC6QQU7WXY54G"/>
+        <dropColumn columnName="PAYLOADINFO_ID" tableName="TB_PART_INFO"/>
+        <dropColumn columnName="SCHEMA_LOCATION" tableName="TB_PART_INFO"/>
+        <dropColumn columnName="SCHEMA_NAMESPACE" tableName="TB_PART_INFO"/>
+        <dropColumn columnName="SCHEMA_VERSION" tableName="TB_PART_INFO"/>
+    </changeSet>
 
     <!-- End modified tables -->
-
-    <!-- End tables to be migrated -->
-
 
     <!-- End here 4.2 to new 5.0 -->
 
