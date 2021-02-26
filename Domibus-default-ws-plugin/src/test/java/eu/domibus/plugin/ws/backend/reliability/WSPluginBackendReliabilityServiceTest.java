@@ -38,21 +38,34 @@ public class WSPluginBackendReliabilityServiceTest {
 
     public static final Date ONE_MINUTE_AGO = Date.from(LocalDateTime.now().minusMinutes(1)
             .atZone(ZoneId.systemDefault()).toInstant());
+
     public static final Date YESTERDAY = Date.from(LocalDateTime.now().minusDays(1)
             .atZone(ZoneId.systemDefault()).toInstant());
+
     public static final Date A_DATE = Date.from(LocalDateTime.of(2020, 12, 31, 23, 59)
             .atZone(ZoneId.systemDefault()).toInstant());
+
     public static final Date NEW_DATE = Date.from(LocalDateTime.of(2030, 12, 31, 23, 59)
             .atZone(ZoneId.systemDefault()).toInstant());
+
     public static final long ID = 12L;
+
     public static final String RULE_NAME = "ruleName";
+
     public static final int RETRY_COUNT = 5;
+
     private static final int RETRY_TIMOUT = 10;
+
     public static final int ATTEMPTS = 2;
+
     public static final boolean IS_ACTIVE = true;
+
     public static final String ALERT_LEVEL = "LOW";
+
     public static final String SUBJECT = "subject";
+
     public static final String BODY = "body";
+
     @Tested
     private WSPluginBackendReliabilityService reliabilityService;
 

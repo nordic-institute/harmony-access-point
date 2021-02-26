@@ -193,16 +193,16 @@ public class AlertServiceImpl implements AlertService {
         return new DefaultMailModel<>(mailModel, template, subject);
     }
 
-    protected String getDescription(Alert alertEntity, Event next) {
+    protected String getDescription(Alert alertEntity, Event event) {
         StringBuilder result = new StringBuilder();
         result.append("[").append(alertEntity.getAlertType().getTitle()).append("] ");
-        AbstractEventProperty<?> description = next.getProperties().get(ALERT_DESCRIPTION);
+        AbstractEventProperty<?> description = event.getProperties().get(ALERT_DESCRIPTION);
         if (description != null) {
             result.append(description.getValue().toString());
         }
         int i = 1;
         while (true) {
-            AbstractEventProperty<?> desc = next.getProperties().get(ALERT_DESCRIPTION + "_" + i++);
+            AbstractEventProperty<?> desc = event.getProperties().get(ALERT_DESCRIPTION + "_" + i++);
             if (desc == null) {
                 break;
             }

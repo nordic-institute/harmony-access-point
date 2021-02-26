@@ -68,7 +68,7 @@ public abstract class DomibusPropertyExtServiceDelegateAbstract implements Domib
             return domibusPropertyExtService.getBooleanProperty(propertyName);
         }
 
-        LOG.trace("Property [{}] is not stored globally so onGetLocalIntegerPropertyValue is called.", propertyName);
+        LOG.trace("Property [{}] is not stored globally so onGetLocalBooleanPropertyValue is called.", propertyName);
         return onGetLocalBooleanPropertyValue(propertyName, propMeta);
     }
 

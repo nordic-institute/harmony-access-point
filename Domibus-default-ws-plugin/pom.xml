@@ -132,7 +132,7 @@
             <scope>provided</scope>
         </dependency>
 
-        <!--        START SPRING        -->
+        <!--        Spring Start        -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-beans</artifactId>
@@ -168,7 +168,7 @@
             <artifactId>spring-jms</artifactId>
             <scope>provided</scope>
         </dependency>
-        <!--        END SPRING        -->
+        <!--        Spring End        -->
 
         <dependency>
             <groupId>javax</groupId>
