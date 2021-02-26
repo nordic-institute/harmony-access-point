@@ -37,7 +37,7 @@ public class MessagingDaoTestIT extends AbstractIT {
     @Autowired
     private PartyDao partyDao;
 
-    @PersistenceContext(unitName = "domibusJTA")
+    @PersistenceContext(unitName = "domibusEM")
     private EntityManager entityManager;
 
     @Test

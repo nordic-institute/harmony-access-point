@@ -33,7 +33,7 @@ public class WSMessageLogDaoIT {
     @Autowired
     private WSMessageLogDao wsMessageLogDao;
 
-    @PersistenceContext(unitName = "domibusJTA")
+    @PersistenceContext(unitName = "domibusEM")
     private javax.persistence.EntityManager em;
 
 

@@ -41,7 +41,7 @@ public class CommandDaoIT {
     @Autowired
     protected DataSource dataSource;
 
-    @PersistenceContext(unitName = "domibusJTA")
+    @PersistenceContext(unitName = "domibusEM")
     protected EntityManager em;
 
     @Before

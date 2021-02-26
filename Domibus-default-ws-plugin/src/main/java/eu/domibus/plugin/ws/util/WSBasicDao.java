@@ -16,7 +16,7 @@ public abstract class WSBasicDao<T> {
 
     protected final Class<T> typeOfT;
 
-    @PersistenceContext(unitName = "domibusJTA")
+    @PersistenceContext(unitName = "domibusEM")
     protected EntityManager em;
 
     /**

@@ -37,8 +37,9 @@ public class PropertyDaoIT {
     @Autowired
     private MessageInfoDao messageInfoDao;
 
-    @PersistenceContext(unitName = "domibusJTA")
+    @PersistenceContext(unitName = "domibusEM")
     protected EntityManager em;
+
     private String msgId;
 
     @Before

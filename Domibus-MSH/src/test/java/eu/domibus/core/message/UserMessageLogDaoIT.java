@@ -48,7 +48,7 @@ public class UserMessageLogDaoIT {
     @Autowired
     private MessageInfoDao messageInfoDao;
 
-    @PersistenceContext(unitName = "domibusJTA")
+    @PersistenceContext(unitName = "domibusEM")
     protected EntityManager em;
 
     private DateUtilImpl dateUtil;

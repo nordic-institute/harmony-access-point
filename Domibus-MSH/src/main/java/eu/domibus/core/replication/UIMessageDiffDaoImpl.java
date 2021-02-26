@@ -19,7 +19,7 @@ import java.util.List;
 @Repository
 public class UIMessageDiffDaoImpl implements UIMessageDiffDao {
 
-    @PersistenceContext(unitName = "domibusJTA")
+    @PersistenceContext(unitName = "domibusEM")
     private EntityManager em;
 
     @Autowired

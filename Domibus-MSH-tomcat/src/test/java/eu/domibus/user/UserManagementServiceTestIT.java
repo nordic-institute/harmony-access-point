@@ -31,7 +31,7 @@ public class UserManagementServiceTestIT extends AbstractIT {
     @Autowired
     protected UserDao userDao;
 
-    @PersistenceContext(unitName = "domibusJTA")
+    @PersistenceContext(unitName = "domibusEM")
     protected EntityManager entityManager;
 
     @Test

@@ -29,7 +29,7 @@ public class AuditDaoImpl implements AuditDao {
     public static final String CHANGED = "changed";
     public static final String ID = "id";
 
-    @PersistenceContext(unitName = "domibusJTA")
+    @PersistenceContext(unitName = "domibusEM")
     private EntityManager entityManager;
 
     @Override

@@ -27,7 +27,7 @@ public class ProcessDaoImpl implements ProcessDao{
     private static final String MEP_BINDING = "mepBinding";
     private static final String INITIATOR = "initiator";
     private static final String MPC_NAME = "mpcName";
-    @PersistenceContext(unitName = "domibusJTA")
+    @PersistenceContext(unitName = "domibusEM")
     private EntityManager entityManager;
 
     /**

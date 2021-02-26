@@ -29,7 +29,7 @@ public class UserDaoImplTestIT extends AbstractIT {
     @Autowired
     private UserDao userDao;
 
-    @PersistenceContext(unitName = "domibusJTA")
+    @PersistenceContext(unitName = "domibusEM")
     protected EntityManager entityManager;
 
     @Test

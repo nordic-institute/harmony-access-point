@@ -38,7 +38,7 @@ public abstract class AbstractDatabaseConfig {
     protected abstract DataSource dataSource();
 
     @Bean
-    public LocalContainerEntityManagerFactoryBean domibusJTA(@Qualifier(DOMIBUS_JDBC_NON_XA_DATA_SOURCE) DataSource dataSource, ConnectionProvider connectionProvider) {
+    public LocalContainerEntityManagerFactoryBean domibusEM(@Qualifier(DOMIBUS_JDBC_NON_XA_DATA_SOURCE) DataSource dataSource, ConnectionProvider connectionProvider) {
         Properties jpaProperties = new Properties();
         jpaProperties.put("hibernate.hbm2ddl.auto", "update");
         jpaProperties.put("hibernate.show_sql", "true");
@@ -56,10 +56,10 @@ public abstract class AbstractDatabaseConfig {
     }
 
     @Bean
-    @DependsOn("domibusJTA")
-    public JpaTransactionManager jpaTransactionManager(LocalContainerEntityManagerFactoryBean domibusJTA) {
+    @DependsOn("domibusEM")
+    public JpaTransactionManager jpaTransactionManager(LocalContainerEntityManagerFactoryBean domibusEM) {
         JpaTransactionManager jpaTransactionManager = new JpaTransactionManager();
-        jpaTransactionManager.setEntityManagerFactory(domibusJTA.getObject());
+        jpaTransactionManager.setEntityManagerFactory(domibusEM.getObject());
         return jpaTransactionManager;
     }
 

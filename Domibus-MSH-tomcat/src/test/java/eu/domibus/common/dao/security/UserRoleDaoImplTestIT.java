@@ -23,7 +23,7 @@ public class UserRoleDaoImplTestIT extends AbstractIT {
     @Autowired
     private UserRoleDao userRoleDao;
 
-    @PersistenceContext(unitName = "domibusJTA")
+    @PersistenceContext(unitName = "domibusEM")
     protected EntityManager entityManager;
 
     @Test

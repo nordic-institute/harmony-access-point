@@ -35,7 +35,7 @@ public class WSBackendMessageLogDaoIT {
     @Autowired
     private WSBackendMessageLogDao wsBackendMessageLogDao;
 
-    @PersistenceContext(unitName = "domibusJTA")
+    @PersistenceContext(unitName = "domibusEM")
     private javax.persistence.EntityManager em;
     private WSBackendMessageLogEntity entityFailed;
     private WSBackendMessageLogEntity entityRetried1;

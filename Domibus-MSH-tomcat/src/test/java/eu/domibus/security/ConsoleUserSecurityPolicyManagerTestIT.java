@@ -43,7 +43,7 @@ public class ConsoleUserSecurityPolicyManagerTestIT extends AbstractIT {
     @Autowired
     protected DomainContextProvider domainContextProvider;
 
-    @PersistenceContext(unitName = "domibusJTA")
+    @PersistenceContext(unitName = "domibusEM")
     protected EntityManager entityManager;
 
 
