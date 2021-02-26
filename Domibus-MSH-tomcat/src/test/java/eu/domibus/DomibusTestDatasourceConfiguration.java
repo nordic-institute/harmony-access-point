@@ -35,6 +35,7 @@ public class DomibusTestDatasourceConfiguration {
         dataSource.setUrl(h2DataSource.getUrl());
         dataSource.setPassword(h2DataSource.getPassword());
         dataSource.setUser(h2DataSource.getUser());
+        dataSource.setMaxPoolSize(100);
         return dataSource;
     }
 
