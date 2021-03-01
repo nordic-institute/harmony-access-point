@@ -224,10 +224,10 @@
                                src/main/resources/db/changelog-4.2.1-delta.xml
                            </changeLogFile>
                            <url>
-                               offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-4.2.1-delta.oracle
+                               offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-4.2.1-taxud-delta.oracle
                            </url>
                            <migrationSqlOutputFile>
-                               ${project.build.directory}/sql-scripts/oracle-4.2-to-4.2.1-migration.ddl
+                               ${project.build.directory}/sql-scripts/oracle-4.2-taxud-to-4.2.1-migration.ddl
                            </migrationSqlOutputFile>
                        </configuration>
                    </execution>

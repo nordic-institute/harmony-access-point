@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <!-- properties - to be used in column definitions -->
+    <property name="now" value="sysdate" dbms="oracle"/>
+    <property name="now" value="now()" dbms="mysql"/>
+    <property name="current_db_user" value="user" dbms="oracle"/>
+    <!-- MySQL cannot handle functions as DEFAULT values and the alternative would be to add a trigger for all these
+    tables. Either way this value will most probably never be used since a value will always be provided at runtime.-->
+    <property name="current_db_user" value="'DOMIBUS'" dbms="mysql"/>
+
+    <!-- Create stored procedures used by the deletion jobs -->
+    <include file="changelog-delete-procedures.xml" relativeToChangelogFile="true"/>
+
+    <changeSet id="EDELIVERY-7800" author="idragusa">
+        <dropNotNullConstraint tableName="TB_PART_INFO" columnName="PART_ORDER" columnDataType="INT"/>
+    </changeSet>
+
+    <changeSet id="EDELIVERY-7800" author="idragusa">
+        <createTable tableName="TB_USER_MESSAGE_DELETION_JOB">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_TB_USER_MESSAGE_DELETION_JOB"/>
+            </column>
+            <column name="PROCEDURE_NAME" type="VARCHAR(255)" remarks="Name of the stored procedure in the database."/>
+            <column name="MPC" type="VARCHAR(255)"/>
+            <column name="START_RETENTION_DATE" type="TIMESTAMP"
+                    remarks="Expired user messages newer than this date will be deleted by this job"/>
+            <column name="END_RETENTION_DATE" type="TIMESTAMP"
+                    remarks="Expired user messages older than this date will be deleted by this job"/>
+            <column name="MAX_COUNT" type="INT"
+                    remarks="Maximum number of expired messages to be deleted by one call of the stored procedure"/>
+            <column name="STATE" type="VARCHAR(255)"
+                    remarks="User message deletion job state: NEW, RUNNING or STOPPED"/>
+            <column name="ACTUAL_START_DATE" type="TIMESTAMP" remarks="The actual date when this job was started."/>
+
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP"
+                    remarks="The date and time when this record was created">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)"
+                    remarks="The user who created this record">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"
+                    remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>
