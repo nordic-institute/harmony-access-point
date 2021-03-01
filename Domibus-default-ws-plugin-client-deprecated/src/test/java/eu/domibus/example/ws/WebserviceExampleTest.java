@@ -114,6 +114,7 @@ public class WebserviceExampleTest {
     @Before
     public void prepare() throws Exception {
         sleep(5000);
+        LOG.info("Prepare webServicePluginInterface");
         backendInterface = webserviceExample.getPort();
     }
 

@@ -15,7 +15,9 @@ import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
-
+/**
+ * Created by muellers on 7/1/16.
+ */
 public class WebserviceExample {
 
     public static final String DEFAULT_WEBSERVICE_LOCATION = "http://localhost:8080/domibus/services/backend?wsdl";
