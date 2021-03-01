@@ -1,7 +1,5 @@
 package eu.domibus.example.ws;
 
-import com.sun.xml.ws.developer.JAXWSProperties;
-import eu.domibus.example.ws.logging.MessageLoggingHandler;
 import eu.domibus.plugin.ws.generated.WebServicePlugin;
 import eu.domibus.plugin.ws.generated.WebServicePluginInterface;
 import org.apache.commons.logging.Log;
@@ -17,25 +15,25 @@ import java.util.List;
 import java.util.Map;
 
 
-public class WebserviceExample {
+public class WebserviceClient {
 
     public static final String DEFAULT_WEBSERVICE_LOCATION = "http://localhost:8080/domibus/services/wsplugin?wsdl";
 
-    private static final Log LOG = LogFactory.getLog(WebserviceExample.class);
+    private static final Log LOG = LogFactory.getLog(WebserviceClient.class);
 
     private final String wsdl;
 
     private final boolean logMessages;
 
-    public WebserviceExample() {
+    public WebserviceClient() {
         this(DEFAULT_WEBSERVICE_LOCATION, false);
     }
 
-    public WebserviceExample(String webserviceLocation)  {
+    public WebserviceClient(String webserviceLocation)  {
         this(webserviceLocation, false);
     }
 
-    public WebserviceExample(String webserviceLocation, boolean logMessages)  {
+    public WebserviceClient(String webserviceLocation, boolean logMessages)  {
         this.wsdl = webserviceLocation;
         this.logMessages = logMessages;
     }
@@ -66,7 +64,7 @@ public class WebserviceExample {
         }
 
         Map<String, Object> ctxt = bindingProvider.getRequestContext();
-        ctxt.put(JAXWSProperties.HTTP_CLIENT_STREAMING_CHUNK_SIZE, 8192);
+        ctxt.put("com.sun.xml.ws.transport.http.client.streaming.chunk.size", 8192);
         //enable MTOM
         SOAPBinding binding = (SOAPBinding)bindingProvider.getBinding();
         binding.setMTOMEnabled(true);
