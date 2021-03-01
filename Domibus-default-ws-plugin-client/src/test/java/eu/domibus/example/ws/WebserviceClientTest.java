@@ -42,7 +42,7 @@ public class WebserviceClientTest {
 
     private WebserviceClient webserviceExample;
 
-    private WebServicePluginInterface backendInterface;
+    private WebServicePluginInterface webServicePluginInterface;
 
     static String mshWSLoc;
 
@@ -85,7 +85,7 @@ public class WebserviceClientTest {
 
     @After
     public void cleanUp() throws Exception {
-        ListPendingMessagesResponse listPendingMessagesResponse = backendInterface.listPendingMessages(new ListPendingMessagesRequest());
+        ListPendingMessagesResponse listPendingMessagesResponse = webServicePluginInterface.listPendingMessages(new ListPendingMessagesRequest());
 
         sleep(2000);
 
@@ -96,14 +96,15 @@ public class WebserviceClientTest {
             Holder<RetrieveMessageResponse> responseHolder = new Holder<>();
             Holder<Messaging> messagingHolder = new Holder<>();
 
-            backendInterface.retrieveMessage(retrieveMessageRequest, responseHolder, messagingHolder);
+            webServicePluginInterface.retrieveMessage(retrieveMessageRequest, responseHolder, messagingHolder);
         }
     }
 
     @Before
     public void prepare() throws Exception {
         sleep(5000);
-        backendInterface = webserviceExample.getPort();
+        LOG.info("Prepare BackendInterface");
+        webServicePluginInterface = webserviceExample.getPort();
     }
 
     @Test
@@ -111,7 +112,7 @@ public class WebserviceClientTest {
         SubmitRequest submitRequest = WebserviceHelper.parseSendRequestXML(TEST_SUBMIT_MESSAGE_SUBMITREQUEST, SubmitRequest.class);
         Messaging messaging = WebserviceHelper.parseMessagingXML(TEST_SUBMIT_MESSAGE_MESSAGING);
 
-        SubmitResponse result = backendInterface.submitMessage(submitRequest, messaging);
+        SubmitResponse result = webServicePluginInterface.submitMessage(submitRequest, messaging);
         assertNotNull(result);
         assertNotNull(result.getMessageID());
         assertNotEquals(0, result.getMessageID().size());
@@ -130,7 +131,7 @@ public class WebserviceClientTest {
 
         Messaging messaging = WebserviceHelper.parseMessagingXML(TEST_SUBMIT_MESSAGE_MESSAGING);
 
-        SubmitResponse result = backendInterface.submitMessage(submitRequest, messaging);
+        SubmitResponse result = webServicePluginInterface.submitMessage(submitRequest, messaging);
         assertNotNull(result);
         assertNotNull(result.getMessageID());
         assertNotEquals(0, result.getMessageID().size());
@@ -162,7 +163,7 @@ public class WebserviceClientTest {
         Holder<Messaging> messagingHolder = new Holder<>();
 
 
-        backendInterface.retrieveMessage(retrieveMessageRequest, responseHolder, messagingHolder);
+        webServicePluginInterface.retrieveMessage(retrieveMessageRequest, responseHolder, messagingHolder);
 
         assertNotNull(responseHolder);
         assertNotNull(messagingHolder);
@@ -179,7 +180,7 @@ public class WebserviceClientTest {
         //The messageId determines the message for which the status is requested
         statusRequest.setMessageID(messageId);
 
-        MessageStatus response = backendInterface.getStatus(statusRequest);
+        MessageStatus response = webServicePluginInterface.getStatus(statusRequest);
         assertEquals(MessageStatus.DOWNLOADED, response);
 
     }
@@ -202,7 +203,7 @@ public class WebserviceClientTest {
         Holder<RetrieveMessageResponse> responseHolder = new Holder<>();
         Holder<Messaging> messagingHolder = new Holder<>();
         try {
-            backendInterface.retrieveMessage(retrieveMessageRequest, responseHolder, messagingHolder);
+            webServicePluginInterface.retrieveMessage(retrieveMessageRequest, responseHolder, messagingHolder);
             fail("One of the following exceptions was expected: SOAPFaultException for XSD validation enabled or RetrieveMessageFault when the XSD validation is disabled");
         } catch (RetrieveMessageFault retrieveMessageFault) {
             assertEquals("Message ID is empty", retrieveMessageFault.getMessage());
@@ -223,7 +224,7 @@ public class WebserviceClientTest {
         //wait until the message should be received
         sleep(2000);
 
-        ListPendingMessagesResponse listPendingMessagesResponse = backendInterface.listPendingMessages(new ListPendingMessagesRequest());
+        ListPendingMessagesResponse listPendingMessagesResponse = webServicePluginInterface.listPendingMessages(new ListPendingMessagesRequest());
         assertEquals(1, listPendingMessagesResponse.getMessageID().size());
         assertEquals(messageId, listPendingMessagesResponse.getMessageID().get(0));
     }
@@ -243,7 +244,7 @@ public class WebserviceClientTest {
         //The messageId determines the message for which the status is requested
         messageStatusRequest.setMessageID(messageId);
 
-        MessageStatus response = backendInterface.getStatus(messageStatusRequest);
+        MessageStatus response = webServicePluginInterface.getStatus(messageStatusRequest);
 
         assertEquals(MessageStatus.RECEIVED, response);
     }
@@ -255,7 +256,7 @@ public class WebserviceClientTest {
         //The messageId determines the message for which the status is requested
         messageStatusRequest.setMessageID("");
         try {
-            backendInterface.getStatus(messageStatusRequest);
+            webServicePluginInterface.getStatus(messageStatusRequest);
             fail("One of the following exceptions was expected: SOAPFaultException for XSD validation enabled or StatusFault when the XSD validation is disabled");
         } catch (StatusFault statusFault) {
             assertEquals("Message ID is empty", statusFault.getMessage());
@@ -280,7 +281,7 @@ public class WebserviceClientTest {
         //The messageId determines the message for which the list of errors is requested
         messageErrorsRequest.setMessageID(UUID.randomUUID().toString());
 
-        ErrorResultImplArray response = backendInterface.getMessageErrors(messageErrorsRequest);
+        ErrorResultImplArray response = webServicePluginInterface.getMessageErrors(messageErrorsRequest);
 
         String errorString = WebserviceHelper.errorResultAsFormattedString(response);
 
