@@ -13,8 +13,6 @@ public class AlertEventDTO {
 
     private final String name;
 
-    private final boolean active;
-
     private final String emailSubject;
 
     private final String emailBody;
@@ -23,13 +21,11 @@ public class AlertEventDTO {
 
     public AlertEventDTO(AlertLevelDTO alertLevelDTO,
                          String name,
-                         boolean active,
                          String emailSubject,
                          String emailBody,
                          Map<String, String> properties) {
         this.alertLevelDTO = alertLevelDTO;
         this.name = name;
-        this.active = active;
         this.emailSubject = emailSubject;
         this.emailBody = emailBody;
         this.properties = properties;
@@ -41,10 +37,6 @@ public class AlertEventDTO {
 
     public String getName() {
         return name;
-    }
-
-    public boolean isActive() {
-        return active;
     }
 
     public String getEmailSubject() {

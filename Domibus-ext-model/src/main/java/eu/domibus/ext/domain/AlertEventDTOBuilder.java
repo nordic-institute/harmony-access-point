@@ -13,8 +13,6 @@ public class AlertEventDTOBuilder {
 
     private String name;
 
-    private boolean active;
-
     private String emailSubject;
 
     private String emailBody;
@@ -26,7 +24,7 @@ public class AlertEventDTOBuilder {
     }
 
     public AlertEventDTO build() {
-        return new AlertEventDTO(alertLevelDTO, name, active, emailSubject, emailBody, properties);
+        return new AlertEventDTO(alertLevelDTO, name, emailSubject, emailBody, properties);
     }
 
     public AlertEventDTOBuilder alertLevelDTO(AlertLevelDTO alertLevelDTO) {
@@ -36,11 +34,6 @@ public class AlertEventDTOBuilder {
 
     public AlertEventDTOBuilder name(String name) {
         this.name = name;
-        return this;
-    }
-
-    public AlertEventDTOBuilder active(boolean active) {
-        this.active = active;
         return this;
     }
 

@@ -36,6 +36,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ALERT_RETRY_TIME;
 import static eu.domibus.core.alerts.model.common.AlertStatus.*;
 import static eu.domibus.core.alerts.service.AlertConfigurationServiceImpl.DOMIBUS_ALERT_SUPER_INSTANCE_NAME_SUBJECT;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.startsWithIgnoreCase;
 
 /**
@@ -197,17 +198,22 @@ public class AlertServiceImpl implements AlertService {
     protected String getDescription(Alert alertEntity, Event event) {
         StringBuilder result = new StringBuilder();
         result.append("[").append(alertEntity.getAlertType().getTitle()).append("] ");
-        AbstractEventProperty<?> description = event.getProperties().get(ALERT_DESCRIPTION);
-        if (description != null) {
-            result.append(description.getValue().toString());
-        }
+        result.append(getSafeString(event, ALERT_DESCRIPTION));
         long descriptionNumber = event.getProperties().keySet().stream()
                 .filter(key -> startsWithIgnoreCase(key, ALERT_DESCRIPTION))
                 .count();
         for (int i = 1; i < descriptionNumber; i++) {
-            result.append(event.getProperties().get(ALERT_DESCRIPTION + "_" + i).getValue().toString());
+            result.append(getSafeString(event, ALERT_DESCRIPTION + "_" + i));
         }
         return result.toString();
+    }
+
+    protected String getSafeString(Event event, String key) {
+        AbstractEventProperty<?> abstractEventProperty = event.getProperties().get(key);
+        if (abstractEventProperty == null) {
+            return EMPTY;
+        }
+        return abstractEventProperty.getValue().toString();
     }
 
     protected String getSubject(AlertType alertType, Event next) {

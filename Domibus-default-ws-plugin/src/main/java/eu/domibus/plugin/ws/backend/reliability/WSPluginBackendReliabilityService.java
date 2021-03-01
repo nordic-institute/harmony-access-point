@@ -14,6 +14,7 @@ import eu.domibus.plugin.ws.backend.reliability.strategy.WSPluginRetryStrategyPr
 import eu.domibus.plugin.ws.backend.rules.WSPluginDispatchRule;
 import eu.domibus.plugin.ws.exception.WSPluginException;
 import eu.domibus.plugin.ws.property.WSPluginPropertyManager;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.text.StringSubstitutor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -82,16 +83,18 @@ public class WSPluginBackendReliabilityService {
 
     protected void createEventForAlert(WSBackendMessageLogEntity backendMessage, WSPluginDispatchRule rule) {
 
-        boolean alertIsActive = wsPluginPropertyManager.getKnownBooleanPropertyValue(PUSH_ALERT_ACTIVE);
-        String alertLevel = wsPluginPropertyManager.getKnownPropertyValue(PUSH_ALERT_LEVEL);
-        String subject = wsPluginPropertyManager.getKnownPropertyValue(PUSH_ALERT_EMAIL_SUBJECT);
-        String body = wsPluginPropertyManager.getKnownPropertyValue(PUSH_ALERT_EMAIL_BODY);
-        pluginEventExtService.enqueueMessageEvent(AlertEventDTOBuilder.getInstance()
-                .alertLevelDTO(AlertLevelDTO.valueOf(alertLevel))
-                .active(alertIsActive)
-                .emailBody(getEmailBody(backendMessage, rule, body))
-                .emailSubject(subject)
-                .build());
+        boolean alertIsActive = BooleanUtils.isTrue(wsPluginPropertyManager.getKnownBooleanPropertyValue(PUSH_ALERT_ACTIVE));
+        LOG.debug("[WSPLUGIN] Alert is enabled: [{}]", alertIsActive);
+        if(alertIsActive) {
+            String alertLevel = wsPluginPropertyManager.getKnownPropertyValue(PUSH_ALERT_LEVEL);
+            String subject = wsPluginPropertyManager.getKnownPropertyValue(PUSH_ALERT_EMAIL_SUBJECT);
+            String body = wsPluginPropertyManager.getKnownPropertyValue(PUSH_ALERT_EMAIL_BODY);
+            pluginEventExtService.enqueueMessageEvent(AlertEventDTOBuilder.getInstance()
+                    .alertLevelDTO(AlertLevelDTO.valueOf(alertLevel))
+                    .emailBody(getEmailBody(backendMessage, rule, body))
+                    .emailSubject(subject)
+                    .build());
+        }
     }
 
     protected String getEmailBody(WSBackendMessageLogEntity backendMessage, WSPluginDispatchRule rule, String body) {
