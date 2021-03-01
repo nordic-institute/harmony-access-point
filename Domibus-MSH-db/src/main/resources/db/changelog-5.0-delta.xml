@@ -625,10 +625,28 @@
         </createIndex>
         <addUniqueConstraint columnNames="PART_INFO_ID_FK,PART_INFO_PROPERTY_FK" constraintName="UK_PART_PROPS_FKS" tableName="TB_PART_PROPERTIES"/>
     </changeSet>
-    <!-- -->
+    <!-- End new tables -->
 
-    <!-- Start renamed tables (split&join) -->
-    <changeSet  author="Catalin Enache"  id="EDELIVERY-7833">
+    <!-- Start Dropped tables -->
+    <changeSet author="Catalin Enache" id="EDELIVERY-7833-drop-tables">
+        <comment>drop tables</comment>
+
+        <dropAllForeignKeyConstraints baseTableName="TB_RECEIPT_DATA"/> <!-- we need this ? -->
+        <dropTable tableName="TB_RECEIPT_DATA"/>
+
+        <dropUniqueConstraint tableName="TB_MESSAGE_INFO" constraintName="UK_ECRRAOE83O1UQQ0DN9424X7LN"/> <!-- we need this ? -->
+        <dropTable tableName="TB_MESSAGE_INFO"/>
+
+        <dropAllForeignKeyConstraints baseTableName="TB_MESSAGING"/>
+        <dropTable tableName="TB_MESSAGING"/>
+
+        <dropAllForeignKeyConstraints baseTableName="TB_ERROR" /> <!-- we need this ? -->
+        <dropTable tableName="TB_ERROR"/>
+    </changeSet>
+    <!-- End Dropped tables -->
+
+    <!-- Start tables to be migrated -->
+    <changeSet author="Catalin Enache" id="EDELIVERY-7833-tb-sj-message">
         <!-- rename TB_MESSAGE_HEADER -->
         <renameTable oldTableName="TB_MESSAGE_HEADER" newTableName="TB_SJ_MESSAGE_HEADER" />
 
@@ -636,6 +654,20 @@
         <dropAllForeignKeyConstraints baseTableName="TB_MESSAGE_GROUP" />
         <dropIndex tableName="TB_MESSAGE_GROUP" indexName="FK_MG_MH" />
         <renameTable oldTableName="TB_MESSAGE_GROUP" newTableName="TB_SJ_MESSAGE_GROUP" />
+
+        <addColumn tableName="TB_SJ_MESSAGE_GROUP">
+            <column name="MSH_ROLE_ID_FK" remarks="The role of the MSH" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="SOURCE_MESSAGE_ID_FK" remarks="The SourceMessage id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <!-- TODO migration script here -->
+        <dropColumn tableName="TB_SJ_MESSAGE_GROUP" columnName="MSH_ROLE" />
+        <dropColumn tableName="TB_SJ_MESSAGE_GROUP" columnName="SOURCE_MESSAGE_ID" />
+        <dropColumn tableName="TB_SJ_MESSAGE_GROUP" columnName="FK_MESSAGE_HEADER_ID" />
+
         <createIndex indexName="IDX_SJ_MG_SM_ID_FK" tableName="TB_SJ_MESSAGE_GROUP">
             <column name="SOURCE_MESSAGE_ID_FK"/>
         </createIndex>
@@ -648,6 +680,15 @@
         <dropAllForeignKeyConstraints baseTableName="TB_MESSAGE_FRAGMENT" />
         <dropIndex tableName="TB_MESSAGE_FRAGMENT" indexName="IDX_MF_GRP_ID"/>
         <renameTable oldTableName="TB_MESSAGE_FRAGMENT" newTableName="TB_SJ_MESSAGE_FRAGMENT" />
+        <addColumn tableName="TB_SJ_MESSAGE_FRAGMENT">
+            <column name="GROUP_ID_FK" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <addNotNullConstraint tableName="TB_SJ_MESSAGE_FRAGMENT" columnName="FRAGMENT_NUMBER" columnDataType="INT"/>
+        <!-- TODO migration script here -->
+        <dropColumn tableName="TB_SJ_MESSAGE_FRAGMENT" columnName="GROUP_ID"/>
+
         <createIndex indexName="IDX_FK_SJ_MSG_FG_GROUP" tableName="TB_SJ_MESSAGE_FRAGMENT">
             <column name="GROUP_ID_FK"/>
         </createIndex>
@@ -675,27 +716,6 @@
         <!-- end rename TB_MESSAGE_FRAGMENT -->
     </changeSet>
 
-    <!-- End renamed tables -->
-
-    <!-- Start Dropped tables -->
-    <changeSet author="Catalin Enache" id="EDELIVERY-7833-drop-tables">
-        <comment>drop tables</comment>
-
-        <dropAllForeignKeyConstraints baseTableName="TB_RECEIPT_DATA"/> <!-- we need this ? -->
-        <dropTable tableName="TB_RECEIPT_DATA"/>
-
-        <dropUniqueConstraint tableName="TB_MESSAGE_INFO" constraintName="UK_ECRRAOE83O1UQQ0DN9424X7LN"/> <!-- we need this ? -->
-        <dropTable tableName="TB_MESSAGE_INFO"/>
-
-        <dropAllForeignKeyConstraints baseTableName="TB_MESSAGING"/>
-        <dropTable tableName="TB_MESSAGING"/>
-
-        <dropAllForeignKeyConstraints baseTableName="TB_ERROR" /> <!-- we need this ? -->
-        <dropTable tableName="TB_ERROR"/>
-    </changeSet>
-    <!-- End Dropped tables -->
-
-    <!-- Start tables to be migrated -->
     <changeSet author="Catalin Enache" id="EDELIVERY-7833-tb-message-log-migration">
         <!-- create TB_USER_MESSAGE_LOG -->
         <createTable tableName="TB_USER_MESSAGE_LOG">
