@@ -46,7 +46,7 @@ public class PluginEventServiceImpl implements PluginEventService {
         if (alertEvent.getAlertLevel() != null) {
             event.addStringKeyValue(AlertServiceImpl.ALERT_LEVEL, alertEvent.getAlertLevel().name());
         }
-        event.addStringKeyValue(AlertServiceImpl.ALERT_ACTIVE, BooleanUtils.toStringTrueFalse(alertEvent.isActive()));
+        event.addStringKeyValue(AlertServiceImpl.ALERT_ACTIVE, BooleanUtils.toStringTrueFalse(true));
         if (StringUtils.isNotBlank(alertEvent.getName())) {
             event.addStringKeyValue(AlertServiceImpl.ALERT_NAME, alertEvent.getName());
         }

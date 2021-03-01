@@ -35,7 +35,7 @@ public interface DomibusPropertyManagerExt extends DomibusPropertyMetadataManage
      * @param propertyName the property name whose value is requested
      * @return the current property value as Boolean
      */
-    default boolean getKnownBooleanPropertyValue(String propertyName) {
+    default Boolean getKnownBooleanPropertyValue(String propertyName) {
         return false;
     }
 

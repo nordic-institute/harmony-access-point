@@ -30,7 +30,6 @@ public class PluginEventServiceImplTest {
 
     public static final String ALERT_NAME = "AlertName";
     public static final String EMAIL_SUBJECT = "EmailSubject";
-    public static final String EMAIL_BODY = "EmailBody";
     public static final String EMAIL_BODY_300_LONG = "0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789" +
             "0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789" +
             "0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789";
@@ -79,9 +78,6 @@ public class PluginEventServiceImplTest {
 
             alertEvent.getEmailSubject();
             result = "EmailSubject";
-
-            alertEvent.isActive();
-            result = true;
         }};
 
         eventService.enqueueMessageEvent(alertEvent);

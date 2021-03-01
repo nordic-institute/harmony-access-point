@@ -308,7 +308,6 @@ public class WSPluginBackendReliabilityServiceTest {
             pluginEventExtService.enqueueMessageEvent(alertEventDTO = withCapture());
 
             Assert.assertEquals(AlertLevelDTO.LOW, alertEventDTO.getAlertLevelDTO());
-            Assert.assertEquals(IS_ACTIVE, alertEventDTO.isActive());
             Assert.assertEquals(BODY, alertEventDTO.getEmailBody());
             Assert.assertEquals(SUBJECT, alertEventDTO.getEmailSubject());
         }};
