@@ -146,7 +146,7 @@ public abstract class AbstractIT {
         try {
             FileUtils.forceDelete(new File("target/test-classes/work/transactions/log/tmlog.lck"));
         } catch (IOException exc) {
-            LOG.info("No tmlog.lck to delete");
+            LOG.trace("No tmlog.lck to delete");
         }
     }
 

@@ -1,6 +1,5 @@
 package eu.domibus;
 
-import com.atomikos.jdbc.AtomikosDataSourceBean;
 import com.atomikos.jdbc.nonxa.AtomikosNonXADataSourceBean;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.jpa.DomibusJPAConfiguration;
@@ -35,7 +34,14 @@ public class DomibusTestDatasourceConfiguration {
         dataSource.setUrl(h2DataSource.getUrl());
         dataSource.setPassword(h2DataSource.getPassword());
         dataSource.setUser(h2DataSource.getUser());
-        dataSource.setMaxPoolSize(100);
+
+        final Integer minPoolSize = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DATASOURCE_MIN_POOL_SIZE);
+        dataSource.setMinPoolSize(minPoolSize);
+        final Integer maxPoolSize = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DATASOURCE_MAX_POOL_SIZE);
+        dataSource.setMaxPoolSize(maxPoolSize);
+        final Integer maxLifetime = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DATASOURCE_MAX_LIFETIME);
+        dataSource.setMaxLifetime(maxLifetime);
+
         return dataSource;
     }
 

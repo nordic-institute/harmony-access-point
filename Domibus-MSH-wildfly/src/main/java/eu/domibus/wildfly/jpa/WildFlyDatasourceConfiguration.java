@@ -20,17 +20,6 @@ public class WildFlyDatasourceConfiguration {
 
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(WildFlyDatasourceConfiguration.class);
 
-//    @Bean(DomibusJPAConfiguration.DOMIBUS_JDBC_XA_DATA_SOURCE)
-//    public JndiObjectFactoryBean xaDatasource(DomibusPropertyProvider domibusPropertyProvider) {
-//        JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
-//        jndiObjectFactoryBean.setExpectedType(DataSource.class);
-//        String jndiName = domibusPropertyProvider.getProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_JDBC_DATASOURCE_JNDI_NAME);
-//
-//        LOGGER.debug("Configured property [{}] with [{}]", DomibusPropertyMetadataManagerSPI.DOMIBUS_JDBC_DATASOURCE_JNDI_NAME, jndiName);
-//        jndiObjectFactoryBean.setJndiName(jndiName);
-//        return jndiObjectFactoryBean;
-//    }
-
     @Bean(DomibusJPAConfiguration.DOMIBUS_JDBC_NON_XA_DATA_SOURCE)
     public JndiObjectFactoryBean quartzDatasource(DomibusPropertyProvider domibusPropertyProvider) {
         JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
