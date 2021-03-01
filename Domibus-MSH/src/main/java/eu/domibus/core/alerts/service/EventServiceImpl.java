@@ -62,7 +62,7 @@ public class EventServiceImpl implements EventService {
 
     private static final String EVENT_ADDED_TO_THE_QUEUE = "Event:[{}] added to the queue";
 
-    private static final int MAX_DESCRIPTION_LENGTH = 255;
+    public static final int MAX_DESCRIPTION_LENGTH = 255;
 
     public static final String EVENT_IDENTIFIER = "EVENT_IDENTIFIER";
 
@@ -209,10 +209,10 @@ public class EventServiceImpl implements EventService {
                     .collect(Collectors.joining(" "));
             
             if (StringUtils.isNotBlank(errors)) {
-                event.addStringKeyValue(DESCRIPTION.name(), StringUtils.truncate(errors.toString(), MAX_DESCRIPTION_LENGTH));
+                event.addStringKeyValue(DESCRIPTION.name(), StringUtils.truncate(errors, MAX_DESCRIPTION_LENGTH));
             }
 
-            String receiverPartyName = null;
+            String receiverPartyName;
             if (mpcService.forcePullOnMpc(userMessage.getMpc())) {
                 LOG.debug("Find UserMessage exchange context (pull context)");
                 userMessageExchangeContext = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, true);

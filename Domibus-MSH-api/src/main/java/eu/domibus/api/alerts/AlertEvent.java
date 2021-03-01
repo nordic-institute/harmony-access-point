@@ -11,7 +11,6 @@ import java.util.Map;
 public class AlertEvent {
     private AlertLevel alertLevel;
     private String name;
-    private boolean active;
     private String emailSubject;
     private String emailBody;
     private Map<String, String> properties = new HashMap<>(); //NOSONAR
@@ -30,14 +29,6 @@ public class AlertEvent {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public boolean isActive() {
-        return active;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
     }
 
     public String getEmailSubject() {

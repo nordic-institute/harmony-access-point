@@ -16,6 +16,7 @@ import javax.jms.Queue;
 import java.util.Map;
 
 import static eu.domibus.common.JMSConstants.ALERT_MESSAGE_QUEUE;
+import static eu.domibus.core.alerts.service.EventServiceImpl.MAX_DESCRIPTION_LENGTH;
 
 /**
  * {@inheritDoc}
@@ -42,22 +43,33 @@ public class PluginEventServiceImpl implements PluginEventService {
         for (Map.Entry<String, String> stringStringEntry : alertEvent.getProperties().entrySet()) {
             event.addStringKeyValue(stringStringEntry.getKey(), stringStringEntry.getValue());
         }
-        if(alertEvent.getAlertLevel() != null) {
+        if (alertEvent.getAlertLevel() != null) {
             event.addStringKeyValue(AlertServiceImpl.ALERT_LEVEL, alertEvent.getAlertLevel().name());
         }
-        event.addStringKeyValue(AlertServiceImpl.ALERT_ACTIVE, BooleanUtils.toStringTrueFalse(alertEvent.isActive()));
-        if(StringUtils.isNotBlank(alertEvent.getName())) {
+        event.addStringKeyValue(AlertServiceImpl.ALERT_ACTIVE, BooleanUtils.toStringTrueFalse(true));
+        if (StringUtils.isNotBlank(alertEvent.getName())) {
             event.addStringKeyValue(AlertServiceImpl.ALERT_NAME, alertEvent.getName());
         }
-        if(StringUtils.isNotBlank(alertEvent.getEmailSubject())){
+        if (StringUtils.isNotBlank(alertEvent.getEmailSubject())) {
             event.addStringKeyValue(AlertServiceImpl.ALERT_SUBJECT, alertEvent.getEmailSubject());
         }
-        if(StringUtils.isNotBlank(alertEvent.getEmailBody())) {
-            event.addStringKeyValue(AlertServiceImpl.ALERT_DESCRIPTION, alertEvent.getEmailBody());
+        if (StringUtils.isNotBlank(alertEvent.getEmailBody())) {
+            addDescription(alertEvent, event);
         }
 
         jmsManager.convertAndSendToQueue(event, alertMessageQueue, EventType.PLUGIN.getQueueSelector());
         LOG.debug(PLUGIN_EVENT_ADDED_TO_THE_QUEUE, event);
     }
 
+    private void addDescription(AlertEvent alertEvent, Event event) {
+        event.addStringKeyValue(AlertServiceImpl.ALERT_DESCRIPTION, StringUtils.truncate(alertEvent.getEmailBody(), MAX_DESCRIPTION_LENGTH));
+        if (alertEvent.getEmailBody().length() > MAX_DESCRIPTION_LENGTH) {
+            String description = alertEvent.getEmailBody();
+            for (int increment = 1; increment * MAX_DESCRIPTION_LENGTH < description.length(); increment++) {
+                int start = increment * MAX_DESCRIPTION_LENGTH;
+                int end = start + MAX_DESCRIPTION_LENGTH;
+                event.addStringKeyValue(AlertServiceImpl.ALERT_DESCRIPTION + "_" + increment, description.substring(start, Math.min(description.length(), end)));
+            }
+        }
+    }
 }

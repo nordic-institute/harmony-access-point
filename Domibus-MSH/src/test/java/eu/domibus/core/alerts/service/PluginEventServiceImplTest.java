@@ -10,6 +10,7 @@ import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,7 +30,9 @@ public class PluginEventServiceImplTest {
 
     public static final String ALERT_NAME = "AlertName";
     public static final String EMAIL_SUBJECT = "EmailSubject";
-    public static final String EMAIL_BODY = "EmailBody";
+    public static final String EMAIL_BODY_300_LONG = "0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789" +
+            "0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789" +
+            "0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789";
     @Tested
     private PluginEventServiceImpl eventService;
 
@@ -68,16 +71,13 @@ public class PluginEventServiceImplTest {
             result = AlertLevel.MEDIUM;
 
             alertEvent.getEmailBody();
-            result = "EmailBody";
+            result = EMAIL_BODY_300_LONG;
 
             alertEvent.getName();
             result = "AlertName";
 
             alertEvent.getEmailSubject();
             result = "EmailSubject";
-
-            alertEvent.isActive();
-            result = true;
         }};
 
         eventService.enqueueMessageEvent(alertEvent);
@@ -91,7 +91,8 @@ public class PluginEventServiceImplTest {
             Assert.assertEquals(ALERT_NAME, event.getProperties().get(AlertServiceImpl.ALERT_NAME).toString());
             Assert.assertEquals(Boolean.TRUE.toString(), event.getProperties().get(AlertServiceImpl.ALERT_ACTIVE).toString());
             Assert.assertEquals(EMAIL_SUBJECT, event.getProperties().get(AlertServiceImpl.ALERT_SUBJECT).toString());
-            Assert.assertEquals(EMAIL_BODY, event.getProperties().get(AlertServiceImpl.ALERT_DESCRIPTION).toString());
+            Assert.assertEquals(StringUtils.substring(EMAIL_BODY_300_LONG, 0, 255), event.getProperties().get(AlertServiceImpl.ALERT_DESCRIPTION).toString());
+            Assert.assertEquals(StringUtils.substring(EMAIL_BODY_300_LONG, 255), event.getProperties().get(AlertServiceImpl.ALERT_DESCRIPTION + "_1").toString());
         }};
     }
 }
