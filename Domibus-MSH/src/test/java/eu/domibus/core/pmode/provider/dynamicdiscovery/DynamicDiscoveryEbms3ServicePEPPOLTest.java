@@ -13,10 +13,13 @@ import mockit.integration.junit4.JMockit;
 import no.difi.vefa.peppol.common.lang.PeppolParsingException;
 import no.difi.vefa.peppol.common.model.*;
 import no.difi.vefa.peppol.lookup.LookupClient;
+import no.difi.vefa.peppol.lookup.locator.BusdoxLocator;
 import no.difi.vefa.peppol.mode.Mode;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.ObjectProvider;
 
 import java.net.URI;
 import java.security.cert.X509Certificate;
@@ -27,7 +30,11 @@ import static eu.domibus.core.certificate.CertificateTestUtils.loadCertificateFr
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-
+/**
+ * @author Ioana DRAGUSANU
+ * @author Sebastian-Ion TINCU
+ * @since 3.2.5
+ */
 @RunWith(JMockit.class)
 public class DynamicDiscoveryEbms3ServicePEPPOLTest {
 
@@ -53,30 +60,74 @@ public class DynamicDiscoveryEbms3ServicePEPPOLTest {
     private static final String ADDRESS = "http://localhost:9090/anonymous/msh";
 
     @Injectable
-    protected DomainContextProvider domainProvider;
+    private DomainContextProvider domainProvider;
 
     @Injectable
     private MultiDomainCryptoService multiDomainCertificateProvider;
 
     @Injectable
-    DomibusPropertyProvider domibusPropertyProvider;
+    private DomibusPropertyProvider domibusPropertyProvider;
 
     @Injectable
     private CertificateService certificateService;
 
     @Injectable
-    ProxyUtil proxyUtil;
+    private ProxyUtil proxyUtil;
 
     @Injectable
-    DomibusConfigurationService domibusConfigurationService;
+    private DomibusConfigurationService domibusConfigurationService;
+
+    @Injectable
+    private DomibusHttpRoutePlanner domibusHttpRoutePlanner;
+
+    @Injectable
+    private ObjectProvider<DomibusCertificateValidator> domibusCertificateValidators;
+
+    @Injectable
+    private ObjectProvider<BusdoxLocator> busdoxLocators;
+
+    @Injectable
+    private ObjectProvider<DomibusApacheFetcher> domibusApacheFetchers;
+
+    @Injectable
+    private ObjectProvider<EndpointInfo> endpointInfos;
+
+    @Injectable
+    private DomibusCertificateValidator domibusCertificateValidator;
+
+    @Injectable
+    private BusdoxLocator busdoxLocator;
+
+    @Injectable
+    private DomibusApacheFetcher domibusApacheFetcher;
+
+    @Injectable
+    private EndpointInfo endpointInfo;
 
     @Tested
     private DynamicDiscoveryServicePEPPOL dynamicDiscoveryServicePEPPOL;
 
     private String transportProfileAS4;
 
+    @Before
+    public void setup() {
+        new NonStrictExpectations() {{
+            domibusCertificateValidators.getObject(any, any, anyString);
+            result = domibusCertificateValidator;
+
+            busdoxLocators.getObject(anyString);
+            result = busdoxLocator;
+
+            domibusApacheFetchers.getObject(any, proxyUtil, domibusHttpRoutePlanner);
+            result = domibusApacheFetcher;
+
+            endpointInfos.getObject(anyString, any);
+            result = endpointInfo;
+        }};
+    }
+
     @Test
-    public void testLookupInformationMock(final @Capturing LookupClient smpClient) throws Exception {
+    public void testLookupInformationMock(@Capturing LookupClient smpClient) throws Exception {
         new NonStrictExpectations() {{
             domibusPropertyProvider.getProperty(DynamicDiscoveryService.SMLZONE_KEY);
             result = TEST_SML_ZONE;
@@ -91,6 +142,9 @@ public class DynamicDiscoveryEbms3ServicePEPPOLTest {
 
             domibusPropertyProvider.getProperty(DynamicDiscoveryService.DYNAMIC_DISCOVERY_TRANSPORTPROFILEAS4);
             result = transportProfileAS4;
+
+            endpointInfo.getAddress();
+            result = ADDRESS;
         }};
 
         EndpointInfo endpoint = dynamicDiscoveryServicePEPPOL.lookupInformation(DOMAIN, TEST_RECEIVER_ID, TEST_RECEIVER_ID_TYPE, TEST_ACTION_VALUE, TEST_SERVICE_VALUE, TEST_SERVICE_TYPE);
@@ -118,6 +172,9 @@ public class DynamicDiscoveryEbms3ServicePEPPOLTest {
 
             domibusPropertyProvider.getProperty(DynamicDiscoveryService.DYNAMIC_DISCOVERY_TRANSPORTPROFILEAS4);
             result = transportProfileAS4;
+
+            endpointInfo.getAddress();
+            result = ADDRESS;
         }};
 
         EndpointInfo endpoint = dynamicDiscoveryServicePEPPOL.lookupInformation(DOMAIN, TEST_RECEIVER_ID, TEST_RECEIVER_ID_TYPE, TEST_ACTION_VALUE, TEST_SERVICE_VALUE, TEST_SERVICE_TYPE);
