@@ -1,3 +1,10 @@
+Domibus 4.2.1 (from 4.2):
+                Grant access to your user to create stored procedures:
+                    - Open a command line session and log in (edelivery_user and password are the ones assigned during the Oracle installation):
+                        $ sqlplus sys as sysdba
+                    - Once logged in Oracle execute:
+                        GRANT CREATE PROCEDURE TO <edelivery_user>
+                    - Run the appropriate DB migration script(mysql-4.2-to-4.2.1-migration.ddl for MySQL or oracle-4.2-to-4.2.1-migration.ddl for Oracle)
 Domibus 4.2 (from 4.1.7):
                 Domibus 4.2 supports newer version of application servers and databases. Support for Oracle OpenJDK 11 has been also introduced on top of Oracle JDK 8 which was already supported.
                   It is mandatory to update to one of the below supported servers and databases.
