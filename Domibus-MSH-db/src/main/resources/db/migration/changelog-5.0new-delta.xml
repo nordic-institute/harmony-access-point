@@ -283,6 +283,8 @@
         <dropAllForeignKeyConstraints baseTableName="TB_RECEIPT_DATA"/> <!-- we need this ? -->
         <dropTable tableName="TB_RECEIPT_DATA"/>
 
+        <dropForeignKeyConstraint baseTableName="TB_USER_MESSAGE" constraintName="FK_BE4XC1069QYW2KLHVM3XMG26S" />
+        <dropForeignKeyConstraint baseTableName="TB_SIGNAL_MESSAGE" constraintName="FK_C08LJJWI4P9DX1RJTCDBE1SFU"/>
         <dropUniqueConstraint tableName="TB_MESSAGE_INFO" constraintName="UK_ECRRAOE83O1UQQ0DN9424X7LN"/> <!-- we need this ? -->
         <dropTable tableName="TB_MESSAGE_INFO"/>
 
@@ -479,6 +481,35 @@
 
         <!-- drop TB_MESSAGE_LOG -->
         <dropTable tableName="TB_MESSAGE_LOG"/>
+    </changeSet>
+
+    <changeSet author="Catalin Enache" id="EDELIVERY-7833-tb-error-log-migration">
+        <sql dbms="oracle">
+            ALTER TABLE TB_ERROR_LOG RENAME CONSTRAINT PK_TB_ERROR_LOG TO PK_ERROR_LOG;
+        </sql>
+        <addColumn tableName="TB_ERROR_LOG">
+            <column name="MSH_ROLE_ID_FK" type="BIGINT"/>
+            <column name="USER_MESSAGE_ID_FK" type="BIGINT"/>
+        </addColumn>
+
+        <!-- TODO add migration script here -->
+
+        <dropColumn tableName="TB_ERROR_LOG" columnName="MSH_ROLE" />
+
+        <addForeignKeyConstraint baseColumnNames="MSH_ROLE_ID_FK" baseTableName="TB_ERROR_LOG"
+                                 constraintName="FK_ERROR_LOG_MSH_ROLE" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_MSH_ROLE"/>
+        <addForeignKeyConstraint baseColumnNames="USER_MESSAGE_ID_FK" baseTableName="TB_ERROR_LOG"
+                                 constraintName="FK_ERROR_LOG_MSG_ID" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_USER_MESSAGE"/>
+        <createIndex indexName="IDX_ERROR_LOG_MSH_ROLE_ID" tableName="TB_ERROR_LOG">
+            <column name="MSH_ROLE_ID_FK"/>
+        </createIndex>
+        <createIndex indexName="IDX_ERROR_LOG_MSG_ID" tableName="TB_ERROR_LOG">
+            <column name="USER_MESSAGE_ID_FK"/>
+        </createIndex>
     </changeSet>
 
     <changeSet author="Catalin Enache" id="EDELIVERY-7833-tb-party-id-migration">
