@@ -7,6 +7,7 @@ import mockit.Injectable;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -52,6 +53,7 @@ public class StorageTest {
     }
 
     @Test
+    @Ignore
     public void testWrongPayloadFolder(@Injectable Domain domain) throws Exception {
         Path tempPath = Paths.get("src", "test", "resources");
         new Expectations(storage) {{
