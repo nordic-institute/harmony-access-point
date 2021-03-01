@@ -437,7 +437,7 @@ public class PropertiesPgTest extends SeleniumTest {
 		page.wait.forXMillis(1000);
 		page.grid().getPagination().goToNextPage();
 
-		String value = page.propGrid().getPropertyValue(info.get("Property Name"));
+		String value = rest.properties().getDomibusPropertyDetail(info.get("Property Name"), null).getString("value");
 		log.info("getting value after refresh: " + value);
 
 		soft.assertEquals(value, info.get("Property Value"), "Set value was not saved");
@@ -569,6 +569,8 @@ public class PropertiesPgTest extends SeleniumTest {
 		grid.waitForRowsToLoad();
 
 		grid.setPropertyValue("domibus.file.upload.maxSize", "100");
+
+		soft.assertFalse(page.getAlertArea().isError(), "Success message is shown");
 
 		ClientResponse response = null;
 		try {
@@ -822,9 +824,9 @@ public class PropertiesPgTest extends SeleniumTest {
 		String oldPropVal = modifyProperty("domibus.passwordPolicy.pattern", true, "[0-9].{8,32}");
 
 		try {
-			rest.users().changePassForUser(null, username, "654987654987");
+			rest.users().changePassForUser(null, username, Gen.randomNumberOfLen(10));
 		} catch (Exception e) {
-			soft.assertTrue(false, "Updating pass to only numbers failed");
+			soft.assertTrue(false, "Updating pass to only numbers failed for user");
 		}
 
 		rest.properties().updateDomibusProperty("domibus.passwordPolicy.pattern", oldPropVal, null);
@@ -836,11 +838,11 @@ public class PropertiesPgTest extends SeleniumTest {
 			modifyProperty("domibus.passwordPolicy.pattern", false, "[0-9].{8,32}");
 
 			try {
-				rest.users().changePassForUser(null, superUsername, "654987654987");
+				rest.users().changePassForUser(null, superUsername, Gen.randomNumberOfLen(10));
 			} catch (Exception e) {
-				soft.assertTrue(false, "Updating pass to only numbers failed");
+				soft.assertTrue(false, "Updating pass to only numbers failed for super");
 			}
-			rest.properties().updateDomibusProperty("domibus.passwordPolicy.pattern", oldPropVal);
+			rest.properties().updateGlobalProperty("domibus.passwordPolicy.pattern", oldPropVal);
 		}
 
 
