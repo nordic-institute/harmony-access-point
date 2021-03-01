@@ -2,7 +2,7 @@ package eu.domibus.core.crypto.spi.dss;
 
 import eu.domibus.ext.services.DomibusPropertyExtService;
 import eu.europa.esig.dss.spi.x509.KeyStoreCertificateSource;
-import eu.europa.esig.dss.tsl.OtherTrustedList;
+import eu.europa.esig.dss.tsl.source.TLSource;
 import mockit.Expectations;
 import mockit.Mocked;
 import mockit.integration.junit4.JMockit;
@@ -44,10 +44,10 @@ public class CustomTrustedListPropertyMapperTest {
             domibusPropertyExtService.getNestedProperties(CUSTOM_TRUSTED_LISTS_PREFIX);
             result = customListSuffixes;
 
-            domibusPropertyExtService.getNestedProperties(CUSTOM_TRUSTED_LISTS_PREFIX + "."+list1);
+            domibusPropertyExtService.getNestedProperties(CUSTOM_TRUSTED_LISTS_PREFIX + "." + list1);
             result = customTrustedListProperties;
 
-            domibusPropertyExtService.getNestedProperties(CUSTOM_TRUSTED_LISTS_PREFIX + "."+list2);
+            domibusPropertyExtService.getNestedProperties(CUSTOM_TRUSTED_LISTS_PREFIX + "." + list2);
             result = customTrustedListProperties;
 
             domibusPropertyExtService.getProperty(DSS_CUSTOM_TRUSTED_LIST_KEYSTORE_TYPE);
@@ -75,14 +75,14 @@ public class CustomTrustedListPropertyMapperTest {
             customTrustedListPropertyMapper.initKeyStoreCertificateSource(keystorePath, keystoreType, keystorePasswd);
             this.result = keyStoreCertificateSource;
         }};
-        List<OtherTrustedList> otherTrustedLists = customTrustedListPropertyMapper.map();
+        List<TLSource> otherTrustedLists = customTrustedListPropertyMapper.map();
         Assert.assertEquals(2, otherTrustedLists.size());
-        OtherTrustedList otherTrustedList = otherTrustedLists.get(0);
+        TLSource otherTrustedList = otherTrustedLists.get(0);
         Assert.assertEquals(customList1Url, otherTrustedList.getUrl());
-        Assert.assertEquals(customList1Code, otherTrustedList.getCountryCode());
+        //Assert.assertEquals(customList1Code, otherTrustedList.getCountryCode());
 
         otherTrustedList = otherTrustedLists.get(1);
         Assert.assertEquals(customList2Url, otherTrustedList.getUrl());
-        Assert.assertEquals(customList2Code, otherTrustedList.getCountryCode());
+        //Assert.assertEquals(customList2Code, otherTrustedList.getCountryCode());
     }
 }

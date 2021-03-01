@@ -7,14 +7,33 @@ import eu.domibus.core.crypto.spi.dss.listeners.TriggerChangeListener;
 import eu.domibus.ext.services.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.europa.esig.dss.alert.ExceptionOnStatusAlert;
 import eu.europa.esig.dss.service.crl.OnlineCRLSource;
-import eu.europa.esig.dss.spi.client.http.DataLoader;
+import eu.europa.esig.dss.service.http.commons.CommonsDataLoader;
+import eu.europa.esig.dss.service.http.commons.FileCacheDataLoader;
+import eu.europa.esig.dss.service.ocsp.OnlineOCSPSource;
+import eu.europa.esig.dss.spi.client.http.DSSFileLoader;
+import eu.europa.esig.dss.spi.client.http.IgnoreDataLoader;
 import eu.europa.esig.dss.spi.tsl.TrustedListsCertificateSource;
+import eu.europa.esig.dss.spi.x509.CertificateSource;
 import eu.europa.esig.dss.spi.x509.KeyStoreCertificateSource;
-import eu.europa.esig.dss.tsl.OtherTrustedList;
-import eu.europa.esig.dss.tsl.service.DomibusTSLRepository;
-import eu.europa.esig.dss.tsl.service.DomibusTSLValidationJob;
-import eu.europa.esig.dss.tsl.service.TSLRepository;
+
+import eu.europa.esig.dss.tsl.alerts.LOTLAlert;
+import eu.europa.esig.dss.tsl.alerts.TLAlert;
+import eu.europa.esig.dss.tsl.alerts.detections.LOTLLocationChangeDetection;
+import eu.europa.esig.dss.tsl.alerts.detections.OJUrlChangeDetection;
+import eu.europa.esig.dss.tsl.alerts.detections.TLExpirationDetection;
+import eu.europa.esig.dss.tsl.alerts.detections.TLSignatureErrorDetection;
+import eu.europa.esig.dss.tsl.alerts.handlers.log.LogLOTLLocationChangeAlertHandler;
+import eu.europa.esig.dss.tsl.alerts.handlers.log.LogOJUrlChangeAlertHandler;
+import eu.europa.esig.dss.tsl.alerts.handlers.log.LogTLExpirationAlertHandler;
+import eu.europa.esig.dss.tsl.alerts.handlers.log.LogTLSignatureErrorAlertHandler;
+import eu.europa.esig.dss.tsl.cache.CacheCleaner;
+import eu.europa.esig.dss.tsl.function.OfficialJournalSchemeInformationURI;
+import eu.europa.esig.dss.tsl.job.TLValidationJob;
+import eu.europa.esig.dss.tsl.source.LOTLSource;
+import eu.europa.esig.dss.tsl.source.TLSource;
+import eu.europa.esig.dss.tsl.sync.AcceptAllStrategy;
 import eu.europa.esig.dss.validation.CertificateVerifier;
 import eu.europa.esig.dss.validation.CommonCertificateVerifier;
 import org.apache.commons.lang3.StringUtils;
@@ -36,17 +55,17 @@ import org.springframework.scheduling.quartz.JobDetailFactoryBean;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
+
+import static java.util.Arrays.*;
 
 
 /**
@@ -65,6 +84,8 @@ public class DssConfiguration {
     private static final String DOMIBUS_AUTHENTICATION_DSS_ENABLE_CUSTOM_TRUSTED_LIST_FOR_MULTITENANT = "domibus.authentication.dss.enable.custom.trusted.list.for.multitenant";
 
     private final static String CACERT_PATH = "/lib/security/cacerts";
+
+    private TrustedListsCertificateSource tslCertificateSource;
 
     @Value("${domibus.authentication.dss.official.journal.content.keystore.type}")
     private String keystoreType;
@@ -117,6 +138,9 @@ public class DssConfiguration {
     @Autowired
     protected ObjectProvider<CertificateVerifier> certificateVerifierObjectProvider;
 
+    @Autowired
+    private ServerInfoExtService serverInfoExtService;
+
     @Bean
     public TrustedListsCertificateSource trustedListSource() {
         return new TrustedListsCertificateSource();
@@ -127,28 +151,6 @@ public class DssConfiguration {
         return new IgnorePivotFilenameFilter();
     }
 
-    @Bean
-    public DomibusTSLRepository tslRepository(TrustedListsCertificateSource trustedListSource,
-                                              @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") ServerInfoExtService serverInfoExtService,
-                                              IgnorePivotFilenameFilter ignorePivotFilenameFilter) {
-        LOG.debug("Dss trusted list cache path:[{}]", dssCachePath);
-        String nodeName = serverInfoExtService.getNodeName();
-        String serverCacheDirectoryName = getCacheDirectoryName(dssCachePath, nodeName);
-        Path dssPerNodePath = Paths.get(serverCacheDirectoryName);
-        if (!dssPerNodePath.toFile().exists()) {
-            try {
-                LOG.debug("Cache directory does not exists, creating path:[{}]", dssCachePath);
-                Files.createDirectories(dssPerNodePath);
-            } catch (IOException e) {
-                LOG.error("Error create dss cache path:[{}], impossible to configure DSS correctly", dssPerNodePath.toAbsolutePath(), e);
-            }
-        }
-        DomibusTSLRepository tslRepository = new DomibusTSLRepository(ignorePivotFilenameFilter);
-        tslRepository.setTrustedListsCertificateSource(trustedListSource);
-        LOG.debug("Dss configure with cache path:[{}] for server:[{}]", serverCacheDirectoryName, nodeName);
-        tslRepository.setCacheDirectoryPath(serverCacheDirectoryName);
-        return tslRepository;
-    }
 
     private String getCacheDirectoryName(String dssCachePath, String nodeName) {
         return dssCachePath + File.separator + nodeName + File.separator;
@@ -169,8 +171,17 @@ public class DssConfiguration {
         if (crlCheck) {
             crlSource = new OnlineCRLSource(dataLoader);
         }
-        CommonCertificateVerifier certificateVerifier = new CommonCertificateVerifier(trustedListSource(), crlSource, null, dataLoader);
-        certificateVerifier.setExceptionOnMissingRevocationData(enableExceptionOnMissingRevocationData);
+
+        OnlineOCSPSource onlineOCSPSource = new OnlineOCSPSource();
+        onlineOCSPSource.setDataLoader(dataLoader);
+        CommonCertificateVerifier certificateVerifier = new CommonCertificateVerifier();
+        certificateVerifier.setCrlSource(crlSource);
+        certificateVerifier.setOcspSource(onlineOCSPSource);
+        certificateVerifier.setDataLoader(dataLoader);
+        certificateVerifier.setTrustedCertSources(trustedListSource());
+
+        // Default configs
+        certificateVerifier.setAlertOnMissingRevocationData(new ExceptionOnStatusAlert());
         certificateVerifier.setCheckRevocationForUntrustedChains(checkRevocationForUntrustedChain);
         LOG.debug("Instanciating new certificate verifier:[{}], enableExceptionOnMissingRevocationData:[{}], checkRevocationForUntrustedChain:[{}]", certificateVerifier, enableExceptionOnMissingRevocationData, checkRevocationForUntrustedChain);
         return certificateVerifier;
@@ -273,41 +284,18 @@ public class DssConfiguration {
     }
 
     @Bean
-    public DomibusTSLValidationJob tslValidationJob(
-            DataLoader dataLoader,
-            DomibusTSLRepository tslRepository,
-            KeyStoreCertificateSource ojContentKeyStore,
-            DssExtensionPropertyManager dssExtensionPropertyManager,
-            CertificateVerifierService certificateVerifierService) {
-        String currentLotlUrl = dssExtensionPropertyManager.getKnownPropertyValue(DssExtensionPropertyManager.AUTHENTICATION_DSS_CURRENT_LOTL_URL);
-        String currentOjUrl = dssExtensionPropertyManager.getKnownPropertyValue(DssExtensionPropertyManager.AUTHENTICATION_DSS_CURRENT_OFFICIAL_JOURNAL_URL);
-        String lotlCountryCode = dssExtensionPropertyManager.getKnownPropertyValue(DssExtensionPropertyManager.AUTHENTICATION_DSS_LOTL_COUNTRY_CODE);
-        LOG.info("Configuring DSS lotl with url:[{}],schema uri:[{}],country code:[{}],oj url:[{}]", currentLotlUrl, lotlSchemeUri, lotlCountryCode, currentOjUrl);
-        DomibusTSLValidationJob validationJob = new DomibusTSLValidationJob(certificateVerifierService, otherTrustedListObjectProvider);
-        validationJob.setDataLoader(dataLoader);
-        validationJob.setRepository(tslRepository);
-        validationJob.setLotlUrl(currentLotlUrl);
-        validationJob.setLotlCode(lotlCountryCode);
-        validationJob.setOjUrl(currentOjUrl);
-        validationJob.setOjContentKeyStore(ojContentKeyStore);
-        validationJob.setCheckLOTLSignature(true);
-        validationJob.setCheckTSLSignatures(true);
-        return validationJob;
+    public DssRefreshCommand dssRefreshCommand(TLValidationJob job, DssExtensionPropertyManager dssExtensionPropertyManager,File cacheDirectory) {
+        return new DssRefreshCommand(job, dssExtensionPropertyManager,cacheDirectory);
     }
 
-    @Bean
-    public DssRefreshCommand dssRefreshCommand(DomibusTSLValidationJob domibusTSLValidationJob, DssExtensionPropertyManager dssExtensionPropertyManager) {
-        return new DssRefreshCommand(domibusTSLValidationJob, dssExtensionPropertyManager);
-    }
-
-    @Bean
+   @Bean
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public CustomTrustedLists otherTrustedLists() {
-        final List<OtherTrustedList> otherTrustedLists = new CustomTrustedListPropertyMapper(domibusPropertyExtService).map();
+        final List<TLSource> otherTrustedLists = new CustomTrustedListPropertyMapper(domibusPropertyExtService).map();
         CustomTrustedLists customTrustedLists = checkMultiTenancy(otherTrustedLists);
         if (customTrustedLists != null) return customTrustedLists;
-        for (OtherTrustedList otherTrustedList : otherTrustedLists) {
-            LOG.info("Custom trusted list configured with url:[{}], code:[{}]", otherTrustedList.getUrl(), otherTrustedList.getCountryCode());
+        for (TLSource otherTrustedList : otherTrustedLists) {
+            LOG.info("Custom trusted list configured with url:[{}]", otherTrustedList.getUrl());
         }
         if (otherTrustedLists.isEmpty()) {
             LOG.info("No custom trusted list configured.");
@@ -316,7 +304,7 @@ public class DssConfiguration {
     }
 
 
-    private CustomTrustedLists checkMultiTenancy(List<OtherTrustedList> otherTrustedLists) {
+    private CustomTrustedLists checkMultiTenancy(List<TLSource> otherTrustedLists) {
         final boolean multiTenant = domibusConfigurationExtService.isMultiTenantAware();
         if (multiTenant && !otherTrustedLists.isEmpty()) {
             if (enableDssCustomTrustedListForMultiTenant) {
@@ -363,7 +351,6 @@ public class DssConfiguration {
     @Bean
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public DomibusDssCryptoSpi domibusDssCryptoProvider(final DomainCryptoServiceSpi defaultDomainCryptoService,
-                                                        final TSLRepository tslRepository,
                                                         final ValidationReport validationReport,
                                                         final ValidationConstraintPropertyMapper constraintMapper,
                                                         final CertificateVerifierService certificateVerifierService,
@@ -373,7 +360,6 @@ public class DssConfiguration {
         WSSConfig.init();
         return new DomibusDssCryptoSpi(
                 defaultDomainCryptoService,
-                tslRepository,
                 validationReport,
                 constraintMapper,
                 pkiExtService,
@@ -414,6 +400,109 @@ public class DssConfiguration {
     public TriggerChangeListener triggerChangeListener(@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") DomibusSchedulerExtService domibusSchedulerExtService) {
         return new TriggerChangeListener(domibusSchedulerExtService);
     }
+
+    @Bean
+    public TLValidationJob job(LOTLSource europeanLOTL,DomibusDataLoader dataLoader) {
+        TLValidationJob job = new TLValidationJob();
+        job.setOnlineDataLoader(onlineLoader(dataLoader));
+        job.setOfflineDataLoader(offlineLoader());
+        job.setTrustedListCertificateSource(new TrustedListsCertificateSource());
+        job.setSynchronizationStrategy(new AcceptAllStrategy());
+        job.setCacheCleaner(cacheCleaner());
+
+        job.setListOfTrustedListSources(europeanLOTL);
+        job.setTrustedListSources(otherTrustedLists().getOtherTrustedLists().toArray(new TLSource[0]));
+        job.setLOTLAlerts(asList(ojUrlAlert(europeanLOTL), lotlLocationAlert(europeanLOTL)));
+        job.setTLAlerts(asList(tlSigningAlert(), tlExpirationDetection()));
+        return job;
+    }
+
+    public TLAlert tlSigningAlert() {
+        TLSignatureErrorDetection signingDetection = new TLSignatureErrorDetection();
+        LogTLSignatureErrorAlertHandler handler = new LogTLSignatureErrorAlertHandler();
+        return new TLAlert(signingDetection, handler);
+    }
+
+    public TLAlert tlExpirationDetection() {
+        TLExpirationDetection expirationDetection = new TLExpirationDetection();
+        LogTLExpirationAlertHandler handler = new LogTLExpirationAlertHandler();
+        return new TLAlert(expirationDetection, handler);
+    }
+
+    public LOTLAlert ojUrlAlert(LOTLSource source) {
+        OJUrlChangeDetection ojUrlDetection = new OJUrlChangeDetection(source);
+        LogOJUrlChangeAlertHandler handler = new LogOJUrlChangeAlertHandler();
+        return new LOTLAlert(ojUrlDetection, handler);
+    }
+
+    public LOTLAlert lotlLocationAlert(LOTLSource source) {
+        LOTLLocationChangeDetection lotlLocationDetection = new LOTLLocationChangeDetection(source);
+        LogLOTLLocationChangeAlertHandler handler = new LogLOTLLocationChangeAlertHandler();
+        return new LOTLAlert(lotlLocationDetection, handler);
+    }
+
+    private DSSFileLoader onlineLoader(DomibusDataLoader dataLoader) {
+        FileCacheDataLoader onlineFileLoader = new FileCacheDataLoader();
+        onlineFileLoader.setCacheExpirationTime(0);
+        onlineFileLoader.setDataLoader(dataLoader);
+        onlineFileLoader.setFileCacheDirectory(cacheDirectory());
+        return onlineFileLoader;
+    }
+
+    private DSSFileLoader offlineLoader() {
+        FileCacheDataLoader offlineFileLoader = new FileCacheDataLoader();
+        offlineFileLoader.setCacheExpirationTime(Long.MAX_VALUE);
+        offlineFileLoader.setDataLoader(new IgnoreDataLoader()); // do not download from Internet
+        offlineFileLoader.setFileCacheDirectory(cacheDirectory());
+        return offlineFileLoader;
+    }
+
+    @Bean
+    public CacheCleaner cacheCleaner() {
+        CacheCleaner cacheCleaner = new CacheCleaner();
+        cacheCleaner.setCleanMemory(true);
+        cacheCleaner.setCleanFileSystem(true);
+        cacheCleaner.setDSSFileLoader(offlineLoader());
+        return cacheCleaner;
+    }
+
+    @Bean
+    public LOTLSource europeanLOTL(CertificateSource officialJournalContentKeyStore, DssExtensionPropertyManager dssExtensionPropertyManager) {
+        String currentLotlUrl = dssExtensionPropertyManager.getKnownPropertyValue(DssExtensionPropertyManager.AUTHENTICATION_DSS_CURRENT_LOTL_URL);
+        String currentOjUrl = dssExtensionPropertyManager.getKnownPropertyValue(DssExtensionPropertyManager.AUTHENTICATION_DSS_CURRENT_OFFICIAL_JOURNAL_URL);
+        LOTLSource lotlSource = new LOTLSource();
+        lotlSource.setUrl(currentLotlUrl);
+        lotlSource.setCertificateSource(officialJournalContentKeyStore);
+        lotlSource.setSigningCertificatesAnnouncementPredicate(new OfficialJournalSchemeInformationURI(currentOjUrl));
+        lotlSource.setPivotSupport(true);
+        return lotlSource;
+    }
+
+    @Bean
+    public CertificateSource officialJournalContentKeyStore() throws IOException {
+        LOG.debug("Initializing DSS trust list trustStore with type:[{}], path:[{}]", keystoreType, keystorePath);
+        return new KeyStoreCertificateSource(new File(keystorePath), keystoreType, keystorePassword);
+    }
+
+    private FileCacheDataLoader getDSSFileLoader() {
+        FileCacheDataLoader fileLoader = new FileCacheDataLoader();
+        fileLoader.setCacheExpirationTime(0);
+        fileLoader.setFileCacheDirectory(cacheDirectory());
+        return fileLoader;
+    }
+
+
+    public TrustedListsCertificateSource getCertificateSources() {
+        return tslCertificateSource;
+    }
+
+    @Bean
+    public File cacheDirectory() {
+        String nodeName = serverInfoExtService.getNodeName();
+        return new File(dssCachePath + File.separator + nodeName + File.separator);
+    }
+
+
 
 
 }

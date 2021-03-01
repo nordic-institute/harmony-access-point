@@ -4,18 +4,14 @@ import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.CommandExtService;
 import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomainExtService;
-import eu.europa.esig.dss.tsl.service.DomibusTSLValidationJob;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.HashMap;
-
-import static org.junit.Assert.*;
 
 /**
  * @author Thomas Dussart

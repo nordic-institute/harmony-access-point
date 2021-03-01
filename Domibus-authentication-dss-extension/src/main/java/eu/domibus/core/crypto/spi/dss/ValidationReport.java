@@ -44,14 +44,14 @@ public class ValidationReport {
         LOG.debug("Simple report:[{}]", certificateReports.getXmlSimpleReport());
         LOG.debug("Diagnostic data:[{}]", certificateReports.getXmlDiagnosticData());
         XmlDetailedReport detailedReport = certificateReports.getDetailedReportJaxb();
-        if (constraints == null || constraints.isEmpty()) {
+       /* if (constraints == null || constraints.isEmpty()) {
             throw new IllegalStateException("A minimum set of constraints should be set.");
         }
         //Load constraint from certificate element and prepare the all constraint list..
         final List<XmlConstraint> allConstraints = new ArrayList<>();
         if (detailedReport.getCertificate() != null) {
             allConstraints.addAll(detailedReport
-                    .getCertificate()
+                    //.getCertificate()
                     .getConstraint()
                     .stream()
                     .peek(xmlConstraint -> LOG.debug("CertificateQualification section:Constraint name:[{}] status:[{}]",xmlConstraint.getName().getNameId(),xmlConstraint.getStatus()))
@@ -114,7 +114,7 @@ public class ValidationReport {
             if (!constraintsWithWrongStatus.isEmpty()) {
                 return constraintsWithWrongStatus;
             }
-        }
+        }*/
         return Collections.emptyList();
     }
 

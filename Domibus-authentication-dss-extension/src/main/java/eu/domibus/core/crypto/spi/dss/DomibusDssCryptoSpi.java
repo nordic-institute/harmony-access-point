@@ -6,10 +6,8 @@ import eu.domibus.ext.services.PkiExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.europa.esig.dss.model.x509.CertificateToken;
-import eu.europa.esig.dss.spi.tsl.TLInfo;
 import eu.europa.esig.dss.spi.x509.CertificateSource;
 import eu.europa.esig.dss.spi.x509.CommonCertificateSource;
-import eu.europa.esig.dss.tsl.service.TSLRepository;
 import eu.europa.esig.dss.validation.CertificateValidator;
 import eu.europa.esig.dss.validation.CertificateVerifier;
 import eu.europa.esig.dss.validation.reports.CertificateReports;
@@ -35,8 +33,6 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
 
     private static final String CERTPATH = "certpath";
 
-    private TSLRepository tslRepository;
-
     private ValidationReport validationReport;
 
     private ValidationConstraintPropertyMapper constraintMapper;
@@ -49,7 +45,6 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
 
     public DomibusDssCryptoSpi(
             final DomainCryptoServiceSpi defaultDomainCryptoService,
-            final TSLRepository tslRepository,
             final ValidationReport validationReport,
             final ValidationConstraintPropertyMapper constraintMapper,
             final PkiExtService pkiExtService,
@@ -57,7 +52,6 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
             CertificateVerifierService certificateVerifierService) {
         super(defaultDomainCryptoService);
         this.certificateVerifierService = certificateVerifierService;
-        this.tslRepository = tslRepository;
         this.validationReport = validationReport;
         this.constraintMapper = constraintMapper;
         this.pkiExtService = pkiExtService;
@@ -67,8 +61,6 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
 
     @Override
     public void verifyTrust(X509Certificate[] certs, boolean enableRevocation, Collection<Pattern> subjectCertConstraints, Collection<Pattern> issuerCertConstraints) throws WSSecurityException {
-        //display some trusted list information.
-        logDebugTslInfo();
         //should receive at least one certificates.
         if (ArrayUtils.isEmpty(certs)) {
             throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, CERTPATH, new Object[]{"Certificate chain expected with a minimum size of 1 but is empty"});
@@ -93,7 +85,7 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
             //add signing certificate to DSS.
             final CertificateVerifier certificateVerifier = certificateVerifierService.getCertificateVerifier();
             CertificateSource adjunctCertSource = prepareCertificateSource(certs, leafCertificate);
-            certificateVerifier.setAdjunctCertSource(adjunctCertSource);
+            certificateVerifier.setAdjunctCertSources(adjunctCertSource);
             LOG.debug("Leaf certificate:[{}] to be validated by dss", leafCertificate.getSubjectDN().getName());
             //add leaf certificate to DSS
             CertificateValidator certificateValidator = prepareCertificateValidator(leafCertificate, certificateVerifier);
@@ -150,15 +142,6 @@ public class DomibusDssCryptoSpi extends AbstractCryptoServiceSpi {
             throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, CERTPATH, new Object[]{"Invalid leaf certificate"});
         }
         return (X509Certificate) certificate;
-    }
-
-    protected void logDebugTslInfo() {
-        if (LOG.isDebugEnabled()) {
-            final Map<String, TLInfo> summary = tslRepository.getSummary();
-            for (Map.Entry<String, TLInfo> stringTLInfoEntry : summary.entrySet()) {
-                LOG.debug("Key:[{}], info:[{}]", stringTLInfoEntry.getKey(), stringTLInfoEntry.getValue());
-            }
-        }
     }
 
 

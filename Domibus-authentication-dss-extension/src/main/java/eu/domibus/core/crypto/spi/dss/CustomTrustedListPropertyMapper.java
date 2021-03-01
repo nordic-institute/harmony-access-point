@@ -4,7 +4,7 @@ import eu.domibus.ext.services.DomibusPropertyExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.europa.esig.dss.spi.x509.KeyStoreCertificateSource;
-import eu.europa.esig.dss.tsl.OtherTrustedList;
+import eu.europa.esig.dss.tsl.source.TLSource;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -16,43 +16,39 @@ import static eu.domibus.core.crypto.spi.dss.DssExtensionPropertyManager.*;
 
 /**
  * @author Thomas Dussart
+ * @see TLSource
  * @since 4.1
- *
+ * <p>
  * Load multiple OtherTrustedList objects based on Domibus nested property mechanism.
- * @see eu.europa.esig.dss.tsl.OtherTrustedList
  */
 @Component
-public class CustomTrustedListPropertyMapper extends PropertyGroupMapper<OtherTrustedList> {
+public class CustomTrustedListPropertyMapper extends PropertyGroupMapper<TLSource> {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CustomTrustedListPropertyMapper.class);
 
     private static final String URL = "url";
 
-    private static final String CODE = "code";
-
     public CustomTrustedListPropertyMapper(final DomibusPropertyExtService domibusPropertyExtService) {
         super(domibusPropertyExtService);
     }
 
-    public List<OtherTrustedList> map() {
+    public List<TLSource> map() {
         return super.map(
                 CUSTOM_TRUSTED_LISTS_PREFIX
         );
     }
 
     @Override
-    OtherTrustedList transform(Map<String, String> keyValues) {
-        OtherTrustedList otherTrustedList = new OtherTrustedList();
+    TLSource transform(Map<String, String> keyValues) {
+        TLSource otherTrustedList = new TLSource();
         String customListKeystorePath = domibusPropertyExtService.getProperty(DSS_CUSTOM_TRUSTED_LIST_KEYSTORE_PATH);
         String customListKeystoreType = domibusPropertyExtService.getProperty(DSS_CUSTOM_TRUSTED_LIST_KEYSTORE_TYPE);
         String customListKeystorePassword = domibusPropertyExtService.getProperty(DSS_CUSTOM_TRUSTED_LIST_KEYSTORE_PASSWORD);
         String customListUrl = keyValues.get(URL);
-        String customListCountryCode = keyValues.get(CODE);
         try {
-            otherTrustedList.setTrustStore(initKeyStoreCertificateSource(customListKeystorePath,customListKeystoreType,customListKeystorePassword));
             otherTrustedList.setUrl(customListUrl);
-            otherTrustedList.setCountryCode(customListCountryCode);
-            LOG.debug("Custom trusted list with keystore path:[{}] and type:[{}], URL:[{}], customListCountryCode:[{}] will be added to DSS", customListKeystorePath, customListKeystoreType, customListUrl, customListCountryCode);
+            otherTrustedList.setCertificateSource(new KeyStoreCertificateSource(new File(customListKeystorePath), customListKeystoreType, customListKeystorePassword));
+            LOG.debug("Custom trusted list with keystore path:[{}] and type:[{}], URL:[{}]will be added to DSS", customListKeystorePath, customListKeystoreType, customListUrl);
             return otherTrustedList;
         } catch (IOException e) {
             LOG.error("Error while configuring custom trusted list with keystore path:[{}],type:[{}] ", customListKeystorePath, customListKeystoreType, e);
@@ -60,7 +56,7 @@ public class CustomTrustedListPropertyMapper extends PropertyGroupMapper<OtherTr
         }
     }
 
-    protected KeyStoreCertificateSource initKeyStoreCertificateSource(String customListKeystorePath,String customListKeystoreType,String customListKeystorePassword) throws IOException {
+    protected KeyStoreCertificateSource initKeyStoreCertificateSource(String customListKeystorePath, String customListKeystoreType, String customListKeystorePassword) throws IOException {
         return new KeyStoreCertificateSource(new File(customListKeystorePath), customListKeystoreType, customListKeystorePassword);
     }
 }
