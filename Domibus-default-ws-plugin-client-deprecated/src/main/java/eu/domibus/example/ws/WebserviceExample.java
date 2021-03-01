@@ -1,6 +1,5 @@
 package eu.domibus.example.ws;
 
-import com.sun.xml.ws.developer.JAXWSProperties;
 import eu.domibus.example.ws.logging.MessageLoggingHandler;
 import eu.domibus.plugin.webService.generated.BackendInterface;
 import eu.domibus.plugin.webService.generated.BackendService11;
@@ -66,7 +65,7 @@ public class WebserviceExample {
         }
 
         Map<String, Object> ctxt = bindingProvider.getRequestContext();
-        ctxt.put(JAXWSProperties.HTTP_CLIENT_STREAMING_CHUNK_SIZE, 8192);
+        ctxt.put("com.sun.xml.ws.transport.http.client.streaming.chunk.size", 8192);
         //enable MTOM
         SOAPBinding binding = (SOAPBinding)bindingProvider.getBinding();
         binding.setMTOMEnabled(true);
