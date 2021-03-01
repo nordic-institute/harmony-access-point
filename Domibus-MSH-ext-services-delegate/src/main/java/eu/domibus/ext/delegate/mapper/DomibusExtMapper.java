@@ -22,7 +22,7 @@ import org.mapstruct.Mapping;
  * @author Ioana Dragusanu (idragusa), azhikso
  * @since 4.1
  */
-@Mapper(uses = MonitoringMapper.class, componentModel = "spring")
+@Mapper(uses = {MonitoringMapper.class, AlertMapper.class}, componentModel = "spring")
 @DecoratedWith(DomibusExtMapperDecorator.class)
 public interface DomibusExtMapper {
 

@@ -1,5 +1,6 @@
 package eu.domibus.core.alerts.service;
 
+import eu.domibus.api.alerts.AlertLevel;
 import eu.domibus.core.alerts.model.common.AlertCriteria;
 import eu.domibus.core.alerts.model.service.Alert;
 import eu.domibus.core.alerts.model.service.Event;
@@ -20,6 +21,14 @@ public interface AlertService {
      * @return the created alert.
      */
     Alert createAlertOnEvent(Event event);
+
+    /***
+     * Decides whether or not an alert should be created based on an event from a plugin.
+     * @param event the event.
+     * @return the created alert with {@link eu.domibus.core.alerts.model.common.AlertType#PLUGIN}
+     * and {@link AlertLevel#MEDIUM}
+     */
+    void createAndEnqueueAlertOnPluginEvent(Event event);
 
     /**
      * Add alert to the alert/event monitoring queue.

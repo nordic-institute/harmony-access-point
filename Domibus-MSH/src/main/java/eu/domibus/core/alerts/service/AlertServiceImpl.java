@@ -1,25 +1,28 @@
 package eu.domibus.core.alerts.service;
 
+import eu.domibus.api.alerts.AlertLevel;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.server.ServerInfoService;
 import eu.domibus.api.util.DateUtil;
+import eu.domibus.common.JMSConstants;
 import eu.domibus.core.alerts.configuration.AlertModuleConfiguration;
 import eu.domibus.core.alerts.configuration.common.CommonConfigurationManager;
 import eu.domibus.core.alerts.dao.AlertDao;
 import eu.domibus.core.alerts.dao.EventDao;
 import eu.domibus.core.alerts.model.common.AlertCriteria;
-import eu.domibus.core.alerts.model.common.AlertLevel;
 import eu.domibus.core.alerts.model.common.AlertType;
+import eu.domibus.core.alerts.model.persist.AbstractEventProperty;
 import eu.domibus.core.alerts.model.persist.Alert;
 import eu.domibus.core.alerts.model.persist.Event;
 import eu.domibus.core.alerts.model.service.DefaultMailModel;
 import eu.domibus.core.alerts.model.service.MailModel;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -33,6 +36,8 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ALERT_RETRY_TIME;
 import static eu.domibus.core.alerts.model.common.AlertStatus.*;
 import static eu.domibus.core.alerts.service.AlertConfigurationServiceImpl.DOMIBUS_ALERT_SUPER_INSTANCE_NAME_SUBJECT;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
+import static org.apache.commons.lang3.StringUtils.startsWithIgnoreCase;
 
 /**
  * @author Thomas Dussart
@@ -44,44 +49,60 @@ public class AlertServiceImpl implements AlertService {
     private static final Logger LOG = DomibusLoggerFactory.getLogger(AlertServiceImpl.class);
 
     static final String ALERT_LEVEL = "ALERT_LEVEL";
+    static final String ALERT_SUBJECT = "ALERT_SUBJECT";
+    static final String ALERT_ACTIVE = "ALERT_ACTIVE";
+    static final String ALERT_NAME = "ALERT_NAME";
 
     static final String REPORTING_TIME = "REPORTING_TIME";
 
-    /** server name on which Domibus is running */
+    /**
+     * server name on which Domibus is running
+     */
     static final String SERVER_NAME = "SERVER_NAME";
 
     public static final String DESCRIPTION = "DESCRIPTION";
 
     static final String ALERT_SELECTOR = "alert";
+    public static final String ALERT_DESCRIPTION = "ALERT_DESCRIPTION";
+    public static final String NOT_AVAILABLE = "na";
 
-    @Autowired
-    private EventDao eventDao;
+    private final EventDao eventDao;
 
-    @Autowired
-    private AlertDao alertDao;
+    private final AlertDao alertDao;
 
-    @Autowired
-    private DomibusPropertyProvider domibusPropertyProvider;
+    private final DomibusPropertyProvider domibusPropertyProvider;
 
-    @Autowired
-    private DomibusCoreMapper coreMapper;
+    private final DomibusCoreMapper coreMapper;
 
-    @Autowired
-    private JMSManager jmsManager;
+    private final JMSManager jmsManager;
 
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
-    @Autowired
-    @Qualifier("alertMessageQueue")
-    private Queue alertMessageQueue;
+    private final Queue alertMessageQueue;
 
-    @Autowired
-    private AlertConfigurationService alertConfigurationService;
+    private final AlertConfigurationService alertConfigurationService;
 
-    @Autowired
-    private ServerInfoService serverInfoService;
+    private final ServerInfoService serverInfoService;
 
-    @Autowired
-    private CommonConfigurationManager alertConfigurationManager;
+    private final CommonConfigurationManager alertConfigurationManager;
+
+    public AlertServiceImpl(EventDao eventDao,
+                            AlertDao alertDao,
+                            DomibusPropertyProvider domibusPropertyProvider,
+                            DomibusCoreMapper coreMapper, JMSManager jmsManager,
+                            @Qualifier(JMSConstants.ALERT_MESSAGE_QUEUE) Queue alertMessageQueue,
+                            AlertConfigurationService alertConfigurationService,
+                            ServerInfoService serverInfoService,
+                            CommonConfigurationManager alertConfigurationManager) {
+        this.eventDao = eventDao;
+        this.alertDao = alertDao;
+        this.domibusPropertyProvider = domibusPropertyProvider;
+        this.coreMapper = coreMapper;
+        this.jmsManager = jmsManager;
+        this.alertMessageQueue = alertMessageQueue;
+        this.alertConfigurationService = alertConfigurationService;
+        this.serverInfoService = serverInfoService;
+        this.alertConfigurationManager = alertConfigurationManager;
+    }
 
     /**
      * {@inheritDoc}
@@ -89,15 +110,17 @@ public class AlertServiceImpl implements AlertService {
     @Override
     @Transactional
     public eu.domibus.core.alerts.model.service.Alert createAlertOnEvent(eu.domibus.core.alerts.model.service.Event event) {
-        final Event eventEntity = readEvent(event);
-        final AlertType alertType = AlertType.getByEventType(event.getType());
+        AlertModuleConfiguration moduleConfiguration = alertConfigurationService.getModuleConfiguration(AlertType.getByEventType(event.getType()));
+        return createAlert(event, moduleConfiguration.getAlertLevel(event), moduleConfiguration.isActive());
+    }
 
-        final AlertModuleConfiguration config = alertConfigurationService.getModuleConfiguration(alertType);
-        if (!config.isActive()) {
+    private eu.domibus.core.alerts.model.service.Alert createAlert(eu.domibus.core.alerts.model.service.Event event, AlertLevel alertLevel, boolean active) {
+        final Event eventEntity = readEvent(event);
+        AlertType alertType = AlertType.getByEventType(event.getType());
+        if (!active) {
             LOG.debug("Alerts of type [{}] are currently disabled", alertType);
             return null;
         }
-        final AlertLevel alertLevel = config.getAlertLevel(event);
         if (alertLevel == null) {
             LOG.debug("Alert of type [{}] currently disabled for this event: [{}]", alertType, event);
             return null;
@@ -114,6 +137,25 @@ public class AlertServiceImpl implements AlertService {
         alertDao.create(alert);
         LOG.info("New alert saved: [{}]", alert);
         return coreMapper.alertPersistToAlertService(alert);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Transactional
+    public void createAndEnqueueAlertOnPluginEvent(eu.domibus.core.alerts.model.service.Event event) {
+
+        AlertLevel alertLevel = event.findOptionalProperty(ALERT_LEVEL)
+                .map(AlertLevel::valueOf)
+                .orElse(null);
+        String alertName = event.findOptionalProperty(ALERT_NAME)
+                .orElse(null);
+        boolean active = BooleanUtils.toBoolean(event.findOptionalProperty(ALERT_ACTIVE).orElse(null));
+
+        eu.domibus.core.alerts.model.service.Alert alert = createAlert(event, alertLevel, active);
+        LOG.debug("Alert [{}] created and queued", alertName);
+        enqueueAlert(alert);
     }
 
     /**
@@ -141,19 +183,53 @@ public class AlertServiceImpl implements AlertService {
         next.getProperties().forEach((key, value) -> mailModel.put(key, StringEscapeUtils.escapeHtml4(value.getValue().toString())));
         mailModel.put(ALERT_LEVEL, alertEntity.getAlertLevel().name());
         mailModel.put(REPORTING_TIME, DateUtil.DEFAULT_FORMATTER.withZone(ZoneId.systemDefault()).format(alertEntity.getReportingTime().toInstant()));
-        mailModel.put(DESCRIPTION, alertEntity.getAlertType().getTitle());
+        mailModel.put(DESCRIPTION, getDescription(alertEntity, next));
         mailModel.put(SERVER_NAME, serverInfoService.getServerName());
+
         if (LOG.isDebugEnabled()) {
             mailModel.forEach((key, value) -> LOG.debug("Mail template key[{}] value[{}]", key, value));
         }
         final AlertType alertType = alertEntity.getAlertType();
-        String subject = alertConfigurationService.getMailSubject(alertType);
+        String subject = getSubject(alertType, next);
+        final String template = alertType.getTemplate();
+        return new DefaultMailModel<>(mailModel, template, subject);
+    }
+
+    protected String getDescription(Alert alertEntity, Event event) {
+        StringBuilder result = new StringBuilder();
+        result.append("[").append(alertEntity.getAlertType().getTitle()).append("] ");
+        result.append(getSafeString(event, ALERT_DESCRIPTION));
+        long descriptionNumber = event.getProperties().keySet().stream()
+                .filter(key -> startsWithIgnoreCase(key, ALERT_DESCRIPTION))
+                .count();
+        for (int i = 1; i < descriptionNumber; i++) {
+            result.append(getSafeString(event, ALERT_DESCRIPTION + "_" + i));
+        }
+        return result.toString();
+    }
+
+    protected String getSafeString(Event event, String key) {
+        AbstractEventProperty<?> abstractEventProperty = event.getProperties().get(key);
+        if (abstractEventProperty == null) {
+            return EMPTY;
+        }
+        return abstractEventProperty.getValue().toString();
+    }
+
+    protected String getSubject(AlertType alertType, Event next) {
+        String subject = null;
+        AbstractEventProperty<?> alertSubject = next.getProperties().get(ALERT_SUBJECT);
+        if (alertSubject != null) {
+            subject = alertSubject.getValue().toString();
+        }
+        if (StringUtils.isBlank(subject)) {
+            subject = alertConfigurationService.getMailSubject(alertType);
+        }
 
         //always set at super level
         final String serverName = domibusPropertyProvider.getProperty(DOMIBUS_ALERT_SUPER_INSTANCE_NAME_SUBJECT);
         subject += "[" + serverName + "]";
-        final String template = alertType.getTemplate();
-        return new DefaultMailModel<>(mailModel, template, subject);
+        return subject;
     }
 
     /**
@@ -292,7 +368,7 @@ public class AlertServiceImpl implements AlertService {
         return alertDao.read(alert.getEntityId());
     }
 
-    private void deleteAlert(Alert alert) {
+    protected void deleteAlert(Alert alert) {
         LOG.debug("Deleting alert by first detaching it from its events: [{}]", alert);
         alert.getEvents().forEach(event -> event.removeAlert(alert));
         alertDao.delete(alert);

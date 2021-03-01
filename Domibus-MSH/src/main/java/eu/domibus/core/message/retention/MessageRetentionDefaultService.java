@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
+import static eu.domibus.common.JMSConstants.RETENTION_MESSAGE_QUEUE;
 import static eu.domibus.messaging.MessageConstants.*;
 
 /**
@@ -61,7 +62,7 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
     private JMSManager jmsManager;
 
     @Autowired
-    @Qualifier("retentionMessageQueue")
+    @Qualifier(RETENTION_MESSAGE_QUEUE)
     private Queue retentionMessageQueue;
 
     @Autowired

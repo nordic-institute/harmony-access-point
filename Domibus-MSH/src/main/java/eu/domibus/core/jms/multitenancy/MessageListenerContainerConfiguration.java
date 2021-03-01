@@ -3,7 +3,6 @@ package eu.domibus.core.jms.multitenancy;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.common.JMSConstants;
 import eu.domibus.core.ebms3.sender.MessageSenderListener;
 import eu.domibus.core.message.pull.PullMessageSender;
 import eu.domibus.core.message.pull.PullReceiptListener;
@@ -31,6 +30,7 @@ import javax.jms.Queue;
 import java.util.Optional;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
+import static eu.domibus.common.JMSConstants.*;
 
 /**
  * @author Ion Perpegel
@@ -52,27 +52,27 @@ public class MessageListenerContainerConfiguration {
     public static final String PULL_MESSAGE_CONTAINER = "pullMessageContainer";
 
     @Autowired
-    @Qualifier("sendMessageQueue")
+    @Qualifier(SEND_MESSAGE_QUEUE)
     private Queue sendMessageQueue;
 
     @Autowired
-    @Qualifier("sendPullReceiptQueue")
+    @Qualifier(SEND_PULL_RECEIPT_QUEUE)
     private Queue sendPullReceiptQueue;
 
     @Autowired
-    @Qualifier("pullMessageQueue")
+    @Qualifier(PULL_MESSAGE_QUEUE)
     private Queue pullMessageQueue;
 
     @Autowired
-    @Qualifier("sendLargeMessageQueue")
+    @Qualifier(SEND_LARGE_MESSAGE_QUEUE)
     private Queue sendLargeMessageQueue;
 
     @Autowired
-    @Qualifier("splitAndJoinQueue")
+    @Qualifier(SPLIT_AND_JOIN_QUEUE)
     private Queue splitAndJoinQueue;
 
     @Autowired
-    @Qualifier("retentionMessageQueue")
+    @Qualifier(RETENTION_MESSAGE_QUEUE)
     private Queue retentionMessageQueue;
 
     @Autowired
@@ -94,7 +94,7 @@ public class MessageListenerContainerConfiguration {
     PullMessageSender pullMessageListener;
 
     @Autowired
-    @Qualifier(JMSConstants.DOMIBUS_JMS_CONNECTION_FACTORY)
+    @Qualifier(DOMIBUS_JMS_CONNECTION_FACTORY)
     private ConnectionFactory connectionFactory;
 
     @Autowired

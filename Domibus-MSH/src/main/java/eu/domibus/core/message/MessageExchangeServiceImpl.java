@@ -51,6 +51,7 @@ import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RECEIVER_CERTIFICATE_VALIDATION_ONSENDING;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONSENDING;
+import static eu.domibus.common.JMSConstants.PULL_MESSAGE_QUEUE;
 import static eu.domibus.core.message.pull.PullContext.MPC;
 import static eu.domibus.core.message.pull.PullContext.PMODE_KEY;
 
@@ -72,7 +73,7 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
 
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     @Autowired
-    @Qualifier("pullMessageQueue")
+    @Qualifier(PULL_MESSAGE_QUEUE)
     private Queue pullMessageQueue;
 
     @Autowired

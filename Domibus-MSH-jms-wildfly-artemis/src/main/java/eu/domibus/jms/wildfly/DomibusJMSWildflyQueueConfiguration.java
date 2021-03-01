@@ -1,6 +1,5 @@
 package eu.domibus.jms.wildfly;
 
-import eu.domibus.common.JMSConstants;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.logging.DomibusLogger;
@@ -16,6 +15,8 @@ import javax.jms.ConnectionFactory;
 import javax.jms.Queue;
 import javax.jms.Topic;
 
+import static eu.domibus.common.JMSConstants.*;
+
 /**
  * @author Cosmin Baciu
  * @since 4.2
@@ -25,8 +26,8 @@ public class DomibusJMSWildflyQueueConfiguration {
 
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DomibusJMSWildflyQueueConfiguration.class);
 
-    @Bean(JMSConstants.DOMIBUS_JMS_CACHING_CONNECTION_FACTORY)
-    public ConnectionFactory cachingConnectionFactory(@Qualifier(JMSConstants.DOMIBUS_JMS_CONNECTION_FACTORY) ConnectionFactory wildflyConnectionFactory,
+    @Bean(DOMIBUS_JMS_CACHING_CONNECTION_FACTORY)
+    public ConnectionFactory cachingConnectionFactory(@Qualifier(DOMIBUS_JMS_CONNECTION_FACTORY) ConnectionFactory wildflyConnectionFactory,
                                                DomibusPropertyProvider domibusPropertyProvider) {
         CachingConnectionFactory cachingConnectionFactory = new CachingConnectionFactory();
         Integer sessionCacheSize = domibusPropertyProvider.getIntegerProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_JMS_CONNECTION_FACTORY_SESSION_CACHE_SIZE);
@@ -38,7 +39,7 @@ public class DomibusJMSWildflyQueueConfiguration {
         return cachingConnectionFactory;
     }
 
-    @Bean(JMSConstants.DOMIBUS_JMS_CONNECTION_FACTORY)
+    @Bean(DOMIBUS_JMS_CONNECTION_FACTORY)
     public JndiObjectFactoryBean connectionFactory() {
         JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
         jndiObjectFactoryBean.setJndiName("jms/ConnectionFactory");
@@ -47,7 +48,7 @@ public class DomibusJMSWildflyQueueConfiguration {
         return jndiObjectFactoryBean;
     }
 
-    @Bean("sendMessageQueue")
+    @Bean(SEND_MESSAGE_QUEUE)
     public JndiObjectFactoryBean sendMessageQueue() {
         JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
         jndiObjectFactoryBean.setJndiName("jms/domibus.internal.dispatch.queue");
@@ -55,7 +56,7 @@ public class DomibusJMSWildflyQueueConfiguration {
         return jndiObjectFactoryBean;
     }
 
-    @Bean("sendLargeMessageQueue")
+    @Bean(SEND_LARGE_MESSAGE_QUEUE)
     public JndiObjectFactoryBean sendLargeMessageQueue() {
         JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
         jndiObjectFactoryBean.setJndiName("jms/domibus.internal.largeMessage.queue");
@@ -63,7 +64,7 @@ public class DomibusJMSWildflyQueueConfiguration {
         return jndiObjectFactoryBean;
     }
 
-    @Bean("splitAndJoinQueue")
+    @Bean(SPLIT_AND_JOIN_QUEUE)
     public JndiObjectFactoryBean splitAndJoinQueue() {
         JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
         jndiObjectFactoryBean.setJndiName("jms/domibus.internal.splitAndJoin.queue");
@@ -71,7 +72,7 @@ public class DomibusJMSWildflyQueueConfiguration {
         return jndiObjectFactoryBean;
     }
 
-    @Bean("pullMessageQueue")
+    @Bean(PULL_MESSAGE_QUEUE)
     public JndiObjectFactoryBean pullMessageQueue() {
         JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
         jndiObjectFactoryBean.setJndiName("jms/domibus.internal.pull.queue");
@@ -79,7 +80,7 @@ public class DomibusJMSWildflyQueueConfiguration {
         return jndiObjectFactoryBean;
     }
 
-    @Bean("sendPullReceiptQueue")
+    @Bean(SEND_PULL_RECEIPT_QUEUE)
     public JndiObjectFactoryBean sendPullReceiptQueue() {
         JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
         jndiObjectFactoryBean.setJndiName("jms/domibus.internal.pull.receipt.queue");
@@ -87,7 +88,7 @@ public class DomibusJMSWildflyQueueConfiguration {
         return jndiObjectFactoryBean;
     }
 
-    @Bean("retentionMessageQueue")
+    @Bean(RETENTION_MESSAGE_QUEUE)
     public JndiObjectFactoryBean retentionMessageQueue() {
         JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
         jndiObjectFactoryBean.setJndiName("jms/domibus.internal.retentionMessage.queue");
@@ -95,7 +96,7 @@ public class DomibusJMSWildflyQueueConfiguration {
         return jndiObjectFactoryBean;
     }
 
-    @Bean("alertMessageQueue")
+    @Bean(ALERT_MESSAGE_QUEUE)
     public JndiObjectFactoryBean alertMessageQueue() {
         JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
         jndiObjectFactoryBean.setJndiName("jms/domibus.internal.alert.queue");
@@ -103,7 +104,7 @@ public class DomibusJMSWildflyQueueConfiguration {
         return jndiObjectFactoryBean;
     }
 
-    @Bean("uiReplicationQueue")
+    @Bean(UI_REPLICATION_QUEUE)
     public JndiObjectFactoryBean uiReplicationQueue() {
         JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
         jndiObjectFactoryBean.setJndiName("jms/domibus.internal.ui.replication.queue");
@@ -111,7 +112,7 @@ public class DomibusJMSWildflyQueueConfiguration {
         return jndiObjectFactoryBean;
     }
 
-    @Bean("notifyBackendQueue")
+    @Bean(NOTIFY_BACKEND_QUEUE)
     public JndiObjectFactoryBean notifyBackendQueue() {
         JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
         jndiObjectFactoryBean.setJndiName("jms/domibus.internal.notification.queue");
@@ -119,7 +120,7 @@ public class DomibusJMSWildflyQueueConfiguration {
         return jndiObjectFactoryBean;
     }
 
-    @Bean("unknownReceiverQueue")
+    @Bean(UNKNOWN_RECEIVER_QUEUE)
     public JndiObjectFactoryBean unknownReceiverQueue() {
         JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
         jndiObjectFactoryBean.setJndiName("jms/domibus.internal.notification.unknown");
@@ -127,7 +128,7 @@ public class DomibusJMSWildflyQueueConfiguration {
         return jndiObjectFactoryBean;
     }
 
-    @Bean("clusterCommandTopic")
+    @Bean(CLUSTER_COMMAND_TOPIC)
     public JndiObjectFactoryBean clusterCommandTopic() {
         JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
         jndiObjectFactoryBean.setJndiName("jms/domibus.internal.command");
