@@ -617,7 +617,7 @@
         <createIndex indexName="IDX_MSG_LOG_NOTIF_STATUS_ID" tableName="TB_USER_MESSAGE_LOG">
             <column name="NOTIFICATION_STATUS_ID_FK"/>
         </createIndex>
-        <createIndex indexName="IDX_MESSAGE_LOG_RECEIVED" tableName="TB_USER_MESSAGE_LOG">
+        <createIndex indexName="IDX_USER_LOG_RECEIVED" tableName="TB_USER_MESSAGE_LOG">
             <column name="RECEIVED"/>
         </createIndex>
 

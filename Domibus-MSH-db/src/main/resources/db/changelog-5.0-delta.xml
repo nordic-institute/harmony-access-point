@@ -627,9 +627,8 @@
     </changeSet>
     <!-- -->
 
-    <!-- Start renamed tables -->
+    <!-- Start renamed tables (split&join) -->
     <changeSet  author="Catalin Enache"  id="EDELIVERY-7833">
-        <comment>rename tables</comment>
         <!-- rename TB_MESSAGE_HEADER -->
         <renameTable oldTableName="TB_MESSAGE_HEADER" newTableName="TB_SJ_MESSAGE_HEADER" />
 
@@ -637,18 +636,6 @@
         <dropAllForeignKeyConstraints baseTableName="TB_MESSAGE_GROUP" />
         <dropIndex tableName="TB_MESSAGE_GROUP" indexName="FK_MG_MH" />
         <renameTable oldTableName="TB_MESSAGE_GROUP" newTableName="TB_SJ_MESSAGE_GROUP" />
-        <addForeignKeyConstraint baseColumnNames="MSH_ROLE_ID_FK" baseTableName="TB_SJ_MESSAGE_GROUP"
-                                 constraintName="FK_MSG_FG_GROUP_MSH_ROLE" deferrable="false" initiallyDeferred="false"
-                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
-                                 referencedTableName="TB_D_MSH_ROLE"/>
-        <addForeignKeyConstraint baseColumnNames="SOURCE_MESSAGE_ID_FK" baseTableName="TB_SJ_MESSAGE_GROUP"
-                                 constraintName="FK_MSG_FG_GROUP_UM" deferrable="false" initiallyDeferred="false"
-                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
-                                 referencedTableName="TB_USER_MESSAGE"/>
-        <addForeignKeyConstraint baseColumnNames="ID_PK" baseTableName="TB_SJ_MESSAGE_GROUP"
-                                 constraintName="FK_MSG_FG_GROUP_MH" deferrable="false" initiallyDeferred="false"
-                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
-                                 referencedTableName="TB_SJ_MESSAGE_HEADER"/>
         <createIndex indexName="IDX_SJ_MG_SM_ID_FK" tableName="TB_SJ_MESSAGE_GROUP">
             <column name="SOURCE_MESSAGE_ID_FK"/>
         </createIndex>
@@ -661,6 +648,22 @@
         <dropAllForeignKeyConstraints baseTableName="TB_MESSAGE_FRAGMENT" />
         <dropIndex tableName="TB_MESSAGE_FRAGMENT" indexName="IDX_MF_GRP_ID"/>
         <renameTable oldTableName="TB_MESSAGE_FRAGMENT" newTableName="TB_SJ_MESSAGE_FRAGMENT" />
+        <createIndex indexName="IDX_FK_SJ_MSG_FG_GROUP" tableName="TB_SJ_MESSAGE_FRAGMENT">
+            <column name="GROUP_ID_FK"/>
+        </createIndex>
+        <!-- add FKs at the end -->
+        <addForeignKeyConstraint baseColumnNames="MSH_ROLE_ID_FK" baseTableName="TB_SJ_MESSAGE_GROUP"
+                                 constraintName="FK_MSG_FG_GROUP_MSH_ROLE" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_MSH_ROLE"/>
+        <addForeignKeyConstraint baseColumnNames="SOURCE_MESSAGE_ID_FK" baseTableName="TB_SJ_MESSAGE_GROUP"
+                                 constraintName="FK_MSG_FG_GROUP_UM" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_USER_MESSAGE"/>
+        <addForeignKeyConstraint baseColumnNames="ID_PK" baseTableName="TB_SJ_MESSAGE_GROUP"
+                                 constraintName="FK_MSG_FG_GROUP_MH" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_SJ_MESSAGE_HEADER"/>
         <addForeignKeyConstraint baseColumnNames="GROUP_ID_FK" baseTableName="TB_SJ_MESSAGE_FRAGMENT"
                                  constraintName="FK_SJ_MSG_FG_GROUP" deferrable="false" initiallyDeferred="false"
                                  onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
@@ -669,9 +672,6 @@
                                  constraintName="FK_SJ_MSG_FG_USER_MSG" deferrable="false" initiallyDeferred="false"
                                  onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
                                  referencedTableName="TB_USER_MESSAGE"/>
-        <createIndex indexName="IDX_FK_SJ_MSG_FG_GROUP" tableName="TB_SJ_MESSAGE_FRAGMENT">
-            <column name="GROUP_ID_FK"/>
-        </createIndex>
         <!-- end rename TB_MESSAGE_FRAGMENT -->
     </changeSet>
 
@@ -757,7 +757,7 @@
         <createIndex indexName="IDX_MSG_LOG_NOTIF_STATUS_ID" tableName="TB_USER_MESSAGE_LOG">
             <column name="NOTIFICATION_STATUS_ID_FK"/>
         </createIndex>
-        <createIndex indexName="IDX_MESSAGE_LOG_RECEIVED" tableName="TB_USER_MESSAGE_LOG">
+        <createIndex indexName="IDX_USER_LOG_RECEIVED" tableName="TB_USER_MESSAGE_LOG">
             <column name="RECEIVED"/>
         </createIndex>
 
@@ -1044,7 +1044,6 @@
         <dropColumn columnName="PULL_REQUEST_MPC" tableName="TB_SIGNAL_MESSAGE"/>
         <dropColumn columnName="RECEIPT_ID_PK" tableName="TB_SIGNAL_MESSAGE"/>
         <dropAllForeignKeyConstraints baseTableName="TB_SIGNAL_MESSAGE"/>
-        <dropIndex tableName="TB_SIGNAL_MESSAGE" indexName="FK_M6UU2Y6G9BUET3O3K1N4QXWEC"/>
 
         <addColumn tableName="TB_SIGNAL_MESSAGE">
             <column name="SIGNAL_MESSAGE_ID" type="VARCHAR(255)"/>
@@ -1070,6 +1069,10 @@
     </changeSet>
 
     <!-- End modified tables -->
+
+    <changeSet author="Catalin Enache" id="EDELIVERY-7833-oracle-sequence" dbms="oracle">
+        <alterSequence incrementBy="20" cacheSize="1000" ordered="false" sequenceName="HIBERNATE_SEQUENCE"/>
+    </changeSet>
 
     <!-- End here 4.2 to new 5.0 -->
 
