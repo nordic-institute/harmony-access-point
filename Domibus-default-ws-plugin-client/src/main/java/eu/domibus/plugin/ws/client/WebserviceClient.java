@@ -1,4 +1,4 @@
-package eu.domibus.example.ws;
+package eu.domibus.plugin.ws.client;
 
 import eu.domibus.plugin.ws.generated.WebServicePlugin;
 import eu.domibus.plugin.ws.generated.WebServicePluginInterface;

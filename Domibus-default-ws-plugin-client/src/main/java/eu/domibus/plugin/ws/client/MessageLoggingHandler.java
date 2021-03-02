@@ -1,4 +1,4 @@
-package eu.domibus.example.ws.logging;
+package eu.domibus.plugin.ws.client;
 
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
