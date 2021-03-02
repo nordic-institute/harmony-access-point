@@ -76,7 +76,7 @@ public class SetPolicyInServerInterceptorTest {
                                                           final @Injectable LegConfiguration legConfiguration,
                                                           final @Injectable Messaging messaging) {
 
-        new Expectations(setPolicyInServerInterceptor) {{
+        new Expectations() {{
             messaging.getUserMessage();
             result = null;
         }};
@@ -84,7 +84,7 @@ public class SetPolicyInServerInterceptorTest {
         //tested method
         setPolicyInServerInterceptor.processPluginNotification(ebMS3Exception, legConfiguration, messaging);
 
-        new FullVerifications(setPolicyInServerInterceptor, backendNotificationService) {{
+        new FullVerifications() {{
         }};
     }
 
