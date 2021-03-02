@@ -200,8 +200,12 @@ public class DssConfiguration {
 
     @Bean
     public DomibusDataLoader dataLoader(ProxyHelper proxyHelper) {
+        CommonsDataLoader commonsDataLoader = new CommonsDataLoader();
+        commonsDataLoader.setProxyConfig(proxyHelper.getProxyConfig());
         DomibusDataLoader dataLoader = new DomibusDataLoader();
         dataLoader.setProxyConfig(proxyHelper.getProxyConfig());
+        commonsDataLoader.setSslTruststore(mergeCustomTlsTrustStoreWithCacert());
+        commonsDataLoader.setSslKeystore();
         dataLoader.setSslTrustStore(mergeCustomTlsTrustStoreWithCacert());
         return dataLoader;
     }
