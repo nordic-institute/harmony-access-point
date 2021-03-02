@@ -117,7 +117,7 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
     }
 
     protected void processPluginNotification(EbMS3Exception e, LegConfiguration legConfiguration, Messaging messaging) {
-        if (messaging == null) {
+        if (messaging == null || messaging.getUserMessage() == null) {
             LOG.debug("Messaging header is empty");
             return;
         }

@@ -72,6 +72,23 @@ public class SetPolicyInServerInterceptorTest {
     }
 
     @Test
+    public void processPluginNotificationEmptyUserMessage(final @Mocked EbMS3Exception ebMS3Exception,
+                                                          final @Mocked LegConfiguration legConfiguration,
+                                                          final @Mocked Messaging messaging) {
+
+        new Expectations(setPolicyInServerInterceptor) {{
+            messaging.getUserMessage();
+            result = null;
+        }};
+
+        //tested method
+        setPolicyInServerInterceptor.processPluginNotification(ebMS3Exception, legConfiguration, messaging);
+
+        new FullVerifications(setPolicyInServerInterceptor, backendNotificationService) {{
+        }};
+    }
+
+    @Test
     public void logIncomingMessaging(final @Mocked SoapMessage soapMessage) throws Exception {
 
         //tested method
