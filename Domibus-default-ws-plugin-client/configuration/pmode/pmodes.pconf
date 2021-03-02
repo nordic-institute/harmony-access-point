@@ -1,0 +1,144 @@
+// Employed ebMS3 profile. used for configuration validation. Supported values are: AS4, ESENS, UNDEFINED
+// NOT SUPPORTED YET
+EmployedProfile : AS4
+
+MPCs{
+	// Configuration Id
+	MPC defaultMpc {
+		// Used by default. There may only be one default MPC
+		Default : true
+		// IF enabled = false this MPC will not accept any messages
+		Enabled : true
+		// corresponding to eb:Messaging/eb:UserMessage/@mpc
+		Name : 'http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPC'
+		/** 
+		 * Message retention in minutes.
+		 * 0 = delete immediately
+		 * -1 = keep indefinitely
+		 */
+		MessageRetentionDownloaded : 0	
+		MessageRetentionUnDownloaded : 60
+	} 
+}
+
+Parties{
+	PartyIdTypes{
+		Type partyTypeUnregistered : 'urn:oasis:names:tc:ebcore:partyid-type:unregistered'
+		Type partyTypeEmpty : ''
+	}
+	/**
+	 * Internal name of party entity.  
+	 * Use this as the alias for the corresponding pubilc encryption key in your keystore.
+	 */
+	
+	Party ceftestgw5 {
+		partyTypeUnregistered : 'ceftestparty5gw'
+		Endpoint : 'http://localhost:8080/domibus/services/msh'
+	}
+	Party cefsupportgw {
+		partyTypeUnregistered : 'cefsupportgw'
+		Endpoint : 'http://localhost:8090/domibus/services/msh'
+	}
+
+}
+
+AS4{	
+	Reliability AS4Reliability : Nonrepudiation  = true Replypattern = response
+	Reliability NOReliability : Nonrepudiation = false Replypattern = response
+	ReceptionAwareness receptionAwareness : retryTimeout = 1 retryCount = 2 strategy = CONSTANT duplicateDetection = true	
+}
+
+Securities{	
+	Security noSecurity {
+		Policy : 'doNothingPolicy.xml'
+		SignatureMethod : RSA_SHA1
+	}
+}
+
+BusinessProcessConfiguration{
+	
+	Agreements{
+		Agreement agreementEmpty : ''
+	}
+	
+	Actions{
+		Action submitMessage : 'submitMessage'
+		
+	}
+	
+	Services{
+		ServiceTypes {
+			Type edelivery : 'e-delivery'
+		}
+		// resolves to: <eb:Service>AS4</eb:Service>		
+		Service connectivityservice : 'http://ec.europa.eu/e-delivery/services/connectivity-service' type = edelivery Actions { submitMessage }
+		
+	}
+	
+	ExchangePatterns{
+		Patterns{
+			MEP oneway : 'http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/oneWay' Legs = 1	
+			MEP twoway : 'http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/twoWay' Legs = 2		
+		}
+		Bindings{
+			Binding push : 'http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/push'	
+		}
+	}
+	
+	Roles{
+		Role defaultInitiatorRole : 'http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator'
+		Role defaultResponderRole : 'http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder'
+	}
+	
+	Processes{	
+			
+		PropertySets{
+			Properties{
+				Property originalSenderProperty : key=originalSender type = string required= true
+				Property finalRecipientProperty : key=finalRecipient type = string required= true
+			}
+			Set ecodexPropertySet: finalRecipientProperty originalSenderProperty 
+		}		
+		
+	
+		ErrorHandlings{
+			ErrorHandling demoErrorHandling {
+				ErrorAsResponse : true
+				ProcessErrorNotifyProducer : false
+				ProcessErrorNotifyConsumer : false
+				DeliveryFailureNotifyProducer : false				
+			}	
+		}
+		
+		Legs{
+			
+			Leg pushConnectivityTest {
+				ReceptionAwareness : receptionAwareness
+				ProperySet : ecodexPropertySet
+				Service : connectivityservice
+				Action : submitMessage
+				DefaultMpc : defaultMpc
+				Security : noSecurity
+				Reliability : NOReliability
+				ErrorHandling : demoErrorHandling
+				CompressPayloads : false
+			}
+			
+			
+						
+		}
+		
+		Process tc0Process {
+			Agreement : agreementEmpty
+			Mep : oneway
+			Binding : push
+			InitiatorRole : defaultInitiatorRole
+			ResponderRole : defaultResponderRole
+			InitiatorParties : ceftestgw5, cefsupportgw
+			ResponderParties : ceftestgw5, cefsupportgw
+			Legs : pushConnectivityTest
+		}				
+	
+		
+	}
+}
