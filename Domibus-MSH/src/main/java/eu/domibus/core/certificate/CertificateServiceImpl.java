@@ -81,7 +81,7 @@ public class CertificateServiceImpl implements CertificateService {
 
     private final BackupService backupService;
 
-    public CertificateServiceImpl(@Lazy CRLService crlService, DomibusPropertyProvider domibusPropertyProvider,
+    public CertificateServiceImpl(CRLService crlService, DomibusPropertyProvider domibusPropertyProvider,
                                   CertificateDao certificateDao, EventService eventService, PModeProvider pModeProvider,
                                   ImminentExpirationCertificateConfigurationManager imminentExpirationCertificateConfigurationManager,
                                   ExpiredCertificateConfigurationManager expiredCertificateConfigurationManager, BackupService backupService) {

@@ -86,7 +86,7 @@ import static org.awaitility.Awaitility.with;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(initializers = PropertyOverrideContextInitializer.class,
         classes = {DomibusRootConfiguration.class, DomibusWebConfiguration.class,
-                DomibusTestDatasourceConfiguration.class, DomibusTestTransactionConfiguration.class, DomibusTestMocksConfiguration.class})
+                DomibusTestDatasourceConfiguration.class, DomibusTestMocksConfiguration.class})
 @DirtiesContext
 @Rollback
 public abstract class AbstractIT {
