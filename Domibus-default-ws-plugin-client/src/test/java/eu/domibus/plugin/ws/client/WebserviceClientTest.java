@@ -1,4 +1,4 @@
-package eu.domibus.example.ws;
+package eu.domibus.plugin.ws.client;
 
 import com.sun.xml.messaging.saaj.soap.XmlDataContentHandler;
 import eu.domibus.logging.DomibusLogger;
@@ -22,7 +22,7 @@ import java.io.InputStream;
 import java.util.Properties;
 import java.util.UUID;
 
-import static eu.domibus.example.ws.WebserviceClient.DEFAULT_WEBSERVICE_LOCATION;
+import static eu.domibus.plugin.ws.client.WebserviceClient.DEFAULT_WEBSERVICE_LOCATION;
 import static org.junit.Assert.*;
 
 /**
@@ -32,11 +32,11 @@ public class WebserviceClientTest {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WebserviceClientTest.class);
 
-    private static final String TEST_SUBMIT_MESSAGE_SUBMITREQUEST = "src/test/resources/eu/domibus/example/ws/submitMessage_submitRequest.xml";
+    private static final String TEST_SUBMIT_MESSAGE_SUBMITREQUEST = "src/test/resources/eu/domibus/plugin/ws/client/submitMessage_submitRequest.xml";
 
-    private static final String TEST_SUBMIT_MESSAGE_MESSAGING = "src/test/resources/eu/domibus/example/ws/submitMessage_messaging.xml";
+    private static final String TEST_SUBMIT_MESSAGE_MESSAGING = "src/test/resources/eu/domibus/plugin/ws/client/submitMessage_messaging.xml";
 
-    static final String SAMPLE_MSH_MESSAGE = "src/test/resources/eu/domibus/example/ws/sampleMSHMessage.xml";
+    static final String SAMPLE_MSH_MESSAGE = "src/test/resources/eu/domibus/plugin/ws/client/sampleMSHMessage.xml";
 
     private static final String CONFIG_PROPERTIES = "config.properties";
 
