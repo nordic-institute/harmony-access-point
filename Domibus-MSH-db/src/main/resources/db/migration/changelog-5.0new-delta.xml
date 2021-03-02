@@ -609,6 +609,9 @@
     </changeSet>
 
     <changeSet author="Catalin Enache" id="EDELIVERY-7833-tb-user-message">
+        <sql dbms="oracle">
+            ALTER TABLE TB_USER_MESSAGE RENAME CONSTRAINT PK_TB_USER_MESSAGE TO PK_USER_MESSAGE;
+        </sql>
         <dropAllForeignKeyConstraints baseTableName="TB_USER_MESSAGE" />
         <dropIndex tableName="TB_USER_MESSAGE" indexName="FK_BE4XC1069QYW2KLHVM3XMG26S"/>
         <dropIndex tableName="TB_USER_MESSAGE" indexName="FK_UM_MF"/>
@@ -741,6 +744,9 @@
 
     <!-- Start modified tables (no data migration) -->
     <changeSet author="Catalin Enache" id="EDELIVERY-7833-tb-part-info">
+        <sql dbms="oracle">
+            ALTER TABLE TB_PART_INFO RENAME CONSTRAINT PK_TB_PART_INFO TO PK_PART_INFO;
+        </sql>
         <addColumn tableName="TB_PART_INFO">
             <column name="USER_MESSAGE_ID_FK" type="BIGINT"/>
         </addColumn>
@@ -761,6 +767,9 @@
     </changeSet>
 
     <changeSet author="Catalin Enache" id="EDELIVERY-7833-tb-signal-message">
+        <sql dbms="oracle">
+            ALTER TABLE TB_SIGNAL_MESSAGE RENAME CONSTRAINT PK_TB_SIGNAL_MESSAGE TO PK_SIGNAL_MESSAGE;
+        </sql>
         <dropColumn columnName="MESSAGEINFO_ID_PK" tableName="TB_SIGNAL_MESSAGE"/>
         <dropColumn columnName="PULL_REQUEST_MPC" tableName="TB_SIGNAL_MESSAGE"/>
         <dropColumn columnName="RECEIPT_ID_PK" tableName="TB_SIGNAL_MESSAGE"/>
