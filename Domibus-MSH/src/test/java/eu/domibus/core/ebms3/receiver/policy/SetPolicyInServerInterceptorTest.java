@@ -72,9 +72,9 @@ public class SetPolicyInServerInterceptorTest {
     }
 
     @Test
-    public void processPluginNotificationEmptyUserMessage(final @Mocked EbMS3Exception ebMS3Exception,
-                                                          final @Mocked LegConfiguration legConfiguration,
-                                                          final @Mocked Messaging messaging) {
+    public void processPluginNotificationEmptyUserMessage(final @Injectable EbMS3Exception ebMS3Exception,
+                                                          final @Injectable LegConfiguration legConfiguration,
+                                                          final @Injectable Messaging messaging) {
 
         new Expectations(setPolicyInServerInterceptor) {{
             messaging.getUserMessage();
