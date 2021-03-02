@@ -630,7 +630,7 @@
             <column name="MESSAGE_SUBTYPE_ID_FK" type="BIGINT"/>
         </addColumn>
 
-        <!-- TODO add here migration data script -->
+        <!-- TODO add here migration data script from old columns to new ones -->
         
         <dropColumn columnName="COLLABORATION_INFO_ACTION" tableName="TB_USER_MESSAGE"/>
         <dropColumn columnName="AGREEMENT_REF_PMODE" tableName="TB_USER_MESSAGE"/>
@@ -716,6 +716,27 @@
         </createIndex>
         <addUniqueConstraint columnNames="MESSAGE_ID" constraintName="UK_USER_MSG_MESSAGE_ID" tableName="TB_USER_MESSAGE"/>
     </changeSet>
+
+    <changeSet author="Catalin Enache" id="EDELIVERY-7833-tb-send-attempt-migration">
+        <sql dbms="oracle">
+            ALTER TABLE TB_SEND_ATTEMPT RENAME CONSTRAINT PK_TB_SEND_ATTEMPT TO PK_SEND_ATTEMPT;
+        </sql>
+        <addColumn tableName="TB_SEND_ATTEMPT">
+            <column name="USER_MESSAGE_ID_FK" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <dropIndex tableName="TB_SEND_ATTEMPT" indexName="IDX_SEND_ATTEMPT_MESSAGE_ID"/>
+        <!-- TODO migration script MESSAGE_ID to USER_MESSAGE_ID_FK -->
+        <dropColumn tableName="TB_SEND_ATTEMPT" columnName="MESSAGE_ID"/>
+        <addForeignKeyConstraint baseColumnNames="USER_MESSAGE_ID_FK" baseTableName="TB_SEND_ATTEMPT"
+                                 constraintName="FK_SEND_ATTEMPT_USER_MSG" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_USER_MESSAGE"/>
+        <createIndex indexName="IDX_MESSAGE_ID_FK" tableName="TB_SEND_ATTEMPT">
+            <column name="USER_MESSAGE_ID_FK"/>
+        </createIndex>
+    </changeSet>
     <!-- End tables to be migrated -->
 
     <!-- Start modified tables (no data migration) -->
@@ -766,6 +787,10 @@
         <addColumn tableName="TB_MESSAGE_ACKNW">
             <column name="USER_MESSAGE_ID_FK" type="BIGINT"/>
         </addColumn>
+        <addForeignKeyConstraint baseColumnNames="USER_MESSAGE_ID_FK" baseTableName="TB_MESSAGE_ACKNW"
+                                 constraintName="FK_MSG_ACK_USER_MSG" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_USER_MESSAGE"/>
         <createIndex indexName="IDX_MSG_ACKNW_MESSAGE_ID_FK" tableName="TB_MESSAGE_ACKNW">
             <column name="USER_MESSAGE_ID_FK"/>
         </createIndex>
@@ -784,6 +809,11 @@
                                  referencedColumnNames="ID_PK" referencedTableName="TB_SIGNAL_MESSAGE"/>
     </changeSet>
 
+    <changeSet author="Catalin Enache" id="EDELIVERY-7833-tb-command-property">
+        <createIndex indexName="IDX_COMMAND_PROP_COMMAND_ID" tableName="TB_COMMAND_PROPERTY">
+            <column name="FK_COMMAND"/>
+        </createIndex>
+    </changeSet>
     <!-- End modified tables -->
 
     <changeSet author="Catalin Enache" id="EDELIVERY-7833-oracle-sequence" dbms="oracle">
