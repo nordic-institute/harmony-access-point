@@ -159,7 +159,6 @@ public class MessageRetentionStoredProcedureService implements MessageRetentionS
         if (retention > 0) {
             LOG.debug("Retention value is > 0, creating deletion jobs for mpc [{}] and messageStatus [{}]", mpc, messageStatus);
             for (int i = 0; i < parallelDeletionJobsNo; i++) {
-                retention = retention + deletionJobInterval;
                 Date endDate = DateUtils.addMinutes(new Date(), (retention + DELETION_JOBS_DELTA) * -1);
                 Date startDate = DateUtils.addMinutes(new Date(), (retention + deletionJobInterval) * -1);
                 if (i == parallelDeletionJobsNo - 1) { // last job
@@ -168,6 +167,7 @@ public class MessageRetentionStoredProcedureService implements MessageRetentionS
                 UserMessageDeletionJobEntity deletionJob = new UserMessageDeletionJobEntity(mpc, startDate, endDate, maxCount, procedureName);
                 LOG.debug("Deletion job created [{}]", deletionJob);
                 deletionJobs.add(deletionJob);
+                retention = retention + deletionJobInterval;
             }
             return deletionJobs;
         }
