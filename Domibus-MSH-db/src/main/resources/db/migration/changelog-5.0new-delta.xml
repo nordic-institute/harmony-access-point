@@ -825,8 +825,10 @@
     </changeSet>
     <!-- End modified tables -->
 
-    <changeSet author="Catalin Enache" id="EDELIVERY-7833-oracle-sequence" dbms="oracle">
-        <alterSequence incrementBy="20" cacheSize="1000" ordered="false" sequenceName="HIBERNATE_SEQUENCE"/>
+    <changeSet author="Catalin Enache" id="EDELIVERY-7833-oracle-sequence">
+        <sql dbms="oracle">
+            ALTER SEQUENCE HIBERNATE_SEQUENCE INCREMENT BY 20 CACHE 1000 NOORDER;
+        </sql>
     </changeSet>
 
     <!-- End here 4.2 to new 5.0 -->
