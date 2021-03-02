@@ -1,6 +1,7 @@
 package eu.domibus.core.message.pull;
 
 import eu.domibus.api.model.MessageState;
+import eu.domibus.common.JPAConstants;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Repository;
@@ -38,7 +39,7 @@ public class MessagingLockDaoImpl implements MessagingLockDao {
 
     protected static final String LOCK_BY_MESSAGE_ID_QUERY = "SELECT ID_PK,MESSAGE_TYPE,MESSAGE_RECEIVED,MESSAGE_STATE,MESSAGE_ID,INITIATOR,MPC,SEND_ATTEMPTS,SEND_ATTEMPTS_MAX,NEXT_ATTEMPT,MESSAGE_STALED,CREATED_BY,CREATION_TIME,MODIFIED_BY,MODIFICATION_TIME FROM TB_MESSAGING_LOCK ml where ml.MESSAGE_ID=?1 FOR UPDATE";
 
-    @PersistenceContext(unitName = "domibusEM")
+    @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     private EntityManager entityManager;
 
     @Override

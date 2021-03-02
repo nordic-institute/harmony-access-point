@@ -56,7 +56,6 @@ public abstract class AbstractDatabaseConfig {
     }
 
     @Bean
-    @DependsOn("domibusEM")
     public JpaTransactionManager jpaTransactionManager(LocalContainerEntityManagerFactoryBean domibusEM) {
         JpaTransactionManager jpaTransactionManager = new JpaTransactionManager();
         jpaTransactionManager.setEntityManagerFactory(domibusEM.getObject());

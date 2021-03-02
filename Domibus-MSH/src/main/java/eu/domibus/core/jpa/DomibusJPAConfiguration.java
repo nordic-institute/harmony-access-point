@@ -1,6 +1,7 @@
 package eu.domibus.core.jpa;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.common.JPAConstants;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.core.property.PrefixedProperties;
@@ -55,7 +56,7 @@ public class DomibusJPAConfiguration {
                                                                        Optional<MultiTenantConnectionProvider> multiTenantConnectionProviderImpl,
                                                                        Optional<CurrentTenantIdentifierResolver> tenantIdentifierResolver) {
         LocalContainerEntityManagerFactoryBean result = new LocalContainerEntityManagerFactoryBean();
-        result.setPersistenceUnitName("domibusEM");
+        result.setPersistenceUnitName(JPAConstants.PERSISTENCE_UNIT_NAME);
         final String packagesToScanString = domibusPropertyProvider.getProperty(DOMIBUS_ENTITY_MANAGER_FACTORY_PACKAGES_TO_SCAN);
         if (StringUtils.isNotEmpty(packagesToScanString)) {
             final String[] packagesToScan = StringUtils.split(packagesToScanString, ",");

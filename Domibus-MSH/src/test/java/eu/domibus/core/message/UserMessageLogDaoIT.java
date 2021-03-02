@@ -1,6 +1,7 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.model.*;
+import eu.domibus.common.JPAConstants;
 import eu.domibus.core.property.PropertyConfig;
 import eu.domibus.core.util.DateUtilImpl;
 import eu.domibus.logging.DomibusLogger;
@@ -48,7 +49,7 @@ public class UserMessageLogDaoIT {
     @Autowired
     private MessageInfoDao messageInfoDao;
 
-    @PersistenceContext(unitName = "domibusEM")
+    @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     protected EntityManager em;
 
     private DateUtilImpl dateUtil;

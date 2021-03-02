@@ -1,5 +1,6 @@
 package eu.domibus.core.pmode;
 
+import eu.domibus.common.JPAConstants;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.core.message.MessageExchangeConfiguration;
@@ -27,7 +28,7 @@ public class ProcessDaoImpl implements ProcessDao{
     private static final String MEP_BINDING = "mepBinding";
     private static final String INITIATOR = "initiator";
     private static final String MPC_NAME = "mpcName";
-    @PersistenceContext(unitName = "domibusEM")
+    @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     private EntityManager entityManager;
 
     /**

@@ -1,5 +1,6 @@
 package eu.domibus.plugin.ws.backend;
 
+import eu.domibus.common.JPAConstants;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.plugin.ws.WSPluginDaoTestConfig;
 import eu.domibus.test.dao.InMemoryDataBaseConfig;
@@ -35,7 +36,7 @@ public class WSBackendMessageLogDaoIT {
     @Autowired
     private WSBackendMessageLogDao wsBackendMessageLogDao;
 
-    @PersistenceContext(unitName = "domibusEM")
+    @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     private javax.persistence.EntityManager em;
     private WSBackendMessageLogEntity entityFailed;
     private WSBackendMessageLogEntity entityRetried1;

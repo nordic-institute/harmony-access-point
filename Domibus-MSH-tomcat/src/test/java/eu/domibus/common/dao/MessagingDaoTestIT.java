@@ -4,6 +4,7 @@ import eu.domibus.api.model.MessageStatus;
 import eu.domibus.AbstractIT;
 import eu.domibus.api.model.*;
 import eu.domibus.api.model.MSHRole;
+import eu.domibus.common.JPAConstants;
 import eu.domibus.common.model.configuration.Identifier;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.PartyIdType;
@@ -37,7 +38,7 @@ public class MessagingDaoTestIT extends AbstractIT {
     @Autowired
     private PartyDao partyDao;
 
-    @PersistenceContext(unitName = "domibusEM")
+    @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     private EntityManager entityManager;
 
     @Test

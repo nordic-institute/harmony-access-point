@@ -5,6 +5,7 @@ import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.user.UserManagementException;
+import eu.domibus.common.JPAConstants;
 import eu.domibus.core.alerts.service.PluginUserAlertsServiceImpl;
 import eu.domibus.core.user.plugin.AuthenticationDAO;
 import eu.domibus.core.user.plugin.AuthenticationEntity;
@@ -43,7 +44,7 @@ public class PluginUserSecurityPolicyManagerTestIT extends AbstractIT {
     @Autowired
     protected DomainContextProvider domainContextProvider;
 
-    @PersistenceContext(unitName = "domibusEM")
+    @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     protected EntityManager entityManager;
 
 

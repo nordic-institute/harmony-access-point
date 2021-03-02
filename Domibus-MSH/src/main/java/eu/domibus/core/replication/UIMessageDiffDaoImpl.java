@@ -1,6 +1,7 @@
 package eu.domibus.core.replication;
 
 import eu.domibus.api.property.DomibusConfigurationService;
+import eu.domibus.common.JPAConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -19,7 +20,7 @@ import java.util.List;
 @Repository
 public class UIMessageDiffDaoImpl implements UIMessageDiffDao {
 
-    @PersistenceContext(unitName = "domibusEM")
+    @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     private EntityManager em;
 
     @Autowired

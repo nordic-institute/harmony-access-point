@@ -1,5 +1,6 @@
 package eu.domibus.core.clustering;
 
+import eu.domibus.common.JPAConstants;
 import eu.domibus.core.dao.InMemoryDatabaseMshConfig;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -41,7 +42,7 @@ public class CommandDaoIT {
     @Autowired
     protected DataSource dataSource;
 
-    @PersistenceContext(unitName = "domibusEM")
+    @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     protected EntityManager em;
 
     @Before

@@ -1,5 +1,6 @@
 package eu.domibus.plugin.ws.message;
 
+import eu.domibus.common.JPAConstants;
 import eu.domibus.plugin.ws.WSPluginDaoTestConfig;
 import eu.domibus.test.dao.InMemoryDataBaseConfig;
 import org.apache.commons.collections4.CollectionUtils;
@@ -33,7 +34,7 @@ public class WSMessageLogDaoIT {
     @Autowired
     private WSMessageLogDao wsMessageLogDao;
 
-    @PersistenceContext(unitName = "domibusEM")
+    @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     private javax.persistence.EntityManager em;
 
 

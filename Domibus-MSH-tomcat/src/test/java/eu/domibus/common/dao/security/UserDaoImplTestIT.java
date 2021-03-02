@@ -1,6 +1,7 @@
 package eu.domibus.common.dao.security;
 
 import eu.domibus.AbstractIT;
+import eu.domibus.common.JPAConstants;
 import eu.domibus.core.user.UserEntityBase;
 import eu.domibus.core.user.ui.User;
 import eu.domibus.core.user.ui.UserDao;
@@ -29,7 +30,7 @@ public class UserDaoImplTestIT extends AbstractIT {
     @Autowired
     private UserDao userDao;
 
-    @PersistenceContext(unitName = "domibusEM")
+    @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     protected EntityManager entityManager;
 
     @Test

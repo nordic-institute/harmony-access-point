@@ -1,5 +1,6 @@
 package eu.domibus.core.audit;
 
+import eu.domibus.common.JPAConstants;
 import eu.domibus.core.audit.model.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -29,7 +30,7 @@ public class AuditDaoImpl implements AuditDao {
     public static final String CHANGED = "changed";
     public static final String ID = "id";
 
-    @PersistenceContext(unitName = "domibusEM")
+    @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     private EntityManager entityManager;
 
     @Override

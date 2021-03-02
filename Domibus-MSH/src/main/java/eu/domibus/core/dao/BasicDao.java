@@ -1,6 +1,7 @@
 package eu.domibus.core.dao;
 
 import eu.domibus.api.model.AbstractBaseEntity;
+import eu.domibus.common.JPAConstants;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
@@ -17,7 +18,7 @@ public abstract class BasicDao<T extends AbstractBaseEntity> {
 
     protected final Class<T> typeOfT;
 
-    @PersistenceContext(unitName = "domibusEM")
+    @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     protected EntityManager em;
 
     /**

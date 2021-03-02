@@ -1,5 +1,6 @@
 package eu.domibus.plugin.ws.util;
 
+import eu.domibus.common.JPAConstants;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
@@ -16,7 +17,7 @@ public abstract class WSBasicDao<T> {
 
     protected final Class<T> typeOfT;
 
-    @PersistenceContext(unitName = "domibusEM")
+    @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     protected EntityManager em;
 
     /**
