@@ -1,6 +1,7 @@
 package eu.domibus.tomcat.activemq;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.jms.activemq.DomibusJMSActiveMQConfiguration;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.tomcat.activemq.condition.DummyEmbeddedActiveMQCondition;
@@ -46,7 +47,7 @@ public class DomibusActiveMQConfiguration {
         return new DomibusBrokerFactoryBean(activeMQConfiguration);
     }
 
-    @Bean(name = "jmsConnectionFactory")
+    @Bean(name = DomibusJMSActiveMQConfiguration.MQ_CONNECTION_FACTORY)
     public ActiveMQConnectionFactory activeMQConnectionFactory() {
         ActiveMQConnectionFactory result = new ActiveMQConnectionFactory();
 

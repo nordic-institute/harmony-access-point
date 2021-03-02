@@ -35,6 +35,7 @@ public class DomibusJMSActiveMQConfiguration {
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DomibusJMSActiveMQConfiguration.class);
 
     public static final String MQ_BROKER_NAME = "org.apache.activemq:type=Broker,brokerName=";
+    public static final String MQ_CONNECTION_FACTORY = "jmsConnectionFactory";
 
     @Bean(JMSConstants.DOMIBUS_JMS_CACHING_CONNECTION_FACTORY)
     public ConnectionFactory cachingConnectionFactory(@Qualifier(JMSConstants.DOMIBUS_JMS_CONNECTION_FACTORY) ConnectionFactory activemqConnectionFactory,
@@ -51,7 +52,7 @@ public class DomibusJMSActiveMQConfiguration {
 
     @DependsOn("brokerFactory")
     @Bean(value = JMSConstants.DOMIBUS_JMS_CONNECTION_FACTORY)
-    public ConnectionFactory connectionFactory(@Qualifier("jmsConnectionFactory") ActiveMQConnectionFactory activeMQConnectionFactory,
+    public ConnectionFactory connectionFactory(@Qualifier(MQ_CONNECTION_FACTORY) ActiveMQConnectionFactory activeMQConnectionFactory,
                                                DomibusPropertyProvider domibusPropertyProvider) {
         int maxPoolSize = domibusPropertyProvider.getIntegerProperty(DOMIBUS_JMS_CONNECTION_FACTORY_MAX_POOL_SIZE);
         LOGGER.debug("Configured property [{}] with [{}]", DOMIBUS_JMS_CONNECTION_FACTORY_MAX_POOL_SIZE, maxPoolSize);
