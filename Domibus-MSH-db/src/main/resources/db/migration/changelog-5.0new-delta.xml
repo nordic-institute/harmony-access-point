@@ -772,8 +772,9 @@
         </sql>
         <dropColumn columnName="MESSAGEINFO_ID_PK" tableName="TB_SIGNAL_MESSAGE"/>
         <dropColumn columnName="PULL_REQUEST_MPC" tableName="TB_SIGNAL_MESSAGE"/>
+        <dropForeignKeyConstraint baseTableName="TB_SIGNAL_MESSAGE"
+                                  constraintName="FK_m6uu2y6g9buet3o3k1n4qxwec"/>
         <dropColumn columnName="RECEIPT_ID_PK" tableName="TB_SIGNAL_MESSAGE"/>
-        <dropAllForeignKeyConstraints baseTableName="TB_SIGNAL_MESSAGE"/>
 
         <addColumn tableName="TB_SIGNAL_MESSAGE">
             <column name="SIGNAL_MESSAGE_ID" type="VARCHAR(255)"/>
