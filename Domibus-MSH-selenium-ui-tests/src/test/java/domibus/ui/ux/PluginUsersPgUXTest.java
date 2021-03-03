@@ -8,16 +8,13 @@ import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
 import domibus.ui.SeleniumTest;
 import org.apache.commons.collections4.ListUtils;
-import org.apache.commons.collections4.keyvalue.DefaultMapEntry;
 import org.apache.commons.lang.RandomStringUtils;
 import org.json.JSONArray;
-import org.json.JSONObject;
+import org.json.JSONObject;;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
-import pages.messages.MessagesPage;
 import pages.plugin_users.PluginUserModal;
 import pages.plugin_users.PluginUsersPage;
-import rest.RestServicePaths;
 import utils.Gen;
 import utils.TestUtils;
 
@@ -790,8 +787,9 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 
 		String certName = Gen.randomAlphaNumeric(5);
 		String username = String.format("CN=%s,O=eDelivery,C=BE:%s", certName, Gen.randomAlphaNumeric(5));
-		String originalUser = "urn:oasis:names:tc:ebcore:partyid-type:" + Gen.randomAlphaNumeric(2) +
-				":" + Gen.randomAlphaNumeric(2);
+
+		String originalUser = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:" + Gen.randomAlphaNumeric(2);
+
 
 		SoftAssert soft = new SoftAssert();
 		PluginUsersPage page = navigateToPluginUserPage();
@@ -802,11 +800,9 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 		page.getNewBtn().click();
 
 		PluginUserModal pum = new PluginUserModal(driver);
-		pum.getUserNameInput().fill(username);
-		pum.getRolesSelect().selectOptionByText(DRoles.USER);
-		soft.assertTrue(pum.getOkBtn().isDisabled(), "Ok button is disabled");
+		pum.fillCertUserData(username, DRoles.USER);
+
 		soft.assertTrue(Boolean.parseBoolean(pum.getOriginalUserInput().getAttribute("aria-required")), "original user field is shown with * on add pop up ");
-		pum.getOriginalUserInput().fill(originalUser);
 		soft.assertTrue(pum.getOkBtn().isEnabled(), "Ok button is enabled after original user data entrance");
 		pum.getOkBtn().click();
 		page.getSaveBtn().click();
@@ -830,8 +826,7 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 		String username = String.format("CN=%s,O=eDelivery,C=BE:%s", certName, Gen.randomAlphaNumeric(5));
 		rest.pluginUsers().createCertPluginUser(username, DRoles.ADMIN, null);
 
-		String originalUser = "urn:oasis:names:tc:ebcore:partyid-type:" + Gen.randomAlphaNumeric(2) +
-				":" + Gen.randomAlphaNumeric(2);
+		String originalUser = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:" + Gen.randomAlphaNumeric(2);
 
 		SoftAssert soft = new SoftAssert();
 		PluginUsersPage page = navigateToPluginUserPage();
@@ -860,21 +855,16 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 	public void originalUserOnAddEditBasic() throws Exception {
 
 		String username = Gen.randomAlphaNumeric(5);
-		String originalUser = "urn:oasis:names:tc:ebcore:partyid-type:" + Gen.randomAlphaNumeric(2) +
-				":" + Gen.randomAlphaNumeric(2);
+
+		String originalUser = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:" + Gen.randomAlphaNumeric(2);
 
 		SoftAssert soft = new SoftAssert();
 		PluginUsersPage page = navigateToPluginUserPage();
 
 		page.getNewBtn().click();
 		PluginUserModal pum = new PluginUserModal(driver);
-		pum.getUserNameInput().fill(username);
-		pum.getRolesSelect().selectOptionByText(DRoles.USER);
+		pum.fillData(username, DRoles.USER, data.defaultPass(), data.defaultPass());
 		soft.assertTrue(Boolean.parseBoolean(pum.getOriginalUserInput().getAttribute("aria-required")), "original user field is shown with * on add pop up ");
-		pum.getOriginalUserInput().fill(originalUser);
-		pum.getPasswordInput().fill(data.defaultPass());
-		pum.getConfirmationInput().fill(data.defaultPass());
-
 
 		pum.getOkBtn().click();
 		page.getSaveBtn().click();
@@ -887,10 +877,8 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 		pum.getOriginalUserInput().clear();
 		soft.assertTrue(pum.getOkBtn().isDisabled(), "Ok button is disabled");
 		pum.getOriginalUserInput().fill(originalUser);
-		pum.getPasswordInput().fill(data.getNewTestPass());
-		pum.getConfirmationInput().fill(data.getNewTestPass());
-		pum.getOkBtn().click();
 
+		pum.getOkBtn().click();
 		page.getSaveBtn().click();
 		new Dialog(driver).confirm();
 		soft.assertTrue(page.getAlertArea().getAlertMessage().contains(DMessages.PLUGINUSER_SAVE_SUCCESS), "Success message is shown");
@@ -904,8 +892,7 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 	public void originalUserOnRoleChangeBasic() throws Exception {
 
 		String username = Gen.randomAlphaNumeric(5);
-		String originalUser = "urn:oasis:names:tc:ebcore:partyid-type:" + Gen.randomAlphaNumeric(2) +
-				":" + Gen.randomAlphaNumeric(2);
+		String originalUser = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:" + Gen.randomAlphaNumeric(2);
 
 		rest.pluginUsers().createPluginUser(username, DRoles.ADMIN, null, null);
 
@@ -916,9 +903,11 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 		page.getEditBtn().click();
 		PluginUserModal pum = new PluginUserModal(driver);
 		soft.assertFalse(Boolean.parseBoolean(pum.getOriginalUserInput().getAttribute("aria-required")), "original user field is shown with * on edit pop up for Role_Admin ");
+
 		pum.getRolesSelect().selectOptionByText(DRoles.USER);
-		soft.assertTrue(Boolean.parseBoolean(pum.getOriginalUserInput().getAttribute("aria-required")), "original user field is shown with * on edit pop up for Role_Admin ");
 		pum.getOriginalUserInput().fill(originalUser);
+		soft.assertTrue(Boolean.parseBoolean(pum.getOriginalUserInput().getAttribute("aria-required")), "original user field is shown with * on edit pop up for Role_Admin ");
+
 		pum.getOkBtn().click();
 		page.getSaveBtn().click();
 		new Dialog(driver).confirm();
@@ -948,8 +937,8 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 		page.grid().waitForRowsToLoad();
 		page.getNewBtn().click();
 		PluginUserModal pum = new PluginUserModal(driver);
-		pum.getUserNameInput().fill(username);
-		pum.getRolesSelect().selectOptionByText(DRoles.ADMIN);
+
+		pum.fillCertUserData(username, DRoles.ADMIN);
 		pum.getOkBtn().click();
 		page.getSaveBtn().click();
 		new Dialog(driver).confirm();
@@ -960,19 +949,6 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 
 	}
 
-
-	/*	PU-47 - Mark as inactive a BASIC plugin user */
-	@Test(description = "PU-42", groups = {"multiTenancy", "singleTenancy"})
-	public void inactiveBasicPluginUsr() throws Exception {
-
-		String username = Gen.randomAlphaNumeric(5);
-		rest.pluginUsers().createPluginUser(username, DRoles.ADMIN, null, null);
-
-		SoftAssert soft = new SoftAssert();
-		PluginUsersPage page = navigateToPluginUserPage();
-
-	}
-
 	private PluginUsersPage navigateToPluginUserPage() throws Exception {
 		log.info("logged in");
 		PluginUsersPage page = new PluginUsersPage(driver);
@@ -980,6 +956,7 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 		page.grid().waitForRowsToLoad();
 		return page;
 	}
+
 
 
 
