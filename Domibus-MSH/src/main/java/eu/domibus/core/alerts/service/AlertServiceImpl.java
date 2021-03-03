@@ -36,6 +36,8 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ALERT_RETRY_TIME;
 import static eu.domibus.core.alerts.model.common.AlertStatus.*;
 import static eu.domibus.core.alerts.service.AlertConfigurationServiceImpl.DOMIBUS_ALERT_SUPER_INSTANCE_NAME_SUBJECT;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
+import static org.apache.commons.lang3.StringUtils.startsWithIgnoreCase;
 
 /**
  * @author Thomas Dussart
@@ -193,13 +195,25 @@ public class AlertServiceImpl implements AlertService {
         return new DefaultMailModel<>(mailModel, template, subject);
     }
 
-    protected String getDescription(Alert alertEntity, Event next) {
-        String title = "[" + alertEntity.getAlertType().getTitle() + "] ";
-        AbstractEventProperty<?> description = next.getProperties().get(ALERT_DESCRIPTION);
-        if (description != null) {
-            title += description.getValue().toString();
+    protected String getDescription(Alert alertEntity, Event event) {
+        StringBuilder result = new StringBuilder();
+        result.append("[").append(alertEntity.getAlertType().getTitle()).append("] ");
+        result.append(getSafeString(event, ALERT_DESCRIPTION));
+        long descriptionNumber = event.getProperties().keySet().stream()
+                .filter(key -> startsWithIgnoreCase(key, ALERT_DESCRIPTION))
+                .count();
+        for (int i = 1; i < descriptionNumber; i++) {
+            result.append(getSafeString(event, ALERT_DESCRIPTION + "_" + i));
         }
-        return title;
+        return result.toString();
+    }
+
+    protected String getSafeString(Event event, String key) {
+        AbstractEventProperty<?> abstractEventProperty = event.getProperties().get(key);
+        if (abstractEventProperty == null) {
+            return EMPTY;
+        }
+        return abstractEventProperty.getValue().toString();
     }
 
     protected String getSubject(AlertType alertType, Event next) {
