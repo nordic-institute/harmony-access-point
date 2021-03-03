@@ -1,20 +1,10 @@
 package eu.domibus.tomcat.jpa;
 
-import com.atomikos.jdbc.AtomikosDataSourceBean;
 import com.atomikos.jdbc.nonxa.AtomikosNonXADataSourceBean;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.jpa.DomibusJPAConfiguration;
-import eu.domibus.logging.DomibusLogger;
-import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.core.property.PrefixedProperties;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
-
-import java.util.Map;
-import java.util.function.Consumer;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
@@ -25,9 +15,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 @Configuration
 public class TomcatDatasourceConfiguration {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TomcatDatasourceConfiguration.class);
-
-    @Bean(name = DomibusJPAConfiguration.DOMIBUS_JDBC_EM_DATA_SOURCE, initMethod = "init", destroyMethod = "close")
+    @Bean(name = DomibusJPAConfiguration.DOMIBUS_JDBC_DATA_SOURCE, initMethod = "init", destroyMethod = "close")
     public AtomikosNonXADataSourceBean domibusDatasource(DomibusPropertyProvider domibusPropertyProvider) {
 
         AtomikosNonXADataSourceBean dataSource = new AtomikosNonXADataSourceBean();

@@ -38,9 +38,9 @@ public class DomibusJPAConfiguration {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusJPAConfiguration.class);
 
     /*
-     * DOMIBUS_JDBC_EM_DATA_SOURCE is used for domibus operarations (entity manager)
+     * DOMIBUS_JDBC_DATA_SOURCE is used for domibus operarations (entity manager)
      */
-    public static final String DOMIBUS_JDBC_EM_DATA_SOURCE = "domibusJDBC-dataSource";
+    public static final String DOMIBUS_JDBC_DATA_SOURCE = "domibusJDBC-dataSource";
     /*
      * DOMIBUS_JDBC_NON_XA_DATA_SOURCE is used for quartz
      */
@@ -54,8 +54,8 @@ public class DomibusJPAConfiguration {
     }
 
     @Bean
-    @DependsOn({DomibusJPAConfiguration.DOMIBUS_JDBC_EM_DATA_SOURCE})
-    public LocalContainerEntityManagerFactoryBean entityManagerFactory(@Qualifier(DOMIBUS_JDBC_EM_DATA_SOURCE) DataSource dataSource,
+    @DependsOn({DomibusJPAConfiguration.DOMIBUS_JDBC_DATA_SOURCE})
+    public LocalContainerEntityManagerFactoryBean entityManagerFactory(@Qualifier(DOMIBUS_JDBC_DATA_SOURCE) DataSource dataSource,
                                                                        DomibusPropertyProvider domibusPropertyProvider,
                                                                        @Qualifier(JPA_PROPERTIES) PrefixedProperties jpaProperties,
                                                                        Optional<ConnectionProvider> singleTenantConnectionProviderImpl,

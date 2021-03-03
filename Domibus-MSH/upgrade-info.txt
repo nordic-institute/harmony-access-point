@@ -51,7 +51,7 @@ Domibus 5.0 (from 4.2)
                                              .............................
                 - Non-XA performance improvement:
                         o Modify the Domibus properties file "\conf\domibus\domibus.properties":
-                                  - rename the "domibus.jms.XAConnectionFactory.maxPoolSize" property to "domibus.jms.connectionFactory.maxPoolSize"
+                                  - rename the "domibus.jms.XAConnectionFactory.maxPoolSize" property to "domibus.jms.connectionFactory.maxPoolSize" (if present)
                                   - remove these properties:
                                             - domibus.datasource.xa.*
                                             - domibus.entityManagerFactory.jpaProperty.hibernate.transaction.factory_class

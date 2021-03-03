@@ -28,7 +28,7 @@ public class DomibusTestDatasourceConfiguration {
     private DomibusPropertyProvider domibusPropertyProvider;
 
     @Primary
-    @Bean(name = DomibusJPAConfiguration.DOMIBUS_JDBC_EM_DATA_SOURCE, initMethod = "init", destroyMethod = "close")
+    @Bean(name = DomibusJPAConfiguration.DOMIBUS_JDBC_DATA_SOURCE, initMethod = "init", destroyMethod = "close")
     public DataSource domibusDatasource() {
         JdbcDataSource h2DataSource = createDatasource("domibusDataSource");
 

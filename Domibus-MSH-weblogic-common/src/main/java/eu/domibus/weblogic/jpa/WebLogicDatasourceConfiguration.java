@@ -20,7 +20,7 @@ public class WebLogicDatasourceConfiguration {
 
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(WebLogicDatasourceConfiguration.class);
 
-    @Bean(DomibusJPAConfiguration.DOMIBUS_JDBC_EM_DATA_SOURCE)
+    @Bean(DomibusJPAConfiguration.DOMIBUS_JDBC_DATA_SOURCE)
     public JndiObjectFactoryBean domibusDatasource(DomibusPropertyProvider domibusPropertyProvider) {
         JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
         jndiObjectFactoryBean.setExpectedType(DataSource.class);
