@@ -71,7 +71,7 @@ public class DomainSchedulerFactoryConfiguration {
     @Autowired
     protected ApplicationContext applicationContext;
 
-    @Qualifier(DomibusJPAConfiguration.DOMIBUS_JDBC_NON_XA_DATA_SOURCE)
+    @Qualifier(DomibusJPAConfiguration.DOMIBUS_JDBC_EM_DATA_SOURCE)
     @Autowired
     protected DataSource dataSource;
 

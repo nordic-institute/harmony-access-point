@@ -6,6 +6,7 @@ import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.core.property.DomibusPropertyResourceHelper;
 import eu.domibus.core.property.DomibusPropertiesFilter;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -60,6 +61,7 @@ public class DomibusPropertyResourceIT extends AbstractIT {
     }
 
     @Test
+    @Ignore("todo")
     public void testSetCronExpression() {
 
         String name = DOMIBUS_RETENTION_WORKER_CRON_EXPRESSION;

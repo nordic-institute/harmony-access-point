@@ -20,7 +20,7 @@ import java.sql.SQLException;
  * @author Sebastian-Ion TINCU
  * @since 4.2
  */
-@DependsOn(DomibusJPAConfiguration.DOMIBUS_JDBC_NON_XA_DATA_SOURCE)
+@DependsOn(DomibusJPAConfiguration.DOMIBUS_JDBC_EM_DATA_SOURCE)
 @Service(DatabaseUtil.DATABASE_USER)
 public class DatabaseUtilImpl implements DatabaseUtil {
 
@@ -28,7 +28,7 @@ public class DatabaseUtilImpl implements DatabaseUtil {
 
     private String databaseUserName;
 
-    @Qualifier(DomibusJPAConfiguration.DOMIBUS_JDBC_NON_XA_DATA_SOURCE)
+    @Qualifier(DomibusJPAConfiguration.DOMIBUS_JDBC_EM_DATA_SOURCE)
     @Autowired
     private DataSource dataSource; //NOSONAR: not necessary to be transient or serializable
 
