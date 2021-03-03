@@ -323,7 +323,7 @@
             <column name="SPLIT_AND_JOIN" type="BOOLEAN"/>
             <column name="SOURCE_MESSAGE" remarks="true if the message is a SourceMessage" type="BOOLEAN"/>
             <column name="MESSAGE_FRAGMENT" remarks="true if the message is a message fragment" type="BOOLEAN"/>
-            <column name="TIME_STAMP" type="TIMESTAMP"/>
+            <column name="EBMS3_TIMESTAMP" type="TIMESTAMP"/>
             <column name="ACTION_ID_FK" type="BIGINT"/>
             <column name="AGREEMENT_ID_FK" type="BIGINT"/>
             <column name="SERVICE_ID_FK" type="BIGINT"/>
@@ -785,7 +785,7 @@
                 <constraints primaryKey="true" primaryKeyName="PK_SIGNAL_MESSAGE"/>
             </column>
             <column name="SIGNAL_MESSAGE_ID" type="VARCHAR(255)"/>
-            <column name="TIME_STAMP" type="TIMESTAMP"/>
+            <column name="EBMS3_TIMESTAMP" type="TIMESTAMP"/>
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
