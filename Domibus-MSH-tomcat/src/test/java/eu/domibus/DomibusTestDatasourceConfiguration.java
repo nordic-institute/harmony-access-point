@@ -9,6 +9,7 @@ import org.h2.jdbcx.JdbcDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Primary;
 
 import javax.sql.DataSource;
@@ -30,7 +31,7 @@ public class DomibusTestDatasourceConfiguration {
     @Primary
     @Bean(name = DomibusJPAConfiguration.DOMIBUS_JDBC_DATA_SOURCE, initMethod = "init", destroyMethod = "close")
     public DataSource domibusDatasource() {
-        JdbcDataSource h2DataSource = createDatasource("domibusDataSource");
+        JdbcDataSource h2DataSource = createDatasource();
 
         AtomikosNonXADataSourceBean dataSource = new AtomikosNonXADataSourceBean();
         dataSource.setUniqueResourceName("domibusDataSource");
@@ -51,14 +52,14 @@ public class DomibusTestDatasourceConfiguration {
         dataSource.setReapTimeout(0);
         dataSource.setBorrowConnectionTimeout(30);
 
-        LOG.info("domibusDatasource bean created with url [{}]", dataSource.getUrl());
         return dataSource;
     }
 
     @Primary
     @Bean(name = DomibusJPAConfiguration.DOMIBUS_JDBC_NON_XA_DATA_SOURCE, initMethod = "init", destroyMethod = "close")
+    @DependsOn(DomibusJPAConfiguration.DOMIBUS_JDBC_DATA_SOURCE)
     public DataSource quartzDatasource() {
-        JdbcDataSource h2DataSource = createDatasource("domibusNonXADataSource");
+        JdbcDataSource h2DataSource = createDatasource();
 
         AtomikosNonXADataSourceBean dataSource = new AtomikosNonXADataSourceBean();
         dataSource.setUniqueResourceName("domibusNonXADataSource");
@@ -74,13 +75,12 @@ public class DomibusTestDatasourceConfiguration {
         final Integer maxLifetime = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DATASOURCE_MAX_LIFETIME);
         dataSource.setMaxLifetime(maxLifetime);
 
-        LOG.info("quartzDatasource bean created with url [{}]", dataSource.getUrl());
         return dataSource;
     }
 
-    private JdbcDataSource createDatasource(String name) {
+    private JdbcDataSource createDatasource() {
         JdbcDataSource result = new JdbcDataSource();
-        result.setUrl("jdbc:h2:mem:" + name + ";DB_CLOSE_DELAY=-1");
+        result.setUrl("jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1");
         result.setUser("sa");
         result.setPassword("");
         return result;

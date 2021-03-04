@@ -61,7 +61,6 @@ public class DomibusPropertyResourceIT extends AbstractIT {
     }
 
     @Test
-    @Ignore("todo")
     public void testSetCronExpression() {
 
         String name = DOMIBUS_RETENTION_WORKER_CRON_EXPRESSION;
