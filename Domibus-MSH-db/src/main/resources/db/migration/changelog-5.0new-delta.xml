@@ -337,7 +337,6 @@
         <sql dbms="oracle">
             ALTER TABLE TB_SJ_MESSAGE_FRAGMENT RENAME CONSTRAINT PK_TB_MESSAGE_FRAGMENT TO PK_MESSAGE_FRAGMENT;
         </sql>
-
         <addColumn tableName="TB_SJ_MESSAGE_FRAGMENT">
             <column name="GROUP_ID_FK" type="BIGINT">
                 <constraints nullable="false"/>
@@ -623,12 +622,14 @@
         <dropIndex tableName="TB_USER_MESSAGE" indexName="FK_BE4XC1069QYW2KLHVM3XMG26S"/>
         <dropIndex tableName="TB_USER_MESSAGE" indexName="FK_UM_MF"/>
 
+
         <addColumn tableName="TB_USER_MESSAGE">
             <column name="MESSAGE_ID" type="VARCHAR(255)"/>
             <column name="REF_TO_MESSAGE_ID" type="VARCHAR(255)"/>
             <column name="CONVERSATION_ID" type="VARCHAR(255)"/>
             <column name="SOURCE_MESSAGE" remarks="true if the message is a SourceMessage" type="BOOLEAN"/>
             <column name="MESSAGE_FRAGMENT" remarks="true if the message is a message fragment" type="BOOLEAN"/>
+            <column name="EBMS3_TIMESTAMP" type="TIMESTAMP" remarks="the EBMS3 timestamp present in eb:Messaging/eb:UserMessage/eb:MessageInfo/eb:Timestamp"/>
             <column name="ACTION_ID_FK" type="BIGINT"/>
             <column name="AGREEMENT_ID_FK" type="BIGINT"/>
             <column name="SERVICE_ID_FK" type="BIGINT"/>
@@ -641,6 +642,7 @@
         </addColumn>
 
         <!-- TODO add here migration data script from old columns to new ones -->
+
 
         <dropColumn columnName="COLLABORATION_INFO_ACTION" tableName="TB_USER_MESSAGE"/>
         <dropColumn columnName="AGREEMENT_REF_PMODE" tableName="TB_USER_MESSAGE"/>
@@ -785,6 +787,7 @@
 
         <addColumn tableName="TB_SIGNAL_MESSAGE">
             <column name="SIGNAL_MESSAGE_ID" type="VARCHAR(255)"/>
+            <column name="EBMS3_TIMESTAMP" type="TIMESTAMP" remarks="the EBMS3 timestamp present in eb:Messaging/eb:UserMessage/eb:MessageInfo/eb:Timestamp"/>
         </addColumn>
         <addForeignKeyConstraint baseColumnNames="ID_PK" baseTableName="TB_SIGNAL_MESSAGE"
                                  constraintName="FK_TB_SIGNAL_USER_MSG" deferrable="false"
