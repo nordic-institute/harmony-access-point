@@ -1,8 +1,8 @@
 package eu.domibus.weblogic.jpa;
 
+import eu.domibus.api.datasource.DataSourceConstants;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.jpa.DomibusJPAConfiguration;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -20,7 +20,7 @@ public class WebLogicDatasourceConfiguration {
 
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(WebLogicDatasourceConfiguration.class);
 
-    @Bean(DomibusJPAConfiguration.DOMIBUS_JDBC_DATA_SOURCE)
+    @Bean(DataSourceConstants.DOMIBUS_JDBC_DATA_SOURCE)
     public JndiObjectFactoryBean domibusDatasource(DomibusPropertyProvider domibusPropertyProvider) {
         JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
         jndiObjectFactoryBean.setExpectedType(DataSource.class);
@@ -31,7 +31,7 @@ public class WebLogicDatasourceConfiguration {
         return jndiObjectFactoryBean;
     }
 
-    @Bean(DomibusJPAConfiguration.DOMIBUS_JDBC_NON_XA_DATA_SOURCE)
+    @Bean(DataSourceConstants.DOMIBUS_JDBC_NON_XA_DATA_SOURCE)
     public JndiObjectFactoryBean quartzDatasource(DomibusPropertyProvider domibusPropertyProvider) {
         JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
         jndiObjectFactoryBean.setExpectedType(DataSource.class);

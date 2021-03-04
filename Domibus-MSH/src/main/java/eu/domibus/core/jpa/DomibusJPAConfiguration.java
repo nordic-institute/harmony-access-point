@@ -1,5 +1,6 @@
 package eu.domibus.core.jpa;
 
+import eu.domibus.api.datasource.DataSourceConstants;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.JPAConstants;
 import eu.domibus.logging.DomibusLogger;
@@ -15,7 +16,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
-import org.springframework.context.annotation.Primary;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -37,14 +37,6 @@ public class DomibusJPAConfiguration {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusJPAConfiguration.class);
 
-    /*
-     * DOMIBUS_JDBC_DATA_SOURCE is used for domibus operarations (entity manager)
-     */
-    public static final String DOMIBUS_JDBC_DATA_SOURCE = "domibusJDBC-dataSource";
-    /*
-     * DOMIBUS_JDBC_NON_XA_DATA_SOURCE is used for quartz
-     */
-    public static final String DOMIBUS_JDBC_NON_XA_DATA_SOURCE = "domibusJDBC-nonXADataSource";
     public static final String JPA_PROPERTIES = "jpaProperties";
 
 
@@ -54,8 +46,8 @@ public class DomibusJPAConfiguration {
     }
 
     @Bean
-    @DependsOn({DomibusJPAConfiguration.DOMIBUS_JDBC_DATA_SOURCE})
-    public LocalContainerEntityManagerFactoryBean entityManagerFactory(@Qualifier(DOMIBUS_JDBC_DATA_SOURCE) DataSource dataSource,
+    @DependsOn({DataSourceConstants.DOMIBUS_JDBC_DATA_SOURCE})
+    public LocalContainerEntityManagerFactoryBean entityManagerFactory(@Qualifier(DataSourceConstants.DOMIBUS_JDBC_DATA_SOURCE) DataSource dataSource,
                                                                        DomibusPropertyProvider domibusPropertyProvider,
                                                                        @Qualifier(JPA_PROPERTIES) PrefixedProperties jpaProperties,
                                                                        Optional<ConnectionProvider> singleTenantConnectionProviderImpl,

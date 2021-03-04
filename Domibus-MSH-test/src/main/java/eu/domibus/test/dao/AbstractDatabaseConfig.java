@@ -1,5 +1,6 @@
 package eu.domibus.test.dao;
 
+import eu.domibus.api.datasource.DataSourceConstants;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.Deencapsulation;
@@ -30,16 +31,14 @@ public abstract class AbstractDatabaseConfig {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AbstractDatabaseConfig.class);
 
-    public static final String DOMIBUS_JDBC_DATA_SOURCE = "domibusJDBC-dataSource";
-    public static final String DOMIBUS_JDBC_NON_XA_DATA_SOURCE = "domibusJDBC-nonXADataSource";
     public static final String H_2_DIALECT = "org.hibernate.dialect.H2Dialect";
     public static final String ORACLE_DIALECT = "org.hibernate.dialect.Oracle10gDialect";
 
-    @Bean(DOMIBUS_JDBC_DATA_SOURCE)
+    @Bean(DataSourceConstants.DOMIBUS_JDBC_DATA_SOURCE)
     protected abstract DataSource dataSource();
 
     @Bean
-    public LocalContainerEntityManagerFactoryBean domibusEM(@Qualifier(DOMIBUS_JDBC_DATA_SOURCE) DataSource dataSource, ConnectionProvider connectionProvider) {
+    public LocalContainerEntityManagerFactoryBean domibusEM(@Qualifier(DataSourceConstants.DOMIBUS_JDBC_DATA_SOURCE) DataSource dataSource, ConnectionProvider connectionProvider) {
         Properties jpaProperties = new Properties();
         jpaProperties.put("hibernate.hbm2ddl.auto", "update");
         jpaProperties.put("hibernate.show_sql", "true");

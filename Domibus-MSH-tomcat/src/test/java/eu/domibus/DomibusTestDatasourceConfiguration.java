@@ -1,8 +1,8 @@
 package eu.domibus;
 
 import com.atomikos.jdbc.nonxa.AtomikosNonXADataSourceBean;
+import eu.domibus.api.datasource.DataSourceConstants;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.jpa.DomibusJPAConfiguration;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.h2.jdbcx.JdbcDataSource;
@@ -29,7 +29,7 @@ public class DomibusTestDatasourceConfiguration {
     private DomibusPropertyProvider domibusPropertyProvider;
 
     @Primary
-    @Bean(name = DomibusJPAConfiguration.DOMIBUS_JDBC_DATA_SOURCE, initMethod = "init", destroyMethod = "close")
+    @Bean(name = DataSourceConstants.DOMIBUS_JDBC_DATA_SOURCE, initMethod = "init", destroyMethod = "close")
     public DataSource domibusDatasource() {
         JdbcDataSource h2DataSource = createDatasource();
 
@@ -56,8 +56,8 @@ public class DomibusTestDatasourceConfiguration {
     }
 
     @Primary
-    @Bean(name = DomibusJPAConfiguration.DOMIBUS_JDBC_NON_XA_DATA_SOURCE, initMethod = "init", destroyMethod = "close")
-    @DependsOn(DomibusJPAConfiguration.DOMIBUS_JDBC_DATA_SOURCE)
+    @Bean(name = DataSourceConstants.DOMIBUS_JDBC_NON_XA_DATA_SOURCE, initMethod = "init", destroyMethod = "close")
+    @DependsOn(DataSourceConstants.DOMIBUS_JDBC_DATA_SOURCE)
     public DataSource quartzDatasource() {
         JdbcDataSource h2DataSource = createDatasource();
 

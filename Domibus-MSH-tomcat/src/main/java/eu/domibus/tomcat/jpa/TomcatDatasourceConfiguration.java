@@ -1,6 +1,7 @@
 package eu.domibus.tomcat.jpa;
 
 import com.atomikos.jdbc.nonxa.AtomikosNonXADataSourceBean;
+import eu.domibus.api.datasource.DataSourceConstants;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.jpa.DomibusJPAConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -15,7 +16,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 @Configuration
 public class TomcatDatasourceConfiguration {
 
-    @Bean(name = DomibusJPAConfiguration.DOMIBUS_JDBC_DATA_SOURCE, initMethod = "init", destroyMethod = "close")
+    @Bean(name = DataSourceConstants.DOMIBUS_JDBC_DATA_SOURCE, initMethod = "init", destroyMethod = "close")
     public AtomikosNonXADataSourceBean domibusDatasource(DomibusPropertyProvider domibusPropertyProvider) {
 
         AtomikosNonXADataSourceBean dataSource = new AtomikosNonXADataSourceBean();
@@ -39,7 +40,7 @@ public class TomcatDatasourceConfiguration {
         return dataSource;
     }
 
-    @Bean(name = DomibusJPAConfiguration.DOMIBUS_JDBC_NON_XA_DATA_SOURCE, initMethod = "init", destroyMethod = "close")
+    @Bean(name = DataSourceConstants.DOMIBUS_JDBC_NON_XA_DATA_SOURCE, initMethod = "init", destroyMethod = "close")
     public AtomikosNonXADataSourceBean quartzDatasource(DomibusPropertyProvider domibusPropertyProvider) {
 
         AtomikosNonXADataSourceBean dataSource = new AtomikosNonXADataSourceBean();
