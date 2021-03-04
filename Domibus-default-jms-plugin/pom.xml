@@ -8,7 +8,7 @@
     <parent>
         <groupId>eu.domibus</groupId>
         <artifactId>domibus</artifactId>
-        <version>4.2</version>
+        <version>4.2-taxud-bugfix-20210304-SNAPSHOT</version>
     </parent>
 
     <artifactId>domibus-default-jms-plugin</artifactId>
