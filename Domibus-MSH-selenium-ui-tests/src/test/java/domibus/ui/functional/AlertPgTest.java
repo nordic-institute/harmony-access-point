@@ -962,6 +962,7 @@ public class AlertPgTest extends SeleniumTest {
 
 		AlertPage page = new AlertPage(driver);
 		page.getSidebar().goToPage(PAGES.ALERTS);
+		page.grid().waitForRowsToLoad();
 
 		AlertFilters aFilter = new AlertFilters(driver);
 		aFilter.getProcessedSelect().selectOptionByIndex(1);
