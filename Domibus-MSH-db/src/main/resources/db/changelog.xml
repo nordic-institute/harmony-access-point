@@ -22,9 +22,6 @@
     <!-- Quartz tables -->
     <include file="changelog-4.0-quartz.xml" relativeToChangelogFile="true"/>
 
-    <!-- Create stored procedures used by the deletion jobs -->
-    <include file="changelog-delete-procedures.xml" relativeToChangelogFile="true"/>
-
     <!-- Plugin specific tables -->
     <changeSet author="idragusa" id="EDELIVERY-4740">
         <comment>Plugin specific tables</comment>
@@ -2977,4 +2974,9 @@
             <column name="ROLE_NAME" value="ROLE_USER"/>
         </insert>
     </changeSet>
+
+    <!-- Create stored procedures used by the deletion jobs -->
+    <!-- Keep them to the end to make sure the tables referenced in the procedures are already created -->
+    <include file="changelog-delete-procedures.xml" relativeToChangelogFile="true"/>
+
 </databaseChangeLog>
