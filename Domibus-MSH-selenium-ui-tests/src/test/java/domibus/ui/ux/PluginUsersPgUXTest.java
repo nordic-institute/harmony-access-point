@@ -679,8 +679,7 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 		log.info("Search CERTIFICATE type plugin users");
 		page.filters().getAuthTypeSelect().selectOptionByText("CERTIFICATE");
 		page.grid().waitForRowsToLoad();
-		page.grid().scrollToAndSelect("Certificate Id", username);
-		int row = page.grid().getSelectedRowIndex();
+		int row = page.grid().scrollToAndSelect("Certificate Id", username);
 
 		page.getEditBtn().click();
 		PluginUserModal pum = new PluginUserModal(driver);
@@ -696,7 +695,7 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 	}
 
 	/*	PU-38 - Edit certificate user and Save -- EDELIVERY-7872 */
-	@Test(description = "PU-38", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "PU-38", groups = {"multiTenancy", "singleTenancy"},enabled = false)
 	public void editCertificateUsr() throws Exception {
 		String certName = Gen.randomAlphaNumeric(5);
 		String role = DRoles.USER;
@@ -726,7 +725,7 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 	}
 
 	/*	PU-40 -Delete certificate user  */
-	@Test(description = "PU-40", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "PU-40", groups = {"multiTenancy", "singleTenancy"},enabled = false)
 	public void delCertificateUsr() throws Exception {
 
 		String certName = Gen.randomAlphaNumeric(5);
@@ -775,8 +774,7 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 		page.getCancelBtn().click();
 		new Dialog(driver).confirm();
 		page.grid().waitForRowsToLoad();
-
-		soft.assertTrue(page.grid().getIndexOf(0, username) > 0, "User is present in grid");
+		soft.assertTrue(page.grid().scrollTo("Certificate Id" , username) > 0, "User is present in grid");
 		soft.assertAll();
 
 	}
@@ -787,9 +785,6 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 
 		String certName = Gen.randomAlphaNumeric(5);
 		String username = String.format("CN=%s,O=eDelivery,C=BE:%s", certName, Gen.randomAlphaNumeric(5));
-
-		String originalUser = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:" + Gen.randomAlphaNumeric(2);
-
 
 		SoftAssert soft = new SoftAssert();
 		PluginUsersPage page = navigateToPluginUserPage();
@@ -819,7 +814,7 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 
 
 	/*	PU-43 - Original user field is mandatory when editing CERTIFICATE admin plugin user to role user */
-	@Test(description = "PU-43", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "PU-43", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void originalUserOnRoleChange() throws Exception {
 
 		String certName = Gen.randomAlphaNumeric(5);
@@ -837,7 +832,7 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 		page.grid().scrollToAndSelect("Certificate Id", username);
 		page.getEditBtn().click();
 		PluginUserModal pum = new PluginUserModal(driver);
-		soft.assertFalse(Boolean.parseBoolean(pum.getOriginalUserInput().getAttribute("aria-required")), "original user field is shown with * for Role_Admin ");
+		soft.assertFalse(Boolean.parseBoolean(pum.getOriginalUserInput().getAttribute("aria-required")), "original user field is not shown with * for Role_Admin ");
 
 		pum.getRolesSelect().selectOptionByText(DRoles.USER);
 		soft.assertTrue(Boolean.parseBoolean(pum.getOriginalUserInput().getAttribute("aria-required")), "original user field is shown with * for Role_User ");
@@ -902,11 +897,11 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 		page.grid().scrollToAndSelect("User Name", username);
 		page.getEditBtn().click();
 		PluginUserModal pum = new PluginUserModal(driver);
-		soft.assertFalse(Boolean.parseBoolean(pum.getOriginalUserInput().getAttribute("aria-required")), "original user field is shown with * on edit pop up for Role_Admin ");
+		soft.assertFalse(Boolean.parseBoolean(pum.getOriginalUserInput().getAttribute("aria-required")), "original user field is not shown with * on edit pop up for Role_Admin ");
 
 		pum.getRolesSelect().selectOptionByText(DRoles.USER);
 		pum.getOriginalUserInput().fill(originalUser);
-		soft.assertTrue(Boolean.parseBoolean(pum.getOriginalUserInput().getAttribute("aria-required")), "original user field is shown with * on edit pop up for Role_Admin ");
+		soft.assertTrue(Boolean.parseBoolean(pum.getOriginalUserInput().getAttribute("aria-required")), "original user field is shown with * on edit pop up for Role_User ");
 
 		pum.getOkBtn().click();
 		page.getSaveBtn().click();
