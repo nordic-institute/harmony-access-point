@@ -49,6 +49,8 @@
     </changeSet>
     
     <changeSet id="EDELIVERY-4808" author="Catalin Enache">
+        <setColumnRemarks columnName="MESSAGE_ID" remarks="Message ID of the Domibus message" tableName="WS_PLUGIN_TB_MESSAGE_LOG"/>
+        <setColumnRemarks columnName="FINAL_RECIPIENT" remarks="Final recipient of the Domibus message" tableName="WS_PLUGIN_TB_MESSAGE_LOG"/>
         <addColumn tableName="WS_PLUGIN_TB_MESSAGE_LOG">
             <column name="CONVERSATION_ID" type="VARCHAR(255)" remarks="Conversation ID of the Domibus message"/>
             <column name="REF_TO_MESSAGE_ID" type="VARCHAR(255)" remarks="Reference to Message ID of the Domibus message"/>
@@ -358,6 +360,11 @@
             AND flat_table.message_id IS NULL;
         </createView>
     </changeSet>
+
+    <!-- Start here 4.2 to new 5.0 -->
+    <include file="migration/changelog-5.0new-delta.xml" relativeToChangelogFile="true"/>
+    <!-- End here 4.2 to new 5.0 -->
+
 
     <changeSet id="EDELIVERY-7668"  author="Catalin Enache">
         <createTable tableName="TB_VERSION" remarks="Stores Domibus version">
