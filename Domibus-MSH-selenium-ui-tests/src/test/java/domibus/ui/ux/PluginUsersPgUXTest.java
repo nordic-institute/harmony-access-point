@@ -10,7 +10,7 @@ import domibus.ui.SeleniumTest;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang.RandomStringUtils;
 import org.json.JSONArray;
-import org.json.JSONObject;;
+import org.json.JSONObject;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.plugin_users.PluginUserModal;
