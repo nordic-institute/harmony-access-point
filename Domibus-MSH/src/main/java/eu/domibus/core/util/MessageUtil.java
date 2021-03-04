@@ -4,6 +4,7 @@ import eu.domibus.api.exceptions.DomibusDateTimeException;
 import eu.domibus.api.messaging.MessagingException;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.Ebms3Constants;
 import eu.domibus.core.util.xml.XMLUtilImpl;
 import eu.domibus.ebms3.common.model.Error;
 import eu.domibus.ebms3.common.model.*;
@@ -160,7 +161,7 @@ public class MessageUtil {
         UserMessage result = new UserMessage();
 
         final String mpc = getAttribute(userMessageNode, "mpc");
-        result.setMpc(mpc);
+        result.setMpc(StringUtils.isEmpty(mpc) ? Ebms3Constants.DEFAULT_MPC : mpc);
 
         final MessageInfo messageInfo = createMessageInfo(userMessageNode);
         result.setMessageInfo(messageInfo);
