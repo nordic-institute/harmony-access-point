@@ -323,7 +323,7 @@
             <column name="SPLIT_AND_JOIN" type="BOOLEAN"/>
             <column name="SOURCE_MESSAGE" remarks="true if the message is a SourceMessage" type="BOOLEAN"/>
             <column name="MESSAGE_FRAGMENT" remarks="true if the message is a message fragment" type="BOOLEAN"/>
-            <column name="EBMS3_TIMESTAMP" type="TIMESTAMP"/>
+            <column name="EBMS3_TIMESTAMP" type="TIMESTAMP" remarks="the EBMS3 timestamp present in eb:Messaging/eb:UserMessage/eb:MessageInfo/eb:Timestamp"/>
             <column name="ACTION_ID_FK" type="BIGINT"/>
             <column name="AGREEMENT_ID_FK" type="BIGINT"/>
             <column name="SERVICE_ID_FK" type="BIGINT"/>
@@ -785,7 +785,7 @@
                 <constraints primaryKey="true" primaryKeyName="PK_SIGNAL_MESSAGE"/>
             </column>
             <column name="SIGNAL_MESSAGE_ID" type="VARCHAR(255)"/>
-            <column name="EBMS3_TIMESTAMP" type="TIMESTAMP"/>
+            <column name="EBMS3_TIMESTAMP" type="TIMESTAMP" remarks="the EBMS3 timestamp present in eb:Messaging/eb:UserMessage/eb:MessageInfo/eb:Timestamp"/>
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
@@ -948,7 +948,7 @@
             <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
-        <addUniqueConstraint columnNames="CERTIFICATE_ALIAS, CERTIFICATE_TYPE" constraintName="CERTIFICATE_ALIAS"
+        <addUniqueConstraint columnNames="CERTIFICATE_ALIAS, CERTIFICATE_TYPE" constraintName="UK_CERTIFICATE_ALIAS"
                              tableName="TB_CERTIFICATE"/>
 
         <createTable tableName="TB_REV_INFO">
@@ -1055,7 +1055,7 @@
         <createIndex indexName="IDX_COMMAND_PROP_COMMAND_ID" tableName="TB_COMMAND_PROPERTY">
             <column name="FK_COMMAND"/>
         </createIndex>
-        <addUniqueConstraint columnNames="FK_COMMAND, PROPERTY_NAME" constraintName="UNI_COMMAND_PROP_NAME"
+        <addUniqueConstraint columnNames="FK_COMMAND, PROPERTY_NAME" constraintName="UK_COMMAND_PROP_NAME"
                              tableName="TB_COMMAND_PROPERTY"/>
 
         <createTable tableName="TB_ENCRYPTION_KEY">
@@ -1078,7 +1078,7 @@
             <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
-        <addUniqueConstraint columnNames="KEY_USAGE" constraintName="UQ_KEY_USAGE" tableName="TB_ENCRYPTION_KEY"/>
+        <addUniqueConstraint columnNames="KEY_USAGE" constraintName="UK_KEY_USAGE" tableName="TB_ENCRYPTION_KEY"/>
 
         <createTable tableName="TB_ERROR_LOG">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
@@ -1126,7 +1126,7 @@
                 <constraints nullable="false"/>
             </column>
         </createTable>
-        <addUniqueConstraint columnNames="VERSION" tableName="TB_VERSION" constraintName="UQ_VERSION" />
+        <addUniqueConstraint columnNames="VERSION" tableName="TB_VERSION" constraintName="UK_VERSION" />
     </changeSet>
 
     <!-- will be fixed later -->
@@ -2476,7 +2476,7 @@
         <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_PM_PARTY_AUD" constraintName="FK_PARTY_AUD_REV"
                                  deferrable="false" initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID" referencedTableName="TB_REV_INFO"/>
-        <createIndex indexName="FK_PARTY_AUD_REV" tableName="TB_PM_PARTY_AUD">
+        <createIndex indexName="IDX_FK_PARTY_AUD_REV" tableName="TB_PM_PARTY_AUD">
             <column name="REV"/>
         </createIndex>
 
@@ -2839,9 +2839,9 @@
             <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
-        <addUniqueConstraint columnNames="USERNAME" constraintName="UQ_PLUGIN_USER_NAME"
+        <addUniqueConstraint columnNames="USERNAME" constraintName="UK_PLUGIN_USER_NAME"
                              tableName="TB_AUTHENTICATION_ENTRY"/>
-        <addUniqueConstraint columnNames="CERTIFICATE_ID" constraintName="UQ_PLUGIN_USER_CERT"
+        <addUniqueConstraint columnNames="CERTIFICATE_ID" constraintName="UK_PLUGIN_USER_CERT"
                              tableName="TB_AUTHENTICATION_ENTRY"/>
 
         <createTable tableName="TB_AUTHENTICATION_ENTRY_AUD">
@@ -2940,7 +2940,7 @@
             <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
-        <addUniqueConstraint columnNames="USER_NAME" constraintName="USER_NAME" tableName="TB_USER"/>
+        <addUniqueConstraint columnNames="USER_NAME" constraintName="UK_USER_NAME" tableName="TB_USER"/>
 
         <createTable tableName="TB_USER_AUD">
             <column name="ID_PK" type="BIGINT">
@@ -3019,7 +3019,7 @@
             <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
-        <addUniqueConstraint columnNames="ROLE_NAME" constraintName="UQ_ROLE_NAME" tableName="TB_USER_ROLE"/>
+        <addUniqueConstraint columnNames="ROLE_NAME" constraintName="UK_ROLE_NAME" tableName="TB_USER_ROLE"/>
 
         <createTable tableName="TB_USER_ROLES">
             <column name="USER_ID" type="BIGINT">

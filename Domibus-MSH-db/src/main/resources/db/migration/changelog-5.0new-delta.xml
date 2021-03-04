@@ -305,6 +305,9 @@
         <dropAllForeignKeyConstraints baseTableName="TB_MESSAGE_GROUP" />
         <dropIndex tableName="TB_MESSAGE_GROUP" indexName="FK_MG_MH" />
         <renameTable oldTableName="TB_MESSAGE_GROUP" newTableName="TB_SJ_MESSAGE_GROUP" />
+        <sql dbms="oracle">
+            ALTER TABLE TB_SJ_MESSAGE_GROUP RENAME CONSTRAINT PK_TB_MESSAGE_GROUP TO PK_SJ_MESSAGE_GROUP;
+        </sql>
 
         <addColumn tableName="TB_SJ_MESSAGE_GROUP">
             <column name="MSH_ROLE_ID_FK" remarks="The role of the MSH" type="BIGINT">
@@ -331,6 +334,10 @@
         <dropAllForeignKeyConstraints baseTableName="TB_MESSAGE_FRAGMENT" />
         <dropIndex tableName="TB_MESSAGE_FRAGMENT" indexName="IDX_MF_GRP_ID"/>
         <renameTable oldTableName="TB_MESSAGE_FRAGMENT" newTableName="TB_SJ_MESSAGE_FRAGMENT" />
+        <sql dbms="oracle">
+            ALTER TABLE TB_SJ_MESSAGE_FRAGMENT RENAME CONSTRAINT PK_TB_MESSAGE_FRAGMENT TO PK_MESSAGE_FRAGMENT;
+        </sql>
+
         <addColumn tableName="TB_SJ_MESSAGE_FRAGMENT">
             <column name="GROUP_ID_FK" type="BIGINT">
                 <constraints nullable="false"/>
