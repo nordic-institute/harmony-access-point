@@ -2,6 +2,7 @@ package domibus.ui.functional;
 
 import ddsl.dcomponents.AlertArea;
 import ddsl.dcomponents.DomibusPage;
+import ddsl.dcomponents.grid.DGrid;
 import ddsl.dobjects.DObject;
 import ddsl.enums.PAGES;
 import domibus.ui.SeleniumTest;
@@ -53,8 +54,12 @@ public class AllPgTest extends SeleniumTest {
 
 			page.getSidebar().goToPage(ppage);
 
-			log.info("Clean given directory");
-			FileUtils.cleanDirectory(new File(data.downloadFolderPath()));
+//			wait for grid to load but due to not knowing which page we are on we have to hardcode the wait
+			page.wait.forXMillis(1500);
+
+//			log.info("Clean given directory");
+//			FileUtils.cleanDirectory(new File(data.downloadFolderPath()));
+
 
 			log.info("Click on download csv button");
 			String filename = page.pressSaveCsvAndSaveFile();

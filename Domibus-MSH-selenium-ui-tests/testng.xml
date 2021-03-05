@@ -68,6 +68,9 @@
                     <exclude name="verifyHeaders"/>
 <!--                    incomplete test-->
                     <exclude name="checkAditionalFilters"/>
+                    <!-- EDELIVERY-7873 -->
+                    <exclude name="defaultDataInSearchFilter"/>
+
                 </methods>
             </class>
             <class name="domibus.ui.functional.ChangePasswordPgTest"/>

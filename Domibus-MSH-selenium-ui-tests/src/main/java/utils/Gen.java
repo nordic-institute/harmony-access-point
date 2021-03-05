@@ -24,6 +24,17 @@ public class Gen {
 	public static Integer randomNumber(int range) {
 		return Double.valueOf(Math.random() * range).intValue();
 	}
+
+	public static String randomNumberOfLen(int len) {
+
+		StringBuilder build = new StringBuilder();
+
+		for (int i = 0; i < len; i++) {
+			build.append(Double.valueOf(Math.random() * 10).intValue());
+		}
+
+		return build.toString();
+	}
 	
 	
 }

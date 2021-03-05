@@ -23,6 +23,20 @@ public class PropertiesClient extends BaseRestClient {
 		return new JSONObject(sanitizeResponse(clientResponse.getEntity(String.class))).getJSONArray("items");
 		
 	}
+
+	public JSONObject getDomibusPropertyDetail(String propName, String domain) throws Exception {
+
+		switchDomain(domain);
+
+		HashMap<String, String> params = new HashMap<>();
+		params.put("name", propName);
+		ClientResponse clientResponse = requestGET(resource.path(RestServicePaths.DOMIBUS_PROPERTIES), params);
+		if (clientResponse.getStatus() != 200) {
+			throw new DomibusRestException("Could not get properties ", clientResponse);
+		}
+		return new JSONObject(sanitizeResponse(clientResponse.getEntity(String.class))).getJSONArray("items").getJSONObject(0);
+
+	}
 	
 	
 	public JSONArray searchProperties(String name) throws Exception {

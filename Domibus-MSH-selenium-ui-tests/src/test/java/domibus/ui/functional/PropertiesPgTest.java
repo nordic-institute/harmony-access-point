@@ -17,6 +17,8 @@ import org.testng.asserts.SoftAssert;
 import pages.ChangePassword.ChangePasswordPage;
 import pages.properties.PropGrid;
 import pages.properties.PropertiesPage;
+import pages.users.UserModal;
+import pages.users.UsersGrid;
 import pages.users.UsersPage;
 import utils.Gen;
 import utils.TestUtils;
@@ -437,7 +439,7 @@ public class PropertiesPgTest extends SeleniumTest {
 		page.wait.forXMillis(1000);
 		page.grid().getPagination().goToNextPage();
 
-		String value = page.propGrid().getPropertyValue(info.get("Property Name"));
+		String value = rest.properties().getDomibusPropertyDetail(info.get("Property Name"), null).getString("value");
 		log.info("getting value after refresh: " + value);
 
 		soft.assertEquals(value, info.get("Property Value"), "Set value was not saved");
@@ -570,14 +572,14 @@ public class PropertiesPgTest extends SeleniumTest {
 
 		grid.setPropertyValue("domibus.file.upload.maxSize", "100");
 
-		ClientResponse response = null;
-		try {
-			response = rest.pmode().uploadPMode("pmodes/pmode-dataSetupBlue.xml", "test comment", null);
+		soft.assertFalse(page.getAlertArea().isError(), "Success message is shown");
 
+		try {
+			ClientResponse response = rest.pmode().uploadPMode("pmodes/pmode-dataSetupBlue.xml", "test comment", null);
+			soft.assertEquals(response.getStatus() , 500, "500 error returned");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		soft.assertTrue(StringUtils.containsIgnoreCase(response.getEntity(String.class), "Maximum upload size of 100 bytes exceeded"), "error message contains mention of file size exceeded");
 
 		rest.properties().updateGlobalProperty("domibus.file.upload.maxSize", "1000000");
 		soft.assertAll();
@@ -822,9 +824,9 @@ public class PropertiesPgTest extends SeleniumTest {
 		String oldPropVal = modifyProperty("domibus.passwordPolicy.pattern", true, "[0-9].{8,32}");
 
 		try {
-			rest.users().changePassForUser(null, username, "654987654987");
+			rest.users().changePassForUser(null, username, Gen.randomNumberOfLen(10));
 		} catch (Exception e) {
-			soft.assertTrue(false, "Updating pass to only numbers failed");
+			soft.assertTrue(false, "Updating pass to only numbers failed for user");
 		}
 
 		rest.properties().updateDomibusProperty("domibus.passwordPolicy.pattern", oldPropVal, null);
@@ -836,13 +838,97 @@ public class PropertiesPgTest extends SeleniumTest {
 			modifyProperty("domibus.passwordPolicy.pattern", false, "[0-9].{8,32}");
 
 			try {
-				rest.users().changePassForUser(null, superUsername, "654987654987");
+				rest.users().changePassForUser(null, superUsername, Gen.randomNumberOfLen(10));
 			} catch (Exception e) {
-				soft.assertTrue(false, "Updating pass to only numbers failed");
+				soft.assertTrue(false, "Updating pass to only numbers failed for super");
 			}
-			rest.properties().updateDomibusProperty("domibus.passwordPolicy.pattern", oldPropVal);
+			rest.properties().updateGlobalProperty("domibus.passwordPolicy.pattern", oldPropVal);
 		}
 
+
+		soft.assertAll();
+	}
+
+
+	/* EDELIVERY-7334 - PROP-25 - Update property domibus.passwordPolicy.validationMessage */
+	@Test(description = "PROP-25", groups = {"multiTenancy", "singleTenancy"})
+	public void checkPolicyValidationMessage() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+//		checking property at domain level
+		String username = rest.getUsername(null, DRoles.USER, true, false, false);
+
+		String newValidationMessage = "newUSERValidationMessage";
+		String oldPropVal = modifyProperty("domibus.passwordPolicy.validationMessage", true, newValidationMessage);
+
+		String newSuperValidationMessage = "newSUPERValidationMessage";
+
+		if (data.isMultiDomain()) {
+			String oldSuperPropVal = modifyProperty("domibus.passwordPolicy.validationMessage", false, newSuperValidationMessage);
+		}
+
+		UsersPage page = new UsersPage(driver);
+		page.getSidebar().goToPage(PAGES.USERS);
+
+		UsersGrid grid = page.getUsersGrid();
+		grid.waitForRowsToLoad();
+
+		page.getNewBtn().click();
+
+		UserModal modal = new UserModal(driver);
+		modal.getPasswordInput().fill("notGood");
+
+
+		soft.assertEquals(modal.getPassErrMess().getText() , "Password should follow all of these rules:\n\n" + newValidationMessage , "User validation message changed according to property");
+
+		if (data.isMultiDomain()) {
+
+			page.refreshPage();
+			grid.waitForRowsToLoad();
+
+			page.getNewBtn().click();
+			modal.getRoleSelect().selectOptionByText(DRoles.SUPER);
+
+			modal.getPasswordInput().fill("notGood");
+			soft.assertEquals(modal.getPassErrMess().getText() , "Password should follow all of these rules:\n\n" + newSuperValidationMessage , "Super validation message changed according to property");
+
+			rest.properties().updateGlobalProperty("domibus.passwordPolicy.validationMessage", oldPropVal);
+		}
+
+		rest.properties().updateDomibusProperty("domibus.passwordPolicy.validationMessage", oldPropVal);
+		soft.assertAll();
+	}
+
+	/* EDELIVERY-7336 - PROP-27 - Update property domibus.property.length.max */
+	@Test(description = "PROP-27", groups = {"multiTenancy", "singleTenancy"})
+	public void checkPropertyLengthMax() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		String expectedErrorTemplate = "Could not update property: Invalid property value [%s] for property [%s]. Maximum accepted length is: %s";
+		String newMaxLength = "10";
+
+		PropertiesPage page = new PropertiesPage(driver);
+
+		String oldVal = modifyProperty("domibus.property.length.max", false, "10");
+
+		try{
+			String globalNewVal = Gen.randomAlphaNumeric(11);
+			modifyProperty("domibus.instance.name", false, globalNewVal);
+			soft.assertEquals(page.getAlertArea().getAlertMessage()
+					, String.format(expectedErrorTemplate, globalNewVal, "domibus.instance.name", newMaxLength)
+					, "Correct error message is shown (GLOBAL)");
+		}catch (Exception e){ }
+		try{
+
+			String globalNewVal = Gen.randomAlphaNumeric(11);
+			modifyProperty("domibus.ui.support.team.name", true, globalNewVal);
+			soft.assertEquals(page.getAlertArea().getAlertMessage()
+					, String.format(expectedErrorTemplate, globalNewVal, "domibus.ui.support.team.name", newMaxLength)
+					, "Correct error message is shown (DOMAIN)");
+
+		}catch (Exception e){ }
+
+		rest.properties().updateGlobalProperty("domibus.property.length.max", oldVal);
 
 		soft.assertAll();
 	}

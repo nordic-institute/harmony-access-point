@@ -129,6 +129,7 @@ public class DGrid extends DComponent {
 	}
 
 	public void waitForRowsToLoad() {
+		log.info("waiting for rows to load");
 		try {
 			wait.shortWaitForElementToBe(progressBar);
 			int bars = 1;

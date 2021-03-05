@@ -76,7 +76,9 @@ public class TestUtils {
 	
 	public static <T extends DGrid> void testSortingForColumn(SoftAssert soft, T grid, JSONObject colDesc) throws Exception {
 		log.info("test sorting for " + colDesc.getString("name"));
-		
+
+
+
 		String columnName = colDesc.getString("name");
 		List<String> columns = grid.getColumnNames();
 		if (!columns.contains(columnName)) {
@@ -89,6 +91,9 @@ public class TestUtils {
 		}
 		if (!StringUtils.equalsIgnoreCase(grid.getSortedColumnName(), columnName)) {
 			grid.sortBy(columnName);
+
+			grid.waitForRowsToLoad();
+
 			Order order = grid.getSortOrder();
 			checkSortOrder(soft, columnName, colDesc.getString("type"), order, grid.getListedValuesOnColumn(columnName));
 		}
