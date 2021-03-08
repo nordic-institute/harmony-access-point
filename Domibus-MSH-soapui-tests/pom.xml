@@ -131,6 +131,8 @@
                             <projectProperties>
                                 <value>${localUrl}</value>
                                 <value>${remoteUrl}</value>
+                                <value>${endpointUrl}</value>
+                                <value>${endpointXmlns}</value>
                                 <value>${allDomainsProperties}</value>
                                 <value>${allJMSDomainsProperties}</value>
                                 <value>multitenancyModeC2=0</value>
