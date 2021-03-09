@@ -66,9 +66,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         user_message(i).SOURCE_MESSAGE,
                         user_message(i).MESSAGE_FRAGMENT,
                         user_message(i).EBMS3_TIMESTAMP;
-
                 END LOOP;
-            dbms_output.put_line('Wrote ' || user_message.COUNT || ' records');
+            DBMS_OUTPUT.PUT_LINE('Wrote ' || user_message.COUNT || ' records');
         END LOOP;
         CLOSE c_user_message;
 
