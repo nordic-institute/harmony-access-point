@@ -4,6 +4,7 @@ Domibus 4.2.1
 - Enhance the retention worker deletion strategies.
 - Upgraded several libraries: CXF 3.3.9, BouncyCastle to 1.67
 - Fix known issue about class cast exception on OpenJDK11 (11.0.10.0.9)
+- Property domibus.logging.cxf.limit has been increased to 18000 (the size limit at which messages are truncated in the logs)
 Domibus 4.2
 - Added a new property domibus.logging.metadata.print - prints the AS4 metadata in the logs when org.apache.cxf is set to at least INFO in logback.xml. Defaults to true.
 - Deprecated the following classes/methods:
