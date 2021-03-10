@@ -2,11 +2,10 @@ package eu.domibus.ext.delegate.services.jms;
 
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
-import eu.domibus.ext.delegate.converter.DomainExtConverter;
+import eu.domibus.ext.delegate.mapper.DomibusExtMapper;
 import eu.domibus.ext.domain.JmsMessageDTO;
 import eu.domibus.ext.services.JMSExtService;
 import eu.domibus.messaging.MessageNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.core.JmsOperations;
 import org.springframework.stereotype.Service;
 
@@ -20,45 +19,48 @@ import java.util.Collection;
 @Service
 public class JMSExtServiceDelegate implements JMSExtService {
 
-    @Autowired
-    protected JMSManager jmsManager;
+    protected final JMSManager jmsManager;
 
-    @Autowired
-    protected DomainExtConverter domainExtConverter;
+    protected final DomibusExtMapper domibusExtMapper;
+
+    public JMSExtServiceDelegate(JMSManager jmsManager, DomibusExtMapper domibusExtMapper) {
+        this.jmsManager = jmsManager;
+        this.domibusExtMapper = domibusExtMapper;
+    }
 
     @Override
     public void sendMessageToQueue(JmsMessageDTO message, String destination) {
-        final JmsMessage jmsMessage = domainExtConverter.convert(message, JmsMessage.class);
+        final JmsMessage jmsMessage = domibusExtMapper.jmsMessageDTOToJmsMessage(message);
         jmsManager.sendMessageToQueue(jmsMessage, destination);
     }
 
     @Override
     public void sendMessageToQueue(JmsMessageDTO message, Queue destination) {
-        final JmsMessage jmsMessage = domainExtConverter.convert(message, JmsMessage.class);
+        final JmsMessage jmsMessage = domibusExtMapper.jmsMessageDTOToJmsMessage(message);
         jmsManager.sendMessageToQueue(jmsMessage, destination);
     }
 
     @Override
     public void sendMapMessageToQueue(JmsMessageDTO message, String destination) {
-        final JmsMessage jmsMessage = domainExtConverter.convert(message, JmsMessage.class);
+        final JmsMessage jmsMessage = domibusExtMapper.jmsMessageDTOToJmsMessage(message);
         jmsManager.sendMapMessageToQueue(jmsMessage, destination);
     }
 
     @Override
     public void sendMapMessageToQueue(JmsMessageDTO message, Queue destination) {
-        final JmsMessage jmsMessage = domainExtConverter.convert(message, JmsMessage.class);
+        final JmsMessage jmsMessage = domibusExtMapper.jmsMessageDTOToJmsMessage(message);
         jmsManager.sendMapMessageToQueue(jmsMessage, destination);
     }
 
     @Override
     public void sendMapMessageToQueue(JmsMessageDTO message, String destination, JmsOperations jmsOperations) {
-        final JmsMessage jmsMessage = domainExtConverter.convert(message, JmsMessage.class);
+        final JmsMessage jmsMessage = domibusExtMapper.jmsMessageDTOToJmsMessage(message);
         jmsManager.sendMapMessageToQueue(jmsMessage, destination, jmsOperations);
     }
 
     @Override
     public void sendMapMessageToQueue(JmsMessageDTO message, Queue destination, JmsOperations jmsOperations) {
-        final JmsMessage jmsMessage = domainExtConverter.convert(message, JmsMessage.class);
+        final JmsMessage jmsMessage = domibusExtMapper.jmsMessageDTOToJmsMessage(message);
         jmsManager.sendMapMessageToQueue(jmsMessage, destination, jmsOperations);
     }
 

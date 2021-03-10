@@ -1,14 +1,13 @@
 package eu.domibus.ext.delegate.services.monitoring;
 
-import eu.domibus.api.monitoring.domain.MonitoringInfo;
 import eu.domibus.api.monitoring.DomibusMonitoringService;
-import eu.domibus.ext.delegate.converter.DomainExtConverter;
+import eu.domibus.api.monitoring.domain.MonitoringInfo;
+import eu.domibus.ext.delegate.mapper.MonitoringExtMapper;
 import eu.domibus.ext.domain.monitoring.MonitoringInfoDTO;
 import eu.domibus.ext.exceptions.DomibusMonitoringExtException;
 import eu.domibus.ext.services.DomibusMonitoringExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,11 +22,14 @@ import java.util.List;
 public class DomibusMonitoringServiceDelegate implements DomibusMonitoringExtService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusMonitoringServiceDelegate.class);
-    @Autowired
-    DomibusMonitoringService domibusMonitoringService;
+    final DomibusMonitoringService domibusMonitoringService;
 
-    @Autowired
-    DomainExtConverter domainConverter;
+    final MonitoringExtMapper monitoringExtMapper;
+
+    public DomibusMonitoringServiceDelegate(DomibusMonitoringService domibusMonitoringService, MonitoringExtMapper monitoringExtMapper) {
+        this.domibusMonitoringService = domibusMonitoringService;
+        this.monitoringExtMapper = monitoringExtMapper;
+    }
 
     /**
      * Get Monitoring Details by checking the DB, JMS Broker and Quarter Trigger based on the filters
@@ -43,7 +45,7 @@ public class DomibusMonitoringServiceDelegate implements DomibusMonitoringExtSer
             return null;
         }
         LOG.debug("Domibus Monitoring Info [{}]", monitoringInfo);
-        return domainConverter.convert(monitoringInfo, MonitoringInfoDTO.class);
+        return monitoringExtMapper.monitoringInfoToMonitoringInfoDTO(monitoringInfo);
     }
 }
 

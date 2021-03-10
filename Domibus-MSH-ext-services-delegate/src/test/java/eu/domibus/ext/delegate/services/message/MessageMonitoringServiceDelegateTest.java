@@ -1,11 +1,10 @@
 package eu.domibus.ext.delegate.services.message;
 
-import eu.domibus.api.usermessage.UserMessageService;
+import eu.domibus.api.message.UserMessageSecurityService;
 import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.message.attempt.MessageAttemptService;
-import eu.domibus.ext.delegate.converter.DomainExtConverter;
-import eu.domibus.api.message.UserMessageSecurityService;
-import eu.domibus.ext.domain.MessageAttemptDTO;
+import eu.domibus.api.usermessage.UserMessageService;
+import eu.domibus.ext.delegate.mapper.MessageExtMapper;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -31,7 +30,7 @@ public class MessageMonitoringServiceDelegateTest {
     UserMessageService userMessageService;
 
     @Injectable
-    DomainExtConverter domibusDomainConverter;
+    MessageExtMapper messageExtMapper;
 
     @Injectable
     MessageAttemptService messageAttemptService;
@@ -40,7 +39,7 @@ public class MessageMonitoringServiceDelegateTest {
     UserMessageSecurityService userMessageSecurityService;
 
     @Test
-    public void testGetFailedMessages() throws Exception {
+    public void testGetFailedMessages()  {
         final String originalUserFromSecurityContext = "C4";
 
         new Expectations(messageMonitoringServiceDelegate) {{
@@ -56,7 +55,7 @@ public class MessageMonitoringServiceDelegateTest {
     }
 
     @Test
-    public void testGetFailedMessagesForFinalRecipient() throws Exception {
+    public void testGetFailedMessagesForFinalRecipient()  {
         final String finalRecipient = "C4";
 
         messageMonitoringServiceDelegate.getFailedMessages(finalRecipient);
@@ -68,7 +67,7 @@ public class MessageMonitoringServiceDelegateTest {
     }
 
     @Test
-    public void testGetFailedMessageInterval() throws Exception {
+    public void testGetFailedMessageInterval()  {
         final String messageId = "1";
 
         messageMonitoringServiceDelegate.getFailedMessageInterval(messageId);
@@ -80,8 +79,7 @@ public class MessageMonitoringServiceDelegateTest {
     }
 
     @Test
-    public void testRestoreFailedMessagesDuringPeriod() throws Exception {
-        final String messageId = "1";
+    public void testRestoreFailedMessagesDuringPeriod()  {
         final Date begin = new Date();
         final Date end = new Date();
 
@@ -100,7 +98,7 @@ public class MessageMonitoringServiceDelegateTest {
     }
 
     @Test
-    public void testRestoreFailedMessage() throws Exception {
+    public void testRestoreFailedMessage() {
         final String messageId = "1";
 
         messageMonitoringServiceDelegate.restoreFailedMessage(messageId);
@@ -112,7 +110,7 @@ public class MessageMonitoringServiceDelegateTest {
     }
 
     @Test
-    public void testDeleteFailedMessage() throws Exception {
+    public void testDeleteFailedMessage()  {
         final String messageId = "1";
 
         messageMonitoringServiceDelegate.deleteFailedMessage(messageId);
@@ -124,7 +122,7 @@ public class MessageMonitoringServiceDelegateTest {
     }
 
     @Test
-    public void testGetAttemptsHistory(@Injectable  final List<MessageAttempt> attemptsHistory) throws Exception {
+    public void testGetAttemptsHistory(@Injectable  final List<MessageAttempt> attemptsHistory) {
         final String messageId = "1";
 
         new Expectations(messageMonitoringServiceDelegate) {{
@@ -136,7 +134,7 @@ public class MessageMonitoringServiceDelegateTest {
 
         new Verifications() {{
             userMessageSecurityService.checkMessageAuthorization(messageId);
-            domibusDomainConverter.convert(attemptsHistory, MessageAttemptDTO.class);
+            messageExtMapper.messageAttemptToMessageAttemptDTO(attemptsHistory);
         }};
     }
 }

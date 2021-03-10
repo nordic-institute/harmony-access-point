@@ -3,7 +3,7 @@ package eu.domibus.ext.delegate.services.property;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.NotificationType;
-import eu.domibus.ext.delegate.converter.DomainExtConverter;
+import eu.domibus.ext.delegate.mapper.DomibusExtMapper;
 import eu.domibus.ext.services.DomainContextExtService;
 import mockit.Expectations;
 import mockit.Injectable;
@@ -14,9 +14,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,7 +37,7 @@ public class DomibusPropertyServiceDelegateTest {
     protected DomainService domainService;
 
     @Injectable
-    protected DomainExtConverter domainConverter;
+    protected DomibusExtMapper domibusExtMapper;
 
     @Injectable
     DomainContextExtService domainContextService;
@@ -47,8 +45,8 @@ public class DomibusPropertyServiceDelegateTest {
     @Test
     public void getConfiguredNotifications() {
         String propertyName = "messages.notifications";
-        List<NotificationType> expectedTypes = Arrays.asList(new NotificationType[]{NotificationType.MESSAGE_RECEIVED, NotificationType.MESSAGE_SEND_SUCCESS});
-        String propertyValue = StringUtils.join(expectedTypes.stream().map(notificationType -> notificationType.toString()).collect(Collectors.toList()), ",");
+        List<NotificationType> expectedTypes = Arrays.asList(NotificationType.MESSAGE_RECEIVED, NotificationType.MESSAGE_SEND_SUCCESS);
+        String propertyValue = StringUtils.join(expectedTypes.stream().map(Enum::toString).collect(Collectors.toList()), ",");
 
         new Expectations(domibusPropertyServiceDelegate) {{
             domibusPropertyServiceDelegate.getProperty(propertyName);
@@ -62,13 +60,8 @@ public class DomibusPropertyServiceDelegateTest {
     @Test
     public void getConfiguredNotificationsWithDuplicateValues() {
         String propertyName = "messages.notifications";
-        List<NotificationType> expectedTypes = Arrays.asList(new NotificationType[]{NotificationType.MESSAGE_RECEIVED, NotificationType.MESSAGE_SEND_SUCCESS});
-        List<NotificationType> configuredValues = new ArrayList<>();
-        configuredValues.addAll(expectedTypes);
-        //duplicate values
-        configuredValues.addAll(expectedTypes);
-
-        String propertyValue = StringUtils.join(expectedTypes.stream().map(notificationType -> notificationType.toString()).collect(Collectors.toList()), ",");
+        List<NotificationType> expectedTypes = Arrays.asList(NotificationType.MESSAGE_RECEIVED, NotificationType.MESSAGE_SEND_SUCCESS);
+        String propertyValue = StringUtils.join(expectedTypes.stream().map(Enum::toString).collect(Collectors.toList()), ",");
 
         new Expectations(domibusPropertyServiceDelegate) {{
             domibusPropertyServiceDelegate.getProperty(propertyName);
@@ -96,7 +89,7 @@ public class DomibusPropertyServiceDelegateTest {
     @Test
     public void getNotificationType() {
         NotificationType notificationType = domibusPropertyServiceDelegate.getNotificationType(NotificationType.MESSAGE_RECEIVED.toString());
-        assertEquals(notificationType, NotificationType.MESSAGE_RECEIVED);
+        assertEquals(NotificationType.MESSAGE_RECEIVED, notificationType);
     }
 
     @Test

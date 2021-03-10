@@ -4,13 +4,10 @@ import eu.domibus.api.pmode.PModeArchiveInfo;
 import eu.domibus.api.pmode.PModeService;
 import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.api.util.MultiPartFileUtil;
-import eu.domibus.ext.delegate.converter.DomainExtConverter;
+import eu.domibus.ext.delegate.mapper.PModeExtMapper;
 import eu.domibus.ext.domain.PModeArchiveInfoDTO;
 import eu.domibus.ext.domain.ValidationIssueDTO;
 import eu.domibus.ext.services.PModeExtService;
-import eu.domibus.logging.DomibusLogger;
-import eu.domibus.logging.DomibusLoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,16 +22,17 @@ import java.util.List;
 @Service
 public class PModeServiceDelegate implements PModeExtService {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PModeServiceDelegate.class);
+    private final PModeService pModeService;
 
-    @Autowired
-    private PModeService pModeService;
+    private final PModeExtMapper domibusExtMapper;
 
-    @Autowired
-    private DomainExtConverter domainConverter;
+    final MultiPartFileUtil multiPartFileUtil;
 
-    @Autowired
-    MultiPartFileUtil multiPartFileUtil;
+    public PModeServiceDelegate(PModeService pModeService, PModeExtMapper pModeExtMapper, MultiPartFileUtil multiPartFileUtil) {
+        this.pModeService = pModeService;
+        this.domibusExtMapper = pModeExtMapper;
+        this.multiPartFileUtil = multiPartFileUtil;
+    }
 
     @Override
     public byte[] getPModeFile(int id) {
@@ -44,19 +42,19 @@ public class PModeServiceDelegate implements PModeExtService {
     @Override
     public PModeArchiveInfoDTO getCurrentPmode() {
         final PModeArchiveInfo pModeArchiveInfo = pModeService.getCurrentPMode();
-        return domainConverter.convert(pModeArchiveInfo, PModeArchiveInfoDTO.class);
+        return domibusExtMapper.pModeArchiveInfoToPModeArchiveInfoDTO(pModeArchiveInfo);
     }
 
     @Override
     public List<ValidationIssueDTO> updatePModeFile(byte[] bytes, String description) {
         List<ValidationIssue> issues = pModeService.updatePModeFile(bytes, description);
-        return domainConverter.convert(issues, ValidationIssueDTO.class);
+        return domibusExtMapper.validationIssueToValidationIssueDTO(issues);
     }
 
     @Override
     public List<ValidationIssueDTO> updatePModeFile(MultipartFile file, String description) {
         byte[] bytes = multiPartFileUtil.validateAndGetFileContent(file, Arrays.asList(MimeTypeUtils.APPLICATION_XML, MimeTypeUtils.TEXT_XML));
         List<ValidationIssue> issues = pModeService.updatePModeFile(bytes, description);
-        return domainConverter.convert(issues, ValidationIssueDTO.class);
+        return domibusExtMapper.validationIssueToValidationIssueDTO(issues);
     }
 }
