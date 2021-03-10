@@ -2,10 +2,9 @@ package eu.domibus.ext.delegate.services.multitenancy;
 
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.ext.delegate.converter.DomainExtConverter;
+import eu.domibus.ext.delegate.mapper.DomibusExtMapper;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.DomainContextExtService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -15,27 +14,30 @@ import org.springframework.stereotype.Service;
 @Service
 public class DomainContextServiceDelegate implements DomainContextExtService {
 
-    @Autowired
-    protected DomainContextProvider domainContextProvider;
+    protected final DomainContextProvider domainContextProvider;
 
-    @Autowired
-    protected DomainExtConverter domainConverter;
+    protected final DomibusExtMapper domibusExtMapper;
+
+    public DomainContextServiceDelegate(DomainContextProvider domainContextProvider, DomibusExtMapper domibusExtMapper) {
+        this.domainContextProvider = domainContextProvider;
+        this.domibusExtMapper = domibusExtMapper;
+    }
 
     @Override
     public DomainDTO getCurrentDomain() {
         final Domain currentDomain = domainContextProvider.getCurrentDomain();
-        return domainConverter.convert(currentDomain, DomainDTO.class);
+        return domibusExtMapper.domainToDomainDTO(currentDomain);
     }
 
     @Override
     public DomainDTO getCurrentDomainSafely() {
         final Domain currentDomain = domainContextProvider.getCurrentDomainSafely();
-        return currentDomain != null ? domainConverter.convert(currentDomain, DomainDTO.class) : null;
+        return domibusExtMapper.domainToDomainDTO(currentDomain);
     }
 
     @Override
     public void setCurrentDomain(DomainDTO domainDTO) {
-        final Domain domain = domainConverter.convert(domainDTO, Domain.class);
+        final Domain domain = domibusExtMapper.domainDTOToDomain(domainDTO);
         domainContextProvider.setCurrentDomain(domain);
     }
 

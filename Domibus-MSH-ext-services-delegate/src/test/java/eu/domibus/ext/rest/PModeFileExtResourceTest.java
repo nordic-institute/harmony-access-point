@@ -1,6 +1,6 @@
 package eu.domibus.ext.rest;
 
-import eu.domibus.ext.delegate.converter.DomainExtConverter;
+import eu.domibus.ext.delegate.mapper.PModeExtMapper;
 import eu.domibus.ext.domain.PModeArchiveInfoDTO;
 import eu.domibus.ext.exceptions.PModeExtException;
 import eu.domibus.ext.rest.error.ExtExceptionHelper;
@@ -34,7 +34,7 @@ public class PModeFileExtResourceTest {
     PModeExtService pModeExtService;
 
     @Injectable
-    DomainExtConverter domainConverter;
+    PModeExtMapper pModeExtMapper;
 
     @Injectable
     ExtExceptionHelper extExceptionHelper;
@@ -106,7 +106,7 @@ public class PModeFileExtResourceTest {
     }
 
     @Test
-    public void test_uploadPMode(final @Mocked MultipartFile pModeFile, final @Mocked byte[] bytes) throws Exception {
+    public void test_uploadPMode(final @Mocked MultipartFile pModeFile, final @Mocked byte[] bytes) {
         final String description = "test upload";
         final List<String> uploadResult = new ArrayList<>();
 

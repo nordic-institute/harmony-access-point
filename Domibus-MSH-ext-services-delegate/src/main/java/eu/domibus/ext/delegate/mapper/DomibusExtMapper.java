@@ -1,12 +1,9 @@
 package eu.domibus.ext.delegate.mapper;
 
 import eu.domibus.api.jms.JmsMessage;
-import eu.domibus.api.message.acknowledge.MessageAcknowledgement;
-import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.party.Identifier;
 import eu.domibus.api.party.Party;
-import eu.domibus.api.pmode.PModeArchiveInfo;
 import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.api.process.Process;
 import eu.domibus.api.property.DomibusPropertyMetadata;
@@ -18,25 +15,19 @@ import org.mapstruct.DecoratedWith;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import java.util.List;
+
 /**
  * @author Ioana Dragusanu (idragusa), azhikso
  * @since 4.1
  */
-@Mapper(uses = {MonitoringMapper.class, AlertMapper.class}, componentModel = "spring")
+@Mapper(componentModel = "spring")
 @DecoratedWith(DomibusExtMapperDecorator.class)
 public interface DomibusExtMapper {
 
     DomainDTO domainToDomainDTO(Domain domain);
 
     Domain domainDTOToDomain(DomainDTO domain);
-
-    MessageAttemptDTO messageAttemptToMessageAttemptDTO(MessageAttempt messageAttempt);
-
-    MessageAttempt messageAttemptDTOToMessageAttempt(MessageAttemptDTO messageAttemptDTO);
-
-    MessageAcknowledgementDTO messageAcknowledgementToMessageAcknowledgementDTO(MessageAcknowledgement messageAcknowledgementDTO);
-
-    MessageAcknowledgement messageAcknowledgementDTOToMessageAcknowledgement(MessageAcknowledgementDTO messageAcknowledgementDTO);
 
     @Mapping(target = "properties", ignore = true)
     JmsMessageDTO jmsMessageToJmsMessageDTO(JmsMessage jmsMessage);
@@ -47,8 +38,6 @@ public interface DomibusExtMapper {
     UserMessage userMessageDTOToUserMessage(UserMessageDTO userMessageDTO);
 
     UserMessageDTO userMessageToUserMessageDTO(UserMessage userMessage);
-
-    PModeArchiveInfoDTO pModeArchiveInfoToPModeArchiveInfoDto(PModeArchiveInfo pModeArchiveInfo);
 
     PasswordEncryptionResultDTO passwordEncryptionResultToPasswordEncryptionResultDTO(PasswordEncryptionResult passwordEncryptionResult);
 
@@ -71,4 +60,9 @@ public interface DomibusExtMapper {
     TrustStoreDTO trustStoreEntryToTrustStoreDTO(TrustStoreEntry trustStoreEntry);
 
     TrustStoreEntry trustStoreDTOToTrustStoreEntry(TrustStoreDTO  trustStoreDTO);
+
+    List<PartyDTO> partiesToPartiesDTO(List<Party> parties);
+
+    List<ProcessDTO> processListToProcessesDTO(List<Process> processList);
+
 }

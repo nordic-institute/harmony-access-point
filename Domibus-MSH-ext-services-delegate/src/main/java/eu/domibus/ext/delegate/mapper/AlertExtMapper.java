@@ -11,7 +11,7 @@ import org.mapstruct.Mapping;
  * @since 5.0
  */
 @Mapper(componentModel = "spring")
-public interface AlertMapper {
+public interface AlertExtMapper {
 
     @Mapping(source = "alertLevel", target = "alertLevelDTO")
     AlertEventDTO alertEventToAlertEventDTO(AlertEvent alertEvent);

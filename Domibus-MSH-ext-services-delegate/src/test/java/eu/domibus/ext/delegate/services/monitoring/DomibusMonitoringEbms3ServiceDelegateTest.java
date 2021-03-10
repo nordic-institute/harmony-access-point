@@ -1,12 +1,11 @@
 package eu.domibus.ext.delegate.services.monitoring;
 
-import eu.domibus.api.monitoring.*;
+import eu.domibus.api.monitoring.DomibusMonitoringService;
 import eu.domibus.api.monitoring.domain.DataBaseInfo;
 import eu.domibus.api.monitoring.domain.JmsBrokerInfo;
 import eu.domibus.api.monitoring.domain.MonitoringInfo;
 import eu.domibus.api.monitoring.domain.MonitoringStatus;
-import eu.domibus.ext.delegate.converter.DomainExtConverter;
-import eu.domibus.ext.domain.monitoring.MonitoringInfoDTO;
+import eu.domibus.ext.delegate.mapper.MonitoringExtMapper;
 import eu.domibus.ext.exceptions.DomibusErrorCode;
 import eu.domibus.ext.exceptions.DomibusMonitoringExtException;
 import mockit.Expectations;
@@ -35,7 +34,7 @@ public class DomibusMonitoringEbms3ServiceDelegateTest {
     DomibusMonitoringService domibusMonitoringService;
 
     @Injectable
-    DomainExtConverter domainConverter;
+    MonitoringExtMapper monitoringExtMapper;
 
     @Test
     public void getDomibusStatusTest() {
@@ -60,7 +59,7 @@ public class DomibusMonitoringEbms3ServiceDelegateTest {
         // Then
         new Verifications() {{
             domibusMonitoringService.getMonitoringDetails(filter);
-            domainConverter.convert(monitoringInfo, MonitoringInfoDTO.class);
+            monitoringExtMapper.monitoringInfoToMonitoringInfoDTO(monitoringInfo);
         }};
 
     }
@@ -79,11 +78,10 @@ public class DomibusMonitoringEbms3ServiceDelegateTest {
         // When
         try {
             domibusMonitoringServiceDelegate.getMonitoringDetails(filter);
+            Assert.fail();
         } catch (DomibusMonitoringExtException e) {
             // Then
-            Assert.assertTrue(domibusMonitoringExtException == e);
-            return;
+            Assert.assertSame(domibusMonitoringExtException, e);
         }
-        Assert.fail();
     }
 }

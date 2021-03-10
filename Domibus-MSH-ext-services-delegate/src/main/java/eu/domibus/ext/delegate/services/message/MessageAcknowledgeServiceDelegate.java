@@ -1,15 +1,13 @@
 package eu.domibus.ext.delegate.services.message;
 
-import eu.domibus.api.message.acknowledge.MessageAcknowledgement;
-import eu.domibus.ext.delegate.converter.DomainExtConverter;
 import eu.domibus.api.message.UserMessageSecurityService;
+import eu.domibus.api.message.acknowledge.MessageAcknowledgeService;
+import eu.domibus.api.message.acknowledge.MessageAcknowledgement;
+import eu.domibus.ext.delegate.mapper.MessageExtMapper;
 import eu.domibus.ext.domain.MessageAcknowledgementDTO;
 import eu.domibus.ext.exceptions.AuthenticationExtException;
 import eu.domibus.ext.exceptions.MessageAcknowledgeExtException;
 import eu.domibus.ext.services.MessageAcknowledgeExtService;
-import eu.domibus.logging.DomibusLogger;
-import eu.domibus.logging.DomibusLoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -23,16 +21,19 @@ import java.util.Map;
 @Service
 public class MessageAcknowledgeServiceDelegate implements MessageAcknowledgeExtService {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageAcknowledgeServiceDelegate.class);
+    final eu.domibus.api.message.acknowledge.MessageAcknowledgeService messageAcknowledgeCoreService;
 
-    @Autowired
-    eu.domibus.api.message.acknowledge.MessageAcknowledgeService messageAcknowledgeCoreService;
+    final MessageExtMapper messageExtMapper;
 
-    @Autowired
-    DomainExtConverter domainConverter;
+    final UserMessageSecurityService userMessageSecurityService;
 
-    @Autowired
-    UserMessageSecurityService userMessageSecurityService;
+    public MessageAcknowledgeServiceDelegate(MessageAcknowledgeService messageAcknowledgeCoreService,
+                                             MessageExtMapper messageExtMapper,
+                                             UserMessageSecurityService userMessageSecurityService) {
+        this.messageAcknowledgeCoreService = messageAcknowledgeCoreService;
+        this.messageExtMapper = messageExtMapper;
+        this.userMessageSecurityService = userMessageSecurityService;
+    }
 
 
     @Override
@@ -40,7 +41,7 @@ public class MessageAcknowledgeServiceDelegate implements MessageAcknowledgeExtS
         userMessageSecurityService.checkMessageAuthorization(messageId);
 
         final MessageAcknowledgement messageAcknowledgement = messageAcknowledgeCoreService.acknowledgeMessageDelivered(messageId, acknowledgeTimestamp, properties);
-        return domainConverter.convert(messageAcknowledgement, MessageAcknowledgementDTO.class);
+        return messageExtMapper.messageAcknowledgementToMessageAcknowledgementDTO(messageAcknowledgement);
     }
 
     @Override
@@ -53,7 +54,7 @@ public class MessageAcknowledgeServiceDelegate implements MessageAcknowledgeExtS
         userMessageSecurityService.checkMessageAuthorization(messageId);
 
         final MessageAcknowledgement messageAcknowledgement = messageAcknowledgeCoreService.acknowledgeMessageProcessed(messageId, acknowledgeTimestamp, properties);
-        return domainConverter.convert(messageAcknowledgement, MessageAcknowledgementDTO.class);
+        return messageExtMapper.messageAcknowledgementToMessageAcknowledgementDTO(messageAcknowledgement);
     }
 
     @Override
@@ -66,7 +67,7 @@ public class MessageAcknowledgeServiceDelegate implements MessageAcknowledgeExtS
         userMessageSecurityService.checkMessageAuthorization(messageId);
 
         final List<MessageAcknowledgement> messageAcknowledgement = messageAcknowledgeCoreService.getAcknowledgedMessages(messageId);
-        return domainConverter.convert(messageAcknowledgement, MessageAcknowledgementDTO.class);
+        return messageExtMapper.messageAcknowledgementToMessageAcknowledgementDTO(messageAcknowledgement);
 
     }
 

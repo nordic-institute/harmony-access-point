@@ -4,21 +4,16 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.NotificationType;
-import eu.domibus.ext.delegate.converter.DomainExtConverter;
+import eu.domibus.ext.delegate.mapper.DomibusExtMapper;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomibusPropertyExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -31,17 +26,23 @@ public class DomibusPropertyServiceDelegate implements DomibusPropertyExtService
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusPropertyServiceDelegate.class);
 
-    @Autowired
-    protected DomibusPropertyProvider domibusPropertyProvider;
+    protected final DomibusPropertyProvider domibusPropertyProvider;
 
-    @Autowired
-    protected DomainService domainService;
+    protected final DomainService domainService;
 
-    @Autowired
-    protected DomainExtConverter domainConverter;
+    protected final DomibusExtMapper domibusExtMapper;
 
-    @Autowired
-    DomainContextExtService domainContextService;
+    final DomainContextExtService domainContextService;
+
+    public DomibusPropertyServiceDelegate(DomibusPropertyProvider domibusPropertyProvider,
+                                          DomainService domainService,
+                                          DomibusExtMapper domibusExtMapper,
+                                          DomainContextExtService domainContextService) {
+        this.domibusPropertyProvider = domibusPropertyProvider;
+        this.domainService = domainService;
+        this.domibusExtMapper = domibusExtMapper;
+        this.domainContextService = domainContextService;
+    }
 
     @Override
     public String getProperty(String propertyName) {
@@ -82,9 +83,9 @@ public class DomibusPropertyServiceDelegate implements DomibusPropertyExtService
         }
         LOG.debug("Property [{}] value is [{}]", notificationPropertyName, messageNotificationPropertyValue);
         String[] messageNotifications = StringUtils.split(messageNotificationPropertyValue, ",");
-        return Arrays.asList(messageNotifications).stream()
-                .map(notificationValue -> getNotificationType(notificationValue))
-                .filter(notificationType -> notificationType != null)
+        return Arrays.stream(messageNotifications)
+                .map(this::getNotificationType)
+                .filter(Objects::nonNull)
                 .distinct()
                 .collect(Collectors.toList());
     }
@@ -107,27 +108,27 @@ public class DomibusPropertyServiceDelegate implements DomibusPropertyExtService
 
     @Override
     public String getDomainProperty(DomainDTO domain, String propertyName) {
-        final Domain domibusDomain = domainConverter.convert(domain, Domain.class);
+        final Domain domibusDomain = domibusExtMapper.domainDTOToDomain(domain);
         return domibusPropertyProvider.getProperty(domibusDomain, propertyName);
     }
 
     @Override
     public void setDomainProperty(DomainDTO domain, String propertyName, String propertyValue) {
-        final Domain domibusDomain = domainConverter.convert(domain, Domain.class);
+        final Domain domibusDomain = domibusExtMapper.domainDTOToDomain(domain);
         domibusPropertyProvider.setProperty(domibusDomain, propertyName, propertyValue);
     }
 
     @Override
     public void setProperty(String propertyName, String propertyValue) {
         DomainDTO currentDomain = domainContextService.getCurrentDomainSafely();
-        Domain domibusDomain = domainConverter.convert(currentDomain, Domain.class);
+        Domain domibusDomain = domibusExtMapper.domainDTOToDomain(currentDomain);
 
         domibusPropertyProvider.setProperty(domibusDomain, propertyName, propertyValue);
     }
 
     @Override
     public boolean containsDomainPropertyKey(DomainDTO domainDTO, String propertyName) {
-        final Domain domain = domainConverter.convert(domainDTO, Domain.class);
+        final Domain domain = domibusExtMapper.domainDTOToDomain(domainDTO);
         return domibusPropertyProvider.containsDomainPropertyKey(domain, propertyName);
     }
 
@@ -137,8 +138,8 @@ public class DomibusPropertyServiceDelegate implements DomibusPropertyExtService
     }
 
     @Override
-    public String getDomainProperty(DomainDTO domainCode, String propertyName, String defaultValue) {
-        final Domain domain = domainConverter.convert(domainCode, Domain.class);
+    public String getDomainProperty(DomainDTO domainDTO, String propertyName, String defaultValue) {
+        final Domain domain = domibusExtMapper.domainDTOToDomain(domainDTO);
         String value = domibusPropertyProvider.getProperty(domain, propertyName);
         if (StringUtils.isEmpty(value)) {
             value = defaultValue;
@@ -158,7 +159,7 @@ public class DomibusPropertyServiceDelegate implements DomibusPropertyExtService
 
     @Override
     public void setProperty(DomainDTO domain, String propertyName, String propertyValue, boolean broadcast) {
-        final Domain domibusDomain = domainConverter.convert(domain, Domain.class);
+        final Domain domibusDomain = domibusExtMapper.domainDTOToDomain(domain);
         domibusPropertyProvider.setProperty(domibusDomain, propertyName, propertyValue, broadcast);
     }
 }

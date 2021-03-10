@@ -2,19 +2,12 @@ package eu.domibus.ext.delegate.mapper;
 
 
 import eu.domibus.api.jms.JmsMessage;
-import eu.domibus.api.monitoring.domain.ServiceInfo;
 import eu.domibus.ext.domain.JmsMessageDTO;
-import eu.domibus.ext.domain.monitoring.DataBaseInfoDTO;
-import eu.domibus.ext.domain.monitoring.JmsBrokerInfoDTO;
-import eu.domibus.ext.domain.monitoring.QuartzInfoDTO;
-import eu.domibus.ext.domain.monitoring.ServiceInfoDTO;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.mapstruct.DecoratedWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -26,7 +19,7 @@ import java.util.stream.Collectors;
  */
 public abstract class DomibusExtMapperDecorator implements DomibusExtMapper{
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MonitoringMapperDecorator.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusExtMapperDecorator.class);
 
     @Autowired
     @Qualifier("delegate")
@@ -59,15 +52,14 @@ public abstract class DomibusExtMapperDecorator implements DomibusExtMapper{
     protected Map<String, String> convertDTO(Map<String, Object> properties) {
 
         LOG.debug("JmsMessageDTO convertDTO: [{}]", properties.getClass());
-        Map<String,String> newProperties = properties.entrySet().stream()
+        return properties.entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> String.valueOf(e.getValue())));
-        return newProperties;
     }
+
     protected Map<String, Object> convert(Map<String, String> properties) {
 
         LOG.debug("JmsMessage convert: [{}]", properties.getClass());
-        Map<String,Object> newProperties = properties.entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue()));
-        return newProperties;
+        return properties.entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 }

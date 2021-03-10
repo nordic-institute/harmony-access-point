@@ -1,17 +1,16 @@
 package eu.domibus.ext.delegate.services.message;
 
-import eu.domibus.api.usermessage.UserMessageService;
+import eu.domibus.api.message.UserMessageSecurityService;
 import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.message.attempt.MessageAttemptService;
-import eu.domibus.ext.delegate.converter.DomainExtConverter;
-import eu.domibus.api.message.UserMessageSecurityService;
+import eu.domibus.api.usermessage.UserMessageService;
+import eu.domibus.ext.delegate.mapper.MessageExtMapper;
 import eu.domibus.ext.domain.MessageAttemptDTO;
 import eu.domibus.ext.exceptions.AuthenticationExtException;
 import eu.domibus.ext.exceptions.MessageMonitorExtException;
 import eu.domibus.ext.services.MessageMonitorExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -26,17 +25,27 @@ public class MessageMonitoringServiceDelegate implements MessageMonitorExtServic
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageMonitoringServiceDelegate.class);
 
-    @Autowired
+    final
     UserMessageService userMessageService;
 
-    @Autowired
-    DomainExtConverter domibusDomainConverter;
+    final
+    MessageExtMapper messageExtMapper;
 
-    @Autowired
+    final
     MessageAttemptService messageAttemptService;
 
-    @Autowired
+    final
     UserMessageSecurityService userMessageSecurityService;
+
+    public MessageMonitoringServiceDelegate(UserMessageService userMessageService,
+                                            MessageExtMapper messageExtMapper,
+                                            MessageAttemptService messageAttemptService,
+                                            UserMessageSecurityService userMessageSecurityService) {
+        this.userMessageService = userMessageService;
+        this.messageExtMapper = messageExtMapper;
+        this.messageAttemptService = messageAttemptService;
+        this.userMessageSecurityService = userMessageSecurityService;
+    }
 
     @Override
     public List<String> getFailedMessages() throws AuthenticationExtException, MessageMonitorExtException {
@@ -86,6 +95,6 @@ public class MessageMonitoringServiceDelegate implements MessageMonitorExtServic
     public List<MessageAttemptDTO> getAttemptsHistory(String messageId) throws AuthenticationExtException, MessageMonitorExtException {
         userMessageSecurityService.checkMessageAuthorization(messageId);
         final List<MessageAttempt> attemptsHistory = messageAttemptService.getAttemptsHistory(messageId);
-        return domibusDomainConverter.convert(attemptsHistory, MessageAttemptDTO.class);
+        return messageExtMapper.messageAttemptToMessageAttemptDTO(attemptsHistory);
     }
 }

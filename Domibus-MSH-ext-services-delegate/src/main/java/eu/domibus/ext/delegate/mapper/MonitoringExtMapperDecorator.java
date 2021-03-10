@@ -16,15 +16,15 @@ import java.util.List;
  * @author Soumya Chandran
  * @since 4.2
  */
-public abstract class MonitoringMapperDecorator implements MonitoringMapper {
+public abstract class MonitoringExtMapperDecorator implements MonitoringExtMapper {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MonitoringMapperDecorator.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MonitoringExtMapperDecorator.class);
 
     @Autowired
     @Qualifier("delegate")
-    protected MonitoringMapper delegate;
+    protected MonitoringExtMapper delegate;
 
-    public MonitoringMapperDecorator() {
+    public MonitoringExtMapperDecorator() {
     }
 
     @Override
