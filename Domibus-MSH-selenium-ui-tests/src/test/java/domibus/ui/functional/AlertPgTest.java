@@ -1000,8 +1000,11 @@ public class AlertPgTest extends SeleniumTest {
 		for (String option : options) {
 			log.info("checking alert type " + option);
 			filter.getAlertTypeSelect().selectOptionByText(option);
-			List<String> xFilters = filter.getXFilterNames();
 
+			System.out.println("filter.getXFilterSectionName() = " + filter.getXFilterSectionName());
+
+			List<String> xFilters = filter.getXFilterNames();
+			System.out.println("xFilters = " + xFilters);
 			log.debug(xFilters.toString());
 
 		}

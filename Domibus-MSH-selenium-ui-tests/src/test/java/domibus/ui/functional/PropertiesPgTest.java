@@ -83,7 +83,7 @@ public class PropertiesPgTest extends SeleniumTest {
 
 
 	/*EDELIVERY-7303 - PROP-2 - Open Properties page as Super admin */
-	@Test(description = "PROP-2", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "PROP-2", groups = {"multiTenancy"})
 	public void openPageSuper() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
@@ -137,12 +137,13 @@ public class PropertiesPgTest extends SeleniumTest {
 
 		soft.assertTrue(page.grid().isPresent(), "Grid displayed");
 
-		log.info(" checking if a global property can be viewed by admin");
-		page.filters().filterBy("wsplugin.mtom.enabled", null, null, null, null);
-		page.grid().waitForRowsToLoad();
+		if (data.isMultiDomain()) {
+			log.info(" checking if a global property can be viewed by admin");
+			page.filters().filterBy("wsplugin.mtom.enabled", null, null, null, null);
+			page.grid().waitForRowsToLoad();
 
-		soft.assertEquals(page.grid().getRowsNo(), 0, "No rows displayed");
-
+			soft.assertEquals(page.grid().getRowsNo(), 0, "No rows displayed");
+		}
 		soft.assertAll();
 	}
 
@@ -160,7 +161,7 @@ public class PropertiesPgTest extends SeleniumTest {
 		page.propGrid().waitForRowsToLoad();
 
 		log.info(" checking if a global property can be viewed by admin");
-		page.filters().filterBy("wsplugin.mtom.enabled", null, null, null, false);
+		page.filters().filterBy("wsplugin.mtom.enabled", null, null, null, null);
 		page.grid().waitForRowsToLoad();
 
 		soft.assertEquals(page.grid().getRowsNo(), 1, "1 rows displayed");
@@ -900,7 +901,7 @@ public class PropertiesPgTest extends SeleniumTest {
 	}
 
 	/* EDELIVERY-7336 - PROP-27 - Update property domibus.property.length.max */
-	@Test(description = "PROP-27", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "PROP-27", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void checkPropertyLengthMax() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
@@ -912,7 +913,7 @@ public class PropertiesPgTest extends SeleniumTest {
 		String oldVal = modifyProperty("domibus.property.length.max", false, "10");
 
 		try{
-			String globalNewVal = Gen.randomAlphaNumeric(11);
+			String globalNewVal = Gen.randomAlphaNumeric(12);
 			modifyProperty("domibus.instance.name", false, globalNewVal);
 			soft.assertEquals(page.getAlertArea().getAlertMessage()
 					, String.format(expectedErrorTemplate, globalNewVal, "domibus.instance.name", newMaxLength)
@@ -920,7 +921,7 @@ public class PropertiesPgTest extends SeleniumTest {
 		}catch (Exception e){ }
 		try{
 
-			String globalNewVal = Gen.randomAlphaNumeric(11);
+			String globalNewVal = Gen.randomAlphaNumeric(12);
 			modifyProperty("domibus.ui.support.team.name", true, globalNewVal);
 			soft.assertEquals(page.getAlertArea().getAlertMessage()
 					, String.format(expectedErrorTemplate, globalNewVal, "domibus.ui.support.team.name", newMaxLength)

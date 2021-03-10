@@ -201,26 +201,47 @@ public class AlertFilters extends FilterArea {
 		return weToSelect(processedContainer);
 	}
 
-	public List<String> getXFilterNames() throws Exception{
-		List<String> filterNames = new ArrayList<String>();
-
+	public boolean isXFiltersSectionVisible(){
 		boolean areXFiltersVisible = false;
 
 		try {
 			areXFiltersVisible = weToDobject(extraFiltersContainer).isVisible();
 		} catch (Exception e) { }
 
-		if(!areXFiltersVisible){return filterNames;}
+		return areXFiltersVisible;
+	}
+
+	public String getXFilterSectionName() throws Exception {
+
+		if(!isXFiltersSectionVisible()){
+			return null;
+		}
+		return weToDobject(extraFiltersContainer.findElement(By.tagName("mat-card-title"))).getText();
+	}
+
+		public List<String> getXFilterNames() throws Exception{
+		List<String> filterNames = new ArrayList<String>();
+
+		if(!isXFiltersSectionVisible()){
+			return filterNames;
+		}
 
 		List<WebElement> filterInputs = extraFiltersContainer.findElements(By.tagName("input"));
+		List<WebElement> filterDatePick = extraFiltersContainer.findElements(By.tagName("md2-datepicker"));
 		for (WebElement filterInput : filterInputs) {
 			String placeHolder = weToDobject(filterInput).getAttribute("placeholder");
 
-			if(StringUtils.isEmpty(placeHolder)){
-				System.out.println(filterInput.findElement(By.cssSelector(" + span")).getAttribute("placeholder"));
+			if(!StringUtils.isEmpty(placeHolder)){
+				filterNames.add(placeHolder);
 			}
+		}
 
-// TODO: solve for datepicker
+		for (WebElement element : filterDatePick) {
+			String name = weToDobject(element).getAttribute("aria-label");
+
+			if(!StringUtils.isEmpty(name)){
+				filterNames.add(name);
+			}
 		}
 
 		return filterNames;
