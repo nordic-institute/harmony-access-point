@@ -1,3 +1,9 @@
+Domibus 4.2.1
+- Use DefaultMPC value for User Messages received without the optional MPC attribute.
+- Improve performance of the default view of the Messages page in Domibus Admin Console.
+- Enhance the retention worker deletion strategies.
+- Upgraded several libraries: CXF 3.3.9, BouncyCastle to 1.67
+- Fix known issue about class cast exception on OpenJDK11 (11.0.10.0.9)
 Domibus 4.2
 - Added a new property domibus.logging.metadata.print - prints the AS4 metadata in the logs when org.apache.cxf is set to at least INFO in logback.xml. Defaults to true.
 - Deprecated the following classes/methods:
