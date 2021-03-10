@@ -6,6 +6,9 @@ Domibus 4.2.1 (from 4.2):
                         Once logged in Oracle execute:
                             GRANT CREATE PROCEDURE TO <edelivery_user>
                 - Run the appropriate DB migration script(mysql-4.2-to-4.2.1-migration.ddl for MySQL or oracle-4.2-to-4.2.1-migration.ddl for Oracle)
+                - Replace the Domibus war
+                - Replace the default plugins property files and jars into "conf/domibus/plugins/config" respectively into "/conf/domibus/plugins/lib"
+                - Replace the default dss extention jar into  "/conf/domibus/extentions/lib"
 Domibus 4.2 (from 4.1.7):
                 Domibus 4.2 supports newer version of application servers and databases. Support for Oracle OpenJDK 11 has been also introduced on top of Oracle JDK 8 which was already supported.
                   It is mandatory to update to one of the below supported servers and databases.
