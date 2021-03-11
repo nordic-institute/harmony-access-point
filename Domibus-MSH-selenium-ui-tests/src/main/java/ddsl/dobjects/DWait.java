@@ -31,7 +31,7 @@ public class DWait {
 	public DWait(WebDriver driver) {
 		this.defaultWait = new WebDriverWait(driver, data.getTIMEOUT());
 		this.longWait = new WebDriverWait(driver, data.getLongWait());
-		this.shortWait = new WebDriverWait(driver, 5);
+		this.shortWait = new WebDriverWait(driver, 1);
 		this.driver = driver;
 	}
 	
