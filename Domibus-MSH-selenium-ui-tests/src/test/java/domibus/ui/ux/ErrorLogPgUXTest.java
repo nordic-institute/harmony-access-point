@@ -2,6 +2,7 @@ package domibus.ui.ux;
 
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.dcomponents.grid.Pagination;
+import ddsl.dobjects.DatePicker;
 import ddsl.enums.PAGES;
 import domibus.ui.SeleniumTest;
 import org.apache.commons.collections4.ListUtils;
@@ -17,10 +18,7 @@ import rest.RestServicePaths;
 import utils.TestUtils;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Catalin Comanici
@@ -480,6 +478,33 @@ public class ErrorLogPgUXTest extends SeleniumTest {
 
 		soft.assertAll();
 	}
+	/*ERR-17 - Verify max date Error To field & Notified To field */
+	@Test(description = "ERR-17", groups = {"multiTenancy", "singleTenancy"})
+	public void receivedToMaxValue() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		log.info("logged in");
+		ErrorLogPage page = new ErrorLogPage(driver);
+		Calendar cal = Calendar.getInstance();
+
+		log.info("Current date is :" + cal.get(Calendar.DAY_OF_MONTH));
+		log.info("Current Hour is :" + cal.get(Calendar.HOUR_OF_DAY));
+		log.info("Current minute is :" + cal.get(Calendar.MINUTE));
+
+		page.getSidebar().goToPage(PAGES.ERROR_LOG);
+		page.errorToClock.click();
+		DatePicker errorToDatePicker = new DatePicker(driver, page.errorTo);
+		soft.assertTrue(errorToDatePicker.verifyMaxClockValue(soft,cal)>0,"field is accepting correct value , smaller than System's current date & time");
+
+		page.filters().expandArea();
+		page.notifiedToClock.click();
+
+		DatePicker notifiedToDatePicker = new DatePicker(driver, page.notifiedTo);
+		soft.assertTrue(notifiedToDatePicker.verifyMaxClockValue(soft,cal)>0,"field is accepting correct value, smaller than current System's date & time");
+
+		soft.assertAll();
+	}
+
+
 
 
 
