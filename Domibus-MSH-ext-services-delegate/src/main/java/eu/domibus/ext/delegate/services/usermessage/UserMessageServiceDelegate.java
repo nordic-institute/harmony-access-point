@@ -20,11 +20,11 @@ public class UserMessageServiceDelegate implements UserMessageExtService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageServiceDelegate.class);
 
-    final eu.domibus.api.usermessage.UserMessageService userMessageCoreService;
+    protected eu.domibus.api.usermessage.UserMessageService userMessageCoreService;
 
-    final DomibusExtMapper domibusExtMapper;
+    protected DomibusExtMapper domibusExtMapper;
 
-    final UserMessageSecurityService userMessageSecurityService;
+    protected UserMessageSecurityService userMessageSecurityService;
 
     public UserMessageServiceDelegate(UserMessageService userMessageCoreService, DomibusExtMapper domibusExtMapper, UserMessageSecurityService userMessageSecurityService) {
         this.userMessageCoreService = userMessageCoreService;

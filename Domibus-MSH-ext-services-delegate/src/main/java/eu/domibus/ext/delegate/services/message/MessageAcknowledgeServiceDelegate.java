@@ -21,11 +21,11 @@ import java.util.Map;
 @Service
 public class MessageAcknowledgeServiceDelegate implements MessageAcknowledgeExtService {
 
-    final eu.domibus.api.message.acknowledge.MessageAcknowledgeService messageAcknowledgeCoreService;
+    protected eu.domibus.api.message.acknowledge.MessageAcknowledgeService messageAcknowledgeCoreService;
 
-    final MessageExtMapper messageExtMapper;
+    protected MessageExtMapper messageExtMapper;
 
-    final UserMessageSecurityService userMessageSecurityService;
+    protected UserMessageSecurityService userMessageSecurityService;
 
     public MessageAcknowledgeServiceDelegate(MessageAcknowledgeService messageAcknowledgeCoreService,
                                              MessageExtMapper messageExtMapper,

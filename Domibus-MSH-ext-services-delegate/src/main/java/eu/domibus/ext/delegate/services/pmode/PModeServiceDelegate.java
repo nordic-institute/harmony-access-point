@@ -22,9 +22,9 @@ import java.util.List;
 @Service
 public class PModeServiceDelegate implements PModeExtService {
 
-    private final PModeService pModeService;
+    protected PModeService pModeService;
 
-    private final PModeExtMapper domibusExtMapper;
+    protected final PModeExtMapper domibusExtMapper;
 
     final MultiPartFileUtil multiPartFileUtil;
 

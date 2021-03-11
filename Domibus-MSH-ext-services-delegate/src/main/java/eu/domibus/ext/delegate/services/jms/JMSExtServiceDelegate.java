@@ -19,9 +19,9 @@ import java.util.Collection;
 @Service
 public class JMSExtServiceDelegate implements JMSExtService {
 
-    protected final JMSManager jmsManager;
+    protected JMSManager jmsManager;
 
-    protected final DomibusExtMapper domibusExtMapper;
+    protected DomibusExtMapper domibusExtMapper;
 
     public JMSExtServiceDelegate(JMSManager jmsManager, DomibusExtMapper domibusExtMapper) {
         this.jmsManager = jmsManager;

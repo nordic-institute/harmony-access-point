@@ -18,9 +18,9 @@ public class DomainTaskExecutorExtDelegate implements DomainTaskExtExecutor {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainTaskExecutorExtDelegate.class);
 
-    protected final DomibusExtMapper domibusExtMapper;
+    protected DomibusExtMapper domibusExtMapper;
 
-    protected final DomainTaskExecutor domainTaskExecutor;
+    protected DomainTaskExecutor domainTaskExecutor;
 
     public DomainTaskExecutorExtDelegate(DomibusExtMapper domibusExtMapper, DomainTaskExecutor domainTaskExecutor) {
         this.domibusExtMapper = domibusExtMapper;

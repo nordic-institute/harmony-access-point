@@ -32,15 +32,15 @@ public class PartyServiceDelegate implements PartyExtService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PartyServiceDelegate.class);
 
-    final PartyService partyService;
+    protected PartyService partyService;
 
-    final CertificateService certificateService;
+    protected CertificateService certificateService;
 
-    final DomibusExtMapper domibusExtMapper;
+    protected DomibusExtMapper domibusExtMapper;
 
-    final MultiDomainCryptoService multiDomainCertificateProvider;
+    protected MultiDomainCryptoService multiDomainCertificateProvider;
 
-    final DomainContextProvider domainProvider;
+    protected DomainContextProvider domainProvider;
 
     public PartyServiceDelegate(PartyService partyService,
                                 CertificateService certificateService,
