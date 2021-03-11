@@ -39,7 +39,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         v_id_pk NUMBER := -1;
     BEGIN
         BEGIN
-            SELECT ID_PK into v_id_pk FROM TB_D_MPC WHERE VALUE = mpc_value;
+            EXECUTE IMMEDIATE 'SELECT ID_PK FROM TB_D_MPC WHERE VALUE = :1' INTO v_id_pk USING mpc_value;
         EXCEPTION
             WHEN NO_DATA_FOUND THEN
                 -- create new record
@@ -50,6 +50,22 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         END;
         RETURN v_id_pk;
     END get_tb_d_mpc_record;
+
+    FUNCTION get_tb_d_role_record(role IN VARCHAR2) RETURN NUMBER IS
+        v_id_pk NUMBER := -1;
+    BEGIN
+        BEGIN
+            EXECUTE IMMEDIATE 'SELECT ID_PK FROM TB_D_ROLE WHERE ROLE = :1' INTO v_id_pk USING role;
+        EXCEPTION
+            WHEN NO_DATA_FOUND THEN
+                -- create new record
+                DBMS_OUTPUT.PUT_LINE('Add new record into TB_D_ROLE: '||role);
+                v_id_pk := HIBERNATE_SEQUENCE.nextval;
+                EXECUTE IMMEDIATE 'INSERT INTO TB_D_ROLE(ID_PK, ROLE) VALUES (' || v_id_pk || ', :1)' USING role;
+                COMMIT;
+        END;
+        RETURN v_id_pk;
+    END get_tb_d_role_record;
     /** -- Helper procedures end -*/
 
     /**-- TB_USER_MESSAGE migration --*/
@@ -65,7 +81,9 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                    ML.SOURCE_MESSAGE       SOURCE_MESSAGE,
                    ML.MESSAGE_FRAGMENT     MESSAGE_FRAGMENT,
                    MI.TIME_STAMP           EBMS3_TIMESTAMP,
-                   UM.MPC                  MPC
+                   UM.MPC                  MPC,
+                   UM.FROM_ROLE             FROM_ROLE,
+                   UM.TO_ROLE           TO_ROLE
             FROM TB_MESSAGE_LOG ML
                      LEFT OUTER JOIN TB_MESSAGE_INFO MI ON ML.MESSAGE_ID = MI.MESSAGE_ID,
                  TB_USER_MESSAGE UM
@@ -82,6 +100,10 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         v_dict_table := 'TB_D_MPC';
         truncate_or_create_table(v_dict_table, v_sql);
 
+        v_sql := 'CREATE TABLE TB_D_ROLE (ID_PK NUMBER(38, 0) NOT NULL, ROLE VARCHAR2(255) NOT NULL, CREATION_TIME TIMESTAMP DEFAULT sysdate NOT NULL, CREATED_BY VARCHAR2(255) DEFAULT user NOT NULL, MODIFICATION_TIME TIMESTAMP, MODIFIED_BY VARCHAR2(255), CONSTRAINT PK_D_ROLE PRIMARY KEY (ID_PK))';
+        v_dict_table := 'TB_D_ROLE';
+        truncate_or_create_table(v_dict_table, v_sql);
+
         /** migrate old columns */
         DBMS_OUTPUT.PUT_LINE('Start to migrate TB_USER_MESSAGE entries...');
         OPEN c_user_message;
@@ -92,8 +114,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FOR i IN user_message.FIRST .. user_message.LAST
                 LOOP
                     EXECUTE IMMEDIATE 'INSERT INTO ' || v_temp_table ||
-                                      ' (ID_PK, MESSAGE_ID, REF_TO_MESSAGE_ID, CONVERSATION_ID, SOURCE_MESSAGE, MESSAGE_FRAGMENT, EBMS3_TIMESTAMP, MPC_ID_FK) ' ||
-                                      'VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6, :p_7, :p_8)'
+                                      ' (ID_PK, MESSAGE_ID, REF_TO_MESSAGE_ID, CONVERSATION_ID, SOURCE_MESSAGE, MESSAGE_FRAGMENT, EBMS3_TIMESTAMP, MPC_ID_FK, FROM_ROLE_ID_FK, TO_ROLE_ID_FK) ' ||
+                                      'VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6, :p_7, :p_8, :p_9, :p10)'
                         USING user_message(i).ID_PK,
                         user_message(i).MESSAGE_ID,
                         user_message(i).REF_TO_MESSAGE_ID,
@@ -101,7 +123,9 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         user_message(i).SOURCE_MESSAGE,
                         user_message(i).MESSAGE_FRAGMENT,
                         user_message(i).EBMS3_TIMESTAMP,
-                        get_tb_d_mpc_record(user_message(i).MPC);
+                        get_tb_d_mpc_record(user_message(i).MPC),
+                        get_tb_d_role_record(user_message(i).FROM_ROLE),
+                        get_tb_d_role_record(user_message(i).TO_ROLE);
                     IF i MOD BATCH_SIZE = 0 THEN
                         COMMIT;
                         DBMS_OUTPUT.PUT_LINE('Commit after ' || BATCH_SIZE * v_batch_no || ' records');
