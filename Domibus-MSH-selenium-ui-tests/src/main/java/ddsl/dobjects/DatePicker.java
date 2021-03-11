@@ -72,12 +72,12 @@ public class DatePicker extends DComponent {
 	@FindBy(css = "div.md2-clock-hours div.md2-clock-cell")
 	private List<WebElement> clockHourItems;
 	@FindBy(css = "div.md2-clock-minutes div.md2-clock-cell")
-	public List<WebElement> clockMinuteItems;
+	private List<WebElement> clockMinuteItems;
 
 	@FindBy (css = ".md2-calendar-body-cell-content.md2-calendar-body-today")
-	public WebElement todayDate;
+	private WebElement todayDate;
 	@FindBy(css = "div.md2-clock-hours.active div.md2-clock-cell-selected")
-	public WebElement currentClockHour;
+	private WebElement currentClockHour;
 
 	public DatePicker(WebDriver driver, WebElement container) {
 		super(driver);
