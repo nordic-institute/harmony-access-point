@@ -43,7 +43,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         EXCEPTION
             WHEN NO_DATA_FOUND THEN
                 -- create new record
-                DBMS_OUTPUT.PUT_LINE('Add new record into TB_D_MPC: '||mpc_value);
+                DBMS_OUTPUT.PUT_LINE('Add new record into TB_D_MPC: ' || mpc_value);
                 v_id_pk := HIBERNATE_SEQUENCE.nextval;
                 EXECUTE IMMEDIATE 'INSERT INTO TB_D_MPC(ID_PK, VALUE) VALUES (' || v_id_pk || ', :1)' USING mpc_value;
                 COMMIT;
@@ -59,13 +59,50 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         EXCEPTION
             WHEN NO_DATA_FOUND THEN
                 -- create new record
-                DBMS_OUTPUT.PUT_LINE('Add new record into TB_D_ROLE: '||role);
+                DBMS_OUTPUT.PUT_LINE('Add new record into TB_D_ROLE: ' || role);
                 v_id_pk := HIBERNATE_SEQUENCE.nextval;
                 EXECUTE IMMEDIATE 'INSERT INTO TB_D_ROLE(ID_PK, ROLE) VALUES (' || v_id_pk || ', :1)' USING role;
                 COMMIT;
         END;
         RETURN v_id_pk;
     END get_tb_d_role_record;
+
+    FUNCTION get_tb_d_service_record(service_type IN VARCHAR2, service_value IN VARCHAR2) RETURN NUMBER IS
+        v_id_pk NUMBER := -1;
+    BEGIN
+        BEGIN
+            EXECUTE IMMEDIATE 'SELECT ID_PK FROM TB_D_SERVICE WHERE TYPE = :1 AND VALUE = :2' INTO v_id_pk USING service_type, service_value;
+        EXCEPTION
+            WHEN NO_DATA_FOUND THEN
+                -- create new record
+                DBMS_OUTPUT.PUT_LINE('Add new record into TB_D_SERVICE: ' || service_type || ' , ' || service_value);
+                v_id_pk := HIBERNATE_SEQUENCE.nextval;
+                EXECUTE IMMEDIATE 'INSERT INTO TB_D_SERVICE(ID_PK, TYPE, VALUE) VALUES (' || v_id_pk || ', :1, :2)' USING service_type, service_value;
+                COMMIT;
+        END;
+        RETURN v_id_pk;
+    END get_tb_d_service_record;
+
+    PROCEDURE migrate_tb_user_message_prerequisites(v_temp_table IN VARCHAR2) IS
+        v_sql        VARCHAR2(1000);
+        v_dict_table VARCHAR2(30);
+    BEGIN
+        v_sql := 'CREATE TABLE ' || v_temp_table ||
+                 '(ID_PK NUMBER(38, 0) NOT NULL, MESSAGE_ID VARCHAR2(255), REF_TO_MESSAGE_ID VARCHAR2(255), CONVERSATION_ID VARCHAR2(255), SPLIT_AND_JOIN NUMBER(1), SOURCE_MESSAGE NUMBER(1), MESSAGE_FRAGMENT NUMBER(1), EBMS3_TIMESTAMP TIMESTAMP, ACTION_ID_FK NUMBER(38, 0), AGREEMENT_ID_FK NUMBER(38, 0), SERVICE_ID_FK NUMBER(38, 0), MPC_ID_FK NUMBER(38, 0), FROM_PARTY_ID_FK NUMBER(38, 0), FROM_ROLE_ID_FK NUMBER(38, 0), TO_PARTY_ID_FK NUMBER(38, 0), TO_ROLE_ID_FK NUMBER(38, 0), MESSAGE_SUBTYPE_ID_FK NUMBER(38, 0), CREATION_TIME TIMESTAMP DEFAULT sysdate NOT NULL, CREATED_BY VARCHAR2(255) DEFAULT user NOT NULL, MODIFICATION_TIME TIMESTAMP, MODIFIED_BY VARCHAR2(255), CONSTRAINT PK_USER_MESSAGE PRIMARY KEY (ID_PK))';
+        truncate_or_create_table(v_temp_table, v_sql);
+
+        v_sql := 'CREATE TABLE TB_D_MPC (ID_PK NUMBER(38, 0) NOT NULL, VALUE VARCHAR2(255) NOT NULL, CREATION_TIME TIMESTAMP DEFAULT sysdate NOT NULL, CREATED_BY VARCHAR2(255) DEFAULT user NOT NULL, MODIFICATION_TIME TIMESTAMP, MODIFIED_BY VARCHAR2(255), CONSTRAINT PK_D_MPC PRIMARY KEY (ID_PK))';
+        v_dict_table := 'TB_D_MPC';
+        truncate_or_create_table(v_dict_table, v_sql);
+
+        v_sql := 'CREATE TABLE TB_D_ROLE (ID_PK NUMBER(38, 0) NOT NULL, ROLE VARCHAR2(255) NOT NULL, CREATION_TIME TIMESTAMP DEFAULT sysdate NOT NULL, CREATED_BY VARCHAR2(255) DEFAULT user NOT NULL, MODIFICATION_TIME TIMESTAMP, MODIFIED_BY VARCHAR2(255), CONSTRAINT PK_D_ROLE PRIMARY KEY (ID_PK))';
+        v_dict_table := 'TB_D_ROLE';
+        truncate_or_create_table(v_dict_table, v_sql);
+
+        v_sql := 'CREATE TABLE TB_D_SERVICE (ID_PK NUMBER(38, 0) NOT NULL, VALUE VARCHAR2(255) NOT NULL, TYPE VARCHAR2(255), CREATION_TIME TIMESTAMP DEFAULT sysdate NOT NULL, CREATED_BY VARCHAR2(255) DEFAULT user NOT NULL, MODIFICATION_TIME TIMESTAMP, MODIFIED_BY VARCHAR2(255), CONSTRAINT PK_D_SERVICE PRIMARY KEY (ID_PK))';
+        v_dict_table := 'TB_D_SERVICE';
+        truncate_or_create_table(v_dict_table, v_sql);
+    END migrate_tb_user_message_prerequisites;
     /** -- Helper procedures end -*/
 
     /**-- TB_USER_MESSAGE migration --*/
@@ -82,27 +119,19 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                    ML.MESSAGE_FRAGMENT     MESSAGE_FRAGMENT,
                    MI.TIME_STAMP           EBMS3_TIMESTAMP,
                    UM.MPC                  MPC,
-                   UM.FROM_ROLE             FROM_ROLE,
-                   UM.TO_ROLE           TO_ROLE
+                   UM.FROM_ROLE            FROM_ROLE,
+                   UM.TO_ROLE              TO_ROLE,
+                   UM.SERVICE_TYPE         SERVICE_TYPE,
+                   UM.SERVICE_VALUE        SERVICE_VALUE
             FROM TB_MESSAGE_LOG ML
                      LEFT OUTER JOIN TB_MESSAGE_INFO MI ON ML.MESSAGE_ID = MI.MESSAGE_ID,
                  TB_USER_MESSAGE UM
             WHERE UM.MESSAGEINFO_ID_PK = MI.ID_PK;
         TYPE T_USER_MESSAGE IS TABLE OF c_user_message%ROWTYPE;
         user_message T_USER_MESSAGE;
-        v_batch_no   INT          := 1;
+        v_batch_no   INT := 1;
     BEGIN
-        v_sql := 'CREATE TABLE ' || v_temp_table ||
-                 '(ID_PK NUMBER(38, 0) NOT NULL, MESSAGE_ID VARCHAR2(255), REF_TO_MESSAGE_ID VARCHAR2(255), CONVERSATION_ID VARCHAR2(255), SPLIT_AND_JOIN NUMBER(1), SOURCE_MESSAGE NUMBER(1), MESSAGE_FRAGMENT NUMBER(1), EBMS3_TIMESTAMP TIMESTAMP, ACTION_ID_FK NUMBER(38, 0), AGREEMENT_ID_FK NUMBER(38, 0), SERVICE_ID_FK NUMBER(38, 0), MPC_ID_FK NUMBER(38, 0), FROM_PARTY_ID_FK NUMBER(38, 0), FROM_ROLE_ID_FK NUMBER(38, 0), TO_PARTY_ID_FK NUMBER(38, 0), TO_ROLE_ID_FK NUMBER(38, 0), MESSAGE_SUBTYPE_ID_FK NUMBER(38, 0), CREATION_TIME TIMESTAMP DEFAULT sysdate NOT NULL, CREATED_BY VARCHAR2(255) DEFAULT user NOT NULL, MODIFICATION_TIME TIMESTAMP, MODIFIED_BY VARCHAR2(255), CONSTRAINT PK_USER_MESSAGE PRIMARY KEY (ID_PK))';
-        truncate_or_create_table(v_temp_table, v_sql);
-
-        v_sql := 'CREATE TABLE TB_D_MPC (ID_PK NUMBER(38, 0) NOT NULL, VALUE VARCHAR2(255) NOT NULL, CREATION_TIME TIMESTAMP DEFAULT sysdate NOT NULL, CREATED_BY VARCHAR2(255) DEFAULT user NOT NULL, MODIFICATION_TIME TIMESTAMP, MODIFIED_BY VARCHAR2(255), CONSTRAINT PK_D_MPC PRIMARY KEY (ID_PK))';
-        v_dict_table := 'TB_D_MPC';
-        truncate_or_create_table(v_dict_table, v_sql);
-
-        v_sql := 'CREATE TABLE TB_D_ROLE (ID_PK NUMBER(38, 0) NOT NULL, ROLE VARCHAR2(255) NOT NULL, CREATION_TIME TIMESTAMP DEFAULT sysdate NOT NULL, CREATED_BY VARCHAR2(255) DEFAULT user NOT NULL, MODIFICATION_TIME TIMESTAMP, MODIFIED_BY VARCHAR2(255), CONSTRAINT PK_D_ROLE PRIMARY KEY (ID_PK))';
-        v_dict_table := 'TB_D_ROLE';
-        truncate_or_create_table(v_dict_table, v_sql);
+        migrate_tb_user_message_prerequisites(v_temp_table);
 
         /** migrate old columns */
         DBMS_OUTPUT.PUT_LINE('Start to migrate TB_USER_MESSAGE entries...');
@@ -114,8 +143,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FOR i IN user_message.FIRST .. user_message.LAST
                 LOOP
                     EXECUTE IMMEDIATE 'INSERT INTO ' || v_temp_table ||
-                                      ' (ID_PK, MESSAGE_ID, REF_TO_MESSAGE_ID, CONVERSATION_ID, SOURCE_MESSAGE, MESSAGE_FRAGMENT, EBMS3_TIMESTAMP, MPC_ID_FK, FROM_ROLE_ID_FK, TO_ROLE_ID_FK) ' ||
-                                      'VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6, :p_7, :p_8, :p_9, :p10)'
+                                      ' (ID_PK, MESSAGE_ID, REF_TO_MESSAGE_ID, CONVERSATION_ID, SOURCE_MESSAGE, MESSAGE_FRAGMENT, EBMS3_TIMESTAMP, MPC_ID_FK, FROM_ROLE_ID_FK, TO_ROLE_ID_FK, SERVICE_ID_FK) ' ||
+                                      'VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6, :p_7, :p_8, :p_9, :p_10, :p_11)'
                         USING user_message(i).ID_PK,
                         user_message(i).MESSAGE_ID,
                         user_message(i).REF_TO_MESSAGE_ID,
@@ -125,7 +154,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         user_message(i).EBMS3_TIMESTAMP,
                         get_tb_d_mpc_record(user_message(i).MPC),
                         get_tb_d_role_record(user_message(i).FROM_ROLE),
-                        get_tb_d_role_record(user_message(i).TO_ROLE);
+                        get_tb_d_role_record(user_message(i).TO_ROLE),
+                        get_tb_d_service_record(user_message(i).SERVICE_TYPE, user_message(i).SERVICE_VALUE);
                     IF i MOD BATCH_SIZE = 0 THEN
                         COMMIT;
                         DBMS_OUTPUT.PUT_LINE('Commit after ' || BATCH_SIZE * v_batch_no || ' records');
