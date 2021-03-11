@@ -22,9 +22,9 @@ import java.util.List;
 public class DomibusMonitoringServiceDelegate implements DomibusMonitoringExtService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusMonitoringServiceDelegate.class);
-    final DomibusMonitoringService domibusMonitoringService;
+    protected DomibusMonitoringService domibusMonitoringService;
 
-    final MonitoringExtMapper monitoringExtMapper;
+    protected MonitoringExtMapper monitoringExtMapper;
 
     public DomibusMonitoringServiceDelegate(DomibusMonitoringService domibusMonitoringService, MonitoringExtMapper monitoringExtMapper) {
         this.domibusMonitoringService = domibusMonitoringService;

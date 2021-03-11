@@ -19,11 +19,11 @@ public class DomainExtServiceDelegate implements DomainExtService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainExtServiceDelegate.class);
 
-    final DomainContextProvider domainContextProvider;
+    protected DomainContextProvider domainContextProvider;
 
-    final DomainService domainService;
+    protected DomainService domainService;
 
-    final DomibusExtMapper domibusExtMapper;
+    protected DomibusExtMapper domibusExtMapper;
 
     public DomainExtServiceDelegate(DomainContextProvider domainContextProvider, DomainService domainService, DomibusExtMapper domibusExtMapper) {
         this.domainContextProvider = domainContextProvider;

@@ -26,11 +26,10 @@ public class DomibusPropertyServiceDelegate implements DomibusPropertyExtService
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusPropertyServiceDelegate.class);
 
-    protected final DomibusPropertyProvider domibusPropertyProvider;
+    protected DomibusPropertyProvider domibusPropertyProvider;
+    protected DomainService domainService;
 
-    protected final DomainService domainService;
-
-    protected final DomibusExtMapper domibusExtMapper;
+    protected DomibusExtMapper domibusExtMapper;
 
     final DomainContextExtService domainContextService;
 

@@ -16,8 +16,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class PluginEventServiceDelegate implements PluginEventExtService {
 
-    private final PluginEventService pluginEventService;
-    private final AlertExtMapper alertMapper;
+    protected PluginEventService pluginEventService;
+
+    protected AlertExtMapper alertMapper;
 
     public PluginEventServiceDelegate(PluginEventService pluginEventService, AlertExtMapper alertMapper) {
         this.alertMapper = alertMapper;

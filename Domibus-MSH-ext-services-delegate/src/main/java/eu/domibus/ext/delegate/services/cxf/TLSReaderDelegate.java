@@ -14,7 +14,8 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class TLSReaderDelegate implements TLSReaderExtService {
-    private final TLSReaderService tlsReaderService;
+
+    protected TLSReaderService tlsReaderService;
 
     public TLSReaderDelegate(TLSReaderService tlsReaderService) {
         this.tlsReaderService = tlsReaderService;

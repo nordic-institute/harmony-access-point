@@ -25,17 +25,13 @@ public class MessageMonitoringServiceDelegate implements MessageMonitorExtServic
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageMonitoringServiceDelegate.class);
 
-    final
-    UserMessageService userMessageService;
+    protected UserMessageService userMessageService;
 
-    final
-    MessageExtMapper messageExtMapper;
+    protected MessageExtMapper messageExtMapper;
 
-    final
-    MessageAttemptService messageAttemptService;
+    protected MessageAttemptService messageAttemptService;
 
-    final
-    UserMessageSecurityService userMessageSecurityService;
+    protected UserMessageSecurityService userMessageSecurityService;
 
     public MessageMonitoringServiceDelegate(UserMessageService userMessageService,
                                             MessageExtMapper messageExtMapper,

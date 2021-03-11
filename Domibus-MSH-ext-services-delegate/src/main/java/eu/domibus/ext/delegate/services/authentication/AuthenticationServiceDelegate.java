@@ -20,7 +20,7 @@ public class AuthenticationServiceDelegate implements AuthenticationExtService {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AuthenticationServiceDelegate.class);
 
     @Autowired
-    private eu.domibus.api.security.AuthenticationService authenticationService;
+    protected eu.domibus.api.security.AuthenticationService authenticationService;
 
     @Autowired
     protected AuthUtils authUtils;

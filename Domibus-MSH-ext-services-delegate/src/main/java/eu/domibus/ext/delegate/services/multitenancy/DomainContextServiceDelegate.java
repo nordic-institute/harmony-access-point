@@ -14,9 +14,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class DomainContextServiceDelegate implements DomainContextExtService {
 
-    protected final DomainContextProvider domainContextProvider;
+    protected DomainContextProvider domainContextProvider;
 
-    protected final DomibusExtMapper domibusExtMapper;
+    protected DomibusExtMapper domibusExtMapper;
 
     public DomainContextServiceDelegate(DomainContextProvider domainContextProvider, DomibusExtMapper domibusExtMapper) {
         this.domainContextProvider = domainContextProvider;

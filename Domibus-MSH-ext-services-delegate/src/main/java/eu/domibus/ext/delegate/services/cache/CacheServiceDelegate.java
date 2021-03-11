@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class CacheServiceDelegate implements CacheExtService {
 
-    private final CacheService cacheService;
+    protected CacheService cacheService;
 
     public CacheServiceDelegate(CacheService cacheService) {
         this.cacheService = cacheService;
