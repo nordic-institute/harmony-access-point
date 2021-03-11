@@ -123,6 +123,46 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         RETURN v_id_pk;
     END get_tb_d_action_record;
 
+    FUNCTION get_tb_d_party_record(party_type IN VARCHAR2, party_value IN VARCHAR2) RETURN NUMBER IS
+        v_id_pk NUMBER;
+    BEGIN
+        IF party_type IS NULL AND party_value IS NULL THEN
+            DBMS_OUTPUT.PUT_LINE('No record added into TB_D_PARTY');
+            RETURN v_id_pk;
+        END IF;
+        BEGIN
+            EXECUTE IMMEDIATE 'SELECT ID_PK FROM TB_D_PARTY WHERE TYPE = :1 AND VALUE = :2' INTO v_id_pk USING party_type, party_value;
+        EXCEPTION
+            WHEN NO_DATA_FOUND THEN
+                -- create new record
+                DBMS_OUTPUT.PUT_LINE('Add new record into TB_D_PARTY: ' || party_type || ' , ' || party_value);
+                v_id_pk := HIBERNATE_SEQUENCE.nextval;
+                EXECUTE IMMEDIATE 'INSERT INTO TB_D_PARTY(ID_PK, TYPE, VALUE) VALUES (' || v_id_pk || ', :1, :2)' USING party_type, party_value;
+                COMMIT;
+        END;
+        RETURN v_id_pk;
+    END get_tb_d_party_record;
+
+    FUNCTION get_tb_d_message_subtype_record(msg_subtype IN VARCHAR2) RETURN NUMBER IS
+        v_id_pk NUMBER;
+    BEGIN
+        IF msg_subtype IS NULL THEN
+            DBMS_OUTPUT.PUT_LINE('No record added into TB_D_MESSAGE_SUBTYPE');
+            RETURN v_id_pk;
+        END IF;
+        BEGIN
+            EXECUTE IMMEDIATE 'SELECT ID_PK FROM TB_D_ACTION WHERE ACTION = :1' INTO v_id_pk USING msg_subtype;
+        EXCEPTION
+            WHEN NO_DATA_FOUND THEN
+                -- create new record
+                DBMS_OUTPUT.PUT_LINE('Add new record into TB_D_MESSAGE_SUBTYPE: ' || msg_subtype);
+                v_id_pk := HIBERNATE_SEQUENCE.nextval;
+                EXECUTE IMMEDIATE 'INSERT INTO TB_D_MESSAGE_SUBTYPE(ID_PK, SUBTYPE) VALUES (' || v_id_pk || ', :1)' USING msg_subtype;
+                COMMIT;
+        END;
+        RETURN v_id_pk;
+    END get_tb_d_message_subtype_record;
+
     PROCEDURE migrate_tb_user_message_prerequisites(v_temp_table IN VARCHAR2) IS
         v_sql        VARCHAR2(1000);
         v_dict_table VARCHAR2(30);
@@ -150,6 +190,15 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         v_sql := 'CREATE TABLE TB_D_ACTION (ID_PK NUMBER(38, 0) NOT NULL, ACTION VARCHAR2(255) NOT NULL, CREATION_TIME TIMESTAMP DEFAULT sysdate NOT NULL, CREATED_BY VARCHAR2(255) DEFAULT user NOT NULL, MODIFICATION_TIME TIMESTAMP, MODIFIED_BY VARCHAR2(255), CONSTRAINT PK_D_ACTION PRIMARY KEY (ID_PK))';
         v_dict_table := 'TB_D_ACTION';
         truncate_or_create_table(v_dict_table, v_sql);
+
+        v_sql := 'CREATE TABLE TB_D_PARTY (ID_PK NUMBER(38, 0) NOT NULL, VALUE VARCHAR2(255) NOT NULL, TYPE VARCHAR2(255), CREATION_TIME TIMESTAMP DEFAULT sysdate NOT NULL, CREATED_BY VARCHAR2(255) DEFAULT user NOT NULL, MODIFICATION_TIME TIMESTAMP, MODIFIED_BY VARCHAR2(255), CONSTRAINT PK_D_PARTY PRIMARY KEY (ID_PK))';
+        v_dict_table := 'TB_D_PARTY';
+        truncate_or_create_table(v_dict_table, v_sql);
+
+
+        v_sql := 'CREATE TABLE TB_D_MESSAGE_SUBTYPE (ID_PK NUMBER(38, 0) NOT NULL, SUBTYPE VARCHAR2(255) NOT NULL, CREATION_TIME TIMESTAMP DEFAULT sysdate NOT NULL, CREATED_BY VARCHAR2(255) DEFAULT user NOT NULL, MODIFICATION_TIME TIMESTAMP, MODIFIED_BY VARCHAR2(255), CONSTRAINT PK_D_MESSAGE_SUBTYPE PRIMARY KEY (ID_PK))';
+        v_dict_table := 'TB_D_MESSAGE_SUBTYPE';
+        truncate_or_create_table(v_dict_table, v_sql);
     END migrate_tb_user_message_prerequisites;
     /** -- Helper procedures end -*/
 
@@ -160,23 +209,30 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         v_dict_table VARCHAR2(30);
         CURSOR c_user_message IS
             SELECT UM.ID_PK,
-                   MI.MESSAGE_ID           MESSAGE_ID,
-                   MI.REF_TO_MESSAGE_ID    REF_TO_MESSAGE_ID,
-                   UM.COLL_INFO_CONVERS_ID CONVERSATION_ID,
-                   ML.SOURCE_MESSAGE       SOURCE_MESSAGE,
-                   ML.MESSAGE_FRAGMENT     MESSAGE_FRAGMENT,
-                   MI.TIME_STAMP           EBMS3_TIMESTAMP,
-                   UM.MPC                  MPC,
-                   UM.FROM_ROLE            FROM_ROLE,
-                   UM.TO_ROLE              TO_ROLE,
-                   UM.SERVICE_TYPE         SERVICE_TYPE,
-                   UM.SERVICE_VALUE        SERVICE_VALUE,
-                   UM.AGREEMENT_REF_TYPE   AGREEMENT_REF_TYPE,
-                   UM.AGREEMENT_REF_VALUE  AGREEMENT_REF_VALUE,
-                   UM.COLLABORATION_INFO_ACTION ACTION
+                   MI.MESSAGE_ID                MESSAGE_ID,
+                   MI.REF_TO_MESSAGE_ID         REF_TO_MESSAGE_ID,
+                   UM.COLL_INFO_CONVERS_ID      CONVERSATION_ID,
+                   ML.SOURCE_MESSAGE            SOURCE_MESSAGE,
+                   ML.MESSAGE_FRAGMENT          MESSAGE_FRAGMENT,
+                   MI.TIME_STAMP                EBMS3_TIMESTAMP,
+                   UM.MPC                       MPC,
+                   UM.FROM_ROLE                 FROM_ROLE,
+                   UM.TO_ROLE                   TO_ROLE,
+                   UM.SERVICE_TYPE              SERVICE_TYPE,
+                   UM.SERVICE_VALUE             SERVICE_VALUE,
+                   UM.AGREEMENT_REF_TYPE        AGREEMENT_REF_TYPE,
+                   UM.AGREEMENT_REF_VALUE       AGREEMENT_REF_VALUE,
+                   UM.COLLABORATION_INFO_ACTION ACTION,
+                   PA1.TYPE                     FROM_PARTY_TYPE,
+                   PA1.VALUE                    FROM_PARTY_VALUE,
+                   PA2.TYPE                     TO_PARTY_TYPE,
+                   PA2.VALUE                    TO_PARTY_VALUE,
+                   ML.MESSAGE_SUBTYPE           MESSAGE_SUBTYPE
             FROM TB_MESSAGE_LOG ML
                      LEFT OUTER JOIN TB_MESSAGE_INFO MI ON ML.MESSAGE_ID = MI.MESSAGE_ID,
                  TB_USER_MESSAGE UM
+                     LEFT OUTER JOIN TB_PARTY_ID PA1 ON UM.ID_PK = PA1.FROM_ID
+                     LEFT OUTER JOIN TB_PARTY_ID PA2 ON UM.ID_PK = PA2.TO_ID
             WHERE UM.MESSAGEINFO_ID_PK = MI.ID_PK;
         TYPE T_USER_MESSAGE IS TABLE OF c_user_message%ROWTYPE;
         user_message T_USER_MESSAGE;
@@ -194,8 +250,9 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FOR i IN user_message.FIRST .. user_message.LAST
                 LOOP
                     EXECUTE IMMEDIATE 'INSERT INTO ' || v_temp_table ||
-                                      ' (ID_PK, MESSAGE_ID, REF_TO_MESSAGE_ID, CONVERSATION_ID, SOURCE_MESSAGE, MESSAGE_FRAGMENT, EBMS3_TIMESTAMP, MPC_ID_FK, FROM_ROLE_ID_FK, TO_ROLE_ID_FK, SERVICE_ID_FK, AGREEMENT_ID_FK, ACTION_ID_FK) ' ||
-                                      'VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6, :p_7, :p_8, :p_9, :p_10, :p_11, :p_12, :p_13)'
+                                      ' (ID_PK, MESSAGE_ID, REF_TO_MESSAGE_ID, CONVERSATION_ID, SOURCE_MESSAGE, MESSAGE_FRAGMENT, EBMS3_TIMESTAMP, MPC_ID_FK, FROM_ROLE_ID_FK, ' ||
+                                      'TO_ROLE_ID_FK, SERVICE_ID_FK, AGREEMENT_ID_FK, ACTION_ID_FK, FROM_PARTY_ID_FK, TO_PARTY_ID_FK, MESSAGE_SUBTYPE_ID_FK) ' ||
+                                      'VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6, :p_7, :p_8, :p_9, :p_10, :p_11, :p_12, :p_13, :p_14, :p_15, :p_16)'
                         USING user_message(i).ID_PK,
                         user_message(i).MESSAGE_ID,
                         user_message(i).REF_TO_MESSAGE_ID,
@@ -208,7 +265,10 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         get_tb_d_role_record(user_message(i).TO_ROLE),
                         get_tb_d_service_record(user_message(i).SERVICE_TYPE, user_message(i).SERVICE_VALUE),
                         get_tb_d_agreement_record(user_message(i).AGREEMENT_REF_TYPE, user_message(i).AGREEMENT_REF_VALUE),
-                        get_tb_d_action_record(user_message(i).ACTION);
+                        get_tb_d_action_record(user_message(i).ACTION),
+                        get_tb_d_party_record(user_message(i).FROM_PARTY_TYPE, user_message(i).FROM_PARTY_VALUE),
+                        get_tb_d_party_record(user_message(i).TO_PARTY_TYPE, user_message(i).TO_PARTY_VALUE),
+                        get_tb_d_message_subtype_record(user_message(i).MESSAGE_SUBTYPE);
                     IF i MOD BATCH_SIZE = 0 THEN
                         COMMIT;
                         DBMS_OUTPUT.PUT_LINE('Commit after ' || BATCH_SIZE * v_batch_no || ' records');
