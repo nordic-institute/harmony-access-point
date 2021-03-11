@@ -36,7 +36,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
     END truncate_or_create_table;
 
     FUNCTION get_tb_d_mpc_record(mpc_value IN VARCHAR2) RETURN NUMBER IS
-        v_id_pk NUMBER := -1;
+        v_id_pk NUMBER;
     BEGIN
         BEGIN
             EXECUTE IMMEDIATE 'SELECT ID_PK FROM TB_D_MPC WHERE VALUE = :1' INTO v_id_pk USING mpc_value;
@@ -52,7 +52,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
     END get_tb_d_mpc_record;
 
     FUNCTION get_tb_d_role_record(role IN VARCHAR2) RETURN NUMBER IS
-        v_id_pk NUMBER := -1;
+        v_id_pk NUMBER;
     BEGIN
         BEGIN
             EXECUTE IMMEDIATE 'SELECT ID_PK FROM TB_D_ROLE WHERE ROLE = :1' INTO v_id_pk USING role;
@@ -68,7 +68,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
     END get_tb_d_role_record;
 
     FUNCTION get_tb_d_service_record(service_type IN VARCHAR2, service_value IN VARCHAR2) RETURN NUMBER IS
-        v_id_pk NUMBER := -1;
+        v_id_pk NUMBER;
     BEGIN
         BEGIN
             EXECUTE IMMEDIATE 'SELECT ID_PK FROM TB_D_SERVICE WHERE TYPE = :1 AND VALUE = :2' INTO v_id_pk USING service_type, service_value;
@@ -82,6 +82,46 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         END;
         RETURN v_id_pk;
     END get_tb_d_service_record;
+
+    FUNCTION get_tb_d_agreement_record(agreement_type IN VARCHAR2, agreement_value IN VARCHAR2) RETURN NUMBER IS
+        v_id_pk NUMBER;
+    BEGIN
+        IF agreement_type IS NULL AND agreement_value IS NULL THEN
+            DBMS_OUTPUT.PUT_LINE('No record added into TB_D_AGREEMENT');
+            RETURN v_id_pk;
+        END IF;
+        BEGIN
+            EXECUTE IMMEDIATE 'SELECT ID_PK FROM TB_D_AGREEMENT WHERE TYPE = :1 AND VALUE = :2' INTO v_id_pk USING agreement_type, agreement_value;
+        EXCEPTION
+            WHEN NO_DATA_FOUND THEN
+                -- create new record
+                DBMS_OUTPUT.PUT_LINE('Add new record into TB_D_AGREEMENT: ' || agreement_type || ' , ' || agreement_value);
+                v_id_pk := HIBERNATE_SEQUENCE.nextval;
+                EXECUTE IMMEDIATE 'INSERT INTO TB_D_AGREEMENT(ID_PK, TYPE, VALUE) VALUES (' || v_id_pk || ', :1, :2)' USING agreement_type, agreement_value;
+                COMMIT;
+        END;
+        RETURN v_id_pk;
+    END get_tb_d_agreement_record;
+
+    FUNCTION get_tb_d_action_record(action IN VARCHAR2) RETURN NUMBER IS
+        v_id_pk NUMBER;
+    BEGIN
+        IF action IS NULL THEN
+            DBMS_OUTPUT.PUT_LINE('No record added into TB_D_ACTION');
+            RETURN v_id_pk;
+        END IF;
+        BEGIN
+            EXECUTE IMMEDIATE 'SELECT ID_PK FROM TB_D_ACTION WHERE ACTION = :1' INTO v_id_pk USING action;
+        EXCEPTION
+            WHEN NO_DATA_FOUND THEN
+                -- create new record
+                DBMS_OUTPUT.PUT_LINE('Add new record into TB_D_ACTION: ' || action);
+                v_id_pk := HIBERNATE_SEQUENCE.nextval;
+                EXECUTE IMMEDIATE 'INSERT INTO TB_D_ACTION(ID_PK, ACTION) VALUES (' || v_id_pk || ', :1)' USING action;
+                COMMIT;
+        END;
+        RETURN v_id_pk;
+    END get_tb_d_action_record;
 
     PROCEDURE migrate_tb_user_message_prerequisites(v_temp_table IN VARCHAR2) IS
         v_sql        VARCHAR2(1000);
@@ -101,6 +141,14 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
 
         v_sql := 'CREATE TABLE TB_D_SERVICE (ID_PK NUMBER(38, 0) NOT NULL, VALUE VARCHAR2(255) NOT NULL, TYPE VARCHAR2(255), CREATION_TIME TIMESTAMP DEFAULT sysdate NOT NULL, CREATED_BY VARCHAR2(255) DEFAULT user NOT NULL, MODIFICATION_TIME TIMESTAMP, MODIFIED_BY VARCHAR2(255), CONSTRAINT PK_D_SERVICE PRIMARY KEY (ID_PK))';
         v_dict_table := 'TB_D_SERVICE';
+        truncate_or_create_table(v_dict_table, v_sql);
+
+        v_sql := 'CREATE TABLE TB_D_AGREEMENT (ID_PK NUMBER(38, 0) NOT NULL, VALUE VARCHAR2(255) NOT NULL, TYPE VARCHAR2(255), CREATION_TIME TIMESTAMP DEFAULT sysdate NOT NULL, CREATED_BY VARCHAR2(255) DEFAULT user NOT NULL, MODIFICATION_TIME TIMESTAMP, MODIFIED_BY VARCHAR2(255), CONSTRAINT PK_D_AGREEMENT PRIMARY KEY (ID_PK))';
+        v_dict_table := 'TB_D_AGREEMENT';
+        truncate_or_create_table(v_dict_table, v_sql);
+
+        v_sql := 'CREATE TABLE TB_D_ACTION (ID_PK NUMBER(38, 0) NOT NULL, ACTION VARCHAR2(255) NOT NULL, CREATION_TIME TIMESTAMP DEFAULT sysdate NOT NULL, CREATED_BY VARCHAR2(255) DEFAULT user NOT NULL, MODIFICATION_TIME TIMESTAMP, MODIFIED_BY VARCHAR2(255), CONSTRAINT PK_D_ACTION PRIMARY KEY (ID_PK))';
+        v_dict_table := 'TB_D_ACTION';
         truncate_or_create_table(v_dict_table, v_sql);
     END migrate_tb_user_message_prerequisites;
     /** -- Helper procedures end -*/
@@ -122,7 +170,10 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                    UM.FROM_ROLE            FROM_ROLE,
                    UM.TO_ROLE              TO_ROLE,
                    UM.SERVICE_TYPE         SERVICE_TYPE,
-                   UM.SERVICE_VALUE        SERVICE_VALUE
+                   UM.SERVICE_VALUE        SERVICE_VALUE,
+                   UM.AGREEMENT_REF_TYPE   AGREEMENT_REF_TYPE,
+                   UM.AGREEMENT_REF_VALUE  AGREEMENT_REF_VALUE,
+                   UM.COLLABORATION_INFO_ACTION ACTION
             FROM TB_MESSAGE_LOG ML
                      LEFT OUTER JOIN TB_MESSAGE_INFO MI ON ML.MESSAGE_ID = MI.MESSAGE_ID,
                  TB_USER_MESSAGE UM
@@ -143,8 +194,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FOR i IN user_message.FIRST .. user_message.LAST
                 LOOP
                     EXECUTE IMMEDIATE 'INSERT INTO ' || v_temp_table ||
-                                      ' (ID_PK, MESSAGE_ID, REF_TO_MESSAGE_ID, CONVERSATION_ID, SOURCE_MESSAGE, MESSAGE_FRAGMENT, EBMS3_TIMESTAMP, MPC_ID_FK, FROM_ROLE_ID_FK, TO_ROLE_ID_FK, SERVICE_ID_FK) ' ||
-                                      'VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6, :p_7, :p_8, :p_9, :p_10, :p_11)'
+                                      ' (ID_PK, MESSAGE_ID, REF_TO_MESSAGE_ID, CONVERSATION_ID, SOURCE_MESSAGE, MESSAGE_FRAGMENT, EBMS3_TIMESTAMP, MPC_ID_FK, FROM_ROLE_ID_FK, TO_ROLE_ID_FK, SERVICE_ID_FK, AGREEMENT_ID_FK, ACTION_ID_FK) ' ||
+                                      'VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6, :p_7, :p_8, :p_9, :p_10, :p_11, :p_12, :p_13)'
                         USING user_message(i).ID_PK,
                         user_message(i).MESSAGE_ID,
                         user_message(i).REF_TO_MESSAGE_ID,
@@ -155,7 +206,9 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         get_tb_d_mpc_record(user_message(i).MPC),
                         get_tb_d_role_record(user_message(i).FROM_ROLE),
                         get_tb_d_role_record(user_message(i).TO_ROLE),
-                        get_tb_d_service_record(user_message(i).SERVICE_TYPE, user_message(i).SERVICE_VALUE);
+                        get_tb_d_service_record(user_message(i).SERVICE_TYPE, user_message(i).SERVICE_VALUE),
+                        get_tb_d_agreement_record(user_message(i).AGREEMENT_REF_TYPE, user_message(i).AGREEMENT_REF_VALUE),
+                        get_tb_d_action_record(user_message(i).ACTION);
                     IF i MOD BATCH_SIZE = 0 THEN
                         COMMIT;
                         DBMS_OUTPUT.PUT_LINE('Commit after ' || BATCH_SIZE * v_batch_no || ' records');
