@@ -12,7 +12,7 @@ import org.springframework.context.annotation.ImportResource;
 @ImportResource({
         "classpath:config/commonsTestContext.xml"
 })
-public class MapperContextConfiguration {
+public class TestMapperContextConfiguration {
 
     @Bean
     public AlertExtMapper alertExtMapper() {

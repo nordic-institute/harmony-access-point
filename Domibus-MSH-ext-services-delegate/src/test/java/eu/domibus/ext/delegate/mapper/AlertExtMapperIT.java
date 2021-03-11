@@ -14,7 +14,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  * @since 5.0
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = MapperContextConfiguration.class)
+@ContextConfiguration(classes = TestMapperContextConfiguration.class)
 public class AlertExtMapperIT {
 
     @Autowired

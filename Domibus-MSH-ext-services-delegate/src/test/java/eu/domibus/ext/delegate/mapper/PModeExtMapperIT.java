@@ -19,7 +19,7 @@ import java.util.List;
  * @since 5.0
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = MapperContextConfiguration.class)
+@ContextConfiguration(classes = TestMapperContextConfiguration.class)
 public class PModeExtMapperIT {
 
     @Autowired

@@ -9,7 +9,7 @@ import org.mapstruct.Mapper;
 import java.util.List;
 
 /**
- * Mapper to generate PMode abstract class conversion methods
+ * Mapper to generate Message abstract class conversion methods
  * @author François Gautier
  * @since 5.0
  */
