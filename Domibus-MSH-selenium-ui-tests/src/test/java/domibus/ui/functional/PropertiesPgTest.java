@@ -153,6 +153,8 @@ public class PropertiesPgTest extends SeleniumTest {
 	public void filterProperties() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
+		String propName = "domibus.alert.cert.expired.active";
+
 		log.info("going to properties page");
 		PropertiesPage page = new PropertiesPage(driver);
 		page.getSidebar().goToPage(PAGES.PROPERTIES);
@@ -161,14 +163,14 @@ public class PropertiesPgTest extends SeleniumTest {
 		page.propGrid().waitForRowsToLoad();
 
 		log.info(" checking if a global property can be viewed by admin");
-		page.filters().filterBy("wsplugin.mtom.enabled", null, null, null, null);
+		page.filters().filterBy(propName, null, null, null, null);
 		page.grid().waitForRowsToLoad();
 
 		soft.assertEquals(page.grid().getRowsNo(), 1, "1 rows displayed");
 
 		HashMap<String, String> info = page.grid().getRowInfo(0);
 
-		soft.assertEquals(info.get("Property Name"), "wsplugin.mtom.enabled", "correct property name is displayed");
+		soft.assertEquals(info.get("Property Name"), propName, "correct property name is displayed");
 
 		soft.assertAll();
 	}
@@ -901,7 +903,7 @@ public class PropertiesPgTest extends SeleniumTest {
 	}
 
 	/* EDELIVERY-7336 - PROP-27 - Update property domibus.property.length.max */
-	@Test(description = "PROP-27", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "PROP-27", groups = {"multiTenancy", "singleTenancy"})
 	public void checkPropertyLengthMax() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
@@ -933,6 +935,7 @@ public class PropertiesPgTest extends SeleniumTest {
 
 		soft.assertAll();
 	}
+
 
 
 }

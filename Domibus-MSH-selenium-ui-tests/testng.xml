@@ -1,5 +1,7 @@
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 <suite name="SELENIUM">
+
+
     <groups>
         <run>
             <include name="multiTenancy"/>
@@ -15,14 +17,25 @@
             </class>
             <class name="domibus.ui.ux.PluginUsersPgUXTest">
                 <methods>
+                    <!--                    excluded due to CSV header issues-->
+                    <exclude name="downloadAsCSV"></exclude>
+                    <exclude name="verifyCSVHeaders"></exclude>
+
                     <exclude name="createPluginUserFieldValidations"/>
-                    <!--                    bug EDELIVERY-7872 - 3 methods -->
+                    <!--                    bug EDELIVERY-7872 - 4 methods -->
                     <exclude name="originalUserOnRoleChange"></exclude>
                     <exclude name="delCertificateUsr"></exclude>
                     <exclude name="editCertificateUsr"></exclude>
+                    <exclude name="verifyConfPopUp"></exclude>
                 </methods>
             </class>
             <class name="domibus.ui.ux.PmodePartiesPgUXTest">
+                <methods>
+                    <!--                    CSV header incosistency-->
+                    <exclude name="downloadAllParties"></exclude>
+                    <exclude name="downloadFilteredPartiesList"></exclude>
+
+                </methods>
             </class>
             <!--            <class name="domibus.ui.ux.TruststorePgUXTests"/>-->
             <class name="domibus.ui.ux.UsersPgUXTest"/>
@@ -44,8 +57,9 @@
             </class>
             <class name="domibus.ui.functional.AlertPgTest">
                 <methods>
-                    <!--                    incomplete test-->
-                    <exclude name="checkAditionalFilters"/>
+                    <!--                    CSV header inconsistency -->
+                    <exclude name="downloadCsv"></exclude>
+                    <exclude name="verifyHeaders"></exclude>
 
                 </methods>
             </class>
