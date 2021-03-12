@@ -377,6 +377,10 @@
         <addUniqueConstraint columnNames="VERSION" tableName="TB_VERSION" constraintName="UQ_VERSION" />
     </changeSet>
 
+    <!-- Start here 4.2 to new 5.0 -->
+    <include file="migration/changelog-5.0-alter-delta.xml" relativeToChangelogFile="true"/>
+    <!-- End here 4.2 to new 5.0 -->
+
     <!-- this file must be included in every future changelog-xx-delta.xml -->
     <include file="common/changelog-version-inserts.xml" relativeToChangelogFile="true"/>
 
