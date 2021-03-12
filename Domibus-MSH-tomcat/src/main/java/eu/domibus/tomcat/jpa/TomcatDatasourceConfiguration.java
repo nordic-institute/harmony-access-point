@@ -46,8 +46,8 @@ public class TomcatDatasourceConfiguration {
         final Integer maxPoolSize = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DATASOURCE_MAX_POOL_SIZE);
         dataSource.setMaximumPoolSize(maxPoolSize);
 
-        final Integer maxLifetime = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DATASOURCE_MAX_LIFETIME);
-        dataSource.setMaxLifetime(maxLifetime);
+        final Integer maxLifetimeInSecs = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DATASOURCE_MAX_LIFETIME);
+        dataSource.setMaxLifetime(maxLifetimeInSecs * 1000);
 
         return dataSource;
     }
