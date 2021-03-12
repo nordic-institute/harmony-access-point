@@ -40,7 +40,7 @@ public class ConnectionMonitorTest extends SeleniumTest {
 	}
 
 	/* CM-1 - Login as system admin and open Connection Monitoring page without proper Pmode */
-	@Test(description = "CM-1", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "CM-1", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void openWindowNoPmode() throws Exception {
 		SoftAssert soft = new SoftAssert();
 
