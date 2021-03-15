@@ -38,7 +38,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         END IF;
     END truncate_or_create_table;
 
-    FUNCTION get_tb_d_mpc_record(mpc_value VARCHAR2) RETURN NUMBER IS
+    FUNCTION get_tb_d_mpc_rec(mpc_value VARCHAR2) RETURN NUMBER IS
         v_id_pk NUMBER;
     BEGIN
         IF mpc_value IS NULL THEN
@@ -56,9 +56,9 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                 COMMIT;
         END;
         RETURN v_id_pk;
-    END get_tb_d_mpc_record;
+    END get_tb_d_mpc_rec;
 
-    FUNCTION get_tb_d_role_record(role VARCHAR2) RETURN NUMBER IS
+    FUNCTION get_tb_d_role_rec(role VARCHAR2) RETURN NUMBER IS
         v_id_pk NUMBER;
     BEGIN
         IF role IS NULL THEN
@@ -76,9 +76,9 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                 COMMIT;
         END;
         RETURN v_id_pk;
-    END get_tb_d_role_record;
+    END get_tb_d_role_rec;
 
-    FUNCTION get_tb_d_service_record(service_type VARCHAR2, service_value VARCHAR2) RETURN NUMBER IS
+    FUNCTION get_tb_d_service_rec(service_type VARCHAR2, service_value VARCHAR2) RETURN NUMBER IS
         v_id_pk NUMBER;
     BEGIN
         IF service_type IS NULL AND service_value IS NULL THEN
@@ -97,9 +97,9 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                 COMMIT;
         END;
         RETURN v_id_pk;
-    END get_tb_d_service_record;
+    END get_tb_d_service_rec;
 
-    FUNCTION get_tb_d_agreement_record(agreement_type VARCHAR2, agreement_value VARCHAR2) RETURN NUMBER IS
+    FUNCTION get_tb_d_agreement_rec(agreement_type VARCHAR2, agreement_value VARCHAR2) RETURN NUMBER IS
         v_id_pk NUMBER;
     BEGIN
         IF agreement_type IS NULL AND agreement_value IS NULL THEN
@@ -119,9 +119,9 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                 COMMIT;
         END;
         RETURN v_id_pk;
-    END get_tb_d_agreement_record;
+    END get_tb_d_agreement_rec;
 
-    FUNCTION get_tb_d_action_record(action VARCHAR2) RETURN NUMBER IS
+    FUNCTION get_tb_d_action_rec(action VARCHAR2) RETURN NUMBER IS
         v_id_pk NUMBER;
     BEGIN
         IF action IS NULL THEN
@@ -139,9 +139,9 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                 COMMIT;
         END;
         RETURN v_id_pk;
-    END get_tb_d_action_record;
+    END get_tb_d_action_rec;
 
-    FUNCTION get_tb_d_party_record(party_type VARCHAR2, party_value VARCHAR2) RETURN NUMBER IS
+    FUNCTION get_tb_d_party_rec(party_type VARCHAR2, party_value VARCHAR2) RETURN NUMBER IS
         v_id_pk NUMBER;
     BEGIN
         IF party_type IS NULL AND party_value IS NULL THEN
@@ -160,9 +160,9 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                 COMMIT;
         END;
         RETURN v_id_pk;
-    END get_tb_d_party_record;
+    END get_tb_d_party_rec;
 
-    FUNCTION get_tb_d_message_subtype_record(msg_subtype VARCHAR2) RETURN NUMBER IS
+    FUNCTION get_tb_d_msg_subtype_rec(msg_subtype VARCHAR2) RETURN NUMBER IS
         v_id_pk NUMBER;
     BEGIN
         IF msg_subtype IS NULL THEN
@@ -181,9 +181,9 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                 COMMIT;
         END;
         RETURN v_id_pk;
-    END get_tb_d_message_subtype_record;
+    END get_tb_d_msg_subtype_rec;
 
-    FUNCTION get_tb_user_message_record(message_id VARCHAR2) RETURN NUMBER IS
+    FUNCTION get_tb_user_message_rec(message_id VARCHAR2) RETURN NUMBER IS
         v_id_pk NUMBER;
     BEGIN
         IF message_id IS NULL THEN
@@ -198,7 +198,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                 DBMS_OUTPUT.PUT_LINE('No record found into TEMP_TB_USER_MESSAGE for MESSAGE_ID = ' || message_id);
         END;
         RETURN v_id_pk;
-    END get_tb_user_message_record;
+    END get_tb_user_message_rec;
 
     FUNCTION check_counts(tab_name1 VARCHAR2, tab_name2 VARCHAR2) RETURN BOOLEAN IS
         v_count_match BOOLEAN;
@@ -220,7 +220,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         RETURN v_count_match;
     END check_counts;
 
-    PROCEDURE migrate_tb_user_message_prerequisites(v_temp_table IN VARCHAR2) IS
+    PROCEDURE migrate_user_message_prereq(v_temp_table IN VARCHAR2) IS
         v_sql        VARCHAR2(1000);
         v_dict_table VARCHAR2(30);
     BEGIN
@@ -262,7 +262,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                 'CREATE TABLE TB_D_MESSAGE_SUBTYPE (ID_PK NUMBER(38, 0) NOT NULL, SUBTYPE VARCHAR2(255) NOT NULL, CREATION_TIME TIMESTAMP DEFAULT sysdate NOT NULL, CREATED_BY VARCHAR2(255) DEFAULT user NOT NULL, MODIFICATION_TIME TIMESTAMP, MODIFIED_BY VARCHAR2(255), CONSTRAINT PK_D_MESSAGE_SUBTYPE PRIMARY KEY (ID_PK))';
         v_dict_table := 'TB_D_MESSAGE_SUBTYPE';
         truncate_or_create_table(v_dict_table, v_sql);
-    END migrate_tb_user_message_prerequisites;
+    END migrate_user_message_prereq;
     /** -- Helper procedures end -*/
 
     /**-- TB_USER_MESSAGE migration --*/
@@ -299,7 +299,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         user_message T_USER_MESSAGE;
         v_batch_no   INT          := 1;
     BEGIN
-        migrate_tb_user_message_prerequisites(v_temp_table);
+        migrate_user_message_prereq(v_temp_table);
 
         /** migrate old columns and add data into dictionary tables */
         DBMS_OUTPUT.PUT_LINE('Start to migrate TB_USER_MESSAGE entries...');
@@ -321,16 +321,16 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         user_message(i).SOURCE_MESSAGE,
                         user_message(i).MESSAGE_FRAGMENT,
                         user_message(i).EBMS3_TIMESTAMP,
-                        get_tb_d_mpc_record(user_message(i).MPC),
-                        get_tb_d_role_record(user_message(i).FROM_ROLE),
-                        get_tb_d_role_record(user_message(i).TO_ROLE),
-                        get_tb_d_service_record(user_message(i).SERVICE_TYPE, user_message(i).SERVICE_VALUE),
-                        get_tb_d_agreement_record(user_message(i).AGREEMENT_REF_TYPE,
-                                                  user_message(i).AGREEMENT_REF_VALUE),
-                        get_tb_d_action_record(user_message(i).ACTION),
-                        get_tb_d_party_record(user_message(i).FROM_PARTY_TYPE, user_message(i).FROM_PARTY_VALUE),
-                        get_tb_d_party_record(user_message(i).TO_PARTY_TYPE, user_message(i).TO_PARTY_VALUE),
-                        get_tb_d_message_subtype_record(user_message(i).MESSAGE_SUBTYPE);
+                        get_tb_d_mpc_rec(user_message(i).MPC),
+                        get_tb_d_role_rec(user_message(i).FROM_ROLE),
+                        get_tb_d_role_rec(user_message(i).TO_ROLE),
+                        get_tb_d_service_rec(user_message(i).SERVICE_TYPE, user_message(i).SERVICE_VALUE),
+                        get_tb_d_agreement_rec(user_message(i).AGREEMENT_REF_TYPE,
+                                               user_message(i).AGREEMENT_REF_VALUE),
+                        get_tb_d_action_rec(user_message(i).ACTION),
+                        get_tb_d_party_rec(user_message(i).FROM_PARTY_TYPE, user_message(i).FROM_PARTY_VALUE),
+                        get_tb_d_party_rec(user_message(i).TO_PARTY_TYPE, user_message(i).TO_PARTY_VALUE),
+                        get_tb_d_msg_subtype_rec(user_message(i).MESSAGE_SUBTYPE);
                     IF i MOD BATCH_SIZE = 0 THEN
                         COMMIT;
                         DBMS_OUTPUT.PUT_LINE('Commit after ' || BATCH_SIZE * v_batch_no || ' records');
@@ -412,12 +412,12 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         message_group(i).SOAP_ACTION,
                         message_group(i).REJECTED,
                         message_group(i).EXPIRED,
-                        get_tb_d_role_record(message_group(i).MSH_ROLE),
+                        get_tb_d_role_rec(message_group(i).MSH_ROLE),
                         message_group(i).CREATION_TIME,
                         message_group(i).CREATED_BY,
                         message_group(i).MODIFICATION_TIME,
                         message_group(i).MODIFIED_BY,
-                        get_tb_user_message_record(message_group(i).SOURCE_MESSAGE_ID); -- we look into migrated table here
+                        get_tb_user_message_rec(message_group(i).SOURCE_MESSAGE_ID); -- we look into migrated table here
                     IF i MOD BATCH_SIZE = 0 THEN
                         COMMIT;
                         DBMS_OUTPUT.PUT_LINE(v_tab_new ||': Commit after ' || BATCH_SIZE * v_batch_no || ' records');
