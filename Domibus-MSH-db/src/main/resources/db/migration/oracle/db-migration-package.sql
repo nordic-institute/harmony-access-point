@@ -517,6 +517,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
     BEGIN
         migrate_tb_user_message;
         migrate_tb_message_fragment; -- keep it right after
+        migrate_tb_message_group;
     END migrate;
 
 
