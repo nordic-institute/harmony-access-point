@@ -2,9 +2,6 @@ CREATE OR REPLACE PACKAGE MIGRATE_42_TO_50 IS
     TEMP_PREFIX CONSTANT Varchar2(5) := 'TEMP_';
     BATCH_SIZE CONSTANT NUMBER := 3;
 
-    PROCEDURE migrate_tb_user_message;
-    PROCEDURE migrate_tb_message_fragment;
-
     PROCEDURE migrate;
 
 END MIGRATE_42_TO_50;
@@ -186,6 +183,23 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         RETURN v_id_pk;
     END get_tb_d_message_subtype_record;
 
+    FUNCTION get_tb_user_message_record(message_id VARCHAR2) RETURN NUMBER IS
+        v_id_pk NUMBER;
+    BEGIN
+        IF message_id IS NULL THEN
+            DBMS_OUTPUT.PUT_LINE('No record to look into TEMP_TB_USER_MESSAGE');
+            RETURN v_id_pk;
+        END IF;
+        BEGIN
+            -- TODO check index on message_id column?
+            EXECUTE IMMEDIATE 'SELECT ID_PK FROM TEMP_TB_USER_MESSAGE WHERE MESSAGE_ID = :1' INTO v_id_pk USING message_id;
+        EXCEPTION
+            WHEN NO_DATA_FOUND THEN
+                DBMS_OUTPUT.PUT_LINE('No record found into TEMP_TB_USER_MESSAGE for MESSAGE_ID = ' || message_id);
+        END;
+        RETURN v_id_pk;
+    END get_tb_user_message_record;
+
     FUNCTION check_counts(tab_name1 VARCHAR2, tab_name2 VARCHAR2) RETURN BOOLEAN IS
         v_count_match BOOLEAN;
         v_count_tab1  NUMBER;
@@ -338,6 +352,93 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
 
     END migrate_tb_user_message;
 
+    /**-- TB_MESSAGE_GROUP migration --*/
+    PROCEDURE migrate_tb_message_group IS
+        v_sql     VARCHAR2(1000);
+        v_tab     VARCHAR2(30) := 'TB_MESSAGE_GROUP';
+        v_tab_new VARCHAR2(30) := 'TB_SJ_MESSAGE_GROUP';
+        v_tab_user_message_new VARCHAR2(30) := 'TEMP_TB_USER_MESSAGE';
+
+        CURSOR c_message_group IS
+            SELECT MG.ID_PK,
+                   MG.MESSAGE_SIZE,
+                   MG.FRAGMENT_COUNT,
+                   MG.SENT_FRAGMENTS,
+                   MG.RECEIVED_FRAGMENTS,
+                   MG.COMPRESSION_ALGORITHM,
+                   MG.COMPRESSED_MESSAGE_SIZE,
+                   MG.SOAP_ACTION,
+                   MG.REJECTED,
+                   MG.EXPIRED,
+                   MG.MSH_ROLE,
+                   MG.SOURCE_MESSAGE_ID,
+                   MG.CREATION_TIME,
+                   MG.CREATED_BY,
+                   MG.MODIFICATION_TIME,
+                   MG.MODIFIED_BY
+            FROM TB_MESSAGE_GROUP MG;
+        TYPE T_MESSAGE_GROUP IS TABLE OF c_message_group%ROWTYPE;
+        message_group T_MESSAGE_GROUP;
+        v_batch_no   INT          := 1;
+    BEGIN
+        IF NOT check_table_exists(v_tab_user_message_new) THEN
+            DBMS_OUTPUT.PUT_LINE(v_tab_user_message_new || ' should exists before starting '||v_tab||' migration');
+        END IF;
+
+        -- create the new table
+        v_sql :=
+                'CREATE TABLE TB_SJ_MESSAGE_GROUP (ID_PK NUMBER(38, 0) NOT NULL, GROUP_ID VARCHAR2(255) NOT NULL, MESSAGE_SIZE NUMBER(38, 0), FRAGMENT_COUNT INTEGER, SENT_FRAGMENTS INTEGER, RECEIVED_FRAGMENTS INTEGER, COMPRESSION_ALGORITHM VARCHAR2(255), COMPRESSED_MESSAGE_SIZE NUMBER(38, 0), SOAP_ACTION VARCHAR2(255), REJECTED NUMBER(1), EXPIRED NUMBER(1), MSH_ROLE_ID_FK NUMBER(38, 0) NOT NULL, SOURCE_MESSAGE_ID_FK NUMBER(38, 0) NOT NULL, CREATION_TIME TIMESTAMP DEFAULT sysdate NOT NULL, CREATED_BY VARCHAR2(255) DEFAULT user NOT NULL, MODIFICATION_TIME TIMESTAMP, MODIFIED_BY VARCHAR2(255), CONSTRAINT PK_SJ_MESSAGE_GROUP PRIMARY KEY (ID_PK))';
+        truncate_or_create_table(v_tab_new, v_sql);
+
+        DBMS_OUTPUT.PUT_LINE('Start to migrate '||v_tab||' entries...');
+        OPEN c_message_group;
+        LOOP
+            FETCH c_message_group BULK COLLECT INTO message_group;
+            EXIT WHEN message_group.COUNT = 0;
+
+            FOR i IN message_group.FIRST .. message_group.LAST
+                LOOP
+                    EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
+                                      ' (ID_PK, MESSAGE_SIZE, FRAGMENT_COUNT, SENT_FRAGMENTS, RECEIVED_FRAGMENTS, COMPRESSION_ALGORITHM, COMPRESSED_MESSAGE_SIZE,' ||
+                                      'SOAP_ACTION, REJECTED, EXPIRED, MSH_ROLE_ID_FK, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY, SOURCE_MESSAGE_ID_FK) ' ||
+                                      'VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6, :p_7, :p_8, :p_9, :p_10, :p_11, :p_12, :p_13, :p_14, :p_15, :p_15, :p_16)'
+                        USING message_group(i).ID_PK,
+                        message_group(i).MESSAGE_SIZE,
+                        message_group(i).FRAGMENT_COUNT,
+                        message_group(i).SENT_FRAGMENTS,
+                        message_group(i).RECEIVED_FRAGMENTS,
+                        message_group(i).COMPRESSION_ALGORITHM,
+                        message_group(i).COMPRESSED_MESSAGE_SIZE,
+                        message_group(i).SOAP_ACTION,
+                        message_group(i).REJECTED,
+                        message_group(i).EXPIRED,
+                        get_tb_d_role_record(message_group(i).MSH_ROLE),
+                        message_group(i).CREATION_TIME,
+                        message_group(i).CREATED_BY,
+                        message_group(i).MODIFICATION_TIME,
+                        message_group(i).MODIFIED_BY,
+                        get_tb_user_message_record(message_group(i).SOURCE_MESSAGE_ID); -- we look into migrated table here
+                    IF i MOD BATCH_SIZE = 0 THEN
+                        COMMIT;
+                        DBMS_OUTPUT.PUT_LINE(v_tab_new ||': Commit after ' || BATCH_SIZE * v_batch_no || ' records');
+                        v_batch_no := v_batch_no + 1;
+                    END IF;
+
+                END LOOP;
+            DBMS_OUTPUT.PUT_LINE(v_tab_new||': Migrated ' || message_group.COUNT || ' records in total');
+        END LOOP;
+
+        COMMIT;
+        CLOSE c_message_group;
+
+        -- check counts
+        IF check_counts(v_tab, v_tab_new) THEN
+            DBMS_OUTPUT.PUT_LINE(v_tab||' migration is done');
+            -- TODO drop old table
+        END IF;
+
+    END migrate_tb_message_group;
+
     /**-- TB_MESSAGE_FRAGMENT migration --*/
     PROCEDURE migrate_tb_message_fragment IS
         v_sql                     VARCHAR2(1000);
@@ -352,10 +453,13 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                    MF.CREATION_TIME,
                    MF.CREATED_BY,
                    MF.MODIFICATION_TIME,
-                   MF.MODIFIED_BY
+                   MF.MODIFIED_BY,
+                   MG.ID_PK GROUP_ID_FK
             FROM TB_MESSAGE_FRAGMENT MF,
+                 TB_MESSAGE_GROUP MG,
                  TB_USER_MESSAGE UM
-            WHERE UM.FK_MESSAGE_FRAGMENT_ID = MF.ID_PK;
+            WHERE UM.FK_MESSAGE_FRAGMENT_ID = MF.ID_PK
+              AND MF.GROUP_ID = MG.GROUP_ID; -- TODO check this
         TYPE T_MESSAGE_FRAGMENT IS TABLE OF c_message_fragment%ROWTYPE;
         message_fragment T_MESSAGE_FRAGMENT;
         v_batch_no   INT          := 1;
@@ -378,10 +482,10 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FOR i IN message_fragment.FIRST .. message_fragment.LAST
                 LOOP
                     EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                      ' (ID_PK, GROUP_ID, FRAGMENT_NUMBER, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY) ' ||
+                                      ' (ID_PK, GROUP_ID_FK, FRAGMENT_NUMBER, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY) ' ||
                                       'VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6, :p_7)'
                         USING message_fragment(i).ID_PK,
-                        message_fragment(i).GROUP_ID,
+                        message_fragment(i).GROUP_ID_FK,
                         message_fragment(i).FRAGMENT_NUMBER,
                         message_fragment(i).CREATION_TIME,
                         message_fragment(i).CREATED_BY,
