@@ -532,7 +532,8 @@ public class DGrid extends DComponent {
 
 		log.info("checking file headers against column names");
 
-		soft.assertTrue(CollectionUtils.isEqualCollection(columnNames, csvFileHeaders), "Headers between grid and CSV file match");
+//		soft.assertTrue(CollectionUtils.isEqualCollection(columnNames, csvFileHeaders), "Headers between grid and CSV file match");
+		soft.assertEquals(columnNames, csvFileHeaders, "Headers between grid and CSV file match");
 
 	}
 

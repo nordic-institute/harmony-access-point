@@ -998,14 +998,18 @@ public class AlertPgTest extends SeleniumTest {
 		List<String> options = filter.getAlertTypeSelect().getOptionsTexts();
 
 		for (String option : options) {
+
+			if(StringUtils.isEmpty(option.trim())){
+				continue;
+			}
+
 			log.info("checking alert type " + option);
 			filter.getAlertTypeSelect().selectOptionByText(option);
 
-			System.out.println("filter.getXFilterSectionName() = " + filter.getXFilterSectionName());
-
+			soft.assertEquals(option , filter.getXFilterSectionName(), "Alert type and section name have the same value");
 			List<String> xFilters = filter.getXFilterNames();
-			System.out.println("xFilters = " + xFilters);
-			log.debug(xFilters.toString());
+
+			soft.assertEquals(xFilters , descriptorObj.getJSONObject("extraFilters").getJSONArray(option).toList(), "Filters listed are as expected");
 
 		}
 
