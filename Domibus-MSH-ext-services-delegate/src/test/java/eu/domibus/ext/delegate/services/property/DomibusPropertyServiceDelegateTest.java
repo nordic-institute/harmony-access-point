@@ -58,21 +58,6 @@ public class DomibusPropertyServiceDelegateTest {
     }
 
     @Test
-    public void getConfiguredNotificationsWithDuplicateValues() {
-        String propertyName = "messages.notifications";
-        List<NotificationType> expectedTypes = Arrays.asList(NotificationType.MESSAGE_RECEIVED, NotificationType.MESSAGE_SEND_SUCCESS);
-        String propertyValue = StringUtils.join(expectedTypes.stream().map(Enum::toString).collect(Collectors.toList()), ",");
-
-        new Expectations(domibusPropertyServiceDelegate) {{
-            domibusPropertyServiceDelegate.getProperty(propertyName);
-            result = propertyValue;
-        }};
-
-        List<NotificationType> configuredNotifications = domibusPropertyServiceDelegate.getConfiguredNotifications(propertyName);
-        assertEquals(expectedTypes, configuredNotifications);
-    }
-
-    @Test
     public void getConfiguredNotificationsWithInvalidValues() {
         String propertyName = "messages.notifications";
         String propertyValue = "invalid notif type,,";
