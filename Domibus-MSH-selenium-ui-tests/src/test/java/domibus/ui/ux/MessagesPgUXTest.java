@@ -304,18 +304,12 @@ public class MessagesPgUXTest extends SeleniumTest {
 		MessagesPage page = new MessagesPage(driver);
 		page.getSidebar().goToPage(PAGES.MESSAGES);
 		
-		String fileName = rest.csv().downloadGrid(RestServicePaths.MESSAGE_LOG_CSV, null, null);
+		String fileName = page.pressSaveCsvAndSaveFile();
 		log.info("downloaded file with name " + fileName);
 		
 		page.grid().getGridCtrl().showCtrls();
 		page.grid().getGridCtrl().getAllLnk().click();
-		
-		log.info("sorting after column Received");
-		page.grid().sortBy("Received");
-		
-		log.info("set page size to 100");
-		page.grid().getPagination().getPageSizeSelect().selectOptionByText("100");
-		
+
 		log.info("checking info in grid against the file");
 		page.grid().checkCSVvsGridHeaders(fileName, soft);
 		

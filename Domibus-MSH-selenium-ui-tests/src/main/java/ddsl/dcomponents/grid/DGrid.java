@@ -3,6 +3,7 @@ package ddsl.dcomponents.grid;
 import ddsl.dcomponents.DComponent;
 import ddsl.dobjects.DObject;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -256,9 +257,7 @@ public class DGrid extends DComponent {
 		waitForRowsToLoad();
 
 		do {
-			for (int i = 0; i < getRowsNo(); i++) {
-				allRowInfo.add(getRowInfo(i));
-			}
+			allRowInfo.addAll(getListedRowInfo());
 			if (pagination.hasNextPage()) {
 				pagination.goToNextPage();
 				waitForRowsToLoad();
@@ -532,9 +531,11 @@ public class DGrid extends DComponent {
 
 		log.info("checking file headers against column names");
 
-//		soft.assertTrue(CollectionUtils.isEqualCollection(columnNames, csvFileHeaders), "Headers between grid and CSV file match");
-		soft.assertEquals(columnNames, csvFileHeaders, "Headers between grid and CSV file match");
-
+		soft.assertTrue(CollectionUtils.isEqualCollection(columnNames, csvFileHeaders), "Headers between grid and CSV file match");
+		if(!CollectionUtils.isEqualCollection(columnNames, csvFileHeaders)){
+			log.debug("UI columns = " + columnNames.toString());
+			log.debug("CSV columns = " + csvFileHeaders.toString());
+		}
 	}
 
 	public boolean csvRowVsGridRow(CSVRecord record, HashMap<String, String> gridRow) throws Exception {
@@ -561,9 +562,6 @@ public class DGrid extends DComponent {
 						log.debug("hit special case: ");
 						return true;
 					}
-					log.debug("field compare issue: key=" + key + ";gridValue=" + gridValue + ";csvValue=" + csvValue);
-					log.debug("record: " + record);
-					log.debug("gridRow: " + gridRow);
 					return false;
 				}
 			}
