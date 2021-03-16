@@ -63,9 +63,9 @@
         <comment>split plugin user unique constraints in 2</comment>
         <dropUniqueConstraint uniqueColumns="USERNAME,CERTIFICATE_ID" constraintName="UQ_PLUGIN_USER"
                              tableName="TB_AUTHENTICATION_ENTRY"/>
-        <addUniqueConstraint columnNames="USERNAME" constraintName="UQ_PLUGIN_USER_NAME"
+        <addUniqueConstraint columnNames="USERNAME" constraintName="UK_PLUGIN_USER_NAME"
                              tableName="TB_AUTHENTICATION_ENTRY"/>
-        <addUniqueConstraint columnNames="CERTIFICATE_ID" constraintName="UQ_PLUGIN_USER_CERT"
+        <addUniqueConstraint columnNames="CERTIFICATE_ID" constraintName="UK_PLUGIN_USER_CERT"
                              tableName="TB_AUTHENTICATION_ENTRY"/>
 
     </changeSet>
@@ -363,6 +363,7 @@
 
     <!-- Start here 4.2 to new 5.0 -->
     <include file="migration/changelog-5.0new-delta.xml" relativeToChangelogFile="true"/>
+    <include file="migration/changelog-5.0-alter-delta.xml" relativeToChangelogFile="true"/>
     <!-- End here 4.2 to new 5.0 -->
 
 
@@ -374,12 +375,8 @@
                 <constraints nullable="false"/>
             </column>
         </createTable>
-        <addUniqueConstraint columnNames="VERSION" tableName="TB_VERSION" constraintName="UQ_VERSION" />
+        <addUniqueConstraint columnNames="VERSION" tableName="TB_VERSION" constraintName="UK_VERSION" />
     </changeSet>
-
-    <!-- Start here 4.2 to new 5.0 -->
-    <include file="migration/changelog-5.0-alter-delta.xml" relativeToChangelogFile="true"/>
-    <!-- End here 4.2 to new 5.0 -->
 
     <!-- this file must be included in every future changelog-xx-delta.xml -->
     <include file="common/changelog-version-inserts.xml" relativeToChangelogFile="true"/>
