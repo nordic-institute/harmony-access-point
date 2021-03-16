@@ -6,12 +6,12 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 /**
- * Mapper to generate Monitoring Service abstract class conversion methods
+ * Mapper to generate Alert Service abstract class conversion methods
  * @author François Gautier
  * @since 5.0
  */
 @Mapper(componentModel = "spring")
-public interface AlertMapper {
+public interface AlertExtMapper {
 
     @Mapping(source = "alertLevel", target = "alertLevelDTO")
     AlertEventDTO alertEventToAlertEventDTO(AlertEvent alertEvent);
