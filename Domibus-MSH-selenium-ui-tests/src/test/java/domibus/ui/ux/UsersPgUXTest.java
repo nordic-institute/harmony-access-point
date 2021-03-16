@@ -171,7 +171,7 @@ public class UsersPgUXTest extends SeleniumTest {
 		UsersPage page = new UsersPage(driver);
 		page.getSidebar().goToPage(PAGES.USERS);
 		
-		String fileName = rest.csv().downloadGrid(RestServicePaths.USERS_CSV, null, null);
+		String fileName = page.pressSaveCsvAndSaveFile();
 		log.info("downloaded file with name " + fileName);
 		
 		page.grid().getGridCtrl().showCtrls();

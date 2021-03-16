@@ -23,6 +23,7 @@ import pages.users.UsersPage;
 import utils.Gen;
 import utils.TestUtils;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -579,7 +580,7 @@ public class PropertiesPgTest extends SeleniumTest {
 
 		try {
 			ClientResponse response = rest.pmode().uploadPMode("pmodes/pmode-dataSetupBlue.xml", "test comment", null);
-			soft.assertEquals(response.getStatus() , 500, "500 error returned");
+			soft.assertEquals(response.getStatus(), 500, "500 error returned");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -882,7 +883,7 @@ public class PropertiesPgTest extends SeleniumTest {
 		modal.getPasswordInput().fill("notGood");
 
 
-		soft.assertEquals(modal.getPassErrMess().getText() , "Password should follow all of these rules:\n\n" + newValidationMessage , "User validation message changed according to property");
+		soft.assertEquals(modal.getPassErrMess().getText(), "Password should follow all of these rules:\n\n" + newValidationMessage, "User validation message changed according to property");
 
 		if (data.isMultiDomain()) {
 
@@ -893,7 +894,7 @@ public class PropertiesPgTest extends SeleniumTest {
 			modal.getRoleSelect().selectOptionByText(DRoles.SUPER);
 
 			modal.getPasswordInput().fill("notGood");
-			soft.assertEquals(modal.getPassErrMess().getText() , "Password should follow all of these rules:\n\n" + newSuperValidationMessage , "Super validation message changed according to property");
+			soft.assertEquals(modal.getPassErrMess().getText(), "Password should follow all of these rules:\n\n" + newSuperValidationMessage, "Super validation message changed according to property");
 
 			rest.properties().updateGlobalProperty("domibus.passwordPolicy.validationMessage", oldPropVal);
 		}
@@ -914,14 +915,19 @@ public class PropertiesPgTest extends SeleniumTest {
 
 		String oldVal = modifyProperty("domibus.property.length.max", false, "10");
 
-		try{
+		if (page.getAlertArea().isError()) {
+			soft.fail("Could not update property domibus.property.length.max");
+		}
+
+		try {
 			String globalNewVal = Gen.randomAlphaNumeric(12);
 			modifyProperty("domibus.instance.name", false, globalNewVal);
 			soft.assertEquals(page.getAlertArea().getAlertMessage()
 					, String.format(expectedErrorTemplate, globalNewVal, "domibus.instance.name", newMaxLength)
 					, "Correct error message is shown (GLOBAL)");
-		}catch (Exception e){ }
-		try{
+		} catch (Exception e) {
+		}
+		try {
 
 			String globalNewVal = Gen.randomAlphaNumeric(12);
 			modifyProperty("domibus.ui.support.team.name", true, globalNewVal);
@@ -929,13 +935,84 @@ public class PropertiesPgTest extends SeleniumTest {
 					, String.format(expectedErrorTemplate, globalNewVal, "domibus.ui.support.team.name", newMaxLength)
 					, "Correct error message is shown (DOMAIN)");
 
-		}catch (Exception e){ }
+		} catch (Exception e) {
+		}
 
 		rest.properties().updateGlobalProperty("domibus.property.length.max", oldVal);
 
 		soft.assertAll();
 	}
 
+
+	/* EDELIVERY-7337 - PROP-28 - Update property domibus.property.validation.enabled */
+	@Test(description = "PROP-28", groups = {"multiTenancy", "singleTenancy"})
+	public void propertyValidation() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		List<String> toUdateDomain = Arrays.asList("domibus.alert.cert.expired.active"
+				, "domibus.passwordPolicy.expiration"
+				,"domibus.sendMessage.messageIdPattern"
+//				,"domibus.dispatcher.concurency"
+//				,"domibus.pull.retrry.cron"
+//				,"domibus.alert.sender.email"
+//				,"domibus.attachment.temp.storage.location"
+		);
+
+		List<String> toUdateGlobal = Arrays.asList(
+				"domibus.auth.unsecureLoginAllowed"
+				, "domibus.alert.cleaner.cron"
+//				, "domibus.alert.sender.email"
+//				, "domibus.passwordPolicy.expiration"
+//				, "wsplugin.dispatcher.worker.cronExpression"
+//				, "domibus.alert.sender.smtp.url"
+//				, "domibus.alert.sender.smtp.url"
+		);
+
+		PropertiesPage page = new PropertiesPage(driver);
+
+		String oldVal = modifyProperty("domibus.property.validation.enabled", false, "false");
+
+		if (data.isMultiDomain()) {
+			for (String prop : toUdateGlobal) {
+				soft.assertTrue(isPropUpdateSuccess(prop, Gen.randomAlphaNumeric(5), false, null), "Global properties can be updated to invalid values when validation is turned off");
+			}
+		}
+
+		for (String domProp : toUdateDomain) {
+			soft.assertTrue(isPropUpdateSuccess(domProp, Gen.randomAlphaNumeric(5), true, null), "Domain properties can be updated to invalid values when validation is turned off");
+		}
+
+		rest.properties().updateGlobalProperty("domibus.property.validation.enabled", oldVal);
+		soft.assertAll();
+	}
+
+	private boolean isPropUpdateSuccess(String propname, String propval, boolean isDomain, String domain) throws Exception {
+		String currentVal = rest.properties().getPropertyValue(propname, isDomain, domain);
+		boolean toreturn = false;
+		try {
+			ClientResponse response = null;
+			if(isDomain){
+				response = rest.properties().updateDomibusProperty(propname, currentVal, domain);
+			}else {
+				response = rest.properties().updateGlobalProperty(propname, currentVal);
+			}
+
+			if(response.getStatus() == 200){
+				toreturn = true;
+			}
+			log.debug(response.getEntity(String.class));
+
+		} catch (Exception e) {
+		}finally {
+			if(isDomain){
+				rest.properties().updateDomibusProperty(propname, currentVal, domain);
+			}else {
+				rest.properties().updateGlobalProperty(propname, currentVal);
+			}
+
+		}
+		return toreturn;
+	}
 
 
 }
