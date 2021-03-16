@@ -174,8 +174,8 @@
             WHERE
             ( usermessag0_.message_status = 'ACKNOWLEDGED'
             OR usermessag0_.message_status = 'SEND_FAILURE' )
+            AND usermessag0_.message_type = 'USER_MESSAGE'
             AND usermessag0_.mpc = mpc
-            AND ( usermessag0_.modification_time IS NOT NULL )
             AND usermessag0_.modification_time >= startdate
             AND usermessag0_.modification_time &lt; enddate
             AND ROWNUM &lt;= maxcount
