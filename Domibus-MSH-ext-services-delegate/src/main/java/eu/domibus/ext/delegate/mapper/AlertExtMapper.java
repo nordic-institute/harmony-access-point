@@ -6,7 +6,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 /**
- * Mapper to generate Monitoring Service abstract class conversion methods
+ * Mapper to generate Alert Service abstract class conversion methods
  * @author François Gautier
  * @since 5.0
  */
