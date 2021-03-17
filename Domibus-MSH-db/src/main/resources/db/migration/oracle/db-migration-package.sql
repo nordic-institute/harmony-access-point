@@ -1,5 +1,6 @@
 CREATE OR REPLACE PACKAGE MIGRATE_42_TO_50 IS
     BATCH_SIZE CONSTANT NUMBER := 3;
+    VERBOSE_LOGS CONSTANT BOOLEAN := FALSE;
 
     PROCEDURE migrate;
 
@@ -9,22 +10,20 @@ END MIGRATE_42_TO_50;
 CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
 
     /** -- Helper procedures start -*/
-    PROCEDURE drop_table_if_exists(tab_name IN VARCHAR2) IS
-        v_table_exists INT;
-    BEGIN
-        SELECT COUNT(*) INTO v_table_exists FROM USER_TABLES WHERE table_name = UPPER(tab_name);
-        IF v_table_exists > 0 THEN
-            EXECUTE IMMEDIATE 'DROP TABLE ' || tab_name;
-            DBMS_OUTPUT.PUT_LINE('Table ' || tab_name || ' dropped');
-        END IF;
-    END drop_table_if_exists;
-
     FUNCTION check_table_exists(tab_name VARCHAR2) RETURN BOOLEAN IS
         v_table_exists INT;
     BEGIN
         SELECT COUNT(*) INTO v_table_exists FROM USER_TABLES WHERE table_name = UPPER(tab_name);
         RETURN v_table_exists > 0;
     END check_table_exists;
+
+    PROCEDURE drop_table_if_exists(tab_name IN VARCHAR2) IS
+    BEGIN
+        IF check_table_exists(tab_name) THEN
+            EXECUTE IMMEDIATE 'DROP TABLE ' || tab_name;
+            DBMS_OUTPUT.PUT_LINE('Table ' || tab_name || ' dropped');
+        END IF;
+    END drop_table_if_exists;
 
     PROCEDURE truncate_or_create_table(tab_name IN VARCHAR2, create_sql IN VARCHAR2) IS
     BEGIN
@@ -64,7 +63,9 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         v_id_pk NUMBER;
     BEGIN
         IF role IS NULL THEN
-            DBMS_OUTPUT.PUT_LINE('No record added into TB_D_ROLE');
+            IF VERBOSE_LOGS THEN
+                DBMS_OUTPUT.PUT_LINE('No record added into TB_D_ROLE');
+            END IF;
             RETURN v_id_pk;
         END IF;
         BEGIN
@@ -84,7 +85,9 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         v_id_pk NUMBER;
     BEGIN
         IF service_type IS NULL AND service_value IS NULL THEN
-            DBMS_OUTPUT.PUT_LINE('No record added into TB_D_SERVICE');
+            IF VERBOSE_LOGS THEN
+                DBMS_OUTPUT.PUT_LINE('No record added into TB_D_SERVICE');
+            END IF;
             RETURN v_id_pk;
         END IF;
         BEGIN
@@ -105,7 +108,9 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         v_id_pk NUMBER;
     BEGIN
         IF agreement_type IS NULL AND agreement_value IS NULL THEN
-            DBMS_OUTPUT.PUT_LINE('No record added into TB_D_AGREEMENT');
+            IF VERBOSE_LOGS THEN
+                DBMS_OUTPUT.PUT_LINE('No record added into TB_D_AGREEMENT');
+            END IF;
             RETURN v_id_pk;
         END IF;
         BEGIN
@@ -127,7 +132,9 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         v_id_pk NUMBER;
     BEGIN
         IF action IS NULL THEN
-            DBMS_OUTPUT.PUT_LINE('No record added into TB_D_ACTION');
+            IF VERBOSE_LOGS THEN
+                DBMS_OUTPUT.PUT_LINE('No record added into TB_D_ACTION');
+            END IF;
             RETURN v_id_pk;
         END IF;
         BEGIN
@@ -147,7 +154,9 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         v_id_pk NUMBER;
     BEGIN
         IF party_type IS NULL AND party_value IS NULL THEN
-            DBMS_OUTPUT.PUT_LINE('No record added into TB_D_PARTY');
+            IF VERBOSE_LOGS THEN
+                DBMS_OUTPUT.PUT_LINE('No record added into TB_D_PARTY');
+            END IF;
             RETURN v_id_pk;
         END IF;
         BEGIN
@@ -168,7 +177,9 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         v_id_pk NUMBER;
     BEGIN
         IF msg_subtype IS NULL THEN
-            DBMS_OUTPUT.PUT_LINE('No record added into TB_D_MESSAGE_SUBTYPE');
+            IF VERBOSE_LOGS THEN
+                DBMS_OUTPUT.PUT_LINE('No record added into TB_D_MESSAGE_SUBTYPE');
+            END IF;
             RETURN v_id_pk;
         END IF;
         BEGIN
@@ -189,7 +200,9 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         v_id_pk NUMBER;
     BEGIN
         IF message_id IS NULL THEN
-            DBMS_OUTPUT.PUT_LINE('No record to look into TEMP_TB_USER_MESSAGE');
+            IF VERBOSE_LOGS THEN
+                DBMS_OUTPUT.PUT_LINE('No record to look into TEMP_TB_USER_MESSAGE');
+            END IF;
             RETURN v_id_pk;
         END IF;
         BEGIN
@@ -210,6 +223,9 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         BEGIN
             EXECUTE IMMEDIATE 'SELECT /*+ PARALLEL(4) */ COUNT(*) FROM ' || tab_name1 INTO v_count_tab1;
             EXECUTE IMMEDIATE 'SELECT /*+ PARALLEL(4) */ COUNT(*) FROM ' || tab_name2 INTO v_count_tab2;
+        EXCEPTION
+            WHEN OTHERS THEN
+                DBMS_OUTPUT.PUT_LINE('Execute immediate error: ' || DBMS_UTILITY.FORMAT_ERROR_STACK);
         END;
         IF v_count_tab1 = v_count_tab2 THEN
             v_count_match := TRUE;
@@ -340,7 +356,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                             get_tb_d_msg_subtype_rec(user_message(i).MESSAGE_SUBTYPE);
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
-                            DBMS_OUTPUT.PUT_LINE('Commit after ' || BATCH_SIZE * v_batch_no || ' records');
+                            DBMS_OUTPUT.PUT_LINE(v_tab_new || ': Commit after ' || BATCH_SIZE * v_batch_no || ' records');
                             v_batch_no := v_batch_no + 1;
                         END IF;
                     EXCEPTION
