@@ -3998,7 +3998,7 @@ inputList.each { tcName ->
 			}
 		}
 	}
-</con:tearDownScript><con:reportParameters/></con:testSuite><con:testSuite id="889a6cde-2346-488a-b9e6-882db54ba222" name="JMS-oneway Push-Auto Not for Bamboo"><con:settings/><con:runType>SEQUENTIAL</con:runType><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS003-Submit Message-Exceptional flow-No receipt" searchProperties="true" id="43bf9d34-f13f-4453-8eae-de0ecb066013">
+</con:tearDownScript><con:reportParameters/></con:testSuite><con:testSuite id="889a6cde-2346-488a-b9e6-882db54ba222" name="JMS-oneway Push-Auto Not for Bamboo"><con:settings/><con:runType>SEQUENTIAL</con:runType><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS003-Submit Message-Exceptional flow-No receipt" searchProperties="true" id="81eae32a-ce05-4ecd-ad6f-21752d9a900e">
             <con:settings/>
             
             
@@ -4012,13 +4012,13 @@ inputList.each { tcName ->
             
             
             
-            <con:testStep type="groovy" name="Change blue Pmode to contains incorrect red endpoint" id="f682d0db-26d2-4591-aff4-3b92d92a92a1"><con:settings/><con:config><script>Domibus.uploadPmode("sender","special","/invalidEndpoint/domibus-pmode-blue-red_invalid.xml", context, log)
-</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message" id="de0c90c6-c7bb-440a-a8e8-6cc2848634d3"><con:settings/><con:config><script>import javax.jms.*
+            <con:testStep type="groovy" name="Change blue Pmode to contains incorrect red endpoint" id="92c839b7-becb-41a5-946d-9ebe06fc5f10"><con:settings/><con:config><script>Domibus.uploadPmode("sender","special","/invalidEndpoint/domibus-pmode-blue-red_invalid.xml", context, log)
+</script></con:config></con:testStep><con:testStep type="groovy" name="Submit Message" id="3208f40a-0def-4a76-aa38-cd3a0698905f"><con:settings/><con:config><script>import javax.jms.*
 import eu.domibus.test.jms.DomibusJMSPlugin
 
 def MapMessage messageMap = null
 def domUtils = new eu.domibus.test.jms.DomibusJMSPlugin(log, context)
-MapMessage messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
+messageMap  = domUtils.jmsConnectionHandlerInitializeC2()
 
 messageMap.setStringProperty("messageType", "submitMessage")
 messageMap.setStringProperty("service", "bdx:noprocess")
@@ -4044,9 +4044,9 @@ String pay1 = "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGhlbGxvPndvc
 byte[] payload = pay1.getBytes()
 messageMap.setBytes("payload_1", payload)
 domUtils.sendMessageAndClean(messageMap)
-domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Test" id="7dea4934-9134-4c01-a63f-77bf898a1c67"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
+domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Test" id="c11c5d65-3847-43fa-9784-2148841354fe"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
 test.waitForStatus("WAITING_FOR_RETRY",null,"-DomJMS003-")
-test.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Revert - upload default blue Pmode" id="a92815af-8e39-4a6b-8aa3-4c6a14c103a9" disabled="true"><con:settings/><con:config><script>Domibus.uploadPmodeIfStepFailedOrNotRun(log, context, testRunner, "Revert - upload default blue Pmode", "Default blue Pmodes upload step for reuse")</script></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
+test.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Revert - upload default blue Pmode" id="6edecf7f-2489-402a-a4ab-f512a63be063" disabled="true"><con:settings/><con:config><script>Domibus.uploadPmode("sender","default","\\blue\\domibus-pmode-blue.xml",context,log)</script></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
 test.cleanDBMessageIDStartsWith("-DomJMS003-")
 test.finalize()
 testRunner.testCase.testSteps['Revert - upload default blue Pmode'].run(testRunner, context)
@@ -4385,7 +4385,7 @@ else if (result == javax.swing.JOptionPane.CANCEL_OPTION)
 </script></con:config></con:testStep><con:testStep type="groovy" name="Set Message Filter to WS for Blue and Red" id="18ddb29d-855b-4ac0-9d51-fd9a8bf72ad0" disabled="true"><con:settings/><con:config><script>Domibus.setMessageFilters("sender","backendWebservice",context,log)
 Domibus.setMessageFilters("receiver","backendWebservice",context,log)
 </script></con:config></con:testStep><con:tearDownScript>
-Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/><con:reportParameters/><con:breakPoints><con:testStepId>32187c3e-10a4-4f74-bb76-0024b1cf6dc0</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase id="72b8b126-62b1-45d7-a21e-7d5cc9e28457" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS062-Payload size" searchProperties="true"><con:settings/><con:testStep type="groovy" name="Update PMode Blue lt payload size" id="e8938cce-4f91-4bc3-824b-af539907479e"><con:settings/><con:config><script>import java.nio.file.Paths
+Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties/><con:reportParameters/><con:breakPoints><con:testStepId>32187c3e-10a4-4f74-bb76-0024b1cf6dc0</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase id="bd38a08d-6ff0-4b00-8677-4ee3e68c0453" failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS062-Payload size" searchProperties="true"><con:settings/><con:testStep type="groovy" name="Update PMode Blue lt payload size" id="ff192e69-83f9-4881-9937-21ee1300c6e7"><con:settings/><con:config><script>import java.nio.file.Paths
 
 def currentValue=['2147483647'];
 def newValue=['79'];
@@ -4393,9 +4393,9 @@ def filePath=Paths.get(context.expand('${#Project#defaultPModesPath}'),"/blue/do
 def newFileSuffix="_someSuffix.xml";
 
 Domibus.updatePmodeParameter(log, context, testRunner,currentValue,newValue,filePath, newFileSuffix);
-Domibus.uploadPmode("sender","default","\\blue\\domibus-pmode-blue.xml"+newFileSuffix,context,log);</script></con:config></con:testStep><con:testStep type="groovy" name="Set Message Filter to Jms for Blue and Red" id="0bc56303-4680-4864-b707-7f2240cf4221"><con:settings/><con:config><script>Domibus.setMessageFilters("sender","Jms",context,log)
+Domibus.uploadPmode("sender","default","\\blue\\domibus-pmode-blue.xml"+newFileSuffix,context,log);</script></con:config></con:testStep><con:testStep type="groovy" name="Set Message Filter to Jms for Blue and Red" id="0522bc63-0f4a-4008-a159-0ff8845da247"><con:settings/><con:config><script>Domibus.setMessageFilters("sender","Jms",context,log)
 Domibus.setMessageFilters("receiver","Jms",context,log)
-</script></con:config></con:testStep><con:testStep type="groovy" name="Set logs starting line number C2" id="2fa5b95e-06f0-4fe3-88a8-27e30b5ea4e4"><con:settings/><con:config><script> Domibus.checkNumberOfLinesToSkipInLogFile("C2","domibus.log", log, context, testRunner)</script></con:config></con:testStep><con:testStep type="groovy" name="Submit message Jms 1" id="0e60c2d3-0ec0-4be0-bc45-8eea8b588811"><con:settings/><con:config><script>import javax.jms.*
+</script></con:config></con:testStep><con:testStep type="groovy" name="Set logs starting line number C2" id="fa8cd918-6784-4614-8bc9-d24b2f121578"><con:settings/><con:config><script> Domibus.checkNumberOfLinesToSkipInLogFile("C2","domibus.log", log, context, testRunner)</script></con:config></con:testStep><con:testStep type="groovy" name="Submit message Jms 1" id="01e3c30c-a1e2-4329-be34-1c7a887e0c27"><con:settings/><con:config><script>import javax.jms.*
 import eu.domibus.test.jms.DomibusJMSPlugin
 
 def MapMessage messageMap = null
@@ -4440,8 +4440,8 @@ byte[] payload2 = pay2.getBytes()
 messageMap.setBytes("payload_2", payload2)
 
 domUtils.sendMessageAndClean(messageMap)
-domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Check sender log file C2" id="ad1833f1-b3b0-4acb-9abe-7ec58762c07b"><con:settings/><con:config><script>def logValueList =  ["Payload size.*is greater than.*maximum value.*"];
-Domibus.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner);</script></con:config></con:testStep><con:testStep type="groovy" name="Update PMode Blue gt payload size" id="cf2ba8aa-b84d-4661-9729-83d65f60f805"><con:settings/><con:config><script>import java.nio.file.Paths
+domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Check sender log file C2" id="dd85d1ad-6948-46ad-87b5-408e92988afa"><con:settings/><con:config><script>def logValueList =  ["Payload size.*is greater than.*maximum value.*"];
+Domibus.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner);</script></con:config></con:testStep><con:testStep type="groovy" name="Update PMode Blue gt payload size" id="a91a1a64-828f-4058-b52f-af863491af97"><con:settings/><con:config><script>import java.nio.file.Paths
 
 def currentValue=['2147483647'];
 def newValue=['81'];
@@ -4449,7 +4449,7 @@ def filePath=Paths.get(context.expand('${#Project#defaultPModesPath}'),"/blue/do
 def newFileSuffix="_someSuffix.xml";
 
 Domibus.updatePmodeParameter(log, context, testRunner,currentValue,newValue,filePath, newFileSuffix);
-Domibus.uploadPmode("sender","default","\\blue\\domibus-pmode-blue.xml"+newFileSuffix,context,log);</script></con:config></con:testStep><con:testStep type="groovy" name="Submit message Jms 2" id="42693b41-99ba-4ca3-821b-36428f85daf7"><con:settings/><con:config><script>import javax.jms.*
+Domibus.uploadPmode("sender","default","\\blue\\domibus-pmode-blue.xml"+newFileSuffix,context,log);</script></con:config></con:testStep><con:testStep type="groovy" name="Submit message Jms 2" id="bbee101d-633d-4d83-a5ee-7e565692d77b"><con:settings/><con:config><script>import javax.jms.*
 import eu.domibus.test.jms.DomibusJMSPlugin
 
 def MapMessage messageMap = null
@@ -4494,12 +4494,13 @@ byte[] payload2 = pay2.getBytes()
 messageMap.setBytes("payload_2", payload2)
 
 domUtils.sendMessageAndClean(messageMap)
-domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Test Success" id="fdd74bd8-3dcb-4926-b551-4fb30f5af65d"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
-test.waitForStatus("ACKNOWLEDGED","DOWNLOADED","-Dom527-jms01-")
-test.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Set Message Filter to WS for Blue and Red" id="77f0c37d-a997-4943-b0aa-5c241da6b6c3" disabled="true"><con:settings/><con:config><script>Domibus.setMessageFilters("sender","backendWebservice",context,log)
-Domibus.setMessageFilters("receiver","backendWebservice",context,log)
-</script></con:config></con:testStep><con:tearDownScript>
-Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties><con:property><con:name>skipNumberOfLines</con:name><con:value>78</con:value></con:property></con:properties><con:reportParameters/><con:breakPoints><con:testStepId>32187c3e-10a4-4f74-bb76-0024b1cf6dc0</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS063-Submit message-Exceptional flow-Data-Message ID-Maximum length" searchProperties="true" id="bb7fb10b-f167-4da5-984c-e4f8a690b794">
+domUtils.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Test Success" id="0474a759-5c69-4f94-8de6-ab7d0c7de476"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
+test.waitForStatus("ACKNOWLEDGED","DOWNLOADED","-Jms062-2-")
+test.finalize()</script></con:config></con:testStep><con:testStep type="groovy" name="Upload default PModes Blue-Red" id="3093b29e-499e-4963-975f-4a99dfea29fc" disabled="true"><con:settings/><con:config><script>// Upload PModes: default Pmodes (blue for sender and red for receiver)
+Domibus.uploadPmode("sender","default","\\blue\\domibus-pmode-blue.xml",context,log);
+Domibus.uploadPmode("receiver","default","\\red\\domibus-pmode-red.xml",context,log);</script></con:config></con:testStep><con:tearDownScript>testRunner.testCase.testSteps['Upload default PModes Blue-Red'].run(testRunner, context);
+
+Domibus.reportTestCaseCsv(testRunner, log)</con:tearDownScript><con:properties><con:property><con:name>skipNumberOfLines</con:name><con:value>40091</con:value></con:property></con:properties><con:reportParameters/><con:breakPoints><con:testStepId>32187c3e-10a4-4f74-bb76-0024b1cf6dc0</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS063-Submit message-Exceptional flow-Data-Message ID-Maximum length" searchProperties="true" id="bb7fb10b-f167-4da5-984c-e4f8a690b794">
             <con:settings/>
             
             
@@ -4609,7 +4610,7 @@ test.cleanDBMessageIDStartsWith("-DomJMS064-");
 test.finalize();
 Domibus.reportTestCaseCsv(testRunner, log);
 </con:tearDownScript><con:properties><con:property><con:name>skipNumberOfLines</con:name><con:value>908</con:value></con:property></con:properties>
-        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS065-Submit message-Exceptional flow-Data-AgreementRefId-Maximum Length" searchProperties="true" id="5897e2cc-8915-44f7-b070-901513dfabd2">
+        <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS065-Submit message-Exceptional flow-Data-AgreementRefId-Maximum Length" searchProperties="true" id="25a7e6f2-a2cb-49bb-8366-b976ce5bf211">
             <con:settings/>
             
             
@@ -4623,7 +4624,7 @@ Domibus.reportTestCaseCsv(testRunner, log);
             
             
             
-            <con:testStep type="groovy" name="Set logs starting line number 1" id="e2c283d4-b023-444e-93bd-2836ac63d6fc"><con:settings/><con:config><script> Domibus.checkNumberOfLinesToSkipInLogFile("C2","domibus.log", log, context, testRunner)</script></con:config></con:testStep><con:testStep type="delay" name="D0" id="647837bc-06f3-4434-b794-7a280aea380b"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Submit Message 1" id="f18d16e7-9f1d-4bf3-8286-52e8d0266870"><con:settings/><con:config><script>import javax.jms.*
+            <con:testStep type="groovy" name="Set logs starting line number 1" id="f249fa9e-048e-4d89-bbec-b2a420ce1d72"><con:settings/><con:config><script> Domibus.checkNumberOfLinesToSkipInLogFile("C2","domibus.log", log, context, testRunner)</script></con:config></con:testStep><con:testStep type="delay" name="D0" id="69f1a18a-0656-4776-91c5-1217180fea94"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Submit Message 1" id="d5163ab0-7b07-4ccc-a09b-559c0e686863"><con:settings/><con:config><script>import javax.jms.*
 import eu.domibus.test.jms.DomibusJMSPlugin
 
 def MapMessage messageMap = null
@@ -4658,10 +4659,10 @@ String pay1 = "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGhlbGxvPndvc
 byte[] payload = pay1.getBytes()
 messageMap.setBytes("payload_1", payload)
 domUtils.sendMessageAndClean(messageMap)
-domUtils.finalize()</script></con:config></con:testStep><con:testStep type="delay" name="D1" id="e9fcd912-2423-4b22-9780-2abd58690caf"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Test 1" id="97acd336-b6b4-4292-87fe-c075cacdb8cd"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
-test.verifyMessagePresence(0,0,"-DomJMS065-");
-test.finalize();</script></con:config></con:testStep><con:testStep type="delay" name="D2" id="a4a66fb3-a305-4ce9-aa52-61f417193092"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Check sender log file 1" id="be63dede-57f4-4d66-b666-09184a1ae3ed"><con:settings/><con:config><script>def logValueList =  ["EbMS3Exception: AgreementRef Value is too long"];
-Domibus.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner);</script></con:config></con:testStep><con:testStep type="delay" name="D3" id="1ffa4194-c1c1-4cb9-80fb-f3de2504741b"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Set logs starting line number 2" id="a3a7431c-1cbd-4a74-9b83-6dc034b62c6e"><con:settings/><con:config><script> Domibus.checkNumberOfLinesToSkipInLogFile("C2","domibus.log", log, context, testRunner)</script></con:config></con:testStep><con:testStep type="delay" name="D4" id="4251cbe9-c883-4803-8d5f-72b33e0515f7"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Submit Message 2" id="89cee387-458d-4cd7-a634-1395ea654a81"><con:settings/><con:config><script>import javax.jms.*
+domUtils.finalize()</script></con:config></con:testStep><con:testStep type="delay" name="D1" id="012b4884-215c-4071-ab53-dc63740584ed"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Test 1" id="928e06d5-701a-4ab6-9107-22ebf11e339e"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
+test.verifyMessagePresence(0,0,"-DomJMS065-1-");
+test.finalize();</script></con:config></con:testStep><con:testStep type="delay" name="D2" id="a9c2c0c5-509d-4a09-ab25-24799f6dc0c1"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Check sender log file 1" id="fb93afbd-42d3-4f7e-9f71-eeac99650204"><con:settings/><con:config><script>def logValueList =  [" AgreementRef Value is too long"];
+Domibus.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner);</script></con:config></con:testStep><con:testStep type="delay" name="D3" id="a586c705-a080-47e3-a421-a630d6b9c408"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Set logs starting line number 2" id="a6ac0e77-faf0-45f1-bf49-1dd93443f314"><con:settings/><con:config><script> Domibus.checkNumberOfLinesToSkipInLogFile("C2","domibus.log", log, context, testRunner)</script></con:config></con:testStep><con:testStep type="delay" name="D4" id="4a6abf12-fd56-4570-bb8f-f2190c6e7fc5"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Submit Message 2" id="d5715f31-6718-4d17-bc10-b650bb3e755a"><con:settings/><con:config><script>import javax.jms.*
 import eu.domibus.test.jms.DomibusJMSPlugin
 
 def MapMessage messageMap = null
@@ -4686,8 +4687,8 @@ domUtils.addPluginCredentialsIfNeeded(context, log, messageMap)
 
 // Optional
 messageMap.setStringProperty("messageId", "-DomJMS065-2-");
-messageMap.setStringProperty("agreementRef", "DummyAgr");
-messageMap.setStringProperty("agreementRefType", "-Length-256-aabbcceeffaaaaaa012345678901234567890123456789-01234567890123456789012345678901234567890123456789-01234567890123456789012345678901234567890123456789-01234567890123456789012345678901234567890123456789-0123456789012345678901234567890123456789012-")
+messageMap.setStringProperty("agreementRef", "-Length-256-aabbcceeffaaaaaa012345678901234567890123456789-01234567890123456789012345678901234567890123456789-01234567890123456789012345678901234567890123456789-01234567890123456789012345678901234567890123456789-0123456789012345678901234567890123456789012-");
+
  
 messageMap.setStringProperty("totalNumberOfPayloads", "1")
 messageMap.setStringProperty("payload_1_mimeContentId", "cid:message")
@@ -4697,14 +4698,14 @@ String pay1 = "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGhlbGxvPndvc
 byte[] payload = pay1.getBytes()
 messageMap.setBytes("payload_1", payload)
 domUtils.sendMessageAndClean(messageMap)
-domUtils.finalize()</script></con:config></con:testStep><con:testStep type="delay" name="D5" id="c066a09b-1d2a-48b2-8786-777a9d9077f0"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Test 2" id="910a21a9-dd12-4c55-beb2-2c0c0fcd372b"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
-test.verifyMessagePresence(0,0,"-DomJMS064-");
-test.finalize();</script></con:config></con:testStep><con:testStep type="delay" name="D6" id="0bc91bc6-15ed-4dc6-ad14-7df1869d76cb"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Check sender log file 2" id="d5e9d473-5c68-4973-9e41-9f39de0163b5"><con:settings/><con:config><script>def logValueList =  ["EbMS3Exception: RefToMessageId value is too long"];
+domUtils.finalize()</script></con:config></con:testStep><con:testStep type="delay" name="D5" id="969b860f-7121-4685-9e70-6e32f631a459"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Test 2" id="cf0fda36-f041-4f38-9abb-2f4c2ea32351"><con:settings/><con:config><script>def test = new Domibus(log,null,context)
+test.verifyMessagePresence(0,0,"-DomJMS065-2-");
+test.finalize();</script></con:config></con:testStep><con:testStep type="delay" name="D6" id="3388fdda-e8fa-4bf0-9f8e-d22230c22afc"><con:settings/><con:config><delay>1000</delay></con:config></con:testStep><con:testStep type="groovy" name="Check sender log file 2" id="fe5c2a81-e871-4b6d-9563-826b71c96148"><con:settings/><con:config><script>def logValueList =  ["AgreementRef Value is too long"];
 Domibus.checkLogFile("C2","domibus.log", logValueList, log, context, testRunner);</script></con:config></con:testStep><con:tearDownScript>def test = new Domibus(log,null,context)
 test.cleanDBMessageIDStartsWith("-DomJMS065-");
 test.finalize();
 Domibus.reportTestCaseCsv(testRunner, log);
-</con:tearDownScript><con:properties><con:property><con:name>skipNumberOfLines</con:name><con:value>908</con:value></con:property></con:properties>
+</con:tearDownScript><con:properties><con:property><con:name>skipNumberOfLines</con:name><con:value>95935</con:value></con:property></con:properties>
         <con:reportParameters/><con:breakPoints><con:testStepId>2eb6a89f-41c9-40f9-9d70-074e25d6ff5a</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>d1a0cbdd-efe1-412d-aac5-b62315a3ac06</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints><con:breakPoints><con:testStepId>f84a4b44-9f2f-41e5-aeb5-ad4b50027daf</con:testStepId><con:status>NONE</con:status><con:properties/></con:breakPoints></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="DomJMS066-Submit message-Exceptional flow-Data-ConversationId-Maximum Length" searchProperties="true" id="7fbeabab-f7aa-40de-b371-b91c12ed611f">
             <con:settings/>
             
