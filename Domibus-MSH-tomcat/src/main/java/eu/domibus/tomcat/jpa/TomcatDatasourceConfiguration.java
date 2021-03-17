@@ -42,7 +42,6 @@ public class TomcatDatasourceConfiguration {
         final String password = domibusPropertyProvider.getProperty(DOMIBUS_DATASOURCE_PASSWORD); //NOSONAR
         dataSource.setPassword(password);
 
-
         final Integer maxPoolSize = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DATASOURCE_MAX_POOL_SIZE);
         dataSource.setMaximumPoolSize(maxPoolSize);
 
