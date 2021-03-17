@@ -193,7 +193,13 @@
         <!-- Exclude the jsr250-api as it causes an issue when running Tomcat on OpenJDK 11, throwing a
         java.lang.NoSuchMethodError: 'java.lang.String javax.annotation.Resource.lookup()'. This issue is
         only happening on Tomcat at startup, and it doesn't impact other servers (jaxws-api is pulled in
-        transitively from domibus-MSH) -->
+        transitively from domibus-MSH).
+
+        Also exclude the saaj-api as it causes an issue when running Tomcat on OpenJDK 11, throwing the following:
+        "javax.xml.soap.SOAPException: Unable to create SAAJ meta-factoryProvider
+        com.sun.xml.internal.messaging.saaj.soap.SAAJMetaFactoryImpl not found". This issue is only happening on Tomcat
+        when sending a SOAP message, and it doesn't impact other servers (jaxws-api is pulled in transitively from
+        domibus-MSH). -->
         <dependency>
             <groupId>javax.xml.ws</groupId>
             <artifactId>jaxws-api</artifactId>
@@ -201,6 +207,10 @@
                 <exclusion>
                     <groupId>javax.annotation</groupId>
                     <artifactId>jsr250-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>javax.xml.soap</groupId>
+                    <artifactId>saaj-api</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>

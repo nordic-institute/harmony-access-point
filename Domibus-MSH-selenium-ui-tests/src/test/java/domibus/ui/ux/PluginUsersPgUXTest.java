@@ -695,7 +695,7 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 	}
 
 	/*	PU-38 - Edit certificate user and Save -- EDELIVERY-7872 */
-	@Test(description = "PU-38", groups = {"multiTenancy", "singleTenancy"},enabled = false)
+	@Test(description = "PU-38", groups = {"multiTenancy", "singleTenancy"})
 	public void editCertificateUsr() throws Exception {
 		String certName = Gen.randomAlphaNumeric(5);
 		String role = DRoles.USER;
@@ -725,7 +725,7 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 	}
 
 	/*	PU-40 -Delete certificate user  */
-	@Test(description = "PU-40", groups = {"multiTenancy", "singleTenancy"},enabled = false)
+	@Test(description = "PU-40", groups = {"multiTenancy", "singleTenancy"})
 	public void delCertificateUsr() throws Exception {
 
 		String certName = Gen.randomAlphaNumeric(5);
@@ -755,7 +755,7 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 
 	/*	PU-39 -Delete certificate user  and cancel */
 	@Test(description = "PU-39", groups = {"multiTenancy", "singleTenancy"})
-	public void CertificateUsrDelCancel() throws Exception {
+	public void certificateUsrDelCancel() throws Exception {
 
 		String certName = Gen.randomAlphaNumeric(5);
 		String username = String.format("CN=%s,O=eDelivery,C=BE:%s", certName, Gen.randomAlphaNumeric(5));
@@ -774,7 +774,7 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 		page.getCancelBtn().click();
 		new Dialog(driver).confirm();
 		page.grid().waitForRowsToLoad();
-		soft.assertTrue(page.grid().scrollTo("Certificate Id" , username) > 0, "User is present in grid");
+		soft.assertTrue(page.grid().scrollTo("Certificate Id" , username) > -1, "User is present in grid");
 		soft.assertAll();
 
 	}
@@ -814,7 +814,7 @@ public class PluginUsersPgUXTest extends SeleniumTest {
 
 
 	/*	PU-43 - Original user field is mandatory when editing CERTIFICATE admin plugin user to role user */
-	@Test(description = "PU-43", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
+	@Test(description = "PU-43", groups = {"multiTenancy", "singleTenancy"})
 	public void originalUserOnRoleChange() throws Exception {
 
 		String certName = Gen.randomAlphaNumeric(5);
