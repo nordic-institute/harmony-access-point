@@ -1,0 +1,40 @@
+package eu.domibus.api.model;
+
+import javax.persistence.*;
+
+@NamedQueries({
+        @NamedQuery(name = "SignalMessageRaw.findByMessageEntityId", query = "SELECT new eu.domibus.api.model.RawEnvelopeDto(l.entityId,l.rawXML) FROM SignalMessageRaw l where l.entitytId=:ENTITY_ID"),
+        @NamedQuery(name = "SignalMessageRaw.findByUserMessageId", query = "SELECT new eu.domibus.api.model.RawEnvelopeDto(l.entityId,l.rawXML) " +
+                "FROM SignalMessageRaw l JOIN l.signalMessage " +
+                "JOIN sm.userMessage um where um.messageId=:MESSAGE_ID"),
+})
+@Entity
+@Table(name = "TB_SIGNAL_MESSAGE_RAW")
+public class SignalMessageRaw extends AbstractNoGeneratedPkEntity {
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @MapsId
+    protected SignalMessage signalMessage;
+
+    @Lob
+    @Column(name = "RAW_XML")
+    protected byte[] rawXML;
+
+    public SignalMessage getSignalMessage() {
+        return signalMessage;
+    }
+
+    public void setSignalMessage(SignalMessage signalMessage) {
+        this.signalMessage = signalMessage;
+    }
+
+    public byte[] getRawXML() {
+        return rawXML;
+    }
+
+    public void setRawXML(byte[] rawXML) {
+        this.rawXML = rawXML;
+    }
+
+
+}

@@ -12,10 +12,10 @@ import javax.persistence.Table;
  * @since 5.0
  */
 @Entity
-@Table(name = "TB_PARTY_ID")
+@Table(name = "TB_D_PARTY")
 public class PartyId extends AbstractBaseEntity implements Comparable<PartyId> {
 
-    @Column(name = "VALUE")
+    @Column(name = "VALUE", unique = true)
     protected String value;
 
     @Column(name = "TYPE")

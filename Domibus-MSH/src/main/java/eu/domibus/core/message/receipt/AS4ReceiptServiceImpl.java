@@ -18,7 +18,7 @@ import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.UserMessageHandlerService;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationConstants;
 import eu.domibus.api.model.RawEnvelopeDto;
-import eu.domibus.core.message.nonrepudiation.RawEnvelopeLogDao;
+import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.api.model.SignalMessageLog;
 import eu.domibus.core.message.signal.SignalMessageLogBuilder;
@@ -77,7 +77,7 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
     private final SignalMessageLogDao signalMessageLogDao;
     protected final UserMessageService userMessageService;
     private final MessageIdGenerator messageIdGenerator;
-    protected final RawEnvelopeLogDao rawEnvelopeLogDao;
+    protected final UserMessageRawEnvelopeDao rawEnvelopeLogDao;
     private final SignalMessageDao signalMessageDao;
     protected final MessageGroupDao messageGroupDao;
     private final MessagingDao messagingDao;
@@ -92,7 +92,7 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
                                  SignalMessageLogDao signalMessageLogDao,
                                  UserMessageService userMessageService,
                                  MessageIdGenerator messageIdGenerator,
-                                 RawEnvelopeLogDao rawEnvelopeLogDao,
+                                 UserMessageRawEnvelopeDao rawEnvelopeLogDao,
                                  SignalMessageDao signalMessageDao,
                                  MessageGroupDao messageGroupDao,
                                  MessagingDao messagingDao,

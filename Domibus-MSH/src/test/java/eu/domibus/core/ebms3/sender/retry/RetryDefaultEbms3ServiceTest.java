@@ -10,7 +10,7 @@ import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.UserMessageDefaultService;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.core.message.UserMessageLogDao;
-import eu.domibus.core.message.nonrepudiation.RawEnvelopeLogDao;
+import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
 import eu.domibus.core.message.pull.MessagingLockDao;
 import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
@@ -75,7 +75,7 @@ public class RetryDefaultEbms3ServiceTest {
     private JMSManager jmsManager;
 
     @Injectable
-    private RawEnvelopeLogDao rawEnvelopeLogDao;
+    private UserMessageRawEnvelopeDao rawEnvelopeLogDao;
 
     @Injectable
     private MessagingLockDao messagingLockDao;

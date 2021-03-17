@@ -4,20 +4,21 @@ import eu.domibus.api.ebms3.Ebms3Constants;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import javax.persistence.Column;
-import javax.persistence.Embeddable;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 
 /**
- *
  * @author Cosmin Baciu
  * @since 5.0
  */
-@Embeddable
-public class Service {
+@Entity
+@Table(name = "TB_D_SERVICE")
+public class Service extends AbstractBaseEntity {
 
-    @Column(name = "SERVICE_VALUE")
+    @Column(name = "VALUE", unique = true)
     protected String value = Ebms3Constants.TEST_SERVICE;
 
-    @Column(name = "SERVICE_TYPE")
+    @Column(name = "TYPE")
     protected String type;
 
     public String getValue() {

@@ -1,11 +1,7 @@
 package eu.domibus.core.error;
 
-import eu.domibus.api.model.AbstractBaseEntity;
-import eu.domibus.api.model.Error;
-import eu.domibus.api.model.MSHRole;
-import eu.domibus.api.model.Messaging;
+import eu.domibus.api.model.*;
 import eu.domibus.common.ErrorCode;
-import eu.domibus.common.ErrorResult;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -29,12 +25,9 @@ import java.util.Date;
 @NamedQuery(name = "ErrorLogEntry.findErrorsWithoutMessageIds", query = "select e.entityId from ErrorLogEntry e where e.messageInErrorId is null and e.timestamp<:DELETION_DATE")
 @NamedQuery(name = "ErrorLogEntry.deleteErrorsWithoutMessageIds", query = "delete from ErrorLogEntry e where e.entityId IN :ENTITY_IDS")
 public class ErrorLogEntry extends AbstractBaseEntity {
+
     @Column(name = "ERROR_SIGNAL_MESSAGE_ID")
     private String errorSignalMessageId;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "MSH_ROLE")
-    private MSHRole mshRole;
 
     @Column(name = "MESSAGE_IN_ERROR_ID")
     private String messageInErrorId;
@@ -53,6 +46,14 @@ public class ErrorLogEntry extends AbstractBaseEntity {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "NOTIFIED")
     private Date notified;
+
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @JoinColumn(name = "MSH_ROLE_ID_FK")
+    private MSHRoleEntity mshRole;
+
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @JoinColumn(name = "USER_MESSAGE_ID_FK")
+    private UserMessage userMessage;
 
     public ErrorLogEntry() {
     }

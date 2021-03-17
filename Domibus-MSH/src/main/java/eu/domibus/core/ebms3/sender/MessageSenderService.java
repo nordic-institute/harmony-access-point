@@ -80,9 +80,9 @@ public class MessageSenderService {
 
 
         LOG.businessInfo(testMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_SEND_INITIATION : DomibusMessageCode.BUS_MESSAGE_SEND_INITIATION,
-                userMessage.getFromFirstPartyId(), userMessage.getToFirstPartyId());
+                userMessage.getPartyInfo().getFromParty(), userMessage.getPartyInfo().getToParty());
 
-        messageSender.sendMessage(messaging, userMessageLog);
+        messageSender.sendMessage(userMessage, userMessageLog);
     }
 
     protected MessageStatus getMessageStatus(final UserMessageLog userMessageLog) {

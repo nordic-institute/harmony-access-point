@@ -163,7 +163,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
         final boolean selfSendingFlag = checkSelfSending(pmodeKey);
         final boolean messageExists = legConfiguration.getReceptionAwareness().getDuplicateDetection() && this.checkDuplicate(messaging);
 
-        handleIncomingMessage(legConfiguration, pmodeKey, request, messaging, selfSendingFlag, messageExists, testMessage);
+        handleIncomingMessage(legConfiguration, pmodeKey, request, messaging.getUserMessage(), selfSendingFlag, messageExists, testMessage);
 
         return as4ReceiptService.generateReceipt(
                 request,

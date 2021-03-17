@@ -1,7 +1,6 @@
 package eu.domibus.core.ebms3.mapper.usermessage;
 
 import eu.domibus.api.ebms3.model.Ebms3PartProperties;
-import eu.domibus.api.model.PartProperties;
 import eu.domibus.core.ebms3.mapper.Ebms3CentralMapperConfig;
 import eu.domibus.core.ebms3.mapper.signal.Ebms3DescriptionMapper;
 import org.mapstruct.InheritInverseConfiguration;

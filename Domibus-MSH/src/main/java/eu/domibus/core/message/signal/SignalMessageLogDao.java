@@ -4,7 +4,7 @@ import eu.domibus.api.model.MessageStatus;
 import com.google.common.collect.Maps;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.SignalMessageLog;
-import eu.domibus.core.message.MessageLogDao;
+import eu.domibus.core.dao.BasicDao;
 import eu.domibus.core.message.MessageLogInfo;
 import eu.domibus.core.message.MessageLogInfoFilter;
 import eu.domibus.api.model.MessageType;
@@ -26,7 +26,7 @@ import java.util.Map;
  * @since 3.2
  */
 @Repository
-public class SignalMessageLogDao extends MessageLogDao<SignalMessageLog> {
+public class SignalMessageLogDao extends BasicDao<SignalMessageLog> {
 
     @Autowired
     private SignalMessageLogInfoFilter signalMessageLogInfoFilter;
@@ -41,7 +41,7 @@ public class SignalMessageLogDao extends MessageLogDao<SignalMessageLog> {
     public MessageStatus getMessageStatus(String messageId) {
         try {
             TypedQuery<MessageStatus> query = em.createNamedQuery("SignalMessageLog.getMessageStatus", MessageStatus.class);
-            query.setParameter(STR_MESSAGE_ID, messageId);
+//            query.setParameter(STR_MESSAGE_ID, messageId);
             return query.getSingleResult();
         } catch (NoResultException nrEx) {
             LOG.debug("No result for message with id [" + messageId + "]");
@@ -106,12 +106,10 @@ public class SignalMessageLogDao extends MessageLogDao<SignalMessageLog> {
         return singleResult.intValue();
     }
 
-    @Override
     protected MessageLogInfoFilter getMessageLogInfoFilter() {
         return signalMessageLogInfoFilter;
     }
 
-    @Override
     public String findLastTestMessageId(String party) {
         return super.findLastTestMessageId(party, MessageType.SIGNAL_MESSAGE, MSHRole.RECEIVING);
     }

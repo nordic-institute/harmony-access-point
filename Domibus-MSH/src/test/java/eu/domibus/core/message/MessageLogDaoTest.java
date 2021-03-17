@@ -1,6 +1,5 @@
 package eu.domibus.core.message;
 
-import eu.domibus.api.model.MessageLog;
 import eu.domibus.api.model.MessageStatus;
 import mockit.Expectations;
 import mockit.Injectable;
@@ -18,8 +17,8 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import java.sql.Timestamp;
 import java.sql.Date;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.HashMap;

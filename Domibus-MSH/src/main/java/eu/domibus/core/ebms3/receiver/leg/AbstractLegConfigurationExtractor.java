@@ -1,8 +1,8 @@
 package eu.domibus.core.ebms3.receiver.leg;
 
-import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
-import eu.domibus.api.model.MessageInfo;
 import eu.domibus.api.model.Messaging;
+import eu.domibus.api.model.UserMessage;
+import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.binding.soap.SoapMessage;
@@ -32,7 +32,7 @@ public abstract class AbstractLegConfigurationExtractor implements LegConfigurat
     public void setUpMessage(final String pmodeKey) {
         //set the messageId in the MDC context
         LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, getMessageId());
-        message.getExchange().put(MessageInfo.MESSAGE_ID_CONTEXT_PROPERTY, getMessageId());
+        message.getExchange().put(UserMessage.MESSAGE_ID_CONTEXT_PROPERTY, getMessageId());
         message.put(DispatchClientDefaultProvider.PMODE_KEY_CONTEXT_PROPERTY, pmodeKey);
         //FIXME: Test!!!!
         message.getExchange().put(DispatchClientDefaultProvider.PMODE_KEY_CONTEXT_PROPERTY, pmodeKey);

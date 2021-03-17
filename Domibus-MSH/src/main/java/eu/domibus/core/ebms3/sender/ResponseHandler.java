@@ -4,8 +4,8 @@ import eu.domibus.api.ebms3.model.Ebms3Error;
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.ebms3.model.Ebms3SignalMessage;
 import eu.domibus.api.exceptions.DomibusDateTimeException;
-import eu.domibus.api.model.Error;
 import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
@@ -88,29 +88,27 @@ public class ResponseHandler {
         return result;
     }
 
-    public void saveResponse(final SOAPMessage response, final eu.domibus.api.model.Messaging sentMessage, final Ebms3Messaging ebms3MessagingResponse) {
+    public void saveResponse(final SOAPMessage response, final UserMessage userMessage, final Ebms3Messaging ebms3MessagingResponse) {
         eu.domibus.api.model.Messaging convertedMessagingResponse = ebms3Converter.convertFromEbms3(ebms3MessagingResponse);
 
         final eu.domibus.api.model.SignalMessage signalMessage = convertedMessagingResponse.getSignalMessage();
+        signalMessage.setUserMessage(userMessage);
         nonRepudiationService.saveResponse(response, signalMessage);
 
         // Stores the signal message
         signalMessageDao.create(signalMessage);
 
-        sentMessage.setSignalMessage(signalMessage);
-        messagingDao.update(sentMessage);
-
         // Builds the signal message log
         // Updating the reference to the signal message
-        String userMessageService = sentMessage.getUserMessage().getCollaborationInfo().getService().getValue();
-        String userMessageAction = sentMessage.getUserMessage().getCollaborationInfo().getAction();
+        String userMessageService = userMessage.getService().getValue();
+        String userMessageAction = userMessage.getActionValue();
 
-        signalMessageLogDefaultService.save(signalMessage.getMessageInfo().getMessageId(), userMessageService, userMessageAction);
+        signalMessageLogDefaultService.save(signalMessage.getSignalMessageId(), userMessageService, userMessageAction);
 
         createWarningEntries(signalMessage);
 
         //UI replication
-        uiReplicationSignalService.signalMessageReceived(signalMessage.getMessageInfo().getMessageId());
+        uiReplicationSignalService.signalMessageReceived(signalMessage.getSignalMessageId());
     }
 
     protected void createWarningEntries(eu.domibus.api.model.SignalMessage signalMessage) {

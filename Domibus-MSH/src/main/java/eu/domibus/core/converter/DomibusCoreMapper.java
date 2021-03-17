@@ -93,12 +93,6 @@ public interface DomibusCoreMapper {
     @InheritInverseConfiguration
     MessageAttempt messageAttemptEntityToMessageAttempt(MessageAttemptEntity messageAttemptEntity);
 
-    @Mapping(target = "properties", ignore = true)
-    PartProperties partPropertiesDTOToPartProperties(PartPropertiesDTO partPropertiesDTO);
-
-    @InheritInverseConfiguration
-    PartPropertiesDTO partPropertiesToPartPropertiesDTO(PartProperties partProperties);
-
     @InheritInverseConfiguration
     PropertyDTO propertyToPropertyDTO(Property property);
 
@@ -120,12 +114,6 @@ public interface DomibusCoreMapper {
     @Mapping(target = "fileName", ignore = true)
     @Mapping(target = "length", ignore = true)
     PartInfo partInfoDTOToPartInfo(PartInfoDTO partInfoDTO);
-
-    @InheritInverseConfiguration
-    MessageInfoDTO messageInfoToMessageInfoDTO(MessageInfo messageInfo);
-
-    @Mapping(target = "entityId", ignore = true)
-    MessageInfo messageInfoDTOToMessageInfo(MessageInfoDTO messageInfoDTO);
 
     @InheritInverseConfiguration
     UserMessageDTO userMessageToUserMessageDTO(UserMessage userMessage);
@@ -262,12 +250,6 @@ public interface DomibusCoreMapper {
 
     @Mapping(target = "usageText", expression = "java( meta.getUsageText() )")
     DomibusPropertyRO propertyMetadataApiToPropertyRO(DomibusPropertyMetadata meta);
-
-    @Mapping(target = "properties", ignore = true)
-    PartProperties partPropertiesApiToPartProperties(eu.domibus.api.usermessage.domain.PartProperties partProperties);
-
-    @InheritInverseConfiguration
-    eu.domibus.api.usermessage.domain.PartProperties partPropertiesToPartPropertiesApi(PartProperties partProperties);
 
     default DomibusPropertyTypeRO domibusPropertyMetadataTypeTOdomibusPropertyTypeRO(DomibusPropertyMetadata.Type type){
         return new DomibusPropertyTypeRO(type.name(), type.getRegularExpression());

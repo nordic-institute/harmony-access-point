@@ -1,12 +1,13 @@
 package eu.domibus.api.model;
 
-import org.apache.commons.lang3.BooleanUtils;
+import eu.domibus.api.message.MessageSubtype;
 
 import javax.persistence.*;
 import java.util.Date;
 
 /**
  * @author Federico Martini
+ * @author Cosmin Baciu
  * @since 3.2
  */
 @Entity
@@ -92,17 +93,51 @@ import java.util.Date;
         @NamedQuery(name = "UserMessageLog.findAllInfo", query = "select userMessageLog from UserMessageLog userMessageLog"),
         @NamedQuery(name = "UserMessageLog.deleteMessageLogs", query = "delete from UserMessageLog uml where uml.messageId in :MESSAGEIDS"),
 })
-public class UserMessageLog extends MessageLog {
+public class UserMessageLog extends AbstractNoGeneratedPkEntity {
 
-    @ManyToOne
-    @JoinColumn(name = "MESSAGE_ID", referencedColumnName = "MESSAGE_ID", updatable = false, insertable = false)
-    protected MessageInfo messageInfo;
+    @Column(name = "BACKEND")
+    private String backend;
 
-    @Column(name = "SOURCE_MESSAGE")
-    protected Boolean sourceMessage;
+    @Column(name = "RECEIVED")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date received;
 
-    @Column(name = "MESSAGE_FRAGMENT")
-    protected Boolean messageFragment;
+    @Column(name = "DOWNLOADED")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date downloaded;
+
+    @Column(name = "FAILED")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date failed;
+
+    @Column(name = "RESTORED")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date restored;
+
+    /**
+     * The Date when this message was deleted, A message shall be deleted when one of the following conditions apply:
+     * <p>
+     * - An outgoing message has been sent without error eb:Error/@severity failure failure, and an AS4 receipt has been
+     * received
+     * - An outgoing message has been sent without error eb:Error/@severity failure, and AS4 is disabled
+     * - An outgoing message could not be sent and the final AS4 retry has passed
+     * - An outgoing message could not be sent and AS4 is disabled (eb:Error/@severity failure, [CORE 6.2.5])
+     * <p>
+     * - A received message
+     */
+    @Column(name = "DELETED")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date deleted;
+
+    @Column(name = "NEXT_ATTEMPT")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date nextAttempt;
+
+    @Column(name = "SEND_ATTEMPTS")
+    private int sendAttempts;
+
+    @Column(name = "SEND_ATTEMPTS_MAX")
+    private int sendAttemptsMax;
 
     @Column(name = "SCHEDULED")
     protected Boolean scheduled;
@@ -111,34 +146,103 @@ public class UserMessageLog extends MessageLog {
     @Column(name = "VERSION")
     protected int version;
 
-    public MessageInfo getMessageInfo() {
-        return messageInfo;
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @JoinColumn(name = "MESSAGE_STATUS_ID_FK")
+    private MessageStatusEntity messageStatus;
+
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @JoinColumn(name = "MSH_ROLE_ID_FK")
+    private MSHRoleEntity mshRole;
+
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @JoinColumn(name = "MSH_ROLE_ID_FK")
+    private NotificationStatusEntity notificationStatus;
+
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @JoinColumn(name = "MESSAGE_SUBTYPE_ID_FK")
+    private MessageSubtypeEntity messageSubtype;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @MapsId
+    private UserMessage userMessage;
+
+    public boolean isTestMessage() {
+        if(MessageSubtype.TEST == messageSubtype.getMessageSubtype()) {
+            return true;
+        }
+        return false;
     }
 
-    public void setMessageInfo(MessageInfo messageInfo) {
-        this.messageInfo = messageInfo;
+    public String getBackend() {
+        return backend;
     }
 
-    public UserMessageLog() {
-        setMessageType(MessageType.USER_MESSAGE);
-        setReceived(new Date());
-        setSendAttempts(0);
+    public void setBackend(String backend) {
+        this.backend = backend;
     }
 
-    public Boolean getSourceMessage() {
-        return BooleanUtils.toBoolean(sourceMessage);
+    public Date getReceived() {
+        return received;
     }
 
-    public void setSourceMessage(Boolean sourceMessage) {
-        this.sourceMessage = sourceMessage;
+    public void setReceived(Date received) {
+        this.received = received;
     }
 
-    public Boolean getMessageFragment() {
-        return BooleanUtils.toBoolean(messageFragment);
+    public Date getDownloaded() {
+        return downloaded;
     }
 
-    public void setMessageFragment(Boolean messageFragment) {
-        this.messageFragment = messageFragment;
+    public void setDownloaded(Date downloaded) {
+        this.downloaded = downloaded;
+    }
+
+    public Date getFailed() {
+        return failed;
+    }
+
+    public void setFailed(Date failed) {
+        this.failed = failed;
+    }
+
+    public Date getRestored() {
+        return restored;
+    }
+
+    public void setRestored(Date restored) {
+        this.restored = restored;
+    }
+
+    public Date getDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(Date deleted) {
+        this.deleted = deleted;
+    }
+
+    public Date getNextAttempt() {
+        return nextAttempt;
+    }
+
+    public void setNextAttempt(Date nextAttempt) {
+        this.nextAttempt = nextAttempt;
+    }
+
+    public int getSendAttempts() {
+        return sendAttempts;
+    }
+
+    public void setSendAttempts(int sendAttempts) {
+        this.sendAttempts = sendAttempts;
+    }
+
+    public int getSendAttemptsMax() {
+        return sendAttemptsMax;
+    }
+
+    public void setSendAttemptsMax(int sendAttemptsMax) {
+        this.sendAttemptsMax = sendAttemptsMax;
     }
 
     public Boolean getScheduled() {
@@ -149,7 +253,52 @@ public class UserMessageLog extends MessageLog {
         this.scheduled = scheduled;
     }
 
-    public Boolean isSplitAndJoin() {
-        return getSourceMessage() || getMessageFragment();
+    public int getVersion() {
+        return version;
+    }
+
+    public void setVersion(int version) {
+        this.version = version;
+    }
+
+    public MessageStatus getMessageStatus() {
+        return messageStatus.getMessageStatus();
+    }
+
+    public void setMessageStatus(MessageStatusEntity messageStatus) {
+        this.messageStatus = messageStatus;
+    }
+
+    public MSHRoleEntity getMshRole() {
+        return mshRole;
+    }
+
+    public void setMshRole(MSHRoleEntity mshRole) {
+        this.mshRole = mshRole;
+    }
+
+    public NotificationStatusEntity getNotificationStatus() {
+        return notificationStatus;
+    }
+
+    public void setNotificationStatus(NotificationStatusEntity notificationStatus) {
+        this.notificationStatus = notificationStatus;
+    }
+
+    public MessageSubtypeEntity getMessageSubtype() {
+        return messageSubtype;
+    }
+
+    public void setMessageSubtype(MessageSubtypeEntity messageSubtype) {
+        this.messageSubtype = messageSubtype;
+    }
+
+
+    public UserMessage getUserMessage() {
+        return userMessage;
+    }
+
+    public void setUserMessage(UserMessage userMessage) {
+        this.userMessage = userMessage;
     }
 }

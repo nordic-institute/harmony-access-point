@@ -85,116 +85,15 @@ public class MessagingDao extends BasicDao<Messaging> {
         }
     }
 
-    @Transactional(propagation = Propagation.MANDATORY)
-    @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
-    public void clearPayloadData(final UserMessage userMessage) {
-        LOG.debug("Start clearing payloadData");
 
-        String messageId = userMessage.getMessageInfo().getMessageId();
-        //add messageId to MDC map
-        if (StringUtils.isNotBlank(messageId)) {
-            LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
-        }
 
-        if (userMessage.getPayloadInfo() == null || CollectionUtils.isEmpty(userMessage.getPayloadInfo().getPartInfo())) {
-            LOG.debug("No payloads to clear");
-            return;
-        }
-        clearDatabasePayloads(userMessage);
-        clearFileSystemPayloads(userMessage);
 
-        LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_DATA_CLEARED, messageId);
-    }
-
-    public List<String> findFileSystemPayloadFilenames(List<String> messageIds) {
-        TypedQuery<String> query = em.createNamedQuery("PartInfo.findFilenames", String.class);
-        query.setParameter("MESSAGEIDS", messageIds);
-        return query.getResultList();
-    }
 
     /**
      * Deletes the payloads saved on the file system
      *
      * @param userMessage
      */
-    public void clearFileSystemPayloads(final UserMessage userMessage) {
-        List<PartInfo> fileSystemPayloads = getFileSystemPayloads(userMessage);
-        if (CollectionUtils.isEmpty(fileSystemPayloads)) {
-            LOG.debug("No file system payloads to clear");
-            return;
-        }
-
-        for (PartInfo result : fileSystemPayloads) {
-            deletePayloadFile(result.getFileName());
-        }
-    }
-
-    public void deletePayloadFiles(List<String> filenames) {
-        if(CollectionUtils.isEmpty(filenames)) {
-            LOG.debug("No payload data file to delete from the filesystem");
-            return;
-        }
-
-        LOG.debug("Thre are [{}] payloads on filesystem to delete: [{}] ", filenames.size() );
-        for(String filename : filenames) {
-            LOG.debug("Deleting payload data file: [{}]", filename);
-            deletePayloadFile(filename);
-        }
-    }
-
-    public void deletePayloadFile(String filename) {
-        if(StringUtils.isAllBlank(filename)) {
-            LOG.warn("Empty filename used to delete payload on filesystem!");
-            return;
-        }
-
-        try {
-            Path path = Paths.get(filename);
-            if(path == null) {
-                LOG.warn("Trying to delete an empty path, filename [{}]", filename);
-                return;
-            }
-            Files.delete(path);
-        } catch (IOException e) {
-            LOG.debug("Problem deleting payload data files", e);
-        }
-    }
-
-    /**
-     * Deletes the payloads saved in the database
-     *
-     * @param userMessage
-     */
-    protected void clearDatabasePayloads(final UserMessage userMessage) {
-        List<PartInfo> databasePayloads = getDatabasePayloads(userMessage);
-        if (CollectionUtils.isEmpty(databasePayloads)) {
-            LOG.debug("No database payloads to clear");
-            return;
-        }
-
-        final Query emptyQuery = em.createNamedQuery("Messaging.emptyPayloads");
-        emptyQuery.setParameter("PARTINFOS", databasePayloads);
-        emptyQuery.executeUpdate();
-    }
-
-    protected List<PartInfo> getPayloads(final UserMessage userMessage, Predicate<PartInfo> partInfoPredicate) {
-        return userMessage.getPayloadInfo().getPartInfo().stream().filter(partInfoPredicate).collect(Collectors.toList());
-    }
-
-    protected Predicate<PartInfo> getFilenameEmptyPredicate() {
-        return partInfo -> StringUtils.isBlank(partInfo.getFileName());
-    }
-
-    protected List<PartInfo> getDatabasePayloads(final UserMessage userMessage) {
-        Predicate<PartInfo> filenameEmptyPredicate = getFilenameEmptyPredicate();
-        return getPayloads(userMessage, filenameEmptyPredicate);
-    }
-
-    protected List<PartInfo> getFileSystemPayloads(final UserMessage userMessage) {
-        Predicate<PartInfo> filenamePresentPredicate = getFilenameEmptyPredicate().negate();
-        return getPayloads(userMessage, filenamePresentPredicate);
-    }
-
     /**
      * Retrieves messages based STATUS and TO fields. The return is ordered by received date.
      *

@@ -1,10 +1,7 @@
 package eu.domibus.core.pmode.validation.validators;
 
-import eu.domibus.api.ebms3.model.Ebms3Messaging;
-import eu.domibus.api.model.MessageProperties;
 import eu.domibus.api.model.Messaging;
 import eu.domibus.api.property.DomibusConfigurationService;
-import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Property;
@@ -14,7 +11,6 @@ import eu.domibus.core.message.UserMessageDefaultServiceHelper;
 import eu.domibus.core.message.UserMessageServiceHelper;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.property.DomibusPropertyProviderImpl;
-import eu.domibus.core.util.xml.XMLUtilImpl;
 import eu.domibus.messaging.MessageConstants;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -24,15 +20,10 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.xml.sax.SAXException;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;

@@ -1,13 +1,12 @@
 package eu.domibus.core.ebms3.receiver.handler;
 
+import eu.domibus.api.model.Messaging;
+import eu.domibus.api.model.SignalMessage;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
-import eu.domibus.api.model.Error;
-import eu.domibus.api.model.Messaging;
-import eu.domibus.api.model.SignalMessage;
-import eu.domibus.api.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections.CollectionUtils;

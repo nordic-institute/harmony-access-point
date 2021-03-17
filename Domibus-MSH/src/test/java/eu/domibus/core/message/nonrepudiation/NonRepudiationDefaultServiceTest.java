@@ -1,9 +1,9 @@
 package eu.domibus.core.message.nonrepudiation;
 
 import eu.domibus.api.model.RawEnvelopeDto;
-import eu.domibus.api.model.RawEnvelopeLog;
 import eu.domibus.api.model.SignalMessage;
 import eu.domibus.api.model.UserMessage;
+import eu.domibus.api.model.UserMessageRaw;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.audit.envers.ModificationType;
@@ -38,7 +38,7 @@ public class NonRepudiationDefaultServiceTest {
     protected DomibusPropertyProvider domibusPropertyProvider;
 
     @Injectable
-    protected RawEnvelopeLogDao rawEnvelopeLogDao;
+    protected UserMessageRawEnvelopeDao rawEnvelopeLogDao;
 
     @Injectable
     protected SoapUtil soapUtil;
@@ -214,7 +214,7 @@ public class NonRepudiationDefaultServiceTest {
     }
 
     @Test
-    public void getSignalMessageEnvelope_ok(@Mocked SignalMessage signalMessage, @Mocked RawEnvelopeLog rawEnvelopeLog) {
+    public void getSignalMessageEnvelope_ok(@Mocked SignalMessage signalMessage, @Mocked UserMessageRaw rawEnvelopeLog) {
         String userMessageId = "msgid", rawXml = "rawXml";
         new Expectations(nonRepudiationService) {{
             messagingDao.findSignalMessageByUserMessageId(userMessageId);

@@ -172,13 +172,6 @@ public class DomibusCoreAuditEventMapperIT {
         objectService.assertObjects(convertedBack, toConvert);
     }
 
-    @Test
-    public void testConvertPartProperties() throws Exception {
-        PartPropertiesDTO toConvert = (PartPropertiesDTO) objectService.createInstance(PartPropertiesDTO.class);
-        final PartProperties converted = domibusCoreMapper.partPropertiesDTOToPartProperties(toConvert);
-        final PartPropertiesDTO convertedBack = domibusCoreMapper.partPropertiesToPartPropertiesDTO(converted);
-        objectService.assertObjects(convertedBack, toConvert);
-    }
 
     @Test
     public void testConvertProcess() throws Exception {

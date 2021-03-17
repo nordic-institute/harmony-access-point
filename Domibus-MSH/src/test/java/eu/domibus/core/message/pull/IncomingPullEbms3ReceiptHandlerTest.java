@@ -14,7 +14,7 @@ import eu.domibus.core.ebms3.sender.ResponseResult;
 import eu.domibus.core.generator.id.MessageIdGenerator;
 import eu.domibus.core.message.*;
 import eu.domibus.core.message.compression.CompressionService;
-import eu.domibus.core.message.nonrepudiation.RawEnvelopeLogDao;
+import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
 import eu.domibus.core.message.reliability.ReliabilityMatcher;
 import eu.domibus.core.message.reliability.ReliabilityService;
@@ -57,7 +57,7 @@ public class IncomingPullEbms3ReceiptHandlerTest {
     MessagingDao messagingDao;
 
     @Injectable
-    RawEnvelopeLogDao rawEnvelopeLogDao;
+    UserMessageRawEnvelopeDao rawEnvelopeLogDao;
 
     @Injectable
     MessagingService messagingService;

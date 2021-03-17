@@ -1,11 +1,15 @@
 package eu.domibus.core.message;
 
+import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.api.model.*;
 import com.google.common.collect.Maps;
+import eu.domibus.core.dao.ListDao;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.logging.DomibusMessageCode;
+import eu.domibus.logging.MDCKey;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -13,20 +17,24 @@ import org.springframework.stereotype.Repository;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import java.sql.Timestamp;
+import java.util.*;
 
 /**
  * @author Christian Koch, Stefan Mueller, Federico Martini
  * @since 3.0
  */
 @Repository
-public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
+public class UserMessageLogDao extends ListDao<UserMessageLog> {
 
     @Autowired
     private UserMessageLogInfoFilter userMessageLogInfoFilter;
+
+    @Autowired
+    MessageStatusDao messageStatusDao;
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageLogDao.class);
 
@@ -86,7 +94,6 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         }
     }
 
-    @Override
     public MessageStatus getMessageStatus(String messageId) {
         try {
             TypedQuery<MessageStatus> query = em.createNamedQuery("UserMessageLog.getMessageStatus", MessageStatus.class);
@@ -233,14 +240,98 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         return result;
     }
 
-    @Override
     protected MessageLogInfoFilter getMessageLogInfoFilter() {
         return userMessageLogInfoFilter;
     }
 
-    @Override
     public String findLastTestMessageId(String party) {
-        return super.findLastTestMessageId(party, MessageType.USER_MESSAGE, MSHRole.SENDING);
+        return findLastTestMessageId(party, MessageType.USER_MESSAGE, MSHRole.SENDING);
     }
 
+    protected String findLastTestMessageId(String party, MessageType messageType, MSHRole mshRole) {
+        Map<String, Object> filters = new HashMap<>();
+        filters.put("messageSubtype", MessageSubtype.TEST);
+        filters.put("mshRole", mshRole);
+        filters.put("toPartyId", party);
+        filters.put("messageType", messageType);
+        String filteredMessageLogQuery = getMessageLogInfoFilter().filterMessageLogQuery("received", false, filters);
+        TypedQuery<MessageLogInfo> typedQuery = em.createQuery(filteredMessageLogQuery, MessageLogInfo.class);
+        TypedQuery<MessageLogInfo> queryParameterized = getMessageLogInfoFilter().applyParameters(typedQuery, filters);
+        queryParameterized.setFirstResult(0);
+        queryParameterized.setMaxResults(1);
+        long startTime = 0;
+        if (LOG.isDebugEnabled()) {
+            startTime = System.currentTimeMillis();
+        }
+        final List<MessageLogInfo> resultList = queryParameterized.getResultList();
+        if (LOG.isDebugEnabled()) {
+            final long endTime = System.currentTimeMillis();
+            LOG.debug("[{}] millisecond to execute query for [{}] results", endTime - startTime, resultList.size());
+        }
+        return resultList.isEmpty() ? null : resultList.get(0).getMessageId();
+    }
+
+    @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
+    public void setMessageStatus(UserMessageLog messageLog, MessageStatus messageStatus) {
+        MessageStatusEntity messageStatusEntity = messageStatusDao.findMessageStatus(messageStatus);
+        messageLog.setMessageStatus(messageStatusEntity);
+
+        switch (messageStatus) {
+            case DELETED:
+                messageLog.setDeleted(new Date());
+                messageLog.setNextAttempt(null);
+                break;
+            case ACKNOWLEDGED:
+            case ACKNOWLEDGED_WITH_WARNING:
+                messageLog.setNextAttempt(null);
+                break;
+            case DOWNLOADED:
+                messageLog.setDownloaded(new Date());
+                messageLog.setNextAttempt(null);
+                break;
+            case SEND_FAILURE:
+                messageLog.setFailed(new Date());
+                messageLog.setNextAttempt(null);
+                break;
+            default:
+        }
+        LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_STATUS_UPDATE, "USER_MESSAGE", messageStatus);
+    }
+
+
+    @Override
+    protected List<Predicate> getPredicates(Map<String, Object> filters, CriteriaBuilder cb, Root<UserMessageLog> mle) {
+        List<Predicate> predicates = new ArrayList<>();
+        for (Map.Entry<String, Object> filter : filters.entrySet()) {
+            if (filter.getValue() != null) {
+                if (filter.getValue() instanceof String) {
+                    if (!filter.getValue().toString().isEmpty()) {
+                        switch (filter.getKey()) {
+                            case "":
+                                break;
+                            default:
+                                predicates.add(cb.like(mle.get(filter.getKey()), (String) filter.getValue()));
+                                break;
+                        }
+                    }
+                } else if (filter.getValue() instanceof Date) {
+                    if (!filter.getValue().toString().isEmpty()) {
+                        switch (filter.getKey()) {
+                            case "receivedFrom":
+                                predicates.add(cb.greaterThanOrEqualTo(mle.<Date>get("received"), Timestamp.valueOf(filter.getValue().toString())));
+                                break;
+                            case "receivedTo":
+                                predicates.add(cb.lessThanOrEqualTo(mle.<Date>get("received"), Timestamp.valueOf(filter.getValue().toString())));
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                } else {
+                    predicates.add(cb.equal(mle.<String>get(filter.getKey()), filter.getValue()));
+                }
+            }
+        }
+        return predicates;
+    }
 }

@@ -1,6 +1,7 @@
 package eu.domibus.core.dao;
 
 import eu.domibus.api.model.AbstractBaseEntity;
+import eu.domibus.api.model.DomibusBaseEntity;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
@@ -13,7 +14,7 @@ import java.util.Collection;
  * @author Christian Koch, Stefan Mueller, Federico Martini
  * @since 3.0
  */
-public abstract class BasicDao<T extends AbstractBaseEntity> {
+public abstract class BasicDao<T extends DomibusBaseEntity> {
 
     protected final Class<T> typeOfT;
 

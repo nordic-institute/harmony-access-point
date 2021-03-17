@@ -19,7 +19,7 @@ import eu.domibus.core.message.UserMessageHandlerService;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.compression.CompressionService;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
-import eu.domibus.core.message.nonrepudiation.RawEnvelopeLogDao;
+import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.api.model.SignalMessageLog;
 import eu.domibus.core.message.signal.SignalMessageLogBuilder;
@@ -99,7 +99,7 @@ public class AS4Ebms3ReceiptEbms3ServiceImplTest {
     @Injectable
     SOAPMessage soapResponseMessage;
     @Injectable
-    RawEnvelopeLogDao rawEnvelopeLogDao;
+    UserMessageRawEnvelopeDao rawEnvelopeLogDao;
     @Injectable
     protected UIReplicationSignalService uiReplicationSignalService;
     @Injectable

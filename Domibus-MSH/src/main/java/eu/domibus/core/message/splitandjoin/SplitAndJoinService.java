@@ -1,8 +1,7 @@
 package eu.domibus.core.message.splitandjoin;
 
-import eu.domibus.common.model.configuration.LegConfiguration;
-import eu.domibus.api.model.Error;
 import eu.domibus.api.model.UserMessage;
+import eu.domibus.common.model.configuration.LegConfiguration;
 
 import javax.xml.soap.SOAPMessage;
 import java.io.File;

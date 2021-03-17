@@ -1,8 +1,6 @@
 package eu.domibus.api.model;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Cosmin Baciu
@@ -13,22 +11,29 @@ import java.util.List;
 @NamedQueries({
         @NamedQuery(name = "Receipt.deleteReceipts", query = "delete from  ReceiptEntity where entityId in :RECEIPTIDS"),
 })
-public class ReceiptEntity extends AbstractBaseEntity {
+public class ReceiptEntity extends AbstractNoGeneratedPkEntity {
     @SuppressWarnings("JpaAttributeTypeInspection")
-    @ElementCollection
     @Lob
-    @CollectionTable(name = "TB_RECEIPT_DATA", joinColumns = @JoinColumn(name = "RECEIPT_ID"))
     @Column(name = "RAW_XML")
-    protected List<String> any; //NOSONAR
+    protected String rawXml; //NOSONAR
 
-    public List<String> getAny() {
-        if (this.any == null) {
-            this.any = new ArrayList<>();
-        }
-        return this.any;
+    @OneToOne(fetch = FetchType.LAZY)
+    @MapsId
+    private SignalMessage signalMessage;
+
+    public String getRawXml() {
+        return rawXml;
     }
 
-    public void setAny(List<String> any) {
-        this.any = any;
+    public void setRawXml(String rawXml) {
+        this.rawXml = rawXml;
+    }
+
+    public SignalMessage getSignalMessage() {
+        return signalMessage;
+    }
+
+    public void setSignalMessage(SignalMessage signalMessage) {
+        this.signalMessage = signalMessage;
     }
 }

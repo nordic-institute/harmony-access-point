@@ -22,7 +22,7 @@ import eu.domibus.core.generator.id.MessageIdGenerator;
 import eu.domibus.core.message.compression.CompressionException;
 import eu.domibus.core.message.compression.CompressionService;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
-import eu.domibus.core.message.nonrepudiation.RawEnvelopeLogDao;
+import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
 import eu.domibus.core.message.receipt.AS4ReceiptService;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
@@ -155,7 +155,7 @@ public class UserMessageHandlerServiceImplTest {
     SOAPMessage soapResponseMessage;
 
     @Injectable
-    RawEnvelopeLogDao rawEnvelopeLogDao;
+    UserMessageRawEnvelopeDao rawEnvelopeLogDao;
 
     @Injectable
     protected UIReplicationSignalService uiReplicationSignalService;

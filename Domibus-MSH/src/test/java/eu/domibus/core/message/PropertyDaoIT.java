@@ -32,7 +32,7 @@ import static org.junit.Assert.assertEquals;
 public class PropertyDaoIT {
 
     @Autowired
-    private PropertyDao propertyDao;
+    private MessagePropertyDao propertyDao;
 
     @Autowired
     private MessageInfoDao messageInfoDao;

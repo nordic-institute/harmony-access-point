@@ -1,5 +1,6 @@
 package eu.domibus.core.ebms3.sender;
 
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.api.model.Messaging;
 
@@ -11,5 +12,5 @@ import eu.domibus.api.model.Messaging;
  */
 public interface MessageSender {
 
-    void sendMessage(final Messaging messaging, final UserMessageLog userMessageLog);
+    void sendMessage(final UserMessage userMessage, final UserMessageLog userMessageLog);
 }

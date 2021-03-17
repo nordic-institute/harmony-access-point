@@ -1,32 +1,28 @@
 package eu.domibus.core.message;
 
-import eu.domibus.api.model.MessageStatus;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JMSMessageBuilder;
+import eu.domibus.api.model.*;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.DomibusCertificateException;
+import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.reliability.ReliabilityException;
 import eu.domibus.api.security.ChainCertificateInvalidException;
-import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.Process;
-import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.ws.policy.PolicyService;
-import eu.domibus.api.model.RawEnvelopeDto;
-import eu.domibus.api.model.RawEnvelopeLog;
-import eu.domibus.core.message.nonrepudiation.RawEnvelopeLogDao;
+import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
 import eu.domibus.core.message.pull.*;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.api.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections.CollectionUtils;
@@ -79,7 +75,7 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
     protected JMSManager jmsManager;
 
     @Autowired
-    private RawEnvelopeLogDao rawEnvelopeLogDao;
+    private UserMessageRawEnvelopeDao rawEnvelopeLogDao;
 
     @Autowired
     private ProcessValidator processValidator;
@@ -331,7 +327,7 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
     public void saveRawXml(String rawXml, String messageId) {
         LOG.debug("Saving rawXML for message [{}]", messageId);
 
-        RawEnvelopeLog newRawEnvelopeLog = new RawEnvelopeLog();
+        UserMessageRaw newRawEnvelopeLog = new UserMessageRaw();
         newRawEnvelopeLog.setRawXML(rawXml);
         newRawEnvelopeLog.setMessageId(messageId);
         rawEnvelopeLogDao.create(newRawEnvelopeLog);

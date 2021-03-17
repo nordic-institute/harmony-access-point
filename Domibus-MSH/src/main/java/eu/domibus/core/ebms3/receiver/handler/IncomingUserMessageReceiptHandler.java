@@ -85,7 +85,7 @@ public class IncomingUserMessageReceiptHandler implements IncomingMessageHandler
     }
 
     protected SOAPMessage handleUserMessageReceipt(SOAPMessage request, Messaging messaging) {
-        String messageId = messaging.getSignalMessage().getMessageInfo().getRefToMessageId();
+        String messageId = messaging.getSignalMessage().getRefToMessageId();
 
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
         if (MessageStatus.ACKNOWLEDGED == userMessageLog.getMessageStatus()) {
@@ -121,13 +121,13 @@ public class IncomingUserMessageReceiptHandler implements IncomingMessageHandler
             LOG.error("EbMS3 exception occurred when handling receipt for message with ID [{}]", messageId, e);
             reliabilityChecker.handleEbms3Exception(e, messageId);
         } finally {
-            reliabilityService.handleReliability(messageId, sentMessage, userMessageLog, reliabilityCheckSuccessful, request, responseResult, legConfiguration, null);
+            reliabilityService.handleReliability(messageId, sentMessage.getUserMessage(), userMessageLog, reliabilityCheckSuccessful, request, responseResult, legConfiguration, null);
         }
         return null;
     }
 
     protected SOAPMessage getSoapMessage(LegConfiguration legConfiguration, UserMessage userMessage) throws EbMS3Exception {
-        return messageBuilder.buildSOAPMessage(userMessage, legConfiguration);
+        return messageBuilder.buildSOAPMessage(userMessage, null, legConfiguration);
     }
 
     protected Reliability getSourceMessageReliability() {

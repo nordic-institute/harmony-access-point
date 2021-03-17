@@ -4,8 +4,8 @@ import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.message.attempt.MessageAttemptStatus;
 import eu.domibus.api.model.MSHRole;
-import eu.domibus.api.model.Messaging;
 import eu.domibus.api.model.UserMessage;
+import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.api.security.ChainCertificateInvalidException;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.LegConfiguration;
@@ -17,7 +17,6 @@ import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.message.MessageExchangeService;
-import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
 import eu.domibus.core.message.reliability.ReliabilityService;
@@ -76,9 +75,8 @@ public abstract class AbstractUserMessageSender implements MessageSender {
     @Override
     @Timer(clazz = AbstractUserMessageSender.class, value = "outgoing_user_message")
     @Counter(clazz = AbstractUserMessageSender.class, value = "outgoing_user_message")
-    public void sendMessage(final Messaging messaging, final UserMessageLog userMessageLog) {
-        final UserMessage userMessage = messaging.getUserMessage();
-        String messageId = userMessage.getMessageInfo().getMessageId();
+    public void sendMessage(final UserMessage userMessage, final UserMessageLog userMessageLog) {
+        String messageId = userMessage.getMessageId();
 
         MessageAttempt attempt = new MessageAttempt();
         attempt.setMessageId(messageId);
@@ -103,7 +101,6 @@ public abstract class AbstractUserMessageSender implements MessageSender {
                 reliabilityCheckSuccessful = ReliabilityChecker.CheckResult.ABORT;
                 return;
             }
-
 
             pModeKey = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING).getPmodeKey();
             getLog().debug("PMode key found : " + pModeKey);
@@ -169,10 +166,10 @@ public abstract class AbstractUserMessageSender implements MessageSender {
         } finally {
             try {
                 getLog().debug("Finally handle reliability");
-                reliabilityService.handleReliability(messageId, messaging, userMessageLog, reliabilityCheckSuccessful, responseSoapMessage, responseResult, legConfiguration, attempt);
+                reliabilityService.handleReliability(messageId, userMessage, userMessageLog, reliabilityCheckSuccessful, responseSoapMessage, responseResult, legConfiguration, attempt);
             } catch (Exception ex) {
                 getLog().warn("Finally exception when handlingReliability", ex);
-                reliabilityService.handleReliabilityInNewTransaction(messageId, messaging, userMessageLog, reliabilityCheckSuccessful, responseSoapMessage, responseResult, legConfiguration, attempt);
+                reliabilityService.handleReliabilityInNewTransaction(messageId, userMessage, userMessageLog, reliabilityCheckSuccessful, responseSoapMessage, responseResult, legConfiguration, attempt);
             }
         }
     }

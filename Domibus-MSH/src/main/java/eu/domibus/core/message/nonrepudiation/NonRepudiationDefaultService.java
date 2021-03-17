@@ -1,10 +1,7 @@
 package eu.domibus.core.message.nonrepudiation;
 
 import eu.domibus.api.messaging.MessageNotFoundException;
-import eu.domibus.api.model.RawEnvelopeDto;
-import eu.domibus.api.model.RawEnvelopeLog;
-import eu.domibus.api.model.SignalMessage;
-import eu.domibus.api.model.UserMessage;
+import eu.domibus.api.model.*;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.audit.envers.ModificationType;
@@ -22,6 +19,7 @@ import javax.xml.transform.TransformerException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +40,10 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
     protected DomibusPropertyProvider domibusPropertyProvider;
 
     @Autowired
-    protected RawEnvelopeLogDao rawEnvelopeLogDao;
+    protected UserMessageRawEnvelopeDao rawEnvelopeLogDao;
+
+    @Autowired
+    protected SignalMessageRawEnvelopeDao signalMessageRawEnvelopeDao;
 
     @Autowired
     protected SoapUtil soapUtil;
@@ -66,11 +67,11 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
         try {
             String rawXMLMessage = soapUtil.getRawXMLMessage(request);
             LOG.debug("Persist raw XML envelope: " + rawXMLMessage);
-            RawEnvelopeLog rawEnvelopeLog = new RawEnvelopeLog();
+            UserMessageRaw rawEnvelopeLog = new UserMessageRaw();
             if (userMessage != null) {
-                rawEnvelopeLog.setMessageId(userMessage.getMessageInfo().getMessageId());
+                rawEnvelopeLog.setUserMessage(userMessage);
             }
-            rawEnvelopeLog.setRawXML(rawXMLMessage);
+            rawEnvelopeLog.setRawXML(rawXMLMessage.getBytes(StandardCharsets.UTF_8));
             rawEnvelopeLog.setUserMessage(userMessage);
             rawEnvelopeLogDao.create(rawEnvelopeLog);
         } catch (TransformerException e) {
@@ -88,10 +89,10 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
         try {
             String rawXMLMessage = soapUtil.getRawXMLMessage(response);
             LOG.debug("Persist raw XML envelope: " + rawXMLMessage);
-            RawEnvelopeLog rawEnvelopeLog = new RawEnvelopeLog();
-            rawEnvelopeLog.setRawXML(rawXMLMessage);
+            SignalMessageRaw rawEnvelopeLog = new SignalMessageRaw();
+            rawEnvelopeLog.setRawXML(rawXMLMessage.getBytes(StandardCharsets.UTF_8));
             rawEnvelopeLog.setSignalMessage(signalMessage);
-            rawEnvelopeLogDao.create(rawEnvelopeLog);
+            signalMessageRawEnvelopeDao.create(rawEnvelopeLog);
         } catch (TransformerException e) {
             LOG.warn("Unable to log the raw message XML due to: ", e);
         }
@@ -138,19 +139,15 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
 
     @Override
     public String getSignalMessageEnvelope(String userMessageId) {
-        SignalMessage signalMessage = messagingDao.findSignalMessageByUserMessageId(userMessageId);
-        if (signalMessage == null) {
+        RawEnvelopeDto rawEnvelopeDto = signalMessageRawEnvelopeDao.findSignalMessageByUserMessageId(userMessageId);
+        if (rawEnvelopeDto == null) {
             LOG.info("Signal message with corresponding user message id [{}] was not found.", userMessageId);
-            return null;
-        }
-        if (signalMessage.getRawEnvelopeLog() == null) {
-            LOG.info("Signal message raw envelope with corresponding user message id [{}] was not found.", userMessageId);
             return null;
         }
 
         auditService.addMessageEnvelopesDownloadedAudit(userMessageId, ModificationType.SIGNAL_MESSAGE_ENVELOPE_DOWNLOADED);
-        LOG.debug("Returning the signal message envelope with user message id [{}]: [{}]", userMessageId, signalMessage.getRawEnvelopeLog().getRawXML());
-        return signalMessage.getRawEnvelopeLog().getRawXML();
+        LOG.debug("Returning the signal message envelope with user message id [{}]: [{}]", userMessageId, rawEnvelopeDto.getRawMessage());
+        return rawEnvelopeDto.getRawMessage();
     }
 
     @Override

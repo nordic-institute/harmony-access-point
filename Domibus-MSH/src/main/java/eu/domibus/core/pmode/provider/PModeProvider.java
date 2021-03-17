@@ -12,6 +12,8 @@ import eu.domibus.api.util.xml.UnmarshallerResult;
 import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.api.model.MSHRole;
+import eu.domibus.common.model.configuration.Action;
+import eu.domibus.common.model.configuration.Mpc;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.Service;
 import eu.domibus.common.model.configuration.*;
@@ -251,12 +253,12 @@ public abstract class PModeProvider {
         String senderParty;
         String receiverParty;
 
-        final String messageId = userMessage.getMessageInfo().getMessageId();
+        final String messageId = userMessage.getMessageId();
         //add messageId to MDC map
         if (StringUtils.isNotBlank(messageId)) {
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
         }
-        LOG.putMDC(DomibusLogger.MDC_FROM, userMessage.getFromFirstPartyId());
+        LOG.putMDC(DomibusLogger.MDC_FROM, userMessage.getPartyInfo().getFrom().getPartyId().getValue());
         LOG.putMDC(DomibusLogger.MDC_TO, userMessage.getToFirstPartyId());
         LOG.putMDC(DomibusLogger.MDC_SERVICE, userMessage.getCollaborationInfo().getService().getValue());
         LOG.putMDC(DomibusLogger.MDC_ACTION, userMessage.getCollaborationInfo().getAction());
@@ -389,14 +391,14 @@ public abstract class PModeProvider {
 
     public abstract String findServiceName(eu.domibus.api.model.Service service) throws EbMS3Exception;
 
-    public abstract String findPartyName(Collection<PartyId> partyId) throws EbMS3Exception;
+    public abstract String findPartyName(PartyId partyId) throws EbMS3Exception;
 
     public abstract String findAgreement(AgreementRef agreementRef) throws EbMS3Exception;
 
     public UserMessagePmodeData getUserMessagePmodeData(UserMessage userMessage) throws EbMS3Exception {
-        final String actionValue = userMessage.getCollaborationInfo().getAction();
+        final String actionValue = userMessage.getActionValue();
         final String actionName = findActionName(actionValue);
-        final eu.domibus.api.model.Service service = userMessage.getCollaborationInfo().getService();
+        final eu.domibus.api.model.Service service = userMessage.getService();
         final String serviceName = findServiceName(service);
         final String partyName = findPartyName(userMessage.getPartyInfo().getFrom().getPartyId());
         return new UserMessagePmodeData(serviceName, actionName, partyName);

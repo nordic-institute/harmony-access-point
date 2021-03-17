@@ -1,10 +1,9 @@
 package eu.domibus.core.message.splitandjoin;
 
-import eu.domibus.api.model.*;
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
-import eu.domibus.api.model.Error;
+import eu.domibus.api.model.*;
 import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
 import eu.domibus.api.model.splitandjoin.MessageHeaderEntity;
 import eu.domibus.api.multitenancy.DomainContextProvider;
@@ -154,11 +153,22 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
     @Autowired
     protected Ebms3Converter ebms3Converter;
 
+    @Autowired
+    protected PartInfoDao partInfoDao;
+
+    @Autowired
+    protected MshRoleDao mshRoleDao;
+
+    @Autowired
+    protected UserMessageDao userMessageDao;
+
     @Override
     public void createUserFragmentsFromSourceFile(String sourceMessageFileName, SOAPMessage sourceMessageRequest, UserMessage userMessage, String contentTypeString, boolean compression) {
         MessageGroupEntity messageGroupEntity = new MessageGroupEntity();
-        messageGroupEntity.setMshRole(MSHRole.SENDING);
-        messageGroupEntity.setGroupId(userMessage.getMessageInfo().getMessageId());
+
+        MSHRoleEntity mshRoleEntity = mshRoleDao.findByRole(MSHRole.SENDING);
+        messageGroupEntity.setMshRole(mshRoleEntity);
+        messageGroupEntity.setGroupId(userMessage.getMessageId());
         File sourceMessageFile = new File(sourceMessageFileName);
         messageGroupEntity.setMessageSize(BigInteger.valueOf(sourceMessageFile.length()));
         if (compression) {
@@ -176,7 +186,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
         }
 
         messageGroupEntity.setSoapAction(StringUtils.EMPTY);
-        messageGroupEntity.setSourceMessageId(userMessage.getMessageInfo().getMessageId());
+        messageGroupEntity.setSourceMessage(userMessage);
 
         MessageExchangeConfiguration userMessageExchangeConfiguration;
         LegConfiguration legConfiguration;
@@ -223,12 +233,13 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
         final SOAPMessage sourceRequest = rejoinSourceMessage(groupId, new File(sourceMessageFile));
         Ebms3Messaging ebms3Messaging = messageUtil.getMessage(sourceRequest);
         Messaging sourceMessaging = ebms3Converter.convertFromEbms3(ebms3Messaging);
-        sourceMessaging.getUserMessage().setSplitAndJoin(true);
+        UserMessage userMessage = sourceMessaging.getUserMessage();
+        userMessage.setSourceMessage(true);
 
         MessageExchangeConfiguration userMessageExchangeContext;
         LegConfiguration legConfiguration;
         try {
-            userMessageExchangeContext = pModeProvider.findUserMessageExchangeContext(sourceMessaging.getUserMessage(), MSHRole.RECEIVING);
+            userMessageExchangeContext = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.RECEIVING);
             String sourcePmodeKey = userMessageExchangeContext.getPmodeKey();
             legConfiguration = pModeProvider.getLegConfiguration(sourcePmodeKey);
             sourceRequest.setProperty(DispatchClientDefaultProvider.PMODE_KEY_CONTEXT_PROPERTY, sourcePmodeKey);
@@ -237,14 +248,14 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
         }
 
         try {
-            userMessageHandlerService.handlePayloads(sourceRequest, sourceMessaging.getUserMessage());
+            userMessageHandlerService.handlePayloads(sourceRequest, userMessage);
         } catch (EbMS3Exception | SOAPException | TransformerException e) {
             throw new SplitAndJoinException("Error handling payloads", e);
         }
 
         messagingService.storePayloads(sourceMessaging, MSHRole.RECEIVING, legConfiguration, backendName);
 
-        final String sourceMessageId = sourceMessaging.getUserMessage().getMessageInfo().getMessageId();
+        final String sourceMessageId = userMessage.getMessageId();
         messageGroupService.setSourceMessageId(sourceMessageId, groupId);
 
         incomingSourceMessageHandler.processMessage(sourceRequest, sourceMessaging);
@@ -316,15 +327,18 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
             throw new SplitAndJoinException("Could not rejoin fragments: could not find group [" + groupId + "]");
         }
 
+
         final List<UserMessage> userMessageFragments = messagingDao.findUserMessageByGroupId(groupId);
 
         if (messageGroupEntity.getFragmentCount() != userMessageFragments.size()) {
             throw new SplitAndJoinException("Could not rejoin fragments: number of fragments found [" + userMessageFragments.size() + "] do not correspond with the total fragment count [" + messageGroupEntity.getFragmentCount() + "]");
         }
 
+
         List<File> fragmentFilesInOrder = new ArrayList<>();
         for (UserMessage userMessage : userMessageFragments) {
-            final PartInfo partInfo = userMessage.getPayloadInfo().getPartInfo().iterator().next();
+            List<PartInfo> partInfos = partInfoDao.findPartInfoByUserMessageEntityId(userMessage.getEntityId());
+            final PartInfo partInfo = partInfos.iterator().next();
             final String fileName = partInfo.getFileName();
             if (StringUtils.isBlank(fileName)) {
                 throw new SplitAndJoinException("Could not rejoin fragments: filename is null for part [" + partInfo.getHref() + "]");
@@ -374,7 +388,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
 
     @Override
     public void setSourceMessageAsFailed(UserMessage userMessage) {
-        final String messageId = userMessage.getMessageInfo().getMessageId();
+        final String messageId = userMessage.getMessageId();
         LOG.debug("Setting the SourceMessage [{}] as failed", messageId);
 
         final UserMessageLog messageLog = userMessageLogDao.findByMessageIdSafely(messageId);
@@ -472,7 +486,8 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
     protected void setReceivedGroupAsExpired(MessageGroupEntity messageGroupEntity) {
         messageGroupEntity.setExpired(true);
         messageGroupDao.update(messageGroupEntity);
-        userMessageService.scheduleSplitAndJoinReceiveFailed(messageGroupEntity.getGroupId(), messageGroupEntity.getSourceMessageId(), ErrorCode.EbMS3ErrorCode.EBMS_0051.getCode().getErrorCode().getErrorCodeName(), ERROR_MESSAGE_GROUP_HAS_EXPIRED);
+        UserMessage sourceMessage = userMessageDao.findByGroupEntityId(messageGroupEntity.getEntityId());
+        userMessageService.scheduleSplitAndJoinReceiveFailed(messageGroupEntity.getGroupId(), sourceMessage.getMessageId(), ErrorCode.EbMS3ErrorCode.EBMS_0051.getCode().getErrorCode().getErrorCodeName(), ERROR_MESSAGE_GROUP_HAS_EXPIRED);
     }
 
     protected List<MessageGroupEntity> getReceivedExpiredGroups(final List<MessageGroupEntity> receivedNonExpiredOrRejected) {
@@ -480,7 +495,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
     }
 
     protected boolean isSendGroupExpired(MessageGroupEntity messageGroupEntity) {
-        final UserMessage sourceUserMessage = messagingDao.findUserMessageByMessageId(messageGroupEntity.getSourceMessageId());
+        final UserMessage sourceUserMessage = userMessageDao.findByGroupEntityId(messageGroupEntity.getEntityId());
         return isGroupExpired(sourceUserMessage, messageGroupEntity.getGroupId());
     }
 
@@ -498,7 +513,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
             return false;
         }
 
-        final String messageId = userMessage.getMessageInfo().getMessageId();
+        final String messageId = userMessage.getMessageId();
         //in minutes
         final int joinInterval = legConfiguration.getSplitting().getJoinInterval();
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
@@ -530,7 +545,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
             return false;
         }
 
-        fragments.sort(Comparator.comparing(object -> object.getMessageInfo().getTimestamp()));
+        fragments.sort(Comparator.comparing(object -> object.getTimestamp()));
         final UserMessage firstFragment = fragments.get(0);
         return isGroupExpired(firstFragment, groupId);
     }
@@ -542,7 +557,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
         sendSplitAndJoinFailed(groupId);
 
         final List<UserMessage> groupUserMessages = messagingDao.findUserMessageByGroupId(groupId);
-        groupUserMessages.forEach(userMessage -> userMessageService.scheduleSetUserMessageFragmentAsFailed(userMessage.getMessageInfo().getMessageId()));
+        groupUserMessages.forEach(userMessage -> userMessageService.scheduleSetUserMessageFragmentAsFailed(userMessage.getMessageId()));
 
         createLogEntry(groupId, errorDetail);
     }
@@ -564,7 +579,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
         messageGroupEntity.setRejected(true);
         messageGroupDao.update(messageGroupEntity);
 
-        final UserMessage sourceUserMessage = messagingDao.findUserMessageByMessageId(messageGroupEntity.getSourceMessageId());
+        final UserMessage sourceUserMessage = userMessageDao.findByGroupEntityId(messageGroupEntity.getEntityId());
         setSourceMessageAsFailed(sourceUserMessage);
     }
 

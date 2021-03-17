@@ -162,7 +162,7 @@ public class UserMessageDefaultServiceTest {
     private ErrorLogDao errorLogDao;
 
     @Injectable
-    private PropertyDao propertyDao;
+    private MessagePropertyDao propertyDao;
 
     @Injectable
     private UIMessageDao uiMessageDao;

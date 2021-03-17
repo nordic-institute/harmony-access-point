@@ -1,7 +1,6 @@
 package eu.domibus.core.ebms3.mapper.signal;
 
 import eu.domibus.api.ebms3.model.Ebms3MessageInfo;
-import eu.domibus.api.model.MessageInfo;
 import eu.domibus.core.ebms3.mapper.Ebms3CentralMapperConfig;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.InheritInverseConfiguration;

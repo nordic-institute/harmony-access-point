@@ -2,7 +2,7 @@ package eu.domibus.core.message.pull;
 
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.core.message.MessagingDao;
-import eu.domibus.core.message.nonrepudiation.RawEnvelopeLogDao;
+import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.core.replication.UIReplicationSignalService;
@@ -30,7 +30,7 @@ public class PullMessageStateServiceImpl implements PullMessageStateService {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PullMessageStateServiceImpl.class);
 
     @Autowired
-    protected RawEnvelopeLogDao rawEnvelopeLogDao;
+    protected UserMessageRawEnvelopeDao rawEnvelopeLogDao;
 
     @Autowired
     protected UserMessageLogDao userMessageLogDao;

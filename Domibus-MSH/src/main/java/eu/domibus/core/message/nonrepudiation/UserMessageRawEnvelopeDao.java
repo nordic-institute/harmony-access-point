@@ -1,7 +1,7 @@
 package eu.domibus.core.message.nonrepudiation;
 
 import eu.domibus.api.model.RawEnvelopeDto;
-import eu.domibus.api.model.RawEnvelopeLog;
+import eu.domibus.api.model.UserMessageRaw;
 import eu.domibus.core.dao.BasicDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -18,14 +18,14 @@ import javax.persistence.TypedQuery;
  */
 //@thom test this class
 @Repository
-public class RawEnvelopeLogDao extends BasicDao<RawEnvelopeLog> {
+public class UserMessageRawEnvelopeDao extends BasicDao<UserMessageRaw> {
 
-    private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(RawEnvelopeLogDao.class);
+    private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageRawEnvelopeDao.class);
 
     public static final String MESSAGE_ID = "MESSAGE_ID";
 
-    public RawEnvelopeLogDao() {
-        super(RawEnvelopeLog.class);
+    public UserMessageRawEnvelopeDao() {
+        super(UserMessageRaw.class);
     }
 
     public RawEnvelopeDto findRawXmlByMessageId(final String messageId) {

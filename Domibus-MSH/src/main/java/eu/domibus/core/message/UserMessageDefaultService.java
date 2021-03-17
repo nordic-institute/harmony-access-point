@@ -109,7 +109,7 @@ public class UserMessageDefaultService implements UserMessageService {
     private SignalMessageDao signalMessageDao;
 
     @Autowired
-    private PropertyDao propertyDao;
+    private MessagePropertyDao propertyDao;
 
     @Autowired
     private MessageAttemptDao messageAttemptDao;
@@ -190,7 +190,7 @@ public class UserMessageDefaultService implements UserMessageService {
     public void createMessageFragments(UserMessage sourceMessage, MessageGroupEntity messageGroupEntity, List<String> fragmentFiles) {
         messageGroupDao.create(messageGroupEntity);
 
-        String backendName = userMessageLogDao.findBackendForMessageId(sourceMessage.getMessageInfo().getMessageId());
+        String backendName = userMessageLogDao.findBackendForMessageId(sourceMessage.getMessageId());
         for (int index = 0; index < fragmentFiles.size(); index++) {
             try {
                 final String fragmentFile = fragmentFiles.get(index);
@@ -266,7 +266,7 @@ public class UserMessageDefaultService implements UserMessageService {
         userMessageLog.setSendAttemptsMax(newMaxAttempts);
 
         userMessageLogDao.update(userMessageLog);
-        uiReplicationSignalService.messageChange(userMessageLog.getMessageId());
+        uiReplicationSignalService.messageChange(messageId);
 
         final UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
         if (MessageStatus.READY_TO_PULL != newMessageStatus) {
@@ -276,10 +276,10 @@ public class UserMessageDefaultService implements UserMessageService {
                 MessageExchangeConfiguration userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, true);
                 String pModeKey = userMessageExchangeConfiguration.getPmodeKey();
                 Party receiverParty = pModeProvider.getReceiverParty(pModeKey);
-                LOG.debug("[restoreFailedMessage]:Message:[{}] add lock", userMessageLog.getMessageId());
+                LOG.debug("[restoreFailedMessage]:Message:[{}] add lock", messageId);
                 pullMessageService.addPullMessageLock(userMessage, userMessageLog);
             } catch (EbMS3Exception ebms3Ex) {
-                LOG.error("Error restoring user message to ready to pull[" + userMessage.getMessageInfo().getMessageId() + "]", ebms3Ex);
+                LOG.error("Error restoring user message to ready to pull[" + messageId + "]", ebms3Ex);
             }
         }
     }
@@ -357,7 +357,7 @@ public class UserMessageDefaultService implements UserMessageService {
 
 
     public void scheduleSending(UserMessage userMessage, UserMessageLog userMessageLog) {
-        scheduleSending(userMessage, userMessageLog, new DispatchMessageCreator(userMessageLog.getMessageId()).createMessage());
+        scheduleSending(userMessage, userMessageLog, new DispatchMessageCreator(userMessage.getMessageId()).createMessage());
     }
 
     @Override
@@ -380,7 +380,7 @@ public class UserMessageDefaultService implements UserMessageService {
      * @param jmsMessage
      */
     protected void scheduleSending(final UserMessage userMessage, final UserMessageLog userMessageLog, JmsMessage jmsMessage) {
-        scheduleSending(userMessage, userMessageLog.getMessageId(), userMessageLog, jmsMessage);
+        scheduleSending(userMessage, userMessage.getMessageId(), userMessageLog, jmsMessage);
     }
 
     @Timer(clazz = DatabaseMessageHandler.class, value = "scheduleSending")

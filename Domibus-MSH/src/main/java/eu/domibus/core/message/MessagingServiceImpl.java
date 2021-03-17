@@ -202,7 +202,7 @@ public class MessagingServiceImpl implements MessagingService {
         payloadPersistence.storeIncomingPayload(partInfo, userMessage, legConfiguration);
 
         // Log Payload size
-        String messageId = userMessage.getMessageInfo().getMessageId();
+        String messageId = userMessage.getMessageId();
         LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_RECEIVED_PAYLOAD_SIZE, partInfo.getHref(), messageId, partInfo.getLength());
     }
 
@@ -210,7 +210,7 @@ public class MessagingServiceImpl implements MessagingService {
         final PayloadPersistence payloadPersistence = payloadPersistenceProvider.getPayloadPersistence(partInfo, userMessage);
         payloadPersistence.storeOutgoingPayload(partInfo, userMessage, legConfiguration, backendName);
 
-        LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_SENDING_PAYLOAD_SIZE, partInfo.getHref(), userMessage.getMessageInfo().getMessageId(), partInfo.getLength());
+        LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_SENDING_PAYLOAD_SIZE, partInfo.getHref(), userMessage.getMessageId(), partInfo.getLength());
 
         final boolean hasCompressionProperty = hasCompressionProperty(partInfo);
         if (hasCompressionProperty) {
@@ -234,7 +234,7 @@ public class MessagingServiceImpl implements MessagingService {
             return false;
         }
 
-        for (final Property property : partInfo.getPartProperties().getProperties()) {
+        for (final Property property : partInfo.getPartProperties()) {
             if (property.getName().equalsIgnoreCase(CompressionService.COMPRESSION_PROPERTY_KEY)
                     && property.getValue().equalsIgnoreCase(CompressionService.COMPRESSION_PROPERTY_VALUE)) {
                 return true;
