@@ -3,11 +3,13 @@ package eu.domibus.core.alerts.model.service;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import eu.domibus.api.alerts.AlertLevel;
+import eu.domibus.api.scheduler.Reprogrammable;
 import eu.domibus.core.alerts.model.common.AlertStatus;
 import eu.domibus.core.alerts.model.common.AlertType;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import javax.persistence.Column;
 import java.util.*;
 
 /**
@@ -34,6 +36,10 @@ public class Alert {
     private Integer maxAttempts;
 
     private Date nextAttempt;
+
+    private String nextAttemptTimezoneId;
+
+    private int nextAttemptOffsetSeconds;
 
     private Date reportingTimeFailure;
 
@@ -145,6 +151,22 @@ public class Alert {
 
     public void setNextAttempt(Date nextAttempt) {
         this.nextAttempt = nextAttempt;
+    }
+
+    public String getNextAttemptTimezoneId() {
+        return nextAttemptTimezoneId;
+    }
+
+    public void setNextAttemptTimezoneId(String nextAttemptTimezoneId) {
+        this.nextAttemptTimezoneId = nextAttemptTimezoneId;
+    }
+
+    public int getNextAttemptOffsetSeconds() {
+        return nextAttemptOffsetSeconds;
+    }
+
+    public void setNextAttemptOffsetSeconds(int nextAttemptOffsetSeconds) {
+        this.nextAttemptOffsetSeconds = nextAttemptOffsetSeconds;
     }
 
     public Map<String, String> getProperties() {

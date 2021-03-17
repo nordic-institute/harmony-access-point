@@ -6,6 +6,7 @@ import eu.domibus.api.model.MessageLog;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.core.dao.ListDao;
 import eu.domibus.api.model.MessageType;
+import eu.domibus.core.scheduler.ReprogrammableService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -31,8 +32,11 @@ public abstract class MessageLogDao<F extends MessageLog> extends ListDao<F> {
 
     protected static final String STR_MESSAGE_ID = "MESSAGE_ID";
 
-    public MessageLogDao(final Class<F> type) {
+    private final ReprogrammableService reprogrammableService;
+
+    public MessageLogDao(final Class<F> type, ReprogrammableService reprogrammableService) {
         super(type);
+        this.reprogrammableService = reprogrammableService;
     }
 
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
@@ -42,19 +46,19 @@ public abstract class MessageLogDao<F extends MessageLog> extends ListDao<F> {
         switch (messageStatus) {
             case DELETED:
                 messageLog.setDeleted(new Date());
-                messageLog.setNextAttempt(null);
+                reprogrammableService.removeRescheduleInfo(messageLog);
                 break;
             case ACKNOWLEDGED:
             case ACKNOWLEDGED_WITH_WARNING:
-                messageLog.setNextAttempt(null);
+                reprogrammableService.removeRescheduleInfo(messageLog);
                 break;
             case DOWNLOADED:
                 messageLog.setDownloaded(new Date());
-                messageLog.setNextAttempt(null);
+                reprogrammableService.removeRescheduleInfo(messageLog);
                 break;
             case SEND_FAILURE:
                 messageLog.setFailed(new Date());
-                messageLog.setNextAttempt(null);
+                reprogrammableService.removeRescheduleInfo(messageLog);
                 break;
             default:
         }

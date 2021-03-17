@@ -11,9 +11,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
-
 /**
  * @author Cosmin Baciu
+ * @author Sebastian-Ion TINCU
  * @since 3.3
  */
 @Component
@@ -56,6 +56,14 @@ public class DateUtilImpl implements DateUtil {
     @Override
     public String getCurrentTime() {
         return getCurrentTime(DEFAULT_FORMATTER);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Date getUtcDate() {
+        return new Date();
     }
 
     @Override

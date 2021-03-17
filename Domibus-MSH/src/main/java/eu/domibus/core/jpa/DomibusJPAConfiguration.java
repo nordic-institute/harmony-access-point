@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
-import org.springframework.context.annotation.Primary;
 import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
@@ -36,7 +35,7 @@ public class DomibusJPAConfiguration {
     public static final String DOMIBUS_JDBC_XA_DATA_SOURCE = "domibusJDBC-XADataSource";
     public static final String DOMIBUS_JDBC_NON_XA_DATA_SOURCE = "domibusJDBC-nonXADataSource";
     public static final String JPA_PROPERTIES = "jpaProperties";
-
+    public static final String JPA_PROPERTY_TIMEZONE_UTC = "UTC";
 
     @Bean
     public JpaVendorAdapter jpaVendorAdapter() {
@@ -80,6 +79,7 @@ public class DomibusJPAConfiguration {
     @Bean(JPA_PROPERTIES)
     public PrefixedProperties jpaProperties(DomibusPropertyProvider domibusPropertyProvider) {
         PrefixedProperties result = new PrefixedProperties(domibusPropertyProvider, "domibus.entityManagerFactory.jpaProperty.");
+        result.setProperty(Environment.JDBC_TIME_ZONE, JPA_PROPERTY_TIMEZONE_UTC);
         return result;
     }
 }

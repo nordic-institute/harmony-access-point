@@ -210,6 +210,8 @@ public interface DomibusCoreMapper {
     @Mapping(source = "toId", target = "toPartyId")
     @Mapping(source = "fromScheme", target = "originalSender")
     @Mapping(source = "toScheme", target = "finalRecipient")
+    @Mapping(source = "timezoneOffset.nextAttemptTimezoneId", target = "nextAttemptTimezoneId")
+    @Mapping(source = "timezoneOffset.nextAttemptOffsetSeconds", target = "nextAttemptOffsetSeconds")
     MessageLogRO uiMessageEntityToMessageLogRO(UIMessageEntity uiMessageEntity);
 
     @InheritInverseConfiguration
@@ -219,6 +221,8 @@ public interface DomibusCoreMapper {
     @Mapping(source = "toId", target = "toPartyId")
     @Mapping(source = "fromScheme", target = "originalSender")
     @Mapping(source = "toScheme", target = "finalRecipient")
+    @Mapping(source = "timezoneOffset.nextAttemptTimezoneId", target = "nextAttemptTimezoneId")
+    @Mapping(source = "timezoneOffset.nextAttemptOffsetSeconds", target = "nextAttemptOffsetSeconds")
     MessageLogInfo uiMessageEntityToMessageLogInfo(UIMessageEntity uiMessageEntity);
 
     @InheritInverseConfiguration

@@ -161,10 +161,11 @@ public class UIMessageDaoImpl extends ListDao<UIMessageEntity> implements UIMess
                     .setParameter(4, userMessageLog.getFailed(), TemporalType.TIMESTAMP)
                     .setParameter(5, userMessageLog.getRestored(), TemporalType.TIMESTAMP)
                     .setParameter(6, userMessageLog.getNextAttempt(), TemporalType.TIMESTAMP)
-                    .setParameter(7, userMessageLog.getSendAttempts())
-                    .setParameter(8, userMessageLog.getSendAttemptsMax())
-                    .setParameter(9, new Date(lastModified), TemporalType.TIMESTAMP)
-                    .setParameter(10, userMessageLog.getMessageId())
+                    .setParameter(7, userMessageLog.getTimezoneOffset())
+                    .setParameter(8, userMessageLog.getSendAttempts())
+                    .setParameter(9, userMessageLog.getSendAttemptsMax())
+                    .setParameter(10, new Date(lastModified), TemporalType.TIMESTAMP)
+                    .setParameter(11, userMessageLog.getMessageId())
                     .executeUpdate();
             return rowsUpdated == 1;
 

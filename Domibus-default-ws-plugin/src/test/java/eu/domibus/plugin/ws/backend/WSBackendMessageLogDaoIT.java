@@ -1,6 +1,7 @@
 package eu.domibus.plugin.ws.backend;
 
 import eu.domibus.common.MessageStatus;
+import eu.domibus.ext.services.DateExtService;
 import eu.domibus.plugin.ws.WSPluginDaoTestConfig;
 import eu.domibus.test.dao.InMemoryDataBaseConfig;
 import org.hamcrest.CoreMatchers;
@@ -35,10 +36,16 @@ public class WSBackendMessageLogDaoIT {
     @Autowired
     private WSBackendMessageLogDao wsBackendMessageLogDao;
 
+    @Autowired
+    private DateExtService dateExtService;
+
     @PersistenceContext(unitName = "domibusJTA")
     private javax.persistence.EntityManager em;
+
     private WSBackendMessageLogEntity entityFailed;
+
     private WSBackendMessageLogEntity entityRetried1;
+
     private WSBackendMessageLogEntity entityRetried2;
 
     @Before

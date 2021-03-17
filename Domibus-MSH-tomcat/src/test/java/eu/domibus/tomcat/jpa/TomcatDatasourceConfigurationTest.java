@@ -48,7 +48,7 @@ public class TomcatDatasourceConfigurationTest {
             result = prefixedProperties;
 
             prefixedProperties.entrySet();
-            result = Collections.singletonMap(DOMIBUS_DATASOURCE_XA_PROPERTY_KEY_URL, "jdbc:mysql://localhost:3306/domibus?pinGlobalTxToPhysicalConnection=true").entrySet();
+            result = Collections.singletonMap(DOMIBUS_DATASOURCE_XA_PROPERTY_KEY_URL, "jdbc:mysql://localhost:3306/domibus?pinGlobalTxToPhysicalConnection=true&useLegacyDatetimeCode=false&serverTimezone=UTC").entrySet();
         }};
 
         tomcatDatasourceConfiguration.xaProperties(domibusPropertyProvider);
@@ -57,7 +57,7 @@ public class TomcatDatasourceConfigurationTest {
             prefixedProperties.remove(DOMIBUS_DATASOURCE_XA_PROPERTY_KEY_URL);
             times = 0;
 
-            prefixedProperties.setProperty(DOMIBUS_DATASOURCE_XA_PROPERTY_KEY_ORACLE_URL, "jdbc:mysql://localhost:3306/domibus?pinGlobalTxToPhysicalConnection=true");
+            prefixedProperties.setProperty(DOMIBUS_DATASOURCE_XA_PROPERTY_KEY_ORACLE_URL, "jdbc:mysql://localhost:3306/domibus?pinGlobalTxToPhysicalConnection=true&useLegacyDatetimeCode=false&serverTimezone=UTC");
             times = 0;
         }};
     }
