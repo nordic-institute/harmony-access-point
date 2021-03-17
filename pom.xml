@@ -71,6 +71,7 @@
         <dropwizard.metrics.version>4.1.13</dropwizard.metrics.version>
         <dependency.check.version>6.0.5</dependency.check.version>
         <maven-dependency-plugin.version>3.1.2</maven-dependency-plugin.version>
+        <hikariCP.version>4.0.3</hikariCP.version>
 
         <!-- Sonar properties -->
         <sonar.binaries>target/classes</sonar.binaries>
