@@ -1,5 +1,6 @@
 package eu.domibus.tomcat.jpa;
 
+import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import eu.domibus.api.datasource.DataSourceConstants;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -16,6 +17,8 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
  */
 @Configuration
 public class TomcatDatasourceConfiguration {
+
+    public static final int MILISECS_IN_SEC = 1000;
 
     @Bean(name = DataSourceConstants.DOMIBUS_JDBC_DATA_SOURCE, destroyMethod = "close")
     public DataSource domibusDatasource(DomibusPropertyProvider domibusPropertyProvider) {
@@ -42,11 +45,24 @@ public class TomcatDatasourceConfiguration {
         final String password = domibusPropertyProvider.getProperty(DOMIBUS_DATASOURCE_PASSWORD); //NOSONAR
         dataSource.setPassword(password);
 
+        final Integer maxLifetimeInSecs = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DATASOURCE_MAX_LIFETIME);
+        dataSource.setMaxLifetime(maxLifetimeInSecs * MILISECS_IN_SEC);
+
         final Integer maxPoolSize = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DATASOURCE_MAX_POOL_SIZE);
         dataSource.setMaximumPoolSize(maxPoolSize);
 
-        final Integer maxLifetimeInSecs = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DATASOURCE_MAX_LIFETIME);
-        dataSource.setMaxLifetime(maxLifetimeInSecs * 1000);
+        final boolean autoCommit = domibusPropertyProvider.getBooleanProperty(DOMIBUS_DATASOURCE_AUTO_COMMIT);
+        dataSource.setAutoCommit(autoCommit);
+
+        final Integer connectionTimeout = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DATASOURCE_CONNECTION_TIMEOUT);
+        dataSource.setConnectionTimeout(connectionTimeout * MILISECS_IN_SEC);
+
+        final Integer idleTimeout = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DATASOURCE_IDLE_TIMEOUT);
+        dataSource.setIdleTimeout(idleTimeout * MILISECS_IN_SEC);
+
+        final Integer minimumIdle = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DATASOURCE_MINIMUM_IDLE);
+        dataSource.setMinimumIdle(minimumIdle * MILISECS_IN_SEC);
+
 
         return dataSource;
     }

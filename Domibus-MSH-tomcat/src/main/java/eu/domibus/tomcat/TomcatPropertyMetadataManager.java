@@ -28,6 +28,13 @@ public class TomcatPropertyMetadataManager implements DomibusPropertyMetadataMan
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_PASSWORD, Type.PASSWORD, true),
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_MAX_LIFETIME, Type.NUMERIC),
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_MAX_POOL_SIZE, Type.NUMERIC),
+            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_AUTO_COMMIT, Type.BOOLEAN),
+            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_CONNECTION_TIMEOUT, Type.NUMERIC),
+            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_IDLE_TIMEOUT, Type.NUMERIC),
+            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_DATASOURCE_MINIMUM_IDLE, Type.NUMERIC),
+
+
+
 
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_JMS_CONNECTION_FACTORY_MAX_POOL_SIZE, Type.NUMERIC, Module.TOMCAT),
 
