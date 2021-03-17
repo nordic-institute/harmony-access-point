@@ -835,7 +835,7 @@
                 <constraints primaryKey="true" primaryKeyName="PK_TB_MESSAGE_HEADER"/>
             </column>
             <column name="BOUNDARY" remarks="The multipart boundary value" type="VARCHAR(255)"/>
-            <column name="START" remarks="The multipart start value" type="VARCHAR(255)"/>
+            <column name="START_MULTIPART" remarks="The multipart start value" type="VARCHAR(255)"/>
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
