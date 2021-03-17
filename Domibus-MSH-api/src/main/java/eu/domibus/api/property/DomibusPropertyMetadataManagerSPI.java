@@ -262,7 +262,7 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_DATASOURCE_CONNECTION_TIMEOUT = "domibus.datasource.connectionTimeout";
     String DOMIBUS_DATASOURCE_IDLE_TIMEOUT = "domibus.datasource.idleTimeout";
     String DOMIBUS_DATASOURCE_MINIMUM_IDLE = "domibus.datasource.minimumIdle";
-
+    String DOMIBUS_DATASOURCE_POOL_NAME = "domibus.datasource.poolName";
 
     String DOMIBUS_ENTITY_MANAGER_FACTORY_PACKAGES_TO_SCAN = "domibus.entityManagerFactory.packagesToScan";
     String DOMIBUS_ENTITY_MANAGER_FACTORY_JPA_PROPERTY = "domibus.entityManagerFactory.jpaProperty";

@@ -1,9 +1,9 @@
 package eu.domibus.tomcat.jpa;
 
-import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import eu.domibus.api.datasource.DataSourceConstants;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -63,6 +63,10 @@ public class TomcatDatasourceConfiguration {
         final Integer minimumIdle = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DATASOURCE_MINIMUM_IDLE);
         dataSource.setMinimumIdle(minimumIdle * MILISECS_IN_SEC);
 
+        final String poolName = domibusPropertyProvider.getProperty(DOMIBUS_DATASOURCE_POOL_NAME);
+        if (!StringUtils.isBlank(poolName)) {
+            dataSource.setPoolName(poolName);
+        }
 
         return dataSource;
     }
