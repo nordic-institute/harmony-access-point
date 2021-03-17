@@ -360,7 +360,7 @@
     </changeSet>
 
     <changeSet author="Catalin Enache" id="EDELIVERY-7928">
-        <renameColumn tableName="TB_MESSAGE_HEADER" oldColumnName="START" newColumnName="START_MULTIPART"/>
+        <renameColumn tableName="TB_MESSAGE_HEADER" oldColumnName="START" newColumnName="START_MULTIPART" columnDataType="VARCHAR(255)"/>
     </changeSet>
 
     <changeSet id="EDELIVERY-7668"  author="Catalin Enache">
