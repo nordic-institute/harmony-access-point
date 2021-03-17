@@ -257,7 +257,6 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_DATASOURCE_USER = "domibus.datasource.user";
     String DOMIBUS_DATASOURCE_PASSWORD = "domibus.datasource.password";//NOSONAR
     String DOMIBUS_DATASOURCE_MAX_LIFETIME = "domibus.datasource.maxLifetime";
-//    String DOMIBUS_DATASOURCE_MIN_POOL_SIZE = "domibus.datasource.minPoolSize";
     String DOMIBUS_DATASOURCE_MAX_POOL_SIZE = "domibus.datasource.maxPoolSize";
 
     String DOMIBUS_ENTITY_MANAGER_FACTORY_PACKAGES_TO_SCAN = "domibus.entityManagerFactory.packagesToScan";
