@@ -20,7 +20,7 @@ public class MessageHeaderEntity extends AbstractBaseEntity {
     @Column(name = "BOUNDARY")
     String boundary;
 
-    @Column(name = "START")
+    @Column(name = "START_MULTIPART")
     String start;
 
     public String getBoundary() {
