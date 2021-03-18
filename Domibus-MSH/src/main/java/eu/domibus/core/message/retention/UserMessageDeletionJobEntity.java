@@ -53,9 +53,12 @@ public class UserMessageDeletionJobEntity extends AbstractBaseEntity {
     @Temporal(TemporalType.TIMESTAMP)
     private Date actualStartDate;
 
+    @Transient
+    private int jobNo;
+
     public UserMessageDeletionJobEntity() {}
 
-    public UserMessageDeletionJobEntity(String mpc, Date startRetentionDate, Date endRetentionDate, int maxCount, String procedureName) {
+    public UserMessageDeletionJobEntity(String mpc, Date startRetentionDate, Date endRetentionDate, int maxCount, String procedureName, int jobNo) {
         this.mpc = mpc;
         this.startRetentionDate = startRetentionDate;
         this.endRetentionDate = endRetentionDate;
@@ -63,6 +66,7 @@ public class UserMessageDeletionJobEntity extends AbstractBaseEntity {
         this.procedureName = procedureName;
         this.state = UserMessageDeletionJobState.NEW.name();
         this.actualStartDate = new Date(System.currentTimeMillis());
+        this.jobNo = jobNo;
     }
 
     public String getMpc() {
@@ -121,6 +125,14 @@ public class UserMessageDeletionJobEntity extends AbstractBaseEntity {
         this.actualStartDate = actualStartDate;
     }
 
+    public int getJobNo() {
+        return jobNo;
+    }
+
+    public void setJobNo(int jobNo) {
+        this.jobNo = jobNo;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -149,6 +161,7 @@ public class UserMessageDeletionJobEntity extends AbstractBaseEntity {
                 ", procedureName='" + procedureName + '\'' +
                 ", state='" + state + '\'' +
                 ", actualStartDate=" + actualStartDate +
+                ", jobNo=" + jobNo +
                 '}';
     }
 }

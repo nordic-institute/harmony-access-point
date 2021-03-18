@@ -1,9 +1,11 @@
 package eu.domibus.core.message.retention;
 
+import com.codahale.metrics.MetricRegistry;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections.CollectionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -24,15 +26,21 @@ public class UserMessageDeletionJobService {
 
     protected UserMessageLogDao userMessageLogDao;
 
+    @Autowired
+    MetricRegistry metricRegistry;
+
     public UserMessageDeletionJobService(UserMessageDeletionJobDao userMessageDeletionJobDao, UserMessageLogDao userMessageLogDao) {
         this.userMessageDeletionJobDao = userMessageDeletionJobDao;
         this.userMessageLogDao = userMessageLogDao;
     }
 
+
     public void executeJob(UserMessageDeletionJobEntity deletionJob) {
+        com.codahale.metrics.Timer.Context deletionJobTimer = metricRegistry.timer("executeDeletionJob_" + deletionJob.getProcedureName() + "_" + deletionJob.getJobNo()).time();
         setJobAsRunning(deletionJob);
         userMessageLogDao.deleteExpiredMessages(deletionJob.getStartRetentionDate(), deletionJob.getEndRetentionDate(), deletionJob.getMpc(), deletionJob.getMaxCount(), deletionJob.getProcedureName());
         setJobAsStopped(deletionJob);
+        deletionJobTimer.stop();
     }
 
     public void setJobAsStopped(UserMessageDeletionJobEntity deletionJob) {
