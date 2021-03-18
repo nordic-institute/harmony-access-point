@@ -1,10 +1,12 @@
 CREATE OR REPLACE PACKAGE MIGRATE_42_TO_50 IS
-    BATCH_SIZE CONSTANT NUMBER := 3;
+    -- batch size for commit of the migrated records
+    BATCH_SIZE CONSTANT NUMBER := 10000;
+
+    -- enable more verbose logs
     VERBOSE_LOGS CONSTANT BOOLEAN := FALSE;
 
+    -- entry point of migration - to be executed in a BEGIN/END; block
     PROCEDURE migrate;
-
-    PROCEDURE migrate_tb_user_message_post;
 
 END MIGRATE_42_TO_50;
 /
