@@ -11,7 +11,7 @@ import utils.Gen;
 
 import java.util.HashMap;
 
-public class PropertiesTest extends RestTest {
+public class PropertiesRestTest extends RestTest {
 	
 	
 	@Test(description = "PROP-x")
@@ -21,7 +21,7 @@ public class PropertiesTest extends RestTest {
 		JSONArray props = rest.properties().getAllProperties();
 		for (int i = 0; i < props.length(); i++) {
 			JSONObject prop = props.getJSONObject(i);
-			JSONArray results = rest.properties().searchProperties(prop.getString("name"));
+			JSONArray results = rest.properties().searchDomainProperties(prop.getString("name"));
 			for (int j = 0; j < results.length(); j++) {
 				JSONObject result = results.getJSONObject(j);
 				soft.assertTrue(result.getString("name").contains(prop.getString("name")), "result contains search term");
@@ -34,7 +34,7 @@ public class PropertiesTest extends RestTest {
 	public void updateProperty() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
-		JSONArray props = rest.properties().searchProperties("plugin");
+		JSONArray props = rest.properties().searchDomainProperties("plugin");
 		JSONObject prop = props.getJSONObject(5);
 		log.debug("" + prop);
 		
@@ -45,7 +45,7 @@ public class PropertiesTest extends RestTest {
 		ClientResponse response = rest.properties().updateDomibusProperty(name, newValue);
 		soft.assertTrue(response.getStatus() == 200, "Updated successfully");
 		
-		JSONArray arr = rest.properties().searchProperties(name);
+		JSONArray arr = rest.properties().searchDomainProperties(name);
 		for (int i = 0; i < arr.length(); i++) {
 			JSONObject curProp = arr.getJSONObject(i);
 			if (StringUtils.equalsIgnoreCase(name, curProp.getString("name"))) {
@@ -57,7 +57,7 @@ public class PropertiesTest extends RestTest {
 		response = rest.properties().updateDomibusProperty(name, value);
 		soft.assertTrue(response.getStatus() == 200, "Reset successfully");
 		
-		arr = rest.properties().searchProperties(name);
+		arr = rest.properties().searchDomainProperties(name);
 		for (int i = 0; i < arr.length(); i++) {
 			JSONObject curProp = arr.getJSONObject(i);
 			if (StringUtils.equalsIgnoreCase(name, curProp.getString("name"))) {
@@ -74,7 +74,7 @@ public class PropertiesTest extends RestTest {
 	public void updatePropertyNegativeTests(String evilStr) throws Exception {
 		SoftAssert soft = new SoftAssert();
 		
-		JSONArray props = rest.properties().searchProperties("plugin");
+		JSONArray props = rest.properties().searchDomainProperties("plugin");
 		JSONObject prop = props.getJSONObject(5);
 		log.debug("" + prop);
 		
@@ -97,7 +97,7 @@ public class PropertiesTest extends RestTest {
 		params.put("page", "0");
 		params.put("pageSize", "10000");
 		
-		ClientResponse response = rest.properties().searchProperties(params);
+		ClientResponse response = rest.properties().searchDomainProperties(params);
 		validateInvalidResponse(response, soft);
 		
 		soft.assertAll();

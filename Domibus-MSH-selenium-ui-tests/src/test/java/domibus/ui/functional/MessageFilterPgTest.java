@@ -904,7 +904,7 @@ public class MessageFilterPgTest extends SeleniumTest {
 		SoftAssert soft = new SoftAssert();
 		
 		MessageFilterPage page = navigateToPage();
-		String fileName = rest.csv().downloadGrid(RestServicePaths.MESSAGE_FILTERS_CSV, null, null);
+		String fileName = page.pressSaveCsvAndSaveFile();
 		log.info("downloaded file " + fileName);
 		page.grid().checkCSVvsGridHeaders(fileName, soft);
 		

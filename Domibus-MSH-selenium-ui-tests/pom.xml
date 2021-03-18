@@ -99,7 +99,7 @@
 						<configuration>
 							<systemPropertyVariables>
 								<propertiesFile>.\src\main\resources\myLocal.properties</propertiesFile>
-								<runBrowser>firefox</runBrowser>
+								<runBrowser>chrome</runBrowser>
 							</systemPropertyVariables>
 							<failIfNoTests>true</failIfNoTests>
 							<suiteXmlFiles>

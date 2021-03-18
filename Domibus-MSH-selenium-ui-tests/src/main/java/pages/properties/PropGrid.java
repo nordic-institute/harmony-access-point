@@ -94,6 +94,7 @@ public class PropGrid extends DGrid {
 		weToDInput(inputElement).fill(value);
 
 		WebElement saveElem = rowElement.findElement(rowSave);
+
 		weToDButton(saveElem).click();
 		wait.forElementToBeDisabled(saveElem);
 		wait.forXMillis(1000);

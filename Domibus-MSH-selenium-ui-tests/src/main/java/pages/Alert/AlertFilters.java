@@ -72,7 +72,7 @@ public class AlertFilters extends FilterArea {
 
 
 	List<String> processedFilterData = Arrays.asList("UNPROCESSED", "PROCESSED","");
-	List<String> alertTypeFilterData = Arrays.asList("", "MSG_STATUS_CHANGED", "CERT_IMMINENT_EXPIRATION", "CERT_EXPIRED", "USER_LOGIN_FAILURE", "USER_ACCOUNT_DISABLED", "USER_ACCOUNT_ENABLED", "PLUGIN_USER_LOGIN_FAILURE", "PLUGIN_USER_ACCOUNT_DISABLED", "PLUGIN_USER_ACCOUNT_ENABLED", "PASSWORD_IMMINENT_EXPIRATION", "PASSWORD_EXPIRED", "PLUGIN_PASSWORD_IMMINENT_EXPIRATION", "PLUGIN_PASSWORD_EXPIRED");
+	List<String> alertTypeFilterData = Arrays.asList("", "MSG_STATUS_CHANGED", "CERT_IMMINENT_EXPIRATION", "CERT_EXPIRED", "USER_LOGIN_FAILURE", "USER_ACCOUNT_DISABLED", "USER_ACCOUNT_ENABLED", "PLUGIN_USER_LOGIN_FAILURE", "PLUGIN_USER_ACCOUNT_DISABLED", "PLUGIN_USER_ACCOUNT_ENABLED", "PASSWORD_IMMINENT_EXPIRATION", "PASSWORD_EXPIRED", "PLUGIN_PASSWORD_IMMINENT_EXPIRATION", "PLUGIN_PASSWORD_EXPIRED", "PLUGIN");
 	List<String> alertStatusFilterData = Arrays.asList("SEND_ENQUEUED", "SUCCESS","FAILED","RETRY","");
 	List<String> alertLevelFilterData = Arrays.asList("HIGH", "LOW","MEDIUM","");
 	
@@ -201,26 +201,47 @@ public class AlertFilters extends FilterArea {
 		return weToSelect(processedContainer);
 	}
 
-	public List<String> getXFilterNames() throws Exception{
-		List<String> filterNames = new ArrayList<String>();
-
+	public boolean isXFiltersSectionVisible(){
 		boolean areXFiltersVisible = false;
 
 		try {
 			areXFiltersVisible = weToDobject(extraFiltersContainer).isVisible();
 		} catch (Exception e) { }
 
-		if(!areXFiltersVisible){return filterNames;}
+		return areXFiltersVisible;
+	}
+
+	public String getXFilterSectionName() throws Exception {
+
+		if(!isXFiltersSectionVisible()){
+			return null;
+		}
+		return weToDobject(extraFiltersContainer.findElement(By.tagName("mat-card-title"))).getText();
+	}
+
+		public List<String> getXFilterNames() throws Exception{
+		List<String> filterNames = new ArrayList<String>();
+
+		if(!isXFiltersSectionVisible()){
+			return filterNames;
+		}
 
 		List<WebElement> filterInputs = extraFiltersContainer.findElements(By.tagName("input"));
+		List<WebElement> filterDatePick = extraFiltersContainer.findElements(By.tagName("md2-datepicker"));
 		for (WebElement filterInput : filterInputs) {
 			String placeHolder = weToDobject(filterInput).getAttribute("placeholder");
 
-			if(StringUtils.isEmpty(placeHolder)){
-				System.out.println(filterInput.findElement(By.cssSelector(" + span")).getAttribute("placeholder"));
+			if(!StringUtils.isEmpty(placeHolder)){
+				filterNames.add(placeHolder);
 			}
+		}
 
-// TODO: solve for datepicker
+		for (WebElement element : filterDatePick) {
+			String name = weToDobject(element).getAttribute("aria-label");
+
+			if(!StringUtils.isEmpty(name)){
+				filterNames.add(name);
+			}
 		}
 
 		return filterNames;
