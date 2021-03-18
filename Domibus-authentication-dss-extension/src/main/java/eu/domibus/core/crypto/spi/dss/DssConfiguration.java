@@ -8,6 +8,7 @@ import eu.domibus.ext.services.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.europa.esig.dss.alert.ExceptionOnStatusAlert;
+import eu.europa.esig.dss.model.FileDocument;
 import eu.europa.esig.dss.service.crl.OnlineCRLSource;
 import eu.europa.esig.dss.service.http.commons.CommonsDataLoader;
 import eu.europa.esig.dss.service.http.commons.FileCacheDataLoader;
@@ -160,7 +161,7 @@ public class DssConfiguration {
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public CertificateVerifier certificateVerifier() {
         OnlineCRLSource crlSource = null;
-        DomibusDataLoader dataLoader = dataLoader(proxyHelper(dssExtensionPropertyManager()));
+        CommonsDataLoader dataLoader = dataLoader(proxyHelper(dssExtensionPropertyManager()));
         boolean crlCheck = Boolean.parseBoolean(dssExtensionPropertyManager().getKnownPropertyValue(DssExtensionPropertyManager.DSS_PERFORM_CRL_CHECK));
         boolean enableExceptionOnMissingRevocationData = Boolean.parseBoolean(dssExtensionPropertyManager().getKnownPropertyValue(DssExtensionPropertyManager.AUTHENTICATION_DSS_EXCEPTION_ON_MISSING_REVOCATION_DATA));
         boolean checkRevocationForUntrustedChain = Boolean.parseBoolean(dssExtensionPropertyManager().getKnownPropertyValue(DssExtensionPropertyManager.AUTHENTICATION_DSS_CHECK_REVOCATION_FOR_UNTRUSTED_CHAINS));
@@ -199,15 +200,14 @@ public class DssConfiguration {
     }
 
     @Bean
-    public DomibusDataLoader dataLoader(ProxyHelper proxyHelper) {
+    public CommonsDataLoader dataLoader(ProxyHelper proxyHelper) {
         CommonsDataLoader commonsDataLoader = new CommonsDataLoader();
         commonsDataLoader.setProxyConfig(proxyHelper.getProxyConfig());
-        DomibusDataLoader dataLoader = new DomibusDataLoader();
-        dataLoader.setProxyConfig(proxyHelper.getProxyConfig());
-        commonsDataLoader.setSslTruststore(mergeCustomTlsTrustStoreWithCacert());
-        commonsDataLoader.setSslKeystore();
-        dataLoader.setSslTrustStore(mergeCustomTlsTrustStoreWithCacert());
-        return dataLoader;
+        commonsDataLoader.setProxyConfig(proxyHelper.getProxyConfig());
+        commonsDataLoader.setSslTruststore(new FileDocument(dssTlsTrustStorePath));
+        commonsDataLoader.setSslTruststoreType(dssTlsTrustStoreType);
+        commonsDataLoader.setSslTruststorePassword(dssTlsTrustStorePassword);
+        return commonsDataLoader;
     }
 
     protected KeyStore mergeCustomTlsTrustStoreWithCacert() {
@@ -391,7 +391,7 @@ public class DssConfiguration {
     }
 
     @Bean
-    public NetworkConfigurationListener networkConfigurationListener(final DomibusDataLoader dataLoader, final ProxyHelper proxyHelper) {
+    public NetworkConfigurationListener networkConfigurationListener(final CommonsDataLoader dataLoader, final ProxyHelper proxyHelper) {
         return new NetworkConfigurationListener(dataLoader, proxyHelper);
     }
 
@@ -406,13 +406,13 @@ public class DssConfiguration {
     }
 
     @Bean
-    public TLValidationJob job(LOTLSource europeanLOTL,DomibusDataLoader dataLoader) {
+    public TLValidationJob job(LOTLSource europeanLOTL,CommonsDataLoader dataLoader,CacheCleaner cacheCleaner) {
         TLValidationJob job = new TLValidationJob();
         job.setOnlineDataLoader(onlineLoader(dataLoader));
-        job.setOfflineDataLoader(offlineLoader());
+        job.setOfflineDataLoader(offlineLoader(dataLoader));
         job.setTrustedListCertificateSource(new TrustedListsCertificateSource());
         job.setSynchronizationStrategy(new AcceptAllStrategy());
-        job.setCacheCleaner(cacheCleaner());
+        job.setCacheCleaner(cacheCleaner);
 
         job.setListOfTrustedListSources(europeanLOTL);
         job.setTrustedListSources(otherTrustedLists().getOtherTrustedLists().toArray(new TLSource[0]));
@@ -445,7 +445,7 @@ public class DssConfiguration {
         return new LOTLAlert(lotlLocationDetection, handler);
     }
 
-    private DSSFileLoader onlineLoader(DomibusDataLoader dataLoader) {
+    private DSSFileLoader onlineLoader(CommonsDataLoader dataLoader) {
         FileCacheDataLoader onlineFileLoader = new FileCacheDataLoader();
         onlineFileLoader.setCacheExpirationTime(0);
         onlineFileLoader.setDataLoader(dataLoader);
@@ -453,20 +453,21 @@ public class DssConfiguration {
         return onlineFileLoader;
     }
 
-    private DSSFileLoader offlineLoader() {
+
+    public DSSFileLoader offlineLoader(CommonsDataLoader dataLoader) {
         FileCacheDataLoader offlineFileLoader = new FileCacheDataLoader();
         offlineFileLoader.setCacheExpirationTime(Long.MAX_VALUE);
-        offlineFileLoader.setDataLoader(new IgnoreDataLoader()); // do not download from Internet
+        offlineFileLoader.setDataLoader(dataLoader); // do not download from Internet
         offlineFileLoader.setFileCacheDirectory(cacheDirectory());
         return offlineFileLoader;
     }
 
     @Bean
-    public CacheCleaner cacheCleaner() {
+    public CacheCleaner cacheCleaner(CommonsDataLoader dataLoader) {
         CacheCleaner cacheCleaner = new CacheCleaner();
         cacheCleaner.setCleanMemory(true);
         cacheCleaner.setCleanFileSystem(true);
-        cacheCleaner.setDSSFileLoader(offlineLoader());
+        cacheCleaner.setDSSFileLoader(offlineLoader(dataLoader));
         return cacheCleaner;
     }
 
