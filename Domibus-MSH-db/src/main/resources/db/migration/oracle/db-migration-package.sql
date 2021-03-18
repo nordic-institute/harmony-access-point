@@ -39,6 +39,29 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             DBMS_OUTPUT.PUT_LINE('Execute immediate error: ' || DBMS_UTILITY.FORMAT_ERROR_STACK);
     END truncate_or_create_table;
 
+    FUNCTION check_counts(tab_name1 VARCHAR2, tab_name2 VARCHAR2) RETURN BOOLEAN IS
+        v_count_match BOOLEAN;
+        v_count_tab1  NUMBER;
+        v_count_tab2  NUMBER;
+    BEGIN
+        BEGIN
+            EXECUTE IMMEDIATE 'SELECT /*+ PARALLEL(4) */ COUNT(*) FROM ' || tab_name1 INTO v_count_tab1;
+            EXECUTE IMMEDIATE 'SELECT /*+ PARALLEL(4) */ COUNT(*) FROM ' || tab_name2 INTO v_count_tab2;
+        EXCEPTION
+            WHEN OTHERS THEN
+                DBMS_OUTPUT.PUT_LINE('Execute immediate error: ' || DBMS_UTILITY.FORMAT_ERROR_STACK);
+        END;
+        IF v_count_tab1 = v_count_tab2 THEN
+            v_count_match := TRUE;
+            DBMS_OUTPUT.PUT_LINE('Table ' || tab_name1 || ' has same number of records as table ' || tab_name2 ||
+                                 ' records=' || v_count_tab1);
+        ELSE
+            v_count_match := FALSE;
+            DBMS_OUTPUT.PUT_LINE('Table ' || tab_name1 || ' has different number of records as table ' || tab_name2);
+        END IF;
+        RETURN v_count_match;
+    END check_counts;
+
     FUNCTION get_tb_d_mpc_rec(mpc_value VARCHAR2) RETURN NUMBER IS
         v_id_pk NUMBER;
     BEGIN
@@ -215,28 +238,6 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         RETURN v_id_pk;
     END get_tb_user_message_rec;
 
-    FUNCTION check_counts(tab_name1 VARCHAR2, tab_name2 VARCHAR2) RETURN BOOLEAN IS
-        v_count_match BOOLEAN;
-        v_count_tab1  NUMBER;
-        v_count_tab2  NUMBER;
-    BEGIN
-        BEGIN
-            EXECUTE IMMEDIATE 'SELECT /*+ PARALLEL(4) */ COUNT(*) FROM ' || tab_name1 INTO v_count_tab1;
-            EXECUTE IMMEDIATE 'SELECT /*+ PARALLEL(4) */ COUNT(*) FROM ' || tab_name2 INTO v_count_tab2;
-        EXCEPTION
-            WHEN OTHERS THEN
-                DBMS_OUTPUT.PUT_LINE('Execute immediate error: ' || DBMS_UTILITY.FORMAT_ERROR_STACK);
-        END;
-        IF v_count_tab1 = v_count_tab2 THEN
-            v_count_match := TRUE;
-            DBMS_OUTPUT.PUT_LINE('Table ' || tab_name1 || ' has same number of records as table ' || tab_name2 ||
-                                 ' records=' || v_count_tab1);
-        ELSE
-            v_count_match := FALSE;
-            DBMS_OUTPUT.PUT_LINE('Table ' || tab_name1 || ' has different number of records as table ' || tab_name2);
-        END IF;
-        RETURN v_count_match;
-    END check_counts;
 
     /** -- Dictionary tables - create or truncate them  --*/
     PROCEDURE migrate_user_message_dict IS
@@ -356,7 +357,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                             get_tb_d_msg_subtype_rec(user_message(i).MESSAGE_SUBTYPE);
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
-                            DBMS_OUTPUT.PUT_LINE(v_tab_new || ': Commit after ' || BATCH_SIZE * v_batch_no || ' records');
+                            DBMS_OUTPUT.PUT_LINE(
+                                        v_tab_new || ': Commit after ' || BATCH_SIZE * v_batch_no || ' records');
                             v_batch_no := v_batch_no + 1;
                         END IF;
                     EXCEPTION
@@ -374,10 +376,86 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         -- check counts
         IF check_counts(v_tab, v_tab_new) THEN
             DBMS_OUTPUT.PUT_LINE(v_tab || ' migration is done');
-            -- TODO drop old table and rename the temp one
         END IF;
 
     END migrate_tb_user_message;
+
+    /**-- TB_MESSAGE_FRAGMENT migration --*/
+    PROCEDURE migrate_tb_message_fragment IS
+        v_sql              VARCHAR2(1000);
+        v_tab              VARCHAR2(30) := 'TB_MESSAGE_FRAGMENT';
+        v_tab_new          VARCHAR2(30) := 'TB_SJ_MESSAGE_FRAGMENT';
+        v_tab_user_message VARCHAR2(30) := 'TB_USER_MESSAGE';
+        CURSOR c_message_fragment IS
+            SELECT UM.ID_PK, -- 1:1 ID_PK implementation
+                   MF.GROUP_ID,
+                   MF.FRAGMENT_NUMBER,
+                   MF.CREATION_TIME,
+                   MF.CREATED_BY,
+                   MF.MODIFICATION_TIME,
+                   MF.MODIFIED_BY,
+                   MG.ID_PK GROUP_ID_FK
+            FROM TB_MESSAGE_FRAGMENT MF,
+                 TB_MESSAGE_GROUP MG,
+                 TB_USER_MESSAGE UM
+            WHERE UM.FK_MESSAGE_FRAGMENT_ID = MF.ID_PK
+              AND MF.GROUP_ID = MG.GROUP_ID;
+        TYPE T_MESSAGE_FRAGMENT IS TABLE OF c_message_fragment%ROWTYPE;
+        message_fragment   T_MESSAGE_FRAGMENT;
+        v_batch_no         INT          := 1;
+    BEGIN
+        IF NOT check_table_exists(v_tab_user_message) THEN
+            DBMS_OUTPUT.PUT_LINE(v_tab_user_message || ' should exists before starting ' || v_tab || ' migration');
+        END IF;
+
+        -- create the new table
+        v_sql :=
+                'CREATE TABLE TB_SJ_MESSAGE_FRAGMENT (ID_PK NUMBER(38, 0) NOT NULL, FRAGMENT_NUMBER INTEGER NOT NULL, GROUP_ID_FK NUMBER(38, 0) NOT NULL, CREATION_TIME TIMESTAMP DEFAULT sysdate NOT NULL, CREATED_BY VARCHAR2(255) DEFAULT user NOT NULL, MODIFICATION_TIME TIMESTAMP, MODIFIED_BY VARCHAR2(255), CONSTRAINT PK_MESSAGE_FRAGMENT PRIMARY KEY (ID_PK))';
+        truncate_or_create_table(v_tab_new, v_sql);
+
+        DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
+        OPEN c_message_fragment;
+        LOOP
+            FETCH c_message_fragment BULK COLLECT INTO message_fragment;
+            EXIT WHEN message_fragment.COUNT = 0;
+
+            FOR i IN message_fragment.FIRST .. message_fragment.LAST
+                LOOP
+                    BEGIN
+                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
+                                          ' (ID_PK, GROUP_ID_FK, FRAGMENT_NUMBER, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY) ' ||
+                                          'VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6, :p_7)'
+                            USING message_fragment(i).ID_PK,
+                            message_fragment(i).GROUP_ID_FK,
+                            message_fragment(i).FRAGMENT_NUMBER,
+                            message_fragment(i).CREATION_TIME,
+                            message_fragment(i).CREATED_BY,
+                            message_fragment(i).MODIFICATION_TIME,
+                            message_fragment(i).MODIFIED_BY;
+                        IF i MOD BATCH_SIZE = 0 THEN
+                            COMMIT;
+                            DBMS_OUTPUT.PUT_LINE(
+                                        v_tab_new || ': Commit after ' || BATCH_SIZE * v_batch_no || ' records');
+                            v_batch_no := v_batch_no + 1;
+                        END IF;
+                    EXCEPTION
+                        WHEN OTHERS THEN
+                            DBMS_OUTPUT.PUT_LINE('Execute immediate error: ' || DBMS_UTILITY.FORMAT_ERROR_STACK);
+                    END;
+
+                END LOOP;
+            DBMS_OUTPUT.PUT_LINE(v_tab_new || ': Migrated ' || message_fragment.COUNT || ' records in total');
+        END LOOP;
+
+        COMMIT;
+        CLOSE c_message_fragment;
+
+        -- check counts
+        IF check_counts(v_tab, v_tab_new) THEN
+            DBMS_OUTPUT.PUT_LINE(v_tab || ' migration is done');
+        END IF;
+
+    END migrate_tb_message_fragment;
 
     /**-- TB_MESSAGE_GROUP migration --*/
     PROCEDURE migrate_tb_message_group IS
@@ -471,63 +549,60 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         -- check counts
         IF check_counts(v_tab, v_tab_new) THEN
             DBMS_OUTPUT.PUT_LINE(v_tab || ' migration is done');
-            -- TODO drop old table
         END IF;
 
     END migrate_tb_message_group;
 
-    /**-- TB_MESSAGE_FRAGMENT migration --*/
-    PROCEDURE migrate_tb_message_fragment IS
-        v_sql              VARCHAR2(1000);
-        v_tab              VARCHAR2(30) := 'TB_MESSAGE_FRAGMENT';
-        v_tab_new          VARCHAR2(30) := 'TB_SJ_MESSAGE_FRAGMENT';
-        v_tab_user_message VARCHAR2(30) := 'TB_USER_MESSAGE';
-        CURSOR c_message_fragment IS
-            SELECT UM.ID_PK,
-                   MF.GROUP_ID,
-                   MF.FRAGMENT_NUMBER,
-                   MF.CREATION_TIME,
-                   MF.CREATED_BY,
-                   MF.MODIFICATION_TIME,
-                   MF.MODIFIED_BY,
-                   MG.ID_PK GROUP_ID_FK
-            FROM TB_MESSAGE_FRAGMENT MF,
-                 TB_MESSAGE_GROUP MG,
-                 TB_USER_MESSAGE UM
-            WHERE UM.FK_MESSAGE_FRAGMENT_ID = MF.ID_PK
-              AND MF.GROUP_ID = MG.GROUP_ID;
-        TYPE T_MESSAGE_FRAGMENT IS TABLE OF c_message_fragment%ROWTYPE;
-        message_fragment   T_MESSAGE_FRAGMENT;
-        v_batch_no         INT          := 1;
+    /**-- TB_MESSAGE_GROUP migration --*/
+    PROCEDURE migrate_tb_message_header IS
+        v_sql               VARCHAR2(1000);
+        v_tab               VARCHAR2(30) := 'TB_MESSAGE_HEADER';
+        v_tab_new           VARCHAR2(30) := 'TB_SJ_MESSAGE_HEADER';
+        v_tab_message_group VARCHAR2(30) := 'TB_MESSAGE_GROUP';
+
+        CURSOR c_message_header IS
+            SELECT MG.ID_PK, -- 1:1 ID_PK implementation
+                   MH.BOUNDARY,
+                   MH."START",
+                   MH.CREATION_TIME,
+                   MH.CREATED_BY,
+                   MH.MODIFICATION_TIME,
+                   MH.MODIFIED_BY
+            FROM TB_MESSAGE_HEADER MH,
+                 TB_MESSAGE_GROUP MG
+            WHERE MG.FK_MESSAGE_HEADER_ID = MH.ID_PK;
+        TYPE T_MESSAGE_HEADER IS TABLE OF c_message_header%ROWTYPE;
+        message_header      T_MESSAGE_HEADER;
+        v_batch_no          INT          := 1;
     BEGIN
-        IF NOT check_table_exists(v_tab_user_message) THEN
-            DBMS_OUTPUT.PUT_LINE(v_tab_user_message || ' should exists before starting ' || v_tab || ' migration');
+        IF NOT check_table_exists(v_tab_message_group) THEN
+            DBMS_OUTPUT.PUT_LINE(v_tab_message_group || ' should exists before starting ' || v_tab || ' migration');
         END IF;
 
         -- create the new table
         v_sql :=
-                'CREATE TABLE TB_SJ_MESSAGE_FRAGMENT (ID_PK NUMBER(38, 0) NOT NULL, FRAGMENT_NUMBER INTEGER NOT NULL, GROUP_ID_FK NUMBER(38, 0) NOT NULL, CREATION_TIME TIMESTAMP DEFAULT sysdate NOT NULL, CREATED_BY VARCHAR2(255) DEFAULT user NOT NULL, MODIFICATION_TIME TIMESTAMP, MODIFIED_BY VARCHAR2(255), CONSTRAINT PK_MESSAGE_FRAGMENT PRIMARY KEY (ID_PK))';
+                'CREATE TABLE TB_SJ_MESSAGE_HEADER (ID_PK NUMBER(38, 0) NOT NULL, BOUNDARY VARCHAR2(255), "START" VARCHAR2(255), CREATION_TIME TIMESTAMP DEFAULT sysdate NOT NULL, CREATED_BY VARCHAR2(255) DEFAULT user NOT NULL, MODIFICATION_TIME TIMESTAMP, MODIFIED_BY VARCHAR2(255), CONSTRAINT PK_SJ_MESSAGE_HEADER PRIMARY KEY (ID_PK))';
         truncate_or_create_table(v_tab_new, v_sql);
 
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
-        OPEN c_message_fragment;
+        OPEN c_message_header;
         LOOP
-            FETCH c_message_fragment BULK COLLECT INTO message_fragment;
-            EXIT WHEN message_fragment.COUNT = 0;
+            FETCH c_message_header BULK COLLECT INTO message_header;
+            EXIT WHEN message_header.COUNT = 0;
 
-            FOR i IN message_fragment.FIRST .. message_fragment.LAST
+            FOR i IN message_header.FIRST .. message_header.LAST
                 LOOP
                     BEGIN
                         EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID_PK, GROUP_ID_FK, FRAGMENT_NUMBER, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY) ' ||
+                                          ' (ID_PK, BOUNDARY, "START", CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY) ' ||
                                           'VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6, :p_7)'
-                            USING message_fragment(i).ID_PK,
-                            message_fragment(i).GROUP_ID_FK,
-                            message_fragment(i).FRAGMENT_NUMBER,
-                            message_fragment(i).CREATION_TIME,
-                            message_fragment(i).CREATED_BY,
-                            message_fragment(i).MODIFICATION_TIME,
-                            message_fragment(i).MODIFIED_BY;
+                            USING message_header(i).ID_PK,
+                            message_header(i).BOUNDARY,
+                            message_header(i)."START",
+                            message_header(i).CREATION_TIME,
+                            message_header(i).CREATED_BY,
+                            message_header(i).MODIFICATION_TIME,
+                            message_header(i).MODIFIED_BY;
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
                             DBMS_OUTPUT.PUT_LINE(
@@ -540,19 +615,30 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                     END;
 
                 END LOOP;
-            DBMS_OUTPUT.PUT_LINE(v_tab_new || ': Migrated ' || message_fragment.COUNT || ' records in total');
+            DBMS_OUTPUT.PUT_LINE(v_tab_new || ': Migrated ' || message_header.COUNT || ' records in total');
         END LOOP;
 
         COMMIT;
-        CLOSE c_message_fragment;
+        CLOSE c_message_header;
 
         -- check counts
         IF check_counts(v_tab, v_tab_new) THEN
             DBMS_OUTPUT.PUT_LINE(v_tab || ' migration is done');
-            -- TODO drop old table
         END IF;
 
-    END migrate_tb_message_fragment;
+    END migrate_tb_message_header;
+
+
+    /** -- Delete source tables --*/
+    PROCEDURE migration_cleanup IS
+    BEGIN
+        DBMS_OUTPUT.PUT_LINE('Dropping source tables...');
+        -- drop_table_if_exists('TB_MESSAGE_GROUP');
+        -- drop_table_if_exists('TB_MESSAGE_FRAGMENT');
+        -- drop_table_if_exists('TB_MESSAGE_HEADER');
+        -- drop_table_if_exists('TB_USER_MESSAGE');
+
+    END migration_cleanup;
 
     /**-- main entry point for all migration --*/
     PROCEDURE migrate IS
@@ -561,6 +647,10 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         migrate_tb_user_message;
         migrate_tb_message_fragment;
         migrate_tb_message_group;
+        migrate_tb_message_header;
+
+        -- house keeping
+        migration_cleanup;
     END migrate;
 
 
