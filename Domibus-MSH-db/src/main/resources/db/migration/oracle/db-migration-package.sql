@@ -4,6 +4,8 @@ CREATE OR REPLACE PACKAGE MIGRATE_42_TO_50 IS
 
     PROCEDURE migrate;
 
+    PROCEDURE migrate_tb_user_message_post;
+
 END MIGRATE_42_TO_50;
 /
 
@@ -20,8 +22,14 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
     PROCEDURE drop_table_if_exists(tab_name IN VARCHAR2) IS
     BEGIN
         IF check_table_exists(tab_name) THEN
-            EXECUTE IMMEDIATE 'DROP TABLE ' || tab_name;
-            DBMS_OUTPUT.PUT_LINE('Table ' || tab_name || ' dropped');
+            BEGIN
+                EXECUTE IMMEDIATE 'DROP TABLE ' || tab_name;
+                DBMS_OUTPUT.PUT_LINE('Table ' || tab_name || ' dropped');
+            EXCEPTION
+                WHEN OTHERS THEN
+                    DBMS_OUTPUT.PUT_LINE('Execute immediate error: ' || DBMS_UTILITY.FORMAT_ERROR_STACK);
+            END;
+
         END IF;
     END drop_table_if_exists;
 
@@ -628,17 +636,61 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
 
     END migrate_tb_message_header;
 
-
-    /** -- Delete source tables --*/
-    PROCEDURE migration_cleanup IS
+    /**-- TB_USER_MESSAGE migration post actions --*/
+    PROCEDURE migrate_tb_user_message_post IS
+        v_tab_new VARCHAR2(30) := 'TB_USER_MESSAGE_MIGR';
+        v_sql     VARCHAR2(1000);
     BEGIN
-        DBMS_OUTPUT.PUT_LINE('Dropping source tables...');
-        -- drop_table_if_exists('TB_MESSAGE_GROUP');
-        -- drop_table_if_exists('TB_MESSAGE_FRAGMENT');
-        -- drop_table_if_exists('TB_MESSAGE_HEADER');
-        -- drop_table_if_exists('TB_USER_MESSAGE');
+        -- put back the FKs
+        BEGIN
+            v_sql :=
+                        'ALTER TABLE '||v_tab_new||' ADD CONSTRAINT FK_USER_MSG_ACTION_ID FOREIGN KEY (ACTION_ID_FK) REFERENCES TB_D_ACTION (ID_PK)';
+            EXECUTE IMMEDIATE v_sql;
+            v_sql :=
+                        'ALTER TABLE '||v_tab_new||' ADD CONSTRAINT FK_USER_MSG_AGREEMENT_ID FOREIGN KEY (AGREEMENT_ID_FK) REFERENCES TB_D_AGREEMENT (ID_PK)';
+            EXECUTE IMMEDIATE v_sql;
+            v_sql :=
+                        'ALTER TABLE '||v_tab_new||' ADD CONSTRAINT FK_USER_MSG_SERVICE_ID FOREIGN KEY (SERVICE_ID_FK) REFERENCES TB_D_SERVICE (ID_PK)';
+            EXECUTE IMMEDIATE v_sql ;
+            v_sql :=
+                        'ALTER TABLE '||v_tab_new||' ADD CONSTRAINT FK_USER_MSG_MPC_ID FOREIGN KEY (MPC_ID_FK) REFERENCES TB_D_MPC (ID_PK)';
+            EXECUTE IMMEDIATE v_sql;
+            v_sql :=
+                        'ALTER TABLE '||v_tab_new||' ADD CONSTRAINT FK_USER_MSG_FROM_PARTY_ID FOREIGN KEY (FROM_PARTY_ID_FK) REFERENCES TB_D_PARTY (ID_PK)';
+            EXECUTE IMMEDIATE v_sql ;
+            v_sql :=
+                        'ALTER TABLE '||v_tab_new||' ADD CONSTRAINT FK_USER_MSG_FROM_ROLE_ID FOREIGN KEY (FROM_ROLE_ID_FK) REFERENCES TB_D_ROLE (ID_PK)';
+            EXECUTE IMMEDIATE v_sql;
+            v_sql :=
+                        'ALTER TABLE '||v_tab_new||' ADD CONSTRAINT FK_USER_MSG_TO_PARTY_ID FOREIGN KEY (TO_PARTY_ID_FK) REFERENCES TB_D_PARTY (ID_PK)';
+            EXECUTE IMMEDIATE v_sql;
+            v_sql :=
+                        'ALTER TABLE '||v_tab_new||' ADD CONSTRAINT FK_USER_MSG_TO_ROLE_ID FOREIGN KEY (TO_ROLE_ID_FK) REFERENCES TB_D_ROLE (ID_PK)';
+            EXECUTE IMMEDIATE v_sql;
+            v_sql :=
+                        'ALTER TABLE '||v_tab_new||' ADD CONSTRAINT FK_USER_MSG_SUBTYPE_ID FOREIGN KEY (MESSAGE_SUBTYPE_ID_FK) REFERENCES TB_D_MESSAGE_SUBTYPE (ID_PK)';
+            EXECUTE IMMEDIATE v_sql;
+        EXCEPTION
+            WHEN OTHERS THEN
+                DBMS_OUTPUT.PUT_LINE('Execute immediate error: ' || DBMS_UTILITY.FORMAT_ERROR_STACK);
+        END;
 
-    END migration_cleanup;
+
+        --  drop_table_if_exists('TB_USER_MESSAGE');
+    END migrate_tb_user_message_post;
+
+    /** -- Migration post actions --*/
+    PROCEDURE migration_post IS
+    BEGIN
+        DBMS_OUTPUT.PUT_LINE('Migration post actions start...');
+
+        migrate_tb_user_message_post;
+        --  drop_table_if_exists('TB_MESSAGE_GROUP');
+        --  drop_table_if_exists('TB_MESSAGE_FRAGMENT');
+        --  drop_table_if_exists('TB_MESSAGE_HEADER');
+
+
+    END migration_post;
 
     /**-- main entry point for all migration --*/
     PROCEDURE migrate IS
@@ -650,7 +702,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         migrate_tb_message_header;
 
         -- house keeping
-        migration_cleanup;
+        migration_post;
     END migrate;
 
 
