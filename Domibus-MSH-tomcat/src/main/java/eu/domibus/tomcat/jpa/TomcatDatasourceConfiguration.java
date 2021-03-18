@@ -33,6 +33,8 @@ public class TomcatDatasourceConfiguration {
     private HikariDataSource getHikariDataSource(DomibusPropertyProvider domibusPropertyProvider) {
         HikariDataSource dataSource = new HikariDataSource();
 
+        dataSource.setAutoCommit(false);
+
         final String driverClassName = domibusPropertyProvider.getProperty(DOMIBUS_DATASOURCE_DRIVER_CLASS_NAME);
         dataSource.setDriverClassName(driverClassName);
 
@@ -50,9 +52,6 @@ public class TomcatDatasourceConfiguration {
 
         final Integer maxPoolSize = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DATASOURCE_MAX_POOL_SIZE);
         dataSource.setMaximumPoolSize(maxPoolSize);
-
-        final boolean autoCommit = domibusPropertyProvider.getBooleanProperty(DOMIBUS_DATASOURCE_AUTO_COMMIT);
-        dataSource.setAutoCommit(autoCommit);
 
         final Integer connectionTimeout = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DATASOURCE_CONNECTION_TIMEOUT);
         dataSource.setConnectionTimeout(connectionTimeout * MILISECS_IN_SEC);

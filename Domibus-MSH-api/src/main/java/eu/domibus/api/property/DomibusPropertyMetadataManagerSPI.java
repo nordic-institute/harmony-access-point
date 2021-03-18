@@ -258,7 +258,6 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_DATASOURCE_PASSWORD = "domibus.datasource.password";//NOSONAR
     String DOMIBUS_DATASOURCE_MAX_LIFETIME = "domibus.datasource.maxLifetime";
     String DOMIBUS_DATASOURCE_MAX_POOL_SIZE = "domibus.datasource.maxPoolSize";
-    String DOMIBUS_DATASOURCE_AUTO_COMMIT = "domibus.datasource.autoCommit";
     String DOMIBUS_DATASOURCE_CONNECTION_TIMEOUT = "domibus.datasource.connectionTimeout";
     String DOMIBUS_DATASOURCE_IDLE_TIMEOUT = "domibus.datasource.idleTimeout";
     String DOMIBUS_DATASOURCE_MINIMUM_IDLE = "domibus.datasource.minimumIdle";
