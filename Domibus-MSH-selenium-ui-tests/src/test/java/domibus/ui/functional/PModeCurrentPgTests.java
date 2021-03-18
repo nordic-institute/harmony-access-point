@@ -163,11 +163,19 @@ public class PModeCurrentPgTests extends SeleniumTest {
 		page.getUploadBtn().click();
 		
 		PModeCofirmationModal modal = new PModeCofirmationModal(driver);
-
-		log.info("Upload invalid  file");
-		String path = DFileUtils.getAbsolutePath("src/main/resources/myLocal.properties");
-
+		log.info("Upload invalid xml file");
+		String path = DFileUtils.getAbsolutePath("src/main/resources/pmodes/invalidPmode.xml");
 		modal.uploadPmodeFile(path, "invalidPmodeUpload");
+
+		log.info("Message shown " + page.getAlertArea().getAlertMessage());
+		soft.assertTrue(page.getAlertArea().getAlertMessage().contains("Error"), "Error message is shown");
+		page.refreshPage();
+		page.waitForPageTitle();
+		page.getUploadBtn().click();
+
+		log.info("Upload wrong file");
+		String pathh = DFileUtils.getAbsolutePath("src/main/resources/myLocal.properties");
+		modal.uploadPmodeFile(pathh, "invalidPmodeUpload");
 
 		log.info("Message shown " + page.getAlertArea().getAlertMessage());
 
