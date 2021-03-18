@@ -199,7 +199,27 @@ public class LoggingPgTest extends SeleniumTest {
 
 		soft.assertAll();
 	}
-	
+
+
+	/* EDELIVERY-7181 - LOG-16 - Sort the grid */
+	@Test(description = "LOG-16", groups = {"multiTenancy", "singleTenancy"})
+	public void gridNotSortable() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		LoggingPage page = new LoggingPage(driver);
+		page.getSidebar().goToPage(PAGES.LOGGING);
+		page.grid().waitForRowsToLoad();
+
+		String columnName = page.grid().getSortedColumnName();
+		soft.assertNull(columnName, "do default sorted column");
+
+		page.loggingGrid().sortBy("Logger Name");
+
+		columnName = page.grid().getSortedColumnName();
+		soft.assertNull(columnName, "do column marked as sorted");
+
+		soft.assertAll();
+	}
+
 	
 	
 }
