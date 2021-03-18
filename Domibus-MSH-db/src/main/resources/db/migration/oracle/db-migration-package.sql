@@ -220,20 +220,21 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
     END get_tb_d_msg_subtype_rec;
 
     FUNCTION get_tb_user_message_rec(message_id VARCHAR2) RETURN NUMBER IS
-        v_id_pk NUMBER;
+        v_id_pk   NUMBER;
+        v_tab_new VARCHAR2(30) := 'TB_USER_MESSAGE_MIGR';
     BEGIN
         IF message_id IS NULL THEN
             IF VERBOSE_LOGS THEN
-                DBMS_OUTPUT.PUT_LINE('No record to look into TEMP_TB_USER_MESSAGE');
+                DBMS_OUTPUT.PUT_LINE('No record to look into ' || v_tab_new);
             END IF;
             RETURN v_id_pk;
         END IF;
         BEGIN
             -- TODO check index on message_id column?
-            EXECUTE IMMEDIATE 'SELECT ID_PK FROM TEMP_TB_USER_MESSAGE WHERE MESSAGE_ID = :1' INTO v_id_pk USING message_id;
+            EXECUTE IMMEDIATE 'SELECT ID_PK FROM ' || v_tab_new || ' WHERE MESSAGE_ID = :1' INTO v_id_pk USING message_id;
         EXCEPTION
             WHEN NO_DATA_FOUND THEN
-                DBMS_OUTPUT.PUT_LINE('No record found into TEMP_TB_USER_MESSAGE for MESSAGE_ID = ' || message_id);
+                DBMS_OUTPUT.PUT_LINE('No record found into ' || v_tab_new || ' for MESSAGE_ID = ' || message_id);
         END;
         RETURN v_id_pk;
     END get_tb_user_message_rec;
@@ -284,7 +285,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
     /**-- TB_USER_MESSAGE migration --*/
     PROCEDURE migrate_tb_user_message IS
         v_tab        VARCHAR2(30) := 'TB_USER_MESSAGE';
-        v_tab_new    VARCHAR2(30) := 'TEMP_TB_USER_MESSAGE';
+        v_tab_new    VARCHAR2(30) := 'TB_USER_MESSAGE_MIGR';
         v_sql        VARCHAR2(1000);
         CURSOR c_user_message IS
             SELECT UM.ID_PK,
@@ -462,7 +463,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         v_sql                  VARCHAR2(1000);
         v_tab                  VARCHAR2(30) := 'TB_MESSAGE_GROUP';
         v_tab_new              VARCHAR2(30) := 'TB_SJ_MESSAGE_GROUP';
-        v_tab_user_message_new VARCHAR2(30) := 'TEMP_TB_USER_MESSAGE';
+        v_tab_user_message_new VARCHAR2(30) := 'TB_USER_MESSAGE_MIGR';
         CURSOR c_message_group IS
             SELECT MG.ID_PK,
                    MG.GROUP_ID,
@@ -559,7 +560,6 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         v_tab               VARCHAR2(30) := 'TB_MESSAGE_HEADER';
         v_tab_new           VARCHAR2(30) := 'TB_SJ_MESSAGE_HEADER';
         v_tab_message_group VARCHAR2(30) := 'TB_MESSAGE_GROUP';
-
         CURSOR c_message_header IS
             SELECT MG.ID_PK, -- 1:1 ID_PK implementation
                    MH.BOUNDARY,
