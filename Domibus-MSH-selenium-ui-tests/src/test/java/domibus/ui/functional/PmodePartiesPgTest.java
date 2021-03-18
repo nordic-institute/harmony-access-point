@@ -769,8 +769,30 @@ public class PmodePartiesPgTest extends SeleniumTest {
 		soft.assertAll();
 		
 	}
-	
-	
+
+	/* PMP-8 User makes changes and Saves them*/
+	@Test(description = "PMP-8", groups = {"multiTenancy", "singleTenancy"})
+	public void updateParty() throws Exception {
+
+		SoftAssert soft = new SoftAssert();
+
+		PModePartiesPage page = new PModePartiesPage(driver);
+		page.getSidebar().goToPage(PAGES.PMODE_PARTIES);
+		page.grid().waitForRowsToLoad();
+		page.grid().selectRow(0);
+		page.getEditButton().click();
+		PartyModal pm = new PartyModal(driver);
+		String newPartyName = "domibus_new_party";
+		pm.getNameInput().fill(newPartyName);
+		pm.getOkBtn().click();
+		page.getSaveButton().click();
+		new Dialog(driver).confirm();
+		soft.assertTrue(page.getAlertArea().getAlertMessage().contains(DMessages.PMODE_PARTIES_UPDATE_SUCCESS),"update is done successfully");
+		soft.assertTrue(page.grid().getRowSpecificColumnVal(0,"Party Name").contains(newPartyName),"Party name is updated successfully");
+		soft.assertAll();
+
+	}
+
 	private PModePartiesPage navigateToPage() throws Exception {
 		log.info("Navigate to Pmode Parties page");
 		PModePartiesPage page = new PModePartiesPage(driver);

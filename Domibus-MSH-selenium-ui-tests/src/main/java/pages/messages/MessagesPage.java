@@ -74,6 +74,15 @@ public class MessagesPage extends DomibusPage {
 		wait.forElementToBeVisible(iconElement);
 		return iconElement.isEnabled();
 	}
+
+	public Boolean isActionIconPresent(int rowNumber, String iconName) {
+		try {
+			driver.findElement(By.cssSelector(getCssofRowSpecificActionIcon(rowNumber, iconName)));
+		} catch (Exception e) {
+			return false;
+		}
+		return true;
+	}
 	
 	
 }
