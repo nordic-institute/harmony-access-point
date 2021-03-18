@@ -1,9 +1,7 @@
 package domibus.ui.ux;
 
-
 import ddsl.enums.PAGES;
 import domibus.ui.SeleniumTest;
-import org.testng.SkipException;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.pmode.parties.PModePartiesPage;
@@ -101,26 +99,7 @@ public class PmodePartiesPgUXTest extends SeleniumTest {
 		
 		soft.assertAll();
 	}
-     /* PMP-19 User single click on row on Pmode-Parties*/
-	@Test(description = "PMP-19", groups = {"multiTenancy", "singleTenancy"})
-	public void singleClick() throws Exception {
 
-		SoftAssert soft = new SoftAssert();
 
-		PModePartiesPage page = new PModePartiesPage(driver);
-		page.getSidebar().goToPage(PAGES.PMODE_PARTIES);
-		page.grid().waitForRowsToLoad();
-		if(page.grid().getPagination().getTotalItems()>0)
-		{
-			page.grid().selectRow(0);
-			soft.assertTrue(page.getEditButton().isEnabled(),"Edit button gets enabled");
-			soft.assertTrue(page.getDeleteButton().isEnabled(),"Delete button gets enabled");
-			soft.assertTrue(page.grid().gridRows.get(0).getAttribute("class").contains("active"),"Row gets highlighted");
-		}
-		else{
-			throw new SkipException("No Parties for selection");
-		}
-		soft.assertAll();
-	}
 
 }

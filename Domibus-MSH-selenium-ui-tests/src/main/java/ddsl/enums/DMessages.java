@@ -46,7 +46,6 @@ public class DMessages {
 	public static final String MESSAGES_RESEND_MESSAGE_SUCCESS = "The operation resend message completed successfully";
 
 	public static final String PMODE_UPDATE_SUCCESS = "PMode file has been successfully uploaded.";
-	public static final String PMODE_UPDATE_ERROR = "Error uploading the PMode: The file type should be xml";
 	public static final String PMODE_PARTIES_UPDATE_SUCCESS = "PMode parties have been successfully updated.";
 	public static final String PMODE_PARTIES_DELETE_OWN_PARTY_ERROR = "The operation 'update parties' did not complete successfully. [DOM_003]:Cannot delete the party describing the current system.";
 	public static final String PMODE_ARCHIVE_UPDATE_SUCCESS = "The operation 'update pmodes' completed successfully.";

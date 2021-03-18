@@ -38,7 +38,7 @@ public class DGrid extends DComponent {
 	@FindBy(tagName = "datatable-header-cell")
 	protected List<WebElement> gridHeaders;
 	@FindBy(css = "datatable-row-wrapper > datatable-body-row")
-	public List<WebElement> gridRows;
+	protected List<WebElement> gridRows;
 
 	protected By cellSelector = By.tagName("datatable-body-cell");
 
