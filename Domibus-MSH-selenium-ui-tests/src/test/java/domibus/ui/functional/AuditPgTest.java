@@ -3,6 +3,7 @@ package domibus.ui.functional;
 import ddsl.dcomponents.DomibusPage;
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.dcomponents.popups.Dialog;
+import ddsl.dobjects.DWait;
 import ddsl.enums.DMessages;
 import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
@@ -14,6 +15,9 @@ import org.testng.SkipException;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.Audit.AuditPage;
+import pages.jms.JMSMonitoringPage;
+import pages.jms.JMSMoveMessageModal;
+import pages.msgFilter.MessageFilterPage;
 import pages.pmode.current.PModeArchivePage;
 import pages.pmode.current.PModeCofirmationModal;
 import pages.pmode.current.PModeCurrentPage;
@@ -941,6 +945,41 @@ public class AuditPgTest extends SeleniumTest {
 		
 		soft.assertAll();
 		
+	}
+	/*AU-11 - Check JMS MOVE message event on Audit page*/
+	@Test(description = "AU-11", groups = {"multiTenancy", "singleTenancy"})
+	public void jmsMoveEvent() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		MessageFilterPage page = new MessageFilterPage(driver);
+		page.getSidebar().goToPage(PAGES.MESSAGE_FILTER);
+		page.grid().scrollToAndSelect("Plugin", "Jms");
+		rest.pmode().uploadPMode("pmodes/selfSending8080.xml", null);
+		String userDomain = Gen.randomAlphaNumeric(10);
+		rest.pluginUsers().createPluginUser(userDomain, DRoles.ADMIN, data.defaultPass(), page.getDomainFromTitle());
+		messageSender.sendMessage(userDomain, data.defaultPass(), null, null);
+		new DWait(driver).forXMillis(100);
+		page.getSidebar().goToPage(PAGES.JMS_MONITORING);
+		JMSMonitoringPage jPage = new JMSMonitoringPage(driver);
+		jPage.filters().getJmsQueueSelect().selectQueueWithMessages();
+		jPage.grid().waitForRowsToLoad();
+
+		String id = jPage.grid().getRowSpecificColumnVal(0,"ID");
+		jPage.grid().selectRow(0);
+
+		soft.assertTrue(jPage.moveButton.isEnabled(),"Move button is enabled");
+		jPage.moveButton.click();
+		JMSMoveMessageModal modal = new JMSMoveMessageModal(driver);
+		modal.clickOK();
+		soft.assertTrue(page.getAlertArea().getAlertMessage().contains(DMessages.JMS_MOVE_MESSAGE_SUCCESS));
+		page.getSidebar().goToPage(PAGES.AUDIT);
+		AuditPage aPage = new AuditPage(driver);
+		aPage.grid().waitForRowsToLoad();
+		int index= aPage.grid().getIndexOf(4,id);
+		soft.assertTrue(index>=0,"Record is present in grid");
+		soft.assertTrue(aPage.grid().getRowInfo(index).get("Id").equals(id)," same id is available on audit log page" );
+
+		soft.assertAll();
+
 	}
 	
 }
