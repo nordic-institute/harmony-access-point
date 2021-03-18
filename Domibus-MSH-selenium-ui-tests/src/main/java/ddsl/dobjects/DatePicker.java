@@ -150,7 +150,7 @@ public class DatePicker extends DComponent {
 				soft.assertTrue(Integer.parseInt(clockMinuteItems.get(i).getText()) > cal.get(Calendar.MINUTE), "Disabled clock minutes are greater than current minute");
 
 			} else {
-				soft.assertTrue(Integer.parseInt(clockMinuteItems.get(i).getText()) < cal.get(Calendar.MINUTE), "Enabled clock minutes are smaller than current Minute");
+				soft.assertTrue(Integer.parseInt(clockMinuteItems.get(i).getText()) <= cal.get(Calendar.MINUTE), "Enabled clock minutes are smaller  than  or equal to current Minute");
 			}
 
 		}

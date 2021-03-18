@@ -2,6 +2,7 @@ package domibus.ui.ux;
 
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.dobjects.DatePicker;
+import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
 import domibus.ui.SeleniumTest;
 import org.apache.commons.collections4.ListUtils;
@@ -372,6 +373,25 @@ public class MessagesPgUXTest extends SeleniumTest {
         DatePicker datePicker = new DatePicker(driver, page.receivedTo);
         soft.assertTrue(datePicker.verifyMaxClockValue(soft,cal)>0,"field is accepting correct value ,smaller than System's current date & time");
 
+        soft.assertAll();
+    }
+
+    /* MSG-28 - Resend message as USER */
+    @Test(description = "MSG-28", groups = {"multiTenancy", "singleTenancy"})
+    public void resendMsg() throws Exception {
+        SoftAssert soft = new SoftAssert();
+        String username = Gen.randomAlphaNumeric(10);
+
+        rest.users().createUser(username, DRoles.USER, data.defaultPass(), null);
+        String pluginUser = Gen.randomAlphaNumeric(10);
+        rest.pluginUsers().createPluginUser(pluginUser, DRoles.ADMIN,data.defaultPass(),null);
+
+        String messID = messageSender.sendMessage(pluginUser, data.defaultPass(), null, null);
+        logout();
+        login(username,data.defaultPass());
+        MessagesPage mPage = new MessagesPage(driver);
+        soft.assertFalse(mPage.getResendButton().isPresent(),"Resend button is not present");
+        soft.assertFalse(mPage.isActionIconPresent(0,"Resend"),"Icon is not present");
         soft.assertAll();
     }
 

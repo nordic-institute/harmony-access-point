@@ -1,10 +1,14 @@
 package domibus.ui.ux;
 
+import ddsl.dcomponents.popups.Dialog;
+import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
 import domibus.ui.SeleniumTest;
+import org.testng.SkipException;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.pmode.parties.PModePartiesPage;
+import pages.pmode.parties.PartyModal;
 
 import java.util.HashMap;
 import java.util.List;
@@ -97,6 +101,49 @@ public class PmodePartiesPgUXTest extends SeleniumTest {
 		
 		page.grid().checkCSVvsGridInfo(filename, soft);
 		
+		soft.assertAll();
+	}
+	/* PMP-8 User makes changes and Saves them*/
+	@Test(description = "PMP-8", groups = {"multiTenancy", "singleTenancy"})
+	public void updateParty() throws Exception {
+
+		SoftAssert soft = new SoftAssert();
+
+		PModePartiesPage page = new PModePartiesPage(driver);
+		page.getSidebar().goToPage(PAGES.PMODE_PARTIES);
+		page.grid().waitForRowsToLoad();
+		page.grid().selectRow(0);
+		page.getEditButton().click();
+		PartyModal pm = new PartyModal(driver);
+		String newPartyName = "domibus_new_party";
+		pm.getNameInput().fill(newPartyName);
+		pm.getOkBtn().click();
+		page.getSaveButton().click();
+		new Dialog(driver).confirm();
+		soft.assertTrue(page.getAlertArea().getAlertMessage().contains(DMessages.PMODE_PARTIES_UPDATE_SUCCESS),"update is done successfully");
+		soft.assertTrue(page.grid().getRowSpecificColumnVal(0,"Party Name").contains(newPartyName),"Party name is updated successfully");
+		soft.assertAll();
+
+	}
+	/* PMP-19 User single click on row on Pmode-Parties*/
+	@Test(description = "PMP-19", groups = {"multiTenancy", "singleTenancy"})
+	public void singleClick() throws Exception {
+
+		SoftAssert soft = new SoftAssert();
+
+		PModePartiesPage page = new PModePartiesPage(driver);
+		page.getSidebar().goToPage(PAGES.PMODE_PARTIES);
+		page.grid().waitForRowsToLoad();
+		if(page.grid().getPagination().getTotalItems()>0)
+		{
+			page.grid().selectRow(0);
+			soft.assertTrue(page.getEditButton().isEnabled(),"Edit button gets enabled");
+			soft.assertTrue(page.getDeleteButton().isEnabled(),"Delete button gets enabled");
+			soft.assertTrue(page.grid().gridRows.get(0).getAttribute("class").contains("active"),"Row gets highlighted");
+		}
+		else{
+			throw new SkipException("No Parties for selection");
+		}
 		soft.assertAll();
 	}
 
