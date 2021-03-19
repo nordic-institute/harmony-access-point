@@ -39,13 +39,13 @@ public class ConfigurationRawDAO extends BasicDao<ConfigurationRaw> {
 
     public List<PModeArchiveInfo> getDetailedConfigurationRaw() {
         AuditReader auditReader = AuditReaderFactory.get(em);
-        //load Configuration raw + audit, skipping the deleted raws.
+        //load Configuration raw + audit, skipping the deleted rows.
         AuditQuery auditQuery = auditReader.createQuery().forRevisionsOfEntity(ConfigurationRaw.class, false, false);
         //retrieve only the last revision or each entity.
         auditQuery.add(AuditEntity.revisionNumber().maximize().computeAggregationInInstanceContext());
         //sort by configuration date.
-//        auditQuery.addOrder(AuditEntity.property("configurationDate").desc());
-        auditQuery.addOrder(AuditEntity.revisionNumber().desc());
+        auditQuery.addOrder(AuditEntity.property("configurationDate").desc());
+
         List<Object[]> resultList = auditQuery.getResultList();
         return resultList.stream().map(o -> {
             ConfigurationRaw configurationRaw = (ConfigurationRaw) o[0];
