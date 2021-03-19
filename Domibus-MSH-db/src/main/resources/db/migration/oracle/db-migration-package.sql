@@ -1,3 +1,15 @@
+-- *****************************************************************************************************
+-- Domibus 4.2.1 to 5.0 data migration package
+--
+-- Main entry point is the procedure 'migrate'. To be executed into a begin/end; block
+--
+-- Parameters to be adjusted:
+-- BATCH_SIZE - size of the batch for data migration on each migrated table after which there is a commit;
+--              default value is 10000
+-- VERBOSE_LOGS - more information into the logs; default to false
+--
+-- Tables which are migrated: TB_USER_MESSAGE, TB_MESSAGE_FRAGMENT, TB_MESSAGE_GROUP, TB_MESSAGE_HEADER
+-- *****************************************************************************************************
 CREATE OR REPLACE PACKAGE MIGRATE_42_TO_50 IS
     -- batch size for commit of the migrated records
     BATCH_SIZE CONSTANT NUMBER := 10000;
