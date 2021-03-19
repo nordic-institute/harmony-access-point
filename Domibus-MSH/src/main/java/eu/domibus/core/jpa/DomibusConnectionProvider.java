@@ -17,6 +17,8 @@ import java.sql.SQLException;
 /**
  * @author Sebastian-Ion TINCU
  * @since 4.2
+ *
+ * Transaction Isolation set to {@value Connection#TRANSACTION_READ_COMMITTED}
  */
 @Conditional(SingleTenantAwareEntityManagerCondition.class)
 @Service
@@ -36,13 +38,18 @@ public class DomibusConnectionProvider implements ConnectionProvider {
         LOG.trace("Getting new connection");
 
         String mdcUser = LOG.getMDC(DomibusLogger.MDC_USER);
-        if(StringUtils.isBlank(mdcUser)) {
+        if (StringUtils.isBlank(mdcUser)) {
             String userName = databaseUtil.getDatabaseUserName();
             LOG.putMDC(DomibusLogger.MDC_USER, userName);
         }
 
-        return dataSource.getConnection();
-   }
+        Connection connection = dataSource.getConnection();
+        connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("Transaction Isolation set to [{}] on [{}]", Connection.TRANSACTION_READ_COMMITTED, connection.getClass());
+        }
+        return connection;
+    }
 
     @Override
     public void closeConnection(Connection connection) throws SQLException {
