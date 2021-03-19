@@ -23,6 +23,10 @@ public class MessagesPage extends DomibusPage {
 	public WebElement downloadBtn;
 	@FindBy(id = "resendbutton_id")
 	public WebElement resendBtn;
+	@FindBy(css = "#receivedto_id > div >button")
+	public WebElement receivedToClock;
+	@FindBy(css ="#receivedto_id")
+	public WebElement receivedTo;
 	
 	public MessagesPage(WebDriver driver) {
 		super(driver);
@@ -68,6 +72,14 @@ public class MessagesPage extends DomibusPage {
 		WebElement iconElement = driver.findElement(By.cssSelector(getCssofRowSpecificActionIcon(rowNumber, iconName)));
 		wait.forElementToBeVisible(iconElement);
 		return iconElement.isEnabled();
+	}
+	public Boolean isActionIconPresent(int rowNumber, String iconName) {
+		try {
+			driver.findElement(By.cssSelector(getCssofRowSpecificActionIcon(rowNumber, iconName)));
+		} catch (Exception e) {
+			return false;
+		}
+		return true;
 	}
 	
 	
