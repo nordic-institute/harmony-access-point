@@ -223,7 +223,7 @@ public class PModeCurrentPgTests extends SeleniumTest {
 		soft.assertTrue(page.grid().getRowInfo(0).get("Description").contains("CURRENT"),"Current is present in first row");
 
 		log.info("comparing pmodes");
-		soft.assertTrue(XMLUnit.compareXML(oldPmode,newPmode).identical(), "Both pmodes are not identical");
+		soft.assertFalse(XMLUnit.compareXML(oldPmode,newPmode).identical(), "Both pmodes are not identical");
 
 		soft.assertAll();
 
