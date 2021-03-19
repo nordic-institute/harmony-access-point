@@ -31,6 +31,8 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 /**
  * @author Cosmin Baciu
  * @since 4.0
+ *
+ * Transaction Isolation set to {@value Connection#TRANSACTION_READ_COMMITTED}
  */
 @Conditional(MultiTenantAwareEntityManagerCondition.class)
 @Service
@@ -66,8 +68,12 @@ public class DomibusMultiTenantConnectionProvider implements MultiTenantConnecti
             String userName = databaseUtil.getDatabaseUserName();
             LOG.putMDC(DomibusLogger.MDC_USER, userName);
         }
-
-        return dataSource.getConnection();
+        Connection connection = dataSource.getConnection();
+        connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("Transaction Isolation set to [{}] on [{}]", Connection.TRANSACTION_READ_COMMITTED, connection.getClass());
+        }
+        return connection;
     }
 
     @Override

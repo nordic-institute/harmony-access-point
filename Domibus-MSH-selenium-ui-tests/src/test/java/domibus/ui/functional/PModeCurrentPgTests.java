@@ -6,6 +6,7 @@ import domibus.ui.SeleniumTest;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
+import pages.pmode.archive.PModeArchivePage;
 import pages.pmode.current.PModeCofirmationModal;
 import pages.pmode.current.PModeCurrentPage;
 import utils.DFileUtils;
@@ -156,25 +157,76 @@ public class PModeCurrentPgTests extends SeleniumTest {
 		log.info("Navigate to pmode current");
 		PModeCurrentPage page = new PModeCurrentPage(driver);
 		page.getSidebar().goToPage(PAGES.PMODE_CURRENT);
-		
+		String beforeUpdatePmode = page.getTextArea().getText();
+
 		log.info("Click on upload button");
 		page.getUploadBtn().click();
 		
 		PModeCofirmationModal modal = new PModeCofirmationModal(driver);
-		
 		log.info("Upload invalid xml file");
 		String path = DFileUtils.getAbsolutePath("src/main/resources/pmodes/invalidPmode.xml");
 		modal.uploadPmodeFile(path, "invalidPmodeUpload");
-		
+
 		log.info("Message shown " + page.getAlertArea().getAlertMessage());
-		
-		log.info("Validate presence of Error in alert message");
 		soft.assertTrue(page.getAlertArea().getAlertMessage().contains("Error"), "Error message is shown");
-		log.info("Refresh page ");
 		page.refreshPage();
-		log.info("Wait for page title");
 		page.waitForPageTitle();
+		page.getUploadBtn().click();
+
+		log.info("Upload wrong file");
+		String pathh = DFileUtils.getAbsolutePath("src/main/resources/myLocal.properties");
+		modal.uploadPmodeFile(pathh, "invalidPmodeUpload");
+
+		log.info("Message shown " + page.getAlertArea().getAlertMessage());
+
+		soft.assertTrue(page.getAlertArea().getAlertMessage().contains(DMessages.PMODE_UPDATE_ERROR),"Error for wrong file format is shown");
+		page.refreshPage();
+		String afterUpdatePmode=page.getTextArea().getText();
+		soft.assertTrue(beforeUpdatePmode.equals(afterUpdatePmode), "Both pmodes are equal");
 
 		soft.assertAll();
 	}
+	/*  This method will verify message while uploading Pmode and Pmode archive record */
+	@Test(description = "PMC-2", groups = {"multiTenancy", "singleTenancy"})
+	public void uploadPmode() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		PModeArchivePage page = new PModeArchivePage(driver);
+		page.getSidebar().goToPage(PAGES.PMODE_ARCHIVE);
+		page.grid().waitForRowsToLoad();
+
+		int archivePgCount = page.grid().getPagination().getTotalItems();
+
+		PModeCurrentPage pmcPage = new PModeCurrentPage(driver);
+		pmcPage.getSidebar().goToPage(PAGES.PMODE_CURRENT);
+
+		log.info("Click on upload button");
+		pmcPage.getUploadBtn().click();
+
+		PModeCofirmationModal modal = new PModeCofirmationModal(driver);
+
+		log.info("Upload pmode file");
+		String path = DFileUtils.getAbsolutePath("src/main/resources/pmodes/Edelivery-blue.xml");
+		String oldPmode = pmcPage.getTextArea().getText();
+
+
+		modal.uploadPmodeFile(path, "new");
+
+		soft.assertTrue(pmcPage.getAlertArea().getAlertMessage().contains(DMessages.PMODE_UPDATE_SUCCESS));
+
+		String newPmode = pmcPage.getTextArea().getText();
+
+		pmcPage.getSidebar().goToPage(PAGES.PMODE_ARCHIVE);
+		page.grid().waitForRowsToLoad();
+		int archivePgNewCount = page.grid().getPagination().getTotalItems();
+
+		soft.assertTrue(archivePgCount+1 == archivePgNewCount , "Archive page has one new record present");
+		soft.assertTrue(page.grid().getRowInfo(0).get("Description").contains("CURRENT"),"Current is present in first row");
+
+		log.info("comparing pmodes");
+		soft.assertFalse(XMLUnit.compareXML(oldPmode,newPmode).identical(), "Both pmodes are not identical");
+
+		soft.assertAll();
+
+	}
+
 }

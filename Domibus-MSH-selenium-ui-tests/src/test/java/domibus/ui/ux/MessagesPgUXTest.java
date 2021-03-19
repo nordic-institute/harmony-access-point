@@ -1,6 +1,8 @@
 package domibus.ui.ux;
 
 import ddsl.dcomponents.grid.DGrid;
+import ddsl.dobjects.DatePicker;
+import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
 import domibus.ui.SeleniumTest;
 import org.apache.commons.collections4.ListUtils;
@@ -20,6 +22,7 @@ import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -347,6 +350,47 @@ public class MessagesPgUXTest extends SeleniumTest {
 		
 		soft.assertAll();
 	}
-	
+	/* MSG-23 - Verify max value for Received up to field */
+	@Test(description = "MSG-23", groups = {"multiTenancy", "singleTenancy"})
+	public void receivedToMaxValue() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		log.info("logged in");
+		MessagesPage page = new MessagesPage(driver);
+		Calendar cal = Calendar.getInstance();
+
+		log.info("Current date is : " + cal.get(Calendar.DAY_OF_MONTH));
+		log.info("Current hour is : " + cal.get(Calendar.HOUR_OF_DAY));
+		log.info("Current Minute is : " + cal.get(Calendar.MINUTE));
+
+		page.getSidebar().goToPage(PAGES.MESSAGES);
+		page.getFilters().expandArea();
+		log.info("Click on ReceivedTo field clock");
+		page.receivedToClock.click();
+		DatePicker datePicker = new DatePicker(driver, page.receivedTo);
+		soft.assertTrue(datePicker.verifyMaxClockValue(soft,cal)>0,"field is accepting correct value ,smaller than System's current date & time");
+
+		soft.assertAll();
+	}
+
+	/* MSG-28 - Resend message as USER */
+	@Test(description = "MSG-28", groups = {"multiTenancy", "singleTenancy"})
+	public void resendMsg() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		String username = Gen.randomAlphaNumeric(10);
+
+		rest.users().createUser(username, DRoles.USER, data.defaultPass(), null);
+		String pluginUser = Gen.randomAlphaNumeric(10);
+		rest.pluginUsers().createPluginUser(pluginUser, DRoles.ADMIN,data.defaultPass(),null);
+
+		String messID = messageSender.sendMessage(pluginUser, data.defaultPass(), null, null);
+		logout();
+		login(username,data.defaultPass());
+		MessagesPage mPage = new MessagesPage(driver);
+		soft.assertFalse(mPage.getResendButton().isPresent(),"Resend button is not present");
+		soft.assertFalse(mPage.isActionIconPresent(0,"Resend"),"Icon is not present");
+		soft.assertAll();
+	}
+
+
 }
 
