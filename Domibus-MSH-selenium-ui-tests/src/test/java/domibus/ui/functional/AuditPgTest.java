@@ -950,6 +950,10 @@ public class AuditPgTest extends SeleniumTest {
 	@Test(description = "AU-11", groups = {"multiTenancy", "singleTenancy"})
 	public void jmsMoveEvent() throws Exception {
 		SoftAssert soft = new SoftAssert();
+		String q = rest.jms().getRandomQNameWithMessages();
+		if (StringUtils.isEmpty(q)) {
+			throw new SkipException("no queue has messages");
+		}
 		MessageFilterPage page = new MessageFilterPage(driver);
 		page.getSidebar().goToPage(PAGES.MESSAGE_FILTER);
 		page.grid().scrollToAndSelect("Plugin", "Jms");
