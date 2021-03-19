@@ -954,24 +954,18 @@ public class AuditPgTest extends SeleniumTest {
 		if (StringUtils.isEmpty(q)) {
 			throw new SkipException("no queue has messages");
 		}
-		MessageFilterPage page = new MessageFilterPage(driver);
-		page.getSidebar().goToPage(PAGES.MESSAGE_FILTER);
-		page.grid().scrollToAndSelect("Plugin", "Jms");
-		rest.pmode().uploadPMode("pmodes/selfSending8080.xml", null);
-		String userDomain = Gen.randomAlphaNumeric(10);
-		rest.pluginUsers().createPluginUser(userDomain, DRoles.ADMIN, data.defaultPass(), page.getDomainFromTitle());
-		messageSender.sendMessage(userDomain, data.defaultPass(), null, null);
-		new DWait(driver).forXMillis(100);
+
+		JMSMonitoringPage page = new JMSMonitoringPage(driver);
 		page.getSidebar().goToPage(PAGES.JMS_MONITORING);
-		JMSMonitoringPage jPage = new JMSMonitoringPage(driver);
-		jPage.filters().getJmsQueueSelect().selectQueueWithMessages();
-		jPage.grid().waitForRowsToLoad();
 
-		String id = jPage.grid().getRowSpecificColumnVal(0,"ID");
-		jPage.grid().selectRow(0);
+		page.filters().getJmsQueueSelect().selectQueueWithMessages();
+		page.grid().waitForRowsToLoad();
 
-		soft.assertTrue(jPage.moveButton.isEnabled(),"Move button is enabled");
-		jPage.moveButton.click();
+		String id = page.grid().getRowSpecificColumnVal(0,"ID");
+		page.grid().selectRow(0);
+
+		soft.assertTrue(page.moveButton.isEnabled(),"Move button is enabled");
+		page.moveButton.click();
 		JMSMoveMessageModal modal = new JMSMoveMessageModal(driver);
 		modal.clickOK();
 		soft.assertTrue(page.getAlertArea().getAlertMessage().contains(DMessages.JMS_MOVE_MESSAGE_SUCCESS));
