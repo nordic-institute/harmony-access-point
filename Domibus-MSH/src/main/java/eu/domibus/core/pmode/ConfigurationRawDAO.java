@@ -31,7 +31,7 @@ public class ConfigurationRawDAO extends BasicDao<ConfigurationRaw> {
         query.setParameter("CONF_ID", id);
         try {
             return query.getSingleResult();
-        } catch (NoResultException ex){
+        } catch (NoResultException ex) {
             LOG.trace("No PMode for id=[{}]", id, ex);
             return null;
         }
@@ -39,11 +39,12 @@ public class ConfigurationRawDAO extends BasicDao<ConfigurationRaw> {
 
     public List<PModeArchiveInfo> getDetailedConfigurationRaw() {
         AuditReader auditReader = AuditReaderFactory.get(em);
-        //load Configuration raw + audit, skiping the deleted raws.
+        //load Configuration raw + audit, skipping the deleted raws.
         AuditQuery auditQuery = auditReader.createQuery().forRevisionsOfEntity(ConfigurationRaw.class, false, false);
-        //retrive only the last revision or each entity.
+        //retrieve only the last revision or each entity.
         auditQuery.add(AuditEntity.revisionNumber().maximize().computeAggregationInInstanceContext());
-        //sort by revision desc.
+        //sort by configuration date.
+//        auditQuery.addOrder(AuditEntity.property("configurationDate").desc());
         auditQuery.addOrder(AuditEntity.revisionNumber().desc());
         List<Object[]> resultList = auditQuery.getResultList();
         return resultList.stream().map(o -> {
@@ -66,8 +67,8 @@ public class ConfigurationRawDAO extends BasicDao<ConfigurationRaw> {
         final TypedQuery<ConfigurationRaw> query = this.em.createNamedQuery("ConfigurationRaw.getCurrent", ConfigurationRaw.class);
         try {
             return query.getSingleResult();
-        }catch (NoResultException ex){
-            LOG.trace("No pmode ",ex);
+        } catch (NoResultException ex) {
+            LOG.trace("No pmode ", ex);
             return null;
         }
     }

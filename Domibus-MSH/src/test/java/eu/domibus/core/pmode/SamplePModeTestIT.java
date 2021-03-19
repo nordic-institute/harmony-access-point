@@ -26,7 +26,6 @@ import javax.xml.bind.JAXBException;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
-import java.util.Arrays;
 import java.util.List;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SCHEMAFACTORY;
@@ -86,7 +85,7 @@ public class SamplePModeTestIT {
         assertNotNull(mpcList);
         for (Mpc mpc : mpcList) {
             assertTrue(mpc.getRetentionUndownloaded() > 0);
-            assertTrue(mpc.getRetentionDownloaded() == 0);
+            assertEquals(0, mpc.getRetentionDownloaded());
         }
     }
 
@@ -125,7 +124,7 @@ public class SamplePModeTestIT {
 
         byte[] bytes3 = xmlUtil.marshal(jaxbContext, configuration2, xsdStream4);
 
-        assertTrue(Arrays.equals(bytes2,bytes3));
+        assertArrayEquals(bytes2, bytes3);
         assertNotNull(configuration2.getBusinessProcesses());
     }
 
