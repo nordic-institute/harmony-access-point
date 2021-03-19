@@ -40,7 +40,7 @@ public abstract class AbstractDatabaseConfig {
     public LocalContainerEntityManagerFactoryBean domibusJTA(@Qualifier("domibusJDBC-XADataSource") DataSource dataSource, ConnectionProvider connectionProvider) {
         Properties jpaProperties = new Properties();
         jpaProperties.put("hibernate.hbm2ddl.auto", "update");
-        jpaProperties.put("hibernate.show_sql", "true");
+        jpaProperties.put("hibernate.show_sql", "false");
         jpaProperties.put("hibernate.format_sql", "true");
         jpaProperties.put("hibernate.id.new_generator_mappings", "false");
         jpaProperties.put(AvailableSettings.CONNECTION_PROVIDER, connectionProvider);
