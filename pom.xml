@@ -71,6 +71,7 @@
         <dropwizard.metrics.version>4.1.13</dropwizard.metrics.version>
         <dependency.check.version>6.0.5</dependency.check.version>
         <maven-dependency-plugin.version>3.1.2</maven-dependency-plugin.version>
+        <hikaricp.version>4.0.3</hikaricp.version>
 
         <!-- Sonar properties -->
         <sonar.binaries>target/classes</sonar.binaries>
@@ -117,7 +118,6 @@
         <javaee-api.version>8.0.1</javaee-api.version>
         <junit.version>4.12</junit.version>
         <jmockit.version>1.22</jmockit.version>
-        <atomikos.version>4.0.6</atomikos.version>
         <org.reflections.version>0.9.12</org.reflections.version>
         <messaging.saaj.version>1.5.2</messaging.saaj.version>
         <jaxws-api.version>2.2</jaxws-api.version>
@@ -862,40 +862,6 @@
                 <artifactId>tika-core</artifactId>
                 <version>${tika.version}</version>
             </dependency>
-
-            <!-- Atomikos Library for distributed transactions -->
-            <dependency>
-                <groupId>com.atomikos</groupId>
-                <artifactId>transactions-jta</artifactId>
-                <version>${atomikos.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.atomikos</groupId>
-                <artifactId>transactions-jdbc</artifactId>
-                <version>${atomikos.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.atomikos</groupId>
-                <artifactId>transactions-api</artifactId>
-                <version>${atomikos.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.atomikos</groupId>
-                <artifactId>transactions-jms</artifactId>
-                <version>${atomikos.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.atomikos</groupId>
-                <artifactId>transactions-hibernate4</artifactId>
-                <version>${atomikos.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <artifactId>hibernate</artifactId>
-                        <groupId>org.hibernate</groupId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <!-- End Atomikos Library for distributed transactions -->
 
             <!-- Metrics -->
             <dependency>

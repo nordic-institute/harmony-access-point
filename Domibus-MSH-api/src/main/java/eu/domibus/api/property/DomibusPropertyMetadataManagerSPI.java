@@ -251,13 +251,18 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_SECURITY_KEY_PRIVATE_PASSWORD = "domibus.security.key.private.password";//NOSONAR
     String DOMIBUS_DATABASE_GENERAL_SCHEMA = "domibus.database.general.schema";
     String DOMIBUS_DATABASE_SCHEMA = "domibus.database.schema";
+
     String DOMIBUS_DATASOURCE_DRIVER_CLASS_NAME = "domibus.datasource.driverClassName";
     String DOMIBUS_DATASOURCE_URL = "domibus.datasource.url";
     String DOMIBUS_DATASOURCE_USER = "domibus.datasource.user";
     String DOMIBUS_DATASOURCE_PASSWORD = "domibus.datasource.password";//NOSONAR
     String DOMIBUS_DATASOURCE_MAX_LIFETIME = "domibus.datasource.maxLifetime";
-    String DOMIBUS_DATASOURCE_MIN_POOL_SIZE = "domibus.datasource.minPoolSize";
     String DOMIBUS_DATASOURCE_MAX_POOL_SIZE = "domibus.datasource.maxPoolSize";
+    String DOMIBUS_DATASOURCE_CONNECTION_TIMEOUT = "domibus.datasource.connectionTimeout";
+    String DOMIBUS_DATASOURCE_IDLE_TIMEOUT = "domibus.datasource.idleTimeout";
+    String DOMIBUS_DATASOURCE_MINIMUM_IDLE = "domibus.datasource.minimumIdle";
+    String DOMIBUS_DATASOURCE_POOL_NAME = "domibus.datasource.poolName";
+
     String DOMIBUS_ENTITY_MANAGER_FACTORY_PACKAGES_TO_SCAN = "domibus.entityManagerFactory.packagesToScan";
     String DOMIBUS_ENTITY_MANAGER_FACTORY_JPA_PROPERTY = "domibus.entityManagerFactory.jpaProperty";
     String DOMIBUS_ENTITY_MANAGER_FACTORY_JPA_PROPERTY_HIBERNATE_CONNECTION_DRIVER_CLASS = "domibus.entityManagerFactory.jpaProperty.hibernate.connection.driver_class";
