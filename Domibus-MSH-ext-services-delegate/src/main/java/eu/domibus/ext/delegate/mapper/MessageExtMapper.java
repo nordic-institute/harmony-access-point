@@ -16,15 +16,13 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface MessageExtMapper {
 
-    MessageAttemptDTO messageAttemptToMessageAttemptDTO(MessageAttempt messageAttempt);
-
-    MessageAttempt messageAttemptDTOToMessageAttempt(MessageAttemptDTO messageAttemptDTO);
-
     MessageAcknowledgementDTO messageAcknowledgementToMessageAcknowledgementDTO(MessageAcknowledgement messageAcknowledgementDTO);
 
     MessageAcknowledgement messageAcknowledgementDTOToMessageAcknowledgement(MessageAcknowledgementDTO messageAcknowledgementDTO);
 
     List<MessageAcknowledgementDTO> messageAcknowledgementToMessageAcknowledgementDTO(List<MessageAcknowledgement> messageAcknowledgement);
+
+    MessageAttempt messageAcknowledgementDTO(MessageAttemptDTO messageAttemptDTO);
 
     List<MessageAttemptDTO> messageAttemptToMessageAttemptDTO(List<MessageAttempt> attemptsHistory);
 }

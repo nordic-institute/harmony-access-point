@@ -76,6 +76,7 @@ public class DomibusExtMapperTest {
 
         objectService.assertObjects(convertedBack, toConvert);
     }
+
     @Test
     public void partiesToPartiesDTO() {
         PartyDTO toConvert = (PartyDTO) objectService.createInstance(PartyDTO.class);
@@ -85,6 +86,7 @@ public class DomibusExtMapperTest {
         convertedBack.get(0).setCertificateContent(toConvert.getCertificateContent());
         objectService.assertObjects(convertedBack.get(0), toConvert);
     }
+
     @Test
     public void processListToProcessesDTO() {
         ProcessDTO toConvert = (ProcessDTO) objectService.createInstance(ProcessDTO.class);
