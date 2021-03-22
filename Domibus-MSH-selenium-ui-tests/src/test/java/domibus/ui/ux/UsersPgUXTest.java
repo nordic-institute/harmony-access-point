@@ -11,7 +11,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
-import pages.errorLog.ErrorLogPage;
 import pages.users.UserModal;
 import pages.users.UsersPage;
 import rest.RestServicePaths;

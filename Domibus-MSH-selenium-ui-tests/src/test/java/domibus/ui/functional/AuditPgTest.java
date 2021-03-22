@@ -3,7 +3,6 @@ package domibus.ui.functional;
 import ddsl.dcomponents.DomibusPage;
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.dcomponents.popups.Dialog;
-import ddsl.dobjects.DWait;
 import ddsl.enums.DMessages;
 import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
@@ -17,7 +16,6 @@ import org.testng.asserts.SoftAssert;
 import pages.Audit.AuditPage;
 import pages.jms.JMSMonitoringPage;
 import pages.jms.JMSMoveMessageModal;
-import pages.msgFilter.MessageFilterPage;
 import pages.pmode.current.PModeArchivePage;
 import pages.pmode.current.PModeCofirmationModal;
 import pages.pmode.current.PModeCurrentPage;
@@ -25,8 +23,6 @@ import pages.pmode.parties.PModePartiesPage;
 import pages.pmode.parties.PartyModal;
 import utils.Gen;
 import utils.TestUtils;
-
-import java.util.*;
 
 
 public class AuditPgTest extends SeleniumTest {

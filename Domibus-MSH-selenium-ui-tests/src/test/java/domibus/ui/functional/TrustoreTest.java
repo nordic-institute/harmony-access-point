@@ -1,6 +1,5 @@
 package domibus.ui.functional;
 
-import ddsl.dcomponents.DomibusPage;
 import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
 import domibus.ui.SeleniumTest;
@@ -8,8 +7,6 @@ import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pages.truststore.TruststorePage;
 import utils.DFileUtils;
-
-import java.io.File;
 
 public class TrustoreTest extends SeleniumTest {
 	

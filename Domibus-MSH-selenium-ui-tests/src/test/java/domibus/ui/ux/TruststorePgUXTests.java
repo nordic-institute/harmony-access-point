@@ -13,7 +13,6 @@ import pages.truststore.TruststorePage;
 import rest.RestServicePaths;
 import utils.TestUtils;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 

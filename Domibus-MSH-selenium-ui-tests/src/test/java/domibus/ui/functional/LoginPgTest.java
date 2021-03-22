@@ -7,7 +7,6 @@ import ddsl.dcomponents.DomibusPage;
 import ddsl.dcomponents.popups.InfoModal;
 import ddsl.enums.DMessages;
 import ddsl.enums.DRoles;
-import ddsl.enums.PAGES;
 import domibus.ui.SeleniumTest;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;

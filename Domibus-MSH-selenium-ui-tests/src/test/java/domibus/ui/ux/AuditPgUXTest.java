@@ -1,6 +1,5 @@
 package domibus.ui.ux;
 
-import ddsl.dcomponents.DomibusPage;
 import ddsl.dcomponents.grid.DGrid;
 import ddsl.enums.PAGES;
 import domibus.ui.SeleniumTest;
@@ -22,7 +21,6 @@ import java.io.File;
 import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.*;
 
 /**
  * @author Catalin Comanici

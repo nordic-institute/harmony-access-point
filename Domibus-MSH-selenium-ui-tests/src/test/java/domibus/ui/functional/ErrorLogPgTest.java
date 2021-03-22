@@ -2,7 +2,6 @@ package domibus.ui.functional;
 
 import ddsl.enums.PAGES;
 import domibus.ui.SeleniumTest;
-import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 import org.testng.SkipException;
 import org.testng.annotations.Test;
