@@ -785,6 +785,7 @@
                 <constraints primaryKey="true" primaryKeyName="PK_SIGNAL_MESSAGE"/>
             </column>
             <column name="SIGNAL_MESSAGE_ID" type="VARCHAR(255)"/>
+            <column name="REF_TO_MESSAGE_ID" type="VARCHAR(255)"/>
             <column name="EBMS3_TIMESTAMP" type="TIMESTAMP" remarks="the EBMS3 timestamp present in eb:Messaging/eb:UserMessage/eb:MessageInfo/eb:Timestamp"/>
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>

@@ -688,7 +688,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
 
 
         v_sql := 'CREATE TABLE ' || v_tab_new ||
-                 ' (ID_PK NUMBER(38, 0) NOT NULL, SIGNAL_MESSAGE_ID VARCHAR2(255), EBMS3_TIMESTAMP TIMESTAMP, CREATION_TIME TIMESTAMP DEFAULT sysdate NOT NULL, CREATED_BY VARCHAR2(255) DEFAULT user NOT NULL, MODIFICATION_TIME TIMESTAMP, MODIFIED_BY VARCHAR2(255), CONSTRAINT PK_SIGNAL_MESSAGE PRIMARY KEY (ID_PK))';
+                 ' (ID_PK NUMBER(38, 0) NOT NULL, SIGNAL_MESSAGE_ID VARCHAR2(255), REF_TO_MESSAGE_ID VARCHAR2(255), EBMS3_TIMESTAMP TIMESTAMP, CREATION_TIME TIMESTAMP DEFAULT sysdate NOT NULL, CREATED_BY VARCHAR2(255) DEFAULT user NOT NULL, MODIFICATION_TIME TIMESTAMP, MODIFIED_BY VARCHAR2(255), CONSTRAINT PK_SIGNAL_MESSAGE PRIMARY KEY (ID_PK))';
         truncate_or_create_table(v_tab_new, v_sql);
 
 
@@ -703,10 +703,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                 LOOP
                     BEGIN
                         EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
-                                          ' (ID_PK, SIGNAL_MESSAGE_ID, EBMS3_TIMESTAMP, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY ) ' ||
-                                          'VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6, :p_7)'
+                                          ' (ID_PK, SIGNAL_MESSAGE_ID, REF_TO_MESSAGE_ID, EBMS3_TIMESTAMP, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY ) ' ||
+                                          'VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6, :p_7, :p_8)'
                             USING signal_message(i).ID_PK,
                             signal_message(i).SIGNAL_MESSAGE_ID,
+                            signal_message(i).REF_TO_MESSAGE_ID,
                             signal_message(i).EBMS3_TIMESTAMP,
                             signal_message(i).CREATION_TIME,
                             signal_message(i).CREATED_BY,
