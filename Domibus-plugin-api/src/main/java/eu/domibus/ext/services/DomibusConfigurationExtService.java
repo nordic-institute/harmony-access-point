@@ -15,8 +15,6 @@ public interface DomibusConfigurationExtService {
      */
     boolean isMultiTenantAware();
 
-    boolean isSingleTenantAware();
-
     boolean isSecuredLoginRequired();
 
     String getConfigLocation();

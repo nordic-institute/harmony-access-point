@@ -3,7 +3,7 @@ package eu.domibus.core.party;
 import eu.domibus.common.model.configuration.Identifier;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.Process;
-import eu.domibus.core.dao.InMemoryDatabaseMshConfig;
+import eu.domibus.core.dao.InMemoryDataBaseConfig;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,12 +29,13 @@ import static junit.framework.TestCase.assertNotNull;
  * @since 4.0
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {InMemoryDatabaseMshConfig.class/*, PartyDaoConfig.class*/})
+@ContextConfiguration(classes = {InMemoryDataBaseConfig.class/*, PartyDaoConfig.class*/})
 @ActiveProfiles("IN_MEMORY_DATABASE")
 public class PartyDaoIT {
     @PersistenceContext
     private javax.persistence.EntityManager em;
 
+    //@Autowired
     private PartyDao partyDao;
 
     @Before

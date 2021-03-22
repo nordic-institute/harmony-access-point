@@ -2,17 +2,17 @@ package eu.domibus.core.message;
 
 import com.google.common.collect.Lists;
 import eu.domibus.api.message.MessageSubtype;
-import eu.domibus.api.model.*;
+import eu.domibus.common.MSHRole;
+import eu.domibus.core.plugin.notification.NotificationStatus;
+import eu.domibus.ebms3.common.model.MessageType;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
-import org.hibernate.transform.ResultTransformer;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
-import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
 import java.util.Date;
@@ -284,28 +284,15 @@ public class UserMessageLogDaoTest {
 
     @Test
     public void testCountMessages(@Injectable Map<String, Object> filters,
-                                  @Injectable CriteriaBuilder criteriaBuilder,
-                                  @Injectable CriteriaQuery<Long> criteriaQuery,
-                                  @Injectable Root<UserMessageLog> root,
-                                  @Injectable Path<Long> countPath,
-                                  @Injectable Predicate predicate,
-                                  @Injectable Predicate conjunction,
-                                  @Injectable TypedQuery<Long> query) {
+                                  @Injectable TypedQuery<Number> query) {
+        String queryString = "query";
         // GIVEN
         new Expectations(userMessageLogDao) {{
-            em.getCriteriaBuilder();
-            result = criteriaBuilder;
-            criteriaBuilder.createQuery(Long.class);
-            result = criteriaQuery;
-            criteriaQuery.from(UserMessageLog.class);
-            result = root;
-            criteriaBuilder.count(root);
-            result = countPath;
-            userMessageLogDao.getPredicates(filters, criteriaBuilder, root);
-            result = Lists.newArrayList(predicate);
-            criteriaBuilder.and(new Predicate[]{predicate});
-            result = conjunction;
-            em.createQuery(criteriaQuery);
+            userMessageLogDao.getMessageLogInfoFilter();
+            result = userMessageLogInfoFilter;
+            userMessageLogInfoFilter.getCountMessageLogQuery(filters);
+            result = queryString;
+            em.createQuery(queryString, Number.class);
             result = query;
             query.getSingleResult();
             result = 42;
@@ -316,8 +303,6 @@ public class UserMessageLogDaoTest {
 
         // THEN
         new Verifications() {{
-            criteriaQuery.select(countPath);
-            criteriaQuery.where(conjunction);
             Assert.assertEquals("Should have returned the correct message count", Long.valueOf(42), result);
         }};
     }
@@ -419,17 +404,11 @@ public class UserMessageLogDaoTest {
     }
 
     @Test
-    public void testGetUndownloadedUserMessagesOlderThan(@Injectable javax.persistence.Query query,
-                                                         @Injectable org.hibernate.query.Query<?> baseQuery,
-                                                         @Injectable List<UserMessageLogDto> list) {
+    public void testGetUndownloadedUserMessagesOlderThan(@Injectable TypedQuery<String> query, @Injectable List<String> list) {
         // GIVEN
         new Expectations() {{
-            em.createNamedQuery("UserMessageLog.findUndownloadedUserMessagesOlderThan");
+            em.createNamedQuery("UserMessageLog.findUndownloadedUserMessagesOlderThan", UserMessageLogDto.class);
             result = query;
-
-            query.unwrap(org.hibernate.query.Query.class);
-            result = baseQuery;
-
             query.getResultList();
             result = list;
         }};
@@ -442,16 +421,11 @@ public class UserMessageLogDaoTest {
     }
 
     @Test
-    public void testGetSentUserMessagesOlderThan(@Injectable List<UserMessageLogDto> list, @Injectable javax.persistence.Query query,
-                                                 @Injectable org.hibernate.query.Query<?> baseQuery) {
+    public void testGetSentUserMessagesOlderThan(@Injectable TypedQuery<String> query, @Injectable List<String> list) {
         // GIVEN
         new Expectations() {{
-            em.createNamedQuery("UserMessageLog.findSentUserMessagesOlderThan");
+            em.createNamedQuery("UserMessageLog.findSentUserMessagesOlderThan", UserMessageLogDto.class);
             result = query;
-
-            query.unwrap(org.hibernate.query.Query.class);
-            result = baseQuery;
-
             query.getResultList();
             result = list;
         }};
@@ -464,16 +438,11 @@ public class UserMessageLogDaoTest {
     }
 
     @Test
-    public void testGetSentUserMessagesWithPayloadNotClearedOlderThan(@Injectable List<UserMessageLogDto> list, @Injectable javax.persistence.Query query,
-                                                                      @Injectable org.hibernate.query.Query<?> baseQuery) {
+    public void testGetSentUserMessagesWithPayloadNotClearedOlderThan(@Injectable TypedQuery<String> query, @Injectable List<String> list) {
         // GIVEN
         new Expectations() {{
-            em.createNamedQuery("UserMessageLog.findSentUserMessagesWithPayloadNotClearedOlderThan");
+            em.createNamedQuery("UserMessageLog.findSentUserMessagesWithPayloadNotClearedOlderThan", UserMessageLogDto.class);
             result = query;
-
-            query.unwrap(org.hibernate.query.Query.class);
-            result = baseQuery;
-
             query.getResultList();
             result = list;
         }};
@@ -487,16 +456,11 @@ public class UserMessageLogDaoTest {
 
 
     @Test
-    public void testGetDeletedUserMessagesOlderThan(@Injectable List<UserMessageLogDto> list, @Injectable javax.persistence.Query query,
-                                                    @Injectable org.hibernate.query.Query<?> baseQuery) {
+    public void testGetDeletedUserMessagesOlderThan(@Injectable TypedQuery<String> query, @Injectable List<String> list) {
         // GIVEN
         new Expectations() {{
-            em.createNamedQuery("UserMessageLog.findDeletedUserMessagesOlderThan");
+            em.createNamedQuery("UserMessageLog.findDeletedUserMessagesOlderThan", UserMessageLogDto.class);
             result = query;
-
-            query.unwrap(org.hibernate.query.Query.class);
-            result = baseQuery;
-
             query.getResultList();
             result = list;
         }};
@@ -509,16 +473,11 @@ public class UserMessageLogDaoTest {
     }
 
     @Test
-    public void testGetUndownloadedUserMessagesOlderThan_returnsEmptyListWhenNoMessagesFound(@Injectable javax.persistence.Query query,
-                                                                                             @Injectable org.hibernate.query.Query<?> baseQuery) {
+    public void testGetUndownloadedUserMessagesOlderThan_returnsEmptyListWhenNoMessagesFound(@Injectable TypedQuery<String> query) {
         // GIVEN
         new Expectations() {{
-            em.createNamedQuery("UserMessageLog.findUndownloadedUserMessagesOlderThan");
+            em.createNamedQuery("UserMessageLog.findUndownloadedUserMessagesOlderThan", UserMessageLogDto.class);
             result = query;
-
-            query.unwrap(org.hibernate.query.Query.class);
-            result = baseQuery;
-
             query.getResultList();
             result = new NoResultException();
         }};
@@ -531,16 +490,11 @@ public class UserMessageLogDaoTest {
     }
 
     @Test
-    public void testGetDeletedUserMessagesOlderThan_returnsEmptyListWhenNoMessagesFound(@Injectable javax.persistence.Query query,
-                                                                                        @Injectable org.hibernate.query.Query<?> baseQuery) {
+    public void testGetDeletedUserMessagesOlderThan_returnsEmptyListWhenNoMessagesFound(@Injectable TypedQuery<String> query) {
         // GIVEN
         new Expectations() {{
-            em.createNamedQuery("UserMessageLog.findDeletedUserMessagesOlderThan");
+            em.createNamedQuery("UserMessageLog.findDeletedUserMessagesOlderThan", UserMessageLogDto.class);
             result = query;
-
-            query.unwrap(org.hibernate.query.Query.class);
-            result = baseQuery;
-
             query.getResultList();
             result = new NoResultException();
         }};
@@ -553,15 +507,11 @@ public class UserMessageLogDaoTest {
     }
 
     @Test
-    public void testGetUndownloadedUserMessagesOlderThan_Date(@Injectable Date startDate, @Injectable javax.persistence.Query query,
-                                                              @Injectable org.hibernate.query.Query<?> baseQuery) {
+    public void testGetUndownloadedUserMessagesOlderThan_Date(@Injectable Date startDate, @Injectable TypedQuery<String> query) {
         // GIVEN
         new Expectations() {{
-            em.createNamedQuery("UserMessageLog.findUndownloadedUserMessagesOlderThan");
+            em.createNamedQuery("UserMessageLog.findUndownloadedUserMessagesOlderThan", UserMessageLogDto.class);
             result = query;
-
-            query.unwrap(org.hibernate.query.Query.class);
-            result = baseQuery;
         }};
 
         // WHEN
@@ -574,15 +524,11 @@ public class UserMessageLogDaoTest {
     }
 
     @Test
-    public void testGetDeletedUserMessagesOlderThan_Date(@Injectable Date startDate, @Injectable javax.persistence.Query query,
-                                                         @Injectable org.hibernate.query.Query<?> baseQuery) {
+    public void testGetDeletedUserMessagesOlderThan_Date(@Injectable Date startDate, @Injectable TypedQuery<String> query) {
         // GIVEN
         new Expectations() {{
-            em.createNamedQuery("UserMessageLog.findDeletedUserMessagesOlderThan");
+            em.createNamedQuery("UserMessageLog.findDeletedUserMessagesOlderThan", UserMessageLogDto.class);
             result = query;
-
-            query.unwrap(org.hibernate.query.Query.class);
-            result = baseQuery;
         }};
 
         // WHEN
@@ -595,16 +541,13 @@ public class UserMessageLogDaoTest {
     }
 
     @Test
-    public void testGetUndownloadedUserMessagesOlderThan_Mpc(@Injectable javax.persistence.Query query,
-                                                             @Injectable org.hibernate.query.Query<?> baseQuery) {
+    public void testGetUndownloadedUserMessagesOlderThan_Mpc(@Injectable TypedQuery<String> query) {
         // GIVEN
         new Expectations() {{
-            em.createNamedQuery("UserMessageLog.findUndownloadedUserMessagesOlderThan");
+            em.createNamedQuery("UserMessageLog.findUndownloadedUserMessagesOlderThan", UserMessageLogDto.class);
             result = query;
-
-            query.unwrap(org.hibernate.query.Query.class);
-            result = baseQuery;
         }};
+
         // WHEN
         userMessageLogDao.getUndownloadedUserMessagesOlderThan(null, "mpc", 1);
 
@@ -615,15 +558,11 @@ public class UserMessageLogDaoTest {
     }
 
     @Test
-    public void testGetUndownloadedUserMessagesOlderThan_ExpiredNotDownloadedMessagesLimit(@Injectable javax.persistence.Query query,
-                                                                                           @Injectable org.hibernate.query.Query<?> baseQuery) {
+    public void testGetUndownloadedUserMessagesOlderThan_ExpiredNotDownloadedMessagesLimit(@Injectable TypedQuery<String> query) {
         // GIVEN
         new Expectations() {{
-            em.createNamedQuery("UserMessageLog.findUndownloadedUserMessagesOlderThan");
+            em.createNamedQuery("UserMessageLog.findUndownloadedUserMessagesOlderThan", UserMessageLogDto.class);
             result = query;
-
-            query.unwrap(org.hibernate.query.Query.class);
-            result = baseQuery;
         }};
 
         // WHEN
@@ -636,15 +575,11 @@ public class UserMessageLogDaoTest {
     }
 
     @Test
-    public void testGetDeletedUserMessagesOlderThan_ExpiredDeletedMessagesLimit(@Injectable javax.persistence.Query query,
-                                                                                @Injectable org.hibernate.query.Query<?> baseQuery) {
+    public void testGetDeletedUserMessagesOlderThan_ExpiredDeletedMessagesLimit(@Injectable TypedQuery<String> query) {
         // GIVEN
         new Expectations() {{
-            em.createNamedQuery("UserMessageLog.findDeletedUserMessagesOlderThan");
+            em.createNamedQuery("UserMessageLog.findDeletedUserMessagesOlderThan", UserMessageLogDto.class);
             result = query;
-
-            query.unwrap(org.hibernate.query.Query.class);
-            result = baseQuery;
         }};
 
         // WHEN
@@ -657,17 +592,11 @@ public class UserMessageLogDaoTest {
     }
 
     @Test
-    public void testGetDownloadedUserMessagesOlderThan(@Injectable javax.persistence.Query query,
-                                                       @Injectable org.hibernate.query.Query<?> baseQuery,
-                                                       @Injectable List<UserMessageLogDto> list) {
+    public void testGetDownloadedUserMessagesOlderThan(@Injectable TypedQuery<String> query, @Injectable List<String> list) {
         // GIVEN
         new Expectations() {{
-            em.createNamedQuery("UserMessageLog.findDownloadedUserMessagesOlderThan");
+            em.createNamedQuery("UserMessageLog.findDownloadedUserMessagesOlderThan", UserMessageLogDto.class);
             result = query;
-
-            query.unwrap(org.hibernate.query.Query.class);
-            result = baseQuery;
-
             query.getResultList();
             result = list;
         }};
@@ -680,16 +609,11 @@ public class UserMessageLogDaoTest {
     }
 
     @Test
-    public void testGetDownloadedUserMessagesOlderThan_returnsEmptyListWhenNoMessagesFound(@Injectable javax.persistence.Query query,
-                                                                                           @Injectable org.hibernate.query.Query<?> baseQuery) {
+    public void testGetDownloadedUserMessagesOlderThan_returnsEmptyListWhenNoMessagesFound(@Injectable TypedQuery<String> query) {
         // GIVEN
         new Expectations() {{
-            em.createNamedQuery("UserMessageLog.findDownloadedUserMessagesOlderThan");
+            em.createNamedQuery("UserMessageLog.findDownloadedUserMessagesOlderThan", UserMessageLogDto.class);
             result = query;
-
-            query.unwrap(org.hibernate.query.Query.class);
-            result = baseQuery;
-
             query.getResultList();
             result = new NoResultException();
         }};
@@ -702,15 +626,11 @@ public class UserMessageLogDaoTest {
     }
 
     @Test
-    public void testGetDownloadedUserMessagesOlderThan_Date(@Injectable Date startDate, @Injectable javax.persistence.Query query,
-                                                            @Injectable org.hibernate.query.Query<?> baseQuery) {
+    public void testGetDownloadedUserMessagesOlderThan_Date(@Injectable Date startDate, @Injectable TypedQuery<String> query) {
         // GIVEN
         new Expectations() {{
-            em.createNamedQuery("UserMessageLog.findDownloadedUserMessagesOlderThan");
+            em.createNamedQuery("UserMessageLog.findDownloadedUserMessagesOlderThan", UserMessageLogDto.class);
             result = query;
-
-            query.unwrap(org.hibernate.query.Query.class);
-            result = baseQuery;
         }};
 
         // WHEN
@@ -723,14 +643,10 @@ public class UserMessageLogDaoTest {
     }
 
     @Test
-    public void testGetDownloadedUserMessagesOlderThan_Mpc(@Injectable javax.persistence.Query typedQuery,
-                                                           @Injectable org.hibernate.query.Query<?> query) {
+    public void testGetDownloadedUserMessagesOlderThan_Mpc(@Injectable TypedQuery<String> query) {
         // GIVEN
         new Expectations() {{
-            em.createNamedQuery("UserMessageLog.findDownloadedUserMessagesOlderThan");
-            result = typedQuery;
-
-            typedQuery.unwrap(org.hibernate.query.Query.class);
+            em.createNamedQuery("UserMessageLog.findDownloadedUserMessagesOlderThan", UserMessageLogDto.class);
             result = query;
         }};
 
@@ -739,23 +655,18 @@ public class UserMessageLogDaoTest {
 
         // THEN
         new Verifications() {{
-            query.setResultTransformer((ResultTransformer) any);
-
-            typedQuery.setParameter("MPC", "mpc");
+            query.setParameter("MPC", "mpc");
         }};
     }
 
     @Test
-    public void testGetDownloadedUserMessagesOlderThan_ExpiredDownloadedMessagesLimit(@Injectable javax.persistence.Query query,
-                                                                                      @Injectable org.hibernate.query.Query<?> baseQuery) {
+    public void testGetDownloadedUserMessagesOlderThan_ExpiredDownloadedMessagesLimit(@Injectable TypedQuery<String> query) {
         // GIVEN
         new Expectations() {{
-            em.createNamedQuery("UserMessageLog.findDownloadedUserMessagesOlderThan");
+            em.createNamedQuery("UserMessageLog.findDownloadedUserMessagesOlderThan", UserMessageLogDto.class);
             result = query;
-
-            query.unwrap(org.hibernate.query.Query.class);
-            result = baseQuery;
         }};
+
         // WHEN
         userMessageLogDao.getDownloadedUserMessagesOlderThan(null, null, 13);
 
@@ -803,7 +714,7 @@ public class UserMessageLogDaoTest {
         filters.put("attribute", new Object());
 
         new Expectations(userMessageLogDao) {{
-            userMessageLogInfoFilter.countUserMessageLogQuery(anyBoolean, filters);
+            userMessageLogInfoFilter.getCountMessageLogQuery(filters);
             em.createQuery(anyString, Number.class);
             result = query;
             userMessageLogInfoFilter.applyParameters(query, filters);
@@ -813,42 +724,10 @@ public class UserMessageLogDaoTest {
         }};
 
         // WHEN
-        int result = userMessageLogDao.countAllInfo(true, filters);
+        long result = userMessageLogDao.countEntries(filters);
 
         // THEN
         Assert.assertEquals("Should have returned the correct count when filters provided", 4, result);
-    }
-
-    @Test
-    public void testCountAllInfo_returnsAllWhenNoFilters() {
-        // GIVEN
-        new Expectations(userMessageLogDao) {{
-            userMessageLogDao.countAll();
-            result = 7;
-        }};
-
-        // WHEN
-        int result = userMessageLogDao.countAllInfo(true, new HashMap<>());
-
-        // THEN
-        Assert.assertEquals("Should have returned the total count when no filters provided", 7, result);
-    }
-
-    @Test
-    public void testCountAll(@Injectable Query query) {
-        // GIVEN
-        new Expectations() {{
-            em.createNativeQuery("SELECT count(um.ID_PK) FROM  TB_USER_MESSAGE um");
-            result = query;
-            query.getSingleResult();
-            result = 10;
-        }};
-
-        // WHEN
-        Integer result = userMessageLogDao.countAll();
-
-        // THEN
-        Assert.assertEquals("Should have returned the correct total count", Integer.valueOf(10), result);
     }
 
     @Test

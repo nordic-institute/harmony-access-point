@@ -26,7 +26,6 @@ import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -330,87 +329,41 @@ public class FSSendMessagesServiceTest {
     }
 
     @Test
-    public void testCheckSizeChangedRecently_RecentFile_SameSize(final @Mocked FileObject contentFile2) throws FileSystemException {
+    public void testCheckSizeChangedRecently() throws InterruptedException {
         final String domain = "default";
-        final String fileName = "ram:///FSSendMessagesServiceTest/OUT/content.xml2";
-        long fileSize = 1234;
-        long currentTime = new Date().getTime();
-        instance.observedFilesInfo.put(fileName, new FileInfo(fileSize, currentTime, domain));
-
         new Expectations(1, instance) {{
             fsPluginProperties.getSendDelay(domain);
             result = 200;
-
-            contentFile2.getContent().getSize();
-            result = fileSize;
-
-            contentFile2.getName().getPath();
-            result = fileName;
         }};
 
         //tested method
-        boolean actualRes = instance.checkSizeChangedRecently(contentFile2, domain);
+        boolean actualRes = instance.checkSizeChangedRecently(contentFile, domain);
         Assert.assertEquals(true, actualRes);
-
+        Thread.sleep(100);
+        boolean actualRes2 = instance.checkSizeChangedRecently(contentFile, domain);
+        Assert.assertEquals(true, actualRes2);
+        Thread.sleep(400);
+        boolean actualRes3 = instance.checkSizeChangedRecently(contentFile, domain);
+        Assert.assertEquals(false, actualRes3);
     }
 
     @Test
-    public void testCheckSizeChangedRecently_OldFile_SameSize(final @Mocked FileObject contentFile2) throws FileSystemException {
-        final String domain = "default";
-        final String fileName = "ram:///FSSendMessagesServiceTest/OUT/content.xml2";
-        long fileSize = 1234;
-        long currentTime = new Date().getTime();
-        instance.observedFilesInfo.put(fileName, new FileInfo(fileSize, currentTime - 500, domain));
-
-        new Expectations(1, instance) {{
-            fsPluginProperties.getSendDelay(domain);
-            result = 200;
-
-            contentFile2.getContent().getSize();
-            result = fileSize;
-
-            contentFile2.getName().getPath();
-            result = fileName;
-        }};
-
-        //tested method
-        boolean actualRes = instance.checkSizeChangedRecently(contentFile2, domain);
-        Assert.assertEquals(false, actualRes);
-
-    }
-
-    @Test
-    public void testCheckTimestampChangedRecently_RecentFile(final @Mocked FileObject contentFile2) throws FileSystemException {
+    public void testCheckTimestampChangedRecently() throws InterruptedException {
         final String domain = "default";
         new Expectations(1, instance) {{
             fsPluginProperties.getSendDelay(domain);
             result = 200;
-
-            contentFile2.getContent().getLastModifiedTime();
-            result = new Date().getTime();
         }};
 
-
         //tested method
-        boolean actualRes = instance.checkTimestampChangedRecently(contentFile2, domain);
+        boolean actualRes = instance.checkTimestampChangedRecently(contentFile, domain);
         Assert.assertEquals(true, actualRes);
-    }
-
-    @Test
-    public void testCheckTimestampChangedRecently_OldFile(final @Mocked FileObject contentFile2) throws FileSystemException {
-        final String domain = "default";
-        new Expectations(1, instance) {{
-            fsPluginProperties.getSendDelay(domain);
-            result = 200;
-
-            contentFile2.getContent().getLastModifiedTime();
-            result = new Date().getTime() - 500;
-        }};
-
-
-        //tested method
-        boolean actualRes = instance.checkTimestampChangedRecently(contentFile2, domain);
-        Assert.assertEquals(false, actualRes);
+        Thread.sleep(100);
+        boolean actualRes2 = instance.checkTimestampChangedRecently(contentFile, domain);
+        Assert.assertEquals(true, actualRes2);
+        Thread.sleep(400);
+        boolean actualRes3 = instance.checkTimestampChangedRecently(contentFile, domain);
+        Assert.assertEquals(false, actualRes3);
     }
 
     @Test
@@ -422,22 +375,23 @@ public class FSSendMessagesServiceTest {
     }
 
     @Test
-    public void testClearObservedFiles() {
+    public void testClearObservedFiles() throws InterruptedException {
         final String domain = "default";
-        final String fileName = "ram:///FSSendMessagesServiceTest/OUT/content.xml2";
-        long fileSize = 1234;
-        long currentTime = new Date().getTime();
-        instance.observedFilesInfo.put(fileName, new FileInfo(fileSize, currentTime - 800, domain));
 
         new Expectations(1, instance) {{
             fsPluginProperties.getSendDelay(domain);
             result = 100;
-
             fsPluginProperties.getSendWorkerInterval(domain);
             result = 300;
         }};
 
+        instance.checkSizeChangedRecently(contentFile, domain);
+
         //tested method
+        Assert.assertEquals(1, instance.observedFilesInfo.size());
+        instance.clearObservedFiles(domain);
+        Assert.assertEquals(1, instance.observedFilesInfo.size());
+        Thread.sleep(800);
         instance.clearObservedFiles(domain);
         Assert.assertEquals(0, instance.observedFilesInfo.size());
     }

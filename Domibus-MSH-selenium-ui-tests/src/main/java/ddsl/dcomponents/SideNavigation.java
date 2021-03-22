@@ -118,7 +118,7 @@ public class SideNavigation extends DComponent {
 				return new DLink(driver, pmodePartiesLnk);
 			case JMS_MONITORING:
 				return new DLink(driver, jmsmonitoringLnk);
-			case TRUSTSTORES:
+			case TRUSTSTORE:
 				return new DLink(driver, truststoreLnk);
 			case USERS:
 				return new DLink(driver, userLnk);
@@ -206,7 +206,7 @@ public class SideNavigation extends DComponent {
 				&& getPageLnk(PAGES.PMODE_ARCHIVE).isPresent()
 				&& getPageLnk(PAGES.PMODE_PARTIES).isPresent()
 				&& getPageLnk(PAGES.JMS_MONITORING).isPresent()
-				&& getPageLnk(PAGES.TRUSTSTORES).isPresent()
+				&& getPageLnk(PAGES.TRUSTSTORE).isPresent()
 				&& getPageLnk(PAGES.USERS).isPresent()
 				&& getPageLnk(PAGES.PLUGIN_USERS).isPresent()
 				&& getPageLnk(PAGES.AUDIT).isPresent()

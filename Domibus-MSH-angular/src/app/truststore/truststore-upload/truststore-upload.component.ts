@@ -1,8 +1,9 @@
-import {Component, Inject, ViewChild} from '@angular/core';
+import {Component, EventEmitter, Output, ViewChild} from '@angular/core';
 import {MatDialogRef} from '@angular/material';
 import {TrustStoreService} from '../support/trustore.service';
-import {AbstractControl, FormBuilder, FormControl, FormGroup, NgControl, NgForm, Validators} from '@angular/forms';
-import {MAT_DIALOG_DATA} from '@angular/material/dialog';
+import {AlertService} from '../../common/alert/alert.service';
+import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
+import {FileUploadValidatorService} from '../../common/file-upload-validator.service';
 
 @Component({
   selector: 'app-truststore-upload',
@@ -13,15 +14,24 @@ import {MAT_DIALOG_DATA} from '@angular/material/dialog';
 export class TrustStoreUploadComponent {
 
   truststoreForm: FormGroup;
-  selectedFileName: string;
+
   fileSelected = false;
+
+  @Output() onTruststoreUploaded: EventEmitter<any> = new EventEmitter();
 
   @ViewChild('fileInput', {static: false}) fileInput;
 
-  constructor(public dialogRef: MatDialogRef<TrustStoreUploadComponent>, private fb: FormBuilder, @Inject(MAT_DIALOG_DATA) public data: any) {
+  constructor(public dialogRef: MatDialogRef<TrustStoreUploadComponent>,
+              private truststoreService: TrustStoreService,
+              private alertService: AlertService,
+              private fb: FormBuilder, private fileUploadService: FileUploadValidatorService) {
     this.truststoreForm = fb.group({
       'password': new FormControl('', Validators.required),
     });
+  }
+
+  public validateFileSelection() {
+    this.fileSelected = this.fileInput.nativeElement.files.length != 0;
   }
 
   public isFormValid(): boolean {
@@ -29,27 +39,26 @@ export class TrustStoreUploadComponent {
   }
 
   public async submit() {
-    if (!this.isFormValid()) {
-      return;
+    if (this.isFormValid()) {
+      const fileToUpload = this.fileInput.nativeElement.files[0];
+      try {
+        await this.fileUploadService.validateFileSize(fileToUpload);
+
+        this.truststoreService.uploadTrustStore(fileToUpload, this.truststoreForm.get('password').value)
+          .subscribe(res => {
+              this.alertService.success(res);
+              this.onTruststoreUploaded.emit();
+            },
+            err => {
+              this.alertService.exception(`Error updating truststore file (${fileToUpload.name})`, err);
+            }
+          );
+
+      } catch (e) {
+        this.alertService.exception('Could not upload the truststore file. ', e);
+      }
+
+      this.dialogRef.close();
     }
-    const fileToUpload = this.fileInput.nativeElement.files[0];
-    const password = this.truststoreForm.get('password').value;
-    const result = {
-      file: fileToUpload,
-      password: password
-    };
-    this.dialogRef.close(result);
-  }
-
-  selectFile() {
-    const fi = this.fileInput.nativeElement;
-    const file = fi.files[0];
-    this.selectedFileName = file.name;
-
-    this.fileSelected = fi.files.length != 0;
-  }
-
-  public shouldShowErrors(field: NgControl | NgForm | AbstractControl): boolean {
-    return (field.touched || field.dirty) && !!field.errors;
   }
 }

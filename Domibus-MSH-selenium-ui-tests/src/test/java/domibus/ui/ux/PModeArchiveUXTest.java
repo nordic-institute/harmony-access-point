@@ -21,7 +21,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Catalin Comanici
@@ -315,14 +314,14 @@ public class PModeArchiveUXTest extends SeleniumTest {
 		grid.waitForRowsToLoad();
 
 		log.info("extracting listed info");
-		ArrayList<HashMap<String, String>> infoDom1 = grid.getListedRowInfo();
+		List<HashMap<String, String>> infoDom1 = grid.getListedRowInfo();
 
 		log.info("changing domain");
 		page.getDomainSelector().selectAnotherDomain();
 
 		grid.waitForRowsToLoad();
 		log.info("extracting listed info");
-		ArrayList<HashMap<String, String>> infoDom2 = grid.getListedRowInfo();
+		List<HashMap<String, String>> infoDom2 = grid.getListedRowInfo();
 
 		log.info("checking for similarities in the data");
 

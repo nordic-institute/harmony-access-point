@@ -2,13 +2,12 @@ package eu.domibus.core.crypto;
 
 import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.multitenancy.Domain;
-import eu.domibus.api.pki.CertificateEntry;
-import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.DomibusCertificateException;
-import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.core.cache.DomibusCacheService;
+import eu.domibus.core.crypto.api.CertificateEntry;
 import eu.domibus.core.crypto.api.DomainCryptoService;
 import eu.domibus.core.crypto.api.DomainCryptoServiceFactory;
+import eu.domibus.core.crypto.api.MultiDomainCryptoService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.FilenameUtils;
@@ -17,6 +16,8 @@ import org.apache.wss4j.common.ext.WSSecurityException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.security.auth.callback.CallbackHandler;
 import java.security.*;
@@ -40,9 +41,6 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
 
     @Autowired
     private DomibusCacheService domibusCacheService;
-
-    @Autowired
-    protected CertificateService certificateService;
 
     @Override
     public X509Certificate[] getX509Certificates(Domain domain, CryptoType cryptoType) throws WSSecurityException {
@@ -108,9 +106,26 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     @Override
     public void replaceTrustStore(Domain domain, String storeFileName, byte[] store, String password) throws CryptoException {
         final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
-        certificateService.validateTruststoreType(domainCertificateProvider.getTrustStoreType(), storeFileName);
+
+        validateTruststoreType(domainCertificateProvider.getTrustStoreType(), storeFileName);
+
         domainCertificateProvider.replaceTrustStore(store, password);
         domibusCacheService.clearCache("certValidationByAlias");
+    }
+
+    protected void validateTruststoreType(String storeType, String storeFileName) {
+        String fileType = FilenameUtils.getExtension(storeFileName).toLowerCase();
+        switch (storeType.toLowerCase()) {
+            case "pkcs12":
+                if (Arrays.asList("p12", "pfx").contains(fileType)) {
+                    return;
+                }
+            case "jks":
+                if (Arrays.asList("jks").contains(fileType)) {
+                    return;
+                }
+        }
+        throw new InvalidParameterException("Store file type (" + fileType + ") should match the configured truststore type (" + storeType + ").");
     }
 
     @Override
@@ -199,11 +214,5 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
         }
 
         domainCertificateProvider.reset();
-    }
-
-    @Override
-    public byte[] getTruststoreContent(Domain domain) {
-        final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
-        return domainCertificateProvider.getTruststoreContent();
     }
 }

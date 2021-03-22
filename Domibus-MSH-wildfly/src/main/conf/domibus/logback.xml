@@ -119,9 +119,7 @@
 
     <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
         <Target>System.out</Target>
-        <encoder>
-            <pattern>${encoderPattern}</pattern>
-        </encoder>
+        <encoder>${encoderPattern}</encoder>
     </appender>
 
     <logger name="eu.domibus" level="INFO">

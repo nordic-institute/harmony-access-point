@@ -1,17 +1,17 @@
 package eu.domibus.core.plugin.handler;
 
-import eu.domibus.api.model.*;
 import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.ErrorResult;
-import eu.domibus.common.ErrorResultImpl;
+import eu.domibus.common.MSHRole;
+import eu.domibus.common.MessageStatus;
 import eu.domibus.common.model.configuration.Identifier;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Mpc;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.ebms3.EbMS3Exception;
-import eu.domibus.api.ebms3.Ebms3Constants;
+import eu.domibus.core.ebms3.Ebms3Constants;
 import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.exception.MessagingExceptionFactory;
@@ -32,6 +32,10 @@ import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.pmode.validation.validators.MessagePropertyValidator;
 import eu.domibus.core.pmode.validation.validators.PropertyProfileValidator;
 import eu.domibus.core.replication.UIReplicationSignalService;
+import eu.domibus.ebms3.common.model.MessageInfo;
+import eu.domibus.ebms3.common.model.Messaging;
+import eu.domibus.ebms3.common.model.ObjectFactory;
+import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -51,7 +55,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static eu.domibus.logging.DomibusMessageCode.MANDATORY_MESSAGE_HEADER_METADATA_MISSING;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -74,6 +77,8 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     private static final String WAS_NOT_FOUND_STR = "] was not found";
     private static final String ERROR_SUBMITTING_THE_MESSAGE_STR = "Error submitting the message [";
     private static final String TO_STR = "] to [";
+
+    private final ObjectFactory ebMS3Of = new ObjectFactory();
 
     @Autowired
     protected AuthUtils authUtils;
@@ -254,29 +259,15 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     }
 
     @Override
-    public eu.domibus.common.MessageStatus getStatus(final String messageId) {
+    public MessageStatus getStatus(final String messageId) {
         validateAccessToStatusAndErrors(messageId);
-        MessageStatus messageStatus = userMessageLogDao.getMessageStatus(messageId);
-        return eu.domibus.common.MessageStatus.valueOf(messageStatus.name());
+        return userMessageLogDao.getMessageStatus(messageId);
     }
 
     @Override
     public List<? extends ErrorResult> getErrorsForMessage(final String messageId) {
         validateAccessToStatusAndErrors(messageId);
-        List<ErrorLogEntry> errorsForMessage = errorLogDao.getErrorsForMessage(messageId);
-        return errorsForMessage.stream().map(errorLogEntry -> convert(errorLogEntry)).collect(Collectors.toList());
-    }
-
-    protected ErrorResultImpl convert(ErrorLogEntry errorLogEntry) {
-        ErrorResultImpl result = new ErrorResultImpl();
-        result.setErrorCode(errorLogEntry.getErrorCode());
-        result.setErrorDetail(errorLogEntry.getErrorDetail());
-        result.setMessageInErrorId(errorLogEntry.getMessageInErrorId());
-        result.setMshRole(eu.domibus.common.MSHRole.valueOf(errorLogEntry.getMshRole().name()));
-        result.setNotified(errorLogEntry.getNotified());
-        result.setTimestamp(errorLogEntry.getTimestamp());
-
-        return result;
+        return errorLogDao.getErrorsForMessage(messageId);
     }
 
     //TODO refactor this method in order to reuse existing code from the method submit
@@ -304,7 +295,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                 throw new DuplicateMessageException(MESSAGE_WITH_ID_STR + messageId + "] already exists. Message identifiers must be unique");
             }
 
-            Messaging message = new Messaging();
+            Messaging message = ebMS3Of.createMessaging();
             message.setUserMessage(userMessage);
 
             MessageExchangeConfiguration userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
@@ -391,7 +382,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
             backendMessageValidator.validateUserMessageForPmodeMatch(userMessage, MSHRole.SENDING);
 
-            Messaging message = new Messaging();
+            Messaging message = ebMS3Of.createMessaging();
             message.setUserMessage(userMessage);
 
             MessageExchangeConfiguration userMessageExchangeConfiguration;

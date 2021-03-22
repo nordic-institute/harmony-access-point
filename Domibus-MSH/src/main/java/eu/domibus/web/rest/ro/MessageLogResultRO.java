@@ -1,9 +1,9 @@
 package eu.domibus.web.rest.ro;
 
-import eu.domibus.api.model.MSHRole;
-import eu.domibus.api.model.MessageStatus;
-import eu.domibus.api.model.NotificationStatus;
-import eu.domibus.api.model.MessageType;
+import eu.domibus.common.MSHRole;
+import eu.domibus.common.MessageStatus;
+import eu.domibus.core.plugin.notification.NotificationStatus;
+import eu.domibus.ebms3.common.model.MessageType;
 
 import java.io.Serializable;
 import java.util.List;
@@ -24,6 +24,7 @@ public class MessageLogResultRO implements Serializable {
     private NotificationStatus[] notifStatus;
 
     private Long count;
+    private boolean estimatedCount;
     private Integer page;
     private Integer pageSize;
 
@@ -97,5 +98,13 @@ public class MessageLogResultRO implements Serializable {
 
     public void setPageSize(Integer pageSize) {
         this.pageSize = pageSize;
+    }
+
+    public Boolean isEstimatedCount() {
+        return estimatedCount;
+    }
+
+    public void setEstimatedCount(boolean estimatedCount) {
+        this.estimatedCount = estimatedCount;
     }
 }

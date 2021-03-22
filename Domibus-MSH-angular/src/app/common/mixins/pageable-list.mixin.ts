@@ -19,8 +19,8 @@ export let ServerPageableListMixin = (superclass: Constructable) => class extend
   }
 
   // when server-paging, call get data from server
-  public page() {
-    this.loadServerData();
+  public async page() {
+    await this.loadServerData();
   }
 
   protected createAndSetParameters(): HttpParams {
@@ -103,7 +103,7 @@ export let PageableListMixin = (superclass: Constructable) => class extends supe
   public async onPage(event) {
     this.alertService.clearAlert();
 
-    this.loadPage(event.offset);
+    await this.loadPage(event.offset);
   }
 
   public async resetPage() {
@@ -118,7 +118,7 @@ export let PageableListMixin = (superclass: Constructable) => class extends supe
       }
       super.selected = [];
       this.offset = offset;
-      this.page();
+      await this.page();
     } else {
       // TODO: try to use before event instead(if exists) or make grid show the correct value
     }

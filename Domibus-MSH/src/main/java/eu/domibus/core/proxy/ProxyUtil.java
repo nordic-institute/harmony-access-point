@@ -2,7 +2,6 @@ package eu.domibus.core.proxy;
 
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -23,7 +22,7 @@ public class ProxyUtil {
     DomibusProxyService domibusProxyService;
 
     public HttpHost getConfiguredProxy() {
-        if (BooleanUtils.isTrue(domibusProxyService.useProxy())) {
+        if (domibusProxyService.useProxy()) {
             DomibusProxy domibusProxy = domibusProxyService.getDomibusProxy();
             LOG.debug("Proxy enabled, get configured proxy [{}] [{}]", domibusProxy.getHttpProxyHost(), domibusProxy.getHttpProxyPort());
             return new HttpHost(domibusProxy.getHttpProxyHost(), domibusProxy.getHttpProxyPort());

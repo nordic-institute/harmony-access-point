@@ -626,12 +626,12 @@
         "readable" : {
           "type" : "boolean"
         },
+        "filename" : {
+          "type" : "string"
+        },
         "uri" : {
           "type" : "string",
           "format" : "uri"
-        },
-        "filename" : {
-          "type" : "string"
         },
         "url" : {
           "type" : "string",
@@ -886,7 +886,6 @@
         },
         "identifiers" : {
           "type" : "array",
-          "uniqueItems" : true,
           "items" : {
             "$ref" : "#/definitions/PartyIdentifierDTO"
           }

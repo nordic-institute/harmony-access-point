@@ -28,7 +28,7 @@ public class AuthUtilsImpl implements AuthUtils {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AuthUtilsImpl.class);
     private static final String DOMIBUS_USER = "domibus";
-    private static final String DOMIBUS_PASSWORD = "domibus"; //NOSONAR
+    private static final String DOMIBUS_PASSWORD = "domibus";
 
     protected final DomibusPropertyProvider domibusPropertyProvider;
 

@@ -60,7 +60,8 @@ public class AuthenticationServiceImpl extends AuthenticationServiceBase impleme
         userService.handleCorrectAuthentication(username);
         UserDetail principal = (UserDetail) authentication.getPrincipal();
         principal.setDomain(domain);
-        refreshSecurityContext(authentication);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
         return principal;
     }
+
 }

@@ -1,34 +1,26 @@
 package eu.domibus.core.message;
 
-import eu.domibus.api.model.MessageStatus;
-import eu.domibus.api.ebms3.model.mf.Ebms3MessageFragmentType;
-import eu.domibus.api.ebms3.model.mf.Ebms3MessageHeaderType;
-import eu.domibus.api.model.*;
-import eu.domibus.api.model.MSHRole;
-import eu.domibus.api.model.splitandjoin.MessageFragmentEntity;
-import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
-import eu.domibus.api.model.splitandjoin.MessageHeaderEntity;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.usermessage.UserMessageService;
-import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.*;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.ebms3.EbMS3Exception;
-import eu.domibus.api.ebms3.Ebms3Constants;
+import eu.domibus.core.ebms3.Ebms3Constants;
 import eu.domibus.core.message.compression.CompressionException;
 import eu.domibus.core.message.compression.CompressionService;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
+import eu.domibus.core.message.nonrepudiation.RawEnvelopeLogDao;
 import eu.domibus.core.message.receipt.AS4ReceiptService;
 import eu.domibus.core.message.splitandjoin.*;
 import eu.domibus.core.payload.PayloadProfileValidator;
 import eu.domibus.core.payload.persistence.InvalidPayloadSizeException;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
-import eu.domibus.api.model.NotificationStatus;
+import eu.domibus.core.plugin.notification.NotificationStatus;
 import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.pmode.validation.validators.MessagePropertyValidator;
@@ -36,6 +28,10 @@ import eu.domibus.core.pmode.validation.validators.PropertyProfileValidator;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
+import eu.domibus.core.util.xml.XMLUtilImpl;
+import eu.domibus.ebms3.common.model.*;
+import eu.domibus.ebms3.common.model.mf.MessageFragmentType;
+import eu.domibus.ebms3.common.model.mf.MessageHeaderType;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
@@ -86,9 +82,6 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     protected SoapUtil soapUtil;
 
     @Autowired
-    protected XMLUtil xmlUtil;
-
-    @Autowired
     private PModeProvider pModeProvider;
 
     @Autowired
@@ -120,6 +113,9 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
 
     @Autowired
     protected UIReplicationSignalService uiReplicationSignalService;
+
+    @Autowired
+    protected RawEnvelopeLogDao rawEnvelopeLogDao;
 
     @Autowired
     protected MessageUtil messageUtil;
@@ -259,8 +255,8 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
                 final BackendFilter matchingBackendFilter = routingService.getMatchingBackendFilter(messaging.getUserMessage());
                 String backendName = (matchingBackendFilter != null ? matchingBackendFilter.getBackendName() : null);
 
-                Ebms3MessageFragmentType ebms3MessageFragmentType = messageUtil.getMessageFragment(request);
-                persistReceivedMessage(request, legConfiguration, pmodeKey, messaging, ebms3MessageFragmentType, backendName);
+                MessageFragmentType messageFragmentType = messageUtil.getMessageFragment(request);
+                persistReceivedMessage(request, legConfiguration, pmodeKey, messaging, messageFragmentType, backendName);
 
                 try {
                     backendNotificationService.notifyMessageReceived(matchingBackendFilter, messaging.getUserMessage());
@@ -269,10 +265,10 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
                     throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0004, e.getMessage(), messageId, e);
                 }
 
-                if (ebms3MessageFragmentType != null) {
+                if (messageFragmentType != null) {
                     LOG.debug("Received UserMessage fragment");
 
-                    splitAndJoinService.incrementReceivedFragments(ebms3MessageFragmentType.getGroupId(), backendName);
+                    splitAndJoinService.incrementReceivedFragments(messageFragmentType.getGroupId(), backendName);
                 }
             }
         }
@@ -368,37 +364,37 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
             final LegConfiguration legConfiguration,
             final String pmodeKey,
             final Messaging messaging,
-            Ebms3MessageFragmentType ebms3MessageFragmentType,
+            MessageFragmentType messageFragmentType,
             final String backendName)
             throws SOAPException, TransformerException, EbMS3Exception {
         LOG.info("Persisting received message");
         UserMessage userMessage = messaging.getUserMessage();
 
-        if (ebms3MessageFragmentType != null) {
-            handleMessageFragment(messaging.getUserMessage(), ebms3MessageFragmentType, legConfiguration);
+        if (messageFragmentType != null) {
+            handleMessageFragment(messaging.getUserMessage(), messageFragmentType, legConfiguration);
         }
 
         handlePayloads(request, userMessage);
 
         boolean compressed = compressionService.handleDecompression(userMessage, legConfiguration);
         LOG.debug("Compression for message with id: {} applied: {}", userMessage.getMessageInfo().getMessageId(), compressed);
-        return saveReceivedMessage(request, legConfiguration, pmodeKey, messaging, ebms3MessageFragmentType, backendName, userMessage);
+        return saveReceivedMessage(request, legConfiguration, pmodeKey, messaging, messageFragmentType, backendName, userMessage);
     }
 
     /**
      * Persists the incoming SourceMessage
      */
-    protected String persistReceivedSourceMessage(final SOAPMessage request, final LegConfiguration legConfiguration, final String pmodeKey, final Messaging messaging, Ebms3MessageFragmentType ebms3MessageFragmentType, final String backendName) throws EbMS3Exception {
+    protected String persistReceivedSourceMessage(final SOAPMessage request, final LegConfiguration legConfiguration, final String pmodeKey, final Messaging messaging, MessageFragmentType messageFragmentType, final String backendName) throws EbMS3Exception {
         LOG.info("Persisting received SourceMessage");
         UserMessage userMessage = messaging.getUserMessage();
         userMessage.setSplitAndJoin(true);
 
-        return saveReceivedMessage(request, legConfiguration, pmodeKey, messaging, ebms3MessageFragmentType, backendName, userMessage);
+        return saveReceivedMessage(request, legConfiguration, pmodeKey, messaging, messageFragmentType, backendName, userMessage);
     }
 
-    protected String saveReceivedMessage(SOAPMessage request, LegConfiguration legConfiguration, String pmodeKey, Messaging messaging, Ebms3MessageFragmentType ebms3MessageFragmentType, String backendName, UserMessage userMessage) throws EbMS3Exception {
+    protected String saveReceivedMessage(SOAPMessage request, LegConfiguration legConfiguration, String pmodeKey, Messaging messaging, MessageFragmentType messageFragmentType, String backendName, UserMessage userMessage) throws EbMS3Exception {
         //skip payload and property profile validations for message fragments
-        if (ebms3MessageFragmentType == null) {
+        if (messageFragmentType == null) {
             try {
                 payloadProfileValidator.validate(messaging, pmodeKey);
                 propertyProfileValidator.validate(messaging, pmodeKey);
@@ -454,40 +450,40 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     }
 
 
-    protected void handleMessageFragment(UserMessage userMessage, Ebms3MessageFragmentType ebms3MessageFragmentType, final LegConfiguration legConfiguration) throws EbMS3Exception {
+    protected void handleMessageFragment(UserMessage userMessage, MessageFragmentType messageFragmentType, final LegConfiguration legConfiguration) throws EbMS3Exception {
         userMessage.setSplitAndJoin(true);
-        MessageGroupEntity messageGroupEntity = messageGroupDao.findByGroupId(ebms3MessageFragmentType.getGroupId());
+        MessageGroupEntity messageGroupEntity = messageGroupDao.findByGroupId(messageFragmentType.getGroupId());
 
         if (messageGroupEntity == null) {
             LOG.debug("Creating messageGroupEntity");
 
             messageGroupEntity = new MessageGroupEntity();
             MessageHeaderEntity messageHeaderEntity = new MessageHeaderEntity();
-            final Ebms3MessageHeaderType messageHeader = ebms3MessageFragmentType.getMessageHeader();
+            final MessageHeaderType messageHeader = messageFragmentType.getMessageHeader();
             messageHeaderEntity.setStart(messageHeader.getStart());
             messageHeaderEntity.setBoundary(messageHeader.getBoundary());
             messageGroupEntity.setMshRole(MSHRole.RECEIVING);
             messageGroupEntity.setMessageHeaderEntity(messageHeaderEntity);
-            messageGroupEntity.setSoapAction(ebms3MessageFragmentType.getAction());
-            messageGroupEntity.setCompressionAlgorithm(ebms3MessageFragmentType.getCompressionAlgorithm());
-            messageGroupEntity.setMessageSize(ebms3MessageFragmentType.getMessageSize());
-            messageGroupEntity.setCompressedMessageSize(ebms3MessageFragmentType.getCompressedMessageSize());
-            messageGroupEntity.setGroupId(ebms3MessageFragmentType.getGroupId());
-            messageGroupEntity.setFragmentCount(ebms3MessageFragmentType.getFragmentCount());
+            messageGroupEntity.setSoapAction(messageFragmentType.getAction());
+            messageGroupEntity.setCompressionAlgorithm(messageFragmentType.getCompressionAlgorithm());
+            messageGroupEntity.setMessageSize(messageFragmentType.getMessageSize());
+            messageGroupEntity.setCompressedMessageSize(messageFragmentType.getCompressedMessageSize());
+            messageGroupEntity.setGroupId(messageFragmentType.getGroupId());
+            messageGroupEntity.setFragmentCount(messageFragmentType.getFragmentCount());
             messageGroupDao.create(messageGroupEntity);
         }
 
-        validateUserMessageFragment(userMessage, messageGroupEntity, ebms3MessageFragmentType, legConfiguration);
+        validateUserMessageFragment(userMessage, messageGroupEntity, messageFragmentType, legConfiguration);
 
         MessageFragmentEntity messageFragmentEntity = new MessageFragmentEntity();
-        messageFragmentEntity.setGroupId(ebms3MessageFragmentType.getGroupId());
-        messageFragmentEntity.setFragmentNumber(ebms3MessageFragmentType.getFragmentNum());
+        messageFragmentEntity.setGroupId(messageFragmentType.getGroupId());
+        messageFragmentEntity.setFragmentNumber(messageFragmentType.getFragmentNum());
         userMessage.setMessageFragment(messageFragmentEntity);
 
-        addPartInfoFromFragment(userMessage, ebms3MessageFragmentType);
+        addPartInfoFromFragment(userMessage, messageFragmentType);
     }
 
-    protected void validateUserMessageFragment(UserMessage userMessage, MessageGroupEntity messageGroupEntity, Ebms3MessageFragmentType ebms3MessageFragmentType, final LegConfiguration legConfiguration) throws EbMS3Exception {
+    protected void validateUserMessageFragment(UserMessage userMessage, MessageGroupEntity messageGroupEntity, MessageFragmentType messageFragmentType, final LegConfiguration legConfiguration) throws EbMS3Exception {
         if (legConfiguration.getSplitting() == null) {
             LOG.error("No splitting configuration found on leg [{}]", legConfiguration.getName());
             EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0002, "No splitting configuration found", userMessage.getMessageInfo().getMessageId(), null);
@@ -502,7 +498,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
             throw ex;
         }
 
-        final String groupId = ebms3MessageFragmentType.getGroupId();
+        final String groupId = messageFragmentType.getGroupId();
         if (messageGroupEntity == null) {
             LOG.warn("Could not validate UserMessage fragment [[{}] for group [{}]: messageGroupEntity is null", userMessage.getMessageInfo().getMessageId(), groupId);
             return;
@@ -518,7 +514,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
             throw ex;
         }
         final Long fragmentCount = messageGroupEntity.getFragmentCount();
-        if (fragmentCount != null && ebms3MessageFragmentType.getFragmentCount() != null && ebms3MessageFragmentType.getFragmentCount() > fragmentCount) {
+        if (fragmentCount != null && messageFragmentType.getFragmentCount() != null && messageFragmentType.getFragmentCount() > fragmentCount) {
             LOG.error("An incoming message fragment has a a value greater than the known FragmentCount for group [{}]", groupId);
             EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0048, "An incoming message fragment has a a value greater than the known FragmentCount", userMessage.getMessageInfo().getMessageId(), null);
             ex.setMshRole(MSHRole.RECEIVING);
@@ -526,7 +522,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
         }
     }
 
-    protected void addPartInfoFromFragment(UserMessage userMessage, final Ebms3MessageFragmentType messageFragment) {
+    protected void addPartInfoFromFragment(UserMessage userMessage, final MessageFragmentType messageFragment) {
         if (messageFragment == null) {
             LOG.debug("No message fragment found");
             return;
@@ -614,7 +610,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
         final Source source = new DOMSource(bodyContent);
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
         final Result result = new StreamResult(out);
-        final Transformer transformer = xmlUtil.getTransformerFactory().newTransformer();
+        final Transformer transformer = XMLUtilImpl.getTransformerFactory().newTransformer();
         transformer.transform(source, result);
         return new DataHandler(new ByteArrayDataSource(out.toByteArray(), "text/xml"));
     }
@@ -632,7 +628,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     @Override
     public ErrorResult createErrorResult(EbMS3Exception ebm3Exception) {
         ErrorResultImpl result = new ErrorResultImpl();
-        result.setMshRole(eu.domibus.common.MSHRole.RECEIVING);
+        result.setMshRole(MSHRole.RECEIVING);
         result.setMessageInErrorId(ebm3Exception.getRefToMessageId());
         try {
             result.setErrorCode(ebm3Exception.getErrorCodeObject());

@@ -2,7 +2,9 @@ package eu.domibus.core.util;
 
 import com.google.gson.reflect.TypeToken;
 import eu.domibus.api.message.MessageSubtype;
-import eu.domibus.api.model.UserMessageLogDto;
+import eu.domibus.api.util.JsonUtil;
+import eu.domibus.core.message.UserMessageLog;
+import eu.domibus.core.message.UserMessageLogDto;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -22,7 +24,7 @@ public class JsonUtilTest {
     public void testJsonToList() throws Exception {
         String json = "['1', '2']";
         List<String> strings = jsonUtil.jsonToList(json);
-        Assert.assertEquals("1", strings.get(0));
+        Assert.assertTrue(strings.get(0).equals("1"));
     }
 
     @Test
@@ -34,9 +36,9 @@ public class JsonUtilTest {
         String json = jsonUtil.listToJson(ids);
         List<String> list = jsonUtil.jsonToList(json);
 
-        Assert.assertEquals(2, list.size());
-        Assert.assertEquals(id1, list.get(0));
-        Assert.assertEquals(id2, list.get(1));
+        Assert.assertTrue(list.size() == 2);
+        Assert.assertTrue(list.get(0).equals(id1));
+        Assert.assertTrue(list.get(1).equals(id2));
     }
 
     @Test
@@ -53,9 +55,9 @@ public class JsonUtilTest {
         }.getType();
         List<UserMessageLogDto> list = jsonUtil.jsonToList(json, type);
 
-        Assert.assertEquals(2, list.size());
-        Assert.assertEquals(id1, list.get(0).getMessageId());
-        Assert.assertEquals(id2, list.get(1).getMessageId());
-        Assert.assertEquals(backend, list.get(1).getBackend());
+        Assert.assertTrue(list.size() == 2);
+        Assert.assertTrue(list.get(0).getMessageId().equals(id1));
+        Assert.assertTrue(list.get(1).getMessageId().equals(id2));
+        Assert.assertTrue(list.get(1).getBackend().equals(backend));
     }
 }

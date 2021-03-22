@@ -5,8 +5,9 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
-import eu.domibus.api.util.DatabaseUtil;
+import eu.domibus.api.security.functions.AuthenticatedProcedure;
 import eu.domibus.core.user.UserService;
+import eu.domibus.core.util.DatabaseUtil;
 import mockit.FullVerifications;
 import mockit.Injectable;
 import mockit.Mocked;
@@ -16,6 +17,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.quartz.JobExecutionContext;
 
+import static org.junit.Assert.*;
+
 /**
  * @author François Gautier
  * @since 5.0
@@ -24,7 +27,7 @@ import org.quartz.JobExecutionContext;
 public class ActivateSuspendedUsersJobTest {
 
     @Tested
-    ActivateSuspendedUsersJob activateSuspendedUsersJob;
+    ActivateSuspendedUsersJob activateSuspendedSuperUsersJob;
 
     @Injectable
     private UserService userManagementService;
@@ -44,18 +47,19 @@ public class ActivateSuspendedUsersJobTest {
     @Test
     public void executeJob(@Mocked JobExecutionContext context, @Mocked Domain domain) {
 
-        activateSuspendedUsersJob.executeJob(context, domain);
+        activateSuspendedSuperUsersJob.executeJob(context, domain);
 
         new FullVerifications() {{
-            userManagementService.reactivateSuspendedUsers();
+            AuthenticatedProcedure function;
+            AuthRole authRole;
+            boolean forceSecurityContext;
+            authUtils.runWithDomibusSecurityContext(function = withCapture(), authRole = withCapture(), forceSecurityContext = withCapture());
+
+            assertEquals(AuthRole.ROLE_AP_ADMIN, authRole);
+            assertTrue(forceSecurityContext);
+            assertNotNull(function);
         }};
     }
 
-    @Test
-    public void setQuartzJobSecurityContext() {
-        activateSuspendedUsersJob.setQuartzJobSecurityContext();
-        new FullVerifications() {{
-            authUtils.setAuthenticationToSecurityContext( "domibus-quartz",  "domibus-quartz", AuthRole.ROLE_AP_ADMIN);
-        }};
-    }
+
 }

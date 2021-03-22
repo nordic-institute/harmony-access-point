@@ -13,18 +13,23 @@ import * as FileSaver from 'file-saver';
 @Injectable()
 export class TrustStoreService {
 
+  url = 'rest/truststore';
+
   constructor(private http: HttpClient, private alertService: AlertService) {
+
   }
 
-  getEntries(url): Promise<TrustStoreEntry[]> {
-    return this.http.get<TrustStoreEntry[]>(url).toPromise();
+  getEntries(): Promise<TrustStoreEntry[]> {
+    return this.http.get<TrustStoreEntry[]>(this.url + '/list').toPromise();
   }
 
-  uploadFile(url, props): Promise<string> {
+  uploadTrustStore(file, password): Observable<string> {
     let input = new FormData();
-    Object.keys(props).forEach(key => input.append(key, props[key]));
-    return this.http.post<string>(url, input).toPromise();
+    input.append('truststore', file);
+    input.append('password', password);
+    return this.http.post<string>(this.url + '/save', input);
   }
+
 
   /**
    * Local persister for the jks file
@@ -36,8 +41,4 @@ export class TrustStoreService {
     FileSaver.saveAs(blob, filename, false);
   }
 
-  removeCertificate(url: string, cert: any): Promise<string> {
-    const deleteUrl = url.replace('alias', cert.name);
-    return this.http.delete<string>(deleteUrl).toPromise();
-  }
 }

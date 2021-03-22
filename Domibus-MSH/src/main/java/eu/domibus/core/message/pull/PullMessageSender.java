@@ -1,16 +1,14 @@
 package eu.domibus.core.message.pull;
 
-import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.message.UserMessageException;
-import eu.domibus.api.model.Error;
-import eu.domibus.api.model.*;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.common.ErrorCode;
+import eu.domibus.common.MSHRole;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.ebms3.EbMS3Exception;
-import eu.domibus.core.ebms3.mapper.Ebms3Converter;
+import eu.domibus.core.ebms3.sender.AbstractUserMessageSender;
 import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
 import eu.domibus.core.ebms3.ws.policy.PolicyService;
@@ -18,12 +16,16 @@ import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.message.MessageExchangeConfiguration;
 import eu.domibus.core.message.UserMessageDefaultService;
 import eu.domibus.core.message.UserMessageHandlerService;
-import eu.domibus.core.metrics.Counter;
-import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.status.DomibusStatusService;
 import eu.domibus.core.util.MessageUtil;
+import eu.domibus.ebms3.common.model.Error;
+import eu.domibus.ebms3.common.model.Messaging;
+import eu.domibus.ebms3.common.model.PullRequest;
+import eu.domibus.ebms3.common.model.SignalMessage;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -45,6 +47,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.ws.WebServiceException;
 import java.io.IOException;
 import java.util.Set;
+import java.util.concurrent.Executor;
 
 /**
  * @author Thomas Dussart
@@ -92,7 +95,8 @@ public class PullMessageSender {
     private DomainContextProvider domainContextProvider;
 
     @Autowired
-    protected Ebms3Converter ebms3Converter;
+    @Qualifier("taskExecutor")
+    private Executor executor;
 
     @Autowired
     private PullFrequencyHelper pullFrequencyHelper;
@@ -100,8 +104,8 @@ public class PullMessageSender {
     @SuppressWarnings("squid:S2583") //TODO: SONAR version updated!
     @Transactional(propagation = Propagation.REQUIRED)
     //@TODO unit test this method.
-    @Timer(clazz = PullMessageSender.class, value = "outgoing_pull_request")
-    @Counter(clazz = PullMessageSender.class, value = "outgoing_pull_request")
+    @Timer(clazz = PullMessageSender.class,value = "outgoing_pull_request")
+    @Counter(clazz = PullMessageSender.class,value = "outgoing_pull_request")
     public void processPullRequest(final Message map) {
         if (domibusStatusService.isNotReady()) {
             return;
@@ -140,9 +144,7 @@ public class PullMessageSender {
             LOG.trace("Send soap message");
             final SOAPMessage response = mshDispatcher.dispatch(soapMessage, receiverParty.getEndpoint(), policy, legConfiguration, pModeKey);
             pullFrequencyHelper.success(legConfiguration.getDefaultMpc().getName());
-            Ebms3Messaging ebms3Messaging = messageUtil.getMessage(response);
-            messaging = ebms3Converter.convertFromEbms3(ebms3Messaging);
-
+            messaging = messageUtil.getMessage(response);
             if (messaging.getUserMessage() == null && messaging.getSignalMessage() != null) {
                 LOG.trace("No message for sent pull request with mpc:[{}]", mpcQualifiedName);
                 logError(signalMessage);

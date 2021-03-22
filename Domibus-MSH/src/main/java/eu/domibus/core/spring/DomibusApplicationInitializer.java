@@ -18,6 +18,7 @@ import eu.domibus.web.spring.DomibusWebConfiguration;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.transport.servlet.CXFServlet;
 import org.springframework.beans.factory.config.PropertiesFactoryBean;
+import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MapPropertySource;
@@ -34,14 +35,11 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.*;
 
-import static eu.domibus.core.spring.DomibusSessionInitializer.SESSION_INITIALIZER_ORDER;
-
 /**
  * @author Cosmin Baciu
  * @since 4.2
- * The priority should be lower( the numbaer higher) than that of DomibusSessionInitializer so that the Spring session filter is added to the chain first
  */
-@Order(SESSION_INITIALIZER_ORDER + 1)
+@Order(Ordered.HIGHEST_PRECEDENCE)
 public class DomibusApplicationInitializer implements WebApplicationInitializer {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusApplicationInitializer.class);
@@ -64,7 +62,7 @@ public class DomibusApplicationInitializer implements WebApplicationInitializer 
         Thread.currentThread().setContextClassLoader(pluginClassLoader);
 
         AnnotationConfigWebApplicationContext rootContext = new AnnotationConfigWebApplicationContext();
-        rootContext.register(DomibusRootConfiguration.class, DomibusSessionConfiguration.class);
+        rootContext.register(DomibusRootConfiguration.class);
 
         try {
             configurePropertySources(rootContext, domibusConfigLocation);

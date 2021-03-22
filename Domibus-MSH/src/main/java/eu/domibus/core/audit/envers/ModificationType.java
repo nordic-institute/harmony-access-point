@@ -30,15 +30,7 @@ public enum ModificationType {
     /**
      * Indicates the message was moved from a queue.
      */
-    MOVED("Moved", 5),
-    /**
-     * Indicates the user message envelope was downloaded.
-     */
-    USER_MESSAGE_ENVELOPE_DOWNLOADED("UserMessageEnvelopeDownloaded", 6),
-    /**
-     * Indicates the signal message envelope was downloaded.
-     */
-    SIGNAL_MESSAGE_ENVELOPE_DOWNLOADED("SignalMessageEnvelopeDownloaded", 7);
+    MOVED("Moved", 5);
 
     private final String label;
 

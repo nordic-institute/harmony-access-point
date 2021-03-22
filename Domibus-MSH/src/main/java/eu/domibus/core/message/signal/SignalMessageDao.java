@@ -1,12 +1,13 @@
 package eu.domibus.core.message.signal;
 
 import eu.domibus.core.dao.BasicDao;
-import eu.domibus.api.model.SignalMessage;
+import eu.domibus.core.message.MessageInfoDao;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
+import eu.domibus.ebms3.common.model.MessageType;
+import eu.domibus.ebms3.common.model.SignalMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,12 +34,6 @@ public class SignalMessageDao extends BasicDao<SignalMessage> {
         final TypedQuery<SignalMessage> query = em.createNamedQuery("SignalMessage.findSignalMessageByRefMessageId", SignalMessage.class);
         query.setParameter("ORI_MESSAGE_ID", originalMessageId);
         return query.getResultList();
-    }
-
-    public SignalMessage findSignalMessageByMessageId(final String messageId) {
-        final TypedQuery<SignalMessage> query = em.createNamedQuery("SignalMessage.findSignalMessageByMessageId", SignalMessage.class);
-        query.setParameter("MESSAGE_ID", messageId);
-        return DataAccessUtils.singleResult(query.getResultList());
     }
 
     public List<String> findSignalMessageIdsByRefMessageId(final String originalMessageId) {
@@ -76,6 +71,16 @@ public class SignalMessageDao extends BasicDao<SignalMessage> {
         signalMessage.setReceipt(null);
         update(signalMessage);
         LOG.debug("Xml data for signal message [" + signalMessage.getMessageInfo().getMessageId() + "] have been cleared");
+    }
+
+    @Timer(clazz = SignalMessageDao.class,value = "findSignalMessage")
+    @Counter(clazz = SignalMessageDao.class,value = "findSignalMessage")
+    public List<SignalMessage> findSignalMessages(List<String> userMessageIds) {
+        final TypedQuery<SignalMessage> query = em.createNamedQuery("SignalMessage.find", SignalMessage.class);
+        query.setParameter("MESSAGEIDS", userMessageIds);
+        List<SignalMessage> signalMessages = query.getResultList();
+        LOG.debug("Number of signal messages Found ids [{}]", signalMessages.size());
+        return signalMessages;
     }
 
 

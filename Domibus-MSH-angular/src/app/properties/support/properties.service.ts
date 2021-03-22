@@ -87,7 +87,7 @@ export interface PropertyModel {
   name: string;
   type: string;
   usageText: string;
-  composable: boolean;
+  isComposable: boolean;
   withFallback: boolean;
   clusterAware: boolean;
   section: string;

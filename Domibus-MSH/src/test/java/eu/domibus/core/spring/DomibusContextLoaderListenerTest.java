@@ -5,6 +5,7 @@ import eu.domibus.core.plugin.classloader.PluginClassLoader;
 import eu.domibus.logging.DomibusLogger;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
+import net.sf.ehcache.constructs.web.ShutdownListener;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,7 +25,7 @@ import java.util.Set;
  * @author François Gautier
  * @since 4.2
  * <p>
- * Methods
+ * Methods {@link DomibusContextLoaderListener#shutdownEhCache}
  * {@link DomibusContextLoaderListener#shutdownPluginClassLoader}
  * {@link DomibusContextLoaderListener#shutdownLogger}
  * are NOT tested separately because it's hard to partially mocked local method
@@ -50,12 +51,15 @@ public class DomibusContextLoaderListenerTest {
     @Test
     public void contextDestroyed_ok(@Mocked ServletContextEvent servletContextEvent,
                                     @Mocked ContextLoaderListener contextLoaderListener,
+                                    @Mocked ShutdownListener shutdownListener,
                                     @Mocked LoggerFactory loggerFactory,
                                     @Mocked LoggerContext loggerContext,
                                     @Mocked DomibusLogger domibusLogger) {
         Deencapsulation.setField(domibusContextLoaderListener, "LOG", domibusLogger);
 
         new Expectations() {{
+            new ShutdownListener();
+            result = shutdownListener;
 
             LoggerFactory.getILoggerFactory();
             result = loggerContext;
@@ -67,6 +71,12 @@ public class DomibusContextLoaderListenerTest {
         new FullVerificationsInOrder() {{
             //super.contextDestroyed
             contextLoaderListener.contextDestroyed(servletContextEvent);
+            times = 1;
+
+            domibusLogger.info("Shutting down net.sf.ehcache");
+            times = 1;
+
+            shutdownListener.contextDestroyed(servletContextEvent);
             times = 1;
 
             domibusLogger.info("Closing PluginClassLoader");
@@ -99,6 +109,7 @@ public class DomibusContextLoaderListenerTest {
     @Test
     public void contextDestroyed_exception(@Mocked ServletContextEvent servletContextEvent,
                                            @Mocked ContextLoaderListener contextLoaderListener,
+                                           @Mocked ShutdownListener shutdownListener,
                                            @Mocked LoggerFactory loggerFactory,
                                            @Mocked LoggerContext loggerContext,
                                            @Mocked DomibusLogger domibusLogger) {
@@ -107,6 +118,8 @@ public class DomibusContextLoaderListenerTest {
         pluginClassLoader.throwExceptionOnClose();
 
         new Expectations() {{
+            new ShutdownListener();
+            result = shutdownListener;
 
             LoggerFactory.getILoggerFactory();
             result = loggerContext;
@@ -119,6 +132,12 @@ public class DomibusContextLoaderListenerTest {
         new FullVerificationsInOrder() {{
             //super.contextDestroyed
             contextLoaderListener.contextDestroyed(servletContextEvent);
+            times = 1;
+
+            domibusLogger.info("Shutting down net.sf.ehcache");
+            times = 1;
+
+            shutdownListener.contextDestroyed(servletContextEvent);
             times = 1;
 
             domibusLogger.info("Closing PluginClassLoader");

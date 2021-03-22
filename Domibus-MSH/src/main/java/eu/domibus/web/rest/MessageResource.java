@@ -2,7 +2,6 @@ package eu.domibus.web.rest;
 
 import eu.domibus.api.messaging.MessageNotFoundException;
 import eu.domibus.api.messaging.MessagingException;
-import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.core.message.MessagesLogService;
 import eu.domibus.logging.DomibusLogger;
@@ -10,7 +9,6 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.ErrorRO;
 import eu.domibus.web.rest.ro.MessageLogRO;
-import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpStatus;
@@ -19,8 +17,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE;
 
 /**
  * Created by musatmi on 10/05/2017.
@@ -39,9 +35,6 @@ public class MessageResource {
 
     @Autowired
     private ErrorHandlerService errorHandlerService;
-
-    @Autowired
-    protected DomibusPropertyProvider domibusPropertyProvider;
 
     @ExceptionHandler({MessagingException.class})
     public ResponseEntity<ErrorRO> handleMessagingException(MessagingException ex) {
@@ -83,43 +76,17 @@ public class MessageResource {
     }
 
     @RequestMapping(value = "/exists", method = RequestMethod.GET)
-    public void checkCanDownload(@RequestParam(value = "messageId", required = true) String messageId) {
+    public boolean checkMessageContentExists(@RequestParam(value = "messageId", required = true) String messageId) {
         MessageLogRO message = messagesLogService.findUserMessageById(messageId);
-        int maxDownLoadSize = domibusPropertyProvider.getIntegerProperty(DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE);
+
         if (message == null) {
-            throw new MessagingException("No message found for message id: " + messageId, null);
+            return false;
         }
         if (message.getDeleted() != null) {
             LOG.info("Could not find message content for message: [{}]", messageId);
-            throw new MessagingException("Message content is no longer available for message id: " + messageId, null);
+            return false;
         }
-        byte[] content = userMessageService.getMessageAsBytes(messageId);
-        if (content.length > maxDownLoadSize) {
-            LOG.warn("Couldn't download the message. The message size exceeds maximum download size limit: " + maxDownLoadSize);
-            throw new MessagingException("The message size exceeds maximum download size limit: " + maxDownLoadSize, null);
-        }
+        return true;
     }
 
-    @GetMapping(value = "/{messageId:.+}/envelopes")
-    public ResponseEntity<ByteArrayResource> downloadMessageEnvelopes(@PathVariable(value = "messageId") String messageId) {
-        return getByteArrayResourceResponseEntity(messageId);
-    }
-
-    @GetMapping(value = "/envelopes")
-    public ResponseEntity<ByteArrayResource> downloadEnvelopes(@RequestParam(value = "messageId", required = true) String messageId) {
-        return getByteArrayResourceResponseEntity(messageId);
-    }
-
-    protected ResponseEntity<ByteArrayResource> getByteArrayResourceResponseEntity(String messageId) {
-        byte[] zip = userMessageService.getMessageEnvelopesAsZip(messageId);
-
-        if (ArrayUtils.isEmpty(zip)) {
-            return ResponseEntity.noContent().build();
-        }
-
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType("application/zip"))
-                .header("content-disposition", "attachment; filename=message_envelopes_" + messageId + ".zip")
-                .body(new ByteArrayResource(zip));
-    }
 }

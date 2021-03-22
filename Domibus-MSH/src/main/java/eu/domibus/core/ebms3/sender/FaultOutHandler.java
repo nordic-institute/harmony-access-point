@@ -1,13 +1,11 @@
 package eu.domibus.core.ebms3.sender;
 
-import eu.domibus.api.ebms3.model.Ebms3Messaging;
-import eu.domibus.api.model.MSHRole;
-import eu.domibus.core.ebms3.mapper.Ebms3Converter;
+import eu.domibus.common.MSHRole;
 import eu.domibus.core.ebms3.ws.handler.AbstractFaultHandler;
 import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.util.SoapUtil;
-import eu.domibus.api.model.Messaging;
+import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,9 +34,6 @@ public class FaultOutHandler extends AbstractFaultHandler {
     @Autowired
     private SoapUtil soapUtil;
 
-    @Autowired
-    protected Ebms3Converter ebms3Converter;
-
     @Override
     public Set<QName> getHeaders() {
         return Collections.emptySet();
@@ -59,8 +54,7 @@ public class FaultOutHandler extends AbstractFaultHandler {
 
 
         final SOAPMessage soapMessage = context.getMessage();
-        final Ebms3Messaging ebms3Messaging = this.extractMessaging(soapMessage);
-        Messaging messaging = ebms3Converter.convertFromEbms3(ebms3Messaging);
+        final Messaging messaging = this.extractMessaging(soapMessage);
         final String messageId = messaging.getSignalMessage().getMessageInfo().getMessageId();
 
         //log the raw xml Signal message

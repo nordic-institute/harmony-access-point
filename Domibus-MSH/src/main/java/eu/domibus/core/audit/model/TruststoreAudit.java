@@ -9,7 +9,7 @@ import java.util.Date;
 
 /**
  * @author Ion Perpegel
- * @since 4.2
+ * @since 5.0
  */
 @Entity
 @DiscriminatorValue("Truststore")
@@ -19,7 +19,10 @@ public class TruststoreAudit extends AbstractGenericAudit {
     public TruststoreAudit() {
     }
 
-    public TruststoreAudit(final String id, final String userName, final Date revisionDate, final ModificationType modificationType) {
-        super(id, userName, revisionDate, modificationType);
+    public TruststoreAudit(
+            final String userName,
+            final Date revisionDate,
+            final ModificationType modificationType) {
+        super("truststore", userName, revisionDate, modificationType);
     }
 }

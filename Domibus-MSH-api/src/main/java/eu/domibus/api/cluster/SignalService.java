@@ -1,6 +1,7 @@
 package eu.domibus.api.cluster;
 
 import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.user.UserBase;
 
 import java.util.Map;
 
@@ -36,6 +37,7 @@ public interface SignalService {
      */
     void signalLoggingReset();
 
+
     /**
      * signals domibus property changed to other servers in the cluster
      */
@@ -52,14 +54,4 @@ public interface SignalService {
      * Signals the session invalidation for the specified user
      */
     void signalSessionInvalidation(String userName);
-
-    /**
-     * Signals the clearing of the Caches
-     */
-    void signalClearCaches();
-
-    /**
-     * Signals the change of the TLS truststore
-     */
-    void signalTLSTrustStoreUpdate(Domain currentDomain);
 }

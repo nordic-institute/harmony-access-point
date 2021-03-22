@@ -5,7 +5,7 @@
     <parent>
         <artifactId>domibus</artifactId>
         <groupId>eu.domibus</groupId>
-        <version>5.0-SNAPSHOT</version>
+        <version>4.2.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -61,7 +61,7 @@
         </dependency>
         <!-- Utils dependencies -->
         <dependency>
-            <groupId>org.ehcache</groupId>
+            <groupId>net.sf.ehcache</groupId>
             <artifactId>ehcache</artifactId>
             <scope>provided</scope>
         </dependency>

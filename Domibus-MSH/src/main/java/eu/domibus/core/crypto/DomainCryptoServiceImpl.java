@@ -1,25 +1,27 @@
 package eu.domibus.core.crypto;
 
 import eu.domibus.api.crypto.CryptoException;
-import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.multitenancy.Domain;
-import eu.domibus.api.pki.CertificateEntry;
-import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.ErrorCode;
+import eu.domibus.common.MSHRole;
+import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.converter.DomainCoreConverter;
+import eu.domibus.core.crypto.api.CertificateEntry;
 import eu.domibus.core.crypto.api.DomainCryptoService;
 import eu.domibus.core.crypto.spi.CertificateEntrySpi;
 import eu.domibus.core.crypto.spi.DomainCryptoServiceSpi;
 import eu.domibus.core.crypto.spi.DomainSpi;
 import eu.domibus.core.crypto.spi.model.AuthenticationError;
 import eu.domibus.core.crypto.spi.model.AuthenticationException;
-import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.wss4j.common.crypto.CryptoType;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import javax.security.auth.callback.CallbackHandler;
@@ -34,7 +36,8 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EXTENSION_IAM_AUTHENTICATION_IDENTIFIER;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SECURITY_TRUSTSTORE_TYPE;
 import static eu.domibus.core.crypto.spi.AbstractCryptoServiceSpi.DEFAULT_AUTHENTICATION_SPI;
 
 /**
@@ -55,10 +58,14 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
     private List<DomainCryptoServiceSpi> domainCryptoServiceSpiList;
 
     @Autowired
-    private DomibusPropertyProvider domibusPropertyProvider;
+    private DomainCoreConverter domainCoreConverter;
 
     @Autowired
-    protected CertificateService certificateService;
+    private DomibusPropertyProvider domibusPropertyProvider;
+
+
+    public DomainCryptoServiceImpl() {
+    }
 
     public DomainCryptoServiceImpl(Domain domain) {
         this.domain = domain;
@@ -226,11 +233,5 @@ public class DomainCryptoServiceImpl implements DomainCryptoService {
     @Override
     public void reset() {
         this.init();
-    }
-
-    @Override
-    public byte[] getTruststoreContent() {
-        String location = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_LOCATION);
-        return certificateService.getTruststoreContent(location);
     }
 }

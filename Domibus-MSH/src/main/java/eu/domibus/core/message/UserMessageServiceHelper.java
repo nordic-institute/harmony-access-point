@@ -1,8 +1,6 @@
 package eu.domibus.core.message;
 
-import eu.domibus.api.model.UserMessage;
-
-import java.util.Map;
+import eu.domibus.ebms3.common.model.UserMessage;
 
 /**
  * @author Cosmin Baciu
@@ -16,8 +14,6 @@ public interface UserMessageServiceHelper {
 
     String getPartyTo(UserMessage userMessage);
 
-    String getPartyFrom(UserMessage userMessage);
-
     boolean isSameOriginalSender(UserMessage userMessage, String originalSender);
 
     boolean isSameFinalRecipient(UserMessage userMessage, String originalSender);
@@ -27,10 +23,4 @@ public interface UserMessageServiceHelper {
     String getService(UserMessage userMessage);
 
     String getAction(UserMessage userMessage);
-
-    Map<String, String> getProperties(UserMessage userMessage);
-
-    String getConversationId(UserMessage userMessage);
-
-    String getRefToMessageId(UserMessage userMessage);
 }

@@ -1,6 +1,7 @@
 package eu.domibus.core.dao;
 
-import eu.domibus.api.model.AbstractBaseEntity;
+import eu.domibus.ebms3.common.model.AbstractBaseEntity;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;

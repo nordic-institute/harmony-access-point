@@ -1,6 +1,6 @@
 package eu.domibus.core.message.acknowledge;
 
-import eu.domibus.api.model.AbstractBaseEntity;
+import eu.domibus.ebms3.common.model.AbstractBaseEntity;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -44,7 +44,7 @@ public class MessageAcknowledgementEntity extends AbstractBaseEntity {
     @Column(name = "ACKNOWLEDGE_DATE")
     private Timestamp acknowledgeDate;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @JoinColumn(name = "FK_MSG_ACKNOWLEDGE")
     private Set<MessageAcknowledgementProperty> properties;
 

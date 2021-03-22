@@ -1,5 +1,6 @@
 package eu.domibus.core.message;
 
+import com.google.common.collect.ImmutableMap;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import mockit.Expectations;
 import mockit.Injectable;
@@ -10,7 +11,10 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Tiago Miguel
@@ -91,5 +95,25 @@ public class UserMessageLogInfoFilterTest {
         Assert.assertTrue(resultQueryString.contains("order by log.messageId asc"));
     }
 
+    @Test
+    public void createFromClause_MessageTableNotDirectly() {
+        Map<String, Object> filters = ImmutableMap.of(
+                "messageId", "111",
+                "fromPartyId", "222",
+                "originalSender", "333");
+        String messageTable = ", UserMessage message left join log.messageInfo info ";
+        String partyFromTable = "left join message.partyInfo.from.partyId partyFrom ";
 
+        String messageCriteria = "message.messageInfo = info ";
+        String propsCriteria = "and propsFrom.name = 'originalSender' ";
+
+        String result = userMessageLogInfoFilter.getCountQueryBody(filters);
+
+        Assert.assertTrue(result.contains(userMessageLogInfoFilter.getMainTable()));
+        Assert.assertTrue(result.contains(messageTable));
+        Assert.assertTrue(result.contains(partyFromTable));
+
+        Assert.assertTrue(result.contains(messageCriteria));
+        Assert.assertTrue(result.contains(propsCriteria));
+    }
 }

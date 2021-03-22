@@ -1,7 +1,7 @@
 package eu.domibus.common.model.configuration;
 
 import eu.domibus.core.audit.envers.RevisionLogicalName;
-import eu.domibus.api.model.AbstractBaseEntity;
+import eu.domibus.ebms3.common.model.AbstractBaseEntity;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 
@@ -34,7 +34,7 @@ public class Configuration extends AbstractBaseEntity {
     @Transient
     private Mpcs mpcsXml; //NOSONAR
     @XmlTransient
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @JoinColumn(name = "FK_CONFIGURATION")
     @NotAudited
     private Set<Mpc> mpcs;

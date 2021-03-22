@@ -80,18 +80,6 @@ public class PropertiesClient extends BaseRestClient {
 		ClientResponse response = textPUT(resource.path(path), value);
 		return response;
 	}
-
-	public ClientResponse updateGlobalProperty(String propertyName, String value) throws Exception {
-
-		switchDomain(null);
-
-		String path = RestServicePaths.DOMIBUS_PROPERTIES + "/" + propertyName;
-
-
-
-		ClientResponse response = textPUT(resource.path(path).queryParam("isDomain", "false"), value);
-		return response;
-	}
 	
 
 

@@ -1,10 +1,9 @@
 package eu.domibus;
 
-import com.google.gson.Gson;
-import eu.domibus.api.model.MessageStatus;
-import eu.domibus.api.model.UserMessage;
+import com.thoughtworks.xstream.XStream;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.common.MessageStatus;
 import eu.domibus.common.NotificationType;
 import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
@@ -14,12 +13,12 @@ import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.proxy.DomibusProxyService;
 import eu.domibus.core.spring.DomibusRootConfiguration;
+import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.web.spring.DomibusWebConfiguration;
-import org.apache.activemq.ActiveMQXAConnection;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -41,7 +40,6 @@ import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -68,7 +66,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
-import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
@@ -118,10 +115,10 @@ public abstract class AbstractIT {
         System.setProperty("domibus.config.location", new File("target/test-classes").getAbsolutePath());
 
         //we are using randomly available port in order to allow run in parallel
-        int activeMQConnectorPort = SocketUtils.findAvailableTcpPort(2000, 3100);
-        int activeMQBrokerPort = SocketUtils.findAvailableTcpPort(61616, 62690);
+        int activeMQConnectorPort = SocketUtils.findAvailableTcpPort(2000, 2100);
+        int activeMQBrokerPort = SocketUtils.findAvailableTcpPort(61616, 61690);
         System.setProperty(ACTIVE_MQ_CONNECTOR_PORT, String.valueOf(activeMQConnectorPort));
-        System.setProperty(ACTIVE_MQ_TRANSPORT_CONNECTOR_URI, "vm://localhost:" + activeMQBrokerPort + "?broker.persistent=false&create=false");
+        System.setProperty(ACTIVE_MQ_TRANSPORT_CONNECTOR_URI, "vm://localhost:" + activeMQBrokerPort + "?broker.persistent=false");
         LOG.info("activeMQ.connectorPort=[{}]", activeMQConnectorPort);
         LOG.info("activeMQBrokerPort=[{}]", activeMQBrokerPort);
 
@@ -167,10 +164,8 @@ public abstract class AbstractIT {
     }
 
     protected UserMessage getUserMessageTemplate() throws IOException {
-        Resource userMessageTemplate = new ClassPathResource("dataset/messages/UserMessageTemplate.json");
-        String jsonStr = new String(IOUtils.toByteArray(userMessageTemplate.getInputStream()), StandardCharsets.UTF_8);
-        UserMessage userMessage = new Gson().fromJson(jsonStr, UserMessage.class);
-        return userMessage;
+        XStream xStream = new XStream();
+        return (UserMessage) xStream.fromXML(new ClassPathResource("dataset/messages/UserMessageTemplate.xml").getInputStream());
     }
 
 
@@ -230,8 +225,6 @@ public abstract class AbstractIT {
      */
     protected void pushQueueMessage(String messageId, javax.jms.Connection connection, String queueName) throws Exception {
 
-        // set XA mode to Session.AUTO_ACKNOWLEDGE - test does not use XA transaction
-        ((ActiveMQXAConnection)connection).setXaAckMode(Session.AUTO_ACKNOWLEDGE);
         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
         Destination destination = session.createQueue(queueName);
         MessageProducer producer = session.createProducer(destination);
@@ -261,8 +254,6 @@ public abstract class AbstractIT {
      */
     protected Message popQueueMessageWithTimeout(javax.jms.Connection connection, String queueName, long mSecs) throws Exception {
 
-        // set XA mode to Session.AUTO_ACKNOWLEDGE - test does not use XA transaction
-        ((ActiveMQXAConnection)connection).setXaAckMode(Session.AUTO_ACKNOWLEDGE);
         Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
         Destination destination = session.createQueue(queueName);
         MessageConsumer consumer = session.createConsumer(destination);

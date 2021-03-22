@@ -1,7 +1,6 @@
 package eu.domibus.core.security.configuration;
 
 import eu.domibus.api.security.AuthRole;
-import eu.domibus.web.filter.CookieFilter;
 import eu.domibus.web.filter.SetDomainFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -38,9 +37,6 @@ public abstract class AbstractWebSecurityConfigurerAdapter extends WebSecurityCo
 
     @Autowired
     Http403ForbiddenEntryPoint http403ForbiddenEntryPoint;
-
-    @Autowired
-    CookieFilter cookieFilter;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -138,7 +134,6 @@ public abstract class AbstractWebSecurityConfigurerAdapter extends WebSecurityCo
                 .and()
                 .httpBasic().authenticationEntryPoint(http403ForbiddenEntryPoint)
                 .and()
-                .addFilterBefore(setDomainFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(cookieFilter, SetDomainFilter.class);
+                .addFilterBefore(setDomainFilter, UsernamePasswordAuthenticationFilter.class);
     }
 }

@@ -28,7 +28,6 @@ import {PropertiesService} from '../properties/support/properties.service';
 import * as moment from 'moment';
 import {SecurityService} from '../security/security.service';
 import {ComponentName} from '../common/component-name-decorator';
-import {MessageLogEntry} from './support/messagelogentry';
 
 @Component({
   moduleId: module.id,
@@ -45,7 +44,6 @@ export class MessageLogComponent extends mix(BaseListComponent)
   static readonly DOWNLOAD_MESSAGE_URL: string = 'rest/message/download?messageId=${messageId}';
   static readonly CAN_DOWNLOAD_MESSAGE_URL: string = 'rest/message/exists?messageId=${messageId}';
   static readonly MESSAGE_LOG_URL: string = 'rest/messagelog';
-  static readonly DOWNLOAD_ENVELOPE_URL: string = 'rest/message/envelopes?messageId=${messageId}';
 
   @ViewChild('rowWithDateFormatTpl', {static: false}) public rowWithDateFormatTpl: TemplateRef<any>;
   @ViewChild('nextAttemptInfoTpl', {static: false}) public nextAttemptInfoTpl: TemplateRef<any>;
@@ -71,6 +69,10 @@ export class MessageLogComponent extends mix(BaseListComponent)
   conversationIdValue: String;
   resendReceivedMinutes: number;
 
+  additionalPages: number;
+  totalRowsMessage: string;
+  estimatedCount: boolean;
+
   constructor(private applicationService: ApplicationContextService, private http: HttpClient, private alertService: AlertService,
               private domibusInfoService: DomibusInfoService, public dialog: MatDialog, public dialogsService: DialogsService,
               private elementRef: ElementRef, private changeDetector: ChangeDetectorRef, private propertiesService: PropertiesService,
@@ -87,6 +89,10 @@ export class MessageLogComponent extends mix(BaseListComponent)
 
     super.orderBy = 'received';
     super.asc = false;
+
+    this.additionalPages = 0;
+    this.totalRowsMessage = '$1 total';
+    this.estimatedCount = false;
 
     this.messageResent = new EventEmitter(false);
 
@@ -169,18 +175,6 @@ export class MessageLogComponent extends mix(BaseListComponent)
         cellTemplate: this.rowWithDateFormatTpl,
         name: 'Deleted',
         width: 155
-      },
-      {
-        name: 'Action',
-        prop: 'action'
-      },
-      {
-        name: 'Service Type',
-        prop: 'serviceType'
-      },
-      {
-        name: 'Service Value',
-        prop: 'serviceValue'
       }
     ];
 
@@ -245,7 +239,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
   }
 
   public setServerResults(result: MessageLogResult) {
-    super.count = result.count;
+    this.calculateCount(result);
     super.rows = result.messageLogEntries;
 
     if (result.filter.receivedFrom) {
@@ -261,6 +255,27 @@ export class MessageLogComponent extends mix(BaseListComponent)
     this.msgTypes = result.msgTypes;
     this.msgStatuses = result.msgStatus.sort();
     this.notifStatus = result.notifStatus;
+  }
+
+  private calculateCount(result: MessageLogResult) {
+    this.estimatedCount = result.estimatedCount;
+    if (result.estimatedCount) {
+      if (result.messageLogEntries.length < this.rowLimiter.pageSize) {
+        this.additionalPages--;
+      }
+      super.count = result.count + this.additionalPages * this.rowLimiter.pageSize;
+      this.totalRowsMessage = 'more than $1';
+    } else {
+      super.count = result.count;
+      this.totalRowsMessage = '$1 total';
+    }
+  }
+
+  public async onPage(event) {
+    if (this.estimatedCount && ((event.offset + 1) * this.rowLimiter.pageSize > this.count)) {
+      this.additionalPages++;
+    }
+    super.onPage(event);
   }
 
   resendDialog() {
@@ -339,39 +354,18 @@ export class MessageLogComponent extends mix(BaseListComponent)
 
   private async downloadMessage(row) {
     const messageId = row.messageId;
-    let canDownloadUrl = MessageLogComponent.CAN_DOWNLOAD_MESSAGE_URL.replace('${messageId}', encodeURIComponent(messageId));
-    this.http.get(canDownloadUrl).subscribe(res => {
-
-      const downloadUrl = MessageLogComponent.DOWNLOAD_MESSAGE_URL.replace('${messageId}', encodeURIComponent(messageId));
-      DownloadService.downloadNative(downloadUrl);
-    }, err => {
-      if (err.error.message.includes("Message content is no longer available for message id")) {
+    const canDownloadUrl = MessageLogComponent.CAN_DOWNLOAD_MESSAGE_URL.replace('${messageId}', encodeURIComponent(messageId));
+    try {
+      const canDownload = await this.http.get(canDownloadUrl).toPromise();
+      if (canDownload) {
+        const downloadUrl = MessageLogComponent.DOWNLOAD_MESSAGE_URL.replace('${messageId}', encodeURIComponent(messageId));
+        DownloadService.downloadNative(downloadUrl);
+      } else {
+        this.alertService.error(`Message content is no longer available for id ${messageId}.`);
         row.deleted = true;
       }
-      this.alertService.exception(`Could not download message.`, err);
-    });
-  }
-
-  downloadEnvelopeAction(row: MessageLogEntry) {
-    if (row.messageType == 'USER_MESSAGE') {
-      this.downloadEnvelopesForUserMessage(row.messageId);
-    } else {
-      this.downloadEnvelopesForSignalMessage(row);
-    }
-  }
-
-  private downloadEnvelopesForSignalMessage(row) {
-    this.downloadEnvelopesForUserMessage(row.refToMessageId);
-  }
-
-  private downloadEnvelopesForUserMessage(messageId) {
-    try {
-      const downloadUrl = MessageLogComponent.DOWNLOAD_ENVELOPE_URL
-        .replace('${messageId}', encodeURIComponent(messageId));
-
-      DownloadService.downloadNative(downloadUrl);
     } catch (err) {
-      this.alertService.exception(`Could not download message envelopes for id ${messageId}.`, err);
+      this.alertService.exception(`Could not download message content for id ${messageId}.`, err);
     }
   }
 
@@ -431,4 +425,5 @@ export class MessageLogComponent extends mix(BaseListComponent)
   isCurrentUserAdmin(): boolean {
     return this.securityService.isCurrentUserAdmin();
   }
+
 }

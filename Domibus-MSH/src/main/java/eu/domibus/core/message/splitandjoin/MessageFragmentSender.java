@@ -1,9 +1,8 @@
 package eu.domibus.core.message.splitandjoin;
 
-import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
-import eu.domibus.api.model.UserMessage;
+import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.core.ebms3.sender.AbstractUserMessageSender;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;

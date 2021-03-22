@@ -20,7 +20,7 @@ public class PModeCofirmationModal extends EditModal {
 	@FindBy(id="pmode")
 	WebElement chooseFilePmode;
 	
-	@FindBy(id="editbuttonok_id")
+	@FindBy(id="okbuttonupload_id")
 	WebElement okButton;
 	
 	

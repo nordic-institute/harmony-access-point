@@ -1,12 +1,9 @@
 package eu.domibus.core.ebms3.sender;
 
-import eu.domibus.api.ebms3.model.Ebms3Messaging;
-import eu.domibus.api.ebms3.model.Ebms3SignalMessage;
 import eu.domibus.api.exceptions.DomibusDateTimeException;
 import eu.domibus.common.ErrorCode;
-import eu.domibus.api.model.MSHRole;
+import eu.domibus.common.MSHRole;
 import eu.domibus.core.ebms3.EbMS3Exception;
-import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
@@ -14,6 +11,8 @@ import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDefaultService;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.core.util.MessageUtil;
+import eu.domibus.ebms3.common.model.Messaging;
+import eu.domibus.ebms3.common.model.SignalMessage;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
@@ -56,26 +55,23 @@ public class ResponseHandlerTest {
     @Mocked
     private SOAPMessage soapMessage;
     @Mocked
-    private Ebms3Messaging ebms3Messaging;
+    private Messaging messaging;
     @Mocked
-    private Ebms3SignalMessage ebms3SignalMessage;
+    private SignalMessage signalMessage;
     @Mocked
     private ResponseHandler.ResponseStatus responseStatus;
-
-    @Injectable
-    Ebms3Converter ebms3Converter;
 
     @Test
     public void verifyResponse_ok() throws EbMS3Exception, SOAPException {
 
         new Expectations(responseHandler) {{
             messageUtil.getMessagingWithDom(soapMessage);
-            result = ebms3Messaging;
+            result = messaging;
 
-            ebms3Messaging.getSignalMessage();
-            result = ebms3SignalMessage;
+            messaging.getSignalMessage();
+            result = signalMessage;
 
-            responseHandler.getResponseStatus(ebms3SignalMessage);
+            responseHandler.getResponseStatus(signalMessage);
             result = responseStatus;
 
         }};

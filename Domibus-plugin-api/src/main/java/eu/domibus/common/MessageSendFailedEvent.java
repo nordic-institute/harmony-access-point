@@ -14,11 +14,11 @@ import java.util.Map;
  * @author idragusa
  * @since 4.2
  */
-public class MessageSendFailedEvent implements Serializable, MessageEvent {
+public class MessageSendFailedEvent implements Serializable {
 
     protected String messageId;
 
-    protected Map<String, String> properties = new HashMap<>(); //NOSONAR
+    protected Map<String, Object> properties = new HashMap<>(); //NOSONAR
 
     public MessageSendFailedEvent(String messageId) {
         this.messageId = messageId;
@@ -32,21 +32,10 @@ public class MessageSendFailedEvent implements Serializable, MessageEvent {
         this.messageId = messageId;
     }
 
-    @Override
-    public void addProperty(String key, String value) {
+    public void addProperty(String key, Object value) {
         properties.put(key, value);
     }
 
-    @Override
-    public Map<String, String> getProps() {
-        return Collections.unmodifiableMap(properties);
-    }
-
-    /**
-     * Needed for backward compatibility between 4.2 and 5.0
-     * @deprecated Use instead {@link MessageEvent#getProps()}
-     */
-    @Deprecated
     public Map<String, Object> getProperties() {
         return Collections.unmodifiableMap(properties);
     }

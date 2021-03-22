@@ -11,7 +11,6 @@ import org.springframework.context.ApplicationContext;
 
 import java.util.Map;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PROXY_PASSWORD;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_UI_TITLE_NAME;
 
 @RunWith(JMockit.class)
@@ -55,13 +54,5 @@ public class CorePropertyMetadataManagerImplTest {
         Assert.assertTrue(actual);
     }
 
-    @Test
-    public void getKnownProperties_getGlobalProperty() {
-        Map<String, DomibusPropertyMetadata> props = corePropertyMetadataManager.getKnownProperties();
-        DomibusPropertyMetadata actual = props.get(DOMIBUS_PROXY_PASSWORD);
 
-        Assert.assertEquals(DOMIBUS_PROXY_PASSWORD, actual.getName());
-        Assert.assertEquals("PASSWORD", actual.getType());
-        Assert.assertTrue(actual.isEncrypted());
-    }
 }

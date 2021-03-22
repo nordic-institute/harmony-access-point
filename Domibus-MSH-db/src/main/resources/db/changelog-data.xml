@@ -7,7 +7,8 @@
     <!-- IMPORTANT: this is the full script, add your changes inside in the right section -->
 
     <!-- properties - to be used in column definitions -->
-    <include file="common/changelog-properties.xml" relativeToChangelogFile="true"/>
+    <property name="now" value="sysdate" dbms="oracle"/>
+    <property name="now" value="now()" dbms="mysql"/>
 
     <changeSet author="thomas dussart" id="EDELIVERY-2144">
         <comment>inserts</comment>

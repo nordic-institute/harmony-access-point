@@ -19,7 +19,6 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
@@ -69,10 +68,7 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
     @Autowired
     protected BackupService backupService;
 
-    // we need Lazy here to avoid circular dependency
-    // passwordEncryptionExtService->passwordEncryptionContextFactory->domibusPropertyEncryptionNotifier->FSPluginPropertyEncryptionListener
     @Autowired
-    @Lazy
     protected DomibusPropertyEncryptionNotifier domibusPropertyEncryptionListenerDelegate;
 
     @Autowired
@@ -80,14 +76,6 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
 
     @Autowired
     protected DomainContextProvider domainContextProvider;
-
-    @Autowired
-    protected PasswordDecryptionHelper passwordDecryptionHelper;
-
-    @Override
-    public boolean isValueEncrypted(String propertyValue) {
-        return passwordDecryptionHelper.isValueEncrypted(propertyValue);
-    }
 
     @Override
     public void encryptPasswords() {
@@ -148,6 +136,16 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
         LOG.debug("Finished creating the encryption key");
     }
 
+    @Override
+    public boolean isValueEncrypted(final String propertyValue) {
+        if (isBlank(propertyValue)) {
+            return false;
+        }
+
+        return trim(propertyValue).startsWith(ENC_START);
+    }
+
+
     protected List<PasswordEncryptionResult> encryptProperties(PasswordEncryptionContext passwordEncryptionContext, List<String> propertiesToEncrypt, SecretKey secretKey, GCMParameterSpec secretKeySpec) {
         List<PasswordEncryptionResult> result = new ArrayList<>();
 
@@ -163,6 +161,32 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
         }
 
         return result;
+    }
+
+    @Override
+    public String decryptProperty(Domain domain, String propertyName, String encryptedFormatValue) {
+        final PasswordEncryptionContext passwordEncryptionContext = passwordEncryptionContextFactory.getPasswordEncryptionContext(domain);
+        final File encryptedKeyFile = passwordEncryptionContext.getEncryptedKeyFile();
+        return decryptProperty(encryptedKeyFile, propertyName, encryptedFormatValue);
+    }
+
+    protected String decryptProperty(final File encryptedKeyFile, String propertyName, String encryptedFormatValue) {
+        final boolean valueEncrypted = isValueEncrypted(encryptedFormatValue);
+        if (!valueEncrypted) {
+            LOG.trace("Property [{}] is not encrypted: skipping decrypting value", propertyName);
+            return encryptedFormatValue;
+        }
+
+        PasswordEncryptionSecret secret = passwordEncryptionDao.getSecret(encryptedKeyFile);
+        LOG.debug("Using encrypted key file for decryption [{}]", encryptedKeyFile);
+
+        final SecretKey secretKey = encryptionUtil.getSecretKey(secret.getSecretKey());
+        final GCMParameterSpec secretKeySpec = encryptionUtil.getSecretKeySpec(secret.getInitVector());
+
+        String base64EncryptedValue = extractValueFromEncryptedFormat(encryptedFormatValue);
+        final byte[] encryptedValue = Base64.decodeBase64(base64EncryptedValue);
+
+        return encryptionUtil.decrypt(encryptedValue, secretKey, secretKeySpec);
     }
 
     @Override
@@ -195,7 +219,7 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
     }
 
     protected PasswordEncryptionResult encryptProperty(SecretKey secretKey, GCMParameterSpec secretKeySpec, String propertyName, String propertyValue) {
-        if (passwordDecryptionHelper.isValueEncrypted(propertyValue)) {
+        if (isValueEncrypted(propertyValue)) {
             LOG.debug("Property [{}] is already encrypted", propertyName);
             return null;
         }
@@ -210,6 +234,7 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
         passwordEncryptionResult.setFormattedBase64EncryptedValue(formatEncryptedValue(base64EncryptedValue));
         return passwordEncryptionResult;
     }
+
 
     protected String formatEncryptedValue(String value) {
         return String.format(ENC_START + "%s" + ENC_END, value);

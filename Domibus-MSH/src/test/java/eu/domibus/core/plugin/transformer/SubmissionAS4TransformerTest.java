@@ -1,8 +1,7 @@
 package eu.domibus.core.plugin.transformer;
 
-import eu.domibus.api.ebms3.model.ObjectFactory;
-import eu.domibus.api.model.*;
 import eu.domibus.core.generator.id.MessageIdGenerator;
+import eu.domibus.ebms3.common.model.*;
 import eu.domibus.plugin.Submission;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -65,7 +64,7 @@ public class SubmissionAS4TransformerTest {
         final String toRole = "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder";
 
 
-        final PartInfo partInfo = new PartInfo();
+        final PartInfo partInfo = objectFactory.createPartInfo();
         final String fileNameWithoutPath = createFileName();
         partInfo.setFileName(createFileNameWithFullPath(fileNameWithoutPath));
         final List<PartInfo> partInfoList = Collections.singletonList(partInfo);
@@ -125,8 +124,8 @@ public class SubmissionAS4TransformerTest {
         final String fileNameFull = createFileNameWithFullPath(fileNameWithoutPath);
 
         final Submission submission = new Submission();
-        final PartInfo partInfo = new PartInfo();
-        final PartProperties partProperties = new PartProperties();
+        final PartInfo partInfo = objectFactory.createPartInfo();
+        final PartProperties partProperties = objectFactory.createPartProperties();
         final Property property = new Property();
         property.setValue("MimeType");
         property.setName("text/xml");
@@ -174,7 +173,7 @@ public class SubmissionAS4TransformerTest {
     }
 
     private Set<PartyId> createPartyId(ObjectFactory objectFactory, String partyIdValue) {
-        final PartyId partyId = new PartyId();
+        final PartyId partyId = objectFactory.createPartyId();
         partyId.setValue(partyIdValue);
         partyId.setType("urn:oasis:names:tc:ebcore:partyid-type:unregistered");
         return Collections.singleton(partyId);

@@ -1,44 +1,37 @@
 package eu.domibus.core.ebms3.sender.client;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.cxf.DomibusHTTPConduitFactory;
 import eu.domibus.core.proxy.DomibusProxy;
 import eu.domibus.core.proxy.DomibusProxyService;
-import eu.domibus.core.proxy.ProxyCxfUtil;
-import mockit.*;
+import mockit.Expectations;
+import mockit.Injectable;
+import mockit.Tested;
+import mockit.Verifications;
 import mockit.integration.junit4.JMockit;
-import org.apache.cxf.configuration.jsse.TLSClientParameters;
-import org.apache.cxf.endpoint.Client;
-import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.configuration.security.ProxyAuthorizationPolicy;
 import org.apache.cxf.jaxws.DispatchImpl;
-import org.apache.cxf.service.model.EndpointInfo;
-import org.apache.cxf.transport.http.HTTPConduit;
-import org.apache.cxf.transport.http.HTTPConduitFactory;
+import org.apache.cxf.transport.http.URLConnectionHTTPConduit;
 import org.apache.cxf.transports.http.configuration.ConnectionType;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
-import org.apache.cxf.ws.policy.PolicyConstants;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.Dispatch;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.Executor;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DISPATCHER_CONNECTION_KEEP_ALIVE;
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author Cosmin Baciu
  * @since 4.1
  */
-@SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(JMockit.class)
 public class DispatchClientDefaultProviderTest {
 
     @Injectable
-    private TLSReaderServiceImpl tlsReader;
+    private TLSReader tlsReader;
 
     @Injectable
     private Executor taskExecutor;
@@ -48,12 +41,6 @@ public class DispatchClientDefaultProviderTest {
 
     @Injectable
     protected DomibusProxyService domibusProxyService;
-
-    @Injectable
-    protected ProxyCxfUtil proxyUtil;
-
-    @Injectable
-    protected DomibusHTTPConduitFactory domibusHTTPConduitFactory;
 
     @Tested
     DispatchClientDefaultProvider dispatchClientDefaultProvider;
@@ -100,17 +87,7 @@ public class DispatchClientDefaultProviderTest {
     }
 
     @Test
-    public void testGetClient(@Mocked org.apache.neethi.Policy policy,
-                              @Mocked TLSClientParameters tlsClientParameters,
-                              @Mocked DispatchImpl<SOAPMessage> dispatch,
-                              @Mocked Client client,
-                              @Mocked Endpoint clientEndpoint,
-                              @Injectable EndpointInfo clientEndpointInfo,
-                              @Mocked HTTPConduit httpConduit,
-                              @Mocked HTTPClientPolicy httpClientPolicy) {
-
-        Map<String, Object> requestContext = new HashMap<>();
-
+    public void testGetClient(@Injectable org.apache.neethi.Policy policy) {
         String endpoint = "https://tbd";
         String algorithm = "algorithm";
         String pModeKey = "pModeKey";
@@ -122,67 +99,23 @@ public class DispatchClientDefaultProviderTest {
         domibusProxy.setHttpProxyPassword("proxypassword");
         domibusProxy.setNonProxyHosts("localhost,127.0.0.1");
 
-        final String domain = "default";
+        prepareHTTPClientPolicyExpectations();
 
-        new Expectations(dispatchClientDefaultProvider) {{
-            dispatchClientDefaultProvider.createWSServiceDispatcher(endpoint);
-            times = 1;
-            result = dispatch;
+        new Expectations() {{
+            domibusProxyService.useProxy();
+            result = true;
 
-            dispatch.getRequestContext();
-            times = 3;
-            result = requestContext;
+            domibusProxyService.isProxyUserSet();
+            result = true;
 
-            dispatch.getClient();
-            times = 1;
-            result = client;
-
-            client.getEndpoint();
-            times = 1;
-            result = clientEndpoint;
-
-            clientEndpoint.getEndpointInfo();
-            times = 1;
-            result = clientEndpointInfo;
-
-            client.getConduit();
-            times = 1;
-            result = httpConduit;
-
-            httpConduit.getClient();
-            times = 1;
-            result = httpClientPolicy;
-
-            dispatchClientDefaultProvider.setHttpClientPolicy(httpClientPolicy);
-            times = 1;
-
-            tlsReader.getTlsClientParameters(domain);
-            times = 1;
-            result = tlsClientParameters;
-
+            domibusProxyService.getDomibusProxy();
+            result = domibusProxy;
         }};
 
-        Dispatch<SOAPMessage> result = dispatchClientDefaultProvider.getClient(domain, endpoint, algorithm, policy, pModeKey, false).get();
+        Dispatch<SOAPMessage> dispatch = dispatchClientDefaultProvider.getClient("default", endpoint, algorithm, policy, pModeKey, false).get();
 
-        new FullVerifications() {{
-
-            clientEndpointInfo.setProperty(HTTPConduitFactory.class.getName(), domibusHTTPConduitFactory);
-            times = 1;
-
-            httpConduit.setClient(httpClientPolicy);
-            times = 1;
-
-            httpConduit.setTlsClientParameters(tlsClientParameters);
-            times = 1;
-
-            proxyUtil.configureProxy(((HTTPClientPolicy) any), ((HTTPConduit) any));
-            times = 1;
-        }};
-
-        assertEquals(dispatch, result);
-
-        assertEquals(requestContext.get(PolicyConstants.POLICY_OVERRIDE), policy);
-        assertEquals(requestContext.get(DispatchClientDefaultProvider.ASYMMETRIC_SIG_ALGO_PROPERTY), algorithm);
-        assertEquals(requestContext.get(DispatchClientDefaultProvider.PMODE_KEY_CONTEXT_PROPERTY), pModeKey);
+        ProxyAuthorizationPolicy proxyAuthorizationPolicy = ((URLConnectionHTTPConduit) ((DispatchImpl) dispatch).getClient().getConduit()).getProxyAuthorization();
+        Assert.assertEquals(domibusProxy.getHttpProxyUser(), proxyAuthorizationPolicy.getUserName());
+        Assert.assertEquals(domibusProxy.getHttpProxyPassword(), proxyAuthorizationPolicy.getPassword());
     }
 }

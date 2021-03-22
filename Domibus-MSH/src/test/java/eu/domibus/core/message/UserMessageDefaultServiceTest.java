@@ -1,5 +1,6 @@
 package eu.domibus.core.message;
 
+import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.message.UserMessageException;
@@ -18,8 +19,6 @@ import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.jms.DelayedDispatchMessageCreator;
 import eu.domibus.core.jms.DispatchMessageCreator;
-import eu.domibus.core.message.acknowledge.MessageAcknowledgementDao;
-import eu.domibus.core.message.attempt.MessageAttemptDao;
 import eu.domibus.core.message.converter.MessageConverterService;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.pull.PullMessageService;
@@ -27,20 +26,25 @@ import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.message.splitandjoin.MessageGroupDao;
 import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
+import eu.domibus.core.error.ErrorLogDao;
+import eu.domibus.core.message.acknowledge.MessageAcknowledgementDao;
+import eu.domibus.core.message.attempt.MessageAttemptDao;
+import eu.domibus.core.replication.UIMessageDao;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.core.replication.UIMessageDao;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.messaging.MessagingProcessingException;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.lang3.time.DateUtils;
+import org.hibernate.Session;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.jms.Queue;
+import javax.persistence.EntityManager;
 import java.sql.Timestamp;
 import java.util.*;
 
@@ -172,6 +176,12 @@ public class UserMessageDefaultServiceTest {
 
     @Injectable
     NonRepudiationService nonRepudiationService;
+
+    @Injectable
+    private UserMessageDao userMessageDao;
+
+    @Injectable
+    EntityManager em;
 
     @Test
     public void createMessagingForFragment(@Injectable UserMessage sourceMessage,
@@ -612,9 +622,14 @@ public class UserMessageDefaultServiceTest {
     }
 
     @Test
-    public void testDeleteMessages(@Injectable UserMessageLogDto uml1, @Injectable UserMessageLogDto uml2) {
+    public void testDeleteMessages(@Mocked Session s, @Mocked EntityManager em1, @Injectable UserMessageLogDto uml1, @Injectable UserMessageLogDto uml2) {
         List<UserMessageLogDto> userMessageLogDtos = Arrays.asList(uml1, uml2);
 
+        new Expectations() {{
+            em1.unwrap(Session.class); result = s;
+        }};
+
+        Deencapsulation.setField(userMessageDefaultService, "em", em1);
         userMessageDefaultService.deleteMessages(userMessageLogDtos);
 
         new Verifications() {{

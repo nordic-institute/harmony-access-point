@@ -1,7 +1,7 @@
 package eu.domibus.common.model.configuration;
 
 import eu.domibus.core.audit.envers.RevisionLogicalName;
-import eu.domibus.api.model.AbstractBaseEntity;
+import eu.domibus.ebms3.common.model.AbstractBaseEntity;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.hibernate.envers.AuditJoinTable;
@@ -61,7 +61,7 @@ import static org.hibernate.envers.RelationTargetAuditMode.NOT_AUDITED;
 public class Party extends AbstractBaseEntity {
 
     @XmlElement(required = true, name = "identifier")
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @JoinColumn(name = "FK_PARTY")
     @Audited(targetAuditMode = NOT_AUDITED)
     @AuditJoinTable(name = "TB_PM_PARTY_IDENTIFIER_AUD")

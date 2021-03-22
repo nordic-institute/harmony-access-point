@@ -5,9 +5,10 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
-import eu.domibus.api.util.DatabaseUtil;
+import eu.domibus.api.security.functions.AuthenticatedProcedure;
 import eu.domibus.core.user.UserService;
 import eu.domibus.core.user.plugin.PluginUserServiceImpl;
+import eu.domibus.core.util.DatabaseUtil;
 import mockit.FullVerifications;
 import mockit.Injectable;
 import mockit.Mocked;
@@ -17,6 +18,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+
+import static org.junit.Assert.*;
 
 /**
  * @author François Gautier
@@ -52,17 +55,15 @@ public class ActivateSuspendedPluginUsersJobTest {
         activateSuspendedPluginUsersJob.executeJob(context, domain);
 
         new FullVerifications() {{
-            pluginUserService.reactivateSuspendedUsers();
+            AuthenticatedProcedure function;
+            AuthRole authRole;
+            boolean forceSecurityContext;
+            authUtils.runWithDomibusSecurityContext(function = withCapture(), authRole = withCapture(), forceSecurityContext = withCapture());
+
+            assertEquals(AuthRole.ROLE_AP_ADMIN, authRole);
+            assertTrue(forceSecurityContext);
+            assertNotNull(function);
         }};
     }
 
-    @Test
-    public void setQuartzJobSecurityContext() {
-
-        activateSuspendedPluginUsersJob.setQuartzJobSecurityContext();
-
-        new FullVerifications() {{
-            authUtils.setAuthenticationToSecurityContext("domibus-quartz", "domibus-quartz", AuthRole.ROLE_AP_ADMIN);
-        }};
-    }
 }

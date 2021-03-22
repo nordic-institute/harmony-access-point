@@ -1,13 +1,8 @@
 package eu.domibus.core.message.reliability;
 
-import eu.domibus.api.ebms3.model.Ebms3SignalMessage;
-import eu.domibus.api.ebms3.model.Ebms3UserMessage;
-import eu.domibus.api.ebms3.model.Ebms3Messaging;
-import eu.domibus.api.ebms3.model.ObjectFactory;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.ErrorCode;
-import eu.domibus.api.model.MSHRole;
+import eu.domibus.common.MSHRole;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Reliability;
 import eu.domibus.core.ebms3.EbMS3Exception;
@@ -18,6 +13,11 @@ import eu.domibus.core.message.nonrepudiation.NonRepudiationChecker;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationConstants;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.util.SoapUtil;
+import eu.domibus.core.util.xml.XMLUtilImpl;
+import eu.domibus.ebms3.common.model.Messaging;
+import eu.domibus.ebms3.common.model.ObjectFactory;
+import eu.domibus.ebms3.common.model.SignalMessage;
+import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -76,9 +76,6 @@ public class ReliabilityChecker {
     @Autowired
     protected SoapUtil soapUtil;
 
-    @Autowired
-    protected XMLUtil xmlUtil;
-
     @Transactional(rollbackFor = EbMS3Exception.class)
     public CheckResult check(final SOAPMessage request, final SOAPMessage response, final ResponseResult responseResult, final Reliability reliability) throws EbMS3Exception {
         return checkReliability(request, response, responseResult, reliability, pushMatcher);
@@ -104,23 +101,23 @@ public class ReliabilityChecker {
 
         if (matcher.matchReliableReceipt(reliability)) {
             LOG.debug("Checking reliability for outgoing message");
-            final Ebms3Messaging ebms3Messaging = responseResult.getResponseMessaging();
-            final Ebms3SignalMessage ebms3SignalMessage = ebms3Messaging.getSignalMessage();
+            final Messaging messaging = responseResult.getResponseMessaging();
+            final SignalMessage signalMessage = messaging.getSignalMessage();
 
             //ReceiptionAwareness or NRR found but not expected? report if configuration=true //TODO: make configurable in domibus.properties
 
             //SignalMessage with Receipt expected
-            messageId = getMessageId(ebms3SignalMessage);
-            if (ebms3SignalMessage.getReceipt() != null && ebms3SignalMessage.getReceipt().getAny().size() == 1) {
+            messageId = getMessageId(signalMessage);
+            if (signalMessage.getReceipt() != null && signalMessage.getReceipt().getAny().size() == 1) {
 
-                final String contentOfReceiptString = ebms3SignalMessage.getReceipt().getAny().get(0);
+                final String contentOfReceiptString = signalMessage.getReceipt().getAny().get(0);
 
                 try {
                     if (!reliability.isNonRepudiation()) {
-                        final Ebms3UserMessage ebms3UserMessage = this.jaxbContext.createUnmarshaller().unmarshal(new StreamSource(new ByteArrayInputStream(contentOfReceiptString.getBytes())), Ebms3UserMessage.class).getValue();
+                        final UserMessage userMessage = this.jaxbContext.createUnmarshaller().unmarshal(new StreamSource(new ByteArrayInputStream(contentOfReceiptString.getBytes())), UserMessage.class).getValue();
 
-                        final Ebms3UserMessage ebms3UserMessageInRequest = this.jaxbContext.createUnmarshaller().unmarshal((Node) request.getSOAPHeader().getChildElements(ObjectFactory._Messaging_QNAME).next(), Ebms3Messaging.class).getValue().getUserMessage();
-                        if (!ebms3UserMessage.equals(ebms3UserMessageInRequest)) {
+                        final UserMessage userMessageInRequest = this.jaxbContext.createUnmarshaller().unmarshal((Node) request.getSOAPHeader().getChildElements(ObjectFactory._Messaging_QNAME).next(), Messaging.class).getValue().getUserMessage();
+                        if (!userMessage.equals(userMessageInRequest)) {
                             ReliabilityChecker.LOG.warn("Reliability check failed, the user message in the request does not match the user message in the response.");
                             return matcher.fails();
                         }
@@ -147,7 +144,7 @@ public class ReliabilityChecker {
                         throw ex;
                     }
 
-                    final String wsuIdOfMEssagingElement = ebms3Messaging.getOtherAttributes().get(new QName(WSConstants.WSU_NS, "Id"));
+                    final String wsuIdOfMEssagingElement = messaging.getOtherAttributes().get(new QName(WSConstants.WSU_NS, "Id"));
 
                     ReliabilityChecker.LOG.debug(wsuIdOfMEssagingElement);
 
@@ -229,7 +226,7 @@ public class ReliabilityChecker {
             return null;
         }
         try (StringWriter stringWriter = new StringWriter()) {
-            Transformer transformer = xmlUtil.getTransformerFactory().newTransformer();
+            Transformer transformer = XMLUtilImpl.getTransformerFactory().newTransformer();
             transformer.transform(new DOMSource(soapMessage.getSOAPPart()), new StreamResult(stringWriter));
             return stringWriter.toString();
         } catch (IOException | TransformerException e) {
@@ -238,11 +235,11 @@ public class ReliabilityChecker {
         return null;
     }
 
-    protected String getMessageId(Ebms3SignalMessage ebms3SignalMessage) {
-        if(ebms3SignalMessage == null || ebms3SignalMessage.getMessageInfo() == null) {
+    protected String getMessageId(SignalMessage signalMessage) {
+        if(signalMessage == null || signalMessage.getMessageInfo() == null) {
             return null;
         }
-        return ebms3SignalMessage.getMessageInfo().getMessageId();
+        return signalMessage.getMessageInfo().getMessageId();
     }
 
     /**

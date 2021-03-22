@@ -1,6 +1,7 @@
 package eu.domibus.core.monitoring;
 
 import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.core.scheduler.DomibusQuartzJobBean;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -33,7 +34,7 @@ public class ConnectionMonitoringJob extends DomibusQuartzJobBean {
         }
 
         LOG.debug("ConnectionMonitoringJob started on [{}] domain", domain);
-        connectionMonitoringService.sendTestMessages();
+        authUtils.runWithDomibusSecurityContext(connectionMonitoringService::sendTestMessages, AuthRole.ROLE_ADMIN);
         LOG.debug("ConnectionMonitoringJob ended on [{}] domain", domain);
     }
 }

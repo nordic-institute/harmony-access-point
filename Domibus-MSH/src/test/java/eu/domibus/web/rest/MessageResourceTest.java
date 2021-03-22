@@ -1,13 +1,11 @@
 package eu.domibus.web.rest;
 
 import eu.domibus.api.messaging.MessageNotFoundException;
-import eu.domibus.api.messaging.MessagingException;
-import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
-import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.message.MessagesLogService;
 import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.message.converter.MessageConverterService;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.MessageLogRO;
@@ -26,8 +24,6 @@ import org.springframework.http.ResponseEntity;
 import java.io.IOException;
 import java.util.Date;
 import java.util.UUID;
-
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE;
 
 /**
  * @author Tiago Miguel
@@ -59,9 +55,6 @@ public class MessageResourceTest {
 
     @Injectable
     ErrorHandlerService errorHandlerService;
-
-    @Injectable
-    DomibusPropertyProvider domibusPropertyProvider;
 
     @Test
     public void testDownload() {
@@ -120,98 +113,28 @@ public class MessageResourceTest {
     }
 
     @Test
-    public void test_checkCanDownloadWithDeletedMessage(@Injectable MessageLogRO deletedMessage) {
+    public void test_checkMessageContentExists() {
+        MessageLogRO deletedMessage = new MessageLogRO() {{
+            setDeleted(new Date());
+        }};
+        MessageLogRO existingMessage = new MessageLogRO() {{
+            setDeleted(null);
+        }};
+
+        // Given
         new Expectations() {{
             messagesLogService.findUserMessageById(anyString);
-            result = deletedMessage;
-            deletedMessage.getDeleted();
-            result = new Date();
-
-        }};
-        try {
-            messageResource.checkCanDownload("messageId");
-            Assert.fail();
-        }catch(MessagingException ex){
-            Assert.assertTrue(ex.getMessage().contains("[DOM_001]:Message content is no longer available for message id:"));
-        }
-    }
-
-    @Test
-    public void test_checkCanDownloadWhenNoMessage() {
-        new Expectations() {{
-            messagesLogService.findUserMessageById(anyString);
-            result = null;
+            returns(null, deletedMessage, existingMessage);
         }};
 
-        try {
-            messageResource.checkCanDownload("messageId");
-            Assert.fail();
-        }catch(MessagingException ex){
-            Assert.assertEquals(ex.getMessage(),"[DOM_001]:No message found for message id: messageId");
-        }
-    }
+        boolean result1 = messageResource.checkMessageContentExists("messageId");
+        Assert.assertEquals(false, result1);
 
-    @Test
-    public void test_checkCanDownloadWithExistingMessage(@Injectable MessageLogRO existingMessage) {
-        new Expectations() {{
-            messagesLogService.findUserMessageById(anyString);
-            result = existingMessage;
-            existingMessage.getDeleted();
-            result = null;
-        }};
+        boolean result2 = messageResource.checkMessageContentExists("messageId");
+        Assert.assertEquals(false, result2);
 
-      messageResource.checkCanDownload("messageId");
-    }
-
-    @Test
-    public void test_checkCanDownloadWithMaxDownLoadSize(@Injectable MessageLogRO existingMessage) {
-
-        byte[] content = "Message Content".getBytes();
-
-        new Expectations() {{
-            messagesLogService.findUserMessageById(anyString);
-            result = existingMessage;
-            existingMessage.getDeleted();
-            result = null;
-            domibusPropertyProvider.getIntegerProperty(DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE);
-            result = 1;
-            userMessageService.getMessageAsBytes(anyString);
-            result = content;
-        }};
-
-        try {
-            messageResource.checkCanDownload("messageId");
-            Assert.fail();
-        } catch( MessagingException ex){
-            Assert.assertEquals(ex.getMessage(), "[DOM_001]:The message size exceeds maximum download size limit: 1");
-        }
-    }
-
-    @Test
-    public void getByteArrayResourceResponseEntity_empty() {
-        String messageId = "messageId";
-        new Expectations() {{
-            userMessageService.getMessageEnvelopesAsZip(messageId);
-            result = new byte[]{};
-        }};
-
-        ResponseEntity<ByteArrayResource> result = messageResource.getByteArrayResourceResponseEntity(messageId);
-        Assert.assertEquals(HttpStatus.NO_CONTENT, result.getStatusCode());
-    }
-
-    @Test
-    public void getByteArrayResourceResponseEntity() {
-        String messageId = "messageId";
-        byte[] content = {1, 2, 3, 4};
-        new Expectations() {{
-            userMessageService.getMessageEnvelopesAsZip(messageId);
-            this.result = content;
-        }};
-
-        ResponseEntity<ByteArrayResource> result = messageResource.getByteArrayResourceResponseEntity(messageId);
-        Assert.assertEquals(HttpStatus.OK, result.getStatusCode());
-        Assert.assertEquals(content, result.getBody().getByteArray());
-        Assert.assertEquals("application/zip", result.getHeaders().get("Content-Type").get(0));
+        boolean result3 = messageResource.checkMessageContentExists("messageId");
+        Assert.assertEquals(true, result3);
     }
 
 }

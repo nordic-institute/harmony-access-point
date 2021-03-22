@@ -1,8 +1,5 @@
 package eu.domibus.core.pmode.validation.validators;
 
-import eu.domibus.api.ebms3.model.Ebms3Messaging;
-import eu.domibus.api.model.MessageProperties;
-import eu.domibus.api.model.Messaging;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.ErrorCode;
@@ -13,8 +10,11 @@ import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.UserMessageDefaultServiceHelper;
 import eu.domibus.core.message.UserMessageServiceHelper;
 import eu.domibus.core.pmode.provider.PModeProvider;
+import eu.domibus.core.pmode.validation.validators.PropertyProfileValidator;
 import eu.domibus.core.property.DomibusPropertyProviderImpl;
 import eu.domibus.core.util.xml.XMLUtilImpl;
+import eu.domibus.ebms3.common.model.MessageProperties;
+import eu.domibus.ebms3.common.model.Messaging;
 import eu.domibus.messaging.MessageConstants;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -68,27 +68,11 @@ public class PropertyProfileValidatorTest {
 
 
     @Test
-    public void validateTest(@Injectable Messaging messaging,
-                             @Injectable eu.domibus.api.model.Property property1,
-                             @Injectable eu.domibus.api.model.Property property2) throws EbMS3Exception, FileNotFoundException, XMLStreamException, JAXBException, ParserConfigurationException, SAXException {
-        Set<eu.domibus.api.model.Property> messageProperties = new HashSet<>();
-        messageProperties.add(property1);
-        messageProperties.add(property2);
-
+    public void validateTest() throws EbMS3Exception, FileNotFoundException, XMLStreamException, JAXBException, ParserConfigurationException, SAXException {
         Set<Property> properties = new HashSet<>();
         properties.add(createProperty(MessageConstants.ORIGINAL_SENDER, MessageConstants.ORIGINAL_SENDER, "String", true));
         properties.add(createProperty(MessageConstants.FINAL_RECIPIENT, MessageConstants.FINAL_RECIPIENT, "String", true));
         new NonStrictExpectations(legConfiguration, propertySet) {{
-            property1.getName();
-            result = MessageConstants.ORIGINAL_SENDER;
-            property1.getType();
-            result = "String";
-
-            property2.getName();
-            result = MessageConstants.FINAL_RECIPIENT;
-            property2.getType();
-            result = "String";
-
             domibusConfigurationService.isFourCornerEnabled();
             result = true;
 
@@ -97,17 +81,15 @@ public class PropertyProfileValidatorTest {
 
             propertySet.getProperties();
             result = properties;
-
-            messaging.getUserMessage().getMessageProperties().getProperty();
-            result = messageProperties;
         }};
 
+        final Messaging messaging = createMessaging(new FileInputStream(new File(valid4CornerMessagePath)));
         propertyProfileValidator.validate(messaging, "anyKey");
     }
 
 
     @Test(expected = EbMS3Exception.class)
-    public void validateMissingPropertyTest(@Injectable Messaging messaging) throws EbMS3Exception, FileNotFoundException, XMLStreamException, JAXBException, ParserConfigurationException, SAXException {
+    public void validateMissingPropertyTest() throws EbMS3Exception, FileNotFoundException, XMLStreamException, JAXBException, ParserConfigurationException, SAXException {
         Set<Property> properties = new HashSet<>();
         properties.add(createProperty(MessageConstants.ORIGINAL_SENDER, MessageConstants.ORIGINAL_SENDER, "String", true));
         new NonStrictExpectations(legConfiguration, propertySet) {{
@@ -121,6 +103,7 @@ public class PropertyProfileValidatorTest {
             result = properties;
         }};
 
+        final Messaging messaging = createMessaging(new FileInputStream(new File(valid4CornerMessagePath)));
         propertyProfileValidator.validate(messaging, "anyKey");
     }
 
@@ -128,12 +111,12 @@ public class PropertyProfileValidatorTest {
     public void checkDuplicateMessagePropertiesTest(@Injectable Messaging messaging,
                                                     @Injectable MessageProperties messageProperties,
                                                     @Injectable Property profiledProperty,
-                                                    @Injectable eu.domibus.api.model.Property messageProperty,
-                                                    @Injectable eu.domibus.api.model.Property messageProperty1) throws EbMS3Exception, FileNotFoundException, XMLStreamException, JAXBException, ParserConfigurationException, SAXException {
+                                                    @Injectable eu.domibus.ebms3.common.model.Property messageProperty,
+                                                    @Injectable eu.domibus.ebms3.common.model.Property messageProperty1) throws EbMS3Exception, FileNotFoundException, XMLStreamException, JAXBException, ParserConfigurationException, SAXException {
         Set<Property> properties = new HashSet<>();
         final List<Property> modifiablePropertyList = new ArrayList<>();
         properties.add(createProperty(MessageConstants.ORIGINAL_SENDER, MessageConstants.ORIGINAL_SENDER, "String", true));
-        Set<eu.domibus.api.model.Property> messagePropertiesSet = new HashSet<>();
+        Set<eu.domibus.ebms3.common.model.Property> messagePropertiesSet = new HashSet<>();
         String duplicateMessageProperty = "originalSender";
         messagePropertiesSet.add(messageProperty);
         messagePropertiesSet.add(messageProperty1);
@@ -170,6 +153,13 @@ public class PropertyProfileValidatorTest {
         property.setDatatype(dataType);
 
         return property;
+    }
+
+    private Messaging createMessaging(InputStream inputStream) throws XMLStreamException, JAXBException, ParserConfigurationException, SAXException {
+        XMLUtil xmlUtil = new XMLUtilImpl(domibusPropertyProvider);
+        JAXBContext jaxbContext = JAXBContext.newInstance(Messaging.class);
+        JAXBElement root = xmlUtil.unmarshal(true, jaxbContext, inputStream, null).getResult();
+        return (Messaging) root.getValue();
     }
 
 }

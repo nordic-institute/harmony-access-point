@@ -9,6 +9,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
@@ -29,27 +30,18 @@ public class DefaultDomibusConfigurationService implements DomibusConfigurationS
 
     private DataBaseEngine dataBaseEngine;
 
-    // this is intentionally not domibusPropertyProvider: to cut the cyclic dependency
-    private final PropertyRetrieveManager propertyRetrieveManager;
-
-    // this is intentionally not domibusPropertyProvider: to cut the cyclic dependency
-    private final PrimitivePropertyTypesManager primitivePropertyTypesManager;
-
-    public DefaultDomibusConfigurationService(PropertyRetrieveManager propertyRetrieveManager,
-                                              PrimitivePropertyTypesManager primitivePropertyTypesManager) {
-        this.propertyRetrieveManager = propertyRetrieveManager;
-        this.primitivePropertyTypesManager = primitivePropertyTypesManager;
-    }
+    @Autowired
+    DomibusPropertyProvider domibusPropertyProvider;
 
     @Override
     public String getConfigLocation() {
-        return propertyRetrieveManager.getInternalProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_CONFIG_LOCATION);
+        return domibusPropertyProvider.getProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_CONFIG_LOCATION);
     }
 
-    @Cacheable("multitenantCache")
     @Override
+    @Cacheable("multitenantCache")
     public boolean isMultiTenantAware() {
-        return StringUtils.isNotBlank(propertyRetrieveManager.getInternalProperty(DomainService.GENERAL_SCHEMA_PROPERTY));
+        return StringUtils.isNotBlank(domibusPropertyProvider.getProperty(DomainService.GENERAL_SCHEMA_PROPERTY));
     }
 
     @Override
@@ -59,13 +51,13 @@ public class DefaultDomibusConfigurationService implements DomibusConfigurationS
 
     @Override
     public boolean isClusterDeployment() {
-        return getBooleanProperty(CLUSTER_DEPLOYMENT);
+        return domibusPropertyProvider.getBooleanProperty(CLUSTER_DEPLOYMENT);
     }
 
     @Override
     public DataBaseEngine getDataBaseEngine() {
         if (dataBaseEngine == null) {
-            final String property = propertyRetrieveManager.getInternalProperty(DATABASE_DIALECT);
+            final String property = domibusPropertyProvider.getProperty(DATABASE_DIALECT);
             if (property == null) {
                 throw new IllegalStateException("Database dialect not configured, please set property: domibus.entityManagerFactory.jpaProperty.hibernate.dialect");
             }
@@ -77,27 +69,27 @@ public class DefaultDomibusConfigurationService implements DomibusConfigurationS
 
     @Override
     public boolean isFourCornerEnabled() {
-        return getBooleanProperty(FOURCORNERMODEL_ENABLED_KEY);
+        return domibusPropertyProvider.getBooleanProperty(FOURCORNERMODEL_ENABLED_KEY);
     }
 
     @Override
     public boolean isExtAuthProviderEnabled() {
-        return getBooleanProperty(EXTERNAL_AUTH_PROVIDER);
+        return domibusPropertyProvider.getBooleanProperty(EXTERNAL_AUTH_PROVIDER);
     }
 
     @Override
     public boolean isPayloadEncryptionActive(Domain domain) {
-        return getBooleanProperty(domain, PAYLOAD_ENCRYPTION_PROPERTY);
+        return domibusPropertyProvider.getBooleanProperty(domain, PAYLOAD_ENCRYPTION_PROPERTY);
     }
 
     @Override
     public boolean isPasswordEncryptionActive() {
-        return getBooleanProperty(PASSWORD_ENCRYPTION_ACTIVE_PROPERTY);
+        return domibusPropertyProvider.getBooleanProperty(PASSWORD_ENCRYPTION_ACTIVE_PROPERTY);
     }
 
     @Override
     public boolean isPasswordEncryptionActive(Domain domain) {
-        return getBooleanProperty(domain, PASSWORD_ENCRYPTION_ACTIVE_PROPERTY);
+        return domibusPropertyProvider.getBooleanProperty(domain, PASSWORD_ENCRYPTION_ACTIVE_PROPERTY);
     }
 
     @Override
@@ -131,13 +123,5 @@ public class DefaultDomibusConfigurationService implements DomibusConfigurationS
         return domain.getCode() + "-" + DomibusPropertyProvider.DOMIBUS_PROPERTY_FILE;
     }
 
-    protected Boolean getBooleanProperty(Domain domain, String propertyName) {
-        String domainValue = propertyRetrieveManager.getInternalProperty(domain, propertyName);
-        return primitivePropertyTypesManager.getBooleanInternal(propertyName, domainValue);
-    }
 
-    protected Boolean getBooleanProperty(String propertyName) {
-        String value = propertyRetrieveManager.getInternalProperty(propertyName);
-        return primitivePropertyTypesManager.getBooleanInternal(propertyName, value);
-    }
 }

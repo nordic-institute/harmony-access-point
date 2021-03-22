@@ -36,12 +36,7 @@ public class ActivateSuspendedPluginUsersJob extends DomibusQuartzJobBean {
 
         LOG.debug("Executing job to unlock suspended plugin accounts at {}", new Date());
 
-        userService.reactivateSuspendedUsers();
-    }
-
-    @Override
-    protected void setQuartzJobSecurityContext() {
-        authUtils.setAuthenticationToSecurityContext(DOMIBUS_QUARTZ_USER, DOMIBUS_QUARTZ_PASSWORD, AuthRole.ROLE_AP_ADMIN);
+        authUtils.runWithDomibusSecurityContext(() -> userService.reactivateSuspendedUsers(), AuthRole.ROLE_AP_ADMIN, true);
     }
 
 }

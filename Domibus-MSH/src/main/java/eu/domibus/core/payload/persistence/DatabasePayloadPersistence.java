@@ -3,10 +3,10 @@ package eu.domibus.core.payload.persistence;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.compression.CompressionService;
-import eu.domibus.api.payload.encryption.PayloadEncryptionService;
+import eu.domibus.core.payload.encryption.PayloadEncryptionService;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
-import eu.domibus.api.model.PartInfo;
-import eu.domibus.api.model.UserMessage;
+import eu.domibus.ebms3.common.model.PartInfo;
+import eu.domibus.ebms3.common.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.IOUtils;
@@ -74,6 +74,9 @@ public class DatabasePayloadPersistence implements PayloadPersistence {
         partInfo.setBinaryData(binaryData);
         partInfo.setLength(partInfoLength);
         partInfo.setFileName(null);
+
+        //initialize the payloadDatahandler with the binaryData in order to avoid that the payload is decompressed again
+        partInfo.loadBinaray();
         LOG.debug("Finished saving incoming payload [{}] to database", partInfo.getHref());
 
         payloadPersistenceHelper.validatePayloadSize(legConfiguration, partInfoLength);

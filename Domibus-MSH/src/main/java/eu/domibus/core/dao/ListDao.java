@@ -1,6 +1,6 @@
 package eu.domibus.core.dao;
 
-import eu.domibus.api.model.AbstractBaseEntity;
+import eu.domibus.ebms3.common.model.AbstractBaseEntity;
 
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -25,10 +25,11 @@ public abstract class ListDao<T extends AbstractBaseEntity> extends BasicDao<T> 
         super(typeOfT);
     }
 
-    protected abstract List<Predicate> getPredicates(Map<String, Object> filters, CriteriaBuilder cb, Root<T> ele) ;
+    protected abstract List<Predicate> getPredicates(Map<String, Object> filters, CriteriaBuilder cb, Root<T> ele);
 
     /**
      * Overridden solely in UIMessageDaoImpl, otherwise returns the parameter
+     *
      * @param sortColumn
      * @return
      */
@@ -67,4 +68,6 @@ public abstract class ListDao<T extends AbstractBaseEntity> extends BasicDao<T> 
         query.setMaxResults(max);
         return query.getResultList();
     }
+
+
 }

@@ -1,6 +1,5 @@
 package eu.domibus.core.message.splitandjoin;
 
-import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;

@@ -2,18 +2,18 @@ package eu.domibus.web.rest;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.util.DateUtil;
-import eu.domibus.api.model.MSHRole;
+import eu.domibus.common.MSHRole;
+import eu.domibus.common.MessageStatus;
 import eu.domibus.core.message.MessageLogInfo;
 import eu.domibus.core.message.MessagesLogService;
 import eu.domibus.core.message.testservice.TestService;
 import eu.domibus.core.message.testservice.TestServiceException;
-import eu.domibus.api.model.NotificationStatus;
+import eu.domibus.core.plugin.notification.NotificationStatus;
 import eu.domibus.core.replication.UIMessageService;
 import eu.domibus.core.replication.UIReplicationSignalService;
-import eu.domibus.api.model.MessageType;
+import eu.domibus.ebms3.common.model.MessageType;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.ro.*;
@@ -30,8 +30,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-
-import static eu.domibus.core.message.MessageLogInfoFilter.*;
 
 /**
  * @author Tiago Miguel, Catalin Enache
@@ -182,6 +180,16 @@ public class MessageLogResource extends BaseResource {
                 MODULE_NAME_MESSAGES);
     }
 
+    private List<String> getExcludedProperties() {
+        List<String> excludedProperties = Lists.newArrayList(PROPERTY_SOURCE_MESSAGE, PROPERTY_MESSAGE_FRAGMENT);
+        if(!domibusConfigurationService.isFourCornerEnabled()) {
+            excludedProperties.add(PROPERTY_ORIGINAL_SENDER);
+            excludedProperties.add(PROPERTY_FINAL_RECIPIENT);
+        }
+        LOG.debug("Found properties to exclude from the generated CSV file: {}", excludedProperties);
+        return excludedProperties;
+    }
+
     /**
      * This method gets the last send UserMessage for the given party Id
      *
@@ -209,16 +217,6 @@ public class MessageLogResource extends BaseResource {
         return ResponseEntity.ok().body(testServiceMessageInfoRO);
     }
 
-    private List<String> getExcludedProperties() {
-        List<String> excludedProperties = Lists.newArrayList(PROPERTY_SOURCE_MESSAGE, PROPERTY_MESSAGE_FRAGMENT);
-        if (!domibusConfigurationService.isFourCornerEnabled()) {
-            excludedProperties.add(PROPERTY_ORIGINAL_SENDER);
-            excludedProperties.add(PROPERTY_FINAL_RECIPIENT);
-        }
-        LOG.debug("Found properties to exclude from the generated CSV file: {}", excludedProperties);
-        return excludedProperties;
-    }
-
     private HashMap<String, Object> createFilterMap(MessageLogFilterRequestRO request) {
         HashMap<String, Object> filters = new HashMap<>();
         filters.put(PROPERTY_MESSAGE_ID, request.getMessageId());
@@ -232,9 +230,6 @@ public class MessageLogResource extends BaseResource {
         filters.put(PROPERTY_ORIGINAL_SENDER, request.getOriginalSender());
         filters.put(PROPERTY_FINAL_RECIPIENT, request.getFinalRecipient());
         filters.put(PROPERTY_MESSAGE_SUBTYPE, request.getMessageSubtype());
-        filters.put(MESSAGE_ACTION, request.getAction());
-        filters.put(MESSAGE_SERVICE_TYPE, request.getServiceType());
-        filters.put(MESSAGE_SERVICE_VALUE, request.getServiceValue());
         return filters;
     }
 

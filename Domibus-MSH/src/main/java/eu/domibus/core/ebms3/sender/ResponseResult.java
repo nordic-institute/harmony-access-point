@@ -1,6 +1,6 @@
 package eu.domibus.core.ebms3.sender;
 
-import eu.domibus.api.ebms3.model.Ebms3Messaging;
+import eu.domibus.ebms3.common.model.Messaging;
 
 /**
  * This class holds the result of the {@link eu.domibus.core.ebms3.sender.ResponseHandler} check
@@ -11,14 +11,14 @@ import eu.domibus.api.ebms3.model.Ebms3Messaging;
 public class ResponseResult {
 
     protected ResponseHandler.ResponseStatus responseStatus;
-    protected Ebms3Messaging responseEbms3Messaging;
+    protected Messaging responseMessaging;
 
     public ResponseResult() {
     }
 
-    public ResponseResult(ResponseHandler.ResponseStatus responseStatus, Ebms3Messaging responseEbms3Messaging) {
+    public ResponseResult(ResponseHandler.ResponseStatus responseStatus, Messaging responseMessaging) {
         this.responseStatus = responseStatus;
-        this.responseEbms3Messaging = responseEbms3Messaging;
+        this.responseMessaging = responseMessaging;
     }
 
     public ResponseHandler.ResponseStatus getResponseStatus() {
@@ -29,11 +29,11 @@ public class ResponseResult {
         this.responseStatus = responseStatus;
     }
 
-    public Ebms3Messaging getResponseMessaging() {
-        return responseEbms3Messaging;
+    public Messaging getResponseMessaging() {
+        return responseMessaging;
     }
 
-    public void setResponseMessaging(Ebms3Messaging responseEbms3Messaging) {
-        this.responseEbms3Messaging = responseEbms3Messaging;
+    public void setResponseMessaging(Messaging responseMessaging) {
+        this.responseMessaging = responseMessaging;
     }
 }

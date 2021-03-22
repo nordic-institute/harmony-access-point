@@ -24,6 +24,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AccountStatusException;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -40,8 +41,6 @@ import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 
-import static eu.domibus.core.spring.DomibusSessionConfiguration.SESSION_COOKIE_NAME;
-
 /**
  * @author Cosmin Baciu, Catalin Enache
  * @since 3.3
@@ -52,8 +51,6 @@ import static eu.domibus.core.spring.DomibusSessionConfiguration.SESSION_COOKIE_
 public class AuthenticationResource {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AuthenticationResource.class);
-
-    public static final String CSRF_COOKIE_NAME = "XSRF-TOKEN";
 
     @Autowired
     protected AuthenticationService authenticationService;
@@ -84,7 +81,7 @@ public class AuthenticationResource {
     private AuthUtils authUtils;
 
     @Autowired
-    protected CompositeSessionAuthenticationStrategy sas;
+    CompositeSessionAuthenticationStrategy sas;
 
     @ExceptionHandler({AccountStatusException.class})
     public ResponseEntity<ErrorRO> handleAccountStatusException(AccountStatusException ex) {
@@ -126,7 +123,7 @@ public class AuthenticationResource {
         return createUserRO(principal, loginRO.getUsername());
     }
 
-    @DeleteMapping(value = "authentication")
+    @RequestMapping(value = "authentication", method = RequestMethod.DELETE)
     public void logout(HttpServletRequest request, HttpServletResponse response) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null) {
@@ -135,7 +132,7 @@ public class AuthenticationResource {
         }
 
         LOG.debug("Logging out user [" + auth.getName() + "]");
-        new DomibusCookieClearingLogoutHandler(SESSION_COOKIE_NAME, CSRF_COOKIE_NAME).logout(request, response, null);
+        new DomibusCookieClearingLogoutHandler("JSESSIONID", "XSRF-TOKEN").logout(request, response, null);
         LOG.debug("Cleared cookies");
         new SecurityContextLogoutHandler().logout(request, response, auth);
         LOG.debug("Logged out");
@@ -152,7 +149,7 @@ public class AuthenticationResource {
         return true;
     }
 
-    @GetMapping(value = "user")
+    @RequestMapping(value = "user", method = RequestMethod.GET)
     public UserRO getUser() {
         LOG.debug("get user - start");
         UserDetail userDetail = authenticationService.getLoggedUser();
@@ -165,7 +162,7 @@ public class AuthenticationResource {
      *
      * @return the current domain
      */
-    @GetMapping(value = "user/domain")
+    @RequestMapping(value = "user/domain", method = RequestMethod.GET)
     public DomainRO getCurrentDomain() {
         LOG.debug("Getting current domain");
         Domain domain = domainContextProvider.getCurrentDomainSafely();
@@ -177,7 +174,7 @@ public class AuthenticationResource {
      *
      * @param domainCode the code of the new current domain
      */
-    @PutMapping(value = "user/domain")
+    @RequestMapping(value = "user/domain", method = RequestMethod.PUT)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void setCurrentDomain(@RequestBody @Valid String domainCode) {
         LOG.debug("Setting current domain " + domainCode);
@@ -190,7 +187,7 @@ public class AuthenticationResource {
      * @param param the object holding the current and new passwords of the current user
      *
      * */
-    @PutMapping(value = "user/password")
+    @RequestMapping(value = "user/password", method = RequestMethod.PUT)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void changePassword(@RequestBody @Valid ChangePasswordRO param) {
         UserDetail loggedUser = authenticationService.getLoggedUser();

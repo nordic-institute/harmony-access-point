@@ -6,7 +6,7 @@
     <parent>
         <groupId>eu.domibus</groupId>
         <artifactId>domibus</artifactId>
-        <version>5.0-SNAPSHOT</version>
+        <version>4.2.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>domibus-ext-services-delegate</artifactId>
@@ -60,6 +60,11 @@
         <!-- End Domibus modules -->
 
         <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct</artifactId>
         </dependency>
@@ -105,19 +110,6 @@
             <artifactId>spring-webmvc</artifactId>
         </dependency>
         <!-- End Spring -->
-
-        <!-- Start Apache -->
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-core</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <!-- End CXF -->
 
         <!-- Test dependencies -->
         <dependency>

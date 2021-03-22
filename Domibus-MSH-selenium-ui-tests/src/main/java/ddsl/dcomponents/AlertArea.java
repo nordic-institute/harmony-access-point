@@ -18,7 +18,7 @@ public class AlertArea extends DComponent {
 
 	@FindBy(id = "alertmessage_id")
 	public WebElement alertMessage;
-	@FindBy(css = "#alertmessage_id > span.closebtn")
+	@FindBy(css = "#alertmessage_id span")
 	public WebElement closeButton;
 	@FindBy(tagName = "snack-bar-container")
 	public WebElement alertContainer;
@@ -26,17 +26,6 @@ public class AlertArea extends DComponent {
 	public AlertArea(WebDriver driver) {
 		super(driver);
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
-	}
-
-	public void waitForAlert(){
-		try {
-			wait.forElementToBeVisible(alertContainer);
-		} catch (Exception e) {
-		}
-	}
-
-	public void closeAlert() throws Exception{
-		weToDobject(closeButton).click();
 	}
 
 	public String getAlertMessage() {

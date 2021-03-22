@@ -47,12 +47,12 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_UI_SUPPORT_TEAM_NAME = "domibus.ui.support.team.name";
     String DOMIBUS_UI_SUPPORT_TEAM_EMAIL = "domibus.ui.support.team.email";
     String DOMIBUS_UI_CSV_MAX_ROWS = "domibus.ui.csv.rows.max";
+    String DOMIBUS_UI_MESSAGE_LOGS_COUNT_LIMIT = "domibus.ui.pages.messageLogs.countLimit";
     String DOMIBUS_SECURITY_KEYSTORE_LOCATION = DOMIBUS_SECURITY_KEYSTORE_PREFIX + "location";
     String DOMIBUS_SECURITY_KEYSTORE_TYPE = DOMIBUS_SECURITY_KEYSTORE_PREFIX + "type";
     String DOMIBUS_SECURITY_KEYSTORE_PASSWORD = DOMIBUS_SECURITY_KEYSTORE_PREFIX + "password";//NOSONAR
     String DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS = "domibus.security.key.private.alias";
     String DOMIBUS_SECURITY_TRUSTSTORE_LOCATION = DOMIBUS_SECURITY_TRUSTSTORE_PREFIX + "location";
-    String DOMIBUS_SECURITY_TRUSTSTORE_BACKUP_LOCATION = DOMIBUS_SECURITY_TRUSTSTORE_PREFIX + "backup.location";
     String DOMIBUS_SECURITY_TRUSTSTORE_TYPE = DOMIBUS_SECURITY_TRUSTSTORE_PREFIX + "type";
     String DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD = DOMIBUS_SECURITY_TRUSTSTORE_PREFIX + "password";//NOSONAR
     String DOMIBUS_AUTH_UNSECURE_LOGIN_ALLOWED = "domibus.auth.unsecureLoginAllowed";
@@ -111,6 +111,10 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_DISPATCHER_CACHEABLE = "domibus.dispatcher.cacheable";
     String DOMIBUS_DISPATCHER_CONNECTION_KEEP_ALIVE = "domibus.dispatcher.connection.keepAlive";
     String DOMIBUS_DISPATCHER_PRIORITY = "domibus.dispatcher.priority";
+    String DOMIBUS_RETENTION_WORKER_DELETION_STRATEGY = "domibus.retentionWorker.deletion.strategy";
+    String DOMIBUS_RETENTION_WORKER_TIMEOUT = "domibus.retentionWorker.deletion.jobs.timeout";
+    String DOMIBUS_RETENTION_WORKER_STORED_PROCEDURE_PARALLELDELETIONJOBSNO = "domibus.retentionWorker.deletion.jobs.number";
+    String DOMIBUS_RETENTION_WORKER_STORED_PROCEDURE_DELETIONJOBINTERVAL = "domibus.retentionWorker.deletion.jobs.interval";
     String DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_DOWNLOADED_MAX_DELETE = "domibus.retentionWorker.message.retention.downloaded.max.delete";
     String DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_NOT_DOWNLOADED_MAX_DELETE = "domibus.retentionWorker.message.retention.not_downloaded.max.delete";
     String DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_SENT_MAX_DELETE = "domibus.retentionWorker.message.retention.sent.max.delete";
@@ -135,7 +139,6 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_LOGGING_METADATA_PRINT = "domibus.logging.metadata.print";
     String DOMIBUS_LOGGING_EBMS3_ERROR_PRINT = "domibus.logging.ebms3.error.print";
     String DOMIBUS_LOGGING_CXF_LIMIT = "domibus.logging.cxf.limit";
-    String DOMIBUS_CONNECTION_CXF_SSL_OFFLOAD_ENABLE = "domibus.connection.cxf.ssl.offload.enable";
     String DOMIBUS_ATTACHMENT_TEMP_STORAGE_LOCATION = "domibus.attachment.temp.storage.location";
     String DOMIBUS_DISPATCHER_SPLIT_AND_JOIN_CONCURRENCY = "domibus.dispatcher.splitAndJoin.concurrency";
     String DOMIBUS_DISPATCHER_SPLIT_AND_JOIN_PAYLOADS_SCHEDULE_THRESHOLD = "domibus.dispatcher.splitAndJoin.payloads.schedule.threshold";
@@ -323,20 +326,12 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_CLUSTER_COMMAND_CRON_EXPRESSION = "domibus.cluster.command.cronExpression";
     String DOMIBUS_PULL_REQUEST_SEND_PER_JOB_CYCLE_PER_MPC = "domibus.pull.request.send.per.job.cycle.per.mpc";
     String DOMIBUS_FILE_UPLOAD_MAX_SIZE = "domibus.file.upload.maxSize";
-    String DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE = "domibus.message.download.maxSize";
     String DOMIBUS_JDBC_DATASOURCE_JNDI_NAME = "domibus.jdbc.datasource.jndi.name";
     String DOMIBUS_JDBC_DATASOURCE_QUARTZ_JNDI_NAME = "domibus.jdbc.datasource.quartz.jndi.name";
     String DOMIBUS_METRICS_MONITOR_JMS_QUEUES_REFRESH_PERIOD = "domibus.metrics.monitor.jms.queues.refresh.period";
     String DOMIBUS_METRICS_MONITOR_JMS_QUEUES_SHOW_DLQ_ONLY = "domibus.metrics.monitor.jms.queues.show.dlq.only";
     String DOMIBUS_SCHEMAFACTORY = "domibus.javax.xml.validation.SchemaFactory";
     String DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES = "domibus.ui.resend.action.enabled.received.minutes";
-    String DOMIBUS_UI_SESSION_SECURE = "domibus.ui.session.secure";
     String DOMIBUS_DISPATCHER_TIMEOUT = "domibus.dispatcher.timeout";
-    String DOMIBUS_UI_SESSION_TIMEOUT = "domibus.ui.session.timeout";
-    String DOMIBUS_UI_SESSION_SAME_SITE = "domibus.ui.session.sameSite";
-
-    String DOMIBUS_ERRORLOG_CLEANER_CRON = "domibus.errorlog.cleaner.cron";
-    String DOMIBUS_ERRORLOG_CLEANER_OLDER_DAYS = "domibus.errorlog.cleaner.older.days";
-    String DOMIBUS_ERRORLOG_CLEANER_BATCH_SIZE = "domibus.errorlog.cleaner.batch.size";
 
 }

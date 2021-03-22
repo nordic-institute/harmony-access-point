@@ -123,7 +123,7 @@ public class AuditPgTest extends SeleniumTest {
 		SoftAssert soft = new SoftAssert();
 		
 		String messID = rest.getMessageIDsWithStatus(null, "SEND_FAILURE").get(0);
-		log.info("Download message " + messID);
+		log.info("Download message");
 		rest.messages().downloadMessage(messID, null);
 		
 		
@@ -754,7 +754,7 @@ public class AuditPgTest extends SeleniumTest {
 		int defaultDomainGridCount = page.grid().getPagination().getTotalItems();
 		
 		log.info("Extract row info ");
-		ArrayList<HashMap<String, String>> defaultDomainData = page.grid().getListedRowInfo();
+		List<HashMap<String, String>> defaultDomainData = page.grid().getListedRowInfo();
 		
 		log.info("Change domain");
 		page.getDomainSelector().selectOptionByIndex(1);
@@ -764,7 +764,7 @@ public class AuditPgTest extends SeleniumTest {
 		int secondGridCount = page.grid().getPagination().getTotalItems();
 		
 		log.info("Extract  row infos");
-		ArrayList<HashMap<String, String>> secDomainData = page.grid().getListedRowInfo();
+		List<HashMap<String, String>> secDomainData = page.grid().getListedRowInfo();
 		
 		
 		log.info("Verify grid row data for both domains");

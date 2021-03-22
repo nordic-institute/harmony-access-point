@@ -207,18 +207,8 @@ public class AuditServiceImpl implements AuditService {
      */
     @Override
     public void addTruststoreDownloadedAudit() {
-        auditDao.saveTruststoreAudit(new TruststoreAudit("truststore", authUtils.getAuthenticatedUser(), new Date(), ModificationType.DOWNLOADED));
-    }
-
-    @Override
-    public void addTLSTruststoreDownloadedAudit() {
-        auditDao.saveTruststoreAudit(new TruststoreAudit("tlstruststore", authUtils.getAuthenticatedUser(), new Date(), ModificationType.DOWNLOADED));
-    }
-
-    @Override
-    @Transactional
-    public void addMessageEnvelopesDownloadedAudit(String messageId, ModificationType modificationType) {
-        auditDao.saveMessageAudit(new MessageAudit(messageId, authUtils.getAuthenticatedUser(), new Date(), modificationType));
+        auditDao.saveTruststoreAudit(
+                new TruststoreAudit(authUtils.getAuthenticatedUser(), new Date(), ModificationType.DOWNLOADED));
     }
 
     protected void handleSaveJMSMessage(String messageId, String fromQueue, ModificationType modificationType, String domainCode) {

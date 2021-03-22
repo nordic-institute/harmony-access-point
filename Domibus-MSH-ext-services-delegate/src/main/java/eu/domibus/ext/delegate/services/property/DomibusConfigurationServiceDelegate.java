@@ -25,11 +25,6 @@ public class DomibusConfigurationServiceDelegate implements DomibusConfiguration
     }
 
     @Override
-    public boolean isSingleTenantAware() {
-        return domibusConfigurationService.isSingleTenantAware();
-    }
-
-    @Override
     public boolean isSecuredLoginRequired() {
         return !authUtils.isUnsecureLoginAllowed();
     }

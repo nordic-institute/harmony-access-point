@@ -3,10 +3,10 @@ package eu.domibus.core.payload.persistence;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.compression.CompressionService;
-import eu.domibus.api.payload.encryption.PayloadEncryptionService;
+import eu.domibus.core.payload.encryption.PayloadEncryptionService;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
-import eu.domibus.api.model.PartInfo;
-import eu.domibus.api.model.UserMessage;
+import eu.domibus.ebms3.common.model.PartInfo;
+import eu.domibus.ebms3.common.model.UserMessage;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.io.IOUtils;
@@ -86,6 +86,7 @@ public class DatabasePayloadPersistenceTest {
             partInfo.setEncrypted(true);
 
             payloadPersistenceHelper.validatePayloadSize(legConfiguration, binaryData.length);
+            partInfo.loadBinaray();
         }};
     }
 

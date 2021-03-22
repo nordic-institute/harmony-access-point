@@ -5,7 +5,7 @@ import eu.domibus.core.alerts.model.common.*;
 import eu.domibus.core.alerts.model.persist.Alert;
 import eu.domibus.core.alerts.model.persist.Event;
 import eu.domibus.core.alerts.model.persist.StringEventProperty;
-import eu.domibus.core.dao.InMemoryDatabaseMshConfig;
+import eu.domibus.core.dao.InMemoryDataBaseConfig;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.junit.Before;
@@ -30,7 +30,7 @@ import static org.junit.Assert.assertNotNull;
  * @since 4.0
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {InMemoryDatabaseMshConfig.class, AlertDaoConfig.class})
+@ContextConfiguration(classes = {InMemoryDataBaseConfig.class, AlertDaoConfig.class})
 @ActiveProfiles("IN_MEMORY_DATABASE")
 public class AlertDaoIT {
 

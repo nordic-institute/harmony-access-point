@@ -1,7 +1,6 @@
 package eu.domibus.core.crypto.api;
 
 import eu.domibus.api.crypto.CryptoException;
-import eu.domibus.api.pki.CertificateEntry;
 import eu.domibus.api.pki.DomibusCertificateException;
 import org.apache.wss4j.common.crypto.CryptoType;
 import org.apache.wss4j.common.ext.WSSecurityException;
@@ -69,6 +68,4 @@ public interface DomainCryptoService {
     String getTrustStoreType();
 
     void reset();
-
-    byte[] getTruststoreContent();
 }

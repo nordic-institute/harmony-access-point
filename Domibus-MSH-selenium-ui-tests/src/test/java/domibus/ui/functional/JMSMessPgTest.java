@@ -79,7 +79,7 @@ public class JMSMessPgTest extends SeleniumTest {
 	
 	//	Disabled because functionality change and it needs to be updated
 	/*JMS-8 - Move message*/
-	@Test(description = "JMS-8", groups = {"multiTenancy", "singleTenancy"})
+	@Test(description = "JMS-8", groups = {"multiTenancy", "singleTenancy"}, enabled = false)
 	public void moveMessage() throws Exception {
 		SoftAssert soft = new SoftAssert();
 		

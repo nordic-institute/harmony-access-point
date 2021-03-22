@@ -1,6 +1,6 @@
 package eu.domibus.web.security;
 
-import eu.domibus.web.rest.AuthenticationResource;
+import eu.domibus.web.security.DomibusCookieClearingLogoutHandler;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Verifications;
@@ -16,9 +16,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.List;
-
-import static eu.domibus.core.spring.DomibusSessionConfiguration.SESSION_COOKIE_NAME;
-import static eu.domibus.web.rest.AuthenticationResource.CSRF_COOKIE_NAME;
 
 /**
  * @author Sebastian-Ion TINCU
@@ -40,7 +37,7 @@ public class DomibusCookieClearingLogoutHandlerTest {
 
     @Test
     public void removesCookiesNotHavingTheirPathsEndingWithForwardSlashInAdditionToTheOnesEndingWithIt() {
-        givenCookieClearingLogoutHandler(SESSION_COOKIE_NAME, CSRF_COOKIE_NAME);
+        givenCookieClearingLogoutHandler("JSESSIONID", "XSRF-TOKEN");
         givenContextPath("");
 
         whenLoggingOut();
@@ -76,12 +73,12 @@ public class DomibusCookieClearingLogoutHandlerTest {
             Assert.assertTrue("Should have removed the cookies having their paths ending with a forwards slash",
                     cookies.stream()
                             .filter(cookie -> StringUtils.endsWith(cookie.getPath(), "/"))
-                            .allMatch(cookie -> StringUtils.equalsAny(cookie.getName(), SESSION_COOKIE_NAME, CSRF_COOKIE_NAME)
+                            .allMatch(cookie -> StringUtils.equalsAny(cookie.getName(),"JSESSIONID", "XSRF-TOKEN")
                                     && StringUtils.equals(cookie.getPath(), "domibus/")));
             Assert.assertTrue("Should have also removed the cookies having their paths not ending with a forwards slash",
                     cookies.stream()
                             .filter(cookie -> !StringUtils.endsWith(cookie.getPath(), "/"))
-                            .allMatch(cookie -> StringUtils.equalsAny(cookie.getName(), SESSION_COOKIE_NAME, CSRF_COOKIE_NAME)
+                            .allMatch(cookie -> StringUtils.equalsAny(cookie.getName(),"JSESSIONID", "XSRF-TOKEN")
                                     && StringUtils.equals(cookie.getPath(), "domibus")));
         }};
     }

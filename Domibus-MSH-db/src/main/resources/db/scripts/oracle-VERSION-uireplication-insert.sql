@@ -24,10 +24,7 @@ INSERT /*+ append*/ INTO tb_message_ui (
   ref_to_message_id,
   failed,
   restored,
-  message_subtype,
-  action,
-  service_type,
-  service_value
+  message_subtype
 )
 SELECT
   hibernate_sequence.NEXTVAL,
@@ -49,10 +46,7 @@ SELECT
   ref_to_message_id,
   failed,
   restored,
-  message_subtype,
-  action,
-  service_type,
-  service_value
+  message_subtype
 FROM
   (
     SELECT
@@ -78,10 +72,7 @@ FROM
           message_info.ref_to_message_id,
           message_log.failed,
           message_log.restored,
-          message_log.message_subtype,
-          user_message.collaboration_info_action AS action,
-          user_message.service_type,
-          user_message.service_value
+          message_log.message_subtype
         FROM
           tb_message_log message_log
             LEFT OUTER JOIN tb_message_info message_info ON message_log.message_id = message_info.message_id,tb_user_message user_message
@@ -113,10 +104,7 @@ FROM
           message_info.ref_to_message_id,
           message_log.failed,
           message_log.restored,
-          message_log.message_subtype,
-          null as action,
-          null as service_type,
-          null as service_value
+          message_log.message_subtype
         FROM
           tb_message_log message_log
             CROSS JOIN tb_messaging messaging

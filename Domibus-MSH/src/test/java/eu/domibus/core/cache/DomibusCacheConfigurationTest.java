@@ -2,21 +2,20 @@ package eu.domibus.core.cache;
 
 import mockit.*;
 import mockit.integration.junit4.JMockit;
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.config.CacheConfiguration;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.core.io.Resource;
 
-import javax.cache.configuration.Configuration;
-import javax.cache.spi.CachingProvider;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 /**
  * @author Cosmin Baciu
- * @author Catalin Enache
  * @since 4.0
  */
 @RunWith(JMockit.class)
@@ -25,87 +24,87 @@ public class DomibusCacheConfigurationTest {
     @Tested
     DomibusCacheConfiguration domibusCacheConfiguration;
 
+    @Injectable
+    CacheManager cacheManager;
 
     @Test
-    public void test_cacheManagerExternalFilePresent() throws  Exception {
-        prepareTestEhCacheFiles();
+    public void testEhCacheManagerWithExternalFilePresent() {
         new Expectations(domibusCacheConfiguration) {{
             domibusCacheConfiguration.externalCacheFileExists();
             result = true;
 
+            domibusCacheConfiguration.mergeExternalCacheConfiguration(cacheManager);
         }};
 
-        //tested method
-        org.springframework.cache.CacheManager cacheManager = domibusCacheConfiguration.cacheManager();
+        domibusCacheConfiguration.ehCacheManager(cacheManager);
 
-        Assert.assertNotNull(cacheManager.getCache("policyCacheDefault"));
-        Assert.assertNotNull(cacheManager.getCache("policyCacheExternal"));
-
-    }
-
-    protected void prepareTestEhCacheFiles() {
-        Deencapsulation.setField(domibusCacheConfiguration, "defaultEhCacheFile", "config/ehcache/ehcache-default-test.xml");
-        Deencapsulation.setField(domibusCacheConfiguration, "externalEhCacheFile", "target/test-classes/conf/domibus/internal/ehcache-test.xml");
+        new FullVerifications(domibusCacheConfiguration) {{
+            domibusCacheConfiguration.addPluginsCacheConfiguration(cacheManager, anyString);
+        }};
     }
 
     @Test
-    public void test_cacheManagerNoExternalFilePresent() throws  Exception {
-        prepareTestEhCacheFiles();
+    public void testEhCacheManagerWithNoExternalFilePresent() {
         new Expectations(domibusCacheConfiguration) {{
             domibusCacheConfiguration.externalCacheFileExists();
             result = false;
         }};
 
-        //tested method
-        org.springframework.cache.CacheManager cacheManager = domibusCacheConfiguration.cacheManager();
-
-        Assert.assertNotNull(cacheManager.getCache("policyCacheDefault"));
-        Assert.assertNull(cacheManager.getCache("policyCacheExternal"));
-    }
-
-
-    @Test
-    public void test_mergeExternalCacheConfiguration(@Mocked javax.cache.CacheManager defaultCacheManager,
-                                                     @Mocked javax.cache.CacheManager externalCacheManager,
-                                                     @Mocked CachingProvider cachingProvider) {
-
-        domibusCacheConfiguration.mergeExternalCacheConfiguration(cachingProvider, defaultCacheManager);
+        domibusCacheConfiguration.ehCacheManager(cacheManager);
 
         new FullVerifications(domibusCacheConfiguration) {{
-            cachingProvider.getCacheManager((URI) any, (ClassLoader) any);
+            domibusCacheConfiguration.addPluginsCacheConfiguration(cacheManager, anyString);
+        }};
+    }
 
+    @Test
+    public void test_mergeExternalCacheConfiguration(@Mocked CacheManager defaultCacheManager,
+                                                     @Mocked CacheManager externalCacheManager) {
+        new Expectations(domibusCacheConfiguration) {{
+            domibusCacheConfiguration.createCacheManager(anyString, anyString);
+            result = externalCacheManager;
+        }};
+
+        domibusCacheConfiguration.mergeExternalCacheConfiguration(defaultCacheManager);
+
+        new FullVerifications(domibusCacheConfiguration) {{
             domibusCacheConfiguration.overridesDefaultCache(defaultCacheManager, externalCacheManager);
         }};
     }
 
     @Test
-    public void test_overridesDefaultCache(@Mocked javax.cache.CacheManager defaultCacheManager,
-                                           @Mocked javax.cache.CacheManager externalCacheManager) {
-        new Expectations(domibusCacheConfiguration) {{
+    public void test_overridesDefaultCache(@Mocked CacheManager defaultCacheManager,
+                                           @Mocked CacheManager externalCacheManager,
+                                           @Mocked CacheConfiguration cacheConfiguration) {
+        new Expectations() {{
             externalCacheManager.getCacheNames();
             result = new String[]{"cache1", "cache2"};
 
-            domibusCacheConfiguration.cacheExists(defaultCacheManager, "cache1");;
+            defaultCacheManager.cacheExists("cache1");
             result = true;
+
+            externalCacheManager.getCache(anyString).getCacheConfiguration();
+            result = cacheConfiguration;
         }};
 
         domibusCacheConfiguration.overridesDefaultCache(defaultCacheManager, externalCacheManager);
 
         new Verifications() {{
-            defaultCacheManager.destroyCache("cache1");
+            defaultCacheManager.removeCache("cache1");
 
-            List<String> cacheNamesActual =  new ArrayList<>();
-            defaultCacheManager.createCache(withCapture(cacheNamesActual), (Configuration)any);
-            Assert.assertTrue(cacheNamesActual.size() == 2);
+            List<Cache> cacheParams = new ArrayList<>();
+            defaultCacheManager.addCache(withCapture(cacheParams));
+            Assert.assertTrue(cacheParams.size() == 2);
         }};
     }
 
     @Test
-    public void test_addPluginsCacheConfiguration(@Mocked javax.cache.CacheManager cacheManager,
-                                                  @Mocked javax.cache.CacheManager cacheManagerPlugins,
+    public void test_addPluginsCacheConfiguration(@Mocked CacheManager cacheManager,
+                                                  @Mocked List<Resource> pluginsDefaultList,
+                                                  @Mocked List<Resource> pluginsList,
+                                                  @Mocked CacheManager cacheManagerPlugins,
                                                   @Mocked Resource pluginDefaultFile,
-                                                  @Mocked Resource pluginFile,
-                                                  @Mocked CachingProvider cachingProvider) {
+                                                  @Mocked Resource pluginFile) {
         final String pluginsConfigLocation = "/data/tomcat/domibus/conf/plugins/config";
 
         new Expectations(domibusCacheConfiguration) {{
@@ -115,7 +114,7 @@ public class DomibusCacheConfigurationTest {
             domibusCacheConfiguration.readPluginEhcacheFiles(anyString);
             result = Collections.singletonList(pluginFile);
 
-            cachingProvider.getCacheManager();
+            CacheManager.create();
             result = cacheManagerPlugins;
 
             cacheManagerPlugins.getCacheNames();
@@ -123,16 +122,16 @@ public class DomibusCacheConfigurationTest {
 
         }};
 
-        domibusCacheConfiguration.addPluginsCacheConfiguration(cachingProvider, cacheManager, pluginsConfigLocation);
+        domibusCacheConfiguration.addPluginsCacheConfiguration(cacheManager, pluginsConfigLocation);
 
         new FullVerifications(domibusCacheConfiguration) {{
             List<Resource> resourceParams = new ArrayList<>();
-            domibusCacheConfiguration.readPluginCacheConfig(cachingProvider, cacheManagerPlugins, withCapture(resourceParams));
+            domibusCacheConfiguration.readPluginCacheConfig(cacheManagerPlugins, withCapture(resourceParams));
             Assert.assertTrue(resourceParams.size() == 2);
 
-            List<String> cacheNamesActual =  new ArrayList<>();
-            cacheManager.createCache(withCapture(cacheNamesActual), (Configuration)any);
-            Assert.assertTrue(cacheNamesActual.size() == 3);
+            List<Cache> cacheParams = new ArrayList<>();
+            cacheManager.addCache(withCapture(cacheParams));
+            Assert.assertTrue(cacheParams.size() == 3);
         }};
     }
 

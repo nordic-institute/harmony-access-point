@@ -23,7 +23,7 @@ public class PrimitivePropertyTypesManagerDeenTest {
 
     private Properties domibusDefaultProperties = new Properties();
 
-    private PrimitivePropertyTypesManager primitivePropertyTypesManager = new PrimitivePropertyTypesManager(domibusDefaultProperties);
+    private PrimitivePropertyTypesManager primitivePropertyTypesManager = new PrimitivePropertyTypesManager();
 
     @Before
     public void setUp() {

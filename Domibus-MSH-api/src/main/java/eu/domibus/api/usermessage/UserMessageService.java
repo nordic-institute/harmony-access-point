@@ -6,7 +6,6 @@ import eu.domibus.api.usermessage.domain.UserMessage;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Cosmin Baciu
@@ -35,10 +34,6 @@ public interface UserMessageService {
     String PULL_RECEIPT_REF_TO_MESSAGE_ID = "pullReceiptRefToMessageId";
 
     String getFinalRecipient(final String messageId);
-
-    Map<String,String> getProperties(String messageId);
-
-    String getOriginalSender(String messageId);
 
     List<String> getFailedMessages(String finalRecipient);
 
@@ -150,7 +145,6 @@ public interface UserMessageService {
 
     /**
      * Retrieves a message by id as a byte array
-     *
      * @param messageId
      * @return the message serialized as byte array
      * @throws MessageNotFoundException in case there is no message with this id
@@ -159,35 +153,11 @@ public interface UserMessageService {
 
     /**
      * Retrieves the message content as a zip file(used for downloading a message)
-     *
      * @param messageId
      * @return a zip file with the message content
      * @throws MessageNotFoundException in case the message does nor exists or the content could not be retrieved( already sent and deleted)
-     * @throws IOException              in case a read error
+     * @throws IOException in case a read error
      */
     byte[] getMessageWithAttachmentsAsZip(String messageId) throws MessageNotFoundException, IOException;
 
-    /**
-     * Retrieves the user and signal message envelopes xmls as a zip file(used for downloading a message)
-     *
-     * @param messageId user message id
-     * @return a zip file with the envelopes
-     */
-    byte[] getMessageEnvelopesAsZip(String messageId);
-
-    /**
-     * Retrieves the user message envelope xml
-     *
-     * @param userMessageId user message id
-     * @return a string representing the envelope in xml format
-     */
-    String getUserMessageEnvelope(String userMessageId);
-
-    /**
-     * Retrieves the signal message envelope xml corresponding to the user message with the specified id
-     *
-     * @param userMessageId user message id
-     * @return a string representing the envelope in xml format
-     */
-    String getSignalMessageEnvelope(String userMessageId);
 }

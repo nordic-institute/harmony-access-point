@@ -3,14 +3,13 @@ package eu.domibus.core.ebms3.receiver.policy;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
-import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.ebms3.receiver.leg.ServerInMessageLegConfigurationFactory;
 import eu.domibus.core.ebms3.ws.policy.PolicyService;
 import eu.domibus.core.message.SoapService;
 import eu.domibus.core.message.UserMessageHandlerService;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.property.DomibusVersionService;
-import eu.domibus.api.model.Messaging;
+import eu.domibus.ebms3.common.model.Messaging;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.cxf.binding.soap.SoapMessage;
@@ -43,9 +42,6 @@ public class SetPolicyInServerInterceptorTest {
     SoapService soapService;
 
     @Injectable
-    Ebms3Converter ebms3Converter;
-
-    @Injectable
     protected PolicyService policyService;
 
     @Injectable
@@ -72,6 +68,23 @@ public class SetPolicyInServerInterceptorTest {
 
         new FullVerifications(setPolicyInServerInterceptor, backendNotificationService) {{
             backendNotificationService.notifyMessageReceivedFailure(messaging.getUserMessage(), userMessageHandlerService.createErrorResult(ebMS3Exception));
+        }};
+    }
+
+    @Test
+    public void processPluginNotificationEmptyUserMessage(final @Injectable EbMS3Exception ebMS3Exception,
+                                                          final @Injectable LegConfiguration legConfiguration,
+                                                          final @Injectable Messaging messaging) {
+
+        new Expectations() {{
+            messaging.getUserMessage();
+            result = null;
+        }};
+
+        //tested method
+        setPolicyInServerInterceptor.processPluginNotification(ebMS3Exception, legConfiguration, messaging);
+
+        new FullVerifications() {{
         }};
     }
 

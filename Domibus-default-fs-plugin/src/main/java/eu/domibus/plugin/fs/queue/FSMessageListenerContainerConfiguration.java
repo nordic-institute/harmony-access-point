@@ -2,7 +2,6 @@ package eu.domibus.plugin.fs.queue;
 
 import eu.domibus.common.JMSConstants;
 import eu.domibus.ext.domain.DomainDTO;
-import eu.domibus.ext.services.DomibusPropertyExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
@@ -50,19 +49,14 @@ public class FSMessageListenerContainerConfiguration {
     @Autowired
     private FSPluginProperties fsPluginProperties;
 
-    @Autowired
-    private DomibusPropertyExtService domibusPropertyExtService;
-
     @Bean(name = "fsPluginOutContainer")
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public MessageListenerContainer createDefaultMessageListenerContainer(DomainDTO domain) {
         DefaultMessageListenerContainer messageListenerContainer = new DefaultMessageListenerContainer();
 
-        final String domainCode = domain.getCode();
-        final String messageSelector = MessageConstants.DOMAIN + "='" + domainCode + "'";
-        final String queueConcurrency = fsPluginProperties.getMessageOutQueueConcurrency(domainCode);
-
-        LOG.debug("fsPluginSendQueue concurrency set to: [{}] for domain: [{}]", queueConcurrency, domainCode);
+        final String messageSelector = MessageConstants.DOMAIN + "='" + domain.getCode() + "'";
+        final String queueConcurrency = fsPluginProperties.getMessageOutQueueConcurrency(domain.getCode());
+        LOG.debug("fsPluginSendQueue concurrency set to: {}", queueConcurrency);
 
         messageListenerContainer.setMessageSelector(messageSelector);
         messageListenerContainer.setConnectionFactory(connectionFactory);
