@@ -650,6 +650,93 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
 
     END migrate_tb_message_header;
 
+
+    /**-- TB_SIGNAL_MESSAGE migration --*/
+    PROCEDURE migrate_tb_signal_message IS
+        v_tab        VARCHAR2(30) := 'TB_SIGNAL_MESSAGE';
+        v_tab_new    VARCHAR2(30) := 'TB_SIGNAL_MESSAGE_MIGR';
+        v_tab_messaging VARCHAR2(30) := 'TB_MESSAGING';
+        v_tab_user_message VARCHAR2(30) := 'TB_USER_MESSAGE';
+        v_sql        VARCHAR2(1000);
+
+        CURSOR c_signal_message IS
+            SELECT UM.ID_PK, --  1:1 here
+                   MI.MESSAGE_ID                SIGNAL_MESSAGE_ID,
+                   MI.REF_TO_MESSAGE_ID         REF_TO_MESSAGE_ID,
+                   MI.TIME_STAMP                EBMS3_TIMESTAMP,
+                   SM.CREATION_TIME,
+                   SM.CREATED_BY,
+                   SM.MODIFICATION_TIME,
+                   SM.MODIFIED_BY
+            FROM TB_MESSAGE_INFO MI,
+                 TB_SIGNAL_MESSAGE SM,
+                 TB_MESSAGING ME,
+                 TB_USER_MESSAGE UM
+            WHERE SM.MESSAGEINFO_ID_PK = MI.ID_PK
+              AND ME.SIGNAL_MESSAGE_ID = SM.ID_PK
+              AND ME.USER_MESSAGE_ID = UM.ID_PK;
+        TYPE T_SIGNAL_MESSAGE IS TABLE OF c_signal_message%ROWTYPE;
+        signal_message T_SIGNAL_MESSAGE;
+        v_batch_no   INT          := 1;
+    BEGIN
+        IF NOT check_table_exists(v_tab_messaging) THEN
+            DBMS_OUTPUT.PUT_LINE(v_tab_messaging || ' should exists before starting ' || v_tab || ' migration');
+        END IF;
+        IF NOT check_table_exists(v_tab_user_message) THEN
+            DBMS_OUTPUT.PUT_LINE(v_tab_user_message || ' should exists before starting ' || v_tab || ' migration');
+        END IF;
+
+
+        v_sql := 'CREATE TABLE ' || v_tab_new ||
+                 ' (ID_PK NUMBER(38, 0) NOT NULL, SIGNAL_MESSAGE_ID VARCHAR2(255), EBMS3_TIMESTAMP TIMESTAMP, CREATION_TIME TIMESTAMP DEFAULT sysdate NOT NULL, CREATED_BY VARCHAR2(255) DEFAULT user NOT NULL, MODIFICATION_TIME TIMESTAMP, MODIFIED_BY VARCHAR2(255), CONSTRAINT PK_SIGNAL_MESSAGE PRIMARY KEY (ID_PK))';
+        truncate_or_create_table(v_tab_new, v_sql);
+
+
+        /** migrate old columns and add data into dictionary tables */
+        DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
+        OPEN c_signal_message;
+        LOOP
+            FETCH c_signal_message BULK COLLECT INTO signal_message;
+            EXIT WHEN signal_message.COUNT = 0;
+
+            FOR i IN signal_message.FIRST .. signal_message.LAST
+                LOOP
+                    BEGIN
+                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
+                                          ' (ID_PK, SIGNAL_MESSAGE_ID, EBMS3_TIMESTAMP, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY ) ' ||
+                                          'VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6, :p_7)'
+                            USING signal_message(i).ID_PK,
+                            signal_message(i).SIGNAL_MESSAGE_ID,
+                            signal_message(i).EBMS3_TIMESTAMP,
+                            signal_message(i).CREATION_TIME,
+                            signal_message(i).CREATED_BY,
+                            signal_message(i).MODIFICATION_TIME,
+                            signal_message(i).MODIFIED_BY;
+                        IF i MOD BATCH_SIZE = 0 THEN
+                            COMMIT;
+                            DBMS_OUTPUT.PUT_LINE(
+                                        v_tab_new || ': Commit after ' || BATCH_SIZE * v_batch_no || ' records');
+                            v_batch_no := v_batch_no + 1;
+                        END IF;
+                    EXCEPTION
+                        WHEN OTHERS THEN
+                            DBMS_OUTPUT.PUT_LINE('Execute immediate error: ' || DBMS_UTILITY.FORMAT_ERROR_STACK);
+                    END;
+
+                END LOOP;
+            DBMS_OUTPUT.PUT_LINE('Migrated ' || signal_message.COUNT || ' records in total into ' || v_tab_new);
+        END LOOP;
+
+        COMMIT;
+        CLOSE c_signal_message;
+
+        -- check counts
+        IF check_counts(v_tab, v_tab_new) THEN
+            DBMS_OUTPUT.PUT_LINE(v_tab || ' migration is done');
+        END IF;
+
+    END migrate_tb_signal_message;
+
     /**-- TB_USER_MESSAGE migration post actions --*/
     PROCEDURE migrate_tb_user_message_post IS
         v_tab_new VARCHAR2(30) := 'TB_USER_MESSAGE_MIGR';
@@ -698,7 +785,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
     BEGIN
         DBMS_OUTPUT.PUT_LINE('Migration post actions start...');
 
-        migrate_tb_user_message_post;
+        -- migrate_tb_user_message_post;
+
         --  drop_table_if_exists('TB_MESSAGE_GROUP');
         --  drop_table_if_exists('TB_MESSAGE_FRAGMENT');
         --  drop_table_if_exists('TB_MESSAGE_HEADER');
@@ -714,6 +802,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         migrate_tb_message_fragment;
         migrate_tb_message_group;
         migrate_tb_message_header;
+
+        migrate_tb_signal_message;
 
         -- house keeping
         migration_post;
