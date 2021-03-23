@@ -149,6 +149,28 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         RETURN v_id_pk;
     END get_tb_d_service_rec;
 
+    FUNCTION get_tb_d_msg_status_rec(message_status VARCHAR2) RETURN NUMBER IS
+        v_id_pk NUMBER;
+    BEGIN
+        IF message_status IS NULL THEN
+            IF VERBOSE_LOGS THEN
+                DBMS_OUTPUT.PUT_LINE('No record added into TB_D_MESSAGE_STATUS');
+            END IF;
+            RETURN v_id_pk;
+        END IF;
+        BEGIN
+            EXECUTE IMMEDIATE 'SELECT ID_PK FROM TB_D_MESSAGE_STATUS WHERE STATUS = :1' INTO v_id_pk USING message_status;
+        EXCEPTION
+            WHEN NO_DATA_FOUND THEN
+                -- create new record
+                DBMS_OUTPUT.PUT_LINE('Add new record into TB_D_MESSAGE_STATUS: ' || message_status);
+                v_id_pk := HIBERNATE_SEQUENCE.nextval;
+                EXECUTE IMMEDIATE 'INSERT INTO TB_D_MESSAGE_STATUS(ID_PK, STATUS) VALUES (' || v_id_pk || ', :1)' USING message_status;
+                COMMIT;
+        END;
+        RETURN v_id_pk;
+    END get_tb_d_msg_status_rec;
+
     FUNCTION get_tb_d_agreement_rec(agreement_type VARCHAR2, agreement_value VARCHAR2) RETURN NUMBER IS
         v_id_pk NUMBER;
     BEGIN
@@ -263,7 +285,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
 
 
     /** -- Dictionary tables - create or truncate them  --*/
-    PROCEDURE migrate_user_message_dict IS
+    PROCEDURE migrate_dict_tables IS
         v_sql        VARCHAR2(1000);
         v_dict_table VARCHAR2(30);
     BEGIN
@@ -301,7 +323,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                 'CREATE TABLE TB_D_MESSAGE_SUBTYPE (ID_PK NUMBER(38, 0) NOT NULL, SUBTYPE VARCHAR2(255) NOT NULL, CREATION_TIME TIMESTAMP DEFAULT sysdate NOT NULL, CREATED_BY VARCHAR2(255) DEFAULT user NOT NULL, MODIFICATION_TIME TIMESTAMP, MODIFIED_BY VARCHAR2(255), CONSTRAINT PK_D_MESSAGE_SUBTYPE PRIMARY KEY (ID_PK))';
         v_dict_table := 'TB_D_MESSAGE_SUBTYPE';
         truncate_or_create_table(v_dict_table, v_sql);
-    END migrate_user_message_dict;
+
+        v_sql := 'CREATE TABLE TB_D_MESSAGE_STATUS (ID_PK NUMBER(38, 0) NOT NULL, STATUS VARCHAR2(255) NOT NULL, CREATION_TIME TIMESTAMP DEFAULT sysdate NOT NULL, CREATED_BY VARCHAR2(255) DEFAULT user NOT NULL, MODIFICATION_TIME TIMESTAMP, MODIFIED_BY VARCHAR2(255), CONSTRAINT PK_D_MESSAGE_STATUS PRIMARY KEY (ID_PK))';
+        v_dict_table := 'TB_D_MESSAGE_STATUS';
+        truncate_or_create_table(v_dict_table, v_sql);
+    END migrate_dict_tables;
     /** -- Helper procedures end -*/
 
     /**-- TB_USER_MESSAGE migration --*/
@@ -343,9 +369,6 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         v_sql := 'CREATE TABLE ' || v_tab_new ||
                  '(ID_PK NUMBER(38, 0) NOT NULL, MESSAGE_ID VARCHAR2(255), REF_TO_MESSAGE_ID VARCHAR2(255), CONVERSATION_ID VARCHAR2(255), SPLIT_AND_JOIN NUMBER(1), SOURCE_MESSAGE NUMBER(1), MESSAGE_FRAGMENT NUMBER(1), EBMS3_TIMESTAMP TIMESTAMP, ACTION_ID_FK NUMBER(38, 0), AGREEMENT_ID_FK NUMBER(38, 0), SERVICE_ID_FK NUMBER(38, 0), MPC_ID_FK NUMBER(38, 0), FROM_PARTY_ID_FK NUMBER(38, 0), FROM_ROLE_ID_FK NUMBER(38, 0), TO_PARTY_ID_FK NUMBER(38, 0), TO_ROLE_ID_FK NUMBER(38, 0), MESSAGE_SUBTYPE_ID_FK NUMBER(38, 0), CREATION_TIME TIMESTAMP DEFAULT sysdate NOT NULL, CREATED_BY VARCHAR2(255) DEFAULT user NOT NULL, MODIFICATION_TIME TIMESTAMP, MODIFIED_BY VARCHAR2(255), CONSTRAINT PK_USER_MESSAGE PRIMARY KEY (ID_PK))';
         truncate_or_create_table(v_tab_new, v_sql);
-
-        -- dictionary tables
-        migrate_user_message_dict;
 
         /** migrate old columns and add data into dictionary tables */
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
@@ -797,7 +820,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                 message_log(i).SEND_ATTEMPTS_MAX,
                                 message_log(i).SCHEDULED,
                                 message_log(i).VERSION,
-                                message_log(i).MESSAGE_STATUS, -- TODO
+                                get_tb_d_msg_status_rec(message_log(i).MESSAGE_STATUS),
                                 get_tb_d_role_rec(message_log(i).MSH_ROLE),
                                 message_log(i).NOTIFICATION_STATUS, -- TODO
                                 message_log(i).CREATION_TIME,
@@ -896,6 +919,9 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
     /**-- main entry point for all migration --*/
     PROCEDURE migrate IS
     BEGIN
+        -- dictionary tables
+        migrate_dict_tables;
+
         -- keep it in this order
         migrate_tb_user_message;
         migrate_tb_message_fragment;
