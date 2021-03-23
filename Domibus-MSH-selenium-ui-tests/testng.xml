@@ -42,7 +42,7 @@
 
                 </methods>
             </class>
-            <!--            <class name="domibus.ui.ux.TruststorePgUXTests"/>-->
+            <class name="domibus.ui.ux.TruststorePgUXTest"/>
             <class name="domibus.ui.ux.UsersPgUXTest"/>
             <class name="domibus.ui.ux.AlertPgUXTest"/>
             <class name="domibus.ui.ux.ErrorLogPgUXTest"/>
@@ -111,7 +111,7 @@
     </test>
     <test name="LAST">
         <classes>
-            <!--            <class name="domibus.ui.functional.TruststoreTest"></class>-->
+            <class name="domibus.ui.functional.TruststorePgTest"></class>
             <class name="domibus.ui.functional.PropertiesPgTest">
                 <methods>
                     <!--                    need fixes -->
