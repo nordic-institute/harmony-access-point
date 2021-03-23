@@ -47,7 +47,7 @@ import java.util.List;
  * @author Ioana Dragusanu (idragusa)
  * @since 4.1
  */
-@Mapper(uses = {EventMapper.class, AuditMapper.class}, componentModel = "spring")
+//@Mapper(uses = {EventMapper.class, AuditMapper.class}, componentModel = "spring")
 public interface DomibusCoreMapper {
 
     @Mapping(source = "id", target = "entityId")

@@ -4,15 +4,16 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 /**
  *
  * @author Cosmin Baciu
  * @since 5.0
  */
+@NamedQueries({
+        @NamedQuery(name = "PartyRole.findByValue", query = "select prop from MessageProperty prop where prop.value=:VALUE"),
+})
 @Entity
 @Table(name = "TB_D_ROLE")
 public class PartyRole extends AbstractBaseEntity {

@@ -158,16 +158,16 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
     @Transactional(propagation = Propagation.REQUIRED)
     @Timer(clazz = UserMessageHandlerServiceImpl.class, value = "handleNewUserMessage")
     @Counter(clazz = UserMessageHandlerServiceImpl.class, value = "handleNewUserMessage")
-    public SOAPMessage handleNewUserMessage(final LegConfiguration legConfiguration, String pmodeKey, final SOAPMessage request, final Messaging messaging, boolean testMessage) throws EbMS3Exception, TransformerException, IOException, SOAPException {
+    public SOAPMessage handleNewUserMessage(final LegConfiguration legConfiguration, String pmodeKey, final SOAPMessage request, final UserMessage userMessage, boolean testMessage) throws EbMS3Exception, TransformerException, IOException, SOAPException {
         //check if the message is sent to the same Domibus instance
         final boolean selfSendingFlag = checkSelfSending(pmodeKey);
-        final boolean messageExists = legConfiguration.getReceptionAwareness().getDuplicateDetection() && this.checkDuplicate(messaging);
+        final boolean messageExists = legConfiguration.getReceptionAwareness().getDuplicateDetection() && this.checkDuplicate(userMessage);
 
-        handleIncomingMessage(legConfiguration, pmodeKey, request, messaging.getUserMessage(), selfSendingFlag, messageExists, testMessage);
+        handleIncomingMessage(legConfiguration, pmodeKey, request, userMessage, selfSendingFlag, messageExists, testMessage);
 
         return as4ReceiptService.generateReceipt(
                 request,
-                messaging,
+                userMessage,
                 legConfiguration.getReliability().getReplyPattern(),
                 legConfiguration.getReliability().isNonRepudiation(),
                 messageExists,
@@ -232,7 +232,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
             final LegConfiguration legConfiguration,
             String pmodeKey,
             final SOAPMessage request,
-            final Messaging messaging,
+            final UserMessage userMessage,
             boolean selfSending,
             boolean messageExists,
             boolean testMessage)
@@ -243,27 +243,27 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
                 /* we add a defined suffix in order to assure DB integrity - messageId uniqueness
                 basically we are generating another messageId for Signal Message on receiver side
                 */
-            messaging.getUserMessage().getMessageInfo().setMessageId(messaging.getUserMessage().getMessageInfo().getMessageId() + SELF_SENDING_SUFFIX);
+            userMessage.setMessageId(userMessage.getMessageId() + SELF_SENDING_SUFFIX);
         }
 
-        String messageId = messaging.getUserMessage().getMessageInfo().getMessageId();
-        checkCharset(messaging);
-        messagePropertyValidator.validate(messaging, MSHRole.RECEIVING);
+        String messageId = userMessage.getMessageId();
+        checkCharset(userMessage);
+        messagePropertyValidator.validate(userMessage, MSHRole.RECEIVING);
 
         LOG.debug("Message duplication status:{}", messageExists);
         if (!messageExists) {
             if (testMessage) {
                 // ping messages are only stored and not notified to the plugins
-                persistReceivedMessage(request, legConfiguration, pmodeKey, messaging, null, null);
+                persistReceivedMessage(request, legConfiguration, pmodeKey, userMessage, null, null);
             } else {
-                final BackendFilter matchingBackendFilter = routingService.getMatchingBackendFilter(messaging.getUserMessage());
+                final BackendFilter matchingBackendFilter = routingService.getMatchingBackendFilter(userMessage.getUserMessage());
                 String backendName = (matchingBackendFilter != null ? matchingBackendFilter.getBackendName() : null);
 
                 Ebms3MessageFragmentType ebms3MessageFragmentType = messageUtil.getMessageFragment(request);
-                persistReceivedMessage(request, legConfiguration, pmodeKey, messaging, ebms3MessageFragmentType, backendName);
+                persistReceivedMessage(request, legConfiguration, pmodeKey, userMessage, ebms3MessageFragmentType, backendName);
 
                 try {
-                    backendNotificationService.notifyMessageReceived(matchingBackendFilter, messaging.getUserMessage());
+                    backendNotificationService.notifyMessageReceived(matchingBackendFilter, userMessage.getUserMessage());
                 } catch (SubmissionValidationException e) {
                     LOG.businessError(DomibusMessageCode.BUS_MESSAGE_VALIDATION_FAILED, messageId);
                     throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0004, e.getMessage(), messageId, e);
@@ -545,9 +545,9 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
      * @param messaging the message
      * @return result of duplicate handle
      */
-    protected Boolean checkDuplicate(final Messaging messaging) {
+    protected Boolean checkDuplicate(final UserMessage userMessage) {
         LOG.debug("Checking for duplicate messages");
-        return userMessageLogDao.findByMessageId(messaging.getUserMessage().getMessageInfo().getMessageId(), MSHRole.RECEIVING) != null;
+        return userMessageLogDao.findByMessageId(userMessage.getMessageId(), MSHRole.RECEIVING) != null;
     }
 
     @Override

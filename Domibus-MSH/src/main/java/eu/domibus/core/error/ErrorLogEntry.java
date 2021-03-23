@@ -1,5 +1,7 @@
 package eu.domibus.core.error;
 
+import eu.domibus.api.ebms3.model.Ebms3Error;
+import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.model.*;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.core.ebms3.EbMS3Exception;
@@ -61,8 +63,8 @@ public class ErrorLogEntry extends AbstractBaseEntity {
     /**
      * @param ebms3Exception The Exception to be logged
      */
-    public ErrorLogEntry(final EbMS3Exception ebms3Exception) {
-        this.mshRole = ebms3Exception.getMshRole();
+    public ErrorLogEntry(final EbMS3Exception ebms3Exception, MSHRoleEntity mshRole) {
+        this.mshRole = mshRole;
         this.messageInErrorId = ebms3Exception.getRefToMessageId();
         this.errorSignalMessageId = ebms3Exception.getSignalMessageId();
         this.errorCode = ebms3Exception.getErrorCodeObject();
@@ -70,7 +72,7 @@ public class ErrorLogEntry extends AbstractBaseEntity {
         this.timestamp = new Date();
     }
 
-    public ErrorLogEntry(MSHRole mshRole, String messageInErrorId, ErrorCode errorCode, String errorDetail) {
+    public ErrorLogEntry(MSHRoleEntity mshRole, String messageInErrorId, ErrorCode errorCode, String errorDetail) {
         this.mshRole = mshRole;
         this.messageInErrorId = messageInErrorId;
         this.errorCode = errorCode;
@@ -85,8 +87,8 @@ public class ErrorLogEntry extends AbstractBaseEntity {
      * @param role      Role of the MSH
      * @return the new error log entry
      */
-    public static ErrorLogEntry parse(final Messaging messaging, final MSHRole role) {
-        final Error error = messaging.getSignalMessage().getError().iterator().next();
+    public static ErrorLogEntry parse(final Ebms3Messaging messaging, final MSHRoleEntity role) {
+        final Ebms3Error error = messaging.getSignalMessage().getError().iterator().next();
 
         final ErrorLogEntry errorLogEntry = new ErrorLogEntry();
         errorLogEntry.setTimestamp(messaging.getSignalMessage().getMessageInfo().getTimestamp());
@@ -155,11 +157,7 @@ public class ErrorLogEntry extends AbstractBaseEntity {
     }
 
     public MSHRole getMshRole() {
-        return this.mshRole;
-    }
-
-    public void setMshRole(final MSHRole mshRole) {
-        this.mshRole = mshRole;
+        return this.mshRole.getRole();
     }
 
     public String getMessageInErrorId() {
@@ -200,5 +198,17 @@ public class ErrorLogEntry extends AbstractBaseEntity {
 
     public void setNotified(final Date notified) {
         this.notified = notified;
+    }
+
+    public void setMshRole(MSHRoleEntity mshRole) {
+        this.mshRole = mshRole;
+    }
+
+    public UserMessage getUserMessage() {
+        return userMessage;
+    }
+
+    public void setUserMessage(UserMessage userMessage) {
+        this.userMessage = userMessage;
     }
 }

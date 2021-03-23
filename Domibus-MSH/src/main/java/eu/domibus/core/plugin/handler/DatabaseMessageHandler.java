@@ -1,6 +1,8 @@
 package eu.domibus.core.plugin.handler;
 
+import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.model.*;
+import eu.domibus.api.model.splitandjoin.MessageFragmentEntity;
 import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.common.ErrorCode;
@@ -11,7 +13,6 @@ import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Mpc;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.ebms3.EbMS3Exception;
-import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.exception.MessagingExceptionFactory;
@@ -145,7 +146,11 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     protected PartInfoDao partInfoDao;
 
     @Autowired
+    protected MessageFragmentDao messageFragmentDao;
+
+    @Autowired
     protected MpcDao mpcDao;
+
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
@@ -169,7 +174,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
         List<PartInfo> partInfos = partInfoDao.findPartInfoByUserMessageEntityId(userMessage.getEntityId());
         boolean shouldDeleteDownloadedMessage = shouldDeleteDownloadedMessage(userMessage, partInfos);
         if (shouldDeleteDownloadedMessage) {
-            messagingDao.clearPayloadData(userMessage);
+            partInfoDao.clearPayloadData(userMessage.getEntityId());
 
             // Sets the message log status to DELETED
             userMessageLogService.setMessageAsDeleted(userMessage, messageLog);
@@ -297,7 +302,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     //TODO refactor this method in order to reuse existing code from the method submit
     @Transactional
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
-    public String submitMessageFragment(UserMessage userMessage, String backendName) throws MessagingProcessingException {
+    public String submitMessageFragment(UserMessage userMessage, MessageFragmentEntity messageFragmentEntity, PartInfo partInfo, String backendName) throws MessagingProcessingException {
         if (userMessage == null) {
             LOG.warn(USER_MESSAGE_IS_NULL);
             throw new MessageNotFoundException(USER_MESSAGE_IS_NULL);
@@ -331,6 +336,10 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
             try {
                 messagingService.storeMessage(message, MSHRole.SENDING, legConfiguration, backendName);
+                partInfo.setUserMessage(userMessage);
+                partInfoDao.create(partInfo);
+                messageFragmentEntity.setUserMessage(userMessage);
+                messageFragmentDao.create(messageFragmentEntity);
             } catch (CompressionException exc) {
                 LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_COMPRESSION_FAILURE, messageId);
                 EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0303, exc.getMessage(), messageId, exc);
@@ -366,7 +375,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             userMessageService.scheduleSending(userMessage, userMessageLog);
         } else {
             LOG.debug("[submit]:Message:[{}] add lock", userMessage.getMessageId());
-            pullMessageService.addPullMessageLock(userMessage.getPartyInfo().getToParty(), pModeKey, userMessageLog);
+            pullMessageService.addPullMessageLock(userMessage, userMessage.getPartyInfo().getToParty(), pModeKey, userMessageLog);
         }
     }
 
@@ -455,7 +464,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                 if (storageProvider.isPayloadsPersistenceFileSystemConfigured() && !e.isPayloadSavedAsync()) {
                     //in case of Split&Join async payloads saving - PartInfo.getFileName will not point
                     //to internal storage folder so we will not delete them
-                    messagingDao.clearFileSystemPayloads(userMessage);
+                    partInfoDao.clearFileSystemPayloads(partInfos);
                 }
                 LOG.businessError(DomibusMessageCode.BUS_PAYLOAD_INVALID_SIZE, legConfiguration.getPayloadProfile().getMaxSize(), legConfiguration.getPayloadProfile().getName());
                 EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, e.getMessage(), messageId, e);
@@ -491,10 +500,10 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     }
 
     private void populateMessageIdIfNotPresent(UserMessage userMessage) {
-        if(userMessage == null){
+        if (userMessage == null) {
             return;
         }
-        if(isBlank(userMessage.getMessageId())){
+        if (isBlank(userMessage.getMessageId())) {
             userMessage.setMessageId(messageIdGenerator.generateMessageId());
             LOG.debug("Generated MessageId: [{}]", userMessage.getMessageId());
         }

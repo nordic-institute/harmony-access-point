@@ -24,6 +24,12 @@ public class UserMessageDao extends BasicDao<UserMessage> {
         super(UserMessage.class);
     }
 
+    public UserMessage findByMessageId(String messageId) {
+        final TypedQuery<UserMessage> query = this.em.createNamedQuery("UserMessage.findByMessageId", UserMessage.class);
+        query.setParameter("MESSAGE_ID", messageId);
+        return DataAccessUtils.singleResult(query.getResultList());
+    }
+
     public UserMessage findByGroupEntityId(Long groupEntityId) {
         final TypedQuery<UserMessage> query = this.em.createNamedQuery("UserMessage.findByGroupEntityId", UserMessage.class);
         query.setParameter("ENTITY_ID", groupEntityId);

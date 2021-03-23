@@ -11,6 +11,8 @@ import java.util.Date;
 @Entity
 @Table(name = "TB_SIGNAL_MESSAGE")
 @NamedQueries({
+        @NamedQuery(name = "SignalMessage.findSignalMessageByUserMessageEntityId",
+                query = "select signalMessage from SignalMessage signalMessage where signalMessage.entityID = :ENTITY_ID"),
         @NamedQuery(name = "SignalMessage.findSignalMessageIdByRefMessageId",
                 query = "select signalMessage.messageInfo.messageId from SignalMessage signalMessage where signalMessage.messageInfo.refToMessageId = :ORI_MESSAGE_ID"),
         @NamedQuery(name = "SignalMessage.findSignalMessageByRefMessageId",

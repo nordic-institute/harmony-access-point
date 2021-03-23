@@ -1,6 +1,7 @@
 package eu.domibus.api.model;
 
 import javax.persistence.*;
+import java.nio.charset.StandardCharsets;
 
 /**
  * @author idragusa
@@ -32,6 +33,11 @@ public class UserMessageRaw extends AbstractNoGeneratedPkEntity {
 
     public void setUserMessage(UserMessage userMessage) {
         this.userMessage = userMessage;
+    }
+
+    public void setRawXML(String rawXML) {
+        byte[] bytes = rawXML.getBytes(StandardCharsets.UTF_8);
+        this.rawXML = bytes;
     }
 
     public byte[] getRawXML() {

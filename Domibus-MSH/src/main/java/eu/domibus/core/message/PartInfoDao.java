@@ -56,7 +56,7 @@ public class PartInfoDao extends BasicDao<PartInfo> {
         clearDatabasePayloads(partInfos);
         clearFileSystemPayloads(partInfos);
 
-        LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_DATA_CLEARED, messageId);
+        LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_DATA_CLEARED);
     }
 
     public List<String> findFileSystemPayloadFilenames(List<Long> userMessageEntityIds) {

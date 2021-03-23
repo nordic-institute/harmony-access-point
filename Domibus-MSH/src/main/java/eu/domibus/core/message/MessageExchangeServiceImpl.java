@@ -64,7 +64,7 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
     private static final String PULL = "pull";
 
     @Autowired
-    private MessagingDao messagingDao;
+    UserMessageDao userMessageDao;
 
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     @Autowired
@@ -107,12 +107,14 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
     @Autowired
     private PullFrequencyHelper pullFrequencyHelper;
 
+    @Autowired
+    protected MessageStatusDao messageStatusDao;
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public MessageStatus getMessageStatus(final MessageExchangeConfiguration messageExchangeConfiguration) {
+    public MessageStatusEntity getMessageStatus(final MessageExchangeConfiguration messageExchangeConfiguration) {
         MessageStatus messageStatus = MessageStatus.SEND_ENQUEUED;
         List<Process> processes = pModeProvider.findPullProcessesByMessageContext(messageExchangeConfiguration);
         if (!processes.isEmpty()) {
@@ -121,7 +123,7 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
         } else {
             LOG.debug("No pull process found for message configuration");
         }
-        return messageStatus;
+        return messageStatusDao.findMessageStatus(messageStatus);
     }
 
     /**
@@ -129,11 +131,11 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
      */
     @Override
     @Transactional(readOnly = true)
-    public MessageStatus retrieveMessageRestoreStatus(final String messageId) {
-        final UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
+    public MessageStatusEntity retrieveMessageRestoreStatus(final String messageId) {
+        final UserMessage userMessage = userMessageDao.findByMessageId(messageId);
         try {
             if (forcePullOnMpc(userMessage)) {
-                return MessageStatus.READY_TO_PULL;
+                return messageStatusDao.findMessageStatus(MessageStatus.READY_TO_PULL);
             }
             MessageExchangeConfiguration userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
             return getMessageStatus(userMessageExchangeConfiguration);
@@ -329,7 +331,8 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
 
         UserMessageRaw newRawEnvelopeLog = new UserMessageRaw();
         newRawEnvelopeLog.setRawXML(rawXml);
-        newRawEnvelopeLog.setMessageId(messageId);
+        UserMessage userMessage = userMessageDao.findByMessageId(messageId);
+        newRawEnvelopeLog.setUserMessage(userMessage);
         rawEnvelopeLogDao.create(newRawEnvelopeLog);
     }
 

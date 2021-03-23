@@ -8,6 +8,7 @@ import eu.domibus.api.message.UserMessageException;
 import eu.domibus.api.messaging.MessageNotFoundException;
 import eu.domibus.api.messaging.MessagingException;
 import eu.domibus.api.model.*;
+import eu.domibus.api.model.splitandjoin.MessageFragmentEntity;
 import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pmode.PModeService;
@@ -201,9 +202,12 @@ public class UserMessageDefaultService implements UserMessageService {
         }
     }
 
-    protected void createMessagingForFragment(UserMessage userMessage, MessageGroupEntity messageGroupEntity, String backendName, String fragmentFile, int index) throws MessagingProcessingException {
-        final UserMessage userMessageFragment = userMessageFactory.createUserMessageFragment(userMessage, messageGroupEntity, Long.valueOf(index), fragmentFile);
-        databaseMessageHandler.submitMessageFragment(userMessageFragment, backendName);
+    protected void createMessagingForFragment(UserMessage sourceUserMessage, MessageGroupEntity messageGroupEntity, String backendName, String fragmentFile, int index) throws MessagingProcessingException {
+        Long fragmentNumber = Long.valueOf(index);
+        final UserMessage userMessageFragment = userMessageFactory.createUserMessageFragment(sourceUserMessage, messageGroupEntity, fragmentNumber, fragmentFile);
+        MessageFragmentEntity messageFragmentEntity = userMessageFactory.createMessageFragmentEntity(messageGroupEntity, fragmentNumber);
+        PartInfo messageFragmentPartInfo = userMessageFactory.createMessageFragmentPartInfo(fragmentFile, fragmentNumber);
+        databaseMessageHandler.submitMessageFragment(userMessageFragment, messageFragmentEntity, messageFragmentPartInfo, backendName);
     }
 
     @Override
@@ -252,9 +256,10 @@ public class UserMessageDefaultService implements UserMessageService {
         if (MessageStatus.DELETED == userMessageLog.getMessageStatus()) {
             throw new UserMessageException(DomibusCoreErrorCode.DOM_001, "Could not restore message [" + messageId + "]. Message status is [" + MessageStatus.DELETED + "]");
         }
+        final UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
 
         final MessageStatus newMessageStatus = messageExchangeService.retrieveMessageRestoreStatus(messageId);
-        backendNotificationService.notifyOfMessageStatusChange(userMessageLog, newMessageStatus, new Timestamp(System.currentTimeMillis()));
+        backendNotificationService.notifyOfMessageStatusChange(userMessage, userMessageLog, newMessageStatus, new Timestamp(System.currentTimeMillis()));
         userMessageLog.setMessageStatus(newMessageStatus);
         final Date currentDate = new Date();
         userMessageLog.setRestored(currentDate);
@@ -268,7 +273,7 @@ public class UserMessageDefaultService implements UserMessageService {
         userMessageLogDao.update(userMessageLog);
         uiReplicationSignalService.messageChange(messageId);
 
-        final UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
+
         if (MessageStatus.READY_TO_PULL != newMessageStatus) {
             scheduleSending(userMessage, userMessageLog);
         } else {

@@ -141,14 +141,14 @@ public class PullReceiptListener implements MessageListener {
     }
 
     protected void removeSelfSendingPrefix(SignalMessage signalMessage) {
-        if (signalMessage == null || signalMessage.getMessageInfo() == null) {
+        if (signalMessage == null) {
             return;
         }
-        String messageId = removePrefix(signalMessage.getMessageInfo().getMessageId(), UserMessageHandlerService.SELF_SENDING_SUFFIX);
-        String refToMessageId = removePrefix(signalMessage.getMessageInfo().getRefToMessageId(), UserMessageHandlerService.SELF_SENDING_SUFFIX);
+        String messageId = removePrefix(signalMessage.getSignalMessageId(), UserMessageHandlerService.SELF_SENDING_SUFFIX);
+        String refToMessageId = removePrefix(signalMessage.getRefToMessageId(), UserMessageHandlerService.SELF_SENDING_SUFFIX);
 
-        signalMessage.getMessageInfo().setMessageId(messageId);
-        signalMessage.getMessageInfo().setRefToMessageId(refToMessageId);
+        signalMessage.setSignalMessageId(messageId);
+        signalMessage.setRefToMessageId(refToMessageId);
     }
 
     protected String removePrefix(String messageId, String prefix) {

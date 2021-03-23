@@ -46,6 +46,10 @@ public abstract class BasicDao<T extends DomibusBaseEntity> {
         return em.find(this.typeOfT, id);
     }
 
+    public T findByReference(final long id) {
+        return em.getReference(this.typeOfT, id);
+    }
+
     @Transactional
     public void updateAll(final Collection<T> update) {
         for (final T t : update) {

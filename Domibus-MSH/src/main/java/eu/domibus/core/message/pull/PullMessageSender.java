@@ -131,7 +131,7 @@ public class PullMessageSender {
             SignalMessage signalMessage = new SignalMessage();
             PullRequest pullRequest = new PullRequest();
             pullRequest.setMpc(mpcQualifiedName);
-            signalMessage.setPullRequest(pullRequest);
+//            signalMessage.setPullRequest(pullRequest);
             LOG.debug("Sending pull request with mpc:[{}]", mpcQualifiedName);
             final LegConfiguration legConfiguration = pModeProvider.getLegConfiguration(pModeKey);
             mpcName = legConfiguration.getDefaultMpc().getName();
@@ -150,7 +150,7 @@ public class PullMessageSender {
                 logError(signalMessage);
                 return;
             }
-            messageId = messaging.getUserMessage().getMessageInfo().getMessageId();
+            messageId = messaging.getUserMessage().getMessageId();
             handleResponse(response, messaging);
 
             String sendMessageId = messageId;
@@ -191,7 +191,7 @@ public class PullMessageSender {
         userMessageHandlerService.handleNewUserMessage(legConfiguration, pModeKey, response, messaging, testMessage);
 
         LOG.businessInfo(testMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_RECEIVED : DomibusMessageCode.BUS_MESSAGE_RECEIVED,
-                messaging.getUserMessage().getFromFirstPartyId(), messaging.getUserMessage().getToFirstPartyId());
+                messaging.getUserMessage().getPartyInfo().getFromParty(), messaging.getUserMessage().getPartyInfo().getToParty());
 
     }
 

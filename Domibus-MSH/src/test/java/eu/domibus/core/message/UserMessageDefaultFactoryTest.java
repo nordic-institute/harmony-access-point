@@ -113,7 +113,7 @@ public class UserMessageDefaultFactoryTest {
             result = 2L;
         }};
 
-        Assert.assertNotNull(userMessageDefaultFactory.createPayloadInfo(fragmentFile, fragmentNumber));
+        Assert.assertNotNull(userMessageDefaultFactory.createMessageFragmentPartInfo(fragmentFile, fragmentNumber));
     }
 
     @Test

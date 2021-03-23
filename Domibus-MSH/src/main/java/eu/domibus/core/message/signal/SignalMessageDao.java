@@ -29,6 +29,12 @@ public class SignalMessageDao extends BasicDao<SignalMessage> {
         super(SignalMessage.class);
     }
 
+    public SignalMessage findSignalMessageByUserMessageEntityId(final Long userMessageEntityId) {
+        final TypedQuery<SignalMessage> query = em.createNamedQuery("SignalMessage.findSignalMessageByUserMessageEntityId", SignalMessage.class);
+        query.setParameter("ENTITY_ID", userMessageEntityId);
+        return DataAccessUtils.singleResult(query.getResultList());
+    }
+
     public List<SignalMessage> findSignalMessagesByRefMessageId(final String originalMessageId) {
         final TypedQuery<SignalMessage> query = em.createNamedQuery("SignalMessage.findSignalMessageByRefMessageId", SignalMessage.class);
         query.setParameter("ORI_MESSAGE_ID", originalMessageId);

@@ -31,11 +31,11 @@ public interface PullMessageService {
     /**
      * When a message arrives in the system, if it is configured to be pulled, some extra information needed for finding
      * the message later will be extracted and saved in a different place where the message lock will be facilitated.
-     * @param partyIdentifier the party indentifier contained in the message.
+     * @param userMessage the party indentifier contained in the message.
      * @param pModeKey      the pModeKey.
      * @param messageLog       the message log.
      */
-    void addPullMessageLock(String partyIdentifier, final String pModeKey, final UserMessageLog messageLog);
+    void addPullMessageLock(UserMessage userMessage, String partyIdentifier, final String pModeKey, final UserMessageLog messageLog);
 
     /**
      * When a message has been successfully delivered or marked a failed, its lock counter part item should be removed from

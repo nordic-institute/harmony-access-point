@@ -79,13 +79,13 @@ public class SourceMessageSender implements MessageSender {
     protected SplitAndJoinService splitAndJoinService;
 
     @Override
-    public void sendMessage(final Messaging messaging, final UserMessageLog userMessageLog) {
+    public void sendMessage(final UserMessage userMessage, final UserMessageLog userMessageLog) {
         final Domain currentDomain = domainContextProvider.getCurrentDomain();
-        domainTaskExecutor.submitLongRunningTask(() -> doSendMessage(messaging.getUserMessage(), userMessageLog), currentDomain);
+        domainTaskExecutor.submitLongRunningTask(() -> doSendMessage(userMessage, userMessageLog), currentDomain);
     }
 
     protected void doSendMessage(final UserMessage userMessage, final UserMessageLog userMessageLog) {
-        String messageId = userMessage.getMessageInfo().getMessageId();
+        String messageId = userMessage.getMessageId();
         LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
 
         LOG.debug("Sending SourceMessage");

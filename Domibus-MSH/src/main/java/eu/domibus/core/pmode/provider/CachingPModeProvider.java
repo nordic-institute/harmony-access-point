@@ -457,22 +457,20 @@ public class CachingPModeProvider extends PModeProvider {
     }
 
     @Override
-    public String findPartyName(final Collection<PartyId> partyId) throws EbMS3Exception {
+    public String findPartyName(final PartyId partyId) throws EbMS3Exception {
         String partyIdType = null;
         String partyIdValue = StringUtils.EMPTY;
         for (final Party party : this.getConfiguration().getBusinessProcesses().getParties()) {
-            for (final PartyId id : partyId) {
-                for (final Identifier identifier : party.getIdentifiers()) {
-                    partyIdType = id.getType();
-                    validateURI(id);
-                    // identifierPartyIdType can be also null!
-                    partyIdValue = id.getValue();
-                    String identifierPartyIdType = getIdentifierPartyIdType(identifier);
-                    LOG.debug("Find party with type:[{}] and identifier:[{}] by comparing with pmode id type:[{}] and pmode identifier:[{}]", partyIdType, id.getValue(), identifierPartyIdType, identifier.getPartyId());
-                    if (isPartyIdTypeMatching(partyIdType, identifierPartyIdType) && equalsIgnoreCase(id.getValue(), identifier.getPartyId())) {
-                        LOG.trace("Party with type:[{}] and identifier:[{}] matched", partyIdType, id.getValue());
-                        return party.getName();
-                    }
+            for (final Identifier identifier : party.getIdentifiers()) {
+                partyIdType = partyId.getType();
+                validateURI(partyId);
+                // identifierPartyIdType can be also null!
+                partyIdValue = partyId.getValue();
+                String identifierPartyIdType = getIdentifierPartyIdType(identifier);
+                LOG.debug("Find party with type:[{}] and identifier:[{}] by comparing with pmode id type:[{}] and pmode identifier:[{}]", partyIdType, partyId.getValue(), identifierPartyIdType, identifier.getPartyId());
+                if (isPartyIdTypeMatching(partyIdType, identifierPartyIdType) && equalsIgnoreCase(partyId.getValue(), identifier.getPartyId())) {
+                    LOG.trace("Party with type:[{}] and identifier:[{}] matched", partyIdType, partyId.getValue());
+                    return party.getName();
                 }
             }
         }

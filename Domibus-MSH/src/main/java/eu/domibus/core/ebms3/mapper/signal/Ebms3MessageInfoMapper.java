@@ -11,10 +11,10 @@ import org.mapstruct.Mapping;
  * @author Cosmin Baciu
  * @since 5.0
  */
-@Mapper(config = Ebms3CentralMapperConfig.class)
+//@Mapper(config = Ebms3CentralMapperConfig.class)
 public interface Ebms3MessageInfoMapper {
 
-    @Mapping(source = "timestamp", target = "timestamp")
+/*    @Mapping(source = "timestamp", target = "timestamp")
     @Mapping(source = "messageId", target = "messageId")
     @Mapping(source = "refToMessageId", target = "refToMessageId")
     @BeanMapping(ignoreUnmappedSourceProperties = {"entityId", "creationTime", "modificationTime", "createdBy", "modifiedBy"})
@@ -26,5 +26,5 @@ public interface Ebms3MessageInfoMapper {
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "modifiedBy", ignore = true)
     @InheritInverseConfiguration
-    MessageInfo messageInfoEbms3ToEntity(Ebms3MessageInfo ebms3MessageInfo);
+    MessageInfo messageInfoEbms3ToEntity(Ebms3MessageInfo ebms3MessageInfo);*/
 }

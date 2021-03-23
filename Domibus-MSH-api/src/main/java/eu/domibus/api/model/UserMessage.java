@@ -11,6 +11,7 @@ import java.util.Set;
  */
 @NamedQueries({
         @NamedQuery(name = "UserMessage.findByGroupEntityId", query = "select mg.sourceMessage from MessageGroupEntity mg where mg.entityId=:ENTITY_ID"),
+        @NamedQuery(name = "UserMessage.findByMessageId", query = "select um from UserMessage um where um.messageId=:MESSAGE_ID"),
 })
 @Entity
 @Table(name = "TB_USER_MESSAGE")

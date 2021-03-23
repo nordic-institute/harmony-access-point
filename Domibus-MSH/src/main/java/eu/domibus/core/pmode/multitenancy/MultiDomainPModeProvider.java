@@ -2,6 +2,8 @@ package eu.domibus.core.pmode.multitenancy;
 
 import eu.domibus.api.ebms3.MessageExchangePattern;
 import eu.domibus.api.model.*;
+import eu.domibus.api.model.Action;
+import eu.domibus.api.model.Mpc;
 import eu.domibus.api.model.Service;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
@@ -110,7 +112,7 @@ public class MultiDomainPModeProvider extends PModeProvider {
     }
 
     @Override
-    public Mpc findMpc(String mpcValue) throws EbMS3Exception {
+    public eu.domibus.common.model.configuration.Mpc findMpc(String mpcValue) throws EbMS3Exception {
         return getCurrentPModeProvider().findMpc(mpcValue);
     }
 
@@ -165,7 +167,7 @@ public class MultiDomainPModeProvider extends PModeProvider {
     }
 
     @Override
-    public Action getAction(String pModeKey) {
+    public eu.domibus.common.model.configuration.Action getAction(String pModeKey) {
         return getCurrentPModeProvider().getAction(pModeKey);
     }
 
