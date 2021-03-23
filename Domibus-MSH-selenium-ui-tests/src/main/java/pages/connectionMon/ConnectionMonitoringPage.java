@@ -8,6 +8,8 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 
+import java.util.List;
+
 
 /**
  * @author Catalin Comanici
@@ -25,6 +27,8 @@ public class ConnectionMonitoringPage extends DomibusPage {
 	
 	@FindBy(id = "pageGridId")
 	private WebElement gridContainer;
+	@FindBy(css = "div[class=\"connection-status ng-star-inserted\"] >span >mat-icon")
+	public List<WebElement> connectionStatusIcons;
 	
 	public ConMonGrid grid(){
 		return new ConMonGrid(driver, gridContainer);

@@ -76,6 +76,7 @@ public class DMessages {
 
 
 	public static final String PROPERTIES_UPDATE_ERROR_TYPE = "Could not update property: Value '%s' for property '%s' is not of type '%s'";
+	public static final String CONNECTION_MONITORING_ERROR ="Error retrieving Last Sent Test Message for %s [DOM_001]:No User message found for party [%s]";
 
 	
 	
