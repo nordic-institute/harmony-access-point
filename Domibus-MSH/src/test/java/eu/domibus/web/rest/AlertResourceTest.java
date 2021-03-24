@@ -1,14 +1,15 @@
 package eu.domibus.web.rest;
 
 import com.google.common.collect.Lists;
+import eu.domibus.api.alerts.AlertLevel;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.core.alerts.model.common.AlertCriteria;
-import eu.domibus.core.alerts.model.common.AlertLevel;
 import eu.domibus.core.alerts.model.common.AlertStatus;
 import eu.domibus.core.alerts.model.common.AlertType;
+import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.model.service.Alert;
 import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.core.alerts.model.web.AlertRo;
@@ -385,7 +386,7 @@ public class AlertResourceTest {
         }};
 
         List<String> alertTypesAsStrings = alertResource.getAlertTypesAsStrings();
-        assertEquals(13, alertTypesAsStrings.size());
+        assertEquals(14, alertTypesAsStrings.size());
         assertTrue(alertTypesAsStrings.containsAll(AlertResource.forbiddenAlertTypesExtAuthProvider.stream().map(alertType -> alertType.name()).collect(Collectors.toSet())));
     }
 
@@ -397,7 +398,7 @@ public class AlertResourceTest {
         }};
 
         List<String> alertTypesAsStrings = alertResource.getAlertTypesAsStrings();
-        assertEquals(8, alertTypesAsStrings.size());
+        assertEquals(9, alertTypesAsStrings.size());
         assertFalse(alertTypesAsStrings.containsAll(AlertResource.forbiddenAlertTypesExtAuthProvider.stream().map(alertType -> alertType.name()).collect(Collectors.toSet())));
     }
 
@@ -416,5 +417,11 @@ public class AlertResourceTest {
         containsAll = excludedCert.stream().map(Object::toString)
                 .anyMatch(s -> set2.remove(s) && set2.isEmpty());
         assertFalse("Checking excluded columns in MT mode:", containsAll);
+    }
+
+    @Test
+    public void getAlertParametersForPluginTest(@Injectable AlertType alertType, @Injectable EventType sourceEvent) {
+        List<String> list = alertResource.getAlertParameters("PLUGIN");
+        Assert.assertEquals(0, list.size());
     }
 }

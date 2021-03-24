@@ -51,7 +51,17 @@ public class PmodePartiesClient extends BaseRestClient {
 		}
 		return new JSONArray(sanitizeResponse(getPartiesResp.getEntity(String.class)));
 	}
-	
+
+	public List<String> getPartyNames(String domain) throws Exception {
+		List<String> names = new ArrayList<>();
+		JSONArray parties = getParties();
+		for (int i = 0; i < parties.length(); i++) {
+			JSONObject party = parties.getJSONObject(i);
+			names.add(party.getString("name"));
+		}
+		return names;
+	}
+
 	public void updatePartyURL(String name) throws Exception {
 		JSONArray parties = getParties();
 		String generatedURL = String.format("http://testhost.com/%s", Gen.randomAlphaNumeric(10));

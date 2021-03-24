@@ -1231,7 +1231,7 @@ class Domibus{
             log.info "  domibusHealthMonitor  [][]  =================================="
             log.info "  domibusHealthMonitor  [][]  Checking the Database ..."
 
-            commandString = ["curl", urlToDomibus(side, log, context) + "/ext/monitoring/application/status?filter = db",
+            commandString = ["curl", urlToDomibus(side, log, context) + "/ext/monitoring/application/status?filter=db",
                              "--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
                              "-H", "Content-Type: application/json",
                              "-u", pluginUsername + ":" + pluginPassword,
@@ -1262,7 +1262,7 @@ class Domibus{
             log.info "  domibusHealthMonitor  [][]  =================================="
             log.info "  domibusHealthMonitor  [][]  Checking the quartz trigger ..."
 
-            commandString = ["curl", urlToDomibus(side, log, context) + "/ext/monitoring/application/status?filter = quartzTrigger",
+            commandString = ["curl", urlToDomibus(side, log, context) + "/ext/monitoring/application/status?filter=quartzTrigger",
                              "--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
                              "-H", "Content-Type: application/json",
                              "-u", pluginUsername + ":" + pluginPassword,
@@ -1291,7 +1291,7 @@ class Domibus{
             log.info "\n\n"
             log.info "  domibusHealthMonitor  [][]  =================================="
             log.info "  domibusHealthMonitor  [][]  Checking the jms broker ..."
-            commandString = ["curl", urlToDomibus(side, log, context) + "/ext/monitoring/application/status?filter = jmsBroker",
+            commandString = ["curl", urlToDomibus(side, log, context) + "/ext/monitoring/application/status?filter=jmsBroker",
                              "--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
                              "-H", "Content-Type: application/json",
                              "-u", pluginUsername + ":" + pluginPassword,
@@ -1612,7 +1612,7 @@ class Domibus{
 
         (authenticationUser, authenticationPwd) = retriveAdminCredentials(context, log, side, authenticationUser, authenticationPwd)
 
-        def commandString = ["curl", urlToDomibus(side, log, context) + "/rest/plugin/users?pageSize = 10000",
+        def commandString = ["curl", urlToDomibus(side, log, context) + "/rest/plugin/users?pageSize=10000",
                              "--cookie", context.expand( '${projectDir}')+ File.separator + "cookie.txt",
                              "-H", 'Content-Type: application/json',
                              "-H", "\"X-XSRF-TOKEN: "+ returnXsfrToken(side,context,log,authenticationUser,authenticationPwd) +"\"",
@@ -2852,7 +2852,7 @@ class Domibus{
         try{
             //(authenticationUser, authenticationPwd) = retriveAdminCredentials(context, log, side, authenticationUser, authenticationPwd)
             (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
-            def commandString = "curl " + urlToDomibus(side, log, context) + "/rest/messagelog?orderBy = received&asc = false&messageId = " + data + "&messageType = USER_MESSAGE&page = 0&pageSize = 10 -b " + context.expand( '${projectDir}')+ File.separator + "cookie.txt -v -H \"Content-Type: application/json\" -H \"X-XSRF-TOKEN: "+ returnXsfrToken(side,context,log,authenticationUser,authenticationPwd) + "\" -X GET "
+            def commandString = "curl " + urlToDomibus(side, log, context) + "/rest/messagelog?orderBy=received&asc=false&messageId="+ data +"&messageType=USER_MESSAGE&page=0&pageSize=10 -b " + context.expand( '${projectDir}')+ File.separator + "cookie.txt -v -H \"Content-Type: application/json\" -H \"X-XSRF-TOKEN: "+ returnXsfrToken(side,context,log,authenticationUser,authenticationPwd) + "\" -X GET "
             def commandResult = runCommandInShell(commandString, log)
             if(listType.toLowerCase() == "blacklist"){
                 assert(commandResult[0]==~ /(?s).*Forbidden character.*detected.*/),"Error:userInputCheck_GET: Forbidden character not detected."
@@ -2945,7 +2945,7 @@ class Domibus{
             def detailedQueueName = retrieveQueueNameFromDomibus(commandResult[0].substring(5),queueName,context,log)
             debugLog("  browseJmsQueue  [][]  Queue name set to \"" + detailedQueueName + "\".", log)
 
-            commandString = ["curl", urlToDomibus(side, log, context) + "/rest/jms/messages?source = $detailedQueueName",
+            commandString = ["curl", urlToDomibus(side, log, context) + "/rest/jms/messages?source=$detailedQueueName",
                              "-H",  "Content-Type: application/json",
                              "-H", "X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
                              "-X", "GET",
@@ -3079,7 +3079,7 @@ class Domibus{
         try{
             (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
 
-            def commandString = ["curl", urlToDomibus(side, log, context) + "/rest/logging/loglevel?orderBy = loggerName&asc = false&loggerName = $packageName&page = 0&pageSize = 500",
+            def commandString = ["curl", urlToDomibus(side, log, context) + "/rest/logging/loglevel?loggerName=$packageName&showClasses=false&page=0&pageSize=500&orderBy=name&asc=false",
                                  "--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
                                  "-H","X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),
                                  "-H",  "Content-Type: text/xml",
@@ -3864,7 +3864,7 @@ class Domibus{
 
         try{
             (authenticationUser, authenticationPwd) = retriveAdminCredentialsForDomain(context, log, side, domainValue, authenticationUser, authenticationPwd)
-            def commandString = ["curl", urlToDomibus(side, log, context) + "/rest/party/list?pageSize = 100",
+            def commandString = ["curl", urlToDomibus(side, log, context) + "/rest/party/list?pageSize=100",
                                  "--cookie", context.expand('${projectDir}') + File.separator + "cookie.txt",
                                  "-H", "Content-Type: application/json",
                                  "-H", "X-XSRF-TOKEN: " + returnXsfrToken(side, context, log, authenticationUser, authenticationPwd),

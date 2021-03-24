@@ -1,10 +1,7 @@
 package pages.plugin_users;
 
 import ddsl.dcomponents.popups.EditModal;
-import ddsl.dobjects.DButton;
-import ddsl.dobjects.DInput;
-import ddsl.dobjects.DObject;
-import ddsl.dobjects.Select;
+import ddsl.dobjects.*;
 import ddsl.enums.DRoles;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -12,6 +9,8 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 import utils.Gen;
+
+import java.util.List;
 
 
 /**
@@ -50,6 +49,9 @@ public class PluginUserModal extends EditModal {
 	private WebElement confirmationErrMess;
 	@FindBy(css = "editbasicpluginuser-form form mat-select[placeholder=\"Role\"] + span.help-block>div")
 	private WebElement roleErrMess;
+	@FindBy(css = "#active_id")
+	private WebElement activeChk;
+
 
 	public PluginUserModal(WebDriver driver) {
 		super(driver);
@@ -72,10 +74,10 @@ public class PluginUserModal extends EditModal {
 	public void fillCertUserData(String user, String role) throws Exception {
 		getUserNameInput().fill(user);
 
-//		if(role.equalsIgnoreCase(DRoles.USER)){
-//			String corner = Gen.randomAlphaNumeric(5);
-//			getOriginalUserInput().fill("urn:oasis:names:tc:ebcore:partyid-type:unregistered:" + corner);
-//		}
+		if(role.equalsIgnoreCase(DRoles.USER)){
+			String corner = Gen.randomAlphaNumeric(5);
+			getOriginalUserInput().fill("urn:oasis:names:tc:ebcore:partyid-type:unregistered:" + corner);
+		}
 		
 		getRolesSelect().selectOptionByText(role);
 	}
@@ -132,6 +134,9 @@ public class PluginUserModal extends EditModal {
 
 	public void changeFocus() throws Exception {
 		weToDobject(requiredFieldsText).click();
+	}
+	public Checkbox getActiveChk() {
+		return new Checkbox(driver, activeChk);
 	}
 
 }

@@ -111,7 +111,8 @@ public enum DomibusMessageCode implements MessageCode {
     SEC_CERTIFICATE_SOON_REVOKED("SEC-018", "The [{}] certificate with alias [{}] will be revoked on [{}]"),
     SEC_CERTIFICATE_REVOKED("SEC-019", "The [{}] certificate with alias [{}] is revoked since [{}]"),
     SEC_PASSWORD_IMMINENT_EXPIRATION("SEC-020", "The password for user [{}] will expire on [{}]"),
-    SEC_PASSWORD_EXPIRED("SEC-021", "The password for user [{}] expired on [{}]");
+    SEC_PASSWORD_EXPIRED("SEC-021", "The password for user [{}] expired on [{}]"),
+    PLUGIN_DEFAULT("ABC-000", "The Plugin could not reach the backend for user [{}] expired on [{}]");//TODO: François Gautier 16-02-21  new code
 
     String code;
     String message;
