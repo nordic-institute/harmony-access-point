@@ -1,9 +1,12 @@
 package domibus.ui.functional;
 
+import ddsl.dobjects.DWait;
 import ddsl.enums.DMessages;
 import ddsl.enums.PAGES;
 import domibus.ui.SeleniumTest;
 import org.apache.commons.lang3.StringUtils;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
 import org.testng.SkipException;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
@@ -62,35 +65,107 @@ public class ConnectionMonitorTest extends SeleniumTest {
 		SoftAssert soft = new SoftAssert();
 
 		ConnectionMonitoringPage page = new ConnectionMonitoringPage(driver);
+		rest.pmode().uploadPMode("pmodes/selfSending8080.xml", page.getDomainFromTitle());
+
 		page.getSidebar().goToPage(PAGES.CONNECTION_MONITORING);
 
-		int size = page.connectionStatusIcons.size();
-		for (int i=0;i<size;i++){
+		int size = page.grid().getPagination().getTotalItems();
+		for( int i=0;i<size;i++){
+
+			log.info("name"+page.connectionStatusIcons.get(i).getText());
 			if(page.connectionStatusIcons.get(i).getText().equals("indeterminate_check_box")){
-				String partyName =page.grid().getRowSpecificColumnVal(i,"Party");
-				soft.assertTrue(page.grid().getLastReceived(partyName).equals("never"),"Never is shown as Last received");
-				soft.assertTrue(page.grid().getLastSent(partyName).equals("never"),"Never is sown as last sent");
-			    page.grid().getActionButton("Details").get(i).click();
+				String partyName = page.grid().getRowSpecificColumnVal(i, "Party");
+				log.info("party"+partyName);
+
+				page.grid().getActionButton("Details").get(i).click();
 				TestMessDetailsModal modalTest = new TestMessDetailsModal(driver);
-				soft.assertTrue(modalTest.getTestbutton().isEnabled(),"Test button is enabled");
-				soft.assertFalse(modalTest.getUpdateBtn().isEnabled(),"Update button is disabled");
-				soft.assertTrue(page.getAlertArea().isError(),"Error message is shown");
+
+				soft.assertTrue(modalTest.getTestbutton().isEnabled(), "Test button is enabled");
+				soft.assertFalse(modalTest.getUpdateBtn().isEnabled(), "Update button is disabled");
 				String expectedError =
-				String.format("Error retrieving Last Sent Test Message for %s [DOM_001]:No User message found for party [%s]",partyName,partyName);
-				soft.assertEquals(expectedError,page.getAlertArea().getAlertMessage(),"Correct error message is shown");
-				soft.assertTrue(modalTest.getSentMessInfo().get("time").isEmpty(),"ToPartyId field is blank");
-				soft.assertTrue(modalTest.getSentMessInfo().get("id").isEmpty(),"ToAccessPoint field is blank");
-				soft.assertTrue(modalTest.getSentMessInfo().get("party").isEmpty(),"Time Sent field is blank");
-				soft.assertTrue(modalTest.getSentMessInfo().get("url").isEmpty(),"Message Id field is blank");
+						String.format("Error retrieving Last Sent Test Message for %s [DOM_001]:No User message found for party [%s]", partyName, partyName);
+				soft.assertEquals(expectedError, page.getAlertArea().getAlertMessage(), "Correct error message is shown");
+				log.info("test" + modalTest.getSentMessInfo().get("party"));
 
-				soft.assertTrue(modalTest.getRespMessInfo().get("time").isEmpty(),"FromPartyId field is blank");
-				soft.assertTrue(modalTest.getRespMessInfo().get("id").isEmpty(),"FromAccessPoint field is blank");
-				soft.assertTrue(modalTest.getRespMessInfo().get("party").isEmpty(),"Time Received field is blank");
-				soft.assertTrue(modalTest.getRespMessInfo().get("url").isEmpty(),"Message Id field is blank");
+			    soft.assertTrue(modalTest.isMessInfoPresent("send"),"Sent Message info field have no data");
 
+				soft.assertTrue(modalTest.isMessInfoPresent("receive"),"Received message info fields have no data");
+
+				soft.assertTrue(modalTest.getCloseBtn().isEnabled(), "Enabled close button is shown");
+				modalTest.getCloseBtn().click();
+				page.grid().waitForRowsToLoad();
+			}
+
+
+		}
+
+		soft.assertAll();
+	}
+	/* CM-4 - Open details view for party that has never been tested or monitored and push Test button */
+	@Test(description = "CM-4", groups = {"multiTenancy", "singleTenancy"})
+	public void sendTestMsg() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		ConnectionMonitoringPage page = new ConnectionMonitoringPage(driver);
+
+		page.getSidebar().goToPage(PAGES.CONNECTION_MONITORING);
+
+		int size = page.grid().getPagination().getTotalItems();
+
+		for( int i=0;i<size;i++){
+			if(page.connectionStatusIcons.get(i).getText().equals("indeterminate_check_box")
+			|| page.connectionStatusIcons.get(i).getText().equals("error")) {
+				String partyName = page.grid().getRowSpecificColumnVal(i, "Party");
+				log.info("party"+partyName);
+				TestMessDetailsModal modalTest = new TestMessDetailsModal(driver);
+				page.grid().getActionButton("Details").get(i).click();
+				page.getAlertArea().closeButton.click();
+				modalTest.getTestbutton().click();
+				new DWait(driver).forXMillis(100);
+
+				soft.assertFalse(modalTest.isMessInfoPresent("send"),"Sent message Info fields have data present");
+
+				if(page.getAlertArea().isError()) {
+					soft.assertTrue(modalTest.isMessInfoPresent("receive"), "Received info fields are blank");
+				}
+				else{
+					soft.assertFalse(modalTest.isMessInfoPresent("receive"), "Received info fields are not blank");
+				}
+				modalTest.getCloseBtn().click();
+				break;
+
+			}
+			else
+			{
+				throw new SkipException("No party available for error scenarios");
 			}
 		}
 		soft.assertAll();
+	}
+	/* CM-5 - Open details view for party and push Update button */
+	@Test(description = "CM-5", groups = {"multiTenancy", "singleTenancy"})
+	public void checkUpdateFeature() throws Exception {
+		SoftAssert soft = new SoftAssert();
+		ConnectionMonitoringPage page = new ConnectionMonitoringPage(driver);
+
+		page.getSidebar().goToPage(PAGES.CONNECTION_MONITORING);
+
+		int noOfParties = rest.connMonitor().getConnectionMonitoringParties(page.getDomainFromTitle()).length();
+
+		if(noOfParties>0) {
+
+			TestMessDetailsModal modalTest = new TestMessDetailsModal(driver);
+			page.grid().getActionButton("Details").get(0).click();
+			modalTest.getTestbutton().click();
+			modalTest.getUpdateBtn().click();
+			if(page.getAlertArea().isShown()){
+				soft.assertTrue(modalTest.isMessInfoPresent("receive"), "Response is not received for test message");
+			}
+			else {
+				soft.assertFalse(modalTest.isMessInfoPresent("receive"), "Test Message is sent successfully");
+			}
+			modalTest.getCloseBtn().click();
+		}
+
 	}
 
 
