@@ -41,6 +41,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.jms.Queue;
+import javax.jms.Session;
+import javax.persistence.EntityManager;
 import java.sql.Timestamp;
 import java.util.*;
 
@@ -172,6 +174,12 @@ public class UserMessageDefaultServiceTest {
 
     @Injectable
     NonRepudiationService nonRepudiationService;
+
+    @Injectable
+    private UserMessageDao userMessageDao;
+
+    @Injectable
+    EntityManager em;
 
     @Test
     public void createMessagingForFragment(@Injectable UserMessage sourceMessage,
@@ -612,9 +620,14 @@ public class UserMessageDefaultServiceTest {
     }
 
     @Test
-    public void testDeleteMessages(@Injectable UserMessageLogDto uml1, @Injectable UserMessageLogDto uml2) {
+    public void testDeleteMessages(@Mocked Session s, @Mocked EntityManager em1, @Injectable UserMessageLogDto uml1, @Injectable UserMessageLogDto uml2) {
         List<UserMessageLogDto> userMessageLogDtos = Arrays.asList(uml1, uml2);
 
+        new Expectations() {{
+            em1.unwrap(Session.class); result = s;
+        }};
+
+        Deencapsulation.setField(userMessageDefaultService, "em", em1);
         userMessageDefaultService.deleteMessages(userMessageLogDtos);
 
         new Verifications() {{

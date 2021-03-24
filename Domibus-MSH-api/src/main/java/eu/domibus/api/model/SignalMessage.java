@@ -18,23 +18,25 @@ import java.util.Set;
                 query = "select signalMessage from SignalMessage signalMessage where signalMessage.messageInfo.refToMessageId = :ORI_MESSAGE_ID"),
         @NamedQuery(name = "SignalMessage.findReceiptIdsByMessageIds",
                 query = "select signalMessage.receipt.entityId from SignalMessage signalMessage where signalMessage.messageInfo.messageId IN :MESSAGEIDS"),
+        @NamedQuery(name = "SignalMessage.find",
+                query = "select signalMessage from SignalMessage signalMessage where signalMessage.messageInfo.refToMessageId IN :MESSAGEIDS"),
 })
 public class SignalMessage extends AbstractBaseEntity {
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     protected MessageInfo messageInfo;
 
     @Embedded
     protected PullRequest pullRequest; //NOSONAR
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     protected ReceiptEntity receipt;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     @JoinColumn(name = "SIGNALMESSAGE_ID")
     protected Set<Error> error; //NOSONAR
 
-    @OneToOne(mappedBy = "signalMessage", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "signalMessage", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private RawEnvelopeLog rawEnvelopeLog;
 
     public MessageInfo getMessageInfo() {

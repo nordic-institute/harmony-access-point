@@ -57,7 +57,7 @@ public class MessageGroupEntity extends AbstractBaseEntity {
     protected String soapAction;
 
     @JoinColumn(name = "FK_MESSAGE_HEADER_ID")
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     protected MessageHeaderEntity messageHeaderEntity;
 
     @Column(name = "REJECTED")

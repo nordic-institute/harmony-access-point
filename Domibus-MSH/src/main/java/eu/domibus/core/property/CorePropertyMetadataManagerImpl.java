@@ -99,6 +99,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMIBUS_UI_SUPPORT_TEAM_NAME, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_UI_SUPPORT_TEAM_EMAIL, Type.EMAIL, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_UI_CSV_MAX_ROWS, Type.NUMERIC, Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_UI_MESSAGE_LOGS_COUNT_LIMIT, Type.NUMERIC, Usage.DOMAIN, true),
 
             new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEYSTORE_LOCATION, Type.URI, Usage.DOMAIN, false),
             new DomibusPropertyMetadata(DOMIBUS_SECURITY_KEYSTORE_TYPE, Type.STRING, false, Usage.DOMAIN, false),
@@ -174,6 +175,10 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMIBUS_DISPATCHER_CACHEABLE, Type.BOOLEAN, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_DISPATCHER_CONNECTION_KEEP_ALIVE, Type.BOOLEAN, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_DISPATCHER_PRIORITY, Module.MSH, false, Usage.DOMAIN, false, false, false, true),
+            new DomibusPropertyMetadata(DOMIBUS_RETENTION_WORKER_DELETION_STRATEGY, Type.STRING, Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_RETENTION_WORKER_TIMEOUT, Type.NUMERIC, Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_RETENTION_WORKER_STORED_PROCEDURE_PARALLELDELETIONJOBSNO, Type.NUMERIC, Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_RETENTION_WORKER_STORED_PROCEDURE_DELETIONJOBINTERVAL, Type.NUMERIC, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_DOWNLOADED_MAX_DELETE, Type.NUMERIC, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_NOT_DOWNLOADED_MAX_DELETE, Type.NUMERIC, Usage.DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_SENT_MAX_DELETE, Type.NUMERIC, Usage.DOMAIN, true),

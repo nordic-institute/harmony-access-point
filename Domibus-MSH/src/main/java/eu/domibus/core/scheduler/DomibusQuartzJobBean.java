@@ -53,7 +53,7 @@ public abstract class DomibusQuartzJobBean extends QuartzJobBean {
         }
     }
 
-    protected void setQuartzJobSecurityContext() {
+    public void setQuartzJobSecurityContext() {
         authUtils.setAuthenticationToSecurityContext(DOMIBUS_QUARTZ_USER, DOMIBUS_QUARTZ_PASSWORD);
     }
 

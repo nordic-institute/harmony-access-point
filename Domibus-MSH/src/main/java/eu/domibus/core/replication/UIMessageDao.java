@@ -1,6 +1,7 @@
 package eu.domibus.core.replication;
 
 import eu.domibus.api.model.UserMessageLog;
+import eu.domibus.core.message.MessageLogDaoBase;
 
 import java.util.List;
 import java.util.Map;
@@ -9,7 +10,7 @@ import java.util.Map;
  * @author Catalin Enache
  * @since 4.0
  */
-public interface UIMessageDao {
+public interface UIMessageDao extends MessageLogDaoBase {
 
     UIMessageEntity findUIMessageByMessageId(String messageId);
 
