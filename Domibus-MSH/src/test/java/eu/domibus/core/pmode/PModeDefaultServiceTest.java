@@ -23,7 +23,7 @@ import org.junit.runner.RunWith;
  * @since 3.3
  */
 @RunWith(JMockit.class)
-public class PModeDefaultEbms3ServiceTest {
+public class PModeDefaultServiceTest {
 
     @Tested
     PModeDefaultService pModeDefaultService;
@@ -44,7 +44,6 @@ public class PModeDefaultEbms3ServiceTest {
     public void testGetLegConfiguration(@Injectable final UserMessage userMessage,
                                         @Injectable final eu.domibus.common.model.configuration.LegConfiguration legConfigurationEntity) throws Exception {
         final String messageId = "1";
-        final String pmodeKey = "1";
         final MessageExchangeConfiguration messageExchangeConfiguration = new MessageExchangeConfiguration("1", ",", "", "", "", "");
         new Expectations() {{
             messagingDao.findUserMessageByMessageId(messageId);
@@ -76,17 +75,17 @@ public class PModeDefaultEbms3ServiceTest {
             pModeProvider.updatePModes((byte[]) any, anyString);
             result = xmlProcessingException;
 
+            //noinspection ThrowableNotThrown
             pModeValidationHelper.getPModeValidationException(xmlProcessingException, "Failed to upload the PMode file due to: ");
-            result = new PModeValidationException("Failed to upload the PMode file due to: ", null);
+            returns(new PModeValidationException("Failed to upload the PMode file due to: ", null));
         }};
 
         // When
         try {
             pModeDefaultService.updatePModeFile(file, "description");
+            Assert.fail();
         } catch (PModeValidationException ex) {
             Assert.assertEquals("[DOM_003]:Failed to upload the PMode file due to: ", ex.getMessage());
-//            Assert.assertEquals(1, ex.getIssues().size());
-//            Assert.assertEquals("error1", ex.getIssues().get(0).getMessage());
         }
 
     }
