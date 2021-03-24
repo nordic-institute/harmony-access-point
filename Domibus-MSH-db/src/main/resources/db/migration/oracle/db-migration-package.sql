@@ -263,6 +263,29 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         RETURN v_id_pk;
     END get_tb_d_msg_subtype_rec;
 
+    FUNCTION get_tb_d_notif_status_rec(status VARCHAR2) RETURN NUMBER IS
+        v_id_pk NUMBER;
+    BEGIN
+        IF status IS NULL THEN
+            IF VERBOSE_LOGS THEN
+                DBMS_OUTPUT.PUT_LINE('No record added into TB_D_NOTIFICATION_STATUS');
+            END IF;
+            RETURN v_id_pk;
+        END IF;
+        BEGIN
+            EXECUTE IMMEDIATE 'SELECT ID_PK FROM TB_D_NOTIFICATION_STATUS WHERE STATUS = :1' INTO v_id_pk USING status;
+        EXCEPTION
+            WHEN NO_DATA_FOUND THEN
+                -- create new record
+                DBMS_OUTPUT.PUT_LINE('Add new record into TB_D_NOTIFICATION_STATUS: ' || status);
+                v_id_pk := HIBERNATE_SEQUENCE.nextval;
+                EXECUTE IMMEDIATE 'INSERT INTO TB_D_NOTIFICATION_STATUS(ID_PK, STATUS) VALUES (' || v_id_pk ||
+                                  ', :1)' USING status;
+                COMMIT;
+        END;
+        RETURN v_id_pk;
+    END get_tb_d_notif_status_rec;
+
     FUNCTION get_tb_user_message_rec(message_id VARCHAR2) RETURN NUMBER IS
         v_id_pk   NUMBER;
         v_tab_new VARCHAR2(30) := 'TB_USER_MESSAGE_MIGR';
@@ -326,6 +349,10 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
 
         v_sql := 'CREATE TABLE TB_D_MESSAGE_STATUS (ID_PK NUMBER(38, 0) NOT NULL, STATUS VARCHAR2(255) NOT NULL, CREATION_TIME TIMESTAMP DEFAULT sysdate NOT NULL, CREATED_BY VARCHAR2(255) DEFAULT user NOT NULL, MODIFICATION_TIME TIMESTAMP, MODIFIED_BY VARCHAR2(255), CONSTRAINT PK_D_MESSAGE_STATUS PRIMARY KEY (ID_PK))';
         v_dict_table := 'TB_D_MESSAGE_STATUS';
+        truncate_or_create_table(v_dict_table, v_sql);
+
+        v_sql := 'CREATE TABLE TB_D_NOTIFICATION_STATUS (ID_PK NUMBER(38, 0) NOT NULL, STATUS VARCHAR2(255) NOT NULL, CREATION_TIME TIMESTAMP DEFAULT sysdate NOT NULL, CREATED_BY VARCHAR2(255) DEFAULT user NOT NULL, MODIFICATION_TIME TIMESTAMP, MODIFIED_BY VARCHAR2(255), CONSTRAINT PK_D_NOTIFICATION_STATUS PRIMARY KEY (ID_PK))';
+        v_dict_table := 'TB_D_NOTIFICATION_STATUS';
         truncate_or_create_table(v_dict_table, v_sql);
     END migrate_dict_tables;
     /** -- Helper procedures end -*/
@@ -790,8 +817,9 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         message_log                  T_MESSAGE_LOG;
         v_batch_no                   INT          := 1;
     BEGIN
+
         v_sql := 'CREATE TABLE ' || v_tab_user_message_log_new ||
-                 ' TB_USER_MESSAGE_LOG (ID_PK NUMBER(38, 0) NOT NULL, BACKEND VARCHAR2(255), RECEIVED TIMESTAMP NOT NULL, DOWNLOADED TIMESTAMP, FAILED TIMESTAMP, RESTORED TIMESTAMP, DELETED TIMESTAMP, NEXT_ATTEMPT TIMESTAMP, SEND_ATTEMPTS INTEGER, SEND_ATTEMPTS_MAX INTEGER, SCHEDULED NUMBER(1), VERSION INTEGER DEFAULT 0 NOT NULL, MESSAGE_STATUS_ID_FK NUMBER(38, 0), MSH_ROLE_ID_FK NUMBER(38, 0) NOT NULL, NOTIFICATION_STATUS_ID_FK NUMBER(38, 0), CREATION_TIME TIMESTAMP DEFAULT sysdate NOT NULL, CREATED_BY VARCHAR2(255) DEFAULT user NOT NULL, MODIFICATION_TIME TIMESTAMP, MODIFIED_BY VARCHAR2(255), CONSTRAINT PK_MESSAGE_LOG PRIMARY KEY (ID_PK))';
+                 ' (ID_PK NUMBER(38, 0) NOT NULL, BACKEND VARCHAR2(255), RECEIVED TIMESTAMP NOT NULL, DOWNLOADED TIMESTAMP, FAILED TIMESTAMP, RESTORED TIMESTAMP, DELETED TIMESTAMP, NEXT_ATTEMPT TIMESTAMP, SEND_ATTEMPTS INTEGER, SEND_ATTEMPTS_MAX INTEGER, SCHEDULED NUMBER(1), VERSION INTEGER DEFAULT 0 NOT NULL, MESSAGE_STATUS_ID_FK NUMBER(38, 0), MSH_ROLE_ID_FK NUMBER(38, 0) NOT NULL, NOTIFICATION_STATUS_ID_FK NUMBER(38, 0), CREATION_TIME TIMESTAMP DEFAULT sysdate NOT NULL, CREATED_BY VARCHAR2(255) DEFAULT user NOT NULL, MODIFICATION_TIME TIMESTAMP, MODIFIED_BY VARCHAR2(255), CONSTRAINT PK_MESSAGE_LOG PRIMARY KEY (ID_PK))';
         truncate_or_create_table(v_tab_user_message_log_new, v_sql);
 
         DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
@@ -808,7 +836,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                               ' (ID_PK, BACKEND, RECEIVED, DOWNLOADED, FAILED, RESTORED, DELETED, NEXT_ATTEMPT, SEND_ATTEMPTS, SEND_ATTEMPTS_MAX, SCHEDULED, ' ||
                                               'VERSION, MESSAGE_STATUS_ID_FK, MSH_ROLE_ID_FK, NOTIFICATION_STATUS_ID_FK, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY ) ' ||
                                               'VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6, :p_7, :p_8, :p_9, :p_10, :p_11, :p_12, :p_13, :p_14, :p_15, :p_16, :p_17, :p_18, :p_19)'
-                                USING message_log(i).ID_PK,
+                                USING message_log(i).ID_PK, -- TODO
                                 message_log(i).BACKEND,
                                 message_log(i).RECEIVED,
                                 message_log(i).DOWNLOADED,
@@ -822,7 +850,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                 message_log(i).VERSION,
                                 get_tb_d_msg_status_rec(message_log(i).MESSAGE_STATUS),
                                 get_tb_d_role_rec(message_log(i).MSH_ROLE),
-                                message_log(i).NOTIFICATION_STATUS, -- TODO
+                                get_tb_d_notif_status_rec(message_log(i).NOTIFICATION_STATUS),
                                 message_log(i).CREATION_TIME,
                                 message_log(i).CREATED_BY,
                                 message_log(i).MODIFICATION_TIME,
@@ -929,6 +957,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         migrate_tb_message_header;
 
         migrate_tb_signal_message;
+        migrate_tb_user_message_log;
 
         -- house keeping
         migration_post;
