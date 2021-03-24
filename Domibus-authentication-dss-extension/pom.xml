@@ -201,6 +201,12 @@
             <artifactId>spring-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>eu.europa.ec.joinup.sd-dss</groupId>
+            <artifactId>dss-token</artifactId>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <build>

@@ -1007,6 +1007,12 @@
                 <artifactId>dss-spi</artifactId>
                 <version>${dss.version}</version>
             </dependency>
+            <dependency>
+                <groupId>eu.europa.ec.joinup.sd-dss</groupId>
+                <artifactId>dss-token</artifactId>
+                <version>${dss.version}</version>
+            </dependency>
+
             <!--UUMDS extension -->
 
             <dependency>
