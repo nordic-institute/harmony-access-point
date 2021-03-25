@@ -25,7 +25,7 @@ END MIGRATE_42_TO_50;
 
 CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
 
-    /** -- Helper procedures start -*/
+    /** -- Helper procedures and functions start -*/
     FUNCTION check_table_exists(tab_name VARCHAR2) RETURN BOOLEAN IS
         v_table_exists INT;
     BEGIN
@@ -318,7 +318,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             RETURN v_id_pk;
         END IF;
         BEGIN
-            -- TODO check index on message_id column?
+            -- TODO check index on signal_message_id column?
             EXECUTE IMMEDIATE 'SELECT ID_PK FROM ' || v_tab_new || ' WHERE SIGNAL_MESSAGE_ID = :1' INTO v_id_pk USING message_id;
         EXCEPTION
             WHEN NO_DATA_FOUND THEN
@@ -326,6 +326,30 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         END;
         RETURN v_id_pk;
     END get_tb_signal_message_rec;
+
+    FUNCTION clob_to_blob(p_data IN CLOB) RETURN BLOB
+    AS
+        l_blob         BLOB;
+        l_dest_offset  PLS_INTEGER := 1;
+        l_src_offset   PLS_INTEGER := 1;
+        l_lang_context PLS_INTEGER := DBMS_LOB.default_lang_ctx;
+        l_warning      PLS_INTEGER := DBMS_LOB.warn_inconvertible_char;
+    BEGIN
+
+        DBMS_LOB.createtemporary(
+                lob_loc => l_blob,
+                cache => TRUE);
+        DBMS_LOB.converttoblob(
+                dest_lob => l_blob,
+                src_clob => p_data,
+                amount => DBMS_LOB.lobmaxsize,
+                dest_offset => l_dest_offset,
+                src_offset => l_src_offset,
+                blob_csid => DBMS_LOB.default_csid,
+                lang_context => l_lang_context,
+                warning => l_warning);
+        RETURN l_blob;
+    END clob_to_blob;
 
 
     /** -- Dictionary tables - create or truncate them  --*/
@@ -379,7 +403,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         v_dict_table := 'TB_D_NOTIFICATION_STATUS';
         truncate_or_create_table(v_dict_table, v_sql);
     END migrate_dict_tables;
-    /** -- Helper procedures end -*/
+    /** -- Helper procedures and functions end -*/
 
     /**-- TB_USER_MESSAGE migration --*/
     PROCEDURE migrate_tb_user_message IS
@@ -729,7 +753,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
 
 
     /**-- TB_SIGNAL_MESSAGE, TB_RECEIPT and TB_RECEIPT_DATA migration --*/
-    PROCEDURE migrate_tb_signal_message IS
+    PROCEDURE migrate_tb_signal_receipt IS
         v_tab_signal           VARCHAR2(30) := 'TB_SIGNAL_MESSAGE';
         v_tab_signal_new       VARCHAR2(30) := 'MIGR_TB_SIGNAL_MESSAGE';
         v_tab_messaging        VARCHAR2(30) := 'TB_MESSAGING';
@@ -785,7 +809,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         truncate_or_create_table(v_tab_receipt_new, v_sql);
 
         /** migrate old columns and add data into dictionary tables */
-        DBMS_OUTPUT.PUT_LINE(v_tab_signal || ' migration started...');
+        DBMS_OUTPUT.PUT_LINE(
+                    v_tab_signal || ' ,' || v_tab_receipt || ' and' || v_tab_receipt_data || ' migration started...');
         OPEN c_signal_message_receipt;
         LOOP
             FETCH c_signal_message_receipt BULK COLLECT INTO signal_message_receipt;
@@ -811,7 +836,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                           ' (ID_PK, RAW_XML, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY ) ' ||
                                           'VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6)'
                             USING signal_message_receipt(i).ID_PK,
-                            signal_message_receipt(i).RAW_XML,
+                            clob_to_blob(signal_message_receipt(i).RAW_XML),
                             signal_message_receipt(i).R_CREATION_TIME,
                             signal_message_receipt(i).R_CREATED_BY,
                             signal_message_receipt(i).R_MODIFICATION_TIME,
@@ -842,8 +867,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         IF check_counts(v_tab_signal, v_tab_signal_new) THEN
             DBMS_OUTPUT.PUT_LINE(v_tab_signal || ' migration is done');
         END IF;
+        IF check_counts(v_tab_receipt, v_tab_receipt_new) THEN
+            DBMS_OUTPUT.PUT_LINE(v_tab_receipt || ' and ' || v_tab_receipt_data || ' migration is done');
+        END IF;
 
-    END migrate_tb_signal_message;
+    END migrate_tb_signal_receipt;
 
     PROCEDURE migrate_tb_user_message_log IS
         v_tab            VARCHAR2(30) := 'TB_MESSAGE_LOG';
@@ -1041,7 +1069,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         migrate_tb_message_group;
         migrate_tb_message_header;
 
-        migrate_tb_signal_message;
+        migrate_tb_signal_receipt;
         migrate_tb_user_message_log;
 
         -- house keeping
