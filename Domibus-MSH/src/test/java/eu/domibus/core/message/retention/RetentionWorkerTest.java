@@ -3,6 +3,7 @@ package eu.domibus.core.message.retention;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.util.DatabaseUtil;
 import eu.domibus.core.pmode.ConfigurationDAO;
@@ -24,7 +25,7 @@ public class RetentionWorkerTest {
     RetentionWorker retentionWorker;
 
     @Injectable
-    private MessageRetentionService messageRetentionService;
+    private MessageRetentionDefaultService messageRetentionService;
 
     @Injectable
     private ConfigurationDAO configurationDAO;
@@ -41,6 +42,8 @@ public class RetentionWorkerTest {
     @Injectable
     private DatabaseUtil databaseUtil;
 
+    @Injectable
+    protected DomibusPropertyProvider domibusPropertyProvider;
 
     @Test
     public void executeJob(@Mocked JobExecutionContext context, @Mocked Domain domain) throws JobExecutionException {

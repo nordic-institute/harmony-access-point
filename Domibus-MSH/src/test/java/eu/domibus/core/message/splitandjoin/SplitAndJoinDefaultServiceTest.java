@@ -874,6 +874,8 @@ public class SplitAndJoinDefaultServiceTest {
         }
 
         new FullVerifications() {{
+            fragment.getMessageInfo().getMessageId();
+
             messageGroupEntity.setRejected(true);
             messageGroupDao.update(messageGroupEntity);
 
@@ -914,6 +916,8 @@ public class SplitAndJoinDefaultServiceTest {
         splitAndJoinDefaultService.splitAndJoinReceiveFailed(groupId, groupId, ebMS3ErrorCode, errorDetail);
 
         new FullVerifications() {{
+            fragment.getMessageInfo().getMessageId();
+
             messageGroupEntity.setRejected(true);
             messageGroupDao.update(messageGroupEntity);
 
