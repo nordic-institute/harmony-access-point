@@ -38,11 +38,6 @@ public class RetentionWorker extends DomibusQuartzJobBean {
 
     @Override
     protected void executeJob(JobExecutionContext context, Domain domain) {
-        LOG.debug("RetentionWorker executed");
-        authUtils.runWithSecurityContext(this::executeJob, "retention_user", "retention_password");
-    }
-
-    protected void executeJob() {
         if (!configurationDAO.configurationExists()) {
             LOG.debug("Missing pMode configuration.");
             return;
@@ -53,5 +48,10 @@ public class RetentionWorker extends DomibusQuartzJobBean {
         messageRetentionServices.stream()
                 .filter(messageRetentionService -> messageRetentionService.handlesDeletionStrategy(deletionStrategy))
                 .forEach(messageRetentionService -> messageRetentionService.deleteExpiredMessages());
+    }
+
+    @Override
+    public void setQuartzJobSecurityContext() {
+        authUtils.setAuthenticationToSecurityContext("retention_user", "retention_password");
     }
 }

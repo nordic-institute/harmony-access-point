@@ -7,7 +7,6 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.util.DatabaseUtil;
 import eu.domibus.core.pmode.ConfigurationDAO;
-import eu.domibus.core.scheduler.DomibusQuartzJobBean;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
@@ -15,7 +14,10 @@ import org.junit.runner.RunWith;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RETENTION_WORKER_DELETION_STRATEGY;
 
 /**
  * @author Soumya Chandran
@@ -29,9 +31,6 @@ public class RetentionWorkerTest {
 
     @Injectable
     protected List<MessageRetentionService> messageRetentionServices;
-
-    @Injectable
-    private MessageRetentionDefaultService messageRetentionService;
 
     @Injectable
     private ConfigurationDAO configurationDAO;
@@ -52,17 +51,29 @@ public class RetentionWorkerTest {
     protected DomibusPropertyProvider domibusPropertyProvider;
 
     @Test
-    public void executeJob(@Mocked JobExecutionContext context, @Mocked Domain domain) throws JobExecutionException {
+    public void executeJob(@Mocked MessageRetentionDefaultService messageRetentionDefaultService, @Mocked MessageRetentionStoredProcedureService messageRetentionStoredProcedureService, @Mocked JobExecutionContext context, @Mocked Domain domain) throws JobExecutionException {
 
+        String strategy = "STORED_PROCEDURE";
         new Expectations() {{
             configurationDAO.configurationExists();
             result = true;
+            domibusPropertyProvider.getProperty(DOMIBUS_RETENTION_WORKER_DELETION_STRATEGY);
+            result = strategy;
+            messageRetentionDefaultService.handlesDeletionStrategy(strategy);
+            result = false;
+            messageRetentionStoredProcedureService.handlesDeletionStrategy(strategy);
+            result = true;
         }};
 
+        List<MessageRetentionService> listMRS = new ArrayList<>();
+        listMRS.add(messageRetentionDefaultService);
+        listMRS.add(messageRetentionStoredProcedureService);
+
+        Deencapsulation.setField(retentionWorker, "messageRetentionServices", listMRS);
         retentionWorker.executeJob(context, domain);
 
         new FullVerifications() {{
-            messageRetentionService.deleteExpiredMessages();
+            messageRetentionStoredProcedureService.deleteExpiredMessages();
         }};
     }
 
@@ -72,7 +83,7 @@ public class RetentionWorkerTest {
         retentionWorker.setQuartzJobSecurityContext();
 
         new FullVerifications() {{
-            authUtils.setAuthenticationToSecurityContext(DomibusQuartzJobBean.DOMIBUS_QUARTZ_USER, DomibusQuartzJobBean.DOMIBUS_QUARTZ_PASSWORD);
+            authUtils.setAuthenticationToSecurityContext("retention_user", "retention_password");
         }};
     }
 }
