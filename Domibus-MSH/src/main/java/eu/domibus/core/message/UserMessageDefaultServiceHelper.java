@@ -32,24 +32,22 @@ public class UserMessageDefaultServiceHelper implements UserMessageServiceHelper
 
     @Override
     public String getPartyTo(UserMessage userMessage) {
-        //TODO check why there are multiple party ids instead of just one
-        final Set<PartyId> partyId = userMessage.getPartyInfo().getTo().getPartyId();
-        if (partyId == null || partyId.isEmpty()) {
+        PartyId partyId = userMessage.getPartyInfo().getTo().getPartyId();
+        if (partyId == null) {
             return null;
         }
-        // TODO maybe use To#getFirstPartyId() instead
-        return partyId.iterator().next().getValue();
+        return partyId.getValue();
     }
 
     @Override
     public String getPartyFrom(UserMessage userMessage) {
-        return userMessage.getPartyInfo().getFrom().getFirstPartyId();
+        return userMessage.getPartyInfo().getFrom().getPartyId().getValue();
     }
 
 
     @Override
     public boolean isSameOriginalSender(UserMessage userMessage, String providedOriginalSender) {
-        final String messageId = userMessage.getMessageInfo().getMessageId();
+        final String messageId = userMessage.getMessageId();
         LOG.debug("Checking for message [{}] if the provided original sender [{}] is the same as the message original sender", messageId, providedOriginalSender);
 
         if (StringUtils.isEmpty(providedOriginalSender)) {
@@ -67,7 +65,7 @@ public class UserMessageDefaultServiceHelper implements UserMessageServiceHelper
 
     @Override
     public boolean isSameFinalRecipient(UserMessage userMessage, String providedFinalRecipient) {
-        final String messageId = userMessage.getMessageInfo().getMessageId();
+        final String messageId = userMessage.getMessageId();
         LOG.debug("Checking for message [{}] if the provided final recipient [{}] is the same as the message final recipient", messageId, providedFinalRecipient);
 
         if (StringUtils.isEmpty(providedFinalRecipient)) {
@@ -85,11 +83,11 @@ public class UserMessageDefaultServiceHelper implements UserMessageServiceHelper
 
     @Override
     public String getOriginalUser(UserMessage userMessage, String type) {
-        if (userMessage == null || userMessage.getMessageProperties() == null || userMessage.getMessageProperties().getProperty() == null) {
+        if (userMessage == null || userMessage.getMessageProperties() == null) {
             return null;
         }
         String originalUser = null;
-        for (Property property : userMessage.getMessageProperties().getProperty()) {
+        for (Property property : userMessage.getMessageProperties()) {
             if (property.getName() != null && property.getName().equalsIgnoreCase(type)) {
                 originalUser = property.getValue();
                 break;
@@ -100,12 +98,7 @@ public class UserMessageDefaultServiceHelper implements UserMessageServiceHelper
 
     @Override
     public String getService(UserMessage userMessage) {
-        CollaborationInfo collaborationInfo = userMessage.getCollaborationInfo();
-        if (collaborationInfo == null) {
-            LOG.trace("Collaboration info is null");
-            return null;
-        }
-        Service service = collaborationInfo.getService();
+        Service service = userMessage.getService();
         if (service == null) {
             LOG.trace("Service is null");
             return null;
@@ -115,12 +108,7 @@ public class UserMessageDefaultServiceHelper implements UserMessageServiceHelper
 
     @Override
     public String getAction(UserMessage userMessage) {
-        CollaborationInfo collaborationInfo = userMessage.getCollaborationInfo();
-        if (collaborationInfo == null) {
-            LOG.trace("Collaboration info is null");
-            return null;
-        }
-        return collaborationInfo.getAction();
+        return userMessage.getAction().getValue();
     }
 
     @Override
@@ -130,12 +118,11 @@ public class UserMessageDefaultServiceHelper implements UserMessageServiceHelper
             LOG.trace("UserMessage not present");
             return result;
         }
-        if (userMessage.getMessageProperties() == null ||
-                userMessage.getMessageProperties().getProperty() == null) {
+        if (userMessage.getMessageProperties() == null) {
             LOG.debug("No properties found for UserMessage [{}]", userMessage.getEntityId());
             return result;
         }
-        for (Property property : userMessage.getMessageProperties().getProperty()) {
+        for (Property property : userMessage.getMessageProperties()) {
             result.put(property.getName(), property.getValue());
         }
         return result;
@@ -143,16 +130,11 @@ public class UserMessageDefaultServiceHelper implements UserMessageServiceHelper
 
     @Override
     public String getConversationId(UserMessage userMessage){
-        CollaborationInfo collaborationInfo = userMessage.getCollaborationInfo();
-        if (collaborationInfo == null) {
-            LOG.trace("Collaboration info is null");
-            return null;
-        }
-        return collaborationInfo.getConversationId();
+        return userMessage.getConversationId();
     }
 
     @Override
     public String getRefToMessageId (UserMessage userMessage) {
-        return userMessage.getMessageInfo().getRefToMessageId();
+        return userMessage.getRefToMessageId();
     }
 }

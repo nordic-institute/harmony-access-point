@@ -1,9 +1,6 @@
 package eu.domibus.core.ebms3.sender;
 
-import eu.domibus.api.ebms3.model.Ebms3Messaging;
-import eu.domibus.api.ebms3.model.Ebms3SignalMessage;
-import eu.domibus.api.ebms3.model.Ebms3UserMessage;
-import eu.domibus.api.ebms3.model.ObjectFactory;
+import eu.domibus.api.ebms3.model.*;
 import eu.domibus.api.ebms3.model.mf.Ebms3MessageFragmentType;
 import eu.domibus.api.ebms3.model.mf.Ebms3MessageHeaderType;
 import eu.domibus.api.ebms3.model.mf.Ebms3TypeType;
@@ -111,7 +108,7 @@ public class EbMS3MessageBuilder {
     }
 
     //TODO: If Leg is used in future releases we have to update this method
-    public SOAPMessage buildSOAPFaultMessage(final Error ebMS3error) throws EbMS3Exception {
+    public SOAPMessage buildSOAPFaultMessage(final Ebms3Error ebMS3error) throws EbMS3Exception {
         final SignalMessage signalMessage = new SignalMessage();
         //TODO check if we still need to add the errors on the Signal Message
 //        signalMessage.getError().add(ebMS3error);

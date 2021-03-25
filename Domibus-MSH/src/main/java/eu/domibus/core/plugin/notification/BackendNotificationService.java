@@ -282,8 +282,8 @@ public class BackendNotificationService {
         properties.put(FINAL_RECIPIENT, props.get(FINAL_RECIPIENT));
         properties.put(ORIGINAL_SENDER, props.get(ORIGINAL_SENDER));
 
-        properties.put(REF_TO_MESSAGE_ID, userMessageServiceHelper.getRefToMessageId(userMessage));
-        properties.put(CONVERSATION_ID, userMessageServiceHelper.getConversationId(userMessage));
+        properties.put(REF_TO_MESSAGE_ID, userMessage.getRefToMessageId());
+        properties.put(CONVERSATION_ID, userMessage.getConversationId());
         properties.put(FROM_PARTY_ID, userMessageServiceHelper.getPartyFrom(userMessage));
 
         if (matchingBackendFilter == null) {

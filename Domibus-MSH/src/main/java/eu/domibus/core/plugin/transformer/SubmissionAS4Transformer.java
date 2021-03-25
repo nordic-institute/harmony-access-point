@@ -5,6 +5,7 @@ import eu.domibus.core.generator.id.MessageIdGenerator;
 import eu.domibus.core.message.*;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.Submission;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -164,45 +165,44 @@ public class SubmissionAS4Transformer {
 
     }
 
-    public Submission transformFromMessaging(final UserMessage messaging) {
+    public Submission transformFromMessaging(final UserMessage userMessage, List<PartInfo> partInfoList) {
         final Submission result = new Submission();
 
-        if (messaging == null) {
+        if (userMessage == null) {
             return result;
         }
 
-        result.setMpc(messaging.getMpc());
-        final CollaborationInfo collaborationInfo = messaging.getCollaborationInfo();
-        result.setAction(collaborationInfo.getAction());
-        result.setService(messaging.getCollaborationInfo().getService().getValue());
-        result.setServiceType(messaging.getCollaborationInfo().getService().getType());
-        if (collaborationInfo.getAgreementRef() != null) {
-            result.setAgreementRef(collaborationInfo.getAgreementRef().getValue());
-            result.setAgreementRefType(collaborationInfo.getAgreementRef().getType());
+        result.setMpc(userMessage.getMpc().getValue());
+        result.setAction(userMessage.getAction().getValue());
+        result.setService(userMessage.getService().getValue());
+        result.setServiceType(userMessage.getService().getType());
+        if (userMessage.getAgreementRef() != null) {
+            result.setAgreementRef(userMessage.getAgreementRef().getValue());
+            result.setAgreementRefType(userMessage.getAgreementRef().getType());
         }
-        result.setConversationId(collaborationInfo.getConversationId());
+        result.setConversationId(userMessage.getConversationId());
 
-        result.setMessageId(messaging.getMessageInfo().getMessageId());
-        result.setRefToMessageId(messaging.getMessageInfo().getRefToMessageId());
+        result.setMessageId(userMessage.getMessageId());
+        result.setRefToMessageId(userMessage.getRefToMessageId());
 
-        if (messaging.getPayloadInfo() != null) {
-            for (final PartInfo partInfo : messaging.getPayloadInfo().getPartInfo()) {
+        if (CollectionUtils.isNotEmpty(partInfoList)) {
+            for (final PartInfo partInfo : partInfoList) {
                 addPayload(result, partInfo);
             }
         }
-        result.setFromRole(messaging.getPartyInfo().getFrom().getRole());
-        result.setToRole(messaging.getPartyInfo().getTo().getRole());
+        result.setFromRole(userMessage.getPartyInfo().getFrom().getRole().getValue());
+        result.setToRole(userMessage.getPartyInfo().getTo().getRole().getValue());
 
-        for (final PartyId partyId : messaging.getPartyInfo().getFrom().getPartyId()) {
-            result.addFromParty(partyId.getValue(), partyId.getType());
-        }
+        final PartyId partyFromId = userMessage.getPartyInfo().getFrom().getPartyId();
+        result.addFromParty(partyFromId.getValue(), partyFromId.getType());
 
-        for (final PartyId partyId : messaging.getPartyInfo().getTo().getPartyId()) {
-            result.addToParty(partyId.getValue(), partyId.getType());
-        }
 
-        if (messaging.getMessageProperties() != null) {
-            for (final Property property : messaging.getMessageProperties().getProperty()) {
+        final PartyId partyTo = userMessage.getPartyInfo().getTo().getPartyId();
+        result.addToParty(partyTo.getValue(), partyTo.getType());
+
+
+        if (userMessage.getMessageProperties() != null) {
+            for (final MessageProperty property : userMessage.getMessageProperties()) {
                 result.addMessageProperty(property.getName(), property.getValue(), property.getType());
             }
         }
@@ -212,7 +212,7 @@ public class SubmissionAS4Transformer {
     protected void addPayload(Submission result, PartInfo partInfo) {
         final Collection<Submission.TypedProperty> properties = new ArrayList<>();
         if (partInfo.getPartProperties() != null) {
-            for (final Property property : partInfo.getPartProperties().getProperties()) {
+            for (final PartProperty property : partInfo.getPartProperties()) {
                 properties.add(new Submission.TypedProperty(property.getName(), property.getValue(), property.getType()));
             }
         }

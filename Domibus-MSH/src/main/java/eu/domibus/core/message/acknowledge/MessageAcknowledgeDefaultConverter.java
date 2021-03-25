@@ -16,7 +16,6 @@ public class MessageAcknowledgeDefaultConverter implements MessageAcknowledgeCon
     @Override
     public MessageAcknowledgementEntity create(String user, String messageId, Timestamp acknowledgeTimestamp, String from, String to, Map<String, String> properties) {
         MessageAcknowledgementEntity result = new MessageAcknowledgementEntity();
-        result.setMessageId(messageId);
         result.setAcknowledgeDate(acknowledgeTimestamp);
         result.setCreateDate(new Timestamp(System.currentTimeMillis()));
         result.setCreateUser(user);

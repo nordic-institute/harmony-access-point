@@ -4,6 +4,7 @@ import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.message.attempt.MessageAttemptStatus;
 import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.MSHRoleEntity;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.api.security.ChainCertificateInvalidException;
@@ -17,6 +18,7 @@ import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.message.MessageExchangeService;
+import eu.domibus.core.message.MshRoleDao;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
 import eu.domibus.core.message.reliability.ReliabilityService;
@@ -71,6 +73,9 @@ public abstract class AbstractUserMessageSender implements MessageSender {
 
     @Autowired
     private ErrorLogDao errorLogDao;
+
+    @Autowired
+    protected MshRoleDao mshRoleDao;
 
     @Override
     @Timer(clazz = AbstractUserMessageSender.class, value = "outgoing_user_message")
@@ -132,7 +137,8 @@ public abstract class AbstractUserMessageSender implements MessageSender {
                 // this flag is used in the finally clause
                 reliabilityCheckSuccessful = ReliabilityChecker.CheckResult.SEND_FAIL;
                 getLog().error("Cannot handle request for message:[{}], Certificate is not valid or it has been revoked ", messageId, cciEx);
-                errorLogDao.create(new ErrorLogEntry(MSHRole.SENDING, messageId, ErrorCode.EBMS_0004, cciEx.getMessage()));
+                final MSHRoleEntity sendingRole = mshRoleDao.findByRole(MSHRole.SENDING);
+                errorLogDao.create(new ErrorLogEntry(sendingRole, messageId, ErrorCode.EBMS_0004, cciEx.getMessage()));
                 return;
             }
 
@@ -166,10 +172,10 @@ public abstract class AbstractUserMessageSender implements MessageSender {
         } finally {
             try {
                 getLog().debug("Finally handle reliability");
-                reliabilityService.handleReliability(messageId, userMessage, userMessageLog, reliabilityCheckSuccessful, responseSoapMessage, responseResult, legConfiguration, attempt);
+                reliabilityService.handleReliability(userMessage, userMessageLog, reliabilityCheckSuccessful, responseSoapMessage, responseResult, legConfiguration, attempt);
             } catch (Exception ex) {
                 getLog().warn("Finally exception when handlingReliability", ex);
-                reliabilityService.handleReliabilityInNewTransaction(messageId, userMessage, userMessageLog, reliabilityCheckSuccessful, responseSoapMessage, responseResult, legConfiguration, attempt);
+                reliabilityService.handleReliabilityInNewTransaction(userMessage, userMessageLog, reliabilityCheckSuccessful, responseSoapMessage, responseResult, legConfiguration, attempt);
             }
         }
     }

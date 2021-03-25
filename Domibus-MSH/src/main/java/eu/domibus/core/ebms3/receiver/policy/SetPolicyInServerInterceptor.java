@@ -77,16 +77,14 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
             return;
         }
 
-        Messaging messaging = null;
         String policyName = null;
         String messageId = null;
         LegConfiguration legConfiguration = null;
 
         try {
             Ebms3Messaging ebms3Messaging = soapService.getMessage(message);
-            messaging = ebms3Converter.convertFromEbms3(ebms3Messaging);
 
-            message.put(DispatchClientDefaultProvider.MESSAGING_KEY_CONTEXT_PROPERTY, messaging);
+            message.put(DispatchClientDefaultProvider.MESSAGING_KEY_CONTEXT_PROPERTY, ebms3Messaging);
 
             LegConfigurationExtractor legConfigurationExtractor = serverInMessageLegConfigurationFactory.extractMessageConfiguration(message, messaging);
             if (legConfigurationExtractor == null) return;
@@ -109,7 +107,7 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
         } catch (EbMS3Exception e) {
             setBindingOperation(message);
             LOG.debug("", e); // Those errors are expected (no PMode found, therefore DEBUG)
-            processPluginNotification(e, legConfiguration, messaging);
+            processPluginNotification(e, legConfiguration, ebms3Messaging);
             logIncomingMessaging(message);
             throw new Fault(e);
         } catch (IOException | JAXBException e) {
@@ -121,12 +119,14 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
         }
     }
 
-    protected void processPluginNotification(EbMS3Exception e, LegConfiguration legConfiguration, Messaging messaging) {
-        if (messaging == null) {
+    protected void processPluginNotification(EbMS3Exception e, LegConfiguration legConfiguration, Ebms3Messaging ebms3Messaging) {
+        if (ebms3Messaging == null) {
             LOG.debug("Messaging header is empty");
             return;
         }
-        final String messageId = messaging.getUserMessage().getMessageInfo().getMessageId();
+        final Messaging messaging = ebms3Converter.convertFromEbms3(ebms3Messaging);
+
+        final String messageId = ebms3Messaging.getUserMessage().getMessageInfo().getMessageId();
         if (legConfiguration == null) {
             LOG.debug("LegConfiguration is null for messageId=[{}] we will not notify backend plugins", messageId);
             return;

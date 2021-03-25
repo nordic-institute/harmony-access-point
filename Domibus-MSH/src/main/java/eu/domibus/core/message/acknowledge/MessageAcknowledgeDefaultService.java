@@ -84,7 +84,7 @@ public class MessageAcknowledgeDefaultService implements MessageAcknowledgeServi
 
     protected MessageAcknowledgement acknowledgeMessage(final UserMessage userMessage, Timestamp acknowledgeTimestamp, String from, String to, Map<String, String> properties) throws MessageAcknowledgeException {
         final String user = authUtils.getAuthenticatedUser();
-        MessageAcknowledgementEntity entity = messageAcknowledgeConverter.create(user, userMessage.getMessageInfo().getMessageId(), acknowledgeTimestamp, from, to, properties);
+        MessageAcknowledgementEntity entity = messageAcknowledgeConverter.create(user, userMessage.getMessageId(), acknowledgeTimestamp, from, to, properties);
         messageAcknowledgementDao.create(entity);
         return messageAcknowledgeConverter.convert(entity);
     }

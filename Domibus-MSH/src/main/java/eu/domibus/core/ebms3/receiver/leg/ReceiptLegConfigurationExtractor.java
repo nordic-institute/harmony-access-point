@@ -1,5 +1,6 @@
 package eu.domibus.core.ebms3.receiver.leg;
 
+import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.message.acknowledge.MessageAcknowledgeException;
 import eu.domibus.api.model.MSHRole;
@@ -8,7 +9,6 @@ import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.api.model.Messaging;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -29,19 +29,19 @@ public class ReceiptLegConfigurationExtractor extends AbstractSignalLegConfigura
 
     private MessageExchangeService messageExchangeService;
 
-    public ReceiptLegConfigurationExtractor(SoapMessage message, Messaging messaging) {
+    public ReceiptLegConfigurationExtractor(SoapMessage message, Ebms3Messaging messaging) {
         super(message, messaging);
     }
 
     @Override
     protected String getMessageId() {
-        return messaging.getSignalMessage().getMessageInfo().getMessageId();
+        return ebms3Messaging.getSignalMessage().getMessageInfo().getMessageId();
     }
 
     @Override
     public LegConfiguration process() throws EbMS3Exception {
         LOG.debug("Extracting configuration for receipt");
-        String messageId = messaging.getSignalMessage().getMessageInfo().getRefToMessageId();
+        String messageId = ebms3Messaging.getSignalMessage().getMessageInfo().getRefToMessageId();
         //@thom check it the MessageAcknolegde service is not a better choice here. The getMessage is not exposed via the api.
         final UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
         if (userMessage == null) {

@@ -12,21 +12,21 @@ import javax.persistence.*;
  * @since 5.0
  */
 @NamedQueries({
-        @NamedQuery(name = "PartyRole.findByValue", query = "select prop from MessageProperty prop where prop.value=:VALUE"),
+        @NamedQuery(name = "PartyRole.findByValue", query = "select prop from PartyRole prop where prop.value=:VALUE"),
 })
 @Entity
 @Table(name = "TB_D_ROLE")
 public class PartyRole extends AbstractBaseEntity {
 
-    @Column(name = "ROLE")
-    protected String role;
+    @Column(name = "VALUE")
+    protected String value;
 
-    public String getRole() {
-        return role;
+    public String getValue() {
+        return value;
     }
 
-    public void setRole(String value) {
-        this.role = value;
+    public void setValue(String value) {
+        this.value = value;
     }
 
     @Override
@@ -39,7 +39,7 @@ public class PartyRole extends AbstractBaseEntity {
 
         return new EqualsBuilder()
                 .appendSuper(super.equals(o))
-                .append(role, partyRole.role)
+                .append(value, partyRole.value)
                 .isEquals();
     }
 
@@ -47,14 +47,14 @@ public class PartyRole extends AbstractBaseEntity {
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
                 .appendSuper(super.hashCode())
-                .append(role)
+                .append(value)
                 .toHashCode();
     }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .append("value", role)
+                .append("value", value)
                 .toString();
     }
 }

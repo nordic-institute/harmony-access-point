@@ -1,5 +1,6 @@
 package eu.domibus.core.ebms3.receiver.leg;
 
+import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.pull.PullRequestLegConfigurationExtractor;
@@ -13,15 +14,22 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class MessageLegConfigurationVisitor {
+
     @Autowired
     private PModeProvider pModeProvider;
+
     @Autowired
     private MessageExchangeService messageExchangeService;
+
     @Autowired
     private MessagingDao messagingDao;
 
+    @Autowired
+    protected Ebms3Converter ebms3Converter;
+
     public void visit(UserMessageLegConfigurationExtractor userMessagePolicyInSetup) {
         userMessagePolicyInSetup.setpModeProvider(pModeProvider);
+        userMessagePolicyInSetup.setEbms3Converter(ebms3Converter);
     }
 
     public void visit(PullRequestLegConfigurationExtractor signalMessagePolicyInSetup) {

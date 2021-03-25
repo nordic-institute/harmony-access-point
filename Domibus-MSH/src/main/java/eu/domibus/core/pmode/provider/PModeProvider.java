@@ -2,6 +2,7 @@ package eu.domibus.core.pmode.provider;
 
 import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.ebms3.MessageExchangePattern;
+import eu.domibus.api.ebms3.model.Ebms3PullRequest;
 import eu.domibus.api.model.*;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pmode.PModeArchiveInfo;
@@ -324,7 +325,7 @@ public abstract class PModeProvider {
     }
 
     protected Role findInitiatorRole(UserMessage userMessage) throws EbMS3Exception {
-        String initiatorRole = userMessage.getPartyInfo().getFrom().getRole().getRole();
+        String initiatorRole = userMessage.getPartyInfo().getFrom().getRole().getValue();
         if (StringUtils.isBlank(initiatorRole)) {
             EbMS3Exception exception = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "Mandatory field Sender Role is not provided.", null, null);
             LOG.businessError(DomibusMessageCode.MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "From/Role");
@@ -359,7 +360,7 @@ public abstract class PModeProvider {
     }
 
     protected Role findResponderRole(UserMessage userMessage) throws EbMS3Exception {
-        String responderRole = userMessage.getPartyInfo().getTo().getRole().getRole();
+        String responderRole = userMessage.getPartyInfo().getTo().getRole().getValue();
         if (StringUtils.isBlank(responderRole)) {
             EbMS3Exception exception = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "Mandatory field Receiver Role is not provided.", null, null);
             LOG.businessError(DomibusMessageCode.MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "To Role");
@@ -402,15 +403,15 @@ public abstract class PModeProvider {
         return new UserMessagePmodeData(serviceName, actionName, partyName);
     }
 
-    public PullRequestPmodeData getPullRequestMapping(PullRequest pullRequest) throws EbMS3Exception {
+    public PullRequestPmodeData getPullRequestMapping(String mpcValue) throws EbMS3Exception {
         Mpc mpc;
         try {
-            LOG.debug("Find the mpc based on the pullRequest mpc [{}]", pullRequest.getMpc());
-            mpc = findMpc(pullRequest.getMpc());
+            LOG.debug("Find the mpc based on the pullRequest mpc [{}]", mpcValue);
+            mpc = findMpc(mpcValue);
         } catch (EbMS3Exception e) {
-            LOG.debug("Could not find the mpc [{}], check if base mpc should be used", pullRequest.getMpc());
-            if (mpcService.forcePullOnMpc(pullRequest.getMpc())) {
-                String mpcQualifiedName = mpcService.extractBaseMpc(pullRequest.getMpc());
+            LOG.debug("Could not find the mpc [{}], check if base mpc should be used", mpcValue);
+            if (mpcService.forcePullOnMpc(mpcValue)) {
+                String mpcQualifiedName = mpcService.extractBaseMpc(mpcValue);
                 LOG.debug("Trying base mpc [{}]", mpcQualifiedName);
                 mpc = findMpc(mpcQualifiedName);
             } else {

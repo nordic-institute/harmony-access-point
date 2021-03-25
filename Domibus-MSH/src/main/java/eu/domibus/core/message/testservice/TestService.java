@@ -283,8 +283,8 @@ public class TestService {
     protected TestServiceMessageInfoRO getTestServiceMessageInfoRO(String partyId, SignalMessage signalMessage) {
         TestServiceMessageInfoRO testServiceMessageInfoRO = new TestServiceMessageInfoRO();
         if (signalMessage != null) {
-            testServiceMessageInfoRO.setMessageId(signalMessage.getMessageInfo().getMessageId());
-            testServiceMessageInfoRO.setTimeReceived(signalMessage.getMessageInfo().getTimestamp());
+            testServiceMessageInfoRO.setMessageId(signalMessage.getSignalMessageId());
+            testServiceMessageInfoRO.setTimeReceived(signalMessage.getTimestamp());
         }
         Party party = pModeProvider.getPartyByIdentifier(partyId);
         testServiceMessageInfoRO.setPartyId(partyId);

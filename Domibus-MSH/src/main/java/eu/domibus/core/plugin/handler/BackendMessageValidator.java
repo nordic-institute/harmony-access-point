@@ -310,7 +310,7 @@ public class BackendMessageValidator {
             LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "PartyInfo/From");
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Mandatory field PartyInfo/From is not provided.", null, null);
         }
-        final String fromRole = from.getRole().getRole();
+        final String fromRole = from.getRole().getValue();
         if (isBlank(fromRole)) {
             LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "PartyInfo/From/Role");
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Mandatory field From Role is not provided.", null, null);
@@ -345,12 +345,12 @@ public class BackendMessageValidator {
     }
 
     protected void validateToRoleForPModeMatch(To to, MSHRole mshRole) throws EbMS3Exception {
-        if (to == null || StringUtils.isEmpty(to.getRole().getRole())) {
+        if (to == null || StringUtils.isEmpty(to.getRole().getValue())) {
             //In scenario of DynamicDiscovery Backend will not provide To/PartyId details, it is discovered by Domibus during PMode match.
             //Hence elements To and To/Role are optional
             return;
         }
-        final String toRole = to.getRole().getRole();
+        final String toRole = to.getRole().getValue();
         if (isBlank(toRole)) {
             LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "PartyInfo/To/Role");
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Mandatory field To Role is not provided.", null, null);

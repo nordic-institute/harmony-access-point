@@ -4,6 +4,7 @@ import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.message.attempt.MessageAttemptBuilder;
 import eu.domibus.api.message.attempt.MessageAttemptService;
 import eu.domibus.api.message.attempt.MessageAttemptStatus;
+import eu.domibus.api.model.PartInfo;
 import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.security.ChainCertificateInvalidException;
 import eu.domibus.common.ErrorCode;
@@ -16,6 +17,8 @@ import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.core.message.MessagingDao;
+import eu.domibus.core.message.PartInfoDao;
+import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
 import eu.domibus.core.message.reliability.ReliabilityMatcher;
 import eu.domibus.api.model.MessageType;
@@ -29,6 +32,7 @@ import org.springframework.stereotype.Component;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.WebServiceException;
 import java.sql.Timestamp;
+import java.util.List;
 
 import static eu.domibus.core.message.reliability.ReliabilityChecker.CheckResult.ABORT;
 import static eu.domibus.core.message.reliability.ReliabilityChecker.CheckResult.WAITING_FOR_CALLBACK;
@@ -45,7 +49,10 @@ public class PullRequestHandler {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PullRequestHandler.class);
 
     @Autowired
-    private MessagingDao messagingDao;
+    private UserMessageDao userMessageDao;
+
+    @Autowired
+    private PartInfoDao partInfoDao;
 
     @Autowired
     private EbMS3MessageBuilder messageBuilder;
@@ -90,11 +97,11 @@ public class PullRequestHandler {
         SOAPMessage soapMessage = null;
         UserMessage userMessage = null;
         try {
-            userMessage = messagingDao.findUserMessageByMessageId(messageId);
+            userMessage = userMessageDao.findByMessageId(messageId);
             leg = pullContext.filterLegOnMpc();
             try {
                 String initiatorPartyName = null;
-                final String mpc = userMessage.getMpc();
+                final String mpc = userMessage.getMpc().getValue();
                 if (pullContext.getInitiator() != null) {
                     LOG.debug("Get initiator from pull context");
                     initiatorPartyName = pullContext.getInitiator().getName();
@@ -107,7 +114,9 @@ public class PullRequestHandler {
                 messageExchangeService.verifyReceiverCertificate(leg, initiatorPartyName);
                 messageExchangeService.verifySenderCertificate(leg, pullContext.getResponder().getName());
                 leg = pullContext.filterLegOnMpc();
-                soapMessage = messageBuilder.buildSOAPMessage(userMessage, leg);
+
+                final List<PartInfo> partInfoList = partInfoDao.findPartInfoByUserMessageEntityId(userMessage.getEntityId());
+                soapMessage = messageBuilder.buildSOAPMessage(userMessage, partInfoList, leg);
                 PhaseInterceptorChain.getCurrentMessage().getExchange().put(MSHDispatcher.MESSAGE_TYPE_OUT, MessageType.USER_MESSAGE);
                 if (pullRequestMatcher.matchReliableCallBack(leg.getReliability()) &&
                         leg.getReliability().isNonRepudiation()) {

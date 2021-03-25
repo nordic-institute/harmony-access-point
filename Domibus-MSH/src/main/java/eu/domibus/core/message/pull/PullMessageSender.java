@@ -5,10 +5,7 @@ import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.ebms3.model.Ebms3SignalMessage;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.message.UserMessageException;
-import eu.domibus.api.model.MSHRole;
-import eu.domibus.api.model.Messaging;
-import eu.domibus.api.model.PullRequest;
-import eu.domibus.api.model.SignalMessage;
+import eu.domibus.api.model.*;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.LegConfiguration;
@@ -122,9 +119,9 @@ public class PullMessageSender {
         }
         LOG.debug("Initiate pull request");
         boolean notifyBusinessOnError = false;
-        Messaging messaging = null;
         String messageId = null;
         String mpcName = null;
+        UserMessage userMessage = null;
 
         try {
             final String mpcQualifiedName = map.getStringProperty(PullContext.MPC);
@@ -145,15 +142,16 @@ public class PullMessageSender {
             final SOAPMessage response = mshDispatcher.dispatch(soapMessage, receiverParty.getEndpoint(), policy, legConfiguration, pModeKey);
             pullFrequencyHelper.success(legConfiguration.getDefaultMpc().getName());
             Ebms3Messaging ebms3Messaging = messageUtil.getMessage(response);
-            messaging = ebms3Converter.convertFromEbms3(ebms3Messaging);
+            Messaging messaging = ebms3Converter.convertFromEbms3(ebms3Messaging);
+            userMessage = messaging.getUserMessage();
 
-            if (messaging.getUserMessage() == null && messaging.getSignalMessage() != null) {
+            if (userMessage == null && messaging.getSignalMessage() != null) {
                 LOG.trace("No message for sent pull request with mpc:[{}]", mpcQualifiedName);
                 logError(ebms3Messaging.getSignalMessage());
                 return;
             }
-            messageId = messaging.getUserMessage().getMessageId();
-            handleResponse(response, messaging);
+            messageId = userMessage.getMessageId();
+            handleResponse(response, userMessage);
 
             String sendMessageId = messageId;
             if (userMessageHandlerService.checkSelfSending(pModeKey)) {
@@ -169,8 +167,8 @@ public class PullMessageSender {
             throw new UserMessageException(DomibusCoreErrorCode.DOM_001, "Error handling new UserMessage", e);
         } catch (final EbMS3Exception e) {
             try {
-                if (notifyBusinessOnError && messaging != null) {
-                    backendNotificationService.notifyMessageReceivedFailure(messaging.getUserMessage(), userMessageHandlerService.createErrorResult(e));
+                if (notifyBusinessOnError && userMessage != null) {
+                    backendNotificationService.notifyMessageReceivedFailure(userMessage, userMessageHandlerService.createErrorResult(e));
                 }
             } catch (Exception ex) {
                 LOG.businessError(DomibusMessageCode.BUS_BACKEND_NOTIFICATION_FAILED, ex, messageId);
@@ -179,21 +177,21 @@ public class PullMessageSender {
         }
     }
 
-    protected void handleResponse(final SOAPMessage response, Messaging messaging) throws TransformerException, SOAPException, IOException, JAXBException, EbMS3Exception {
+    protected void handleResponse(final SOAPMessage response, UserMessage userMessage) throws TransformerException, SOAPException, IOException, JAXBException, EbMS3Exception {
         LOG.trace("handle message");
-        Boolean testMessage = userMessageHandlerService.checkTestMessage(messaging.getUserMessage());
+        Boolean testMessage = userMessageHandlerService.checkTestMessage(userMessage);
 
         // Find legConfiguration for the received UserMessage
-        MessageExchangeConfiguration userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(messaging.getUserMessage(), MSHRole.RECEIVING);
+        MessageExchangeConfiguration userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.RECEIVING);
         String pModeKey = userMessageExchangeConfiguration.getPmodeKey();
         LOG.debug("pModeKey for received userMessage is [{}]", pModeKey);
 
         LegConfiguration legConfiguration = pModeProvider.getLegConfiguration(pModeKey);
         LOG.debug("legConfiguration for received userMessage is [{}]", legConfiguration.getName());
-        userMessageHandlerService.handleNewUserMessage(legConfiguration, pModeKey, response, messaging, testMessage);
+        userMessageHandlerService.handleNewUserMessage(legConfiguration, pModeKey, response, userMessage, testMessage);
 
         LOG.businessInfo(testMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_RECEIVED : DomibusMessageCode.BUS_MESSAGE_RECEIVED,
-                messaging.getUserMessage().getPartyInfo().getFromParty(), messaging.getUserMessage().getPartyInfo().getToParty());
+                userMessage.getPartyInfo().getFromParty(), userMessage.getPartyInfo().getToParty());
 
     }
 

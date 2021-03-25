@@ -1,6 +1,6 @@
 package eu.domibus.core.ebms3.receiver.leg;
 
-import eu.domibus.api.model.Messaging;
+import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
 import eu.domibus.logging.DomibusLogger;
@@ -15,14 +15,14 @@ public abstract class AbstractLegConfigurationExtractor implements LegConfigurat
 
     protected final SoapMessage message;
 
-    protected final Messaging messaging;
+    protected final Ebms3Messaging ebms3Messaging;
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AbstractLegConfigurationExtractor.class);
 
 
-    public AbstractLegConfigurationExtractor(final SoapMessage message, final Messaging messaging) {
+    public AbstractLegConfigurationExtractor(final SoapMessage message, final Ebms3Messaging ebms3Messaging) {
         this.message = message;
-        this.messaging = messaging;
+        this.ebms3Messaging = ebms3Messaging;
     }
 
 

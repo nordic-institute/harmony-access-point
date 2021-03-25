@@ -1,14 +1,16 @@
 package eu.domibus.core.message.pull;
 
 import eu.domibus.api.model.MessageStatus;
-import eu.domibus.core.message.MessagingDao;
-import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
-import eu.domibus.core.message.UserMessageLogDao;
-import eu.domibus.api.model.UserMessageLog;
-import eu.domibus.core.replication.UIReplicationSignalService;
+import eu.domibus.api.model.MessageStatusEntity;
 import eu.domibus.api.model.UserMessage;
-import eu.domibus.core.plugin.notification.BackendNotificationService;
+import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.core.ebms3.sender.retry.UpdateRetryLoggingService;
+import eu.domibus.core.message.MessageStatusDao;
+import eu.domibus.core.message.MessagingDao;
+import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
+import eu.domibus.core.plugin.notification.BackendNotificationService;
+import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +49,9 @@ public class PullMessageStateServiceImpl implements PullMessageStateService {
     @Autowired
     protected MessagingDao messagingDao;
 
+    @Autowired
+    protected MessageStatusDao messageStatusDao;
+
     /**
      * {@inheritDoc}
      */
@@ -56,7 +61,7 @@ public class PullMessageStateServiceImpl implements PullMessageStateService {
         LOG.debug("Message:[{}] expired.", messageId);
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
         rawEnvelopeLogDao.deleteUserMessageRawEnvelope(messageId);
-        sendFailed(userMessageLog);
+        sendFailed(userMessageLog, messageId);
     }
 
     /**
@@ -64,16 +69,16 @@ public class PullMessageStateServiceImpl implements PullMessageStateService {
      */
     @Override
     @Transactional
-    public void sendFailed(final UserMessageLog userMessageLog) {
+    public void sendFailed(final UserMessageLog userMessageLog, String messageId) {
         if (userMessageLog == null) {
             LOG.warn("Could not mark message as failed: userMessageLog is null");
             return;
         }
 
-        LOG.debug("Setting [{}] message as failed", userMessageLog.getMessageId());
-        final UserMessage userMessage = messagingDao.findUserMessageByMessageId(userMessageLog.getMessageId());
+        LOG.debug("Setting [{}] message as failed", messageId);
+        final UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
         if (userMessage == null) {
-            LOG.debug("Could not set [{}] message as failed: could not find userMessage", userMessageLog.getMessageId());
+            LOG.debug("Could not set [{}] message as failed: could not find userMessage", messageId);
             return;
         }
 
@@ -85,13 +90,13 @@ public class PullMessageStateServiceImpl implements PullMessageStateService {
      */
     @Transactional
     @Override
-    public void reset(final UserMessageLog userMessageLog) {
-        final MessageStatus readyToPull = MessageStatus.READY_TO_PULL;
-        LOG.debug("Change message:[{}] with state:[{}] to state:[{}].", userMessageLog.getMessageId(), userMessageLog.getMessageStatus(), readyToPull);
+    public void reset(final UserMessageLog userMessageLog, String messageId) {
+        final MessageStatusEntity readyToPull = messageStatusDao.findMessageStatus(MessageStatus.READY_TO_PULL);
+        LOG.debug("Change message:[{}] with state:[{}] to state:[{}].", messageId, userMessageLog.getMessageStatus(), readyToPull);
         userMessageLog.setMessageStatus(readyToPull);
         userMessageLogDao.update(userMessageLog);
-        uiReplicationSignalService.messageChange(userMessageLog.getMessageId());
-        backendNotificationService.notifyOfMessageStatusChange(userMessageLog, MessageStatus.READY_TO_PULL, new Timestamp(System.currentTimeMillis()));
+        uiReplicationSignalService.messageChange(messageId);
+        backendNotificationService.notifyOfMessageStatusChange(messageId, userMessageLog, MessageStatus.READY_TO_PULL, new Timestamp(System.currentTimeMillis()));
     }
 
 

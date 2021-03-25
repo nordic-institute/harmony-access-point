@@ -1,6 +1,5 @@
 package eu.domibus.core.message;
 
-import eu.domibus.api.model.PartyId;
 import eu.domibus.api.model.PartyRole;
 import eu.domibus.core.dao.BasicDao;
 import org.springframework.dao.support.DataAccessUtils;
@@ -31,7 +30,7 @@ public class PartyRoleDao extends BasicDao<PartyRole> {
             return role;
         }
         PartyRole newRole = new PartyRole();
-        newRole.setRole(value);
+        newRole.setValue(value);
         create(newRole);
         return newRole;
     }
