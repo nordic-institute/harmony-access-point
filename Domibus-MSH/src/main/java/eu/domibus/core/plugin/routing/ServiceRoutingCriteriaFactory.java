@@ -44,7 +44,7 @@ public class ServiceRoutingCriteriaFactory implements CriteriaFactory {
         @Override
         public boolean matches(final UserMessage userMessage, final String expression) {
             setExpression(expression);
-            final Service service = userMessage.getCollaborationInfo().getService();
+            final Service service = userMessage.getService();
             return matches(service.getValue() + ":" + service.getType());
         }
 

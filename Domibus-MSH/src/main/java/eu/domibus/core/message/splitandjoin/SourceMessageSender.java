@@ -3,12 +3,12 @@ package eu.domibus.core.message.splitandjoin;
 import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.message.attempt.MessageAttemptService;
 import eu.domibus.api.message.attempt.MessageAttemptStatus;
+import eu.domibus.api.model.*;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.ChainCertificateInvalidException;
-import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.ebms3.EbMS3Exception;
@@ -17,11 +17,9 @@ import eu.domibus.core.ebms3.sender.MessageSender;
 import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
 import eu.domibus.core.ebms3.sender.retry.UpdateRetryLoggingService;
 import eu.domibus.core.message.MessageExchangeService;
-import eu.domibus.api.model.UserMessageLog;
+import eu.domibus.core.message.PartInfoDao;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.api.model.Messaging;
-import eu.domibus.api.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -33,6 +31,7 @@ import org.springframework.stereotype.Service;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.soap.SOAPFaultException;
 import java.sql.Timestamp;
+import java.util.List;
 
 /**
  * Class responsible for sending SourceMessages on the local endpoint(SplitAndJoin)
@@ -78,6 +77,9 @@ public class SourceMessageSender implements MessageSender {
     @Autowired
     protected SplitAndJoinService splitAndJoinService;
 
+    @Autowired
+    protected PartInfoDao partInfoDao;
+
     @Override
     public void sendMessage(final UserMessage userMessage, final UserMessageLog userMessageLog) {
         final Domain currentDomain = domainContextProvider.getCurrentDomain();
@@ -120,7 +122,8 @@ public class SourceMessageSender implements MessageSender {
                 return;
             }
 
-            final SOAPMessage soapMessage = messageBuilder.buildSOAPMessage(userMessage, legConfiguration);
+            final List<PartInfo> partInfoList = partInfoDao.findPartInfoByUserMessageEntityId(userMessage.getEntityId());
+            final SOAPMessage soapMessage = messageBuilder.buildSOAPMessage(userMessage, partInfoList, legConfiguration);
             mshDispatcher.dispatchLocal(userMessage, soapMessage, legConfiguration);
             reliabilityCheck = ReliabilityChecker.CheckResult.OK;
         } catch (final SOAPFaultException soapFEx) {

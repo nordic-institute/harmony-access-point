@@ -4,9 +4,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 /**
  * @author Cosmin Baciu
@@ -14,6 +12,9 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "TB_D_ACTION")
+@NamedQueries({
+        @NamedQuery(name = "Action.findByValue", query = "select serv from Action serv where serv.value=:VALUE"),
+})
 public class Action extends AbstractBaseEntity {
 
     @Column(name = "VALUE", unique = true)

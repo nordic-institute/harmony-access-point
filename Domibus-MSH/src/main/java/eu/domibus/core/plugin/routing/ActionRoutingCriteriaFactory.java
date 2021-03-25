@@ -44,7 +44,7 @@ public class ActionRoutingCriteriaFactory implements CriteriaFactory {
         @Override
         public boolean matches(final UserMessage userMessage, final String expression) {
             setExpression(expression);
-            return super.matches(userMessage.getCollaborationInfo().getAction());
+            return super.matches(userMessage.getActionValue());
         }
     }
 }

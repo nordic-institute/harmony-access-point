@@ -8,7 +8,6 @@ import eu.domibus.common.model.configuration.Identifier;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.PartyIdType;
 import eu.domibus.core.message.MessagingDao;
-import eu.domibus.core.message.UserMessageLogEntityBuilder;
 import eu.domibus.core.message.pull.MessagePullDto;
 import eu.domibus.core.party.PartyDao;
 import eu.domibus.test.util.PojoInstaciatorUtil;

@@ -159,7 +159,7 @@ public class PullMessageServiceImpl implements PullMessageService {
                 userMessageLogDao.update(userMessageLog);
 
                 uiReplicationSignalService.messageChange(messageId);
-                return new PullRequestResult(userMessageLog);
+                return new PullRequestResult(messageId, userMessageLog);
             case PULL_FAILED:
                 return pullFailedOnReceipt(userMessage, legConfiguration, userMessageLog);
 
@@ -371,7 +371,7 @@ public class PullMessageServiceImpl implements PullMessageService {
             LOG.debug("[PULL_RECEIPT]:Message:[{}] has no more attempt, it has been pulled [{}] times", userMessage.getMessageId(), userMessageLog.getSendAttempts() + 1);
             pullMessageStateService.sendFailed(userMessageLog);
         }
-        return new PullRequestResult(userMessageLog);
+        return new PullRequestResult(userMessage.getMessageId(), userMessageLog);
 
     }
 

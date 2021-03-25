@@ -59,7 +59,7 @@ public class PartInfoDao extends BasicDao<PartInfo> {
         LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_DATA_CLEARED);
     }
 
-    public List<String> findFileSystemPayloadFilenames(List<Long> userMessageEntityIds) {
+    public List<String> findFileSystemPayloadFilenames(List<String> userMessageEntityIds) {
         TypedQuery<String> query = em.createNamedQuery("PartInfo.findFilenames", String.class);
         query.setParameter("MESSAGEIDS", userMessageEntityIds);
         return query.getResultList();

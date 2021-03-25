@@ -98,7 +98,7 @@ public class UserMessageDefaultService implements UserMessageService {
     private UserMessageLogDao userMessageLogDao;
 
     @Autowired
-    private MessagingDao messagingDao;
+    private UserMessageDao userMessageDao;
 
     @Autowired
     private SignalMessageLogDao signalMessageLogDao;
@@ -187,6 +187,12 @@ public class UserMessageDefaultService implements UserMessageService {
     @Autowired
     NonRepudiationService nonRepudiationService;
 
+    @Autowired
+    protected PartInfoDao partInfoDao;
+
+    @Autowired
+    protected MessagePropertyDao messagePropertyDao;
+
     @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 1200) // 20 minutes
     public void createMessageFragments(UserMessage sourceMessage, MessageGroupEntity messageGroupEntity, List<String> fragmentFiles) {
         messageGroupDao.create(messageGroupEntity);
@@ -212,7 +218,7 @@ public class UserMessageDefaultService implements UserMessageService {
 
     @Override
     public String getFinalRecipient(String messageId) {
-        final UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
+        final UserMessage userMessage = userMessageDao.findByMessageId(messageId);
         if (userMessage == null) {
             LOG.debug("Message [{}] does not exist", messageId);
             return null;
@@ -222,7 +228,7 @@ public class UserMessageDefaultService implements UserMessageService {
 
     @Override
     public String getOriginalSender(String messageId) {
-        final UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
+        final UserMessage userMessage = userMessageDao.findByMessageId(messageId);
         if (userMessage == null) {
             LOG.debug("Message [{}] does not exist", messageId);
             return null;
@@ -256,10 +262,10 @@ public class UserMessageDefaultService implements UserMessageService {
         if (MessageStatus.DELETED == userMessageLog.getMessageStatus()) {
             throw new UserMessageException(DomibusCoreErrorCode.DOM_001, "Could not restore message [" + messageId + "]. Message status is [" + MessageStatus.DELETED + "]");
         }
-        final UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
+        final UserMessage userMessage = userMessageDao.findByMessageId(messageId);
 
-        final MessageStatus newMessageStatus = messageExchangeService.retrieveMessageRestoreStatus(messageId);
-        backendNotificationService.notifyOfMessageStatusChange(userMessage, userMessageLog, newMessageStatus, new Timestamp(System.currentTimeMillis()));
+        final MessageStatusEntity newMessageStatus = messageExchangeService.retrieveMessageRestoreStatus(messageId);
+        backendNotificationService.notifyOfMessageStatusChange(userMessage, userMessageLog, newMessageStatus.getMessageStatus(), new Timestamp(System.currentTimeMillis()));
         userMessageLog.setMessageStatus(newMessageStatus);
         final Date currentDate = new Date();
         userMessageLog.setRestored(currentDate);
@@ -274,7 +280,7 @@ public class UserMessageDefaultService implements UserMessageService {
         uiReplicationSignalService.messageChange(messageId);
 
 
-        if (MessageStatus.READY_TO_PULL != newMessageStatus) {
+        if (MessageStatus.READY_TO_PULL != newMessageStatus.getMessageStatus()) {
             scheduleSending(userMessage, userMessageLog);
         } else {
             try {
@@ -311,7 +317,7 @@ public class UserMessageDefaultService implements UserMessageService {
             throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + "] was already scheduled");
         }
 
-        final UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
+        final UserMessage userMessage = userMessageDao.findByMessageId(messageId);
 
         userMessageLog.setNextAttempt(new Date());
         userMessageLogDao.update(userMessageLog);
@@ -368,14 +374,13 @@ public class UserMessageDefaultService implements UserMessageService {
     @Override
     public void scheduleSending(String messageId, Long delay) {
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId);
-        UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
+        UserMessage userMessage = userMessageDao.findByMessageId(messageId);
         scheduleSending(userMessage, userMessageLog, new DelayedDispatchMessageCreator(messageId, delay).createMessage());
     }
 
     public void scheduleSending(UserMessageLog userMessageLog, int retryCount) {
-        String messageId = userMessageLog.getMessageId();
-        UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
-        scheduleSending(userMessage, messageId, userMessageLog, new DispatchMessageCreator(messageId).createMessage(retryCount));
+        UserMessage userMessage = userMessageDao.read(userMessageLog.getEntityId());
+        scheduleSending(userMessage, userMessage.getMessageId(), userMessageLog, new DispatchMessageCreator(userMessage.getMessageId()).createMessage(retryCount));
     }
 
     /**
@@ -391,7 +396,7 @@ public class UserMessageDefaultService implements UserMessageService {
     @Timer(clazz = DatabaseMessageHandler.class, value = "scheduleSending")
     @Counter(clazz = DatabaseMessageHandler.class, value = "scheduleSending")
     protected void scheduleSending(final UserMessage userMessage, final String messageId, UserMessageLog userMessageLog, JmsMessage jmsMessage) {
-        if (userMessageLog.isSplitAndJoin()) {
+        if (userMessage.isSplitAndJoin()) {
             LOG.debug("Sending message to sendLargeMessageQueue");
             jmsManager.sendMessageToQueue(jmsMessage, sendLargeMessageQueue);
         } else {
@@ -533,7 +538,7 @@ public class UserMessageDefaultService implements UserMessageService {
 
     @Override
     public eu.domibus.api.usermessage.domain.UserMessage getMessage(String messageId) {
-        final UserMessage userMessageByMessageId = messagingDao.findUserMessageByMessageId(messageId);
+        final UserMessage userMessageByMessageId = userMessageDao.findByMessageId(messageId);
         if (userMessageByMessageId == null) {
             return null;
         }
@@ -596,9 +601,9 @@ public class UserMessageDefaultService implements UserMessageService {
 
         backendNotificationService.notifyMessageDeleted(messageId, userMessageLog);
 
-        Messaging messaging = messagingDao.findMessageByMessageId(messageId);
-        UserMessage userMessage = messaging.getUserMessage();
-        messagingDao.clearPayloadData(userMessage);
+        final SignalMessage signalMessage = signalMessageDao.findSignalMessageWithUserMessageByMessageId(messageId);
+        final UserMessage userMessage = signalMessage.getUserMessage();
+        partInfoDao.clearPayloadData(userMessage.getEntityId());
         userMessageLog.setDeleted(new Date());
 
         if (MessageStatus.ACKNOWLEDGED != userMessageLog.getMessageStatus() &&
@@ -606,7 +611,7 @@ public class UserMessageDefaultService implements UserMessageService {
             userMessageLogService.setMessageAsDeleted(userMessage, userMessageLog);
         }
 
-        userMessageLogService.setSignalMessageAsDeleted(messaging.getSignalMessage());
+        userMessageLogService.setSignalMessageAsDeleted(signalMessage);
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
@@ -620,16 +625,16 @@ public class UserMessageDefaultService implements UserMessageService {
         LOG.debug("Deleting [{}] user messages", userMessageIds.size());
         LOG.trace("Deleting user messages [{}]", userMessageIds);
 
-        List<String> filenames = messagingDao.findFileSystemPayloadFilenames(userMessageIds);
-        messagingDao.deletePayloadFiles(filenames);
+        List<String> filenames = partInfoDao.findFileSystemPayloadFilenames(userMessageIds);
+        partInfoDao.deletePayloadFiles(filenames);
 
-        List<String> signalMessageIds = messageInfoDao.findSignalMessageIds(userMessageIds);
+        List<String> signalMessageIds = signalMessageDao.findSignalMessageIds(userMessageIds);
         LOG.debug("Deleting [{}] signal messages", signalMessageIds.size());
         LOG.trace("Deleting signal messages [{}]", signalMessageIds);
         List<Long> receiptIds = signalMessageDao.findReceiptIdsByMessageIds(signalMessageIds);
-        int deleteResult = messageInfoDao.deleteMessages(userMessageIds);
+        int deleteResult = userMessageDao.deleteMessages(userMessageIds);
         LOG.debug("Deleted [{}] messageInfo for userMessage.", deleteResult);
-        deleteResult = messageInfoDao.deleteMessages(signalMessageIds);
+        deleteResult = signalMessageDao.deleteMessages(signalMessageIds);
         LOG.debug("Deleted [{}] messageInfo for signalMessage.", deleteResult);
         deleteResult = signalMessageDao.deleteReceipts(receiptIds);
         LOG.debug("Deleted [{}] receipts.", deleteResult);
@@ -694,12 +699,13 @@ public class UserMessageDefaultService implements UserMessageService {
         InputStream messageStream = messageToStream(userMessage);
         result.put("message.xml", messageStream);
 
-        if (userMessage.getPayloadInfo() == null || CollectionUtils.isEmpty(userMessage.getPayloadInfo().getPartInfo())) {
+        final List<PartInfo> partInfos = partInfoDao.findPartInfoByUserMessageEntityId(userMessage.getEntityId());
+
+        if (CollectionUtils.isEmpty(partInfos)) {
             LOG.info("No payload info found for message with id [{}]", messageId);
             return result;
         }
 
-        final List<PartInfo> partInfos = userMessage.getPayloadInfo().getPartInfo();
         for (PartInfo pInfo : partInfos) {
             if (pInfo.getPayloadDatahandler() == null) {
                 try {
@@ -722,7 +728,7 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     protected UserMessage getUserMessageById(String messageId) throws MessageNotFoundException {
-        UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
+        UserMessage userMessage = userMessageDao.findByMessageId(messageId);
         if (userMessage == null) {
             throw new MessageNotFoundException("Could not find message metadata for id " + messageId);
         }
@@ -774,9 +780,9 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     @Override
-    public Map<String,String> getProperties(String messageId) {
+    public Map<String,String> getProperties(Long messageEntityId) {
         HashMap<String, String> properties = new HashMap<>();
-        List<Property> propertiesForMessageId = propertyDao.findMessagePropertiesForMessageId(messageId);
+        final List<MessageProperty> propertiesForMessageId = messagePropertyDao.findMessageProperties(messageEntityId);
         propertiesForMessageId.forEach(property -> properties.put(property.getName(), property.getValue()));
         return properties;
     }

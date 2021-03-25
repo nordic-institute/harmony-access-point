@@ -12,6 +12,9 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "TB_D_NOTIFICATION_STATUS")
+@NamedQueries({
+        @NamedQuery(name = "NotificationStatusEntity.findByStatus", query = "select ms from NotificationStatusEntity ms where ms.status=:NOTIFICATION_STATUS"),
+})
 public class NotificationStatusEntity extends AbstractBaseEntity {
 
     @Enumerated(EnumType.STRING)

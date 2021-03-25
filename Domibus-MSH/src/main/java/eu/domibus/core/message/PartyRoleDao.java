@@ -25,7 +25,7 @@ public class PartyRoleDao extends BasicDao<PartyRole> {
         return DataAccessUtils.singleResult(query.getResultList());
     }
 
-    public PartyRole findOrCreateParty(String value) {
+    public PartyRole findOrCreateRole(String value) {
         PartyRole role = findRoleByValue(value);
         if (role != null) {
             return role;

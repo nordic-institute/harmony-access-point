@@ -1,6 +1,8 @@
 package eu.domibus.core.message.pull;
 
+import eu.domibus.api.ebms3.model.Ebms3Error;
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
+import eu.domibus.api.ebms3.model.Ebms3SignalMessage;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.message.UserMessageException;
 import eu.domibus.api.model.MSHRole;
@@ -147,7 +149,7 @@ public class PullMessageSender {
 
             if (messaging.getUserMessage() == null && messaging.getSignalMessage() != null) {
                 LOG.trace("No message for sent pull request with mpc:[{}]", mpcQualifiedName);
-                logError(signalMessage);
+                logError(ebms3Messaging.getSignalMessage());
                 return;
             }
             messageId = messaging.getUserMessage().getMessageId();
@@ -206,9 +208,9 @@ public class PullMessageSender {
     }
 
 
-    private void logError(SignalMessage signalMessage) {
-        Set<Error> error = signalMessage.getError();
-        for (Error error1 : error) {
+    private void logError(Ebms3SignalMessage signalMessage) {
+        Set<Ebms3Error> error = signalMessage.getError();
+        for (Ebms3Error error1 : error) {
             LOG.info(error1.getErrorCode() + " " + error1.getShortDescription());
         }
     }

@@ -1,7 +1,7 @@
 package eu.domibus.core.pmode.validation.validators;
 
 import eu.domibus.api.model.MessageProperty;
-import eu.domibus.api.model.Messaging;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.LegConfiguration;
@@ -40,7 +40,7 @@ public class PropertyProfileValidator {
     @Autowired
     DomibusConfigurationService domibusConfigurationService;
 
-    public void validate(final Messaging messaging, final String pmodeKey) throws EbMS3Exception {
+    public void validate(final UserMessage userMessage, final String pmodeKey) throws EbMS3Exception {
         final List<Property> modifiablePropertyList = new ArrayList<>();
         final LegConfiguration legConfiguration = this.pModeProvider.getLegConfiguration(pmodeKey);
         final PropertySet propSet = legConfiguration.getPropertySet();
@@ -52,9 +52,9 @@ public class PropertyProfileValidator {
 
         final Set<Property> profile = propSet.getProperties();
 
-        Set<MessageProperty> messageProperties = messaging.getUserMessage().getMessageProperties();
+        Set<MessageProperty> messageProperties = userMessage.getMessageProperties();
         modifiablePropertyList.addAll(profile);
-        if (messaging.getUserMessage().getMessageProperties() != null) {
+        if (userMessage.getMessageProperties() != null) {
             checkDuplicateMessageProperties(modifiablePropertyList, messageProperties);
         }
 
@@ -69,7 +69,7 @@ public class PropertyProfileValidator {
             modifiablePropertyList.remove(profiled);
             if (profiled == null) {
                 LOG.businessError(DomibusMessageCode.BUS_PROPERTY_MISSING, property.getName());
-                throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, "Property profiling for this exchange does not include a property named [" + property.getName() + "]", messaging.getUserMessage().getMessageId(), null);
+                throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, "Property profiling for this exchange does not include a property named [" + property.getName() + "]", userMessage.getMessageId(), null);
             }
 
             switch (profiled.getDatatype().toLowerCase()) {
@@ -80,13 +80,13 @@ public class PropertyProfileValidator {
                         Integer.parseInt(property.getValue()); //NOSONAR: Validation is done via exception
                         break;
                     } catch (final NumberFormatException e) {
-                        throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, "Property profiling for this exchange requires a INTEGER datatype for property named: " + property.getName() + ", but got " + property.getValue(), messaging.getUserMessage().getMessageInfo().getMessageId(), null);
+                        throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, "Property profiling for this exchange requires a INTEGER datatype for property named: " + property.getName() + ", but got " + property.getValue(), userMessage.getMessageId(), null);
                     }
                 case "boolean":
                     if (property.getValue().equalsIgnoreCase("false") || property.getValue().equalsIgnoreCase("true")) {
                         break;
                     }
-                    throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, "Property profiling for this exchange requires a BOOLEAN datatype for property named: " + property.getName() + ", but got " + property.getValue(), messaging.getUserMessage().getMessageInfo().getMessageId(), null);
+                    throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, "Property profiling for this exchange requires a BOOLEAN datatype for property named: " + property.getName() + ", but got " + property.getValue(), userMessage.getMessageId(), null);
                 default:
                     PropertyProfileValidator.LOG.warn("Validation for Datatype " + profiled.getDatatype() + " not possible. This type is not known by the validator. The value will be accepted unchecked");
             }
@@ -96,7 +96,7 @@ public class PropertyProfileValidator {
         for (final Property property : modifiablePropertyList) {
             if (property.isRequired()) {
                 LOG.businessError(DomibusMessageCode.BUS_PROPERTY_MISSING, property.getName());
-                throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, "Required property missing [" + property.getName() + "]", messaging.getUserMessage().getMessageId(), null);
+                throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, "Required property missing [" + property.getName() + "]", userMessage.getMessageId(), null);
             }
         }
 

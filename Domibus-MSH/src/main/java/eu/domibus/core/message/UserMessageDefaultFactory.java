@@ -131,7 +131,7 @@ public class UserMessageDefaultFactory implements UserMessageFactory {
 
         if (source.getFrom() != null) {
             final From from = new From();
-            PartyRole fromPartyRole = partyRoleDao.findOrCreateParty(source.getFrom().getRole().getRole());
+            PartyRole fromPartyRole = partyRoleDao.findOrCreateRole(source.getFrom().getRole().getRole());
             from.setRole(fromPartyRole);
 
             PartyId fromPartyId = source.getFrom().getPartyId();
@@ -143,7 +143,7 @@ public class UserMessageDefaultFactory implements UserMessageFactory {
 
         if (source.getTo() != null) {
             final To to = new To();
-            PartyRole toPartyRole = partyRoleDao.findOrCreateParty(source.getTo().getRole().getRole());
+            PartyRole toPartyRole = partyRoleDao.findOrCreateRole(source.getTo().getRole().getRole());
             to.setRole(toPartyRole);
 
             PartyId toPartyId = source.getTo().getPartyId();

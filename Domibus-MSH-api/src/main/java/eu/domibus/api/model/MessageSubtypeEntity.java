@@ -13,6 +13,9 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "TB_D_MESSAGE_SUBTYPE")
+@NamedQueries({
+        @NamedQuery(name = "MessageSubtypeEntity.findByValue", query = "from MessageSubtypeEntity msgType where msgType.messageSubtype=:VALUE"),
+})
 public class MessageSubtypeEntity extends AbstractBaseEntity {
 
     @Enumerated(EnumType.STRING)

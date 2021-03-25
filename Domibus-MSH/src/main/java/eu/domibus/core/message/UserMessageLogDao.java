@@ -30,11 +30,16 @@ import java.util.*;
 @Repository
 public class UserMessageLogDao extends ListDao<UserMessageLog> {
 
+    private static final String STR_MESSAGE_ID = "MESSAGE_ID";
+
     @Autowired
     private UserMessageLogInfoFilter userMessageLogInfoFilter;
 
     @Autowired
-    MessageStatusDao messageStatusDao;
+    protected MessageStatusDao messageStatusDao;
+
+    @Autowired
+    protected NotificationStatusDao notificationStatusDao;
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageLogDao.class);
 
@@ -178,7 +183,8 @@ public class UserMessageLogDao extends ListDao<UserMessageLog> {
     }
 
     public void setAsNotified(final UserMessageLog messageLog) {
-        messageLog.setNotificationStatus(NotificationStatus.NOTIFIED);
+        final NotificationStatusEntity status = notificationStatusDao.findByStatus(NotificationStatus.NOTIFIED);
+        messageLog.setNotificationStatus(status);
     }
 
     public int countAllInfo(boolean asc, Map<String, Object> filters) {

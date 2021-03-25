@@ -3,9 +3,7 @@ package eu.domibus.api.model;
 import eu.domibus.api.ebms3.Ebms3Constants;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 /**
  * @author Cosmin Baciu
@@ -13,6 +11,9 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "TB_D_SERVICE")
+@NamedQueries({
+        @NamedQuery(name = "Service.findByValue", query = "select serv from Service serv where serv.value=:VALUE"),
+})
 public class Service extends AbstractBaseEntity {
 
     @Column(name = "VALUE", unique = true)

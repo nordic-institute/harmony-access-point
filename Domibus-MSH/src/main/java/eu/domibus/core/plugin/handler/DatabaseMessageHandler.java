@@ -151,6 +151,8 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     @Autowired
     protected MpcDao mpcDao;
 
+    @Autowired
+    protected MshRoleDao mshRoleDao;
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
@@ -322,9 +324,6 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                 throw new DuplicateMessageException(MESSAGE_WITH_ID_STR + messageId + "] already exists. Message identifiers must be unique");
             }
 
-            Messaging message = new Messaging();
-            message.setUserMessage(userMessage);
-
             MessageExchangeConfiguration userMessageExchangeConfiguration = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
             String pModeKey = userMessageExchangeConfiguration.getPmodeKey();
 
@@ -335,7 +334,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             fillMpc(userMessage, legConfiguration, to);
 
             try {
-                messagingService.storeMessage(message, MSHRole.SENDING, legConfiguration, backendName);
+                messagingService.storeMessage(userMessage, partInfos, MSHRole.SENDING, legConfiguration, backendName);
                 partInfo.setUserMessage(userMessage);
                 partInfoDao.create(partInfo);
                 messageFragmentEntity.setUserMessage(userMessage);
@@ -346,11 +345,11 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                 ex.setMshRole(MSHRole.SENDING);
                 throw ex;
             }
-            MessageStatus messageStatus = messageExchangeService.getMessageStatus(userMessageExchangeConfiguration);
-            final UserMessageLog userMessageLog = userMessageLogService.save(messageId, messageStatus.toString(), pModeDefaultService.getNotificationStatus(legConfiguration).toString(),
-                    MSHRole.SENDING.toString(), getMaxAttempts(legConfiguration), message.getUserMessage().getMpc().getValue(),
+            MessageStatusEntity messageStatus = messageExchangeService.getMessageStatus(userMessageExchangeConfiguration);
+            final UserMessageLog userMessageLog = userMessageLogService.save(userMessage, messageStatus.toString(), pModeDefaultService.getNotificationStatus(legConfiguration).toString(),
+                    MSHRole.SENDING.toString(), getMaxAttempts(legConfiguration), userMessage.getMpc().getValue(),
                     backendName, to.getEndpoint(), userMessage.getService().getValue(), userMessage.getActionValue(), null, true);
-            prepareForPushOrPull(userMessage, userMessageLog, pModeKey, messageStatus);
+            prepareForPushOrPull(userMessage, userMessageLog, pModeKey, messageStatus.getMessageStatus());
 
 
             uiReplicationSignalService.userMessageSubmitted(messageId);
@@ -360,11 +359,13 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
         } catch (EbMS3Exception ebms3Ex) {
             LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + messageId + TO_STR + backendName + "]", ebms3Ex);
-            errorLogDao.create(new ErrorLogEntry(ebms3Ex));
+            final MSHRoleEntity sendingRole = mshRoleDao.findByRole(MSHRole.SENDING);
+            errorLogDao.create(new ErrorLogEntry(ebms3Ex, sendingRole));
             throw MessagingExceptionFactory.transform(ebms3Ex);
         } catch (PModeException p) {
             LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + messageId + TO_STR + backendName + "]" + p.getMessage());
-            errorLogDao.create(new ErrorLogEntry(MSHRole.SENDING, messageId, ErrorCode.EBMS_0010, p.getMessage()));
+            final MSHRoleEntity sendingRole = mshRoleDao.findByRole(MSHRole.SENDING);
+            errorLogDao.create(new ErrorLogEntry(sendingRole, messageId, ErrorCode.EBMS_0010, p.getMessage()));
             throw new PModeMismatchException(p.getMessage(), p);
         }
     }
@@ -398,6 +399,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
         LOG.debug("Authorized as [{}]", displayUser);
 
         UserMessage userMessage = transformer.transformFromSubmission(messageData);
+        List<PartInfo> partInfos = transformer.generatePartInfoList(messageData);
         if (userMessage == null) {
             LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "UserMessage");
             throw new MessageNotFoundException(USER_MESSAGE_IS_NULL);
@@ -411,9 +413,6 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             validateOriginalUser(userMessage, originalUser, MessageConstants.ORIGINAL_SENDER);
 
             backendMessageValidator.validateUserMessageForPmodeMatch(userMessage, MSHRole.SENDING);
-
-            Messaging message = new Messaging();
-            message.setUserMessage(userMessage);
 
             MessageExchangeConfiguration userMessageExchangeConfiguration;
             Party to = null;
@@ -429,8 +428,8 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             }
             String pModeKey = userMessageExchangeConfiguration.getPmodeKey();
 
-            List<PartInfo> partInfos = partInfoDao.findPartInfoByUserMessageEntityId(userMessage.getEntityId());
             if (to == null) {
+                //TODO validation should not return a business value
                 to = messageValidations(userMessage, partInfos, pModeKey, backendName);
             }
 
@@ -439,9 +438,9 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
                 fillMpc(userMessage, legConfiguration, to);
             }
 
-            payloadProfileValidator.validate(message, pModeKey);
-            propertyProfileValidator.validate(message, pModeKey);
-            messagePropertyValidator.validate(message, MSHRole.SENDING);
+            payloadProfileValidator.validate(userMessage, partInfos, pModeKey);
+            propertyProfileValidator.validate(userMessage, pModeKey);
+            messagePropertyValidator.validate(userMessage, MSHRole.SENDING);
 
             final boolean splitAndJoin = splitAndJoinService.mayUseSplitAndJoin(legConfiguration);
 //            userMessage.setSplitAndJoin(splitAndJoin);
@@ -454,7 +453,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             }
 
             try {
-                messagingService.storeMessage(message, MSHRole.SENDING, legConfiguration, backendName);
+                messagingService.storeMessage(userMessage, partInfos, MSHRole.SENDING, legConfiguration, backendName);
             } catch (CompressionException exc) {
                 LOG.businessError(DomibusMessageCode.BUS_MESSAGE_PAYLOAD_COMPRESSION_FAILURE, messageId);
                 EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0303, exc.getMessage(), messageId, exc);
@@ -473,11 +472,12 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             }
 
             if (messageStatus == null) {
-                messageStatus = messageExchangeService.getMessageStatus(userMessageExchangeConfiguration);
+                final MessageStatusEntity messageStatusEntity = messageExchangeService.getMessageStatus(userMessageExchangeConfiguration);
+                messageStatus = messageStatusEntity.getMessageStatus();
             }
             final boolean sourceMessage = userMessage.isSourceMessage();
-            final UserMessageLog userMessageLog = userMessageLogService.save(messageId, messageStatus.toString(), pModeDefaultService.getNotificationStatus(legConfiguration).toString(),
-                    MSHRole.SENDING.toString(), getMaxAttempts(legConfiguration), message.getUserMessage().getMpc().getValue(),
+            final UserMessageLog userMessageLog = userMessageLogService.save(userMessage, messageStatus.toString(), pModeDefaultService.getNotificationStatus(legConfiguration).toString(),
+                    MSHRole.SENDING.toString(), getMaxAttempts(legConfiguration), userMessage.getMpc().getValue(),
                     backendName, to.getEndpoint(), messageData.getService(), messageData.getAction(), sourceMessage, null);
 
             if (!sourceMessage) {
@@ -490,11 +490,13 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
 
         } catch (EbMS3Exception ebms3Ex) {
             LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + messageId + TO_STR + backendName + "]", ebms3Ex);
-            errorLogDao.create(new ErrorLogEntry(ebms3Ex));
+            final MSHRoleEntity sendingRole = mshRoleDao.findByRole(MSHRole.SENDING);
+            errorLogDao.create(new ErrorLogEntry(ebms3Ex, sendingRole));
             throw MessagingExceptionFactory.transform(ebms3Ex);
         } catch (PModeException p) {
             LOG.error(ERROR_SUBMITTING_THE_MESSAGE_STR + messageId + TO_STR + backendName + "]" + p.getMessage(), p);
-            errorLogDao.create(new ErrorLogEntry(MSHRole.SENDING, messageId, ErrorCode.EBMS_0010, p.getMessage()));
+            final MSHRoleEntity sendingRole = mshRoleDao.findByRole(MSHRole.SENDING);
+            errorLogDao.create(new ErrorLogEntry(sendingRole, messageId, ErrorCode.EBMS_0010, p.getMessage()));
             throw new PModeMismatchException(p.getMessage(), p);
         }
     }

@@ -238,7 +238,7 @@ public class BackendNotificationService {
             return;
         }
 
-        Map<String, String> properties = userMessageService.getProperties(messageId);
+        Map<String, String> properties = userMessageService.getProperties(userMessageLog.getEntityId());
         MessageDeletedEvent messageDeletedEvent = getMessageDeletedEvent(
                 messageId,
                 properties);
@@ -305,20 +305,21 @@ public class BackendNotificationService {
 
         submissionValidatorService.validateSubmission(userMessage, backendName, notificationType);
 
-        notify(userMessage.getMessageId(), backendName, notificationType, properties);
+        notify(userMessage, backendName, notificationType, properties);
     }
 
-    protected void notify(String messageId, String backendName, NotificationType notificationType) {
-        Map<String, String> properties = userMessageService.getProperties(messageId);
-        notify(messageId, backendName, notificationType, properties);
+    protected void notify(UserMessage userMessage, String backendName, NotificationType notificationType) {
+        Map<String, String> properties = userMessageService.getProperties(userMessage.getEntityId());
+        notify(userMessage, backendName, notificationType, properties);
     }
 
-    protected void notify(String messageId, String backendName, NotificationType notificationType, Map<String, String> properties) {
+    protected void notify(UserMessage userMessage, String backendName, NotificationType notificationType, Map<String, String> properties) {
         BackendConnector<?, ?> backendConnector = backendConnectorProvider.getBackendConnector(backendName);
         if (backendConnector == null) {
             LOG.warn("No backend connector found for backend [{}]", backendName);
             return;
         }
+        final String messageId = userMessage.getMessageId();
 
         List<NotificationType> requiredNotificationTypeList = backendConnectorService.getRequiredNotificationTypeList(backendConnector);
         LOG.debug("Required notifications [{}] for backend [{}]", requiredNotificationTypeList, backendName);
@@ -384,11 +385,11 @@ public class BackendNotificationService {
         final String messageId = userMessage.getMessageId();
         final String backendName = userMessageLog.getBackend();
         NotificationType notificationType = NotificationType.MESSAGE_SEND_FAILURE;
-        if (BooleanUtils.isTrue(userMessageLog.getMessageFragment())) {
+        if (BooleanUtils.isTrue(userMessage.isMessageFragment())) {
             notificationType = NotificationType.MESSAGE_FRAGMENT_SEND_FAILURE;
         }
 
-        notify(messageId, backendName, notificationType);
+        notify(userMessage, backendName, notificationType);
         userMessageLogDao.setAsNotified(userMessageLog);
 
         uiReplicationSignalService.messageChange(messageId);
@@ -400,11 +401,11 @@ public class BackendNotificationService {
         }
         String messageId = userMessage.getMessageId();
         NotificationType notificationType = NotificationType.MESSAGE_SEND_SUCCESS;
-        if (BooleanUtils.isTrue(userMessageLog.getMessageFragment())) {
+        if (BooleanUtils.isTrue(userMessage.isMessageFragment())) {
             notificationType = NotificationType.MESSAGE_FRAGMENT_SEND_SUCCESS;
         }
 
-        notify(messageId, userMessageLog.getBackend(), notificationType);
+        notify(userMessage, userMessageLog.getBackend(), notificationType);
         userMessageLogDao.setAsNotified(userMessageLog);
 
         uiReplicationSignalService.messageChange(messageId);
@@ -438,11 +439,11 @@ public class BackendNotificationService {
 
         final Map<String, String> messageProperties = getMessageProperties(messageLog, userMessage, newStatus, changeTimestamp);
         NotificationType notificationType = NotificationType.MESSAGE_STATUS_CHANGE;
-        if (BooleanUtils.isTrue(messageLog.getMessageFragment())) {
+        if (BooleanUtils.isTrue(userMessage.isMessageFragment())) {
             notificationType = NotificationType.MESSAGE_FRAGMENT_STATUS_CHANGE;
         }
 
-        notify(userMessage.getMessageId(), messageLog.getBackend(), notificationType, messageProperties);
+        notify(userMessage, messageLog.getBackend(), notificationType, messageProperties);
     }
 
     protected Map<String, String> getMessageProperties(UserMessageLog messageLog, UserMessage userMessage, MessageStatus newStatus, Timestamp changeTimestamp) {

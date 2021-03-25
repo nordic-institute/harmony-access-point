@@ -1,7 +1,9 @@
 package eu.domibus.core.message.signal;
 
+import eu.domibus.api.model.MessageType;
 import eu.domibus.core.dao.BasicDao;
 import eu.domibus.api.model.SignalMessage;
+import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
@@ -41,10 +43,18 @@ public class SignalMessageDao extends BasicDao<SignalMessage> {
         return query.getResultList();
     }
 
-    public SignalMessage findSignalMessageByMessageId(final String messageId) {
-        final TypedQuery<SignalMessage> query = em.createNamedQuery("SignalMessage.findSignalMessageByMessageId", SignalMessage.class);
+    public SignalMessage findSignalMessageWithUserMessageByMessageId(final String messageId) {
+        final TypedQuery<SignalMessage> query = em.createNamedQuery("SignalMessage.findSignalMessageWithUserMessageByUserMessageId", SignalMessage.class);
         query.setParameter("MESSAGE_ID", messageId);
         return DataAccessUtils.singleResult(query.getResultList());
+    }
+
+    public List<String> findSignalMessageIds(List<String> userMessageIds) {
+        final TypedQuery<String> query = em.createNamedQuery("SignalMessage.findMessageIdsWithRefToMessageIds", String.class);
+        query.setParameter("MESSAGEIDS", userMessageIds);
+        List<String> messageIds = query.getResultList();
+        LOG.debug("Found ids [{}]", messageIds);
+        return messageIds;
     }
 
     public List<String> findSignalMessageIdsByRefMessageId(final String originalMessageId) {
@@ -69,20 +79,15 @@ public class SignalMessageDao extends BasicDao<SignalMessage> {
         return result;
     }
 
-    /**
-     * Clear receipts of the Signal Message.
-     *
-     * @param signalMessage the signal message
-     */
-    @Transactional(propagation = Propagation.MANDATORY)
-    public void clear(final SignalMessage signalMessage) {
-        if (signalMessage.getReceipt() != null) {
-            signalMessage.getReceipt().getAny().clear();
-        }
-        signalMessage.setReceipt(null);
-        update(signalMessage);
-        LOG.debug("Xml data for signal message [" + signalMessage.getMessageInfo().getMessageId() + "] have been cleared");
+    @Timer(clazz = SignalMessageDao.class, value = "deleteMessages")
+    @Counter(clazz = SignalMessageDao.class, value = "deleteMessages")
+    public int deleteMessages(List<String> messageIds) {
+        LOG.debug("deleteMessages [{}]", messageIds.size());
+        final Query deleteQuery = em.createNamedQuery("SignalMessage.deleteMessages");
+        deleteQuery.setParameter("MESSAGEIDS", messageIds);
+        int result = deleteQuery.executeUpdate();
+        LOG.debug("deleteMessages result [{}]", result);
+        return result;
     }
-
 
 }
