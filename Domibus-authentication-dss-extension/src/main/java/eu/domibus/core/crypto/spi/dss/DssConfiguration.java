@@ -161,7 +161,7 @@ public class DssConfiguration {
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public CertificateVerifier certificateVerifier() {
         OnlineCRLSource crlSource = null;
-        CommonsDataLoader dataLoader = dataLoader(proxyHelper(dssExtensionPropertyManager()));
+        CommonsDataLoader dataLoader = dataLoader(proxyHelper(dssExtensionPropertyManager()),trustedListTrustStore());
         boolean crlCheck = Boolean.parseBoolean(dssExtensionPropertyManager().getKnownPropertyValue(DssExtensionPropertyManager.DSS_PERFORM_CRL_CHECK));
         boolean enableExceptionOnMissingRevocationData = Boolean.parseBoolean(dssExtensionPropertyManager().getKnownPropertyValue(DssExtensionPropertyManager.AUTHENTICATION_DSS_EXCEPTION_ON_MISSING_REVOCATION_DATA));
         boolean checkRevocationForUntrustedChain = Boolean.parseBoolean(dssExtensionPropertyManager().getKnownPropertyValue(DssExtensionPropertyManager.AUTHENTICATION_DSS_CHECK_REVOCATION_FOR_UNTRUSTED_CHAINS));
@@ -200,17 +200,14 @@ public class DssConfiguration {
     }
 
     @Bean
-    public CommonsDataLoader dataLoader(ProxyHelper proxyHelper) {
-        CommonsDataLoader commonsDataLoader = new CommonsDataLoader();
+    public CommonsDataLoader dataLoader(ProxyHelper proxyHelper,KeyStore trustedListTrustStore) {
+        CommonsDataLoader commonsDataLoader = new DomibusDataLoader(trustedListTrustStore);
         commonsDataLoader.setProxyConfig(proxyHelper.getProxyConfig());
-        commonsDataLoader.setProxyConfig(proxyHelper.getProxyConfig());
-        commonsDataLoader.setSslTruststore(new FileDocument(dssTlsTrustStorePath));
-        commonsDataLoader.setSslTruststoreType(dssTlsTrustStoreType);
-        commonsDataLoader.setSslTruststorePassword(dssTlsTrustStorePassword);
         return commonsDataLoader;
     }
 
-    protected KeyStore mergeCustomTlsTrustStoreWithCacert() {
+    @Bean
+    public KeyStore trustedListTrustStore() {
 
         KeyStore customTlsTrustStore;
         try {
@@ -457,7 +454,7 @@ public class DssConfiguration {
     public DSSFileLoader offlineLoader(CommonsDataLoader dataLoader) {
         FileCacheDataLoader offlineFileLoader = new FileCacheDataLoader();
         offlineFileLoader.setCacheExpirationTime(Long.MAX_VALUE);
-        offlineFileLoader.setDataLoader(dataLoader); // do not download from Internet
+        offlineFileLoader.setDataLoader(new IgnoreDataLoader()); // do not download from Internet
         offlineFileLoader.setFileCacheDirectory(cacheDirectory());
         return offlineFileLoader;
     }
