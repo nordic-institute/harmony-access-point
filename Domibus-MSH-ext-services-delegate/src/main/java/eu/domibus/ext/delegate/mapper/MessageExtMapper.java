@@ -22,7 +22,7 @@ public interface MessageExtMapper {
 
     List<MessageAcknowledgementDTO> messageAcknowledgementToMessageAcknowledgementDTO(List<MessageAcknowledgement> messageAcknowledgement);
 
-    MessageAttempt messageAcknowledgementDTO(MessageAttemptDTO messageAttemptDTO);
+    MessageAttempt messageAttemptDTOToMessageAttempt(MessageAttemptDTO messageAttemptDTO);
 
     List<MessageAttemptDTO> messageAttemptToMessageAttemptDTO(List<MessageAttempt> attemptsHistory);
 }

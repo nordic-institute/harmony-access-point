@@ -40,7 +40,7 @@ public class MessageExtMapperIT {
     @Test
     public void processListToProcessesDTO() {
         MessageAttemptDTO toConvert = (MessageAttemptDTO) objectService.createInstance(MessageAttemptDTO.class);
-        final MessageAttempt converted = messageExtMapper.messageAcknowledgementDTO(toConvert);
+        final MessageAttempt converted = messageExtMapper.messageAttemptDTOToMessageAttempt(toConvert);
         final List<MessageAttemptDTO> convertedBack = messageExtMapper.messageAttemptToMessageAttemptDTO(Collections.singletonList(converted));
 
         objectService.assertObjects(convertedBack.get(0), toConvert);
