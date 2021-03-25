@@ -36,13 +36,12 @@ import eu.domibus.messaging.MessagingProcessingException;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.lang3.time.DateUtils;
+import org.hibernate.Session;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.jms.Queue;
-import javax.jms.Session;
 import javax.persistence.EntityManager;
 import java.sql.Timestamp;
 import java.util.*;
@@ -621,13 +620,12 @@ public class UserMessageDefaultServiceTest {
     }
 
     @Test
-    @Ignore
-    //TODO fix this test failing with NullPointer
     public void testDeleteMessages(@Mocked Session s, @Mocked EntityManager em1, @Injectable UserMessageLogDto uml1, @Injectable UserMessageLogDto uml2) {
         List<UserMessageLogDto> userMessageLogDtos = Arrays.asList(uml1, uml2);
 
         new Expectations() {{
-            em1.unwrap(Session.class); result = s;
+            em1.unwrap(Session.class);
+            result = s;
         }};
 
         Deencapsulation.setField(userMessageDefaultService, "em", em1);
