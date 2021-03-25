@@ -81,10 +81,10 @@ public class DGrid extends DComponent {
 
 	public ArrayList<String> getColumnNames() throws Exception {
 		JavascriptExecutor js = (JavascriptExecutor) driver;
-		ArrayList<String> result = (ArrayList<String>) js.executeScript("var grid=document.querySelector(\"#pageGridId\")\n" +
-				"var header=document.querySelector(\"#pageGridId datatable-header\")\n" +
+		ArrayList<String> result = (ArrayList<String>) js.executeScript("var grid=arguments[0]\n" +
+				"var header=grid.querySelector(\"datatable-header\")\n" +
 				"var headers=header.innerText.split(\"\\n\")\n" +
-				"return headers");
+				"return headers", container);
 
 		result.removeIf(str -> (StringUtils.isEmpty(str)));
 
@@ -274,9 +274,9 @@ public class DGrid extends DComponent {
 		ArrayList<HashMap<String, String>> listedRowInfo = new ArrayList<>();
 
 		JavascriptExecutor js = (JavascriptExecutor) driver;
-		ArrayList<Map<String, Object>> result = (ArrayList<Map<String, Object>>) js.executeScript("var grid=document.querySelector(\"#pageGridId\")\n" +
-				"var header=document.querySelector(\"#pageGridId datatable-header\")\n" +
-				"var body=document.querySelector(\"#pageGridId datatable-body\")\n" +
+		ArrayList<Map<String, Object>> result = (ArrayList<Map<String, Object>>) js.executeScript("var grid=arguments[0]\n" +
+				"var header=grid.querySelector(\"datatable-header\")\n" +
+				"var body=grid.querySelector(\"datatable-body\")\n" +
 				"var headers=header.innerText.split(\"\\n\")\n" +
 				"var rows=body.querySelectorAll(\"datatable-body-row\")\n" +
 				"result=[]\n" +
@@ -288,7 +288,7 @@ public class DGrid extends DComponent {
 				"else if(curCell.querySelector('mat-button-toggle-group mat-button-toggle button[aria-pressed = \"true\"]')){resultRow[headers[j]]=curCell.querySelector('mat-button-toggle-group mat-button-toggle button[aria-pressed = \"true\"]').innerText}\n" +
 				"else{resultRow[headers[j]]=cells[j].innerText}}\n" +
 				"result[i]=resultRow}\n" +
-				"return result;");
+				"return result;", container);
 
 		for (Map<String, Object> objectHashMap : result) {
 			HashMap<String, String> rowInfo = new HashMap<>();
