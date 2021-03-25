@@ -7,12 +7,15 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.util.DatabaseUtil;
 import eu.domibus.core.pmode.ConfigurationDAO;
+import eu.domibus.core.scheduler.DomibusQuartzJobBean;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+
+import java.util.List;
 
 /**
  * @author Soumya Chandran
@@ -23,6 +26,9 @@ public class RetentionWorkerTest {
 
     @Tested
     RetentionWorker retentionWorker;
+
+    @Injectable
+    protected List<MessageRetentionService> messageRetentionServices;
 
     @Injectable
     private MessageRetentionDefaultService messageRetentionService;
@@ -66,7 +72,7 @@ public class RetentionWorkerTest {
         retentionWorker.setQuartzJobSecurityContext();
 
         new FullVerifications() {{
-            authUtils.setAuthenticationToSecurityContext("retention_user", "retention_password");
+            authUtils.setAuthenticationToSecurityContext(DomibusQuartzJobBean.DOMIBUS_QUARTZ_USER, DomibusQuartzJobBean.DOMIBUS_QUARTZ_PASSWORD);
         }};
     }
 }

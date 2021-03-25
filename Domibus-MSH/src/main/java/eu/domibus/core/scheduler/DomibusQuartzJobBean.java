@@ -21,9 +21,9 @@ public abstract class DomibusQuartzJobBean extends QuartzJobBean {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusQuartzJobBean.class);
 
-    protected static final String DOMIBUS_QUARTZ_USER = "domibus-quartz";
+    public static final String DOMIBUS_QUARTZ_USER = "domibus-quartz";
 
-    protected static final String DOMIBUS_QUARTZ_PASSWORD = "domibus-quartz"; //NOSONAR
+    public static final String DOMIBUS_QUARTZ_PASSWORD = "domibus-quartz"; //NOSONAR
 
     @Autowired
     protected DomainService domainService;
