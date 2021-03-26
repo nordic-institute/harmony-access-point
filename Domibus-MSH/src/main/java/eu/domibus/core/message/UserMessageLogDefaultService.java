@@ -9,6 +9,7 @@ import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,7 +46,7 @@ public class UserMessageLogDefaultService {
                 .setMessageStatus(MessageStatus.valueOf(messageStatus))
                 .setMshRole(MSHRole.valueOf(mshRole))
                 .setNotificationStatus(NotificationStatus.valueOf(notificationStatus))
-                .setMpc(mpc)
+                .setMpc(StringUtils.isEmpty(mpc) ? Ebms3Constants.DEFAULT_MPC : mpc)
                 .setSendAttemptsMax(maxAttempts)
                 .setBackendName(backendName)
                 .setEndpoint(endpoint);

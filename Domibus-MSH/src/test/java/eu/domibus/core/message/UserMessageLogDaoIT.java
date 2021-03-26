@@ -8,6 +8,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.test.dao.InMemoryDataBaseConfig;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +38,7 @@ import static org.hamcrest.CoreMatchers.hasItems;
 @ContextConfiguration(classes = {InMemoryDataBaseConfig.class, MessageConfig.class, PropertyConfig.class})
 @ActiveProfiles("IN_MEMORY_DATABASE")
 @Transactional
+@Ignore
 public class UserMessageLogDaoIT {
 
     private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageLogDaoIT.class);

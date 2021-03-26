@@ -1,16 +1,17 @@
 
 package eu.domibus.core.ebms3.sender.retry;
 
-import eu.domibus.api.model.*;
 import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.message.attempt.MessageAttemptService;
+import eu.domibus.api.model.*;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.model.configuration.LegConfiguration;
-import eu.domibus.common.model.configuration.ReceptionAwareness;
-import eu.domibus.core.message.*;
+import eu.domibus.core.message.MessagingDao;
+import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.message.UserMessageLogDefaultService;
 import eu.domibus.core.message.nonrepudiation.RawEnvelopeLogDao;
-import eu.domibus.core.message.retention.MessageRetentionService;
+import eu.domibus.core.message.retention.MessageRetentionDefaultService;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.replication.UIReplicationSignalService;
@@ -73,7 +74,7 @@ public class UpdateRetryLoggingServiceTest {
     PModeProvider pModeProvider;
 
     @Injectable
-    MessageRetentionService messageRetentionService;
+    MessageRetentionDefaultService messageRetentionService;
 
 
     /**
