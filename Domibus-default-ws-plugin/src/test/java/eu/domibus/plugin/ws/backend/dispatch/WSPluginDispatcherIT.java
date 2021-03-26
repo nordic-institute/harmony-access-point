@@ -4,6 +4,7 @@ import eu.domibus.plugin.ws.backend.WSBackendMessageLogEntity;
 import eu.domibus.plugin.ws.backend.WSBackendMessageType;
 import eu.domibus.webservice.backend.BackendApplication;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,7 @@ public class WSPluginDispatcherIT {
     private WSPluginDispatcher wsPluginDispatcher;
 
     @Before
+    @Ignore
     public void setUp() {
         backendPort = SocketUtils.findAvailableTcpPort(3000, 3100);
         BackendApplication.main(new String[]{"" + backendPort});
