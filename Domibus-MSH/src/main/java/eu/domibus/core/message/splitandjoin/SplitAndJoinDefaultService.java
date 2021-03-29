@@ -425,8 +425,8 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
 
     @Transactional(propagation = Propagation.REQUIRED)
     @Override
-    public void handleSourceMessageSignalError(String messageId, Error error) {
-        LOG.debug("SplitAndJoin handleSourceMessageSignalError for message [{}] and error [{}]", messageId, error);
+    public void handleSourceMessageSignalError(String messageId) {
+        LOG.debug("SplitAndJoin handleSourceMessageSignalError for message [{}] and error [{}]", messageId);
 
         sendSplitAndJoinFailed(messageId);
     }

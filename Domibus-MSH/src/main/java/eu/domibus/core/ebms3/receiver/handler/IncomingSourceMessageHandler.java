@@ -1,5 +1,6 @@
 package eu.domibus.core.ebms3.receiver.handler;
 
+import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.core.ebms3.EbMS3Exception;
@@ -32,7 +33,7 @@ public class IncomingSourceMessageHandler extends AbstractIncomingMessageHandler
     protected PayloadFileStorageProvider storageProvider;
 
     @Override
-    protected SOAPMessage processMessage(LegConfiguration legConfiguration, String pmodeKey, SOAPMessage request, Messaging messaging, boolean testMessage) throws EbMS3Exception, TransformerException, IOException, JAXBException, SOAPException {
+    protected SOAPMessage processMessage(LegConfiguration legConfiguration, String pmodeKey, SOAPMessage request, Ebms3Messaging messaging, boolean testMessage) throws EbMS3Exception, TransformerException, IOException, JAXBException, SOAPException {
         LOG.debug("Processing SourceMessage");
 
         if (storageProvider.isPayloadsPersistenceInDatabaseConfigured()) {

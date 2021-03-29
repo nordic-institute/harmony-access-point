@@ -1,5 +1,8 @@
 package eu.domibus.core.ebms3.receiver.handler;
 
+import eu.domibus.api.ebms3.model.Ebms3Error;
+import eu.domibus.api.ebms3.model.Ebms3Messaging;
+import eu.domibus.api.ebms3.model.Ebms3SignalMessage;
 import eu.domibus.api.model.Messaging;
 import eu.domibus.api.model.SignalMessage;
 import eu.domibus.api.model.UserMessage;
@@ -39,8 +42,8 @@ public class IncomingSignalErrorHandler implements IncomingMessageHandler {
     protected SoapUtil soapUtil;
 
     @Override
-    public SOAPMessage processMessage(SOAPMessage request, Messaging messaging) {
-        final SignalMessage signalMessage = messaging.getSignalMessage();
+    public SOAPMessage processMessage(SOAPMessage request, Ebms3Messaging messaging) {
+        final Ebms3SignalMessage signalMessage = messaging.getSignalMessage();
         if (CollectionUtils.isEmpty(signalMessage.getError())) {
             LOG.warn("Could not process the Signal: no errors found");
             return null;
@@ -50,7 +53,7 @@ public class IncomingSignalErrorHandler implements IncomingMessageHandler {
             LOG.warn("More than one error received in the SignalMessage, only the first one will be processed");
         }
 
-        final Error error = signalMessage.getError().iterator().next();
+        final Ebms3Error error = signalMessage.getError().iterator().next();
         LOG.debug("Processing Signal with error [{}]", error);
 
         final String refToMessageId = signalMessage.getMessageInfo().getRefToMessageId();
@@ -70,8 +73,8 @@ public class IncomingSignalErrorHandler implements IncomingMessageHandler {
         return null;
     }
 
-    protected void processSourceMessageSignalError(final UserMessage sourceMessage, Error error) {
-        final String messageId = sourceMessage.getMessageInfo().getMessageId();
+    protected void processSourceMessageSignalError(final UserMessage sourceMessage) {
+        final String messageId = sourceMessage.getMessageId();
         LOG.info("Processing Signal error for SourceMessage [{}]", messageId);
 
         splitAndJoinService.handleSourceMessageSignalError(messageId, error);
