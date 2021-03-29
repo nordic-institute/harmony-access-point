@@ -16,6 +16,7 @@ import org.springframework.jms.listener.DefaultMessageListenerContainer;
 
 import javax.jms.ConnectionFactory;
 import javax.jms.Queue;
+import javax.jms.Session;
 
 import static eu.domibus.plugin.ws.backend.reliability.queue.WSSendMessageListener.WS_SEND_MESSAGE_LISTENER;
 import static eu.domibus.plugin.ws.property.WSPluginPropertyManager.DISPATCHER_SEND_QUEUE_CONCURRENCY;
@@ -65,7 +66,7 @@ public class WSMessageListenerContainerConfiguration {
         messageListenerContainer.setMessageListener(wsSendMessageListener);
         messageListenerContainer.setConcurrency(queueConcurrency);
         messageListenerContainer.setSessionTransacted(true);
-        messageListenerContainer.setSessionAcknowledgeMode(0);
+        messageListenerContainer.setSessionAcknowledgeMode(Session.SESSION_TRANSACTED);
 
         messageListenerContainer.afterPropertiesSet();
 

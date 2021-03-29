@@ -18,6 +18,7 @@ import org.springframework.jms.listener.MessageListenerContainer;
 
 import javax.jms.ConnectionFactory;
 import javax.jms.Queue;
+import javax.jms.Session;
 
 /**
  * Configuration class for JMS queues used in FS Plugin
@@ -66,7 +67,7 @@ public class FSMessageListenerContainerConfiguration {
         messageListenerContainer.setMessageListener(fsSendMessageListener);
         messageListenerContainer.setConcurrency(queueConcurrency);
         messageListenerContainer.setSessionTransacted(true);
-        messageListenerContainer.setSessionAcknowledgeMode(0);
+        messageListenerContainer.setSessionAcknowledgeMode(Session.SESSION_TRANSACTED);
 
         messageListenerContainer.afterPropertiesSet();
 
