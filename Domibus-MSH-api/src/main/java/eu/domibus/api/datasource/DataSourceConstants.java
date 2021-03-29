@@ -7,7 +7,7 @@ package eu.domibus.api.datasource;
 public final class DataSourceConstants {
 
     /*
-     * DOMIBUS_JDBC_DATA_SOURCE is used for domibus operarations (entity manager)
+     * DOMIBUS_JDBC_DATA_SOURCE is used for domibus operations (entity manager)
      */
     public static final String DOMIBUS_JDBC_DATA_SOURCE = "domibusJDBC-dataSource";
     /*
