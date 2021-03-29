@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 public class MessageConfig {
-    @Bean(name = "userMessageLogDao")
+    @Bean
     public UserMessageLogDao userMessageLogDao() {
         return new UserMessageLogDao();
     }
