@@ -122,7 +122,7 @@ public class MultiDomainPModeProvider extends PModeProvider {
     }
 
     @Override
-    public String findPartyName(Collection<PartyId> partyId) throws EbMS3Exception {
+    public String findPartyName(PartyId partyId) throws EbMS3Exception {
         return getCurrentPModeProvider().findPartyName(partyId);
     }
 

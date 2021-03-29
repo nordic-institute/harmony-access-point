@@ -35,7 +35,7 @@ import org.junit.runner.RunWith;
 @RunWith(JMockit.class)
 public class Ebms3PullRequestHandlerImplTest {
 
-    @Injectable
+   /* @Injectable
     MessageExchangeService messageExchangeService;
 
     @Injectable
@@ -281,5 +281,5 @@ public class Ebms3PullRequestHandlerImplTest {
             messageAttemptService.create(withAny(attempt));
             times = 0;
         }};
-    }
+    }*/
 }

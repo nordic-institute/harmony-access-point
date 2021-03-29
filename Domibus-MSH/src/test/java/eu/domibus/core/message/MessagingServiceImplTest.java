@@ -43,7 +43,7 @@ import java.util.List;
 @RunWith(JMockit.class)
 public class MessagingServiceImplTest {
 
-    @Tested
+   /* @Tested
     MessagingServiceImpl messagingService;
 
     @Injectable
@@ -210,6 +210,6 @@ public class MessagingServiceImplTest {
             payloadPersistence.storeOutgoingPayload(partInfo, userMessage, legConfiguration, backend);
             times = 1;
         }};
-    }
+    }*/
 
 }

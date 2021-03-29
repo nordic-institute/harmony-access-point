@@ -3,8 +3,6 @@ package eu.domibus.core.ebms3.receiver.handler;
 import eu.domibus.api.ebms3.model.Ebms3Error;
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.ebms3.model.Ebms3SignalMessage;
-import eu.domibus.api.model.Messaging;
-import eu.domibus.api.model.SignalMessage;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
@@ -64,7 +62,7 @@ public class IncomingSignalErrorHandler implements IncomingMessageHandler {
         }
 
         if (userMessage.isSourceMessage()) {
-            processSourceMessageSignalError(userMessage, error);
+            processSourceMessageSignalError(userMessage);
         } else {
             LOG.warn("Could not process the Signal for message [{}]: not yet supported", refToMessageId);
         }
@@ -77,7 +75,7 @@ public class IncomingSignalErrorHandler implements IncomingMessageHandler {
         final String messageId = sourceMessage.getMessageId();
         LOG.info("Processing Signal error for SourceMessage [{}]", messageId);
 
-        splitAndJoinService.handleSourceMessageSignalError(messageId, error);
+        splitAndJoinService.handleSourceMessageSignalError(messageId);
 
         LOG.debug("Finished processing Signal error for SourceMessage [{}]", messageId);
     }

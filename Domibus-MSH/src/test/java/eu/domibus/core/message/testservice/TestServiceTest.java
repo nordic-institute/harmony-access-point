@@ -33,7 +33,7 @@ import javax.activation.DataSource;
 @RunWith(JMockit.class)
 public class TestServiceTest {
 
-    private static final String MESSAGE_PROPERTY_KEY_FINAL_RECIPIENT = Deencapsulation.getField(TestService.class, "MESSAGE_PROPERTY_KEY_FINAL_RECIPIENT");
+   /* private static final String MESSAGE_PROPERTY_KEY_FINAL_RECIPIENT = Deencapsulation.getField(TestService.class, "MESSAGE_PROPERTY_KEY_FINAL_RECIPIENT");
 
     private static final String BACKEND_NAME = Deencapsulation.getField(TestService.class, "BACKEND_NAME");
 
@@ -498,5 +498,5 @@ public class TestServiceTest {
 
         result = testService.getErrorsDetails(userMessageId);
         Assert.assertEquals("Error details are: " + errorDetails, result);
-    }
+    }*/
 }

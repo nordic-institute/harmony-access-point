@@ -28,7 +28,7 @@ import java.util.Collection;
 @RunWith(Parameterized.class)
 public class UserMessageLogDefaultEbms3ServiceParameterizedTest {
 
-    @Tested
+   /* @Tested
     private UserMessageLogDefaultService userMessageLogDefaultService;
 
     @Injectable
@@ -86,5 +86,5 @@ public class UserMessageLogDefaultEbms3ServiceParameterizedTest {
             Assert.assertEquals(endpoint, userMessageLog.getEndpoint());
             Assert.assertEquals(userMessageLogDefaultService.checkTestMessage(service,action)? MessageSubtype.TEST : null, userMessageLog.getMessageSubtype());
         }};
-    }
+    }*/
 }

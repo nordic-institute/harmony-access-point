@@ -80,13 +80,14 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
         String policyName = null;
         String messageId = null;
         LegConfiguration legConfiguration = null;
+        Ebms3Messaging ebms3Messaging = null;
 
         try {
-            Ebms3Messaging ebms3Messaging = soapService.getMessage(message);
+            ebms3Messaging = soapService.getMessage(message);
 
             message.put(DispatchClientDefaultProvider.MESSAGING_KEY_CONTEXT_PROPERTY, ebms3Messaging);
 
-            LegConfigurationExtractor legConfigurationExtractor = serverInMessageLegConfigurationFactory.extractMessageConfiguration(message, messaging);
+            LegConfigurationExtractor legConfigurationExtractor = serverInMessageLegConfigurationFactory.extractMessageConfiguration(message, ebms3Messaging);
             if (legConfigurationExtractor == null) return;
 
             legConfiguration = legConfigurationExtractor.extractMessageConfiguration();
@@ -113,7 +114,7 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
         } catch (IOException | JAXBException e) {
             setBindingOperation(message);
             LOG.businessError(DomibusMessageCode.BUS_SECURITY_POLICY_INCOMING_NOT_FOUND, e, policyName); // Those errors are not expected
-            EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, "no valid security policy found", messaging != null ? messageId : "unknown", e);
+            EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0010, "no valid security policy found", ebms3Messaging != null ? messageId : "unknown", e);
             ex.setMshRole(MSHRole.RECEIVING);
             throw new Fault(ex);
         }

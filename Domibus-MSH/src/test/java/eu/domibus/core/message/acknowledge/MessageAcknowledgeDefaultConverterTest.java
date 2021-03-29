@@ -19,7 +19,7 @@ import static org.junit.Assert.assertEquals;
 @RunWith(JMockit.class)
 public class MessageAcknowledgeDefaultConverterTest {
 
-    @Tested
+    /*@Tested
     MessageAcknowledgeDefaultConverter messageAcknowledgeDefaultConverter;
 
     @Test
@@ -62,5 +62,5 @@ public class MessageAcknowledgeDefaultConverterTest {
         assertEquals(messageAcknowledgementEntity.getFrom(), converted.getFrom());
         assertEquals(messageAcknowledgementEntity.getTo(), converted.getTo());
         assertEquals(messageAcknowledgementEntity.getPropertiesAsMap(), converted.getProperties());
-    }
+    }*/
 }

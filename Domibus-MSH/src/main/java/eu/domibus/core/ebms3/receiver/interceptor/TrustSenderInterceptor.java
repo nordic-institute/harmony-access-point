@@ -3,6 +3,7 @@ package eu.domibus.core.ebms3.receiver.interceptor;
 import com.google.common.collect.Lists;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageType;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -116,7 +117,7 @@ public class TrustSenderInterceptor extends WSS4JInInterceptor {
             LOG.warn("No trust verification of sending certificate");
             return;
         }
-        String messageId = (String) message.getExchange().get(MessageInfo.MESSAGE_ID_CONTEXT_PROPERTY);
+        String messageId = (String) message.getExchange().get(UserMessage.MESSAGE_ID_CONTEXT_PROPERTY);
         if (!isMessageSecured(message)) {
             LOG.debug("Message does not contain security info ==> skipping sender trust verification.");
             return;

@@ -1,6 +1,7 @@
 package eu.domibus.api.model;
 
 import javax.persistence.*;
+import java.util.List;
 
 
 /**
@@ -37,6 +38,7 @@ public class Messaging extends AbstractBaseEntity {
     @JoinColumn(name = "USER_MESSAGE_ID")
     @OneToOne(cascade = CascadeType.ALL)
     protected UserMessage userMessage;
+
 
     public SignalMessage getSignalMessage() {
         return this.signalMessage;

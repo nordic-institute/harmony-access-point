@@ -39,7 +39,7 @@ import static org.hamcrest.CoreMatchers.hasItems;
 @Transactional
 public class UserMessageLogDaoIT {
 
-    private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageLogDaoIT.class);
+    /*private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageLogDaoIT.class);
     public static final String MPC = "mpc";
     public static final String BACKEND = "backend";
 
@@ -256,6 +256,6 @@ public class UserMessageLogDaoIT {
         messageInfo.setTimestamp(new Date());
         messageInfoDao.create(messageInfo);
         return messageInfo;
-    }
+    }*/
 
 }

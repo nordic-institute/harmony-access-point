@@ -63,7 +63,7 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class DynamicDiscoveryPModeProviderTest {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DynamicDiscoveryPModeProviderTest.class);
+   /* private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DynamicDiscoveryPModeProviderTest.class);
 
     private static final String RESOURCE_PATH = "src/test/resources/eu/domibus/ebms3/common/dao/DynamicDiscoveryPModeProviderTest/";
     private static final String DYNRESPONDER_AND_PARTYSELF = "dynResponderAndPartySelf.xml";
@@ -162,11 +162,11 @@ public class DynamicDiscoveryPModeProviderTest {
         doReturn(true).when(configurationDAO).configurationExists();
         doReturn(testData).when(configurationDAO).readEager();
 
-        /* test default selection of dynamic discovery client OASIS compliant*/
+        *//* test default selection of dynamic discovery client OASIS compliant*//*
         dynamicDiscoveryPModeProvider.init();
         assertTrue(dynamicDiscoveryPModeProvider.dynamicDiscoveryService instanceof DynamicDiscoveryServiceOASIS);
 
-        /* test selection of dynamic discovery client Peppol compliant*/
+        *//* test selection of dynamic discovery client Peppol compliant*//*
         doReturn(DynamicDiscoveryClientSpecification.PEPPOL.getName()).when(domibusPropertyProvider).getProperty(anyString());
         dynamicDiscoveryPModeProvider.init();
         assertTrue(dynamicDiscoveryPModeProvider.dynamicDiscoveryService instanceof DynamicDiscoveryServicePEPPOL);
@@ -421,9 +421,9 @@ public class DynamicDiscoveryPModeProviderTest {
         assertTrue(dynamicDiscoveryPModeProvider.getConfiguration().getBusinessProcesses().getParties().contains(party));
     }
 
-    /**
+    *//**
      * Build UserMessage for testing. Only the fields that are mandatory for the testing doDynamicThings are filled.
-     */
+     *//*
     private UserMessage buildUserMessageForDoDynamicThingsWithArguments(String action, String serviceValue, String serviceType, String toPartyId, String toPartyIdType, String fromPartyId, String fromPartyIdType, String messageId) {
 
         ObjectFactory ebmsObjectFactory = new ObjectFactory();
@@ -488,9 +488,9 @@ public class DynamicDiscoveryPModeProviderTest {
     }
 
 
-    /**
+    *//**
      * Calls private method {@code Configuration#preparePersist} in order to initialize the configuration object properly
-     */
+     *//*
     private boolean initializeConfiguration(Configuration configuration) {
         try {
             Method preparePersist = configuration.getClass().getDeclaredMethod("preparePersist");
@@ -519,5 +519,5 @@ public class DynamicDiscoveryPModeProviderTest {
             userMessage.getMessageInfo().getMessageId();
             times = 1;
         }};
-    }
+    }*/
 }

@@ -21,7 +21,7 @@ import java.util.Collection;
 @RunWith(Parameterized.class)
 public class Ebms3SignalMessageLogDefaultServiceTest {
 
-    @Tested
+    /*@Tested
     SignalMessageLogDefaultService signalMessageLogDefaultService;
 
     @Injectable
@@ -56,5 +56,5 @@ public class Ebms3SignalMessageLogDefaultServiceTest {
             Assert.assertEquals(messageSubtype, signalMessageLog.getMessageSubtype());
         }};
 
-    }
+    }*/
 }

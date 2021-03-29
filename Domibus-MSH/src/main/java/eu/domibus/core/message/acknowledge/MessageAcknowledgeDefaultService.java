@@ -31,6 +31,9 @@ public class MessageAcknowledgeDefaultService implements MessageAcknowledgeServi
     MessageAcknowledgementDao messageAcknowledgementDao;
 
     @Autowired
+    MessageAcknowledgementPropertyDao messageAcknowledgementPropertyDao;
+
+    @Autowired
     AuthUtils authUtils;
 
     @Autowired
@@ -84,8 +87,18 @@ public class MessageAcknowledgeDefaultService implements MessageAcknowledgeServi
 
     protected MessageAcknowledgement acknowledgeMessage(final UserMessage userMessage, Timestamp acknowledgeTimestamp, String from, String to, Map<String, String> properties) throws MessageAcknowledgeException {
         final String user = authUtils.getAuthenticatedUser();
-        MessageAcknowledgementEntity entity = messageAcknowledgeConverter.create(user, userMessage.getMessageId(), acknowledgeTimestamp, from, to, properties);
+        MessageAcknowledgementEntity entity = messageAcknowledgeConverter.create(user, userMessage.getMessageId(), acknowledgeTimestamp, from, to);
         messageAcknowledgementDao.create(entity);
+        properties.entrySet().stream().forEach(entry -> {
+            String name = entry.getKey();
+            String value = entry.getValue();
+            MessageAcknowledgementProperty property = new MessageAcknowledgementProperty();
+            property.setName(name);
+            property.setValue(value);
+            property.setAcknowledgementEntity(entity);
+            messageAcknowledgementPropertyDao.create(property);
+        });
+
         return messageAcknowledgeConverter.convert(entity);
     }
 

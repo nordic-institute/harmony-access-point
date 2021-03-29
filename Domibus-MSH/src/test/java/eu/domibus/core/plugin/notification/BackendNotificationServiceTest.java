@@ -50,7 +50,7 @@ import static org.junit.Assert.*;
 @RunWith(JMockit.class)
 public class BackendNotificationServiceTest {
 
-    public static final String FINAL_RECIPIENT = "finalRecipient";
+   /* public static final String FINAL_RECIPIENT = "finalRecipient";
     public static final String ORIGINAL_SENDER = "originalSender";
     public static final String MESSAGE_ID = "MessageId";
     public static final Timestamp TIMESTAMP = new Timestamp(System.currentTimeMillis());
@@ -1517,5 +1517,5 @@ public class BackendNotificationServiceTest {
             asyncNotificationConfiguration.notify(MESSAGE_ID, notificationType, (Map<String, Object>) any);
             times = 1;
         }};
-    }
+    }*/
 }

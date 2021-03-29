@@ -23,7 +23,7 @@ import static org.mockito.Mockito.verify;
 @RunWith(MockitoJUnitRunner.class)
 public class ServerInMessageLegConfigurationFactoryTest {
 
-    @Mock
+   /* @Mock
     private UserMessageLegConfigurationFactory userMessageLegConfigurationFactory;
     @Mock
     private PullRequestLegConfigurationFactory pullRequestLegConfigurationFactory;
@@ -41,7 +41,7 @@ public class ServerInMessageLegConfigurationFactoryTest {
         verify(userMessageLegConfigurationFactory, times(1)).
                 extractMessageConfiguration(Mockito.eq(soapMessage), Mockito.eq(messaging));
     }
-
+*/
 
 
 }

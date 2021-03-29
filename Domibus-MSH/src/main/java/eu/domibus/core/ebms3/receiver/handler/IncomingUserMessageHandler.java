@@ -1,7 +1,10 @@
 package eu.domibus.core.ebms3.receiver.handler;
 
+import eu.domibus.api.ebms3.model.Ebms3Messaging;
+import eu.domibus.api.model.PartInfo;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
+import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.security.AuthorizationService;
 import eu.domibus.core.ebms3.ws.attachment.AttachmentCleanupService;
 import eu.domibus.api.model.Messaging;
@@ -15,6 +18,7 @@ import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.TransformerException;
 import java.io.IOException;
+import java.util.List;
 
 import static com.codahale.metrics.MetricRegistry.name;
 
@@ -35,11 +39,18 @@ public class IncomingUserMessageHandler extends AbstractIncomingMessageHandler {
     @Autowired
     protected AuthorizationService authorizationService;
 
+    @Autowired
+    protected Ebms3Converter ebms3Converter;
+
     @Override
-    protected SOAPMessage processMessage(LegConfiguration legConfiguration, String pmodeKey, SOAPMessage request, Messaging messaging, boolean testMessage) throws EbMS3Exception, TransformerException, IOException, JAXBException, SOAPException {
+    protected SOAPMessage processMessage(LegConfiguration legConfiguration, String pmodeKey, SOAPMessage request, Ebms3Messaging ebms3Messaging, boolean testMessage) throws EbMS3Exception, TransformerException, IOException, JAXBException, SOAPException {
         LOG.debug("Processing UserMessage");
+
+        Messaging messaging = ebms3Converter.convertFromEbms3(ebms3Messaging);
+        List<PartInfo> partInfoList = userMessageHandlerService.handlePayloads(request, ebms3Messaging);
+
         authorizationService.authorizeUserMessage(request, messaging.getUserMessage());
-        final SOAPMessage response = userMessageHandlerService.handleNewUserMessage(legConfiguration, pmodeKey, request, messaging, testMessage);
+        final SOAPMessage response = userMessageHandlerService.handleNewUserMessage(legConfiguration, pmodeKey, request, messaging.getUserMessage(), partInfoList, testMessage);
         attachmentCleanupService.cleanAttachments(request);
         return response;
     }

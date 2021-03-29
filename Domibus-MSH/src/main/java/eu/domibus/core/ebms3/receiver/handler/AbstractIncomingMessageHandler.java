@@ -68,7 +68,7 @@ public abstract class AbstractIncomingMessageHandler implements IncomingMessageH
         LOG.info("Using pmodeKey {}", pmodeKey);
         final LegConfiguration legConfiguration = pModeProvider.getLegConfiguration(pmodeKey);
         try {
-            responseMessage = processMessage(legConfiguration, pmodeKey, request, messaging, testMessage);
+            responseMessage = processMessage(legConfiguration, pmodeKey, request, ebms3Messaging, testMessage);
             LOG.businessInfo(testMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_RECEIVED : DomibusMessageCode.BUS_MESSAGE_RECEIVED,
                     ebms3Messaging.getUserMessage().getFromFirstPartyId(), ebms3Messaging.getUserMessage().getToFirstPartyId());
 
@@ -88,5 +88,5 @@ public abstract class AbstractIncomingMessageHandler implements IncomingMessageH
         return responseMessage;
     }
 
-    protected abstract SOAPMessage processMessage(LegConfiguration legConfiguration, String pmodeKey, SOAPMessage request, Messaging messaging, boolean testMessage) throws EbMS3Exception, TransformerException, IOException, JAXBException, SOAPException;
+    protected abstract SOAPMessage processMessage(LegConfiguration legConfiguration, String pmodeKey, SOAPMessage request, Ebms3Messaging messaging, boolean testMessage) throws EbMS3Exception, TransformerException, IOException, JAXBException, SOAPException;
 }

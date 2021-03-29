@@ -1,6 +1,6 @@
 package eu.domibus.core.message.receipt;
 
-import eu.domibus.api.model.MessageStatus;
+import eu.domibus.api.model.*;
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.ebms3.model.ObjectFactory;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
@@ -9,33 +9,24 @@ import eu.domibus.api.message.UserMessageException;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.ErrorCode;
-import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.model.configuration.ReplyPattern;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.generator.id.MessageIdGenerator;
-import eu.domibus.core.message.MessagingDao;
-import eu.domibus.core.message.UserMessageDao;
-import eu.domibus.core.message.UserMessageHandlerService;
+import eu.domibus.core.message.*;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationConstants;
-import eu.domibus.api.model.RawEnvelopeDto;
 import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
 import eu.domibus.core.message.signal.SignalMessageDao;
-import eu.domibus.api.model.SignalMessageLog;
 import eu.domibus.core.message.signal.SignalMessageLogBuilder;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.message.splitandjoin.MessageGroupDao;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
-import eu.domibus.api.model.NotificationStatus;
 import eu.domibus.core.replication.UIReplicationSignalService;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.core.util.TimestampDateFormatter;
 import eu.domibus.core.util.xml.XMLUtilImpl;
-import eu.domibus.api.model.Messaging;
-import eu.domibus.api.model.SignalMessage;
-import eu.domibus.api.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -86,6 +77,8 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
     protected final SoapUtil soapUtil;
     protected XMLUtil xmlUtil;
     protected Ebms3Converter ebms3Converter;
+    protected MshRoleDao mshRoleDao;
+    protected MessageStatusDao messageStatusDao;
 
     public AS4ReceiptServiceImpl(UIReplicationSignalService uiReplicationSignalService,
                                  UserMessageHandlerService userMessageHandlerService,
@@ -100,7 +93,9 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
                                  MessageUtil messageUtil,
                                  SoapUtil soapUtil,
                                  XMLUtil xmlUtil,
-                                 Ebms3Converter ebms3Converter) {
+                                 Ebms3Converter ebms3Converter,
+                                 MshRoleDao mshRoleDao,
+                                 MessageStatusDao messageStatusDao) {
         this.uiReplicationSignalService = uiReplicationSignalService;
         this.userMessageHandlerService = userMessageHandlerService;
         this.timestampDateFormatter = timestampDateFormatter;
@@ -115,6 +110,8 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
         this.soapUtil = soapUtil;
         this.xmlUtil = xmlUtil;
         this.ebms3Converter = ebms3Converter;
+        this.mshRoleDao = mshRoleDao;
+        this.messageStatusDao = messageStatusDao;
     }
 
     @Override
@@ -220,17 +217,20 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
         signalMessage.setUserMessage(userMessage);
 
 
+
         LOG.debug("Save signalMessage with messageId [{}], refToMessageId [{}]", signalMessage.getSignalMessageId(), signalMessage.getRefToMessageId());
         // Stores the signal message
         signalMessageDao.create(signalMessage);
         // Updating the reference to the signal message
 
+        MessageStatusEntity messageStatus = messageStatusDao.findMessageStatus(MessageStatus.ACKNOWLEDGED);
+        MSHRoleEntity role = mshRoleDao.findByRole(MSHRole.SENDING);
+
         // Builds the signal message log
         SignalMessageLogBuilder smlBuilder = SignalMessageLogBuilder.create()
-                .setMessageId(ebms3Messaging.getSignalMessage().getMessageInfo().getMessageId())
-                .setMessageStatus(MessageStatus.ACKNOWLEDGED)
-                .setMshRole(MSHRole.SENDING)
-                .setNotificationStatus(NotificationStatus.NOT_REQUIRED);
+                .setSignalMessage(signalMessage)
+                .setMessageStatus(messageStatus)
+                .setMshRole(role);
         // Saves an entry of the signal message log
         SignalMessageLog signalMessageLog = smlBuilder.build();
         signalMessageLogDao.create(signalMessageLog);

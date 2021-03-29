@@ -247,18 +247,19 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
             throw new SplitAndJoinException("Error getting the pmodeKey", e);
         }
 
+        List<PartInfo> partInfos = null;
         try {
-            userMessageHandlerService.handlePayloads(sourceRequest, userMessage);
+            partInfos = userMessageHandlerService.handlePayloads(sourceRequest, ebms3Messaging);
         } catch (EbMS3Exception | SOAPException | TransformerException e) {
             throw new SplitAndJoinException("Error handling payloads", e);
         }
 
-        messagingService.storePayloads(sourceMessaging, MSHRole.RECEIVING, legConfiguration, backendName);
+        messagingService.storePayloads(sourceMessaging.getUserMessage(), partInfos, MSHRole.RECEIVING, legConfiguration, backendName);
 
         final String sourceMessageId = userMessage.getMessageId();
         messageGroupService.setSourceMessageId(sourceMessageId, groupId);
 
-        incomingSourceMessageHandler.processMessage(sourceRequest, sourceMessaging);
+        incomingSourceMessageHandler.processMessage(sourceRequest, ebms3Messaging);
         userMessageService.scheduleSourceMessageReceipt(sourceMessageId, userMessageExchangeContext.getReversePmodeKey());
 
         LOG.debug("Finished rejoining SourceMessage for group [{}]", groupId);
@@ -585,7 +586,8 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
 
     protected void createLogEntry(String sourceMessageId, String errorDetail) {
         LOG.debug("Creating error entry for message [{}]", sourceMessageId);
-        final ErrorLogEntry errorLogEntry = new ErrorLogEntry(MSHRole.SENDING, sourceMessageId, ErrorCode.EBMS_0004, errorDetail);
+        MSHRoleEntity role = mshRoleDao.findByRole(MSHRole.SENDING);
+        final ErrorLogEntry errorLogEntry = new ErrorLogEntry(role, sourceMessageId, ErrorCode.EBMS_0004, errorDetail);
         errorService.createErrorLog(errorLogEntry);
     }
 

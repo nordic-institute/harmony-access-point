@@ -47,7 +47,7 @@ import javax.xml.transform.TransformerFactory;
 @RunWith(JMockit.class)
 public class IncomingPullEbms3ReceiptHandlerTest {
 
-    @Injectable
+   /* @Injectable
     BackendNotificationService backendNotificationService;
 
     @Injectable
@@ -294,5 +294,5 @@ public class IncomingPullEbms3ReceiptHandlerTest {
             times = 1;
         }};
 
-    }
+    }*/
 }

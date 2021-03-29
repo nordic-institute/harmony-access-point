@@ -45,6 +45,7 @@ import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.TransformerException;
 import javax.xml.ws.WebServiceException;
 import java.io.IOException;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -151,7 +152,10 @@ public class PullMessageSender {
                 return;
             }
             messageId = userMessage.getMessageId();
-            handleResponse(response, userMessage);
+
+
+            List<PartInfo> partInfos = userMessageHandlerService.handlePayloads(response, ebms3Messaging);
+            handleResponse(response, userMessage, partInfos);
 
             String sendMessageId = messageId;
             if (userMessageHandlerService.checkSelfSending(pModeKey)) {
@@ -177,7 +181,7 @@ public class PullMessageSender {
         }
     }
 
-    protected void handleResponse(final SOAPMessage response, UserMessage userMessage) throws TransformerException, SOAPException, IOException, JAXBException, EbMS3Exception {
+    protected void handleResponse(final SOAPMessage response, UserMessage userMessage, List<PartInfo> partInfos) throws TransformerException, SOAPException, IOException, JAXBException, EbMS3Exception {
         LOG.trace("handle message");
         Boolean testMessage = userMessageHandlerService.checkTestMessage(userMessage);
 
@@ -188,7 +192,7 @@ public class PullMessageSender {
 
         LegConfiguration legConfiguration = pModeProvider.getLegConfiguration(pModeKey);
         LOG.debug("legConfiguration for received userMessage is [{}]", legConfiguration.getName());
-        userMessageHandlerService.handleNewUserMessage(legConfiguration, pModeKey, response, userMessage, testMessage);
+        userMessageHandlerService.handleNewUserMessage(legConfiguration, pModeKey, response, userMessage, partInfos, testMessage);
 
         LOG.businessInfo(testMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_RECEIVED : DomibusMessageCode.BUS_MESSAGE_RECEIVED,
                 userMessage.getPartyInfo().getFromParty(), userMessage.getPartyInfo().getToParty());

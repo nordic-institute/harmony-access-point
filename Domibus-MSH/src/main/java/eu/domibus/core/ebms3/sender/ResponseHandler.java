@@ -104,7 +104,7 @@ public class ResponseHandler {
         String userMessageService = userMessage.getService().getValue();
         String userMessageAction = userMessage.getActionValue();
 
-        signalMessageLogDefaultService.save(signalMessage.getSignalMessageId(), userMessageService, userMessageAction);
+        signalMessageLogDefaultService.save(signalMessage, userMessageService, userMessageAction);
 
         final MSHRoleEntity sendingRole = mshRoleDao.findByRole(MSHRole.SENDING);
         createWarningEntries(ebms3MessagingResponse.getSignalMessage(), sendingRole);

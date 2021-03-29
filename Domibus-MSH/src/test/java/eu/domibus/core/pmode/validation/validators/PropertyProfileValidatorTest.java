@@ -36,7 +36,7 @@ import java.util.Set;
 @RunWith(JMockit.class)
 public class PropertyProfileValidatorTest {
 
-    public static final String valid4CornerMessagePath = "target/test-classes/eu/domibus/common/validators/valid4CornerMessage.xml";
+  /*  public static final String valid4CornerMessagePath = "target/test-classes/eu/domibus/common/validators/valid4CornerMessage.xml";
 
     @Tested
     PropertyProfileValidator propertyProfileValidator;
@@ -161,6 +161,6 @@ public class PropertyProfileValidatorTest {
         property.setDatatype(dataType);
 
         return property;
-    }
+    }*/
 
 }

@@ -19,7 +19,7 @@ import static org.junit.Assert.assertTrue;
  * @since 3.3
  */
 public class PojoInstaciatorUtilTest {
-    @Test
+   /* @Test
     public void testSetUpParameterForRootEntity() throws Exception {
         Map<String, Object> entityMap = PojoInstaciatorUtil.setUpParameters(" [name:oneway]");
         assertEquals("oneway",entityMap.get("name"));
@@ -86,6 +86,6 @@ public class PojoInstaciatorUtilTest {
         assertEquals("test",instanciate.getTo().getRole());
         assertEquals(1,instanciate.getTo().getPartyId().size());
         assertEquals("testParty",instanciate.getTo().getPartyId().iterator().next().getValue());
-    }
+    }*/
 
 }

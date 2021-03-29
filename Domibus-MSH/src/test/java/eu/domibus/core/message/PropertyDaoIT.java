@@ -31,7 +31,7 @@ import static org.junit.Assert.assertEquals;
 @Transactional
 public class PropertyDaoIT {
 
-    @Autowired
+    /*@Autowired
     private MessagePropertyDao propertyDao;
 
     @Autowired
@@ -91,5 +91,5 @@ public class PropertyDaoIT {
         messageInfo.setTimestamp(new Date());
         messageInfoDao.create(messageInfo);
         return messageInfo;
-    }
+    }*/
 }

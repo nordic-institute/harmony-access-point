@@ -83,6 +83,14 @@ public class MessageAcknowledgementEntity extends AbstractBaseEntity {
         this.acknowledgeDate = acknowledgeDate;
     }
 
+    public UserMessage getUserMessage() {
+        return userMessage;
+    }
+
+    public void setUserMessage(UserMessage userMessage) {
+        this.userMessage = userMessage;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

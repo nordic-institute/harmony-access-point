@@ -38,7 +38,7 @@ import static org.junit.Assert.assertNotNull;
 //TODO move it in the core module when Domibus will reference the configuration files via the classpath instead of file disk
 public class MessageAcknowledgementDaoTestIT extends AbstractIT {
 
-    public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageAcknowledgementDao.class);
+  /*  public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageAcknowledgementDao.class);
 
     @Autowired
     MessageAcknowledgementDao messageAcknowledgementDao;
@@ -141,7 +141,7 @@ public class MessageAcknowledgementDaoTestIT extends AbstractIT {
 
         InputStream is = getClass().getClassLoader().getResourceAsStream(resource);
         return ebms3MessagingDocumentParser.parseMessaging(is, "ns");
-    }
+    }*/
 
 }
 

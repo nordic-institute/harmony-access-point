@@ -23,7 +23,7 @@ import java.util.UUID;
 @RunWith(JMockit.class)
 public class MessagePropertyValidatorTest {
 
-    @Tested
+  /*  @Tested
     MessagePropertyValidator messagePropertyValidator;
 
     @Test
@@ -109,5 +109,5 @@ public class MessagePropertyValidatorTest {
         new FullVerifications() {{
 
         }};
-    }
+    }*/
 }

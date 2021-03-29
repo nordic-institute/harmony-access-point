@@ -69,7 +69,7 @@ import java.util.List;
 @ContextConfiguration(loader = AnnotationConfigContextLoader.class)
 public class DomibusCoreAuditEventMapperIT {
 
-    @Configuration
+    /*@Configuration
     @ImportResource({
             "classpath:config/commonsTestContext.xml"
     })
@@ -448,7 +448,7 @@ public class DomibusCoreAuditEventMapperIT {
         final List<MessageAttempt> convertedList = domibusCoreMapper.messageAttemptEntityListToMessageAttemptList(toConvertList);
         final List<MessageAttemptEntity> convertedBackList = domibusCoreMapper.messageAttemptListToMessageAttemptEntityList(convertedList);
         objectService.assertObjects(convertedBackList, toConvertList);
-    }
+    }*/
 
 
 }

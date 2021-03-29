@@ -37,7 +37,7 @@ public class GetMessageErrorsIT extends AbstractBackendWSIT {
         String messageId = "9008713e-1912-460c-97b3-40ec12a29f49@domibus.eu";
         ErrorLogEntry logEntry = new ErrorLogEntry();
         logEntry.setMessageInErrorId(messageId);
-        logEntry.setMshRole(MSHRole.RECEIVING);
+//        logEntry.setMshRole(MSHRole.RECEIVING);
         logEntry.setErrorCode(ErrorCode.EBMS_0004);
         logEntry.setTimestamp(new Date());
         errorLogDao.create(logEntry);

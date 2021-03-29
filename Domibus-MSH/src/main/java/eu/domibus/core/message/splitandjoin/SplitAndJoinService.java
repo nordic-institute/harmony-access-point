@@ -79,9 +79,8 @@ public interface SplitAndJoinService {
      * Handles the Signal error received from C3 which indicates that there was an error while rejoining the SourceMessage
      *
      * @param messageId The message ID of the SourceMessage
-     * @param error     The details of the occurred error
      */
-    void handleSourceMessageSignalError(final String messageId, final Error error);
+    void handleSourceMessageSignalError(final String messageId);
 
     /**
      * Generates and sends the receipt associated to the SourceMessage

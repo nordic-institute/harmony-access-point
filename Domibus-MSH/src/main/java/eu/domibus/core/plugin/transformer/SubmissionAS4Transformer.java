@@ -3,6 +3,9 @@ package eu.domibus.core.plugin.transformer;
 import eu.domibus.api.model.*;
 import eu.domibus.core.generator.id.MessageIdGenerator;
 import eu.domibus.core.message.*;
+import eu.domibus.core.plugin.BackendConnectorService;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.Submission;
 import org.apache.commons.collections4.CollectionUtils;
@@ -16,6 +19,8 @@ import java.util.*;
  */
 @org.springframework.stereotype.Service
 public class SubmissionAS4Transformer {
+
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SubmissionAS4Transformer.class);
 
     @Autowired
     private MessageIdGenerator messageIdGenerator;
@@ -44,7 +49,7 @@ public class SubmissionAS4Transformer {
     @Autowired
     protected PartPropertyDao partPropertyDao;
 
-    public UserMessage transformFromSubmission(final Submission submission) throws MessagingProcessingException {
+    public UserMessage transformFromSubmission(final Submission submission) {
         final UserMessage result = new UserMessage();
         final Mpc mpc = mpcDao.findMpc(submission.getMpc());
         result.setMpc(mpc);
@@ -93,7 +98,7 @@ public class SubmissionAS4Transformer {
         result.setRefToMessageId(submission.getRefToMessageId());
     }
 
-    private void generatePartyInfo(final Submission submission, final UserMessage result) throws MessagingProcessingException {
+    private void generatePartyInfo(final Submission submission, final UserMessage result) {
         final PartyInfo partyInfo = new PartyInfo();
         result.setPartyInfo(partyInfo);
 
@@ -104,7 +109,7 @@ public class SubmissionAS4Transformer {
         partyInfo.setTo(partyTo);
     }
 
-    private From getPartyFrom(Submission submission, PartyInfo partyInfo) throws MessagingProcessingException {
+    private From getPartyFrom(Submission submission, PartyInfo partyInfo) {
         final From from = new From();
 
         final PartyRole fromRole = partyRoleDao.findOrCreateRole(submission.getFromRole());
@@ -112,17 +117,17 @@ public class SubmissionAS4Transformer {
 
         final Set<Submission.Party> fromParties = submission.getFromParties();
         if (fromParties.size() > 1) {
-            throw new MessagingProcessingException("Cannot have multiple from parties");
-        }
-        if (fromParties.size() == 1) {
+            LOG.error("Cannot have multiple from parties, using the first party");
             final Submission.Party party = fromParties.iterator().next();
             final PartyId fromParty = partyIdDao.findOrCreateParty(party.getPartyId(), party.getPartyIdType());
             from.setPartyId(fromParty);
+
+            return from;
         }
-        return from;
+        return null;
     }
 
-    private To getPartyTo(Submission submission, PartyInfo partyInfo) throws MessagingProcessingException {
+    private To getPartyTo(Submission submission, PartyInfo partyInfo) {
         final To to = new To();
 
         final PartyRole toRole = partyRoleDao.findOrCreateRole(submission.getToRole());
@@ -130,14 +135,13 @@ public class SubmissionAS4Transformer {
 
         final Set<Submission.Party> toParties = submission.getToParties();
         if (toParties.size() > 1) {
-            throw new MessagingProcessingException("Cannot have multiple to parties");
-        }
-        if (toParties.size() == 1) {
+            LOG.error("Cannot have multiple to parties, using the first party");
             final Submission.Party party = toParties.iterator().next();
             final PartyId toParty = partyIdDao.findOrCreateParty(party.getPartyId(), party.getPartyIdType());
             to.setPartyId(toParty);
+            return to;
         }
-        return to;
+        return null;
     }
 
 

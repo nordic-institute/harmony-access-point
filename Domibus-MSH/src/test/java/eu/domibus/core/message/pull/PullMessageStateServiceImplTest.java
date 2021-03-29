@@ -23,7 +23,7 @@ import java.sql.Timestamp;
  */
 @RunWith(JMockit.class)
 public class PullMessageStateServiceImplTest {
-    @Tested
+   /* @Tested
     PullMessageStateServiceImpl pullMessageStateService;
     @Injectable
     protected UserMessageRawEnvelopeDao rawEnvelopeLogDao;
@@ -120,6 +120,6 @@ public class PullMessageStateServiceImplTest {
             uiReplicationSignalService.messageChange(withCapture());
             backendNotificationService.notifyOfMessageStatusChange(userMessageLog, messageStatus.READY_TO_PULL, new Timestamp(anyLong));
         }};
-    }
+    }*/
 
 }

@@ -31,7 +31,7 @@ import java.util.Map;
 @RunWith(JMockit.class)
 public class MessageLogDaoTest {
 
-    @Tested
+   /* @Tested
     private MessageLogDao messageLogDao = new UserMessageLogDao();
 
     @Injectable
@@ -228,5 +228,5 @@ public class MessageLogDaoTest {
 
         // THEN
         Assert.assertTrue("Should have ignored any empty attribute names having Timestamp filter values", result.isEmpty());
-    }
+    }*/
 }

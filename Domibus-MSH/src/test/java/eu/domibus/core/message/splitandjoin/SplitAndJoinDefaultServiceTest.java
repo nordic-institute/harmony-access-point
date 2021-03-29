@@ -66,7 +66,7 @@ import static org.junit.Assert.*;
 @RunWith(JMockit.class)
 public class SplitAndJoinDefaultServiceTest {
 
-    @Tested
+  /*  @Tested
     SplitAndJoinDefaultService splitAndJoinDefaultService;
 
     @Injectable
@@ -1129,5 +1129,5 @@ public class SplitAndJoinDefaultServiceTest {
             times = 2;
         }};
 
-    }
+    }*/
 }

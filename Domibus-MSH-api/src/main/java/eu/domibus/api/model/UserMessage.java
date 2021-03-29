@@ -3,6 +3,7 @@ package eu.domibus.api.model;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -66,6 +67,9 @@ public class UserMessage extends AbstractBaseEntity {
             inverseJoinColumns = @JoinColumn(name = "MESSAGE_PROPERTY_FK")
     )
     protected Set<MessageProperty> messageProperties; //NOSONAR
+
+    @Transient
+    protected List<PartInfo> partInfoList;
 
     public boolean isSplitAndJoin() {
         return sourceMessage || messageFragment;
@@ -169,5 +173,13 @@ public class UserMessage extends AbstractBaseEntity {
 
     public void setMessageFragment(Boolean messageFragment) {
         this.messageFragment = messageFragment;
+    }
+
+    public List<PartInfo> getPartInfoList() {
+        return partInfoList;
+    }
+
+    public void setPartInfoList(List<PartInfo> partInfoList) {
+        this.partInfoList = partInfoList;
     }
 }

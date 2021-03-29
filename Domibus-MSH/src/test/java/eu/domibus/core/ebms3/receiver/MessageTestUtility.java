@@ -28,7 +28,7 @@ public class MessageTestUtility {
 
     private static final String BLUE = "blue_gw";
 
-    public UserMessage createSampleUserMessage() {
+  /*  public UserMessage createSampleUserMessage() {
         UserMessage userMessage = new UserMessage();
         final MessageInfo messageInfo = new MessageInfo();
         messageInfo.setTimestamp(new Date());
@@ -110,5 +110,5 @@ public class MessageTestUtility {
     public static Document readDocument(String name) throws XMLStreamException, ParserConfigurationException {
         InputStream inStream = MessageTestUtility.class.getResourceAsStream(name);
         return StaxUtils.read(inStream);
-    }
+    }*/
 }

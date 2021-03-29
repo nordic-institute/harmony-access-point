@@ -53,7 +53,7 @@ import static org.junit.Assert.assertTrue;
 @RunWith(JMockit.class)
 public class IncomingEbms3UserMessageHandlerTest {
 
-    @Tested
+   /* @Tested
     IncomingUserMessageHandler incomingUserMessageHandler;
 
     @Injectable
@@ -157,10 +157,10 @@ public class IncomingEbms3UserMessageHandlerTest {
     AuthorizationService authorizationService;
 
 
-    /**
+    *//**
      * Happy flow unit testing with actual data
      *
-     */
+     *//*
     @Test
     public void testInvoke_tc1Process_HappyFlow(@Injectable Messaging messaging,
                                                 @Injectable LegConfiguration legConfiguration) throws Exception {
@@ -184,10 +184,10 @@ public class IncomingEbms3UserMessageHandlerTest {
     }
 
 
-    /**
+    *//**
      * Unit testing with actual data.
      *
-     */
+     *//*
     @Test
     public void testInvoke_ErrorInNotifyingIncomingMessage(@Injectable final LegConfiguration legConfiguration,
                                                            @Injectable final Messaging messaging,
@@ -213,5 +213,5 @@ public class IncomingEbms3UserMessageHandlerTest {
         new Verifications() {{
             backendNotificationService.notifyMessageReceivedFailure(messaging.getUserMessage(), (ErrorResult) any);
         }};
-    }
+    }*/
 }

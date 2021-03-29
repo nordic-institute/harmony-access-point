@@ -168,7 +168,8 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
         UserMessage userMessage = messaging.getUserMessage();
         if (MessageStatus.DOWNLOADED == messageLog.getMessageStatus()) {
             LOG.debug("Message [{}] is already downloaded", messageId);
-            return transformer.transformFromMessaging(userMessage);
+            List<PartInfo> partInfoList = partInfoDao.findPartInfoByUserMessageEntityId(messageLog.getEntityId());
+            return transformer.transformFromMessaging(userMessage, partInfoList);
         }
 
         checkMessageAuthorization(userMessage, messageLog);
@@ -185,7 +186,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
         } else {
             userMessageLogService.setMessageAsDownloaded(userMessage, messageLog);
         }
-        return transformer.transformFromMessaging(userMessage);
+        return transformer.transformFromMessaging(userMessage, partInfos);
     }
 
     protected boolean shouldDeleteDownloadedMessage(UserMessage userMessage, List<PartInfo> partInfos) {
@@ -211,10 +212,10 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
         }
 
         UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
-
         checkMessageAuthorization(userMessage, userMessageLog);
 
-        return transformer.transformFromMessaging(userMessage);
+        List<PartInfo> partInfos = partInfoDao.findPartInfoByUserMessageEntityId(userMessage.getEntityId());
+        return transformer.transformFromMessaging(userMessage, partInfos);
     }
 
     protected void checkMessageAuthorization(UserMessage userMessage, UserMessageLog userMessageLog) throws MessageNotFoundException {
