@@ -11,6 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.util.Collections;
+import java.util.List;
+
 /**
  * @author François Gautier
  * @since 5.0
@@ -26,22 +29,21 @@ public class MessageExtMapperIT {
     private ObjectService objectService;
 
     @Test
-    public void MessageAttemptToMessageAttemptDTO() {
-        MessageAttemptDTO toConvert = (MessageAttemptDTO) objectService.createInstance(MessageAttemptDTO.class);
-        final MessageAttempt converted = messageExtMapper.messageAttemptDTOToMessageAttempt(toConvert);
-        final MessageAttemptDTO convertedBack = messageExtMapper.messageAttemptToMessageAttemptDTO(converted);
-        
-        objectService.assertObjects(convertedBack, toConvert);
+    public void partiesToPartiesDTO() {
+        MessageAcknowledgementDTO toConvert = (MessageAcknowledgementDTO) objectService.createInstance(MessageAcknowledgementDTO.class);
+        final MessageAcknowledgement converted = messageExtMapper.messageAcknowledgementDTOToMessageAcknowledgement(toConvert);
+        final List<MessageAcknowledgementDTO> convertedBack = messageExtMapper.messageAcknowledgementToMessageAcknowledgementDTO(Collections.singletonList(converted));
+
+        objectService.assertObjects(convertedBack.get(0), toConvert);
     }
 
     @Test
-    public void MessageAttemptDTOToMessageAttempt() {
-        MessageAttempt toConvert = (MessageAttempt) objectService.createInstance(MessageAttempt.class);
-        final MessageAttemptDTO converted = messageExtMapper.messageAttemptToMessageAttemptDTO(toConvert);
-        final MessageAttempt convertedBack = messageExtMapper.messageAttemptDTOToMessageAttempt(converted);
-        // these fields are missing in MessageAttemptDTO, fill them so the assertion works
-        convertedBack.setId(toConvert.getId());
-        objectService.assertObjects(convertedBack, toConvert);
+    public void processListToProcessesDTO() {
+        MessageAttemptDTO toConvert = (MessageAttemptDTO) objectService.createInstance(MessageAttemptDTO.class);
+        final MessageAttempt converted = messageExtMapper.messageAttemptDTOToMessageAttempt(toConvert);
+        final List<MessageAttemptDTO> convertedBack = messageExtMapper.messageAttemptToMessageAttemptDTO(Collections.singletonList(converted));
+
+        objectService.assertObjects(convertedBack.get(0), toConvert);
     }
 
     @Test

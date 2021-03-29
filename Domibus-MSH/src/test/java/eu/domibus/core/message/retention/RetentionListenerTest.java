@@ -5,10 +5,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.security.functions.AuthenticatedProcedure;
-import eu.domibus.api.util.JsonUtil;
 import eu.domibus.core.message.UserMessageDefaultService;
-import eu.domibus.api.model.UserMessageLog;
-import eu.domibus.api.model.UserMessageLogDto;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.messaging.MessageConstants;
 import mockit.*;
@@ -19,8 +16,6 @@ import org.junit.runner.RunWith;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
-import java.lang.reflect.Type;
-import java.util.List;
 
 
 /**
@@ -45,9 +40,6 @@ public class RetentionListenerTest {
     @Injectable
     DomibusPropertyProvider domibusPropertyProvider;
 
-    @Injectable
-    JsonUtil jsonUtil;
-
     @Mocked
     private Message message;
 
@@ -71,25 +63,6 @@ public class RetentionListenerTest {
         }};
     }
 
-    @Test
-    public void onMessage_deletesMessageMulti(@Mocked DomibusLogger domibusLogger, @Mocked List<UserMessageLog> userMessageLogs) throws JMSException {
-
-        String userMessageLogsStr = "someUserMessageLogs";
-        new Expectations() {{
-            message.getStringProperty(MessageRetentionDefaultService.DELETE_TYPE); result = MessageDeleteType.MULTI.name();
-            message.getStringProperty(MessageRetentionDefaultService.MESSAGE_LOGS); result = userMessageLogsStr;
-        }};
-
-        // When
-        retentionListener.onMessagePrivate(message);
-
-        // Then
-        new Verifications() {{
-            jsonUtil.jsonToList(anyString, (Type) any);
-            userMessageDefaultService.deleteMessages((List<UserMessageLogDto>)any);
-        }};
-    }
-
     @Test(expected = IllegalArgumentException.class)
     public void onMessage_invalidDeleteType(@Mocked DomibusLogger domibusLogger) throws JMSException {
 
@@ -101,7 +74,6 @@ public class RetentionListenerTest {
         retentionListener.onMessagePrivate(message);
 
     }
-
 
     @Test
     public void onMessage_addsAuthentication(@Mocked DomibusLogger domibusLogger)  throws JMSException {

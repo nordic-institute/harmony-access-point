@@ -4,10 +4,14 @@ import eu.domibus.core.message.MessageLogInfoFilter;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
  * @author Tiago Miguel
+ * @author Ion Perpegel
  * @since 3.3
  */
 @Service(value = "signalMessageLogInfoFilter")
@@ -59,23 +63,52 @@ public class SignalMessageLogInfoFilter extends MessageLogInfoFilter {
         return result.toString();
     }
 
-    public String countSignalMessageLogQuery(boolean asc, Map<String, Object> filters) {
-        String query = "select count(message.id)" + getQueryBody(filters);
-        StringBuilder result = filterQuery(query, null, asc, filters);
-        return result.toString();
-    }
-
-    private String getQueryBody(Map<String, Object> filters) {
+    @Override
+    public String getQueryBody(Map<String, Object> filters) {
         return
                 " from SignalMessageLog log, " +
                         "Messaging messaging inner join messaging.signalMessage signal " +
                         "inner join messaging.userMessage message " +
                         "left join signal.messageInfo info " +
-                        (isFourCornerModel() ? "left join message.messageProperties.property propsFrom " +
-                        "left join message.messageProperties.property propsTo " : StringUtils.EMPTY) +
+                        (isFourCornerModel() ?
+                                "left join message.messageProperties.property propsFrom " +
+                                        "left join message.messageProperties.property propsTo "
+                                : StringUtils.EMPTY) +
                         "left join message.partyInfo.from.partyId partyFrom " +
                         "left join message.partyInfo.to.partyId partyTo " +
+
                         "where signal.messageInfo.messageId=log.messageId and signal.messageInfo.refToMessageId=message.messageInfo.messageId " +
-                        (isFourCornerModel() ? "and propsFrom.name = 'originalSender' and propsTo.name = 'finalRecipient' " : StringUtils.EMPTY);
+                        (isFourCornerModel() ?
+                                "and propsFrom.name = 'originalSender' and propsTo.name = 'finalRecipient' "
+                                : StringUtils.EMPTY);
+    }
+
+    @Override
+    protected String getMainTable() {
+        return "SignalMessageLog log ";
+    }
+
+    @Override
+    protected Map<String, List<String>> createFromMappings() {
+        Map<String, List<String>> mappings = new HashMap<>();
+        String messageTable = ", Messaging messaging inner join messaging.signalMessage signal inner join messaging.userMessage message left join signal.messageInfo info ";
+
+        mappings.put("messaging", Arrays.asList(messageTable));
+        mappings.put("message", Arrays.asList(messageTable));
+        mappings.put("info", Arrays.asList(messageTable));
+        mappings.put("propsFrom", Arrays.asList(messageTable, "left join message.messageProperties.property propsFrom "));
+        mappings.put("propsTo", Arrays.asList(messageTable, "left join message.messageProperties.property propsTo "));
+        mappings.put("partyFrom", Arrays.asList(messageTable, "left join message.partyInfo.from.partyId partyFrom "));
+        mappings.put("partyTo", Arrays.asList(messageTable, "left join message.partyInfo.to.partyId partyTo "));
+        return mappings;
+    }
+
+    @Override
+    protected Map<String, List<String>> createWhereMappings() {
+        Map<String, List<String>> mappings = new HashMap<>();
+        String messageCriteria = "signal.messageInfo.messageId=log.messageId and signal.messageInfo.refToMessageId=message.messageInfo.messageId ";
+        mappings.put("message", Arrays.asList(messageCriteria));
+        mappings.put("propsFrom", Arrays.asList(messageCriteria, "and propsFrom.name = 'originalSender' "));
+        return mappings;
     }
 }

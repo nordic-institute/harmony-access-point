@@ -20,9 +20,9 @@ import java.util.List;
  * @author Catalin Comanici
  * @since 4.1
  */
-public class TruststorePgUXTests extends SeleniumTest {
+public class TruststorePgUXTest extends SeleniumTest {
 	
-	JSONObject descriptorObj = TestUtils.getPageDescriptorObject(PAGES.TRUSTSTORES);
+	JSONObject descriptorObj = TestUtils.getPageDescriptorObject(PAGES.TRUSTSTORES_DOMIBUS);
 	
 	/* Login as super admin and open Truststore page */
 	@Test(description = "TRST-1", groups = {"multiTenancy", "singleTenancy"})
@@ -30,7 +30,7 @@ public class TruststorePgUXTests extends SeleniumTest {
 		
 		SoftAssert soft = new SoftAssert();
 		TruststorePage page = new TruststorePage(driver);
-		page.getSidebar().goToPage(PAGES.TRUSTSTORES);
+		page.getSidebar().goToPage(PAGES.TRUSTSTORES_DOMIBUS);
 		
 		log.info("checking page default state");
 		soft.assertEquals(page.getTitle(), descriptorObj.getString("title"), "Page title is correct");
@@ -53,7 +53,7 @@ public class TruststorePgUXTests extends SeleniumTest {
 		
 		SoftAssert soft = new SoftAssert();
 		TruststorePage page = new TruststorePage(driver);
-		page.getSidebar().goToPage(PAGES.TRUSTSTORES);
+		page.getSidebar().goToPage(PAGES.TRUSTSTORES_DOMIBUS);
 		
 		HashMap<String, String> entryInfo = page.grid().getRowInfo(0);
 		log.info("gathering grid data - " + entryInfo);
@@ -75,7 +75,7 @@ public class TruststorePgUXTests extends SeleniumTest {
 		
 		SoftAssert soft = new SoftAssert();
 		TruststorePage page = new TruststorePage(driver);
-		page.getSidebar().goToPage(PAGES.TRUSTSTORES);
+		page.getSidebar().goToPage(PAGES.TRUSTSTORES_DOMIBUS);
 		
 		String fileName = rest.csv().downloadGrid(RestServicePaths.TRUSTSTORE_CSV, null, null);
 		log.info("downloaded rows to file " + fileName);
@@ -91,7 +91,7 @@ public class TruststorePgUXTests extends SeleniumTest {
 		
 		SoftAssert soft = new SoftAssert();
 		TruststorePage page = new TruststorePage(driver);
-		page.getSidebar().goToPage(PAGES.TRUSTSTORES);
+		page.getSidebar().goToPage(PAGES.TRUSTSTORES_DOMIBUS);
 		
 		DGrid grid = page.grid();
 		grid.getGridCtrl().showCtrls();
@@ -112,7 +112,7 @@ public class TruststorePgUXTests extends SeleniumTest {
 		
 		SoftAssert soft = new SoftAssert();
 		TruststorePage page = new TruststorePage(driver);
-		page.getSidebar().goToPage(PAGES.TRUSTSTORES);
+		page.getSidebar().goToPage(PAGES.TRUSTSTORES_DOMIBUS);
 		
 		DGrid grid = page.grid();
 		grid.waitForRowsToLoad();
@@ -127,7 +127,7 @@ public class TruststorePgUXTests extends SeleniumTest {
 		
 		SoftAssert soft = new SoftAssert();
 		TruststorePage page = new TruststorePage(driver);
-		page.getSidebar().goToPage(PAGES.TRUSTSTORES);
+		page.getSidebar().goToPage(PAGES.TRUSTSTORES_DOMIBUS);
 		
 		DGrid grid = page.grid();
 		List<String> columnsPre = grid.getColumnNames();
@@ -152,7 +152,7 @@ public class TruststorePgUXTests extends SeleniumTest {
 		String colName = "Issuer";
 		SoftAssert soft = new SoftAssert();
 		TruststorePage page = new TruststorePage(driver);
-		page.getSidebar().goToPage(PAGES.TRUSTSTORES);
+		page.getSidebar().goToPage(PAGES.TRUSTSTORES_DOMIBUS);
 		
 		DGrid grid = page.grid();
 		List<String> columnsPre = grid.getColumnNames();
@@ -187,7 +187,7 @@ public class TruststorePgUXTests extends SeleniumTest {
 		
 		SoftAssert soft = new SoftAssert();
 		TruststorePage page = new TruststorePage(driver);
-		page.getSidebar().goToPage(PAGES.TRUSTSTORES);
+		page.getSidebar().goToPage(PAGES.TRUSTSTORES_DOMIBUS);
 		DGrid grid = page.grid();
 		
 		grid.checkAllLink(soft);
@@ -204,7 +204,7 @@ public class TruststorePgUXTests extends SeleniumTest {
 		
 		SoftAssert soft = new SoftAssert();
 		TruststorePage page = new TruststorePage(driver);
-		page.getSidebar().goToPage(PAGES.TRUSTSTORES);
+		page.getSidebar().goToPage(PAGES.TRUSTSTORES_DOMIBUS);
 		
 		DGrid grid = page.grid();
 		grid.checkChangeNumberOfRows(soft);
@@ -218,7 +218,7 @@ public class TruststorePgUXTests extends SeleniumTest {
 		
 		SoftAssert soft = new SoftAssert();
 		TruststorePage page = new TruststorePage(driver);
-		page.getSidebar().goToPage(PAGES.TRUSTSTORES);
+		page.getSidebar().goToPage(PAGES.TRUSTSTORES_DOMIBUS);
 		
 		DGrid grid = page.grid();
 		grid.getPagination().getPageSizeSelect().selectOptionByText("100");
@@ -240,7 +240,7 @@ public class TruststorePgUXTests extends SeleniumTest {
 		
 		SoftAssert soft = new SoftAssert();
 		TruststorePage page = new TruststorePage(driver);
-		page.getSidebar().goToPage(PAGES.TRUSTSTORES);
+		page.getSidebar().goToPage(PAGES.TRUSTSTORES_DOMIBUS);
 		
 		String fileName = rest.csv().downloadGrid(RestServicePaths.TRUSTSTORE_CSV, null, null);
 		log.info("downloaded file with name " + fileName);

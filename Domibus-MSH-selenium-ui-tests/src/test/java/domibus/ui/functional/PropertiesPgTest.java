@@ -1065,6 +1065,8 @@ public class PropertiesPgTest extends SeleniumTest {
 		String oldVal = modifyProperty("domibus.ui.csv.rows.max", true, "5");
 		page.refreshPage();
 
+		page.grid().waitForRowsToLoad();
+
 		int totalItems = page.grid().getPagination().getTotalItems();
 
 		page.getSaveCSVButton().click();
