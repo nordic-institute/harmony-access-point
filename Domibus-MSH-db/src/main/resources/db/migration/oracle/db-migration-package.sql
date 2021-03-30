@@ -13,7 +13,7 @@
 -- *****************************************************************************************************
 CREATE OR REPLACE PACKAGE MIGRATE_42_TO_50 IS
     -- batch size for commit of the migrated records
-    BATCH_SIZE CONSTANT NUMBER := 10000;
+    BATCH_SIZE CONSTANT NUMBER := 3;
 
     -- enable more verbose logs
     VERBOSE_LOGS CONSTANT BOOLEAN := FALSE;
@@ -920,12 +920,27 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
     /**-- TB_RAWENVELOPE_LOG migration --*/
     PROCEDURE migrate_raw_envelope_log IS
         v_tab              VARCHAR2(30) := 'TB_RAWENVELOPE_LOG';
+        v_tab_user_new     VARCHAR2(30) := 'MIGR_TB_USER_MESSAGE_RAW';
         v_tab_signal_new   VARCHAR2(30) := 'MIGR_TB_SIGNAL_MESSAGE_RAW';
         v_tab_user_message VARCHAR2(30) := 'TB_USER_MESSAGE';
         v_tab_messaging    VARCHAR2(30) := 'TB_MESSAGING';
+        v_count_user       NUMBER       := 0;
+        v_count_signal     NUMBER       := 0;
+        v_tab_migrated     VARCHAR2(30);
         CURSOR c_raw_envelope IS
             SELECT UM.ID_PK, --  1:1 here
-                   SM.ID_PK OLD_ID_PK,
+                   'USER' AS TYPE,
+                   RA.RAW_XML,
+                   RA.CREATION_TIME,
+                   RA.CREATED_BY,
+                   RA.MODIFICATION_TIME,
+                   RA.MODIFIED_BY
+            FROM TB_USER_MESSAGE UM,
+                 TB_RAWENVELOPE_LOG RA
+            WHERE UM.ID_PK = RA.USERMESSAGE_ID_FK
+            UNION ALL
+            SELECT UM.ID_PK, --  1:1 here
+                   'SIGNAL' AS TYPE,
                    RA.RAW_XML,
                    RA.CREATION_TIME,
                    RA.CREATED_BY,
@@ -961,38 +976,68 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             FOR i IN raw_envelope.FIRST .. raw_envelope.LAST
                 LOOP
                     BEGIN
-                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_signal_new ||
-                                          ' (ID_PK, RAW_XML, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY ) ' ||
-                                          'VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6)'
-                            USING raw_envelope(i).ID_PK,
-                            clob_to_blob(raw_envelope(i).RAW_XML),
-                            raw_envelope(i).CREATION_TIME,
-                            raw_envelope(i).CREATED_BY,
-                            raw_envelope(i).MODIFICATION_TIME,
-                            raw_envelope(i).MODIFIED_BY;
+                        IF raw_envelope(i).TYPE = 'USER' THEN
+                            v_count_user := v_count_user + 1;
+                            BEGIN
+                                EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_user_new ||
+                                                  ' (ID_PK, RAW_XML, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY ) ' ||
+                                                  'VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6)'
+                                    USING raw_envelope(i).ID_PK,
+                                    clob_to_blob(raw_envelope(i).RAW_XML),
+                                    raw_envelope(i).CREATION_TIME,
+                                    raw_envelope(i).CREATED_BY,
+                                    raw_envelope(i).MODIFICATION_TIME,
+                                    raw_envelope(i).MODIFIED_BY;
+                            EXCEPTION
+                                WHEN OTHERS THEN
+                                    DBMS_OUTPUT.PUT_LINE('migrate_raw_envelope_log for ' || v_tab_user_new ||
+                                                         '-> execute immediate error: ' ||
+                                                         DBMS_UTILITY.FORMAT_ERROR_STACK);
+                            END;
+
+                        ELSE
+                            v_count_signal := v_count_signal + 1;
+                            BEGIN
+                                EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_signal_new ||
+                                                  ' (ID_PK, RAW_XML, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY ) ' ||
+                                                  'VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6)'
+                                    USING raw_envelope(i).ID_PK,
+                                    clob_to_blob(raw_envelope(i).RAW_XML),
+                                    raw_envelope(i).CREATION_TIME,
+                                    raw_envelope(i).CREATED_BY,
+                                    raw_envelope(i).MODIFICATION_TIME,
+                                    raw_envelope(i).MODIFIED_BY;
+                            EXCEPTION
+                                WHEN OTHERS THEN
+                                    DBMS_OUTPUT.PUT_LINE('migrate_raw_envelope_log for ' || v_tab_signal_new ||
+                                                         '-> execute immediate error: ' ||
+                                                         DBMS_UTILITY.FORMAT_ERROR_STACK);
+                            END;
+                        END IF;
+                        -- just for logging
+                        IF v_count_user > 0 THEN
+                            v_tab_migrated := v_tab_user_new;
+                        ELSE
+                            v_tab_migrated := v_tab_signal_new;
+                        END IF;
                         IF i MOD BATCH_SIZE = 0 THEN
                             COMMIT;
                             DBMS_OUTPUT.PUT_LINE(
-                                        v_tab_signal_new || ': Commit after ' ||
-                                        BATCH_SIZE * v_batch_no || ' records');
+                                        v_tab_migrated || ': Commit after ' || BATCH_SIZE * v_batch_no || ' records');
                             v_batch_no := v_batch_no + 1;
                         END IF;
-                    EXCEPTION
-                        WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_raw_envelope_log -> execute immediate error: ' ||
-                                                 DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
 
                 END LOOP;
             DBMS_OUTPUT.PUT_LINE(
-                        'Migrated ' || raw_envelope.COUNT || ' records in total into ' || v_tab_signal_new);
+                        'Migrated ' || raw_envelope.COUNT || ' records in total into ' || v_tab_migrated);
         END LOOP;
 
         COMMIT;
         CLOSE c_raw_envelope;
 
         -- check counts
-        IF check_counts(v_tab, v_tab_signal_new) THEN
+        IF check_counts(v_tab, v_tab_migrated) THEN
             DBMS_OUTPUT.PUT_LINE(v_tab || ' migration is done');
         END IF;
     END migrate_raw_envelope_log;
