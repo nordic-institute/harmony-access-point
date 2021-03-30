@@ -482,11 +482,12 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
 
         v_table := 'MIGR_TB_SIGNAL_MESSAGE_RAW';
         v_sql := 'CREATE TABLE MIGR_TB_SIGNAL_MESSAGE_RAW (ID_PK NUMBER(38, 0) NOT NULL, RAW_XML BLOB, CREATION_TIME TIMESTAMP DEFAULT sysdate NOT NULL, CREATED_BY VARCHAR2(255) DEFAULT user NOT NULL, MODIFICATION_TIME TIMESTAMP, MODIFIED_BY VARCHAR2(255), CONSTRAINT PK_SIGNAL_MESSAGE_RAW PRIMARY KEY (ID_PK))';
+        create_table(v_table, v_sql);
     END migrate_pre;
     /** -- Helper procedures and functions end -*/
 
     /**-- TB_USER_MESSAGE migration --*/
-    PROCEDURE migrate_tb_user_message IS
+    PROCEDURE migrate_user_message IS
         v_tab        VARCHAR2(30) := 'TB_USER_MESSAGE';
         v_tab_new    VARCHAR2(30) := 'MIGR_TB_USER_MESSAGE';
         v_sql        VARCHAR2(1000);
@@ -560,7 +561,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_tb_user_message -> execute immediate error: ' || DBMS_UTILITY.FORMAT_ERROR_STACK);
+                            DBMS_OUTPUT.PUT_LINE('migrate_user_message -> execute immediate error: ' || DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
 
                 END LOOP;
@@ -575,10 +576,10 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             DBMS_OUTPUT.PUT_LINE(v_tab || ' migration is done');
         END IF;
 
-    END migrate_tb_user_message;
+    END migrate_user_message;
 
     /**-- TB_MESSAGE_FRAGMENT migration --*/
-    PROCEDURE migrate_tb_message_fragment IS
+    PROCEDURE migrate_message_fragment IS
         v_tab              VARCHAR2(30) := 'TB_MESSAGE_FRAGMENT';
         v_tab_new          VARCHAR2(30) := 'MIGR_TB_SJ_MESSAGE_FRAGMENT';
         v_tab_user_message VARCHAR2(30) := 'TB_USER_MESSAGE';
@@ -631,7 +632,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_tb_message_fragment -> execute immediate error: ' || DBMS_UTILITY.FORMAT_ERROR_STACK);
+                            DBMS_OUTPUT.PUT_LINE('migrate_message_fragment -> execute immediate error: ' || DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
 
                 END LOOP;
@@ -646,10 +647,10 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             DBMS_OUTPUT.PUT_LINE(v_tab || ' migration is done');
         END IF;
 
-    END migrate_tb_message_fragment;
+    END migrate_message_fragment;
 
     /**-- TB_MESSAGE_GROUP migration --*/
-    PROCEDURE migrate_tb_message_group IS
+    PROCEDURE migrate_message_group IS
         v_tab                  VARCHAR2(30) := 'TB_MESSAGE_GROUP';
         v_tab_new              VARCHAR2(30) := 'MIGR_TB_SJ_MESSAGE_GROUP';
         v_tab_user_message_new VARCHAR2(30) := 'MIGR_TB_USER_MESSAGE';
@@ -718,7 +719,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_tb_message_group -> execute immediate error: ' || DBMS_UTILITY.FORMAT_ERROR_STACK);
+                            DBMS_OUTPUT.PUT_LINE('migrate_message_group -> execute immediate error: ' || DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
 
                 END LOOP;
@@ -733,10 +734,10 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             DBMS_OUTPUT.PUT_LINE(v_tab || ' migration is done');
         END IF;
 
-    END migrate_tb_message_group;
+    END migrate_message_group;
 
     /**-- TB_MESSAGE_GROUP migration --*/
-    PROCEDURE migrate_tb_message_header IS
+    PROCEDURE migrate_message_header IS
         v_tab               VARCHAR2(30) := 'TB_MESSAGE_HEADER';
         v_tab_new           VARCHAR2(30) := 'MIGR_TB_SJ_MESSAGE_HEADER';
         v_tab_message_group VARCHAR2(30) := 'TB_MESSAGE_GROUP';
@@ -786,7 +787,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_tb_message_header -> execute immediate error: ' || DBMS_UTILITY.FORMAT_ERROR_STACK);
+                            DBMS_OUTPUT.PUT_LINE('migrate_message_header -> execute immediate error: ' || DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
 
                 END LOOP;
@@ -801,11 +802,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             DBMS_OUTPUT.PUT_LINE(v_tab || ' migration is done');
         END IF;
 
-    END migrate_tb_message_header;
+    END migrate_message_header;
 
 
     /**-- TB_SIGNAL_MESSAGE, TB_RECEIPT and TB_RECEIPT_DATA migration --*/
-    PROCEDURE migrate_tb_signal_receipt IS
+    PROCEDURE migrate_signal_receipt IS
         v_tab_signal           VARCHAR2(30) := 'TB_SIGNAL_MESSAGE';
         v_tab_signal_new       VARCHAR2(30) := 'MIGR_TB_SIGNAL_MESSAGE';
         v_tab_messaging        VARCHAR2(30) := 'TB_MESSAGING';
@@ -893,7 +894,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_tb_signal_receipt -> execute immediate error: ' || DBMS_UTILITY.FORMAT_ERROR_STACK);
+                            DBMS_OUTPUT.PUT_LINE('migrate_signal_receipt -> execute immediate error: ' || DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
 
                 END LOOP;
@@ -914,10 +915,90 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
             DBMS_OUTPUT.PUT_LINE(v_tab_receipt || ' and ' || v_tab_receipt_data || ' migration is done');
         END IF;
 
-    END migrate_tb_signal_receipt;
+    END migrate_signal_receipt;
+
+    /**-- TB_RAWENVELOPE_LOG migration --*/
+    PROCEDURE migrate_raw_envelope_log IS
+        v_tab              VARCHAR2(30) := 'TB_RAWENVELOPE_LOG';
+        v_tab_signal_new   VARCHAR2(30) := 'MIGR_TB_SIGNAL_MESSAGE_RAW';
+        v_tab_user_message VARCHAR2(30) := 'TB_USER_MESSAGE';
+        v_tab_messaging    VARCHAR2(30) := 'TB_MESSAGING';
+        CURSOR c_raw_envelope IS
+            SELECT UM.ID_PK, --  1:1 here
+                   SM.ID_PK OLD_ID_PK,
+                   RA.RAW_XML,
+                   RA.CREATION_TIME,
+                   RA.CREATED_BY,
+                   RA.MODIFICATION_TIME,
+                   RA.MODIFIED_BY
+            FROM TB_SIGNAL_MESSAGE SM,
+                 TB_MESSAGING ME,
+                 TB_USER_MESSAGE UM,
+                 TB_RAWENVELOPE_LOG RA
+            WHERE ME.SIGNAL_MESSAGE_ID = SM.ID_PK
+              AND ME.USER_MESSAGE_ID = UM.ID_PK
+              AND SM.ID_PK = RA.SIGNALMESSAGE_ID_FK;
+        TYPE T_RAW_ENVELOPE IS TABLE OF c_raw_envelope%ROWTYPE;
+        raw_envelope       T_RAW_ENVELOPE;
+        v_batch_no         INT          := 1;
+    BEGIN
+        IF NOT check_table_exists(v_tab_messaging) THEN
+            DBMS_OUTPUT.PUT_LINE(v_tab_messaging || ' should exists before starting ' || v_tab || ' migration');
+        END IF;
+        IF NOT check_table_exists(v_tab_user_message) THEN
+            DBMS_OUTPUT.PUT_LINE(
+                        v_tab_user_message || ' should exists before starting ' || v_tab || ' migration');
+        END IF;
+
+        /** migrate old columns and add data into dictionary tables */
+        DBMS_OUTPUT.PUT_LINE(
+                    v_tab || ' migration started...');
+        OPEN c_raw_envelope;
+        LOOP
+            FETCH c_raw_envelope BULK COLLECT INTO raw_envelope;
+            EXIT WHEN raw_envelope.COUNT = 0;
+
+            FOR i IN raw_envelope.FIRST .. raw_envelope.LAST
+                LOOP
+                    BEGIN
+                        EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_signal_new ||
+                                          ' (ID_PK, RAW_XML, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY ) ' ||
+                                          'VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6)'
+                            USING raw_envelope(i).ID_PK,
+                            clob_to_blob(raw_envelope(i).RAW_XML),
+                            raw_envelope(i).CREATION_TIME,
+                            raw_envelope(i).CREATED_BY,
+                            raw_envelope(i).MODIFICATION_TIME,
+                            raw_envelope(i).MODIFIED_BY;
+                        IF i MOD BATCH_SIZE = 0 THEN
+                            COMMIT;
+                            DBMS_OUTPUT.PUT_LINE(
+                                        v_tab_signal_new || ': Commit after ' ||
+                                        BATCH_SIZE * v_batch_no || ' records');
+                            v_batch_no := v_batch_no + 1;
+                        END IF;
+                    EXCEPTION
+                        WHEN OTHERS THEN
+                            DBMS_OUTPUT.PUT_LINE('migrate_raw_envelope_log -> execute immediate error: ' ||
+                                                 DBMS_UTILITY.FORMAT_ERROR_STACK);
+                    END;
+
+                END LOOP;
+            DBMS_OUTPUT.PUT_LINE(
+                        'Migrated ' || raw_envelope.COUNT || ' records in total into ' || v_tab_signal_new);
+        END LOOP;
+
+        COMMIT;
+        CLOSE c_raw_envelope;
+
+        -- check counts
+        IF check_counts(v_tab, v_tab_signal_new) THEN
+            DBMS_OUTPUT.PUT_LINE(v_tab || ' migration is done');
+        END IF;
+    END migrate_raw_envelope_log;
 
     /**-- TB_MESSAGE_LOG migration --*/
-    PROCEDURE migrate_tb_message_log IS
+    PROCEDURE migrate_message_log IS
         v_tab            VARCHAR2(30) := 'TB_MESSAGE_LOG';
         v_tab_user_new   VARCHAR2(30) := 'MIGR_TB_USER_MESSAGE_LOG';
         v_tab_signal_new VARCHAR2(30) := 'MIGR_TB_SIGNAL_MESSAGE_LOG';
@@ -1011,7 +1092,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         END IF;
                     EXCEPTION
                         WHEN OTHERS THEN
-                            DBMS_OUTPUT.PUT_LINE('migrate_tb_message_log -> execute immediate error: ' || DBMS_UTILITY.FORMAT_ERROR_STACK);
+                            DBMS_OUTPUT.PUT_LINE('migrate_message_log -> execute immediate error: ' || DBMS_UTILITY.FORMAT_ERROR_STACK);
                     END;
 
                 END LOOP;
@@ -1023,10 +1104,10 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
 
         COMMIT;
         CLOSE c_message_log;
-    END migrate_tb_message_log;
+    END migrate_message_log;
 
     /**-- TB_USER_MESSAGE migration post actions --*/
-    PROCEDURE migrate_tb_user_message_post IS
+    PROCEDURE migrate_user_message_post IS
     BEGIN
 
         BEGIN
@@ -1046,14 +1127,14 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                 DBMS_OUTPUT.PUT_LINE('Execute immediate error: ' || DBMS_UTILITY.FORMAT_ERROR_STACK);
         END;
         --  drop_table_if_exists('TB_USER_MESSAGE');
-    END migrate_tb_user_message_post;
+    END migrate_user_message_post;
 
     /** -- Migration post actions --*/
     PROCEDURE migrate_post IS
     BEGIN
         DBMS_OUTPUT.PUT_LINE('Migration post actions start...');
 
-        migrate_tb_user_message_post;
+        migrate_user_message_post;
 
         --  drop_table_if_exists('TB_MESSAGE_GROUP');
         --  drop_table_if_exists('TB_MESSAGE_FRAGMENT');
@@ -1069,13 +1150,15 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         migrate_pre;
 
         -- keep it in this order
-        migrate_tb_user_message;
-        migrate_tb_message_fragment;
-        migrate_tb_message_group;
-        migrate_tb_message_header;
+        migrate_user_message;
+        migrate_message_fragment;
+        migrate_message_group;
+        migrate_message_header;
 
-        migrate_tb_signal_receipt;
-        migrate_tb_message_log;
+        migrate_signal_receipt;
+        migrate_message_log;
+
+        migrate_raw_envelope_log;
 
         -- house keeping
         migrate_post;
