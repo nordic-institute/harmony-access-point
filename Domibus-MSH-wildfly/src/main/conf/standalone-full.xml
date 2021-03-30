@@ -206,7 +206,7 @@
                     </validation>
                 </datasource>
                 -->
-                <datasource jndi-name="java:/jdbc/cipaeDeliveryDs" pool-name="eDeliveryMysql" enabled="true" use-ccm="true">
+                <datasource jndi-name="java:/jdbc/cipaeDeliveryDs" pool-name="eDeliveryMysqlDS" enabled="true" use-ccm="true">
                     <connection-url>jdbc:mysql://localhost:3306/domibus?autoReconnect=true&amp;useSSL=false</connection-url>
                     <!--Connector/J 8.0.x -->
                     <driver-class>com.mysql.cj.jdbc.Driver</driver-class>
@@ -230,7 +230,7 @@
                     </validation>
                 </datasource>
                 <!-- Oracle
-                <datasource jndi-name="java:/jdbc/cipaeDeliveryDs" pool-name="eDeliveryOracle" enabled="true" use-ccm="true">
+                <datasource jndi-name="java:/jdbc/cipaeDeliveryDs" pool-name="eDeliveryOracleDS" enabled="true" use-ccm="true">
                     <connection-url>jdbc:oracle:thin:@localhost:1521[:SID|/Service]</connection-url>
                     <driver-class>oracle.jdbc.OracleDriver</driver-class>
                     <driver>com.oracle</driver>
