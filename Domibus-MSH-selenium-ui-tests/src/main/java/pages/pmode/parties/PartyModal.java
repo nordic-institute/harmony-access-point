@@ -141,6 +141,7 @@ public class PartyModal extends EditModal {
 		
 		log.info("Scroll to the bottom");
 		((JavascriptExecutor) driver).executeScript("document.querySelector('app-party-details > mat-dialog-content > form > div').scrollTo(0, 1000)");
+
 		DGrid processTable = getProcessTable();
 		int index = processTable.scrollTo("Process", processName);
 		if(index>=0){
