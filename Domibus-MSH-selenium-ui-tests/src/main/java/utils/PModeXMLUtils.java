@@ -206,6 +206,12 @@ public class PModeXMLUtils {
 			}
 		}
 	}
+	public String getCurrentPartyID() {
+		String currentPartyID = doc.getChildNodes().item(0).getAttributes().getNamedItem("party").getChildNodes().item(0).getTextContent();
+
+		log.debug("identified party name: " + currentPartyID);
+		return currentPartyID;
+	}
 	
 	
 }

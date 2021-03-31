@@ -27,8 +27,6 @@ public class ConnectionMonitoringPage extends DomibusPage {
 	
 	@FindBy(id = "pageGridId")
 	private WebElement gridContainer;
-	@FindBy(css = "div[class=\"connection-status ng-star-inserted\"] >span >mat-icon")
-	public List<WebElement> connectionStatusIcons;
 	
 	public ConMonGrid grid(){
 		return new ConMonGrid(driver, gridContainer);

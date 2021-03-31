@@ -60,4 +60,14 @@ public class PModePartiesPage extends DomibusPage {
 		return new PartiesFilters(driver);
 	}
 
+	public String getNoResIniPartyId(int noOfParty) throws Exception {
+		for (int i = 0; i < noOfParty; i++) {
+			if (grid().getRowSpecificColumnVal(i, "Process (I=Initiator, R=Responder, IR=Both)").isEmpty())
+			{
+				return grid().getRowSpecificColumnVal(i, "Party Id");
+			}
+		}
+		return "";
+	}
+
 }

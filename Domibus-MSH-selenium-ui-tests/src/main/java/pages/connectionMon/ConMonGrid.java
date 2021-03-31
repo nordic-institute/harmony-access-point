@@ -13,7 +13,13 @@ import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 import java.util.List;
 
 public class ConMonGrid extends DGrid {
-	
+
+	@FindBy(css = "datatable-row-wrapper > datatable-body-row div.connection-status.ng-star-inserted div span")
+	public List<WebElement> sentRecvStatusDetail;
+	@FindBy(css = "div[class=\"connection-status ng-star-inserted\"] >span >mat-icon")
+	public List<WebElement> connectionStatusIcons;
+
+
 	public ConMonGrid(WebDriver driver, WebElement container) {
 		super(driver, container);
 		PageFactory.initElements(new AjaxElementLocatorFactory(driver, data.getTIMEOUT()), this);
@@ -103,13 +109,30 @@ public class ConMonGrid extends DGrid {
 		
 		return new DButton(driver, lsEl);
 	}
-	
-	public List<WebElement> getActionButton(String buttonName){
-		return driver.findElements(By.cssSelector("button[tooltip=\""+ buttonName+"\"]"));
 
+	public DButton getActionButton(String buttonName,int i){
+		WebElement actionIccon;
+		try {
+			actionIccon = gridRows.get(i).findElements(cellSelector).get(3).findElement(By.cssSelector("button[tooltip=\"" + buttonName + "\"]"));
+		}catch(Exception e){
+			return null ;
+		}
+		return new DButton(driver, actionIccon);
 	}
-	
-	
-	
-	
+
+	public String getSendRecStatus(String process, int rowIndex) throws Exception {
+		if(process.equals("Send")){
+			return sentRecvStatusDetail.get(2*rowIndex).getText();
+		}
+		else if(process.equalsIgnoreCase("Receive")){
+			return sentRecvStatusDetail.get(2 * rowIndex+1).getText();
+
+		}
+		else{
+			throw new Exception("Other than send or receive status is demanded");
+		}
+	}
+
+
+
 }
