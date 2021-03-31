@@ -71,6 +71,10 @@ export class MessageLogComponent extends mix(BaseListComponent)
   conversationIdValue: String;
   resendReceivedMinutes: number;
 
+  additionalPages: number;
+  totalRowsMessage: string;
+  estimatedCount: boolean;
+
   constructor(private applicationService: ApplicationContextService, private http: HttpClient, private alertService: AlertService,
               private domibusInfoService: DomibusInfoService, public dialog: MatDialog, public dialogsService: DialogsService,
               private elementRef: ElementRef, private changeDetector: ChangeDetectorRef, private propertiesService: PropertiesService,
@@ -87,6 +91,10 @@ export class MessageLogComponent extends mix(BaseListComponent)
 
     super.orderBy = 'received';
     super.asc = false;
+
+    this.additionalPages = 0;
+    this.totalRowsMessage = '$1 total';
+    this.estimatedCount = false;
 
     this.messageResent = new EventEmitter(false);
 
@@ -245,7 +253,7 @@ export class MessageLogComponent extends mix(BaseListComponent)
   }
 
   public setServerResults(result: MessageLogResult) {
-    super.count = result.count;
+    this.calculateCount(result);
     super.rows = result.messageLogEntries;
 
     if (result.filter.receivedFrom) {
@@ -261,6 +269,27 @@ export class MessageLogComponent extends mix(BaseListComponent)
     this.msgTypes = result.msgTypes;
     this.msgStatuses = result.msgStatus.sort();
     this.notifStatus = result.notifStatus;
+  }
+
+  private calculateCount(result: MessageLogResult) {
+    this.estimatedCount = result.estimatedCount;
+    if (result.estimatedCount) {
+      if (result.messageLogEntries.length < this.rowLimiter.pageSize) {
+        this.additionalPages--;
+      }
+      super.count = result.count + this.additionalPages * this.rowLimiter.pageSize;
+      this.totalRowsMessage = 'more than $1';
+    } else {
+      super.count = result.count;
+      this.totalRowsMessage = '$1 total';
+    }
+  }
+
+  public async onPage(event) {
+    if (this.estimatedCount && ((event.offset + 1) * this.rowLimiter.pageSize > this.count)) {
+      this.additionalPages++;
+    }
+    super.onPage(event);
   }
 
   resendDialog() {

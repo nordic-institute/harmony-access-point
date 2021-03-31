@@ -36,11 +36,13 @@ import eu.domibus.messaging.MessagingProcessingException;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.commons.lang3.time.DateUtils;
+import org.hibernate.Session;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.jms.Queue;
+import javax.persistence.EntityManager;
 import java.sql.Timestamp;
 import java.util.*;
 
@@ -172,6 +174,12 @@ public class UserMessageDefaultServiceTest {
 
     @Injectable
     NonRepudiationService nonRepudiationService;
+
+    @Injectable
+    private UserMessageDao userMessageDao;
+
+    @Injectable("domibusJTA")
+    EntityManager em;
 
     @Test
     public void createMessagingForFragment(@Injectable UserMessage sourceMessage,
@@ -597,7 +605,7 @@ public class UserMessageDefaultServiceTest {
     }
 
     @Test
-    public void testDeleteMessaged(@Injectable UserMessageLog userMessageLog) {
+    public void testDeleteMessage(@Injectable UserMessageLog userMessageLog) {
         final String messageId = "1";
 
         new Expectations(userMessageDefaultService) {{
@@ -612,9 +620,15 @@ public class UserMessageDefaultServiceTest {
     }
 
     @Test
-    public void testDeleteMessages(@Injectable UserMessageLogDto uml1, @Injectable UserMessageLogDto uml2) {
+    public void testDeleteMessages(@Mocked Session s, @Mocked EntityManager em1, @Injectable UserMessageLogDto uml1, @Injectable UserMessageLogDto uml2) {
         List<UserMessageLogDto> userMessageLogDtos = Arrays.asList(uml1, uml2);
 
+        new Expectations() {{
+            em1.unwrap(Session.class);
+            result = s;
+        }};
+
+        Deencapsulation.setField(userMessageDefaultService, "em", em1);
         userMessageDefaultService.deleteMessages(userMessageLogDtos);
 
         new Verifications() {{

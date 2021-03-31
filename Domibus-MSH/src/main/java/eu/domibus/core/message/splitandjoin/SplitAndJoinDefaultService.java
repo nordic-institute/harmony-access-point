@@ -1,10 +1,10 @@
 package eu.domibus.core.message.splitandjoin;
 
-import eu.domibus.api.model.*;
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.model.Error;
+import eu.domibus.api.model.*;
 import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
 import eu.domibus.api.model.splitandjoin.MessageHeaderEntity;
 import eu.domibus.api.multitenancy.DomainContextProvider;
@@ -28,7 +28,7 @@ import eu.domibus.core.error.ErrorService;
 import eu.domibus.core.message.*;
 import eu.domibus.core.message.compression.CompressionService;
 import eu.domibus.core.message.receipt.AS4ReceiptService;
-import eu.domibus.core.message.retention.MessageRetentionService;
+import eu.domibus.core.message.retention.MessageRetentionDefaultService;
 import eu.domibus.core.payload.persistence.PayloadPersistence;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorage;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
@@ -143,7 +143,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
     protected EbMS3MessageBuilder messageBuilder;
 
     @Autowired
-    protected MessageRetentionService messageRetentionService;
+    protected MessageRetentionDefaultService messageRetentionService;
 
     @Autowired
     protected MessageGroupService messageGroupService;
@@ -594,7 +594,8 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
             throw new SplitAndJoinException(ERROR_GENERATING_THE_SIGNAL_SOAPMESSAGE_FOR_SOURCE_MESSAGE + sourceMessageId + "]: no message fragments found");
         }
 
-        messageRetentionService.scheduleDeleteMessages(userMessageFragments);
+        final List<String> userMessageIds = userMessageFragments.stream().map(userMessage -> userMessage.getMessageInfo().getMessageId()).collect(Collectors.toList());
+        messageRetentionService.scheduleDeleteMessages(userMessageIds);
 
         if (StringUtils.isNotEmpty(sourceMessageId)) {
             LOG.debug("Scheduling sending the Signal error for SourceMessage [{}]", sourceMessageId);

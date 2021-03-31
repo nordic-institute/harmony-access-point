@@ -24,6 +24,9 @@ import javax.persistence.*;
         @NamedQuery(name = "Messaging.emptyPayloads", query = "update PartInfo p set p.binaryData = null where p in :PARTINFOS"),
         @NamedQuery(name = "Messaging.findSignalMessageByUserMessageId",
                 query = "select messaging.signalMessage from Messaging messaging where messaging.signalMessage.messageInfo.refToMessageId = :MESSAGE_ID"),
+        @NamedQuery(name = "Messaging.deleteMessages", query = "delete from Messaging mi where mi.id in :MESSAGEIDS"),
+        @NamedQuery(name = "Messaging.find",
+                query = "select messaging from Messaging messaging where messaging.userMessage.messageInfo.messageId IN :MESSAGEIDS"),
 })
 public class Messaging extends AbstractBaseEntity {
 
@@ -31,11 +34,11 @@ public class Messaging extends AbstractBaseEntity {
     protected String id;
 
     @JoinColumn(name = "SIGNAL_MESSAGE_ID")
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     protected SignalMessage signalMessage;
 
     @JoinColumn(name = "USER_MESSAGE_ID")
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     protected UserMessage userMessage;
 
     public SignalMessage getSignalMessage() {

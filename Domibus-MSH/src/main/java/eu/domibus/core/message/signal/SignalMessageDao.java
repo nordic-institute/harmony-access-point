@@ -78,5 +78,13 @@ public class SignalMessageDao extends BasicDao<SignalMessage> {
         LOG.debug("Xml data for signal message [" + signalMessage.getMessageInfo().getMessageId() + "] have been cleared");
     }
 
-
+    @Timer(clazz = SignalMessageDao.class,value = "findSignalMessage")
+    @Counter(clazz = SignalMessageDao.class,value = "findSignalMessage")
+    public List<SignalMessage> findSignalMessages(List<String> userMessageIds) {
+        final TypedQuery<SignalMessage> query = em.createNamedQuery("SignalMessage.find", SignalMessage.class);
+        query.setParameter("MESSAGEIDS", userMessageIds);
+        List<SignalMessage> signalMessages = query.getResultList();
+        LOG.debug("Number of signal messages Found ids [{}]", signalMessages.size());
+        return signalMessages;
+    }
 }

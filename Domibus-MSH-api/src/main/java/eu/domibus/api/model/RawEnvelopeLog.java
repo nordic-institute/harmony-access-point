@@ -17,11 +17,11 @@ import javax.persistence.*;
                 "FROM RawEnvelopeLog l where l.userMessage.entityId=:USER_MESSAGE_ID"),
 })
 public class RawEnvelopeLog extends AbstractBaseEntity {
-    @OneToOne(cascade = CascadeType.REMOVE)
+    @OneToOne(cascade = CascadeType.REMOVE, orphanRemoval = true)
     @JoinColumn(name = "USERMESSAGE_ID_FK")
     protected UserMessage userMessage;
 
-    @OneToOne(cascade = CascadeType.REMOVE)
+    @OneToOne(cascade = CascadeType.REMOVE, orphanRemoval = true)
     @JoinColumn(name = "SIGNALMESSAGE_ID_FK")
     protected SignalMessage signalMessage;
 
