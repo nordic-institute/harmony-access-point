@@ -140,9 +140,6 @@ public class ConnectionMonitorTest extends SeleniumTest {
 				modalTest.getCloseBtn().click();
 			}
 
-//			} else {
-//				throw new SkipException("No party available for error scenarios");
-//			}
 		}
 		soft.assertAll();
 	}
@@ -181,13 +178,6 @@ public class ConnectionMonitorTest extends SeleniumTest {
 		rest.pmode().uploadPMode("pmodes/Edelivery-blue.xml", page.getDomainFromTitle());
 
 		page.getSidebar().goToPage(PAGES.CONNECTION_MONITORING);
-		int noOfParties = rest.connMonitor().getConnectionMonitoringParties(page.getDomainFromTitle()).length();
-
-
-		//for (int i = 0; i < noOfParties; i++) {
-
-			String beforeSentData = page.grid().getSendRecStatus("Send", 0);
-			soft.assertFalse(beforeSentData.contains("a few seconds ago"), "Before sent data does not have time difference in seconds");
 
 			page.grid().getActionButton("Send", 0).click();
 			new DWait(driver).forXMillis(100);
@@ -197,8 +187,7 @@ public class ConnectionMonitorTest extends SeleniumTest {
 			String afterSentData = page.grid().getSendRecStatus("Send", 0);
 
 			soft.assertTrue(afterSentData.contains("a few seconds ago"), "After sent data contains time difference in seconds");
-			soft.assertFalse(beforeSentData.equals(afterSentData), "both are different");
-		//}
+
 		soft.assertAll();
 
 
@@ -297,9 +286,9 @@ public class ConnectionMonitorTest extends SeleniumTest {
 		String currentParty = pModeXMLUtils.getCurrentPartyName();
 		page.getSidebar().goToPage(PAGES.TRUSTSTORES_DOMIBUS);
 		TruststorePage tPage = new TruststorePage(driver);
-		String path = DFileUtils.getAbsolutePath("./src/main/resources/truststore/gateway_truststore_noRecCert.jks");
+		String pathToInvalidCert = DFileUtils.getAbsolutePath("./src/main/resources/truststore/gateway_truststore_noRecCert.jks");
 
-		tPage.uploadFile(path, "test123", soft);
+		tPage.uploadFile(pathToInvalidCert, "test123", soft);
 		log.info(page.getAlertArea().getAlertMessage(), " Message after upload event");
 
 		page.getSidebar().goToPage(PAGES.CONNECTION_MONITORING);
@@ -310,15 +299,19 @@ public class ConnectionMonitorTest extends SeleniumTest {
 			String actualErrMsg = getAlrtForTestMsg(page, 0, "Details", modal);
 			String certError = String.format(DMessages.CONNECTION_MONITORING_CERT_ERROR, partyName, "red_gw");
 			soft.assertTrue(actualErrMsg.equals(certError), "Correct error is shown");
+			modal.getCloseBtn().click();
 
 		}
+		page.getSidebar().goToPage(PAGES.TRUSTSTORES_DOMIBUS);
+
+		String pathToCorrectCert = DFileUtils.getAbsolutePath("./src/main/resources/truststore/gateway_truststore.jks");
+		tPage.uploadFile(pathToCorrectCert, "test123", soft);
 		soft.assertAll();
 
 	}
 
 	public String getAlrtForTestMsg(ConnectionMonitoringPage page, int i, String actionBtnName, TestMessDetailsModal modal) throws Exception {
 		page.grid().getActionButton(actionBtnName, i).click();
-		page.getAlertArea().closeButton.click();
 
 		modal.getTestbutton().click();
 		new DWait(driver).forXMillis(100);
