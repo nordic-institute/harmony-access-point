@@ -125,13 +125,12 @@ public class PartyModal extends EditModal {
 		wait.forElementToBeVisible(partyHeader);
 		JavascriptExecutor js = (JavascriptExecutor) driver;
 		log.info("Scroll horizontally");
-		js.executeScript("document.querySelector('app-party-details > mat-dialog-content > form > div').scrollTo(0, 1500)");
+		js.executeScript("document.querySelector('app-party-details > mat-dialog-content > form > div').scrollTo(0, 1000)");
 		
 		List<WebElement> checkboxes = wait.defaultWait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(By.tagName("mat-checkbox")));
 		for (WebElement checkbox : checkboxes) {
 			weToCheckbox(checkbox).check();
 		}
-		new DWait(driver).forXMillis(100);
 
 		log.info("Click on Ok button");
 		getOkBtn().click();
@@ -141,8 +140,7 @@ public class PartyModal extends EditModal {
 		wait.forElementToBeVisible(partyHeader);
 		
 		log.info("Scroll to the bottom");
-		((JavascriptExecutor) driver).executeScript("document.querySelector('app-party-details > mat-dialog-content > form > div').scrollTo(0, 1200)");
-		new DWait(driver).forXMillis(2000);
+		((JavascriptExecutor) driver).executeScript("document.querySelector('app-party-details > mat-dialog-content > form > div').scrollTo(0, 1000)");
 		DGrid processTable = getProcessTable();
 		int index = processTable.scrollTo("Process", processName);
 		if(index>=0){
