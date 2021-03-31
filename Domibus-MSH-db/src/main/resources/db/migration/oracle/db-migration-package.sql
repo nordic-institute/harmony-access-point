@@ -9,11 +9,11 @@
 -- VERBOSE_LOGS - more information into the logs; default to false
 --
 -- Tables which are migrated: TB_USER_MESSAGE, TB_MESSAGE_FRAGMENT, TB_MESSAGE_GROUP, TB_MESSAGE_HEADER,
--- TB_MESSAGE_LOG, TB_RECEIPT, TB_RECEIPT_DATA
+-- TB_MESSAGE_LOG, TB_RECEIPT, TB_RECEIPT_DATA, TB_RAWENVELOPE_LOG
 -- *****************************************************************************************************
 CREATE OR REPLACE PACKAGE MIGRATE_42_TO_50 IS
     -- batch size for commit of the migrated records
-    BATCH_SIZE CONSTANT NUMBER := 3;
+    BATCH_SIZE CONSTANT NUMBER := 10;
 
     -- enable more verbose logs
     VERBOSE_LOGS CONSTANT BOOLEAN := FALSE;
@@ -926,7 +926,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         v_tab_messaging    VARCHAR2(30) := 'TB_MESSAGING';
         v_count_user       NUMBER       := 0;
         v_count_signal     NUMBER       := 0;
-        v_tab_migrated     VARCHAR2(30);
+        v_tab_migrated     VARCHAR2(30) := v_tab_signal_new;
         CURSOR c_raw_envelope IS
             SELECT UM.ID_PK, --  1:1 here
                    'USER' AS TYPE,
@@ -965,7 +965,6 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                         v_tab_user_message || ' should exists before starting ' || v_tab || ' migration');
         END IF;
 
-        /** migrate old columns and add data into dictionary tables */
         DBMS_OUTPUT.PUT_LINE(
                     v_tab || ' migration started...');
         OPEN c_raw_envelope;
