@@ -1,6 +1,6 @@
 package eu.domibus.core.plugin.routing;
 
-import eu.domibus.api.model.Service;
+import eu.domibus.api.model.ServiceEntity;
 import eu.domibus.api.model.UserMessage;
 
 /**
@@ -44,7 +44,7 @@ public class ServiceRoutingCriteriaFactory implements CriteriaFactory {
         @Override
         public boolean matches(final UserMessage userMessage, final String expression) {
             setExpression(expression);
-            final Service service = userMessage.getService();
+            final ServiceEntity service = userMessage.getService();
             return matches(service.getValue() + ":" + service.getType());
         }
 

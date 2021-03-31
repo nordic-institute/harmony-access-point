@@ -1,49 +1,7 @@
 package eu.domibus.core.plugin.handler;
 
-import eu.domibus.api.ebms3.Ebms3Constants;
-import eu.domibus.api.exceptions.DomibusCoreErrorCode;
-import eu.domibus.api.jms.JMSManager;
-import eu.domibus.api.model.Property;
-import eu.domibus.api.model.Service;
-import eu.domibus.api.model.*;
-import eu.domibus.api.pmode.PModeException;
-import eu.domibus.api.security.AuthUtils;
-import eu.domibus.common.ErrorCode;
-import eu.domibus.common.ErrorResult;
-import eu.domibus.common.model.configuration.*;
-import eu.domibus.core.ebms3.EbMS3Exception;
-import eu.domibus.core.error.ErrorLogDao;
-import eu.domibus.core.error.ErrorLogEntry;
-import eu.domibus.core.generator.id.MessageIdGenerator;
-import eu.domibus.core.message.*;
-import eu.domibus.core.message.compression.CompressionException;
-import eu.domibus.core.message.compression.CompressionService;
-import eu.domibus.core.message.pull.PullMessageService;
-import eu.domibus.core.message.signal.SignalMessageDao;
-import eu.domibus.core.message.signal.SignalMessageLogDao;
-import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
-import eu.domibus.core.payload.PayloadProfileValidator;
-import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
-import eu.domibus.core.plugin.transformer.SubmissionAS4Transformer;
-import eu.domibus.core.pmode.PModeDefaultService;
-import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.core.pmode.validation.validators.MessagePropertyValidator;
-import eu.domibus.core.pmode.validation.validators.PropertyProfileValidator;
-import eu.domibus.core.replication.UIReplicationSignalService;
-import eu.domibus.logging.DomibusLogger;
-import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.messaging.*;
-import eu.domibus.plugin.Submission;
-import mockit.*;
 import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.security.access.AccessDeniedException;
-
-import javax.jms.Queue;
-import java.io.IOException;
-import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 

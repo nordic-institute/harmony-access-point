@@ -394,7 +394,7 @@ public class BackendMessageValidator {
         }
     }
 
-    protected void validateService(final eu.domibus.api.model.Service service) throws EbMS3Exception {
+    protected void validateService(final ServiceEntity service) throws EbMS3Exception {
         if (service == null || isBlank(service.getValue())) {
             LOG.businessError(MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "Service");
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0009, "Mandatory field Service is not provided.", null, null);

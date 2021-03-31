@@ -1,7 +1,6 @@
 package eu.domibus.core.message;
 
-import eu.domibus.api.model.MessageProperty;
-import eu.domibus.api.model.Mpc;
+import eu.domibus.api.model.MpcEntity;
 import eu.domibus.core.dao.BasicDao;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
@@ -13,25 +12,25 @@ import javax.persistence.TypedQuery;
  * @since 5.0
  */
 @Repository
-public class MpcDao extends BasicDao<Mpc> {
+public class MpcDao extends BasicDao<MpcEntity> {
 
     public MpcDao() {
-        super(Mpc.class);
+        super(MpcEntity.class);
     }
 
-    public Mpc findOrCreateMpc(String value) {
-        Mpc mpc = findMpc(value);
+    public MpcEntity findOrCreateMpc(String value) {
+        MpcEntity mpc = findMpc(value);
         if (mpc != null) {
             return mpc;
         }
-        Mpc newMpc = new Mpc();
+        MpcEntity newMpc = new MpcEntity();
         newMpc.setValue(value);
         create(newMpc);
         return newMpc;
     }
 
-    public Mpc findMpc(final String mpc) {
-        final TypedQuery<Mpc> query = this.em.createNamedQuery("Mpc.findByValue", Mpc.class);
+    public MpcEntity findMpc(final String mpc) {
+        final TypedQuery<MpcEntity> query = this.em.createNamedQuery("Mpc.findByValue", MpcEntity.class);
         query.setParameter("MPC", mpc);
         return DataAccessUtils.singleResult(query.getResultList());
     }

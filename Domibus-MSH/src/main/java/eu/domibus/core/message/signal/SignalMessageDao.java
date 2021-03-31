@@ -1,17 +1,13 @@
 package eu.domibus.core.message.signal;
 
-import eu.domibus.api.model.MessageType;
-import eu.domibus.core.dao.BasicDao;
 import eu.domibus.api.model.SignalMessage;
-import eu.domibus.core.message.UserMessageDao;
+import eu.domibus.core.dao.BasicDao;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
@@ -69,12 +65,12 @@ public class SignalMessageDao extends BasicDao<SignalMessage> {
         return query.getResultList();
     }
 
-    @Timer(clazz = SignalMessageDao.class,value = "deleteMessages.deleteReceipts")
-    @Counter(clazz = SignalMessageDao.class,value = "deleteMessages.deleteReceipts")
+    @Timer(clazz = SignalMessageDao.class, value = "deleteMessages.deleteReceipts")
+    @Counter(clazz = SignalMessageDao.class, value = "deleteMessages.deleteReceipts")
     public int deleteReceipts(List<Long> receiptIds) {
         final Query deleteQuery = em.createNamedQuery("Receipt.deleteReceipts");
         deleteQuery.setParameter("RECEIPTIDS", receiptIds);
-        int result  = deleteQuery.executeUpdate();
+        int result = deleteQuery.executeUpdate();
         LOG.trace("deleteReceipts result [{}]", result);
         return result;
     }

@@ -111,15 +111,15 @@ public class UserMessageDefaultFactory implements UserMessageFactory {
         return result;
     }
 
-    protected Action createAction(UserMessage userMessage) {
-        Action result = new Action();
+    protected ActionEntity createAction(UserMessage userMessage) {
+        ActionEntity result = new ActionEntity();
         result.setValue(userMessage.getActionValue());
         return result;
     }
 
-    protected eu.domibus.api.model.Service createService(UserMessage userMessage) {
-        eu.domibus.api.model.Service result = new eu.domibus.api.model.Service();
-        eu.domibus.api.model.Service userMessageService = userMessage.getService();
+    protected ServiceEntity createService(UserMessage userMessage) {
+        ServiceEntity result = new ServiceEntity();
+        ServiceEntity userMessageService = userMessage.getService();
         result.setType(userMessageService.getType());
         result.setValue(userMessageService.getValue());
         return result;

@@ -38,6 +38,7 @@ public class SignalMessage extends AbstractNoGeneratedPkEntity {
     private Date timestamp;
 
     @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ID_PK", nullable = false)
     @MapsId
     private UserMessage userMessage;
 

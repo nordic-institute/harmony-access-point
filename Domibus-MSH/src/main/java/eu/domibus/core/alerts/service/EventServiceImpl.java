@@ -18,6 +18,7 @@ import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.message.MessageExchangeConfiguration;
 import eu.domibus.core.message.MessagingDao;
+import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.pull.MpcService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.user.UserEntityBase;
@@ -72,7 +73,7 @@ public class EventServiceImpl implements EventService {
     private PModeProvider pModeProvider;
 
     @Autowired
-    private MessagingDao messagingDao;
+    private UserMessageDao userMessageDao;
 
     @Autowired
     private ErrorLogDao errorLogDao;
@@ -197,7 +198,7 @@ public class EventServiceImpl implements EventService {
         }
         final String messageId = messageIdProperty.get();
         final String role = roleProperty.get();
-        final UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
+        final UserMessage userMessage = userMessageDao.findByMessageId(messageId);
         final MessageExchangeConfiguration userMessageExchangeContext;
         try {
             String errors = errorLogDao

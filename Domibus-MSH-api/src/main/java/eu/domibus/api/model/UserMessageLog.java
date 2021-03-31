@@ -155,7 +155,7 @@ public class UserMessageLog extends AbstractNoGeneratedPkEntity {
     private MSHRoleEntity mshRole;
 
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
-    @JoinColumn(name = "MSH_ROLE_ID_FK")
+    @JoinColumn(name = "NOTIFICATION_STATUS_ID_FK")
     private NotificationStatusEntity notificationStatus;
 
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
@@ -163,6 +163,7 @@ public class UserMessageLog extends AbstractNoGeneratedPkEntity {
     private MessageSubtypeEntity messageSubtype;
 
     @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ID_PK")
     @MapsId
     private UserMessage userMessage;
 

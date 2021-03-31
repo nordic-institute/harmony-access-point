@@ -20,6 +20,7 @@ import eu.domibus.core.generator.id.MessageIdGenerator;
 import eu.domibus.core.message.*;
 import eu.domibus.core.message.compression.CompressionException;
 import eu.domibus.core.message.pull.PullMessageService;
+import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
 import eu.domibus.core.metrics.Counter;
@@ -101,13 +102,13 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     private SubmissionAS4Transformer transformer;
 
     @Autowired
-    private MessagingDao messagingDao;
+    private UserMessageDao userMessageDao;
 
     @Autowired
     private MessagingService messagingService;
 
     @Autowired
-    private SignalMessageLogDao signalMessageLogDao;
+    private SignalMessageDao signalMessageDao;
 
     @Autowired
     private UserMessageLogDao userMessageLogDao;
@@ -159,13 +160,12 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     public Submission downloadMessage(final String messageId) throws MessageNotFoundException {
         LOG.info("Downloading message with id [{}]", messageId);
 
-        Messaging messaging = messagingDao.findMessageByMessageId(messageId);
-        if (messaging == null) {
+        final UserMessage userMessage = userMessageDao.findByMessageId(messageId);
+        if (userMessage == null) {
             throw new MessageNotFoundException(MESSAGE_WITH_ID_STR + messageId + WAS_NOT_FOUND_STR);
         }
 
         final UserMessageLog messageLog = userMessageLogDao.findByMessageId(messageId);
-        UserMessage userMessage = messaging.getUserMessage();
         if (MessageStatus.DOWNLOADED == messageLog.getMessageStatus()) {
             LOG.debug("Message [{}] is already downloaded", messageId);
             List<PartInfo> partInfoList = partInfoDao.findPartInfoByUserMessageEntityId(messageLog.getEntityId());
@@ -182,7 +182,9 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
             // Sets the message log status to DELETED
             userMessageLogService.setMessageAsDeleted(userMessage, messageLog);
             // Sets the log status to deleted also for the signal messages (if present).
-            userMessageLogService.setSignalMessageAsDeleted(messaging.getSignalMessage());
+
+            final SignalMessage signalMessage = signalMessageDao.read(userMessage.getEntityId());
+            userMessageLogService.setSignalMessageAsDeleted(signalMessage);
         } else {
             userMessageLogService.setMessageAsDownloaded(userMessage, messageLog);
         }
@@ -206,7 +208,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
     public Submission browseMessage(String messageId) throws MessageNotFoundException {
         LOG.info("Browsing message with id [{}]", messageId);
 
-        UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
+        UserMessage userMessage = userMessageDao.findByMessageId(messageId);
         if (userMessage == null) {
             throw new MessageNotFoundException(MESSAGE_WITH_ID_STR + messageId + WAS_NOT_FOUND_STR);
         }
@@ -268,7 +270,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
         }
 
         // check if user can get the status/errors of that message (only admin or original users are authorized to do that)
-        UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
+        UserMessage userMessage = userMessageDao.findByMessageId(messageId);
         String originalUser = authUtils.getOriginalUserFromSecurityContext();
         List<String> recipients = new ArrayList<>();
         recipients.add(MessageConstants.ORIGINAL_SENDER);
@@ -550,7 +552,7 @@ public class DatabaseMessageHandler implements MessageSubmitter, MessageRetrieve
         if (mpcMap != null && mpcMap.containsKey(to)) {
             mpc = mpcMap.get(to).getQualifiedName();
         }
-        eu.domibus.api.model.Mpc mpcObject = mpcDao.findMpc(mpc);
+        MpcEntity mpcObject = mpcDao.findMpc(mpc);
         userMessage.setMpc(mpcObject);
     }
 

@@ -20,6 +20,7 @@ import java.nio.charset.StandardCharsets;
 public class UserMessageRaw extends AbstractNoGeneratedPkEntity {
 
     @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ID_PK")
     @MapsId
     protected UserMessage userMessage;
 

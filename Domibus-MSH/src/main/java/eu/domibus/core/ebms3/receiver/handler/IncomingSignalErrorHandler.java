@@ -4,7 +4,7 @@ import eu.domibus.api.ebms3.model.Ebms3Error;
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.ebms3.model.Ebms3SignalMessage;
 import eu.domibus.api.model.UserMessage;
-import eu.domibus.core.message.MessagingDao;
+import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
@@ -28,7 +28,7 @@ public class IncomingSignalErrorHandler implements IncomingMessageHandler {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(IncomingSignalErrorHandler.class);
 
     @Autowired
-    protected MessagingDao messagingDao;
+    protected UserMessageDao userMessageDao;
 
     @Autowired
     protected SplitAndJoinService splitAndJoinService;
@@ -47,7 +47,7 @@ public class IncomingSignalErrorHandler implements IncomingMessageHandler {
             return null;
         }
 
-        if(signalMessage.getError().size() > 1) {
+        if (signalMessage.getError().size() > 1) {
             LOG.warn("More than one error received in the SignalMessage, only the first one will be processed");
         }
 
@@ -55,7 +55,7 @@ public class IncomingSignalErrorHandler implements IncomingMessageHandler {
         LOG.debug("Processing Signal with error [{}]", error);
 
         final String refToMessageId = signalMessage.getMessageInfo().getRefToMessageId();
-        final UserMessage userMessage = messagingDao.findUserMessageByMessageId(refToMessageId);
+        final UserMessage userMessage = userMessageDao.findByMessageId(refToMessageId);
         if (userMessage == null) {
             LOG.warn("Could not process the Signal: no message [{}] found", refToMessageId);
             return null;

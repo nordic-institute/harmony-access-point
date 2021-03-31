@@ -12,11 +12,11 @@ import javax.persistence.*;
  * @since 5.0
  */
 @NamedQueries({
-        @NamedQuery(name = "Mpc.findByValue", query = "select mpc from Mpc mpc where mpc.value=:MPC"),
+        @NamedQuery(name = "Mpc.findByValue", query = "select mpc from MpcEntity mpc where mpc.value=:MPC"),
 })
 @Entity
 @Table(name = "TB_D_MPC")
-public class Mpc extends AbstractBaseEntity {
+public class MpcEntity extends AbstractBaseEntity {
 
     @Column(name = "VALUE", unique = true)
     protected String value = Ebms3Constants.DEFAULT_MPC;
@@ -35,7 +35,7 @@ public class Mpc extends AbstractBaseEntity {
 
         if (o == null || getClass() != o.getClass()) return false;
 
-        Mpc mpc = (Mpc) o;
+        MpcEntity mpc = (MpcEntity) o;
 
         return new EqualsBuilder()
                 .appendSuper(super.equals(o))

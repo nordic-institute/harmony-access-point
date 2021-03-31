@@ -2,7 +2,6 @@ package eu.domibus.core.message;
 
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MSHRoleEntity;
-import eu.domibus.api.model.Mpc;
 import eu.domibus.core.dao.BasicDao;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;

@@ -3,6 +3,7 @@ package eu.domibus.core.ebms3.receiver.leg;
 import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.core.message.MessagingDao;
+import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.pull.PullRequestLegConfigurationExtractor;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +23,7 @@ public class MessageLegConfigurationVisitor {
     private MessageExchangeService messageExchangeService;
 
     @Autowired
-    private MessagingDao messagingDao;
+    private UserMessageDao userMessageDao;
 
     @Autowired
     protected Ebms3Converter ebms3Converter;
@@ -37,7 +38,7 @@ public class MessageLegConfigurationVisitor {
     }
 
     public void visit(ReceiptLegConfigurationExtractor receiptMessagePolicyInSetup) {
-        receiptMessagePolicyInSetup.setMessagingDao(messagingDao);
+        receiptMessagePolicyInSetup.setUserMessageDao(userMessageDao);
         receiptMessagePolicyInSetup.setpModeProvider(pModeProvider);
         receiptMessagePolicyInSetup.setMessageExchangeService(messageExchangeService);
     }

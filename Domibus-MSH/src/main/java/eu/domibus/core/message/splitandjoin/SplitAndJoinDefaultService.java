@@ -85,9 +85,6 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
     protected DomainContextProvider domainContextProvider;
 
     @Autowired
-    protected MessagingDao messagingDao;
-
-    @Autowired
     protected MessageGroupDao messageGroupDao;
 
     @Autowired
@@ -329,7 +326,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
         }
 
 
-        final List<UserMessage> userMessageFragments = messagingDao.findUserMessageByGroupId(groupId);
+        final List<UserMessage> userMessageFragments = userMessageDao.findUserMessageByGroupId(groupId);
 
         if (messageGroupEntity.getFragmentCount() != userMessageFragments.size()) {
             throw new SplitAndJoinException("Could not rejoin fragments: number of fragments found [" + userMessageFragments.size() + "] do not correspond with the total fragment count [" + messageGroupEntity.getFragmentCount() + "]");
@@ -404,7 +401,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
     public void setUserMessageFragmentAsFailed(String messageId) {
         LOG.debug("Setting the UserMessage fragment [{}] as failed", messageId);
 
-        final UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
+        final UserMessage userMessage = userMessageDao.findByMessageId(messageId);
         if (userMessage == null) {
             LOG.error("UserMessage not found for message [{}]: could not mark the message as failed", messageId);
             return;
@@ -540,7 +537,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
 
     protected boolean isReceivedGroupExpired(MessageGroupEntity messageGroupEntity) {
         final String groupId = messageGroupEntity.getGroupId();
-        final List<UserMessage> fragments = messagingDao.findUserMessageByGroupId(groupId);
+        final List<UserMessage> fragments = userMessageDao.findUserMessageByGroupId(groupId);
         if (CollectionUtils.isEmpty(fragments)) {
             LOG.debug("No fragments found for group [{}]", groupId);
             return false;
@@ -557,7 +554,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
 
         sendSplitAndJoinFailed(groupId);
 
-        final List<UserMessage> groupUserMessages = messagingDao.findUserMessageByGroupId(groupId);
+        final List<UserMessage> groupUserMessages = userMessageDao.findUserMessageByGroupId(groupId);
         groupUserMessages.forEach(userMessage -> userMessageService.scheduleSetUserMessageFragmentAsFailed(userMessage.getMessageId()));
 
         createLogEntry(groupId, errorDetail);
@@ -606,7 +603,7 @@ public class SplitAndJoinDefaultService implements SplitAndJoinService {
         messageGroupEntity.setRejected(true);
         messageGroupDao.update(messageGroupEntity);
 
-        final List<UserMessage> userMessageFragments = messagingDao.findUserMessageByGroupId(groupId);
+        final List<UserMessage> userMessageFragments = userMessageDao.findUserMessageByGroupId(groupId);
         if (userMessageFragments == null || userMessageFragments.isEmpty()) {
             throw new SplitAndJoinException(ERROR_GENERATING_THE_SIGNAL_SOAPMESSAGE_FOR_SOURCE_MESSAGE + sourceMessageId + "]: no message fragments found");
         }

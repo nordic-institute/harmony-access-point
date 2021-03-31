@@ -12,9 +12,9 @@ import javax.persistence.*;
 @Entity
 @Table(name = "TB_D_SERVICE")
 @NamedQueries({
-        @NamedQuery(name = "Service.findByValue", query = "select serv from Service serv where serv.value=:VALUE"),
+        @NamedQuery(name = "Service.findByValue", query = "select serv from ServiceEntity serv where serv.value=:VALUE"),
 })
-public class Service extends AbstractBaseEntity {
+public class ServiceEntity extends AbstractBaseEntity {
 
     @Column(name = "VALUE", unique = true)
     protected String value = Ebms3Constants.TEST_SERVICE;
@@ -41,9 +41,9 @@ public class Service extends AbstractBaseEntity {
     @Override
     public boolean equals(final Object o) {
         if (this == o) return true;
-        if (!(o instanceof Service)) return false;
+        if (!(o instanceof ServiceEntity)) return false;
 
-        final Service service = (Service) o;
+        final ServiceEntity service = (ServiceEntity) o;
 
         if (this.type != null ? !this.type.equalsIgnoreCase(service.type) : service.type != null) return false;
         return this.value.equalsIgnoreCase(service.value);

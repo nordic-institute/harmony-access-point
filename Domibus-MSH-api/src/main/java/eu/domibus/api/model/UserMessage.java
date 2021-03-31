@@ -14,6 +14,8 @@ import java.util.Set;
         @NamedQuery(name = "UserMessage.findByGroupEntityId", query = "select mg.sourceMessage from MessageGroupEntity mg where mg.entityId=:ENTITY_ID"),
         @NamedQuery(name = "UserMessage.findByMessageId", query = "select um from UserMessage um where um.messageId=:MESSAGE_ID"),
         @NamedQuery(name = "UserMessage.deleteMessages", query = "delete from UserMessage mi where mi.messageId in :MESSAGEIDS"),
+        @NamedQuery(name = "UserMessage.findUserMessageByGroupId",
+                query = "select mf.userMessage from MessageFragmentEntity mf where mf.group.groupId = :GROUP_ID order by mf.fragmentNumber asc"),
 })
 @Entity
 @Table(name = "TB_USER_MESSAGE")
@@ -47,11 +49,11 @@ public class UserMessage extends AbstractBaseEntity {
 
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
     @JoinColumn(name = "ACTION_ID_FK")
-    protected Action action;
+    protected ActionEntity action;
 
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
     @JoinColumn(name = "SERVICE_ID_FK")
-    protected Service service;
+    protected ServiceEntity service;
 
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
     @JoinColumn(name = "AGREEMENT_ID_FK")
@@ -59,7 +61,7 @@ public class UserMessage extends AbstractBaseEntity {
 
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
     @JoinColumn(name = "MPC_ID_FK")
-    protected Mpc mpc;
+    protected MpcEntity mpc;
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
     @JoinTable(name = "TB_MESSAGE_PROPERTIES",
@@ -107,7 +109,7 @@ public class UserMessage extends AbstractBaseEntity {
         this.partyInfo = partyInfo;
     }
 
-    public Action getAction() {
+    public ActionEntity getAction() {
         return action;
     }
 
@@ -115,15 +117,15 @@ public class UserMessage extends AbstractBaseEntity {
         return action.getValue();
     }
 
-    public void setAction(Action action) {
+    public void setAction(ActionEntity action) {
         this.action = action;
     }
 
-    public Service getService() {
+    public ServiceEntity getService() {
         return service;
     }
 
-    public void setService(Service service) {
+    public void setService(ServiceEntity service) {
         this.service = service;
     }
 
@@ -135,11 +137,11 @@ public class UserMessage extends AbstractBaseEntity {
         this.agreementRef = agreementRef;
     }
 
-    public Mpc getMpc() {
+    public MpcEntity getMpc() {
         return mpc;
     }
 
-    public void setMpc(Mpc mpc) {
+    public void setMpc(MpcEntity mpc) {
         this.mpc = mpc;
     }
 

@@ -2,7 +2,6 @@ package eu.domibus.core.pmode.provider;
 
 import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.ebms3.MessageExchangePattern;
-import eu.domibus.api.ebms3.model.Ebms3PullRequest;
 import eu.domibus.api.model.*;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pmode.PModeArchiveInfo;
@@ -388,7 +387,7 @@ public abstract class PModeProvider {
 
     public abstract Mpc findMpc(final String mpcValue) throws EbMS3Exception;
 
-    public abstract String findServiceName(eu.domibus.api.model.Service service) throws EbMS3Exception;
+    public abstract String findServiceName(ServiceEntity service) throws EbMS3Exception;
 
     public abstract String findPartyName(PartyId partyId) throws EbMS3Exception;
 
@@ -397,7 +396,7 @@ public abstract class PModeProvider {
     public UserMessagePmodeData getUserMessagePmodeData(UserMessage userMessage) throws EbMS3Exception {
         final String actionValue = userMessage.getActionValue();
         final String actionName = findActionName(actionValue);
-        final eu.domibus.api.model.Service service = userMessage.getService();
+        final ServiceEntity service = userMessage.getService();
         final String serviceName = findServiceName(service);
         final String partyName = findPartyName(userMessage.getPartyInfo().getFrom().getPartyId());
         return new UserMessagePmodeData(serviceName, actionName, partyName);

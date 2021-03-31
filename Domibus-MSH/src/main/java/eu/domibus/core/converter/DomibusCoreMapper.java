@@ -242,28 +242,13 @@ public interface DomibusCoreMapper {
 
     UserMessage userMessageApiToUserMessage(eu.domibus.api.usermessage.domain.UserMessage userMessage);
 
-    default DomibusPropertyRO propertyApiToPropertyRO(DomibusProperty entity) {
-        DomibusPropertyRO res = propertyMetadataApiToPropertyRO(entity.getMetadata());
-        res.setValue(entity.getValue());
-        return res;
-    }
 
-    @Mapping(target = "usageText", expression = "java( meta.getUsageText() )")
-    DomibusPropertyRO propertyMetadataApiToPropertyRO(DomibusPropertyMetadata meta);
 
-    default DomibusPropertyTypeRO domibusPropertyMetadataTypeTOdomibusPropertyTypeRO(DomibusPropertyMetadata.Type type){
-        return new DomibusPropertyTypeRO(type.name(), type.getRegularExpression());
-    }
 
-    @InheritInverseConfiguration
-    DomibusPropertyMetadata propertyMetadataDTOTopropertyMetadata(DomibusPropertyMetadataDTO src);
-
-    DomibusPropertiesFilter domibusPropertyFilterRequestTOdomibusPropertiesFilter(PropertyFilterRequestRO source);
 
     PasswordEncryptionResultDTO passwordEncryptionResultToPasswordEncryptionResultDTO(PasswordEncryptionResult passwordEncryptionResult);
 
-    //cloning mappings
-    DomibusPropertyMetadata clonePropertyMetadata(DomibusPropertyMetadata src);
+
 
     //list mappings
     List<AuditResponseRo> auditLogListToAuditResponseRoList(List<AuditLog> auditLogList);
@@ -283,9 +268,7 @@ public interface DomibusCoreMapper {
 
     List<DomainRO> domainListToDomainROList(List<Domain> domainList);
 
-    List<DomibusPropertyRO> domibusPropertyListToDomibusPropertyROList(List<DomibusProperty> domibusPropertyList);
 
-    List<DomibusPropertyTypeRO> domibusPropertyMetadataTypeListToDomibusPropertyTypeROList(List<DomibusPropertyMetadata.Type> domibusPropertyMetadataTypeList);
 
     List<ErrorLogRO> errorLogEntryListToErrorLogROList(List<ErrorLogEntry> errorLogEntryList);
 

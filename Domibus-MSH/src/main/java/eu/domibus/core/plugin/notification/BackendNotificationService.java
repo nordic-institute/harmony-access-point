@@ -10,10 +10,7 @@ import eu.domibus.common.*;
 import eu.domibus.core.alerts.configuration.messaging.MessagingConfigurationManager;
 import eu.domibus.core.alerts.configuration.messaging.MessagingModuleConfiguration;
 import eu.domibus.core.alerts.service.EventService;
-import eu.domibus.core.message.MessagingDao;
-import eu.domibus.core.message.UserMessageHandlerService;
-import eu.domibus.core.message.UserMessageLogDao;
-import eu.domibus.core.message.UserMessageServiceHelper;
+import eu.domibus.core.message.*;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.plugin.BackendConnectorProvider;
@@ -76,7 +73,7 @@ public class BackendNotificationService {
     protected Queue unknownReceiverQueue;
 
     @Autowired
-    protected MessagingDao messagingDao;
+    protected UserMessageDao userMessageDao;
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
@@ -132,7 +129,7 @@ public class BackendNotificationService {
         if (userMessage.isMessageFragment()) {
             notificationType = NotificationType.MESSAGE_FRAGMENT_RECEIVED_FAILURE;
         }
-        eu.domibus.api.model.Service service = userMessage.getService();
+        ServiceEntity service = userMessage.getService();
         String actionValue = userMessage.getActionValue();
 
         properties.put(MessageConstants.SERVICE, service.getValue());
@@ -413,7 +410,7 @@ public class BackendNotificationService {
 
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
     public void notifyOfMessageStatusChange(String messageId, UserMessageLog messageLog, MessageStatus newStatus, Timestamp changeTimestamp) {
-        UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
+        UserMessage userMessage = userMessageDao.findByMessageId(messageId);
         notifyOfMessageStatusChange(userMessage, messageLog, newStatus, changeTimestamp);
     }
 
@@ -457,7 +454,7 @@ public class BackendNotificationService {
         if (userMessage != null) {
             LOG.debug("Adding the service and action properties for message [{}]", userMessage.getMessageId());
 
-            eu.domibus.api.model.Service service = userMessage.getService();
+            ServiceEntity service = userMessage.getService();
             properties.put(MessageConstants.SERVICE, service.getValue());
             properties.put(MessageConstants.SERVICE_TYPE, service.getType());
             properties.put(MessageConstants.ACTION, userMessage.getActionValue());

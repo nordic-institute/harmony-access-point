@@ -6,6 +6,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.audit.envers.ModificationType;
 import eu.domibus.core.message.MessagingDao;
+import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.logging.DomibusLogger;
@@ -52,7 +53,7 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
     private SignalMessageDao signalMessageDao;
 
     @Autowired
-    private MessagingDao messagingDao;
+    private UserMessageDao userMessageDao;
 
     @Autowired
     private AuditService auditService;
@@ -176,7 +177,7 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
     }
 
     protected UserMessage getUserMessageById(String messageId) throws MessageNotFoundException {
-        UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
+        UserMessage userMessage = userMessageDao.findByMessageId(messageId);
         if (userMessage == null) {
             throw new MessageNotFoundException("Could not find message metadata for id " + messageId);
         }

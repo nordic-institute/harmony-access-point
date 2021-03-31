@@ -22,6 +22,8 @@ public class UserMessageDao extends BasicDao<UserMessage> {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageDao.class);
 
+    private static final String GROUP_ID = "GROUP_ID";
+
     public UserMessageDao() {
         super(UserMessage.class);
     }
@@ -36,6 +38,12 @@ public class UserMessageDao extends BasicDao<UserMessage> {
         final TypedQuery<UserMessage> query = this.em.createNamedQuery("UserMessage.findByGroupEntityId", UserMessage.class);
         query.setParameter("ENTITY_ID", groupEntityId);
         return DataAccessUtils.singleResult(query.getResultList());
+    }
+
+    public List<UserMessage> findUserMessageByGroupId(final String groupId) {
+        final TypedQuery<UserMessage> query = this.em.createNamedQuery("UserMessage.findUserMessageByGroupId", UserMessage.class);
+        query.setParameter(GROUP_ID, groupId);
+        return query.getResultList();
     }
 
     @Timer(clazz = UserMessageDao.class, value = "deleteMessages")

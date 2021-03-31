@@ -357,7 +357,7 @@ public class MessageUtilTest {
     @Test
     public void createService(@Injectable Node collaborationInfoNode,
                               @Injectable Node serviceNode,
-                              @Injectable Service service) {
+                              @Injectable ServiceEntity service) {
         new Expectations(messageUtil) {{
             messageUtil.getFirstChild(collaborationInfoNode, "Service");
             result = serviceNode;

@@ -41,6 +41,7 @@ public class SignalMessageLog extends AbstractNoGeneratedPkEntity {
     private MessageStatusEntity messageStatus;
 
     @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ID_PK")
     @MapsId
     private SignalMessage signalMessage;
 

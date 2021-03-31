@@ -1,6 +1,7 @@
 package eu.domibus.core.pmode.provider;
 
 import com.google.common.collect.Lists;
+import eu.domibus.api.model.ServiceEntity;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.api.pmode.ValidationIssue;
@@ -442,7 +443,7 @@ public class CachingPModeProvider extends PModeProvider {
     }
 
     @Override
-    public String findServiceName(final eu.domibus.api.model.Service service) throws EbMS3Exception {
+    public String findServiceName(final ServiceEntity service) throws EbMS3Exception {
         if (service == null) {
             throw new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0001, "Service is not found in the message", null, null);
         }

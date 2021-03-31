@@ -13,9 +13,9 @@ import javax.persistence.*;
 @Entity
 @Table(name = "TB_D_ACTION")
 @NamedQueries({
-        @NamedQuery(name = "Action.findByValue", query = "select serv from Action serv where serv.value=:VALUE"),
+        @NamedQuery(name = "Action.findByValue", query = "select serv from ActionEntity serv where serv.value=:VALUE"),
 })
-public class Action extends AbstractBaseEntity {
+public class ActionEntity extends AbstractBaseEntity {
 
     @Column(name = "VALUE", unique = true)
     protected String value;
@@ -34,7 +34,7 @@ public class Action extends AbstractBaseEntity {
 
         if (o == null || getClass() != o.getClass()) return false;
 
-        Action action = (Action) o;
+        ActionEntity action = (ActionEntity) o;
 
         return new EqualsBuilder()
                 .appendSuper(super.equals(o))

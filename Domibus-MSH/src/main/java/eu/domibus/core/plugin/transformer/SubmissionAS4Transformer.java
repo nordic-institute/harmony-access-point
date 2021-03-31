@@ -3,10 +3,8 @@ package eu.domibus.core.plugin.transformer;
 import eu.domibus.api.model.*;
 import eu.domibus.core.generator.id.MessageIdGenerator;
 import eu.domibus.core.message.*;
-import eu.domibus.core.plugin.BackendConnectorService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.Submission;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -51,7 +49,7 @@ public class SubmissionAS4Transformer {
 
     public UserMessage transformFromSubmission(final Submission submission) {
         final UserMessage result = new UserMessage();
-        final Mpc mpc = mpcDao.findMpc(submission.getMpc());
+        final MpcEntity mpc = mpcDao.findMpc(submission.getMpc());
         result.setMpc(mpc);
         this.generateMessageInfo(submission, result);
         this.generatePartyInfo(submission, result);
@@ -82,13 +80,13 @@ public class SubmissionAS4Transformer {
         String conversationId = submission.getConversationId();
         result.setConversationId(conversationId == null ? this.generateConversationId() : conversationId.trim());
 
-        final Action action = actionDao.findOrCreateAction(submission.getAction());
+        final ActionEntity action = actionDao.findOrCreateAction(submission.getAction());
         result.setAction(action);
 
         final AgreementRef agreementRef = agreementDao.findOrCreateAgreement(submission.getAgreementRef(), submission.getAgreementRefType());
         result.setAgreementRef(agreementRef);
 
-        final Service service = serviceDao.findOrCreateService(submission.getService(), submission.getServiceType());
+        final ServiceEntity service = serviceDao.findOrCreateService(submission.getService(), submission.getServiceType());
         result.setService(service);
     }
 

@@ -19,6 +19,7 @@ public class MessageFragmentEntity extends AbstractNoGeneratedPkEntity {
     protected Long fragmentNumber;
 
     @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ID_PK")
     @MapsId
     private UserMessage userMessage;
 

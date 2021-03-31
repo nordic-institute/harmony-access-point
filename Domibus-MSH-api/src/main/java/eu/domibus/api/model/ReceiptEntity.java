@@ -19,6 +19,7 @@ public class ReceiptEntity extends AbstractNoGeneratedPkEntity {
     protected String rawXml; //NOSONAR
 
     @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ID_PK", nullable = false)
     @MapsId
     private SignalMessage signalMessage;
 

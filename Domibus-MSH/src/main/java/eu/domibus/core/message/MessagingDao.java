@@ -41,23 +41,9 @@ public class MessagingDao extends BasicDao<Messaging> {
     private static final String MESSAGE_STATUS = "MESSAGE_STATUS";
     private static final String MPC = "MPC";
     private static final String MESSAGE_ID = "MESSAGE_ID";
-    private static final String GROUP_ID = "GROUP_ID";
 
     public MessagingDao() {
         super(Messaging.class);
-    }
-
-    public List<UserMessage> findUserMessageByGroupId(final String groupId) {
-        final TypedQuery<UserMessage> query = this.em.createNamedQuery("Messaging.findUserMessageByGroupId", UserMessage.class);
-        query.setParameter(GROUP_ID, groupId);
-        return query.getResultList();
-    }
-
-    public UserMessage findUserMessageByMessageId(final String messageId) {
-        final TypedQuery<UserMessage> query = this.em.createNamedQuery("Messaging.findUserMessageByMessageId", UserMessage.class);
-        query.setParameter(MESSAGE_ID, messageId);
-
-        return DataAccessUtils.singleResult(query.getResultList());
     }
 
     public SignalMessage findSignalMessageByMessageId(final String messageId) {

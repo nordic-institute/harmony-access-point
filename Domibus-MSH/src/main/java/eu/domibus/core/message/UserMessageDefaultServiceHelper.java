@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * @author Cosmin Baciu
@@ -98,7 +97,7 @@ public class UserMessageDefaultServiceHelper implements UserMessageServiceHelper
 
     @Override
     public String getService(UserMessage userMessage) {
-        Service service = userMessage.getService();
+        ServiceEntity service = userMessage.getService();
         if (service == null) {
             LOG.trace("Service is null");
             return null;

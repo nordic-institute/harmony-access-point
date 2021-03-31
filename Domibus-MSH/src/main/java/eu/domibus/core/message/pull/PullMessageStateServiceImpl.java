@@ -6,7 +6,7 @@ import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.core.ebms3.sender.retry.UpdateRetryLoggingService;
 import eu.domibus.core.message.MessageStatusDao;
-import eu.domibus.core.message.MessagingDao;
+import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
@@ -47,7 +47,7 @@ public class PullMessageStateServiceImpl implements PullMessageStateService {
     protected UIReplicationSignalService uiReplicationSignalService;
 
     @Autowired
-    protected MessagingDao messagingDao;
+    protected UserMessageDao userMessageDao;
 
     @Autowired
     protected MessageStatusDao messageStatusDao;
@@ -76,7 +76,7 @@ public class PullMessageStateServiceImpl implements PullMessageStateService {
         }
 
         LOG.debug("Setting [{}] message as failed", messageId);
-        final UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
+        final UserMessage userMessage = userMessageDao.findByMessageId(messageId);
         if (userMessage == null) {
             LOG.debug("Could not set [{}] message as failed: could not find userMessage", messageId);
             return;

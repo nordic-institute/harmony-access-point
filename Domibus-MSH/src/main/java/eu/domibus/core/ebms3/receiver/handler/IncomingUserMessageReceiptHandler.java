@@ -12,6 +12,7 @@ import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.core.ebms3.sender.ResponseHandler;
 import eu.domibus.core.ebms3.sender.ResponseResult;
 import eu.domibus.core.message.MessagingDao;
+import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
 import eu.domibus.core.message.reliability.ReliabilityService;
@@ -48,7 +49,7 @@ public class IncomingUserMessageReceiptHandler implements IncomingMessageHandler
     private final EbMS3MessageBuilder messageBuilder;
     private final ResponseHandler responseHandler;
     private final PModeProvider pModeProvider;
-    private final MessagingDao messagingDao;
+    private final UserMessageDao userMessageDao;
     protected final MessageUtil messageUtil;
     protected final SoapUtil soapUtil;
     protected Ebms3Converter ebms3Converter;
@@ -59,7 +60,7 @@ public class IncomingUserMessageReceiptHandler implements IncomingMessageHandler
                                              EbMS3MessageBuilder messageBuilder,
                                              ResponseHandler responseHandler,
                                              PModeProvider pModeProvider,
-                                             MessagingDao messagingDao,
+                                             UserMessageDao userMessageDao,
                                              MessageUtil messageUtil,
                                              SoapUtil soapUtil,
                                              Ebms3Converter ebms3Converter) {
@@ -69,7 +70,7 @@ public class IncomingUserMessageReceiptHandler implements IncomingMessageHandler
         this.messageBuilder = messageBuilder;
         this.responseHandler = responseHandler;
         this.pModeProvider = pModeProvider;
-        this.messagingDao = messagingDao;
+        this.userMessageDao = userMessageDao;
         this.messageUtil = messageUtil;
         this.soapUtil = soapUtil;
         this.ebms3Converter = ebms3Converter;
@@ -99,18 +100,16 @@ public class IncomingUserMessageReceiptHandler implements IncomingMessageHandler
         ReliabilityChecker.CheckResult reliabilityCheckSuccessful = ReliabilityChecker.CheckResult.ABORT;
         ResponseResult responseResult = null;
         LegConfiguration legConfiguration = null;
-        UserMessage userMessage;
-        Messaging sentMessage = null;
+        UserMessage sentUserMessage = null;
         try {
-            sentMessage = messagingDao.findMessageByMessageId(messageId);
-            userMessage = sentMessage.getUserMessage();
-            String pModeKey = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING).getPmodeKey();
+            sentUserMessage = userMessageDao.findByMessageId(messageId);
+            String pModeKey = pModeProvider.findUserMessageExchangeContext(sentUserMessage, MSHRole.SENDING).getPmodeKey();
             LOG.debug("PMode key found : {}", pModeKey);
 
             legConfiguration = pModeProvider.getLegConfiguration(pModeKey);
             LOG.debug("Found leg [{}] for PMode key [{}]", legConfiguration.getName(), pModeKey);
 
-            SOAPMessage soapMessage = getSoapMessage(legConfiguration, userMessage);
+            SOAPMessage soapMessage = getSoapMessage(legConfiguration, sentUserMessage);
             responseResult = responseHandler.verifyResponse(request, messageId);
 
             reliabilityCheckSuccessful = reliabilityChecker.check(soapMessage, request, responseResult, getSourceMessageReliability());
@@ -123,7 +122,7 @@ public class IncomingUserMessageReceiptHandler implements IncomingMessageHandler
             LOG.error("EbMS3 exception occurred when handling receipt for message with ID [{}]", messageId, e);
             reliabilityChecker.handleEbms3Exception(e, messageId);
         } finally {
-            reliabilityService.handleReliability(sentMessage.getUserMessage(), userMessageLog, reliabilityCheckSuccessful, request, responseResult, legConfiguration, null);
+            reliabilityService.handleReliability(sentUserMessage, userMessageLog, reliabilityCheckSuccessful, request, responseResult, legConfiguration, null);
         }
         return null;
     }

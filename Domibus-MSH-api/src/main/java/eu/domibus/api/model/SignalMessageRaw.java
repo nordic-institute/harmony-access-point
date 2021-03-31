@@ -5,7 +5,7 @@ import javax.persistence.*;
 @NamedQueries({
         @NamedQuery(name = "SignalMessageRaw.findByMessageEntityId", query = "SELECT new eu.domibus.api.model.RawEnvelopeDto(l.entityId,l.rawXML) FROM SignalMessageRaw l where l.entitytId=:ENTITY_ID"),
         @NamedQuery(name = "SignalMessageRaw.findByUserMessageId", query = "SELECT new eu.domibus.api.model.RawEnvelopeDto(l.entityId,l.rawXML) " +
-                "FROM SignalMessageRaw l JOIN l.signalMessage " +
+                "FROM SignalMessageRaw l JOIN l.signalMessage sm " +
                 "JOIN sm.userMessage um where um.messageId=:MESSAGE_ID"),
 })
 @Entity
@@ -13,6 +13,7 @@ import javax.persistence.*;
 public class SignalMessageRaw extends AbstractNoGeneratedPkEntity {
 
     @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ID_PK")
     @MapsId
     protected SignalMessage signalMessage;
 

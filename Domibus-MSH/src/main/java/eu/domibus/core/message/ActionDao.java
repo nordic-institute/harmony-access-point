@@ -1,6 +1,7 @@
 package eu.domibus.core.message;
 
-import eu.domibus.api.model.Action;
+
+import eu.domibus.api.model.ActionEntity;
 import eu.domibus.core.dao.BasicDao;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
@@ -12,25 +13,25 @@ import javax.persistence.TypedQuery;
  * @since 5.0
  */
 @Repository
-public class ActionDao extends BasicDao<Action> {
+public class ActionDao extends BasicDao<ActionEntity> {
 
     public ActionDao() {
-        super(Action.class);
+        super(ActionEntity.class);
     }
 
-    public Action findOrCreateAction(String value) {
-        Action mpc = findByValue(value);
+    public ActionEntity findOrCreateAction(String value) {
+        ActionEntity mpc = findByValue(value);
         if (mpc != null) {
             return mpc;
         }
-        Action newMpc = new Action();
+        ActionEntity newMpc = new ActionEntity();
         newMpc.setValue(value);
         create(newMpc);
         return newMpc;
     }
 
-    public Action findByValue(final String value) {
-        final TypedQuery<Action> query = this.em.createNamedQuery("Action.findByValue", Action.class);
+    public ActionEntity findByValue(final String value) {
+        final TypedQuery<ActionEntity> query = this.em.createNamedQuery("Action.findByValue", ActionEntity.class);
         query.setParameter("VALUE", value);
         return DataAccessUtils.singleResult(query.getResultList());
     }

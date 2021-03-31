@@ -63,6 +63,7 @@ public class MessageGroupEntity extends AbstractBaseEntity {
     private MSHRoleEntity mshRole;
 
     @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ID_PK")
     @MapsId
     protected MessageHeaderEntity messageHeaderEntity;
 

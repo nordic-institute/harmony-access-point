@@ -2,9 +2,7 @@ package eu.domibus.core.pmode.multitenancy;
 
 import eu.domibus.api.ebms3.MessageExchangePattern;
 import eu.domibus.api.model.*;
-import eu.domibus.api.model.Action;
-import eu.domibus.api.model.Mpc;
-import eu.domibus.api.model.Service;
+import eu.domibus.api.model.ServiceEntity;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pmode.PModeArchiveInfo;
@@ -25,7 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -117,7 +114,7 @@ public class MultiDomainPModeProvider extends PModeProvider {
     }
 
     @Override
-    public String findServiceName(Service service) throws EbMS3Exception {
+    public String findServiceName(ServiceEntity service) throws EbMS3Exception {
         return getCurrentPModeProvider().findServiceName(service);
     }
 
