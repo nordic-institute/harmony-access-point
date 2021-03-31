@@ -262,7 +262,7 @@ public class ConnectionMonitorTest extends SeleniumTest {
 		if (!partyToMonitor.equalsIgnoreCase(currentParty)) {
 
 			String actualErrMsg = getAlrtForTestMsg(page, 0, "Details", modal);
-			String error = String.format(DMessages.CONNECTION_MONITORING_ERRORR, partyToMonitor);
+			String error = String.format(DMessages.CONNECTION_MONITORING_ERROR, partyToMonitor);
 			soft.assertTrue(actualErrMsg.equals(error), "Correct error message is shown");
 
 			modal.getCloseBtn().click();

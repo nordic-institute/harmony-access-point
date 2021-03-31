@@ -76,9 +76,8 @@ public class DMessages {
 
 
 	public static final String PROPERTIES_UPDATE_ERROR_TYPE = "Could not update property: Value '%s' for property '%s' is not of type '%s'";
-	public static final String CONNECTION_MONITORING_ERROR ="Error retrieving Last Sent Test Message for %s [DOM_001]:No User message found for party [%s]";
     public static final String CONNECTION_MONITORING_ERROR_RESPONDER_NOTUP ="Error retrieving Last Received Test Message for %s . No Signal Message found.Error details are: EBMS:0005-Error dispatching message to %s";
-	public static final String CONNECTION_MONITORING_ERRORR = "Error retrieving Last Received Test Message for %s . No Signal Message found.Please call the method again to see the details.";
+	public static final String CONNECTION_MONITORING_ERROR = "Error retrieving Last Received Test Message for %s . No Signal Message found.Please call the method again to see the details.";
 	public static final String CONNECTION_MONITORING_CERT_ERROR="Error retrieving Last Received Test Message for %s . No Signal Message found.Error details are: EBMS:0004-[DOM_001]:Cannot send message: receiver certificate is not valid or it has been revoked [%s]";
 	
 	
