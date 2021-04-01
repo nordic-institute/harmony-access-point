@@ -11,11 +11,11 @@ import org.mapstruct.Mapping;
  * @author Cosmin Baciu
  * @since 5.0
  */
-@Mapper(config = Ebms3CentralMapperConfig.class,
+/*@Mapper(config = Ebms3CentralMapperConfig.class,
         uses = {
                 Ebms3PartyFromMapper.class,
                 Ebms3PartyToMapper.class,
-        })
+        })*/
 public interface Ebms3PartyInfoMapper {
 
     @Mapping(source = "from", target = "from")

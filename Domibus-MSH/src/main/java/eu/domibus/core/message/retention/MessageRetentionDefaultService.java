@@ -9,6 +9,7 @@ import eu.domibus.api.model.UserMessageLogDto;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.JsonUtil;
 import eu.domibus.core.message.MessagingDao;
+import eu.domibus.core.message.PartInfoDao;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.UserMessageServiceHelper;
 import eu.domibus.core.metrics.Counter;
@@ -72,6 +73,9 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
 
     @Autowired
     private UserMessageServiceHelper userMessageServiceHelper;
+
+    @Autowired
+    protected PartInfoDao partInfoDao;
 
     /**
      * {@inheritDoc}
@@ -223,7 +227,7 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
 
             JmsMessage message = JMSMessageBuilder.create()
                     .property(DELETE_TYPE, MessageDeleteType.SINGLE.name())
-                    .property(MESSAGE_ID, userMessage.getMessageInfo().getMessageId())
+                    .property(MESSAGE_ID, userMessage.getMessageId())
                     .property(FINAL_RECIPIENT, properties.get(FINAL_RECIPIENT))
                     .property(ORIGINAL_SENDER, properties.get(ORIGINAL_SENDER))
                     .build();
@@ -252,7 +256,7 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
     }
 
     protected void deletePayload(UserMessage userMessage, UserMessageLog userMessageLog) {
-        messagingDao.clearPayloadData(userMessage);
+        partInfoDao.clearPayloadData(userMessage.getEntityId());
         userMessageLog.setDeleted(new Date());
     }
 
@@ -261,7 +265,7 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
     }
 
     protected boolean shouldDeletePayloadOnSendFailure(UserMessage userMessage) {
-        if (userMessage.isUserMessageFragment()) {
+        if (userMessage.isMessageFragment()) {
             return true;
         }
         return domibusPropertyProvider.getBooleanProperty(DOMIBUS_SEND_MESSAGE_FAILURE_DELETE_PAYLOAD);

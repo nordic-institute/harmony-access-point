@@ -1,6 +1,7 @@
 package eu.domibus.core.ebms3.receiver;
 
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
+import eu.domibus.api.model.MSHRoleEntity;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.core.ebms3.EbMS3Exception;
@@ -9,6 +10,7 @@ import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.core.ebms3.ws.handler.AbstractFaultHandler;
 import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.error.ErrorService;
+import eu.domibus.core.message.MshRoleDao;
 import eu.domibus.core.message.UserMessageHandlerService;
 import eu.domibus.core.pmode.NoMatchingPModeFoundException;
 import eu.domibus.core.util.SoapUtil;
@@ -53,6 +55,9 @@ public class FaultInHandler extends AbstractFaultHandler {
 
     @Autowired
     protected Ebms3Converter ebms3Converter;
+
+    @Autowired
+    protected MshRoleDao mshRoleDao;
 
     @Override
     public Set<QName> getHeaders() {
@@ -133,12 +138,14 @@ public class FaultInHandler extends AbstractFaultHandler {
             throw new MissingResourceException("ebMSException is null on this stage and shouldn't", EbMS3Exception.class.getName(), "ebMS3Exception");
         }
 
+        MSHRoleEntity role = mshRoleDao.findByRole(MSHRole.RECEIVING);
+
         // at this point an EbMS3Exception is available in any case
         SOAPMessage soapMessageWithEbMS3Error = null;
         try {
             soapMessageWithEbMS3Error = this.messageBuilder.buildSOAPFaultMessage(ebMS3Exception.getFaultInfoError());
         } catch (final EbMS3Exception e) {
-            errorService.createErrorLog(new ErrorLogEntry(e));
+            errorService.createErrorLog(new ErrorLogEntry(e, role));
         }
         context.setMessage(soapMessageWithEbMS3Error);
 
@@ -156,7 +163,7 @@ public class FaultInHandler extends AbstractFaultHandler {
         //log the raw xml Signal message
         soapUtil.logRawXmlMessageWhenEbMS3Error(soapMessageWithEbMS3Error);
 
-        errorService.createErrorLog(ErrorLogEntry.parse(messaging, MSHRole.RECEIVING));
+        errorService.createErrorLog(ErrorLogEntry.parse(ebms3Messaging, role));
     }
 
     @Override

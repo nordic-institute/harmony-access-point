@@ -210,15 +210,15 @@ public class RoutingService {
     }
 
     protected BackendFilter getMatchingBackendFilter(final List<BackendFilter> backendFilters, final Map<String, IRoutingCriteria> criteriaMap, final UserMessage userMessage) {
-        LOG.debug("Getting the backend filter for message [" + userMessage.getMessageInfo().getMessageId() + "]");
+        LOG.debug("Getting the backend filter for message [" + userMessage.getMessageId() + "]");
         for (final BackendFilter filter : backendFilters) {
             final boolean backendFilterMatching = isBackendFilterMatching(filter, criteriaMap, userMessage);
             if (backendFilterMatching) {
-                LOG.debug("Filter [{}] matched for message [{}]", filter, userMessage.getMessageInfo().getMessageId());
+                LOG.debug("Filter [{}] matched for message [{}]", filter, userMessage.getMessageId());
                 return filter;
             }
         }
-        LOG.trace("No filter matched for message [{}]", userMessage.getMessageInfo().getMessageId());
+        LOG.trace("No filter matched for message [{}]", userMessage.getMessageId());
         return null;
     }
 

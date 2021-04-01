@@ -27,7 +27,7 @@ import java.util.zip.GZIPOutputStream;
 @RunWith(JMockit.class)
 public class DatabasePayloadPersistenceTest {
 
-    @Injectable
+   /* @Injectable
     protected BackendNotificationService backendNotificationService;
 
     @Injectable
@@ -161,5 +161,5 @@ public class DatabasePayloadPersistenceTest {
 
 
         databasePayloadPersistence.getOutgoingBinaryData(partInfo, inputStream, userMessage, legConfiguration, Boolean.TRUE);
-    }
+    }*/
 }

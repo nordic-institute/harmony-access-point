@@ -4,6 +4,7 @@ import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.MessageExchangeService;
+import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
 import eu.domibus.core.message.MessageExchangeConfiguration;
@@ -29,7 +30,7 @@ public class PModeDefaultEbms3ServiceTest {
     PModeDefaultService pModeDefaultService;
 
     @Injectable
-    MessagingDao messagingDao;
+    UserMessageDao userMessageDao;
 
     @Injectable
     private PModeProvider pModeProvider;
@@ -47,7 +48,7 @@ public class PModeDefaultEbms3ServiceTest {
         final String pmodeKey = "1";
         final MessageExchangeConfiguration messageExchangeConfiguration = new MessageExchangeConfiguration("1", ",", "", "", "", "");
         new Expectations() {{
-            messagingDao.findUserMessageByMessageId(messageId);
+            userMessageDao.findByMessageId(messageId);
             result = userMessage;
 
             pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, anyBoolean);

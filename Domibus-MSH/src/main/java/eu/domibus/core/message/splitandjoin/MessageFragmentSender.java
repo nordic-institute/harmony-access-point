@@ -1,16 +1,21 @@
 package eu.domibus.core.message.splitandjoin;
 
+import eu.domibus.api.model.PartInfo;
+import eu.domibus.api.model.splitandjoin.MessageFragmentEntity;
 import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.core.ebms3.sender.AbstractUserMessageSender;
+import eu.domibus.core.message.MessageFragmentDao;
+import eu.domibus.core.message.PartInfoDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.xml.soap.SOAPMessage;
+import java.util.List;
 
 /**
  * Class responsible for sending AS4 MessageFragments to C3
@@ -26,10 +31,16 @@ public class MessageFragmentSender extends AbstractUserMessageSender {
     @Autowired
     protected MessageGroupDao messageGroupDao;
 
+    @Autowired
+    protected MessageFragmentDao messageFragmentDao;
+
+    @Autowired
+    protected PartInfoDao partInfoDao;
+
     @Override
     protected void validateBeforeSending(UserMessage userMessage) {
-        final String groupId = userMessage.getMessageFragment().getGroupId();
-        final MessageGroupEntity groupEntity = messageGroupDao.findByGroupId(groupId);
+        final MessageGroupEntity groupEntity = messageGroupDao.findByUserMessageEntityId(userMessage.getEntityId());
+        String groupId = groupEntity.getGroupId();
 
         if (groupEntity.getExpired()) {
             throw new SplitAndJoinException("Group [" + groupId + "] is marked as expired");
@@ -42,8 +53,10 @@ public class MessageFragmentSender extends AbstractUserMessageSender {
 
     @Override
     protected SOAPMessage createSOAPMessage(UserMessage userMessage, LegConfiguration legConfiguration) throws EbMS3Exception {
-        final MessageGroupEntity groupEntity = messageGroupDao.findByGroupId(userMessage.getMessageFragment().getGroupId());
-        return messageBuilder.buildSOAPMessageForFragment(userMessage, groupEntity, legConfiguration);
+        final MessageGroupEntity groupEntity = messageGroupDao.findByUserMessageEntityId(userMessage.getEntityId());
+        MessageFragmentEntity messageFragmentEntity = messageFragmentDao.read(userMessage.getEntityId());
+        List<PartInfo> partInfos = partInfoDao.findPartInfoByUserMessageEntityId(userMessage.getEntityId());
+        return messageBuilder.buildSOAPMessageForFragment(userMessage, messageFragmentEntity, partInfos, groupEntity, legConfiguration);
     }
 
     @Override

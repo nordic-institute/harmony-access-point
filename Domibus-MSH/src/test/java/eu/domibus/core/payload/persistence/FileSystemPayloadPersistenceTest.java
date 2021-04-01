@@ -30,7 +30,7 @@ import java.util.UUID;
 @RunWith(JMockit.class)
 public class FileSystemPayloadPersistenceTest {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FileSystemPayloadPersistenceTest.class);
+  /*  private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FileSystemPayloadPersistenceTest.class);
 
     @Injectable
     protected PayloadFileStorageProvider storageProvider;
@@ -189,5 +189,5 @@ public class FileSystemPayloadPersistenceTest {
             partInfo.setFileName(myFilePath);
             partInfo.setEncrypted(false);
         }};
-    }
+    }*/
 }

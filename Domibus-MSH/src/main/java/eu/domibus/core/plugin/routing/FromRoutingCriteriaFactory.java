@@ -47,11 +47,11 @@ public class FromRoutingCriteriaFactory implements CriteriaFactory {
         @Override
         public boolean matches(final UserMessage userMessage, final String expression) {
             setExpression(expression);
-            for (final PartyId partyId : userMessage.getPartyInfo().getFrom().getPartyId()) {
-                if (matches(partyId.getValue() + ":" + partyId.getType())) {
-                    return true;
-                }
+            final PartyId partyId = userMessage.getPartyInfo().getFrom().getPartyId();
+            if (matches(partyId.getValue() + ":" + partyId.getType())) {
+                return true;
             }
+
 
             return false;
         }

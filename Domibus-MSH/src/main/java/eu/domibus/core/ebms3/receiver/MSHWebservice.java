@@ -1,5 +1,6 @@
 package eu.domibus.core.ebms3.receiver;
 
+import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskException;
 import eu.domibus.common.ErrorCode;
@@ -53,21 +54,21 @@ public class MSHWebservice implements Provider<SOAPMessage> {
     public SOAPMessage invoke(final SOAPMessage request) {
         LOG.trace("Message received");
         setCurrentDomain(request);
-        Messaging messaging = getMessaging();
-        if (messaging == null) {
+        Ebms3Messaging ebms3Messaging = getMessaging();
+        if (ebms3Messaging == null) {
             LOG.error("Error getting Messaging");
             throw new WebServiceException("Error getting Messaging");
         }
 
-        final IncomingMessageHandler messageHandler = incomingMessageHandlerFactory.getMessageHandler(request, messaging);
+        final IncomingMessageHandler messageHandler = incomingMessageHandlerFactory.getMessageHandler(request, ebms3Messaging);
         if (messageHandler == null) {
-            EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "Unrecognized message", messaging.getUserMessage().getMessageInfo().getMessageId(), null);
+            EbMS3Exception ex = new EbMS3Exception(ErrorCode.EbMS3ErrorCode.EBMS_0003, "Unrecognized message", ebms3Messaging.getUserMessage().getMessageInfo().getMessageId(), null);
             ex.setMshRole(MSHRole.RECEIVING);
             throw new WebServiceException(ex);
         }
         SOAPMessage soapMessage;
         try {
-            soapMessage = messageHandler.processMessage(request, messaging);
+            soapMessage = messageHandler.processMessage(request, ebms3Messaging);
         } catch (EbMS3Exception e) {
             LOG.warn("Error processing message!");
             throw new WebServiceException(e);
@@ -86,7 +87,7 @@ public class MSHWebservice implements Provider<SOAPMessage> {
         }
     }
 
-    protected Messaging getMessaging() {
-        return (Messaging) PhaseInterceptorChain.getCurrentMessage().get(DispatchClientDefaultProvider.MESSAGING_KEY_CONTEXT_PROPERTY);
+    protected Ebms3Messaging getMessaging() {
+        return (Ebms3Messaging) PhaseInterceptorChain.getCurrentMessage().get(DispatchClientDefaultProvider.MESSAGING_KEY_CONTEXT_PROPERTY);
     }
 }

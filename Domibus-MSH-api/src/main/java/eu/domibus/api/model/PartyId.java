@@ -2,20 +2,21 @@ package eu.domibus.api.model;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 /**
  *
  * @author Cosmin Baciu
  * @since 5.0
  */
+@NamedQueries({
+        @NamedQuery(name = "PartyId.findByValue", query = "select prop from MessageProperty prop where prop.value=:VALUE"),
+})
 @Entity
-@Table(name = "TB_PARTY_ID")
+@Table(name = "TB_D_PARTY")
 public class PartyId extends AbstractBaseEntity implements Comparable<PartyId> {
 
-    @Column(name = "VALUE")
+    @Column(name = "VALUE", unique = true)
     protected String value;
 
     @Column(name = "TYPE")

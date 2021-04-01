@@ -47,7 +47,7 @@ import java.util.List;
  * @author Ioana Dragusanu (idragusa)
  * @since 4.1
  */
-@Mapper(uses = {EventMapper.class, AuditMapper.class}, componentModel = "spring")
+//@Mapper(uses = {EventMapper.class, AuditMapper.class}, componentModel = "spring")
 public interface DomibusCoreMapper {
 
     @Mapping(source = "id", target = "entityId")
@@ -93,12 +93,6 @@ public interface DomibusCoreMapper {
     @InheritInverseConfiguration
     MessageAttempt messageAttemptEntityToMessageAttempt(MessageAttemptEntity messageAttemptEntity);
 
-    @Mapping(target = "properties", ignore = true)
-    PartProperties partPropertiesDTOToPartProperties(PartPropertiesDTO partPropertiesDTO);
-
-    @InheritInverseConfiguration
-    PartPropertiesDTO partPropertiesToPartPropertiesDTO(PartProperties partProperties);
-
     @InheritInverseConfiguration
     PropertyDTO propertyToPropertyDTO(Property property);
 
@@ -120,12 +114,6 @@ public interface DomibusCoreMapper {
     @Mapping(target = "fileName", ignore = true)
     @Mapping(target = "length", ignore = true)
     PartInfo partInfoDTOToPartInfo(PartInfoDTO partInfoDTO);
-
-    @InheritInverseConfiguration
-    MessageInfoDTO messageInfoToMessageInfoDTO(MessageInfo messageInfo);
-
-    @Mapping(target = "entityId", ignore = true)
-    MessageInfo messageInfoDTOToMessageInfo(MessageInfoDTO messageInfoDTO);
 
     @InheritInverseConfiguration
     UserMessageDTO userMessageToUserMessageDTO(UserMessage userMessage);
@@ -254,34 +242,13 @@ public interface DomibusCoreMapper {
 
     UserMessage userMessageApiToUserMessage(eu.domibus.api.usermessage.domain.UserMessage userMessage);
 
-    default DomibusPropertyRO propertyApiToPropertyRO(DomibusProperty entity) {
-        DomibusPropertyRO res = propertyMetadataApiToPropertyRO(entity.getMetadata());
-        res.setValue(entity.getValue());
-        return res;
-    }
 
-    @Mapping(target = "usageText", expression = "java( meta.getUsageText() )")
-    DomibusPropertyRO propertyMetadataApiToPropertyRO(DomibusPropertyMetadata meta);
 
-    @Mapping(target = "properties", ignore = true)
-    PartProperties partPropertiesApiToPartProperties(eu.domibus.api.usermessage.domain.PartProperties partProperties);
 
-    @InheritInverseConfiguration
-    eu.domibus.api.usermessage.domain.PartProperties partPropertiesToPartPropertiesApi(PartProperties partProperties);
-
-    default DomibusPropertyTypeRO domibusPropertyMetadataTypeTOdomibusPropertyTypeRO(DomibusPropertyMetadata.Type type){
-        return new DomibusPropertyTypeRO(type.name(), type.getRegularExpression());
-    }
-
-    @InheritInverseConfiguration
-    DomibusPropertyMetadata propertyMetadataDTOTopropertyMetadata(DomibusPropertyMetadataDTO src);
-
-    DomibusPropertiesFilter domibusPropertyFilterRequestTOdomibusPropertiesFilter(PropertyFilterRequestRO source);
 
     PasswordEncryptionResultDTO passwordEncryptionResultToPasswordEncryptionResultDTO(PasswordEncryptionResult passwordEncryptionResult);
 
-    //cloning mappings
-    DomibusPropertyMetadata clonePropertyMetadata(DomibusPropertyMetadata src);
+
 
     //list mappings
     List<AuditResponseRo> auditLogListToAuditResponseRoList(List<AuditLog> auditLogList);
@@ -301,9 +268,7 @@ public interface DomibusCoreMapper {
 
     List<DomainRO> domainListToDomainROList(List<Domain> domainList);
 
-    List<DomibusPropertyRO> domibusPropertyListToDomibusPropertyROList(List<DomibusProperty> domibusPropertyList);
 
-    List<DomibusPropertyTypeRO> domibusPropertyMetadataTypeListToDomibusPropertyTypeROList(List<DomibusPropertyMetadata.Type> domibusPropertyMetadataTypeList);
 
     List<ErrorLogRO> errorLogEntryListToErrorLogROList(List<ErrorLogEntry> errorLogEntryList);
 

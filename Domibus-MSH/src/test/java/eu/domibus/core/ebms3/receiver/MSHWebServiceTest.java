@@ -30,7 +30,7 @@ public class MSHWebServiceTest {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MSHWebServiceTest.class);
     private static final String VALID_PMODE_CONFIG_URI = "samplePModes/domibus-configuration-valid.xml";
 
-    @Tested
+  /*  @Tested
     MSHWebservice mshWebservice;
 
     @Injectable
@@ -81,5 +81,5 @@ public class MSHWebServiceTest {
             messageHandler.processMessage(request, messaging);
             times = 0;
         }};
-    }
+    }*/
 }

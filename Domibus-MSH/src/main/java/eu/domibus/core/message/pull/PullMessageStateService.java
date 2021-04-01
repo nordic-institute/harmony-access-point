@@ -23,7 +23,7 @@ public interface PullMessageStateService {
      *
      * @param userMessageLog the user message.
      */
-    void sendFailed(UserMessageLog userMessageLog);
+    void sendFailed(UserMessageLog userMessageLog, String messageId);
 
 
     /**
@@ -31,6 +31,6 @@ public interface PullMessageStateService {
      *
      * @param userMessageLog the user message.
      */
-    void reset(UserMessageLog userMessageLog);
+    void reset(UserMessageLog userMessageLog, String messageId);
 
 }

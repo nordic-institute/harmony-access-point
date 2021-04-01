@@ -1,13 +1,13 @@
 package eu.domibus.core.ebms3.receiver.handler;
 
-import eu.domibus.core.message.MessagingDao;
+import eu.domibus.api.ebms3.model.Ebms3Error;
+import eu.domibus.api.ebms3.model.Ebms3Messaging;
+import eu.domibus.api.ebms3.model.Ebms3SignalMessage;
+import eu.domibus.api.model.UserMessage;
+import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
-import eu.domibus.api.model.Error;
-import eu.domibus.api.model.Messaging;
-import eu.domibus.api.model.SignalMessage;
-import eu.domibus.api.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections.CollectionUtils;
@@ -28,7 +28,7 @@ public class IncomingSignalErrorHandler implements IncomingMessageHandler {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(IncomingSignalErrorHandler.class);
 
     @Autowired
-    protected MessagingDao messagingDao;
+    protected UserMessageDao userMessageDao;
 
     @Autowired
     protected SplitAndJoinService splitAndJoinService;
@@ -40,29 +40,29 @@ public class IncomingSignalErrorHandler implements IncomingMessageHandler {
     protected SoapUtil soapUtil;
 
     @Override
-    public SOAPMessage processMessage(SOAPMessage request, Messaging messaging) {
-        final SignalMessage signalMessage = messaging.getSignalMessage();
+    public SOAPMessage processMessage(SOAPMessage request, Ebms3Messaging messaging) {
+        final Ebms3SignalMessage signalMessage = messaging.getSignalMessage();
         if (CollectionUtils.isEmpty(signalMessage.getError())) {
             LOG.warn("Could not process the Signal: no errors found");
             return null;
         }
 
-        if(signalMessage.getError().size() > 1) {
+        if (signalMessage.getError().size() > 1) {
             LOG.warn("More than one error received in the SignalMessage, only the first one will be processed");
         }
 
-        final Error error = signalMessage.getError().iterator().next();
+        final Ebms3Error error = signalMessage.getError().iterator().next();
         LOG.debug("Processing Signal with error [{}]", error);
 
         final String refToMessageId = signalMessage.getMessageInfo().getRefToMessageId();
-        final UserMessage userMessage = messagingDao.findUserMessageByMessageId(refToMessageId);
+        final UserMessage userMessage = userMessageDao.findByMessageId(refToMessageId);
         if (userMessage == null) {
             LOG.warn("Could not process the Signal: no message [{}] found", refToMessageId);
             return null;
         }
 
         if (userMessage.isSourceMessage()) {
-            processSourceMessageSignalError(userMessage, error);
+            processSourceMessageSignalError(userMessage);
         } else {
             LOG.warn("Could not process the Signal for message [{}]: not yet supported", refToMessageId);
         }
@@ -71,11 +71,11 @@ public class IncomingSignalErrorHandler implements IncomingMessageHandler {
         return null;
     }
 
-    protected void processSourceMessageSignalError(final UserMessage sourceMessage, Error error) {
-        final String messageId = sourceMessage.getMessageInfo().getMessageId();
+    protected void processSourceMessageSignalError(final UserMessage sourceMessage) {
+        final String messageId = sourceMessage.getMessageId();
         LOG.info("Processing Signal error for SourceMessage [{}]", messageId);
 
-        splitAndJoinService.handleSourceMessageSignalError(messageId, error);
+        splitAndJoinService.handleSourceMessageSignalError(messageId);
 
         LOG.debug("Finished processing Signal error for SourceMessage [{}]", messageId);
     }

@@ -1,189 +1,189 @@
 package eu.domibus.api.model;
 
-import eu.domibus.api.ebms3.Ebms3Constants;
-import eu.domibus.api.model.splitandjoin.MessageFragmentEntity;
 import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author Cosmin Baciu
  * @since 5.0
  */
+@NamedQueries({
+        @NamedQuery(name = "UserMessage.findByGroupEntityId", query = "select mg.sourceMessage from MessageGroupEntity mg where mg.entityId=:ENTITY_ID"),
+        @NamedQuery(name = "UserMessage.findByMessageId", query = "select um from UserMessage um where um.messageId=:MESSAGE_ID"),
+        @NamedQuery(name = "UserMessage.deleteMessages", query = "delete from UserMessage mi where mi.messageId in :MESSAGEIDS"),
+        @NamedQuery(name = "UserMessage.findUserMessageByGroupId",
+                query = "select mf.userMessage from MessageFragmentEntity mf where mf.group.groupId = :GROUP_ID order by mf.fragmentNumber asc"),
+})
 @Entity
 @Table(name = "TB_USER_MESSAGE")
 public class UserMessage extends AbstractBaseEntity {
 
-    @OneToOne(cascade = CascadeType.ALL)
-    protected MessageInfo messageInfo;
+    public static final String MESSAGE_ID_CONTEXT_PROPERTY = "ebms.messageid";
+
+    @Column(name = "MESSAGE_ID", nullable = false, unique = true, updatable = false)
+    @NotNull
+    protected String messageId;
+
+    @Column(name = "REF_TO_MESSAGE_ID")
+    protected String refToMessageId;
+
+    @Column(name = "CONVERSATION_ID", nullable = false)
+    @NotNull
+    protected String conversationId;
+
+    @Column(name = "EBMS3_TIMESTAMP")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date timestamp;
+
+    @Column(name = "SOURCE_MESSAGE")
+    protected Boolean sourceMessage;
+
+    @Column(name = "MESSAGE_FRAGMENT")
+    protected Boolean messageFragment;
 
     @Embedded
     protected PartyInfo partyInfo; //NOSONAR
 
-    @Embedded
-    protected CollaborationInfo collaborationInfo; //NOSONAR
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @JoinColumn(name = "ACTION_ID_FK")
+    protected ActionEntity action;
 
-    @Embedded
-    protected MessageProperties messageProperties; //NOSONAR
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @JoinColumn(name = "SERVICE_ID_FK")
+    protected ServiceEntity service;
 
-    @Embedded
-    protected PayloadInfo payloadInfo; //NOSONAR
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @JoinColumn(name = "AGREEMENT_ID_FK")
+    protected AgreementRef agreementRef;
 
-    @Column(name = "MPC")
-    protected String mpc = Ebms3Constants.DEFAULT_MPC;
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @JoinColumn(name = "MPC_ID_FK")
+    protected MpcEntity mpc;
 
-    @Column(name = "SPLIT_AND_JOIN")
-    protected Boolean splitAndJoin;
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @JoinTable(name = "TB_MESSAGE_PROPERTIES",
+            joinColumns = @JoinColumn(name = "USER_MESSAGE_ID_FK"),
+            inverseJoinColumns = @JoinColumn(name = "MESSAGE_PROPERTY_FK")
+    )
+    protected Set<MessageProperty> messageProperties; //NOSONAR
 
-    @JoinColumn(name = "FK_MESSAGE_FRAGMENT_ID")
-    @OneToOne(cascade = CascadeType.ALL)
-    protected MessageFragmentEntity messageFragment;
+    @Transient
+    protected List<PartInfo> partInfoList;
 
-    @OneToOne(mappedBy = "userMessage", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private RawEnvelopeLog rawEnvelopeLog;
-
-    public MessageFragmentEntity getMessageFragment() {
-        return messageFragment;
+    public boolean isSplitAndJoin() {
+        return sourceMessage || messageFragment;
     }
 
-    public void setMessageFragment(MessageFragmentEntity messageFragment) {
-        this.messageFragment = messageFragment;
+    public String getMessageId() {
+        return messageId;
     }
 
-    public MessageInfo getMessageInfo() {
-        if (this.messageInfo == null) {
-            this.messageInfo = new MessageInfo();
-        }
-        return this.messageInfo;
+    public void setMessageId(String messageId) {
+        this.messageId = messageId;
     }
 
-    public void setMessageInfo(final MessageInfo value) {
-        this.messageInfo = value;
+    public String getRefToMessageId() {
+        return refToMessageId;
+    }
+
+    public void setRefToMessageId(String refToMessageId) {
+        this.refToMessageId = refToMessageId;
+    }
+
+    public String getConversationId() {
+        return conversationId;
+    }
+
+    public void setConversationId(String conversationId) {
+        this.conversationId = conversationId;
     }
 
     public PartyInfo getPartyInfo() {
-        return this.partyInfo;
+        return partyInfo;
     }
 
-    public void setPartyInfo(final PartyInfo value) {
-        this.partyInfo = value;
+    public void setPartyInfo(PartyInfo partyInfo) {
+        this.partyInfo = partyInfo;
     }
 
-    public CollaborationInfo getCollaborationInfo() {
-        return this.collaborationInfo;
+    public ActionEntity getAction() {
+        return action;
     }
 
-    public void setCollaborationInfo(final CollaborationInfo value) {
-        this.collaborationInfo = value;
+    public String getActionValue() {
+        return action.getValue();
     }
 
-    public MessageProperties getMessageProperties() {
-        return this.messageProperties;
+    public void setAction(ActionEntity action) {
+        this.action = action;
     }
 
-    public void setMessageProperties(final MessageProperties value) {
-        this.messageProperties = value;
+    public ServiceEntity getService() {
+        return service;
     }
 
-    public PayloadInfo getPayloadInfo() {
-        return this.payloadInfo;
+    public void setService(ServiceEntity service) {
+        this.service = service;
     }
 
-    public void setPayloadInfo(final PayloadInfo value) {
-        this.payloadInfo = value;
+    public AgreementRef getAgreementRef() {
+        return agreementRef;
     }
 
-    public String getMpc() {
-        return this.mpc;
+    public void setAgreementRef(AgreementRef agreementRef) {
+        this.agreementRef = agreementRef;
     }
 
-    public void setMpc(final String value) {
-        this.mpc = value;
+    public MpcEntity getMpc() {
+        return mpc;
     }
 
-    public boolean isPayloadOnFileSystem() {
-        for (PartInfo partInfo : getPayloadInfo().getPartInfo()) {
-            if (StringUtils.isNotEmpty(partInfo.getFileName()))
-                return true;
-        }
-        return false;
+    public void setMpc(MpcEntity mpc) {
+        this.mpc = mpc;
     }
 
-    public Boolean isSplitAndJoin() {
-        return BooleanUtils.toBoolean(splitAndJoin);
+    public Set<MessageProperty> getMessageProperties() {
+        return messageProperties;
     }
 
-    public void setSplitAndJoin(Boolean splitAndJoin) {
-        this.splitAndJoin = splitAndJoin;
+    public void setMessageProperties(Set<MessageProperty> messageProperties) {
+        this.messageProperties = messageProperties;
     }
 
-    public boolean isUserMessageFragment() {
-        return isSplitAndJoin() && messageFragment != null;
+    public Date getTimestamp() {
+        return timestamp;
     }
 
-    public boolean isSourceMessage() {
-        return isSplitAndJoin() && messageFragment == null;
+    public void setTimestamp(Date timestamp) {
+        this.timestamp = timestamp;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-
-        if (o == null || getClass() != o.getClass()) return false;
-
-        UserMessage that = (UserMessage) o;
-
-        return new EqualsBuilder()
-                .appendSuper(super.equals(o))
-                .append(messageInfo, that.messageInfo)
-                .append(partyInfo, that.partyInfo)
-                .append(collaborationInfo, that.collaborationInfo)
-                .append(messageProperties, that.messageProperties)
-                .append(payloadInfo, that.payloadInfo)
-                .append(mpc, that.mpc)
-                .isEquals();
+    public Boolean isSourceMessage() {
+        return sourceMessage;
     }
 
-    @Override
-    public int hashCode() {
-        return new HashCodeBuilder(17, 37)
-                .appendSuper(super.hashCode())
-                .append(messageInfo)
-                .append(partyInfo)
-                .append(collaborationInfo)
-                .append(messageProperties)
-                .append(payloadInfo)
-                .append(mpc)
-                .toHashCode();
+    public void setSourceMessage(Boolean sourceMessage) {
+        this.sourceMessage = sourceMessage;
     }
 
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this)
-                .append("messageInfo", messageInfo)
-                .append("partyInfo", partyInfo)
-                .append("collaborationInfo", collaborationInfo)
-                .append("messageProperties", messageProperties)
-                .append("payloadInfo", payloadInfo)
-                .append("mpc", mpc)
-                .toString();
+    public boolean isMessageFragment() {
+        return BooleanUtils.toBoolean(messageFragment);
     }
 
-    public String getFromFirstPartyId() {
-        if (getPartyInfo() != null && getPartyInfo().getFrom() != null) {
-            return getPartyInfo().getFrom().getFirstPartyId();
-        }
-        return null;
+    public void setMessageFragment(Boolean messageFragment) {
+        this.messageFragment = messageFragment;
     }
 
-    public String getToFirstPartyId() {
-        if (getPartyInfo() != null && getPartyInfo().getTo() != null) {
-            return getPartyInfo().getTo().getFirstPartyId();
-        }
-        return null;
+    public List<PartInfo> getPartInfoList() {
+        return partInfoList;
+    }
+
+    public void setPartInfoList(List<PartInfo> partInfoList) {
+        this.partInfoList = partInfoList;
     }
 }

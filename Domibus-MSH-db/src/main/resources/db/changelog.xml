@@ -320,7 +320,6 @@
             <column name="MESSAGE_ID" type="VARCHAR(255)"/>
             <column name="REF_TO_MESSAGE_ID" type="VARCHAR(255)"/>
             <column name="CONVERSATION_ID" type="VARCHAR(255)"/>
-            <column name="SPLIT_AND_JOIN" type="BOOLEAN"/>
             <column name="SOURCE_MESSAGE" remarks="true if the message is a SourceMessage" type="BOOLEAN"/>
             <column name="MESSAGE_FRAGMENT" remarks="true if the message is a message fragment" type="BOOLEAN"/>
             <column name="EBMS3_TIMESTAMP" type="TIMESTAMP" remarks="the EBMS3 timestamp present in eb:Messaging/eb:UserMessage/eb:MessageInfo/eb:Timestamp"/>

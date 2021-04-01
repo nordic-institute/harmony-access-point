@@ -1,55 +1,7 @@
 package eu.domibus.core.pmode.provider;
 
-import com.google.common.collect.Collections2;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import eu.domibus.api.cluster.SignalService;
-import eu.domibus.api.jms.JMSManager;
-import eu.domibus.api.model.Service;
-import eu.domibus.api.multitenancy.Domain;
-import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.api.util.xml.XMLUtil;
-import eu.domibus.common.ErrorCode;
-import eu.domibus.api.model.MSHRole;
-import eu.domibus.common.model.configuration.Process;
-import eu.domibus.common.model.configuration.*;
-import eu.domibus.core.ebms3.EbMS3Exception;
-import eu.domibus.api.ebms3.Ebms3Constants;
-import eu.domibus.core.exception.ConfigurationException;
-import eu.domibus.core.message.MessageExchangeConfiguration;
-import eu.domibus.core.message.pull.MpcService;
-import eu.domibus.core.message.pull.PullMessageService;
-import eu.domibus.core.pmode.*;
-import eu.domibus.core.pmode.validation.PModeValidationService;
-import eu.domibus.api.model.AgreementRef;
-import eu.domibus.api.ebms3.MessageExchangePattern;
-import eu.domibus.api.model.PartyId;
-import eu.domibus.api.model.UserMessage;
-import eu.domibus.logging.DomibusLogger;
-import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.test.util.PojoInstaciatorUtil;
-import mockit.*;
 import mockit.integration.junit4.JMockit;
-import org.apache.commons.lang3.StringUtils;
-import org.junit.Assert;
-import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import javax.jms.Topic;
-import javax.persistence.EntityManager;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
-import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.*;
-
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED;
-import static eu.domibus.core.message.MessageExchangeConfiguration.PMODEKEY_SEPARATOR;
-import static org.junit.Assert.*;
 
 /**
  * @author Arun Raj, Soumya Chandran
@@ -59,7 +11,7 @@ import static org.junit.Assert.*;
 @RunWith(JMockit.class)
 public class CachingPModeProviderTest {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CachingPModeProviderTest.class);
+   /* private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CachingPModeProviderTest.class);
 
     private static final String VALID_PMODE_CONFIG_URI = "samplePModes/domibus-configuration-valid.xml";
     private static final String VALID_PMODE_TEST_CONFIG_URI = "samplePModes/domibus-configuration-valid-testservice.xml";
@@ -256,7 +208,7 @@ public class CachingPModeProviderTest {
             result = "";
         }};
 
-        Assert.assertEquals("blue_gw", cachingPModeProvider.findPartyName(Collections.singletonList(partyId1)));
+        Assert.assertEquals("blue_gw", cachingPModeProvider.findPartyName(partyId1));
     }
 
     @Test
@@ -1642,5 +1594,5 @@ public class CachingPModeProviderTest {
         assertTrue(cachingPModeProvider.isPartyIdTypeMatching("testidType", "TESTIDTYPE"));
         assertFalse(cachingPModeProvider.isPartyIdTypeMatching("testidType1", "TESTIDTYPE2"));
 
-    }
+    }*/
 }

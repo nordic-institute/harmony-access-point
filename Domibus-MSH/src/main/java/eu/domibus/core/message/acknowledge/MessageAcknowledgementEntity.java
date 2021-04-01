@@ -1,15 +1,13 @@
 package eu.domibus.core.message.acknowledge;
 
 import eu.domibus.api.model.AbstractBaseEntity;
+import eu.domibus.api.model.UserMessage;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * @author migueti, Cosmin Baciu
@@ -26,8 +24,9 @@ import java.util.Set;
 })
 public class MessageAcknowledgementEntity extends AbstractBaseEntity {
 
-    @Column(name = "MESSAGE_ID")
-    private String messageId;
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @JoinColumn(name = "USER_MESSAGE_ID_FK")
+    protected UserMessage userMessage;
 
     @Column(name = "FROM_VALUE")
     private String from;
@@ -43,18 +42,6 @@ public class MessageAcknowledgementEntity extends AbstractBaseEntity {
 
     @Column(name = "ACKNOWLEDGE_DATE")
     private Timestamp acknowledgeDate;
-
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "FK_MSG_ACKNOWLEDGE")
-    private Set<MessageAcknowledgementProperty> properties;
-
-    public String getMessageId() {
-        return messageId;
-    }
-
-    public void setMessageId(String messageId) {
-        this.messageId = messageId;
-    }
 
     public String getFrom() {
         return from;
@@ -72,54 +59,12 @@ public class MessageAcknowledgementEntity extends AbstractBaseEntity {
         this.to = to;
     }
 
-    public Set<MessageAcknowledgementProperty> getProperties() {
-        return properties;
-    }
-
-    public Map<String, String> getPropertiesAsMap() {
-        if (properties == null) {
-            return null;
-        }
-        final HashMap<String, String> hashMap = new HashMap<>();
-        for (MessageAcknowledgementProperty property : properties) {
-            hashMap.put(property.getName(), property.getValue());
-        }
-        return hashMap;
-    }
-
-    public void setPropertiesWithMap(Map<String, String> properties) {
-        if (properties == null || properties.isEmpty()) {
-            return;
-        }
-
-        Set<MessageAcknowledgementProperty> acknowledgmentProperties = new HashSet<>();
-        for (Map.Entry<String, String> entry : properties.entrySet()) {
-            MessageAcknowledgementProperty property = new MessageAcknowledgementProperty();
-            property.setName(entry.getKey());
-            property.setValue(entry.getValue());
-            acknowledgmentProperties.add(property);
-        }
-        this.properties = acknowledgmentProperties;
-    }
-
-    public void setProperties(Set<MessageAcknowledgementProperty> properties) {
-        this.properties = properties;
-    }
-
     public Timestamp getCreateDate() {
         return createDate;
     }
 
     public void setCreateDate(Timestamp createDate) {
         this.createDate = createDate;
-    }
-
-    public Timestamp getAcknowledgeDate() {
-        return acknowledgeDate;
-    }
-
-    public void setAcknowledgeDate(Timestamp acknowledgeDate) {
-        this.acknowledgeDate = acknowledgeDate;
     }
 
     public String getCreateUser() {
@@ -130,19 +75,37 @@ public class MessageAcknowledgementEntity extends AbstractBaseEntity {
         this.createUser = createUser;
     }
 
+    public Timestamp getAcknowledgeDate() {
+        return acknowledgeDate;
+    }
+
+    public void setAcknowledgeDate(Timestamp acknowledgeDate) {
+        this.acknowledgeDate = acknowledgeDate;
+    }
+
+    public UserMessage getUserMessage() {
+        return userMessage;
+    }
+
+    public void setUserMessage(UserMessage userMessage) {
+        this.userMessage = userMessage;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
 
         if (o == null || getClass() != o.getClass()) return false;
 
-        MessageAcknowledgementEntity messageAcknowledgementEntity = (MessageAcknowledgementEntity) o;
+        MessageAcknowledgementEntity that = (MessageAcknowledgementEntity) o;
 
         return new EqualsBuilder()
                 .appendSuper(super.equals(o))
-                .append(messageId, messageAcknowledgementEntity.getMessageId())
-                .append(from, messageAcknowledgementEntity.getFrom())
-                .append(to, messageAcknowledgementEntity.getTo())
+                .append(from, that.from)
+                .append(to, that.to)
+                .append(createDate, that.createDate)
+                .append(createUser, that.createUser)
+                .append(acknowledgeDate, that.acknowledgeDate)
                 .isEquals();
     }
 
@@ -150,9 +113,22 @@ public class MessageAcknowledgementEntity extends AbstractBaseEntity {
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
                 .appendSuper(super.hashCode())
-                .append(messageId)
                 .append(from)
                 .append(to)
+                .append(createDate)
+                .append(createUser)
+                .append(acknowledgeDate)
                 .toHashCode();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("from", from)
+                .append("to", to)
+                .append("createDate", createDate)
+                .append("createUser", createUser)
+                .append("acknowledgeDate", acknowledgeDate)
+                .toString();
     }
 }

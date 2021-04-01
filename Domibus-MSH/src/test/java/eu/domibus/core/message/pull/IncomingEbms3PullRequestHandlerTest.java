@@ -11,7 +11,7 @@ import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.core.message.MessagingService;
 import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.UserMessageLogDao;
-import eu.domibus.core.message.nonrepudiation.RawEnvelopeLogDao;
+import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
 import eu.domibus.core.message.reliability.ReliabilityService;
 import eu.domibus.core.message.compression.CompressionService;
 import eu.domibus.core.generator.id.MessageIdGenerator;
@@ -52,7 +52,7 @@ import javax.xml.transform.TransformerFactory;
 @RunWith(JMockit.class)
 public class IncomingEbms3PullRequestHandlerTest {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(IncomingEbms3PullRequestHandlerTest.class);
+    /*private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(IncomingEbms3PullRequestHandlerTest.class);
     private static final String VALID_PMODE_CONFIG_URI = "samplePModes/domibus-configuration-valid.xml";
 
     @Injectable
@@ -65,7 +65,7 @@ public class IncomingEbms3PullRequestHandlerTest {
     MessagingDao messagingDao;
 
     @Injectable
-    RawEnvelopeLogDao rawEnvelopeLogDao;
+    UserMessageRawEnvelopeDao rawEnvelopeLogDao;
 
     @Injectable
     MessagingService messagingService;
@@ -193,7 +193,7 @@ public class IncomingEbms3PullRequestHandlerTest {
             pullRequestHandler.handlePullRequest(messageId, pullContext, null);
             times = 1;
         }};
-    }
+    }*/
 
 
 }

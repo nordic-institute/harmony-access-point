@@ -7,6 +7,7 @@ import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.validators.SkipWhiteListed;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.property.DomibusPropertiesFilter;
+import eu.domibus.core.property.DomibusPropertyMetadataMapper;
 import eu.domibus.core.property.DomibusPropertyResourceHelper;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.error.ErrorHandlerService;
@@ -38,15 +39,15 @@ public class DomibusPropertyResource extends BaseResource {
 
     private DomibusPropertyResourceHelper domibusPropertyResourceHelper;
 
-    private DomibusCoreMapper coreMapper;
+    private DomibusPropertyMetadataMapper domibusPropertyMetadataMapper;
 
     private ErrorHandlerService errorHandlerService;
 
     public DomibusPropertyResource(DomibusPropertyResourceHelper domibusPropertyResourceHelper,
-                                   DomibusCoreMapper coreMapper,
+                                   DomibusPropertyMetadataMapper domibusPropertyMetadataMapper,
                                    ErrorHandlerService errorHandlerService) {
         this.domibusPropertyResourceHelper = domibusPropertyResourceHelper;
-        this.coreMapper = coreMapper;
+        this.domibusPropertyMetadataMapper = domibusPropertyMetadataMapper;
         this.errorHandlerService = errorHandlerService;
     }
 
@@ -61,7 +62,7 @@ public class DomibusPropertyResource extends BaseResource {
     public PropertyResponseRO getProperties(@Valid PropertyFilterRequestRO request) {
         PropertyResponseRO response = new PropertyResponseRO();
 
-        DomibusPropertiesFilter filter = coreMapper.domibusPropertyFilterRequestTOdomibusPropertiesFilter(request);
+        DomibusPropertiesFilter filter = domibusPropertyMetadataMapper.domibusPropertyFilterRequestTOdomibusPropertiesFilter(request);
         List<DomibusProperty> items = domibusPropertyResourceHelper.getAllProperties(filter);
 
         response.setCount(items.size());
@@ -70,7 +71,7 @@ public class DomibusPropertyResource extends BaseResource {
                 .limit(request.getPageSize())
                 .collect(Collectors.toList());
 
-        List<DomibusPropertyRO> convertedItems = coreMapper.domibusPropertyListToDomibusPropertyROList(items);
+        List<DomibusPropertyRO> convertedItems = domibusPropertyMetadataMapper.domibusPropertyListToDomibusPropertyROList(items);
 
         response.setItems(convertedItems);
 
@@ -102,12 +103,12 @@ public class DomibusPropertyResource extends BaseResource {
      */
     @GetMapping(path = "/csv")
     public ResponseEntity<String> getCsv(@Valid PropertyFilterRequestRO request) {
-        DomibusPropertiesFilter filter = coreMapper.domibusPropertyFilterRequestTOdomibusPropertiesFilter(request);
+        DomibusPropertiesFilter filter = domibusPropertyMetadataMapper.domibusPropertyFilterRequestTOdomibusPropertiesFilter(request);
         List<DomibusProperty> items = domibusPropertyResourceHelper.getAllProperties(filter);
 
         getCsvService().validateMaxRows(items.size());
 
-        List<DomibusPropertyRO> convertedItems = coreMapper.domibusPropertyListToDomibusPropertyROList(items);
+        List<DomibusPropertyRO> convertedItems = domibusPropertyMetadataMapper.domibusPropertyListToDomibusPropertyROList(items);
 
         return exportToCSV(convertedItems, DomibusPropertyRO.class,
                 ImmutableMap.of("name".toUpperCase(), "Property Name",
@@ -130,7 +131,7 @@ public class DomibusPropertyResource extends BaseResource {
         LOG.debug("Getting domibus property metadata types.");
 
         DomibusPropertyMetadata.Type[] types = DomibusPropertyMetadata.Type.values();
-        List<DomibusPropertyTypeRO> res = coreMapper.domibusPropertyMetadataTypeListToDomibusPropertyTypeROList(Arrays.asList(types));
+        List<DomibusPropertyTypeRO> res = domibusPropertyMetadataMapper.domibusPropertyMetadataTypeListToDomibusPropertyTypeROList(Arrays.asList(types));
         return res;
     }
 
@@ -143,7 +144,7 @@ public class DomibusPropertyResource extends BaseResource {
     @GetMapping(path = "/{propertyName:.+}")
     public DomibusPropertyRO getProperty(@Valid @PathVariable String propertyName) {
         DomibusProperty prop = domibusPropertyResourceHelper.getProperty(propertyName);
-        DomibusPropertyRO convertedProp = coreMapper.propertyApiToPropertyRO(prop);
+        DomibusPropertyRO convertedProp = domibusPropertyMetadataMapper.propertyApiToPropertyRO(prop);
         return convertedProp;
     }
 }

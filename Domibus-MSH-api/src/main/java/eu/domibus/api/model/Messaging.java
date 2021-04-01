@@ -1,6 +1,7 @@
 package eu.domibus.api.model;
 
 import javax.persistence.*;
+import java.util.List;
 
 
 /**
@@ -10,17 +11,6 @@ import javax.persistence.*;
 @Entity
 @Table(name = "TB_MESSAGING")
 @NamedQueries({
-        @NamedQuery(name = "Messaging.findUserMessageByGroupId",
-                query = "select messaging.userMessage from Messaging messaging where messaging.userMessage.messageFragment.groupId = :GROUP_ID order by messaging.userMessage.messageFragment.fragmentNumber asc"),
-        @NamedQuery(name = "Messaging.findUserMessageByMessageId",
-                query = "select messaging.userMessage from Messaging messaging where messaging.userMessage.messageInfo.messageId = :MESSAGE_ID"),
-        @NamedQuery(name = "Messaging.findMessageByMessageId",
-                query = "select messaging from Messaging messaging where messaging.userMessage.messageInfo.messageId = :MESSAGE_ID"),
-        @NamedQuery(name = "Messaging.findSignalMessageByMessageId",
-                query = "select messaging.signalMessage from Messaging messaging where messaging.signalMessage.messageInfo.messageId = :MESSAGE_ID"),
-
-        @NamedQuery(name = "Messaging.findPartInfosForMessage", query = "select m.userMessage.payloadInfo.partInfo from Messaging m where m.userMessage.messageInfo.messageId = :MESSAGE_ID"),
-
         @NamedQuery(name = "Messaging.emptyPayloads", query = "update PartInfo p set p.binaryData = null where p in :PARTINFOS"),
         @NamedQuery(name = "Messaging.findSignalMessageByUserMessageId",
                 query = "select messaging.signalMessage from Messaging messaging where messaging.signalMessage.messageInfo.refToMessageId = :MESSAGE_ID"),
@@ -37,6 +27,7 @@ public class Messaging extends AbstractBaseEntity {
     @JoinColumn(name = "USER_MESSAGE_ID")
     @OneToOne(cascade = CascadeType.ALL)
     protected UserMessage userMessage;
+
 
     public SignalMessage getSignalMessage() {
         return this.signalMessage;

@@ -9,7 +9,7 @@ import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.ReceptionAwareness;
 import eu.domibus.core.message.*;
-import eu.domibus.core.message.nonrepudiation.RawEnvelopeLogDao;
+import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
 import eu.domibus.core.message.retention.MessageRetentionService;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
@@ -29,7 +29,7 @@ import static org.junit.Assert.assertTrue;
 @RunWith(JMockit.class)
 public class UpdateRetryLoggingServiceTest {
 
-    private static final int RETRY_TIMEOUT_IN_MINUTES = 60;
+   /* private static final int RETRY_TIMEOUT_IN_MINUTES = 60;
 
     private static final int RETRY_COUNT = 4;
 
@@ -58,7 +58,7 @@ public class UpdateRetryLoggingServiceTest {
     private UIReplicationSignalService uiReplicationSignalService;
 
     @Injectable
-    private RawEnvelopeLogDao rawEnvelopeLogDao;
+    private UserMessageRawEnvelopeDao rawEnvelopeLogDao;
 
     @Injectable
     DomibusPropertyProvider domibusPropertyProvider;
@@ -76,7 +76,7 @@ public class UpdateRetryLoggingServiceTest {
     MessageRetentionService messageRetentionService;
 
 
-    /**
+    *//**
      * Max retries limit reached
      * Timeout limit not reached
      * Notification is enabled
@@ -85,7 +85,7 @@ public class UpdateRetryLoggingServiceTest {
      * MessagingDao#clearPayloadData() is called
      *
      * @throws Exception
-     */
+     *//*
     @Test
     public void testUpdateRetryLogging_maxRetriesReachedNotificationEnabled_ExpectedMessageStatus(@Injectable UserMessage userMessage,
                                                                                                   @Injectable UserMessageLog userMessageLog,
@@ -116,12 +116,12 @@ public class UpdateRetryLoggingServiceTest {
     }
 
 
-    /**
+    *//**
      * Message was restored
      * NextAttempt is set correctly
      *
      * @throws Exception
-     */
+     *//*
     @Test
     public void testUpdateRetryLogging_Restored(@Injectable LegConfiguration legConfiguration,
                                                 @Injectable UserMessageLog userMessageLog) throws Exception {
@@ -178,7 +178,7 @@ public class UpdateRetryLoggingServiceTest {
         }};
     }
 
-    /**
+    *//**
      * Max retries limit reached
      * Notification is disabled
      * Clear payload is default (false)
@@ -187,7 +187,7 @@ public class UpdateRetryLoggingServiceTest {
      * MessageLogDao#setAsNotified() is not called
      *
      * @throws Exception
-     */
+     *//*
     @Test
     public void testUpdateRetryLogging_maxRetriesReachedNotificationDisabled_ExpectedMessageStatus_ClearPayloadDisabled(@Injectable UserMessage userMessage,
                                                                                                                         @Injectable UserMessageLog userMessageLog,
@@ -227,7 +227,7 @@ public class UpdateRetryLoggingServiceTest {
 
     }
 
-    /**
+    *//**
      * Max retries limit not reached
      * Timeout limit reached
      * Notification is enabled
@@ -236,7 +236,7 @@ public class UpdateRetryLoggingServiceTest {
      * MessageLogDao#setAsNotified() is called
      *
      * @throws Exception
-     */
+     *//*
     @Test
     public void testUpdateRetryLogging_timeoutNotificationEnabled_ExpectedMessageStatus(@Injectable UserMessage userMessage,
                                                                                         @Injectable UserMessageLog userMessageLog,
@@ -275,12 +275,12 @@ public class UpdateRetryLoggingServiceTest {
     }
 
 
-    /**
+    *//**
      * Max retries limit not reached
      * Timeout limit reached
      *
      * @throws Exception
-     */
+     *//*
     @Test
     public void testUpdateRetryLogging_timeoutNotificationDisabled_ExpectedMessageStatus(@Injectable UserMessage userMessage,
                                                                                          @Injectable UserMessageLog userMessageLog,
@@ -460,5 +460,5 @@ public class UpdateRetryLoggingServiceTest {
 
         new FullVerifications() {{
         }};
-    }
+    }*/
 }

@@ -12,10 +12,10 @@ import org.mapstruct.Mapping;
  * @author Cosmin Baciu
  * @since 5.0
  */
-@Mapper(config = Ebms3CentralMapperConfig.class,
+/*@Mapper(config = Ebms3CentralMapperConfig.class,
         uses = {
                 Ebms3PartyIdMapper.class,
-        })
+        })*/
 public interface Ebms3PartyToMapper {
 
     @Mapping(source = "partyId", target = "partyId")

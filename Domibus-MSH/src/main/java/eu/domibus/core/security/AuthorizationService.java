@@ -1,6 +1,7 @@
 package eu.domibus.core.security;
 
 import com.google.common.collect.Lists;
+import eu.domibus.api.ebms3.model.Ebms3PullRequest;
 import eu.domibus.api.model.PullRequest;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.pki.CertificateService;
@@ -14,6 +15,7 @@ import eu.domibus.core.crypto.spi.model.AuthorizationException;
 import eu.domibus.core.crypto.spi.model.UserMessagePmodeData;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.pmode.provider.PModeProvider;
+import eu.domibus.ext.domain.PullRequestDTO;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,19 +79,21 @@ public class AuthorizationService {
         return authorizationServiceList.get(0);
     }
 
-    public void authorizePullRequest(SOAPMessage request, PullRequest pullRequest) throws EbMS3Exception {
+    public void authorizePullRequest(SOAPMessage request, String mpc) throws EbMS3Exception {
         if (!isAuthorizationEnabled(request)) {
             return;
         }
         final CertificateTrust certificateTrust = getCertificateTrust(request);
         final PullRequestPmodeData pullRequestPmodeData;
         try {
-            pullRequestPmodeData = pModeProvider.getPullRequestMapping(pullRequest);
+            pullRequestPmodeData = pModeProvider.getPullRequestMapping(mpc);
         } catch (EbMS3Exception e) {
             throw new AuthorizationException(e);
         }
+        final PullRequestDTO pullRequestDTO = new PullRequestDTO();
+        pullRequestDTO.setMpc(mpc);
         getAuthorizationService().authorize(certificateTrust.getTrustChain(), certificateTrust.getSigningCertificate(),
-                coreMapper.pullRequestToPullRequestDTO(pullRequest), pullRequestPmodeData);
+                pullRequestDTO, pullRequestPmodeData);
     }
 
     public void authorizeUserMessage(SOAPMessage request, UserMessage userMessage) throws EbMS3Exception {

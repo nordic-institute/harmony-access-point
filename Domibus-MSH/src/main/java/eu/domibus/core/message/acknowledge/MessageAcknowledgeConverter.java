@@ -12,7 +12,7 @@ import java.util.Map;
  */
 public interface MessageAcknowledgeConverter {
 
-    MessageAcknowledgementEntity create(String user, String messageId, Timestamp acknowledgeTimestamp, String from, String to, Map<String, String> properties);
+    MessageAcknowledgementEntity create(String user, String messageId, Timestamp acknowledgeTimestamp, String from, String to);
 
     MessageAcknowledgement convert(MessageAcknowledgementEntity entity);
 

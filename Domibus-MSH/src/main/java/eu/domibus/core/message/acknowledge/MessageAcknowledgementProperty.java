@@ -4,9 +4,7 @@ import eu.domibus.api.model.AbstractBaseEntity;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 /**
  * @author migueti, Cosmin Baciu
@@ -22,6 +20,10 @@ public class MessageAcknowledgementProperty extends AbstractBaseEntity {
     @Column(name = "PROPERTY_VALUE")
     private String value;
 
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @JoinColumn(name = "MESSAGE_ACK_ID_FK")
+    protected MessageAcknowledgementEntity acknowledgementEntity;
+
     public String getName() {
         return name;
     }
@@ -36,6 +38,14 @@ public class MessageAcknowledgementProperty extends AbstractBaseEntity {
 
     public void setValue(String value) {
         this.value = value;
+    }
+
+    public MessageAcknowledgementEntity getAcknowledgementEntity() {
+        return acknowledgementEntity;
+    }
+
+    public void setAcknowledgementEntity(MessageAcknowledgementEntity acknowledgementEntity) {
+        this.acknowledgementEntity = acknowledgementEntity;
     }
 
     @Override

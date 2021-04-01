@@ -9,6 +9,7 @@ import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.core.message.MessagingDao;
 import eu.domibus.api.model.NotificationStatus;
+import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
 import eu.domibus.api.model.UserMessage;
@@ -31,7 +32,7 @@ public class PModeDefaultService implements PModeService {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PModeDefaultService.class);
 
     @Autowired
-    MessagingDao messagingDao;
+    UserMessageDao userMessageDao;
 
     @Autowired
     private PModeProvider pModeProvider;
@@ -44,7 +45,7 @@ public class PModeDefaultService implements PModeService {
 
     @Override
     public LegConfiguration getLegConfiguration(String messageId) {
-        final UserMessage userMessage = messagingDao.findUserMessageByMessageId(messageId);
+        final UserMessage userMessage = userMessageDao.findByMessageId(messageId);
         boolean isPull = messageExchangeService.forcePullOnMpc(userMessage);
         String pModeKey = null;
         try {

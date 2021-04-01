@@ -1,7 +1,7 @@
 package eu.domibus.core.message;
 
-import eu.domibus.api.model.*;
 import eu.domibus.api.datasource.AutoCloseFileDataSource;
+import eu.domibus.api.model.*;
 import eu.domibus.api.model.splitandjoin.MessageFragmentEntity;
 import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinDefaultService;
@@ -9,8 +9,7 @@ import org.springframework.stereotype.Service;
 
 import javax.activation.DataHandler;
 import java.io.File;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
  * Factory for creating UserMessage instances
@@ -25,20 +24,36 @@ public class UserMessageDefaultFactory implements UserMessageFactory {
     public static final String CID_FRAGMENT = "cid:fragment";
     public static final String APPLICATION_OCTET_STREAM = "application/octet-stream";
 
+    protected PartPropertyDao partPropertyDao;
+    protected MessagePropertyDao messagePropertyDao;
+    protected PartyIdDao partyIdDao;
+    protected PartyRoleDao partyRoleDao;
+
+    public UserMessageDefaultFactory(PartPropertyDao partPropertyDao, MessagePropertyDao messagePropertyDao, PartyIdDao partyIdDao, PartyRoleDao partyRoleDao) {
+        this.partPropertyDao = partPropertyDao;
+        this.messagePropertyDao = messagePropertyDao;
+        this.partyIdDao = partyIdDao;
+        this.partyRoleDao = partyRoleDao;
+    }
 
     @Override
     public UserMessage createUserMessageFragment(UserMessage sourceMessage, MessageGroupEntity messageGroupEntity, Long fragmentNumber, String fragmentFile) {
         UserMessage result = new UserMessage();
-        result.setSplitAndJoin(true);
-        String messageId = sourceMessage.getMessageInfo().getMessageId() + SplitAndJoinDefaultService.FRAGMENT_FILENAME_SEPARATOR + fragmentNumber;
-        result.setCollaborationInfo(createCollaborationInfo(sourceMessage.getCollaborationInfo()));
-        result.setMessageInfo(createMessageInfo(sourceMessage.getMessageInfo(), messageId));
+        result.setMessageFragment(true);
+        String messageId = sourceMessage.getMessageId() + SplitAndJoinDefaultService.FRAGMENT_FILENAME_SEPARATOR + fragmentNumber;
+        result.setMessageId(messageId);
+        result.setRefToMessageId(sourceMessage.getRefToMessageId());
+        result.setTimestamp(sourceMessage.getTimestamp());
+        result.setConversationId(sourceMessage.getConversationId());
+        result.setAgreementRef(createAgreementRef(sourceMessage));
+        result.setAction(createAction(sourceMessage));
+        result.setService(createService(sourceMessage));
         result.setPartyInfo(createPartyInfo(sourceMessage.getPartyInfo()));
         result.setMessageProperties(createMessageProperties(sourceMessage.getMessageProperties()));
-        result.setPayloadInfo(createPayloadInfo(fragmentFile, fragmentNumber));
+//        result.setPayloadInfo(createPayloadInfo(fragmentFile, fragmentNumber));
 
-        MessageFragmentEntity messageFragmentEntity = createMessageFragmentEntity(messageGroupEntity, fragmentNumber);
-        result.setMessageFragment(messageFragmentEntity);
+//        MessageFragmentEntity messageFragmentEntity = createMessageFragmentEntity(messageGroupEntity, fragmentNumber);
+//        result.setMessageFragment(messageFragmentEntity);
 
         return result;
     }
@@ -46,108 +61,108 @@ public class UserMessageDefaultFactory implements UserMessageFactory {
     @Override
     public UserMessage cloneUserMessageFragment(UserMessage userMessageFragment) {
         UserMessage result = new UserMessage();
-        result.setCollaborationInfo(createCollaborationInfo(userMessageFragment.getCollaborationInfo()));
-        result.setMessageInfo(createMessageInfo(userMessageFragment.getMessageInfo(), userMessageFragment.getMessageInfo().getMessageId()));
+        result.setMessageId(userMessageFragment.getMessageId());
+        result.setRefToMessageId(userMessageFragment.getRefToMessageId());
+        result.setTimestamp(userMessageFragment.getTimestamp());
+
+        result.setConversationId(userMessageFragment.getConversationId());
+        result.setAgreementRef(createAgreementRef(userMessageFragment));
+        result.setAction(createAction(userMessageFragment));
+        result.setService(createService(userMessageFragment));
+
         result.setPartyInfo(createPartyInfo(userMessageFragment.getPartyInfo()));
         result.setMessageProperties(createMessageProperties(userMessageFragment.getMessageProperties()));
         return result;
     }
 
-    protected MessageFragmentEntity createMessageFragmentEntity(MessageGroupEntity messageGroupEntity, Long fragmentNumber) {
+    @Override
+    public MessageFragmentEntity createMessageFragmentEntity(MessageGroupEntity messageGroupEntity, Long fragmentNumber) {
         MessageFragmentEntity result = new MessageFragmentEntity();
         result.setFragmentNumber(fragmentNumber);
-        result.setGroupId(messageGroupEntity.getGroupId());
+        result.setGroup(messageGroupEntity);
         return result;
     }
 
-    protected PayloadInfo createPayloadInfo(String fragmentFile, Long fragmentNumber) {
-        final PayloadInfo payloadInfo = new PayloadInfo();
-
+    @Override
+    public PartInfo createMessageFragmentPartInfo(String fragmentFile, Long fragmentNumber) {
         final PartInfo partInfo = new PartInfo();
         partInfo.setInBody(false);
         partInfo.setPayloadDatahandler(new DataHandler(new AutoCloseFileDataSource(fragmentFile)));
         partInfo.setHref(CID_FRAGMENT + fragmentNumber);
         partInfo.setFileName(fragmentFile);
         partInfo.setLength(new File(fragmentFile).length());
-        final PartProperties partProperties = new PartProperties();
-        final Property property = new Property();
-        property.setName(Property.MIME_TYPE);
-        property.setValue(APPLICATION_OCTET_STREAM);
-        partProperties.getProperties().add(property);
 
+        PartProperty partProperty = partPropertyDao.findOrCreateProperty(Property.MIME_TYPE, APPLICATION_OCTET_STREAM, null);
+        Set<PartProperty> partProperties = new HashSet<>();
+        partProperties.add(partProperty);
         partInfo.setPartProperties(partProperties);
-        payloadInfo.getPartInfo().add(partInfo);
-        return payloadInfo;
+        return partInfo;
     }
 
-    protected CollaborationInfo createCollaborationInfo(final CollaborationInfo source) {
-        final CollaborationInfo collaborationInfo = new CollaborationInfo();
-
-        collaborationInfo.setConversationId(source.getConversationId());
-        collaborationInfo.setAction(source.getAction());
-        if (source.getAgreementRef() != null) {
-            final AgreementRef agreementRef = new AgreementRef();
-            agreementRef.setValue(source.getAgreementRef().getValue());
-            agreementRef.setType(source.getAgreementRef().getType());
-            collaborationInfo.setAgreementRef(agreementRef);
+    protected AgreementRef createAgreementRef(UserMessage userMessage) {
+        AgreementRef agreementRef = userMessage.getAgreementRef();
+        if (agreementRef == null) {
+            return null;
         }
 
-        final eu.domibus.api.model.Service service = new eu.domibus.api.model.Service();
-        service.setValue(source.getService().getValue());
-        service.setType(source.getService().getType());
-        collaborationInfo.setService(service);
-
-        return collaborationInfo;
+        AgreementRef result = new AgreementRef();
+        result.setType(agreementRef.getType());
+        result.setValue(agreementRef.getValue());
+        return result;
     }
 
-    protected MessageInfo createMessageInfo(final MessageInfo source, String messageId) {
-        final MessageInfo messageInfo = new MessageInfo();
-        messageInfo.setMessageId(messageId);
-        messageInfo.setTimestamp(source.getTimestamp());
-        messageInfo.setRefToMessageId(source.getRefToMessageId());
-        return messageInfo;
+    protected ActionEntity createAction(UserMessage userMessage) {
+        ActionEntity result = new ActionEntity();
+        result.setValue(userMessage.getActionValue());
+        return result;
+    }
+
+    protected ServiceEntity createService(UserMessage userMessage) {
+        ServiceEntity result = new ServiceEntity();
+        ServiceEntity userMessageService = userMessage.getService();
+        result.setType(userMessageService.getType());
+        result.setValue(userMessageService.getValue());
+        return result;
     }
 
     protected PartyInfo createPartyInfo(final PartyInfo source) {
         final PartyInfo partyInfo = new PartyInfo();
 
-        final From from = new From();
-        if (source.getFrom() != null) {
-            from.setRole(source.getFrom().getRole());
-            for (final PartyId party : source.getFrom().getPartyId()) {
-                final PartyId newParty = new PartyId();
-                newParty.setValue(party.getValue());
-                newParty.setType(party.getType());
-                from.getPartyId().add(newParty);
-            }
-        }
-        partyInfo.setFrom(from);
 
-        final To to = new To();
-        if (source.getTo() != null) {
-            to.setRole(source.getTo().getRole());
-            for (final PartyId party : source.getTo().getPartyId()) {
-                final PartyId newParty = new PartyId();
-                newParty.setValue(party.getValue());
-                newParty.setType(party.getType());
-                to.getPartyId().add(newParty);
-            }
+        if (source.getFrom() != null) {
+            final From from = new From();
+            PartyRole fromPartyRole = partyRoleDao.findOrCreateRole(source.getFrom().getRole().getValue());
+            from.setRole(fromPartyRole);
+
+            PartyId fromPartyId = source.getFrom().getPartyId();
+            PartyId fromParty = partyIdDao.findOrCreateParty(fromPartyId.getValue(), fromPartyId.getType());
+            from.setPartyId(fromParty);
+
+            partyInfo.setFrom(from);
         }
-        partyInfo.setTo(to);
+
+        if (source.getTo() != null) {
+            final To to = new To();
+            PartyRole toPartyRole = partyRoleDao.findOrCreateRole(source.getTo().getRole().getValue());
+            to.setRole(toPartyRole);
+
+            PartyId toPartyId = source.getTo().getPartyId();
+            PartyId toParty = partyIdDao.findOrCreateParty(toPartyId.getValue(), toPartyId.getType());
+            to.setPartyId(toParty);
+
+            partyInfo.setTo(to);
+        }
 
         return partyInfo;
     }
 
-    protected MessageProperties createMessageProperties(final MessageProperties source) {
-        final MessageProperties messageProperties = new MessageProperties();
+    protected Set<MessageProperty> createMessageProperties(final Collection<MessageProperty> userMessageProperties) {
+        final Set<MessageProperty> messageProperties = new HashSet<>();
 
-        for (Property sourceProperty : source.getProperty()) {
+        for (MessageProperty sourceProperty : userMessageProperties) {
             if (ALLOWED_PROPERTIES.contains(sourceProperty.getName())) {
-                final Property prop = new Property();
-                prop.setName(sourceProperty.getName());
-                prop.setValue(sourceProperty.getValue());
-                prop.setType(sourceProperty.getType());
-                messageProperties.getProperty().add(prop);
+                MessageProperty messageProperty = messagePropertyDao.findOrCreateProperty(sourceProperty.getName(), sourceProperty.getValue(), sourceProperty.getType());
+                messageProperties.add(messageProperty);
             }
         }
 

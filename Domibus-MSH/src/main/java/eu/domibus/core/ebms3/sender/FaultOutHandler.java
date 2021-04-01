@@ -2,10 +2,12 @@ package eu.domibus.core.ebms3.sender;
 
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.MSHRoleEntity;
 import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.ebms3.ws.handler.AbstractFaultHandler;
 import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.error.ErrorLogEntry;
+import eu.domibus.core.message.MshRoleDao;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.api.model.Messaging;
 import eu.domibus.logging.DomibusLogger;
@@ -39,6 +41,9 @@ public class FaultOutHandler extends AbstractFaultHandler {
     @Autowired
     protected Ebms3Converter ebms3Converter;
 
+    @Autowired
+    protected MshRoleDao mshRoleDao;
+
     @Override
     public Set<QName> getHeaders() {
         return Collections.emptySet();
@@ -56,19 +61,18 @@ public class FaultOutHandler extends AbstractFaultHandler {
      */
     @Override
     public boolean handleFault(final SOAPMessageContext context) {
-
-
         final SOAPMessage soapMessage = context.getMessage();
-        final Ebms3Messaging ebms3Messaging = this.extractMessaging(soapMessage);
+        final Ebms3Messaging ebms3Messaging = extractMessaging(soapMessage);
         Messaging messaging = ebms3Converter.convertFromEbms3(ebms3Messaging);
-        final String messageId = messaging.getSignalMessage().getMessageInfo().getMessageId();
+        final String messageId = messaging.getSignalMessage().getSignalMessageId();
 
         //log the raw xml Signal message
         soapUtil.logRawXmlMessageWhenEbMS3Error(soapMessage);
 
         //save to database
         LOG.debug("An ebMS3 error was received for message with ebMS3 messageId [{}]. Please check the database for more detailed information.", messageId);
-        this.errorLogDao.create(ErrorLogEntry.parse(messaging, MSHRole.SENDING));
+        MSHRoleEntity role = mshRoleDao.findByRole(MSHRole.SENDING);
+        this.errorLogDao.create(ErrorLogEntry.parse(ebms3Messaging, role));
 
         return true;
     }

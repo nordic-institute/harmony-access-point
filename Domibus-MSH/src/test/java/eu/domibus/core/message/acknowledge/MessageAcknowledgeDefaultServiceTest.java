@@ -25,7 +25,7 @@ import java.util.Map;
 @RunWith(JMockit.class)
 public class MessageAcknowledgeDefaultServiceTest {
 
-    @Tested
+    /*@Tested
     MessageAcknowledgeDefaultService messageAcknowledgeDefaultService;
 
     @Injectable
@@ -168,5 +168,5 @@ public class MessageAcknowledgeDefaultServiceTest {
             messageAcknowledgementDao.create(entity);
             messageAcknowledgeConverter.convert(entity);
         }};
-    }
+    }*/
 }

@@ -14,29 +14,27 @@ import java.util.*;
 public class MessageAcknowledgeDefaultConverter implements MessageAcknowledgeConverter {
 
     @Override
-    public MessageAcknowledgementEntity create(String user, String messageId, Timestamp acknowledgeTimestamp, String from, String to, Map<String, String> properties) {
+    public MessageAcknowledgementEntity create(String user, String messageId, Timestamp acknowledgeTimestamp, String from, String to) {
         MessageAcknowledgementEntity result = new MessageAcknowledgementEntity();
-        result.setMessageId(messageId);
         result.setAcknowledgeDate(acknowledgeTimestamp);
         result.setCreateDate(new Timestamp(System.currentTimeMillis()));
         result.setCreateUser(user);
         result.setFrom(from);
         result.setTo(to);
-        result.setPropertiesWithMap(properties);
         return result;
     }
+
 
     @Override
     public MessageAcknowledgement convert(MessageAcknowledgementEntity entity) {
         MessageAcknowledgement result = new MessageAcknowledgement();
         result.setId(entity.getEntityId());
-        result.setMessageId(entity.getMessageId());
+        result.setMessageId(entity.getUserMessage().getMessageId());
         result.setFrom(entity.getFrom());
         result.setTo(entity.getTo());
         result.setCreateDate(entity.getCreateDate());
         result.setCreateUser(entity.getCreateUser());
         result.setAcknowledgeDate(entity.getAcknowledgeDate());
-        result.setProperties(entity.getPropertiesAsMap());
         return result;
     }
 

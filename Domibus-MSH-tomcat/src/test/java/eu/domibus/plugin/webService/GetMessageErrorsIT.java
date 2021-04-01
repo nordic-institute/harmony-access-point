@@ -28,12 +28,12 @@ import java.util.Date;
 @Deprecated
 public class GetMessageErrorsIT extends AbstractBackendWSIT {
 
-    @Autowired
+    /*@Autowired
     ErrorLogDao errorLogDao;
 
-    /**
+    *//**
      * Tests that the list of errors is not empty for a certain message.
-     */
+     *//*
     @Test
     public void testGetMessageErrorsOk() {
         String messageId = "9008713e-1912-460c-97b3-40ec12a29f49@domibus.eu";
@@ -49,9 +49,9 @@ public class GetMessageErrorsIT extends AbstractBackendWSIT {
         Assert.assertFalse(response.getItem().isEmpty());
     }
 
-    /**
+    *//**
      * Tests that the list of errors is empty for a certain message since there were no errors in the transaction.
-     */
+     *//*
     @Test
     public void testGetEmptyMessageErrorsList() {
 
@@ -66,5 +66,5 @@ public class GetMessageErrorsIT extends AbstractBackendWSIT {
         GetErrorsRequest errorsRequest = new GetErrorsRequest();
         errorsRequest.setMessageID(messageId);
         return errorsRequest;
-    }
+    }*/
 }

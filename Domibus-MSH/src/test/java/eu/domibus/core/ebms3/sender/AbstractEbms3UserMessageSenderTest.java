@@ -41,7 +41,7 @@ import java.util.UUID;
 @RunWith(JMockit.class)
 public class AbstractEbms3UserMessageSenderTest {
 
-    @Tested
+   /* @Tested
     AbstractUserMessageSender abstractUserMessageSender;
 
     @Injectable
@@ -475,5 +475,5 @@ public class AbstractEbms3UserMessageSenderTest {
             Assert.assertEquals(messageId, messageIdActual);
             Assert.assertEquals(reliabilityCheckSuccessful, checkResultActual);
         }};
-    }
+    }*/
 }

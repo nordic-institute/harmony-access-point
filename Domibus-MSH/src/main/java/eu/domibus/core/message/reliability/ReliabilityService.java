@@ -1,6 +1,7 @@
 package eu.domibus.core.message.reliability;
 
 import eu.domibus.api.message.attempt.MessageAttempt;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.api.model.Messaging;
@@ -22,21 +23,21 @@ public interface ReliabilityService {
      * Method supposed to be called after pushing or pulling.
      * It will handle the notifications and increase of messages attempts.
      *
-     * @param messageId                  the processed message id.
+     * @param userMessage                  the processed message id.
      * @param reliabilityCheckSuccessful the state of the reliability check.
      * @param responseResult             status result for reliability.
      * @param legConfiguration           the legconfiguration of this message exchange.
      */
-    void handleReliability(String messageId, Messaging messaging, UserMessageLog userMessageLog, ReliabilityChecker.CheckResult reliabilityCheckSuccessful, SOAPMessage responseSoapMessage, ResponseResult responseResult, LegConfiguration legConfiguration, MessageAttempt attempt);
+    void handleReliability(UserMessage userMessage, UserMessageLog userMessageLog, ReliabilityChecker.CheckResult reliabilityCheckSuccessful, SOAPMessage responseSoapMessage, ResponseResult responseResult, LegConfiguration legConfiguration, MessageAttempt attempt);
 
     /**
      * This method is used when handleReliability failed
      *
-     * @param messageId                  the processed message id.
+     * @param userMessage                  the processed message id.
      * @param reliabilityCheckSuccessful the state of the reliability check.
      * @param responseResult             status result for reliability.
      * @param legConfiguration           the legconfiguration of this message exchange.
      */
-    void handleReliabilityInNewTransaction(String messageId, Messaging messaging, UserMessageLog userMessageLog, ReliabilityChecker.CheckResult reliabilityCheckSuccessful, SOAPMessage responseSoapMessage, ResponseResult responseResult, LegConfiguration legConfiguration, MessageAttempt attempt);
+    void handleReliabilityInNewTransaction(UserMessage userMessage, UserMessageLog userMessageLog, ReliabilityChecker.CheckResult reliabilityCheckSuccessful, SOAPMessage responseSoapMessage, ResponseResult responseResult, LegConfiguration legConfiguration, MessageAttempt attempt);
 
 }

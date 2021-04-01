@@ -26,7 +26,7 @@ public class MessageAttemptDaoTestIT extends AbstractIT {
 
     public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageAcknowledgementDao.class);
 
-    @Autowired
+   /* @Autowired
     MessageAttemptDao messageAttemptDao;
 
     @Before
@@ -57,6 +57,6 @@ public class MessageAttemptDaoTestIT extends AbstractIT {
 
         assertEquals(next.getCreationTime(), next.getModificationTime());
 
-    }
+    }*/
 }
 

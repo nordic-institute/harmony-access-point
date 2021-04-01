@@ -28,7 +28,7 @@ import java.util.Date;
 @ActiveProfiles("IN_MEMORY_DATABASE")
 public class ErrorLogDaoIT {
 
-    private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(ErrorLogDaoIT.class);
+/*    private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(ErrorLogDaoIT.class);
 
     @Autowired
     private ErrorLogDao errorLogDao;
@@ -61,5 +61,5 @@ public class ErrorLogDaoIT {
 
         int result = errorLogDao.deleteErrorLogsWithoutMessageIdOlderThan(2, 1000);
         Assert.assertEquals(2, result);
-    }
+    }*/
 }

@@ -1,27 +1,26 @@
 package eu.domibus.core.ebms3.receiver.handler;
 
+import eu.domibus.api.ebms3.model.Ebms3Messaging;
+import eu.domibus.api.model.*;
 import eu.domibus.common.ErrorCode;
-import eu.domibus.api.model.MSHRole;
-import eu.domibus.api.model.MessageStatus;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Reliability;
 import eu.domibus.common.model.configuration.ReplyPattern;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
 import eu.domibus.core.ebms3.sender.ResponseHandler;
 import eu.domibus.core.ebms3.sender.ResponseResult;
 import eu.domibus.core.message.MessagingDao;
-import eu.domibus.api.model.UserMessageLog;
+import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
 import eu.domibus.core.message.reliability.ReliabilityService;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
-import eu.domibus.api.model.Messaging;
-import eu.domibus.api.model.UserMessage;
-import eu.domibus.core.metrics.Counter;
-import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.interceptor.Fault;
@@ -50,9 +49,10 @@ public class IncomingUserMessageReceiptHandler implements IncomingMessageHandler
     private final EbMS3MessageBuilder messageBuilder;
     private final ResponseHandler responseHandler;
     private final PModeProvider pModeProvider;
-    private final MessagingDao messagingDao;
+    private final UserMessageDao userMessageDao;
     protected final MessageUtil messageUtil;
     protected final SoapUtil soapUtil;
+    protected Ebms3Converter ebms3Converter;
 
     public IncomingUserMessageReceiptHandler(ReliabilityService reliabilityService,
                                              ReliabilityChecker reliabilityChecker,
@@ -60,32 +60,35 @@ public class IncomingUserMessageReceiptHandler implements IncomingMessageHandler
                                              EbMS3MessageBuilder messageBuilder,
                                              ResponseHandler responseHandler,
                                              PModeProvider pModeProvider,
-                                             MessagingDao messagingDao,
+                                             UserMessageDao userMessageDao,
                                              MessageUtil messageUtil,
-                                             SoapUtil soapUtil) {
+                                             SoapUtil soapUtil,
+                                             Ebms3Converter ebms3Converter) {
         this.reliabilityService = reliabilityService;
         this.reliabilityChecker = reliabilityChecker;
         this.userMessageLogDao = userMessageLogDao;
         this.messageBuilder = messageBuilder;
         this.responseHandler = responseHandler;
         this.pModeProvider = pModeProvider;
-        this.messagingDao = messagingDao;
+        this.userMessageDao = userMessageDao;
         this.messageUtil = messageUtil;
         this.soapUtil = soapUtil;
+        this.ebms3Converter = ebms3Converter;
     }
 
     @Transactional
     @Override
-    @Timer(clazz = IncomingUserMessageReceiptHandler.class,value = "incoming_user_message_receipt")
-    @Counter(clazz = IncomingUserMessageReceiptHandler.class,value = "incoming_user_message_receipt")
-    public SOAPMessage processMessage(SOAPMessage request, Messaging messaging) {
+    @Timer(clazz = IncomingUserMessageReceiptHandler.class, value = "incoming_user_message_receipt")
+    @Counter(clazz = IncomingUserMessageReceiptHandler.class, value = "incoming_user_message_receipt")
+    public SOAPMessage processMessage(SOAPMessage request, Ebms3Messaging ebms3Messaging) {
         LOG.debug("Processing UserMessage receipt");
-        final SOAPMessage soapMessage = handleUserMessageReceipt(request, messaging);
+        Messaging messaging = ebms3Converter.convertFromEbms3(ebms3Messaging);
+        final SOAPMessage soapMessage = handleUserMessageReceipt(request, messaging.getSignalMessage());
         return soapMessage;
     }
 
-    protected SOAPMessage handleUserMessageReceipt(SOAPMessage request, Messaging messaging) {
-        String messageId = messaging.getSignalMessage().getMessageInfo().getRefToMessageId();
+    protected SOAPMessage handleUserMessageReceipt(SOAPMessage request, SignalMessage signalMessage) {
+        String messageId = signalMessage.getRefToMessageId();
 
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
         if (MessageStatus.ACKNOWLEDGED == userMessageLog.getMessageStatus()) {
@@ -97,18 +100,16 @@ public class IncomingUserMessageReceiptHandler implements IncomingMessageHandler
         ReliabilityChecker.CheckResult reliabilityCheckSuccessful = ReliabilityChecker.CheckResult.ABORT;
         ResponseResult responseResult = null;
         LegConfiguration legConfiguration = null;
-        UserMessage userMessage;
-        Messaging sentMessage = null;
+        UserMessage sentUserMessage = null;
         try {
-            sentMessage = messagingDao.findMessageByMessageId(messageId);
-            userMessage = sentMessage.getUserMessage();
-            String pModeKey = pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING).getPmodeKey();
+            sentUserMessage = userMessageDao.findByMessageId(messageId);
+            String pModeKey = pModeProvider.findUserMessageExchangeContext(sentUserMessage, MSHRole.SENDING).getPmodeKey();
             LOG.debug("PMode key found : {}", pModeKey);
 
             legConfiguration = pModeProvider.getLegConfiguration(pModeKey);
             LOG.debug("Found leg [{}] for PMode key [{}]", legConfiguration.getName(), pModeKey);
 
-            SOAPMessage soapMessage = getSoapMessage(legConfiguration, userMessage);
+            SOAPMessage soapMessage = getSoapMessage(legConfiguration, sentUserMessage);
             responseResult = responseHandler.verifyResponse(request, messageId);
 
             reliabilityCheckSuccessful = reliabilityChecker.check(soapMessage, request, responseResult, getSourceMessageReliability());
@@ -121,13 +122,13 @@ public class IncomingUserMessageReceiptHandler implements IncomingMessageHandler
             LOG.error("EbMS3 exception occurred when handling receipt for message with ID [{}]", messageId, e);
             reliabilityChecker.handleEbms3Exception(e, messageId);
         } finally {
-            reliabilityService.handleReliability(messageId, sentMessage, userMessageLog, reliabilityCheckSuccessful, request, responseResult, legConfiguration, null);
+            reliabilityService.handleReliability(sentUserMessage, userMessageLog, reliabilityCheckSuccessful, request, responseResult, legConfiguration, null);
         }
         return null;
     }
 
     protected SOAPMessage getSoapMessage(LegConfiguration legConfiguration, UserMessage userMessage) throws EbMS3Exception {
-        return messageBuilder.buildSOAPMessage(userMessage, legConfiguration);
+        return messageBuilder.buildSOAPMessage(userMessage, null, legConfiguration);
     }
 
     protected Reliability getSourceMessageReliability() {

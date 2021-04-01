@@ -13,7 +13,7 @@ import eu.domibus.core.ebms3.sender.ResponseResult;
 import eu.domibus.core.generator.id.MessageIdGenerator;
 import eu.domibus.core.message.*;
 import eu.domibus.core.message.compression.CompressionService;
-import eu.domibus.core.message.nonrepudiation.RawEnvelopeLogDao;
+import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
 import eu.domibus.core.message.pull.MessagingLock;
 import eu.domibus.core.message.pull.PullMessageService;
 import eu.domibus.core.message.pull.PullRequestHandler;
@@ -45,7 +45,7 @@ import javax.xml.transform.TransformerFactory;
 @SuppressWarnings({"ResultOfMethodCallIgnored", "TestMethodWithIncorrectSignature"})
 public class IncomingEbms3UserMessageEbms3ReceiptHandlerTest {
 
-    @Injectable
+   /* @Injectable
     BackendNotificationService backendNotificationService;
 
     @Injectable
@@ -55,7 +55,7 @@ public class IncomingEbms3UserMessageEbms3ReceiptHandlerTest {
     MessagingDao messagingDao;
 
     @Injectable
-    RawEnvelopeLogDao rawEnvelopeLogDao;
+    UserMessageRawEnvelopeDao rawEnvelopeLogDao;
 
     @Injectable
     MessagingService messagingService;
@@ -265,5 +265,5 @@ public class IncomingEbms3UserMessageEbms3ReceiptHandlerTest {
             reliabilityService.handleReliability(messageId, messaging, userMessageLog, ReliabilityChecker.CheckResult.ABORT, request, null, legConfiguration, null);
         }};
 
-    }
+    }*/
 }

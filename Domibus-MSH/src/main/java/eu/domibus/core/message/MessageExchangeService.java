@@ -1,6 +1,7 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.model.MessageStatus;
+import eu.domibus.api.model.MessageStatusEntity;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.api.model.RawEnvelopeDto;
@@ -23,7 +24,7 @@ public interface MessageExchangeService {
      * @param messageExchangeConfiguration the message configuration used to retrieve the associated process.
      * @return the status of the message.
      */
-    MessageStatus getMessageStatus(final MessageExchangeConfiguration messageExchangeConfiguration);
+    MessageStatusEntity getMessageStatus(final MessageExchangeConfiguration messageExchangeConfiguration);
 
     /**
      * Failed messages have the same final status (SEND_FAILED) being for a pushed or a pulled message.
@@ -33,7 +34,7 @@ public interface MessageExchangeService {
      * @param messageId the message id.
      * @return the status the message should be put back to.
      */
-    MessageStatus retrieveMessageRestoreStatus(String messageId);
+    MessageStatusEntity retrieveMessageRestoreStatus(String messageId);
 
     /**
      * Load pmode and find pull process in order to initialize pull request.

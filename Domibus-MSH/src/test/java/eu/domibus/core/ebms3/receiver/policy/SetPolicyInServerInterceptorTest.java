@@ -30,7 +30,7 @@ import java.io.IOException;
 @RunWith(JMockit.class)
 public class SetPolicyInServerInterceptorTest {
 
-    @Tested
+    /*@Tested
     SetPolicyInServerInterceptor setPolicyInServerInterceptor;
 
     @Injectable
@@ -137,5 +137,5 @@ public class SetPolicyInServerInterceptorTest {
             setPolicyInServerInterceptor.setBindingOperation(message);
             times = 1;
         }};
-    }
+    }*/
 }

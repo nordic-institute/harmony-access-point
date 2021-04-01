@@ -75,7 +75,7 @@ public class MessageLogResourceTest {
     public MessageType messageType;
 
     @Parameterized.Parameter(1)
-    public MessageLog messageLog;
+    public UserMessageLog messageLog;
 
     @Parameterized.Parameter(2)
     public MessageSubtype messageSubtype;

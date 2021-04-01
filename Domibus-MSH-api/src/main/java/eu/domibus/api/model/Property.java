@@ -4,17 +4,15 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.MappedSuperclass;
 import java.util.regex.Pattern;
 
 /**
  * @author Cosmin Baciu
  * @since 5.0
  */
-@Entity
-@Table(name = "TB_PROPERTY")
-@NamedQuery(name = "Property.findPropertiesByMessageId",
-        query = "select um.messageProperties.property from UserMessage um where um.messageInfo.messageId = :MSG_ID")
+@MappedSuperclass
 public class Property extends AbstractBaseEntity implements Comparable<Property> {
 
     public static final String MIME_TYPE = "MimeType";
@@ -22,11 +20,12 @@ public class Property extends AbstractBaseEntity implements Comparable<Property>
     public static final Pattern CHARSET_PATTERN = Pattern.compile("[A-Za-z]([A-Za-z0-9._-])*");
     public static final int VALUE_MAX_SIZE = 1024;
 
+    @Column(name = "NAME", nullable = false, unique = true)
+    protected String name;
+
     @Column(name = "VALUE")
     protected String value;
 
-    @Column(name = "NAME", nullable = false)
-    protected String name;
 
     @Column(name = "TYPE", nullable = true)
     protected String type;
