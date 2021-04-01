@@ -70,6 +70,7 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
@@ -151,8 +152,16 @@ public abstract class AbstractIT {
     }
 
     protected void uploadPmode(Integer redHttpPort) throws IOException, XmlProcessingException {
+        uploadPmode(redHttpPort, null);
+    }
+
+    protected void uploadPmode(Integer redHttpPort, Map<String, String> toReplace) throws IOException, XmlProcessingException {
         final InputStream inputStream = new ClassPathResource("dataset/pmode/PModeTemplate.xml").getInputStream();
+
         String pmodeText = IOUtils.toString(inputStream, "UTF-8");
+        if(toReplace != null) {
+            pmodeText = replace(pmodeText, toReplace);
+        }
         if (redHttpPort != null) {
             LOG.info("Using wiremock http port [{}]", redHttpPort);
             pmodeText = pmodeText.replace(String.valueOf(SERVICE_PORT), String.valueOf(redHttpPort));
@@ -175,7 +184,7 @@ public abstract class AbstractIT {
 
 
     protected void waitUntilMessageHasStatus(String messageId, MessageStatus messageStatus) {
-        with().pollInterval(500, TimeUnit.MILLISECONDS).await().atMost(15, TimeUnit.SECONDS).until(messageHasStatus(messageId, messageStatus));
+        with().pollInterval(500, TimeUnit.MILLISECONDS).await().atMost(120, TimeUnit.SECONDS).until(messageHasStatus(messageId, messageStatus));
     }
 
     protected void waitUntilMessageIsAcknowledged(String messageId) {
@@ -319,10 +328,14 @@ public abstract class AbstractIT {
     }
 
     public void prepareSendMessage(String responseFileName) {
-        /* Initialize the mock objects */
-//        MockitoAnnotations.initMocks(this);
+        prepareSendMessage(responseFileName, null);
+    }
 
+    public void prepareSendMessage(String responseFileName, Map<String, String> toReplace) {
         String body = getAS4Response(responseFileName);
+        if(toReplace != null) {
+            body = replace(body, toReplace);
+        }
 
         // Mock the response from the recipient MSH
         stubFor(post(urlEqualTo("/domibus/services/msh"))
@@ -332,6 +345,12 @@ public abstract class AbstractIT {
                         .withBody(body)));
     }
 
+    protected String replace(String body, Map<String, String> toReplace) {
+        for (String key : toReplace.keySet()) {
+            body = body.replaceAll(key, toReplace.get(key));
+        }
+        return body;
+    }
 
     public String composePModeKey(final String senderParty, final String receiverParty, final String service,
                                   final String action, final String agreement, final String legName) {

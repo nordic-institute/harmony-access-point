@@ -644,7 +644,9 @@ public class UserMessageDefaultService implements UserMessageService {
         LOG.debug("Deleting [{}] messagings", messagings.size());
         for (Messaging messaging : messagings) {
             LOG.trace("Deleting messaging [{}]", messaging.getUserMessage().getMessageInfo().getMessageId());
-            signalMessageId.add(messaging.getSignalMessage().getMessageInfo().getMessageId());
+            if(messaging.getSignalMessage() != null) {
+                signalMessageId.add(messaging.getSignalMessage().getMessageInfo().getMessageId());
+            }
             em.remove(messaging);
         }
         em.flush();

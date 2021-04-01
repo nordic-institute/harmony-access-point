@@ -68,7 +68,7 @@ public class DomibusTestDatasourceConfiguration {
 
     protected JdbcDataSource createDatasource() {
         JdbcDataSource result = new JdbcDataSource();
-        result.setUrl("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1");
+        result.setUrl("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;INIT=runscript from 'classpath:dataset/database/create.sql'\\;runscript from 'classpath:h2.sql'");
         result.setUser("sa");
         result.setPassword("");
         return result;
