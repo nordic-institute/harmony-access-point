@@ -1,5 +1,6 @@
 package eu.domibus.test.dao;
 
+import eu.domibus.api.datasource.DataSourceConstants;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.Deencapsulation;
@@ -9,6 +10,7 @@ import org.hibernate.engine.jdbc.connections.spi.ConnectionProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
@@ -32,11 +34,11 @@ public abstract class AbstractDatabaseConfig {
     public static final String H_2_DIALECT = "org.hibernate.dialect.H2Dialect";
     public static final String ORACLE_DIALECT = "org.hibernate.dialect.Oracle10gDialect";
 
-    @Bean("domibusJDBC-XADataSource")
+    @Bean(DataSourceConstants.DOMIBUS_JDBC_DATA_SOURCE)
     protected abstract DataSource dataSource();
 
     @Bean
-    public LocalContainerEntityManagerFactoryBean domibusJTA(@Qualifier("domibusJDBC-XADataSource") DataSource dataSource, ConnectionProvider connectionProvider) {
+    public LocalContainerEntityManagerFactoryBean domibusEM(@Qualifier(DataSourceConstants.DOMIBUS_JDBC_DATA_SOURCE) DataSource dataSource, ConnectionProvider connectionProvider) {
         Properties jpaProperties = new Properties();
         jpaProperties.put("hibernate.hbm2ddl.auto", "update");
         jpaProperties.put("hibernate.show_sql", "true");
@@ -54,9 +56,9 @@ public abstract class AbstractDatabaseConfig {
     }
 
     @Bean
-    public JpaTransactionManager jpaTransactionManager(LocalContainerEntityManagerFactoryBean domibusJTA) {
+    public JpaTransactionManager jpaTransactionManager(LocalContainerEntityManagerFactoryBean domibusEM) {
         JpaTransactionManager jpaTransactionManager = new JpaTransactionManager();
-        jpaTransactionManager.setEntityManagerFactory(domibusJTA.getObject());
+        jpaTransactionManager.setEntityManagerFactory(domibusEM.getObject());
         return jpaTransactionManager;
     }
 

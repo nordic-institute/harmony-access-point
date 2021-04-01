@@ -1,6 +1,7 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.model.*;
+import eu.domibus.common.JPAConstants;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.core.property.PropertyConfig;
 import eu.domibus.core.scheduler.ReprogrammableService;
@@ -55,7 +56,7 @@ public class UserMessageLogDaoIT {
     @Autowired
     private MessageInfoDao messageInfoDao;
 
-    @PersistenceContext(unitName = "domibusJTA")
+    @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     protected EntityManager em;
 
     @Autowired

@@ -1,5 +1,6 @@
 package eu.domibus.core.jpa;
 
+import eu.domibus.api.datasource.DataSourceConstants;
 import eu.domibus.api.util.DatabaseUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -26,7 +27,7 @@ public class DomibusConnectionProvider implements ConnectionProvider {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusConnectionProvider.class);
 
-    @Qualifier(DomibusJPAConfiguration.DOMIBUS_JDBC_XA_DATA_SOURCE)
+    @Qualifier(DataSourceConstants.DOMIBUS_JDBC_DATA_SOURCE)
     @Autowired
     protected DataSource dataSource; //NOSONAR: not necessary to be transient or serializable
 
@@ -45,8 +46,10 @@ public class DomibusConnectionProvider implements ConnectionProvider {
 
         Connection connection = dataSource.getConnection();
         connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+        connection.setAutoCommit(false);
         if (LOG.isTraceEnabled()) {
             LOG.trace("Transaction Isolation set to [{}] on [{}]", Connection.TRANSACTION_READ_COMMITTED, connection.getClass());
+            LOG.trace("Auto Commit set to [{}]", connection.getAutoCommit());
         }
         return connection;
     }
@@ -59,7 +62,7 @@ public class DomibusConnectionProvider implements ConnectionProvider {
 
     @Override
     public boolean supportsAggressiveRelease() {
-        return true;
+        return false;
     }
 
     @Override

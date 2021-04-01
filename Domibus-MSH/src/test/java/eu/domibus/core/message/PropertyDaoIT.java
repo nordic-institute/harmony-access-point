@@ -1,6 +1,7 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.model.*;
+import eu.domibus.common.JPAConstants;
 import eu.domibus.core.property.PropertyConfig;
 import eu.domibus.core.scheduler.ReprogrammableService;
 import eu.domibus.core.scheduler.SchedulerConfig;
@@ -48,8 +49,9 @@ public class PropertyDaoIT {
     @Autowired
     private TimezoneOffsetService timezoneOffsetService;
 
-    @PersistenceContext(unitName = "domibusJTA")
+    @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     protected EntityManager em;
+
     private String msgId;
 
     @Before

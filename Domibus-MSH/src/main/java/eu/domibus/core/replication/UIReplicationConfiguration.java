@@ -12,7 +12,6 @@ import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
 import org.springframework.jms.support.converter.MappingJackson2MessageConverter;
 import org.springframework.jms.support.destination.JndiDestinationResolver;
 import org.springframework.scheduling.SchedulingTaskExecutor;
-import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.jms.ConnectionFactory;
 import javax.jms.Session;
@@ -28,15 +27,13 @@ public class UIReplicationConfiguration {
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(UIReplicationConfiguration.class);
 
     @Bean("uiReplicationJmsListenerContainerFactory")
-    public DefaultJmsListenerContainerFactory uiReplicationJmsListenerContainerFactory(@Qualifier(JMSConstants.DOMIBUS_JMS_XACONNECTION_FACTORY) ConnectionFactory connectionFactory,
-                                                                                       PlatformTransactionManager transactionManager,
+    public DefaultJmsListenerContainerFactory uiReplicationJmsListenerContainerFactory(@Qualifier(JMSConstants.DOMIBUS_JMS_CONNECTION_FACTORY) ConnectionFactory connectionFactory,
                                                                                        DomibusPropertyProvider domibusPropertyProvider,
                                                                                        @Qualifier("jackson2MessageConverter") MappingJackson2MessageConverter jackson2MessageConverter,
                                                                                        Optional<JndiDestinationResolver> internalDestinationResolver,
                                                                                        @Qualifier("taskExecutor") SchedulingTaskExecutor schedulingTaskExecutor) {
         DefaultJmsListenerContainerFactory result = new DefaultJmsListenerContainerFactory();
         result.setConnectionFactory(connectionFactory);
-        result.setTransactionManager(transactionManager);
         result.setTaskExecutor(schedulingTaskExecutor);
 
         String concurrency = domibusPropertyProvider.getProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_UI_REPLICATION_QUEUE_CONCURENCY);

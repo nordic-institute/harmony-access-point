@@ -1,5 +1,6 @@
 package eu.domibus.core.jpa;
 
+import eu.domibus.api.datasource.DataSourceConstants;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.Domain;
@@ -39,7 +40,7 @@ public class DomibusMultiTenantConnectionProvider implements MultiTenantConnecti
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusMultiTenantConnectionProvider.class);
 
-    @Qualifier(DomibusJPAConfiguration.DOMIBUS_JDBC_XA_DATA_SOURCE)
+    @Qualifier(DataSourceConstants.DOMIBUS_JDBC_DATA_SOURCE)
     @Autowired
     protected DataSource dataSource; //NOSONAR: not necessary to be transient or serializable
 
@@ -69,8 +70,10 @@ public class DomibusMultiTenantConnectionProvider implements MultiTenantConnecti
         }
         Connection connection = dataSource.getConnection();
         connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+        connection.setAutoCommit(false);
         if (LOG.isTraceEnabled()) {
             LOG.trace("Transaction Isolation set to [{}] on [{}]", Connection.TRANSACTION_READ_COMMITTED, connection.getClass());
+            LOG.trace("Auto Commit set to [{}]", connection.getAutoCommit());
         }
         return connection;
     }
@@ -143,7 +146,7 @@ public class DomibusMultiTenantConnectionProvider implements MultiTenantConnecti
 
     @Override
     public boolean supportsAggressiveRelease() {
-        return true;
+        return false;
     }
 
     @Override

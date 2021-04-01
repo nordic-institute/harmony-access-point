@@ -13,6 +13,7 @@ import eu.domibus.api.pmode.domain.LegConfiguration;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.api.util.DateUtil;
+import eu.domibus.common.JPAConstants;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.error.ErrorLogDao;
@@ -182,7 +183,7 @@ public class UserMessageDefaultServiceTest {
     @Injectable
     private ReprogrammableService reprogrammableService;
 
-    @Injectable("domibusJTA")
+    @Injectable(JPAConstants.PERSISTENCE_UNIT_NAME)
     EntityManager em;
 
     @Test
