@@ -72,7 +72,9 @@ public enum EventType {
 
     public List<String> getProperties() {
         ArrayList<String> list = new ArrayList<>();
-        EnumSet.allOf(this.propertiesEnumClass).forEach(x -> list.add(((Enum) x).name()));
+        if (this.propertiesEnumClass != null) {
+            EnumSet.allOf(this.propertiesEnumClass).forEach(x -> list.add(((Enum) x).name()));
+        }
         return list;
     }
 

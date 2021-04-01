@@ -11,7 +11,7 @@ import java.util.Set;
 @Embeddable
 public class MessageProperties {
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     @JoinColumn(name = "MESSAGEPROPERTIES_ID")
     protected Set<Property> property;
 

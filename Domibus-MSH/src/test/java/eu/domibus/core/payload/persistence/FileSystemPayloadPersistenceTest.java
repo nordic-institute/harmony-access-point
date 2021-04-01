@@ -85,6 +85,7 @@ public class FileSystemPayloadPersistenceTest {
             fileSystemPayloadPersistence.saveIncomingPayloadToDisk(partInfo, currentStorage, true);
 
             payloadPersistenceHelper.validatePayloadSize(legConfiguration, anyLong);
+            partInfo.loadBinaray();
         }};
     }
 

@@ -8,9 +8,11 @@ import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.exception.ConfigurationException;
-import eu.domibus.core.message.*;
+import eu.domibus.core.message.MessagingDao;
+import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.message.UserMessageLogDefaultService;
 import eu.domibus.core.message.nonrepudiation.RawEnvelopeLogDao;
-import eu.domibus.core.message.retention.MessageRetentionService;
+import eu.domibus.core.message.retention.MessageRetentionDefaultService;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.replication.UIReplicationSignalService;
@@ -59,7 +61,7 @@ public class UpdateRetryLoggingService {
 
     private final PModeProvider pModeProvider;
 
-    private final MessageRetentionService messageRetentionService;
+    private final MessageRetentionDefaultService messageRetentionService;
 
     private final ReprogrammableService reprogrammableService;
 
@@ -73,7 +75,7 @@ public class UpdateRetryLoggingService {
                                      UserMessageService userMessageService,
                                      MessageAttemptService messageAttemptService,
                                      PModeProvider pModeProvider,
-                                     MessageRetentionService messageRetentionService,
+                                     MessageRetentionDefaultService messageRetentionService,
                                      ReprogrammableService reprogrammableService) {
         this.backendNotificationService = backendNotificationService;
         this.userMessageLogDao = userMessageLogDao;
@@ -286,7 +288,7 @@ public class UpdateRetryLoggingService {
                                          final LegConfiguration legConfiguration) {
         if (legConfiguration.getReceptionAwareness() != null) {
             final Long scheduledStartTime = getScheduledStartTime(userMessageLog);
-            final int timeOut = legConfiguration.getReceptionAwareness().getRetryTimeout() * 60000;
+            final long timeOut = legConfiguration.getReceptionAwareness().getRetryTimeout() * 60000L;
             Date result = new Date(scheduledStartTime + timeOut);
             LOG.debug("Message expiration date is [{}]", result);
             return result;
@@ -295,7 +297,7 @@ public class UpdateRetryLoggingService {
     }
 
     public boolean isExpired(LegConfiguration legConfiguration, MessageLog userMessageLog) {
-        int delay = domibusPropertyProvider.getIntegerProperty(MESSAGE_EXPIRATION_DELAY);
+        long delay = domibusPropertyProvider.getLongProperty(MESSAGE_EXPIRATION_DELAY);
         Boolean isExpired = (getMessageExpirationDate(userMessageLog, legConfiguration).getTime() + delay) < System.currentTimeMillis();
         LOG.debug("Verify if message expired: [{}]", isExpired);
         return isExpired;

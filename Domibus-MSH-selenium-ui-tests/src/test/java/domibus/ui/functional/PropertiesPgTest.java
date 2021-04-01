@@ -1,5 +1,6 @@
 package domibus.ui.functional;
 
+import com.fasterxml.jackson.databind.annotation.JsonAppend;
 import com.sun.jersey.api.client.ClientResponse;
 import ddsl.dcomponents.DomibusPage;
 import ddsl.dcomponents.grid.DGrid;
@@ -8,6 +9,7 @@ import ddsl.enums.DMessages;
 import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
 import domibus.ui.SeleniumTest;
+import jdk.nashorn.internal.objects.Global;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.json.JSONArray;
@@ -23,10 +25,10 @@ import pages.users.UsersPage;
 import utils.Gen;
 import utils.TestUtils;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.io.File;
+import java.io.FileReader;
+import java.io.LineNumberReader;
+import java.util.*;
 
 public class PropertiesPgTest extends SeleniumTest {
 
@@ -951,7 +953,7 @@ public class PropertiesPgTest extends SeleniumTest {
 
 		List<String> toUdateDomain = Arrays.asList("domibus.alert.cert.expired.active"
 				, "domibus.passwordPolicy.expiration"
-				,"domibus.sendMessage.messageIdPattern"
+				, "domibus.sendMessage.messageIdPattern"
 //				,"domibus.dispatcher.concurency"
 //				,"domibus.pull.retrry.cron"
 //				,"domibus.alert.sender.email"
@@ -991,27 +993,169 @@ public class PropertiesPgTest extends SeleniumTest {
 		boolean toreturn = false;
 		try {
 			ClientResponse response = null;
-			if(isDomain){
+			if (isDomain) {
 				response = rest.properties().updateDomibusProperty(propname, currentVal, domain);
-			}else {
+			} else {
 				response = rest.properties().updateGlobalProperty(propname, currentVal);
 			}
 
-			if(response.getStatus() == 200){
+			if (response.getStatus() == 200) {
 				toreturn = true;
 			}
 			log.debug(response.getEntity(String.class));
 
 		} catch (Exception e) {
-		}finally {
-			if(isDomain){
+		} finally {
+			if (isDomain) {
 				rest.properties().updateDomibusProperty(propname, currentVal, domain);
-			}else {
+			} else {
 				rest.properties().updateGlobalProperty(propname, currentVal);
 			}
 
 		}
 		return toreturn;
+	}
+
+
+	/*     EDELIVERY-7340 - PROP-31 - Update domain property domain.title */
+	@Test(description = "PROP-31", groups = {"multiTenancy"})
+	public void domainTitle() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		String newDomainTitle = Gen.randomAlphaNumeric(5);
+		PropertiesPage page = new PropertiesPage(driver);
+
+		String oldVal = modifyProperty("domain.title", true, newDomainTitle);
+
+		page.refreshPage();
+
+		soft.assertEquals(page.getDomainFromTitle(), newDomainTitle, "new domain title has taken effect");
+
+		rest.properties().updateDomibusProperty("domain.title", oldVal);
+		soft.assertAll();
+	}
+
+	/* EDELIVERY-7341 - PROP-32 - Update domain property domibus.UI.title.name */
+	@Test(description = "PROP-32", groups = {"multiTenancy", "singleTenancy"})
+	public void uiTitleName() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		String newUITitle = Gen.randomAlphaNumeric(5);
+		PropertiesPage page = new PropertiesPage(driver);
+
+		String oldVal = modifyProperty("domibus.UI.title.name", true, newUITitle);
+
+		page.refreshPage();
+
+		soft.assertEquals(driver.getTitle(), newUITitle, "new ui title has taken effect");
+
+		rest.properties().updateDomibusProperty("domibus.UI.title.name", oldVal);
+		soft.assertAll();
+	}
+
+	/*     EDELIVERY-7344 - PROP-35 - Update domain property domibus.ui.csv.rows.max */
+	@Test(description = "PROP-35", groups = {"multiTenancy", "singleTenancy"})
+	public void csvRowsMax() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		String expetedErrorMessage = "The number of elements to export [%s] exceeds the maximum allowed [%s].";
+
+		PropertiesPage page = new PropertiesPage(driver);
+
+		String oldVal = modifyProperty("domibus.ui.csv.rows.max", true, "5");
+		page.refreshPage();
+
+		page.grid().waitForRowsToLoad();
+
+		int totalItems = page.grid().getPagination().getTotalItems();
+
+		page.getSaveCSVButton().click();
+		soft.assertTrue(page.getAlertArea().isError(), "error message present");
+
+		soft.assertEquals(page.getAlertArea().getAlertMessage(), String.format(expetedErrorMessage, totalItems, 5), "correct error message listed");
+
+		rest.properties().updateDomibusProperty("domibus.ui.csv.rows.max", oldVal);
+		soft.assertAll();
+	}
+
+	/*    EDELIVERY-7343 - PROP-34 - Update domain property domibus.monitoring.connection.party.enabled */
+	@Test(description = "PROP-34", groups = {"multiTenancy", "singleTenancy"})
+	public void monitoringParty() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		String partyID = rest.pmodeParties().getParties(null).getJSONObject(0).getString("joinedIdentifiers");
+		String oldVal = modifyProperty("domibus.monitoring.connection.party.enabled", true, partyID);
+
+		List<String> monitored = rest.connMonitor().getMonitoredParties(null);
+
+		soft.assertTrue(monitored.size() == 1, "Only one monitored party");
+		soft.assertEquals(monitored.get(0), partyID, "monitored party is correct");
+
+		rest.properties().updateDomibusProperty("domibus.monitoring.connection.party.enabled", oldVal);
+		soft.assertAll();
+	}
+
+	/*        EDELIVERY-7352 - PROP-42 - Admin modifies properties */
+	@Test(description = "PROP-42", groups = {"multiTenancy"})
+	public void adminAccessToProperties() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		String adminUsername = rest.getUsername(null, DRoles.ADMIN, true, false, true);
+
+		login(adminUsername, data.defaultPass());
+
+		PropertiesPage page = new PropertiesPage(driver);
+		page.getSidebar().goToPage(PAGES.PROPERTIES);
+
+		String filename = page.pressSaveCsvAndSaveFile();
+
+		Scanner scanner = new Scanner(new File(filename));
+		while (scanner.hasNextLine()) {
+			if (scanner.nextLine().contains("GLOBAL")) {
+				soft.fail("Global property found");
+			}
+		}
+		scanner.close();
+
+
+		soft.assertAll();
+	}
+
+	/* EDELIVERY-7351 - PROP-41 - Check properties value for each domain*/
+	@Test(description = "PROP-41", groups = {"multiTenancy"})
+	public void propertyValuesSegragatedByDomain() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		String oldVal = modifyProperty("domibus.UI.title.name", true, "testDefault");
+
+		PropertiesPage page = new PropertiesPage(driver);
+		page.getDomainSelector().selectAnotherDomain();
+
+		String anotherDomVal = page.propGrid().getPropertyValue("domibus.UI.title.name");
+
+		soft.assertNotEquals(anotherDomVal , "testDefault" , "Property value differs on the other domain");
+
+		rest.properties().updateDomibusProperty("domibus.UI.title.name", oldVal, null);
+
+		soft.assertAll();
+	}
+
+	/* PROP-36 - Update domain properties domibus.ui.support.team.email and domibus.ui.support.team.name */
+	@Test(description = "PROP-41", groups = {"multiTenancy"})
+	public void supportTeamData() throws Exception {
+		SoftAssert soft = new SoftAssert();
+
+		modifyProperty("domibus.ui.support.team.email", true, "test@email.com");
+		modifyProperty("domibus.ui.support.team.name", true, "Test support Team");
+
+		String newEmail = rest.properties().getPropertyValue("domibus.ui.support.team.email", true, null);
+		String newTeamName = rest.properties().getPropertyValue("domibus.ui.support.team.name", true, null);
+
+		soft.assertEquals(newEmail ,"test@email.com" , "");
+		soft.assertEquals(newTeamName , "Test support Team", "");
+
+
+		soft.assertAll();
 	}
 
 

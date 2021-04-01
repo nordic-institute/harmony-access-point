@@ -1,6 +1,8 @@
 package eu.domibus.core.replication;
 
 import eu.domibus.core.converter.DomibusCoreMapper;
+import eu.domibus.core.message.MessageLogDaoBase;
+import eu.domibus.core.message.MessagesLogServiceHelper;
 import eu.domibus.web.rest.ro.MessageLogRO;
 import eu.domibus.web.rest.ro.MessageLogResultRO;
 import mockit.Expectations;
@@ -26,6 +28,9 @@ public class UIMessageEbms3ServiceImplTest {
 
     @Injectable
     private DomibusCoreMapper coreMapper;
+
+    @Injectable
+    MessagesLogServiceHelper messagesLogServiceHelper;
 
     @Tested
     UIMessageServiceImpl uiMessageService;
@@ -59,7 +64,7 @@ public class UIMessageEbms3ServiceImplTest {
         final long count = 20;
 
         new Expectations() {{
-            uiMessageDao.countEntries(filters);
+            messagesLogServiceHelper.calculateNumberOfMessages((MessageLogDaoBase)any, filters, (MessageLogResultRO)any);
             result = count;
 
             uiMessageDao.findPaged(from, max, column, asc, filters);

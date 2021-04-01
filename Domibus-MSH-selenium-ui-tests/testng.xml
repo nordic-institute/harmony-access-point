@@ -10,7 +10,12 @@
     <test name="NoData">
         <classes>
             <class name="domibus.ui.ux.AuditPgUXTest"/>
-            <class name="domibus.ui.ux.PModeArchiveUXTest"/>
+            <class name="domibus.ui.ux.PModeArchiveUXTest">
+                <methods>
+                    <!--                    time format issue - need to add fields to page descriptor-->
+                    <exclude name="downloadGrid"></exclude>
+                </methods>
+            </class>
             <class name="domibus.ui.ux.ChangePasswordPgUXTest"/>
             <class name="domibus.ui.ux.JMSMessPgUXTest"/>
             <class name="domibus.ui.ux.MessagesPgUXTest">
@@ -37,8 +42,9 @@
 
                 </methods>
             </class>
-            <!--            <class name="domibus.ui.ux.TruststorePgUXTests"/>-->
+            <class name="domibus.ui.ux.TruststorePgUXTest"/>
             <class name="domibus.ui.ux.UsersPgUXTest"/>
+            <class name="domibus.ui.ux.AlertPgUXTest"/>
             <class name="domibus.ui.ux.ErrorLogPgUXTest"/>
             <class name="domibus.ui.functional.ErrorLogPgTest">
                 <methods>
@@ -72,7 +78,13 @@
                 </methods>
             </class>
             <class name="domibus.ui.functional.AccessRightsTest"/>
-            <class name="domibus.ui.functional.LoggingPgTest"/>
+            <class name="domibus.ui.functional.LoggingPgTest">
+                <methods>
+                    <!--                    grid is not sortable but columns are marked when clicked-->
+                    <exclude name="gridNotSortable"></exclude>
+                </methods>
+            </class>
+
             <class name="domibus.ui.functional.PluginUsersPgTest"></class>
             <class name="domibus.ui.functional.UsersPgTest"/>
         </classes>
@@ -99,12 +111,14 @@
     </test>
     <test name="LAST">
         <classes>
-            <!--            <class name="domibus.ui.functional.TruststoreTest"></class>-->
+            <class name="domibus.ui.functional.TruststorePgTest"></class>
             <class name="domibus.ui.functional.PropertiesPgTest">
                 <methods>
                     <!--                    need fixes -->
                     <exclude name="checkDefaultPassword"/>
                     <exclude name="dontReuseLastPass"/>
+                    <!--                    EDELIVERY-7956-->
+                    <exclude name="checkPropertyLengthMax"/>
                 </methods>
             </class>
         </classes>

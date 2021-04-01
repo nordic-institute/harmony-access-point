@@ -38,7 +38,7 @@ public class DGrid extends DComponent {
 	@FindBy(tagName = "datatable-header-cell")
 	protected List<WebElement> gridHeaders;
 	@FindBy(css = "datatable-row-wrapper > datatable-body-row")
-	protected List<WebElement> gridRows;
+	public List<WebElement> gridRows;
 
 	protected By cellSelector = By.tagName("datatable-body-cell");
 
@@ -133,7 +133,6 @@ public class DGrid extends DComponent {
 		log.info("waiting for rows to load");
 		try {
 			wait.shortWaitForElementToBe(progressBar);
-//			wait.forXMillis(1000);
 			int bars = 1;
 			int waits = 0;
 			while (bars > 0 && waits < 30) {
@@ -513,31 +512,6 @@ public class DGrid extends DComponent {
 
 	}
 
-	public void checkCSVvsGridHeaders(String filename, SoftAssert soft) throws Exception {
-		log.info("Checking csv file vs grid content");
-
-		Reader reader = Files.newBufferedReader(Paths.get(filename));
-		CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreHeaderCase()
-				.withTrim());
-
-		log.info("removing Actions from the list of columns");
-		List<String> columnNames = getColumnNames();
-		columnNames.remove("Actions");
-
-		List<String> csvFileHeaders = new ArrayList<>();
-		csvFileHeaders.addAll(csvParser.getHeaderMap().keySet());
-		log.info("removing $jacoco Data from the list of CSV file headers columns");
-		csvFileHeaders.remove("$jacoco Data");
-
-		log.info("checking file headers against column names");
-
-		soft.assertTrue(CollectionUtils.isEqualCollection(columnNames, csvFileHeaders), "Headers between grid and CSV file match");
-		if(!CollectionUtils.isEqualCollection(columnNames, csvFileHeaders)){
-			log.debug("UI columns = " + columnNames.toString());
-			log.debug("CSV columns = " + csvFileHeaders.toString());
-		}
-	}
-
 	public boolean csvRowVsGridRow(CSVRecord record, HashMap<String, String> gridRow) throws Exception {
 		for (String key : gridRow.keySet()) {
 			if (StringUtils.equalsIgnoreCase(key, "Actions")) {
@@ -567,6 +541,31 @@ public class DGrid extends DComponent {
 			}
 		}
 		return true;
+	}
+
+	public void checkCSVvsGridHeaders(String filename, SoftAssert soft) throws Exception {
+		log.info("Checking csv file vs grid content");
+
+		Reader reader = Files.newBufferedReader(Paths.get(filename));
+		CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreHeaderCase()
+				.withTrim());
+
+		log.info("removing Actions from the list of columns");
+		List<String> columnNames = getColumnNames();
+		columnNames.remove("Actions");
+
+		List<String> csvFileHeaders = new ArrayList<>();
+		csvFileHeaders.addAll(csvParser.getHeaderMap().keySet());
+		log.info("removing $jacoco Data from the list of CSV file headers columns");
+		csvFileHeaders.remove("$jacoco Data");
+
+		log.info("checking file headers against column names");
+
+		soft.assertTrue(CollectionUtils.isEqualCollection(columnNames, csvFileHeaders), "Headers between grid and CSV file match");
+		if(!CollectionUtils.isEqualCollection(columnNames, csvFileHeaders)){
+			log.debug("UI columns = " + columnNames.toString());
+			log.debug("CSV columns = " + csvFileHeaders.toString());
+		}
 	}
 
 	public boolean csvVsUIDate(String csvDateStr, String uiDateStr) throws Exception {

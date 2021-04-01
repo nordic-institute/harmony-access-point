@@ -716,15 +716,15 @@ public class PmodePartiesPgTest extends SeleniumTest {
 		
 		log.info("Click on search button");
 		page.filters().getSearchButton().click();
-		
+
+		page.grid().waitForRowsToLoad();
+
 		int noOfRes = page.grid().getPagination().getTotalItems();
-		
-		
+
 		soft.assertTrue(noOfRes==0,"Blank grid is shown");
 		soft.assertFalse(page.getAlertArea().isShown(), "No alert message is shown for forbidden char");
 		
 		soft.assertAll();
-		
 	}
 	
 	/* This method will check successful deletion of all parties except the one which defines system */

@@ -28,4 +28,24 @@ public class TestMapperContextConfiguration {
     public PModeExtMapper pModeExtMapper() {
         return new PModeExtMapperImpl();
     }
+
+    @Bean
+    public MonitoringExtMapper monitoringExtMapper() {
+        return new MonitoringExtMapperImpl();
+    }
+
+    @Bean
+    public MonitoringExtMapperImpl_ monitoringExtMapperDelegate() {
+        return new MonitoringExtMapperImpl_();
+    }
+
+    @Bean
+    public DomibusExtMapper domibusExtMapper() {
+        return new DomibusExtMapperImpl();
+    }
+
+    @Bean
+    public DomibusExtMapperImpl_ domibusExtMapperDelegate() {
+        return new DomibusExtMapperImpl_();
+    }
 }

@@ -19,6 +19,14 @@ public class ErrorLogPage extends DomibusPage {
 	ErrFilters filters = new ErrFilters(driver);
 	@FindBy(id = "pageGridId")
 	private WebElement errorLogTableContainer;
+	@FindBy(css = "#totimestamp_id >div >button")
+	public WebElement errorToClock;
+	@FindBy(css = "#totimestamp_id")
+	public WebElement errorTo;
+	@FindBy(css = "#notifiedto_id div button")
+	public WebElement notifiedToClock;
+	@FindBy(css = "#notifiedto_id")
+	public WebElement notifiedTo;
 
 	public ErrorLogPage(WebDriver driver) {
 		super(driver);

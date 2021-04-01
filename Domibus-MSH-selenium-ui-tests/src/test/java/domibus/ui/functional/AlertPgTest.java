@@ -6,6 +6,7 @@ import ddsl.enums.DMessages;
 import ddsl.enums.DRoles;
 import ddsl.enums.PAGES;
 import domibus.ui.SeleniumTest;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -1009,8 +1010,10 @@ public class AlertPgTest extends SeleniumTest {
 			soft.assertEquals(option , filter.getXFilterSectionName(), "Alert type and section name have the same value");
 			List<String> xFilters = filter.getXFilterNames();
 
-			soft.assertEquals(xFilters , descriptorObj.getJSONObject("extraFilters").getJSONArray(option).toList(), "Filters listed are as expected");
-
+//			soft.assertEquals(xFilters , descriptorObj.getJSONObject("extraFilters").getJSONArray(option).toList(), "Filters listed are as expected");
+			soft.assertTrue(
+					CollectionUtils.isEqualCollection(xFilters , descriptorObj.getJSONObject("extraFilters").getJSONArray(option).toList()),
+					 "Filters listed are as expected");
 		}
 
 

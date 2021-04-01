@@ -30,9 +30,11 @@ public class MessagesLogEbms3ServiceImplTest {
     @Injectable
     private DomibusCoreMapper coreMapper;
 
+    @Injectable
+    MessagesLogServiceHelper messagesLogServiceHelper;
 
     @Test
-    public void countAndFindPagedTest1() {
+    public void countAndFilter1() {
         int from = 1, max = 20;
         String column = "col1";
         boolean asc = true;
@@ -41,24 +43,23 @@ public class MessagesLogEbms3ServiceImplTest {
         long numberOfUserMessageLogs = 1;
         MessageLogInfo item1 = new MessageLogInfo();
         List<MessageLogInfo> resultList = Arrays.asList(item1);
+        MessageLogResultRO resultRo = new MessageLogResultRO();
 
         new Expectations() {{
-            userMessageLogDao.countAllInfo(asc, filters);
+            messagesLogServiceHelper.calculateNumberOfMessages((MessageLogDaoBase)any, filters, (MessageLogResultRO)any);
             result = numberOfUserMessageLogs;
             userMessageLogDao.findAllInfoPaged(from, max, column, asc, filters);
             result = resultList;
         }};
 
-        MessageLogResultRO res = messagesLogServiceImpl.countAndFindPaged(messageType, from, max, column, asc, filters);
+        List<MessageLogInfo> res = messagesLogServiceImpl.countAndFilter(userMessageLogDao, from, max, column, asc, filters, resultRo);
 
         new Verifications() {{
-            userMessageLogDao.countAllInfo(asc, filters);
-            times = 1;
             userMessageLogDao.findAllInfoPaged(from, max, column, asc, filters);
             times = 1;
         }};
 
-        Assert.assertEquals(Long.valueOf(numberOfUserMessageLogs), res.getCount());
+        Assert.assertEquals(numberOfUserMessageLogs, res.size());
     }
 
     @Test
@@ -72,23 +73,19 @@ public class MessagesLogEbms3ServiceImplTest {
         MessageLogInfo item1 = new MessageLogInfo();
         List<MessageLogInfo> resultList = Arrays.asList(item1);
 
-        new Expectations() {{
-            signalMessageLogDao.countAllInfo(asc, filters);
-            result = numberOfLogs;
-            signalMessageLogDao.findAllInfoPaged(from, max, column, asc, filters);
+        new Expectations(messagesLogServiceImpl) {{
+            messagesLogServiceImpl.countAndFilter((MessageLogDao)any, from, max, column, asc, filters, (MessageLogResultRO)any);
             result = resultList;
         }};
 
         MessageLogResultRO res = messagesLogServiceImpl.countAndFindPaged(messageType, from, max, column, asc, filters);
 
         new Verifications() {{
-            signalMessageLogDao.countAllInfo(asc, filters);
-            times = 1;
-            signalMessageLogDao.findAllInfoPaged(from, max, column, asc, filters);
+            messagesLogServiceImpl.getMessageLogDao(messageType);
             times = 1;
         }};
 
-        Assert.assertEquals(Long.valueOf(numberOfLogs), res.getCount());
+        Assert.assertEquals(resultList.size(), res.getMessageLogEntries().size());
     }
 
     @Test
@@ -109,7 +106,7 @@ public class MessagesLogEbms3ServiceImplTest {
         List<MessageLogInfo> resultList = Arrays.asList(item1);
 
         new Expectations() {{
-            userMessageLogDao.countAllInfo(asc, filters);
+            messagesLogServiceHelper.calculateNumberOfMessages((MessageLogDaoBase)any, filters, (MessageLogResultRO)any);
             result = numberOfLogs;
             userMessageLogDao.findAllInfoPaged(from, max, column, asc, filters);
             result = resultList;
