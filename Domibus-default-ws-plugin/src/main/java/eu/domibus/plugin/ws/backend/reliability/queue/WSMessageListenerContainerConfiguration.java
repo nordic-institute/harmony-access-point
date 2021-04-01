@@ -13,7 +13,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
-import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.jms.ConnectionFactory;
 import javax.jms.Queue;
@@ -45,11 +44,8 @@ public class WSMessageListenerContainerConfiguration {
     private WSSendMessageListener wsSendMessageListener;
 
     @Autowired
-    @Qualifier(JMSConstants.DOMIBUS_JMS_XACONNECTION_FACTORY)
+    @Qualifier(JMSConstants.DOMIBUS_JMS_CONNECTION_FACTORY)
     private ConnectionFactory connectionFactory;
-
-    @Autowired
-    protected PlatformTransactionManager transactionManager;
 
     @Autowired
     private WSPluginPropertyManager wsPluginPropertyManager;
@@ -67,7 +63,6 @@ public class WSMessageListenerContainerConfiguration {
         messageListenerContainer.setConnectionFactory(connectionFactory);
         messageListenerContainer.setDestination(wsPluginSendQueue);
         messageListenerContainer.setMessageListener(wsSendMessageListener);
-        messageListenerContainer.setTransactionManager(transactionManager);
         messageListenerContainer.setConcurrency(queueConcurrency);
         messageListenerContainer.setSessionTransacted(true);
         messageListenerContainer.setSessionAcknowledgeMode(0);
