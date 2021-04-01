@@ -166,9 +166,6 @@
                     <connection-url>jdbc:mysql://localhost:3306/domibus?autoReconnect=true&amp;useSSL=false</connection-url>
                     <!--Connector/J 8.0.x -->
                     <driver-class>com.mysql.cj.jdbc.Driver</driver-class>
-                    <!--Connector/J 5.4.x (deprecated)
-                    <driver-class>com.mysql.jdbc.Driver</driver-class
-                    -->
                     <driver>com.mysql</driver>
                     <pool>
                         <min-pool-size>20</min-pool-size>
@@ -210,9 +207,6 @@
                     <connection-url>jdbc:mysql://localhost:3306/domibus?autoReconnect=true&amp;useSSL=false</connection-url>
                     <!--Connector/J 8.0.x -->
                     <driver-class>com.mysql.cj.jdbc.Driver</driver-class>
-                    <!--Connector/J 5.4.x (deprecated)
-                    <driver-class>com.mysql.jdbc.Driver</driver-class
-                    -->
                     <driver>com.mysql</driver>
                     <pool>
                         <min-pool-size>20</min-pool-size>
@@ -258,10 +252,6 @@
                         <!--Connector/J 8.0.x -->
                         <driver-class>com.mysql.cj.jdbc.Driver</driver-class>
                         <xa-datasource-class>com.mysql.cj.jdbc.MysqlXADataSource</xa-datasource-class>
-                        <!--Connector/J 5.4.x (deprecated)
-                        <driver-class>com.mysql.jdbc.Driver</driver-class>
-                        <xa-datasource-class>com.mysql.jdbc.jdbc2.optional.MysqlXADataSource</xa-datasource-class>
-                        -->
                     </driver>
                     <!--Oracle
                     <driver name="com.oracle" module="com.oracle">

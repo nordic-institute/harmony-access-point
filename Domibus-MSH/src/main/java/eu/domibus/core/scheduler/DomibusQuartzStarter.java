@@ -288,7 +288,7 @@ public class DomibusQuartzStarter implements DomibusScheduler {
      * @param scheduler the scheduler
      * @throws SchedulerException Quartz scheduler exception
      */
-    public void checkSchedulerJobs(Scheduler scheduler) throws SchedulerException {
+    protected void checkSchedulerJobs(Scheduler scheduler) throws SchedulerException {
         LOG.info("Start checking Quartz jobs for scheduler [{}]", scheduler.getSchedulerName());
 
         for (String groupName : scheduler.getJobGroupNames()) {
