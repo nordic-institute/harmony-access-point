@@ -337,6 +337,30 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         RETURN v_id_pk;
     END get_tb_signal_message_rec;
 
+    FUNCTION get_tb_d_msg_property_rec(prop_name VARCHAR2, prop_value VARCHAR2, prop_type VARCHAR2) RETURN NUMBER IS
+        v_id_pk NUMBER;
+    BEGIN
+        IF prop_name IS NULL AND prop_value IS NULL AND prop_type IS NULL THEN
+            IF VERBOSE_LOGS THEN
+                DBMS_OUTPUT.PUT_LINE('No record added into TB_D_MESSAGE_PROPERTY');
+            END IF;
+            RETURN v_id_pk;
+        END IF;
+        BEGIN
+            EXECUTE IMMEDIATE 'SELECT ID_PK FROM TB_D_MESSAGE_PROPERTY WHERE NAME = :1 AND TYPE = :2 AND VALUE = :3' INTO v_id_pk USING prop_name, prop_type, prop_value;
+        EXCEPTION
+            WHEN NO_DATA_FOUND THEN
+                -- create new record
+                DBMS_OUTPUT.PUT_LINE(
+                            'Add new record into TB_D_MESSAGE_PROPERTY: ' || prop_name || ' , ' || prop_value|| ' , ' || prop_type);
+                v_id_pk := HIBERNATE_SEQUENCE.nextval;
+                EXECUTE IMMEDIATE 'INSERT INTO TB_D_MESSAGE_PROPERTY(ID_PK, NAME, VALUE, TYPE) VALUES (' || v_id_pk ||
+                                  ', :1, :2, :3)' USING prop_name, prop_value, prop_type;
+                COMMIT;
+        END;
+        RETURN v_id_pk;
+    END get_tb_d_msg_property_rec;
+
     /**-- CLOB to BLOB conversion --*/
     FUNCTION clob_to_blob(p_data IN CLOB) RETURN BLOB
     AS
@@ -390,6 +414,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         drop_table_if_exists('TB_D_MESSAGE_SUBTYPE');
         drop_table_if_exists('TB_D_MESSAGE_STATUS');
         drop_table_if_exists('TB_D_NOTIFICATION_STATUS');
+        drop_table_if_exists('TB_D_MESSAGE_PROPERTY');
 
         -- create them
         v_sql :=
@@ -501,7 +526,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
     PROCEDURE migrate_user_message IS
         v_tab        VARCHAR2(30) := 'TB_USER_MESSAGE';
         v_tab_new    VARCHAR2(30) := 'MIGR_TB_USER_MESSAGE';
-        v_sql        VARCHAR2(1000);
+
         CURSOR c_user_message IS
             SELECT UM.ID_PK,
                    MI.MESSAGE_ID,
@@ -1147,9 +1172,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                                     message_log(i).MODIFIED_BY;
                             EXCEPTION
                                 WHEN OTHERS THEN
-                                    DBMS_OUTPUT.PUT_LINE('migrate_message_log for ' || v_tab_signal_new ||
-                                                         ' -> execute immediate error: ' ||
-                                                         DBMS_UTILITY.FORMAT_ERROR_STACK);
+                                    DBMS_OUTPUT.PUT_LINE('migrate_message_log for ' || v_tab_signal_new || ' -> execute immediate error: ' || DBMS_UTILITY.FORMAT_ERROR_STACK);
                             END;
                             v_count_signal := v_count_signal + 1;
                         END IF;
@@ -1183,10 +1206,86 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
 
     END migrate_message_log;
 
+    /**- TB_PROPERTY data migration --*/
+    PROCEDURE migrate_property IS
+        v_tab              VARCHAR2(30) := 'TB_PROPERTY';
+        v_tab_user_message VARCHAR2(30) := 'TB_USER_MESSAGE';
+        v_tab_message_new  VARCHAR2(30) := 'MIGR_TB_MESSAGE_PROPERTIES';
+        v_count_message    NUMBER       := 0;
+        v_count            NUMBER       := 0;
+        CURSOR c_property IS
+            SELECT TP.ID_PK,
+                   UM.ID_PK   USER_MESSAGE_ID_FK,
+                   TP.NAME,
+                   TP.VALUE,
+                   'MESSAGE' TYPE,
+                   TP.CREATION_TIME,
+                   TP.CREATED_BY,
+                   TP.MODIFICATION_TIME,
+                   TP.MODIFIED_BY
+            FROM TB_PROPERTY TP,
+                 TB_USER_MESSAGE UM
+            WHERE TP.MESSAGEPROPERTIES_ID = UM.ID_PK
+              AND TP.PARTPROPERTIES_ID IS NULL;
+        TYPE T_PROPERTY IS TABLE OF c_property%ROWTYPE;
+        property           T_PROPERTY;
+        v_batch_no         INT          := 1;
+    BEGIN
+        DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
+        OPEN c_property;
+        LOOP
+            FETCH c_property BULK COLLECT INTO property;
+            EXIT WHEN property.COUNT = 0;
+
+            FOR i IN property.FIRST .. property.LAST
+                LOOP
+                    BEGIN
+                        IF property(i).TYPE = 'MESSAGE' THEN
+                            BEGIN
+                                EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_message_new ||
+                                                  ' (ID_PK, USER_MESSAGE_ID_FK, MESSAGE_PROPERTY_FK, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY ) ' ||
+                                                  'VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6, :p_7)'
+                                    USING
+                                    property(i).ID_PK,
+                                    property(i).USER_MESSAGE_ID_FK,
+                                    get_tb_d_msg_property_rec( property(i).NAME,   property(i).VALUE, property(i).TYPE),
+                                    property(i).CREATION_TIME,
+                                    property(i).CREATED_BY,
+                                    property(i).MODIFICATION_TIME,
+                                    property(i).MODIFIED_BY;
+                            EXCEPTION
+                                WHEN OTHERS THEN
+                                    DBMS_OUTPUT.PUT_LINE('migrate_message_log for ' || v_tab_message_new ||
+                                                         ' -> execute immediate error: ' ||
+                                                         DBMS_UTILITY.FORMAT_ERROR_STACK);
+                            END;
+                            v_count_message := v_count_message + 1;
+                        END IF;
+                        IF i MOD BATCH_SIZE = 0 THEN
+                            COMMIT;
+                            DBMS_OUTPUT.PUT_LINE(
+                                        v_tab || ': Commit after ' || BATCH_SIZE * v_batch_no || ' records');
+                            v_batch_no := v_batch_no + 1;
+                        END IF;
+                    EXCEPTION
+                        WHEN OTHERS THEN
+                            DBMS_OUTPUT.PUT_LINE('migrate_message_log -> execute immediate error: ' ||
+                                                 DBMS_UTILITY.FORMAT_ERROR_STACK);
+                    END;
+                    v_count := i;
+                END LOOP;
+            DBMS_OUTPUT.PUT_LINE(
+                        'Migrated ' || property.COUNT || ' records in total. ' || v_count_message || ' into ' ||
+                        v_tab_message_new);
+        END LOOP;
+
+        COMMIT;
+        CLOSE c_property;
+    END migrate_property;
+
     /**-- TB_USER_MESSAGE migration post actions --*/
     PROCEDURE migrate_user_message_post IS
     BEGIN
-
         BEGIN
             -- TODO check if we can run this from Liquibase?
             -- put back the FKs
@@ -1237,6 +1336,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         migrate_message_log;
 
         migrate_raw_envelope_log;
+
+        migrate_property;
 
         -- house keeping
         migrate_post;
