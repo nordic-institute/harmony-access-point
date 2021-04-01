@@ -61,6 +61,8 @@ Domibus 5.0 (from 4.2.1)
                                   - replace the value of the "domibus.entityManagerFactory.jpaProperty.hibernate.connection.driver_class" property as follows:
                                             - set the value to "com.mysql.cj.jdbc.Driver" if it was "com.mysql.cj.jdbc.MysqlXADataSource"
                                             - set the value to "oracle.jdbc.driver.OracleDriver" if it was "oracle.jdbc.xa.client.OracleXADataSource"
+                        o [Tomcat only]
+                            - Remove all properties under the section "Atomikos"( all com.atomikos.* properties)
                         o [WebLogic only]
                             - in the WebLogic console, decommission the Domibus XA datasource eDeliveryDs and create a new eDeliveryDs datasource with JNDI name: jdbc/cipaeDeliveryDs (non XA, the same configuration as the existing edeliveryNonXA)
                             - in the WebLogic console, change the eDeliveryConnectionFactory JMS connection factory from XA to non-XA (section eDeliveryConnectionFactory->Configuration->Transactions: uncheck "XA Connection Factory Enabled")
