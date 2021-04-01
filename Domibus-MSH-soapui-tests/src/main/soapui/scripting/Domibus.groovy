@@ -2420,8 +2420,8 @@ class Domibus{
                                     httpRequest.removeBasicAuthenticationProfile(authProfile)
                                 }
                             }
-                            else
-                                debugLog("Endpoint is not refering to provided patern.", log)
+//                            else
+//                                debugLog("Endpoint is not refering to provided patern.", log)
                         }
                     }
 
