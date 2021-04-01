@@ -343,7 +343,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
      */
     @Override
     public Boolean checkTestMessage(final UserMessage message) {
-        return checkTestMessage(message.getService().getValue(), message.getAction().getValue());
+        return checkTestMessage(message.getService().getValue(), message.getActionValue());
     }
 
     /**
@@ -452,7 +452,7 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
                 backendName,
                 to.getEndpoint(),
                 userMessage.getService().getValue(),
-                userMessage.getAction().getValue(),
+                userMessage.getActionValue(),
                 userMessage.isSourceMessage(),
                 userMessage.isMessageFragment());
 

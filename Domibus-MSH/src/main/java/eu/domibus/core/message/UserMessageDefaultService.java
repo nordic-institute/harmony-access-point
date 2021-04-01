@@ -601,7 +601,7 @@ public class UserMessageDefaultService implements UserMessageService {
 
         backendNotificationService.notifyMessageDeleted(messageId, userMessageLog);
 
-        final SignalMessage signalMessage = signalMessageDao.findSignalMessageWithUserMessageByMessageId(messageId);
+        final SignalMessage signalMessage = signalMessageDao.findByUserMessageIdWithUserMessage(messageId);
         final UserMessage userMessage = signalMessage.getUserMessage();
         partInfoDao.clearPayloadData(userMessage.getEntityId());
         userMessageLog.setDeleted(new Date());

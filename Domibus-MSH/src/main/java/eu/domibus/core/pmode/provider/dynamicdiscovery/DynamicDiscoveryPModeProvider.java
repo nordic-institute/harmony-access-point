@@ -388,7 +388,7 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
         //lookup sml/smp - result is cached
         final EndpointInfo endpoint = dynamicDiscoveryService.lookupInformation(domainProvider.getCurrentDomain().getCode(), finalRecipient.getValue(),
                 finalRecipient.getType(),
-                userMessage.getAction().getValue(),
+                userMessage.getActionValue(),
                 userMessage.getService().getValue(),
                 userMessage.getService().getType());
 

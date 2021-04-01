@@ -12,6 +12,7 @@ import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.plugin.handler.DatabaseMessageHandler;
 import eu.domibus.core.pmode.provider.PModeProvider;
@@ -66,7 +67,7 @@ public class TestService {
     private SignalMessageLogDao signalMessageLogDao;
 
     @Autowired
-    private MessagingDao messagingDao;
+    private SignalMessageDao signalMessageDao;
 
     @Autowired
     private ErrorLogDao errorLogDao;
@@ -236,13 +237,11 @@ public class TestService {
 
         if (StringUtils.isNotBlank(userMessageId)) {
             // if userMessageId is provided, try to find its signal message
-            Messaging messaging = messagingDao.findMessageByMessageId(userMessageId);
-            if (messaging == null) {
+            signalMessage = signalMessageDao.findByUserMessageIdWithUserMessage(userMessageId);
+            if (signalMessageDao == null) {
                 LOG.debug("Could not find messaging for message ID [{}]", userMessageId);
                 return null;
             }
-
-            signalMessage = messaging.getSignalMessage();
         } else {
             // if userMessageId is not provided, find the most recent signal message received for a test message
             String signalMessageId = signalMessageLogDao.findLastTestMessageId(partyId);
@@ -250,7 +249,7 @@ public class TestService {
                 LOG.debug("Could not find any signal message from party [{}]", partyId);
                 return null;
             }
-            signalMessage = messagingDao.findSignalMessageByMessageId(signalMessageId);
+            signalMessage = signalMessageDao.findBySignalMessageId(signalMessageId);
         }
 
         if (signalMessage == null) {

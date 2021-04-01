@@ -36,7 +36,7 @@ public class MessagePropertyDao extends BasicDao<MessageProperty> {
 
     public MessageProperty findPropertyByName(final String value) {
         final TypedQuery<MessageProperty> query = this.em.createNamedQuery("MessageProperty.findByName", MessageProperty.class);
-        query.setParameter("VALUE", value);
+        query.setParameter("NAME", value);
         return DataAccessUtils.singleResult(query.getResultList());
     }
 

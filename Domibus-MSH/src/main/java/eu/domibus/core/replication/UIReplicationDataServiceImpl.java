@@ -6,6 +6,7 @@ import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.UserMessageDefaultServiceHelper;
 import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -40,7 +41,7 @@ public class UIReplicationDataServiceImpl implements UIReplicationDataService {
     private UserMessageLogDao userMessageLogDao;
 
     @Autowired
-    private MessagingDao messagingDao;
+    private SignalMessageDao signalMessageDao;
 
     @Autowired
     private SignalMessageLogDao signalMessageLogDao;
@@ -177,11 +178,7 @@ public class UIReplicationDataServiceImpl implements UIReplicationDataService {
      * @param jmsTimestamp
      */
     void createUIMessageFromSignalMessageLog(String messageId, final long jmsTimestamp) {
-        final SignalMessageLog signalMessageLog = signalMessageLogDao.findByMessageId(messageId);
-        final SignalMessage signalMessage = messagingDao.findSignalMessageByMessageId(messageId);
-
-        final Messaging messaging = messagingDao.findMessageByMessageId(signalMessage.getRefToMessageId());
-        final UserMessage userMessage = messaging.getUserMessage();
+        final SignalMessage signalMessage = signalMessageDao.findBySignalMessageId(messageId);
 
         UIMessageEntity entity = null;//TODO createUIMessageEntity(messageId, jmsTimestamp, signalMessageLog, userMessage);
         entity.setRefToMessageId(signalMessage.getRefToMessageId());

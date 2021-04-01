@@ -11,7 +11,7 @@ import javax.persistence.*;
 @NamedQueries({
         @NamedQuery(name = "PartProperty.findPartProperties", query = "select props from UserMessage um left join um.messageProperties props where um.entityId= :ENTITY_ID"),
         @NamedQuery(name = "PartProperty.findByValue", query = "select prop from PartProperty prop where prop.value=:VALUE"),
-        @NamedQuery(name = "PartProperty.findByName", query = "select prop from PartProperty prop where prop.name=:VALUE"),
+        @NamedQuery(name = "PartProperty.findByName", query = "select prop from PartProperty prop where prop.name=:NAME"),
 })
 public class PartProperty extends Property {
 

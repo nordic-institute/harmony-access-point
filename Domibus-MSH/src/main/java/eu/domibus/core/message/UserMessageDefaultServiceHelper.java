@@ -107,7 +107,7 @@ public class UserMessageDefaultServiceHelper implements UserMessageServiceHelper
 
     @Override
     public String getAction(UserMessage userMessage) {
-        return userMessage.getAction().getValue();
+        return userMessage.getActionValue();
     }
 
     @Override

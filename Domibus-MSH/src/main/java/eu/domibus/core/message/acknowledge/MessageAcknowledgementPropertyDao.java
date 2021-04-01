@@ -5,7 +5,8 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Repository;
 
-/**Cosmin Baciu
+/**
+ * @author Cosmin Baciu
  * @since 5.0
  */
 @Repository

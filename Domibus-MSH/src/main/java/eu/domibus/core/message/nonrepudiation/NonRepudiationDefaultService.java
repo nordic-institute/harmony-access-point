@@ -5,7 +5,6 @@ import eu.domibus.api.model.*;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.audit.envers.ModificationType;
-import eu.domibus.core.message.MessagingDao;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.util.SoapUtil;
@@ -106,7 +105,7 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
             return;
         }
 
-        List<SignalMessage> signalMessages = signalMessageDao.findSignalMessagesByRefMessageId(userMessageId);
+        List<SignalMessage> signalMessages = signalMessageDao.findByRefMessageId(userMessageId);
         if (CollectionUtils.isEmpty(signalMessages)) {
             LOG.error("Could not find any signal message for ref message [{}]", userMessageId);
             return;

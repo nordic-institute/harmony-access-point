@@ -26,7 +26,7 @@ public class PartPropertyDao extends BasicDao<PartProperty> {
 
     public PartProperty findPropertyByName(final String value) {
         final TypedQuery<PartProperty> query = this.em.createNamedQuery("PartProperty.findByName", PartProperty.class);
-        query.setParameter("VALUE", value);
+        query.setParameter("NAME", value);
         return DataAccessUtils.singleResult(query.getResultList());
     }
 

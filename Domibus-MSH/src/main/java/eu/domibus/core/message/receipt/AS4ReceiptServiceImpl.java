@@ -4,7 +4,6 @@ import eu.domibus.api.model.*;
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.ebms3.model.ObjectFactory;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
-import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.api.message.UserMessageException;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.api.util.xml.XMLUtil;
@@ -155,7 +154,7 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
                 Source requestMessage;
                 if (duplicate) {
                     final RawEnvelopeDto rawXmlByMessageId = rawEnvelopeLogDao.findRawXmlByMessageId(userMessage.getMessageId());
-                    SignalMessage existingSignalMessage = signalMessageDao.findSignalMessageByUserMessageEntityId(userMessage.getEntityId());
+                    SignalMessage existingSignalMessage = signalMessageDao.findByUserMessageEntityId(userMessage.getEntityId());
                     messageId = existingSignalMessage.getSignalMessageId();
                     timestamp = timestampDateFormatter.generateTimestamp(existingSignalMessage.getTimestamp());
                     requestMessage = new StreamSource(new StringReader(rawXmlByMessageId.getRawMessage()));

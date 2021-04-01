@@ -27,19 +27,25 @@ public class SignalMessageDao extends BasicDao<SignalMessage> {
         super(SignalMessage.class);
     }
 
-    public SignalMessage findSignalMessageByUserMessageEntityId(final Long userMessageEntityId) {
+    public SignalMessage findByUserMessageEntityId(final Long userMessageEntityId) {
         final TypedQuery<SignalMessage> query = em.createNamedQuery("SignalMessage.findSignalMessageByUserMessageEntityId", SignalMessage.class);
         query.setParameter("ENTITY_ID", userMessageEntityId);
         return DataAccessUtils.singleResult(query.getResultList());
     }
 
-    public List<SignalMessage> findSignalMessagesByRefMessageId(final String originalMessageId) {
+    public SignalMessage findBySignalMessageId(final String signalMessageId) {
+        final TypedQuery<SignalMessage> query = em.createNamedQuery("SignalMessage.findBySignalMessageId", SignalMessage.class);
+        query.setParameter("SIGNAL_MESSAGE_ID", signalMessageId);
+        return DataAccessUtils.singleResult(query.getResultList());
+    }
+
+    public List<SignalMessage> findByRefMessageId(final String originalMessageId) {
         final TypedQuery<SignalMessage> query = em.createNamedQuery("SignalMessage.findSignalMessageByRefMessageId", SignalMessage.class);
         query.setParameter("ORI_MESSAGE_ID", originalMessageId);
         return query.getResultList();
     }
 
-    public SignalMessage findSignalMessageWithUserMessageByMessageId(final String messageId) {
+    public SignalMessage findByUserMessageIdWithUserMessage(final String messageId) {
         final TypedQuery<SignalMessage> query = em.createNamedQuery("SignalMessage.findSignalMessageWithUserMessageByUserMessageId", SignalMessage.class);
         query.setParameter("MESSAGE_ID", messageId);
         return DataAccessUtils.singleResult(query.getResultList());

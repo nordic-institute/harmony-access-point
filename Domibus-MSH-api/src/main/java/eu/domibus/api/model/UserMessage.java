@@ -1,5 +1,7 @@
 package eu.domibus.api.model;
 
+import org.apache.commons.lang3.BooleanUtils;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
@@ -169,8 +171,8 @@ public class UserMessage extends AbstractBaseEntity {
         this.sourceMessage = sourceMessage;
     }
 
-    public Boolean isMessageFragment() {
-        return messageFragment;
+    public boolean isMessageFragment() {
+        return BooleanUtils.toBoolean(messageFragment);
     }
 
     public void setMessageFragment(Boolean messageFragment) {

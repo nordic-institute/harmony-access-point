@@ -11,13 +11,6 @@ import java.util.List;
 @Entity
 @Table(name = "TB_MESSAGING")
 @NamedQueries({
-        @NamedQuery(name = "Messaging.findMessageByMessageId",
-                query = "select messaging from Messaging messaging where messaging.userMessage.messageInfo.messageId = :MESSAGE_ID"),
-        @NamedQuery(name = "Messaging.findSignalMessageByMessageId",
-                query = "select messaging.signalMessage from Messaging messaging where messaging.signalMessage.messageInfo.messageId = :MESSAGE_ID"),
-
-        @NamedQuery(name = "Messaging.findPartInfosForMessage", query = "select m.userMessage.payloadInfo.partInfo from Messaging m where m.userMessage.messageInfo.messageId = :MESSAGE_ID"),
-
         @NamedQuery(name = "Messaging.emptyPayloads", query = "update PartInfo p set p.binaryData = null where p in :PARTINFOS"),
         @NamedQuery(name = "Messaging.findSignalMessageByUserMessageId",
                 query = "select messaging.signalMessage from Messaging messaging where messaging.signalMessage.messageInfo.refToMessageId = :MESSAGE_ID"),

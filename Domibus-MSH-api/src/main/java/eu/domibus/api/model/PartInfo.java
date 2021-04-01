@@ -26,6 +26,7 @@ import java.util.Set;
 @NamedQueries({
         @NamedQuery(name = "PartInfo.findPartInfos", query = "select pi from PartInfo pi left join fetch pi.partProperties where pi.userMessage.entityId=:ENTITY_ID"),
         @NamedQuery(name = "PartInfo.findFilenames", query = "select pi.fileName from PartInfo pi where pi.userMessage.messageId IN :MESSAGEIDS and pi.fileName is not null"),
+        @NamedQuery(name = "PartInfo.emptyPayloads", query = "update PartInfo p set p.binaryData = null where p in :PARTINFOS"),
 })
 @Entity
 @Table(name = "TB_PART_INFO")

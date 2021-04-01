@@ -46,33 +46,12 @@ public class MessagingDao extends BasicDao<Messaging> {
         super(Messaging.class);
     }
 
-    public SignalMessage findSignalMessageByMessageId(final String messageId) {
-        final TypedQuery<SignalMessage> query = this.em.createNamedQuery("Messaging.findSignalMessageByMessageId", SignalMessage.class);
-        query.setParameter(MESSAGE_ID, messageId);
-
-        return DataAccessUtils.singleResult(query.getResultList());
-    }
-
     public SignalMessage findSignalMessageByUserMessageId(final String messageId) {
         final TypedQuery<SignalMessage> query = this.em.createNamedQuery("Messaging.findSignalMessageByUserMessageId", SignalMessage.class);
         query.setParameter(MESSAGE_ID, messageId);
 
         return DataAccessUtils.singleResult(query.getResultList());
     }
-
-    public Messaging findMessageByMessageId(final String messageId) {
-        try {
-            final TypedQuery<Messaging> query = em.createNamedQuery("Messaging.findMessageByMessageId", Messaging.class);
-            query.setParameter(MESSAGE_ID, messageId);
-            return query.getSingleResult();
-        } catch (NoResultException nrEx) {
-            LOG.debug("Could not find any message for message id[" + messageId + "]");
-            return null;
-        }
-    }
-
-
-
 
 
     /**

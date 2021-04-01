@@ -175,7 +175,7 @@ public class SubmissionAS4Transformer {
         }
 
         result.setMpc(userMessage.getMpc().getValue());
-        result.setAction(userMessage.getAction().getValue());
+        result.setAction(userMessage.getActionValue());
         result.setService(userMessage.getService().getValue());
         result.setServiceType(userMessage.getService().getType());
         if (userMessage.getAgreementRef() != null) {

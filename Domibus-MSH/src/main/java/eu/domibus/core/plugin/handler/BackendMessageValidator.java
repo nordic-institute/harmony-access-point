@@ -368,7 +368,7 @@ public class BackendMessageValidator {
         }
         validateAgreementRef(userMessage.getAgreementRef());
         validateService(userMessage.getService());
-        validateAction(userMessage.getAction().getValue());
+        validateAction(userMessage.getActionValue());
         validateConversationId(userMessage.getConversationId());
     }
 
