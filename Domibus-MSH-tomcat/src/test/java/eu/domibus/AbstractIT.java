@@ -159,7 +159,7 @@ public abstract class AbstractIT {
         final InputStream inputStream = new ClassPathResource("dataset/pmode/PModeTemplate.xml").getInputStream();
 
         String pmodeText = IOUtils.toString(inputStream, "UTF-8");
-        if(toReplace != null) {
+        if (toReplace != null) {
             pmodeText = replace(pmodeText, toReplace);
         }
         if (redHttpPort != null) {
@@ -240,7 +240,7 @@ public abstract class AbstractIT {
     protected void pushQueueMessage(String messageId, javax.jms.Connection connection, String queueName) throws Exception {
 
         // set XA mode to Session.AUTO_ACKNOWLEDGE - test does not use XA transaction
-        ((ActiveMQXAConnection)connection).setXaAckMode(Session.AUTO_ACKNOWLEDGE);
+        ((ActiveMQXAConnection) connection).setXaAckMode(Session.AUTO_ACKNOWLEDGE);
         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
         Destination destination = session.createQueue(queueName);
         MessageProducer producer = session.createProducer(destination);
@@ -271,7 +271,7 @@ public abstract class AbstractIT {
     protected Message popQueueMessageWithTimeout(javax.jms.Connection connection, String queueName, long mSecs) throws Exception {
 
         // set XA mode to Session.AUTO_ACKNOWLEDGE - test does not use XA transaction
-        ((ActiveMQXAConnection)connection).setXaAckMode(Session.AUTO_ACKNOWLEDGE);
+        ((ActiveMQXAConnection) connection).setXaAckMode(Session.AUTO_ACKNOWLEDGE);
         Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
         Destination destination = session.createQueue(queueName);
         MessageConsumer consumer = session.createConsumer(destination);
@@ -333,7 +333,7 @@ public abstract class AbstractIT {
 
     public void prepareSendMessage(String responseFileName, Map<String, String> toReplace) {
         String body = getAS4Response(responseFileName);
-        if(toReplace != null) {
+        if (toReplace != null) {
             body = replace(body, toReplace);
         }
 

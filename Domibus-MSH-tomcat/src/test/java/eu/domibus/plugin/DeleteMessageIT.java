@@ -4,14 +4,11 @@ package eu.domibus.plugin;
 import eu.domibus.AbstractBackendWSIT;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.core.message.retention.MessageRetentionDefaultService;
-import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.ws.generated.SubmitMessageFault;
 import eu.domibus.plugin.ws.generated.body.SubmitRequest;
 import eu.domibus.plugin.ws.generated.body.SubmitResponse;
 import eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging;
-import org.apache.commons.collections.CollectionUtils;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.BeforeClass;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.Rollback;
@@ -39,7 +36,7 @@ import static org.junit.Assert.assertNotNull;
  */
 @DirtiesContext
 @Rollback
-public class DeleteMessageIT extends AbstractBackendWSIT {
+public abstract class DeleteMessageIT extends AbstractBackendWSIT {
 
     @PersistenceContext(unitName = "domibusJTA")
     private EntityManager entityManager;
@@ -50,80 +47,39 @@ public class DeleteMessageIT extends AbstractBackendWSIT {
     @Autowired
     Provider<SOAPMessage> mshWebserviceTest;
 
-    private static final List<String> tablesToExclude = new ArrayList<>(Arrays.asList(
-            "TB_EVENT",
-            "TB_EVENT_ALERT",
-            "TB_EVENT_PROPERTY",
-            "TB_ALERT"
-    ));
+    private static List<String> tablesToExclude;
 
-    /**
-     * Test to delete a sent failed message
-     */
-    @Test
-    public void testDeleteFailedMessage() throws SubmitMessageFault, IOException, XmlProcessingException {
-        updatePmodeForSendFailure();
-        sendDeleteMessage(MessageStatus.SEND_FAILURE);
+    @BeforeClass
+    public static void initTablesToExclude() {
+        tablesToExclude = new ArrayList<>(Arrays.asList(
+                "TB_EVENT",
+                "TB_EVENT_ALERT",
+                "TB_EVENT_PROPERTY",
+                "TB_ALERT"
+        ));
     }
 
-    /**
-     * Test to delete a sent success message
-     */
-    @Test
-    public void testDeleteSentMessage() throws SubmitMessageFault, IOException, XmlProcessingException {
-        updatePmodeForAcknowledged();
-        sendDeleteMessage(MessageStatus.ACKNOWLEDGED);
-    }
-
-    /**
-     * Test to delete a received message
-     */
-    @Test
-    public void testReceiveDeleteMessage() throws SOAPException, IOException, ParserConfigurationException, SAXException, XmlProcessingException {
-        uploadPmode(wireMockRule.port());
-        receiveDeleteMessage();
-    }
-
-    protected void receiveDeleteMessage() throws SOAPException, IOException, ParserConfigurationException, SAXException{
+    protected void receiveMessageToDelete() throws SOAPException, IOException, ParserConfigurationException, SAXException {
         String filename = "SOAPMessage2.xml";
         String messageId = "43bb6883-77d2-4a41-bac4-52a485d50084@domibus.eu";
 
-        Map<String, Integer> initialMap = createTableRownumMap();
+        Map<String, Integer> initialMap = getTableCounts();
         SOAPMessage soapMessage = createSOAPMessage(filename);
         mshWebserviceTest.invoke(soapMessage);
 
         waitUntilMessageIsReceived(messageId);
+    }
 
-        Map<String, Integer> beforeDeletionMap = createTableRownumMap();
-
+    protected void deleteMessages() {
         messageRetentionService.deleteExpiredMessages();
-
-        Map<String, Integer> finalMap = createTableRownumMap();
-
-        Assert.assertTrue(initialMap.size() > 0);
-        Assert.assertTrue(beforeDeletionMap.size() > 0);
-        Assert.assertTrue(CollectionUtils.isEqualCollection(initialMap.entrySet(), finalMap.entrySet()));
-        Assert.assertFalse(CollectionUtils.isEqualCollection(initialMap.entrySet(), beforeDeletionMap.entrySet()));
     }
 
-    protected void updatePmodeForAcknowledged() throws IOException, XmlProcessingException {
-        Map<String, String> toReplace = new HashMap<>();
-        toReplace.put("security=\"eDeliveryAS4Policy\"", "security=\"noSigNoEnc\"");
-        uploadPmode(wireMockRule.port(), toReplace);
-    }
-
-    protected void updatePmodeForSendFailure() throws IOException, XmlProcessingException {
-        Map<String, String> toReplace = new HashMap<>();
-        toReplace.put("retry=\"12;4;CONSTANT\"", "retry=\"1;0;CONSTANT\"");
-        uploadPmode(wireMockRule.port(), toReplace);
-    }
-
-    protected void sendDeleteMessage(MessageStatus status) throws SubmitMessageFault {
+    protected void sendMessageToDelete(MessageStatus status) throws SubmitMessageFault {
         String payloadHref = "cid:message";
         SubmitRequest submitRequest = createSubmitRequestWs(payloadHref);
         Messaging ebMSHeaderInfo = createMessageHeaderWs(payloadHref);
 
-        Map<String, Integer> initialMap = createTableRownumMap();
+        Map<String, Integer> initialMap = getTableCounts();
 
         super.prepareSendMessage("validAS4Response.xml");
         SubmitResponse response = webServicePluginInterface.submitMessage(submitRequest, ebMSHeaderInfo);
@@ -136,23 +92,13 @@ public class DeleteMessageIT extends AbstractBackendWSIT {
 
         waitUntilMessageHasStatus(messageId, status);
 
-        Map<String, Integer> beforeDeletionMap = createTableRownumMap();
-
         verify(postRequestedFor(urlMatching("/domibus/services/msh")));
 
-        messageRetentionService.deleteExpiredMessages();
-
-        Map<String, Integer> finalMap = createTableRownumMap();
-
-        Assert.assertTrue(initialMap.size() > 0);
-        Assert.assertTrue(beforeDeletionMap.size() > 0);
-        Assert.assertTrue(CollectionUtils.isEqualCollection(initialMap.entrySet(), finalMap.entrySet()));
-        Assert.assertFalse(CollectionUtils.isEqualCollection(initialMap.entrySet(), beforeDeletionMap.entrySet()));
     }
 
-    protected Map<String, Integer> createTableRownumMap() {
+    protected Map<String, Integer> getTableCounts() {
         Map<String, Integer> rownums = new HashMap<>();
-        Query query = entityManager.createNativeQuery("SELECT table_name FROM INFORMATION_SCHEMA.TABLES where table_name like 'TB_%';");
+        Query query = entityManager.createNativeQuery("SELECT table_name FROM INFORMATION_SCHEMA.TABLES WHERE table_name LIKE 'TB_%'");
         try {
             List<String> tableNames = query.getResultList();
             tableNames.stream().forEach(tableName -> rownums.put(tableName, getCounter(tableName)));
@@ -164,7 +110,7 @@ public class DeleteMessageIT extends AbstractBackendWSIT {
     }
 
     protected Integer getCounter(String tableName) {
-        String selectStr = "select count(*) from " + tableName +";";
+        String selectStr = "SELECT count(*) from " + tableName;
         Query query = entityManager.createNativeQuery(selectStr);
         BigInteger counter = (BigInteger)query.getSingleResult();
 

@@ -100,7 +100,7 @@
 
                    <execution>
                        <id>generate-h2-script-data</id>
-                       <phase>generate-resources</phase>
+                       <phase>pre-integration-test</phase>
                        <goals>
                            <goal>updateSQL</goal>
                        </goals>
@@ -112,7 +112,7 @@
                                offline:h2?version=1.3&amp;caseSensitive=true&amp;changeLogFile=${project.build.directory}/liquibase/changelog-${project.version}.h2
                            </url>
                            <migrationSqlOutputFile>
-                               ${project.build.directory}/sql-scripts/h2.sql
+                               ${project.build.directory}/test-sql-scripts/h2.sql
                            </migrationSqlOutputFile>
                        </configuration>
                    </execution>
