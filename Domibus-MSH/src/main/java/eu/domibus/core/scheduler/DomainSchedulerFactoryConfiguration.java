@@ -62,7 +62,8 @@ public class DomainSchedulerFactoryConfiguration {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainSchedulerFactoryConfiguration.class);
 
-    private static final String GROUP_GENERAL = "GENERAL";
+    public static final String GENERAL_SCHEDULER_NAME = "General";
+    public static final String GROUP_GENERAL = "GENERAL";
     private static final Integer JOB_START_DELAY_IN_MS = 30000;
 
     @Autowired
@@ -481,7 +482,7 @@ public class DomainSchedulerFactoryConfiguration {
      */
     private SchedulerFactoryBean schedulerFactoryGeneral() {
         LOG.debug("Instantiating the scheduler factory for general schema");
-        SchedulerFactoryBean schedulerFactoryBean = schedulerFactory("General", getGeneralSchemaPrefix(), null);
+        SchedulerFactoryBean schedulerFactoryBean = schedulerFactory(GENERAL_SCHEDULER_NAME, getGeneralSchemaPrefix(), null);
 
         final Map<String, Trigger> beansOfType = applicationContext.getBeansOfType(Trigger.class);
         List<Trigger> domibusStandardTriggerList = beansOfType.values().stream()
@@ -504,10 +505,11 @@ public class DomainSchedulerFactoryConfiguration {
      * @return Scheduler Factory Bean changed
      */
     private SchedulerFactoryBean schedulerFactoryDomain(Domain domain) {
+        domainContextProvider.setCurrentDomain(domain);
+
         LOG.debug("Instantiating the scheduler factory for domain [{}]", domain);
         SchedulerFactoryBean schedulerFactoryBean = schedulerFactory(domainService.getSchedulerName(domain), getTablePrefix(domain), domain);
 
-        domainContextProvider.setCurrentDomain(domain);
 
         //get all the Spring Bean Triggers so that new instances with scope prototype are injected
         final Map<String, Trigger> beansOfType = applicationContext.getBeansOfType(Trigger.class);
@@ -516,8 +518,6 @@ public class DomainSchedulerFactoryConfiguration {
                         !((CronTriggerImpl) trigger).getGroup().equalsIgnoreCase(GROUP_GENERAL))
                 .collect(Collectors.toList());
         schedulerFactoryBean.setTriggers(domibusStandardTriggerList.toArray(new Trigger[domibusStandardTriggerList.size()]));
-
-        domainContextProvider.clearCurrentDomain();
 
         return schedulerFactoryBean;
     }

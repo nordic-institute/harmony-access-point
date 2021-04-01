@@ -1,11 +1,12 @@
 package eu.domibus.core.scheduler;
 
-import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.monitoring.domain.MonitoringStatus;
 import eu.domibus.api.monitoring.domain.QuartzInfo;
 import eu.domibus.api.monitoring.domain.QuartzTriggerDetails;
 import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.scheduler.DomibusScheduler;
 import eu.domibus.api.scheduler.DomibusSchedulerException;
 import eu.domibus.logging.DomibusLogger;
@@ -17,11 +18,17 @@ import org.quartz.*;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.util.*;
+
+import static eu.domibus.core.scheduler.DomainSchedulerFactoryConfiguration.GROUP_GENERAL;
 
 /**
  * Quartz scheduler starter class which:
@@ -56,6 +63,12 @@ public class DomibusQuartzStarter implements DomibusScheduler {
     protected DomainService domainService;
 
     @Autowired
+    protected DomainContextProvider domainContextProvider;
+
+    @Autowired
+    private PlatformTransactionManager transactionManager;
+
+    @Autowired
     protected DomibusConfigurationService domibusConfigurationService;
 
     protected Map<Domain, Scheduler> schedulers = new HashMap<>();
@@ -66,7 +79,7 @@ public class DomibusQuartzStarter implements DomibusScheduler {
     public void initQuartzSchedulers() {
         // General Schedulers
         try {
-            startsSchedulers("general");
+            startsSchedulers(GROUP_GENERAL);
         } catch (SchedulerException e) {
             LOG.error("Could not initialize the Quartz Scheduler for general schema", e);
         }
@@ -116,6 +129,8 @@ public class DomibusQuartzStarter implements DomibusScheduler {
      * @throws SchedulerException Quartz scheduler exception
      */
     public void checkJobsAndStartScheduler(Domain domain) throws SchedulerException {
+        domainContextProvider.setCurrentDomain(domain);
+
         Scheduler scheduler = domibusSchedulerFactory.createScheduler(domain);
 
         //check Quartz scheduler jobs first
@@ -124,6 +139,8 @@ public class DomibusQuartzStarter implements DomibusScheduler {
         scheduler.start();
         schedulers.put(domain, scheduler);
         LOG.info("Quartz scheduler started for domain [{}]", domain);
+
+        domainContextProvider.clearCurrentDomain();
     }
 
     /**
@@ -255,24 +272,13 @@ public class DomibusQuartzStarter implements DomibusScheduler {
      * @throws SchedulerException Quartz scheduler exception
      */
     protected void checkSchedulerJobsByTriggerGroup(Scheduler scheduler, String triggerGroup) throws SchedulerException {
-        LOG.info("Start Quartz jobs with trigger group [{}]...", triggerGroup);
+        LOG.info("Start checking Quartz jobs with trigger group [{}]...", triggerGroup);
 
         for (TriggerKey triggerKey : scheduler.getTriggerKeys(GroupMatcher.triggerGroupEquals(triggerGroup))) {
             Trigger trigger = scheduler.getTrigger(triggerKey);
             JobKey jobKey = trigger.getJobKey();
 
-            try {
-                scheduler.getJobDetail(jobKey).getJobClass().getName();
-            } catch (SchedulerException se) {
-                if (ExceptionUtils.getRootCause(se) instanceof ClassNotFoundException) {
-                    try {
-                        scheduler.deleteJob(jobKey);
-                        LOG.warn("DELETED Quartz job: {} from group: {} cause: {}", jobKey.getName(), jobKey.getGroup(), se.getMessage());
-                    } catch (Exception e) {
-                        LOG.error("Error while deleting Quartz job: {}", jobKey.getName(), e);
-                    }
-                }
-            }
+            checkSchedulerJob(scheduler, jobKey);
         }
     }
 
@@ -282,43 +288,55 @@ public class DomibusQuartzStarter implements DomibusScheduler {
      * @param scheduler the scheduler
      * @throws SchedulerException Quartz scheduler exception
      */
-    protected void checkSchedulerJobs(Scheduler scheduler) throws SchedulerException {
+    public void checkSchedulerJobs(Scheduler scheduler) throws SchedulerException {
         LOG.info("Start checking Quartz jobs for scheduler [{}]", scheduler.getSchedulerName());
 
         for (String groupName : scheduler.getJobGroupNames()) {
-            checkSchedulerJobsFromGroup(scheduler, groupName);
+            //go through jobs to see which one throws ClassNotFoundException
+            for (JobKey jobKey : scheduler.getJobKeys(GroupMatcher.jobGroupEquals(groupName))) {
+                checkSchedulerJob(scheduler, jobKey);
+            }
         }
     }
 
     /**
-     * check scheduler jobs from a given group
+     * check scheduler job, and removes it if it throws ClassNotFoundException
      *
-     * @param groupName scheduler group name
-     * @throws SchedulerException scheduler exception
+     * @param scheduler the scheduler
+     * @param jobKey    the job key
      */
-    protected void checkSchedulerJobsFromGroup(Scheduler scheduler, final String groupName) throws SchedulerException {
+    protected void checkSchedulerJob(Scheduler scheduler, JobKey jobKey) {
+        LOG.info("Found Quartz job: {} from group: {}", jobKey.getName(), jobKey.getGroup());
 
-        //go through jobs to see which one throws ClassNotFoundException
-        for (JobKey jobKey : scheduler.getJobKeys(GroupMatcher.jobGroupEquals(groupName))) {
-
-            final String jobName = jobKey.getName();
-            final String jobGroup = jobKey.getGroup();
-
-            LOG.info("Found Quartz job: {} from group: {}", jobName, jobGroup);
-
-            try {
-                scheduler.getJobDetail(jobKey).getJobClass().getName();
-            } catch (SchedulerException se) {
-                if (ExceptionUtils.getRootCause(se) instanceof ClassNotFoundException) {
-                    try {
-                        scheduler.deleteJob(jobKey);
-                        LOG.warn("DELETED Quartz job: {} from group: {} cause: {}", jobName, jobGroup, se.getMessage());
-                    } catch (Exception e) {
-                        LOG.error("Error while deleting Quartz job: {}", jobName, e);
-                    }
-                }
+        try {
+            scheduler.getJobDetail(jobKey).getJobClass().getName();
+        } catch (SchedulerException se) {
+            if (ExceptionUtils.getRootCause(se) instanceof ClassNotFoundException) {
+                deleteSchedulerJob(scheduler, jobKey, se);
             }
         }
+    }
+
+    /**
+     * remove scheduler job
+     *
+     * @param scheduler the scheduler
+     * @param jobKey    the job key to remove
+     * @param se        the exception that triggered the job deletion
+     */
+    protected void deleteSchedulerJob(Scheduler scheduler, JobKey jobKey, SchedulerException se) {
+        // the job deletion needs to happen inside a transaction,
+        // ensuring that, when the scheduler is started immediately afterwards, the deletion is already committed
+        new TransactionTemplate(transactionManager).execute(new TransactionCallbackWithoutResult() {
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
+                try {
+                    scheduler.deleteJob(jobKey);
+                    LOG.warn("DELETED Quartz job: {} from group: {} cause: {}", jobKey.getName(), jobKey.getGroup(), se.getMessage());
+                } catch (Exception e) {
+                    LOG.error("Error while deleting Quartz job: {}", jobKey.getName(), e);
+                }
+            }
+        });
     }
 
     /**
