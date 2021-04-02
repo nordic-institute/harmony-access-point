@@ -70,6 +70,7 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
@@ -86,7 +87,7 @@ import static org.awaitility.Awaitility.with;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(initializers = PropertyOverrideContextInitializer.class,
         classes = {DomibusRootConfiguration.class, DomibusWebConfiguration.class,
-                DomibusTestDatasourceConfiguration.class, DomibusTestTransactionConfiguration.class, DomibusTestMocksConfiguration.class})
+                DomibusTestDatasourceConfiguration.class, DomibusTestMocksConfiguration.class})
 @DirtiesContext
 @Rollback
 public abstract class AbstractIT {
@@ -146,13 +147,21 @@ public abstract class AbstractIT {
         try {
             FileUtils.forceDelete(new File("target/test-classes/work/transactions/log/tmlog.lck"));
         } catch (IOException exc) {
-            LOG.info("No tmlog.lck to delete");
+            LOG.trace("No tmlog.lck to delete");
         }
     }
 
     protected void uploadPmode(Integer redHttpPort) throws IOException, XmlProcessingException {
+        uploadPmode(redHttpPort, null);
+    }
+
+    protected void uploadPmode(Integer redHttpPort, Map<String, String> toReplace) throws IOException, XmlProcessingException {
         final InputStream inputStream = new ClassPathResource("dataset/pmode/PModeTemplate.xml").getInputStream();
+
         String pmodeText = IOUtils.toString(inputStream, "UTF-8");
+        if (toReplace != null) {
+            pmodeText = replace(pmodeText, toReplace);
+        }
         if (redHttpPort != null) {
             LOG.info("Using wiremock http port [{}]", redHttpPort);
             pmodeText = pmodeText.replace(String.valueOf(SERVICE_PORT), String.valueOf(redHttpPort));
@@ -175,7 +184,7 @@ public abstract class AbstractIT {
 
 
     protected void waitUntilMessageHasStatus(String messageId, MessageStatus messageStatus) {
-        with().pollInterval(500, TimeUnit.MILLISECONDS).await().atMost(15, TimeUnit.SECONDS).until(messageHasStatus(messageId, messageStatus));
+        with().pollInterval(500, TimeUnit.MILLISECONDS).await().atMost(120, TimeUnit.SECONDS).until(messageHasStatus(messageId, messageStatus));
     }
 
     protected void waitUntilMessageIsAcknowledged(String messageId) {
@@ -231,7 +240,9 @@ public abstract class AbstractIT {
     protected void pushQueueMessage(String messageId, javax.jms.Connection connection, String queueName) throws Exception {
 
         // set XA mode to Session.AUTO_ACKNOWLEDGE - test does not use XA transaction
-        ((ActiveMQXAConnection)connection).setXaAckMode(Session.AUTO_ACKNOWLEDGE);
+        if (connection instanceof ActiveMQXAConnection) {
+            ((ActiveMQXAConnection) connection).setXaAckMode(Session.AUTO_ACKNOWLEDGE);
+        }
         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
         Destination destination = session.createQueue(queueName);
         MessageProducer producer = session.createProducer(destination);
@@ -262,7 +273,9 @@ public abstract class AbstractIT {
     protected Message popQueueMessageWithTimeout(javax.jms.Connection connection, String queueName, long mSecs) throws Exception {
 
         // set XA mode to Session.AUTO_ACKNOWLEDGE - test does not use XA transaction
-        ((ActiveMQXAConnection)connection).setXaAckMode(Session.AUTO_ACKNOWLEDGE);
+        if (connection instanceof ActiveMQXAConnection) {
+            ((ActiveMQXAConnection) connection).setXaAckMode(Session.AUTO_ACKNOWLEDGE);
+        }
         Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
         Destination destination = session.createQueue(queueName);
         MessageConsumer consumer = session.createConsumer(destination);
@@ -319,10 +332,14 @@ public abstract class AbstractIT {
     }
 
     public void prepareSendMessage(String responseFileName) {
-        /* Initialize the mock objects */
-//        MockitoAnnotations.initMocks(this);
+        prepareSendMessage(responseFileName, null);
+    }
 
+    public void prepareSendMessage(String responseFileName, Map<String, String> toReplace) {
         String body = getAS4Response(responseFileName);
+        if (toReplace != null) {
+            body = replace(body, toReplace);
+        }
 
         // Mock the response from the recipient MSH
         stubFor(post(urlEqualTo("/domibus/services/msh"))
@@ -332,6 +349,12 @@ public abstract class AbstractIT {
                         .withBody(body)));
     }
 
+    protected String replace(String body, Map<String, String> toReplace) {
+        for (String key : toReplace.keySet()) {
+            body = body.replaceAll(key, toReplace.get(key));
+        }
+        return body;
+    }
 
     public String composePModeKey(final String senderParty, final String receiverParty, final String service,
                                   final String action, final String agreement, final String legName) {

@@ -56,7 +56,7 @@ public abstract class AuthenticationServiceBase {
             LOG.debug("Principal found on SecurityContextHolder: {}", userDetail);
             return userDetail;
         }
-        LOG.warn("Authentication is missing from the security context or it is of wrong type. Could not return the logged user.");
+        LOG.debug("Authentication is missing from the security context or it is of wrong type. Could not return the logged user.");
         return null;
     }
 

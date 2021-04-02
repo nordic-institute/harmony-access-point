@@ -15,7 +15,7 @@ import java.util.Set;
 @Embeddable
 public class To {
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     @JoinColumn(name = "TO_ID")
     protected Set<PartyId> partyId;
 

@@ -26,7 +26,7 @@ import java.util.List;
  * @since 4.1
  */
 @RunWith(JMockit.class)
-public class LoggingEbms3ServiceImplTest {
+public class LoggingServiceImplTest {
 
     @Injectable
     protected DomibusCoreMapper coreMapper;
@@ -173,7 +173,7 @@ public class LoggingEbms3ServiceImplTest {
 
         //tested method
         loggingService.resetLogging();
-        Assert.assertEquals(Level.ERROR, context.getLogger("com.atomikos").getLevel());
+        Assert.assertEquals(Level.WARN, context.getLogger("org.apache.cxf").getLevel());
 
     }
 

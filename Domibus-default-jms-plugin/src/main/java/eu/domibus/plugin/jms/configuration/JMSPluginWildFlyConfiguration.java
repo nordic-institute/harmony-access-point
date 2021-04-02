@@ -28,7 +28,7 @@ public class JMSPluginWildFlyConfiguration extends JMSPluginApplicationServerCon
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(JMSPluginWildFlyConfiguration.class);
 
     @Bean("mshToBackendTemplate")
-    public JmsTemplate mshToBackendTemplate(@Qualifier(JMSConstants.DOMIBUS_JMS_CACHING_XACONNECTION_FACTORY) ConnectionFactory connectionFactory,
+    public JmsTemplate mshToBackendTemplate(@Qualifier(JMSConstants.DOMIBUS_JMS_CACHING_CONNECTION_FACTORY) ConnectionFactory connectionFactory,
                                             Optional<JndiDestinationResolver> jndiDestinationResolver) {
         JmsTemplate jmsTemplate = new JmsTemplate(connectionFactory);
         jmsTemplate.setSessionTransacted(true);

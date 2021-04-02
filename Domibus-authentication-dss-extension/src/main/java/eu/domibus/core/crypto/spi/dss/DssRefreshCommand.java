@@ -83,5 +83,8 @@ public class DssRefreshCommand implements CommandExtTask {
         } catch (IOException e) {
             LOG.error("Error while checking if cache directory:[{}] is empty", serverCacheDirectoryPath, e);
         }
+        catch (DSSException d){
+            LOG.error("Error while initiating DSS list of trusted list repository",d);
+        }
     }
 }
