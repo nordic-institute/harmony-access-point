@@ -404,6 +404,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         drop_table_if_exists('MIGR_TB_USER_MESSAGE_RAW');
         drop_table_if_exists('MIGR_TB_SIGNAL_MESSAGE_RAW');
         drop_table_if_exists('MIGR_TB_MESSAGE_PROPERTIES');
+        drop_table_if_exists('MIGR_TB_PART_INFO');
 
         drop_table_if_exists('TB_D_MPC');
         drop_table_if_exists('TB_D_ROLE');
@@ -519,6 +520,12 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
                 'CREATE TABLE TB_D_MESSAGE_PROPERTY (ID_PK NUMBER(38, 0) NOT NULL, NAME VARCHAR2(255) NOT NULL, VALUE VARCHAR2(1024), TYPE VARCHAR2(255), CREATION_TIME TIMESTAMP DEFAULT sysdate NOT NULL, CREATED_BY VARCHAR2(255) DEFAULT user NOT NULL, MODIFICATION_TIME TIMESTAMP, MODIFIED_BY VARCHAR2(255), CONSTRAINT PK_D_MSG_PROPERTY PRIMARY KEY (ID_PK))';
         v_table := 'TB_D_MESSAGE_PROPERTY';
         create_table(v_table, v_sql);
+
+        v_sql :=
+                'CREATE TABLE MIGR_TB_PART_INFO (ID_PK NUMBER(38, 0) NOT NULL, BINARY_DATA BLOB, DESCRIPTION_LANG VARCHAR2(255), DESCRIPTION_VALUE VARCHAR2(255), HREF VARCHAR2(255), IN_BODY NUMBER(1), FILENAME VARCHAR2(255), MIME VARCHAR2(255) NOT NULL, USER_MESSAGE_ID_FK NUMBER(38, 0), PART_ORDER INTEGER DEFAULT 0 NOT NULL, ENCRYPTED NUMBER(1) DEFAULT 0, CREATION_TIME TIMESTAMP DEFAULT sysdate NOT NULL, CREATED_BY VARCHAR2(255) DEFAULT user NOT NULL, MODIFICATION_TIME TIMESTAMP, MODIFIED_BY VARCHAR2(255), CONSTRAINT PK_PART_INFO PRIMARY KEY (ID_PK))';
+        v_table := 'MIGR_TB_PART_INFO';
+        create_table(v_table, v_sql);
+
     END migrate_pre;
     /** -- Helper procedures and functions end -*/
 
@@ -1283,6 +1290,99 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         CLOSE c_property;
     END migrate_property;
 
+    /**- TB_PROPERTY data migration --*/
+    PROCEDURE migrate_part_info IS
+        v_tab              VARCHAR2(30) := 'TB_PART_INFO';
+        v_tab_new  VARCHAR2(30) := 'MIGR_TB_PART_INFO';
+        v_tab_user_message VARCHAR2(30) := 'TB_USER_MESSAGE';
+
+        v_count_message    NUMBER       := 0;
+        v_count            NUMBER       := 0;
+        CURSOR c_part_info IS
+            SELECT PI.ID_PK,
+                   PI.BINARY_DATA,
+                   PI.DESCRIPTION_LANG,
+                   PI.DESCRIPTION_VALUE,
+                   PI.HREF,
+                   PI.IN_BODY,
+                   PI.FILENAME,
+                   PI.MIME,
+                   PI.PART_ORDER,
+                   PI.ENCRYPTED,
+                   PI.CREATED_BY,
+                   PI.CREATION_TIME,
+                   PI.MODIFIED_BY,
+                   PI.MODIFICATION_TIME,
+                   UM.ID_PK USER_MESSAGE_ID_FK
+            FROM TB_USER_MESSAGE UM,
+                 TB_PART_INFO PI
+            WHERE
+                    PI.PAYLOADINFO_ID = UM.ID_PK;
+        TYPE T_PART_INFO IS TABLE OF c_part_info%ROWTYPE;
+        part_info           T_PART_INFO;
+        v_batch_no         INT          := 1;
+    BEGIN
+        DBMS_OUTPUT.PUT_LINE(v_tab || ' migration started...');
+        OPEN c_part_info;
+        LOOP
+            FETCH c_part_info BULK COLLECT INTO part_info;
+            EXIT WHEN part_info.COUNT = 0;
+
+            FOR i IN part_info.FIRST .. part_info.LAST
+                LOOP
+                    BEGIN
+
+                        BEGIN
+                            EXECUTE IMMEDIATE 'INSERT INTO ' || v_tab_new ||
+                                              ' (ID_PK, BINARY_DATA, DESCRIPTION_LANG, DESCRIPTION_VALUE, HREF, IN_BODY, FILENAME, MIME,' ||
+                                              'PART_ORDER, ENCRYPTED, USER_MESSAGE_ID_FK, CREATION_TIME, CREATED_BY, MODIFICATION_TIME, MODIFIED_BY ) ' ||
+                                              'VALUES (:p_1, :p_2, :p_3, :p_4, :p_5, :p_6, :p_7, :p_8, :p_9, :p_10, :p_11, :p_12, :p_13, :p_14, :p_15)'
+                                USING
+                                part_info(i).ID_PK,
+                                part_info(i).BINARY_DATA,
+                                part_info(i).DESCRIPTION_LANG,
+                                part_info(i).DESCRIPTION_VALUE,
+                                part_info(i).HREF,
+                                part_info(i).IN_BODY,
+                                part_info(i).FILENAME,
+                                part_info(i).MIME,
+                                part_info(i).PART_ORDER,
+                                part_info(i).ENCRYPTED,
+                                part_info(i).USER_MESSAGE_ID_FK,
+                                part_info(i).CREATION_TIME,
+                                part_info(i).CREATED_BY,
+                                part_info(i).MODIFICATION_TIME,
+                                part_info(i).MODIFIED_BY;
+                        EXCEPTION
+                            WHEN OTHERS THEN
+                                DBMS_OUTPUT.PUT_LINE('migrate_message_log for ' || v_tab_new ||
+                                                     ' -> execute immediate error: ' ||
+                                                     DBMS_UTILITY.FORMAT_ERROR_STACK);
+                        END;
+                        v_count_message := v_count_message + 1;
+
+                        IF i MOD BATCH_SIZE = 0 THEN
+                            COMMIT;
+                            DBMS_OUTPUT.PUT_LINE(
+                                        v_tab || ': Commit after ' || BATCH_SIZE * v_batch_no || ' records');
+                            v_batch_no := v_batch_no + 1;
+                        END IF;
+                    EXCEPTION
+                        WHEN OTHERS THEN
+                            DBMS_OUTPUT.PUT_LINE('migrate_message_log -> execute immediate error: ' ||
+                                                 DBMS_UTILITY.FORMAT_ERROR_STACK);
+                    END;
+                    v_count := i;
+                END LOOP;
+            DBMS_OUTPUT.PUT_LINE(
+                        'Migrated ' || part_info.COUNT || ' records in total. ' || v_count_message || ' into ' ||
+                        v_tab_new);
+        END LOOP;
+
+        COMMIT;
+        CLOSE c_part_info;
+    END migrate_part_info;
+
     /**-- TB_USER_MESSAGE migration post actions --*/
     PROCEDURE migrate_user_message_post IS
     BEGIN
@@ -1338,6 +1438,7 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         migrate_raw_envelope_log;
 
         migrate_property;
+        migrate_part_info;
 
         -- house keeping
         migrate_post;
