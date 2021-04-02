@@ -22,7 +22,7 @@
         <module>Domibus-MSH-test</module>
         <module>Domibus-iam-spi</module>
         <module>Domibus-ext-model</module>
-        <module>new-dss</module>
+        <!--<module>new-dss</module>-->
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -72,6 +72,7 @@
         <dropwizard.metrics.version>4.1.13</dropwizard.metrics.version>
         <dependency.check.version>6.0.5</dependency.check.version>
         <maven-dependency-plugin.version>3.1.2</maven-dependency-plugin.version>
+        <domibus.dss.version>1.0-SNAPSHOT</domibus.dss.version>
 
         <!-- Sonar properties -->
         <sonar.binaries>target/classes</sonar.binaries>
@@ -299,6 +300,12 @@
                     <exclusion>
                         <groupId>commons-logging</groupId>
                         <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                    <!-- Removed as in DSS -->
+                    <!-- Synchronize with santuario version (1/2) -->
+                    <exclusion>
+                        <groupId>commons-codec</groupId>
+                        <artifactId>commons-codec</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -922,97 +929,77 @@
             <!-- End Miscellaneous -->
 
             <!-- IAM dependencies -->
-          <!--  <dependency>
-                <groupId>eu.europa.ec.joinup.sd-dss</groupId>
+            <dependency>
+                <groupId>eu.domibus</groupId>
                 <artifactId>dss-document</artifactId>
-                <version>${dss.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.bouncycastle</groupId>
-                        <artifactId>bcprov-jdk15on</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.bouncycastle</groupId>
-                        <artifactId>bcpkix-jdk15on</artifactId>
-                    </exclusion>
-                </exclusions>
+                <version>${domibus.dss.version}</version>
             </dependency>
             <dependency>
-                <groupId>eu.europa.ec.joinup.sd-dss</groupId>
+                <groupId>eu.domibus</groupId>
                 <artifactId>dss-tsl-validation</artifactId>
-                <version>${dss.version}</version>
+                <version>${domibus.dss.version}</version>
             </dependency>
             <dependency>
-                <groupId>eu.europa.ec.joinup.sd-dss</groupId>
-                <artifactId>dss-utils-google-guava</artifactId>
-                <version>${dss.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>com.google.guava</groupId>
-                        <artifactId>guava</artifactId>
-                    </exclusion>
-                </exclusions>
+                <groupId>eu.domibus</groupId>
+                <artifactId>dss-utils-apache-commons</artifactId>
+                <version>${domibus.dss.version}</version>
             </dependency>
             <dependency>
-                <groupId>eu.europa.ec.joinup.sd-dss</groupId>
+                <groupId>eu.domibus</groupId>
                 <artifactId>dss-service</artifactId>
-                <version>${dss.version}</version>
+                <version>${domibus.dss.version}</version>
             </dependency>
             <dependency>
-                <groupId>eu.europa.ec.joinup.sd-dss</groupId>
-                <artifactId>dss-crl-parser-x509crl</artifactId>
-                <version>${dss.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>eu.europa.ec.joinup.sd-dss</groupId>
+                <groupId>eu.domibus</groupId>
                 <artifactId>dss-utils</artifactId>
-                <version>${dss.version}</version>
+                <version>${domibus.dss.version}</version>
             </dependency>
             <dependency>
-                <groupId>eu.europa.ec.joinup.sd-dss</groupId>
+                <groupId>eu.domibus</groupId>
                 <artifactId>dss-policy-jaxb</artifactId>
-                <version>${dss.version}</version>
+                <version>${domibus.dss.version}</version>
             </dependency>
             <dependency>
-                <groupId>eu.europa.ec.joinup.sd-dss</groupId>
+                <groupId>eu.domibus</groupId>
                 <artifactId>dss-model</artifactId>
-                <version>${dss.version}</version>
+                <version>${domibus.dss.version}</version>
             </dependency>
             <dependency>
-                <groupId>eu.europa.ec.joinup.sd-dss</groupId>
+                <groupId>eu.domibus</groupId>
                 <artifactId>validation-policy</artifactId>
-                <version>${dss.version}</version>
+                <version>${domibus.dss.version}</version>
             </dependency>
             <dependency>
-                <groupId>eu.europa.ec.joinup.sd-dss</groupId>
+                <groupId>eu.domibus</groupId>
                 <artifactId>dss-xades</artifactId>
-                <version>${dss.version}</version>
+                <version>${domibus.dss.version}</version>
             </dependency>
             <dependency>
-                <groupId>eu.europa.ec.joinup.sd-dss</groupId>
+                <groupId>eu.domibus</groupId>
                 <artifactId>dss-simple-report-jaxb</artifactId>
-                <version>${dss.version}</version>
+                <version>${domibus.dss.version}</version>
             </dependency>
             <dependency>
-                <groupId>eu.europa.ec.joinup.sd-dss</groupId>
+                <groupId>eu.domibus</groupId>
                 <artifactId>dss-detailed-report-jaxb</artifactId>
-                <version>${dss.version}</version>
+                <version>${domibus.dss.version}</version>
             </dependency>
             <dependency>
-                <groupId>eu.europa.ec.joinup.sd-dss</groupId>
+                <groupId>eu.domibus</groupId>
                 <artifactId>dss-enumerations</artifactId>
-                <version>${dss.version}</version>
+                <version>${domibus.dss.version}</version>
             </dependency>
             <dependency>
-                <groupId>eu.europa.ec.joinup.sd-dss</groupId>
+                <groupId>eu.domibus</groupId>
                 <artifactId>dss-spi</artifactId>
-                <version>${dss.version}</version>
+                <version>${domibus.dss.version}</version>
             </dependency>
+
             <dependency>
-                <groupId>eu.europa.ec.joinup.sd-dss</groupId>
-                <artifactId>dss-token</artifactId>
-                <version>${dss.version}</version>
-            </dependency>-->
+                <groupId>org.glassfish.jaxb</groupId>
+                <artifactId>jaxb-runtime</artifactId>
+                <scope>runtime</scope>
+            </dependency>
 
             <!--UUMDS extension -->
 

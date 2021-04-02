@@ -65,31 +65,16 @@
             <artifactId>ehcache</artifactId>
             <scope>provided</scope>
         </dependency>
-        <dependency>
+       <!-- <dependency>
             <groupId>javax.xml.bind</groupId>
             <artifactId>jaxb-api</artifactId>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.santuario</groupId>
-            <artifactId>xmlsec</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
+        </dependency>-->
+        <!--<dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpcore</artifactId>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-            <scope>provided</scope>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>org.apache.wss4j</groupId>
             <artifactId>wss4j-ws-security-dom</artifactId>
@@ -112,179 +97,125 @@
         </dependency>
         <!-- CXF dependencies -->
 
-        <!-- DSS dependencies -->
-        <!--<dependency>
-            <groupId>eu.europa.ec.joinup.sd-dss</groupId>
+        <!-- DSS Modules -->
+        <dependency>
+            <groupId>eu.domibus</groupId>
             <artifactId>dss-document</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.bouncycastle</groupId>
-                    <artifactId>bcprov-jdk15on</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.bouncycastle</groupId>
-                    <artifactId>bcpkix-jdk15on</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
-            <groupId>eu.europa.ec.joinup.sd-dss</groupId>
+            <groupId>eu.domibus</groupId>
             <artifactId>dss-tsl-validation</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.bouncycastle</groupId>
-                    <artifactId>bcprov-jdk15on</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.bouncycastle</groupId>
-                    <artifactId>bcpkix-jdk15on</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
-            <groupId>eu.europa.ec.joinup.sd-dss</groupId>
-            <artifactId>dss-utils-google-guava</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.google.guava</groupId>
-                    <artifactId>guava</artifactId>
-                </exclusion>
-            </exclusions>
+            <groupId>eu.domibus</groupId>
+            <artifactId>dss-utils-apache-commons</artifactId>
         </dependency>
         <dependency>
-            <groupId>eu.europa.ec.joinup.sd-dss</groupId>
+            <groupId>eu.domibus</groupId>
             <artifactId>dss-service</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.bouncycastle</groupId>
-                    <artifactId>bcprov-jdk15on</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.bouncycastle</groupId>
-                    <artifactId>bcpkix-jdk15on</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
-            <groupId>eu.europa.ec.joinup.sd-dss</groupId>
+            <groupId>eu.domibus</groupId>
             <artifactId>dss-utils</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.bouncycastle</groupId>
-                    <artifactId>bcprov-jdk15on</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.bouncycastle</groupId>
-                    <artifactId>bcpkix-jdk15on</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
-            <groupId>eu.europa.ec.joinup.sd-dss</groupId>
+            <groupId>eu.domibus</groupId>
             <artifactId>dss-policy-jaxb</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.bouncycastle</groupId>
-                    <artifactId>bcprov-jdk15on</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.bouncycastle</groupId>
-                    <artifactId>bcpkix-jdk15on</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
-            <groupId>eu.europa.ec.joinup.sd-dss</groupId>
+            <groupId>eu.domibus</groupId>
             <artifactId>dss-model</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.bouncycastle</groupId>
-                    <artifactId>bcprov-jdk15on</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.bouncycastle</groupId>
-                    <artifactId>bcpkix-jdk15on</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
-            <groupId>eu.europa.ec.joinup.sd-dss</groupId>
+            <groupId>eu.domibus</groupId>
             <artifactId>validation-policy</artifactId>
         </dependency>
         <dependency>
-            <groupId>eu.europa.ec.joinup.sd-dss</groupId>
+            <groupId>eu.domibus</groupId>
             <artifactId>dss-xades</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.bouncycastle</groupId>
-                    <artifactId>bcprov-jdk15on</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.bouncycastle</groupId>
-                    <artifactId>bcpkix-jdk15on</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
-            <groupId>eu.europa.ec.joinup.sd-dss</groupId>
+            <groupId>eu.domibus</groupId>
             <artifactId>dss-simple-report-jaxb</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.bouncycastle</groupId>
-                    <artifactId>bcprov-jdk15on</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.bouncycastle</groupId>
-                    <artifactId>bcpkix-jdk15on</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
-            <groupId>eu.europa.ec.joinup.sd-dss</groupId>
+            <groupId>eu.domibus</groupId>
             <artifactId>dss-detailed-report-jaxb</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.bouncycastle</groupId>
-                    <artifactId>bcprov-jdk15on</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.bouncycastle</groupId>
-                    <artifactId>bcpkix-jdk15on</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
-            <groupId>eu.europa.ec.joinup.sd-dss</groupId>
+            <groupId>eu.domibus</groupId>
             <artifactId>dss-enumerations</artifactId>
         </dependency>
         <dependency>
-            <groupId>eu.europa.ec.joinup.sd-dss</groupId>
+            <groupId>eu.domibus</groupId>
             <artifactId>dss-spi</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.bouncycastle</groupId>
-                    <artifactId>bcprov-jdk15on</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.bouncycastle</groupId>
-                    <artifactId>bcpkix-jdk15on</artifactId>
-                </exclusion>
-            </exclusions>
+        </dependency>
+        <!-- DSS Libraries -->
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>eu.europa.ec.joinup.sd-dss</groupId>
-            <artifactId>dss-crl-parser-x509crl</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.bouncycastle</groupId>
-                    <artifactId>bcprov-jdk15on</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.bouncycastle</groupId>
-                    <artifactId>bcpkix-jdk15on</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>-->
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk15to18</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcpkix-jdk15to18</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.santuario</groupId>
+            <artifactId>xmlsec</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+            <scope>provided</scope>
+        </dependency>
         <!--Test dependencies-->
         <dependency>
             <groupId>junit</groupId>
@@ -301,11 +232,11 @@
             <artifactId>spring-test</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
+       <!-- <dependency>
             <groupId>eu.europa.ec.joinup.sd-dss</groupId>
             <artifactId>dss-token</artifactId>
             <scope>test</scope>
-        </dependency>
+        </dependency>-->
 
     </dependencies>
 
@@ -318,43 +249,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.jvnet.jaxb2.maven2</groupId>
-                <artifactId>maven-jaxb2-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>generate-classes</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <schemaDirectory>src/main/resources/xsd</schemaDirectory>
-                    <schemaIncludes>
-                        <!-- 					<schemaInclude>ts_119612v020201_201601xsd.xsd</schemaInclude> -->
-                        <schemaInclude>ts_119612v020101_sie_xsd.xsd</schemaInclude>
-                        <schemaInclude>ts_119612v020101_additionaltypes_xsd.xsd</schemaInclude>
-                    </schemaIncludes>
-                    <catalog>src/main/resources/xsd/catalog.cat</catalog>
-                    <bindingIncludes>
-                        <include>bindings.xml</include>
-                    </bindingIncludes>
-
-                    <extension>true</extension>
-                    <useDependenciesAsEpisodes>true</useDependenciesAsEpisodes>
-
-                    <strict>false</strict>
-                    <specVersion>2.1</specVersion>
-                    <episode>true</episode>
-                    <locale>en</locale>
-
-                    <disableXmlSecurity>false</disableXmlSecurity>
-                    <accessExternalSchema>file</accessExternalSchema>
-                    <accessExternalDTD>file</accessExternalDTD>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
