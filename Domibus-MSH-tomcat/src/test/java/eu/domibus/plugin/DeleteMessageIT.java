@@ -3,7 +3,7 @@ package eu.domibus.plugin;
 
 import eu.domibus.AbstractBackendWSIT;
 import eu.domibus.api.model.MessageStatus;
-import eu.domibus.common.JPAConstants;
+import eu.domibus.common.MessageDBUtil;
 import eu.domibus.core.message.retention.MessageRetentionDefaultService;
 import eu.domibus.plugin.ws.generated.SubmitMessageFault;
 import eu.domibus.plugin.ws.generated.body.SubmitRequest;
@@ -15,17 +15,14 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.Rollback;
 import org.xml.sax.SAXException;
 
-import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
-import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.Provider;
 import java.io.IOException;
-import java.math.BigInteger;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.junit.Assert.assertEquals;
@@ -39,16 +36,16 @@ import static org.junit.Assert.assertNotNull;
 @Rollback
 public abstract class DeleteMessageIT extends AbstractBackendWSIT {
 
-    @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
-    private EntityManager entityManager;
-
     @Autowired
     MessageRetentionDefaultService messageRetentionService;
 
     @Autowired
     Provider<SOAPMessage> mshWebserviceTest;
 
-    private static List<String> tablesToExclude;
+    @Autowired
+    MessageDBUtil messageDBUtil;
+
+    protected static List<String> tablesToExclude;
 
     @BeforeClass
     public static void initTablesToExclude() {
@@ -64,7 +61,6 @@ public abstract class DeleteMessageIT extends AbstractBackendWSIT {
         String filename = "SOAPMessage2.xml";
         String messageId = "43bb6883-77d2-4a41-bac4-52a485d50084@domibus.eu";
 
-        Map<String, Integer> initialMap = getTableCounts();
         SOAPMessage soapMessage = createSOAPMessage(filename);
         mshWebserviceTest.invoke(soapMessage);
 
@@ -80,8 +76,6 @@ public abstract class DeleteMessageIT extends AbstractBackendWSIT {
         SubmitRequest submitRequest = createSubmitRequestWs(payloadHref);
         Messaging ebMSHeaderInfo = createMessageHeaderWs(payloadHref);
 
-        Map<String, Integer> initialMap = getTableCounts();
-
         super.prepareSendMessage("validAS4Response.xml");
         SubmitResponse response = webServicePluginInterface.submitMessage(submitRequest, ebMSHeaderInfo);
 
@@ -95,26 +89,5 @@ public abstract class DeleteMessageIT extends AbstractBackendWSIT {
 
         verify(postRequestedFor(urlMatching("/domibus/services/msh")));
 
-    }
-
-    protected Map<String, Integer> getTableCounts() {
-        Map<String, Integer> rownums = new HashMap<>();
-        Query query = entityManager.createNativeQuery("SELECT table_name FROM INFORMATION_SCHEMA.TABLES WHERE table_name LIKE 'TB_%'");
-        try {
-            List<String> tableNames = query.getResultList();
-            tableNames.stream().forEach(tableName -> rownums.put(tableName, getCounter(tableName)));
-        } catch (NoResultException nrEx) {
-            return null;
-        }
-        tablesToExclude.stream().forEach(tableName -> rownums.remove(tableName));
-        return rownums;
-    }
-
-    protected Integer getCounter(String tableName) {
-        String selectStr = "SELECT count(*) from " + tableName;
-        Query query = entityManager.createNativeQuery(selectStr);
-        BigInteger counter = (BigInteger)query.getSingleResult();
-
-        return counter.intValue();
     }
 }

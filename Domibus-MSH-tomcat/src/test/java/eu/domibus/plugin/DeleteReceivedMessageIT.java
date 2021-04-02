@@ -28,14 +28,13 @@ public class DeleteReceivedMessageIT extends DeleteMessageIT {
     @Test
     public void testReceiveDeleteMessage() throws SOAPException, IOException, ParserConfigurationException, SAXException, XmlProcessingException {
         uploadPmode(wireMockRule.port());
-
-        Map<String, Integer> initialMap = getTableCounts();
+        Map<String, Integer> initialMap = messageDBUtil.getTableCounts(tablesToExclude);
         receiveMessageToDelete();
 
-        Map<String, Integer> beforeDeletionMap = getTableCounts();
+        Map<String, Integer> beforeDeletionMap = messageDBUtil.getTableCounts(tablesToExclude);
         deleteMessages();
 
-        Map<String, Integer> finalMap = getTableCounts();
+        Map<String, Integer> finalMap = messageDBUtil.getTableCounts(tablesToExclude);
 
         Assert.assertTrue(initialMap.size() > 0);
         Assert.assertTrue(beforeDeletionMap.size() > 0);
