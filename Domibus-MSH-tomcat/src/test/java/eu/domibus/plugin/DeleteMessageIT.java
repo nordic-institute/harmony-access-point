@@ -3,6 +3,7 @@ package eu.domibus.plugin;
 
 import eu.domibus.AbstractBackendWSIT;
 import eu.domibus.api.model.MessageStatus;
+import eu.domibus.common.JPAConstants;
 import eu.domibus.core.message.retention.MessageRetentionDefaultService;
 import eu.domibus.plugin.ws.generated.SubmitMessageFault;
 import eu.domibus.plugin.ws.generated.body.SubmitRequest;
@@ -38,7 +39,7 @@ import static org.junit.Assert.assertNotNull;
 @Rollback
 public abstract class DeleteMessageIT extends AbstractBackendWSIT {
 
-    @PersistenceContext(unitName = "domibusJTA")
+    @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     private EntityManager entityManager;
 
     @Autowired
