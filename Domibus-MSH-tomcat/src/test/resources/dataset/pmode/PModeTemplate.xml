@@ -6,8 +6,11 @@
 			 qualifiedName="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPC"
 			 enabled="true"
 			 default="true"
-			 retention_downloaded="14400"
-			 retention_undownloaded="14400"/>
+			 retention_downloaded="0"
+			 retention_undownloaded="0"
+			 retention_sent="0"
+			 delete_message_metadata="true"
+		     max_batch_delete="1000"/>
 	</mpcs>
 	<businessProcesses>
 		<roles>
