@@ -28,6 +28,8 @@ public class UserMessageLogInfoFilter extends MessageLogInfoFilter {
                 "log.sendAttempts," +
                 "log.sendAttemptsMax," +
                 "log.nextAttempt," +
+                "timezoneOffset.nextAttemptTimezoneId," +
+                "timezoneOffset.nextAttemptOffsetSeconds," +
                 "message.collaborationInfo.conversationId," +
                 "partyFrom.value," +
                 "partyTo.value," +
@@ -60,6 +62,7 @@ public class UserMessageLogInfoFilter extends MessageLogInfoFilter {
                         "left join message.messageProperties.property propsFrom " +
                                 "left join message.messageProperties.property propsTo "
                         : StringUtils.EMPTY) +
+                "left join log.timezoneOffset timezoneOffset " +
                 "left join message.partyInfo.from.partyId partyFrom " +
                 "left join message.partyInfo.to.partyId partyTo " +
 

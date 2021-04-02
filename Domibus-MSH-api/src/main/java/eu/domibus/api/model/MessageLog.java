@@ -1,7 +1,7 @@
 package eu.domibus.api.model;
 
 import eu.domibus.api.message.MessageSubtype;
-import eu.domibus.api.model.*;
+import eu.domibus.api.scheduler.Reprogrammable;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -12,7 +12,7 @@ import java.util.Date;
  */
 @MappedSuperclass
 @DiscriminatorColumn(name = "MESSAGE_TYPE")
-public abstract class MessageLog extends AbstractBaseEntity {
+public abstract class MessageLog extends AbstractBaseEntity implements Reprogrammable {
 
     @Column(name = "MESSAGE_STATUS")
     @Enumerated(EnumType.STRING)
@@ -85,6 +85,10 @@ public abstract class MessageLog extends AbstractBaseEntity {
     @Column(name = "NEXT_ATTEMPT")
     @Temporal(TemporalType.TIMESTAMP)
     private Date nextAttempt;
+
+    @ManyToOne(cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "FK_TIMEZONE_OFFSET")
+    private TimezoneOffset timezoneOffset;
 
     public String getEndpoint() {
         return endpoint;
@@ -174,12 +178,24 @@ public abstract class MessageLog extends AbstractBaseEntity {
         this.failed = failed;
     }
 
+    @Override
     public Date getNextAttempt() {
         return this.nextAttempt;
     }
 
+    @Override
     public void setNextAttempt(final Date nextAttempt) {
         this.nextAttempt = nextAttempt;
+    }
+
+    @Override
+    public TimezoneOffset getTimezoneOffset() {
+        return timezoneOffset;
+    }
+
+    @Override
+    public void setTimezoneOffset(TimezoneOffset timezoneOffset) {
+        this.timezoneOffset = timezoneOffset;
     }
 
     public int getSendAttempts() {

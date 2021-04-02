@@ -2,6 +2,8 @@ package eu.domibus.core.replication;
 
 import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.TimezoneOffset;
+import eu.domibus.api.scheduler.Reprogrammable;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.api.model.NotificationStatus;
 import eu.domibus.api.model.MessageType;
@@ -42,7 +44,7 @@ import java.util.Date;
                 query   =   "SELECT * FROM V_MESSAGE_UI_DIFF ",
                 resultClass = UIMessageDiffEntity.class
         )})
-public class UIMessageDiffEntity {
+public class UIMessageDiffEntity implements Reprogrammable {
 
     @Id
     @Column(name = "MESSAGE_ID")
@@ -97,6 +99,10 @@ public class UIMessageDiffEntity {
     @Temporal(TemporalType.TIMESTAMP)
     private Date nextAttempt;
 
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinColumn(name = "FK_TIMEZONE_OFFSET")
+    private TimezoneOffset timezoneOffset;
+
     @Column(name = "FROM_ID")
     private String fromId;
 
@@ -117,6 +123,9 @@ public class UIMessageDiffEntity {
 
     @Column(name = "SERVICE_VALUE")
     private String serviceValue;
+
+    @Column(name = "REF_TO_MESSAGE_ID")
+    private String refToMessageId;
 
     public void setMessageId(String messageId) {
         this.messageId = messageId;
@@ -170,8 +179,14 @@ public class UIMessageDiffEntity {
         this.sendAttemptsMax = sendAttemptsMax;
     }
 
+    @Override
     public void setNextAttempt(Date nextAttempt) {
         this.nextAttempt = nextAttempt;
+    }
+
+    @Override
+    public void setTimezoneOffset(TimezoneOffset timezoneOffset) {
+        this.timezoneOffset = timezoneOffset;
     }
 
     public void setFromId(String fromId) {
@@ -193,9 +208,6 @@ public class UIMessageDiffEntity {
     public void setRefToMessageId(String refToMessageId) {
         this.refToMessageId = refToMessageId;
     }
-
-    @Column(name = "REF_TO_MESSAGE_ID")
-    private String refToMessageId;
 
     public String getMessageId() {
         return messageId;
@@ -249,8 +261,14 @@ public class UIMessageDiffEntity {
         return sendAttemptsMax;
     }
 
+    @Override
     public Date getNextAttempt() {
         return nextAttempt;
+    }
+
+    @Override
+    public TimezoneOffset getTimezoneOffset() {
+        return timezoneOffset;
     }
 
     public String getFromId() {

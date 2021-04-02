@@ -15,6 +15,7 @@ import eu.domibus.core.message.retention.MessageRetentionDefaultService;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.replication.UIReplicationSignalService;
+import eu.domibus.core.scheduler.ReprogrammableService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
@@ -76,6 +77,8 @@ public class UpdateRetryLoggingServiceTest {
     @Injectable
     MessageRetentionDefaultService messageRetentionService;
 
+    @Injectable
+    private ReprogrammableService reprogrammableService;
 
     /**
      * Max retries limit reached
@@ -175,7 +178,7 @@ public class UpdateRetryLoggingServiceTest {
 
 
         new Verifications() {{
-            userMessageLog.setNextAttempt(nextAttempt);
+            reprogrammableService.setRescheduleInfo(userMessageLog, nextAttempt);
         }};
     }
 

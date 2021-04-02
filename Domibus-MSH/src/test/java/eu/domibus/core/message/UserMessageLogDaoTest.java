@@ -3,6 +3,8 @@ package eu.domibus.core.message;
 import com.google.common.collect.Lists;
 import eu.domibus.api.message.MessageSubtype;
 import eu.domibus.api.model.*;
+import eu.domibus.api.util.DateUtil;
+import eu.domibus.core.scheduler.ReprogrammableService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.hibernate.transform.ResultTransformer;
@@ -36,6 +38,12 @@ public class UserMessageLogDaoTest {
 
     @Injectable
     private EntityManager em;
+
+    @Injectable
+    private DateUtil dateUtil;
+
+    @Injectable
+    private ReprogrammableService reprogrammableService;
 
     @Test
     public void testFindRetryMessages(@Injectable TypedQuery<String> query, @Injectable List<String> retryMessages) {
