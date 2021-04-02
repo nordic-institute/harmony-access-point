@@ -87,7 +87,7 @@ import static org.awaitility.Awaitility.with;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(initializers = PropertyOverrideContextInitializer.class,
         classes = {DomibusRootConfiguration.class, DomibusWebConfiguration.class,
-                DomibusTestDatasourceConfiguration.class, DomibusTestTransactionConfiguration.class, DomibusTestMocksConfiguration.class})
+                DomibusTestDatasourceConfiguration.class, DomibusTestMocksConfiguration.class})
 @DirtiesContext
 @Rollback
 public abstract class AbstractIT {
@@ -147,7 +147,7 @@ public abstract class AbstractIT {
         try {
             FileUtils.forceDelete(new File("target/test-classes/work/transactions/log/tmlog.lck"));
         } catch (IOException exc) {
-            LOG.info("No tmlog.lck to delete");
+            LOG.trace("No tmlog.lck to delete");
         }
     }
 
@@ -240,7 +240,9 @@ public abstract class AbstractIT {
     protected void pushQueueMessage(String messageId, javax.jms.Connection connection, String queueName) throws Exception {
 
         // set XA mode to Session.AUTO_ACKNOWLEDGE - test does not use XA transaction
-        ((ActiveMQXAConnection) connection).setXaAckMode(Session.AUTO_ACKNOWLEDGE);
+        if (connection instanceof ActiveMQXAConnection) {
+            ((ActiveMQXAConnection) connection).setXaAckMode(Session.AUTO_ACKNOWLEDGE);
+        }
         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
         Destination destination = session.createQueue(queueName);
         MessageProducer producer = session.createProducer(destination);
@@ -271,7 +273,9 @@ public abstract class AbstractIT {
     protected Message popQueueMessageWithTimeout(javax.jms.Connection connection, String queueName, long mSecs) throws Exception {
 
         // set XA mode to Session.AUTO_ACKNOWLEDGE - test does not use XA transaction
-        ((ActiveMQXAConnection) connection).setXaAckMode(Session.AUTO_ACKNOWLEDGE);
+        if (connection instanceof ActiveMQXAConnection) {
+            ((ActiveMQXAConnection) connection).setXaAckMode(Session.AUTO_ACKNOWLEDGE);
+        }
         Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
         Destination destination = session.createQueue(queueName);
         MessageConsumer consumer = session.createConsumer(destination);

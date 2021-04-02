@@ -41,7 +41,7 @@ public class ReceiveDeliverMessageJMSIT extends AbstractBackendJMSIT {
     private JMSPluginImpl JMSPluginImpl;
 
     @Autowired
-    private ConnectionFactory xaJmsConnectionFactory;
+    private ConnectionFactory jmsConnectionFactory;
 
 
     @Autowired
@@ -80,7 +80,7 @@ public class ReceiveDeliverMessageJMSIT extends AbstractBackendJMSIT {
         // The downloaded MapMessage is used as input parameter for the real Test case here!
         JMSPluginImpl.receiveMessage(mapMessage);
         // Verifies that the message is really in the queue
-        javax.jms.Connection connection = xaJmsConnectionFactory.createConnection("domibus", "changeit");
+        javax.jms.Connection connection = jmsConnectionFactory.createConnection("domibus", "changeit");
         connection.start();
         Message message = popQueueMessageWithTimeout(connection, JMS_BACKEND_REPLY_QUEUE_NAME, 2000);
         connection.close();
@@ -129,7 +129,7 @@ public class ReceiveDeliverMessageJMSIT extends AbstractBackendJMSIT {
                 null);
 
 
-        javax.jms.Connection connection = xaJmsConnectionFactory.createConnection("domibus", "changeit");
+        javax.jms.Connection connection = jmsConnectionFactory.createConnection("domibus", "changeit");
         connection.start();
         // Puts the message in the notification queue so it can be downloaded
         pushQueueMessage(messageId, connection, JMS_NOT_QUEUE_NAME);
@@ -161,7 +161,7 @@ public class ReceiveDeliverMessageJMSIT extends AbstractBackendJMSIT {
         // The downloaded MapMessage is used as input parameter for the real Test case here!
         JMSPluginImpl.receiveMessage(mapMessage);
         // Verifies that the message is really in the queue
-        javax.jms.Connection connection = xaJmsConnectionFactory.createConnection("domibus", "changeit");
+        javax.jms.Connection connection = jmsConnectionFactory.createConnection("domibus", "changeit");
         connection.start();
         Message message = popQueueMessageWithTimeout(connection, JMS_BACKEND_REPLY_QUEUE_NAME, 2000);
         connection.close();

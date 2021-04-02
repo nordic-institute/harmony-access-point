@@ -1,18 +1,18 @@
 package eu.domibus;
 
-import com.atomikos.jdbc.AtomikosDataSourceBean;
-import com.atomikos.jdbc.nonxa.AtomikosNonXADataSourceBean;
+import com.zaxxer.hikari.HikariDataSource;
+import eu.domibus.api.datasource.DataSourceConstants;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.jpa.DomibusJPAConfiguration;
 import org.h2.jdbcx.JdbcDataSource;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Primary;
 
 import javax.sql.DataSource;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DATASOURCE_MAX_LIFETIME;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DATASOURCE_MAX_POOL_SIZE;
 
 /**
  * @author Cosmin Baciu
@@ -21,54 +21,44 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 @Configuration
 public class DomibusTestDatasourceConfiguration {
 
-    @Autowired
-    private DomibusPropertyProvider domibusPropertyProvider;
-
     @Primary
-    @Bean(name = DomibusJPAConfiguration.DOMIBUS_JDBC_XA_DATA_SOURCE, initMethod = "init", destroyMethod = "close")
-    public DataSource xaDatasource() {
-        JdbcDataSource h2DataSource = createDatasource();
+    @Bean(name = DataSourceConstants.DOMIBUS_JDBC_DATA_SOURCE, destroyMethod = "close")
+    public DataSource domibusDatasource(DomibusPropertyProvider domibusPropertyProvider) {
+        HikariDataSource dataSource = createDataSource(domibusPropertyProvider);
 
-        AtomikosDataSourceBean xaDataSource = new AtomikosDataSourceBean();
-        xaDataSource.setUniqueResourceName("domibusJDBC-XA");
-        xaDataSource.setXaDataSource(h2DataSource);
+        dataSource.setIdleTimeout(60000);
+        dataSource.setConnectionTimeout(30000);
 
-        final Integer minPoolSize = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DATASOURCE_XA_MIN_POOL_SIZE);
-        xaDataSource.setMinPoolSize(minPoolSize);
-        final Integer maxPoolSize = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DATASOURCE_XA_MAX_POOL_SIZE);
-        xaDataSource.setMaxPoolSize(maxPoolSize);
-        final Integer maxLifeTime = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DATASOURCE_XA_MAX_LIFETIME);
-        xaDataSource.setMaxLifetime(maxLifeTime);
-
-        final Integer borrowConnectionTimeout = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DATASOURCE_XA_BORROW_CONNECTION_TIMEOUT);
-        xaDataSource.setBorrowConnectionTimeout(borrowConnectionTimeout);
-        final Integer reapTimeout = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DATASOURCE_XA_REAP_TIMEOUT);
-        xaDataSource.setReapTimeout(reapTimeout);
-        final Integer maxIdleTime = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DATASOURCE_XA_MAX_IDLE_TIME);
-        xaDataSource.setMaxIdleTime(maxIdleTime);
-        final Integer maintenanceInterval = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DATASOURCE_XA_MAINTENANCE_INTERVAL);
-        xaDataSource.setMaintenanceInterval(maintenanceInterval);
-
-        return xaDataSource;
-    }
-
-    @Primary
-    @Bean(name = DomibusJPAConfiguration.DOMIBUS_JDBC_NON_XA_DATA_SOURCE, initMethod = "init", destroyMethod = "close")
-    public DataSource nonXADatasource() {
-        JdbcDataSource h2DataSource = createDatasource();
-
-        AtomikosNonXADataSourceBean dataSource = new AtomikosNonXADataSourceBean();
-        dataSource.setUniqueResourceName("domibusNonXADataSource");
-        dataSource.setDriverClassName("org.h2.Driver");
-        dataSource.setUrl(h2DataSource.getUrl());
-        dataSource.setPassword(h2DataSource.getPassword());
-        dataSource.setUser(h2DataSource.getUser());
         return dataSource;
     }
 
-    protected JdbcDataSource createDatasource() {
+    @Primary
+    @Bean(name = DataSourceConstants.DOMIBUS_JDBC_NON_XA_DATA_SOURCE, destroyMethod = "close")
+    @DependsOn(DataSourceConstants.DOMIBUS_JDBC_DATA_SOURCE)
+    public DataSource quartzDatasource(DomibusPropertyProvider domibusPropertyProvider) {
+        HikariDataSource dataSource = createDataSource(domibusPropertyProvider);
+        return dataSource;
+    }
+
+    private HikariDataSource createDataSource(DomibusPropertyProvider domibusPropertyProvider) {
+        JdbcDataSource h2DataSource = createH2Datasource();
+
+        HikariDataSource dataSource = new HikariDataSource();
+        dataSource.setDriverClassName("org.h2.Driver");
+        dataSource.setJdbcUrl(h2DataSource.getUrl());
+        dataSource.setUsername(h2DataSource.getUser());
+        dataSource.setPassword(h2DataSource.getPassword());
+
+        final Integer maxPoolSize = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DATASOURCE_MAX_POOL_SIZE);
+        dataSource.setMaximumPoolSize(maxPoolSize);
+        final Integer maxLifetimeInSecs = domibusPropertyProvider.getIntegerProperty(DOMIBUS_DATASOURCE_MAX_LIFETIME);
+        dataSource.setMaxLifetime(maxLifetimeInSecs * 1000);
+        return dataSource;
+    }
+
+    private JdbcDataSource createH2Datasource() {
         JdbcDataSource result = new JdbcDataSource();
-        result.setUrl("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;INIT=runscript from 'classpath:dataset/database/create_schema.sql'\\;runscript from 'classpath:h2.sql'");
+        result.setUrl("jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;INIT=runscript from 'classpath:dataset/database/create_schema.sql'\\;runscript from 'classpath:h2.sql'");
         result.setUser("sa");
         result.setPassword("");
         return result;

@@ -41,7 +41,7 @@ import java.util.Date;
 public class DownloadMessageJMSIT extends AbstractBackendJMSIT {
 
     @Autowired
-    private ConnectionFactory xaJmsConnectionFactory;
+    private ConnectionFactory jmsConnectionFactory;
 
     @Autowired
     JMSPluginImpl backendJms;
@@ -104,7 +104,7 @@ public class DownloadMessageJMSIT extends AbstractBackendJMSIT {
         userMessageLog.setReceived(new Date());
         userMessageLogService.save(messageId, eu.domibus.common.MessageStatus.RECEIVED.name(), NotificationStatus.REQUIRED.name(), MshRole.RECEIVING.name(), 1, "default", "backendWebservice", "", null, null, null, null);
 
-        javax.jms.Connection connection = xaJmsConnectionFactory.createConnection("domibus", "changeit");
+        javax.jms.Connection connection = jmsConnectionFactory.createConnection("domibus", "changeit");
         connection.start();
         pushQueueMessage(messageId, connection, JMS_NOT_QUEUE_NAME);
 

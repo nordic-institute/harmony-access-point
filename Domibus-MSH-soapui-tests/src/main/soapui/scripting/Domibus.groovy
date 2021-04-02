@@ -2406,10 +2406,10 @@ class Domibus{
             if (testSuite.getLabel() =~ filterForTestSuite) {
                 debugLog("test suite: " + testSuite.getLabel(), log)
                 testSuite.getTestCaseList().findAll{ ! it.isDisabled() }.each { testCase ->
-                    debugLog("test label:" + testCase.getLabel(), log)
+                    //debugLog("test label:" + testCase.getLabel(), log)
                     testCase.getTestStepList().findAll{ ! it.isDisabled() }.each { testStep ->
                         if (testStep instanceof WsdlTestRequestStep) {
-                            debugLog("Ammending test step: " + testStep.name, log)
+                            //debugLog("Ammending test step: " + testStep.name, log)
                             def httpRequest = testStep.getHttpRequest()
                             def endpoint = testStep.getPropertyValue("Endpoint")
                             if ( endpoint =~ endpointPattern) {
@@ -2420,8 +2420,8 @@ class Domibus{
                                     httpRequest.removeBasicAuthenticationProfile(authProfile)
                                 }
                             }
-                            else
-                                debugLog("Endpoint is not refering to provided patern.", log)
+//                            else
+//                                debugLog("Endpoint is not refering to provided patern.", log)
                         }
                     }
 
