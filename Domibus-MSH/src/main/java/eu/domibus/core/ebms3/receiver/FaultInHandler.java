@@ -143,6 +143,9 @@ public class FaultInHandler extends AbstractFaultHandler {
         context.setMessage(soapMessageWithEbMS3Error);
 
         final Ebms3Messaging ebms3Messaging = this.extractMessaging(soapMessageWithEbMS3Error);
+        if(ebms3Messaging == null) {
+            return;
+        }
         Messaging messaging = ebms3Converter.convertFromEbms3(ebms3Messaging);
 
         final String senderParty = LOG.getMDC(DomibusLogger.MDC_FROM);

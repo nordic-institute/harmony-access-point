@@ -2,13 +2,8 @@ package eu.domibus.plugin;
 
 
 import eu.domibus.AbstractBackendWSIT;
-import eu.domibus.api.model.MessageStatus;
 import eu.domibus.common.MessageDBUtil;
 import eu.domibus.core.message.retention.MessageRetentionDefaultService;
-import eu.domibus.plugin.ws.generated.SubmitMessageFault;
-import eu.domibus.plugin.ws.generated.body.SubmitRequest;
-import eu.domibus.plugin.ws.generated.body.SubmitResponse;
-import eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging;
 import org.junit.BeforeClass;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
@@ -23,10 +18,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 /**
  * @author idragusa
@@ -69,25 +60,5 @@ public abstract class DeleteMessageIT extends AbstractBackendWSIT {
 
     protected void deleteMessages() {
         messageRetentionService.deleteExpiredMessages();
-    }
-
-    protected void sendMessageToDelete(MessageStatus status) throws SubmitMessageFault {
-        String payloadHref = "cid:message";
-        SubmitRequest submitRequest = createSubmitRequestWs(payloadHref);
-        Messaging ebMSHeaderInfo = createMessageHeaderWs(payloadHref);
-
-        super.prepareSendMessage("validAS4Response.xml");
-        SubmitResponse response = webServicePluginInterface.submitMessage(submitRequest, ebMSHeaderInfo);
-
-        final List<String> messageID = response.getMessageID();
-        assertNotNull(response);
-        assertNotNull(messageID);
-        assertEquals(1, messageID.size());
-        final String messageId = messageID.iterator().next();
-
-        waitUntilMessageHasStatus(messageId, status);
-
-        verify(postRequestedFor(urlMatching("/domibus/services/msh")));
-
     }
 }
