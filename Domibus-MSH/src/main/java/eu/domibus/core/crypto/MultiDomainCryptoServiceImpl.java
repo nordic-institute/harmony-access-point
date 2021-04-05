@@ -41,9 +41,6 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     @Autowired
     private DomibusCacheService domibusCacheService;
 
-    @Autowired
-    protected CertificateService certificateService;
-
     @Override
     public X509Certificate[] getX509Certificates(Domain domain, CryptoType cryptoType) throws WSSecurityException {
         LOG.debug("Get certificates for domain [{}] and cryptoType [{}]", domain, cryptoType);
@@ -108,9 +105,24 @@ public class MultiDomainCryptoServiceImpl implements MultiDomainCryptoService {
     @Override
     public void replaceTrustStore(Domain domain, String storeFileName, byte[] store, String password) throws CryptoException {
         final DomainCryptoService domainCertificateProvider = getDomainCertificateProvider(domain);
-        certificateService.validateTruststoreType(domainCertificateProvider.getTrustStoreType(), storeFileName);
+        validateTruststoreType(domainCertificateProvider.getTrustStoreType(), storeFileName);
         domainCertificateProvider.replaceTrustStore(store, password);
         domibusCacheService.clearCache("certValidationByAlias");
+    }
+
+    private void validateTruststoreType(String storeType, String storeFileName) {
+        String fileType = FilenameUtils.getExtension(storeFileName).toLowerCase();
+        switch (storeType.toLowerCase()) {
+            case "pkcs12":
+                if (Arrays.asList("p12", "pfx").contains(fileType)) {
+                    return;
+                }
+            case "jks":
+                if (Arrays.asList("jks").contains(fileType)) {
+                    return;
+                }
+        }
+        throw new InvalidParameterException("Store file type (" + fileType + ") should match the configured truststore type (" + storeType + ").");
     }
 
     @Override
