@@ -2,6 +2,7 @@ package eu.domibus.api.multitenancy;
 
 import java.io.File;
 import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -15,6 +16,8 @@ public interface DomainTaskExecutor {
     <T extends Object> T submit(Callable<T> task);
 
     void submit(Runnable task);
+
+    Future<?> submit(Runnable task, boolean waitForTask);
 
     /**
      * Attempts to lock the file and if it succeeds submits a Runnable task for execution

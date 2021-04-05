@@ -5,6 +5,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.BackendConnector;
 import eu.domibus.plugin.notification.AsyncNotificationConfiguration;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -43,6 +44,11 @@ public class PluginAsyncNotificationJMSConfigurer implements JmsListenerConfigur
     @Override
     public void configureJmsListeners(final JmsListenerEndpointRegistrar registrar) {
         LOG.info("Initializing services of type AsyncNotificationListenerService");
+
+        if (CollectionUtils.isEmpty(asyncNotificationConfigurations)) {
+            LOG.info("No service of type AsyncNotificationListenerService detected");
+            return;
+        }
 
         for (AsyncNotificationConfiguration asyncNotificationConfiguration : asyncNotificationConfigurations) {
             initializeAsyncNotificationLister(registrar, asyncNotificationConfiguration);

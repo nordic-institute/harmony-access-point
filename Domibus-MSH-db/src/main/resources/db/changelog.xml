@@ -156,6 +156,7 @@
             <column name="REPORTING_TIME" type="TIMESTAMP"/>
             <column name="REPORTING_TIME_FAILURE" type="TIMESTAMP"/>
             <column name="NEXT_ATTEMPT" type="TIMESTAMP"/>
+            <column name="FK_TIMEZONE_OFFSET" type="BIGINT"/>
             <column name="ALERT_STATUS" type="VARCHAR(50)">
                 <constraints nullable="false"/>
             </column>
@@ -371,6 +372,24 @@
             <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
             <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
         </createTable>
+
+        <createTable tableName="TB_D_TIMEZONE_OFFSET">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_D_TIMEZONE_OFFSET"/>
+            </column>
+            <column name="NEXT_ATTEMPT_TIMEZONE_ID" type="VARCHAR(255)" remarks="Time zone ID on the application server to use when converting the next attempt for displaying it to the user"/>
+            <column name="NEXT_ATTEMPT_OFFSET_SECONDS" type="INT" remarks="Offset in seconds of the time zone on the application server to use when converting the next attempt for displaying it to the user"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+
+        <addUniqueConstraint columnNames="NEXT_ATTEMPT_TIMEZONE_ID,NEXT_ATTEMPT_OFFSET_SECONDS" constraintName="UK_D_TIMEZONE_OFFSET" tableName="TB_D_TIMEZONE_OFFSET"/>
 
         <createTable tableName="TB_PM_CONFIGURATION">
             <column name="ID_PK" type="BIGINT" autoIncrement="true">
@@ -876,6 +895,7 @@
             <column name="MPC" type="VARCHAR(255)"/>
             <column name="MSH_ROLE" type="VARCHAR(255)"/>
             <column name="NEXT_ATTEMPT" type="TIMESTAMP"/>
+            <column name="FK_TIMEZONE_OFFSET" type="BIGINT"/>
             <column name="NOTIFICATION_STATUS" type="VARCHAR(255)"/>
             <column name="RECEIVED" type="TIMESTAMP"/>
             <column name="RESTORED" type="TIMESTAMP"/>
@@ -955,6 +975,7 @@
             <column name="SEND_ATTEMPTS" type="INT"/>
             <column name="SEND_ATTEMPTS_MAX" type="INT"/>
             <column name="NEXT_ATTEMPT" type="TIMESTAMP"/>
+            <column name="FK_TIMEZONE_OFFSET" type="BIGINT"/>
             <column name="CONVERSATION_ID" type="VARCHAR(255)"/>
             <column name="FROM_ID" type="VARCHAR(255)">
                 <constraints nullable="false"/>
@@ -1014,6 +1035,7 @@
             <column name="SEND_ATTEMPTS" type="INT"/>
             <column name="SEND_ATTEMPTS_MAX" type="INT"/>
             <column name="NEXT_ATTEMPT" type="TIMESTAMP"/>
+            <column name="FK_TIMEZONE_OFFSET" type="BIGINT"/>
             <column name="MESSAGE_STALED" type="TIMESTAMP"/>
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
@@ -1186,9 +1208,7 @@
             <column name="MIME" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column defaultValueNumeric="0" name="PART_ORDER" type="INT">
-                <constraints nullable="false"/>
-            </column>
+            <column defaultValueNumeric="0" name="PART_ORDER" type="INT"/>
             <column defaultValueBoolean="false" name="ENCRYPTED" type="BOOLEAN"/>
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
@@ -1652,6 +1672,28 @@
             <column name="MESSAGEINFO_ID_PK" type="BIGINT"/>
             <column name="FK_MESSAGE_FRAGMENT_ID" type="INT"/>
             <column name="SPLIT_AND_JOIN" type="BOOLEAN"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)" remarks="The user who created this record">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was last modified"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)" remarks="The user who last modified this record"/>
+        </createTable>
+
+        <createTable tableName="TB_USER_MESSAGE_DELETION_JOB">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_TB_USER_MESSAGE_DELETION_JOB"/>
+            </column>
+            <column name="PROCEDURE_NAME" type="VARCHAR(255)" remarks="Name of the stored procedure in the database."/>
+            <column name="MPC" type="VARCHAR(255)"/>
+            <column name="START_RETENTION_DATE" type="TIMESTAMP" remarks="Expired user messages newer than this date will be deleted by this job"/>
+            <column name="END_RETENTION_DATE" type="TIMESTAMP" remarks="Expired user messages older than this date will be deleted by this job"/>
+            <column name="MAX_COUNT" type="INT" remarks="Maximum number of expired messages to be deleted by one call of the stored procedure"/>
+            <column name="STATE" type="VARCHAR(255)" remarks="User message deletion job state: NEW, RUNNING or STOPPED"/>
+            <column name="ACTUAL_START_DATE" type="TIMESTAMP" remarks="The actual date when this job was started."/>
+
             <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP" remarks="The date and time when this record was created">
                 <constraints nullable="false"/>
             </column>
@@ -2226,6 +2268,22 @@
             <column name="NAME"/>
             <column name="MESSAGEPROPERTIES_ID"/>
         </createIndex>
+
+        <createIndex indexName="IDX_ALERT_TZ_OFFSET" tableName="TB_ALERT">
+            <column name="FK_TIMEZONE_OFFSET" />
+        </createIndex>
+
+        <createIndex indexName="IDX_MESSAGE_LOG_TZ_OFFSET" tableName="TB_MESSAGE_LOG">
+            <column name="FK_TIMEZONE_OFFSET" />
+        </createIndex>
+
+        <createIndex indexName="IDX_MESSAGE_UI_TZ_OFFSET" tableName="TB_MESSAGE_UI">
+            <column name="FK_TIMEZONE_OFFSET" />
+        </createIndex>
+
+        <createIndex indexName="IDX_MESSAGING_LOCK_TZ_OFFSET" tableName="TB_MESSAGING_LOCK">
+            <column name="FK_TIMEZONE_OFFSET" />
+        </createIndex>
     </changeSet>
     <changeSet author="Catalin Enache" id="1564477107969-104_2">
         <comment>create indexes - part 2</comment>
@@ -2275,8 +2333,27 @@
         <createIndex indexName="IDX_MSG_ACKNW_MESSAGE_ID" tableName="TB_MESSAGE_ACKNW">
             <column name="MESSAGE_ID"/>
         </createIndex>
-    </changeSet>
 
+        <createIndex indexName="IDX_MESSAGE_LOG_MPC" tableName="TB_MESSAGE_LOG">
+            <column name="MPC"/>
+        </createIndex>
+
+        <createIndex indexName="IDX_MESSAGE_LOG_DOWNLOADED" tableName="TB_MESSAGE_LOG">
+            <column name="DOWNLOADED"/>
+        </createIndex>
+
+        <createIndex indexName="IDX_MESSAGE_LOG_MESSAGE_STATUS" tableName="TB_MESSAGE_LOG">
+            <column name="MESSAGE_STATUS"/>
+        </createIndex>
+
+        <createIndex indexName="IDX_MESSAGE_LOG_MODIFICATION_TIME" tableName="TB_MESSAGE_LOG">
+            <column name="MODIFICATION_TIME"/>
+        </createIndex>
+
+        <createIndex indexName="IDX_MESSAGE_LOG_MESSAGE_TYPE" tableName="TB_MESSAGE_LOG">
+            <column name="MESSAGE_TYPE"/>
+        </createIndex>
+    </changeSet>
 
     <!-- foreign keys -->
     <changeSet author="Catalin Enache" id="1564477107969-234">
@@ -2293,7 +2370,7 @@
 
         <addForeignKeyConstraint baseColumnNames="MESSAGEPROPERTIES_ID" baseTableName="TB_PROPERTY"
                                  constraintName="FK_2H31P0A2Y6WEG2GRH70C9CYVA" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_USER_MESSAGE"/>
 
         <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_ROLE"
@@ -2313,12 +2390,12 @@
 
         <addForeignKeyConstraint baseColumnNames="USER_MESSAGE_ID" baseTableName="TB_MESSAGING"
                                  constraintName="FK_433RGM5A446T59Q6JKB885L3X" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_USER_MESSAGE"/>
 
         <addForeignKeyConstraint baseColumnNames="SIGNAL_MESSAGE_ID" baseTableName="TB_MESSAGING"
                                  constraintName="FK_53GP9SMTEMQCUIO8O9T10NARM" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_SIGNAL_MESSAGE"/>
 
         <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESSES" baseTableName="TB_PM_CONFIGURATION"
@@ -2348,7 +2425,7 @@
 
         <addForeignKeyConstraint baseColumnNames="RECEIPT_ID" baseTableName="TB_RECEIPT_DATA"
                                  constraintName="FK_8NCCAE214MVS1KH5SGCJ3Y5OY" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_RECEIPT"/>
 
         <addForeignKeyConstraint baseColumnNames="FK_CONFIGURATION" baseTableName="TB_PM_MPC"
@@ -2397,12 +2474,12 @@
 
         <addForeignKeyConstraint baseColumnNames="MESSAGEINFO_ID_PK" baseTableName="TB_USER_MESSAGE"
                                  constraintName="FK_BE4XC1069QYW2KLHVM3XMG26S" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_MESSAGE_INFO"/>
 
         <addForeignKeyConstraint baseColumnNames="MESSAGEINFO_ID_PK" baseTableName="TB_SIGNAL_MESSAGE"
                                  constraintName="FK_C08LJJWI4P9DX1RJTCDBE1SFU" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_MESSAGE_INFO"/>
 
         <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_PARTY"
@@ -2427,7 +2504,7 @@
 
         <addForeignKeyConstraint baseColumnNames="PARTPROPERTIES_ID" baseTableName="TB_PROPERTY"
                                  constraintName="FK_CWYLVG6ERNWBA61MO3YAGMKG8" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_PART_INFO"/>
 
         <addForeignKeyConstraint baseColumnNames="FK_BUSINESSPROCESS" baseTableName="TB_PM_PAYLOAD"
@@ -2476,7 +2553,7 @@
 
         <addForeignKeyConstraint baseColumnNames="FROM_ID" baseTableName="TB_PARTY_ID"
                                  constraintName="FK_FKFTD5ORW2ETIU4GHMN3MHX9I" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_USER_MESSAGE"/>
 
         <addForeignKeyConstraint baseColumnNames="PROCESS_FK" baseTableName="TB_PM_JOIN_PROCESS_LEG"
@@ -2561,7 +2638,7 @@
 
         <addForeignKeyConstraint baseColumnNames="RECEIPT_ID_PK" baseTableName="TB_SIGNAL_MESSAGE"
                                  constraintName="FK_M6UU2Y6G9BUET3O3K1N4QXWEC" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_RECEIPT"/>
 
         <addForeignKeyConstraint baseColumnNames="SET_FK" baseTableName="TB_PM_JOIN_PROPERTY_SET"
@@ -2571,7 +2648,7 @@
 
         <addForeignKeyConstraint baseColumnNames="FK_MSG_ACKNOWLEDGE" baseTableName="TB_MESSAGE_ACKNW_PROP"
                                  constraintName="FK_MSG_ACK_PROP_MSG_ACK" deferrable="false" initiallyDeferred="false"
-                                 onDelete="CASCADE" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
                                  referencedTableName="TB_MESSAGE_ACKNW"/>
 
         <addForeignKeyConstraint baseColumnNames="LEGCONFIGURATION_ID_PK" baseTableName="TB_PM_LEG_MPC"
@@ -2615,7 +2692,7 @@
 
         <addForeignKeyConstraint baseColumnNames="SIGNALMESSAGE_ID" baseTableName="TB_ERROR"
                                  constraintName="FK_PRRCMI4GRM4TXHFSFNFHGQ1K1" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_SIGNAL_MESSAGE"/>
 
         <addForeignKeyConstraint baseColumnNames="FK_PAYLOAD" baseTableName="TB_PM_JOIN_PAYLOAD_PROFILE"
@@ -2660,7 +2737,7 @@
 
         <addForeignKeyConstraint baseColumnNames="SIGNALMESSAGE_ID_FK" baseTableName="TB_RAWENVELOPE_LOG"
                                  constraintName="FK_SIGNALMSG_ID_FK_RAWENV_ID" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_SIGNAL_MESSAGE"/>
 
         <addForeignKeyConstraint baseColumnNames="FK_MEP_BINDING" baseTableName="TB_PM_PROCESS"
@@ -2670,12 +2747,12 @@
 
         <addForeignKeyConstraint baseColumnNames="PAYLOADINFO_ID" baseTableName="TB_PART_INFO"
                                  constraintName="FK_TQ6LBN3MP0VSFC6QQU7WXY54G" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_USER_MESSAGE"/>
 
         <addForeignKeyConstraint baseColumnNames="USERMESSAGE_ID_FK" baseTableName="TB_RAWENVELOPE_LOG"
                                  constraintName="FK_USERMSG_ID_FK_RAWENV_ID" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_USER_MESSAGE"/>
 
         <addForeignKeyConstraint baseColumnNames="REV" baseTableName="TB_USER_AUD" constraintName="FK_USER_AUD_REV"
@@ -2704,7 +2781,7 @@
 
         <addForeignKeyConstraint baseColumnNames="TO_ID" baseTableName="TB_PARTY_ID"
                                  constraintName="FK_YLUB8LPTGVSCH02MJ71EUUIL" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_USER_MESSAGE"/>
 
         <addForeignKeyConstraint baseColumnNames="FK_SPLITTING" baseTableName="TB_PM_LEG" constraintName="UK_LEG_SPLT"
@@ -2713,8 +2790,29 @@
 
         <addForeignKeyConstraint baseColumnNames="FK_COMMAND" baseTableName="TB_COMMAND_PROPERTY"
                                  constraintName="FK_COMMAND_PROPERTY_ID" deferrable="false"
-                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
                                  referencedColumnNames="ID_PK" referencedTableName="TB_COMMAND"/>
+
+        <addForeignKeyConstraint baseColumnNames="FK_TIMEZONE_OFFSET" baseTableName="TB_ALERT"
+                                 constraintName="FK_ALERT_TZ_OFFSET" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_TIMEZONE_OFFSET"/>
+
+        <addForeignKeyConstraint baseColumnNames="FK_TIMEZONE_OFFSET" baseTableName="TB_MESSAGE_LOG"
+                                 constraintName="FK_MESSAGE_LOG_TZ_OFFSET" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_TIMEZONE_OFFSET"/>
+
+        <addForeignKeyConstraint baseColumnNames="FK_TIMEZONE_OFFSET" baseTableName="TB_MESSAGE_UI"
+                                 constraintName="FK_MESSAGE_UI_TZ_OFFSET" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_TIMEZONE_OFFSET"/>
+
+        <addForeignKeyConstraint baseColumnNames="FK_TIMEZONE_OFFSET" baseTableName="TB_MESSAGING_LOCK"
+                                 constraintName="FK_MESSAGING_LOCK_TZ_OFFSET" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_TIMEZONE_OFFSET"/>
+
     </changeSet>
 
     <!-- views -->
@@ -2760,6 +2858,7 @@
             send_attempts,
             send_attempts_max,
             next_attempt,
+            fk_timezone_offset,
             conversation_id,
             from_id,
             to_id,
@@ -2785,6 +2884,7 @@
             message_log.send_attempts,
             message_log.send_attempts_max,
             message_log.next_attempt,
+            message_log.fk_timezone_offset,
             user_message.coll_info_convers_id AS conversation_id,
             partyid5_.value AS from_id,
             partyid6_.value AS to_id,
@@ -2821,6 +2921,7 @@
             message_log.send_attempts,
             message_log.send_attempts_max,
             message_log.next_attempt,
+            message_log.fk_timezone_offset,
             '' AS conversation_id,
             partyid7_.value AS from_id,
             partyid8_.value AS to_id,
@@ -2864,6 +2965,7 @@
             send_attempts,
             send_attempts_max,
             next_attempt,
+            fk_timezone_offset,
             conversation_id,
             from_id,
             to_id,
@@ -2896,6 +2998,7 @@
             message_log.SEND_ATTEMPTS,
             message_log.SEND_ATTEMPTS_MAX,
             message_log.NEXT_ATTEMPT,
+            message_log.fk_timezone_offset,
             user_message.COLL_INFO_CONVERS_ID AS CONVERSATION_ID,
             partyid5_.VALUE AS FROM_ID,
             partyid6_.VALUE AS TO_ID,
@@ -2927,6 +3030,7 @@
             AND message_log.SEND_ATTEMPTS &lt;=&gt; flat_table.SEND_ATTEMPTS
             AND message_log.SEND_ATTEMPTS_MAX &lt;=&gt; flat_table.SEND_ATTEMPTS_MAX
             AND message_log.NEXT_ATTEMPT &lt;=&gt; flat_table.NEXT_ATTEMPT
+            AND message_log.FK_TIMEZONE_OFFSET &lt;=&gt; flat_table.FK_TIMEZONE_OFFSET
             AND user_message.COLL_INFO_CONVERS_ID &lt;=&gt; flat_table.CONVERSATION_ID
             AND partyid5_.VALUE &lt;=&gt; flat_table.FROM_ID
             AND partyid6_.VALUE &lt;=&gt; flat_table.TO_ID
@@ -2959,6 +3063,7 @@
             message_log.SEND_ATTEMPTS,
             message_log.SEND_ATTEMPTS_MAX,
             message_log.NEXT_ATTEMPT,
+            message_log.FK_TIMEZONE_OFFSET,
             '' AS CONVERSATION_ID,
             partyid7_.VALUE AS FROM_ID,
             partyid8_.VALUE AS TO_ID,
@@ -2993,6 +3098,7 @@
             AND message_log.SEND_ATTEMPTS &lt;=&gt; flat_table.SEND_ATTEMPTS
             AND message_log.SEND_ATTEMPTS_MAX &lt;=&gt; flat_table.SEND_ATTEMPTS_MAX
             AND message_log.NEXT_ATTEMPT &lt;=&gt; flat_table.NEXT_ATTEMPT
+            AND message_log.FK_TIMEZONE_OFFSET &lt;=&gt; flat_table.FK_TIMEZONE_OFFSET
             AND '' &lt;=&gt; flat_table.CONVERSATION_ID
             AND partyid7_.VALUE &lt;=&gt; flat_table.FROM_ID
             AND partyid8_.VALUE &lt;=&gt; flat_table.TO_ID
@@ -3028,5 +3134,9 @@
 
     <!-- this file must be included in every future changelog.xml or changelog-multi-tenancy.xml -->
     <include file="common/changelog-version-inserts.xml" relativeToChangelogFile="true"/>
+
+    <!-- Create stored procedures used by the deletion jobs -->
+    <!-- Keep them to the end to make sure the tables referenced in the procedures are already created -->
+    <include file="common/changelog-delete-procedures.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>

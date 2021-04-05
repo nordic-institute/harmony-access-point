@@ -3,6 +3,7 @@ package eu.domibus.core.crypto.spi.dss;
 import eu.domibus.ext.services.CommandExtTask;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.europa.esig.dss.model.DSSException;
 import eu.europa.esig.dss.tsl.service.DomibusTSLValidationJob;
 
 import javax.annotation.PostConstruct;
@@ -12,7 +13,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -77,6 +77,9 @@ public class DssRefreshCommand implements CommandExtTask {
             }
         } catch (IOException e) {
             LOG.error("Error while checking if cache directory:[{}] is empty", serverCacheDirectoryPath, e);
+        }
+        catch (DSSException d){
+            LOG.error("Error while initiating DSS list of trusted list repository",d);
         }
     }
 }

@@ -47,7 +47,7 @@
             <column name="SCHEDULED" type="BOOLEAN" remarks="true if the backend message is already scheduled to be sent"/>
         </createTable>
     </changeSet>
-    
+
     <changeSet id="EDELIVERY-4808" author="Catalin Enache">
         <addColumn tableName="WS_PLUGIN_TB_MESSAGE_LOG">
             <column name="CONVERSATION_ID" type="VARCHAR(255)" remarks="Conversation ID of the Domibus message"/>
@@ -89,6 +89,78 @@
         </createIndex>
     </changeSet>
 
+    <changeSet author="Sebastian-Ion TINCU" id="EDELIVERY-7822">
+        <createTable tableName="TB_D_TIMEZONE_OFFSET">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_D_TIMEZONE_OFFSET"/>
+            </column>
+            <column name="NEXT_ATTEMPT_TIMEZONE_ID" type="VARCHAR(255)" remarks="Time zone ID on the application server to use when converting the next attempt for displaying it to the user"/>
+            <column name="NEXT_ATTEMPT_OFFSET_SECONDS" type="INT" remarks="Offset in seconds of the time zone on the application server to use when converting the next attempt for displaying it to the user"/>
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+
+        <addUniqueConstraint columnNames="NEXT_ATTEMPT_TIMEZONE_ID,NEXT_ATTEMPT_OFFSET_SECONDS" constraintName="UK_D_TIMEZONE_OFFSET" tableName="TB_D_TIMEZONE_OFFSET"/>
+
+        <addColumn tableName="TB_ALERT">
+            <column name="FK_TIMEZONE_OFFSET" type="BIGINT"/>
+        </addColumn>
+
+        <addColumn tableName="TB_MESSAGE_LOG">
+            <column name="FK_TIMEZONE_OFFSET" type="BIGINT"/>
+        </addColumn>
+
+        <addColumn tableName="TB_MESSAGE_UI">
+            <column name="FK_TIMEZONE_OFFSET" type="BIGINT"/>
+        </addColumn>
+
+        <addColumn tableName="TB_MESSAGING_LOCK">
+            <column name="FK_TIMEZONE_OFFSET" type="BIGINT"/>
+        </addColumn>
+
+        <createIndex indexName="IDX_ALERT_TZ_OFFSET" tableName="TB_ALERT">
+            <column name="FK_TIMEZONE_OFFSET" />
+        </createIndex>
+
+        <createIndex indexName="IDX_MESSAGE_LOG_TZ_OFFSET" tableName="TB_MESSAGE_LOG">
+            <column name="FK_TIMEZONE_OFFSET" />
+        </createIndex>
+
+        <createIndex indexName="IDX_MESSAGE_UI_TZ_OFFSET" tableName="TB_MESSAGE_UI">
+            <column name="FK_TIMEZONE_OFFSET" />
+        </createIndex>
+
+        <createIndex indexName="IDX_MESSAGING_LOCK_TZ_OFFSET" tableName="TB_MESSAGING_LOCK">
+            <column name="FK_TIMEZONE_OFFSET" />
+        </createIndex>
+
+        <addForeignKeyConstraint baseColumnNames="FK_TIMEZONE_OFFSET" baseTableName="TB_ALERT"
+                                 constraintName="FK_ALERT_TZ_OFFSET" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_TIMEZONE_OFFSET"/>
+
+        <addForeignKeyConstraint baseColumnNames="FK_TIMEZONE_OFFSET" baseTableName="TB_MESSAGE_LOG"
+                                 constraintName="FK_MESSAGE_LOG_TZ_OFFSET" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_TIMEZONE_OFFSET"/>
+
+        <addForeignKeyConstraint baseColumnNames="FK_TIMEZONE_OFFSET" baseTableName="TB_MESSAGE_UI"
+                                 constraintName="FK_MESSAGE_UI_TZ_OFFSET" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_TIMEZONE_OFFSET"/>
+
+        <addForeignKeyConstraint baseColumnNames="FK_TIMEZONE_OFFSET" baseTableName="TB_MESSAGING_LOCK"
+                                 constraintName="FK_MESSAGING_LOCK_TZ_OFFSET" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID_PK"
+                                 referencedTableName="TB_D_TIMEZONE_OFFSET"/>
+    </changeSet>
+
     <changeSet id="EDELIVERY-7677-1" author="Ion Perpegel" dbms="oracle">
         <comment>re-create UI Replication view cause of the added columns: action,service</comment>
         <createView
@@ -105,6 +177,7 @@
             send_attempts,
             send_attempts_max,
             next_attempt,
+            fk_timezone_offset,
             conversation_id,
             from_id,
             to_id,
@@ -130,6 +203,7 @@
             message_log.send_attempts,
             message_log.send_attempts_max,
             message_log.next_attempt,
+            message_log.fk_timezone_offset,
             user_message.coll_info_convers_id AS conversation_id,
             partyid5_.value AS from_id,
             partyid6_.value AS to_id,
@@ -166,6 +240,7 @@
             message_log.send_attempts,
             message_log.send_attempts_max,
             message_log.next_attempt,
+            message_log.fk_timezone_offset,
             '' AS conversation_id,
             partyid7_.value AS from_id,
             partyid8_.value AS to_id,
@@ -209,6 +284,7 @@
             send_attempts,
             send_attempts_max,
             next_attempt,
+            fk_timezone_offset,
             conversation_id,
             from_id,
             to_id,
@@ -242,6 +318,7 @@
             message_log.SEND_ATTEMPTS,
             message_log.SEND_ATTEMPTS_MAX,
             message_log.NEXT_ATTEMPT,
+            message_log.FK_TIMEZONE_OFFSET,
             user_message.COLL_INFO_CONVERS_ID AS CONVERSATION_ID,
             partyid5_.VALUE AS FROM_ID,
             partyid6_.VALUE AS TO_ID,
@@ -273,6 +350,7 @@
             AND message_log.SEND_ATTEMPTS &lt;=&gt; flat_table.SEND_ATTEMPTS
             AND message_log.SEND_ATTEMPTS_MAX &lt;=&gt; flat_table.SEND_ATTEMPTS_MAX
             AND message_log.NEXT_ATTEMPT &lt;=&gt; flat_table.NEXT_ATTEMPT
+            AND message_log.FK_TIMEZONE_OFFSET &lt;=&gt; flat_table.FK_TIMEZONE_OFFSET
             AND user_message.COLL_INFO_CONVERS_ID &lt;=&gt; flat_table.CONVERSATION_ID
             AND partyid5_.VALUE &lt;=&gt; flat_table.FROM_ID
             AND partyid6_.VALUE &lt;=&gt; flat_table.TO_ID
@@ -305,6 +383,7 @@
             message_log.SEND_ATTEMPTS,
             message_log.SEND_ATTEMPTS_MAX,
             message_log.NEXT_ATTEMPT,
+            message_log.FK_TIMEZONE_OFFSET,
             '' AS CONVERSATION_ID,
             partyid7_.VALUE AS FROM_ID,
             partyid8_.VALUE AS TO_ID,
@@ -339,6 +418,7 @@
             AND message_log.SEND_ATTEMPTS &lt;=&gt; flat_table.SEND_ATTEMPTS
             AND message_log.SEND_ATTEMPTS_MAX &lt;=&gt; flat_table.SEND_ATTEMPTS_MAX
             AND message_log.NEXT_ATTEMPT &lt;=&gt; flat_table.NEXT_ATTEMPT
+            AND message_log.FK_TIMEZONE_OFFSET &lt;=&gt; flat_table.FK_TIMEZONE_OFFSET
             AND '' &lt;=&gt; flat_table.CONVERSATION_ID
             AND partyid7_.VALUE &lt;=&gt; flat_table.FROM_ID
             AND partyid8_.VALUE &lt;=&gt; flat_table.TO_ID
@@ -363,7 +443,7 @@
         <renameColumn tableName="TB_MESSAGE_HEADER" oldColumnName="START" newColumnName="START_MULTIPART" columnDataType="VARCHAR(255)"/>
     </changeSet>
 
-    <changeSet id="EDELIVERY-7668"  author="Catalin Enache">
+    <changeSet author="Catalin Enache" id="EDELIVERY-7668">
         <createTable tableName="TB_VERSION" remarks="Stores Domibus version">
             <column name="VERSION" type="VARCHAR(30)" remarks="Domibus Version"/>
             <column name="BUILD_TIME" type="VARCHAR(30)" remarks="Domibus BuildTime"/>
@@ -373,7 +453,6 @@
         </createTable>
         <addUniqueConstraint columnNames="VERSION" tableName="TB_VERSION" constraintName="UQ_VERSION" />
     </changeSet>
-
     <!-- this file must be included in every future changelog-xx-delta.xml -->
     <include file="common/changelog-version-inserts.xml" relativeToChangelogFile="true"/>
 

@@ -1,6 +1,7 @@
 package eu.domibus.common.dao.security;
 
 import eu.domibus.AbstractIT;
+import eu.domibus.common.JPAConstants;
 import eu.domibus.core.user.ui.UserRole;
 import eu.domibus.core.user.ui.UserRoleDao;
 import org.junit.Test;
@@ -23,7 +24,7 @@ public class UserRoleDaoImplTestIT extends AbstractIT {
     @Autowired
     private UserRoleDao userRoleDao;
 
-    @PersistenceContext(unitName = "domibusJTA")
+    @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     protected EntityManager entityManager;
 
     @Test
@@ -34,8 +35,9 @@ public class UserRoleDaoImplTestIT extends AbstractIT {
 
         List<UserRole> roles = userRoleDao.listRoles();
 
-        assertEquals(1, roles.size());
-        assertEquals(1, roles.size());
+        // 2 roles from initial data
+        assertEquals(3, roles.size());
+        assertEquals(3, roles.size());
         UserRole userRole = roles.get(0);
         assertEquals("USER_ROLE_1", userRole.getName());
         assertNotNull(userRole.getCreationTime());

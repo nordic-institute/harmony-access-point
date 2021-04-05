@@ -24,7 +24,6 @@ import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
 import org.springframework.jms.core.JmsOperations;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.support.destination.JndiDestinationResolver;
-import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.jms.ConnectionFactory;
 import javax.jms.Queue;
@@ -82,13 +81,11 @@ public class JMSPluginConfiguration {
     }
 
     @Bean("backendJmsListenerContainerFactory")
-    public DefaultJmsListenerContainerFactory defaultJmsListenerContainerFactory(@Qualifier(JMSConstants.DOMIBUS_JMS_XACONNECTION_FACTORY) ConnectionFactory connectionFactory,
-                                                                                 PlatformTransactionManager transactionManager,
+    public DefaultJmsListenerContainerFactory defaultJmsListenerContainerFactory(@Qualifier(JMSConstants.DOMIBUS_JMS_CONNECTION_FACTORY) ConnectionFactory connectionFactory,
                                                                                  JmsPluginPropertyManager jmsPluginPropertyManager,
                                                                                  Optional<JndiDestinationResolver> jndiDestinationResolver) {
         DefaultJmsListenerContainerFactory result = new DefaultJmsListenerContainerFactory();
         result.setConnectionFactory(connectionFactory);
-        result.setTransactionManager(transactionManager);
         String queueInConcurrency = jmsPluginPropertyManager.getKnownPropertyValue(JMSPLUGIN_QUEUE_IN_CONCURRENCY);
         LOG.debug("Using jms in-queue concurrency [{}]", queueInConcurrency);
         result.setConcurrency(queueInConcurrency);
@@ -104,7 +101,7 @@ public class JMSPluginConfiguration {
     }
 
     @Bean("mshToBackendTemplate")
-    public JmsTemplate mshToBackendTemplate(@Qualifier(JMSConstants.DOMIBUS_JMS_CACHING_XACONNECTION_FACTORY) ConnectionFactory connectionFactory,
+    public JmsTemplate mshToBackendTemplate(@Qualifier(JMSConstants.DOMIBUS_JMS_CACHING_CONNECTION_FACTORY) ConnectionFactory connectionFactory,
                                             Optional<JndiDestinationResolver> jndiDestinationResolver) {
         JmsTemplate jmsTemplate = new JmsTemplate(connectionFactory);
         jmsTemplate.setSessionTransacted(true);

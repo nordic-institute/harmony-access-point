@@ -121,7 +121,7 @@
     <grid-header [parent]="this"></grid-header>
 
     <div style="height: calc(100% - 130px); overflow-y: auto; overflow-x: hidden;">
-      <page-grid [parent]="this" [selectionType]="'single'"
+      <page-grid [parent]="this" [selectionType]="'single'" [totalMessage]="totalRowsMessage"
                  [sortedColumns]="[{prop: 'received', dir: 'desc'}]"></page-grid>
     </div>
 
@@ -134,7 +134,7 @@
     </ng-template>
 
     <ng-template #nextAttemptInfoWithDateFormatTpl let-row="row" let-value="value" ngx-datatable-cell-template>
-      <span class="text-select">{{showNextAttemptInfo(row) ? (value | domibusDate) : ''}}</span>
+      <span class="text-select">{{showNextAttemptInfo(row) ? (row | domibusFutureDate) : ''}}</span>
     </ng-template>
 
     <ng-template #rawTextTpl let-row="row" let-value="value" ngx-datatable-cell-template>

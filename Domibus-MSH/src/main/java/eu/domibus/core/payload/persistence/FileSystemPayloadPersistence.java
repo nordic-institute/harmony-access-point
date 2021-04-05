@@ -54,6 +54,9 @@ public class FileSystemPayloadPersistence implements PayloadPersistence {
             PayloadFileStorage currentStorage = storageProvider.getCurrentStorage();
             final Boolean encryptionActive = payloadPersistenceHelper.isPayloadEncryptionActive(userMessage);
             saveIncomingPayloadToDisk(partInfo, currentStorage, encryptionActive);
+
+            //initialize the payloadDatahandler with the binaryData in order to avoid that the payload is decompressed again
+            partInfo.loadBinaray();
         } else {
             LOG.debug("Incoming payload [{}] is already saved on file disk under [{}]", partInfo.getHref(), partInfo.getFileName());
         }

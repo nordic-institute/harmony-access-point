@@ -85,8 +85,8 @@ export class ConnectionDetailsComponent implements OnInit {
   }
 
   private clearInfo() {
-    this.messageInfoSent = new MessageLogEntry('', '', '', '', '', '', '', '', '', '', '', null, null, false);
-    this.messageInfoReceived = new MessageLogEntry('', '', '', '', '', '', '', '', '', '', '', null, null, false);
+    this.messageInfoSent = new MessageLogEntry('', '', '', '', '', '', '', '', '', '', '', null, null, false, null, '', 0);
+    this.messageInfoReceived = new MessageLogEntry('', '', '', '', '', '', '', '', '', '', '', null, null, false, null, '', 0);
   }
 
   async getSenderParty() {

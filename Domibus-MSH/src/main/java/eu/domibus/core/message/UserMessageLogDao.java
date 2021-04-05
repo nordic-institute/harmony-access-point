@@ -1,18 +1,17 @@
 package eu.domibus.core.message;
 
 import eu.domibus.api.model.*;
-import com.google.common.collect.Maps;
+import eu.domibus.api.util.DateUtil;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
+import eu.domibus.core.scheduler.ReprogrammableService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.hibernate.procedure.ProcedureOutputs;
 import org.springframework.stereotype.Repository;
 
-import javax.persistence.NoResultException;
-import javax.persistence.Query;
-import javax.persistence.TypedQuery;
+import javax.persistence.*;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -25,18 +24,24 @@ import java.util.Map;
 @Repository
 public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
 
-    @Autowired
-    private UserMessageLogInfoFilter userMessageLogInfoFilter;
-
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageLogDao.class);
 
-    public UserMessageLogDao() {
-        super(UserMessageLog.class);
+    private final DateUtil dateUtil;
+
+    private final UserMessageLogInfoFilter userMessageLogInfoFilter;
+
+    public UserMessageLogDao(DateUtil dateUtil,
+                             UserMessageLogInfoFilter userMessageLogInfoFilter,
+                             ReprogrammableService reprogrammableService) {
+        super(UserMessageLog.class, reprogrammableService);
+
+        this.dateUtil = dateUtil;
+        this.userMessageLogInfoFilter = userMessageLogInfoFilter;
     }
 
     public List<String> findRetryMessages() {
         TypedQuery<String> query = this.em.createNamedQuery("UserMessageLog.findRetryMessages", String.class);
-        query.setParameter("CURRENT_TIMESTAMP", new Date(System.currentTimeMillis()));
+        query.setParameter("CURRENT_TIMESTAMP", dateUtil.getUtcDate());
 
         return query.getResultList();
     }
@@ -140,6 +145,45 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         return getSentUserMessagesWithPayloadNotClearedOlderThan(date, mpc, expiredSentMessagesLimit);
     }
 
+    public void deleteExpiredMessages(Date startDate, Date endDate, String mpc, Integer expiredMessagesLimit, String queryName) {
+        StoredProcedureQuery query = em.createStoredProcedureQuery(queryName)
+                .registerStoredProcedureParameter(
+                        "MPC",
+                        String.class,
+                        ParameterMode.IN
+                )
+                .registerStoredProcedureParameter(
+                        "STARTDATE",
+                        Date.class,
+                        ParameterMode.IN
+                )
+                .registerStoredProcedureParameter(
+                        "ENDDATE",
+                        Date.class,
+                        ParameterMode.IN
+                )
+                .registerStoredProcedureParameter(
+                        "MAXCOUNT",
+                        Integer.class,
+                        ParameterMode.IN
+                )
+                .setParameter("MPC", mpc)
+                .setParameter("STARTDATE", startDate)
+                .setParameter("ENDDATE", endDate)
+                .setParameter("MAXCOUNT", expiredMessagesLimit);
+
+        try {
+            query.execute();
+        } finally {
+            try {
+                query.unwrap(ProcedureOutputs.class).release();
+                LOG.debug("Finished releasing delete procedure");
+            } catch (Exception ex) {
+                LOG.error("Finally exception when using the stored procedure to delete", ex);
+            }
+        }
+    }
+
     protected List<UserMessageLogDto> getSentUserMessagesWithPayloadNotClearedOlderThan(Date date, String mpc, Integer expiredSentMessagesLimit) {
         return getMessagesOlderThan(date, mpc, expiredSentMessagesLimit, "UserMessageLog.findSentUserMessagesWithPayloadNotClearedOlderThan");
     }
@@ -174,27 +218,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         messageLog.setNotificationStatus(NotificationStatus.NOTIFIED);
     }
 
-    public int countAllInfo(boolean asc, Map<String, Object> filters) {
-        LOG.debug("Count all");
-        final Map<String, Object> filteredEntries = Maps.filterEntries(filters, input -> input.getValue() != null);
-        if (filteredEntries.size() == 0) {
-            LOG.debug("Filter empty");
-            return countAll();
-        }
-        String filteredUserMessageLogQuery = userMessageLogInfoFilter.countUserMessageLogQuery(asc, filters);
-        TypedQuery<Number> countQuery = em.createQuery(filteredUserMessageLogQuery, Number.class);
-        countQuery = userMessageLogInfoFilter.applyParameters(countQuery, filters);
-        final Number count = countQuery.getSingleResult();
-        return count.intValue();
-    }
-
-    public Integer countAll() {
-        LOG.debug("Executing native query");
-        final Query nativeQuery = em.createNativeQuery("SELECT count(um.ID_PK) FROM  TB_USER_MESSAGE um");
-        final Number singleResult = (Number) nativeQuery.getSingleResult();
-        return singleResult.intValue();
-    }
-
+    @Override
     public List<MessageLogInfo> findAllInfoPaged(int from, int max, String column, boolean asc, Map<String, Object> filters) {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Retrieving messages for parameters from [{}] max [{}] column [{}] asc [{}]", from, max, column, asc);
