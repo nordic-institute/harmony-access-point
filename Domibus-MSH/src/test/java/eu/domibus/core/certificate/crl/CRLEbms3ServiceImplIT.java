@@ -145,24 +145,24 @@ public class CRLEbms3ServiceImplIT {
         LOG.debug("Certificate created: {}", certificate);
     }
 
-    @Test
-    public void test_isCertificateRevoked_withCache() {
-
-        X509CRL x509CRLMock = Mockito.mock(X509CRL.class);
-        Principal principalMock = Mockito.mock((Principal.class));
-
-        Mockito.when(crlUtil.downloadCRL(Mockito.any(String.class))).thenReturn(x509CRLMock);
-        Mockito.when(x509CRLMock.getIssuerDN()).thenReturn(principalMock);
-        Mockito.when(principalMock.getName()).thenReturn(Mockito.any(String.class));
-
-        //first call
-        boolean result = crlService.isCertificateRevoked(certificate);
-
-        //second call
-        result = crlService.isCertificateRevoked(certificate);
-
-        // verify that the getCrlDistributionPoints is called only once
-        Mockito.verify(crlUtil, Mockito.times(1)).getCrlDistributionPoints(Mockito.any(X509Certificate.class));
-    }
+//    @Test
+//    public void test_isCertificateRevoked_withCache() {
+//
+//        X509CRL x509CRLMock = Mockito.mock(X509CRL.class);
+//        Principal principalMock = Mockito.mock((Principal.class));
+//
+//        Mockito.when(crlUtil.downloadCRL(Mockito.any(String.class))).thenReturn(x509CRLMock);
+//        Mockito.when(x509CRLMock.getIssuerDN()).thenReturn(principalMock);
+//        Mockito.when(principalMock.getName()).thenReturn(Mockito.any(String.class));
+//
+//        //first call
+//        boolean result = crlService.isCertificateRevoked(certificate);
+//
+//        //second call
+//        result = crlService.isCertificateRevoked(certificate);
+//
+//        // verify that the getCrlDistributionPoints is called only once
+//        Mockito.verify(crlUtil, Mockito.times(1)).getCrlDistributionPoints(Mockito.any(X509Certificate.class));
+//    }
 
 }

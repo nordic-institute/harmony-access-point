@@ -97,22 +97,22 @@ public class CRLUtilTest {
         assertNotNull(classpathCrlURL);
     }
 
-    @Test
-    public void testGetCRLDistributionPoints() throws Exception {
-        //prepare
-        String crlUrl1 = "http://domain1.crl";
-        String crlUrl2 = "http://domain2.crl";
-        List<String> crlUrlList = Arrays.asList(crlUrl1, crlUrl2);
-        X509Certificate certificate = pkiUtil.createCertificate(BigInteger.ONE, crlUrlList);
-
-        //test
-        List<String> crlDistributionPoints = crlUtil.getCrlDistributionPoints(certificate);
-
-        //assert
-        assertNotNull(crlDistributionPoints);
-        assertEquals(crlUrlList, crlDistributionPoints);
-        System.out.println(crlDistributionPoints);
-    }
+//    @Test
+//    public void testGetCRLDistributionPoints() throws Exception {
+//        //prepare
+//        String crlUrl1 = "http://domain1.crl";
+//        String crlUrl2 = "http://domain2.crl";
+//        List<String> crlUrlList = Arrays.asList(crlUrl1, crlUrl2);
+//        X509Certificate certificate = pkiUtil.createCertificate(BigInteger.ONE, crlUrlList);
+//
+//        //test
+//        List<String> crlDistributionPoints = crlUtil.getCrlDistributionPoints(certificate);
+//
+//        //assert
+//        assertNotNull(crlDistributionPoints);
+//        assertEquals(crlUrlList, crlDistributionPoints);
+//        System.out.println(crlDistributionPoints);
+//    }
 
     //@Test
     public void testDownloadCRLFromLDAP() throws Exception {

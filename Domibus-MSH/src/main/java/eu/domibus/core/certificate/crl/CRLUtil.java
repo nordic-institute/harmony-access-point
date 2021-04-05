@@ -150,52 +150,52 @@ public class CRLUtil {
         return Thread.currentThread().getContextClassLoader().getResource(url);
     }
 
-    /**
-     * Extracts all CRL distribution point URLs from the "CRL Distribution Point" extension of X.509 pki.
-     * If the CRL distribution point extension is unavailable, returns an empty list.
-     *
-     * @param cert a X509 certificate
-     * @return the list of CRL urls of this certificate
-     */
-    public List<String> getCrlDistributionPoints(X509Certificate cert) {
-        byte[] crldpExt = cert.getExtensionValue(org.bouncycastle.asn1.x509.Extension.cRLDistributionPoints.getId());
-        if (crldpExt == null) {
-            return new ArrayList<>();
-        }
-
-        ASN1Primitive derObjCrlDP = null;
-        try (ASN1InputStream oAsnInStream = new ASN1InputStream(new ByteArrayInputStream(crldpExt))) {
-            derObjCrlDP = oAsnInStream.readObject();
-        } catch (IOException e) {
-            throw new DomibusCRLException("Error while extracting CRL distribution point URLs", e);
-        }
-
-        DEROctetString dosCrlDP = (DEROctetString) derObjCrlDP;
-        byte[] crldpExtOctets = dosCrlDP.getOctets();
-
-        ASN1Primitive derObj2 = null;
-        try (ASN1InputStream oAsnInStream2 = new ASN1InputStream(new ByteArrayInputStream(crldpExtOctets))) {
-            derObj2 = oAsnInStream2.readObject();
-        } catch (IOException e) {
-            throw new DomibusCRLException("Error while extracting CRL distribution point URLs", e);
-        }
-
-        CRLDistPoint distPoint = CRLDistPoint.getInstance(derObj2);
-        List<String> crlUrls = new ArrayList<>();
-        for (DistributionPoint dp : distPoint.getDistributionPoints()) {
-            DistributionPointName dpn = dp.getDistributionPoint();
-            // Look for URIs in fullName
-            if (dpn != null && dpn.getType() == DistributionPointName.FULL_NAME) {
-                GeneralName[] genNames = GeneralNames.getInstance(dpn.getName()).getNames();
-                // Look for an URI
-                for (int index = 0; index < genNames.length; index++) {
-                    if (genNames[index].getTagNo() == GeneralName.uniformResourceIdentifier) {
-                        String url = DERIA5String.getInstance(genNames[index].getName()).getString();
-                        crlUrls.add(url);
-                    }
-                }
-            }
-        }
-        return crlUrls;
-    }
+//    /**
+//     * Extracts all CRL distribution point URLs from the "CRL Distribution Point" extension of X.509 pki.
+//     * If the CRL distribution point extension is unavailable, returns an empty list.
+//     *
+//     * @param cert a X509 certificate
+//     * @return the list of CRL urls of this certificate
+//     */
+//    public List<String> getCrlDistributionPoints(X509Certificate cert) {
+//        byte[] crldpExt = cert.getExtensionValue(org.bouncycastle.asn1.x509.Extension.cRLDistributionPoints.getId());
+//        if (crldpExt == null) {
+//            return new ArrayList<>();
+//        }
+//
+//        ASN1Primitive derObjCrlDP = null;
+//        try (ASN1InputStream oAsnInStream = new ASN1InputStream(new ByteArrayInputStream(crldpExt))) {
+//            derObjCrlDP = oAsnInStream.readObject();
+//        } catch (IOException e) {
+//            throw new DomibusCRLException("Error while extracting CRL distribution point URLs", e);
+//        }
+//
+//        DEROctetString dosCrlDP = (DEROctetString) derObjCrlDP;
+//        byte[] crldpExtOctets = dosCrlDP.getOctets();
+//
+//        ASN1Primitive derObj2 = null;
+//        try (ASN1InputStream oAsnInStream2 = new ASN1InputStream(new ByteArrayInputStream(crldpExtOctets))) {
+//            derObj2 = oAsnInStream2.readObject();
+//        } catch (IOException e) {
+//            throw new DomibusCRLException("Error while extracting CRL distribution point URLs", e);
+//        }
+//
+//        CRLDistPoint distPoint = CRLDistPoint.getInstance(derObj2);
+//        List<String> crlUrls = new ArrayList<>();
+//        for (DistributionPoint dp : distPoint.getDistributionPoints()) {
+//            DistributionPointName dpn = dp.getDistributionPoint();
+//            // Look for URIs in fullName
+//            if (dpn != null && dpn.getType() == DistributionPointName.FULL_NAME) {
+//                GeneralName[] genNames = GeneralNames.getInstance(dpn.getName()).getNames();
+//                // Look for an URI
+//                for (int index = 0; index < genNames.length; index++) {
+//                    if (genNames[index].getTagNo() == GeneralName.uniformResourceIdentifier) {
+//                        String url = DERIA5String.getInstance(genNames[index].getName()).getString();
+//                        crlUrls.add(url);
+//                    }
+//                }
+//            }
+//        }
+//        return crlUrls;
+//    }
 }
