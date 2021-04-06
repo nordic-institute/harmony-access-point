@@ -78,7 +78,6 @@ public abstract class AbstractBackendWSIT extends AbstractIT {
         eu.domibus.plugin.ws.generated.body.SubmitRequest submitRequest = createSubmitRequestWs(payloadHref);
         eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging ebMSHeaderInfo = createMessageHeaderWs(payloadHref);
 
-        //super.prepareSendMessage("validAS4Response.xml");
         super.prepareSendMessage(responseFileName);
         eu.domibus.plugin.ws.generated.body.SubmitResponse response = webServicePluginInterface.submitMessage(submitRequest, ebMSHeaderInfo);
 

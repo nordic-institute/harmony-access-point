@@ -19,7 +19,7 @@ public class LoggerUtil {
     ByteArrayOutputStream logging = new ByteArrayOutputStream();
     Logger logger;
 
-    public void updateLogger() {
+    public void addByteArrayOutputStreamAppender() {
         LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
         logger = loggerContext.getLogger(Logger.ROOT_LOGGER_NAME);
 
@@ -39,7 +39,7 @@ public class LoggerUtil {
         logger.addAppender(appender);
     }
 
-    public void cleanupLogger() {
+    public void cleanupByteArrayOutputStreamAppender() {
         if (this.logger != null) {
             this.logger.detachAppender("AppenderForTesting");
         }

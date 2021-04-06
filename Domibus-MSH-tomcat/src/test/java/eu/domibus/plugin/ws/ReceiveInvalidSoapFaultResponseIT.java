@@ -30,12 +30,12 @@ public class ReceiveInvalidSoapFaultResponseIT extends AbstractBackendWSIT {
     @Before
     public void before() throws IOException, XmlProcessingException {
         uploadPmode(wireMockRule.port());
-        loggerUtil.updateLogger();
+        loggerUtil.addByteArrayOutputStreamAppender();
     }
 
     @After
     public void cleanupLogger() {
-        loggerUtil.cleanupLogger();
+        loggerUtil.cleanupByteArrayOutputStreamAppender();
     }
 
     @Test
