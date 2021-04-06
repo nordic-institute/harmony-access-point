@@ -48,7 +48,7 @@ import {JmsComponent} from './jms/jms.component';
 import {RowLimiterComponent} from './common/row-limiter/row-limiter.component';
 import {MoveDialogComponent} from './jms/move-dialog/move-dialog.component';
 import {MessageDialogComponent} from './jms/message-dialog/message-dialog.component';
-import {DatePipe} from './common/customDate/datePipe';
+import {DomibusDatePipe} from './common/customDate/domibusDatePipe';
 import {CapitalizeFirstPipe} from './common/capitalizefirst.pipe';
 import {DefaultPasswordDialogComponent} from './security/default-password-dialog/default-password-dialog.component';
 import {MessagelogDetailsComponent} from './messagelog/messagelog-details/messagelog-details.component';
@@ -88,7 +88,7 @@ import {RedirectHomeGuard} from './common/guards/redirect-home.guard';
 import {NotAuthorizedComponent} from './security/not-authorized/not-authorized.components';
 import {PropertiesComponent} from './properties/properties.component';
 import {HttpClientModule} from '@angular/common/http';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe, DecimalPipe } from '@angular/common';
 import {DialogsService} from './common/dialogs/dialogs.service';
 import {GridHeaderComponent} from './common/grid-header/grid-header.component';
 import {FilterAreaFooterComponent} from './common/filter-area-footer/filter-area-footer.component';
@@ -110,7 +110,8 @@ import {AddNestedPropertyDialogComponent} from './properties/support/add-nested-
 import {TLSTruststoreComponent} from './truststore/tls.truststore.component';
 import {TruststoreComponent} from './truststore/truststore.component';
 import {CertificateUploadComponent} from './truststore/certificate-upload/certificate-upload.component';
-import {PluginUserValidatorService} from "./pluginuser/support/pluginuservalidator.service";
+import {PluginUserValidatorService} from './pluginuser/support/pluginuservalidator.service';
+import {DomibusFutureDatePipe} from './common/customDate/domibusFutureDatePipe';
 
 @NgModule({
   declarations: [
@@ -134,7 +135,8 @@ import {PluginUserValidatorService} from "./pluginuser/support/pluginuservalidat
     RowLimiterComponent,
     MoveDialogComponent,
     MessageDialogComponent,
-    DatePipe,
+    DomibusDatePipe,
+    DomibusFutureDatePipe,
     CapitalizeFirstPipe,
     SanitizeHtmlPipe,
     DefaultPasswordDialogComponent,
@@ -261,6 +263,8 @@ import {PluginUserValidatorService} from "./pluginuser/support/pluginuservalidat
     PropertiesService,
     FileUploadValidatorService,
     ApplicationContextService,
+    DatePipe,
+    DecimalPipe
   ],
   bootstrap: [AppComponent]
 })

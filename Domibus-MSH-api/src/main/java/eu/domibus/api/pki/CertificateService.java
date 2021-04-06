@@ -218,12 +218,4 @@ public interface CertificateService {
      * @return true is at least one was deleted
      */
     boolean removeCertificates(KeyStore trustStore, String trustStorePassword, String trustStoreLocation, List<String> aliases, String trustStoreBackupLocation);
-
-    /**
-     * Validates the truststore type with the file extension
-     *
-     * @param trustStoreType the type of the trust: pkcs12, jks
-     * @param storeFileName the name of the truststore file
-     */
-    void validateTruststoreType(String trustStoreType, String storeFileName);
 }

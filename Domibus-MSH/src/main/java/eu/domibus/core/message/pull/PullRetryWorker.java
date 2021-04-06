@@ -48,7 +48,7 @@ public class PullRetryWorker extends DomibusQuartzJobBean {
     }
 
     @Override
-    protected void setQuartzJobSecurityContext() {
+    public void setQuartzJobSecurityContext() {
         authUtils.setAuthenticationToSecurityContext("retry_user", "retry_password");
     }
 }

@@ -38,7 +38,7 @@ public class MessagePullerJob extends DomibusQuartzJobBean {
     }
 
     @Override
-    protected void setQuartzJobSecurityContext() {
+    public void setQuartzJobSecurityContext() {
         authUtils.setAuthenticationToSecurityContext("retry_user", "retry_password", AuthRole.ROLE_AP_ADMIN);
     }
 }

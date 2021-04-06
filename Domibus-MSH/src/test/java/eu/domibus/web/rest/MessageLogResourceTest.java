@@ -297,8 +297,8 @@ public class MessageLogResourceTest {
     private List<MessageLogInfo> getMessageList(MessageType messageType, Date date, MessageSubtype messageSubtype) {
         List<MessageLogInfo> result = new ArrayList<>();
         MessageLogInfo messageLog = new MessageLogInfo("messageId", MessageStatus.ACKNOWLEDGED,
-                NotificationStatus.NOTIFIED, MSHRole.RECEIVING, messageType, date, date, 1, 5, date,
-                "conversationId", "fromPartyId", "toPartyId", "originalSender", "finalRecipient",
+                NotificationStatus.NOTIFIED, MSHRole.RECEIVING, messageType, date, date, 1, 5, date, "Europe/Brussels",
+                0, "conversationId", "fromPartyId", "toPartyId", "originalSender", "finalRecipient",
                 "refToMessageId", date, date, messageSubtype, false, false, "action", "serviceType", "serviceValue");
         result.add(messageLog);
         return result;

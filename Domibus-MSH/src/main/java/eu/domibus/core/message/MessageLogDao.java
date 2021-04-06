@@ -6,6 +6,7 @@ import eu.domibus.api.model.MessageLog;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.core.dao.ListDao;
 import eu.domibus.api.model.MessageType;
+import eu.domibus.core.scheduler.ReprogrammableService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -25,14 +26,17 @@ import java.util.*;
  * @author Federico Martini
  * @since 3.2
  */
-public abstract class MessageLogDao<F extends MessageLog> extends ListDao<F> {
+public abstract class MessageLogDao<F extends MessageLog> extends ListDao<F> implements MessageLogDaoBase {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageLog.class);
 
     protected static final String STR_MESSAGE_ID = "MESSAGE_ID";
 
-    public MessageLogDao(final Class<F> type) {
+    private final ReprogrammableService reprogrammableService;
+
+    public MessageLogDao(final Class<F> type, ReprogrammableService reprogrammableService) {
         super(type);
+        this.reprogrammableService = reprogrammableService;
     }
 
     @MDCKey(DomibusLogger.MDC_MESSAGE_ID)
@@ -42,19 +46,19 @@ public abstract class MessageLogDao<F extends MessageLog> extends ListDao<F> {
         switch (messageStatus) {
             case DELETED:
                 messageLog.setDeleted(new Date());
-                messageLog.setNextAttempt(null);
+                reprogrammableService.removeRescheduleInfo(messageLog);
                 break;
             case ACKNOWLEDGED:
             case ACKNOWLEDGED_WITH_WARNING:
-                messageLog.setNextAttempt(null);
+                reprogrammableService.removeRescheduleInfo(messageLog);
                 break;
             case DOWNLOADED:
                 messageLog.setDownloaded(new Date());
-                messageLog.setNextAttempt(null);
+                reprogrammableService.removeRescheduleInfo(messageLog);
                 break;
             case SEND_FAILURE:
                 messageLog.setFailed(new Date());
-                messageLog.setNextAttempt(null);
+                reprogrammableService.removeRescheduleInfo(messageLog);
                 break;
             default:
         }
@@ -133,4 +137,28 @@ public abstract class MessageLogDao<F extends MessageLog> extends ListDao<F> {
         }
         return resultList.isEmpty() ? null : resultList.get(0).getMessageId();
     }
+
+    @Override
+    public long countEntries(Map<String, Object> filters) {
+        MessageLogInfoFilter filterService = getMessageLogInfoFilter();
+        String queryString = filterService.getCountMessageLogQuery(filters);
+        TypedQuery<Number> query = em.createQuery(queryString, Number.class);
+        query = filterService.applyParameters(query, filters);
+        final Number count = query.getSingleResult();
+        return count.intValue();
+    }
+
+    @Override
+    public boolean hasMoreEntriesThan(Map<String, Object> filters, int limit) {
+        MessageLogInfoFilter filterService = getMessageLogInfoFilter();
+        String queryString = filterService.getMessageLogIdQuery(filters);
+        TypedQuery<Number> query = em.createQuery(queryString, Number.class);
+        query = filterService.applyParameters(query, filters);
+        query.setMaxResults(1);
+        query.setFirstResult(limit + 1);
+        final List<Number> results = query.getResultList();
+        return results.size() > 0;
+    }
+
+    public abstract List<MessageLogInfo> findAllInfoPaged(int from, int max, String column, boolean asc, Map<String, Object> filters);
 }

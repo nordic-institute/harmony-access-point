@@ -99,6 +99,9 @@ public class CertificateServiceImplTest {
     @Injectable
     BackupService backupService;
 
+    @Injectable
+    CertificateHelper certificateHelper;
+    
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
@@ -1589,14 +1592,14 @@ public class CertificateServiceImplTest {
     public void replaceTrustStore(@Mocked String fileName, @Mocked byte[] fileContent) {
 
         new Expectations(certificateService) {{
-            certificateService.validateTruststoreType(TRUST_STORE_TYPE, fileName);
+            certificateHelper.validateStoreType(TRUST_STORE_TYPE, fileName);
             certificateService.replaceTrustStore(fileContent, TRUST_STORE_PASSWORD, TRUST_STORE_TYPE, TRUST_STORE_LOCATION, TRUST_STORE_PASSWORD, TRUST_STORE_BACKUP_LOCATION);
         }};
 
         certificateService.replaceTrustStore(fileName, fileContent, TRUST_STORE_PASSWORD, TRUST_STORE_TYPE, TRUST_STORE_LOCATION, TRUST_STORE_PASSWORD, TRUST_STORE_BACKUP_LOCATION);
 
         new Verifications() {{
-            certificateService.validateTruststoreType(TRUST_STORE_TYPE, fileName);
+            certificateHelper.validateStoreType(TRUST_STORE_TYPE, fileName);
             certificateService.replaceTrustStore(fileContent, TRUST_STORE_PASSWORD, TRUST_STORE_TYPE, TRUST_STORE_LOCATION, TRUST_STORE_PASSWORD, TRUST_STORE_BACKUP_LOCATION);
         }};
     }
@@ -1627,56 +1630,6 @@ public class CertificateServiceImplTest {
             backupService.backupFile((File) any);
             times = 0;
         }};
-    }
-
-    @Test
-    public void checkTruststoreTypeValidationHappy1() {
-        certificateService.validateTruststoreType("jks", "test.jks");
-    }
-
-    @Test
-    public void checkTruststoreTypeValidationHappy2() {
-        certificateService.validateTruststoreType("jks", "test.JKS");
-    }
-
-    @Test
-    public void checkTruststoreTypeValidationHappy3() {
-        certificateService.validateTruststoreType("pkcs12", "test_filename.pfx");
-    }
-
-    @Test
-    public void checkTruststoreTypeValidationHappy4() {
-        certificateService.validateTruststoreType("pkcs12", "test_filename.p12");
-    }
-
-    @Test
-    public void checkTruststoreTypeValidationNegative1() {
-        try {
-            certificateService.validateTruststoreType("jks", "test_filename_wrong_extension.p12");
-            Assert.fail("Expected exception was not raised!");
-        } catch (InvalidParameterException e) {
-            assertEquals(true, e.getMessage().contains("jks"));
-        }
-    }
-
-    @Test
-    public void checkTruststoreTypeValidationNegative2() {
-        try {
-            certificateService.validateTruststoreType("jks", "test_filename_no_extension");
-            Assert.fail("Expected exception was not raised!");
-        } catch (InvalidParameterException e) {
-            assertEquals(true, e.getMessage().contains("jks"));
-        }
-    }
-
-    @Test
-    public void checkTruststoreTypeValidationNegative3() {
-        try {
-            certificateService.validateTruststoreType("pkcs12", "test_filename_unknown_extension.txt");
-            Assert.fail("Expected exception was not raised!");
-        } catch (InvalidParameterException e) {
-            assertEquals(true, e.getMessage().contains("pkcs12"));
-        }
     }
 
     @Test

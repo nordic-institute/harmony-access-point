@@ -35,9 +35,10 @@ public class UserRoleDaoImplTestIT extends AbstractIT {
 
         List<UserRole> roles = userRoleDao.listRoles();
 
-        assertEquals(1, roles.size());
-        assertEquals(1, roles.size());
-        UserRole userRole = roles.get(0);
+        // 2 roles from initial data
+        assertEquals(3, roles.size());
+        assertEquals(3, roles.size());
+        UserRole userRole = roles.get(2);
         assertEquals("USER_ROLE_1", userRole.getName());
         assertNotNull(userRole.getCreationTime());
         assertNotNull(userRole.getModificationTime());

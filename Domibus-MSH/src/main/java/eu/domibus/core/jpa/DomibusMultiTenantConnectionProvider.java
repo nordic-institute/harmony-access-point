@@ -70,8 +70,10 @@ public class DomibusMultiTenantConnectionProvider implements MultiTenantConnecti
         }
         Connection connection = dataSource.getConnection();
         connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+        connection.setAutoCommit(false);
         if (LOG.isTraceEnabled()) {
             LOG.trace("Transaction Isolation set to [{}] on [{}]", Connection.TRANSACTION_READ_COMMITTED, connection.getClass());
+            LOG.trace("Auto Commit set to [{}]", connection.getAutoCommit());
         }
         return connection;
     }
@@ -144,7 +146,7 @@ public class DomibusMultiTenantConnectionProvider implements MultiTenantConnecti
 
     @Override
     public boolean supportsAggressiveRelease() {
-        return true;
+        return false;
     }
 
     @Override

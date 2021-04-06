@@ -41,6 +41,10 @@ public class MessageLogRO implements Serializable {
 
     private Date nextAttempt;
 
+    private String nextAttemptTimezoneId;
+
+    private int nextAttemptOffsetSeconds;
+
     private String originalSender;
 
     private String finalRecipient;
@@ -165,6 +169,22 @@ public class MessageLogRO implements Serializable {
 
     public void setNextAttempt(Date nextAttempt) {
         this.nextAttempt = nextAttempt;
+    }
+
+    public String getNextAttemptTimezoneId() {
+        return nextAttemptTimezoneId;
+    }
+
+    public void setNextAttemptTimezoneId(String nextAttemptTimezoneId) {
+        this.nextAttemptTimezoneId = nextAttemptTimezoneId;
+    }
+
+    public int getNextAttemptOffsetSeconds() {
+        return nextAttemptOffsetSeconds;
+    }
+
+    public void setNextAttemptOffsetSeconds(int nextAttemptOffsetSeconds) {
+        this.nextAttemptOffsetSeconds = nextAttemptOffsetSeconds;
     }
 
     public String getOriginalSender() {

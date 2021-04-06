@@ -12,7 +12,7 @@ import java.util.Set;
 @Embeddable
 public class From {
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     @JoinColumn(name = "FROM_ID")
     protected Set<PartyId> partyId;
 
